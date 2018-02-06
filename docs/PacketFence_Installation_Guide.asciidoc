@@ -3095,10 +3095,10 @@ Log Rotations
 
 PacketFence can generate a lot of log entries in huge production environments. This is why we recommend to use `logrotate` to periodically rotate your logs. A working logrotate script is provided with the PacketFence package. This script is located under the `/usr/local/pf/packetfence.logrotate` file, and it's configured to do a daily log rotation and keeping old logs with compression. It has been added during PacketFence initial installation.
 
-Performance optimization
-------------------------
+Performance Optimizations
+-------------------------
 
-NTLM authentication caching
+NTLM Authentication Caching
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 NOTE: This section assumes that you already have an Active Directory domain configuration both in 'Configuration->Policies and Access Control->Domains->Active Directory Domains' and 'Configuration->Policies and Access Control->Sources'. If you don't, you need to first configure those. Refer to the appropriate sections of this guide for details on how to configure those two components.
@@ -3111,7 +3111,7 @@ To overcome this limitation, it is possible to use a Redis driven cache inside P
 
 NOTE: The NTLM cache doesn't cache clear text passwords, it caches the NT hash of the user password.
 
-Additional packages
+Additional Packages
 +++++++++++++++++++
 
 In order to use this cache, you will need to install additional packages available from the packetfence-extra repository. These packages will allow PacketFence to query your Active Directory for the NT hash of the users.
@@ -3126,7 +3126,7 @@ Debian:
 apt-get install python-impacket
 ```
 
-PacketFence configuration
+PacketFence Configuration
 +++++++++++++++++++++++++
 
 First of all, you will need to enable the NTLM caching globally by enabling 'NTLM Redis cache' in 'Configuration->System Configuration->Main Configuration->Advanced'. You then need to restart radiusd.
@@ -3248,14 +3248,14 @@ Device:            tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn
 cciss/c0d0        4.80         0.00        48.00          0        240
 ----
 
-MySQL optimization tool
+MySQL Optimization Tool
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 We recommend that you run the http://mysqltuner.com/[MySQL Tuner] on your database setup after a couple of weeks to help you identify MySQL configuration improvement. The tool is bundled with PacketFence and can be run from the command-line:
 
   # /usr/local/bin/pftest mysql
 
-Keeping tables small
+Keeping Tables Small
 ^^^^^^^^^^^^^^^^^^^^
 
 Over time, some of the tables will grow large and this will drag down performance (this is especially true on a wireless setup).
@@ -3404,314 +3404,8 @@ Solution:
 
   Within Internet Explorer: click Tools, Internet Options, Advanced and make sure that TLS v1.2 is enabled under the security section. Retry.
 
-include::includes/additional-info.asciidoc[]
-
-include::includes/commercial-support.asciidoc[]
-
-include::includes/license.asciidoc[]
-
-[appendix]
-Administration Tools
---------------------
-
-pfcmd
-~~~~~
-
-`pfcmd` is the command line interface to most PacketFence functionalities.
-
-When executed without any arguments `pfcmd` returns a basic help message with all main options:
-
-----
-include::pfcmd.help[]
-----
-
-The node view option shows all information contained in the node database table for a specified MAC address
-
-  # /usr/local/pf/bin/pfcmd node view 52:54:00:12:35:02
-  mac|pid|detect_date|regdate|unregdate|lastskip|status|user_agent|computername|notes|last_arp|last_dhcp|switch|port|vlan|dhcp_fingerprint
-  52:54:00:12:35:02|1|2008-10-23 17:32:16||||unreg||||2008-10-23 21:12:21|||||
-
-[appendix]
-Restoring a Percona XtraBackup dump
------------------------------------
-
-If you enabled Percona XtraBackup for your nightly backup, you can use the following instructions to restore it. In this example we will be restoring `/root/backup/packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream.gz`
-
-First, create a restore directory, move the backup to it and gunzip the backup:
-
-  # mkdir /root/backup/restore
-  # cd /root/backup/restore
-  # cp ../packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream.gz .
-  # gunzip packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream.gz
-
-Then extract the xbstream data:
-
-  # xbstream -x < packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream
-
-Once done, you should have a lot of files that were extracted in the restore dir. Now, lets place the xbstream back in the backup directory
-
-  # mv packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream ../
-
-Next, install qpress (available from the percona repository) and process any qp file that were extracted:
-
-CentOS:
-
-  # yum install qpress --enablerepo=percona-release-`uname -m`
-
-Debian:
-
-  # apt-key adv --keyserver keys.gnupg.net --recv-keys 1C4CBDCDCD2EFD2A
-  # echo 'deb http://repo.percona.com/apt VERSION main' >> /etc/apt/sources.list
-  # echo 'deb-src http://repo.percona.com/apt VERSION main' >> /etc/apt/sources.list
-  # apt-get update
-  # apt-get install qpress
-
-  # for i in $(find -name "*.qp"); do qpress -vd $i $(dirname ${i}) && rm -f $i; done
-
-Next, apply the innodb log:
-
-  # innobackupex --apply-log ./
-
-We will now stop MySQL, move the existing data directory and replace it by the data that was extracted:
-
-NOTE: On Debian the service will be called `mysql` and on CentOS 7 `mariadb`. Make sure you adjust the commands above to your environment.
-
-  # service packetfence-mariadb stop
-  # mv /var/lib/mysql /var/lib/mysql.bak
-  # mkdir /var/lib/mysql
-  # mv * /var/lib/mysql
-  # chown -R mysql: /var/lib/mysql
-  # service packetfence-mariadb start
-
-Should the service fail to start, make sure you look into the MySQL error logs.
-
-
-Configuration
--------------
-
-At this point in the documentation, PacketFence should be installed. You would also have chosen the right enforcement method for you and completed the initial configuration of PacketFence. The following section presents key concepts and features in PacketFence.
-
-PacketFence provides a web-based administration interface for easy configuration and operational management. If you went through PacketFence's web-based configuration tool, you should have set the password for the `admin` user.
-
-Once PacketFence is started, the administration interface is available at: https://@ip_of_packetfence:1443/
-
-The next key steps are important to understand how PacketFence works. In order to get the solution working, you must first understand and configure the following elements of the solution in this specific order:
-
-1. *roles* - a role in PacketFence will be eventually be mapped to a VLAN, an ACL or an external role. You must define the roles to use in your organization for network access
-2. *authentication* - once roles are defined, you must create an appropriate authentication source in PacketFence. That will allow PacketFence to compute the right role to be used for an endpoint, or the user using it
-3. *network devices* - once your roles and authentication sources are defined, you must add switches, WiFi controllers or APs to be managed by PacketFence. When doing so, you will configure how roles are being mapped to VLAN, ACLs or external roles
-4. *connection profiles* - at this point, you are almost ready to test. You will need to set which authentication sources are to be used on the default captive portal, or create an other one to suit your needs
-5. test!
-
-NOTE: If you plan to use 802.1X - please see the _FreeRADIUS Configuration_ section below.
-
-Network Devices Definition (switches.conf)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-This section applies only for VLAN enforcement. Users planning to do inline enforcement only can skip this section.
-
-PacketFence needs to know which switches, access points or controllers it manages, their type and configuration. All this information is stored in `/usr/local/pf/conf/switches.conf`. You can modify the configuration directly in the `switches.conf` file or you can do it from the Web Administration panel under *Configuration -> Policies and Access Control -> Switches* - which is now the preferred way.
-
-The `/usr/local/pf/conf/switches.conf` configuration file contains a default section including:
-
-[options="compact"]
-* Default SNMP read/write communities for the switches
-* Default working mode (see the note below about possible working modes)
-
-and a switch section for each switch (managed by PacketFence) including:
-
-[options="compact"]
-* Switch IP/Mac/Range
-* Switch vendor/type
-* Switch uplink ports (trunks and non-managed IfIndex)
-* per-switch re-definition of the VLANs (if required)
-
-NOTE: `switches.conf` is loaded at startup. A reload is required when changes 
-are manually made to this file `/usr/local/pf/bin/pfcmd configreload`.
-
-Import from CSV
-^^^^^^^^^^^^^^^
-From PacketFence 7.3 and onwards, you have the possibility to import switches from a CSV file.
-
-The CSV must look like: "description, IP or MAC, switch group". The first line will be skipped. If an entry with one provided IP/MAC already exist it will not be added. You MUST create switches group before.
-
-Working modes
-^^^^^^^^^^^^^
-
-There are three different working modes for a switch in PacketFence:
-
-Testing::
-pfsetvlan writes in the log files what it would normally do, but it doesn't do anything.
-Registration::
-pfsetvlan automatically-register all MAC addresses seen on the switch ports. As in testing mode, no VLAN changes are done.
-Production::
-pfsetvlan sends the SNMP writes to change the VLAN on the switch ports. 
-
-RADIUS
-^^^^^^
-
-To set the RADIUS secret, set it from the Web administrative interface when adding a switch. Alternatively, edit the switch config file (`/usr/local/pf/conf/switches.conf`) and set the following parameters:
-
-  radiusSecret = secretPassPhrase
-
-Moreover, the RADIUS secret is required to support the RADIUS Dynamic Authentication (Change of authorization or Disconnect) as defined in RFC3576.
-
-SNMP v1, v2c and v3
-^^^^^^^^^^^^^^^^^^^
-
-PacketFence uses SNMP to communicate with most switches. PacketFence also supports SNMP v3. You can use SNMP v3 for communication in both directions: from the switch to PacketFence and from PacketFence to the switch. SNMP usage is discouraged, you should now use RADIUS. However, even if RADIUS is being used, some switches might also require SNMP to be configured to work properly with PacketFence.
-
-From PacketFence to a switch
-++++++++++++++++++++++++++++
-
-Edit the switch config file (`/usr/local/pf/conf/switches.conf`) and set the following parameters:
-
-  SNMPVersion = 3
-  SNMPUserNameRead = readUser
-  SNMPAuthProtocolRead = MD5
-  SNMPAuthPasswordRead = authpwdread
-  SNMPPrivProtocolRead = AES
-  SNMPPrivPasswordRead = privpwdread
-  SNMPUserNameWrite = writeUser
-  SNMPAuthProtocolWrite = MD5
-  SNMPAuthPasswordWrite = authpwdwrite
-  SNMPPrivProtocolWrite = AES
-  SNMPPrivPasswordWrite = privpwdwrite
-
-From a switch to PacketFence
-++++++++++++++++++++++++++++
-
-Edit the switch config file (`/usr/local/pf/conf/switches.conf`) and set the following parameters:
-
-  SNMPVersionTrap = 3
-  SNMPUserNameTrap = readUser
-  SNMPAuthProtocolTrap = MD5
-  SNMPAuthPasswordTrap = authpwdread
-  SNMPPrivProtocolTrap = AES
-  SNMPPrivPasswordTrap = privpwdread
-
-Switch Configuration
-++++++++++++++++++++
-
-Here is a switch configuration example in order to enable SNMP v3 in both directions on a Cisco Switch.
-
-  snmp-server engineID local AA5ED139B81D4A328D18ACD1
-  snmp-server group readGroup v3 priv
-  snmp-server group writeGroup v3 priv read v1default write v1default
-  snmp-server user readUser readGroup v3 auth md5 authpwdread priv aes 128 privpwdread
-  snmp-server user writeUser writeGroup v3 auth md5 authpwdwrite priv aes 128 privpwdwrite
-  snmp-server enable traps port-security
-  snmp-server enable traps port-security trap-rate 1
-  snmp-server host 192.168.0.50 version 3 priv readUser  port-security
-
-Command-Line Interface: Telnet and SSH
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-WARNING: Privilege detection is disabled in the current PacketFence version due to some issues (see https://packetfence.org/bugs/view.php?id=1370[#1370]). So make sure that the `cliUser` and `cliPwd` you provide always get you into a privileged mode (except for Trapeze hardware).
-
-PacketFence needs sometimes to establish an interactive command-line session with a switch. This can be done using Telnet. You can also use SSH. In order to do so, edit the switch configuration file (`/usr/local/pf/conf/switches.conf`) and set the following parameters:
-
-  cliTransport = SSH (or Telnet)
-  cliUser = admin
-  cliPwd = admin_pwd
-  cliEnablePwd =
-
-It can also be done through the Web Administration Interface under *Configuration -> Policies and Access Control -> Switches*.
-
-Web Services Interface
-^^^^^^^^^^^^^^^^^^^^^^
-
-PacketFence sometimes needs to establish a dialog with the Web Services capabilities of a switch. In order to do so, edit the switch config file (`/usr/local/pf/conf/switches.conf`) and set the following parameters:
-
-  wsTransport = http (or https)
-  wsUser = admin
-  wsPwd = admin_pwd
-
-It can also be done through the Web Administration Interface under *Configuration -> Policies and Access Control -> Switches*.
-
-Role-based enforcement support
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Some network devices support the assignment of a specific set of rules (firewall or ACLs) to a user. The idea is that these rules can be a lot more accurate to control what a user can or cannot do compared to VLAN which have a larger network management overhead.
-
-PacketFence supports assigning roles on devices for switches and WiFi controllers that support it. The current role assignment strategy is to assign it along with the VLAN (that may change in the future). A special internal role to external role assignment must be configured in the switch configuration file (`/usr/local/pf/conf/switches.conf`).
-
-The current format is the following:
-
-  Format: <rolename>Role=<controller_role>
-
-And you assign it to the global `roles` parameter or the per-switch one. For example:
-
-  adminRole=full-access
-  engineeringRole=full-access
-  salesRole=little-access
-
-would return the `full-access` role to the nodes categorized as admin or engineering and the role `little-access` to nodes categorized as sales. It can also be done through the Web Administration Interface under *Configuration -> Policies and Access Control -> Switches*.
-
-
-CAUTION: Make sure that the roles are properly defined on the network devices prior to assigning roles!
-
-More on VoIP Integration
-------------------------
-
-VoIP has been growing in popularity on enterprise networks.  At first sight, the IT administrators think that deploying VoIP with a NAC poses a huge complicated challenge to resolve.  In fact, depending of the hardware you have, not really.  In this section, we will see why.
-
-CDP and LLDP are your friend
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-For those of you who are unaware of the existence of CDP or LLDP (or LLDP-MED), I suggest you start reading on this topic.  Cisco Discovery Protocol (CDP) is device-discovery protocol that runs on all Cisco-manufactured equipment including routers, access servers, bridges, and switches. Using CDP, a device can advertise its existence to other devices and receive information about other devices on the same LAN or on the remote side of a WAN.  In the world of VoIP, CDP is able to determine if the connecting device is an IP Phone or not, and tell the IP Phone to tag its ethernet frame using the configured voice VLAN on the switchport.
-
-On many other vendors, you are likely to find LLDP or LLDP-MED support.  Link Layer Discovery Protocol (LLDP) is a vendor-neutral Link Layer protocol in the Internet Protocol Suite used by network devices for advertising their identity, capabilities, and neighbors.  Same as CDP, LLDP can tell an IP Phone which VLAN id is the voice VLAN.
-
-VoIP and VLAN assignment techniques
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-As you already know, PacketFence supports many VLAN assignment techniques such as port-security, mac authentication or 802.1X.  Let's see how VoIP is doing with each of those.
-
-Port-security
-^^^^^^^^^^^^^
-
-Using port-security, the VoIP device rely on CDP/LLDP to tag its ethernet frame using the configured voice VLAN on the switch port.  After that, we ensure that a security trap is sent from the voice VLAN so that PacketFence can authorize the mac address on the port.  When the PC connects, another security trap will be sent, but from the data VLAN.  That way, we will have 1 mac address authorized on the voice VLAN, and 1 on the access VLAN.
-
-NOTE: Not all vendors support VoIP on port-security, please refer to the Network Configuration Guide.
-
-MAC Authentication and 802.1X
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Cisco hardware
-++++++++++++++
-
-On Cisco switches, we are looking at the multi-domain configuration.  The multi-domain means that we can have one device on the VOICE domain, and one device on the DATA domain.  The domain assignment is done using a Cisco Vendor-Specific Attributes (VSA).  When the phone connects to the switchport, PacketFence will respond with the proper VSA only, no RADIUS tunneled attributes.  CDP then tells the phone to tag its ethernet frames using the configured voice VLAN on the port.  When a PC connects, the RADIUS server will return tunneled attributes, and the switch will place the port in the provided access VLAN.
-
-Non-Cisco hardware
-++++++++++++++++++
-
-On other vendor hardware, it is possible to make VoIP work using RADIUS VSAs.  When a phone connects to a switchport, PacketFence needs to return the proper VSA to tell the switch to allow tagged frames from this device.  When the PC will connect, we will be able to return standard RADIUS tunnel attributes to the switch, that will be the untagged VLAN.
-
-NOTE: Again, refer to the Network Configuration Guide to see if VoIP is supported on your switch hardware.
-
-What if CDP/LLDP feature is missing
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-It is possible that your phone doesn't support CDP or LLDP.  If it's the case, you are probably looking at the "DHCP way" of provisioning your phone with a voice VLAN.  Some models will ask for a specific DHCP option so that the DHCP server can give the phone a voice VLAN id.  The phone will then reboot, and tag its ethernet frame using the provided VLAN tag.
-
-In order to make this scenario work with PacketFence, you need to ensure that you tweak the registration and your production DHCP server to provide the DHCP option.  You also need to make sure there is a voice VLAN properly configured on the port, and that you auto-register your IP Phones (On the first connect, the phone will be assigned on the registration VLAN).
-
-Advanced topics
----------------
-
-This section covers advanced topics in PacketFence. Note that it is also possible to configure PacketFence manually using its configuration files instead of its Web administrative interface. It is still recommended to use the Web interface.
-
-In any case, the `/usr/local/pf/conf/pf.conf` file contains the PacketFence general configuration. For example, this is the place where we inform PacketFence it will work in VLAN isolation mode.
-
-All the default parameters and their descriptions are stored in `/usr/local/pf/conf/pf.conf.defaults`.
-
-In order to override a default parameter, define it and set it in `pf.conf`.
-
-`/usr/local/pf/conf/documentation.conf` holds the complete list of all available parameters.
-
-All these parameters are also accessible through the web-based administration interface under the Configuration tab. It is highly recommended that you use the web-based administration interface of PacketFence for any configuration changes.
-
+Advanced Network Topics
+-----------------------
 
 Floating Network Devices
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -3764,11 +3458,11 @@ Here are the settings that are available:
 
 MAC Address::
   MAC address of the floating device
-IP Address:: 
+IP Address::
   IP address of the floating device (not required, for information only)
 trunkPort::
   Yes/no. Should the port be configured as a multi-vlan port?
-pvid:: 
+pvid::
   VLAN in which PacketFence should put the port
 taggedVlan::
   Comma separated list of VLANs. If the port is a multi-vlan, these are the Vlans that have to be tagged on the port.
@@ -3782,8 +3476,8 @@ For all the networks/VLANs where you want PacketFence to have the ability to iso
 
 Also note that this doesn't need to be done for the registration, isolation VLANs and inline interfaces since PacketFence acts as the DHCP server in these networks. 
 
-IP Helpers (recommended)
-^^^^^^^^^^^^^^^^^^^^^^^^
+IP Helpers
+^^^^^^^^^^
 
 If you are already using IP Helpers for your production DHCP in your production VLANs this approach is the simplest one and the one that works the best.
 
@@ -3950,6 +3644,634 @@ For example, for the VLAN 20 remote registration network:
 If your edge switches support 'vlan-isolation' you can also apply the ACL
 there.  This has the advantage of preventing machines in isolation from
 attempting to attack each other.
+
+Network Devices Definition (switches.conf)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This section applies only for VLAN enforcement. Users planning to do inline enforcement only can skip this section.
+
+PacketFence needs to know which switches, access points or controllers it manages, their type and configuration. All this information is stored in `/usr/local/pf/conf/switches.conf`. You can modify the configuration directly in the `switches.conf` file or you can do it from the Web Administration panel under *Configuration -> Policies and Access Control -> Switches* - which is now the preferred way.
+
+The `/usr/local/pf/conf/switches.conf` configuration file contains a default section including:
+
+[options="compact"]
+* Default SNMP read/write communities for the switches
+* Default working mode (see the note below about possible working modes)
+
+and a switch section for each switch (managed by PacketFence) including:
+
+[options="compact"]
+* Switch IP/Mac/Range
+* Switch vendor/type
+* Switch uplink ports (trunks and non-managed IfIndex)
+* per-switch re-definition of the VLANs (if required)
+
+NOTE: `switches.conf` is loaded at startup. A reload is required when changes 
+are manually made to this file `/usr/local/pf/bin/pfcmd configreload`.
+
+Import from CSV
+^^^^^^^^^^^^^^^
+From PacketFence 7.3 and onwards, you have the possibility to import switches from a CSV file.
+
+The CSV must look like: "description, IP or MAC, switch group". The first line will be skipped. If an entry with one provided IP/MAC already exist it will not be added. You MUST create switches group before.
+
+Working modes
+^^^^^^^^^^^^^
+
+There are three different working modes for a switch in PacketFence:
+
+Testing::
+pfsetvlan writes in the log files what it would normally do, but it doesn't do anything.
+Registration::
+pfsetvlan automatically-register all MAC addresses seen on the switch ports. As in testing mode, no VLAN changes are done.
+Production::
+pfsetvlan sends the SNMP writes to change the VLAN on the switch ports. 
+
+RADIUS
+^^^^^^
+
+To set the RADIUS secret, set it from the Web administrative interface when adding a switch. Alternatively, edit the switch config file (`/usr/local/pf/conf/switches.conf`) and set the following parameters:
+
+  radiusSecret = secretPassPhrase
+
+Moreover, the RADIUS secret is required to support the RADIUS Dynamic Authentication (Change of authorization or Disconnect) as defined in RFC3576.
+
+SNMP v1, v2c and v3
+^^^^^^^^^^^^^^^^^^^
+
+PacketFence uses SNMP to communicate with most switches. PacketFence also supports SNMP v3. You can use SNMP v3 for communication in both directions: from the switch to PacketFence and from PacketFence to the switch. SNMP usage is discouraged, you should now use RADIUS. However, even if RADIUS is being used, some switches might also require SNMP to be configured to work properly with PacketFence.
+
+From PacketFence to a switch
+++++++++++++++++++++++++++++
+
+Edit the switch config file (`/usr/local/pf/conf/switches.conf`) and set the following parameters:
+
+  SNMPVersion = 3
+  SNMPUserNameRead = readUser
+  SNMPAuthProtocolRead = MD5
+  SNMPAuthPasswordRead = authpwdread
+  SNMPPrivProtocolRead = AES
+  SNMPPrivPasswordRead = privpwdread
+  SNMPUserNameWrite = writeUser
+  SNMPAuthProtocolWrite = MD5
+  SNMPAuthPasswordWrite = authpwdwrite
+  SNMPPrivProtocolWrite = AES
+  SNMPPrivPasswordWrite = privpwdwrite
+
+From a switch to PacketFence
+++++++++++++++++++++++++++++
+
+Edit the switch config file (`/usr/local/pf/conf/switches.conf`) and set the following parameters:
+
+  SNMPVersionTrap = 3
+  SNMPUserNameTrap = readUser
+  SNMPAuthProtocolTrap = MD5
+  SNMPAuthPasswordTrap = authpwdread
+  SNMPPrivProtocolTrap = AES
+  SNMPPrivPasswordTrap = privpwdread
+
+Switch Configuration
+++++++++++++++++++++
+
+Here is a switch configuration example in order to enable SNMP v3 in both directions on a Cisco Switch.
+
+  snmp-server engineID local AA5ED139B81D4A328D18ACD1
+  snmp-server group readGroup v3 priv
+  snmp-server group writeGroup v3 priv read v1default write v1default
+  snmp-server user readUser readGroup v3 auth md5 authpwdread priv aes 128 privpwdread
+  snmp-server user writeUser writeGroup v3 auth md5 authpwdwrite priv aes 128 privpwdwrite
+  snmp-server enable traps port-security
+  snmp-server enable traps port-security trap-rate 1
+  snmp-server host 192.168.0.50 version 3 priv readUser  port-security
+
+Command-Line Interface: Telnet and SSH
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+WARNING: Privilege detection is disabled in the current PacketFence version due to some issues (see https://packetfence.org/bugs/view.php?id=1370[#1370]). So make sure that the `cliUser` and `cliPwd` you provide always get you into a privileged mode (except for Trapeze hardware).
+
+PacketFence needs sometimes to establish an interactive command-line session with a switch. This can be done using Telnet. You can also use SSH. In order to do so, edit the switch configuration file (`/usr/local/pf/conf/switches.conf`) and set the following parameters:
+
+  cliTransport = SSH (or Telnet)
+  cliUser = admin
+  cliPwd = admin_pwd
+  cliEnablePwd =
+
+It can also be done through the Web Administration Interface under *Configuration -> Policies and Access Control -> Switches*.
+
+Web Services Interface
+^^^^^^^^^^^^^^^^^^^^^^
+
+PacketFence sometimes needs to establish a dialog with the Web Services capabilities of a switch. In order to do so, edit the switch config file (`/usr/local/pf/conf/switches.conf`) and set the following parameters:
+
+  wsTransport = http (or https)
+  wsUser = admin
+  wsPwd = admin_pwd
+
+It can also be done through the Web Administration Interface under *Configuration -> Policies and Access Control -> Switches*.
+
+Role-based enforcement support
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Some network devices support the assignment of a specific set of rules (firewall or ACLs) to a user. The idea is that these rules can be a lot more accurate to control what a user can or cannot do compared to VLAN which have a larger network management overhead.
+
+PacketFence supports assigning roles on devices for switches and WiFi controllers that support it. The current role assignment strategy is to assign it along with the VLAN (that may change in the future). A special internal role to external role assignment must be configured in the switch configuration file (`/usr/local/pf/conf/switches.conf`).
+
+The current format is the following:
+
+  Format: <rolename>Role=<controller_role>
+
+And you assign it to the global `roles` parameter or the per-switch one. For example:
+
+  adminRole=full-access
+  engineeringRole=full-access
+  salesRole=little-access
+
+would return the `full-access` role to the nodes categorized as admin or engineering and the role `little-access` to nodes categorized as sales. It can also be done through the Web Administration Interface under *Configuration -> Policies and Access Control -> Switches*.
+
+
+CAUTION: Make sure that the roles are properly defined on the network devices prior to assigning roles!
+
+More on VoIP Integration
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+VoIP has been growing in popularity on enterprise networks.  At first sight, the IT administrators think that deploying VoIP with a NAC poses a huge complicated challenge to resolve.  In fact, depending of the hardware you have, not really.  In this section, we will see why.
+
+CDP and LLDP are your friend
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+For those of you who are unaware of the existence of CDP or LLDP (or LLDP-MED), I suggest you start reading on this topic.  Cisco Discovery Protocol (CDP) is device-discovery protocol that runs on all Cisco-manufactured equipment including routers, access servers, bridges, and switches. Using CDP, a device can advertise its existence to other devices and receive information about other devices on the same LAN or on the remote side of a WAN.  In the world of VoIP, CDP is able to determine if the connecting device is an IP Phone or not, and tell the IP Phone to tag its ethernet frame using the configured voice VLAN on the switchport.
+
+On many other vendors, you are likely to find LLDP or LLDP-MED support.  Link Layer Discovery Protocol (LLDP) is a vendor-neutral Link Layer protocol in the Internet Protocol Suite used by network devices for advertising their identity, capabilities, and neighbors.  Same as CDP, LLDP can tell an IP Phone which VLAN id is the voice VLAN.
+
+VoIP and VLAN assignment techniques
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+As you already know, PacketFence supports many VLAN assignment techniques such as port-security, MAC authentication or 802.1X. Let's see how VoIP is doing with each of those.
+
+Port-security
++++++++++++++
+
+Using port-security, the VoIP device rely on CDP/LLDP to tag its ethernet frame using the configured voice VLAN on the switch port.  After that, we ensure that a security trap is sent from the voice VLAN so that PacketFence can authorize the mac address on the port.  When the PC connects, another security trap will be sent, but from the data VLAN.  That way, we will have 1 mac address authorized on the voice VLAN, and 1 on the access VLAN.
+
+NOTE: Not all vendors support VoIP on port-security, please refer to the Network Configuration Guide.
+
+MAC Authentication and 802.1X
++++++++++++++++++++++++++++++
+
+On Cisco switches, we are looking at the multi-domain configuration.  The multi-domain means that we can have one device on the VOICE domain, and one device on the DATA domain.  The domain assignment is done using a Cisco Vendor-Specific Attributes (VSA).  When the phone connects to the switchport, PacketFence will respond with the proper VSA only, no RADIUS tunneled attributes.  CDP then tells the phone to tag its ethernet frames using the configured voice VLAN on the port.  When a PC connects, the RADIUS server will return tunneled attributes, and the switch will place the port in the provided access VLAN.
+
+On other vendor hardware, it is possible to make VoIP work using RADIUS VSAs.  When a phone connects to a switchport, PacketFence needs to return the proper VSA to tell the switch to allow tagged frames from this device.  When the PC will connect, we will be able to return standard RADIUS tunnel attributes to the switch, that will be the untagged VLAN.
+
+NOTE: Again, refer to the Network Configuration Guide to see if VoIP is supported on your switch hardware.
+
+What if CDP/LLDP feature is missing
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+It is possible that your phone doesn't support CDP or LLDP.  If it's the case, you are probably looking at the "DHCP way" of provisioning your phone with a voice VLAN.  Some models will ask for a specific DHCP option so that the DHCP server can give the phone a voice VLAN id.  The phone will then reboot, and tag its ethernet frame using the provided VLAN tag.
+
+In order to make this scenario work with PacketFence, you need to ensure that you tweak the registration and your production DHCP server to provide the DHCP option.  You also need to make sure there is a voice VLAN properly configured on the port, and that you auto-register your IP Phones (On the first connect, the phone will be assigned on the registration VLAN).
+
+DHCP Option 82
+~~~~~~~~~~~~~~
+
+PacketFence is able to locate a device on the network even if the switch port is not managed by PacketFence.
+To use this feature you need to add all the switches in PacketFence and enable SNMP read (switch and PacketFence side) and enable DHCP option 82 in Configuration -> Network Configuration -> Networks -> Network.
+Once enabled, restart the pfdhcplistener and pfmon services.
+pfmon will query via SNMP all the switches to create a map (MAC <-> switch)
+pfdhcplistener will parse the DHCP Option 82 and will use the map to resolve the MAC to the switch and will update the locationlog of the device.
+
+Additional Integration
+----------------------
+
+DHCP Remote Sensor
+~~~~~~~~~~~~~~~~~~
+
+The DHCP remote sensor consists of a lightweight binary that is installed on your production DHCP server in order to replicate the DHCP traffic 1 to 1 to the PacketFence server. This solution is more reliable than the DHCP relaying since PacketFence receives a copy of all your DHCP traffic and not only the broadcasted DHCP traffic. Supported DHCP servers are Microsoft DHCP server and CentOS 6 and 7.
+
+These sensors work by capturing the packets at the lowest level possible on your DHCP server and forward them to the PacketFence management interface
+
+Microsoft DHCP Sensor
+^^^^^^^^^^^^^^^^^^^^^
+DHCP-Forwarder is an optimized version of precedent udp-reflector, which installs easily and only copy DHCPREQUESTS and DHCPACK packets to the destination. 
+
+https://inverse.ca/downloads/PacketFence/windows-dhcp-forwarder/DHCP%20Forwarder%20Installer.exe[Download the installer here.]
+
+It will install WinPCAP, nssm, launch a configurator to ask for interface, IP and port, save the configuration, install and launch DHCP-Forwarder service.
+
+When you will be asked for a host IP and port, specify PacketFence management IP and 767 as the UDP port.
+
+The project page can be found https://github.com/inverse-inc/packetfence-dhcp-forwarder[here].
+
+Linux-based Sensor
+^^^^^^^^^^^^^^^^^^
+
+First download the RPM on your DHCP server.
+
+CentOS 6 and 7 servers
+++++++++++++++++++++++
+
+For CentOS 6:
+
+----
+# for x86_64
+# wget http://inverse.ca/downloads/PacketFence/CentOS6/extra/x86_64/RPMS/udp-reflector-1.0-6.1.x86_64.rpm
+----
+
+For CentOS 7:
+
+----
+# for x86_64
+# wget http://inverse.ca/downloads/PacketFence/CentOS7/extra/x86_64/RPMS/udp-reflector-1.0-6.1.x86_64.rpm
+----
+
+Now install the sensor:
+
+----
+# rpm -i udp-reflector-*.rpm
+----
+
+Compiling the sensor from source on a Linux system
+++++++++++++++++++++++++++++++++++++++++++++++++++
+
+First make sure you have the following packages installed:
+[options="compact"]
+* libpcap
+* libpcap-devel
+* gcc-c++
+
+Get the source code of the sensor:
+
+----
+# mkdir -p ~/udp-reflector && cd ~/udp-reflector
+# wget http://inverse.ca/downloads/PacketFence/udp-reflector/udp_reflector.cpp
+# g++ udp_reflector.cpp -o /usr/local/bin/udp_reflector -lpcap
+----
+
+Configuring the Sensor
+++++++++++++++++++++++
+
+Place the following line in `/etc/rc.local`
+[options="compact"]
+* where `pcap0` is the pcap interface where your DHCP server listens on. (List them using `udp_reflector -l`)
+* where `192.168.1.5` is the management IP of your PacketFence server
+----
+/usr/local/bin/udp_reflector -s pcap0:67 -d 192.168.1.5:767 -b 25000 &
+----
+
+Start the sensor:
+
+----
+# /usr/local/bin/udp_reflector -s pcap0:67 -d 192.168.1.5:767 -b 25000 &
+----
+
+The DHCP traffic should now be reflected on your PacketFence server.
+
+Active Directory Integration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Deleted Account
+^^^^^^^^^^^^^^^
+
+Create the script `unreg_node_deleted_account.ps1` on the Windows Server with the following content. Make sure to change `@IP_PACKETFENCE` to the IP address of your PacketFence server. You'll also need to change the username and password as they must match the credentials defined in the Web admin interface under *Configuration -> Integration -> Web Services*.
+
+----
+#########################################################################################
+#Powershell script to unregister deleted Active Directory account based on the UserName.#
+#########################################################################################
+
+Get-EventLog -LogName Security -InstanceId 4726 |
+   Select ReplacementStrings,"Account name"|
+   % {
+    $url = "https://@IP_PACKETFENCE:9090/"
+    $username = "admin" # Username for the webservices
+    $password = "admin" # Password for the webservices
+    [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
+    $command = '{"jsonrpc": "2.0", "method": "unreg_node_for_pid", "params": ["pid", "'+$_.ReplacementStrings[0]+'"]}'
+
+    $bytes = [System.Text.Encoding]::ASCII.GetBytes($command)
+    $web = [System.Net.WebRequest]::Create($url)
+    $web.Method = "POST"
+    $web.ContentLength = $bytes.Length
+    $web.ContentType = "application/json-rpc"
+    $web.Credentials = new-object System.Net.NetworkCredential($username, $password)
+    $stream = $web.GetRequestStream()
+    $stream.Write($bytes,0,$bytes.Length)
+    $stream.close()
+
+    $reader = New-Object System.IO.Streamreader -ArgumentList $web.GetResponse().GetResponseStream()
+    $reader.ReadToEnd()
+    $reader.Close()
+   }
+----
+
+Create the scheduled task based on an event ID
+++++++++++++++++++++++++++++++++++++++++++++++
+
+*Start -> Run -> Taskschd.msc*
+
+*Task Scheduler -> Task Scheduler Library -> Event Viewer Task -> Create Task*
+
+General
+
+----
+Name: PacketFence-Unreg_node-for-deleted-account
+Check: Run whether user is logged on or not
+Check: Run with highest privileges
+----
+
+Triggers -> New
+
+----
+Begin on the task: On an event
+Log: Security
+Source: Microsoft Windows security auditing.
+Event ID: 4726
+----
+
+Actions -> New
+
+----
+Action: Start a program
+Program/script: powershell.exe
+Add arguments (optional): C:\scripts\unreg_node_deleted_account.ps1
+----
+
+Settings:
+
+----
+At the bottom, select in the list "Run a new instance in parallel" in order to unregister multiple nodes at the same time.
+----
+
+Validate with Ok and give the account who will run this task. (Usually _DOMAIN\Administrator_)
+
+Disabled Account
+^^^^^^^^^^^^^^^^
+
+Create the script `unreg_node_disabled_account.ps1` on the Windows Server with the following content. Make sure to change `@IP_PACKETFENCE` to the IP address of your PacketFence server. You'll also need to change the username and password as they must match the credentials defined in the Web admin interface under *Configuration -> Integration -> Web Services*.
+
+----
+##########################################################################################
+#Powershell script to unregister disabled Active Directory account based on the UserName.#
+##########################################################################################
+
+Get-EventLog -LogName Security -InstanceId 4725 |
+   Select ReplacementStrings,"Account name"|
+   % {
+    $url = "https://@IP_PACKETFENCE:9090/"
+    $username = "admin" # Username for the webservices
+    $password = "admin" # Password for the webservices
+    [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
+    $command = '{"jsonrpc": "2.0", "method": "unreg_node_for_pid", "params": ["pid", "'+$_.ReplacementStrings[0]+'"]}'
+
+    $bytes = [System.Text.Encoding]::ASCII.GetBytes($command)
+    $web = [System.Net.WebRequest]::Create($url)
+    $web.Method = "POST"
+    $web.ContentLength = $bytes.Length
+    $web.ContentType = "application/json-rpc"
+    $web.Credentials = new-object System.Net.NetworkCredential($username, $password)
+    $stream = $web.GetRequestStream()
+    $stream.Write($bytes,0,$bytes.Length)
+    $stream.close()
+
+    $reader = New-Object System.IO.Streamreader -ArgumentList $web.GetResponse().GetResponseStream()
+    $reader.ReadToEnd()
+    $reader.Close()
+ 
+   }
+----
+
+Create the scheduled task based on an event ID
+++++++++++++++++++++++++++++++++++++++++++++++
+
+*Start -> Run -> Taskschd.msc*
+
+*Task Scheduler -> Task Scheduler Library -> Event Viewer Task -> Create Task*
+
+General
+
+----
+Name: PacketFence-Unreg_node-for-disabled-account
+Check: Run whether user is logged on or not
+Check: Run with highest privileges
+----
+
+Triggers -> New
+
+----
+Begin on the task: On an event
+Log: Security
+Source: Microsoft Windows security auditing.
+Event ID: 4725
+----
+
+Actions -> New
+
+----
+Action: Start a program
+Program/script: powershell.exe
+Add arguments (optional): C:\scripts\unreg_node_disabled_account.ps1
+----
+
+Settings:
+
+----
+At the bottom, select in the list "Run a new instance in parallel"
+----
+
+Validate with Ok and give the account who will run this task. (Usually _DOMAIN\Administrator_)
+
+Locked Account
+^^^^^^^^^^^^^^
+
+Create the script `unreg_node_locked_account.ps1` on the Windows Server with the following content. Make sure to change `@IP_PACKETFENCE` to the IP address of your PacketFence server. You'll also need to change the username and password as they must match the credentials defined in the Web admin interface under *Configuration -> Integration -> Web Services*.
+
+----
+#########################################################################################
+#Powershell script to unregister locked Active Directory account based on the UserName.#
+#########################################################################################
+
+Get-EventLog -LogName Security -InstanceId 4740 |
+   Select ReplacementStrings,"Account name"|
+   % {
+    $url = "https://@IP_PACKETFENCE:9090/"
+    $username = "admin" # Username for the webservices
+    $password = "admin" # Password for the webservices
+    [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
+    $command = '{"jsonrpc": "2.0", "method": "unreg_node_for_pid", "params": ["pid", "'+$_.ReplacementStrings[0]+'"]}'
+
+    $bytes = [System.Text.Encoding]::ASCII.GetBytes($command)
+    $web = [System.Net.WebRequest]::Create($url)
+    $web.Method = "POST"
+    $web.ContentLength = $bytes.Length
+    $web.ContentType = "application/json-rpc"
+    $web.Credentials = new-object System.Net.NetworkCredential($username, $password)
+    $stream = $web.GetRequestStream()
+    $stream.Write($bytes,0,$bytes.Length)
+    $stream.close()
+
+    $reader = New-Object System.IO.Streamreader -ArgumentList $web.GetResponse().GetResponseStream()
+    $reader.ReadToEnd()
+    $reader.Close()
+ 
+   }
+----
+
+Create the scheduled task based on an event ID
+++++++++++++++++++++++++++++++++++++++++++++++
+
+*Start -> Run -> Taskschd.msc*
+
+*Task Scheduler -> Task Scheduler Library -> Event Viewer Task -> Create Task*
+
+General
+
+----
+Name: PacketFence-Unreg_node-for-locked-account
+Check: Run whether user is logged on or not
+Check: Run with highest privileges
+----
+
+Triggers -> New
+
+----
+Begin on the task: On an event
+Log: Security
+Source: Microsoft Windows security auditing.
+Event ID: 4740
+----
+
+Actions -> New
+
+----
+Action: Start a program
+Program/script: powershell.exe
+Add arguments (optional): C:\scripts\unreg_node_locked_account.ps1
+----
+
+Settings:
+
+----
+At the bottom, select in the list "Run a new instance in parallel"
+----
+
+Validate with Ok and give the account who will run this task. (Usually _DOMAIN\Administrator_)
+
+
+include::includes/additional-info.asciidoc[]
+
+include::includes/commercial-support.asciidoc[]
+
+include::includes/license.asciidoc[]
+
+[appendix]
+Administration Tools
+--------------------
+
+pfcmd
+~~~~~
+
+`pfcmd` is the command line interface to most PacketFence functionalities.
+
+When executed without any arguments `pfcmd` returns a basic help message with all main options:
+
+----
+include::pfcmd.help[]
+----
+
+The node view option shows all information contained in the node database table for a specified MAC address
+
+  # /usr/local/pf/bin/pfcmd node view 52:54:00:12:35:02
+  mac|pid|detect_date|regdate|unregdate|lastskip|status|user_agent|computername|notes|last_arp|last_dhcp|switch|port|vlan|dhcp_fingerprint
+  52:54:00:12:35:02|1|2008-10-23 17:32:16||||unreg||||2008-10-23 21:12:21|||||
+
+[appendix]
+Restoring a Percona XtraBackup dump
+-----------------------------------
+
+If you enabled Percona XtraBackup for your nightly backup, you can use the following instructions to restore it. In this example we will be restoring `/root/backup/packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream.gz`
+
+First, create a restore directory, move the backup to it and gunzip the backup:
+
+  # mkdir /root/backup/restore
+  # cd /root/backup/restore
+  # cp ../packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream.gz .
+  # gunzip packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream.gz
+
+Then extract the xbstream data:
+
+  # xbstream -x < packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream
+
+Once done, you should have a lot of files that were extracted in the restore dir. Now, lets place the xbstream back in the backup directory
+
+  # mv packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream ../
+
+Next, install qpress (available from the percona repository) and process any qp file that were extracted:
+
+CentOS:
+
+  # yum install qpress --enablerepo=percona-release-`uname -m`
+
+Debian:
+
+  # apt-key adv --keyserver keys.gnupg.net --recv-keys 1C4CBDCDCD2EFD2A
+  # echo 'deb http://repo.percona.com/apt VERSION main' >> /etc/apt/sources.list
+  # echo 'deb-src http://repo.percona.com/apt VERSION main' >> /etc/apt/sources.list
+  # apt-get update
+  # apt-get install qpress
+
+  # for i in $(find -name "*.qp"); do qpress -vd $i $(dirname ${i}) && rm -f $i; done
+
+Next, apply the innodb log:
+
+  # innobackupex --apply-log ./
+
+We will now stop MySQL, move the existing data directory and replace it by the data that was extracted:
+
+NOTE: On Debian the service will be called `mysql` and on CentOS 7 `mariadb`. Make sure you adjust the commands above to your environment.
+
+  # service packetfence-mariadb stop
+  # mv /var/lib/mysql /var/lib/mysql.bak
+  # mkdir /var/lib/mysql
+  # mv * /var/lib/mysql
+  # chown -R mysql: /var/lib/mysql
+  # service packetfence-mariadb start
+
+Should the service fail to start, make sure you look into the MySQL error logs.
+
+
+Configuration
+-------------
+
+At this point in the documentation, PacketFence should be installed. You would also have chosen the right enforcement method for you and completed the initial configuration of PacketFence. The following section presents key concepts and features in PacketFence.
+
+PacketFence provides a web-based administration interface for easy configuration and operational management. If you went through PacketFence's web-based configuration tool, you should have set the password for the `admin` user.
+
+Once PacketFence is started, the administration interface is available at: https://@ip_of_packetfence:1443/
+
+The next key steps are important to understand how PacketFence works. In order to get the solution working, you must first understand and configure the following elements of the solution in this specific order:
+
+1. *roles* - a role in PacketFence will be eventually be mapped to a VLAN, an ACL or an external role. You must define the roles to use in your organization for network access
+2. *authentication* - once roles are defined, you must create an appropriate authentication source in PacketFence. That will allow PacketFence to compute the right role to be used for an endpoint, or the user using it
+3. *network devices* - once your roles and authentication sources are defined, you must add switches, WiFi controllers or APs to be managed by PacketFence. When doing so, you will configure how roles are being mapped to VLAN, ACLs or external roles
+4. *connection profiles* - at this point, you are almost ready to test. You will need to set which authentication sources are to be used on the default captive portal, or create an other one to suit your needs
+5. test!
+
+NOTE: If you plan to use 802.1X - please see the _FreeRADIUS Configuration_ section below.
+
+Advanced topics
+---------------
+
+This section covers advanced topics in PacketFence. Note that it is also possible to configure PacketFence manually using its configuration files instead of its Web administrative interface. It is still recommended to use the Web interface.
+
+In any case, the `/usr/local/pf/conf/pf.conf` file contains the PacketFence general configuration. For example, this is the place where we inform PacketFence it will work in VLAN isolation mode.
+
+All the default parameters and their descriptions are stored in `/usr/local/pf/conf/pf.conf.defaults`.
+
+In order to override a default parameter, define it and set it in `pf.conf`.
+
+`/usr/local/pf/conf/documentation.conf` holds the complete list of all available parameters.
+
+All these parameters are also accessible through the web-based administration interface under the Configuration tab. It is highly recommended that you use the web-based administration interface of PacketFence for any configuration changes.
 
 Custom Reports
 ~~~~~~~~~~~~~~
@@ -4298,319 +4620,6 @@ Finally, it is advised that you read the whole guest self-registration section s
 
 CAUTION: A valid MTA configured in PacketFence is needed to correctly relay emails related to the guest module. If _localhost_ is used as smtpserver, make sure that a MTA is installed and configured on the server.
 
-Active Directory Integration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Deleted Account
-^^^^^^^^^^^^^^^
-
-Create the script `unreg_node_deleted_account.ps1` on the Windows Server with the following content. Make sure to change `@IP_PACKETFENCE` to the IP address of your PacketFence server. You'll also need to change the username and password as they must match the credentials defined in the Web admin interface under *Configuration -> Integration -> Web Services*.
-
-----
-#########################################################################################
-#Powershell script to unregister deleted Active Directory account based on the UserName.#
-#########################################################################################
-
-Get-EventLog -LogName Security -InstanceId 4726 |
-   Select ReplacementStrings,"Account name"|
-   % {
-    $url = "https://@IP_PACKETFENCE:9090/"
-    $username = "admin" # Username for the webservices
-    $password = "admin" # Password for the webservices
-    [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
-    $command = '{"jsonrpc": "2.0", "method": "unreg_node_for_pid", "params": ["pid", "'+$_.ReplacementStrings[0]+'"]}'
-
-    $bytes = [System.Text.Encoding]::ASCII.GetBytes($command)
-    $web = [System.Net.WebRequest]::Create($url)
-    $web.Method = "POST"
-    $web.ContentLength = $bytes.Length
-    $web.ContentType = "application/json-rpc"
-    $web.Credentials = new-object System.Net.NetworkCredential($username, $password)
-    $stream = $web.GetRequestStream()
-    $stream.Write($bytes,0,$bytes.Length)
-    $stream.close()
-
-    $reader = New-Object System.IO.Streamreader -ArgumentList $web.GetResponse().GetResponseStream()
-    $reader.ReadToEnd()
-    $reader.Close()
-   }
-----
-
-Create the scheduled task based on an event ID
-++++++++++++++++++++++++++++++++++++++++++++++
-
-*Start -> Run -> Taskschd.msc*
-
-*Task Scheduler -> Task Scheduler Library -> Event Viewer Task -> Create Task*
-
-General
-
-----
-Name: PacketFence-Unreg_node-for-deleted-account
-Check: Run whether user is logged on or not
-Check: Run with highest privileges
-----
-
-Triggers -> New
-
-----
-Begin on the task: On an event
-Log: Security
-Source: Microsoft Windows security auditing.
-Event ID: 4726
-----
-
-Actions -> New
-
-----
-Action: Start a program
-Program/script: powershell.exe
-Add arguments (optional): C:\scripts\unreg_node_deleted_account.ps1
-----
-
-Settings:
-
-----
-At the bottom, select in the list "Run a new instance in parallel" in order to unregister multiple nodes at the same time.
-----
-
-Validate with Ok and give the account who will run this task. (Usually _DOMAIN\Administrator_)
-
-Disabled Account
-^^^^^^^^^^^^^^^^
-
-Create the script `unreg_node_disabled_account.ps1` on the Windows Server with the following content. Make sure to change `@IP_PACKETFENCE` to the IP address of your PacketFence server. You'll also need to change the username and password as they must match the credentials defined in the Web admin interface under *Configuration -> Integration -> Web Services*.
-
-----
-##########################################################################################
-#Powershell script to unregister disabled Active Directory account based on the UserName.#
-##########################################################################################
-
-Get-EventLog -LogName Security -InstanceId 4725 |
-   Select ReplacementStrings,"Account name"|
-   % {
-    $url = "https://@IP_PACKETFENCE:9090/"
-    $username = "admin" # Username for the webservices
-    $password = "admin" # Password for the webservices
-    [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
-    $command = '{"jsonrpc": "2.0", "method": "unreg_node_for_pid", "params": ["pid", "'+$_.ReplacementStrings[0]+'"]}'
-
-    $bytes = [System.Text.Encoding]::ASCII.GetBytes($command)
-    $web = [System.Net.WebRequest]::Create($url)
-    $web.Method = "POST"
-    $web.ContentLength = $bytes.Length
-    $web.ContentType = "application/json-rpc"
-    $web.Credentials = new-object System.Net.NetworkCredential($username, $password)
-    $stream = $web.GetRequestStream()
-    $stream.Write($bytes,0,$bytes.Length)
-    $stream.close()
-
-    $reader = New-Object System.IO.Streamreader -ArgumentList $web.GetResponse().GetResponseStream()
-    $reader.ReadToEnd()
-    $reader.Close()
- 
-   }
-----
-
-Create the scheduled task based on an event ID
-++++++++++++++++++++++++++++++++++++++++++++++
-
-*Start -> Run -> Taskschd.msc*
-
-*Task Scheduler -> Task Scheduler Library -> Event Viewer Task -> Create Task*
-
-General
-
-----
-Name: PacketFence-Unreg_node-for-disabled-account
-Check: Run whether user is logged on or not
-Check: Run with highest privileges
-----
-
-Triggers -> New
-
-----
-Begin on the task: On an event
-Log: Security
-Source: Microsoft Windows security auditing.
-Event ID: 4725
-----
-
-Actions -> New
-
-----
-Action: Start a program
-Program/script: powershell.exe
-Add arguments (optional): C:\scripts\unreg_node_disabled_account.ps1
-----
-
-Settings:
-
-----
-At the bottom, select in the list "Run a new instance in parallel"
-----
-
-Validate with Ok and give the account who will run this task. (Usually _DOMAIN\Administrator_)
-
-Locked Account
-^^^^^^^^^^^^^^
-
-Create the script `unreg_node_locked_account.ps1` on the Windows Server with the following content. Make sure to change `@IP_PACKETFENCE` to the IP address of your PacketFence server. You'll also need to change the username and password as they must match the credentials defined in the Web admin interface under *Configuration -> Integration -> Web Services*.
-
-----
-#########################################################################################
-#Powershell script to unregister locked Active Directory account based on the UserName.#
-#########################################################################################
-
-Get-EventLog -LogName Security -InstanceId 4740 |
-   Select ReplacementStrings,"Account name"|
-   % {
-    $url = "https://@IP_PACKETFENCE:9090/"
-    $username = "admin" # Username for the webservices
-    $password = "admin" # Password for the webservices
-    [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
-    $command = '{"jsonrpc": "2.0", "method": "unreg_node_for_pid", "params": ["pid", "'+$_.ReplacementStrings[0]+'"]}'
-
-    $bytes = [System.Text.Encoding]::ASCII.GetBytes($command)
-    $web = [System.Net.WebRequest]::Create($url)
-    $web.Method = "POST"
-    $web.ContentLength = $bytes.Length
-    $web.ContentType = "application/json-rpc"
-    $web.Credentials = new-object System.Net.NetworkCredential($username, $password)
-    $stream = $web.GetRequestStream()
-    $stream.Write($bytes,0,$bytes.Length)
-    $stream.close()
-
-    $reader = New-Object System.IO.Streamreader -ArgumentList $web.GetResponse().GetResponseStream()
-    $reader.ReadToEnd()
-    $reader.Close()
- 
-   }
-----
-
-Create the scheduled task based on an event ID
-++++++++++++++++++++++++++++++++++++++++++++++
-
-*Start -> Run -> Taskschd.msc*
-
-*Task Scheduler -> Task Scheduler Library -> Event Viewer Task -> Create Task*
-
-General
-
-----
-Name: PacketFence-Unreg_node-for-locked-account
-Check: Run whether user is logged on or not
-Check: Run with highest privileges
-----
-
-Triggers -> New
-
-----
-Begin on the task: On an event
-Log: Security
-Source: Microsoft Windows security auditing.
-Event ID: 4740
-----
-
-Actions -> New
-
-----
-Action: Start a program
-Program/script: powershell.exe
-Add arguments (optional): C:\scripts\unreg_node_locked_account.ps1
-----
-
-Settings:
-
-----
-At the bottom, select in the list "Run a new instance in parallel"
-----
-
-Validate with Ok and give the account who will run this task. (Usually _DOMAIN\Administrator_)
-
-DHCP remote sensor
-~~~~~~~~~~~~~~~~~~
-
-The DHCP remote sensor consists of a lightweight binary that is installed on your production DHCP server in order to replicate the DHCP traffic 1 to 1 to the PacketFence server. This solution is more reliable than the DHCP relaying since PacketFence receives a copy of all your DHCP traffic and not only the broadcasted DHCP traffic. Supported DHCP servers are Microsoft DHCP server and CentOS 6 and 7.
-
-These sensors work by capturing the packets at the lowest level possible on your DHCP server and forward them to the PacketFence management interface
-
-Microsoft DHCP sensor
-^^^^^^^^^^^^^^^^^^^^^
-DHCP-Forwarder is an optimized version of precedent udp-reflector, which installs easily and only copy DHCPREQUESTS and DHCPACK packets to the destination. 
-
-https://inverse.ca/downloads/PacketFence/windows-dhcp-forwarder/DHCP%20Forwarder%20Installer.exe[Download the installer here.]
-
-It will install WinPCAP, nssm, launch a configurator to ask for interface, IP and port, save the configuration, install and launch DHCP-Forwarder service.
-
-When you will be asked for a host IP and port, specify PacketFence management IP and 767 as the UDP port.
-
-The project page can be found https://github.com/inverse-inc/packetfence-dhcp-forwarder[here].
-
-Linux based sensor
-^^^^^^^^^^^^^^^^^^
-
-First download the RPM on your DHCP server.
-
-CentOS 6 and 7 servers
-++++++++++++++++++++++
-
-For CentOS 6:
-
-----
-# for x86_64
-# wget http://inverse.ca/downloads/PacketFence/CentOS6/extra/x86_64/RPMS/udp-reflector-1.0-6.1.x86_64.rpm
-----
-
-For CentOS 7:
-
-----
-# for x86_64
-# wget http://inverse.ca/downloads/PacketFence/CentOS7/extra/x86_64/RPMS/udp-reflector-1.0-6.1.x86_64.rpm
-----
-
-Now install the sensor:
-
-----
-# rpm -i udp-reflector-*.rpm
-----
-
-Compiling the sensor from source on a Linux system
-++++++++++++++++++++++++++++++++++++++++++++++++++
-
-First make sure you have the following packages installed:
-[options="compact"]
-* libpcap
-* libpcap-devel
-* gcc-c++
-
-Get the source code of the sensor:
-
-----
-# mkdir -p ~/udp-reflector && cd ~/udp-reflector
-# wget http://inverse.ca/downloads/PacketFence/udp-reflector/udp_reflector.cpp
-# g++ udp_reflector.cpp -o /usr/local/bin/udp_reflector -lpcap
-----
-
-Configuring the sensor
-++++++++++++++++++++++
-
-Place the following line in `/etc/rc.local`
-[options="compact"]
-* where `pcap0` is the pcap interface where your DHCP server listens on. (List them using `udp_reflector -l`)
-* where `192.168.1.5` is the management IP of your PacketFence server
-----
-/usr/local/bin/udp_reflector -s pcap0:67 -d 192.168.1.5:767 -b 25000 &
-----
-
-Start the sensor:
-
-----
-# /usr/local/bin/udp_reflector -s pcap0:67 -d 192.168.1.5:767 -b 25000 &
-----
-
-The DHCP traffic should now be reflected on your PacketFence server.
-
 Switch login access
 ~~~~~~~~~~~~~~~~~~~
 
@@ -4620,14 +4629,6 @@ From the PacketFence's web admin interface, you must configure an Admin Access r
 
 NOTE: Any user that has the 'ALL' administrative role will be able to login into your switches. If you want to provide all PacketFence administrative access to some users without allowing them to login into the switches, then apply the 'ALL_PF_ONLY' administrative role which will contains all the necessary PacketFence roles without the switch login.
 
-DHCP Option 82
-~~~~~~~~~~~~~~
-
-PacketFence is able to locate a device on the network even if the switch port is not managed by PacketFence.
-To use this feature you need to add all the switches in PacketFence and enable SNMP read (switch and PacketFence side) and enable DHCP option 82 in Configuration -> Network Configuration -> Networks -> Network.
-Once enabled, restart the pfdhcplistener and pfmon services.
-pfmon will query via SNMP all the switches to create a map (MAC <-> switch)
-pfdhcplistener will parse the DHCP Option 82 and will use the map to resolve the MAC to the switch and will update the locationlog of the device.
 
 Trigger a violation when discovering a node
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
