@@ -118,16 +118,16 @@ func (s radiustype) Test(source interface{}, ctx context.Context) {
 	client := radius.DefaultClient
 	response, err := client.Exchange(ctx, packet, source.(pfconfigdriver.AuthenticationSourceRadius).Host+":"+source.(pfconfigdriver.AuthenticationSourceRadius).Port)
 	if err != nil {
-		c.Gauge(source.(pfconfigdriver.AuthenticationSourceRadius).PfconfigHashNS, 0)
+		c.Gauge("source.Radius."+source.(pfconfigdriver.AuthenticationSourceRadius).PfconfigHashNS, 0)
 	} else {
-		c.Gauge(source.(pfconfigdriver.AuthenticationSourceRadius).PfconfigHashNS, 1)
+		c.Gauge("source.Radius."+source.(pfconfigdriver.AuthenticationSourceRadius).PfconfigHashNS, 1)
 		if response.Code == radius.CodeAccessAccept {
 			fmt.Println("Accepted")
 		} else {
 			fmt.Println("Denied")
 		}
 	}
-	t.Send(source.(pfconfigdriver.AuthenticationSourceRadius).PfconfigHashNS)
+	t.Send("source.Radius." + source.(pfconfigdriver.AuthenticationSourceRadius).PfconfigHashNS)
 	defer c.Close()
 }
 
@@ -145,7 +145,7 @@ func (s ldaptype) Test(source interface{}, ctx context.Context) {
 	l, err := ldap.Dial("tcp", fmt.Sprintf("%s:%s", source.(pfconfigdriver.AuthenticationSourceLdap).Host, source.(pfconfigdriver.AuthenticationSourceLdap).Port))
 
 	if err != nil {
-		c.Gauge(source.(pfconfigdriver.AuthenticationSourceLdap).PfconfigHashNS, 0)
+		c.Gauge("source.Ldap."+source.(pfconfigdriver.AuthenticationSourceLdap).PfconfigHashNS, 0)
 		log.Print(err)
 	} else {
 		defer l.Close()
@@ -166,11 +166,11 @@ func (s ldaptype) Test(source interface{}, ctx context.Context) {
 		l.SetTimeout(time.Duration(timeout) * time.Second)
 		err = l.Bind(source.(pfconfigdriver.AuthenticationSourceLdap).BindDN, source.(pfconfigdriver.AuthenticationSourceLdap).Password)
 		if err != nil {
-			c.Gauge(source.(pfconfigdriver.AuthenticationSourceLdap).PfconfigHashNS, 0)
+			c.Gauge("source.Ldap."+source.(pfconfigdriver.AuthenticationSourceLdap).PfconfigHashNS, 0)
 		} else {
-			c.Gauge(source.(pfconfigdriver.AuthenticationSourceLdap).PfconfigHashNS, 1)
+			c.Gauge("source.Ldap."+source.(pfconfigdriver.AuthenticationSourceLdap).PfconfigHashNS, 1)
 		}
-		t.Send(source.(pfconfigdriver.AuthenticationSourceLdap).PfconfigHashNS)
+		t.Send("source.Ldap." + source.(pfconfigdriver.AuthenticationSourceLdap).PfconfigHashNS)
 	}
 }
 
@@ -192,16 +192,16 @@ func (s eduroamtype) Test(source interface{}, ctx context.Context) {
 	response, err := client.Exchange(ctx, packet, source.(pfconfigdriver.AuthenticationSourceEduroam).Server1Address+":1812")
 
 	if err != nil {
-		c.Gauge(source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"1", 0)
+		c.Gauge("source.Eduroam."+source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"1", 0)
 	} else {
-		c.Count(source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"1", 1)
+		c.Count("source.Eduroam."+source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"1", 1)
 		if response.Code == radius.CodeAccessAccept {
 			fmt.Println("Accepted")
 		} else {
 			fmt.Println("Denied")
 		}
 	}
-	t.Send(source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS + "1")
+	t.Send("source.Eduroam." + source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS + "1")
 
 	t = c.NewTiming()
 	packet = radius.New(radius.CodeAccessRequest, []byte(source.(pfconfigdriver.AuthenticationSourceEduroam).RadiusSecret))
@@ -209,16 +209,16 @@ func (s eduroamtype) Test(source interface{}, ctx context.Context) {
 	UserPassword_SetString(packet, "12345")
 	response, err = client.Exchange(ctx, packet, source.(pfconfigdriver.AuthenticationSourceEduroam).Server2Address+":1812")
 	if err != nil {
-		c.Gauge(source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"2", 0)
+		c.Gauge("source.Eduroam."+source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"2", 0)
 	} else {
-		c.Gauge(source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"2", 1)
+		c.Gauge("source.Eduroam."+source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"2", 1)
 		if response.Code == radius.CodeAccessAccept {
 			fmt.Println("Accepted")
 		} else {
 			fmt.Println("Denied")
 		}
 	}
-	t.Send(source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS + "2")
+	t.Send("source.Eduroam." + source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS + "2")
 
 	defer c.Close()
 }
