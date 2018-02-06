@@ -317,6 +317,7 @@ has_field 'block_interval' =>
     type => 'Duration',
     label => 'Block Interval',
     #Use the inflate method from pfappserver::Form::Field::Duration
+    validate_when_empty => 1,
     default_method => sub {
         pfappserver::Form::Field::Duration->duration_inflate($pf::constants::Connection::Profile::BLOCK_INTERVAL_DEFAULT_VALUE)
     },
