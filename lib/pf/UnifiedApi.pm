@@ -44,11 +44,7 @@ our @API_V1_ROUTES = (
                 {
                     controller => 'Users::Nodes',
                     resource => {
-                        children => [
-                            {
-                                controller => 'Users::Nodes::Locationlogs',
-                            }
-                        ],
+                        children => [ 'Users::Nodes::Locationlogs' ],
                     }
                 },
                 {
@@ -143,7 +139,11 @@ sub setup_api_v1_routes {
 
 sub api_v1_routes {
     my ($self) = @_;
-    return @API_V1_ROUTES, $self->api_v1_custom_routes;
+    return $self->api_v1_default_routes, $self->api_v1_custom_routes;
+}
+
+sub api_v1_default_routes {
+    @API_V1_ROUTES
 }
 
 sub api_v1_custom_routes {
