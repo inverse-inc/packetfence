@@ -2286,6 +2286,46 @@ Grace Period
 When using such violation feature, setting the grace period is really important.  You don't want to put it too low (ie. A user re-enable his network, and get caught after 1 bytes is transmitted!) or too high.  We recommend that you set the grace period to one interval window.
 
 
+Fingerbank Integration
+----------------------
+
+Fingerbank, a great device profiling tool developed alongside of PacketFence, now integrates with it to power-up the feature set allowing a PacketFence administrator to easily trigger violations based on different device types, device parents, DHCP fingerprints, DHCP vendor IDs, MAC vendors and browser user agents.
+
+The core of that integration resides in the ability for a PacketFence system, to interact with the Fingerbank upstream project, which then allow a daily basis fingerprints database update, sharing unknown data so that more complex algorithms can process that new data to integrate it in the global database, querying the global upstream database in the case of an unknown match and much more.
+
+Since the Fingerbank integration is now the "de facto" device profiling tool of PacketFence, it was a requirement to make it as simple as possible to configure and to use. From the moment a working PacketFence system is in place, Fingerbank is also ready to be used, but only in a "local" mode, which means, no interaction with the upstream Fingerbank project.
+
+Onboarding
+~~~~~~~~~~
+
+To benefit from all the advantages of the Fingerbank project, the onboarding step is required to create an API key that will then allow interaction with the upstream project. That can easily be done only by going in the "Settings" menu item under the "Fingerbank" section of the PacketFence "Configuration" tab. From there, an easy process to create and save an user/organization specific API key can be followed. Once completed, the full feature set of Fingerbank can be used.
+
+Update Fingerbank Database
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Updating the Fingerbank data can't be easier. The only requirement is the onboarding process which allows you to interact with upstream project. Once done, an option to "Update Fingerbank DB" can be found on top of every menu item sections under "Fingerbank". Process may take a minute or two, depending on the size of the database and the internet connectivity, after which a success or error message will be show accordingly. "Local" records are NOT being modified during this process.
+
+Submit Unknown Data
+~~~~~~~~~~~~~~~~~~~
+
+Saying that we don't know everything is not false modesty. In that sense, the "Submit Unknown/Unmatched Fingerprints" option is made available (after onboarding) so that unknown fingerprinting data going in and out on your network can easily be submitted to the upstream Fingerbank project for further analysis and integration the in the global database.
+
+Upstream Interrogation
+~~~~~~~~~~~~~~~~~~~~~~
+
+By default, PacketFence is configured to interrogate the upstream Fingerbank project (if onboarding has been completed) to fulfill a query with unmatched local results. Unmatched local results can result of an older version of the Fingerbank database or a requirement for a more complex algorithm due to the data set. That behavior is completely transparent and can be modified using the "Settings" menu item under the "Fingerbank"section of the PacketFence "Configuration" tab.
+
+Local Entries
+~~~~~~~~~~~~~
+
+It is possible for an administrator who wants to customize an existing record (or create a new one) to do so using the "Local" entries. An upstream record (DHCP Fingerprint, DHCP Vendor, MAC Vendor, User Agent, Device type, even a Combination) can be cloned and then modified on a local basis if needed. Local records are always matched first since their purpose is to 'override' an existing one. A local combination can be created to match either "Local" or "Upstream" or both entries to allow identification of a device.
+
+Settings
+~~~~~~~~
+
+Fingerbank settings can easily be modified from the "Settings" menu item under the "Fingerbank" section of the PacketFence "Configuration" tab. There's documentation for each an every parameter that allow easier understanding.
+
+
 Intrusion Detection System Integration
 --------------------------------------
 
@@ -3672,44 +3712,6 @@ In order to override a default parameter, define it and set it in `pf.conf`.
 
 All these parameters are also accessible through the web-based administration interface under the Configuration tab. It is highly recommended that you use the web-based administration interface of PacketFence for any configuration changes.
 
-Fingerbank Integration
-~~~~~~~~~~~~~~~~~~~~~~
-
-Fingerbank, a great device profiling tool developed alongside of PacketFence, now integrates with it to power-up the feature set allowing a PacketFence administrator to easily trigger violations based on different device types, device parents, DHCP fingerprints, DHCP vendor IDs, MAC vendors and browser user agents.
-
-The core of that integration resides in the ability for a PacketFence system, to interact with the Fingerbank upstream project, which then allow a daily basis fingerprints database update, sharing unknown data so that more complex algorithms can process that new data to integrate it in the global database, querying the global upstream database in the case of an unknown match and much more.
-
-Since the Fingerbank integration is now the "de facto" device profiling tool of PacketFence, it was a requirement to make it as simple as possible to configure and to use. From the moment a working PacketFence system is in place, Fingerbank is also ready to be used, but only in a "local" mode, which means, no interaction with the upstream Fingerbank project.
-
-Onboarding
-^^^^^^^^^^
-
-To benefit from all the advantages of the Fingerbank project, the onboarding step is required to create an API key that will then allow interaction with the upstream project. That can easily be done only by going in the "Settings" menu item under the "Fingerbank" section of the PacketFence "Configuration" tab. From there, an easy process to create and save an user/organization specific API key can be followed. Once completed, the full feature set of Fingerbank can be used.
-
-Update Fingerbank database
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Updating the Fingerbank data can't be easier. The only requirement is the onboarding process which allows you to interact with upstream project. Once done, an option to "Update Fingerbank DB" can be found on top of every menu item sections under "Fingerbank". Process may take a minute or two, depending on the size of the database and the internet connectivity, after which a success or error message will be show accordingly. "Local" records are NOT being modified during this process.
-
-Submit unknown data
-^^^^^^^^^^^^^^^^^^^
-
-Saying that we don't know everything is not false modesty. In that sense, the "Submit Unknown/Unmatched Fingerprints" option is made available (after onboarding) so that unknown fingerprinting data going in and out on your network can easily be submitted to the upstream Fingerbank project for further analysis and integration the in the global database.
-
-Upstream interrogation
-^^^^^^^^^^^^^^^^^^^^^
-
-By default, PacketFence is configured to interrogate the upstream Fingerbank project (if onboarding has been completed) to fulfill a query with unmatched local results. Unmatched local results can result of an older version of the Fingerbank database or a requirement for a more complex algorithm due to the data set. That behavior is completely transparent and can be modified using the "Settings" menu item under the "Fingerbank"section of the PacketFence "Configuration" tab.
-
-Local entries
-^^^^^^^^^^^^^
-
-It is possible for an administrator who wants to customize an existing record (or create a new one) to do so using the "Local" entries. An upstream record (DHCP Fingerprint, DHCP Vendor, MAC Vendor, User Agent, Device type, even a Combination) can be cloned and then modified on a local basis if needed. Local records are always matched first since their purpose is to 'override' an existing one. A local combination can be created to match either "Local" or "Upstream" or both entries to allow identification of a device.
-
-Settings
-^^^^^^^^
-
-Fingerbank settings can easily be modified from the "Settings" menu item under the "Fingerbank" section of the PacketFence "Configuration" tab. There's documentation for each an every parameter that allow easier understanding.
 
 Floating Network Devices
 ~~~~~~~~~~~~~~~~~~~~~~~~
