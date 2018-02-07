@@ -268,18 +268,6 @@ type RolesConf struct {
 	MaxNodesPerPid string `json:"max_nodes_per_pid"`
 }
 
-type PfconfigDatabase struct {
-	StructConfig
-	PfconfigMethod string `val:"hash_element"`
-	PfconfigNS     string `val:"config::Pf"`
-	PfconfigHashNS string `val:"database"`
-	DBUser         string `json:"user"`
-	DBPassword     string `json:"pass"`
-	DBHost         string `json:"host"`
-	DBName         string `json:"db"`
-	DBPort         string `json:"port"`
-}
-
 type NetInterface struct {
 	StructConfig
 	PfconfigMethod string `val:"hash_element"`

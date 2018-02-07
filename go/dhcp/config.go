@@ -55,11 +55,8 @@ func newDHCPConfig() *Interfaces {
 }
 
 // readDBConfig read pfconfig database configuration
-func readDBConfig() pfconfigdriver.PfconfigDatabase {
-	var sections pfconfigdriver.PfconfigDatabase
-	sections.PfconfigNS = "config::Pf"
-	sections.PfconfigMethod = "hash_element"
-	sections.PfconfigHashNS = "database"
+func readDBConfig() pfconfigdriver.PfConfDatabase {
+	var sections pfconfigdriver.PfConfDatabase
 
 	pfconfigdriver.FetchDecodeSocket(ctx, &sections)
 	return sections

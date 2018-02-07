@@ -20,6 +20,6 @@ func Connect(user, pass, host, port, dbname string) *sql.DB {
 	return db
 }
 
-func ConnectFromConfig(config pfconfigdriver.PfconfigDatabase) *sql.DB {
-	return Connect(config.DBUser, config.DBPassword, config.DBHost, config.DBPort, config.DBName)
+func ConnectFromConfig(config pfconfigdriver.PfConfDatabase) *sql.DB {
+	return Connect(config.User, config.Pass, config.Host, config.Port, config.Db)
 }
