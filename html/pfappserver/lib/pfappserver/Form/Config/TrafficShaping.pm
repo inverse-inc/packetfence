@@ -2,11 +2,11 @@ package pfappserver::Form::Config::TrafficShaping;
 
 =head1 NAME
 
-pfappserver::Form::Config::TrafficShaping - Web form for an admin role
+pfappserver::Form::Config::TrafficShaping - Web form for to assign a download/upload limit
 
 =head1 DESCRIPTION
 
-Form definition to create or update an admin role
+Form definition to create or update an download/upload limit
 
 =cut
 

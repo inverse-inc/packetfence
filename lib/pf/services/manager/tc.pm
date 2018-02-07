@@ -225,14 +225,7 @@ sub manageTrafficShaping {
 
             my $gateway = (defined $NetworkConfig{$network}{'next_hop'} ? $NetworkConfig{$network}{'next_hop'} : $NetworkConfig{$network}{'gateway'});
 
-            my @interface_src = split(" ", pf_run("sudo ip route get 8.8.8.8 from $gateway"));
-            my $interface;
-            if ($interface_src[3] eq 'via') {
-                $interface =  $interface_src[6];
-            } else {
-                $interface = $interface_src[2];
-            }
-
+            my $interface = find_outgoing_interface($gateway);
 
             foreach my $role ( @roles ) {
                 my $upload;

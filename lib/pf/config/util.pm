@@ -234,6 +234,12 @@ sub get_routed_registration_nets {
     return (@nets);
 }
 
+=head2 is_inline_configured
+
+return the number of inline networks
+
+=cut
+
 sub is_inline_configured {
     return scalar @inline_nets;
 }

@@ -6,7 +6,7 @@ pfappserver::PacketFence::Controller::Config::TrafficShaping - Catalyst Controll
 
 =head1 DESCRIPTION
 
-Controller for admin roles management.
+Controller for traffic shaping management.
 
 =cut
 
@@ -125,7 +125,7 @@ sub create_or_update : Local : Args(1) {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
