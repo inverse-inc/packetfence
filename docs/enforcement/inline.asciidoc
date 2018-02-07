@@ -89,7 +89,7 @@ Next thing we do is to add a new connection profile - for devices coming from th
 From *Configuration->Policies and Access Control->Connection Profiles*, click on 'Add Profile'. Provide the following information:
 
  * Profile Name: inline
- * Filters: If *net* Network 192.168.2.0/24
+ * Filters: If *any* Network 192.168.2.0/24
  * Sources: null-source
 
 Then click on Save.
