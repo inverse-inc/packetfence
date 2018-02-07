@@ -53,7 +53,7 @@ Please refer to the following table for IP and subnet information :
 [options="header",cols="1,2,2,2,3",grid="rows"]
 |===================================================================================
 |Network Card    |Name          |Subnet            |Gateway        |PacketFence Address
-|ens160          |Management    |172.20.100.0/24   |192.168.1.1    |172.20.100.2
+|ens160          |Management    |172.20.100.0/16   |172.20.0.1     |172.20.100.2
 |ens192          |Inline        |192.168.2.0/24    |192.168.2.1    |192.168.2.1  
 |===================================================================================
 
