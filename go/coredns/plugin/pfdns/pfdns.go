@@ -16,6 +16,7 @@ import (
 
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
 	"github.com/inverse-inc/packetfence/go/coredns/request"
+	"github.com/inverse-inc/packetfence/go/database"
 	"github.com/inverse-inc/packetfence/go/filter_client"
 	cache "github.com/patrickmn/go-cache"
 	//Import mysql driver
@@ -269,29 +270,11 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 // Name implements the Handler interface.
 func (pf pfdns) Name() string { return "pfdns" }
 
-func readConfig(ctx context.Context) pfconfigdriver.PfconfigDatabase {
-	var sections pfconfigdriver.PfconfigDatabase
-	sections.PfconfigNS = "config::Pf"
-	sections.PfconfigMethod = "hash_element"
-	sections.PfconfigHashNS = "database"
+func readConfig(ctx context.Context) pfconfigdriver.PfConfDatabase {
+	var sections pfconfigdriver.PfConfDatabase
 
 	pfconfigdriver.FetchDecodeSocket(ctx, &sections)
 	return sections
-}
-
-func connectDB(configDatabase pfconfigdriver.PfconfigDatabase) (*sql.DB, error) {
-	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
-		configDatabase.DBUser,
-		configDatabase.DBPassword,
-		configDatabase.DBHost,
-		configDatabase.DBPort,
-		configDatabase.DBName,
-	))
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "pfdns: database connection error: %s", err)
-		return nil, err
-	}
-	return db, nil
 }
 
 // DetectVIP
@@ -487,7 +470,7 @@ func (pf *pfdns) DbInit() error {
 
 	var err error
 	configDatabase := readConfig(ctx)
-	pf.Db, err = connectDB(configDatabase)
+	pf.Db = database.ConnectFromConfig(configDatabase)
 
 	if err != nil {
 		// logging the error is handled in connectDB
