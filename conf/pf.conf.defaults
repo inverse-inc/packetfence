@@ -989,6 +989,11 @@ port=9090
 #
 # port to use for authentication
 aaa_port=7070
+#
+# webservices.unifiedapi_port
+#
+# port to use for accessing the Unified API
+unifiedapi_port=9999
 
 [active_active]
 #
