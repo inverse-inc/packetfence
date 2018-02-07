@@ -8,7 +8,7 @@ First thing, you will need to deploy the Anyfi Gateway and Controller on your ne
 
 When installing the Anyfi Gateway, have one interface in trunk mode for the packet bridge. In this example it will be `eth2` which is the last card on the machine.
 
-Anyfi Gateway basic configuration
+Anyfi Gateway Basic Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Connect to the gateway using SSH and enter configuration mode.
 Now you need to add the configuration for `br0 which will link the access point traffic to your network.
@@ -42,7 +42,7 @@ In this example `eth1` will be the management interface of the Anyfi Gateway and
         }
     }
 
-Open SSID configuration
+Open SSID Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^
 Still in configuration mode, configure the RADIUS server and SSID security.
 
@@ -72,7 +72,7 @@ Still in configuration mode, configure the RADIUS server and SSID security.
             }
     }
 
-Secure SSID configuration
+Secure SSID Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 Still in configuration mode, configure the Anyfi Gateway to broadcast a WPA2 enterprise SSID.
 
@@ -98,7 +98,7 @@ Still in configuration mode, configure the Anyfi Gateway to broadcast a WPA2 ent
     }
 
 
-Deploy access point
+Deploy Access Point
 ^^^^^^^^^^^^^^^^^^^
 You will now need to install CarrierWRT on a compatible access point and configure the Anyfi Controller in it. 
 Depending on the access point you're using, the method to install CarrierWRT will vary.
