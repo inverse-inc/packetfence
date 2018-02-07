@@ -65,7 +65,9 @@ sub id {
 
 sub cleanup_item {
     my ($self, $item) = @_;
-    return $item;
+    my $form = $self->form($item);
+    $form->process(init_object => $item);
+    return $form->value;;
 }
 
 sub create {
