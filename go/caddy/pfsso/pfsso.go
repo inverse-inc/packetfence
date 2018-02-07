@@ -67,9 +67,9 @@ func buildPfssoHandler(ctx context.Context) (PfssoHandler, error) {
 	pfsso.updateCache = cache.New(1*time.Hour, 30*time.Second)
 
 	router := httprouter.New()
-	router.POST("/pfsso/update", pfsso.handleUpdate)
-	router.POST("/pfsso/start", pfsso.handleStart)
-	router.POST("/pfsso/stop", pfsso.handleStop)
+	router.POST("/api/v1/firewall_sso/update", pfsso.handleUpdate)
+	router.POST("/api/v1/firewall_sso/start", pfsso.handleStart)
+	router.POST("/api/v1/firewall_sso/stop", pfsso.handleStop)
 
 	pfsso.router = router
 

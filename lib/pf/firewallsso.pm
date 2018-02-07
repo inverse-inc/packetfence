@@ -58,7 +58,7 @@ sub do_sso {
         proto   => "http",
         host    => "localhost",
         port    => $pf::constants::api::PFSSO_PORT,
-    )->call("/pfsso/".lc($postdata{method}), {
+    )->call("/api/v1/firewall_sso/".lc($postdata{method}), {
         ip                => $postdata{ip},
         mac               => $mac,
         # All values must be string for pfsso
