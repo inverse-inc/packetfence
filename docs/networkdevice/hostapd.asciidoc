@@ -1,31 +1,22 @@
-OpenWrt CHAOS CALMER 15.05 with hostapd Quick Integration Guide
-===============================================================
-:encoding: UTF-8
-:lang: en
-:doctype: book
-:toc: left
-
-include::includes/global-attributes.asciidoc[]
-
-About this Guide
-----------------
-This guide has been created in order to help sales engineers, product managers, or network specialists demonstrate the PacketFence capabilities on-site with an existing or potential customer.  It can also provide guidelines to setup a proof of concept for a potential PacketFence deployment using OpenWrt CHAOS CALMER 15.05 with Hostapd.
+hostapd (OpenWrt Chaos Calmer 15.05)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Introduction
-------------
-This guide will provide an example for the configuration of an open SSID (not encrypted) and a secure SSID (802.1X). You will need to install wpad and hostapd. These two SSIDs will do RADIUS authentication against PacketFence. You can not have both SSID configured on the same access point at the same time, there is a limitation with the DAE server.
+^^^^^^^^^^^^
+This section will provide an example for the configuration of an open SSID (not encrypted) and a secure SSID (802.1X). You will need to install wpad and hostapd. These two SSIDs will do RADIUS authentication against PacketFence. You can not have both SSID configured on the same access point at the same time, there is a limitation with the DAE server.
 
 Assumptions
------------
+^^^^^^^^^^^
 * You have a configured PacketFence environment with working test equipment
 * The management IP of PacketFence will be 192.168.1.10 and has s3cr3t as its RADIUS shared secret
-* You have an access point with OpenWrt OpenWrt CHAOS CALMER 15.05 installed
+* You have an access point with OpenWrt Chaos Calmer 15.05 installed
 
 
 Quick installation
-------------------
-Step 1: Packages installation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^
+
+Packages Installation
++++++++++++++++++++++
 You can install the packages from the web interface of OpenWrt.
 
 Go to *System -> Software*
@@ -42,16 +33,16 @@ Do the same process for the wpad package version 2015-03-25-1.
 
 NOTE: You will need the packages hostapd-common and wpad if they are not installed by default.
 
-Step 2: Dynamic VLAN Configuration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Dynamic VLAN Configuration
+++++++++++++++++++++++++++
 Connect using SSH to the AP and create the file : /etc/config/hostapd.vlan
 
 ----
 *           wlan0.#
 ----
 
-Step 3: Hostapd configuration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Hostapd Configuration
++++++++++++++++++++++
 You will need to modify the hostapd script that comes with the package that we previously installed.
 
 Connect using SSH to the AP and run these commands:
@@ -64,8 +55,8 @@ curl --insecure  https://github.com/inverse-inc/packetfence/tree/devel/addons/ho
 wifi
 ----
 
-Step 4: Configure the SSIDs
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Configure the SSIDs
++++++++++++++++++++
 To configure the PF-Open SSID, we will edit the file /etc/config/wireless:
 
 ----
@@ -134,8 +125,8 @@ In order to apply this configuration, when you are connected using SSH on the AP
 
 NOTE:  It's known that you can't put 2 SSIDs with the same dae server at the same time. The deauthentication will not work on the second SSID.
 
-Step 5: PacketFence configuration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PacketFence Configuration
++++++++++++++++++++++++++
 Log in to the PacketFence administration web page and go under *Configuration -> Policies and Access Control -> Switches -> Add switch*.
 
 Definition:
@@ -158,8 +149,8 @@ RADIUS:
 
 Save this configuration by clicking the 'Save' button.
 
-Step 6: Troubleshoot
-~~~~~~~~~~~~~~~~~~~~
+Troubleshoot
+++++++++++++
 
 There are few things you can do/check to see if your configuration is working.
 

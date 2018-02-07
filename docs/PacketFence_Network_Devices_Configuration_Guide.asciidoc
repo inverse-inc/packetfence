@@ -4930,72 +4930,9 @@ RADIUS
  FGT50E (PF-Secure) # set dynamic-vlan enable
  FGT50E (PF-Secure) # end
 
-Hostapd
-~~~~~~~
+// Hostapd
 
-OpenWRT
-^^^^^^^
-
-In this section, we cover the basic configuration of the OpenWRT access point (Hostapd software).
-Hostapd must have been compiled with dynamic vlan support and you need to create a file /etc/config/hostapd.vlan that contain:
-
-  *           wlan0.#
-
-And you need to replace the /lib/wifi/hostapd.sh script file with the one included in /usr/local/pf/addons/hostapd
-
-[float]
-Open SSID
-+++++++++
-
-Configure your SSID using uci command:
-
-  uci add_list wireless.@wifi-iface[0]=wifi-iface
-  uci add_list wireless.@wifi-iface[0].device=radio0
-  uci add_list wireless.@wifi-iface[0].mode=ap
-  uci add_list wireless.@wifi-iface[0].ssid=OpenWrt-OPEN
-  uci add_list wireless.@wifi-iface[0].network=lan
-  uci add_list wireless.@wifi-iface[0].encryption=none
-  uci add_list wireless.@wifi-iface[0].auth_server=192.168.1.5
-  uci add_list wireless.@wifi-iface[0].auth_port=1812
-  uci add_list wireless.@wifi-iface[0].auth_secret=useStrongerSecret
-  uci add_list wireless.@wifi-iface[0].dynamic_vlan=2
-  uci add_list wireless.@wifi-iface[0].vlan_file=/etc/config/hostapd.vlan
-  uci add_list wireless.@wifi-iface[0].vlan_tagged_interface=eth0
-  uci add_list wireless.@wifi-iface[0].radius_das_port=3799
-  uci add_list wireless.@wifi-iface[0].radius_das_client='192.168.1.5 useStrongerSecret'
-  uci add_list wireless.@wifi-iface[0].macfilter=2
-
-[float]
-Secure SSID
-+++++++++++
-
-Configure your SSID using uci command:
-
-  uci add_list wireless.@wifi-iface[0]=wifi-iface
-  uci add_list wireless.@wifi-iface[0].device=radio0
-  uci add_list wireless.@wifi-iface[0].mode=ap
-  uci add_list wireless.@wifi-iface[0].ssid=OpenWrt-SECURE
-  uci add_list wireless.@wifi-iface[0].network=lan
-  uci add_list wireless.@wifi-iface[0].auth_server=192.168.1.5
-  uci add_list wireless.@wifi-iface[0].auth_port=1812
-  uci add_list wireless.@wifi-iface[0].auth_secret=useStrongerSecret
-  uci add_list wireless.@wifi-iface[0].dynamic_vlan=2
-  uci add_list wireless.@wifi-iface[0].vlan_file=/etc/config/hostapd.vlan
-  uci add_list wireless.@wifi-iface[0].vlan_tagged_interface=eth0
-  uci add_list wireless.@wifi-iface[0].radius_das_port=3799
-  uci add_list wireless.@wifi-iface[0].radius_das_client='192.168.1.5 useStrongerSecret'
-  uci add_list wireless.@wifi-iface[0].encryption=wpa2
-  uci add_list wireless.@wifi-iface[0].acct_server=192.168.1.5
-  uci add_list wireless.@wifi-iface[0].acct_port=1813
-  uci add_list wireless.@wifi-iface[0].acct_secret=s3cr3t
-  uci add_list wireless.@wifi-iface[0].nasid=ubiquiti
-
-Then launch 'uci commit wireless' and 'wifi' command to enable your configuration
-
-Hostapd (software)
-^^^^^^^^^^^^^^^^^^
-
-To configure Hostapd software you can use the same configuration parameters above in the configuration file.
+include::networkdevice/hostapd.asciidoc[]
 
 Meraki
 ~~~~~~
