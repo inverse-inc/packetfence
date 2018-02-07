@@ -322,8 +322,8 @@ sub locationlog_update_end_switchport_only_VoIP {
 }
 
 sub locationlog_update_end_mac {
-    my ($mac) = @_;
-    my ($status, $rows) = pf::dal::locationlog->update_items(
+    my ($mac, $tenant_id) = @_;
+    my %options = (
         -set => {
             end_time => \'NOW()',
         },
@@ -332,6 +332,12 @@ sub locationlog_update_end_mac {
             end_time => $ZERO_DATE,
         }
     );
+    if (defined $tenant_id) {
+        $options{-where}{tenant_id} = $tenant_id;
+        $options{-no_auto_tenant_id} = 1;
+    }
+
+    my ($status, $rows) = pf::dal::locationlog->update_items(%options);
     return ($rows);
 }
 
@@ -563,7 +569,7 @@ sub locationlog_last_entry_mac {
        -where => {
            mac => $mac,
        },
-        -order_by => { -desc => 'start_time' },
+       -order_by => { -desc => 'start_time' },
        -limit => 1,
    });
 }

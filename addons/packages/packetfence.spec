@@ -118,6 +118,9 @@ Requires: perl(Data::Phrasebook), perl(Data::Phrasebook::Loader::YAML)
 Requires: perl(DBI)
 Requires: perl(Rose::DB)
 Requires: perl(Rose::DB::Object)
+Requires: perl(Lingua::EN::Nums2Words) >= 1.16
+Requires: perl(Lingua::EN::Inflexion) >= 0.001006
+Requires: perl(Mojolicious)
 Requires: perl(File::Tail)
 Requires: perl(IPC::Cmd)
 Requires: perl(IPTables::ChainMgr)
@@ -149,6 +152,7 @@ Requires: perl(List::MoreUtils)
 Requires: perl-Scalar-List-Utils
 Requires: perl(Locale::gettext)
 Requires: perl(Log::Log4perl) >= 1.43
+Requires: perl(MojoX::Log::Log4perl)
 Requires: perl(Log::Any)
 Requires: perl(Log::Any::Adapter)
 Requires: perl(Log::Any::Adapter::Log4perl)
@@ -443,6 +447,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence.target $RPM_BUILD_ROOT/etc/systemd/system/packetfence.target
 %{__install} -D -m0644 conf/systemd/packetfence-base.target $RPM_BUILD_ROOT/etc/systemd/system/packetfence-base.target
 %{__install} -D -m0644 conf/systemd/packetfence-cluster.target $RPM_BUILD_ROOT/etc/systemd/system/packetfence-cluster.target
+
 %{__install} -d $RPM_BUILD_ROOT/etc/systemd/system/packetfence-base.target.wants
 %{__install} -d $RPM_BUILD_ROOT/etc/systemd/system/packetfence.target.wants
 %{__install} -d $RPM_BUILD_ROOT/etc/systemd/system/packetfence-cluster.target.wants
@@ -464,6 +469,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.proxy.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.proxy.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.webservices.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.webservices.service
 %{__install} -D -m0644 conf/systemd/packetfence-iptables.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-iptables.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfunified_api.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfunified_api.service
 %{__install} -D -m0644 conf/systemd/packetfence-keepalived.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-keepalived.service
 %{__install} -D -m0644 conf/systemd/packetfence-mariadb.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-mariadb.service
 %{__install} -D -m0644 conf/systemd/packetfence-p0f.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-p0f.service
@@ -493,6 +499,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-etcd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-etcd.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdhcp.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfdhcp.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfipset.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfipset.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfunified-api.service $RPM_BUILD_ROOT/usr/lib/systemd/packetfence-pfunified-api.service
 
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons/AD
@@ -554,6 +561,7 @@ rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/archives
 rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/docbook
 rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/fonts
 rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/images
+rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/api
 cp -r html $RPM_BUILD_ROOT/usr/local/pf/
 cp -r lib $RPM_BUILD_ROOT/usr/local/pf/
 cp -r go $RPM_BUILD_ROOT/usr/local/pf/
@@ -1250,6 +1258,8 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfbandwidthd
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcplistener
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfdns
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfunified_api
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pf-mariadb
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfmon
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfqueue

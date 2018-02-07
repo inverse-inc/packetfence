@@ -21,7 +21,11 @@ use warnings;
 ### pf::dal::_scan is auto generated any change to this file will be lost
 ### Instead change in the pf::dal::scan module
 ###
+
 use base qw(pf::dal);
+
+use Role::Tiny::With;
+with qw(pf::dal::roles::has_tenant_id);
 
 our @FIELD_NAMES;
 our @INSERTABLE_FIELDS;
@@ -33,6 +37,7 @@ our @COLUMN_NAMES;
 BEGIN {
     @FIELD_NAMES = qw(
         id
+        tenant_id
         ip
         mac
         type
@@ -44,6 +49,7 @@ BEGIN {
 
     %DEFAULTS = (
         id => '',
+        tenant_id => '1',
         ip => '',
         mac => '',
         type => '',
@@ -55,6 +61,7 @@ BEGIN {
 
     @INSERTABLE_FIELDS = qw(
         id
+        tenant_id
         ip
         mac
         type
@@ -69,6 +76,12 @@ BEGIN {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 1,
+            is_nullable => 0,
+        },
+        tenant_id => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
             is_nullable => 0,
         },
         ip => {
@@ -121,6 +134,7 @@ BEGIN {
 
     @COLUMN_NAMES = qw(
         scan.id
+        scan.tenant_id
         scan.ip
         scan.mac
         scan.type

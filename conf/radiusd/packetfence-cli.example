@@ -24,6 +24,7 @@ authorize {
 		&control:Tmp-Integer-0 := "%l"
 		&control:PacketFence-Request-Time := 0
 	}
+	packetfence-set-tenant-id
 	#rewrite_calling_station_id
 	#rewrite_called_station_id
 	#

@@ -1,0 +1,1615 @@
+{
+  "components": {
+    "parameters": {
+      "cursor": {
+        "description": "The cursor pointer to fetch the data (value should be taken from previousCursor and nextCursor)",
+        "in": "query",
+        "name": "cursor",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Message"
+            }
+          }
+        },
+        "description": "Bad Request. One of the submitted parameters has an invalid format"
+      },
+      "Created": {
+        "description": "A response that contains the location of a created resource",
+        "headers": {
+          "Location": {
+            "description": "The location of the created resource",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "Duplicate": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Message"
+            }
+          }
+        },
+        "description": "An attempt to add a duplicate entry was stopped. Entry already exists and should be modified instead of created."
+      },
+      "ErrorsWithMessage": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorsWithMessage"
+            }
+          }
+        },
+        "description": "A response that contains a message along with explanatory error messages tied to fields"
+      },
+      "Forbidden": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Message"
+            }
+          }
+        },
+        "description": "Forbidden access to the resource because of insufficient access rights"
+      },
+      "Message": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Message"
+            }
+          }
+        },
+        "description": "A response that contains a simple message"
+      },
+      "Unauthorized": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Message"
+            }
+          }
+        },
+        "description": "Unauthorized access because of invalid credentials"
+      },
+      "UnprocessableEntity": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorsWithMessage"
+            }
+          }
+        },
+        "description": "Request cannot be processed because the resource has failed validation after the modification."
+      }
+    },
+    "schemas": {
+      "ApiUser": {
+        "properties": {
+          "access_level": {
+            "description": "Comma delimited list of admin roles (as defined in adminroles.conf)",
+            "type": "string"
+          },
+          "expiration": {
+            "description": "The date at which the account becomes invalid",
+            "type": "string"
+          },
+          "password": {
+            "description": "The BCRYPT encrypted password of the user",
+            "type": "string"
+          },
+          "tenant_id": {
+            "description": "The tenant ID this API user has access to. When set to 0, the API user has access to all tenants.",
+            "type": "integer"
+          },
+          "username": {
+            "description": "The username of the API user",
+            "type": "string"
+          },
+          "valid_from": {
+            "description": "The date from which the account becomes valid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ApiUsersList": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Iterable"
+          },
+          {
+            "properties": {
+              "items": {
+                "items": {
+                  "$ref": "#/components/schemas/ApiUser"
+                },
+                "type": "array"
+              }
+            },
+            "type": "object"
+          }
+        ]
+      },
+      "ConnectionProfile": {
+        "properties": {
+          "access_registration_when_registered": {
+            "description": "Whether or not the registration portal should be accessible when the device is already registered (like when renewing billing) values(enabled|disabled)",
+            "type": "string"
+          },
+          "always_use_redirecturl": {
+            "description": "Whether or not the redirect url (redirecturl) should be forced when the user is released from the portal",
+            "type": "string"
+          },
+          "autoregister": {
+            "description": "Whether or not the devices using this profile should be auto-registered values(enabled|disabled)",
+            "type": "string"
+          },
+          "billing_tiers": {
+            "description": "Comma delimited list of billing tiers identifiers",
+            "type": "string"
+          },
+          "block_interval": {
+            "description": "The amount of time a device is blocked after reaching the login_attempt_limit or the sms_pin_retry_limit",
+            "type": "integer"
+          },
+          "description": {
+            "description": "The user friendly description of the connection profile",
+            "type": "string"
+          },
+          "device_registration": {
+            "description": "The device registration policy to apply on this connection profile",
+            "type": "string"
+          },
+          "dot1x_recompute_role_from_portal": {
+            "description": "When enabled, PacketFence will not use the role initialy computed on the portal but will use the dot1x username to recompute the role. values(enabled|disabled)",
+            "type": "string"
+          },
+          "filter": {
+            "description": "Comma delimited list of filters to apply for this profile.  For example, \"ssid:Test-SSID,connection_type:Wireless-802.11-NoEAP\"",
+            "type": "string"
+          },
+          "id": {
+            "description": "The identifier of the connection profile",
+            "type": "string"
+          },
+          "login_attempt_limit": {
+            "description": "The amount of invalid login attempts on the portal before the device is temporarily blacklisted from using the portal.",
+            "type": "integer"
+          },
+          "logo": {
+            "description": "The portal path to the logo for this profile. If the logo is in \"html/captive-portal/content\", then the path should start with \"/content\", if its in \"html/common\", then the path should start with \"/common\"",
+            "type": "string"
+          },
+          "preregistration": {
+            "description": "Whether or not pre-registration should be enabled on this connection profile. values(enabled|disabled)",
+            "type": "string"
+          },
+          "provisioners": {
+            "description": "Comma delimited list of provisioner identifiers to apply on this connection profile.",
+            "type": "string"
+          },
+          "redirecturl": {
+            "description": "URL to redirect the user when he is being released from the captive-portal",
+            "type": "string"
+          },
+          "reuse_dot1x_credentials": {
+            "description": "Whether or not the 802.1x credentials should be used as as an SSO login on the captive portal.",
+            "type": "string"
+          },
+          "root_module": {
+            "description": "The root portal module identifier to use.",
+            "type": "string"
+          },
+          "scans": {
+            "description": "Comma delimited list of scan identifiers to use on this profile.",
+            "type": "string"
+          },
+          "sms_pin_retry_limit": {
+            "description": "The amount of times a user can retry an SMS PIN.",
+            "type": "integer"
+          },
+          "sms_request_limit": {
+            "description": "The amount of time a user can attempt to register via SMS. Use it to prevent users from spamming other people using the captive portal.",
+            "type": "integer"
+          },
+          "sources": {
+            "description": "Comma delimited list of authentication sources to use on this connection profile.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ConnectionProfilesList": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Iterable"
+          },
+          {
+            "properties": {
+              "items": {
+                "items": {
+                  "$ref": "#/components/schemas/ConnectionProfile"
+                },
+                "type": "array"
+              }
+            },
+            "type": "object"
+          }
+        ]
+      },
+      "ErrorsWithMessage": {
+        "properties": {
+          "errors": {
+            "items": {
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "Iterable": {
+        "properties": {
+          "nextCursor": {
+            "description": "The cursor to access the data after the one returned in the response",
+            "type": "string"
+          },
+          "previousCursor": {
+            "description": "The cursor to access the data before the one returned in the response",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "Message": {
+        "properties": {
+          "message": {
+            "description": "A meaninful user readable message about what happened",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "Node": {
+        "properties": {
+          "mac": {
+            "description": "The MAC address of the device",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "NodesList": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Iterable"
+          },
+          {
+            "properties": {
+              "items": {
+                "items": {
+                  "$ref": "#/components/schemas/Node"
+                },
+                "type": "array"
+              }
+            },
+            "type": "object"
+          }
+        ]
+      },
+      "Password": {
+        "properties": {
+          "access_duration": {
+            "description": "The access duration that should be given to a node when this account is used is used to register a device",
+            "type": "string"
+          },
+          "access_level": {
+            "description": "The administrative access level that should be given to the user when he logs into the administration interface",
+            "type": "string"
+          },
+          "category": {
+            "description": "The role that should be given to a node when this account is used to register a device",
+            "type": "string"
+          },
+          "expiration": {
+            "description": "The date at which the password expires (becomes invalid)",
+            "type": "string"
+          },
+          "login_remaining": {
+            "description": "The amount of logins that the user has remaining. When null, the user has unlimited logins",
+            "type": "integer"
+          },
+          "password": {
+            "description": "The password of the local account. When encrypted, it is prefixed by the encryption type surrounded by brackets. For example \"{ntlm}iosnuiofsauionsfdioun\"",
+            "type": "string"
+          },
+          "pid": {
+            "description": "The username of the local account",
+            "type": "string"
+          },
+          "sponsor": {
+            "description": "Whether or not this account can be used to sponsor other users via a SponsorEmail source",
+            "type": "boolean"
+          },
+          "unregdate": {
+            "description": "The unregistration date that should be given to a node when this account is used to register a device",
+            "type": "string"
+          },
+          "valid_from": {
+            "description": "The date at which the password becomes valid",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "Tenant": {
+        "properties": {
+          "domain_name": {
+            "description": "The domain name of this tenant as used in 802.1x connections for the realm. For example, in the username tommy@example.com, example.com is the domain name.",
+            "type": "string"
+          },
+          "id": {
+            "description": "The unique numeric identifier of the tenant",
+            "type": "integer"
+          },
+          "name": {
+            "description": "The user friendly name of the tenant",
+            "type": "string"
+          },
+          "portal_domain_name": {
+            "description": "The portal domain name for this tenant. Any request on the portal using this domain name will be scoped to this tenant.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "TenantsList": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Iterable"
+          },
+          {
+            "properties": {
+              "items": {
+                "items": {
+                  "$ref": "#/components/schemas/Tenant"
+                },
+                "type": "array"
+              }
+            },
+            "type": "object"
+          }
+        ]
+      },
+      "User": {
+        "properties": {
+          "email": {
+            "description": "The email of the user.",
+            "type": "string"
+          },
+          "firstname": {
+            "description": "The first name of the user.",
+            "type": "string"
+          },
+          "lastname": {
+            "description": "The last name of the user.",
+            "type": "string"
+          },
+          "pid": {
+            "description": "The username.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "UserWithLinks": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/User"
+          },
+          {
+            "properties": {
+              "nodes_url": {
+                "description": "link to the nodes of this user",
+                "type": "string"
+              },
+              "password_url": {
+                "description": "link to the password (local account) of this user. If there is none, the value will be empty.",
+                "type": "string"
+              }
+            },
+            "type": "object"
+          }
+        ]
+      },
+      "UsersList": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Iterable"
+          },
+          {
+            "properties": {
+              "items": {
+                "items": {
+                  "$ref": "#/components/schemas/UserWithLinks"
+                },
+                "type": "array"
+              }
+            },
+            "type": "object"
+          }
+        ]
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "bearerFormat": "JWT",
+        "scheme": "bearer",
+        "type": "http"
+      }
+    }
+  },
+  "info": {
+    "description": "An API to access the PacketFence resources. Lets make the PacketFence API great again!",
+    "title": "PacketFence API",
+    "version": "0.0.1"
+  },
+  "openapi": "3.0.0",
+  "paths": {
+    "/api_users": {
+      "get": {
+        "description": "The list of user will be limited to 100 and a cursor will be returned for iterating on other users. Iteration is only needed if the nextCursor is not an empty value.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/cursor"
+          },
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiUsersList"
+                }
+              }
+            },
+            "description": "List of API users"
+          }
+        },
+        "summary": "Returns a list of api_users"
+      },
+      "post": {
+        "parameters": [
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiUser"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/Created"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/components/responses/Duplicate"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        },
+        "summary": "Creates a user"
+      }
+    },
+    "/api_users/{user_id}": {
+      "delete": {
+        "parameters": [
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted user"
+          }
+        },
+        "summary": "Allows to delete a user"
+      },
+      "get": {
+        "parameters": [
+          {
+            "description": "The user ID to fetch",
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "item": {
+                      "$ref": "#/components/schemas/ApiUser"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "A specific user"
+          }
+        },
+        "summary": "Returns a specific API user by its ID"
+      },
+      "patch": {
+        "parameters": [
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiUser"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Message"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        },
+        "summary": "Allows to update parts of a user"
+      },
+      "put": {
+        "parameters": [
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiUser"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Message"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        },
+        "summary": "Allows to update a whole user"
+      }
+    },
+    "/config/connection_profiles": {
+      "get": {
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/cursor"
+          },
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConnectionProfilesList"
+                }
+              }
+            },
+            "description": "A list of connection profiles"
+          }
+        },
+        "summary": "Get all the connection profiles"
+      },
+      "post": {
+        "parameters": [
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConnectionProfile"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/Created"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/components/responses/Duplicate"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        },
+        "summary": "Creates a connection profile"
+      }
+    },
+    "/config/connection_profiles/{connection_profile_id}": {
+      "delete": {
+        "parameters": [
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted connection profile"
+          }
+        },
+        "summary": "Allows to delete a connection profile"
+      },
+      "get": {
+        "parameters": [
+          {
+            "description": "The connection profile ID to fetch",
+            "in": "path",
+            "name": "connection_profile_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "item": {
+                      "$ref": "#/components/schemas/ConnectionProfile"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "A specific connection profile"
+          }
+        },
+        "summary": "Returns a specific connection profile by its ID"
+      },
+      "patch": {
+        "parameters": [
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConnectionProfile"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Message"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        },
+        "summary": "Allows to update parts of a connection profile"
+      },
+      "put": {
+        "parameters": [
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConnectionProfile"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Message"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        },
+        "summary": "Allows to update a whole connection profile"
+      }
+    },
+    "/login": {
+      "post": {
+        "parameters": [
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "password": {
+                    "type": "string"
+                  },
+                  "username": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "token": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Login successful"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        },
+        "security": [
+          {
+            "none": []
+          }
+        ],
+        "summary": "Login into the API and obtain a token"
+      }
+    },
+    "/tenants": {
+      "get": {
+        "description": "The list of tenants will be limited to 100 and a cursor will be returned for iterating on other tenants. Iteration is only needed if the nextCursor is not an empty value.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/cursor"
+          },
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantsList"
+                }
+              }
+            },
+            "description": "List of tenants"
+          }
+        },
+        "summary": "Returns a list of tenants"
+      },
+      "post": {
+        "parameters": [
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Tenant"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/Created"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/components/responses/Duplicate"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        },
+        "summary": "Creates a tenant"
+      }
+    },
+    "/tenants/{tenant_id}": {
+      "delete": {
+        "parameters": [
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted tenant"
+          }
+        },
+        "summary": "Allows to delete a tenant"
+      },
+      "get": {
+        "parameters": [
+          {
+            "description": "The tenant ID to fetch",
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "item": {
+                      "$ref": "#/components/schemas/Tenant"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "A specific tenant"
+          }
+        },
+        "summary": "Returns a specific tenant by its ID"
+      },
+      "patch": {
+        "parameters": [
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Tenant"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Message"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        },
+        "summary": "Allows to update parts of a tenant"
+      },
+      "put": {
+        "parameters": [
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Tenant"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Message"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        },
+        "summary": "Allows to update a whole tenant"
+      }
+    },
+    "/tenants_onboarding": {
+      "post": {
+        "parameters": [
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "domain_name": {
+                    "description": "A valid domain name that will be used as the 802.1x realm",
+                    "type": "string"
+                  },
+                  "name": {
+                    "description": "User friendly name of the tenant",
+                    "type": "string"
+                  },
+                  "portal_domain_name": {
+                    "description": "A valid domain name that will be used for the tenant portal domain name",
+                    "type": "string"
+                  },
+                  "ssids": {
+                    "items": {
+                      "properties": {
+                        "name": {
+                          "description": "The name of the SSID",
+                          "type": "string"
+                        },
+                        "security": {
+                          "description": "The security type of the SSID. Valid types \"WPA2-Personnal\", \"WPA2-Enterprise\", \"MAC-Authentication\"",
+                          "type": "string"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "token": {
+                    "description": "The user token that allows to find the proper AP that the tenant is configuring",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/Created"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/components/responses/Duplicate"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        },
+        "summary": "Allows to onboard a tenant and configure a remote access point using an onboarding token"
+      }
+    },
+    "/users": {
+      "get": {
+        "description": "The list of user will be limited to 100 and a cursor will be returned for iterating on other users. Iteration is only needed if the nextCursor is not an empty value.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/cursor"
+          },
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsersList"
+                }
+              }
+            },
+            "description": "List of users"
+          }
+        },
+        "summary": "Returns a list of users"
+      },
+      "post": {
+        "parameters": [
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/Created"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/components/responses/Duplicate"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        },
+        "summary": "Creates a user"
+      }
+    },
+    "/users/{user_id}": {
+      "delete": {
+        "parameters": [
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted user"
+          }
+        },
+        "summary": "Allows to delete a user"
+      },
+      "get": {
+        "parameters": [
+          {
+            "description": "The user ID to fetch",
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "item": {
+                      "$ref": "#/components/schemas/UserWithLinks"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "A specific user"
+          }
+        },
+        "summary": "Returns a specific user by its ID"
+      },
+      "patch": {
+        "parameters": [
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Message"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        },
+        "summary": "Allows to update parts of a user"
+      },
+      "put": {
+        "parameters": [
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Message"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        },
+        "summary": "Allows to update a whole user"
+      }
+    },
+    "/users/{user_id}/nodes": {
+      "get": {
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/cursor"
+          },
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NodesList"
+                }
+              }
+            },
+            "description": "List of the user's nodes"
+          }
+        },
+        "summary": "Allows to get the nodes of a user"
+      }
+    },
+    "/users/{user_id}/password": {
+      "delete": {
+        "parameters": [
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted password entry"
+          }
+        },
+        "summary": "Allows to delete a password entry for a user"
+      },
+      "get": {
+        "parameters": [
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "item": {
+                      "$ref": "#/components/schemas/Password"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The password entry for a specific user"
+          }
+        },
+        "summary": "Get the password entry for a user"
+      },
+      "patch": {
+        "parameters": [
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Password"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Message"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        },
+        "summary": "Allows to update parts of a password entry of a user"
+      },
+      "post": {
+        "parameters": [
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Password"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/Created"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/components/responses/Duplicate"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        },
+        "summary": "Create a password entry for a user"
+      },
+      "put": {
+        "parameters": [
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Password"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Message"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        },
+        "summary": "Allows to update the whole password entry for a user"
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "servers": [
+    {
+      "url": "http://localhost:9999/api/v1"
+    }
+  ]
+}

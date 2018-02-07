@@ -38,7 +38,6 @@ use pf::config qw(
 use pf::node qw(nodes_registered_not_violators node_view node_deregister $STATUS_REGISTERED);
 use pf::nodecategory;
 use pf::util;
-use pf::violation qw(violation_view_open_uniq violation_count);
 use pf::ip4log;
 use pf::authentication;
 use pf::constants::parking qw($PARKING_IPSET_NAME);
@@ -184,6 +183,7 @@ sub generate_mangle_rules {
 
     # mark all open violations
     # TODO performance: only those whose's last connection_type is inline?
+    require pf::violation;
     my @macarray = pf::violation::violation_view_open_uniq();
     if ( $macarray[0] ) {
         foreach my $row (@macarray) {
@@ -276,9 +276,9 @@ sub iptables_mark_node {
             if ($net_addr->contains($ip)) {
 
                 if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                    $ipset_client->call("/api/v1/ipset/mark_layer3/".$network."/".$mark_type_to_str{$mark}."/".$role_id."/".$iplog."/0",{});
+                    call_ipsetd("/ipset/mark_layer3/".$network."/".$mark_type_to_str{$mark}."/".$role_id."/".$iplog."/0",{});
                 } else {
-                    $ipset_client->call("/api/v1/ipset/mark_layer2/".$network."/".$mark_type_to_str{$mark}."/".$role_id."/".$iplog."/".$mac."/0",{});
+                    call_ipsetd("/ipset/mark_layer2/".$network."/".$mark_type_to_str{$mark}."/".$role_id."/".$iplog."/".$mac."/0",{});
                 }
             }
         } else {
@@ -292,12 +292,25 @@ sub iptables_mark_node {
 sub iptables_unmark_node {
     my ( $self, $mac, $mark ) = @_;
     my $logger = get_logger();
-
-    $ipset_client->call("/api/v1/ipset/unmark_mac/".$mac."/0",{});
-
+    call_ipsetd("/ipset/unmark_mac/".$mac."/0",{});
     return (1);
 }
 
+=item call_ipsetd
+
+call_ipsetd
+
+=cut
+
+sub call_ipsetd {
+    my ($path, $data) = @_;
+    eval {
+        $ipset_client->call("/api/v1/$url", $data);
+    };
+    if ($@) {
+        get_logger()->error("Error updating ipset $url : $@");;
+    }
+}
 
 =item get_mangle_mark_for_mac
 
@@ -309,6 +322,7 @@ sub get_mangle_mark_for_mac {
     my ( $self, $mac ) = @_;
     return 4;
 }
+
 =item update_ipset
 
 Update session when the ip address change
@@ -335,14 +349,14 @@ sub update_node {
 
             #Delete from ipset session if the ip change
             if ($net_addr->contains($old_ip)) {
-                 $ipset_client->call("/api/v1/ipset/unmark_ip/".$oldip."/0",{});
+                 call_ipsetd("/ipset/unmark_ip/".$oldip."/0",{});
             }
             #Add in ipset session if the ip change
             if ($net_addr->contains($src_ip)) {
                  if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                    $ipset_client->call("/api/v1/ipset/mark_ip_layer3/".$network."/".$id."/".$src_ip."/0",{});
+                    call_ipsetd("/ipset/mark_ip_layer3/".$network."/".$id."/".$src_ip."/0",{});
                 } else {
-                    $ipset_client->call("/api/v1/ipset/mark_ip_layer2/".$network."/".$id."/".$src_ip."/0",{});
+                    call_ipsetd("/ipset/mark_ip_layer2/".$network."/".$id."/".$src_ip."/0",{});
                 }
             }
 

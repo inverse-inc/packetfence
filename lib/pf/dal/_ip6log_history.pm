@@ -21,7 +21,11 @@ use warnings;
 ### pf::dal::_ip6log_history is auto generated any change to this file will be lost
 ### Instead change in the pf::dal::ip6log_history module
 ###
+
 use base qw(pf::dal);
+
+use Role::Tiny::With;
+with qw(pf::dal::roles::has_tenant_id);
 
 our @FIELD_NAMES;
 our @INSERTABLE_FIELDS;
@@ -33,6 +37,7 @@ our @COLUMN_NAMES;
 BEGIN {
     @FIELD_NAMES = qw(
         id
+        tenant_id
         mac
         ip
         type
@@ -41,6 +46,7 @@ BEGIN {
     );
 
     %DEFAULTS = (
+        tenant_id => '1',
         mac => '',
         ip => '',
         type => undef,
@@ -49,6 +55,7 @@ BEGIN {
     );
 
     @INSERTABLE_FIELDS = qw(
+        tenant_id
         mac
         ip
         type
@@ -61,6 +68,12 @@ BEGIN {
             type => 'INT',
             is_auto_increment => 1,
             is_primary_key => 1,
+            is_nullable => 0,
+        },
+        tenant_id => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
             is_nullable => 0,
         },
         mac => {
@@ -101,6 +114,7 @@ BEGIN {
 
     @COLUMN_NAMES = qw(
         ip6log_history.id
+        ip6log_history.tenant_id
         ip6log_history.mac
         ip6log_history.ip
         ip6log_history.type

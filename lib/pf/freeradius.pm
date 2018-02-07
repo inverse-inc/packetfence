@@ -96,7 +96,7 @@ sub _insert_nas_bulk {
     my $sqla = pf::dal::radius_nas->get_sql_abstract;
     my ($sql, @bind) = $sqla->update_multi(
         'radius_nas',
-        [qw(nasname shortname secret description config_timestamp start_ip end_ip range_length)],
+        [qw(tenant_id nasname shortname secret description config_timestamp start_ip end_ip range_length)],
         \@rows
     );
     my ($status, $sth) = pf::dal::radius_nas->db_execute($sql, @bind);
@@ -172,7 +172,7 @@ sub _build_radius_nas_row {
             $range_length = $end_ip - $start_ip + 1;
         }
     }
-    [$id, $id, $data->{radiusSecret}, $id . " (" . $data->{'type'} .")", $timestamp, $start_ip, $end_ip, $range_length]
+    [$data->{TenantId}, $id, $id, $data->{radiusSecret}, $id . " (" . $data->{'type'} .")", $timestamp, $start_ip, $end_ip, $range_length]
 }
 
 =back

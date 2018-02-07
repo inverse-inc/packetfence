@@ -41,6 +41,7 @@ use Errno qw(EINTR);
 use pf::file_paths qw(
     $control_dir
 );
+use pf::dal;
 use pf::locationlog;
 use pf::node;
 use pf::cluster;
@@ -345,6 +346,7 @@ sub new {
         '_VlanMap'                      => 'enabled',
         '_RoleMap'                      => 'enabled',
         '_UrlMap'                       => 'enabled',
+        '_TenantId'                     => $DEFAULT_TENANT_ID,
         map { "_".$_ => $argv->{$_} } keys %$argv,
     }, $class;
     return $self;
@@ -3625,6 +3627,17 @@ sub isMacInAddressTableAtIfIndex {
     $logger->warn("isMacInAddressTableAtIfIndex is not supported or implemented for this switch");
 
     return 0;
+}
+
+=item setCurrentTenant
+
+Set the current tenant in the DAL based on the tenant ID configured in the switch
+
+=cut
+
+sub setCurrentTenant {
+    my ($self) = @_;
+    pf::dal->set_tenant($self->{_TenantId});
 }
 
 =back

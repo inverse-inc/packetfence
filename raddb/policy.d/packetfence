@@ -31,6 +31,15 @@ packetfence-local-auth {
     }
 
 }
+
+#Update the PacketFence-Tenant-Id defaulting to the default tenant_id
+packetfence-set-tenant-id {
+    if ( "%{%{control:PacketFence-Tenant-Id}:-0}" == "0") {
+        update control {
+                &PacketFence-Tenant-Id = "%{sql: SELECT IFNULL((SELECT tenant_id FROM radius_nas WHERE nasname = '%{Packet-Src-IP-Address}'), 1)}"
+        }
+    }
+}
 ### END Local SQL authentication
 packetfence-switch-access { 
     if ( \

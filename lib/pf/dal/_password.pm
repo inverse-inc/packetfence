@@ -21,7 +21,11 @@ use warnings;
 ### pf::dal::_password is auto generated any change to this file will be lost
 ### Instead change in the pf::dal::password module
 ###
+
 use base qw(pf::dal);
+
+use Role::Tiny::With;
+with qw(pf::dal::roles::has_tenant_id);
 
 our @FIELD_NAMES;
 our @INSERTABLE_FIELDS;
@@ -32,6 +36,7 @@ our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
+        tenant_id
         pid
         password
         valid_from
@@ -45,6 +50,7 @@ BEGIN {
     );
 
     %DEFAULTS = (
+        tenant_id => '1',
         pid => '',
         password => '',
         valid_from => '0000-00-00 00:00:00',
@@ -58,6 +64,7 @@ BEGIN {
     );
 
     @INSERTABLE_FIELDS = qw(
+        tenant_id
         pid
         password
         valid_from
@@ -71,6 +78,12 @@ BEGIN {
     );
 
     %FIELDS_META = (
+        tenant_id => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
         pid => {
             type => 'VARCHAR',
             is_auto_increment => 0,
@@ -138,6 +151,7 @@ BEGIN {
     );
 
     @COLUMN_NAMES = qw(
+        password.tenant_id
         password.pid
         password.password
         password.valid_from

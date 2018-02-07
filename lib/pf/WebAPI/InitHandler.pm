@@ -20,12 +20,15 @@ use pf::db;
 use pf::CHI;
 use pf::CHI::Request;
 use pf::SwitchFactory();
+use pf::dal;
+use pf::constants qw($DEFAULT_TENANT_ID);
 
 use Apache2::Const -compile => 'OK';
 
 sub handler {
     my $r = shift;
     pf::CHI::Request::clear_all();
+    pf::dal->reset_tenant();
     return Apache2::Const::OK;
 }
 

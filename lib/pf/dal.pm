@@ -23,12 +23,13 @@ use pf::log;
 use pf::error qw(is_error is_success);
 use pf::SQL::Abstract;
 use pf::dal::iterator;
+use pf::constants qw($TRUE $FALSE $DEFAULT_TENANT_ID);
 
 use Class::XSAccessor {
     accessors => [qw(__from_table __old_data)],
 };
 
-our $CURRENT_TENANT = 0;
+our $CURRENT_TENANT = $DEFAULT_TENANT_ID;
 
 =head2 new
 
@@ -98,7 +99,7 @@ Execute the sql query with it's bind parameters
 =cut
 
 sub db_execute {
-    my ($self, $sql, @params) = @_;
+    my ($self, $sql, @bind) = @_;
     my $attempts = 3;
     my $logger = $self->logger;
     my $status = $STATUS::INTERNAL_SERVER_ERROR;
@@ -108,9 +109,9 @@ sub db_execute {
             $logger->error("Cannot connect to database retrying connection");
             next;
         }
-        $logger->trace(sub{"preparing statement query $sql with params (" . join(", ", map { defined $_ ? $_ : "(undef)"} @params) . ")"});
+        $logger->trace(sub{"preparing statement query $sql with bind (" . join(", ", map { defined $_ ? $_ : "(undef)"} @bind) . ")"});
         my $sth = $dbh->prepare_cached($sql);
-        unless ($sth && $sth->execute(@params)) {
+        unless ($sth && $sth->execute(@bind)) {
             my $err = $dbh->err;
             my $errstr = $dbh->errstr;
             pf::db::db_handle_error($err);
@@ -122,7 +123,7 @@ sub db_execute {
                     if ($ALLOWED_ERROR == $status) {
                         $logger->trace("Ignoring error $errstr (errno: $err)");
                     } else {
-                        $logger->error("Database query failed with non retryable error: $errstr (errno: $err) [$sql]{". join(", ", map { defined $_ ?  $_ : "NULL" } @params)  . "}");
+                        $logger->error("Database query failed with non retryable error: $errstr (errno: $err) [$sql]{". join(", ", map { defined $_ ?  $_ : "NULL" } @bind)  . "}");
                     }
                 }
                 last;
@@ -364,6 +365,7 @@ sub insert {
     my ($status, $sth) = $self->do_insert(
         -into => $self->table,
         -values   => $insert_data,
+        -no_auto_tenant_id => $self->{-no_auto_tenant_id},
     );
     return $status if is_error($status);
 
@@ -371,9 +373,11 @@ sub insert {
     if ($rows) {
         $self->_save_old_data();
         $self->update_auto_increment_field($sth);
+        $sth->finish;
         $self->after_create_hook();
         return $STATUS::CREATED;
     }
+    $sth->finish;
     return $STATUS::BAD_REQUEST;
 }
 
@@ -858,7 +862,57 @@ sub merge {
 
 sub set_tenant {
     my ($class, $tenant_id) = @_;
+    if(!defined($tenant_id)) {
+        get_logger->info("Undefined tenant ID specified, ignoring it and keeping current tenant");
+        return $FALSE;
+    }
+
+    my ($status, $count) = pf::dal->count(
+        -where => {
+            id => $tenant_id,
+        },
+        -from => 'tenant',
+    );
+
+    if (is_error($status)) {
+        get_logger->error("Problem looking up tenant ID ($tenant_id) in database");
+        return $FALSE;
+    }
+
+    if ($count == 0) {
+        get_logger->error("Invalid tenant ID ($tenant_id) specified, ignoring it and keeping current tenant");
+        return $FALSE;
+    }
+
+    get_logger->debug("Setting current tenant ID to $tenant_id");
     $CURRENT_TENANT = $tenant_id;
+    return $TRUE;
+}
+
+=head2 reset_tenant
+
+reset_tenant
+
+=cut
+
+sub reset_tenant {
+    $CURRENT_TENANT = $DEFAULT_TENANT_ID;
+}
+
+=head2 table
+
+table
+
+=cut
+
+sub table {
+    my ($self) = @_;
+    return undef;
+}
+
+
+sub get_tenant {
+    return $CURRENT_TENANT;
 }
 
 =head2 select
@@ -881,20 +935,141 @@ Wrap call to select and db_execute
 
 sub do_select {
     my ($proto, @args) = @_;
-    @args = $proto->update_select(@args);
+    @args = $proto->update_params_for_select(@args);
     my ($sql, @bind) = $proto->select(@args);
     return $proto->db_execute($sql, @bind);
 }
 
-=head2 update_select
+our %PARAMS_FOR_SELECT = (
+    -columns      => 1,
+    -from         => 1,
+    -where        => 1,
+    -union        => 1,
+    -union_all    => 1,
+    -intersect    => 1,
+    -minus        => 1,
+    -except       => 1,
+    -group_by     => 1,
+    -having       => 1,
+    -order_by     => 1,
+    -page_size    => 1,
+    -page_index   => 1,
+    -limit        => 1,
+    -offset       => 1,
+    -for          => 1,
+    -want_details => 1,
+);
 
-update_select
+our %PARAMS_FOR_INSERT = (
+    -into      => 1,
+    -values    => 1,
+    -returning => 1,
+);
+
+our %PARAMS_FOR_UPDATE = (
+    -table    => 1,
+    -set      => 1,
+    -where    => 1,
+    -order_by => 1,
+    -limit    => 1,
+);
+
+our %PARAMS_FOR_DELETE = (
+    -from     => 1,
+    -where    => 1,
+    -order_by => 1,
+    -limit    => 1,
+);
+
+our %PARAMS_FOR_UPSERT = (
+  -into         => 1,
+  -values       => 1,
+  -on_conflict  => 1,
+);
+
+=head2 update_params_for_select
+
+update_params_for_select
 
 =cut
 
-sub update_select {
-    my ($self, @args) = @_;
-    return @args;
+sub update_params_for_select {
+    my ($self, %args) = @_;
+    my %new_args;
+    while (my ($k, $v) = each %args) {
+        if (CORE::exists $PARAMS_FOR_SELECT{$k}) {
+            $new_args{$k} = $v;
+        }
+    }
+    return %new_args;
+}
+
+=head2 update_params_for_update
+
+update_params_for_update
+
+=cut
+
+sub update_params_for_update {
+    my ($self, %args) = @_;
+    my %new_args;
+    while (my ($k, $v) = each %args) {
+        if (CORE::exists $PARAMS_FOR_UPDATE{$k}) {
+            $new_args{$k} = $v;
+        }
+    }
+    return %new_args;
+}
+
+=head2 update_params_for_insert
+
+update_params_for_insert
+
+=cut
+
+sub update_params_for_insert {
+    my ($self, %args) = @_;
+    my %new_args;
+    while (my ($k, $v) = each %args) {
+        if (CORE::exists $PARAMS_FOR_INSERT{$k}) {
+            $new_args{$k} = $v;
+        }
+    }
+    return %new_args;
+}
+
+=head2 update_params_for_delete
+
+update_params_for_delete
+
+=cut
+
+sub update_params_for_delete {
+    my ($self, %args) = @_;
+    my %new_args;
+    while (my ($k, $v) = each %args) {
+        if (CORE::exists $PARAMS_FOR_DELETE{$k}) {
+            $new_args{$k} = $v;
+        }
+    }
+    return %new_args;
+}
+
+=head2 update_params_for_upsert
+
+update_params_for_upsert
+
+=cut
+
+sub update_params_for_upsert {
+    my ($self, %args) = @_;
+    my %new_args;
+    while (my ($k, $v) = each %args) {
+        if (CORE::exists $PARAMS_FOR_UPSERT{$k}) {
+            $new_args{$k} = $v;
+        }
+    }
+    return %new_args;
 }
 
 =head2 do_insert
@@ -906,6 +1081,7 @@ Wrap call to pf::SQL::Abstract->insert and db_execute
 sub do_insert {
     my ($proto, @args) = @_;
     my $sqla          = $proto->get_sql_abstract;
+    @args = $proto->update_params_for_insert(@args);
     my ($stmt, @bind) = $sqla->insert(@args);
     return $proto->db_execute($stmt, @bind);
 }
@@ -919,6 +1095,7 @@ Wrap call to pf::SQL::Abstract->upsert and db_execute
 sub do_upsert {
     my ($proto, @args) = @_;
     my $sqla          = $proto->get_sql_abstract;
+    @args = $proto->update_params_for_upsert(@args);
     my ($stmt, @bind) = $sqla->upsert(@args);
     return $proto->db_execute($stmt, @bind);
 }
@@ -932,6 +1109,7 @@ Wrap call to pf::SQL::Abstract->update and db_execute
 sub do_update {
     my ($proto, @args) = @_;
     my $sqla          = $proto->get_sql_abstract;
+    @args = $proto->update_params_for_update(@args);
     my ($stmt, @bind) = $sqla->update(@args);
     return $proto->db_execute($stmt, @bind);
 }
@@ -945,6 +1123,7 @@ Wrap call to pf::SQL::Abstract->delete and db_execute
 sub do_delete {
     my ($proto, @args) = @_;
     my $sqla          = $proto->get_sql_abstract;
+    @args = $proto->update_params_for_delete(@args);
     my ($stmt, @bind) = $sqla->delete(@args);
     return $proto->db_execute($stmt, @bind);
 }
