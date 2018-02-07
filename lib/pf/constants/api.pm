@@ -23,6 +23,8 @@ our $PFSSO_PORT = 8777;
 our $GO_DHCP_PORT = 22222;
 our $GO_IPSET_PORT = 22223;
 
+our $LOGIN_PATH = "/api/v1/login";
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

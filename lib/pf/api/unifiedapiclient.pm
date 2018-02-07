@@ -28,6 +28,7 @@ use WWW::Curl::Easy;
 use Moo;
 use HTTP::Status qw(:constants);
 use pf::error qw(is_success);
+use pf::constants::api;
 
 =head1 Attributes
 
@@ -152,7 +153,7 @@ sub call {
             }
         }
         # If we got a 401 and aren't currently logging in then we try to login and retry the request
-        elsif($response_code == 401 && $path ne "/api/v1/login") {
+        elsif($response_code == 401 && $path ne $pf::constants::api::LOGIN_PATH) {
             get_logger->info("Request to $path is unauthorized, will perform a login");
             $self->login();
             return $self->call(@params);
@@ -169,7 +170,7 @@ sub call {
 
 sub login {
     my ($self) = @_;
-    my $token = $self->call("POST", "/api/v1/login", {username => $self->username, password => $self->password})->{token};
+    my $token = $self->call("POST", $pf::constants::api::LOGIN_PATH, {username => $self->username, password => $self->password})->{token};
     $self->token($token);
 }
 
