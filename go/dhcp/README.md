@@ -3,7 +3,7 @@
 ## IP2MAC
 
 ```
-curl http://127.0.0.1:22222/ip2mac/192.168.0.2 | python -m json.tool
+curl http://127.0.0.1:22222/api/v1/dhcp/ip2mac/192.168.0.2 | python -m json.tool
 ```
 
 ```
@@ -18,7 +18,7 @@ curl http://127.0.0.1:22222/ip2mac/192.168.0.2 | python -m json.tool
 ## MAC2IP
 
 ```
-curl http://127.0.0.1:22222/mac2ip/10:1f:74:b2:f6:a5 | python -m json.tool
+curl http://127.0.0.1:22222/api/v1/dhcp/mac2ip/10:1f:74:b2:f6:a5 | python -m json.tool
 ```
 
 ```
@@ -33,7 +33,7 @@ curl http://127.0.0.1:22222/mac2ip/10:1f:74:b2:f6:a5 | python -m json.tool
 ## Statistics
 
 ```
-curl http://127.0.0.1:22222/stats/eth1.137 | python -m json.tool
+curl http://127.0.0.1:22222/api/v1/dhcp/stats/eth1.137 | python -m json.tool
 ```
 
 ```
@@ -69,7 +69,7 @@ curl -H "Content-Type: application/json" -d '[{"option":51,"value":"123","type":
 #### Remove
 
 ```
-curl http://127.0.0.1:22222/options/del/mac/10:1f:74:b2:f6:a5/
+curl http://127.0.0.1:22222/api/v1/dhcp/options/del/mac/10:1f:74:b2:f6:a5/
 ```
 
 ### For a Network
@@ -83,5 +83,5 @@ curl -H "Content-Type: application/json" -d '[{"option":51,"value":"123","type":
 #### Remove
 
 ```
-curl http://127.0.0.1:22222/options/del/network/192.168.0.0/
+curl http://127.0.0.1:22222/api/v1/dhcp/options/del/network/192.168.0.0/
 ```

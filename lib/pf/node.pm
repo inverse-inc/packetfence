@@ -711,10 +711,10 @@ sub node_deregister {
     }
 
     pf::api::jsonrestclient->new(
-        proto   => "http",
+        proto   => "https",
         host    => "localhost",
         port    => $pf::constants::api::GO_DHCP_PORT,
-    )->call("/api/v1/pfdhcp/releaseip/".$mac,{});
+    )->call("/api/v1/dhcp/releaseip/".$mac,{});
 
     return (1);
 }
