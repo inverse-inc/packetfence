@@ -4231,116 +4231,15 @@ In the guided configuration you now be able to select your new SSID, the Portal 
 
 // Anyfi Networks
 
-include::networkdevices/anyfi.asciidoc[]
-
-Anyfi
-~~~~~
-
-In this section, we cover the basic configuration of the Anyfi Gateway to create a hotspot SSID available on all access points.
-
-This does not cover the configuration of other Anyfi network elements such as the Controller. Please refer to http://www.anyfinetworks.com/resources[Anyfi Networks' website] for relevant documentation.
-
-In this configuration eth0 will be the management interface of the Anyfi Gateway and eth1 will be the interface that will bridge the tagged packets to your network.
-
-Interfaces configuration
-++++++++++++++++++++++++
-
-  interfaces {
-      bridge br0 {
-          ...
-      }
-      ethernet eth0 {
-          description "Management network"
-          address 192.168.0.20/24
-      }
-      ethernet eth1 {
-          description "Wi-Fi client traffic" 
-          bridge-group {
-              bridge br0
-          }
-      }
-  }
-
-MAC authentication
-^^^^^^^^^^^^^^^^^^
-
-This section will allow you to configure the 'Anyfi-Hotspot' SSID that will use MAC authentication.
-
-SSID configuration
-++++++++++++++++++
-
-  service {
-      anyfi {
-          gateway anyfi-hotspot {
-              accounting {
-                  radius-server 192.168.0.5 {
-                      port 1813
-                      secret useStrongerSecret
-                  }
-              }
-              authorization {
-                  radius-server 192.168.0.5 {
-                      port 1812
-                      secret useStrongerSecret
-                  }
-              }
-              bridge br0
-              controller <Anyfi Controller's IP or FQDN>
-              isolation
-              nas {
-                  identifier anyfi
-                  port 3799
-              }
-              ssid Anyfi-Hotspot
-          }
-      }
-  }
-
-802.1X
-^^^^^^
-
-This section will allow you to configure the 'Anyfi-Secure' SSID that will authenticate users using 802.1X.
-
-SSID configuration
-++++++++++++++++++
-  service {
-      anyfi {
-          gateway secure-gw {
-              accounting {
-                  radius-server 192.168.0.5 {
-                      port 1813
-                      secret useStrongerSecret
-                  }
-              }
-              authentication {
-                  eap {
-                      radius-server 192.168.0.5 {
-                          port 1812
-                          secret useStrongerSecret
-                      }
-                  }
-              }
-              bridge br0
-              controller <Anyfi Controller's IP or FQDN>
-              isolation
-              nas {
-                  identifier anyfi
-                  port 3799
-              }
-              ssid Anyfi-Secure
-              wpa2 {
-              }
-          }
-      }
-  }
+include::networkdevice/anyfi.asciidoc[]
 
 Avaya
 ~~~~~
 
-Wireless Controller (WC)
-^^^^^^^^^^^^^^^^^^^^^^^^
+Wireless Controller
+^^^^^^^^^^^^^^^^^^^
 
-  To be contributed....
+NOTE: To be contributed....
 
 Aruba
 ~~~~~
@@ -4946,13 +4845,18 @@ In the event the WLC ignores the RADIUS replies from PacketFence (you receive mu
 * RADIUS secret is properly configured in PacketFence and the WLC controller.
 * The SSL certificate used by PacketFence is not expired.
 
+// CoovaChilli
+
+include::networkdevice/coovachilli.asciidoc[]
+
+
 D-Link
 ~~~~~~
 
 DWL Access-Points and DWS 3026
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-  To be contributed...
+NOTE: To be contributed...
 
 
 Extricom
