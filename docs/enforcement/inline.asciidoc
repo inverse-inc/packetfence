@@ -20,22 +20,6 @@ In order to build an inline deployment of PacketFence setup you need :
 * 2 network interfaces for the VM (1 for the Inline and another one to go out)
 * a switch port in the management network for the PacketFence server
 * a switch port in the inline network for the PacketFence server which needs to be configured in access mode and in the same access VLAN as every switchport on which devices will be connected
-* your server has net.ipv4.ip_forward enabled
-
-Edit the following file:
-----
-# /etc/sysctl.conf
-----
-
-Change net.ipv4.ip_forward from 0 to 1
-----
-# net.ipv4.ip_forward = 1
-----
-
-Now you need to make this change permanent, apply the following in your terminal:
-----
-# sysctl -p /etc/sysctl.conf
-----
 
 Adding Inline Interface
 ~~~~~~~~~~~~~~~~~~~~~~~

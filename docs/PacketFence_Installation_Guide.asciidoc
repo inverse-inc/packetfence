@@ -2735,8 +2735,8 @@ Palo Alto
 
 include::firewall/paloalto.asciidoc[]
 
-Perfoming Compliance Checks
----------------------------
+Performing Compliance Checks
+----------------------------
 
 PacketFence supports either Nessus, OpenVAS and WMI as a scanning engine for compliance checks.
 Since PacketFence v5.1 you are now able to create multiples scan engines configuration and assign them on specific captive portals.
@@ -4156,109 +4156,16 @@ At the bottom, select in the list "Run a new instance in parallel"
 
 Validate with Ok and give the account who will run this task. (Usually _DOMAIN\Administrator_)
 
+Switch Login Access
+~~~~~~~~~~~~~~~~~~~
 
-include::includes/additional-info.asciidoc[]
+PacketFence is able to act as an authentication and authorization service on the port 1815 for granting command-line interface (CLI) access to switches.
+PacketFence currently supports Cisco switches and these must be configured using the following guide: http://www.cisco.com/c/en/us/support/docs/security-vpn/remote-authentication-dial-user-service-radius/116291-configure-freeradius-00.html
+From the PacketFence's web admin interface, you must configure an Admin Access role (*Configuration->System Configuration->Admin Access*) that contains the action 'Switches CLI - Read' or 'Switches CLI - Write' and assign this role to an internal user or in an Administration rule in an internal source.
 
-include::includes/commercial-support.asciidoc[]
+NOTE: Any user that has the 'ALL' administrative role will be able to login into your switches. If you want to provide all PacketFence administrative access to some users without allowing them to login into the switches, then apply the 'ALL_PF_ONLY' administrative role which will contains all the necessary PacketFence roles without the switch login.
 
-include::includes/license.asciidoc[]
-
-[appendix]
-Administration Tools
---------------------
-
-pfcmd
-~~~~~
-
-`pfcmd` is the command line interface to most PacketFence functionalities.
-
-When executed without any arguments `pfcmd` returns a basic help message with all main options:
-
-----
-include::pfcmd.help[]
-----
-
-The node view option shows all information contained in the node database table for a specified MAC address
-
-  # /usr/local/pf/bin/pfcmd node view 52:54:00:12:35:02
-  mac|pid|detect_date|regdate|unregdate|lastskip|status|user_agent|computername|notes|last_arp|last_dhcp|switch|port|vlan|dhcp_fingerprint
-  52:54:00:12:35:02|1|2008-10-23 17:32:16||||unreg||||2008-10-23 21:12:21|||||
-
-[appendix]
-Restoring a Percona XtraBackup dump
------------------------------------
-
-If you enabled Percona XtraBackup for your nightly backup, you can use the following instructions to restore it. In this example we will be restoring `/root/backup/packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream.gz`
-
-First, create a restore directory, move the backup to it and gunzip the backup:
-
-  # mkdir /root/backup/restore
-  # cd /root/backup/restore
-  # cp ../packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream.gz .
-  # gunzip packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream.gz
-
-Then extract the xbstream data:
-
-  # xbstream -x < packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream
-
-Once done, you should have a lot of files that were extracted in the restore dir. Now, lets place the xbstream back in the backup directory
-
-  # mv packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream ../
-
-Next, install qpress (available from the percona repository) and process any qp file that were extracted:
-
-CentOS:
-
-  # yum install qpress --enablerepo=percona-release-`uname -m`
-
-Debian:
-
-  # apt-key adv --keyserver keys.gnupg.net --recv-keys 1C4CBDCDCD2EFD2A
-  # echo 'deb http://repo.percona.com/apt VERSION main' >> /etc/apt/sources.list
-  # echo 'deb-src http://repo.percona.com/apt VERSION main' >> /etc/apt/sources.list
-  # apt-get update
-  # apt-get install qpress
-
-  # for i in $(find -name "*.qp"); do qpress -vd $i $(dirname ${i}) && rm -f $i; done
-
-Next, apply the innodb log:
-
-  # innobackupex --apply-log ./
-
-We will now stop MySQL, move the existing data directory and replace it by the data that was extracted:
-
-NOTE: On Debian the service will be called `mysql` and on CentOS 7 `mariadb`. Make sure you adjust the commands above to your environment.
-
-  # service packetfence-mariadb stop
-  # mv /var/lib/mysql /var/lib/mysql.bak
-  # mkdir /var/lib/mysql
-  # mv * /var/lib/mysql
-  # chown -R mysql: /var/lib/mysql
-  # service packetfence-mariadb start
-
-Should the service fail to start, make sure you look into the MySQL error logs.
-
-
-Configuration
--------------
-
-At this point in the documentation, PacketFence should be installed. You would also have chosen the right enforcement method for you and completed the initial configuration of PacketFence. The following section presents key concepts and features in PacketFence.
-
-PacketFence provides a web-based administration interface for easy configuration and operational management. If you went through PacketFence's web-based configuration tool, you should have set the password for the `admin` user.
-
-Once PacketFence is started, the administration interface is available at: https://@ip_of_packetfence:1443/
-
-The next key steps are important to understand how PacketFence works. In order to get the solution working, you must first understand and configure the following elements of the solution in this specific order:
-
-1. *roles* - a role in PacketFence will be eventually be mapped to a VLAN, an ACL or an external role. You must define the roles to use in your organization for network access
-2. *authentication* - once roles are defined, you must create an appropriate authentication source in PacketFence. That will allow PacketFence to compute the right role to be used for an endpoint, or the user using it
-3. *network devices* - once your roles and authentication sources are defined, you must add switches, WiFi controllers or APs to be managed by PacketFence. When doing so, you will configure how roles are being mapped to VLAN, ACLs or external roles
-4. *connection profiles* - at this point, you are almost ready to test. You will need to set which authentication sources are to be used on the default captive portal, or create an other one to suit your needs
-5. test!
-
-NOTE: If you plan to use 802.1X - please see the _FreeRADIUS Configuration_ section below.
-
-Advanced topics
+Advanced Topics
 ---------------
 
 This section covers advanced topics in PacketFence. Note that it is also possible to configure PacketFence manually using its configuration files instead of its Web administrative interface. It is still recommended to use the Web interface.
@@ -4365,6 +4272,88 @@ Content-Security-Policy (CSP)
 The Content-Security-Policy HTTP response header tells modern browsers what can be accessed from a generated web page. The default policy is pushed for both the captive portal and the admin interfaces and enforces that everything the browser executes comes from within PacketFence, with the exception of the configured network detection host that is by default the Inverse IP address.
 
 If, for some reason the portal is modified with content that needs to be accessed from PacketFence generated web pages, CSP can be deactivated through *Configuration -> System Configuration -> Main Configuration -> Advanced -> CSP Security Headers*.
+
+
+include::includes/additional-info.asciidoc[]
+
+include::includes/commercial-support.asciidoc[]
+
+include::includes/license.asciidoc[]
+
+[appendix]
+Administration Tools
+--------------------
+
+pfcmd
+~~~~~
+
+`pfcmd` is the command line interface to most PacketFence functionalities.
+
+When executed without any arguments `pfcmd` returns a basic help message with all main options:
+
+----
+include::pfcmd.help[]
+----
+
+The node view option shows all information contained in the node database table for a specified MAC address
+
+  # /usr/local/pf/bin/pfcmd node view 52:54:00:12:35:02
+  mac|pid|detect_date|regdate|unregdate|lastskip|status|user_agent|computername|notes|last_arp|last_dhcp|switch|port|vlan|dhcp_fingerprint
+  52:54:00:12:35:02|1|2008-10-23 17:32:16||||unreg||||2008-10-23 21:12:21|||||
+
+[appendix]
+Restoring a Percona XtraBackup dump
+-----------------------------------
+
+If you enabled Percona XtraBackup for your nightly backup, you can use the following instructions to restore it. In this example we will be restoring `/root/backup/packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream.gz`
+
+First, create a restore directory, move the backup to it and gunzip the backup:
+
+  # mkdir /root/backup/restore
+  # cd /root/backup/restore
+  # cp ../packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream.gz .
+  # gunzip packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream.gz
+
+Then extract the xbstream data:
+
+  # xbstream -x < packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream
+
+Once done, you should have a lot of files that were extracted in the restore dir. Now, lets place the xbstream back in the backup directory
+
+  # mv packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream ../
+
+Next, install qpress (available from the percona repository) and process any qp file that were extracted:
+
+CentOS:
+
+  # yum install qpress --enablerepo=percona-release-`uname -m`
+
+Debian:
+
+  # apt-key adv --keyserver keys.gnupg.net --recv-keys 1C4CBDCDCD2EFD2A
+  # echo 'deb http://repo.percona.com/apt VERSION main' >> /etc/apt/sources.list
+  # echo 'deb-src http://repo.percona.com/apt VERSION main' >> /etc/apt/sources.list
+  # apt-get update
+  # apt-get install qpress
+
+  # for i in $(find -name "*.qp"); do qpress -vd $i $(dirname ${i}) && rm -f $i; done
+
+Next, apply the innodb log:
+
+  # innobackupex --apply-log ./
+
+We will now stop MySQL, move the existing data directory and replace it by the data that was extracted:
+
+NOTE: On Debian the service will be called `mysql` and on CentOS 7 `mariadb`. Make sure you adjust the commands above to your environment.
+
+  # service packetfence-mariadb stop
+  # mv /var/lib/mysql /var/lib/mysql.bak
+  # mkdir /var/lib/mysql
+  # mv * /var/lib/mysql
+  # chown -R mysql: /var/lib/mysql
+  # service packetfence-mariadb start
+
+Should the service fail to start, make sure you look into the MySQL error logs.
 
 Optional components
 -------------------
@@ -4619,14 +4608,5 @@ This parameter should be configured from the *Configuration -> Policies and Acce
 Finally, it is advised that you read the whole guest self-registration section since pre-registration is simply a twist of the self-registration process.
 
 CAUTION: A valid MTA configured in PacketFence is needed to correctly relay emails related to the guest module. If _localhost_ is used as smtpserver, make sure that a MTA is installed and configured on the server.
-
-Switch login access
-~~~~~~~~~~~~~~~~~~~
-
-PacketFence is able to act as an authentication and authorization service on the port 1815 for granting command-line interface (CLI) access to switches.
-PacketFence currently supports Cisco switches and these must be configured using the following guide: http://www.cisco.com/c/en/us/support/docs/security-vpn/remote-authentication-dial-user-service-radius/116291-configure-freeradius-00.html
-From the PacketFence's web admin interface, you must configure an Admin Access role (Configuration->Network Configuration->Admin access) that contains the action 'Switches CLI - Read' or 'Switches CLI - Write' and assign this role to an internal user or in an Administration rule in an internal source.
-
-NOTE: Any user that has the 'ALL' administrative role will be able to login into your switches. If you want to provide all PacketFence administrative access to some users without allowing them to login into the switches, then apply the 'ALL_PF_ONLY' administrative role which will contains all the necessary PacketFence roles without the switch login.
 
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:
