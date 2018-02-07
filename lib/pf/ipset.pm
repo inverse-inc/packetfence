@@ -305,10 +305,10 @@ call_ipsetd
 sub call_ipsetd {
     my ($path, $data) = @_;
     eval {
-        $ipset_client->call("/api/v1/$url", $data);
+        $ipset_client->call("/api/v1/$path", $data);
     };
     if ($@) {
-        get_logger()->error("Error updating ipset $url : $@");;
+        get_logger()->error("Error updating ipset $path : $@");;
     }
 }
 
