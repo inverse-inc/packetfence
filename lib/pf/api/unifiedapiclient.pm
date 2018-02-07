@@ -130,7 +130,9 @@ sub call {
 
     $curl->setopt(CURLOPT_CUSTOMREQUEST, $method);
 
-    $curl->setopt(CURLOPT_HTTPHEADER, ["Authorization: Bearer ".$self->token]);
+    if($self->token) {
+        $curl->setopt(CURLOPT_HTTPHEADER, ["Authorization: Bearer ".$self->token]);
+    }
 
     # Starts the actual request
     my $curl_return_code = $curl->perform;
@@ -139,11 +141,19 @@ sub call {
     if ( $curl_return_code == 0 ) {
         my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
         if(is_success($response_code)) {
-            $response = decode_json($response_body);
+            eval {
+                $response = decode_json($response_body);
+            };
+            if($@) {
+                return $response_body;
+            }
+            else {
+                return $response;
+            }
         }
         # If we got a 401 and aren't currently logging in then we try to login and retry the request
         elsif($response_code == 401 && $path ne "/api/v1/login") {
-            print "unauthorized $path \n";
+            get_logger->info("Request to $path is unauthorized, will perform a login");
             $self->login();
             return $self->call(@params);
         }
