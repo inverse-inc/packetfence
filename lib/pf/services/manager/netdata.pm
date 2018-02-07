@@ -51,10 +51,52 @@ sub generateConfig {
     foreach my $source  (@monitor_sources) {
         if ($source->{'host'}) {
             $tags{'members'} .= " $source->{'host'}";
-        } elsif ($source->{'server1_address'}) {
+        }
+        if ($source->{'server1_address'}) {
             $tags{'members'} .= " $source->{'server1_address'}";
-        } elsif ($source->{'server2_address'}) {
+        }
+        if ($source->{'server2_address'}) {
             $tags{'members'} .= " $source->{'server2_address'}";
+        }
+        my $type = ucfirst(lc($source->{'type'}));
+
+        if ($type eq 'Eduroam') {
+
+            $tags{'alerts'} .= <<"EOT";
+template: eduroam1__source_available
+families: *
+      on: source.$type.eduroam1
+   every: 10s
+    crit: \$gauge != 1
+   units: ok/failed
+    info: states if source eduroam1 is available
+   delay: down 5m multiplier 1.5 max 1h
+      to: sysadmin
+
+template: eduroam2_source_available
+families: *
+      on: source.$type.eduroam2
+   every: 10s
+    crit: \$gauge != 1
+   units: ok/failed
+    info: states if source eduroam2 is available
+   delay: down 5m multiplier 1.5 max 1h
+      to: sysadmin
+
+EOT
+        } else {
+            $tags{'alerts'} .= <<"EOT";
+template: $source->{'id'}_source_available
+families: *
+      on: source.$type.$source->{'id'}
+   every: 10s
+    crit: \$gauge != 1
+   units: ok/failed
+    info: states if source $source->{'id'} is available
+   delay: down 5m multiplier 1.5 max 1h
+      to: sysadmin
+
+EOT
         }
     }
 
@@ -117,6 +159,7 @@ sub generateConfig {
     parse_template( \%tags, "$conf_dir/monitoring/health.d/varnish.conf", "$generated_conf_dir/monitoring/health.d/varnish.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/health.d/web_log.conf", "$generated_conf_dir/monitoring/health.d/web_log.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/health.d/zfs.conf", "$generated_conf_dir/monitoring/health.d/zfs.conf" );
+    parse_template( \%tags, "$conf_dir/monitoring/health.d/statsd.conf", "$generated_conf_dir/monitoring/health.d/statsd.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/health_alarm_notify.conf", "$generated_conf_dir/monitoring/health_alarm_notify.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/health_email_recipients.conf", "$generated_conf_dir/monitoring/health_email_recipients.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/node.d.conf", "$generated_conf_dir/monitoring/node.d.conf" );
