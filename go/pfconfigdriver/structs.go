@@ -106,19 +106,6 @@ type PfConfWebservices struct {
 	Host           string `json:"host"`
 }
 
-type PfConfWebservices struct {
-	StructConfig
-	PfconfigMethod string `val:"hash_element"`
-	PfconfigNS     string `val:"config::Pf"`
-	PfconfigHashNS string `val:"webservices"`
-	User           string `json:"user"`
-	Pass           string `json:"pass"`
-	Host           string `json:"host"`
-	Proto          string `json:"proto"`
-	Port           string `json:"port"`
-	AAAPort        string `json:"aaa_port"`
-}
-
 type PfConfDatabase struct {
 	StructConfig
 	PfconfigMethod string `val:"hash_element"`
