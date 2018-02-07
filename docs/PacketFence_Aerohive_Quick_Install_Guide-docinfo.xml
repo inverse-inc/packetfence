@@ -5,6 +5,16 @@
 
 <revhistory>
   <revision>
+    <revnumber>1.1</revnumber>
+    <date>2017-12-12</date>
+    <revremark>- Rebuild of the MAC Authentication doc.</revremark>
+    <revremark>- Adding Web Authentication doc.</revremark>
+    <revremark>- Adding Web Authentication with MAC Authentication doc.</revremark>
+  </revision>
+</revhistory>
+
+<revhistory>
+  <revision>
     <revnumber>1.0</revnumber>
     <date>2016-06-10</date>
     <revremark>First version.</revremark>
