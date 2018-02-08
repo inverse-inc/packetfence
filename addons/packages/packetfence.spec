@@ -324,8 +324,15 @@ Requires: perl(Test::NoWarnings), perl(Test::ParallelSubtest)
 # required for the fake CoA server
 Requires: perl(Net::UDP)
 # For managing the number of connections per device
+%if %{is_release}
+# used for official releases
 Requires: %{real_name}-config = %{version}
 Requires: %{real_name}-pfcmd-suid = %{version}
+%else
+# used for snapshot releases
+Requires: %{real_name}-config = %{version}-%{rev}
+Requires: %{real_name}-pfcmd-suid = %{version}-%{rev}
+%endif
 Requires: haproxy >= 1.6, keepalived >= 1.3.6
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
 Requires: fingerbank >= 3.1.1, fingerbank < 4.0.0
