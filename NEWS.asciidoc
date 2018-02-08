@@ -28,7 +28,7 @@ Enhancements
 
 Bug Fixes
 +++++++++
-
+* fixes #2883
 
 Version 7.4.0 released on 2018-01-25
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
