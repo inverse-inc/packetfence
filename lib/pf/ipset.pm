@@ -60,8 +60,6 @@ Readonly my $FW_POSTROUTING_INT_INLINE => 'postrouting-int-inline-if';
 
 tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config";
 
-my $ipset_client = pf::api::unifiedapiclient->new();
-
 =head1 SUBROUTINES
 
 TODO: This list is incomplete
@@ -334,7 +332,7 @@ sub call_ipsetd {
     my ($path, $data) = @_;
     my $response;
     eval {
-        $response = $ipset_client->call("POST", "/api/v1/$path", $data);
+        $response = $apiclient->call("POST", "/api/v1/$path", $data);
     };
     if ($@) {
         get_logger()->error("Error updating ipset $path : $@");;
