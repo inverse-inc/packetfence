@@ -55,7 +55,7 @@ default http
 
 =cut
 
-has proto => ( is => 'rw', default => sub {$Config{'webservices'}{'proto'}} );
+has proto => ( is => 'rw', default => "https" );
 
 =head2 host
 
