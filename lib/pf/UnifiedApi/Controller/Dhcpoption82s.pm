@@ -18,7 +18,7 @@ use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
 use pf::dal::dhcp_option82;
 
 has dal => 'pf::dal::dhcp_option82';
-has url_param_name => 'mac';
+has url_param_name => 'dhcpoption82_id';
 has primary_key => 'mac';
 
 =head1 AUTHOR
