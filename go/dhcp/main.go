@@ -1,7 +1,6 @@
 package main
 
 import (
-	"crypto/tls"
 	"database/sql"
 	"encoding/binary"
 
@@ -150,23 +149,10 @@ func main() {
 
 	http.Handle("/", httpauth.SimpleBasicAuth(webservices.User, webservices.Pass)(router))
 
-	cfg := &tls.Config{
-		MinVersion:               tls.VersionTLS12,
-		CurvePreferences:         []tls.CurveID{tls.CurveP521, tls.CurveP384, tls.CurveP256},
-		PreferServerCipherSuites: true,
-		CipherSuites: []uint16{
-			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
-			tls.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
-			tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
-			tls.TLS_RSA_WITH_AES_256_CBC_SHA,
-		},
-	}
 	srv := &http.Server{
-		Addr:         ":22222",
-		IdleTimeout:  5 * time.Second,
-		Handler:      router,
-		TLSConfig:    cfg,
-		TLSNextProto: make(map[string]func(*http.Server, *tls.Conn, http.Handler), 0),
+		Addr:        ":22222",
+		IdleTimeout: 5 * time.Second,
+		Handler:     router,
 	}
 
 	// Systemd
@@ -178,12 +164,9 @@ func main() {
 			return
 		}
 		for {
-			req, err := http.NewRequest("GET", "https://127.0.0.1:22222", nil)
+			req, err := http.NewRequest("GET", "http://127.0.0.1:22222", nil)
 			req.SetBasicAuth(webservices.User, webservices.Pass)
-			tr := &http.Transport{
-				TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-			}
-			cli := &http.Client{Transport: tr}
+			cli := &http.Client{}
 			_, err = cli.Do(req)
 			if err == nil {
 				daemon.SdNotify(false, "WATCHDOG=1")
@@ -191,7 +174,7 @@ func main() {
 			time.Sleep(interval / 3)
 		}
 	}()
-	srv.ListenAndServeTLS("/usr/local/pf/conf/ssl/server.crt", "/usr/local/pf/conf/ssl/server.key")
+	srv.ListenAndServe()
 }
 
 // Broadcast Listener
