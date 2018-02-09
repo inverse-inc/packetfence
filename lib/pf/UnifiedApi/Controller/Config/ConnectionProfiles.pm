@@ -17,6 +17,7 @@ use warnings;
 use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
 use pf::ConfigStore::Profile;
 use pfappserver::Form::Config::Profile;
+use pfappserver::Form::Config::Profile::Default;
 
 has 'config_store_class' => 'pf::ConfigStore::Profile';
 has 'form_class' => 'pfappserver::Form::Config::Profile';
@@ -48,6 +49,14 @@ our %DEFAULT_VALUES = (
 
 sub default_values {
     \%DEFAULT_VALUES
+}
+
+sub form {
+    my ($self, $item) = @_;
+    if ( ($item->{id} // '') eq 'default') {
+        return pfappserver::Form::Config::Profile::Default->new;
+    }
+    return $self->SUPER::form($item);
 }
 
 =head1 AUTHOR
