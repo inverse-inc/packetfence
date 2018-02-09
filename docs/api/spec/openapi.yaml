@@ -213,8 +213,6 @@ components:
               $ref: '#/components/schemas/ConnectionProfile'
             type: array
         type: object
-        
-        
     Dhcpoption82List:
       allOf:
       - $ref: '#/components/schemas/Iterable'
@@ -227,34 +225,32 @@ components:
     Dhcpoption82:
       properties:
         mac:
-          description: 
+          description: The clients MAC address
           type: string    
         created_at:
-          description: 
+          description: The date/time of when this record was created
           type: string    
         option82_switch:
-          description: 
+          description: The IPv4 address of the switch
           type: string    
         switch_id:
-          description: 
+          description: The unique identifier of the switch
           type: string    
         port:
-          description: 
-          type: string    
+          description: The clients numeric port number
+          type: integer    
         vlan:
-          description: 
-          type: string    
+          description: The numeric VLAN identifier
+          type: integer    
         circuit_id_string:
           description: 
           type: string    
         module:
           description: 
-          type: string    
+          type: integer    
         host:
           description: 
           type: string    
-        
-        
     ErrorsWithMessage:
       properties:
         errors:

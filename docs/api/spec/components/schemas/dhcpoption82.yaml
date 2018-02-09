@@ -1,0 +1,40 @@
+Dhcpoption82List:
+  allOf:
+    - $ref: "#/components/schemas/Iterable"
+    - type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Dhcpoption82"
+
+Dhcpoption82:
+  type: object
+  properties:
+    mac:
+     description: The clients MAC address
+     type: string  
+    created_at:
+     description: The date/time of when this record was created
+     type: string  
+    option82_switch:
+     description: The IPv4 address of the switch
+     type: string  
+    switch_id:
+     description: The unique identifier of the switch
+     type: string  
+    port:
+     description: The clients numeric port number
+     type: integer  
+    vlan:
+     description: The numeric VLAN identifier
+     type: integer  
+    circuit_id_string:
+     description: 
+     type: string  
+    module:
+     description: 
+     type: integer  
+    host:
+     description: 
+     type: string   
