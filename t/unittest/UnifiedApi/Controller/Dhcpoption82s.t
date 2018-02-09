@@ -25,7 +25,7 @@ BEGIN {
     use setup_test_config;
 }
 #run tests
-use Test::More tests => 20;
+use Test::More tests => 29;
 use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
@@ -69,6 +69,15 @@ my $mac = $t->tx->res->json->{items}[0]{mac};
 
 #run unittest, use $mac
 $t->get_ok("/api/v1/dhcpoption82/$mac")
+  ->json_is('/item/mac', $values{mac})
+  ->json_is('/item/created_at', $dt_format->format_datetime($dt_now))
+  ->json_is('/item/option82_switch', $values{option82_switch})
+  ->json_is('/item/switch_id', $values{switch_id})
+  ->json_is('/item/port', $values{port})
+  ->json_is('/item/vlan', $values{vlan})
+  ->json_is('/item/circuit_id_string', $values{circuit_id_string})
+  ->json_is('/item/module', $values{module})
+  ->json_is('/item/host', $values{host})
   ->status_is(200);
   
 #truncate the dhcp_option82 table

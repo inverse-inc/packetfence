@@ -213,6 +213,48 @@ components:
               $ref: '#/components/schemas/ConnectionProfile'
             type: array
         type: object
+        
+        
+    Dhcpoption82List:
+      allOf:
+      - $ref: '#/components/schemas/Iterable'
+      - properties:
+          items:
+            items:
+              $ref: '#/components/schemas/Dhcpoption82'
+            type: array
+        type: object    
+    Dhcpoption82:
+      properties:
+        mac:
+          description: 
+          type: string    
+        created_at:
+          description: 
+          type: string    
+        option82_switch:
+          description: 
+          type: string    
+        switch_id:
+          description: 
+          type: string    
+        port:
+          description: 
+          type: string    
+        vlan:
+          description: 
+          type: string    
+        circuit_id_string:
+          description: 
+          type: string    
+        module:
+          description: 
+          type: string    
+        host:
+          description: 
+          type: string    
+        
+        
     ErrorsWithMessage:
       properties:
         errors:
