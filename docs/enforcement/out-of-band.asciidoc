@@ -9,10 +9,10 @@ In order to build a VLAN isolation setup you need :
 
 Throughout this configuration example we use the following assumptions for our network infrastructure:
 
-* VLAN 1 is the management VLAN
-* VLAN 2 is the registration VLAN (unregistered devices will be put in this VLAN)
-* VLAN 3 is the isolation VLAN (isolated devices will be put in this VLAN)
-* VLAN 10 is the "regular" VLAN
+* VLAN 20 is the management VLAN
+* VLAN 102 is the registration VLAN (unregistered devices will be put in this VLAN)
+* VLAN 103 is the isolation VLAN (isolated devices will be put in this VLAN)
+* VLAN 20 is the "regular" VLAN
 
 Please refer to the following table for IP and Subnet information :
 
@@ -25,7 +25,7 @@ Please refer to the following table for IP and Subnet information :
 |20       |Normal        |192.168.1.0/24   |192.168.1.1     |
 |===============================================================================
 
-Note that PacketFence will these services on its registration and isolation VLANs:
+Note that PacketFence will provide these services on its registration and isolation VLANs:
 
 * PacketFence provides its own DHCP services. It will take care of IP address distribution in VLANs 102 and 103. PacketFence will not provide DHCP services on VLAN 20 - this is the responsibility of your own infrastructure
 * PacketFence provides its own DNS service. It will take care of naming resolution in VLANs 102 and 103. PacketFence will not provide DNS services on VLAN 20 - this is the responsibility of your own infrastructure
@@ -34,7 +34,7 @@ Note that PacketFence will these services on its registration and isolation VLAN
 Adding the Registration and Isolation Interface
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-First of all, make sure you add a new NIC to your PacketFence server and you set the switch port where that NIC is connected in `trunk`. If you prefer, you can also set your management interface as trunk and set the PVID to your management VLAN on the switch port where that management is connected.s
+First of all, make sure you add a new NIC to your PacketFence server and you set the switch port where that NIC is connected in `trunk`. If you prefer, you can also set your management interface as trunk and set the PVID to your management VLAN on the switch port where that management is connected.
 
 We will create two interface VLAN for registration and isolation using the management interface.
 
@@ -87,19 +87,20 @@ From the Roles tab, make sure you specify the following information:
    registration VLAN: 102
    isolation VLAN: 103
    default: 20
+   guest: 20
 
-DISABLE...
+Disable 'Role by Switch Role' and 'Role by Web Auth URL'.
 
 Click on the Save button once completed.
 
 Configure the Cisco Catalyst 2960
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In previous sections, we correctly configured our switch to do 802.1X. Now let's slightly modify that configuration so that we enable MAC authentication and 802.1X on a new swithc port. This will demonstrate the configuraiton differences.
+In previous sections, we correctly configured our switch to do 802.1X. Now let's slightly modify that configuration so that we enable MAC authentication and 802.1X on a new switch port. This will demonstrate the configuration differences.
 
 Configure Switchport for MAB
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Once AAA is ready, we can configure some or all switchports to perform MAC (MAC Authentication Bypass) and 802.1X. In our example, we will only configure port no. 11 without VoIP support:
+Once AAA is ready, we can configure some or all switchports to perform MAB (MAC Authentication Bypass) and 802.1X. In our example, we will only configure port no. 11 without VoIP support:
    
    switchport mode access
    authentication host-mode single-host
@@ -139,7 +140,7 @@ Adding Connection Profile for Registration
 
 Next thing we do is to add a new connection profile - for devices coming from the registration network. We want to show users the captive portal with our Null authentication sources.
 
-From *Configuration->Policies and Access Control->Connection Profiles", click on 'Add Profile'. Provide the following information:
+From *Configuration->Policies and Access Control->Connection Profiles*, click on 'Add Profile'. Provide the following information:
 
  * Profile Name: registration
  * Filters: If *any* VLAN 102
@@ -162,7 +163,7 @@ On the computer:
 * try to connect to a HTTP site (Not HTTPS, eg. http://www.packetfence.org)
 * make sure that whatever site you want to connect to, you have only access to the registration page.
 
-Register the computer using using the Null authentication source.
+Register the computer using the Null authentication source.
 
 Once a computer has been registered, make sure:
 

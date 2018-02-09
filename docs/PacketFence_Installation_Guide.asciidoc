@@ -308,7 +308,7 @@ Write the switch configuration to memory.
 Adding the Switch to PacketFence
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PacketFence must be aware of the equipnent it manages. From 'Configuration->Policies and Access Control->Network Devices->Switches', click on 'Add switch -> default'. Enter your switch IP address (172.21.2.3 in our example). As a switch type, select 'Cisco Catalyst 2960' and select 'Production' as the Mode. From the Roles tab, make sure 'Role by VLAN ID' is checked and that the VLAN ID associated to the default role is set to your normal VLAN currently in use on your network. In our example, it will be VLAN 20. That means that once a 802.1X authentication is allowed by PacketFence, access will be properly granted in the default role in VLAN 20.
+PacketFence must be aware of the equipment it manages. From 'Configuration->Policies and Access Control->Network Devices->Switches', click on 'Add switch -> default'. Enter your switch IP address (172.21.2.3 in our example). As a switch type, select 'Cisco Catalyst 2960' and select 'Production' as the Mode. From the Roles tab, make sure 'Role by VLAN ID' is checked and that the VLAN ID associated to the default role is set to your normal VLAN currently in use on your network. In our example, it will be VLAN 20. That means that once a 802.1X authentication is allowed by PacketFence, access will be properly granted in the default role in VLAN 20.
 
 From the RADIUS tab, specify the 'Secret Passphrase' to use - in our example, it is 'useStrongerSecret'. It is very important to correctly set the RADIUS secret passphrase otherwise PacketFence will prevent the switch from communicating to itself.
 
@@ -333,9 +333,9 @@ Click on 'Save' to save all configuration changes.
 Configuring Microsoft Windows Supplicant
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To enable 802.1X on the wired adapter of the Microsoft Windows 7 endpoint, you first you need to enable the 'Wired AutoConfig' service. To do so, from the Microsoft Windows Services control panel, double-click on 'Wired AutoConfig'. Make sure 'Startup type:' is set to 'Automatic' and click on 'Start' to enable the service.
+To enable 802.1X on the wired adapter of the Microsoft Windows 7 endpoint, you first need to enable the 'Wired AutoConfig' service. To do so, from the Microsoft Windows Services control panel, double-click on 'Wired AutoConfig'. Make sure 'Startup type:' is set to 'Automatic' and click on 'Start' to enable the service.
 
-Then, from Windows' Network Connection connection panel, ask for the properties of the LAN interface you will use for testing. From the authentication tab, make sure 'Enable IEEE 802.1X authentication' is checked. As the authentication method, make sure 'Microsoft: Protected EAP (PEAP)' is selected. Then, click on 'Settings' and make sure 'Validate server certificate' is unchecked. As authentication method, make sure 'Secured password (EAP-MSCHAPv2)' is selected. Then, click on 'Configure ...' and make sure 'Automatically use my Windows logon name and password (and domain if any)' is unchecked.
+Then, from Windows' Network Connection panel, open the Properties window of the LAN interface you will use for testing. From the authentication tab, make sure 'Enable IEEE 802.1X authentication' is checked. As the authentication method, make sure 'Microsoft: Protected EAP (PEAP)' is selected. Then, click on 'Settings' and make sure 'Validate server certificate' is unchecked. As authentication method, make sure 'Secured password (EAP-MSCHAPv2)' is selected. Then, click on 'Configure ...' and make sure 'Automatically use my Windows logon name and password (and domain if any)' is unchecked.
 
 Save all changes.
 
@@ -344,7 +344,7 @@ Testing
 
 Now we are ready to do some testing. First make sure you restart the 'radiusd' service. That is required since we added a new Active Directory domain controller. From 'Status->Services', click on the 'Restart' button for the 'radiusd' service. PacketFence will take care of restarting that service and the 'radiusd-acct' and 'radiusd-auth' sub-services.
 
-Connect the Microsoft Windows 7 endpoint on port no. 10 fron the Cisco Catalyst 2960 switch. From Microsoft Windows, a popup should appear prompting you for a username and password. Enter a valid username and password from your Microsoft Active Directory domain - this should trigger 802.1X (EAP-PEAP) authentication.
+Connect the Microsoft Windows 7 endpoint on port no. 10 from the Cisco Catalyst 2960 switch. From Microsoft Windows, a popup should appear prompting you for a username and password. Enter a valid username and password from your Microsoft Active Directory domain - this should trigger 802.1X (EAP-PEAP) authentication.
 
 To see what's going on from PacketFence, click on the 'Auditing' tab from PacketFence's admin interface. You should see an entry for the MAC address of your Microsoft Windows 7 endpoint. Click on the '(+)' button to see the RADIUS exchanges. If the 802.1X authentication is successful, you should have 'Accept' as an 'Auth Status'.
 
@@ -363,10 +363,11 @@ For our example, we will use Web Authentication, as it is supported by the Cisco
 Creating Authentication Source for Guests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To keep our example simple, we will simply create a captive portal for guests where they will only have to accept the terms and conditions prior gaining network access. To do so, we must first create a 'Null' authentication source. From 'Configuration->Policies and Access Control->Authentication Sources', click on 'Add Source->External->Null'. As 'Name' and 'Description', specify 'null-source'. Then add an 'Authentication Rules' with name 'catchall' with no condition and with the following 'Actions':
+To keep our example simple, we will simply create a captive portal for guests where they will only have to accept the terms and conditions prior to gaining network access. To do so, we must first create a 'Null' authentication source. From 'Configuration->Policies and Access Control->Authentication Sources', click on 'Add Source->External->Null'. As 'Name' and 'Description', specify 'null-source'. Then add an 'Authentication Rules' with name 'catchall' with no condition and with the following tow 'Actions':
 
+[options="compact"]
  * Role - guest
- * Access duratiaon - 12 hours
+ * Access duration - 12 hours
 
 Click on 'Save' to save the new authentication source.
 
@@ -401,8 +402,8 @@ Adjust Switch Configuration in PacketFence
 Next we have to let PacketFence know that Web Auth is to be used on the Cisco Catalyst 2960 switch. From 'Configuration->Policies and Access Control->Switches' and click on your switch's IP to open its configuration options. From the 'Definition' tab, make sure 'Use CoA' and 'External Portal Enforcement' are checked and set the 'CoA Port' to 3799. From the 'Roles' tab, make the following changes:
 
 [options="compact"]
- * in Role by VLAN ID, set the registration VLAN ID to 20 - this will ensure unregistered clients are initially put in VLAN 20 and avoid a VLAN change once they properly authenticate from the captive portal
- * make sure 'Role by Switch Role' is checked and set the registration role to 'registration' - this will ensure the registration access list created in the previous section is returned for unregisted users. This will limit their access to the PacketFence captive portal
+ * in Role by VLAN ID, set the registration and guest VLAN ID to 20 - this will ensure unregistered clients are initially put in VLAN 20 and avoid a VLAN change once they properly authenticate from the captive portal
+ * make sure 'Role by Switch Role' is checked and set the registration role to 'registration' - this will ensure the registration access list created in the previous section is returned for unregistered users. This will limit their access to the PacketFence captive portal
  * make sure 'Role by Web Auth URL' is checked and set the 'registration' URL to 'http://172.20.100.2/Cisco::Catalyst_2960'
 
 Click 'Save' to save all configuration changes.
@@ -435,7 +436,7 @@ Click on 'Save' to save all configuration changes.
 Testing
 ~~~~~~~
 
-First make sure the Microsoft Windows 7 endpoint unplugged from the Cisco Catalyst 2960 switch. Then, make sure the endpoint is unregisted from PacketFence. To do this, from the 'Nodes' configuration module, locate its MAC address and click on it. From the node property window, change the 'Status' to 'unregistered.'
+First make sure that the Microsoft Windows 7 endpoint is unplugged from the Cisco Catalyst 2960 switch. Then, make sure the endpoint is unregistered from PacketFence. To do this, from the 'Nodes' configuration module, locate its MAC address and click on it. From the node property window, change the 'Status' to 'unregistered.'
 
 Next, we need to disable 802.1X from the network configuration card from the Microsoft Windows 7 endpoint. We want to simulate here an authentication by MAC address, so we have to disable 802.1X to do this. From Windows' Network Connection connection panel, ask for the properties of the LAN interface you will use for testing. From the authentication tab, make sure 'Enable IEEE 802.1X authentication' is unchecked. Save all changes.
 
@@ -479,11 +480,11 @@ PacketFence can authenticate users that register devices via the captive portal 
 * Twitter (OAuth 2)
 * Windows Live (OAuth 2)
 
-and many others. Moreover, PacketFence can also authenticate users defined in its own internal SQL database. Authentication sources can be created from PacketFence administrative GUI - from the *Configuration -> Policies and Access Control -> Sources* section. Authentication sources, rules, conditions and actions are stored in the `conf/authentication.conf` configuration file.
+and many others. Moreover, PacketFence can also authenticate users defined in its own internal SQL database. Authentication sources can be created from PacketFence administrative GUI - from the *Configuration -> Policies and Access Control -> Authentication Sources* section. Authentication sources, rules, conditions and actions are stored in the `conf/authentication.conf` configuration file.
 
 Each authentication sources you define will have a set of rules, conditions and actions.
 
-Multiple authentication sources can be defined, and will be tested in the order specified (note that they can be reordered from the GUI by dragging them around). Each source can have multiple rules, which will also be tested in the order specified. Rules can also be reordered, just like sources. Finally, conditions can be defined for a rule to match certain criteria. If the criteria match (one or more), action are then applied and rules testing stop, across all sources as this is a "first match wins" operation.
+Multiple authentication sources can be defined, and will be tested in the order specified (note that they can be reordered from the GUI by dragging them around). Each source can have multiple rules, which will also be tested in the order specified. Rules can also be reordered, just like sources. Finally, conditions can be defined for a rule to match certain criteria. If the criteria match (one or more), actions are then applied and rules testing stop, across all sources as this is a "first match wins" operation.
 
 When no condition is defined, the rule will be considered as a catch-all. When a catch-all is defined, all actions will be applied for any users that match in the authentication source. Once a source is defined, it can be used from *Configuration -> Policies and Access Control -> Connection Profiles*. Each connection profile has a list of authentication sources to use.
 
@@ -506,11 +507,11 @@ Adding SMS Authentication Source
 
 Now that you understand what authentication sources and alerting are, we will add an SMS authentication source on our guest portal. We previously used the 'Null' source but we will add an other source. Portal profiles can provide multiple authentication sources.
 
-From 'Configuration->Policies and Access Control->Authentication Sources', click 'Add source->External->SMS'. As 'Name' and 'Description', specify 'sms-source'. Then add an 'Authentication Rules' with name 'catchall' with no condition and with the following 'Actions':
+From 'Configuration->Policies and Access Control->Authentication Sources', click 'Add source->External->SMS'. As 'Name' and 'Description', specify 'sms-source'. Then add an 'Authentication Rules' with name 'catchall' with no condition and with the following two 'Actions':
 
 [options="compact"]
  * Role - guest
- * Access duratiaon - 12 hours
+ * Access duration - 12 hours
 
 You will also need to select the proper carriers to do your test. Make sure you include the one your are using for your cellular phone.
 
@@ -532,16 +533,16 @@ First unplug and unregister again the Microsoft Windows 7 endpoint. Then, connec
 Introduction to Role-based Access Control
 -----------------------------------------
 
-One important key concept from NAC solutions is the seggregation of network accesses. For example, an employee from the finance department might not have the same network access level as an other employee from the marketing department. Guests should also not have the same access level as normal employees within an organization. PacketFence uses roles internally to identify and differentiate users. For seggretating network access, PacketFence can use one or all of the following techniques:
+One important key concept from NAC solutions is for seggretating network accesses. For example, an employee from the finance department might not have the same network access level as an other employee from the marketing department. Guests should also not have the same access level as normal employees within an organization. PacketFence uses roles internally to identify and differentiate users. For seggretating network access, PacketFence can use one or all of the following techniques:
 
 [options="compact"]
  * ACL
  * VLAN or VLAN pool
  * equipment role
 
-The techniques to use depends on the wired/WiFi equipment itself. A role in PacketFence will be eventually be mapped to a VLAN, an ACL or an external role. You must define the roles to use in your organization for network access.
+The techniques to use depends on the wired/WiFi equipment itself. A role in PacketFence will be eventually mapped to a VLAN, an ACL or an external role. You must define the roles to use in your organization for network access.
 
-In our previous configuration examples, we made use of two roles that come by default in PacketFence: default and guest. We will now add two new roles - one to for consultants and one used to authenticate machines on the network.
+In our previous configuration examples, we made use of two roles that come by default in PacketFence: default and guest. We will now add two new roles - one for consultants and one used to authenticate machines on the network.
 
 Adding Roles
 ~~~~~~~~~~~~
@@ -560,7 +561,7 @@ Roles are dynamically computed by PacketFence, based on the rules (ie., a set of
 Redo the operation of the other role:
 
 [options="compact"]
- * Name: corportate_machine
+ * Name: corporate_machine
  * Description: Corporate owned machines
  * Max nodes per user: 1
 
@@ -569,14 +570,14 @@ Using the Consultant Role
 
 Let's say we have two roles: guest and employee. First, we define them *Configuration -> Policies and Access Control -> Roles*.
 
-Now, we want to authenticate employees using Active Directory (over LDAP), and guests using PacketFence's internal database - both using PacketFence's captive portal. From the *Configuration -> Policies and Access Control -> Sources*, we select *Add source -> AD*. We provide the following information:
+Now, we want to authenticate employees using Active Directory (over LDAP), and guests using PacketFence's internal database - both using PacketFence's captive portal. From the *Configuration -> Policies and Access Control -> Authentication Sources*, we select *Add source -> AD*. We provide the following information:
 
 [options="compact"]
 * *Name:* ad1
 * *Description:* Active Directory for Employees
 * *Host:* 192.168.1.2:389 without SSL/TLS
 * *Base DN:* CN=Users,DC=acme,DC=local
-* *Scope:* One-level
+* *Scope:* subtree
 * *Username Attribute:* sAMAccountName
 * *Bind DN:* CN=Administrator,CN=Users,DC=acme,DC=local
 * *Password:* acme123
@@ -585,10 +586,10 @@ Then, we add a rule by clicking on the *Add rule* button and provide the followi
 
 [options="compact"]
 * *Name:* employees
-* *Description:* Rule for all employees
+* *Description:* Rule for all consultants
 * Don't set any condition (as it's a catch-all rule)
 * Set the following *actions:*
-  - Set role employee
+  - Set role consultant
   - Set unregistration date January 1st, 2020
 
 Test the connection and save everything. Using the newly defined source, any username that actually matches in the source (using the sAMAccountName) will have the employee role and an unregistration date set to January 1st, 2020.

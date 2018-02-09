@@ -8,9 +8,9 @@ An important configuration parameter to have in mind when configuring inline enf
 Inline enforcement uses `ipset` to mark nodes as registered, unregistered and isolated.
 It is also now possible to use multiple inline interfaces. A node registered on the first inline interface is marked with an IP:MAC tuple (for L2, only ip for L3), so when the node tries to register on an other inline interface, PacketFence detects that the node is already registered on the first inline network. It is also possible to enable inline.should_reauth_on_vlan_change to force users to reauthenticate when they change inline network - you can change this from *Configuration->Network Configuration->Inline* - by checking or not the 'Reauthenticate node' checkbox.
 
-By default the inline traffic is forwarded through the management network interface but it is possible to specify another one by adding in pf.conf the option interfaceSNAT in inline section of the `pf.conf` configuration file. Altenatively, you can change this from *Configuration->Network Configuration->Inline* in the 'SNAT Interface' section. It is a comma delimited list of network interfaces like eth0,eth1.2. It's also possible to specify a network that will be routed instead of using NAT by adding in `conf/networks.conf` an option nat=no under one or more network sections (take care of the routing table of the PacketFence server).
+By default the inline traffic is forwarded through the management network interface but it is possible to specify another one by adding in pf.conf the option interfaceSNAT in inline section of the `pf.conf` configuration file. Alternatively, you can change this from *Configuration->Network Configuration->Inline* in the 'SNAT Interface' section. It is a comma delimited list of network interfaces like eth0,eth1.2. It's also possible to specify a network that will be routed instead of using NAT by adding in `conf/networks.conf` an option nat=no under one or more network sections (take care of the routing table of the PacketFence server).
 
-Another important setting is the `gateway` statement. Since it this the only way to get the PacketFence server inline interface IP address, it is mandatory to set it to this IP (which is supposed to be the same as in the `ip` statement of the inline interface in `conf/pf.conf`).
+Another important setting is the `gateway` statement. Since it is the only way to get the PacketFence server inline interface IP address, it is mandatory to set it to this IP (which is supposed to be the same as in the `ip` statement of the inline interface in `conf/pf.conf`).
 
 Preparating the Operating System
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -57,7 +57,7 @@ Please refer to the following table for IP and subnet information :
 |ens192          |Inline        |192.168.2.0/24    |192.168.2.1    |192.168.2.1  
 |===================================================================================
 
-Finally, from *Status->Services*, restart the `haproxy` `httpd.portal`, `dhcpd`, `iptables`, `pfdhcplistener`, `pfdns` services.
+Finally, from *Status->Services*, restart the `haproxy`, `httpd.portal`, `dhcpd`, `iptables`, `pfdhcplistener`, `pfdns` services.
 
 
 Network Devices
