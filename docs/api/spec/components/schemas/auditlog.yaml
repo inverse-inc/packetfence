@@ -63,7 +63,7 @@ AuditLog:
      description: The radius server unqiue port identifier (eg: GigabitEthernet1/0/48)
      type: string
     ifindex:
-     description: 
+     description: The interface index on the network equipment
      type: string
     nas_port:
      description: The radius server port
@@ -102,13 +102,13 @@ AuditLog:
      description: The authentication source
      type: string
     auto_reg:
-     description: 
+     description: Whether or not the device was auto-registered during the radius request
      type: string
     is_phone:
-     description: 
+     description: Whether or not the device is considered as a phone
      type: string
     pf_domain:
-     description: 
+     description: The domain (if any) used to authenticate the radius request
      type: string
     uuid:
      description: 
@@ -120,6 +120,6 @@ AuditLog:
      description: The full radius response
      type: string
     request_time   
-     description: 
+     description: The time (seconds) that it took to complete the radius request
      type: integer
    
