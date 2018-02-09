@@ -407,9 +407,12 @@ Trigger the access reevaluation of the access of a node
 
 sub reevaluate_access :Chained('object') :PathPart('reevaluate_access') :Args(0) :AdminRole('NODES_UPDATE') {
     my ( $self, $c ) = @_;
-
-    my ($status, $message) = $c->model('Node')->reevaluate($c->stash->{mac});
-    $self->audit_current_action($c, status => $status, mac => $c->stash->{mac});
+    my $mac = $c->stash->{mac};
+    my ($status, $message) = $c->model('Node')->reevaluate($mac);
+    $self->audit_current_action($c, status => $status, mac => $mac);
+    if (is_error($status)) {
+        $c->log->error("Cannot reevaluate access for $mac");
+    }
     $c->response->status($status);
     $c->stash->{status_msg} = $message; # TODO: localize error message
     $c->stash->{current_view} = 'JSON';
@@ -423,9 +426,12 @@ Restart the switchport for a device
 
 sub restart_switchport :Chained('object') :PathPart('restart_switchport') :Args(0) :AdminRole('NODES_UPDATE') {
     my ( $self, $c ) = @_;
-
-    my ($status, $message) = $c->model('Node')->restartSwitchport($c->stash->{mac});
-    $self->audit_current_action($c, status => $status, mac => $c->stash->{mac});
+    my $mac = $c->stash->{mac};
+    my ($status, $message) = $c->model('Node')->restartSwitchport($mac);
+    $self->audit_current_action($c, status => $status, mac => $mac);
+    if (is_error($status)) {
+        $c->log->error("Cannot restart switch port for $mac");
+    }
     $c->response->status($status);
     $c->stash->{status_msg} = $message; # TODO: localize error message
     $c->stash->{current_view} = 'JSON';
