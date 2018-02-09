@@ -1,12 +1,14 @@
 package pfdns
 
 import (
+	"context"
 	"net"
 	"time"
 
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/coredns/core/dnsserver"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
+	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 	cache "github.com/patrickmn/go-cache"
 )
 
@@ -68,6 +70,8 @@ func setuppfdns(c *caddy.Controller) error {
 	hwcache := cache.New(300*time.Second, 10*time.Second)
 
 	pf.DNSFilter = hwcache
+
+	pf.apiClient = unifiedapiclient.NewFromConfig(context.Background())
 
 	dnsserver.GetConfig(c).AddPlugin(
 		func(next plugin.Handler) plugin.Handler {
