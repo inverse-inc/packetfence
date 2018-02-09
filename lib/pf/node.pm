@@ -93,6 +93,7 @@ use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID);
 use pf::util;
 use pf::Connection::ProfileFactory;
 use pf::ipset;
+use pf::api::unifiedapiclient;
 
 =head1 SUBROUTINES
 
@@ -720,11 +721,7 @@ sub node_deregister {
     }
 
     eval {
-        pf::api::jsonrestclient->new(
-            proto   => "https",
-            host    => "localhost",
-            port    => $pf::constants::api::GO_DHCP_PORT,
-        )->call("/api/v1/dhcp/releaseip/".$mac,{});
+        pf::api::unifiedapiclient->default_client->call("/api/v1/dhcp/releaseip/".$mac,{});
     };
 
     if ($@) {
