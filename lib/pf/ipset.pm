@@ -58,8 +58,11 @@ Readonly my $FW_FILTER_FORWARD_INT_INLINE => 'forward-internal-inline-if';
 Readonly my $FW_PREROUTING_INT_INLINE => 'prerouting-int-inline-if';
 Readonly my $FW_POSTROUTING_INT_INLINE => 'postrouting-int-inline-if';
 
+<<<<<<< HEAD
 tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config";
 
+=======
+>>>>>>> centralize the default unified API client
 =head1 SUBROUTINES
 
 TODO: This list is incomplete
@@ -332,7 +335,7 @@ sub call_ipsetd {
     my ($path, $data) = @_;
     my $response;
     eval {
-        $response = $apiclient->call("POST", "/api/v1/$path", $data);
+        $response = pf::api::unifiedapiclient::default_client->call("POST", "/api/v1/$path", $data);
     };
     if ($@) {
         get_logger()->error("Error updating ipset $path : $@");;

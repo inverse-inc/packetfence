@@ -29,6 +29,7 @@ use Moo;
 use HTTP::Status qw(:constants);
 use pf::error qw(is_success);
 use pf::constants::api;
+use POSIX::AtFork;
 
 =head1 Attributes
 
@@ -103,7 +104,24 @@ use constant REQUEST => 0;
 use constant RESPONSE => 2;
 use constant NOTIFICATION => 2;
 
+my $default_client;
+sub CLONE {
+    $default_client = pf::api::unifiedapiclient->new;
+}
+POSIX::AtFork->add_to_child(\&CLONE);
+CLONE();
+
 =head1 METHODS
+
+=head2 default_client
+
+Get the default client
+
+=cut
+
+sub default_client {
+    return $default_client;
+}
 
 =head2 call
 
