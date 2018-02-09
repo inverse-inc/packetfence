@@ -148,6 +148,7 @@ our @API_V1_ROUTES = (
             }
         },
     },
+    { controller => 'Auditlogs' },
 );
 
 sub startup {
