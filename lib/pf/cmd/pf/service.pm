@@ -25,6 +25,7 @@ Services managed by PacketFence:
   httpd.webservices| Apache Webservices
   iptables         | PacketFence firewall rules
   keepalived       | Virtual IP management
+  netdata          | Monitoring service
   pf               | all services that should be running based on your config
   pfbandwidthd     | A pf service to monitor bandwidth usages
   pfdetect         | PF snort alert parser
