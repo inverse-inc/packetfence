@@ -52,10 +52,7 @@ sub get {
 
 sub item {
     my ($self) = @_;
-    my $id = $self->id;
-    my $cs = $self->config_store;
-    my $item = $cs->read($id, 'id');
-    return $self->cleanup_item($item);
+    return $self->cleanup_item($self->item_from_store);
 }
 
 sub id {
@@ -63,11 +60,19 @@ sub id {
     $self->stash->{$self->primary_key};
 }
 
+sub item_from_store {
+    my ($self) = @_;
+    my $id = $self->id;
+    my $cs = $self->config_store;
+    my $item = $cs->read($id, 'id');
+    return $item;
+}
+
 sub cleanup_item {
     my ($self, $item) = @_;
     my $form = $self->form($item);
     $form->process(init_object => $item);
-    return $form->value;;
+    return $form->value;
 }
 
 sub create {
@@ -125,10 +130,21 @@ sub remove {
 
 sub update {
     my ($self) = @_;
+    my ($error, $new_data) = $self->get_json;
+    if (defined $error) {
+        return $self->render_error(400, "Bad Request : $error");
+    }
+    my $old_item = $self->item;
+    my $new_item = {%$old_item, %$new_data};
     my $id = $self->id;
-    my $item = $self->cleanup_item($self->req->json);
+    $new_item->{id} = $id;
+    $new_data = $self->validate_item($new_item);
+    if (!defined $new_data) {
+        return;
+    }
+    delete $new_item->{id};
     my $cs = $self->config_store;
-    $cs->update($self->primary_key, $self->cleanup_item($self->req->json));
+    $cs->update($id, $new_data);
     $cs->commit;
     $self->render(status => 200, json => { message => "$id updated"});
 }
@@ -167,4 +183,3 @@ USA.
 =cut
 
 1;
-
