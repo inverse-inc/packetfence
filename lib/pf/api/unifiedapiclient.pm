@@ -115,7 +115,8 @@ CLONE();
 
 =head2 default_client
 
-Get the default client
+Get the default client (uses the default settings)
+Most requests should use this so that the token is shared across usages.
 
 =cut
 
@@ -185,6 +186,12 @@ sub call {
         die $msg;
     }
 }
+
+=head2 login
+
+Perform a login and record the token
+
+=cut
 
 sub login {
     my ($self) = @_;
