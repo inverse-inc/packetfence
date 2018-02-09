@@ -112,6 +112,7 @@ our @API_V1_ROUTES = (
             },
         },
     },
+    { controller => 'Dhcpoption82s' },
 );
 
 sub startup {
