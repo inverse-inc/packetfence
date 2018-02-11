@@ -258,8 +258,15 @@ ProxyHTMLLinks  script      src for
       ProxyPassReverse /portal_preview/ http://[% server_name %]/
       #LogLevel debug
 
-      # proxy on port 19999
-      ProxyPassMatch "^/netdata/(.*)" "http://[% netdata_url %]/$1" connectiontimeout=5 timeout=30 keepalive=on
+      # Proxy to netdata
+      ProxyPassMatch "^/netdata/([A-Za-z0-9\._-]+)/(.*)" "http://$1:19999/$2" connectiontimeout=5 timeout=30 keepalive=on
+
+      # make sure the user did not forget to add a trailing /
+      # for HTTP (if the virtualhost is HTTP, use this)
+      RewriteRule "^/netdata/([A-Za-z0-9\._-]+)$" http://%{HTTP_HOST}/netdata/$1/ [L,R=301]
+      # for HTTPS (if the virtualhost is HTTPS, use this)
+      RewriteRule "^/netdata/([A-Za-z0-9\._-]+)$" https://%{HTTP_HOST}/netdata/$1/ [L,R=301]
+
 
       <Location /portal_preview >
           SetEnv X_PORTAL default
