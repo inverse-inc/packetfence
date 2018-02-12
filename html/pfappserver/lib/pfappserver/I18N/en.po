@@ -3674,10 +3674,6 @@ msgstr ""
 msgid "Location of the openssl binary. Only necessary to change if you are not running the RPMed version."
 msgstr ""
 
-# conf/documentation.conf (services.p0f_binary)
-msgid "Location of the p0f binary."
-msgstr ""
-
 # conf/documentation.conf (services.radsniff_binary)
 msgid "Location of the radsniff binary."
 msgstr "Path of the radsniff binary."
@@ -6670,10 +6666,6 @@ msgstr ""
 msgid "Should open locationlog entries be closed when pfsetvlan is stopped"
 msgstr ""
 
-# conf/documentation.conf (services.p0f)
-msgid "Should p0f be managed by PacketFence?"
-msgstr ""
-
 # conf/documentation.conf (services.pfbandwidthd)
 msgid "Should pfbandwidthd be managed by PacketFence?"
 msgstr ""
@@ -7035,10 +7027,6 @@ msgid "Successfully dispatched update request for Fingerbank upstream DB. An ema
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Config/Fingerbank/DB.pm
-msgid "Successfully dispatched update request for the p0f map. An email will follow for status"
-msgstr ""
-
-# html/pfappserver/lib/pfappserver/PacketFence/Controller/Config/Fingerbank/DB.pm
 msgid "Successfully dispatched update request for the redis DB. An email will follow for status"
 msgstr ""
 
@@ -7346,10 +7334,6 @@ msgstr ""
 msgid "The URL to download the attribute map."
 msgstr ""
 
-# /usr/local/fingerbank/conf/fingerbank.conf.doc (tcp_fingerprinting.p0f_map_url)
-msgid "The URL to download the p0f map from"
-msgstr ""
-
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
 msgid "The WiFi key to join the SSID"
 msgstr ""
@@ -7547,14 +7531,6 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Source/Paypal.pm
 msgid "The path to the certificate you submitted to Paypal."
-msgstr ""
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc (tcp_fingerprinting.p0f_socket_map)
-msgid "The path to the p0f map"
-msgstr ""
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc (tcp_fingerprinting.p0f_socket_path)
-msgid "The path to the p0f socket"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Source/Facebook.pm
@@ -8209,10 +8185,6 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 # html/pfappserver/root/node/search.tt
 msgid "Unregistration Date"
-msgstr ""
-
-# html/pfappserver/root/config/fingerbank/header.tt
-msgid "Update Fingebank p0f map"
 msgstr ""
 
 # html/pfappserver/root/config/fingerbank/header.tt
@@ -9544,7 +9516,6 @@ msgstr ""
 # conf/documentation.conf (services.httpd_webservices options)
 # conf/documentation.conf (services.iptables options)
 # conf/documentation.conf (services.keepalived options)
-# conf/documentation.conf (services.p0f options)
 # conf/documentation.conf (services.pfbandwidthd options)
 # conf/documentation.conf (services.pfdhcplistener options)
 # conf/documentation.conf (services.pfdns options)
@@ -9672,7 +9643,6 @@ msgstr ""
 # conf/documentation.conf (services.httpd_webservices options)
 # conf/documentation.conf (services.iptables options)
 # conf/documentation.conf (services.keepalived options)
-# conf/documentation.conf (services.p0f options)
 # conf/documentation.conf (services.pfbandwidthd options)
 # conf/documentation.conf (services.pfdhcplistener options)
 # conf/documentation.conf (services.pfdns options)
@@ -10888,14 +10858,6 @@ msgid "services.openssl_binary"
 msgstr "openssl path"
 
 # conf/documentation.conf
-msgid "services.p0f"
-msgstr "p0f"
-
-# conf/documentation.conf
-msgid "services.p0f_binary"
-msgstr "p0f path"
-
-# conf/documentation.conf
 msgid "services.pfbandwidthd"
 msgstr "pfbandwidthd"
 
@@ -11138,18 +11100,6 @@ msgstr "Symantec App Center"
 msgid "tcp_fingerprinting"
 msgstr ""
 
-# /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "tcp_fingerprinting.p0f_map_url"
-msgstr "p0f map URL"
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "tcp_fingerprinting.p0f_socket_map"
-msgstr "p0f socket map"
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "tcp_fingerprinting.p0f_socket_path"
-msgstr "p0f socket path"
-
 # html/pfappserver/root/admin/users.tt
 msgid "telephone"
 msgstr ""
@@ -11206,24 +11156,52 @@ msgid "upstream.api_key"
 msgstr "API Key"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "upstream.db_url"
-msgstr "DB URL"
+msgid "upstream.host"
+msgstr "Upstream API host"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "upstream.interrogate"
-msgstr "Interrogate upstream?"
+msgid "upstream.db_path"
+msgstr "Database API path"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "upstream.interrogate_url"
-msgstr "Upstream URL"
+msgid "upstream.port"
+msgstr "Upstream API port"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "upstream.use_https"
+msgstr "Upstream API HTTPS"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "upstream.sqlite_db_retention"
 msgstr "Retention of the upstream sqlite DB"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "upstream.submit_url"
-msgstr "Upstream Submit URL"
+msgid "collector.inactive_endpoints_expiration"
+msgstr "Inactive endpoints expiration"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "collector.arp_lookup"
+msgstr "ARP lookups by the collector"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "collector.query_cache_time"
+msgstr "Query cache time in the collector"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "collector.use_https"
+msgstr "Collector HTTPS"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "collector.host"
+msgstr "Collector host"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "collector.port"
+msgstr "Collector port"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "collector.db_persistence_interval"
+msgstr "Database persistence interval"
 
 # pf::Authentication::Source::ADSource (available_attributes)
 msgid "userAccountControl"

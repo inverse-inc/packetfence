@@ -95,7 +95,6 @@ Requires: freeradius >= 3.0.15-4, freeradius-mysql, freeradius-perl, freeradius-
 Requires: make
 Requires: net-tools
 Requires: sscep
-Requires: p0f
 Requires: net-snmp >= 5.3.2.2
 Requires: net-snmp-perl
 Requires: perl >= %{perl_version}
@@ -335,7 +334,7 @@ Requires: %{real_name}-pfcmd-suid = %{version}-%{rev}
 %endif
 Requires: haproxy >= 1.6, keepalived >= 1.3.6
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
-Requires: fingerbank >= 3.1.1, fingerbank < 4.0.0
+Requires: fingerbank >= 4.0.0, fingerbank < 5.0.0
 Requires: perl(File::Tempdir)
 
 # etcd
@@ -479,7 +478,6 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-pfunified_api.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfunified_api.service
 %{__install} -D -m0644 conf/systemd/packetfence-keepalived.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-keepalived.service
 %{__install} -D -m0644 conf/systemd/packetfence-mariadb.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-mariadb.service
-%{__install} -D -m0644 conf/systemd/packetfence-p0f.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-p0f.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfbandwidthd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfbandwidthd.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdetect.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfdetect.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdhcplistener.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfdhcplistener.service
@@ -884,7 +882,6 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/node
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfdhcp
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfdns
-%attr(0755, pf, pf)     /usr/local/pf/bin/mysql_fingerbank_import.sh
 %doc                    /usr/local/pf/ChangeLog
                         /usr/local/pf/conf/*.example
 %config(noreplace)      /usr/local/pf/conf/adminroles.conf
@@ -1272,7 +1269,6 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pffilter
 %attr(0755, pf, pf)     /usr/local/pf/sbin/winbindd-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/radsniff-wrapper
-%attr(0755, pf, pf)     /usr/local/pf/sbin/p0f-wrapper
 %doc                    /usr/local/pf/UPGRADE.asciidoc
 %doc                    /usr/local/pf/UPGRADE.old
 %dir                    /usr/local/pf/var

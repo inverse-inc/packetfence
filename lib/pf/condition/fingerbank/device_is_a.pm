@@ -1,36 +1,54 @@
-package pfappserver::Form::Config::Fingerbank::Onboard;
+package pf::condition::fingerbank::device_is_a;
 
 =head1 NAME
 
-pfappserver::Form::Config::Fingerbank::Onboard
-
-=head1 DESCRIPTION
-
-Form definition for Fingerbank onboarding procedure
+pf::condition::fingerbank::device_is_a - check if a iswitch is inside a switch group
 
 =cut
 
-use HTML::FormHandler::Moose;
+=head1 DESCRIPTION
+
+pf::condition::fingerbank::device_is_a
+
+=cut
+
+use strict;
+use warnings;
+use Moose;
+use pf::Moose::Types;
+extends 'pf::condition';
 use pf::log;
-use fingerbank::API;
-use pf::error qw(is_error);
+use pf::constants;
+use fingerbank::Model::Device;
 
-extends 'pfappserver::Base::Form';
+our $logger = get_logger();
 
-has_field 'api_key' => (
-    type     => 'Text',
-    label    => 'API Key',
+=head1 ATTRIBUTES
+
+=head2 value
+
+The Switch to match against
+
+=cut
+
+has 'value' => (
+    is       => 'ro',
     required => 1,
+    isa => 'Str',
 );
 
-sub validate_api_key {
-    my ($self, $field) = @_;
-    get_logger->info("Validating API key: " . $field->value);
+=head1 METHODS
 
-    my ($status, $msg) = fingerbank::API->new_from_config->test_key($field->value);
-    if(is_error($status)) {
-        $field->add_error($msg);
-    }
+=head2 match
+
+match the last ip to see if it is in defined network
+
+=cut
+
+sub match {
+    my ($self, $device) = @_;
+    $logger->debug("Checking if device $device is a ".$self->value);
+    return fingerbank::Model::Device->is_a($device, $self->value);
 }
 
 =head1 AUTHOR
@@ -60,6 +78,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
-
 1;
+

@@ -249,7 +249,7 @@
                       <form>
                         <input type="hidden" name="searches.0.name" value="device_class"/>
                         <input type="hidden" name="searches.0.op" value="is"/>
-                        <input type="hidden" name="searches.0.value" value="Windows"/>
+                        <input type="hidden" name="searches.0.value" value="Windows OS"/>
                       </form>
                   </li>
                   <li class="sidenav-subsection">
@@ -257,7 +257,7 @@
                       <form>
                         <input type="hidden" name="searches.0.name" value="device_class"/>
                         <input type="hidden" name="searches.0.op" value="is"/>
-                        <input type="hidden" name="searches.0.value" value="Linux"/>
+                        <input type="hidden" name="searches.0.value" value="Linux OS"/>
                       </form>
                   </li>
                   <li class="sidenav-subsection">
@@ -265,31 +265,35 @@
                       <form>
                         <input type="hidden" name="searches.0.name" value="device_class"/>
                         <input type="hidden" name="searches.0.op" value="is"/>
-                        <input type="hidden" name="searches.0.value" value="Macintosh"/>
+                        <input type="hidden" name="searches.0.value" value="Mac OS X or macOS"/>
                       </form>
                   </li>
                   <li class="sidenav-subsection">
-                    <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseOS">Smartphones/PDAs/Tablets</a>
+                    <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseOS">Mobile devices</a>
                       <form>
-                        <input type="hidden" name="searches.0.name" value="device_class"/>
-                        <input type="hidden" name="searches.0.op" value="is"/>
-                        <input type="hidden" name="searches.0.value" value="Smartphones/PDAs/Tablets"/>
+                        <input type="hidden" name="all_or_any" value="any"/>
+
+                        [% FOREACH device_name IN mobile_oses %]
+                          <input type="hidden" name="searches.[% loop.index %].name" value="device_class"/>
+                          <input type="hidden" name="searches.[% loop.index %].op" value="is"/>
+                          <input type="hidden" name="searches.[% loop.index %].value" value="[% device_name %]"/>
+                        [% END %]
                       </form>
                   </li>
                   <li class="sidenav-subsection">
-                    <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseOS">Gaming Consoles</a>
+                    <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseOS">Gaming Console</a>
                       <form>
                         <input type="hidden" name="searches.0.name" value="device_class"/>
                         <input type="hidden" name="searches.0.op" value="is"/>
-                        <input type="hidden" name="searches.0.value" value="Gaming Consoles"/>
+                        <input type="hidden" name="searches.0.value" value="Gaming Console"/>
                       </form>
                   </li>
                   <li class="sidenav-subsection">
-                    <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseOS">VoIP Phones/Adapters</a>
+                    <a href="#" data-toggle="pf-search-form" data-target="advanced" data-parent="#collapseOS">VoIP Device</a>
                       <form>
                         <input type="hidden" name="searches.0.name" value="device_class"/>
                         <input type="hidden" name="searches.0.op" value="is"/>
-                        <input type="hidden" name="searches.0.value" value="VoIP Phones/Adapters"/>
+                        <input type="hidden" name="searches.0.value" value="VoIP Device"/>
                       </form>
                   </li>
                 </ul>

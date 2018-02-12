@@ -56,7 +56,6 @@ use pf::StatsD;
 use pf::person;
 use pf::fingerbank;
 use fingerbank::Config;
-use fingerbank::Redis;
 use fingerbank::DB;
 use pf::cluster;
 use Time::HiRes qw(time sleep);

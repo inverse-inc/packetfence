@@ -16,6 +16,7 @@ use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
 use pf::log;
 use fingerbank::Config;
+use fingerbank::API;
 use pf::fingerbank;
 
 use HTTP::Status qw(:constants is_error is_success);
@@ -32,7 +33,7 @@ sub check_for_api_key :Private {
 
     if ( !fingerbank::Config::is_api_key_configured ) {
         $logger->warn("Fingerbank API key is not configured. Running with limited features");
-        my $status_msg = "It looks like Fingerbank API key is not configured. You may have forgot the onboard process. To fully beneficiate of Fingerbank, please proceed here: https://fingerbank.inverse.ca/onboard";
+        my $status_msg = "It looks like Fingerbank API key is not configured. You may have forgot the onboard process. To fully beneficiate of Fingerbank, please proceed here: https://api.fingerbank.org/onboard";
         $c->go('onboard');
     }
 }
@@ -105,12 +106,16 @@ sub index :Path :Args(0) :AdminRole('FINGERBANK_READ') {
         } else {
             my $params = $form->value;
 
+            fingerbank::Config->read_config;
+
+            if($params->{upstream}->{api_key} ne $fingerbank::Config::Config{upstream}->{api_key}) {
+                $logger->info("API key has changed, flushing Fingerbank cache.");
+                pf::fingerbank::clear_cache();
+            }
+
             # TODO: Ugly hack to handle the fact that unchecked checkboxes are not being returned as a param by HTTP and needs
             # to be set as 'disabled'
-            ( !$params->{'upstream'}{'interrogate'} ) ? $params->{'upstream'}{'interrogate'} = 'disabled':();
             ( !$params->{'query'}{'record_unmatched'} ) ? $params->{'query'}{'record_unmatched'} = 'disabled':();
-            ( !$params->{'query'}{'use_tcp_fingerprinting'} ) ? $params->{'query'}{'use_tcp_fingerprinting'} = 'disabled':();
-            ( !$params->{'mysql'}{'state'} ) ? $params->{'mysql'}{'state'} = 'disabled':();
 
             ( $status, $status_msg ) = fingerbank::Config::write_config($params);
 
@@ -122,6 +127,19 @@ sub index :Path :Args(0) :AdminRole('FINGERBANK_READ') {
 
     else {
         my $config = fingerbank::Config::get_config;
+        my $api = fingerbank::API->new_from_config;
+
+        $c->stash->{fingerbank_config} = $config;
+        $c->stash->{fingerbank_base_uri} = $api->build_uri("");
+
+        my ($status, $account_info) = $api->account_info();
+        if(is_success($status)) {
+            $c->stash->{account_info} = $account_info;
+        }
+        else {
+            $c->stash->{account_info_error} = $account_info;
+        }
+
         $form->process(init_object => $config);
         $c->stash->{form} = $form;
     }

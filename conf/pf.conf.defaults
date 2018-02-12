@@ -575,15 +575,15 @@ radsniff=enabled
 # Location of the radsniff binary. Only necessary to change if you are not running the pre-packaged version.
 radsniff_binary=/usr/bin/radsniff
 #
-# services.p0f
+# services.fingerbank-collector
 #
-# Should p0f be started?
-p0f=enabled
+# Should the fingerbank-collector be started?
+fingerbank-collector=enabled
 # 
-# services.p0f_binary
+# services.fingerbank-collector_binary
 # 
-# Location of the p0f binary. Only necessary to change if you are not running the pre-packaged version.
-p0f_binary=/usr/local/bin/p0f
+# Location of the fingerbank-collector binary. Only necessary to change if you are not running the pre-packaged version.
+fingerbank-collector_binary=/usr/local/fingerbank/collector/fingerbank-collector
 #
 # services.openssl_binary
 #

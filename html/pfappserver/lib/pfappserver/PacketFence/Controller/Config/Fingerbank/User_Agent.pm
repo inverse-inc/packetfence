@@ -15,7 +15,7 @@ use namespace::autoclean;
 
 BEGIN {
     extends 'pfappserver::Base::Controller';
-    with 'pfappserver::Base::Controller::Crud::Fingerbank';
+    with 'pfappserver::Base::Controller::Crud::Fingerbank' => { -excludes => 'index' };
 }
 
 __PACKAGE__->config(
@@ -29,6 +29,25 @@ __PACKAGE__->config(
         '*' => { model => __PACKAGE__->get_model_name , form => __PACKAGE__->get_form_name },
     },
 );
+
+=head1 index
+
+Setup the scope and forwards
+
+Overwrite L<pfappserver::Base::Controller::Crud::Fingerbank::index> because we don't want "upstream" scope with Combinations
+
+=cut
+
+sub index {
+    my ( $self, $c ) = @_;
+
+    $c->stash(
+        scope                   => 'Local',
+        fingerbank_configured   => fingerbank::Config::is_api_key_configured,
+        action                  => 'list',
+    );
+    $c->forward('list');
+}
 
 =head1 COPYRIGHT
 
