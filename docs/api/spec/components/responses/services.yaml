@@ -1,0 +1,34 @@
+ServiceStart:
+  description: A response that contains a simple message
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ServiceStart"
+ 
+ServiceStop:
+  description: A response that contains a simple message
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ServiceStop"
+ 
+ServiceRestart:
+  description: A response that contains a simple message
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ServiceRestart"
+ 
+ServiceEnable:
+  description: A response that contains a simple message
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ServiceEnable"
+ 
+ServiceDisable:
+  description: A response that contains a simple message
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ServiceDisable"

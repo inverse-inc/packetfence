@@ -1,0 +1,110 @@
+/services/:service/status:
+  get:
+    summary: Returns a service statuses
+    parameters:
+      - name: service
+        in: path
+        required: true
+        description: The service name to fetch
+        schema:
+          type: string
+    parameters:
+      - $ref: '#/components/parameters/cursor'
+    responses:
+      '200':
+        description: List of tenants
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Service"
+
+/services/:service/start:
+  post:
+    summary: Allows to onboard a tenant and configure a remote access point using an onboarding token
+    parameters:
+      - name: service
+        in: path
+        required: true
+        description: The service name to fetch
+        schema:
+          type: string
+    requestBody:
+      required: true
+    responses:
+      '200':
+        $ref: "#/components/responses/ServiceStart"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+        
+/services/:service/stop:
+  post:
+    summary: Allows to onboard a tenant and configure a remote access point using an onboarding token
+    parameters:
+      - name: service
+        in: path
+        required: true
+        description: The service name to fetch
+        schema:
+          type: string
+    requestBody:
+      required: false
+    responses:
+      '200':
+        $ref: "#/components/responses/ServiceStop"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+
+/services/:service/restart:
+  post:
+    summary: Allows to onboard a tenant and configure a remote access point using an onboarding token
+    parameters:
+      - name: service
+        in: path
+        required: true
+        description: The service name to fetch
+        schema:
+          type: string
+    requestBody:
+      required: false
+    responses:
+      '200':
+        $ref: "#/components/responses/ServiceRestart"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+
+/services/:service/enable:
+  post:
+    summary: Allows to onboard a tenant and configure a remote access point using an onboarding token
+    parameters:
+      - name: service
+        in: path
+        required: true
+        description: The service name to fetch
+        schema:
+          type: string
+    requestBody:
+      required: false
+    responses:
+      '200':
+        $ref: "#/components/responses/ServiceEnable"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+
+/services/:service/disable:
+  post:
+    summary: Allows to onboard a tenant and configure a remote access point using an onboarding token
+    parameters:
+      - name: service
+        in: path
+        required: true
+        description: The service name to fetch
+        schema:
+          type: string
+    requestBody:
+      required: false
+    responses:
+      '200':
+        $ref: "#/components/responses/ServiceDisable"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+
