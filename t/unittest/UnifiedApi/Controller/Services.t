@@ -23,7 +23,7 @@ BEGIN {
     use setup_test_config;
 }
 
-my %SERVICES = qw(
+my @SERVICES = qw(
     carbon_cache
     carbon_relay
     collectd
@@ -62,7 +62,7 @@ my %SERVICES = qw(
     winbindd
 );
 
-my %DISABLED_SERVICES = (
+my @DISABLED_SERVICES = qw(
     radiusd
     radiusd_child
 );
@@ -73,7 +73,8 @@ use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
 
-while( my($service) = each \%SERVICES ) {
+foreach my $service (@SERVICES) {
+#while( my($service) = each \@SERVICES ) {
 
   $t->get_ok("/api/v1/services/$service/status" => json => { }) 
     ->json_has('/alive')
