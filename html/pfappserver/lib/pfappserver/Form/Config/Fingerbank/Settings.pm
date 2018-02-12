@@ -13,7 +13,6 @@ Form definition to modify Fingerbank configuration
 use HTML::FormHandler::Moose;
 
 use fingerbank::Config;
-use pf::log;
 
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
