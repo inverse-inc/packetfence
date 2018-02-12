@@ -1,6 +1,8 @@
 0.0.0.0:9999 {
   tls /usr/local/pf/conf/ssl/server.crt /usr/local/pf/conf/ssl/server.key
 
+  errors
+
   pfconfigpool
   logger {
     level INFO
