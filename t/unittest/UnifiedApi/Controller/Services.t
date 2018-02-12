@@ -23,49 +23,7 @@ BEGIN {
     use setup_test_config;
 }
 
-my @SERVICES = qw(
-    carbon_cache
-    carbon_relay
-    collectd
-    etcd
-    haproxy
-    httpd_aaa
-    httpd_admin
-    httpd_collector
-    httpd_dispatcher
-    httpd_graphite
-    httpd_parking
-    httpd_portal
-    httpd_proxy
-    httpd_webservices
-    iptables
-    keepalived
-    p0f
-    pfbandwidthd
-    pfdetect
-    pfdhcplistener
-    pfdhcp
-    pfdns
-    pffilter
-    pfipset
-    pfmon
-    pfqueue
-    pfsetvlan
-    pfsso
-    pfunified_api
-    radsniff
-    redis_ntlm_cache
-    redis_queue
-    routes
-    snmptrapd
-    statsd
-    winbindd
-);
-
-my @DISABLED_SERVICES = qw(
-    radiusd
-    radiusd_child
-);
+use pf::services;
 
 #run tests
 #use Test::More tests => 1000;
@@ -73,8 +31,10 @@ use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
 
-foreach my $service (@SERVICES) {
-#while( my($service) = each \@SERVICES ) {
+foreach my $service (@pf::services::ALL_SERVICES) {
+    
+  $service =~ tr/-/_/; 
+  $service =~ tr/\./_/; 
 
   $t->get_ok("/api/v1/services/$service/status" => json => { }) 
     ->json_has('/alive')
