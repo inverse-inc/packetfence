@@ -1,5 +1,5 @@
 [Unit]
-Description=PacketFence Collectd to Statsd daemon
+Description=PacketFence Stats daemon
 Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
 After=packetfence-base.target packetfence-config.service packetfence-iptables.service
 

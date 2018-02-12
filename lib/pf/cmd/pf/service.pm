@@ -37,6 +37,7 @@ Services managed by PacketFence:
   pfmon            | PF monitoring daemon
   pfqueue          | PF queueing service
   pfsetvlan        | PF VLAN isolation daemon
+  pfstats          | PF statistics daemon
   radiusd          | FreeRADIUS daemon
   radsniff         | radsniff daemon
   redis_ntlm_cache | Redis for the NTLM cache

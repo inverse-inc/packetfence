@@ -143,3 +143,9 @@ if $programname == "pfdhcp" then -/usr/local/pf/logs/packetfence.log
 # MARIADB
 if $syslogtag contains "mysqld" then -/usr/local/pf/logs/mariadb_error.log
 & stop
+
+# pfstats
+if $syslogtag contains "pfstats" then -/usr/local/pf/logs/pfstats.log
+& stop
+
+
