@@ -329,8 +329,8 @@ Requires: %{real_name}-config = %{version}
 Requires: %{real_name}-pfcmd-suid = %{version}
 %else
 # used for snapshot releases
-Requires: %{real_name}-config = %{version}-%{rev}
-Requires: %{real_name}-pfcmd-suid = %{version}-%{rev}
+Requires: %{real_name}-config = %{version}-%{rev}%{?dist}
+Requires: %{real_name}-pfcmd-suid = %{version}-%{rev}%{?dist}
 %endif
 Requires: haproxy >= 1.6, keepalived >= 1.3.6
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
