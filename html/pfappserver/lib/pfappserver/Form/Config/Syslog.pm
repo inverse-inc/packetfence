@@ -34,6 +34,13 @@ has_field type => (
     default_method => \&default_type,
 );
 
+has_field all_logs => (
+    type => 'Checkbox',
+    input_without_param => 'disabled',
+    checkbox_value => 'enabled',
+    default => 'enabled',
+);
+
 has_field 'logs' =>
   (
    type => 'Select',
