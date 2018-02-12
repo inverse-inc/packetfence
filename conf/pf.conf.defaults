@@ -582,6 +582,16 @@ pfdns=enabled
 # Location of the pfdns binary.
 pfdns_binary=/usr/local/pf/bin/pfdns
 
+# services.pfstats
+#
+# Should pfstats be managed by PacketFence?
+pfstats=enabled
+#
+# services.pfstats_binary
+#
+# Location of the pfstats binary.
+pfdns_binary=/usr/local/pf/bin/pfstats
+
 [snmp_traps]
 #
 # snmp_traps.nbtraphandlerthreads

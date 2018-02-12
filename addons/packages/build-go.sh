@@ -89,8 +89,8 @@ if build_mode; then
   mv pfdhcp $BINDST/
   make pfdns
   mv pfdns $BINDST/
-  make stats
-  mv stats $BINDST
+  make pfstats
+  mv pfstats $BINDST
 
 elif test_mode; then
   PFCONFIG_TESTING=y $GOPATH/bin/govendor test ./...  
