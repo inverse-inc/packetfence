@@ -23,6 +23,12 @@ use pf::constants::exit_code qw($EXIT_SUCCESS);
 use pf::constants::syslog;
 
 
+=head2 items
+
+Create the actions and conditions for each configured service
+
+=cut
+
 sub items {
     my ($self) = @_;
     my @items;
