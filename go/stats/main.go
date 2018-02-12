@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"log"
 	"net"
 	"os"
 	"os/signal"
@@ -17,6 +16,7 @@ import (
 	"github.com/coreos/go-systemd/daemon"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 
+	"github.com/inverse-inc/packetfence/go/log"
 	statsd "gopkg.in/alexcesaro/statsd.v2"
 	ldap "gopkg.in/ldap.v2"
 	"layeh.com/radius"
@@ -49,7 +49,7 @@ type gauge struct{}
 func (s gauge) Send(name string, a interface{}) {
 	c, err := statsd.New()
 	if err != nil {
-		log.Print(err)
+		log.LoggerWContext(ctx).Error(err.Error())
 	}
 	defer c.Close()
 	c.Gauge(name, a)
@@ -121,21 +121,21 @@ func (s ldaptype) Test(source interface{}, ctx context.Context) {
 
 	if err != nil {
 		StatsdClient.Gauge("source."+source.(pfconfigdriver.AuthenticationSourceLdap).Type+"."+source.(pfconfigdriver.AuthenticationSourceLdap).PfconfigHashNS, 0)
-		log.Print(err)
+		log.LoggerWContext(ctx).Error(err.Error())
 	} else {
 		defer l.Close()
 		// Reconnect with TLS
 		if source.(pfconfigdriver.AuthenticationSourceLdap).Encryption != "none" {
 			err = l.StartTLS(&tls.Config{InsecureSkipVerify: true})
 			if err != nil {
-				log.Fatal(err)
+				log.LoggerWContext(ctx).Crit(err.Error())
 			}
 		}
 
 		// First bind with a read only user
 		timeout, err := strconv.Atoi(source.(pfconfigdriver.AuthenticationSourceLdap).ReadTimeout)
 		if err != nil {
-			log.Fatal(err)
+			log.LoggerWContext(ctx).Crit(err.Error())
 		}
 
 		l.SetTimeout(time.Duration(timeout) * time.Second)
@@ -222,39 +222,42 @@ func forward(c net.Conn) {
 			_, err = c.Write([]byte("0 Success: 1 value has been dispatched.\n"))
 		}
 		if err != nil {
-			log.Fatal("Writing client error: ", err)
+			log.LoggerWContext(ctx).Crit("Writing client error: ", err.Error())
 		}
 	}
 }
 
 var StatsdClient *statsd.Client
 
+var ctx context.Context
+
 func main() {
+	d := time.Now().Add(500 * time.Millisecond)
+	ctx, cancel := context.WithDeadline(context.Background(), d)
+	ctx = log.LoggerNewContext(ctx)
+	defer cancel()
+
 	var err error
 
 	StatsdClient, err = statsd.New()
 	if err != nil {
-		log.Print(err)
+		log.LoggerWContext(ctx).Error(err.Error())
 	}
 
-	d := time.Now().Add(500 * time.Millisecond)
-	ctx, cancel := context.WithDeadline(context.Background(), d)
-	defer cancel()
-
-	log.Println("Starting Collectd to statsd server")
+	log.LoggerWContext(ctx).Info("Starting stats server")
 	// Systemd
 	daemon.SdNotify(false, "READY=1")
 
 	ln, err := net.Listen("unix", "/usr/local/pf/var/run/collectd-unixsock")
 	if err != nil {
-		log.Fatal("Listen error: ", err)
+		log.LoggerWContext(ctx).Crit("Listen error: ", err)
 	}
 
 	sigc := make(chan os.Signal, 1)
 	signal.Notify(sigc, os.Interrupt, syscall.SIGTERM)
 	go func(ln net.Listener, c chan os.Signal) {
 		sig := <-c
-		log.Printf("Caught signal %s: shutting down.", sig)
+		log.LoggerWContext(ctx).Info("Caught signal %s: shutting down.", sig)
 		ln.Close()
 		os.Exit(0)
 	}(ln, sigc)
@@ -324,7 +327,7 @@ func main() {
 	for {
 		fd, err := ln.Accept()
 		if err != nil {
-			log.Fatal("Accept error: ", err)
+			log.LoggerWContext(ctx).Crit("Accept error: ", err)
 		}
 
 		go forward(fd)
