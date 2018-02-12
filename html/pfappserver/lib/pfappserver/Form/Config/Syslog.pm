@@ -56,7 +56,7 @@ has_field 'logs' =>
 
 has_block  definition =>
   (
-    render_list => [qw(type logs)],
+    render_list => [qw(type all_logs logs)],
   );
 
 =head2 default_logs
@@ -90,6 +90,23 @@ sub default_type {
     my $type = ref($self);
     $type =~ s/^pfappserver::Form::Config::Syslog:://;
     return $type;
+}
+
+=head2 html_attributes
+
+html_attributes
+
+=cut
+
+sub html_attributes {
+    my ( $self, $obj, $type, $attrs, $result ) = @_;
+    $attrs = $self->SUPER::html_attributes($obj, $type, $attrs, $result);
+    if ($type eq 'wrapper' && $obj->name eq 'logs') {
+        if ($self->field('all_logs')->value eq 'enabled') {
+            push @{$attrs->{class}}, 'hidden';
+        }
+    }
+    return $attrs;
 }
 
 =head1 COPYRIGHT
