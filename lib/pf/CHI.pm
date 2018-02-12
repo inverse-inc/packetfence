@@ -174,12 +174,21 @@ sub setFileDriverParams {
 
 sub setDBIDriverParams {
     my ($storage, $dbi) = @_;
-    $storage->{dbh} = sub {
-        my $pf_config = pf::IniFiles->new( -file => $pf_config_file, -allowempty => 1, -import => $pf_default_config) or die "Cannot open $pf_config_file";
-        my ($db,$host,$port,$user,$pass) = @{sectionData($pf_config, "database")}{qw(db host port user pass)};
-        return DBI->connect( "dbi:mysql:dbname=$db;host=$host;port=$port",
-        $user, $pass, { RaiseError => 0, PrintError => 0 } );
-    }
+    $storage->{dbh} = \&getDbi;
+}
+
+=head2 getDbi
+
+Get the DBI using the database config from pf.conf
+
+=cut
+
+sub getDbi {
+    my $pf_config = pf::IniFiles->new( -file => $pf_config_file, -allowempty => 1, -import => $pf_default_config) or die "Cannot open $pf_config_file";
+    my ($db,$host,$port,$user,$pass) = @{sectionData($pf_config, "database")}{qw(db host port user pass)};
+    return DBI->connect( "dbi:mysql:dbname=$db;host=$host;port=$port",
+    $user, $pass, { RaiseError => 0, PrintError => 0 } );
+
 }
 
 sub setRawL1CacheAsLast {
