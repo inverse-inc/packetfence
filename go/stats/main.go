@@ -1,7 +1,6 @@
 package main
 
 import (
-<<<<<<< HEAD
 	"context"
 	"crypto/tls"
 	"fmt"
@@ -22,12 +21,6 @@ import (
 	ldap "gopkg.in/ldap.v2"
 	"layeh.com/radius"
 	. "layeh.com/radius/rfc2865"
-	"strings"
-	"syscall"
-
-	"github.com/coreos/go-systemd/daemon"
-
-	statsd "gopkg.in/alexcesaro/statsd.v2"
 )
 
 type TypeName struct {
