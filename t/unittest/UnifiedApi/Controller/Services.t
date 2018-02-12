@@ -31,6 +31,9 @@ use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
 
+#increase "inactivity timeout"
+$t->ua->inactivity_timeout(60);
+
 foreach my $service (@pf::services::ALL_SERVICES) {
     
   $service =~ tr/-/_/; 
