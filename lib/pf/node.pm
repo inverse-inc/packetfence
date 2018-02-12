@@ -721,7 +721,7 @@ sub node_deregister {
     }
 
     eval {
-        pf::api::unifiedapiclient->default_client->call("/api/v1/dhcp/releaseip/".$mac,{});
+        pf::api::unifiedapiclient->default_client->call("POST", "/api/v1/dhcp/releaseip/".$mac,{});
     };
 
     if ($@) {
