@@ -112,6 +112,15 @@ Don't forget to edit the `/usr/local/pf/conf/currently-at` file to match the new
 Upgrading from a version prior to X.Y.Z
 ---------------------------------------
 
+Removal of the graphite database
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+PacketFence doesn't use graphite anymore for its dashboard. It is recommended to delete the graphite database although this is purely optional.
+
+In order to do so, execute the following:
+
+  mysql -u root -p -e "drop database pf_graphite"
+
 Changes to DNS filters
 ^^^^^^^^^^^^^^^^^^^^^^
 
