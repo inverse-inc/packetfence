@@ -1,7 +1,14 @@
 PacketFence Upgrade Guide
 =========================
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+
+include::docs/includes/global-attributes.asciidoc[]
 
 http://www.packetfence.org/
+
 
 General Upgrade Tips
 --------------------
@@ -115,8 +122,6 @@ Upgrading from a version prior to X.Y.Z
 
 
 // DEBUT TABLEAU LIENS VERSIONS
-<<4.0.0>>
-
 
 
 
@@ -125,7 +130,12 @@ Upgrading from a version prior to X.Y.Z
 
 
 // DEBUT 4.0.0
-[[4.0.0]]
+
+
+
+
+
+
 Upgrading from a version prior to 4.0.0
 ---------------------------------------
 
@@ -208,6 +218,8 @@ In order to do so, execute the following command:
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
 
 // FIN 4.0.0
+
+| [[fourzerozero]] | [[fourzeroone]] | [[fourzerotwo]]  | [[fourzerotree]]
 
 // DEBUT 7.4
 Upgrading from a version prior to 7.4.0
