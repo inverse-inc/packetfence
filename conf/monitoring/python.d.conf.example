@@ -38,7 +38,7 @@ example: no
 
 # exim: yes
 # fail2ban: yes
-# freeradius: yes
+freeradius: yes
 
 # gunicorn_log has been replaced by web_log
 gunicorn_log: no
