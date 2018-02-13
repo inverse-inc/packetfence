@@ -111,6 +111,81 @@ Don't forget to edit the `/usr/local/pf/conf/currently-at` file to match the new
 
 Upgrading from a version prior to X.Y.Z
 ---------------------------------------
+// DEBUT SECTION xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+
+// DEBUT TABLEAU LIENS VERSIONS
+<<4.0.0>>
+
+
+
+
+// FIN TRABLEAU VERSION
+
+
+
+// DEBUT 4.0.0
+[[4.0.0]]
+Upgrading from a version prior to 4.0.0
+---------------------------------------
+
+Upgrading an old version of PacketFence to v4 will be quite
+an endeavor. While it's entirely possible if done meticulously, we
+suggest you start from scratch and move your customizations and
+nodes information over to your new installation.
+
+Database schema update
+^^^^^^^^^^^^^^^^^^^^^^
+The temporary password table has been extended to include roles information.
+Moreover, an "admin" user is now automatically created. The default password
+is also "admin". Finally, a new table has been added for saved searches in the
+new Web administrative interface.
+
+  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-3.6.1-4.0.0.sql
+
+Other important changes
+^^^^^^^^^^^^^^^^^^^^^^^
+
+PacketFence v4 received a major overhaul, especially regarding the authentication
+sources. Authentication modules found in `conf/authentication/` are no longer
+being used and have been replaced by the `conf/authentication.conf` file. While
+this file can be hand-edited, you should create your authentication sources
+and perform roles-mapping using the Configuation > Users > Sources page from
+PacketFence's Web administrative interface.
+
+Also, in PacketFence v4, the VLANs can be assigned in `conf/switches.conf` by constructing
+the parameter names from the VLAN names and the `Vlan` suffix. The VLAN names must match one
+of the default names (registration, isolation, macDetection, inline, and voice) or one of the
+defined roles. If you were using custom VLANs, you must create a new role per VLAN and assign
+them accordingly.
+
+Other key changes were done, such as:
+
+* moved remediation templates in `html/captive-portal/templates/violations` and converted them to Template Toolkit
+* dropped guests_admin_registration.category
+* dropped guests_self_registration.access_duration
+* dropped guests_self_registration.category
+* dropped guests_self_registration.sponsor_authentication
+* dropped guests_self_registration.sponsors_only_from_localdomain
+* dropped ports.listeners
+* dropped registration.auth and registration.default_auth
+* dropped registration.maxnodes
+* dropped registration.expire_* and registration.skip_*
+* dropped trapping.blacklist
+* dropped support for resetVlanAllPort in `bin/pfcmd_vlan`
+* dropped `sbin/pfredirect` binary
+* splitted the httpd services in three: httpd.admin, httpd.portal and httpd.webservices
+* domain-name is no longer required in each section of networks.conf
+
+For all parameters related to authentication (categories, access duration, sponsor authentication, etc.),
+you should now set proper actions in the `conf/authentication.conf` file.
+
+Finally, the `pf` must be sudoer access to the `/sbin/ip` (and others) binary. As root, please do:
+
+  echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset, /sbin/ip, /sbin/vconfig, /sbin/route, /sbin/service, /usr/bin/tee, /usr/local/pf/sbin/pfdhcplistener, /bin/kill, /usr/sbin/dhcpd, /usr/sbin/radiusd" >> /etc/sudoers
+
+
+
 
 Removal of the graphite database
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -132,6 +207,9 @@ In order to do so, execute the following command:
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
 
+// FIN 4.0.0
+
+// DEBUT 7.4
 Upgrading from a version prior to 7.4.0
 ---------------------------------------
 
@@ -155,7 +233,8 @@ To upgrade the database schema, run the following command:
   mysql -u root -p pf -v < /usr/local/pf/db/upgrade-7.3.0-7.4.0.sql
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 7.4.0).
-
+// FIN 7.4
+// DEBUT 7.3
 Upgrading from a version prior to 7.3.0
 ---------------------------------------
 
@@ -194,8 +273,9 @@ To upgrade the database schema, run the following command:
 
   mysql -u root -p pf -v < /usr/local/pf/db/upgrade-7.2.0-7.3.0.sql
 
+// FIN 7.3
 
-
+// DEBUT 7.2
 Upgrading from a version prior to 7.2.0
 ---------------------------------------
 
@@ -244,7 +324,8 @@ To upgrade the database schema, run the following command:
 
   mysql -u root -p pf -v < /usr/local/pf/db/upgrade-7.1.0-7.2.0.sql
 
-
+// FIN 7.2
+// DEBUT 7.1
 Upgrading from a version prior to 7.1.0
 ---------------------------------------
 
@@ -283,6 +364,8 @@ To upgrade the database schema, run the following command:
   mysql -u root -p pf -v < /usr/local/pf/db/upgrade-7.0.0-7.1.0.sql
 
 
+// FIN 7.1 
+// DEBUT 7.0
 Upgrading from a version prior to 7.0.0
 ---------------------------------------
 
@@ -541,6 +624,8 @@ You should then change your Corosync configuration for MariaDB and PacketFence t
 	        op stop timeout=300s interval=0 \
 	        op monitor interval=300s timeout=300s
 
+// FIN 7.0
+// DEBUT 6.5
 Upgrading from a version prior to 6.5.0
 ---------------------------------------
 
@@ -603,6 +688,8 @@ Default RoleMap for the switches
 
 If you were using the default 'RoleMap = Y' in the conf/switches.conf it's disabled by default now. You will need to put 'RoleMap = Y' under your switches or switch group configuration.
 
+// FIN 6.5
+// DEBUT 6.4
 Upgrading from a version prior to 6.4.0
 ---------------------------------------
 
@@ -670,6 +757,8 @@ script from any other cronjob.
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 6.4.0).
 
 
+// FIN 6.4
+// DEBUT 6.3
 Upgrading from a version prior to 6.3.0
 ---------------------------------------
 
@@ -743,6 +832,8 @@ Next, head to 'Configuration->Fingerbank Settings' in the web administration int
  
 After saving those new parameters, at the top of the same page, click 'Initialize MySQL database' to start the import process. Once that is completed, you will receive an e-mail to the one configured for alerting and PacketFence will start using the MySQL backend for the Fingerbank database.
 
+// FIN 6.3
+// DEBUT 6.2.1
 Upgrading from a version prior to 6.2.1
 ---------------------------------------
 
@@ -755,6 +846,8 @@ Restart the httpd.admin process once that is done by running
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 6.2.1).
 
+// FIN 6.2.1
+// DEBUT 6.2
 Upgrading from a version prior to 6.2.0
 ---------------------------------------
 
@@ -768,6 +861,8 @@ To upgrade the database schema, run the following command:
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 6.2.0).
 
 
+// FIN 6.2
+// DEBUT 6.1
 Upgrading from a version prior to 6.1.0
 ---------------------------------------
 
@@ -791,6 +886,8 @@ Changes to LinkedIn source
 
 A change to the authorize URL of LinkedIn was made. Make sure to change the 'API Authorize Path' in all your LinkedIn source to `/uas/oauth2/authorization`.
 
+// FIN 6.1
+// DEBUT 6.0
 Upgrading from a version prior to 6.0.0
 ---------------------------------------
 
@@ -930,6 +1027,8 @@ Once completed, update the file /usr/local/pf/conf/currently-at to match the new
 
 You will also want to drop the `radacct2` table from the database as it will no longer be needed.
 
+// FIN 6.0
+// DEBUT 5.7 
 Upgrading from a version prior to 5.7.0
 ---------------------------------------
 
@@ -952,6 +1051,8 @@ Once completed, update the file /usr/local/pf/conf/currently-at to match the new
 
 
 
+// FIN 5.7
+// DEBUT 5.6 
 Upgrading from a version prior to 5.6.0
 ---------------------------------------
 
@@ -993,6 +1094,8 @@ The default type for the switches now needs to be set explicitly. Add the follow
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 5.6.0).
 
+// FIN 5.6
+// DEBUT 5.5 
 Upgrading from a version prior to 5.5.0
 ---------------------------------------
 
@@ -1100,6 +1203,8 @@ Make sure to apply the appropriate changes if needed.
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 5.5.0).
 
+// FIN 5.5
+// DEBUT 5.4 
 Upgrading from a version prior to 5.4.0
 ---------------------------------------
 
@@ -1180,6 +1285,8 @@ If you have specified a specific host or port, remove them from your configurati
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 5.4.0).
 
+// FIN 5.4
+// DEBUT 5.3 
 Upgrading from a version prior to 5.3.0
 ---------------------------------------
 
@@ -1212,6 +1319,8 @@ Run the following commands:
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 5.3.0).
 
 
+// FIN 5.3
+// DEBUT 5.2 
 Upgrading from a version prior to 5.2.0
 ---------------------------------------
 
@@ -1251,6 +1360,8 @@ type=management,portal
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 5.2.0).
 
+// FIN 5.2
+// DEBUT 5.1 
 Upgrading from a version prior to 5.1.0
 ---------------------------------------
 
@@ -1281,6 +1392,8 @@ Simply execute the following script and follow its instructions `/usr/local/pf/a
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 5.1.0).
 
+// FIN 5.1
+// DEBUT 5.0 
 Upgrading from a version prior to 5.0.0
 ---------------------------------------
 
@@ -1360,6 +1473,8 @@ In the administration interface, go in 'Configuration -> Advanced' and set 'Data
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 5.0.0).
 
+// FIN 5.0
+// DEBUT 4.7 
 Upgrading from a version prior to 4.7.0
 ---------------------------------------
 
@@ -1374,6 +1489,8 @@ Make sure you run the following to update your schema:
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 4.7.0).
 
+// FIN 4.7
+// DEBUT 4.6 
 Upgrading from a version prior to 4.6.0
 ---------------------------------------
 
@@ -1401,6 +1518,8 @@ in the Radius Realms configuration menu and in your Active Directory source sele
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 4.6.0).
 
+// FIN 4.6
+// DEBUT 4.5 
 Upgrading from a version prior to 4.5.0
 ---------------------------------------
 
@@ -1422,6 +1541,8 @@ delay_by=0s
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 4.5.0).
 
+// FIN 4.5
+// DEBUT 4.4 
 Upgrading from a version prior to 4.4.0
 ---------------------------------------
 
@@ -1444,6 +1565,8 @@ With PacketFence completely stopped do :
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 4.4.0).
 
+// FIN 4.4
+// DEBUT 4.3 
 Upgrading from a version prior to 4.3.0
 ---------------------------------------
 
@@ -1467,6 +1590,8 @@ The OAuth passthroughs will not be activated unless `trapping.passthrough` in `p
 
 Once the configuration is completed, update the file /usr/local/pf/conf/currently-at to match the new release number.
 
+// FIN 4.3
+// DEBUT 4.2 
 Upgrading from a version prior to 4.2.0
 ---------------------------------------
 
@@ -1507,6 +1632,8 @@ will need to be ported to the new architecture.
 
 Once the configuration completed, update the file /usr/local/pf/conf/currently-at to match the new release number.
 
+// FIN 4.2
+// DEBUT 4.1 
 Upgrading from a version prior to 4.1.0
 ---------------------------------------
 
@@ -1536,6 +1663,8 @@ Adjust your configuration files accordingly.
 
 Once the configuration completed, update the file /usr/local/pf/conf/currently-at to match the new release number.
 
+// FIN 4.1
+// DEBUT 4.0.6 
 Upgrading from a version prior to 4.0.6
 ---------------------------------------
 
@@ -1585,61 +1714,3 @@ Upgrading from a version prior to 4.0.1
 This release only fixes various bugs and doesn't need the database schema to be
 modified. Simply update the file /usr/local/pf/conf/currently-at to match the new
 release number.
-
-Upgrading from a version prior to 4.0.0
----------------------------------------
-
-Upgrading an old version of PacketFence to v4 will be quite
-an endeavor. While it's entirely possible if done meticulously, we
-suggest you start from scratch and move your customizations and
-nodes information over to your new installation.
-
-Database schema update
-^^^^^^^^^^^^^^^^^^^^^^
-The temporary password table has been extended to include roles information.
-Moreover, an "admin" user is now automatically created. The default password
-is also "admin". Finally, a new table has been added for saved searches in the
-new Web administrative interface.
-
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-3.6.1-4.0.0.sql
-
-Other important changes
-^^^^^^^^^^^^^^^^^^^^^^^
-
-PacketFence v4 received a major overhaul, especially regarding the authentication
-sources. Authentication modules found in `conf/authentication/` are no longer
-being used and have been replaced by the `conf/authentication.conf` file. While
-this file can be hand-edited, you should create your authentication sources
-and perform roles-mapping using the Configuation > Users > Sources page from
-PacketFence's Web administrative interface.
-
-Also, in PacketFence v4, the VLANs can be assigned in `conf/switches.conf` by constructing
-the parameter names from the VLAN names and the `Vlan` suffix. The VLAN names must match one
-of the default names (registration, isolation, macDetection, inline, and voice) or one of the
-defined roles. If you were using custom VLANs, you must create a new role per VLAN and assign
-them accordingly.
-
-Other key changes were done, such as:
-
-* moved remediation templates in `html/captive-portal/templates/violations` and converted them to Template Toolkit
-* dropped guests_admin_registration.category
-* dropped guests_self_registration.access_duration
-* dropped guests_self_registration.category
-* dropped guests_self_registration.sponsor_authentication
-* dropped guests_self_registration.sponsors_only_from_localdomain
-* dropped ports.listeners
-* dropped registration.auth and registration.default_auth
-* dropped registration.maxnodes
-* dropped registration.expire_* and registration.skip_*
-* dropped trapping.blacklist
-* dropped support for resetVlanAllPort in `bin/pfcmd_vlan`
-* dropped `sbin/pfredirect` binary
-* splitted the httpd services in three: httpd.admin, httpd.portal and httpd.webservices
-* domain-name is no longer required in each section of networks.conf
-
-For all parameters related to authentication (categories, access duration, sponsor authentication, etc.),
-you should now set proper actions in the `conf/authentication.conf` file.
-
-Finally, the `pf` must be sudoer access to the `/sbin/ip` (and others) binary. As root, please do:
-
-  echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset, /sbin/ip, /sbin/vconfig, /sbin/route, /sbin/service, /usr/bin/tee, /usr/local/pf/sbin/pfdhcplistener, /bin/kill, /usr/sbin/dhcpd, /usr/sbin/radiusd" >> /etc/sudoers
