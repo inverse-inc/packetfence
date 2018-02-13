@@ -63,6 +63,8 @@ sub actions {
     foreach my $section ( $configfile->Sections ) {
         my $data = section_data( $configfile, $section );
         my $logs = $data->{logs};
+        $logs = $pf::constants::syslog::ALL_LOGS
+            if $logs eq 'ALL';
         if ( !ref $logs ) {
             $logs = [ split( /\s*,\s*/, $logs ) ];
         }
@@ -76,8 +78,8 @@ sub actions {
             push @{ $actions{$log} }, $action_generator->( $data, $log );
         }
     }
-    return \%actions;
 
+    return \%actions;
 }
 
 

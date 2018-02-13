@@ -185,6 +185,8 @@ our @SyslogInfo = (
     },
 );
 
+our $ALL_LOGS = join(",", map { $_->{name} } @pf::constants::syslog::SyslogInfo);
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
