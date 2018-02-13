@@ -333,3 +333,12 @@ type AuthenticationSourceLdap struct {
 	Monitor           string `json:"monitor"`
 	Type              string `json:"type"`
 }
+
+type PfStats struct {
+	StructConfig
+	PfconfigMethod string `val:"hash_element"`
+	PfconfigHashNS string `val:"-"`
+	PfconfigNS     string `val:"config::Stats"`
+	File           string `json:"file"`
+	Match          string `json:"match"`
+}

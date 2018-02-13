@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/coreos/go-systemd/daemon"
+	"github.com/hpcloud/tail"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 
 	"github.com/inverse-inc/packetfence/go/log"
@@ -222,7 +223,7 @@ func forward(c net.Conn) {
 			_, err = c.Write([]byte("0 Success: 1 value has been dispatched.\n"))
 		}
 		if err != nil {
-			log.LoggerWContext(ctx).Crit("Writing client error: ", err.Error())
+			log.LoggerWContext(ctx).Crit("Writing client error: " + err.Error())
 		}
 	}
 }
@@ -250,14 +251,14 @@ func main() {
 
 	ln, err := net.Listen("unix", "/usr/local/pf/var/run/collectd-unixsock")
 	if err != nil {
-		log.LoggerWContext(ctx).Crit("Listen error: ", err)
+		log.LoggerWContext(ctx).Crit("Listen error: " + err.Error())
 	}
 
 	sigc := make(chan os.Signal, 1)
 	signal.Notify(sigc, os.Interrupt, syscall.SIGTERM)
 	go func(ln net.Listener, c chan os.Signal) {
 		sig := <-c
-		log.LoggerWContext(ctx).Info("Caught signal %s: shutting down.", sig)
+		log.LoggerWContext(ctx).Info("Caught signal " + sig.String() + ": shutting down.")
 		ln.Close()
 		os.Exit(0)
 	}(ln, sigc)
@@ -324,13 +325,58 @@ func main() {
 		}
 	}()
 
+	var files []string
+
+	config := tail.Config{Follow: true, ReOpen: true, Location: &tail.SeekInfo{-10, os.SEEK_END}}
+
+	done := make(chan bool)
+
+	var keyConfStats pfconfigdriver.PfconfigKeys
+	keyConfStats.PfconfigNS = "config::Stats"
+	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfStats)
+
+	for _, key := range keyConfStats.Keys {
+		var ConfStat pfconfigdriver.PfStats
+		ConfStat.PfconfigHashNS = key
+
+		pfconfigdriver.FetchDecodeSocket(ctx, &ConfStat)
+		files = append(files, ConfStat.File)
+
+		go tailFile(ConfStat, config, done)
+	}
+
+	for _ = range files {
+		<-done
+	}
+
 	for {
 		fd, err := ln.Accept()
 		if err != nil {
-			log.LoggerWContext(ctx).Crit("Accept error: ", err)
+			log.LoggerWContext(ctx).Crit("Accept error: " + err.Error())
 		}
 
 		go forward(fd)
+	}
+}
+
+func tailFile(stats pfconfigdriver.PfStats, config tail.Config, done chan bool) {
+	defer func() { done <- true }()
+	t, err := tail.TailFile(stats.File, config)
+	if err != nil {
+		log.LoggerWContext(ctx).Error(err.Error())
+		return
+	}
+
+	rgx := regexp.MustCompile(stats.Match)
+
+	for line := range t.Lines {
+		if rgx.Match([]byte(line.Text)) {
+			StatsdClient.Gauge(stats.PfconfigHashNS, 1)
+		}
+	}
+	err = t.Wait()
+	if err != nil {
+		log.LoggerWContext(ctx).Error(err.Error())
 	}
 }
 

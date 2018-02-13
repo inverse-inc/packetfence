@@ -901,6 +901,8 @@ fi
                         /usr/local/pf/conf/redis_queue.conf.example
 %config(noreplace)      /usr/local/pf/conf/redis_ntlm_cache.conf
                         /usr/local/pf/conf/redis_ntlm_cache.conf.example
+%config(noreplace)      /usr/local/pf/conf/stats.conf
+                        /usr/local/pf/conf/stats.conf.example
 %config(noreplace)      /usr/local/pf/conf/floating_network_device.conf
 %config(noreplace)      /usr/local/pf/conf/guest-managers.conf
                         /usr/local/pf/conf/git_commit_id
