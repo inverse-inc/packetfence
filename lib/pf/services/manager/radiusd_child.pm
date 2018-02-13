@@ -222,7 +222,7 @@ sub generate_radiusd_authconf {
         push @listen_ips, $ip;
 
     } else {
-        foreach my $interface ( @radius_ints ) {
+        foreach my $interface ( uniq(@radius_ints) ) {
             my $ip = defined($interface->tag('vip')) ? $interface->tag('vip') : $interface->tag('ip');
             push @listen_ips, $ip;
         }
@@ -243,7 +243,7 @@ sub generate_radiusd_acctconf {
         push @listen_ips, $ip;
 
     } else {
-        foreach my $interface ( @radius_ints ) {
+        foreach my $interface ( uniq(@radius_ints) ) {
             my $ip = defined($interface->tag('vip')) ? $interface->tag('vip') : $interface->tag('ip');
             push @listen_ips, $ip;
         }
@@ -274,7 +274,7 @@ listen {
 
 EOT
         } else {
-            foreach my $interface ( @radius_ints ) {
+            foreach my $interface ( uniq(@radius_ints) ) {
                 my $ip = defined($interface->tag('vip')) ? $interface->tag('vip') : $interface->tag('ip');
                 $tags{'listen'} .= <<"EOT";
 listen {
@@ -313,7 +313,7 @@ listen {
 
 EOT
         } else {
-            foreach my $interface ( @radius_ints ) {
+            foreach my $interface ( uniq(@radius_ints) ) {
                 my $ip = defined($interface->tag('vip')) ? $interface->tag('vip') : $interface->tag('ip');
                 $tags{'listen'} .= <<"EOT";
 listen {
@@ -590,7 +590,7 @@ EOT
         $tags{'pid_file'} = "$var_dir/run/radiusd-load_balancer.pid";
         $tags{'socket_file'} = "$var_dir/run/radiusd-load_balancer.sock";
 
-        foreach my $interface ( uniq @radius_ints ) {
+        foreach my $interface ( uniq(@radius_ints) ) {
 
             my $cluster_ip = pf::cluster::cluster_ip($interface->{Tint});
             $tags{'listen'} .= <<"EOT";
@@ -626,7 +626,7 @@ EOT
             $tags{'eduroam'} = <<"EOT";
 # Eduroam integration
 EOT
-            foreach my $interface ( @radius_ints ) {
+            foreach my $interface ( uniq(@radius_ints) ) {
                 my $cluster_ip = pf::cluster::cluster_ip($interface->{Tint});
                 $tags{'eduroam'} .= <<"EOT";
 listen {
