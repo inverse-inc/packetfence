@@ -206,73 +206,19 @@ components:
             response
           type: string
       type: object
-    Locationlog:
+    MacAddress:
       properties:
-        connection_sub_type:
-            description: The connection sub-category type
-            type: string
-        connection_type:
-            description: The connection type
-            type: string
-        dot1x_username:
-            description: The 802.1X username supplied for authentication
-            type: string
-        end_time:
-            description: The session end date/time
-            type: string
-        id:
-            description: The unique numeric identifier of the locationlog
-            type: integer
-        ifDesc:
-            description: The description of the interface
-            type: string
-        mac: 
-            description: The clients MAC
-            type: string
-        port:
-            description: The clients numeric port number
-            type: integer
-        realm:
-            description: The clients realm
-            type: string
-        role:
-            description: The role of the connection profile
-            type: string
-        session_id:
-            description: The unique identifier of the session
-            type: string
-        ssid:
-            description: The SSID of the client connection
-            type: string
-        start_time:
-            description: The session start date/time
-            type: string
-        stripped_user_name:
-            description: The user name of the clients connection
-            type: string
-        switch:
-            description: The switch name
-            type: string
-        switch_ip:
-            description: The switch IPv4 address
-            type: string
-        switch_mac:
-            description: The switch MAC
-            type: string
-        tenant_id:
-            description: The unique identifier of the clients tenant
-            type: integer
-        vlan:
-            description: The numeric VLAN identifier
-            type: integer
+        mac:
+          description: The MAC address.
+          type: string
       type: object
-    LocationlogList:
+    MacAddressList:
       allOf:
       - $ref: '#/components/schemas/Iterable'
       - properties:
           items:
             items:
-              $ref: '#/components/schemas/Locationlog'
+              $ref: '#/components/schemas/MacAddress'
             type: array
         type: object
     Message:
@@ -299,62 +245,62 @@ components:
     NodesLocationlog:
       properties:
         connection_sub_type:
-            description: The connection sub-category type
-            type: string
+          description: The connection sub-category type
+          type: string
         connection_type:
-            description: The connection type
-            type: string
+          description: The connection type
+          type: string
         dot1x_username:
-            description: The 802.1X username supplied for authentication
-            type: string
+          description: The 802.1X username supplied for authentication
+          type: string
         end_time:
-            description: The session end date/time
-            type: string
+          description: The session end date/time
+          type: string
         id:
-            description: The unique numeric identifier of the locationlog
-            type: integer
+          description: The unique numeric identifier of the locationlog
+          type: integer
         ifDesc:
-            description: The description of the interface
-            type: string
-        mac: 
-            description: The client MAC
-            type: string
+          description: The description of the interface
+          type: string
+        mac:
+          description: The client MAC
+          type: string
         port:
-            description: The client numeric port number
-            type: integer
+          description: The client numeric port number
+          type: integer
         realm:
-            description: The client realm
-            type: string
+          description: The client realm
+          type: string
         role:
-            description: The client role
-            type: string
+          description: The client role
+          type: string
         session_id:
-            description: The web-auth session ID if applicable
-            type: string
+          description: The web-auth session ID if applicable
+          type: string
         ssid:
-            description: The SSID of the client connection
-            type: string
+          description: The SSID of the client connection
+          type: string
         start_time:
-            description: The session start date/time
-            type: string
+          description: The session start date/time
+          type: string
         stripped_user_name:
-            description: The username of the clients connection
-            type: string
+          description: The username of the clients connection
+          type: string
         switch:
-            description: The switch identifier
-            type: string
+          description: The switch identifier
+          type: string
         switch_ip:
-            description: The switch IPv4 address
-            type: string
+          description: The switch IPv4 address
+          type: string
         switch_mac:
-            description: The switch MAC address
-            type: string
+          description: The switch MAC address
+          type: string
         tenant_id:
-            description: The unique identifier of the client tenant
-            type: integer
+          description: The unique identifier of the client tenant
+          type: integer
         vlan:
-            description: The numeric VLAN identifier
-            type: integer
+          description: The numeric VLAN identifier
+          type: integer
       type: object
     NodesLocationlogList:
       allOf:
@@ -468,6 +414,66 @@ components:
               $ref: '#/components/schemas/UserWithLinks'
             type: array
         type: object
+    Violation:
+      properties:
+        description:
+          description: The name of the violation class.
+          type: string
+        id:
+          description: The unique violation identifier.
+          type: integer
+        release_date:
+          description: The date/time when the violation was closed.
+          type: string
+        start_date:
+          description: The date/time when the violation was opened.
+          type: string
+        status:
+          description: The status of the violation.
+          type: string
+        vid:
+          description: The unique violation class identifier.
+          type: integer
+      type: object
+    ViolationList:
+      allOf:
+      - $ref: '#/components/schemas/Iterable'
+      - properties:
+          items:
+            items:
+              $ref: '#/components/schemas/Violation'
+            type: array
+        type: object
+    ViolationWithNotes:
+      properties:
+        computername:
+          description: The computer name of the node that triggered the violation.
+          type: string
+        id:
+          description: The unique violation identifier.
+          type: integer
+        mac:
+          description: The MAC address of the node that triggered the violation.
+          type: string
+        notes:
+          description: Additional note from the violation class.
+          type: string
+        release_date:
+          description: The date/time when the violation was closed.
+          type: string
+        start_date:
+          description: The date/time when the violation was opened.
+          type: string
+        status:
+          description: The status of the violation.
+          type: string
+        ticket_ref:
+          description: The ticket reference of the violation.
+          type: string
+        vid:
+          description: The unique violation class identifier.
+          type: integer
+      type: object
   securitySchemes:
     bearerAuth:
       bearerFormat: JWT
@@ -679,22 +685,6 @@ paths:
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
       summary: Allows to update a whole connection profile
-  /locationlog:
-    get:
-      description: The list of locationlog will be limited to 100 and a cursor will be returned
-        for iterating on other locationlogs. Iteration is only needed if the nextCursor is
-        not an empty value.
-      parameters:
-      - $ref: '#/components/parameters/cursor'
-      - *1
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LocationlogList'
-          description: List of locationlogs
-      summary: Returns a list of locationlogs
   /login:
     post:
       parameters:
@@ -727,46 +717,6 @@ paths:
       security:
       - none: []
       summary: Login into the API and obtain a token
-  /nodes/{mac}/latest_locationlog:
-    get:
-      parameters:
-      - description: The MAC address to fetch
-        in: path
-        name: mac
-        required: true
-        schema:
-          type: string
-      - *1
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NodesLocationlog'
-          description: Last locationlog
-      summary: Returns the most recent locationlog
-  /nodes/{mac}/locationlog:
-    get:
-      description: The list of locationlogs will be limited to 100 and a cursor will be returned
-        for iterating on other locationlogs. Iteration is only needed if the nextCursor is
-        not an empty value.
-      parameters:
-      - $ref: '#/components/parameters/cursor'
-      - description: The MAC address to fetch
-        in: path
-        name: mac
-        required: true
-        schema:
-          type: string
-      - *1
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NodesLocationlogList'
-          description: List of locationlogs
-      summary: Returns a list of locationlogs  
   /tenants:
     get:
       description: The list of tenants will be limited to 100 and a cursor will be
@@ -1098,64 +1048,6 @@ paths:
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
       summary: Allows to update the whole password entry for a user
-  /violations:
-    get:
-      description: The list of MAC addresses with violations will be limited to 100 and a 
-        cursor will be returned for iterating on other open violations. Iteration is only 
-        needed if the nextCursor is not an empty value.
-      parameters:
-      - $ref: '#/components/parameters/cursor'
-      - *1
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MacAddressList'
-          description: List of MAC addresses with open violations
-      summary: Returns a list of MAC addresses with open violations
-  /violations/{mac}:
-    get:
-      description: The list of violations will be limited to 100 and a cursor will be returned
-        for iterating on other violations. Iteration is only needed if the nextCursor is
-        not an empty value.
-      parameters:
-      - $ref: '#/components/parameters/cursor'
-      - description: The MAC address to fetch
-        in: path
-        name: mac
-        required: true
-        schema:
-          type: string
-      - *1
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ViolationList'
-          description: List of violations
-      summary: Returns a list of violations    
-  /violations/{violation_id}:
-    get:
-      description: The violation for a violation_id.
-      parameters:
-      - $ref: '#/components/parameters/cursor'
-      - description: The violation_id to fetch
-        in: path
-        name: violation_id
-        required: true
-        schema:
-          type: integer
-      - *1
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ViolationWithNotes'
-          description: Violation
-      summary: Returns a violation    
 security:
 - bearerAuth: []
 servers:
