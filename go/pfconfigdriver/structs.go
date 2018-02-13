@@ -282,3 +282,63 @@ type PassthroughsIsolationConf struct {
 	Wildcard       map[string][]string
 	Normal         map[string][]string
 }
+
+type AuthenticationSourceEduroam struct {
+	StructConfig
+	PfconfigMethod string `val:"hash_element"`
+	PfconfigNS     string `val:"resource::authentication_sources_eduroam"`
+	PfconfigArray  string `val:"_"`
+	PfconfigHashNS string `val:"-"`
+	Description    string `json:"description"`
+	RadiusSecret   string `json:"radius_secret"`
+	Server1Address string `json:"server1_address"`
+	Server2Address string `json:"server2_address"`
+	Monitor        string `json:"monitor"`
+	Type           string `json:"type"`
+}
+
+type AuthenticationSourceRadius struct {
+	StructConfig
+	PfconfigMethod string `val:"hash_element"`
+	PfconfigNS     string `val:"resource::authentication_sources_radius"`
+	PfconfigArray  string `val:"_"`
+	PfconfigHashNS string `val:"-"`
+	Description    string `json:"description"`
+	Secret         string `json:"secret"`
+	Port           string `json:"port"`
+	Host           string `json:"host"`
+	Timeout        string `json:"timeout"`
+	Monitor        string `json:"monitor"`
+	Type           string `json:"type"`
+}
+
+type AuthenticationSourceLdap struct {
+	StructConfig
+	PfconfigMethod    string `val:"hash_element"`
+	PfconfigNS        string `val:"resource::authentication_sources_ldap"`
+	PfconfigArray     string `val:"_"`
+	PfconfigHashNS    string `val:"-"`
+	Description       string `json:"description"`
+	Password          string `json:"password"`
+	Port              string `json:"port"`
+	Host              string `json:"host"`
+	ReadTimeout       string `json:"read_timeout"`
+	WriteTimeout      string `json:"write_timeout"`
+	BaseDN            string `json:"basedn"`
+	Scope             string `json:"scope"`
+	EmailAttribute    string `json:"email_attribute"`
+	UserNameAttribute string `json:"usernameattribute"`
+	BindDN            string `json:"binddn"`
+	Encryption        string `json:"encryption"`
+	Monitor           string `json:"monitor"`
+	Type              string `json:"type"`
+}
+
+type PfStats struct {
+	StructConfig
+	PfconfigMethod string `val:"hash_element"`
+	PfconfigHashNS string `val:"-"`
+	PfconfigNS     string `val:"config::Stats"`
+	File           string `json:"file"`
+	Match          string `json:"match"`
+}

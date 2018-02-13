@@ -58,8 +58,6 @@ conf/log.conf
 conf/chi.conf
 conf/dhcp_filters.conf
 conf/local_secret
-conf/monitoring/*
-!conf/monitoring/*.example
 conf/nessus/remotescan.nessus
 conf/networks.conf
 conf/radiusd/acct.conf

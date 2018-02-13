@@ -25,6 +25,9 @@
   <IfModule !mod_log_config.c>
     LoadModule log_config_module /usr/lib/apache2/modules/mod_log_config.so
   </IfModule>
+  <IfModule !mod_logio.c>
+    LoadModule logio_module /usr/lib/apache2/modules/mod_logio.so
+  </IfModule>
   <IfModule !mod_auth_basic.c>
     LoadModule auth_basic_module /usr/lib/apache2/modules/mod_auth_basic.so
   </IfModule>
@@ -78,6 +81,9 @@
   [% END %]
   <IfModule !mod_log_config.c>
     LoadModule log_config_module modules/mod_log_config.so
+  </IfModule>
+  <IfModule !mod_logio.c>
+    LoadModule logio_module modules/mod_logio.so
   </IfModule>
   <IfModule !mod_auth_basic.c>
     LoadModule auth_basic_module modules/mod_auth_basic.so

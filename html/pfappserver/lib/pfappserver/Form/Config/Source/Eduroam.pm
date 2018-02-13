@@ -98,6 +98,17 @@ has_field 'local_realm' =>
    default => '',
   );
 
+has_field 'monitor',
+  (
+   type => 'Toggle',
+   label => 'Monitor',
+   checkbox_value => '1',
+   unchecked_value => '0',
+   tags => { after_element => \&help,
+             help => 'Do you want to monitor this source?' },
+   default => pf::Authentication::Source::EduroamSource->meta->get_attribute('monitor')->default,
+);
+
 sub options_realm {
     my $self = shift;
     my @roles = map { $_ => $_ } sort keys %pf::config::ConfigRealm;

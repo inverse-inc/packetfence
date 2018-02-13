@@ -443,11 +443,6 @@ httpd_aaa=enabled
 # Should httpd.proxy be started?
 httpd_proxy=enabled
 #
-# services.httpd_graphite
-#
-# Should httpd.graphite be started?
-httpd_graphite=enabled
-#
 # services.httpd_binary
 #
 # Location of the apache binary. Only necessary to change if you are not running the RPMed version.
@@ -525,45 +520,6 @@ winbindd=enabled
 # 
 # location of the winbindd binary. only necessary to change if you are not running the rpmed version.
 winbindd_binary=/usr/sbin/winbindd
-# services.carbon-cache
-#
-# Should carbon-cache be started?
-carbon-cache=enabled
-# 
-# services.carbon-cache_binary
-# 
-# Location of the carbon cache binary. Only necessary to change if you are not running the pre-packaged version.
-carbon-cache_binary=/usr/bin/carbon-cache
-#
-# services.carbon-relay
-#
-# Should carbon-relay be started?
-carbon-relay=enabled
-# 
-# services.carbon-relay_binary
-# 
-# Location of the carbon relay binary. Only necessary to change if you are not running the pre-packaged version.
-carbon-relay_binary=/usr/bin/carbon-relay
-#
-# services.collectd
-#
-# Should collectd be started?
-collectd=enabled
-# 
-# services.collectd_binary
-# 
-# Location of the collectd binary. Only necessary to change if you are not running the pre-packaged version.
-collectd_binary=/usr/sbin/collectd
-#
-# services.statsd
-#
-# Should statsd be started?
-statsd=enabled
-# 
-# services.statsd_binary
-# 
-# Location of the statsd (node) binary. Only necessary to change if you are not running the pre-packaged version.
-statsd_binary=/usr/bin/node
 #
 # services.radsniff
 #
@@ -605,6 +561,16 @@ routes=enabled
 #
 # location of the routes binary. only necessary to change if you are not running the rpmed version.
 routes_binary=/sbin/ip
+#
+# services.netdata
+#
+# Should netdata be managed by PacketFence?
+netdata=enabled
+#
+# services.netdata_binary
+#
+# Location of the netdata binary. Only necessary to change if you are not running the RPMed version.
+netdata_binary=/usr/sbin/netdata
 
 # services.pfdns
 #
@@ -615,6 +581,16 @@ pfdns=enabled
 #
 # Location of the pfdns binary.
 pfdns_binary=/usr/local/pf/bin/pfdns
+
+# services.pfstats
+#
+# Should pfstats be managed by PacketFence?
+pfstats=enabled
+#
+# services.pfstats_binary
+#
+# Location of the pfstats binary.
+pfdns_binary=/usr/local/pf/bin/pfstats
 
 [snmp_traps]
 #
@@ -1056,37 +1032,6 @@ galera_replication_username=
 #
 # Defines the replication password to be used for the MariaDB Galera cluster replication
 galera_replication_password=
-
-[graphite]
-#
-# graphite.graphite_host
-#
-graphite_host=localhost
-
-#
-# graphite.graphite_port
-#
-graphite_port=2013
-
-#
-# graphite.db_port
-#
-db_port=
-
-#
-# graphite.db_host
-#
-db_host=
-
-#
-# graphite.db_user
-#
-db_user=
-
-#
-# graphite.db_pass
-#
-db_pass=
 
 [metadefender]
 #

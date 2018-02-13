@@ -1,0 +1,16 @@
+[Unit]
+Description=PacketFence Stats daemon
+Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
+After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+
+[Service]
+StartLimitBurst=3
+StartLimitInterval=10
+Type=notify
+ExecStartPre=/bin/rm -fr /usr/local/pf/var/run/collectd-unixsock
+ExecStart=/usr/local/pf/bin/pfstats
+Restart=on-failure
+Slice=packetfence.slice
+
+[Install]
+WantedBy=packetfence.target

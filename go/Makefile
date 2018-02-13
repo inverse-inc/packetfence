@@ -30,6 +30,12 @@ pfdns:
 	cd - && \
 	mv coredns/coredns pfdns
 
+pfstats:
+	cd pfstats && \
+        go build && \
+        cd - && \
+        mv pfstats/pfstats pfstats
+
 .PHONY: clean-caddy-src
 
 clean-caddy-src:

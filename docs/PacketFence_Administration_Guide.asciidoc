@@ -4148,39 +4148,6 @@ The last block defines the relationship between the tests and the desired action
 
 This filter will return an error code (501) if the user agent is Dalvik and the URI doesn't contain _/generate_204.
 
-Dashboard Optimizations (statistics collection)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The collection and aggregation of statistics in the whisper database can be I/O intensive per moment. This means that it can be beneficial to separate them on another disk even if it is a virtual disk that will share the same underlying physical disk.
-
-First, add a disk in your virtual machine or bare metal server and reboot (this example will use /dev/sdb as the new device.
-
-Make sure packetfence is stopped:
-
-  # service packetfence stop
-
-Create an ext4 partition: 
-
-  # mkfs.ext4 /dev/sdb
-
-Then move the old databases to a backup point:
-
-  # mv /usr/local/pf/var/graphite /usr/local/pf/var/graphite.bak
-
-Mount your new disk and check that it is mounted:
-
-  # echo "/dev/sdb /usr/local/pf/var/graphite             ext4    defaults        1 1" >> /etc/fstab
-  # mkdir /usr/local/pf/var/graphite
-  # mount -a
-  # dh -h
-  
-Apply the proper user rights and restore your database from your backup
-
-  # chown pf.pf /usr/local/pf/var/graphite
-  # cp -frp /usr/local/pf/var/graphite.bak/* /usr/local/pf/var/graphite/
-
-Start packetfence and make sure your stats are still there and being collected properly. Then remove the backup you made `rm -fr /usr/local/pf/var/graphite.bak/`.
-
 Troubleshooting
 ~~~~~~~~~~~~~~~
 

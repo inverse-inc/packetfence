@@ -258,6 +258,11 @@ EOT
 
         }
     }
+    $tags{'management_ip'}
+        = defined( $management_network->tag('vip') )
+        ? $management_network->tag('vip')
+        : $management_network->tag('ip');
+
 
     $tags{captiveportal_templates_path} = $captiveportal_templates_path;
     parse_template( \%tags, "$conf_dir/haproxy.conf", "$generated_conf_dir/haproxy.conf" );

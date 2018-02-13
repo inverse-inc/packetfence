@@ -37,6 +37,9 @@
   <IfModule !mod_log_config.c>
     LoadModule log_config_module /usr/lib/apache2/modules/mod_log_config.so
   </IfModule>
+  <IfModule !mod_logio.c>
+    LoadModule logio_module /usr/lib/apache2/modules/mod_logio.so
+  </IfModule>
   <IfModule !mod_ssl.c>
     LoadModule ssl_module /usr/lib/apache2/modules/mod_ssl.so
   </IfModule>
@@ -93,6 +96,9 @@
   [% END %]
   <IfModule !mod_log_config.c>
     LoadModule log_config_module modules/mod_log_config.so
+  </IfModule>
+  <IfModule !mod_logio.c>
+    LoadModule logio_module modules/mod_logio.so
   </IfModule>
   <IfModule !mod_ssl.c>
     LoadModule ssl_module modules/mod_ssl.so
@@ -226,11 +232,9 @@ ProxyHTMLLinks  script      src for
 
 [% FOREACH vhost IN vhosts %]
   Listen [% vhost %]:[% ports.admin %]
-  Listen [% vhost %]:[% ports.pf_status %]
 
   [% IF apache_version == "2.2" %]
   NameVirtualHost [% vhost %]:[% ports.admin %]
-  NameVirtualHost [% vhost %]:[% ports.pf_status %]
   [% END %]
 
   <VirtualHost [% vhost %]:[% ports.admin %] >
@@ -242,6 +246,7 @@ ProxyHTMLLinks  script      src for
       SSLEngine on
       Include  [% var_dir %]/conf/ssl-certificates.conf
       SSLProxyEngine on
+      RewriteEngine on
       ProxyRequests off
       ProxyPreserveHost on
       ProxyVia off
@@ -252,6 +257,16 @@ ProxyHTMLLinks  script      src for
       ProxyPassReverse /portal_preview/ https://[% server_name %]/
       ProxyPassReverse /portal_preview/ http://[% server_name %]/
       #LogLevel debug
+
+      # Proxy to netdata
+      ProxyPassMatch "^/netdata/([A-Za-z0-9\._-]+)/(.*)" "http://$1:19999/$2" connectiontimeout=5 timeout=30 keepalive=on
+
+      # make sure the user did not forget to add a trailing /
+      # for HTTP (if the virtualhost is HTTP, use this)
+      RewriteRule "^/netdata/([A-Za-z0-9\._-]+)$" http://%{HTTP_HOST}/netdata/$1/ [L,R=301]
+      # for HTTPS (if the virtualhost is HTTPS, use this)
+      RewriteRule "^/netdata/([A-Za-z0-9\._-]+)$" https://%{HTTP_HOST}/netdata/$1/ [L,R=301]
+
 
       <Location /portal_preview >
           SetEnv X_PORTAL default
@@ -286,14 +301,6 @@ ProxyHTMLLinks  script      src for
           Header add Set-Cookie "PF_PORTAL=%{X_PORTAL}e; Path=/portal_preview" env=X_PORTAL
       </Location>
 
-      <Location /admin/metrics >
-          RequestHeader unset Accept-Encoding
-          RequestHeader append X-Forwarded-For-PacketFence "127.0.0.1"
-
-          ProxyPass  http://[% graphite_url %]/
-          ProxyPassReverse http://[% graphite_url %]/
-      </Location>
-
       Alias /static [% install_dir %]/html/pfappserver/root/static
       <Location / >
            SetHandler modperl
@@ -302,16 +309,6 @@ ProxyHTMLLinks  script      src for
       <Location /static >
            SetHandler default-handler
       </Location>
-  </VirtualHost>
-
-  <VirtualHost [% vhost %]:[% ports.pf_status %] >
-      ServerName [% server_name %]
-      DocumentRoot  [% install_dir %]/html/pfappserver/lib
-      ErrorLog      "| /usr/bin/logger -thttpd_admin_err -plocal5.err" 
-      CustomLog     "| /usr/bin/logger -thttpd_admin_access -plocal5.info" combined
-      AllowEncodedSlashes on
-      PerlModule pf::clustermgmt
-      PerlTransHandler pf::clustermgmt
   </VirtualHost>
 
 [% END %]

@@ -59,12 +59,6 @@ case "$1" in
         VERSIONSQL=$(ls pf-schema-* |sort -r | head -1)
         ln -f -s $VERSIONSQL ./pf-schema.sql
 
-        if [ -h "$PACKETFENCE/db/pf_graphite-schema.sql" ]; then
-            rm $PACKETFENCE/db/pf_graphite-schema.sql
-        fi
-        VERSIONSQL=$(ls pf_graphite-schema-* |sort -r | head -1)
-        ln -f -s $VERSIONSQL ./pf_graphite-schema.sql
-    
         #Check if log files exist and create them with the correct owner
         for fic_log in packetfence.log
         do
@@ -106,7 +100,7 @@ case "$1" in
 
         # managing services
         set +e
-        for service in apache2 snmptrapfmt snmpd bind9 freeradius apparmor collectd haproxy carbon-cache keepalived redis-server smbd samba winbind nmbd mysql; do
+        for service in apache2 snmptrapfmt freeradius apparmor haproxy keepalived redis-server smbd samba winbind nmbd mysql; do
 
             if [ -e "/etc/init.d/"$service ] ; then
                 invoke-rc.d $service stop  > /dev/null 2>&1

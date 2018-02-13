@@ -47,8 +47,6 @@
 /usr/local/pf/conf/httpd.conf.d/httpd.webservices.tt
 /usr/local/pf/conf/httpd.conf.d/httpd.aaa.tt
 /usr/local/pf/conf/httpd.conf.d/httpd.collector.tt
-/usr/local/pf/conf/httpd.conf.d/graphite-web.wsgi
-/usr/local/pf/conf/httpd.conf.d/httpd.graphite.tt
 /usr/local/pf/conf/httpd.conf.d/httpd.portal.tt
 /usr/local/pf/conf/httpd.conf.d/httpd.parking.tt
 /usr/local/pf/conf/httpd.conf.d/httpd.proxy.tt
@@ -80,16 +78,7 @@
 /usr/local/pf/conf/ui-global.conf
 /usr/local/pf/conf/violations.conf
 /usr/local/pf/conf/wmi.conf
-/usr/local/pf/conf/monitoring/carbon.conf
-/usr/local/pf/conf/monitoring/collectd.conf.rhel
-/usr/local/pf/conf/monitoring/collectd.conf.debian
-/usr/local/pf/conf/monitoring/dashboard.conf
-/usr/local/pf/conf/monitoring/local_settings.py.rhel
-/usr/local/pf/conf/monitoring/local_settings.py.debian
-/usr/local/pf/conf/monitoring/statsd_config.js
-/usr/local/pf/conf/monitoring/storage-schemas.conf
-/usr/local/pf/conf/monitoring/storage-aggregation.conf
-/usr/local/pf/conf/monitoring/types.db
+/usr/local/pf/conf/monitoring/netdata.conf
 /usr/local/pf/html/captive-portal/captiveportal.conf
 /usr/local/pf/html/common/styles.css
 /usr/local/pf/html/common/styles.css.map

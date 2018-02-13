@@ -297,16 +297,9 @@ Requires: perl(Graph)
 #Timezone
 Requires: perl(DateTime::TimeZone)
 
-# for dashboard
-Requires: python-django, python-django-tagging, pyparsing
-Requires: MySQL-python
-Requires: python-carbon, python-whisper
-Requires: graphite-web >= 0.9.12-25
 Requires: samba-winbind-clients, samba-winbind
-Requires: collectd >= 5.6, collectd-apache, collectd-openldap, collectd-redis, collectd-mysql, collectd-disk
-Obsoletes: collectd-drbd
-Requires: nodejs >= 6.11.0
 Requires: libdrm >= 2.4.74
+Requires: netdata, fping
 
 # pki
 Requires: perl(Crypt::SMIME)
@@ -461,15 +454,11 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence.slice $RPM_BUILD_ROOT/etc/systemd/system/packetfence.slice
 %{__install} -D -m0644 conf/systemd/packetfence-base.slice $RPM_BUILD_ROOT/etc/systemd/system/packetfence-base.slice
 # systemd services
-%{__install} -D -m0644 conf/systemd/packetfence-carbon-cache.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-carbon-cache.service
-%{__install} -D -m0644 conf/systemd/packetfence-carbon-relay.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-carbon-relay.service
-%{__install} -D -m0644 conf/systemd/packetfence-collectd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-collectd.service
 %{__install} -D -m0644 conf/systemd/packetfence-config.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-config.service
 %{__install} -D -m0644 conf/systemd/packetfence-haproxy.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-haproxy.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.aaa.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.aaa.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.admin.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.admin.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.collector.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.collector.service
-%{__install} -D -m0644 conf/systemd/packetfence-httpd.graphite.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.graphite.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.parking.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.parking.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.portal.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.portal.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.proxy.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.proxy.service
@@ -499,11 +488,12 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-redis_queue.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-redis_queue.service
 %{__install} -D -m0644 conf/systemd/packetfence-routes.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-routes.service
 %{__install} -D -m0644 conf/systemd/packetfence-snmptrapd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-snmptrapd.service
-%{__install} -D -m0644 conf/systemd/packetfence-statsd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-statsd.service
 %{__install} -D -m0644 conf/systemd/packetfence-winbindd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-winbindd.service
 %{__install} -D -m0644 conf/systemd/packetfence-etcd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-etcd.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdhcp.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfdhcp.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfipset.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfipset.service
+%{__install} -D -m0644 conf/systemd/packetfence-netdata.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-netdata.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfstats.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfstats.service
 
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons/AD
@@ -588,16 +578,12 @@ if [ ! -h "$RPM_BUILD_ROOT/usr/local/pf/db/pf-schema.sql" ]; then
     VERSIONSQL=$(ls pf-schema-* |sort -r | head -1)
     ln -f -s $VERSIONSQL ./pf-schema.sql
 fi
-if [ ! -h "$RPM_BUILD_ROOT/usr/local/pf/db/pf_graphite-schema.sql" ]; then
-    cd $RPM_BUILD_ROOT/usr/local/pf/db
-    VERSIONSQL=$(ls pf_graphite-schema-* |sort -r | head -1)
-    ln -f -s $VERSIONSQL ./pf_graphite-schema.sql
-fi
 
 #radius sites-enabled symlinks
 #We standardize the way to use site-available/sites-enabled for the RADIUS server
 cd $RPM_BUILD_ROOT/usr/local/pf/raddb/sites-enabled
 ln -s ../sites-available/dynamic-clients dynamic-clients
+ln -s ../sites-available/status status
 
 # Fingerbank symlinks
 cd $RPM_BUILD_ROOT/usr/local/pf/lib
@@ -628,8 +614,9 @@ if ! /usr/bin/id pf &>/dev/null; then
                 echo Unexpected error adding user "pf" && exit
     fi
 fi
-/usr/sbin/usermod -aG wbpriv,fingerbank,apache,carbon pf
+/usr/sbin/usermod -aG wbpriv,fingerbank,apache pf
 /usr/sbin/usermod -aG pf mysql 
+/usr/bin/usermod -aG pf netdata
 
 if [ ! `id -u` = "0" ];
 then
@@ -721,11 +708,6 @@ if [ ! -f /usr/local/pf/conf/pf.conf ]; then
 else
   echo "pf.conf already exists, won't touch it!"
 fi
-
-# dashboard symlinks and permissions
-ln -sf /usr/local/pf/var/conf/local_settings.py /usr/lib/python2.7/site-packages/graphite/local_settings.py
-chmod g+w /var/lib/carbon
-chmod g+w /var/lib/graphite-web
 
 #Getting rid of SELinux
 echo "Disabling SELinux..."
@@ -919,6 +901,8 @@ fi
                         /usr/local/pf/conf/redis_queue.conf.example
 %config(noreplace)      /usr/local/pf/conf/redis_ntlm_cache.conf
                         /usr/local/pf/conf/redis_ntlm_cache.conf.example
+%config(noreplace)      /usr/local/pf/conf/stats.conf
+                        /usr/local/pf/conf/stats.conf.example
 %config(noreplace)      /usr/local/pf/conf/floating_network_device.conf
 %config(noreplace)      /usr/local/pf/conf/guest-managers.conf
                         /usr/local/pf/conf/git_commit_id
@@ -1072,9 +1056,6 @@ fi
 %config                 /usr/local/pf/conf/httpd.conf.d/log.conf
 %config(noreplace)	/usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
                         /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf.example
-%config                 /usr/local/pf/conf/httpd.conf.d/graphite-web.wsgi
-%config                 /usr/local/pf/conf/httpd.conf.d/httpd.graphite.tt
-                        /usr/local/pf/conf/httpd.conf.d/httpd.graphite.tt.example
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
 %config(noreplace)      /usr/local/pf/conf/keepalived.conf
                         /usr/local/pf/conf/keepalived.conf.example
@@ -1086,26 +1067,20 @@ fi
 %config                 /usr/local/pf/conf/caddy-services/pfsso.conf
 %config                 /usr/local/pf/conf/caddy-services/httpdispatcher.conf
 %dir                    /usr/local/pf/conf/monitoring
-%config(noreplace)      /usr/local/pf/conf/monitoring/carbon.conf
-                        /usr/local/pf/conf/monitoring/carbon.conf.example
-%config(noreplace)      /usr/local/pf/conf/monitoring/collectd.conf.rhel
-                        /usr/local/pf/conf/monitoring/collectd.conf.rhel.example
-%config(noreplace)      /usr/local/pf/conf/monitoring/collectd.conf.debian
-                        /usr/local/pf/conf/monitoring/collectd.conf.debian.example
-%config(noreplace)      /usr/local/pf/conf/monitoring/dashboard.conf
-                        /usr/local/pf/conf/monitoring/dashboard.conf.example
-%config(noreplace)      /usr/local/pf/conf/monitoring/local_settings.py.rhel
-                        /usr/local/pf/conf/monitoring/local_settings.py.rhel.example
-%config(noreplace)      /usr/local/pf/conf/monitoring/local_settings.py.debian
-                        /usr/local/pf/conf/monitoring/local_settings.py.debian.example
-%config(noreplace)      /usr/local/pf/conf/monitoring/statsd_config.js
-                        /usr/local/pf/conf/monitoring/statsd_config.js.example
-%config(noreplace)      /usr/local/pf/conf/monitoring/storage-schemas.conf
-                        /usr/local/pf/conf/monitoring/storage-schemas.conf.example
-%config(noreplace)      /usr/local/pf/conf/monitoring/storage-aggregation.conf
-                        /usr/local/pf/conf/monitoring/storage-aggregation.conf.example
-%config(noreplace)      /usr/local/pf/conf/monitoring/types.db
-                        /usr/local/pf/conf/monitoring/types.db.example
+%config(noreplace)      /usr/local/pf/conf/monitoring/netdata.conf
+                        /usr/local/pf/conf/monitoring/netdata.conf.example
+%config                 /usr/local/pf/conf/monitoring/*.conf
+                        /usr/local/pf/conf/monitoring/*.conf.example
+%config                 /usr/local/pf/conf/monitoring/charts.d/*.conf
+                        /usr/local/pf/conf/monitoring/charts.d/*.conf.example
+%config                 /usr/local/pf/conf/monitoring/health.d/*.conf
+                        /usr/local/pf/conf/monitoring/health.d/*.conf.example
+%config                 /usr/local/pf/conf/monitoring/node.d/*.conf
+                        /usr/local/pf/conf/monitoring/node.d/*.conf.example
+%config                 /usr/local/pf/conf/monitoring/python.d/*.conf
+                        /usr/local/pf/conf/monitoring/python.d/*.conf.example
+%config                 /usr/local/pf/conf/monitoring/statsd.d/*.conf
+                        /usr/local/pf/conf/monitoring/statsd.d/*.conf.example
 %config(noreplace)      /usr/local/pf/conf/profiles.conf
 %config                 /usr/local/pf/conf/profiles.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/pfmon.conf

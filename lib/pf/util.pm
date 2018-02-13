@@ -537,6 +537,10 @@ sub parse_template {
         ."$comment_char Any changes made to this file will be lost on restart\n\n";
 
     if ($destination) {
+        if ($destination =~ /(.*)\/\w+/) {
+            mkdir $1 unless -d $1;
+            pf_chown($1);
+        }
         my $destination_fh;
         open( $destination_fh, ">", $destination )
             || $logger->logcroak( "Unable to open template destination $destination: $!");
