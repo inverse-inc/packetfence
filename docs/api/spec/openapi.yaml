@@ -1,12 +1,39 @@
 ---
 components:
   parameters:
+    additional_fields:
+      description: Comma delimited fields that should be added to the resource by
+        performing joins. For example, in order to get the IP address of a node when
+        calling the nodes endpoints, setting 'ip4log.ip' into this field will provide
+        the latest IP address of the device in the 'ip4log.ip' field of every node
+        that is returned.
+      in: query
+      name: additional_fields
+      required: false
+      schema:
+        type: string
     cursor:
       description: The cursor pointer to fetch the data (value should be taken from
         previousCursor and nextCursor)
       in: query
       name: cursor
       required: false
+      schema:
+        type: string
+    logic_operator:
+      description: The logic operator to use for the search query. Can either be all
+        or any.
+      in: query
+      name: logic_operator
+      required: true
+      schema:
+        type: string
+    search:
+      description: The JSON encoded search query following the Search schema defined
+        in this spec
+      in: query
+      name: search
+      required: true
       schema:
         type: string
   responses:
@@ -351,6 +378,23 @@ components:
           description: The date at which the password becomes valid
           type: string
       type: object
+    Search:
+      items:
+        properties:
+          field:
+            description: 'The field to perform the search on. It is possible to specify
+              fields from other API endpoints (ex: ip4log.ip)'
+            type: string
+          operator:
+            description: The operator to use against the value of the field. Can be
+              is, is_not, match, match_not, contains, *TODO, add more*
+            type: string
+          term:
+            description: The search term to use when performing the search using on
+              the specified field
+            type: string
+        type: object
+      type: array
     Tenant:
       properties:
         domain_name:
@@ -863,42 +907,7 @@ paths:
           $ref: '#/components/responses/UnprocessableEntity'
       summary: Allows to onboard a tenant and configure a remote access point using
         an onboarding token
-  /users:
-    get:
-      description: The list of user will be limited to 100 and a cursor will be returned
-        for iterating on other users. Iteration is only needed if the nextCursor is
-        not an empty value.
-      parameters:
-      - $ref: '#/components/parameters/cursor'
-      - *1
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UsersList'
-          description: List of users
-      summary: Returns a list of users
-    post:
-      parameters:
-      - *1
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/User'
-        required: true
-      responses:
-        '201':
-          $ref: '#/components/responses/Created'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '409':
-          $ref: '#/components/responses/Duplicate'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-      summary: Creates a user
-  /users/{user_id}:
+  /user/{user_id}:
     delete:
       parameters:
       - *1
@@ -908,6 +917,7 @@ paths:
       summary: Allows to delete a user
     get:
       parameters:
+      - $ref: '#/components/parameters/additional_fields'
       - description: The user ID to fetch
         in: path
         name: user_id
@@ -960,6 +970,60 @@ paths:
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
       summary: Allows to update a whole user
+  /users:
+    get:
+      description: The list of user will be limited to 100 and a cursor will be returned
+        for iterating on other users. Iteration is only needed if the nextCursor is
+        not an empty value.
+      parameters:
+      - $ref: '#/components/parameters/cursor'
+      - $ref: '#/components/parameters/additional_fields'
+      - *1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsersList'
+          description: List of users
+      summary: Returns a list of users
+    post:
+      parameters:
+      - *1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        '201':
+          $ref: '#/components/responses/Created'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Duplicate'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+      summary: Creates a user
+  /users/search:
+    get:
+      description: The list of user will be limited to 100 and a cursor will be returned
+        for iterating on other users. Iteration is only needed if the nextCursor is
+        not an empty value.
+      parameters:
+      - $ref: '#/components/parameters/search'
+      - $ref: '#/components/parameters/logic_operator'
+      - $ref: '#/components/parameters/additional_fields'
+      - *1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsersList'
+          description: List of users
+      summary: Allows to search through users
   /users/{user_id}/nodes:
     get:
       parameters:

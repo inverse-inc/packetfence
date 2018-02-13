@@ -5,3 +5,27 @@ cursor:
   schema:
     type: string
   description: The cursor pointer to fetch the data (value should be taken from previousCursor and nextCursor)
+
+additional_fields:
+  in: query
+  name: additional_fields
+  required: false
+  schema:
+    type: string
+  description: Comma delimited fields that should be added to the resource by performing joins. For example, in order to get the IP address of a node when calling the nodes endpoints, setting 'ip4log.ip' into this field will provide the latest IP address of the device in the 'ip4log.ip' field of every node that is returned.
+
+search:
+  in: query
+  name: search
+  required: true
+  schema:
+    type: string
+  description: The JSON encoded search query following the Search schema defined in this spec
+
+logic_operator:
+  in: query
+  name: logic_operator
+  required: true
+  schema:
+    type: string
+  description: The logic operator to use for the search query. Can either be all or any.
