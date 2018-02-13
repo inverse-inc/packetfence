@@ -21,6 +21,7 @@ New Features
 * Replaced pfdns with a new Golang based DNS server (PR #2911)
 * Allow an inline network to be split by the roles in PacketFence allowing to put specific devices in a distinct broadcast network (PR #2911)
 * DNS routing (PR #2911)
+* Dashboard metrics are now based on Netdata (PR #2935)
 
 Enhancements
 ++++++++++++
