@@ -25,6 +25,7 @@ use pf::cluster;
 
 use pf::config qw(
     $management_network
+    %Config
 );
 use pfconfig::cached_array;
 
