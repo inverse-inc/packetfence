@@ -590,7 +590,7 @@ pfstats=enabled
 # services.pfstats_binary
 #
 # Location of the pfstats binary.
-pfdns_binary=/usr/local/pf/bin/pfstats
+pfstats_binary=/usr/local/pf/bin/pfstats
 
 [snmp_traps]
 #
