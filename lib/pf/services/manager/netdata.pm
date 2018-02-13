@@ -108,7 +108,7 @@ EOT
     $tags{'db_host'}       = "$Config{'database'}{'host'}";
     $tags{'db_username'}   = "$Config{'database'}{'user'}";
     $tags{'db_password'}   = "$Config{'database'}{'pass'}";
-    $tags{'db_database'}   = "$Config{'database'}{'db'}"
+    $tags{'db_database'}   = "$Config{'database'}{'db'}";
 
     $tags{'active_active_ip'} = pf::cluster::management_cluster_ip() || $management_network->tag('vip') || $management_network->tag('ip');
 
