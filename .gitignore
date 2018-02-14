@@ -26,6 +26,7 @@ conf/currently-at
 conf/caddy-services/pfsso.conf
 conf/caddy-services/httpdispatcher.conf
 conf/pfdns.conf
+conf/etcd.conf.yml
 bin/pfcmd
 bin/ntlm_auth_wrapper
 bin/pfhttpd
