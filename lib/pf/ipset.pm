@@ -58,11 +58,8 @@ Readonly my $FW_FILTER_FORWARD_INT_INLINE => 'forward-internal-inline-if';
 Readonly my $FW_PREROUTING_INT_INLINE => 'prerouting-int-inline-if';
 Readonly my $FW_POSTROUTING_INT_INLINE => 'postrouting-int-inline-if';
 
-<<<<<<< HEAD
 tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config";
 
-=======
->>>>>>> centralize the default unified API client
 =head1 SUBROUTINES
 
 TODO: This list is incomplete
