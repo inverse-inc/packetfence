@@ -22,6 +22,7 @@ New Features
 * Allow an inline network to be split by the roles in PacketFence allowing to put specific devices in a distinct broadcast network (PR #2911)
 * DNS routing (PR #2911)
 * Dashboard metrics are now based on Netdata (PR #2935)
+* Traffic shaping support for inline setup (PR #2803)
 
 Enhancements
 ++++++++++++
