@@ -13,6 +13,7 @@ Controller for Roles configuration.
 use HTTP::Status qw(:constants is_error is_success);
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
+use pf::config::util qw(is_inline_configured);
 
 
 BEGIN {
@@ -36,10 +37,46 @@ __PACKAGE__->config(
     action_args => {
         # Setting the global model and form for all actions
         '*' => { model => "Config::Roles", form => "Config::Roles" },
+        search => { form => 'AdvancedSearch' },
+        index => { form => 'AdvancedSearch' },
     },
 );
 
 =head1 METHODS
+
+=head2 search
+
+search
+
+=cut
+
+sub search : Local : AdminRole('USERS_ROLES_READ') {
+    my ($self, $c) = @_;
+    my $model = $self->getModel($c);
+    my $form = $self->getForm($c);
+    $form->process(params => $c->request->params);
+    my $status;
+    if ($form->has_errors) {
+        $status = HTTP_BAD_REQUEST;
+        $c->stash(
+            current_view => 'JSON',
+            status_msg => $form->field_errors,
+        );
+    } else {
+        my $query = $form->value;
+        $c->stash(current_view => 'JSON') if ($c->request->params->{'json'});
+        ($status, my $result) = $model->search($query);
+        if (is_success($status)) {
+            $c->stash(
+                form => $form,
+                action => 'search',
+                is_inline_configured => is_inline_configured(),
+            );
+            $c->stash($result);
+        }
+    }
+    $c->response->status($status);
+}
 
 =head2 after create clone
 
@@ -80,8 +117,13 @@ Usage: /roles/
 sub index :Path :Args(0) {
     my ($self, $c) = @_;
 
-    $c->forward('list');
+    $c->forward('search');
 }
+
+before list => sub {
+    my ($self, $c) = @_;
+    $c->stash->{is_inline_configured} = is_inline_configured();
+};
 
 =head1 COPYRIGHT
 

@@ -224,6 +224,7 @@ endif
 	dh_installinit --name=packetfence-redis_queue
 	dh_installinit --name=packetfence-routes
 	dh_installinit --name=packetfence-snmptrapd
+	dh_installinit --name=packetfence-tc
 	dh_installinit --name=packetfence-winbindd
 	dh_installinit --name=packetfence-etcd
 	dh_installinit --name=packetfence-pfdhcp

@@ -488,6 +488,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-redis_queue.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-redis_queue.service
 %{__install} -D -m0644 conf/systemd/packetfence-routes.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-routes.service
 %{__install} -D -m0644 conf/systemd/packetfence-snmptrapd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-snmptrapd.service
+%{__install} -D -m0644 conf/systemd/packetfence-tc.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-tc.service
 %{__install} -D -m0644 conf/systemd/packetfence-winbindd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-winbindd.service
 %{__install} -D -m0644 conf/systemd/packetfence-etcd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-etcd.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdhcp.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfdhcp.service

@@ -1,0 +1,57 @@
+      <table id="items" class="table items" data-list-uri="[% c.uri_for(c.controller.action_for('list')) %]">
+      [% IF items.size %]
+        <thead>
+          <tr>
+            <th>[% l('Traffic Shaping Policy Name') %]</th>
+            <th>[% l('Description') %]</th>
+            <th></th>
+          </tr>
+        </thead>
+      [% END %]
+        <tbody>
+          [% IF items.size %]
+              [% FOREACH item IN items %]
+              <tr>
+                <td class="item"><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id | html %]</a></td>
+                <td>[% item.description | html%]</td>
+                <td>
+                  [% IF can_access("TRAFFIC_SHAPING_DELETE") %]<a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller.action_for('remove'), [ item.id ]) %]">[% l('Delete') %]</a>[% END %]
+                </td>
+              </tr>
+              [% END -%]
+          [% ELSE %]
+              <tr> 
+                <td colspan=3>
+                  <div id="noItems" class="unwell">
+                    <i class="icon-unlock icon-large"></i><p>[% l('No Traffic Shaping Policy defined') %]</p>
+                  </div>
+                </td>
+              </tr>
+          [% END %]
+        </tbody>
+        <tfoot><tr><td colspan=3>
+          [%- IF can_access("TRAFFIC_SHAPING_CREATE") %]
+            [% IF roles.size > 0%]
+              <div class="form-actions">
+                  <div class="btn-group">
+                    <a class="btn dropdown-toggle" data-toggle="dropdown">[% l('Traffic Shaping Policy for Role') %] <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                      [% FOREACH role IN roles -%]
+                        <li>
+                            <a class="btn createItem" href="[% c.uri_for(c.controller.action_for('create_type'), role.name) %]">[% role.name  %]</a>
+                        </li>
+                      [% END -%]
+                    </ul>
+                  </div>
+              </div>
+            [% ELSE%]
+              <div class="unwell unwell-horizontal">
+                <p>
+                  <i class="icon-group icon-large"></i>
+                  [% l('All roles have traffic shaping policy applied to them') %]
+                </p>
+              </div>
+            [% END %]
+          [%- END %]
+        </td></tr> </tfoot>
+      </table>

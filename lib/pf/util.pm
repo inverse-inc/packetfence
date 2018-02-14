@@ -91,6 +91,7 @@ BEGIN {
         user_chown
         ping
         run_as_pf
+        find_outgoing_interface
     );
 }
 
@@ -743,7 +744,7 @@ sub pretty_bandwidth {
     my @units = ("Bytes", "KB", "MB", "GB", "TB", "PB");
     my $x;
 
-    for ($x=0; $bytes>=800 && $x<scalar(@units); $x++ ) {
+    for ($x=0; $bytes>=800 && $x < scalar(@units); $x++ ) {
         $bytes /= 1024;
     }
     my $rounded = sprintf("%.2f",$bytes);
@@ -1361,6 +1362,23 @@ sub run_as_pf {
     }
 
     return $TRUE;
+}
+
+
+=head2 find_outgoing_interface
+
+Find the outgoing interface from a specific incoming interface
+
+=cut
+
+sub find_outgoing_interface {
+    my ($gateway) = @_;
+    my @interface_src = split(" ", pf_run("sudo ip route get 8.8.8.8 from $gateway"));
+    if ($interface_src[3] eq 'via') {
+        return $interface_src[6];
+    } else {
+        return $interface_src[2];
+    }
 }
 
 =back

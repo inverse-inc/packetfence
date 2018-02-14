@@ -1,5 +1,6 @@
-<div class="modal fade hide" id="modalRole">
-      </div>
+<div class="modal fade hide" id="modalRole"> </div>
+<div class="modal modal-large fade hide" id="modalItem"> </div>
+
 
       <div class="card">
         <h2 class="card-title">[% l('Roles') %] [% doc('_roles_management') | none %]</h2>
@@ -10,27 +11,7 @@
       </div>[% END %]
       <p class="p3">[% l('Define the roles which will apply to all devices on your network.') %]</p>
 
-      [% IF items.size -%]
-      <table class="table">
-        <thead>
-          <tr>
-            <th>[% l('Name') %]</th>
-            <th class="hidden-phone">[% l('Description') %]</th>
-            <th class="hidden-phone">[% l('Max nodes per user') %]</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          [% FOREACH role IN items %]
-          <tr>
-            <td><a href="[% c.uri_for(c.controller.action_for('view'), [ role.id ]) %]#modalRole">[% role.id | html %]</a></td>
-            <td class="hidden-phone">[% role.notes | html %]</td>
-            <td class="hidden-phone">[% role.max_nodes_per_pid | html %]</td>
-          </tr>
-          [% END -%]
-        </tbody>
-      </table>
-      [% END -%]
+      [% INCLUDE config/roles/list.tt %]
 
       <div id="noRole" class="unwell[% ' hidden' IF items.size %]">
         <i class="icon-briefcase icon-large"></i><p>[% l('No role defined') %]</p>

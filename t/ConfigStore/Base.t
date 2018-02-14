@@ -24,11 +24,152 @@ BEGIN {
     use setup_test_config;
 }
 
-plan tests => 20;
+plan tests => 26;
 
 use_ok("pf::ConfigStore");
 
 my $configStore = new_ok("pf::ConfigStore",[{configFile => './data/test.conf',default_section => 'default'}]);
+
+is_deeply([], [$configStore->search()], "Search for nothing get nothing");
+
+is_deeply(
+    [
+        {
+            'param1' => 'value1',
+            'param2' => 'value2',
+            'param3' => 'value3',
+            'param4' => 'value4',
+        },
+        {
+            'param1' => 'value1',
+            'param2' => 'value2',
+            'param3' => 'value3',
+            'param4' => 'value4',
+        },
+        {
+            'param1' => 'value1',
+            'param2' => 'value2',
+            'param3' => 'value3',
+            'param4' => 'value4',
+        },
+        {
+            'param1' => 'value1',
+            'param2' => 'value2',
+            'param3' => 'value3',
+            'param4' => 'value4',
+        }
+    ],
+    [ $configStore->search( "param1", "value1", ) ],
+    "Search param1=value1"
+);
+
+is_deeply(
+    [
+        {
+            'param1' => 'value1',
+            'param2' => 'value2',
+            'param3' => 'value3',
+            'param4' => 'value4',
+            'id'     => 'section1'
+        },
+        {
+            'param1' => 'value1',
+            'param2' => 'value2',
+            'param3' => 'value3',
+            'param4' => 'value4',
+            'id'     => 'section1 group 1',
+        },
+        {
+            'param1' => 'value1',
+            'param2' => 'value2',
+            'param3' => 'value3',
+            'param4' => 'value4',
+            'id'     => 'section1 group 2',
+        },
+        {
+            'param1' => 'value1',
+            'param2' => 'value2',
+            'param3' => 'value3',
+            'param4' => 'value4',
+            'id'     => 'section2',
+        }
+    ],
+    [ $configStore->search( "param1", "value1", 'id' ) ],
+    "Search param1=value1 with idKey=id"
+);
+
+is_deeply(
+    [
+        {
+            'param3' => 'value3',
+            'param4' => 'value4',
+            'id'     => 'default'
+        },
+        {
+            'param1' => 'value1',
+            'param2' => 'value2',
+            'param3' => 'value3',
+            'param4' => 'value4',
+            'id'     => 'section1'
+        },
+        {
+            'param1' => 'value1',
+            'param2' => 'value2',
+            'param3' => 'value3',
+            'param4' => 'value4',
+            'id'     => 'section1 group 1',
+        },
+        {
+            'param1' => 'value1',
+            'param2' => 'value2',
+            'param3' => 'value3',
+            'param4' => 'value4',
+            'id'     => 'section1 group 2',
+        },
+        {
+            'param1' => 'value1',
+            'param2' => 'value2',
+            'param3' => 'value3',
+            'param4' => 'value4',
+            'id'     => 'section2',
+        }
+    ],
+    [ $configStore->search( "param3", "value3", 'id' ) ],
+    "Search inhertited values param3=value3 with idKey=id"
+);
+
+is_deeply([], [$configStore->search_like()], "Search like for nothing get nothing");
+
+is_deeply(
+    [
+        {
+            'param1' => 'value1',
+            'param2' => 'value2',
+            'param3' => 'value3',
+            'param4' => 'value4',
+        },
+        {
+            'param1' => 'value1',
+            'param2' => 'value2',
+            'param3' => 'value3',
+            'param4' => 'value4',
+        },
+        {
+            'param1' => 'value1',
+            'param2' => 'value2',
+            'param3' => 'value3',
+            'param4' => 'value4',
+        },
+        {
+            'param1' => 'value1',
+            'param2' => 'value2',
+            'param3' => 'value3',
+            'param4' => 'value4',
+        }
+    ], 
+    [$configStore->search_like('param1', qr/^value/)], 
+    "Search like for nothing get nothing"
+);
 
 my @expected_sections = ('default','section1','section1 group 1','section1 group 2','section2');
 
@@ -52,7 +193,7 @@ $configStore->update("section2",{param3 => 'value3'});
 
 ok(!$configStore->cachedConfig->exists("section2","param3"),"Updated parameter with a value equal to the default value");
 
-$configStore->create("section4",{%section, param3 => 'value3', param4 => 'newvalue'});
+$configStore->create("section4",{%section, param3 => 'value3', 'param4' => 'newvalue'});
 
 ok(!$configStore->cachedConfig->exists("section4","param3"),"Created section with a parameter value different than the default value");
 
@@ -99,7 +240,7 @@ $configStore->update_or_create("section7",{param1 => "value1"});
 
 ok($configStore->hasId("section7") && $configStore->cachedConfig->val("section7","param1") eq "value1","update_or_create create a new section");
 
-$configStore->update_or_create("section7",{param1 => "value1a", param2 => "value2"});
+$configStore->update_or_create("section7",{param1 => "value1a", 'param2' => "value2"});
 
 ok($configStore->hasId("section7") && $configStore->cachedConfig->val("section7","param1") eq "value1a","update_or_create updating a value");
 
