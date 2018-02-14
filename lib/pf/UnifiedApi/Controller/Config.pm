@@ -62,10 +62,7 @@ sub id {
 
 sub item_from_store {
     my ($self) = @_;
-    my $id = $self->id;
-    my $cs = $self->config_store;
-    my $item = $cs->read($id, 'id');
-    return $item;
+    return $self->config_store->read($self->id, 'id')
 }
 
 sub cleanup_item {
@@ -142,7 +139,7 @@ sub update {
     if (!defined $new_data) {
         return;
     }
-    delete $new_item->{id};
+    delete $new_data->{id};
     my $cs = $self->config_store;
     $cs->update($id, $new_data);
     $cs->commit;
@@ -151,7 +148,21 @@ sub update {
 
 sub replace {
     my ($self) = @_;
-    return $self->update;
+    my ($error, $item) = $self->get_json;
+    if (defined $error) {
+        return $self->render_error(400, "Bad Request : $error");
+    }
+    my $id = $self->id;
+    $item->{id} = $id;
+    $item = $self->validate_item($item);
+    if (!defined $item) {
+        return 0;
+    }
+    my $cs = $self->config_store;
+    delete $item->{id};
+    $cs->update($id, $item);
+    $cs->commit;
+    $self->render(status => 204, text => '');
 }
 
 
