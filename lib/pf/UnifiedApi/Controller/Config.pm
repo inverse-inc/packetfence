@@ -85,11 +85,11 @@ sub create {
     if (!defined $item) {
         return 0;
     }
-    my $cs = $self->config_store;
     my $id = $item->{id};
     if ($cs->hasId($id)) {
         return $self->render_error(409, "An attempt to add a duplicate entry was stopped. Entry already exists and should be modified instead of created");
     }
+    my $cs = $self->config_store;
     delete $item->{id};
     $cs->create($id, $item);
     $cs->commit;
