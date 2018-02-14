@@ -30,6 +30,7 @@ use pf::constants::web qw($USER_AGENT_CACHE_EXPIRATION);
 use pf::web ();
 use pf::api::queue;
 use pf::file_paths qw($install_dir);
+use pf::config qw(%Config);
 
 has 'session' => (is => 'rw', required => 1);
 
@@ -307,9 +308,16 @@ sub process_destination_url {
     my @portal_hosts = portal_hosts();
     # if the destination URL points to the portal, we put the default URL of the connection profile
     if ( any { $_ eq $host } @portal_hosts) {
-        get_logger->info("Replacing destination URL since it points to the captive portal");
+        get_logger->info("Replacing destination URL $url since it points to the captive portal");
         $url = $self->profile->getRedirectURL;
     }
+
+    # if the destination URL points to a network detection URL, we put the default URL of the connection profile
+    if ( any { $_ eq $url } @{$Config{captive_portal}{detection_mecanism_urls}}) {
+        get_logger->info("Replacing destination URL $url since it is a network detection URL");
+        $url = $self->profile->getRedirectURL;
+    }
+
 
     $url = decode_entities(uri_unescape($url));
     $self->session->{destination_url} = $url;
