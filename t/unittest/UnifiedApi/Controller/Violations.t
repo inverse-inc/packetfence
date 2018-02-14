@@ -8,7 +8,7 @@ Violations
 
 =head1 DESCRIPTION
 
-unit test for VioLations
+unit test for Violations
 
 =cut
 
