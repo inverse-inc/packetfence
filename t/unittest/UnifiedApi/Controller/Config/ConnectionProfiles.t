@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 15;
+use Test::More tests => 17;
 use Test::Mojo;
 
 #This test will running last
@@ -43,9 +43,11 @@ $t->get_ok("$base_url/default")
   ->status_is(200)
   ->json_is('/item/id', 'default');
 
-
 $t->post_ok($collection_base_url => json => {})
   ->status_is(417);
+
+$t->post_ok($collection_base_url => json => {id => 'default'})
+  ->status_is(409);
 
 $t->post_ok($collection_base_url, {'Content-Type' => 'application/json'} => '{')
   ->status_is(400);

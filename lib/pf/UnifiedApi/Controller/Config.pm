@@ -78,15 +78,21 @@ sub create {
     if (defined $error) {
         return $self->render_error(400, "Bad Request : $error");
     }
+    my $id = $item->{id};
+    my $cs = $self->config_store;
+    if (!defined $id) {
+        $self->render_error(417, "Unable to validate", [{ id => "id field is required"}]);
+    }
+
+    if ($cs->hasId($id)) {
+        return $self->render_error(409, "An attempt to add a duplicate entry was stopped. Entry already exists and should be modified instead of created");
+    }
+
     $item = $self->validate_item($item);
     if (!defined $item) {
         return 0;
     }
-    my $id = $item->{id};
-    my $cs = $self->config_store;
-    if ($cs->hasId($id)) {
-        return $self->render_error(409, "An attempt to add a duplicate entry was stopped. Entry already exists and should be modified instead of created");
-    }
+
     delete $item->{id};
     $cs->create($id, $item);
     $cs->commit;
