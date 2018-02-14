@@ -25,6 +25,7 @@ conf/nessus/
 conf/currently-at
 conf/caddy-services/pfsso.conf
 conf/caddy-services/httpdispatcher.conf
+conf/pfdns.conf
 bin/pfcmd
 bin/ntlm_auth_wrapper
 bin/pfhttpd
