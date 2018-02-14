@@ -18,8 +18,8 @@ use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
 use pf::ip4log;
 
 has dal => 'pf::dal::ip4log';
-has id_key => 'ip4log_id';
-has resource_id => 'tenant_id';
+has url_param_name => 'ip4log_id';
+has primary_key => 'ip';
 
 sub search {
     my ($self) = @_;
