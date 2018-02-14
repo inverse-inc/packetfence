@@ -22,7 +22,7 @@ sub status {
     my ($self) = @_;
     my $class = "pf::services::manager::".$self->param('service');
     if(not $class->can('new') or not $class->can('status')){
-        return $self->render(400, json => { message => $self->status_to_error_msg(400)});
+        return $self->render(404, json => { message => $self->status_to_error_msg(404)});
     }
     my $service = $class->new();
     $self->render(json => { 
@@ -37,7 +37,7 @@ sub start {
     my ($self) = @_;
     my $class = "pf::services::manager::".$self->param('service');
     if(not $class->can('new') or not $class->can('start')){
-        return $self->render(400, json => { message => $self->status_to_error_msg(400)});
+        return $self->render(404, json => { message => $self->status_to_error_msg(404)});
     }
     my $service = $class->new();
     $self->render(json => { start => $service->start(), pid => $service->pid() });
@@ -47,7 +47,7 @@ sub stop {
     my ($self) = @_;
     my $class = "pf::services::manager::".$self->param('service');
     if(not $class->can('new') or not $class->can('stop')){
-        return $self->render(400, json => { message => $self->status_to_error_msg(400)});
+        return $self->render(404, json => { message => $self->status_to_error_msg(404)});
     }
     my $service = $class->new();
     $self->render(json => { stop => $service->stop() });
@@ -57,7 +57,7 @@ sub restart {
     my ($self) = @_;
     my $class = "pf::services::manager::".$self->param('service');
     if(not $class->can('new') or not $class->can('restart')){
-        return $self->render(400, json => { message => $self->status_to_error_msg(400)});
+        return $self->render(404, json => { message => $self->status_to_error_msg(404)});
     }
     my $service = $class->new();
     $self->render(json => { restart => $service->restart(), pid => $service->pid() });
