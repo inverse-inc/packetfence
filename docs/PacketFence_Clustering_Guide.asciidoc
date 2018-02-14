@@ -118,13 +118,13 @@ At this point, for a VLAN enforcement configuration for example, the network int
 
 |===
 |In `/ect/sysconfig/network-scripts/`| 
-|One Management Interface|ifcfg-*YourFirstInterfeceName*
+|One Management Interface|ifcfg-*YourFirstInterfaceName*
 
-|One Secondary Interface|ifcfg-*YourSecondInterfeceName*
+|One Secondary Interface|ifcfg-*YourSecondInterfaceName*
 
-|One Registration Interface|ifcfg-*YourSecondInterfeceName*.*YourRegistrationVLANID*
+|One Registration Interface|ifcfg-*YourSecondInterfaceName*.*YourRegistrationVLANID*
 
-|One Isolation Interface|ifcfg-*YourSecondInterfeceName*.*YourIsolationVLANID*
+|One Isolation Interface|ifcfg-*YourSecondInterfaceName*.*YourIsolationVLANID*
 |===
 
 
@@ -138,6 +138,11 @@ NOTE: In order for PacketFence to communicate properly with your MySQL cluster, 
 This change only needs to be done on the first server of the cluster. It will be synchronized later.
 
 In `conf/pf.conf` :
+
+----
+[general]
+hostname=pf
+----
 
 ----
 [database]
@@ -285,7 +290,7 @@ Still *on the first server*, start MariaDB forcing it to create a new cluster.
  # /usr/local/pf/bin/pfcmd generatemariadbconfig
  # /usr/local/pf/sbin/pf-mariadb --force-new-cluster
 
-WARNING: This last command will not return until you break it, so leave it running in the background and continue on.
+NOTE: This last command will not return until you break it, so leave it running in the background and continue on.
 
 Then, restart PacketFence to apply all your changes
 
@@ -297,7 +302,7 @@ NOTE: You can check at any time with '/usr/local/pf/bin/pfcmd service pf status'
 
 You should now have service using the first server on the IP addresses defined in the 'CLUSTER' sections.
 
-NOTE: You can check with 'íp a', on the first serveur, you need to find the *VIp* on the first ethernet interface. On the otehrs server, be sure to have the 'interface.VLANID' interfaces with the good IPs.
+NOTE: You can check with 'íp a', on the first server, you need to find the *VIP* on the first ethernet interface. On the others server, be sure to have the 'interface.VLANID' interfaces with the good IPs.
 
 Integrating the two other nodes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -317,7 +322,7 @@ On the *first server*, configure your webservices username and password by addin
   user=packet
   pass=fence
 
-WARNING: *fence* is only for example purpose, you need to define your owne password.
+WARNING: *fence* is only for example purpose, you need to define your own password.
 
 While you can set the username and password to any value, make sure to keep it safe as you will need it while initializing the cluster below.
 
@@ -391,7 +396,7 @@ Starting the first server normally
 
 Once all servers are synced, go *on the first server* that should still be running with the `--force-new-cluster` option, break the command.
 
-NOTE: You can check if the service is down with 'ps -edf | grep mysql', this service can be a little long to stop and it is not recommended to do the nexts step before it.
+NOTE: You can check if the service is down with 'ps -edf | grep mysql', this service can be a little long to stop and it is not recommended to do the nexts step before it fully stops.
 
 Now, start packetfence-mariadb normally:
 
@@ -400,7 +405,7 @@ Now, start packetfence-mariadb normally:
 Wrapping up
 ^^^^^^^^^^^
 
-Now start packetfencei:
+Now start PacketFence:
 
   # /usr/local/pf/bin/pfcmd service pf start
 
