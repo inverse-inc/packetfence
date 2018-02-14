@@ -1,7 +1,4 @@
 :22223 {
-  #TODO: make this be served through the API frontend to remove the TLS from here
-  tls self_signed
-
   pfconfigpool
   logger {
     level INFO

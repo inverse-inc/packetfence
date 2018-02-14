@@ -103,7 +103,20 @@ type PfConfWebservices struct {
 	User           string `json:"user"`
 	Port           string `json:"port"`
 	AAAPort        string `json:"aaa_port"`
+	UnifiedAPIPort string `json:"unifiedapi_port"`
 	Host           string `json:"host"`
+}
+
+type PfConfDatabase struct {
+	StructConfig
+	PfconfigMethod string `val:"hash_element"`
+	PfconfigNS     string `val:"config::Pf"`
+	PfconfigHashNS string `val:"database"`
+	User           string `json:"user"`
+	Pass           string `json:"pass"`
+	Host           string `json:"host"`
+	Port           string `json:"port"`
+	Db             string `json:"db"`
 }
 
 type ManagementNetwork struct {
@@ -119,6 +132,19 @@ type ManagementNetwork struct {
 func (mn *ManagementNetwork) GetNetIP(ctx context.Context) (net.IP, *net.IPNet, error) {
 	ip, ipnet, err := net.ParseCIDR(mn.Ip + "/" + mn.Mask)
 	return ip, ipnet, err
+}
+
+type AdminRole struct {
+	Description string          `json:"description"`
+	Actions     map[string]bool `json:"ACTIONS"`
+}
+
+type AdminRoles struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"config::AdminRoles"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 map[string]AdminRole
 }
 
 // Used when fetching the sections from a pfconfig HASH namespace
@@ -157,8 +183,9 @@ type configStruct struct {
 		Fencing       PfConfFencing
 		CaptivePortal PfConfCaptivePortal
 		Webservices   PfConfWebservices
-		Database      PfconfigDatabase
+		Database      PfConfDatabase
 	}
+	AdminRoles AdminRoles
 }
 
 var Config configStruct
@@ -240,18 +267,6 @@ type RolesConf struct {
 	PfconfigHashNS string `val:"-"`
 	Notes          string `json:"notes"`
 	MaxNodesPerPid string `json:"max_nodes_per_pid"`
-}
-
-type PfconfigDatabase struct {
-	StructConfig
-	PfconfigMethod string `val:"hash_element"`
-	PfconfigNS     string `val:"config::Pf"`
-	PfconfigHashNS string `val:"database"`
-	DBUser         string `json:"user"`
-	DBPassword     string `json:"pass"`
-	DBHost         string `json:"host"`
-	DBName         string `json:"db"`
-	DBPort         string `json:"port"`
 }
 
 type NetInterface struct {

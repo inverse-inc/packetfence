@@ -1,41 +1,38 @@
-package pf::constants::api;
+package pf::services::manager::api_frontend;
 
 =head1 NAME
 
-pf::constants::api - constants for the API
+pf::services::manager::api_frontend - The service manager for the api_frontend  service
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::constants::api
+pf::services::manager::api_frontend
 
 =cut
 
 use strict;
 use warnings;
+use Moo;
+use pf::cluster;
 
-use Readonly;
+extends 'pf::services::manager';
 
-Readonly our $DEFAULT_CLIENT => "pf::api::jsonrpcclient";
-
-our $PFSSO_PORT = 8777;
-our $GO_DHCP_PORT = 22222;
-our $GO_IPSET_PORT = 22223;
-
-our $LOGIN_PATH = "/api/v1/login";
+has '+name' => ( default => sub { 'api-frontend' } );
 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
+
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and::or
+This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
@@ -53,4 +50,3 @@ USA.
 =cut
 
 1;
-

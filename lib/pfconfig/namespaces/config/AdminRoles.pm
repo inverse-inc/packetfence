@@ -55,6 +55,8 @@ sub build_child {
 sub cleanup_after_read {
     my ( $self, $id, $item ) = @_;
 
+    delete $item->{actions};
+
     # Seems we don't need to do it for the HASH, but I'll leave it here
     # just in case. Remove this when confirmed everything works fine
     #    $self->expand_list($item, qw(actions allowed_roles allowed_access_levels));

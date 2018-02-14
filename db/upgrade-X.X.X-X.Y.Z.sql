@@ -2,7 +2,6 @@
 -- PacketFence SQL schema upgrade from X.X.X to X.Y.Z
 --
 
-
 --
 -- Setting the major/minor/sub-minor version of the DB
 --

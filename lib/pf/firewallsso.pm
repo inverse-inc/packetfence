@@ -54,11 +54,7 @@ sub do_sso {
     my $username = $node->{pid};
     my ($stripped_username, $realm) = pf::util::strip_username($username);
 
-    pf::api::jsonrestclient->new(
-        proto   => "http",
-        host    => "localhost",
-        port    => $pf::constants::api::PFSSO_PORT,
-    )->call("/pfsso/".lc($postdata{method}), {
+    pf::api::unifiedapiclient->new->call("POST", "/api/v1/firewall_sso/".lc($postdata{method}), {
         ip                => $postdata{ip},
         mac               => $mac,
         # All values must be string for pfsso

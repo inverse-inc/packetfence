@@ -21,6 +21,7 @@ use pf::constants::parking qw($PARKING_VID $PARKING_DHCP_GROUP_NAME $PARKING_IPS
 use pf::constants;
 use pf::config qw(%Config);
 use pf::util;
+use pf::api::unifiedapiclient;
 
 =head2 trigger_parking
 
@@ -47,11 +48,7 @@ sub park {
     my ($mac,$ip) = @_;
     get_logger->debug("Setting client in parking");
     if(isenabled($Config{parking}{place_in_dhcp_parking_group})){
-        pf::api::jsonrestclient->new(
-            proto   => "http",
-            host    => "localhost",
-            port    => $pf::constants::api::GO_DHCP_PORT,
-        )->call("/options/".$mac."/", [{
+        pf::api::unifiedapiclient->default_client->call("POST", "/api/v1/dhcp/options/add/mac/".$mac."/", [{
             "option"      => "51",
             "value"       => "3600",
             "type"        => "int",
@@ -92,13 +89,7 @@ Remove the parking actions that were taken against an IP + MAC
 sub remove_parking_actions {
     my ($mac, $ip) = @_;
     get_logger->info("Removing parking actions for $mac - $ip");
-    pf::api::jsonrestclient->new(
-        proto   => "http",
-        host    => "localhost",
-        method  => "get",
-        port    => $pf::constants::api::GO_DHCP_PORT,
-    )->call("/removeoptions/".$mac,{}
-    );
+    pf::api::unifiedapiclient->default_client->call("GET", "/api/v1/dhcp/options/del/mac/$mac",{});
     #TODO: use pfipset
     pf_run("sudo ipset del $PARKING_IPSET_NAME $ip -exist 2>&1");
 }

@@ -3,20 +3,19 @@
 package pfdns
 
 import (
-	"crypto/tls"
 	"database/sql"
 	"errors"
 	"fmt"
-	"io"
 	"net"
-	"net/http"
 	"os"
 	"regexp"
 	"time"
 
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
 	"github.com/inverse-inc/packetfence/go/coredns/request"
+	"github.com/inverse-inc/packetfence/go/database"
 	"github.com/inverse-inc/packetfence/go/filter_client"
+	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 	cache "github.com/patrickmn/go-cache"
 	//Import mysql driver
 	_ "github.com/go-sql-driver/mysql"
@@ -43,6 +42,7 @@ type pfdns struct {
 	Network           map[*net.IPNet]net.IP
 	NetworkType       map[*net.IPNet]string
 	DNSFilter         *cache.Cache
+	apiClient         *unifiedapiclient.Client
 }
 
 // Ports array
@@ -107,10 +107,9 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 					switch ansb := ans.(type) {
 					case *dns.A:
 						for _, valeur := range v {
-							var body io.Reader
-							err := pf.post("https://127.0.0.1:22223/api/v1/ipset/passthrough_isolation/"+ansb.A.String()+"/"+valeur+"/1", body)
+							err := pf.apiClient.Call(ctx, "POST", "/api/v1/ipset/passthrough_isolation/"+ansb.A.String()+"/"+valeur+"/1", &unifiedapiclient.DummyReply{})
 							if err != nil {
-								fmt.Println("Not able to contact localhost")
+								fmt.Println("Not able to contact Unified API to adjust passthroughs", err)
 							}
 						}
 					}
@@ -130,10 +129,9 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 				switch ansb := ans.(type) {
 				case *dns.A:
 					for _, valeur := range v {
-						var body io.Reader
-						err := pf.post("https://127.0.0.1:22223/api/v1/ipset/passthrough/"+ansb.A.String()+"/"+valeur+"/1", body)
+						err := pf.apiClient.Call(ctx, "POST", "/api/v1/ipset/passthrough/"+ansb.A.String()+"/"+valeur+"/1", &unifiedapiclient.DummyReply{})
 						if err != nil {
-							fmt.Println("Not able to contact localhost")
+							fmt.Println("Not able to contact Unified API to adjust passthroughs", err)
 						}
 					}
 				}
@@ -151,8 +149,7 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 				switch ansb := ans.(type) {
 				case *dns.A:
 					for _, valeur := range v {
-						var body io.Reader
-						err := pf.post("https://127.0.0.1:22223/api/v1/ipset/passthrough/"+ansb.A.String()+"/"+valeur+"/1", body)
+						err := pf.apiClient.Call(ctx, "POST", "/api/v1/ipset/passthrough/"+ansb.A.String()+"/"+valeur+"/1", &unifiedapiclient.DummyReply{})
 						if err != nil {
 							fmt.Println("Not able to contact localhost")
 						}
@@ -269,29 +266,11 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 // Name implements the Handler interface.
 func (pf pfdns) Name() string { return "pfdns" }
 
-func readConfig(ctx context.Context) pfconfigdriver.PfconfigDatabase {
-	var sections pfconfigdriver.PfconfigDatabase
-	sections.PfconfigNS = "config::Pf"
-	sections.PfconfigMethod = "hash_element"
-	sections.PfconfigHashNS = "database"
+func readConfig(ctx context.Context) pfconfigdriver.PfConfDatabase {
+	var sections pfconfigdriver.PfConfDatabase
 
 	pfconfigdriver.FetchDecodeSocket(ctx, &sections)
 	return sections
-}
-
-func connectDB(configDatabase pfconfigdriver.PfconfigDatabase) (*sql.DB, error) {
-	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
-		configDatabase.DBUser,
-		configDatabase.DBPassword,
-		configDatabase.DBHost,
-		configDatabase.DBPort,
-		configDatabase.DBName,
-	))
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "pfdns: database connection error: %s", err)
-		return nil, err
-	}
-	return db, nil
 }
 
 // DetectVIP
@@ -487,7 +466,7 @@ func (pf *pfdns) DbInit() error {
 
 	var err error
 	configDatabase := readConfig(ctx)
-	pf.Db, err = connectDB(configDatabase)
+	pf.Db = database.ConnectFromConfig(configDatabase)
 
 	if err != nil {
 		// logging the error is handled in connectDB
@@ -527,18 +506,6 @@ func (pf *pfdns) DbInit() error {
 	}
 
 	return nil
-}
-
-func (pf pfdns) post(url string, body io.Reader) error {
-	req, err := http.NewRequest("POST", url, body)
-	req.SetBasicAuth(pf.Webservices.User, pf.Webservices.Pass)
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-	req.Header.Set("Content-Type", "application/json")
-	cli := &http.Client{Transport: tr}
-	_, err = cli.Do(req)
-	return err
 }
 
 func (pf pfdns) LocalResolver(request request.Request) (*dns.Msg, error) {

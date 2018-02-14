@@ -45,6 +45,7 @@ use pf::ip4log;
 use pf::authentication;
 use pf::constants::parking qw($PARKING_IPSET_NAME);
 use pf::constants::node qw($STATUS_UNREGISTERED);
+use pf::api::unifiedapiclient;
 
 Readonly my $FW_TABLE_FILTER => 'filter';
 Readonly my $FW_TABLE_MANGLE => 'mangle';
@@ -57,13 +58,11 @@ Readonly my $FW_FILTER_FORWARD_INT_INLINE => 'forward-internal-inline-if';
 Readonly my $FW_PREROUTING_INT_INLINE => 'prerouting-int-inline-if';
 Readonly my $FW_POSTROUTING_INT_INLINE => 'postrouting-int-inline-if';
 
-my $ipset_client = pf::api::jsonrestclient->new(
-                proto   => "https",
-                host    => "localhost",
-                port    => $pf::constants::api::GO_IPSET_PORT,
-            );
+<<<<<<< HEAD
 tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config";
 
+=======
+>>>>>>> centralize the default unified API client
 =head1 SUBROUTINES
 
 TODO: This list is incomplete
@@ -334,12 +333,14 @@ call_ipsetd
 
 sub call_ipsetd {
     my ($path, $data) = @_;
+    my $response;
     eval {
-        $ipset_client->call("/api/v1/$path", $data);
+        $response = pf::api::unifiedapiclient->default_client->call("POST", "/api/v1/$path", $data);
     };
     if ($@) {
         get_logger()->error("Error updating ipset $path : $@");;
     }
+    return $response;
 }
 
 =item get_mangle_mark_for_mac

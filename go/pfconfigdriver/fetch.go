@@ -244,7 +244,7 @@ func FetchDecodeSocket(ctx context.Context, o PfconfigObject) error {
 		} else {
 			panic("Wrong struct type for keys. Required PfconfigKeys")
 		}
-	} else if metadataFromField(ctx, o, "PfconfigArray") == "yes" {
+	} else if metadataFromField(ctx, o, "PfconfigArray") == "yes" || metadataFromField(ctx, o, "PfconfigDecodeInElement") == "yes" {
 		decodeInterface(ctx, query.encoding, jsonResponse, &o)
 	} else {
 		receiver := &PfconfigElementResponse{}

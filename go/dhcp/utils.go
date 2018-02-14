@@ -21,7 +21,7 @@ type NodeInfo struct {
 }
 
 // connectDB connect to the database
-func connectDB(configDatabase pfconfigdriver.PfconfigDatabase, db *sql.DB) {
+func connectDB(configDatabase pfconfigdriver.PfConfDatabase, db *sql.DB) {
 	MySQLdatabase = database.ConnectFromConfig(configDatabase)
 }
 
