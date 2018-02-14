@@ -120,18 +120,15 @@ our @API_V1_ROUTES = (
         },
     },
     { controller => 'DhcpOption82s' },
-    { 
-        controller => 'Ip4logs', 
-        resource => undef, 
-        collection => { 
-            http_methods => undef, 
-            subroutes => { 
-                '/iplogs' => { get => 'read_list' }, 
-                '/iplog/:search' => { get => 'read_row_by_search' }, 
-                '/iplogs/:search/history' => { get => 'read_list_history_by_search' }, 
-                '/iplogs/:search/archive' => { get => 'read_list_history_by_search' }, 
-            }
-        }        
+    {
+        controller  => 'Ip4logs',
+        collection => {
+            subroutes    => {
+                'history/:search' => { get => 'history' },
+                'archive/:search' => { get => 'archive' },
+                'search/:search' => { get => 'search' }, 
+            },
+        },
     },    
 );
 

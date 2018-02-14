@@ -15,7 +15,9 @@ unit test for Iplogs
 use strict;
 use warnings;
 use DateTime;
+use DateTime::Format::Strptime;
 use lib '/usr/local/pf/lib';
+use pf::ip4log;
 use pf::dal::ip4log;
 use pf::dal::ip4log_history;
 use pf::dal::ip4log_archive;
@@ -62,7 +64,7 @@ $t->get_ok('/api/v1/ip4logs' => json => { })
   ->status_is(200);
   
 #run unittest on list by mac
-$t->get_ok('/api/v1/ip4log/'.$mac => json => { })
+$t->get_ok('/api/v1/ip4logs/search/'.$mac => json => { })
   ->json_is('/end_time',$dt_format->format_datetime($dt_end))
   ->json_is('/ip',$ip)
   ->json_is('/start_time',$dt_format->format_datetime($dt_start))
@@ -70,7 +72,7 @@ $t->get_ok('/api/v1/ip4log/'.$mac => json => { })
   ->status_is(200);
   
 #run unittest on history list by mac
-$t->get_ok('/api/v1/ip4logs/'.$mac.'/history' => json => { })
+$t->get_ok('/api/v1/ip4logs/history/'.$mac => json => { })
   ->json_is('/items/0/end_time',$dt_format->format_datetime($dt_end))
   ->json_is('/items/0/ip',$ip)
   ->json_is('/items/0/start_time',$dt_format->format_datetime($dt_start))
@@ -78,7 +80,7 @@ $t->get_ok('/api/v1/ip4logs/'.$mac.'/history' => json => { })
   ->status_is(200);
   
 #run unittest on archive list by mac
-$t->get_ok('/api/v1/ip4logs/'.$mac.'/archive' => json => { })
+$t->get_ok('/api/v1/ip4logs/archive/'.$mac => json => { })
   ->json_is('/items/0/end_time',$dt_format->format_datetime($dt_end))
   ->json_is('/items/0/ip',$ip)
   ->json_is('/items/0/start_time',$dt_format->format_datetime($dt_start))

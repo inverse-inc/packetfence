@@ -18,10 +18,10 @@ use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
 use pf::ip4log;
 
 has dal => 'pf::dal::ip4log';
-has id_key => 'tenant_id';
+has id_key => 'ip4log_id';
 has resource_id => 'tenant_id';
 
-sub read_row_by_search {
+sub search {
     my ($self) = @_;
     my $search = $self->param('search');
     my @iplog = pf::ip4log::list_open($search);
@@ -29,7 +29,7 @@ sub read_row_by_search {
     return $self->render(status => 404, json => { message => $self->status_to_error_msg(404) });
 }
 
-sub read_list_history_by_search {
+sub history {
     my ($self) = @_;
     my $search = $self->param('search');
     my @iplog = pf::ip4log::get_history($search);
@@ -37,7 +37,7 @@ sub read_list_history_by_search {
     return $self->render(json => { items => [] });
 }
 
-sub read_list_archive_by_search {
+sub archive {
     my ($self) = @_;
     my $search = $self->param('search');
     my @iplog = pf::ip4log::get_archive($search);

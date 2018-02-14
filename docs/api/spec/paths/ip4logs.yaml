@@ -14,7 +14,7 @@
               $ref: '#/components/schemas/Ip4logWithTenantIdList'
         description: List of ip4logs
     summary: Returns a list of ip4logs
-/ip4log/{mac}:
+/ip4log/search/{mac}:
   get:
     parameters:
     - description: The MAC address to fetch
@@ -35,7 +35,7 @@
               type: object
         description: A specific MAC address
     summary: Returns a specific ip4log by its MAC address
-/ip4logs/{mac}/history:
+/ip4logs/history/{mac}:
   get:
     description: The list of ip4logs will be limited to 100 and a cursor will be returned
       for iterating on other ip4logs. Iteration is only needed if the nextCursor is
@@ -57,7 +57,7 @@
               $ref: '#/components/schemas/Ip4logList'
         description: List of ip4logs
     summary: Returns a list of ip4logs
-/ip4logs/{mac}/archive:
+/ip4logs/archive/{mac}:
   get:
     description: The list of ip4logs will be limited to 100 and a cursor will be returned
       for iterating on other ip4logs. Iteration is only needed if the nextCursor is
