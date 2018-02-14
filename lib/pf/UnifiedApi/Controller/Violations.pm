@@ -21,14 +21,6 @@ has dal => 'pf::dal::violation';
 has url_param_name => 'violation_id';
 has primary_key => 'id';
 
-
-sub open_uniq {
-    my ($self) = @_;
-    my @violations = pf::violation::violation_view_open_uniq();
-    return $self->render(json => { items => \@violations } ) if scalar @violations > 0 and defined($violations[0]);
-    return $self->render(json => undef);
-}
-
 sub search {
     my ($self) = @_;
     my $search = $self->param('search');
