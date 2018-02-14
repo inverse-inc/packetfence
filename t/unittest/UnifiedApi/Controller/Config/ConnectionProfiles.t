@@ -53,6 +53,9 @@ $t->post_ok($collection_base_url, {'Content-Type' => 'application/json'} => '{')
 $t->patch_ok("$base_url/default" => json => {})
   ->status_is(200);
 
+$t->put_ok("$base_url/default" => json => {})
+  ->status_is(417);
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
