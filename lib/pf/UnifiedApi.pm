@@ -126,7 +126,7 @@ our @API_V1_ROUTES = (
             subroutes    => {
                 'history/:search' => { get => 'history' },
                 'archive/:search' => { get => 'archive' },
-                'search/:search' => { get => 'search' }, 
+                'open/:search' => { get => 'open' }, 
             },
         },
     },    

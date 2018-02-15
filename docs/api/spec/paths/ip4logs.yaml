@@ -14,7 +14,7 @@
               $ref: '#/components/schemas/Ip4logWithTenantIdList'
         description: List of ip4logs
     summary: Returns a list of ip4logs
-/ip4log/search/{mac}:
+/ip4log/open/{mac}:
   get:
     parameters:
     - description: The MAC address to fetch

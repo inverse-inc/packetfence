@@ -21,7 +21,7 @@ has dal => 'pf::dal::ip4log';
 has url_param_name => 'ip4log_id';
 has primary_key => 'ip';
 
-sub search {
+sub open {
     my ($self) = @_;
     my $search = $self->param('search');
     my @iplog = pf::ip4log::list_open($search);
