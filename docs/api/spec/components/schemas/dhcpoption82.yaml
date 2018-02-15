@@ -24,17 +24,17 @@ DhcpOption82:
      description: The unique identifier of the switch
      type: string  
     port:
-     description: The clients numeric port number
+     description: The numeric port number of the switch
      type: integer  
     vlan:
      description: The numeric VLAN identifier
      type: integer  
     circuit_id_string:
-     description: 
+     description: Encoded agent-local identifier from which a DHCP client-to-server packet was received
      type: string  
     module:
-     description: 
+     description: The number of the Cisco stacked switch
      type: integer  
     host:
-     description: 
+     description: The stripped MAC address of the switch
      type: string   
