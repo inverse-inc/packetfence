@@ -1,34 +1,50 @@
-package pfappserver::Base::Form::Role::AllowedOptions;
+#!/usr/bin/perl
 
 =head1 NAME
 
-pfappserver::Base::Form::Role::AllowedOptions -
+Violations
 
 =cut
 
 =head1 DESCRIPTION
 
-pfappserver::Base::Form::Role::AllowedOptions
+unit test for Violations
 
 =cut
 
-use namespace::autoclean;
-use HTML::FormHandler::Moose::Role;
+use strict;
+use warnings;
+#
+use lib qw(
+    /usr/local/pf/lib
+);
 
-use pf::admin_roles;
-
-has user_roles => (is => 'rw', default => sub { [] });
-
-=head2 _get_allowed_options
-
-Get the allowed options based of the
-
-=cut
-
-sub _get_allowed_options {
-    my ($self, $option) = @_;
-    return admin_allowed_options($self->user_roles, $option);
+BEGIN {
+    #include test libs
+    use lib qw(/usr/local/pf/t);
+    #Module for overriding configuration paths
+    use setup_test_config;
 }
+
+use Test::More tests => 7;
+use Test::Mojo;
+
+#This test will running last
+use Test::NoWarnings;
+my $t = Test::Mojo->new('pf::UnifiedApi');
+
+my $collection_base_url = '/api/v1/config/violations';
+
+my $base_url = '/api/v1/config/violation';
+
+$t->get_ok($collection_base_url)
+  ->status_is(200);
+
+$t->post_ok($collection_base_url => json => {})
+  ->status_is(417);
+
+$t->post_ok($collection_base_url, {'Content-Type' => 'application/json'} => '{')
+  ->status_is(400);
 
 =head1 AUTHOR
 

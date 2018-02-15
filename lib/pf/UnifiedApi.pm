@@ -163,6 +163,7 @@ our @API_V1_ROUTES = (
         Config::FloatingDevices
         Config::Switches
         Config::Roles
+        Config::Violations
     ),
 );
 

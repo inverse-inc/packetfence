@@ -13,7 +13,11 @@ Form definition to create or update a violation.
 use HTML::FormHandler::Moose;
 use pfappserver::Base::Form::Authentication::Action;
 extends 'pfappserver::Base::Form';
-with 'pfappserver::Base::Form::Role::Help','pfappserver::Base::Form::Role::AllowedOptions';
+with qw(
+    pfappserver::Base::Form::Role::Help
+    pfappserver::Base::Form::Role::AllowedOptions
+    pfappserver::Role::Form::RolesAttribute
+);
 
 use HTTP::Status qw(:constants is_success);
 use List::MoreUtils qw(uniq);

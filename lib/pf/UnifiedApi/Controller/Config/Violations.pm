@@ -1,35 +1,33 @@
-package pfappserver::Base::Form::Role::AllowedOptions;
+package pf::UnifiedApi::Controller::Config::Violations;
 
 =head1 NAME
 
-pfappserver::Base::Form::Role::AllowedOptions -
+pf::UnifiedApi::Controller::Config::Violations - 
 
 =cut
 
 =head1 DESCRIPTION
 
-pfappserver::Base::Form::Role::AllowedOptions
+pf::UnifiedApi::Controller::Config::Violations
+
+
 
 =cut
 
-use namespace::autoclean;
-use HTML::FormHandler::Moose::Role;
+use strict;
+use warnings;
 
-use pf::admin_roles;
 
-has user_roles => (is => 'rw', default => sub { [] });
+use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
 
-=head2 _get_allowed_options
+has 'config_store_class' => 'pf::ConfigStore::Violations';
+has 'form_class' => 'pfappserver::Form::Violation';
+has 'primary_key' => 'violation_id';
 
-Get the allowed options based of the
+use pf::ConfigStore::Violations;
+use pfappserver::Form::Violation;
 
-=cut
-
-sub _get_allowed_options {
-    my ($self, $option) = @_;
-    return admin_allowed_options($self->user_roles, $option);
-}
-
+ 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

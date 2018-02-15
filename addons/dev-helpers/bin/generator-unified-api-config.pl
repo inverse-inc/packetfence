@@ -30,6 +30,14 @@ use Mojo::Util qw(decamelize camelize);
 my %SKIPABLE_CLASSES = (
     'pf::ConfigStore::Group'                => 1,
     'pf::ConfigStore::Hierarchy'            => 1,
+    'pf::ConfigStore::ApacheFilters'        => 1,
+    'pf::ConfigStore::DhcpFilters'          => 1,
+    'pf::ConfigStore::DNS_Filters'          => 1,
+    'pf::ConfigStore::RadiusFilters'        => 1,
+    'pf::ConfigStore::SwitchFilters'        => 1,
+    'pf::ConfigStore::VlanFilters'          => 1,
+    'pf::ConfigStore::WMI'                  => 1,
+    'pf::ConfigStore::Profile'              => 1,
     'pf::ConfigStore::Role::ValidGenericID' => 1,
 );
 
@@ -45,8 +53,6 @@ if (@ARGV) {
 } else {
     push @stores, stores_info();
 }
-
-use Data::Dumper;
 
 my $output_path = "$PF_DIR";
 my $class_output_path = "lib/pf/UnifiedApi/Controller/Config";
@@ -75,7 +81,6 @@ for my $store (@stores) {
         print "Generating test for $class\n";
         $tt->process($test_template, $store, $test_path) or die $tt->error();
         chmod(0755, "$PF_DIR/$test_path");
-        
     } else {
         print "Skipping test for $class\n";
     }
