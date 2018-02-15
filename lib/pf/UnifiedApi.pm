@@ -162,6 +162,7 @@ our @API_V1_ROUTES = (
         Config::BillingTiers
         Config::FloatingDevices
         Config::Switches
+        Config::Roles
     ),
 );
 
