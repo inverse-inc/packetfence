@@ -159,6 +159,7 @@ our @API_V1_ROUTES = (
     qw(
         Config::AdminRoles
         Config::ConnectionProfiles
+        Config::BillingTiers
     ),
 );
 
