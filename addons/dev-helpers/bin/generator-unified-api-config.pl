@@ -47,8 +47,6 @@ if (@ARGV) {
 }
 
 use Data::Dumper;
-print Dumper(\@stores);
-exit 0;
 
 my $output_path = "$PF_DIR/lib/pf/UnifiedApi/Controller/Config";
 
