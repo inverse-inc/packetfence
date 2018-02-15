@@ -48,7 +48,9 @@ if (@ARGV) {
 
 use Data::Dumper;
 
-my $output_path = "$PF_DIR/lib/pf/UnifiedApi/Controller/Config";
+my $output_path = "$PF_DIR";
+my $class_output_path = "lib/pf/UnifiedApi/Controller/Config";
+my $test_output_path = "t/unittest/UnifiedApi/Controller/Config";
 
 my $tt = Template->new({
     OUTPUT_PATH  => $output_path,
@@ -56,15 +58,26 @@ my $tt = Template->new({
 });
 
 my $base_template = "pf-UnifiedApi-Controller-Config.pm.tt";
+my $test_template = "unittest-UnifiedApi-Controller-Config.t.tt";
 
 for my $store (@stores) {
     my $name = $store->{name};
     my $class = $store->{class};
-    if (!-f "$output_path/${name}.pm" ) {
-        print "Generating $class\n";
-        $tt->process($base_template, $store, "${name}.pm") or die $tt->error();
+    my $class_path = "${class_output_path}/${name}.pm";
+    if (!-f "$PF_DIR/$class_path" ) {
+        print "Generating module for $class\n";
+        $tt->process($base_template, $store, $class_path) or die $tt->error();
     } else {
-        print "Skipping $class\n";
+        print "Skipping module for $class\n";
+    }
+    my $test_path = "${test_output_path}/${name}.t";
+    if (!-f "$PF_DIR/$test_path" ) {
+        print "Generating test for $class\n";
+        $tt->process($test_template, $store, $test_path) or die $tt->error();
+        chmod(0755, "$PF_DIR/$test_path");
+        
+    } else {
+        print "Skipping test for $class\n";
     }
 }
 
@@ -103,6 +116,8 @@ sub store_info {
         now => $now,
         name => $name,
         fixup => $fixup,
+        collection_path => $decamelized_noun->plural,
+        resource_path => $decamelized_noun->singular,
         url_param_key => $url_param_key,
         config_store_class => $store_class,
         form_class => "pfappserver::Form::Config::$store_name",
