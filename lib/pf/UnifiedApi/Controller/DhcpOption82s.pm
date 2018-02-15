@@ -1,14 +1,14 @@
-package pf::UnifiedApi::Controller::Dhcpoption82s;
+package pf::UnifiedApi::Controller::DhcpOption82s;
 
 =head1 NAME
 
-pf::UnifiedApi::Controller::Dhcpoption82s -
+pf::UnifiedApi::Controller::DhcpOption82s -
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::UnifiedApi::Controller::Dhcpoption82s
+pf::UnifiedApi::Controller::DhcpOption82s
 
 =cut
 
@@ -18,7 +18,7 @@ use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
 use pf::dal::dhcp_option82;
 
 has dal => 'pf::dal::dhcp_option82';
-has url_param_name => 'dhcpoption82_id';
+has url_param_name => 'dhcp_option82_id';
 has primary_key => 'mac';
 
 =head1 AUTHOR

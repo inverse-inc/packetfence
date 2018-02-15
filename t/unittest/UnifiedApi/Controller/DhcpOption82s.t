@@ -34,7 +34,7 @@ my $t = Test::Mojo->new('pf::UnifiedApi');
 pf::dal::dhcp_option82->remove_items();
 
 #unittest (empty)
-$t->get_ok('/api/v1/dhcpoption82s' => json => { })
+$t->get_ok('/api/v1/dhcp_option82s' => json => { })
   ->json_is('/items', []) 
   ->status_is(200);
 
@@ -51,9 +51,12 @@ my %values = (
     module            => 'test module',
     host              => 'test host',
 );
-my $status = pf::dal::dhcp_option82->create(\%values);
 
-$t->get_ok('/api/v1/dhcpoption82s' => json => { })
+#my $status = pf::dal::dhcp_option82->create(\%values);
+$t->post_ok('/api/v1/dhcp_option82s' => json => \%values)
+  ->status_is(201);
+
+$t->get_ok('/api/v1/dhcp_option82s' => json => { })
   ->json_is('/items/0/mac', $values{mac})
   ->json_is('/items/0/created_at', $dt_format->format_datetime($dt_now))
   ->json_is('/items/0/option82_switch', $values{option82_switch})
@@ -68,7 +71,7 @@ $t->get_ok('/api/v1/dhcpoption82s' => json => { })
 my $mac = $t->tx->res->json->{items}[0]{mac};
 
 #run unittest, use $mac
-$t->get_ok("/api/v1/dhcpoption82/$mac")
+$t->get_ok("/api/v1/dhcp_option82/$mac")
   ->json_is('/item/mac', $values{mac})
   ->json_is('/item/created_at', $dt_format->format_datetime($dt_now))
   ->json_is('/item/option82_switch', $values{option82_switch})
@@ -81,10 +84,12 @@ $t->get_ok("/api/v1/dhcpoption82/$mac")
   ->status_is(200);
   
 #truncate the dhcp_option82 table
-pf::dal::dhcp_option82->remove_items();
+#pf::dal::dhcp_option82->remove_items();
+$t->delete_ok("/api/v1/dhcp_option82/$mac")
+  ->status_is(200);
   
 #unittest (empty)
-$t->get_ok('/api/v1/dhcpoption82s' => json => { })
+$t->get_ok('/api/v1/dhcp_option82s' => json => { })
   ->json_is('/items', []) 
   ->status_is(200);
 

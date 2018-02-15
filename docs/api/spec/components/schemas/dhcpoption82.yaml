@@ -1,4 +1,4 @@
-Dhcpoption82List:
+DhcpOption82List:
   allOf:
     - $ref: "#/components/schemas/Iterable"
     - type: object
@@ -6,9 +6,9 @@ Dhcpoption82List:
         items:
           type: array
           items:
-            $ref: "#/components/schemas/Dhcpoption82"
+            $ref: "#/components/schemas/DhcpOption82"
 
-Dhcpoption82:
+DhcpOption82:
   type: object
   properties:
     mac:
