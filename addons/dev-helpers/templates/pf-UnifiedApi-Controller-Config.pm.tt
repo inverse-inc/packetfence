@@ -1,0 +1,14 @@
+[% WRAPPER "class-wrapper.tt" -%]
+
+use strict;
+use warnings;
+use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
+
+has 'config_store_class' => 'pf::ConfigStore::[% name %]';
+has 'form_class' => 'pfappserver::Form::Config::[% name %]';
+has 'primary_key' => '[% url_param_name %]';
+
+use pf::ConfigStore::[% name %];
+use pfappserver::Form::Config::[% name %];
+
+[% END %]
