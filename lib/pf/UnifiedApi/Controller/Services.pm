@@ -14,73 +14,92 @@ pf::UnifiedApi::Controller::Services
 
 use strict;
 use warnings;
-use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
+use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use pf::services;
 
+sub list {
+    my ($self) = @_;
+    $self->render(json => { items => [ @pf::services::ALL_SERVICES ] });
+}
+
+sub resource {
+    my ($self) = @_;
+    my $service_id = $self->_decode_service_id($self->param('service_id'));
+    foreach my $service (@pf::services::ALL_SERVICES) {
+        return 1 if $service_id eq $self->_decode_service_id($service);
+    }
+    return undef;
+}
 
 sub status {
     my ($self) = @_;
-    my $class = "pf::services::manager::".$self->param('service');
-    if(not $class->can('new') or not $class->can('status')){
-        return $self->render(404, json => { message => $self->status_to_error_msg(404)});
+    my $service = $self->_get_service_class($self->param('service_id'));
+    if ($service) {
+        return $self->render(json => { 
+            alive => $service->isAlive(),
+            managed => $service->isManaged(),
+            enabled => $service->isEnabled(),
+            pid => $service->pid(), 
+        });
     }
-    my $service = $class->new();
-    $self->render(json => { 
-        alive => $service->isAlive(),
-        managed => $service->isManaged(),
-        enabled => $service->isEnabled(),
-        pid => $service->pid(), 
-    });
 }
 
 sub start {
     my ($self) = @_;
-    my $class = "pf::services::manager::".$self->param('service');
-    if(not $class->can('new') or not $class->can('start')){
-        return $self->render(404, json => { message => $self->status_to_error_msg(404)});
+    my $service = $self->_get_service_class($self->param('service_id'));
+    if ($service) {
+        return $self->render(json => { start => $service->start(), pid => $service->pid() });
     }
-    my $service = $class->new();
-    $self->render(json => { start => $service->start(), pid => $service->pid() });
 }
 
 sub stop {
     my ($self) = @_;
-    my $class = "pf::services::manager::".$self->param('service');
-    if(not $class->can('new') or not $class->can('stop')){
-        return $self->render(404, json => { message => $self->status_to_error_msg(404)});
+    my $service = $self->_get_service_class($self->param('service_id'));
+    if ($service) {
+        return $self->render(json => { stop => $service->stop() });
     }
-    my $service = $class->new();
-    $self->render(json => { stop => $service->stop() });
 }
 
 sub restart {
     my ($self) = @_;
-    my $class = "pf::services::manager::".$self->param('service');
-    if(not $class->can('new') or not $class->can('restart')){
-        return $self->render(404, json => { message => $self->status_to_error_msg(404)});
+    my $service = $self->_get_service_class($self->param('service_id'));
+    if ($service) {
+        return $self->render(json => { restart => $service->restart(), pid => $service->pid() });
     }
-    my $service = $class->new();
-    $self->render(json => { restart => $service->restart(), pid => $service->pid() });
 }
 
 sub enable {
     my ($self) = @_;
-    my $class = "pf::services::manager::".$self->param('service');
-    if(not $class->can('new') or not $class->can('sysdEnable')){
-        return $self->render(400, json => { message => $self->status_to_error_msg(400)});
+    my $service = $self->_get_service_class($self->param('service_id'));
+    if ($service) {
+        return $self->render(json => { enable => $service->sysdEnable() });
     }
-    my $service = $class->new();
-    $self->render(json => { enable => $service->sysdEnable() });
 }
 
 sub disable {
     my ($self) = @_;
-    my $class = "pf::services::manager::".$self->param('service');
-    if(not $class->can('new') or not $class->can('sysdDisable')){
-        return $self->render(400, json => { message => $self->status_to_error_msg(400)});
+    my $service = $self->_get_service_class($self->param('service_id'));
+    if ($service) {
+        return $self->render(json => { disable => $service->sysdDisable() });
     }
-    my $service = $class->new();
-    $self->render(json => { disable => $service->sysdDisable() });
+}
+
+sub _decode_service_id {
+    my ($self, $service_id) = @_;
+    $service_id =~ tr/-/_/; 
+    $service_id =~ tr/\./_/;
+    return $service_id;
+}
+
+sub _get_service_class {
+    my ($self, $service_id) = @_;
+    $service_id = $self->_decode_service_id($service_id);
+    my $class = "pf::services::manager::$service_id";
+    if(not $class->can('new')){
+        $self->render_error(400, "Resource not available");
+        return undef;
+    }
+    return $class->new();
 }
 
 =head1 AUTHOR

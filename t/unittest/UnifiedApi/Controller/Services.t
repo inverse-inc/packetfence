@@ -23,8 +23,6 @@ BEGIN {
     use setup_test_config;
 }
 
-use pf::services;
-
 #run tests
 #use Test::More tests => 1000;
 use Test::Mojo;
@@ -34,12 +32,14 @@ my $t = Test::Mojo->new('pf::UnifiedApi');
 #increase "inactivity timeout"
 $t->ua->inactivity_timeout(60);
 
-foreach my $service (@pf::services::ALL_SERVICES) {
-    
-  $service =~ tr/-/_/; 
-  $service =~ tr/\./_/; 
+$t->get_ok("/api/v1/services" => json => { }) 
+    ->json_has('/items')
+    ->status_is(200);
 
-  $t->get_ok("/api/v1/services/$service/status" => json => { }) 
+my $services = $t->tx->res->json->{items};
+foreach my $service (@$services) {
+    
+  $t->get_ok("/api/v1/service/$service/status" => json => { }) 
     ->json_has('/alive')
     ->json_has('/enabled')
     ->json_has('/managed')
@@ -54,15 +54,15 @@ foreach my $service (@pf::services::ALL_SERVICES) {
   if( $managed ) {
     if( $alive and $pid > 0 ) {
         #stop then start, restart
-        $t->post_ok("/api/v1/services/$service/stop" => json => { })
+        $t->post_ok("/api/v1/service/$service/stop" => json => { })
         ->json_is('/stop', 1)
         ->status_is(200);
-        $t->post_ok("/api/v1/services/$service/start" => json => { })
+        $t->post_ok("/api/v1/service/$service/start" => json => { })
         ->json_is('/start', 1)
         ->json_unlike('/pid', qr/$pid/)
         ->json_has('/pid')
         ->status_is(200);
-        $t->post_ok("/api/v1/services/$service/restart" => json => { })
+        $t->post_ok("/api/v1/service/$service/restart" => json => { })
         ->json_is('/restart', 1)
         ->json_has('/pid')
         ->json_unlike('/pid', qr/$pid/)
@@ -70,22 +70,22 @@ foreach my $service (@pf::services::ALL_SERVICES) {
     }
     if( $enabled ) {
       #disable then enable
-      $t->post_ok("/api/v1/services/$service/disable" => json => { })
+      $t->post_ok("/api/v1/service/$service/disable" => json => { })
         ->json_is('/disable', 1)
         ->status_is(200);
-      $t->post_ok("/api/v1/services/$service/enable" => json => { })
+      $t->post_ok("/api/v1/service/$service/enable" => json => { })
         ->json_is('/enable', 1)
         ->status_is(200);
     } else {
       #enable then disable
-      $t->post_ok("/api/v1/services/$service/enable" => json => { })
+      $t->post_ok("/api/v1/service/$service/enable" => json => { })
         ->json_is('/enable', 1)
         ->status_is(200);
-      $t->post_ok("/api/v1/services/$service/disable" => json => { })
+      $t->post_ok("/api/v1/service/$service/disable" => json => { })
         ->json_is('/disable', 1)
         ->status_is(200);
     }
-    $t->get_ok("/api/v1/services/$service/status" => json => { })    
+    $t->get_ok("/api/v1/service/$service/status" => json => { })    
       ->json_is('/alive', $alive)
       ->json_is('/enabled', $enabled)
       ->json_is('/managed', $managed)

@@ -131,19 +131,22 @@ our @API_V1_ROUTES = (
         },
     },    
     { 
-        controller => 'Services', 
-        resource => undef,
-        collection => {
-            http_methods => undef,
+        controller => 'Services',
+        resource   => {
             subroutes => {
-                ':service/status' => { get => 'status' },
-                ':service/start' => { post => 'start' },
-                ':service/stop' => { post => 'stop' },
-                ':service/restart' => { post => 'restart' },
-                ':service/enable' => { post => 'enable' },
-                ':service/disable' => { post => 'disable' },
+                'status'  => { get => 'status' },
+                'start'   => { post => 'start' },
+                'stop'    => { post => 'stop' },
+                'restart' => { post => 'restart' },
+                'enable'  => { post => 'enable' },
+                'disable' => { post => 'disable' },
+            },
+        },
+        collection => {
+            http_methods => {
+                get => 'list',
             }
-        } 
+        },
     },
 );
 
