@@ -140,11 +140,6 @@ This change only needs to be done on the first server of the cluster. It will be
 In `conf/pf.conf` :
 
 ----
-[general]
-hostname=pf
-----
-
-----
 [database]
 host=127.0.0.1
 
