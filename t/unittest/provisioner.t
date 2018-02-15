@@ -26,8 +26,9 @@ use Test::Exception;
 
 our $TEST_CATEGORY = "test";
 
-our $TEST_OS = 'Apple iPod, iPhone or iPad';
-our $TEST_OS_FINGERBANK_ID = '193';
+our $ANDROID_OS = 'Android OS';
+our $TEST_OS = 'iOS';
+our $TEST_OS_FINGERBANK_ID = '33450';
 
 our $TEST_NODE_ATTRIBUTE = { category => $TEST_CATEGORY };
 
@@ -45,11 +46,11 @@ my $provisioner = new_ok(
 
 ok($provisioner->match($TEST_OS,$TEST_NODE_ATTRIBUTE),"Match both os and category");
 
-ok(!$provisioner->match('Generic Android',$TEST_NODE_ATTRIBUTE),"Don't Match os but Matching category");
+ok(!$provisioner->match($ANDROID_OS,$TEST_NODE_ATTRIBUTE),"Don't Match os but Matching category");
 
 ok(!$provisioner->match(undef,$TEST_NODE_ATTRIBUTE),"Don't match undef os");
 
-ok(!$provisioner->match('Generic Android',{category => 'not_matching'}),"Don't Match os and category");
+ok(!$provisioner->match($ANDROID_OS,{category => 'not_matching'}),"Don't Match os and category");
 
 $provisioner->category(['not_matching']);
 
@@ -59,7 +60,7 @@ $provisioner->category([]);
 
 ok($provisioner->match($TEST_OS,$TEST_NODE_ATTRIBUTE),"Match os with the any category");
 
-ok(!$provisioner->match('Generic Android',$TEST_NODE_ATTRIBUTE),"Don't match os with the any category");
+ok(!$provisioner->match($ANDROID_OS,$TEST_NODE_ATTRIBUTE),"Don't match os with the any category");
 
 $provisioner->category([$TEST_CATEGORY]);
 $provisioner->oses([]);

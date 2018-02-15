@@ -26,8 +26,8 @@ use Test::Exception;
 
 our $TEST_CATEGORY = "test";
 
-our $ANDROID_DEVICE = 'Generic Android';
-our $APPLE_DEVICE   = 'Apple iPod, iPhone or iPad',
+our $ANDROID_DEVICE = 'Android OS';
+our $APPLE_DEVICE   = 'iOS',
 our $TEST_NODE_ATTRIBUTE = { category => $TEST_CATEGORY };
 
 use_ok("pf::provisioner::mobileconfig");
