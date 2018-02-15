@@ -160,6 +160,8 @@ our @API_V1_ROUTES = (
         Config::AdminRoles
         Config::ConnectionProfiles
         Config::BillingTiers
+        Config::FloatingDevices
+        Config::Switches
     ),
 );
 
