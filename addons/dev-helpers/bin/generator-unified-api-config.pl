@@ -25,6 +25,13 @@ use Module::Pluggable (
     search_path => [qw(pf::ConfigStore)],
     sub_name => 'stores',
 );
+use Mojo::Util qw(decamelize camelize);
+
+my %SKIPABLE_CLASSES = (
+    'pf::ConfigStore::Group'                => 1,
+    'pf::ConfigStore::Hierarchy'            => 1,
+    'pf::ConfigStore::Role::ValidGenericID' => 1,
+);
 
 my $PF_DIR = '/usr/local/pf';
 
@@ -63,8 +70,11 @@ for my $store (@stores) {
     }
 }
 
-sub is_skippable {
 
+
+sub is_skippable {
+    my ($class) = @_;
+    return exists $SKIPABLE_CLASSES{$class};
 }
 
 =head2 store_info
@@ -76,13 +86,28 @@ Get the Store Info
 sub store_info {
     my ($store_class) = @_;
     return if is_skippable($store_class);
-    my $name = $store_class;
-    $name =~ s/pf::ConfigStore:://;
+    my $store_name = $store_class;
+    $store_name =~ s/pf::ConfigStore:://;
+    my $name = $store_name;
+    my $fixup = $name;
+    $fixup =~ s/([A-Z])([A-Z]+)/$1 . lc($2)/e;
+    my $decamelized = decamelize($fixup);
+    $decamelized =~ s/[_]{2,}/_/g;
+    my $noun = noun($name);
+    my $decamelized_noun = noun($decamelized);
+    my $url_param_key = $decamelized_noun->singular . "_id";
+    if ($noun->is_singular) {
+        $name = $noun->plural;
+    }
     my $class = "pf::UnifiedApi::Controller::Config::${name}";
     my %info = (
         class => $class,
         now => $now,
-        name => $name
+        name => $name,
+        fixup => $fixup,
+        url_param_key => $url_param_key,
+        config_store_class => $store_class,
+        form_class => "pfappserver::Form::Config::$store_name",
     );
 
     ### Get a list of tables and views
