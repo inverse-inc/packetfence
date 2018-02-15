@@ -168,7 +168,7 @@ sub replace {
     delete $item->{id};
     $cs->update($id, $item);
     $cs->commit;
-    $self->render(status => 204, text => '');
+    $self->render(status => 200, json => { message => "$id replaced"});
 }
 
 
