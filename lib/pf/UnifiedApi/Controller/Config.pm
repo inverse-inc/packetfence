@@ -47,7 +47,11 @@ sub resource {
 
 sub get {
     my ($self) = @_;
-    return $self->render(json => {item => $self->item});
+    my $item = $self->item;
+    if ($item) {
+        return $self->render(json => {item => $item});
+    }
+    return;
 }
 
 sub item {
@@ -68,6 +72,10 @@ sub item_from_store {
 sub cleanup_item {
     my ($self, $item) = @_;
     my $form = $self->form($item);
+    if (!defined $form) {
+        return undef;
+    }
+
     $form->process(init_object => $item);
     return $form->value;
 }
@@ -103,10 +111,15 @@ sub create {
 sub validate_item {
     my ($self, $item) = @_;
     my $form = $self->form($item);
+    if (!defined $form) {
+        return undef;
+    }
+
     $form->process(posted => 1, params => $item);
     if (!$form->has_errors) {
         return $form->value;
     }
+
     my $field_errors = $form->field_errors;
     my @errors;
     while (my ($k,$v) = each %$field_errors) {

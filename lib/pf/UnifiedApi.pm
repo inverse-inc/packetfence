@@ -167,6 +167,7 @@ our @API_V1_ROUTES = (
         Config::TrafficShapings
         Config::Domains
         Config::DeviceRegistrations
+        Config::MaintenanceTasks
     ),
 );
 
