@@ -148,7 +148,7 @@ our @API_V1_ROUTES = (
             }
         },
     },
-    { controller => 'Auditlogs' },
+    { controller => 'RadiusAuditLogs' },
 );
 
 sub startup {
