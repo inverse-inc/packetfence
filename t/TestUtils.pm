@@ -125,6 +125,7 @@ my %exclusions = map { $_ => 1 } qw(
    /usr/local/pf/bin/pfdns
    /usr/local/pf/bin/pfdhcp
    /usr/local/pf/bin/pfipset
+   /usr/local/pf/bin/pfstats
 );
 
 sub get_all_perl_binaries {
