@@ -45,7 +45,7 @@
         schema:
           type: string
     requestBody:
-      required: true
+      required: false
     responses:
       '200':
         $ref: "#/components/schemas/ServiceStart"
