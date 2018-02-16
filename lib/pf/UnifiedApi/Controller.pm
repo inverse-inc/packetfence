@@ -15,7 +15,6 @@ pf::UnifiedApi::Controller
 use strict;
 use warnings;
 use Mojo::Base 'Mojolicious::Controller';
-has activity_timeout => 300;
 
 sub log {
     my ($self) = @_;
