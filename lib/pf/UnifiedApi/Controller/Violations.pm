@@ -21,11 +21,12 @@ has dal => 'pf::dal::violation';
 has url_param_name => 'violation_id';
 has primary_key => 'id';
 
-sub search {
+sub mac {
     my ($self) = @_;
     my $search = $self->param('search');
     return $self->_search_by_mac($search) if pf::util::valid_mac($search);
-    return $self->_search_by_id($search);
+    $self->render_error(404, "Resource not available");
+    #return $self->_search_by_id($search);
 }
 
 sub _search_by_mac {
@@ -38,7 +39,7 @@ sub _search_by_mac {
 sub _search_by_id {
     my ($self, $id) = @_;
     my @violation = pf::violation::violation_view($id);
-    return $self->render(json => $violation[0] ) if scalar @violation > 0 and defined($violation[0]);
+    return $self->render(json => { items => [ $violation[0] ] } ) if scalar @violation > 0 and defined($violation[0]);
     return $self->render(json => undef);
 }
 
