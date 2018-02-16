@@ -1106,6 +1106,16 @@ fi
 %dir                    /usr/local/pf/db
                         /usr/local/pf/db/*
 %dir                    /usr/local/pf/docs
+%dir                    /usr/local/pf/docs/enforcement
+%doc                    /usr/local/pf/docs/enforcement/*
+%dir                    /usr/local/pf/docs/firewall
+%doc                    /usr/local/pf/docs/firewall/*
+%dir                    /usr/local/pf/docs/networkdevice
+%doc                    /usr/local/pf/docs/networkdevice/*
+%dir                    /usr/local/pf/docs/pki
+%doc                    /usr/local/pf/docs/pki/*
+%dir                    /usr/local/pf/docs/provisioner
+%doc                    /usr/local/pf/docs/provisioner/*
 %dir                    /usr/local/pf/html/pfappserver/root/static/doc
 %doc                    /usr/local/pf/html/pfappserver/root/static/doc/*
 %doc                    /usr/local/pf/docs/*.asciidoc
