@@ -23,34 +23,6 @@ has 'config_store_class' => 'pf::ConfigStore::Profile';
 has 'form_class' => 'pfappserver::Form::Config::Profile';
 has 'primary_key' => 'connection_profile_id';
 
-our %DEFAULT_VALUES = (
-    "access_registration_when_registered" => "",
-    "always_use_redirecturl" => "",
-    "autoregister" => "",
-    "billing_tiers" => "",
-    "block_interval" => 0,
-    "description" => "",
-    "device_registration" => "",
-    "dot1x_recompute_role_from_portal" => "",
-    "filter" => "",
-    "id" => "",
-    "login_attempt_limit" => 0,
-    "logo" => "",
-    "preregistration" => "",
-    "provisioners" => "",
-    "redirecturl" => "",
-    "reuse_dot1x_credentials" => "",
-    "root_module" => "",
-    "scans" => "",
-    "sms_pin_retry_limit" => 0,
-    "sms_request_limit" => 0,
-    "sources" => ""
-);
-
-sub default_values {
-    \%DEFAULT_VALUES
-}
-
 sub form {
     my ($self, $item) = @_;
     if ( ($item->{id} // '') eq 'default') {
