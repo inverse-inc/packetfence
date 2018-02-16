@@ -1,4 +1,4 @@
-AuditLogList:
+RadiusAuditLogList:
   allOf:
     - $ref: "#/components/schemas/Iterable"
     - type: object
@@ -8,7 +8,14 @@ AuditLogList:
           items:
             $ref: "#/components/schemas/AuditLog"
 
-AuditLog:
+RadiusAuditLogItem:
+    - type: object
+      properties:
+        items:
+          type: object
+          $ref: "#/components/schemas/AuditLog"
+
+RadiusAuditLog:
   type: object
   properties:
     tenant_id:

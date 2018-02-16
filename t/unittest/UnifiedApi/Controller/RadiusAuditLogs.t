@@ -8,7 +8,7 @@ Auditlogs
 
 =head1 DESCRIPTION
 
-unit test for Auditlogs
+unit test for RadiusAuditLogs
 
 =cut
 
@@ -25,7 +25,7 @@ BEGIN {
     use setup_test_config;
 }
 #run tests
-use Test::More tests => 86;
+use Test::More tests => 92;
 use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
@@ -34,13 +34,13 @@ my $t = Test::Mojo->new('pf::UnifiedApi');
 pf::dal::radius_audit_log->remove_items();
 
 #unittest (empty)
-$t->get_ok('/api/v1/auditlogs' => json => { })
+$t->get_ok('/api/v1/radius_audit_logs' => json => { })
   ->json_is('/items', []) 
   ->status_is(200);
 
 #insert known data
 my %values = (
-    tenant_id                => '99',
+    tenant_id                => '1',
     mac                      => '00:01:02:03:04:05',
     ip                       => 'test ip',
     computer_name            => 'test computer_name', 
@@ -77,9 +77,11 @@ my %values = (
     radius_request           => 'test radius_request', 
     radius_reply             => 'test radius_reply',
 );
-my $status = pf::dal::radius_audit_log->create(\%values);
+#my $status = pf::dal::radius_audit_log->create(\%values);
+$t->post_ok('/api/v1/radius_audit_logs' => json => \%values)
+  ->status_is(201);
 
-$t->get_ok('/api/v1/auditlogs' => json => { })
+$t->get_ok('/api/v1/radius_audit_logs' => json => { })
   ->json_is('/items/0/tenant_id', $values{tenant_id})
   ->json_is('/items/0/mac', $values{mac})
   ->json_is('/items/0/ip', $values{ip})
@@ -122,7 +124,7 @@ $t->get_ok('/api/v1/auditlogs' => json => { })
 my $id = $t->tx->res->json->{items}[0]{id};
 
 #run unittest, use $id
-$t->get_ok("/api/v1/auditlog/$id")
+$t->get_ok("/api/v1/radius_audit_log/$id")
   ->json_is('/item/id', $id)
   ->json_is('/item/tenant_id', $values{tenant_id})
   ->json_is('/item/mac', $values{mac})
@@ -164,10 +166,16 @@ $t->get_ok("/api/v1/auditlog/$id")
   ->status_is(200);
   
 #truncate the radius_audit_log table
-pf::dal::radius_audit_log->remove_items();
+#pf::dal::radius_audit_log->remove_items();
+
+$t->delete_ok("/api/v1/radius_audit_log/$id")
+  ->status_is(200);
+  
+$t->delete_ok("/api/v1/radius_audit_log/$id")
+  ->status_is(404);
   
 #unittest (empty)
-$t->get_ok('/api/v1/auditlogs' => json => { })
+$t->get_ok('/api/v1/radius_audit_logs' => json => { })
   ->json_is('/items', []) 
   ->status_is(200);
 
