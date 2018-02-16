@@ -11,7 +11,7 @@ RadiusAuditLogList:
 RadiusAuditLogItem:
     - type: object
       properties:
-        items:
+        item:
           type: object
           $ref: "#/components/schemas/AuditLog"
 
