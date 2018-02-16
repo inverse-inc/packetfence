@@ -15,7 +15,7 @@ In order to bootstrap your environment from the version of /usr/local/pf/bin/pfh
 You should then source your .bashrc to get the new environment variables
 
 ```
-source ~/.bashrc
+# source ~/.bashrc
 ```
 
 Once that is done, you should be working in $GOPATH/src/github.com/inverse-inc/packetfence/go and not /usr/local/pf/go so that Golang commands work correctly (they tend to misbehave outside of the GOPATH)
@@ -32,7 +32,7 @@ In order to install govendor:
 # go get -u github.com/kardianos/govendor
 ```
 
-Then pull the dependencies of PacketFence:
+Then pull the dependencies of PacketFence. Be patient as it can take a few minutes to download.
 
 ```
 # cd $GOPATH/src/github.com/inverse-inc/packetfence/go
