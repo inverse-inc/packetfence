@@ -23,7 +23,6 @@ use pf::client;
 use pf::constants;
 use pf::constants::dhcp qw($DEFAULT_LEASE_LENGTH);
 use pf::constants::IP qw($IPV4);
-use pf::clustermgmt;
 use pf::config qw(
     $INLINE_API_LEVEL
     %ConfigNetworks

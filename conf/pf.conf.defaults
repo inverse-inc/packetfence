@@ -243,11 +243,6 @@ collector=9292
 # Port of the aaa http interface listens on.
 aaa=7070
 #
-#port.pf_status
-#
-# Port of the packetfence status http interface listends on.
-pf_status=9191
-#
 # ports.httpd_portal_modstatus
 #
 # Port the mod_status for httpd.portal listens on.

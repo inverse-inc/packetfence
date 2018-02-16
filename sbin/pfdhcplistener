@@ -35,7 +35,6 @@ use Try::Tiny;
 use pf::util::dhcp;
 use pf::constants;
 use pf::constants::config qw( $NET_TYPE_INLINE_L2 $NET_TYPE_INLINE_L3 );
-use pf::clustermgmt;
 use pf::config qw(
     %Config
     @listen_ints

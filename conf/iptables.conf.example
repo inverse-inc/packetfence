@@ -23,8 +23,6 @@
 -A input-management-if --protocol tcp --match tcp --dport %%webservices_port%% --jump ACCEPT
 # AAA 
 -A input-management-if --protocol tcp --match tcp --dport %%aaa_port%% --jump ACCEPT
-# PacketFence Status
--A input-management-if --protocol tcp --match tcp --dport %%status_port%% --jump ACCEPT
 # httpd.portal modstatus
 -A input-management-if --protocol tcp --match tcp --dport %%httpd_portal_modstatus%% --jump ACCEPT
 # httpd.collector
