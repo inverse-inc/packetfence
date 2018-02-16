@@ -20,6 +20,17 @@ use namespace::autoclean;
 use List::MoreUtils qw(any uniq);
 use pf::error qw(is_success);
 use pf::log;
+use fingerbank::Model::Device;
+use fingerbank::Model::Combination;
+use fingerbank::Model::Device;
+use fingerbank::Model::DHCP6_Enterprise;
+use fingerbank::Model::DHCP6_Fingerprint;
+use fingerbank::Model::DHCP_Fingerprint;
+use fingerbank::Model::DHCP_Vendor;
+use fingerbank::Model::Endpoint;
+use fingerbank::Model::MAC_Vendor;
+use fingerbank::Model::User_Agent;
+
 has '+deflate_value_method'=> ( default => sub { \&_deflate } );
 
 =head2 build_options

@@ -164,6 +164,9 @@ our @API_V1_ROUTES = (
         Config::Switches
         Config::Roles
         Config::Violations
+        Config::TrafficShapings
+        Config::Domains
+        Config::DeviceRegistrations
     ),
 );
 
