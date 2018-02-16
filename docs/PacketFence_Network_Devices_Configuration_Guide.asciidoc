@@ -4131,43 +4131,8 @@ You can try modules similar to your equipment if any (read appropriate instructi
 
 If none of the above worked then you can fallback to inline enforcement or let us know what equipment you are using on the https://lists.sourceforge.net/lists/listinfo/packetfence-devel[packetfence-devel mailing list].
 
-AeroHIVE
-~~~~~~~~
-
-AeroHIVE products are a bit different compared to the other vendors. They support either a local HiveManager (kind of wireless controller) or a cloud-based HVM. However, the configuration is the same for the local and the cloud-based controller. Note that all the config are made on the HVM and then pushed to the APs. 
-
-[float]
-AAA Client Settings
-+++++++++++++++++++
-
-In the HVM, go to *Configuration -> AAA Authentication -> AAA Client Settings*, and insert the proper properties:
-
-* Give a RADIUS Name
-* Add a RADIUS server with Authentication as the server type and primary as the role
-* Make sure Permit Dynamic Change of Authorization is ticked (RFC 3576)
-
-[float]
-Public SSID
-++++++++++++
-
-Again in the HVM, go to *Configuration -> SSIDs*, and create a new SSID with the following:
-
-* Give a Profile Name and an SSID Name
-* Choose Open as the Access Security 
-* Select Enable MAC Authentication
-* Select your RADIUS server from the RADIUS Server dropdown list
-
-[float]
-Secure SSID
-++++++++++++
-
-In the HVM, go to *Configuration -> SSIDs*, and create a new SSID with the following :
-
-* Give a Profile Name and an SSID Name
-* Choose WPA2 Enterprise as the Access Security 
-* Select WPA2-802.1X as the key management
-* Select CCMP as the encryption method
-* Select your RADIUS server from the RADIUS Server dropdown list
+// Aerohive Networks
+include::networkdevice/aerohive.asciidoc[]
 
 [float]
 Roles (User Profiles)
@@ -4188,49 +4153,9 @@ return for the devices.
 
 In version 6 or later of the HiveOS, we do return VLAN ID matching the number that the *User Profile* has. Create your *User Profile* in the HiveManager as usual, assign the matching VLAN, and in PacketFence configuration add the wanted VLAN ID in the section *Roles by VLAN*.
 
-[float]
-Caching and Roaming
-++++++++++++++++++++
 
-AeroHIVE have a session replication feature to ease the EAP session roaming between two access points. However, this may cause problems when you bounce the wireless card of a client, it will not do a new RADIUS request. Two settings can be tweaked to reduce the caching impact, it is the roaming cache update interval and roaming cache ageout. They are located in *Configuration -> SSIDs -> [SSID Name] -> Optional Settings -> Advanced*.
-The other way to support Roaming is to enable snmp trap in the AeroHIVE configuration to PacketFence server. PacketFence will recognize the ahConnectionChangeEvent and will change the location of the node in his base.
-
-[float]
-External captive portal
-^^^^^^^^^^^^^^^^^^^^^^^
-
-First configure the AAA server as described in the section above in the Hive Manager.
-
-Portal configuration
-++++++++++++++++++++
-* Go in *Configuration -> Authentication -> Captive Web Portals* and create a new portal
-* Select Select *Registration Type* = *External Authentication*
-* Go in the section *Captive Web Portal Login Page Settings* set the *Login URL* to http://<your_captive_portal_ip>/AeroHIVE::AP and *Password Encryption* to *No Encryption*
-* Use the *User Profiles* to define your web authentication VLAN
-* In PacketFence configuration make sure to unselect every *Roles by* in the tab *Roles* while adding the switch, also please select the switch type *AeroHIVE AP*
-
-////
-
-This option is currently broken but will be needed so it redirects the user at the end of the authentication.
-* Go in the section * Captive Web Portal Success Page Settings* and check *Redirect to the initially requested page* at the bottom.
-
-////
-
-[float]
-External portal SSID
-++++++++++++++++++++
-
-Again in the Hive Manager, go to *Configuration -> SSIDs*, and create a new SSID with the following:
-
-* Give a Profile Name and an SSID Name
-* Choose Open as the Access Security 
-* Select Enable Captive Web Portal
-* Select your RADIUS server from the RADIUS Server dropdown list
-
-In the guided configuration you now be able to select your new SSID, the Portal you want to use and the AAA server.
 
 // Anyfi Networks
-
 include::networkdevice/anyfi.asciidoc[]
 
 Avaya
@@ -5662,7 +5587,7 @@ Next, you need to configure the Alarm Settings.  Under *Configure > Alarm Settin
 
 Finally, enable the WIPS feature on the controller.  Under *Configure > WIPS > Intrusion Detection and Prevention*, make sure both box are selected, click Apply. 
 
-Web authentication
+Web Authentication
 ^^^^^^^^^^^^^^^^^^
 
 In order to use PacketFence as an external captive portal for web authentication, you will need to configure first your RADIUS authentication and accounting server (see steps above).
@@ -5705,7 +5630,7 @@ Save your configuration.
 PacketFence configuration
 +++++++++++++++++++++++++
 
-On the ZoneDirector configuration in PacketFence, you will need to specify -1 as the registration vlan in order to display the captive portal to the end device. 
+On the ZoneDirector configuration in PacketFence, you will need to specify -1 as the registration VLAN in order to display the captive portal to the end device. 
 
 You will need to deactivate the force secure redirect on the captive portal under *Configuration->Captive Portal->Secure redirect->Unchecked*
 
