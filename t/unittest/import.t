@@ -35,7 +35,7 @@ my $fh = File::Temp->new;
 
 my $name = $fh->filename;
 
-system("/usr/local/pf/bin/pfcmd import nodes $name");
+system("perl -T -I/usr/local/pf/t  -Msetup_test_config /usr/local/pf/bin/pfcmd.pl import nodes $name");
 
 is($?, 0, "Succeeded running with an empty file");
 
