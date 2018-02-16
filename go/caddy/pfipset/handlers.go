@@ -23,7 +23,7 @@ func handlePassthrough(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	IP := vars["ip"]
 	Port := vars["port"]
-	Local := vars["local"]
+	Local := req.URL.Query().Get("local")
 
 	IPSET.jobs <- job{"Add", "pfsession_passthrough", IP + "," + Port}
 	if Local == "0" {
@@ -48,7 +48,7 @@ func handleIsolationPassthrough(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	IP := vars["ip"]
 	Port := vars["port"]
-	Local := vars["local"]
+	Local := req.URL.Query().Get("local")
 
 	IPSET.jobs <- job{"Add", "pfsession_isol_passthrough", IP + "," + Port}
 	if Local == "0" {
@@ -76,7 +76,7 @@ func handleLayer2(res http.ResponseWriter, req *http.Request) {
 	Network := vars["network"]
 	Type := vars["type"]
 	Catid := vars["category_id"]
-	Local := vars["local"]
+	Local := req.URL.Query().Get("local")
 
 	// Update locally
 	IPSET.IPSEThandleLayer2(req.Context(), IP, Mac, Network, Type, Catid)
@@ -133,7 +133,7 @@ func handleMarkIpL2(res http.ResponseWriter, req *http.Request) {
 	IP := vars["ip"]
 	Network := vars["network"]
 	Catid := vars["category_id"]
-	Local := vars["local"]
+	Local := req.URL.Query().Get("local")
 
 	// Update locally
 	IPSET.IPSEThandleMarkIpL2(ctx, IP, Network, Catid)
@@ -158,7 +158,7 @@ func handleMarkIpL3(res http.ResponseWriter, req *http.Request) {
 	IP := vars["ip"]
 	Network := vars["network"]
 	Catid := vars["category_id"]
-	Local := vars["local"]
+	Local := req.URL.Query().Get("local")
 
 	// Update locally
 	IPSET.IPSEThandleMarkIpL3(ctx, IP, Network, Catid)
@@ -193,7 +193,7 @@ func handleLayer3(res http.ResponseWriter, req *http.Request) {
 	Network := vars["network"]
 	Type := vars["type"]
 	Catid := vars["category_id"]
-	Local := vars["local"]
+	Local := req.URL.Query().Get("local")
 
 	// Update locally
 	IPSET.IPSEThandleLayer3(ctx, IP, Network, Type, Catid)
@@ -243,7 +243,7 @@ func (IPSET *pfIPSET) handleUnmarkMac(res http.ResponseWriter, req *http.Request
 
 	vars := mux.Vars(req)
 	Mac := vars["mac"]
-	Local := vars["local"]
+	Local := req.URL.Query().Get("local")
 
 	for _, v := range IPSET.ListALL {
 		Ips := IPSET.mac2ip(req.Context(), Mac, v)
@@ -277,7 +277,7 @@ func (IPSET *pfIPSET) handleUnmarkIp(res http.ResponseWriter, req *http.Request)
 
 	vars := mux.Vars(req)
 	IP := vars["ip"]
-	Local := vars["local"]
+	Local := req.URL.Query().Get("local")
 
 	for _, v := range IPSET.ListALL {
 		r := ipset.Test(v.Name, IP)

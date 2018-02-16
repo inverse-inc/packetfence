@@ -107,7 +107,7 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 					switch ansb := ans.(type) {
 					case *dns.A:
 						for _, valeur := range v {
-							err := pf.apiClient.Call(ctx, "POST", "/api/v1/ipset/passthrough_isolation/"+ansb.A.String()+"/"+valeur+"/1", &unifiedapiclient.DummyReply{})
+							err := pf.apiClient.Call(ctx, "POST", "/api/v1/ipset/passthrough_isolation/"+ansb.A.String()+"/"+valeur+"/?local=1", &unifiedapiclient.DummyReply{})
 							if err != nil {
 								fmt.Println("Not able to contact Unified API to adjust passthroughs", err)
 							}
@@ -129,7 +129,7 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 				switch ansb := ans.(type) {
 				case *dns.A:
 					for _, valeur := range v {
-						err := pf.apiClient.Call(ctx, "POST", "/api/v1/ipset/passthrough/"+ansb.A.String()+"/"+valeur+"/1", &unifiedapiclient.DummyReply{})
+						err := pf.apiClient.Call(ctx, "POST", "/api/v1/ipset/passthrough/"+ansb.A.String()+"/"+valeur+"/?local=1", &unifiedapiclient.DummyReply{})
 						if err != nil {
 							fmt.Println("Not able to contact Unified API to adjust passthroughs", err)
 						}
@@ -149,7 +149,7 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 				switch ansb := ans.(type) {
 				case *dns.A:
 					for _, valeur := range v {
-						err := pf.apiClient.Call(ctx, "POST", "/api/v1/ipset/passthrough/"+ansb.A.String()+"/"+valeur+"/1", &unifiedapiclient.DummyReply{})
+						err := pf.apiClient.Call(ctx, "POST", "/api/v1/ipset/passthrough/"+ansb.A.String()+"/"+valeur+"/?local=1", &unifiedapiclient.DummyReply{})
 						if err != nil {
 							fmt.Println("Not able to contact localhost")
 						}

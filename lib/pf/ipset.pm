@@ -302,9 +302,9 @@ sub iptables_mark_node {
             if ($net_addr->contains($ip)) {
 
                 if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                    call_ipsetd("/ipset/mark_layer3/".$network."/".$mark_type_to_str{$mark}."/".$role_id."/".$iplog."/0",{});
+                    call_ipsetd("/ipset/mark_layer3/".$network."/".$mark_type_to_str{$mark}."/".$role_id."/".$iplog."/?local=0",{});
                 } else {
-                    call_ipsetd("/ipset/mark_layer2/".$network."/".$mark_type_to_str{$mark}."/".$role_id."/".$iplog."/".$mac."/0",{});
+                    call_ipsetd("/ipset/mark_layer2/".$network."/".$mark_type_to_str{$mark}."/".$role_id."/".$iplog."/".$mac."/?local=0",{});
                 }
             }
         } else {
@@ -318,7 +318,7 @@ sub iptables_mark_node {
 sub iptables_unmark_node {
     my ( $self, $mac, $mark ) = @_;
     my $logger = get_logger();
-    call_ipsetd("/ipset/unmark_mac/".$mac."/0",{});
+    call_ipsetd("/ipset/unmark_mac/".$mac."/?local=0",{});
     return (1);
 }
 
