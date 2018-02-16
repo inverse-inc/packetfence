@@ -28,6 +28,8 @@ sub resource {
     foreach my $service (@pf::services::ALL_SERVICES) {
         return 1 if $service_id eq $self->_decode_service_id($service);
     }
+    #$self->render_error(404, { message => $self->status_to_error_msg(404) });
+    $self->render_error(404);
     return undef;
 }
 
@@ -96,7 +98,6 @@ sub _get_service_class {
     $service_id = $self->_decode_service_id($service_id);
     my $class = "pf::services::manager::$service_id";
     if(not $class->can('new')){
-        $self->render_error(400, "Resource not available");
         return undef;
     }
     return $class->new();

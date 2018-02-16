@@ -1,7 +1,7 @@
 /services/:
   get:
-    summary: Returns a list of tenants
-    description: The list of services will be limited to 100 and a cursor will be returned for iterating on other tenants. Iteration is only needed if the nextCursor is not an empty value.
+    summary: Returns a list of available services
+    description: The list of services will be limited to 100 and a cursor will be returned for iterating on other services. Iteration is only needed if the nextCursor is not an empty value.
     parameters:
       - $ref: '#/components/parameters/cursor'
     responses:
@@ -32,7 +32,7 @@
             schema:
               $ref: "#/components/schemas/Service"
       '404':
-        $ref: "#/components/responses/BadRequest"
+        $ref: "#/components/responses/NotFound"
 
 /service/:service/start:
   post:
@@ -50,7 +50,7 @@
       '200':
         $ref: "#/components/schemas/ServiceStart"
       '404':
-        $ref: "#/components/responses/BadRequest"
+        $ref: "#/components/responses/NotFound"
         
 /service/:service/stop:
   post:
@@ -68,7 +68,7 @@
       '200':
         $ref: "#/components/schemas/ServiceStop"
       '404':
-        $ref: "#/components/responses/BadRequest"
+        $ref: "#/components/responses/NotFound"
 
 /service/:service/restart:
   post:
@@ -86,7 +86,7 @@
       '200':
         $ref: "#/components/schemas/ServiceRestart"
       '404':
-        $ref: "#/components/responses/BadRequest"
+        $ref: "#/components/responses/NotFound"
 
 /service/:service/enable:
   post:
@@ -104,7 +104,7 @@
       '200':
         $ref: "#/components/schemas/ServiceEnable"
       '404':
-        $ref: "#/components/responses/BadRequest"
+        $ref: "#/components/responses/NotFound"
 
 /service/:service/disable:
   post:
@@ -122,5 +122,5 @@
       '200':
         $ref: "#/components/schemas/ServiceDisable"
       '404':
-        $ref: "#/components/responses/BadRequest"
+        $ref: "#/components/responses/NotFound"
 
