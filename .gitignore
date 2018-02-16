@@ -172,6 +172,7 @@ raddb/certs/
 
 # documentation build temporary artifacts
 docs/*.pdf
+docs/*.fo
 docs/docbook/xsl/import-fo.xsl
 docs/docbook/xsl/titlepage-fo.xsl
 docs/docbook/*.docbook
