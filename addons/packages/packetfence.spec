@@ -553,11 +553,11 @@ cp -r ChangeLog $RPM_BUILD_ROOT/usr/local/pf/
 cp -r COPYING $RPM_BUILD_ROOT/usr/local/pf/
 cp -r db $RPM_BUILD_ROOT/usr/local/pf/
 cp -r docs $RPM_BUILD_ROOT/usr/local/pf/
-rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/archives
-rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/docbook
-rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/fonts
-rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/images
-rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/api
+rm -rf $RPM_BUILD_ROOT/usr/local/pf/docs/archives
+rm -rf $RPM_BUILD_ROOT/usr/local/pf/docs/docbook
+rm -rf $RPM_BUILD_ROOT/usr/local/pf/docs/fonts
+rm -rf $RPM_BUILD_ROOT/usr/local/pf/docs/images
+rm -rf $RPM_BUILD_ROOT/usr/local/pf/docs/api
 cp -r html $RPM_BUILD_ROOT/usr/local/pf/
 cp -r lib $RPM_BUILD_ROOT/usr/local/pf/
 cp -r go $RPM_BUILD_ROOT/usr/local/pf/
