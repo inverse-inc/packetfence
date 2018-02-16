@@ -25,7 +25,7 @@ sub open {
     my ($self) = @_;
     my $search = $self->param('search');
     my @iplog = pf::ip4log::list_open($search);
-    return $self->render(json => $iplog[0]) if $iplog[0];
+    return $self->render(json => { item => $iplog[0] }) if $iplog[0];
     return $self->render(status => 404, json => { message => $self->status_to_error_msg(404) });
 }
 

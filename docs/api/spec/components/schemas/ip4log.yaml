@@ -17,6 +17,13 @@ Ip4logList:
           type: array
           items:
             $ref: '#/components/schemas/Ip4logWithTenantId'
+            
+Ip4logItem:
+    - type: object
+      properties:
+        item:
+          type: object
+          $ref: "#/components/schemas/Ip4log"
     
 Ip4logWithTenantId:
   allOf:
