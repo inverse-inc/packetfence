@@ -1,0 +1,71 @@
+Enabling Identity Awareness on the Security Gateway
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+To enable Identity Awareness:
+
+1. Log in to 'SmartDashboard'.
+2. From the 'Network Objects tree', expand the 'Check Point branch'.
+3. Double-click the 'Security Gateway' on which to enable 'Identity Awareness'.
+4. In the 'Software Blades' section, select 'Identity Awareness' on the 'Network Security tab'.
+The 'Identity Awareness Configuration' wizard opens.
+5. Select 'one or more options'. These options set the methods for acquiring identities of managed and
+unmanaged assets.
+6. Select 'AD Query - Lets the Security Gateway seamlessly identify Active Directory users and computers' and click Next.
+The 'Integration With Active Directory' window opens.
+7. Select the Active Directory to configure from the list that shows configured LDAP account units or create a new domain. If you have not set up Active Directory, you need to enter a domain name, username, password and domain controller credentials.
+8. Enter the Active Directory credentials and click Connect to verify the credentials. (Important - For AD Query you must enter domain) administrator credentials.
+9. Click Finish.
+
+Enabling RADIUS Accounting on a Security Gateway
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+To enable RADIUS Accounting for a Security Gateway:
+1. In the 'SmartDashboard Network Objects tree', open the Security Gateway.
+2. On the 'General Properties' page, make sure that the Identity Awareness Blade is enabled.
+3. On the 'Identity Awareness' page, select RADIUS Accounting.
+
+Configuring RADIUS Accounting
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+image::docs/images/doc-checkpoint-accounting_settings.png[scaledwidth="50%",alt="Accouting settings"]
+
+1. In the 'Check Point Gateway' window > 'Identity Awareness' panel, click 'Settings' (to the right of the RADIUS Accounting option).
+2. In the 'RADIUS Accounting Settings' window, configure the 'Message Attribute Indices' like this:
+
+[options="compact"]
+* *Device Name*: Calling-Station-Id (31) (MAC Address of the device)
+* *User Name*: User-Name (1) (Username put on the PacketFence Portal)
+* *Device Name*: Framed-IP-Address (8) (IP Address of the device in the production network)
+
+RADIUS Client Access Permissions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Gateway interfaces must be authorized to accept connections from PacketFence RADIUS Accounting.
+
+To select gateway interfaces:
+1. In the 'RADIUS Client Access Permissions' section, click Edit.
+2. Select 'All Interfaces - All Security Gateway interfaces can accept connections from RADIUS Accounting clients'.
+3. Leave the default port to 1813.
+4. Click OK on both windows to submit the configuration.
+5. Select 'Policy' > 'Install' from the SmartDashboard menu.
+
+LDAP Groups
+^^^^^^^^^^^
+Make sure that you have the correct LDAP Objects created on the Checkpoint.
+
+image::docs/images/doc-checkpoint-ldap_groups.png[scaledwidth="100%",alt="LDAP Groups"]
+
+SSO Configuration in PacketFence
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Go to *'Configuration' -> 'Firewall SSO' -> 'Add Firewall' -> 'Checkpoint' *.
+
+[options="compact"]
+* *Hostname or IP Address*: IP of your Checkpoint firewall
+* *Secret or Key*: secret (radius shared secret)
+* *Port*: 1813
+* *Roles*: add the roles that you want to do SSO with
+
+image::docs/images/doc-checkpoint-cfg_SSO_pf.png[scaledwidth="100%",alt="Configure the Checkpoint SSO in PacketFence"]
+
+Verification
+^^^^^^^^^^^^
+You can check the correct log in with the SmartView Tracker under *'Network & Endpoint Queries' -> 'Predefined' -> 'Identity Awareness Blade' -> 'Login Activity'*
+

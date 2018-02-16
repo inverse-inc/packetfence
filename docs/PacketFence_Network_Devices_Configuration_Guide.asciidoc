@@ -60,7 +60,7 @@ List of supported Network Devices
 
 PacketFence supports a whole lot of different wireless and wired network equipment from various vendors running 
 different versions. Since we want to provide the most accurate information and avoid duplication of that same 
-information, please refer to our website https://packetfence.org/about/supported_switches_and_aps.html
+information, please refer to our website https://packetfence.org/about.html#/material
 
 You'll find on this page the enforcement modes supported by each and every single piece of equipment we tested and 
 worked with. 
@@ -4131,43 +4131,8 @@ You can try modules similar to your equipment if any (read appropriate instructi
 
 If none of the above worked then you can fallback to inline enforcement or let us know what equipment you are using on the https://lists.sourceforge.net/lists/listinfo/packetfence-devel[packetfence-devel mailing list].
 
-AeroHIVE
-~~~~~~~~
-
-AeroHIVE products are a bit different compared to the other vendors. They support either a local HiveManager (kind of wireless controller) or a cloud-based HVM. However, the configuration is the same for the local and the cloud-based controller. Note that all the config are made on the HVM and then pushed to the APs. 
-
-[float]
-AAA Client Settings
-+++++++++++++++++++
-
-In the HVM, go to *Configuration -> AAA Authentication -> AAA Client Settings*, and insert the proper properties:
-
-* Give a RADIUS Name
-* Add a RADIUS server with Authentication as the server type and primary as the role
-* Make sure Permit Dynamic Change of Authorization is ticked (RFC 3576)
-
-[float]
-Public SSID
-++++++++++++
-
-Again in the HVM, go to *Configuration -> SSIDs*, and create a new SSID with the following:
-
-* Give a Profile Name and an SSID Name
-* Choose Open as the Access Security 
-* Select Enable MAC Authentication
-* Select your RADIUS server from the RADIUS Server dropdown list
-
-[float]
-Secure SSID
-++++++++++++
-
-In the HVM, go to *Configuration -> SSIDs*, and create a new SSID with the following :
-
-* Give a Profile Name and an SSID Name
-* Choose WPA2 Enterprise as the Access Security 
-* Select WPA2-802.1X as the key management
-* Select CCMP as the encryption method
-* Select your RADIUS server from the RADIUS Server dropdown list
+// Aerohive Networks
+include::networkdevice/aerohive.asciidoc[]
 
 [float]
 Roles (User Profiles)
@@ -4188,155 +4153,18 @@ return for the devices.
 
 In version 6 or later of the HiveOS, we do return VLAN ID matching the number that the *User Profile* has. Create your *User Profile* in the HiveManager as usual, assign the matching VLAN, and in PacketFence configuration add the wanted VLAN ID in the section *Roles by VLAN*.
 
-[float]
-Caching and Roaming
-++++++++++++++++++++
 
-AeroHIVE have a session replication feature to ease the EAP session roaming between two access points. However, this may cause problems when you bounce the wireless card of a client, it will not do a new RADIUS request. Two settings can be tweaked to reduce the caching impact, it is the roaming cache update interval and roaming cache ageout. They are located in *Configuration -> SSIDs -> [SSID Name] -> Optional Settings -> Advanced*.
-The other way to support Roaming is to enable snmp trap in the AeroHIVE configuration to PacketFence server. PacketFence will recognize the ahConnectionChangeEvent and will change the location of the node in his base.
 
-[float]
-External captive portal
-^^^^^^^^^^^^^^^^^^^^^^^
-
-First configure the AAA server as described in the section above in the Hive Manager.
-
-Portal configuration
-++++++++++++++++++++
-* Go in *Configuration -> Authentication -> Captive Web Portals* and create a new portal
-* Select Select *Registration Type* = *External Authentication*
-* Go in the section *Captive Web Portal Login Page Settings* set the *Login URL* to http://<your_captive_portal_ip>/AeroHIVE::AP and *Password Encryption* to *No Encryption*
-* Use the *User Profiles* to define your web authentication VLAN
-* In PacketFence configuration make sure to unselect every *Roles by* in the tab *Roles* while adding the switch, also please select the switch type *AeroHIVE AP*
-
-////
-
-This option is currently broken but will be needed so it redirects the user at the end of the authentication.
-* Go in the section * Captive Web Portal Success Page Settings* and check *Redirect to the initially requested page* at the bottom.
-
-////
-
-[float]
-External portal SSID
-++++++++++++++++++++
-
-Again in the Hive Manager, go to *Configuration -> SSIDs*, and create a new SSID with the following:
-
-* Give a Profile Name and an SSID Name
-* Choose Open as the Access Security 
-* Select Enable Captive Web Portal
-* Select your RADIUS server from the RADIUS Server dropdown list
-
-In the guided configuration you now be able to select your new SSID, the Portal you want to use and the AAA server.
-
-Anyfi
-~~~~~
-
-In this section, we cover the basic configuration of the Anyfi Gateway to create a hotspot SSID available on all access points.
-
-This does not cover the configuration of other Anyfi network elements such as the Controller. Please refer to http://www.anyfinetworks.com/resources[Anyfi Networks' website] for relevant documentation.
-
-In this configuration eth0 will be the management interface of the Anyfi Gateway and eth1 will be the interface that will bridge the tagged packets to your network.
-
-Interfaces configuration
-++++++++++++++++++++++++
-
-  interfaces {
-      bridge br0 {
-          ...
-      }
-      ethernet eth0 {
-          description "Management network"
-          address 192.168.0.20/24
-      }
-      ethernet eth1 {
-          description "Wi-Fi client traffic" 
-          bridge-group {
-              bridge br0
-          }
-      }
-  }
-
-MAC authentication
-^^^^^^^^^^^^^^^^^^
-
-This section will allow you to configure the 'Anyfi-Hotspot' SSID that will use MAC authentication.
-
-SSID configuration
-++++++++++++++++++
-
-  service {
-      anyfi {
-          gateway anyfi-hotspot {
-              accounting {
-                  radius-server 192.168.0.5 {
-                      port 1813
-                      secret useStrongerSecret
-                  }
-              }
-              authorization {
-                  radius-server 192.168.0.5 {
-                      port 1812
-                      secret useStrongerSecret
-                  }
-              }
-              bridge br0
-              controller <Anyfi Controller's IP or FQDN>
-              isolation
-              nas {
-                  identifier anyfi
-                  port 3799
-              }
-              ssid Anyfi-Hotspot
-          }
-      }
-  }
-
-802.1X
-^^^^^^
-
-This section will allow you to configure the 'Anyfi-Secure' SSID that will authenticate users using 802.1X.
-
-SSID configuration
-++++++++++++++++++
-  service {
-      anyfi {
-          gateway secure-gw {
-              accounting {
-                  radius-server 192.168.0.5 {
-                      port 1813
-                      secret useStrongerSecret
-                  }
-              }
-              authentication {
-                  eap {
-                      radius-server 192.168.0.5 {
-                          port 1812
-                          secret useStrongerSecret
-                      }
-                  }
-              }
-              bridge br0
-              controller <Anyfi Controller's IP or FQDN>
-              isolation
-              nas {
-                  identifier anyfi
-                  port 3799
-              }
-              ssid Anyfi-Secure
-              wpa2 {
-              }
-          }
-      }
-  }
+// Anyfi Networks
+include::networkdevice/anyfi.asciidoc[]
 
 Avaya
 ~~~~~
 
-Wireless Controller (WC)
-^^^^^^^^^^^^^^^^^^^^^^^^
+Wireless Controller
+^^^^^^^^^^^^^^^^^^^
 
-  To be contributed....
+NOTE: To be contributed....
 
 Aruba
 ~~~~~
@@ -4886,7 +4714,7 @@ image::docs/images/cisco-wlc-interface-ssid.png[scaledwidth="100%",alt="SSID Int
 You are good to go!
 
 Wireless LAN Controller (WLC) Web Auth
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+++++++++++++++++++++++++++++++++++++++
 
 In this section, we cover the basic configuration of the WLC Web Auth for PacketFence using the web interface.
 The idea is to forward the device to the captive portal with an ACL if the device is in an unreg state and 
@@ -4935,12 +4763,17 @@ Role definition
 image::docs/images/WLC_PACKETFENCE2.png[scaledwidth="100%",alt="ACL"]
 
 Troubleshooting ignored RADIUS replies
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In the event the WLC ignores the RADIUS replies from PacketFence (you receive multiple requests but access is never granted), validate the following elements : 
 
 * RADIUS secret is properly configured in PacketFence and the WLC controller.
 * The SSL certificate used by PacketFence is not expired.
+
+// CoovaChilli
+
+include::networkdevice/coovachilli.asciidoc[]
+
 
 D-Link
 ~~~~~~
@@ -4948,7 +4781,7 @@ D-Link
 DWL Access-Points and DWS 3026
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-  To be contributed...
+NOTE: To be contributed...
 
 
 Extricom
@@ -5022,72 +4855,9 @@ RADIUS
  FGT50E (PF-Secure) # set dynamic-vlan enable
  FGT50E (PF-Secure) # end
 
-Hostapd
-~~~~~~~
+// Hostapd
 
-OpenWRT
-^^^^^^^
-
-In this section, we cover the basic configuration of the OpenWRT access point (Hostapd software).
-Hostapd must have been compiled with dynamic vlan support and you need to create a file /etc/config/hostapd.vlan that contain:
-
-  *           wlan0.#
-
-And you need to replace the /lib/wifi/hostapd.sh script file with the one included in /usr/local/pf/addons/hostapd
-
-[float]
-Open SSID
-+++++++++
-
-Configure your SSID using uci command:
-
-  uci add_list wireless.@wifi-iface[0]=wifi-iface
-  uci add_list wireless.@wifi-iface[0].device=radio0
-  uci add_list wireless.@wifi-iface[0].mode=ap
-  uci add_list wireless.@wifi-iface[0].ssid=OpenWrt-OPEN
-  uci add_list wireless.@wifi-iface[0].network=lan
-  uci add_list wireless.@wifi-iface[0].encryption=none
-  uci add_list wireless.@wifi-iface[0].auth_server=192.168.1.5
-  uci add_list wireless.@wifi-iface[0].auth_port=1812
-  uci add_list wireless.@wifi-iface[0].auth_secret=useStrongerSecret
-  uci add_list wireless.@wifi-iface[0].dynamic_vlan=2
-  uci add_list wireless.@wifi-iface[0].vlan_file=/etc/config/hostapd.vlan
-  uci add_list wireless.@wifi-iface[0].vlan_tagged_interface=eth0
-  uci add_list wireless.@wifi-iface[0].radius_das_port=3799
-  uci add_list wireless.@wifi-iface[0].radius_das_client='192.168.1.5 useStrongerSecret'
-  uci add_list wireless.@wifi-iface[0].macfilter=2
-
-[float]
-Secure SSID
-+++++++++++
-
-Configure your SSID using uci command:
-
-  uci add_list wireless.@wifi-iface[0]=wifi-iface
-  uci add_list wireless.@wifi-iface[0].device=radio0
-  uci add_list wireless.@wifi-iface[0].mode=ap
-  uci add_list wireless.@wifi-iface[0].ssid=OpenWrt-SECURE
-  uci add_list wireless.@wifi-iface[0].network=lan
-  uci add_list wireless.@wifi-iface[0].auth_server=192.168.1.5
-  uci add_list wireless.@wifi-iface[0].auth_port=1812
-  uci add_list wireless.@wifi-iface[0].auth_secret=useStrongerSecret
-  uci add_list wireless.@wifi-iface[0].dynamic_vlan=2
-  uci add_list wireless.@wifi-iface[0].vlan_file=/etc/config/hostapd.vlan
-  uci add_list wireless.@wifi-iface[0].vlan_tagged_interface=eth0
-  uci add_list wireless.@wifi-iface[0].radius_das_port=3799
-  uci add_list wireless.@wifi-iface[0].radius_das_client='192.168.1.5 useStrongerSecret'
-  uci add_list wireless.@wifi-iface[0].encryption=wpa2
-  uci add_list wireless.@wifi-iface[0].acct_server=192.168.1.5
-  uci add_list wireless.@wifi-iface[0].acct_port=1813
-  uci add_list wireless.@wifi-iface[0].acct_secret=s3cr3t
-  uci add_list wireless.@wifi-iface[0].nasid=ubiquiti
-
-Then launch 'uci commit wireless' and 'wifi' command to enable your configuration
-
-Hostapd (software)
-^^^^^^^^^^^^^^^^^^
-
-To configure Hostapd software you can use the same configuration parameters above in the configuration file.
+include::networkdevice/hostapd.asciidoc[]
 
 Meraki
 ~~~~~~
@@ -5817,7 +5587,7 @@ Next, you need to configure the Alarm Settings.  Under *Configure > Alarm Settin
 
 Finally, enable the WIPS feature on the controller.  Under *Configure > WIPS > Intrusion Detection and Prevention*, make sure both box are selected, click Apply. 
 
-Web authentication
+Web Authentication
 ^^^^^^^^^^^^^^^^^^
 
 In order to use PacketFence as an external captive portal for web authentication, you will need to configure first your RADIUS authentication and accounting server (see steps above).
@@ -5860,7 +5630,7 @@ Save your configuration.
 PacketFence configuration
 +++++++++++++++++++++++++
 
-On the ZoneDirector configuration in PacketFence, you will need to specify -1 as the registration vlan in order to display the captive portal to the end device. 
+On the ZoneDirector configuration in PacketFence, you will need to specify -1 as the registration VLAN in order to display the captive portal to the end device. 
 
 You will need to deactivate the force secure redirect on the captive portal under *Configuration->Captive Portal->Secure redirect->Unchecked*
 
