@@ -12,7 +12,9 @@
     prefix api
   }
 
-  cors
+  cors /api/v1 {
+    allowed_headers Content-Type
+  }
 
   api-aaa
 
