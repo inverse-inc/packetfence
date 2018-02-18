@@ -14,7 +14,8 @@ Authentication::Rule).
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
-with 'pfappserver::Base::Form::Role::AllowedOptions';
+with 'pfappserver::Base::Form::Role::AllowedOptions',
+     'pfappserver::Role::Form::RolesAttribute';
 
 use HTTP::Status qw(:constants is_success);
 use List::MoreUtils qw(uniq);
@@ -187,8 +188,8 @@ sub options_roles {
     my $self = shift;
     my @options_values = $self->form->_get_allowed_options('allowed_roles');
     unless( @options_values ) {
-        my ($status, $result) = $self->form->ctx->model('Config::Roles')->listFromDB();
-        @options_values = map { $_->{name} } @$result if (is_success($status));
+        my $result = $self->form->roles;
+        @options_values = map { $_->{name} } @$result;
     }
     # Build a list of existing roles
     return map { { value => $_, label => $_ } } @options_values;

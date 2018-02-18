@@ -84,7 +84,7 @@ sub cleanupAfterRead {
         next unless  $sub_section =~ /^$id rule (.*)$/;
         my $id = $1;
         my $rule = $self->readRaw($sub_section);
-        my $class = delete $rule->{class};
+        my $class = delete $rule->{class} // $Rules::AUTH;
         $rule->{id} = $id;
         my @action_keys = nsort grep {/^action\d+$/} keys %$rule;
         $rule->{actions} = [delete @$rule{@action_keys}];

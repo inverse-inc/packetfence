@@ -168,6 +168,7 @@ our @API_V1_ROUTES = (
         Config::Domains
         Config::DeviceRegistrations
         Config::MaintenanceTasks
+        Config::Sources
     ),
 );
 
