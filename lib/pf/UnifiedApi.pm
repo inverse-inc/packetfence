@@ -170,6 +170,7 @@ our @API_V1_ROUTES = (
         Config::MaintenanceTasks
         Config::Sources
         Config::SyslogParsers
+        Config::PortalModules
     ),
 );
 
