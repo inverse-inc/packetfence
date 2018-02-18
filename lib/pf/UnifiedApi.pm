@@ -169,6 +169,7 @@ our @API_V1_ROUTES = (
         Config::DeviceRegistrations
         Config::MaintenanceTasks
         Config::Sources
+        Config::SyslogParsers
     ),
 );
 
