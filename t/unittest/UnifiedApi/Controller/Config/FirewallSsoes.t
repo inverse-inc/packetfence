@@ -1,36 +1,54 @@
-package pfappserver::Form::Config::Firewall_SSO::FortiGate;
+#!/usr/bin/perl
 
 =head1 NAME
 
-pfappserver::Form::Config::Firewall_SSO::FortiGate - Web form to add a Fortigate firewall
-
-=head1 DESCRIPTION
-
-Form definition to create or update a Fortigate firewall.
+Firewall_SSoes
 
 =cut
 
-use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::Config::Firewall_SSO';
-with 'pfappserver::Base::Form::Role::Help';
+=head1 DESCRIPTION
 
-use pf::config;
-use pf::util;
-use File::Find qw(find);
+unit test for Firewall_SSoes
 
-has_field '+port' =>
-  (
-   default => 1813,
-  );
-has_field 'type' =>
-  (
-   type => 'Hidden',
-  );
+=cut
 
-has_block definition =>
-  (
-   render_list => [ qw(id type password port categories networks cache_updates cache_timeout username_format default_realm) ],
-  );
+use strict;
+use warnings;
+#
+use lib qw(
+    /usr/local/pf/lib
+);
+
+BEGIN {
+    #include test libs
+    use lib qw(/usr/local/pf/t);
+    #Module for overriding configuration paths
+    use setup_test_config;
+}
+
+use Test::More tests => 7;
+use Test::Mojo;
+
+#This test will running last
+use Test::NoWarnings;
+my $t = Test::Mojo->new('pf::UnifiedApi');
+
+my $collection_base_url = '/api/v1/config/firewall_ssoes';
+
+my $base_url = '/api/v1/config/firewall_sso';
+
+$t->get_ok($collection_base_url)
+  ->status_is(200);
+
+$t->post_ok($collection_base_url => json => {})
+  ->status_is(417);
+
+$t->post_ok($collection_base_url, {'Content-Type' => 'application/json'} => '{')
+  ->status_is(400);
+
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
@@ -55,6 +73,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
-
 1;
+
