@@ -435,9 +435,6 @@ var directives = []string{
 	"statsd",
 	"pfconfigpool",
 
-	// AAA for the API
-	"api-aaa",
-
 	// directives that add middleware to the stack
 	"locale", // github.com/simia-tech/caddy-locale
 	"log",
@@ -453,6 +450,10 @@ var directives = []string{
 	"search",    // github.com/pedronasser/caddy-search
 	"expires",   // github.com/epicagency/caddy-expires
 	"basicauth",
+
+	// AAA for the API
+	"api-aaa",
+
 	"redir",
 	"status",
 	"cors", // github.com/captncraig/cors/caddy
