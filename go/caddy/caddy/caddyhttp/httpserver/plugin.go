@@ -430,7 +430,7 @@ var directives = []string{
 	"realip", // github.com/captncraig/caddy-realip
 	"git",    // github.com/abiosoft/caddy-git
 
-	// PacketFence plugins
+	// PACKETFENCE plugins
 	"logger",
 	"statsd",
 	"pfconfigpool",
@@ -442,6 +442,10 @@ var directives = []string{
 	"ext",
 	"gzip",
 	"header",
+
+	// PACKETFENCE
+	"cors",
+
 	"errors",
 	"filter",    // github.com/echocat/caddy-filter
 	"minify",    // github.com/hacdias/caddy-minify
@@ -451,12 +455,11 @@ var directives = []string{
 	"expires",   // github.com/epicagency/caddy-expires
 	"basicauth",
 
-	// AAA for the API
+	// PACKETFENCE AAA for the API
 	"api-aaa",
 
 	"redir",
 	"status",
-	"cors", // github.com/captncraig/cors/caddy
 	"mime",
 	"jwt",       // github.com/BTBurke/caddy-jwt
 	"jsonp",     // github.com/pschlump/caddy-jsonp
@@ -478,7 +481,7 @@ var directives = []string{
 	"mailout",   // github.com/SchumacherFM/mailout
 	"awslambda", // github.com/coopernurse/caddy-awslambda
 
-	// PacketFence service implementations
+	// PACKETFENCE service implementations
 	"forwardproxy",
 	"pfsso",
 	"pfipset",

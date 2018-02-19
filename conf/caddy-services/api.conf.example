@@ -12,6 +12,8 @@
     prefix api
   }
 
+  cors
+
   api-aaa
 
   # pfipset API access
