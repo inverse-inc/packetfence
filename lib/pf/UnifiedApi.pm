@@ -158,25 +158,25 @@ our @API_V1_ROUTES = (
         },      
     qw(
         Config::AdminRoles
-        Config::ConnectionProfiles
-        Config::BillingTiers
-        Config::FloatingDevices
-        Config::Switches
-        Config::Roles
-        Config::Violations
-        Config::TrafficShapings
-        Config::Domains
-        Config::DeviceRegistrations
-        Config::MaintenanceTasks
-        Config::Sources
-        Config::SyslogParsers
-        Config::PortalModules
-        Config::FirewallSsoes
-        Config::PkiProviders
-        Config::Scans
         Config::Bases
+        Config::BillingTiers
+        Config::ConnectionProfiles
+        Config::DeviceRegistrations
+        Config::Domains
+        Config::FirewallSsoes
+        Config::FloatingDevices
+        Config::MaintenanceTasks
+        Config::PkiProviders
+        Config::PortalModules
         Config::Realms
+        Config::Roles
+        Config::Scans
+        Config::Sources
+        Config::Switches
         Config::SwitchGroups
+        Config::SyslogParsers
+        Config::TrafficShapings
+        Config::Violations
     ),
 );
 
