@@ -25,7 +25,7 @@ BEGIN {
     use setup_test_config;
 }
 #run tests
-use Test::More tests => 29;
+use Test::More tests => 33;
 use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
