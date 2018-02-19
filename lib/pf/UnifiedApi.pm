@@ -173,6 +173,7 @@ our @API_V1_ROUTES = (
         Config::PortalModules
         Config::FirewallSsoes
         Config::PkiProviders
+        Config::Scans
     ),
 );
 

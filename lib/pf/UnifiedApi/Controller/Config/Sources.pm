@@ -10,8 +10,6 @@ pf::UnifiedApi::Controller::Config::Sources -
 
 pf::UnifiedApi::Controller::Config::Sources
 
-
-
 =cut
 
 use strict;
@@ -23,7 +21,6 @@ use Mojo::Base qw(pf::UnifiedApi::Controller::Config::Subtype);
 has 'config_store_class' => 'pf::ConfigStore::Source';
 has 'form_class' => 'pfappserver::Form::Config::Source';
 has 'primary_key' => 'source_id';
-
 
 use pf::ConfigStore::Source;
 use pfappserver::Form::Config::Source;

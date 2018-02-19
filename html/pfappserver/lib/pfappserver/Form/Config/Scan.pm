@@ -12,15 +12,13 @@ Form definition to create or update a scan engine.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
-with 'pfappserver::Base::Form::Role::Help';
+with 'pfappserver::Base::Form::Role::Help',
+     'pfappserver::Role::Form::RolesAttribute';
 
 use pf::config;
 use pf::file_paths qw($lib_dir);
 use pf::util;
 use File::Find qw(find);
-
-## Definition
-has 'roles' => (is => 'ro', default => sub {[]});
 
 has_field 'id' =>
   (
@@ -158,7 +156,7 @@ sub options_type {
 sub options_categories {
     my $self = shift;
 
-    my ($status, $result) = $self->form->ctx->model('Config::Roles')->listFromDB();
+    my $result = $self->form->roles;
     my @roles = map { $_->{name} => $_->{name} } @{$result} if ($result);
     return ('' => '', @roles);
 }
