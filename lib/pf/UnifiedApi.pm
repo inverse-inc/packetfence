@@ -175,6 +175,7 @@ our @API_V1_ROUTES = (
         Config::PkiProviders
         Config::Scans
         Config::Bases
+        Config::Realms
     ),
 );
 
