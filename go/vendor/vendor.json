@@ -41,6 +41,12 @@
 			"revisionTime": "2018-01-23T11:02:36Z"
 		},
 		{
+			"checksumSHA1": "tUgXBXenOQuuy4lkOQUNv7m2LdQ=",
+			"path": "github.com/captncraig/cors",
+			"revision": "153f484dcf3da8d204585836c3bc4b2ce326ab54",
+			"revisionTime": "2017-05-07T23:23:44Z"
+		},
+		{
 			"checksumSHA1": "Pg024ChzRtLcCltUEAOkxTsCLa8=",
 			"path": "github.com/cevaris/ordered_map",
 			"revision": "01ce2b16ad4f7522692d9af8337722216a1038bb",
@@ -198,15 +204,15 @@
 			"revisionTime": "2016-11-15T14:25:13Z"
 		},
 		{
+			"path": "github.com/go-sql-driver/mysql",
+			"revision": "cd4cb909ce1a31435164be29bf3682031f61539a",
+			"revisionTime": "2017-11-17T11:51:24Z"
+		},
+		{
 			"checksumSHA1": "ZbU8qGzETzJZ2t30LmHxla5PLMY=",
 			"path": "github.com/go-sql-driver/mysql",
 			"revision": "bc14601d1bd56421dd60f561e6052c9ed77f9daf",
 			"revisionTime": "2018-01-25T05:47:45Z"
-		},
-		{
-			"path": "github.com/go-sql-driver/mysql",
-			"revision": "cd4cb909ce1a31435164be29bf3682031f61539a",
-			"revisionTime": "2017-11-17T11:51:24Z"
 		},
 		{
 			"checksumSHA1": "2sj/DbXoXdnPAfjAEyhS0Jj5QL0=",
@@ -695,12 +701,6 @@
 			"revisionTime": "2017-10-11T18:22:19Z"
 		},
 		{
-			"checksumSHA1": "dbCyfwJUzcbK++W9uTk9KBE3JGY=",
-			"path": "github.com/simon/go-netadv",
-			"revision": "fe67988531c7199ac1fe5e0784f49352cb297f7d",
-			"revisionTime": "2017-06-02T08:15:15Z"
-    },
-    {
 			"checksumSHA1": "zmC8/3V4ls53DJlNTKDZwPSC/dA=",
 			"path": "github.com/satori/go.uuid",
 			"revision": "5bf94b69c6b68ee1b541973bb8e1144db23a194b",
@@ -711,6 +711,12 @@
 			"path": "github.com/shurcooL/sanitized_anchor_name",
 			"revision": "1dba4b3954bc059efc3991ec364f9f9a35f597d2",
 			"revisionTime": "2016-09-18T04:11:01Z"
+		},
+		{
+			"checksumSHA1": "dbCyfwJUzcbK++W9uTk9KBE3JGY=",
+			"path": "github.com/simon/go-netadv",
+			"revision": "fe67988531c7199ac1fe5e0784f49352cb297f7d",
+			"revisionTime": "2017-06-02T08:15:15Z"
 		},
 		{
 			"checksumSHA1": "jfZXHaqz+j9mVCF3f5DV2+0/FD4=",
