@@ -21,16 +21,15 @@ BEGIN {
     use lib qw(/usr/local/pf/t);
     #Module for overriding configuration paths
     use setup_test_config;
+
+    #increase "inactivity timeout"
+    $ENV{MOJO_INACTIVITY_TIMEOUT} = "300";
 }
 
 #run tests
-#use Test::More tests => 1000;
+use Test::More;
 use Test::Mojo;
-use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
-
-#increase "inactivity timeout"
-$t->ua->inactivity_timeout(60);
 
 $t->get_ok("/api/v1/services" => json => { }) 
     ->json_has('/items')
@@ -94,7 +93,8 @@ foreach my $service (@$services) {
   }
 }
 
-  
+done_testing();
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

@@ -17,20 +17,22 @@ use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use pf::services;
 
-sub list {
-    my ($self) = @_;
-    $self->render(json => { items => [ @pf::services::ALL_SERVICES ] });
-}
-
 sub resource {
     my ($self) = @_;
-    my $service_id = $self->_decode_service_id($self->param('service_id'));
-    foreach my $service (@pf::services::ALL_SERVICES) {
-        return 1 if $service_id eq $self->_decode_service_id($service);
-    }
-    #$self->render_error(404, { message => $self->status_to_error_msg(404) });
-    $self->render_error(404);
+
+    my $service_id = $self->param('service_id');
+
+    my $class = $self->_get_service_class($service_id);
+
+    return 1 if defined($class);
+    $self->render_error(404, { message => $self->status_to_error_msg(404) });
     return undef;
+}
+
+
+sub list {
+    my ($self) = @_;
+    $self->render(json => { items => [ map {$_->name} @pf::services::ALL_MANAGERS ] });
 }
 
 sub status {
@@ -95,12 +97,14 @@ sub _decode_service_id {
 
 sub _get_service_class {
     my ($self, $service_id) = @_;
-    $service_id = $self->_decode_service_id($service_id);
-    my $class = "pf::services::manager::$service_id";
-    if(not $class->can('new')){
+    my $class = $pf::services::ALL_MANAGERS{$service_id};
+    if(defined($class) && $class->can('new')){
+        return $class;
+    }
+    else {
+        $self->log->error("Unable to find a service manager by the name of $service_id");
         return undef;
     }
-    return $class->new();
 }
 
 =head1 AUTHOR

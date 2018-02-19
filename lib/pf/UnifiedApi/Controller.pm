@@ -15,6 +15,19 @@ pf::UnifiedApi::Controller
 use strict;
 use warnings;
 use Mojo::Base 'Mojolicious::Controller';
+has activity_timeout => 300;
+
+our $ERROR_400_MSG = "Bad Request. One of the submitted parameters has an invalid format";
+our $ERROR_404_MSG = "Not Found. The requested resource could not be found";
+our $ERROR_409_MSG = "An attempt to add a duplicate entry was stopped. Entry already exists and should be modified instead of created.";
+our $ERROR_422_MSG = "Request cannot be processed because the resource has failed validation after the modification.";
+
+our %STATUS_TO_MSG = (
+    400 => $ERROR_400_MSG,
+    404 => $ERROR_404_MSG,
+    409 => $ERROR_409_MSG,
+    422 => $ERROR_422_MSG,
+);
 
 sub log {
     my ($self) = @_;
@@ -32,6 +45,11 @@ sub render_error {
 sub render_empty {
     my ($self) = @_;
     return $self->render(text => '', status => 204);
+}
+
+sub status_to_error_msg {
+    my ($self, $status) = @_;
+    return exists $STATUS_TO_MSG{$status} ? $STATUS_TO_MSG{$status} : "Server error";
 }
 
 =head1 AUTHOR
