@@ -162,6 +162,22 @@ html/pfappserver/pfappserver.conf
 html/captive-portal/captiveportal.conf
 nytprof/
 
+# Monitoring (netdata)
+conf/monitoring/apps_groups.conf
+conf/monitoring/charts.d.conf
+conf/monitoring/charts.d/
+conf/monitoring/health.d/
+conf/monitoring/fping.conf
+conf/monitoring/health_alarm_notify.conf
+conf/monitoring/health_email_recipients.conf
+conf/monitoring/netdata.conf
+conf/monitoring/python.d.conf
+conf/monitoring/python.d/
+conf/monitoring/statsd.d/example.conf
+conf/monitoring/stream.conf
+conf/stats.conf
+conf/monitoring/node.d.conf
+
 
 # translations
 conf/locale/*/*/*.mo
