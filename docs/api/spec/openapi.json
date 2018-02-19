@@ -276,6 +276,65 @@
           }
         ]
       },
+      "DhcpOption82": {
+        "properties": {
+          "circuit_id_string": {
+            "description": "Encoded agent-local identifier from which a DHCP client-to-server packet was received",
+            "type": "string"
+          },
+          "created_at": {
+            "description": "The date/time of when this record was created",
+            "type": "string"
+          },
+          "host": {
+            "description": "The stripped MAC address of the switch",
+            "type": "string"
+          },
+          "mac": {
+            "description": "The clients MAC address",
+            "type": "string"
+          },
+          "module": {
+            "description": "The number of the Cisco stacked switch",
+            "type": "integer"
+          },
+          "option82_switch": {
+            "description": "The IPv4 address of the switch",
+            "type": "string"
+          },
+          "port": {
+            "description": "The numeric port number of the switch",
+            "type": "integer"
+          },
+          "switch_id": {
+            "description": "The unique identifier of the switch",
+            "type": "string"
+          },
+          "vlan": {
+            "description": "The numeric VLAN identifier",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "DhcpOption82List": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Iterable"
+          },
+          {
+            "properties": {
+              "items": {
+                "items": {
+                  "$ref": "#/components/schemas/DhcpOption82"
+                },
+                "type": "array"
+              }
+            },
+            "type": "object"
+          }
+        ]
+      },
       "ErrorsWithMessage": {
         "properties": {
           "errors": {
@@ -1131,6 +1190,207 @@
           }
         },
         "summary": "Allows to update a whole connection profile"
+      }
+    },
+    "/dhcp_option82/{mac}": {
+      "delete": {
+        "parameters": [
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted dhcp option 82 log entry"
+          }
+        },
+        "summary": "Allows to delete a dhcp option 82 log entry"
+      },
+      "get": {
+        "parameters": [
+          {
+            "description": "The MAC address to fetch.",
+            "in": "path",
+            "name": "mac",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "item": {
+                      "$ref": "#/components/schemas/DhcpOption82"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "A specific dhcp option82 log."
+          }
+        },
+        "summary": "Returns a specific dhcp option 82 log by a MAC address."
+      },
+      "patch": {
+        "parameters": [
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DhcpOption82"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Message"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        },
+        "summary": "Allows to update parts of a dhcp option 82 log entry."
+      },
+      "put": {
+        "parameters": [
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DhcpOption82"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Message"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        },
+        "summary": "Allows to update a whole dhcp option 82 log entry."
+      }
+    },
+    "/dhcp_option82s": {
+      "get": {
+        "description": "The list of logs will be limited to 100 and a cursor will be returned for iterating on other logs. Iteration is only needed if the nextCursor is not an empty value.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/cursor"
+          },
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DhcpOption82List"
+                }
+              }
+            },
+            "description": "List of dhcp option 82 logs."
+          }
+        },
+        "summary": "Returns a list of dhcp option 82 logs."
+      },
+      "post": {
+        "parameters": [
+          {
+            "description": "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+            "in": "header",
+            "name": "X-PacketFence-Tenant-Id",
+            "required": 0,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DhcpOption82"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/Created"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/components/responses/Duplicate"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        },
+        "summary": "Creates a dhcp option 82 log entry."
       }
     },
     "/login": {
