@@ -176,6 +176,7 @@ our @API_V1_ROUTES = (
         Config::Scans
         Config::Bases
         Config::Realms
+        Config::SwitchGroups
     ),
 );
 

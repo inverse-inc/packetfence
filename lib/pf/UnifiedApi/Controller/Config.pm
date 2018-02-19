@@ -52,6 +52,7 @@ sub resource {
     if (!$cs->hasId($id)) {
         return $self->render_error(404, "Item ($id) not found");
     }
+
     return 1;
 }
 
@@ -96,10 +97,12 @@ sub create {
     if (defined $error) {
         return $self->render_error(400, "Bad Request : $error");
     }
+
     my $id = $item->{id};
     my $cs = $self->config_store;
     if (!defined $id) {
         $self->render_error(417, "Unable to validate", [{ id => "id field is required"}]);
+        return 0;
     }
 
     if ($cs->hasId($id)) {
