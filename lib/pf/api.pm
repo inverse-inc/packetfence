@@ -1351,9 +1351,6 @@ sub handle_accounting_metadata : Public {
         if (pf::util::isenabled($pf::config::Config{advanced}{unreg_on_accounting_stop})) {
            $client->notify("deregister_node", mac => $mac);
         }
-    }
-
-        }
         else {
             pf::log::get_logger->debug("Not handling iplog update because we're not configured to do so on accounting packets.");
         }
