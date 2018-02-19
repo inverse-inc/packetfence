@@ -65,10 +65,10 @@ $t->get_ok('/api/v1/ip4logs' => json => { })
   
 #run unittest on list by mac
 $t->get_ok('/api/v1/ip4logs/open/'.$mac => json => { })
-  ->json_is('/end_time',$dt_format->format_datetime($dt_end))
-  ->json_is('/ip',$ip)
-  ->json_is('/start_time',$dt_format->format_datetime($dt_start))
-  ->json_is('/mac',$mac)
+  ->json_is('/item/end_time',$dt_format->format_datetime($dt_end))
+  ->json_is('/item/ip',$ip)
+  ->json_is('/item/start_time',$dt_format->format_datetime($dt_start))
+  ->json_is('/item/mac',$mac)
   ->status_is(200);
   
 #run unittest on history list by mac
