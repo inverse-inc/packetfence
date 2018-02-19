@@ -1,0 +1,16 @@
+MacAddressList:
+  allOf:
+    - $ref: "#/components/schemas/Iterable"
+    - type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/MacAddress"
+
+MacAddress:
+  type: object
+  properties:
+    mac:
+      type: string
+      description: The MAC address.

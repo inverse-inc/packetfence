@@ -69,7 +69,14 @@ our @API_V1_ROUTES = (
     { controller => 'ApiUsers' },
     { controller => 'Locationlogs' },
     { controller => 'Config::ConnectionProfiles' },
-    { controller => 'Violations', },
+    { 
+        controller => 'Violations',
+        collection => {
+            subroutes    => {
+                'by_mac/:search' => { get => 'by_mac' },                
+            },
+        },      
+    },
     {
         controller  => 'Reports',
         resource    => undef,
