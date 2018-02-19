@@ -172,6 +172,7 @@ our @API_V1_ROUTES = (
         Config::SyslogParsers
         Config::PortalModules
         Config::FirewallSsoes
+        Config::PkiProviders
     ),
 );
 
