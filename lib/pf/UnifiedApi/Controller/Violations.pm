@@ -21,7 +21,7 @@ has dal => 'pf::dal::violation';
 has url_param_name => 'violation_id';
 has primary_key => 'id';
 
-sub mac {
+sub by_mac {
     my ($self) = @_;
     my $search = $self->param('search');
     return $self->_search_by_mac($search) if pf::util::valid_mac($search);

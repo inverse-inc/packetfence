@@ -73,7 +73,7 @@ our @API_V1_ROUTES = (
         controller => 'Violations',
         collection => {
             subroutes    => {
-                'mac/:search' => { get => 'mac' },                
+                'by_mac/:search' => { get => 'by_mac' },                
             },
         },      
     },

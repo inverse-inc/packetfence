@@ -4,7 +4,6 @@
     description: The list of vilations will be limited to 100 and a cursor will be returned for iterating on other violations. Iteration is only needed if the nextCursor is not an empty value.
     parameters:
       - $ref: '#/components/parameters/cursor'
-      - $ref: '#/components/parameters/additional_fields'
     responses:
       '200':
         description: List of violations
@@ -30,14 +29,10 @@
       '422':
         $ref: "#/components/responses/UnprocessableEntity"
 
-'/violation/mac/{mac}':
+'/violations/by_mac/{mac}':
   get:
     summary: Allows to search through violations by MAC address
     description: The list of violations will be limited to 100 and a cursor will be returned for iterating on other violations. Iteration is only needed if the nextCursor is not an empty value.
-    parameters:
-      - $ref: '#/components/parameters/search'
-      - $ref: '#/components/parameters/logic_operator'
-      - $ref: '#/components/parameters/additional_fields'
     responses:
       '200':
         description: List of violation
@@ -50,7 +45,6 @@
   get:
     summary: Returns a specific violation by its ID
     parameters:
-      - $ref: '#/components/parameters/additional_fields'
       - name: violation_id
         in: path
         required: true
