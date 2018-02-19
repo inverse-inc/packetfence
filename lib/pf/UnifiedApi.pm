@@ -120,6 +120,16 @@ our @API_V1_ROUTES = (
         },
     },
     { controller => 'DhcpOption82s' },
+    {
+        controller  => 'Ip4logs',
+        collection => {
+            subroutes    => {
+                'history/:search' => { get => 'history' },
+                'archive/:search' => { get => 'archive' },
+                'open/:search' => { get => 'open' }, 
+            },
+        },
+    },    
 );
 
 sub startup {
