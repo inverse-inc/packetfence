@@ -1249,6 +1249,118 @@ paths:
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
       summary: Allows to update the whole password entry for a user
+  /violation/{violation_id}:
+    delete:
+      parameters:
+      - *1
+      responses:
+        '204':
+          description: Deleted violation
+      summary: Allows to delete a violation
+    get:
+      parameters:
+      - description: The violation ID to fetch
+        in: path
+        name: violation_id
+        required: true
+        schema:
+          type: string
+      - *1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  item:
+                    $ref: '#/components/schemas/Violation'
+                type: object
+          description: A specific violation
+      summary: Returns a specific violation by its ID
+    patch:
+      parameters:
+      - *1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Violation'
+        required: true
+      responses:
+        '200':
+          $ref: '#/components/responses/Message'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+      summary: Allows to update parts of a violation
+    put:
+      parameters:
+      - *1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Violation'
+        required: true
+      responses:
+        '200':
+          $ref: '#/components/responses/Message'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+      summary: Allows to update a whole violation
+  /violations:
+    get:
+      description: The list of vilations will be limited to 100 and a cursor will
+        be returned for iterating on other violations. Iteration is only needed if
+        the nextCursor is not an empty value.
+      parameters:
+      - $ref: '#/components/parameters/cursor'
+      - *1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViolationList'
+          description: List of violations
+      summary: Returns a list of violations
+    post:
+      parameters:
+      - *1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Violation'
+        required: true
+      responses:
+        '201':
+          $ref: '#/components/responses/Created'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Duplicate'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+      summary: Creates a violation
+  /violations/by_mac/{mac}:
+    get:
+      description: The list of violations will be limited to 100 and a cursor will
+        be returned for iterating on other violations. Iteration is only needed if
+        the nextCursor is not an empty value.
+      parameters:
+      - *1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViolationList'
+          description: List of violation
+      summary: Allows to search through violations by MAC address
 security:
 - bearerAuth: []
 servers:
