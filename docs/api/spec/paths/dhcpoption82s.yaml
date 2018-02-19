@@ -1,0 +1,86 @@
+/dhcp_option82s:
+  get:
+    summary: Returns a list of dhcp option 82 logs.
+    description: The list of logs will be limited to 100 and a cursor will be returned for iterating on other logs. Iteration is only needed if the nextCursor is not an empty value.
+    parameters:
+      - $ref: '#/components/parameters/cursor'
+    responses:
+      '200':
+        description: List of dhcp option 82 logs.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DhcpOption82List"
+  post:
+    summary: Creates a dhcp option 82 log entry.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/DhcpOption82"
+    responses:
+      '201':
+        $ref: "#/components/responses/Created"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '409':
+        $ref: "#/components/responses/Duplicate"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+
+'/dhcp_option82/{mac}':
+  get:
+    summary: Returns a specific dhcp option 82 log by a MAC address.
+    parameters:
+      - name: mac
+        in: path
+        required: true
+        description: The MAC address to fetch.
+        schema:
+          type: string
+    responses:
+      '200':
+        description: A specific dhcp option82 log.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                item:
+                  $ref: "#/components/schemas/DhcpOption82"
+  put:
+    summary: Allows to update a whole dhcp option 82 log entry.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/DhcpOption82"
+    responses:
+      '200':
+        $ref: "#/components/responses/Message"    
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+  patch:
+    summary: Allows to update parts of a dhcp option 82 log entry.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/DhcpOption82"
+    responses:
+      '200':
+        $ref: "#/components/responses/Message"    
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+  delete:
+    summary: Allows to delete a dhcp option 82 log entry
+    responses:
+      '204':
+        description: Deleted dhcp option 82 log entry

@@ -1,0 +1,40 @@
+DhcpOption82List:
+  allOf:
+    - $ref: "#/components/schemas/Iterable"
+    - type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/DhcpOption82"
+
+DhcpOption82:
+  type: object
+  properties:
+    mac:
+     description: The clients MAC address
+     type: string  
+    created_at:
+     description: The date/time of when this record was created
+     type: string  
+    option82_switch:
+     description: The IPv4 address of the switch
+     type: string  
+    switch_id:
+     description: The unique identifier of the switch
+     type: string  
+    port:
+     description: The numeric port number of the switch
+     type: integer  
+    vlan:
+     description: The numeric VLAN identifier
+     type: integer  
+    circuit_id_string:
+     description: Encoded agent-local identifier from which a DHCP client-to-server packet was received
+     type: string  
+    module:
+     description: The number of the Cisco stacked switch
+     type: integer  
+    host:
+     description: The stripped MAC address of the switch
+     type: string   
