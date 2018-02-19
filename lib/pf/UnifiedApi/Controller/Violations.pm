@@ -25,8 +25,7 @@ sub by_mac {
     my ($self) = @_;
     my $search = $self->param('search');
     return $self->_search_by_mac($search) if pf::util::valid_mac($search);
-    $self->render_error(404, "Resource not available");
-    #return $self->_search_by_id($search);
+    $self->render_error(404, $self->status_to_error_msg(404));
 }
 
 sub _search_by_mac {
