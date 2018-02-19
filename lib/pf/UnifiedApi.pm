@@ -174,6 +174,7 @@ our @API_V1_ROUTES = (
         Config::FirewallSsoes
         Config::PkiProviders
         Config::Scans
+        Config::Bases
     ),
 );
 

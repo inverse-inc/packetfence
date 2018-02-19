@@ -32,7 +32,17 @@ sub config_store {
 
 sub form {
     my ($self, $item) = @_;
-    $self->form_class->new;
+    my $parameters = $self->form_parameters($item);
+    if (!defined $parameters) {
+        $self->render_error(417, "Invalid request");
+        return undef;
+    }
+
+    $self->form_class->new(@$parameters);
+}
+
+sub create_form {
+    my ($self, $form_class, $parameters) = @_;
 }
 
 sub resource {
@@ -184,6 +194,9 @@ sub replace {
     $self->render(status => 200, json => { message => "$id replaced"});
 }
 
+sub form_parameters {
+    []
+}
 
 =head1 AUTHOR
 
