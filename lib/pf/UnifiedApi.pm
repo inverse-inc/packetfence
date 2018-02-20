@@ -175,7 +175,7 @@ our @API_V1_ROUTES = (
         Config::Switches
         Config::SwitchGroups
         Config::SyslogParsers
-        Config::TrafficShapings
+        Config::TrafficShapingPolicies
         Config::Violations
     ),
 );

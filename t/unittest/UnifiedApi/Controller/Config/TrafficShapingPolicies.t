@@ -1,33 +1,51 @@
-package pf::UnifiedApi::Controller::Config::TrafficShapings;
+#!/usr/bin/perl
 
 =head1 NAME
 
-pf::UnifiedApi::Controller::Config::TrafficShapings - 
+TrafficShapings
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::UnifiedApi::Controller::Config::TrafficShapings
-
-
+unit test for TrafficShapings
 
 =cut
 
 use strict;
 use warnings;
+#
+use lib qw(
+    /usr/local/pf/lib
+);
 
+BEGIN {
+    #include test libs
+    use lib qw(/usr/local/pf/t);
+    #Module for overriding configuration paths
+    use setup_test_config;
+}
 
-use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
+use Test::More tests => 7;
+use Test::Mojo;
 
-has 'config_store_class' => 'pf::ConfigStore::TrafficShaping';
-has 'form_class' => 'pfappserver::Form::Config::TrafficShaping';
-has 'primary_key' => 'traffic_shaping_id';
+#This test will running last
+use Test::NoWarnings;
+my $t = Test::Mojo->new('pf::UnifiedApi');
 
-use pf::ConfigStore::TrafficShaping;
-use pfappserver::Form::Config::TrafficShaping;
+my $collection_base_url = '/api/v1/config/traffic_shaping_policies';
 
- 
+my $base_url = '/api/v1/config/traffic_shaping_policy';
+
+$t->get_ok($collection_base_url)
+  ->status_is(200);
+
+$t->post_ok($collection_base_url => json => {})
+  ->status_is(417);
+
+$t->post_ok($collection_base_url, {'Content-Type' => 'application/json'} => '{')
+  ->status_is(400);
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
