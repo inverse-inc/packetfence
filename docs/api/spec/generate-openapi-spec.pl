@@ -48,7 +48,7 @@ sub common_parameter {
 sub insert_search_parameters {
     my ($yaml_spec) = @_;
     for my $path (keys(%{$yaml_spec->{paths}})) {
-        if($path =~ /search$/) {
+        if($path =~ /\/search$/) {
             for my $method (keys(%{$yaml_spec->{paths}->{$path}})) {
                 unless(defined($yaml_spec->{paths}->{$path}->{$method}->{parameters})) {
                     $yaml_spec->{paths}->{$path}->{$method}->{parameters} = [];
