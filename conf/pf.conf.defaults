@@ -824,6 +824,10 @@ sso_on_accounting=disabled
 # Trigger Single-Sign-On (Firewall SSO) on dhcp
 sso_on_dhcp=enabled
 #
+# advanced.unreg_on_accounting_stop
+#
+# Unregister the device on accounting stop
+unreg_on_accounting_stop=disabled
 #
 # advanced.record_accounting_in_sql
 #
