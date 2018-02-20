@@ -28,6 +28,11 @@ func init() {
 	})
 }
 
+type PrettyTokenInfo struct {
+	AdminRoles []string `json:"admin_roles"`
+	TenantId   int      `json:"tenant_id"`
+}
+
 type ApiAAAHandler struct {
 	Next           httpserver.Handler
 	router         *httprouter.Router
@@ -84,6 +89,7 @@ func buildApiAAAHandler(ctx context.Context) (ApiAAAHandler, error) {
 
 	router := httprouter.New()
 	router.POST("/api/v1/login", apiAAA.handleLogin)
+	router.GET("/api/v1/token_info", apiAAA.handleTokenInfo)
 
 	apiAAA.router = router
 
@@ -121,6 +127,40 @@ func (h ApiAAAHandler) handleLogin(w http.ResponseWriter, r *http.Request, p htt
 		w.WriteHeader(http.StatusUnauthorized)
 		res, _ := json.Marshal(map[string]string{
 			"message": err.Error(),
+		})
+		fmt.Fprintf(w, string(res))
+	}
+}
+
+// Handle getting the token info
+func (h ApiAAAHandler) handleTokenInfo(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	ctx := r.Context()
+	defer statsd.NewStatsDTiming(ctx).Send("api-aaa.token_info")
+
+	info := h.authorization.GetTokenInfoFromBearerRequest(ctx, r)
+
+	if info != nil {
+		// We'll want to render the roles as an array, not as a map
+		prettyInfo := PrettyTokenInfo{
+			AdminRoles: make([]string, len(info.AdminRoles)),
+			TenantId:   info.TenantId,
+		}
+
+		i := 0
+		for r, _ := range info.AdminRoles {
+			prettyInfo.AdminRoles[i] = r
+			i++
+		}
+
+		w.WriteHeader(http.StatusOK)
+		res, _ := json.Marshal(map[string]interface{}{
+			"item": prettyInfo,
+		})
+		fmt.Fprintf(w, string(res))
+	} else {
+		w.WriteHeader(http.StatusNotFound)
+		res, _ := json.Marshal(map[string]string{
+			"message": "Couldn't find any information for the current token. Either it is invalid or it has expired.",
 		})
 		fmt.Fprintf(w, string(res))
 	}

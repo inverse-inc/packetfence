@@ -70,12 +70,17 @@ func NewTokenAuthorizationMiddleware(tb TokenBackend) *TokenAuthorizationMiddlew
 	}
 }
 
-// Checks whether or not that request is authorized based on the path and method
-// It will extract the token out of the Authorization header and call the appropriate method
-func (tam *TokenAuthorizationMiddleware) BearerRequestIsAuthorized(ctx context.Context, r *http.Request) (bool, error) {
+func (tam *TokenAuthorizationMiddleware) TokenFromBearerRequest(ctx context.Context, r *http.Request) string {
 	authHeader := r.Header.Get("Authorization")
 	token := strings.TrimPrefix(authHeader, "Bearer ")
 
+	return token
+}
+
+// Checks whether or not that request is authorized based on the path and method
+// It will extract the token out of the Authorization header and call the appropriate method
+func (tam *TokenAuthorizationMiddleware) BearerRequestIsAuthorized(ctx context.Context, r *http.Request) (bool, error) {
+	token := tam.TokenFromBearerRequest(ctx, r)
 	xptid := r.Header.Get("X-PacketFence-Tenant-Id")
 
 	tokenInfo := tam.tokenBackend.TokenInfoForToken(token)
@@ -170,4 +175,13 @@ func (tam *TokenAuthorizationMiddleware) isAuthorizedAdminRoles(ctx context.Cont
 		log.LoggerWContext(ctx).Debug(msg)
 		return false, errors.New(msg)
 	}
+}
+
+func (tam *TokenAuthorizationMiddleware) GetTokenInfoFromBearerRequest(ctx context.Context, r *http.Request) *TokenInfo {
+	token := tam.TokenFromBearerRequest(ctx, r)
+	return tam.GetTokenInfo(ctx, token)
+}
+
+func (tam *TokenAuthorizationMiddleware) GetTokenInfo(ctx context.Context, token string) *TokenInfo {
+	return tam.tokenBackend.TokenInfoForToken(token)
 }
