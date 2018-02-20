@@ -47,5 +47,10 @@ UnprocessableEntity:
     application/json:
       schema:
         $ref: "#/components/schemas/ErrorsWithMessage"
-
+NotFound:
+  description: Request cannot be processed because the resource could not be found.
+  content: 
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ErrorsWithMessage"
 
