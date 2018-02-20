@@ -350,6 +350,75 @@ components:
             response
           type: string
       type: object
+    Locationlog:
+      properties:
+        connection_sub_type:
+          description: The connection sub-category type
+          type: string
+        connection_type:
+          description: The connection type
+          type: string
+        dot1x_username:
+          description: The 802.1X username supplied for authentication
+          type: string
+        end_time:
+          description: The session end date/time
+          type: string
+        id:
+          description: The unique numeric identifier of the locationlog
+          type: integer
+        ifDesc:
+          description: The description of the interface
+          type: string
+        mac:
+          description: The clients MAC
+          type: string
+        port:
+          description: The clients numeric port number
+          type: integer
+        realm:
+          description: The clients realm
+          type: string
+        role:
+          description: The role of the connection profile
+          type: string
+        session_id:
+          description: The unique identifier of the session
+          type: string
+        ssid:
+          description: The SSID of the client connection
+          type: string
+        start_time:
+          description: The session start date/time
+          type: string
+        stripped_user_name:
+          description: The user name of the clients connection
+          type: string
+        switch:
+          description: The switch name
+          type: string
+        switch_ip:
+          description: The switch IPv4 address
+          type: string
+        switch_mac:
+          description: The switch MAC
+          type: string
+        tenant_id:
+          description: The unique identifier of the clients tenant
+          type: integer
+        vlan:
+          description: The numeric VLAN identifier
+          type: integer
+      type: object
+    LocationlogList:
+      allOf:
+      - $ref: '#/components/schemas/Iterable'
+      - properties:
+          items:
+            items:
+              $ref: '#/components/schemas/Locationlog'
+            type: array
+        type: object
     MacAddress:
       properties:
         mac:
@@ -1048,6 +1117,103 @@ paths:
                 type: object
           description: A specific MAC address
       summary: Returns all open ip4logs by MAC address
+  /locationlog/{locationlog_id}:
+    delete:
+      parameters:
+      - *1
+      responses:
+        '204':
+          description: Deleted locationlog entry
+      summary: Allows to delete a locationlog entry
+    get:
+      parameters:
+      - description: The ID of the row to fetch.
+        in: path
+        name: locationlog_id
+        required: true
+        schema:
+          type: integer
+      - *1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  item:
+                    $ref: '#/components/schemas/Locationlog'
+                type: object
+          description: A specific locationlog entry.
+      summary: Returns a specific locationlog entry by its row ID.
+    patch:
+      parameters:
+      - *1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Locationlog'
+        required: true
+      responses:
+        '200':
+          $ref: '#/components/responses/Message'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+      summary: Allows to update parts of a locationlog entry.
+    put:
+      parameters:
+      - *1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Locationlog'
+        required: true
+      responses:
+        '200':
+          $ref: '#/components/responses/Message'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+      summary: Allows to update a whole locationlog entry
+  /locationlogs:
+    get:
+      description: The list of logs will be limited to 100 and a cursor will be returned
+        for iterating on other logs. Iteration is only needed if the nextCursor is
+        not an empty value.
+      parameters:
+      - $ref: '#/components/parameters/cursor'
+      - *1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocationlogList'
+          description: List of locationlog entries
+      summary: Returns a list of locationlog entries
+    post:
+      parameters:
+      - *1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Locationlog'
+        required: true
+      responses:
+        '201':
+          $ref: '#/components/responses/Created'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Duplicate'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+      summary: Creates a locationlog entry
   /login:
     post:
       parameters:
