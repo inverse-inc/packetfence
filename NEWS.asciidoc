@@ -23,6 +23,7 @@ New Features
 * DNS routing (PR #2911)
 * Dashboard metrics are now based on Netdata (PR #2935)
 * Traffic shaping support for inline setup (PR #2803)
+* Added a configuration parameter to allow to unregister a device on an accounting stop (PR #2685)
 
 Enhancements
 ++++++++++++
