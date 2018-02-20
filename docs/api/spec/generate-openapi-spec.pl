@@ -83,7 +83,16 @@ EOT
 
 }
 
-my $yaml_spec = YAML::XS::Load($spec);
+my $yaml_spec ;
+
+eval {
+    $yaml_spec = YAML::XS::Load($spec);
+};
+
+if($@) {
+    print STDERR "Error while decoding YAML: $@ \n";
+    exit 1;
+}
 
 common_parameter($yaml_spec, {
     'required' => 0,
