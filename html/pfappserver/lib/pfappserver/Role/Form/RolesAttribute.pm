@@ -15,13 +15,14 @@ pfappserver::Role::Form::RolesAttribute
 use strict;
 use warnings;
 use HTML::FormHandler::Moose::Role;
-use pf::nodecategory;
+use pf::ConfigStore::Roles;
 
 has roles => ( is => 'rw', builder => '_build_roles');
 
 sub _build_roles {
     my ($self) = @_;
-    return [nodecategory_view_all()];
+    my $cs = pf::ConfigStore::Roles->new;
+    return $cs->readAll('name');
 }
 
 =head1 AUTHOR
