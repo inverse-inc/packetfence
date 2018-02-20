@@ -1,0 +1,126 @@
+/services/:
+  get:
+    summary: Returns a list of available services
+    description: The list of services will be limited to 100 and a cursor will be returned for iterating on other services. Iteration is only needed if the nextCursor is not an empty value.
+    parameters:
+      - $ref: '#/components/parameters/cursor'
+    responses:
+      '200':
+        description: List of services
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ServicesList"
+
+/service/:service/status:
+  get:
+    summary: Returns a service status
+    parameters:
+      - name: service
+        in: path
+        required: true
+        description: The service name to fetch
+        schema:
+          type: string
+    parameters:
+      - $ref: '#/components/parameters/cursor'
+    responses:
+      '200':
+        description: Service details
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Service"
+      '404':
+        $ref: "#/components/responses/NotFound"
+
+/service/:service/start:
+  post:
+    summary: Starts a service and return the PID
+    parameters:
+      - name: service
+        in: path
+        required: true
+        description: The service name to fetch
+        schema:
+          type: string
+    requestBody:
+      required: false
+    responses:
+      '200':
+        $ref: "#/components/schemas/ServiceStart"
+      '404':
+        $ref: "#/components/responses/NotFound"
+        
+/service/:service/stop:
+  post:
+    summary: Stops a service
+    parameters:
+      - name: service
+        in: path
+        required: true
+        description: The service name to fetch
+        schema:
+          type: string
+    requestBody:
+      required: false
+    responses:
+      '200':
+        $ref: "#/components/schemas/ServiceStop"
+      '404':
+        $ref: "#/components/responses/NotFound"
+
+/service/:service/restart:
+  post:
+    summary: Restarts a service and returns the PID
+    parameters:
+      - name: service
+        in: path
+        required: true
+        description: The service name to fetch
+        schema:
+          type: string
+    requestBody:
+      required: false
+    responses:
+      '200':
+        $ref: "#/components/schemas/ServiceRestart"
+      '404':
+        $ref: "#/components/responses/NotFound"
+
+/service/:service/enable:
+  post:
+    summary: Enables a service so it starts automatically after reboot
+    parameters:
+      - name: service
+        in: path
+        required: true
+        description: The service name to fetch
+        schema:
+          type: string
+    requestBody:
+      required: false
+    responses:
+      '200':
+        $ref: "#/components/schemas/ServiceEnable"
+      '404':
+        $ref: "#/components/responses/NotFound"
+
+/service/:service/disable:
+  post:
+    summary: Disables a service so it doesn't start automatically after reboot
+    parameters:
+      - name: service
+        in: path
+        required: true
+        description: The service name to fetch
+        schema:
+          type: string
+    requestBody:
+      required: false
+    responses:
+      '200':
+        $ref: "#/components/schemas/ServiceDisable"
+      '404':
+        $ref: "#/components/responses/NotFound"
+

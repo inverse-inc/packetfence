@@ -46,6 +46,9 @@ our @APACHE_SERVICES = map { $_ } grep { $_->isa('pf::services::manager::httpd')
 # all service managers except for keepalived
 our @ALL_SERVICES = sort keys %MANAGERS;
 
+our @ALL_MANAGERS = map { $_->new->can("managers") ? $_->new->managers : $_->new  } @MANAGERS;
+our %ALL_MANAGERS = map { $_->name => $_ } @ALL_MANAGERS;
+
 our %ALLOWED_ACTIONS = (
     stop    => undef,
     start   => undef,
