@@ -3,8 +3,8 @@
     summary: Returns a list of users
     description: The list of user will be limited to 100 and a cursor will be returned for iterating on other users. Iteration is only needed if the nextCursor is not an empty value.
     parameters:
+      - $ref: '#/components/parameters/limit'
       - $ref: '#/components/parameters/cursor'
-      - $ref: '#/components/parameters/additional_fields'
     responses:
       '200':
         description: List of users
@@ -34,10 +34,6 @@
   get:
     summary: Allows to search through users
     description: The list of user will be limited to 100 and a cursor will be returned for iterating on other users. Iteration is only needed if the nextCursor is not an empty value.
-    parameters:
-      - $ref: '#/components/parameters/search'
-      - $ref: '#/components/parameters/logic_operator'
-      - $ref: '#/components/parameters/additional_fields'
     responses:
       '200':
         description: List of users
@@ -50,7 +46,6 @@
   get:
     summary: Returns a specific user by its ID
     parameters:
-      - $ref: '#/components/parameters/additional_fields'
       - name: user_id
         in: path
         required: true

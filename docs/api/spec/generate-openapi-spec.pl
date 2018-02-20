@@ -45,6 +45,24 @@ sub common_parameter {
     }
 }
 
+sub insert_search_parameters {
+    my ($yaml_spec) = @_;
+    for my $path (keys(%{$yaml_spec->{paths}})) {
+        if($path =~ /search$/) {
+            for my $method (keys(%{$yaml_spec->{paths}->{$path}})) {
+                unless(defined($yaml_spec->{paths}->{$path}->{$method}->{parameters})) {
+                    $yaml_spec->{paths}->{$path}->{$method}->{parameters} = [];
+                }
+                push @{$yaml_spec->{paths}->{$path}->{$method}->{parameters}}, {'$ref' => "#/components/parameters/cursor"};
+                push @{$yaml_spec->{paths}->{$path}->{$method}->{parameters}}, {'$ref' => "#/components/parameters/limit"};
+                push @{$yaml_spec->{paths}->{$path}->{$method}->{parameters}}, {'$ref' => "#/components/parameters/search_query"};
+                push @{$yaml_spec->{paths}->{$path}->{$method}->{parameters}}, {'$ref' => "#/components/parameters/fields"};
+                push @{$yaml_spec->{paths}->{$path}->{$method}->{parameters}}, {'$ref' => "#/components/parameters/sort"};
+            }
+        }
+    }
+}
+
 my $spec = read_file("openapi-base.yaml");
 
 $spec .= <<EOT;
@@ -103,6 +121,8 @@ common_parameter($yaml_spec, {
                 },
     'description' => 'The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.'
 });
+
+insert_search_parameters($yaml_spec);
 
 YAML::XS::DumpFile("openapi.yaml", $yaml_spec);
 

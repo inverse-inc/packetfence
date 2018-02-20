@@ -1,17 +1,6 @@
 ---
 components:
   parameters:
-    additional_fields:
-      description: Comma delimited fields that should be added to the resource by
-        performing joins. For example, in order to get the IP address of a node when
-        calling the nodes endpoints, setting 'ip4log.ip' into this field will provide
-        the latest IP address of the device in the 'ip4log.ip' field of every node
-        that is returned.
-      in: query
-      name: additional_fields
-      required: false
-      schema:
-        type: string
     cursor:
       description: The cursor pointer to fetch the data (value should be taken from
         previousCursor and nextCursor)
@@ -20,22 +9,57 @@ components:
       required: false
       schema:
         type: string
-    logic_operator:
-      description: The logic operator to use for the search query. Can either be all
-        or any.
-      in: query
-      name: logic_operator
-      required: true
+    fields:
+      description: Comma delimited fields that should be added to the resource by
+        performing joins. For example, in order to get the IP address of a node when
+        calling the nodes endpoints, setting 'ip4log.ip' into this field will provide
+        the latest IP address of the device in the 'ip4log.ip' field of every node
+        that is returned.
+      in: body
+      name: fields
+      required: false
       schema:
-        type: string
-    search:
+        example:
+        - mac
+        - pid
+        - ip4log.ip
+        items:
+          type: string
+        type: array
+    limit:
+      description: The maximum amount of entries to get.
+      in: query|body
+      name: limit
+      required: false
+      schema:
+        type: int
+    search_params:
+    - $ref: '#/components/parameters/cursor'
+    - $ref: '#/components/parameters/limit'
+    - $ref: '#/components/parameters/search_query'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/sort'
+    search_query:
       description: The JSON encoded search query following the Search schema defined
         in this spec
-      in: query
-      name: search
+      in: body
+      name: query
       required: true
       schema:
-        type: string
+        $ref: '#/components/schemas/Search'
+    sort:
+      description: A list of fields to sort on along with the ordering way (ASC or
+        DESC).
+      in: body
+      name: sort
+      required: false
+      schema:
+        example:
+        - iplog.ip DESC
+        - node.detectdate ASC
+        items:
+          type: string
+        type: array
   responses:
     BadRequest:
       content:
@@ -472,22 +496,46 @@ components:
           type: string
       type: object
     Search:
-      items:
-        properties:
-          field:
-            description: 'The field to perform the search on. It is possible to specify
-              fields from other API endpoints (ex: ip4log.ip)'
-            type: string
-          operator:
-            description: The operator to use against the value of the field. Can be
-              is, is_not, match, match_not, contains, *TODO, add more*
-            type: string
-          term:
-            description: The search term to use when performing the search using on
-              the specified field
-            type: string
-        type: object
-      type: array
+      example:
+        op: and
+        values:
+        - field: detect_date
+          op: between
+          values:
+          - '2017-01-01 '
+          - '2017-01-02 '
+        - op: or
+          values:
+          - field: mac
+            op: ends_with
+            value: ab:cd
+          - field: pid
+            op: equals
+            value: lzammit
+      properties:
+        field:
+          description: 'The field to perform the search on. It is possible to specify
+            fields from other API endpoints (ex: ip4log.ip)'
+          type: string
+        op:
+          description: The operator to use against the value of the field. Can be
+            `and`, `or`, `is`, `is_not`, `match`, `not_match`, `contains`, `not_contains`,
+            `between` and `not_between`
+          type: string
+        value:
+          description: The search term to use when performing the search using on
+            the specified field. This field must be used when the operator performs
+            the condition against a single string value.
+          type: string
+        values:
+          description: An array of simple/complex searches to use with the provided
+            operator. To be used when the operator expects complex values as arguments.
+            Refer to the examples for how to use this efficiently. This field must
+            follow the same structure as this schema.
+          items:
+            type: object
+          type: array
+      type: object
     Tenant:
       properties:
         domain_name:
@@ -1188,7 +1236,6 @@ paths:
       summary: Allows to delete a user
     get:
       parameters:
-      - $ref: '#/components/parameters/additional_fields'
       - description: The user ID to fetch
         in: path
         name: user_id
@@ -1247,8 +1294,8 @@ paths:
         for iterating on other users. Iteration is only needed if the nextCursor is
         not an empty value.
       parameters:
+      - $ref: '#/components/parameters/limit'
       - $ref: '#/components/parameters/cursor'
-      - $ref: '#/components/parameters/additional_fields'
       - *1
       responses:
         '200':
@@ -1283,10 +1330,12 @@ paths:
         for iterating on other users. Iteration is only needed if the nextCursor is
         not an empty value.
       parameters:
-      - $ref: '#/components/parameters/search'
-      - $ref: '#/components/parameters/logic_operator'
-      - $ref: '#/components/parameters/additional_fields'
       - *1
+      - $ref: '#/components/parameters/cursor'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/search_query'
+      - $ref: '#/components/parameters/fields'
+      - $ref: '#/components/parameters/sort'
       responses:
         '200':
           content:
