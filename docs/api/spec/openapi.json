@@ -634,8 +634,128 @@
       },
       "Node": {
         "properties": {
+          "autoreg": {
+            "description": "Whether or not the node was autoregistered (i.e. didn't go through the captive-portal) (yes|no)",
+            "type": "string"
+          },
+          "bandwidth_balance": {
+            "description": "The amount of bandwidth the device has left on the network. This is used only for bandwidth balance access that relies on the accounting data.",
+            "type": "integer"
+          },
+          "bypass_role_id": {
+            "description": "The category ID (role ID) that acts as an override to the defined role in the `category_id` field.",
+            "type": "integer"
+          },
+          "bypass_vlan": {
+            "description": "The VLAN to apply on the device to override the one that would be defined in the switch configuration for this role.",
+            "type": "string"
+          },
+          "category_id": {
+            "desription": "The category ID (role ID) of the node",
+            "type": "integer"
+          },
+          "computername": {
+            "description": "The hostname of the machine.",
+            "type": "string"
+          },
+          "detect_date": {
+            "description": "The date at which the node was discovered by PacketFence",
+            "type": "date"
+          },
+          "device_class": {
+            "description": "The class of the device as detected by Fingerbank.",
+            "type": "string"
+          },
+          "device_score": {
+            "description": "The confidence level (0 to 100) that Fingerbank has on the profiling it did for this node.",
+            "type": "integer"
+          },
+          "device_type": {
+            "description": "The name of the device as detected by Fingerbank.",
+            "type": "string"
+          },
+          "device_version": {
+            "description": "The OS version of the device as detected by Fingerbank.",
+            "type": "string"
+          },
+          "dhcp6_enterprise": {
+            "description": "The DHCPv6 enterprise ID as seen by Fingerbank (used for device profiling).",
+            "type": "string"
+          },
+          "dhcp6_fingerprint": {
+            "description": "The DHCPv6 Fingerprint as seen by Fingerbank (used for device profiling).",
+            "type": "string"
+          },
+          "dhcp_fingerprint": {
+            "description": "The DHCP Fingerprint as seen by Fingerbank (used for device profiling).",
+            "type": "string"
+          },
+          "dhcp_vendor": {
+            "description": "The DHCP vendor as seen by Fingerbank (used for device profiling).",
+            "type": "string"
+          },
+          "last_arp": {
+            "description": "The last time PacketFence saw an ARP request for this node.",
+            "type": "date"
+          },
+          "last_dhcp": {
+            "description": "The last time PacketFence saw a DHCP request for this node.",
+            "type": "date"
+          },
+          "last_seen": {
+            "description": "The last time PacketFence saw this node.",
+            "type": "date"
+          },
+          "lastskip": {
+            "description": "Deprecated parameter.",
+            "type": "date"
+          },
           "mac": {
             "description": "The MAC address of the device",
+            "type": "string"
+          },
+          "machine_account": {
+            "description": "The machine username of this node if it ever did machine authentication (only works for Windows hosts or usernames that start with `host/`)",
+            "type": "string"
+          },
+          "notes": {
+            "description": "Custom notes on the node",
+            "type": "string"
+          },
+          "pid": {
+            "description": "The person ID (owner) of the node",
+            "type": "string"
+          },
+          "regdate": {
+            "description": "The date at which the node was registered. Will be `0000-00-00 00:00:00` when the node is unregistered.",
+            "type": "date"
+          },
+          "sessionid": {
+            "description": "The session ID of the device (used for certain switches)",
+            "type": "string"
+          },
+          "status": {
+            "description": "The status of the device (reg, unreg, pending)",
+            "type": "string"
+          },
+          "tenant_id": {
+            "description": "The tenant ID of the node",
+            "type": "string"
+          },
+          "time_balance": {
+            "description": "The amount of time the device has left on the network before being unregistered. This is used only for time balance access that relies on the accounting data.",
+            "type": "integer"
+          },
+          "unregdate": {
+            "description": "The date at which the node will be deregistered (switch back to unreg). Will be `0000-00-00 00:00:00` when the node is unregistered.",
+            "type": "date"
+          },
+          "user_agent": {
+            "description": "The HTTP user agent of the device as seen by Fingerbank.",
+            "type": "string"
+          },
+          "voip": {
+            "description": "Whether or not the node is a VoIP device for PacketFence (yes|no)",
             "type": "string"
           }
         },
@@ -659,87 +779,6 @@
           }
         ]
       },
-      "NodesLocationlog": {
-        "properties": {
-          "connection_sub_type": {
-            "description": "The connection sub-category type",
-            "type": "string"
-          },
-          "connection_type": {
-            "description": "The connection type",
-            "type": "string"
-          },
-          "dot1x_username": {
-            "description": "The 802.1X username supplied for authentication",
-            "type": "string"
-          },
-          "end_time": {
-            "description": "The session end date/time",
-            "type": "string"
-          },
-          "id": {
-            "description": "The unique numeric identifier of the locationlog",
-            "type": "integer"
-          },
-          "ifDesc": {
-            "description": "The description of the interface",
-            "type": "string"
-          },
-          "mac": {
-            "description": "The client MAC",
-            "type": "string"
-          },
-          "port": {
-            "description": "The client numeric port number",
-            "type": "integer"
-          },
-          "realm": {
-            "description": "The client realm",
-            "type": "string"
-          },
-          "role": {
-            "description": "The client role",
-            "type": "string"
-          },
-          "session_id": {
-            "description": "The web-auth session ID if applicable",
-            "type": "string"
-          },
-          "ssid": {
-            "description": "The SSID of the client connection",
-            "type": "string"
-          },
-          "start_time": {
-            "description": "The session start date/time",
-            "type": "string"
-          },
-          "stripped_user_name": {
-            "description": "The username of the clients connection",
-            "type": "string"
-          },
-          "switch": {
-            "description": "The switch identifier",
-            "type": "string"
-          },
-          "switch_ip": {
-            "description": "The switch IPv4 address",
-            "type": "string"
-          },
-          "switch_mac": {
-            "description": "The switch MAC address",
-            "type": "string"
-          },
-          "tenant_id": {
-            "description": "The unique identifier of the client tenant",
-            "type": "integer"
-          },
-          "vlan": {
-            "description": "The numeric VLAN identifier",
-            "type": "integer"
-          }
-        },
-        "type": "object"
-      },
       "NodesLocationlogList": {
         "allOf": [
           {
@@ -749,7 +788,7 @@
             "properties": {
               "items": {
                 "items": {
-                  "$ref": "#/components/schemas/NodesLocationlog"
+                  "$ref": "#/components/schemas/Locationlog"
                 },
                 "type": "array"
               }

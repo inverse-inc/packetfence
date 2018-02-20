@@ -6,69 +6,8 @@ NodesLocationlogList:
         items:
           type: array
           items:
-            $ref: "#/components/schemas/NodesLocationlog" 
+            $ref: "#/components/schemas/Locationlog" 
             
-NodesLocationlog:
-  type: object
-  properties:
-    connection_sub_type:
-        description: The connection sub-category type
-        type: string
-    connection_type:
-        description: The connection type
-        type: string
-    dot1x_username:
-        description: The 802.1X username supplied for authentication
-        type: string
-    end_time:
-        description: The session end date/time
-        type: string
-    id:
-        description: The unique numeric identifier of the locationlog
-        type: integer
-    ifDesc:
-        description: The description of the interface
-        type: string
-    mac: 
-        description: The client MAC
-        type: string
-    port:
-        description: The client numeric port number
-        type: integer
-    realm:
-        description: The client realm
-        type: string
-    role:
-        description: The client role
-        type: string
-    session_id:
-        description: The web-auth session ID if applicable
-        type: string
-    ssid:
-        description: The SSID of the client connection
-        type: string
-    start_time:
-        description: The session start date/time
-        type: string
-    stripped_user_name:
-        description: The username of the clients connection
-        type: string
-    switch:
-        description: The switch identifier
-        type: string
-    switch_ip:
-        description: The switch IPv4 address
-        type: string
-    switch_mac:
-        description: The switch MAC address
-        type: string
-    tenant_id:
-        description: The unique identifier of the client tenant
-        type: integer
-    vlan:
-        description: The numeric VLAN identifier
-        type: integer
-      
 NodesList:
   allOf:
     - $ref: "#/components/schemas/Iterable" 
@@ -84,5 +23,94 @@ Node:
     mac:
       type: string
       description: The MAC address of the device
-    
+    tenant_id:
+      type: string
+      description: The tenant ID of the node
+    pid:
+      type: string
+      description: The person ID (owner) of the node
+    category_id:
+      type: integer
+      desription: The category ID (role ID) of the node
+    detect_date:
+      type: date
+      description: The date at which the node was discovered by PacketFence
+    regdate:
+      type: date
+      description: The date at which the node was registered. Will be `0000-00-00 00:00:00` when the node is unregistered.
+    unregdate:
+      type: date
+      description: The date at which the node will be deregistered (switch back to unreg). Will be `0000-00-00 00:00:00` when the node is unregistered.
+    lastskip:
+      type: date
+      description: Deprecated parameter.
+    time_balance:
+      type: integer
+      description: The amount of time the device has left on the network before being unregistered. This is used only for time balance access that relies on the accounting data.
+    bandwidth_balance:
+      type: integer
+      description: The amount of bandwidth the device has left on the network. This is used only for bandwidth balance access that relies on the accounting data.
+    status:
+      type: string
+      description: The status of the device (reg, unreg, pending)
+    user_agent:
+      type: string
+      description: The HTTP user agent of the device as seen by Fingerbank.
+    computername:
+      type: string
+      description: The hostname of the machine.
+    notes:
+      type: string
+      description: Custom notes on the node
+    last_arp:
+      type: date
+      description: The last time PacketFence saw an ARP request for this node.
+    last_dhcp:
+      type: date
+      description: The last time PacketFence saw a DHCP request for this node.
+    dhcp_fingerprint:
+      type: string
+      description: The DHCP Fingerprint as seen by Fingerbank (used for device profiling).
+    dhcp6_fingerprint:
+      type: string
+      description: The DHCPv6 Fingerprint as seen by Fingerbank (used for device profiling).
+    dhcp_vendor:
+      type: string
+      description: The DHCP vendor as seen by Fingerbank (used for device profiling).
+    dhcp6_enterprise:
+      type: string
+      description: The DHCPv6 enterprise ID as seen by Fingerbank (used for device profiling).
+    device_type:
+      type: string
+      description: The name of the device as detected by Fingerbank.
+    device_class:
+      type: string
+      description: The class of the device as detected by Fingerbank.
+    device_version:
+      type: string
+      description: The OS version of the device as detected by Fingerbank.
+    device_score:
+      type: integer
+      description: The confidence level (0 to 100) that Fingerbank has on the profiling it did for this node.
+    bypass_vlan:
+      type: string
+      description: The VLAN to apply on the device to override the one that would be defined in the switch configuration for this role.
+    voip:
+      type: string
+      description: Whether or not the node is a VoIP device for PacketFence (yes|no)
+    autoreg:
+      type: string
+      description: Whether or not the node was autoregistered (i.e. didn't go through the captive-portal) (yes|no)
+    sessionid:
+      type: string
+      description: The session ID of the device (used for certain switches)
+    machine_account:
+      type: string
+      description: The machine username of this node if it ever did machine authentication (only works for Windows hosts or usernames that start with `host/`)
+    bypass_role_id:
+      type: integer
+      description: The category ID (role ID) that acts as an override to the defined role in the `category_id` field.
+    last_seen:
+      type: date
+      description: The last time PacketFence saw this node.
 
