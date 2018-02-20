@@ -5,7 +5,6 @@
       not an empty value.
     parameters:
     - $ref: '#/components/parameters/cursor'
-    - *1
     responses:
       '200':
         content:
@@ -23,7 +22,6 @@
       required: true
       schema:
         type: string
-    - *1
     responses:
       '200':
         content:
@@ -48,7 +46,6 @@
       required: true
       schema:
         type: string
-    - *1
     responses:
       '200':
         content:
@@ -70,7 +67,6 @@
       required: true
       schema:
         type: string
-    - *1
     responses:
       '200':
         content:
