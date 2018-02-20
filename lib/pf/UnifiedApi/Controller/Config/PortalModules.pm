@@ -17,8 +17,7 @@ pf::UnifiedApi::Controller::Config::PortalModules
 use strict;
 use warnings;
 
-
-use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
+use Mojo::Base qw(pf::UnifiedApi::Controller::Config::Subtype);
 
 has 'config_store_class' => 'pf::ConfigStore::PortalModule';
 has 'form_class' => 'pfappserver::Form::Config::PortalModule';
@@ -92,23 +91,11 @@ our %TYPES_TO_FORMS = (
     )
 );
 
-sub form {
-    my ($self, $item) = @_;
-    my $type = $item->{type};
-    if ( !defined $type ) {
-        $self->render_error(417, "Unable to validate", [{ type => "type field is required"}]);
-        return undef;
-    }
-
-    if ( !exists $TYPES_TO_FORMS{$type} ){
-        $self->render_error(417, "Unable to validate", [{ type => "type field is invalid '$type'"}]);
-        return undef;
-    }
-
-    return $TYPES_TO_FORMS{$type}->new;
+sub form_class_by_type {
+    my ($self, $type) = @_;
+    return exists $TYPES_TO_FORMS{$type} ? $TYPES_TO_FORMS{$type} : undef;
 }
 
- 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

@@ -18,7 +18,7 @@ use strict;
 use warnings;
 
 
-use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
+use Mojo::Base qw(pf::UnifiedApi::Controller::Config::Subtype);
 
 has 'config_store_class' => 'pf::ConfigStore::Scan';
 has 'form_class' => 'pfappserver::Form::Config::Scan';
