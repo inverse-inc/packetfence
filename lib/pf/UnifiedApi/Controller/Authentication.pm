@@ -17,8 +17,9 @@ use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller';
 use pf::error qw(is_error);
 use pf::authentication;
+use pf::Authentication::constants qw($LOGIN_SUCCESS);
 
-sub authenticate {
+sub adminAuthentication {
     my ($self) = @_;
     
     my ($status, $json) = $self->parse_json;
@@ -26,28 +27,15 @@ sub authenticate {
         $self->render(status => $status, json => $json);
     }
 
-    my $internal_sources = pf::authentication::getInternalAuthenticationSources();
-    my ($result, $message) = pf::authentication::authenticate( { 'username' => $json->{username}, 'password' => $json->{password}, 'rule_class' => $Rules::ADMIN }, @$internal_sources );
+    my ($result, $roles) = pf::authentication::adminAuthentication($json->{username}, $json->{password});
 
-    $status = $result ? 200 : 401;
-
-    $self->render(status => $status, json => { result => $result, message => $message });
-}
-
-sub match {
-    my ($self) = @_;
-
-    my ($status, $json) = $self->parse_json;
-    if (is_error($status)) {
-        $self->render(status => $status, json => $json);
+    if($result == $LOGIN_SUCCESS) {
+        $self->render(status => 200, json => { result => $result, roles => $roles });
+    }
+    else {
+        $self->render(status => 401, json => { result => $result, message => "Authentication failed." })
     }
 
-    my $internal_sources = pf::authentication::getInternalAuthenticationSources();
-    my $result = pf::authentication::match($source_id, { username => $user, 'rule_class' => $Rules::ADMIN }, $Actions::SET_ACCESS_LEVEL, undef, $extra);
-
-    $status = $result ? 200 : 401;
-
-    $self->render(status => $status, json => { result => $value, message => $message });
 }
 
 =head1 AUTHOR
