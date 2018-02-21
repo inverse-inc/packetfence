@@ -3197,6 +3197,8 @@ Configure the AAA authentication for MAC authentication to use the right server-
 
 Optionally, you can configure the SSH and telnet authentication to point to PacketFence (make sure you also follow instructions in the Administration Guide to activate the CLI access):
 
+  aaa authentication login privilege-mode
+
   aaa authentication ssh login radius server-group packetfence local
   aaa authentication telnet login radius server-group packetfence local
 
