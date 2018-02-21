@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/inverse-inc/packetfence/go/api-frontend/aaa"
@@ -84,6 +85,10 @@ func buildApiAAAHandler(ctx context.Context) (ApiAAAHandler, error) {
 	sharedutils.CheckError(err)
 
 	apiAAA.authentication.AddAuthenticationBackend(aaa.NewDbAuthenticationBackend(ctx, db, "api_user"))
+
+	url, err := url.Parse("http://localhost:8080/api/v1/authentication/admin_authentication")
+	sharedutils.CheckError(err)
+	apiAAA.authentication.AddAuthenticationBackend(aaa.NewPfAuthenticationBackend(ctx, url, false))
 
 	apiAAA.authorization = aaa.NewTokenAuthorizationMiddleware(tokenBackend)
 

@@ -35,7 +35,6 @@ sub adminAuthentication {
     else {
         $self->render(status => 401, json => { result => $result, message => "Authentication failed." })
     }
-
 }
 
 =head1 AUTHOR
