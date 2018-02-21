@@ -24,7 +24,7 @@ use pf::Authentication::Action;
 use pf::Authentication::Condition;
 use pf::Authentication::Rule;
 use pf::Authentication::Source;
-use pf::Authentication::constants;
+use pf::Authentication::constants qw($LOGIN_SUCCESS $LOGIN_FAILURE $LOGIN_CHALLENGE);
 use pf::constants::authentication::messages;
 
 use Module::Pluggable
@@ -36,7 +36,7 @@ use Module::Pluggable
 
 use Clone qw(clone);
 use List::Util qw(first);
-use List::MoreUtils qw(none any);
+use List::MoreUtils qw(none any all);
 use pf::util;
 use pfconfig::cached_array;
 use pfconfig::cached_hash;
@@ -440,6 +440,49 @@ sub getAuthenticationClassByType {
         return undef;
     }
     return $TYPE_TO_SOURCE{$type}->meta->find_attribute_by_name('class')->default;
+}
+
+sub adminAuthentication {
+  my ($user, $password) = @_;
+  my $internal_sources = pf::authentication::getInternalAuthenticationSources();
+  my ($stripped_username,$realm) = strip_username($user);
+  $realm //= 'null';
+  my $realm_source = pf::config::util::get_realm_authentication_source($stripped_username, $realm, $internal_sources);
+
+  if (ref($realm_source) eq 'ARRAY') {
+    foreach my $source (@{$realm_source}) {
+      get_logger->info("Found a realm source ".$source->id." for user $stripped_username in realm $realm.");
+      my ($result, $message, $source_id, $extra) = pf::authentication::authenticate( { 
+              'username' => $user, 
+              'password' => $password, 
+              'rule_class' => $Rules::ADMIN,
+              'context' => $pf::constants::realm::ADMIN_CONTEXT,
+          }, $source);
+      if ($result) {
+          my $value = pf::authentication::match($source_id, { username => $user, 'rule_class' => $Rules::ADMIN , 'context' => $pf::constants::realm::ADMIN_CONTEXT}, $Actions::SET_ACCESS_LEVEL, undef, $extra);
+          my $roles = [split /\s*,\s*/,$value];
+          if ($result == $LOGIN_CHALLENGE ) {
+            return $LOGIN_CHALLENGE;
+          }
+          return ((defined $value && all{ $_ ne 'NONE'} @$roles), $roles);
+      }
+    }
+  }
+  my ($result, $message, $source_id, $extra) = pf::authentication::authenticate( { 
+          'username' => $user,
+          'password' => $password, 
+          'rule_class' => $Rules::ADMIN,
+          'context' => $pf::constants::realm::ADMIN_CONTEXT,
+      }, @{$internal_sources});
+  if ($result) {
+    my $value = pf::authentication::match($source_id, { username => $user, 'rule_class' => $Rules::ADMIN }, $Actions::SET_ACCESS_LEVEL, undef, $extra);
+    my $roles = [split /\s*,\s*/,$value];
+    if ($result == $LOGIN_CHALLENGE ) {
+        return $LOGIN_CHALLENGE;
+    }
+    return ((defined $value && all{ $_ ne 'NONE'} @$roles), $roles);
+  }
+  return $LOGIN_FAILURE;
 }
 
 =back
