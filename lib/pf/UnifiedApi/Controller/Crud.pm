@@ -108,7 +108,7 @@ sub resource {
     my ($self) = @_;
     my ($status, $item) = $self->do_get($self->get_lookup_info);
     if (is_error($status)) {
-        return $self->render_error($status, "Unable to get resource");
+        return $self->render_error($status, "Unable to get resource with this identifier");
     }
     push @{$self->stash->{item}}, $item;
     $self->stash->{status} = $status;
