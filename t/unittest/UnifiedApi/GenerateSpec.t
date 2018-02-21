@@ -205,7 +205,7 @@ cmp_deeply(
                 },
                 'filter' => {
                     type => 'array',
-                    description => 'Filter',
+                    description => 'Filters',
                     items => {
                         description => 'Filter',
                         type => 'object',
