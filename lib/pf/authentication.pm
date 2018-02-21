@@ -17,6 +17,7 @@ use pf::log;
 
 use pf::constants;
 use pf::config;
+use pf::config::util;
 
 use pf::Authentication::constants;
 use pf::Authentication::Action;
@@ -221,6 +222,11 @@ sub authenticate {
     my $username = $params->{'username'};
     my $password = $params->{'password'};
 
+    #TODO: evaluate if we want to die or have another behavior
+    my $context = $params->{'context'} // die "No authentication context provided";
+    
+    ($username, undef) = pf::config::util::strip_username_if_needed($username, $context);
+
     # If no source(s) provided, all 'internal' configured sources are used
     unless (@sources) {
         @sources = @{pf::authentication::getInternalAuthenticationSources()};
@@ -289,6 +295,11 @@ sub match {
         return undef;
     }
 
+    #TODO: evaluate if we want to die or have another behavior
+    my $context = $params->{'context'} // die "No authentication context provided";
+
+    ($params->{'username'}, undef) = pf::config::util::strip_username_if_needed($params->{'username'}, $context);
+    
     # Calling 'match' with empty/invalid rule class. Using default
     if ( (!defined($params->{'rule_class'})) || (!exists($Rules::CLASSES{$params->{'rule_class'}})) ) {
         $params->{'rule_class'} = pf::Authentication::Rule->meta->get_attribute('class')->default;
@@ -379,6 +390,11 @@ sub match2 {
         $logger->warn("Calling match with empty/invalid rule class. Defaulting to '" . $params->{'rule_class'} . "'");
     }
 
+    #TODO: evaluate if we want to die or have another behavior
+    my $context = $params->{'context'} // die "No authentication context provided";
+
+    ($params->{'username'}, undef) = pf::config::util::strip_username_if_needed($params->{'username'}, $context);
+    
     if (ref($source_id) eq 'ARRAY') {
         @sources = @{$source_id};
     } else {

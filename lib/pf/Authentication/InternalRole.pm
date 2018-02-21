@@ -16,23 +16,11 @@ use strict;
 use warnings;
 
 use Moose::Role;
-use pf::util qw(isenabled strip_username);
+use pf::util qw(isenabled);
 use pf::constants qw($TRUE $FALSE);
 use List::MoreUtils qw(any);
 
-has 'stripped_user_name' => (isa => 'Str', is => 'rw', default => 'yes');
 has 'realms' => (isa => 'ArrayRef[Str]', is => 'rw');
-
-=head2 search_attributes
-
-=cut
-
-sub search_attributes {
-    my ($self,$username) = @_;
-    my $realm;
-    ($username,$realm) = strip_username($username) if isenabled($self->{'stripped_user_name'});
-    return $self->search_attributes_in_subclass($username);
-}
 
 =head2 realmIsAllowed
 

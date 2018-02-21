@@ -182,7 +182,6 @@ sub check_radius_password {
 
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions, $extra) = @_;
-    $params->{'username'} = $params->{'stripped_user_name'} if (defined($params->{'stripped_user_name'} ) && $params->{'stripped_user_name'} ne '' && isenabled($self->{'stripped_user_name'}));
     my $username =  $params->{'username'};
 
     foreach my $condition (@{ $own_conditions }) {

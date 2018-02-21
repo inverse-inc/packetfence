@@ -486,14 +486,6 @@ sub ldap_filter_for_conditions {
 
   my (@ldap_conditions, $expression);
 
-  # Handling stripped_username condition
-  if ( isenabled($self->{'stripped_user_name'}) && defined($params->{'stripped_user_name'}) && $params->{'stripped_user_name'} ne '' ) {
-      $params->{'username'} = $params->{'stripped_user_name'};
-  } elsif ( isenabled($self->{'stripped_user_name'}) ) {
-      my ($username, $realm) = strip_username($params->{'username'});
-      $params->{'username'} = $username;
-  }
-
   if ($params->{'username'}) {
       $expression = '(' . $usernameattribute . '=' . $params->{'username'} . ')';
   } elsif ($params->{'email'}) {

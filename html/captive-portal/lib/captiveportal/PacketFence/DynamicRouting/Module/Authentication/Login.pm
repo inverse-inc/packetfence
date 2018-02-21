@@ -26,6 +26,7 @@ use pf::Authentication::constants qw($LOGIN_SUCCESS $LOGIN_FAILURE $LOGIN_CHALLE
 use pf::web::guest;
 use pf::node qw(node_view);
 use pf::lookup::person;
+use pf::constants::realm;
 
 has '+pid_field' => (default => sub { "username" });
 
@@ -134,13 +135,6 @@ sub authenticate {
         return;
     }
 
-    # If all sources use the stripped username, we strip it
-    # Otherwise, we leave it as is
-    my $use_stripped = all { isenabled($_->{stripped_user_name}) } @{$sources};
-    if($use_stripped){
-        $username = $stripped_username;
-    }
-
     if ($self->app->reached_retry_limit("login_retries", $self->app->profile->{'_login_attempt_limit'})) {
         $self->app->flash->{error} = $GUEST::ERRORS{$GUEST::ERROR_MAX_RETRIES};
         $self->prompt_fields();
@@ -174,6 +168,7 @@ sub authenticate {
             stripped_user_name => $username,
             rule_class => 'authentication',
             realm => $node_info->{'realm'},
+            context => $pf::constants::realm::PORTAL_CONTEXT,
         };
         my $source_id;
         my $role = pf::authentication::match([@{$source}], $params, $Actions::SET_ROLE, \$source_id);
@@ -197,7 +192,12 @@ sub authenticate {
 
         # validate login and password
         my ( $return, $message, $source_id, $extra ) =
-          pf::authentication::authenticate( { 'username' => $username, 'password' => $password, 'rule_class' => $Rules::AUTH }, @{$sources} );
+          pf::authentication::authenticate( { 
+                  'username' => $username, 
+                  'password' => $password, 
+                  'rule_class' => $Rules::AUTH,
+                  'context' => $pf::constants::realm::PORTAL_CONTEXT,
+              }, @{$sources} );
         if (!defined $return || $return == $LOGIN_FAILURE) {
             pf::auth_log::record_auth(join(',',map { $_->id } @{$sources}), $self->current_mac, $username, $pf::auth_log::FAILED, $self->app->profile->name);
             $self->app->flash->{error} = $message;

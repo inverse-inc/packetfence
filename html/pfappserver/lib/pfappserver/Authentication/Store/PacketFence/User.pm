@@ -14,6 +14,7 @@ use pf::log;
 use List::MoreUtils qw(all any);
 use pf::config::util;
 use pf::util;
+use pf::constants::realm;
 
 BEGIN { __PACKAGE__->mk_accessors(qw/_user _store _roles _challenge/) }
 
@@ -53,10 +54,14 @@ sub check_password {
   if (ref($realm_source) eq 'ARRAY') {
     foreach my $source (@{$realm_source}) {
       get_logger->info("Found a realm source ".$source->id." for user $stripped_username in realm $realm.");
-      $user = isenabled($source->{'stripped_user_name'}) ? $stripped_username : $self->{_user};
-      my ($result, $message, $source_id, $extra) = pf::authentication::authenticate( { 'username' => $user, 'password' => $password, 'rule_class' => $Rules::ADMIN }, $source);
+      my ($result, $message, $source_id, $extra) = pf::authentication::authenticate( { 
+              'username' => $user, 
+              'password' => $password, 
+              'rule_class' => $Rules::ADMIN,
+              'context' => $pf::constants::realm::ADMIN_CONTEXT,
+          }, $source);
       if ($result) {
-          my $value = pf::authentication::match($source_id, { username => $user, 'rule_class' => $Rules::ADMIN }, $Actions::SET_ACCESS_LEVEL, undef, $extra);
+          my $value = pf::authentication::match($source_id, { username => $user, 'rule_class' => $Rules::ADMIN , 'context' => $pf::constants::realm::ADMIN_CONTEXT}, $Actions::SET_ACCESS_LEVEL, undef, $extra);
           $self->_roles([split /\s*,\s*/,$value]) if defined $value;
           if ($result == $LOGIN_CHALLENGE ) {
                 $self->_challenge($message);
@@ -65,7 +70,12 @@ sub check_password {
       }
     }
   }
-  my ($result, $message, $source_id, $extra) = pf::authentication::authenticate( { 'username' => $self->_user, 'password' => $password, 'rule_class' => $Rules::ADMIN }, @{$internal_sources});
+  my ($result, $message, $source_id, $extra) = pf::authentication::authenticate( { 
+          'username' => $self->_user, 
+          'password' => $password, 
+          'rule_class' => $Rules::ADMIN,
+          'context' => $pf::constants::realm::ADMIN_CONTEXT,
+      }, @{$internal_sources});
   if ($result) {
     my $value = pf::authentication::match($source_id, { username => $self->_user, 'rule_class' => $Rules::ADMIN }, $Actions::SET_ACCESS_LEVEL, undef, $extra);
     $self->_roles([split /\s*,\s*/,$value]) if defined $value;

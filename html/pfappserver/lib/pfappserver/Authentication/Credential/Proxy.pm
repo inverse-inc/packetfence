@@ -19,6 +19,7 @@ use namespace::autoclean;
 use pfappserver::Authentication::Store::PacketFence::User;
 use pf::authentication;
 use List::Util qw(first);
+use pf::constants::realm;
 
 has realm => (is => 'rw');
 has _config => (is => 'rw');
@@ -61,7 +62,7 @@ sub authenticate {
         return;
     }
     my $group = $source->getGroupFromHeader($headers);
-    my $value = &pf::authentication::match($source_id, {username => $username, group_header => $group, 'rule_class' => $Rules::ADMIN}, $Actions::SET_ACCESS_LEVEL, undef, $extra);
+    my $value = &pf::authentication::match($source_id, {username => $username, group_header => $group, 'rule_class' => $Rules::ADMIN, 'context' => $pf::constants::realm::ADMIN_CONTEXT}, $Actions::SET_ACCESS_LEVEL, undef, $extra);
     # No roles found cannot login
     return unless $value;
     my $roles = [split /\s*,\s*/,$value] if defined $value;

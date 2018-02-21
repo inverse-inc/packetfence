@@ -26,6 +26,7 @@ use pf::Connection;
 use pf::constants;
 use pf::constants::trigger qw($TRIGGER_TYPE_ACCOUNTING);
 use pf::constants::role qw($VOICE_ROLE);
+use pf::constants::realm;
 use pf::error qw(is_error);
 use pf::config qw(
     $ROLE_API_LEVEL
@@ -802,9 +803,14 @@ sub switch_access {
         radius_request => $radius_request,
     };
 
-    my ( $return, $message, $source_id, $extra ) = pf::authentication::authenticate( { 'username' =>  $radius_request->{'User-Name'}, 'password' =>  $radius_request->{'User-Password'}, 'rule_class' => $Rules::ADMIN }, @{pf::authentication::getInternalAuthenticationSources()} );
+    my ( $return, $message, $source_id, $extra ) = pf::authentication::authenticate( { 
+            'username' =>  $radius_request->{'User-Name'}, 
+            'password' =>  $radius_request->{'User-Password'}, 
+            'rule_class' => $Rules::ADMIN,
+            'context' => $pf::constants::realm::RADIUS_CONTEXT,
+        }, @{pf::authentication::getInternalAuthenticationSources()} );
     if ( defined($return) && $return == $TRUE ) {
-        my $matched = pf::authentication::match2($source_id, { username => $radius_request->{'User-Name'}, 'rule_class' => $Rules::ADMIN }, $extra);
+        my $matched = pf::authentication::match2($source_id, { username => $radius_request->{'User-Name'}, 'rule_class' => $Rules::ADMIN, 'context' => $pf::constants::realm::RADIUS_CONTEXT }, $extra);
         my $value = $matched->{values}{$Actions::SET_ACCESS_LEVEL} if $matched;
         if ($value) {
             my @values = split(',', $value);
