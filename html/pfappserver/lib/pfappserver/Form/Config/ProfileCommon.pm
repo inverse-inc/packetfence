@@ -124,6 +124,7 @@ Accepted languages for the profile
 has_field 'locale' =>
 (
     'type' => 'DynamicTable',
+    'label' => 'Locales',
     'sortable' => 1,
     'do_label' => 0,
 );
@@ -249,7 +250,7 @@ has_field 'billing_tiers.contains' =>
     type => 'Select',
     options_method => \&options_billing_tiers,
     widget_wrapper => 'DynamicTableRow',
-  );
+);
 
 =head2 provisioners
 
