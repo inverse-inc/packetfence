@@ -649,6 +649,68 @@ components:
             type: object
           type: array
       type: object
+    Service:
+      properties:
+        alive:
+          description: Whether the service is alive or not.
+          type: integer
+        enabled:
+          description: Whether the service is enabled or not.
+          type: integer
+        managed:
+          description: Whether the service is managed or not.
+          type: integer
+        pid:
+          description: The service PID.
+          type: integer
+      type: object
+    ServiceDisable:
+      properties:
+        start:
+          description: Whether the service was disabled or not.
+          type: integer
+      type: object
+    ServiceEnable:
+      properties:
+        start:
+          description: Whether the service was enabled or not.
+          type: integer
+      type: object
+    ServiceName:
+      type: string
+    ServiceRestart:
+      properties:
+        pid:
+          description: The service PID.
+          type: integer
+        restart:
+          description: Whether the service was restarted or not.
+          type: integer
+      type: object
+    ServiceStart:
+      properties:
+        pid:
+          description: The service PID.
+          type: integer
+        start:
+          description: Whether the service was started or not.
+          type: integer
+      type: object
+    ServiceStop:
+      properties:
+        stop:
+          description: Whether the service was stopped or not.
+          type: integer
+      type: object
+    ServicesList:
+      allOf:
+      - $ref: '#/components/schemas/Iterable'
+      - properties:
+          items:
+            items:
+              $ref: '#/components/schemas/ServiceName'
+            type: array
+        type: object
     Tenant:
       properties:
         domain_name:
@@ -784,13 +846,9 @@ info:
   version: 0.0.1
 openapi: 3.0.0
 paths:
-  /api_users:
-    get:
-      description: The list of user will be limited to 100 and a cursor will be returned
-        for iterating on other users. Iteration is only needed if the nextCursor is
-        not an empty value.
+  /api_user/{user_id}:
+    delete:
       parameters:
-      - $ref: '#/components/parameters/cursor'
       - &1
         description: The tenant ID to use for this request. Can only be used if the
           API user has access to other tenants. When empty, it will default to use
@@ -800,37 +858,6 @@ paths:
         required: 0
         schema:
           type: string
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiUsersList'
-          description: List of API users
-      summary: Returns a list of api_users
-    post:
-      parameters:
-      - *1
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ApiUser'
-        required: true
-      responses:
-        '201':
-          $ref: '#/components/responses/Created'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '409':
-          $ref: '#/components/responses/Duplicate'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-      summary: Creates a user
-  /api_users/{user_id}:
-    delete:
-      parameters:
-      - *1
       responses:
         '204':
           description: Deleted user
@@ -889,6 +916,41 @@ paths:
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
       summary: Allows to update a whole user
+  /api_users:
+    get:
+      description: The list of user will be limited to 100 and a cursor will be returned
+        for iterating on other users. Iteration is only needed if the nextCursor is
+        not an empty value.
+      parameters:
+      - $ref: '#/components/parameters/cursor'
+      - *1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiUsersList'
+          description: List of API users
+      summary: Returns a list of api_users
+    post:
+      parameters:
+      - *1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiUser'
+        required: true
+      responses:
+        '201':
+          $ref: '#/components/responses/Created'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Duplicate'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+      summary: Creates a user
   /config/connection_profiles:
     get:
       parameters:
@@ -1290,6 +1352,224 @@ paths:
       security:
       - none: []
       summary: Login into the API and obtain a token
+  /node/{node_id}:
+    delete:
+      parameters:
+      - *1
+      responses:
+        '204':
+          description: Deleted node
+      summary: Allows to delete a node
+    get:
+      parameters:
+      - description: The node ID to fetch
+        in: path
+        name: node_id
+        required: true
+        schema:
+          type: string
+      - *1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  item:
+                    $ref: '#/components/schemas/Node'
+                type: object
+          description: A specific node
+      summary: Returns a specific node by its ID
+    patch:
+      parameters:
+      - *1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Node'
+        required: true
+      responses:
+        '200':
+          $ref: '#/components/responses/Message'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+      summary: Allows to update parts of a node
+    put:
+      parameters:
+      - *1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Node'
+        required: true
+      responses:
+        '200':
+          $ref: '#/components/responses/Message'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+      summary: Allows to update a whole node
+  /nodes:
+    get:
+      description: The list of node will be limited to 100 and a cursor will be returned
+        for iterating on other nodes. Iteration is only needed if the nextCursor is
+        not an empty value.
+      parameters:
+      - $ref: '#/components/parameters/cursor'
+      - *1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NodesList'
+          description: List of nodes
+      summary: Returns a list of nodes
+    post:
+      parameters:
+      - *1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Node'
+        required: true
+      responses:
+        '201':
+          $ref: '#/components/responses/Created'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Duplicate'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+      summary: Creates a node
+  /service/:service/disable:
+    post:
+      parameters:
+      - description: The service name to fetch
+        in: path
+        name: service
+        required: true
+        schema:
+          type: string
+      - *1
+      requestBody:
+        required: false
+      responses:
+        '200':
+          $ref: '#/components/schemas/ServiceDisable'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      summary: Disables a service so it doesn't start automatically after reboot
+  /service/:service/enable:
+    post:
+      parameters:
+      - description: The service name to fetch
+        in: path
+        name: service
+        required: true
+        schema:
+          type: string
+      - *1
+      requestBody:
+        required: false
+      responses:
+        '200':
+          $ref: '#/components/schemas/ServiceEnable'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      summary: Enables a service so it starts automatically after reboot
+  /service/:service/restart:
+    post:
+      parameters:
+      - description: The service name to fetch
+        in: path
+        name: service
+        required: true
+        schema:
+          type: string
+      - *1
+      requestBody:
+        required: false
+      responses:
+        '200':
+          $ref: '#/components/schemas/ServiceRestart'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      summary: Restarts a service and returns the PID
+  /service/:service/start:
+    post:
+      parameters:
+      - description: The service name to fetch
+        in: path
+        name: service
+        required: true
+        schema:
+          type: string
+      - *1
+      requestBody:
+        required: false
+      responses:
+        '200':
+          $ref: '#/components/schemas/ServiceStart'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      summary: Starts a service and return the PID
+  /service/:service/status:
+    get:
+      parameters:
+      - $ref: '#/components/parameters/cursor'
+      - *1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+          description: Service details
+        '404':
+          $ref: '#/components/responses/NotFound'
+      summary: Returns a service status
+  /service/:service/stop:
+    post:
+      parameters:
+      - description: The service name to fetch
+        in: path
+        name: service
+        required: true
+        schema:
+          type: string
+      - *1
+      requestBody:
+        required: false
+      responses:
+        '200':
+          $ref: '#/components/schemas/ServiceStop'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      summary: Stops a service
+  /services/:
+    get:
+      description: The list of services will be limited to 100 and a cursor will be
+        returned for iterating on other services. Iteration is only needed if the
+        nextCursor is not an empty value.
+      parameters:
+      - $ref: '#/components/parameters/cursor'
+      - *1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServicesList'
+          description: List of services
+      summary: Returns a list of available services
   /tenants:
     get:
       description: The list of tenants will be limited to 100 and a cursor will be

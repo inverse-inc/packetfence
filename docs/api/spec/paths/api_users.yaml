@@ -29,7 +29,7 @@
       '422':
         $ref: "#/components/responses/UnprocessableEntity"
 
-'/api_users/{user_id}':
+'/api_user/{user_id}':
   get:
     summary: Returns a specific API user by its ID
     parameters:

@@ -1,4 +1,4 @@
-ServiceList:
+ServicesList:
   allOf:
     - $ref: "#/components/schemas/Iterable"
     - type: object
