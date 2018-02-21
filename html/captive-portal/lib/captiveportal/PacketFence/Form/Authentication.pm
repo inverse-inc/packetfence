@@ -22,6 +22,7 @@ has '+widget_name_space' => ( default => 'captiveportal::Form::Widget' );
 use pf::log;
 use pf::sms_carrier;
 use pf::util;
+use pf::web::util;
 
 has 'source' => (is => 'rw');
 
@@ -118,7 +119,7 @@ Check telephone form
 sub check_telephone_form {
     my ($self, $field) = @_;
     if($self->app->request->method eq "POST"){
-        if ( $field->value !~ /^(\+?[0-9]+[0-9-\.\*\(\)\ ]+[0-9]+)$/ ) {
+        if (pf::web::util::validate_phone_number($field->value)) {
             $field->add_error($self->app->i18n("Enter a valid telephone number"));
             $self->app->flash->{error} = $self->app->i18n("Telephone number is not valid");
         }
@@ -178,7 +179,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 
