@@ -1051,11 +1051,11 @@ msgid "system scan in progress"
 msgstr "Your system is being scanned - this process will take approximately %s seconds."
 
 # html/captive-portal/lib/captiveportal/PacketFence/Authentication.pm
-msgid "After registering, you will be given temporary network access%s"
+msgid "After registering, you will be given temporary network access %s"
 msgstr ""
 
 # html/captive-portal/lib/captiveportal/PacketFence/Authentication.pm
-msgid "AUP is required and it's value is : %s"
+msgid "AUP is required and its value is : %s"
 msgstr ""
 
 # html/captive-portal/lib/captiveportal/PacketFence/Authentication.pm
