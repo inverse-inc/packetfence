@@ -77,7 +77,7 @@ sub assertion {
     my ($username, $msg) = $self->source->handle_response($self->app->request->param("SAMLResponse"));
 
     # We strip the username if required
-    ($username, undef) = strip_username_if_needed($username, $pf::constants::realm::PORTAL_CONTEXT);
+    ($username, undef) = pf::config::util::strip_username_if_needed($username, $pf::constants::realm::PORTAL_CONTEXT);
 
     if($username){
         pf::auth_log::record_completed_oauth($self->source->id, $self->current_mac, $username, $pf::auth_log::COMPLETED, $self->app->profile->name);
