@@ -24,24 +24,29 @@ sub formHandlerToSchema {
     my $name = ref $form;
     $name =~ s/^.*:://;
     return {
-        $name => {
-            type       => 'object',
-            properties => formHandlerProperties($form),
-            required   => formHandlerRequiredProperties($form),
-        },
-        listSchema($name)
+        $name => objectSchema($form),
+        "${name}List" => listSchema($name)
     };
+}
+
+sub objectSchema {
+    my ($form) = @_;
+    return {
+        type       => 'object',
+        properties => formHandlerProperties($form),
+        required   => formHandlerRequiredProperties($form),
+    },
 }
 
 sub formHandlerRequiredProperties {
     my ($form) = @_;
-    return [map { $_->name } grep { $_->required } $form->fields];
+    return [map { $_->name } grep { $_->required && $_->is_active } $form->fields];
 }
 
 sub formHandlerProperties {
     my ($form) = @_;
     my %properties;
-    for my $field ($form->fields) {
+    for my $field (grep { $_->is_active } $form->fields) {
         my $name = $field->name;
         $properties{$name} = fieldProperties($field);
     }
@@ -49,9 +54,9 @@ sub formHandlerProperties {
 }
 
 sub fieldProperties {
-    my ($field) = @_;
+    my ($field, $not_array) = @_;
     my %props = (
-        type => fieldType($field),
+        type => fieldType($field, $not_array),
         description => fieldDescription($field),
     );
     if ($props{type} eq 'array') {
@@ -65,13 +70,16 @@ sub fieldProperties {
 
 sub fieldArrayItems {
     my ($field) = @_;
-    my $element = $field->clone_element(noun($field->name)->singular);
-    return fieldProperties($element);
+    if ($field->isa('HTML::FormHandler::Field::Repeatable')) {
+        my $element = $field->clone_element(noun($field->name)->singular);
+        return fieldProperties($element);
+    }
+    return fieldProperties($field, 1);
 }
 
 sub fieldType {
-    my ($field) = @_;
-    if (isArrayType($field)) {
+    my ($field, $not_array) = @_;
+    if (isArrayType($field, $not_array)) {
         return 'array';
     }
 
@@ -87,9 +95,9 @@ sub fieldType {
 }
 
 sub isArrayType {
-    my ($field) = @_;
+    my ($field, $not_array) = @_;
     return $field->isa('HTML::FormHandler::Field::Repeatable') || 
-        ($field->isa('HTML::FormHandler::Field::Select') && $field->multiple );
+        ($field->isa('HTML::FormHandler::Field::Select') && $field->multiple && !$not_array );
 }
 
 sub isObjectType {
@@ -105,7 +113,7 @@ sub fieldDescription {
 
 sub listSchema {
     my ($name) = @_;
-    return "${name}List" => {
+    return {
         '$ref'     => '#/components/schemas/Iterable',
         type       => 'object',
         properties => {
