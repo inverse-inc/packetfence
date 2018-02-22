@@ -22,7 +22,7 @@ use Module::Load;
 use pf::UnifiedApi::GenerateSpec;
 use boolean;
 use pf::file_paths qw($install_dir);
-use YAML::XS qw(DumpFile);;
+use YAML qw(DumpFile);;
 
 our %METHODS_WITH_ID = (
     get => 1,
@@ -70,12 +70,12 @@ for my $route_info (@route_infos) {
 
 {
     my $base_path = "$install_dir/docs/api/spec/paths";
+    local $YAML::UseHeader = 0;
     while (my ($p, $d) = each %paths) {
         my $file_path = $p;
         $file_path =~ s#/\{[^\}]+\}##;
         $file_path = "${base_path}${file_path}.yaml";
         unlink ($file_path);
-        local $YAML::UseHeader = 0;
         DumpFile($file_path, {$p => $d});
     }
 }
