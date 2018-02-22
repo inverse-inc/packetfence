@@ -5,13 +5,14 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
-	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
 
+	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
@@ -22,8 +23,9 @@ type PfAuthenticationBackend struct {
 }
 
 type PfAuthenticationReply struct {
-	Result int
-	Roles  []string
+	Result   int
+	Roles    []string
+	TenantId int `json:"tenant_id"`
 }
 
 func NewPfAuthenticationBackend(ctx context.Context, url *url.URL, checkCert bool) *PfAuthenticationBackend {
@@ -69,10 +71,13 @@ func (pfab *PfAuthenticationBackend) Authenticate(ctx context.Context, username,
 	}
 
 	if reply.Result != 1 {
-		return false, nil, errors.New("Username/password combination is invalid")
+		return false, nil, nil
 	}
 
-	return true, pfab.buildTokenInfo(ctx, &reply), nil
+	ti := pfab.buildTokenInfo(ctx, &reply)
+	log.LoggerWContext(ctx).Info(fmt.Sprintf("API login for user %s for tenant %d", username, ti.TenantId))
+
+	return true, ti, nil
 }
 
 func (pfab *PfAuthenticationBackend) buildTokenInfo(ctx context.Context, data *PfAuthenticationReply) *TokenInfo {
@@ -88,5 +93,5 @@ func (pfab *PfAuthenticationBackend) buildTokenInfo(ctx context.Context, data *P
 		}
 	}
 
-	return &TokenInfo{AdminRoles: adminRolesMap}
+	return &TokenInfo{AdminRoles: adminRolesMap, TenantId: data.TenantId}
 }

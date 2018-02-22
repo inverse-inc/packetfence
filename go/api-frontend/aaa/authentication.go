@@ -3,9 +3,11 @@ package aaa
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 
+	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/satori/go.uuid"
 )
 
@@ -27,10 +29,12 @@ func (tam *TokenAuthenticationMiddleware) AddAuthenticationBackend(ab Authentica
 
 func (tam *TokenAuthenticationMiddleware) Login(ctx context.Context, username, password string) (bool, string, error) {
 	for _, backend := range tam.authBackends {
-		if auth, tokenInfo, _ := backend.Authenticate(ctx, username, password); auth {
+		if auth, tokenInfo, err := backend.Authenticate(ctx, username, password); auth {
 			token := uuid.NewV4().String()
 			tam.tokenBackend.StoreTokenInfo(token, tokenInfo)
 			return true, token, nil
+		} else if err != nil {
+			log.LoggerWContext(ctx).Error(fmt.Sprintf("Error while authenticating user %s: %s", username, err))
 		}
 	}
 	return false, "", errors.New("Wasn't able to authenticate those credentials")

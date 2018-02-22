@@ -3,7 +3,6 @@ package aaa
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -73,13 +72,13 @@ func (dab *DbAuthenticationBackend) Authenticate(ctx context.Context, username, 
 		sharedutils.CheckError(err)
 
 		if err := bcrypt.CompareHashAndPassword([]byte(apiUser.Password), []byte(password)); err != nil {
-			return false, nil, errors.New("Invalid username/password combination")
+			return false, nil, nil
 		} else {
 			return true, dab.buildTokenInfo(ctx, &apiUser), nil
 		}
 	}
 
-	return false, nil, errors.New("Can't find a valid user for this username")
+	return false, nil, nil
 }
 
 func (dab *DbAuthenticationBackend) buildTokenInfo(ctx context.Context, apiUser *ApiUser) *TokenInfo {
