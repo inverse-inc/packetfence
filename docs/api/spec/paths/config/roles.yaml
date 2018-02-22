@@ -1,56 +1,50 @@
----
 /config/roles:
   get:
     parameters:
-    - description: The tenant ID to use for this request. Can only be used if the
-        API user has access to other tenants. When empty, it will default to use the
-        tenant attached to the token.
-      in: header
-      name: X-PacketFence-Tenant-Id
-      required: 0
-      schema:
-        type: string
-    - $ref: '#/components/parameters/cursor'
+      - description: 'The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.'
+        in: header
+        name: X-PacketFence-Tenant-Id
+        required: 0
+        schema:
+          type: string
+      - $ref: '#/components/parameters/cursor'
     responses:
-      '200':
+      200:
         content:
           application/json:
             schema:
               allOf:
-              - $ref: '#/components/schemas/Iterable'
-              - properties:
-                  items:
-                    properties:
-                      id:
-                        description: Name
-                        type: string
-                      max_nodes_per_pid:
-                        description: The maximum number of nodes a user having this
-                          role can register.
-                        type: integer
-                      notes:
-                        description: Description
-                        type: string
-                    required:
-                    - id
-                    - max_nodes_per_pid
-                    type: object
-                type: object
+                - $ref: '#/components/schemas/Iterable'
+                - properties:
+                    items:
+                      properties:
+                        id:
+                          description: Name
+                          type: string
+                        max_nodes_per_pid:
+                          description: The maximum number of nodes a user having this role can register.
+                          type: integer
+                        notes:
+                          description: Description
+                          type: string
+                      required:
+                        - id
+                        - max_nodes_per_pid
+                      type: object
+                  type: object
         description: A list of connection profiles
-      '400':
+      400:
         $ref: '#/components/responses/BadRequest'
-      '422':
+      422:
         $ref: '#/components/responses/UnprocessableEntity'
   post:
     parameters:
-    - description: The tenant ID to use for this request. Can only be used if the
-        API user has access to other tenants. When empty, it will default to use the
-        tenant attached to the token.
-      in: header
-      name: X-PacketFence-Tenant-Id
-      required: 0
-      schema:
-        type: string
+      - description: 'The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.'
+        in: header
+        name: X-PacketFence-Tenant-Id
+        required: 0
+        schema:
+          type: string
     requestBody:
       content:
         application/json:
@@ -60,23 +54,22 @@
                 description: Name
                 type: string
               max_nodes_per_pid:
-                description: The maximum number of nodes a user having this role can
-                  register.
+                description: The maximum number of nodes a user having this role can register.
                 type: integer
               notes:
                 description: Description
                 type: string
             required:
-            - id
-            - max_nodes_per_pid
+              - id
+              - max_nodes_per_pid
             type: object
       required: !!perl/scalar:boolean 1
     responses:
-      '201':
+      201:
         $ref: '#/components/responses/Created'
-      '400':
+      400:
         $ref: '#/components/responses/BadRequest'
-      '409':
+      409:
         $ref: '#/components/responses/Duplicate'
-      '422':
+      422:
         $ref: '#/components/responses/UnprocessableEntity'

@@ -1,29 +1,24 @@
----
-/config/switch_group/{switch_group_id}:
+'/config/switch_group/{switch_group_id}':
   delete:
     parameters:
-    - description: The tenant ID to use for this request. Can only be used if the
-        API user has access to other tenants. When empty, it will default to use the
-        tenant attached to the token.
-      in: header
-      name: X-PacketFence-Tenant-Id
-      required: 0
-      schema:
-        type: string
+      - description: 'The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.'
+        in: header
+        name: X-PacketFence-Tenant-Id
+        required: 0
+        schema:
+          type: string
     responses:
-      '204':
+      204:
         description: Deleted a config item
     summary: Delete a config item
   get:
     parameters:
-    - description: The tenant ID to use for this request. Can only be used if the
-        API user has access to other tenants. When empty, it will default to use the
-        tenant attached to the token.
-      in: header
-      name: X-PacketFence-Tenant-Id
-      required: 0
-      schema:
-        type: string
+      - description: 'The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.'
+        in: header
+        name: X-PacketFence-Tenant-Id
+        required: 0
+        schema:
+          type: string
     requestBody:
       content:
         application/json:
@@ -33,8 +28,7 @@
                 description: Role by access list
                 type: string
               ExternalPortalEnforcement:
-                description: Enable external portal enforcement when supported by
-                  network equipment
+                description: Enable external portal enforcement when supported by network equipment
                 type: string
               RoleMap:
                 description: Role by Switch Role
@@ -124,8 +118,7 @@
                 description: Always trigger
                 type: string
               cliAccess:
-                description: Allow this switch to use PacketFence as a radius server
-                  for CLI access
+                description: Allow this switch to use PacketFence as a radius server for CLI access
                 type: string
               cliEnablePwd:
                 description: Enable Password
@@ -140,11 +133,10 @@
                 description: Username
                 type: string
               coaPort:
-                description: For CoA request, if we have to send to another port
+                description: 'For CoA request, if we have to send to another port'
                 type: integer
               controllerIp:
-                description: Use instead this IP address for de-authentication requests.
-                  Normally used for Wi-Fi only
+                description: Use instead this IP address for de-authentication requests. Normally used for Wi-Fi only
                 type: string
               deauthMethod:
                 description: Deauthentication Method
@@ -153,8 +145,7 @@
                 description: Description
                 type: string
               disconnectPort:
-                description: For Disconnect request, if we have to send to another
-                  port
+                description: 'For Disconnect request, if we have to send to another port'
                 type: integer
               group:
                 description: Group
@@ -254,8 +245,7 @@
                 description: Dynamically lookup uplinks
                 type: string
               useCoA:
-                description: Use CoA when available to deauthenticate the user. When
-                  disabled, RADIUS Disconnect will be used instead if it is available.
+                description: 'Use CoA when available to deauthenticate the user. When disabled, RADIUS Disconnect will be used instead if it is available.'
                 type: string
               wsPwd:
                 description: Password
@@ -267,26 +257,24 @@
                 description: Username
                 type: string
             required:
-            - id
+              - id
             type: object
-      required: !!perl/scalar:boolean 1
+      required: &1 !!perl/scalar:boolean 1
     responses:
-      '201':
+      201:
         $ref: '#/components/responses/Created'
-      '400':
+      400:
         $ref: '#/components/responses/BadRequest'
-      '422':
+      422:
         $ref: '#/components/responses/UnprocessableEntity'
   patch:
     parameters:
-    - description: The tenant ID to use for this request. Can only be used if the
-        API user has access to other tenants. When empty, it will default to use the
-        tenant attached to the token.
-      in: header
-      name: X-PacketFence-Tenant-Id
-      required: 0
-      schema:
-        type: string
+      - description: 'The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.'
+        in: header
+        name: X-PacketFence-Tenant-Id
+        required: 0
+        schema:
+          type: string
     requestBody:
       content:
         application/json:
@@ -296,8 +284,7 @@
                 description: Role by access list
                 type: string
               ExternalPortalEnforcement:
-                description: Enable external portal enforcement when supported by
-                  network equipment
+                description: Enable external portal enforcement when supported by network equipment
                 type: string
               RoleMap:
                 description: Role by Switch Role
@@ -387,8 +374,7 @@
                 description: Always trigger
                 type: string
               cliAccess:
-                description: Allow this switch to use PacketFence as a radius server
-                  for CLI access
+                description: Allow this switch to use PacketFence as a radius server for CLI access
                 type: string
               cliEnablePwd:
                 description: Enable Password
@@ -403,11 +389,10 @@
                 description: Username
                 type: string
               coaPort:
-                description: For CoA request, if we have to send to another port
+                description: 'For CoA request, if we have to send to another port'
                 type: integer
               controllerIp:
-                description: Use instead this IP address for de-authentication requests.
-                  Normally used for Wi-Fi only
+                description: Use instead this IP address for de-authentication requests. Normally used for Wi-Fi only
                 type: string
               deauthMethod:
                 description: Deauthentication Method
@@ -416,8 +401,7 @@
                 description: Description
                 type: string
               disconnectPort:
-                description: For Disconnect request, if we have to send to another
-                  port
+                description: 'For Disconnect request, if we have to send to another port'
                 type: integer
               group:
                 description: Group
@@ -514,8 +498,7 @@
                 description: Dynamically lookup uplinks
                 type: string
               useCoA:
-                description: Use CoA when available to deauthenticate the user. When
-                  disabled, RADIUS Disconnect will be used instead if it is available.
+                description: 'Use CoA when available to deauthenticate the user. When disabled, RADIUS Disconnect will be used instead if it is available.'
                 type: string
               wsPwd:
                 description: Password
@@ -528,24 +511,22 @@
                 type: string
             required: []
             type: object
-      required: !!perl/scalar:boolean 1
+      required: *1
     responses:
-      '201':
+      201:
         $ref: '#/components/responses/Created'
-      '400':
+      400:
         $ref: '#/components/responses/BadRequest'
-      '422':
+      422:
         $ref: '#/components/responses/UnprocessableEntity'
   put:
     parameters:
-    - description: The tenant ID to use for this request. Can only be used if the
-        API user has access to other tenants. When empty, it will default to use the
-        tenant attached to the token.
-      in: header
-      name: X-PacketFence-Tenant-Id
-      required: 0
-      schema:
-        type: string
+      - description: 'The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.'
+        in: header
+        name: X-PacketFence-Tenant-Id
+        required: 0
+        schema:
+          type: string
     requestBody:
       content:
         application/json:
@@ -555,8 +536,7 @@
                 description: Role by access list
                 type: string
               ExternalPortalEnforcement:
-                description: Enable external portal enforcement when supported by
-                  network equipment
+                description: Enable external portal enforcement when supported by network equipment
                 type: string
               RoleMap:
                 description: Role by Switch Role
@@ -646,8 +626,7 @@
                 description: Always trigger
                 type: string
               cliAccess:
-                description: Allow this switch to use PacketFence as a radius server
-                  for CLI access
+                description: Allow this switch to use PacketFence as a radius server for CLI access
                 type: string
               cliEnablePwd:
                 description: Enable Password
@@ -662,11 +641,10 @@
                 description: Username
                 type: string
               coaPort:
-                description: For CoA request, if we have to send to another port
+                description: 'For CoA request, if we have to send to another port'
                 type: integer
               controllerIp:
-                description: Use instead this IP address for de-authentication requests.
-                  Normally used for Wi-Fi only
+                description: Use instead this IP address for de-authentication requests. Normally used for Wi-Fi only
                 type: string
               deauthMethod:
                 description: Deauthentication Method
@@ -675,8 +653,7 @@
                 description: Description
                 type: string
               disconnectPort:
-                description: For Disconnect request, if we have to send to another
-                  port
+                description: 'For Disconnect request, if we have to send to another port'
                 type: integer
               group:
                 description: Group
@@ -773,8 +750,7 @@
                 description: Dynamically lookup uplinks
                 type: string
               useCoA:
-                description: Use CoA when available to deauthenticate the user. When
-                  disabled, RADIUS Disconnect will be used instead if it is available.
+                description: 'Use CoA when available to deauthenticate the user. When disabled, RADIUS Disconnect will be used instead if it is available.'
                 type: string
               wsPwd:
                 description: Password
@@ -787,11 +763,11 @@
                 type: string
             required: []
             type: object
-      required: !!perl/scalar:boolean 1
+      required: *1
     responses:
-      '201':
+      201:
         $ref: '#/components/responses/Created'
-      '400':
+      400:
         $ref: '#/components/responses/BadRequest'
-      '422':
+      422:
         $ref: '#/components/responses/UnprocessableEntity'

@@ -1,45 +1,37 @@
----
-/config/device_registration/{device_registration_id}:
+'/config/device_registration/{device_registration_id}':
   delete:
     parameters:
-    - description: The tenant ID to use for this request. Can only be used if the
-        API user has access to other tenants. When empty, it will default to use the
-        tenant attached to the token.
-      in: header
-      name: X-PacketFence-Tenant-Id
-      required: 0
-      schema:
-        type: string
+      - description: 'The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.'
+        in: header
+        name: X-PacketFence-Tenant-Id
+        required: 0
+        schema:
+          type: string
     responses:
-      '204':
+      204:
         description: Deleted a config item
     summary: Delete a config item
   get:
     parameters:
-    - description: The tenant ID to use for this request. Can only be used if the
-        API user has access to other tenants. When empty, it will default to use the
-        tenant attached to the token.
-      in: header
-      name: X-PacketFence-Tenant-Id
-      required: 0
-      schema:
-        type: string
+      - description: 'The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.'
+        in: header
+        name: X-PacketFence-Tenant-Id
+        required: 0
+        schema:
+          type: string
     requestBody:
       content:
         application/json:
           schema:
             properties:
               allowed_devices:
-                description: List of OS which will be allowed to be register via the
-                  self service portal.
+                description: List of OS which will be allowed to be register via the self service portal.
                 items:
-                  description: List of OS which will be allowed to be register via
-                    the self service portal.
+                  description: List of OS which will be allowed to be register via the self service portal.
                   type: string
                 type: array
               category:
-                description: The role to assign to devices registered from the specific
-                  portal. If none is specified, the role of the registrant is used.
+                description: 'The role to assign to devices registered from the specific portal. If none is specified, the role of the registrant is used.'
                 type: string
               description:
                 description: Description
@@ -48,93 +40,83 @@
                 description: Profile Name
                 type: string
             required:
-            - id
+              - id
             type: object
-      required: !!perl/scalar:boolean 1
+      required: &1 !!perl/scalar:boolean 1
     responses:
-      '201':
+      201:
         $ref: '#/components/responses/Created'
-      '400':
+      400:
         $ref: '#/components/responses/BadRequest'
-      '422':
+      422:
         $ref: '#/components/responses/UnprocessableEntity'
   patch:
     parameters:
-    - description: The tenant ID to use for this request. Can only be used if the
-        API user has access to other tenants. When empty, it will default to use the
-        tenant attached to the token.
-      in: header
-      name: X-PacketFence-Tenant-Id
-      required: 0
-      schema:
-        type: string
+      - description: 'The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.'
+        in: header
+        name: X-PacketFence-Tenant-Id
+        required: 0
+        schema:
+          type: string
     requestBody:
       content:
         application/json:
           schema:
             properties:
               allowed_devices:
-                description: List of OS which will be allowed to be register via the
-                  self service portal.
+                description: List of OS which will be allowed to be register via the self service portal.
                 items:
-                  description: List of OS which will be allowed to be register via
-                    the self service portal.
+                  description: List of OS which will be allowed to be register via the self service portal.
                   type: string
                 type: array
               category:
-                description: The role to assign to devices registered from the specific
-                  portal. If none is specified, the role of the registrant is used.
+                description: 'The role to assign to devices registered from the specific portal. If none is specified, the role of the registrant is used.'
                 type: string
               description:
                 description: Description
                 type: string
             required: []
             type: object
-      required: !!perl/scalar:boolean 1
+      required: *1
     responses:
-      '201':
+      201:
         $ref: '#/components/responses/Created'
-      '400':
+      400:
         $ref: '#/components/responses/BadRequest'
-      '422':
+      422:
         $ref: '#/components/responses/UnprocessableEntity'
   put:
     parameters:
-    - description: The tenant ID to use for this request. Can only be used if the
-        API user has access to other tenants. When empty, it will default to use the
-        tenant attached to the token.
-      in: header
-      name: X-PacketFence-Tenant-Id
-      required: 0
-      schema:
-        type: string
+      - description: 'The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.'
+        in: header
+        name: X-PacketFence-Tenant-Id
+        required: 0
+        schema:
+          type: string
     requestBody:
       content:
         application/json:
           schema:
             properties:
               allowed_devices:
-                description: List of OS which will be allowed to be register via the
-                  self service portal.
+                description: List of OS which will be allowed to be register via the self service portal.
                 items:
-                  description: List of OS which will be allowed to be register via
-                    the self service portal.
+                  description: List of OS which will be allowed to be register via the self service portal.
                   type: string
                 type: array
               category:
-                description: The role to assign to devices registered from the specific
-                  portal. If none is specified, the role of the registrant is used.
+                description: 'The role to assign to devices registered from the specific portal. If none is specified, the role of the registrant is used.'
                 type: string
               description:
                 description: Description
                 type: string
             required: []
             type: object
-      required: !!perl/scalar:boolean 1
+      required: *1
     responses:
-      '201':
+      201:
         $ref: '#/components/responses/Created'
-      '400':
+      400:
         $ref: '#/components/responses/BadRequest'
-      '422':
+      422:
         $ref: '#/components/responses/UnprocessableEntity'
