@@ -5,14 +5,12 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
 
-	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
@@ -75,7 +73,6 @@ func (pfab *PfAuthenticationBackend) Authenticate(ctx context.Context, username,
 	}
 
 	ti := pfab.buildTokenInfo(ctx, &reply)
-	log.LoggerWContext(ctx).Info(fmt.Sprintf("API login for user %s for tenant %d", username, ti.TenantId))
 
 	return true, ti, nil
 }

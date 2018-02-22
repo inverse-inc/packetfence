@@ -30,6 +30,7 @@ func (tam *TokenAuthenticationMiddleware) AddAuthenticationBackend(ab Authentica
 func (tam *TokenAuthenticationMiddleware) Login(ctx context.Context, username, password string) (bool, string, error) {
 	for _, backend := range tam.authBackends {
 		if auth, tokenInfo, err := backend.Authenticate(ctx, username, password); auth {
+			log.LoggerWContext(ctx).Info(fmt.Sprintf("API login for user %s for tenant %d", username, tokenInfo.TenantId))
 			token := uuid.NewV4().String()
 			tam.tokenBackend.StoreTokenInfo(token, tokenInfo)
 			return true, token, nil
