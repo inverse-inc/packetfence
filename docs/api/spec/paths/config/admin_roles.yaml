@@ -1,83 +1,102 @@
 /config/admin_roles:
   get:
     parameters:
-      - description: 'The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.'
-        in: header
-        name: X-PacketFence-Tenant-Id
-        required: 0
-        schema:
-          type: string
-      - $ref: '#/components/parameters/cursor'
+    - description: The tenant ID to use for this request. Can only be used if the
+        API user has access to other tenants. When empty, it will default to use the
+        tenant attached to the token.
+      in: header
+      name: X-PacketFence-Tenant-Id
+      required: 0
+      schema:
+        type: string
+    - $ref: '#/components/parameters/cursor'
     responses:
-      200:
+      '200':
         content:
           application/json:
             schema:
               allOf:
-                - $ref: '#/components/schemas/Iterable'
-                - properties:
-                    items:
-                      properties:
-                        actions:
-                          description: Actions
-                          items:
-                            description: Action
-                            type: string
-                          type: array
-                        allowed_access_durations:
-                          description: A comma seperated list of access durations available to the admin user. If none are provided then the default access durations are used
+              - $ref: '#/components/schemas/Iterable'
+              - properties:
+                  items:
+                    properties:
+                      actions:
+                        description: Actions
+                        items:
+                          description: Action
                           type: string
-                        allowed_access_levels:
-                          description: List of access levels available to the admin user. If none are provided then all access levels are available
-                          items:
-                            description: List of access levels available to the admin user. If none are provided then all access levels are available
-                            type: string
-                          type: array
-                        allowed_actions:
-                          description: List of actions available to the admin user. If none are provided then all actions are available
-                          items:
-                            description: List of actions available to the admin user. If none are provided then all actions are available
-                            type: string
-                          type: array
-                        allowed_node_roles:
-                          description: List of roles available to the admin user to assign to a node. If none are provided then all roles are available
-                          items:
-                            description: List of roles available to the admin user to assign to a node. If none are provided then all roles are available
-                            type: string
-                          type: array
-                        allowed_roles:
-                          description: List of roles available to the admin user to assign to a user. If none are provided then all roles are available
-                          items:
-                            description: List of roles available to the admin user to assign to a user. If none are provided then all roles are available
-                            type: string
-                          type: array
-                        allowed_unreg_date:
-                          description: The maximal unregistration date that can be set.
+                        type: array
+                      allowed_access_durations:
+                        description: A comma seperated list of access durations available
+                          to the admin user. If none are provided then the default
+                          access durations are used
+                        type: string
+                      allowed_access_levels:
+                        description: List of access levels available to the admin
+                          user. If none are provided then all access levels are available
+                        items:
+                          description: List of access levels available to the admin
+                            user. If none are provided then all access levels are
+                            available
                           type: string
-                        description:
-                          description: Description
+                        type: array
+                      allowed_actions:
+                        description: List of actions available to the admin user.
+                          If none are provided then all actions are available
+                        items:
+                          description: List of actions available to the admin user.
+                            If none are provided then all actions are available
                           type: string
-                        id:
-                          description: Role Name
+                        type: array
+                      allowed_node_roles:
+                        description: List of roles available to the admin user to
+                          assign to a node. If none are provided then all roles are
+                          available
+                        items:
+                          description: List of roles available to the admin user to
+                            assign to a node. If none are provided then all roles
+                            are available
                           type: string
-                      required:
-                        - id
-                        - description
-                      type: object
-                  type: object
+                        type: array
+                      allowed_roles:
+                        description: List of roles available to the admin user to
+                          assign to a user. If none are provided then all roles are
+                          available
+                        items:
+                          description: List of roles available to the admin user to
+                            assign to a user. If none are provided then all roles
+                            are available
+                          type: string
+                        type: array
+                      allowed_unreg_date:
+                        description: The maximal unregistration date that can be set.
+                        type: string
+                      description:
+                        description: Description
+                        type: string
+                      id:
+                        description: Role Name
+                        type: string
+                    required:
+                    - id
+                    - description
+                    type: object
+                type: object
         description: A list of connection profiles
-      400:
+      '400':
         $ref: '#/components/responses/BadRequest'
-      422:
+      '422':
         $ref: '#/components/responses/UnprocessableEntity'
   post:
     parameters:
-      - description: 'The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.'
-        in: header
-        name: X-PacketFence-Tenant-Id
-        required: 0
-        schema:
-          type: string
+    - description: The tenant ID to use for this request. Can only be used if the
+        API user has access to other tenants. When empty, it will default to use the
+        tenant attached to the token.
+      in: header
+      name: X-PacketFence-Tenant-Id
+      required: 0
+      schema:
+        type: string
     requestBody:
       content:
         application/json:
@@ -90,30 +109,40 @@
                   type: string
                 type: array
               allowed_access_durations:
-                description: A comma seperated list of access durations available to the admin user. If none are provided then the default access durations are used
+                description: A comma seperated list of access durations available
+                  to the admin user. If none are provided then the default access
+                  durations are used
                 type: string
               allowed_access_levels:
-                description: List of access levels available to the admin user. If none are provided then all access levels are available
+                description: List of access levels available to the admin user. If
+                  none are provided then all access levels are available
                 items:
-                  description: List of access levels available to the admin user. If none are provided then all access levels are available
+                  description: List of access levels available to the admin user.
+                    If none are provided then all access levels are available
                   type: string
                 type: array
               allowed_actions:
-                description: List of actions available to the admin user. If none are provided then all actions are available
+                description: List of actions available to the admin user. If none
+                  are provided then all actions are available
                 items:
-                  description: List of actions available to the admin user. If none are provided then all actions are available
+                  description: List of actions available to the admin user. If none
+                    are provided then all actions are available
                   type: string
                 type: array
               allowed_node_roles:
-                description: List of roles available to the admin user to assign to a node. If none are provided then all roles are available
+                description: List of roles available to the admin user to assign to
+                  a node. If none are provided then all roles are available
                 items:
-                  description: List of roles available to the admin user to assign to a node. If none are provided then all roles are available
+                  description: List of roles available to the admin user to assign
+                    to a node. If none are provided then all roles are available
                   type: string
                 type: array
               allowed_roles:
-                description: List of roles available to the admin user to assign to a user. If none are provided then all roles are available
+                description: List of roles available to the admin user to assign to
+                  a user. If none are provided then all roles are available
                 items:
-                  description: List of roles available to the admin user to assign to a user. If none are provided then all roles are available
+                  description: List of roles available to the admin user to assign
+                    to a user. If none are provided then all roles are available
                   type: string
                 type: array
               allowed_unreg_date:
@@ -126,16 +155,16 @@
                 description: Role Name
                 type: string
             required:
-              - id
-              - description
+            - id
+            - description
             type: object
-      required: !!perl/scalar:boolean 1
+      required: true
     responses:
-      201:
+      '201':
         $ref: '#/components/responses/Created'
-      400:
+      '400':
         $ref: '#/components/responses/BadRequest'
-      409:
+      '409':
         $ref: '#/components/responses/Duplicate'
-      422:
+      '422':
         $ref: '#/components/responses/UnprocessableEntity'

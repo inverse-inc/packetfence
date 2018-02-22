@@ -1,24 +1,28 @@
-'/config/realm/{realm_id}':
+/config/realm/{realm_id}:
   delete:
     parameters:
-      - description: 'The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.'
-        in: header
-        name: X-PacketFence-Tenant-Id
-        required: 0
-        schema:
-          type: string
+    - description: The tenant ID to use for this request. Can only be used if the
+        API user has access to other tenants. When empty, it will default to use the
+        tenant attached to the token.
+      in: header
+      name: X-PacketFence-Tenant-Id
+      required: 0
+      schema:
+        type: string
     responses:
-      204:
+      '204':
         description: Deleted a config item
     summary: Delete a config item
   get:
     parameters:
-      - description: 'The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.'
-        in: header
-        name: X-PacketFence-Tenant-Id
-        required: 0
-        schema:
-          type: string
+    - description: The tenant ID to use for this request. Can only be used if the
+        API user has access to other tenants. When empty, it will default to use the
+        tenant attached to the token.
+      in: header
+      name: X-PacketFence-Tenant-Id
+      required: 0
+      schema:
+        type: string
     requestBody:
       content:
         application/json:
@@ -34,24 +38,26 @@
                 description: You can add options in the realm definition
                 type: string
             required:
-              - id
+            - id
             type: object
-      required: &1 !!perl/scalar:boolean 1
+      required: true
     responses:
-      201:
+      '201':
         $ref: '#/components/responses/Created'
-      400:
+      '400':
         $ref: '#/components/responses/BadRequest'
-      422:
+      '422':
         $ref: '#/components/responses/UnprocessableEntity'
   patch:
     parameters:
-      - description: 'The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.'
-        in: header
-        name: X-PacketFence-Tenant-Id
-        required: 0
-        schema:
-          type: string
+    - description: The tenant ID to use for this request. Can only be used if the
+        API user has access to other tenants. When empty, it will default to use the
+        tenant attached to the token.
+      in: header
+      name: X-PacketFence-Tenant-Id
+      required: 0
+      schema:
+        type: string
     requestBody:
       content:
         application/json:
@@ -65,22 +71,24 @@
                 type: string
             required: []
             type: object
-      required: *1
+      required: true
     responses:
-      201:
+      '201':
         $ref: '#/components/responses/Created'
-      400:
+      '400':
         $ref: '#/components/responses/BadRequest'
-      422:
+      '422':
         $ref: '#/components/responses/UnprocessableEntity'
   put:
     parameters:
-      - description: 'The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.'
-        in: header
-        name: X-PacketFence-Tenant-Id
-        required: 0
-        schema:
-          type: string
+    - description: The tenant ID to use for this request. Can only be used if the
+        API user has access to other tenants. When empty, it will default to use the
+        tenant attached to the token.
+      in: header
+      name: X-PacketFence-Tenant-Id
+      required: 0
+      schema:
+        type: string
     requestBody:
       content:
         application/json:
@@ -94,11 +102,11 @@
                 type: string
             required: []
             type: object
-      required: *1
+      required: true
     responses:
-      201:
+      '201':
         $ref: '#/components/responses/Created'
-      400:
+      '400':
         $ref: '#/components/responses/BadRequest'
-      422:
+      '422':
         $ref: '#/components/responses/UnprocessableEntity'

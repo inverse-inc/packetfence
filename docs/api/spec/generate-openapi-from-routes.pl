@@ -22,7 +22,9 @@ use Module::Load;
 use pf::UnifiedApi::GenerateSpec;
 use boolean;
 use pf::file_paths qw($install_dir);
-use YAML qw(DumpFile);;
+use YAML::XS qw(Dump);;
+use File::Slurp qw(write_file);
+$YAML::XS::Boolean = 'boolean';
 
 our %METHODS_WITH_ID = (
     get => 1,
@@ -76,7 +78,9 @@ for my $route_info (@route_infos) {
         $file_path =~ s#/\{[^\}]+\}##;
         $file_path = "${base_path}${file_path}.yaml";
         unlink ($file_path);
-        DumpFile($file_path, {$p => $d});
+        my $dump = Dump({$p => $d});
+        $dump =~ s/---\n//;
+        write_file($file_path, $dump);
     }
 }
 
