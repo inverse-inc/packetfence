@@ -13,7 +13,7 @@
   }
 
   cors /api/v1 {
-    allowed_headers Content-Type
+    allowed_headers Authorization,Content-Type
   }
 
   api-aaa
