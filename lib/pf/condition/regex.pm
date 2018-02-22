@@ -30,6 +30,18 @@ has value => (
     required => 1,
 );
 
+sub BUILD {
+    my ($self) = @_;
+
+    eval {
+        $self->match("test");
+    };
+
+    if($@) {
+        die "Unable to build regexp ".$self->value."\n";
+    }
+}
+
 =head2 match
 
 Match if argument matches the regex defined
