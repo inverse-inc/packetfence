@@ -30,9 +30,9 @@ func NewPfAuthenticationBackend(ctx context.Context, url *url.URL, checkCert boo
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.AdminRoles)
 
 	tr := &http.Transport{
-		// TODO: add better timeouts
-		MaxIdleConnsPerHost: 30,
-		TLSHandshakeTimeout: 0 * time.Second,
+		MaxIdleConnsPerHost:   30,
+		TLSHandshakeTimeout:   1 * time.Second,
+		ResponseHeaderTimeout: 5 * time.Second,
 	}
 	tr.TLSClientConfig = &tls.Config{
 		InsecureSkipVerify: !checkCert,
