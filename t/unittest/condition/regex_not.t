@@ -18,8 +18,9 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 8;                      # last test to print
+use Test::More tests => 9;                      # last test to print
 
+use Test::Exception;
 use Test::NoWarnings;
 
 use_ok("pf::condition::regex");
@@ -34,6 +35,8 @@ ok($filter->match('desting'),"filter does not match regex_not");
 ok($filter->match('atesting'),"filter does not match regex_not");
 
 ok(!$filter->match(undef),"value undef does not match filter");
+
+$filter = dies_ok(sub { pf::condition::regex_not->new(value => "(invalid") }, "Unable to build regexp (invalid");
 
 =head1 AUTHOR
 
