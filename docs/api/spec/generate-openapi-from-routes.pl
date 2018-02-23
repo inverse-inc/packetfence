@@ -63,9 +63,9 @@ for my $route_info (@route_infos) {
 
         for my $m (@$methods) {
             $m = lc($m);
-            my $form = buildForm($c, $child, $m);
-            next if !defined $form;
-            $paths{$path}{$m} = pathMethodInfo($m, $child, $form);
+            my @forms = buildForms($c, $child, $m);
+            next if @forms == 0;
+            $paths{$path}{$m} = pathMethodInfo($m, $child, \@forms);
         }
    } 
 }
@@ -86,21 +86,27 @@ for my $route_info (@route_infos) {
 
 #print Dumper(\%paths, \@route_infos);
 
-sub buildForm {
+sub buildForms {
     my ($c, $child, $m) = @_;
-    return undef if $c->can("form_class_by_type");
+    my @form_classes;
+    if ($c->can("type_lookup")) {
+        @form_classes = values %{$c->type_lookup};
+    }
+    else {
+        my $form_class = $c->form_class;
+        return if $form_class eq 'pfappserver::Form::Config::Pf';
+        @form_classes = ($c->form_class);
+    }
 
-    my $form_class = $c->form_class;
-    return undef if $form_class eq 'pfappserver::Form::Config::Pf';
-    
-    my $form = $form_class->new( (!exists $METHODS_WITH_ID{$m}) ? (inactive => ['id'] ) : ());
+    my @form_parameters = (!exists $METHODS_WITH_ID{$m}) ? (inactive => ['id'] ) : ();
+    return map { $_->new(@form_parameters) } @form_classes;
 }
 
 sub pathMethodInfo {
-    my ($method, $child, $form) = @_;
+    my ($method, $child, $forms) = @_;
     my $path_type = $child->{path_type};
     if (exists $PATH_CONFIG_HANDLER{$path_type}{$method}) {
-        return $PATH_CONFIG_HANDLER{$path_type}{$method}->($child, $method, $form);
+        return $PATH_CONFIG_HANDLER{$path_type}{$method}->($child, $method, $forms);
     }
     
     return { }
@@ -121,12 +127,12 @@ sub standardParameters {
 }
 
 sub configCollectionPostJsonSchema {
-    my ($method, $child, $form) = @_;
-    return "schema" => pf::UnifiedApi::GenerateSpec::objectSchema($form)
+    my ($method, $child, $forms) = @_;
+    return "schema" => pf::UnifiedApi::GenerateSpec::formsToSchema($forms)
 }
 
 sub configResourcePut {
-    my ($method, $child, $form) = @_;
+    my ($method, $child, $forms) = @_;
     {
         "parameters" => [
             standardParameters()
@@ -134,7 +140,7 @@ sub configResourcePut {
         "requestBody" => {
             "content" => {
                 "application/json" => {
-                    configCollectionPostJsonSchema($method, $child, $form)
+                    configCollectionPostJsonSchema($method, $child, $forms)
                 }
             },
             "required" => true,
@@ -154,7 +160,7 @@ sub configResourcePut {
 }
 
 sub configResourceGet {
-    my ($method, $child, $form) = @_;
+    my ($method, $child, $forms) = @_;
     {
         "parameters" => [
             standardParameters()
@@ -162,7 +168,7 @@ sub configResourceGet {
         "requestBody" => {
             "content" => {
                 "application/json" => {
-                    configCollectionPostJsonSchema($method, $child, $form)
+                    configCollectionPostJsonSchema($method, $child, $forms)
                 }
             },
             "required" => true,
@@ -182,7 +188,7 @@ sub configResourceGet {
 }
 
 sub configCollectionPost {
-    my ($method, $child, $form) = @_;
+    my ($method, $child, $forms) = @_;
     {
         "parameters" => [
             standardParameters()
@@ -190,7 +196,7 @@ sub configCollectionPost {
         "requestBody" => {
             "content" => {
                 "application/json" => {
-                    configCollectionPostJsonSchema($method, $child, $form)
+                    configCollectionPostJsonSchema($method, $child, $forms)
                 }
             },
             "required" => true,
@@ -213,7 +219,7 @@ sub configCollectionPost {
 }
 
 sub configCollectionGet {
-    my ( $method, $child, $form ) = @_;
+    my ( $method, $child, $forms ) = @_;
     {
         "parameters" => [
             standardParameters(),
@@ -238,7 +244,7 @@ sub configCollectionGet {
                                 {
                                     'type' => 'object',
                                     'properties' => {
-                                        items => pf::UnifiedApi::GenerateSpec::objectSchema( $form),
+                                        items => pf::UnifiedApi::GenerateSpec::formsToSchema($forms),
                                     }
                                 }
                             ]

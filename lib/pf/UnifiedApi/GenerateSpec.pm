@@ -29,13 +29,35 @@ sub formHandlerToSchema {
     };
 }
 
+sub subTypesSchema {
+    my (@forms) = @_;
+    return {
+        oneOf => [
+            map { objectSchema($_) } @forms
+        ],
+        discriminator => {
+            propertyName => 'type',
+        }
+    }
+}
+
+sub formsToSchema {
+    my ($forms) = @_;
+    if (@$forms == 1) {
+        return objectSchema(@$forms);
+    }
+
+    return subTypesSchema(@$forms);
+
+}
+
 sub objectSchema {
     my ($form) = @_;
     return {
         type       => 'object',
         properties => formHandlerProperties($form),
         required   => formHandlerRequiredProperties($form),
-    },
+    }
 }
 
 sub formHandlerRequiredProperties {
@@ -50,6 +72,7 @@ sub formHandlerProperties {
         my $name = $field->name;
         $properties{$name} = fieldProperties($field);
     }
+
     return \%properties;
 }
 
@@ -71,9 +94,11 @@ sub fieldProperties {
 sub fieldArrayItems {
     my ($field) = @_;
     if ($field->isa('HTML::FormHandler::Field::Repeatable')) {
+        $field->init_state;
         my $element = $field->clone_element(noun($field->name)->singular);
         return fieldProperties($element);
     }
+
     return fieldProperties($field, 1);
 }
 

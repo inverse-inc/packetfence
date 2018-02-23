@@ -13,6 +13,7 @@ Form definition to create or update a WMI Scan Engine.
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Scan';
 with 'pfappserver::Base::Form::Role::Help';
+use pf::ConfigStore::WMI;
 
 use pf::config;
 use pf::util;

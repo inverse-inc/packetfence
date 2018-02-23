@@ -68,9 +68,8 @@ our %TYPES_TO_FORMS = (
     )
 );
 
-sub form_class_by_type {
-    my ($self, $type) = @_;
-    return exists $TYPES_TO_FORMS{$type} ? $TYPES_TO_FORMS{$type} : undef;
+sub type_lookup {
+    return \%TYPES_TO_FORMS;
 }
 
 =head1 AUTHOR

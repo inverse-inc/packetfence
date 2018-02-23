@@ -28,8 +28,15 @@ BEGIN {
 use pf::UnifiedApi::GenerateSpec;
 use pfappserver::Form::Config::Domain;
 use pfappserver::Form::Config::Profile;
+use pfappserver::Form::Config::Pfdetect::dhcp;
+use pfappserver::Form::Config::Pfdetect::fortianalyser;
+use pfappserver::Form::Config::Pfdetect::regex;
+use pfappserver::Form::Config::Pfdetect::security_onion;
+use pfappserver::Form::Config::Pfdetect::snort;
+use pfappserver::Form::Config::Pfdetect::suricata_md5;
+use pfappserver::Form::Config::Pfdetect::suricata;
 
-use Test::More tests => 3;
+use Test::More tests => 4;
 use Test::Deep;
 
 #This test will running last
@@ -313,6 +320,227 @@ cmp_deeply(
     "Testing the Profile schema",
 );
 
+cmp_deeply(
+    pf::UnifiedApi::GenerateSpec::formHandlerSubTypes(
+        pfappserver::Form::Config::Pfdetect::dhcp->new,
+        pfappserver::Form::Config::Pfdetect::fortianalyser->new,
+        pfappserver::Form::Config::Pfdetect::security_onion->new,
+        pfappserver::Form::Config::Pfdetect::snort->new,
+        pfappserver::Form::Config::Pfdetect::suricata_md5->new,
+        pfappserver::Form::Config::Pfdetect::suricata->new,
+        pfappserver::Form::Config::Pfdetect::regex->new,
+    ),
+    {
+        oneOf         => [
+            {
+                type => 'object',
+                required => ['id', 'path', 'type'],
+                properties => {
+                    id => {
+                        type => 'string',
+                        description => 'Detector',
+                    },
+                    status => {
+                        type => 'string',
+                        description => 'Enabled',
+                    },
+                    type => {
+                        type => 'string',
+                        description => 'Type',
+                    },
+                    path => {
+                        type => 'string',
+                        description => 'Alert pipe',
+                    },
+                },
+            },
+            {
+                type => 'object',
+                required => ['id', 'path', 'type'],
+                properties => {
+                    id => {
+                        type => 'string',
+                        description => 'Detector',
+                    },
+                    status => {
+                        type => 'string',
+                        description => 'Enabled',
+                    },
+                    type => {
+                        type => 'string',
+                        description => 'Type',
+                    },
+                    path => {
+                        type => 'string',
+                        description => 'Alert pipe',
+                    },
+                },
+            },
+            {
+                type => 'object',
+                required => ['id', 'path', 'type'],
+                properties => {
+                    id => {
+                        type => 'string',
+                        description => 'Detector',
+                    },
+                    status => {
+                        type => 'string',
+                        description => 'Enabled',
+                    },
+                    type => {
+                        type => 'string',
+                        description => 'Type',
+                    },
+                    path => {
+                        type => 'string',
+                        description => 'Alert pipe',
+                    },
+                },
+            },
+            {
+                type => 'object',
+                required => ['id', 'path', 'type'],
+                properties => {
+                    id => {
+                        type => 'string',
+                        description => 'Detector',
+                    },
+                    status => {
+                        type => 'string',
+                        description => 'Enabled',
+                    },
+                    type => {
+                        type => 'string',
+                        description => 'Type',
+                    },
+                    path => {
+                        type => 'string',
+                        description => 'Alert pipe',
+                    },
+                },
+            },
+            {
+                type => 'object',
+                required => ['id', 'path', 'type'],
+                properties => {
+                    id => {
+                        type => 'string',
+                        description => 'Detector',
+                    },
+                    status => {
+                        type => 'string',
+                        description => 'Enabled',
+                    },
+                    type => {
+                        type => 'string',
+                        description => 'Type',
+                    },
+                    path => {
+                        type => 'string',
+                        description => 'Alert pipe',
+                    },
+                },
+            },
+            {
+                type => 'object',
+                required => ['id', 'path', 'type'],
+                properties => {
+                    id => {
+                        type => 'string',
+                        description => 'Detector',
+                    },
+                    status => {
+                        type => 'string',
+                        description => 'Enabled',
+                    },
+                    type => {
+                        type => 'string',
+                        description => 'Type',
+                    },
+                    path => {
+                        type => 'string',
+                        description => 'Alert pipe',
+                    },
+                },
+            },
+            {
+                type => 'object',
+                required => ['id', 'path', 'type'],
+                properties => {
+                    id => {
+                        type => 'string',
+                        description => 'Detector',
+                    },
+                    status => {
+                        type => 'string',
+                        description => 'Enabled',
+                    },
+                    type => {
+                        type => 'string',
+                        description => 'Type',
+                    },
+                    path => {
+                        type => 'string',
+                        description => 'Alert pipe',
+                    },
+                    loglines => {
+                        type => 'string',
+                        description => 'Loglines',
+                    },
+                    rules => {
+                        type => 'array',
+                        items => {
+                            type          => 'object',
+                            'description' => 'Rule - New',
+                            'properties'  => {
+                                'actions'            => {
+                                    type => 'array',
+                                    description => 'Actions',
+                                    items => {
+                                        type => 'object',
+                                        description => 'Action',
+                                        properties => {
+                                            api_method => {
+                                                type => 'string',
+                                                description => 'Api method',
+                                            },
+                                            api_parameters => {
+                                                type => 'string',
+                                                description => 'Api parameters',
+                                            },
+                                        },
+                                    },
+                                },
+                                'ip_mac_translation' => {
+                                    type => 'string',
+                                    description => 'Perform automatic translation of IPs to MACs and the other way around',
+                                },
+                                'last_if_match'      => {
+                                    type => 'string',
+                                    description => 'Stop processing rules if this rule matches',
+                                },
+                                'name'               => {
+                                    type => 'string',
+                                    description => 'Name',
+                                },
+                                'regex'              => {
+                                    type => 'string',
+                                    description => 'Regex',
+                                },
+                            },
+                          },
+                        description => 'Rules',
+                    },
+                },
+            },
+        ],
+        discriminator => {
+            propertyName => 'type',
+        }
+    },
+    "Testing SubType"
+);
 
 =head1 AUTHOR
 

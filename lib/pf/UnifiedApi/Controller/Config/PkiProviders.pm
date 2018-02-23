@@ -28,16 +28,15 @@ use pfappserver::Form::Config::PKI_Provider::scep;
 use pfappserver::Form::Config::PKI_Provider::packetfence_pki;
 
 our %TYPES_TO_FORMS = (
-    map { $_ => "pfappserver::Form::Config::Source::$_" } qw(
+    map { $_ => "pfappserver::Form::Config::PKI_Provider::$_" } qw(
         packetfence_local
         scep
         packetfence_pki
     )
 );
 
-sub form_class_by_type {
-    my ($self, $type) = @_;
-    return exists $TYPES_TO_FORMS{$type} ? $TYPES_TO_FORMS{$type} : undef;
+sub type_lookup {
+    return \%TYPES_TO_FORMS;
 }
 
 =head1 AUTHOR

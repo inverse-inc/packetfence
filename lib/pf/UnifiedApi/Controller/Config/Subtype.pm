@@ -18,7 +18,8 @@ use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
 
 sub form_class_by_type {
     my ($self, $type) = @_;
-    return undef;
+    my $lookup = $self->type_lookup;
+    return exists $lookup->{$type} ? $lookup->{$type} : undef;
 }
 
 sub form {
@@ -36,6 +37,10 @@ sub form {
     }
 
     return $class->new;
+}
+
+sub type_lookup {
+    return {}
 }
 
 =head1 AUTHOR

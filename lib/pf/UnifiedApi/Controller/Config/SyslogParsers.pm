@@ -26,6 +26,13 @@ has 'primary_key' => 'syslog_parser_id';
 
 use pf::ConfigStore::Pfdetect;
 use pfappserver::Form::Config::Pfdetect;
+use pfappserver::Form::Config::Pfdetect::dhcp;
+use pfappserver::Form::Config::Pfdetect::fortianalyser;
+use pfappserver::Form::Config::Pfdetect::regex;
+use pfappserver::Form::Config::Pfdetect::security_onion;
+use pfappserver::Form::Config::Pfdetect::snort;
+use pfappserver::Form::Config::Pfdetect::suricata_md5;
+use pfappserver::Form::Config::Pfdetect::suricata;
 
 our %TYPES_TO_FORMS = (
     map { $_ => "pfappserver::Form::Config::Pfdetect::$_" } qw(
@@ -39,9 +46,8 @@ our %TYPES_TO_FORMS = (
     )
 );
 
-sub form_class_by_type {
-    my ($self, $type) = @_;
-    return exists $TYPES_TO_FORMS{$type} ? $TYPES_TO_FORMS{$type} : undef;
+sub type_lookup {
+    return \%TYPES_TO_FORMS;
 }
  
 =head1 AUTHOR

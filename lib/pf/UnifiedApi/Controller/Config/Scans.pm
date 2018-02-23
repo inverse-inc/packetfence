@@ -33,7 +33,6 @@ use pfappserver::Form::Config::Scan::WMI;
 
 our %TYPES_TO_FORMS = (
     map { $_ => "pfappserver::Form::Config::Scan::$_" } qw(
-        Scan
         Nessus6
         Nessus
         OpenVAS
@@ -41,9 +40,8 @@ our %TYPES_TO_FORMS = (
     )
 );
 
-sub form_class_by_type {
-    my ($self, $type) = @_;
-    return exists $TYPES_TO_FORMS{$type} ? $TYPES_TO_FORMS{$type} : undef;
+sub type_lookup {
+    return \%TYPES_TO_FORMS;
 }
  
 =head1 AUTHOR
