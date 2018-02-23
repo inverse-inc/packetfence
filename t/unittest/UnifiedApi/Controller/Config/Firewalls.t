@@ -2,13 +2,13 @@
 
 =head1 NAME
 
-Firewall_SSoes
+Firewalls
 
 =cut
 
 =head1 DESCRIPTION
 
-unit test for Firewall_SSoes
+unit test for Firewalls
 
 =cut
 
@@ -33,9 +33,9 @@ use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
 
-my $collection_base_url = '/api/v1/config/firewall_ssoes';
+my $collection_base_url = '/api/v1/config/firewalls';
 
-my $base_url = '/api/v1/config/firewall_sso';
+my $base_url = '/api/v1/config/firewall';
 
 $t->get_ok($collection_base_url)
   ->status_is(200);

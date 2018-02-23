@@ -163,7 +163,7 @@ our @API_V1_ROUTES = (
         Config::ConnectionProfiles
         Config::DeviceRegistrations
         Config::Domains
-        Config::FirewallSsoes
+        Config::Firewalls
         Config::FloatingDevices
         Config::MaintenanceTasks
         Config::PkiProviders

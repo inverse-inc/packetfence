@@ -1,14 +1,14 @@
-package pf::UnifiedApi::Controller::Config::FirewallSsoes;
+package pf::UnifiedApi::Controller::Config::Firewalls;
 
 =head1 NAME
 
-pf::UnifiedApi::Controller::Config::FirewallSsoes - 
+pf::UnifiedApi::Controller::Config::Firewalls - 
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::UnifiedApi::Controller::Config::FirewallSsoes
+pf::UnifiedApi::Controller::Config::Firewalls
 
 =cut
 
@@ -19,7 +19,7 @@ use Mojo::Base qw(pf::UnifiedApi::Controller::Config::Subtype);
 
 has 'config_store_class' => 'pf::ConfigStore::Firewall_SSO';
 has 'form_class' => 'pfappserver::Form::Config::Firewall_SSO';
-has 'primary_key' => 'firewall_sso_id';
+has 'primary_key' => 'firewall_id';
 
 use pf::ConfigStore::Firewall_SSO;
 use pfappserver::Form::Config::Firewall_SSO;
@@ -43,9 +43,8 @@ our %TYPES_TO_FORMS = (
     )
 );
 
-sub form_class_by_type {
-    my ($self, $type) = @_;
-    return exists $TYPES_TO_FORMS{$type} ? $TYPES_TO_FORMS{$type} : undef;
+sub type_lookup {
+    return \%TYPES_TO_FORMS;
 }
  
 =head1 AUTHOR
