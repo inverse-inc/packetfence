@@ -201,7 +201,7 @@ func (IPSET *pfIPSET) initIPSet(ctx context.Context, db *sql.DB) {
 	logger := log.LoggerWContext(ctx)
 
 	IPSET.ListALL, _ = ipset.ListAll()
-	rows, err := db.Query("select distinct n.mac, i.ip, n.category_id from node as n left join locationlog as l on n.mac=l.mac left join ip4log as i on n.mac=i.mac where l.connection_type = \"inline\" and n.status=\"reg\" and n.mac=i.mac and i.end_time > NOW()")
+	rows, err := db.Query("select distinct n.mac, i.ip, n.category_id as node_id from node as n left join locationlog as l on n.mac=l.mac left join ip4log as i on n.mac=i.mac where l.connection_type = \"inline\" and n.status=\"reg\" and n.mac=i.mac and i.end_time > NOW()")
 	if err != nil {
 		// Log here
 		logger.Error(err.Error())
@@ -211,10 +211,10 @@ func (IPSET *pfIPSET) initIPSet(ctx context.Context, db *sql.DB) {
 	var (
 		ipstr string
 		mac   string
-		catID string
+		nodeID string
 	)
 	for rows.Next() {
-		err := rows.Scan(&mac, &ipstr, &catID)
+		err := rows.Scan(&mac, &ipstr, &nodeID)
 		if err != nil {
 			// Log here
 			logger.Error(err.Error())
@@ -223,12 +223,12 @@ func (IPSET *pfIPSET) initIPSet(ctx context.Context, db *sql.DB) {
 		for k, v := range IPSET.Network {
 			if k.Contains(net.ParseIP(ipstr)) {
 				if v == "inlinel2" {
-					IPSET.IPSEThandleLayer2(ctx, ipstr, mac, k.IP.String(), "Reg", catID)
-					IPSET.IPSEThandleMarkIpL2(ctx, ipstr, k.IP.String(), catID)
+					IPSET.IPSEThandleLayer2(ctx, ipstr, mac, k.IP.String(), "Reg", nodeID)
+					IPSET.IPSEThandleMarkIpL2(ctx, ipstr, k.IP.String(), nodeID)
 				}
 				if v == "inlinel3" {
-					IPSET.IPSEThandleLayer3(ctx, ipstr, k.IP.String(), "Reg", catID)
-					IPSET.IPSEThandleMarkIpL3(ctx, ipstr, k.IP.String(), catID)
+					IPSET.IPSEThandleLayer3(ctx, ipstr, k.IP.String(), "Reg", nodeID)
+					IPSET.IPSEThandleMarkIpL3(ctx, ipstr, k.IP.String(), nodeID)
 				}
 				break
 			}
