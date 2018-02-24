@@ -1716,6 +1716,32 @@ paths:
           $ref: '#/components/responses/UnprocessableEntity'
       summary: Allows to onboard a tenant and configure a remote access point using
         an onboarding token
+  /token_info:
+    post:
+      parameters:
+      - *1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  admin_roles:
+                    description: The list of all the admin roles associated to this
+                      token
+                    items:
+                      type: string
+                    type: array
+                  tenant_id:
+                    description: The tenant ID associated to this token. When set
+                      to 0, it will provide access to all the tenants. When set to
+                      -1, the token is prohibited from accessing data from any tenant.
+                    type: string
+                type: object
+          description: Successfully found information for the token
+        '404':
+          $ref: '#/components/responses/NotFound'
+      summary: Get information on the current token
   /user/{user_id}:
     delete:
       parameters:
