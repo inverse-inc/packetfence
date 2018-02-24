@@ -46,4 +46,5 @@ IpsetStatus:
     properties:
         type:
             type: string
-            description: The response status. value: "ACK"
+            description: The response status.
+            enum: [ACK, NAK]
