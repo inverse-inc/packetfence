@@ -53,7 +53,7 @@ func handlePassthrough(res http.ResponseWriter, req *http.Request) {
 
 	IPSET.jobs <- job{"Add", "pfsession_passthrough", IP + "," + Port}
 	if Local == "0" {
-		updateClusterPassthrough(req.Context(), IP, Port)
+		updateClusterPassthrough(req.Context(), req.Body)
 	}
 	var result = map[string][]*Info{
 		"result": {
@@ -95,7 +95,7 @@ func handleIsolationPassthrough(res http.ResponseWriter, req *http.Request) {
 
 	IPSET.jobs <- job{"Add", "pfsession_isol_passthrough", IP + "," + Port}
 	if Local == "0" {
-		updateClusterPassthroughIsol(req.Context(), IP, Port)
+		updateClusterPassthroughIsol(req.Context(), req.Body)
 	}
 	var result = map[string][]*Info{
 		"result": {
@@ -155,7 +155,7 @@ func handleLayer2(res http.ResponseWriter, req *http.Request) {
 
 	// Do we have to update the other members of the cluster
 	if Local == "0" {
-		updateClusterL2(req.Context(), IP, Mac, Network, Type, Roleid)
+		updateClusterL2(req.Context(), req.Body)
 	}
 	var result = map[string][]*Info{
 		"result": {
@@ -233,7 +233,7 @@ func handleMarkIpL2(res http.ResponseWriter, req *http.Request) {
 
 	// Do we have to update the other members of the cluster
 	if Local == "0" {
-		updateClusterMarkIpL3(req.Context(), IP, Network, Roleid)
+		updateClusterMarkIpL3(req.Context(), req.Body)
 	}
 	var result = map[string][]*Info{
 		"result": {
@@ -288,7 +288,7 @@ func handleMarkIpL3(res http.ResponseWriter, req *http.Request) {
 
 	// Do we have to update the other members of the cluster
 	if Local == "0" {
-		updateClusterMarkIpL3(req.Context(), IP, Network, Roleid)
+		updateClusterMarkIpL3(req.Context(), req.Body)
 	}
 	var result = map[string][]*Info{
 		"result": {
@@ -348,7 +348,7 @@ func handleLayer3(res http.ResponseWriter, req *http.Request) {
 
 	// Do we have to update the other members of the cluster
 	if Local == "0" {
-		updateClusterL3(req.Context(), IP, Network, Type, Roleid)
+		updateClusterL3(req.Context(), req.Body)
 	}
 
 	var result = map[string][]*Info{
@@ -416,7 +416,7 @@ func (IPSET *pfIPSET) handleUnmarkMac(res http.ResponseWriter, req *http.Request
 	}
 	// Do we have to update the other members of the cluster
 	if Local == "0" {
-		updateClusterUnmarkMac(req.Context(), Mac)
+		updateClusterUnmarkMac(req.Context(), req.Body)
 	}
 	var result = map[string][]*Info{
 		"result": {
@@ -462,7 +462,7 @@ func (IPSET *pfIPSET) handleUnmarkIp(res http.ResponseWriter, req *http.Request)
 	}
 	// Do we have to update the other members of the cluster
 	if Local == "0" {
-		updateClusterUnmarkIp(req.Context(), IP)
+		updateClusterUnmarkIp(req.Context(), req.Body)
 	}
 	var result = map[string][]*Info{
 		"result": {
