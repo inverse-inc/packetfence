@@ -39,8 +39,16 @@ func handlePassthrough(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		panic(err)
 	}	
-	IP := o.IP
-	Port := o.Port
+	IP, valid_ipv4 := validate_ipv4(o.IP)
+	if !valid_ipv4 {
+		handleError(res, http.StatusBadRequest)
+		return
+	}
+	Port, valid_port := validate_port(o.Port)
+	if !valid_port {
+		handleError(res, http.StatusBadRequest)
+		return
+	}
 	Local := req.URL.Query().Get("local")
 
 	IPSET.jobs <- job{"Add", "pfsession_passthrough", IP + "," + Port}
@@ -73,8 +81,16 @@ func handleIsolationPassthrough(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		panic(err)
 	}	
-	IP := o.IP
-	Port := o.Port
+	IP, valid_ipv4 := validate_ipv4(o.IP)
+	if !valid_ipv4 {
+		handleError(res, http.StatusBadRequest)
+		return
+	}
+	Port, valid_port := validate_port(o.Port)
+	if !valid_port {
+		handleError(res, http.StatusBadRequest)
+		return
+	}
 	Local := req.URL.Query().Get("local")
 
 	IPSET.jobs <- job{"Add", "pfsession_isol_passthrough", IP + "," + Port}
@@ -107,11 +123,31 @@ func handleLayer2(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		panic(err)
 	}	
-	IP := o.IP
-	Type := o.Type
-	Network := o.Network
-	Roleid := o.RoleID
-	Mac := o.Mac
+	IP, valid_ipv4 := validate_ipv4(o.IP)
+	if !valid_ipv4 {
+		handleError(res, http.StatusBadRequest)
+		return
+	}
+	Type, valid_type := validate_type(o.Type)
+	if !valid_type {
+		handleError(res, http.StatusBadRequest)
+		return
+	}
+	Network, valid_network := validate_ipv4(o.Network)
+	if !valid_network {
+		handleError(res, http.StatusBadRequest)
+		return
+	}
+	Roleid, valid_roleid := validate_roleid(o.RoleID)
+	if !valid_roleid {
+		handleError(res, http.StatusBadRequest)
+		return
+	}
+	Mac, valid_mac := validate_mac(o.Mac)
+	if !valid_mac {
+		handleError(res, http.StatusBadRequest)
+		return
+	}
 	Local := req.URL.Query().Get("local")
 
 	// Update locally
@@ -175,9 +211,21 @@ func handleMarkIpL2(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		panic(err)
 	}	
-	IP := o.IP
-	Network := o.Network
-	Roleid := o.RoleID
+	IP, valid_ipv4 := validate_ipv4(o.IP)
+	if !valid_ipv4 {
+		handleError(res, http.StatusBadRequest)
+		return
+	}
+	Network, valid_network := validate_ipv4(o.Network)
+	if !valid_network {
+		handleError(res, http.StatusBadRequest)
+		return
+	}
+	Roleid, valid_roleid := validate_roleid(o.RoleID)
+	if !valid_roleid {
+		handleError(res, http.StatusBadRequest)
+		return
+	}
 	Local := req.URL.Query().Get("local")
 
 	// Update locally
@@ -208,7 +256,7 @@ func handleMarkIpL3(res http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
 
 	IPSET := pfIPSETFromContext(req.Context())
-    
+  
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		panic(err)
@@ -218,9 +266,21 @@ func handleMarkIpL3(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		panic(err)
 	}	
-	IP := o.IP
-	Network := o.Network
-	Roleid := o.RoleID
+	IP, valid_ipv4 := validate_ipv4(o.IP)
+	if !valid_ipv4 {
+		handleError(res, http.StatusBadRequest)
+		return
+	}
+	Network, valid_network := validate_ipv4(o.Network)
+	if !valid_network {
+		handleError(res, http.StatusBadRequest)
+		return
+	}
+	Roleid, valid_roleid := validate_roleid(o.RoleID)
+	if !valid_roleid {
+		handleError(res, http.StatusBadRequest)
+		return
+	}
 	Local := req.URL.Query().Get("local")
 
 	// Update locally
@@ -261,10 +321,26 @@ func handleLayer3(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		panic(err)
 	}	
-	IP := o.IP
-	Type := o.Type
-	Network := o.Network
-	Roleid := o.RoleID
+	IP, valid_ipv4 := validate_ipv4(o.IP)
+	if !valid_ipv4 {
+		handleError(res, http.StatusBadRequest)
+		return
+	}
+	Type, valid_type := validate_type(o.Type)
+	if !valid_type {
+		handleError(res, http.StatusBadRequest)
+		return
+	}
+	Network, valid_network := validate_ipv4(o.Network)
+	if !valid_network {
+		handleError(res, http.StatusBadRequest)
+		return
+	}
+	Roleid, valid_roleid := validate_roleid(o.RoleID)
+	if !valid_roleid {
+		handleError(res, http.StatusBadRequest)
+		return
+	}
 	Local := req.URL.Query().Get("local")
 
 	// Update locally
@@ -322,7 +398,11 @@ func (IPSET *pfIPSET) handleUnmarkMac(res http.ResponseWriter, req *http.Request
 	if err != nil {
 		panic(err)
 	}	
-	Mac := o.Mac
+	Mac, valid_mac := validate_mac(o.Mac)
+	if !valid_mac {
+		handleError(res, http.StatusBadRequest)
+		return
+	}
 	Local := req.URL.Query().Get("local")
 
 	for _, v := range IPSET.ListALL {
@@ -363,8 +443,12 @@ func (IPSET *pfIPSET) handleUnmarkIp(res http.ResponseWriter, req *http.Request)
 	err = json.Unmarshal(body, &o)
 	if err != nil {
 		panic(err)
-	}	
-	IP := o.IP
+	}
+	IP, valid_ipv4 := validate_ipv4(o.IP)
+	if !valid_ipv4 {
+		handleError(res, http.StatusBadRequest)
+		return
+	}
 	Local := req.URL.Query().Get("local")
 
 	for _, v := range IPSET.ListALL {
@@ -391,4 +475,17 @@ func (IPSET *pfIPSET) handleUnmarkIp(res http.ResponseWriter, req *http.Request)
 	if err := json.NewEncoder(res).Encode(result); err != nil {
 		panic(err)
 	}
+}
+
+func handleError(res http.ResponseWriter, code int) {
+	var result = map[string][]*Info{
+		"result": {
+			&Info{Status: "NAK"},
+		},
+	}
+	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	res.WriteHeader(code)
+	if err := json.NewEncoder(res).Encode(result); err != nil {
+		panic(err)
+	} 
 }

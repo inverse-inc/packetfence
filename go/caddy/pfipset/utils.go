@@ -288,3 +288,43 @@ func (IPSET *pfIPSET) detectType(ctx context.Context) error {
 	}
 	return nil
 }
+
+func validate_ipv4 (ipv4 string) (string, bool) {
+	re := regexp.MustCompile("(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})")
+	if re.Match([]byte(ipv4)) {
+		return ipv4, true
+	}
+	return "", false
+}
+
+func validate_mac (mac string) (string, bool) {
+	re := regexp.MustCompile("(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}")
+	if re.Match([]byte(mac)) {
+		return mac, true
+	}
+	return "", false
+}
+
+func validate_type (_type string) (string, bool) {
+	re := regexp.MustCompile("[a-zA-Z]+")
+	if re.Match([]byte(_type)) {
+		return _type, true
+	}
+	return "", false
+}
+
+func validate_roleid (roleid string) (string, bool) {
+	re := regexp.MustCompile("[0-9]+")
+	if re.Match([]byte(roleid)) {
+		return roleid, true
+	}
+	return "", false
+}
+
+func validate_port (port string) (string, bool) {
+	re := regexp.MustCompile("(?:udp|tcp):[0-9]+")
+	if re.Match([]byte(port)) {
+		return port, true
+	}
+	return "", false
+}
