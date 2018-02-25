@@ -113,33 +113,15 @@
                                 type: string
                             type: object
                           type: array
-                        connection_operator:
-                          description: Connection operator
-                          type: string
-                        connection_value:
-                          description: Connection value
-                          type: string
                         create_local_account:
                           description: Create a local account on the PacketFence system
                             based on the username provided.
-                          type: string
-                        date_operator:
-                          description: Date operator
-                          type: string
-                        date_value:
-                          description: Date value
                           type: string
                         description:
                           description: Description
                           type: string
                         id:
                           description: Name
-                          type: string
-                        ldapattribute_operator:
-                          description: Ldapattribute operator
-                          type: string
-                        ldapattribute_value:
-                          description: Ldapattribute value
                           type: string
                         local_account_logins:
                           description: The amount of times, the local account can
@@ -148,12 +130,6 @@
                         mark_as_sponsor_action:
                           description: Mark as sponsor action
                           type: string
-                        number_operator:
-                          description: Number operator
-                          type: string
-                        number_value:
-                          description: Number value
-                          type: integer
                         set_access_duration_action:
                           description: Set access duration action
                           type: string
@@ -181,24 +157,6 @@
                             description: List of phone carriers available to the user
                             type: string
                           type: array
-                        substring_operator:
-                          description: Substring operator
-                          type: string
-                        substring_value:
-                          description: Substring value
-                          type: string
-                        time_operator:
-                          description: Time operator
-                          type: string
-                        time_period_operator:
-                          description: Time period operator
-                          type: string
-                        time_period_value:
-                          description: Time period value
-                          type: string
-                        time_value:
-                          description: Time value
-                          type: string
                         type:
                           description: Type
                           type: string
@@ -312,21 +270,9 @@
                         client_secret:
                           description: API Secret
                           type: string
-                        connection_operator:
-                          description: Connection operator
-                          type: string
-                        connection_value:
-                          description: Connection value
-                          type: string
                         create_local_account:
                           description: Create a local account on the PacketFence system
                             based on the username provided.
-                          type: string
-                        date_operator:
-                          description: Date operator
-                          type: string
-                        date_value:
-                          description: Date value
                           type: string
                         description:
                           description: Description
@@ -338,12 +284,6 @@
                         id:
                           description: Name
                           type: string
-                        ldapattribute_operator:
-                          description: Ldapattribute operator
-                          type: string
-                        ldapattribute_value:
-                          description: Ldapattribute value
-                          type: string
                         local_account_logins:
                           description: The amount of times, the local account can
                             be used after its created. 0 means infinite.
@@ -351,12 +291,6 @@
                         mark_as_sponsor_action:
                           description: Mark as sponsor action
                           type: string
-                        number_operator:
-                          description: Number operator
-                          type: string
-                        number_value:
-                          description: Number value
-                          type: integer
                         protected_resource_url:
                           description: API URL of logged user
                           type: string
@@ -387,24 +321,6 @@
                           type: string
                         site:
                           description: API URL
-                          type: string
-                        substring_operator:
-                          description: Substring operator
-                          type: string
-                        substring_value:
-                          description: Substring value
-                          type: string
-                        time_operator:
-                          description: Time operator
-                          type: string
-                        time_period_operator:
-                          description: Time period operator
-                          type: string
-                        time_period_value:
-                          description: Time period value
-                          type: string
-                        time_value:
-                          description: Time value
                           type: string
                         type:
                           description: Type
@@ -513,39 +429,15 @@
                                 type: string
                             type: object
                           type: array
-                        connection_operator:
-                          description: Connection operator
-                          type: string
-                        connection_value:
-                          description: Connection value
-                          type: string
-                        date_operator:
-                          description: Date operator
-                          type: string
-                        date_value:
-                          description: Date value
-                          type: string
                         description:
                           description: Description
                           type: string
                         id:
                           description: Name
                           type: string
-                        ldapattribute_operator:
-                          description: Ldapattribute operator
-                          type: string
-                        ldapattribute_value:
-                          description: Ldapattribute value
-                          type: string
                         mark_as_sponsor_action:
                           description: Mark as sponsor action
                           type: string
-                        number_operator:
-                          description: Number operator
-                          type: string
-                        number_value:
-                          description: Number value
-                          type: integer
                         realms:
                           description: Realms that will be associated with this source
                           items:
@@ -573,27 +465,6 @@
                           type: string
                         set_unreg_date_action:
                           description: Set unreg date action
-                          type: string
-                        stripped_user_name:
-                          description: Use stripped username to test the  rules.
-                          type: string
-                        substring_operator:
-                          description: Substring operator
-                          type: string
-                        substring_value:
-                          description: Substring value
-                          type: string
-                        time_operator:
-                          description: Time operator
-                          type: string
-                        time_period_operator:
-                          description: Time period operator
-                          type: string
-                        time_period_value:
-                          description: Time period value
-                          type: string
-                        time_value:
-                          description: Time value
                           type: string
                         type:
                           description: Type
@@ -696,18 +567,6 @@
                         authorization_source_id:
                           description: The source to use for authorization (rule matching)
                           type: string
-                        connection_operator:
-                          description: Connection operator
-                          type: string
-                        connection_value:
-                          description: Connection value
-                          type: string
-                        date_operator:
-                          description: Date operator
-                          type: string
-                        date_value:
-                          description: Date value
-                          type: string
                         description:
                           description: Description
                           type: string
@@ -727,21 +586,9 @@
                         idp_metadata_path:
                           description: Path to Identity Provider metadata
                           type: string
-                        ldapattribute_operator:
-                          description: Ldapattribute operator
-                          type: string
-                        ldapattribute_value:
-                          description: Ldapattribute value
-                          type: string
                         mark_as_sponsor_action:
                           description: Mark as sponsor action
                           type: string
-                        number_operator:
-                          description: Number operator
-                          type: string
-                        number_value:
-                          description: Number value
-                          type: integer
                         set_access_duration_action:
                           description: Set access duration action
                           type: string
@@ -771,24 +618,6 @@
                           type: string
                         sp_key_path:
                           description: Path to Service Provider key (x509)
-                          type: string
-                        substring_operator:
-                          description: Substring operator
-                          type: string
-                        substring_value:
-                          description: Substring value
-                          type: string
-                        time_operator:
-                          description: Time operator
-                          type: string
-                        time_period_operator:
-                          description: Time period operator
-                          type: string
-                        time_period_value:
-                          description: Time period value
-                          type: string
-                        time_value:
-                          description: Time value
                           type: string
                         type:
                           description: Type
@@ -906,24 +735,12 @@
                         cert_id:
                           description: Cert id
                           type: string
-                        connection_operator:
-                          description: Connection operator
-                          type: string
-                        connection_value:
-                          description: Connection value
-                          type: string
                         create_local_account:
                           description: Create a local account on the PacketFence system
                             based on the username provided.
                           type: string
                         currency:
                           description: Currency
-                          type: string
-                        date_operator:
-                          description: Date operator
-                          type: string
-                        date_value:
-                          description: Date value
                           type: string
                         description:
                           description: Description
@@ -946,12 +763,6 @@
                           description: The path to the associated key of the certificate
                             you submitted to Paypal.
                           type: string
-                        ldapattribute_operator:
-                          description: Ldapattribute operator
-                          type: string
-                        ldapattribute_value:
-                          description: Ldapattribute value
-                          type: string
                         local_account_logins:
                           description: The amount of times, the local account can
                             be used after its created. 0 means infinite.
@@ -959,12 +770,6 @@
                         mark_as_sponsor_action:
                           description: Mark as sponsor action
                           type: string
-                        number_operator:
-                          description: Number operator
-                          type: string
-                        number_value:
-                          description: Number value
-                          type: integer
                         payment_type:
                           description: The type of transactions this source will do
                             (donations or sales).
@@ -996,26 +801,8 @@
                         set_unreg_date_action:
                           description: Set unreg date action
                           type: string
-                        substring_operator:
-                          description: Substring operator
-                          type: string
-                        substring_value:
-                          description: Substring value
-                          type: string
                         test_mode:
                           description: Test mode
-                          type: string
-                        time_operator:
-                          description: Time operator
-                          type: string
-                        time_period_operator:
-                          description: Time period operator
-                          type: string
-                        time_period_value:
-                          description: Time period value
-                          type: string
-                        time_value:
-                          description: Time value
                           type: string
                         type:
                           description: Type
@@ -1138,21 +925,9 @@
                         client_secret:
                           description: App Secret
                           type: string
-                        connection_operator:
-                          description: Connection operator
-                          type: string
-                        connection_value:
-                          description: Connection value
-                          type: string
                         create_local_account:
                           description: Create a local account on the PacketFence system
                             based on the username provided.
-                          type: string
-                        date_operator:
-                          description: Date operator
-                          type: string
-                        date_value:
-                          description: Date value
                           type: string
                         description:
                           description: Description
@@ -1164,12 +939,6 @@
                         id:
                           description: Name
                           type: string
-                        ldapattribute_operator:
-                          description: Ldapattribute operator
-                          type: string
-                        ldapattribute_value:
-                          description: Ldapattribute value
-                          type: string
                         local_account_logins:
                           description: The amount of times, the local account can
                             be used after its created. 0 means infinite.
@@ -1177,12 +946,6 @@
                         mark_as_sponsor_action:
                           description: Mark as sponsor action
                           type: string
-                        number_operator:
-                          description: Number operator
-                          type: string
-                        number_value:
-                          description: Number value
-                          type: integer
                         protected_resource_url:
                           description: Graph API URL of logged user
                           type: string
@@ -1216,24 +979,6 @@
                           type: string
                         site:
                           description: Graph API URL
-                          type: string
-                        substring_operator:
-                          description: Substring operator
-                          type: string
-                        substring_value:
-                          description: Substring value
-                          type: string
-                        time_operator:
-                          description: Time operator
-                          type: string
-                        time_period_operator:
-                          description: Time period operator
-                          type: string
-                        time_period_value:
-                          description: Time period value
-                          type: string
-                        time_value:
-                          description: Time value
                           type: string
                         type:
                           description: Type
@@ -1355,18 +1100,6 @@
                         client_secret:
                           description: API Secret
                           type: string
-                        connection_operator:
-                          description: Connection operator
-                          type: string
-                        connection_value:
-                          description: Connection value
-                          type: string
-                        date_operator:
-                          description: Date operator
-                          type: string
-                        date_value:
-                          description: Date value
-                          type: string
                         description:
                           description: Description
                           type: string
@@ -1377,21 +1110,9 @@
                         id:
                           description: Name
                           type: string
-                        ldapattribute_operator:
-                          description: Ldapattribute operator
-                          type: string
-                        ldapattribute_value:
-                          description: Ldapattribute value
-                          type: string
                         mark_as_sponsor_action:
                           description: Mark as sponsor action
                           type: string
-                        number_operator:
-                          description: Number operator
-                          type: string
-                        number_value:
-                          description: Number value
-                          type: integer
                         protected_resource_url:
                           description: API URL of logged user
                           type: string
@@ -1422,24 +1143,6 @@
                           type: string
                         site:
                           description: API URL
-                          type: string
-                        substring_operator:
-                          description: Substring operator
-                          type: string
-                        substring_value:
-                          description: Substring value
-                          type: string
-                        time_operator:
-                          description: Time operator
-                          type: string
-                        time_period_operator:
-                          description: Time period operator
-                          type: string
-                        time_period_value:
-                          description: Time period value
-                          type: string
-                        time_value:
-                          description: Time value
                           type: string
                         type:
                           description: Type
@@ -1550,18 +1253,6 @@
                                 type: string
                             type: object
                           type: array
-                        connection_operator:
-                          description: Connection operator
-                          type: string
-                        connection_value:
-                          description: Connection value
-                          type: string
-                        date_operator:
-                          description: Date operator
-                          type: string
-                        date_value:
-                          description: Date value
-                          type: string
                         description:
                           description: Description
                           type: string
@@ -1571,21 +1262,9 @@
                         id:
                           description: Name
                           type: string
-                        ldapattribute_operator:
-                          description: Ldapattribute operator
-                          type: string
-                        ldapattribute_value:
-                          description: Ldapattribute value
-                          type: string
                         mark_as_sponsor_action:
                           description: Mark as sponsor action
                           type: string
-                        number_operator:
-                          description: Number operator
-                          type: string
-                        number_value:
-                          description: Number value
-                          type: integer
                         realms:
                           description: Realms that will be associated with this source
                           items:
@@ -1613,27 +1292,6 @@
                           type: string
                         set_unreg_date_action:
                           description: Set unreg date action
-                          type: string
-                        stripped_user_name:
-                          description: Use stripped username to test the  rules.
-                          type: string
-                        substring_operator:
-                          description: Substring operator
-                          type: string
-                        substring_value:
-                          description: Substring value
-                          type: string
-                        time_operator:
-                          description: Time operator
-                          type: string
-                        time_period_operator:
-                          description: Time period operator
-                          type: string
-                        time_period_value:
-                          description: Time period value
-                          type: string
-                        time_value:
-                          description: Time value
                           type: string
                         type:
                           description: Type
@@ -1735,39 +1393,15 @@
                                 type: string
                             type: object
                           type: array
-                        connection_operator:
-                          description: Connection operator
-                          type: string
-                        connection_value:
-                          description: Connection value
-                          type: string
-                        date_operator:
-                          description: Date operator
-                          type: string
-                        date_value:
-                          description: Date value
-                          type: string
                         description:
                           description: Description
                           type: string
                         id:
                           description: Name
                           type: string
-                        ldapattribute_operator:
-                          description: Ldapattribute operator
-                          type: string
-                        ldapattribute_value:
-                          description: Ldapattribute value
-                          type: string
                         mark_as_sponsor_action:
                           description: Mark as sponsor action
                           type: string
-                        number_operator:
-                          description: Number operator
-                          type: string
-                        number_value:
-                          description: Number value
-                          type: integer
                         path:
                           description: File Path
                           type: string
@@ -1798,27 +1432,6 @@
                           type: string
                         set_unreg_date_action:
                           description: Set unreg date action
-                          type: string
-                        stripped_user_name:
-                          description: Use stripped username to test the  rules.
-                          type: string
-                        substring_operator:
-                          description: Substring operator
-                          type: string
-                        substring_value:
-                          description: Substring value
-                          type: string
-                        time_operator:
-                          description: Time operator
-                          type: string
-                        time_period_operator:
-                          description: Time period operator
-                          type: string
-                        time_period_value:
-                          description: Time period value
-                          type: string
-                        time_value:
-                          description: Time value
                           type: string
                         type:
                           description: Type
@@ -1919,39 +1532,15 @@
                                 type: string
                             type: object
                           type: array
-                        connection_operator:
-                          description: Connection operator
-                          type: string
-                        connection_value:
-                          description: Connection value
-                          type: string
-                        date_operator:
-                          description: Date operator
-                          type: string
-                        date_value:
-                          description: Date value
-                          type: string
                         description:
                           description: Description
                           type: string
                         id:
                           description: Name
                           type: string
-                        ldapattribute_operator:
-                          description: Ldapattribute operator
-                          type: string
-                        ldapattribute_value:
-                          description: Ldapattribute value
-                          type: string
                         mark_as_sponsor_action:
                           description: Mark as sponsor action
                           type: string
-                        number_operator:
-                          description: Number operator
-                          type: string
-                        number_value:
-                          description: Number value
-                          type: integer
                         set_access_duration_action:
                           description: Set access duration action
                           type: string
@@ -1972,24 +1561,6 @@
                           type: string
                         set_unreg_date_action:
                           description: Set unreg date action
-                          type: string
-                        substring_operator:
-                          description: Substring operator
-                          type: string
-                        substring_value:
-                          description: Substring value
-                          type: string
-                        time_operator:
-                          description: Time operator
-                          type: string
-                        time_period_operator:
-                          description: Time period operator
-                          type: string
-                        time_period_value:
-                          description: Time period value
-                          type: string
-                        time_value:
-                          description: Time value
                           type: string
                         type:
                           description: Type
@@ -2101,21 +1672,9 @@
                         client_secret:
                           description: App Secret
                           type: string
-                        connection_operator:
-                          description: Connection operator
-                          type: string
-                        connection_value:
-                          description: Connection value
-                          type: string
                         create_local_account:
                           description: Create a local account on the PacketFence system
                             based on the username provided.
-                          type: string
-                        date_operator:
-                          description: Date operator
-                          type: string
-                        date_value:
-                          description: Date value
                           type: string
                         description:
                           description: Description
@@ -2127,12 +1686,6 @@
                         id:
                           description: Name
                           type: string
-                        ldapattribute_operator:
-                          description: Ldapattribute operator
-                          type: string
-                        ldapattribute_value:
-                          description: Ldapattribute value
-                          type: string
                         local_account_logins:
                           description: The amount of times, the local account can
                             be used after its created. 0 means infinite.
@@ -2140,12 +1693,6 @@
                         mark_as_sponsor_action:
                           description: Mark as sponsor action
                           type: string
-                        number_operator:
-                          description: Number operator
-                          type: string
-                        number_value:
-                          description: Number value
-                          type: integer
                         protected_resource_url:
                           description: Graph API URL of logged user
                           type: string
@@ -2179,24 +1726,6 @@
                           type: string
                         site:
                           description: Graph API URL
-                          type: string
-                        substring_operator:
-                          description: Substring operator
-                          type: string
-                        substring_value:
-                          description: Substring value
-                          type: string
-                        time_operator:
-                          description: Time operator
-                          type: string
-                        time_period_operator:
-                          description: Time period operator
-                          type: string
-                        time_period_value:
-                          description: Time period value
-                          type: string
-                        time_value:
-                          description: Time value
                           type: string
                         type:
                           description: Type
@@ -2317,21 +1846,9 @@
                         client_secret:
                           description: App Secret
                           type: string
-                        connection_operator:
-                          description: Connection operator
-                          type: string
-                        connection_value:
-                          description: Connection value
-                          type: string
                         create_local_account:
                           description: Create a local account on the PacketFence system
                             based on the username provided.
-                          type: string
-                        date_operator:
-                          description: Date operator
-                          type: string
-                        date_value:
-                          description: Date value
                           type: string
                         description:
                           description: Description
@@ -2343,12 +1860,6 @@
                         id:
                           description: Name
                           type: string
-                        ldapattribute_operator:
-                          description: Ldapattribute operator
-                          type: string
-                        ldapattribute_value:
-                          description: Ldapattribute value
-                          type: string
                         local_account_logins:
                           description: The amount of times, the local account can
                             be used after its created. 0 means infinite.
@@ -2356,12 +1867,6 @@
                         mark_as_sponsor_action:
                           description: Mark as sponsor action
                           type: string
-                        number_operator:
-                          description: Number operator
-                          type: string
-                        number_value:
-                          description: Number value
-                          type: integer
                         protected_resource_url:
                           description: Graph API URL of logged user
                           type: string
@@ -2395,24 +1900,6 @@
                           type: string
                         site:
                           description: Graph API URL
-                          type: string
-                        substring_operator:
-                          description: Substring operator
-                          type: string
-                        substring_value:
-                          description: Substring value
-                          type: string
-                        time_operator:
-                          description: Time operator
-                          type: string
-                        time_period_operator:
-                          description: Time period operator
-                          type: string
-                        time_period_value:
-                          description: Time period value
-                          type: string
-                        time_value:
-                          description: Time value
                           type: string
                         type:
                           description: Type
@@ -2536,21 +2023,9 @@
                         client_secret:
                           description: API Secret
                           type: string
-                        connection_operator:
-                          description: Connection operator
-                          type: string
-                        connection_value:
-                          description: Connection value
-                          type: string
                         create_local_account:
                           description: Create a local account on the PacketFence system
                             based on the username provided.
-                          type: string
-                        date_operator:
-                          description: Date operator
-                          type: string
-                        date_value:
-                          description: Date value
                           type: string
                         description:
                           description: Description
@@ -2562,12 +2037,6 @@
                         id:
                           description: Name
                           type: string
-                        ldapattribute_operator:
-                          description: Ldapattribute operator
-                          type: string
-                        ldapattribute_value:
-                          description: Ldapattribute value
-                          type: string
                         local_account_logins:
                           description: The amount of times, the local account can
                             be used after its created. 0 means infinite.
@@ -2575,12 +2044,6 @@
                         mark_as_sponsor_action:
                           description: Mark as sponsor action
                           type: string
-                        number_operator:
-                          description: Number operator
-                          type: string
-                        number_value:
-                          description: Number value
-                          type: integer
                         protected_resource_url:
                           description: API URL of logged user
                           type: string
@@ -2614,24 +2077,6 @@
                           type: string
                         site:
                           description: API URL
-                          type: string
-                        substring_operator:
-                          description: Substring operator
-                          type: string
-                        substring_value:
-                          description: Substring value
-                          type: string
-                        time_operator:
-                          description: Time operator
-                          type: string
-                        time_period_operator:
-                          description: Time period operator
-                          type: string
-                        time_period_value:
-                          description: Time period value
-                          type: string
-                        time_value:
-                          description: Time value
                           type: string
                         type:
                           description: Type
@@ -2750,21 +2195,9 @@
                                 type: string
                             type: object
                           type: array
-                        connection_operator:
-                          description: Connection operator
-                          type: string
-                        connection_value:
-                          description: Connection value
-                          type: string
                         create_local_account:
                           description: Create a local account on the PacketFence system
                             based on the username provided.
-                          type: string
-                        date_operator:
-                          description: Date operator
-                          type: string
-                        date_value:
-                          description: Date value
                           type: string
                         description:
                           description: Description
@@ -2784,12 +2217,6 @@
                         id:
                           description: Name
                           type: string
-                        ldapattribute_operator:
-                          description: Ldapattribute operator
-                          type: string
-                        ldapattribute_value:
-                          description: Ldapattribute value
-                          type: string
                         local_account_logins:
                           description: The amount of times, the local account can
                             be used after its created. 0 means infinite.
@@ -2797,12 +2224,6 @@
                         mark_as_sponsor_action:
                           description: Mark as sponsor action
                           type: string
-                        number_operator:
-                          description: Number operator
-                          type: string
-                        number_value:
-                          description: Number value
-                          type: integer
                         set_access_duration_action:
                           description: Set access duration action
                           type: string
@@ -2823,24 +2244,6 @@
                           type: string
                         set_unreg_date_action:
                           description: Set unreg date action
-                          type: string
-                        substring_operator:
-                          description: Substring operator
-                          type: string
-                        substring_value:
-                          description: Substring value
-                          type: string
-                        time_operator:
-                          description: Time operator
-                          type: string
-                        time_period_operator:
-                          description: Time period operator
-                          type: string
-                        time_period_value:
-                          description: Time period value
-                          type: string
-                        time_value:
-                          description: Time value
                           type: string
                         type:
                           description: Type
@@ -2953,21 +2356,9 @@
                         client_secret:
                           description: App Secret
                           type: string
-                        connection_operator:
-                          description: Connection operator
-                          type: string
-                        connection_value:
-                          description: Connection value
-                          type: string
                         create_local_account:
                           description: Create a local account on the PacketFence system
                             based on the username provided.
-                          type: string
-                        date_operator:
-                          description: Date operator
-                          type: string
-                        date_value:
-                          description: Date value
                           type: string
                         description:
                           description: Description
@@ -2979,12 +2370,6 @@
                         id:
                           description: Name
                           type: string
-                        ldapattribute_operator:
-                          description: Ldapattribute operator
-                          type: string
-                        ldapattribute_value:
-                          description: Ldapattribute value
-                          type: string
                         local_account_logins:
                           description: The amount of times, the local account can
                             be used after its created. 0 means infinite.
@@ -2992,12 +2377,6 @@
                         mark_as_sponsor_action:
                           description: Mark as sponsor action
                           type: string
-                        number_operator:
-                          description: Number operator
-                          type: string
-                        number_value:
-                          description: Number value
-                          type: integer
                         protected_resource_url:
                           description: API URL of logged user
                           type: string
@@ -3032,24 +2411,6 @@
                           type: string
                         site:
                           description: API URL
-                          type: string
-                        substring_operator:
-                          description: Substring operator
-                          type: string
-                        substring_value:
-                          description: Substring value
-                          type: string
-                        time_operator:
-                          description: Time operator
-                          type: string
-                        time_period_operator:
-                          description: Time period operator
-                          type: string
-                        time_period_value:
-                          description: Time period value
-                          type: string
-                        time_value:
-                          description: Time value
                           type: string
                         type:
                           description: Type
@@ -3168,21 +2529,9 @@
                         cache_match:
                           description: Will cache results of matching a rule
                           type: string
-                        connection_operator:
-                          description: Connection operator
-                          type: string
                         connection_timeout:
                           description: LDAP connection Timeout
                           type: integer
-                        connection_value:
-                          description: Connection value
-                          type: string
-                        date_operator:
-                          description: Date operator
-                          type: string
-                        date_value:
-                          description: Date value
-                          type: string
                         description:
                           description: Description
                           type: string
@@ -3199,24 +2548,12 @@
                         id:
                           description: Name
                           type: string
-                        ldapattribute_operator:
-                          description: Ldapattribute operator
-                          type: string
-                        ldapattribute_value:
-                          description: Ldapattribute value
-                          type: string
                         mark_as_sponsor_action:
                           description: Mark as sponsor action
                           type: string
                         monitor:
                           description: Do you want to monitor this source?
                           type: string
-                        number_operator:
-                          description: Number operator
-                          type: string
-                        number_value:
-                          description: Number value
-                          type: integer
                         password:
                           description: Password
                           type: string
@@ -3256,27 +2593,6 @@
                           type: string
                         set_unreg_date_action:
                           description: Set unreg date action
-                          type: string
-                        stripped_user_name:
-                          description: Use stripped username to test the  rules.
-                          type: string
-                        substring_operator:
-                          description: Substring operator
-                          type: string
-                        substring_value:
-                          description: Substring value
-                          type: string
-                        time_operator:
-                          description: Time operator
-                          type: string
-                        time_period_operator:
-                          description: Time period operator
-                          type: string
-                        time_period_value:
-                          description: Time period value
-                          type: string
-                        time_value:
-                          description: Time value
                           type: string
                         type:
                           description: Type
@@ -3394,18 +2710,6 @@
                           description: 'Note : The URL is always prefixed by a slash
                             (/)'
                           type: string
-                        connection_operator:
-                          description: Connection operator
-                          type: string
-                        connection_value:
-                          description: Connection value
-                          type: string
-                        date_operator:
-                          description: Date operator
-                          type: string
-                        date_value:
-                          description: Date value
-                          type: string
                         description:
                           description: Description
                           type: string
@@ -3415,21 +2719,9 @@
                         id:
                           description: Name
                           type: string
-                        ldapattribute_operator:
-                          description: Ldapattribute operator
-                          type: string
-                        ldapattribute_value:
-                          description: Ldapattribute value
-                          type: string
                         mark_as_sponsor_action:
                           description: Mark as sponsor action
                           type: string
-                        number_operator:
-                          description: Number operator
-                          type: string
-                        number_value:
-                          description: Number value
-                          type: integer
                         password:
                           description: API password (basic auth)
                           type: string
@@ -3466,27 +2758,6 @@
                           type: string
                         set_unreg_date_action:
                           description: Set unreg date action
-                          type: string
-                        stripped_user_name:
-                          description: Use stripped username to test the  rules.
-                          type: string
-                        substring_operator:
-                          description: Substring operator
-                          type: string
-                        substring_value:
-                          description: Substring value
-                          type: string
-                        time_operator:
-                          description: Time operator
-                          type: string
-                        time_period_operator:
-                          description: Time period operator
-                          type: string
-                        time_period_value:
-                          description: Time period value
-                          type: string
-                        time_value:
-                          description: Time value
                           type: string
                         type:
                           description: Type
@@ -3595,24 +2866,12 @@
                         base_url:
                           description: Iframe Base url
                           type: string
-                        connection_operator:
-                          description: Connection operator
-                          type: string
-                        connection_value:
-                          description: Connection value
-                          type: string
                         create_local_account:
                           description: Create a local account on the PacketFence system
                             based on the username provided.
                           type: string
                         currency:
                           description: Currency
-                          type: string
-                        date_operator:
-                          description: Date operator
-                          type: string
-                        date_value:
-                          description: Date value
                           type: string
                         description:
                           description: Description
@@ -3622,12 +2881,6 @@
                           type: string
                         id:
                           description: Name
-                          type: string
-                        ldapattribute_operator:
-                          description: Ldapattribute operator
-                          type: string
-                        ldapattribute_value:
-                          description: Ldapattribute value
                           type: string
                         local_account_logins:
                           description: The amount of times, the local account can
@@ -3639,12 +2892,6 @@
                         merchant_id:
                           description: Merchant ID
                           type: string
-                        number_operator:
-                          description: Number operator
-                          type: string
-                        number_value:
-                          description: Number value
-                          type: integer
                         send_email_confirmation:
                           description: Send billing confirmation
                           type: string
@@ -3678,12 +2925,6 @@
                         shared_secret_direct:
                           description: MKEY for Mirapay Direct
                           type: string
-                        substring_operator:
-                          description: Substring operator
-                          type: string
-                        substring_value:
-                          description: Substring value
-                          type: string
                         terminal_group_id:
                           description: Terminal Group ID for Mirapay Direct
                           type: string
@@ -3692,18 +2933,6 @@
                           type: string
                         test_mode:
                           description: Test mode
-                          type: string
-                        time_operator:
-                          description: Time operator
-                          type: string
-                        time_period_operator:
-                          description: Time period operator
-                          type: string
-                        time_period_value:
-                          description: Time period value
-                          type: string
-                        time_value:
-                          description: Time value
                           type: string
                         type:
                           description: Type
@@ -3824,21 +3053,9 @@
                         client_secret:
                           description: App Secret
                           type: string
-                        connection_operator:
-                          description: Connection operator
-                          type: string
-                        connection_value:
-                          description: Connection value
-                          type: string
                         create_local_account:
                           description: Create a local account on the PacketFence system
                             based on the username provided.
-                          type: string
-                        date_operator:
-                          description: Date operator
-                          type: string
-                        date_value:
-                          description: Date value
                           type: string
                         description:
                           description: Description
@@ -3850,12 +3067,6 @@
                         id:
                           description: Name
                           type: string
-                        ldapattribute_operator:
-                          description: Ldapattribute operator
-                          type: string
-                        ldapattribute_value:
-                          description: Ldapattribute value
-                          type: string
                         local_account_logins:
                           description: The amount of times, the local account can
                             be used after its created. 0 means infinite.
@@ -3863,12 +3074,6 @@
                         mark_as_sponsor_action:
                           description: Mark as sponsor action
                           type: string
-                        number_operator:
-                          description: Number operator
-                          type: string
-                        number_value:
-                          description: Number value
-                          type: integer
                         protected_resource_url:
                           description: API URL of logged user
                           type: string
@@ -3902,24 +3107,6 @@
                           type: string
                         site:
                           description: App URL
-                          type: string
-                        substring_operator:
-                          description: Substring operator
-                          type: string
-                        substring_value:
-                          description: Substring value
-                          type: string
-                        time_operator:
-                          description: Time operator
-                          type: string
-                        time_period_operator:
-                          description: Time period operator
-                          type: string
-                        time_period_value:
-                          description: Time period value
-                          type: string
-                        time_value:
-                          description: Time value
                           type: string
                         type:
                           description: Type
@@ -4029,18 +3216,6 @@
                                 type: string
                             type: object
                           type: array
-                        connection_operator:
-                          description: Connection operator
-                          type: string
-                        connection_value:
-                          description: Connection value
-                          type: string
-                        date_operator:
-                          description: Date operator
-                          type: string
-                        date_value:
-                          description: Date value
-                          type: string
                         description:
                           description: Description
                           type: string
@@ -4050,21 +3225,9 @@
                         id:
                           description: Name
                           type: string
-                        ldapattribute_operator:
-                          description: Ldapattribute operator
-                          type: string
-                        ldapattribute_value:
-                          description: Ldapattribute value
-                          type: string
                         mark_as_sponsor_action:
                           description: Mark as sponsor action
                           type: string
-                        number_operator:
-                          description: Number operator
-                          type: string
-                        number_value:
-                          description: Number value
-                          type: integer
                         proxy_addresses:
                           description: A comma seperated list of IP Address
                           type: string
@@ -4088,24 +3251,6 @@
                           type: string
                         set_unreg_date_action:
                           description: Set unreg date action
-                          type: string
-                        substring_operator:
-                          description: Substring operator
-                          type: string
-                        substring_value:
-                          description: Substring value
-                          type: string
-                        time_operator:
-                          description: Time operator
-                          type: string
-                        time_period_operator:
-                          description: Time period operator
-                          type: string
-                        time_period_value:
-                          description: Time period value
-                          type: string
-                        time_value:
-                          description: Time value
                           type: string
                         type:
                           description: Type
@@ -4214,24 +3359,12 @@
                                 type: string
                             type: object
                           type: array
-                        connection_operator:
-                          description: Connection operator
-                          type: string
-                        connection_value:
-                          description: Connection value
-                          type: string
                         create_local_account:
                           description: Create a local account on the PacketFence system
                             based on the username provided.
                           type: string
                         currency:
                           description: Currency
-                          type: string
-                        date_operator:
-                          description: Date operator
-                          type: string
-                        date_value:
-                          description: Date value
                           type: string
                         description:
                           description: Description
@@ -4243,12 +3376,6 @@
                         id:
                           description: Name
                           type: string
-                        ldapattribute_operator:
-                          description: Ldapattribute operator
-                          type: string
-                        ldapattribute_value:
-                          description: Ldapattribute value
-                          type: string
                         local_account_logins:
                           description: The amount of times, the local account can
                             be used after its created. 0 means infinite.
@@ -4259,12 +3386,6 @@
                         md5_hash:
                           description: MD5 hash
                           type: string
-                        number_operator:
-                          description: Number operator
-                          type: string
-                        number_value:
-                          description: Number value
-                          type: integer
                         send_email_confirmation:
                           description: Send billing confirmation
                           type: string
@@ -4289,26 +3410,8 @@
                         set_unreg_date_action:
                           description: Set unreg date action
                           type: string
-                        substring_operator:
-                          description: Substring operator
-                          type: string
-                        substring_value:
-                          description: Substring value
-                          type: string
                         test_mode:
                           description: Test mode
-                          type: string
-                        time_operator:
-                          description: Time operator
-                          type: string
-                        time_period_operator:
-                          description: Time period operator
-                          type: string
-                        time_period_value:
-                          description: Time period value
-                          type: string
-                        time_value:
-                          description: Time value
                           type: string
                         transaction_key:
                           description: Transaction key
@@ -4418,18 +3521,6 @@
                                 type: string
                             type: object
                           type: array
-                        connection_operator:
-                          description: Connection operator
-                          type: string
-                        connection_value:
-                          description: Connection value
-                          type: string
-                        date_operator:
-                          description: Date operator
-                          type: string
-                        date_value:
-                          description: Date value
-                          type: string
                         description:
                           description: Description
                           type: string
@@ -4439,21 +3530,9 @@
                         id:
                           description: Name
                           type: string
-                        ldapattribute_operator:
-                          description: Ldapattribute operator
-                          type: string
-                        ldapattribute_value:
-                          description: Ldapattribute value
-                          type: string
                         mark_as_sponsor_action:
                           description: Mark as sponsor action
                           type: string
-                        number_operator:
-                          description: Number operator
-                          type: string
-                        number_value:
-                          description: Number value
-                          type: integer
                         set_access_duration_action:
                           description: Set access duration action
                           type: string
@@ -4474,24 +3553,6 @@
                           type: string
                         set_unreg_date_action:
                           description: Set unreg date action
-                          type: string
-                        substring_operator:
-                          description: Substring operator
-                          type: string
-                        substring_value:
-                          description: Substring value
-                          type: string
-                        time_operator:
-                          description: Time operator
-                          type: string
-                        time_period_operator:
-                          description: Time period operator
-                          type: string
-                        time_period_value:
-                          description: Time period value
-                          type: string
-                        time_value:
-                          description: Time value
                           type: string
                         type:
                           description: Type
@@ -4598,33 +3659,15 @@
                                 type: string
                             type: object
                           type: array
-                        connection_operator:
-                          description: Connection operator
-                          type: string
-                        connection_value:
-                          description: Connection value
-                          type: string
                         create_local_account:
                           description: Create a local account on the PacketFence system
                             based on the username provided.
-                          type: string
-                        date_operator:
-                          description: Date operator
-                          type: string
-                        date_value:
-                          description: Date value
                           type: string
                         description:
                           description: Description
                           type: string
                         id:
                           description: Name
-                          type: string
-                        ldapattribute_operator:
-                          description: Ldapattribute operator
-                          type: string
-                        ldapattribute_value:
-                          description: Ldapattribute value
                           type: string
                         local_account_logins:
                           description: The amount of times, the local account can
@@ -4633,12 +3676,6 @@
                         mark_as_sponsor_action:
                           description: Mark as sponsor action
                           type: string
-                        number_operator:
-                          description: Number operator
-                          type: string
-                        number_value:
-                          description: Number value
-                          type: integer
                         pin_code_length:
                           description: The length of the PIN code to be sent over
                             sms
@@ -4663,24 +3700,6 @@
                           type: string
                         set_unreg_date_action:
                           description: Set unreg date action
-                          type: string
-                        substring_operator:
-                          description: Substring operator
-                          type: string
-                        substring_value:
-                          description: Substring value
-                          type: string
-                        time_operator:
-                          description: Time operator
-                          type: string
-                        time_period_operator:
-                          description: Time period operator
-                          type: string
-                        time_period_value:
-                          description: Time period value
-                          type: string
-                        time_value:
-                          description: Time value
                           type: string
                         twilio_phone_number:
                           description: Twilio provided phone number which will show
@@ -4791,29 +3810,11 @@
                                 type: string
                             type: object
                           type: array
-                        connection_operator:
-                          description: Connection operator
-                          type: string
-                        connection_value:
-                          description: Connection value
-                          type: string
-                        date_operator:
-                          description: Date operator
-                          type: string
-                        date_value:
-                          description: Date value
-                          type: string
                         description:
                           description: Description
                           type: string
                         id:
                           description: Name
-                          type: string
-                        ldapattribute_operator:
-                          description: Ldapattribute operator
-                          type: string
-                        ldapattribute_value:
-                          description: Ldapattribute value
                           type: string
                         local_realm:
                           description: Realms that will be authenticate locally
@@ -4827,12 +3828,6 @@
                         monitor:
                           description: Do you want to monitor this source?
                           type: string
-                        number_operator:
-                          description: Number operator
-                          type: string
-                        number_value:
-                          description: Number value
-                          type: integer
                         radius_secret:
                           description: Eduroam RADIUS secret
                           type: string
@@ -4868,24 +3863,6 @@
                           type: string
                         set_unreg_date_action:
                           description: Set unreg date action
-                          type: string
-                        substring_operator:
-                          description: Substring operator
-                          type: string
-                        substring_value:
-                          description: Substring value
-                          type: string
-                        time_operator:
-                          description: Time operator
-                          type: string
-                        time_period_operator:
-                          description: Time period operator
-                          type: string
-                        time_period_value:
-                          description: Time period value
-                          type: string
-                        time_value:
-                          description: Time value
                           type: string
                         type:
                           description: Type
@@ -4988,24 +3965,12 @@
                                 type: string
                             type: object
                           type: array
-                        connection_operator:
-                          description: Connection operator
-                          type: string
-                        connection_value:
-                          description: Connection value
-                          type: string
                         create_local_account:
                           description: Create a local account on the PacketFence system
                             based on the username provided.
                           type: string
                         currency:
                           description: Currency
-                          type: string
-                        date_operator:
-                          description: Date operator
-                          type: string
-                        date_value:
-                          description: Date value
                           type: string
                         description:
                           description: Description
@@ -5017,12 +3982,6 @@
                         id:
                           description: Name
                           type: string
-                        ldapattribute_operator:
-                          description: Ldapattribute operator
-                          type: string
-                        ldapattribute_value:
-                          description: Ldapattribute value
-                          type: string
                         local_account_logins:
                           description: The amount of times, the local account can
                             be used after its created. 0 means infinite.
@@ -5030,12 +3989,6 @@
                         mark_as_sponsor_action:
                           description: Mark as sponsor action
                           type: string
-                        number_operator:
-                          description: Number operator
-                          type: string
-                        number_value:
-                          description: Number value
-                          type: integer
                         publishable_key:
                           description: Publishable key
                           type: string
@@ -5070,26 +4023,8 @@
                           description: The type of payment the user will make. Charge
                             is a one time fee, subscription will be a recurring fee.
                           type: string
-                        substring_operator:
-                          description: Substring operator
-                          type: string
-                        substring_value:
-                          description: Substring value
-                          type: string
                         test_mode:
                           description: Test mode
-                          type: string
-                        time_operator:
-                          description: Time operator
-                          type: string
-                        time_period_operator:
-                          description: Time period operator
-                          type: string
-                        time_period_value:
-                          description: Time period value
-                          type: string
-                        time_value:
-                          description: Time value
                           type: string
                         type:
                           description: Type
@@ -5190,18 +4125,6 @@
                                 type: string
                             type: object
                           type: array
-                        connection_operator:
-                          description: Connection operator
-                          type: string
-                        connection_value:
-                          description: Connection value
-                          type: string
-                        date_operator:
-                          description: Date operator
-                          type: string
-                        date_value:
-                          description: Date value
-                          type: string
                         description:
                           description: Description
                           type: string
@@ -5211,21 +4134,9 @@
                         id:
                           description: Name
                           type: string
-                        ldapattribute_operator:
-                          description: Ldapattribute operator
-                          type: string
-                        ldapattribute_value:
-                          description: Ldapattribute value
-                          type: string
                         mark_as_sponsor_action:
                           description: Mark as sponsor action
                           type: string
-                        number_operator:
-                          description: Number operator
-                          type: string
-                        number_value:
-                          description: Number value
-                          type: integer
                         set_access_duration_action:
                           description: Set access duration action
                           type: string
@@ -5246,24 +4157,6 @@
                           type: string
                         set_unreg_date_action:
                           description: Set unreg date action
-                          type: string
-                        substring_operator:
-                          description: Substring operator
-                          type: string
-                        substring_value:
-                          description: Substring value
-                          type: string
-                        time_operator:
-                          description: Time operator
-                          type: string
-                        time_period_operator:
-                          description: Time period operator
-                          type: string
-                        time_period_value:
-                          description: Time period value
-                          type: string
-                        time_value:
-                          description: Time value
                           type: string
                         type:
                           description: Type
@@ -5363,18 +4256,6 @@
                                 type: string
                             type: object
                           type: array
-                        connection_operator:
-                          description: Connection operator
-                          type: string
-                        connection_value:
-                          description: Connection value
-                          type: string
-                        date_operator:
-                          description: Date operator
-                          type: string
-                        date_value:
-                          description: Date value
-                          type: string
                         description:
                           description: Description
                           type: string
@@ -5384,24 +4265,12 @@
                         id:
                           description: Name
                           type: string
-                        ldapattribute_operator:
-                          description: Ldapattribute operator
-                          type: string
-                        ldapattribute_value:
-                          description: Ldapattribute value
-                          type: string
                         mark_as_sponsor_action:
                           description: Mark as sponsor action
                           type: string
                         monitor:
                           description: Do you want to monitor this source?
                           type: string
-                        number_operator:
-                          description: Number operator
-                          type: string
-                        number_value:
-                          description: Number value
-                          type: integer
                         port:
                           description: Port
                           type: integer
@@ -5435,27 +4304,6 @@
                           type: string
                         set_unreg_date_action:
                           description: Set unreg date action
-                          type: string
-                        stripped_user_name:
-                          description: Use stripped username to test the  rules.
-                          type: string
-                        substring_operator:
-                          description: Substring operator
-                          type: string
-                        substring_value:
-                          description: Substring value
-                          type: string
-                        time_operator:
-                          description: Time operator
-                          type: string
-                        time_period_operator:
-                          description: Time period operator
-                          type: string
-                        time_period_value:
-                          description: Time period value
-                          type: string
-                        time_value:
-                          description: Time value
                           type: string
                         timeout:
                           description: Timeout
@@ -5571,21 +4419,9 @@
                                 type: string
                             type: object
                           type: array
-                        connection_operator:
-                          description: Connection operator
-                          type: string
-                        connection_value:
-                          description: Connection value
-                          type: string
                         create_local_account:
                           description: Create a local account on the PacketFence system
                             based on the username provided.
-                          type: string
-                        date_operator:
-                          description: Date operator
-                          type: string
-                        date_value:
-                          description: Date value
                           type: string
                         description:
                           description: Description
@@ -5604,12 +4440,6 @@
                         id:
                           description: Name
                           type: string
-                        ldapattribute_operator:
-                          description: Ldapattribute operator
-                          type: string
-                        ldapattribute_value:
-                          description: Ldapattribute value
-                          type: string
                         local_account_logins:
                           description: The amount of times, the local account can
                             be used after its created. 0 means infinite.
@@ -5617,12 +4447,6 @@
                         mark_as_sponsor_action:
                           description: Mark as sponsor action
                           type: string
-                        number_operator:
-                          description: Number operator
-                          type: string
-                        number_value:
-                          description: Number value
-                          type: integer
                         set_access_duration_action:
                           description: Set access duration action
                           type: string
@@ -5648,24 +4472,6 @@
                           description: Sponsors requesting access and access confirmation
                             emails are BCC'ed to this address. Multiple destinations
                             can be comma separated.
-                          type: string
-                        substring_operator:
-                          description: Substring operator
-                          type: string
-                        substring_value:
-                          description: Substring value
-                          type: string
-                        time_operator:
-                          description: Time operator
-                          type: string
-                        time_period_operator:
-                          description: Time period operator
-                          type: string
-                        time_period_value:
-                          description: Time period value
-                          type: string
-                        time_value:
-                          description: Time value
                           type: string
                         type:
                           description: Type
@@ -5776,21 +4582,9 @@
                         cache_match:
                           description: Will cache results of matching a rule
                           type: string
-                        connection_operator:
-                          description: Connection operator
-                          type: string
                         connection_timeout:
                           description: LDAP connection Timeout
                           type: integer
-                        connection_value:
-                          description: Connection value
-                          type: string
-                        date_operator:
-                          description: Date operator
-                          type: string
-                        date_value:
-                          description: Date value
-                          type: string
                         description:
                           description: Description
                           type: string
@@ -5807,24 +4601,12 @@
                         id:
                           description: Name
                           type: string
-                        ldapattribute_operator:
-                          description: Ldapattribute operator
-                          type: string
-                        ldapattribute_value:
-                          description: Ldapattribute value
-                          type: string
                         mark_as_sponsor_action:
                           description: Mark as sponsor action
                           type: string
                         monitor:
                           description: Do you want to monitor this source?
                           type: string
-                        number_operator:
-                          description: Number operator
-                          type: string
-                        number_value:
-                          description: Number value
-                          type: integer
                         password:
                           description: Password
                           type: string
@@ -5864,27 +4646,6 @@
                           type: string
                         set_unreg_date_action:
                           description: Set unreg date action
-                          type: string
-                        stripped_user_name:
-                          description: Use stripped username to test the  rules.
-                          type: string
-                        substring_operator:
-                          description: Substring operator
-                          type: string
-                        substring_value:
-                          description: Substring value
-                          type: string
-                        time_operator:
-                          description: Time operator
-                          type: string
-                        time_period_operator:
-                          description: Time period operator
-                          type: string
-                        time_period_value:
-                          description: Time period value
-                          type: string
-                        time_value:
-                          description: Time value
                           type: string
                         type:
                           description: Type
@@ -6009,21 +4770,9 @@
                         client_secret:
                           description: API Secret
                           type: string
-                        connection_operator:
-                          description: Connection operator
-                          type: string
-                        connection_value:
-                          description: Connection value
-                          type: string
                         create_local_account:
                           description: Create a local account on the PacketFence system
                             based on the username provided.
-                          type: string
-                        date_operator:
-                          description: Date operator
-                          type: string
-                        date_value:
-                          description: Date value
                           type: string
                         description:
                           description: Description
@@ -6035,12 +4784,6 @@
                         id:
                           description: Name
                           type: string
-                        ldapattribute_operator:
-                          description: Ldapattribute operator
-                          type: string
-                        ldapattribute_value:
-                          description: Ldapattribute value
-                          type: string
                         local_account_logins:
                           description: The amount of times, the local account can
                             be used after its created. 0 means infinite.
@@ -6048,12 +4791,6 @@
                         mark_as_sponsor_action:
                           description: Mark as sponsor action
                           type: string
-                        number_operator:
-                          description: Number operator
-                          type: string
-                        number_value:
-                          description: Number value
-                          type: integer
                         protected_resource_url:
                           description: API URL of logged user
                           type: string
@@ -6087,24 +4824,6 @@
                           type: string
                         site:
                           description: API URL
-                          type: string
-                        substring_operator:
-                          description: Substring operator
-                          type: string
-                        substring_value:
-                          description: Substring value
-                          type: string
-                        time_operator:
-                          description: Time operator
-                          type: string
-                        time_period_operator:
-                          description: Time period operator
-                          type: string
-                        time_period_value:
-                          description: Time period value
-                          type: string
-                        time_value:
-                          description: Time value
                           type: string
                         type:
                           description: Type
@@ -6237,33 +4956,15 @@
                         type: string
                     type: object
                   type: array
-                connection_operator:
-                  description: Connection operator
-                  type: string
-                connection_value:
-                  description: Connection value
-                  type: string
                 create_local_account:
                   description: Create a local account on the PacketFence system based
                     on the username provided.
-                  type: string
-                date_operator:
-                  description: Date operator
-                  type: string
-                date_value:
-                  description: Date value
                   type: string
                 description:
                   description: Description
                   type: string
                 id:
                   description: Name
-                  type: string
-                ldapattribute_operator:
-                  description: Ldapattribute operator
-                  type: string
-                ldapattribute_value:
-                  description: Ldapattribute value
                   type: string
                 local_account_logins:
                   description: The amount of times, the local account can be used
@@ -6272,12 +4973,6 @@
                 mark_as_sponsor_action:
                   description: Mark as sponsor action
                   type: string
-                number_operator:
-                  description: Number operator
-                  type: string
-                number_value:
-                  description: Number value
-                  type: integer
                 set_access_duration_action:
                   description: Set access duration action
                   type: string
@@ -6305,24 +5000,6 @@
                     description: List of phone carriers available to the user
                     type: string
                   type: array
-                substring_operator:
-                  description: Substring operator
-                  type: string
-                substring_value:
-                  description: Substring value
-                  type: string
-                time_operator:
-                  description: Time operator
-                  type: string
-                time_period_operator:
-                  description: Time period operator
-                  type: string
-                time_period_value:
-                  description: Time period value
-                  type: string
-                time_value:
-                  description: Time value
-                  type: string
                 type:
                   description: Type
                   type: string
@@ -6436,21 +5113,9 @@
                 client_secret:
                   description: API Secret
                   type: string
-                connection_operator:
-                  description: Connection operator
-                  type: string
-                connection_value:
-                  description: Connection value
-                  type: string
                 create_local_account:
                   description: Create a local account on the PacketFence system based
                     on the username provided.
-                  type: string
-                date_operator:
-                  description: Date operator
-                  type: string
-                date_value:
-                  description: Date value
                   type: string
                 description:
                   description: Description
@@ -6462,12 +5127,6 @@
                 id:
                   description: Name
                   type: string
-                ldapattribute_operator:
-                  description: Ldapattribute operator
-                  type: string
-                ldapattribute_value:
-                  description: Ldapattribute value
-                  type: string
                 local_account_logins:
                   description: The amount of times, the local account can be used
                     after its created. 0 means infinite.
@@ -6475,12 +5134,6 @@
                 mark_as_sponsor_action:
                   description: Mark as sponsor action
                   type: string
-                number_operator:
-                  description: Number operator
-                  type: string
-                number_value:
-                  description: Number value
-                  type: integer
                 protected_resource_url:
                   description: API URL of logged user
                   type: string
@@ -6510,24 +5163,6 @@
                   type: string
                 site:
                   description: API URL
-                  type: string
-                substring_operator:
-                  description: Substring operator
-                  type: string
-                substring_value:
-                  description: Substring value
-                  type: string
-                time_operator:
-                  description: Time operator
-                  type: string
-                time_period_operator:
-                  description: Time period operator
-                  type: string
-                time_period_value:
-                  description: Time period value
-                  type: string
-                time_value:
-                  description: Time value
                   type: string
                 type:
                   description: Type
@@ -6636,39 +5271,15 @@
                         type: string
                     type: object
                   type: array
-                connection_operator:
-                  description: Connection operator
-                  type: string
-                connection_value:
-                  description: Connection value
-                  type: string
-                date_operator:
-                  description: Date operator
-                  type: string
-                date_value:
-                  description: Date value
-                  type: string
                 description:
                   description: Description
                   type: string
                 id:
                   description: Name
                   type: string
-                ldapattribute_operator:
-                  description: Ldapattribute operator
-                  type: string
-                ldapattribute_value:
-                  description: Ldapattribute value
-                  type: string
                 mark_as_sponsor_action:
                   description: Mark as sponsor action
                   type: string
-                number_operator:
-                  description: Number operator
-                  type: string
-                number_value:
-                  description: Number value
-                  type: integer
                 realms:
                   description: Realms that will be associated with this source
                   items:
@@ -6695,27 +5306,6 @@
                   type: string
                 set_unreg_date_action:
                   description: Set unreg date action
-                  type: string
-                stripped_user_name:
-                  description: Use stripped username to test the  rules.
-                  type: string
-                substring_operator:
-                  description: Substring operator
-                  type: string
-                substring_value:
-                  description: Substring value
-                  type: string
-                time_operator:
-                  description: Time operator
-                  type: string
-                time_period_operator:
-                  description: Time period operator
-                  type: string
-                time_period_value:
-                  description: Time period value
-                  type: string
-                time_value:
-                  description: Time value
                   type: string
                 type:
                   description: Type
@@ -6818,18 +5408,6 @@
                 authorization_source_id:
                   description: The source to use for authorization (rule matching)
                   type: string
-                connection_operator:
-                  description: Connection operator
-                  type: string
-                connection_value:
-                  description: Connection value
-                  type: string
-                date_operator:
-                  description: Date operator
-                  type: string
-                date_value:
-                  description: Date value
-                  type: string
                 description:
                   description: Description
                   type: string
@@ -6849,21 +5427,9 @@
                 idp_metadata_path:
                   description: Path to Identity Provider metadata
                   type: string
-                ldapattribute_operator:
-                  description: Ldapattribute operator
-                  type: string
-                ldapattribute_value:
-                  description: Ldapattribute value
-                  type: string
                 mark_as_sponsor_action:
                   description: Mark as sponsor action
                   type: string
-                number_operator:
-                  description: Number operator
-                  type: string
-                number_value:
-                  description: Number value
-                  type: integer
                 set_access_duration_action:
                   description: Set access duration action
                   type: string
@@ -6893,24 +5459,6 @@
                   type: string
                 sp_key_path:
                   description: Path to Service Provider key (x509)
-                  type: string
-                substring_operator:
-                  description: Substring operator
-                  type: string
-                substring_value:
-                  description: Substring value
-                  type: string
-                time_operator:
-                  description: Time operator
-                  type: string
-                time_period_operator:
-                  description: Time period operator
-                  type: string
-                time_period_value:
-                  description: Time period value
-                  type: string
-                time_value:
-                  description: Time value
                   type: string
                 type:
                   description: Type
@@ -7027,24 +5575,12 @@
                 cert_id:
                   description: Cert id
                   type: string
-                connection_operator:
-                  description: Connection operator
-                  type: string
-                connection_value:
-                  description: Connection value
-                  type: string
                 create_local_account:
                   description: Create a local account on the PacketFence system based
                     on the username provided.
                   type: string
                 currency:
                   description: Currency
-                  type: string
-                date_operator:
-                  description: Date operator
-                  type: string
-                date_value:
-                  description: Date value
                   type: string
                 description:
                   description: Description
@@ -7066,12 +5602,6 @@
                   description: The path to the associated key of the certificate you
                     submitted to Paypal.
                   type: string
-                ldapattribute_operator:
-                  description: Ldapattribute operator
-                  type: string
-                ldapattribute_value:
-                  description: Ldapattribute value
-                  type: string
                 local_account_logins:
                   description: The amount of times, the local account can be used
                     after its created. 0 means infinite.
@@ -7079,12 +5609,6 @@
                 mark_as_sponsor_action:
                   description: Mark as sponsor action
                   type: string
-                number_operator:
-                  description: Number operator
-                  type: string
-                number_value:
-                  description: Number value
-                  type: integer
                 payment_type:
                   description: The type of transactions this source will do (donations
                     or sales).
@@ -7116,26 +5640,8 @@
                 set_unreg_date_action:
                   description: Set unreg date action
                   type: string
-                substring_operator:
-                  description: Substring operator
-                  type: string
-                substring_value:
-                  description: Substring value
-                  type: string
                 test_mode:
                   description: Test mode
-                  type: string
-                time_operator:
-                  description: Time operator
-                  type: string
-                time_period_operator:
-                  description: Time period operator
-                  type: string
-                time_period_value:
-                  description: Time period value
-                  type: string
-                time_value:
-                  description: Time value
                   type: string
                 type:
                   description: Type
@@ -7258,21 +5764,9 @@
                 client_secret:
                   description: App Secret
                   type: string
-                connection_operator:
-                  description: Connection operator
-                  type: string
-                connection_value:
-                  description: Connection value
-                  type: string
                 create_local_account:
                   description: Create a local account on the PacketFence system based
                     on the username provided.
-                  type: string
-                date_operator:
-                  description: Date operator
-                  type: string
-                date_value:
-                  description: Date value
                   type: string
                 description:
                   description: Description
@@ -7284,12 +5778,6 @@
                 id:
                   description: Name
                   type: string
-                ldapattribute_operator:
-                  description: Ldapattribute operator
-                  type: string
-                ldapattribute_value:
-                  description: Ldapattribute value
-                  type: string
                 local_account_logins:
                   description: The amount of times, the local account can be used
                     after its created. 0 means infinite.
@@ -7297,12 +5785,6 @@
                 mark_as_sponsor_action:
                   description: Mark as sponsor action
                   type: string
-                number_operator:
-                  description: Number operator
-                  type: string
-                number_value:
-                  description: Number value
-                  type: integer
                 protected_resource_url:
                   description: Graph API URL of logged user
                   type: string
@@ -7335,24 +5817,6 @@
                   type: string
                 site:
                   description: Graph API URL
-                  type: string
-                substring_operator:
-                  description: Substring operator
-                  type: string
-                substring_value:
-                  description: Substring value
-                  type: string
-                time_operator:
-                  description: Time operator
-                  type: string
-                time_period_operator:
-                  description: Time period operator
-                  type: string
-                time_period_value:
-                  description: Time period value
-                  type: string
-                time_value:
-                  description: Time value
                   type: string
                 type:
                   description: Type
@@ -7474,18 +5938,6 @@
                 client_secret:
                   description: API Secret
                   type: string
-                connection_operator:
-                  description: Connection operator
-                  type: string
-                connection_value:
-                  description: Connection value
-                  type: string
-                date_operator:
-                  description: Date operator
-                  type: string
-                date_value:
-                  description: Date value
-                  type: string
                 description:
                   description: Description
                   type: string
@@ -7496,21 +5948,9 @@
                 id:
                   description: Name
                   type: string
-                ldapattribute_operator:
-                  description: Ldapattribute operator
-                  type: string
-                ldapattribute_value:
-                  description: Ldapattribute value
-                  type: string
                 mark_as_sponsor_action:
                   description: Mark as sponsor action
                   type: string
-                number_operator:
-                  description: Number operator
-                  type: string
-                number_value:
-                  description: Number value
-                  type: integer
                 protected_resource_url:
                   description: API URL of logged user
                   type: string
@@ -7540,24 +5980,6 @@
                   type: string
                 site:
                   description: API URL
-                  type: string
-                substring_operator:
-                  description: Substring operator
-                  type: string
-                substring_value:
-                  description: Substring value
-                  type: string
-                time_operator:
-                  description: Time operator
-                  type: string
-                time_period_operator:
-                  description: Time period operator
-                  type: string
-                time_period_value:
-                  description: Time period value
-                  type: string
-                time_value:
-                  description: Time value
                   type: string
                 type:
                   description: Type
@@ -7668,18 +6090,6 @@
                         type: string
                     type: object
                   type: array
-                connection_operator:
-                  description: Connection operator
-                  type: string
-                connection_value:
-                  description: Connection value
-                  type: string
-                date_operator:
-                  description: Date operator
-                  type: string
-                date_value:
-                  description: Date value
-                  type: string
                 description:
                   description: Description
                   type: string
@@ -7689,21 +6099,9 @@
                 id:
                   description: Name
                   type: string
-                ldapattribute_operator:
-                  description: Ldapattribute operator
-                  type: string
-                ldapattribute_value:
-                  description: Ldapattribute value
-                  type: string
                 mark_as_sponsor_action:
                   description: Mark as sponsor action
                   type: string
-                number_operator:
-                  description: Number operator
-                  type: string
-                number_value:
-                  description: Number value
-                  type: integer
                 realms:
                   description: Realms that will be associated with this source
                   items:
@@ -7730,27 +6128,6 @@
                   type: string
                 set_unreg_date_action:
                   description: Set unreg date action
-                  type: string
-                stripped_user_name:
-                  description: Use stripped username to test the  rules.
-                  type: string
-                substring_operator:
-                  description: Substring operator
-                  type: string
-                substring_value:
-                  description: Substring value
-                  type: string
-                time_operator:
-                  description: Time operator
-                  type: string
-                time_period_operator:
-                  description: Time period operator
-                  type: string
-                time_period_value:
-                  description: Time period value
-                  type: string
-                time_value:
-                  description: Time value
                   type: string
                 type:
                   description: Type
@@ -7852,39 +6229,15 @@
                         type: string
                     type: object
                   type: array
-                connection_operator:
-                  description: Connection operator
-                  type: string
-                connection_value:
-                  description: Connection value
-                  type: string
-                date_operator:
-                  description: Date operator
-                  type: string
-                date_value:
-                  description: Date value
-                  type: string
                 description:
                   description: Description
                   type: string
                 id:
                   description: Name
                   type: string
-                ldapattribute_operator:
-                  description: Ldapattribute operator
-                  type: string
-                ldapattribute_value:
-                  description: Ldapattribute value
-                  type: string
                 mark_as_sponsor_action:
                   description: Mark as sponsor action
                   type: string
-                number_operator:
-                  description: Number operator
-                  type: string
-                number_value:
-                  description: Number value
-                  type: integer
                 path:
                   description: File Path
                   type: string
@@ -7914,27 +6267,6 @@
                   type: string
                 set_unreg_date_action:
                   description: Set unreg date action
-                  type: string
-                stripped_user_name:
-                  description: Use stripped username to test the  rules.
-                  type: string
-                substring_operator:
-                  description: Substring operator
-                  type: string
-                substring_value:
-                  description: Substring value
-                  type: string
-                time_operator:
-                  description: Time operator
-                  type: string
-                time_period_operator:
-                  description: Time period operator
-                  type: string
-                time_period_value:
-                  description: Time period value
-                  type: string
-                time_value:
-                  description: Time value
                   type: string
                 type:
                   description: Type
@@ -8035,39 +6367,15 @@
                         type: string
                     type: object
                   type: array
-                connection_operator:
-                  description: Connection operator
-                  type: string
-                connection_value:
-                  description: Connection value
-                  type: string
-                date_operator:
-                  description: Date operator
-                  type: string
-                date_value:
-                  description: Date value
-                  type: string
                 description:
                   description: Description
                   type: string
                 id:
                   description: Name
                   type: string
-                ldapattribute_operator:
-                  description: Ldapattribute operator
-                  type: string
-                ldapattribute_value:
-                  description: Ldapattribute value
-                  type: string
                 mark_as_sponsor_action:
                   description: Mark as sponsor action
                   type: string
-                number_operator:
-                  description: Number operator
-                  type: string
-                number_value:
-                  description: Number value
-                  type: integer
                 set_access_duration_action:
                   description: Set access duration action
                   type: string
@@ -8088,24 +6396,6 @@
                   type: string
                 set_unreg_date_action:
                   description: Set unreg date action
-                  type: string
-                substring_operator:
-                  description: Substring operator
-                  type: string
-                substring_value:
-                  description: Substring value
-                  type: string
-                time_operator:
-                  description: Time operator
-                  type: string
-                time_period_operator:
-                  description: Time period operator
-                  type: string
-                time_period_value:
-                  description: Time period value
-                  type: string
-                time_value:
-                  description: Time value
                   type: string
                 type:
                   description: Type
@@ -8217,21 +6507,9 @@
                 client_secret:
                   description: App Secret
                   type: string
-                connection_operator:
-                  description: Connection operator
-                  type: string
-                connection_value:
-                  description: Connection value
-                  type: string
                 create_local_account:
                   description: Create a local account on the PacketFence system based
                     on the username provided.
-                  type: string
-                date_operator:
-                  description: Date operator
-                  type: string
-                date_value:
-                  description: Date value
                   type: string
                 description:
                   description: Description
@@ -8243,12 +6521,6 @@
                 id:
                   description: Name
                   type: string
-                ldapattribute_operator:
-                  description: Ldapattribute operator
-                  type: string
-                ldapattribute_value:
-                  description: Ldapattribute value
-                  type: string
                 local_account_logins:
                   description: The amount of times, the local account can be used
                     after its created. 0 means infinite.
@@ -8256,12 +6528,6 @@
                 mark_as_sponsor_action:
                   description: Mark as sponsor action
                   type: string
-                number_operator:
-                  description: Number operator
-                  type: string
-                number_value:
-                  description: Number value
-                  type: integer
                 protected_resource_url:
                   description: Graph API URL of logged user
                   type: string
@@ -8294,24 +6560,6 @@
                   type: string
                 site:
                   description: Graph API URL
-                  type: string
-                substring_operator:
-                  description: Substring operator
-                  type: string
-                substring_value:
-                  description: Substring value
-                  type: string
-                time_operator:
-                  description: Time operator
-                  type: string
-                time_period_operator:
-                  description: Time period operator
-                  type: string
-                time_period_value:
-                  description: Time period value
-                  type: string
-                time_value:
-                  description: Time value
                   type: string
                 type:
                   description: Type
@@ -8432,21 +6680,9 @@
                 client_secret:
                   description: App Secret
                   type: string
-                connection_operator:
-                  description: Connection operator
-                  type: string
-                connection_value:
-                  description: Connection value
-                  type: string
                 create_local_account:
                   description: Create a local account on the PacketFence system based
                     on the username provided.
-                  type: string
-                date_operator:
-                  description: Date operator
-                  type: string
-                date_value:
-                  description: Date value
                   type: string
                 description:
                   description: Description
@@ -8458,12 +6694,6 @@
                 id:
                   description: Name
                   type: string
-                ldapattribute_operator:
-                  description: Ldapattribute operator
-                  type: string
-                ldapattribute_value:
-                  description: Ldapattribute value
-                  type: string
                 local_account_logins:
                   description: The amount of times, the local account can be used
                     after its created. 0 means infinite.
@@ -8471,12 +6701,6 @@
                 mark_as_sponsor_action:
                   description: Mark as sponsor action
                   type: string
-                number_operator:
-                  description: Number operator
-                  type: string
-                number_value:
-                  description: Number value
-                  type: integer
                 protected_resource_url:
                   description: Graph API URL of logged user
                   type: string
@@ -8509,24 +6733,6 @@
                   type: string
                 site:
                   description: Graph API URL
-                  type: string
-                substring_operator:
-                  description: Substring operator
-                  type: string
-                substring_value:
-                  description: Substring value
-                  type: string
-                time_operator:
-                  description: Time operator
-                  type: string
-                time_period_operator:
-                  description: Time period operator
-                  type: string
-                time_period_value:
-                  description: Time period value
-                  type: string
-                time_value:
-                  description: Time value
                   type: string
                 type:
                   description: Type
@@ -8650,21 +6856,9 @@
                 client_secret:
                   description: API Secret
                   type: string
-                connection_operator:
-                  description: Connection operator
-                  type: string
-                connection_value:
-                  description: Connection value
-                  type: string
                 create_local_account:
                   description: Create a local account on the PacketFence system based
                     on the username provided.
-                  type: string
-                date_operator:
-                  description: Date operator
-                  type: string
-                date_value:
-                  description: Date value
                   type: string
                 description:
                   description: Description
@@ -8676,12 +6870,6 @@
                 id:
                   description: Name
                   type: string
-                ldapattribute_operator:
-                  description: Ldapattribute operator
-                  type: string
-                ldapattribute_value:
-                  description: Ldapattribute value
-                  type: string
                 local_account_logins:
                   description: The amount of times, the local account can be used
                     after its created. 0 means infinite.
@@ -8689,12 +6877,6 @@
                 mark_as_sponsor_action:
                   description: Mark as sponsor action
                   type: string
-                number_operator:
-                  description: Number operator
-                  type: string
-                number_value:
-                  description: Number value
-                  type: integer
                 protected_resource_url:
                   description: API URL of logged user
                   type: string
@@ -8727,24 +6909,6 @@
                   type: string
                 site:
                   description: API URL
-                  type: string
-                substring_operator:
-                  description: Substring operator
-                  type: string
-                substring_value:
-                  description: Substring value
-                  type: string
-                time_operator:
-                  description: Time operator
-                  type: string
-                time_period_operator:
-                  description: Time period operator
-                  type: string
-                time_period_value:
-                  description: Time period value
-                  type: string
-                time_value:
-                  description: Time value
                   type: string
                 type:
                   description: Type
@@ -8863,21 +7027,9 @@
                         type: string
                     type: object
                   type: array
-                connection_operator:
-                  description: Connection operator
-                  type: string
-                connection_value:
-                  description: Connection value
-                  type: string
                 create_local_account:
                   description: Create a local account on the PacketFence system based
                     on the username provided.
-                  type: string
-                date_operator:
-                  description: Date operator
-                  type: string
-                date_value:
-                  description: Date value
                   type: string
                 description:
                   description: Description
@@ -8897,12 +7049,6 @@
                 id:
                   description: Name
                   type: string
-                ldapattribute_operator:
-                  description: Ldapattribute operator
-                  type: string
-                ldapattribute_value:
-                  description: Ldapattribute value
-                  type: string
                 local_account_logins:
                   description: The amount of times, the local account can be used
                     after its created. 0 means infinite.
@@ -8910,12 +7056,6 @@
                 mark_as_sponsor_action:
                   description: Mark as sponsor action
                   type: string
-                number_operator:
-                  description: Number operator
-                  type: string
-                number_value:
-                  description: Number value
-                  type: integer
                 set_access_duration_action:
                   description: Set access duration action
                   type: string
@@ -8936,24 +7076,6 @@
                   type: string
                 set_unreg_date_action:
                   description: Set unreg date action
-                  type: string
-                substring_operator:
-                  description: Substring operator
-                  type: string
-                substring_value:
-                  description: Substring value
-                  type: string
-                time_operator:
-                  description: Time operator
-                  type: string
-                time_period_operator:
-                  description: Time period operator
-                  type: string
-                time_period_value:
-                  description: Time period value
-                  type: string
-                time_value:
-                  description: Time value
                   type: string
                 type:
                   description: Type
@@ -9066,21 +7188,9 @@
                 client_secret:
                   description: App Secret
                   type: string
-                connection_operator:
-                  description: Connection operator
-                  type: string
-                connection_value:
-                  description: Connection value
-                  type: string
                 create_local_account:
                   description: Create a local account on the PacketFence system based
                     on the username provided.
-                  type: string
-                date_operator:
-                  description: Date operator
-                  type: string
-                date_value:
-                  description: Date value
                   type: string
                 description:
                   description: Description
@@ -9092,12 +7202,6 @@
                 id:
                   description: Name
                   type: string
-                ldapattribute_operator:
-                  description: Ldapattribute operator
-                  type: string
-                ldapattribute_value:
-                  description: Ldapattribute value
-                  type: string
                 local_account_logins:
                   description: The amount of times, the local account can be used
                     after its created. 0 means infinite.
@@ -9105,12 +7209,6 @@
                 mark_as_sponsor_action:
                   description: Mark as sponsor action
                   type: string
-                number_operator:
-                  description: Number operator
-                  type: string
-                number_value:
-                  description: Number value
-                  type: integer
                 protected_resource_url:
                   description: API URL of logged user
                   type: string
@@ -9144,24 +7242,6 @@
                   type: string
                 site:
                   description: API URL
-                  type: string
-                substring_operator:
-                  description: Substring operator
-                  type: string
-                substring_value:
-                  description: Substring value
-                  type: string
-                time_operator:
-                  description: Time operator
-                  type: string
-                time_period_operator:
-                  description: Time period operator
-                  type: string
-                time_period_value:
-                  description: Time period value
-                  type: string
-                time_value:
-                  description: Time value
                   type: string
                 type:
                   description: Type
@@ -9280,21 +7360,9 @@
                 cache_match:
                   description: Will cache results of matching a rule
                   type: string
-                connection_operator:
-                  description: Connection operator
-                  type: string
                 connection_timeout:
                   description: LDAP connection Timeout
                   type: integer
-                connection_value:
-                  description: Connection value
-                  type: string
-                date_operator:
-                  description: Date operator
-                  type: string
-                date_value:
-                  description: Date value
-                  type: string
                 description:
                   description: Description
                   type: string
@@ -9311,24 +7379,12 @@
                 id:
                   description: Name
                   type: string
-                ldapattribute_operator:
-                  description: Ldapattribute operator
-                  type: string
-                ldapattribute_value:
-                  description: Ldapattribute value
-                  type: string
                 mark_as_sponsor_action:
                   description: Mark as sponsor action
                   type: string
                 monitor:
                   description: Do you want to monitor this source?
                   type: string
-                number_operator:
-                  description: Number operator
-                  type: string
-                number_value:
-                  description: Number value
-                  type: integer
                 password:
                   description: Password
                   type: string
@@ -9367,27 +7423,6 @@
                   type: string
                 set_unreg_date_action:
                   description: Set unreg date action
-                  type: string
-                stripped_user_name:
-                  description: Use stripped username to test the  rules.
-                  type: string
-                substring_operator:
-                  description: Substring operator
-                  type: string
-                substring_value:
-                  description: Substring value
-                  type: string
-                time_operator:
-                  description: Time operator
-                  type: string
-                time_period_operator:
-                  description: Time period operator
-                  type: string
-                time_period_value:
-                  description: Time period value
-                  type: string
-                time_value:
-                  description: Time value
                   type: string
                 type:
                   description: Type
@@ -9503,18 +7538,6 @@
                 authorization_url:
                   description: 'Note : The URL is always prefixed by a slash (/)'
                   type: string
-                connection_operator:
-                  description: Connection operator
-                  type: string
-                connection_value:
-                  description: Connection value
-                  type: string
-                date_operator:
-                  description: Date operator
-                  type: string
-                date_value:
-                  description: Date value
-                  type: string
                 description:
                   description: Description
                   type: string
@@ -9524,21 +7547,9 @@
                 id:
                   description: Name
                   type: string
-                ldapattribute_operator:
-                  description: Ldapattribute operator
-                  type: string
-                ldapattribute_value:
-                  description: Ldapattribute value
-                  type: string
                 mark_as_sponsor_action:
                   description: Mark as sponsor action
                   type: string
-                number_operator:
-                  description: Number operator
-                  type: string
-                number_value:
-                  description: Number value
-                  type: integer
                 password:
                   description: API password (basic auth)
                   type: string
@@ -9574,27 +7585,6 @@
                   type: string
                 set_unreg_date_action:
                   description: Set unreg date action
-                  type: string
-                stripped_user_name:
-                  description: Use stripped username to test the  rules.
-                  type: string
-                substring_operator:
-                  description: Substring operator
-                  type: string
-                substring_value:
-                  description: Substring value
-                  type: string
-                time_operator:
-                  description: Time operator
-                  type: string
-                time_period_operator:
-                  description: Time period operator
-                  type: string
-                time_period_value:
-                  description: Time period value
-                  type: string
-                time_value:
-                  description: Time value
                   type: string
                 type:
                   description: Type
@@ -9703,24 +7693,12 @@
                 base_url:
                   description: Iframe Base url
                   type: string
-                connection_operator:
-                  description: Connection operator
-                  type: string
-                connection_value:
-                  description: Connection value
-                  type: string
                 create_local_account:
                   description: Create a local account on the PacketFence system based
                     on the username provided.
                   type: string
                 currency:
                   description: Currency
-                  type: string
-                date_operator:
-                  description: Date operator
-                  type: string
-                date_value:
-                  description: Date value
                   type: string
                 description:
                   description: Description
@@ -9730,12 +7708,6 @@
                   type: string
                 id:
                   description: Name
-                  type: string
-                ldapattribute_operator:
-                  description: Ldapattribute operator
-                  type: string
-                ldapattribute_value:
-                  description: Ldapattribute value
                   type: string
                 local_account_logins:
                   description: The amount of times, the local account can be used
@@ -9747,12 +7719,6 @@
                 merchant_id:
                   description: Merchant ID
                   type: string
-                number_operator:
-                  description: Number operator
-                  type: string
-                number_value:
-                  description: Number value
-                  type: integer
                 send_email_confirmation:
                   description: Send billing confirmation
                   type: string
@@ -9786,12 +7752,6 @@
                 shared_secret_direct:
                   description: MKEY for Mirapay Direct
                   type: string
-                substring_operator:
-                  description: Substring operator
-                  type: string
-                substring_value:
-                  description: Substring value
-                  type: string
                 terminal_group_id:
                   description: Terminal Group ID for Mirapay Direct
                   type: string
@@ -9800,18 +7760,6 @@
                   type: string
                 test_mode:
                   description: Test mode
-                  type: string
-                time_operator:
-                  description: Time operator
-                  type: string
-                time_period_operator:
-                  description: Time period operator
-                  type: string
-                time_period_value:
-                  description: Time period value
-                  type: string
-                time_value:
-                  description: Time value
                   type: string
                 type:
                   description: Type
@@ -9932,21 +7880,9 @@
                 client_secret:
                   description: App Secret
                   type: string
-                connection_operator:
-                  description: Connection operator
-                  type: string
-                connection_value:
-                  description: Connection value
-                  type: string
                 create_local_account:
                   description: Create a local account on the PacketFence system based
                     on the username provided.
-                  type: string
-                date_operator:
-                  description: Date operator
-                  type: string
-                date_value:
-                  description: Date value
                   type: string
                 description:
                   description: Description
@@ -9958,12 +7894,6 @@
                 id:
                   description: Name
                   type: string
-                ldapattribute_operator:
-                  description: Ldapattribute operator
-                  type: string
-                ldapattribute_value:
-                  description: Ldapattribute value
-                  type: string
                 local_account_logins:
                   description: The amount of times, the local account can be used
                     after its created. 0 means infinite.
@@ -9971,12 +7901,6 @@
                 mark_as_sponsor_action:
                   description: Mark as sponsor action
                   type: string
-                number_operator:
-                  description: Number operator
-                  type: string
-                number_value:
-                  description: Number value
-                  type: integer
                 protected_resource_url:
                   description: API URL of logged user
                   type: string
@@ -10009,24 +7933,6 @@
                   type: string
                 site:
                   description: App URL
-                  type: string
-                substring_operator:
-                  description: Substring operator
-                  type: string
-                substring_value:
-                  description: Substring value
-                  type: string
-                time_operator:
-                  description: Time operator
-                  type: string
-                time_period_operator:
-                  description: Time period operator
-                  type: string
-                time_period_value:
-                  description: Time period value
-                  type: string
-                time_value:
-                  description: Time value
                   type: string
                 type:
                   description: Type
@@ -10136,18 +8042,6 @@
                         type: string
                     type: object
                   type: array
-                connection_operator:
-                  description: Connection operator
-                  type: string
-                connection_value:
-                  description: Connection value
-                  type: string
-                date_operator:
-                  description: Date operator
-                  type: string
-                date_value:
-                  description: Date value
-                  type: string
                 description:
                   description: Description
                   type: string
@@ -10157,21 +8051,9 @@
                 id:
                   description: Name
                   type: string
-                ldapattribute_operator:
-                  description: Ldapattribute operator
-                  type: string
-                ldapattribute_value:
-                  description: Ldapattribute value
-                  type: string
                 mark_as_sponsor_action:
                   description: Mark as sponsor action
                   type: string
-                number_operator:
-                  description: Number operator
-                  type: string
-                number_value:
-                  description: Number value
-                  type: integer
                 proxy_addresses:
                   description: A comma seperated list of IP Address
                   type: string
@@ -10195,24 +8077,6 @@
                   type: string
                 set_unreg_date_action:
                   description: Set unreg date action
-                  type: string
-                substring_operator:
-                  description: Substring operator
-                  type: string
-                substring_value:
-                  description: Substring value
-                  type: string
-                time_operator:
-                  description: Time operator
-                  type: string
-                time_period_operator:
-                  description: Time period operator
-                  type: string
-                time_period_value:
-                  description: Time period value
-                  type: string
-                time_value:
-                  description: Time value
                   type: string
                 type:
                   description: Type
@@ -10321,24 +8185,12 @@
                         type: string
                     type: object
                   type: array
-                connection_operator:
-                  description: Connection operator
-                  type: string
-                connection_value:
-                  description: Connection value
-                  type: string
                 create_local_account:
                   description: Create a local account on the PacketFence system based
                     on the username provided.
                   type: string
                 currency:
                   description: Currency
-                  type: string
-                date_operator:
-                  description: Date operator
-                  type: string
-                date_value:
-                  description: Date value
                   type: string
                 description:
                   description: Description
@@ -10350,12 +8202,6 @@
                 id:
                   description: Name
                   type: string
-                ldapattribute_operator:
-                  description: Ldapattribute operator
-                  type: string
-                ldapattribute_value:
-                  description: Ldapattribute value
-                  type: string
                 local_account_logins:
                   description: The amount of times, the local account can be used
                     after its created. 0 means infinite.
@@ -10366,12 +8212,6 @@
                 md5_hash:
                   description: MD5 hash
                   type: string
-                number_operator:
-                  description: Number operator
-                  type: string
-                number_value:
-                  description: Number value
-                  type: integer
                 send_email_confirmation:
                   description: Send billing confirmation
                   type: string
@@ -10396,26 +8236,8 @@
                 set_unreg_date_action:
                   description: Set unreg date action
                   type: string
-                substring_operator:
-                  description: Substring operator
-                  type: string
-                substring_value:
-                  description: Substring value
-                  type: string
                 test_mode:
                   description: Test mode
-                  type: string
-                time_operator:
-                  description: Time operator
-                  type: string
-                time_period_operator:
-                  description: Time period operator
-                  type: string
-                time_period_value:
-                  description: Time period value
-                  type: string
-                time_value:
-                  description: Time value
                   type: string
                 transaction_key:
                   description: Transaction key
@@ -10525,18 +8347,6 @@
                         type: string
                     type: object
                   type: array
-                connection_operator:
-                  description: Connection operator
-                  type: string
-                connection_value:
-                  description: Connection value
-                  type: string
-                date_operator:
-                  description: Date operator
-                  type: string
-                date_value:
-                  description: Date value
-                  type: string
                 description:
                   description: Description
                   type: string
@@ -10546,21 +8356,9 @@
                 id:
                   description: Name
                   type: string
-                ldapattribute_operator:
-                  description: Ldapattribute operator
-                  type: string
-                ldapattribute_value:
-                  description: Ldapattribute value
-                  type: string
                 mark_as_sponsor_action:
                   description: Mark as sponsor action
                   type: string
-                number_operator:
-                  description: Number operator
-                  type: string
-                number_value:
-                  description: Number value
-                  type: integer
                 set_access_duration_action:
                   description: Set access duration action
                   type: string
@@ -10581,24 +8379,6 @@
                   type: string
                 set_unreg_date_action:
                   description: Set unreg date action
-                  type: string
-                substring_operator:
-                  description: Substring operator
-                  type: string
-                substring_value:
-                  description: Substring value
-                  type: string
-                time_operator:
-                  description: Time operator
-                  type: string
-                time_period_operator:
-                  description: Time period operator
-                  type: string
-                time_period_value:
-                  description: Time period value
-                  type: string
-                time_value:
-                  description: Time value
                   type: string
                 type:
                   description: Type
@@ -10705,33 +8485,15 @@
                         type: string
                     type: object
                   type: array
-                connection_operator:
-                  description: Connection operator
-                  type: string
-                connection_value:
-                  description: Connection value
-                  type: string
                 create_local_account:
                   description: Create a local account on the PacketFence system based
                     on the username provided.
-                  type: string
-                date_operator:
-                  description: Date operator
-                  type: string
-                date_value:
-                  description: Date value
                   type: string
                 description:
                   description: Description
                   type: string
                 id:
                   description: Name
-                  type: string
-                ldapattribute_operator:
-                  description: Ldapattribute operator
-                  type: string
-                ldapattribute_value:
-                  description: Ldapattribute value
                   type: string
                 local_account_logins:
                   description: The amount of times, the local account can be used
@@ -10740,12 +8502,6 @@
                 mark_as_sponsor_action:
                   description: Mark as sponsor action
                   type: string
-                number_operator:
-                  description: Number operator
-                  type: string
-                number_value:
-                  description: Number value
-                  type: integer
                 pin_code_length:
                   description: The length of the PIN code to be sent over sms
                   type: integer
@@ -10769,24 +8525,6 @@
                   type: string
                 set_unreg_date_action:
                   description: Set unreg date action
-                  type: string
-                substring_operator:
-                  description: Substring operator
-                  type: string
-                substring_value:
-                  description: Substring value
-                  type: string
-                time_operator:
-                  description: Time operator
-                  type: string
-                time_period_operator:
-                  description: Time period operator
-                  type: string
-                time_period_value:
-                  description: Time period value
-                  type: string
-                time_value:
-                  description: Time value
                   type: string
                 twilio_phone_number:
                   description: Twilio provided phone number which will show as the
@@ -10897,29 +8635,11 @@
                         type: string
                     type: object
                   type: array
-                connection_operator:
-                  description: Connection operator
-                  type: string
-                connection_value:
-                  description: Connection value
-                  type: string
-                date_operator:
-                  description: Date operator
-                  type: string
-                date_value:
-                  description: Date value
-                  type: string
                 description:
                   description: Description
                   type: string
                 id:
                   description: Name
-                  type: string
-                ldapattribute_operator:
-                  description: Ldapattribute operator
-                  type: string
-                ldapattribute_value:
-                  description: Ldapattribute value
                   type: string
                 local_realm:
                   description: Realms that will be authenticate locally
@@ -10933,12 +8653,6 @@
                 monitor:
                   description: Do you want to monitor this source?
                   type: string
-                number_operator:
-                  description: Number operator
-                  type: string
-                number_value:
-                  description: Number value
-                  type: integer
                 radius_secret:
                   description: Eduroam RADIUS secret
                   type: string
@@ -10974,24 +8688,6 @@
                   type: string
                 set_unreg_date_action:
                   description: Set unreg date action
-                  type: string
-                substring_operator:
-                  description: Substring operator
-                  type: string
-                substring_value:
-                  description: Substring value
-                  type: string
-                time_operator:
-                  description: Time operator
-                  type: string
-                time_period_operator:
-                  description: Time period operator
-                  type: string
-                time_period_value:
-                  description: Time period value
-                  type: string
-                time_value:
-                  description: Time value
                   type: string
                 type:
                   description: Type
@@ -11094,24 +8790,12 @@
                         type: string
                     type: object
                   type: array
-                connection_operator:
-                  description: Connection operator
-                  type: string
-                connection_value:
-                  description: Connection value
-                  type: string
                 create_local_account:
                   description: Create a local account on the PacketFence system based
                     on the username provided.
                   type: string
                 currency:
                   description: Currency
-                  type: string
-                date_operator:
-                  description: Date operator
-                  type: string
-                date_value:
-                  description: Date value
                   type: string
                 description:
                   description: Description
@@ -11123,12 +8807,6 @@
                 id:
                   description: Name
                   type: string
-                ldapattribute_operator:
-                  description: Ldapattribute operator
-                  type: string
-                ldapattribute_value:
-                  description: Ldapattribute value
-                  type: string
                 local_account_logins:
                   description: The amount of times, the local account can be used
                     after its created. 0 means infinite.
@@ -11136,12 +8814,6 @@
                 mark_as_sponsor_action:
                   description: Mark as sponsor action
                   type: string
-                number_operator:
-                  description: Number operator
-                  type: string
-                number_value:
-                  description: Number value
-                  type: integer
                 publishable_key:
                   description: Publishable key
                   type: string
@@ -11176,26 +8848,8 @@
                   description: The type of payment the user will make. Charge is a
                     one time fee, subscription will be a recurring fee.
                   type: string
-                substring_operator:
-                  description: Substring operator
-                  type: string
-                substring_value:
-                  description: Substring value
-                  type: string
                 test_mode:
                   description: Test mode
-                  type: string
-                time_operator:
-                  description: Time operator
-                  type: string
-                time_period_operator:
-                  description: Time period operator
-                  type: string
-                time_period_value:
-                  description: Time period value
-                  type: string
-                time_value:
-                  description: Time value
                   type: string
                 type:
                   description: Type
@@ -11296,18 +8950,6 @@
                         type: string
                     type: object
                   type: array
-                connection_operator:
-                  description: Connection operator
-                  type: string
-                connection_value:
-                  description: Connection value
-                  type: string
-                date_operator:
-                  description: Date operator
-                  type: string
-                date_value:
-                  description: Date value
-                  type: string
                 description:
                   description: Description
                   type: string
@@ -11317,21 +8959,9 @@
                 id:
                   description: Name
                   type: string
-                ldapattribute_operator:
-                  description: Ldapattribute operator
-                  type: string
-                ldapattribute_value:
-                  description: Ldapattribute value
-                  type: string
                 mark_as_sponsor_action:
                   description: Mark as sponsor action
                   type: string
-                number_operator:
-                  description: Number operator
-                  type: string
-                number_value:
-                  description: Number value
-                  type: integer
                 set_access_duration_action:
                   description: Set access duration action
                   type: string
@@ -11352,24 +8982,6 @@
                   type: string
                 set_unreg_date_action:
                   description: Set unreg date action
-                  type: string
-                substring_operator:
-                  description: Substring operator
-                  type: string
-                substring_value:
-                  description: Substring value
-                  type: string
-                time_operator:
-                  description: Time operator
-                  type: string
-                time_period_operator:
-                  description: Time period operator
-                  type: string
-                time_period_value:
-                  description: Time period value
-                  type: string
-                time_value:
-                  description: Time value
                   type: string
                 type:
                   description: Type
@@ -11469,18 +9081,6 @@
                         type: string
                     type: object
                   type: array
-                connection_operator:
-                  description: Connection operator
-                  type: string
-                connection_value:
-                  description: Connection value
-                  type: string
-                date_operator:
-                  description: Date operator
-                  type: string
-                date_value:
-                  description: Date value
-                  type: string
                 description:
                   description: Description
                   type: string
@@ -11490,24 +9090,12 @@
                 id:
                   description: Name
                   type: string
-                ldapattribute_operator:
-                  description: Ldapattribute operator
-                  type: string
-                ldapattribute_value:
-                  description: Ldapattribute value
-                  type: string
                 mark_as_sponsor_action:
                   description: Mark as sponsor action
                   type: string
                 monitor:
                   description: Do you want to monitor this source?
                   type: string
-                number_operator:
-                  description: Number operator
-                  type: string
-                number_value:
-                  description: Number value
-                  type: integer
                 port:
                   description: Port
                   type: integer
@@ -11540,27 +9128,6 @@
                   type: string
                 set_unreg_date_action:
                   description: Set unreg date action
-                  type: string
-                stripped_user_name:
-                  description: Use stripped username to test the  rules.
-                  type: string
-                substring_operator:
-                  description: Substring operator
-                  type: string
-                substring_value:
-                  description: Substring value
-                  type: string
-                time_operator:
-                  description: Time operator
-                  type: string
-                time_period_operator:
-                  description: Time period operator
-                  type: string
-                time_period_value:
-                  description: Time period value
-                  type: string
-                time_value:
-                  description: Time value
                   type: string
                 timeout:
                   description: Timeout
@@ -11676,21 +9243,9 @@
                         type: string
                     type: object
                   type: array
-                connection_operator:
-                  description: Connection operator
-                  type: string
-                connection_value:
-                  description: Connection value
-                  type: string
                 create_local_account:
                   description: Create a local account on the PacketFence system based
                     on the username provided.
-                  type: string
-                date_operator:
-                  description: Date operator
-                  type: string
-                date_value:
-                  description: Date value
                   type: string
                 description:
                   description: Description
@@ -11708,12 +9263,6 @@
                 id:
                   description: Name
                   type: string
-                ldapattribute_operator:
-                  description: Ldapattribute operator
-                  type: string
-                ldapattribute_value:
-                  description: Ldapattribute value
-                  type: string
                 local_account_logins:
                   description: The amount of times, the local account can be used
                     after its created. 0 means infinite.
@@ -11721,12 +9270,6 @@
                 mark_as_sponsor_action:
                   description: Mark as sponsor action
                   type: string
-                number_operator:
-                  description: Number operator
-                  type: string
-                number_value:
-                  description: Number value
-                  type: integer
                 set_access_duration_action:
                   description: Set access duration action
                   type: string
@@ -11752,24 +9295,6 @@
                   description: Sponsors requesting access and access confirmation
                     emails are BCC'ed to this address. Multiple destinations can be
                     comma separated.
-                  type: string
-                substring_operator:
-                  description: Substring operator
-                  type: string
-                substring_value:
-                  description: Substring value
-                  type: string
-                time_operator:
-                  description: Time operator
-                  type: string
-                time_period_operator:
-                  description: Time period operator
-                  type: string
-                time_period_value:
-                  description: Time period value
-                  type: string
-                time_value:
-                  description: Time value
                   type: string
                 type:
                   description: Type
@@ -11880,21 +9405,9 @@
                 cache_match:
                   description: Will cache results of matching a rule
                   type: string
-                connection_operator:
-                  description: Connection operator
-                  type: string
                 connection_timeout:
                   description: LDAP connection Timeout
                   type: integer
-                connection_value:
-                  description: Connection value
-                  type: string
-                date_operator:
-                  description: Date operator
-                  type: string
-                date_value:
-                  description: Date value
-                  type: string
                 description:
                   description: Description
                   type: string
@@ -11911,24 +9424,12 @@
                 id:
                   description: Name
                   type: string
-                ldapattribute_operator:
-                  description: Ldapattribute operator
-                  type: string
-                ldapattribute_value:
-                  description: Ldapattribute value
-                  type: string
                 mark_as_sponsor_action:
                   description: Mark as sponsor action
                   type: string
                 monitor:
                   description: Do you want to monitor this source?
                   type: string
-                number_operator:
-                  description: Number operator
-                  type: string
-                number_value:
-                  description: Number value
-                  type: integer
                 password:
                   description: Password
                   type: string
@@ -11967,27 +9468,6 @@
                   type: string
                 set_unreg_date_action:
                   description: Set unreg date action
-                  type: string
-                stripped_user_name:
-                  description: Use stripped username to test the  rules.
-                  type: string
-                substring_operator:
-                  description: Substring operator
-                  type: string
-                substring_value:
-                  description: Substring value
-                  type: string
-                time_operator:
-                  description: Time operator
-                  type: string
-                time_period_operator:
-                  description: Time period operator
-                  type: string
-                time_period_value:
-                  description: Time period value
-                  type: string
-                time_value:
-                  description: Time value
                   type: string
                 type:
                   description: Type
@@ -12112,21 +9592,9 @@
                 client_secret:
                   description: API Secret
                   type: string
-                connection_operator:
-                  description: Connection operator
-                  type: string
-                connection_value:
-                  description: Connection value
-                  type: string
                 create_local_account:
                   description: Create a local account on the PacketFence system based
                     on the username provided.
-                  type: string
-                date_operator:
-                  description: Date operator
-                  type: string
-                date_value:
-                  description: Date value
                   type: string
                 description:
                   description: Description
@@ -12138,12 +9606,6 @@
                 id:
                   description: Name
                   type: string
-                ldapattribute_operator:
-                  description: Ldapattribute operator
-                  type: string
-                ldapattribute_value:
-                  description: Ldapattribute value
-                  type: string
                 local_account_logins:
                   description: The amount of times, the local account can be used
                     after its created. 0 means infinite.
@@ -12151,12 +9613,6 @@
                 mark_as_sponsor_action:
                   description: Mark as sponsor action
                   type: string
-                number_operator:
-                  description: Number operator
-                  type: string
-                number_value:
-                  description: Number value
-                  type: integer
                 protected_resource_url:
                   description: API URL of logged user
                   type: string
@@ -12189,24 +9645,6 @@
                   type: string
                 site:
                   description: API URL
-                  type: string
-                substring_operator:
-                  description: Substring operator
-                  type: string
-                substring_value:
-                  description: Substring value
-                  type: string
-                time_operator:
-                  description: Time operator
-                  type: string
-                time_period_operator:
-                  description: Time period operator
-                  type: string
-                time_period_value:
-                  description: Time period value
-                  type: string
-                time_value:
-                  description: Time value
                   type: string
                 type:
                   description: Type
