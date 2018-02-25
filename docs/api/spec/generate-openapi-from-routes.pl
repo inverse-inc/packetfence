@@ -72,7 +72,6 @@ for my $route_info (@route_infos) {
 
 {
     my $base_path = "$install_dir/docs/api/spec/paths";
-    local $YAML::UseHeader = 0;
     while (my ($p, $d) = each %paths) {
         my $file_path = $p;
         $file_path =~ s#/\{[^\}]+\}##;
