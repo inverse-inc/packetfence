@@ -62,13 +62,13 @@ sub objectSchema {
 
 sub formHandlerRequiredProperties {
     my ($form) = @_;
-    return [map { $_->name } grep { $_->required && $_->is_active } $form->fields];
+    return [map { $_->name } grep { isRequiredField($_) } $form->fields];
 }
 
 sub formHandlerProperties {
     my ($form) = @_;
     my %properties;
-    for my $field (grep { $_->is_active } $form->fields) {
+    for my $field (grep { isAllowedField($_) } $form->fields) {
         my $name = $field->name;
         $properties{$name} = fieldProperties($field);
     }
@@ -152,6 +152,16 @@ sub listSchema {
     };
 }
 
+sub isAllowedField {
+    my ($field) = @_;
+    return $field->is_active && !$field->get_tag('exclude_from_openapi');
+}
+
+sub isRequiredField {
+    my ($field) = @_;
+    return isAllowedField($field) && $field->required;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -180,4 +190,3 @@ USA.
 =cut
 
 1;
-
