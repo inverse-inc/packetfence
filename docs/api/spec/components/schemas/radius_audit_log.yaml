@@ -6,14 +6,7 @@ RadiusAuditLogList:
         items:
           type: array
           items:
-            $ref: "#/components/schemas/AuditLog"
-
-RadiusAuditLogItem:
-    - type: object
-      properties:
-        item:
-          type: object
-          $ref: "#/components/schemas/AuditLog"
+            $ref: "#/components/schemas/RadiusAuditLog"
 
 RadiusAuditLog:
   type: object
