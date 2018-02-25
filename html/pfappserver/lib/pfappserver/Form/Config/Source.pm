@@ -170,6 +170,9 @@ while (my ($f, $o) = each %ACTION_FIELD_OPTIONS) {
         %$o,
         do_wrapper => 0,
         do_label   => 0,
+        tags => {
+            exclude_from_openapi => 1,
+        },
     );
 }
 
@@ -182,6 +185,9 @@ for my $c (@Conditions::TYPES) {
         localize_labels => 1,
         options_method  => \&operators,
         element_class   => ['span5'],
+        tags => {
+            exclude_from_openapi => 1,
+        },
     );
 }
 
@@ -192,6 +198,9 @@ for my $c ( $Conditions::SUBSTRING, $Conditions::TIME_PERIOD, $Conditions::LDAP_
         do_label      => 0,
         do_wrapper    => 0,
         element_class => ['span8'],
+        tags => {
+            exclude_from_openapi => 1,
+        },
     );
 }
 
@@ -200,12 +209,18 @@ has_field "${Conditions::NUMBER}_value" => (
     do_label      => 0,
     do_wrapper    => 0,
     element_class => ['span8'],
+    tags => {
+        exclude_from_openapi => 1,
+    },
 );
 
 has_field "${Conditions::DATE}_value" => (
     type => 'DatePicker',
     do_label => 0,
     do_wrapper => 0,
+    tags => {
+        exclude_from_openapi => 1,
+    },
 );
 
 has_field "${Conditions::TIME}_value" => (
@@ -213,6 +228,9 @@ has_field "${Conditions::TIME}_value" => (
     do_label => 0,
     do_wrapper => 0,
     element_class => ['span8'],
+    tags => {
+        exclude_from_openapi => 1,
+    },
 );
 
 has_field "${Conditions::CONNECTION}_value" => (
@@ -222,6 +240,9 @@ has_field "${Conditions::CONNECTION}_value" => (
     localize_labels => 1,
     options_method => \&options_connection,
     element_class => ['span8'],
+    tags => {
+        exclude_from_openapi => 1,
+    },
 );
 
 =head2 options_connection
