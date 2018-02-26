@@ -1,14 +1,6 @@
 /config/switch_groups:
   get:
     parameters:
-    - description: The tenant ID to use for this request. Can only be used if the
-        API user has access to other tenants. When empty, it will default to use the
-        tenant attached to the token.
-      in: header
-      name: X-PacketFence-Tenant-Id
-      required: 0
-      schema:
-        type: string
     - $ref: '#/components/parameters/cursor'
     responses:
       '200':
@@ -270,15 +262,7 @@
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
   post:
-    parameters:
-    - description: The tenant ID to use for this request. Can only be used if the
-        API user has access to other tenants. When empty, it will default to use the
-        tenant attached to the token.
-      in: header
-      name: X-PacketFence-Tenant-Id
-      required: 0
-      schema:
-        type: string
+    parameters: []
     requestBody:
       content:
         application/json:

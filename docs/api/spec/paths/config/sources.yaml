@@ -1,14 +1,6 @@
 /config/sources:
   get:
     parameters:
-    - description: The tenant ID to use for this request. Can only be used if the
-        API user has access to other tenants. When empty, it will default to use the
-        tenant attached to the token.
-      in: header
-      name: X-PacketFence-Tenant-Id
-      required: 0
-      schema:
-        type: string
     - $ref: '#/components/parameters/cursor'
     responses:
       '200':
@@ -127,30 +119,6 @@
                           description: The amount of times, the local account can
                             be used after its created. 0 means infinite.
                           type: integer
-                        mark_as_sponsor_action:
-                          description: Mark as sponsor action
-                          type: string
-                        set_access_duration_action:
-                          description: Set access duration action
-                          type: string
-                        set_access_level_action:
-                          description: Set access level action
-                          items:
-                            description: Set access level action
-                            type: string
-                          type: array
-                        set_bandwidth_balance_action:
-                          description: Set bandwidth balance action
-                          type: string
-                        set_role_action:
-                          description: Set role action
-                          type: string
-                        set_time_balance_action:
-                          description: Set time balance action
-                          type: string
-                        set_unreg_date_action:
-                          description: Set unreg date action
-                          type: string
                         sms_carriers:
                           description: List of phone carriers available to the user
                           items:
@@ -288,36 +256,12 @@
                           description: The amount of times, the local account can
                             be used after its created. 0 means infinite.
                           type: integer
-                        mark_as_sponsor_action:
-                          description: Mark as sponsor action
-                          type: string
                         protected_resource_url:
                           description: API URL of logged user
                           type: string
                         redirect_url:
                           description: The hostname must be the one of your captive
                             portal.
-                          type: string
-                        set_access_duration_action:
-                          description: Set access duration action
-                          type: string
-                        set_access_level_action:
-                          description: Set access level action
-                          items:
-                            description: Set access level action
-                            type: string
-                          type: array
-                        set_bandwidth_balance_action:
-                          description: Set bandwidth balance action
-                          type: string
-                        set_role_action:
-                          description: Set role action
-                          type: string
-                        set_time_balance_action:
-                          description: Set time balance action
-                          type: string
-                        set_unreg_date_action:
-                          description: Set unreg date action
                           type: string
                         site:
                           description: API URL
@@ -435,9 +379,6 @@
                         id:
                           description: Name
                           type: string
-                        mark_as_sponsor_action:
-                          description: Mark as sponsor action
-                          type: string
                         realms:
                           description: Realms that will be associated with this source
                           items:
@@ -445,27 +386,6 @@
                               source
                             type: string
                           type: array
-                        set_access_duration_action:
-                          description: Set access duration action
-                          type: string
-                        set_access_level_action:
-                          description: Set access level action
-                          items:
-                            description: Set access level action
-                            type: string
-                          type: array
-                        set_bandwidth_balance_action:
-                          description: Set bandwidth balance action
-                          type: string
-                        set_role_action:
-                          description: Set role action
-                          type: string
-                        set_time_balance_action:
-                          description: Set time balance action
-                          type: string
-                        set_unreg_date_action:
-                          description: Set unreg date action
-                          type: string
                         type:
                           description: Type
                           type: string
@@ -585,30 +505,6 @@
                           type: string
                         idp_metadata_path:
                           description: Path to Identity Provider metadata
-                          type: string
-                        mark_as_sponsor_action:
-                          description: Mark as sponsor action
-                          type: string
-                        set_access_duration_action:
-                          description: Set access duration action
-                          type: string
-                        set_access_level_action:
-                          description: Set access level action
-                          items:
-                            description: Set access level action
-                            type: string
-                          type: array
-                        set_bandwidth_balance_action:
-                          description: Set bandwidth balance action
-                          type: string
-                        set_role_action:
-                          description: Set role action
-                          type: string
-                        set_time_balance_action:
-                          description: Set time balance action
-                          type: string
-                        set_unreg_date_action:
-                          description: Set unreg date action
                           type: string
                         sp_cert_path:
                           description: Path to Service Provider cert (x509)
@@ -767,9 +663,6 @@
                           description: The amount of times, the local account can
                             be used after its created. 0 means infinite.
                           type: integer
-                        mark_as_sponsor_action:
-                          description: Mark as sponsor action
-                          type: string
                         payment_type:
                           description: The type of transactions this source will do
                             (donations or sales).
@@ -779,27 +672,6 @@
                           type: string
                         send_email_confirmation:
                           description: Send billing confirmation
-                          type: string
-                        set_access_duration_action:
-                          description: Set access duration action
-                          type: string
-                        set_access_level_action:
-                          description: Set access level action
-                          items:
-                            description: Set access level action
-                            type: string
-                          type: array
-                        set_bandwidth_balance_action:
-                          description: Set bandwidth balance action
-                          type: string
-                        set_role_action:
-                          description: Set role action
-                          type: string
-                        set_time_balance_action:
-                          description: Set time balance action
-                          type: string
-                        set_unreg_date_action:
-                          description: Set unreg date action
                           type: string
                         test_mode:
                           description: Test mode
@@ -943,9 +815,6 @@
                           description: The amount of times, the local account can
                             be used after its created. 0 means infinite.
                           type: integer
-                        mark_as_sponsor_action:
-                          description: Mark as sponsor action
-                          type: string
                         protected_resource_url:
                           description: Graph API URL of logged user
                           type: string
@@ -955,27 +824,6 @@
                           type: string
                         scope:
                           description: The permissions the application requests.
-                          type: string
-                        set_access_duration_action:
-                          description: Set access duration action
-                          type: string
-                        set_access_level_action:
-                          description: Set access level action
-                          items:
-                            description: Set access level action
-                            type: string
-                          type: array
-                        set_bandwidth_balance_action:
-                          description: Set bandwidth balance action
-                          type: string
-                        set_role_action:
-                          description: Set role action
-                          type: string
-                        set_time_balance_action:
-                          description: Set time balance action
-                          type: string
-                        set_unreg_date_action:
-                          description: Set unreg date action
                           type: string
                         site:
                           description: Graph API URL
@@ -1110,36 +958,12 @@
                         id:
                           description: Name
                           type: string
-                        mark_as_sponsor_action:
-                          description: Mark as sponsor action
-                          type: string
                         protected_resource_url:
                           description: API URL of logged user
                           type: string
                         redirect_url:
                           description: The hostname must be the one of your captive
                             portal.
-                          type: string
-                        set_access_duration_action:
-                          description: Set access duration action
-                          type: string
-                        set_access_level_action:
-                          description: Set access level action
-                          items:
-                            description: Set access level action
-                            type: string
-                          type: array
-                        set_bandwidth_balance_action:
-                          description: Set bandwidth balance action
-                          type: string
-                        set_role_action:
-                          description: Set role action
-                          type: string
-                        set_time_balance_action:
-                          description: Set time balance action
-                          type: string
-                        set_unreg_date_action:
-                          description: Set unreg date action
                           type: string
                         site:
                           description: API URL
@@ -1262,9 +1086,6 @@
                         id:
                           description: Name
                           type: string
-                        mark_as_sponsor_action:
-                          description: Mark as sponsor action
-                          type: string
                         realms:
                           description: Realms that will be associated with this source
                           items:
@@ -1272,27 +1093,6 @@
                               source
                             type: string
                           type: array
-                        set_access_duration_action:
-                          description: Set access duration action
-                          type: string
-                        set_access_level_action:
-                          description: Set access level action
-                          items:
-                            description: Set access level action
-                            type: string
-                          type: array
-                        set_bandwidth_balance_action:
-                          description: Set bandwidth balance action
-                          type: string
-                        set_role_action:
-                          description: Set role action
-                          type: string
-                        set_time_balance_action:
-                          description: Set time balance action
-                          type: string
-                        set_unreg_date_action:
-                          description: Set unreg date action
-                          type: string
                         type:
                           description: Type
                           type: string
@@ -1399,9 +1199,6 @@
                         id:
                           description: Name
                           type: string
-                        mark_as_sponsor_action:
-                          description: Mark as sponsor action
-                          type: string
                         path:
                           description: File Path
                           type: string
@@ -1412,27 +1209,6 @@
                               source
                             type: string
                           type: array
-                        set_access_duration_action:
-                          description: Set access duration action
-                          type: string
-                        set_access_level_action:
-                          description: Set access level action
-                          items:
-                            description: Set access level action
-                            type: string
-                          type: array
-                        set_bandwidth_balance_action:
-                          description: Set bandwidth balance action
-                          type: string
-                        set_role_action:
-                          description: Set role action
-                          type: string
-                        set_time_balance_action:
-                          description: Set time balance action
-                          type: string
-                        set_unreg_date_action:
-                          description: Set unreg date action
-                          type: string
                         type:
                           description: Type
                           type: string
@@ -1537,30 +1313,6 @@
                           type: string
                         id:
                           description: Name
-                          type: string
-                        mark_as_sponsor_action:
-                          description: Mark as sponsor action
-                          type: string
-                        set_access_duration_action:
-                          description: Set access duration action
-                          type: string
-                        set_access_level_action:
-                          description: Set access level action
-                          items:
-                            description: Set access level action
-                            type: string
-                          type: array
-                        set_bandwidth_balance_action:
-                          description: Set bandwidth balance action
-                          type: string
-                        set_role_action:
-                          description: Set role action
-                          type: string
-                        set_time_balance_action:
-                          description: Set time balance action
-                          type: string
-                        set_unreg_date_action:
-                          description: Set unreg date action
                           type: string
                         type:
                           description: Type
@@ -1690,9 +1442,6 @@
                           description: The amount of times, the local account can
                             be used after its created. 0 means infinite.
                           type: integer
-                        mark_as_sponsor_action:
-                          description: Mark as sponsor action
-                          type: string
                         protected_resource_url:
                           description: Graph API URL of logged user
                           type: string
@@ -1702,27 +1451,6 @@
                           type: string
                         scope:
                           description: The permissions the application requests.
-                          type: string
-                        set_access_duration_action:
-                          description: Set access duration action
-                          type: string
-                        set_access_level_action:
-                          description: Set access level action
-                          items:
-                            description: Set access level action
-                            type: string
-                          type: array
-                        set_bandwidth_balance_action:
-                          description: Set bandwidth balance action
-                          type: string
-                        set_role_action:
-                          description: Set role action
-                          type: string
-                        set_time_balance_action:
-                          description: Set time balance action
-                          type: string
-                        set_unreg_date_action:
-                          description: Set unreg date action
                           type: string
                         site:
                           description: Graph API URL
@@ -1864,9 +1592,6 @@
                           description: The amount of times, the local account can
                             be used after its created. 0 means infinite.
                           type: integer
-                        mark_as_sponsor_action:
-                          description: Mark as sponsor action
-                          type: string
                         protected_resource_url:
                           description: Graph API URL of logged user
                           type: string
@@ -1876,27 +1601,6 @@
                           type: string
                         scope:
                           description: The permissions the application requests.
-                          type: string
-                        set_access_duration_action:
-                          description: Set access duration action
-                          type: string
-                        set_access_level_action:
-                          description: Set access level action
-                          items:
-                            description: Set access level action
-                            type: string
-                          type: array
-                        set_bandwidth_balance_action:
-                          description: Set bandwidth balance action
-                          type: string
-                        set_role_action:
-                          description: Set role action
-                          type: string
-                        set_time_balance_action:
-                          description: Set time balance action
-                          type: string
-                        set_unreg_date_action:
-                          description: Set unreg date action
                           type: string
                         site:
                           description: Graph API URL
@@ -2041,9 +1745,6 @@
                           description: The amount of times, the local account can
                             be used after its created. 0 means infinite.
                           type: integer
-                        mark_as_sponsor_action:
-                          description: Mark as sponsor action
-                          type: string
                         protected_resource_url:
                           description: API URL of logged user
                           type: string
@@ -2053,27 +1754,6 @@
                           type: string
                         scope:
                           description: The permissions the application requests.
-                          type: string
-                        set_access_duration_action:
-                          description: Set access duration action
-                          type: string
-                        set_access_level_action:
-                          description: Set access level action
-                          items:
-                            description: Set access level action
-                            type: string
-                          type: array
-                        set_bandwidth_balance_action:
-                          description: Set bandwidth balance action
-                          type: string
-                        set_role_action:
-                          description: Set role action
-                          type: string
-                        set_time_balance_action:
-                          description: Set time balance action
-                          type: string
-                        set_unreg_date_action:
-                          description: Set unreg date action
                           type: string
                         site:
                           description: API URL
@@ -2221,30 +1901,6 @@
                           description: The amount of times, the local account can
                             be used after its created. 0 means infinite.
                           type: integer
-                        mark_as_sponsor_action:
-                          description: Mark as sponsor action
-                          type: string
-                        set_access_duration_action:
-                          description: Set access duration action
-                          type: string
-                        set_access_level_action:
-                          description: Set access level action
-                          items:
-                            description: Set access level action
-                            type: string
-                          type: array
-                        set_bandwidth_balance_action:
-                          description: Set bandwidth balance action
-                          type: string
-                        set_role_action:
-                          description: Set role action
-                          type: string
-                        set_time_balance_action:
-                          description: Set time balance action
-                          type: string
-                        set_unreg_date_action:
-                          description: Set unreg date action
-                          type: string
                         type:
                           description: Type
                           type: string
@@ -2374,9 +2030,6 @@
                           description: The amount of times, the local account can
                             be used after its created. 0 means infinite.
                           type: integer
-                        mark_as_sponsor_action:
-                          description: Mark as sponsor action
-                          type: string
                         protected_resource_url:
                           description: API URL of logged user
                           type: string
@@ -2387,27 +2040,6 @@
                           type: string
                         scope:
                           description: The permissions the application requests.
-                          type: string
-                        set_access_duration_action:
-                          description: Set access duration action
-                          type: string
-                        set_access_level_action:
-                          description: Set access level action
-                          items:
-                            description: Set access level action
-                            type: string
-                          type: array
-                        set_bandwidth_balance_action:
-                          description: Set bandwidth balance action
-                          type: string
-                        set_role_action:
-                          description: Set role action
-                          type: string
-                        set_time_balance_action:
-                          description: Set time balance action
-                          type: string
-                        set_unreg_date_action:
-                          description: Set unreg date action
                           type: string
                         site:
                           description: API URL
@@ -2548,9 +2180,6 @@
                         id:
                           description: Name
                           type: string
-                        mark_as_sponsor_action:
-                          description: Mark as sponsor action
-                          type: string
                         monitor:
                           description: Do you want to monitor this source?
                           type: string
@@ -2572,27 +2201,6 @@
                           type: array
                         scope:
                           description: Scope
-                          type: string
-                        set_access_duration_action:
-                          description: Set access duration action
-                          type: string
-                        set_access_level_action:
-                          description: Set access level action
-                          items:
-                            description: Set access level action
-                            type: string
-                          type: array
-                        set_bandwidth_balance_action:
-                          description: Set bandwidth balance action
-                          type: string
-                        set_role_action:
-                          description: Set role action
-                          type: string
-                        set_time_balance_action:
-                          description: Set time balance action
-                          type: string
-                        set_unreg_date_action:
-                          description: Set unreg date action
                           type: string
                         type:
                           description: Type
@@ -2719,9 +2327,6 @@
                         id:
                           description: Name
                           type: string
-                        mark_as_sponsor_action:
-                          description: Mark as sponsor action
-                          type: string
                         password:
                           description: API password (basic auth)
                           type: string
@@ -2738,27 +2343,6 @@
                               source
                             type: string
                           type: array
-                        set_access_duration_action:
-                          description: Set access duration action
-                          type: string
-                        set_access_level_action:
-                          description: Set access level action
-                          items:
-                            description: Set access level action
-                            type: string
-                          type: array
-                        set_bandwidth_balance_action:
-                          description: Set bandwidth balance action
-                          type: string
-                        set_role_action:
-                          description: Set role action
-                          type: string
-                        set_time_balance_action:
-                          description: Set time balance action
-                          type: string
-                        set_unreg_date_action:
-                          description: Set unreg date action
-                          type: string
                         type:
                           description: Type
                           type: string
@@ -2886,9 +2470,6 @@
                           description: The amount of times, the local account can
                             be used after its created. 0 means infinite.
                           type: integer
-                        mark_as_sponsor_action:
-                          description: Mark as sponsor action
-                          type: string
                         merchant_id:
                           description: Merchant ID
                           type: string
@@ -2897,27 +2478,6 @@
                           type: string
                         service_fqdn:
                           description: Service FQDN
-                          type: string
-                        set_access_duration_action:
-                          description: Set access duration action
-                          type: string
-                        set_access_level_action:
-                          description: Set access level action
-                          items:
-                            description: Set access level action
-                            type: string
-                          type: array
-                        set_bandwidth_balance_action:
-                          description: Set bandwidth balance action
-                          type: string
-                        set_role_action:
-                          description: Set role action
-                          type: string
-                        set_time_balance_action:
-                          description: Set time balance action
-                          type: string
-                        set_unreg_date_action:
-                          description: Set unreg date action
                           type: string
                         shared_secret:
                           description: MKEY for the iframe
@@ -3071,9 +2631,6 @@
                           description: The amount of times, the local account can
                             be used after its created. 0 means infinite.
                           type: integer
-                        mark_as_sponsor_action:
-                          description: Mark as sponsor action
-                          type: string
                         protected_resource_url:
                           description: API URL of logged user
                           type: string
@@ -3083,27 +2640,6 @@
                           type: string
                         scope:
                           description: The permissions the application requests.
-                          type: string
-                        set_access_duration_action:
-                          description: Set access duration action
-                          type: string
-                        set_access_level_action:
-                          description: Set access level action
-                          items:
-                            description: Set access level action
-                            type: string
-                          type: array
-                        set_bandwidth_balance_action:
-                          description: Set bandwidth balance action
-                          type: string
-                        set_role_action:
-                          description: Set role action
-                          type: string
-                        set_time_balance_action:
-                          description: Set time balance action
-                          type: string
-                        set_unreg_date_action:
-                          description: Set unreg date action
                           type: string
                         site:
                           description: App URL
@@ -3225,32 +2761,8 @@
                         id:
                           description: Name
                           type: string
-                        mark_as_sponsor_action:
-                          description: Mark as sponsor action
-                          type: string
                         proxy_addresses:
                           description: A comma seperated list of IP Address
-                          type: string
-                        set_access_duration_action:
-                          description: Set access duration action
-                          type: string
-                        set_access_level_action:
-                          description: Set access level action
-                          items:
-                            description: Set access level action
-                            type: string
-                          type: array
-                        set_bandwidth_balance_action:
-                          description: Set bandwidth balance action
-                          type: string
-                        set_role_action:
-                          description: Set role action
-                          type: string
-                        set_time_balance_action:
-                          description: Set time balance action
-                          type: string
-                        set_unreg_date_action:
-                          description: Set unreg date action
                           type: string
                         type:
                           description: Type
@@ -3380,35 +2892,11 @@
                           description: The amount of times, the local account can
                             be used after its created. 0 means infinite.
                           type: integer
-                        mark_as_sponsor_action:
-                          description: Mark as sponsor action
-                          type: string
                         md5_hash:
                           description: MD5 hash
                           type: string
                         send_email_confirmation:
                           description: Send billing confirmation
-                          type: string
-                        set_access_duration_action:
-                          description: Set access duration action
-                          type: string
-                        set_access_level_action:
-                          description: Set access level action
-                          items:
-                            description: Set access level action
-                            type: string
-                          type: array
-                        set_bandwidth_balance_action:
-                          description: Set bandwidth balance action
-                          type: string
-                        set_role_action:
-                          description: Set role action
-                          type: string
-                        set_time_balance_action:
-                          description: Set time balance action
-                          type: string
-                        set_unreg_date_action:
-                          description: Set unreg date action
                           type: string
                         test_mode:
                           description: Test mode
@@ -3530,30 +3018,6 @@
                         id:
                           description: Name
                           type: string
-                        mark_as_sponsor_action:
-                          description: Mark as sponsor action
-                          type: string
-                        set_access_duration_action:
-                          description: Set access duration action
-                          type: string
-                        set_access_level_action:
-                          description: Set access level action
-                          items:
-                            description: Set access level action
-                            type: string
-                          type: array
-                        set_bandwidth_balance_action:
-                          description: Set bandwidth balance action
-                          type: string
-                        set_role_action:
-                          description: Set role action
-                          type: string
-                        set_time_balance_action:
-                          description: Set time balance action
-                          type: string
-                        set_unreg_date_action:
-                          description: Set unreg date action
-                          type: string
                         type:
                           description: Type
                           type: string
@@ -3673,34 +3137,10 @@
                           description: The amount of times, the local account can
                             be used after its created. 0 means infinite.
                           type: integer
-                        mark_as_sponsor_action:
-                          description: Mark as sponsor action
-                          type: string
                         pin_code_length:
                           description: The length of the PIN code to be sent over
                             sms
                           type: integer
-                        set_access_duration_action:
-                          description: Set access duration action
-                          type: string
-                        set_access_level_action:
-                          description: Set access level action
-                          items:
-                            description: Set access level action
-                            type: string
-                          type: array
-                        set_bandwidth_balance_action:
-                          description: Set bandwidth balance action
-                          type: string
-                        set_role_action:
-                          description: Set role action
-                          type: string
-                        set_time_balance_action:
-                          description: Set time balance action
-                          type: string
-                        set_unreg_date_action:
-                          description: Set unreg date action
-                          type: string
                         twilio_phone_number:
                           description: Twilio provided phone number which will show
                             as the sender
@@ -3822,9 +3262,6 @@
                             description: Realms that will be authenticate locally
                             type: string
                           type: array
-                        mark_as_sponsor_action:
-                          description: Mark as sponsor action
-                          type: string
                         monitor:
                           description: Do you want to monitor this source?
                           type: string
@@ -3842,27 +3279,6 @@
                           type: string
                         server2_address:
                           description: Eduroam server 2 address
-                          type: string
-                        set_access_duration_action:
-                          description: Set access duration action
-                          type: string
-                        set_access_level_action:
-                          description: Set access level action
-                          items:
-                            description: Set access level action
-                            type: string
-                          type: array
-                        set_bandwidth_balance_action:
-                          description: Set bandwidth balance action
-                          type: string
-                        set_role_action:
-                          description: Set role action
-                          type: string
-                        set_time_balance_action:
-                          description: Set time balance action
-                          type: string
-                        set_unreg_date_action:
-                          description: Set unreg date action
                           type: string
                         type:
                           description: Type
@@ -3986,9 +3402,6 @@
                           description: The amount of times, the local account can
                             be used after its created. 0 means infinite.
                           type: integer
-                        mark_as_sponsor_action:
-                          description: Mark as sponsor action
-                          type: string
                         publishable_key:
                           description: Publishable key
                           type: string
@@ -3997,27 +3410,6 @@
                           type: string
                         send_email_confirmation:
                           description: Send billing confirmation
-                          type: string
-                        set_access_duration_action:
-                          description: Set access duration action
-                          type: string
-                        set_access_level_action:
-                          description: Set access level action
-                          items:
-                            description: Set access level action
-                            type: string
-                          type: array
-                        set_bandwidth_balance_action:
-                          description: Set bandwidth balance action
-                          type: string
-                        set_role_action:
-                          description: Set role action
-                          type: string
-                        set_time_balance_action:
-                          description: Set time balance action
-                          type: string
-                        set_unreg_date_action:
-                          description: Set unreg date action
                           type: string
                         style:
                           description: The type of payment the user will make. Charge
@@ -4134,30 +3526,6 @@
                         id:
                           description: Name
                           type: string
-                        mark_as_sponsor_action:
-                          description: Mark as sponsor action
-                          type: string
-                        set_access_duration_action:
-                          description: Set access duration action
-                          type: string
-                        set_access_level_action:
-                          description: Set access level action
-                          items:
-                            description: Set access level action
-                            type: string
-                          type: array
-                        set_bandwidth_balance_action:
-                          description: Set bandwidth balance action
-                          type: string
-                        set_role_action:
-                          description: Set role action
-                          type: string
-                        set_time_balance_action:
-                          description: Set time balance action
-                          type: string
-                        set_unreg_date_action:
-                          description: Set unreg date action
-                          type: string
                         type:
                           description: Type
                           type: string
@@ -4265,9 +3633,6 @@
                         id:
                           description: Name
                           type: string
-                        mark_as_sponsor_action:
-                          description: Mark as sponsor action
-                          type: string
                         monitor:
                           description: Do you want to monitor this source?
                           type: string
@@ -4283,27 +3648,6 @@
                           type: array
                         secret:
                           description: Secret
-                          type: string
-                        set_access_duration_action:
-                          description: Set access duration action
-                          type: string
-                        set_access_level_action:
-                          description: Set access level action
-                          items:
-                            description: Set access level action
-                            type: string
-                          type: array
-                        set_bandwidth_balance_action:
-                          description: Set bandwidth balance action
-                          type: string
-                        set_role_action:
-                          description: Set role action
-                          type: string
-                        set_time_balance_action:
-                          description: Set time balance action
-                          type: string
-                        set_unreg_date_action:
-                          description: Set unreg date action
                           type: string
                         timeout:
                           description: Timeout
@@ -4444,30 +3788,6 @@
                           description: The amount of times, the local account can
                             be used after its created. 0 means infinite.
                           type: integer
-                        mark_as_sponsor_action:
-                          description: Mark as sponsor action
-                          type: string
-                        set_access_duration_action:
-                          description: Set access duration action
-                          type: string
-                        set_access_level_action:
-                          description: Set access level action
-                          items:
-                            description: Set access level action
-                            type: string
-                          type: array
-                        set_bandwidth_balance_action:
-                          description: Set bandwidth balance action
-                          type: string
-                        set_role_action:
-                          description: Set role action
-                          type: string
-                        set_time_balance_action:
-                          description: Set time balance action
-                          type: string
-                        set_unreg_date_action:
-                          description: Set unreg date action
-                          type: string
                         sponsorship_bcc:
                           description: Sponsors requesting access and access confirmation
                             emails are BCC'ed to this address. Multiple destinations
@@ -4601,9 +3921,6 @@
                         id:
                           description: Name
                           type: string
-                        mark_as_sponsor_action:
-                          description: Mark as sponsor action
-                          type: string
                         monitor:
                           description: Do you want to monitor this source?
                           type: string
@@ -4625,27 +3942,6 @@
                           type: array
                         scope:
                           description: Scope
-                          type: string
-                        set_access_duration_action:
-                          description: Set access duration action
-                          type: string
-                        set_access_level_action:
-                          description: Set access level action
-                          items:
-                            description: Set access level action
-                            type: string
-                          type: array
-                        set_bandwidth_balance_action:
-                          description: Set bandwidth balance action
-                          type: string
-                        set_role_action:
-                          description: Set role action
-                          type: string
-                        set_time_balance_action:
-                          description: Set time balance action
-                          type: string
-                        set_unreg_date_action:
-                          description: Set unreg date action
                           type: string
                         type:
                           description: Type
@@ -4788,9 +4084,6 @@
                           description: The amount of times, the local account can
                             be used after its created. 0 means infinite.
                           type: integer
-                        mark_as_sponsor_action:
-                          description: Mark as sponsor action
-                          type: string
                         protected_resource_url:
                           description: API URL of logged user
                           type: string
@@ -4800,27 +4093,6 @@
                           type: string
                         scope:
                           description: The permissions the application requests.
-                          type: string
-                        set_access_duration_action:
-                          description: Set access duration action
-                          type: string
-                        set_access_level_action:
-                          description: Set access level action
-                          items:
-                            description: Set access level action
-                            type: string
-                          type: array
-                        set_bandwidth_balance_action:
-                          description: Set bandwidth balance action
-                          type: string
-                        set_role_action:
-                          description: Set role action
-                          type: string
-                        set_time_balance_action:
-                          description: Set time balance action
-                          type: string
-                        set_unreg_date_action:
-                          description: Set unreg date action
                           type: string
                         site:
                           description: API URL
@@ -4849,15 +4121,7 @@
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
   post:
-    parameters:
-    - description: The tenant ID to use for this request. Can only be used if the
-        API user has access to other tenants. When empty, it will default to use the
-        tenant attached to the token.
-      in: header
-      name: X-PacketFence-Tenant-Id
-      required: 0
-      schema:
-        type: string
+    parameters: []
     requestBody:
       content:
         application/json:
@@ -4970,30 +4234,6 @@
                   description: The amount of times, the local account can be used
                     after its created. 0 means infinite.
                   type: integer
-                mark_as_sponsor_action:
-                  description: Mark as sponsor action
-                  type: string
-                set_access_duration_action:
-                  description: Set access duration action
-                  type: string
-                set_access_level_action:
-                  description: Set access level action
-                  items:
-                    description: Set access level action
-                    type: string
-                  type: array
-                set_bandwidth_balance_action:
-                  description: Set bandwidth balance action
-                  type: string
-                set_role_action:
-                  description: Set role action
-                  type: string
-                set_time_balance_action:
-                  description: Set time balance action
-                  type: string
-                set_unreg_date_action:
-                  description: Set unreg date action
-                  type: string
                 sms_carriers:
                   description: List of phone carriers available to the user
                   items:
@@ -5131,35 +4371,11 @@
                   description: The amount of times, the local account can be used
                     after its created. 0 means infinite.
                   type: integer
-                mark_as_sponsor_action:
-                  description: Mark as sponsor action
-                  type: string
                 protected_resource_url:
                   description: API URL of logged user
                   type: string
                 redirect_url:
                   description: The hostname must be the one of your captive portal.
-                  type: string
-                set_access_duration_action:
-                  description: Set access duration action
-                  type: string
-                set_access_level_action:
-                  description: Set access level action
-                  items:
-                    description: Set access level action
-                    type: string
-                  type: array
-                set_bandwidth_balance_action:
-                  description: Set bandwidth balance action
-                  type: string
-                set_role_action:
-                  description: Set role action
-                  type: string
-                set_time_balance_action:
-                  description: Set time balance action
-                  type: string
-                set_unreg_date_action:
-                  description: Set unreg date action
                   type: string
                 site:
                   description: API URL
@@ -5277,36 +4493,12 @@
                 id:
                   description: Name
                   type: string
-                mark_as_sponsor_action:
-                  description: Mark as sponsor action
-                  type: string
                 realms:
                   description: Realms that will be associated with this source
                   items:
                     description: Realms that will be associated with this source
                     type: string
                   type: array
-                set_access_duration_action:
-                  description: Set access duration action
-                  type: string
-                set_access_level_action:
-                  description: Set access level action
-                  items:
-                    description: Set access level action
-                    type: string
-                  type: array
-                set_bandwidth_balance_action:
-                  description: Set bandwidth balance action
-                  type: string
-                set_role_action:
-                  description: Set role action
-                  type: string
-                set_time_balance_action:
-                  description: Set time balance action
-                  type: string
-                set_unreg_date_action:
-                  description: Set unreg date action
-                  type: string
                 type:
                   description: Type
                   type: string
@@ -5426,30 +4618,6 @@
                   type: string
                 idp_metadata_path:
                   description: Path to Identity Provider metadata
-                  type: string
-                mark_as_sponsor_action:
-                  description: Mark as sponsor action
-                  type: string
-                set_access_duration_action:
-                  description: Set access duration action
-                  type: string
-                set_access_level_action:
-                  description: Set access level action
-                  items:
-                    description: Set access level action
-                    type: string
-                  type: array
-                set_bandwidth_balance_action:
-                  description: Set bandwidth balance action
-                  type: string
-                set_role_action:
-                  description: Set role action
-                  type: string
-                set_time_balance_action:
-                  description: Set time balance action
-                  type: string
-                set_unreg_date_action:
-                  description: Set unreg date action
                   type: string
                 sp_cert_path:
                   description: Path to Service Provider cert (x509)
@@ -5606,9 +4774,6 @@
                   description: The amount of times, the local account can be used
                     after its created. 0 means infinite.
                   type: integer
-                mark_as_sponsor_action:
-                  description: Mark as sponsor action
-                  type: string
                 payment_type:
                   description: The type of transactions this source will do (donations
                     or sales).
@@ -5618,27 +4783,6 @@
                   type: string
                 send_email_confirmation:
                   description: Send billing confirmation
-                  type: string
-                set_access_duration_action:
-                  description: Set access duration action
-                  type: string
-                set_access_level_action:
-                  description: Set access level action
-                  items:
-                    description: Set access level action
-                    type: string
-                  type: array
-                set_bandwidth_balance_action:
-                  description: Set bandwidth balance action
-                  type: string
-                set_role_action:
-                  description: Set role action
-                  type: string
-                set_time_balance_action:
-                  description: Set time balance action
-                  type: string
-                set_unreg_date_action:
-                  description: Set unreg date action
                   type: string
                 test_mode:
                   description: Test mode
@@ -5782,9 +4926,6 @@
                   description: The amount of times, the local account can be used
                     after its created. 0 means infinite.
                   type: integer
-                mark_as_sponsor_action:
-                  description: Mark as sponsor action
-                  type: string
                 protected_resource_url:
                   description: Graph API URL of logged user
                   type: string
@@ -5793,27 +4934,6 @@
                   type: string
                 scope:
                   description: The permissions the application requests.
-                  type: string
-                set_access_duration_action:
-                  description: Set access duration action
-                  type: string
-                set_access_level_action:
-                  description: Set access level action
-                  items:
-                    description: Set access level action
-                    type: string
-                  type: array
-                set_bandwidth_balance_action:
-                  description: Set bandwidth balance action
-                  type: string
-                set_role_action:
-                  description: Set role action
-                  type: string
-                set_time_balance_action:
-                  description: Set time balance action
-                  type: string
-                set_unreg_date_action:
-                  description: Set unreg date action
                   type: string
                 site:
                   description: Graph API URL
@@ -5948,35 +5068,11 @@
                 id:
                   description: Name
                   type: string
-                mark_as_sponsor_action:
-                  description: Mark as sponsor action
-                  type: string
                 protected_resource_url:
                   description: API URL of logged user
                   type: string
                 redirect_url:
                   description: The hostname must be the one of your captive portal.
-                  type: string
-                set_access_duration_action:
-                  description: Set access duration action
-                  type: string
-                set_access_level_action:
-                  description: Set access level action
-                  items:
-                    description: Set access level action
-                    type: string
-                  type: array
-                set_bandwidth_balance_action:
-                  description: Set bandwidth balance action
-                  type: string
-                set_role_action:
-                  description: Set role action
-                  type: string
-                set_time_balance_action:
-                  description: Set time balance action
-                  type: string
-                set_unreg_date_action:
-                  description: Set unreg date action
                   type: string
                 site:
                   description: API URL
@@ -6099,36 +5195,12 @@
                 id:
                   description: Name
                   type: string
-                mark_as_sponsor_action:
-                  description: Mark as sponsor action
-                  type: string
                 realms:
                   description: Realms that will be associated with this source
                   items:
                     description: Realms that will be associated with this source
                     type: string
                   type: array
-                set_access_duration_action:
-                  description: Set access duration action
-                  type: string
-                set_access_level_action:
-                  description: Set access level action
-                  items:
-                    description: Set access level action
-                    type: string
-                  type: array
-                set_bandwidth_balance_action:
-                  description: Set bandwidth balance action
-                  type: string
-                set_role_action:
-                  description: Set role action
-                  type: string
-                set_time_balance_action:
-                  description: Set time balance action
-                  type: string
-                set_unreg_date_action:
-                  description: Set unreg date action
-                  type: string
                 type:
                   description: Type
                   type: string
@@ -6235,9 +5307,6 @@
                 id:
                   description: Name
                   type: string
-                mark_as_sponsor_action:
-                  description: Mark as sponsor action
-                  type: string
                 path:
                   description: File Path
                   type: string
@@ -6247,27 +5316,6 @@
                     description: Realms that will be associated with this source
                     type: string
                   type: array
-                set_access_duration_action:
-                  description: Set access duration action
-                  type: string
-                set_access_level_action:
-                  description: Set access level action
-                  items:
-                    description: Set access level action
-                    type: string
-                  type: array
-                set_bandwidth_balance_action:
-                  description: Set bandwidth balance action
-                  type: string
-                set_role_action:
-                  description: Set role action
-                  type: string
-                set_time_balance_action:
-                  description: Set time balance action
-                  type: string
-                set_unreg_date_action:
-                  description: Set unreg date action
-                  type: string
                 type:
                   description: Type
                   type: string
@@ -6372,30 +5420,6 @@
                   type: string
                 id:
                   description: Name
-                  type: string
-                mark_as_sponsor_action:
-                  description: Mark as sponsor action
-                  type: string
-                set_access_duration_action:
-                  description: Set access duration action
-                  type: string
-                set_access_level_action:
-                  description: Set access level action
-                  items:
-                    description: Set access level action
-                    type: string
-                  type: array
-                set_bandwidth_balance_action:
-                  description: Set bandwidth balance action
-                  type: string
-                set_role_action:
-                  description: Set role action
-                  type: string
-                set_time_balance_action:
-                  description: Set time balance action
-                  type: string
-                set_unreg_date_action:
-                  description: Set unreg date action
                   type: string
                 type:
                   description: Type
@@ -6525,9 +5549,6 @@
                   description: The amount of times, the local account can be used
                     after its created. 0 means infinite.
                   type: integer
-                mark_as_sponsor_action:
-                  description: Mark as sponsor action
-                  type: string
                 protected_resource_url:
                   description: Graph API URL of logged user
                   type: string
@@ -6536,27 +5557,6 @@
                   type: string
                 scope:
                   description: The permissions the application requests.
-                  type: string
-                set_access_duration_action:
-                  description: Set access duration action
-                  type: string
-                set_access_level_action:
-                  description: Set access level action
-                  items:
-                    description: Set access level action
-                    type: string
-                  type: array
-                set_bandwidth_balance_action:
-                  description: Set bandwidth balance action
-                  type: string
-                set_role_action:
-                  description: Set role action
-                  type: string
-                set_time_balance_action:
-                  description: Set time balance action
-                  type: string
-                set_unreg_date_action:
-                  description: Set unreg date action
                   type: string
                 site:
                   description: Graph API URL
@@ -6698,9 +5698,6 @@
                   description: The amount of times, the local account can be used
                     after its created. 0 means infinite.
                   type: integer
-                mark_as_sponsor_action:
-                  description: Mark as sponsor action
-                  type: string
                 protected_resource_url:
                   description: Graph API URL of logged user
                   type: string
@@ -6709,27 +5706,6 @@
                   type: string
                 scope:
                   description: The permissions the application requests.
-                  type: string
-                set_access_duration_action:
-                  description: Set access duration action
-                  type: string
-                set_access_level_action:
-                  description: Set access level action
-                  items:
-                    description: Set access level action
-                    type: string
-                  type: array
-                set_bandwidth_balance_action:
-                  description: Set bandwidth balance action
-                  type: string
-                set_role_action:
-                  description: Set role action
-                  type: string
-                set_time_balance_action:
-                  description: Set time balance action
-                  type: string
-                set_unreg_date_action:
-                  description: Set unreg date action
                   type: string
                 site:
                   description: Graph API URL
@@ -6874,9 +5850,6 @@
                   description: The amount of times, the local account can be used
                     after its created. 0 means infinite.
                   type: integer
-                mark_as_sponsor_action:
-                  description: Mark as sponsor action
-                  type: string
                 protected_resource_url:
                   description: API URL of logged user
                   type: string
@@ -6885,27 +5858,6 @@
                   type: string
                 scope:
                   description: The permissions the application requests.
-                  type: string
-                set_access_duration_action:
-                  description: Set access duration action
-                  type: string
-                set_access_level_action:
-                  description: Set access level action
-                  items:
-                    description: Set access level action
-                    type: string
-                  type: array
-                set_bandwidth_balance_action:
-                  description: Set bandwidth balance action
-                  type: string
-                set_role_action:
-                  description: Set role action
-                  type: string
-                set_time_balance_action:
-                  description: Set time balance action
-                  type: string
-                set_unreg_date_action:
-                  description: Set unreg date action
                   type: string
                 site:
                   description: API URL
@@ -7053,30 +6005,6 @@
                   description: The amount of times, the local account can be used
                     after its created. 0 means infinite.
                   type: integer
-                mark_as_sponsor_action:
-                  description: Mark as sponsor action
-                  type: string
-                set_access_duration_action:
-                  description: Set access duration action
-                  type: string
-                set_access_level_action:
-                  description: Set access level action
-                  items:
-                    description: Set access level action
-                    type: string
-                  type: array
-                set_bandwidth_balance_action:
-                  description: Set bandwidth balance action
-                  type: string
-                set_role_action:
-                  description: Set role action
-                  type: string
-                set_time_balance_action:
-                  description: Set time balance action
-                  type: string
-                set_unreg_date_action:
-                  description: Set unreg date action
-                  type: string
                 type:
                   description: Type
                   type: string
@@ -7206,9 +6134,6 @@
                   description: The amount of times, the local account can be used
                     after its created. 0 means infinite.
                   type: integer
-                mark_as_sponsor_action:
-                  description: Mark as sponsor action
-                  type: string
                 protected_resource_url:
                   description: API URL of logged user
                   type: string
@@ -7218,27 +6143,6 @@
                   type: string
                 scope:
                   description: The permissions the application requests.
-                  type: string
-                set_access_duration_action:
-                  description: Set access duration action
-                  type: string
-                set_access_level_action:
-                  description: Set access level action
-                  items:
-                    description: Set access level action
-                    type: string
-                  type: array
-                set_bandwidth_balance_action:
-                  description: Set bandwidth balance action
-                  type: string
-                set_role_action:
-                  description: Set role action
-                  type: string
-                set_time_balance_action:
-                  description: Set time balance action
-                  type: string
-                set_unreg_date_action:
-                  description: Set unreg date action
                   type: string
                 site:
                   description: API URL
@@ -7379,9 +6283,6 @@
                 id:
                   description: Name
                   type: string
-                mark_as_sponsor_action:
-                  description: Mark as sponsor action
-                  type: string
                 monitor:
                   description: Do you want to monitor this source?
                   type: string
@@ -7402,27 +6303,6 @@
                   type: array
                 scope:
                   description: Scope
-                  type: string
-                set_access_duration_action:
-                  description: Set access duration action
-                  type: string
-                set_access_level_action:
-                  description: Set access level action
-                  items:
-                    description: Set access level action
-                    type: string
-                  type: array
-                set_bandwidth_balance_action:
-                  description: Set bandwidth balance action
-                  type: string
-                set_role_action:
-                  description: Set role action
-                  type: string
-                set_time_balance_action:
-                  description: Set time balance action
-                  type: string
-                set_unreg_date_action:
-                  description: Set unreg date action
                   type: string
                 type:
                   description: Type
@@ -7547,9 +6427,6 @@
                 id:
                   description: Name
                   type: string
-                mark_as_sponsor_action:
-                  description: Mark as sponsor action
-                  type: string
                 password:
                   description: API password (basic auth)
                   type: string
@@ -7565,27 +6442,6 @@
                     description: Realms that will be associated with this source
                     type: string
                   type: array
-                set_access_duration_action:
-                  description: Set access duration action
-                  type: string
-                set_access_level_action:
-                  description: Set access level action
-                  items:
-                    description: Set access level action
-                    type: string
-                  type: array
-                set_bandwidth_balance_action:
-                  description: Set bandwidth balance action
-                  type: string
-                set_role_action:
-                  description: Set role action
-                  type: string
-                set_time_balance_action:
-                  description: Set time balance action
-                  type: string
-                set_unreg_date_action:
-                  description: Set unreg date action
-                  type: string
                 type:
                   description: Type
                   type: string
@@ -7713,9 +6569,6 @@
                   description: The amount of times, the local account can be used
                     after its created. 0 means infinite.
                   type: integer
-                mark_as_sponsor_action:
-                  description: Mark as sponsor action
-                  type: string
                 merchant_id:
                   description: Merchant ID
                   type: string
@@ -7724,27 +6577,6 @@
                   type: string
                 service_fqdn:
                   description: Service FQDN
-                  type: string
-                set_access_duration_action:
-                  description: Set access duration action
-                  type: string
-                set_access_level_action:
-                  description: Set access level action
-                  items:
-                    description: Set access level action
-                    type: string
-                  type: array
-                set_bandwidth_balance_action:
-                  description: Set bandwidth balance action
-                  type: string
-                set_role_action:
-                  description: Set role action
-                  type: string
-                set_time_balance_action:
-                  description: Set time balance action
-                  type: string
-                set_unreg_date_action:
-                  description: Set unreg date action
                   type: string
                 shared_secret:
                   description: MKEY for the iframe
@@ -7898,9 +6730,6 @@
                   description: The amount of times, the local account can be used
                     after its created. 0 means infinite.
                   type: integer
-                mark_as_sponsor_action:
-                  description: Mark as sponsor action
-                  type: string
                 protected_resource_url:
                   description: API URL of logged user
                   type: string
@@ -7909,27 +6738,6 @@
                   type: string
                 scope:
                   description: The permissions the application requests.
-                  type: string
-                set_access_duration_action:
-                  description: Set access duration action
-                  type: string
-                set_access_level_action:
-                  description: Set access level action
-                  items:
-                    description: Set access level action
-                    type: string
-                  type: array
-                set_bandwidth_balance_action:
-                  description: Set bandwidth balance action
-                  type: string
-                set_role_action:
-                  description: Set role action
-                  type: string
-                set_time_balance_action:
-                  description: Set time balance action
-                  type: string
-                set_unreg_date_action:
-                  description: Set unreg date action
                   type: string
                 site:
                   description: App URL
@@ -8051,32 +6859,8 @@
                 id:
                   description: Name
                   type: string
-                mark_as_sponsor_action:
-                  description: Mark as sponsor action
-                  type: string
                 proxy_addresses:
                   description: A comma seperated list of IP Address
-                  type: string
-                set_access_duration_action:
-                  description: Set access duration action
-                  type: string
-                set_access_level_action:
-                  description: Set access level action
-                  items:
-                    description: Set access level action
-                    type: string
-                  type: array
-                set_bandwidth_balance_action:
-                  description: Set bandwidth balance action
-                  type: string
-                set_role_action:
-                  description: Set role action
-                  type: string
-                set_time_balance_action:
-                  description: Set time balance action
-                  type: string
-                set_unreg_date_action:
-                  description: Set unreg date action
                   type: string
                 type:
                   description: Type
@@ -8206,35 +6990,11 @@
                   description: The amount of times, the local account can be used
                     after its created. 0 means infinite.
                   type: integer
-                mark_as_sponsor_action:
-                  description: Mark as sponsor action
-                  type: string
                 md5_hash:
                   description: MD5 hash
                   type: string
                 send_email_confirmation:
                   description: Send billing confirmation
-                  type: string
-                set_access_duration_action:
-                  description: Set access duration action
-                  type: string
-                set_access_level_action:
-                  description: Set access level action
-                  items:
-                    description: Set access level action
-                    type: string
-                  type: array
-                set_bandwidth_balance_action:
-                  description: Set bandwidth balance action
-                  type: string
-                set_role_action:
-                  description: Set role action
-                  type: string
-                set_time_balance_action:
-                  description: Set time balance action
-                  type: string
-                set_unreg_date_action:
-                  description: Set unreg date action
                   type: string
                 test_mode:
                   description: Test mode
@@ -8356,30 +7116,6 @@
                 id:
                   description: Name
                   type: string
-                mark_as_sponsor_action:
-                  description: Mark as sponsor action
-                  type: string
-                set_access_duration_action:
-                  description: Set access duration action
-                  type: string
-                set_access_level_action:
-                  description: Set access level action
-                  items:
-                    description: Set access level action
-                    type: string
-                  type: array
-                set_bandwidth_balance_action:
-                  description: Set bandwidth balance action
-                  type: string
-                set_role_action:
-                  description: Set role action
-                  type: string
-                set_time_balance_action:
-                  description: Set time balance action
-                  type: string
-                set_unreg_date_action:
-                  description: Set unreg date action
-                  type: string
                 type:
                   description: Type
                   type: string
@@ -8499,33 +7235,9 @@
                   description: The amount of times, the local account can be used
                     after its created. 0 means infinite.
                   type: integer
-                mark_as_sponsor_action:
-                  description: Mark as sponsor action
-                  type: string
                 pin_code_length:
                   description: The length of the PIN code to be sent over sms
                   type: integer
-                set_access_duration_action:
-                  description: Set access duration action
-                  type: string
-                set_access_level_action:
-                  description: Set access level action
-                  items:
-                    description: Set access level action
-                    type: string
-                  type: array
-                set_bandwidth_balance_action:
-                  description: Set bandwidth balance action
-                  type: string
-                set_role_action:
-                  description: Set role action
-                  type: string
-                set_time_balance_action:
-                  description: Set time balance action
-                  type: string
-                set_unreg_date_action:
-                  description: Set unreg date action
-                  type: string
                 twilio_phone_number:
                   description: Twilio provided phone number which will show as the
                     sender
@@ -8647,9 +7359,6 @@
                     description: Realms that will be authenticate locally
                     type: string
                   type: array
-                mark_as_sponsor_action:
-                  description: Mark as sponsor action
-                  type: string
                 monitor:
                   description: Do you want to monitor this source?
                   type: string
@@ -8667,27 +7376,6 @@
                   type: string
                 server2_address:
                   description: Eduroam server 2 address
-                  type: string
-                set_access_duration_action:
-                  description: Set access duration action
-                  type: string
-                set_access_level_action:
-                  description: Set access level action
-                  items:
-                    description: Set access level action
-                    type: string
-                  type: array
-                set_bandwidth_balance_action:
-                  description: Set bandwidth balance action
-                  type: string
-                set_role_action:
-                  description: Set role action
-                  type: string
-                set_time_balance_action:
-                  description: Set time balance action
-                  type: string
-                set_unreg_date_action:
-                  description: Set unreg date action
                   type: string
                 type:
                   description: Type
@@ -8811,9 +7499,6 @@
                   description: The amount of times, the local account can be used
                     after its created. 0 means infinite.
                   type: integer
-                mark_as_sponsor_action:
-                  description: Mark as sponsor action
-                  type: string
                 publishable_key:
                   description: Publishable key
                   type: string
@@ -8822,27 +7507,6 @@
                   type: string
                 send_email_confirmation:
                   description: Send billing confirmation
-                  type: string
-                set_access_duration_action:
-                  description: Set access duration action
-                  type: string
-                set_access_level_action:
-                  description: Set access level action
-                  items:
-                    description: Set access level action
-                    type: string
-                  type: array
-                set_bandwidth_balance_action:
-                  description: Set bandwidth balance action
-                  type: string
-                set_role_action:
-                  description: Set role action
-                  type: string
-                set_time_balance_action:
-                  description: Set time balance action
-                  type: string
-                set_unreg_date_action:
-                  description: Set unreg date action
                   type: string
                 style:
                   description: The type of payment the user will make. Charge is a
@@ -8959,30 +7623,6 @@
                 id:
                   description: Name
                   type: string
-                mark_as_sponsor_action:
-                  description: Mark as sponsor action
-                  type: string
-                set_access_duration_action:
-                  description: Set access duration action
-                  type: string
-                set_access_level_action:
-                  description: Set access level action
-                  items:
-                    description: Set access level action
-                    type: string
-                  type: array
-                set_bandwidth_balance_action:
-                  description: Set bandwidth balance action
-                  type: string
-                set_role_action:
-                  description: Set role action
-                  type: string
-                set_time_balance_action:
-                  description: Set time balance action
-                  type: string
-                set_unreg_date_action:
-                  description: Set unreg date action
-                  type: string
                 type:
                   description: Type
                   type: string
@@ -9090,9 +7730,6 @@
                 id:
                   description: Name
                   type: string
-                mark_as_sponsor_action:
-                  description: Mark as sponsor action
-                  type: string
                 monitor:
                   description: Do you want to monitor this source?
                   type: string
@@ -9107,27 +7744,6 @@
                   type: array
                 secret:
                   description: Secret
-                  type: string
-                set_access_duration_action:
-                  description: Set access duration action
-                  type: string
-                set_access_level_action:
-                  description: Set access level action
-                  items:
-                    description: Set access level action
-                    type: string
-                  type: array
-                set_bandwidth_balance_action:
-                  description: Set bandwidth balance action
-                  type: string
-                set_role_action:
-                  description: Set role action
-                  type: string
-                set_time_balance_action:
-                  description: Set time balance action
-                  type: string
-                set_unreg_date_action:
-                  description: Set unreg date action
                   type: string
                 timeout:
                   description: Timeout
@@ -9267,30 +7883,6 @@
                   description: The amount of times, the local account can be used
                     after its created. 0 means infinite.
                   type: integer
-                mark_as_sponsor_action:
-                  description: Mark as sponsor action
-                  type: string
-                set_access_duration_action:
-                  description: Set access duration action
-                  type: string
-                set_access_level_action:
-                  description: Set access level action
-                  items:
-                    description: Set access level action
-                    type: string
-                  type: array
-                set_bandwidth_balance_action:
-                  description: Set bandwidth balance action
-                  type: string
-                set_role_action:
-                  description: Set role action
-                  type: string
-                set_time_balance_action:
-                  description: Set time balance action
-                  type: string
-                set_unreg_date_action:
-                  description: Set unreg date action
-                  type: string
                 sponsorship_bcc:
                   description: Sponsors requesting access and access confirmation
                     emails are BCC'ed to this address. Multiple destinations can be
@@ -9424,9 +8016,6 @@
                 id:
                   description: Name
                   type: string
-                mark_as_sponsor_action:
-                  description: Mark as sponsor action
-                  type: string
                 monitor:
                   description: Do you want to monitor this source?
                   type: string
@@ -9447,27 +8036,6 @@
                   type: array
                 scope:
                   description: Scope
-                  type: string
-                set_access_duration_action:
-                  description: Set access duration action
-                  type: string
-                set_access_level_action:
-                  description: Set access level action
-                  items:
-                    description: Set access level action
-                    type: string
-                  type: array
-                set_bandwidth_balance_action:
-                  description: Set bandwidth balance action
-                  type: string
-                set_role_action:
-                  description: Set role action
-                  type: string
-                set_time_balance_action:
-                  description: Set time balance action
-                  type: string
-                set_unreg_date_action:
-                  description: Set unreg date action
                   type: string
                 type:
                   description: Type
@@ -9610,9 +8178,6 @@
                   description: The amount of times, the local account can be used
                     after its created. 0 means infinite.
                   type: integer
-                mark_as_sponsor_action:
-                  description: Mark as sponsor action
-                  type: string
                 protected_resource_url:
                   description: API URL of logged user
                   type: string
@@ -9621,27 +8186,6 @@
                   type: string
                 scope:
                   description: The permissions the application requests.
-                  type: string
-                set_access_duration_action:
-                  description: Set access duration action
-                  type: string
-                set_access_level_action:
-                  description: Set access level action
-                  items:
-                    description: Set access level action
-                    type: string
-                  type: array
-                set_bandwidth_balance_action:
-                  description: Set bandwidth balance action
-                  type: string
-                set_role_action:
-                  description: Set role action
-                  type: string
-                set_time_balance_action:
-                  description: Set time balance action
-                  type: string
-                set_unreg_date_action:
-                  description: Set unreg date action
                   type: string
                 site:
                   description: API URL

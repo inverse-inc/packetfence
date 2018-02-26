@@ -1,28 +1,12 @@
 /config/device_registration/{device_registration_id}:
   delete:
-    parameters:
-    - description: The tenant ID to use for this request. Can only be used if the
-        API user has access to other tenants. When empty, it will default to use the
-        tenant attached to the token.
-      in: header
-      name: X-PacketFence-Tenant-Id
-      required: 0
-      schema:
-        type: string
+    parameters: []
     responses:
       '204':
         description: Deleted a config item
     summary: Delete a config item
   get:
-    parameters:
-    - description: The tenant ID to use for this request. Can only be used if the
-        API user has access to other tenants. When empty, it will default to use the
-        tenant attached to the token.
-      in: header
-      name: X-PacketFence-Tenant-Id
-      required: 0
-      schema:
-        type: string
+    parameters: []
     requestBody:
       content:
         application/json:
@@ -58,15 +42,7 @@
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
   patch:
-    parameters:
-    - description: The tenant ID to use for this request. Can only be used if the
-        API user has access to other tenants. When empty, it will default to use the
-        tenant attached to the token.
-      in: header
-      name: X-PacketFence-Tenant-Id
-      required: 0
-      schema:
-        type: string
+    parameters: []
     requestBody:
       content:
         application/json:
@@ -98,15 +74,7 @@
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
   put:
-    parameters:
-    - description: The tenant ID to use for this request. Can only be used if the
-        API user has access to other tenants. When empty, it will default to use the
-        tenant attached to the token.
-      in: header
-      name: X-PacketFence-Tenant-Id
-      required: 0
-      schema:
-        type: string
+    parameters: []
     requestBody:
       content:
         application/json:
