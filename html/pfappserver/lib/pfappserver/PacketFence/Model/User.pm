@@ -106,6 +106,7 @@ sub _make_actions {
     my %FIELD_TO_ACTION = (
         'can_sponsor'     => $Actions::MARK_AS_SPONSOR,
         'access_level'    => $Actions::SET_ACCESS_LEVEL,
+        'tenant_id'       => $Actions::SET_TENANT_ID,
         'category'        => $Actions::SET_ROLE,
         'unregdate'       => $Actions::SET_UNREG_DATE,
         'access_duration' => $Actions::SET_ACCESS_DURATION,

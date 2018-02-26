@@ -15,6 +15,8 @@ pf::UnifiedApi::Controller
 use strict;
 use warnings;
 use Mojo::Base 'Mojolicious::Controller';
+use pf::error qw(is_error);
+use JSON::MaybeXS;
 has activity_timeout => 300;
 
 our $ERROR_400_MSG = "Bad Request. One of the submitted parameters has an invalid format";
@@ -50,6 +52,18 @@ sub render_empty {
 sub status_to_error_msg {
     my ($self, $status) = @_;
     return exists $STATUS_TO_MSG{$status} ? $STATUS_TO_MSG{$status} : "Server error";
+}
+
+sub parse_json {
+    my ($self) = @_;
+    my $json = eval {
+        decode_json($self->req->body)
+    };
+    if ($@) {
+        $self->log->error($@);
+        return (400, { message => $self->status_to_error_msg(400)});
+    }
+    return (200, $json);
 }
 
 =head1 AUTHOR

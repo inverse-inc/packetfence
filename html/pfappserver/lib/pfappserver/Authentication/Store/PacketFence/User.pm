@@ -9,7 +9,7 @@ use warnings;
 use pf::constants;
 use pf::config qw($WEB_ADMIN_ALL);
 use pf::authentication;
-use pf::Authentication::constants qw($LOGIN_CHALLENGE);
+use pf::Authentication::constants qw($LOGIN_SUCCESS $LOGIN_CHALLENGE);
 use pf::log;
 use List::MoreUtils qw(all any);
 use pf::config::util;
@@ -45,46 +45,17 @@ sub supported_features {
 sub check_password {
   my ($self, $password) = @_;
 
-  my $internal_sources = pf::authentication::getInternalAuthenticationSources();
-  my ($stripped_username,$realm) = strip_username($self->_user);
-  $realm //= 'null';
-  my $realm_source = get_realm_authentication_source($stripped_username, $realm, $internal_sources);
-
-  my $user = $self->{_user};
-  if (ref($realm_source) eq 'ARRAY') {
-    foreach my $source (@{$realm_source}) {
-      get_logger->info("Found a realm source ".$source->id." for user $stripped_username in realm $realm.");
-      my ($result, $message, $source_id, $extra) = pf::authentication::authenticate( { 
-              'username' => $user, 
-              'password' => $password, 
-              'rule_class' => $Rules::ADMIN,
-              'context' => $pf::constants::realm::ADMIN_CONTEXT,
-          }, $source);
-      if ($result) {
-          my $value = pf::authentication::match($source_id, { username => $user, 'rule_class' => $Rules::ADMIN , 'context' => $pf::constants::realm::ADMIN_CONTEXT}, $Actions::SET_ACCESS_LEVEL, undef, $extra);
-          $self->_roles([split /\s*,\s*/,$value]) if defined $value;
-          if ($result == $LOGIN_CHALLENGE ) {
-                $self->_challenge($message);
-          }
-          return (defined $value && all{ $_ ne 'NONE'} @{$self->_roles});
-      }
-    }
+  my ($result, $roles) = pf::authentication::adminAuthentication($self->_user, $password);
+  if($result == $LOGIN_SUCCESS) {
+    $self->_roles($roles);
+    return $TRUE;
   }
-  my ($result, $message, $source_id, $extra) = pf::authentication::authenticate( { 
-          'username' => $self->_user, 
-          'password' => $password, 
-          'rule_class' => $Rules::ADMIN,
-          'context' => $pf::constants::realm::ADMIN_CONTEXT,
-      }, @{$internal_sources});
-  if ($result) {
-    my $value = pf::authentication::match($source_id, { username => $self->_user, 'rule_class' => $Rules::ADMIN }, $Actions::SET_ACCESS_LEVEL, undef, $extra);
-    $self->_roles([split /\s*,\s*/,$value]) if defined $value;
-    if ($result == $LOGIN_CHALLENGE ) {
-      $self->_challenge($message);
-    }
-    return (defined $value && all{ $_ ne 'NONE'} @{$self->_roles});
+  elsif($result == $LOGIN_CHALLENGE) {
+    $self->_challenge();
   }
-  return $FALSE;
+  else {
+    return $FALSE;
+  }
 }
 
 sub roles {

@@ -2,7 +2,6 @@ package aaa
 
 import (
 	"context"
-	"errors"
 	"sync"
 )
 
@@ -48,9 +47,9 @@ func (mab *MemAuthenticationBackend) Authenticate(ctx context.Context, username,
 				TenantId:   AccessAllTenants,
 			}, nil
 		} else {
-			return false, nil, errors.New("Username/password combination is invalid")
+			return false, nil, nil
 		}
 	} else {
-		return false, nil, errors.New("Username wasn't found")
+		return false, nil, nil
 	}
 }

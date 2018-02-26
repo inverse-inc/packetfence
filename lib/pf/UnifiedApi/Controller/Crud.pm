@@ -190,18 +190,6 @@ sub parent_data {
     return \%data;
 }
 
-sub parse_json {
-    my ($self) = @_;
-    my $json = eval {
-        decode_json($self->req->body)
-    };
-    if ($@) {
-        $self->log->error($@);
-        return (400, { message => $self->status_to_error_msg(400)});
-    }
-    return (200, $json);
-}
-
 sub do_create {
     my ($self, $status, $data) = @_;
     if (is_error($status)) {

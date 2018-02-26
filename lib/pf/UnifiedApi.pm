@@ -149,6 +149,15 @@ our @API_V1_ROUTES = (
         },
     },
     { controller => 'RadiusAuditLogs' },
+    { 
+        controller => 'Authentication',
+        allow_singular => 1,
+        collection => {
+            subroutes    => {
+                'admin_authentication' => { post => 'adminAuthentication' },
+            },
+        },      
+    },
 );
 
 sub startup {
