@@ -1982,7 +1982,9 @@ And can be defined using different criteria like:
   owner.attribute (like owner.pid)
   radius_request.attribute (like radius_request.Calling-Station-Id)
 
-For example, lets define a rule that prevents a device from connecting when its category is the "default", when the SSID is "SECURE" and when the current time is between 11am and 2pm:
+Below are several common examples of VLAN filters usage.
+
+EXAMPLE: lets define a rule that prevents a device from connecting when its category is the "default", when the SSID is "SECURE" and when the current time is between 11am and 2pm:
 from Monday to Friday when it try to connect as a registered device :
 
   [category]
@@ -2004,7 +2006,7 @@ from Monday to Friday when it try to connect as a registered device :
   scope = RegisteredRole
   role = nointernet
 
-The second example will create a violation if the SSID is OPEN and the owner is igmout
+EXAMPLE: create a violation if the SSID is OPEN and the owner is igmout
 
   [igmout]
   filter = owner.pid
@@ -2021,7 +2023,7 @@ The second example will create a violation if the SSID is OPEN and the owner is 
   action = trigger_violation
   action_param = mac = $mac, tid = 1100012, type = INTERNAL
 
-The third example will autoregister the device and assign the role staff to each device where the username is igmout.
+EXAMPLE: autoregister the device and assign the role staff to each device where the username is igmout.
 
   [igmout]
   filter = username
@@ -2041,6 +2043,138 @@ The third example will autoregister the device and assign the role staff to each
   scope = NodeInfoForAutoReg
   role = staff
 
+EXAMPLE: autoregister all Windows devices and assign them the role default.
+
+  [Windows_AutoReg]
+  filter = fingerbank_info.device_hierarchy_names
+  operator = includes
+  value = Windows
+
+  [AUTOREG_WINDOWS:Windows_AutoReg]
+  scope = AutoRegister
+  role = default
+
+  [WINDOWS_ROLE:Windows_devices]
+  scope = NodeInfoForAutoReg
+  role = default
+
+
+EXAMPLE: filter a MAC address and reject it by assigning the role REJECT.
+
+  [MAC]
+  filter = node_info.mac
+  operator = match
+  value = AA:BB:CC:DD:EE:FF
+
+  [SSID_Open]
+  filter = ssid
+  operator = is
+  value = Open
+
+  [REJECT:MAC&SSID_Open]
+  scope = RegistrationRole
+  role = REJECT
+
+EXAMPLE: autoregister devices using dot1x/EAP over wired or wireless and that are not pending
+
+  [not_pending]
+  filter = node_info.status
+  operator = is_not
+  value = pending
+
+  [wireless_dot1x]
+  filter = connection_type
+  operator = is
+  value = Wireless-802.11-EAP
+
+  [wired_dot1x]
+  filter = connection_type
+  operator = is
+  value = Ethernet-EAP
+
+  [autoreg_wireless_dot1x:wireless_dot1x&not_pending]
+  scope = AutoRegister
+  role = default
+
+  [autoreg_wired_dot1x:wired_dot1x&not_pending]
+  scope = AutoRegister
+  role = default
+
+EXAMPLE: auto set Avaya and Polycom as phones by matching vendor MAC, and set to default role
+
+  [Polycom]
+  filter = node_info.mac
+  operator = regex
+  value = ^(00:04.f2).*
+
+  [avaya]
+  filter = node_info.mac
+  operator = regex
+  value = ^(00:04:0d|00:1b:4f|00:e0:07|04:8a:15|24:d9:21|2c:f4:c5|34:75:c7|3c:3a:73|3c:b1:5b|44:32:2a|58:16:26|6c:fa:58|70:30:18|70:38:ee|70:52:c5|80:1d:aa|84:83:71|90:fb:5b|a0:51:c6|b4:b0:17|c8:f4:06|cc:f9:54|d4:ea:0e|fc:83:99|fc:a8:41|b0:ad:aa|10:cd:ae|50:cd:22|b4:47:5e|d4:78:56|c0:57:bc|38:bb:3c|e4:5d:52|a4:25:1b|6c:a8:49|a0:12:90|f8:15:47|50:61:84|bc:ad:ab|b4:a9:5a|f8:73:a2|64:c3:54|64:a7:dd|64:6a:52|00:09:6e|00:07:3b|00:0d:18|00:0d:28|00:04:2e).*
+
+  [set_voip:(avaya|Polycom)]
+  scope = IsPhone
+  role = default
+
+EXAMPLE: Refuse User Auth without machine Auth
+
+  [EthernetEAP]
+  filter = connection_type
+  operator = is
+  value = Ethernet-EAP
+
+  [EAPTLS]
+  filter = radius_request
+  attribute = EAP-Type
+  operator = is
+  value = TLS
+
+  [machine]
+  filter = node_info
+  attribute = machine_account
+  operator = defined
+  value = robert
+
+  [REJECT_NO_MACHINE_AUTH_NO_EAPTLS:EthernetEAP&!machine&!EAPTLS]
+  scope = RegisteredRole
+  role = REJECT
+
+  [REJECT_NO_MACHINE_AUTH:EthernetEAP&!machine]
+  scope = RegistrationRole
+  role = REJECT
+
+EXAMPLE: autoregister printers and scanners
+
+  [printers]
+  filter = node_info.device_class
+  operator = is
+  value = Printers/Scanners
+
+  [Xerox]
+  filter = node_info.mac
+  operator = regex
+  value = ^(08:00:37|9c:93:4e).*
+
+  [HP_Printer]
+  filter = node_info.mac
+  operator = regex
+  value = ^(00:1e:0b:0e:22:4c|00:23:7d:91:0e:86|00:1f:29:19:1d:4f|00:18:fe:a0:26:e2|00:1e:0b:1b:d2:e7|2c:76:8a:3f:21:cd|00:14:38:d8:a1:14|00:14:38:de:b6:0a)$
+
+  [autoreg_printers:(printers)]
+  scope = AutoRegister
+  role = printers
+
+  [printers_role:(printers)]
+  scope = NodeInfoForAutoReg
+  role = printers
+
+You can also add notes to the device using filters. Here you can see how to add a note to all HP Printers.
+
+  [Add_Note_HP_Printer:HP_Printer]
+  scope = RegisteredRole
+  role = printers
+  action = modify_node
+  action_param = mac = $mac, notes = HP PRINTER
 
 You can have a look in the file vlan_filters.conf, there are some examples on how to use and define filters.
 
