@@ -618,7 +618,7 @@ if ! /usr/bin/id pf &>/dev/null; then
 fi
 /usr/sbin/usermod -aG wbpriv,fingerbank,apache pf
 /usr/sbin/usermod -aG pf mysql 
-/usr/bin/usermod -aG pf netdata
+/usr/sbin/usermod -aG pf netdata
 
 if [ ! `id -u` = "0" ];
 then
