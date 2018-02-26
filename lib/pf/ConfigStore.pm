@@ -359,7 +359,26 @@ Removes an existing item
 
 sub remove {
     my ($self, $id) = @_;
+    if (!$self->canDelete($id)) {
+        return $FALSE;
+    }
     return $self->cachedConfig->DeleteSection($self->_formatSectionName($id));
+}
+
+
+=head2 canDelete
+
+canDelete
+
+=cut
+
+sub canDelete {
+    my ($self, $id) = @_;
+    my $default_section = $self->default_section;
+    return $TRUE
+        if !defined $default_section;
+
+    return $self->_formatSectionName($id) ne $default_section;
 }
 
 =head2 Copy
