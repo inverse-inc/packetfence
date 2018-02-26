@@ -25,6 +25,10 @@ BEGIN {
     use lib qw(/usr/local/pf/t);
     #Module for overriding configuration paths
     use setup_test_config;
+
+    #increase "inactivity timeout"
+    $ENV{MOJO_INACTIVITY_TIMEOUT} = "300";
+
 }
 
 #insert known data
