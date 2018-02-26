@@ -321,7 +321,7 @@ cmp_deeply(
 );
 
 cmp_deeply(
-    pf::UnifiedApi::GenerateSpec::formHandlerSubTypes(
+    pf::UnifiedApi::GenerateSpec::subTypesSchema(
         pfappserver::Form::Config::Pfdetect::dhcp->new,
         pfappserver::Form::Config::Pfdetect::fortianalyser->new,
         pfappserver::Form::Config::Pfdetect::security_onion->new,
