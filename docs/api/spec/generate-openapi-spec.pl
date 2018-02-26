@@ -108,6 +108,7 @@ eval {
 };
 
 if($@) {
+    write_file("err.yaml", $spec);
     print STDERR "Error while decoding YAML: $@ \n";
     exit 1;
 }
