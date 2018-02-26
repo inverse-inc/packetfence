@@ -38,14 +38,32 @@ use I18N::LangTags ();
 use I18N::LangTags::Detect;
 use I18N::LangTags::List;
 
+=head2 fallback_languages
+
+The fallback languages
+
+=cut
+
 sub fallback_languages {
     ('i-default')
 }
+
+=head2 get_handle
+
+get the I18N handle
+
+=cut
 
 sub get_handle {
     my ($self, @lang) = @_;
     return $self->SUPER::get_handle(@lang, $self->fallback_languages);
 }
+
+=head2 localize
+
+localize using the default handle
+
+=cut
 
 sub localize {
     my ($self, $text, $args) = @_;
@@ -59,6 +77,12 @@ sub _loc {
     $default_lh->maketext(@_)
 }
 
+=head2 languages_from_http_header
+
+Get languages from the http headers
+
+=cut
+
 sub languages_from_http_header {
     my ($self, $header) = @_;
     return [
@@ -68,6 +92,12 @@ sub languages_from_http_header {
         $self->fallback_languages,
     ];
 }
+
+=head2 languages_list
+
+The list of languages that is installed
+
+=cut
 
 sub languages_list {
     my %languages_list;
