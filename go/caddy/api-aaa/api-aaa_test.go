@@ -77,6 +77,10 @@ func TestApiAAATokenInfo(t *testing.T) {
 			t.Errorf("Missing admin role %s in token info response", r)
 		}
 	}
+
+	if respMap.Item.Username != "web" {
+		t.Error("Username in token info isn't valid:", respMap.Item.Username)
+	}
 }
 
 func TestApiAAAHandleAAA(t *testing.T) {

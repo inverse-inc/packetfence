@@ -16,4 +16,5 @@ const (
 type TokenInfo struct {
 	AdminRoles map[string]bool
 	TenantId   int
+	Username   string
 }

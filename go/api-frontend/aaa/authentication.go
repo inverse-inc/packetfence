@@ -29,6 +29,7 @@ func (tam *TokenAuthenticationMiddleware) Login(ctx context.Context, username, p
 	for _, backend := range tam.authBackends {
 		if auth, tokenInfo, _ := backend.Authenticate(ctx, username, password); auth {
 			token := uuid.NewV4().String()
+			tokenInfo.Username = username
 			tam.tokenBackend.StoreTokenInfo(token, tokenInfo)
 			return true, token, nil
 		}

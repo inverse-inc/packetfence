@@ -31,6 +31,7 @@ func init() {
 type PrettyTokenInfo struct {
 	AdminRoles []string `json:"admin_roles"`
 	TenantId   int      `json:"tenant_id"`
+	Username   string   `json:"username"`
 }
 
 type ApiAAAHandler struct {
@@ -144,6 +145,7 @@ func (h ApiAAAHandler) handleTokenInfo(w http.ResponseWriter, r *http.Request, p
 		prettyInfo := PrettyTokenInfo{
 			AdminRoles: make([]string, len(info.AdminRoles)),
 			TenantId:   info.TenantId,
+			Username:   info.Username,
 		}
 
 		i := 0
