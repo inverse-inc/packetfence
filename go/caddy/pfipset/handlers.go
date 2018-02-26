@@ -18,7 +18,7 @@ type Info struct {
 	IP     string `json:"IP"`
 }
 
-type Options struct {
+type PostOptions struct {
 	Network  string          `json:"network,omitempty"`
 	RoleID   string          `json:"role_id,omitempty"`
 	IP       string          `json:"ip,omitempty"`
@@ -34,7 +34,7 @@ func handlePassthrough(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	var o Options
+	var o PostOptions
 	err = json.Unmarshal(body, &o)
 	if err != nil {
 		panic(err)
@@ -76,7 +76,7 @@ func handleIsolationPassthrough(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	var o Options
+	var o PostOptions
 	err = json.Unmarshal(body, &o)
 	if err != nil {
 		panic(err)
@@ -118,7 +118,7 @@ func handleLayer2(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	var o Options
+	var o PostOptions
 	err = json.Unmarshal(body, &o)
 	if err != nil {
 		panic(err)
@@ -206,7 +206,7 @@ func handleMarkIpL2(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	var o Options
+	var o PostOptions
 	err = json.Unmarshal(body, &o)
 	if err != nil {
 		panic(err)
@@ -261,7 +261,7 @@ func handleMarkIpL3(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	var o Options
+	var o PostOptions
 	err = json.Unmarshal(body, &o)
 	if err != nil {
 		panic(err)
@@ -316,7 +316,7 @@ func handleLayer3(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	var o Options
+	var o PostOptions
 	err = json.Unmarshal(body, &o)
 	if err != nil {
 		panic(err)
@@ -393,7 +393,7 @@ func (IPSET *pfIPSET) handleUnmarkMac(res http.ResponseWriter, req *http.Request
 	if err != nil {
 		panic(err)
 	}
-	var o Options
+	var o PostOptions
 	err = json.Unmarshal(body, &o)
 	if err != nil {
 		panic(err)
@@ -439,7 +439,7 @@ func (IPSET *pfIPSET) handleUnmarkIp(res http.ResponseWriter, req *http.Request)
 	if err != nil {
 		panic(err)
 	}
-	var o Options
+	var o PostOptions
 	err = json.Unmarshal(body, &o)
 	if err != nil {
 		panic(err)
