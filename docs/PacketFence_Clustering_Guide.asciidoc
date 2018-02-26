@@ -117,7 +117,7 @@ On the *other servers* of your cluster, configure only the network interfaces (s
 At this point, for a VLAN enforcement configuration for example, the network interfaces of your servers must be configured, and you must be able to see, for each server:
 
 |===
-|In `/ect/sysconfig/network-scripts/`|
+|In `/etc/sysconfig/network-scripts/`|
 |One Management Interface|ifcfg-*YourFirstInterfaceName*
 
 |One Secondary Interface|ifcfg-*YourSecondInterfaceName*
