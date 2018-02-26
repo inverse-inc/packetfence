@@ -464,7 +464,6 @@ sub adminAuthentication {
           return $LOGIN_CHALLENGE;
         }
 
-        #my $value = pf::authentication::match($source_id, { username => $user, 'rule_class' => $Rules::ADMIN , 'context' => $pf::constants::realm::ADMIN_CONTEXT}, $Actions::SET_ACCESS_LEVEL, undef, $extra);
         $extra //= {};
         my $match = pf::authentication::match2([$source], { 
                 username => $user,
