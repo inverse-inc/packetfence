@@ -37,7 +37,7 @@ use strict;
 use warnings;
 use Net::SNMP;
 
-use base ('pf::Switch::HP::Procurve_2500');
+use base ('pf::Switch::HP::Procurve_5400');
 
 use pf::constants;
 use pf::config qw(
@@ -49,47 +49,7 @@ use pf::util;
 
 sub description { 'Aruba 5400 Switch' }
 
-# CAPABILITIES
-# access technology supported
-sub supportsWiredMacAuth { return $TRUE; }
-sub supportsWiredDot1x { return $TRUE; }
-# VoIP technology supported
-sub supportsRadiusVoip { return $TRUE; }
-# inline capabilities
-sub inlineCapabilities { return ($MAC,$PORT); }
-
-#Insert your voice vlan name, not the ID.
-our $VOICEVLANAME = "voip";
-
 =over
-
-=item getVoipVSA
-
-Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
-
-TODO: Use Egress-VLANID instead. See: http://wiki.freeradius.org/HP#RFC+4675+%28multiple+tagged%2Funtagged+VLAN%29+Assignment
-
-=cut
-
-sub getVoipVsa {
-    my ($self) = @_;
-    my $logger = $self->logger;
-
-    return ('Egress-VLAN-Name' => "1".$VOICEVLANAME);
-}
-
-=item isVoIPEnabled
-
-Is VoIP enabled for this device
-
-=cut
-
-sub isVoIPEnabled {
-    my ($self) = @_;
-    return ( $self->{_VoIPEnabled} == 1 );
-}
-
-=back
 
 Return radius attributes to allow write access
 
@@ -135,7 +95,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2017 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
