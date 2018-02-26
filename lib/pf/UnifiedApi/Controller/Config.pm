@@ -34,7 +34,7 @@ sub form {
     my ($self, $item) = @_;
     my $parameters = $self->form_parameters($item);
     if (!defined $parameters) {
-        $self->render_error(417, "Invalid request");
+        $self->render_error(422, "Invalid request");
         return undef;
     }
 
@@ -101,7 +101,7 @@ sub create {
     my $id = $item->{id};
     my $cs = $self->config_store;
     if (!defined $id) {
-        $self->render_error(417, "Unable to validate", [{ id => "id field is required"}]);
+        $self->render_error(422, "Unable to validate", [{ id => "id field is required"}]);
         return 0;
     }
 
@@ -138,7 +138,7 @@ sub validate_item {
     while (my ($k,$v) = each %$field_errors) {
         push @errors, {$k => $v};
     }
-    $self->render_error(417, "Unable to validate", \@errors);
+    $self->render_error(422, "Unable to validate", \@errors);
     return undef;
 }
 

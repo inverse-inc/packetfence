@@ -26,13 +26,13 @@ sub form {
     my ($self, $item) = @_;
     my $type = $item->{type};
     if ( !defined $type ) {
-        $self->render_error(417, "Unable to validate", [{ type => "type field is required"}]);
+        $self->render_error(422, "Unable to validate", [{ type => "type field is required"}]);
         return undef;
     }
     my $class = $self->form_class_by_type($type);
 
     if ( !$class  ){
-        $self->render_error(417, "Unable to validate", [{ type => "type field is invalid '$type'"}]);
+        $self->render_error(422, "Unable to validate", [{ type => "type field is invalid '$type'"}]);
         return undef;
     }
 
