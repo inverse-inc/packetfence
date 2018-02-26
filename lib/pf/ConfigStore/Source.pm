@@ -18,12 +18,25 @@ use namespace::autoclean;
 use pf::file_paths qw($authentication_config_file);
 use Sort::Naturally qw(nsort);
 extends 'pf::ConfigStore';
+use pfconfig::cached_hash;
+tie our %ProfileReverseLookup, 'pfconfig::cached_hash', 'resource::ProfileReverseLookup';
 
 use pf::file_paths qw($authentication_config_file);
 
 sub configFile {$authentication_config_file};
 
 sub pfconfigNamespace { 'config::Authentication' }
+
+=head2 canDelete
+
+canDelete
+
+=cut
+
+sub canDelete {
+    my ($self, $id) = @_;
+    return !exists $ProfileReverseLookup{sources}{$id} && $self->SUPER::canDelete($id);
+}
 
 =head2 _Sections
 
