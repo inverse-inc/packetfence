@@ -112,16 +112,6 @@ sub pathMethodInfo {
 }
 
 sub standardParameters {
-    {
-        "description" =>
-"The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
-        "in"       => "header",
-        "name"     => "X-PacketFence-Tenant-Id",
-        "required" => 0,
-        "schema"   => {
-            "type" => "string"
-        }
-    }
 
 }
 
@@ -269,21 +259,6 @@ sub configResourceDelete {
     }
 }
 
-sub baseInfo {
-    my ($path_part) = @_;
-    return {
-        servers => [ { url => "http://localhost:9999$path_part" } ],
-        info    => {
-            description =>
-'An API to access the PacketFence resources. Lets make the PacketFence API great again!',
-            title   => 'PacketFence API',
-            version => '0.0.1',
-            openapi => '3.0.0',
-        },
-        security => [ { bearerAuth => [] }, ]
-    };
-}
-
 sub walkRootRoutes {
     my ($route) = @_;
     my ($root, @children) = walk( $route, 0, '', [] );
@@ -316,11 +291,7 @@ sub walk {
         path_type => $path_type, 
     );
 
-    if ( $depth == 0 ) {
-        $info{base} = baseInfo($path_part);
-        #@paths = ( @$parent_paths, $path_part );
-    }
-    else {
+    if ( $depth ) {
         if ($path_part) {
             @paths = ( @$parent_paths, $path_part );
         }
