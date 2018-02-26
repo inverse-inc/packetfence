@@ -152,9 +152,12 @@ sub remove {
     my ($self) = @_;
     my $id = $self->id;
     my $cs = $self->config_store;
-    $cs->remove($id, 'id');
+    if (!$cs->remove($id, 'id')) {
+        return $self->render_error(422, "Unable to delete $id");
+    }
+
     $cs->commit;
-    $self->render_empty();
+    return $self->render_empty();
 }
 
 sub update {
