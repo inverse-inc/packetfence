@@ -156,6 +156,7 @@ our @API_V1_ROUTES = (
                 'admin_authentication' => { post => 'adminAuthentication' },
             },
         },      
+    },
     qw(
         Config::AdminRoles
         Config::Bases
