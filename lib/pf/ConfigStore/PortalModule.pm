@@ -20,6 +20,8 @@ use pf::file_paths qw(
     $portal_modules_default_config_file
 );
 extends 'pf::ConfigStore';
+use pfconfig::cached_hash;
+tie our %ProfileReverseLookup, 'pfconfig::cached_hash', 'resource::ProfileReverseLookup';
 
 use pf::log;
 
@@ -28,6 +30,17 @@ sub configFile { $portal_modules_config_file};
 sub importConfigFile { $portal_modules_default_config_file }
 
 sub pfconfigNamespace {'config::PortalModules'}
+
+=head2 canDelete
+
+canDelete
+
+=cut
+
+sub canDelete {
+    my ($self, $id) = @_;
+    return !exists $ProfileReverseLookup{root_module}{$id} && $self->SUPER::canDelete($id);
+}
 
 =head2 cleanupAfterRead
 

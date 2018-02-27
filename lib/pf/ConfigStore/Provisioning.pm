@@ -17,10 +17,23 @@ use Moo;
 use pf::file_paths qw($provisioning_config_file);
 use pf::util;
 extends 'pf::ConfigStore';
+use pfconfig::cached_hash;
+tie our %ProfileReverseLookup, 'pfconfig::cached_hash', 'resource::ProfileReverseLookup';
 
 sub configFile { $provisioning_config_file };
 
 sub pfconfigNamespace {'config::Provisioning'}
+
+=head2 canDelete
+
+canDelete
+
+=cut
+
+sub canDelete {
+    my ($self, $id) = @_;
+    return !exists $ProfileReverseLookup{provisioners}{$id} && $self->SUPER::canDelete($id);
+}
 
 =head2 cleanupAfterRead
 
