@@ -65,8 +65,8 @@ func TestDbAuthenticationBackend(t *testing.T) {
 		t.Error("Got a token info although auth failed")
 	}
 
-	if err == nil {
-		t.Error("No error was returned when the auth failed")
+	if err != nil {
+		t.Error("There is an error for a normal auth failure", err)
 	}
 
 	// Test not yet valid user
@@ -89,8 +89,8 @@ func TestDbAuthenticationBackend(t *testing.T) {
 		t.Error("Got a token info although auth failed")
 	}
 
-	if err == nil {
-		t.Error("No error was returned when the auth failed")
+	if err != nil {
+		t.Error("There is an error for a normal auth failure", err)
 	}
 
 	// Test invalid password
@@ -113,8 +113,8 @@ func TestDbAuthenticationBackend(t *testing.T) {
 		t.Error("Got a token info although auth failed")
 	}
 
-	if err == nil {
-		t.Error("No error was returned when the auth failed")
+	if err != nil {
+		t.Error("There is an error for a normal auth failure", err)
 	}
 
 	// Test invalid user
@@ -128,8 +128,8 @@ func TestDbAuthenticationBackend(t *testing.T) {
 		t.Error("Got a token info although auth failed")
 	}
 
-	if err == nil {
-		t.Error("No error was returned when the auth failed")
+	if err != nil {
+		t.Error("There is an error for a normal auth failure", err)
 	}
 
 }

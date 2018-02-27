@@ -70,8 +70,8 @@ func TestMemAuthenticationBackend(t *testing.T) {
 		t.Error("Token info isn't nil although the auth failed")
 	}
 
-	if err == nil {
-		t.Error("Error is nil when the auth failed", err)
+	if err != nil {
+		t.Error("There is an error for a normal auth failure", err)
 	}
 
 	// Invalid user
@@ -85,7 +85,7 @@ func TestMemAuthenticationBackend(t *testing.T) {
 		t.Error("Token info isn't nil although the auth failed")
 	}
 
-	if err == nil {
-		t.Error("Error is nil when the auth failed", err)
+	if err != nil {
+		t.Error("There is an error for a normal auth failure", err)
 	}
 }
