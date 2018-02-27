@@ -44,7 +44,7 @@ $t->get_ok("$base_url/default")
   ->json_is('/item/id', 'default');
 
 $t->post_ok($collection_base_url => json => {})
-  ->status_is(417);
+  ->status_is(422);
 
 $t->post_ok($collection_base_url => json => {id => 'default'})
   ->status_is(409);
@@ -56,7 +56,7 @@ $t->patch_ok("$base_url/default" => json => {})
   ->status_is(200);
 
 $t->put_ok("$base_url/default" => json => {})
-  ->status_is(417);
+  ->status_is(422);
 
 =head1 AUTHOR
 

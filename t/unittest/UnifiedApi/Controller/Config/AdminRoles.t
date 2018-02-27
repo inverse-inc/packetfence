@@ -41,7 +41,7 @@ $t->get_ok($collection_base_url)
   ->status_is(200);
 
 $t->post_ok($collection_base_url => json => {})
-  ->status_is(417);
+  ->status_is(422);
 
 $t->post_ok($collection_base_url, {'Content-Type' => 'application/json'} => '{')
   ->status_is(400);
