@@ -37,8 +37,11 @@ canDelete
 =cut
 
 sub canDelete {
-    my ($self, $id) = @_;
-    return !$self->isInProfile('root_module', $id) && $self->SUPER::canDelete($id);
+    my ( $self, $id ) = @_;
+    return
+         !$self->isInProfile( 'root_module', $id )
+      && !$self->isInPortalModules( 'modules', $id )
+      && $self->SUPER::canDelete($id);
 }
 
 =head2 cleanupAfterRead
