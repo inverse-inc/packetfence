@@ -55,8 +55,14 @@ sub build_child {
         foreach my $field (qw(locale sources filter provisioners billing_tiers scans)) {
             $profile->{$field} = [ split( /\s*,\s*/, $profile->{$field} || '' ) ];
         }
-        foreach my $field (qw(sources provisioners billing_tiers scans)) {
+        foreach my $field (qw(sources provisioners billing_tiers scans device_registration root_module)) {
             my $values = $profile->{$field};
+            if (ref ($values) eq '') {
+                next if !defined $values || $values eq '';
+
+                $values = [$values];
+            }
+
             for my $val (@$values) {
                 push @{$reverseLookup{$field}{$val}}, $key;
             }
