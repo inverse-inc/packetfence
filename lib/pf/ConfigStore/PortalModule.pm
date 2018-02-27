@@ -20,8 +20,7 @@ use pf::file_paths qw(
     $portal_modules_default_config_file
 );
 extends 'pf::ConfigStore';
-use pfconfig::cached_hash;
-tie our %ProfileReverseLookup, 'pfconfig::cached_hash', 'resource::ProfileReverseLookup';
+with 'pf::ConfigStore::Role::ReverseLookup';
 
 use pf::log;
 
@@ -39,7 +38,7 @@ canDelete
 
 sub canDelete {
     my ($self, $id) = @_;
-    return !exists $ProfileReverseLookup{root_module}{$id} && $self->SUPER::canDelete($id);
+    return !$self->isInProfile('root_module', $id) && $self->SUPER::canDelete($id);
 }
 
 =head2 cleanupAfterRead
