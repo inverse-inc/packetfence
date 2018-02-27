@@ -59,7 +59,7 @@ sub generateConfig {
         if ($source->{'server2_address'}) {
             $tags{'members'} .= " $source->{'server2_address'}";
         }
-        my $type = ucfirst(lc($source->{'type'}));
+        my $type = $source->{'type'};
 
         if ($type eq 'Eduroam') {
 
