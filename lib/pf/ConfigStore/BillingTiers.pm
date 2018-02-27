@@ -16,10 +16,23 @@ use warnings;
 use Moo;
 use pf::file_paths qw($billing_tiers_config_file);
 extends 'pf::ConfigStore';
+use pfconfig::cached_hash;
+tie our %ProfileReverseLookup, 'pfconfig::cached_hash', 'resource::ProfileReverseLookup';
 
 sub configFile { $billing_tiers_config_file };
 
 sub pfconfigNamespace {'config::BillingTiers'}
+
+=head2 canDelete
+
+canDelete
+
+=cut
+
+sub canDelete {
+    my ($self, $id) = @_;
+    return !exists $ProfileReverseLookup{billing_tiers}{$id} && $self->SUPER::canDelete($id);
+}
 
 =head1 AUTHOR
 
