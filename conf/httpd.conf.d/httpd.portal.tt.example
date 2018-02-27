@@ -164,7 +164,7 @@ TypesConfig /etc/mime.types
 
 PidFile [% install_dir %]/var/run/[% name %].pid
 Include [% install_dir %]/conf/httpd.conf.d/log.conf
-SetEnvIf User-Agent collectd is_collectd
+SetEnvIf User-Agent netdata is_netdata
 
 User pf
 Group pf
@@ -211,7 +211,7 @@ NameVirtualHost [% vhost %]:80
      ServerName   [% server_name %]
      DocumentRoot [% install_dir %]/html/captive-portal/lib
      ErrorLog "| /usr/bin/logger -thttpd_portal_err -plocal5.err"
-     CustomLog "| /usr/bin/logger -thttpd_portal -plocal5.info"  loadbalanced_combined env=!is_collectd
+     CustomLog "| /usr/bin/logger -thttpd_portal -plocal5.info"  loadbalanced_combined env=!is_netdata
      Include [% var_dir %]/conf/captive-portal-common
      AllowEncodedSlashes on
      Alias       /static [% install_dir %]/html/captive-portal/root/static
@@ -301,7 +301,7 @@ NameVirtualHost [% vhost %]:80
         ServerName   [% server_name %]
         DocumentRoot [% install_dir%]/html/captive-portal/lib
         ErrorLog "| /usr/bin/logger -thttpd_portal_err -plocal5.err"
-        CustomLog "| /usr/bin/logger -thttpd_portal -plocal5.info"  loadbalanced_combined env=!is_collectd
+        CustomLog "| /usr/bin/logger -thttpd_portal -plocal5.info"  loadbalanced_combined env=!is_netdata
 
         <Location  /modstatus >
             SetHandler server-status

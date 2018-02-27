@@ -121,7 +121,7 @@ PerlLoadModule pf::WebAPI::MSEHandler
 PerlLoadModule pf::WebAPI::InitCollectorHandler
 PerlInitHandler pf::WebAPI::InitCollectorHandler
 PerlChildInitHandler pf::WebAPI::InitCollectorHandler->child_init
-SetEnvIf User-Agent collectd is_collectd
+SetEnvIf User-Agent netdata is_netdata
 
 
 PidFile [% install_dir %]/var/run/[% name %].pid
