@@ -56,7 +56,7 @@ func TestClientRequest(t *testing.T) {
 	flag.Parse()
 	if *shouldTestApi {
 		c := NewFromConfig(testCtx)
-		err := c.Call(testCtx, "POST", "/api/v1/ipset/unmark_mac/00:11:22:33:44:55/1", &DummyReply{})
+		err := c.Call(testCtx, "POST", "/api/v1/ipset/unmark_mac/00:11:22:33:44:55?local=1", &DummyReply{})
 
 		if err != nil {
 			t.Error("Error while contacting Unified API", err)
