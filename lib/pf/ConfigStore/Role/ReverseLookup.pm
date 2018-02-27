@@ -18,15 +18,21 @@ use Moo::Role;
 use pfconfig::cached_hash;
 tie our %ProfileReverseLookup, 'pfconfig::cached_hash', 'resource::ProfileReverseLookup';
 tie our %PortalModuleReverseLookup, 'pfconfig::cached_hash', 'resource::PortalModuleReverseLookup';
+tie our %ProvisioningReverseLookup, 'pfconfig::cached_hash', 'resource::ProvisioningReverseLookup';
 
 sub isInProfile {
     my ($self, $namespace, $id) = @_;
-    return !exists $ProfileReverseLookup{$namespace}{$id};
+    return exists $ProfileReverseLookup{$namespace}{$id};
 }
 
 sub isInPortalModules {
     my ($self, $namespace, $id) = @_;
-    return !exists $PortalModuleReverseLookup{$namespace}{$id};
+    return exists $PortalModuleReverseLookup{$namespace}{$id};
+}
+
+sub isInProvisioning {
+    my ($self, $namespace, $id) = @_;
+    return exists $ProvisioningReverseLookup{$namespace}{$id};
 }
 
 =head1 AUTHOR
