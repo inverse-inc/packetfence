@@ -32,26 +32,40 @@ sub init {
 
     my $defaults = Config::IniFiles->new( -file => $portal_modules_default_config_file );
     $self->{added_params}->{'-import'} = $defaults;
+    $self->{child_resources} = ['resource::PortalModuleReverseLookup'];
 }
 
 sub build_child {
     my ($self) = @_;
 
     my %tmp_cfg = %{$self->{cfg}};
+    my %reverseLookup;
+    while ( my ($key, $module) = each %tmp_cfg) {
+        $self->expand_list($module, qw(modules custom_fields actions multi_source_types multi_source_auth_classes multi_source_object_classes));
+        foreach my $field (qw(modules source_id)) {
+            my $values = $module->{$field};
+            if (ref ($values) eq '') {
+                next if !defined $values || $values eq '';
 
-    foreach my $module_id (keys %tmp_cfg){
-        $self->expand_list($tmp_cfg{$module_id}, qw(modules custom_fields actions multi_source_types multi_source_auth_classes multi_source_object_classes));
-
-        if(defined($tmp_cfg{$module_id}{actions})){
-            if(@{$tmp_cfg{$module_id}{actions}}){
-                $tmp_cfg{$module_id}{actions} = inflate_actions($tmp_cfg{$module_id}{actions});
+                $values = [$values];
             }
-            else {
-                delete $tmp_cfg{$module_id}{actions};
+
+            for my $val (@$values) {
+                push @{$reverseLookup{$field}{$val}}, $key;
             }
         }
-
+        my $actions = $module->{actions};
+        if (defined $actions) {
+            if ($actions) {
+                $module->{actions} = inflate_actions($actions);
+            }
+            else {
+                delete $module->{actions};
+            }
+        }
     }
+
+    $self->{reverseLookup} = \%reverseLookup;
 
     return \%tmp_cfg;
 }
