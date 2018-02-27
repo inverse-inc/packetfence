@@ -62,4 +62,5 @@ local:
   required: false
   schema:
     type: integer
+    default: 1
   description: The local is used to determine if the request should be forwarded to the rest of the cluster. A value of '0' forwards the request and either a missing or alternate value does not forward the request to the rest of the cluster.
