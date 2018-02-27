@@ -14,36 +14,94 @@ import (
 var apiPrefix = "/api/v1"
 var configApiPrefix = apiPrefix + "/config"
 
-var adminRolesPathMap = map[string]string{
-	"ADMIN_ROLES":         configApiPrefix + "/admin_roles",
-	"FINGERBANK":          configApiPrefix + "/fingerbank",
-	"FIREWALL_SSO":        configApiPrefix + "/firewalls_sso",
-	"FLOATING_DEVICES":    configApiPrefix + "/floating_devices",
-	"INTERFACES":          configApiPrefix + "/interfaces",
-	"CONNECTION_PROFILES": configApiPrefix + "/connection_profiles",
-	"PROVISIONING":        configApiPrefix + "/provisioners",
-	"SWITCHES":            configApiPrefix + "/switches",
-	"USERS_ROLES":         configApiPrefix + "/roles",
-	"USERS_SOURCES":       configApiPrefix + "/authentication_sources",
-	"VIOLATIONS":          configApiPrefix + "/violations",
-	"REALM":               configApiPrefix + "/realms",
-	"DOMAIN":              configApiPrefix + "/domains",
-	"SCAN":                configApiPrefix + "/scans",
-	"WMI":                 configApiPrefix + "/wmi",
-	"WRIX":                configApiPrefix + "/wrix",
-	"PKI_PROVIDER":        configApiPrefix + "/pki_providers",
-	"PFDETECT":            configApiPrefix + "/syslog_parsers",
-	"BILLING_TIER":        configApiPrefix + "/billing_tiers",
-	"PORTAL_MODULE":       configApiPrefix + "/portal_modules",
-	"PFMON":               configApiPrefix + "/maintenance_tasks",
-	"DEVICE_REGISTRATION": configApiPrefix + "/device_registration_policies",
+var pathAdminRolesMap = map[string]string{
+	configApiPrefix + "/admin_role":  "ADMIN_ROLES",
+	configApiPrefix + "/admin_roles": "ADMIN_ROLES",
 
-	"NODES": apiPrefix + "/endpoints",
-	"USERS": apiPrefix + "/users",
+	configApiPrefix + "/bases": "CONFIGURATION_MAIN",
+	configApiPrefix + "/base":  "CONFIGURATION_MAIN",
+
+	configApiPrefix + "/billing_tiers": "BILLING_TIER",
+	configApiPrefix + "/billing_tier":  "BILLING_TIER",
+
+	configApiPrefix + "/connection_profiles": "CONNECTION_PROFILES",
+	configApiPrefix + "/connection_profile":  "CONNECTION_PROFILES",
+
+	configApiPrefix + "/device_registrations": "DEVICE_REGISTRATION",
+	configApiPrefix + "/device_registration":  "DEVICE_REGISTRATION",
+
+	configApiPrefix + "/domains": "DOMAIN",
+	configApiPrefix + "/domain":  "DOMAIN",
+
+	configApiPrefix + "/firewalls": "FIREWALL_SSO",
+	configApiPrefix + "/firewall":  "FIREWALL_SSO",
+
+	configApiPrefix + "/floating_devices": "FLOATING_DEVICES",
+	configApiPrefix + "/floating_device":  "FLOATING_DEVICES",
+
+	configApiPrefix + "/admin_role":  "",
+	configApiPrefix + "/admin_roles": "",
+
+	configApiPrefix + "/base":  "",
+	configApiPrefix + "/bases": "",
+
+	configApiPrefix + "/billing_tier":  "",
+	configApiPrefix + "/billing_tiers": "",
+
+	configApiPrefix + "/connection_profile":  "",
+	configApiPrefix + "/connection_profiles": "",
+
+	configApiPrefix + "/device_registration":  "",
+	configApiPrefix + "/device_registrations": "",
+
+	configApiPrefix + "/domain":  "",
+	configApiPrefix + "/domains": "",
+
+	configApiPrefix + "/firewall":  "",
+	configApiPrefix + "/firewalls": "",
+
+	configApiPrefix + "/floating_device":  "",
+	configApiPrefix + "/floating_devices": "",
+
+	configApiPrefix + "/maintenance_task":  "PFMON",
+	configApiPrefix + "/maintenance_tasks": "PFMON",
+
+	configApiPrefix + "/pki_provider":  "PKI_PROVIDER",
+	configApiPrefix + "/pki_providers": "PKI_PROVIDER",
+
+	configApiPrefix + "/portal_module":  "PORTAL_MODULE",
+	configApiPrefix + "/portal_modules": "PORTAL_MODULE",
+
+	configApiPrefix + "/realm":  "REALM",
+	configApiPrefix + "/realms": "REALM",
+
+	configApiPrefix + "/role":  "USERS_ROLES",
+	configApiPrefix + "/roles": "USERS_ROLES",
+
+	configApiPrefix + "/scans": "SCAN",
+	configApiPrefix + "/scan":  "SCAN",
+
+	configApiPrefix + "/sources": "USERS_SOURCES",
+	configApiPrefix + "/source":  "USERS_SOURCES",
+
+	configApiPrefix + "/switches": "SWITCHES",
+	configApiPrefix + "/switch":   "SWITCHES",
+
+	configApiPrefix + "/switch_groups": "SWITCHES",
+	configApiPrefix + "/switch_group":  "SWITCHES",
+
+	configApiPrefix + "/syslog_parsers": "PFDETECT",
+	configApiPrefix + "/syslog_parser":  "PFDETECT",
+
+	configApiPrefix + "/traffic_shaping_policies": "TRAFFIC_SHAPING",
+	configApiPrefix + "/traffic_shaping_policy":   "TRAFFIC_SHAPING",
+
+	configApiPrefix + "/violations": "VIOLATIONS",
+	configApiPrefix + "/violation":  "VIOLATIONS",
+
+	apiPrefix + "/endpoints": "NODES",
+	apiPrefix + "/users":     "USERS",
 }
-
-// Gets built dynamically in the init and is the reverse of adminRolesPathMap
-var pathAdminRolesMap map[string]string
 
 var methodSuffixMap = map[string]string{
 	"GET":    "_READ",
@@ -51,13 +109,6 @@ var methodSuffixMap = map[string]string{
 	"PUT":    "_UPDATE",
 	"PATCH":  "_UPDATE",
 	"DELETE": "_DELETE",
-}
-
-func init() {
-	pathAdminRolesMap = make(map[string]string)
-	for k, v := range adminRolesPathMap {
-		pathAdminRolesMap[v] = k
-	}
 }
 
 type TokenAuthorizationMiddleware struct {
