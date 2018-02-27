@@ -16,7 +16,7 @@ use strict;
 use warnings;
 use Mojo::Base 'Mojolicious::Controller';
 use pf::error qw(is_error);
-use JSON::MaybeXS;
+use JSON::MaybeXS qw();
 has activity_timeout => 300;
 
 our $ERROR_400_MSG = "Bad Request. One of the submitted parameters has an invalid format";
@@ -60,7 +60,7 @@ sub status_to_error_msg {
 sub parse_json {
     my ($self) = @_;
     my $json = eval {
-        decode_json($self->req->body)
+        JSON::MaybeXS::decode_json($self->req->body)
     };
     if ($@) {
         $self->log->error($@);
