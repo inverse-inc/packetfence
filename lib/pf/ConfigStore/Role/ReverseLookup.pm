@@ -19,6 +19,7 @@ use pfconfig::cached_hash;
 tie our %ProfileReverseLookup, 'pfconfig::cached_hash', 'resource::ProfileReverseLookup';
 tie our %PortalModuleReverseLookup, 'pfconfig::cached_hash', 'resource::PortalModuleReverseLookup';
 tie our %ProvisioningReverseLookup, 'pfconfig::cached_hash', 'resource::ProvisioningReverseLookup';
+tie our %SwitchReverseLookup, 'pfconfig::cached_hash', 'resource::SwitchReverseLookup';
 
 sub isInProfile {
     my ($self, $namespace, $id) = @_;
@@ -33,6 +34,11 @@ sub isInPortalModules {
 sub isInProvisioning {
     my ($self, $namespace, $id) = @_;
     return exists $ProvisioningReverseLookup{$namespace}{$id};
+}
+
+sub isInSwitch {
+    my ($self, $namespace, $id) = @_;
+    return exists $SwitchReverseLookup{$namespace}{$id};
 }
 
 =head1 AUTHOR
