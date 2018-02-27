@@ -158,12 +158,12 @@ Get the billing tiers for this connection profile
 
 sub getBillingTiers {
     my ($self) = @_;
-    my @tier_ids = split(/\s*,\s*/,$self->{_billing_tiers});
-    if(@tier_ids == 0){
-        @tier_ids = sort(keys %ConfigBillingTiers);
+    my $tier_ids = $self->{_billing_tiers};
+    if(@$tier_ids == 0){
+        $tier_ids = [sort(keys %ConfigBillingTiers)];
     }
     my @tiers;
-    foreach my $tier_id (@tier_ids) {
+    foreach my $tier_id (@$tier_ids) {
         my $tier = $ConfigBillingTiers{$tier_id};
         $tier->{id} = $tier_id;
         push @tiers, $tier;
@@ -525,7 +525,7 @@ The scanObjects
 
 sub scanObjects {
     my ($self) = @_;
-    return grep { defined $_ } map { pf::factory::scan->new($_) } @{ [split(/\s*,\s*/, $self->getScans // '')] || [] };
+    return grep { defined $_ } map { pf::factory::scan->new($_) } @{  $self->getScans // [] };
 }
 
 =item findScan

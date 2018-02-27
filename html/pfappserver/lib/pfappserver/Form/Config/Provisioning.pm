@@ -10,12 +10,13 @@ pfappserver::Form::Config::Provisioning - Web form for a switch
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
-with 'pfappserver::Base::Form::Role::Help';
+with qw (
+    pfappserver::Base::Form::Role::Help
+    pfappserver::Role::Form::RolesAttribute
+    pfappserver::Role::Form::ViolationsAttribute
+);
 
 use pf::config qw(%ConfigPKI_Provider);
-
-has roles => ( is => 'rw' );
-has violations => ( is => 'rw');
 
 ## Definition
 has_field 'id' =>
@@ -110,25 +111,9 @@ sub options_roles {
 
 sub options_violations {
     my $self = shift;
-    my @violations;
-    foreach my $violation (@{$self->form->violations}){
-        push @violations, $violation->{id};
-        push @violations, $violation->{desc};
-    }
-    return @violations;
-}
-
-=head2 ACCEPT_CONTEXT
-
-To automatically add the context to the Form
-
-=cut
-
-sub ACCEPT_CONTEXT {
-    my ($self, $c, @args) = @_;
-    my ($status, $roles) = $c->model('Config::Roles')->listFromDB();
-    my (undef, $violations) = $c->model('Config::Violations')->readAll();
-    return $self->SUPER::ACCEPT_CONTEXT($c, roles => $roles, violations => $violations, @args);
+    return [
+        map { {value => $_->{id}, label => $_->{desc} } } @{$self->form->violations // []}
+    ];
 }
 
 =head1 COPYRIGHT

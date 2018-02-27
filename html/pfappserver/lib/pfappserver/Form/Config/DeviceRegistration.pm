@@ -10,7 +10,10 @@ pfappserver::Form::Config::DeviceRegistration - Web form for the device registra
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
-with 'pfappserver::Base::Form::Role::Help';
+with qw (
+    pfappserver::Base::Form::Role::Help
+    pfappserver::Role::Form::RolesAttribute
+);
 
 has roles => ( is => 'rw' );
 
@@ -62,20 +65,11 @@ has_block definition =>
 
 sub options_roles {
     my $self = shift;
-    my @roles = map { $_->{name} => $_->{name} } @{$self->form->roles} if ($self->form->roles);
-    return ('' => '', @roles);
-}
-
-=head2 ACCEPT_CONTEXT
-
-To automatically add the context to the Form
-
-=cut
-
-sub ACCEPT_CONTEXT {
-    my ($self, $c, @args) = @_;
-    my ($status, $roles) = $c->model('Config::Roles')->listFromDB();
-    return $self->SUPER::ACCEPT_CONTEXT($c, roles => $roles, @args);
+    my $roles = $self->form->roles;
+    return [
+        { value => '', label => '' },
+        ( map { { value => $_->{name}, label => $_->{name} }} @{$roles // []})
+    ];
 }
 
 =head1 COPYRIGHT
@@ -102,4 +96,5 @@ USA.
 =cut
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+
 1;

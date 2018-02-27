@@ -1,0 +1,86 @@
+/config/traffic_shaping_policy/{traffic_shaping_policy_id}:
+  delete:
+    parameters: []
+    responses:
+      '204':
+        description: Deleted a config item
+    summary: Delete a config item
+  get:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              download:
+                description: Bandwidth must be in the following format 'nXY' where
+                  XY is one of the following KB,MB,GB,TB,PB
+                type: string
+              id:
+                description: Role
+                type: string
+              upload:
+                description: Bandwidth must be in the following format 'nXY' where
+                  XY is one of the following KB,MB,GB,TB,PB
+                type: string
+            required:
+            - id
+            type: object
+      required: true
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  patch:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              download:
+                description: Bandwidth must be in the following format 'nXY' where
+                  XY is one of the following KB,MB,GB,TB,PB
+                type: string
+              upload:
+                description: Bandwidth must be in the following format 'nXY' where
+                  XY is one of the following KB,MB,GB,TB,PB
+                type: string
+            required: []
+            type: object
+      required: true
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  put:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              download:
+                description: Bandwidth must be in the following format 'nXY' where
+                  XY is one of the following KB,MB,GB,TB,PB
+                type: string
+              upload:
+                description: Bandwidth must be in the following format 'nXY' where
+                  XY is one of the following KB,MB,GB,TB,PB
+                type: string
+            required: []
+            type: object
+      required: true
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

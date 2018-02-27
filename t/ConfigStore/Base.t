@@ -24,11 +24,13 @@ BEGIN {
     use setup_test_config;
 }
 
-plan tests => 26;
+plan tests => 27;
 
 use_ok("pf::ConfigStore");
 
 my $configStore = new_ok("pf::ConfigStore",[{configFile => './data/test.conf',default_section => 'default'}]);
+
+ok(!$configStore->remove('default'),"Cannot remove default");
 
 is_deeply([], [$configStore->search()], "Search for nothing get nothing");
 

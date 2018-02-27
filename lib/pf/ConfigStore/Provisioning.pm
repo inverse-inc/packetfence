@@ -17,10 +17,22 @@ use Moo;
 use pf::file_paths qw($provisioning_config_file);
 use pf::util;
 extends 'pf::ConfigStore';
+with 'pf::ConfigStore::Role::ReverseLookup';
 
 sub configFile { $provisioning_config_file };
 
 sub pfconfigNamespace {'config::Provisioning'}
+
+=head2 canDelete
+
+canDelete
+
+=cut
+
+sub canDelete {
+    my ($self, $id) = @_;
+    return !$self->isInProfile('provisioners', $id) && $self->SUPER::canDelete($id);
+}
 
 =head2 cleanupAfterRead
 

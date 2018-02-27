@@ -25,16 +25,31 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file} = $provisioning_config_file;
+    $self->{child_resources} = ['resource::ProvisioningReverseLookup'];
 }
 
 sub build_child {
     my ($self) = @_;
 
     my %tmp_cfg = %{ $self->{cfg} };
+    my %reverseLookup;
 
-    foreach my $key ( keys %tmp_cfg ) {
-        $self->cleanup_after_read( $key, $tmp_cfg{$key} );
+    while ( my ($key, $provisioner) = each %tmp_cfg) {
+        $self->cleanup_after_read($key, $provisioner);
+        foreach my $field (qw(pki_provider)) {
+            my $values = $provisioner->{$field};
+            if (ref ($values) eq '') {
+                next if !defined $values || $values eq '';
+
+                $values = [$values];
+            }
+
+            for my $val (@$values) {
+                push @{$reverseLookup{$field}{$val}}, $key;
+            }
+        }
     }
+    $self->{reverseLookup} = \%reverseLookup;
 
     return \%tmp_cfg;
 

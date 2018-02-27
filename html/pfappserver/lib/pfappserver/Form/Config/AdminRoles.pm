@@ -14,13 +14,14 @@ use strict;
 use warnings;
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
-with 'pfappserver::Base::Form::Role::Help';
+with qw(
+    pfappserver::Base::Form::Role::Help
+    pfappserver::Role::Form::RolesAttribute
+);
 
 use pf::admin_roles;
 use pf::constants::admin_roles qw(@ADMIN_ACTIONS);
 use pf::Authentication::constants;
-
-has roles => ( is => 'rw', default => sub { [] } );
 
 ## Definition
 has_field 'id' =>
@@ -167,19 +168,6 @@ sub options_allowed_actions {
     my ($self) = @_;
     return  map { {label => $_, value => $_} } keys %Actions::ACTION_CLASS_TO_TYPE;
 }
-
-=head2 ACCEPT_CONTEXT
-
-To automatically add the context to the Form
-
-=cut
-
-sub ACCEPT_CONTEXT {
-    my ($class, $c, @args) = @_;
-    my ($status, $roles) = $c->model('Config::Roles')->listFromDB();
-    return $class->SUPER::ACCEPT_CONTEXT($c, roles => $roles, @args);
-}
-
 
 =head1 COPYRIGHT
 

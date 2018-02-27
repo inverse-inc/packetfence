@@ -1,0 +1,155 @@
+/config/billing_tier/{billing_tier_id}:
+  delete:
+    parameters: []
+    responses:
+      '204':
+        description: Deleted a config item
+    summary: Delete a config item
+  get:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              access_duration:
+                description: The access duration of the devices that use this tier.
+                properties:
+                  interval:
+                    description: Interval
+                    type: integer
+                  unit:
+                    description: Unit
+                    type: string
+                type: object
+              description:
+                description: A description of the billing tier
+                type: string
+              id:
+                description: Billing Tier
+                type: string
+              name:
+                description: The short name of the billing tier
+                type: string
+              price:
+                description: The price that will be charged to the customer
+                type: string
+              role:
+                description: The target role of the devices that use this tier.
+                type: string
+              use_time_balance:
+                description: Check this box to have the access duration be a real
+                  time usage.<br/>This requires a working accounting configuration.
+                type: string
+            required:
+            - id
+            - name
+            - description
+            - price
+            - role
+            - access_duration
+            type: object
+      required: true
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  patch:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              access_duration:
+                description: The access duration of the devices that use this tier.
+                properties:
+                  interval:
+                    description: Interval
+                    type: integer
+                  unit:
+                    description: Unit
+                    type: string
+                type: object
+              description:
+                description: A description of the billing tier
+                type: string
+              name:
+                description: The short name of the billing tier
+                type: string
+              price:
+                description: The price that will be charged to the customer
+                type: string
+              role:
+                description: The target role of the devices that use this tier.
+                type: string
+              use_time_balance:
+                description: Check this box to have the access duration be a real
+                  time usage.<br/>This requires a working accounting configuration.
+                type: string
+            required:
+            - name
+            - description
+            - price
+            - role
+            - access_duration
+            type: object
+      required: true
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  put:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              access_duration:
+                description: The access duration of the devices that use this tier.
+                properties:
+                  interval:
+                    description: Interval
+                    type: integer
+                  unit:
+                    description: Unit
+                    type: string
+                type: object
+              description:
+                description: A description of the billing tier
+                type: string
+              name:
+                description: The short name of the billing tier
+                type: string
+              price:
+                description: The price that will be charged to the customer
+                type: string
+              role:
+                description: The target role of the devices that use this tier.
+                type: string
+              use_time_balance:
+                description: Check this box to have the access duration be a real
+                  time usage.<br/>This requires a working accounting configuration.
+                type: string
+            required:
+            - name
+            - description
+            - price
+            - role
+            - access_duration
+            type: object
+      required: true
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

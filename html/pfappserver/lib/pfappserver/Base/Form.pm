@@ -16,19 +16,20 @@ The Base class for Forms
 use HTML::FormHandler::Moose;
 extends 'HTML::FormHandler';
 with 'HTML::FormHandler::Widget::Theme::Bootstrap';
+use pf::I18N::pfappserver;
 
 has '+field_name_space' => ( default => 'pfappserver::Form::Field' );
 has '+widget_name_space' => ( default => 'pfappserver::Form::Widget' );
-has '+language_handle' => ( builder => 'get_language_handle_from_ctx' );
+has '+language_handle' => ( builder => '_build_language_handler', lazy => 1 );
+has languages => ( is => 'rw', default => sub { [] });
 
-=head2 get_language_handle_from_ctx
+=head2 _build_language_handler
 
 =cut
 
-sub get_language_handle_from_ctx {
+sub _build_language_handler {
     my $self = shift;
-
-    return pfappserver::I18N->get_handle( @{ $self->ctx->languages } );
+    return pf::I18N::pfappserver->get_handle( @{ $self->languages // [] } );
 }
 
 =head2 html_attributes
@@ -153,7 +154,7 @@ To automatically add the context to the Form
 
 sub ACCEPT_CONTEXT {
     my ($self, $c, @args) = @_;
-    return $self->new(ctx => $c, @args);
+    return $self->new(ctx => $c, languages => $c->languages, @args);
 }
 
 =head2 id_validator

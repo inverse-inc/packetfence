@@ -29,7 +29,7 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file}            = $switches_config_file;
-    $self->{child_resources} = [ 'resource::default_switch', 'resource::switches_group', 'resource::switches_ranges', 'interfaces::management_network', 'resource::SwitchTypesConfigured', 'resource::cli_switches' ];
+    $self->{child_resources} = [ 'resource::default_switch', 'resource::switches_group', 'resource::switches_ranges', 'interfaces::management_network', 'resource::SwitchTypesConfigured', 'resource::cli_switches', 'resource::SwitchReverseLookup' ];
 
     $self->{management_network} = $self->{cache}->get_cache('interfaces::management_network');
     $self->{local_secret} = $self->{cache}->get_cache('resource::local_secret');
@@ -73,7 +73,7 @@ sub build_child {
         }
     }
 
-    foreach my $switch ( values %tmp_cfg ) {
+    while ( my ($name, $switch) = each %tmp_cfg) {
 
         # transforming uplink and inlineTrigger to arrays
         foreach my $key (qw(uplink inlineTrigger)) {
@@ -81,6 +81,7 @@ sub build_child {
             $switch->{$key} = [ split /\s*,\s*/, $value ];
         }
 
+        $self->updateReverseLookup($name, $switch, qw(group));
         # transforming vlans and roles to hashes
         my %merged = ( Vlan => {}, Role => {}, AccessList => {} , Url => {} );
         foreach my $key ( grep {/(Vlan|Role|AccessList|Url)$/} keys %{$switch} ) {
@@ -132,6 +133,22 @@ sub build_child {
 
     return \%tmp_cfg;
 
+}
+
+sub updateReverseLookup {
+    my ( $self, $key, $data, @fields ) = @_;
+    foreach my $field (@fields) {
+        my $values = $data->{$field};
+        if ( ref($values) eq '' ) {
+            next if !defined $values || $values eq '';
+
+            $values = [$values];
+        }
+
+        for my $val (@$values) {
+            push @{ $self->{reverseLookup}{$field}{$val} }, $key;
+        }
+    }
 }
 
 sub cleanup_after_read {

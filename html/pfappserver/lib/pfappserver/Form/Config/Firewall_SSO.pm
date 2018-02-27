@@ -12,16 +12,14 @@ Form definition to create or update a floating network device.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
-with 'pfappserver::Base::Form::Role::Help';
+with 'pfappserver::Base::Form::Role::Help',
+     'pfappserver::Role::Form::RolesAttribute';
 
 use pf::config;
 use pf::file_paths qw($lib_dir);
 use pf::util;
 use File::Find qw(find);
 use pf::constants::firewallsso;
-
-## Definition
-has 'roles' => (is => 'ro', default => sub {[]});
 
 has_field 'id' =>
   (
@@ -111,6 +109,11 @@ has_field 'default_realm' =>
              help => 'The default realm to be used while formatting the username when no realm can be extracted from the username.' },
   );
 
+has_block 'definition' =>
+  (
+   render_list => [ qw(id type password port categories networks cache_updates cache_timeout username_format default_realm) ],
+  );
+
 =head2 Methods
 
 =cut
@@ -144,11 +147,10 @@ sub options_type {
 sub options_categories {
     my $self = shift;
 
-    my ($status, $result) = $self->form->ctx->model('Config::Roles')->listFromDB();
+    my $result = $self->form->roles;
     my @roles = map { $_->{name} => $_->{name} } @{$result} if ($result);
     return ('' => '', @roles);
 }
-
 
 
 =over

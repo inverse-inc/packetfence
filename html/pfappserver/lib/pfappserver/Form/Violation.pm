@@ -13,7 +13,11 @@ Form definition to create or update a violation.
 use HTML::FormHandler::Moose;
 use pfappserver::Base::Form::Authentication::Action;
 extends 'pfappserver::Base::Form';
-with 'pfappserver::Base::Form::Role::Help','pfappserver::Base::Form::Role::AllowedOptions';
+with qw(
+    pfappserver::Base::Form::Role::Help
+    pfappserver::Base::Form::Role::AllowedOptions
+    pfappserver::Role::Form::RolesAttribute
+);
 
 use HTTP::Status qw(:constants is_success);
 use List::MoreUtils qw(uniq);
@@ -24,10 +28,6 @@ use pf::action;
 use pf::log;
 use pf::constants::violation qw($MAX_VID %NON_WHITELISTABLE_ROLES);
 use pf::class qw(class_next_vid);
-
-has '+field_name_space' => ( default => 'pfappserver::Form::Field' );
-has '+widget_name_space' => ( default => 'pfappserver::Form::Widget' );
-has '+language_handle' => ( builder => 'get_language_handle_from_ctx' );
 
 # Form select options
 has 'violations' => ( is => 'ro' );

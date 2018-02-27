@@ -68,7 +68,6 @@ our @API_V1_ROUTES = (
     { controller => 'Tenants' },
     { controller => 'ApiUsers' },
     { controller => 'Locationlogs' },
-    { controller => 'Config::ConnectionProfiles' },
     { 
         controller => 'Violations',
         collection => {
@@ -158,6 +157,28 @@ our @API_V1_ROUTES = (
             },
         },      
     },
+    qw(
+        Config::AdminRoles
+        Config::Bases
+        Config::BillingTiers
+        Config::ConnectionProfiles
+        Config::DeviceRegistrations
+        Config::Domains
+        Config::Firewalls
+        Config::FloatingDevices
+        Config::MaintenanceTasks
+        Config::PkiProviders
+        Config::PortalModules
+        Config::Realms
+        Config::Roles
+        Config::Scans
+        Config::Sources
+        Config::Switches
+        Config::SwitchGroups
+        Config::SyslogParsers
+        Config::TrafficShapingPolicies
+        Config::Violations
+    ),
 );
 
 sub startup {

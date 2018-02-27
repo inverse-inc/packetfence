@@ -28,6 +28,7 @@ use pf::constants::role qw(@ROLES);
 use pf::SwitchFactory;
 use pf::util;
 use List::MoreUtils qw(any);
+use pf::ConfigStore::SwitchGroup;
 
 has 'roles' => ( is => 'rw' );
 

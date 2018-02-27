@@ -92,6 +92,7 @@ BEGIN {
         ping
         run_as_pf
         find_outgoing_interface
+        strip_filename_from_exceptions
     );
 }
 
@@ -1364,7 +1365,6 @@ sub run_as_pf {
     return $TRUE;
 }
 
-
 =head2 find_outgoing_interface
 
 Find the outgoing interface from a specific incoming interface
@@ -1379,6 +1379,20 @@ sub find_outgoing_interface {
     } else {
         return $interface_src[2];
     }
+}
+
+=head2 strip_filename_from_exceptions
+
+Strip out filename from exception messages
+
+=cut
+
+sub strip_filename_from_exceptions {
+    my ($exception) = @_;
+    if (defined $exception) {
+        $exception =~ s/^(.*) at .*?$/$1/;
+    }
+    return $exception;
 }
 
 =back
