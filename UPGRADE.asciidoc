@@ -1645,3 +1645,18 @@ To upgrade the database schema, run the following command:
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 7.4.0).
 
+Upgrading from a version prior to X.Y.Z
+---------------------------------------
+
+Realms upgrade
+^^^^^^^^^^^^^
+
+The way PacketFence detects whether or not it should strip the realm out of a username when performing authentication and authorisation has been moved to the realms. Moreover, it is now configurable based on the context (login on the captive portal or administration interface, as well as when performing authorization in RADIUS 802.1x)
+
+In order to migrate your configuration, you can use the following script which will guide you through the migration:
+
+ /usr/local/pf/addons/upgrade/to-8.0-authentication-conf.pl
+
+
+Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
+

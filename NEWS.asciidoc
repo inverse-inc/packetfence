@@ -25,6 +25,7 @@ New Features
 * Traffic shaping support for inline setup (PR #2803)
 * Added a configuration parameter to allow to unregister a device on an accounting stop (PR #2685)
 * Adding CLI support on Aruba 5400 switches (PR #2965)
+* Username stripping (removing the realm) is now configurable via the realms instead of the sources
 
 Enhancements
 ++++++++++++
