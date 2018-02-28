@@ -33,6 +33,7 @@ Enhancements
 
 Bug Fixes
 +++++++++
+* Fixes "Guest Portal validate_phone_number check not work" (#2783)
 * fixes #2883
 
 Version 7.4.0 released on 2018-01-25
