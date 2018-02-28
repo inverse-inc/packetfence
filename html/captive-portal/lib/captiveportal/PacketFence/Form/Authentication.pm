@@ -22,6 +22,7 @@ has '+widget_name_space' => ( default => 'captiveportal::Form::Widget' );
 use pf::log;
 use pf::sms_carrier;
 use pf::util;
+use pf::web::util;
 
 has 'source' => (is => 'rw');
 
@@ -45,7 +46,7 @@ has_field 'fields[password]' => (type => 'Password', label => 'Password');
 
 has_field 'fields[email]' => (type => "Email", label => "Email");
 
-has_field 'fields[telephone]' => (type => "Text", label => "Telephone", html5_type_attr => "tel");
+has_field 'fields[telephone]' => (type => "Text", label => "Telephone", html5_type_attr => "tel", validate_method => \&check_telephone);
 
 has_field 'fields[sponsor]' => (type => "Email", label => "Sponsor Email");
 
@@ -74,8 +75,7 @@ sub render_email_instructions {
     }
     my $email_timeout = normalize_time($source->email_activation_timeout);
     $email_timeout = int($email_timeout / 60);
-    return 
-        "<div class='text-center email-instructions'>" .
+    return "<div class='text-center email-instructions'>" .
         $self->app->i18n_format("After registering, you will be given temporary network access for %s minutes. In order to complete your registration, you will need to click on the link emailed to you.", $email_timeout) .
         "</div>" .
         "<input name='fields[email_instructions]' type='hidden' value='1'>";
@@ -90,10 +90,10 @@ Check AUP form
 sub check_aup_form {
     my ($self, $field) = @_;
     if($self->module->with_aup && $self->app->request->method eq "POST"){
-        get_logger->debug("AUP is required and it's value is : ". $field->value);
+        get_logger->debug($self->app->i18n_format("AUP is required and it's value is : %s", $field->value));
         unless($field->value){
-            $field->add_error("You must accept the terms and conditions");
-            $self->app->flash->{error} = "You must accept the terms and conditions";
+            $field->add_error($self->app->i18n("You must accept the terms and conditions"));
+            $self->app->flash->{error} = $self->app->i18n("You must accept the terms and conditions");
         }
     }
 }
@@ -109,6 +109,35 @@ sub check_aup {
     $self->form->check_aup_form($self);
     return ;
 }
+
+=head2 check_telephone_form
+
+Check telephone form
+
+=cut
+
+sub check_telephone_form {
+    my ($self, $field) = @_;
+    if($self->app->request->method eq "POST"){
+        if (pf::web::util::validate_phone_number($field->value)) {
+            $field->add_error($self->app->i18n("Enter a valid telephone number"));
+            $self->app->flash->{error} = $self->app->i18n("Telephone number is not valid");
+        }
+    }
+}
+
+=head2 check_telephone
+
+Check that the telephone is valid
+
+=cut
+
+sub check_telephone {
+    my ($self) = @_;
+    $self->form->check_telephone_form($self);
+    return ;
+}
+
 
 =head2 get_field
 
@@ -150,7 +179,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 
