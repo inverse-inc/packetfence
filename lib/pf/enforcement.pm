@@ -128,7 +128,7 @@ sub reevaluate_access {
 
 =item _vlan_reevaluation
 
-Sends local SNMP traps to pfsetvlan if we should reevaluate the VLAN of a node.
+reevaluate the VLAN of a node.
 
 =cut
 

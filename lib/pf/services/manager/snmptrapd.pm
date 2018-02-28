@@ -72,9 +72,7 @@ sub generateConfig {
     if ($management_ip) {
         $tags{'snmpTrapdAddr'} = "snmpTrapdAddr $management_ip";
     }
-    if (isdisabled($Config{services}{pfsetvlan})) {
-        $tags{perlaction} = "perl do \"/usr/local/pf/lib/pf/snmptrapd.pm\";\n";
-    }
+    $tags{perlaction} = "perl do \"/usr/local/pf/lib/pf/snmptrapd.pm\";\n";
 
     foreach my $user_key ( sort keys %$snmpv3_users ) {
         $tags{'userLines'} .= "createUser " . $snmpv3_users->{$user_key} . "\n";

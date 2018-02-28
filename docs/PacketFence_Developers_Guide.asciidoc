@@ -260,7 +260,7 @@ Perl module, as well as the associated functions.
 VLAN assignment
 ~~~~~~~~~~~~~~~
 
-pfsetvlan uses the `getRegisteredRole` function defined in `pf::role::custom`
+PacketFence uses the `getRegisteredRole` function defined in `pf::role::custom`
 to determine a node's VLAN. Here's the default function:
 
 ----
