@@ -136,6 +136,20 @@ CHECK PROCESS packetfence-stat MATCHING "pfstats"
     start program = "[% SERVICE_BIN %] packetfence-stats restart"
     stop program  = "[% SERVICE_BIN %] packetfence-stats stop"
     if 3 restarts within 10 cycles then alert
+    
+CHECK PROCESS packetfence-httpd.dispatcher MATCHING "httpd.dispatcher"
+    group PacketFence
+    start program = "/usr/local/pf/bin/pfcmd service httpd.dispatcher start" with timeout 60 seconds
+    stop program  = "/usr/local/pf/bin/pfcmd service httpd.dispatcher stop"
+    if 3 restarts within 10 cycles then alert
+    if failed host 127.0.0.1 port 8888 protocol http status 501 for 5 cycles then restart
+
+CHECK PROCESS packetfence-pfsso MATCHING "pfsso"
+    group PacketFence
+    start program = "/usr/local/pf/bin/pfcmd service pfsso start" with timeout 60 seconds
+    stop program  = "/usr/local/pf/bin/pfcmd service pfsso stop"
+    if 3 restarts within 10 cycles then alert
+    if failed host 127.0.0.1 port 8777 protocol http status 404 for 5 cycles then restart
 
 [% IF DOMAINS.size > 0 %]
 CHECK PROCESS packetfence-winbind MATCHING "winbindd-wrapper"
