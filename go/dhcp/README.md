@@ -9,8 +9,8 @@ curl http://127.0.0.1:22222/api/v1/dhcp/ip/192.168.0.2 | python -m json.tool
 ```
 {
     "result": {
-        "IP": "192.168.0.2",
-        "MAC": "10:1f:74:b2:f6:a5"
+        "ip": "192.168.0.2",
+        "mac": "10:1f:74:b2:f6:a5"
     }
 }
 ```
@@ -24,8 +24,8 @@ curl http://127.0.0.1:22222/api/v1/dhcp/mac/10:1f:74:b2:f6:a5 | python -m json.t
 ```
 {
     "result": {
-        "IP": "192.168.0.2",
-        "MAC": "10:1f:74:b2:f6:a5"
+        "ip": "192.168.0.2",
+        "mac": "10:1f:74:b2:f6:a5"
     }
 }
 ```
@@ -45,20 +45,20 @@ curl http://127.0.0.1:22222/api/v1/dhcp/stats/eth1.137 | python -m json.tool
 
 ```
    "192.168.0.0/24": {
-        "Category": "registration",
-        "Free": 253,
-        "Interface": "eth1.137",
-        "Members": {
+        "category": "registration",
+        "free": 253,
+        "interface": "eth1.137",
+        "members": {
             "10:1f:74:b2:f6:a5": "192.168.0.2"
         },
-        "Network": "192.168.0.0/24",
-        "Options": {
-            "OptionDomainName": "inlinel2.fabianfence",
-            "OptionDomainNameServer": "10.10.0.1",
-            "OptionIPAddressLeaseTime": "123",
-            "OptionNetBIOSOverTCPIPNameServer": "172.20.135.2",
-            "OptionRouter": "192.168.0.1",
-            "OptionSubnetMask": "255.255.255.0"
+        "network": "192.168.0.0/24",
+        "options": {
+            "optionDomainName": "inlinel2.fabianfence",
+            "optionDomainNameServer": "10.10.0.1",
+            "optionIPAddressLeaseTime": "123",
+            "optionNetBIOSOverTCPIPNameServer": "172.20.135.2",
+            "optionRouter": "192.168.0.1",
+            "optionSubnetMask": "255.255.255.0"
         }
     }
 ```
