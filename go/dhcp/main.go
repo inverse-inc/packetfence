@@ -195,9 +195,11 @@ func (h *Interface) run(jobs chan job) {
 					statistics = v.dhcpHandler.available.Stats()
 					var Options map[string]string
 					Options = make(map[string]string)
-					Options["OptionIPAddressLeaseTime"] = v.dhcpHandler.leaseDuration.String()
+					Options["optionIPAddressLeaseTime"] = v.dhcpHandler.leaseDuration.String()
 					for option, value := range v.dhcpHandler.options {
-						Options[option.String()] = Tlv.Tlvlist[int(option)].Decode.String(value)
+						key := []byte(option.String())
+						key[0] = key[0] | ('a' - 'A')
+						Options[string(key)] = Tlv.Tlvlist[int(option)].Decode.String(value)
 					}
 
 					// Add network options on the fly

@@ -15,19 +15,19 @@ import (
 
 // Node struct
 type Node struct {
-	Mac string `json:"MAC"`
-	IP  string `json:"IP"`
+	Mac string `json:"mac"`
+	IP  string `json:"ip"`
 }
 
 // Stats struct
 type Stats struct {
-	EthernetName string            `json:"Interface"`
-	Net          string            `json:"Network"`
-	Free         int               `json:"Free"`
-	Category     string            `json:"Category"`
-	Options      map[string]string `json:"Options"`
-	Members      map[string]string `json:"Members"`
-	Status       string            `json:"Status"`
+	EthernetName string            `json:"interface"`
+	Net          string            `json:"network"`
+	Free         int               `json:"free"`
+	Category     string            `json:"category"`
+	Options      map[string]string `json:"options"`
+	Members      map[string]string `json:"members"`
+	Status       string            `json:"status"`
 }
 
 type ApiReq struct {
@@ -46,8 +46,8 @@ type Options struct {
 
 type Info struct {
 	Status  string `json:"status"`
-	Mac     string `json:"MAC,omitempty"`
-	Network string `json:"Network,omitempty"`
+	Mac     string `json:"mac,omitempty"`
+	Network string `json:"network,omitempty"`
 }
 
 func handleIP2Mac(res http.ResponseWriter, req *http.Request) {
