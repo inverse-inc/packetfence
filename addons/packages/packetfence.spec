@@ -535,7 +535,7 @@ cp -r addons/monit/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.pl $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.sh $RPM_BUILD_ROOT/usr/local/pf/addons/
 %{__install} -D packetfence.logrotate $RPM_BUILD_ROOT/etc/logrotate.d/packetfence
-%{__install} -D packetfence.rsyslog $RPM_BUILD_ROOT/etc/rsyslog.d/packetfence.conf
+%{__install} -D packetfence.rsyslog-drop-in.service $RPM_BUILD_ROOT/etc/systemd/system/rsyslog.service.d/packetfence.conf
 %{__install} -D packetfence.journald $RPM_BUILD_ROOT/usr/lib/systemd/journald.conf.d/01-packetfence.conf
 cp -r sbin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r conf $RPM_BUILD_ROOT/usr/local/pf/
@@ -1013,6 +1013,7 @@ fi
 %config                 /usr/local/pf/conf/realm.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/radius_filters.conf
                         /usr/local/pf/conf/radius_filters.conf.example
+%config(noreplace)      /usr/local/pf/conf/rsyslog.conf.tt
 %config(noreplace)      /usr/local/pf/conf/billing_tiers.conf
                         /usr/local/pf/conf/billing_tiers.conf.example
 %config(noreplace)      /usr/local/pf/conf/domain.conf
@@ -1090,6 +1091,8 @@ fi
 %config(noreplace)      /usr/local/pf/conf/roles.conf
 %config                 /usr/local/pf/conf/roles.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/snmptrapd.conf
+%config(noreplace)      /usr/local/pf/conf/syslog.conf
+%config                 /usr/local/pf/conf/syslog.conf.defaults
 %config                 /usr/local/pf/conf/ui.conf
 %config                 /usr/local/pf/conf/ui.conf.es_ES
 %config(noreplace)      /usr/local/pf/conf/ui-global.conf

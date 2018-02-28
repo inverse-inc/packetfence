@@ -1,0 +1,28 @@
+      <div class="modal modal-large fade hide syslogforwarded" id="modalItem">
+      </div>
+
+      <div class="modal fade hide" id="deleteItem">
+        <div class="modal-header">
+          <a class="close" data-dismiss="modal">&times;</a>
+          <h3><i>[% l('Delete Syslog entry') %]</i> <span></span></h3>
+        </div>
+        <div class="modal-body">
+          <p>[% l('Really delete this Syslog entry?') %]</p>
+        </div>
+        <div class="modal-footer">
+          <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
+          <a href="#" class="btn btn-primary btn-danger"><i class="icon-trash"></i> [% l('Delete') %]</a>
+        </div>
+      </div>
+
+      <h2>[% l('Syslog Entries') %]</h2>
+
+      <p>[% l('After configuring restart the rsyslog service') %]</p>
+
+      [% INCLUDE config/syslog/list.tt %]
+
+      [%- IF can_access("SYSLOG_CREATE") %]
+      <div class="form-actions">
+        <a class="btn createItem" href="[% c.uri_for(c.controller.action_for('create_type'), 'server') %]">[% l('Add Syslog entry') %]</a>
+      </div>
+      [%- END %]

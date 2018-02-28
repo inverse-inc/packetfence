@@ -143,6 +143,9 @@
               [%- IF can_access("WRIX_READ") %]
               [% list_entry('Config::Wrix', 'index', 'WRIX') | none %]
               [%- END %]
+              [%- IF can_access("SYSLOG_READ") %]
+              [% list_entry('Config::Syslog', 'index', 'Syslog Forwarding') | none %]
+              [%- END %]
             </ul>
           </div>
           <div class="sidenav sidenav-section sidenav-inverse span3 offset1 hide"

@@ -64,6 +64,7 @@ conf/dhcp_filters.conf
 conf/local_secret
 conf/nessus/remotescan.nessus
 conf/traffic_shaping.conf
+conf/syslog.conf
 conf/networks.conf
 conf/radiusd/acct.conf
 conf/radiusd/auth.conf

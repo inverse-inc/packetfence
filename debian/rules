@@ -116,9 +116,9 @@ install: build
 #endif
 	install -m0644 $(CURDIR)/debian/packetfence-pfunified_api.service $(CURDIR)/debian/packetfence/etc/systemd/system
 	install -d -m0700 $(CURDIR)/debian/packetfence/etc/default
-	# copy the rsyslog configuration file 
-	install -d -m0755 $(CURDIR)/debian/packetfence/etc/rsyslog.d
-	install -m0600 $(CURDIR)/debian/packetfence.rsyslog $(CURDIR)/debian/packetfence/etc/rsyslog.d/packetfence.conf
+	# copy the rsyslog systemd drop in
+	install -d -m0755 $(CURDIR)/debian/packetfence/etc/systemd/system/syslog.service.d/
+	install -m0600 $(CURDIR)/packetfence.rsyslog-drop-in.service  $(CURDIR)/debian/packetfence/etc/systemd/system/syslog.service.d/packetfence.conf
 	#Sudoer
 	install -oroot -groot -d -m0750 $(CURDIR)/debian/packetfence/etc/sudoers.d
 	install -oroot -groot -m0440 $(CURDIR)/debian/packetfence.sudoers $(CURDIR)/debian/packetfence/etc/sudoers.d/packetfence
