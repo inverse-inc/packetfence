@@ -1,0 +1,97 @@
+DhcpMacIp:
+    type: object
+    description: The schema used when returning a dhcp MAC address and IPv4 address pair
+    properties:
+        result:
+            type: object
+            description: A MAC address and IPv4 address pair
+            properties:
+                mac:
+                    type: string
+                    description: The MAC address
+                ip:
+                    type: string
+                    description: The IPv4 address
+                    
+DhcpInterfaceStats:
+    type: object
+    description: The schema used for interface initialization and statistics
+    properties:
+        type: object
+        additionalProperties:
+            type: object
+            description: ...
+            properties:
+                interface:
+                    type: string
+                    description: ...
+                network:
+                    type: string
+                    description: ...
+                free:
+                    type: integer
+                    description: ...
+                category:
+                    type: string
+                    description: ...
+                options:
+                    type: object
+                    description: ...
+                    properties:
+                        optionDomainName:
+                            type: string
+                            description: ...
+                        optionDomainNameServer:
+                            type: string
+                            description: ...
+                        optionIPAddressLeaseTime:
+                            type: string
+                            description: ...
+                        optionRouter:
+                            type: string
+                            description: ...
+                        optionSubnetMask:
+                            type: string
+                            description: ...
+                members:
+                    type: object
+                    description: A collection of MAC address and IPv4 address pairs
+                    properties:
+                        type: object
+                        description: A "key": "value" list of dhcp leases where "key" is the MAC address and "value" is the IPv4 address
+                        additionalProperties:
+                            type: string
+                status:
+                    type: string
+                    description: ...
+                    enum: [...]
+                    
+DhcpMacResponse:
+    type: object
+    description: The schema used when options are added or deleted from a MAC address
+    properties:
+        result:
+            type: object
+            properties:
+                mac:
+                    type: string
+                    description: The MAC address
+                status:
+                    type: string
+                    description: Whether the request succeeded "ACK", or failed "NAK"
+                    enum: [ACK, NAK]
+
+DhcpNetworkResponse:
+    type: object
+    description: The schema used when options are added or deleted from a Network
+    properties:
+        result:
+            type: object
+            properties:
+                network:
+                    type: string
+                    description: The networks IPv4 address
+                status:
+                    type: string
+                    description: Whether the request succeeded "ACK", or failed "NAK"
+                    enum: [ACK, NAK]
