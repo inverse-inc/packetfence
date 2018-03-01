@@ -30,7 +30,7 @@ DhcpInterfaceStats:
                     description: Network address
                 free:
                     type: integer
-                    description: Available Ip in the dhcp scope
+                    description: Available number of IPv4 addresses in the dhcp scope
                 category:
                     type: string
                     description: Associated role of the dhcp scope
@@ -40,16 +40,16 @@ DhcpInterfaceStats:
                     properties:
                         optionDomainName:
                             type: string
-                            description: Domaine name
+                            description: Domain name
                         optionDomainNameServer:
                             type: string
-                            description: DNS Ip addresses
+                            description: DNS IPv4 addresses
                         optionIPAddressLeaseTime:
                             type: string
                             description: Lease time
                         optionRouter:
                             type: string
-                            description: Gateway Ip addresses
+                            description: Gateway IPv4 addresses
                         optionSubnetMask:
                             type: string
                             description: Netmask
@@ -64,7 +64,7 @@ DhcpInterfaceStats:
                 status:
                     type: string
                     description: Status of the dhcp scope
-                    enum: [Normal, Calculated available IP X is different than what we have available in the pool Y]
+                    enum: [Normal, "Calculated available IP X is different than what we have available in the pool Y", "Init Lease success"]
                     
 DhcpMacResponse:
     type: object
