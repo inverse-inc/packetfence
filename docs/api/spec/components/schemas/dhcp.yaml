@@ -20,39 +20,39 @@ DhcpInterfaceStats:
         type: object
         additionalProperties:
             type: object
-            description: ...
+            description: Statistics of the dhcp scope
             properties:
                 interface:
                     type: string
-                    description: ...
+                    description: Network interface name where the dhcp scope is provided
                 network:
                     type: string
-                    description: ...
+                    description: Network address
                 free:
                     type: integer
-                    description: ...
+                    description: Available Ip in the dhcp scope
                 category:
                     type: string
-                    description: ...
+                    description: Associated role of the dhcp scope
                 options:
                     type: object
-                    description: ...
+                    description: Dhcp options of the dhcp scope
                     properties:
                         optionDomainName:
                             type: string
-                            description: ...
+                            description: Domaine name
                         optionDomainNameServer:
                             type: string
-                            description: ...
+                            description: DNS Ip addresses
                         optionIPAddressLeaseTime:
                             type: string
-                            description: ...
+                            description: Lease time
                         optionRouter:
                             type: string
-                            description: ...
+                            description: Gateway Ip addresses
                         optionSubnetMask:
                             type: string
-                            description: ...
+                            description: Netmask
                 members:
                     type: object
                     description: A collection of MAC address and IPv4 address pairs
@@ -63,8 +63,8 @@ DhcpInterfaceStats:
                             type: string
                 status:
                     type: string
-                    description: ...
-                    enum: [...]
+                    description: Status of the dhcp scope
+                    enum: [Normal, Calculated available IP X is different than what we have available in the pool Y]
                     
 DhcpMacResponse:
     type: object
