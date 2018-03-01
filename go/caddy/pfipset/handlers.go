@@ -39,8 +39,8 @@ func handlePassthrough(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		panic(err)
 	}	
-	Ip, valid_ipv4 := validate_ipv4(o.Ip)
-	if !valid_ipv4 {
+	Ip := net.ParseIP(o.Ip)
+	if Ip == nil {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
@@ -81,8 +81,8 @@ func handleIsolationPassthrough(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		panic(err)
 	}	
-	Ip, valid_ipv4 := validate_ipv4(o.Ip)
-	if !valid_ipv4 {
+	Ip := net.ParseIP(o.Ip)
+	if Ip == nil {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
@@ -123,8 +123,8 @@ func handleLayer2(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		panic(err)
 	}	
-	Ip, valid_ipv4 := validate_ipv4(o.Ip)
-	if !valid_ipv4 {
+	Ip := net.ParseIP(o.Ip)
+	if Ip == nil {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
@@ -133,8 +133,8 @@ func handleLayer2(res http.ResponseWriter, req *http.Request) {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
-	Network, valid_network := validate_ipv4(o.Network)
-	if !valid_network {
+	Network := net.ParseIP(o.Network)
+	if Network == nil {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
@@ -211,13 +211,13 @@ func handleMarkIpL2(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		panic(err)
 	}	
-	Ip, valid_ipv4 := validate_ipv4(o.Ip)
-	if !valid_ipv4 {
+	Ip := net.ParseIP(o.Ip)
+	if Ip == nil {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
-	Network, valid_network := validate_ipv4(o.Network)
-	if !valid_network {
+	Network := net.ParseIP(o.Network)
+	if Network == nil {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
@@ -266,13 +266,13 @@ func handleMarkIpL3(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		panic(err)
 	}	
-	Ip, valid_ipv4 := validate_ipv4(o.Ip)
-	if !valid_ipv4 {
+	Ip := net.ParseIP(o.Ip)
+	if Ip == nil {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
-	Network, valid_network := validate_ipv4(o.Network)
-	if !valid_network {
+	Network := net.ParseIP(o.Network)
+	if Network == nil {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
@@ -321,8 +321,8 @@ func handleLayer3(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		panic(err)
 	}	
-	Ip, valid_ipv4 := validate_ipv4(o.Ip)
-	if !valid_ipv4 {
+	Ip := net.ParseIP(o.Ip)
+	if Ip == nil {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
@@ -331,8 +331,8 @@ func handleLayer3(res http.ResponseWriter, req *http.Request) {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
-	Network, valid_network := validate_ipv4(o.Network)
-	if !valid_network {
+	Network := net.ParseIP(o.Network)
+	if Network == nil {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
@@ -444,8 +444,8 @@ func (IPSET *pfIPSET) handleUnmarkIp(res http.ResponseWriter, req *http.Request)
 	if err != nil {
 		panic(err)
 	}
-	Ip, valid_ipv4 := validate_ipv4(o.Ip)
-	if !valid_ipv4 {
+	Ip := net.ParseIP(o.Ip)
+	if Ip == nil {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
