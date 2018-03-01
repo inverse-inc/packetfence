@@ -20,7 +20,7 @@ type Info struct {
 
 type PostOptions struct {
 	Network  string          `json:"network,omitempty"`
-	RoleID   string          `json:"role_id,omitempty"`
+	RoleId   string          `json:"role_id,omitempty"`
 	Ip       string          `json:"ip,omitempty"`
 	Port     string          `json:"port,omitempty"`
 	Mac      string          `json:"mac,omitempty"`
@@ -138,7 +138,7 @@ func handleLayer2(res http.ResponseWriter, req *http.Request) {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
-	Roleid, valid_roleid := validate_roleid(o.RoleID)
+	RoleId, valid_roleid := validate_roleid(o.RoleId)
 	if !valid_roleid {
 		handleError(res, http.StatusBadRequest)
 		return
@@ -151,7 +151,7 @@ func handleLayer2(res http.ResponseWriter, req *http.Request) {
 	Local := req.URL.Query().Get("local")
 
 	// Update locally
-	IPSET.IPSEThandleLayer2(req.Context(), Ip, Mac, Network, Type, Roleid)
+	IPSET.IPSEThandleLayer2(req.Context(), Ip, Mac, Network, Type, RoleId)
 
 	// Do we have to update the other members of the cluster
 	if Local == "0" {
@@ -170,7 +170,7 @@ func handleLayer2(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (IPSET *pfIPSET) IPSEThandleLayer2(ctx context.Context, Ip string, Mac string, Network string, Type string, Roleid string) {
+func (IPSET *pfIPSET) IPSEThandleLayer2(ctx context.Context, Ip string, Mac string, Network string, Type string, RoleId string) {
 	logger := log.LoggerWContext(ctx)
 
 	for _, v := range IPSET.ListALL {
@@ -192,8 +192,8 @@ func (IPSET *pfIPSET) IPSEThandleLayer2(ctx context.Context, Ip string, Mac stri
 	logger.Info("Added " + Ip + " " + Mac + " to pfsession_" + Type + "_" + Network)
 	if Type == "Reg" {
 		// Add to the ip ipset session
-		IPSET.jobs <- job{"Add", "PF-iL2_ID" + Roleid + "_" + Network, Ip}
-		logger.Info("Added " + Ip + " to PF-iL2_ID" + Roleid + "_" + Network)
+		IPSET.jobs <- job{"Add", "PF-iL2_ID" + RoleId + "_" + Network, Ip}
+		logger.Info("Added " + Ip + " to PF-iL2_ID" + RoleId + "_" + Network)
 	}
 }
 
@@ -221,7 +221,7 @@ func handleMarkIpL2(res http.ResponseWriter, req *http.Request) {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
-	Roleid, valid_roleid := validate_roleid(o.RoleID)
+	RoleId, valid_roleid := validate_roleid(o.RoleId)
 	if !valid_roleid {
 		handleError(res, http.StatusBadRequest)
 		return
@@ -229,7 +229,7 @@ func handleMarkIpL2(res http.ResponseWriter, req *http.Request) {
 	Local := req.URL.Query().Get("local")
 
 	// Update locally
-	IPSET.IPSEThandleMarkIpL2(ctx, Ip, Network, Roleid)
+	IPSET.IPSEThandleMarkIpL2(ctx, Ip, Network, RoleId)
 
 	// Do we have to update the other members of the cluster
 	if Local == "0" {
@@ -248,8 +248,8 @@ func handleMarkIpL2(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (IPSET *pfIPSET) IPSEThandleMarkIpL2(ctx context.Context, Ip string, Network string, Roleid string) {
-	IPSET.jobs <- job{"Add", "PF-iL2_ID" + Roleid + "_" + Network, Ip}
+func (IPSET *pfIPSET) IPSEThandleMarkIpL2(ctx context.Context, Ip string, Network string, RoleId string) {
+	IPSET.jobs <- job{"Add", "PF-iL2_ID" + RoleId + "_" + Network, Ip}
 }
 
 func handleMarkIpL3(res http.ResponseWriter, req *http.Request) {
@@ -276,7 +276,7 @@ func handleMarkIpL3(res http.ResponseWriter, req *http.Request) {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
-	Roleid, valid_roleid := validate_roleid(o.RoleID)
+	RoleId, valid_roleid := validate_roleid(o.RoleId)
 	if !valid_roleid {
 		handleError(res, http.StatusBadRequest)
 		return
@@ -284,7 +284,7 @@ func handleMarkIpL3(res http.ResponseWriter, req *http.Request) {
 	Local := req.URL.Query().Get("local")
 
 	// Update locally
-	IPSET.IPSEThandleMarkIpL3(ctx, Ip, Network, Roleid)
+	IPSET.IPSEThandleMarkIpL3(ctx, Ip, Network, RoleId)
 
 	// Do we have to update the other members of the cluster
 	if Local == "0" {
@@ -303,8 +303,8 @@ func handleMarkIpL3(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (IPSET *pfIPSET) IPSEThandleMarkIpL3(ctx context.Context, Ip string, Network string, Roleid string) {
-	IPSET.jobs <- job{"Add", "PF-iL3_ID" + Roleid + "_" + Network, Ip}
+func (IPSET *pfIPSET) IPSEThandleMarkIpL3(ctx context.Context, Ip string, Network string, RoleId string) {
+	IPSET.jobs <- job{"Add", "PF-iL3_ID" + RoleId + "_" + Network, Ip}
 }
 
 func handleLayer3(res http.ResponseWriter, req *http.Request) {
@@ -336,7 +336,7 @@ func handleLayer3(res http.ResponseWriter, req *http.Request) {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
-	Roleid, valid_roleid := validate_roleid(o.RoleID)
+	RoleId, valid_roleid := validate_roleid(o.RoleId)
 	if !valid_roleid {
 		handleError(res, http.StatusBadRequest)
 		return
@@ -344,7 +344,7 @@ func handleLayer3(res http.ResponseWriter, req *http.Request) {
 	Local := req.URL.Query().Get("local")
 
 	// Update locally
-	IPSET.IPSEThandleLayer3(ctx, Ip, Network, Type, Roleid)
+	IPSET.IPSEThandleLayer3(ctx, Ip, Network, Type, RoleId)
 
 	// Do we have to update the other members of the cluster
 	if Local == "0" {
@@ -364,7 +364,7 @@ func handleLayer3(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (IPSET *pfIPSET) IPSEThandleLayer3(ctx context.Context, Ip string, Network string, Type string, Roleid string) {
+func (IPSET *pfIPSET) IPSEThandleLayer3(ctx context.Context, Ip string, Network string, Type string, RoleId string) {
 	logger := log.LoggerWContext(ctx)
 
 	// Delete all entries with the new ip address
@@ -380,8 +380,8 @@ func (IPSET *pfIPSET) IPSEThandleLayer3(ctx context.Context, Ip string, Network 
 	logger.Info("Added " + Ip + " to pfsession_" + Type + "_" + Network)
 	if Type == "Reg" {
 		// Add to the ip ipset session
-		IPSET.jobs <- job{"Add", "PF-iL3_ID" + Roleid + "_" + Network, Ip}
-		logger.Info("Added " + Ip + " to PF-iL3_ID" + Roleid + "_" + Network)
+		IPSET.jobs <- job{"Add", "PF-iL3_ID" + RoleId + "_" + Network, Ip}
+		logger.Info("Added " + Ip + " to PF-iL3_ID" + RoleId + "_" + Network)
 	}
 }
 

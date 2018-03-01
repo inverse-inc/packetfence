@@ -209,26 +209,26 @@ func (IPSET *pfIPSET) initIPSet(ctx context.Context, db *sql.DB) {
 	}
 	defer rows.Close()
 	var (
-		ipstr string
-		mac   string
-		nodeID string
+		IpStr string
+		Mac   string
+		NodeId string
 	)
 	for rows.Next() {
-		err := rows.Scan(&mac, &ipstr, &nodeID)
+		err := rows.Scan(&Mac, &IpStr, &NodeId)
 		if err != nil {
 			// Log here
 			logger.Error(err.Error())
 			return
 		}
 		for k, v := range IPSET.Network {
-			if k.Contains(net.ParseIP(ipstr)) {
+			if k.Contains(net.ParseIP(IpStr)) {
 				if v == "inlinel2" {
-					IPSET.IPSEThandleLayer2(ctx, ipstr, mac, k.IP.String(), "Reg", nodeID)
-					IPSET.IPSEThandleMarkIpL2(ctx, ipstr, k.IP.String(), nodeID)
+					IPSET.IPSEThandleLayer2(ctx, IpStr, Mac, k.IP.String(), "Reg", NodeId)
+					IPSET.IPSEThandleMarkIpL2(ctx, IpStr, k.IP.String(), NodeId)
 				}
 				if v == "inlinel3" {
-					IPSET.IPSEThandleLayer3(ctx, ipstr, k.IP.String(), "Reg", nodeID)
-					IPSET.IPSEThandleMarkIpL3(ctx, ipstr, k.IP.String(), nodeID)
+					IPSET.IPSEThandleLayer3(ctx, IpStr, k.IP.String(), "Reg", NodeId)
+					IPSET.IPSEThandleMarkIpL3(ctx, IpStr, k.IP.String(), NodeId)
 				}
 				break
 			}
