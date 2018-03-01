@@ -19,6 +19,8 @@ use pf::log;
 use Moo;
 use List::Util qw(shuffle);
 use CHI;
+use pf::pfqueue::producer::redis;
+use pf::api::jsonrpcclient;
 our $CHI_CACHE = CHI->new(driver => 'RawMemory', datastore => {});
 
 =head2 queue
@@ -72,7 +74,6 @@ Build the local client
 
 sub _build_local_client {
     my ($self) = @_;
-    require pf::pfqueue::producer::redis;
     return pf::pfqueue::producer::redis->new;
 }
 
@@ -97,7 +98,7 @@ sub notify {
 
 =head2 local_notify
 
-local_notify
+Send to the local redis service instead through the webservices
 
 =cut
 
@@ -107,6 +108,12 @@ sub local_notify {
     $self->local_client->submit($self->queue, api => [$method, @args]);
     return;
 }
+
+=head2 cluster_notify
+
+Send to the first avialable member of the cluster
+
+=cut
 
 sub cluster_notify {
     my ($self, $method, @args) = @_;
@@ -155,6 +162,12 @@ sub is_server_down {
     my ($server) = @_;
     return $CHI_CACHE->get($server->{management_ip});
 }
+
+=head2 notify_delayed
+
+Send to the delayed queue
+
+=cut
 
 sub notify_delayed {
     my ($self, $delay, $method, @args) = @_;
@@ -225,7 +238,6 @@ jsonrpcclient
 
 sub jsonrpcclient {
     my ($self, $server) = @_;
-    require pf::api::jsonrpcclient;
     return pf::api::jsonrpcclient->new(
         host => $server->{management_ip},
         proto => 'https',
@@ -247,7 +259,7 @@ sub local_notify_delayed {
 
 =head2 servers
 
-servers
+Return a the list of available servers in random order
 
 =cut
 
