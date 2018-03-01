@@ -950,6 +950,8 @@ sub trim_path {
 
 =item expand_csv
 
+Expands a comma seperated string or an array of comma seperated strings into an array
+
 =cut
 
 sub expand_csv {
