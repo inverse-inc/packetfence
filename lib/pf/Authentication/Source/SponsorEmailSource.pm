@@ -26,6 +26,7 @@ has 'allow_localdomain' => (isa => 'Str', is => 'rw', default => 'yes');
 has 'activation_domain' => (isa => 'Maybe[Str]', is => 'rw');
 has 'sponsorship_bcc' => (isa => 'Maybe[Str]', is => 'rw');
 has 'email_activation_timeout' => (isa => 'Str', is => 'rw', default => '30m');
+has 'validate_sponsor' => (isa => 'Str', is => 'rw', default => 'yes');
 
 =head2 dynamic_routing_module
 

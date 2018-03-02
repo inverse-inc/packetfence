@@ -225,6 +225,7 @@ Validate the provided sponsor is allowed to do sponsoring
 
 sub _validate_sponsor {
     my ($self, $sponsor_email) = @_;
+    return 1 if !($self->source->{validate_sponsor});
     # Putting no context to that authentication request as no stripping has to be done here since its an email
     my $value = pf::authentication::match( pf::authentication::getInternalAuthenticationSources(), { email => $sponsor_email, 'rule_class' => $Rules::ADMIN , 'context' => $pf::constants::realm::NO_CONTEXT}, $Actions::MARK_AS_SPONSOR );
 
