@@ -171,7 +171,7 @@ sub setup_global {
     $net_type = $Config{"interface $interface"}{'type'};
     $interface_ip = $Config{"interface $interface"}{'ip'};
     $interface_vlan = get_vlan_from_int($interface) || $NO_VLAN;
-    $send_queue = which_send_queue($net_type);
+    $send_queue = queue_for_net_type($net_type);
     $net_addr = NetAddr::IP->new($Config{"interface $interface"}{'ip'},$Config{"interface $interface"}{'mask'});
 
     if (grep( { $_->tag("int") eq $interface} @inline_enforcement_nets) != 0 ) {
@@ -182,13 +182,13 @@ sub setup_global {
     return ;
 }
 
-=head2 which_send_queue
+=head2 queue_for_net_type
 
 Determine which send queue
 
 =cut
 
-sub which_send_queue {
+sub queue_for_net_type {
     my ($net_type) = @_;
     return (any { exists $NET_TYPES_FOR_EXTERNAL_QUEUE{$_} } expand_csv($net_type) ) ? 'pfdhcplistener_external' : 'pfdhcplistener' ;
 }
