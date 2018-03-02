@@ -47,7 +47,7 @@ sub generateConfig {
         $tags{'members'} = join(" ", grep( {$_ ne $management_network->tag('ip')} values %{pf::cluster::members_ips($int)}));
     }
 
-    my @monitor_sources = grep {$_->{'monitor'} eq '1'} @authenticationsources;
+    my @monitor_sources = grep {($_->{'monitor'} // '') eq '1'} @authenticationsources;
 
     foreach my $source  (@monitor_sources) {
         if ($source->{'host'}) {
