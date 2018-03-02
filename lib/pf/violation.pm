@@ -878,7 +878,7 @@ sub violation_maintenance {
         my $client = pf::client::getClient();
         while (my $row = $iter->next(undef)) {
             if($row->{status} eq 'delayed' ) {
-                $client->notify(violation_delayed_run => ($row->{id}));
+                $client->notify(violation_delayed_run => ($row));
             }
             else {
                 my $mac = $row->{mac};
