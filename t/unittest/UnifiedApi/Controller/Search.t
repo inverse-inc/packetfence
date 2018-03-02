@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 8;
+use Test::More tests => 10;
 use Test::Mojo;
 
 #This test will running last
@@ -58,12 +58,20 @@ our %OP_TO_HANDLER = (
     and => sub {
         my ($q) = @_;
         local $_;
-        return { '-and' => [map {searchQueryToSqlAbstract($_)} @{$q->{values}} ] };
+        my @sub_queries = map {searchQueryToSqlAbstract($_)} @{$q->{values}};
+        if (@sub_queries == 1) {
+            return $sub_queries[0];
+        }
+        return { '-and' => \@sub_queries };
     },
     or => sub {
         my ($q) = @_;
         local $_;
-        return { '-or' => [map {searchQueryToSqlAbstract($_)} @{$q->{values}} ] };
+        my @sub_queries = map {searchQueryToSqlAbstract($_)} @{$q->{values}};
+        if (@sub_queries == 1) {
+            return $sub_queries[0];
+        }
+        return { '-or' => \@sub_queries };
     }
 );
 
@@ -205,6 +213,50 @@ is_deeply(
         ],
     },
     "Parsing a complex query"
+);
+
+is_deeply(
+    searchQueryToSqlAbstract(
+        {
+            "op"     => "and",
+            "values" => [
+                {
+                    "field"  => "detect_date",
+                    "op"     => "between",
+                    "values" => [ "2017-01-01 ", "2017-01-02 " ]
+                },
+            ]
+        }
+
+    ),
+    {
+        detect_date => {
+            -between => [ "2017-01-01 ", "2017-01-02 " ],
+        },
+    },
+    "Flatten a single sub query for an and op"
+);
+
+is_deeply(
+    searchQueryToSqlAbstract(
+        {
+            "op"     => "or",
+            "values" => [
+                {
+                    "field"  => "detect_date",
+                    "op"     => "between",
+                    "values" => [ "2017-01-01 ", "2017-01-02 " ]
+                },
+            ]
+        }
+
+    ),
+    {
+        detect_date => {
+            -between => [ "2017-01-01 ", "2017-01-02 " ],
+        },
+    },
+    "Flatten a single sub query for an or op"
 );
 
 sub searchQueryToSqlAbstract {
