@@ -1,4 +1,5 @@
 package pf::api;
+
 =head1 NAME
 
 pf::api RPC methods exposing PacketFence features
@@ -48,6 +49,7 @@ use pf::metadefender();
 use pf::services();
 use pf::firewallsso();
 use pf::pfqueue::stats();
+use pf::pfqueue::producer::redis();
 
 use List::MoreUtils qw(uniq);
 use List::Util qw(pairmap);
@@ -1664,6 +1666,32 @@ sub roles_list : Public {
         push @role_list, {'name' => $role->{'name'}};
     }
     return @role_list;
+}
+
+=head2 queue_submit
+
+queue_submit
+
+=cut
+
+sub queue_submit :Public {
+    my ($class, $queue, $task, $data, $expire_in) = @_;
+    my $producer = pf::pfqueue::producer::redis->new;
+    my $id = $producer->submit($queue, $task, $data, $expire_in);
+    return $id;
+}
+
+=head2 queue_submit_delayed
+
+queue_submit_delayed
+
+=cut
+
+sub queue_submit_delayed :Public {
+    my ($class, $queue, $task_type, $delay, $task_data, $expire_in) = @_;
+    my $producer = pf::pfqueue::producer::redis->new;
+    my $id = $producer->submit_delayed($queue, $queue, $task_type, $delay, $task_data, $expire_in);
+    return $id;
 }
 
 =head1 AUTHOR

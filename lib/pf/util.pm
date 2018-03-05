@@ -93,6 +93,7 @@ BEGIN {
         run_as_pf
         find_outgoing_interface
         strip_filename_from_exceptions
+        expand_csv
     );
 }
 
@@ -945,6 +946,26 @@ sub trim_path {
     }
    return ((@parts == 0) ? '' : catdir(@parts));
 }
+
+
+=item expand_csv
+
+Expands a comma seperated string or an array of comma seperated strings into an array
+
+=cut
+
+sub expand_csv {
+    my ($list) = @_;
+    $list //= [];
+    my @expanded;
+    if (ref $list eq 'ARRAY') {
+        @expanded = @$list;
+    } else {
+        @expanded = $list;
+    }
+    return map {split(/\s*,\s*/, $_)} @expanded;
+}
+
 
 =item pf_chown
 
