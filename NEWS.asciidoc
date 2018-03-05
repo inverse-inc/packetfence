@@ -29,7 +29,7 @@ New Features
 
 Enhancements
 ++++++++++++
-
+* Distribute pfdhcplistener task among the cluster members (PR #2887) (#2858)
 
 Bug Fixes
 +++++++++
