@@ -149,7 +149,7 @@ CHECK PROCESS packetfence-pfsso MATCHING "pfsso"
     start program = "/usr/local/pf/bin/pfcmd service pfsso start" with timeout 60 seconds
     stop program  = "/usr/local/pf/bin/pfcmd service pfsso stop"
     if 3 restarts within 10 cycles then alert
-    if failed host 127.0.0.1 port 8777 protocol http status 404 for 5 cycles then restart
+    if failed host localhost port 8777 protocol http status 404 for 5 cycles then restart
 
 [% IF DOMAINS.size > 0 %]
 CHECK PROCESS packetfence-winbind MATCHING "winbindd-wrapper"
