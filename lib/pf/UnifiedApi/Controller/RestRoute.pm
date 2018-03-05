@@ -51,6 +51,11 @@ sub replace {
     return $self->render_error(404, "Unimplemented");
 }
 
+sub search {
+    my ($self) = @_;
+    return $self->render_error(404, "Unimplemented");
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
