@@ -24,24 +24,34 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 10;
+use Test::More tests => 14;
 use Test::Mojo;
+
+use pf::SQL::Abstract;
 
 #This test will running last
 use Test::NoWarnings;
 
+our %OP_TO_SQL_OP = (
+    equals              => '=',
+    not_equals          => '!=',
+    greater_than        => '>',
+    less_than           => '<',
+    greater_than_equals => '>=',
+    less_than_equals    => '<=',
+    between             => '-between',
+    contains            => '-like',
+    ends_with           => '-like',
+    starts_with         => '-like',
+);
+
 our %OP_TO_HANDLER = (
-    equals => sub {
-        my ($q) = @_;
-        return { $q->{field} => $q->{value} };
-    },
-    not_equals => sub {
-        my ($q) = @_;
-        return { $q->{field} => { "!=" => $q->{value} }};
-    },
+    (
+        map { $_ => \&standard_query_to_sql} qw(equals not_equals greater_than less_than greater_than_equals less_than_equals)
+    ),
     between => sub {
         my ($q) = @_;
-        return { $q->{field} => { "-between" => $q->{values}} };
+        return { $q->{field} => { "-between" => $q->{values} } };
     },
     contains => sub {
         my ($q) = @_;
@@ -49,17 +59,18 @@ our %OP_TO_HANDLER = (
     },
     ends_with => sub {
         my ($q) = @_;
-        return { $q->{field} => { "-like" => '%' . $q->{value}} };
+        return { $q->{field} => { "-like" => '%' . $q->{value} } };
     },
     starts_with => sub {
         my ($q) = @_;
-        return { $q->{field} => { "-like" => $q->{value} . '%'  } };
+        return { $q->{field} => { "-like" => $q->{value} . '%' } };
     },
     and => sub {
         my ($q) = @_;
         local $_;
-        my @sub_queries = map {searchQueryToSqlAbstract($_)} @{$q->{values}};
-        if (@sub_queries == 1) {
+        my @sub_queries =
+          map { searchQueryToSqlAbstract($_) } @{ $q->{values} };
+        if ( @sub_queries == 1 ) {
             return $sub_queries[0];
         }
         return { '-and' => \@sub_queries };
@@ -67,13 +78,19 @@ our %OP_TO_HANDLER = (
     or => sub {
         my ($q) = @_;
         local $_;
-        my @sub_queries = map {searchQueryToSqlAbstract($_)} @{$q->{values}};
-        if (@sub_queries == 1) {
+        my @sub_queries =
+          map { searchQueryToSqlAbstract($_) } @{ $q->{values} };
+        if ( @sub_queries == 1 ) {
             return $sub_queries[0];
         }
         return { '-or' => \@sub_queries };
     }
 );
+
+sub standard_query_to_sql {
+    my ($q) = @_;
+    return { $q->{field} => { $OP_TO_SQL_OP{ $q->{op} } => $q->{value} } };
+}
 
 my $t = Test::Mojo->new('pf::UnifiedApi');
 #This is the first test
@@ -86,9 +103,65 @@ is_deeply(
         }
     ),
     {
-        pid => "lzammit",
+        pid => { "=" => "lzammit" }
     },
     "pid = 'lzammit'"
+);
+
+is_deeply(
+    searchQueryToSqlAbstract(
+        {
+            "field" => "pid",
+            "op"    => "greater_than",
+            "value" => "lzammit"
+        }
+    ),
+    {
+        pid => { ">" => "lzammit" }
+    },
+    "pid > 'lzammit'"
+);
+
+is_deeply(
+    searchQueryToSqlAbstract(
+        {
+            "field" => "pid",
+            "op"    => "less_than",
+            "value" => "lzammit"
+        }
+    ),
+    {
+        pid => { "<" => "lzammit" }
+    },
+    "pid < 'lzammit'"
+);
+
+is_deeply(
+    searchQueryToSqlAbstract(
+        {
+            "field" => "pid",
+            "op"    => "greater_than_equals",
+            "value" => "lzammit"
+        }
+    ),
+    {
+        pid => { ">=" => "lzammit" }
+    },
+    "pid >= 'lzammit'"
+);
+
+is_deeply(
+    searchQueryToSqlAbstract(
+        {
+            "field" => "pid",
+            "op"    => "less_than_equals",
+            "value" => "lzammit"
+        }
+    ),
+    {
+        pid => { "<=" => "lzammit" }
+    },
+    "pid <= 'lzammit'"
 );
 
 is_deeply(
@@ -206,7 +279,7 @@ is_deeply(
                         mac => { -like => '%ab:cd' }
                     },
                     {
-                        pid => "lzammit",
+                        pid => { "=" => "lzammit" }
                     }
                 ],
             }
