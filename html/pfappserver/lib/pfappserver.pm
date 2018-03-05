@@ -76,6 +76,7 @@ __PACKAGE__->config(
         # remediation pages (see pfappserver::Controller::Violation)
         include_path => [
             pfappserver->config->{root},
+            INSTALL_DIR . '/html/pfappserver/root',
             INSTALL_DIR . '/html/captive-portal',
             INSTALL_DIR . '/html',
         ],
@@ -104,15 +105,15 @@ __PACKAGE__->config(
 
     'View::HTML' => {
         INCLUDE_PATH => [
-            __PACKAGE__->path_to('root-custom'),
-            __PACKAGE__->path_to('root'),
+            INSTALL_DIR . '/html/pfappserver/root-custom',
+            INSTALL_DIR . '/html/pfappserver/root',
         ]
     },
 
     'View::Admin' => {
         INCLUDE_PATH => [
-            __PACKAGE__->path_to('root-custom'),
-            __PACKAGE__->path_to('root'),
+            INSTALL_DIR . '/html/pfappserver/root-custom',
+            INSTALL_DIR . '/html/pfappserver/root',
         ]
     },
 
