@@ -73,6 +73,8 @@ our $IS_CHILD = 0;
 our %CHILDREN;
 our @TASKS_RUN;
 our $ALARM_RECV = 0;
+our $DEFAULT_TASK_COUNT = 100;
+our $DEFAULT_TASK_JITTER = 10;
 
 my $logger = get_logger( $PROGRAM_NAME );
 my $old_child_sigaction = POSIX::SigAction->new;
@@ -137,6 +139,7 @@ flock($fh, LOCK_EX | LOCK_NB) or die "cannot lock $pidfile another pfmon is runn
 $HAS_LOCK = 1;
 
 our $running = 1;
+our $TASKS   = 0;
 our $process = 0;
 
 # standard signals and daemonize
@@ -300,7 +303,8 @@ sub _runtask {
     my ($task_id) = @_;
     $0 = "pfmon - $task_id";
     my $time_taken = 0;
-    while ($running && $process) {
+    $TASKS = tasks_count($DEFAULT_TASK_COUNT, $DEFAULT_TASK_JITTER);
+    while (is_worker_runnable()) {
         pf::CHI::Request::clear_all();
         pf::log::reset_log_context();
         my $task = pf::factory::pfmon::task->new($task_id);
@@ -342,9 +346,34 @@ sub _runtask {
             $running = 0;
         }
         reload_config();
+    } continue {
+        if ($TASKS > 0) {
+            $TASKS--;
+        }
     }
     $logger->trace("$$ shutting down");
     exit;
+}
+
+sub is_worker_runnable {
+    $running && $process && $TASKS
+}
+
+sub tasks_count {
+    my ($count, $jitter) = @_;
+    if ($count <= 0) {
+        return -1;
+    }
+    #The jitter cannot be greater than 25% of the max task
+    if ($jitter > $count / 4) {
+        $jitter = int($count / 4);
+    }
+    if ($jitter > 0 ) {
+        # find a random number between -task_jitter to +task_jitter
+        $count += int(rand(2*$jitter + 1)) - $jitter;
+    }
+
+    return $count;
 }
 
 =head2 is_parent_alive
