@@ -51,7 +51,7 @@ my %values = (
 my $status = pf::dal::locationlog->create(\%values);
 
 #run tests
-use Test::More tests => 20;
+use Test::More tests => 31;
 use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
@@ -74,7 +74,49 @@ $t->get_ok('/api/v1/locationlogs' => json => { })
   ->json_is('/items/0/start_time','0000-00-00 00:00:01')
   ->json_is('/items/0/end_time','0000-00-00 00:00:02')  
   ->status_is(200);
-  
+
+$t->post_ok('/api/v1/locationlogs/search', {'Content-Type' => 'application/json'} => '{')
+  ->status_is(400);
+
+$t->post_ok('/api/v1/locationlogs/search' => json => { })
+  ->status_is(200)
+;
+my $items = $t->tx->res->json->{items};
+my $item = $items->[0];
+delete $item->{id};
+is_deeply($item, \%values, "in out");
+
+$t->post_ok(
+    '/api/v1/locationlogs/search' => json => {
+        query => {
+            op    => 'equals',
+            field => 'mac',
+            value => 'bob'
+        }
+    }
+  )
+  ->status_is(200)
+;
+
+$items = $t->tx->res->json->{items};
+is_deeply($items, [], "Empty response");
+
+$t->post_ok(
+    '/api/v1/locationlogs/search' => json => {
+        query => {
+            op    => 'equals',
+            field => 'mac',
+            value => '00:01:02:03:04:05'
+        }
+    }
+  )
+  ->status_is(200)
+;
+
+$items = $t->tx->res->json->{items};
+$item = $items->[0];
+delete $item->{id};
+is_deeply($items, [\%values], "Got back 00:01:02:03:04:05");
 #debug output
 #my $items = $t->tx->res->json->{items};
 #use Data::Dumper;print Dumper($items);
