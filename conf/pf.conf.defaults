@@ -802,7 +802,7 @@ language=en_US
 #
 # Enforce Content-Security-Policy (CSP) HTTP response header in the admin interface
 #
-admin_csp_security_headers=enabled
+admin_csp_security_headers=disabled
 #
 # advanced.portal_csp_security_headers
 #

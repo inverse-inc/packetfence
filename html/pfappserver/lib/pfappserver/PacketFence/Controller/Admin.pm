@@ -48,7 +48,7 @@ sub auto :Private {
 
     my $action = $c->action->name;
     # login and logout actions have no checks
-    if ($action eq 'login' || $action eq 'logout') {
+    if ($action eq 'login' || $action eq 'logout' || $action eq 'alt') {
         return 1;
     }
 
@@ -265,6 +265,14 @@ sub object :Chained('/') :PathPart('admin') :CaptureArgs(0) {
 
     $c->stash->{'pf_release'}       = $c->model('Admin')->pf_release();
     $c->stash->{'server_hostname'}  = $c->model('Admin')->server_hostname();
+}
+
+
+sub alt :Local :Args(0) {
+    my ( $self, $c ) = @_;
+
+    $c->stash->{current_view} = 'HTML';
+    $c->stash->{'template'} = 'admin/v-index.tt';
 }
 
 =head2 status
