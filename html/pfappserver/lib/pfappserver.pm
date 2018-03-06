@@ -117,6 +117,13 @@ __PACKAGE__->config(
         ]
     },
 
+    'View::Configurator' => {
+        INCLUDE_PATH => [
+            INSTALL_DIR . '/html/pfappserver/root-custom',
+            INSTALL_DIR . '/html/pfappserver/root',
+        ]
+    },
+
     'Plugin::Authentication' => {
        default_realm => 'admin',
        realms => {
