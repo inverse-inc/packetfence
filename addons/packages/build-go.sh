@@ -93,5 +93,5 @@ if build_mode; then
   mv pfstats $BINDST
 
 elif test_mode; then
-  PFCONFIG_TESTING=y $GOPATH/bin/govendor test ./...  
+  make test
 fi
