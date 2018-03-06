@@ -51,7 +51,7 @@ my %values = (
 my $status = pf::dal::locationlog->create(\%values);
 
 #run tests
-use Test::More tests => 31;
+use Test::More tests => 40;
 use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
@@ -78,14 +78,6 @@ $t->get_ok('/api/v1/locationlogs' => json => { })
 $t->post_ok('/api/v1/locationlogs/search', {'Content-Type' => 'application/json'} => '{')
   ->status_is(400);
 
-$t->post_ok('/api/v1/locationlogs/search' => json => { })
-  ->status_is(200)
-;
-my $items = $t->tx->res->json->{items};
-my $item = $items->[0];
-delete $item->{id};
-is_deeply($item, \%values, "in out");
-
 $t->post_ok(
     '/api/v1/locationlogs/search' => json => {
         query => {
@@ -98,28 +90,78 @@ $t->post_ok(
   ->status_is(200)
 ;
 
-$items = $t->tx->res->json->{items};
+my $items = $t->tx->res->json->{items};
 is_deeply($items, [], "Empty response");
 
-$t->post_ok(
-    '/api/v1/locationlogs/search' => json => {
+simple_single_query(
+    {
+    },
+    \%values,
+    "Got back 00:01:02:03:04:05"
+);
+
+simple_single_query(
+    {
         query => {
             op    => 'equals',
             field => 'mac',
             value => '00:01:02:03:04:05'
-        }
-    }
-  )
-  ->status_is(200)
-;
+        },
+    },
+    \%values,
+    "Got back 00:01:02:03:04:05"
+);
 
-$items = $t->tx->res->json->{items};
-$item = $items->[0];
-delete $item->{id};
-is_deeply($items, [\%values], "Got back 00:01:02:03:04:05");
-#debug output
-#my $items = $t->tx->res->json->{items};
-#use Data::Dumper;print Dumper($items);
+simple_single_query(
+    {
+        query => {
+            op    => 'not_equals',
+            field => 'mac',
+            value => '00:01:02:03:04:06'
+        },
+    },
+    \%values,
+    "Got back 00:01:02:03:04:05"
+);
+
+simple_single_query(
+    {
+        query => {
+            op    => 'starts_with',
+            field => 'mac',
+            value => '00:01',
+        },
+    },
+    \%values,
+    "Got back 00:01:02:03:04:05"
+);
+
+simple_single_query(
+    {
+        query => {
+            op    => 'ends_with',
+            field => 'mac',
+            value => '04:05',
+        },
+    },
+    \%values,
+    "Got back 00:01:02:03:04:05"
+);
+
+sub simple_single_query {
+    my ($query, $value, $msg) = @_;
+    $t->post_ok(
+        '/api/v1/locationlogs/search' => json => $query
+      )
+      ->status_is(200)
+    ;
+
+    my $items = $t->tx->res->json->{items};
+    my $item = $items->[0];
+    delete $item->{id};
+    is_deeply($item, $value, $msg)
+}
+
 
 #truncate the locationlog table
 pf::dal::locationlog->remove_items();
