@@ -35,7 +35,6 @@
 
 <script>
 import Vue from 'vue'
-import chartsCall from '@/utils/charts'
 
 export default {
   name: 'Dashboard',
@@ -92,7 +91,6 @@ export default {
     el.setAttribute('src', '//pf.inverse.ca:1443/netdata/127.0.0.1/dashboard.js')
     document.head.appendChild(el)
 
-    // http://petstore.swagger.io/?url=https://raw.githubusercontent.com/firehol/netdata/master/web/netdata-swagger.yaml
     this.$store.dispatch('$_status/allCharts', {})
   }
 }

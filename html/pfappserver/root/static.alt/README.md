@@ -10,8 +10,10 @@
 
 Setup is based on the official [boilerplate webpack template](http://vuejs-templates.github.io/webpack/).
 
-  npm install
-  npm run build
+```
+npm install
+npm run build
+```
 
 CSP must be disabled.
 
