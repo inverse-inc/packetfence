@@ -35,6 +35,8 @@ our %OP_TO_SQL_OP = (
     contains            => '-like',
     ends_with           => '-like',
     starts_with         => '-like',
+    'and' => '-and',
+    'or' => '-or',
 );
 
 our %OP_TO_HANDLER = (
@@ -44,31 +46,26 @@ our %OP_TO_HANDLER = (
     (
         map { $_ => \&like_query_to_sql } qw (contains ends_with starts_with),
     ),
+    (
+        map { $_ => \&logical_query_to_sql } qw (and or),
+    ),
     between => sub {
         my ($q) = @_;
         return { $q->{field} => { "-between" => $q->{values} } };
     },
-    and => sub {
-        my ($q) = @_;
-        local $_;
-        my @sub_queries =
-          map { searchQueryToSqlAbstract($_) } @{ $q->{values} };
-        if ( @sub_queries == 1 ) {
-            return $sub_queries[0];
-        }
-        return { '-and' => \@sub_queries };
-    },
-    or => sub {
-        my ($q) = @_;
-        local $_;
-        my @sub_queries =
-          map { searchQueryToSqlAbstract($_) } @{ $q->{values} };
-        if ( @sub_queries == 1 ) {
-            return $sub_queries[0];
-        }
-        return { '-or' => \@sub_queries };
-    }
 );
+
+sub logical_query_to_sql {
+    my ($q) = @_;
+    local $_;
+    my @sub_queries =
+      map { searchQueryToSqlAbstract($_) } @{ $q->{values} };
+    if ( @sub_queries == 1 ) {
+        return $sub_queries[0];
+    }
+
+    return { $OP_TO_SQL_OP{ $q->{op} } => \@sub_queries };
+}
 
 sub standard_query_to_sql {
     my ($q) = @_;
