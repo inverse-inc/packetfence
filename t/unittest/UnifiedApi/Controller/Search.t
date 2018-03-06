@@ -24,78 +24,20 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 14;
+use Test::More tests => 15;
 use Test::Mojo;
+use pf::UnifiedApi::Search;
 
 use pf::SQL::Abstract;
 
 #This test will running last
 use Test::NoWarnings;
 
-our %OP_TO_SQL_OP = (
-    equals              => '=',
-    not_equals          => '!=',
-    greater_than        => '>',
-    less_than           => '<',
-    greater_than_equals => '>=',
-    less_than_equals    => '<=',
-    between             => '-between',
-    contains            => '-like',
-    ends_with           => '-like',
-    starts_with         => '-like',
-);
-
-our %OP_TO_HANDLER = (
-    (
-        map { $_ => \&standard_query_to_sql} qw(equals not_equals greater_than less_than greater_than_equals less_than_equals)
-    ),
-    between => sub {
-        my ($q) = @_;
-        return { $q->{field} => { "-between" => $q->{values} } };
-    },
-    contains => sub {
-        my ($q) = @_;
-        return { $q->{field} => { "-like" => '%' . $q->{value} . '%' } };
-    },
-    ends_with => sub {
-        my ($q) = @_;
-        return { $q->{field} => { "-like" => '%' . $q->{value} } };
-    },
-    starts_with => sub {
-        my ($q) = @_;
-        return { $q->{field} => { "-like" => $q->{value} . '%' } };
-    },
-    and => sub {
-        my ($q) = @_;
-        local $_;
-        my @sub_queries =
-          map { searchQueryToSqlAbstract($_) } @{ $q->{values} };
-        if ( @sub_queries == 1 ) {
-            return $sub_queries[0];
-        }
-        return { '-and' => \@sub_queries };
-    },
-    or => sub {
-        my ($q) = @_;
-        local $_;
-        my @sub_queries =
-          map { searchQueryToSqlAbstract($_) } @{ $q->{values} };
-        if ( @sub_queries == 1 ) {
-            return $sub_queries[0];
-        }
-        return { '-or' => \@sub_queries };
-    }
-);
-
-sub standard_query_to_sql {
-    my ($q) = @_;
-    return { $q->{field} => { $OP_TO_SQL_OP{ $q->{op} } => $q->{value} } };
-}
 
 my $t = Test::Mojo->new('pf::UnifiedApi');
 #This is the first test
 is_deeply(
-    searchQueryToSqlAbstract(
+    pf::UnifiedApi::Search::searchQueryToSqlAbstract(
         {
             "field" => "pid",
             "op"    => "equals",
@@ -109,7 +51,7 @@ is_deeply(
 );
 
 is_deeply(
-    searchQueryToSqlAbstract(
+    pf::UnifiedApi::Search::searchQueryToSqlAbstract(
         {
             "field" => "pid",
             "op"    => "greater_than",
@@ -123,7 +65,7 @@ is_deeply(
 );
 
 is_deeply(
-    searchQueryToSqlAbstract(
+    pf::UnifiedApi::Search::searchQueryToSqlAbstract(
         {
             "field" => "pid",
             "op"    => "less_than",
@@ -137,7 +79,7 @@ is_deeply(
 );
 
 is_deeply(
-    searchQueryToSqlAbstract(
+    pf::UnifiedApi::Search::searchQueryToSqlAbstract(
         {
             "field" => "pid",
             "op"    => "greater_than_equals",
@@ -151,7 +93,7 @@ is_deeply(
 );
 
 is_deeply(
-    searchQueryToSqlAbstract(
+    pf::UnifiedApi::Search::searchQueryToSqlAbstract(
         {
             "field" => "pid",
             "op"    => "less_than_equals",
@@ -165,7 +107,7 @@ is_deeply(
 );
 
 is_deeply(
-    searchQueryToSqlAbstract(
+    pf::UnifiedApi::Search::searchQueryToSqlAbstract(
         {
             "field" => "pid",
             "op"    => "not_equals",
@@ -179,7 +121,7 @@ is_deeply(
 );
 
 is_deeply(
-    searchQueryToSqlAbstract(
+    pf::UnifiedApi::Search::searchQueryToSqlAbstract(
         {
             "field" => "pid",
             "op"    => "starts_with",
@@ -193,7 +135,21 @@ is_deeply(
 );
 
 is_deeply(
-    searchQueryToSqlAbstract(
+    pf::UnifiedApi::Search::searchQueryToSqlAbstract(
+        {
+            "field" => "pid",
+            "op"    => "starts_with",
+            "value" => "lzammit\%"
+        }
+    ),
+    {
+        pid => { "-like" => \[ q{? ESCAPE '\\\\'}, "lzammit\\\%\%" ] },
+    },
+    "pid LIKE 'lzammit\\\%\%' ESCAPE '\\\\'"
+);
+
+is_deeply(
+    pf::UnifiedApi::Search::searchQueryToSqlAbstract(
         {
             "field" => "pid",
             "op"    => "ends_with",
@@ -207,7 +163,7 @@ is_deeply(
 );
 
 is_deeply(
-    searchQueryToSqlAbstract(
+    pf::UnifiedApi::Search::searchQueryToSqlAbstract(
         {
             "field" => "pid",
             "op"    => "contains",
@@ -221,7 +177,7 @@ is_deeply(
 );
 
 is_deeply(
-    searchQueryToSqlAbstract(
+    pf::UnifiedApi::Search::searchQueryToSqlAbstract(
                 {
                     "field"  => "detect_date",
                     "op"     => "between",
@@ -238,7 +194,7 @@ is_deeply(
 
 
 is_deeply(
-    searchQueryToSqlAbstract(
+    pf::UnifiedApi::Search::searchQueryToSqlAbstract(
         {
             "op"     => "and",
             "values" => [
@@ -289,7 +245,7 @@ is_deeply(
 );
 
 is_deeply(
-    searchQueryToSqlAbstract(
+    pf::UnifiedApi::Search::searchQueryToSqlAbstract(
         {
             "op"     => "and",
             "values" => [
@@ -311,7 +267,7 @@ is_deeply(
 );
 
 is_deeply(
-    searchQueryToSqlAbstract(
+    pf::UnifiedApi::Search::searchQueryToSqlAbstract(
         {
             "op"     => "or",
             "values" => [
@@ -331,16 +287,6 @@ is_deeply(
     },
     "Flatten a single sub query for an or op"
 );
-
-sub searchQueryToSqlAbstract {
-    my ($query) = @_;
-    my $op = $query->{op};
-    if (exists $OP_TO_HANDLER{$op} ) {
-        return $OP_TO_HANDLER{$op}->($query);
-    }
-
-    return "die unsupported op $op"
-}
 
 =head1 AUTHOR
 
