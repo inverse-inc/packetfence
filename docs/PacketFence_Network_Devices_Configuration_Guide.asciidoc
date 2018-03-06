@@ -926,62 +926,9 @@ On some recent models, we can also use more secure and robust features like:
 Depending of the switch model, we recommend the use of the most secure and reliable feature 
 first. In other words, you should consider the following order:
 
-. 802.1X/MAB 
-. Port-Security 
-. linkUp/linkDown 
-
-EAP-FAST authentication Support
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-PacketFence supports Cisco NEAT through EAP-MD5, EAP-FAST, EAP-GTC and EAP-MSCHAPv2 authentication methods. Upon successful authentication against PacketFence, the authenticator switch will give trunk access to the supplicant switch. 
-
-Here is an official Cisco guide, from which the following configuration derives: https://www.cisco.com/c/en/us/support/docs/lan-switching/8021x/116681-config-neat-cise-00.html
-
-The following configuration example contains required changes to be applied on both authenticator and supplicant switches to provide EAP-FAST authentication against PacketFence.
-
-Authenticator
-+++++++++++++
-
-Global settings:
-
- aaa group server radius packetfence
-  server 192.168.1.5 auth-port 1812 acct-port 1813
- aaa authentication dot1x default group packetfence
- aaa authorization network default group packetfence 
-
- cisp enable
-
-Uplink configuration:
-
- interface FastEthernet0/20
-  switchport mode access
-  authentication port-control auto
-  dot1x pae authenticator
-
-Supplicant
-++++++++++
-
-Global settings (replace username and password): 
-  
- cisp enable
-
- eap profile EAP_PRO
-  method fast
-
- dot1x credentials EAP_PRO
-  username switches
-  password 7 03174C02120C29495D
- ! Password is switches
- !
- dot1x supplicant force-multicast
-
-Uplink settings:
-
- interface GigabitEthernet1/0/24
-  switchport mode trunk
-  dot1x pae supplicant
-  dot1x credentials EAP_PRO
-  dot1x supplicant eap profile EAP_PRO  
+. 802.1X/MAB
+. Port-Security
+. linkUp/linkDown
 
 2900XL / 3500XL Series
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -2087,6 +2034,96 @@ On each interface:
 
   switchport mode access 
   switchport access vlan 4 
+
+EAP-FAST authentication Support
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+PacketFence supports Cisco NEAT through EAP-MD5, EAP-FAST, EAP-GTC and EAP-MSCHAPv2 authentication methods. Upon successful authentication against PacketFence, the authenticator switch will give trunk access to the supplicant switch. 
+
+Here is an official Cisco guide, from which the following configuration derives: https://www.cisco.com/c/en/us/support/docs/lan-switching/8021x/116681-config-neat-cise-00.html
+
+The following configuration example contains required changes to be applied on both authenticator and supplicant switches to provide EAP-FAST authentication against PacketFence.
+
+Authenticator
++++++++++++++
+
+Global settings:
+
+ aaa group server radius packetfence
+  server 192.168.1.5 auth-port 1812 acct-port 1813
+ aaa authentication dot1x default group packetfence
+ aaa authorization network default group packetfence 
+
+ cisp enable
+
+Uplink configuration:
+
+ interface FastEthernet0/20
+  switchport mode access
+  authentication port-control auto
+  dot1x pae authenticator
+
+Supplicant
+++++++++++
+
+Global settings (replace username and password): 
+  
+ cisp enable
+
+ eap profile EAP_PRO
+  method fast
+
+ dot1x credentials EAP_PRO
+  username switches
+  password 7 03174C02120C29495D
+ ! Password is switches
+ !
+ dot1x supplicant force-multicast
+
+Uplink settings:
+
+ interface GigabitEthernet1/0/24
+  switchport mode trunk
+  dot1x pae supplicant
+  dot1x credentials EAP_PRO
+  dot1x supplicant eap profile EAP_PRO  
+
+Device Sensor for Cisco Equipment
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Device sensor is a way to be able to receive some information about endpoints from the RADIUS accounting packet. (like DHCP, CDP, LLDP and HTTP information)
+In order to enable Device Sensor feature, you need to add the following parameters to your switch configuration:
+
+ radius server packetfence
+ address ipv4 192.168.1.5 auth-port 1812 acct-port 1813
+  key useStrongerSecret
+
+ aaa group server radius packetfence
+  server name packetfence
+ !
+ aaa accounting update newinfo
+ aaa accounting identity default start-stop group packetfence
+ !
+ !
+ device-sensor filter-list dhcp list dhcp-list
+  option name host-name
+  option name parameter-request-list
+  option name class-identifier
+ !
+ device-sensor filter-list lldp list lldp-list
+  tlv name system-description
+ !
+ device-sensor filter-list cdp list cdp-list
+  tlv name version-type
+  tlv name platform-type
+ !
+ device-sensor filter-list dhcp list lldp-list
+ device-sensor filter-spec dhcp include list dhcp-list
+ device-sensor filter-spec lldp include list lldp-list
+ device-sensor filter-spec cdp include list cdp-list
+ device-sensor notify all-changes
+
+This configuration will make the switch send information about DHCP, LLDP and CDP of the endpoint in the RADIUS accounting packets.
 
 Cisco Small Business
 ~~~~~~~~~~~~~~~~~~~~
@@ -4846,6 +4883,15 @@ In the event the WLC ignores the RADIUS replies from PacketFence (you receive mu
 
 * RADIUS secret is properly configured in PacketFence and the WLC controller.
 * The SSL certificate used by PacketFence is not expired.
+
+Device Sensor
+^^^^^^^^^^^^^
+
+When using a Cisco WLC, you can enable device sensor by making sure the configuration looks like the following screenshot:
+
+image::docs/images/wlc-device-sensor.png[scaledwidth="100%",alt="Device Sensor"]
+
+NOTE: Please refer to the wired configuration of Cisco equipment to learn more about device sensor.
 
 // CoovaChilli
 
