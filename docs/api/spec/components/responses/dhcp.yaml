@@ -1,0 +1,34 @@
+DhcpMacIp:
+  description: A response that contains the relational MAC address and IPv4 address
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/DhcpMapIp"
+
+DhcpInterfaceStats:
+  description: A response that contains interface statistics
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/DhcpInterfaceStats"
+        
+DhcpInterfaceInit:
+  description: A response that contains interface statistics after initialization
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/DhcpInterfaceStats"
+
+DhcpMacResponse:
+  description: A response that contains a status on success or failure with the MAC address
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/DhcpMacResponse"
+
+DhcpNetworkResponse:
+  description: A response that contains a status on success or failure with the Network IPv4 address
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/DhcpNetworkResponse"

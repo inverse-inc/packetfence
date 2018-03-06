@@ -302,9 +302,20 @@ sub iptables_mark_node {
             if ($net_addr->contains($ip)) {
 
                 if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                    call_ipsetd("/ipset/mark_layer3/".$network."/".$mark_type_to_str{$mark}."/".$role_id."/".$iplog."/0",{});
+                    call_ipsetd("/ipset/mark_layer3?local=0",{
+                        "network" => $network,
+                        "type"    => $mark_type_to_str{$mark},
+                        "role_id" => $role_id,
+                        "ip"      => $iplog
+                    });
                 } else {
-                    call_ipsetd("/ipset/mark_layer2/".$network."/".$mark_type_to_str{$mark}."/".$role_id."/".$iplog."/".$mac."/0",{});
+                    call_ipsetd("/ipset/mark_layer2?local=0",{
+                        "network" => $network,
+                        "type"    => $mark_type_to_str{$mark},
+                        "role_id" => $role_id,
+                        "ip"      => $iplog,
+                        "mac"     => $mac
+                    });
                 }
             }
         } else {
@@ -318,7 +329,9 @@ sub iptables_mark_node {
 sub iptables_unmark_node {
     my ( $self, $mac, $mark ) = @_;
     my $logger = get_logger();
-    call_ipsetd("/ipset/unmark_mac/".$mac."/0",{});
+    call_ipsetd("/ipset/unmark_mac?local=0",{
+        "mac" => $mac
+    });
     return (1);
 }
 
@@ -377,14 +390,24 @@ sub update_node {
 
             #Delete from ipset session if the ip change
             if ($net_addr->contains($old_ip)) {
-                 call_ipsetd("/ipset/unmark_ip/".$oldip."/0",{});
+                 call_ipsetd("/ipset/unmark_ip?local=0",{
+                    "ip" => $oldip
+                 });
             }
             #Add in ipset session if the ip change
             if ($net_addr->contains($src_ip)) {
                  if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
-                    call_ipsetd("/ipset/mark_ip_layer3/".$network."/".$id."/".$src_ip."/0",{});
+                    call_ipsetd("/ipset/mark_ip_layer3?local=0",{
+                        "network" => $network,
+                        "role_id" => $id,
+                        "ip"      => $src_ip
+                    });
                 } else {
-                    call_ipsetd("/ipset/mark_ip_layer2/".$network."/".$id."/".$src_ip."/0",{});
+                    call_ipsetd("/ipset/mark_ip_layer2?local=0",{
+                        "network" => $network,
+                        "role_id" => $id,
+                        "ip"      => $src_ip
+                    });
                 }
             }
 

@@ -96,14 +96,14 @@ func buildPfipsetHandler(ctx context.Context) (PfipsetHandler, error) {
 
 	pfipset.router = mux.NewRouter()
 	api := pfipset.router.PathPrefix("/api/v1").Subrouter()
-	api.HandleFunc("/ipset/mark_layer3/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{type:[a-zA-Z]+}/{category_id:[0-9]+}/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{local:[0-1]}", handleLayer3).Methods("POST")
-	api.HandleFunc("/ipset/mark_layer2/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{type:[a-zA-Z]+}/{category_id:[0-9]+}/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}/{local:[0-1]}", handleLayer2).Methods("POST")
-	api.HandleFunc("/ipset/unmark_mac/{mac:(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}}/{local:[0-1]}", pfipset.IPSET.handleUnmarkMac).Methods("POST")
-	api.HandleFunc("/ipset/unmark_ip/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{local:[0-1]}", pfipset.IPSET.handleUnmarkIp).Methods("POST")
-	api.HandleFunc("/ipset/mark_ip_layer2/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{category_id:[0-9]+}/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{local:[0-1]}", handleMarkIpL2).Methods("POST")
-	api.HandleFunc("/ipset/mark_ip_layer3/{network:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{category_id:[0-9]+}/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{local:[0-1]}", handleMarkIpL3).Methods("POST")
-	api.HandleFunc("/ipset/passthrough/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{port:(?:udp|tcp):[0-9]+}/{local:[0-1]}", handlePassthrough).Methods("POST")
-	api.HandleFunc("/ipset/passthrough_isolation/{ip:(?:[0-9]{1,3}.){3}(?:[0-9]{1,3})}/{port:(?:udp|tcp):[0-9]+}/{local:[0-1]}", handleIsolationPassthrough).Methods("POST")
+	api.HandleFunc("/ipset/mark_layer3", handleLayer3).Methods("POST")
+	api.HandleFunc("/ipset/mark_layer2", handleLayer2).Methods("POST")
+	api.HandleFunc("/ipset/unmark_mac", pfipset.IPSET.handleUnmarkMac).Methods("POST")
+	api.HandleFunc("/ipset/unmark_ip", pfipset.IPSET.handleUnmarkIp).Methods("POST")
+	api.HandleFunc("/ipset/mark_ip_layer2", handleMarkIpL2).Methods("POST")
+	api.HandleFunc("/ipset/mark_ip_layer3", handleMarkIpL3).Methods("POST")
+	api.HandleFunc("/ipset/passthrough", handlePassthrough).Methods("POST")
+	api.HandleFunc("/ipset/passthrough_isolation", handleIsolationPassthrough).Methods("POST")
 
 	return pfipset, nil
 }
