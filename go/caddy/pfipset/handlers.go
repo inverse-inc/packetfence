@@ -4,8 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"io/ioutil"
+	"net"
+	"net/http"
 
 	"github.com/diegoguarnieri/go-conntrack/conntrack"
 	ipset "github.com/digineo/go-ipset"
@@ -19,12 +20,12 @@ type Info struct {
 }
 
 type PostOptions struct {
-	Network  string          `json:"network,omitempty"`
-	RoleId   string          `json:"role_id,omitempty"`
-	Ip       string          `json:"ip,omitempty"`
-	Port     string          `json:"port,omitempty"`
-	Mac      string          `json:"mac,omitempty"`
-	Type     string          `json:"type,omitempty"`
+	Network string `json:"network,omitempty"`
+	RoleId  string `json:"role_id,omitempty"`
+	Ip      string `json:"ip,omitempty"`
+	Port    string `json:"port,omitempty"`
+	Mac     string `json:"mac,omitempty"`
+	Type    string `json:"type,omitempty"`
 }
 
 func handlePassthrough(res http.ResponseWriter, req *http.Request) {
@@ -38,7 +39,7 @@ func handlePassthrough(res http.ResponseWriter, req *http.Request) {
 	err = json.Unmarshal(body, &o)
 	if err != nil {
 		panic(err)
-	}	
+	}
 	Ip := net.ParseIP(o.Ip)
 	if Ip == nil {
 		handleError(res, http.StatusBadRequest)
@@ -51,13 +52,13 @@ func handlePassthrough(res http.ResponseWriter, req *http.Request) {
 	}
 	Local := req.URL.Query().Get("local")
 
-	IPSET.jobs <- job{"Add", "pfsession_passthrough", Ip + "," + Port}
+	IPSET.jobs <- job{"Add", "pfsession_passthrough", Ip.String() + "," + Port}
 	if Local == "0" {
 		updateClusterPassthrough(req.Context(), req.Body)
 	}
 	var result = map[string][]*Info{
 		"result": {
-			&Info{Ip: Ip, Status: "ACK"},
+			&Info{Ip: Ip.String(), Status: "ACK"},
 		},
 	}
 
@@ -80,7 +81,7 @@ func handleIsolationPassthrough(res http.ResponseWriter, req *http.Request) {
 	err = json.Unmarshal(body, &o)
 	if err != nil {
 		panic(err)
-	}	
+	}
 	Ip := net.ParseIP(o.Ip)
 	if Ip == nil {
 		handleError(res, http.StatusBadRequest)
@@ -93,13 +94,13 @@ func handleIsolationPassthrough(res http.ResponseWriter, req *http.Request) {
 	}
 	Local := req.URL.Query().Get("local")
 
-	IPSET.jobs <- job{"Add", "pfsession_isol_passthrough", Ip + "," + Port}
+	IPSET.jobs <- job{"Add", "pfsession_isol_passthrough", Ip.String() + "," + Port}
 	if Local == "0" {
 		updateClusterPassthroughIsol(req.Context(), req.Body)
 	}
 	var result = map[string][]*Info{
 		"result": {
-			&Info{Ip: Ip, Status: "ACK"},
+			&Info{Ip: Ip.String(), Status: "ACK"},
 		},
 	}
 
@@ -122,7 +123,7 @@ func handleLayer2(res http.ResponseWriter, req *http.Request) {
 	err = json.Unmarshal(body, &o)
 	if err != nil {
 		panic(err)
-	}	
+	}
 	Ip := net.ParseIP(o.Ip)
 	if Ip == nil {
 		handleError(res, http.StatusBadRequest)
@@ -151,7 +152,7 @@ func handleLayer2(res http.ResponseWriter, req *http.Request) {
 	Local := req.URL.Query().Get("local")
 
 	// Update locally
-	IPSET.IPSEThandleLayer2(req.Context(), Ip, Mac, Network, Type, RoleId)
+	IPSET.IPSEThandleLayer2(req.Context(), Ip.String(), Mac, Network.String(), Type, RoleId)
 
 	// Do we have to update the other members of the cluster
 	if Local == "0" {
@@ -210,7 +211,7 @@ func handleMarkIpL2(res http.ResponseWriter, req *http.Request) {
 	err = json.Unmarshal(body, &o)
 	if err != nil {
 		panic(err)
-	}	
+	}
 	Ip := net.ParseIP(o.Ip)
 	if Ip == nil {
 		handleError(res, http.StatusBadRequest)
@@ -229,7 +230,7 @@ func handleMarkIpL2(res http.ResponseWriter, req *http.Request) {
 	Local := req.URL.Query().Get("local")
 
 	// Update locally
-	IPSET.IPSEThandleMarkIpL2(ctx, Ip, Network, RoleId)
+	IPSET.IPSEThandleMarkIpL2(ctx, Ip.String(), Network.String(), RoleId)
 
 	// Do we have to update the other members of the cluster
 	if Local == "0" {
@@ -237,10 +238,10 @@ func handleMarkIpL2(res http.ResponseWriter, req *http.Request) {
 	}
 	var result = map[string][]*Info{
 		"result": {
-			&Info{Ip: Ip, Status: "ACK"},
+			&Info{Ip: Ip.String(), Status: "ACK"},
 		},
 	}
-	
+
 	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	res.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(res).Encode(result); err != nil {
@@ -256,7 +257,7 @@ func handleMarkIpL3(res http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
 
 	IPSET := pfIPSETFromContext(req.Context())
-  
+
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		panic(err)
@@ -265,7 +266,7 @@ func handleMarkIpL3(res http.ResponseWriter, req *http.Request) {
 	err = json.Unmarshal(body, &o)
 	if err != nil {
 		panic(err)
-	}	
+	}
 	Ip := net.ParseIP(o.Ip)
 	if Ip == nil {
 		handleError(res, http.StatusBadRequest)
@@ -284,7 +285,7 @@ func handleMarkIpL3(res http.ResponseWriter, req *http.Request) {
 	Local := req.URL.Query().Get("local")
 
 	// Update locally
-	IPSET.IPSEThandleMarkIpL3(ctx, Ip, Network, RoleId)
+	IPSET.IPSEThandleMarkIpL3(ctx, Ip.String(), Network.String(), RoleId)
 
 	// Do we have to update the other members of the cluster
 	if Local == "0" {
@@ -292,7 +293,7 @@ func handleMarkIpL3(res http.ResponseWriter, req *http.Request) {
 	}
 	var result = map[string][]*Info{
 		"result": {
-			&Info{Ip: Ip, Status: "ACK"},
+			&Info{Ip: Ip.String(), Status: "ACK"},
 		},
 	}
 
@@ -320,7 +321,7 @@ func handleLayer3(res http.ResponseWriter, req *http.Request) {
 	err = json.Unmarshal(body, &o)
 	if err != nil {
 		panic(err)
-	}	
+	}
 	Ip := net.ParseIP(o.Ip)
 	if Ip == nil {
 		handleError(res, http.StatusBadRequest)
@@ -344,7 +345,7 @@ func handleLayer3(res http.ResponseWriter, req *http.Request) {
 	Local := req.URL.Query().Get("local")
 
 	// Update locally
-	IPSET.IPSEThandleLayer3(ctx, Ip, Network, Type, RoleId)
+	IPSET.IPSEThandleLayer3(ctx, Ip.String(), Network.String(), Type, RoleId)
 
 	// Do we have to update the other members of the cluster
 	if Local == "0" {
@@ -353,7 +354,7 @@ func handleLayer3(res http.ResponseWriter, req *http.Request) {
 
 	var result = map[string][]*Info{
 		"result": {
-			&Info{Ip: Ip, Status: "ACK"},
+			&Info{Ip: Ip.String(), Status: "ACK"},
 		},
 	}
 
@@ -397,7 +398,7 @@ func (IPSET *pfIPSET) handleUnmarkMac(res http.ResponseWriter, req *http.Request
 	err = json.Unmarshal(body, &o)
 	if err != nil {
 		panic(err)
-	}	
+	}
 	Mac, valid_mac := validate_mac(o.Mac)
 	if !valid_mac {
 		handleError(res, http.StatusBadRequest)
@@ -452,11 +453,11 @@ func (IPSET *pfIPSET) handleUnmarkIp(res http.ResponseWriter, req *http.Request)
 	Local := req.URL.Query().Get("local")
 
 	for _, v := range IPSET.ListALL {
-		r := ipset.Test(v.Name, Ip)
+		r := ipset.Test(v.Name, Ip.String())
 		if r == nil {
-			IPSET.jobs <- job{"Del", v.Name, Ip}
+			IPSET.jobs <- job{"Del", v.Name, Ip.String()}
 			conn, _ := conntrack.New()
-			conn.DeleteConnectionBySrcIp(Ip)
+			conn.DeleteConnectionBySrcIp(Ip.String())
 			logger.Info(fmt.Sprintf("Removed %s from %s", Ip, v.Name))
 		}
 	}
@@ -466,7 +467,7 @@ func (IPSET *pfIPSET) handleUnmarkIp(res http.ResponseWriter, req *http.Request)
 	}
 	var result = map[string][]*Info{
 		"result": {
-			&Info{Ip: Ip, Status: "ACK"},
+			&Info{Ip: Ip.String(), Status: "ACK"},
 		},
 	}
 
@@ -487,5 +488,5 @@ func handleError(res http.ResponseWriter, code int) {
 	res.WriteHeader(code)
 	if err := json.NewEncoder(res).Encode(result); err != nil {
 		panic(err)
-	} 
+	}
 }
