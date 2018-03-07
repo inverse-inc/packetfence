@@ -17,8 +17,9 @@ with 'pfappserver::Base::Form::Role::Help';
 use pf::config;
 use pf::authentication;
 use pf::util;
+use pf::ConfigStore::Domain;
 
-has domains => ( is => 'rw');
+has domains => ( is => 'rw', builder => '_build_domains');
 
 ## Definition
 has_field 'id' =>
@@ -36,7 +37,7 @@ has_field 'options' =>
    label => 'Realm Options',
    required => 0,
    tags => { after_element => \&help,
-             help => 'You can add options in the realm definition' },
+             help => 'You can add FreeRADIUS options in the realm definition' },
   );
 
 has_field 'domain' =>
@@ -51,6 +52,39 @@ has_field 'domain' =>
              help => 'The domain to use for the authentication in that realm' },
   );
 
+has_field 'radius_strip_username' =>
+  (
+   type => 'Toggle',
+   checkbox_value => "enabled",
+   unchecked_value => "disabled",
+   default => "enabled",
+   label => 'Strip in RADIUS authorization',
+   tags => { after_element => \&help,
+             help => 'Should the usernames matching this realm be stripped when used in the authorization phase of 802.1x. Note that this doesn\'t control the stripping in FreeRADIUS, use the options above for that.' },
+  );
+
+has_field 'portal_strip_username' =>
+  (
+   type => 'Toggle',
+   checkbox_value => "enabled",
+   unchecked_value => "disabled",
+   default => "enabled",
+   label => 'Strip on the portal',
+   tags => { after_element => \&help,
+             help => 'Should the usernames matching this realm be stripped when used on the captive portal' },
+  );
+
+has_field 'admin_strip_username' =>
+  (
+   type => 'Toggle',
+   checkbox_value => "enabled",
+   unchecked_value => "disabled",
+   default => "enabled",
+   label => 'Strip on the admin',
+   tags => { after_element => \&help,
+             help => 'Should the usernames matching this realm be stripped when used on the administration interface' },
+  );
+
 =head2 options_roles
 
 =cut
@@ -62,18 +96,11 @@ sub options_domains {
     return @domains;
 }
 
-=head2 ACCEPT_CONTEXT
-
-To automatically add the context to the Form
-
-=cut
-
-sub ACCEPT_CONTEXT {
-    my ($self, $c, @args) = @_;
-    my (undef, $domains) = $c->model('Config::Domain')->readAll();
-    return $self->SUPER::ACCEPT_CONTEXT($c, domains => $domains, @args);
+sub _build_domains {
+    my ($self) = @_;
+    my $cs = pf::ConfigStore::Domain->new;
+    return $cs->readAll();
 }
-
 
 =over
 
@@ -103,4 +130,5 @@ USA.
 =cut
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+
 1;

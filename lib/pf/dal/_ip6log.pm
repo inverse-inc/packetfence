@@ -21,7 +21,11 @@ use warnings;
 ### pf::dal::_ip6log is auto generated any change to this file will be lost
 ### Instead change in the pf::dal::ip6log module
 ###
+
 use base qw(pf::dal);
+
+use Role::Tiny::With;
+with qw(pf::dal::roles::has_tenant_id);
 
 our @FIELD_NAMES;
 our @INSERTABLE_FIELDS;
@@ -32,6 +36,7 @@ our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
+        tenant_id
         mac
         ip
         type
@@ -40,6 +45,7 @@ BEGIN {
     );
 
     %DEFAULTS = (
+        tenant_id => '1',
         mac => '',
         ip => '',
         type => undef,
@@ -48,6 +54,7 @@ BEGIN {
     );
 
     @INSERTABLE_FIELDS = qw(
+        tenant_id
         mac
         ip
         type
@@ -56,6 +63,12 @@ BEGIN {
     );
 
     %FIELDS_META = (
+        tenant_id => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 1,
+            is_nullable => 0,
+        },
         mac => {
             type => 'VARCHAR',
             is_auto_increment => 0,
@@ -89,10 +102,12 @@ BEGIN {
     );
 
     @PRIMARY_KEYS = qw(
+        tenant_id
         ip
     );
 
     @COLUMN_NAMES = qw(
+        ip6log.tenant_id
         ip6log.mac
         ip6log.ip
         ip6log.type

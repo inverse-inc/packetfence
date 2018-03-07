@@ -188,54 +188,6 @@ sub cluster_index {
     return $cluster_index;
 }
 
-=head2 is_dhcpd_primary
-
-Compute whether or not this node is the primary DHCP server in the cluster
-
-=cut
-
-sub is_dhcpd_primary {
-    if(scalar(enabled_servers()) > 1){
-        # the non-management node is the primary
-        return cluster_index() == 1 ? 1 : 0;
-    }
-    else {
-        # the server is alone so it's the primary
-        return 1;
-    }
-}
-
-=head2 should_offer_dhcp
-
-Get whether or not this node should offer DHCP
-
-=cut
-
-sub should_offer_dhcp {
-    cluster_index() <= 1 ? 1 : 0;
-}
-
-=head2 dhcpd_peer
-
-Get the IP address of the DHCP peer for an interface
-
-=cut
-
-sub dhcpd_peer {
-    my ($interface) = @_;
-
-    unless(defined((enabled_servers())[1])){
-        return undef;
-    }
-
-    if(cluster_index() == 0){
-        return (enabled_servers())[1]{"interface $interface"}->{ip};
-    }
-    else {
-        return (enabled_servers())[0]{"interface $interface"}->{ip};
-    }
-}
-
 =head2 mysql_servers
 
 Get the list of the MySQL servers ordered by priority

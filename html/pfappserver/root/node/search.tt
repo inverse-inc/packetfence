@@ -84,6 +84,7 @@
         { name => 'computername', label => l('Computer Name') },
         { name => 'pid', label => l('Owner') },
         { name => 'last_ip', label => l('IP Address') },
+        { name => 'tenant_name', label => l('Tenant') },
         { name => 'device_class', label => l('Device class') },
         { name => 'device_type', label => l('Device type') },
         { name => 'category', label => l('Role') },
@@ -142,7 +143,7 @@
                             [% IF name == "status"%]
                             <td><span class="label[% IF node.status == 'reg' %] label-success[% END %]">[% l(node.status) | html %]</span></td>
                             [% ELSIF name == "mac" %]
-                            <td><a href="[% c.uri_for(c.controller('Node').action_for('view'), [ node.mac ]) %]">[% node.mac | html %]</a></td>
+                            <td><a href="[% c.uri_for(c.controller('Node').action_for('view'), [ node.mac ], {"tenant_id" => node.tenant_id}) %]">[% node.mac | html %]</a></td>
                             [% ELSIF name == "pid" %]
                     <td class="hidden-phone">[% IF can_access_any("USERS_READ", "USERS_READ_SPONSORED") %]<a href="[% c.uri_for(c.controller('User').action_for('view'), [ node.pid ]) %]">[% node.pid | html %]</a>[% ELSE %][% node.pid | html %][% END %]</td>
                             [% ELSIF name == "switch_description" %]

@@ -24,6 +24,7 @@ use pf::api::jsonrpcclient;
 use pf::cluster;
 use pf::constants;
 use pf::CHI;
+use pf::generate_filter qw(filter_with_offset_limit);
 
 =head1 FIELDS
 
@@ -358,7 +359,26 @@ Removes an existing item
 
 sub remove {
     my ($self, $id) = @_;
+    if (!$self->canDelete($id)) {
+        return $FALSE;
+    }
     return $self->cachedConfig->DeleteSection($self->_formatSectionName($id));
+}
+
+
+=head2 canDelete
+
+canDelete
+
+=cut
+
+sub canDelete {
+    my ($self, $id) = @_;
+    my $default_section = $self->default_section;
+    return $TRUE
+        if !defined $default_section;
+
+    return $self->_formatSectionName($id) ne $default_section;
 }
 
 =head2 Copy
@@ -530,8 +550,54 @@ sub commitCluster {
 sub search {
     my ($self, $field, $value, $idKey) = @_;
     return unless defined $field && defined $value;
-    return grep { exists $_->{$field} && defined $_->{$field} && $_->{$field} eq $value  } @{$self->readAll($idKey)};
+    return $self->filter(
+        sub {
+            my $i = shift;
+            return exists $i->{$field} && defined $i->{$field} && $i->{$field} eq $value;
+        },
+        $idKey
+    );
+}
 
+=head2 search_like
+
+search_like
+
+=cut
+
+sub search_like {
+    my ($self, $field, $re, $idKey) = @_;
+    return unless defined $field && defined $re;
+    return $self->filter(
+        sub {
+            return exists $_[0]->{$field} && defined $_[0]->{$field} && $_[0]->{$field} =~ $re;
+        },
+        $idKey
+    );
+}
+
+=head2 filter
+
+$self->filter($method, $idKey = undef)
+
+=cut
+
+sub filter {
+    my ($self, $filter, $idKey) = @_;
+    return unless defined $filter;
+    return grep {my $i = $_; $filter->($i) } @{$self->readAll($idKey)};
+}
+
+=head2 filter_offset_limit
+
+$self->filter_offset_limit($method, $offset, $limit, $idKey = undef);
+
+=cut
+
+sub filter_offset_limit {
+    my ($self, $filter, $offset, $limit, $idKey) = @_;
+    return unless defined $filter;
+    return filter_with_offset_limit($filter, $offset, $limit, $self->readAll($idKey));
 }
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};

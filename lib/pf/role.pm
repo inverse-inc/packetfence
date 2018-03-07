@@ -47,6 +47,7 @@ use pf::person;
 use pf::lookup::person;
 use pf::util::statsd qw(called);
 use pf::StatsD::Timer;
+use pf::constants::realm;
 
 our $VERSION = 1.04;
 
@@ -429,6 +430,7 @@ sub getRegisteredRole {
                 rule_class => 'authentication',
                 radius_request => $args->{radius_request},
                 realm => $args->{realm},
+                context => $pf::constants::realm::RADIUS_CONTEXT,
             };
             my $matched = pf::authentication::match2([@sources], $params);
             $source = $matched->{source_id};
@@ -575,6 +577,7 @@ sub getNodeInfoForAutoReg {
             stripped_user_name => $stripped_user,
             radius_request => $args->{radius_request},
             realm => $args->{realm},
+            context => $pf::constants::realm::RADIUS_CONTEXT,
         };
 
         my $matched = pf::authentication::match2([@sources], $params);

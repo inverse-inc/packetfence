@@ -1,0 +1,77 @@
+/ip4logs:
+  get:
+    description: The list of ip4logs will be limited to 100 and a cursor will be returned
+      for iterating on other ip4logs. Iteration is only needed if the nextCursor is
+      not an empty value.
+    parameters:
+    - $ref: '#/components/parameters/cursor'
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Ip4logWithTenantIdList'
+        description: List of ip4logs
+    summary: Returns a list of ip4logs
+/ip4logs/open/{mac}:
+  get:
+    parameters:
+    - description: The MAC address to fetch
+      in: path
+      name: mac
+      required: true
+      schema:
+        type: string
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              properties:
+                item:
+                  $ref: '#/components/schemas/Ip4logItem'
+              type: object
+        description: A specific MAC address
+    summary: Returns all open ip4logs by MAC address
+/ip4logs/history/{mac}:
+  get:
+    description: The list of ip4logs will be limited to 100 and a cursor will be returned
+      for iterating on other ip4logs. Iteration is only needed if the nextCursor is
+      not an empty value.
+    parameters:
+    - $ref: '#/components/parameters/cursor'
+    - description: The MAC address to fetch
+      in: path
+      name: mac
+      required: true
+      schema:
+        type: string
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Ip4logList'
+        description: List of ip4logs
+    summary: Returns a history list of ip4logs
+/ip4logs/archive/{mac}:
+  get:
+    description: The list of ip4logs will be limited to 100 and a cursor will be returned
+      for iterating on other ip4logs. Iteration is only needed if the nextCursor is
+      not an empty value.
+    parameters:
+    - $ref: '#/components/parameters/cursor'
+    - description: The MAC address to fetch
+      in: path
+      name: mac
+      required: true
+      schema:
+        type: string
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Ip4logList'
+        description: List of ip4logs
+    summary: Returns an archive list of ip4logs 

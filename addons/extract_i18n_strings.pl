@@ -14,9 +14,11 @@ can be localized.
 =cut
 
 use File::Find;
-use lib qw(/usr/local/pf/lib /usr/local/pf/html/pfappserver/lib);
+use lib qw(/usr/local/pf/lib);
 use pf::action;
 use pf::admin_roles;
+use pf::api;
+use pf::api::attributes;
 use pf::Authentication::Source;
 use pf::Authentication::constants;
 use pf::factory::provisioner;
@@ -170,6 +172,16 @@ sub parse_tt {
     while (defined($line = <TT>)) {
         chomp $line;
         if ($line =~ m/\[\% ?list_entry\(\s*'[^']*',\s*'([^']*)'\)( \| none)? ?\%\]/g) {
+            add_string($1, $template);
+        }
+    }
+    close(TT);
+
+    $template = $dir . '/config/source/index.tt';
+    open(TT, $template);
+    while (defined($line = <TT>)) {
+        chomp $line;
+        if ($line =~ m/\[\% ?source_create\(\s*'[^']*',\s*'([^']*)',\s*[^']+\)( \| none)? ?\%\]/g) {
             add_string($1, $template);
         }
     }
@@ -420,6 +432,10 @@ sub extract_modules {
         } @$attributes;
         const($type, 'available_attributes', \@values) if (@values);
     }
+
+    pf::api::attributes::updateAllowedAsActions();
+    @values = map { substr($_, 9) } keys %pf::api::attributes::ALLOWED_ACTIONS;
+    const('pf::api', 'Allowed actions', \@values);
 
     @values = map( { @$_ } values %Actions::ACTIONS);
     const('pf::Authentication::constants', 'Actions', \@values);

@@ -37,6 +37,7 @@ use pf::config qw(
 );
 use IO::Socket::SSL qw(SSL_VERIFY_NONE);
 use pf::constants::config qw($TIME_MODIFIER_RE);
+use pf::constants::realm;
 use File::Basename;
 use Net::MAC::Vendor;
 use Net::SMTP;
@@ -73,6 +74,8 @@ BEGIN {
     get_captive_portal_uri
     get_send_email_config
     send_mime_lite
+    is_inline_configured
+    strip_username_if_needed
   );
 }
 
@@ -231,6 +234,16 @@ sub get_routed_registration_nets {
         push @nets, $interface->desc();
     }
     return (@nets);
+}
+
+=head2 is_inline_configured
+
+return the number of inline networks
+
+=cut
+
+sub is_inline_configured {
+    return scalar @inline_nets;
 }
 
 sub get_inline_nets {
@@ -581,6 +594,37 @@ sub send_using_smtp_callback {
     $smtp->quit;
 
     return $self->{last_send_successful} = 1;
+}
+
+=head2 strip_username_if_needed
+
+Strips a username if configured in the realm configuration
+
+Valid context are "portal" and "admin", basically any prefix to "_strip_username" that is configured for the realm
+
+=cut
+
+sub strip_username_if_needed {
+    my ($username, $context) = @_;
+    return $username unless(defined($username));
+    
+    my $logger = get_logger;
+
+    my ($stripped, $realm) = strip_username($username);
+    $realm = $realm ? lc($realm) : undef;
+    
+    my $realm_config = defined($realm) && exists($ConfigRealm{$realm}) ? $ConfigRealm{$realm} : $ConfigRealm{lc($pf::constants::realm::DEFAULT)};
+
+    my $param = $context . "_strip_username";
+
+    if(isenabled($realm_config->{$param})) {
+        $logger->debug("Stripping username is enabled in this context ($context). Will return a split username and realm.");
+        return ($stripped, $realm);
+    }
+    else {
+        $logger->debug("Stripping username is disabled in this context ($context). Will return the username as is with the realm.");
+        return ($username, undef);
+    }
 }
 
 =head1 AUTHOR

@@ -39,6 +39,7 @@ use pf::Portal::Session;
 use pf::util;
 use pf::locationlog;
 use pf::enforcement qw(reevaluate_access);
+use pf::constants::realm;
 
 =head1 SUBROUTINES
 
@@ -111,6 +112,7 @@ sub handler {
         $params->{SSID} = $locationlog_entry->{'ssid'};
         $params->{realm} = $locationlog_entry->{'realm'};
     }
+    $params->{context} = $pf::constants::realm::PORTAL_CONTEXT;
     my $matched = pf::authentication::match2($source_id, $params, $extra);
     if ($matched) {
         my $values = $matched->{values};

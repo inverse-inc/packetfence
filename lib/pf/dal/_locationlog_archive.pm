@@ -21,7 +21,11 @@ use warnings;
 ### pf::dal::_locationlog_archive is auto generated any change to this file will be lost
 ### Instead change in the pf::dal::locationlog_archive module
 ###
+
 use base qw(pf::dal);
+
+use Role::Tiny::With;
+with qw(pf::dal::roles::has_tenant_id);
 
 our @FIELD_NAMES;
 our @INSERTABLE_FIELDS;
@@ -33,6 +37,7 @@ our @COLUMN_NAMES;
 BEGIN {
     @FIELD_NAMES = qw(
         id
+        tenant_id
         mac
         switch
         port
@@ -53,6 +58,7 @@ BEGIN {
     );
 
     %DEFAULTS = (
+        tenant_id => '1',
         mac => undef,
         switch => '',
         port => '',
@@ -73,6 +79,7 @@ BEGIN {
     );
 
     @INSERTABLE_FIELDS = qw(
+        tenant_id
         mac
         switch
         port
@@ -97,6 +104,12 @@ BEGIN {
             type => 'INT',
             is_auto_increment => 1,
             is_primary_key => 1,
+            is_nullable => 0,
+        },
+        tenant_id => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
             is_nullable => 0,
         },
         mac => {
@@ -209,6 +222,7 @@ BEGIN {
 
     @COLUMN_NAMES = qw(
         locationlog_archive.id
+        locationlog_archive.tenant_id
         locationlog_archive.mac
         locationlog_archive.switch
         locationlog_archive.port

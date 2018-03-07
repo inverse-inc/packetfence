@@ -20,6 +20,7 @@ use pf::file_paths qw(
     $portal_modules_default_config_file
 );
 extends 'pf::ConfigStore';
+with 'pf::ConfigStore::Role::ReverseLookup';
 
 use pf::log;
 
@@ -28,6 +29,20 @@ sub configFile { $portal_modules_config_file};
 sub importConfigFile { $portal_modules_default_config_file }
 
 sub pfconfigNamespace {'config::PortalModules'}
+
+=head2 canDelete
+
+canDelete
+
+=cut
+
+sub canDelete {
+    my ( $self, $id ) = @_;
+    return
+         !$self->isInProfile( 'root_module', $id )
+      && !$self->isInPortalModules( 'modules', $id )
+      && $self->SUPER::canDelete($id);
+}
 
 =head2 cleanupAfterRead
 

@@ -16,10 +16,22 @@ use warnings;
 use Moo;
 use pf::file_paths qw($billing_tiers_config_file);
 extends 'pf::ConfigStore';
+with 'pf::ConfigStore::Role::ReverseLookup';
 
 sub configFile { $billing_tiers_config_file };
 
 sub pfconfigNamespace {'config::BillingTiers'}
+
+=head2 canDelete
+
+canDelete
+
+=cut
+
+sub canDelete {
+    my ($self, $id) = @_;
+    return !$self->isInProfile('billing_tiers', $id) && $self->SUPER::canDelete($id);
+}
 
 =head1 AUTHOR
 

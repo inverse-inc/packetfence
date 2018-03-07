@@ -5,7 +5,13 @@
 ### [% class %] is auto generated any change to this file will be lost
 ### Instead change in the [% class.replace('::_', '::') %] module
 ###
+
 use base qw(pf::dal);
+
+[%- IF HAS_TENANT_ID %]
+use Role::Tiny::With;
+with qw(pf::dal::roles::has_tenant_id);
+[% END -%]
 
 our @FIELD_NAMES;
 our @INSERTABLE_FIELDS;

@@ -28,6 +28,7 @@ cliAccess = N
 VlanMap = Y
 RoleMap = N
 ExternalPortalEnforcement = N
+TenantId = 1
 
 mode = production
 macSearchesMaxNb = 30

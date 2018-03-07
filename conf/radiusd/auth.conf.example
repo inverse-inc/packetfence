@@ -10,6 +10,18 @@ listen {
     virtual_server = packetfence
 }
 
+
+listen {
+        #  ONLY Status-Server is allowed to this port.
+        #  ALL other packets are ignored.
+        type = status
+
+        ipaddr = 127.0.0.1
+        port = 18121
+        virtual_server = status
+}
+
+
 [% FOREACH ip IN listen_ips %]
 listen {
         ipaddr = [% ip %]

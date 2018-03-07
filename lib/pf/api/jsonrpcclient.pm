@@ -83,6 +83,31 @@ has port => (is => 'rw', default => sub {$Config{'webservices'}{'port'}} );
 
 has id => (is => 'rw', default => sub {0} );
 
+=head2 method
+
+  the method to use to send the request (Post/Get)
+  default Post
+
+=cut
+
+has method => (is => 'rw', default => sub {"post"} );
+
+=head2 connect_timeout_ms
+
+Curl connection timeout in milli seconds
+
+=cut
+
+has connect_timeout_ms => (is => 'rw', default => sub {0}) ;
+
+=head2 timeout_ms
+
+Curl transfer timeout in milli seconds
+
+=cut
+
+has timeout_ms => (is => 'rw', default => sub {0} ) ;
+
 use constant REQUEST => 0;
 use constant RESPONSE => 2;
 use constant NOTIFICATION => 2;
@@ -100,10 +125,13 @@ sub call {
     my ($self,$function,@args) = @_;
     my $response;
     my $curl = $self->curl($function);
-    my $request = $self->build_jsonrpc_request($function,\@args);
+    if ($self->method eq 'post') {
+        my $request = $self->build_jsonrpc_request($function,\@args);
+        $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
+        $curl->setopt(CURLOPT_POSTFIELDS, $request);
+    }
+
     my $response_body;
-    $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
-    $curl->setopt(CURLOPT_POSTFIELDS, $request);
     $curl->setopt(CURLOPT_WRITEDATA, \$response_body);
     $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0);
 
@@ -141,25 +169,32 @@ sub notify {
     my ($self,$function,@args) = @_;
     my $response;
     my $curl = $self->curl($function);
-    my $request = $self->build_jsonrpc_notification($function,\@args);
+    if ($self->method eq 'post') {
+        my $request = $self->build_jsonrpc_notification($function,\@args);
+        $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
+        $curl->setopt(CURLOPT_POSTFIELDS, $request);
+    }
+
     my $response_body;
-    $curl->setopt(CURLOPT_POSTFIELDSIZE,length($request));
-    $curl->setopt(CURLOPT_POSTFIELDS, $request);
     $curl->setopt(CURLOPT_WRITEDATA, \$response_body);
 
     # Starts the actual request
     my $curl_return_code = $curl->perform;
+    my $results = 0;
 
     # Looking at the results...
     if ( $curl_return_code == 0 ) {
         my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
         if($response_code != HTTP_NO_CONTENT) {
             get_logger->error( "An error occured while processing the JSONRPC request return code ($response_code)");
+        } else {
+            $results = 1;
         }
     } else {
         get_logger->error("An error occured while sending a JSONRPC request: $curl_return_code ".$curl->strerror($curl_return_code)." ".$curl->errbuf);
     }
-    return;
+
+    return $results;
 }
 
 =head2 curl
@@ -177,6 +212,8 @@ sub curl {
     $curl->setopt(CURLOPT_NOSIGNAL, 1);
     $curl->setopt(CURLOPT_URL, $url);
     $curl->setopt(CURLOPT_HTTPHEADER, ['Content-Type: application/json-rpc',"Request: $function"]);
+    $curl->setopt(CURLOPT_CONNECTTIMEOUT_MS, $self->connect_timeout_ms // 0);
+    $curl->setopt(CURLOPT_TIMEOUT_MS, $self->timeout_ms // 0);
     if($self->proto eq 'https') {
         if($self->username && $self->password) {
             $curl->setopt(CURLOPT_USERNAME, $self->username);

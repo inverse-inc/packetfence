@@ -17,10 +17,22 @@ use Moo;
 use pf::file_paths qw($device_registration_config_file);
 use pf::util;
 extends 'pf::ConfigStore';
+with 'pf::ConfigStore::Role::ReverseLookup';
 
 sub configFile { $device_registration_config_file };
 
 sub pfconfigNamespace {'config::DeviceRegistration'}
+
+=head2 canDelete
+
+canDelete
+
+=cut
+
+sub canDelete {
+    my ($self, $id) = @_;
+    return !$self->isInProfile('device_registration', $id) && $self->SUPER::canDelete($id);
+}
 
 =head2 cleanupAfterRead
 

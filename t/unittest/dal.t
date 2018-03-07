@@ -1,3 +1,5 @@
+#!/usr/bin/perl
+
 =head1 NAME
 
 dal
@@ -22,10 +24,13 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 45;
+use Test::More tests => 60;
 
 use pf::error qw(is_success is_error);
 use pf::db;
+use pf::dal::tenant;
+use pf::dal::person;
+push @pf::dal::_tenant::INSERTABLE_FIELDS, 'id';
 use pf::dal::node;
 {
     no warnings 'redefine';
@@ -42,6 +47,74 @@ BAIL_OUT("Cannot connect to dbh") unless $dbh;
 use Test::NoWarnings;
 
 my $test_mac = "ff:ff:ff:ff:ff:fe";
+
+is_deeply(
+    pf::dal::node->build_primary_keys_where_clause({mac => $test_mac}),
+    {
+        'node.mac' => $test_mac,
+        'node.tenant_id' => 1,
+    },
+    "build_primary_keys_where_clause returns fully qualified column names for searching",
+);
+
+is_deeply(
+    {
+        pf::dal::node->update_params_for_select(-where => {mac => $test_mac})
+    },
+    {
+        -where => {
+            'node.tenant_id' => 1,
+            'mac' => $test_mac,
+        }
+    },
+    "update_params_for_update adds tenant_id"
+);
+
+is_deeply(
+    {
+        pf::dal::node->update_params_for_update(-where => {mac => $test_mac})
+    },
+    {
+        -where => {
+            'node.tenant_id' => 1,
+            'mac' => $test_mac,
+        }
+    },
+    "update_params_for_update adds tenant_id"
+);
+
+is_deeply(
+    {
+        pf::dal::node->update_params_for_insert(-values => {mac => $test_mac})
+    },
+    {
+        -values => {
+            'tenant_id' => 1,
+            'mac' => $test_mac,
+        }
+    },
+    "update_params_for_insert adds tenant_id"
+);
+
+is_deeply(
+    {
+        pf::dal::node->update_params_for_upsert(
+            -values => {mac => $test_mac},
+            -on_conflict => { 'mac' => $test_mac }
+        )
+    },
+    {
+        -values => {
+            'tenant_id' => 1,
+            'mac' => $test_mac,
+        },
+        -on_conflict => {
+            'tenant_id' => 1,
+            'mac' => $test_mac,
+        }
+    },
+    "update_params_for_upsert adds tenant_id"
+);
 
 pf::dal::node->remove_by_id({mac => $test_mac});
 
@@ -221,17 +294,63 @@ is_deeply(
     pf::dal::node->build_primary_keys_where_clause({mac => "00:00:00:00:00:00"}),
     {
         'node.mac' => '00:00:00:00:00:00',
+        'node.tenant_id' => 1,
     },
     "build_primary_keys_where_clause returns fullly qualified column names for searching",
 );
 
 {
+    pf::dal::node->remove_by_id({mac => $test_mac});
     my $node = pf::dal::node->new({mac => $test_mac});
     my $status = $node->create_or_update();
     is($status, $STATUS::CREATED, "Node created");
     $node = pf::dal::node->new({mac => $test_mac, status => 'reg'});
     $status = $node->create_or_update();
     is($status, $STATUS::OK, "Node updated");
+}
+
+{
+    my $t_id = 10001;
+    pf::dal::tenant->remove_by_id({id => $t_id});
+    $status = pf::dal::tenant->create({name => "test", id => $t_id});
+    ok(is_success($status), "new tenant is created");
+    pf::dal->set_tenant($t_id);
+    ($status, my $rows) = pf::dal::person->remove_by_id({pid => 'default'});
+    $status = pf::dal::person->create({pid => 'default'});
+    ok(is_success($status), "new person is created");
+    $node = pf::dal::node->new({mac => $test_mac, pid => "default"});
+    $status = $node->save;
+    ok(is_success($status), "node is created");
+    ($status, $node) = pf::dal::node->find({mac => $test_mac});
+    is($node->tenant_id, $t_id, "Node saved with current tenant id");
+    pf::dal::node->remove_by_id({mac => $test_mac});
+    pf::dal::person->remove_by_id({pid => 'default'});
+    pf::dal::tenant->remove_by_id({id => $t_id});
+    pf::dal->reset_tenant();
+}
+
+{
+    pf::dal::node->remove_by_id({mac => $test_mac});
+    my $node = pf::dal::node->new({mac => $test_mac});
+    my $status = $node->create_or_update();
+    is($status, $STATUS::CREATED, "Node created");
+    $node = pf::dal::node->new({mac => $test_mac, status => 'reg'});
+    $status = $node->create_or_update();
+    is($status, $STATUS::OK, "Node updated");
+}
+
+
+{
+    local $pf::dal::CURRENT_TENANT = 2;
+    my $node = pf::dal::node->new({mac => $test_mac});
+    is($node->{tenant_id}, pf::dal->get_tenant, "Current tenant is added");
+    $node = pf::dal::node->new({mac => $test_mac, -no_auto_tenant_id => 1});
+    is($node->{tenant_id}, $pf::dal::CURRENT_TENANT, "Current tenant is added when none id provide");
+    my $test_tenant_id = $$;
+    $node = pf::dal::node->new({mac => $test_mac, tenant_id => $test_tenant_id, -no_auto_tenant_id => 1});
+    is($node->{tenant_id}, $test_tenant_id, "Current tenant is not set use the one provided");
+    $node = pf::dal::node->new({mac => $test_mac, tenant_id => $test_tenant_id });
+    is($node->{tenant_id}, $pf::dal::CURRENT_TENANT, "Current tenant is set use even when one is provided");
 }
 
 =head1 AUTHOR

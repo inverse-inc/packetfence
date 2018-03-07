@@ -25,6 +25,9 @@
   <IfModule !mod_log_config.c>
     LoadModule log_config_module /usr/lib/apache2/modules/mod_log_config.so
   </IfModule>
+  <IfModule !mod_logio.c>
+    LoadModule logio_module /usr/lib/apache2/modules/mod_logio.so
+  </IfModule>
   <IfModule !mod_ssl.c>
     LoadModule ssl_module /usr/lib/apache2/modules/mod_ssl.so
   </IfModule>
@@ -83,6 +86,9 @@
   <IfModule !mod_log_config.c>
     LoadModule log_config_module modules/mod_log_config.so
   </IfModule>
+  <IfModule !mod_logio.c>
+    LoadModule logio_module modules/mod_logio.so
+  </IfModule>
   <IfModule !mod_ssl.c>
     LoadModule ssl_module modules/mod_ssl.so
   </IfModule>
@@ -123,7 +129,7 @@ PerlLoadModule pf::WebAPI::InitHandler
 PerlPostConfigHandler pf::WebAPI::InitHandler->post_config
 PerlInitHandler pf::WebAPI::InitHandler
 PerlChildInitHandler pf::WebAPI::InitHandler->child_init
-SetEnvIf User-Agent collectd is_collectd
+SetEnvIf User-Agent netdata is_netdata
 
 PidFile [% install_dir %]/var/run/[% name %].pid
 
@@ -194,7 +200,7 @@ Listen [% vhost %]:[% port %]
     ServerName [% server_name %]
     DocumentRoot [% install_dir %]/html/pfappserver/lib
     ErrorLog "| /usr/bin/logger -t[% name | replace('\.', '_') %]_err -plocal5.err"  
-    CustomLog "| /usr/bin/logger -t[% name | replace('\.', '_') %] -plocal5.info" combined env=!is_collectd
+    CustomLog "| /usr/bin/logger -t[% name | replace('\.', '_') %] -plocal5.info" combined env=!is_netdata
     SSLEngine on
     Include [% var_dir %]/conf/ssl-certificates.conf
     <Location / >
@@ -215,7 +221,7 @@ Listen 127.0.0.1:[% port %]
     ServerName [% server_name %]
     DocumentRoot [% install_dir %]/html/pfappserver/lib
     ErrorLog "| /usr/bin/logger -t[% name | replace('\.', '_') %]_err -plocal5.err"  
-    CustomLog "| /usr/bin/logger -t[% name | replace('\.', '_') %] -plocal5.info" combined env=!is_collectd
+    CustomLog "| /usr/bin/logger -t[% name | replace('\.', '_') %] -plocal5.info" combined env=!is_netdata
     SetHandler modperl
     PerlResponseHandler pf::WebAPI
     <Location / >

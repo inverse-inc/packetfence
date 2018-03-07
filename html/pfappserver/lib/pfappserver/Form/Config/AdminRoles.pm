@@ -14,13 +14,14 @@ use strict;
 use warnings;
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
-with 'pfappserver::Base::Form::Role::Help';
+with qw(
+    pfappserver::Base::Form::Role::Help
+    pfappserver::Role::Form::RolesAttribute
+);
 
 use pf::admin_roles;
 use pf::constants::admin_roles qw(@ADMIN_ACTIONS);
 use pf::Authentication::constants;
-
-has roles => ( is => 'rw', default => sub { [] } );
 
 ## Definition
 has_field 'id' =>
@@ -124,7 +125,7 @@ sub options_actions {
     my %groups;
     my @options;
     foreach my $role (@ADMIN_ACTIONS) {
-        $role =~ m/^(.+?)(_(WRITE|READ|CREATE|UPDATE|DELETE|SET_ROLE|SET_ACCESS_DURATION|SET_UNREG_DATE|SET_ACCESS_LEVEL|SET_TIME_BALANCE|SET_BANDWIDTH_BALANCE|MARK_AS_SPONSOR|CREATE_MULTIPLE|READ_SPONSORED))?$/;
+        $role =~ m/^(.+?)(_(WRITE|READ|CREATE|UPDATE|DELETE|SET_ROLE|SET_ACCESS_DURATION|SET_UNREG_DATE|SET_ACCESS_LEVEL|SET_TIME_BALANCE|SET_BANDWIDTH_BALANCE|MARK_AS_SPONSOR|CREATE_MULTIPLE|READ_SPONSORED|SET_TENANT_ID))?$/;
         $groups{$1} = [] unless $groups{$1};
         push(@{$groups{$1}}, { value => $role, label => $self->_localize($role) })
     }
@@ -167,19 +168,6 @@ sub options_allowed_actions {
     my ($self) = @_;
     return  map { {label => $_, value => $_} } keys %Actions::ACTION_CLASS_TO_TYPE;
 }
-
-=head2 ACCEPT_CONTEXT
-
-To automatically add the context to the Form
-
-=cut
-
-sub ACCEPT_CONTEXT {
-    my ($class, $c, @args) = @_;
-    my ($status, $roles) = $c->model('Config::Roles')->listFromDB();
-    return $class->SUPER::ACCEPT_CONTEXT($c, roles => $roles, @args);
-}
-
 
 =head1 COPYRIGHT
 

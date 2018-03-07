@@ -23,7 +23,6 @@ use pf::client;
 use pf::constants;
 use pf::constants::dhcp qw($DEFAULT_LEASE_LENGTH);
 use pf::constants::IP qw($IPV4);
-use pf::clustermgmt;
 use pf::config qw(
     $INLINE_API_LEVEL
     %ConfigNetworks
@@ -134,6 +133,9 @@ sub _build_DHCP_networks {
         my $network_obj = NetAddr::IP->new($network,$ConfigNetworks{$network}{netmask});
         if(isenabled($net{dhcpd})){
             push @dhcp_networks, $network_obj;
+            if (defined($ConfigNetworks{$network}{reg_network})) {
+                push @dhcp_networks, NetAddr::IP->new(NetAddr::IP->new($ConfigNetworks{$network}{reg_network})->network());
+            }
         }
     }
 
@@ -422,7 +424,7 @@ sub pf_is_dhcp {
 
 =head2 checkForParking
 
-Check if a device should be in parking and adjust the lease time through OMAPI
+Check if a device should be in parking and adjust the lease time through pfdhcp api call
 
 =cut
 

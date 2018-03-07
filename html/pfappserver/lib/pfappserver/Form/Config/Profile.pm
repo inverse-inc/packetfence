@@ -31,6 +31,7 @@ The filter container field
 has_field 'filter' =>
   (
    type => 'DynamicTable',
+   label => 'Filters',
    'do_label' => 0,
    'sortable' => 1,
   );
@@ -44,7 +45,6 @@ The filter container field contents
 has_field 'filter.contains' =>
   (
    type => '+ProfileFilter',
-   label => 'Filter',
    widget_wrapper => 'DynamicTableRow',
   );
 

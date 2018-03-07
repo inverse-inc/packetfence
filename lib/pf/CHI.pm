@@ -74,7 +74,7 @@ Hash::Merge::specify_behavior(
     'PF_CHI_MERGE'
 );
 
-our @CACHE_NAMESPACES = qw(configfilesdata configfiles httpd.admin httpd.portal pfdns switch.overlay ldap_auth omapi fingerbank firewall_sso switch metadefender accounting clustering person_lookup route_int provisioning switch_distributed);
+our @CACHE_NAMESPACES = qw(configfilesdata configfiles httpd.admin httpd.portal pfdns switch.overlay ldap_auth fingerbank firewall_sso switch metadefender accounting clustering person_lookup route_int provisioning switch_distributed);
 
 our $chi_default_config = pf::IniFiles->new( -file => $chi_defaults_config_file) or die "Cannot open $chi_defaults_config_file";
 
@@ -174,12 +174,21 @@ sub setFileDriverParams {
 
 sub setDBIDriverParams {
     my ($storage, $dbi) = @_;
-    $storage->{dbh} = sub {
-        my $pf_config = pf::IniFiles->new( -file => $pf_config_file, -allowempty => 1, -import => $pf_default_config) or die "Cannot open $pf_config_file";
-        my ($db,$host,$port,$user,$pass) = @{sectionData($pf_config, "database")}{qw(db host port user pass)};
-        return DBI->connect( "dbi:mysql:dbname=$db;host=$host;port=$port",
-        $user, $pass, { RaiseError => 0, PrintError => 0 } );
-    }
+    $storage->{dbh} = \&getDbi;
+}
+
+=head2 getDbi
+
+Get the DBI using the database config from pf.conf
+
+=cut
+
+sub getDbi {
+    my $pf_config = pf::IniFiles->new( -file => $pf_config_file, -allowempty => 1, -import => $pf_default_config) or die "Cannot open $pf_config_file";
+    my ($db,$host,$port,$user,$pass) = @{sectionData($pf_config, "database")}{qw(db host port user pass)};
+    return DBI->connect( "dbi:mysql:dbname=$db;host=$host;port=$port",
+    $user, $pass, { RaiseError => 0, PrintError => 0 } );
+
 }
 
 sub setRawL1CacheAsLast {

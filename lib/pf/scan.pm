@@ -353,17 +353,13 @@ sub matchOS {
     #if no oses are defined then it will match all the oses
     return $TRUE if @oses == 0;
 
-    my $fingerbank_info = pf::node::fingerbank_info($node_attributes->{mac}, $node_attributes);
-    get_logger->debug( sub { "Trying see if any of the devices : ".join(',', @{$fingerbank_info->{device_hierarchy_ids}})." are in : " . join(",", @oses) });
+    my $device_name = $node_attributes->{device_type};
+    get_logger->debug( sub { "Trying see if device $device_name is one of: " . join(",", @oses) });
 
-    #if there is no device info then fail
-    return $FALSE if @{$fingerbank_info->{device_hierarchy_ids}} == 0;
-
-    foreach my $device_id (@{$fingerbank_info->{device_hierarchy_ids}}) {
-        if(any {$device_id eq $_} @oses){
-            return $TRUE;
-        }
+    for my $os (@oses) {
+        return $TRUE if fingerbank::Model::Device->is_a($device_name, $os);
     }
+
     return $FALSE;
 }
 

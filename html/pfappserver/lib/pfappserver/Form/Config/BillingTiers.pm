@@ -12,12 +12,13 @@ Form definition to create or update billing tiers.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
-with 'pfappserver::Base::Form::Role::Help';
+with qw (
+    pfappserver::Base::Form::Role::Help
+    pfappserver::Role::Form::RolesAttribute
+);
 
 use pf::config;
 use pf::util;
-
-has roles => ( is => 'rw' );
 
 ## Definition
 has_field 'id' =>
@@ -95,18 +96,6 @@ sub options_roles {
     my $self = shift;
     my @roles = map { $_->{name} => $_->{name} } @{$self->form->roles} if ($self->form->roles);
     return @roles;
-}
-
-=head2 ACCEPT_CONTEXT
-
-To automatically add the context to the Form
-
-=cut
-
-sub ACCEPT_CONTEXT {
-    my ($self, $c, @args) = @_;
-    my ($status, $roles) = $c->model('Config::Roles')->listFromDB();
-    return $self->SUPER::ACCEPT_CONTEXT($c, roles => $roles, @args);
 }
 
 =over

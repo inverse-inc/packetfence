@@ -30,6 +30,7 @@ has 'host' => (isa => 'Maybe[Str]', is => 'rw', default => '127.0.0.1');
 has 'port' => (isa => 'Maybe[Int]', is => 'rw', default => 1812);
 has 'timeout' => (isa => 'Maybe[Int]', is => 'rw', default => 1);
 has 'secret' => (isa => 'Str', is => 'rw', required => 1);
+has 'monitor' => ( isa => 'Bool', is => 'rw', default => 1 );
 
 =head2 dynamic_routing_module
 
@@ -181,7 +182,6 @@ sub check_radius_password {
 
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions, $extra) = @_;
-    $params->{'username'} = $params->{'stripped_user_name'} if (defined($params->{'stripped_user_name'} ) && $params->{'stripped_user_name'} ne '' && isenabled($self->{'stripped_user_name'}));
     my $username =  $params->{'username'};
 
     foreach my $condition (@{ $own_conditions }) {

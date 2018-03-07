@@ -27,6 +27,8 @@ use pf::Authentication::constants qw($LOGIN_CHALLENGE);
 use pf::util;
 use pf::config qw(%Config);
 use DateTime;
+use fingerbank::Constant;
+use fingerbank::Model::Device;
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
@@ -46,7 +48,7 @@ sub auto :Private {
 
     my $action = $c->action->name;
     # login and logout actions have no checks
-    if ($action eq 'login' || $action eq 'logout') {
+    if ($action eq 'login' || $action eq 'logout' || $action eq 'alt') {
         return 1;
     }
 
@@ -265,6 +267,14 @@ sub object :Chained('/') :PathPart('admin') :CaptureArgs(0) {
     $c->stash->{'server_hostname'}  = $c->model('Admin')->server_hostname();
 }
 
+
+sub alt :Local :Args(0) {
+    my ( $self, $c ) = @_;
+
+    $c->stash->{current_view} = 'HTML';
+    $c->stash->{'template'} = 'admin/v-index.tt';
+}
+
 =head2 status
 
 =cut
@@ -326,6 +336,7 @@ sub nodes :Chained('object') :PathPart('nodes') :Args(0) :AdminRole('NODES_READ'
         roles => $roles,
         switch_groups => $switch_groups,
         switches => $switches,
+        mobile_oses => [ map { fingerbank::Model::Device->read($_)->name } values(%fingerbank::Constant::MOBILE_IDS) ],
     );
 }
 

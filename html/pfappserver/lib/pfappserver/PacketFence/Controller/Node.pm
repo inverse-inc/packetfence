@@ -49,7 +49,7 @@ __PACKAGE__->config(
     }
 );
 
-our %DEFAULT_COLUMNS = map { $_ => 1 } qw/status mac computername pid last_ip device_class category online/;
+our %DEFAULT_COLUMNS = map { $_ => 1 } qw/status mac computername pid last_ip device_class category online tenant_name/;
 
 =head1 SUBROUTINES
 
@@ -242,6 +242,10 @@ Node controller dispatcher
 
 sub object :Chained('/') :PathPart('node') :CaptureArgs(1) {
     my ( $self, $c, $mac ) = @_;
+    my $tenant_id = $c->req->param('tenant_id');
+    if ($tenant_id) {
+        pf::dal->set_tenant($tenant_id);
+    }
 
     my ($status, $node_ref, $roles_ref);
 
@@ -257,7 +261,10 @@ sub object :Chained('/') :PathPart('node') :CaptureArgs(1) {
         $c->stash->{roles} = $roles_ref;
     }
 
-    $c->stash->{mac} = $mac;
+    $c->stash(
+        mac => $mac,
+        tenant_id => $tenant_id,
+    );
 }
 
 =head2 view
@@ -400,8 +407,27 @@ Trigger the access reevaluation of the access of a node
 
 sub reevaluate_access :Chained('object') :PathPart('reevaluate_access') :Args(0) :AdminRole('NODES_UPDATE') {
     my ( $self, $c ) = @_;
+    my $mac = $c->stash->{mac};
+    my ($status, $message) = $c->model('Node')->reevaluate($mac);
+    $self->audit_current_action($c, status => $status, mac => $mac);
+    if (is_error($status)) {
+        $c->log->error("Cannot reevaluate access for $mac");
+    }
+    $c->response->status($status);
+    $c->stash->{status_msg} = $message; # TODO: localize error message
+    $c->stash->{current_view} = 'JSON';
+}
 
-    my ($status, $message) = $c->model('Node')->reevaluate($c->stash->{mac});
+=head2 refresh_fingerbank_device
+
+Refresh the Fingerbank detected device
+
+=cut
+
+sub refresh_fingerbank_device :Chained('object') :PathPart('refresh_fingerbank_device') :Args(0) :AdminRole('NODES_UPDATE') {
+    my ( $self, $c ) = @_;
+
+    my ($status, $message) = $c->model('Node')->refresh_fingerbank_device($c->stash->{mac});
     $self->audit_current_action($c, status => $status, mac => $c->stash->{mac});
     $c->response->status($status);
     $c->stash->{status_msg} = $message; # TODO: localize error message
@@ -416,9 +442,12 @@ Restart the switchport for a device
 
 sub restart_switchport :Chained('object') :PathPart('restart_switchport') :Args(0) :AdminRole('NODES_UPDATE') {
     my ( $self, $c ) = @_;
-
-    my ($status, $message) = $c->model('Node')->restartSwitchport($c->stash->{mac});
-    $self->audit_current_action($c, status => $status, mac => $c->stash->{mac});
+    my $mac = $c->stash->{mac};
+    my ($status, $message) = $c->model('Node')->restartSwitchport($mac);
+    $self->audit_current_action($c, status => $status, mac => $mac);
+    if (is_error($status)) {
+        $c->log->error("Cannot restart switch port for $mac");
+    }
     $c->response->status($status);
     $c->stash->{status_msg} = $message; # TODO: localize error message
     $c->stash->{current_view} = 'JSON';

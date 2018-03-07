@@ -15,7 +15,6 @@ pfsnmptrapd
 use strict;
 use warnings;
 use lib qw(/usr/local/pf/lib);
-use JSON::MaybeXS;
 use NetSNMP::TrapReceiver;
 use pf::pfqueue::producer::redis;
 #      "receivedfrom" : "UDP: [192.168.57.101]:36745->[192.168.57.101]",
@@ -25,8 +24,6 @@ our $TRAP_RECEIVED_FROM = qr/
     (?:\]\d+)?
 
 /sx;
-
-our $JSON = JSON::MaybeXS->new;
 
 =head2 receiver
 

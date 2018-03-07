@@ -21,7 +21,11 @@ use warnings;
 ### pf::dal::_activation is auto generated any change to this file will be lost
 ### Instead change in the pf::dal::activation module
 ###
+
 use base qw(pf::dal);
+
+use Role::Tiny::With;
+with qw(pf::dal::roles::has_tenant_id);
 
 our @FIELD_NAMES;
 our @INSERTABLE_FIELDS;
@@ -33,6 +37,7 @@ our @COLUMN_NAMES;
 BEGIN {
     @FIELD_NAMES = qw(
         code_id
+        tenant_id
         pid
         mac
         contact_info
@@ -47,6 +52,7 @@ BEGIN {
     );
 
     %DEFAULTS = (
+        tenant_id => '1',
         pid => undef,
         mac => undef,
         contact_info => '',
@@ -61,6 +67,7 @@ BEGIN {
     );
 
     @INSERTABLE_FIELDS = qw(
+        tenant_id
         pid
         mac
         contact_info
@@ -79,6 +86,12 @@ BEGIN {
             type => 'INT',
             is_auto_increment => 1,
             is_primary_key => 1,
+            is_nullable => 0,
+        },
+        tenant_id => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
             is_nullable => 0,
         },
         pid => {
@@ -155,6 +168,7 @@ BEGIN {
 
     @COLUMN_NAMES = qw(
         activation.code_id
+        activation.tenant_id
         activation.pid
         activation.mac
         activation.contact_info

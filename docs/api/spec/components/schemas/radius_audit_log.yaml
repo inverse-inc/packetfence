@@ -1,0 +1,125 @@
+RadiusAuditLogList:
+  allOf:
+    - $ref: "#/components/schemas/Iterable"
+    - type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/RadiusAuditLog"
+
+RadiusAuditLog:
+  type: object
+  properties:
+    tenant_id:
+     description: The unique identifier of the client tenant
+     type: string
+    mac:
+     description: The MAC address of the device
+     type: string
+    ip:
+     description: The IPv4 address of the device
+     type: string
+    computer_name: 
+     description: The computer name from the radius request
+     type: string
+    user_name:
+     description: The user name from the radius_request
+     type: string
+    stripped_user_name: 
+     description: The user name of the clients connection
+     type: string
+    realm:
+     description: The clients realm
+     type: string
+    event_type:
+     description: "Event type (eg: Radius-Access-Request)"
+     type: string
+    switch_id:
+     description: The unique switch identifer
+     type: string
+    switch_mac: 
+     description: The switch MAC address 
+     type: string
+    switch_ip_address: 
+     description: The switch IPv4 address
+     type: string
+    radius_source_ip_address:
+     description: The switch IPv4 address
+     type: string
+    called_station_id:
+     description: The IPv4 address of the called station
+     type: string
+    calling_station_id:
+     description: The IPv4 address of the calling station
+     type: string
+    nas_port_type:
+     description: "The radius server port type (eg: Wireless-802.11|Ethernet)"
+     type: string
+    ssid: 
+     description: The SSID of the client connection
+     type: string
+    nas_port_id:
+     description: "The radius server unqiue port identifier (eg: GigabitEthernet1/0/48)"
+     type: string
+    ifindex:
+     description: The interface index on the network equipment
+     type: string
+    nas_port:
+     description: The radius server port
+     type: integer
+    connection_type:
+     description: The client connection type
+     type: string
+    nas_ip_address:
+     description: The radius server IPv4 address
+     type: string
+    nas_identifier:
+     description: The radius access request identifier
+     type: string
+    auth_status:
+     description: The radius access request response
+     type: string
+    reason:
+     description: The radius access request response reject reason
+     type: string
+    auth_type:
+     description: The radius access request type
+     type: string
+    eap_type:
+     description: The radius access request vendor specific eap type
+     type: string
+    role:
+     description: The role of the connection profile
+     type: string
+    node_status:
+     description: "The node status (eg: reg|unreg)"
+     type: string
+    profile:
+     description: The connection profile
+     type: string
+    source:
+     description: The authentication source
+     type: string
+    auto_reg:
+     description: Whether or not the device was auto-registered during the radius request
+     type: string
+    is_phone:
+     description: Whether or not the device is considered as a phone
+     type: string
+    pf_domain:
+     description: The domain (if any) used to authenticate the radius request
+     type: string
+    uuid:
+     description: 
+     type: string
+    radius_request:
+     description: The full radius request 
+     type: string
+    radius_reply:
+     description: The full radius response
+     type: string
+    request_time:
+     description: The time (seconds) that it took to complete the radius request
+     type: integer
+   

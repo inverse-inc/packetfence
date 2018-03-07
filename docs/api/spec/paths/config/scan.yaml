@@ -1,0 +1,830 @@
+/config/scan/{scan_id}:
+  delete:
+    parameters: []
+    responses:
+      '204':
+        description: Deleted a config item
+    summary: Delete a config item
+  get:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            discriminator:
+              propertyName: type
+            oneOf:
+            - properties:
+                categories:
+                  description: Nodes with the selected roles will be affected
+                  items:
+                    description: Nodes with the selected roles will be affected
+                    type: string
+                  type: array
+                domain:
+                  description: Domain
+                  type: string
+                duration:
+                  description: Approximate duration of a scan. User being scanned
+                    on registration are presented a progress bar for this duration,
+                    afterwards the browser refreshes until scan is complete.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                id:
+                  description: Name
+                  type: string
+                oses:
+                  description: Nodes with the selected OS will be affected
+                  items:
+                    description: Nodes with the selected OS will be affected
+                    type: string
+                  type: array
+                password:
+                  description: Password
+                  type: string
+                post_registration:
+                  description: If this option is enabled, the PF system will scan
+                    host after on the production vlan.
+                  type: string
+                pre_registration:
+                  description: If this option is enabled, the PF system will scan
+                    host before the registration.
+                  type: string
+                registration:
+                  description: If this option is enabled, the PF system will scan
+                    each host after registration is complete.
+                  type: string
+                type:
+                  description: Type
+                  type: string
+                username:
+                  description: Username
+                  type: string
+                wmi_policy:
+                  description: Name of the policy to use
+                  type: string
+                wmi_rules:
+                  description: Wmi rules
+                  items:
+                    description: Wmi rule
+                    type: string
+                  type: array
+              required:
+              - id
+              - username
+              - password
+              - domain
+              type: object
+            - properties:
+                categories:
+                  description: Nodes with the selected roles will be affected
+                  items:
+                    description: Nodes with the selected roles will be affected
+                    type: string
+                  type: array
+                duration:
+                  description: Approximate duration of a scan. User being scanned
+                    on registration are presented a progress bar for this duration,
+                    afterwards the browser refreshes until scan is complete.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                id:
+                  description: Name
+                  type: string
+                ip:
+                  description: Hostname or IP Address
+                  type: string
+                openvas_configid:
+                  description: ID of the scanning configuration on the OpenVAS server
+                  type: string
+                openvas_reportformatid:
+                  description: ID of the .NBE report format on the OpenVAS server
+                  type: string
+                oses:
+                  description: Nodes with the selected OS will be affected
+                  items:
+                    description: Nodes with the selected OS will be affected
+                    type: string
+                  type: array
+                password:
+                  description: Password
+                  type: string
+                port:
+                  description: If you use an alternative port, please specify
+                  type: integer
+                post_registration:
+                  description: If this option is enabled, the PF system will scan
+                    host after on the production vlan.
+                  type: string
+                pre_registration:
+                  description: If this option is enabled, the PF system will scan
+                    host before the registration.
+                  type: string
+                registration:
+                  description: If this option is enabled, the PF system will scan
+                    each host after registration is complete.
+                  type: string
+                type:
+                  description: Type
+                  type: string
+                username:
+                  description: Username
+                  type: string
+              required:
+              - id
+              - username
+              - password
+              - ip
+              type: object
+            - properties:
+                categories:
+                  description: Nodes with the selected roles will be affected
+                  items:
+                    description: Nodes with the selected roles will be affected
+                    type: string
+                  type: array
+                duration:
+                  description: Approximate duration of a scan. User being scanned
+                    on registration are presented a progress bar for this duration,
+                    afterwards the browser refreshes until scan is complete.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                id:
+                  description: Name
+                  type: string
+                ip:
+                  description: Hostname or IP Address
+                  type: string
+                nessus_clientpolicy:
+                  description: Name of the policy to use on the nessus server
+                  type: string
+                oses:
+                  description: Nodes with the selected OS will be affected
+                  items:
+                    description: Nodes with the selected OS will be affected
+                    type: string
+                  type: array
+                password:
+                  description: Password
+                  type: string
+                port:
+                  description: If you use an alternative port, please specify
+                  type: integer
+                post_registration:
+                  description: If this option is enabled, the PF system will scan
+                    host after on the production vlan.
+                  type: string
+                pre_registration:
+                  description: If this option is enabled, the PF system will scan
+                    host before the registration.
+                  type: string
+                registration:
+                  description: If this option is enabled, the PF system will scan
+                    each host after registration is complete.
+                  type: string
+                type:
+                  description: Type
+                  type: string
+                username:
+                  description: Username
+                  type: string
+              required:
+              - id
+              - username
+              - password
+              - ip
+              type: object
+            - properties:
+                categories:
+                  description: Nodes with the selected roles will be affected
+                  items:
+                    description: Nodes with the selected roles will be affected
+                    type: string
+                  type: array
+                duration:
+                  description: Approximate duration of a scan. User being scanned
+                    on registration are presented a progress bar for this duration,
+                    afterwards the browser refreshes until scan is complete.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                id:
+                  description: Name
+                  type: string
+                ip:
+                  description: Hostname or IP Address
+                  type: string
+                nessus_clientpolicy:
+                  description: Name of the policy to use on the nessus server
+                  type: string
+                oses:
+                  description: Nodes with the selected OS will be affected
+                  items:
+                    description: Nodes with the selected OS will be affected
+                    type: string
+                  type: array
+                password:
+                  description: Password
+                  type: string
+                port:
+                  description: If you use an alternative port, please specify
+                  type: integer
+                post_registration:
+                  description: If this option is enabled, the PF system will scan
+                    host after on the production vlan.
+                  type: string
+                pre_registration:
+                  description: If this option is enabled, the PF system will scan
+                    host before the registration.
+                  type: string
+                registration:
+                  description: If this option is enabled, the PF system will scan
+                    each host after registration is complete.
+                  type: string
+                scannername:
+                  description: Name of the scanner to use on the nessus server
+                  type: string
+                type:
+                  description: Type
+                  type: string
+                username:
+                  description: Username
+                  type: string
+                verify_hostname:
+                  description: Verify hostname of server
+                  type: string
+              required:
+              - id
+              - username
+              - password
+              - ip
+              type: object
+      required: true
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  patch:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            discriminator:
+              propertyName: type
+            oneOf:
+            - properties:
+                categories:
+                  description: Nodes with the selected roles will be affected
+                  items:
+                    description: Nodes with the selected roles will be affected
+                    type: string
+                  type: array
+                domain:
+                  description: Domain
+                  type: string
+                duration:
+                  description: Approximate duration of a scan. User being scanned
+                    on registration are presented a progress bar for this duration,
+                    afterwards the browser refreshes until scan is complete.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                oses:
+                  description: Nodes with the selected OS will be affected
+                  items:
+                    description: Nodes with the selected OS will be affected
+                    type: string
+                  type: array
+                password:
+                  description: Password
+                  type: string
+                post_registration:
+                  description: If this option is enabled, the PF system will scan
+                    host after on the production vlan.
+                  type: string
+                pre_registration:
+                  description: If this option is enabled, the PF system will scan
+                    host before the registration.
+                  type: string
+                registration:
+                  description: If this option is enabled, the PF system will scan
+                    each host after registration is complete.
+                  type: string
+                type:
+                  description: Type
+                  type: string
+                username:
+                  description: Username
+                  type: string
+                wmi_policy:
+                  description: Name of the policy to use
+                  type: string
+                wmi_rules:
+                  description: Wmi rules
+                  items:
+                    description: Wmi rule
+                    type: string
+                  type: array
+              required:
+              - username
+              - password
+              - domain
+              type: object
+            - properties:
+                categories:
+                  description: Nodes with the selected roles will be affected
+                  items:
+                    description: Nodes with the selected roles will be affected
+                    type: string
+                  type: array
+                duration:
+                  description: Approximate duration of a scan. User being scanned
+                    on registration are presented a progress bar for this duration,
+                    afterwards the browser refreshes until scan is complete.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                ip:
+                  description: Hostname or IP Address
+                  type: string
+                openvas_configid:
+                  description: ID of the scanning configuration on the OpenVAS server
+                  type: string
+                openvas_reportformatid:
+                  description: ID of the .NBE report format on the OpenVAS server
+                  type: string
+                oses:
+                  description: Nodes with the selected OS will be affected
+                  items:
+                    description: Nodes with the selected OS will be affected
+                    type: string
+                  type: array
+                password:
+                  description: Password
+                  type: string
+                port:
+                  description: If you use an alternative port, please specify
+                  type: integer
+                post_registration:
+                  description: If this option is enabled, the PF system will scan
+                    host after on the production vlan.
+                  type: string
+                pre_registration:
+                  description: If this option is enabled, the PF system will scan
+                    host before the registration.
+                  type: string
+                registration:
+                  description: If this option is enabled, the PF system will scan
+                    each host after registration is complete.
+                  type: string
+                type:
+                  description: Type
+                  type: string
+                username:
+                  description: Username
+                  type: string
+              required:
+              - username
+              - password
+              - ip
+              type: object
+            - properties:
+                categories:
+                  description: Nodes with the selected roles will be affected
+                  items:
+                    description: Nodes with the selected roles will be affected
+                    type: string
+                  type: array
+                duration:
+                  description: Approximate duration of a scan. User being scanned
+                    on registration are presented a progress bar for this duration,
+                    afterwards the browser refreshes until scan is complete.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                ip:
+                  description: Hostname or IP Address
+                  type: string
+                nessus_clientpolicy:
+                  description: Name of the policy to use on the nessus server
+                  type: string
+                oses:
+                  description: Nodes with the selected OS will be affected
+                  items:
+                    description: Nodes with the selected OS will be affected
+                    type: string
+                  type: array
+                password:
+                  description: Password
+                  type: string
+                port:
+                  description: If you use an alternative port, please specify
+                  type: integer
+                post_registration:
+                  description: If this option is enabled, the PF system will scan
+                    host after on the production vlan.
+                  type: string
+                pre_registration:
+                  description: If this option is enabled, the PF system will scan
+                    host before the registration.
+                  type: string
+                registration:
+                  description: If this option is enabled, the PF system will scan
+                    each host after registration is complete.
+                  type: string
+                type:
+                  description: Type
+                  type: string
+                username:
+                  description: Username
+                  type: string
+              required:
+              - username
+              - password
+              - ip
+              type: object
+            - properties:
+                categories:
+                  description: Nodes with the selected roles will be affected
+                  items:
+                    description: Nodes with the selected roles will be affected
+                    type: string
+                  type: array
+                duration:
+                  description: Approximate duration of a scan. User being scanned
+                    on registration are presented a progress bar for this duration,
+                    afterwards the browser refreshes until scan is complete.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                ip:
+                  description: Hostname or IP Address
+                  type: string
+                nessus_clientpolicy:
+                  description: Name of the policy to use on the nessus server
+                  type: string
+                oses:
+                  description: Nodes with the selected OS will be affected
+                  items:
+                    description: Nodes with the selected OS will be affected
+                    type: string
+                  type: array
+                password:
+                  description: Password
+                  type: string
+                port:
+                  description: If you use an alternative port, please specify
+                  type: integer
+                post_registration:
+                  description: If this option is enabled, the PF system will scan
+                    host after on the production vlan.
+                  type: string
+                pre_registration:
+                  description: If this option is enabled, the PF system will scan
+                    host before the registration.
+                  type: string
+                registration:
+                  description: If this option is enabled, the PF system will scan
+                    each host after registration is complete.
+                  type: string
+                scannername:
+                  description: Name of the scanner to use on the nessus server
+                  type: string
+                type:
+                  description: Type
+                  type: string
+                username:
+                  description: Username
+                  type: string
+                verify_hostname:
+                  description: Verify hostname of server
+                  type: string
+              required:
+              - username
+              - password
+              - ip
+              type: object
+      required: true
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  put:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            discriminator:
+              propertyName: type
+            oneOf:
+            - properties:
+                categories:
+                  description: Nodes with the selected roles will be affected
+                  items:
+                    description: Nodes with the selected roles will be affected
+                    type: string
+                  type: array
+                domain:
+                  description: Domain
+                  type: string
+                duration:
+                  description: Approximate duration of a scan. User being scanned
+                    on registration are presented a progress bar for this duration,
+                    afterwards the browser refreshes until scan is complete.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                oses:
+                  description: Nodes with the selected OS will be affected
+                  items:
+                    description: Nodes with the selected OS will be affected
+                    type: string
+                  type: array
+                password:
+                  description: Password
+                  type: string
+                post_registration:
+                  description: If this option is enabled, the PF system will scan
+                    host after on the production vlan.
+                  type: string
+                pre_registration:
+                  description: If this option is enabled, the PF system will scan
+                    host before the registration.
+                  type: string
+                registration:
+                  description: If this option is enabled, the PF system will scan
+                    each host after registration is complete.
+                  type: string
+                type:
+                  description: Type
+                  type: string
+                username:
+                  description: Username
+                  type: string
+                wmi_policy:
+                  description: Name of the policy to use
+                  type: string
+                wmi_rules:
+                  description: Wmi rules
+                  items:
+                    description: Wmi rule
+                    type: string
+                  type: array
+              required:
+              - username
+              - password
+              - domain
+              type: object
+            - properties:
+                categories:
+                  description: Nodes with the selected roles will be affected
+                  items:
+                    description: Nodes with the selected roles will be affected
+                    type: string
+                  type: array
+                duration:
+                  description: Approximate duration of a scan. User being scanned
+                    on registration are presented a progress bar for this duration,
+                    afterwards the browser refreshes until scan is complete.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                ip:
+                  description: Hostname or IP Address
+                  type: string
+                openvas_configid:
+                  description: ID of the scanning configuration on the OpenVAS server
+                  type: string
+                openvas_reportformatid:
+                  description: ID of the .NBE report format on the OpenVAS server
+                  type: string
+                oses:
+                  description: Nodes with the selected OS will be affected
+                  items:
+                    description: Nodes with the selected OS will be affected
+                    type: string
+                  type: array
+                password:
+                  description: Password
+                  type: string
+                port:
+                  description: If you use an alternative port, please specify
+                  type: integer
+                post_registration:
+                  description: If this option is enabled, the PF system will scan
+                    host after on the production vlan.
+                  type: string
+                pre_registration:
+                  description: If this option is enabled, the PF system will scan
+                    host before the registration.
+                  type: string
+                registration:
+                  description: If this option is enabled, the PF system will scan
+                    each host after registration is complete.
+                  type: string
+                type:
+                  description: Type
+                  type: string
+                username:
+                  description: Username
+                  type: string
+              required:
+              - username
+              - password
+              - ip
+              type: object
+            - properties:
+                categories:
+                  description: Nodes with the selected roles will be affected
+                  items:
+                    description: Nodes with the selected roles will be affected
+                    type: string
+                  type: array
+                duration:
+                  description: Approximate duration of a scan. User being scanned
+                    on registration are presented a progress bar for this duration,
+                    afterwards the browser refreshes until scan is complete.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                ip:
+                  description: Hostname or IP Address
+                  type: string
+                nessus_clientpolicy:
+                  description: Name of the policy to use on the nessus server
+                  type: string
+                oses:
+                  description: Nodes with the selected OS will be affected
+                  items:
+                    description: Nodes with the selected OS will be affected
+                    type: string
+                  type: array
+                password:
+                  description: Password
+                  type: string
+                port:
+                  description: If you use an alternative port, please specify
+                  type: integer
+                post_registration:
+                  description: If this option is enabled, the PF system will scan
+                    host after on the production vlan.
+                  type: string
+                pre_registration:
+                  description: If this option is enabled, the PF system will scan
+                    host before the registration.
+                  type: string
+                registration:
+                  description: If this option is enabled, the PF system will scan
+                    each host after registration is complete.
+                  type: string
+                type:
+                  description: Type
+                  type: string
+                username:
+                  description: Username
+                  type: string
+              required:
+              - username
+              - password
+              - ip
+              type: object
+            - properties:
+                categories:
+                  description: Nodes with the selected roles will be affected
+                  items:
+                    description: Nodes with the selected roles will be affected
+                    type: string
+                  type: array
+                duration:
+                  description: Approximate duration of a scan. User being scanned
+                    on registration are presented a progress bar for this duration,
+                    afterwards the browser refreshes until scan is complete.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                ip:
+                  description: Hostname or IP Address
+                  type: string
+                nessus_clientpolicy:
+                  description: Name of the policy to use on the nessus server
+                  type: string
+                oses:
+                  description: Nodes with the selected OS will be affected
+                  items:
+                    description: Nodes with the selected OS will be affected
+                    type: string
+                  type: array
+                password:
+                  description: Password
+                  type: string
+                port:
+                  description: If you use an alternative port, please specify
+                  type: integer
+                post_registration:
+                  description: If this option is enabled, the PF system will scan
+                    host after on the production vlan.
+                  type: string
+                pre_registration:
+                  description: If this option is enabled, the PF system will scan
+                    host before the registration.
+                  type: string
+                registration:
+                  description: If this option is enabled, the PF system will scan
+                    each host after registration is complete.
+                  type: string
+                scannername:
+                  description: Name of the scanner to use on the nessus server
+                  type: string
+                type:
+                  description: Type
+                  type: string
+                username:
+                  description: Username
+                  type: string
+                verify_hostname:
+                  description: Verify hostname of server
+                  type: string
+              required:
+              - username
+              - password
+              - ip
+              type: object
+      required: true
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

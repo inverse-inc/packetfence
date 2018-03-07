@@ -54,7 +54,7 @@ Make sure the role name is unique.
 sub validate {
     my $self = shift;
 
-    if (grep { $_ eq $self->value->{id} } @ROLES) {
+    if (grep { $_ eq ($self->value->{id} // '')  } @ROLES) {
         $self->field('id')->add_error('This is a reserved name.');
     }
 }

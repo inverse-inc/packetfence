@@ -45,9 +45,9 @@ var NodeView = function(options) {
 
     var read = $.proxy(this.readNode, this);
     var body = $('body');
-    options.parent.on('click', '[href*="node"][href$="/read"]', read);
+    options.parent.on('click', '[href*="node"][href*="/read"]', read);
 
-    this.proxyClick(body, '.node [href*="node"][href$="/read"]', this.readNode);
+    this.proxyClick(body, '.node [href*="node"][href*="/read"]', this.readNode);
 
     this.proxyFor(body, 'show', '#modalNode', this.showNode);
 
@@ -71,7 +71,7 @@ var NodeView = function(options) {
 
     this.proxyFor(body, 'submit', '#modalNode form[name="modalNode"]', this.updateNode);
 
-    this.proxyClick(body, '#modalNode [href$="/delete"]', this.deleteNode);
+    this.proxyClick(body, '#modalNode [href*="node"][href8="/delete"]', this.deleteNode);
 
     this.proxyFor(body, 'show', 'a[data-toggle="tab"][href="#nodeViolations"]', this.loadTab);
 
@@ -84,6 +84,8 @@ var NodeView = function(options) {
     this.proxyClick(body, '#modalNode [href*="/run/"]', this.runViolation);
 
     this.proxyClick(body, '#modalNode #reevaluateNode', this.reevaluateAccess);
+    
+    this.proxyClick(body, '#modalNode #refreshFingerbankDeviceNode', this.refreshFingerbankDevice);
     
     this.proxyClick(body, '#modalNode #restartSwitchport', this.restartSwitchport);
 
@@ -403,12 +405,12 @@ NodeView.prototype.triggerViolation = function(e) {
     var modal = $('#modalNode');
     var modal_body = modal.find('.modal-body');
     var btn = $(e.target);
-    var href = btn.attr('href');
-    var vid = modal.find('#vid').val();
+    var option = modal.find('#vid').find(':selected');
+    var href = option.attr("trigger_url");
     var pane = $('#nodeViolations');
     resetAlert(pane);
     this.nodes.get({
-        url: [href, vid].join('/'),
+        url: href,
         success: function(data) {
             pane.html(data);
             pane.find('.switch').bootstrapSwitch();
@@ -418,6 +420,22 @@ NodeView.prototype.triggerViolation = function(e) {
 };
 
 NodeView.prototype.reevaluateAccess = function(e){
+    e.preventDefault();
+    
+    var modal = $('#modalNode');
+    var modal_body = modal.find('.modal-body');
+    var link = $(e.target);
+    var url = link.attr('href');
+    this.nodes.get({
+        url: url,
+        success: function(data) {
+            showSuccess(modal_body.children().first(), data.status_msg);
+        },
+        errorSibling: modal_body.children().first()
+    });
+}
+
+NodeView.prototype.refreshFingerbankDevice = function(e){
     e.preventDefault();
     
     var modal = $('#modalNode');

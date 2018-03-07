@@ -10,7 +10,7 @@ all:
 	@echo "Please chose which documentation to build:"
 	@echo ""
 	@echo " 'pdf' will build all guides using the PDF format"
-	@echo " 'PacketFence_Administration_Guide.pdf' will build the Administration guide in PDF"
+	@echo " 'PacketFence_Installation_Guide.pdf' will build the Installation guide in PDF"
 	@echo " 'PacketFence_Developers_Guide.pdf' will build the Develoeprs guide in PDF"
 	@echo " 'PacketFence_Network_Devices_Configuration_Guide.pdf' will build the Network Devices Configuration guide in PDF"
 
@@ -86,9 +86,6 @@ conf/ssl/server.crt: | conf/ssl/server.crt
 conf/ssl/server.key: | conf/ssl/server.key
 	openssl genrsa -out /usr/local/pf/conf/ssl/server.key 2048
 
-conf/pf_omapi_key:
-	/usr/bin/openssl rand -base64 -out /usr/local/pf/conf/pf_omapi_key 32
-
 conf/local_secret:
 	date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/local_secret
 
@@ -135,7 +132,6 @@ translation:
 
 mysql-schema:
 	ln -f -s /usr/local/pf/db/pf-schema-X.Y.Z.sql /usr/local/pf/db/pf-schema.sql;
-	ln -f -s /usr/local/pf/db/pf_graphite-schema-5.1.0.sql /usr/local/pf/db/pf_graphite-schema.sql
 
 .PHONY: chown_pf
 
@@ -153,7 +149,7 @@ fingerbank:
 pf-dal:
 	perl /usr/local/pf/addons/dev-helpers/bin/generator-data-access-layer.pl
 
-devel: configurations conf/ssl/server.crt conf/pf_omapi_key conf/local_secret bin/pfcmd raddb/certs/server.crt sudo translation mysql-schema raddb/sites-enabled fingerbank chown_pf permissions bin/ntlm_auth_wrapper html/pfappserver/root/static/doc
+devel: configurations conf/ssl/server.crt conf/local_secret bin/pfcmd raddb/certs/server.crt sudo translation mysql-schema raddb/sites-enabled fingerbank chown_pf permissions bin/ntlm_auth_wrapper html/pfappserver/root/static/doc
 
 test:
 	cd t && ./smoke.t

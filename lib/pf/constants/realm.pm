@@ -21,6 +21,20 @@ our $LOCAL = "LOCAL";
 
 our $NULL = "NULL";
 
+our $NO_CONTEXT = "none";
+
+our $PORTAL_CONTEXT = "portal";
+
+our $ADMIN_CONTEXT = "admin";
+
+our $RADIUS_CONTEXT = "radius";
+
+our @CONTEXTS = (
+    $PORTAL_CONTEXT,
+    $ADMIN_CONTEXT,
+    $RADIUS_CONTEXT,
+);
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

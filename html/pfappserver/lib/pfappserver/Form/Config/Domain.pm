@@ -234,7 +234,7 @@ Validate NTLM cache fields if ntlm_cache is enabled
 sub validate {
     my ($self) = @_;
 
-    if($self->field('id')->value() !~ /^[0-9a-zA-Z]+$/) {
+    if(($self->field('id')->value() // '') !~ /^[0-9a-zA-Z]+$/) {
         $self->field('id')->add_error("The id is invalid. The id can only contain alphanumeric characters.");
     }
 

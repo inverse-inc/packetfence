@@ -23,8 +23,8 @@
   <IfModule !mod_log_config.c>
     LoadModule log_config_module /usr/lib/apache2/modules/mod_log_config.so
   </IfModule>
-  <IfModule !mod_ssl.c>
-    LoadModule ssl_module /usr/lib/apache2/modules/mod_ssl.so
+  <IfModule !mod_logio.c>
+    LoadModule logio_module /usr/lib/apache2/modules/mod_logio.so
   </IfModule>
   <IfModule !mod_headers.c>
     LoadModule headers_module /usr/lib/apache2/modules/mod_headers.so
@@ -83,8 +83,8 @@
   <IfModule !mod_log_config.c>
     LoadModule log_config_module modules/mod_log_config.so
   </IfModule>
-  <IfModule !mod_ssl.c>
-    LoadModule ssl_module modules/mod_ssl.so
+  <IfModule !mod_logio.c>
+    LoadModule logio_module modules/mod_logio.so
   </IfModule>
   <IfModule !mod_headers.c>
     LoadModule headers_module modules/mod_headers.so
@@ -127,7 +127,6 @@ PerlSetEnv PERL_RLIMIT_AS 1024
 PerlChildInitHandler Apache2::Resource
 
 PerlSwitches -I[% install_dir %]/lib
-PerlSwitches -I[% install_dir %]/html/captive-portal/lib
 # mod_perl handlers are virtually assigned to /perl/
 # The TransHandler handles the 'captive-portal' core piece redirecting to the
 # portal if the URL is not otherwised allowed by passthrough or part of the
@@ -149,18 +148,12 @@ PerlPostConfigHandler pf::WebAPI::InitHandler->post_config
 
 [% IF apache_version == "2.4" %]
 Mutex posixsem default
-Mutex posixsem ssl-cache
 [% ELSE %]
 AcceptMutex posixsem
-SSLMutex posixsem
 [% END %]
 ServerLimit 512
 
 Header always set X-DNS-Prefetch-Control off
-
-<Files ~ "\.(cgi?)$">
-  SSLOptions +StdEnvVars
-</Files>
 
 SetEnvIf User-Agent ".*MSIE.*" \
   nokeepalive ssl-unclean-shutdown \
@@ -170,7 +163,7 @@ TypesConfig /etc/mime.types
 
 PidFile [% install_dir %]/var/run/[% name %].pid
 Include [% install_dir %]/conf/httpd.conf.d/log.conf
-SetEnvIf User-Agent collectd is_collectd
+SetEnvIf User-Agent netdata is_netdata
 
 User pf
 Group pf
@@ -195,25 +188,6 @@ MaxRequestsPerChild 1000
 PerlInitHandler pf::WebAPI::InitHandler
 PerlChildInitHandler pf::WebAPI::InitHandler->child_init
 
-SSLPassPhraseDialog builtin
-SSLSessionCacheTimeout 300
-SSLRandomSeed startup builtin
-SSLRandomSeed startup file:/dev/urandom 1024
-SSLRandomSeed connect builtin
-SSLRandomSeed connect file:/dev/urandom 1024
-
-[% IF apache_version == "2.4" %]
-SSLSessionCache shmcb:[% install_dir %]/var/ssl_acache(512000)
-Mutex file:[% install_dir %]/var/ssl_mutex ssl-cache
-# apache 2.4.6 | modern profile | OpenSSL 1.0.1e | https://mozilla.github.io/server-side-tls/ssl-config-generator/?server=apache-2.4.6&openssl=1.0.1e&hsts=no&profile=modern
-#Oldest compatible clients: Firefox 27, Chrome 30, IE 11 on Windows 7, Edge, Opera 17, Safari 9, Android 5.0, and Java 8
-SSLProtocol             all -SSLv3 -TLSv1 -TLSv1.1
-SSLCipherSuite          ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256
-SSLHonorCipherOrder     on
-SSLCompression          off
-[% END %]
-
-SSLHonorCipherOrder on
 Header set X-XSS-Protection "1; mode=block"
 Header always append X-Frame-Options SAMEORIGIN
 
@@ -227,18 +201,16 @@ ErrorLog "| /usr/bin/logger -thttpd_portal_err -plocal5.err"
 [% FOREACH vhost IN vhosts %]
 
 Listen [% vhost %]:80
-Listen [% vhost %]:443
 
 [% IF apache_version == "2.2" %]
 NameVirtualHost [% vhost %]:80
-NameVirtualHost [% vhost %]:443
 [% END %]
 
 <VirtualHost [% vhost %]:80 > 
      ServerName   [% server_name %]
      DocumentRoot [% install_dir %]/html/captive-portal/lib
      ErrorLog "| /usr/bin/logger -thttpd_portal_err -plocal5.err"
-     CustomLog "| /usr/bin/logger -thttpd_portal -plocal5.info"  loadbalanced_combined env=!is_collectd
+     CustomLog "| /usr/bin/logger -thttpd_portal -plocal5.info"  loadbalanced_combined env=!is_netdata
      Include [% var_dir %]/conf/captive-portal-common
      AllowEncodedSlashes on
      Alias       /static [% install_dir %]/html/captive-portal/root/static
@@ -314,82 +286,6 @@ NameVirtualHost [% vhost %]:443
      [% END %]
 </VirtualHost>
 
-# Secure captive-portal (https)
-<VirtualHost  [% vhost %]:443 >
-     ServerName   [% server_name %]
-     DocumentRoot [% install_dir%]/html/captive-portal/lib
-     ErrorLog "| /usr/bin/logger -thttpd_portal_err-plocal5.err"
-     CustomLog "| /usr/bin/logger -thttpd_portal -plocal5.info"  loadbalanced_combined env=!is_collectd
-     Include [% var_dir %]/conf/captive-portal-common
-     AllowEncodedSlashes on
-     Alias       /static [% install_dir %]/html/captive-portal/root/static
-     Alias       /common [% install_dir %]/html/common
-     PerlModule  captiveportal
-     PerlTransHandler pf::web::dispatcher::custom
-     <Location / >
-        [% IF apache_version == "2.4" %]
-        Require all granted
-        [% ELSE %]
-        Allow from all
-        [% END %]
-        SetHandler modperl
-        PerlResponseHandler captiveportal
-     </Location>
-     <Location /static >
-        [% IF apache_version == "2.4" %]
-        Require all granted
-        [% ELSE %]
-        Allow from all
-        [% END %]
-        SetHandler default-handler
-     </Location>
-     <Location /common >
-        [% IF apache_version == "2.4" %]
-        Require all granted
-        [% ELSE %]
-        Allow from all
-        [% END %]
-        SetHandler default-handler
-     </Location>
-     <Location /content >
-        [% IF apache_version == "2.4" %]
-        Require all granted
-        [% ELSE %]
-        Allow from all
-        [% END %]
-        SetHandler default-handler
-     </Location>
-     <Location /hook/billing >
-        SetHandler modperl
-        PerlResponseHandler pf::web::billinghook
-     </Location>
-     [% IF captive_portal.status_only_on_production && vhost_management_network != vhost %]
-     <Location /status >
-        [% IF apache_version == "2.4" %]
-        Require all granted
-        [% ELSE %]
-        Allow from all
-        [% END %]
-        SetHandler modperl
-        PerlResponseHandler captiveportal
-     </Location>
-     [% END %]
-     [% IF allowed_from_all_options %]
-         <Location ~ [% allowed_from_all_urls %] >
-            [% IF apache_version == "2.4" %]
-            Require all granted
-            [% ELSE %]
-            Allow from all
-            [% END %]
-            SetHandler modperl
-            PerlResponseHandler captiveportal
-        </Location>
-     [% END %]
-     SSLEngine on
-     SSLProxyEngine on
-     Include [% var_dir %]/conf/ssl-certificates.conf
-</VirtualHost>
-
 [% END %]
 
 
@@ -404,15 +300,12 @@ NameVirtualHost [% vhost %]:443
         ServerName   [% server_name %]
         DocumentRoot [% install_dir%]/html/captive-portal/lib
         ErrorLog "| /usr/bin/logger -thttpd_portal_err -plocal5.err"
-        CustomLog "| /usr/bin/logger -thttpd_portal -plocal5.info"  loadbalanced_combined env=!is_collectd
+        CustomLog "| /usr/bin/logger -thttpd_portal -plocal5.info"  loadbalanced_combined env=!is_netdata
 
         <Location  /modstatus >
             SetHandler server-status
         </Location>
 
-        SSLEngine on
-        SSLProxyEngine on
-        Include [% var_dir %]/conf/ssl-certificates.conf
     </VirtualHost>
 [% END %]
 

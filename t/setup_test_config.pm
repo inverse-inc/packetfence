@@ -43,6 +43,9 @@ BEGIN {
         $management_network->tag('vip', $Config{$section_name}{vip});
     }
 
+    #increase "inactivity timeout"
+    $ENV{MOJO_INACTIVITY_TIMEOUT} = "300";
+
     `rm -fr /tmp/chi/*`;
 }
 

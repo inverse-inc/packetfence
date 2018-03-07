@@ -1,0 +1,65 @@
+/config/traffic_shaping_policies:
+  get:
+    parameters:
+    - $ref: '#/components/parameters/cursor'
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/Iterable'
+              - properties:
+                  items:
+                    properties:
+                      download:
+                        description: Bandwidth must be in the following format 'nXY'
+                          where XY is one of the following KB,MB,GB,TB,PB
+                        type: string
+                      id:
+                        description: Role
+                        type: string
+                      upload:
+                        description: Bandwidth must be in the following format 'nXY'
+                          where XY is one of the following KB,MB,GB,TB,PB
+                        type: string
+                    required:
+                    - id
+                    type: object
+                type: object
+        description: A list of connection profiles
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  post:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              download:
+                description: Bandwidth must be in the following format 'nXY' where
+                  XY is one of the following KB,MB,GB,TB,PB
+                type: string
+              id:
+                description: Role
+                type: string
+              upload:
+                description: Bandwidth must be in the following format 'nXY' where
+                  XY is one of the following KB,MB,GB,TB,PB
+                type: string
+            required:
+            - id
+            type: object
+      required: true
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '409':
+        $ref: '#/components/responses/Duplicate'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

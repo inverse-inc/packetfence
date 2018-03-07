@@ -864,37 +864,6 @@ sub is_network_type_inline {
     }
 }
 
-=item is_omapi_lookup_enabled
-
-Check whether pf::ip4log::ip2mac or pf::ip4log::mac2ip are configured to use OMAPI based on configuration parameters.
-
-=cut
-
-sub is_omapi_lookup_enabled {
-    if ( isenabled($Config{'omapi'}{'ip2mac_lookup'}) || isenabled($Config{'omapi'}{'mac2ip_lookup'}) ) {
-        return $TRUE;
-    }
-
-    return $FALSE;
-}
-
-=item is_omapi_configured
-
-Check if required OMAPI configuration parameters (omapi.key_name & omapi.key_base64) are present before configuring it
-
-=cut
-
-sub is_omapi_configured {
-    return $FALSE unless $Config{'omapi'}{'host'} eq "localhost";
-
-    if ( ($Config{'omapi'}{'key_name'} && $Config{'omapi'}{'key_name'} ne '') && ($Config{'omapi'}{'key_base64'} && $Config{'omapi'}{'key_base64'} ne '') ) {
-        return $TRUE;
-    }
-
-    $logger->warn("OMAPI lookup is locally enabled but missing required configuration parameters 'key_name' and/or 'key_base64'");
-    return $FALSE;
-}
-
 =item configreload
 
 Reload the config
@@ -912,7 +881,11 @@ sub configreload {
     require pfconfig::manager;
     my $manager = pfconfig::manager->new;
     $manager->expire_all;
+    load_configdata_into_db();
+    return ;
+}
 
+sub load_configdata_into_db {
     # reload violations into DB
     require pf::violation_config;
     pf::violation_config::loadViolationsIntoDb();
@@ -920,14 +893,12 @@ sub configreload {
     require pf::SwitchFactory;
     require pf::freeradius;
     pf::freeradius::freeradius_populate_nas_config(\%pf::SwitchFactory::SwitchConfig);
-    
+
     require pf::nodecategory;
     pf::nodecategory::nodecategory_populate_from_config( \%pf::config::ConfigRoles );
 
     require pf::Survey;
     pf::Survey::reload_from_config( \%pf::config::ConfigSurvey );
-
-    return ;
 }
 
 =back

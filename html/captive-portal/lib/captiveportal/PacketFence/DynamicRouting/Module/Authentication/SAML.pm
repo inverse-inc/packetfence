@@ -16,6 +16,8 @@ with 'captiveportal::Role::Routed';
 
 use pf::util;
 use pf::auth_log;
+use pf::config::util;
+use pf::constants::realm;
 
 has '+source' => (isa => 'pf::Authentication::Source::SAMLSource');
 
@@ -74,10 +76,8 @@ sub assertion {
 
     my ($username, $msg) = $self->source->handle_response($self->app->request->param("SAMLResponse"));
 
-    # We strip the username if the authorization source requires it.
-    if(isenabled($self->source->authorization_source->{stripped_user_name})){
-        ($username, undef) = strip_username($username);
-    }
+    # We strip the username if required
+    ($username, undef) = pf::config::util::strip_username_if_needed($username, $pf::constants::realm::PORTAL_CONTEXT);
 
     if($username){
         pf::auth_log::record_completed_oauth($self->source->id, $self->current_mac, $username, $pf::auth_log::COMPLETED, $self->app->profile->name);

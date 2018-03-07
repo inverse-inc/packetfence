@@ -1,4 +1,4 @@
-localhost:8777 {
+:8777 {
   pfconfigpool
   logger {
     level INFO

@@ -27,6 +27,7 @@ my $config = check_config(pf::db::db_config());
 my $dbh = smoke_tester_db_connections($config);
 create_db($dbh, $config);
 apply_schema($config);
+load_standard_data();
 
 sub check_config {
     my ($config) = @_;
@@ -43,7 +44,7 @@ sub check_config {
 
 sub apply_schema {
     my ($config) = @_;
-    system("mysql -h$config->{host} -P$config->{port} -u$config->{user} -p$config->{pass} $config->{db} < /usr/local/pf/db/pf-schema-X.Y.Z.sql");
+    system("mysql -h$config->{host} -P$config->{port} -u$config->{user} -p$config->{pass} $config->{db} < /usr/local/pf/db/pf-schema.sql");
     if ($?) {
         die "Unable to apply schema\n";
     }
@@ -72,7 +73,16 @@ sub create_db {
     my $db = $config->{db};
     $dbh->do("DROP DATABASE IF EXISTS $db;") or die "Cannot drop database $db\n";;
     $dbh->do("CREATE DATABASE $db;") or die "Cannot create database $db\n";
+}
 
+sub load_standard_data {
+    start_pfconfig_test();
+    require pf::config;
+    pf::config::load_configdata_into_db();
+}
+
+sub start_pfconfig_test {
+    `/usr/local/pf/t/pfconfig-test`;
 }
 
 

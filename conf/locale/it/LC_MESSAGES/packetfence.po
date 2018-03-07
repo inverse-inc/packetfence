@@ -11,6 +11,7 @@
 # Eugen Kuzmych <uarush@gmail.com>, 2017
 # inverse <info@inverse.ca>, 2013
 # inverse <info@inverse.ca>, 2013
+# Luca Comes <lucacomes@hotmail.it>, 2017
 # Mario Varelli <mvarelli@biologia.unipi.it>, 2009
 # Raffaele Riccelli <raffaele.riccelli@tiscali.it>, 2015
 # Vincenzo Valvano <vincenzo.valvano@gmail.com>, 2015
@@ -18,7 +19,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-11-24 15:31+0000\n"
+"PO-Revision-Date: 2018-01-24 14:22+0000\n"
 "Last-Translator: inverse <info@inverse.ca>\n"
 "Language-Team: Italian (http://www.transifex.com/inverse/packetfence/language/it/)\n"
 "MIME-Version: 1.0\n"
@@ -45,17 +46,17 @@ msgstr ""
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Email.pm
 msgid "%s: Email activation required"
-msgstr ""
+msgstr "%s: attivazione via Email richiesta"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Sponsor.pm
 msgid "%s: Guest access request"
-msgstr ""
+msgstr "%s: richiesta di accesso Guest"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
 msgid "%s: Guest access request accepted"
-msgstr ""
+msgstr "%s: richiesta di accesso Guest accettato"
 
 # html/captive-portal/templates/pki_provider/packetfence_local.html
 # html/captive-portal/templates/pki_provider/packetfence_pki.html
@@ -102,8 +103,11 @@ msgid "Address"
 msgstr "Indirizzo"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
-msgid "After registering, you will be given temporary network access. In order to complete your registration, you will need to click on the link emailed to you."
-msgstr "Dopo la registrazione ti sarà concesso temporaneo accesso alla rete. Per completare la registrazione dovrai clickare sul link che ti è stato inviato via e-mail."
+msgid ""
+"After registering, you will be given temporary network access. In order to "
+"complete your registration, you will need to click on the link emailed to "
+"you."
+msgstr ""
 
 # html/captive-portal/templates/provisioner/sepm.html
 msgid "Alternate installer"
@@ -143,7 +147,7 @@ msgstr "Numero appartamento"
 
 # html/captive-portal/templates/status.html
 msgid "Bandwidth balance "
-msgstr ""
+msgstr "Bilanciamento di banda"
 
 # html/captive-portal/templates/activation/sponsor_login.html
 msgid "Before we proceed with guest activation, we need you to authenticate."
@@ -169,7 +173,7 @@ msgstr "Numero edificio"
 # html/captive-portal/templates/status.html
 # html/captive-portal/templates/status/menu.html
 msgid "Cancel"
-msgstr ""
+msgstr "Annulla"
 
 # pf::person::FIELDS
 msgid "Cell_phone"

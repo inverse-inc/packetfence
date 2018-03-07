@@ -17,11 +17,22 @@ use Moo;
 use namespace::autoclean;
 use pf::file_paths qw($pki_provider_config_file);
 extends 'pf::ConfigStore';
+with 'pf::ConfigStore::Role::ReverseLookup';
 
 sub configFile { $pki_provider_config_file }
 
 sub pfconfigNamespace { 'config::PKI_Provider' }
 
+=head2 canDelete
+
+canDelete
+
+=cut
+
+sub canDelete {
+    my ($self, $id) = @_;
+    return !$self->isInProvisioning('pki_provider', $id) && $self->SUPER::canDelete($id);
+}
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 

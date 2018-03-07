@@ -13,6 +13,17 @@ listen {
     mode = rw
 }
 
+listen {
+        #  ONLY Status-Server is allowed to this port.
+        #  ALL other packets are ignored.
+        type = status
+
+        ipaddr = 127.0.0.1
+        port = 18123
+        virtual_server = status
+}
+
+
 log {
 	#
 	#  Destination for log messages.  This can be one of:

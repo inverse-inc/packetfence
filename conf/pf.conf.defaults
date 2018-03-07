@@ -115,7 +115,7 @@ range=
 #
 # When enabled, pfdns will resolve the real IP addresses of passthroughs and add them in the ipset session to give access
 # to trapped devices. Don´t forget to enable ip_forward on your server.
-passthrough=disabled
+passthrough=enabled
 #
 # fencing.passthroughs
 #
@@ -243,11 +243,6 @@ collector=9292
 # Port of the aaa http interface listens on.
 aaa=7070
 #
-#port.pf_status
-#
-# Port of the packetfence status http interface listends on.
-pf_status=9191
-#
 # ports.httpd_portal_modstatus
 #
 # Port the mod_status for httpd.portal listens on.
@@ -328,16 +323,30 @@ thread_cache_size=25
 max_allowed_packet=16
 
 [services]
+# services.pfipset
 #
-# services.dhcpd
+# Should pfipset be managed by PacketFence?
+pfipset=enabled
 #
-# Should DHCPd be managed by PacketFence?
-dhcpd=enabled
+# services.pfdhcp
 #
-# services.dhcpd_binary
+# Should pfdhcp be managed by PacketFence?
+pfdhcp=enabled
 #
-# Location of the dhcpd binary. Only necessary to change if you are not running the RPMed version.
-dhcpd_binary=/usr/sbin/dhcpd
+# services.pfdhcp_binary
+#
+# Location of the pfdhcp binary.
+pfdhcp_binary=/usr/local/pf/bin/pfdhcp
+#
+# services.etcd
+#
+# Should etcd be managed by PacketFence?
+etcd=enabled
+#
+# services.etcd_binary
+#
+# Location of the etcd binary. Only necessary to change if you are not running the RPMed version.
+etcd_binary=/usr/bin/etcd
 #
 # services.haproxy
 #
@@ -348,11 +357,6 @@ haproxy=enabled
 #
 # Location of the haproxy binary. Only necessary to change if you are not running the RPMed version.
 haproxy_binary=/usr/sbin/haproxy-systemd-wrapper
-#
-# services.pfdns
-#
-# Should pfdns be managed by PacketFence?
-pfdns=enabled
 #
 # services.pffilter
 #
@@ -404,6 +408,11 @@ httpd_portal=enabled
 # Should httpd.parking be started?
 httpd_parking=enabled
 #
+# services.pfunified_api
+#
+# Should pfunified_api be started?
+pfunified_api=enabled
+#
 # services.httpd_webservices
 #
 # Should httpd.webservices be started?
@@ -428,11 +437,6 @@ httpd_aaa=enabled
 #
 # Should httpd.proxy be started?
 httpd_proxy=enabled
-#
-# services.httpd_graphite
-#
-# Should httpd.graphite be started?
-httpd_graphite=enabled
 #
 # services.httpd_binary
 #
@@ -511,45 +515,6 @@ winbindd=enabled
 # 
 # location of the winbindd binary. only necessary to change if you are not running the rpmed version.
 winbindd_binary=/usr/sbin/winbindd
-# services.carbon-cache
-#
-# Should carbon-cache be started?
-carbon-cache=enabled
-# 
-# services.carbon-cache_binary
-# 
-# Location of the carbon cache binary. Only necessary to change if you are not running the pre-packaged version.
-carbon-cache_binary=/usr/bin/carbon-cache
-#
-# services.carbon-relay
-#
-# Should carbon-relay be started?
-carbon-relay=enabled
-# 
-# services.carbon-relay_binary
-# 
-# Location of the carbon relay binary. Only necessary to change if you are not running the pre-packaged version.
-carbon-relay_binary=/usr/bin/carbon-relay
-#
-# services.collectd
-#
-# Should collectd be started?
-collectd=enabled
-# 
-# services.collectd_binary
-# 
-# Location of the collectd binary. Only necessary to change if you are not running the pre-packaged version.
-collectd_binary=/usr/sbin/collectd
-#
-# services.statsd
-#
-# Should statsd be started?
-statsd=enabled
-# 
-# services.statsd_binary
-# 
-# Location of the statsd (node) binary. Only necessary to change if you are not running the pre-packaged version.
-statsd_binary=/usr/bin/node
 #
 # services.radsniff
 #
@@ -561,15 +526,15 @@ radsniff=enabled
 # Location of the radsniff binary. Only necessary to change if you are not running the pre-packaged version.
 radsniff_binary=/usr/bin/radsniff
 #
-# services.p0f
+# services.fingerbank-collector
 #
-# Should p0f be started?
-p0f=enabled
+# Should the fingerbank-collector be started?
+fingerbank-collector=enabled
 # 
-# services.p0f_binary
+# services.fingerbank-collector_binary
 # 
-# Location of the p0f binary. Only necessary to change if you are not running the pre-packaged version.
-p0f_binary=/usr/local/bin/p0f
+# Location of the fingerbank-collector binary. Only necessary to change if you are not running the pre-packaged version.
+fingerbank-collector_binary=/usr/local/fingerbank/collector/fingerbank-collector
 #
 # services.openssl_binary
 #
@@ -591,6 +556,49 @@ routes=enabled
 #
 # location of the routes binary. only necessary to change if you are not running the rpmed version.
 routes_binary=/sbin/ip
+#
+# services.netdata
+#
+# Should netdata be managed by PacketFence?
+netdata=enabled
+#
+# services.netdata_binary
+#
+# Location of the netdata binary. Only necessary to change if you are not running the RPMed version.
+netdata_binary=/usr/sbin/netdata
+# services.tc
+#
+# Should tc be managed by PacketFence?
+tc=enabled
+#
+# services.tc_binary
+#
+# location of the yc binary. only necessary to change if you are not running the rpmed version.
+tc_binary=/usr/sbin/tc
+# services.pfdns
+#
+# Should pfdns be managed by PacketFence?
+pfdns=enabled
+#
+# services.pfdns_binary
+#
+# Location of the pfdns binary.
+pfdns_binary=/usr/local/pf/bin/pfdns
+#
+# services.api-frontend
+#
+# Should routes be managed by PacketFence?
+api-frontend=enabled
+
+# services.pfstats
+#
+# Should pfstats be managed by PacketFence?
+pfstats=enabled
+#
+# services.pfstats_binary
+#
+# Location of the pfstats binary.
+pfstats_binary=/usr/local/pf/bin/pfstats
 
 [snmp_traps]
 #
@@ -776,6 +784,11 @@ rate_limiting = enabled
 #
 # Amount of requests on invalid URLs after which the rate limiting will kick in for this device
 rate_limiting_threshold = 24
+#
+# captive_portal.other_domain_names
+#
+# Other domain names under which the captive portal responds
+other_domain_names=
 
 
 [advanced]
@@ -789,7 +802,7 @@ language=en_US
 #
 # Enforce Content-Security-Policy (CSP) HTTP response header in the admin interface
 #
-admin_csp_security_headers=enabled
+admin_csp_security_headers=disabled
 #
 # advanced.portal_csp_security_headers
 #
@@ -811,6 +824,10 @@ sso_on_accounting=disabled
 # Trigger Single-Sign-On (Firewall SSO) on dhcp
 sso_on_dhcp=enabled
 #
+# advanced.unreg_on_accounting_stop
+#
+# Unregister the device on accounting stop
+unreg_on_accounting_stop=disabled
 #
 # advanced.record_accounting_in_sql
 #
@@ -898,43 +915,6 @@ normalize_radius_machine_auth_username=disabled
 # The algorithm used to calculate the VLAN in a VLAN pool.
 vlan_pool_technique = username_hash
 
-[omapi]
-#
-# omapi.ip2mac_lookup
-#
-# Use OMAPI to query DHCPd for the MAC address of a given IP address
-ip2mac_lookup=enabled
-#
-# omapi.mac2ip_lookup
-#
-# Use OMAPI to query DHCPd for the IP address of a given MAC address
-mac2ip_lookup=enabled
-#
-# omapi.key_name
-#
-# The OMAPI key name for signing messages
-key_name=pf_omapi_key
-#
-# omapi.key_base64
-#
-# The OMAPI base64 key for signing messages
-key_base64=
-#
-# omapi.port
-#
-# The OMAPI port number
-port=7911
-#
-# omapi.host
-#
-# The OMAPI host
-host=localhost
-#
-# omapi.timeout
-#
-# The timeout on the OMAPI socket
-timeout=0.5
-
 [provisioning]
 #
 # provisioning.autoconfig
@@ -1008,6 +988,11 @@ port=9090
 #
 # port to use for authentication
 aaa_port=7070
+#
+# webservices.unifiedapi_port
+#
+# port to use for accessing the Unified API
+unifiedapi_port=9999
 
 [active_active]
 #
@@ -1064,37 +1049,6 @@ galera_replication_username=
 #
 # Defines the replication password to be used for the MariaDB Galera cluster replication
 galera_replication_password=
-
-[graphite]
-#
-# graphite.graphite_host
-#
-graphite_host=localhost
-
-#
-# graphite.graphite_port
-#
-graphite_port=2013
-
-#
-# graphite.db_port
-#
-db_port=
-
-#
-# graphite.db_host
-#
-db_host=
-
-#
-# graphite.db_user
-#
-db_user=
-
-#
-# graphite.db_pass
-#
-db_pass=
 
 [metadefender]
 #

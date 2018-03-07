@@ -159,7 +159,7 @@ sub _build_clause {
     my $sql_op = $OP_MAP{$op};
     if($sql_op eq 'LIKE' || $sql_op eq 'NOT LIKE') {
         #escaping the % and _ charcaters
-        my $escaped = $value =~ s/([%_])/\\$1/g;
+        my $escaped = $value =~ s/([%_\\])/\\$1/g;
         if($op eq 'like' || $op eq 'not_like') {
             $value = "\%$value\%";
         } elsif ($op eq 'starts_with') {
@@ -168,7 +168,7 @@ sub _build_clause {
             $value = "\%$value";
         }
         if ($escaped) {
-            return { $name => { like => \[q{? ESCAPE '\'}, $value] } };
+            return { $name => { like => \[q{? ESCAPE '\\\\'}, $value] } };
         }
     }
     return {$name => {$sql_op => $value}};

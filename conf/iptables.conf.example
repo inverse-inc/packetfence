@@ -23,19 +23,14 @@
 -A input-management-if --protocol tcp --match tcp --dport %%webservices_port%% --jump ACCEPT
 # AAA 
 -A input-management-if --protocol tcp --match tcp --dport %%aaa_port%% --jump ACCEPT
-# PacketFence Status
--A input-management-if --protocol tcp --match tcp --dport %%status_port%% --jump ACCEPT
 # httpd.portal modstatus
 -A input-management-if --protocol tcp --match tcp --dport %%httpd_portal_modstatus%% --jump ACCEPT
 # httpd.collector
 -A input-management-if --protocol tcp --match tcp --dport %%httpd_collector_port%% --jump ACCEPT
 # haproxy stats (uncomment if activating the haproxy dashboard)
 #-A input-management-if --protocol tcp --match tcp --dport 1025 --jump ACCEPT
-# GRAPHITE-WEB
--A input-management-if --protocol tcp --match tcp --dport 9000 --jump ACCEPT
-# CARBON_CACHE
--A input-management-if --protocol tcp --match tcp --dport 2004 --jump ACCEPT
--A input-management-if --protocol tcp --match tcp --dport 7002 --jump ACCEPT
+# Netdata
+-A input-management-if --protocol tcp --match tcp --dport 19999 --jump ACCEPT
 
 # RADIUS
 -A input-management-if --protocol tcp --match tcp --dport 1812 --jump ACCEPT
@@ -60,6 +55,13 @@
 # -A input-management-if --protocol tcp --match tcp --dport 9393 --jump ACCEPT
 # -A input-management-if --protocol tcp --match tcp --dport 9292 --jump ACCEPT
 
+# Fingerbank collector (replication + API)
+-A input-management-if --protocol udp --match udp --dport 1192 --jump ACCEPT
+-A input-management-if --protocol tcp --match tcp --dport 4723 --jump ACCEPT
+
+# GO IPSET API
+-A input-management-if --protocol tcp --match tcp --dport 22223 --jump ACCEPT
+
 # VRRP
 -A input-management-if -d 224.0.0.0/8 -j ACCEPT
 -A input-management-if -p vrrp -j ACCEPT
@@ -68,6 +70,14 @@
 
 # Syslog
 -A input-management-if --protocol udp --match udp --dport 514 --jump ACCEPT
+
+# ETCD
+-A input-management-if --protocol tcp --match tcp --dport 2380 --jump ACCEPT
+-A input-management-if --protocol tcp --match tcp --dport 2379 --jump ACCEPT
+
+# GO DHCP API
+-A input-management-if --protocol tcp --match tcp --dport 22222 --jump ACCEPT
+
 
 :input-portal-if - [0:0]
 -A input-portal-if --protocol tcp --match tcp --dport 80  --jump ACCEPT
@@ -87,9 +97,6 @@
 # DNS
 -A input-internal-vlan-if --protocol tcp --match tcp --dport 53  --jump ACCEPT
 -A input-internal-vlan-if --protocol udp --match udp --dport 53  --jump ACCEPT
-# DHCP
--A input-internal-vlan-if --protocol udp --match udp --dport 67  --jump ACCEPT
--A input-internal-vlan-if --protocol tcp --match tcp --dport 67  --jump ACCEPT
 # HTTP (captive-portal) 
 -A input-internal-vlan-if --protocol tcp --match tcp --dport 80  --jump ACCEPT
 -A input-internal-vlan-if --protocol tcp --match tcp --dport 443 --jump ACCEPT
@@ -115,17 +122,9 @@
 %%input_inter_isol_vlan_if%%
 
 :input-internal-inline-if - [0:0]
-# DHCP
--A input-internal-inline-if --protocol udp --match udp --dport 67  --jump ACCEPT
--A input-internal-inline-if --protocol tcp --match tcp --dport 67  --jump ACCEPT
 # DNS
-# allow unregistered users and isolated users to reach it for DNAT purposes but prevent registered ones
--A input-internal-inline-if --protocol tcp --match tcp --dport 53  --match mark --mark 0x3 --jump ACCEPT
--A input-internal-inline-if --protocol udp --match udp --dport 53  --match mark --mark 0x3 --jump ACCEPT
--A input-internal-inline-if --protocol tcp --match tcp --dport 53  --match mark --mark 0x2 --jump ACCEPT
--A input-internal-inline-if --protocol udp --match udp --dport 53  --match mark --mark 0x2 --jump ACCEPT
--A input-internal-inline-if --protocol tcp --match tcp --dport 53  --match mark --mark 0x1 --jump DROP
--A input-internal-inline-if --protocol udp --match udp --dport 53  --match mark --mark 0x1 --jump DROP
+-A input-internal-inline-if --protocol tcp --match tcp --dport 53  --jump ACCEPT
+-A input-internal-inline-if --protocol udp --match udp --dport 53  --jump ACCEPT
 # HTTP (captive-portal) 
 # prevent registered users from reaching it
 # TODO: Must work in dispatcher and Catalyst to redirect registered client out of the portal

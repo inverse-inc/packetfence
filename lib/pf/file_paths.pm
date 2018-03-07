@@ -42,8 +42,6 @@ our (
     $dhcp_fingerprints_file, $dhcp_fingerprints_url,
     #oui.txt variables
     $oui_file, $oui_url,
-    #DHCP OMAPI key file
-    $pf_omapi_key_file,
     # Local secret file for RADIUS
     $local_secret_file,
     #profiles.conf variables
@@ -99,6 +97,12 @@ our (
     $switch_control_dir,
     $pfmon_config_file, $pfmon_default_config_file,
     $switch_filters_config_file,
+    $stats_config_file,
+    $traffic_shaping_config_file,
+    $pf_admin_i18n_dir,
+    $syslog_config_file,
+    $syslog_default_config_file,
+    $rsyslog_packetfence_config_file,
 );
 
 BEGIN {
@@ -118,7 +122,6 @@ BEGIN {
         $floating_devices_config_file
         $dhcp_fingerprints_file $dhcp_fingerprints_url
         $oui_file $oui_url
-        $pf_omapi_key_file
         $local_secret_file
         $profiles_config_file $profiles_default_config_file
         $switches_config_file $switches_default_config_file
@@ -172,6 +175,12 @@ BEGIN {
         $switch_control_dir
         $pfmon_config_file $pfmon_default_config_file
         $switch_filters_config_file
+        $stats_config_file
+        $traffic_shaping_config_file
+        $pf_admin_i18n_dir
+        $syslog_config_file
+        $syslog_default_config_file
+        $rsyslog_packetfence_config_file
     );
 }
 
@@ -199,7 +208,6 @@ $pfcmd_binary = catfile( $bin_dir, "pfcmd" );
 
 $oui_file           = catfile($conf_dir, "oui.txt");
 $suricata_categories_file = catfile($conf_dir, "suricata_categories.txt");
-$pf_omapi_key_file  = catfile($conf_dir, "pf_omapi_key");
 $local_secret_file  = catfile($conf_dir, "local_secret");
 $pf_doc_file        = catfile($conf_dir, "documentation.conf");
 $oauth_ip_file      = catfile($conf_dir, "oauth2-ips.conf");
@@ -212,6 +220,10 @@ $log_config_file    = catfile($conf_dir, "log.conf");
 $provisioning_config_file = catfile($conf_dir, 'provisioning.conf');
 $device_registration_config_file = catfile($conf_dir,"device_registration.conf");
 $pki_provider_config_file  = catfile($conf_dir,"pki_provider.conf");
+$traffic_shaping_config_file  = catfile($conf_dir,"traffic_shaping.conf");
+$syslog_config_file  = catfile($conf_dir, "syslog.conf");
+$syslog_default_config_file  = catfile($conf_dir, "syslog.conf.defaults");
+$rsyslog_packetfence_config_file  = "/etc/rsyslog.d/packetfence.conf";
 
 $network_config_file    = catfile($conf_dir, "networks.conf");
 $switches_config_file   = catfile($conf_dir, "switches.conf");
@@ -267,6 +279,7 @@ $portal_modules_default_config_file = catfile($conf_dir,"portal_modules.conf.def
 $pfmon_config_file = catfile($conf_dir,"pfmon.conf");
 $pfmon_default_config_file = catfile($conf_dir,"pfmon.conf.defaults");
 $switch_filters_config_file = catfile($conf_dir,"switch_filters.conf"); 
+$stats_config_file = catfile($conf_dir,"stats.conf");
 
 $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
@@ -308,6 +321,9 @@ $captiveportal_default_profile_templates_path = catdir ($captiveportal_profile_t
     $dns_filters_config_file,
     $pfmon_config_file,
     $switch_filters_config_file,
+    $stats_config_file,
+    $traffic_shaping_config_file,
+    $syslog_config_file,
 );
 
 $pffilter_socket_path = catfile($var_dir, "run/pffilter.sock");
@@ -317,6 +333,8 @@ $cache_control_file = catfile($var_dir, "cache_control");
 $config_version_file = catfile($var_dir, "config_version");
 
 $maintenance_file = catfile($var_dir,"maintenance-mode");
+
+$pf_admin_i18n_dir = catfile($html_dir , 'pfappserver/lib/pfappserver/I18N');
 
 =head1 AUTHOR
 

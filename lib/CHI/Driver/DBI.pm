@@ -4,8 +4,7 @@ use strict;
 use warnings;
 
 use DBI::Const::GetInfoType;
-use Moose;
-use Moose::Util::TypeConstraints;
+use Moo;
 use Carp qw(croak);
 use Time::HiRes qw(time);
 
@@ -15,25 +14,11 @@ extends 'CHI::Driver';
 
 my $type = "CHI::Driver::DBI";
 
-subtype "$type.DBIHandleGenerator" => as 'CodeRef';
-subtype "$type.DBIXConnector"      => as 'DBIx::Connector';
-subtype "$type.DBIHandle"          => as 'DBI::db';
-
-coerce "$type.DBIHandleGenerator" => from "$type.DBIXConnector" => via {
-    my $dbixconn = $_;
-    sub { $dbixconn->dbh }
-};
-coerce "$type.DBIHandleGenerator" => from "$type.DBIHandle" => via {
-    my $dbh = $_;
-    sub { $dbh }
-};
-
-has 'db_name'      => ( is => 'rw', isa => 'Str' );
-has 'dbh'          => ( is => 'ro', isa => "$type.DBIHandleGenerator", coerce => 1 );
-has 'dbh_ro'       => ( is => 'ro', isa => "$type.DBIHandleGenerator", predicate => 'has_dbh_ro', coerce => 1 );
-has 'sql_strings'  => ( is => 'rw', isa => 'HashRef', lazy_build => 1 );
-has 'table' => ( is => 'rw', isa => 'Str', default => 'chi_cache' );
-has 'key_prefix' => ( is => 'rw', isa => 'Str', builder => '_build_key_prefix', lazy => 1);
+has 'db_name'      => ( is => 'rw', );
+has 'dbh'          => ( is => 'ro');
+has 'sql_strings'  => ( is => 'rw', builder => 1, lazy => 1 );
+has 'table' => ( is => 'rw', default => 'chi_cache' );
+has 'key_prefix' => ( is => 'rw', builder => 1, lazy => 1);
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
@@ -117,7 +102,7 @@ EOF
 sub fetch {
     my ( $self, $key, ) = @_;
 
-    my $dbh = $self->has_dbh_ro ? $self->dbh_ro->() : $self->dbh->();
+    my $dbh = $self->dbh->();
     my $sth = $dbh->prepare_cached( $self->sql_strings->{fetch} )
       or croak $dbh->errstr;
     $sth->execute($self->namespaced_key($key), time) or croak $sth->errstr;
@@ -177,7 +162,7 @@ sub clear {
 sub get_keys {
     my ( $self, ) = @_;
 
-    my $dbh = $self->has_dbh_ro ? $self->dbh_ro->() : $self->dbh->();
+    my $dbh = $self->dbh->();
     my $sth = $dbh->prepare_cached( $self->sql_strings->{get_keys} )
       or croak $dbh->errstr;
     $sth->execute(time) or croak $sth->errstr;
@@ -274,37 +259,7 @@ Defaults to C<chi_>.
 
 =item dbh
 
-The main, or rw, DBI handle used to communicate with the db. If a dbh_ro handle
-is defined then this handle will only be used for writing.
-
-You may pass this handle, and dbh_ro below, in one of three forms:
-
-=over
-
-=item *
-
-a regular DBI handle
-
-=item *
-
-a L<DBIx::Connector|DBIx::Connector> object
-
-=item *
-
-a code reference that will be called each time and is expected to return a DBI
-handle, e.g.
-
-    sub { My::Rose::DB->new->dbh }
-
-=back
-
-The last two options are valuable if your CHI object is going to live for
-enough time that a single DBI handle might time out, etc.
-
-=item dbh_ro
-
-The optional DBI handle used for read-only operations.  This is to support
-master/slave RDBMS setups.
+A code ref to get the DBI handle used to communicate with the db.
 
 =back
 

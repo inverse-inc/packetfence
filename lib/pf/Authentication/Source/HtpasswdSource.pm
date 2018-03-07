@@ -80,7 +80,6 @@ sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
     local $_;
 
-    $params->{'username'} = $params->{'stripped_user_name'} if (defined($params->{'stripped_user_name'} ) && $params->{'stripped_user_name'} ne '' && isenabled($self->{'stripped_user_name'}));
     # First check if the username is found in the htpasswd file
     my $username = $params->{'username'} || $params->{'email'};
     my $password_file = $self->{'path'};

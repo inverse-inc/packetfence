@@ -1,0 +1,12 @@
+:22223 {
+  pfconfigpool
+  logger {
+    level INFO
+  }
+  statsd {
+    proto udp
+    prefix pfipset
+  }
+  pfipset
+}
+

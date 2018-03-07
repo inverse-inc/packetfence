@@ -141,6 +141,8 @@ server dynamic_clients {
 
                 &FreeRADIUS-Client-NAS-Type = "%{sql: SELECT type FROM radius_nas WHERE nasname = '%{control:PacketFence-NasName}'}"
 
+                &PacketFence-Tenant-Id = "%{sql: SELECT tenant_id FROM radius_nas WHERE nasname = '%{control:PacketFence-NasName}'}"
+
             }
         }
 

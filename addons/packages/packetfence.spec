@@ -56,7 +56,7 @@ Source: http://www.packetfence.org/downloads/PacketFence/src/%{real_name}-%{vers
 %global logfiles packetfence.log snmptrapd.log pfdetect pfmon
 %global logdir /usr/local/pf/logs
 
-BuildRequires: gettext, httpd
+BuildRequires: gettext, httpd, ipset-devel, pkgconfig
 BuildRequires: perl(Parse::RecDescent)
 # Required to build documentation
 # See docs/docbook/README.asciidoc for more info about installing requirements.
@@ -90,13 +90,11 @@ Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
 Requires: httpd, mod_ssl
 Requires: mod_perl, mod_proxy_html
 requires: libapreq2
-Requires: dhcp
 Requires: redis
 Requires: freeradius >= 3.0.15-4, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils, freeradius-redis, freeradius-rest, freeradius-radsniff >= 3.0.15-4
 Requires: make
 Requires: net-tools
 Requires: sscep
-Requires: p0f
 Requires: net-snmp >= 5.3.2.2
 Requires: net-snmp-perl
 Requires: perl >= %{perl_version}
@@ -119,6 +117,9 @@ Requires: perl(Data::Phrasebook), perl(Data::Phrasebook::Loader::YAML)
 Requires: perl(DBI)
 Requires: perl(Rose::DB)
 Requires: perl(Rose::DB::Object)
+Requires: perl(Lingua::EN::Nums2Words) >= 1.16
+Requires: perl(Lingua::EN::Inflexion) >= 0.001006
+Requires: perl(Mojolicious)
 Requires: perl(File::Tail)
 Requires: perl(IPC::Cmd)
 Requires: perl(IPTables::ChainMgr)
@@ -150,6 +151,7 @@ Requires: perl(List::MoreUtils)
 Requires: perl-Scalar-List-Utils
 Requires: perl(Locale::gettext)
 Requires: perl(Log::Log4perl) >= 1.43
+Requires: perl(MojoX::Log::Log4perl)
 Requires: perl(Log::Any)
 Requires: perl(Log::Any::Adapter)
 Requires: perl(Log::Any::Adapter::Log4perl)
@@ -168,8 +170,7 @@ Requires: perl(Net::Netmask)
 Requires: perl(Net::Pcap) >= 0.16
 # pfdhcplistener
 Requires: perl(NetPacket) >= 1.2.0
-# pfdns
-Requires: perl(Net::DNS), perl(Net::DNS::Nameserver), perl(Module::Metadata)
+Requires: perl(Module::Metadata)
 # systemd sd_notify support
 Requires: perl(Systemd::Daemon)
 # RADIUS CoA support
@@ -296,16 +297,9 @@ Requires: perl(Graph)
 #Timezone
 Requires: perl(DateTime::TimeZone)
 
-# for dashboard
-Requires: python-django, python-django-tagging, pyparsing
-Requires: MySQL-python
-Requires: python-carbon, python-whisper
-Requires: graphite-web >= 0.9.12-25
 Requires: samba-winbind-clients, samba-winbind
-Requires: collectd >= 5.6, collectd-apache, collectd-openldap, collectd-redis, collectd-mysql, collectd-disk
-Obsoletes: collectd-drbd
-Requires: nodejs >= 6.11.0
 Requires: libdrm >= 2.4.74
+Requires: netdata, fping
 
 # pki
 Requires: perl(Crypt::SMIME)
@@ -322,12 +316,22 @@ Requires: perl(Test::NoWarnings), perl(Test::ParallelSubtest)
 # required for the fake CoA server
 Requires: perl(Net::UDP)
 # For managing the number of connections per device
+%if %{is_release}
+# used for official releases
 Requires: %{real_name}-config = %{version}
 Requires: %{real_name}-pfcmd-suid = %{version}
+%else
+# used for snapshot releases
+Requires: %{real_name}-config = %{version}-%{rev}%{?dist}
+Requires: %{real_name}-pfcmd-suid = %{version}-%{rev}%{?dist}
+%endif
 Requires: haproxy >= 1.6, keepalived >= 1.3.6
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
-Requires: fingerbank >= 3.1.1, fingerbank < 4.0.0
+Requires: fingerbank >= 4.0.0, fingerbank < 5.0.0
 Requires: perl(File::Tempdir)
+
+# etcd
+Requires: etcd >= 3.1
 
 %description -n %{real_name}
 
@@ -442,6 +446,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence.target $RPM_BUILD_ROOT/etc/systemd/system/packetfence.target
 %{__install} -D -m0644 conf/systemd/packetfence-base.target $RPM_BUILD_ROOT/etc/systemd/system/packetfence-base.target
 %{__install} -D -m0644 conf/systemd/packetfence-cluster.target $RPM_BUILD_ROOT/etc/systemd/system/packetfence-cluster.target
+
 %{__install} -d $RPM_BUILD_ROOT/etc/systemd/system/packetfence-base.target.wants
 %{__install} -d $RPM_BUILD_ROOT/etc/systemd/system/packetfence.target.wants
 %{__install} -d $RPM_BUILD_ROOT/etc/systemd/system/packetfence-cluster.target.wants
@@ -449,24 +454,20 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence.slice $RPM_BUILD_ROOT/etc/systemd/system/packetfence.slice
 %{__install} -D -m0644 conf/systemd/packetfence-base.slice $RPM_BUILD_ROOT/etc/systemd/system/packetfence-base.slice
 # systemd services
-%{__install} -D -m0644 conf/systemd/packetfence-carbon-cache.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-carbon-cache.service
-%{__install} -D -m0644 conf/systemd/packetfence-carbon-relay.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-carbon-relay.service
-%{__install} -D -m0644 conf/systemd/packetfence-collectd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-collectd.service
+%{__install} -D -m0644 conf/systemd/packetfence-api-frontend.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-api-frontend.service
 %{__install} -D -m0644 conf/systemd/packetfence-config.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-config.service
-%{__install} -D -m0644 conf/systemd/packetfence-dhcpd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-dhcpd.service
 %{__install} -D -m0644 conf/systemd/packetfence-haproxy.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-haproxy.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.aaa.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.aaa.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.admin.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.admin.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.collector.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.collector.service
-%{__install} -D -m0644 conf/systemd/packetfence-httpd.graphite.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.graphite.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.parking.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.parking.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.portal.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.portal.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.proxy.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.proxy.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.webservices.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.webservices.service
 %{__install} -D -m0644 conf/systemd/packetfence-iptables.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-iptables.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfunified_api.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfunified_api.service
 %{__install} -D -m0644 conf/systemd/packetfence-keepalived.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-keepalived.service
 %{__install} -D -m0644 conf/systemd/packetfence-mariadb.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-mariadb.service
-%{__install} -D -m0644 conf/systemd/packetfence-p0f.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-p0f.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfbandwidthd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfbandwidthd.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdetect.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfdetect.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdhcplistener.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfdhcplistener.service
@@ -488,8 +489,13 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-redis_queue.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-redis_queue.service
 %{__install} -D -m0644 conf/systemd/packetfence-routes.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-routes.service
 %{__install} -D -m0644 conf/systemd/packetfence-snmptrapd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-snmptrapd.service
-%{__install} -D -m0644 conf/systemd/packetfence-statsd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-statsd.service
+%{__install} -D -m0644 conf/systemd/packetfence-tc.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-tc.service
 %{__install} -D -m0644 conf/systemd/packetfence-winbindd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-winbindd.service
+%{__install} -D -m0644 conf/systemd/packetfence-etcd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-etcd.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfdhcp.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfdhcp.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfipset.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfipset.service
+%{__install} -D -m0644 conf/systemd/packetfence-netdata.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-netdata.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfstats.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfstats.service
 
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons/AD
@@ -506,7 +512,6 @@ done
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/redis_ntlm_cache
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/ssl_mutex
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/conf
-%{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/dhcpd
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var/run
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/rrd 
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/session
@@ -530,7 +535,7 @@ cp -r addons/monit/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.pl $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.sh $RPM_BUILD_ROOT/usr/local/pf/addons/
 %{__install} -D packetfence.logrotate $RPM_BUILD_ROOT/etc/logrotate.d/packetfence
-%{__install} -D packetfence.rsyslog $RPM_BUILD_ROOT/etc/rsyslog.d/packetfence.conf
+%{__install} -D packetfence.rsyslog-drop-in.service $RPM_BUILD_ROOT/etc/systemd/system/rsyslog.service.d/packetfence.conf
 %{__install} -D packetfence.journald $RPM_BUILD_ROOT/usr/lib/systemd/journald.conf.d/01-packetfence.conf
 cp -r sbin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r conf $RPM_BUILD_ROOT/usr/local/pf/
@@ -548,10 +553,11 @@ cp -r ChangeLog $RPM_BUILD_ROOT/usr/local/pf/
 cp -r COPYING $RPM_BUILD_ROOT/usr/local/pf/
 cp -r db $RPM_BUILD_ROOT/usr/local/pf/
 cp -r docs $RPM_BUILD_ROOT/usr/local/pf/
-rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/archives
-rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/docbook
-rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/fonts
-rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/images
+rm -rf $RPM_BUILD_ROOT/usr/local/pf/docs/archives
+rm -rf $RPM_BUILD_ROOT/usr/local/pf/docs/docbook
+rm -rf $RPM_BUILD_ROOT/usr/local/pf/docs/fonts
+rm -rf $RPM_BUILD_ROOT/usr/local/pf/docs/images
+rm -rf $RPM_BUILD_ROOT/usr/local/pf/docs/api
 cp -r html $RPM_BUILD_ROOT/usr/local/pf/
 cp -r lib $RPM_BUILD_ROOT/usr/local/pf/
 cp -r go $RPM_BUILD_ROOT/usr/local/pf/
@@ -574,16 +580,12 @@ if [ ! -h "$RPM_BUILD_ROOT/usr/local/pf/db/pf-schema.sql" ]; then
     VERSIONSQL=$(ls pf-schema-* |sort -r | head -1)
     ln -f -s $VERSIONSQL ./pf-schema.sql
 fi
-if [ ! -h "$RPM_BUILD_ROOT/usr/local/pf/db/pf_graphite-schema.sql" ]; then
-    cd $RPM_BUILD_ROOT/usr/local/pf/db
-    VERSIONSQL=$(ls pf_graphite-schema-* |sort -r | head -1)
-    ln -f -s $VERSIONSQL ./pf_graphite-schema.sql
-fi
 
 #radius sites-enabled symlinks
 #We standardize the way to use site-available/sites-enabled for the RADIUS server
 cd $RPM_BUILD_ROOT/usr/local/pf/raddb/sites-enabled
 ln -s ../sites-available/dynamic-clients dynamic-clients
+ln -s ../sites-available/status status
 
 # Fingerbank symlinks
 cd $RPM_BUILD_ROOT/usr/local/pf/lib
@@ -614,8 +616,9 @@ if ! /usr/bin/id pf &>/dev/null; then
                 echo Unexpected error adding user "pf" && exit
     fi
 fi
-/usr/sbin/usermod -aG wbpriv,fingerbank,apache,carbon pf
+/usr/sbin/usermod -aG wbpriv,fingerbank,apache pf
 /usr/sbin/usermod -aG pf mysql 
+/usr/sbin/usermod -aG pf netdata
 
 if [ ! `id -u` = "0" ];
 then
@@ -678,11 +681,6 @@ echo "Restarting rsyslogd"
 cd /usr/local/pf
 make conf/ssl/server.pem
 
-# Create OMAPI key
-if [ ! -f /usr/local/pf/conf/pf_omapi_key ]; then
-    /usr/bin/openssl rand -base64 -out /usr/local/pf/conf/pf_omapi_key 32
-fi
-
 # Create server local RADIUS secret
 if [ ! -f /usr/local/pf/conf/local_secret ]; then
     date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/local_secret
@@ -712,11 +710,6 @@ if [ ! -f /usr/local/pf/conf/pf.conf ]; then
 else
   echo "pf.conf already exists, won't touch it!"
 fi
-
-# dashboard symlinks and permissions
-ln -sf /usr/local/pf/var/conf/local_settings.py /usr/lib/python2.7/site-packages/graphite/local_settings.py
-chmod g+w /var/lib/carbon
-chmod g+w /var/lib/graphite-web
 
 #Getting rid of SELinux
 echo "Disabling SELinux..."
@@ -825,10 +818,11 @@ fi
 %attr(0644, root, root) /usr/lib/systemd/journald.conf.d/01-packetfence.conf
 
 %dir %attr(0750, root,root) /etc/systemd/system/packetfence*target.wants
+%attr(0644, root, root) /etc/systemd/system/rsyslog.service.d/packetfence.conf
+
 %dir %attr(0750,root,root) %{_sysconfdir}/sudoers.d
 %config %attr(0440,root,root) %{_sysconfdir}/sudoers.d/packetfence
 %config %attr(0644,root,root) %{_sysconfdir}/logrotate.d/packetfence
-%config %attr(0644,root,root) %{_sysconfdir}/rsyslog.d/packetfence.conf
 %config %attr(0600,root,root) %{_sysconfdir}/cron.d/packetfence
 
 %dir                    /usr/local/pf
@@ -863,7 +857,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd.pl
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd_vlan
 %attr(0755, pf, pf)     /usr/local/pf/bin/pftest
-%attr(0755, pf, pf)     /usr/local/pf/bin/pflogger-packetfence
+                        /usr/local/pf/bin/pflogger-packetfence
 %attr(0755, pf, pf)     /usr/local/pf/bin/pflogger.pl
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/maintenance
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/management_update
@@ -871,7 +865,9 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/pfupdate
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/maintenance
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/node
-%attr(0755, pf, pf)     /usr/local/pf/bin/mysql_fingerbank_import.sh
+%attr(0755, pf, pf)     /usr/local/pf/bin/pfdhcp
+%attr(0755, pf, pf)     /usr/local/pf/bin/pfdns
+%attr(0755, pf, pf)     /usr/local/pf/bin/pfstats
 %doc                    /usr/local/pf/ChangeLog
                         /usr/local/pf/conf/*.example
 %config(noreplace)      /usr/local/pf/conf/adminroles.conf
@@ -884,6 +880,7 @@ fi
                         /usr/local/pf/conf/caddy-services/*.conf.example
 %config(noreplace)      /usr/local/pf/conf/chi.conf
 %config                 /usr/local/pf/conf/chi.conf.defaults
+%config(noreplace)      /usr/local/pf/conf/pfdns.conf
 %config(noreplace)      /usr/local/pf/conf/portal_modules.conf
 %config                 /usr/local/pf/conf/portal_modules.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/device_registration.conf
@@ -896,6 +893,8 @@ fi
                         /usr/local/pf/conf/dns_filters.conf.example
 %config                 /usr/local/pf/conf/dns_filters.conf.defaults
 %config                 /usr/local/pf/conf/documentation.conf
+%config(noreplace)      /usr/local/pf/conf/etcd.conf.yml
+                        /usr/local/pf/conf/etcd.conf.yml.example
 %config(noreplace)      /usr/local/pf/conf/firewall_sso.conf
                         /usr/local/pf/conf/firewall_sso.conf.example
 %config(noreplace)      /usr/local/pf/conf/survey.conf
@@ -906,6 +905,8 @@ fi
                         /usr/local/pf/conf/redis_queue.conf.example
 %config(noreplace)      /usr/local/pf/conf/redis_ntlm_cache.conf
                         /usr/local/pf/conf/redis_ntlm_cache.conf.example
+%config(noreplace)      /usr/local/pf/conf/stats.conf
+                        /usr/local/pf/conf/stats.conf.example
 %config(noreplace)      /usr/local/pf/conf/floating_network_device.conf
 %config(noreplace)      /usr/local/pf/conf/guest-managers.conf
                         /usr/local/pf/conf/git_commit_id
@@ -1013,6 +1014,7 @@ fi
 %config                 /usr/local/pf/conf/realm.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/radius_filters.conf
                         /usr/local/pf/conf/radius_filters.conf.example
+%config(noreplace)      /usr/local/pf/conf/rsyslog.conf.tt
 %config(noreplace)      /usr/local/pf/conf/billing_tiers.conf
                         /usr/local/pf/conf/billing_tiers.conf.example
 %config(noreplace)      /usr/local/pf/conf/domain.conf
@@ -1037,7 +1039,6 @@ fi
 %config(noreplace)      /usr/local/pf/conf/vlan_filters.conf
                         /usr/local/pf/conf/vlan_filters.conf.example
 %config                 /usr/local/pf/conf/vlan_filters.conf.defaults
-%config                 /usr/local/pf/conf/dhcpd.conf
 %config(noreplace)      /usr/local/pf/conf/haproxy.conf
                         /usr/local/pf/conf/haproxy.conf.example
 %dir                    /usr/local/pf/conf/httpd.conf.d
@@ -1060,9 +1061,6 @@ fi
 %config                 /usr/local/pf/conf/httpd.conf.d/log.conf
 %config(noreplace)	/usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
                         /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf.example
-%config                 /usr/local/pf/conf/httpd.conf.d/graphite-web.wsgi
-%config                 /usr/local/pf/conf/httpd.conf.d/httpd.graphite.tt
-                        /usr/local/pf/conf/httpd.conf.d/httpd.graphite.tt.example
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
 %config(noreplace)      /usr/local/pf/conf/keepalived.conf
                         /usr/local/pf/conf/keepalived.conf.example
@@ -1074,26 +1072,19 @@ fi
 %config                 /usr/local/pf/conf/caddy-services/pfsso.conf
 %config                 /usr/local/pf/conf/caddy-services/httpdispatcher.conf
 %dir                    /usr/local/pf/conf/monitoring
-%config(noreplace)      /usr/local/pf/conf/monitoring/carbon.conf
-                        /usr/local/pf/conf/monitoring/carbon.conf.example
-%config(noreplace)      /usr/local/pf/conf/monitoring/collectd.conf.rhel
-                        /usr/local/pf/conf/monitoring/collectd.conf.rhel.example
-%config(noreplace)      /usr/local/pf/conf/monitoring/collectd.conf.debian
-                        /usr/local/pf/conf/monitoring/collectd.conf.debian.example
-%config(noreplace)      /usr/local/pf/conf/monitoring/dashboard.conf
-                        /usr/local/pf/conf/monitoring/dashboard.conf.example
-%config(noreplace)      /usr/local/pf/conf/monitoring/local_settings.py.rhel
-                        /usr/local/pf/conf/monitoring/local_settings.py.rhel.example
-%config(noreplace)      /usr/local/pf/conf/monitoring/local_settings.py.debian
-                        /usr/local/pf/conf/monitoring/local_settings.py.debian.example
-%config(noreplace)      /usr/local/pf/conf/monitoring/statsd_config.js
-                        /usr/local/pf/conf/monitoring/statsd_config.js.example
-%config(noreplace)      /usr/local/pf/conf/monitoring/storage-schemas.conf
-                        /usr/local/pf/conf/monitoring/storage-schemas.conf.example
-%config(noreplace)      /usr/local/pf/conf/monitoring/storage-aggregation.conf
-                        /usr/local/pf/conf/monitoring/storage-aggregation.conf.example
-%config(noreplace)      /usr/local/pf/conf/monitoring/types.db
-                        /usr/local/pf/conf/monitoring/types.db.example
+%config(noreplace)      /usr/local/pf/conf/monitoring/netdata.conf
+                        /usr/local/pf/conf/monitoring/netdata.conf.example
+%config                 /usr/local/pf/conf/monitoring/*.conf
+                        /usr/local/pf/conf/monitoring/*.conf.example
+%config                 /usr/local/pf/conf/monitoring/charts.d/*.conf
+                        /usr/local/pf/conf/monitoring/charts.d/*.conf.example
+%config                 /usr/local/pf/conf/monitoring/health.d/*.conf
+                        /usr/local/pf/conf/monitoring/health.d/*.conf.example
+%config                 /usr/local/pf/conf/monitoring/node.d/*.md
+%config                 /usr/local/pf/conf/monitoring/python.d/*.conf
+                        /usr/local/pf/conf/monitoring/python.d/*.conf.example
+%config                 /usr/local/pf/conf/monitoring/statsd.d/*.conf
+                        /usr/local/pf/conf/monitoring/statsd.d/*.conf.example
 %config(noreplace)      /usr/local/pf/conf/profiles.conf
 %config                 /usr/local/pf/conf/profiles.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/pfmon.conf
@@ -1101,6 +1092,8 @@ fi
 %config(noreplace)      /usr/local/pf/conf/roles.conf
 %config                 /usr/local/pf/conf/roles.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/snmptrapd.conf
+%config(noreplace)      /usr/local/pf/conf/syslog.conf
+%config                 /usr/local/pf/conf/syslog.conf.defaults
 %config                 /usr/local/pf/conf/ui.conf
 %config                 /usr/local/pf/conf/ui.conf.es_ES
 %config(noreplace)      /usr/local/pf/conf/ui-global.conf
@@ -1111,10 +1104,22 @@ fi
 %config(noreplace)      /usr/local/pf/conf/report.conf
                         /usr/local/pf/conf/report.conf.defaults
                         /usr/local/pf/conf/report.conf.example
+%config(noreplace)      /usr/local/pf/conf/traffic_shaping.conf
+                        /usr/local/pf/conf/traffic_shaping.conf.example
 %doc                    /usr/local/pf/COPYING
 %dir                    /usr/local/pf/db
                         /usr/local/pf/db/*
 %dir                    /usr/local/pf/docs
+%dir                    /usr/local/pf/docs/enforcement
+%doc                    /usr/local/pf/docs/enforcement/*
+%dir                    /usr/local/pf/docs/firewall
+%doc                    /usr/local/pf/docs/firewall/*
+%dir                    /usr/local/pf/docs/networkdevice
+%doc                    /usr/local/pf/docs/networkdevice/*
+%dir                    /usr/local/pf/docs/pki
+%doc                    /usr/local/pf/docs/pki/*
+%dir                    /usr/local/pf/docs/provisioner
+%doc                    /usr/local/pf/docs/provisioner/*
 %dir                    /usr/local/pf/html/pfappserver/root/static/doc
 %doc                    /usr/local/pf/html/pfappserver/root/static/doc/*
 %doc                    /usr/local/pf/docs/*.asciidoc
@@ -1125,8 +1130,6 @@ fi
 %doc                    /usr/local/pf/docs/fdl-1.2.txt
 %dir                    /usr/local/pf/docs/includes
 %doc                    /usr/local/pf/docs/includes/*.asciidoc
-%dir                    /usr/local/pf/docs/MIB
-%doc                    /usr/local/pf/docs/MIB/Inverse-PacketFence-Notification.mib
 %doc                    /usr/local/pf/docs/pfcmd.help
 %dir                    /usr/local/pf/html
 %dir                    /usr/local/pf/html/captive-portal
@@ -1251,7 +1254,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfbandwidthd
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcplistener
-%attr(0755, pf, pf)     /usr/local/pf/sbin/pfdns
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfunified_api
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pf-mariadb
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfmon
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfqueue
@@ -1259,12 +1262,10 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pffilter
 %attr(0755, pf, pf)     /usr/local/pf/sbin/winbindd-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/radsniff-wrapper
-%attr(0755, pf, pf)     /usr/local/pf/sbin/p0f-wrapper
 %doc                    /usr/local/pf/UPGRADE.asciidoc
 %doc                    /usr/local/pf/UPGRADE.old
 %dir                    /usr/local/pf/var
 %dir                    /usr/local/pf/var/conf
-%dir  %attr(0755,pf, pf)   /usr/local/pf/var/dhcpd
 %dir                    /usr/local/pf/raddb
                         /usr/local/pf/raddb/*
 %config                 /usr/local/pf/raddb/clients.conf
@@ -1332,6 +1333,9 @@ fi
 %exclude                /usr/local/pf/addons/pfconfig/pfconfig.init
 
 %changelog
+* Mon Jan 25 2018 Inverse <info@inverse.ca> - 7.4.0-1
+- New release 7.4.0
+
 * Mon Sep 25 2017 Inverse <info@inverse.ca> - 7.3.0-1
 - New release 7.3.0
 

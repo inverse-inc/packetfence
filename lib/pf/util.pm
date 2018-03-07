@@ -91,6 +91,9 @@ BEGIN {
         user_chown
         ping
         run_as_pf
+        find_outgoing_interface
+        strip_filename_from_exceptions
+        expand_csv
     );
 }
 
@@ -116,11 +119,11 @@ sub valid_date {
     my $logger = get_logger();
 
     # kludgy but short
-    if ( $date
+    if ( !defined $date || $date
         !~ /^\d{4}\-((0[1-9])|(1[0-2]))\-((0[1-9])|([12][0-9])|(3[0-1]))\s+(([01][0-9])|(2[0-3]))(:[0-5][0-9]){2}$/
         )
     {
-        $logger->warn("invalid date $date");
+        $logger->warn("invalid date " . ($date // "'undef'"));
         return (0);
     } else {
         return (1);
@@ -537,6 +540,10 @@ sub parse_template {
         ."$comment_char Any changes made to this file will be lost on restart\n\n";
 
     if ($destination) {
+        if ($destination =~ /(.*)\/\w+/) {
+            mkdir $1 unless -d $1;
+            pf_chown($1);
+        }
         my $destination_fh;
         open( $destination_fh, ">", $destination )
             || $logger->logcroak( "Unable to open template destination $destination: $!");
@@ -739,7 +746,7 @@ sub pretty_bandwidth {
     my @units = ("Bytes", "KB", "MB", "GB", "TB", "PB");
     my $x;
 
-    for ($x=0; $bytes>=800 && $x<scalar(@units); $x++ ) {
+    for ($x=0; $bytes>=800 && $x < scalar(@units); $x++ ) {
         $bytes /= 1024;
     }
     my $rounded = sprintf("%.2f",$bytes);
@@ -939,6 +946,26 @@ sub trim_path {
     }
    return ((@parts == 0) ? '' : catdir(@parts));
 }
+
+
+=item expand_csv
+
+Expands a comma seperated string or an array of comma seperated strings into an array
+
+=cut
+
+sub expand_csv {
+    my ($list) = @_;
+    $list //= [];
+    my @expanded;
+    if (ref $list eq 'ARRAY') {
+        @expanded = @$list;
+    } else {
+        @expanded = $list;
+    }
+    return map {split(/\s*,\s*/, $_)} @expanded;
+}
+
 
 =item pf_chown
 
@@ -1357,6 +1384,36 @@ sub run_as_pf {
     }
 
     return $TRUE;
+}
+
+=head2 find_outgoing_interface
+
+Find the outgoing interface from a specific incoming interface
+
+=cut
+
+sub find_outgoing_interface {
+    my ($gateway) = @_;
+    my @interface_src = split(" ", pf_run("sudo ip route get 8.8.8.8 from $gateway"));
+    if ($interface_src[3] eq 'via') {
+        return $interface_src[6];
+    } else {
+        return $interface_src[2];
+    }
+}
+
+=head2 strip_filename_from_exceptions
+
+Strip out filename from exception messages
+
+=cut
+
+sub strip_filename_from_exceptions {
+    my ($exception) = @_;
+    if (defined $exception) {
+        $exception =~ s/^(.*) at .*?$/$1/;
+    }
+    return $exception;
 }
 
 =back

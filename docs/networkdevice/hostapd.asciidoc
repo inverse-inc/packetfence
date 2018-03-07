@@ -1,0 +1,160 @@
+hostapd (OpenWrt Chaos Calmer 15.05)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Introduction
+^^^^^^^^^^^^
+This section will provide an example for the configuration of an open SSID (not encrypted) and a secure SSID (802.1X). You will need to install wpad and hostapd. These two SSIDs will do RADIUS authentication against PacketFence. You can not have both SSID configured on the same access point at the same time, there is a limitation with the DAE server.
+
+Assumptions
+^^^^^^^^^^^
+* You have a configured PacketFence environment with working test equipment
+* The management IP of PacketFence will be 192.168.1.10 and has s3cr3t as its RADIUS shared secret
+* You have an access point with OpenWrt Chaos Calmer 15.05 installed
+
+
+Quick installation
+^^^^^^^^^^^^^^^^^^
+
+Packages Installation
++++++++++++++++++++++
+You can install the packages from the web interface of OpenWrt.
+
+Go to *System -> Software*
+
+First update the repos by clicking the button Update lists if it's not up to date.
+
+Then you will have to install the packages of Hostapd and wpad.
+
+Go to the tab 'Available packages' and then search for the package hostapd into the 'Filter:' field.
+
+Click Install the hostapd-common package, the actual version is 2015-03-25-1.
+
+Do the same process for the wpad package version 2015-03-25-1.
+
+NOTE: You will need the packages hostapd-common and wpad if they are not installed by default.
+
+Dynamic VLAN Configuration
+++++++++++++++++++++++++++
+Connect using SSH to the AP and create the file : /etc/config/hostapd.vlan
+
+----
+*           wlan0.#
+----
+
+Hostapd Configuration
++++++++++++++++++++++
+You will need to modify the hostapd script that comes with the package that we previously installed.
+
+Connect using SSH to the AP and run these commands:
+
+----
+cd /lib/netifd/
+mv hostapd.sh hostapd.sh.old
+opkg install curl
+curl --insecure  https://github.com/inverse-inc/packetfence/tree/devel/addons/hostapd/hostapd-15.05.sh >  hostapd.sh
+wifi
+----
+
+Configure the SSIDs
++++++++++++++++++++
+To configure the PF-Open SSID, we will edit the file /etc/config/wireless:
+
+----
+# Definition of the radio
+config wifi-device 'radio0'
+        option type 'mac80211'
+        option channel '11'
+        option hwmode '11g'
+        option path 'pci0000:00/0000:00:00.0'
+        option htmode 'HT20'
+
+# Configuration of the Open SSID
+        option device 'radio0'
+        option mode 'ap'
+        option vlan_file '/etc/config/hostapd.vlan'
+        option vlan_tagged_interface 'eth0'
+        option vlan_naming '0'
+        option dynamic_vlan '2'
+        option auth_port '1812'
+        option auth_server '192.168.1.10'
+        option auth_secret 's3cr3t'
+        option acct_port '1813'
+        option acct_server '192.168.1.10'
+        option acct_secret 's3cr3t'
+        option dae_port '3799'
+        option dae_client '192.168.1.10'
+        option dae_secret 's3cr3t'
+        option nasid 'Lobby'
+        option encryption 'none'
+        option ssid 'OpenWRT-Open'
+----
+
+Configure the PF-Secure SSID:
+
+----
+# Definition of the radio
+config wifi-device 'radio0'
+        option type 'mac80211'
+        option channel '11'
+        option hwmode '11g'
+        option path 'pci0000:00/0000:00:00.0'
+        option htmode 'HT20'
+
+config wifi-iface
+        option device 'radio0'
+        option mode 'ap'
+        option vlan_file '/etc/config/hostapd.vlan'
+        option vlan_tagged_interface 'eth0'
+        option vlan_naming '0'
+        option dynamic_vlan '2'
+        option auth_port '1812'
+        option auth_server '192.168.1.10'
+        option auth_secret 's3cr3t'
+        option acct_port '1813'
+        option acct_server '192.168.1.10'
+        option acct_secret 's3cr3t'
+        option dae_port '3799'
+        option dae_client '192.168.1.10'
+        option dae_secret 's3cr3t'
+        option nasid 'Lobby'
+        option encryption 'wpa2'
+        option ssid 'OpenWRT-Secure'
+----
+
+In order to apply this configuration, when you are connected using SSH on the AP, run the command 'wifi'. It will reload the configuration and broadcast the SSID. If you want to debug, you can use the command 'logread'.
+
+NOTE:  It's known that you can't put 2 SSIDs with the same dae server at the same time. The deauthentication will not work on the second SSID.
+
+PacketFence Configuration
++++++++++++++++++++++++++
+Log in to the PacketFence administration web page and go under *Configuration -> Policies and Access Control -> Switches -> Add switch*.
+
+Definition:
+[options="compact"]
+* *IP Address/MAC Address/Range (CIDR)*: IP of your access point
+* *Type*: Hostapd
+* *Mode*: production
+* *Deauthentication Method*: RADIUS
+* *Dynamic Uplinks*: Checked
+
+Roles:
+[options="compact"]
+* *Role by VLAN ID*: Checked
+* *Registration*: Your registration VLAN ID
+* *Isolation*: Your isolation VLAN ID
+
+RADIUS:
+[options="compact"]
+* *Secret Passphrase*: s3cr3t
+
+Save this configuration by clicking the 'Save' button.
+
+Troubleshoot
+++++++++++++
+
+There are few things you can do/check to see if your configuration is working.
+
+To check the wireless configuration: uci show wireless or cat /etc/config/wireless
+
+To check if your configuration (depend on the equipment) is correctly set into the Hostapd configuration file: cat /var/run/hostapd-phy0.conf
+

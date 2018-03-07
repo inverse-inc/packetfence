@@ -24,8 +24,97 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 7;
+our (@CACHEABLE_RULES, @NON_CACHEABLE_RULES);
+
 use pf::authentication;
+
+BEGIN {
+
+    @CACHEABLE_RULES = (
+
+        pf::Authentication::Rule->new(
+            {
+                id         => "No conditions is cachable",
+                class      => $Rules::AUTH,
+                match      => $Rules::ANY,
+                conditions => [],
+            }
+        ),
+
+        pf::Authentication::Rule->new(
+            {
+                id         => "Non date related is cachable",
+                class      => $Rules::AUTH,
+                match      => $Rules::ANY,
+                conditions => [
+                    pf::Authentication::Condition->new(
+                        {
+                            attribute => 'bob',
+                            operator  => $Conditions::STARTS,
+                            value     => 'bob',
+                        }
+                    )
+                ],
+            }
+        )
+    );
+
+    @NON_CACHEABLE_RULES = (
+
+        pf::Authentication::Rule->new(
+            {
+                id         => "If one condition is a IN_TIME_PERIOD then fail",
+                class      => $Rules::AUTH,
+                match      => $Rules::ANY,
+                conditions => [
+                    pf::Authentication::Condition->new(
+                        {
+                            attribute => 'bob',
+                            operator  => $Conditions::IN_TIME_PERIOD,
+                            value     => time,
+                        }
+                    )
+                ],
+            }
+        ),
+        pf::Authentication::Rule->new(
+            {
+                id         => "If one condition is a IS_BEFORE then fail",
+                class      => $Rules::AUTH,
+                match      => $Rules::ANY,
+                conditions => [
+                    pf::Authentication::Condition->new(
+                        {
+                            attribute => 'bob',
+                            operator  => $Conditions::IS_BEFORE,
+                            value     => time,
+                        }
+                    )
+                ],
+            }
+        ),
+        pf::Authentication::Rule->new(
+            {
+                id         => "If one condition is a IS_AFTER then fail",
+                class      => $Rules::AUTH,
+                match      => $Rules::ANY,
+                conditions => [
+                    pf::Authentication::Condition->new(
+                        {
+                            attribute => 'bob',
+                            operator  => $Conditions::IS_AFTER,
+                            value     => time,
+                        }
+                    )
+                ],
+            }
+        ),
+
+    ),
+
+}
+
+use Test::More tests => 5 + 2 * ( scalar @CACHEABLE_RULES + scalar @NON_CACHEABLE_RULES);
 
 #This test will running last
 use Test::NoWarnings;
@@ -38,92 +127,32 @@ ok($source, "Got source id $source_id");
 
 BAIL_OUT("Cannot get $source_id") unless $source;
 
-my $rule = pf::Authentication::Rule->new(
-    {
-        id => "test1",
-        class => $Rules::AUTH,
-        match => $Rules::ANY,
-        conditions => [],
-    }
-);
+for my $rule (@CACHEABLE_RULES) {
+    ok($source->is_rule_cacheable($rule), $rule->{id});
+}
 
-ok($source->is_rule_cacheable($rule), "No conditions is cachable");
+for my $rule (@NON_CACHEABLE_RULES) {
+    ok(!$source->is_rule_cacheable($rule), $rule->{id});
+}
+ok(!$source->is_rule_cacheable(undef), "undef is always uncacheable");
 
-$rule = pf::Authentication::Rule->new(
-    {
-        id => "test1",
-        class => $Rules::AUTH,
-        match => $Rules::ANY,
-        conditions => [
-            pf::Authentication::Condition->new(
-                {
-                    attribute => 'bob',
-                    operator => $Conditions::IN_TIME_PERIOD,
-                    value => time,
-                }
-            )
-        ],
-    }
-);
+$source_id = 'LDAPCACHEMATCH_OFF';
 
-ok(!$source->is_rule_cacheable($rule), "If one condition is a IN_TIME_PERIOD then fail");
+$source = getAuthenticationSource($source_id);
 
-$rule = pf::Authentication::Rule->new(
-    {
-        id => "test1",
-        class => $Rules::AUTH,
-        match => $Rules::ANY,
-        conditions => [
-            pf::Authentication::Condition->new(
-                {
-                    attribute => 'bob',
-                    operator => $Conditions::IS_BEFORE,
-                    value => time,
-                }
-            )
-        ],
-    }
-);
+ok($source, "Got source id $source_id");
 
-ok(!$source->is_rule_cacheable($rule), "If one condition is a IS_BEFORE then fail");
+BAIL_OUT("Cannot get $source_id") unless $source;
 
-$rule = pf::Authentication::Rule->new(
-    {
-        id => "test1",
-        class => $Rules::AUTH,
-        match => $Rules::ANY,
-        conditions => [
-            pf::Authentication::Condition->new(
-                {
-                    attribute => 'bob',
-                    operator => $Conditions::IS_AFTER,
-                    value => time,
-                }
-            )
-        ],
-    }
-);
+for my $rule (@CACHEABLE_RULES) {
+    ok(!$source->is_rule_cacheable($rule), "Cache is disabled no rule can be cached : " . $rule->{id});
+}
 
-ok(!$source->is_rule_cacheable($rule), "If one condition is a IS_AFTER then fail");
+for my $rule (@NON_CACHEABLE_RULES) {
+    ok(!$source->is_rule_cacheable($rule), "Cache is disabled no rule can be cached : " . $rule->{id});
+}
 
-$rule = pf::Authentication::Rule->new(
-    {
-        id => "test1",
-        class => $Rules::AUTH,
-        match => $Rules::ANY,
-        conditions => [
-            pf::Authentication::Condition->new(
-                {
-                    attribute => 'bob',
-                    operator => $Conditions::STARTS,
-                    value => 'bob',
-                }
-            )
-        ],
-    }
-);
-
-ok($source->is_rule_cacheable($rule), "Non date related is cachable");
+ok(!$source->is_rule_cacheable(undef), "undef is always uncacheable");
 
 =head1 AUTHOR
 

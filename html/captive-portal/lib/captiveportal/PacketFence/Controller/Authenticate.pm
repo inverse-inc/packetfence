@@ -5,6 +5,7 @@ use namespace::autoclean;
 use pf::constants;
 use pf::constants::eap_type qw($EAP_TLS);
 use pf::constants::Connection::Profile qw($DEFAULT_PROFILE);
+use pf::constants::realm;
 use pf::config qw(%Profiles_Config);;
 use pf::web qw(i18n i18n_format);
 use pf::node;
@@ -17,7 +18,7 @@ use HTML::Entities;
 use List::MoreUtils qw(any uniq all);
 use pf::config;
 use pf::auth_log;
-use pf::person qw(person_modify person_exist person_add);
+use pf::person;
 use Email::Valid;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
@@ -81,21 +82,22 @@ sub authenticationLogin : Private {
     $logger->debug("authentication attempt");
 
     if ($request->{'match'} eq "status/login") {
-        use pf::person;
         my $person_info = pf::person::person_view($request->param("username"));
-        my $source = pf::authentication::getAuthenticationSource($person_info->{source});
-        if (defined($source) && $source->{'class'} eq 'external') {
-            # Source is external, we have to use local source to authenticate
-            $c->stash( use_local_source => 1 );
+        if($person_info) {
+            my $source = pf::authentication::getAuthenticationSource($person_info->{source});
+            if (defined($source) && $source->{'class'} eq 'external') {
+                # Source is external, we have to use local source to authenticate
+                $c->stash( use_local_source => 1 );
+            }
+            my $portal = $person_info->{portal};
+            unless (defined $portal && length($portal) && exists $Profiles_Config{$portal}) {
+                $portal = $DEFAULT_PROFILE;
+            }
+            my $options = {
+                portal => $portal,
+            };
+            $profile = pf::Connection::ProfileFactory->instantiate( $mac, $options);
         }
-        my $portal = $person_info->{portal};
-        unless (defined $portal && length($portal) && exists $Profiles_Config{$portal}) {
-            $portal = $DEFAULT_PROFILE;
-        }
-        my $options = {
-            portal => $portal,
-        };
-        $profile = pf::Connection::ProfileFactory->instantiate( $mac, $options);
     }
     $c->stash( profile => $profile );
 
@@ -106,16 +108,14 @@ sub authenticationLogin : Private {
 
     my $sources = $self->getSources($c, $username, $realm);
 
-    # If all sources use the stripped username, we strip it
-    # Otherwise, we leave it as is
-    my $use_stripped = all { isenabled($_->{stripped_user_name}) } @{$sources};
-    if($use_stripped){
-        $username = $stripped_username;
-    }
-
     # validate login and password
     ( $return, $message, $source_id, $extra ) =
-      pf::authentication::authenticate( { 'username' => $username, 'password' => $password, 'rule_class' => $Rules::AUTH }, @{$sources} );
+      pf::authentication::authenticate( {
+              'username' => $username, 
+              'password' => $password, 
+              'rule_class' => $Rules::AUTH,
+              'context' => $pf::constants::realm::PORTAL_CONTEXT,
+          }, @{$sources} );
     if ( defined($return) && $return == 1 ) {
         pf::auth_log::record_auth($source_id, $portalSession->clientMac, $username, $pf::auth_log::COMPLETED, $profile->name);
         # save login into session

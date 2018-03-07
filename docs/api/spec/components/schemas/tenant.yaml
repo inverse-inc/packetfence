@@ -1,0 +1,27 @@
+
+Tenant:
+  type: object
+  properties:
+    id:
+      type: integer
+      description: The unique numeric identifier of the tenant
+    name:
+      type: string
+      description: The user friendly name of the tenant
+    portal_domain_name:
+      type: string
+      description: The portal domain name for this tenant. Any request on the portal using this domain name will be scoped to this tenant.
+    domain_name:
+      type: string
+      description: The domain name of this tenant as used in 802.1x connections for the realm. For example, in the username tommy@example.com, example.com is the domain name.
+  
+TenantsList:
+  allOf:
+    - $ref: "#/components/schemas/Iterable" 
+    - type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tenant" 
+    

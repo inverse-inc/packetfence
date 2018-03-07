@@ -20,6 +20,17 @@ use namespace::autoclean;
 use List::MoreUtils qw(any uniq);
 use pf::error qw(is_success);
 use pf::log;
+use fingerbank::Model::Device;
+use fingerbank::Model::Combination;
+use fingerbank::Model::Device;
+use fingerbank::Model::DHCP6_Enterprise;
+use fingerbank::Model::DHCP6_Fingerprint;
+use fingerbank::Model::DHCP_Fingerprint;
+use fingerbank::Model::DHCP_Vendor;
+use fingerbank::Model::Endpoint;
+use fingerbank::Model::MAC_Vendor;
+use fingerbank::Model::User_Agent;
+
 has '+deflate_value_method'=> ( default => sub { \&_deflate } );
 
 =head2 build_options
@@ -52,12 +63,14 @@ after 'value' => sub {
     my @options = map {
         my ($status, $result) = $self->fingerbank_model->read($_);
         if(is_success($status)){
+            my $value_field = $self->fingerbank_model->value_field;
             { 
                 value => $_,
-                label => $result->{$self->fingerbank_model->value_field},
+                label => $result->$value_field,
             }
         }
         else {
+            get_logger->error("Unable to read device $_");
             ();
         }
     } uniq(@base_ids, @{$self->result->value()});

@@ -1,0 +1,365 @@
+/config/syslog_parsers:
+  get:
+    parameters:
+    - $ref: '#/components/parameters/cursor'
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/Iterable'
+              - properties:
+                  items:
+                    discriminator:
+                      propertyName: type
+                    oneOf:
+                    - properties:
+                        id:
+                          description: Detector
+                          type: string
+                        path:
+                          description: Alert pipe
+                          type: string
+                        status:
+                          description: Enabled
+                          type: string
+                        type:
+                          description: Type
+                          type: string
+                      required:
+                      - id
+                      - path
+                      - type
+                      type: object
+                    - properties:
+                        id:
+                          description: Detector
+                          type: string
+                        path:
+                          description: Alert pipe
+                          type: string
+                        status:
+                          description: Enabled
+                          type: string
+                        type:
+                          description: Type
+                          type: string
+                      required:
+                      - id
+                      - path
+                      - type
+                      type: object
+                    - properties:
+                        id:
+                          description: Detector
+                          type: string
+                        loglines:
+                          description: Loglines
+                          type: string
+                        path:
+                          description: Alert pipe
+                          type: string
+                        rules:
+                          description: Rules
+                          items:
+                            description: Rule - New
+                            properties:
+                              actions:
+                                description: Actions
+                                items:
+                                  description: Action
+                                  properties:
+                                    api_method:
+                                      description: Api method
+                                      type: string
+                                    api_parameters:
+                                      description: Api parameters
+                                      type: string
+                                  type: object
+                                type: array
+                              ip_mac_translation:
+                                description: Perform automatic translation of IPs
+                                  to MACs and the other way around
+                                type: string
+                              last_if_match:
+                                description: Stop processing rules if this rule matches
+                                type: string
+                              name:
+                                description: Name
+                                type: string
+                              regex:
+                                description: Regex
+                                type: string
+                            type: object
+                          type: array
+                        status:
+                          description: Enabled
+                          type: string
+                        type:
+                          description: Type
+                          type: string
+                      required:
+                      - id
+                      - path
+                      - type
+                      type: object
+                    - properties:
+                        id:
+                          description: Detector
+                          type: string
+                        path:
+                          description: Alert pipe
+                          type: string
+                        status:
+                          description: Enabled
+                          type: string
+                        type:
+                          description: Type
+                          type: string
+                      required:
+                      - id
+                      - path
+                      - type
+                      type: object
+                    - properties:
+                        id:
+                          description: Detector
+                          type: string
+                        path:
+                          description: Alert pipe
+                          type: string
+                        status:
+                          description: Enabled
+                          type: string
+                        type:
+                          description: Type
+                          type: string
+                      required:
+                      - id
+                      - path
+                      - type
+                      type: object
+                    - properties:
+                        id:
+                          description: Detector
+                          type: string
+                        path:
+                          description: Alert pipe
+                          type: string
+                        status:
+                          description: Enabled
+                          type: string
+                        type:
+                          description: Type
+                          type: string
+                      required:
+                      - id
+                      - path
+                      - type
+                      type: object
+                    - properties:
+                        id:
+                          description: Detector
+                          type: string
+                        path:
+                          description: Alert pipe
+                          type: string
+                        status:
+                          description: Enabled
+                          type: string
+                        type:
+                          description: Type
+                          type: string
+                      required:
+                      - id
+                      - path
+                      - type
+                      type: object
+                type: object
+        description: A list of connection profiles
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  post:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            discriminator:
+              propertyName: type
+            oneOf:
+            - properties:
+                id:
+                  description: Detector
+                  type: string
+                path:
+                  description: Alert pipe
+                  type: string
+                status:
+                  description: Enabled
+                  type: string
+                type:
+                  description: Type
+                  type: string
+              required:
+              - id
+              - path
+              - type
+              type: object
+            - properties:
+                id:
+                  description: Detector
+                  type: string
+                path:
+                  description: Alert pipe
+                  type: string
+                status:
+                  description: Enabled
+                  type: string
+                type:
+                  description: Type
+                  type: string
+              required:
+              - id
+              - path
+              - type
+              type: object
+            - properties:
+                id:
+                  description: Detector
+                  type: string
+                loglines:
+                  description: Loglines
+                  type: string
+                path:
+                  description: Alert pipe
+                  type: string
+                rules:
+                  description: Rules
+                  items:
+                    description: Rule - New
+                    properties:
+                      actions:
+                        description: Actions
+                        items:
+                          description: Action
+                          properties:
+                            api_method:
+                              description: Api method
+                              type: string
+                            api_parameters:
+                              description: Api parameters
+                              type: string
+                          type: object
+                        type: array
+                      ip_mac_translation:
+                        description: Perform automatic translation of IPs to MACs
+                          and the other way around
+                        type: string
+                      last_if_match:
+                        description: Stop processing rules if this rule matches
+                        type: string
+                      name:
+                        description: Name
+                        type: string
+                      regex:
+                        description: Regex
+                        type: string
+                    type: object
+                  type: array
+                status:
+                  description: Enabled
+                  type: string
+                type:
+                  description: Type
+                  type: string
+              required:
+              - id
+              - path
+              - type
+              type: object
+            - properties:
+                id:
+                  description: Detector
+                  type: string
+                path:
+                  description: Alert pipe
+                  type: string
+                status:
+                  description: Enabled
+                  type: string
+                type:
+                  description: Type
+                  type: string
+              required:
+              - id
+              - path
+              - type
+              type: object
+            - properties:
+                id:
+                  description: Detector
+                  type: string
+                path:
+                  description: Alert pipe
+                  type: string
+                status:
+                  description: Enabled
+                  type: string
+                type:
+                  description: Type
+                  type: string
+              required:
+              - id
+              - path
+              - type
+              type: object
+            - properties:
+                id:
+                  description: Detector
+                  type: string
+                path:
+                  description: Alert pipe
+                  type: string
+                status:
+                  description: Enabled
+                  type: string
+                type:
+                  description: Type
+                  type: string
+              required:
+              - id
+              - path
+              - type
+              type: object
+            - properties:
+                id:
+                  description: Detector
+                  type: string
+                path:
+                  description: Alert pipe
+                  type: string
+                status:
+                  description: Enabled
+                  type: string
+                type:
+                  description: Type
+                  type: string
+              required:
+              - id
+              - path
+              - type
+              type: object
+      required: true
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '409':
+        $ref: '#/components/responses/Duplicate'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

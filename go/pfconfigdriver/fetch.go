@@ -7,13 +7,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/inverse-inc/packetfence/go/log"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"io"
 	"net"
 	"os"
 	"reflect"
 	"time"
+
+	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 	//"github.com/davecgh/go-spew/spew"
 )
 
@@ -236,13 +237,14 @@ func FetchDecodeSocket(ctx context.Context, o PfconfigObject) error {
 	query := createQuery(ctx, o)
 
 	jsonResponse := FetchSocket(ctx, query.GetPayload())
+
 	if query.method == "keys" {
 		if cs, ok := o.(*PfconfigKeys); ok {
 			decodeInterface(ctx, query.encoding, jsonResponse, &cs.Keys)
 		} else {
 			panic("Wrong struct type for keys. Required PfconfigKeys")
 		}
-	} else if metadataFromField(ctx, o, "PfconfigArray") == "yes" {
+	} else if metadataFromField(ctx, o, "PfconfigArray") == "yes" || metadataFromField(ctx, o, "PfconfigDecodeInElement") == "yes" {
 		decodeInterface(ctx, query.encoding, jsonResponse, &o)
 	} else {
 		receiver := &PfconfigElementResponse{}

@@ -21,7 +21,11 @@ use warnings;
 ### pf::dal::_inline_accounting is auto generated any change to this file will be lost
 ### Instead change in the pf::dal::inline_accounting module
 ###
+
 use base qw(pf::dal);
+
+use Role::Tiny::With;
+with qw(pf::dal::roles::has_tenant_id);
 
 our @FIELD_NAMES;
 our @INSERTABLE_FIELDS;
@@ -34,6 +38,7 @@ BEGIN {
     @FIELD_NAMES = qw(
         outbytes
         inbytes
+        tenant_id
         ip
         firstseen
         lastmodified
@@ -43,6 +48,7 @@ BEGIN {
     %DEFAULTS = (
         outbytes => '0',
         inbytes => '0',
+        tenant_id => '1',
         ip => '',
         firstseen => '',
         lastmodified => '',
@@ -52,6 +58,7 @@ BEGIN {
     @INSERTABLE_FIELDS = qw(
         outbytes
         inbytes
+        tenant_id
         ip
         firstseen
         lastmodified
@@ -67,6 +74,12 @@ BEGIN {
         },
         inbytes => {
             type => 'BIGINT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
+        tenant_id => {
+            type => 'INT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 0,
@@ -105,6 +118,7 @@ BEGIN {
     @COLUMN_NAMES = qw(
         inline_accounting.outbytes
         inline_accounting.inbytes
+        inline_accounting.tenant_id
         inline_accounting.ip
         inline_accounting.firstseen
         inline_accounting.lastmodified

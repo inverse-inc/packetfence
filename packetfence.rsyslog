@@ -45,10 +45,6 @@ if $syslogtag contains "redis-ntlm-cache" then -/usr/local/pf/logs/redis_ntlm_ca
 if $syslogtag contains "pfdhcplistener" then -/usr/local/pf/logs/pfdhcplistener.log
 & stop
 
-# FINGERBANK
-if $syslogtag contains "fingerbank" then -/usr/local/pf/logs/fingerbank.log
-& stop
-
 # HTTPD services 
 if $syslogtag contains "httpd_parking_err" then -/usr/local/pf/logs/httpd.parking.error
 & stop
@@ -82,11 +78,6 @@ if $syslogtag contains "httpd_admin" then -/usr/local/pf/logs/httpd.admin.log
 if $syslogtag contains "httpd_collector_err" then -/usr/local/pf/logs/httpd.collector.error
 & stop
 if $syslogtag contains "httpd_collector" then -/usr/local/pf/logs/httpd.collector.log
-& stop
-
-if $syslogtag contains "httpd_graphite_err" then -/usr/local/pf/logs/httpd.graphite.error
-& stop
-if $syslogtag contains "httpd_graphite" then -/usr/local/pf/logs/httpd.graphite.access
 & stop
 
 if $syslogtag contains "httpd_proxy_err" then -/usr/local/pf/logs/httpd.proxy.error
@@ -124,9 +115,6 @@ if $programname == "pfqueue" then -/usr/local/pf/logs/packetfence.log
 if $programname == "pfhttpd" then -/usr/local/pf/logs/packetfence.log
 & stop
 
-# COLLECTD
-if $programname == "collectd" then -/usr/local/pf/logs/collectd.log
-& stop
 
 # PFDETECT
 if $programname == "pfdetect" then -/usr/local/pf/logs/pfdetect.log
@@ -146,6 +134,18 @@ if $programname == "httpd.dispatcher" then -/usr/local/pf/logs/httpd.dispatcher.
 if $programname == "pfhttpd" then -/usr/local/pf/logs/packetfence.log
 & stop
 
+if $programname == "pfipset" then -/usr/local/pf/logs/packetfence.log
+& stop
+
+if $programname == "pfdhcp" then -/usr/local/pf/logs/packetfence.log
+& stop
+
 # MARIADB
 if $syslogtag contains "mysqld" then -/usr/local/pf/logs/mariadb_error.log
 & stop
+
+# pfstats
+if $syslogtag contains "pfstats" then -/usr/local/pf/logs/pfstats.log
+& stop
+
+

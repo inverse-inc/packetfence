@@ -37,6 +37,7 @@ use pf::util;
 use pf::cluster;
 use Template;
 use pf::authentication;
+use pf::dal::tenant;
 
 extends 'pf::services::manager';
 
@@ -257,6 +258,11 @@ EOT
 
         }
     }
+    $tags{'management_ip'}
+        = defined( $management_network->tag('vip') )
+        ? $management_network->tag('vip')
+        : $management_network->tag('ip');
+
 
     $tags{captiveportal_templates_path} = $captiveportal_templates_path;
     parse_template( \%tags, "$conf_dir/haproxy.conf", "$generated_conf_dir/haproxy.conf" );
@@ -267,9 +273,14 @@ EOT
 
     # Add any activation domain in the authentication sources
     push @portal_hosts, map { $_->{activation_domain} ? $_->{activation_domain} : () } @{getAllAuthenticationSources()};
+    push @portal_hosts, @{$Config{captive_portal}->{other_domain_names}};
+    push @portal_hosts, map {$_->portal_domain_name ? $_->portal_domain_name : ()} @{pf::dal::tenant->search->all};
+
 
     # Escape special chars for lua matches
     @portal_hosts = map { $_ =~ s/([.-])/%$1/g ; $_ } @portal_hosts;
+    # Allow wildcards (the string starts with a '*')
+    @portal_hosts = map { $_ =~ s/^\*/.*$1/g ; $_ } @portal_hosts;
 
     my $vars = {
         portal_host => sub { return @portal_hosts },

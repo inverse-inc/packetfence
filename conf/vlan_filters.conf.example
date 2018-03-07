@@ -1,3 +1,4 @@
+
 # VLAN FILTERS configuration
 # ==========================
 #
@@ -53,6 +54,7 @@
 #     node_info.sessionid
 #     node_info.dhcp_vendor
 #     node_info.unregdate
+#     fingerbank_info.device_name
 #     fingerbank_info.device_fq
 #     fingerbank_info.device_hierarchy_names
 #     fingerbank_info.device_hierarchy_ids
@@ -316,41 +318,45 @@
 #
 #
 #### Fingerbank example ####
-#
-# There are two ways to detect if the device is an Android phone, either by looking at the hierarchy of device ID or looking at the hierarchy of device names
-# Although using device names is more intuitive, they are subject to (very rare) changes, so using the ID is recommended
-# To find a device ID by the name, the following command can be used : '/usr/local/pf/bin/pfcmd fingerbank find_device_id "Generic Android"'
-# See the Fingerbank section in the PacketFence Administration interface for a list of all devices or https://fingerbank.inverse.ca/devices
-#
-# This would then give us the following condition (note the use of includes) : 
+##
+## There are two ways to detect if the device is an Android phone, either by looking if the device is linked to the "Android OS" device by using its ID (33453) or by its name (Android OS)
+## Although using device names is more intuitive, they are subject to (very rare) changes, so using the ID is recommended
+## To find a device ID by the name, the following command can be used : '/usr/local/pf/bin/pfcmd fingerbank find_device_id "Android OS"'
+## See the Fingerbank section in the PacketFence Administration interface for a list of all devices or https://api.fingerbank.org/devices
+##
+## This would then give us the following condition (note the use of fingerbank::device_is_a) : 
 #[android_by_id]
-#filter = fingerbank_info.device_hierarchy_ids
-#operator = includes
-#value = 202
+#filter = fingerbank_info.device_name
+#operator = fingerbank::device_is_a
+#value = 33483
 #
-# Same example using the name:
+## Same example using the name:
 #[android_by_name]
-#filter = fingerbank_info.device_hierarchy_names
-#operator = includes
-#value = Generic Android
+#filter = fingerbank_info.device_name
+#operator = fingerbank::device_is_a
+#value = Android OS
 #
-# Next, lets add filtering on the Android operating system version using:
-# (CAUTION: the version is not always available, when not present, this condition will return false)
+## Next, lets add filtering on the Android operating system version using:
+## (CAUTION: the version is not always available, when not present, this condition will return false)
 #[version_4_plus]
 #filter = fingerbank_info.version
 #operator = greater_equals
 #value = 4
 #
-# We could also want to validate that the device score is high enough through the following condition:
+## We could also want to validate that the device score is high enough through the following condition:
 #[minimum_score]
 #filter = fingerbank_info.score
 #operator = greater_equals
 #value = 30
-#
-# The above will ensure that the score is higher than 30 (included) which is the level at which Fingerbank uses informations that aren't easily spoofable for its decision.
-#
-# We could now create a filter that auto registers Android phones versions 4 and above that have a score of at least 30
-#
-#[autoreg_android:android_by_id&version_4_plus&minimum_score]
+## The above will ensure that the score is higher than 30 (included) which is the level at which Fingerbank uses informations that aren't easily spoofable for its decision.
+##
+## We could now create a filter that auto registers Android phones versions 4 and above that have a score of at least 30
+##
+#[autoreg_android:android_by_name&version_4_plus&minimum_score]
 #scope = AutoRegister
 #role = default
+#
+#[info_for_autoreg_android:android_by_name&version_4_plus&minimum_score]
+#scope = NodeInfoForAutoReg
+#role = default
+

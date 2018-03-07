@@ -1,0 +1,156 @@
+/ipset/mark_layer3:
+  post:
+    summary: ...
+    description: ...
+    parameters:
+      - $ref: '#/components/parameters/local'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/IpsetNetwork"
+            $ref: "#/components/schemas/IpsetType"
+            $ref: "#/components/schemas/IpsetRoleId"
+            $ref: "#/components/schemas/IpsetIp"
+    responses:
+      '200':
+        $ref: "#/components/responses/IpsetIp"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+        
+/ipset/mark_layer2:
+  post:
+    summary: ...
+    description: ...
+    parameters:
+      - $ref: '#/components/parameters/local'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/IpsetNetwork"
+            $ref: "#/components/schemas/IpsetType"
+            $ref: "#/components/schemas/IpsetRoleId"
+            $ref: "#/components/schemas/IpsetIp"
+            $ref: "#/components/schemas/IpsetMac"
+    responses:
+      '200':
+        $ref: "#/components/responses/IpsetMac"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+
+/ipset/unmark_mac:
+  post:
+    summary: ...
+    description: ...
+    parameters:
+      - $ref: '#/components/parameters/local'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/IpsetMac"
+    responses:
+      '200':
+        $ref: "#/components/responses/IpsetMac"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+
+/ipset/umark_ip:
+  post:
+    summary: ...
+    description: ...
+    parameters:
+      - $ref: '#/components/parameters/local'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/IpsetIp"
+    responses:
+      '200':
+        $ref: "#/components/responses/IpsetIp"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+
+/ipset/mark_ip_layer2:
+  post:
+    summary: ...
+    description: ...
+    parameters:
+      - $ref: '#/components/parameters/local'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/IpsetNetwork"
+            $ref: "#/components/schemas/IpsetRoleId"
+            $ref: "#/components/schemas/IpsetIp"
+    responses:
+      '200':
+        $ref: "#/components/responses/IpsetIp"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+
+/ipset/mark_ip_layer3:
+  post:
+    summary: ...
+    description: ...
+    parameters:
+      - $ref: '#/components/parameters/local'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/IpsetNetwork"
+            $ref: "#/components/schemas/IpsetRoleId"
+            $ref: "#/components/schemas/IpsetIp"
+    responses:
+      '200':
+        $ref: "#/components/responses/IpsetIp"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+
+/ipset/passthrough:
+  post:
+    summary: ...
+    description: ...
+    parameters:
+      - $ref: '#/components/parameters/local'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/IpsetIp"
+            $ref: "#/components/schemas/IpsetPort"
+    responses:
+      '200':
+        $ref: "#/components/responses/IpsetIp"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+
+/ipset/passthrough_isolation:
+  post:
+    summary: ...
+    description: ...
+    parameters:
+      - $ref: '#/components/parameters/local'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/IpsetIp"
+            $ref: "#/components/schemas/IpsetPort"
+    responses:
+      '200':
+        $ref: "#/components/responses/IpsetIp"
+      '400':
+        $ref: "#/components/responses/BadRequest"

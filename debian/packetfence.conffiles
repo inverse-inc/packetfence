@@ -3,6 +3,7 @@
 /usr/local/pf/conf/apache_filters.conf
 /usr/local/pf/conf/authentication.conf
 /usr/local/pf/conf/profiles.conf
+/usr/local/pf/conf/pfdns.conf
 /usr/local/pf/conf/device_registration.conf
 /usr/local/pf/conf/dhcp_fingerprints.conf
 /usr/local/pf/conf/dhcp_filters.conf
@@ -32,6 +33,7 @@
 /usr/local/pf/conf/realm.conf.defaults
 /usr/local/pf/conf/portal_modules.conf
 /usr/local/pf/conf/portal_modules.conf.defaults
+/usr/local/pf/conf/rsyslog.conf.tt
 /usr/local/pf/conf/redis_queue.conf
 /usr/local/pf/conf/redis_ntlm_cache.conf
 /usr/local/pf/conf/domain.conf
@@ -39,6 +41,7 @@
 /usr/local/pf/conf/suricata_categories.txt
 /usr/local/pf/conf/scan.conf
 /usr/local/pf/conf/switches.conf
+/usr/local/pf/conf/syslog.conf
 /usr/local/pf/conf/dhcpd.conf
 /usr/local/pf/conf/haproxy.conf
 /usr/local/pf/conf/cluster.conf
@@ -47,8 +50,6 @@
 /usr/local/pf/conf/httpd.conf.d/httpd.webservices.tt
 /usr/local/pf/conf/httpd.conf.d/httpd.aaa.tt
 /usr/local/pf/conf/httpd.conf.d/httpd.collector.tt
-/usr/local/pf/conf/httpd.conf.d/graphite-web.wsgi
-/usr/local/pf/conf/httpd.conf.d/httpd.graphite.tt
 /usr/local/pf/conf/httpd.conf.d/httpd.portal.tt
 /usr/local/pf/conf/httpd.conf.d/httpd.parking.tt
 /usr/local/pf/conf/httpd.conf.d/httpd.proxy.tt
@@ -80,16 +81,7 @@
 /usr/local/pf/conf/ui-global.conf
 /usr/local/pf/conf/violations.conf
 /usr/local/pf/conf/wmi.conf
-/usr/local/pf/conf/monitoring/carbon.conf
-/usr/local/pf/conf/monitoring/collectd.conf.rhel
-/usr/local/pf/conf/monitoring/collectd.conf.debian
-/usr/local/pf/conf/monitoring/dashboard.conf
-/usr/local/pf/conf/monitoring/local_settings.py.rhel
-/usr/local/pf/conf/monitoring/local_settings.py.debian
-/usr/local/pf/conf/monitoring/statsd_config.js
-/usr/local/pf/conf/monitoring/storage-schemas.conf
-/usr/local/pf/conf/monitoring/storage-aggregation.conf
-/usr/local/pf/conf/monitoring/types.db
+/usr/local/pf/conf/monitoring/netdata.conf
 /usr/local/pf/html/captive-portal/captiveportal.conf
 /usr/local/pf/html/common/styles.css
 /usr/local/pf/html/common/styles.css.map

@@ -1,4 +1,5 @@
 package pf::api;
+
 =head1 NAME
 
 pf::api RPC methods exposing PacketFence features
@@ -25,6 +26,8 @@ use pf::config::util();
 use pf::config::trapping_range;
 use pf::ConfigStore::Interface();
 use pf::ConfigStore::Pf();
+use pf::ConfigStore::Roles();
+use pf::ConfigStore::TrafficShaping();
 use pf::ip4log();
 use pf::fingerbank;
 use pf::Connection::ProfileFactory();
@@ -46,6 +49,7 @@ use pf::metadefender();
 use pf::services();
 use pf::firewallsso();
 use pf::pfqueue::stats();
+use pf::pfqueue::producer::redis();
 
 use List::MoreUtils qw(uniq);
 use List::Util qw(pairmap);
@@ -64,8 +68,10 @@ use pf::dhcp::processor_v4();
 use pf::dhcp::processor_v6();
 use pf::util::dhcpv6();
 use pf::domain::ntlm_cache();
+use Hash::Merge qw (merge);
 
 use pf::constants::api;
+use pf::constants::realm;
 use DateTime::Format::MySQL;
 
 sub event_add : Public {
@@ -1046,6 +1052,7 @@ sub dynamic_register_node : Public :AllowedAsAction(mac, $mac, username, $userna
         SSID => $node_info->{'last_ssid'},
         stripped_user_name => $stripped_user,
         realm => $node_info->{'realm'},
+        context => $pf::constants::realm::RADIUS_CONTEXT,
     };
 
     my $source;
@@ -1088,8 +1095,8 @@ sub dynamic_register_node : Public :AllowedAsAction(mac, $mac, username, $userna
 =cut
 
 sub fingerbank_process : Public {
-    my ( $class, $args ) = @_;
-    pf::fingerbank::process($args);
+    my ( $class, $mac ) = @_;
+    pf::fingerbank::process($mac);
 }
 
 =head2 fingerbank_update_component
@@ -1125,18 +1132,6 @@ sub fingerbank_update_component : Public : Fork {
     }
 
     return ($status, $status_msg);
-}
-
-=head2 fingerbank_submit_unmatched
-
-=cut
-
-sub fingerbank_submit_unmatched : Public {
-    my ( $class ) = @_;
-
-    my ( $status, $status_msg ) = fingerbank::DB::submit_unknown;
-
-    pf::config::util::pfmailer(( subject => 'Fingerbank - Submit unknown/unmatched fingerprints status', message => $status_msg ));
 }
 
 =head2 throw
@@ -1356,6 +1351,9 @@ sub handle_accounting_metadata : Public {
         if(pf::util::isenabled($pf::config::Config{advanced}{update_iplog_with_accounting})){
             $logger->info("Updating iplog from accounting request");
             $client->notify("update_ip4log", mac => $mac, ip => $RAD_REQUEST{'Framed-IP-Address'}) if ($RAD_REQUEST{'Framed-IP-Address'} );
+        }
+        if (pf::util::isenabled($pf::config::Config{advanced}{unreg_on_accounting_stop})) {
+           $client->notify("deregister_node", mac => $mac);
         }
         else {
             pf::log::get_logger->debug("Not handling iplog update because we're not configured to do so on accounting packets.");
@@ -1589,6 +1587,111 @@ queue_stats
 sub queue_stats : Public {
     my ($class) = @_;
     return pf::pfqueue::stats->new->stats_data;
+}
+
+=head2 update_role_configuration
+
+Update the parameters of a role
+
+=cut
+
+sub update_role_configuration : Public :AllowedAsAction(role, $role) {
+    my ($class, %postdata )  = @_;
+    my @require = qw(role);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless pf::util::validate_argv(\@require,  \@found);
+
+    my $logger = pf::log::get_logger();
+    my $role = delete $postdata{'role'};
+
+    my $tc_cs = pf::ConfigStore::TrafficShaping->new;
+    if ($postdata{'upload'} == 0 && $postdata{'download'} == 0) {
+        $tc_cs->remove($role);
+    }
+    if ($postdata{'upload'} && $postdata{'download'}) {
+        $tc_cs->update_or_create($role, {upload => $postdata{'upload'}, download => $postdata{'download'}});
+    }
+    $tc_cs->commit();
+    delete $postdata{'upload'};
+    delete $postdata{'download'};
+
+    my $hash_ref = {};
+    $hash_ref = \%postdata;
+
+    my $role_cs = pf::ConfigStore::Roles->new;
+    $role_cs->update_or_create($role, $hash_ref);
+
+    $role_cs->commit();
+    return $pf::config::TRUE;
+}
+
+
+=head2 role_detail
+
+return the detail of a role
+
+=cut
+
+sub role_detail : Public :AllowedAsAction(role, $role) {
+    my ($class, %postdata )  = @_;
+    my @require = qw(role);
+    my @found = grep {exists $postdata{$_}} @require;
+    return unless pf::util::validate_argv(\@require,  \@found);
+
+    my $logger = pf::log::get_logger();
+
+    my $role_cs = pf::ConfigStore::Roles->new;
+    my $tc_cs = pf::ConfigStore::TrafficShaping->new;
+
+    if (defined($tc_cs->read($postdata{'role'}))) {
+        return merge($role_cs->read($postdata{'role'}), $tc_cs->read($postdata{'role'}));
+    } else {
+        return $role_cs->read($postdata{'role'});
+    }
+}
+
+=head2
+
+return the list of the roles
+
+=cut
+
+sub roles_list : Public {
+    my ($class, %postdata )  = @_;
+
+    my $role_cs = pf::ConfigStore::Roles->new;
+    my $roles = $role_cs->readAll("name");
+    my @role_list;
+    foreach my $role (@{$roles}) {
+        push @role_list, {'name' => $role->{'name'}};
+    }
+    return @role_list;
+}
+
+=head2 queue_submit
+
+queue_submit
+
+=cut
+
+sub queue_submit :Public {
+    my ($class, $queue, $task, $data, $expire_in) = @_;
+    my $producer = pf::pfqueue::producer::redis->new;
+    my $id = $producer->submit($queue, $task, $data, $expire_in);
+    return $id;
+}
+
+=head2 queue_submit_delayed
+
+queue_submit_delayed
+
+=cut
+
+sub queue_submit_delayed :Public {
+    my ($class, $queue, $task_type, $delay, $task_data, $expire_in) = @_;
+    my $producer = pf::pfqueue::producer::redis->new;
+    my $id = $producer->submit_delayed($queue, $queue, $task_type, $delay, $task_data, $expire_in);
+    return $id;
 }
 
 =head1 AUTHOR

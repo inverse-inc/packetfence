@@ -153,6 +153,7 @@ Available actions
 
 Readonly::Scalar our $MARK_AS_SPONSOR => "mark_as_sponsor";
 Readonly::Scalar our $SET_ACCESS_LEVEL => "set_access_level";
+Readonly::Scalar our $SET_TENANT_ID => "set_tenant_id";
 Readonly::Scalar our $SET_ROLE => "set_role";
 Readonly::Scalar our $SET_ACCESS_DURATION => "set_access_duration";
 Readonly::Scalar our $SET_UNREG_DATE => "set_unreg_date";
@@ -167,7 +168,7 @@ List of available actions
 
 Readonly::Hash our %ACTIONS => (
     $Rules::AUTH    => [ $SET_ROLE, $SET_ACCESS_DURATION, $SET_UNREG_DATE, $SET_TIME_BALANCE, $SET_BANDWIDTH_BALANCE ],
-    $Rules::ADMIN   => [ $SET_ACCESS_LEVEL, $MARK_AS_SPONSOR ],
+    $Rules::ADMIN   => [ $SET_ACCESS_LEVEL, $MARK_AS_SPONSOR, $SET_TENANT_ID ],
 );
 
 Readonly::Hash our %ACTION_CLASS_TO_TYPE => (
@@ -178,12 +179,14 @@ Readonly::Hash our %ACTION_CLASS_TO_TYPE => (
     $SET_BANDWIDTH_BALANCE => $Rules::AUTH,
 
     $SET_ACCESS_LEVEL      => $Rules::ADMIN,
+    $SET_TENANT_ID         => $Rules::ADMIN,
     $MARK_AS_SPONSOR       => $Rules::ADMIN,
 );
 
 Readonly::Hash our %ALLOWED_ACTIONS => (
     $MARK_AS_SPONSOR  => {$MARK_AS_SPONSOR  => 1},
     $SET_ACCESS_LEVEL => {$SET_ACCESS_LEVEL => 1},
+    $SET_TENANT_ID    => {$SET_TENANT_ID => 1},
     $SET_ROLE         => {$SET_ROLE         => 1},
     $SET_UNREG_DATE   => {
         $SET_UNREG_DATE      => 1,
@@ -196,6 +199,7 @@ Readonly::Hash our %ALLOWED_ACTIONS => (
 Readonly::Hash our %MAPPED_ACTIONS => (
     $MARK_AS_SPONSOR  => $MARK_AS_SPONSOR,
     $SET_ACCESS_LEVEL => $SET_ACCESS_LEVEL,
+    $SET_TENANT_ID    => $SET_TENANT_ID,
     $SET_ROLE         => $SET_ROLE,
     $SET_UNREG_DATE   => $SET_UNREG_DATE,
     $SET_ACCESS_DURATION => $SET_UNREG_DATE,

@@ -8,8 +8,160 @@ BEGIN {
     use lib qw(/usr/local/pf/t);
     use setup_test_config;
 }
-use Test::More tests => 50;
+
+our (
+    @INVALID_DATES,
+    @STRIP_FILENAME_FROM_EXCEPTIONS_TESTS,
+    @NORMALIZE_TIME_TESTS,
+    @EXPAND_CSV_TESTS
+);
+
+BEGIN {
+    @INVALID_DATES = (
+        {
+            in  => undef,
+            msg => "undef date",
+        },
+        {
+            in  => "garbage",
+            msg => "Invalid date",
+        },
+        {
+            in  => "2017",
+            msg => "invalid date year only",
+        },
+        {
+            in  => "2017-02",
+            msg => "invalid date year month only",
+        },
+    );
+
+    @STRIP_FILENAME_FROM_EXCEPTIONS_TESTS = (
+        {
+            in  => undef,
+            out => undef,
+            msg => "Undef returns undef",
+        },
+        {
+            in  => '',
+            out => '',
+            msg => "empty string"
+        },
+        {
+            in  => 'Blah blah blah at -e line 1.',
+            out => 'Blah blah blah',
+            msg => "simple die string"
+        },
+        {
+            in  => 'Blah at blah and at blah at -e line 1.',
+            out => 'Blah at blah and at blah',
+            msg => "With multiple at in exception string"
+        },
+    );
+
+    @NORMALIZE_TIME_TESTS = (
+        {
+            in  => undef,
+            out => undef,
+            msg => "undef normalize attempt",
+        },
+        {
+            in  => "5Z",
+            out => 0,
+            msg => "illegal normalize attempt",
+        },
+        {
+            in  => "5",
+            out => 5,
+            msg =>
+              "normalizing w/o a time resolution specified (seconds assumed)"
+        },
+        {
+            in => "2s",
+            out => 2 * 1,
+            msg => "normalizing seconds"
+        },
+        {
+            in => "2m",
+            out => 2 * 60,
+            msg => "normalizing minutes"
+        },
+        {
+            in => "2h",
+            out => 2 * 60 * 60,
+            msg => "normalizing hours"
+        },
+        {
+            in => "2D",
+            out => 2 * 24 * 60 * 60,
+            msg => "normalizing days"
+        },
+        {
+            in => "2W",
+            out => 2 * 7 * 24 * 60 * 60,
+            msg => "normalizing weeks"
+        },
+        {
+            in  => "2M",
+            out => 2 * 30 * 24 * 60 * 60,
+            msg => "normalizing months"
+        },
+        {
+            in  => "2Y",
+            out => 2 * 365 * 24 * 60 * 60,
+            msg => "normalizing years"
+        },
+    );
+
+    @EXPAND_CSV_TESTS = (
+        {
+            in  => '',
+            out => [],
+            msg => "empty string",
+        },
+        {
+            in  => [],
+            out => [],
+            msg => "empty array",
+        },
+        {
+            in  => undef,
+            out => [],
+            msg => "undef"
+        },
+        {
+            in  => "a,b,c",
+            out => [qw(a b c)],
+            msg => "simply list",
+        },
+        {
+            in  => [qw(a b c)],
+            out => [qw(a b c)],
+            msg => "simply array",
+        },
+        {
+            in  => "a , b , c",
+            out => [qw(a b c)],
+            msg => "simply list with spaces",
+        },
+        {
+            in  => [qw(a b ), "c,d"],
+            out => [qw(a b c d)],
+            msg => "list with in a list ",
+        },
+    );
+}
+
+use Test::More;
 use Test::NoWarnings;
+
+BEGIN {
+    plan tests => 41 +
+      scalar @STRIP_FILENAME_FROM_EXCEPTIONS_TESTS +
+      scalar @INVALID_DATES +
+      scalar @NORMALIZE_TIME_TESTS +
+      scalar @EXPAND_CSV_TESTS;
+}
 
 BEGIN {
     use_ok('pf::util');
@@ -102,21 +254,34 @@ ok(!is_in_list("sms","email"), "is_in_list negative");
 ok(!is_in_list("sms",""), "is_in_list empty list");
 ok(is_in_list("sms","sms, email"), "is_in_list positive with spaces");
 
-# normalize time
-is(normalize_time("5Z"), 0, "illegal normalize attempt");
-is(normalize_time("5"), 5, "normalizing w/o a time resolution specified (seconds assumed)");
-is(normalize_time("2s"), 2 * 1, "normalizing seconds");
-is(normalize_time("2m"), 2 * 60, "normalizing minutes");
-is(normalize_time("2h"), 2 * 60 * 60, "normalizing hours");
-is(normalize_time("2D"), 2 * 24 * 60 * 60, "normalizing days");
-is(normalize_time("2W"), 2 * 7 * 24 * 60 * 60, "normalizing weeks");
-is(normalize_time("2M"), 2 * 30 * 24 * 60 * 60, "normalizing months");
-is(normalize_time("2Y"), 2 * 365 * 24 * 60 * 60, "normalizing years");
+{
+    for my $test (@NORMALIZE_TIME_TESTS) {
+        is(normalize_time($test->{in}), $test->{out}, $test->{msg});
+    }
+}
 
+{
+    foreach my $test (@EXPAND_CSV_TESTS) {
+        is_deeply( [ expand_csv( $test->{in} ) ], $test->{out}, "expand_csv $test->{msg}" );
+    }
+}
 
+{
+    for my $test (@INVALID_DATES) {
+        ok(!valid_date($test->{in}), $test->{msg});
+    }
+}
 
 # TODO add more tests, we should test:
 #  - all methods ;)
+
+for my $test (@STRIP_FILENAME_FROM_EXCEPTIONS_TESTS) {
+    is (
+        strip_filename_from_exceptions($test->{in}),
+        $test->{out},
+        $test->{msg}
+    )
+}
 
 =head1 AUTHOR
 

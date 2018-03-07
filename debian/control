@@ -2,7 +2,7 @@ Source: packetfence
 Section: net
 Priority: optional
 Maintainer: Durand fabrice <fdurand@inverse.ca>
-Build-Depends: debhelper (>= 7.0.50~), gettext, libparse-recdescent-perl, gcc, dpkg-distribution, dh-systemd, libfile-fcntllock-perl, asciidoctor, golang-1.7-go, git
+Build-Depends: debhelper (>= 7.0.50~), gettext, libparse-recdescent-perl, gcc, dpkg-distribution, dh-systemd, libfile-fcntllock-perl, asciidoctor, git, libipset-dev, pkg-config
 Standards-Version: 3.8.4
 Vcs-Git: git://github.com/inverse-inc/packetfence.git
 Vcs-browser: https://github.com/inverse-inc/packetfence/
@@ -12,7 +12,7 @@ Package: packetfence
 Architecture: all
 # TODO: We can probably move these in Depends since 3.5.0 (managed RADIUS feature)
 Pre-Depends:  ca-certificates, 
- dhcp3-server | isc-dhcp-server, ca-certificates, winbind,
+ ca-certificates, winbind,
  packetfence-pfcmd-suid (>= ${source:Version}), packetfence-config (>= ${source:Version}), packetfence-ntlm-wrapper (>= ${source:Version}), packetfence-doc (>= ${source:Version}),
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
  fingerbank (>= 3.1.1), fingerbank (<< 4.0.0),
@@ -41,7 +41,6 @@ Depends: ${misc:Depends}, vlan,
  iproute,
  ipset,
  sudo,
- p0f (>=3.06),
  sscep,
 # process management
  procps,
@@ -75,7 +74,7 @@ Depends: ${misc:Depends}, vlan,
  libcrypt-openssl-pkcs12-perl,libcrypt-openssl-x509-perl,libconst-fast-perl,
  libtime-period-perl (>= 1.25), libtime-piece-perl, libsereal-encoder-perl, libsereal-decoder-perl, libdata-serializer-sereal-perl (>= 1.04), libphp-serialization-perl,
  libnet-ip-perl, libdigest-hmac-perl, libcrypt-openssl-pkcs10-perl, libcrypt-openssl-rsa-perl, libfile-tempdir-perl,
- liburi-escape-xs-perl, libsql-abstract-more-perl (>= 1.28), libio-socket-timeout-perl, liblinux-distribution-perl, libwww-twilio-api-perl,
+ liburi-escape-xs-perl, libsql-abstract-more-perl (>= 1.28), libsql-abstract-plugin-insertmulti-perl, libio-socket-timeout-perl, liblinux-distribution-perl, libwww-twilio-api-perl,
 # hard-coded to specific version because v3 broke the API and we haven't ported to it yet
 # see #1313: Port our Net-Appliance-Session to the version 3 API
 # http://packetfence.org/bugs/view.php?id=1313
@@ -123,10 +122,7 @@ Depends: ${misc:Depends}, vlan,
 # cluster
  haproxy (>= 1.6), keepalived (>= 1.3.6), arping,
 # monitoring
- collectd (>=5.6), collectd-core,collectd-utils, libcollectdclient0 | libcollectdclient1, python-django (>=1.7),
- python-django-tagging, python-pyparsing, python-mysqldb, graphite-carbon (>=0.9.15), python-whisper,
- nodejs, libapache2-mod-wsgi,
- graphite-web,
+ netdata, fping,
 # EAP TLS
  libcrypt-smime-perl, libnumber-range-perl,
 # Captive Portal Dynamic Routing
@@ -139,6 +135,8 @@ Depends: ${misc:Depends}, vlan,
  dpkg-distribution,
 # golang build
  golang-1.7-go,
+ etcd-server,
+ etcd-client,
 # Distribution specific
  ${packetfence:dist}
 Description: PacketFence network registration / worm mitigation system

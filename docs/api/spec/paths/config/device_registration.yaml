@@ -1,0 +1,107 @@
+/config/device_registration/{device_registration_id}:
+  delete:
+    parameters: []
+    responses:
+      '204':
+        description: Deleted a config item
+    summary: Delete a config item
+  get:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              allowed_devices:
+                description: List of OS which will be allowed to be register via the
+                  self service portal.
+                items:
+                  description: List of OS which will be allowed to be register via
+                    the self service portal.
+                  type: string
+                type: array
+              category:
+                description: The role to assign to devices registered from the specific
+                  portal. If none is specified, the role of the registrant is used.
+                type: string
+              description:
+                description: Description
+                type: string
+              id:
+                description: Profile Name
+                type: string
+            required:
+            - id
+            type: object
+      required: true
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  patch:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              allowed_devices:
+                description: List of OS which will be allowed to be register via the
+                  self service portal.
+                items:
+                  description: List of OS which will be allowed to be register via
+                    the self service portal.
+                  type: string
+                type: array
+              category:
+                description: The role to assign to devices registered from the specific
+                  portal. If none is specified, the role of the registrant is used.
+                type: string
+              description:
+                description: Description
+                type: string
+            required: []
+            type: object
+      required: true
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  put:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              allowed_devices:
+                description: List of OS which will be allowed to be register via the
+                  self service portal.
+                items:
+                  description: List of OS which will be allowed to be register via
+                    the self service portal.
+                  type: string
+                type: array
+              category:
+                description: The role to assign to devices registered from the specific
+                  portal. If none is specified, the role of the registrant is used.
+                type: string
+              description:
+                description: Description
+                type: string
+            required: []
+            type: object
+      required: true
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

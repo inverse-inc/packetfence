@@ -109,7 +109,7 @@
 # There are two ways to detect if the device is an Android phone, either by looking at the hierarchy of device ID or looking at the hierarchy of device names
 # Although using device names is more intuitive, they are subject to (very rare) changes, so using the ID is recommended
 # To find a device ID by the name, the following command can be used : '/usr/local/pf/bin/pfcmd fingerbank find_device_id "Generic Android"'
-# See the Fingerbank section in the PacketFence Administration interface for a list of all devices or https://fingerbank.inverse.ca/devices
+# See the Fingerbank section in the PacketFence Administration interface for a list of all devices or https://api.fingerbank.org/devices
 #
 # This would then give us the following condition (note the use of includes) : 
 #[android_by_id]

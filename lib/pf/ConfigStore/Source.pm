@@ -18,12 +18,24 @@ use namespace::autoclean;
 use pf::file_paths qw($authentication_config_file);
 use Sort::Naturally qw(nsort);
 extends 'pf::ConfigStore';
+with 'pf::ConfigStore::Role::ReverseLookup';
 
 use pf::file_paths qw($authentication_config_file);
 
 sub configFile {$authentication_config_file};
 
 sub pfconfigNamespace { 'config::Authentication' }
+
+=head2 canDelete
+
+canDelete
+
+=cut
+
+sub canDelete {
+    my ($self, $id) = @_;
+    return !$self->isInProfile('sources', $id) && $self->SUPER::canDelete($id);
+}
 
 =head2 _Sections
 
@@ -84,7 +96,7 @@ sub cleanupAfterRead {
         next unless  $sub_section =~ /^$id rule (.*)$/;
         my $id = $1;
         my $rule = $self->readRaw($sub_section);
-        my $class = delete $rule->{class};
+        my $class = delete $rule->{class} // $Rules::AUTH;
         $rule->{id} = $id;
         my @action_keys = nsort grep {/^action\d+$/} keys %$rule;
         $rule->{actions} = [delete @$rule{@action_keys}];

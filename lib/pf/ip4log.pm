@@ -32,7 +32,6 @@ use pf::dal::ip4log_history;
 use pf::error qw(is_error is_success);
 use pf::log;
 use pf::node qw(node_add_simple node_exist);
-use pf::OMAPI;
 use pf::util;
 
 use constant IP4LOG                         => 'ip4log';
@@ -66,12 +65,13 @@ sub ip2mac {
         return ( pf::util::clean_mac("00:11:22:33:44:55") );
     }
 
+    # TODO: replace by pfdhcp api call
     # We first query OMAPI since it is the fastest way and more reliable source of info in most cases
-    if ( isenabled($Config{omapi}{ip2mac_lookup}) ) {
-        $logger->debug("Trying to match MAC address to IP '$ip' using OMAPI");
-        $mac = _ip2mac_omapi($ip);
-        $logger->debug("Matched IP '$ip' to MAC address '$mac' using OMAPI") if $mac;
-    }
+    #if ( isenabled($Config{omapi}{ip2mac_lookup}) ) {
+    #    $logger->debug("Trying to match MAC address to IP '$ip' using OMAPI");
+    #    $mac = _ip2mac_omapi($ip);
+    #    $logger->debug("Matched IP '$ip' to MAC address '$mac' using OMAPI") if $mac;
+    #}
 
     # If we don't have a result from OMAPI, we use the SQL 'ip4log' table
     unless ($mac) {
@@ -86,20 +86,6 @@ sub ip2mac {
     }
 
     return pf::util::clean_mac($mac);
-}
-
-=head2 _ip2mac_omapi
-
-Look for the MAC address of a given IP address in the DHCP leases using OMAPI
-
-Not meant to be used outside of this class. Refer to L<pf::ip4log::ip2mac>
-
-=cut
-
-sub _ip2mac_omapi {
-    my ( $ip ) = @_;
-    my $data = _lookup_cached_omapi('ip-address' => $ip);
-    return $data->{'obj'}{'hardware-address'} if defined $data;
 }
 
 =head2 _ip2mac_sql
@@ -135,12 +121,13 @@ sub mac2ip {
 
     my $ip;
 
+    # TODO: replace by pfdhcp api call
     # We first query OMAPI since it is the fastest way and more reliable source of info in most cases
-    if ( isenabled($Config{omapi}{mac2ip_lookup}) ) {
-        $logger->debug("Trying to match IP address to MAC '$mac' using OMAPI");
-        $ip = _mac2ip_omapi($mac);
-        $logger->debug("Matched MAC '$mac' to IP address '$ip' using OMAPI") if $ip;
-    }
+    #if ( isenabled($Config{omapi}{mac2ip_lookup}) ) {
+    #    $logger->debug("Trying to match IP address to MAC '$mac' using OMAPI");
+    #    $ip = _mac2ip_omapi($mac);
+    #    $logger->debug("Matched MAC '$mac' to IP address '$ip' using OMAPI") if $ip;
+    #}
 
     # If we don't have a result from OMAPI, we use the SQL 'ip4log' table
     unless ($ip) {
@@ -155,20 +142,6 @@ sub mac2ip {
     }
 
     return $ip;
-}
-
-=head2 _mac2ip_omapi
-
-Look for the IP address of a given MAC address in the DHCP leases using OMAPI
-
-Not meant to be used outside of this class. Refer to L<pf::ip4log::mac2ip>
-
-=cut
-
-sub _mac2ip_omapi {
-    my ( $mac ) = @_;
-    my $data = _lookup_cached_omapi('hardware-address' => $mac);
-    return $data->{'obj'}{'ip-address'} if defined $data;
 }
 
 =head2 _mac2ip_sql
@@ -662,83 +635,6 @@ sub _cleanup {
         $time_limit
     );
     return ($rows);
-}
-
-=head2 omapiCache
-
-Get the OMAPI cache
-
-=cut
-
-sub omapiCache { pf::CHI->new(namespace => 'omapi') }
-
-=head2 _get_omapi_client
-
-Get the omapi client
-return undef if omapi is disabled
-
-=cut
-
-sub _get_omapi_client {
-    my ($self) = @_;
-    return unless pf::config::is_omapi_lookup_enabled;
-
-    return pf::OMAPI->get_client();
-}
-
-=head2 _lookup_cached_omapi
-
-Will retrieve the lease from the cache or from the dhcpd server using omapi
-
-=cut
-
-sub _lookup_cached_omapi {
-    my ($type, $id) = @_;
-    my $cache = omapiCache();
-    return $cache->compute(
-        $id,
-        {expire_if => \&_expire_lease, expires_in => IP4LOG_CACHE_EXPIRE},
-        sub {
-            my $data = _get_lease_from_omapi($type, $id);
-            return unless $data && $data->{op} == 3;
-            #Do not return if the lease is expired
-            return if $data->{obj}->{ends} < time;
-            return $data;
-        }
-    );
-}
-
-=head2 _get_lease_from_omapi
-
-Get the lease information using omapi
-
-=cut
-
-sub _get_lease_from_omapi {
-    my ($type,$id) = @_;
-    my $omapi = _get_omapi_client();
-    return unless $omapi;
-    my $data;
-    eval {
-        $data = $omapi->lookup({type => 'lease'}, { $type => $id});
-    };
-    if($@) {
-        get_logger->error("$@");
-    }
-    return $data;
-}
-
-=head2 _expire_lease
-
-Check if the lease has expired
-
-=cut
-
-sub _expire_lease {
-    my ($cache_object) = @_;
-    my $lease = $cache_object->value;
-    return 1 unless defined $lease && defined $lease->{obj}->{ends};
-    return $lease->{obj}->{ends} < time;
 }
 
 =head1 AUTHOR

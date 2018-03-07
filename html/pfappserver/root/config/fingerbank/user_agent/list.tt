@@ -2,20 +2,6 @@
         <thead>
           <tr>
             <th colspan="5">
-              <div class="tab-content">
-                <ul class="nav nav-pills">
-                  <li [% IF scope == 'Upstream' %]class="active" [% END %]>
-                    <a href="[% c.uri_for(c.controller.action_for('list'),['Upstream']) %]" >[% l('Upstream')  %]</a>
-                  </li>
-                  <li [% IF scope == 'Local' %]class="active" [% END %]>
-                    <a href="[% c.uri_for(c.controller.action_for('list'),['Local']) %]" >[% l('Local')  %]</a>
-                  </li>
-                </ul>
-              </div>
-            </th>
-          </tr>
-          <tr>
-            <th colspan="5">
               [% INCLUDE config/fingerbank/search.tt %]
               [% pagination(c.controller.action_for(action || 'list'), page_num, page_count, {}, '', [scope]) | none %]
             </th>

@@ -1,0 +1,80 @@
+/config/device_registrations:
+  get:
+    parameters:
+    - $ref: '#/components/parameters/cursor'
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/Iterable'
+              - properties:
+                  items:
+                    properties:
+                      allowed_devices:
+                        description: List of OS which will be allowed to be register
+                          via the self service portal.
+                        items:
+                          description: List of OS which will be allowed to be register
+                            via the self service portal.
+                          type: string
+                        type: array
+                      category:
+                        description: The role to assign to devices registered from
+                          the specific portal. If none is specified, the role of the
+                          registrant is used.
+                        type: string
+                      description:
+                        description: Description
+                        type: string
+                      id:
+                        description: Profile Name
+                        type: string
+                    required:
+                    - id
+                    type: object
+                type: object
+        description: A list of connection profiles
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  post:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              allowed_devices:
+                description: List of OS which will be allowed to be register via the
+                  self service portal.
+                items:
+                  description: List of OS which will be allowed to be register via
+                    the self service portal.
+                  type: string
+                type: array
+              category:
+                description: The role to assign to devices registered from the specific
+                  portal. If none is specified, the role of the registrant is used.
+                type: string
+              description:
+                description: Description
+                type: string
+              id:
+                description: Profile Name
+                type: string
+            required:
+            - id
+            type: object
+      required: true
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '409':
+        $ref: '#/components/responses/Duplicate'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

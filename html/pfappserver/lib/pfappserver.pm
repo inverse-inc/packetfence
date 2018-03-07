@@ -37,7 +37,6 @@ use Try::Tiny;
 BEGIN {
     use constant INSTALL_DIR => '/usr/local/pf';
     use lib INSTALL_DIR . "/lib";
-    use lib INSTALL_DIR . "/html/captive-portal/lib";
     use lib qw(/usr/local/fingerbank/lib);
     use pf::log 'service' => 'httpd.admin', reinit => 1;
 }
@@ -77,6 +76,7 @@ __PACKAGE__->config(
         # remediation pages (see pfappserver::Controller::Violation)
         include_path => [
             pfappserver->config->{root},
+            INSTALL_DIR . '/html/pfappserver/root',
             INSTALL_DIR . '/html/captive-portal',
             INSTALL_DIR . '/html',
         ],
@@ -105,15 +105,22 @@ __PACKAGE__->config(
 
     'View::HTML' => {
         INCLUDE_PATH => [
-            __PACKAGE__->path_to('root-custom'),
-            __PACKAGE__->path_to('root'),
+            INSTALL_DIR . '/html/pfappserver/root-custom',
+            INSTALL_DIR . '/html/pfappserver/root',
         ]
     },
 
     'View::Admin' => {
         INCLUDE_PATH => [
-            __PACKAGE__->path_to('root-custom'),
-            __PACKAGE__->path_to('root'),
+            INSTALL_DIR . '/html/pfappserver/root-custom',
+            INSTALL_DIR . '/html/pfappserver/root',
+        ]
+    },
+
+    'View::Configurator' => {
+        INCLUDE_PATH => [
+            INSTALL_DIR . '/html/pfappserver/root-custom',
+            INSTALL_DIR . '/html/pfappserver/root',
         ]
     },
 

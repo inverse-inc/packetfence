@@ -41,8 +41,6 @@ sub assign {
 
     my $status_msg;
 
-    my $graphitedb = $dbHandler->quote_identifier($db . "_graphite");
-    my $fingerbankdb = $dbHandler->quote_identifier($db . "_fingerbank");
     $db = $dbHandler->quote_identifier($db);
 
     # Create global PF user
@@ -71,25 +69,6 @@ sub assign {
     }
     $status_msg = ["Successfully created the user [_1] on database [_2]",$user,$db];
 
-    # Create pf_graphite database
-    foreach my $db ($graphitedb, $fingerbankdb) {
-        foreach my $host ("'%'","localhost") {
-            my $sql_query = "GRANT ALL PRIVILEGES ON $db.* TO ?\@${host} IDENTIFIED BY ?";
-            $dbHandler->do($sql_query, undef, $user, $password);
-            if ( $DBI::errstr ) {
-                $status_msg = "Error creating the user $user on database $db";
-                $logger->warn("$DBI::errstr");
-                return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
-            }
-        }
-        # Apply the new privileges
-        $dbHandler->do("FLUSH PRIVILEGES");
-        if ( $DBI::errstr ) {
-            $status_msg = ["Error creating the user [_1] on database [_2]",$user,$db];
-            $logger->warn("$DBI::errstr");
-            return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
-        }
-    }
 
     # return original status message
     return ( $STATUS::OK, $status_msg );
@@ -144,13 +123,6 @@ sub create {
 
     $status_msg = ["Successfully created the database [_1]",$db];
 
-    # Create the graphite database
-    $result = $dbDriver->func('createdb', "${db}_graphite", 'localhost', $root_user, $root_password, 'admin');
-    if ( !$result ) {
-        $status_msg = ["Error in creating the database [_1]","${db}_graphite"];
-        $logger->warn($DBI::errstr);
-        return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
-    }
     # return original status message
     return ( $STATUS::OK, $status_msg );
 }
@@ -268,17 +240,6 @@ sub schema {
     $status_msg = ["Successfully applied the schema to the database [_1]",$db ];
 
 
-    # add graphite schema
-    $db = "${db}_graphite";
-    $db = quotemeta ($db);
-    $mysql_cmd = "/usr/bin/mysql -u $root_user -p$root_password $db";
-    $cmd = "$mysql_cmd < $install_dir/db/pf_graphite-schema.sql";
-    eval { $result = pf_run($cmd, (accepted_exit_status => [ 0 ], log_strip => quotemeta("-p$root_password"))) };
-    if ( $@ || !defined($result) ) {
-        $status_msg = ["Error applying the schema to the database [_1]",$db ];
-        $logger->warn("$@: $result");
-        return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
-    }
     # return original status message
     return ( $STATUS::OK, $status_msg );
 }

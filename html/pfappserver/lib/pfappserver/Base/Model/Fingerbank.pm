@@ -69,7 +69,7 @@ sub hasId {
     }
     else
     {
-        if ( $self->fingerbankModel->read($id))
+        if ( $self->fingerbankModel->read_hashref($id))
         {
             $status = HTTP_OK;
             $status_msg = [ "[_1] exists", $id ];
@@ -98,7 +98,7 @@ sub read {
     }
     else
     {
-        ($status, $result ) = $self->fingerbankModel->read($id);
+        ($status, $result ) = $self->fingerbankModel->read_hashref($id);
         if ( $status != HTTP_OK )
         {
             $result = [ "[_1] does not exists", $id ];
@@ -155,7 +155,7 @@ sub create {
 sub update_or_create {
     my ( $self, $id, $assignments ) = @_;
     my $primaryKey = $self->primaryKey;
-    my ($status,undef) = $self->fingerbankModel->read($id);
+    my ($status,undef) = $self->fingerbankModel->read_hashref($id);
     if ( $status == HTTP_OK)
     {
         return $self->update( $id, $assignments );

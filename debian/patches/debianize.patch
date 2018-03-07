@@ -1,5 +1,5 @@
 diff --git a/conf/mariadb/mariadb.conf.tt.example b/conf/mariadb/mariadb.conf.tt.example
-index de67c94..e92dc19 100644
+index 2ef5c25..7409c2a 100644
 --- a/conf/mariadb/mariadb.conf.tt.example
 +++ b/conf/mariadb/mariadb.conf.tt.example
 @@ -18,7 +18,7 @@ skip-networking
@@ -12,19 +12,19 @@ index de67c94..e92dc19 100644
  key_buffer_size = [% key_buffer_size %]M
  max_allowed_packet = [% max_allowed_packet %]M
 diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
-index 0768580..6fff1f6 100644
+index 5878420..7fbcbd3 100644
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
-@@ -365,7 +365,7 @@ radiusd=enabled
+@@ -376,7 +376,7 @@ radiusd=enabled
  # services.radiusd_binary
  # 
  # Location of the named binary. Only necessary to change if you are not running the RPMed version.
 -radiusd_binary=/usr/sbin/radiusd
-+radiusd_binary=/usr/sbin/freeradius
++radiusd_binary=/usr/sbin/freeradiusd
  #
  # services.iptables
  #
-@@ -430,7 +430,7 @@ httpd_graphite=enabled
+@@ -441,7 +441,7 @@ httpd_proxy=enabled
  # services.httpd_binary
  #
  # Location of the apache binary. Only necessary to change if you are not running the RPMed version.
@@ -33,25 +33,7 @@ index 0768580..6fff1f6 100644
  #
  # services.pfsetvlan
  #
-@@ -542,7 +542,7 @@ statsd=enabled
- # services.statsd_binary
- # 
- # Location of the statsd (node) binary. Only necessary to change if you are not running the pre-packaged version.
--statsd_binary=/usr/bin/node
-+statsd_binary=/usr/bin/nodejs
- #
- # services.radsniff
- #
-@@ -562,7 +562,7 @@ p0f=enabled
- # services.p0f_binary
- # 
- # Location of the p0f binary. Only necessary to change if you are not running the pre-packaged version.
--p0f_binary=/usr/local/bin/p0f
-+p0f_binary=/usr/sbin/p0f
- #
- # services.openssl_binary
- #
-@@ -572,7 +572,7 @@ openssl_binary=/usr/bin/openssl
+@@ -544,7 +544,7 @@ openssl_binary=/usr/bin/openssl
  # services.arp_binary
  # 
  # location of the arp binary. only necessary to change if you are not running the rpmed version.
@@ -60,19 +42,6 @@ index 0768580..6fff1f6 100644
  
  #
  # services.routes
-diff --git a/conf/systemd/packetfence-dhcpd.service b/conf/systemd/packetfence-dhcpd.service
-index d02ab16..7297f81 100644
---- a/conf/systemd/packetfence-dhcpd.service
-+++ b/conf/systemd/packetfence-dhcpd.service
-@@ -11,7 +11,7 @@ StartLimitInterval=10
- Type=notify
- PIDFile=/usr/local/pf/var/run/dhcpd.pid
- ExecStartPre=/usr/local/pf/bin/pfcmd service dhcpd generateconfig
--ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::dhcpd' -e 'pf::services::manager::dhcpd->new()->preStartSetup()'
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::dhcpd' -e 'pf::services::manager::dhcpd->new()->preStartSetup()'
- ExecStart=/usr/sbin/dhcpd -pf /usr/local/pf/var/run/dhcpd.pid -f -lf /usr/local/pf/var/dhcpd/dhcpd.leases -cf /usr/local/pf/var/conf/dhcpd.conf 
- Restart=on-failure
- Slice=packetfence.slice
 diff --git a/conf/systemd/packetfence-httpd.aaa.service b/conf/systemd/packetfence-httpd.aaa.service
 index 9b6a3ef..3eafbd4 100644
 --- a/conf/systemd/packetfence-httpd.aaa.service
@@ -112,19 +81,6 @@ index 11a8f73..bbb263b 100644
  ExecReload=/bin/kill -USR1 ${MAINPID}
  ExecStop=/bin/kill -WINCH ${MAINPID}
  # We want systemd to give httpd some time to finish gracefully, but still want
-diff --git a/conf/systemd/packetfence-httpd.graphite.service b/conf/systemd/packetfence-httpd.graphite.service
-index faa3742..472ab27 100644
---- a/conf/systemd/packetfence-httpd.graphite.service
-+++ b/conf/systemd/packetfence-httpd.graphite.service
-@@ -11,7 +11,7 @@ StartLimitInterval=10
- Type=notify
- PIDFile=/usr/local/pf/var/run/httpd.graphite.pid
- ExecStartPre=/usr/local/pf/bin/pfcmd service httpd.graphite generateconfig
--ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.graphite -DFOREGROUND  -Drhel
-+ExecStart=/usr/sbin/apache2 -f /usr/local/pf/var/conf/httpd.conf.d/httpd.graphite -DFOREGROUND  -Ddebian
- ExecReload=/bin/kill -USR1 ${MAINPID}
- ExecStop=/bin/kill -WINCH ${MAINPID}
- # We want systemd to give httpd some time to finish gracefully, but still want
 diff --git a/conf/systemd/packetfence-httpd.parking.service b/conf/systemd/packetfence-httpd.parking.service
 index aea0a01..2c09a51 100644
 --- a/conf/systemd/packetfence-httpd.parking.service
@@ -139,7 +95,7 @@ index aea0a01..2c09a51 100644
  ExecStop=/bin/kill -WINCH ${MAINPID}
  # We want systemd to give httpd some time to finish gracefully, but still want
 diff --git a/conf/systemd/packetfence-httpd.portal.service b/conf/systemd/packetfence-httpd.portal.service
-index 815072f..a2b353f 100644
+index e9ad6b2..bcd65e6 100644
 --- a/conf/systemd/packetfence-httpd.portal.service
 +++ b/conf/systemd/packetfence-httpd.portal.service
 @@ -11,7 +11,7 @@ StartLimitInterval=10
@@ -282,16 +238,4 @@ index e0e0c2c..880121b 100644
  Slice=packetfence-base.slice
  
  [Install]
-diff --git a/conf/systemd/packetfence-statsd.service b/conf/systemd/packetfence-statsd.service
-index ac7adc3..3e830e8 100644
---- a/conf/systemd/packetfence-statsd.service
-+++ b/conf/systemd/packetfence-statsd.service
-@@ -9,7 +9,7 @@ StartLimitInterval=10
- Type=simple
- PIDFile=/usr/local/pf/var/run/statsd.pid
- ExecStartPre=/usr/local/pf/bin/pfcmd service statsd generateconfig
--ExecStart=/usr/bin/node /usr/local/pf/lib/Etsy/statsd/bin/statsd /usr/local/pf/var/conf/statsd_config.js 
-+ExecStart=/usr/bin/nodejs /usr/local/pf/lib/Etsy/statsd/bin/statsd /usr/local/pf/var/conf/statsd_config.js 
- Restart=on-failure
- Slice=packetfence.slice
- 
+- 

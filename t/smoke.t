@@ -31,7 +31,9 @@ my $JOBS = $ENV{'PF_SMOKE_TEST_JOBS'} ||  6;
 my $SLOW_TESTS = $ENV{'PF_SMOKE_SLOW_TESTS'};
 our $db_setup_script = "/usr/local/pf/t/db/setup_test_db.pl";
 
-my $formatter   = is_interactive() ? TAP::Formatter::Console->new({jobs => $JOBS}) : TAP::Formatter::File->new();
+my $is_interactive = is_interactive();
+
+my $formatter   = $is_interactive ? TAP::Formatter::Console->new({jobs => $JOBS}) : TAP::Formatter::File->new();
 my $ser_harness = TAP::Harness->new( { formatter => $formatter, jobs => 1 } );
 my $par_harness = TAP::Harness->new(
     {   formatter => $formatter,
@@ -90,6 +92,8 @@ die(sprintf(
     )
 ) if $num_bad;
 
+print "\a" if $is_interactive;
+
 =head2 create_test_db
 
 Create a test database
@@ -106,7 +110,6 @@ mysql -uroot -p < /usr/local/pf/t/db/smoke_test.sql
 EOS
     }
 }
-
 
 END {
     foreach my $test_service (qw(pfconfig-test pfconfig-test-serial)) {

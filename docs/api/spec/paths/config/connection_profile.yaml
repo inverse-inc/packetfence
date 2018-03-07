@@ -1,0 +1,468 @@
+/config/connection_profile/{connection_profile_id}:
+  delete:
+    parameters: []
+    responses:
+      '204':
+        description: Deleted a config item
+    summary: Delete a config item
+  get:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              access_registration_when_registered:
+                description: This allows already registered users to be able to re-register
+                  their device by first accessing the status page and then accessing
+                  the portal. This is useful to allow users to extend their access
+                  even though they are already registered.
+                type: string
+              advanced_filter:
+                description: Advanced filter
+                type: string
+              always_use_redirecturl:
+                description: Under most circumstances we can redirect the user to
+                  the URL he originally intended to visit. However, you may prefer
+                  to force the captive portal to redirect the user to the redirection
+                  URL.
+                type: string
+              autoregister:
+                description: This activates automatic registation of devices for the
+                  profile. Devices will not be shown a captive portal and RADIUS authentication
+                  credentials will be used to register the device. This option only
+                  makes sense in the context of an 802.1x authentication.
+                type: string
+              billing_tiers:
+                description: Billing tiers
+                items:
+                  description: Billing tier
+                  type: string
+                type: array
+              block_interval:
+                description: The amount of time a user is blocked after reaching the
+                  defined limit for login, sms request and sms pin retry.
+                properties:
+                  interval:
+                    description: Interval
+                    type: integer
+                  unit:
+                    description: Unit
+                    type: string
+                type: object
+              description:
+                description: Profile Description
+                type: string
+              device_registration:
+                description: Device registration
+                type: string
+              dot1x_recompute_role_from_portal:
+                description: When enabled, PacketFence will not use the role initialy
+                  computed on the portal but will use the dot1x username to recompute
+                  the role.
+                type: string
+              filter:
+                description: Filters
+                items:
+                  description: Filter
+                  properties:
+                    match:
+                      description: Match
+                      type: string
+                    type:
+                      description: Type
+                      type: string
+                  type: object
+                type: array
+              filter_match_style:
+                description: Filter match style
+                type: string
+              id:
+                description: A profile id can only contain alphanumeric characters,
+                  dashes, period and or underscores.
+                type: string
+              locale:
+                description: Locales
+                items:
+                  description: Locale
+                  type: string
+                type: array
+              login_attempt_limit:
+                description: Limit the number of login attempts. A value of 0 disables
+                  the limit.
+                type: integer
+              logo:
+                description: Logo
+                type: string
+              preregistration:
+                description: This activates preregistration on the connection profile.
+                  Meaning, instead of applying the access to the currently connected
+                  device, it displays a local account that is created while registering.
+                  Note that activating this disables the on-site registration on this
+                  connection profile. Also, make sure the sources on the connection
+                  profile have "Create local account" enabled.
+                type: string
+              provisioners:
+                description: Provisioners
+                items:
+                  description: Provisioner
+                  type: string
+                type: array
+              redirecturl:
+                description: Default URL to redirect to on registration/mitigation
+                  release. This is only used if a per-violation redirect URL is not
+                  defined.
+                type: string
+              reuse_dot1x_credentials:
+                description: This option emulates SSO when someone needs to face the
+                  captive portal after a successful 802.1x connection. 802.1x credentials
+                  are reused on the portal to match an authentication and get the
+                  appropriate actions. As a security precaution, this option will
+                  only reuse 802.1x credentials if there is an authentication source
+                  matching the provided realm. This means, if users use 802.1x credentials
+                  with a domain part (username@domain, domain\username), the domain
+                  part needs to be configured as a realm under the RADIUS section
+                  and an authentication source needs to be configured for that realm.
+                  If users do not use 802.1x credentials with a domain part, only
+                  the NULL realm will be match IF an authentication source is configured
+                  for it.
+                type: string
+              root_module:
+                description: The Root Portal Module to use
+                type: string
+              scans:
+                description: Scans
+                items:
+                  description: Scan
+                  type: string
+                type: array
+              sms_pin_retry_limit:
+                description: Maximum number of times a user can retry a SMS PIN before
+                  having to request another PIN. A value of 0 disables the limit.
+                type: integer
+              sms_request_limit:
+                description: Maximum number of times a user can request a SMS PIN.
+                  A value of 0 disables the limit.
+                type: integer
+              sources:
+                description: Sources
+                items:
+                  description: Source
+                  type: string
+                type: array
+            required:
+            - id
+            - root_module
+            type: object
+      required: true
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  patch:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              access_registration_when_registered:
+                description: This allows already registered users to be able to re-register
+                  their device by first accessing the status page and then accessing
+                  the portal. This is useful to allow users to extend their access
+                  even though they are already registered.
+                type: string
+              advanced_filter:
+                description: Advanced filter
+                type: string
+              always_use_redirecturl:
+                description: Under most circumstances we can redirect the user to
+                  the URL he originally intended to visit. However, you may prefer
+                  to force the captive portal to redirect the user to the redirection
+                  URL.
+                type: string
+              autoregister:
+                description: This activates automatic registation of devices for the
+                  profile. Devices will not be shown a captive portal and RADIUS authentication
+                  credentials will be used to register the device. This option only
+                  makes sense in the context of an 802.1x authentication.
+                type: string
+              billing_tiers:
+                description: Billing tiers
+                items:
+                  description: Billing tier
+                  type: string
+                type: array
+              block_interval:
+                description: The amount of time a user is blocked after reaching the
+                  defined limit for login, sms request and sms pin retry.
+                properties:
+                  interval:
+                    description: Interval
+                    type: integer
+                  unit:
+                    description: Unit
+                    type: string
+                type: object
+              description:
+                description: Profile Description
+                type: string
+              device_registration:
+                description: Device registration
+                type: string
+              dot1x_recompute_role_from_portal:
+                description: When enabled, PacketFence will not use the role initialy
+                  computed on the portal but will use the dot1x username to recompute
+                  the role.
+                type: string
+              filter:
+                description: Filters
+                items:
+                  description: Filter
+                  properties:
+                    match:
+                      description: Match
+                      type: string
+                    type:
+                      description: Type
+                      type: string
+                  type: object
+                type: array
+              filter_match_style:
+                description: Filter match style
+                type: string
+              locale:
+                description: Locales
+                items:
+                  description: Locale
+                  type: string
+                type: array
+              login_attempt_limit:
+                description: Limit the number of login attempts. A value of 0 disables
+                  the limit.
+                type: integer
+              logo:
+                description: Logo
+                type: string
+              preregistration:
+                description: This activates preregistration on the connection profile.
+                  Meaning, instead of applying the access to the currently connected
+                  device, it displays a local account that is created while registering.
+                  Note that activating this disables the on-site registration on this
+                  connection profile. Also, make sure the sources on the connection
+                  profile have "Create local account" enabled.
+                type: string
+              provisioners:
+                description: Provisioners
+                items:
+                  description: Provisioner
+                  type: string
+                type: array
+              redirecturl:
+                description: Default URL to redirect to on registration/mitigation
+                  release. This is only used if a per-violation redirect URL is not
+                  defined.
+                type: string
+              reuse_dot1x_credentials:
+                description: This option emulates SSO when someone needs to face the
+                  captive portal after a successful 802.1x connection. 802.1x credentials
+                  are reused on the portal to match an authentication and get the
+                  appropriate actions. As a security precaution, this option will
+                  only reuse 802.1x credentials if there is an authentication source
+                  matching the provided realm. This means, if users use 802.1x credentials
+                  with a domain part (username@domain, domain\username), the domain
+                  part needs to be configured as a realm under the RADIUS section
+                  and an authentication source needs to be configured for that realm.
+                  If users do not use 802.1x credentials with a domain part, only
+                  the NULL realm will be match IF an authentication source is configured
+                  for it.
+                type: string
+              root_module:
+                description: The Root Portal Module to use
+                type: string
+              scans:
+                description: Scans
+                items:
+                  description: Scan
+                  type: string
+                type: array
+              sms_pin_retry_limit:
+                description: Maximum number of times a user can retry a SMS PIN before
+                  having to request another PIN. A value of 0 disables the limit.
+                type: integer
+              sms_request_limit:
+                description: Maximum number of times a user can request a SMS PIN.
+                  A value of 0 disables the limit.
+                type: integer
+              sources:
+                description: Sources
+                items:
+                  description: Source
+                  type: string
+                type: array
+            required:
+            - root_module
+            type: object
+      required: true
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  put:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              access_registration_when_registered:
+                description: This allows already registered users to be able to re-register
+                  their device by first accessing the status page and then accessing
+                  the portal. This is useful to allow users to extend their access
+                  even though they are already registered.
+                type: string
+              advanced_filter:
+                description: Advanced filter
+                type: string
+              always_use_redirecturl:
+                description: Under most circumstances we can redirect the user to
+                  the URL he originally intended to visit. However, you may prefer
+                  to force the captive portal to redirect the user to the redirection
+                  URL.
+                type: string
+              autoregister:
+                description: This activates automatic registation of devices for the
+                  profile. Devices will not be shown a captive portal and RADIUS authentication
+                  credentials will be used to register the device. This option only
+                  makes sense in the context of an 802.1x authentication.
+                type: string
+              billing_tiers:
+                description: Billing tiers
+                items:
+                  description: Billing tier
+                  type: string
+                type: array
+              block_interval:
+                description: The amount of time a user is blocked after reaching the
+                  defined limit for login, sms request and sms pin retry.
+                properties:
+                  interval:
+                    description: Interval
+                    type: integer
+                  unit:
+                    description: Unit
+                    type: string
+                type: object
+              description:
+                description: Profile Description
+                type: string
+              device_registration:
+                description: Device registration
+                type: string
+              dot1x_recompute_role_from_portal:
+                description: When enabled, PacketFence will not use the role initialy
+                  computed on the portal but will use the dot1x username to recompute
+                  the role.
+                type: string
+              filter:
+                description: Filters
+                items:
+                  description: Filter
+                  properties:
+                    match:
+                      description: Match
+                      type: string
+                    type:
+                      description: Type
+                      type: string
+                  type: object
+                type: array
+              filter_match_style:
+                description: Filter match style
+                type: string
+              locale:
+                description: Locales
+                items:
+                  description: Locale
+                  type: string
+                type: array
+              login_attempt_limit:
+                description: Limit the number of login attempts. A value of 0 disables
+                  the limit.
+                type: integer
+              logo:
+                description: Logo
+                type: string
+              preregistration:
+                description: This activates preregistration on the connection profile.
+                  Meaning, instead of applying the access to the currently connected
+                  device, it displays a local account that is created while registering.
+                  Note that activating this disables the on-site registration on this
+                  connection profile. Also, make sure the sources on the connection
+                  profile have "Create local account" enabled.
+                type: string
+              provisioners:
+                description: Provisioners
+                items:
+                  description: Provisioner
+                  type: string
+                type: array
+              redirecturl:
+                description: Default URL to redirect to on registration/mitigation
+                  release. This is only used if a per-violation redirect URL is not
+                  defined.
+                type: string
+              reuse_dot1x_credentials:
+                description: This option emulates SSO when someone needs to face the
+                  captive portal after a successful 802.1x connection. 802.1x credentials
+                  are reused on the portal to match an authentication and get the
+                  appropriate actions. As a security precaution, this option will
+                  only reuse 802.1x credentials if there is an authentication source
+                  matching the provided realm. This means, if users use 802.1x credentials
+                  with a domain part (username@domain, domain\username), the domain
+                  part needs to be configured as a realm under the RADIUS section
+                  and an authentication source needs to be configured for that realm.
+                  If users do not use 802.1x credentials with a domain part, only
+                  the NULL realm will be match IF an authentication source is configured
+                  for it.
+                type: string
+              root_module:
+                description: The Root Portal Module to use
+                type: string
+              scans:
+                description: Scans
+                items:
+                  description: Scan
+                  type: string
+                type: array
+              sms_pin_retry_limit:
+                description: Maximum number of times a user can retry a SMS PIN before
+                  having to request another PIN. A value of 0 disables the limit.
+                type: integer
+              sms_request_limit:
+                description: Maximum number of times a user can request a SMS PIN.
+                  A value of 0 disables the limit.
+                type: integer
+              sources:
+                description: Sources
+                items:
+                  description: Source
+                  type: string
+                type: array
+            required:
+            - root_module
+            type: object
+      required: true
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

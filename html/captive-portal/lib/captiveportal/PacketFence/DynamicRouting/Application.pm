@@ -29,6 +29,7 @@ use pf::constants::web qw($USER_AGENT_CACHE_EXPIRATION);
 use pf::web ();
 use pf::api::queue;
 use pf::file_paths qw($install_dir);
+use pf::config qw(%Config);
 
 has 'session' => (is => 'rw', required => 1);
 
@@ -129,14 +130,16 @@ Fingerbank processing
 sub process_fingerbank {
     my ( $self ) = @_;
 
-    my %fingerbank_query_args = (
-        user_agent          => $self->current_user_agent,
-        mac                 => $self->current_mac,
-        ip                  => $self->root_module->current_ip,
-    );
+    my $attributes = pf::fingerbank::endpoint_attributes($self->current_mac);
+    if($attributes->{most_accurate_user_agent} ne $self->current_user_agent) {
+        pf::fingerbank::update_collector_endpoint_data($self->current_mac, {
+            most_accurate_user_agent => $self->current_user_agent,
+            user_agents => {$self->current_user_agent => $TRUE},
+        });
+    }
 
     my $client = pf::api::queue->new(queue => 'general');
-    $client->notify('fingerbank_process', \%fingerbank_query_args);
+    $client->notify('fingerbank_process', $self->current_mac);
 }
 
 =head2 current_module_id
@@ -293,9 +296,16 @@ sub process_destination_url {
     my @portal_hosts = portal_hosts();
     # if the destination URL points to the portal, we put the default URL of the connection profile
     if ( any { $_ eq $host } @portal_hosts) {
-        get_logger->info("Replacing destination URL since it points to the captive portal");
+        get_logger->info("Replacing destination URL $url since it points to the captive portal");
         $url = $self->profile->getRedirectURL;
     }
+
+    # if the destination URL points to a network detection URL, we put the default URL of the connection profile
+    if ( any { $_ eq $url } @{$Config{captive_portal}{detection_mecanism_urls}}) {
+        get_logger->info("Replacing destination URL $url since it is a network detection URL");
+        $url = $self->profile->getRedirectURL;
+    }
+
 
     $url = decode_entities(uri_unescape($url));
     $self->session->{destination_url} = $url;
@@ -316,6 +326,7 @@ sub render {
     get_logger->debug("Rendering $template");
 
     my $inner_content = $self->_render($template,$args);
+    my $profile = $self->profile;
 
     my $layout_args = {
         flash => $self->flash,
@@ -323,7 +334,8 @@ sub render {
         client_mac => $self->current_mac,
         client_ip => $self->current_ip,
         title => $self->title,
-        logo => $self->profile->getLogo
+        logo => $profile->getLogo,
+        profile => $profile,
     };
 
     $args->{layout} //= $TRUE;

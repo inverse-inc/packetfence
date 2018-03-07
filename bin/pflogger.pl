@@ -32,7 +32,7 @@ sub close_inherited_file_descriptors {
     my $max = POSIX::sysconf( &POSIX::_POSIX_OPEN_MAX );
     # Close all open file descriptors other than STDIN, STDOUT, and STDERR
     # To avoid resource leaking
-    POSIX::close( $_ ) for 3 .. $max;
+    POSIX::close( $_ ) for 3 .. ($max - 1);
 }
 
 =head1 AUTHOR

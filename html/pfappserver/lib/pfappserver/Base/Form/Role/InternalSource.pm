@@ -19,18 +19,6 @@ use HTML::FormHandler::Moose::Role;
 use pf::config qw(%ConfigRealm);
 with 'pfappserver::Base::Form::Role::Help';
 
-has_field 'stripped_user_name' => (
-    type            => 'Toggle',
-    checkbox_value  => 'yes',
-    unchecked_value => 'no',
-    default         => 'yes',
-    order_index     => 0,
-    label           => 'Use stripped username ',
-    tags            => {
-        after_element => \&help,
-        help          => 'Use stripped username to test the  rules.'
-    },
-);
 has_field 'realms' => (
     type           => 'Select',
     multiple       => 1,
@@ -46,7 +34,7 @@ has_field 'realms' => (
 );
 
 has_block internal_sources => (
-    render_list => [qw(stripped_user_name realms)],
+    render_list => [qw(realms)],
 );
 
 =head2 options_realm

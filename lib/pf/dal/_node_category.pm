@@ -21,6 +21,7 @@ use warnings;
 ### pf::dal::_node_category is auto generated any change to this file will be lost
 ### Instead change in the pf::dal::node_category module
 ###
+
 use base qw(pf::dal);
 
 our @FIELD_NAMES;

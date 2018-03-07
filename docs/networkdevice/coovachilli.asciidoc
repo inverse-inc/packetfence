@@ -1,0 +1,84 @@
+CoovaChilli
+~~~~~~~~~~~
+
+This section has been created in order to help setting up a consumer grade access point running CoovaChilli integration with PacketFence to use UAM capabilities along with PacketFence feature set. 
+
+Assumptions
+^^^^^^^^^^^
+
+* You have a CoovaChilli capable access point running LEDE/OpenWRT, on which CoovaChilli is installed (CoovaChilli installation is not covered in this guide);
+* A working PacketFence server, a CoovaChilli capable access point, and Internet is functional;
+* A PacketFence WebAuth enforcement setup will be deployed;
+
+Access Point and CoovaChilli Configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+We go ahead and start by configuring the access point and CoovaChilli running on it.
+
+These instructions assume that CoovaChilli is installed on the access point. If it's not, we suggest you search relevant information on the Internet to install CoovaChilli as there are too many network equipment vendors that support CoovaChilli to accurately document this step here.
+
+These instructions also assume that you have an SSID configured on the access point. Assumption is also made that the network interface / bridge is configured and assigned for the given SSID.
+
+You should also make sure to have a default route properly configured on the access point (so that it can access the Internet) and that DNS resolution is working.
+
+Also note that changes on the OpenWRT access point are done using SSH shell access.
+
+Please note that any interface name reference might be different from one equipment vendor to an other.
+
+Configure chilli
+++++++++++++++++
+chilli configuration might differ from one equipment vendor to an other one. Just make sure to follow these configuration guidelines and you should be all-set.
+
+* chilli configuration file can be found under
+
+    /etc/config/chilli
+
+* Edit the following parameters to integrate with PacketFence
+
+    option disabled 1       This should be commented out so that chilli is marked as enabled
+    option dns1             Set this to a working DNS server (this will be used by hotspot clients)
+    option dns2             Set this to a working DNS server (this will be used by hotspot clients)
+    option ipup             /etc/chilli/up.sh (Depending on the package, the script path might need to be adjusted)
+    option ipdown           /etc/chilli/down.sh (Depending on the package, the script path might need to be adjusted)
+    option radiusserver1    PacketFence management IP
+    option radiusserver2    PacketFence management IP
+    option radiussecret     The RADIUS secret that will be used between chilli and PacketFence
+    option radiusnasid      Access-point IP address
+    option dhcpif           The network interface / bridge assigned to the SSID (Hotspot clients network)
+    option uamserver        http://PACKETFENCE_MANAGEMENT_IP/CoovaChilli
+    option ssid             SSID name
+    option nasip            Access-point IP address
+    option coaport          3799
+
+A startup script might be required depending on the equipment vendor. Again, a quick documentation search on the Internet might be the best solution to find the best one
+
+Once set up, you might want to activate chilli at boot (by using the startup script) and finally, reboot the AP.
+
+PacketFence Configuration for CoovaChilli Integration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Having a working PacketFence installation and a configured LEDE / OpenWRT access point running CoovaChilli, the last step is PacketFence configuration for CoovaChilli integration.
+
+To do so, login to the PacketFence web administration interface if it is not already done.
+
+Switch configuration
+++++++++++++++++++++
+Click on the 'Configuration' tab and select the 'Switches' menu option under the 'NETWORK' section on the left hand side.
+
+On the bottom of the page, click the 'Add switch to group' button then select the 'default' to bring up the 'New Switch' configuration modal window.
+
+'Definition' tab
+[options="compact"]
+* *IP*: Access-point IP address
+* *Type*: CoovaChilli
+* *Mode*: Production
+* *External Portal Enforcement*: Checked
+
+'RADIUS' tab
+[options="compact"]
+* *Secret Passphrase*: The RADIUS secret configured in the previous step
+
+Click 'Save'
+
+Portal configuration
+++++++++++++++++++++
+It is required to disable HTTPS redirection by clicking the 'Configuration' tab and then the 'Captive portal' menu option on the left hand side. Make sure 'Secure redirect' is unchecked.

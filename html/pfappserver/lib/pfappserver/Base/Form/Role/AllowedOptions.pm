@@ -17,15 +17,17 @@ use HTML::FormHandler::Moose::Role;
 
 use pf::admin_roles;
 
+has user_roles => (is => 'rw', default => sub { [] });
+
 =head2 _get_allowed_options
 
-Get the allowed options for the current user based off their role.
+Get the allowed options based of the
 
 =cut
 
 sub _get_allowed_options {
     my ($self, $option) = @_;
-    return admin_allowed_options([$self->ctx->user->roles], $option);
+    return admin_allowed_options($self->user_roles, $option);
 }
 
 =head1 AUTHOR

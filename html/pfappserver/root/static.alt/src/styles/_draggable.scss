@@ -1,0 +1,16 @@
+.draggable-handle {
+    display: inline-block;
+    color: $text-muted;
+    font-size: ($font-size-base * .875);
+    font-weight: $font-weight-bold;
+    text-align: center;
+    width: 2 * $spacer;
+
+    &:hover {
+        cursor: move;
+    }
+}
+
+.draggable-item:hover .draggable-handle {
+    color: $black;
+}

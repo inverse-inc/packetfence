@@ -23,6 +23,7 @@ use pf::ConfigStore::Provisioning;
 use pf::ConfigStore::BillingTiers;
 use pf::ConfigStore::Scan;
 use pf::ConfigStore::DeviceRegistration;
+use pf::ConfigStore::PortalModule;
 use pf::web::constants;
 use pf::constants::Connection::Profile;
 use pfappserver::Form::Field::Duration;
@@ -123,6 +124,7 @@ Accepted languages for the profile
 has_field 'locale' =>
 (
     'type' => 'DynamicTable',
+    'label' => 'Locales',
     'sortable' => 1,
     'do_label' => 0,
 );
@@ -248,7 +250,7 @@ has_field 'billing_tiers.contains' =>
     type => 'Select',
     options_method => \&options_billing_tiers,
     widget_wrapper => 'DynamicTableRow',
-  );
+);
 
 =head2 provisioners
 
@@ -316,7 +318,10 @@ has_field 'block_interval' =>
     type => 'Duration',
     label => 'Block Interval',
     #Use the inflate method from pfappserver::Form::Field::Duration
-    default => pfappserver::Form::Field::Duration->duration_inflate($pf::constants::Connection::Profile::BLOCK_INTERVAL_DEFAULT_VALUE),
+    validate_when_empty => 1,
+    default_method => sub {
+        pfappserver::Form::Field::Duration->duration_inflate($pf::constants::Connection::Profile::BLOCK_INTERVAL_DEFAULT_VALUE)
+    },
     tags => { after_element => \&help,
              help => 'The amount of time a user is blocked after reaching the defined limit for login, sms request and sms pin retry.' },
   );

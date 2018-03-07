@@ -1,0 +1,57 @@
+0.0.0.0:9999 {
+  tls /usr/local/pf/conf/ssl/server.crt /usr/local/pf/conf/ssl/server.key
+
+  errors
+
+  pfconfigpool
+  logger {
+    level INFO
+  }
+  statsd {
+    proto udp
+    prefix api
+  }
+
+  cors /api/v1 {
+    allowed_headers Authorization,Content-Type
+  }
+
+  api-aaa
+
+  # pfipset API access
+  proxy /api/v1/ipset 127.0.0.1:22223 {
+    transparent
+  }
+  
+  # pfdhcp API access
+  proxy /api/v1/dhcp 127.0.0.1:22222 {
+    transparent
+  }
+  
+  # pfsso API access
+  proxy /api/v1/firewall_sso 127.0.0.1:8777 {
+    transparent
+  }
+  
+  # Everything else goes to the Perl API
+  proxy /api/v1 127.0.0.1:8080 {
+    transparent
+  }
+}
+
+###
+# The configuration below allows to use this server as a proxy
+0.0.0.0:9990 {
+  pfconfigpool
+  logger {
+    level INFO
+  }
+  statsd {
+    proto udp
+    prefix api-proxy
+  }
+
+  api-aaa
+  forwardproxy
+}
+

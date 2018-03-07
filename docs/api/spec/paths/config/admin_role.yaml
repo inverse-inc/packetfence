@@ -1,0 +1,212 @@
+/config/admin_role/{admin_role_id}:
+  delete:
+    parameters: []
+    responses:
+      '204':
+        description: Deleted a config item
+    summary: Delete a config item
+  get:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              actions:
+                description: Actions
+                items:
+                  description: Action
+                  type: string
+                type: array
+              allowed_access_durations:
+                description: A comma seperated list of access durations available
+                  to the admin user. If none are provided then the default access
+                  durations are used
+                type: string
+              allowed_access_levels:
+                description: List of access levels available to the admin user. If
+                  none are provided then all access levels are available
+                items:
+                  description: List of access levels available to the admin user.
+                    If none are provided then all access levels are available
+                  type: string
+                type: array
+              allowed_actions:
+                description: List of actions available to the admin user. If none
+                  are provided then all actions are available
+                items:
+                  description: List of actions available to the admin user. If none
+                    are provided then all actions are available
+                  type: string
+                type: array
+              allowed_node_roles:
+                description: List of roles available to the admin user to assign to
+                  a node. If none are provided then all roles are available
+                items:
+                  description: List of roles available to the admin user to assign
+                    to a node. If none are provided then all roles are available
+                  type: string
+                type: array
+              allowed_roles:
+                description: List of roles available to the admin user to assign to
+                  a user. If none are provided then all roles are available
+                items:
+                  description: List of roles available to the admin user to assign
+                    to a user. If none are provided then all roles are available
+                  type: string
+                type: array
+              allowed_unreg_date:
+                description: The maximal unregistration date that can be set.
+                type: string
+              description:
+                description: Description
+                type: string
+              id:
+                description: Role Name
+                type: string
+            required:
+            - id
+            - description
+            type: object
+      required: true
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  patch:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              actions:
+                description: Actions
+                items:
+                  description: Action
+                  type: string
+                type: array
+              allowed_access_durations:
+                description: A comma seperated list of access durations available
+                  to the admin user. If none are provided then the default access
+                  durations are used
+                type: string
+              allowed_access_levels:
+                description: List of access levels available to the admin user. If
+                  none are provided then all access levels are available
+                items:
+                  description: List of access levels available to the admin user.
+                    If none are provided then all access levels are available
+                  type: string
+                type: array
+              allowed_actions:
+                description: List of actions available to the admin user. If none
+                  are provided then all actions are available
+                items:
+                  description: List of actions available to the admin user. If none
+                    are provided then all actions are available
+                  type: string
+                type: array
+              allowed_node_roles:
+                description: List of roles available to the admin user to assign to
+                  a node. If none are provided then all roles are available
+                items:
+                  description: List of roles available to the admin user to assign
+                    to a node. If none are provided then all roles are available
+                  type: string
+                type: array
+              allowed_roles:
+                description: List of roles available to the admin user to assign to
+                  a user. If none are provided then all roles are available
+                items:
+                  description: List of roles available to the admin user to assign
+                    to a user. If none are provided then all roles are available
+                  type: string
+                type: array
+              allowed_unreg_date:
+                description: The maximal unregistration date that can be set.
+                type: string
+              description:
+                description: Description
+                type: string
+            required:
+            - description
+            type: object
+      required: true
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  put:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              actions:
+                description: Actions
+                items:
+                  description: Action
+                  type: string
+                type: array
+              allowed_access_durations:
+                description: A comma seperated list of access durations available
+                  to the admin user. If none are provided then the default access
+                  durations are used
+                type: string
+              allowed_access_levels:
+                description: List of access levels available to the admin user. If
+                  none are provided then all access levels are available
+                items:
+                  description: List of access levels available to the admin user.
+                    If none are provided then all access levels are available
+                  type: string
+                type: array
+              allowed_actions:
+                description: List of actions available to the admin user. If none
+                  are provided then all actions are available
+                items:
+                  description: List of actions available to the admin user. If none
+                    are provided then all actions are available
+                  type: string
+                type: array
+              allowed_node_roles:
+                description: List of roles available to the admin user to assign to
+                  a node. If none are provided then all roles are available
+                items:
+                  description: List of roles available to the admin user to assign
+                    to a node. If none are provided then all roles are available
+                  type: string
+                type: array
+              allowed_roles:
+                description: List of roles available to the admin user to assign to
+                  a user. If none are provided then all roles are available
+                items:
+                  description: List of roles available to the admin user to assign
+                    to a user. If none are provided then all roles are available
+                  type: string
+                type: array
+              allowed_unreg_date:
+                description: The maximal unregistration date that can be set.
+                type: string
+              description:
+                description: Description
+                type: string
+            required:
+            - description
+            type: object
+      required: true
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

@@ -19,6 +19,7 @@ use pf::config;
 use pf::ConfigStore::Roles;
 use pf::nodecategory;
 use pf::log;
+use pf::generate_filter qw(generate_filter);
 
 extends 'pfappserver::Base::Model::Config';
 
@@ -34,13 +35,50 @@ sub _buildConfigStore { pf::ConfigStore::Roles->new }
 =cut
 
 sub search {
-    my ($self, $field, $value) = @_;
-    my @results = $self->configStore->search($field, $value);
-    if (@results) {
-        return ($STATUS::OK, \@results);
-    } else {
-        return ($STATUS::NOT_FOUND,["[_1] matching [_2] not found"],$field,$value);
+    my ($self, $query) = @_;
+    my ($status, $ids) = $self->readAllIds;
+    my ($pageNum, $perPage, $searches) = @{$query}{qw(page_num per_page searches)};
+    $pageNum //= 1;
+    $perPage //= 25;
+    $searches //= [];
+    my $has_next_page;
+    my $filter = $self->makeFilter($searches);
+    my $offset = ($pageNum - 1) * 25;
+    my $idKey = $self->idKey;
+    my $items = $self->configStore->filter_offset_limit($filter, $offset, $perPage + 1, $idKey);
+    if (@$items > $perPage) {
+        pop @$items;
+        $has_next_page = 1;
     }
+    if (@$items == 0) {
+        return ($STATUS::NOT_FOUND, "No matching roles found");
+    }
+    my $itemsKey = $self->itemsKey;
+
+    return (
+        $STATUS::OK,
+        {
+            $itemsKey  => $items,
+            page_num   => $pageNum,
+            per_page   => $perPage,
+            itemsKey   => $itemsKey,
+            has_next_page => $has_next_page,
+        }
+    );
+}
+
+sub true_filter { 1 }
+
+sub makeFilter {
+    my ($self, $searches) = @_;
+    my $filter;
+    if (@$searches) {
+        $filter = generate_filter(@{$searches->[0]}{qw(op name value)}) // \&true_filter;
+    }
+    else {
+        $filter = \&true_filter;
+    }
+    return $filter;
 }
 
 =head2 listFromDB

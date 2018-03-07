@@ -14,39 +14,36 @@ pfcmd service <service> [start|stop|restart|status|generateconfig|updatesystemd]
 
 Services managed by PacketFence:
 
-  carbon-cache     | carbon-cache daemon
-  carbon-relay     | carbon-relay daemon
-  collectd         | collectd daemon
-  dhcpd            | dhcpd daemon
   haproxy          | haproxy daemon
   httpd.aaa        | Apache AAA webservice
   httpd.admin      | Apache Web admin
   httpd.collector  | Apache Collector daemon
   httpd.dispatcher | Captive portal dispatcher
-  httpd.graphite   | Apache Graphite daemon
   httpd.parking    | Apache Parking Portal
   httpd.portal     | Apache Captive Portal
   httpd.proxy      | Apache Proxy Interception
   httpd.webservices| Apache Webservices
   iptables         | PacketFence firewall rules
   keepalived       | Virtual IP management
-  p0f              | Device fingerprinting daemon
+  netdata          | Monitoring service
   pf               | all services that should be running based on your config
   pfbandwidthd     | A pf service to monitor bandwidth usages
   pfdetect         | PF snort alert parser
+  pfdhcp           | dhcpd daemon
   pfdhcplistener   | PF DHCP monitoring daemon
   pfdns            | DNS daemon
+  pfipset          | IPSET daemon
   pffilter         | PF conditions filtering daemon
   pfmon            | PF monitoring daemon
   pfqueue          | PF queueing service
   pfsetvlan        | PF VLAN isolation daemon
+  pfstats          | PF statistics daemon
   radiusd          | FreeRADIUS daemon
   radsniff         | radsniff daemon
   redis_ntlm_cache | Redis for the NTLM cache
   redis_queue      | Redis for pfqueue
   routes           | manage static routes
   snmptrapd        | SNMP trap receiver daemon
-  statsd           | statsd service
   winbindd         | Winbind daemon
 
 =head1 DESCRIPTION

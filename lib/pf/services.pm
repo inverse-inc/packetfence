@@ -16,8 +16,7 @@ to generate or validate some configuration files.
 Read the following configuration files: F<dhcpd_vlan.conf>,
 F<networks.conf>, F<violations.conf> and F<switches.conf>.
 
-Generate the following configuration files: F<dhcpd.conf>, F<named.conf>,
-F<httpd.conf>, F<snmptrapd.conf>.
+Generate the following configuration file: F<snmptrapd.conf>.
 
 =cut
 
@@ -46,6 +45,9 @@ our @APACHE_SERVICES = map { $_ } grep { $_->isa('pf::services::manager::httpd')
 
 # all service managers except for keepalived
 our @ALL_SERVICES = sort keys %MANAGERS;
+
+our @ALL_MANAGERS = map { $_->new->can("managers") ? $_->new->managers : $_->new  } @MANAGERS;
+our %ALL_MANAGERS = map { $_->name => $_ } @ALL_MANAGERS;
 
 our %ALLOWED_ACTIONS = (
     stop    => undef,

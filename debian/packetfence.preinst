@@ -53,9 +53,6 @@ case "$1" in
                 echo "pf user already exist"
         fi
         usermod pf -a -G fingerbank,winbindd_priv
-        if [ -e /etc/lsb-release ]; then
-            usermod dhcpd -a -G pf
-        fi
 
         # prevent conflicting mariadb service from starting 
         /bin/systemctl mask mariadb

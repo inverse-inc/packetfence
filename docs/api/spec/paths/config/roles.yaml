@@ -1,0 +1,65 @@
+/config/roles:
+  get:
+    parameters:
+    - $ref: '#/components/parameters/cursor'
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/Iterable'
+              - properties:
+                  items:
+                    properties:
+                      id:
+                        description: Name
+                        type: string
+                      max_nodes_per_pid:
+                        description: The maximum number of nodes a user having this
+                          role can register.
+                        type: integer
+                      notes:
+                        description: Description
+                        type: string
+                    required:
+                    - id
+                    - max_nodes_per_pid
+                    type: object
+                type: object
+        description: A list of connection profiles
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  post:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              id:
+                description: Name
+                type: string
+              max_nodes_per_pid:
+                description: The maximum number of nodes a user having this role can
+                  register.
+                type: integer
+              notes:
+                description: Description
+                type: string
+            required:
+            - id
+            - max_nodes_per_pid
+            type: object
+      required: true
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '409':
+        $ref: '#/components/responses/Duplicate'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

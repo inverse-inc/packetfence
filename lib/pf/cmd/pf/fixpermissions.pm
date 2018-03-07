@@ -40,6 +40,7 @@ use pf::file_paths qw(
 use pf::log;
 use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
 use pf::util;
+use File::Find;
 
 use fingerbank::Util;
 
@@ -62,6 +63,7 @@ sub action_all {
     chmod(0664, @stored_config_files);
     chmod(02775, $conf_dir, $var_dir, $log_dir, "$var_dir/redis_cache", "$var_dir/redis_queue");
     _fingerbank();
+    find({ wanted => \&wanted,untaint => 1}, $log_dir);
     print "Fixed permissions.\n";
     return $EXIT_SUCCESS;
 }
@@ -136,6 +138,11 @@ sub _changeFilesToOwner {
 
 sub _fingerbank {
     fingerbank::Util::fix_permissions();
+}
+
+sub wanted {
+    my $perm = -d $File::Find::name ? 0555 : 0664;
+    chmod $perm, untaint_chain($File::Find::name);
 }
 
 =head1 AUTHOR

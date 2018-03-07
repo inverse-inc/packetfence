@@ -292,6 +292,7 @@ sql pfguest {
           WHERE pid = '%{SQL-User-Name}' \
             AND (SELECT type from activation WHERE pid='%{SQL-User-Name}' ORDER BY code_id DESC LIMIT 1) = \"guest\" \
             AND ( now() <= password.unregdate OR password.unregdate = '0000-00-00 00:00:00' ) \
+            AND ${authcheck_table}.tenant_id = '%{control:PacketFence-Tenant-Id}' \
             LIMIT 1 "
 
         postauth_query = ""
@@ -329,6 +330,7 @@ sql pfsponsor {
           WHERE pid = '%{SQL-User-Name}' \
             AND (SELECT type from activation WHERE pid='%{SQL-User-Name}' ORDER BY code_id DESC LIMIT 1) = \"sponsor\" \
             AND ( now() <= password.unregdate OR password.unregdate = '0000-00-00 00:00:00' ) \
+            AND ${authcheck_table}.tenant_id = '%{control:PacketFence-Tenant-Id}' \
             LIMIT 1 "
 
         postauth_query = ""
@@ -367,6 +369,7 @@ sql pfsms {
           WHERE pid = '%{SQL-User-Name}' \
             AND (SELECT type from activation WHERE pid='%{SQL-User-Name}' ORDER BY code_id DESC LIMIT 1) = \"sms\" \
             AND ( now() <= password.unregdate OR password.unregdate = '0000-00-00 00:00:00' ) \
+            AND ${authcheck_table}.tenant_id = '%{control:PacketFence-Tenant-Id}' \
             LIMIT 1 "
 
 
@@ -402,6 +405,7 @@ sql pflocal {
         authorize_check_query = "SELECT 1, pid, \"%%hash_passwords%%\", REPLACE(password,'{ntlm}',''), \":=\" \
           FROM ${authcheck_table} \
           WHERE pid = '%{SQL-User-Name}' \
+          AND ${authcheck_table}.tenant_id = '%{control:PacketFence-Tenant-Id}' \
           AND NOT EXISTS (SELECT pid FROM activation WHERE pid = '%{SQL-User-Name}') "
 
         postauth_query = ""
