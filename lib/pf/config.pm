@@ -331,13 +331,13 @@ Readonly our $IF_INTERNAL => 'internal';
 # 8 : Available
 # 9 : Available
 Readonly our $WIRELESS_802_1X     => 0b110000000;
-Readonly our $WIRELESS_MAC_AUTH   => 0b100000000;
-Readonly our $WIRED_802_1X        => 0b011000000;
-Readonly our $WIRED_MAC_AUTH      => 0b001000000;
-Readonly our $WIRED_SNMP_TRAPS    => 0b001010000;
-Readonly our $INLINE              => 0b000100000;
+Readonly our $WIRELESS_MAC_AUTH   => 0b100000001;
+Readonly our $WIRED_802_1X        => 0b011000010;
+Readonly our $WIRED_MAC_AUTH      => 0b001000011;
+Readonly our $WIRED_SNMP_TRAPS    => 0b001010100;
+Readonly our $INLINE              => 0b000100101;
 Readonly our $UNKNOWN             => 0b000000000;
-Readonly our $WEBAUTH             => 0b000001000;
+Readonly our $WEBAUTH             => 0b000001111;
 
 # masks to be used on connection types
 Readonly our $WIRELESS   => 0b100000000;
