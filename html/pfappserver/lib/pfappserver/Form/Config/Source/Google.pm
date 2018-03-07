@@ -108,7 +108,8 @@ has_field 'hosted_domain' =>
   (
    type => 'Text',
    label => 'Google domain',
-   required => 1,
+   default => '',
+   # Default value needed for creating dummy source
    element_class => ['input-xlarge'],
    tags => { after_element => \&help,
              help => 'Google hosted domain to restrict the login info to. Will only present accounts from this domain on Google\'s login screen' },
