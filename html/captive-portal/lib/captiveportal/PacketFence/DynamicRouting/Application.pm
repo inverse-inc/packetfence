@@ -39,6 +39,8 @@ has 'root_module' => (is => 'rw', isa => "captiveportal::DynamicRouting::Module:
 
 has 'root_module_id' => (is => 'rw');
 
+has 'sub_root_module_id' => (is => 'rw');
+
 has 'request' => (is => 'ro', required => 1);
 
 has 'hashed_params' => (is => 'rw');
@@ -280,7 +282,7 @@ sub process_destination_url {
 
     # Return connection profile's redirection URL if destination_url is not set or if redirection URL is forced
     if (!defined($url) || !$url || isenabled($self->profile->forceRedirectURL)) {
-        $url = $self->profile->getRedirectURL;
+        $url = $self->session->{destination_url} || $self->profile->getRedirectURL;
     }
 
     my $host;
@@ -289,7 +291,8 @@ sub process_destination_url {
     };
     if($@) {
         get_logger->info("Invalid destination_url $url. Replacing with profile defined one.");
-        $url = $self->profile->getRedirectURL;
+        $url = $self->session->{destination_url} || $self->profile->getRedirectURL;
+        return $url
     }
 
 
@@ -297,7 +300,8 @@ sub process_destination_url {
     # if the destination URL points to the portal, we put the default URL of the connection profile
     if ( any { $_ eq $host } @portal_hosts) {
         get_logger->info("Replacing destination URL $url since it points to the captive portal");
-        $url = $self->profile->getRedirectURL;
+        $url = $self->session->{destination_url} || $self->profile->getRedirectURL;
+        return $url;
     }
 
     # if the destination URL points to a network detection URL, we put the default URL of the connection profile
@@ -510,7 +514,7 @@ Reset the session except for attributes that are not related to the device state
 
 sub reset_session {
     my ($self) = @_;
-    my @ignore = qw(destination_url client_mac client_ip);
+    my @ignore = qw(saved_fields destination_url client_mac client_ip);
     foreach my $key (keys %{$self->session}){
         next if(any { $key eq $_ } @ignore);
         delete $self->session->{$key};

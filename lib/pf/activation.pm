@@ -151,6 +151,33 @@ sub find_unverified_code {
     return ($item->to_hash);
 }
 
+=head2 find_unverified_and_expired_code
+
+find an unused and expired pending activation record by doing a LIKE in the code, returns an hashref
+
+=cut
+
+sub find_unverified_and_expired_code {
+    my ($type, $activation_code) = @_;
+    my ($status, $iter) = pf::dal::activation->search(
+        -where => {
+            type => $type,
+            activation_code => $activation_code,
+            status => $UNVERIFIED,
+            expiration => { "<=" => \['NOW()']}
+        },
+    );
+    if (is_error($status)) {
+        return undef;
+    }
+    my $item = $iter->next;
+    if (!defined $item) {
+        return undef;
+    }
+    return ($item->to_hash);
+}
+
+
 =head2 view_by_code
 
 view an pending  activation record by exact activation code (including hash format). Returns an hashref
@@ -587,8 +614,11 @@ sub activation_has_entry {
     if (is_error($status)) {
         return undef;
     }
-    my $items = $iter->all // [];
-    return scalar @$items;
+    my $item = $iter->next;
+    if (!defined $item) {
+        return undef;
+    }
+    return ($item->to_hash);
 }
 
 =head2 sms_activation_create_send
@@ -598,26 +628,15 @@ Create and send PIN code
 =cut
 
 sub sms_activation_create_send {
-    my ($mac, $pid, $phone_number, $portal, $provider_id, $authentication_source) = @_;
+    my (%args) = @_;
     my $logger = get_logger();
 
     my ( $success, $err ) = ( $TRUE, 0 );
-    my %args = (
-        mac         => $mac,
-        pid         => $pid,
-        pending     => $phone_number,
-        type        => "sms",
-        portal      => $portal,
-        provider_id => $provider_id,
-        code_length => $authentication_source->pin_code_length,
-        no_unique   => 1,
-        style       => 'digits',
-        source_id   => $authentication_source->id,
-    );
-
     my $activation_code = create(\%args);
     if (defined($activation_code)) {
-        unless ($authentication_source->sendActivationSMS($activation_code, $mac)) {
+        my @pin = split(':', $activation_code);
+        $args{'message'} =~ s/\$pin/$pin[1]/;
+        unless ($authentication_source->sendActivationSMS($activation_code, $mac, $args{'message'} )) {
             ($success, $err) = ($FALSE, $GUEST::ERRORS{$GUEST::ERROR_CONFIRMATION_SMS});
             invalidate_codes($args{'mac'}, $args{'pid'}, $args{'pending'});
         }

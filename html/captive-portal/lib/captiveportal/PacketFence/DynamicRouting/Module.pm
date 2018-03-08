@@ -73,6 +73,7 @@ sub available_actions {
         'no_action',
         'set_time_balance',
         'set_bandwidth_balance',
+        'destination_url',
     ];
 }
 

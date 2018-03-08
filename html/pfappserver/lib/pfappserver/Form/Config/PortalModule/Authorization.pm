@@ -1,12 +1,12 @@
-package pfappserver::Form::Config::PortalModule::Authentication;
+package pfappserver::Form::Config::PortalModule::Authorization;
 
 =head1 NAME
 
-pfappserver::Form::Config::PortalModule::AuthModule
+pfappserver::Form::Config::PortalModule::Authorization
 
 =head1 DESCRIPTION
 
-Form definition to create or update an authentication portal module.
+Form definition to create or update an authorization portal module.
 
 =cut
 
@@ -18,8 +18,8 @@ with 'pfappserver::Base::Form::Role::WithCustomFields';
 
 use pf::log; 
 use List::MoreUtils qw(uniq);
-use captiveportal::DynamicRouting::Module::Authentication;
-sub for_module {'captiveportal::PacketFence::DynamicRouting::Module::Authentication'}
+use captiveportal::DynamicRouting::Module::Authorization;
+sub for_module {'captiveportal::PacketFence::DynamicRouting::Module::Authorization'}
 
 has_field 'pid_field' =>
   (
@@ -66,7 +66,7 @@ The fields to display
 
 sub child_definition {
     my ($self) = @_;
-    return ($self->source_fields, qw(pid_field custom_fields fields_to_save with_aup aup_template signup_template), $self->auth_module_definition());
+    return ( qw(source_id pid_field custom_fields fields_to_save with_aup aup_template signup_template), $self->auth_module_definition());
 }
 
 =head2 BUILD
@@ -108,7 +108,7 @@ sub options_pid_field {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 

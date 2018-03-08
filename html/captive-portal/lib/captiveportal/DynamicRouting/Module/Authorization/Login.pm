@@ -1,38 +1,17 @@
-package pf::Authentication::SMSRole;
+package captiveportal::DynamicRouting::Module::Authorization::Login;
+use Moose;
+
+BEGIN { extends 'captiveportal::PacketFence::DynamicRouting::Module::Authorization::Login'; }
 
 =head1 NAME
 
-pf::Authentication::SMSRole -
-
-=cut
+captiveportal::DynamicRouting::Module::Authorization::Login - Login Controller for captiveportal
 
 =head1 DESCRIPTION
 
-pf::Authentication::SMSRole
+[enter your description here]
 
 =cut
-
-use strict;
-use warnings;
-use Moose::Role;
-
-has 'pin_code_length' => (default => 6, is => 'rw', isa => 'Int');
-
-=head2 sendActivationSMS
-
-Send the Activation SMS
-
-=cut
-
-sub sendActivationSMS {
-    my ( $self, $pin, $mac, $message ) = @_;
-    require pf::activation;
-
-    my $activation = pf::activation::view_by_code_mac($pf::activation::SMS_ACTIVATION, $pin, $mac);
-    my $phone_number = $activation->{'contact_info'};
-
-    return $self->sendSMS({to=> $phone_number, message => $message, activation => $activation});
-}
 
 =head1 AUTHOR
 
@@ -40,7 +19,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 
@@ -61,4 +40,7 @@ USA.
 
 =cut
 
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+
 1;
+

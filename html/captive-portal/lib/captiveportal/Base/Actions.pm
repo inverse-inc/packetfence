@@ -34,6 +34,10 @@ our %AUTHENTICATION_ACTIONS = (
     set_bandwidth_balance => sub { $_[0]->new_node_info->{bandwidth_balance} = pf::util::unpretty_bandwidth($_[1]) },
     time_balance_from_source => sub { $_[0]->new_node_info->{time_balance} = pf::util::normalize_time(authentication_match_wrapper($_[0]->source->id, $_[0]->auth_source_params, $Actions::SET_TIME_BALANCE)); },
     bandwidth_balance_from_source => sub { $_[0]->new_node_info->{bandwidth_balance} = pf::util::unpretty_bandwidth(authentication_match_wrapper($_[0]->source->id, $_[0]->auth_source_params, $Actions::SET_BANDWIDTH_BALANCE)); },
+    on_failure => sub {},
+    on_success => sub {},
+    custom => sub {},
+    destination_url => sub {$_[0]->app->session->{destination_url} = $_[1];},
 );
 
 =head2 authentication_match_wrapper

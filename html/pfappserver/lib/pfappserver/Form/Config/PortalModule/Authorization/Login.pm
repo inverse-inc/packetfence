@@ -1,46 +1,30 @@
-package pf::Authentication::SMSRole;
+package pfappserver::Form::Config::PortalModule::Authorization::Login;
 
 =head1 NAME
 
-pf::Authentication::SMSRole -
-
-=cut
+pfappserver::Form::Config::PortalModule::Authorization::Login
 
 =head1 DESCRIPTION
 
-pf::Authentication::SMSRole
+Form definition to create or update an authorization portal module.
 
 =cut
 
-use strict;
-use warnings;
-use Moose::Role;
+use HTML::FormHandler::Moose;
+extends 'pfappserver::Form::Config::PortalModule::Authorization';
 
-has 'pin_code_length' => (default => 6, is => 'rw', isa => 'Int');
+use captiveportal::DynamicRouting::Module::Authorization::Login;
+sub for_module {'captiveportal::PacketFence::DynamicRouting::Module::Authorization::Login'}
 
-=head2 sendActivationSMS
+## Definition
 
-Send the Activation SMS
+=over
 
-=cut
-
-sub sendActivationSMS {
-    my ( $self, $pin, $mac, $message ) = @_;
-    require pf::activation;
-
-    my $activation = pf::activation::view_by_code_mac($pf::activation::SMS_ACTIVATION, $pin, $mac);
-    my $phone_number = $activation->{'contact_info'};
-
-    return $self->sendSMS({to=> $phone_number, message => $message, activation => $activation});
-}
-
-=head1 AUTHOR
-
-Inverse inc. <info@inverse.ca>
+=back
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2018 Inverse inc.
+Copyright (C) 2005-2017 Inverse inc.
 
 =head1 LICENSE
 
@@ -61,4 +45,5 @@ USA.
 
 =cut
 
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;
