@@ -597,12 +597,6 @@ pfstats_binary=/usr/local/pf/bin/pfstats
 
 [snmp_traps]
 #
-# snmp_traps.closelocationlogonstop
-#
-# Should open locationlog entries be closed when pfsetvlan is 
-# stopped
-closelocationlogonstop=disabled
-#
 # snmp_traps.bounce_duration
 #
 # Delay to wait between the shut / no-shut on a port. Some OS need a higher value than others.
