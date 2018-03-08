@@ -310,6 +310,10 @@ sub search {
         %search_args
     );
 
+    if (is_error($status)) {
+        return $self->render_error($status, "Error fulfilling search");
+    }
+
     my $items = $iter->all();
     my $nextCursor = undef;
     if (@$items == $limit) {
