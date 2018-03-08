@@ -192,7 +192,7 @@ Search for pf::dal using SQL::Abstract::More syntax
 sub search {
     my ($proto, %args) = @_;
     my $class = ref($proto) || $proto;
-    if ( exists $args{-with_class}) {
+    if ( CORE::exists $args{-with_class}) {
         $class = delete $args{-with_class};
     }
     my $no_default_join = delete $args{-no_default_join};
@@ -303,7 +303,7 @@ Update the pf::dal object
 
 sub update {
     my ($self, $from_table) = @_;
-    return $STATUS::PRECONDITION_FAILED unless $self->__from_table || $from_table;
+    return $STATUS::UNPROCESSABLE_ENTITY unless $self->__from_table || $from_table;
     my $where         = $self->primary_keys_where_clause;
     my ($status, $update_data) = $self->_update_data;
     return $status if is_error($status);
@@ -537,19 +537,24 @@ Validate a field value
 sub validate_field {
     my ($self, $field, $value) = @_;
     my $logger = $self->logger;
+    my $meta = $self->get_meta;
+
+    if (!CORE::exists $meta->{$field}) {
+        return $STATUS::UNPROCESSABLE_ENTITY
+    }
+
     if (!$self->is_nullable($field)) {
         if (!defined $value) {
             my $table = $self->table;
             $logger->error("Trying to save a NULL value in a non nullable field ${table}.${field}");
-            return $STATUS::PRECONDITION_FAILED;
+            return $STATUS::UNPROCESSABLE_ENTITY;
         }
     }
     if ($self->is_enum($field) && defined $value) {
-        my $meta = $self->get_meta;
         unless (CORE::exists $meta->{$field} && CORE::exists $meta->{$field}{enums_values}{$value}) {
             my $table = $self->table;
             $logger->error("Trying to save a invalid value ($value) in a non nullable field ${table}.${field}");
-            return $STATUS::PRECONDITION_FAILED;
+            return $STATUS::UNPROCESSABLE_ENTITY;
         }
     }
     return $self->_validate_field($field, $value);
@@ -657,7 +662,7 @@ Remove row from the database
 
 sub remove {
     my ($self) = @_;
-    return $STATUS::PRECONDITION_FAILED unless $self->__from_table;
+    return $STATUS::UNPROCESSABLE_ENTITY unless $self->__from_table;
     my ($status, $count) = $self->remove_items(
         -where => $self->primary_keys_where_clause
     );
