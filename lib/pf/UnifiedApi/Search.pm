@@ -55,6 +55,12 @@ our %OP_TO_HANDLER = (
     },
 );
 
+=head2 logical_query_to_sql
+
+Converts a logical query to the sql abstract version
+
+=cut
+
 sub logical_query_to_sql {
     my ($q) = @_;
     local $_;
@@ -67,15 +73,33 @@ sub logical_query_to_sql {
     return { $OP_TO_SQL_OP{ $q->{op} } => \@sub_queries };
 }
 
+=head2 valid_op
+
+Checks if an op is valid
+
+=cut
+
 sub valid_op {
     my ($op) = @_;
     return defined $op && exists $OP_TO_SQL_OP{$op};
 }
 
+=head2 standard_query_to_sql
+
+Converts simple binary queries to the SQL::Abstract version
+
+=cut
+
 sub standard_query_to_sql {
     my ($q) = @_;
     return { $q->{field} => { $OP_TO_SQL_OP{ $q->{op} } => $q->{value} } };
 }
+
+=head2 like_query_to_sql
+
+Converts like queries to the SQL::Abstract version
+
+=cut
 
 sub like_query_to_sql {
     my ($q) = @_;
@@ -84,6 +108,12 @@ sub like_query_to_sql {
     my $format = exists $LIKE_FORMAT{$op} ? $LIKE_FORMAT{$op} : $DEFAULT_LIKE_FORMAT;
     return { $q->{field} => { $OP_TO_SQL_OP{$op} => escape_like($q->{value}, $format) } };
 }
+
+=head2 searchQueryToSqlAbstract
+
+Convert search query to SQL::Abstract
+
+=cut
 
 sub searchQueryToSqlAbstract {
     my ($query) = @_;
@@ -95,10 +125,23 @@ sub searchQueryToSqlAbstract {
     return "die unsupported op $op"
 }
 
+=head2 find_like_format
+
+Get the sprintf format for the like query
+
+=cut
+
 sub find_like_format {
     my ($op) = @_;
     return exists $LIKE_FORMAT{$op} ? $LIKE_FORMAT{$op} : $DEFAULT_LIKE_FORMAT ;
 }
+
+
+=head2 escape_like
+
+Escape the like value
+
+=cut
 
 sub escape_like {
     my ($value, $format) = @_;
