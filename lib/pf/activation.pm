@@ -570,6 +570,25 @@ sub find_unverified_code_by_mac {
     return ($item->to_hash);
 }
 
+=head2 is_expired
+
+Test if the code expired
+
+=cut
+
+sub is_expired {
+
+    my ($activation_code) = @_;
+    my $logger = get_logger();
+
+    my $activation_record = find_unverified_and_expired_code($activation_code);
+    if (defined($activation_record)) {
+        $logger->info("Expired pending activation found , activation code: $activation_code");
+        return $TRUE;
+    }
+    return $FALSE;
+}
+
 =head2 set_status_verified
 
 Change the status of a given pending activation code to VERIFIED which means it can't be used anymore.
