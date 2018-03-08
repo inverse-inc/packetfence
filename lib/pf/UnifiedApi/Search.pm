@@ -67,6 +67,11 @@ sub logical_query_to_sql {
     return { $OP_TO_SQL_OP{ $q->{op} } => \@sub_queries };
 }
 
+sub valid_op {
+    my ($op) = @_;
+    return defined $op && exists $OP_TO_SQL_OP{$op};
+}
+
 sub standard_query_to_sql {
     my ($q) = @_;
     return { $q->{field} => { $OP_TO_SQL_OP{ $q->{op} } => $q->{value} } };

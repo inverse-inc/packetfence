@@ -19,6 +19,12 @@ use Mojo::JSON qw(decode_json);
 use pf::error qw(is_error);
 use pf::log;
 
+our %OP_HAS_SUBQUERIES = (
+    'and' => 1,
+    'or' => 1,
+);
+
+
 =head1 ATTRIBUTES
 
 =cut
@@ -264,6 +270,167 @@ sub update_data {
 sub replace {
     my ($self) = @_;
     return $self->update;
+}
+
+sub search {
+    my ($self) = @_;
+    my ($status, $query_info) = $self->parse_json;
+    if (is_error($status)) {
+        return $self->render(json => $query_info, status => $status);
+    }
+
+    my $where = $self->make_where($query_info);
+
+    if (!defined $where) {
+        return;
+    }
+
+    my $offset = $self->make_offset($query_info);
+    my $limit = $self->make_limit($query_info);
+    my $order_by = $self->make_order_by($query_info);
+
+    my %search_args = (
+        -with_class => undef,
+        -where => $where,
+        -limit => $limit,
+        -offset => $offset,
+        -order_by => $order_by,
+    );
+
+    my $columns = $self->make_columns($query_info);
+    if (!defined $columns) {
+        return;
+    }
+
+    if (@$columns) {
+        $search_args{'-columns'} = $columns;
+    }
+
+    ($status, my $iter) = $self->dal->search(
+        %search_args
+    );
+
+    my $items = $iter->all();
+    my $nextCursor = undef;
+    if (@$items == $limit) {
+        pop @$items;
+        $nextCursor = $offset + $limit - 1;
+    }
+
+    return $self->render(
+        json   => {
+            prevCursor => $offset,
+            items => $items,
+            (
+                defined $nextCursor ? (nextCursor => $nextCursor) : ()
+            )
+        },
+        status => $status
+    );
+}
+
+sub make_offset {
+    my ($self, $query) = @_;
+    my $cursor =  $self->req->query_params->param('cursor') || '0';
+    return int( $cursor);
+}
+
+sub make_limit {
+    my ($self, $q) = @_;
+    my $limit = int($q->{limit} // 0) || 25;
+    $limit++;
+    return $limit;
+}
+
+sub make_columns {
+    my ( $self, $q ) = @_;
+    my $cols = $q->{fields} // [];
+    my @invalid = grep { !$self->valid_column($_) } @$cols;
+
+    if (@invalid) {
+        $self->render_error(
+            422,
+            "Invalid column(s) defined",
+            [ map { { msg => "$_ is an invalid column" } } @invalid ]
+        );
+        return undef;
+    }
+
+    return $cols;
+}
+
+sub valid_column {
+    my ($self, $col) = @_;
+    my $meta = $self->dal->get_meta;
+    return exists $meta->{$col};
+}
+
+sub verify_query {
+    my ($self, $query) = @_;
+    my $op = $query->{op} // '(null)';
+    if (!$self->is_valid_op($query)) {
+        return (422, "$op is not valid");
+    }
+
+    if ($OP_HAS_SUBQUERIES{$op}) {
+        for my $q (@{$query->{values} // []}) {
+            my ($status, $query) = $self->verify_query($query);
+            if (is_error($status)) {
+                return ($status, $query);
+            }
+        }
+    } else {
+        my $status = $self->validate_field($query);
+        if (is_error($status)) {
+            return ($status, "$query->{field} is an invalid field");
+        }
+    }
+
+    return (200, $query);
+}
+
+sub validate_field {
+    my ($self, $q) = @_;
+    return $self->dal->validate_field($q->{field}, $q->{value});
+}
+
+sub is_valid_op {
+    my ($self, $q) = @_;
+    return pf::UnifiedApi::Search::valid_op($q->{op});
+}
+
+sub make_where {
+    my ($self, $query_info) = @_;
+    my $query = $query_info->{query};
+    if (!defined $query) {
+        return {};
+    }
+
+    (my $status, $query) = $self->verify_query($query);
+    if (is_error($status)) {
+        $self->render_error($status, $query);
+        return undef;
+    }
+
+    my $where = pf::UnifiedApi::Search::searchQueryToSqlAbstract($query);
+    return $where;
+}
+
+sub make_order_by {
+    my ($self, $q) = @_;
+    my $sort = $q->{sort} // [];
+    local $_;
+    return [map { normalize_sort($_)  } @$sort ];
+}
+
+sub normalize_sort {
+    my ($order_by) = @_;
+    my $direction = '-asc';
+    if ($order_by =~ /^([^ ]+) (DESC|ASC)$/ ) {
+       $order_by = $1;
+       $direction = "-" . lc($2);
+    }
+    return { $direction => $order_by }
 }
 
 =head1 AUTHOR

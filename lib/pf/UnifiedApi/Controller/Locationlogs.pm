@@ -24,37 +24,6 @@ has dal => 'pf::dal::locationlog';
 has url_param_name => 'locationlog_id';
 has primary_key => 'id';
 
-sub search {
-    my ($self) = @_;
-    my ($status, $query_info) = $self->parse_json;
-    if (is_error($status)) {
-        return $self->render(json => $query_info, status => $status);
-    }
-
-    my $where = $self->make_where($query_info);
-
-    if (!defined $where) {
-        return;
-    }
-
-    ($status, my $iter) = $self->dal->search(
-        -with_class => undef,
-        -where => $where,
-    );
-
-    return $self->render(json => {items => $iter->all()}, status => $status);
-}
-
-sub make_where {
-    my ($self, $query_info) = @_;
-    my $query = $query_info->{query};
-    if (!defined $query) {
-        return {};
-    }
-
-    my $where = pf::UnifiedApi::Search::searchQueryToSqlAbstract($query);
-    return $where;
-}
 
 =head1 AUTHOR
 
