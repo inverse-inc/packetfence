@@ -24,14 +24,14 @@ IpsetPort:
     properties:
         port:
             type: string
-            description: The port to allow through. Can be prefixed with a protocol `tcp:` or `udp:`. When the protocol is omited, then the port will be opened for both protocols. example: tcp:65535
+            description: "The port to allow through. Can be prefixed with a protocol `tcp:` or `udp:`. When the protocol is omited, then the port will be opened for both protocols. example: tcp:65535"
 
 IpsetMac:
     type: object
     properties:
         mac:
             type: string
-            description: The clients MAC address. example: 01:23:45:67:89:AB
+            description: "The clients MAC address. example: 01:23:45:67:89:AB"
 
 IpsetType:
     type: object
