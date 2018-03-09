@@ -88,7 +88,7 @@ export default {
     let el = document.createElement('SCRIPT')
     window.netdataNoBootstrap = true
     // window.netdataTheme = 'slate' #272b30
-    el.setAttribute('src', '//pf.inverse.ca:1443/netdata/127.0.0.1/dashboard.js')
+    el.setAttribute('src', `//${window.location.hostname}:1443/netdata/127.0.0.1/dashboard.js`)
     document.head.appendChild(el)
 
     this.$store.dispatch('$_status/allCharts', {})
