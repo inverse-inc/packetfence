@@ -115,6 +115,12 @@ sub process {
         # Processing the device class based on it's parents
         my ( $top_level_parent, $parents ) = _parse_parents($query_result);
         $query_result->{device_class} = find_device_class($top_level_parent, $query_result->{'device'}{'name'});
+
+        if(!defined($query_result->{device_class})) {
+            $logger->error("Issue figuring out device class. Bailing out and keeping current device profiling information.");
+            return $FALSE;
+        }
+
         $query_result->{parents} = $parents;
 
         record_result($mac, $query_args, $query_result);
@@ -298,7 +304,12 @@ sub find_device_class {
         my $timer = pf::StatsD::Timer->new({level => 7, stat => "pf::fingerbank::find_device_class::cache-compute"});
         while (my ($k, $other_device_id) = each(%fingerbank::Constant::DEVICE_CLASS_IDS)) {
             $logger->debug("Checking if device $device_name is a $other_device_id");
-            if(fingerbank::Model::Device->is_a($device_name, $other_device_id)) {
+            my $is_a = fingerbank::Model::Device->is_a($device_name, $other_device_id);
+            if(!defined($is_a)) {
+                $logger->error("Didn't get a valid result when checking if $device_name is a $other_device_id");
+                return undef;
+            }
+            elsif($is_a) {
                 my $other_device_name = fingerbank::Model::Device->read($other_device_id)->name; 
                 $logger->info("Device $device_name is a $other_device_name");
                 return $other_device_name;
