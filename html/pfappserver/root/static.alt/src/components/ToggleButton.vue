@@ -193,6 +193,7 @@ export default {
 $margin: 3px;
 .vue-js-switch {
   display: flex;
+  display: inline-block;
   align-items: center;
   position: relative;
   overflow: hidden;
