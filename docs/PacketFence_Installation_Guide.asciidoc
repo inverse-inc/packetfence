@@ -3148,6 +3148,8 @@ Integrating Provisioning Agents
 PacketFence Apple, Android and Windows Wireless Provisioning
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Provisioners allow devices to automatically configure themselves to connect to the proper SSID (if applicable), use the proper authentication method (e.g. EAP-TLS) and trust the CA certificate and any certificate signed by it.
+
 Apple devices such as iPhones, iPads, iPods and Mac OS X (10.7+) support wireless profile importation using a special XML file format (mobileconfig). Android is also able to support this feature by importing the wireless profile with the Android PacketFence Agent. In fact, installing such file on your Apple device will automatically configure the wireless settings for a given SSID. This feature is often used when the SSID is hidden, and you want to ease the configuration steps on the mobile device (because it is often painful to configure manually). In PacketFence, we are going further, we generate the profile according to the administrator's preference and we pre-populate the file with the user's credentials (without the password). The user simply needs to install its generated file and he will be able to use the new SSID.
 
 The Windows agent will import and apply the provisioned profile so that the user only needs to enter his username and password.
@@ -3162,8 +3164,18 @@ In the administration interface, go in 'Advanced Access Configuration -> Provisi
 
 After, you simply need to add the 'Android', 'iOS' and 'Windows' provisioners to your 'Connection Profile' configuration.
 
-Android specificities
-+++++++++++++++++++++
+To add a new provisioner for another class of devices to be supported, click on the 'Add Provisioner' button, and fill out the form, choosing a different Provisioning ID per provisioner.
+
+* Roles: The "Roles" field defines which devices will be affected by the provisioning item. If empty, all devices for this class will be affected.
+* SSID: The "SSID" field defines which SSID will be configured on the device using the authentication profile.
+* EAP-Type: The EAP type defines the authentication method supported and should be set to EAP-TLS to integrate with the PacketFence PKI.
+* Security type: The security type should be set to WPA2-Entreprise to integrate with the PacketFence PKI.
+* PKI Provider: This should match the provider you configured in the PKI provider section.
+
+We also advise you to configure a SSID for provisioning, for instance: `OnBoarding-PF`, open with MAC Authentication, pointing to PacketFence. Create a new Portal Profile, add a filter SSID with this SSID name, add the source you want the users to authenticate from and add your provisioners to this Portal Profile. From there, users who logged in will have to follow the captive portal instruction to get provided their certificate.
+
+Android specifications
+++++++++++++++++++++++
 
 For Android provisioning support, you must activate and adjust the passthroughs. You might need to adapt them depending on your geolocality.
 NOTE: Please refer to the 'Passthroughs' section of this guide if needed.
@@ -3178,10 +3190,75 @@ Then run the following commands so that passthroughs become effective:
   /usr/local/pf/bin/pfcmd service iptables restart
   /usr/local/pf/bin/pfcmd service pfdns restart
 
-iOS specificities
-+++++++++++++++++
+iOS specifications
+++++++++++++++++++
 
 Mac OS X/iOS require the provisioning profile to be signed if you want to remove the `untrusted` warning when installing the profile. For more information, please refer to the PKI guides referred earlier in 'Configure the feature' above.
+
+Other Corporate Devices
++++++++++++++++++++++++
+
+Let's say that you now need to add some 'Linux computers' as 'corporate' devices.
+
+Those devices cannot be authenticated via Machine Authentication, so we will need to use EAP-TLS and provide those devices with a certificate.
+
+First of all make sure that your RADIUS certificate from the PacketFence server and the certificates that you will be provided are delivered from the same CA, else your authentication will not work. To enable EAP-TLS you will need to reconfigure the new RADIUS server certificate in the file conf/radiusd/eap.conf.
+
+While creating the RADIUS server certifcate make sure to have the *Extended key usage: servAuth*.
+
+Under the section `tls-config tls-common`, search for `private_key_file', `certificate_file' and `ca_file'. Those should contain respectively the path of:
+
+ * the private key for your PacketFence server,
+ * the server certificate issued by your CA for your PacketFence server,
+ * the public key of your CA.
+
+If you have an `OCSP` capable PKI you can configure it in the section `OSCP` in the eap.conf file.
+
+Lastely you will need to restart RADIUS to ensure the use of the new configuration and certificates. Please do the following:
+
+ * bin/pfcmd configreload hard
+ * bin/pfcmd service radiusd restart
+
+Make sure everything happens without errors.
+
+Now that your RADIUS is ready to handle EAP-TLS, configure your SSID connection profile on the `corporate` device using this method. Generate a client certificate for your device and install it on.  
+
+Please configure an EAPTLS source which can be found while adding a new sources under `Internal->`, simply give it a name, a description and a catch-all rule. This will allow you to validate the authentication via EAP-TLS.
+
+You can now create a new Portal Profile for EAP-TLS. Under the tab configuration, section `Policies and Access Control->Connection Profiles`, `Add profile` and select as a filter the Sub Connection Type as EAP-TLS, add your source EAP-TLS. Check the box "Automatically register devices". 
+
+You now have a full flow working for your corporate devices.
+
+The following is an example on how to configure an EAP-TLS connection for Windows/Android/Mac OS X/iOS
+
+image::docs/images/scep-ms-pki-eaptls-example.png[scaledwidth="100%",alt="Provisioner EAP-TLS configuration"]
+
+Mac OS X/iOS require the provisioning profile to be signed if you want to remove the `untrusted` warning when installing the profile. You need to sign it with a Certification Authority already trusted by the device such as e.g. VeriSign.
+Configuring this has to be done in the 'Signing' tab in the "Apple devices". 
+
+image::docs/images/packetfence-pki-eaptls-sign-example.png[scaledwidth="100%",alt="Signing provisioner"]
+
+Fill out the fields with the contents of the Base64 encoded certificates.
+To extract this information from a pem formatted certificate, copy the file content included between the begin and end tag, not including the delimiters themselves.
+
+Certificate file example:
+
+----
+----- BEGIN CERTIFICATE -----
+1234567890asdfghjkl
+zxcvbnmqwertyuiop78
+----- END CERTIFICATE -----
+----
+
+Copy everything between the BEGIN and END lines, but not the lines themselves.
+Repeat this operation for the certificate key and intermediate certificate.
+
+----
+----- BEGIN PRIVATE KEY -----
+1234567890asdfghjkl
+zxcvbnmqwertyuiop78
+----- END PRIVATE KEY -----
+----
 
 Profile generation
 ^^^^^^^^^^^^^^^^^^
