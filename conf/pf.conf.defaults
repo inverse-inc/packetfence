@@ -443,11 +443,6 @@ httpd_proxy=enabled
 # Location of the apache binary. Only necessary to change if you are not running the RPMed version.
 httpd_binary=/usr/sbin/httpd
 #
-# services.pfsetvlan
-#
-# Should pfsetvlan be managed by PacketFence?
-pfsetvlan=disabled
-#
 # services.snmptrapd
 #
 # Should snmptrapd be managed by PacketFence?
@@ -601,22 +596,6 @@ pfstats=enabled
 pfstats_binary=/usr/local/pf/bin/pfstats
 
 [snmp_traps]
-#
-# snmp_traps.nbtraphandlerthreads
-#
-# Number of trap handler threads pfsetvlan should start
-nbtraphandlerthreads = 5
-#
-# snmp_traps.nbtrapparserthreads
-#
-# Number of trap parser threads pfsetvlan should start
-nbtrapparserthreads = 3
-#
-# snmp_traps.closelocationlogonstop
-#
-# Should open locationlog entries be closed when pfsetvlan is 
-# stopped
-closelocationlogonstop=disabled
 #
 # snmp_traps.bounce_duration
 #

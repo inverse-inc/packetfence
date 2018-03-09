@@ -6,7 +6,6 @@ pf::Switch::MockedSwitch - Fake switch module designed to document our interface
 
 =head1 SYNOPSIS
 
-pf::Switch::MockedSwitch is first an exercice to be able to see what our pfsetvlan daemon does under stress.
 As it was implemented it became obvious that it would be useful to help us understand our own switch interfaces too.
 
 This modules extends pf::Switch.

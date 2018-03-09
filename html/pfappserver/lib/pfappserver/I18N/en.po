@@ -4430,14 +4430,6 @@ msgstr ""
 msgid "Number of times a host will be able to try and self remediate before they are locked out and have to call the help desk. This is useful for users who just <i>click through</i> violation pages."
 msgstr ""
 
-# conf/documentation.conf (snmp_traps.nbtraphandlerthreads)
-msgid "Number of trap handler threads pfsetvlan should start"
-msgstr ""
-
-# conf/documentation.conf (snmp_traps.nbtrapparserthreads)
-msgid "Number of trap parser threads pfsetvlan should start"
-msgstr ""
-
 # html/pfappserver/root/admin/configuration.tt
 msgid "OPSWAT Metadefender"
 msgstr ""
@@ -6688,10 +6680,6 @@ msgstr ""
 
 # conf/documentation.conf (services.pfqueue)
 msgid "Should pfqueue be started? Keep enabled unless you know what you're doing."
-msgstr ""
-
-# conf/documentation.conf (services.pfsetvlan)
-msgid "Should pfsetvlan be started? Keep enabled unless you know what you're doing."
 msgstr ""
 
 # conf/documentation.conf (services.pfsso)
@@ -9522,7 +9510,6 @@ msgstr ""
 # conf/documentation.conf (services.pffilter options)
 # conf/documentation.conf (services.pfmon options)
 # conf/documentation.conf (services.pfqueue options)
-# conf/documentation.conf (services.pfsetvlan options)
 # conf/documentation.conf (services.pfsso options)
 # conf/documentation.conf (services.radiusd options)
 # conf/documentation.conf (services.radsniff options)
@@ -9649,7 +9636,6 @@ msgstr ""
 # conf/documentation.conf (services.pffilter options)
 # conf/documentation.conf (services.pfmon options)
 # conf/documentation.conf (services.pfqueue options)
-# conf/documentation.conf (services.pfsetvlan options)
 # conf/documentation.conf (services.pfsso options)
 # conf/documentation.conf (services.radiusd options)
 # conf/documentation.conf (services.radsniff options)
@@ -10884,10 +10870,6 @@ msgstr "pfmon"
 # conf/documentation.conf
 msgid "services.pfqueue"
 msgstr "pfqueue"
-
-# conf/documentation.conf
-msgid "services.pfsetvlan"
-msgstr "pfsetvlan"
 
 # conf/documentation.conf
 msgid "services.pfsso"

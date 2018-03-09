@@ -212,7 +212,6 @@ endif
 	dh_installinit --name=packetfence-pffilter
 	dh_installinit --name=packetfence-pfmon
 	dh_installinit --name=packetfence-pfqueue
-	dh_installinit --name=packetfence-pfsetvlan
 	dh_installinit --name=packetfence-pfsso
 	dh_installinit --name=packetfence-radiusd-acct
 	dh_installinit --name=packetfence-radiusd-auth

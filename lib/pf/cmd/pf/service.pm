@@ -36,7 +36,6 @@ Services managed by PacketFence:
   pffilter         | PF conditions filtering daemon
   pfmon            | PF monitoring daemon
   pfqueue          | PF queueing service
-  pfsetvlan        | PF VLAN isolation daemon
   pfstats          | PF statistics daemon
   radiusd          | FreeRADIUS daemon
   radsniff         | radsniff daemon

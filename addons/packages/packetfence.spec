@@ -475,7 +475,6 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-pffilter.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pffilter.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfmon.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfmon.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfqueue.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfqueue.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfsetvlan.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfsetvlan.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfsso.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfsso.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.dispatcher.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.dispatcher.service
 %{__install} -D -m0644 conf/systemd/packetfence-radiusd-acct.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-radiusd-acct.service
@@ -1258,7 +1257,6 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pf-mariadb
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfmon
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfqueue
-%attr(0755, pf, pf)     /usr/local/pf/sbin/pfsetvlan
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pffilter
 %attr(0755, pf, pf)     /usr/local/pf/sbin/winbindd-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/radsniff-wrapper

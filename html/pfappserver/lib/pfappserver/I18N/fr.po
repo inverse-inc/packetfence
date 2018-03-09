@@ -4798,14 +4798,6 @@ msgid ""
 "just <i>click through</i> violation pages."
 msgstr "Nombre de fois qu’un appareil aura la possibilité de se redonner un accès au réseau avant que cette possibilité ne soit bloquée et qu’il doive contacter le service informatique. C’est très utile pour les utilisateurs qui négligent les pages de violations. "
 
-# conf/documentation.conf (snmp_traps.nbtraphandlerthreads)
-msgid "Number of trap handler threads pfsetvlan should start"
-msgstr "Nombre de processus que pfsetvlan devrait démarrer"
-
-# conf/documentation.conf (snmp_traps.nbtrapparserthreads)
-msgid "Number of trap parser threads pfsetvlan should start"
-msgstr "Nombre de processus parser que pfsetvlan devrait démarrer"
-
 # html/pfappserver/root/admin/configuration.tt
 msgid "OPSWAT Metadefender"
 msgstr "OPSWAT Metadefender"
@@ -7184,11 +7176,6 @@ msgstr "Est-ce que pfmon doit être démarré ? Gardez le activé sauf si vous s
 msgid ""
 "Should pfqueue be started? Keep enabled unless you know what you're doing."
 msgstr "Est-ce que pfqueue doit être démarré ? Gardez le activé sauf si vous savez ce que vous faites."
-
-# conf/documentation.conf (services.pfsetvlan)
-msgid ""
-"Should pfsetvlan be started? Keep enabled unless you know what you're doing."
-msgstr "Est-ce que pfsetvlan doit être démarré ? Gardez le activé sauf si vous savez ce que vous faites."
 
 # conf/documentation.conf (services.pfsso)
 msgid "Should pfsso be managed by PacketFence?"
@@ -10348,7 +10335,6 @@ msgstr "dhcplistener"
 # conf/documentation.conf (services.pffilter options)
 # conf/documentation.conf (services.pfmon options)
 # conf/documentation.conf (services.pfqueue options)
-# conf/documentation.conf (services.pfsetvlan options)
 # conf/documentation.conf (services.pfsso options)
 # conf/documentation.conf (services.radiusd options)
 # conf/documentation.conf (services.radsniff options)
@@ -10481,7 +10467,6 @@ msgstr "en_US"
 # conf/documentation.conf (services.pffilter options)
 # conf/documentation.conf (services.pfmon options)
 # conf/documentation.conf (services.pfqueue options)
-# conf/documentation.conf (services.pfsetvlan options)
 # conf/documentation.conf (services.pfsso options)
 # conf/documentation.conf (services.radiusd options)
 # conf/documentation.conf (services.radsniff options)
@@ -11720,10 +11705,6 @@ msgstr "pfmon"
 # conf/documentation.conf
 msgid "services.pfqueue"
 msgstr "pfqueue"
-
-# conf/documentation.conf
-msgid "services.pfsetvlan"
-msgstr "pfsetvlan"
 
 # conf/documentation.conf
 msgid "services.pfsso"
