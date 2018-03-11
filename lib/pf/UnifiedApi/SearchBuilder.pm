@@ -38,6 +38,11 @@ sub search {
         return $status, $where;
     }
 
+    ($status, my $from) = $self->make_from($query_info);
+    if ( is_error($status, $from ) ) {
+        return $status, $from;
+    }
+
     my $offset   = $self->make_offset($query_info);
     my $limit    = $self->make_limit($query_info);
     my $order_by = $self->make_order_by($query_info);
@@ -47,6 +52,7 @@ sub search {
         -limit      => $limit,
         -offset     => $offset,
         -order_by   => $order_by,
+        -from       => $from,
     );
     if (@$columns) {
         $search_args{'-columns'} = $columns;
@@ -83,6 +89,11 @@ sub make_limit {
     my $limit = int($q->{limit} // 0) || 25;
     $limit++;
     return $limit;
+}
+
+sub make_from {
+    my ($self, $q) = @_;
+    return 200, [$self->dal->table];
 }
 
 sub make_columns {
