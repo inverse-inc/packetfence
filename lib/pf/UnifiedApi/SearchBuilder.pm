@@ -28,14 +28,14 @@ our %OP_HAS_SUBQUERIES = (
 
 sub search {
     my ( $self, $query_info ) = @_;
-    my ($status, $where) = $self->make_where($query_info);
-    if ( is_error($status, $where ) ) {
-        return $status, $where;
-    }
-
-    ($status, my $columns) = $self->make_columns($query_info);
+    my ($status, $columns) = $self->make_columns($query_info);
     if ( is_error($status) ) {
         return $status, $columns;
+    }
+
+    ($status, my $where) = $self->make_where($query_info);
+    if ( is_error($status, $where ) ) {
+        return $status, $where;
     }
 
     my $offset   = $self->make_offset($query_info);
