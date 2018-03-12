@@ -26,14 +26,20 @@ use Template;
 
 use pf::authentication;
 use pf::Authentication::constants;
-use pf::config;
-use pf::iplog;
+use pf::config qw(
+    %CAPTIVE_PORTAL
+    %Config
+    $HTTP
+    $HTTPS
+);
+use pf::ip4log;
 use pf::node;
 use pf::web;
 use pf::Portal::Session;
 use pf::util;
 use pf::locationlog;
 use pf::enforcement qw(reevaluate_access);
+use pf::constants::realm;
 
 =head1 SUBROUTINES
 
@@ -75,7 +81,7 @@ sub handler {
     # Trace the user in the apache log
     $r->user($req->param("username"));
 
-    my ($return, $message, $source_id) = &pf::web::web_user_authenticate($portalSession,$req->param("username"),$req->param("password"));
+    my ($return, $message, $source_id, $extra) = &pf::web::web_user_authenticate($portalSession,$req->param("username"),$req->param("password"));
     if ($return) {
         $logger->info("Authentification success for wispr client");
         $stash = {
@@ -104,24 +110,30 @@ sub handler {
     if ($locationlog_entry) {
         $params->{connection_type} = $locationlog_entry->{'connection_type'};
         $params->{SSID} = $locationlog_entry->{'ssid'};
+        $params->{realm} = $locationlog_entry->{'realm'};
     }
+    $params->{context} = $pf::constants::realm::PORTAL_CONTEXT;
+    my $matched = pf::authentication::match2($source_id, $params, $extra);
+    if ($matched) {
+        my $values = $matched->{values};
+        my $role = $values->{$Actions::SET_ROLE};
+        my $unregdate = $values->{$Actions::SET_UNREG_DATE};
 
-    # obtain node information provided by authentication module. We need to get the role (category here)
-    my $value = &pf::authentication::match($source_id, $params, $Actions::SET_ROLE);
+        # This appends the hashes to one another. values returned by authenticator wins on key collision
+        if (defined $role) {
+            $logger->warn("Got role $role for username $pid");
+            %info = (%info, (category => $role));
+        }
 
-    $logger->warn("Got role $value for username $pid");
-
-    # This appends the hashes to one another. values returned by authenticator wins on key collision
-    if (defined $value) {
-        %info = (%info, (category => $value));
+        if (defined $unregdate) {
+            $logger->trace("Got unregdate $unregdate for username $pid");
+            %info = (%info, (unregdate => $unregdate));
+        }
     }
-
-    $value = &pf::authentication::match($source_id, $params, $Actions::SET_UNREG_DATE);
-    if (defined $value) {
-        $logger->trace("Got unregdate $value for username $pid");
-        %info = (%info, (unregdate => $value));
-    }
-
+    my $time_balance = &pf::authentication::match($source_id, $params, $Actions::SET_TIME_BALANCE);
+    my $bandwidth_balance = &pf::authentication::match($source_id, $params, $Actions::SET_BANDWIDTH_BALANCE);
+    $info{'time_balance'} = pf::util::normalize_time($time_balance) if (defined($time_balance));
+    $info{'bandwidth_balance'} = pf::util::unpretty_bandwidth($bandwidth_balance) if (defined($bandwidth_balance));
     $r->pnotes->{info}=\%info;
     $template->process( "response_wispr.tt", $stash, \$response ) || $logger->error($template->error());
     $r->content_type('text/xml');
@@ -156,7 +168,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

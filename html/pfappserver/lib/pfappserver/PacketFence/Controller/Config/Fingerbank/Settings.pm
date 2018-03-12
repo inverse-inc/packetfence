@@ -16,6 +16,7 @@ use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
 use pf::log;
 use fingerbank::Config;
+use fingerbank::API;
 use pf::fingerbank;
 
 use HTTP::Status qw(:constants is_error is_success);
@@ -32,12 +33,12 @@ sub check_for_api_key :Private {
 
     if ( !fingerbank::Config::is_api_key_configured ) {
         $logger->warn("Fingerbank API key is not configured. Running with limited features");
-        my $status_msg = "It looks like Fingerbank API key is not configured. You may have forgot the onboard process. To fully beneficiate of Fingerbank, please proceed here: https://fingerbank.inverse.ca/onboard";
+        my $status_msg = "It looks like Fingerbank API key is not configured. You may have forgot the onboard process. To fully beneficiate of Fingerbank, please proceed here: https://api.fingerbank.org/onboard";
         $c->go('onboard');
     }
 }
 
-sub onboard :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') {
+sub onboard :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') :AdminConfigurator {
     my ( $self, $c ) = @_;
     my $logger = get_logger();
 
@@ -56,11 +57,15 @@ sub onboard :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') {
             $params{'upstream'}{'api_key'} = $c->req->params->{'api_key'};
             ( $status, $status_msg ) = fingerbank::Config::write_config(\%params);
 
+            $self->audit_current_action($c, status => $status);
+
             # Sync the config to the cluster if necessary
             pf::fingerbank::sync_configuration();
 
-            $c->req->method('GET'); # We need to change the request method since there's a filter  on it in the index part.
-            $c->go('index');
+            if (defined($c->req->header('accept')) && $c->req->header('accept') ne 'application/json'){
+                $c->req->method('GET'); # We need to change the request method since there's a filter  on it in the index part.
+                $c->go($c->controller('Configuration')->action_for('profiling'), ['general']);
+            }
         }
     }
 
@@ -101,11 +106,16 @@ sub index :Path :Args(0) :AdminRole('FINGERBANK_READ') {
         } else {
             my $params = $form->value;
 
+            fingerbank::Config->read_config;
+
+            if($params->{upstream}->{api_key} ne $fingerbank::Config::Config{upstream}->{api_key}) {
+                $logger->info("API key has changed, flushing Fingerbank cache.");
+                pf::fingerbank::clear_cache();
+            }
+
             # TODO: Ugly hack to handle the fact that unchecked checkboxes are not being returned as a param by HTTP and needs
             # to be set as 'disabled'
-            ( !$params->{'upstream'}{'interrogate'} ) ? $params->{'upstream'}{'interrogate'} = 'disabled':();
             ( !$params->{'query'}{'record_unmatched'} ) ? $params->{'query'}{'record_unmatched'} = 'disabled':();
-            ( !$params->{'query'}{'use_tcp_fingerprinting'} ) ? $params->{'query'}{'use_tcp_fingerprinting'} = 'disabled':();
 
             ( $status, $status_msg ) = fingerbank::Config::write_config($params);
 
@@ -117,6 +127,19 @@ sub index :Path :Args(0) :AdminRole('FINGERBANK_READ') {
 
     else {
         my $config = fingerbank::Config::get_config;
+        my $api = fingerbank::API->new_from_config;
+
+        $c->stash->{fingerbank_config} = $config;
+        $c->stash->{fingerbank_base_uri} = $api->build_uri("");
+
+        my ($status, $account_info) = $api->account_info();
+        if(is_success($status)) {
+            $c->stash->{account_info} = $account_info;
+        }
+        else {
+            $c->stash->{account_info_error} = $account_info;
+        }
+
         $form->process(init_object => $config);
         $c->stash->{form} = $form;
     }
@@ -131,30 +154,13 @@ sub index :Path :Args(0) :AdminRole('FINGERBANK_READ') {
     $c->response->status($status);
 }
 
-=head2 update_p0f_map
-
-Update the p0f map using the fingerbank library
-
-=cut
-
-sub update_p0f_map :Local :Args(0) :AdminRole('FINGERBANK_UPDATE') {
-    my ( $self, $c ) = @_;
-
-    $c->stash->{current_view} = 'JSON';
-
-    my ( $status, $status_msg ) = fingerbank::Config::update_p0f_map();
-
-    $c->stash->{status_msg} = $status_msg;
-    $c->response->status($status);
-}
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -175,6 +181,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

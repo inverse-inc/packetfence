@@ -28,9 +28,19 @@ The value to match against
 has value => (
     is => 'ro',
     required => 1,
-    isa  => 'RegexpRefStr',
-    coerce => 1,
 );
+
+sub BUILD {
+    my ($self) = @_;
+
+    eval {
+        $self->match("test");
+    };
+
+    if($@) {
+        die "Unable to build regexp ".$self->value."\n";
+    }
+}
 
 =head2 match
 
@@ -42,7 +52,7 @@ sub match {
     my ($self,$arg) = @_;
     my $match = $self->value;
     return 0 if(!defined($arg));
-    return $arg =~ $match;
+    return $arg =~ /$match/;
 }
 
 =head1 AUTHOR
@@ -51,7 +61,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

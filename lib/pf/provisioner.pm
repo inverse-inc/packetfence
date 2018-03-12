@@ -15,12 +15,15 @@ pf::provisioner
 use strict;
 use warnings;
 use Moo;
+use pf::constants;
 use pf::config;
 use pf::fingerbank;
 use Readonly;
 use pf::log;
 use pf::factory::pki_provider;
 use List::MoreUtils qw(any);
+use pf::CHI;
+use fingerbank::Model::Device;
 
 =head1 Constants
 
@@ -168,20 +171,20 @@ sub matchCategory {
 =cut
 
 sub matchOS {
-    my ($self, $device_type) = @_;
+    my ($self, $node_attributes) = @_;
     my @oses = @{$self->oses || []};
 
-    # Get device type kind of device by querying Fingerbank
-    my $os = pf::fingerbank::is_a($device_type);
-
-    get_logger->trace( sub { "Tring to match the OS '$os' against " . join(",", @oses) });
     #if no oses are defined then it will match all the oses
-    return 1 if @oses == 0;
-    #if os is undef then fail
-    return 0 unless defined $os;
-    local $_;
-    #verify os matches list
-    return any { $os =~ /\Q$_\E/ } @oses;
+    return $TRUE if @oses == 0;
+
+    my $device_name = $node_attributes->{device_type};
+    get_logger->debug( sub { "Trying see if device $device_name is one of: " . join(",", @oses) });
+
+    for my $os (@oses) {
+        return $TRUE if fingerbank::Model::Device->is_a($device_name, $os);
+    }
+
+    return $FALSE;
 }
 
 =head2 match
@@ -190,7 +193,8 @@ sub matchOS {
 
 sub match {
     my ($self, $os, $node_attributes) = @_;
-    return $self->matchOS($os) && $self->matchCategory($node_attributes);
+    $node_attributes->{device_type} = defined($os) ? $os : $node_attributes->{device_name};
+    return $self->matchCategory($node_attributes) && $self->matchOS($node_attributes);
 }
 
 =head2 getPkiProvider
@@ -204,13 +208,25 @@ sub getPkiProvider {
     return pf::factory::pki_provider->new($pki_provider_id);
 }
 
+=head2 cache
+
+Get the provisioning cache
+
+=cut
+
+sub cache {
+    my ($self) = @_;
+    return pf::CHI->new(namespace => 'provisioning');
+}
+
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

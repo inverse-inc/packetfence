@@ -13,13 +13,16 @@ Module to manage Trapeze controllers
 use strict;
 use warnings;
 
-use Net::Appliance::Session;
 use POSIX;
 
 use base ('pf::Switch');
 
 use pf::constants;
-use pf::config;
+use pf::file_paths qw($lib_dir);
+use pf::config qw(
+    $MAC
+    $SSID
+);
 sub description { 'Trapeze Wireless Controller' }
 
 # importing switch constants
@@ -87,23 +90,6 @@ sub getVersion {
     $logger->warn("unable to fetch version information");
 }
 
-=item parseTrap
-
-This is called when we receive an SNMP-Trap for this device
-
-=cut
-
-sub parseTrap {
-    my ( $self, $trapString ) = @_;
-    my $trapHashRef;
-    my $logger = $self->logger;
-
-    $logger->debug("trap currently not handled");
-    $trapHashRef->{'trapType'} = 'unknown';
-
-    return $trapHashRef;
-}
-
 =item deauthenticateMacDefault
 
 deauthenticate a MAC address from wireless network
@@ -128,6 +114,7 @@ sub deauthenticateMacDefault {
 
     my $session;
     eval {
+        require Net::Appliance::Session;
         $session = Net::Appliance::Session->new(
             Host      => $self->{_ip},
             Timeout   => 5,
@@ -203,7 +190,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

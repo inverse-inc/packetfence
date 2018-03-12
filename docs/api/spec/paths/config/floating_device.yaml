@@ -1,0 +1,104 @@
+/config/floating_device/{floating_device_id}:
+  delete:
+    parameters: []
+    responses:
+      '204':
+        description: Deleted a config item
+    summary: Delete a config item
+  get:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              id:
+                description: MAC Address
+                type: string
+              ip:
+                description: IP Address
+                type: string
+              pvid:
+                description: VLAN in which PacketFence should put the port
+                type: integer
+              taggedVlan:
+                description: Comma separated list of VLANs. If the port is a multi-vlan,
+                  these are the VLANs that have to be tagged on the port.
+                type: string
+              trunkPort:
+                description: The port must be configured as a muti-vlan port
+                type: string
+            required:
+            - id
+            - pvid
+            type: object
+      required: true
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  patch:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              ip:
+                description: IP Address
+                type: string
+              pvid:
+                description: VLAN in which PacketFence should put the port
+                type: integer
+              taggedVlan:
+                description: Comma separated list of VLANs. If the port is a multi-vlan,
+                  these are the VLANs that have to be tagged on the port.
+                type: string
+              trunkPort:
+                description: The port must be configured as a muti-vlan port
+                type: string
+            required:
+            - pvid
+            type: object
+      required: true
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  put:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              ip:
+                description: IP Address
+                type: string
+              pvid:
+                description: VLAN in which PacketFence should put the port
+                type: integer
+              taggedVlan:
+                description: Comma separated list of VLANs. If the port is a multi-vlan,
+                  these are the VLANs that have to be tagged on the port.
+                type: string
+              trunkPort:
+                description: The port must be configured as a muti-vlan port
+                type: string
+            required:
+            - pvid
+            type: object
+      required: true
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

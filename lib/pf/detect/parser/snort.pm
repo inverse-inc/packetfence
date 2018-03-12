@@ -1,4 +1,5 @@
 package pf::detect::parser::snort;
+
 =head1 NAME
 
 pf::detect::parser::snort
@@ -33,7 +34,7 @@ sub parse {
             srcip => $4,
             dstip => $6,
         };
-        return { srcip => $data->{srcip}, date => $data->{date}, events => { detect => $data->{sid}, suricata_event => $data->{descr} } };
+        return { srcip => $data->{srcip}, date => $data->{date}, dstip => $data->{dstip}, events => { detect => $data->{sid}, suricata_event => $data->{descr} } };
     } elsif ( $line
         =~ /^(.+?)\s+\[\*\*\]\s+\[\d+:(\d+):\d+\]\s+Portscan\s+detected\s+from\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/
         )
@@ -55,6 +56,7 @@ sub parse {
         };
         return { srcip => $data->{srcip}, date => $data->{date}, events => { detect => $data->{descr} } };
     }
+    return undef;
 }
  
 =head1 AUTHOR
@@ -63,7 +65,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -85,4 +87,3 @@ USA.
 =cut
 
 1;
-

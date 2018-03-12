@@ -1,0 +1,23 @@
+<!-- [% source.type %] -->
+<form action="/oauth2/go" method="POST">
+
+  [% IF with_aup %]
+  <div class="card">
+    [% form.get_field('aup').render | none %]
+  </div>
+  [% END %]
+
+  <div class="card [% IF with_aup %]card--hidden card--disabled [% END %] layout layout--center">
+    <div class="layout__item u-2/3 u-1/1-palm">
+      <div class="u-mt">
+        <button type="submit" name="submit" class="btn btn--full">
+          <div class="flag flag--light">
+            <div class="flag__img">[% moduleIcon(module=source.type,size='small') %]</div>
+            <p class="flag__body">[% i18n('Login') %]</p>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</form>

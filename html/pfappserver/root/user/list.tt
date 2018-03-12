@@ -1,14 +1,28 @@
 
+      <div class="modal fade hide" id="bulkConfirmation">
+        <div class="modal-header">
+          <a class="close" data-dismiss="modal">&times;</a>
+          <h3><i>[% l('Executing action on multiple users') %]</i> <span></span></h3>
+        </div>
+        <div class="modal-body">
+          <p>[% l('Really execute this action on those users ?') %]</p>
+        </div>
+        <div class="modal-footer">
+          <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
+          <a href="#" class="btn btn-primary btn-warning">[% l('Execute') %]</a>
+        </div>
+      </div>
+      
           <form id="items" method="POST">
             <table id="users" class="table table-condensed table-striped">
               <thead>
                 <tr>
                   <th><input type="checkbox" value="on" id="toggle_all_items"/></th>
-                  [% header('pid', l('Username')) | none %]
-                  [% header('firstname', l('Firstname'), 'hidden-phone') | none %]
-                  [% header('lastname', l('Lastname'), 'hidden-phone') | none %]
-                  [% header('email', l('Email')) | none %]
-                  [% header('telephone', l('Telephone')) | none %]
+                  [% header('person.pid', l('Username')) | none %]
+                  [% header('person.firstname', l('Firstname'), 'hidden-phone') | none %]
+                  [% header('person.lastname', l('Lastname'), 'hidden-phone') | none %]
+                  [% header('person.email', l('Email')) | none %]
+                  [% header('person.telephone', l('Telephone')) | none %]
                   [% header('nodes', l('# nodes')) | none %]
                 </tr>
               </thead>

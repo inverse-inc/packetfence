@@ -1,0 +1,24 @@
+/// _tools.functions.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2 -*-
+
+// http://compass-style.org/reference/compass/utilities/color/brightness/#function-brightness
+@function brightness($color) {
+  @if type-of($color) == color {
+    @return (red($color) * 0.299 + green($color) * 0.587 + blue($color) * 0.114) / 255 * 100%;
+  }
+  @else {
+    @return unquote("brightness(#{$color})");
+  }
+}
+
+// http://compass-style.org/reference/compass/utilities/color/contrast/#function-contrast-color
+@function contrast-color($color, $dark: $contrasted-dark-default, $light: $contrasted-light-default) {
+  @if $color == null {
+    @return null;
+  }
+  @else {
+    $color-brightness: brightness($color);
+    $dark-text-brightness: brightness($dark);
+    $light-text-brightness: brightness($light);
+    @return if(abs($color-brightness - $light-text-brightness) > abs($color-brightness - $dark-text-brightness), $light, $dark);
+  }
+}

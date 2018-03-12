@@ -13,20 +13,27 @@ use JSON::MaybeXS qw( decode_json );
 use Moose;
 use pf::person;
 extends 'pf::Authentication::Source::OAuthSource';
+with 'pf::Authentication::CreateLocalAccountRole';
 
 has '+type' => (default => 'LinkedIn');
 has '+class' => (default => 'external');
-has '+unique' => (default => 1);
 has 'client_id' => (isa => 'Str', is => 'rw', required => 1);
 has 'client_secret' => (isa => 'Str', is => 'rw', required => 1);
 has 'site' => (isa => 'Str', is => 'rw', default => 'https://www.linkedin.com');
-has 'authorize_path' => (isa => 'Str', is => 'rw', default => '/uas/oauth2/authorization?state=someRandomString');
-has 'access_token_path' => (isa => 'Str', is => 'rw', default => '/uas/oauth2/accessToken');
+has 'authorize_path' => (isa => 'Str', is => 'rw', default => '/oauth/v2/authorization');
+has 'access_token_path' => (isa => 'Str', is => 'rw', default => '/oauth/v2/accessToken');
 has 'access_token_param' => (isa => 'Str', is => 'rw', default => 'code');
 has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://api.linkedin.com/v1/people/~/email-address');
-has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/linkedin');
-has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => 'www.linkedin.com,api.linkedin.com,static.licdn.com');
-has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
+has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/callback');
+has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => 'www.linkedin.com,api.linkedin.com,*.licdn.com,platform.linkedin.com');
+
+=head2 dynamic_routing_module
+
+Which module to use for DynamicRouting
+
+=cut
+
+sub dynamic_routing_module { 'Authentication::OAuth::LinkedIn' }
 
 =head2 lookup_from_provider_info
 
@@ -39,13 +46,24 @@ sub lookup_from_provider_info {
     person_modify( $pid, email => $info->{email} );
 }
 
+=head2 additional_client_attributes
+
+Supply a state variable for the client
+
+=cut
+
+sub additional_client_attributes {
+    my ($self) = @_;
+    return (state => $self->id);
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -66,7 +84,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;
 
 # vim: set shiftwidth=4:

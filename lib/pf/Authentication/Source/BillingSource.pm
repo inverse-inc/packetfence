@@ -14,11 +14,15 @@ pf::Authentication::Source::BillingSource
 use strict;
 use warnings;
 use Moose;
-use pf::config qw($FALSE $TRUE $default_pid $fqdn);
+use pf::config qw($default_pid $fqdn %Config);
+use pf::constants qw($TRUE $FALSE);
 use pf::Authentication::constants;
 use pf::util;
+use utf8;
+use Locale::gettext qw(gettext ngettext);
 
 extends 'pf::Authentication::Source';
+with 'pf::Authentication::CreateLocalAccountRole';
 
 =head2 Attributes
 
@@ -30,13 +34,19 @@ has '+class' => (default => 'abstact');
 
 has '+type' => (default => 'Billing');
 
-has '+unique' => (default => 1);
-
 has 'currency' => (is => 'rw', default => 'USD');
 
-has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
-
 has 'test_mode' => (is => 'rw', isa => 'Bool');
+
+has 'send_email_confirmation' => (is => 'rw', default => 'disabled');
+
+=head2 dynamic_routing_module
+
+Which module to use for DynamicRouting
+
+=cut
+
+sub dynamic_routing_module { 'Authentication::Billing' }
 
 =head2 has_authentication_rules
 
@@ -89,10 +99,23 @@ sub match_in_subclass {
 }
 
 sub verify_url {
-    my ($self) = @_;
+    my ($self, $iframe) = @_;
     my $base_path = $self->_build_base_path;
-    return "$base_path/verify";
+    $iframe //= $self->iframe;
+    my $url = "$base_path/verify";
+    if ($iframe) {
+        $url .= '?iframe=1';
+    }
+    return $url;
 }
+
+=head2 iframe
+
+Is in an iframe
+
+=cut
+
+sub iframe { 0 }
 
 sub cancel_url {
     my ($self) = @_;
@@ -103,7 +126,7 @@ sub cancel_url {
 sub _build_base_path {
     my ($self) = @_;
     my $id     = $self->id;
-    my $base_path = "http://$fqdn/billing/$id";
+    my $base_path = "https://$fqdn/billing/$id";
     return $base_path;
 }
 
@@ -151,13 +174,61 @@ sub handle_hook {
     return ;
 }
 
+=head2 confirmationInfo
+
+confirmationInfo
+
+=cut
+
+sub confirmationInfo {
+    my ($self, $parameters, $tier, $session) = @_;
+    require pf::web::constants;
+    return {
+        'firstname'        => $parameters->{firstname},
+        'lastname'         => $parameters->{lastname},
+        'email'            => $parameters->{email},
+        'tier_name'        => $tier->{'name'},
+        'tier_description' => $tier->{'description'},
+        'tier_price'       => $tier->{'price'},
+        'hostname'         => $Config{'general'}{'hostname'},
+        'domain'           => $Config{'general'}{'domain'},
+        'subject'          => i18n_format("%s: Network Access Order Confirmation", $Config{'general'}{'domain'}),
+        pf::web::constants::to_hash(),
+        $self->additionalConfirmationInfo($parameters, $tier, $session),
+      };
+}
+
+=head2 i18n_format
+
+Pass message id through gettext then sprintf it.
+
+Meant to be called from the TT templates.
+
+=cut
+
+sub i18n_format {
+    my ($msgid, @args) = @_;
+
+    my $result = sprintf(gettext($msgid), @args);
+    utf8::decode($result);
+    return $result;
+}
+
+=head2 additionalConfirmationInfo
+
+additionalConfirmationInfo
+
+=cut
+
+sub additionalConfirmationInfo { }
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

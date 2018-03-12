@@ -16,9 +16,10 @@ use warnings;
 use Net::SNMP;
 use Template;
 use pf::util;
-use pf::config;
+use pf::config qw(%ConfigDomain);
+use pf::constants qw($TRUE $FALSE);
 use pf::log;
-use pf::file_paths;
+use pf::file_paths qw($domains_chroot_dir);
 use pf::constants::domain qw($SAMBA_CONF_PATH);
 use File::Slurp;
 
@@ -26,7 +27,7 @@ use File::Slurp;
 our $TT_OPTIONS = {ABSOLUTE => 1};
 our $template = Template->new($TT_OPTIONS);
 
-=item chroot_path
+=head2 chroot_path
 
 Returns the path to a domain chroot
 
@@ -34,10 +35,10 @@ Returns the path to a domain chroot
 
 sub chroot_path {
     my ($domain) = @_;
-    return $domains_chroot_dir."/".$domain; 
+    return $domains_chroot_dir."/".$domain;
 }
 
-=item run
+=head2 run
 
 Executes a command and returns the results as the domain interfaces expect it
 
@@ -52,7 +53,7 @@ sub run {
     return ($code , $result);
 }
 
-=item test_join
+=head2 test_join
 
 Executes the command in the OS to test the domain join
 
@@ -60,11 +61,12 @@ Executes the command in the OS to test the domain join
 
 sub test_join {
     my ($domain) = @_;
-    my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/bin/net ads testjoin -s /etc/samba/$domain.conf");
+    my $chroot_path = chroot_path($domain);
+    my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path /usr/bin/net ads testjoin -s /etc/samba/$domain.conf");
     return ($status, $output);
 }
 
-=item test_auth
+=head2 test_auth
 
 Executes the command on the OS to test an authentication to the domain
 
@@ -78,8 +80,19 @@ sub test_auth {
     return ($status, $output);
 }
 
+=head2 escape_bind_user_string
 
-=item join_domain
+Escapes the bind user string for any simple quote
+
+=cut
+
+sub escape_bind_user_string {
+    my ($s) = @_;
+    $s =~ s/'/'\\''/g;
+    return $s;
+}
+
+=head2 join_domain
 
 Joins the domain
 
@@ -88,19 +101,20 @@ Joins the domain
 sub join_domain {
     my ($domain) = @_;
     my $logger = get_logger();
+    my $chroot_path = chroot_path($domain);
 
     regenerate_configuration();
 
     my $info = $ConfigDomain{$domain};
-    my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain net ads join -S $info->{ad_server} $info->{dns_name} -s /etc/samba/$domain.conf -U '$info->{bind_dn}%$info->{bind_pass}'");
+    my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path net ads join -s /etc/samba/$domain.conf createcomputer=$info->{ou} -U '".escape_bind_user_string($info->{bind_dn}.'%'.$info->{bind_pass})."'");
     $logger->info("domain join : ".$output);
 
     restart_winbinds();
-    
-    return $output; 
+
+    return $output;
 }
 
-=item rejoin_domain
+=head2 rejoin_domain
 
 Unjoins then joins the domain
 
@@ -120,7 +134,7 @@ sub rejoin_domain {
     }
 }
 
-=item unjoin_domain
+=head2 unjoin_domain
 
 Joins the domain through the ip namespace
 
@@ -129,10 +143,11 @@ Joins the domain through the ip namespace
 sub unjoin_domain {
     my ($domain) = @_;
     my $logger = get_logger();
+    my $chroot_path = chroot_path($domain);
 
     my $info = $ConfigDomain{$domain};
     if($info){
-        my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain net ads leave -S $info->{ad_server} $info->{dns_name} -s /etc/samba/$domain.conf -U '$info->{bind_dn}%$info->{bind_pass}'");
+        my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path net ads leave -s /etc/samba/$domain.conf -U '".escape_bind_user_string($info->{bind_dn}.'%'.$info->{bind_pass})."'");
         $logger->info("domain leave : ".$output);
         $logger->info("netns deletion : ".run("/usr/bin/sudo /sbin/ip netns delete $domain"));
         return $output;
@@ -143,7 +158,7 @@ sub unjoin_domain {
 
 }
 
-=item generate_krb5_conf
+=head2 generate_krb5_conf
 
 Generates the OS krb5.conf with all the domains configured in domain.conf
 
@@ -151,7 +166,7 @@ Generates the OS krb5.conf with all the domains configured in domain.conf
 
 sub generate_krb5_conf {
     my $logger = get_logger();
-    my @domains = keys %ConfigDomain; 
+    my @domains = keys %ConfigDomain;
     my $default_domain = $ConfigDomain{$domains[0]}->{dns_name};
     my $vars = {domains => \%ConfigDomain, default_domain => $default_domain};
 
@@ -160,7 +175,7 @@ sub generate_krb5_conf {
     $template->process("/usr/local/pf/addons/AD/krb5.tt", $vars, "/etc/krb5.conf") || $logger->error("Can't generate krb5 configuration : ".$template->error);
 }
 
-=item generate_smb_conf
+=head2 generate_smb_conf
 
 Generates all files for the domains configured in domain.conf
 Will generate one samba config file per domain
@@ -177,11 +192,11 @@ sub generate_smb_conf {
         pf_run("/usr/bin/sudo touch /etc/samba/$domain.conf");
         pf_run("/usr/bin/sudo /bin/chown pf.pf /etc/samba/$domain.conf");
         my $fname = untaint_chain("/etc/samba/$domain.conf");
-        $template->process("/usr/local/pf/addons/AD/smb.tt", \%vars, $fname) || $logger->error("Can't generate samba configuration for $domain : ".$template->error()); 
+        $template->process("/usr/local/pf/addons/AD/smb.tt", \%vars, $fname) || $logger->error("Can't generate samba configuration for $domain : ".$template->error());
     }
 }
 
-=item generate_resolv_conf
+=head2 generate_resolv_conf
 
 Generates the resolv.conf for the domain and puts it in the ip namespace configuration
 
@@ -191,18 +206,20 @@ sub generate_resolv_conf {
     my $logger = get_logger();
     foreach my $domain (keys %ConfigDomain){
         pf_run("/usr/bin/sudo /bin/mkdir -p /etc/netns/$domain");
-        my %vars = (domain => $domain);
-        my %tmp = (%vars, %{$ConfigDomain{$domain}});
-        %vars = %tmp;
+        my @dns_servers = split(',', $ConfigDomain{$domain}{'dns_servers'});
+        my %vars = (
+            dns_name    => $ConfigDomain{$domain}{'dns_name'},
+            dns_servers => [ @dns_servers ],
+        );
         pf_run("/usr/bin/sudo /bin/chown pf.pf /etc/netns/$domain");
         pf_run("/usr/bin/sudo touch /etc/netns/$domain/resolv.conf");
         pf_run("/usr/bin/sudo chown pf.pf /etc/netns/$domain/resolv.conf");
         my $fname = untaint_chain("/etc/netns/$domain/resolv.conf");
-        $template->process("/usr/local/pf/addons/AD/resolv.tt", \%vars, $fname) || $logger->error("Can't generate resolv.conf for $domain : ".$template->error); 
-    }  
+        $template->process("/usr/local/pf/addons/AD/resolv.tt", \%vars, $fname) || $logger->error("Can't generate resolv.conf for $domain : ".$template->error);
+    }
 }
 
-=item restart_winbinds
+=head2 restart_winbinds
 
 Calls pfcmd to restart the winbind processes
 
@@ -214,7 +231,7 @@ sub restart_winbinds {
 }
 
 
-=item regenerate_configuration
+=head2 regenerate_configuration
 
 This generates the configuration for the domain
 Since this needs elevated rights and that it's called by pf owned processes it needs to do it through pfcmd
@@ -227,7 +244,7 @@ sub regenerate_configuration {
     pf_run("/usr/bin/sudo /usr/local/pf/bin/pfcmd generatedomainconfig");
 }
 
-=item has_os_configuration 
+=head2 has_os_configuration
 
 Detects whether or not this server had a non-PF configuration before
 Uses the samba configuration
@@ -235,13 +252,14 @@ Uses the samba configuration
 =cut
 
 sub has_os_configuration {
-    my $samba_conf = read_file($SAMBA_CONF_PATH);
-    if ( $samba_conf =~ /(\t){0,1}workgroup = (WORKGROUP|MYGROUP).*/ ) {
-        return $FALSE;
+    if ( -e $SAMBA_CONF_PATH ) {
+        my $samba_conf = read_file($SAMBA_CONF_PATH);
+        if ( $samba_conf =~ /(\t){0,1}workgroup = (WORKGROUP|MYGROUP|SAMBA).*/ ) {
+            return $FALSE;
+        }
     }
     return $TRUE;
 }
-
 
 =head1 AUTHOR
 
@@ -250,7 +268,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

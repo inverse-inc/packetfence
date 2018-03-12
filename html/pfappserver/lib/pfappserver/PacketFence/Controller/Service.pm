@@ -17,6 +17,7 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 use namespace::autoclean;
 use POSIX;
+use pf::cluster;
 
 use pf::services;
 
@@ -54,6 +55,37 @@ sub service :Chained('/') :PathPart('service') :CaptureArgs(1) {
 sub status :Chained('service') :PathPart('') :Args(0) :AdminRole('SERVICES') {
     my ($self, $c) = @_;
     $self->_process_model_results($c, $c->stash->{model}->status);
+    $c->stash->{'server_hostname'}  = $c->model('Admin')->server_hostname();
+}
+
+=head2 cluster_status
+
+=cut
+
+sub cluster_status :Local :AdminRole('SERVICES') {
+    my ($self, $c) = @_;
+    $c->stash->{servers} = [pf::cluster::enabled_hosts()];
+    $c->stash->{config_cluster} = \%ConfigCluster;
+    $c->stash->{services} = {};
+    foreach my $server (pf::cluster::enabled_hosts()){
+        my ($status, $result) = $c->model('Services')->server_status($server);
+        if(is_success($status)) {
+            my $services = $result->{services};
+            foreach my $service (keys %$services) {
+                $c->stash->{services}->{$service} //= {};
+                $c->stash->{services}->{$service}->{$server} = $services->{$service};
+            }
+        }
+        else {
+            $c->log->error("Error while getting status for server $server : $result");
+        }
+    }
+    # Ensure all services have a status for all servers
+    foreach my $service (keys %{$c->stash->{services}}) {
+        foreach my $server (pf::cluster::enabled_hosts()) {
+            $c->stash->{services}->{$service}->{$server} //= "unknown";
+        }
+    }
 }
 
 =head2 start
@@ -89,6 +121,7 @@ sub restart :Chained('service') :PathPart :Args(0) :AdminRole('SERVICES') {
 
 sub pf_start :Local :Path('pf/start') :AdminRole('SERVICES') {
     my ($self, $c) = @_;
+    $c->stash->{service} = 'pf';
     $self->_process_model_results_as_json( $c, $c->model('Services')->service_cmd_background(qw(pf start)) );
 }
 
@@ -98,6 +131,7 @@ sub pf_start :Local :Path('pf/start') :AdminRole('SERVICES') {
 
 sub pf_stop :Local :Path('pf/stop') :AdminRole('SERVICES') {
     my ($self, $c) = @_;
+    $c->stash->{service} = 'pf';
     $self->_process_model_results_as_json( $c, $c->model('Services')->service_cmd_background(qw(pf stop)) );
 }
 
@@ -107,6 +141,7 @@ sub pf_stop :Local :Path('pf/stop') :AdminRole('SERVICES') {
 
 sub pf_restart :Local :Path('pf/restart') :AdminRole('SERVICES') {
     my ($self, $c) = @_;
+    $c->stash->{service} = 'pf';
     $self->_process_model_results_as_json( $c, $c->model('Services')->service_cmd_background(qw(pf restart)) );
 }
 
@@ -116,6 +151,7 @@ sub pf_restart :Local :Path('pf/restart') :AdminRole('SERVICES') {
 
 sub httpd_admin_restart :Local : Path('httpd.admin/restart') :AdminRole('SERVICES') {
     my ($self, $c) = @_;
+    $c->stash->{service} = 'httpd.admin';
     $self->_process_model_results_as_json( $c, $c->model('Services')->service_cmd_background("httpd.admin", "restart") );
 }
 
@@ -125,12 +161,14 @@ sub httpd_admin_restart :Local : Path('httpd.admin/restart') :AdminRole('SERVICE
 
 sub httpd_admin_stop :Local : Path('httpd.admin/stop') :AdminRole('SERVICES') {
     my ($self, $c) = @_;
+    $c->stash->{service} = 'httpd.admin';
     $self->_process_model_results_as_json( $c, $c->model('Services')->service_cmd_background("httpd.admin", "stop") );
 }
 
 
 sub _process_model_results_as_json {
     my ($self, $c, $status, $result) = @_;
+    $self->audit_current_action($c, status => $status);
     $c->stash(current_view => 'JSON');
     if (is_success($status)) {
         $c->stash(%$result);
@@ -155,7 +193,7 @@ sub _process_model_results {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -176,6 +214,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

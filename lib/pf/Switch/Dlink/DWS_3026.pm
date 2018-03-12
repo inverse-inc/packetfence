@@ -49,7 +49,10 @@ use Net::SNMP;
 use base ('pf::Switch::Dlink');
 
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $MAC
+    $SSID
+);
 use pf::util;
 
 sub description { 'D-Link DWS 3026' }
@@ -177,7 +180,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

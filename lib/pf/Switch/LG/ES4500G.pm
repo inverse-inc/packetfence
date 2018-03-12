@@ -13,13 +13,6 @@ This module is currently only a placeholder, see pf::Switch::LG.
 use strict;
 use warnings;
 
-use POSIX;
-use Net::SNMP;
-
-use pf::Switch::constants;
-use pf::config;
-use pf::util;
-
 use base ('pf::Switch::LG');
 
 sub description { 'LG-Ericsson iPECS ES-4500G' }
@@ -30,7 +23,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

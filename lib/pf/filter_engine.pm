@@ -72,7 +72,7 @@ sub match_all {
 
 =head2 build_match_arg
 
-Build the arguement for matching
+Build the argument for matching
 
 =cut
 
@@ -88,7 +88,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

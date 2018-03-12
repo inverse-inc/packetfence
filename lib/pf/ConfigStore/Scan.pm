@@ -14,12 +14,26 @@ pf::ConfigStore::Scan
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths;
+use pf::file_paths qw($scan_config_file);
 extends 'pf::ConfigStore';
+with 'pf::ConfigStore::Role::ReverseLookup';
+use pfconfig::cached_hash;
+tie our %ProfileReverseLookup, 'pfconfig::cached_hash', 'resource::ProfileReverseLookup';
 
 sub configFile { $scan_config_file };
 
 sub pfconfigNamespace {'config::Scan'}
+
+=head2 canDelete
+
+canDelete
+
+=cut
+
+sub canDelete {
+    my ($self, $id) = @_;
+    return !$self->isInProfile('scans', $id) && $self->SUPER::canDelete($id);
+}
 
 =head2 cleanupAfterRead
 
@@ -51,7 +65,7 @@ sub _fields_expanded {
     return qw(categories oses rules);
 }
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 AUTHOR
 
@@ -59,7 +73,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

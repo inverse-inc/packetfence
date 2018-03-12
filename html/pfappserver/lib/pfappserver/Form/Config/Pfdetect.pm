@@ -25,7 +25,22 @@ has_field 'id' =>
    label => 'Detector',
    required => 1,
    messages => { required => 'Please specify a detector id' },
+   apply => [ pfappserver::Base::Form::id_validator('detector id') ]
   );
+
+=head2 status
+
+status
+
+=cut
+
+has_field 'status' => (
+    type            => 'Toggle',
+    label           => 'Enabled',
+    checkbox_value  => 'enabled',
+    unchecked_value => 'disabled',
+    default => 'enabled',
+);
 
 has_field 'path' =>
   (
@@ -37,25 +52,14 @@ has_field 'path' =>
 
 has_field 'type' =>
   (
-   type => 'Select',
-   multiple => 0,
-   label => 'Type',
-   options_method => \&options_parsers,
-   element_class => ['chzn-deselect'],
-   element_attr => {'data-placeholder' => 'Click to select a parser'},
-   tags => { after_element => \&help,
-             help => 'The parser to use for the alert pipe' },
+   type => 'Hidden',
+   required => 1,
   );
 
-=head2 options_parsers
-
-=cut
-
-sub options_parsers {
-    my $self = shift;
-    my @parsers = map { $_ => $_ } pf::constants::pfdetect->modules;
-    return @parsers;
-}
+has_block definition =>
+  (
+   render_list => [ qw(id type status path) ],
+  );
 
 =over
 
@@ -63,7 +67,7 @@ sub options_parsers {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -84,5 +88,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

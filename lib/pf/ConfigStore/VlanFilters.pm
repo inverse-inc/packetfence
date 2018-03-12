@@ -14,14 +14,14 @@ pf::ConfigStore::VlanFilters
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths;
+use pf::file_paths qw($vlan_filters_config_file);
 extends 'pf::ConfigStore';
 
 sub configFile { $vlan_filters_config_file };
 
 sub pfconfigNamespace {'config::VlanFilters'}
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 AUTHOR
 
@@ -29,7 +29,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

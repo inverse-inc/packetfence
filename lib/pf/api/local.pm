@@ -1,4 +1,5 @@
 package pf::api::local;
+
 =head1 NAME
 
 pf::api::local local client for pf::api
@@ -10,13 +11,12 @@ pf::api::local local client for pf::api
 pf::api::local
 
 local client for pf::api which calls the api calls directly
+To avoid circular dependencies pf::api needs to be included before consuming this module
 
 =cut
 
 use strict;
 use warnings;
-use pf::api;
-use pf::db;
 use Moo;
 
 
@@ -44,14 +44,14 @@ sub notify {
     };
     return;
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

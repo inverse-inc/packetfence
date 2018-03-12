@@ -1,0 +1,48 @@
+<html>
+<head>
+  <style type="text/css">
+    [% INCLUDE emails.css %]
+  </style>
+</head>
+<body>
+<table class="body-wrap">
+  <tr>
+    <td></td>
+    <td class="container" width="600">
+      <div class="content">
+        <table class="main" width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td class="content-wrap">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td class="content-block">
+                    <h1 class="aligncenter">[% i18n("Billing invoice") %]</h1>
+                    <p>[% i18n("Hello") %] [% firstname %] [% lastname %],</p>
+                    <p>[% i18n("Thank you for your purchase.") %]</br>
+                    [% tier_name %]: [% tier_description %]</br>
+                    [% i18n("Cost") %]: $[% tier_price %]</br>
+                    [% i18n("Transaction ID") %]: [% transaction_id %]</p>
+                    <p>[% i18n("To extend your network access, please visit") %] <a href="https://[% hostname %].[% domain %]/billing">[% i18n("Extend access duration") %]</a></p>
+                    <p>[% i18n("To view your current network status, please visit") %] <a href="https://[% hostname %].[% domain %]/status">[% i18n("Status") %]</a></p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </td>
+  </tr>
+</table>
+<div class="footer">
+  <table width="100%">
+    <tr>
+      <td class="aligncenter content-block">
+        <p>-----</br></p>
+        <p>[% i18n("This is a post only E-mail, please do not reply.") %]</p>
+      </td>
+    </tr>
+  </table>
+</div>
+</body>
+</html>

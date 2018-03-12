@@ -14,13 +14,25 @@ pf::ConfigStore::Provisioning
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths;
+use pf::file_paths qw($provisioning_config_file);
 use pf::util;
 extends 'pf::ConfigStore';
+with 'pf::ConfigStore::Role::ReverseLookup';
 
 sub configFile { $provisioning_config_file };
 
 sub pfconfigNamespace {'config::Provisioning'}
+
+=head2 canDelete
+
+canDelete
+
+=cut
+
+sub canDelete {
+    my ($self, $id) = @_;
+    return !$self->isInProfile('provisioners', $id) && $self->SUPER::canDelete($id);
+}
 
 =head2 cleanupAfterRead
 
@@ -31,9 +43,6 @@ Clean up switch data
 sub cleanupAfterRead {
     my ($self, $id, $data) = @_;
     $self->expand_list($data, $self->_fields_expanded);
-    if(exists $data->{oses} && defined $data->{oses}) {
-        $data->{oses} = listify $data->{oses};
-    }
 }
 
 =head2 cleanupBeforeCommit
@@ -56,7 +65,7 @@ sub cleanupBeforeCommit {
 =cut
 
 sub _fields_expanded {
-    return qw(category);
+    return qw(category oses);
 }
 
 =head1 AUTHOR
@@ -65,7 +74,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

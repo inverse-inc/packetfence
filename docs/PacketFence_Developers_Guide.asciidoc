@@ -3,6 +3,7 @@ Developer's Guide
 :encoding: UTF-8
 :lang: en
 :doctype: book
+:toc: left
 
 ////
 
@@ -21,7 +22,7 @@ About this Guide
 This guide will help you modifying PacketFence to your particular needs. It
 also contains information on how to add support for new switches.
 
-The latest version of this guide is available at http://www.packetfence.org/documentation/.
+The latest version of this guide is available at https://packetfence.org/documentation/.
 
 Other sources of information
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -31,7 +32,7 @@ Network Devices Configuration Guide::
 Administration Guide::
   Covers PacketFence installation, configuration and administration.
 `NEWS`::
-  Covers noteworthy features, improvements and bugfixes by release.
+  Covers noteworthy features, improvements and bug fixes by release.
 `UPGRADE`::
   Covers compatibility related changes, manual instructions and general notes
   about upgrading.
@@ -46,9 +47,9 @@ Documentation
 The in-depth or more technical documentation is always as close to the code
 as possible. Always look at the `POD` doc
 footnote:[Perl's Plain Old Documentation: http://perldoc.perl.org/perlpod.html].
-To do so, the prefered way is using the `perldoc` command as follows:
+To do so, the preferred way is using the `perldoc` command as follows:
 
-  perldoc conf/authentication/ldap.pm
+  perldoc lib/pfconfig/cached.pm
 
 
 Code conventions
@@ -65,7 +66,7 @@ history and makes maintainer's job more complicated than it should be. Every
 new change uses the new guidelines so over time the old code style will
 slowly disappear.
 
-* Lines of 120 character width maximum (lower encouraged)
+* Lines of 120 character width maximum
 
 * No tab characters
 
@@ -73,12 +74,12 @@ slowly disappear.
 
 * Document each subroutine in POD format (`perldoc perlpod`)
 
-* Use constants instead of hardcoded strings or numbers (use `constant` or `Readonly` modules)
+* Use constants instead of hard coded strings or numbers (use `constant` or `Readonly` modules)
 
 * in object-oriented modules we use CamelCase footnote:[http://en.wikipedia.org/wiki/CamelCase]
   notation (ex: `$radiusRequest->getVoIpAttributes();`)
 
-* in procedural modules we use perl's usual notation (ex: `$node_info{'pid'} = $current_request{'pid'};`)
+* in procedural modules we use Perl's usual notation (ex: `$node_info{'pid'} = $current_request{'pid'};`)
 
 * regular expressions should be documented (with the `/x` modifier)
 
@@ -120,25 +121,42 @@ XHTML Templates
 +++++++++++++++
 
 Captive portal content use http://template-toolkit.org/[Template Toolkit]
-templates. All the template files are located in `/usr/local/pf/html/captive-portal/templates`.
-You can freely edit the `HTML` code in these files. However, if you want to
-customize the pages beyond the `HTML` template (for example by adding new
-variables to it), you'll need to look into the `/usr/local/pf/lib/pf/web/custom.pm`
-Perl module. This module allows you to overload the behavior of the default
-`/usr/local/pf/lib/pf/web.pm` module.
+templates. The default template files are located in `/usr/local/pf/html/captive-portal/templates`.
+You can freely edit the `HTML` code in these files.
 
-Each template relies on `header.html` and `footer.html` for the common top
-and bottom portion of each file.
+Each template relies on `layout.html` for the common top and bottom portions of the page.
+
+Internationalized AUP
++++++++++++++++++++++
+
+In the event that you need an Acceptable Usage Policy that should be translated in different languages in the captive portal, you can create specially named templates that will be used for different languages.
+
+For example, if the browser locale is `es_ES`, creating a template named `aup_text.es.html` will display this AUP when it detects this locale.
+Same goes for a browser with locale `en_US`, where creating a template named `aup_text.en.html` will be used for English browsers.
+
+The template `aup_text.html` is used as the final fallback for all locales.
+
+Note that you cannot use the full locale in the template name (i.e. `aup_text.en_US.html`) as only the two letter prefix should be used.
 
 CSS
 +++
 
-Most of the branding should be possible by only changing the `CSS`. Here are
-the various `CSS` files used by PacketFence:
+The default stylesheet is the result of processing some http://sass-lang.com/[Sass] files structured around the solid https://github.com/inuitcss/getting-started[inuitcss] architectural foundation.
 
-Usual one:: `/usr/local/pf/html/captive-portal/content/styles.css`
-Mobile:: `/usr/local/pf/html/captive-portal/content/responsive.css`
-Print:: `/usr/local/pf/html/captive-portal/content/print.css`
+* `/usr/local/pf/html/common/Gruntfile.js` -- the task runner configuration file
+* `/usr/local/pf/html/common/package.js` -- the npm dependencies required to process the Sass files
+* `/usr/local/pf/html/common/scss/` -- the directory containing the Sass source files
+* `/usr/local/pf/html/common/styles.css` -- the generated stylesheet
+
+In order to prepare your environment to process the Sass files, you need to install http://gruntjs.com/[grunt] (the task runner) and additional https://nodejs.org[nodejs] modules, including the various inuitcss components:
+
+  sudo npm install -g grunt-cli
+  cd /usr/local/pf/html/common
+  npm install
+
+Once all modules are downloaded, you can customize the Sass files and generate a new stylesheet:
+
+  grunt dist
 
 Workflow
 ++++++++
@@ -163,7 +181,7 @@ The remediation page shown to the user during isolation are specified through
 the URL parameter of the given violation in `/usr/local/pf/conf/violations.conf`.
 In its default configuration, PacketFence uses Template Toolkit to render text provided
 in the directory `/usr/local/pf/html/captive-portal/templates/violations` and obeys
-to everything mentionned in the <<_presentation,Presentation>> section.
+to everything mentioned in the <<_presentation,Presentation>> section.
 
 
 // TODO: should move in admin guide under advanced topics
@@ -239,23 +257,10 @@ Start by creating the read-only field as described above.
 Then, modify the `SQL UPDATE` and `INSERT` queries in the database tables'
 Perl module, as well as the associated functions.
 
-The last step is to make PacketFence's grammar aware of the new field. Modify
-`/usr/local/pf/lib/pf/pfcmd/pfcmd.pm` and then re-generate the precompiled grammar (which
-is used by the `pfcmd` CLI) with:
-
-  cd /usr/local/pf
-  /usr/bin/perl -w -e '
-    use strict; use warnings;
-    use Parse::RecDescent; use lib "/usr/local/pf/lib";
-    use pf::pfcmd::pfcmd;
-    Parse::RecDescent->Precompile($grammar, "pfcmd_pregrammar");
-  '
-  mv pfcmd_pregrammar.pm /usr/local/pf/lib/pf/pfcmd/pfcmd_pregrammar.pm
-
 VLAN assignment
 ~~~~~~~~~~~~~~~
 
-pfsetvlan uses the `getRegisteredRole` function defined in `pf::role::custom`
+PacketFence uses the `getRegisteredRole` function defined in `pf::role::custom`
 to determine a node's VLAN. Here's the default function:
 
 ----
@@ -264,7 +269,7 @@ sub getRegisteredRole {
     #$ifIndex is the ifIndex of the computer connected to
     #$mac is the mac connected
     #$node_info is the node info hashref (result of pf::node's node_view on $mac)
-    #$conn_type is set to the connnection type expressed as the constant in pf::config
+    #$conn_type is set to the connection type expressed as the constant in pf::config
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
     my ($self, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
@@ -409,7 +414,7 @@ MAC Authentication re-evaluation
 
 MAC Authentication re-evaluation is necessary in order to provoke a VLAN change in the PacketFence
 system. This happens for instance when a node is isolated based on an IDS event or when the user
-succesfully authenticates through the captive portal. The default implementation in
+successfully authenticates through the captive portal. The default implementation in
 `pf::Switch` will bounce the port if there is no Voice over IP (VoIP) devices connected to the
 port. Otherwise it will do nothing and send an email. If your device has specific needs (for example it
 doesn't support RADIUS Dynamic VLAN Assignments) override:
@@ -447,7 +452,7 @@ Force 802.1X re-authentication
 ++++++++++++++++++++++++++++++
 
 802.1X re-authentication is necessary in order to provoke a VLAN change in the PacketFence system.
-This happens for instance when a node is isolated based on an IDS event or when the user succesfully
+This happens for instance when a node is isolated based on an IDS event or when the user successfully
 authenticates through the captive portal. The default implementation in `pf::Switch` uses SNMP and the
 standard `IEEE8021-PAE-MIB` and is generally well supported. If the default implementation to
 force 802.1X re-authentication doesn't work override:
@@ -654,29 +659,11 @@ repository.
 Not so bleeding edge
 ^^^^^^^^^^^^^^^^^^^^
 
-Using the development `yum` repository and upgrade packetfence often is a good way to proceed.
-Check our http://www.packetfence.org/download/snapshots.html[snapshots download page] for
+Using the development `yum` repository and upgrade PacketFence often is a good way to proceed.
+Check our https://packetfence.org/download/snapshots.html[snapshots download page] for
 instructions.
 
 Make sure you read the `UPGRADE` document after every upgrades to avoid any surprises.
-
-Debugging PacketFence grammar
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-PacketFence uses a parser to validate user input. This parser is referred to as the grammar. When you see
-errors like
-
-  Command not understood. (pfcmd grammar test failed at line 217.)
-
-it means that you faced a problem in the command you are trying to send or in the grammar itself.
-
-The parsing of a command is a tricky process. First the command is interpreted in the
-`pf::pfcmd` module using traditional regular expressions. Then some of the commands will
-trigger the parser `pf::pfcmd::pfcmd_pregrammar` which is a precompiled module that is
-generated from `pf::pfcmd::pfcmd` when packetfence is built.
-
-To help troubleshoot a failing command, you can enable tracing on the parser by removing the comment from
-the following line in `pfcmd`: `#our $RD_TRACE = 1;`
 
 New Exception handling techniques under testing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -711,7 +698,7 @@ https://lists.sourceforge.net/lists/listinfo/packetfence-devel. Let us know your
 working on and how you want to solve your problems. The more you collaborate the greater the chances that
 your work will be incorporated in a timely fashion.
 
-* Use the issue tracker: http://www.packetfence.org/bugs/
+* Use the issue tracker: https://packetfence.org/bugs/
 
 Good chances that the bug you want to fix or the feature you want to implement is already filed and
 that information in the ticket will help you.
@@ -719,7 +706,7 @@ that information in the ticket will help you.
 * Please provide small, focused and manageable patches or pull-requests
 
 If you plan on doing a lot of code, use `git` and track our current stable branch called `stable`. Develop the
-feature in small chunks and stay in touch with us. This way it'll be merged quickly in our codebase. Ideally
+feature in small chunks and stay in touch with us. This way it'll be merged quickly in our code base. Ideally
 there would be no big code dumps after finishing a feature.
 
 Creating patches
@@ -777,6 +764,53 @@ If you want to add support for a new language, please follow these steps:
   /usr/bin/msgfmt packetfence.po
 
 Submit your new translation to the PacketFence project by contacting us at packetfence-devel@lists.sourceforge.net.
+
+Admin GUI
+~~~~~~~~~
+
+The Admin GUI can be customized via Controllers and templates.
+
+Templates
+^^^^^^^^^
+
+You can add customize templates to the `/usr/local/pf/html/pfappserver/root-custom/` folder to override current templates.
+
+However when doing this you must keep track of any changes to those templates across versions.
+
+Stylesheets and JavaScript
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The main stylesheet is the result of processing some http://sass-lang.com/[Sass] files structured around the excellent http://getbootstrap.com/2.3.2/[Bootstrap] framework.
+
+* `/usr/local/pf/html/pfappserver/root/static/Gruntfile.js` -- the task runner configuration file
+* `/usr/local/pf/html/pfappserver/root/static/package.js` -- the npm dependencies required to process the Sass files and to package the JavaScript code
+* `/usr/local/pf/html/pfappserver/root/static/bower.json` -- the list of required components
+* `/usr/local/pf/html/pfappserver/root/static/scss/` -- the directory containing the Sass source files
+* `/usr/local/pf/html/pfappserver/root/static/css/styles.css` -- the generated stylesheet
+* `/usr/local/pf/html/pfappserver/root/static/js/vendor/` -- the directory containing the external JavaScript libraries
+
+In order to prepare your environment, you need to install http://gruntjs.com/[grunt] (the task runner) and https://bower.io/[bower] (the package manager):
+
+  sudo npm install -g grunt-cli
+  sudo npm install -g bower
+  cd /usr/local/pf/html/pfappserver/root/static/
+  npm install
+  bower install
+
+Once all modules and components are downloaded, you can customize the Sass files or JavaScript files and generate a new version of the static files:
+
+  grunt dist
+
+
+Controllers
+^^^^^^^^^^^
+
+You change the behavior of the controllers by modifying the controllers in the path.
+
+`/usr/local/pf/html/pfappserver/lib/pfappserver/Controller/`
+
+However when doing this you must keep track of any changes to those Controllers across versions.
+
 
 //TODO: process the rest. I found quickest way to be:
 // paste from docbook then use vim(:1,9s#<\_.\{-1,}>##g) and reformat by hand

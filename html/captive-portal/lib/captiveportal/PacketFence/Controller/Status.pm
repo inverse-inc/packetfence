@@ -6,6 +6,10 @@ use pf::constants;
 use pf::config;
 use pf::node;
 use pf::person;
+use pf::web;
+use pf::violation qw(violation_view_open);
+use pf::constants::violation qw($LOST_OR_STOLEN);
+use pf::password qw(view);
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -21,44 +25,68 @@ Catalyst Controller.
 
 =cut
 
+sub auto :Private {
+    my ( $self, $c ) = @_;
+    $c->session->{release_bypass} = $TRUE;
+    $c->stash->{isDeviceRegEnable} = $c->forward(DeviceRegistration => "isDeviceRegEnabled");
+    $c->forward('setupCurrentNodeInfo');
+    return 1;
+}
+
 =head2 index
 
 =cut
 
-sub begin :Private {
-    my ( $self, $c ) = @_;
-    $c->forward('setupCurrentNodeInfo');
-}
 
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
-    my $pid     = $c->session->{"username"};
+    my $pid     = $c->user_session->{"username"};
+    if ( $c->has_errors ) {
+        $c->stash->{txt_auth_error} = join(' ', grep { ref ($_) eq '' } @{$c->error});
+        $c->clear_errors;
+    }
     if ($pid) {
         $c->forward('userIsAuthenticated');
     } else {
-        $c->forward('userIsNotAuthenticated');
+        $c->response->redirect('/status/login');
+        $c->detach();
+    }
+    if (view($pid)) {
+        $c->stash->{hasLocalAccount} = $TRUE;
     }
     $c->stash(
+        title => "Status - Network Access",
         template => 'status.html',
         billing  => $c->profile->hasBilling(),
+        access_registration_when_registered => $c->profile->canAccessRegistrationWhenRegistered(),
     );
+}
+
+sub is_lost_stolen {
+    my ( $mac ) = @_;
+   
+    my @violations = violation_view_open($mac);
+    if ( grep {$_->{'vid'} eq $LOST_OR_STOLEN} @violations ) {
+        return $TRUE
+    } else {
+        return $FALSE
+    }
 }
 
 sub userIsAuthenticated : Private {
     my ( $self, $c ) = @_;
-    my $pid   = $c->session->{"username"};
+    my $pid   = $c->user_session->{"username"};
     my @nodes = person_nodes($pid);
     foreach my $node (@nodes) {
         setExpiration($node);
+        my $mac = $node->{'mac'};
+        if (is_lost_stolen($mac)) {
+            $node->{lostOrStolen} = $TRUE;
+        }
     }
     $c->stash(
         nodes    => \@nodes,
     );
-}
-
-sub userIsNotAuthenticated : Private {
-    my ( $self, $c ) = @_;
-    $c->stash->{showLogin} = 1;
 }
 
 sub setupCurrentNodeInfo : Private {
@@ -77,8 +105,8 @@ sub setExpiration {
     my ($node_info) = @_;
     if ( defined $node_info->{'last_start_timestamp'}
          && $node_info->{'last_start_timestamp'} > 0 ) {
-        if ( $node_info->{'time_balance'} > 0 ) {
-
+        if ( defined ( $node_info->{'time_balance'} )
+         && $node_info->{'time_balance'} > 0) {
             # Node has a usage duration
             $node_info->{'expiration'} = $node_info->{'last_start_timestamp'} + $node_info->{'time_balance'};
             if ( $node_info->{'expiration'} < time ) {
@@ -95,15 +123,60 @@ sub login : Local {
     my $request = $c->request;
     my $username = $request->param('username');
     my $password = $request->param('password');
+    $c->stash( 
+        template => 'status/login.html',
+        title => "Status - Login",
+    );
     if ( all_defined( $username, $password ) ) {
         $c->forward(Authenticate => 'authenticationLogin');
+        if ( $c->has_errors ) {
+            $c->stash->{txt_auth_error} = join(' ', grep { ref ($_) eq '' } @{$c->error});
+            $c->clear_errors;
+        } else {
+            $c->response->redirect('/status');
+        }
     }
-    $c->forward('index');
 }
+
+sub reset_password : Local {
+    my ( $self, $c ) = @_;
+    my $pid     = $c->user_session->{"username"};
+    if ( $c->has_errors ) {
+        $c->stash->{txt_auth_error} = join(' ', grep { ref ($_) eq '' } @{$c->error});
+        $c->clear_errors;
+    }
+    if ($pid) {
+        $c->forward('userIsAuthenticated');
+    } else {
+        $c->forward('login');
+    }
+    $c->stash(
+        title => "Status - Manage Account",
+        template => 'status/reset_password.html',
+    );
+} 
+
+sub reset_pw : Local {
+    my ( $self, $c ) = @_;
+    my $pid     = $c->user_session->{"username"};
+    my $request = $c->request;
+    my $password = $request->param('password');
+    my $password2 = $request->param('password2');
+    if ( all_defined ( $password, $password2 ) && ( $password eq $password2 ) ) {
+        pf::password::reset_password($pid, $password);
+        $c->stash->{status} = "success";
+    } elsif ( $password ne $password2 ) {
+        $c->stash->{status} = "error_match";
+    } else {
+        $c->stash->{status} = "error_fill";
+    }
+    $c->stash->{template} = 'status/reset_password.html';
+}
+
 
 sub logout : Local {
     my ( $self, $c ) = @_;
-    $c->delete_session('logout');
+    $c->user_session({});
     $c->forward('index');
 }
 
@@ -114,7 +187,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

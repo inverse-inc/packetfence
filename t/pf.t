@@ -10,7 +10,7 @@ use lib '/usr/local/pf/lib';
 
 BEGIN {
     use lib qw(/usr/local/pf/t);
-    use PfFilePaths;
+    use setup_test_config;
 }
 BEGIN {
 
@@ -34,9 +34,9 @@ BEGIN {
     use Test::More;
     use Test::NoWarnings;
     our %exclude;
-    @exclude{qw(pf::WebAPI)} = ();
+    @exclude{qw(pf::WebAPI pf::snmptrapd)} = ();
     our @files = grep { !/^pfconfig/ } grep { /\.pm$/  } _readDirRecursive('/usr/local/pf/lib');
-    our @libs = grep {!exists $exclude{$_}}
+    our @libs = sort grep {!exists $exclude{$_}}
         map {
             s/\.pm$//;
             s#/#::#g;
@@ -56,7 +56,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

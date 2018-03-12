@@ -1,0 +1,15 @@
+IpsetIp:
+  description: A response that contains a status along with the IPv4 address
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/IpsetStatus"
+        $ref: "#/components/schemas/IpsetIp"
+
+IpsetMac:
+  description: A response that contains a status along with the MAC address
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/IpsetStatus"
+        $ref: "#/components/schemas/IpsetMac"

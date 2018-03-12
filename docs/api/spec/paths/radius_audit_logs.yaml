@@ -1,0 +1,100 @@
+/radius_audit_logs:
+  get:
+    description: The list of radius audit logs will be limited to 100 and a cursor will be returned
+      for iterating on other logs. Iteration is only needed if the nextCursor is
+      not an empty value.
+    parameters:
+    - $ref: '#/components/parameters/cursor'
+    - &1
+      description: The tenant ID to use for this request. Can only be used if the
+        API user has access to other tenants. When empty, it will default to use
+        the tenant attached to the token.
+      in: header
+      name: X-PacketFence-Tenant-Id
+      required: 0
+      schema:
+        type: string
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RadiusAuditLogList'
+        description: List of radius audit logs
+    summary: Returns a list of radius audit logs
+  post:
+    summary: Creates a radius audit log
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/RadiusAuditLog"
+    responses:
+      '201':
+        $ref: "#/components/responses/Created"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '409':
+        $ref: "#/components/responses/Duplicate"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"    
+    
+/radius_audit_log/{radius_audit_log_id}:
+  get:
+    parameters:
+    - description: The radius audit log ID to fetch
+      in: path
+      name: radius_audit_log_id
+      required: true
+      schema:
+        type: integer
+    - *1
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              properties:
+                item:
+                  $ref: '#/components/schemas/RadiusAuditLogItem'
+              type: object
+        description: A specific radius audit log
+    summary: Returns a specific radius audit log by its ID 
+  put:
+    summary: Allows to update a whole radius audit log
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/RadiusAuditLog"
+    responses:
+      '200':
+        $ref: "#/components/responses/Message"    
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+  patch:
+    summary: Allows to update parts of a radius audit log
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/RadiusAuditLog"
+    responses:
+      '200':
+        $ref: "#/components/responses/Message"    
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+  delete:
+    summary: Allows to delete a radius audit log
+    responses:
+      '204':
+        description: Deleted radius audit log
+
+    

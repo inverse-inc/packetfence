@@ -21,15 +21,10 @@ F<conf/switches.conf>
 
 use strict;
 use warnings;
-use Net::SNMP;
+
 use base ('pf::Switch::AlliedTelesis');
 
 sub description { 'AlliedTelesis AT8000GS' }
-
-# importing switch constants
-use pf::Switch::constants;
-use pf::util;
-use pf::config;
 
 =head1 SUBROUTINES
 
@@ -45,7 +40,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

@@ -22,7 +22,6 @@ use warnings;
 
 use base ('pf::Switch::Cisco');
 use Carp;
-use Net::Appliance::Session;
 use Net::SNMP;
 use Data::Dumper;
 
@@ -140,6 +139,7 @@ sub clearMacAddressTable {
     my $logger      = $self->logger;
 
     eval {
+        require Net::Appliance::Session;
         $session = Net::Appliance::Session->new(
             Host      => $self->{_ip},
             Timeout   => 5,
@@ -419,7 +419,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

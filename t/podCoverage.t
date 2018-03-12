@@ -7,7 +7,7 @@ use diagnostics;
 use lib qw(/usr/local/pf/lib);
 BEGIN {
     use lib qw(/usr/local/pf/t);
-    use PfFilePaths;
+    use setup_test_config;
 }
 
 use Test::Pod::Coverage tests => 24;
@@ -29,7 +29,6 @@ pod_coverage_ok("pf::radius");
 pod_coverage_ok("pf::services::apache");
 pod_coverage_ok("pf::services::dhcpd");
 pod_coverage_ok("pf::services::named");
-pod_coverage_ok("pf::soh");
 pod_coverage_ok("pf::Switch");
 pod_coverage_ok("pf::util::apache");
 pod_coverage_ok("pf::util::dhcp");
@@ -50,7 +49,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
     

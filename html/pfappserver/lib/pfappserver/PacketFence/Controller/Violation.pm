@@ -21,6 +21,7 @@ use JSON::MaybeXS;
 
 use pf::log;
 use pf::config;
+use pf::constants::role qw(@ROLES);
 use pf::Switch::constants;
 use pf::constants::trigger qw($TRIGGER_MAP);
 use pfappserver::Form::Violation;
@@ -29,6 +30,8 @@ use Switch;
 use fingerbank::Model::Device;
 use fingerbank::Model::DHCP_Fingerprint;
 use fingerbank::Model::DHCP_Vendor;
+use fingerbank::Model::DHCP6_Fingerprint;
+use fingerbank::Model::DHCP6_Enterprise;
 use fingerbank::Model::MAC_Vendor;
 use fingerbank::Model::User_Agent;
 
@@ -50,6 +53,7 @@ __PACKAGE__->config(
         create => { AdminRole => 'VIOLATIONS_CREATE' },
         clone  => { AdminRole => 'VIOLATIONS_CREATE' },
         update => { AdminRole => 'VIOLATIONS_UPDATE' },
+        toggle => { AdminRole => 'VIOLATIONS_UPDATE' },
         remove => { AdminRole => 'VIOLATIONS_DELETE' },
     },
 );
@@ -72,8 +76,8 @@ sub begin :Private {
     if (is_success($status)) {
         $violations = $result;
     }
-    my @roles = map {{ name => $_ }} @SNMP::ROLES;
-    ($status, $result) = $c->model('Roles')->list();
+    my @roles = map {{ name => $_ }} @ROLES;
+    ($status, $result) = $c->model('Config::Roles')->listFromDB();
     if (is_success($status)) {
         push(@roles, @$result);
     }
@@ -105,6 +109,29 @@ sub index :Path :Args(0) {
     $c->forward('list');
 }
 
+=head2 toggle
+
+toggle on or off the violation
+
+=cut
+sub toggle : Chained('object') :PathPart('toggle') :Args(1) {
+    my ($self, $c, $toggle) = @_;
+    my $stash = $c->stash;
+    my $item_id = $stash->{id};
+    my $enabled = $toggle eq 'yes' ? 'Y' : 'N';
+    my $model = $self->getModel($c);
+    my ($status,$status_msg) = $model->update(
+        $item_id,
+        {enabled => $enabled},
+    );
+    $self->audit_current_action($c, status => $status);
+    $c->response->status($status);
+    $c->stash(
+        status_msg => $status_msg,
+        current_view => 'JSON',
+    );
+}
+
 sub prettify_trigger {
     my ($self, $trigger) = @_;
 
@@ -114,31 +141,37 @@ sub prettify_trigger {
 
     my $pretty_type = $type;
     my $pretty_value;
-    switch($type){
-      case "device" {
+    if($type eq "device") {
         my ($status, $elem) = fingerbank::Model::Device->read($tid);
-        $pretty_value = $elem->{name} if(is_success($status));
-      }
-      case "dhcp_fingerprint" {
+        $pretty_value = $elem->name if(is_success($status));
+    }
+    elsif($type eq "dhcp_fingerprint") {
         my ($status, $elem) = fingerbank::Model::DHCP_Fingerprint->read($tid);
         $pretty_value = $elem->{value} if(is_success($status));
-      }
-      case "dhcp_vendor" {
+    }
+    elsif($type eq "dhcp_vendor"){
         my ($status, $elem) = fingerbank::Model::DHCP_Vendor->read($tid);
         $pretty_value = $elem->{value} if(is_success($status));
-      }
-      case "mac_vendor" {
+    }
+    elsif($type eq "dhcp6_fingerprint"){
+        my ($status, $elem) = fingerbank::Model::DHCP6_Fingerprint->read($tid);
+        $pretty_value = $elem->{value} if(is_success($status));
+    }
+    elsif($type eq "dhcp6_enterprise"){
+        my ($status, $elem) = fingerbank::Model::DHCP6_Enterprise->read($tid);
+        $pretty_value = $elem->{value} if(is_success($status));
+    }
+    elsif($type eq "mac_vendor"){
         my ($status, $elem) = fingerbank::Model::MAC_Vendor->read($tid);
         $pretty_value = $elem->{name} if(is_success($status));
-      }
-      case "user_agent" {
+    }
+    elsif($type eq "user_agent"){
         my ($status, $elem) = fingerbank::Model::User_Agent->read($tid);
         $pretty_value = $elem->{value} if(is_success($status));
-      }
-      else {
+    }
+    else {
         $pretty_value = (defined($TRIGGER_MAP->{$type}) && defined($TRIGGER_MAP->{$type}->{$tid})) ?
-                          $TRIGGER_MAP->{$type}->{$tid} : undef;
-      }
+                        $TRIGGER_MAP->{$type}->{$tid} : undef;
     }
     $pretty_value = (defined($pretty_value)) ? $pretty_value : $parts[1];
 
@@ -225,7 +258,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -246,6 +279,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

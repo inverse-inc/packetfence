@@ -46,7 +46,6 @@ use warnings;
 use Tie::Array;
 use IO::Socket::UNIX qw( SOCK_STREAM );
 use JSON::MaybeXS;
-use pfconfig::timeme;
 use pf::log;
 use pfconfig::cached;
 our @ISA = ( 'Tie::Array', 'pfconfig::cached' );
@@ -134,7 +133,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

@@ -4,6 +4,16 @@
 
 [%- MACRO i18n_format(text, args) BLOCK;c.localize(text, args) | none;END -%]
 
+[%- MACRO doc(section, guide) BLOCK -%]
+[%- UNLESS guide; guide = 'Administration_Guide'; END -%]
+[% c.generate_doc_link(section, guide) | none %]
+[%- END -%]
+
+[%- MACRO doc_url(section, guide) BLOCK -%]
+[%- UNLESS guide; guide = 'Administration_Guide'; END -%]
+[% c.generate_doc_url(section, guide) | none %]
+[%- END -%]
+
 [%- MACRO pagination_path(section, params)  BLOCK -%]
     [%- tags =  [ 'page_num'  'by'  'direction'  'per_page'  'filter'] -%]
     [%- "${section}" -%]
@@ -15,7 +25,13 @@
     [%- END -%]
 [%- END -%]
 
-[%- MACRO pagination(action, pageNumber, pageCount, query, from_form, captures)  BLOCK -%]
+[%- MACRO element_attributes(attributes) BLOCK -%]
+[%- FOREACH key IN attributes.keys -%]
+ [% key %] = "[% attributes.$key %]"
+[%- END -%]
+[%- END -%]
+
+[%- MACRO pagination(action, pageNumber, pageCount, query, from_form, captures, pagination_attributes)  BLOCK -%]
 [%
 # Number of pages to show before and after the middle page in the list
     pageWrap = 3;
@@ -42,7 +58,7 @@
     params = {};
     CALL params.import(query);
 %]
-<div class="pagination pagination-right" [%IF from_form %] data-from-form="[% from_form %]" [% END %]>
+<div class="pagination pagination-right" [%IF from_form %] data-from-form="[% from_form %]" [% END %]  [% IF pagination_attributes %] [% element_attributes(pagination_attributes) | none %] [% END %] >
   <ul>
     [% IF pageNumber == 1 %]
     <li class="disabled"><span>&larr;</span></li>

@@ -26,27 +26,6 @@ The name of service of this manager
 
 has '+name' => ( default => sub { 'pfqueue' } );
 
-=head2 launcher
-
-The sprintf string to launch service
-
-=cut
-
-has '+launcher' => (default => sub { '%1$s -d' } );
-
-=head2 startDependsOnServices
-
-Add redis_queue to the list of dependecies
-
-=cut
-
-around startDependsOnServices => sub {
-    my ($orig, $self) = (shift, shift);
-    my $startDependsOnServices = $self->$orig(@_);
-    push @$startDependsOnServices,'redis_queue';
-    return $startDependsOnServices;
-};
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -54,7 +33,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

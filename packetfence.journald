@@ -1,0 +1,10 @@
+# journald overrides
+# The values in this file override the system's defaults.
+# See journald.conf(5) for details.
+
+[Journal]
+SystemMaxUse=1G
+SystemKeepFree=1G
+RateLimitInterval=0
+RateLimitBurst=0
+ForwardToWall=no

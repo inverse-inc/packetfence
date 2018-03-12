@@ -6,10 +6,162 @@ use warnings;
 use lib '/usr/local/pf/lib';
 BEGIN {
     use lib qw(/usr/local/pf/t);
-    use PfFilePaths;
+    use setup_test_config;
 }
-use Test::More tests => 37;
+
+our (
+    @INVALID_DATES,
+    @STRIP_FILENAME_FROM_EXCEPTIONS_TESTS,
+    @NORMALIZE_TIME_TESTS,
+    @EXPAND_CSV_TESTS
+);
+
+BEGIN {
+    @INVALID_DATES = (
+        {
+            in  => undef,
+            msg => "undef date",
+        },
+        {
+            in  => "garbage",
+            msg => "Invalid date",
+        },
+        {
+            in  => "2017",
+            msg => "invalid date year only",
+        },
+        {
+            in  => "2017-02",
+            msg => "invalid date year month only",
+        },
+    );
+
+    @STRIP_FILENAME_FROM_EXCEPTIONS_TESTS = (
+        {
+            in  => undef,
+            out => undef,
+            msg => "Undef returns undef",
+        },
+        {
+            in  => '',
+            out => '',
+            msg => "empty string"
+        },
+        {
+            in  => 'Blah blah blah at -e line 1.',
+            out => 'Blah blah blah',
+            msg => "simple die string"
+        },
+        {
+            in  => 'Blah at blah and at blah at -e line 1.',
+            out => 'Blah at blah and at blah',
+            msg => "With multiple at in exception string"
+        },
+    );
+
+    @NORMALIZE_TIME_TESTS = (
+        {
+            in  => undef,
+            out => undef,
+            msg => "undef normalize attempt",
+        },
+        {
+            in  => "5Z",
+            out => 0,
+            msg => "illegal normalize attempt",
+        },
+        {
+            in  => "5",
+            out => 5,
+            msg =>
+              "normalizing w/o a time resolution specified (seconds assumed)"
+        },
+        {
+            in => "2s",
+            out => 2 * 1,
+            msg => "normalizing seconds"
+        },
+        {
+            in => "2m",
+            out => 2 * 60,
+            msg => "normalizing minutes"
+        },
+        {
+            in => "2h",
+            out => 2 * 60 * 60,
+            msg => "normalizing hours"
+        },
+        {
+            in => "2D",
+            out => 2 * 24 * 60 * 60,
+            msg => "normalizing days"
+        },
+        {
+            in => "2W",
+            out => 2 * 7 * 24 * 60 * 60,
+            msg => "normalizing weeks"
+        },
+        {
+            in  => "2M",
+            out => 2 * 30 * 24 * 60 * 60,
+            msg => "normalizing months"
+        },
+        {
+            in  => "2Y",
+            out => 2 * 365 * 24 * 60 * 60,
+            msg => "normalizing years"
+        },
+    );
+
+    @EXPAND_CSV_TESTS = (
+        {
+            in  => '',
+            out => [],
+            msg => "empty string",
+        },
+        {
+            in  => [],
+            out => [],
+            msg => "empty array",
+        },
+        {
+            in  => undef,
+            out => [],
+            msg => "undef"
+        },
+        {
+            in  => "a,b,c",
+            out => [qw(a b c)],
+            msg => "simply list",
+        },
+        {
+            in  => [qw(a b c)],
+            out => [qw(a b c)],
+            msg => "simply array",
+        },
+        {
+            in  => "a , b , c",
+            out => [qw(a b c)],
+            msg => "simply list with spaces",
+        },
+        {
+            in  => [qw(a b ), "c,d"],
+            out => [qw(a b c d)],
+            msg => "list with in a list ",
+        },
+    );
+}
+
+use Test::More;
 use Test::NoWarnings;
+
+BEGIN {
+    plan tests => 41 +
+      scalar @STRIP_FILENAME_FROM_EXCEPTIONS_TESTS +
+      scalar @INVALID_DATES +
+      scalar @NORMALIZE_TIME_TESTS +
+      scalar @EXPAND_CSV_TESTS;
+}
 
 BEGIN {
     use_ok('pf::util');
@@ -64,7 +216,7 @@ is( mac2oid('f0:4d:a2:cb:d9:c5'), '240.77.162.203.217.197', "mac2oid legit conve
 
 # regression test for get_translatable_time
 is_deeply(
-    [ get_translatable_time("3D") ], 
+    [ get_translatable_time("3D") ],
     ["day", "days", 3],
     "able to translate new format with capital date modifiers"
 );
@@ -96,8 +248,40 @@ is_deeply(\@return,
 @return = pf::util::apache::url_parser('invalid://url$.com');
 ok(!@return, "Passed invalid URL expecting undef");
 
+# is_in_list
+ok(is_in_list("sms","sms,email"), "is_in_list positive");
+ok(!is_in_list("sms","email"), "is_in_list negative");
+ok(!is_in_list("sms",""), "is_in_list empty list");
+ok(is_in_list("sms","sms, email"), "is_in_list positive with spaces");
+
+{
+    for my $test (@NORMALIZE_TIME_TESTS) {
+        is(normalize_time($test->{in}), $test->{out}, $test->{msg});
+    }
+}
+
+{
+    foreach my $test (@EXPAND_CSV_TESTS) {
+        is_deeply( [ expand_csv( $test->{in} ) ], $test->{out}, "expand_csv $test->{msg}" );
+    }
+}
+
+{
+    for my $test (@INVALID_DATES) {
+        ok(!valid_date($test->{in}), $test->{msg});
+    }
+}
+
 # TODO add more tests, we should test:
 #  - all methods ;)
+
+for my $test (@STRIP_FILENAME_FROM_EXCEPTIONS_TESTS) {
+    is (
+        strip_filename_from_exceptions($test->{in}),
+        $test->{out},
+        $test->{msg}
+    )
+}
 
 =head1 AUTHOR
 
@@ -105,24 +289,24 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
-    
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
-    
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-            
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
-USA.            
-                
+USA.
+
 =cut
 

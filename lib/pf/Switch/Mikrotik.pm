@@ -18,14 +18,17 @@ Should work on CAPsMAN enabled APs, tested on v6.18
 use strict;
 use warnings;
 
-use Net::SSH2;
 use POSIX;
 use Try::Tiny;
 
 use base ('pf::Switch');
 
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $MAC
+    $SSID
+    $WIRELESS_MAC_AUTH
+);
 sub description { 'Mikrotik' }
 
 # importing switch constants
@@ -44,6 +47,68 @@ use pf::util::radius qw(perform_disconnect);
 sub supportsWirelessMacAuth { return $TRUE; }
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
+
+sub supportsExternalPortal { return $TRUE; }
+sub supportsWebFormRegistration { return $TRUE }
+
+=item parseExternalPortalRequest
+
+Parse external portal request using URI and it's parameters then return an hash reference with the appropriate parameters
+
+See L<pf::web::externalportal::handle>
+
+=cut
+
+sub parseExternalPortalRequest {
+    my ( $self, $r, $req ) = @_;
+    my $logger = $self->logger;
+
+    # Using a hash to contain external portal parameters
+    my %params = ();
+
+    %params = (
+        switch_id               => $req->param('ap-id'),
+        client_mac              => clean_mac($req->param('mac')),
+        client_ip               => $req->param('ip'),
+        status_code             => '200',
+        synchronize_locationlog => $TRUE,
+    );
+
+    return \%params;
+}
+
+=head2 getAcceptForm
+
+Get the accept form to trigger the authentication on the Mikrotik when using webauth
+
+=cut
+
+sub getAcceptForm {
+    my ( $self, $mac , $destination_url, $cgi_session) = @_;
+    my $logger = $self->logger;
+    $logger->debug("Creating web release form");
+
+    my $linkLoginOnly = $cgi_session->param("ecwp-original-param-link-login-only");
+    my $linkOrig = $cgi_session->param("ecwp-original-param-link-orig");
+
+    use Digest::MD5 qw(md5_hex);
+    $mac =~ s/:/-/g;
+    my $pass = md5_hex($cgi_session->param("ecwp-original-param-chap-id").$mac.$cgi_session->param("ecwp-original-param-chap-challenge"));
+    my $html_form = qq[
+        <form name="sendin" method="POST" action="$linkLoginOnly">
+            <input type="hidden" name="dst" value="$linkOrig" />
+            <input type="hidden" name="popup" value="true" />
+            <input type="hidden" name="username" value="$mac">
+            <input type="hidden" name="password" value="$pass">
+        </form>
+        <script language="JavaScript" type="text/javascript">
+        window.setTimeout('document.weblogin_form.submit();', 1000);
+        </script>
+    ];
+
+    $logger->debug("Generated the following html form : ".$html_form);
+    return $html_form;
+}
 
 
 =item getVersion - obtain image version information from switch
@@ -151,7 +216,7 @@ sub radiusDisconnect {
         my $connection_info = {
             nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
-            LocalAddr => $self->deauth_source_ip(),
+            LocalAddr => $self->deauth_source_ip($send_disconnect_to),
         };
 
         # transforming MAC to the expected format 00-11-22-33-CA-FE
@@ -174,7 +239,7 @@ sub radiusDisconnect {
     };
     return if (!defined($response));
 
-    return $TRUE if ($response->{'Code'} eq 'Disconnect-ACK');
+    return $TRUE if ( ($response->{'Code'} eq 'Disconnect-ACK') || ($response->{'Code'} eq 'CoA-ACK') );
 
     $logger->warn(
         "Unable to perform RADIUS Disconnect-Request."
@@ -254,6 +319,7 @@ sub deauthenticateMacSSH {
     }
 
     eval {
+        require Net::SSH2;
         $ssh = Net::SSH2->new();
         $ssh->connect($send_disconnect_to);
         $ssh->auth_password($self->{_cliUser},$self->{_cliPwd});
@@ -286,7 +352,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

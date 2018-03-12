@@ -20,6 +20,9 @@ use lib qw(/usr/local/pf/lib);
 $> = 0;
 $< = 0;
 
+# To ensure group permissions are properly added
+umask(0007);
+
 use pf::cmd::pf;
 exit pf::cmd::pf->new({args => \@ARGV})->run();
 
@@ -31,7 +34,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -51,4 +54,3 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
-

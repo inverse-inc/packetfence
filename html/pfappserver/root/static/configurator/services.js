@@ -19,14 +19,17 @@ function saveStep(href) {
     $.ajax({
         type: 'POST',
         url: href
+    }).always(function(data) {
+        setInterval(function(){getStatus(href)}, 10000);
     }).done(function(data) {
         resetAlert($('#services'));
       
-        setInterval(function(){getStatus(href)}, 10000)
     }).fail(function(jqXHR) {
         servicesError();
         var obj = $.parseJSON(jqXHR.responseText);
-        showPermanentError($('#services table'), obj.status_msg);
+        if(obj) {
+            showError($('#services table'), obj.status_msg);
+        }
     });
 
 }
@@ -42,7 +45,9 @@ function getStatus(href){
     }).fail(function(jqXHR) {
         servicesError();
         var obj = $.parseJSON(jqXHR.responseText);
-        showPermanentError($('#services table'), obj.status_msg);
+        if(obj) {
+            showError($('#services table'), obj.status_msg);
+        }
     });
     
 }
@@ -54,18 +59,17 @@ function escape_service(service){
 function servicesUpdate(data) {
 
     var startFailed = false;
-
-    for ( var service in data.services ) {
+    $.each(data.services, function(i, service) {
         // identify services that didn't start and set failure flag
-        if (data.services[service] != "0") { 
-            $('#service-' + escape_service(service)).fadeOut('fast', function(event) {
+        if (service.status != "0") {
+            $('#service-' + escape_service(service.name)).fadeOut('fast', function(event) {
                 $(this).text('Started').removeClass('label-error label-warning').addClass('label-success');
             }).fadeIn();
         }
         else{
             startFailed = true;
         }
-    }
+    });
 
     if (!startFailed) {
         // added a delay for dramatic effect

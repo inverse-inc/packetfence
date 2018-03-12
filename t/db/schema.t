@@ -21,14 +21,14 @@ use lib '/usr/local/pf/lib';
 use DBI;
 use FindBin qw($Bin);
 use File::Slurp qw(read_file);
+use pf::file_paths qw($install_dir);
 
 BEGIN {
     #include test libs
     use lib qw(/usr/local/pf/t);
     #Module for overriding configuration paths
-    use PfFilePaths;
+    use setup_test_config;
 }
-use pf::file_paths;
 
 
 use Test::More tests => 2;                      # last test to print
@@ -59,7 +59,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

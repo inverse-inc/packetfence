@@ -13,15 +13,20 @@ server packetfence {
 #  need to setup hints for the remote radius server
 authorize {
 
-    # Add in PacketFence specific configuration
-    update {
-        &request:FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"
-        &control:PacketFence-RPC-Server = ${rpc_host}
-        &control:PacketFence-RPC-Port = ${rpc_port}
-        &control:PacketFence-RPC-User = ${rpc_user}
-        &control:PacketFence-RPC-Pass = ${rpc_pass}
-        &control:PacketFence-RPC-Proto = ${rpc_proto}
-    }
+	# Add in PacketFence specific configuration
+	update {
+		&request:FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"
+		&control:PacketFence-RPC-Server = ${rpc_host}
+		&control:PacketFence-RPC-Port = ${rpc_port}
+		&control:PacketFence-RPC-User = ${rpc_user}
+		&control:PacketFence-RPC-Pass = ${rpc_pass}
+		&control:PacketFence-RPC-Proto = ${rpc_proto}
+		&control:Tmp-Integer-0 := "%l"
+		&control:PacketFence-Request-Time := 0
+	}
+	packetfence-set-tenant-id
+	rewrite_calling_station_id
+	rewrite_called_station_id
 	#
 	#  Take a User-Name, and perform some checks on it, for spaces and other
 	#  invalid characters.  If the User-Name appears invalid, reject the
@@ -84,13 +89,14 @@ authorize {
 	#  raddb/mods-config/files/authorize
 	#files
 
-    # Accept any non-eap request and send it to the packetfence module for authorization
-    if ( !EAP-Message ) { 
-        update { 
-            &control:Auth-Type := Accept
-        }
-    }
-    packetfence
+	# Accept any non-eap request and send it to the packetfence module for authorization
+	if ( !EAP-Message ) {
+		update {
+			&control:Auth-Type := Accept
+		}
+	}
+	packetfence-eap-mac-policy
+
 	#
 	#  Look in an SQL database.  The schema of the database
 	#  is meant to mirror the "users" file.
@@ -192,7 +198,10 @@ authenticate {
 #
 preacct {
 	preprocess
-    rewrite_called_station_id
+	packetfence-set-tenant-id
+	set_calling_station_id
+	rewrite_calling_station_id
+	rewrite_called_station_id
 
 	#
 	#  Merge Acct-[Input|Output]-Gigawords and Acct-[Input-Output]-Octets
@@ -215,9 +224,9 @@ preacct {
 	#  The start time is: NOW - delay - session_length
 	#
 
-#	update request {
-#	  	FreeRADIUS-Acct-Session-Start-Time = "%{expr: %l - %{%{Acct-Session-Time}:-0} - %{%{Acct-Delay-Time}:-0}}"
-#	}
+	#	update request {
+	#	  	FreeRADIUS-Acct-Session-Start-Time = "%{expr: %l - %{%{Acct-Session-Time}:-0} - %{%{Acct-Delay-Time}:-0}}"
+	#	}
 
 
 	#
@@ -232,7 +241,7 @@ preacct {
 	#
 	#  Accounting requests are generally proxied to the same
 	#  home server as authentication requests.
-#	IPASS
+	#	IPASS
 	suffix
 	ntdomain
 
@@ -245,20 +254,20 @@ preacct {
 #  Accounting.  Log the accounting data.
 #
 accounting {
-    # Add in PacketFence specific configuration
-    update {
-        &request:FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"
-        &control:PacketFence-RPC-Server = ${rpc_host}
-        &control:PacketFence-RPC-Port = ${rpc_port}
-        &control:PacketFence-RPC-User = ${rpc_user}
-        &control:PacketFence-RPC-Pass = ${rpc_pass}
-        &control:PacketFence-RPC-Proto = ${rpc_proto}
-    }
+	# Add in PacketFence specific configuration
+	update {
+		&request:FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"
+		&control:PacketFence-RPC-Server = ${rpc_host}
+		&control:PacketFence-RPC-Port = ${rpc_port}
+		&control:PacketFence-RPC-User = ${rpc_user}
+		&control:PacketFence-RPC-Pass = ${rpc_pass}
+		&control:PacketFence-RPC-Proto = ${rpc_proto}
+	}
 	#
 	#  Log traffic to an SQL database.
 	#
 	#  See "Accounting queries" in mods-available/sql
-	sql
+	%%accounting_sql%%
 
 	#
 	#  If you receive stop packets with zero session length,
@@ -277,7 +286,7 @@ accounting {
 	#  Filter attributes from the accounting response.
 	attr_filter.accounting_response
     
-    packetfence
+	rest
 }
 
 
@@ -285,11 +294,11 @@ accounting {
 #  or rlm_sql module can handle this.
 #  The rlm_sql module is *much* faster
 session {
-#	radutmp
+	#	radutmp
 
 	#
 	#  See "Simultaneous Use Checking Queries" in mods-available/sql
-#	sql
+	#	sql
 }
 
 
@@ -298,15 +307,16 @@ session {
 #  additional steps we can take.
 post-auth {
 
-    # Add in PacketFence configuration
-    update {
-        &request:FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"
-        &control:PacketFence-RPC-Server = ${rpc_host}
-        &control:PacketFence-RPC-Port = ${rpc_port}
-        &control:PacketFence-RPC-User = ${rpc_user}
-        &control:PacketFence-RPC-Pass = ${rpc_pass}
-        &control:PacketFence-RPC-Proto = ${rpc_proto}
-    }
+	# Add in PacketFence configuration
+	update {
+		&request:FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"
+		&control:PacketFence-RPC-Server = ${rpc_host}
+		&control:PacketFence-RPC-Port = ${rpc_port}
+		&control:PacketFence-RPC-User = ${rpc_user}
+		&control:PacketFence-RPC-Pass = ${rpc_pass}
+		&control:PacketFence-RPC-Proto = ${rpc_proto}
+	}
+	packetfence-set-tenant-id
 	#
 	#  For EAP-TTLS and PEAP, add the cached attributes to the reply.
 	#  The "session-state" attributes are automatically cached when
@@ -320,15 +330,23 @@ post-auth {
 	#	&reply: += &session-state:
 	#}
 
-    # If the request has not been handled inside the inner-tunnel
-    # send it to packetfence
-    if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
-        packetfence
-        -sql
-    }
+	# If the request has not been handled inside the inner-tunnel
+	# send it to packetfence
+	if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
+		rest
+		update {
+			&request:User-Password := "******"
+		}
+		if (&control:PacketFence-Authorization-Status == "deny") {
+			packetfence-audit-log-reject
+			reject
+		} else {
+			packetfence-audit-log-accept
+		}
+	}
 
 	attr_filter.packetfence_post_auth
-    linelog
+	linelog
 	#
 	#  Access-Reject packets are sent through the REJECT sub-section of the
 	#  post-auth section.
@@ -339,10 +357,12 @@ post-auth {
 	#  The "session-state" attributes are not available here.
 	#
 	Post-Auth-Type REJECT {
-        if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
-		    # log failed authentications in SQL, too.
-		    -sql
-        }
+		update {
+			&request:User-Password := "******"
+		}
+		if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
+			packetfence-audit-log-reject
+		}
 		attr_filter.access_reject
 		attr_filter.packetfence_post_auth
 
@@ -353,7 +373,7 @@ post-auth {
 
 		#  Remove reply message if the response contains an EAP-Message
 		remove_reply_message_if_eap
-        linelog
+		linelog
 	}
 }
 

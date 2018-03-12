@@ -33,12 +33,50 @@ expires_in=6h
 # Amount of time from the current time to expire an entry
 expires_in=24h
 
+[storage accounting]
+#
+# storage accounting.expires_in
+#
+# Amount of time from the current time to expire an entry
+expires_in=7d
+
 [storage pfdns]
 #
 # storage pfdns.expires_in
 #
 # Amount of time from the current time to expire an entry
 expires_in=24h
+
+[namespace accounting]
+#
+# namespace accounting.storage
+#
+# The storage to use for the namespace
+storage=distributed
+
+[storage distributed]
+#
+# namespace accounting.storage
+#
+# The storage to use
+storage=dbi
+#
+# storage redis.expires_on_backend
+#
+# Tell chi that the data expires on backend
+expires_on_backend = 1
+
+[storage dbi]
+#
+# storage dbi.driver
+#
+# The driver for the storage
+driver = DBI
+# 
+# storage dbi.table
+#
+# The table to use as the cache store
+table = chi_cache
 
 [storage redis]
 #
@@ -50,7 +88,7 @@ driver = Redis
 # storage redis.redis_class
 #
 # The redis client class
-redis_class = Redis::Fast
+redis_class = pf::Redis
 #
 # storage redis.server
 #
@@ -78,3 +116,37 @@ reconnect=60
 #
 # Amount of time from the current time to expire an entry
 expires_in=1d
+
+[namespace switch_distributed]
+#
+# namespace switch_distributed.storage
+#
+# The storage to use for the namespace
+storage=distributed
+#
+# namespace switch_distributed.expires_in
+#
+# Amount of time from the current time to expire an entry
+# Make sure to adjust according to pfmon switch_cache_lldpLocalPort_description.interval
+expires_in=15m
+
+[storage person_lookup]
+#
+# storage person_lookup.expires_in
+#
+# Amount of time from the current time to expire an entry
+expires_in=24h
+
+[storage route_int]
+#
+# storage route_int.expires_in
+#
+# Amount of time from the current time to expire an entry
+expires_in=24h
+
+[namespace switch.overlay]
+#
+# namespace accounting.storage
+#
+# The storage to use for the namespace
+storage=distributed

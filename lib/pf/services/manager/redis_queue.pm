@@ -15,8 +15,10 @@ pf::services::manager::redis_queue
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths;
-use pf::config;
+use pf::file_paths qw(
+    $install_dir
+    $generated_conf_dir
+);
 
 extends 'pf::services::manager::redis';
 
@@ -28,6 +30,11 @@ The name of the redis service
 
 has '+name' => (default => sub { 'redis_queue' } );
 
+sub _cmdLine {
+    my $self = shift;
+    $self->executable . " $generated_conf_dir/" . $self->name . ".conf" . " --daemonize no";
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -35,7 +42,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -57,4 +64,3 @@ USA.
 =cut
 
 1;
-

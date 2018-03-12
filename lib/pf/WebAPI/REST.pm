@@ -20,6 +20,7 @@ use pf::util::webapi;
 use Apache2::RequestIO;
 use Apache2::RequestRec;
 use Apache2::Response;
+use Sub::Util qw(subname);
 use Apache2::Const -compile =>
   qw(DONE OK DECLINED HTTP_UNAUTHORIZED HTTP_NOT_IMPLEMENTED HTTP_UNSUPPORTED_MEDIA_TYPE HTTP_PRECONDITION_FAILED HTTP_NO_CONTENT HTTP_NOT_FOUND SERVER_ERROR HTTP_OK HTTP_INTERNAL_SERVER_ERROR);
 use List::MoreUtils qw(any);
@@ -41,11 +42,12 @@ sub handler {
     my $content = $self->get_all_content($r);
     my $data = eval {decode_json $content };
     if ($@) {
-        get_logger->error($@);
+        my $error = $@;
+        get_logger->error($error);
         return $self->send_response(
             $r,
             Apache2::Const::HTTP_UNSUPPORTED_MEDIA_TYPE,
-            $self->make_error_object("Cannot parse request", $@),
+            $self->make_error_object("Cannot parse request", $error),
         );
     }
     my $ref_type = ref $data;
@@ -61,9 +63,9 @@ sub handler {
     my ($method, $id) = ($r->uri, 1);
     my $dispatch_to = $self->dispatch_to;
     my $method_sub;
-    
+
     if(my $rest_method = $self->dispatch_to->restPath($method)){
-        pf::log::get_logger->info("Found method $rest_method for REST path $method");
+        pf::log::get_logger->trace(sub { "Found method " . subname($rest_method) . " for REST path $method" });
         $method_sub = $rest_method;
     }
     # We fallback to using the method name
@@ -108,30 +110,22 @@ sub handler {
         }
     };
     if ($@) {
-        get_logger->error($@);
-        return $self->send_response(
-            $r,
-            Apache2::Const::HTTP_INTERNAL_SERVER_ERROR,
-            $self->make_error_object($@)
-        );
-    }
-    
-    # check the radius return code if it was a radius reply
-    if ( $method =~ /^\/radius/ ) { 
-        my $radius_return = shift @$object; 
-        my %mapped_object = @$object; 
-        %mapped_object = ( %{$mapped_object{"RADIUS_AUDIT"}}, %mapped_object);
-
-        delete $mapped_object{"RADIUS_AUDIT"};
-        use Data::Dumper; $logger->warn("Dumping mapped_object : ". Dumper \%mapped_object);
-        $object = \%mapped_object; 
-        
-        unless ($radius_return == 2) { 
-            return $self->send_response($r, Apache2::Const::HTTP_UNAUTHORIZED, $object);
+        my $error = $@;
+        if(ref($error) eq "pf::api::error"){
+            return $self->send_response($r, $error->status, $error->response);
+        }
+        else {
+            get_logger->error($error);
+            return $self->send_response(
+                $r,
+                Apache2::Const::HTTP_INTERNAL_SERVER_ERROR,
+                $self->make_error_object($error)
+            );
         }
     }
+
     return $self->send_response($r, Apache2::Const::HTTP_OK, $object);
-    
+
     # Notify message defer until later
     $r->push_handlers(
         PerlCleanupHandler => sub {
@@ -148,8 +142,10 @@ sub send_response {
     $r->custom_response($status, '');
     $r->content_type($CONTENT_TYPE);
     $r->status($status);
-    my $response_content = encode_json($object);
-    $r->print($response_content);
+    if ($object) {
+        my $response_content = encode_json($object);
+        $r->print($response_content);
+    }
     $r->rflush;
     return Apache2::Const::OK;
 }
@@ -177,7 +173,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

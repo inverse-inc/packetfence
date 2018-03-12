@@ -20,7 +20,9 @@ output version information
 use strict;
 use warnings;
 
-use pf::file_paths;
+use pf::file_paths qw(
+    $conf_dir
+);
 use pf::log;
 use pf::constants::exit_code qw($EXIT_SUCCESS);
 
@@ -46,7 +48,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

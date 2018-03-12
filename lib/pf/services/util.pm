@@ -20,7 +20,9 @@ our @EXPORT = qw(daemonize createpid deletepid);
 use Log::Log4perl::Level;
 use pf::log;
 use pf::log::trapper;
-use pf::file_paths;
+use pf::file_paths qw(
+    $var_dir
+);
 use File::Basename qw(basename);
 use Fcntl qw(:flock);
 
@@ -32,7 +34,7 @@ daemonize the service
 =cut
 
 sub daemonize {
-    my ($service) = @_;
+    my ($service, $pidfile) = @_;
     my $logger = get_logger();
     chdir '/' or $logger->logdie("Can't chdir to /: $!");
     open STDIN, '<', '/dev/null'
@@ -41,8 +43,6 @@ sub daemonize {
         or $logger->logdie("Can't open /dev/null: $!");
     open STDERR, '>', '/dev/null'
         or $logger->logdie("Can't open /dev/null: $!");
-    tie *STDERR,'pf::log::trapper',$ERROR;
-    tie *STDOUT,'pf::log::trapper',$DEBUG;
     my ($login,$pass,$uid,$gid) = getpwnam('pf')
         or die "pf not in passwd file";
     defined( my $pid = fork ) or $logger->logdie("$service could not fork: $!");
@@ -51,7 +51,30 @@ sub daemonize {
     if ( !POSIX::setsid() ) {
         $logger->error("could not start a new session: $!");
     }
-    createpid($service);
+    createpid($service, $pidfile);
+}
+
+=head2 tie_std_outputs
+
+Tie stdout and stderr to the logger
+
+=cut
+
+sub tie_std_outputs {
+    my $logger = get_logger();
+    tie *STDERR,'pf::log::trapper',$ERROR;
+    tie *STDOUT,'pf::log::trapper',$DEBUG;
+}
+
+=head2 untie_std_outputs
+
+Untie stdout and stderr to the logger
+
+=cut
+
+sub untie_std_outputs {
+    untie *STDERR;
+    untie *STDOUT;
 }
 
 =head2 createpid
@@ -61,11 +84,11 @@ creates the pid file for the service
 =cut
 
 sub createpid {
-    my ($pname) = @_;
+    my ($pname, $pidfile) = @_;
     my $logger = get_logger();
     $pname = basename($0) if ( !$pname );
     my $pid     = $$;
-    my $pidfile = $var_dir . "/run/$pname.pid";
+    $pidfile //= $var_dir . "/run/$pname.pid";
     $logger->info("$pname starting and writing $pid to $pidfile");
     if ( open ( my $outfile, ">$pidfile") ) {
         print $outfile $pid;
@@ -78,9 +101,9 @@ sub createpid {
 }
 
 sub deletepid {
-    my ($pname) = @_;
+    my ($pname, $pidfile) = @_;
     $pname = basename($0) if ( !$pname );
-    my $pidfile = $var_dir . "/run/$pname.pid";
+    $pidfile //= $var_dir . "/run/$pname.pid";
     unlink($pidfile) || return (-1);
     return (1);
 }
@@ -93,7 +116,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

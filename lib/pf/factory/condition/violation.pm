@@ -15,7 +15,11 @@ Create the list of conditions for the filter engine based on the triggers of a v
 
 use strict;
 use warnings;
-use Module::Pluggable search_path => 'pf::condition', sub_name => '_modules' , require => 1;
+use Module::Pluggable
+  search_path => 'pf::condition',
+  sub_name    => '_modules',
+  inner       => 0,
+  require     => 1;
 use List::MoreUtils qw(any);
 use pf::constants;
 
@@ -26,22 +30,26 @@ sub factory_for {'pf::condition'};
 my $DEFAULT_CONDITION = 'key';
 
 our %TRIGGER_TYPE_TO_CONDITION_TYPE = (
-    'accounting'        => {type => 'equals',        key  => 'last_accounting_id',      event => $TRUE},
-    'detect'            => {type => 'equals',        key  => 'last_detect_id',          event => $TRUE},
-    'device'            => {type => 'includes',      key  => 'device_id'},
-    'dhcp_fingerprint'  => {type => 'equals',        key  => 'dhcp_fingerprint_id'},
-    'dhcp_vendor'       => {type => 'equals',        key  => 'dhcp_vendor_id'},
-    'internal'          => {type => 'equals',        key  => 'last_internal_id',        event => $TRUE},
-    'mac'               => {type => 'regex',         key  => 'mac'},
-    'mac_vendor'        => {type => 'equals',        key  => 'mac_vendor_id'},
-    'nessus'            => {type => 'equals',        key  => 'last_nessus_id',          event => $TRUE},
-    'openvas'           => {type => 'equals',        key  => 'last_openvas_id',         event => $TRUE},
-    'metascan'          => {type => 'equals',        key  => 'last_metascan_id',        event => $TRUE},
-    'provisioner'       => {type => 'equals',        key  => 'last_provisioner_id',     event => $TRUE},
-    'soh'               => {type => 'equals',        key  => 'last_soh_id',             event => $TRUE},
-    'suricata_event'    => {type => 'starts_with',   key  => 'last_suricata_event',     event => $TRUE},
-    'suricata_md5'      => {type => 'equals',        key  => 'last_suricata_md5',       event => $TRUE},
-    'useragent'         => {type => 'equals',        key  => 'user_agent_id'},
+    'accounting'        => {type => 'equals',                   key  => 'last_accounting_id',      event => $TRUE},
+    'detect'            => {type => 'equals',                   key  => 'last_detect_id',          event => $TRUE},
+    'device'            => {type => 'fingerbank::device_is_a',  key  => 'device_id'},
+    'dhcp_fingerprint'  => {type => 'equals',                   key  => 'dhcp_fingerprint_id'},
+    'dhcp_vendor'       => {type => 'equals',                   key  => 'dhcp_vendor_id'},
+    'dhcp6_fingerprint' => {type => 'equals',                   key  => 'dhcp6_fingerprint_id'},
+    'dhcp6_enterprise'  => {type => 'equals',                   key  => 'dhcp6_enterprise_id'},
+    'internal'          => {type => 'equals',                   key  => 'last_internal_id',        event => $TRUE},
+    'mac'               => {type => 'regex',                    key  => 'mac'},
+    'mac_vendor'        => {type => 'equals',                   key  => 'mac_vendor_id'},
+    'nessus'            => {type => 'equals',                   key  => 'last_nessus_id',          event => $TRUE},
+    'nessus6'           => {type => 'equals',                   key  => 'last_nessus6_id',         event => $TRUE},
+    'openvas'           => {type => 'equals',                   key  => 'last_openvas_id',         event => $TRUE},
+    'metadefender'      => {type => 'equals',                   key  => 'last_metadefender_id',    event => $TRUE},
+    'provisioner'       => {type => 'equals',                   key  => 'last_provisioner_id',     event => $TRUE},
+    'suricata_event'    => {type => 'starts_with',              key  => 'last_suricata_event',     event => $TRUE},
+    'suricata_md5'      => {type => 'equals',                   key  => 'last_suricata_md5',       event => $TRUE},
+    'useragent'         => {type => 'equals',                   key  => 'user_agent_id'},
+    'switch'            => {type => 'equals',                   key  => 'last_switch'},
+    'switch_group'      => {type => 'switch_group',             key  => 'last_switch'},
 );
 
 sub modules {
@@ -108,7 +116,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

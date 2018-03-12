@@ -16,13 +16,13 @@ use warnings;
 #
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 20;
+use Test::More tests => 26;
 
 BEGIN {
     #include test libs
     use lib qw(/usr/local/pf/t);
     #Module for overriding configuration paths
-    use PfFilePaths;
+    use setup_test_config;
 }
 
 use_ok('pf::violation');
@@ -51,8 +51,8 @@ is($violations[1], "1100008");
 # Will be able to match multiple violations on the different triggers
 @violations = $pf::violation::VIOLATION_FILTER_ENGINE->match_all({last_detect_id => 2, device_id => 3});
 is(@violations, 2);
-is($violations[0], "1100007");
-is($violations[1], "1100008");
+is($violations[0], "1100008");
+is($violations[1], "1100007");
 
 # Will be able to match a mac trigger that uses a regex
 @violations = $pf::violation::VIOLATION_FILTER_ENGINE->match_all({mac => "12:34:56:78:90:12"});
@@ -72,6 +72,24 @@ is($violations[0], "1100011");
 @violations = $pf::violation::VIOLATION_FILTER_ENGINE->match_all({last_detect_id => 9, mac => "21:34:56:78:90:12"});
 is(@violations, 0);
 
+# Test a violation using DHCPv6 fingerprint
+@violations = $pf::violation::VIOLATION_FILTER_ENGINE->match_all({dhcp6_fingerprint_id => 1});
+is(@violations, 1);
+is($violations[0], "1100012");
+
+# Test a violation using DHCPv6 fingerprint that shouldn't match
+@violations = $pf::violation::VIOLATION_FILTER_ENGINE->match_all({dhcp6_fingerprint_id => 2});
+is(@violations, 0);
+
+# Test a violation using DHCPv6 enterprise
+@violations = $pf::violation::VIOLATION_FILTER_ENGINE->match_all({dhcp6_enterprise_id => 2});
+is(@violations, 1);
+is($violations[0], "1100012");
+
+# Test a violation using DHCPv6 enteprise that shouldn't match
+@violations = $pf::violation::VIOLATION_FILTER_ENGINE->match_all({dhcp6_enterprise_id => 1});
+is(@violations, 0);
+
 
 #This test will running last
 use Test::NoWarnings;
@@ -82,7 +100,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

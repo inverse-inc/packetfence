@@ -12,12 +12,20 @@ Compile check on perl binaries
 use strict;
 use warnings;
 
+
+our $jobs;
+
+BEGIN {
+    $jobs = $ENV{'PF_SMOKE_TEST_JOBS'} || 6;
+}
+
 use Test::More;
+use Test::ParallelSubtest max_parallel => $jobs;
 use Test::NoWarnings;
 
 BEGIN {
     use lib qw(/usr/local/pf/t);
-    use PfFilePaths;
+    use setup_test_config;
 }
 use TestUtils qw(get_all_perl_binaries get_all_perl_cgi);
 
@@ -30,12 +38,17 @@ my @binaries = (
 plan tests => scalar @binaries * 1 + 1;
 
 foreach my $current_binary (@binaries) {
-    # hack: we add Taint mode to the pfcmd.pl check.
-    # See 'Switches On the "#!" Line' in perlsec
-    my $flags = ($current_binary =~ m#/usr/local/pf/bin/pfcmd(-old)?.pl#) ? '-T' : '';
-
-    is( system("/usr/bin/perl $flags -c $current_binary 2>&1"), 0, "$current_binary compiles" );
+    my $flags = '-I/usr/local/pf/t -Mtest_paths';
+    if ($current_binary =~ m#/usr/local/pf/bin/pfcmd\.pl#) {
+        $flags .= ' -T';
+    }
+    bg_subtest "$current_binary" => sub {
+        plan tests => 1;
+        is( system("/usr/bin/perl $flags -c $current_binary 2>&1"), 0, "$current_binary compiles" );
+    };
 }
+
+bg_subtest_wait();
 
 =head1 AUTHOR
 
@@ -43,7 +56,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

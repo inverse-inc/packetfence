@@ -1,0 +1,8 @@
+.netdata-container-with-legend {
+    .netdata-legend-value,
+    .netdata-legend-toolbox,
+    .netdata-legend-toolbox-button,
+    .netdata-legend-resize-handler {
+        background-color: $body-bg;
+    }
+}

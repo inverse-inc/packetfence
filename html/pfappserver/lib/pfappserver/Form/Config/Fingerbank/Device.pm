@@ -21,14 +21,17 @@ has_field 'id' =>
    readonly => 1,
   );
 
-has_field parent_id =>
+has_field 'parent_id' => 
   (
-   type => 'Text',
+   type => 'FingerbankField',
+   label => 'Parent device',
+   fingerbank_model => "fingerbank::Model::Device",
   );
 
 has_field name =>
   (
    type => 'Text',
+   required => 1,
   );
 
 has_field [qw(mobile tablet)] =>
@@ -53,7 +56,7 @@ has_block definition =>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -74,5 +77,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

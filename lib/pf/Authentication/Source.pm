@@ -17,12 +17,21 @@ use Moose;
 use pf::util;
 use pf::Authentication::constants;
 use pf::Authentication::Action;
+use List::Util qw(none);
 
 has 'id' => (isa => 'Str', is => 'rw', required => 1);
+
+# 'unique' attribute indicates that only one authentication source of this type can be configured
 has 'unique' => (isa => 'Bool', is => 'ro', default => 0);
+
 has 'class' => (isa => 'Str', is => 'ro', default => 'internal');
+
 has 'type' => (isa => 'Str', is => 'ro', default => 'generic', required => 1);
+
 has 'description' => (isa => 'Str', is => 'rw', required => 0);
+
+has 'dynamic_routing_module' => (is => 'rw', default => 'AuthModule');
+
 has 'rules' => (isa => 'ArrayRef', is => 'rw', required => 0, default => sub { [] });
 
 =head2 has_authentication_rules
@@ -83,9 +92,11 @@ sub common_attributes {
   return [
           { value => 'SSID', type => $Conditions::SUBSTRING },
           { value => 'current_time', type => $Conditions::TIME },
+          { value => 'current_time_period', type => $Conditions::TIME_PERIOD },
           { value => 'connection_type', type => $Conditions::CONNECTION },
           { value => 'computer_name', type => $Conditions::SUBSTRING },
           { value => "mac", type => $Conditions::SUBSTRING },
+          { value => "realm", type => $Conditions::SUBSTRING },
          ];
 }
 
@@ -124,7 +135,7 @@ sub getRule {
 
 =head2 getDefaultOfType
 
-TODO: documention
+Get the default value of a type
 
 =cut
 
@@ -148,61 +159,35 @@ Returns the actions of the first matched rule.
 =cut
 
 sub match {
-    my ($self, $params) = @_;
+    my ($self, $params, $action, $extra) = @_;
 
-    my $common_attributes = $self->common_attributes();
-    my $available_attributes = $self->available_attributes();
     my $logger = get_logger();
+    my %allowed_actions;
+    if (defined $action && exists $Actions::ALLOWED_ACTIONS{$action}) {
+        %allowed_actions = %{$Actions::ALLOWED_ACTIONS{$action}};
+    }
 
     # Add current date & time to the list of parameters
-    my ($sec,$min,$hour,$mday,$mon,$year) = localtime(time);
+    my $time = time;
+    my ($sec,$min,$hour,$mday,$mon,$year) = localtime($time);
     my $current_date = sprintf("%d-%02d-%02d", $year+1900, $mon+1, $mday);
     my $current_time = sprintf("%02d:%02d", $hour, $min);
     # Make a copy of the keys to allow caching of the parameters
     $params = {%$params};
-    $params->{current_date} = $current_date;
-    $params->{current_time} = $current_time;
+    my $rule_class = $params->{'rule_class'} // '';
+    $params->{current_date} //= $current_date;
+    $params->{current_time} //= $current_time;
+    $params->{current_time_period} //= $time;
 
-    my @matching_rules = ();
     $self->preMatchProcessing;
 
     foreach my $rule ( @{$self->{'rules'}} ) {
-        next if ( (defined($params->{'rule_class'})) && ($params->{'rule_class'} ne $rule->{'class'}) );
-        my @matching_conditions = ();
-        my @own_conditions = ();
-
-        foreach my $condition ( @{$rule->{'conditions'}} ) {
-            if (grep { $_->{value} eq $condition->attribute } @$common_attributes) {
-                # A condition on a common attribute
-                my $r = $self->match_condition($condition, $params);
-
-                if ($r == 1) {
-                    $logger->debug("Matched condition ".join(" ", ($condition->attribute, $condition->operator, $condition->value)));
-                    push(@matching_conditions, $condition);
-                }
-            }
-            elsif (grep { $_->{value} eq $condition->attribute } @$available_attributes) {
-                # A condition on a source-specific attribute
-                push(@own_conditions, $condition);
-            }
-        } # foreach my $condition (...)
-
-        # We always check if at least the returned value is defined. That means the username
-        # has been found in the source.
-        if (defined $self->match_in_subclass($params, $rule, \@own_conditions, \@matching_conditions)) {
-          # We compare the matched conditions with how many we had
-          if ($rule->match eq $Rules::ANY &&
-              scalar @matching_conditions > 0) {
-              push(@matching_rules, $rule);
-          } elsif ($rule->match eq $Rules::ALL &&
-                   scalar @matching_conditions == scalar @{$rule->{'conditions'}}) {
-              push(@matching_rules, $rule);
-          }
+        if ( ($rule_class ne $rule->{'class'}) || (defined $action && none { $allowed_actions{$_->type} } @{$rule->{actions}}) ) {
+            $logger->trace("Skipping rule " . ($rule->id ) . " for source " . $self->id);
+            next;
         }
 
-        # For now, we return the first matching rule. We might change this in the future
-        # so let's keep the @matching_rules array for now.
-        if (scalar @matching_rules == 1) {
+        if ($self->match_rule($rule, $params, $extra)) {
             $logger->info("Matched rule (".$rule->{'id'}.") in source ".$self->id.", returning actions.");
             $self->postMatchProcessing;
             return $rule->{'actions'};
@@ -212,6 +197,53 @@ sub match {
     $self->postMatchProcessing;
 
     return undef;
+}
+
+sub match_rule {
+    my ($self, $rule, $params, $extra) = @_;
+    my $logger = get_logger();
+    my @matching_conditions = ();
+    my @own_conditions = ();
+    my $common_attributes = $self->common_attributes();
+    my $available_attributes = $self->available_attributes();
+    my @matching_rules = ();
+
+    foreach my $condition ( @{$rule->{'conditions'}} ) {
+        if (grep { $_->{value} eq $condition->attribute } @$common_attributes) {
+            # A condition on a common attribute
+            my $r = $self->match_condition($condition, $params);
+
+            if ($r) {
+                $logger->debug("Matched condition ".join(" ", ($condition->attribute, $condition->operator, $condition->value)));
+                push(@matching_conditions, $condition);
+            }
+        }
+        elsif (grep { $_->{value} eq $condition->attribute } @$available_attributes) {
+            # A condition on a source-specific attribute
+            push(@own_conditions, $condition);
+        }
+    } # foreach my $condition (...)
+
+    # We always check if at least the returned value is defined. That means the username
+    # has been found in the source.
+    if (defined $self->match_in_subclass($params, $rule, \@own_conditions, \@matching_conditions, $extra)) {
+      # We compare the matched conditions with how many we had
+      if ($rule->match eq $Rules::ANY &&
+          scalar @matching_conditions > 0) {
+          push(@matching_rules, $rule);
+      } elsif ($rule->match eq $Rules::ALL &&
+               scalar @matching_conditions == scalar @{$rule->{'conditions'}}) {
+          push(@matching_rules, $rule);
+      }
+    }
+
+    # For now, we return the first matching rule. We might change this in the future
+    # so let's keep the @matching_rules array for now.
+    if (scalar @matching_rules == 1) {
+        $logger->info("Matched rule (".$rule->{'id'}.") in source ".$self->id.", returning actions.");
+        return $TRUE;
+    }
+    return $FALSE;
 }
 
 =head2 match_in_subclass
@@ -242,8 +274,6 @@ sub match_condition {
 
 sub search_attributes {
     my ($self,$username) = @_;
-    my $realm;
-    ($username,$realm) = strip_username($username) if isenabled($self->{'stripped_user_name'});
     return $self->search_attributes_in_subclass($username);
 }
 
@@ -285,13 +315,25 @@ List of mandatory fields for this source
 
 sub mandatoryFields {}
 
+
+=head2 realmIsAllowed
+
+checks if realm is allowed
+
+=cut
+
+sub realmIsAllowed {
+    my ($self, $realm) = @_;
+    return $FALSE;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -312,7 +354,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;
 
 # vim: set shiftwidth=4:

@@ -14,10 +14,9 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
 
-use pf::config::cached;
 use pf::util;
 use pf::domain;
-use pf::config;
+use pf::config qw(%ConfigDomain);
 
 BEGIN {
     extends 'pfappserver::Base::Controller';
@@ -35,7 +34,7 @@ __PACKAGE__->config(
         create          => { AdminRole => 'DOMAIN_CREATE' },
         clone           => { AdminRole => 'DOMAIN_CREATE' },
         update          => { AdminRole => 'DOMAIN_UPDATE' },
-        refresh_domains => { AdminRole => 'DOMAIN_UPDATE' },
+        update_rejoin   => { AdminRole => 'DOMAIN_UPDATE' },
         rejoin          => { AdminRole => 'DOMAIN_UPDATE' },
         remove          => { AdminRole => 'DOMAIN_DELETE' },
     },
@@ -60,13 +59,13 @@ after [qw(create clone)] => sub {
     }
 };
 
-after [qw(create update)] => sub {
+after [qw(create)] => sub {
     my ($self, $c) = @_;
-    if($c->request->method eq 'POST' ){
+    if( $c->request->method eq 'POST' && !$c->stash->{form}->has_errors ) {
         pf::domain::regenerate_configuration();
         my $output = pf::domain::join_domain($c->req->param('id'));
         $c->stash->{items}->{join_output} = $output;
-        $c->forward('reset_password',[$c->req->param('id')]);
+        $c->forward('reset_credentials',[$c->req->param('id')]);
     }
 };
 
@@ -80,7 +79,7 @@ after list => sub {
     $c->log->debug("Checking if user can edit the domain config");
     # we block the editing if the user has an OS configuration and no configured domains
     # this means he hasn't gone through the migration script
-    $c->stash->{block_edit} = ( pf::domain::has_os_configuration() && !keys(%ConfigDomain) ); 
+    $c->stash->{block_edit} = ( pf::domain::has_os_configuration() && !keys(%ConfigDomain) );
 };
 
 =head2 after view
@@ -123,19 +122,6 @@ sub index :Path :Args(0) {
     $c->forward('list');
 }
 
-=head2 refresh_domains
-
-Usage: /config/domain/refresh_domains
-
-=cut
-
-sub refresh_domains :Local {
-    my ($self, $c) = @_;
-    pf::domain::regenerate_configuration();
-    $c->stash->{status_msg} = "Refreshed the domains";
-    $c->stash->{current_view} = 'JSON';
-}
-
 =head2 rejoin
 
 Usage: /config/domain/rejoin/:domainId
@@ -146,23 +132,24 @@ Usage: /config/domain/rejoin/:domainId
 sub rejoin :Local :Args(1) {
     my ($self, $c, $domain) = @_;
     my $info = pf::domain::rejoin_domain($domain);
-    $c->forward('reset_password',[ $domain ]);
+    $c->forward('reset_credentials',[ $domain ]);
     $c->stash->{status_msg} = "Rejoined the domain";
     $c->stash->{items} = $info;
     $c->stash->{current_view} = 'JSON';
 }
 
-=head2 set_password
+=head2 set_credentials
 
-Usage: /config/domain/set_password/:domainId
+Usage: /config/domain/set_credentials/:domainId
 
 =cut
 
-sub set_password :Local :Args(1) {
+sub set_credentials :Local :Args(1) {
     my ($self, $c, $domain) = @_;
+    my $username = $c->request->param('username');
     my $password = $c->request->param('password');
     my $model = $self->getModel($c);
-    my ($status,$result) = $model->update($domain, { bind_pass => $password } );
+    my ($status,$result) = $model->update($domain, { bind_dn => $username, bind_pass => $password } );
     ($status,$result) = $model->commit();
     $c->stash(
         status_msg   => $result,
@@ -172,16 +159,16 @@ sub set_password :Local :Args(1) {
 
 }
 
-=head2 reset_password
+=head2 reset_credentials
 
 Resets the password of the specified domain
 
 =cut
 
-sub reset_password :Private {
+sub reset_credentials :Private {
     my ($self, $c, $domain) = @_;
     my $model = $self->getModel($c);
-    my ($status,$result) = $model->update($domain, { bind_pass => '' } );
+    my ($status,$result) = $model->update($domain, { bind_dn => '', bind_pass => '' } );
     ($status,$result) = $model->commit();
     $c->stash(
         status_msg   => $result,
@@ -190,9 +177,23 @@ sub reset_password :Private {
     $c->response->status($status);
 }
 
+=head2 update_rejoin
+
+Usage: /config/domain/update_rejoin/:domainId
+
+=cut
+
+
+sub update_rejoin :Local :Args(1) {
+    my ($self, $c, $domain) = @_;
+    $c->stash->{id} = $domain;
+    $c->forward('update');
+    $c->forward('rejoin');
+}
+
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -213,6 +214,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

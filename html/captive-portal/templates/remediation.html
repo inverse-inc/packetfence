@@ -1,4 +1,5 @@
-[% title = i18n("violation: quarantine established") %]
-[% INCLUDE header.html %]
 [% INCLUDE $sub_template %]
-[% INCLUDE footer.html %]
+
+[% IF auto_enable %]
+[% INCLUDE enabler.html %]
+[% END %]

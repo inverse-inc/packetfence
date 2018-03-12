@@ -1,0 +1,13 @@
+### pffilter logger ###
+log4perl.rootLogger = INFO, PFFILTER
+
+### Categories ###
+# Below, you can specify different categories (based on package names) for different logging levels
+#log4perl.category.pf.SNMP = WARN
+
+### Logging for pffilter
+log4perl.appender.PFFILTER                                = Log::Dispatch::Syslog
+log4perl.appender.PFFILTER.ident                          = pffilter
+log4perl.appender.PFFILTER.facility                       = local5
+log4perl.appender.PFFILTER.layout.ConversionPattern       = %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
+log4perl.appender.PFFILTER.layout                         = PatternLayout

@@ -5,7 +5,7 @@
 # Make a simple rule like this:
 #
 #[VIVIDE9]
-#filter = computer_name
+#filter = computername
 #operator = regex
 #value = ^VIVIDE9
 #
@@ -27,13 +27,13 @@
 #This rule will change the device type and device class for this specific MAC address
 #
 #[1:VIVIDE9&mac&dhcp_fingerprint&dhcp_vendor]
-#scope = DhcpFingerbank
+#scope = Fingerbank
 #action = modify_node
 #action_param = mac = $mac,  device_type = GE Vivid e9,  device_class = Medical
 #
 # filter can be:
 #     mac
-#     computer_name
+#     computername
 #     dhcp_fingerprint
 #     dhcp_vendor
 #

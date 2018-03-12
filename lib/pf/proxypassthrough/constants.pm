@@ -17,7 +17,7 @@ use warnings;
 use Readonly;
 
 use pf::authentication;
-use pf::config;
+use pf::config qw(%Config);
 use pf::class qw(class_view_all);
 use pf::util::apache qw(url_parser);
 
@@ -31,7 +31,7 @@ Build all the permit domain for passthrough
 
 =cut
 
-sub proxy_passthrough { @{ $Config{trapping}{proxy_passthroughs} }; }
+sub proxy_passthrough { @{ $Config{fencing}{proxy_passthroughs} }; }
 
 =head2 passthrough_remediation
 
@@ -88,7 +88,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

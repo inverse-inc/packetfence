@@ -17,7 +17,13 @@ use warnings;
 use pf::log;
 
 use pf::constants;
-use pf::config;
+use pf::constants::role;
+use pf::config qw(
+    $IPTABLES_MARK_UNREG
+    $IPTABLES_MARK_REG
+    %ConfigNetworks
+    $IPTABLES_MARK_ISOLATION
+);
 use pf::node qw(node_attributes);
 use pf::violation qw(violation_count_reevaluate_access);
 use Try::Tiny;
@@ -57,7 +63,7 @@ sub get_technique {
     my $type;
     $type = "pf::ipset";
 
-    $logger->info("Instantiate a new iptables modification method. ". $type);
+    $logger->debug("Instantiate a new iptables modification method. ". $type);
     try {
         # try to import module and re-throw the error to catch if there's one
         eval "use $type";
@@ -120,7 +126,7 @@ sub fetchMarkForNode {
     my $logger = get_logger(ref($self));
 
     # Violation first
-    my $open_violation_count = violation_count_reevaluate_access($mac);
+    my $open_violation_count = pf::violation::violation_count_reevaluate_access($mac);
     if ($open_violation_count != 0) {
         $logger->info(
             "has $open_violation_count open violations(s) with action=trap; it needs to firewalled"
@@ -129,7 +135,6 @@ sub fetchMarkForNode {
     }
 
     # looking at the node's registration status
-    # at this point we don't care whether trapping.registration is enabled or not
     # we can do this because actual enforcement is done on startup by adding proper DNAT and forward ACCEPT
     my $node_info = node_attributes($mac);
     if (!defined($node_info)) {
@@ -137,9 +142,17 @@ sub fetchMarkForNode {
         return $IPTABLES_MARK_UNREG;
     }
 
+    # Check node status
     my $n_status = $node_info->{'status'};
     if ($n_status eq $pf::node::STATUS_UNREGISTERED || $n_status eq $pf::node::STATUS_PENDING) {
         $logger->debug("is of status $n_status; needs to be firewalled");
+        return $IPTABLES_MARK_UNREG;
+    }
+
+    # Check node role
+    my $n_role = $node_info->{'category'};
+    if ( $n_role eq $pf::constants::role::REJECT_ROLE ) {
+        $logger->debug("is of role '$pf::constants::role::REJECT_ROLE'; needs to be firewalled");
         return $IPTABLES_MARK_UNREG;
     }
 
@@ -178,7 +191,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

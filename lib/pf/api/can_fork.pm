@@ -1,4 +1,5 @@
 package pf::api::can_fork;
+
 =head1 NAME
 
 pf::api::can_fork local client for pf::api
@@ -10,13 +11,13 @@ pf::api::can_fork local client for pf::api
 pf::api::can_fork
 
 can_fork client for pf::api which calls the api directly and fork on notify for api calls that are marked for forking
+To avoid circular dependencies pf::api needs to be included before consuming this module
 
 =cut
 
 use strict;
 use warnings;
 use pf::log;
-use pf::api;
 use pf::db;
 use pf::util::webapi;
 use POSIX;
@@ -46,7 +47,7 @@ sub notify {
     my ($self, $method, @args) = @_;
     my $pid;
     if (pf::api->shouldFork($method)) {
-        pf::db::db_disconnect();
+        db_disconnect();
         $pid = fork;
         unless (defined $pid) {
             $logger->error("Error fork $!");
@@ -75,7 +76,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

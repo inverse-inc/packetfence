@@ -40,14 +40,18 @@ our @EXPORT_OK = qw(
   $SELFREG_MODE_GOOGLE
   $SELFREG_MODE_FACEBOOK
   $SELFREG_MODE_GITHUB
+  $SELFREG_MODE_INSTAGRAM
   $SELFREG_MODE_LINKEDIN
+  $SELFREG_MODE_PINTEREST
   $SELFREG_MODE_WIN_LIVE
   $SELFREG_MODE_TWITTER
   $SELFREG_MODE_NULL
   $SELFREG_MODE_KICKBOX
-  $SELFREG_MODE_CHAINED
   $SELFREG_MODE_BLACKHOLE
   %NET_INLINE_TYPES
+  $DEFAULT_SMTP_PORT
+  $DEFAULT_SMTP_PORT_SSL
+  $DEFAULT_SMTP_PORT_TLS
 );
 
 use Readonly;
@@ -77,12 +81,13 @@ Readonly our $SELFREG_MODE_SPONSOR => 'sponsoremail';
 Readonly our $SELFREG_MODE_GOOGLE => 'google';
 Readonly our $SELFREG_MODE_FACEBOOK => 'facebook';
 Readonly our $SELFREG_MODE_GITHUB => 'github';
+Readonly our $SELFREG_MODE_INSTAGRAM => 'instagram';
 Readonly our $SELFREG_MODE_LINKEDIN   => 'linkedin';
+Readonly our $SELFREG_MODE_PINTEREST   => 'pinterest';
 Readonly our $SELFREG_MODE_WIN_LIVE   => 'windowslive';
 Readonly our $SELFREG_MODE_TWITTER   => 'twitter';
 Readonly our $SELFREG_MODE_NULL   => 'null';
 Readonly our $SELFREG_MODE_KICKBOX   => 'kickbox';
-Readonly our $SELFREG_MODE_CHAINED   => 'chained';
 Readonly our $SELFREG_MODE_BLACKHOLE => 'blackhole';
 
 Readonly our %NET_INLINE_TYPES =>  (
@@ -91,6 +96,10 @@ Readonly our %NET_INLINE_TYPES =>  (
     $NET_TYPE_INLINE_L3 => undef,
 );
 
+Readonly our $DEFAULT_SMTP_PORT => 25;
+Readonly our $DEFAULT_SMTP_PORT_SSL => 465;
+Readonly our $DEFAULT_SMTP_PORT_TLS => 587;
+
 
 =head1 AUTHOR
 
@@ -98,7 +107,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

@@ -50,15 +50,18 @@ use pf::authentication;
 use pf::log;
 use pf::Authentication::constants;
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    %CAPTIVE_PORTAL
+    %Config
+);
 use pf::enforcement qw(reevaluate_access);
-use pf::iplog;
+use pf::ip4log;
 use pf::node qw(node_attributes node_modify node_register node_view is_max_reg_nodes_reached);
 use pf::person qw(person_nodes);
-use pf::useragent;
 use pf::util;
 use pf::violation qw(violation_count);
 use pf::web::constants;
+use utf8;
 
 =head1 SUBROUTINES
 
@@ -71,7 +74,13 @@ Warning: The list of subroutine is incomplete
 sub i18n {
     my $msgid = shift;
 
-    return gettext($msgid);
+    if(ref($msgid) eq "ARRAY"){
+        return i18n_format(@$msgid);
+    }
+
+    my $result = gettext($msgid);
+    utf8::decode($result);
+    return $result;
 }
 
 sub ni18n {
@@ -79,7 +88,9 @@ sub ni18n {
     my $plural = shift;
     my $category = shift;
 
-    return ngettext($singular, $plural, $category);
+    my $result = ngettext($singular, $plural, $category);
+    utf8::decode($result);
+    return $result;
 }
 
 =item i18n_format
@@ -93,7 +104,10 @@ Meant to be called from the TT templates.
 sub i18n_format {
     my ($msgid, @args) = @_;
 
-    return sprintf(gettext($msgid), @args);
+    my $result = gettext($msgid);
+    utf8::decode($result);
+    $result = sprintf($result, @args);
+    return $result;
 }
 
 =item render_template
@@ -170,10 +184,10 @@ sub generate_release_page {
     my ( $portalSession, $r ) = @_;
 
     $portalSession->stash({
-        timer => $Config{'trapping'}{'redirtimer'},
+        timer => $Config{'captive_portal'}{'network_redirect_delay'},
         destination_url => $portalSession->getDestinationUrl(),
-        initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_INITIAL_DELAY'},
-        retry_delay => $CAPTIVE_PORTAL{'NET_DETECT_RETRY_DELAY'},
+        initial_delay => $Config{'captive_portal'}{'network_detection_initial_delay'},
+        retry_delay => $Config{'captive_portal'}{'network_detection_retry_delay'},
         external_ip => $Config{'captive_portal'}{'network_detection_ip'},
         auto_redirect => $Config{'captive_portal'}{'network_detection'},
     });
@@ -187,10 +201,11 @@ sub generate_scan_start_page {
     my $logger = get_logger();
 
     $portalSession->stash({
-        timer           => $Config{'scan'}{'duration'},
+        # Hardcoded here since the scan section is gone.
+        # In case this codepath is still called (pf::web::release is still called by scan in some cases)
+        timer           => 60,
         txt_message     => sprintf(
             i18n("system scan in progress"),
-            $Config{'scan'}{'duration'}
         ),
     });
 
@@ -241,7 +256,7 @@ sub web_user_authenticate {
     }
 
     # validate login and password
-    my ($return, $message, $source_id) = pf::authentication::authenticate( { 'username' => $username, 'password' => $password, 'rule_class' => $Rules::AUTH }, @sources);
+    my ($return, $message, $source_id, $extra) = pf::authentication::authenticate( { 'username' => $username, 'password' => $password, 'rule_class' => $Rules::AUTH }, @sources);
 
     if (defined($return) && $return == 1) {
         # save login into session
@@ -260,7 +275,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

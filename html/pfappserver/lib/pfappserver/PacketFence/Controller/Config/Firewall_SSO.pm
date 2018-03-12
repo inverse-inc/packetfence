@@ -14,8 +14,7 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
 
-use pf::config::cached;
-use pf::factory::firewallsso;
+use pf::constants::firewallsso;
 
 BEGIN {
     extends 'pfappserver::Base::Controller';
@@ -75,13 +74,13 @@ Usage: /config/firewall_sso/
 
 sub index :Path :Args(0) {
     my ($self, $c) = @_;
-    $c->stash->{types} = [ sort grep {$_} map { /^pf::firewallsso::(.*)/;$1  } @pf::factory::firewallsso::MODULES];
+    $c->stash->{types} = $pf::constants::firewallsso::FIREWALL_TYPES;
     $c->forward('list');
 }
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -102,6 +101,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

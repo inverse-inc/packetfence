@@ -10,13 +10,13 @@ pfappserver::Form::Config::Provisioning - Web form for a switch
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
-with 'pfappserver::Base::Form::Role::Help';
+with qw (
+    pfappserver::Base::Form::Role::Help
+    pfappserver::Role::Form::RolesAttribute
+    pfappserver::Role::Form::ViolationsAttribute
+);
 
-use pf::config;
-
-has roles => ( is => 'rw' );
-has oses => ( is => 'rw' );
-has violations => ( is => 'rw');
+use pf::config qw(%ConfigPKI_Provider);
 
 ## Definition
 has_field 'id' =>
@@ -25,6 +25,7 @@ has_field 'id' =>
    label => 'Provisioning ID',
    required => 1,
    messages => { required => 'Please specify the ID of the Provisioning entry.' },
+   apply => [ pfappserver::Base::Form::id_validator('provisioning ID') ]
   );
 
 has_field 'description' =>
@@ -55,14 +56,14 @@ has_field 'category' =>
 
 has_field 'oses' =>
   (
-   type => 'Select',
+   type => 'FingerbankSelect',
    multiple => 1,
    label => 'OS',
-   options_method => \&options_oses,
    element_class => ['chzn-deselect'],
    element_attr => {'data-placeholder' => 'Click to add an OS'},
    tags => { after_element => \&help,
              help => 'Nodes with the selected OS will be affected' },
+   fingerbank_model => "fingerbank::Model::Device",
   );
 
 has_field 'non_compliance_violation' =>
@@ -97,14 +98,6 @@ has_block definition =>
 sub options_pki_provider {
     return { value => '', label => '' }, map { { value => $_, label => $_ } } sort keys %ConfigPKI_Provider;
 }
-=head2 options_oses
-
-=cut
-
-sub options_oses {
-    my $self = shift;
-    return $self->form->oses;
-}
 
 =head2 options_roles
 
@@ -118,35 +111,14 @@ sub options_roles {
 
 sub options_violations {
     my $self = shift;
-    my @violations;
-    foreach my $violation (@{$self->form->violations}){
-        push @violations, $violation->{id};
-        push @violations, $violation->{desc};
-    }
-    return @violations;
-}
-
-=head2 ACCEPT_CONTEXT
-
-To automatically add the context to the Form
-
-=cut
-
-sub ACCEPT_CONTEXT {
-    my ($self, $c, @args) = @_;
-    my ($status, $roles) = $c->model('Roles')->list();
-    my @oses = ["Windows" => "Windows",
-                "Macintosh" => "Mac OS X",
-                "Generic Android" => "Android",
-                "Apple iPod, iPhone or iPad" => "Apple iOS device"
-               ];
-    my (undef, $violations) = $c->model('Config::Violations')->readAll();
-    return $self->SUPER::ACCEPT_CONTEXT($c, roles => $roles, oses => @oses, violations => $violations, @args);
+    return [
+        map { {value => $_->{id}, label => $_->{desc} } } @{$self->form->violations // []}
+    ];
 }
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -167,5 +139,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

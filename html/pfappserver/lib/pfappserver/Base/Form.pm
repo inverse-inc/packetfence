@@ -16,19 +16,20 @@ The Base class for Forms
 use HTML::FormHandler::Moose;
 extends 'HTML::FormHandler';
 with 'HTML::FormHandler::Widget::Theme::Bootstrap';
+use pf::I18N::pfappserver;
 
 has '+field_name_space' => ( default => 'pfappserver::Form::Field' );
 has '+widget_name_space' => ( default => 'pfappserver::Form::Widget' );
-has '+language_handle' => ( builder => 'get_language_handle_from_ctx' );
+has '+language_handle' => ( builder => '_build_language_handler', lazy => 1 );
+has languages => ( is => 'rw', default => sub { [] });
 
-=head2 get_language_handle_from_ctx
+=head2 _build_language_handler
 
 =cut
 
-sub get_language_handle_from_ctx {
+sub _build_language_handler {
     my $self = shift;
-
-    return pfappserver::I18N->get_handle( @{ $self->ctx->languages } );
+    return pf::I18N::pfappserver->get_handle( @{ $self->languages // [] } );
 }
 
 =head2 html_attributes
@@ -74,7 +75,7 @@ sub build_update_subfields {{
        },
        'DatePicker' =>
        {
-        element_class =>  ['datepicker', 'input-small'],
+        element_class =>  ['input-date', 'input-small'],
         element_attr => { 'data-date-format' => 'yyyy-mm-dd',
                           placeholder => 'yyyy-mm-dd' },
        },
@@ -105,7 +106,7 @@ sub update_field {
 
     if ($field->required) {
         $field->set_element_attr('data-required' => 'required');
-        $field->tags->{label_after} = ' <i class="icon-exclamation-sign"></i>';
+        $field->tags->{label_after} = ' <i class="icon-required"></i>';
     }
     if ($field->type eq 'PosInteger') {
         $field->type_attr($field->html5_type_attr);
@@ -138,7 +139,7 @@ sub field_errors {
     my %errors = ();
     if ($self->has_errors) {
         foreach my $field ($self->error_fields) {
-            $errors{$field->name} = join(' ', @{$field->errors});
+            $errors{$field->id} = join(' ', @{$field->errors});
         }
     }
 
@@ -153,13 +154,28 @@ To automatically add the context to the Form
 
 sub ACCEPT_CONTEXT {
     my ($self, $c, @args) = @_;
-    return $self->new(ctx => $c, @args);
+    return $self->new(ctx => $c, languages => $c->languages, @args);
+}
+
+=head2 id_validator
+
+Validation for an identifier
+
+=cut
+
+sub id_validator {
+    my ($field_name) = @_;
+    return {
+        check => qr/^[a-zA-Z0-9][a-zA-Z0-9\._-]*$/,
+        message =>
+            "The $field_name is invalid. The $field_name can only contain alphanumeric characters, dashes, period and underscores."
+   };   
 }
 
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -180,7 +196,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;
 

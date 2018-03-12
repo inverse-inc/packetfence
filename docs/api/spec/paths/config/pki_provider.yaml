@@ -1,0 +1,457 @@
+/config/pki_provider/{pki_provider_id}:
+  delete:
+    parameters: []
+    responses:
+      '204':
+        description: Deleted a config item
+    summary: Delete a config item
+  get:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            discriminator:
+              propertyName: type
+            oneOf:
+            - properties:
+                ca_cert_path:
+                  description: Path of the CA certificate that will generate your
+                    certificates
+                  type: string
+                cn_attribute:
+                  description: Defines what attribute of the node to use as the common
+                    name during the certificate generation
+                  type: string
+                cn_format:
+                  description: Defines how the common name will be formated. %s will
+                    expand to the defined Common Name Attribute value
+                  type: string
+                country:
+                  description: Country for the certificate
+                  type: string
+                host:
+                  description: Host which hosts the PacketFence PKI
+                  type: string
+                id:
+                  description: The unique ID of the PKI provider
+                  type: string
+                organization:
+                  description: Organization for the certificate
+                  type: string
+                password:
+                  description: Password for the username filled in above
+                  type: string
+                port:
+                  description: Port on which to contact the PacketFence PKI API
+                  type: string
+                profile:
+                  description: Profile used for the generation of certificate
+                  type: string
+                proto:
+                  description: Protocol to use to contact the PacketFence PKI API
+                  type: string
+                revoke_on_unregistration:
+                  description: Check this box to have the certificate revoke when
+                    the node using it is unregistered.<br/>Do not use if multiple
+                    devices share the same certificate
+                  type: string
+                server_cert_path:
+                  description: Path of the RADIUS server authentication certificate
+                  type: string
+                state:
+                  description: State for the certificate
+                  type: string
+                type:
+                  description: PKI Provider type
+                  type: string
+                username:
+                  description: Username to connect to the PKI
+                  type: string
+              required:
+              - id
+              - type
+              - ca_cert_path
+              - server_cert_path
+              type: object
+            - properties:
+                ca_cert_path:
+                  description: Path of the CA certificate used to generate client
+                    certificate/key combination
+                  type: string
+                client_cert_path:
+                  description: Path of the client cert that will be used to generate
+                    the p12
+                  type: string
+                client_key_path:
+                  description: Path of the client key that will be used to generate
+                    the p12
+                  type: string
+                id:
+                  description: The unique ID of the PKI provider
+                  type: string
+                server_cert_path:
+                  description: Path of the RADIUS server authentication certificate
+                  type: string
+                type:
+                  description: PKI Provider type
+                  type: string
+              required:
+              - id
+              - type
+              - client_cert_path
+              - client_key_path
+              - ca_cert_path
+              - server_cert_path
+              type: object
+            - properties:
+                ca_cert_path:
+                  description: Path of the CA that will generate your certificates
+                  type: string
+                cn_attribute:
+                  description: Defines what attribute of the node to use as the common
+                    name during the certificate generation.
+                  type: string
+                cn_format:
+                  description: Defines how the common name will be formated. %s will
+                    expand to the defined Common Name Attribute value
+                  type: string
+                country:
+                  description: Country for the certificate
+                  type: string
+                id:
+                  description: The unique id of the PKI provider
+                  type: string
+                locality:
+                  description: Locality for the certificate
+                  type: string
+                organization:
+                  description: Organization for the certificate
+                  type: string
+                organizational_unit:
+                  description: Organizational unit for the certificate
+                  type: string
+                password:
+                  description: Password for the username filled in above
+                  type: string
+                server_cert_path:
+                  description: Path of the RADIUS server authentication certificate
+                  type: string
+                state:
+                  description: State for the certificate
+                  type: string
+                type:
+                  description: Type
+                  type: string
+                url:
+                  description: The url used to connect to the SCEP PKI service
+                  type: string
+                username:
+                  description: Username to connect to the SCEP PKI Service
+                  type: string
+              required:
+              - id
+              - type
+              - ca_cert_path
+              - server_cert_path
+              type: object
+      required: true
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  patch:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            discriminator:
+              propertyName: type
+            oneOf:
+            - properties:
+                ca_cert_path:
+                  description: Path of the CA certificate that will generate your
+                    certificates
+                  type: string
+                cn_attribute:
+                  description: Defines what attribute of the node to use as the common
+                    name during the certificate generation
+                  type: string
+                cn_format:
+                  description: Defines how the common name will be formated. %s will
+                    expand to the defined Common Name Attribute value
+                  type: string
+                country:
+                  description: Country for the certificate
+                  type: string
+                host:
+                  description: Host which hosts the PacketFence PKI
+                  type: string
+                organization:
+                  description: Organization for the certificate
+                  type: string
+                password:
+                  description: Password for the username filled in above
+                  type: string
+                port:
+                  description: Port on which to contact the PacketFence PKI API
+                  type: string
+                profile:
+                  description: Profile used for the generation of certificate
+                  type: string
+                proto:
+                  description: Protocol to use to contact the PacketFence PKI API
+                  type: string
+                revoke_on_unregistration:
+                  description: Check this box to have the certificate revoke when
+                    the node using it is unregistered.<br/>Do not use if multiple
+                    devices share the same certificate
+                  type: string
+                server_cert_path:
+                  description: Path of the RADIUS server authentication certificate
+                  type: string
+                state:
+                  description: State for the certificate
+                  type: string
+                type:
+                  description: PKI Provider type
+                  type: string
+                username:
+                  description: Username to connect to the PKI
+                  type: string
+              required:
+              - type
+              - ca_cert_path
+              - server_cert_path
+              type: object
+            - properties:
+                ca_cert_path:
+                  description: Path of the CA certificate used to generate client
+                    certificate/key combination
+                  type: string
+                client_cert_path:
+                  description: Path of the client cert that will be used to generate
+                    the p12
+                  type: string
+                client_key_path:
+                  description: Path of the client key that will be used to generate
+                    the p12
+                  type: string
+                server_cert_path:
+                  description: Path of the RADIUS server authentication certificate
+                  type: string
+                type:
+                  description: PKI Provider type
+                  type: string
+              required:
+              - type
+              - client_cert_path
+              - client_key_path
+              - ca_cert_path
+              - server_cert_path
+              type: object
+            - properties:
+                ca_cert_path:
+                  description: Path of the CA that will generate your certificates
+                  type: string
+                cn_attribute:
+                  description: Defines what attribute of the node to use as the common
+                    name during the certificate generation.
+                  type: string
+                cn_format:
+                  description: Defines how the common name will be formated. %s will
+                    expand to the defined Common Name Attribute value
+                  type: string
+                country:
+                  description: Country for the certificate
+                  type: string
+                locality:
+                  description: Locality for the certificate
+                  type: string
+                organization:
+                  description: Organization for the certificate
+                  type: string
+                organizational_unit:
+                  description: Organizational unit for the certificate
+                  type: string
+                password:
+                  description: Password for the username filled in above
+                  type: string
+                server_cert_path:
+                  description: Path of the RADIUS server authentication certificate
+                  type: string
+                state:
+                  description: State for the certificate
+                  type: string
+                type:
+                  description: Type
+                  type: string
+                url:
+                  description: The url used to connect to the SCEP PKI service
+                  type: string
+                username:
+                  description: Username to connect to the SCEP PKI Service
+                  type: string
+              required:
+              - type
+              - ca_cert_path
+              - server_cert_path
+              type: object
+      required: true
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  put:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            discriminator:
+              propertyName: type
+            oneOf:
+            - properties:
+                ca_cert_path:
+                  description: Path of the CA certificate that will generate your
+                    certificates
+                  type: string
+                cn_attribute:
+                  description: Defines what attribute of the node to use as the common
+                    name during the certificate generation
+                  type: string
+                cn_format:
+                  description: Defines how the common name will be formated. %s will
+                    expand to the defined Common Name Attribute value
+                  type: string
+                country:
+                  description: Country for the certificate
+                  type: string
+                host:
+                  description: Host which hosts the PacketFence PKI
+                  type: string
+                organization:
+                  description: Organization for the certificate
+                  type: string
+                password:
+                  description: Password for the username filled in above
+                  type: string
+                port:
+                  description: Port on which to contact the PacketFence PKI API
+                  type: string
+                profile:
+                  description: Profile used for the generation of certificate
+                  type: string
+                proto:
+                  description: Protocol to use to contact the PacketFence PKI API
+                  type: string
+                revoke_on_unregistration:
+                  description: Check this box to have the certificate revoke when
+                    the node using it is unregistered.<br/>Do not use if multiple
+                    devices share the same certificate
+                  type: string
+                server_cert_path:
+                  description: Path of the RADIUS server authentication certificate
+                  type: string
+                state:
+                  description: State for the certificate
+                  type: string
+                type:
+                  description: PKI Provider type
+                  type: string
+                username:
+                  description: Username to connect to the PKI
+                  type: string
+              required:
+              - type
+              - ca_cert_path
+              - server_cert_path
+              type: object
+            - properties:
+                ca_cert_path:
+                  description: Path of the CA certificate used to generate client
+                    certificate/key combination
+                  type: string
+                client_cert_path:
+                  description: Path of the client cert that will be used to generate
+                    the p12
+                  type: string
+                client_key_path:
+                  description: Path of the client key that will be used to generate
+                    the p12
+                  type: string
+                server_cert_path:
+                  description: Path of the RADIUS server authentication certificate
+                  type: string
+                type:
+                  description: PKI Provider type
+                  type: string
+              required:
+              - type
+              - client_cert_path
+              - client_key_path
+              - ca_cert_path
+              - server_cert_path
+              type: object
+            - properties:
+                ca_cert_path:
+                  description: Path of the CA that will generate your certificates
+                  type: string
+                cn_attribute:
+                  description: Defines what attribute of the node to use as the common
+                    name during the certificate generation.
+                  type: string
+                cn_format:
+                  description: Defines how the common name will be formated. %s will
+                    expand to the defined Common Name Attribute value
+                  type: string
+                country:
+                  description: Country for the certificate
+                  type: string
+                locality:
+                  description: Locality for the certificate
+                  type: string
+                organization:
+                  description: Organization for the certificate
+                  type: string
+                organizational_unit:
+                  description: Organizational unit for the certificate
+                  type: string
+                password:
+                  description: Password for the username filled in above
+                  type: string
+                server_cert_path:
+                  description: Path of the RADIUS server authentication certificate
+                  type: string
+                state:
+                  description: State for the certificate
+                  type: string
+                type:
+                  description: Type
+                  type: string
+                url:
+                  description: The url used to connect to the SCEP PKI service
+                  type: string
+                username:
+                  description: Username to connect to the SCEP PKI Service
+                  type: string
+              required:
+              - type
+              - ca_cert_path
+              - server_cert_path
+              type: object
+      required: true
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

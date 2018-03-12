@@ -12,15 +12,13 @@ Form definition to create or update a scan engine.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
-with 'pfappserver::Base::Form::Role::Help';
+with 'pfappserver::Base::Form::Role::Help',
+     'pfappserver::Role::Form::RolesAttribute';
 
 use pf::config;
+use pf::file_paths qw($lib_dir);
 use pf::util;
 use File::Find qw(find);
-
-## Definition
-has 'roles' => (is => 'ro', default => sub {[]});
-has oses => ( is => 'rw' );
 
 has_field 'id' =>
   (
@@ -28,6 +26,7 @@ has_field 'id' =>
    label => 'Name',
    required => 1,
    messages => { required => 'Please specify a name for the scan engine' },
+   apply => [ pfappserver::Base::Form::id_validator('name') ]
   );
 
 has_field 'username' =>
@@ -40,7 +39,7 @@ has_field 'username' =>
 
 has_field 'password' =>
   (
-   type => 'Password',
+   type => 'ObfuscatedText',
    label => 'Password',
    required => 1,
    messages => { required => 'You must specify the password' },
@@ -101,24 +100,15 @@ has_field 'post_registration' =>
 
 has_field 'oses' =>
   (
-   type => 'Select',
+   type => 'FingerbankSelect',
    multiple => 1,
    label => 'OS',
-   options_method => \&options_oses,
    element_class => ['chzn-deselect'],
    element_attr => {'data-placeholder' => 'Click to add an OS'},
    tags => { after_element => \&help,
              help => 'Nodes with the selected OS will be affected' },
+   fingerbank_model => "fingerbank::Model::Device",
   );
-
-=head2 options_oses
-
-=cut
-
-sub options_oses {
-    my $self = shift;
-    return $self->form->oses;
-}
 
 =head2 options_type
 
@@ -166,27 +156,10 @@ sub options_type {
 sub options_categories {
     my $self = shift;
 
-    my ($status, $result) = $self->form->ctx->model('Roles')->list();
+    my $result = $self->form->roles;
     my @roles = map { $_->{name} => $_->{name} } @{$result} if ($result);
     return ('' => '', @roles);
 }
-
-=head2 ACCEPT_CONTEXT
-
-To automatically add the context to the Form
-
-=cut
-
-sub ACCEPT_CONTEXT {
-    my ($self, $c, @args) = @_;
-    my @oses = ["Windows" => "Windows",
-                "Macintosh" => "Mac OS X",
-                "Generic Android" => "Android",
-                "Apple iPod, iPhone or iPad" => "Apple iOS device"
-               ];
-    return $self->SUPER::ACCEPT_CONTEXT($c, oses => @oses, @args);
-}
-
 
 =over
 
@@ -194,7 +167,7 @@ sub ACCEPT_CONTEXT {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -215,5 +188,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

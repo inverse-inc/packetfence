@@ -24,11 +24,16 @@ has stats => (
     handles => [qw(counters miss_counters queue_counts)],
 );
 
+sub ACCEPT_CONTEXT {
+    my ( $self, $c, @args ) = @_;
+    return $self->new(@args);
+}
+
 =head1 METHODS
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -49,6 +54,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

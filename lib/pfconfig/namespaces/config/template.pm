@@ -18,7 +18,7 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use pf::file_paths;
+use pf::file_paths qw();
 
 use base 'pfconfig::namespaces::config';
 
@@ -33,7 +33,6 @@ sub build_child {
     return $self->{cfg};
 }
 
-=back
 
 =head1 AUTHOR
 
@@ -41,7 +40,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

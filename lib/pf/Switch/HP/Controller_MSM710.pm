@@ -30,13 +30,16 @@ use POSIX;
 use base ('pf::Switch');
 
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $MAC
+    $SSID
+);
+use pf::file_paths qw($lib_dir);
 sub description { 'HP ProCurve MSM710 Mobility Controller' }
 
 # importing switch constants
 use pf::Switch::constants;
 use pf::util;
-use Net::Appliance::Session;
 
 =head1 SUBROUTINES
 
@@ -158,14 +161,15 @@ sub extractSsid {
     my $logger = $self->logger;
 
     if (defined($radius_request->{'Colubris-AVPair'})) {
+        my $pairs = listify($radius_request->{'Colubris-AVPair'});
         # With HP Procurve AP Ccontroller, we receive an array of settings in Colubris-AVPair:
         # Colubris-AVPair = ssid=Inv_Controller
         # Colubris-AVPair = group=Default Group
         # Colubris-AVPair = phytype=IEEE802dot11g
-        foreach (@{$radius_request->{'Colubris-AVPair'}}) {
+        foreach (@$pairs) {
             if (/^ssid=(.*)$/) { return $1; }
         }
-        $logger->info("Unable to extract SSID of Colubris-AVPair: ".@{$radius_request->{'Colubris-AVPair'}});
+        $logger->info("Unable to extract SSID of Colubris-AVPair: ". join(", ", @$pairs));
     }
 
     $logger->warn(
@@ -186,14 +190,15 @@ sub _deauthenticateMacWithSSH {
     my $logger = $self->logger;
     my $session;
     my @addition_ops;
-    if (defined $self->{_controllerPort} && $self->{_cliTransport} eq 'SSH' ) {
+    if (defined $self->{_disconnectPort} && $self->{_cliTransport} eq 'SSH' ) {
         @addition_ops = (
             connect_options => {
-                ops => [ '-p' => $self->{_controllerPort}  ]
+                ops => [ '-p' => $self->{_disconnectPort}  ]
             }
         );
     }
     eval {
+        require Net::Appliance::Session;
         $session = Net::Appliance::Session->new(
             Host      => $self->{_controllerIp},
             Timeout   => 20,
@@ -250,7 +255,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

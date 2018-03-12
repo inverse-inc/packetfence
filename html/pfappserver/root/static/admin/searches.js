@@ -1,3 +1,4 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
 function saveSearchFromForm(form_id) {
     var modal  = $("#savedSearch");
     var saved_search_form = $("#savedSearchForm");
@@ -35,12 +36,12 @@ function saveSearchFromForm(form_id) {
     modal.on('shown', function(event) {
         $(this).find(':input:first').focus();
     });
-    return true;
+    return false;
 }
 
 $(function() {
     /* Save a simple search */
-    $('#simpleSavedSearchBtn').on('click', function(event) {
+    $('body').on('click', '#simpleSavedSearchBtn', function(event) {
         return saveSearchFromForm($(this).closest("form"));
     });
 
@@ -95,15 +96,12 @@ $(function() {
             to_form   =  $("#" + target + "Search"  );
         }
         var new_searches =  from_form.find('[name^="searches."]');
+        to_form.find('tbody tr.dynamic-row:not(.hidden)').remove();
         if(new_searches.length > 0) {
+            var table = to_form.find('table');
+            var emptyId = '#' + table.attr('id') + 'Empty';
+            $(emptyId).find('[href="#add"]').click();
             var first_row = to_form.find('tbody tr.dynamic-row:not(.hidden)').first();
-            //Check for no rows
-            if(first_row.length == 0) {
-                var table = to_form.find('table');
-                var emptyId = '#' + table.attr('id') + 'Empty';
-                $(emptyId).find('[href="#add"]').click();
-                var first_row = to_form.find('tbody tr.dynamic-row:not(.hidden)').first();
-            }
             first_row.nextAll("tr.dynamic-row:not(.hidden)").remove();
             var rows_to_add = new_searches.length / 3 - 1;
             for(var i = 0; i < rows_to_add; i++) {

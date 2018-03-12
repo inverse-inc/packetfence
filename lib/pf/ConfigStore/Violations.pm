@@ -14,13 +14,18 @@ pf::ConfigStore::Violations
 
 use Moo;
 use namespace::autoclean;
-use pf::file_paths;
+use pf::file_paths qw(
+    $violations_config_file
+    $violations_default_config_file
+);
 
 use pf::violation_config;
 
 extends 'pf::ConfigStore';
 
 sub configFile { $violations_config_file }
+
+sub importConfigFile { $violations_default_config_file };
 
 sub pfconfigNamespace { 'config::Violations' }
 
@@ -55,7 +60,7 @@ sub listTriggers {
         if (defined($trigger)) {
             my @violation_triggers = $self->split_list($trigger);
             @triggers{@violation_triggers} = ();
-            
+
         }
     }
     return [sort keys %triggers];
@@ -168,7 +173,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

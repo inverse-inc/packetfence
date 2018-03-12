@@ -8,7 +8,7 @@ pfappserver::Controller::ConfigProfile add documentation
 
 =head1 DESCRIPTION
 
-PortalProfile
+ConnectionProfile
 
 =cut
 
@@ -24,6 +24,7 @@ use File::Slurp qw(read_dir read_file);
 use File::Spec::Functions;
 use File::Copy::Recursive qw(dircopy);
 use File::Basename qw(fileparse);
+use pf::file_paths qw($captiveportal_templates_path);
 use Readonly;
 
 BEGIN { extends 'pfappserver::Controller::Config::Profile'; }
@@ -35,10 +36,11 @@ __PACKAGE__->config(
     },
     action => {
         # Configure access rights
-        view   => { AdminRole => 'PORTAL_PROFILES_READ' },
-        list   => { AdminRole => 'PORTAL_PROFILES_READ' },
-        create => { AdminRole => 'PORTAL_PROFILES_CREATE' },
-        update => { AdminRole => 'PORTAL_PROFILES_UPDATE' },
+        view   => { AdminRole => 'CONNECTION_PROFILES_READ' },
+        list   => { AdminRole => 'CONNECTION_PROFILES_READ' },
+        create => { AdminRole => 'CONNECTION_PROFILES_CREATE' },
+        clone  => { AdminRole => 'CONNECTION_PROFILES_CREATE' },
+        update => { AdminRole => 'CONNECTION_PROFILES_UPDATE' },
     },
 );
 
@@ -57,12 +59,6 @@ sub index :Path :Args(0) {
 }
 
 
-=item isDeleteOrRevertDisabled
-
-=cut
-
-sub isDeleteOrRevertDisabled {return 1};
-
 =item object
 
 The default chained dispatcher
@@ -74,55 +70,6 @@ The default chained dispatcher
 sub object :Chained('/') :PathPart('config/profile/default') :CaptureArgs(0) {
     my ($self, $c) = @_;
     return $self->SUPER::object($c,'default');
-}
-
-=item _make_file_path
-
-=cut
-
-sub _makeFilePath {
-    my ($self,@args) = @_;
-    return $self->_makeDefaultFilePath(@args);
-}
-
-=item delete_file
-
-=cut
-
-sub delete_file :Chained('object') :PathPart('delete') :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
-    my ($self,$c,@pathparts) = @_;
-    $c->stash->{status_msg} = "Cannot delete a file in the default profile";
-    $c->go('bad_request');
-}
-
-=item revert_file
-
-=cut
-
-sub revert_file :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
-    my ($self,$c,@pathparts) = @_;
-    $c->stash->{status_msg} = "Cannot revert a file in the default profile";
-    $c->go('bad_request');
-}
-
-=item revert_all
-
-=cut
-
-sub revert_all :Chained('object') :PathPart :Args(0) :AdminRole('PORTAL_PROFILES_UPDATE') {
-    my ($self,$c) = @_;
-    $c->stash->{status_msg} = "Cannot revert files in the default profile";
-    $c->go('bad_request');
-}
-
-=item remove
-
-=cut
-
-sub remove :Chained('object') :PathPart :Args(0) {
-    my ($self,$c) = @_;
-    $c->stash->{status_msg} = "Cannot delete the default profile";
-    $c->go('bad_request');
 }
 
 =item end
@@ -139,11 +86,15 @@ sub end: Private {
     $c->forward('Controller::Root','end');
 }
 
+sub parentPaths {
+    return ($captiveportal_templates_path);
+}
+
 =back
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -165,4 +116,3 @@ USA.
 =cut
 
 1;
-

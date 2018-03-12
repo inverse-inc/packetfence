@@ -21,7 +21,7 @@ use pf::util qw(clean_mac);
 use WWW::Curl::Easy;
 use XML::Simple;
 use pf::log;
-use pf::iplog;
+use pf::ip4log;
 use pf::ConfigStore::Provisioning;
 use DateTime::Format::RFC3339;
 use pf::violation;
@@ -334,12 +334,12 @@ sub decode_response {
         return $pf::provisioner::COMMUNICATION_FAILED;
     }
     elsif($code == 404) {
-        $logger->info("Device is not in OPSWAT gears. Assuming device doesn't have the agent.");
+        $logger->info("Device is not in OPSWAT Metadefender Endpoint. Assuming device doesn't have the agent.");
         my $json_response = decode_json($response_body);
         return $json_response;
     }
     elsif($code != 200){
-        $logger->error("Got error code $code when contacting the OPSWAT GEARS API. Here's the response body : $response_body");
+        $logger->error("Got error code $code when contacting the OPSWAT Metadefender Endpoint API. Here's the response body : $response_body");
         return $pf::provisioner::COMMUNICATION_FAILED;
     }
     else {
@@ -366,7 +366,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

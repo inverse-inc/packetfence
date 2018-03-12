@@ -20,14 +20,12 @@ BEGIN {
     use constant INSTALL_DIR => '/usr/local/pf';
     use lib INSTALL_DIR . "/lib";
     use lib INSTALL_DIR . "/t";
-    use PfFilePaths;
+    use setup_test_config;
 }
 
 use pfconfig::manager;
 
 pfconfig::manager->new->expire_all;
-
-=back
 
 =head1 AUTHOR
 
@@ -35,7 +33,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

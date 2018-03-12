@@ -26,14 +26,22 @@ has_field 'name' =>
 has_field 'ipaddress' =>
   (
    type => 'IPAddress',
-   label => 'IP Address',
+   label => 'IPv4 Address',
   );
 has_field 'netmask' =>
   (
    type => 'IPAddress',
-   label => 'Netmask',
+   label => 'IPv4 Netmask',
    element_attr => { 'placeholder' => '255.255.255.0' },
   );
+has_field 'ipv6_address' => (
+    type => 'IP6Address',
+    label => 'IPv6 Address',
+);
+has_field 'ipv6_prefix' => (
+    type=> 'Text',
+    label => 'IPv6 Prefix',
+);
 has_field 'type' =>
   (
    type => 'Select',
@@ -55,7 +63,7 @@ has_field 'dns' =>
   (
    type => 'IPAddresses',
    label => 'DNS',
-   wrapper_attr => { 'style' => 'display: none' },
+   wrapper_attr => { 'class' => 'hide' },
    tags => { after_element => \&help,
              help => 'The primary DNS server of your network.' },
   );
@@ -90,6 +98,25 @@ has_field 'nat_enabled' => (
     label => 'Enable NATting',
 );
 
+has_field 'split_network' => (
+    type => 'Toggle',
+    checkbox_value => 1,
+    unchecked_value => 0,
+    default => 0,
+    label => 'Split network by role',
+    tags => { after_element => \&help,
+             help => 'This will create a small network for each roles.' },
+);
+
+has_field 'reg_network' =>
+  (
+   type => 'Text',
+   label => 'Registration IP Address CIDR format',
+   tags => { after_element => \&help,
+             help => 'When split network by role is enabled then this network will be used as the registration network (example: 192.168.0.1/24).' },
+  );
+
+
 =head2 options_type
 
 =cut
@@ -119,7 +146,7 @@ sub options_additional_listening_daemons {
     my $self = shift;
 
     return map { { value => $_, label => $_ } }
-        qw(portal);
+        qw(portal radius);
 }
 
 =head2 validate
@@ -150,11 +177,20 @@ sub validate {
             splice @{$self->value->{additional_listening_daemons}}, $index, 1;
         }
     }
+    # Remove double radius type if exist
+    @types = qw(radius);
+    if ( defined $self->value->{type} && any { $_ eq $self->value->{type} } @types ) {
+        my %daemons = map { $_ => 1 } @{$self->value->{additional_listening_daemons}};
+        if ( exists($daemons{'radius'}) ) {
+            my $index = firstidx { $_ eq 'radius' } @{$self->value->{additional_listening_daemons}};
+            splice @{$self->value->{additional_listening_daemons}}, $index, 1;
+        }
+    }
 }
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -175,5 +211,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

@@ -16,18 +16,32 @@ set -e
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
+if $(dpkg-distribution --is_jessie) ; then
+    DIST=jessie
+fi
+if $(dpkg-distribution --is_wheezy) ; then
+    DIST=wheezy
+fi
+if $(dpkg-distribution --is_precise) ; then
+    DIST=precise
+fi
 
 case "$1" in
     upgrade|deconfigure)
     ;;
 
     remove)
-        if [ -x "/etc/init.d/packetfence-remote-arp-sensor" ]; then
+        if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
+            if [ -x "/etc/init.d/packetfence-remote-arp-sensor" ]; then
                 if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
-                        invoke-rc.d packetfence-remote-arp-sensor stop || exit $?
+                    invoke-rc.d packetfence-remote-arp-sensor stop || exit $?
                 else
-                        /etc/init.d/packetfence-remote-arp-sensor stop || exit $?
+                    /etc/init.d/packetfence-remote-arp-sensor stop || exit $?
                 fi
+            fi
+        fi
+        if [ ${DIST} = "jessie" ] ; then
+            systemctl stop packetfence-remote-arp-sensor
         fi
     ;;
 

@@ -17,25 +17,26 @@ use pf::log;
 
 use pf::constants;
 use pf::config;
-use pf::config::cached;
+use pf::config::util;
 
 use pf::Authentication::constants;
 use pf::Authentication::Action;
 use pf::Authentication::Condition;
 use pf::Authentication::Rule;
 use pf::Authentication::Source;
-use pf::Authentication::constants;
+use pf::Authentication::constants qw($LOGIN_SUCCESS $LOGIN_FAILURE $LOGIN_CHALLENGE);
 use pf::constants::authentication::messages;
 
 use Module::Pluggable
   'search_path' => [qw(pf::Authentication::Source)],
   'sub_name'    => 'sources',
   'require'     => 1,
+  'inner'       => 0,
   ;
 
 use Clone qw(clone);
 use List::Util qw(first);
-use List::MoreUtils qw(none any);
+use List::MoreUtils qw(none any all);
 use pf::util;
 use pfconfig::cached_array;
 use pfconfig::cached_hash;
@@ -62,7 +63,7 @@ tie %guest_self_registration, 'pfconfig::cached_hash', 'resource::guest_self_reg
 
 BEGIN {
     use Exporter ();
-    our ( @ISA, @EXPORT, @EXPORT_OK, %EXPORT_TAGS );
+    our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     # Categorized by feature, pay attention when modifying
     @EXPORT =
@@ -73,15 +74,9 @@ BEGIN {
             getAuthenticationSource
             getAllAuthenticationSources
             deleteAuthenticationSource
+            getAuthenticationClassByType
             %guest_self_registration
        );
-    @EXPORT_OK =
-      qw(
-            authenticate
-            match
-            username_from_email
-       );
-
 }
 
 our @SOURCES = __PACKAGE__->sources();
@@ -174,6 +169,18 @@ sub getExternalAuthenticationSources {
     return \@sources;
 }
 
+=item getAuthenticationSourcesByType
+
+Return instances of pf::Authentication::Source for a given type
+
+=cut
+
+sub getAuthenticationSourcesByType {
+    my ( $type ) = @_;
+    my @sources = grep { $_->{'type'} eq $type } @authentication_sources;
+    return \@sources;
+}
+
 # =head2 source_for_user
 
 # =cut
@@ -215,15 +222,21 @@ sub authenticate {
     my $username = $params->{'username'};
     my $password = $params->{'password'};
 
-    # If no source(s) provided, all (except 'exclusive' ones) configured sources are used
-    unless (@sources) {
-        @sources = grep { $_->class ne 'exclusive'  } @authentication_sources;
-    }
+    #TODO: evaluate if we want to die or have another behavior
+    my $context = $params->{'context'} // die "No authentication context provided";
+    
+    ($username, undef) = pf::config::util::strip_username_if_needed($username, $context);
 
-    my $cloned_sources = clone(\@sources);
+    # If no source(s) provided, all 'internal' configured sources are used
+    unless (@sources) {
+        @sources = @{pf::authentication::getInternalAuthenticationSources()};
+    }
+    my $display_username = (defined $username) ? $username : "(anonymous)";
 
     # If a rule class is defined, we filter out authentication sources rules that doesn't match it
     if ( defined($params->{'rule_class'}) ) {
+        my $cloned_sources = clone(\@sources);
+        @sources = ();
         foreach my $source ( @$cloned_sources ) {
             my @rules = ();
             foreach my $rule ( @{ $source->{'rules'} } ) {
@@ -232,28 +245,28 @@ sub authenticate {
             if ( @rules ) {
                 @{$source->{'rules'}} = ();
                 push (@{$source->{'rules'}}, @rules);
-                push (@sources, $source);
             }
+            push (@sources, $source);
         }
     }
 
-    $logger->debug(sub {"Authenticating '$username' from source(s) " . join( ', ', map { $_->id } @sources ) });
+    $logger->debug(sub {"Authenticating '$display_username' from source(s) ".join(', ', map { $_->id } @sources) });
 
     my $message;
     foreach my $current_source (@sources) {
-        my $result;
-        $logger->trace("Trying to authenticate ".(defined($username) ? "'$username'" : "anonymous")." with source '".$current_source->id."'");
+        my ($result, $message, $extra);
+        $logger->trace("Trying to authenticate '$display_username' with source '".$current_source->id."'");
         eval {
-            ($result, $message) = $current_source->authenticate($username, $password);
+            ($result, $message, $extra) = $current_source->authenticate($username, $password);
         };
         # First match wins!
         if ($result) {
-            $logger->info("Authentication successful for ".(defined($username) ? "'$username'" : "anonymous")." in source ".$current_source->id." (".$current_source->type.")");
-            return ($result, $message, $current_source->id);
+            $logger->info("Authentication successful for $display_username in source ".$current_source->id." (".$current_source->type.")");
+            return ($result, $message, $current_source->id, $extra);
         }
     }
 
-    $logger->trace("Authentication failed for '$username' for all ".scalar(@sources)." sources");
+    $logger->trace("Authentication failed for '$display_username' for all ".scalar(@sources)." sources");
     return ($FALSE, $message ? $message : $AUTH_FAIL_MSG);
 }
 
@@ -273,15 +286,20 @@ our %ACTION_VALUE_FILTERS = (
 );
 
 sub match {
-    my $timer = pf::StatsD::Timer->new({ sample_rate => 0.1});
-    my ($source_id, $params, $action, $source_id_ref) = @_;
+    my $timer = pf::StatsD::Timer->new();
+    my ($source_id, $params, $action, $source_id_ref, $extra) = @_;
     my ($actions, @sources);
-    $logger->debug( sub { "Match called with parameters ".join(", ", map { "$_ => $params->{$_}" } keys %$params) });
+    $logger->debug( sub { "Match called with parameters " . join(", ", map { "$_ => " . ($params->{$_} // "undef") } keys %$params) });
     if( defined $action && !exists $Actions::ALLOWED_ACTIONS{$action}) {
         $logger->warn("Calling match with an invalid action of type '$action'");
         return undef;
     }
 
+    #TODO: evaluate if we want to die or have another behavior
+    my $context = $params->{'context'} // die "No authentication context provided";
+
+    ($params->{'username'}, undef) = pf::config::util::strip_username_if_needed($params->{'username'}, $context);
+    
     # Calling 'match' with empty/invalid rule class. Using default
     if ( (!defined($params->{'rule_class'})) || (!exists($Rules::CLASSES{$params->{'rule_class'}})) ) {
         $params->{'rule_class'} = pf::Authentication::Rule->meta->get_attribute('class')->default;
@@ -296,16 +314,31 @@ sub match {
             @sources = ($source);
         }
     }
+    my $allowed_actions;
+    if (defined $action && exists $Actions::ALLOWED_ACTIONS{$action}) {
+        $allowed_actions = $Actions::ALLOWED_ACTIONS{$action};
+    }
+    $logger->info("Using sources ".join(', ', (map {$_->id} @sources))." for matching");
+
     foreach my $source (@sources) {
-        $actions = $source->match($params);
-        next unless defined $actions;
-        if (defined $action) {
-            my $allowed_actions = $Actions::ALLOWED_ACTIONS{$action};
+        $actions = $source->match($params, $action, $extra);
+        unless (defined $actions) {
+            $logger->trace(sub {"Skipped " . $source->id });
+            next;
+        }
+        if (defined $allowed_actions) {
 
             # Return the value only if the action matches
             my $found_action = first {exists $allowed_actions->{$_->type} && $allowed_actions->{$_->type}} @{$actions};
             if (defined $found_action) {
-                $logger->debug( sub { "[" . $source->id . "] Returning '" . $found_action->value . "' for action $action for username " . $params->{'username'} });
+                $logger->debug(
+                    sub {
+                        "[" . $source->id . "] Returning '"
+                          . ( $found_action->value // "undef" )
+                          . "' for action '" . ( $action // "undef" )
+                          . "' for username " . ( $params->{'username'} // "undef" )
+                    }
+                );
                 $$source_id_ref = $source->id if defined $source_id_ref && ref $source_id_ref eq 'SCALAR';
                 my $value = $found_action->value;
                 my $type  = $found_action->type;
@@ -320,10 +353,134 @@ sub match {
         }
         #Store the source id
         $$source_id_ref = $source->id if defined $source_id_ref && ref $source_id_ref eq 'SCALAR';
-        last;
+        return $actions;
     }
 
-    return $actions;
+    return undef;
+}
+
+=item match2
+
+This method tries to match a set of params in one or multiple sources.
+
+If nothing matches undef will be returned
+
+If there is a match hash will be returned with the following information
+
+    {
+        source_id => 'MATCH_SOURCE_ID'
+        actions => [action0, action1],
+        values => {
+            type1 => value1,
+            type2 => value2,
+        },
+    }
+
+=cut
+
+sub match2 {
+    my $timer = pf::StatsD::Timer->new();
+    my ($source_id, $params, $extra) = @_;
+    my ($actions, @sources);
+    $logger->debug( sub { "Match called with parameters ".join(", ", map { "$_ => $params->{$_}" } keys %$params) });
+
+    # Calling 'match' with empty/invalid rule class. Using default
+    if ( (!defined($params->{'rule_class'})) || (!exists($Rules::CLASSES{$params->{'rule_class'}})) ) {
+        $params->{'rule_class'} = pf::Authentication::Rule->meta->get_attribute('class')->default;
+        $logger->warn("Calling match with empty/invalid rule class. Defaulting to '" . $params->{'rule_class'} . "'");
+    }
+
+    #TODO: evaluate if we want to die or have another behavior
+    my $context = $params->{'context'} // die "No authentication context provided";
+
+    ($params->{'username'}, undef) = pf::config::util::strip_username_if_needed($params->{'username'}, $context);
+    
+    if (ref($source_id) eq 'ARRAY') {
+        @sources = @{$source_id};
+    } else {
+        my $source = getAuthenticationSource($source_id);
+        if (defined $source) {
+            @sources = ($source);
+        }
+    }
+    $logger->info("Using sources ".join(', ', (map {$_->id} @sources))." for matching");
+
+    foreach my $source (@sources) {
+        $actions = $source->match($params, undef, $extra);
+        next unless defined $actions;
+        my %values;
+        foreach my $action (@$actions) {
+            my $value = $action->value;
+            my $type  = $action->type;
+            $value = $ACTION_VALUE_FILTERS{$type}->($value) if exists $ACTION_VALUE_FILTERS{$type};
+            $type = $Actions::MAPPED_ACTIONS{$type} if exists $Actions::MAPPED_ACTIONS{$type};
+            $values{$type} = $value;
+        }
+        my %results = (
+            source_id => $source->id,
+            actions => $actions,
+            values => \%values,
+        );
+        return \%results;
+    }
+
+    return undef;
+}
+
+=item getAuthenticationClassByType
+
+Get the authentication class by it's type
+
+=cut
+
+sub getAuthenticationClassByType {
+    my ($type) = @_;
+    $type = lc($type);
+    if (!exists $TYPE_TO_SOURCE{$type}) {
+        return undef;
+    }
+    return $TYPE_TO_SOURCE{$type}->meta->find_attribute_by_name('class')->default;
+}
+
+sub adminAuthentication {
+  my ($user, $password) = @_;
+  my $internal_sources = pf::authentication::getInternalAuthenticationSources();
+  my ($stripped_username,$realm) = strip_username($user);
+  $realm //= 'null';
+  my $realm_source = pf::config::util::get_realm_authentication_source($stripped_username, $realm, $internal_sources);
+
+  $realm_source = ref($realm_source) eq 'ARRAY' ? $realm_source : [$realm_source];
+
+  foreach my $source (@{$realm_source}) {
+    get_logger->info("Found a realm source ".$source->id." for user $stripped_username in realm $realm.");
+    my ($result, $message, $source_id, $extra) = pf::authentication::authenticate( { 
+            'username' => $user, 
+            'password' => $password, 
+            'rule_class' => $Rules::ADMIN,
+            'context' => $pf::constants::realm::ADMIN_CONTEXT,
+        }, $source);
+    if ($result) {
+        if ($result == $LOGIN_CHALLENGE ) {
+          return $LOGIN_CHALLENGE;
+        }
+
+        $extra //= {};
+        my $match = pf::authentication::match2([$source], { 
+                username => $user,
+                rule_class => $Rules::ADMIN, 
+                context => $pf::constants::realm::ADMIN_CONTEXT,
+            }, $extra);
+        my $values = $match->{values};
+
+        my $roles = $values->{$Actions::SET_ACCESS_LEVEL} // "NONE";
+        $roles = [split /\s*,\s*/,$roles];
+
+        my $tenant_id = $values->{$Actions::SET_TENANT_ID} // 0;
+
+        return ((all{ $_ ne 'NONE'} @$roles), $roles, $tenant_id);
+    }
+  }
+  return $LOGIN_FAILURE;
 }
 
 =back
@@ -334,7 +491,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

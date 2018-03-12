@@ -8,637 +8,192 @@ pf::dhcp::processor
 
 =head1 DESCRIPTION
 
-Processes DHCP packets
+Base class for processing DHCP packets
 
 =cut
 
 use strict;
 use warnings;
 
-use Try::Tiny;
+# External libs
+use Readonly;
+
+# Internal libs
+use pf::access_filter::dhcp;
 use pf::client;
-use pf::constants;
+use pf::config qw(
+    %ConfigNetworks
+    %connection_type_to_str
+    $INLINE
+);
+use pf::config::util;
 use pf::constants::dhcp qw($DEFAULT_LEASE_LENGTH);
-use pf::clustermgmt;
-use pf::config;
-use pf::config::cached;
-use pf::db;
-use pf::firewallsso;
-use pf::inline::custom $INLINE_API_LEVEL;
-use pf::iplog;
-use pf::lookup::node;
+use pf::constants::IP qw($IPV4 $IPV6);
+use pf::log;
 use pf::node;
 use pf::util;
-use pf::config::util;
-use pf::services::util;
-use pf::util::dhcp;
-use List::MoreUtils qw(any);
-use pf::api::jsonrpcclient;
-use NetAddr::IP;
-use pf::SwitchFactory;
-use pf::log;
-use pf::StatsD::Timer;
 
-our $logger = get_logger;
-my $ROGUE_DHCP_TRIGGER = '1100010';
+use Moose;
+
+
+has 'apiClient'    => (is => 'ro', default => sub { pf::client::getClient });
+has 'filterEngine' => (is => 'rw', default => sub { pf::access_filter::dhcp->new });
+
+
+# Fingerbank processing arguments mapping
+# Only arguments listed (mapped) below will be processed
+Readonly::Hash my %FINGERBANK_ARGUMENTS_MAP => (
+    client_mac              => 'mac',
+    client_ip               => 'ip',
+    client_hostname         => 'computername',
+    ipv4_requested_options  => 'dhcp_fingerprint',
+    ipv4_vendor             => 'dhcp_vendor',
+    ipv6_requested_options  => 'dhcp6_fingerprint',
+    ipv6_vendor             => 'dhcp_vendor',
+    ipv6_enterprise_number  => 'dhcp6_enterprise',
+);
+
+# IP tasks processing arguments mapping
+# Only arguments listed (mapped) below will be processed
+Readonly::Hash my %IPTASKS_ARGUMENTS_MAP => (
+    client_mac      => 'mac',
+    client_ip       => 'ip',
+    lease_length    => 'lease_length',
+    ip_type         => 'ip_type',
+);
+
+
+# Local DHCP servers local cache
 my @local_dhcp_servers_mac;
 my @local_dhcp_servers_ip;
 
-#
-# This lua script appends an offer comment to a list for the rogue DHCP server
-# If the length of the list exceeds the threshold, the list is emptied and its content returned
-# It is called like the following
-# EVAL LUA_ROGUE_DHCP_APPEND 0 ROGUE_DHCP_IP COMMENT THRESHOLD
-#
-our $LUA_ROGUE_DHCP_APPEND = <<EOS ;
-    local key_name = "rogue_dhcp_servers_"..ARGV[1];
-    redis.call("RPUSH",key_name,ARGV[2]);
-    local rogue_dhcp_servers_detected = redis.call("LLEN",key_name);
-    if tonumber(rogue_dhcp_servers_detected) >= tonumber(ARGV[3]) then
-        local elements = redis.call("LRANGE",key_name,0,rogue_dhcp_servers_detected);
-        redis.call("DEL", key_name)
-        return elements
-    end
-    return {}
-EOS
 
-our $LUA_ROGUE_DHCP_SHA1;
+=head2 _get_local_dhcp_servers
 
-=head2 new
+Get the list of local (this server) IP and MAC address running DHCP server instances
 
-Create a new DHCP processor
+Locally caches results on first run then returns from cache.
+
+Returns an hash of arrays
 
 =cut
 
-sub new {
-    my ( $class, %argv ) = @_;
-    my $self = bless {}, $class;
-    foreach my $attr (keys %argv){
-        $self->{$attr} = $argv{$attr};
-    }
-    if($self->{is_inline_vlan}){
-        $self->{accessControl} = new pf::inline::custom();
-    }
-    $self->{api_client} = pf::client::getClient();
-    $self->_build_DHCP_networks();
-    return $self;
-}
-
-=head2 _build_DHCP_networks
-
-Builds the list of networks on which PacketFence is the DHCP server
-
-=cut
-
-sub _build_DHCP_networks {
-    my ($self) = @_;
-
-    my @dhcp_networks;
-    foreach my $network (keys %ConfigNetworks) {
-        my %net = %{$ConfigNetworks{$network}};
-        my $network_obj = NetAddr::IP->new($network,$ConfigNetworks{$network}{netmask});
-        if(isenabled($net{dhcpd})){
-            push @dhcp_networks, $network_obj;
+sub _get_local_dhcp_servers {
+    # Look for local DHCP servers by IP if not already existent in local cache and fill it up
+    unless ( @local_dhcp_servers_ip ) {
+        foreach my $network ( keys %ConfigNetworks ) {
+            push @local_dhcp_servers_ip, $ConfigNetworks{$network}{'gateway'} if ($ConfigNetworks{$network}{'dhcpd'} eq 'enabled');
         }
     }
 
-    $self->{dhcp_networks} = \@dhcp_networks;
+    # Look for local DHCP servers by MAC if not already existent in local cache and fill it up
+    unless ( @local_dhcp_servers_mac ) {
+        @local_dhcp_servers_mac = pf::config::util::get_internal_macs();
+    }
+
+    # Return an hash of arrays for both the IPs and the MACs
+    return ( ip => [@local_dhcp_servers_ip], mac => [@local_dhcp_servers_mac] );
 }
 
-=head2 _get_redis_client
 
-Get the redis client
+=head2 processIPTasks
+
+Different IP based tasks processing part of the DHCP flow
+
+- Firewall SSO
+- Inline enforcement
+- Conformity scan
+- Parking violation
+- iplog
 
 =cut
 
-sub _get_redis_client {
-    my ($self) = @_;
-    if($self->{redis_client}){
-        return $self->{redis_client};
-    }
-    else {
-        my $server = pf::CHI->config->{storage}{redis}{server};
-        $self->{redis_client} = Redis::Fast->new(server => $server, on_connect => \&_on_redis_connect);
-        return $self->{redis_client};
-    }
-}
+sub processIPTasks {
+    my ( $self, %arguments ) = @_;
+    my $logger = pf::log::get_logger();
 
-=head2 process_packet
-
-Process a packet
-
-=cut
-
-sub process_packet {
-    my $timer = pf::StatsD::Timer->new();
-    my ( $self ) = @_;
-
-    my ($dhcp);
-
-    # we need success flag here because we can't next inside try catch
-    my $success;
-    try {
-        $dhcp = decode_dhcp($self->{'udp_payload'});
-        $success = 1;
-    } catch {
-        $logger->warn("Unable to parse DHCP packet: $_");
-    };
-    return if (!$success);
-
-    # adding to dhcp hashref some frame information we care about
-    $dhcp->{'src_mac'} = $self->{'src_mac'};
-    $dhcp->{'dest_mac'} = $self->{'dest_mac'};
-    $dhcp->{'src_ip'} = $self->{'src_ip'};
-    $dhcp->{'dest_ip'} = $self->{'dest_ip'};
-
-    if (!valid_mac($dhcp->{'src_mac'})) {
-        $logger->debug("Source MAC is invalid. skipping");
-        return;
-    }
-
-    # grab DHCP information
-    if ( !defined($dhcp->{'chaddr'}) ) {
-        $logger->debug("chaddr is undefined in DHCP packet");
-        return;
-    }
-
-    $dhcp->{'chaddr'} = clean_mac( substr( $dhcp->{'chaddr'}, 0, 12 ) );
-    if ( $dhcp->{'chaddr'} ne "00:00:00:00:00:00" && !valid_mac($dhcp->{'chaddr'}) ) {
-        $logger->debug(
-            "invalid CHADDR value ($dhcp->{'chaddr'}) in DHCP packet from $dhcp->{src_mac} ($dhcp->{src_ip})"
-        );
-        return;
-    }
-
-    if ( !node_exist($dhcp->{'chaddr'}) ) {
-        $logger->info("Unseen before node added: $dhcp->{'chaddr'}");
-        node_add_simple($dhcp->{'chaddr'});
-    }
-
-    # opcode 1 = request, opcode 2 = reply
-
-    # Option 53: DHCP Message Type (RFC2132)
-    # Value   Message Type
-    # -----   ------------
-    #   1     DHCPDISCOVER
-    #   2     DHCPOFFER
-    #   3     DHCPREQUEST
-    #   4     DHCPDECLINE
-    #   5     DHCPACK
-    #   6     DHCPNAK
-    #   7     DHCPRELEASE
-    #   8     DHCPINFORM
-
-    if ( $dhcp->{'op'} == 2 ) {
-        $self->parse_dhcp_offer($dhcp) if ( $dhcp->{'options'}{'53'} == 2 );
-
-        $self->parse_dhcp_ack($dhcp) if ( $dhcp->{'options'}{'53'} == 5 );
-
-    } elsif ( $dhcp->{'op'} == 1 ) {
-
-        # returning on Discover in order to avoid some unnecessary work (we expect clients to do a dhcp request anyway)
-        return $self->parse_dhcp_discover($dhcp) if ( $dhcp->{'options'}{'53'} == 1 );
-
-        $self->parse_dhcp_request($dhcp) if ( $dhcp->{'options'}{'53'} == 3 );
-
-        return $self->parse_dhcp_release($dhcp) if ( $dhcp->{'options'}{'53'} == 7 );
-
-        return $self->parse_dhcp_inform($dhcp) if ( $dhcp->{'options'}{'53'} == 8 );
-
-        # Option 82 Relay Agent Information (RFC3046)
-        if ( isenabled( $Config{'network'}{'dhcpoption82logger'} ) && defined( $dhcp->{'options'}{'82'} ) ) {
-            $self->parse_dhcp_option82($dhcp);
+    # Parse arguments
+    my %iptasks_arguments = ();
+    foreach my $key ( keys %arguments ) {
+        if ( exists $IPTASKS_ARGUMENTS_MAP{$key} ) {
+            $iptasks_arguments{$IPTASKS_ARGUMENTS_MAP{$key}} = $arguments{$key};
         }
+    }
 
-        # updating the node first
-        # in case the fingerprint generates a violation and that autoreg uses fingerprint to auto-categorize nodes
-        # see #1216 for details
-        my %tmp;
-        $tmp{'dhcp_fingerprint'} = defined($dhcp->{'options'}{'55'}) ? $dhcp->{'options'}{'55'} : '';
-        $tmp{'dhcp_vendor'} = defined($dhcp->{'options'}{'60'}) ? $dhcp->{'options'}{'60'} : '';
-        $tmp{'last_dhcp'} = mysql_date();
-        if (defined($dhcp->{'options'}{'12'})) {
-            $tmp{'computername'} = $dhcp->{'options'}{'12'};
-            if(isenabled($Config{network}{hostname_change_detection})){
-                $self->{api_client}->notify('detect_computername_change', $dhcp->{'chaddr'}, $tmp{'computername'});
+    $self->preProcessIPTasks(\%iptasks_arguments);
+
+    # update last_seen of MAC address as some activity from it has been seen
+    pf::node::node_update_last_seen($iptasks_arguments{'ip'});
+
+    # Firewall SSO
+    if (isenabled($pf::config::Config{advanced}{sso_on_dhcp})) {
+        if ( $iptasks_arguments{'oldip'} && $iptasks_arguments{'oldip'} ne $iptasks_arguments{'ip'} ) {
+            $self->apiClient->notify( 'firewallsso', (method => 'Stop', mac => $iptasks_arguments{'mac'}, ip => $iptasks_arguments{'oldip'}, timeout => undef) );
+            $self->apiClient->notify( 'firewallsso', (method => 'Start', mac => $iptasks_arguments{'mac'}, ip => $iptasks_arguments{'ip'}, timeout => $iptasks_arguments{'lease_length'} || $DEFAULT_LEASE_LENGTH) );
+        }
+        $self->apiClient->notify( 'firewallsso', (method => 'Update', mac => $iptasks_arguments{'mac'}, ip => $iptasks_arguments{'ip'}, timeout => $iptasks_arguments{'lease_length'} || $DEFAULT_LEASE_LENGTH) );
+    }
+
+    # Inline enforcement
+    # 2017.03.20 - dwuelfrath@inverse.ca - There is currently no ipv6 support for inline enforcement. Remove the condition once "resolved"
+    unless ( $iptasks_arguments{'ipversion'} eq $IPV6 ) {
+        if ( $iptasks_arguments{'oldip'} && $iptasks_arguments{'oldip'} ne $iptasks_arguments{'ip'} ) {
+            my $node_view = node_view($iptasks_arguments{'mac'});
+            my $last_connection_type = $node_view->{'last_connection_type'};
+            $self->apiClient->notify('ipset_node_update', $iptasks_arguments{'oldip'}, $iptasks_arguments{'ip'}, $iptasks_arguments{'mac'}) if (defined $last_connection_type && $last_connection_type eq $connection_type_to_str{$INLINE});
+        }
+    }
+
+    # Conformity scan
+    # 2017.03.20 - dwuelfrath@inverse.ca - There is currently no ipv6 support for conformity scan. Remove the condition once "resolved"
+    unless ( $iptasks_arguments{'ipversion'} eq $IPV6 ) {
+        $self->apiClient->notify('trigger_scan', %iptasks_arguments );
+    }
+
+    # Parking violation
+    $self->checkForParking($iptasks_arguments{'mac'}, $iptasks_arguments{'ip'});
+    if ( $iptasks_arguments{'oldmac'} && $iptasks_arguments{'oldmac'} ne $iptasks_arguments{'mac'} ) {
+        # Remove the actions that were for the previous MAC address
+        pf::parking::remove_parking_actions($iptasks_arguments{'oldmac'}, $iptasks_arguments{'ip'});
+    }
+
+    # IPlog
+    if ( $iptasks_arguments{'ipversion'} eq $IPV4 ) {
+        $self->apiClient->notify('update_ip4log', %iptasks_arguments);
+    } elsif ( $iptasks_arguments{'ipversion'} eq $IPV6 ) {
+        $self->apiClient->notify('update_ip6log', %iptasks_arguments);
+    }
+}
+
+
+=head2 processFingerbank
+
+Fingerbank processing part of the DHCP flow
+
+=cut
+
+sub processFingerbank {
+    my ( $self, $attributes ) = @_;
+    my $logger = pf::log::get_logger();
+
+    my $fingerbank_args = {};
+    foreach my $key ( keys %{$attributes} ) {
+        if ( exists $FINGERBANK_ARGUMENTS_MAP{$key} ) {
+            if ( ref($attributes->{$key}) eq 'ARRAY' ) {
+                $fingerbank_args->{$FINGERBANK_ARGUMENTS_MAP{$key}} = join ',', @{$attributes->{$key}};
+            }
+            else {
+                $fingerbank_args->{$FINGERBANK_ARGUMENTS_MAP{$key}} = $attributes->{$key};
             }
         }
-
-        node_modify( $dhcp->{'chaddr'}, %tmp );
-
-        # Fingerbank interaction
-        my %fingerbank_query_args = (
-            dhcp_fingerprint    => $tmp{'dhcp_fingerprint'},
-            dhcp_vendor         => $tmp{'dhcp_vendor'},
-            mac                 => $dhcp->{'chaddr'},
-            computer_name       => $tmp{'computername'},
-        );
-
-        # When listening on the mgmt interface, we can't rely on yiaddr as we only see requests
-        my $ip = ($dhcp->{'yiaddr'} ne "0.0.0.0") ? $dhcp->{'yiaddr'} : $dhcp->{'options'}{'50'};
-        $fingerbank_query_args{'ip'} = $ip if defined($ip);
-
-        $self->{api_client}->notify('fingerbank_process', \%fingerbank_query_args );
-
-        my $modified_node_log_message = '';
-        foreach my $node_key ( keys %tmp ) {
-            $modified_node_log_message .= "$node_key = " . $tmp{$node_key} . ",";
-        }
-        chop($modified_node_log_message);
-
-        $logger->info("$dhcp->{'chaddr'} requested an IP with the following informations: $modified_node_log_message");
-    } else {
-        $logger->debug("unrecognized DHCP opcode from $dhcp->{'chaddr'}: $dhcp->{op}");
-    }
-}
-
-=head2 parse_dhcp_discover
-
-=cut
-
-sub parse_dhcp_discover {
-    my ($self, $dhcp) = @_;
-    $logger->debug("DHCPDISCOVER from $dhcp->{'chaddr'}");
-}
-
-=head2 parse_dhcp_offer
-
-=cut
-
-sub parse_dhcp_offer {
-    my $timer = pf::StatsD::Timer->new();
-    my ($self, $dhcp) = @_;
-
-    if ($dhcp->{'yiaddr'} =~ /^0\.0\.0\.0$/) {
-        $logger->warn("DHCPOFFER invalid IP in DHCP's yiaddr for $dhcp->{'chaddr'}");
-        return;
     }
 
-    $logger->info("DHCPOFFER from $dhcp->{src_ip} ($dhcp->{src_mac}) to host $dhcp->{'chaddr'} ($dhcp->{yiaddr})");
-
-    $self->rogue_dhcp_handling($dhcp->{'src_ip'}, $dhcp->{'src_mac'}, $dhcp->{'yiaddr'}, $dhcp->{'chaddr'}, $dhcp->{'giaddr'});
-}
-
-=head2 parse_dhcp_request
-
-=cut
-
-sub parse_dhcp_request {
-    my $timer = pf::StatsD::Timer->new();
-    my ($self, $dhcp) = @_;
-    $logger->debug("DHCPREQUEST from $dhcp->{'chaddr'}");
-
-    my $lease_length = $dhcp->{'options'}{'51'};
-    my $client_ip = $dhcp->{'options'}{'50'};
-    my $client_mac;
-    if (defined($client_ip) && $client_ip !~ /^0\.0\.0\.0$/) {
-        $logger->info(
-            "DHCPREQUEST from $dhcp->{'chaddr'} ($client_ip)"
-            . ( defined($lease_length) ? " with lease of $lease_length seconds" : "")
-        );
-        $client_mac = $dhcp->{'chaddr'};
+    # DHCP filters (Fingerbank scope)
+    # If there is a match, we override Fingerbank call
+    my $dhcp_filter_rule = $self->filterEngine->filter('Fingerbank', $fingerbank_args);
+    unless ( $dhcp_filter_rule ) {
+        $self->apiClient->notify('fingerbank_process', $fingerbank_args->{mac});
     }
-
-    # We check if we are running without dhcpd
-    # This means we don't see ACK so we need to act on requests
-    if( (defined($client_ip) && defined($client_mac)) && (!$self->pf_is_dhcp($client_ip) && !isenabled($Config{network}{force_listener_update_on_ack})) ){
-        $self->handle_new_ip($client_mac, $client_ip, $lease_length);
-    }
-
-    # As per RFC2131 in a DHCPREQUEST if ciaddr is set and we broadcast, we are in re-binding state
-    # in which case we are not interested in detecting rogue DHCP
-    if ($dhcp->{'ciaddr'} !~ /^0\.0\.0\.0$/) {
-        $self->rogue_dhcp_handling($dhcp->{'options'}{54}, undef, $client_ip, $dhcp->{'chaddr'}, $dhcp->{'giaddr'});
-    }
-
-    if ($self->{is_inline_vlan} || grep ( { defined $_->{'gateway'} && $_->{'gateway'} eq $dhcp->{'src_ip'} } @inline_nets)) {
-        $self->{api_client}->notify('synchronize_locationlog',$self->{interface_ip},$self->{interface_ip},undef, $NO_PORT, $self->{interface_vlan}, $dhcp->{'chaddr'}, $NO_VOIP, $INLINE);
-        $self->{accessControl}->performInlineEnforcement($dhcp->{'chaddr'});
-    }
-    else {
-        $logger->debug("Not acting on DHCPREQUEST");
-    }
-}
-
-
-=head2 parse_dhcp_ack
-
-=cut
-
-sub parse_dhcp_ack {
-    my $timer = pf::StatsD::Timer->new();
-    my ($self, $dhcp) = @_;
-
-    my $s_ip = $dhcp->{'src_ip'};
-    my $s_mac = $dhcp->{'src_mac'};
-    my $lease_length = $dhcp->{'options'}->{'51'};
-
-    my $client_ip;
-    my $client_mac;
-
-    if ($dhcp->{'yiaddr'} !~ /^0\.0\.0\.0$/) {
-        $logger->info(
-            "DHCPACK from $s_ip ($s_mac) to host $dhcp->{'chaddr'} ($dhcp->{yiaddr})"
-            . ( defined($lease_length) ? " for $lease_length seconds" : "" )
-        );
-        $client_ip = $dhcp->{'yiaddr'};
-        $client_mac = $dhcp->{'chaddr'};
-    }
-    elsif ($dhcp->{'ciaddr'} !~ /^0\.0\.0\.0$/) {
-
-        $logger->info(
-            "DHCPACK CIADDR from $s_ip ($s_mac) to host $dhcp->{'chaddr'} ($dhcp->{ciaddr})"
-            . ( defined($lease_length) ? " for $lease_length seconds" : "")
-        );
-        $client_ip = $dhcp->{'ciaddr'};
-        $client_mac = $dhcp->{'chaddr'};
-    }
-    else {
-        $logger->warn(
-            "invalid DHCPACK from $s_ip ($s_mac) to host $dhcp->{'chaddr'} [$dhcp->{yiaddr} - $dhcp->{ciaddr}]"
-        );
-    }
-
-    # We check if we are running with the DHCPd process.
-    # If yes, we are interested with the ACK
-    # Packet also has to be valid
-    if( (defined($client_ip) && defined($client_mac)) && ($self->pf_is_dhcp($client_ip) || isenabled($Config{network}{force_listener_update_on_ack})) ){
-        $self->handle_new_ip($client_mac, $client_ip, $lease_length);
-    }
-    else {
-        $logger->debug("Not acting on DHCPACK");
-    }
-
-}
-
-=head2 pf_is_dhcp
-
-Verifies if PacketFence is the DHCP server for the network the IP is in
-
-=cut
-
-sub pf_is_dhcp {
-    my ($self, $client_ip) = @_;
-
-    foreach my $network_obj (@{$self->{dhcp_networks}}) {
-        # We need to rebuild it everytime with the mask from the network as
-        # a DHCPREQUEST does not contain the subnet mask
-        my $net_addr = NetAddr::IP->new($client_ip,$network_obj->mask);
-        if($network_obj->contains($net_addr)){
-            $logger->info("The listener process is on the same server as the DHCP server.");
-            return $TRUE;
-        }
-    }
-    $logger->info("The listener process is NOT on the same server as the DHCP server.");
-    return $FALSE;
-}
-
-=head2 handle_new_ip
-
-Handle the tasks related to a device getting an IP address
-
-=cut
-
-sub handle_new_ip {
-    my $timer = pf::StatsD::Timer->new();
-    my ($self, $client_mac, $client_ip, $lease_length) = @_;
-    $logger->info("Updating iplog and SSO for $client_mac -> $client_ip");
-    $self->update_iplog( $client_mac, $client_ip, $lease_length );
-
-    my %data = (
-       'ip' => $client_ip,
-       'mac' => $client_mac,
-       'net_type' => $self->{net_type},
-    );
-    $self->{api_client}->notify('trigger_scan', %data );
-    my $firewallsso = pf::firewallsso->new;
-    $firewallsso->do_sso('Update', $client_mac, $client_ip, $lease_length || $DEFAULT_LEASE_LENGTH);
-}
-
-=head2 parse_dhcp_release
-
-=cut
-
-sub parse_dhcp_release {
-    my $timer = pf::StatsD::Timer->new();
-    my ($self, $dhcp) = @_;
-    $logger->debug("DHCPRELEASE from $dhcp->{'chaddr'} ($dhcp->{ciaddr})");
-    $self->{api_client}->notify('close_iplog',$dhcp->{'ciaddr'});
-}
-
-=head2 parse_dhcp_inform
-
-=cut
-
-sub parse_dhcp_inform {
-    my ($self, $dhcp) = @_;
-    $logger->debug("DHCPINFORM from $dhcp->{'chaddr'} ($dhcp->{ciaddr})");
-}
-
-=head2 rogue_dhcp_handling
-
-Requires DHCP Server IP
-
-Optional but very useful DHCP Server MAC
-
-=cut
-
-sub rogue_dhcp_handling {
-    my $timer = pf::StatsD::Timer->new();
-    my ($self, $dhcp_srv_ip, $dhcp_srv_mac, $offered_ip, $client_mac, $relay_ip) = @_;
-
-    return if (isdisabled($Config{'network'}{'rogue_dhcp_detection'}));
-
-    # if server ip is empty, it means that the client is asking for it's old IP and this should be legit
-    if (!defined($dhcp_srv_ip)) {
-        $logger->debug(
-            "received empty DHCP Server IP in rogue detection. " .
-            "Offered IP: " . ( defined($offered_ip) ? $offered_ip : 'unknown' )
-        );
-        return;
-    }
-
-    # ignore local DHCP servers
-    return if ( grep({$_ eq $dhcp_srv_ip} get_local_dhcp_servers_by_ip()) );
-    if ( defined($dhcp_srv_mac) ) {
-        return if ( grep({$_ eq $dhcp_srv_mac} get_local_dhcp_servers_by_mac()) );
-    }
-
-    # ignore whitelisted DHCP servers
-    return if ( grep({$_ eq $dhcp_srv_ip} split(/\s*,\s*/, $Config{'general'}{'dhcpservers'})) );
-
-    my $rogue_offer = sprintf( "%s: %15s to %s on interface %s", mysql_date(), $offered_ip, $client_mac, $self->{interface} );
-    if (defined($relay_ip) && $relay_ip !~ /^0\.0\.0\.0$/) {
-        $rogue_offer .= " received via relay $relay_ip";
-    }
-    $rogue_offer .= "\n";
-    my $previous_offers = $self->add_rogue_dhcp($dhcp_srv_ip, $rogue_offer, $Config{'network'}{'rogueinterval'});
-
-    # if I have a MAC use it, otherwise look it up
-    $dhcp_srv_mac = pf::iplog::ip2mac($dhcp_srv_ip) if (!defined($dhcp_srv_mac));
-    if ($dhcp_srv_mac) {
-        my %data = (
-           'mac' => $dhcp_srv_mac,
-           'tid' => $ROGUE_DHCP_TRIGGER,
-           'type' => 'INTERNAL',
-        );
-        $self->{api_client}->notify('trigger_violation', %data );
-    } else {
-        $logger->info("Unable to find MAC based on IP $dhcp_srv_ip for rogue DHCP server");
-        $dhcp_srv_mac = 'unknown';
-    }
-
-    $logger->warn("$dhcp_srv_ip ($dhcp_srv_mac) was detected offering $offered_ip to $client_mac on ".$self->{interface});
-    if (@$previous_offers) {
-        my %rogue_message;
-        $rogue_message{'subject'} = "ROGUE DHCP SERVER DETECTED AT $dhcp_srv_ip ($dhcp_srv_mac) ON ".$self->{interface}."\n";
-        $rogue_message{'message'} = '';
-        if ($dhcp_srv_mac ne 'unknown') {
-            $rogue_message{'message'} .= pf::lookup::node::lookup_node($dhcp_srv_mac) . "\n";
-        }
-        $rogue_message{'message'} .= "Detected Offers\n---------------\n";
-        while ( @$previous_offers ) {
-            $rogue_message{'message'} .= pop( @$previous_offers );
-        }
-        $rogue_message{'message'} .=
-            "\n\nIf this DHCP Server is legitimate, make sure to add it to the dhcpservers list under General.\n"
-        ;
-        pfmailer(%rogue_message);
-    }
-}
-
-=head2 _on_redis_connect
-
-To execute when connecting to redis
-Allows to install the Lua script for the rogue DHCP
-
-=cut
-
-sub _on_redis_connect {
-    my ($redis) = @_;
-    if($LUA_ROGUE_DHCP_SHA1) {
-        my ($loaded) = $redis->script('EXISTS',$LUA_ROGUE_DHCP_SHA1);
-        return if $loaded;
-    }
-    ($LUA_ROGUE_DHCP_SHA1) = $redis->script('LOAD',$LUA_ROGUE_DHCP_APPEND);
-}
-
-=head2 add_rogue_dhcp
-
-Save a rogue DHCP, along with it's offer
-If the amount of offers detected exceeds the threshold, they are returned.
-Otherwise, an empty array is returned
-
-=cut
-
-sub add_rogue_dhcp {
-    my ($self, $rogue_dhcp, $offer, $threshold) = @_;
-    my @offers = $self->_get_redis_client->evalsha($LUA_ROGUE_DHCP_SHA1, 0, $rogue_dhcp, $offer, $threshold);
-    return \@offers;
-}
-
-=head2 parse_dhcp_option82
-
-Option 82 is Relay Agent Information. Defined in RFC 3046.
-
-=cut
-
-sub parse_dhcp_option82 {
-    my $timer = pf::StatsD::Timer->new();
-    my ($self, $dhcp) = @_;
-
-    # slicing the hash to retrive the stuff we are interested in
-    my ($switch, $vlan, $mod, $port)  = @{$dhcp->{'options'}{'82'}}{'switch', 'vlan', 'module', 'port'};
-    if ( defined($switch) && defined($vlan) && defined($mod) && defined($port) ) {
-
-        # TODO port should be translated into ifIndex
-        # FIXME option82 stuff needs to be re-validated (#1340)
-        $self->{api_client}->notify('insert_close_locationlog',$switch, $mod . '/' . $port, $vlan, $dhcp->{'chaddr'}, '');
-    }
-}
-
-=head2 update_iplog
-
-Update the iplog entry for a device
-Also handles the SSO stop if the IP changes
-
-=cut
-
-sub update_iplog {
-    my $timer = pf::StatsD::Timer->new();
-    my ( $self, $srcmac, $srcip, $lease_length ) = @_;
-    $logger->debug("$srcip && $srcmac");
-
-    # return if MAC or IP is not valid
-    if ( !valid_mac($srcmac) || !valid_ip($srcip) ) {
-        $logger->error("invalid MAC or IP: $srcmac $srcip");
-        return;
-    }
-
-    my $oldip  = pf::iplog::mac2ip($srcmac);
-    my $oldmac = pf::iplog::ip2mac($srcip);
-    if ( $oldip && $oldip ne $srcip ) {
-        my $view_mac = node_view($srcmac);
-        my $firewallsso = pf::firewallsso->new;
-        $firewallsso->do_sso('Stop', $srcmac,$oldip,undef);
-        $firewallsso->do_sso('Start', $srcmac, $srcip, $lease_length || $DEFAULT_LEASE_LENGTH);
-        my $last_connection_type = $view_mac->{'last_connection_type'};
-        if (defined $last_connection_type && $last_connection_type eq $connection_type_to_str{$INLINE}) {
-            $self->{api_client}->notify('ipset_node_update',$oldip, $srcip, $srcmac);
-        }
-    }
-    my %data = (
-        'mac' => $srcmac,
-        'ip' => $srcip,
-        'lease_length' => $lease_length,
-        'oldip' => $oldip,
-        'oldmac' => $oldmac,
-    );
-    $self->{api_client}->notify('update_iplog', %data);
-}
-
-=head2 get_local_dhcp_servers_by_ip
-
-Return a list of all dhcp servers IP that could be running locally.
-
-Caches results on first run then returns from cache.
-
-TODO: Should be refactored and putted into a class. IP and MAC methods should also be put into a single one.
-
-=cut
-
-sub get_local_dhcp_servers_by_ip {
-
-    # return from cache
-    return @local_dhcp_servers_ip if (@local_dhcp_servers_ip);
-
-    # look them up, fill cache and return result
-    foreach my $network (keys %ConfigNetworks) {
-
-        push @local_dhcp_servers_ip, $ConfigNetworks{$network}{'gateway'}
-            if ($ConfigNetworks{$network}{'dhcpd'} eq 'enabled');
-    }
-    return @local_dhcp_servers_ip;
-}
-
-=head2 get_local_dhcp_servers_by_mac
-
-Return a list of all mac addresses that could be issuing DHCP offers/acks locally.
-
-Caches results on first run then returns from cache.
-
-TODO: Should be refactored and putted into a class. IP and MAC methods should also be put into a single one.
-
-=cut
-
-sub get_local_dhcp_servers_by_mac {
-    # return from cache
-    return @local_dhcp_servers_mac if ( @local_dhcp_servers_mac );
-
-    # look them up, fill cache and return result
-    @local_dhcp_servers_mac = get_internal_macs();
-
-    return @local_dhcp_servers_mac;
 }
 
 =head1 AUTHOR
@@ -647,7 +202,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -667,5 +222,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
+
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

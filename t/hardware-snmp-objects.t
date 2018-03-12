@@ -18,7 +18,7 @@ use lib '/usr/local/pf/lib';
 my $lib_path = '/usr/local/pf/lib';
 BEGIN {
     use lib qw(/usr/local/pf/t);
-    use PfFilePaths;
+    use setup_test_config;
 }
 use Test::More;
 use Test::NoWarnings;
@@ -56,7 +56,10 @@ my @whitelist = (
     'radiusDisconnect', 'supportsRoleBasedEnforcement', 'getRoleByName', 'returnRadiusAccessAccept',
     'synchronize_locationlog', 'extractVLAN',
     'supportsMABFloatingDevices', 'disableMABFloatingDevice', 'enableMABFloatingDevice', 'disableMABByIfIndex', 'enableMABByIfIndex',
-    'identifyConnectionType', 'logger', 'returnRoleAttributes',
+    'identifyConnectionType', 'logger', 'returnRoleAttributes', 'cachedSNMPRequest', 'getRelayAgentInfoOptRemoteIdSub', 'TO_JSON',
+    'normalizeTrap', 'findTrapNormalizer', '_findTrapNormalizer', 'linkDownTrapNormalizer', 'linkUpTrapNormalizer', 'dot11DeauthenticateTrapNormalizer', 
+    'findTrapVarWithBase', 'getIfIndexFromTrap', 'findTrapOID', 'getMacFromTrapVariablesForOIDBase', 'extractMacFromVariable', 
+    'handleTrap', 'getExclusiveLock', 'getExclusiveLockForScope', 'cache_distributed', 'setCurrentTenant'
 );
 
 my @missing_subs;
@@ -89,7 +92,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

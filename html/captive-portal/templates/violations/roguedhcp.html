@@ -1,7 +1,8 @@
-        <div id="about">
-          <img src="/content/images/quarantine.png" alt="[% i18n('Quarantine') %]" />
-          <h1>[% i18n("Quarantine Established!") %]</h1>
-          <p>
-            <strong>Rogue DHCP Server</strong>: You have been detected running a rogue DHCP server. Please disable it.
-          </p>
-        </div>
+<div class="layout--center">
+  <h5>Rogue DHCP Server</h5>
+</div>
+
+<div class="media media--error u-p u-mb">
+  <div class="media__img">[% flashIcon(level='error') %]</div>
+  <p class="media__body">You have been detected running a rogue DHCP server. Please disable it.</p>
+</div>

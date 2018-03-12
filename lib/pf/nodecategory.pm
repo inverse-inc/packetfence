@@ -32,26 +32,24 @@ BEGIN {
         nodecategory_db_prepare
         $nodecategory_db_prepared
 
+        nodecategory_populate_from_config
+        nodecategory_upsert
         nodecategory_view_all
         nodecategory_view
         nodecategory_view_by_name
         nodecategory_add
         nodecategory_modify
-        nodecategory_delete
         nodecategory_exist
         nodecategory_lookup
     );
 }
 
+use pf::version;
 use pf::config;
+use pf::dal::node_category;
 use pf::db;
+use pf::error qw(is_error is_success);
 use pf::util;
-
-# The next two variables and the _prepare sub are required for database handling magic (see pf::db)
-our $nodecategory_db_prepared = 0;
-# in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
-# the hash if required
-our $nodecategory_statements = {};
 
 =head1 SUBROUTINES
 
@@ -59,39 +57,68 @@ our $nodecategory_statements = {};
 
 =cut
 
-sub nodecategory_db_prepare {
-    my $logger = get_logger();
-    $logger->debug("Preparing pf::nodecategory database queries");
+=item nodecategory_populate_from_config
 
-    $nodecategory_statements->{'nodecategory_view_all_sql'} = get_db_handle()->prepare(
-        qq [ SELECT category_id, name, max_nodes_per_pid, notes FROM node_category ]
-    );
+Populates the nodecategory table from the data in the configuration passes via parameter
+Note that this will not delete an existing DB role if it isn't in the configuration
+It will simply do an upsert of all the roles in the configuration
 
-    $nodecategory_statements->{'nodecategory_view_sql'} = get_db_handle()->prepare(
-        qq [ SELECT category_id, name, max_nodes_per_pid, notes FROM node_category WHERE category_id = ? ]
-    );
+=cut
 
-    $nodecategory_statements->{'nodecategory_view_by_name_sql'} = get_db_handle()->prepare(
-        qq [ SELECT category_id, name, max_nodes_per_pid, notes FROM node_category WHERE name = ? ]
-    );
+sub nodecategory_populate_from_config {
+    my ($config) = @_;
+    my $logger = get_logger;
 
-    $nodecategory_statements->{'nodecategory_add_sql'} = get_db_handle()->prepare(
-        qq [ INSERT INTO node_category (name, max_nodes_per_pid, notes) VALUES (?, ?, ?) ]
-    );
+    unless(db_ping()){
+        $logger->error("Can't connect to db");
+        return;
+    }
 
-    $nodecategory_statements->{'nodecategory_modify_sql'} = get_db_handle()->prepare(
-        qq [ UPDATE node_category SET name=?, max_nodes_per_pid=?, notes=? WHERE category_id = ? ]
-    );
+    if (db_readonly_mode()) {
+        my $msg = "Cannot reload roles when the database is in read only mode\n";
+        print STDERR $msg;
+        $logger->error($msg);
+        return;
+    }
+    while(my ($id, $role) = each(%$config)) {
+        nodecategory_upsert($id, %$role);
+    }
+}
 
-    $nodecategory_statements->{'nodecategory_delete_sql'} = get_db_handle()->prepare(
-        qq [ DELETE FROM node_category WHERE category_id = ? ]
-    );
+=item nodecategory_upsert
 
-    $nodecategory_statements->{'nodecategory_exist_sql'} = get_db_handle()->prepare(
-        qq [ SELECT category_id FROM node_category WHERE category_id = ? ]
-    );
+Insert of update a record given an ID
 
-    $nodecategory_db_prepared = 1;
+=cut
+
+sub nodecategory_upsert {
+    my ($id, %data) = @_;
+    my $logger = get_logger;
+
+    eval {
+        if(pf::version::version_get_last_db_version() =~ /^[0-6]\./) {
+            $logger->error("Cannot upsert a nodecategory in a database that is on a version below 7.0.0. Please upgrade your database schema.");
+            return;
+        }
+
+        die "Missing ID for nodecategory_upsert" unless($id);
+
+        $logger->info("Inserting/updating role with ID $id");
+        my $obj = pf::dal::node_category->new({
+            name => $id,
+            max_nodes_per_pid => $data{max_nodes_per_pid},
+            notes => $data{notes},
+
+        });
+        my ($status) = $obj->save;
+        if (is_error($status)) {
+            $logger->error("Cannot save nodecategory (role) in the database.");
+        }
+    };
+    if($@) {
+        $logger->error("Cannot upsert nodecategory (role) in the database. Error was: $@");
+        return;
+    }
 }
 
 =item nodecategory_view_all - view all categories, returns an hashref
@@ -99,7 +126,11 @@ sub nodecategory_db_prepare {
 =cut
 
 sub nodecategory_view_all {
-    return db_data(NODECATEGORY, $nodecategory_statements, 'nodecategory_view_all_sql');
+    my ($status, $iter) = pf::dal::node_category->search();
+    if (is_error($status)) {
+        return;
+    }
+    return @{$iter->all() // []};
 }
 
 =item nodecategory_view - view a node category, returns an hashref
@@ -108,12 +139,11 @@ sub nodecategory_view_all {
 
 sub nodecategory_view {
     my ($cat_id) = @_;
-    my $query = db_query_execute(NODECATEGORY, $nodecategory_statements, 'nodecategory_view_sql', $cat_id);
-    my $ref = $query->fetchrow_hashref();
-
-    # just get one row and finish
-    $query->finish();
-    return ($ref);
+    my ($status, $obj) = pf::dal::node_category->find({category_id => $cat_id});
+    if (is_error($status)) {
+        return (0);
+    }
+    return ($obj->to_hash());
 }
 
 =item nodecategory_view_by_name - view a node category by name. Returns an hashref
@@ -122,12 +152,15 @@ sub nodecategory_view {
 
 sub nodecategory_view_by_name {
     my ($name) = @_;
-    my $query = db_query_execute(NODECATEGORY, $nodecategory_statements, 'nodecategory_view_by_name_sql', $name);
-    my $ref = $query->fetchrow_hashref();
-
-    # just get one row and finish
-    $query->finish();
-    return ($ref);
+    my ($status, $iter) = pf::dal::node_category->search(
+        -where => {
+            name => $name,
+        }
+    );
+    if (is_error($status)) {
+        return (0);
+    }
+    return ($iter->next(undef));
 }
 
 =item nodecategory_add - add a node category
@@ -140,16 +173,15 @@ sub nodecategory_add {
     if (!defined($data{'name'})) {
         die("name missing: Category name is mandatory when adding a category.");
     }
-
     # default values
     $data{'max_nodes_per_pid'} = 0 if (!defined($data{'max_nodes_per_pid'}));
 
-    return(
-        db_data(
-            NODECATEGORY, $nodecategory_statements, 'nodecategory_add_sql',
-            @data{qw/name max_nodes_per_pid notes/} # hash-slice assigning values to a list
-        )
-    );
+    my $status = pf::dal::node_category->create({
+        name => $data{'name'},
+        max_nodes_per_pid => $data{'max_nodes_per_pid'},
+        notes => $data{'notes'},
+    });
+    return;
 }
 
 =item nodecategory_modify - modify a node category
@@ -161,31 +193,12 @@ sub nodecategory_modify {
 
     # overriding defaults
     my $existing = nodecategory_view($cat_id);
-    foreach my $item ( keys(%data) ) {
-        $existing->{$item} = $data{$item};
+    unless ($existing) {
+        return (0);
     }
-
-    return(
-        db_data(
-            NODECATEGORY, $nodecategory_statements, 'nodecategory_modify_sql',
-            @{$existing}{qw/name max_nodes_per_pid notes/},  # hashref-slice assigning values to a list
-            $cat_id
-        )
-    );
-}
-
-=item nodecategory_delete - delete a node category
-
-=cut
-
-sub nodecategory_delete {
-    my ($id) = @_;
-
-    my $result = db_query_execute(NODECATEGORY, $nodecategory_statements, 'nodecategory_delete_sql', $id);
-    if (!defined($result)) {
-        die("database query failed! Are you trying to delete a category with nodes in it? See logs for details.");
-    }
-    return (0);
+    $existing->merge(\%data);
+    my $status = $existing->save;
+    return (is_success($status) ? 1 : 0);
 }
 
 =item nodecategory_exist - does a node category exists? returns 1 if so, 0 otherwise
@@ -194,10 +207,7 @@ sub nodecategory_delete {
 
 sub nodecategory_exist {
     my ($cat_id) = @_;
-    my $query = db_query_execute(NODECATEGORY, $nodecategory_statements, 'nodecategory_exist_sql', $cat_id);
-    my ($val) = $query->fetchrow_array();
-    $query->finish();
-    return ($val);
+    return (is_success(pf::dal::node_category->exists({category_id => $cat_id})));
 }
 
 =item nodecategory_lookup - returns category_id from a category name if it exists, undef otherwise
@@ -227,7 +237,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

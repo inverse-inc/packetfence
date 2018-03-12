@@ -22,9 +22,12 @@ use pf::authentication;
 use pf::ConfigStore::Provisioning;
 use pf::ConfigStore::BillingTiers;
 use pf::ConfigStore::Scan;
+use pf::ConfigStore::DeviceRegistration;
+use pf::ConfigStore::PortalModule;
 use pf::web::constants;
-use pf::constants::Portal::Profile;
+use pf::constants::Connection::Profile;
 use pfappserver::Form::Field::Duration;
+use pfappserver::Base::Form;
 with 'pfappserver::Base::Form::Role::Help';
 
 =head1 BLOCKS
@@ -37,7 +40,7 @@ The main definition block
 
 has_block 'definition' =>
   (
-    render_list => [qw(id description reuse_dot1x_credentials dot1x_recompute_role_from_portal)],
+    render_list => [qw(id description root_module preregistration autoregister reuse_dot1x_credentials dot1x_recompute_role_from_portal)],
   );
 
 =head2 captive_portal
@@ -48,7 +51,7 @@ The captival portal block
 
 has_block 'captive_portal' =>
   (
-    render_list => [qw(logo redirecturl always_use_redirecturl nbregpages block_interval sms_pin_retry_limit sms_request_limit login_attempt_limit)],
+    render_list => [qw(logo redirecturl always_use_redirecturl block_interval sms_pin_retry_limit sms_request_limit login_attempt_limit access_registration_when_registered)],
   );
 
 =head1 Fields
@@ -64,12 +67,7 @@ has_field 'id' =>
    type => 'Text',
    label => 'Profile Name',
    required => 1,
-   apply => [
-       {   check => qr/^[a-zA-Z0-9][a-zA-Z0-9\._-]*$/,
-           message =>
-             'The profile id is invalid. A profile id can only contain alphanumeric characters, dashes, period and or underscores'
-       }
-   ],
+   apply => [ pfappserver::Base::Form::id_validator('profile name') ],
    tags => { after_element => \&help,
              help => 'A profile id can only contain alphanumeric characters, dashes, period and or underscores.' },
   );
@@ -98,6 +96,25 @@ has_field 'logo' =>
    label => 'Logo',
   );
 
+=head2 root_module
+
+The root module of the portal
+
+=cut
+
+has_field 'root_module' =>
+  (
+   type => 'Select',
+   multiple => 0,
+   required => 1,
+   label => 'Root Portal Module',
+   options_method => \&options_root_module,
+   element_class => ['chzn-select'],
+#   element_attr => {'data-placeholder' => 'Click to add a required field'},
+   tags => { after_element => \&help,
+             help => 'The Root Portal Module to use' },
+  );
+
 =head2 locale
 
 Accepted languages for the profile
@@ -107,6 +124,7 @@ Accepted languages for the profile
 has_field 'locale' =>
 (
     'type' => 'DynamicTable',
+    'label' => 'Locales',
     'sortable' => 1,
     'do_label' => 0,
 );
@@ -146,6 +164,39 @@ has_field 'always_use_redirecturl' =>
    unchecked_value => 'disabled',
    tags => { after_element => \&help,
              help => 'Under most circumstances we can redirect the user to the URL he originally intended to visit. However, you may prefer to force the captive portal to redirect the user to the redirection URL.' },
+  );
+
+=head2 preregistration
+
+Controls whether or not this connection profile is used for preregistration
+
+=cut
+
+has_field 'preregistration' =>
+  (
+   type => 'Toggle',
+   label => 'Activate preregistration',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   tags => { after_element => \&help,
+             help => 'This activates preregistration on the connection profile. Meaning, instead of applying the access to the currently connected device, it displays a local account that is created while registering. Note that activating this disables the on-site registration on this connection profile. Also, make sure the sources on the connection profile have "Create local account" enabled.' },
+  );
+
+
+=head2 autoregister
+
+Controls whether or not this connection profile will autoregister users
+
+=cut
+
+has_field 'autoregister' =>
+  (
+   type => 'Toggle',
+   label => 'Automatically register devices',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   tags => { after_element => \&help,
+             help => 'This activates automatic registation of devices for the profile. Devices will not be shown a captive portal and RADIUS authentication credentials will be used to register the device. This option only makes sense in the context of an 802.1x authentication.' },
   );
 
 =head2 sources
@@ -199,7 +250,7 @@ has_field 'billing_tiers.contains' =>
     type => 'Select',
     options_method => \&options_billing_tiers,
     widget_wrapper => 'DynamicTableRow',
-  );
+);
 
 =head2 provisioners
 
@@ -227,35 +278,6 @@ has_field 'provisioners.contains' =>
     widget_wrapper => 'DynamicTableRow',
   );
 
-has_field 'mandatory_fields' =>
-(
-    'type' => 'DynamicTable',
-    'sortable' => 1,
-    'do_label' => 0,
-);
-
-has_field 'mandatory_fields.contains' =>
-(
-    type => 'Select',
-    options_method => \&options_mandatory_fields,
-    widget_wrapper => 'DynamicTableRow',
-);
-
-has_field 'custom_fields_authentication_sources' => (
-    type => 'Select',
-    multiple => 1,
-    do_label => 0,
-    options_method => \&options_custom_fields_authentication_sources,
-    element_class => ['chzn-select', 'input-xxlarge'],
-    element_attr => {
-        'data-placeholder' => 'Click to add a source.'
-    },
-    tags => {
-        after_element => \&help,
-        help => "Without any sources, configured Mandatory Fields won't be displayed",
-    },
-);
-
 =head2 reuse_dot1x_credentials
 
 =cut
@@ -265,6 +287,10 @@ has_field 'reuse_dot1x_credentials' =>
     type => 'Checkbox',
     checkbox_value => 'enabled',
     unchecked_value => 'disabled',
+    tags => {
+        after_element   =>    \&help,
+        help            => 'This option emulates SSO when someone needs to face the captive portal after a successful 802.1x connection. 802.1x credentials are reused on the portal to match an authentication and get the appropriate actions. As a security precaution, this option will only reuse 802.1x credentials if there is an authentication source matching the provided realm. This means, if users use 802.1x credentials with a domain part (username@domain, domain\username), the domain part needs to be configured as a realm under the RADIUS section and an authentication source needs to be configured for that realm. If users do not use 802.1x credentials with a domain part, only the NULL realm will be match IF an authentication source is configured for it.'
+    },
   );
 
 =head2 dot1x_recompute_role_from_portal
@@ -281,18 +307,6 @@ has_field 'dot1x_recompute_role_from_portal' =>
              help => 'When enabled, PacketFence will not use the role initialy computed on the portal but will use the dot1x username to recompute the role.' },
   );
 
-
-=head2 nbregpages
-
-=cut
-
-has_field 'nbregpages' =>
-  (
-    type => 'PosInteger',
-    label => 'Number of Registration Pages',
-    default => 0,
-  );
-
 =head2 block_interval
 
 The amount of time a user is blocked after reaching the defined limit for login, sms request and sms pin retry
@@ -304,7 +318,10 @@ has_field 'block_interval' =>
     type => 'Duration',
     label => 'Block Interval',
     #Use the inflate method from pfappserver::Form::Field::Duration
-    default => pfappserver::Form::Field::Duration->duration_inflate($pf::constants::Portal::Profile::BLOCK_INTERVAL_DEFAULT_VALUE),
+    validate_when_empty => 1,
+    default_method => sub {
+        pfappserver::Form::Field::Duration->duration_inflate($pf::constants::Connection::Profile::BLOCK_INTERVAL_DEFAULT_VALUE)
+    },
     tags => { after_element => \&help,
              help => 'The amount of time a user is blocked after reaching the defined limit for login, sms request and sms pin retry.' },
   );
@@ -382,6 +399,35 @@ has_field 'scans.contains' =>
     widget_wrapper => 'DynamicTableRow',
   );
 
+=head2 device_registration
+
+The definition for Device registration Sources field
+
+=cut
+
+has_field 'device_registration' =>
+  (
+    type => 'Select',
+    options_method => \&options_device_registration,
+  );
+
+
+=head2 preregistration
+
+Controls whether or not this connection profile is used for preregistration
+
+=cut
+
+has_field 'access_registration_when_registered' =>
+  (
+   type => 'Toggle',
+   label => 'Allow access to registration portal when registered',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   tags => { after_element => \&help,
+             help => 'This allows already registered users to be able to re-register their device by first accessing the status page and then accessing the portal. This is useful to allow users to extend their access even though they are already registered.' },
+  );
+
 
 =head1 METHODS
 
@@ -400,7 +446,7 @@ Returns the list of sources to be displayed
 =cut
 
 sub options_sources {
-    return map { { value => $_->id, label => $_->id, attributes => { 'data-source-class' => $_->class  } } } @{getAllAuthenticationSources()};
+    return map { { value => $_->id, label => $_->id, attributes => { 'data-source-class' => $_->class  } } } grep { !$_->isa("pf::Authentication::Source::AdminProxySource") } @{getAllAuthenticationSources()};
 }
 
 =head2 options_billing_tiers
@@ -433,30 +479,26 @@ sub options_scan {
     return  map { { value => $_, label => $_ } } @{pf::ConfigStore::Scan->new->readAllIds};
 }
 
-=head2 options_mandatory_fields
+=head2 options_device_registration
 
-Returns the list of sources to be displayed
+Returns the list of device_registration profile to be displayed
 
 =cut
 
-sub options_mandatory_fields {
-    return
-      map { { value => $_, label => $_ } }
-      qw(firstname lastname organization phone mobileprovider email sponsor_email
-      anniversary birthday gender lang nickname organization cell_phone
-      work_phone title building_number apartment_number room_number
-      custom_field_1 custom_field_2 custom_field_3 custom_field_4 custom_field_5
-      custom_field_6 custom_field_7 custom_field_8 custom_field_9);
+sub options_device_registration {
+    return  map { { value => $_, label => $_ } } '',@{pf::ConfigStore::DeviceRegistration->new->readAllIds};
 }
 
-=head2 options_custom_fields_authentication_sources
 
-Returns the list of sources to be displayed
+=head2 options_root_module
+
+Returns the list of root modules to be displayed
 
 =cut
 
-sub options_custom_fields_authentication_sources {
-    return map { { value => $_->id, label => $_->id } } @{getAllAuthenticationSources()};
+sub options_root_module {
+    my $cs = pf::ConfigStore::PortalModule->new;
+    return map { $_->{type} eq "Root" ? { value => $_->{id}, label => $_->{description} } : () } @{$cs->readAll("id")};
 }
 
 =head2 validate
@@ -477,19 +519,13 @@ sub validate {
 
     my %external;
     foreach my $source_id (@uniq_sources) {
-        my $source = &pf::authentication::getAuthenticationSource($source_id);
+        my $source = pf::authentication::getAuthenticationSource($source_id);
         next unless $source && $source->class eq 'external';
         $external{$source->{'type'}} = 0 unless (defined $external{$source->{'type'}});
         $external{$source->{'type'}}++;
         if ($external{$source->{'type'}} > 1) {
             $self->field('sources')->add_error('Only one authentication source of each external type can be selected.');
             last;
-        }
-    }
-    my @custom_fields_authentication_sources = @{$self->value->{'custom_fields_authentication_sources'} || []};
-    foreach my $custom_fields_authentication_source (@custom_fields_authentication_sources) {
-        unless ( exists $sources{$custom_fields_authentication_source}) {
-            $self->field('custom_fields_authentication_sources')->add_error("$custom_fields_authentication_source must also be set in sources");
         }
     }
 }
@@ -500,7 +536,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

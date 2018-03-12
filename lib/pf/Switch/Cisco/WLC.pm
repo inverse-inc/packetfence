@@ -103,12 +103,22 @@ use strict;
 use warnings;
 
 use Net::SNMP;
-use Net::Telnet;
+use Try::Tiny;
 
 use base ('pf::Switch::Cisco');
 
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $MAC
+    $SSID
+);
+use pf::web::util;
+use pf::util;
+use pf::node;
+use pf::util::radius qw(perform_coa perform_disconnect);
+use pf::violation qw(violation_count_reevaluate_access);
+use pf::radius::constants;
+use pf::locationlog qw(locationlog_get_session);
 
 sub description { 'Cisco Wireless Controller (WLC)' }
 
@@ -123,7 +133,6 @@ sub description { 'Cisco Wireless Controller (WLC)' }
 sub supportsWirelessDot1x { return $TRUE; }
 sub supportsWirelessMacAuth { return $TRUE; }
 sub supportsRoleBasedEnforcement { return $TRUE; }
-sub supportsExternalPortal { return $TRUE; }
 
 # disabling special features supported by generic Cisco's but not on WLCs
 sub supportsSaveConfig { return $FALSE; }
@@ -131,6 +140,7 @@ sub supportsCdp { return $FALSE; }
 sub supportsLldp { return $FALSE; }
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
+sub supportsExternalPortal { return $TRUE; }
 
 =item deauthenticateMacDefault
 
@@ -212,6 +222,7 @@ sub blacklistMac {
 
         my $session;
         eval {
+            require Net::Telnet;
             $session = Net::Telnet->new(
                 Host    => $self->{_ip},
                 Timeout => 5,
@@ -337,25 +348,6 @@ sub deauthTechniques {
     return $method,$tech{$method};
 }
 
-=item parseUrl
-
-This is called when we receive a http request from the device and return specific attributes:
-
-client mac address
-SSID
-client ip address
-redirect url
-grant url
-status code
-
-=cut
-
-sub parseUrl {
-    my($self, $req) = @_;
-    my $logger = $self->logger;
-    return ($$req->param('client_mac'),$$req->param('wlan'),$$req->param('client_ip'),$$req->param('redirect'),$$req->param('switch_url'),$$req->param('statusCode'));
-}
-
 =item returnAuthorizeWrite
 
 Return radius attributes to allow write access
@@ -397,6 +389,255 @@ sub returnAuthorizeRead {
     return [$status, %$radius_reply_ref];
 }
 
+=item returnRadiusAccessAccept
+
+Prepares the RADIUS Access-Accept reponse for the network device.
+
+Overrides the default implementation to add the dynamic acls
+
+=cut
+
+sub returnRadiusAccessAccept {
+    my ($self, $args) = @_;
+    my $logger = $self->logger;
+
+    $args->{'unfiltered'} = $TRUE;
+    my @super_reply = @{$self->SUPER::returnRadiusAccessAccept($args)};
+    my $status = shift @super_reply;
+    my %radius_reply = @super_reply;
+    my $radius_reply_ref = \%radius_reply;
+    return [$status, %$radius_reply_ref] if($status == $RADIUS::RLM_MODULE_USERLOCK);
+
+    my @av_pairs = defined($radius_reply_ref->{'Cisco-AVPair'}) ? @{$radius_reply_ref->{'Cisco-AVPair'}} : ();
+
+    my $role = $self->getRoleByName($args->{'user_role'});
+    if ( isenabled($self->{_UrlMap}) && $self->externalPortalEnforcement ) {
+        if ( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined($self->getUrlByName($args->{'user_role'}) ) ) {
+            $args->{'session_id'} = "sid".$self->setSession($args);
+            my $redirect_url = $self->getUrlByName($args->{'user_role'});
+            $redirect_url .= '/' unless $redirect_url =~ m(\/$);
+            $redirect_url .= $args->{'session_id'};
+            # Cisco and Meraki started adding "&redirect_url=http://example.com" unconditionnaly to the redirect URL.
+            # This means that since we don't have any query parameters that generated paths like "/Cisco::WLC/sid123456&redirect_url=http://example.com" which extracts the SID as sid123456&redirect_url=http://example.com
+            # We add empty query parameters to our path as a workaround
+            $redirect_url .= "?";
+            #override role if a role in role map is define
+            if (isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
+                my $role_map = $self->getRoleByName($args->{'user_role'});
+                $role = $role_map if (defined($role_map));
+                # remove the role if any as we push the redirection ACL along with it's role
+                delete $radius_reply_ref->{$self->returnRoleAttribute()};
+            }
+            $logger->info("Adding web authentication redirection to reply using role: '$role' and URL: '$redirect_url'");
+            push @av_pairs, "url-redirect-acl=$role";
+            push @av_pairs, "url-redirect=".$redirect_url;
+        }
+    }
+
+    $radius_reply_ref->{'Cisco-AVPair'} = \@av_pairs;
+
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('returnRadiusAccessAccept', $args);
+    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    return [$status, %$radius_reply_ref];
+}
+
+=item radiusDisconnect
+
+Sends a RADIUS Disconnect-Request to the NAS with the MAC as the Calling-Station-Id to disconnect.
+
+Optionally you can provide other attributes as an hashref.
+
+Uses L<pf::util::radius> for the low-level RADIUS stuff.
+
+=cut
+
+# TODO consider whether we should handle retries or not?
+
+
+sub radiusDisconnect {
+    my ($self, $mac, $add_attributes_ref) = @_;
+    my $logger = $self->logger;
+
+    # initialize
+    $add_attributes_ref = {} if (!defined($add_attributes_ref));
+
+    if (!defined($self->{'_radiusSecret'})) {
+        $logger->warn(
+            "Unable to perform RADIUS CoA-Request on (".$self->{'_id'}."): RADIUS Shared Secret not configured"
+        );
+        return;
+    }
+
+    $logger->info("deauthenticating");
+
+    # Where should we send the RADIUS CoA-Request?
+    # to network device by default
+    my $send_disconnect_to = $self->{'_ip'};
+    # but if controllerIp is set, we send there
+    if (defined($self->{'_controllerIp'}) && $self->{'_controllerIp'} ne '') {
+        $logger->info("controllerIp is set, we will use controller $self->{_controllerIp} to perform deauth");
+        $send_disconnect_to = $self->{'_controllerIp'};
+    }
+    # On which port we have to send the CoA-Request ?
+    my $nas_port = $self->{'_disconnectPort'} || '3799';
+    my $coa_port = $self->{'_coaPort'} || '1700';
+    # allowing client code to override where we connect with NAS-IP-Address
+    $send_disconnect_to = $add_attributes_ref->{'NAS-IP-Address'}
+        if (defined($add_attributes_ref->{'NAS-IP-Address'}));
+
+    my $response;
+    try {
+        my $connection_info = {
+            nas_ip => $send_disconnect_to,
+            secret => $self->{'_radiusSecret'},
+            LocalAddr => $self->deauth_source_ip($send_disconnect_to),
+            nas_port => $coa_port,
+        };
+
+        $logger->debug("network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
+        my $roleResolver = pf::roles::custom->instance();
+        my $role = $roleResolver->getRoleForNode($mac, $self);
+
+        my $node_info = node_view($mac);
+        # transforming MAC to the expected format 00-11-22-33-CA-FE
+        $mac = uc($mac);
+        $mac =~ s/:/-/g;
+        # Standard Attributes
+
+        my $attributes_ref = {
+            'Calling-Station-Id' => $mac,
+            'NAS-IP-Address' => $send_disconnect_to,
+            'NAS-Port' => $node_info->{'last_port'},
+        };
+
+        # merging additional attributes provided by caller to the standard attributes
+        $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
+
+        # Roles are configured and the user should have one.
+        # We send a regular disconnect if there is an open trapping violation
+        # to ensure the VLAN is actually changed to the isolation VLAN.
+        if ( $self->shouldUseCoA({role => $role}) ) {
+            $logger->info("Returning ACCEPT with Role: $role");
+
+            my $vsa = [
+                {
+                vendor => "Cisco",
+                attribute => "Cisco-AVPair",
+                value => "audit-session-id=$node_info->{'sessionid'}",
+                },
+                {
+                vendor => "Cisco",
+                attribute => "Cisco-AVPair",
+                value => "subscriber:command=reauthenticate",
+                },
+                {
+                vendor => "Cisco",
+                attribute => "Cisco-AVPair",
+                value => "subscriber:reauthenticate-type=last",
+                }
+            ];
+            $response = perform_coa($connection_info, $attributes_ref, $vsa);
+
+        }
+        else {
+            $connection_info = {
+                nas_ip => $send_disconnect_to,
+                secret => $self->{'_radiusSecret'},
+                LocalAddr => $self->deauth_source_ip($send_disconnect_to),
+                nas_port => $nas_port,
+            };
+            $response = perform_disconnect($connection_info, $attributes_ref);
+        }
+    } catch {
+        chomp;
+        $logger->warn("Unable to perform RADIUS CoA-Request on (".$self->{'_id'}."): $_");
+        $logger->error("Wrong RADIUS secret or unreachable network device (".$self->{'_id'}.")... On some Cisco Wireless Controllers you might have to set disconnectPort=1700 as some versions ignore the CoA requests on port 3799") if ($_ =~ /^Timeout/);
+    };
+    return if (!defined($response));
+
+    return $TRUE if ( ($response->{'Code'} eq 'Disconnect-ACK') || ($response->{'Code'} eq 'CoA-ACK') );
+
+    $logger->warn(
+        "Unable to perform RADIUS Disconnect-Request on (".$self->{'_id'}.")."
+        . ( defined($response->{'Code'}) ? " $response->{'Code'}" : 'no RADIUS code' ) . ' received'
+        . ( defined($response->{'Error-Cause'}) ? " with Error-Cause: $response->{'Error-Cause'}." : '' )
+    );
+    return;
+}
+
+=item parseRequest
+
+Redefinition of pf::Switch::parseRequest due to specific attribute being used for webauth
+
+=cut
+
+sub parseRequest {
+    my ( $self, $radius_request ) = @_;
+    my $client_mac      = ref($radius_request->{'Calling-Station-Id'}) eq 'ARRAY'
+                           ? clean_mac($radius_request->{'Calling-Station-Id'}[0])
+                           : clean_mac($radius_request->{'Calling-Station-Id'});
+    my $user_name       = $radius_request->{'TLS-Client-Cert-Common-Name'} || $radius_request->{'User-Name'};
+    my $nas_port_type   = $radius_request->{'NAS-Port-Type'};
+    my $port            = $radius_request->{'NAS-Port'};
+    my $eap_type        = ( exists($radius_request->{'EAP-Type'}) ? $radius_request->{'EAP-Type'} : 0 );
+    my $nas_port_id     = ( defined($radius_request->{'NAS-Port-Id'}) ? $radius_request->{'NAS-Port-Id'} : undef );
+
+    my $session_id;
+    if (defined($radius_request->{'Cisco-AVPair'})) {
+        if ($radius_request->{'Cisco-AVPair'} =~ /audit-session-id=(.*)/ig ) {
+            $session_id =$1;
+        }
+    }
+    return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, $session_id, $nas_port_id);
+}
+
+=item parseExternalPortalRequest
+
+Parse external portal request using URI and it's parameters then return an hash reference with the appropriate parameters
+
+See L<pf::web::externalportal::handle>
+
+=cut
+
+sub parseExternalPortalRequest {
+    my ( $self, $r, $req ) = @_;
+    my $logger = $self->logger;
+
+    # Using a hash to contain external portal parameters
+    my %params = ();
+
+    # Cisco WLC uses external portal session ID handling process
+    my $uri = $r->uri;
+    return unless ($uri =~ /.*sid(.*[^\/])/);
+    my $session_id = $1;
+
+    my $locationlog = pf::locationlog::locationlog_get_session($session_id);
+    my $switch_id = $locationlog->{switch};
+    my $client_mac = $locationlog->{mac};
+    my $client_ip = defined($r->headers_in->{'X-Forwarded-For'}) ? $r->headers_in->{'X-Forwarded-For'} : $r->connection->remote_ip;
+
+    my $redirect_url;
+    if ( defined($req->param('redirect')) ) {
+        $redirect_url = $req->param('redirect');
+    }
+    elsif ( defined($r->headers_in->{'Referer'}) ) {
+        $redirect_url = $r->headers_in->{'Referer'};
+    }
+
+    %params = (
+        session_id              => $session_id,
+        switch_id               => $switch_id,
+        client_mac              => $client_mac,
+        client_ip               => $client_ip,
+        redirect_url            => $redirect_url,
+        synchronize_locationlog => $FALSE,
+    );
+
+    return \%params;
+}
+
+
 =back
 
 =head1 AUTHOR
@@ -405,7 +646,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

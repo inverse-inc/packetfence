@@ -38,9 +38,15 @@ sub description { 'Alcatel switch' }
 
 # importing switch constants
 use pf::Switch::constants;
+use pf::constants::role qw($VOICE_ROLE);
 use pf::util;
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $MAC
+    $PORT
+    $WIRED_802_1X
+    $WIRED_MAC_AUTH
+);
 use pf::node;
 use pf::util::radius qw(perform_disconnect);
 
@@ -67,16 +73,16 @@ For now it returns the voiceRole untagged since Alcatel supports multiple untagg
 =cut
 
 sub getVoipVsa{
-    my ($self) = @_; 
-    my $logger = $self->logger; 
-    my $voiceRole = $self->getRoleByName('voice');
+    my ($self) = @_;
+    my $logger = $self->logger;
+    my $voiceRole = $self->getRoleByName($VOICE_ROLE);
     $logger->info("Accepting phone with untagged Access-Accept on role $voiceRole");
-    
+
     # Return the normal response except we force the voiceVlan to be sent
     return (
       'Filter-Id' => $voiceRole,
     );
- 
+
 }
 
 =head2 deauthenticateMacRadius
@@ -112,7 +118,7 @@ Return the reference to the deauth technique or the default deauth technique.
 
 =cut
 
-sub wiredeauthTechniques { 
+sub wiredeauthTechniques {
    my ($self, $method, $connection_type) = @_;
    my $logger = $self->logger;
 
@@ -131,7 +137,7 @@ sub wiredeauthTechniques {
         my $default = $SNMP::RADIUS;
         my %tech = (
             $SNMP::RADIUS => 'deauthenticateMacRadius',
-        ); 
+        );
         if (!defined($method) || !defined($tech{$method})) {
             $method = $default;
         }
@@ -183,7 +189,7 @@ sub radiusDisconnect {
         my $connection_info = {
             nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
-            LocalAddr => $self->deauth_source_ip(),
+            LocalAddr => $self->deauth_source_ip($send_disconnect_to),
         };
 
         my $node_info = node_attributes($mac);
@@ -211,7 +217,7 @@ sub radiusDisconnect {
     };
     return if (!defined($response));
 
-    return $TRUE if ($response->{'Code'} eq 'Disconnect-ACK');
+    return $TRUE if ( ($response->{'Code'} eq 'Disconnect-ACK') || ($response->{'Code'} eq 'CoA-ACK') );
 
     $logger->warn(
         "Unable to perform RADIUS Disconnect-Request."
@@ -228,7 +234,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

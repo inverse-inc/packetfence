@@ -15,7 +15,7 @@ linelog {
 	#
 	#  If the filename is "syslog", then the log messages will
 	#  go to syslog.
-	filename = ${logdir}/radius.log
+	filename = syslog
 	#filename = ${logdir}/linelog
 
 	#
@@ -62,7 +62,7 @@ linelog {
 	#  - ftp         The file transfer protocol daemons: ftpd(8),
 	#                tftpd(8).
 	#  - local[0-7]  Reserved for local use.
-#	syslog_facility = daemon
+	syslog_facility = local1
 
 	#  Syslog severity (if logging via syslog). Defaults to info.
 	#  Possible values are:
@@ -121,9 +121,9 @@ linelog {
 	messages {
 		default = "Unknown packet type %{Packet-Type}"
 
-		Access-Accept = "%t : [mac:%{Calling-Station-Id}] Accepted user: %{reply:User-Name} and returned VLAN %{reply:Tunnel-Private-Group-ID}"
-		Access-Reject = "%t : [mac:%{Calling-Station-Id}] Rejected user: %{User-Name}"
-		Access-Challenge = "%t : [mac:%{Calling-Station-Id}] Sent challenge: %{reply:User-Name}"
+		Access-Accept = "[mac:%{Calling-Station-Id}] Accepted user: %{reply:User-Name} and returned VLAN %{reply:Tunnel-Private-Group-ID}"
+		Access-Reject = "[mac:%{Calling-Station-Id}] Rejected user: %{User-Name}"
+		Access-Challenge = "[mac:%{Calling-Station-Id}] Sent challenge: %{reply:User-Name}"
 	}
 }
 
@@ -136,9 +136,11 @@ linelog log_accounting {
 	#
 	format = ""
 
-	filename = ${logdir}/linelog-accounting
+	filename = syslog
 
 	permissions = 0600
+
+	syslog_facility = local2
 
 	reference = "Accounting-Request.%{%{Acct-Status-Type}:-unknown}"
 

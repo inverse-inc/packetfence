@@ -17,7 +17,7 @@ Readonly our $INVALIDATED => "invalidated";
 
 BEGIN {
     use Exporter ();
-    our ( @ISA, @EXPORT, @EXPORT_OK );
+    our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     @EXPORT = qw(
         auth_log_db_prepare
@@ -25,114 +25,163 @@ BEGIN {
     );
 }
 
-use pf::db;
+use pf::dal;
+use pf::dal::auth_log;
+use pf::constants qw($ZERO_DATE);
+use pf::error qw(is_error is_success);
 use pf::log;
 
-# The next two variables and the _prepare sub are required for database handling magic (see pf::db)
-our $auth_log_db_prepared = 0;
-# in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
-# the hash if required
-our $auth_log_statements = {};
-
-sub auth_log_db_prepare {
-    my $logger = get_logger;
-    $logger->debug("Preparing pf::auth_log database queries");
-
-    $auth_log_statements->{'auth_log_view_by_pid_sql'} = get_db_handle()->prepare(qq[
-        SELECT * FROM auth_log WHERE pid = ?
-    ]);
-
-    $auth_log_statements->{'auth_log_record_oauth_attempt_sql'} = get_db_handle()->prepare(qq[
-        insert into auth_log (process_name,source,mac,attempted_at,status) 
-        VALUES(?, ?, ?, NOW(), '$INCOMPLETE');
-    ]);
-
-    $auth_log_statements->{'auth_log_record_completed_oauth_sql'} = get_db_handle()->prepare(qq[
-        update auth_log set completed_at=NOW(), status=?, pid=? 
-        where process_name=? and source=? and mac=?
-        order by attempted_at desc limit 1;
-    ]);
-
-    $auth_log_statements->{'auth_log_invalidate_previous_sql'} = get_db_handle()->prepare(qq[
-        update auth_log set completed_at=NOW(), status='$INVALIDATED' 
-        where process_name=? and source=? and mac=? and status='$INCOMPLETE';
-    ]);
-
-    $auth_log_statements->{'auth_log_record_guest_attempt_sql'} = get_db_handle()->prepare(qq[
-        insert into auth_log (process_name,source,mac,pid,attempted_at,status) 
-        VALUES(?, ?, ?, ?, NOW(), '$INCOMPLETE');
-    ]);
-
-    $auth_log_statements->{'auth_log_record_completed_guest_sql'} = get_db_handle()->prepare(qq[
-        update auth_log set completed_at=NOW(), status=? 
-        where process_name=? and source=? and mac=?
-        order by attempted_at desc limit 1;
-    ]);
-
-    $auth_log_statements->{'auth_log_record_auth_sql'} = get_db_handle()->prepare(qq[
-        insert into auth_log (process_name, source, mac, pid, attempted_at, completed_at, status) 
-        VALUES(?, ?, ?, ?, NOW(), NOW(), ?);
-    ]);
-
-    $auth_log_statements->{'auth_log_change_status_sql'} = get_db_handle()->prepare(qq[
-        update auth_log set status=? 
-        where process_name=? and source=? and mac=?
-        order by attempted_at desc limit 1;
-    ]);
-
-    $auth_log_db_prepared = 1;
-}
-
-=head2 view
-
-view a an pending activation record, returns an hashref
-
-=cut
-
-sub view_by_pid {
-    my ($pid) = @_;
-    return db_data(AUTH_LOG, $auth_log_statements, 'auth_log_view_by_pid_sql', $pid);
-}
-
-=head2 open
+=head2 invalidate_previous
 
 =cut
 
 sub invalidate_previous {
-    my ($source, $mac) = @_;
-    return(db_data(AUTH_LOG, $auth_log_statements, 'auth_log_invalidate_previous_sql', process_name, $source, $mac));
+    my ($source, $mac, $profile) = @_;
+    my ($status, $rows) = pf::dal::auth_log->update_items(
+        -set => {
+            completed_at => \'NOW()',
+            status => $INVALIDATED,
+        },
+        -where => {
+            process_name => process_name,
+            source => $source,
+            mac => $mac,
+            status => $INCOMPLETE,
+            profile => $profile,
+        },
+    );
+    return $rows;
 }
 
 sub record_oauth_attempt {
-    my ($source, $mac) = @_;
-    invalidate_previous($source,$mac);
-    return(db_data(AUTH_LOG, $auth_log_statements, 'auth_log_record_oauth_attempt_sql', process_name, $source, $mac));
+    my ($source, $mac, $profile) = @_;
+    invalidate_previous($source, $mac, $profile);
+    my $status = pf::dal::auth_log->create({
+        process_name => process_name,
+        source => $source,
+        mac => $mac,
+        attempted_at => \'NOW()',
+        status => $INCOMPLETE,
+        profile => $profile,
+    });
+    return (is_success($status));
 }
 
 sub record_completed_oauth {
-    my ($source, $mac, $pid, $status) = @_;
-    return(db_data(AUTH_LOG, $auth_log_statements, 'auth_log_record_completed_oauth_sql', $status, $pid, process_name, $source, $mac));
+    my ($source, $mac, $pid, $auth_status, $profile) = @_;
+    my ($status, $rows) = pf::dal::auth_log->update_items(
+        -set => {
+            completed_at => \'NOW()',
+            status => $auth_status,
+            pid => $pid,
+            profile => $profile,
+        },
+        -where => {
+            process_name => process_name,
+            source => $source,
+            mac => $mac,
+        },
+        -limit => 1,
+        -order_by => { -desc => 'attempted_at' },
+    );
+    return $rows;
 }
 
 sub record_guest_attempt {
-    my ($source, $mac, $pid) = @_;
-    invalidate_previous($source,$mac);
-    return(db_data(AUTH_LOG, $auth_log_statements, 'auth_log_record_guest_attempt_sql', process_name, $source, $mac, $pid));
+    my ($source, $mac, $pid, $profile) = @_;
+    invalidate_previous($source, $mac, $profile);
+    my $status = pf::dal::auth_log->create({
+        process_name => process_name,
+        source => $source,
+        mac => $mac,
+        pid => ($pid // ''),
+        attempted_at => \'NOW()',
+        status => $INCOMPLETE,
+        profile => $profile,
+    });
+    return (is_success($status));
 }
 
 sub record_completed_guest {
-    my ($source, $mac, $status) = @_;
-    return(db_data(AUTH_LOG, $auth_log_statements, 'auth_log_record_completed_guest_sql', $status, process_name, $source, $mac));
+    my ($source, $mac, $auth_status, $profile) = @_;
+    my ($status, $rows) = pf::dal::auth_log->update_items(
+        -set => {
+            completed_at => \'NOW()',
+            status => $auth_status,
+            profile => $profile,
+        },
+        -where => {
+            process_name => process_name,
+            source => $source,
+            mac => $mac,
+        },
+        -limit => 1,
+        -order_by => { -desc => 'attempted_at' },
+    );
+    return $rows;
 }
 
 sub record_auth {
-    my ($source, $mac, $pid, $status) = @_;
-    return(db_data(AUTH_LOG, $auth_log_statements, 'auth_log_record_auth_sql', process_name, $source, $mac, $pid // '', $status));
+    my ($source, $mac, $pid, $auth_status, $profile) = @_;
+    my $status = pf::dal::auth_log->create({
+        process_name => process_name,
+        source => $source,
+        mac => $mac,
+        pid => ($pid // ''),
+        attempted_at => \'NOW()',
+        completed_at => \'NOW()',
+        status => $auth_status,
+        profile => $profile,
+    });
+    return (is_success($status));
 }
 
 sub change_record_status {
-    my ($source, $mac, $status) = @_;
-    return(db_data(AUTH_LOG, $auth_log_statements, 'auth_log_change_status_sql', $status, process_name, $source, $mac));
+    my ($source, $mac, $auth_status) = @_;
+    my ($status, $rows) = pf::dal::auth_log->update_items(
+        -set => {
+            status => $auth_status,
+        },
+        -where => {
+            process_name => process_name,
+            source => $source,
+            mac => $mac,
+        },
+        -limit => 1,
+        -order_by => { -desc => 'attempted_at' },
+    );
+    return $rows;
+}
+
+=head2 cleanup
+
+Execute a cleanup job on the table
+
+=cut
+
+sub cleanup {
+    my $timer = pf::StatsD::Timer->new({ sample_rate => 0.2 });
+    my ($expire_seconds, $batch, $time_limit) = @_;
+    my $logger = get_logger();
+    $logger->debug("calling cleanup with time=$expire_seconds batch=$batch timelimit=$time_limit");
+
+    if($expire_seconds eq "0") {
+        $logger->debug("Not deleting because the window is 0");
+        return;
+    }
+    my $now = pf::dal->now();
+    my ($status, $rows_deleted) = pf::dal::auth_log->batch_remove(
+        {
+            -where => {
+                attempted_at => {
+                    "<" => \[ 'DATE_SUB(?, INTERVAL ? SECOND)', $now, $expire_seconds ]
+                },
+            },
+            -limit => $batch,
+        },
+        $time_limit
+    );
+    return ($rows_deleted);
 }
 
 1;

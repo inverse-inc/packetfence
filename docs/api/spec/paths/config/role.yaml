@@ -1,0 +1,86 @@
+/config/role/{role_id}:
+  delete:
+    parameters: []
+    responses:
+      '204':
+        description: Deleted a config item
+    summary: Delete a config item
+  get:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              id:
+                description: Name
+                type: string
+              max_nodes_per_pid:
+                description: The maximum number of nodes a user having this role can
+                  register.
+                type: integer
+              notes:
+                description: Description
+                type: string
+            required:
+            - id
+            - max_nodes_per_pid
+            type: object
+      required: true
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  patch:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              max_nodes_per_pid:
+                description: The maximum number of nodes a user having this role can
+                  register.
+                type: integer
+              notes:
+                description: Description
+                type: string
+            required:
+            - max_nodes_per_pid
+            type: object
+      required: true
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  put:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              max_nodes_per_pid:
+                description: The maximum number of nodes a user having this role can
+                  register.
+                type: integer
+              notes:
+                description: Description
+                type: string
+            required:
+            - max_nodes_per_pid
+            type: object
+      required: true
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

@@ -19,6 +19,7 @@ use base 'pfconfig::namespaces::resource';
 
 sub init {
     my ($self) = @_;
+    $self->{child_resources} = ['resource::passthroughs'];
     $self->{_authentication_config} = $self->{cache}->get_cache('config::Authentication');
 }
 
@@ -28,7 +29,6 @@ sub build {
     return $self->{_authentication_config}->{authentication_sources};
 }
 
-=back
 
 =head1 AUTHOR
 
@@ -36,7 +36,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

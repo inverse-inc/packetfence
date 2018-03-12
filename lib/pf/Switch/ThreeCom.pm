@@ -92,7 +92,7 @@ sub getIfIndexByNasPortId {
     my ($self, $ifDesc_param) = @_;
     my $logger = $self->logger;
 
-    if ( !$self->connectRead() ) {
+    if ( !$self->connectRead() || !defined($ifDesc_param)) {
         return 0;
     }
     if ($ifDesc_param =~ /(unit|slot)=(\d+);subslot=(\d+);port=(\d+)/) {
@@ -101,8 +101,7 @@ sub getIfIndexByNasPortId {
         my $port = $4;
         my $OID_ifDesc = '1.3.6.1.2.1.2.2.1.2';
         my $ifDescHashRef;
-        my $cache = $self->cache;
-        my $result = $cache->compute([$self->{'_id'},$OID_ifDesc], sub { $self->{_sessionRead}->get_table( -baseoid => $OID_ifDesc )});
+        my $result = $self->cachedSNMPRequest([-baseoid => $OID_ifDesc]);
         foreach my $key ( keys %{$result} ) {
             my $ifDesc = $result->{$key};
             if ( $ifDesc =~ /(GigabitEthernet|Ten-GigabitEthernet|Ethernet)$unit\/$subslot\/$port$/i ) {
@@ -119,7 +118,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

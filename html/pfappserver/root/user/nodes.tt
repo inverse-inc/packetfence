@@ -6,7 +6,7 @@
                     <th>[% l('Status') %]</th>
                     <th>[% l('MAC') %]</th>
                     <th>[% l('Computer Name') %]</th>
-                    <th>[% l('OS (DHCP)') %]</th>
+                    <th>[% l('Device class') %]</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -15,7 +15,7 @@
                   <td><span class="label[% IF node.status == 'reg' %] label-success[% END %]">[% l(node.status) | html %]</span></td>
                   <td><a href="[% c.uri_for(c.controller('Node').action_for('view'), [ node.mac ]) %]">[% node.mac | html %]</a></td>
                   <td>[% node.computername | html %]</td>
-                  <td>[% node.dhcp_fingerprint | html %]</td>
+                  <td>[% node.device_class | html %]</td>
                 </tr>
                 [% END %]
                 </tbody>

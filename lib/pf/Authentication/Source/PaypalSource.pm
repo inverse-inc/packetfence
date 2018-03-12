@@ -15,7 +15,8 @@ pf::Authentication::Source::PaypalSource
 use strict;
 use warnings;
 use Moose;
-use pf::config qw($FALSE $TRUE $default_pid $fqdn %Config);
+use pf::config qw($default_pid $fqdn %Config);
+use pf::constants;
 use pf::Authentication::constants;
 use pf::util;
 use pf::log;
@@ -30,6 +31,7 @@ our $PAYPAL_SANDBOX_URL = 'https://www.sandbox.paypal.com/cgi-bin/webscr';
 our $PAYPAL_URL = 'https://www.paypal.com/cgi-bin/webscr';
 
 extends 'pf::Authentication::Source::BillingSource';
+with 'pf::Authentication::CreateLocalAccountRole';
 
 =head2 Attributes
 
@@ -211,6 +213,8 @@ sub curl {
     $curl->setopt(CURLOPT_HEADER,               0);
     $curl->setopt(CURLOPT_DNS_USE_GLOBAL_CACHE, 0);
     $curl->setopt(CURLOPT_NOSIGNAL,             1);
+    # Paypal now requires minimum TLS 1.2
+    $curl->setopt(CURLOPT_SSLVERSION, 6);
     return $curl;
 }
 
@@ -299,7 +303,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

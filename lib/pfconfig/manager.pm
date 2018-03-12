@@ -144,7 +144,37 @@ Returns an Array ref of all the overlayed namespaces persisted in the backend
 
 sub all_overlayed_namespaces {
     my ($self) = @_;
-    return [ $self->{cache}->list_matching('\(.*\)$') ];
+    return [ uniq($self->{cache}->list_matching('\(.*\)$'), $self->list_control_overlayed_namespaces()) ];
+}
+
+=head2 list_control_overlayed_namespaces
+
+List all the overlayed namespaces contained in the control directory
+
+=cut
+
+sub list_control_overlayed_namespaces {
+    my ($self) = @_;
+    my $control_dir = $pfconfig::constants::CONTROL_FILE_DIR;
+    my @modules;
+    find(
+        {   wanted => sub {
+                my $module = $_;
+                #Ignore directories
+                return if -d $module;
+                $module =~ s/$control_dir\///g;
+                return if $module !~ /-control$/;
+                $module =~ s/\-control$//g;
+                if($module =~ /\(.*\)$/) {
+                    push @modules, $module;
+                }
+            },
+            no_chdir => 1
+        },
+        $control_dir
+    );
+    @modules = sort @modules;
+    return @modules;
 }
 
 =head2 new
@@ -172,21 +202,7 @@ sub init_cache {
     my ($self) = @_;
     my $logger = get_logger;
 
-    my $cfg    = pfconfig::config->new->section('general');
-
-    my $name = $cfg->{backend} || $pfconfig::constants::DEFAULT_BACKEND;
-
-    my $type   = "pfconfig::backend::$name";
-
-    $type = untaint_chain($type);
-
-    # load the module to instantiate
-    if ( !( eval "$type->require()" ) ) {
-        $logger->error( "Can not load namespace $name " . "Read the following message for details: $@" );
-    }
-
-    $self->{cache} = $type->new();
-
+    $self->{cache} = pfconfig::config->new->get_backend;
     $self->{memory}       = {};
     $self->{memorized_at} = {};
 }
@@ -282,7 +298,7 @@ sub cache_resource {
     my $cache_w = $self->{cache}->set( $what, $result, 864000 );
     $logger->trace("Cache write gave : $cache_w");
     unless ($cache_w) {
-        my $message = "Could not write namespace $what to L2 cache ! This is bad.";
+        my $message = "Could not write namespace $what to L2 cache !";
         print STDERR $message . "\n";
         $logger->error($message);
     }
@@ -327,7 +343,7 @@ sub is_valid {
         return 1;
     }
     else {
-        $logger->info("Memory configuration is not valid anymore for key $what");
+        $logger->debug("Memory configuration is not valid anymore for key $what");
         return 0;
     }
 }
@@ -481,7 +497,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

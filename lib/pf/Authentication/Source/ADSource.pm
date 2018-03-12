@@ -11,31 +11,59 @@ pf::Authentication::Source::ADSource
 use pf::Authentication::constants;
 use pf::constants::authentication::messages;
 use pf::Authentication::Source::LDAPSource;
+use pf::constants;
 
 use Moose;
 extends 'pf::Authentication::Source::LDAPSource';
 
 has '+type' => ( default => 'AD' );
 
-=head2 available_attributes
+=head2 ldap_attributes
 
-Available ldap search attributes for Active Directory
+Add ldap search attributes for Active Directory
 memberOf:1.2.840.113556.1.4.1941: attribute is for nested group, see https://msdn.microsoft.com/en-us/library/aa746475%28v=vs.85%29.aspx
 
 =cut
 
-sub available_attributes {
-  my $self = shift;
-  my $super_attributes = $self->SUPER::available_attributes;
-  my $ad_attributes =
-    [
+sub ldap_attributes {
+  my ($self) = @_;
+  return (
+    $self->SUPER::ldap_attributes,
      { value => "sAMAccountName", type => $Conditions::SUBSTRING },
      { value => "sAMAccountType", type => $Conditions::SUBSTRING },
      { value => "userAccountControl", type => $Conditions::SUBSTRING },
      { value => "memberOf:1.2.840.113556.1.4.1941:", type => $Conditions::SUBSTRING },
-    ];
-  
-  return [@$super_attributes, @$ad_attributes];
+    );
+}
+
+=head2 findAtttributeFrom
+
+Get an attribute of an object given another of its attribute
+If more than one entry has the same attribute/value in the search, this will fail and return $FALSE
+
+=cut
+
+sub findAtttributeFrom {
+    my ($self, $from_attribute, $from_value, $to_attribute) = @_;
+
+    my ($connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
+
+    if (!defined($connection)) {
+        return ($FALSE, "Error communicating with the LDAP server");
+    }
+
+    my $result = $connection->search(
+        base => $self->{basedn}, 
+        filter => "($from_attribute=$from_value)", 
+        attrs => [$to_attribute],
+    );
+
+    return ($FALSE, "Cannot find $to_attribute of object ".$from_value) unless($result->count > 0);
+    return ($FALSE, "Too many entries matching $from_attribute=$from_value") if($result->count > 1);
+
+    my $to_value = $result->entry(0)->get_value($to_attribute);
+
+    return $to_value;
 }
 
 =head1 AUTHOR
@@ -44,7 +72,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -65,7 +93,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;
 
 # vim: set shiftwidth=4:

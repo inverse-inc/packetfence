@@ -19,7 +19,7 @@ use Test::More tests => 10;
 use Test::NoWarnings;
 BEGIN {
     use lib qw(/usr/local/pf/t /usr/local/pf/lib);
-    use PfFilePaths;
+    use setup_test_config;
 }
 
 
@@ -54,7 +54,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

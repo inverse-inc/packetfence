@@ -1,4 +1,5 @@
 package pf::cmd::pf;
+
 =head1 NAME
 
 pf::cmd::pf
@@ -15,13 +16,10 @@ pfcmd <command> [options]
   cache                       | manage the cache subsystem
   checkup                     | perform a sanity checkup and report any problems
   class                       | view violation classes
-  configfiles                 | push or pull configfiles into/from database
   configreload                | reload the configution
+  fingerbank                  | Fingerbank related commands
   floatingnetworkdeviceconfig | query/modify floating network devices configuration parameters
   help                        | show help for pfcmd commands
-  ifoctetshistorymac          | accounting history
-  ifoctetshistoryswitch       | accounting history
-  ifoctetshistoryuser         | accounting history
   import                      | bulk import of information into the database
   ipmachistory                | IP/MAC history
   locationhistorymac          | Switch/Port history
@@ -29,7 +27,7 @@ pfcmd <command> [options]
   networkconfig               | query/modify network configuration parameters
   node                        | manipulate node entries
   pfconfig                    | interact with pfconfig
-  portalprofileconfig         | query/modify portal profile configuration parameters
+  connectionprofileconfig     | query/modify connection profile configuration parameters
   reload                      | rebuild fingerprint or violations tables without restart
   service                     | start/stop/restart and get PF daemon status
   schedule                    | Nessus scan scheduling
@@ -61,7 +59,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

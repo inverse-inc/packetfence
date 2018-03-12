@@ -15,7 +15,6 @@ Is the Generic class for the cached config
 
 use Moose;
 use namespace::autoclean;
-use pf::config::cached;
 use HTTP::Status qw(:constants :is);
 
 BEGIN { extends 'Catalyst::Model'; }
@@ -78,7 +77,7 @@ sub rollback {
     my ($self) = @_;
     my ($status, $status_msg);
     my $config = $self->configStore;
-    $config->Rollback();
+    $config->rollback();
     return (HTTP_OK,"Config rollbacked");
 }
 
@@ -337,11 +336,11 @@ sub countAll {
 }
 
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

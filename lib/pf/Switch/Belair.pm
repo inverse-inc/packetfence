@@ -41,7 +41,9 @@ use warnings;
 use base ('pf::Switch');
 
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $MAC $SSID
+);
 use pf::util;
 
 sub description { 'Belair Networks AP' }
@@ -87,23 +89,6 @@ sub getVersion {
 
     # none of the above worked
     $logger->warn("unable to fetch version information");
-}
-
-=item parseTrap
-
-All traps ignored
-
-=cut
-
-sub parseTrap {
-    my ( $self, $trapString ) = @_;
-    my $trapHashRef;
-    my $logger = $self->logger;
-
-    $logger->debug("trap currently not handled.  TrapString was: $trapString");
-    $trapHashRef->{'trapType'} = 'unknown';
-
-    return $trapHashRef;
 }
 
 =item deauthenticateMacDefault
@@ -156,7 +141,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

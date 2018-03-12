@@ -16,21 +16,28 @@ use LWP;
 use pf::log;
 use Digest::HMAC_SHA1;
 use MIME::Base64;
+use CGI;
 
 extends 'pf::Authentication::Source::OAuthSource';
 
 has '+type' => (default => 'Twitter');
 has '+class' => (default => 'external');
-has '+unique' => (default => 1);
 has 'client_id' => (isa => 'Str', is => 'rw', required => 1, default => '<CONSUMER KEY>');
 has 'client_secret' => (isa => 'Str', is => 'rw', required => 1), default => '<CONSUMER SECRET>';
 has 'site' => (isa => 'Str', is => 'rw', default => 'https://api.twitter.com');
 has 'authorize_path' => (isa => 'Str', is => 'rw', default => '/oauth/authenticate');
 has 'access_token_path' => (isa => 'Str', is => 'rw', default => '/oauth/request_token');
-has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/twitter');
+has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/callback');
 has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://api.twitter.com/oauth/access_token');
 has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => '*.twitter.com,twitter.com,*.twimg.com,twimg.com');
-has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
+
+=head2 dynamic_routing_module
+
+Which module to use for DynamicRouting
+
+=cut
+
+sub dynamic_routing_module { 'Authentication::OAuth::Twitter' }
 
 
 =head2 authorize
@@ -182,7 +189,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -203,7 +210,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;
 
 # vim: set shiftwidth=4:

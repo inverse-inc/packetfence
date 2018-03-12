@@ -1,0 +1,20 @@
+{
+  "name": "pfappserver",
+  "private": true,
+  "devDependencies": {
+    "ace-builds": "latest",
+    "bootstrap-sass": "v2.3.2.2",
+    "font-awesome": "latest",
+    "flowtype": "latest",
+    "clipboard": "latest",
+    "bootstrap-switch": "1.9.0",
+    "bootstrap-datepicker": "1.6.x",
+    "chosen": "v1.7.0",
+    "jquery": "latest",
+    "jquery-ui": "latest",
+    "raphael": "2.x"
+  },
+  "resolutions": {
+    "jquery": "3.x"
+  }
+}

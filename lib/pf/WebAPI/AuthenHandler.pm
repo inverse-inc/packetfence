@@ -24,7 +24,7 @@ use Apache2::RequestRec;
 
 use Apache2::Const -compile => qw(OK DECLINED HTTP_UNAUTHORIZED);
 
-use pf::config;
+use pf::config qw(%Config);
 use pf::log;
 
 
@@ -66,7 +66,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

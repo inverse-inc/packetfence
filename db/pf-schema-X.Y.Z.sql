@@ -2,15 +2,32 @@
 -- Setting the major/minor/sub-minor version of the DB
 --
 
-SET @MAJOR_VERSION = 5;
-SET @MINOR_VERSION = 7;
-SET @SUBMINOR_VERSION = 0;
+SET @MAJOR_VERSION = 7;
+SET @MINOR_VERSION = 4;
+SET @SUBMINOR_VERSION = 9;
 
 --
 -- The VERSION_INT to ensure proper ordering of the version in queries
 --
 
 SET @VERSION_INT = @MAJOR_VERSION << 16 | @MINOR_VERSION << 8 | @SUBMINOR_VERSION;
+
+--
+-- Table structure for table `tenant`
+--
+
+CREATE TABLE `tenant` (
+  id int NOT NULL AUTO_INCREMENT,
+  name VARCHAR(255) NOT NULL,
+  portal_domain_name VARCHAR(255),
+  domain_name VARCHAR(255),
+  PRIMARY KEY (id),
+  UNIQUE KEY tenant_name (`name`),
+  UNIQUE KEY tenant_portal_domain_name (`portal_domain_name`),
+  UNIQUE KEY tenant_domain_name (`domain_name`)
+);
+
+INSERT INTO `tenant` VALUES (1, 'default', NULL, NULL);
 
 --
 -- Table structure for table `class`
@@ -38,24 +55,11 @@ CREATE TABLE class (
 ) ENGINE=InnoDB;
 
 --
--- Table structure for table `trigger`
---
-CREATE TABLE `trigger` (
-  vid int(11) default NULL,
-  tid_start varchar(255) NOT NULL,
-  tid_end varchar(255) NOT NULL,
-  type varchar(255) default NULL,
-  whitelisted_categories varchar(255) NOT NULL default '',
-  PRIMARY KEY (vid,tid_start,tid_end,type),
-  KEY `trigger` (tid_start,tid_end,type),
-  CONSTRAINT `0_64` FOREIGN KEY (`vid`) REFERENCES `class` (`vid`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB;
-
---
 -- Table structure for table `person`
 --
 
 CREATE TABLE person (
+  tenant_id int NOT NULL DEFAULT 1,
   pid varchar(255) NOT NULL,
   `firstname` varchar(255) default NULL,
   `lastname` varchar(255) default NULL,
@@ -87,7 +91,8 @@ CREATE TABLE person (
   `custom_field_9` varchar(255) default NULL,
   `portal` varchar(255) default NULL,
   `source` varchar(255) default NULL,
-  PRIMARY KEY (pid)
+  PRIMARY KEY (`tenant_id`, `pid`),
+  CONSTRAINT `person_tenant_id` FOREIGN KEY(`tenant_id`) REFERENCES `tenant` (`id`)
 ) ENGINE=InnoDB;
 
 
@@ -100,32 +105,46 @@ CREATE TABLE `node_category` (
   `name` varchar(255) NOT NULL,
   `max_nodes_per_pid` int default 0,
   `notes` varchar(255) default NULL,
-  PRIMARY KEY (`category_id`)
+  PRIMARY KEY (`category_id`),
+  UNIQUE KEY node_category_name (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Insert 'default' category
 --
 
-INSERT INTO `node_category` (category_id,name,notes) VALUES ("1","default","Placeholder role/category, feel free to edit");
+INSERT INTO `node_category` (name,notes) VALUES ("default","Placeholder role/category, feel free to edit");
 
 --
 -- Insert 'guest' category
 --
 
-INSERT INTO `node_category` (category_id,name,notes) VALUES ("2","guest","Guests");
+INSERT INTO `node_category` (name,notes) VALUES ("guest","Guests");
 
 --
 -- Insert 'gaming' category
 --
 
-INSERT INTO `node_category` (category_id,name,notes) VALUES ("3","gaming","Gaming devices");
+INSERT INTO `node_category` (name,notes) VALUES ("gaming","Gaming devices");
+
+--
+-- Insert 'voice' category
+--
+
+INSERT INTO `node_category` (name,notes) VALUES ("voice","VoIP devices");
+
+--
+-- Insert 'REJECT' category
+--
+
+INSERT INTO `node_category` (name,notes) VALUES ("REJECT","Reject role (Used to block access)");
 
 --
 -- Table structure for table `node`
 --
 
 CREATE TABLE node (
+  tenant_id int NOT NULL DEFAULT 1,
   mac varchar(17) NOT NULL,
   pid varchar(255) NOT NULL default "default",
   category_id int default NULL,
@@ -147,47 +166,25 @@ CREATE TABLE node (
   dhcp6_enterprise varchar(255) default NULL,
   device_type varchar(255) default NULL,
   device_class varchar(255) default NULL,
+  device_version varchar(255) DEFAULT NULL,
+  device_score varchar(255) DEFAULT NULL,
   bypass_vlan varchar(50) default NULL,
   voip enum('no','yes') NOT NULL DEFAULT 'no',
   autoreg enum('no','yes') NOT NULL DEFAULT 'no',
   sessionid varchar(30) default NULL,
   machine_account varchar(255) default NULL,
   bypass_role_id int default NULL,
-  PRIMARY KEY (mac),
+  last_seen DATETIME NOT NULL DEFAULT "0000-00-00 00:00:00",
+  PRIMARY KEY (`tenant_id`, `mac`),
   KEY pid (pid),
   KEY category_id (category_id),
   KEY `node_status` (`status`, `unregdate`),
   KEY `node_dhcpfingerprint` (`dhcp_fingerprint`),
-  CONSTRAINT `0_57` FOREIGN KEY (`pid`) REFERENCES `person` (`pid`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `node_category_key` FOREIGN KEY (`category_id`) REFERENCES `node_category` (`category_id`)
+  KEY `node_last_seen` (`last_seen`),
+  CONSTRAINT `0_57` FOREIGN KEY (`tenant_id`, `pid`) REFERENCES `person` (`tenant_id`, `pid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `node_category_key` FOREIGN KEY (`category_id`) REFERENCES `node_category` (`category_id`),
+  CONSTRAINT `node_tenant_id` FOREIGN KEY(`tenant_id`) REFERENCES `tenant` (`id`)
 ) ENGINE=InnoDB;
-
---
--- Table structure for table `node_useragent`
---
-
-CREATE TABLE `node_useragent` (
-  mac varchar(17) NOT NULL,
-  os varchar(255) DEFAULT NULL,
-  browser varchar(255) DEFAULT NULL,
-  device enum('no','yes') NOT NULL DEFAULT 'no',
-  device_name varchar(255) DEFAULT NULL,
-  mobile enum('no','yes') NOT NULL DEFAULT 'no',
-  PRIMARY KEY (mac)
-) ENGINE=InnoDB;
-
---
--- Trigger to delete the node_useragent associated with a mac when deleting this mac from the node table
---
-
-DROP TRIGGER IF EXISTS node_useragent_delete_trigger;
-DELIMITER /
-CREATE TRIGGER node_useragent_delete_trigger AFTER DELETE ON node
-FOR EACH ROW
-BEGIN
-  DELETE FROM node_useragent WHERE mac = OLD.mac;
-END /
-DELIMITER ;
 
 --
 -- Table structure for table `action`
@@ -206,6 +203,7 @@ CREATE TABLE action (
 
 CREATE TABLE violation (
   id int NOT NULL AUTO_INCREMENT,
+  tenant_id int NOT NULL DEFAULT 1,
   mac varchar(17) NOT NULL,
   vid int(11) NOT NULL,
   start_date datetime NOT NULL,
@@ -213,40 +211,42 @@ CREATE TABLE violation (
   status varchar(10) default "open",
   ticket_ref varchar(255) default NULL,
   notes text,
-  KEY mac (mac),
   KEY vid (vid),
   KEY status (status),
   KEY ind1 (mac,status,vid),
   KEY violation_release_date (release_date),
-  CONSTRAINT `0_60` FOREIGN KEY (`mac`) REFERENCES `node` (`mac`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `0_60` FOREIGN KEY (`tenant_id`, `mac`) REFERENCES `node` (`tenant_id`, `mac`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `0_61` FOREIGN KEY (`vid`) REFERENCES `class` (`vid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `violation_tenant_id` FOREIGN KEY(`tenant_id`) REFERENCES `tenant` (`id`),
   PRIMARY KEY (id)
 ) ENGINE=InnoDB;
 
 --
--- Table structure for table `iplog`
+-- Table structure for table `ip4log`
 --
 
-CREATE TABLE iplog (
+CREATE TABLE ip4log (
+  tenant_id int NOT NULL DEFAULT 1,
   mac varchar(17) NOT NULL,
   ip varchar(45) NOT NULL,
   start_time datetime NOT NULL,
   end_time datetime default "0000-00-00 00:00:00",
-  PRIMARY KEY (ip),
-  KEY iplog_mac_end_time (mac,end_time),
-  KEY iplog_end_time (end_time)
+  PRIMARY KEY (`tenant_id`, `ip`),
+  KEY ip4log_mac_end_time (mac,end_time),
+  KEY ip4log_end_time (end_time),
+  CONSTRAINT `ip4log_tenant_id` FOREIGN KEY(`tenant_id`) REFERENCES `tenant` (`id`)
 ) ENGINE=InnoDB;
 
 --
--- Trigger to insert old record from 'iplog' in 'iplog_history' before updating the current one
+-- Trigger to insert old record from 'ip4log' in 'ip4log_history' before updating the current one
 --
 
-DROP TRIGGER IF EXISTS iplog_insert_in_iplog_history_before_update_trigger;
+DROP TRIGGER IF EXISTS ip4log_insert_in_ip4log_history_before_update_trigger;
 DELIMITER /
-CREATE TRIGGER iplog_insert_in_iplog_history_before_update_trigger BEFORE UPDATE ON iplog
+CREATE TRIGGER ip4log_insert_in_ip4log_history_before_update_trigger BEFORE UPDATE ON ip4log
 FOR EACH ROW
 BEGIN
-  INSERT INTO iplog_history SET ip = OLD.ip, mac = OLD.mac, start_time = OLD.start_time, end_time = CASE
+  INSERT INTO ip4log_history SET tenant_id = OLD.tenant_id, ip = OLD.ip, mac = OLD.mac, start_time = OLD.start_time, end_time = CASE
     WHEN OLD.end_time = '0000-00-00 00:00:00' THEN NOW()
     WHEN OLD.end_time > NOW() THEN NOW()
     ELSE OLD.end_time
@@ -255,31 +255,110 @@ END /
 DELIMITER ;
 
 --
--- Table structure for table `iplog_history`
+-- Table structure for table `ip4log_history`
 --
 
-CREATE TABLE iplog_history (
+CREATE TABLE ip4log_history (
+  id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  tenant_id int NOT NULL DEFAULT 1,
   mac varchar(17) NOT NULL,
   ip varchar(45) NOT NULL,
   start_time datetime NOT NULL,
-  end_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+  end_time datetime NOT NULL,
+  KEY ip4log_history_mac_end_time (mac,end_time),
+  KEY end_time (end_time),
+  KEY start_time (start_time)
 ) ENGINE=InnoDB;
 
 --
--- Table structure for table `iplog_archive`
+-- Table structure for table `ip4log_archive`
 --
 
-CREATE TABLE iplog_archive (
+CREATE TABLE ip4log_archive (
+  id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  tenant_id int NOT NULL DEFAULT 1,
   mac varchar(17) NOT NULL,
   ip varchar(45) NOT NULL,
   start_time datetime NOT NULL,
-  end_time datetime NOT NULL
+  end_time datetime NOT NULL,
+  KEY end_time (end_time),
+  KEY start_time (start_time)
 ) ENGINE=InnoDB;
+
+--
+-- Table structure for table `ip6log`
+--
+
+CREATE TABLE ip6log (
+  tenant_id int NOT NULL DEFAULT 1,
+  mac varchar(17) NOT NULL,
+  ip varchar(45) NOT NULL,
+  type varchar(32) DEFAULT NULL,
+  start_time datetime NOT NULL,
+  end_time datetime default "0000-00-00 00:00:00",
+  PRIMARY KEY (tenant_id, ip),
+  KEY ip6log_mac_end_time (mac,end_time),
+  KEY ip6log_end_time (end_time),
+  CONSTRAINT `ip6log_tenant_id` FOREIGN KEY(`tenant_id`) REFERENCES `tenant` (`id`)
+) ENGINE=InnoDB;
+
+--
+-- Trigger to insert old record from 'ip6log' in 'ip6log_history' before updating the current one
+--
+
+DROP TRIGGER IF EXISTS ip6log_insert_in_ip6log_history_before_update_trigger;
+DELIMITER /
+CREATE TRIGGER ip6log_insert_in_ip6log_history_before_update_trigger BEFORE UPDATE ON ip6log
+FOR EACH ROW
+BEGIN
+  INSERT INTO ip6log_history SET tenant_id = OLD.tenant_id, ip = OLD.ip, mac = OLD.mac, type = OLD.type, start_time = OLD.start_time, end_time = CASE
+    WHEN OLD.end_time = '0000-00-00 00:00:00' THEN NOW()
+    WHEN OLD.end_time > NOW() THEN NOW()
+    ELSE OLD.end_time
+  END;
+END /
+DELIMITER ;
+
+--
+-- Table structure for table `ip6log_history`
+--
+
+CREATE TABLE ip6log_history (
+  id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  tenant_id int NOT NULL DEFAULT 1,
+  mac varchar(17) NOT NULL,
+  ip varchar(45) NOT NULL,
+  type varchar(32) DEFAULT NULL,
+  start_time datetime NOT NULL,
+  end_time datetime NOT NULL,
+  KEY ip6log_history_mac_end_time (mac,end_time),
+  KEY end_time (end_time),
+  KEY start_time (start_time)
+) ENGINE=InnoDB;
+
+--
+-- Table structure for table `ip6log_archive`
+--
+
+CREATE TABLE ip6log_archive (
+  id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  tenant_id int NOT NULL DEFAULT 1,
+  mac varchar(17) NOT NULL,
+  ip varchar(45) NOT NULL,
+  type varchar(32) DEFAULT NULL,
+  start_time datetime NOT NULL,
+  end_time datetime NOT NULL,
+  KEY end_time (end_time),
+  KEY start_time (start_time)
+) ENGINE=InnoDB;
+
 
 CREATE TABLE `locationlog` (
+  `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  `tenant_id` int NOT NULL DEFAULT 1,
   `mac` varchar(17) default NULL,
   `switch` varchar(17) NOT NULL default '',
-  `port` varchar(8) NOT NULL default '',
+  `port` varchar(20) NOT NULL default '',
   `vlan` varchar(50) default NULL,
   `role` varchar(255) default NULL,
   `connection_type` varchar(50) NOT NULL default '',
@@ -293,15 +372,18 @@ CREATE TABLE `locationlog` (
   `stripped_user_name` varchar (255) DEFAULT NULL,
   `realm`  varchar (255) DEFAULT NULL,
   `session_id` VARCHAR(255) DEFAULT NULL,
+  `ifDesc` VARCHAR(255) DEFAULT NULL,
   KEY `locationlog_view_mac` (`mac`, `end_time`),
   KEY `locationlog_end_time` ( `end_time`),
   KEY `locationlog_view_switchport` (`switch`,`port`,`end_time`,`vlan`)
 ) ENGINE=InnoDB;
 
 CREATE TABLE `locationlog_archive` (
+  `id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  `tenant_id` int NOT NULL DEFAULT 1,
   `mac` varchar(17) default NULL,
   `switch` varchar(17) NOT NULL default '',
-  `port` varchar(8) NOT NULL default '',
+  `port` varchar(20) NOT NULL default '',
   `vlan` varchar(50) default NULL,
   `role` varchar(255) default NULL,
   `connection_type` varchar(50) NOT NULL default '',
@@ -315,61 +397,40 @@ CREATE TABLE `locationlog_archive` (
   `stripped_user_name` varchar (255) DEFAULT NULL,
   `realm`  varchar (255) DEFAULT NULL,
   `session_id` VARCHAR(255) DEFAULT NULL,
+  `ifDesc` VARCHAR(255) DEFAULT NULL,
   KEY `locationlog_archive_view_mac` (`mac`, `end_time`),
   KEY `locationlog_end_time` ( `end_time`),
   KEY `locationlog_view_switchport` (`switch`,`port`,`end_time`,`vlan`)
 ) ENGINE=InnoDB;
 
 CREATE TABLE `userlog` (
+  `tenant_id` int NOT NULL DEFAULT 1,
   `mac` varchar(17) NOT NULL default '',
   `pid` varchar(255) default NULL,
   `start_time` datetime NOT NULL default '0000-00-00 00:00:00',
   `end_time` datetime default NULL,
-  PRIMARY KEY (`mac`,`start_time`),
+  PRIMARY KEY (`tenant_id`, `mac`,`start_time`),
   KEY `pid` (`pid`),
-  CONSTRAINT `userlog_ibfk_1` FOREIGN KEY (`mac`) REFERENCES `node` (`mac`) ON DELETE CASCADE
+  CONSTRAINT `userlog_ibfk_1` FOREIGN KEY (`tenant_id`, `mac`) REFERENCES `node` (`tenant_id`, `mac`) ON DELETE CASCADE
 ) ENGINE=InnoDB;
-
-CREATE TABLE `ifoctetslog` (
-  `switch` varchar(17) NOT NULL default '',
-  `port` varchar(8) NOT NULL default '',
-  `read_time` datetime NOT NULL default '0000-00-00 00:00:00',
-  `mac` varchar(17) default NULL,
-  `ifInOctets` bigint(20) unsigned NOT NULL default '0',
-  `ifOutOctets` bigint(20) unsigned NOT NULL default '0',
-  PRIMARY KEY  (`switch`,`port`,`read_time`)
-) ENGINE=InnoDB;
-
-CREATE TABLE `traplog` (
-  `switch` varchar(30) NOT NULL default '',
-  `ifIndex` smallint(6) NOT NULL default '0',
-  `parseTime` datetime NOT NULL default '0000-00-00 00:00:00',
-  `type` varchar(30) NOT NULL default '',
-  KEY `switch` (`switch`,`ifIndex`),
-  KEY `parseTime` (`parseTime`)
-) ENGINE=InnoDB;
-
-CREATE TABLE `configfile` (
-  `filename` varchar(255) NOT NULL,
-  `filecontent` text NOT NULL,
-  `lastmodified` datetime NOT NULL
-) ENGINE=InnoDB default CHARSET=latin1;
 
 --
 -- Table structure for table `password`
 --
 
 CREATE TABLE `password` (
+  `tenant_id` int NOT NULL DEFAULT 1,
   `pid` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `valid_from` datetime default NULL,
+  `valid_from` datetime NOT NULL DEFAULT "0000-00-00 00:00:00",
   `expiration` datetime NOT NULL,
   `access_duration` varchar(255) default NULL,
   `access_level` varchar(255) DEFAULT 'NONE',
   `category` int DEFAULT NULL,
   `sponsor` tinyint(1) NOT NULL default 0,
   `unregdate` datetime NOT NULL default "0000-00-00 00:00:00",
-  PRIMARY KEY (pid)
+  `login_remaining` int DEFAULT NULL,
+  PRIMARY KEY (tenant_id, pid)
 ) ENGINE=InnoDB;
 
 --
@@ -389,7 +450,7 @@ DELIMITER /
 CREATE TRIGGER password_delete_trigger AFTER DELETE ON person
 FOR EACH ROW
 BEGIN
-  DELETE FROM `password` WHERE pid = OLD.pid;
+  DELETE FROM `password` WHERE pid = OLD.pid AND tenant_id = OLD.tenant_id;
 END /
 DELIMITER ;
 
@@ -491,6 +552,7 @@ VALUES
 
 CREATE TABLE radius_nas (
   id int(10) NOT NULL auto_increment,
+  `tenant_id` int NOT NULL DEFAULT 1,
   nasname varchar(128) NOT NULL,
   shortname varchar(32),
   type varchar(30) default 'other',
@@ -511,13 +573,14 @@ CREATE TABLE radius_nas (
 
 CREATE TABLE radacct (
   radacctid bigint(21) NOT NULL auto_increment,
+  `tenant_id` int NOT NULL DEFAULT 1,
   acctsessionid varchar(64) NOT NULL default '',
   acctuniqueid varchar(32) NOT NULL default '',
   username varchar(64) NOT NULL default '',
   groupname varchar(64) NOT NULL default '',
   realm varchar(64) default '',
   nasipaddress varchar(15) NOT NULL default '',
-  nasportid varchar(15) default NULL,
+  nasportid varchar(32) default NULL,
   nasporttype varchar(32) default NULL,
   acctstarttime datetime NULL default NULL,
   acctupdatetime datetime NULL default NULL,
@@ -536,20 +599,23 @@ CREATE TABLE radacct (
   framedprotocol varchar(32) default NULL,
   framedipaddress varchar(15) NOT NULL default '',
   PRIMARY KEY (radacctid),
-  UNIQUE KEY acctuniqueid (acctuniqueid),
+  KEY acctuniqueid (acctuniqueid),
   KEY username (username),
   KEY framedipaddress (framedipaddress),
   KEY acctsessionid (acctsessionid),
   KEY acctsessiontime (acctsessiontime),
-  KEY acctstarttime (acctstarttime),
   KEY acctinterval (acctinterval),
   KEY acctstoptime (acctstoptime),
-  KEY nasipaddress (nasipaddress)
+  KEY nasipaddress (nasipaddress),
+  KEY callingstationid (callingstationid),
+  KEY acctstart_acctstop (acctstarttime,acctstoptime)
 ) ENGINE = INNODB;
 
 -- Adding RADIUS update log table
 
 CREATE TABLE radacct_log (
+  id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  `tenant_id` int NOT NULL DEFAULT 1,
   acctsessionid varchar(64) NOT NULL default '',
   username varchar(64) NOT NULL default '',
   nasipaddress varchar(15) NOT NULL default '',
@@ -558,68 +624,15 @@ CREATE TABLE radacct_log (
   acctinputoctets bigint(20) default NULL,
   acctoutputoctets bigint(20) default NULL,
   acctsessiontime int(12) default NULL,
+  acctuniqueid varchar(32) NOT NULL default '',
   KEY acctsessionid (acctsessionid),
   KEY username (username),
   KEY nasipaddress (nasipaddress),
-  KEY timestamp (timestamp)
+  KEY timestamp (timestamp),
+  KEY acctuniqueid (acctuniqueid)
 ) ENGINE=InnoDB;
 
 -- Adding RADIUS Updates Stored Procedure
-
-DROP PROCEDURE IF EXISTS acct_update;
-DELIMITER /
-CREATE PROCEDURE acct_update(
-  IN p_timestamp datetime,
-  IN p_acctinterval datetime,
-  IN p_framedipaddress varchar(15),
-  IN p_acctsessiontime int(12),
-  IN p_acctinputoctets bigint(20),
-  IN p_acctoutputoctets bigint(20),
-  IN p_acctuniqueid varchar(64),
-  IN p_acctsessionid varchar(64),
-  IN p_acctstatustype varchar(25)
-)
-BEGIN
-  DECLARE Previous_Input_Octets bigint(20);
-  DECLARE Previous_Output_Octets bigint(20);
-  DECLARE Previous_Session_Time int(12);
-
-  # Collect traffic previous values in the update table
-  SELECT acctinputoctets, acctoutputoctets, acctsessiontime
-    INTO Previous_Input_Octets, Previous_Output_Octets, Previous_Session_Time
-    FROM radacct
-    WHERE acctuniqueid = p_acctuniqueid 
-    AND (acctstoptime IS NULL OR acctstoptime = 0);
-
-  # Set values to 0 when no previous records
-  IF (Previous_Session_Time IS NULL) THEN
-    SET Previous_Session_Time = 0;
-    SET Previous_Input_Octets = 0;
-    SET Previous_Output_Octets = 0;
-  END IF;
-
-  # Update record with new traffic
-  UPDATE radacct SET
-    framedipaddress = p_framedipaddress,
-    acctsessiontime = p_acctsessiontime,
-    acctinputoctets = p_acctinputoctets,
-    acctoutputoctets = p_acctoutputoctets
-    WHERE acctuniqueid = p_acctuniqueid 
-    AND (acctstoptime IS NULL OR acctstoptime = 0);
-
-  # Create new record in the log table
-  INSERT INTO radacct_log
-   (acctsessionid, username, nasipaddress,
-    timestamp, acctstatustype, acctinputoctets, acctoutputoctets, acctsessiontime)
-  VALUES
-   (p_acctsessionid, p_username, p_nasipaddress,
-    p_timestamp, p_acctstatustype, (p_acctinputoctets - Previous_Input_Octets), (p_acctoutputoctets - Previous_Output_Octets),
-    (p_acctsessiontime - Previous_Session_Time));
-END /
-DELIMITER ;
-
-
--- Adding RADIUS Start Stored Procedure
 
 DROP PROCEDURE IF EXISTS acct_start;
 DELIMITER /
@@ -629,7 +642,7 @@ CREATE PROCEDURE acct_start (
     IN p_username varchar(64),
     IN p_realm varchar(64),
     IN p_nasipaddress varchar(15),
-    IN p_nasportid varchar(15),
+    IN p_nasportid varchar(32),
     IN p_nasporttype varchar(32),
     IN p_acctstarttime datetime,
     IN p_acctupdatetime datetime,
@@ -646,9 +659,27 @@ CREATE PROCEDURE acct_start (
     IN p_servicetype varchar(32),
     IN p_framedprotocol varchar(32),
     IN p_framedipaddress varchar(15),
-    IN p_acctstatustype varchar(25)
+    IN p_acctstatustype varchar(25),
+    IN p_tenant_id int
 )
 BEGIN
+
+# We make sure there are no left over sessions for which we never received a "stop"
+DECLARE Previous_Session_Time int(12);
+SELECT acctsessiontime
+INTO Previous_Session_Time
+FROM radacct
+WHERE acctuniqueid = p_acctuniqueid
+AND (acctstoptime IS NULL OR acctstoptime = 0) LIMIT 1;
+
+IF (Previous_Session_Time IS NOT NULL) THEN
+    UPDATE radacct SET
+      acctstoptime = p_acctstarttime,
+      acctterminatecause = 'UNKNOWN'
+      WHERE acctuniqueid = p_acctuniqueid
+      AND (acctstoptime IS NULL OR acctstoptime = 0);
+END IF;
+
 INSERT INTO radacct 
            (
             acctsessionid,      acctuniqueid,       username, 
@@ -658,7 +689,7 @@ INSERT INTO radacct
             connectinfo_start,  connectinfo_stop,   acctinputoctets, 
             acctoutputoctets,   calledstationid,    callingstationid, 
             acctterminatecause, servicetype,        framedprotocol, 
-            framedipaddress
+            framedipaddress, tenant_id
            ) 
 VALUES 
     (
@@ -669,15 +700,16 @@ VALUES
     p_connectinfo_start, p_connectinfo_stop, p_acctinputoctets,
     p_acctoutputoctets, p_calledstationid, p_callingstationid,
     p_acctterminatecause, p_servicetype, p_framedprotocol,
-    p_framedipaddress
+    p_framedipaddress, p_tenant_id
     );
+
 
   INSERT INTO radacct_log
    (acctsessionid, username, nasipaddress,
-    timestamp, acctstatustype, acctinputoctets, acctoutputoctets, acctsessiontime)
+    timestamp, acctstatustype, acctinputoctets, acctoutputoctets, acctsessiontime, acctuniqueid, tenant_id)
   VALUES
    (p_acctsessionid, p_username, p_nasipaddress,
-    p_acctstarttime, p_acctstatustype, p_acctinputoctets, p_acctoutputoctets, p_acctsessiontime);
+    p_acctstarttime, p_acctstatustype, p_acctinputoctets, p_acctoutputoctets, p_acctsessiontime, p_acctuniqueid, p_tenant_id);
 END /
 DELIMITER ;
 
@@ -687,107 +719,224 @@ DROP PROCEDURE IF EXISTS acct_stop;
 DELIMITER /
 CREATE PROCEDURE acct_stop (
   IN p_timestamp datetime,
+  IN p_framedipaddress varchar(15),
   IN p_acctsessiontime int(12),
   IN p_acctinputoctets bigint(20),
   IN p_acctoutputoctets bigint(20),
-  IN p_acctterminatecause varchar(12),
-  IN p_connectinfo_stop varchar(50),
   IN p_acctuniqueid varchar(32),
   IN p_acctsessionid varchar(64),
-  IN p_acctstatustype varchar(25)
+  IN p_username varchar(64),
+  IN p_realm varchar(64),
+  IN p_nasipaddress varchar(15),
+  IN p_nasportid varchar(32),
+  IN p_nasporttype varchar(32),
+  IN p_acctauthentic varchar(32),
+  IN p_connectinfo_stop varchar(50),
+  IN p_calledstationid varchar(50),
+  IN p_callingstationid varchar(50),
+  IN p_servicetype varchar(32),
+  IN p_framedprotocol varchar(32),
+  IN p_acctterminatecause varchar(12),
+  IN p_acctstatustype varchar(25),
+  IN p_tenant_id int
 )
 BEGIN
   DECLARE Previous_Input_Octets bigint(20);
   DECLARE Previous_Output_Octets bigint(20);
   DECLARE Previous_Session_Time int(12);
 
-  # Collect traffic previous values in the update table
+  # Collect traffic previous values in the radacct table
   SELECT acctinputoctets, acctoutputoctets, acctsessiontime
     INTO Previous_Input_Octets, Previous_Output_Octets, Previous_Session_Time
     FROM radacct
     WHERE acctuniqueid = p_acctuniqueid
-    AND (acctstoptime IS NULL OR acctstoptime = 0);
+    AND (acctstoptime IS NULL OR acctstoptime = 0) LIMIT 1;
 
   # Set values to 0 when no previous records
   IF (Previous_Session_Time IS NULL) THEN
     SET Previous_Session_Time = 0;
     SET Previous_Input_Octets = 0;
     SET Previous_Output_Octets = 0;
+    # If there is no open session for this, open one.
+    INSERT INTO radacct 
+           (
+            acctsessionid,      acctuniqueid,       username, 
+            realm,              nasipaddress,       nasportid, 
+            nasporttype,        acctstoptime,       acctstarttime,
+            acctsessiontime,    acctauthentic, 
+            connectinfo_stop,  acctinputoctets, 
+            acctoutputoctets,   calledstationid,    callingstationid, 
+            servicetype,        framedprotocol,     acctterminatecause,
+            framedipaddress,    tenant_id
+           ) 
+    VALUES 
+        (
+            p_acctsessionid,        p_acctuniqueid,     p_username,
+            p_realm,                p_nasipaddress,     p_nasportid,
+            p_nasporttype,          p_timestamp,     date_sub(p_timestamp, INTERVAL p_acctsessiontime SECOND ), 
+            p_acctsessiontime,      p_acctauthentic,
+            p_connectinfo_stop,     p_acctinputoctets,
+            p_acctoutputoctets,     p_calledstationid,  p_callingstationid,
+            p_servicetype,          p_framedprotocol,   p_acctterminatecause,
+            p_framedipaddress,      p_tenant_id
+        );
+  ELSE 
+    # Update record with new traffic
+    UPDATE radacct SET
+      acctstoptime = p_timestamp,
+      acctsessiontime = p_acctsessiontime,
+      acctinputoctets = p_acctinputoctets,
+      acctoutputoctets = p_acctoutputoctets,
+      acctterminatecause = p_acctterminatecause,
+      connectinfo_stop = p_connectinfo_stop
+      WHERE acctuniqueid = p_acctuniqueid
+      AND (acctstoptime IS NULL OR acctstoptime = 0);
   END IF;
-
-  # Update record with new traffic
-  UPDATE radacct SET
-    acctstoptime = p_timestamp,
-    acctsessiontime = p_acctsessiontime,
-    acctinputoctets = p_acctinputoctets,
-    acctoutputoctets = p_acctoutputoctets,
-    acctterminatecause = p_acctterminatecause,
-    connectinfo_stop = p_connectinfo_stop
-    WHERE acctuniqueid = p_acctuniqueid
-    AND (acctstoptime IS NULL OR acctstoptime = 0);
 
   # Create new record in the log table
   INSERT INTO radacct_log
    (acctsessionid, username, nasipaddress,
-    timestamp, acctstatustype, acctinputoctets, acctoutputoctets, acctsessiontime)
+    timestamp, acctstatustype, acctinputoctets, acctoutputoctets, acctsessiontime, acctuniqueid, tenant_id)
   VALUES
    (p_acctsessionid, p_username, p_nasipaddress,
     p_timestamp, p_acctstatustype, (p_acctinputoctets - Previous_Input_Octets), (p_acctoutputoctets - Previous_Output_Octets),
-    (p_acctsessiontime - Previous_Session_Time));
+    (p_acctsessiontime - Previous_Session_Time), p_acctuniqueid, p_tenant_id);
 END /
 DELIMITER ;
 
---
--- Statement of Health (SoH) related
---
--- The web interface allows you to create any number of named filters,
--- which are a collection of rules. A rule is a specific condition that
--- must be satisfied by the statement of health, e.g. "anti-virus is not
--- installed". The rules in a filter are ANDed together to determine if
--- the specified action is to be executed.
+-- Adding RADIUS Updates Stored Procedure
 
---
--- One entry per filter.
---
+DROP PROCEDURE IF EXISTS acct_update;
+DELIMITER /
+CREATE PROCEDURE acct_update(
+  IN p_timestamp datetime,
+  IN p_framedipaddress varchar(15),
+  IN p_acctsessiontime int(12),
+  IN p_acctinputoctets bigint(20),
+  IN p_acctoutputoctets bigint(20),
+  IN p_acctuniqueid varchar(32),
+  IN p_acctsessionid varchar(64),
+  IN p_username varchar(64),
+  IN p_realm varchar(64),
+  IN p_nasipaddress varchar(15),
+  IN p_nasportid varchar(32),
+  IN p_nasporttype varchar(32),
+  IN p_acctauthentic varchar(32),
+  IN p_connectinfo_start varchar(50),
+  IN p_calledstationid varchar(50),
+  IN p_callingstationid varchar(50),
+  IN p_servicetype varchar(32),
+  IN p_framedprotocol varchar(32),
+  IN p_acctstatustype varchar(25),
+  IN p_tenant_id int
+)
+BEGIN
+  DECLARE Previous_Input_Octets bigint(20);
+  DECLARE Previous_Output_Octets bigint(20);
+  DECLARE Previous_Session_Time int(12);
+  DECLARE Previous_AcctUpdate_Time datetime;
 
-CREATE TABLE soh_filters (
-  filter_id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  name varchar(32) NOT NULL UNIQUE,
+  DECLARE Opened_Sessions int(12);
+  DECLARE Latest_acctstarttime datetime;
+  DECLARE cnt int(12);
+  DECLARE countmac int(12);
+  SELECT count(acctuniqueid), max(acctstarttime)
+  INTO Opened_Sessions, Latest_acctstarttime
+  FROM radacct
+  WHERE acctuniqueid = p_acctuniqueid
+  AND (acctstoptime IS NULL OR acctstoptime = 0);
 
-  -- If action is null, this filter won't do anything. Otherwise this
-  -- column may have any value; "accept" and "violation" are currently
-  -- recognised and acted upon.
-  action varchar(32),
+  IF (Opened_Sessions > 1) THEN
+      UPDATE radacct SET
+        acctstoptime = NOW(),
+        acctterminatecause = 'UNKNOWN'
+        WHERE acctuniqueid = p_acctuniqueid
+        AND acctstarttime < Latest_acctstarttime
+        AND (acctstoptime IS NULL OR acctstoptime = 0);
+  END IF;
 
-  -- If action = 'violation', then this column contains the vid of a
-  -- violation to trigger. (I wish I could write a constraint to
-  -- express this.)
-  vid int
-) ENGINE=InnoDB;
 
-INSERT INTO soh_filters (name) VALUES ('Default');
+  # Detect if we receive in the same time a stop before the interim update
+  SELECT COUNT(*)
+  INTO cnt
+  FROM radacct
+  WHERE acctuniqueid = p_acctuniqueid
+  AND (acctstoptime = p_timestamp);
 
---
--- One entry for each rule in a filter.
---
+  # If there is an old closed entry then update it
+  IF (cnt = 1) THEN
+    UPDATE radacct SET
+        framedipaddress = p_framedipaddress,
+        acctsessiontime = p_acctsessiontime,
+        acctinputoctets = p_acctinputoctets,
+        acctoutputoctets = p_acctoutputoctets,
+        acctupdatetime = p_timestamp
+    WHERE acctuniqueid = p_acctuniqueid
+    AND (acctstoptime = p_timestamp);
+  END IF;
 
-CREATE TABLE soh_filter_rules (
-  rule_id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  #Detect if there is an radacct entry open
+  SELECT count(callingstationid), acctinputoctets, acctoutputoctets, acctsessiontime, acctupdatetime
+    INTO countmac, Previous_Input_Octets, Previous_Output_Octets, Previous_Session_Time, Previous_AcctUpdate_Time
+    FROM radacct
+    WHERE (acctuniqueid = p_acctuniqueid) 
+    AND (acctstoptime IS NULL OR acctstoptime = 0) LIMIT 1;
 
-  filter_id int NOT NULL,
-  FOREIGN KEY (filter_id) REFERENCES soh_filters (filter_id)
-      ON DELETE CASCADE,
+  IF (countmac = 1) THEN
+    # Update record with new traffic
+    UPDATE radacct SET
+        framedipaddress = p_framedipaddress,
+        acctsessiontime = p_acctsessiontime,
+        acctinputoctets = p_acctinputoctets,
+        acctoutputoctets = p_acctoutputoctets,
+        acctupdatetime = p_timestamp,
+        acctinterval = timestampdiff( second, Previous_AcctUpdate_Time,  p_timestamp  )
+    WHERE acctuniqueid = p_acctuniqueid 
+    AND (acctstoptime IS NULL OR acctstoptime = 0);
+  ELSE
+    IF (cnt = 0) THEN
+      # If there is no open session for this, open one.
+      # Set values to 0 when no previous records
+      SET Previous_Session_Time = 0;
+      SET Previous_Input_Octets = 0;
+      SET Previous_Output_Octets = 0;
+      SET Previous_AcctUpdate_Time = p_timestamp;
+      INSERT INTO radacct
+             (
+              acctsessionid,acctuniqueid,username,
+              realm,nasipaddress,nasportid,
+              nasporttype,acctstarttime,
+              acctupdatetime,acctsessiontime,acctauthentic,
+              connectinfo_start,acctinputoctets,
+              acctoutputoctets,calledstationid,callingstationid,
+              servicetype,framedprotocol,
+              framedipaddress, tenant_id
+             )
+      VALUES
+          (
+              p_acctsessionid,p_acctuniqueid,p_username,
+              p_realm,p_nasipaddress,p_nasportid,
+              p_nasporttype,date_sub(p_timestamp, INTERVAL p_acctsessiontime SECOND ),
+              p_timestamp,p_acctsessiontime,p_acctauthentic,
+              p_connectinfo_start,p_acctinputoctets,
+              p_acctoutputoctets,p_calledstationid,p_callingstationid,
+              p_servicetype,p_framedprotocol,
+              p_framedipaddress, p_tenant_id
+          );
+     END IF;
+   END IF;
 
-  -- Any valid health class, e.g. "antivirus"
-  class varchar(32) NOT NULL,
-
-  -- Must be 'is' or 'is not'
-  op varchar(16) NOT NULL,
-
-  -- May be 'ok', 'installed', 'enabled', 'disabled', 'uptodate',
-  -- 'microsoft' for now; more values may be used in future.
-  status varchar(16) NOT NULL
-) ENGINE=InnoDB;
+ 
+  # Create new record in the log table
+  INSERT INTO radacct_log
+   (acctsessionid, username, nasipaddress,
+    timestamp, acctstatustype, acctinputoctets, acctoutputoctets, acctsessiontime, acctuniqueid, tenant_id)
+  VALUES
+   (p_acctsessionid, p_username, p_nasipaddress,
+    p_timestamp, p_acctstatustype, (p_acctinputoctets - Previous_Input_Octets), (p_acctoutputoctets - Previous_Output_Octets),
+    (p_acctsessiontime - Previous_Session_Time), p_acctuniqueid, p_tenant_id);
+END /
+DELIMITER ;
 
 --
 -- Table structure for table `scan`
@@ -795,6 +944,7 @@ CREATE TABLE soh_filter_rules (
 
 CREATE TABLE scan (
   id varchar(20) NOT NULL,
+  `tenant_id` int NOT NULL DEFAULT 1,
   ip varchar(255) NOT NULL,
   mac varchar(17) NOT NULL,
   type varchar(255) NOT NULL,
@@ -844,12 +994,12 @@ CREATE TABLE savedsearch (
 CREATE TABLE inline_accounting (
    outbytes bigint unsigned NOT NULL DEFAULT '0' COMMENT 'orig_raw_pktlen',
    inbytes bigint unsigned NOT NULL DEFAULT '0' COMMENT 'reply_raw_pktlen',
+  `tenant_id` int NOT NULL DEFAULT 1,
    ip varchar(16) NOT NULL,
    firstseen DATETIME NOT NULL,
    lastmodified DATETIME NOT NULL,
    status int unsigned NOT NULL default 0,
-   PRIMARY KEY (ip, firstseen),
-   INDEX (ip)
+   PRIMARY KEY (ip, firstseen)
  ) ENGINE=InnoDB;
 
 --
@@ -903,15 +1053,18 @@ CREATE TABLE wrix (
 
 CREATE TABLE activation (
   `code_id` int NOT NULL AUTO_INCREMENT,
+  `tenant_id` int NOT NULL DEFAULT 1,
   `pid` varchar(255) default NULL,
   `mac` varchar(17) default NULL,
   `contact_info` varchar(255) NOT NULL, -- email or phone number were approbation request is sent 
   `carrier_id` int(11) NULL,
   `activation_code` varchar(255) NOT NULL,
   `expiration` datetime NOT NULL,
+  `unregdate` datetime default NULL,
   `status` varchar(60) default NULL,
   `type` varchar(60) NOT NULL,
   `portal` varchar(255) default NULL,
+  `source_id` varchar(255) default NULL,
   PRIMARY KEY (code_id),
   KEY `mac` (mac),
   KEY `identifier` (pid, mac),
@@ -941,6 +1094,7 @@ CREATE TABLE pf_version ( `id` INT NOT NULL PRIMARY KEY, `version` VARCHAR(11) N
 
 CREATE TABLE radius_audit_log (
   id int NOT NULL AUTO_INCREMENT,
+  `tenant_id` int NOT NULL DEFAULT 1,
   created_at TIMESTAMP NOT NULL,
   mac char(17) NOT NULL,
   ip varchar(255) NULL,
@@ -977,11 +1131,130 @@ CREATE TABLE radius_audit_log (
   uuid varchar(255) NULL,
   radius_request TEXT,
   radius_reply TEXT,
+  request_time int(11) DEFAULT NULL,
   PRIMARY KEY (id),
   KEY `created_at` (created_at),
   KEY `mac` (mac),
   KEY `ip` (ip),
-  KEY `user_name` (user_name)
+  KEY `user_name` (user_name),
+  KEY `auth_status` (auth_status, created_at)  
+) ENGINE=InnoDB;
+
+--
+-- Table structure for table `dhcp_option82`
+--
+
+CREATE TABLE `dhcp_option82` (
+  `mac` varchar(17) NOT NULL PRIMARY KEY,
+  `created_at` TIMESTAMP NOT NULL,
+  `option82_switch` varchar(17) NULL,
+  `switch_id` varchar(17) NULL,
+  `port` varchar(8) NOT NULL default '',
+  `vlan` varchar(255) default NULL,
+  `circuit_id_string` varchar(255) default NULL,
+  `module` varchar(255) default NULL,
+  `host` varchar(255) default NULL,
+  UNIQUE KEY mac (mac)
+) ENGINE=InnoDB;
+
+--
+-- Table structure for table `dhcp_option82_history`
+--
+
+CREATE TABLE `dhcp_option82_history` (
+  `dhcp_option82_history_id` int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  `mac` varchar(17) NOT NULL,
+  `created_at` TIMESTAMP NOT NULL,
+  `option82_switch` varchar(17) NULL,
+  `switch_id` varchar(17) NULL,
+  `port` varchar(8) NOT NULL default '',
+  `vlan` varchar(255) default NULL,
+  `circuit_id_string` varchar(255) default NULL,
+  `module` varchar(255) default NULL,
+  `host` varchar(255) default NULL,
+  INDEX (mac)
+) ENGINE=InnoDB;
+
+--
+-- Trigger to archive dhcp_option82 entries to the history table after an update
+--
+
+DROP TRIGGER IF EXISTS dhcp_option82_after_update_trigger;
+DELIMITER /
+CREATE TRIGGER dhcp_option82_after_update_trigger AFTER UPDATE ON dhcp_option82
+FOR EACH ROW
+BEGIN
+    INSERT INTO dhcp_option82_history
+           (
+            created_at,
+            mac,
+            option82_switch,
+            switch_id,
+            port,
+            vlan,
+            circuit_id_string,
+            module,
+            host
+           )
+    VALUES
+           (
+            OLD.created_at,
+            OLD.mac,
+            OLD.option82_switch,
+            OLD.switch_id,
+            OLD.port,
+            OLD.vlan,
+            OLD.circuit_id_string,
+            OLD.module,
+            OLD.host
+           );
+END /
+DELIMITER ;
+
+--
+-- Creating auth_log table
+--
+
+CREATE TABLE auth_log (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `tenant_id` int NOT NULL DEFAULT 1,
+  `process_name` varchar(255) NOT NULL,
+  `mac` varchar(17) NOT NULL,
+  `pid` varchar(255) NOT NULL default "default",
+  `status` varchar(255) NOT NULL default "incomplete",
+  `attempted_at` datetime NOT NULL,
+  `completed_at` datetime,
+  `source` varchar(255) NOT NULL,
+  `profile` VARCHAR(255) DEFAULT NULL,
+  PRIMARY KEY (id),
+  KEY pid (pid),
+  KEY  attempted_at (attempted_at)
+) ENGINE=InnoDB;
+
+--
+-- Creating chi_cache table
+--
+
+CREATE TABLE `chi_cache` (
+  `key` VARCHAR(767),
+  `value` LONGBLOB,
+  `expires_at` REAL,
+  PRIMARY KEY (`key`),
+  KEY chi_cache_expires_at (expires_at)
+);
+
+--
+-- Table structure for table `api_user`
+--
+
+CREATE TABLE `api_user` (
+  `username` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `valid_from` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `expiration` datetime NOT NULL,
+  `access_level` varchar(255) DEFAULT 'NONE',
+  `tenant_id` int(11) DEFAULT '0',
+  PRIMARY KEY (`username`)
 ) ENGINE=InnoDB;
 
 --
@@ -990,19 +1263,3 @@ CREATE TABLE radius_audit_log (
 
 INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION));
 
---
--- Creating auth_log table
---
-
-CREATE TABLE auth_log (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `process_name` varchar(255) NOT NULL,
-  `mac` varchar(17) NOT NULL,
-  `pid` varchar(255) NOT NULL default "default",
-  `status` varchar(255) NOT NULL default "incomplete",
-  `attempted_at` datetime NOT NULL,
-  `completed_at` datetime,
-  `source` varchar(255) NOT NULL,
-  PRIMARY KEY (id),
-  KEY pid (pid)
-) ENGINE=InnoDB;

@@ -15,6 +15,7 @@ pfconfig::namespaces::resource::guest_self_registration
 use strict;
 use warnings;
 
+use pf::util qw(is_in_list);
 use pf::constants;
 use pf::constants::config;
 use List::MoreUtils qw(none any);
@@ -48,7 +49,7 @@ sub _set_guest_self_registration {
         $pf::constants::config::SELFREG_MODE_SPONSOR,  $pf::constants::config::SELFREG_MODE_GOOGLE,
         $pf::constants::config::SELFREG_MODE_FACEBOOK, $pf::constants::config::SELFREG_MODE_GITHUB,
         $pf::constants::config::SELFREG_MODE_LINKEDIN, $pf::constants::config::SELFREG_MODE_WIN_LIVE,
-        $pf::constants::config::SELFREG_MODE_TWITTER,  $pf::constants::config::SELFREG_MODE_CHAINED,
+        $pf::constants::config::SELFREG_MODE_TWITTER,
         )
     {
         $self->{guest_self_registration}{$mode} = $TRUE
@@ -61,7 +62,6 @@ sub _guest_modes_from_sources {
     $sources ||= [];
     my %modeClasses = (
         external => undef,
-        Chained  => undef,
     );
     my %is_in = map { $_ => undef } @$sources;
     my @guest_modes
@@ -72,30 +72,13 @@ sub _guest_modes_from_sources {
     return \@guest_modes;
 }
 
-=item is_in_list
-
-Searches for an item in a comma separated list of elements (like we do in our configuration files).
-
-Returns true or false values based on if item was found or not.
-
-=cut
-
-sub is_in_list {
-    my ( $item, $list ) = @_;
-    my @list = ( ref($list) eq 'ARRAY' ) ? @$list : split( /\s*,\s*/, $list );
-    return $TRUE if any { $_ eq $item } @list;
-    return $FALSE;
-}
-
-=back
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

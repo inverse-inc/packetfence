@@ -12,12 +12,13 @@ Web form for Fingerbank MAC Vendor
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
+with 'pfappserver::Base::Form::Role::Help';
 
 ## Definition
 has_field 'id' =>
   (
    type => 'Text',
-   label => 'MAC Vendor ID',
+   label => 'ID',
    readonly => 1,
   );
 
@@ -30,7 +31,9 @@ has_field 'name' =>
 has_field 'mac' =>
   (
    type => 'Text',
-   label => 'MAC',
+   label => 'OUI',
+   tags => { after_element => \&help,
+             help => 'The OUI is the first six digits or letters of a MAC address. They must be entered without any space or separator (ex: 001122).' },
   );
 
 has_field created_at =>
@@ -50,7 +53,7 @@ has_block definition =>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -71,5 +74,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

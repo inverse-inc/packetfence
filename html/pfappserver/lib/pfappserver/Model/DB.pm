@@ -19,6 +19,7 @@ use namespace::autoclean;
 
 use pf::log;
 use pf::config;
+use pf::file_paths qw($install_dir);
 use pf::error;
 use pf::util;
 use File::Slurp qw(read_dir);
@@ -40,7 +41,6 @@ sub assign {
 
     my $status_msg;
 
-    my $graphitedb = $dbHandler->quote_identifier($db . "_graphite");
     $db = $dbHandler->quote_identifier($db);
 
     # Create global PF user
@@ -69,24 +69,6 @@ sub assign {
     }
     $status_msg = ["Successfully created the user [_1] on database [_2]",$user,$db];
 
-    # Create pf_graphite database
-    $db = $graphitedb;
-    foreach my $host ("'%'","localhost") {
-        my $sql_query = "GRANT ALL PRIVILEGES ON $db.* TO ?\@${host} IDENTIFIED BY ?";
-        $dbHandler->do($sql_query, undef, $user, $password);
-        if ( $DBI::errstr ) {
-            $status_msg = "Error creating the user $user on database $db";
-            $logger->warn("$DBI::errstr");
-            return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
-        }
-    }
-    # Apply the new privileges
-    $dbHandler->do("FLUSH PRIVILEGES");
-    if ( $DBI::errstr ) {
-        $status_msg = ["Error creating the user [_1] on database [_2]",$user,$db];
-        $logger->warn("$DBI::errstr");
-        return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
-    }
 
     # return original status message
     return ( $STATUS::OK, $status_msg );
@@ -141,18 +123,23 @@ sub create {
 
     $status_msg = ["Successfully created the database [_1]",$db];
 
-    # Create the graphite database
-    $result = $dbDriver->func('createdb', "${db}_graphite", 'localhost', $root_user, $root_password, 'admin');
-    if ( !$result ) {
-        $status_msg = ["Error in creating the database [_1]","${db}_graphite"];
-        $logger->warn($DBI::errstr);
-        return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
-    }
     # return original status message
     return ( $STATUS::OK, $status_msg );
 }
 
 =head2 secureInstallation
+
+Intended to integrate the "/usr/bin/mysql_secure_installation" steps
+
+1. Set a password for the database "root" user (different from the Linux root user!), which is blank by default;
+
+2. Delete "anonymous" users, i.e. users with the empty string as user name;
+
+3. Ensure the root user can not log in remotely;
+
+4. Remove the database named "test";
+
+5. Flush the privileges tables, i.e. ensure that the changes to user access applied in the previous steps are committed immediately.
 
 =cut
 
@@ -162,8 +149,8 @@ sub secureInstallation {
 
     my ($status, $status_msg);
 
-    # Changing root password
-    my $sql_query = "UPDATE user SET Password=PASSWORD(?) WHERE User=?";
+    # 1. Set a password for the database "root" user (different from the Linux root user!), which is blank by default;
+    my $sql_query = "UPDATE mysql.user SET Password=PASSWORD(?) WHERE User=?";
     $dbHandler->do($sql_query, undef, $root_password, $root_user);
     if ( $DBI::errstr ) {
         $status_msg = ["Error changing root user [_1] password",$root_user ];
@@ -171,8 +158,16 @@ sub secureInstallation {
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
-    # Remove root remote connection
-    $sql_query = "DELETE FROM user WHERE User=? AND Host='%'";
+    # 2. Delete "anonymous" users, i.e. users with the empty string as user name;
+    $dbHandler->do("DELETE FROM mysql.user WHERE User=''");
+    if ( $DBI::errstr ) {
+        $status_msg = ["Error deleting MySQL anonymous users" ];
+        $logger->warn($DBI::errstr);
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+
+    # 3. Ensure the root user can not log in remotely;
+    $sql_query = "DELETE FROM mysql.user WHERE User=? AND Host NOT IN ('localhost', '127.0.0.1', '::1')";
     $dbHandler->do($sql_query, undef, $root_user);
     if ( $DBI::errstr ) {
         $status_msg = ["Error setting correct permissions to root user [_1]",$root_user ];
@@ -180,7 +175,21 @@ sub secureInstallation {
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
-    # Apply the new privileges
+    # 4. Remove the database named "test";
+    $dbHandler->do("DROP DATABASE IF EXISTS test");
+    if ( $DBI::errstr ) {
+        $status_msg = ["Error dropping the 'test' database" ];
+        $logger->warn($DBI::errstr);
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+    $dbHandler->do("DELETE FROM mysql.db WHERE Db='test' OR Db='test_%'");
+    if ( $DBI::errstr ) {
+        $status_msg = ["Error removing the 'test' database privileges" ];
+        $logger->warn($DBI::errstr);
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+
+    # 5. Flush the privileges tables, i.e. ensure that the changes to user access applied in the previous steps are committed immediately.
     $dbHandler->do("FLUSH PRIVILEGES");
     if ( $DBI::errstr ) {
         $status_msg = ["Error applying new privileges to root user [_1]",$root_user ];
@@ -231,17 +240,6 @@ sub schema {
     $status_msg = ["Successfully applied the schema to the database [_1]",$db ];
 
 
-    # add graphite schema
-    $db = "${db}_graphite";
-    $db = quotemeta ($db);
-    $mysql_cmd = "/usr/bin/mysql -u $root_user -p$root_password $db";
-    $cmd = "$mysql_cmd < $install_dir/db/pf_graphite-schema.sql";
-    eval { $result = pf_run($cmd, (accepted_exit_status => [ 0 ], log_strip => quotemeta("-p$root_password"))) };
-    if ( $@ || !defined($result) ) {
-        $status_msg = ["Error applying the schema to the database [_1]",$db ];
-        $logger->warn("$@: $result");
-        return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
-    }
     # return original status message
     return ( $STATUS::OK, $status_msg );
 }
@@ -284,7 +282,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -305,6 +303,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

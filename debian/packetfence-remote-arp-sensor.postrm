@@ -18,6 +18,15 @@ set -e
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
+if $(dpkg-distribution --is_jessie) ; then
+    DIST=jessie
+fi
+if $(dpkg-distribution --is_wheezy) ; then
+    DIST=wheezy
+fi
+if $(dpkg-distribution --is_precise) ; then
+    DIST=precise
+fi
 
 case "$1" in
     upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
@@ -26,11 +35,16 @@ case "$1" in
     remove)
     ;;
     purge)
-	export PACKETFENCE=/usr/local/pf
-	update-rc.d packetfence-remote-arp-sensor remove >/dev/null || exit 0
-	rm /etc/init.d/packetfence-remote-arp-sensor 
-	rm $PACKETFENCE/sbin/pfarp_remote
-	rm $PACKETFENCE/conf/pfarp_remote.conf	
+        export PACKETFENCE=/usr/local/pf
+        if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
+            update-rc.d packetfence-remote-arp-sensor remove >/dev/null || exit 0
+        fi
+        if [ ${DIST} = "jessie" ] ; then
+            systemctl disable packetfence-remote-arp-sensor
+        fi
+        rm /etc/init.d/packetfence-remote-arp-sensor
+        rm $PACKETFENCE/sbin/pfarp_remote
+        rm $PACKETFENCE/conf/pfarp_remote.conf
     ;;
     *)
         echo "postrm called with unknown argument \`$1'" >&2

@@ -9,7 +9,7 @@ use Test::NoWarnings;
 
 use lib '/usr/local/pf/lib';
 BEGIN { use lib qw(/usr/local/pf/t); }
-BEGIN { use PfFilePaths; }
+BEGIN { use setup_test_config; }
 use pf::config;
 use pf::SwitchFactory;
 
@@ -79,7 +79,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

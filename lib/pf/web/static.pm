@@ -1,4 +1,5 @@
 package pf::web::static;
+
 =head1 static
 
 Serve static content
@@ -14,15 +15,13 @@ sub handler {
     return Apache2::Const::DECLINED;
 }
 
-=back
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

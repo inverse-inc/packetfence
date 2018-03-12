@@ -24,8 +24,24 @@ extends 'pf::Authentication::Source';
 
 has '+class' => (default => 'external');
 has '+type' => (default => 'Null');
-has '+unique' => (default => 1);
 has 'email_required' => (isa => 'Str', is => 'rw', default => 'no');
+
+=head2 authenticate
+
+=cut
+
+sub authenticate {
+  my $self = shift;
+  return $TRUE;
+}
+
+=head2 dynamic_routing_module
+
+Which module to use for DynamicRouting
+
+=cut
+
+sub dynamic_routing_module { 'Authentication::Null' }
 
 =head2 available_attributes
 
@@ -98,7 +114,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

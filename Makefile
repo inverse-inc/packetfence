@@ -1,66 +1,69 @@
+DOCBOOK_XSL := /usr/share/xml/docbook/stylesheet/docbook-xsl
+UNAME := $(shell uname -s)
+ifeq ($(UNAME),Darwin)
+	DOCBOOK_XSL := /opt/local/share/xsl/docbook-xsl
+else ifneq ("$(wildcard /etc/redhat-release)","")
+	DOCBOOK_XSL := /usr/share/sgml/docbook/xsl-stylesheets
+endif
+
 all:
 	@echo "Please chose which documentation to build:"
 	@echo ""
-	@echo " 'pdf' will build all guide using the PDF format"
-	@echo " 'doc-admin-pdf' will build the Administration guide in PDF"
-	@echo " 'doc-developers-pdf' will build the Develoeprs guide in PDF"
-	@echo " 'doc-networkdevices-pdf' will build the Network Devices Configuration guide in PDF"
+	@echo " 'pdf' will build all guides using the PDF format"
+	@echo " 'PacketFence_Installation_Guide.pdf' will build the Installation guide in PDF"
+	@echo " 'PacketFence_Developers_Guide.pdf' will build the Develoeprs guide in PDF"
+	@echo " 'PacketFence_Network_Devices_Configuration_Guide.pdf' will build the Network Devices Configuration guide in PDF"
 
-pdf: doc-admin-pdf doc-developers-pdf doc-networkdevices-pdf doc-opswat-pdf doc-mobileiron-pdf doc-sepm-pdf doc-paloalto-pdf doc-barracuda-pdf doc-fortigate-pdf doc-opendaylight-pdf doc-checkpoint-pdf
+pdf: docs/docbook/xsl/titlepage-fo.xsl docs/docbook/xsl/import-fo.xsl $(patsubst %.asciidoc,%.pdf,$(notdir $(wildcard docs/PacketFence_*.asciidoc)))
 
-doc-admin-pdf:
-	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_Administration_Guide.docbook docs/PacketFence_Administration_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_Administration_Guide.docbook  -pdf docs/PacketFence_Administration_Guide.pdf
+docs/docbook/xsl/titlepage-fo.xsl: docs/docbook/xsl/titlepage-fo.xml
+	xsltproc \
+		-o docs/docbook/xsl/titlepage-fo.xsl \
+		$(DOCBOOK_XSL)/template/titlepage.xsl \
+		docs/docbook/xsl/titlepage-fo.xml
 
-doc-developers-pdf:
-	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_Developers_Guide.docbook docs/PacketFence_Developers_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_Developers_Guide.docbook  -pdf docs/PacketFence_Developers_Guide.pdf
+docs/docbook/xsl/import-fo.xsl:
+	@echo "<?xml version='1.0'?> \
+	<xsl:stylesheet   \
+	  xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" \
+	  xmlns:fo=\"http://www.w3.org/1999/XSL/Format\" \
+	  version=\"1.0\"> \
+	  <xsl:import href=\"${DOCBOOK_XSL}/fo/docbook.xsl\"/> \
+	</xsl:stylesheet>" \
+	> docs/docbook/xsl/import-fo.xsl
 
-doc-mobileiron-pdf:
-	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_MobileIron_Quick_Install_Guide.docbook docs/PacketFence_MobileIron_Quick_Install_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_MobileIron_Quick_Install_Guide.docbook  -pdf docs/PacketFence_MobileIron_Quick_Install_Guide.pdf
+%.pdf : docs/%.asciidoc
+	asciidoc \
+		-a docinfo2 \
+		-b docbook \
+		-d book \
+		-o docs/docbook/$(notdir $<).docbook \
+		$<
+	xsltproc \
+		-o $<.fo \
+		docs/docbook/xsl/packetfence-fo.xsl \
+		docs/docbook/$(notdir $<).docbook
+	fop \
+		-c docs/fonts/fop-config.xml \
+		$<.fo \
+		-pdf docs/$@
 
-doc-networkdevices-pdf:
-	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_Network_Devices_Configuration.docbook docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_Network_Devices_Configuration.docbook -pdf docs/PacketFence_Network_Devices_Configuration.pdf
+html: $(patsubst %.asciidoc,%.html,$(notdir $(wildcard docs/PacketFence_*.asciidoc)))
 
-doc-opswat-pdf:
-	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_OPSWAT_Quick_Install_Guide.docbook docs/PacketFence_OPSWAT_Quick_Install_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_OPSWAT_Quick_Install_Guide.docbook  -pdf docs/PacketFence_OPSWAT_Quick_Install_Guide.pdf
+%.html : docs/%.asciidoc
+	asciidoctor \
+		-D docs/html \
+		-n \
+		$<
 
-doc-sepm-pdf:
-	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_SEPM_Quick_Install_Guide.docbook docs/PacketFence_SEPM_Quick_Install_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_SEPM_Quick_Install_Guide.docbook  -pdf docs/PacketFence_SEPM_Quick_Install_Guide.pdf
+html/pfappserver/root/static/doc:
+	make html
+	mkdir -p docs/html/docs/images/
+	cp -a docs/images/* docs/html/docs/images/
+	mv docs/html html/pfappserver/root/static/doc
 
-doc-anyfi-pdf:
-	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_Anyfi_Quick_Install_Guide.docbook docs/PacketFence_Anyfi_Quick_Install_Guide.asciidoc; fop -c docs/fonts/fop-config.xml -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_Anyfi_Quick_Install_Guide.docbook -pdf docs/PacketFence_Anyfi_Quick_Install_Guide.pdf
-
-doc-paloalto-pdf:
-	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_PaloAlto_Quick_Install_Guide.docbook docs/PacketFence_PaloAlto_Quick_Install_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_PaloAlto_Quick_Install_Guide.docbook  -pdf docs/PacketFence_PaloAlto_Quick_Install_Guide.pdf
-
-doc-fortigate-pdf:
-	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_FortiGate_Quick_Install_Guide.docbook docs/PacketFence_FortiGate_Quick_Install_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_FortiGate_Quick_Install_Guide.docbook  -pdf docs/PacketFence_FortiGate_Quick_Install_Guide.pdf
-
-doc-barracuda-pdf:
-	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_Barracuda_Quick_Install_Guide.docbook docs/PacketFence_Barracuda_Quick_Install_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_Barracuda_Quick_Install_Guide.docbook  -pdf docs/PacketFence_Barracuda_Quick_Install_Guide.pdf
-
-doc-opendaylight-pdf:
-	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_OpenDaylight_Install_Guide.docbook docs/PacketFence_OpenDaylight_Install_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_OpenDaylight_Install_Guide.docbook  -pdf docs/PacketFence_OpenDaylight_Install_Guide.pdf
-
-doc-checkpoint-pdf:
-	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_Checkpoint_Quick_Install_Guide.docbook docs/PacketFence_Checkpoint_Quick_Install_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_Checkpoint_Quick_Install_Guide.docbook  -pdf docs/PacketFence_Checkpoint_Quick_Install_Guide.pdf
-
-doc-clustering-pdf:
-	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_Clustering_Guide.docbook docs/PacketFence_Clustering_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_Clustering_Guide.docbook  -pdf docs/PacketFence_Clustering_Guide.pdf
-
-doc-out-of-band-zen:
-	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_Out-of-Band_Deployment_Quick_Guide_ZEN.docbook docs/PacketFence_Out-of-Band_Deployment_Quick_Guide_ZEN.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_Out-of-Band_Deployment_Quick_Guide_ZEN.docbook  -pdf docs/PacketFence_Out-of-Band_Deployment_Quick_Guide_ZEN.pdf
-
-doc-inline-zen:
-	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_Inline_Deployment_Quick_Guide_ZEN.docbook docs/PacketFence_Inline_Deployment_Quick_Guide_ZEN.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_Inline_Deployment_Quick_Guide_ZEN.docbook  -pdf docs/PacketFence_Inline_Deployment_Quick_Guide_ZEN.pdf
-
-doc-openwrt-hostapd:
-	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_OpenWrt-Hostapd_Quick_Install_Guide.docbook docs/PacketFence_OpenWrt-Hostapd_Quick_Install_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_OpenWrt-Hostapd_Quick_Install_Guide.docbook  -pdf docs/PacketFence_OpenWrt-Hostapd_Quick_Install_Guide.pdf
-
-doc-pki:
-	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_PKI_Quick_Install_Guide.docbook docs/PacketFence_PKI_Quick_Install_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_PKI_Quick_Install_Guide.docbook  -pdf docs/PacketFence_PKI_Quick_Install_Guide.pdf
-
-doc-mspki:
-	asciidoc -a docinfo2 -b docbook -d book -d book -o docs/docbook/PacketFence_MSPKI_Quick_Install_Guide.docbook docs/PacketFence_MSPKI_Quick_Install_Guide.asciidoc; fop -c docs/fonts/fop-config.xml   -xsl docs/docbook/xsl/packetfence-fo.xsl -xml docs/docbook/PacketFence_MSPKI_Quick_Install_Guide.docbook  -pdf docs/PacketFence_MSPKI_Quick_Install_Guide.pdf
+pfcmd.help:
+	/usr/local/pf/bin/pfcmd help > docs/pfcmd.help
 
 .PHONY: configurations
 
@@ -68,16 +71,23 @@ configurations:
 	find -type f -name '*.example' -print0 | while read -d $$'\0' file; do cp -n $$file "$$(dirname $$file)/$$(basename $$file .example)"; done
 	touch /usr/local/pf/conf/pf.conf
 
-.PHONY: ssl-certs
+# server certs and keys
+# the | in the prerequisites ensure the target is not created if it already exists
+# see https://www.gnu.org/software/make/manual/make.html#Prerequisite-Types
+conf/ssl/server.pem: | conf/ssl/server.key conf/ssl/server.crt conf/ssl/server.pem 
+	cat conf/ssl/server.crt conf/ssl/server.key > conf/ssl/server.pem
 
-conf/ssl/server.crt:
-	openssl req -x509 -new -nodes -days 365 -batch \
+conf/ssl/server.crt: | conf/ssl/server.crt
+	openssl req -new -x509 -days 365 \
 	-out /usr/local/pf/conf/ssl/server.crt \
-	-keyout /usr/local/pf/conf/ssl/server.key \
-	-nodes -config /usr/local/pf/conf/openssl.cnf
+	-key /usr/local/pf/conf/ssl/server.key \
+	-config /usr/local/pf/conf/openssl.cnf
 
-conf/pf_omapi_key:
-	/usr/bin/openssl rand -base64 -out /usr/local/pf/conf/pf_omapi_key 32
+conf/ssl/server.key: | conf/ssl/server.key
+	openssl genrsa -out /usr/local/pf/conf/ssl/server.key 2048
+
+conf/local_secret:
+	date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/local_secret
 
 bin/pfcmd: src/pfcmd.c
 	$(CC) -O2 -g -std=c99  -Wall $< -o $@
@@ -90,27 +100,23 @@ bin/ntlm_auth_wrapper: src/ntlm_auth_wrap.c
 /etc/sudoers.d/packetfence.sudoers: packetfence.sudoers
 	cp packetfence.sudoers /etc/sudoers.d/packetfence.sudoers
 
-.PHONY:sudo
+.PHONY: sudo
 
-sudo:/etc/sudoers.d/packetfence.sudoers
+sudo: /etc/sudoers.d/packetfence.sudoers
 
 
 permissions:
 	./bin/pfcmd fixpermissions
 
-raddb/certs/dh:
-	cd raddb/certs; make dh
-
-lib/pf/pfcmd/pfcmd_pregrammar.pm:
-	/usr/bin/perl -Ilib -MParse::RecDescent -Mpf::pfcmd::pfcmd -w -e 'Parse::RecDescent->Precompile($$grammar, "pfcmd_pregrammar");'
-	mv pfcmd_pregrammar.pm lib/pf/pfcmd/
+raddb/certs/server.crt:
+	cd raddb/certs; make
 
 .PHONY: raddb-sites-enabled
 
 raddb/sites-enabled:
 	mkdir raddb/sites-enabled
 	cd raddb/sites-enabled;\
-	for f in control-socket default inner-tunnel packetfence packetfence-soh packetfence-tunnel dynamic-clients;\
+	for f in packetfence packetfence-tunnel dynamic-clients;\
 		do ln -s ../sites-available/$$f $$f;\
 	done
 
@@ -138,4 +144,12 @@ fingerbank:
 	rm -f /usr/local/pf/lib/fingerbank
 	ln -s /usr/local/fingerbank/lib/fingerbank /usr/local/pf/lib/fingerbank \
 
-devel: configurations conf/ssl/server.crt conf/pf_omapi_key bin/pfcmd raddb/certs/dh sudo lib/pf/pfcmd/pfcmd_pregrammar.pm translation mysql-schema raddb/sites-enabled fingerbank chown_pf permissions bin/ntlm_auth_wrapper
+.PHONY: pf-dal
+
+pf-dal:
+	perl /usr/local/pf/addons/dev-helpers/bin/generator-data-access-layer.pl
+
+devel: configurations conf/ssl/server.crt conf/local_secret bin/pfcmd raddb/certs/server.crt sudo translation mysql-schema raddb/sites-enabled fingerbank chown_pf permissions bin/ntlm_auth_wrapper html/pfappserver/root/static/doc
+
+test:
+	cd t && ./smoke.t

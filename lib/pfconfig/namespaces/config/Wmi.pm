@@ -20,7 +20,7 @@ use warnings;
 
 use pfconfig::namespaces::config;
 use pf::log;
-use pf::file_paths;
+use pf::file_paths qw($wmi_config_file);
 
 use base 'pfconfig::namespaces::config';
 
@@ -55,7 +55,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

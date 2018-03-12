@@ -28,7 +28,7 @@ value = /wpad.dat
 action = 501
 redirect_url =
 
-# Accept Davlik user agent only for /generate_204 uri
+# Accept Davlik user agent only for /generate_204 or /profile.xml uri
 [4]
 filter = user_agent
 method = GET
@@ -41,7 +41,13 @@ method = GET
 operator = match_not
 value = /generate_204
 
-[4:4&5]
+[6]
+filter = uri
+method = GET
+operator = match_not
+value = /profile.xml
+
+[4:4&(5&6)]
 action = 501
 redirect_url =
 

@@ -11,17 +11,23 @@ Form definition to create or update a violation.
 =cut
 
 use HTML::FormHandler::Moose;
+use pfappserver::Base::Form::Authentication::Action;
 extends 'pfappserver::Base::Form';
-with 'pfappserver::Base::Form::Role::Help';
+with qw(
+    pfappserver::Base::Form::Role::Help
+    pfappserver::Base::Form::Role::AllowedOptions
+    pfappserver::Role::Form::RolesAttribute
+);
 
 use HTTP::Status qw(:constants is_success);
-
+use List::MoreUtils qw(uniq);
+use pf::config qw(%Config);
+use pf::web::util;
+use pf::admin_roles;
 use pf::action;
 use pf::log;
-
-has '+field_name_space' => ( default => 'pfappserver::Form::Field' );
-has '+widget_name_space' => ( default => 'pfappserver::Form::Widget' );
-has '+language_handle' => ( builder => 'get_language_handle_from_ctx' );
+use pf::constants::violation qw($MAX_VID %NON_WHITELISTABLE_ROLES);
+use pf::class qw(class_next_vid);
 
 # Form select options
 has 'violations' => ( is => 'ro' );
@@ -41,6 +47,7 @@ has_field 'id' =>
   (
    type => 'Text',
    label => 'Identifier',
+   default_method => \&class_next_vid,
    messages => { required => 'Please specify an identifier for the violation.' },
    tags => { after_element => \&help,
              help => 'Use a number above 1500000 if you want to be able to delete this violation later.' },
@@ -49,7 +56,9 @@ has_field 'desc' =>
   (
    type => 'Text',
    label => 'Description',
-   required => 1,
+   required_when => {
+    id => sub { $_[0] ne 'defaults' }
+   },
    element_class => ['input-large'],
    messages => { required => 'Please specify a brief description of the violation.' },
   );
@@ -74,9 +83,8 @@ has_field 'vclose' =>
   (
    type => 'Select',
    label => 'Violation to close',
-   element_class => ['chzn-deselect'],
+   element_class => ['chzn-deselect hide'],
    element_attr => {'data-placeholder' => 'Select a violation'},
-   wrapper_attr => {style => 'display: none'},
    tags => { after_element => \&help,
              help => 'When selecting the <strong>close</strong> action, triggering the violation will close this violation. This is an experimental workflow for Mobile Device Management (MDM).' },
   );
@@ -85,9 +93,8 @@ has_field 'target_category' =>
    type => 'Select',
    label => 'Set role',
    options_method => \&options_roles,
-   element_class => ['chzn-deselect'],
+   element_class => ['chzn-deselect hide'],
    element_attr => {'data-placeholder' => 'Select a role'},
-   wrapper_attr => {style => 'display: none'},
    tags => { after_element => \&help,
              help => 'When selecting the <strong>role</strong> action, triggering the violation will change the node to this role.' },
   );
@@ -105,7 +112,7 @@ has_field 'whitelisted_roles' =>
    type => 'Select',
    multiple => 1,
    label => 'Whitelisted Roles',
-   options_method => \&options_roles,
+   options_method => \&options_whitelisted_roles,
    element_class => ['chzn-select', 'input-xxlarge'],
    element_attr => {'data-placeholder' => 'Click to add a role'},
    tags => { after_element => \&help,
@@ -164,7 +171,7 @@ has_field 'template' =>
    type => 'Select',
    label => 'Template',
    tags => { after_element => \&help,
-             help => 'HTML template the host will be redirected to while in violation. You can create new templates from the <em>Portal Profiles</em> configuration section.' }
+             help => 'HTML template the host will be redirected to while in violation. You can create new templates from the <em>Connection Profiles</em> configuration section.' }
   );
 has_field 'button_text' =>
   (
@@ -176,19 +183,19 @@ has_field 'button_text' =>
 has_field 'vlan' =>
   (
    type => 'Select',
-   label => 'VLAN',
+   label => 'Role',
    options_method => \&options_roles,
    element_class => ['chzn-deselect'],
-   element_attr => {'data-placeholder' => 'Select a VLAN'},
+   element_attr => {'data-placeholder' => 'Select a Role'},
    tags => { after_element => \&help,
-             help => 'Destination VLAN where PacketFence should put the client when a violation of this type is open.' }
+             help => 'Destination Role where PacketFence should put the client when a violation of this type is open.' }
   );
 has_field 'redirect_url' =>
   (
    type => 'Text',
    label => 'Redirection URL',
    tags => { after_element => \&help,
-             help => 'Destination URL where PacketFence will forward the device. By default it will use the Redirection URL from the portal profile configuration.' }
+             help => 'Destination URL where PacketFence will forward the device. By default it will use the Redirection URL from the connection profile configuration.' }
   );
 has_field 'external_command' =>
   (
@@ -196,6 +203,18 @@ has_field 'external_command' =>
    label => 'External Command',
    element_class => ['input-large'],
    messages => { required => 'Please specify the command you want to execute.' },
+  );
+has_field 'access_duration' =>
+  (
+   type => 'Select',
+   label => 'Access Duration',
+   localize_labels => 1,
+   options_method => \&pfappserver::Base::Form::Authentication::Action::options_durations,
+   default_method => sub { $Config{'guests_admin_registration'}{'default_access_duration'} },
+   element_class => ['chzn-select', 'input-xxlarge'],
+   element_attr => {'data-placeholder' => 'Click to add a duration'},
+   tags => { after_element => \&help,
+             help => 'Specify the access duration for the new registered node.' },
   );
 
 =head2 around has_errors
@@ -227,7 +246,7 @@ For violations other than the default, add placeholders with values from default
 sub update_fields {
     my $self = shift;
 
-    unless ($self->{init_object} && $self->init_object->{id} eq 'defaults') {
+    unless ($self->{init_object} && defined $self->init_object->{id} && $self->init_object->{id} eq 'defaults') {
         if ($self->placeholders) {
             foreach my $field ($self->fields) {
                 if ($self->placeholders->{$field->name} && length $self->placeholders->{$field->name}) {
@@ -276,6 +295,25 @@ sub options_vclose {
     return ('' => '', @violations);
 }
 
+=head2 options_whitelisted_roles
+
+The options for whitelisted roles
+
+=cut
+
+sub options_whitelisted_roles {
+    my ($self) = @_;
+    # NOTE: options_roles is a method on form but that receives the field as the first argument
+    my %roles = options_roles($self);
+    # Roles that aren't technically roles (non-db), except for registration which matches unregistered devices
+    my %whitelisted_roles;
+    foreach my $role (keys(%roles)) {
+        next if(exists($NON_WHITELISTABLE_ROLES{$role}));
+        $whitelisted_roles{$role} = $role;
+    }
+    return %whitelisted_roles;
+}
+
 =head2 options_roles
 
 =cut
@@ -313,11 +351,6 @@ Make sure a role is specified if the role action is selected.
 sub validate {
     my $self = shift;
 
-    # Check the violation ID
-    unless ($self->value->{id} =~ m/^(defaults|\d+)$/) {
-        $self->field('id')->add_error('The violation ID must be a positive integer.');
-    }
-
     # If the close action is selected, make sure a valid closing violation (vclose) is specified
     if (grep {$_ eq 'close'} @{$self->value->{actions}}) {
         my $vclose = $self->value->{vclose};
@@ -338,9 +371,26 @@ sub validate {
     }
 }
 
+=head2 validate_id
+
+Validate the ID is numeric and doesn't exceed 2000000000 (max int(11) is 2147483648 but we make it a pretty rounded number)
+
+=cut
+
+sub validate_id {
+    my ($self, $field) = @_;
+    my $val = $field->value;
+    return if $val eq 'defaults';
+
+    if($val <= 0 || $val > $MAX_VID) {
+        $field->add_error('The violation ID should be between 1 and 2000000000');
+        return;
+    }
+}
+
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -361,5 +411,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+
 1;

@@ -16,7 +16,6 @@ use warnings;
 use base ('pf::Switch');
 
 use pf::constants;
-use pf::config;
 
 =head1 SUBROUTINES
 
@@ -42,7 +41,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

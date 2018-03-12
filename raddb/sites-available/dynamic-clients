@@ -37,7 +37,7 @@ client dynamic {
 	#
 	#  You MUST specify a netmask!
 	#  IPv4 /32 or IPv6 /128 are NOT allowed!
-	ipaddr = 192.0.2.0/24
+	ipaddr = 0.0.0.0/0
 
 	#
 	#  Any other configuration normally found in a "client"
@@ -69,7 +69,7 @@ client dynamic {
 	#  If the lifetime is "0", then the dynamic client is never
 	#  deleted.  The only way to delete the client is to re-start
 	#  the server.
-	lifetime = 3600
+	lifetime = "300"
 }
 
 #
@@ -102,36 +102,56 @@ server dynamic_clients {
 		#
 		#  Example 3: Look the clients up in SQL.
 		#
-		#  This requires the SQL module to be configured, of course.
-
-
+		#  This requires the SQL and RAW modules to be configured, of course.
         update control {
-            &Tmp-String-8 := "%{sql: SELECT nasname FROM radius_nas WHERE nasname = '%{Packet-Src-IP-Address}'}"
+            &PacketFence-NasName := '0'
+            &FreeRADIUS-Client-IP-Address = "%{Packet-Src-IP-Address}"
         }
 
-        if (! &control:Tmp-String-8) {
-            update control {
-                &Tmp-String-8 := "%{sql: SELECT nasname from radius_nas WHERE start_ip <= INET_ATON('%{Packet-Src-IP-Address}') and INET_ATON('%{Packet-Src-IP-Address}') <= end_ip order by range_length limit 1}"
+        # Try to find the MAC in the database
+        if("%{raw:Called-Station-Id}" =~ /^([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})/i) {
+            update {
+                &control:PacketFence-NasName := "%{sql: SELECT IFNULL((SELECT nasname FROM radius_nas WHERE nasname = '%{tolower:%{1}:%{2}:%{3}:%{4}:%{5}:%{6}}'), 0 ) }"
             }
-                #
-        }
-        if (&control:Tmp-String-8) {
-            update control {
-                #
-                # Echo the IP.
-                &FreeRADIUS-Client-IP-Address = "%{Packet-Src-IP-Address}"
 
-                #
+        }
+
+        # If the MAC was not found, try finding the IP
+        if ( &control:PacketFence-NasName == '0' ) {
+            update {
+                &control:PacketFence-NasName := "%{sql: SELECT IFNULL((SELECT nasname FROM radius_nas WHERE nasname = '%{Packet-Src-IP-Address}'), 0)}"
+            }
+        }
+
+        # If the IP was not found, try finding a matching IP range
+        if ( &control:PacketFence-NasName == '0' ) {
+            update {
+                &control:PacketFence-NasName := "%{sql: SELECT IFNULL((SELECT nasname from radius_nas WHERE start_ip <= INET_ATON('%{Packet-Src-IP-Address}') and INET_ATON('%{Packet-Src-IP-Address}') <= end_ip order by range_length limit 1 ), 0 )}"
+            }
+        }
+
+        # Assign the following attributes and return OK if we did find a PacketFence-NasName
+        if ( &control:PacketFence-NasName != "0" ) {
+            update control {
                 # Do multiple SELECT statements to grab
                 # the various definitions.
-                &FreeRADIUS-Client-Shortname = "%{sql: SELECT shortname FROM radius_nas WHERE nasname = '%{control:Tmp-String-8}'}"
+                &FreeRADIUS-Client-Shortname = "%{sql: SELECT shortname FROM radius_nas WHERE nasname = '%{control:PacketFence-NasName}'}"
 
-                &FreeRADIUS-Client-Secret = "%{sql: SELECT secret FROM radius_nas WHERE nasname = '%{control:Tmp-String-8}'}"
+                &FreeRADIUS-Client-Secret = "%{sql: SELECT secret FROM radius_nas WHERE nasname = '%{control:PacketFence-NasName}'}"
 
-                &FreeRADIUS-Client-NAS-Type = "%{sql: SELECT type FROM radius_nas WHERE nasname = '%{control:Tmp-String-8}'}"
+                &FreeRADIUS-Client-NAS-Type = "%{sql: SELECT type FROM radius_nas WHERE nasname = '%{control:PacketFence-NasName}'}"
+
+                &PacketFence-Tenant-Id = "%{sql: SELECT tenant_id FROM radius_nas WHERE nasname = '%{control:PacketFence-NasName}'}"
 
             }
-            ok
         }
-	}
-}
+
+    if ( &control:PacketFence-NasName != "" && &control:FreeRADIUS-Client-Shortname != "" && &control:FreeRADIUS-Client-Secret != "" && &control:FreeRADIUS-Client-NAS-Type != "" ) {
+        ok
+    } 
+    else { 
+        reject
+    }
+
+    } # end authorize
+} # end server

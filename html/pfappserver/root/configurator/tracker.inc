@@ -1,5 +1,5 @@
-      <div id="tracker" class="row">
-        <div class="span9 offset3">
+      <div id="tracker" class="row-fluid">
+        <div class="span14 offset4">
               <ul class="nav nav-pills">
               [% FOREACH step IN steps -%]
                 <li[% IF step.id == c.action.name %] class="active"[% END %]>

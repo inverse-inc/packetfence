@@ -16,7 +16,7 @@ use diagnostics;
 use lib '/usr/local/pf/lib';
 BEGIN {
     use lib qw(/usr/local/pf/t);
-    use PfFilePaths;
+    use setup_test_config;
 }
 
 use File::Basename qw(basename);
@@ -31,8 +31,8 @@ Log::Log4perl::MDC->put( 'tid',  0 );
 use pf::config;
 use pf::radius::constants;
 
-BEGIN { 
-    use_ok('pf::radius'); 
+BEGIN {
+    use_ok('pf::radius');
     use_ok('pf::radius::custom');
 }
 
@@ -43,9 +43,6 @@ isa_ok($radius, 'pf::radius');
 # subs
 can_ok($radius, qw(
     authorize
-    _doWeActOnThisCall
-    _doWeActOnThisCallWireless
-    _doWeActOnThisCallWired
     _authorizeVoip
     _translateNasPortToIfIndex
     _isSwitchSupported
@@ -58,7 +55,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -75,7 +72,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
-USA.            
+USA.
 
 =cut
 

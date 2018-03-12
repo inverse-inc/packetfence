@@ -34,6 +34,7 @@ use warnings;
 
 use Date::Parse;
 use Crypt::GeneratePassword qw(word);
+use Crypt::SmbHash qw(nthash);
 use pf::log;
 use POSIX;
 use Readonly;
@@ -44,10 +45,6 @@ use Crypt::Eksblowfish::Bcrypt qw(bcrypt_hash en_base64 de_base64 );
 use Bytes::Random::Secure;
 
 
-# Constants
-use constant PASSWORD => 'password';
-
-
 # Authenticatation return codes
 Readonly our $AUTH_SUCCESS              => 0;
 Readonly our $AUTH_FAILED_INVALID       => 1;
@@ -55,105 +52,25 @@ Readonly our $AUTH_FAILED_EXPIRED       => 2;
 Readonly our $AUTH_FAILED_NOT_YET_VALID => 3;
 Readonly our $PLAINTEXT                 => 'plaintext';
 Readonly our $BCRYPT                    => 'bcrypt';
+Readonly our $NTLM                      => 'ntlm';
 
 # Expiration time in seconds
 Readonly::Scalar our $EXPIRATION => 31*24*60*60; # defaults to 31 days
 
 BEGIN {
     use Exporter ();
-    our ( @ISA, @EXPORT, @EXPORT_OK );
+    our ( @ISA, @EXPORT_OK );
     @ISA    = qw(Exporter);
-    @EXPORT = qw(
-        password_db_prepare
-        $password_db_prepared
-    );
-
     @EXPORT_OK = qw(
-        view add modify
-        create match_by_mail
-        validate_password
-        bcrypt
-        $AUTH_SUCCESS $AUTH_FAILED_INVALID $AUTH_FAILED_EXPIRED $AUTH_FAILED_NOT_YET_VALID $BCRYPT $PLAINTEXT
+        $AUTH_SUCCESS $AUTH_FAILED_INVALID $AUTH_FAILED_EXPIRED $AUTH_FAILED_NOT_YET_VALID $BCRYPT $PLAINTEXT $NTLM view
     );
 }
 
 use pf::constants;
-use pf::config;
-use pf::db;
+use pf::config qw(%Config);
+use pf::error qw(is_error is_success);;
+use pf::dal::password;
 use pf::util;
-
-# The next two variables and the _prepare sub are required for database handling magic (see pf::db)
-our $password_db_prepared = 0;
-# in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
-# the hash if required
-our $password_statements = {};
-
-=head1 SUBROUTINES
-
-TODO: This list is incomlete
-
-=over
-
-
-=item password_db_prepare
-
-Instantiate SQL statements to be prepared
-
-=cut
-
-sub password_db_prepare {
-    my $logger = get_logger();
-    $logger->debug("Preparing pf::password database queries");
-
-    $password_statements->{'password_view_sql'} = get_db_handle()->prepare(qq[
-        SELECT t.pid, t.password, t.valid_from, t.expiration, t.access_duration, t.access_level, c.name as category, t.sponsor, t.unregdate,
-            p.firstname, p.lastname, p.email, p.telephone, p.company, p.address, p.notes
-        FROM password t
-        LEFT JOIN person p ON t.pid = p.pid
-        LEFT JOIN node_category c ON t.category = c.category_id
-        WHERE t.pid = ?
-    ]);
-
-    $password_statements->{'password_view_email_sql'} = get_db_handle()->prepare(qq[
-        SELECT t.pid, t.password, t.valid_from, t.expiration, t.access_duration, t.access_level, c.name as category, t.sponsor, t.unregdate,
-            p.firstname, p.lastname, p.email, p.telephone, p.company, p.address, p.notes
-        FROM person p, password t
-        LEFT JOIN node_category c ON t.category = c.category_id
-        WHERE t.pid = p.pid AND p.email = ?
-    ]);
-
-    $password_statements->{'password_add_sql'} = get_db_handle()->prepare(qq[
-        INSERT INTO password
-            (pid, password, valid_from, expiration, access_duration, access_level, category, sponsor, unregdate)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ]);
-
-    $password_statements->{'password_delete_sql'} = get_db_handle()->prepare(
-        qq [ DELETE FROM password WHERE pid = ? ]
-    );
-
-    $password_statements->{'password_validate_password_sql'} = get_db_handle()->prepare(qq[
-        SELECT pid, password, UNIX_TIMESTAMP(valid_from) as valid_from,
-            UNIX_TIMESTAMP(DATE_FORMAT(expiration,"%Y-%m-%d 23:59:59")) AS expiration,
-            access_duration, category
-        FROM password
-        WHERE pid = ?
-        ORDER BY expiration DESC
-        LIMIT 1
-    ]);
-
-    $password_statements->{'password_modify_actions_sql'} = get_db_handle()->prepare(qq[
-        UPDATE password
-        SET valid_from = ?, expiration = ?, access_duration = ?, access_level = ?, category = ?, sponsor = ?, unregdate = ?
-        WHERE pid = ?
-    ]);
-
-    $password_statements->{'password_reset_password_sql'} = get_db_handle()->prepare(qq[
-        UPDATE password SET password = ? WHERE pid = ?
-    ]);
-
-    $password_db_prepared = 1;
-}
 
 =item view
 
@@ -163,14 +80,13 @@ view a temporary password record, returns an hashref
 
 sub view {
     my ($pid) = @_;
-    my $query = db_query_execute(
-        PASSWORD, $password_statements, 'password_view_sql', $pid
-    ) || return;
-    my $ref = $query->fetchrow_hashref();
-
-    # just get one row and finish
-    $query->finish();
-    return ($ref);
+    my ($status, $item) = pf::dal::password->find({
+        pid => $pid
+    });
+    if (is_error($status)) {
+        return (undef);
+    }
+    return ($item->to_hash());
 }
 
 =item view_email
@@ -181,14 +97,15 @@ view the temporary password record associated to an email address, returns an ha
 
 sub view_email {
     my ($email) = @_;
-    my $query = db_query_execute(
-        PASSWORD, $password_statements, 'password_view_email_sql', $email
-    ) || return;
-    my $ref = $query->fetchrow_hashref();
-
-    # just get one row and finish
-    $query->finish();
-    return ($ref);
+    my ($status, $iter) = pf::dal::password->search(
+        -where => {
+            'email' => $email,
+        },
+    );
+    if (is_error($status)) {
+        return (undef);
+    }
+    return $iter->next(undef);
 }
 
 
@@ -200,10 +117,8 @@ _delete a temporary password record
 
 sub _delete {
     my ($pid) = @_;
-
-    return(db_query_execute(
-        PASSWORD, $password_statements, 'password_delete_sql', $pid
-    ));
+    my $status = pf::dal::password->remove_by_id({pid => $pid});
+    return is_success($status);
 }
 
 =item create
@@ -214,11 +129,8 @@ Creates a temporary password record for a given pid. Valid until given expiratio
 
 sub create {
     my (%data) = @_;
-
-    return(db_data(PASSWORD, $password_statements,
-        'password_add_sql',
-        $data{'pid'}, $data{'password'}, $data{'valid_from'}, $data{'expiration'}, $data{'access_duration'}, $data{'access_level'}, $data{'category'}, $data{'sponsor'}, $data{'unregdate'}
-    ));
+    my $status = pf::dal::password->create(\%data);
+    return is_success($status);
 }
 
 =item _generate_password
@@ -270,7 +182,7 @@ Defaults to 0 (no per user limit)
 =cut
 
 sub generate {
-    my ( $pid, $actions, $password ) = @_;
+    my ( $pid, $actions, $password, $login_amount ) = @_;
     my $logger = get_logger();
 
     my %data;
@@ -279,6 +191,8 @@ sub generate {
 
     # hash password
     $data{'password'} = _hash_password( $password, algorithm => $Config{'advanced'}{'hash_passwords'}, );
+
+    $data{'login_remaining'} = $login_amount;
 
     _update_from_actions( \%data, $actions );
 
@@ -310,7 +224,7 @@ sub _update_from_actions {
 
     _update_field_for_action(
         $data,$actions,'valid_from',
-        'valid_from',undef
+        'valid_from', $ZERO_DATE
     );
     _update_field_for_action(
         $data,$actions,'expiration',
@@ -326,13 +240,20 @@ sub _update_from_actions {
     );
     _update_field_for_action(
         $data,$actions,$Actions::SET_UNREG_DATE,
-        'unregdate',"0000-00-00 00:00:00"
+        'unregdate', $ZERO_DATE
     );
     _update_field_for_action(
         $data,$actions,$Actions::SET_ACCESS_DURATION,
         'access_duration',undef
     );
-
+    _update_field_for_action(
+        $data,$actions,$Actions::SET_TIME_BALANCE,
+        'time_balance',undef
+    );
+    _update_field_for_action(
+        $data,$actions,$Actions::SET_BANDWIDTH_BALANCE,
+        'bandwidth_balance',undef
+    );
     my @values = grep { $_->{type} eq $Actions::SET_ROLE } @{$actions};
     if (scalar @values > 0) {
         my $role_id = nodecategory_lookup( $values[0]->{value} );
@@ -373,15 +294,19 @@ sub modify_actions {
     delete @{$password}{@ACTION_FIELDS};
     _update_from_actions( $password, $actions );
     my $pid   = $password->{pid};
-    my $query = db_query_execute(
-        PASSWORD,
-        $password_statements,
-        'password_modify_actions_sql',
-        @{$password}{@ACTION_FIELDS}, $pid
+    my %new_actions;
+    @new_actions{@ACTION_FIELDS} = @{$password}{@ACTION_FIELDS};
+    my ($status, $rows) = pf::dal::password->update_items(
+        -set => \%new_actions,
+        -where => {
+            pid => $pid
+        }
     );
-    my $rows = $query->rows;
-    $logger->info("pid $pid modified") if $rows;
-    return ($rows);
+    if (is_error($status)) {
+        return $FALSE;
+    }
+
+    return $TRUE;
 }
 
 
@@ -401,17 +326,18 @@ sub validate_password {
     my ( $pid, $password ) = @_;
 
     my $logger = get_logger();
-
-    my $query = db_query_execute(
-        PASSWORD,
-        $password_statements,
-        'password_validate_password_sql', $pid
+    my ($status, $iter) = pf::dal::password->search(
+        -where => {
+            pid => $pid,
+        },
+        -columns => [qw(pid password UNIX_TIMESTAMP(valid_from)|valid_from), 'UNIX_TIMESTAMP(DATE_FORMAT(expiration,"%Y-%m-%d 23:59:59"))|expiration', qw(access_duration category)],
+        #To avoid a join
+        -from => pf::dal::password->table,
+        -limit => 1,
     );
 
-    my $temppass_record = $query->fetchrow_hashref();
-
-    # just get one row
-    $query->finish();
+    my $temppass_record = $iter->next(undef);
+    $iter->finish;
 
     if ( !defined($temppass_record) || ref($temppass_record) ne 'HASH' ) {
         return $AUTH_FAILED_INVALID;
@@ -451,9 +377,11 @@ sub _check_password {
     # Plaintext passwords have no prefix.
     # We need to quotemeta the regex because it contains { and }
     my $bcrypt_re = quotemeta('{bcrypt}');
-
+    my $ntlm_re = quotemeta('{ntlm}');
     if ($hash_string =~ /^$bcrypt_re/) {
         return _check_bcrypt(@_);
+    } elsif ($hash_string =~ /^$ntlm_re/) {
+        return _check_ntlm(@_);
     } else {
         # I am leaving room for additional cases (NT hashes, md5 etc.)
         return $plaintext eq $hash_string ? $TRUE : $FALSE;
@@ -483,6 +411,8 @@ sub _hash_password {
         return $plaintext;
     } elsif ($algorithm =~ /$BCRYPT/) {
         return bcrypt($plaintext, %params);
+    } elsif ($algorithm =~ /$NTLM/) {
+        return '{ntlm}'.nthash($plaintext);
     } else {
         $logger->error("Unsupported hash algorithm " . $params{"algorithm"});
     }
@@ -541,6 +471,19 @@ sub bcrypt {
     return '{bcrypt}' . '$2a$' . $cost_str . $salt_str . $hash_str;
 }
 
+sub _check_ntlm {
+    my ( $plaintext, $hash_string ) = @_;
+
+    my $hashed_plaintext = '{ntlm}'.nthash($plaintext);
+
+    if ( $hashed_plaintext eq $hash_string ) {
+        return $TRUE;
+    }
+    else {
+        return $FALSE;
+    }
+}
+
 =item reset_password
 
 Reset (change) a password for a user in the password table.
@@ -561,10 +504,59 @@ sub reset_password {
     if ( $Config{'advanced'}{'hash_passwords'} ne $PLAINTEXT ) {
         $password = _hash_password( $password, ( algorithm => $Config{'advanced'}{'hash_passwords'} ));
     }
+    my ($status, $rows) = pf::dal::password->update_items(
+        -set => {
+            password => $password,
+        },
+        -where => {
+            pid => $pid,
+        }
+    );
 
-    db_query_execute(
-        PASSWORD, $password_statements, 'password_reset_password_sql', $password, $pid
-    ) || return undef;
+    if (is_error($status)) {
+        return undef;
+    }
+
+    return $rows ? $TRUE : $FALSE;
+}
+
+=item consume_login
+
+Consume a login for the password entry
+
+Returns true if the password entry can still be used for login
+
+=cut
+
+sub consume_login {
+    my ($pid) = @_;
+    my $user = view($pid);
+
+    my $login_remaining = $user->{login_remaining};
+    unless (defined ($login_remaining)) {
+        return $TRUE;
+    }
+
+    # if the remaining login amount is undef, this means that the user is allowed unlimited logins
+    # Otherwise, the user can use the amount of login in the column
+    # When the amount remaining is at 0, this returns false
+    if ($login_remaining == 0 ) {
+        return $FALSE;
+    }
+    my ($status, $rows) = pf::dal::password->update_items(
+        -set => {
+            login_remaining => \'login_remaining - 1'
+        },
+        -where => {
+            pid => $pid,
+            login_remaining => {">" => 0},
+        }
+    );
+    if (is_error($status)) {
+        return $FALSE;
+    }
+
+    return $rows ? $TRUE : $FALSE;
 }
 
 =back
@@ -575,7 +567,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

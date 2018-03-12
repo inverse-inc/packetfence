@@ -6,7 +6,7 @@ pf::Switch::Anyfi
 
 =head1 SYNOPSIS
 
-The pf::Switch::Anyfi module implements an object oriented interface to 
+The pf::Switch::Anyfi module implements an object oriented interface to
 manage the Anyfi Gateway
 
 =head1 STATUS
@@ -21,7 +21,10 @@ use warnings;
 use base ('pf::Switch');
 
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $MAC
+    $SSID
+);
 
 sub description {"Anyfi Gateway"}
 
@@ -35,23 +38,6 @@ sub supportsWirelessDot1x { return $TRUE; }
 sub supportsWirelessMacAuth { return $TRUE; }
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
-
-=head2 parseTrap
-
-This is called when we receive an SNMP-Trap for this device
-
-=cut
-
-sub parseTrap {
-    my ( $self, $trapString ) = @_;
-    my $trapHashRef;
-    my $logger = $self->logger;
-
-    $logger->debug("trap currently not handled");
-    $trapHashRef->{'trapType'} = 'unknown';
-
-    return $trapHashRef;
-}
 
 =head2 getVersion - obtain image version information from switch
 
@@ -92,7 +78,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

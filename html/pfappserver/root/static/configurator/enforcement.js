@@ -1,3 +1,5 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
+
 function registerExits() {
     $('#tracker a, .form-actions button').click(function(event) {
         var href = $(this).attr('href');
@@ -27,7 +29,7 @@ function saveStep(href) {
     }
     else {
         resetAlert(form.parent());
-        showError(form, 'You must choose at least one enforcement mechanism.');
+        showError(form.find('table'), 'You must choose at least one enforcement mechanism.');
         $("body,html").animate({scrollTop:0}, 'fast');
     }
 }

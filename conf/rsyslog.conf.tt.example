@@ -1,0 +1,21 @@
+$ModLoad imuxsock # provides support for local system logging (e.g. via logger command)
+$ModLoad imjournal # provides access to the systemd journal
+# Disable rate-limiting of syslog
+$SystemLogRateLimitInterval 0
+$SystemLogRateLimitBurst 0
+
+# Disable rate-limiting of journal messages
+$imjournalRatelimitInterval 0
+$imjournalRatelimitBurst 0
+
+# Disable escaping of control characters (like the ones used by Data::Dumper)
+$EscapeControlCharactersOnReceive off
+
+[%- FOREACH item IN items %]
+# [% item.name %]
+if [% item.condition %] then
+[%- FOREACH action IN item.actions %]
+  [% action -%]
+[%- END %]
+& stop
+[% END -%]

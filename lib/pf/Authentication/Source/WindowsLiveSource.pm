@@ -11,10 +11,10 @@ pf::Authentication::Source::WindowsLiveSource
 use pf::person;
 use Moose;
 extends 'pf::Authentication::Source::OAuthSource';
+with 'pf::Authentication::CreateLocalAccountRole';
 
 has '+type' => (default => 'WindowsLive');
 has '+class' => (default => 'external');
-has '+unique' => (default => 1);
 has 'client_id' => (isa => 'Str', is => 'rw', required => 1);
 has 'client_secret' => (isa => 'Str', is => 'rw', required => 1);
 has 'site' => (isa => 'Str', is => 'rw', default => 'https://login.live.com');
@@ -23,9 +23,16 @@ has 'access_token_path' => (isa => 'Str', is => 'rw', default => '/oauth20_token
 has 'access_token_param' => (isa => 'Str', is => 'rw', default => 'oauth_token');
 has 'scope' => (isa => 'Str', is => 'rw', default => 'wl.basic,wl.emails');
 has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://apis.live.net/v5.0/me');
-has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/windowslive');
+has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/callback');
 has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => 'login.live.com,auth.gfx.ms,account.live.com');
-has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
+
+=head2 dynamic_routing_module
+
+Which module to use for DynamicRouting
+
+=cut
+
+sub dynamic_routing_module { 'Authentication::OAuth::WindowsLive' }
 
 =head2 lookup_from_provider_info
 
@@ -44,7 +51,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -65,7 +72,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;
 
 # vim: set shiftwidth=4:

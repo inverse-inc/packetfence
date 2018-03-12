@@ -1,0 +1,216 @@
+# SWITCH FILTERS configuration
+# ============================
+#
+# Scopes
+# ------
+# It is possible to trigger rules / actions within the following specific connection flow scopes
+# - radius_authorize: Used when PacketFence receive a radius request
+# - external_portal: Used when an endpoint hit the captive portal for web authentication
+#
+#
+# A "SWITCH Filter" configuration is mainly constituted of two (2) parts; rules(s)/condition(s) and action(s)
+# Some working examples covering useful use cases can be found at the bottom of this file
+#
+#
+#
+# Rule(s)/Condition(s)
+# --------------------
+# Structure example of a rule/condition
+# [NAMEOFRULE]
+# filter = FILTER
+# operator = OPERATOR
+# value = VALUE
+#
+# Filter can be:
+#     node_info.autoreg
+#     node_info.status
+#     node_info.bypass_vlan
+#     node_info.bandwidth_balance
+#     node_info.regdate
+#     node_info.bypass_role
+#     node_info.device_class
+#     node_info.device_type
+#     node_info.device_version
+#     node_info.device_score
+#     node_info.pid
+#     node_info.machine_account
+#     node_info.category
+#     node_info.mac
+#     node_info.last_arp
+#     node_info.lastskip
+#     node_info.last_dhcp
+#     node_info.user_agent
+#     node_info.computername
+#     node_info.dhcp_fingerprint
+#     node_info.detect_date
+#     node_info.voip
+#     node_info.notes
+#     node_info.time_balance
+#     node_info.sessionid
+#     node_info.dhcp_vendor
+#     node_info.unregdate
+#     fingerbank_info.device_fq
+#     fingerbank_info.device_hierarchy_names
+#     fingerbank_info.device_hierarchy_ids
+#     fingerbank_info.score
+#     fingerbank_info.version
+#     fingerbank_info.mobile
+#     switch._switchIp
+#     switch._ip
+#     switch._portalURL
+#     switch._switchMac
+#     switch._ip
+#     ifIndex
+#     mac
+#     connection_type
+#     user_name
+#     ssid
+#     time
+#     owner.pid
+#     owner.firstname
+#     owner.lastname
+#     owner.email
+#     owner.telephone
+#     owner.company
+#     owner.address
+#     owner.notes
+#     owner.sponsor
+#     owner.anniversary
+#     owner.birthday
+#     owner.gender
+#     owner.lang
+#     owner.nickname
+#     owner.cell_phone
+#     owner.work_phone
+#     owner.title
+#     owner.building_number
+#     owner.apartment_number
+#     owner.room_number
+#     owner.custom_field_1
+#     owner.custom_field_2
+#     owner.custom_field_3
+#     owner.custom_field_4
+#     owner.custom_field_5
+#     owner.custom_field_6
+#     owner.custom_field_7
+#     owner.custom_field_8
+#     owner.custom_field_9
+#     owner.portal
+#     owner.source
+#     owner.nodes
+#     owner.password
+#     owner.valid_from
+#     owner.expiration
+#     owner.access_duration
+#     owner.access_level
+#     owner.can_sponsor
+#     owner.unregdate
+#     owner.category
+#     radius_request
+#     params
+# 
+# Operator can be:
+#     is
+#     is_not
+#     match
+#     match_not
+#     defined
+#     not_defined
+#     regex
+#     date_is_before
+#     date_is_after
+#
+# Attribute can be:
+# - for connection_type
+#     Wireless-802.11-EAP
+#     Wireless-802.11-NoEAP
+#     Ethernet-EAP
+#     Ethernet-NoEAP
+#     SNMP-Traps
+#     Inline
+#     WIRED_MAC_AUTH
+# - for the radius_request
+#     All the attributes you can have in the RADIUS request (run FreeRADIUS in debug mode to see these attributes)
+#
+# - for the params
+#     It correspond of the attributes in the uri when the device hit the portal
+#
+# Actions
+# -------
+# Structure example of an action
+# [NAMEOFTHEACTION:RULE1&RULE2&RULE3]
+# scope = SCOPE
+# param1 = SWITCH_PARAMETER => VALUE
+# param2 = SWITCH_PARAMETER => VALUE
+# paramx = SWITCH_PARAMETER => VALUE
+# switch = SWITCH_MODULE
+#
+# Scope can be:
+# - see beginning of this file for possible scope. They are usually extensions points of endpoint connection flow
+#
+#
+# Param(x) can be:
+# - any switch configuration parameter to override (Only available for radius_authorize scope)
+#
+# Switch can be:
+# - any switch module
+#
+# -------------------------
+#
+#
+# EXAMPLES
+# --------
+# - If the ssid is test then override ExternalPortalEnforcement and VlanMap value
+#
+#[SSID]
+#filter = ssid
+#operator = is
+#value = Test
+#
+#[1:SSID]
+#scope = radius_authorize
+#param1 = ExternalPortalEnforcement => N
+#param2 = VlanMap => Y
+#
+#[status]
+#filter = node_info.status
+#operator = is
+#value = reg
+#
+#[2:!SSID&status]
+#scope = radius_authorize
+#param1 = ExternalPortalEnforcement => N
+#
+# - If the device hit the portal with theses parameters in the uri then use the Fortinet::FortiGate switch module
+#
+#[login]
+#filter = params.login
+#operator = defined
+#
+#[post]
+#filter = params.post
+#operator = defined
+#
+#[magic]
+#filter = params.magic
+#operator = defined
+#
+#[usermac]
+#filter = params.usermac
+#operator = defined
+#
+#[apmac]
+#filter = params.apmac
+#operator = defined
+#
+#[apip]
+#filter = params.apip
+#operator = defined
+#
+#[userip]
+#filter = params.userip
+#operator = defined
+#
+#[1:login&post&magic&usermac&apmac&apip&userip]
+#scope = external_portal
+#switch = Fortinet::FortiGate

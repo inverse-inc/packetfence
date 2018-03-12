@@ -14,12 +14,14 @@
             <td>[% item.type | html %]</td>
             <td>[% item.port | html %]</td>
             <td>
+              <div class="pull-right">
               [%- IF can_access("FIREWALL_SSO_CREATE") %]
               <a class="btn btn-mini" href="[% c.uri_for(c.controller.action_for('clone'), [ item.id]) %]">[% l('Clone') %]</a>
               [%- END %]
               [%- IF can_access("FIREWALL_SSO_DELETE") %]
               <a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller.action_for('remove'), [ item.id ]) %]">[% l('Delete') %]</a>
               [%- END %]
+              </div>
             </td>
           </tr>
           [% END -%]

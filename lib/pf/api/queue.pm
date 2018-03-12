@@ -72,13 +72,25 @@ sub notify {
     return;
 }
 
+=head2 notify_delayed
+
+calls the pf api ignoring the return value with a delay
+
+=cut
+
+sub notify_delayed {
+    my ($self, $delay, $method, @args) = @_;
+    $self->client->submit_delayed($self->queue, 'api', $delay, [$method, @args]);
+    return;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

@@ -12,20 +12,22 @@ Form definition to create or update billing tiers.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
-with 'pfappserver::Base::Form::Role::Help';
+with qw (
+    pfappserver::Base::Form::Role::Help
+    pfappserver::Role::Form::RolesAttribute
+);
 
 use pf::config;
 use pf::util;
-
-has roles => ( is => 'rw' );
 
 ## Definition
 has_field 'id' =>
   (
    type => 'Text',
-   label => 'Billing tier',
+   label => 'Billing Tier',
    required => 1,
    messages => { required => 'Please specify a billing tier identifier' },
+   apply => [ pfappserver::Base::Form::id_validator('billing tier') ]
   );
 
 has_field 'name' =>
@@ -74,9 +76,10 @@ has_field 'access_duration' => (
 );
 
 has_field 'use_time_balance' => (
-    type             => 'Checkbox',
+    type             => 'Toggle',
     label            => 'Use time balance',
     checkbox_value   => 'enabled',
+    unchecked_value  => 'disabled',
     tags             => { 
         after_element   => \&help,
         help            => 'Check this box to have the access duration be a real time usage.<br/>This requires a working accounting configuration.',
@@ -95,25 +98,13 @@ sub options_roles {
     return @roles;
 }
 
-=head2 ACCEPT_CONTEXT
-
-To automatically add the context to the Form
-
-=cut
-
-sub ACCEPT_CONTEXT {
-    my ($self, $c, @args) = @_;
-    my ($status, $roles) = $c->model('Roles')->list();
-    return $self->SUPER::ACCEPT_CONTEXT($c, roles => $roles, @args);
-}
-
 =over
 
 =back
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -134,6 +125,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;
 

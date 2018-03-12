@@ -9,9 +9,9 @@ realm = [% dns_name %]
 netbios name = [% server_name %]
 server string =  [% server_name %]
 
-pid directory = /usr/local/pf/var/run
-lock directory = /var/cache/samba[% domain %]
-private dir = /var/cache/samba[% domain %]
+pid directory = /usr/local/pf/var/run/[% domain %]
+lock directory = /var/cache/samba
+private dir = /var/cache/samba
 
 security = ADS
 winbind use default domain = no
@@ -19,7 +19,7 @@ idmap uid = 600-20000
 idmap gid = 600-20000
 template shell = /bin/bash
 winbind expand groups = 10
-password server = [% ad_server %]
+password server = [% sticky_dc %]
 domain master = no
 local master = no
 preferred master = no
@@ -48,3 +48,12 @@ guest ok = no
 
 #interfaces = 169.254.0.1
 #bind interfaces only = yes
+
+# prevent winbind from periodically changing the password
+machine password timeout = 0
+
+# Prevent 'Failed to join domain: failed to lookup DC info for domain 'DOMAIN.DOMAIN' over rpc: Access denied' error when attempting a domain join
+# Command 'net ads join -d 5' outputs the following relevant lines
+#   cli_negprot: SMB signing is mandatory and the server doesn't support it.
+#   failed negprot: NT_STATUS_ACCESS_DENIED
+client ipc signing = auto

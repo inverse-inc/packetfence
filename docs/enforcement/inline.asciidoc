@@ -1,0 +1,127 @@
+Introduction
+~~~~~~~~~~~~
+
+The inline enforcement is a very convenient method for performing access control on older network equipment that is not capable of doing VLAN enforcement or that is not supported by PacketFence.
+
+An important configuration parameter to have in mind when configuring inline enforcement is that the DNS reached by these users should be your actual production DNS server - which shouldn't be in the same broadcast domain as your inline users. The next section shows you how to configure the proper inline interface and it is in this section that you should refer to the proper production DNS.
+
+Inline enforcement uses `ipset` to mark nodes as registered, unregistered and isolated.
+It is also now possible to use multiple inline interfaces. A node registered on the first inline interface is marked with an IP:MAC tuple (for L2, only ip for L3), so when the node tries to register on an other inline interface, PacketFence detects that the node is already registered on the first inline network. It is also possible to enable inline.should_reauth_on_vlan_change to force users to reauthenticate when they change inline network - you can change this from *Configuration->Network Configuration->Inline* - by checking or not the 'Reauthenticate node' checkbox.
+
+By default the inline traffic is forwarded through the management network interface but it is possible to specify another one by adding in pf.conf the option interfaceSNAT in inline section of the `pf.conf` configuration file. Alternatively, you can change this from *Configuration->Network Configuration->Inline* in the 'SNAT Interface' section. It is a comma delimited list of network interfaces like eth0,eth1.2. It's also possible to specify a network that will be routed instead of using NAT by adding in `conf/networks.conf` an option nat=no under one or more network sections (take care of the routing table of the PacketFence server).
+
+Another important setting is the `gateway` statement. Since it is the only way to get the PacketFence server inline interface IP address, it is mandatory to set it to this IP (which is supposed to be the same as in the `ip` statement of the inline interface in `conf/pf.conf`).
+
+Preparating the Operating System
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In order to build an inline deployment of PacketFence setup you need :
+
+* 2 network interfaces for the VM (1 for the Inline and another one to go out)
+* a switch port in the management network for the PacketFence server
+* a switch port in the inline network for the PacketFence server which needs to be configured in access mode and in the same access VLAN as every switchport on which devices will be connected
+
+Adding Inline Interface
+~~~~~~~~~~~~~~~~~~~~~~~
+
+PacketFence can be configured right from the start using the PacketFence configurator for inline enforcement. In this example, we will continue building on top of our initial deployment by adding a new inline interface to our PacketFence installation.
+
+The first step is to add a dedicated Network Interface Card (NIC) to your current PacketFence installation. In our example, our new NIC will be named `ens192`. The PacketFence web interface will list all currently installed network interfaces on the system. An IP and a netmask will be visible if the network interface is configured (either by DHCP or already manually configured). You can edit those ones, create/delete VLANs on physical interfaces and enable/disable an interface. Note that theses changes are effective on the moment you make them. Persistence will be written only for *enabled* interfaces. Which means that if you change your management IP address, to pursue the configurator, you will need to go on this new IP address you setup. At all time, you'll need to set a Management interface. That means that the required interface types for inline enforcement are
+
+    Management
+    Inline layer 2
+
+Note that PacketFence will provide these services on its inline interface:
+
+* PacketFence provides its own DHCP service. It will take care of IP address distribution in our Inline network. PacketFence will not provide DHCP services on the management network - this is the responsibility of your own infrastructure.
+* PacketFence provides its own DNS service. However, for the inline mode, you will also need to provide access to the DNS server of your infrastructure.
+
+From *Configuration->Network Configuration->Interfaces*, click on the `ens192` logical name. Provide the following information:
+
+    IP Address: 192.168.2.1
+    Netmask: 255.255.255.0
+    Type: Inline Layer 2
+    Additionnal listening daemon(s): portal
+    DNS Servers: 10.0.0.10
+
+Click on 'Save' and toggle the new interface to 'On'.
+
+Once done, your PacketFence server should have the following network layout:
+
+Please refer to the following table for IP and subnet information :
+
+[options="header",cols="1,2,2,2,3",grid="rows"]
+|===================================================================================
+|Network Card    |Name          |Subnet            |Gateway        |PacketFence Address
+|ens160          |Management    |172.20.100.0/16   |172.20.0.1     |172.20.100.2
+|ens192          |Inline        |192.168.2.0/24    |192.168.2.1    |192.168.2.1  
+|===================================================================================
+
+Finally, from *Status->Services*, restart the `haproxy`, `httpd.portal`, `dhcpd`, `iptables`, `pfdhcplistener`, `pfdns` services.
+
+
+Network Devices
+~~~~~~~~~~~~~~~
+
+In an inline configuration, the required configurations for network devices (desktops, tablets, printers, etc.) will be to make sure they can all communicate with PacketFence. In other words for a switch you will need to configure every ports on which devices will be connected using the access mode with all of them in the same inline network. Access point will be connected as device to be in the inline subnetwork. 
+
+Example with a Cisco switch:
+
+You should be in mode '#conf-t' if not execute 'configuration terminal' in your CLI.
+----
+ interface range [port-range]
+ switchport mode access vlan 1
+ no shutdown
+ interface [packetfence_ens192]
+ switchport mode access vlan 1
+ no shutdown
+ end
+ copy running-configuration startup-configuration
+----
+
+Now you can connect any devices that you want to be in the inline network in any of the port you have just configured.
+
+Adding Connection Profile for Inline
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Next thing we do is to add a new connection profile - for devices coming from the inline network. We want to show users the captive portal with our Null authentication sources.
+
+From *Configuration->Policies and Access Control->Connection Profiles*, click on 'Add Profile'. Provide the following information:
+
+ * Profile Name: inline
+ * Filters: If *any* Network 192.168.2.0/24
+ * Sources: null-source
+
+Then click on Save.
+
+Testing the Inline Configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can now test the registration process. In order to do so:
+
+* connect an unregistered device into the switch
+* make sure PacketFence provides an IP address to the device. Look into the following log file: /usr/local/pf/logs/packetfence.log or verify on the computer you obtain an ip the right subnet range
+
+From the computer:
+
+* open a web browser
+* try to connect to a HTTP site (Not HTTPS, eg. http://www.packetfence.org)
+* make sure that whatever site you want to connect to, you have only access to the registration page.
+
+Register the computer using using the Null authentication source.
+
+Once a computer has been registered:
+
+* make sure PacketFence changes the firewall (ipset -L) rules so that the user is authorized through. Look into PacketFence log file: /usr/local/pf/logs/packetfence.log
+* from the web administrative interface, go under Nodes and make sure you see the computer as 'Registered'.
+* the computer has access to the network and the Internet.
+
+Advanced Inline Topics
+~~~~~~~~~~~~~~~~~~~~~~
+
+Traffic Shaping
+^^^^^^^^^^^^^^^
+
+It's possible to enable traffic shaping based on the role of the device. In order to enable it you need to go in *Configuration -> Network Configuration -> Inline Traffic Shaping* and select the role you want to define a limit. Set a upload and download speed limit and save.
+
+Next restart the tc service to apply the new rules.

@@ -23,23 +23,25 @@
 -A input-management-if --protocol tcp --match tcp --dport %%webservices_port%% --jump ACCEPT
 # AAA 
 -A input-management-if --protocol tcp --match tcp --dport %%aaa_port%% --jump ACCEPT
-# PacketFence Status
--A input-management-if --protocol tcp --match tcp --dport %%status_port%% --jump ACCEPT
 # httpd.portal modstatus
 -A input-management-if --protocol tcp --match tcp --dport %%httpd_portal_modstatus%% --jump ACCEPT
+# httpd.collector
+-A input-management-if --protocol tcp --match tcp --dport %%httpd_collector_port%% --jump ACCEPT
 # haproxy stats (uncomment if activating the haproxy dashboard)
 #-A input-management-if --protocol tcp --match tcp --dport 1025 --jump ACCEPT
-# GRAPHITE-WEB
--A input-management-if --protocol tcp --match tcp --dport 9000 --jump ACCEPT
-# CARBON_CACHE
--A input-management-if --protocol tcp --match tcp --dport 2004 --jump ACCEPT
--A input-management-if --protocol tcp --match tcp --dport 7002 --jump ACCEPT
+# Netdata
+-A input-management-if --protocol tcp --match tcp --dport 19999 --jump ACCEPT
 
 # RADIUS
 -A input-management-if --protocol tcp --match tcp --dport 1812 --jump ACCEPT
 -A input-management-if --protocol udp --match udp --dport 1812 --jump ACCEPT
 -A input-management-if --protocol tcp --match tcp --dport 1813 --jump ACCEPT
 -A input-management-if --protocol udp --match udp --dport 1813 --jump ACCEPT
+-A input-management-if --protocol tcp --match tcp --dport 1815 --jump ACCEPT
+-A input-management-if --protocol udp --match udp --dport 1815 --jump ACCEPT
+-A input-management-if --protocol tcp --match tcp --dport 2083 --jump ACCEPT
+# RADIUS (eduroam virtual-server)
+%%eduroam_radius_virtualserver%%
 # SNMP Traps
 -A input-management-if --protocol udp --match udp --dport 162  --jump ACCEPT
 # DHCP (for IP Helpers to mgmt to track users' IP in production VLANs)
@@ -51,7 +53,14 @@
 -A input-management-if --protocol tcp --match tcp --dport 8834 --jump ACCEPT
 # PacketFence-PKI
 # -A input-management-if --protocol tcp --match tcp --dport 9393 --jump ACCEPT
-# -A input-management-if --protocol tcp --match tcp --dport 9191 --jump ACCEPT
+# -A input-management-if --protocol tcp --match tcp --dport 9292 --jump ACCEPT
+
+# Fingerbank collector (replication + API)
+-A input-management-if --protocol udp --match udp --dport 1192 --jump ACCEPT
+-A input-management-if --protocol tcp --match tcp --dport 4723 --jump ACCEPT
+
+# GO IPSET API
+-A input-management-if --protocol tcp --match tcp --dport 22223 --jump ACCEPT
 
 # VRRP
 -A input-management-if -d 224.0.0.0/8 -j ACCEPT
@@ -62,37 +71,60 @@
 # Syslog
 -A input-management-if --protocol udp --match udp --dport 514 --jump ACCEPT
 
+# ETCD
+-A input-management-if --protocol tcp --match tcp --dport 2380 --jump ACCEPT
+-A input-management-if --protocol tcp --match tcp --dport 2379 --jump ACCEPT
+
+# GO DHCP API
+-A input-management-if --protocol tcp --match tcp --dport 22222 --jump ACCEPT
+
+
 :input-portal-if - [0:0]
 -A input-portal-if --protocol tcp --match tcp --dport 80  --jump ACCEPT
 -A input-portal-if --protocol tcp --match tcp --dport 443 --jump ACCEPT
 
+:input-radius-if - [0:0]
+-A input-radius-if --protocol tcp --match tcp --dport 1812 --jump ACCEPT
+-A input-radius-if --protocol udp --match udp --dport 1812 --jump ACCEPT
+-A input-radius-if --protocol tcp --match tcp --dport 1813 --jump ACCEPT
+-A input-radius-if --protocol udp --match udp --dport 1813 --jump ACCEPT
+-A input-radius-if --protocol tcp --match tcp --dport 1815 --jump ACCEPT
+-A input-radius-if --protocol udp --match udp --dport 1815 --jump ACCEPT
+-A input-radius-if --protocol tcp --match tcp --dport 2083 --jump ACCEPT
+%%eduroam_radius_listening%%
+
 :input-internal-vlan-if - [0:0]
--A input-internal-vlan-if -m set --match-set portal_deny src --jump REJECT
 # DNS
 -A input-internal-vlan-if --protocol tcp --match tcp --dport 53  --jump ACCEPT
 -A input-internal-vlan-if --protocol udp --match udp --dport 53  --jump ACCEPT
-# DHCP
--A input-internal-vlan-if --protocol udp --match udp --dport 67  --jump ACCEPT
--A input-internal-vlan-if --protocol tcp --match tcp --dport 67  --jump ACCEPT
 # HTTP (captive-portal) 
 -A input-internal-vlan-if --protocol tcp --match tcp --dport 80  --jump ACCEPT
 -A input-internal-vlan-if --protocol tcp --match tcp --dport 443 --jump ACCEPT
 -A input-internal-vlan-if --protocol tcp --match tcp --dport 647 --jump ACCEPT
+# HTTP (parking portal)
+-A input-internal-vlan-if --protocol tcp --match tcp --dport 5252 --jump ACCEPT
 %%input_inter_vlan_if%%
 
-:input-internal-inline-if - [0:0]
--A input-internal-inline-if -m set --match-set portal_deny src --jump REJECT
-# DHCP
--A input-internal-inline-if --protocol udp --match udp --dport 67  --jump ACCEPT
--A input-internal-inline-if --protocol tcp --match tcp --dport 67  --jump ACCEPT
+
+:input-internal-isol_vlan-if - [0:0]
 # DNS
-# allow unregistered users and isolated users to reach it for DNAT purposes but prevent registered ones
--A input-internal-inline-if --protocol tcp --match tcp --dport 53  --match mark --mark 0x3 --jump ACCEPT
--A input-internal-inline-if --protocol udp --match udp --dport 53  --match mark --mark 0x3 --jump ACCEPT
--A input-internal-inline-if --protocol tcp --match tcp --dport 53  --match mark --mark 0x2 --jump ACCEPT
--A input-internal-inline-if --protocol udp --match udp --dport 53  --match mark --mark 0x2 --jump ACCEPT
--A input-internal-inline-if --protocol tcp --match tcp --dport 53  --match mark --mark 0x1 --jump DROP
--A input-internal-inline-if --protocol udp --match udp --dport 53  --match mark --mark 0x1 --jump DROP
+-A input-internal-isol_vlan-if --protocol tcp --match tcp --dport 53  --jump ACCEPT
+-A input-internal-isol_vlan-if --protocol udp --match udp --dport 53  --jump ACCEPT
+# DHCP
+-A input-internal-isol_vlan-if --protocol udp --match udp --dport 67  --jump ACCEPT
+-A input-internal-isol_vlan-if --protocol tcp --match tcp --dport 67  --jump ACCEPT
+# HTTP (captive-portal) 
+-A input-internal-isol_vlan-if --protocol tcp --match tcp --dport 80  --jump ACCEPT
+-A input-internal-isol_vlan-if --protocol tcp --match tcp --dport 443 --jump ACCEPT
+-A input-internal-isol_vlan-if --protocol tcp --match tcp --dport 647 --jump ACCEPT
+# HTTP (parking portal)
+-A input-internal-isol_vlan-if --protocol tcp --match tcp --dport 5252 --jump ACCEPT
+%%input_inter_isol_vlan_if%%
+
+:input-internal-inline-if - [0:0]
+# DNS
+-A input-internal-inline-if --protocol tcp --match tcp --dport 53  --jump ACCEPT
+-A input-internal-inline-if --protocol udp --match udp --dport 53  --jump ACCEPT
 # HTTP (captive-portal) 
 # prevent registered users from reaching it
 # TODO: Must work in dispatcher and Catalyst to redirect registered client out of the portal
@@ -107,6 +139,13 @@
 :input-highavailability-if - [0:0]
 #SSH
 -A input-highavailability-if --match state --state NEW --match tcp --protocol tcp --dport 22 --jump ACCEPT
+#Galera cluster
+-A input-highavailability-if --protocol tcp --match tcp --dport 4444 --jump ACCEPT
+-A input-highavailability-if --protocol tcp --match tcp --dport 4567 --jump ACCEPT
+-A input-highavailability-if --protocol tcp --match tcp --dport 4568 --jump ACCEPT
+#PacketFence MariaDB Quorum server
+-A input-highavailability-if --protocol tcp --match tcp --dport 7890 --jump ACCEPT
+-A input-highavailability-if --protocol tcp --match tcp --dport 7891 --jump ACCEPT
 # Corosync
 -A input-highavailability-if --protocol udp --match udp --dport 5405 --jump ACCEPT
 -A input-highavailability-if --protocol udp --match udp --dport 5407 --jump ACCEPT
@@ -114,11 +153,18 @@
 -A input-highavailability-if --protocol tcp --match tcp --dport 7788 --jump ACCEPT
 # Heartbeat
 -A input-highavailability-if --protocol udp --match udp --dport 694 --jump ACCEPT
+#PCS
+-A input-highavailability-if --protocol tcp --match tcp --dport 2224 --jump ACCEPT
+-A input-highavailability-if --protocol tcp --match tcp --dport 3121 --jump ACCEPT
+-A input-highavailability-if --protocol tcp --match tcp --dport 21064 --jump ACCEPT
 
 ### FORWARD ###
 :FORWARD DROP [0:0]
 :forward-internal-vlan-if - [0:0]
 %%filter_forward_vlan%%
+
+:forward-internal-isolvlan-if - [0:0]
+%%filter_forward_isol_vlan%%
 
 :forward-internal-inline-if - [0:0]
 %%filter_forward_inline%%

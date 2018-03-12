@@ -18,14 +18,14 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use pf::file_paths;
+use pf::file_paths qw($cluster_config_file);
 
 use base 'pfconfig::namespaces::config';
 
 sub init {
     my ($self) = @_;
-    $self->{file} = "/usr/local/pf/conf/cluster.conf";
-    $self->{child_resources} = ['config::Pf', 'resource::cluster_servers', 'resource::cluster_hosts'];
+    $self->{file} = $cluster_config_file;
+    $self->{child_resources} = ['config::Pf', 'resource::cluster_servers', 'resource::cluster_hosts', 'resource::network_config'];
 }
 
 sub build_child {
@@ -41,17 +41,22 @@ sub build_child {
         next if ($section =~ m/\s/i);
 
         my $server = $cfg{$section};
-        
+
         foreach my $group ($self->GroupMembers($section)){
             $group =~ s/^$section //g;
             $server->{$group} = $cfg{"$section $group"};
         }
-  
+
         $tmp_cfg{$section} = $server;
 
         $server->{host} = $section;
         # we add it to the servers list if it's not the shared CLUSTER config
-        push @servers, $server unless $section eq "CLUSTER";
+        if ($section eq "CLUSTER") {
+            $self->{_CLUSTER} = $server;
+        }
+        else {
+            push @servers, $server;
+        }
     }
 
     $self->{_servers} = \@servers;
@@ -60,7 +65,6 @@ sub build_child {
 
 }
 
-=back
 
 =head1 AUTHOR
 
@@ -68,7 +72,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

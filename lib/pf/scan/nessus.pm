@@ -59,6 +59,8 @@ sub new {
             '_policy'   => undef,
             '_type'     => undef,
             '_status'   => undef,
+            '_oses'     => undef,
+            '_categories' => undef,
     }, $class;
 
     foreach my $value ( keys %data ) {
@@ -140,7 +142,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

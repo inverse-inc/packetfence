@@ -20,7 +20,7 @@
           </tr>
     <tr>
       <th>[% l('Device ID') %]</th>
-      <th>[% l('Description') %]</th>
+      <th>[% l('Name') %]</th>
       <th>[% l('Actions') %]</th>
     </tr>
   </thead>

@@ -15,7 +15,7 @@ pf::ConfigStore::FloatingDevice
 use HTTP::Status qw(:constants is_error is_success);
 use Moo;
 use namespace::autoclean;
-use pf::file_paths;
+use pf::file_paths qw($floating_devices_config_file);
 extends 'pf::ConfigStore';
 
 
@@ -23,11 +23,11 @@ sub configFile { $floating_devices_config_file }
 
 sub pfconfigNamespace {'config::FloatingDevices'}
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

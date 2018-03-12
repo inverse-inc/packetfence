@@ -15,6 +15,18 @@ use strict;
 use warnings;
 
 use Readonly;
+use pf::constants qw($TRUE $FALSE);
+
+use base qw(Exporter);
+our @EXPORT_OK = qw($LOCAL_ACCOUNT_UNLIMITED_LOGINS $LOGIN_SUCCESS $LOGIN_FAILURE $LOGIN_CHALLENGE $DEFAULT_LDAP_READ_TIMEOUT $DEFAULT_LDAP_WRITE_TIMEOUT);
+
+Readonly our $LOCAL_ACCOUNT_UNLIMITED_LOGINS => "0";
+Readonly our $LOGIN_SUCCESS => $TRUE;
+Readonly our $LOGIN_FAILURE => $FALSE;
+Readonly our $LOGIN_CHALLENGE => 2;
+Readonly our $DEFAULT_LDAP_READ_TIMEOUT => 10;
+Readonly our $DEFAULT_LDAP_WRITE_TIMEOUT => 5;
+
 
 =head1 Rules
 
@@ -26,6 +38,8 @@ package Rules;
 
 Readonly::Scalar our $ANY => 'any';
 Readonly::Scalar our $ALL => 'all';
+
+=over
 
 =item AUTH, ADMIN
 
@@ -73,6 +87,7 @@ Readonly::Scalar our $HIGHER => 'higher';
 Readonly::Scalar our $HIGHER_OR_EQUALS => 'higher or equals';
 Readonly::Scalar our $IS_BEFORE => 'is before';
 Readonly::Scalar our $IS => 'is';
+Readonly::Scalar our $IN_TIME_PERIOD => 'in_time_period';
 Readonly::Scalar our $IS_NOT => 'is not';
 Readonly::Scalar our $IS_AFTER => 'is after';
 Readonly::Scalar our $IS_MEMBER => 'is member of';
@@ -87,8 +102,19 @@ Readonly::Scalar our $SUBSTRING => 'substring';
 Readonly::Scalar our $NUMBER => 'number';
 Readonly::Scalar our $DATE => 'date';
 Readonly::Scalar our $TIME => 'time';
+Readonly::Scalar our $TIME_PERIOD => 'time_period';
 Readonly::Scalar our $CONNECTION => 'connection';
 Readonly::Scalar our $LDAP_ATTRIBUTE => 'ldapattribute';
+
+Readonly::Array our @TYPES => (
+    $SUBSTRING,
+    $NUMBER,
+    $DATE,
+    $TIME,
+    $TIME_PERIOD,
+    $CONNECTION,
+    $LDAP_ATTRIBUTE,
+);
 
 =item OPERATORS
 
@@ -102,6 +128,7 @@ Readonly::Hash our %OPERATORS =>
    $NUMBER => [$LOWER, $LOWER_OR_EQUALS, $EQUALS, $HIGHER, $HIGHER_OR_EQUALS],
    $DATE => [$IS_BEFORE, $IS, $IS_AFTER],
    $TIME => [$IS_BEFORE, $IS_AFTER],
+   $TIME_PERIOD => [$IN_TIME_PERIOD],
    $CONNECTION => [$IS, $IS_NOT],
    $LDAP_ATTRIBUTE => [$STARTS, $EQUALS, $NOT_EQUALS, $CONTAINS, $ENDS, $MATCHES, $IS_MEMBER],
   );
@@ -118,7 +145,7 @@ Constants related to actions rules.
 
 package Actions;
 
-=item MARK_AS_SPONSORS, SET_ACCESS_LEVEL, SET_ROLE, SET_ACCESS_DURATION, SET_UNREG_DATE
+=item MARK_AS_SPONSORS, SET_ACCESS_LEVEL, SET_ROLE, SET_ACCESS_DURATION, SET_UNREG_DATE SET_TIME_BALANCE, SET_BANDWIDTH_BALANCE
 
 Available actions
 
@@ -126,9 +153,12 @@ Available actions
 
 Readonly::Scalar our $MARK_AS_SPONSOR => "mark_as_sponsor";
 Readonly::Scalar our $SET_ACCESS_LEVEL => "set_access_level";
+Readonly::Scalar our $SET_TENANT_ID => "set_tenant_id";
 Readonly::Scalar our $SET_ROLE => "set_role";
 Readonly::Scalar our $SET_ACCESS_DURATION => "set_access_duration";
 Readonly::Scalar our $SET_UNREG_DATE => "set_unreg_date";
+Readonly::Scalar our $SET_TIME_BALANCE => "set_time_balance";
+Readonly::Scalar our $SET_BANDWIDTH_BALANCE => "set_bandwidth_balance";
 
 =item ACTIONS
 
@@ -137,27 +167,42 @@ List of available actions
 =cut
 
 Readonly::Hash our %ACTIONS => (
-    $Rules::AUTH    => [ $SET_ROLE, $SET_ACCESS_DURATION, $SET_UNREG_DATE ],
-    $Rules::ADMIN   => [ $SET_ACCESS_LEVEL, $MARK_AS_SPONSOR ],
+    $Rules::AUTH    => [ $SET_ROLE, $SET_ACCESS_DURATION, $SET_UNREG_DATE, $SET_TIME_BALANCE, $SET_BANDWIDTH_BALANCE ],
+    $Rules::ADMIN   => [ $SET_ACCESS_LEVEL, $MARK_AS_SPONSOR, $SET_TENANT_ID ],
 );
 
 Readonly::Hash our %ACTION_CLASS_TO_TYPE => (
-    $SET_ROLE            => $Rules::AUTH,
-    $SET_UNREG_DATE      => $Rules::AUTH,
-    $SET_ACCESS_DURATION => $Rules::AUTH,
+    $SET_ROLE              => $Rules::AUTH,
+    $SET_UNREG_DATE        => $Rules::AUTH,
+    $SET_ACCESS_DURATION   => $Rules::AUTH,
+    $SET_TIME_BALANCE      => $Rules::AUTH,
+    $SET_BANDWIDTH_BALANCE => $Rules::AUTH,
 
-    $SET_ACCESS_LEVEL    => $Rules::ADMIN,
-    $MARK_AS_SPONSOR     => $Rules::ADMIN,
+    $SET_ACCESS_LEVEL      => $Rules::ADMIN,
+    $SET_TENANT_ID         => $Rules::ADMIN,
+    $MARK_AS_SPONSOR       => $Rules::ADMIN,
 );
 
 Readonly::Hash our %ALLOWED_ACTIONS => (
     $MARK_AS_SPONSOR  => {$MARK_AS_SPONSOR  => 1},
     $SET_ACCESS_LEVEL => {$SET_ACCESS_LEVEL => 1},
+    $SET_TENANT_ID    => {$SET_TENANT_ID => 1},
     $SET_ROLE         => {$SET_ROLE         => 1},
     $SET_UNREG_DATE   => {
         $SET_UNREG_DATE      => 1,
         $SET_ACCESS_DURATION => 1,
-    }
+    },
+    $SET_TIME_BALANCE => {$SET_TIME_BALANCE => 1},
+    $SET_BANDWIDTH_BALANCE => {$SET_BANDWIDTH_BALANCE => 1},
+);
+
+Readonly::Hash our %MAPPED_ACTIONS => (
+    $MARK_AS_SPONSOR  => $MARK_AS_SPONSOR,
+    $SET_ACCESS_LEVEL => $SET_ACCESS_LEVEL,
+    $SET_TENANT_ID    => $SET_TENANT_ID,
+    $SET_ROLE         => $SET_ROLE,
+    $SET_UNREG_DATE   => $SET_UNREG_DATE,
+    $SET_ACCESS_DURATION => $SET_UNREG_DATE,
 );
 
 =back
@@ -168,7 +213,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

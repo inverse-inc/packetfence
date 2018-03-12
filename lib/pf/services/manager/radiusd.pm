@@ -1,4 +1,5 @@
 package pf::services::manager::radiusd;
+
 =head1 NAME
 
 pf::services::manager::radiusd add documentation
@@ -13,52 +14,63 @@ pf::services::manager::radiusd
 
 use strict;
 use warnings;
-use pf::file_paths;
-use pf::util;
-use pf::config;
+
+use List::MoreUtils qw(any);
 use Moo;
-use NetAddr::IP;
+
+use pf::authentication;
 use pf::cluster;
+use pf::file_paths qw(
+    $var_dir
+    $conf_dir
+    $install_dir
+);
 use pf::services::manager::radiusd_child;
+use pf::SwitchFactory;
+use pf::util;
+
+use pfconfig::cached_array;
 
 extends 'pf::services::manager::submanager';
+
+tie my @cli_switches, 'pfconfig::cached_array', 'resource::cli_switches';
 
 has radiusdManagers => (is => 'rw', builder => 1, lazy => 1);
 
 has '+name' => ( default => sub { 'radiusd' } );
 
-has '+launcher' => ( default => sub { "sudo %1\$s -d $install_dir/raddb/"} );
 
 sub _build_radiusdManagers {
     my ($self) = @_;
 
     my $listens = {};
-    if($cluster_enabled){
+    if ($cluster_enabled) {
         my $cluster_ip = pf::cluster::management_cluster_ip();
-        $listens->{load_balancer} = {
-          launcher => $self->launcher . " -n load_balancer"
-        };
+        $listens->{load_balancer} = {};
     }
-    $listens->{auth} = {
-      launcher => $self->launcher . " -n auth"
-    };
-    $listens->{acct} = {
-      launcher => $self->launcher . " -n acct"
-    };
+    $listens->{auth} = {};
+    $listens->{acct} = {};
+
+    # 'Eduroam' RADIUS instance manager
+    if ( @{ pf::authentication::getAuthenticationSourcesByType('Eduroam') } ) {
+        $listens->{eduroam} = {};
+    }
+
+    if ( @cli_switches > 0 ) {
+        $listens->{cli} = {};
+    }
 
     my @managers = map {
-        my $id = $_;
+        my $id       = $_;
         my $launcher = $self->launcher;
-        my $name = $id eq "auth" ? $self->name : untaint_chain($self->name . "-" . $id);
+        my $name     = untaint_chain( $self->name . "-" . $id );
 
-        pf::services::manager::radiusd_child->new ({
-            executable => $self->executable,
-            name => $name,
-            launcher => $listens->{$id}->{launcher},
-            forceManaged => $self->isManaged,
-            options => $listens->{$id},
-            orderIndex => $self->orderIndex,
-        })
+        pf::services::manager::radiusd_child->new(
+            {   name         => $name,
+                forceManaged => $self->isManaged,
+                options      => $id,
+            }
+            )
     } keys %$listens;
 
     return \@managers;
@@ -78,7 +90,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

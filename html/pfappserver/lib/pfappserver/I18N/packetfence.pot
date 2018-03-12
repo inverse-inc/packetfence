@@ -152,10 +152,6 @@ msgstr ""
 msgid "general.logo"
 msgstr ""
 
-#: conf/pf.conf.defaults:20
-msgid "general.dnsservers"
-msgstr ""
-
 #: conf/pf.conf.defaults:25
 msgid "general.dhcpservers"
 msgstr ""
@@ -418,10 +414,6 @@ msgstr ""
 
 #: conf/pf.conf.defaults:526
 msgid "expire.iplog"
-msgstr ""
-
-#: conf/pf.conf.defaults:534
-msgid "expire.traplog"
 msgstr ""
 
 #: conf/pf.conf.defaults:544

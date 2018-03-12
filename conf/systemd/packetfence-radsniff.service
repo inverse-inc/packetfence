@@ -1,0 +1,16 @@
+[Unit]
+Description=PacketFence radsniff Service
+After=packetfence-pfstats.service
+Requires=packetfence-pfstats.service
+Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
+After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+
+[Service]
+StartLimitBurst=3
+StartLimitInterval=10
+ExecStart=/usr/local/pf/sbin/radsniff-wrapper
+Restart=on-failure
+Slice=packetfence.slice
+
+[Install]
+WantedBy=packetfence.target

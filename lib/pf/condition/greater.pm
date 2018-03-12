@@ -38,6 +38,7 @@ Match a numeric greater than
 sub match {
     my ($self,$arg) = @_;
     return $FALSE if(!defined($arg));
+    no warnings 'numeric';
     return $arg > $self->value;
 }
 
@@ -47,7 +48,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

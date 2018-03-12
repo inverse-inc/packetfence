@@ -33,6 +33,19 @@ sub create :Local :Args(0) {
     }
 }
 
+=head2 audit_current_action
+
+Adds the object_id to the audit log
+
+=cut
+
+around audit_current_action => sub {
+    my ($orig, $self, $c, @args) = @_;
+    my $model = $self->getModel($c);
+    my $idKey = $model->idKey();
+    $self->$orig($c, (defined $c->stash->{$idKey} ? (object_id => $c->stash->{$idKey}) :()), @args);
+};
+
 sub _processCreatePost {
     my ($self,$c) =@_;
     my $form = $self->getForm($c);
@@ -40,6 +53,7 @@ sub _processCreatePost {
     $c->stash( current_view => 'JSON');
     my ($status, $status_msg);
     $form->process(params => $c->request->params);
+    $c->stash->{form} = $form;
     if ($form->has_errors) {
         $status = HTTP_BAD_REQUEST;
         $status_msg = $form->field_errors;
@@ -51,9 +65,10 @@ sub _processCreatePost {
         my $id = $item->{$idKey};
         $c->stash(
             $itemKey => $item,
-            $idKey   => $id
+            $idKey   => $id,
         );
         ($status, $status_msg) = $model->create($id, $item);
+        $self->audit_current_action($c, status => $status);
     }
     $c->response->status($status);
     $c->stash->{status_msg} = $status_msg;
@@ -100,6 +115,7 @@ sub update :Chained('object') :PathPart :Args(0) {
     $c->stash->{current_view} = 'JSON';
     $form = $self->getForm($c);
     $form->process(params => $c->request->params);
+    $c->stash->{form} = $form;
     if ($form->has_errors) {
         $status = HTTP_BAD_REQUEST;
         $status_msg = $form->field_errors;
@@ -118,6 +134,7 @@ sub update :Chained('object') :PathPart :Args(0) {
             $current_id,
             $value
         );
+        $self->audit_current_action($c, status => $status);
         if (is_success($status) && ($new_id ne $current_id)) {
             ($status, my $rename_status_msg) = $model->renameItem(
                 $current_id,
@@ -144,6 +161,7 @@ sub rename_item :Chained('object') :PathPart :Args(1) {
     my $current_id = $c->stash->{$idKey};
     if ($new_id ne $current_id) {
         ($status,$status_msg) = $model->renameItem( $current_id,$new_id);
+        $self->audit_current_action($c, status => $status);
     } else {
         $status = HTTP_BAD_REQUEST;
         $status_msg = "cannot renamed $current_id to itself";
@@ -170,6 +188,7 @@ sub remove :Chained('object') :PathPart('delete'): Args(0) {
         status_msg   => $result,
         current_view => 'JSON',
     );
+    $self->audit_current_action($c, status => $status);
     $c->response->status($status);
 }
 
@@ -182,7 +201,6 @@ sub view :Chained('object') :PathPart('read') :Args(0) {
     my $model = $self->getModel($c);
     my $itemKey = $model->itemKey;
     my $item = $c->stash->{$itemKey};
-    $c->log->info($c->stash->{current_form});
     my $form = $self->getForm($c);
     $form->process(init_object => $item);
     $c->stash(
@@ -214,7 +232,7 @@ sub list :Local :Args(0) {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

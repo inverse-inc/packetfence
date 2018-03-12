@@ -15,7 +15,8 @@ pfconfig [options]
    -h                 Help
    -s SOCK_PATH       The path to the unix socket path - default $PFDIR/var/pfconfig.sock
    -n NAME            The name of process as reported in ps - default pfconfig
-   -p NAME            The prefix of pidfile - defaults to the name
+   -p PID_PATH        The path to the PID file (optional)
+   -c CONFIG_PATH     The path to the configuration file (optional)
 
 =cut
 
@@ -35,20 +36,25 @@ use JSON::MaybeXS;
 use pfconfig::manager;
 use Data::Dumper;
 use Time::HiRes;
-use pfconfig::timeme;
 use List::MoreUtils qw(first_index);
 use File::Basename qw(basename);
 use Getopt::Std;
 use POSIX qw(:signal_h);
+use File::FcntlLock;
 use pf::services::util;
+use pf::file_paths qw($var_dir);
 use pfconfig::constants;
 use Sereal::Encoder qw(sereal_encode_with_object);
 use pf::Sereal qw($ENCODER);
 use Errno qw(EINTR EAGAIN);
 use bytes;
 use pf::util::networking qw(send_data_with_length);
-$pfconfig::timeme::VERBOSE = 0;
+use Systemd::Daemon qw{ -soft };
 our $RUNNING = 1;
+
+## All pfconfig objects implementing TO_JSON must be imported here
+use pfconfig::objects::NetAddr::IP;
+use pfconfig::objects::Net::Netmask;
 
 my %args = (
     s => $pfconfig::constants::SOCKET_PATH,
@@ -56,33 +62,12 @@ my %args = (
     n => "pfconfig",
 );
 
-getopts( 'dhs:n:p:', \%args );
-
-$args{p} //= $args{n};
-
-our $PROGRAM_NAME = $0 = $args{n};
-
-
-my $socket_path = $args{s};
-unlink($socket_path);
-
-#Ensure that the file permissions of the socket is correct 0770
-umask(0007);
-
-my $listner = IO::Socket::UNIX->new(
-   Type   => SOCK_STREAM,
-   Local  => $socket_path,
-   Listen => SOMAXCONN,
-)
-   or die("Can't create server socket: $!\n");
-
-umask(0);
-
-my $cache = pfconfig::manager->new;
-$cache->preload_all();
-
+getopts( 'dhs:n:p:c:', \%args );
 
 my $logger = get_logger;
+
+our $PROGRAM_NAME = $0 = $args{n};
+our $PID_FILE = $args{p} // "${var_dir}/run/$PROGRAM_NAME.pid";
 
 # init signal handlers
 POSIX::sigaction(
@@ -106,15 +91,39 @@ POSIX::sigaction(
     )
 ) or $logger->logdie("pfconfig: could not set SIGINT handler: $!");
 
+my $daemonize = $args{d};
+
+# standard signals and daemonize
+daemonize($PROGRAM_NAME, $PID_FILE) if ($daemonize);
+
+my $FILE_LOCK = getLockOnPid($PID_FILE);
+
+unless ($FILE_LOCK) {
+    die "cannot lock $PID_FILE another $PROGRAM_NAME is running\n";
+}
 
 # empty control file directory so subcaches in other processes
 # are expired when pfconfig is starting
 unlink glob "$pfconfig::constants::CONTROL_FILE_DIR/*";
 
-my $daemonize = $args{d};
+$pfconfig::constants::CONFIG_FILE_PATH = $args{c} if($args{c});
 
-# standard signals and daemonize
-daemonize($PROGRAM_NAME) if ($daemonize);
+my $socket_path = $args{s};
+unlink($socket_path);
+
+#Ensure that the file permissions of the socket is correct 0770
+umask(0007);
+
+my $listner = IO::Socket::UNIX->new(
+   Type   => SOCK_STREAM,
+   Local  => $socket_path,
+   Listen => SOMAXCONN,
+) or die("Can't create server socket: $!\n");
+
+umask(0);
+
+my $cache = pfconfig::manager->new;
+$cache->preload_all();
 
 our %DISPATCH = (
     'expire'             => \&expire,
@@ -129,7 +138,14 @@ our %DISPATCH = (
     'sleep'              => \&server_sleep,
 );
 
+Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
+# Used to set the current prefered encoding
+my $encoding;
+
 while($RUNNING) {
+    # reset the encoding
+    $encoding = undef;
+
     my $socket;
     my $line;
     eval {
@@ -146,6 +162,7 @@ while($RUNNING) {
             my $query = decode_json($line);
             #use Data::Dumper;
             #print Dumper($query);
+            $encoding = $query->{encoding};
 
             # we support hash namespaced queries
             # where
@@ -170,8 +187,9 @@ while($RUNNING) {
 $logger->info("Stop running\n");
 
 END {
-    if ( !$args{h} ) {
-        deletepid($PROGRAM_NAME);
+    if (!$args{h} && $FILE_LOCK ) {
+        Systemd::Daemon::notify( STOPPING => 1 );
+        deletepid($PROGRAM_NAME, $PID_FILE);
     }
 }
 
@@ -220,8 +238,7 @@ sub get_hash_element {
             $elem = {element => $sub_elem};
         }
         else{
-            print STDERR "Unknown key $query->{key}";
-            $logger->error("Unknown key $query->{key}");
+            $logger->debug("Unknown key $query->{key}");
             $elem = undef;
         }
     }
@@ -239,8 +256,7 @@ sub get_from_cache_or_croak {
         return $elem;
     }
     else{
-        print STDERR "Unknown key in cache $key \n";
-        $logger->error("Unknown key $key");
+        $logger->debug("Unknown key $key");
         send_output(undef, $socket);
         return undef;
     }
@@ -350,7 +366,28 @@ sub get_array_size {
 
 sub encode_output {
     my ($data) = @_;
-    return sereal_encode_with_object($ENCODER, $data);
+    $encoding //= "sereal";
+    if($encoding eq "sereal") {
+        return sereal_encode_with_object($ENCODER, $data);
+    }
+    elsif($encoding eq "json") {
+        my $json = JSON->new;
+        $json->convert_blessed(1);
+        my $result;
+        if(!defined($data)) {
+            return $json->encode({error => "No valid element was found for query"});
+        }
+        eval {
+            $result = $json->encode($data);
+        };
+        if($@) {
+            return $json->encode({error => "Cannot transform object into JSON data: $@"});
+        }
+        return $result;
+    }
+    my $msg = "Unknown encoding '$encoding'";
+    $logger->error($msg);
+    return $msg;
 }
 
 sub send_output {
@@ -383,6 +420,33 @@ sub normal_sighandler {
     $RUNNING = 0;
 }
 
+=head2 getLockOnPid
+
+get lock on pid file
+
+=cut
+
+sub getLockOnPid {
+    my ($filename) = @_;
+    my $fs = File::FcntlLock->new(
+        l_type   => F_WRLCK,
+        l_whence => SEEK_SET,
+        l_start => 0,
+        l_len => 0,
+    );
+    my $fh;
+    unless (open($fh, "+>>", $filename)) {
+        $logger->error("Cannot open $filename: $!");
+        return undef;
+    }
+    my $result = $fs->lock($fh, F_SETLK); 
+    unless (defined $result) {
+        $logger->error("Error getting lock on $filename: $!");
+        return undef;
+    }
+    return $fh;
+}
+
 =back
 
 =head1 AUTHOR
@@ -391,7 +455,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

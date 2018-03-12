@@ -17,11 +17,10 @@ use Data::Dumper;
 use base ('pf::Switch');
 use pf::log;
 use Net::SNMP;
-use Net::Appliance::Session;
 use Try::Tiny;
 
 use pf::constants;
-use pf::config;
+use pf::constants::role qw($MAC_DETECTION_ROLE);
 # importing switch constants
 use pf::Switch::constants;
 use pf::util;
@@ -31,6 +30,18 @@ use pf::util::radius qw(perform_coa);
 # special features
 sub supportsSaveConfig { return $TRUE; }
 sub supportsCdp { return $TRUE; }
+
+#
+# %TRAP_NORMALIZERS
+# A hash of cisco trap normalizers
+# Use the following convention when adding a normalizer
+# <nameOfTrapNotificationType>TrapNormalizer
+#
+our %TRAP_NORMALIZERS = (
+    '.1.3.6.1.4.1.9.9.315.0.0.1' => 'cpsSecureMacAddrViolationTrapNormalizer',
+    '.1.3.6.1.4.1.9.9.315.0.0.2' => 'cpsTrunkSecureMacAddrViolationTrapNormalizer',
+    '.1.3.6.1.4.1.9.9.215.2.0.1' => 'cmnMacChangedNotificationTrapNormalizer',
+);
 
 =head1 SUBROUTINES
 
@@ -181,7 +192,7 @@ sub parseTrap {
         #populate list of Vlans we must potentially connect to to
         #convert the dot1dBasePort into an ifIndex
         my @vlansToTest = ();
-        my $macDetectionVlan = $self->getVlanByName('macDetection');
+        my $macDetectionVlan = $self->getVlanByName($MAC_DETECTION_ROLE);
         push @vlansToTest, $trapHashRef->{'trapVlan'};
         push @vlansToTest, $macDetectionVlan;
         foreach my $currentVlan ( values %{ $self->{_vlans} } ) {
@@ -1086,6 +1097,7 @@ sub getMacAddr {
     my $logger = $self->logger;
 
     eval {
+        require Net::Appliance::Session;
         $session = Net::Appliance::Session->new(
             Host      => $self->{_ip},
             Timeout   => 5,
@@ -1373,11 +1385,11 @@ sub getPhonesCDPAtIfIndex {
                     && ($MACresult->{
                             "$oid_cdpCacheDeviceId.$ifIndex.$cacheDeviceIndex"
                         }
-                        =~ /^SEP([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})$/i
+                        =~ /^(SEP|SIP)([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})$/i
                     )
                     )
                 {
-                    push @phones, lc("$1:$2:$3:$4:$5:$6");
+                    push @phones, lc("$2:$3:$4:$5:$6:$7");
                 }
             }
         }
@@ -1540,11 +1552,12 @@ sub _radiusBounceMac {
     $mac =~ s/:/-/g;
 
     my $response;
+    my $send_disconnect_to = $self->{'_controllerIp'} || $self->{'_ip'};
     try {
         my $connection_info = {
-            nas_ip => $self->{'_controllerIp'} || $self->{'_ip'},
+            nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
-            LocalAddr => $self->deauth_source_ip(),
+            LocalAddr => $self->deauth_source_ip($send_disconnect_to),
         };
 
         $response = perform_coa( $connection_info,
@@ -1613,6 +1626,167 @@ sub returnAuthorizeRead {
     return [$status, %$radius_reply_ref];
 }
 
+=item _findTrapNormalizer
+
+Find the normalizer method for the trap for Cisco switches
+
+=cut
+
+sub _findTrapNormalizer {
+    my ($self, $snmpTrapOID, $pdu, $variables) = @_;
+    if (exists $TRAP_NORMALIZERS{$snmpTrapOID}) {
+        return $TRAP_NORMALIZERS{$snmpTrapOID};
+    }
+    return undef;
+}
+
+=item cpsSecureMacAddrViolationTrapNormalizer
+
+The trap normalizer for cpsSecureMacAddrViolation traps
+
+=cut
+
+sub cpsSecureMacAddrViolationTrapNormalizer {
+    my ($self, $trapInfo) = @_;
+    my ($pdu, $variables) = @$trapInfo;
+    my $ifIndex = $self->getIfIndexFromTrap($variables);
+    return {
+        trapType => 'secureMacAddrViolation',
+        trapIfIndex => $ifIndex,
+        trapVlan => $self->getVlan( $ifIndex ),
+        trapMac => $self->getMacFromTrapVariablesForOIDBase($variables, '.1.3.6.1.4.1.9.9.315.1.2.1.1.10.'),
+    }
+}
+
+=item cpsTrunkSecureMacAddrViolationTrapNormalizer
+
+The trap normalizer for cpsTrunkSecureMacAddrViolation traps
+
+=cut
+
+sub cpsTrunkSecureMacAddrViolationTrapNormalizer {
+    my ($self, $trapInfo) = @_;
+    return $self->cpsSecureMacAddrViolationTrapNormalizer($trapInfo);
+}
+
+=item cmnMacChangedNotificationTrapNormalizer
+
+The trap normalizer for cmnMacChangedNotificationTrapNormalizer
+
+=cut
+
+sub cmnMacChangedNotificationTrapNormalizer {
+    my ($self, $trapInfo) = @_;
+    my ($pdu, $variables) = @$trapInfo;
+    my $logger = $self->logger;
+    my ($variable) = $self->findTrapVarWithBase($variables, ".1.3.6.1.4.1.9.9.215.1.1.8.1.2.");
+    return undef unless $variable;
+    return undef unless $variable->[1] =~ /Hex-STRING: ([0-9A-Z]{2}) ([0-9A-Z]{2} [0-9A-Z]{2}) ([0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2}) ([0-9A-Z]{2} [0-9A-Z]{2})/;
+    my $trapHashRef = { trapType => 'mac'};
+    if ($1 == 1) {
+        $trapHashRef->{'trapOperation'} = 'learnt';
+    }
+    elsif ($1 == 2) {
+        $trapHashRef->{'trapOperation'} = 'removed';
+    }
+    else {
+        $trapHashRef->{'trapOperation'} = 'unknown';
+    }
+    $trapHashRef->{'trapVlan'}    = $2;
+    $trapHashRef->{'trapMac'}     = lc($3);
+    $trapHashRef->{'trapIfIndex'} = $4;
+    $trapHashRef->{'trapVlan'} =~ s/ //g;
+    $trapHashRef->{'trapVlan'} = hex($trapHashRef->{'trapVlan'});
+    $trapHashRef->{'trapIfIndex'} =~ s/ //g;
+    $trapHashRef->{'trapIfIndex'} = hex($trapHashRef->{'trapIfIndex'});
+    $trapHashRef->{'trapMac'} =~ s/ /:/g;
+
+    #convert the dot1dBasePort into an ifIndex
+    my $OID_dot1dBasePortIfIndex = '1.3.6.1.2.1.17.1.4.1.2';        #BRIDGE-MIB
+    my $dot1dBasePort            = $trapHashRef->{'trapIfIndex'};
+
+    #populate list of Vlans we must potentially connect to to
+    #convert the dot1dBasePort into an ifIndex
+    my @vlansToTest      = ();
+    my $macDetectionVlan = $self->getVlanByName($MAC_DETECTION_ROLE);
+    push @vlansToTest, $trapHashRef->{'trapVlan'};
+    push @vlansToTest, $macDetectionVlan;
+    foreach my $currentVlan (values %{$self->{_vlans}}) {
+        if (   ($currentVlan != $trapHashRef->{'trapVlan'})
+            && ($currentVlan != $macDetectionVlan))
+        {
+            push @vlansToTest, $currentVlan;
+        }
+    }
+    my $found   = 0;
+    my $vlanPos = 0;
+    my $vlans   = $self->getVlans();
+    while (($vlanPos < scalar(@vlansToTest)) && ($found == 0)) {
+        my $currentVlan = $vlansToTest[$vlanPos];
+        my $result      = undef;
+
+        if (defined $currentVlan && exists($vlans->{$currentVlan})) {
+
+            #issue correct SNMP query depending on SNMP version
+            if ($self->{_SNMPVersion} eq '3') {
+                if ($self->connectRead()) {
+                    $logger->trace(
+                        "SNMP get_request for dot1dBasePortIfIndex: $OID_dot1dBasePortIfIndex.$dot1dBasePort");
+                    $result = $self->{_sessionRead}->get_request(
+                        -varbindlist => ["$OID_dot1dBasePortIfIndex.$dot1dBasePort"],
+                        -contextname => "vlan_$currentVlan"
+                    );
+
+                    # FIXME: calling "private" method to unset context. See #1284 or upstream rt.cpan.org:72075.
+                    $self->{_sessionRead}->{_context_name} = undef;
+                }
+            }
+            else {
+                my ($sessionReadVlan, $sessionReadVlanError) = Net::SNMP->session(
+                    -hostname   => $self->{_ip},
+                    -version    => $self->{_SNMPVersion},
+                    -retries    => 1,
+                    -timeout    => 2,
+                    -maxmsgsize => 4096,
+                    -community  => $self->{_SNMPCommunityRead} . '@' . $currentVlan
+                );
+                if (defined($sessionReadVlan)) {
+                    $logger->trace(
+                        "SNMP get_request for dot1dBasePortIfIndex: $OID_dot1dBasePortIfIndex.$dot1dBasePort");
+                    $result =
+                      $sessionReadVlan->get_request(-varbindlist => ["$OID_dot1dBasePortIfIndex.$dot1dBasePort"]);
+                }
+                else {
+                    $logger->debug("cannot connect to obtain do1dBasePortIfIndex information in VLAN $currentVlan");
+                }
+            }
+
+            #did we get a result ?
+            if (   defined($result)
+                && (exists($result->{"$OID_dot1dBasePortIfIndex.$dot1dBasePort"}))
+                && ($result->{"$OID_dot1dBasePortIfIndex.$dot1dBasePort"} ne 'noSuchInstance'))
+            {
+                $trapHashRef->{'trapIfIndex'} = $result->{"$OID_dot1dBasePortIfIndex.$dot1dBasePort"};
+                $logger->debug("converted dot1dBasePort $dot1dBasePort into ifIndex "
+                      . $trapHashRef->{'trapIfIndex'}
+                      . " in vlan $currentVlan");
+                $found = 1;
+            }
+            else {
+                $logger->debug("cannot convert dot1dBasePort $dot1dBasePort into ifIndex in VLAN $currentVlan - "
+                      . (scalar(@vlansToTest) - $vlanPos - 1)
+                      . " more vlans to try");
+            }
+        }
+        $vlanPos++;
+    }
+    if ($found == 0) {
+        $logger->error("could not convert dot1dBasePort into ifIndex in any VLAN. Setting trapType to unknown");
+        $trapHashRef->{'trapType'} = 'unknown';
+    }
+    return $trapHashRef;
+}
+
 =back
 
 =head1 AUTHOR
@@ -1621,7 +1795,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

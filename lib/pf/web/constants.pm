@@ -58,29 +58,32 @@ tie our @uri_filters, 'pfconfig::cached_array', 'resource::URI_Filters';
 =cut
 
 # normal flow
+Readonly::Scalar our $URL_SLASH                 => '^/$';
 Readonly::Scalar our $URL_ACCESS                => '/access';
-Readonly::Scalar our $URL_AUTHENTICATE          => '/authenticate';
-Readonly::Scalar our $URL_AUP                   => '/aup';
+Readonly::Scalar our $URL_LOGOUT                => '/logout';
 Readonly::Scalar our $URL_BILLING               => '/billing';
 Readonly::Scalar our $URL_BILLING_CHILD         => '/billing/(.*)';
 Readonly::Scalar our $URL_CAPTIVE_PORTAL        => '/captive-portal';
+Readonly::Scalar our $URL_VIOLATION             => '/violation';
+Readonly::Scalar our $URL_RELEASE               => '/violation/release';
+Readonly::Scalar our $URL_REMEDIATION           => '/remediation';
 Readonly::Scalar our $URL_ENABLER               => '/enabler';
 Readonly::Scalar our $URL_WISPR                 => '/wispr';
-Readonly::Scalar our $URL_OAUTH2                => '/oauth2/auth';
-Readonly::Scalar our $URL_OAUTH2_FACEBOOK       => '/oauth2/facebook';
-Readonly::Scalar our $URL_OAUTH2_GITHUB         => '/oauth2/github';
-Readonly::Scalar our $URL_OAUTH2_GOOGLE         => '/oauth2/google';
-Readonly::Scalar our $URL_OAUTH2_LINKEDIN       => '/oauth2/linkedin';
-Readonly::Scalar our $URL_OAUTH2_WIN_LIVE       => '/oauth2/windowslive';
-Readonly::Scalar our $URL_OAUTH2_TWITTER        => '/oauth2/twitter';
-Readonly::Scalar our $URL_REMEDIATION           => '/remediation';
-Readonly::Scalar our $URL_RELEASE               => '/release';
+Readonly::Scalar our $URL_OAUTH2                => '/oauth2/(.+)';
+Readonly::Scalar our $URL_LOST_STOLEN           => '/loststolen/(.+)';
 Readonly::Scalar our $URL_STATUS                => '/status';
+Readonly::Scalar our $URL_STATUS_RESETPW        => '/status/reset_pw';
+Readonly::Scalar our $URL_STATUS_RESET_PASSWORD => '/status/reset_password';
 Readonly::Scalar our $URL_STATUS_LOGIN          => '/status/login';
 Readonly::Scalar our $URL_STATUS_LOGOUT         => '/status/logout';
+Readonly::Scalar our $URL_STATUS_BILLING        => '/status/billing';
 Readonly::Scalar our $URL_NODE_MANAGER          => '/node/manager/(.+)';
 Readonly::Scalar our $URL_SAML_REDIRECT         => '/saml/redirect';
 Readonly::Scalar our $URL_SAML                  => '/saml/(.+)';
+Readonly::Scalar our $URL_SPONSOR_CHECK         => '/sponsor/check';
+Readonly::Scalar our $URL_SWITCH                => '/switchto/(.+)';
+Readonly::Scalar our $URL_RECORD_DESTINATION    => '/record_destination_url';
+Readonly::Scalar our $URL_CHALLENGE             => '/challenge';
 
 # guest related
 Readonly::Scalar our $URL_SIGNUP                => '/signup';
@@ -92,19 +95,23 @@ Readonly::Scalar our $URL_ADMIN_MANAGE_GUESTS   => '/guests/manage';
 
 Readonly::Scalar our $URL_GAMING_REGISTRATION   => '/gaming-registration';
 Readonly::Scalar our $URL_DEVICE_REGISTRATION   => '/device-registration';
-
-# External Captive Portal detection constant
-Readonly::Scalar our $REQ_CISCO                 => 'ap_mac';
-Readonly::Scalar our $REQ_MAC                   => 'mac';
-Readonly::Scalar our $REQ_ARUBA                 => 'apname';
-Readonly::Scalar our $REQ_CISCO_PORTAL          => '/cep(.*)';
-Readonly::Scalar our $REQ_RUCKUS                => 'sip';
-Readonly::Scalar our $REQ_AEROHIVE              => 'RADIUS-NAS-IP';
+Readonly::Scalar our $URL_DEVICE_REG_LOGOUT     => '/device-registration/logout';
 
 # External Captive Portal URL detection constant
-Readonly::Scalar our $EXT_URL_XIRRUS            => '^/Xirrus::AP_http';
-Readonly::Scalar our $EXT_URL_MERAKI            => '^/Meraki::AP_http';
-
+Readonly::Scalar our $EXT_URL_AEROHIVE              => '^/AeroHIVE::AP';
+Readonly::Scalar our $EXT_URL_ARUBA                 => '^/Aruba';
+Readonly::Scalar our $EXT_URL_CISCO_CATALYST_2960   => '^/Cisco::Catalyst_2960';
+Readonly::Scalar our $EXT_URL_CISCO_WLC             => '^/Cisco::WLC';
+Readonly::Scalar our $EXT_URL_COOVACHILLI           => '^/CoovaChilli';
+Readonly::Scalar our $EXT_URL_MERAKI                => '^/Meraki::MR';
+Readonly::Scalar our $EXT_URL_MERAKI_V2             => '^/Meraki::MR_v2';
+Readonly::Scalar our $EXT_URL_RUCKUS                => '^/Ruckus';
+Readonly::Scalar our $EXT_URL_RUCKUS_SMARTZONE      => '^/RuckusSmartZone';
+Readonly::Scalar our $EXT_URL_XIRRUS                => '^/Xirrus';
+Readonly::Scalar our $EXT_URL_MIKROTIK              => '^/Mikrotik';
+Readonly::Scalar our $EXT_URL_FORTIGATE             => '^/Fortinet::FortiGate';
+# Ubiquiti doesn't support setting the URL so we much detect it using this URL which will then map to the Ubiquiti module in pf::web::externalportal
+Readonly::Scalar our $EXT_URL_UBIQUITI              => '^/guest/s/default';
 
 # Provisioning engine
 Readonly::Scalar our $URL_WIRELESS_PROFILE => '/wireless-profile.mobileconfig';
@@ -166,7 +173,7 @@ code (ex: fr) will be used for any locale matching the language code (ex: fr_FR 
 
 Readonly::Array our @LOCALES =>
   (
-   qw(de_DE en_US es_ES fr_FR fr_CA he_IL it_IT nl_NL pl_PL pt_BR)
+   qw(en_US es_ES fr_FR fr_CA de_DE he_IL it_IT nl_NL pl_PL pt_BR)
   );
 
 =item ALLOWED_RESOURCES_PROFILE_FILTER
@@ -187,19 +194,6 @@ foreach (@components_profile_filter) { s{([^/])$}{$1\$} };
 my $allow_profile = join('|', @components_profile_filter);
 Readonly::Scalar our $ALLOWED_RESOURCES_PROFILE_FILTER => qr/ ^(?: $allow_profile ) /xo if($allow_profile ne ''); # eXtended pattern, compile Once
 
-=item EXTERNAL_PORTAL_PARAM
-
-Build a regex that will decide what is considered as a external portal var parameter.
-
-This parameter should be something that contain the mac or ip address of the switch.
-
-=cut
-
-my @components_req =  _clean_urls_match_req();
-foreach (@components_req) { s{([^/])$}{$1\$} };
-my $allow_req = join('|', @components_req);
-Readonly::Scalar our $EXTERNAL_PORTAL_PARAM => qr/ ^(?: $allow_req ) /xo; # eXtended pattern, compile Once
-
 =item EXTERNAL_PORTAL_URL
 
 Build a regex that will decide what is considered as a external portal URL.
@@ -209,7 +203,7 @@ This URL should point to a module in pf::Switch that can extract the mac or ip o
 =cut
 
 my @components_url =  _clean_urls_match_ext_url();
-foreach (@components_url) { s{([^/])$}{$1\$} };
+foreach (@components_url) { s{([^/])$}{$1(?:\$|\/)} };
 my $allow_url = join('|', @components_url);
 Readonly::Scalar our $EXTERNAL_PORTAL_URL => qr/ ^(?: $allow_url ) /xo; # eXtended pattern, compile Once
 
@@ -231,28 +225,12 @@ sub _captive_portal_resources_parser {
 
 =item _clean_urls_match_filter
 
-Return a regex that would match all the portal profile uri: filter
+Return a regex that would match all the connection profile uri: filter
 
 =cut
 
 sub _clean_urls_match_filter {
     return @uri_filters;
-}
-
-=item _clean_urls_match_mod_perl
-
-Return a regex that would match all the captive portal allowed clean URLs
-
-=cut
-
-sub _clean_urls_match_req {
-    my %consts = pf::web::constants::to_hash();
-    my @urls;
-    foreach (keys %consts) {
-        # keep only constants matching ^URL
-        push @urls, $consts{$_} if (/^REQ/);
-    }
-    return (@urls);
 }
 
 =item _clean_urls_match_ext_url
@@ -279,7 +257,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

@@ -15,11 +15,11 @@ pf::Authentication::Source::AuthorizeNetSource
 use strict;
 use warnings;
 use Moose;
-use pf::config qw($FALSE $TRUE $default_pid $fqdn);
+use pf::config qw($default_pid $fqdn);
+use pf::constants qw($FALSE $TRUE);
 use pf::Authentication::constants;
 use pf::util;
 use pf::log;
-use HTTP::Status qw(is_success);
 use WWW::Curl::Easy;
 use JSON::MaybeXS;
 use List::Util qw(first);
@@ -28,6 +28,7 @@ use Digest::MD5 qw(md5_hex);
 use Time::Local;
 
 extends 'pf::Authentication::Source::BillingSource';
+with 'pf::Authentication::CreateLocalAccountRole';
 
 =head2 Attributes
 
@@ -114,7 +115,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

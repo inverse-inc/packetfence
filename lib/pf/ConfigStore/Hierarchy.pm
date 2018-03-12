@@ -137,11 +137,9 @@ sub members {
     return @values;
 }
 
-=back
-
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

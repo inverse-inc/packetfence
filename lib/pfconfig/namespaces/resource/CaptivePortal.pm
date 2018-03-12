@@ -14,7 +14,7 @@ pfconfig::namespaces::resource::CaptivePortal
 
 use strict;
 use warnings;
-use pf::file_paths;
+use pf::file_paths qw($install_dir);
 use POSIX;
 
 use base 'pfconfig::namespaces::resource';
@@ -31,13 +31,7 @@ sub build {
     # CAPTIVE-PORTAL RELATED
     # Captive Portal constants
     my %CAPTIVE_PORTAL = (
-        "NET_DETECT_INITIAL_DELAY"         => floor( $Config{'trapping'}{'redirtimer'} / 4 ),
-        "NET_DETECT_RETRY_DELAY"           => 2,
-        "NET_DETECT_PENDING_INITIAL_DELAY" => 2 * 60,
-        "NET_DETECT_PENDING_RETRY_DELAY"   => 30,
-        "TEMPLATE_DIR"                     => "$install_dir/html/captive-portal/templates",
-        "PROFILE_TEMPLATE_DIR"             => "$install_dir/html/captive-portal/profile-templates",
-        "ADMIN_TEMPLATE_DIR"               => "$install_dir/html/admin/templates",
+        "TEMPLATE_DIR" => "$install_dir/html/captive-portal/templates",
     );
 
     # process pf.conf's parameter into an IP => 1 hash
@@ -46,15 +40,13 @@ sub build {
     return \%CAPTIVE_PORTAL;
 }
 
-=back
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

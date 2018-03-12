@@ -38,7 +38,6 @@ use warnings;
 
 use Net::SNMP;
 
-use pf::config;
 use pf::Switch::constants;
 
 use base ('pf::Switch::Cisco::Catalyst_3560');
@@ -82,7 +81,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

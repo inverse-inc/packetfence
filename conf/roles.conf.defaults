@@ -1,0 +1,19 @@
+[default]
+max_nodes_per_pid=0
+notes=Placeholder role/category, feel free to edit
+
+[guest]
+max_nodes_per_pid=0
+notes=Guests
+
+[gaming]
+max_nodes_per_pid=0
+notes=Gaming devices
+
+[voice]
+max_nodes_per_pid=0
+notes=VoIP devices
+
+[REJECT]
+max_nodes_per_pid=0
+notes=Reject role (Used to block access)

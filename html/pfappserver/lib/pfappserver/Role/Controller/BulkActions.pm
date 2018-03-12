@@ -29,6 +29,7 @@ sub bulk_close : Local {
     if ($request->method eq 'POST') {
         my @ids = $request->param('items');
         ($status, $status_msg) = $self->getModel($c)->bulkCloseViolations(@ids);
+        $self->audit_current_action($c, status => $status, ids => \@ids);
     }
     else {
         $status = HTTP_BAD_REQUEST;
@@ -50,6 +51,7 @@ sub bulk_register : Local {
     if ($request->method eq 'POST') {
         my @ids = $request->param('items');
         ($status, $status_msg) = $self->getModel($c)->bulkRegister(@ids);
+        $self->audit_current_action($c, status => $status, ids => \@ids);
     }
     else {
         $status = HTTP_BAD_REQUEST;
@@ -71,6 +73,7 @@ sub bulk_deregister : Local {
     if ($request->method eq 'POST') {
         my @ids = $request->param('items');
         ($status, $status_msg) = $self->getModel($c)->bulkDeregister(@ids);
+        $self->audit_current_action($c, status => $status, ids => \@ids);
     }
     else {
         $status = HTTP_BAD_REQUEST;
@@ -92,6 +95,7 @@ sub bulk_apply_role : Local : Args(1) {
     if ($request->method eq 'POST') {
         my @ids = $request->param('items');
         ($status, $status_msg) = $self->getModel($c)->bulkApplyRole($role,@ids);
+        $self->audit_current_action($c, status => $status, ids => \@ids);
     }
     else {
         $status = HTTP_BAD_REQUEST;
@@ -113,6 +117,31 @@ sub bulk_apply_violation : Local : Args(1) {
     if ($request->method eq 'POST') {
         my @ids = $request->param('items');
         ($status, $status_msg) = $self->getModel($c)->bulkApplyViolation($violation,@ids);
+        $self->audit_current_action($c, status => $status, ids => \@ids);
+    }
+    else {
+        $status = HTTP_BAD_REQUEST;
+        $status_msg = "";
+    }
+    $c->response->status($status);
+    $c->stash->{status_msg} = $status_msg;
+}
+
+=head2 bulk_restart_switchport
+
+Restart the switchport for a list of MAC addresses
+
+=cut
+
+sub bulk_restart_switchport : Local {
+    my ( $self, $c ) = @_;
+    $c->stash->{current_view} = 'JSON';
+    my ( $status, $status_msg );
+    my $request = $c->request;
+    if ($request->method eq 'POST') {
+        my @ids = $request->param('items');
+        ($status, $status_msg) = $self->getModel($c)->bulkRestartSwitchport(@ids);
+        $self->audit_current_action($c, status => $status, ids => \@ids);
     }
     else {
         $status = HTTP_BAD_REQUEST;
@@ -134,6 +163,31 @@ sub bulk_reevaluate_access : Local {
     if ($request->method eq 'POST') {
         my @ids = $request->param('items');
         ($status, $status_msg) = $self->getModel($c)->bulkReevaluateAccess(@ids);
+        $self->audit_current_action($c, status => $status, ids => \@ids);
+    }
+    else {
+        $status = HTTP_BAD_REQUEST;
+        $status_msg = "";
+    }
+    $c->response->status($status);
+    $c->stash->{status_msg} = $status_msg;
+}
+
+=head2 bulk_users_delete
+
+Deletes users while reassigning their nodes to the default PID
+
+=cut
+
+sub bulk_delete : Local {
+    my ( $self, $c ) = @_;
+    $c->stash->{current_view} = 'JSON';
+    my ( $status, $status_msg );
+    my $request = $c->request;
+    if ($request->method eq 'POST') {
+        my @ids = $request->param('items');
+        ($status, $status_msg) = $self->getModel($c)->bulkDelete(@ids);
+        $self->audit_current_action($c, status => $status, ids => \@ids);
     }
     else {
         $status = HTTP_BAD_REQUEST;
@@ -150,7 +204,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

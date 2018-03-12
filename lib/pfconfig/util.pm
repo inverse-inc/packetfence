@@ -46,7 +46,9 @@ sub fetch_socket {
     $payload .= "\n";
     my $bytes_sent = syswrite_all($socket,$payload);
     read_data_with_length($socket,my $sereal_buffer);
-    return $sereal_buffer;
+    ## Match all bytes to always untaint
+    $sereal_buffer =~ /\A^(.*)\z/ms;
+    return $1;
 }
 
 sub fetch_decode_socket {
@@ -108,7 +110,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

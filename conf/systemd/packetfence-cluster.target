@@ -1,0 +1,6 @@
+[Unit]
+Description=PacketFence Cluster target
+Requires=packetfence.target
+Conflicts=rescue.service rescue.target
+After=multi-user.target rescue.service rescue.target packetfence.target
+AllowIsolate=yes

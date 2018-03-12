@@ -15,11 +15,12 @@ use warnings;
 use lib qw(/usr/local/pf/lib);
 BEGIN {
     use lib qw(/usr/local/pf/t);
-    use PfFilePaths;
+    use setup_test_config;
 }
 
-use Test::More tests => 7;                      # last test to print
+use Test::More tests => 8;                      # last test to print
 
+use Test::Exception;
 use Test::NoWarnings;
 
 use_ok("pf::condition::regex");
@@ -34,13 +35,15 @@ ok(!$filter->match('atesting'),"filter does not match regex");
 
 ok(!$filter->match(undef),"value undef does not match filter");
 
+$filter = dies_ok(sub { pf::condition::regex->new(value => "(invalid") }, "Unable to build regexp (invalid");
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

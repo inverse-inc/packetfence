@@ -48,13 +48,15 @@ use strict;
 use warnings;
 
 use Carp;
-use Net::Appliance::Session;
 use Net::SNMP;
 
 use base ('pf::Switch::Cisco');
 
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $MAC
+    $SSID
+);
 use pf::util qw(format_mac_as_cisco);
 
 =head1 SUBROUTINES
@@ -98,6 +100,7 @@ sub deauthenticateMacDefault {
 
     my $session;
     eval {
+        require Net::Appliance::Session;
         $session = Net::Appliance::Session->new(
             Host      => $self->{_ip},
             Timeout   => 5,
@@ -260,7 +263,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,0 +1,13 @@
+### pfdetect logger ###
+log4perl.rootLogger = INFO, PFUNIFIEDAPI
+
+### Categories ###
+# Below, you can specify different categories (based on package names) for different logging levels
+#log4perl.category.pf.SNMP = WARN
+
+### Logging for pfdetect
+log4perl.appender.PFUNIFIEDAPI                                = Log::Dispatch::Syslog
+log4perl.appender.PFUNIFIEDAPI.ident                          = pfdetect
+log4perl.appender.PFUNIFIEDAPI.facility                       = local5
+log4perl.appender.PFUNIFIEDAPI.layout.ConversionPattern       = %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
+log4perl.appender.PFUNIFIEDAPI.layout                         = PatternLayout

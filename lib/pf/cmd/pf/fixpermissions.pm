@@ -23,12 +23,26 @@ use warnings;
 
 use base qw(pf::base::cmd::action_cmd);
 
-use pf::file_paths;
+use pf::file_paths qw(
+    $bin_dir
+    $var_dir
+    @log_files
+    @stored_config_files
+    $install_dir
+    $tt_compile_cache_dir
+    $generated_conf_dir
+    $pfconfig_cache_dir
+    $log_dir
+    $conf_dir
+    $lib_dir
+    $config_version_file
+);
 use pf::log;
 use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
 use pf::util;
+use File::Find;
 
-use fingerbank::FilePath;
+use fingerbank::Util;
 
 use File::Spec::Functions qw(catfile);
 
@@ -43,12 +57,13 @@ Fix the permissions on pf and fingerbank files
 sub action_all {
     my $pfcmd = "${bin_dir}/pfcmd";
     my @extra_var_dirs = map { catfile($var_dir,$_) } qw(run cache conf sessions redis_cache redis_queue);
-    _changeFilesToOwner('pf',@log_files, @stored_config_files, $install_dir, $bin_dir, $conf_dir, $var_dir, $lib_dir, $log_dir, $generated_conf_dir, $tt_compile_cache_dir, $pfconfig_cache_dir, @extra_var_dirs);
+    _changeFilesToOwner('pf',@log_files, @stored_config_files, $install_dir, $bin_dir, $conf_dir, $var_dir, $lib_dir, $log_dir, $generated_conf_dir, $tt_compile_cache_dir, $pfconfig_cache_dir, @extra_var_dirs, $config_version_file);
     _changeFilesToOwner('root',$pfcmd);
     chmod(06755,$pfcmd);
     chmod(0664, @stored_config_files);
     chmod(02775, $conf_dir, $var_dir, $log_dir, "$var_dir/redis_cache", "$var_dir/redis_queue");
     _fingerbank();
+    find({ wanted => \&wanted,untaint => 1}, $log_dir);
     print "Fixed permissions.\n";
     return $EXIT_SUCCESS;
 }
@@ -122,9 +137,12 @@ sub _changeFilesToOwner {
 }
 
 sub _fingerbank {
-    _changeFilesToOwner('fingerbank', @fingerbank::FilePath::PATHS, @fingerbank::FilePath::FILES);
-    chmod(0664, @fingerbank::FilePath::FILES);
-    chmod(0775, @fingerbank::FilePath::PATHS, $fingerbank::FilePath::INSTALL_PATH . 'db/upgrade.pl');
+    fingerbank::Util::fix_permissions();
+}
+
+sub wanted {
+    my $perm = -d $File::Find::name ? 0555 : 0664;
+    chmod $perm, untaint_chain($File::Find::name);
 }
 
 =head1 AUTHOR
@@ -135,7 +153,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

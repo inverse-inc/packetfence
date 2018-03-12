@@ -17,26 +17,32 @@ modules.
 use strict;
 use warnings;
 
-use English qw( -no_match_vars );
 use File::Basename;
 use POSIX::2008;
-use FileHandle;
 use Net::MAC::Vendor;
-use Net::SMTP;
-use POSIX();
+use File::Path qw(make_path remove_tree);
+use POSIX qw(setuid setgid);
 use File::Spec::Functions;
 use File::Slurp qw(read_dir);
-use List::MoreUtils qw(all);
+use List::MoreUtils qw(all any);
 use Try::Tiny;
+use pf::file_paths qw(
+    $conf_dir
+    $oui_file
+    $oui_url
+    $var_dir
+    $html_dir
+);
 use NetAddr::IP;
 use File::Temp;
-use Date::Parse;
-use Crypt::OpenSSL::X509;
 use Encode qw(encode);
 use MIME::Lite::TT;
 use Digest::MD5;
 use Time::HiRes qw(stat time);
 use Fcntl qw(:DEFAULT);
+use Net::Ping;
+use Crypt::OpenSSL::X509;
+use Date::Parse;
 
 our ( %local_mac );
 
@@ -50,7 +56,6 @@ BEGIN {
         ip2int int2ip sort_ip
         isenabled isdisabled isempty
         getlocalmac
-        readpid
         parse_template mysql_date oui_to_vendor mac2oid oid2mac
         get_total_system_memory
         parse_mac_from_trap
@@ -67,7 +72,6 @@ BEGIN {
         search_hash
         is_prod_interface
         valid_ip_range
-        cert_has_expired
         cert_is_self_signed
         safe_file_update
         fix_file_permissions
@@ -77,6 +81,19 @@ BEGIN {
         whowasi
         validate_argv
         touch_file
+        pf_make_dir
+        empty_dir
+        is_in_list
+        validate_date
+        clean_locale 
+        parse_api_action_spec
+        pf_chown
+        user_chown
+        ping
+        run_as_pf
+        find_outgoing_interface
+        strip_filename_from_exceptions
+        expand_csv
     );
 }
 
@@ -87,7 +104,7 @@ use pf::constants::config;
 use pf::constants::user;
 #use pf::config;
 use pf::log;
-use pf::file_paths;
+use Time::Piece;
 
 =head1 SUBROUTINES
 
@@ -102,11 +119,11 @@ sub valid_date {
     my $logger = get_logger();
 
     # kludgy but short
-    if ( $date
+    if ( !defined $date || $date
         !~ /^\d{4}\-((0[1-9])|(1[0-2]))\-((0[1-9])|([12][0-9])|(3[0-1]))\s+(([01][0-9])|(2[0-3]))(:[0-5][0-9]){2}$/
         )
     {
-        $logger->warn("invalid date $date");
+        $logger->warn("invalid date " . ($date // "'undef'"));
         return (0);
     } else {
         return (1);
@@ -442,23 +459,6 @@ sub sort_ip {
         map { [$_,ip2int($_)] } @_;
 }
 
-sub readpid {
-    my ($pname) = @_;
-    my $logger = get_logger();
-    $pname = basename($0) if ( !$pname );
-    my $pidfile = $var_dir . "/run/$pname.pid";
-    my $file    = new FileHandle "$pidfile";
-    if ( defined($file) ) {
-        my $pid = $file->getline();
-        chomp($pid);
-        $file->close;
-        return ($pid);
-    } else {
-        $logger->error("$pname: unable to open $pidfile for reading: $!");
-        return (-1);
-    }
-}
-
 =item safe_file_update($file, $content)
 
 This safely modifies the contents of a file using a rename
@@ -470,6 +470,7 @@ sub safe_file_update {
     my ($volume, $dir, $filename) = File::Spec->splitpath($file);
     $dir = '.' if $dir eq '';
     # Creates a new file in the same directory to ensure it is on the same filesystem
+    pf_make_dir($dir);
     my $temp = File::Temp->new(DIR => $dir) or die "cannot create temp file in $dir";
     syswrite $temp, $contents;
     $temp->flush;
@@ -483,6 +484,18 @@ sub safe_file_update {
     fix_file_permissions($file);
 }
 
+=item empty_dir
+
+Empty the contents of a directory
+
+=cut
+
+sub empty_dir {
+    my ($dir) = @_;
+    remove_tree( $dir, {keep_root => 1, result => \my $list} );
+    return $list;
+}
+
 =item fix_file_permissions(@files)
 
 fix the file permissions of the files
@@ -492,6 +505,16 @@ fix the file permissions of the files
 sub fix_file_permissions {
     my ($file) = @_;
     pf_run('sudo /usr/local/pf/bin/pfcmd fixpermissions file "' . $file . '"');
+}
+
+=item fix_files_permissions
+
+Fix the files permissions
+
+=cut
+
+sub fix_files_permissions {
+    pf_run('sudo /usr/local/pf/bin/pfcmd fixpermissions');
 }
 
 sub parse_template {
@@ -517,6 +540,10 @@ sub parse_template {
         ."$comment_char Any changes made to this file will be lost on restart\n\n";
 
     if ($destination) {
+        if ($destination =~ /(.*)\/\w+/) {
+            mkdir $1 unless -d $1;
+            pf_chown($1);
+        }
         my $destination_fh;
         open( $destination_fh, ">", $destination )
             || $logger->logcroak( "Unable to open template destination $destination: $!");
@@ -719,7 +746,7 @@ sub pretty_bandwidth {
     my @units = ("Bytes", "KB", "MB", "GB", "TB", "PB");
     my $x;
 
-    for ($x=0; $bytes>=800 && $x<scalar(@units); $x++ ) {
+    for ($x=0; $bytes>=800 && $x < scalar(@units); $x++ ) {
         $bytes /= 1024;
     }
     my $rounded = sprintf("%.2f",$bytes);
@@ -732,9 +759,21 @@ Returns the bandwidth in bytes depending of the incombing unit
 
 =cut
 
-sub unpretty_bandwidth {
-    my ($bw,$unit) = @_;
 
+sub unpretty_bandwidth {
+    my (@bw) = @_;
+    return undef if (!defined($bw[0]));
+    my ($bw,$unit);
+
+    if (!defined($bw[1])) {
+        if ($bw[0] =~ /(\d+)(\w+)/) {
+            $bw = $1;
+            $unit = $2;
+        }
+    } else {
+        $bw = $bw[0];
+        $unit = $bw[1];
+    }
     # Check what units we have, and multiple by 1024 exponent something
     if ($unit eq 'PB') {
         return $bw * 1024**5;
@@ -776,7 +815,7 @@ sub pf_run {
     # Prefixing command using LANG=C to avoid system locale messing up with return
     $command = 'LANG=C ' . $command;
 
-    local $OS_ERROR;
+    local $!;
     # Using perl trickery to figure out what the caller expects so I can return him just that
     # this is to perfectly emulate the backtick operator behavior
     my (@result, $result);
@@ -784,20 +823,20 @@ sub pf_run {
     if (not defined wantarray) {
         # void context
         `$command`;
-        return if ($CHILD_ERROR == 0);
+        return if ($? == 0);
 
     } elsif (wantarray) {
         # list context
         @result = `$command`;
-        return @result if ($CHILD_ERROR == 0);
+        return @result if ($? == 0);
 
     } else {
         # scalar context
         $result = `$command`;
-        return $result if ($CHILD_ERROR == 0);
+        return $result if ($? == 0);
     }
     # copying as soon as possible
-    my $exception = $OS_ERROR;
+    my $exception = $!;
 
     # slightly modified version of "perldoc -f system" error handling strategy
     my $caller = ( caller(1) )[3] || basename($0);
@@ -808,20 +847,20 @@ sub pf_run {
         $loggable_command =~ s/$options{log_strip}/*obfuscated-information*/g;
     }
     # died with an OS problem
-    if ($CHILD_ERROR == -1) {
+    if ($? == -1) {
         $logger->warn("Problem trying to run command: $loggable_command called from $caller. OS Error: $exception");
 
     # died with a signal
-    } elsif ($CHILD_ERROR & 127) {
-        my $signal = ($CHILD_ERROR & 127);
-        my $with_core = ($CHILD_ERROR & 128) ? 'with' : 'without';
+    } elsif ($? & 127) {
+        my $signal = ($? & 127);
+        my $with_core = ($? & 128) ? 'with' : 'without';
         $logger->warn(
             "Problem trying to run command: $loggable_command called from $caller. "
             . "Child died with signal $signal $with_core coredump."
         );
     # Non-zero exit code received
     } else {
-        my $exit_status = $CHILD_ERROR >> 8;
+        my $exit_status = $? >> 8;
         # user specified that this error code is ok
         if (grep { $_ == $exit_status } @{$options{'accepted_exit_status'}}) {
             # we accept the result
@@ -908,6 +947,26 @@ sub trim_path {
    return ((@parts == 0) ? '' : catdir(@parts));
 }
 
+
+=item expand_csv
+
+Expands a comma seperated string or an array of comma seperated strings into an array
+
+=cut
+
+sub expand_csv {
+    my ($list) = @_;
+    $list //= [];
+    my @expanded;
+    if (ref $list eq 'ARRAY') {
+        @expanded = @$list;
+    } else {
+        @expanded = $list;
+    }
+    return map {split(/\s*,\s*/, $_)} @expanded;
+}
+
+
 =item pf_chown
 
 =cut
@@ -916,6 +975,17 @@ sub pf_chown {
     my ($file) = @_;
     my ($login,$pass,$uid,$gid) = getpwnam('pf')
         or die "pf not in passwd file";
+    chown $uid, $gid, $file;
+}
+
+=item user_chown
+
+=cut
+
+sub user_chown {
+    my ($user, $file) = @_;
+    my ($login,$pass,$uid,$gid) = getpwnam($user)
+        or die "$user not in passwd file";
     chown $uid, $gid, $file;
 }
 
@@ -998,13 +1068,14 @@ Months and years are approximate. Do not use for anything serious about time.
 
 sub normalize_time {
     my ($date) = @_;
+    return undef if (!defined($date));
     if ( $date =~ /^\d+$/ ) {
         return ($date);
 
     } else {
         my ( $num, $modifier ) = $date =~ /^(\d+)($pf::constants::config::TIME_MODIFIER_RE)/ or return (0);
 
-        if ( $modifier eq "s" ) { return ($num);
+        if ( $modifier eq "s" ) { return ($num * 1);
         } elsif ( $modifier eq "m" ) { return ( $num * 60 );
         } elsif ( $modifier eq "h" ) { return ( $num * 60 * 60 );
         } elsif ( $modifier eq "D" ) { return ( $num * 24 * 60 * 60 );
@@ -1051,19 +1122,6 @@ sub is_prod_interface {
     }
 }
 
-=item cert_has_expired
-
-Will validate that a certificate has not expired
-
-=cut
-
-sub cert_has_expired {
-    my ($path) = @_;
-    my $cert = Crypt::OpenSSL::X509->new_from_file($path);
-    my $expiration = str2time($cert->notAfter);
-    return time > $expiration;
-}
-
 =item cert_is_self_signed
 
 Check if a certicate is self-signed
@@ -1075,6 +1133,26 @@ sub cert_is_self_signed {
     my $cert = Crypt::OpenSSL::X509->new_from_file($path);
     my $self_signed = $cert->is_selfsigned;
     return $self_signed;
+}
+
+=item cert_expires_in
+
+Returns either true or false if the given certificate is about to expire in a given delay
+
+Use current time if no delay is given
+
+=cut
+
+sub cert_expires_in {
+    my ($path, $delay) = @_;
+    return undef if !defined $path;
+    my $cert = Crypt::OpenSSL::X509->new_from_file($path);
+    my $expiration = str2time($cert->notAfter);
+
+    $delay = normalize_time($delay) if $delay;
+    $delay = ( $delay ) ? $delay + time : time;
+
+    return $delay > $expiration;
 }
 
 =item strip_username
@@ -1112,36 +1190,6 @@ sub strip_username {
     return $username;
 }
 
-sub send_email {
-    my ($smtp_server, $from, $to, $subject, $template, %info) = @_;
-    my $logger = get_logger();
-    my %options;
-    $options{INCLUDE_PATH} = "$conf_dir/templates/";
-    $options{ENCODING} = "utf8";
-
-    utf8::decode($subject);
-    my $msg = MIME::Lite::TT->new(
-        From        =>  $from,
-        To          =>  $to,
-        Cc          =>  $info{'cc'},
-        Subject     =>  encode("MIME-Header", $subject),
-        Template    =>  "emails-$template.html",
-        'Content-Type' => 'text/html; charset="utf-8"',
-        TmplOptions =>  \%options,
-        TmplParams  =>  \%info,
-    );
-
-    my $result = 0;
-    try {
-      $msg->send('smtp', $smtp_server, Timeout => 20);
-      $result = $msg->last_send_successful();
-      $logger->info("Email sent to ".$to." (".$subject.")");
-    }
-    catch {
-      $logger->error("Can't send email to ".$to.": $!");
-    };
-}
-
 sub generate_session_id {
     my ($length) = @_;
     $length //= 32;
@@ -1156,6 +1204,8 @@ Calculates the number of pages
 
 sub calc_page_count {
     my ($count, $perPage) = @_;
+    $count //= 0;
+    $perPage //= 25;
     return int( ($count + $perPage  - 1) / $perPage );
 }
 
@@ -1207,6 +1257,165 @@ sub touch_file {
     }
 }
 
+=item pf_make_dir
+
+Make a directory with the proper permissions
+
+=cut
+
+sub pf_make_dir {
+    my ($dir_path) = @_;
+    umask 0;
+    return make_path(
+        $dir_path,
+        {
+            user => $pf::constants::user::PF_UID,
+            group => $pf::constants::user::PF_GID,
+            mode => 02775,
+        }
+    );
+}
+
+=item is_in_list
+
+Searches for an item in a comma separated list of elements (like we do in our configuration files).
+
+Returns true or false values based on if item was found or not.
+
+=cut
+
+sub is_in_list {
+    my ($item, $list) = @_;
+    my @list = (ref($list) eq 'ARRAY') ? @$list : split( /\s*,\s*/, $list );
+    return $TRUE if any { $_ eq $item } @list;
+    return $FALSE;
+}
+
+=item validate_date
+
+Check if a date is between 1970-01-01 and 2038-01-18
+
+=cut
+
+sub validate_date {
+    my ($date) = @_;
+    my $valid = $FALSE;
+
+    eval {
+        my $t = Time::Piece->strptime($date, "%Y-%m-%d");
+        if (
+            $t->year > 2038
+            || $t->year == 2038 && $t->mon > 1
+            || $t->year == 2038 && $t->mon == 1 && $t->mday > 18
+            || $t->year < 1970
+           ) {
+            $valid = $FALSE;
+        }
+        else {
+            $valid = $TRUE;
+        }
+    };
+    if ($@) {
+        $valid = $FALSE;
+    }
+
+    return $valid;
+}
+
+=item clean_locale
+
+Clean the format of the locale stored
+
+=cut
+
+sub clean_locale {
+    my ($locale) = @_;
+    if( $locale =~ /^([A-Za-z_]+)\./ ) {
+        $locale = $1;
+    }
+    return $locale;
+}
+
+=item parse_api_action_spec
+
+Parse an api action spec
+
+=cut
+
+sub parse_api_action_spec {
+    my ($spec) = @_;
+    unless ($spec =~ /^\s*(?<api_method>[a-zA-Z0-9_]+)\s*:\s*(?<api_parameters>.*)$/) {
+        return undef;
+    }
+    #return a copy of the named captures hash
+    return {%+};
+}
+
+sub ping {
+    my ($host) = @_;
+    my $p = Net::Ping->new("icmp");
+    return $p->ping($host);
+}
+
+=head2 run_as_pf
+
+Sets the UID and GID of the currently running process to pf
+
+=cut
+
+sub run_as_pf {
+    my (undef, undef,$uid,$gid) = getpwnam('pf');
+    
+    # Early return if we're already running as pf
+    return $TRUE if($uid == $<);
+
+    unless(setgid($gid)) {
+        my $msg = "Cannot switch process user to pf. setgid to $gid has failed";
+        print STDERR $msg . "\n";
+        get_logger->error($msg);
+        return $FALSE;
+    }
+    
+    unless(setuid($uid)) {
+        my $msg = "Cannot switch process user to pf. setuid to $uid has failed";
+        print STDERR $msg . "\n";
+        get_logger->error($msg);
+        return $FALSE;
+    }
+
+    return $TRUE;
+}
+
+=head2 find_outgoing_interface
+
+Find the outgoing interface from a specific incoming interface
+
+=cut
+
+sub find_outgoing_interface {
+    my ($gateway) = @_;
+    my @interface_src = split(" ", pf_run("sudo ip route get 8.8.8.8 from $gateway"));
+    if ($interface_src[3] eq 'via') {
+        return $interface_src[6];
+    } else {
+        return $interface_src[2];
+    }
+}
+
+=head2 strip_filename_from_exceptions
+
+Strip out filename from exception messages
+
+=cut
+
+sub strip_filename_from_exceptions {
+    my ($exception) = @_;
+    if (defined $exception) {
+        $exception =~ s/^(.*) at .*?$/$1/;
+    }
+    return $exception;
+}
+
 =back
 
 =head1 AUTHOR
@@ -1217,7 +1426,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

@@ -6,6 +6,10 @@
 
   <div class="modal-body">
 
+    <div class="alert alert-warning">
+      [% l("Note that adding / modifying a network requires a restart of the dhcpd and pfdns services for the changes to take place") %]
+    </div>
+
     [% form.field('network').render | none %]
     [% form.field('netmask').render | none %]
     [% form.field('type').render | none %]
@@ -17,6 +21,7 @@
         <h6>DHCP</h6>
       </div>
     </div>
+    [% form.field('dhcpd').render | none %]
     [% form.field('dhcp_start').render | none %]
     [% form.field('dhcp_end').render | none %]
     [% form.field('dhcp_default_lease_time').render | none %]

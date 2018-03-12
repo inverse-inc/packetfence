@@ -1,0 +1,100 @@
+/violations:
+  get:
+    summary: Returns a list of violations
+    description: The list of vilations will be limited to 100 and a cursor will be returned for iterating on other violations. Iteration is only needed if the nextCursor is not an empty value.
+    parameters:
+      - $ref: '#/components/parameters/cursor'
+    responses:
+      '200':
+        description: List of violations
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ViolationList"
+  post:
+    summary: Creates a violation
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Violation"
+    responses:
+      '201':
+        $ref: "#/components/responses/Created"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '409':
+        $ref: "#/components/responses/Duplicate"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+
+'/violations/by_mac/{mac}':
+  get:
+    summary: Allows to search through violations by MAC address
+    description: The list of violations will be limited to 100 and a cursor will be returned for iterating on other violations. Iteration is only needed if the nextCursor is not an empty value.
+    responses:
+      '200':
+        description: List of violation
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ViolationList"
+
+'/violation/{violation_id}':
+  get:
+    summary: Returns a specific violation by its ID
+    parameters:
+      - name: violation_id
+        in: path
+        required: true
+        description: The violation ID to fetch
+        schema:
+          type: string
+    responses:
+      '200':
+        description: A specific violation
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                item:
+                  $ref: "#/components/schemas/Violation"
+  put:
+    summary: Allows to update a whole violation
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Violation"
+    responses:
+      '200':
+        $ref: "#/components/responses/Message"    
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+  patch:
+    summary: Allows to update parts of a violation
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Violation"
+    responses:
+      '200':
+        $ref: "#/components/responses/Message"    
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+  delete:
+    summary: Allows to delete a violation
+    responses:
+      '204':
+        description: Deleted violation
+
+

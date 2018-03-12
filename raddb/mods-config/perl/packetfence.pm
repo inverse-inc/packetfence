@@ -37,6 +37,7 @@ use warnings;
 use lib '/usr/local/pf/lib/';
 
 #use pf::config; # TODO: See note1
+use pf::log (service => 'rlm_perl');
 use pf::radius::constants;
 use pf::radius::soapclient;
 use pf::radius::rpc;
@@ -125,7 +126,7 @@ sub post_auth {
         } else {
             $mac = _extract_mac_from_calling_station_id()
         }
-        my $port = $RAD_REQUEST{'NAS-Port'};
+        my $port = $RAD_REQUEST{'NAS-Port'} // '';
 
         # invalid MAC, this certainly happens on some type of RADIUS calls, we accept so it'll go on and ask other modules
         if ( length($mac) != 17 && !( ( defined($RAD_REQUEST{'Service-Type'}) && $RAD_REQUEST{'Service-Type'} eq 'NAS-Prompt-User') || ( defined($RAD_REQUEST{'NAS-Port-Type'}) && ($RAD_REQUEST{'NAS-Port-Type'} eq 'Virtual' || $RAD_REQUEST{'NAS-Port-Type'} eq 'Async') ) ) ) {
@@ -173,7 +174,7 @@ sub post_auth {
                }
             }
             %RAD_REPLY = (%RAD_REPLY, %$attributes); # The rest of result is the reply hash passed by the radius_authorize
-            %RAD_CHECK = (%RAD_CHECK, %$radius_audit); # Add the radius audit data to RAD_CHECK
+            %RAD_CONFIG = (%RAD_CONFIG, %$radius_audit); # Add the radius audit data to RAD_CONFIG
         } else {
             return server_error_handler();
         }
@@ -322,7 +323,7 @@ sub accounting {
     my $radius_return_code = eval {
         my $rc = $RADIUS::RLM_MODULE_REJECT;
         my $mac = clean_mac($RAD_REQUEST{'Calling-Station-Id'});
-        my $port = $RAD_REQUEST{'NAS-Port'};
+        my $port = $RAD_REQUEST{'NAS-Port'} // '';
 
         # invalid MAC, this certainly happens on some type of RADIUS calls, we accept so it'll go on and ask other modules
         if ( length($mac) != 17 ) {
@@ -338,17 +339,11 @@ sub accounting {
         }
 
         my $config = _get_rpc_config();
-        my $data;
+        my $data = [ [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Accounting OK") ] ];
+        send_msgpack_notification($config, "handle_accounting_metadata", \%RAD_REQUEST);
         if ($RAD_REQUEST{'Acct-Status-Type'} eq 'Stop' || $RAD_REQUEST{'Acct-Status-Type'} eq 'Interim-Update') {
             $data = send_rpc_request($config, "radius_accounting", \%RAD_REQUEST);
-        } elsif ($RAD_REQUEST{'Acct-Status-Type'} eq 'Start') {
-            #
-            # Updating location log in on initial ('Start') accounting run.
-            #
-            $data = send_rpc_request($config, "radius_update_locationlog", \%RAD_REQUEST);
-        }
-        # Tracking IP address.
-        send_rpc_request($config, "update_iplog", {mac => $mac, ip => $RAD_REQUEST{'Framed-IP-Address'}, source => "accounting"}) if ($RAD_REQUEST{'Framed-IP-Address'} );
+        } 
 
         if ($data) {
             my $elements = $data->[0];
@@ -453,7 +448,7 @@ Copyright (C) 2002  The FreeRADIUS server project
 
 Copyright (C) 2002  Boian Jordanov <bjordanov@orbitel.bg>
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

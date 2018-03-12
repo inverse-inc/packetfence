@@ -28,7 +28,7 @@ BEGIN {
 }
 use pfconfig::manager;
 pfconfig::manager->new->expire_all;
-pf::SwitchFactory::preLoadModules() if $ARGV[0];
+pf::SwitchFactory->preloadConfiguredModules() if $ARGV[0];
 
 my @SWITCHES = (keys %pf::SwitchFactory::SwitchConfig);
 
@@ -48,7 +48,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

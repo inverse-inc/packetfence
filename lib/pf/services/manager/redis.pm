@@ -14,24 +14,26 @@ pf::services::manager::redis
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths;
-use pf::config;
+use pf::file_paths qw(
+    $conf_dir
+    $generated_conf_dir
+    $install_dir
+);
+use pf::config qw(
+    %Config
+);
 use pf::util;
 
 extends 'pf::services::manager';
-
-has '+launcher' => ( builder => 1, lazy => 1,);
-
-has '+startDependsOnServices' => (is => 'ro', default => sub { [] } );
 
 has 'redis_config_template' => (is => 'rw', builder => 1, lazy => 1);
 
 has 'redis_config_file' => (is => 'rw', builder => 1, lazy => 1);
 
-sub _build_launcher {
+sub _cmdLine {
     my ($self) = @_;
     my $config = $self->redis_config_file;
-    return "sudo -u pf %1\$s $config"
+    return $self->executable . " $config"; 
 }
 
 sub generateConfig {
@@ -77,7 +79,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

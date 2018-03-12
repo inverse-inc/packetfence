@@ -1,2 +1,0 @@
-[% form.field('sms_carriers').render | none %]
-[% form.field('create_local_account').render | none %]

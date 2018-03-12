@@ -24,7 +24,10 @@ use Try::Tiny;
 use base ('pf::Switch::Enterasys');
 
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $MAC
+    $SSID
+);
 sub description { 'Enterasys V2110' }
 
 # importing switch constants
@@ -43,24 +46,6 @@ sub supportsWirelessMacAuth { return $TRUE; }
 sub supportsRoleBasedEnforcement { return $TRUE; }
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
-
-
-=head2 parseTrap
-
-This is called when we receive an SNMP-Trap for this device
-
-=cut
-
-sub parseTrap {
-    my ( $self, $trapString ) = @_;
-    my $trapHashRef;
-    my $logger = $self->logger;
-
-    $logger->debug("trap currently not handled");
-    $trapHashRef->{'trapType'} = 'unknown';
-
-    return $trapHashRef;
-}
 
 =head2 getVersion - obtain image version information from switch
 
@@ -158,7 +143,7 @@ sub radiusDisconnect {
         my $connection_info = {
             nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
-            LocalAddr => $self->deauth_source_ip(),
+            LocalAddr => $self->deauth_source_ip($send_disconnect_to),
         };
 
         # transforming MAC to the expected format 00-11-22-33-CA-FE
@@ -183,7 +168,7 @@ sub radiusDisconnect {
     };
     return if (!defined($response));
 
-    return $TRUE if ($response->{'Code'} eq 'Disconnect-ACK');
+    return $TRUE if ( ($response->{'Code'} eq 'Disconnect-ACK') || ($response->{'Code'} eq 'CoA-ACK') );
 
     $logger->warn(
         "Unable to perform RADIUS Disconnect-Request."
@@ -235,7 +220,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

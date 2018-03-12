@@ -11,6 +11,696 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
+Version X.Y.Z released on xxxx-xx-xx
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+* Replace the ISC DHCP server with a new Golang based DHCP server (PR #2911)
+* Now supporting the Inline mode in active/active clusters (PR #2911)
+* Replaced pfdns with a new Golang based DNS server (PR #2911)
+* Allow an inline network to be split by the roles in PacketFence allowing to put specific devices in a distinct broadcast network (PR #2911)
+* DNS routing (PR #2911)
+* Dashboard metrics are now based on Netdata (PR #2935)
+* Traffic shaping support for inline setup (PR #2803)
+* Added a configuration parameter to allow to unregister a device on an accounting stop (PR #2685)
+* Adding CLI support on Aruba 5400 switches (PR #2965)
+* Username stripping (removing the realm) is now configurable via the realms instead of the sources
+* Add PacketFence integration with JAMF API for Apple computers and mobile devices management (PR #2797)
+
+Enhancements
+++++++++++++
+* Distribute pfdhcplistener task among the cluster members (PR #2887) (#2858)Remove pfsetvlan
+* Remove pfsetvlan
+
+Bug Fixes
++++++++++
+* Fixes "Guest Portal validate_phone_number check not work" (#2783)
+* fixes #2883
+
+Version 7.4.0 released on 2018-01-25
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+
+* New database access layer (DAL) for upcoming multi-tenancy support
+* New portal module to permanently set roles (PR #2490)
+* Added portal module for selecting a role for the device being registered on the portal (PR #2471)
+* Added support for Allied Telesis GS950 switches (PR #1866)
+* Added ability to update the firewall SSO on RADIUS accounting packets (PR #2662)
+* Added a way to define a VLAN by role as a VLAN pool using a VLAN range (PR #2675)
+
+Enhancements
+++++++++++++
+
+* Added cloning capability in connection profiles (PR #2814) (#2809)
+* Read and write timeouts for LDAP connections can now be set (#2613) (PR #2614)
+* Keepalived can be configured to detect its peers via unicast instead of multicast (PR #2794)
+* Suggest violation identifier when adding a new violation (#2804) (PR #2807)
+* Create a priority queue
+* Move ReAssignVlan and desAssociate API calls to the priority queue
+* Added connection profile SSID filter suggestions based on all the previous SSIDs that have been seen in the locationlog (#2758) (PR #2771)
+* Added a description to the switches in the nodes side navigation (#2791) (PR #2795)
+* Improved configuration of the captive portal timer bar (via the captive_portal section of pf.conf) (#383) (PR #2762)
+* (AD Powershell scripts) Enforce use of TLS in the powershell scripts which is required with the last versions of PacketFence (PR #2788)
+* (AD Powershell scripts) Cycle through all the possible Active Directory usernames formats in PacketFence (PR #2788)
+* Removed old authentication code sources (#2610)
+* Added rule description in listing (#2619)
+* Improved documentation (PR #2774) (#2773)
+* Set a timeout for database queries for the admin to avoid long running queries slowing the system (#2630) (PR #2659)
+* Documentation improvement about MySQL advanced parameters (#266)
+* Enhanced localization support in violation module (PR #2759)
+* Improved the haproxy HTTP process monitoring
+* Improved cluster maintenance script to perform necessary system changes to have the node in maintenance
+
+Bug Fixes
++++++++++
+* Moved add and delete buttons to the left to avoid the being cutoff (#2678)
+* Fixed "Admin: Multiple 'Device Type' options in Nodes tab" (#2789) (PR #2793)
+* Configurator: when using a different database name, the fingerbank.conf MySQL section is not updated (#2665) (PR #2787) 
+* rlm_perl modules are now using syslog instead writing directly to the file (PR #2609)
+* Prevent a valid PID from being overwritten at the end of the portal registration if the new PID is default (#2825)
+* Auth log is not set to completed after email registration (#2648) (PR #2649)
+* Fixed redirects when previewing profiles that use OAuth source (#2882) (PR #2908)
+
+Version 7.3.0 released on 2017-09-25
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+
+* Added a RADIUS only mode to PacketFence.
+* Add a cluster wide view of pfqueue statistics (#2195) (PR #2573)
+* Added the possibility of importing switches from a CSV file. (PR #2480)
+
+Enhancements
+++++++++++++
+
+* The GUI will now display the VLAN in the locationlog view
+* The timezone is now a selectable item to prevent invalid input
+* Updated ACE text editor to version 1.2.8
+* Search forms for nodes and users can now be reset (PR #2555)
+* Configuration files can now be saved in readonly mode except violation, switches, role (#2464) (PR #2566)
+* Extended descriptions are now supported in the custom reports
+* Mail can now be sent using SSL and StartTLS (PR #2446)
+* Self signed certificate errors for nessus 6 can now be ignored (PR #2568)
+* Violations can now be triggered by nessus 6 scanner (PR #2568)
+* The device registration page now supports connection profiles like any other portal
+* The username sent in firewall SSO now supports a configurable format (PR #2499)
+* PacketFence will now monitor TLS certificates expiration and alert if they are expired (PR #2444)
+* LDAP source caching is now caching the rule match rather that the whole source match (PR #2560)
+* The admin GUI startup time has been decreased (#2545)
+* New and improved documentation for Debian clustering
+* Show DHCP Option82 data in the node view (#2396)
+* Custom reports columns representing a node or a user can now be configured to be clickable for details on the object in question (#PR 2508)
+* New Fortigate 50E 802.1x support
+* The computer authentication username can now be normalized when using EAP-TLS (PR #2414)
+* Added a task count jitter to reduce the chance that pfqueue workers exit at the same time
+* Experimental support for Content Security Policy (CSP) has been added, but is disabled by default (PR #2336)
+* A violation can now redirect to a URL specified in a template (PR #2400)
+* Changed the path of mariadb error log file (PR #2652)
+
+Bug Fixes
++++++++++
+
+* The syslog parser has moved from Compliance to Integration in the GUI (#2467)
+* pfsso now logs in packetfence.log (#2553) (PR #2557)
+* httpd.dispatcher now logs in httpd.dispatcher.log (PR #2557)
+* Fixed incorrect inline sub type detection
+* Fixed ipset update with the incorrect ip address 
+* Fixed missing confirm prompt when restarting all services via the admin interface (#2365) (PR #2571)
+* Fixed violation definition sync when removing a violation from the config
+* Fixed incorrect Connection-Type when using EAP-TTLS (#2582)
+* Fixed VOIP logic to reduce the chance of duplicate locationlog entries (#2527)
+* Fixed SNMP connection issues on Extricom controllers
+* Fixes segfaults when logging in the multithread environments (#2603)
+* reuseDot1x: Changed the way authentication sources are matched with realms regarding a security concern(#2536)
+* Trust the wsrep_ready flag of MariaDB Galera cluster for read only detection as putting the DB in read-only can result in occasional de-synchronization between members. (#2593) (PR #2594)
+* Run the configreload as the pf user when done through pfcmd (PR #2510)
+* Run the 6.0+ upgrade scripts as the pf user to prevent permissions issues after running them (PR #2509)
+* Fixed incorrect NULL realm use when authenticating to the admin GUI (#2529)
+* Enforced use of the system time instead of browser time when using preset time values (#2559)
+* Logging into the status page when reuse dot1x is enabled is no longer broken (#2542) (PR #2598)
+
+Version 7.2.0 released on 2017-07-10
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+
+* Added support for authenticating users through OpenID Connect (PR #2394)
+* Added passthroughs for devices in violation state (isolation network) (PR #2328)
+* Added ability to report a device lost or stolen in self-service portal (PR #2337)
+* Added ability to change a local account password in self-service portal (PR #2337)
+* Improved overall user experience of self-service portal (PR #2337)
+
+Enhancements
+++++++++++++
+
+* Use the attributes returned by a radius use source as attributes to compute the rules (PR #2369)
+* Most services now support systemd sd_notify notifications.
+* The GUI will now only display readonly actions in readonly mode (PR #2384)
+* Journald total file size is now capped at 1Gb (PR #2389)
+* The GUI will now allow sources to be cloned (PR #2395)
+* The GUI now visually splits Administration and Authentication rules when viewing sources (PR #2395)
+* The GUI now has the ability to run "fixpermissions" from the web admin GUI (PR #2398)
+* haproxy captive portal rate-limiting is now configurable (PR #2422)
+* winbindd will now use the regular samba mechanisms to locate and select DCs (PR #2410)
+* New pfcmd command pfcmd pfqueue clear_expired_counters to clear the expired task counters (PR #2433)
+* Allow to disable the captive portal haproxy abuse access lists (#2418)
+
+Bug Fixes
++++++++++
+
+* Added a cleanup of the number in the SMS source (#1966)
+* TLS certificates and keys will no longer be overwritten (#2366)
+* Limit the amount of tasks a worker processes to avoid memory from growing
+* Fixed a case where the REJECT role isn't honored in inline and some web-auth (#2383)
+* Sponsor authentication CC address is now BCC to help preserve privacy (#2267)
+* Use plain HTTP for network access detection page (#2393)
+* Fixed an issue where DHCP broadcast were treated more than once in clustered mode (PR #2413) (#2408)
+* Fixed incorrect user login remaining count display (#2450)
+* Fixed a case where pfqueue counters show a count of 0 although queue is full (#2420)
+* node_discovered is no longer triggered when node hasn't been created in DB (#2436)
+* Detect date was not being populated when nodes were discovered via radius (#2424)
+* Fixed leftover httpd processes when restarting (#2439)
+* Mariadb binary logs files are now properly rotated (#2440)
+* Fixed scss settings and colors being wiped on each upgrade (#2317)
+* pfdns: catch all the dns traffic in the registration network (#2381)
+
+Version 7.1.0 released on 2017-06-01
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+
+ * Added support for web authentication (external captive-portal) on Ubiquiti Unifi Controller
+ * New Firewall/SSO (JSON-RPC) for communicating with custom firewalls (PR #2320)
+ * VoIP detection: LLDP lookup enhancement (#2227) (PR #2316)
+
+Enhancements
+++++++++++++
+
+ * Add a button to access status from device registration and the other way around(PR #2259)
+ * Added the ability to specify multiple DNS server(s) for domain join configuration (PR #2223)
+ * Allow to force a predefined sponsor during sponsor authentication (PR #2150)
+ * Updated pfdns default filters (PR #2165)
+ * Added brands icons to authentication source (i.e Twitter, PayPal etc ..) in the administration interface (PR #2287)
+ * Allow pfqueue workers to perform work across multiple queues (PR #2260)
+ * Added a way to set time and bandwidth balance in action rule (requires accounting to work) (PR #1936)
+ * Don't display the mobileprovider field when doing SMS authentication with only one carrier enabled (PR #2322)
+ * Added new reports in the administration interface (PR #2313)
+ * Apache based services now support systemd sd_notify (PR #2351)
+
+Bug Fixes
++++++++++
+
+ * Dashboard metrics are now fetched over https (#2272)
+ * Renamed Ubiquity to Ubiquiti (PR #2293)
+ * Set up variable GOPATH correctly while setting up developer environment for go (PR #2319)
+ * Fix too large scoping of authentication sources (#2338)
+ * Prevent usage of a 'Null' source in the device registration page (#1784)
+ * Fixes duplicate nodes displaying when there are multiple locationlog entries (#1848)
+ * Fixed an issue with the Instagram OAuth2 source, where the scope has been modified on the API
+ * Fixed and issue where the logging configuration was ignored for httpd.aaaa and httpd.webservices (#2350)
+
+Version 7.0.2 released on 2017-05-19
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bug Fixes
++++++++++
+
+ * Fixed issue with ip4log cleanup job when rotation was enabled (#2358 and #2359)
+ * Adjusted default ip4log retention to match what was in PacketFence version 7 and below
+ * Make REJECT role have precedence over bypass role and VLAN
+ * Make VLAN filters have precedence over bypass role and VLAN
+ * Fix useless sessions being created in web-auth in the dispatcher (#2352)
+ * Load liblasso during runtime in order to prevent a segfault of Apache on Debian 8.8 (#2342)
+ * Fix syntax error in the guest_sponsor_preregistration email template
+ * Fix previewing email templates in the admin
+
+Version 7.0.1 released on 2017-05-19
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bug Fixes
++++++++++
+
+ * Fixed incorrect locationlog entry when performing RADIUS CoA (#2222)
+ * Twilio: "To" phone number is being stripped of any "+" sign (#2296)
+ * Fixed radiusd load-balancer failing to start in cluster with eduroam (#2303)
+ * Fix authentication sources ordering issue for portal modules when using the administration interface (#2323)
+ * Fix innobackup tmp directory when used with Galera cluster
+ * Fix width of auth sources conditions fields (#2312)
+ * Fixed admin login when only allowed to see auditing section
+ * Fixed locationlog entries for VOIP devices when no voice VLAN is defined (#2314) 
+ * Fixed authentication sources cache in connection profile (#2309) 
+ * Fixed loose matching of host in haproxy dispatcher (#2299) 
+ * Fixed lost MySQL handle errors in pfconfig
+ * Handle sources activation host in haproxy dispatcher (#2266)
+ * Fixed incorrect handling of unregistration year 
+ * Fixed incorrect LDAP error when user not found
+ * Fixed file cloning in connection profile
+ * Fixed display of roles in admin GUI
+ * Fixed unregistration date handling when it is over 2038 (#2269)
+ * Fixed logging errors for undefined values
+ * Fixed queues blocking when forking
+ * Fixed pagination in GUI node search
+ * Fixed OS type display in status page
+ * Fixed URL for connection profile preview
+
+Version 7.0.0 released on 2017-04-19
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+
+ * Added provisioning support for SentinelOne (PR#1294)
+ * Added MariaDB Galera cluster support (PR#2002/PR#2023/PR#2039/PR#2040/PR#2041/PR#2043/PR#2044/PR#2070/PR#2076/PR#2079/PR#2080/PR#2082/PR#2090)
+ * All services are now handled by systemd (PR#2010)
+ * IPv6 network stack in PacketFence (PR#2024)
+ * New Golang-based HTTP dispatcher (#1301/PR#2029/PR#2067)
+ * New Golang-based pfsso service to handle the firewall SSO requests (#1144/PR#2037/PR#2062)
+ * Revamped the Web administration interface (PR#2108)
+
+Enhancements
+++++++++++++
+
+ * SNMP traps are now handled in pfqueue (PR#1656)
+ * Added the ability to grant CLI write access for Extreme Networks switches (PR#1699)
+ * Added a distributed cache for the accounting information to safely disable the SQL accounting records in active/active clusters (PR#1715)
+ * Reduced the number of ipset calls when adding ports for Active Directory (PR#1886)
+ * pfmon tasks have their own configuration file (PR#1918)
+ * new command "pfcmd pfmon" - for running pfmon tasks via pfcmd (PR#1918)
+ * CentOS repositories (packetfence and packetfence-devel) packages are now signed (PR#1946)
+ * Added way to unregister devices that were inactive for a certain amount of time (maintenance.node_unreg_window) (PR#1948)
+ * Added a new last_seen column to nodes table to track their last activity (Authentication, HTTP portal, DHCP) (PR#1948)
+ * Delete nodes based on the new last_seen column instead of looking at the last DHCP packet (PR#1948)
+ * iplog: Floored lease time for "tolerance" (#1965/PR#1968)
+ * Can now restart the switchport where a node is connected from the administration interface (PR#2006)
+ * Added interface description to location entries (PR#2007)
+ * New pffilter filtering engine (PR#2032)
+ * Ability to manage multiple "active" endpoints behind a single switchport (PR#2034)
+ * pfdhcplistner now runs as a master-worker style service (PR#2036)
+ * Added a winbindd wrapper for the PacketFence managed winbindd processes (#2065/PR#2038/PR#2069)
+ * Added a caddy middleware for rate limiting the concurrent connections (PR#2055)
+ * Updated the Ruckus SmartZone module to use the most recent webauth technique available (PR#2059/PR#2088)
+ * Added vsys support for PaloAlto firewall SSO modules (PR#2061)
+ * Portal Profile has been renamed to Connection Profile (PR#2066)
+ * Moved common flows / process of DHCP processors in base class (PR#2086)
+ * Removed PacketFence-Authorization-Status attribute from the RADIUS replies to prevent RADIUS replies from being discarded due to an unknown attribute (#2085/PR#2087)
+ * Added option to fetch users one by one in the NTLM cache instead of all together (PR#2093)
+ * New parallel testing infrastructure (PR#2094)
+ * Roles are now stored in a configuration file for easier backup and management (PR#2097)
+ * Tightened up HAproxy's SSL termination security (#893/#410/#411/#412)
+ * Tightened up Apache's encryption security by requiring TLS v1.2 support only and restricted cipher suites (#893/#410/#411/#412)
+ * Clickjacking attack prevention enforcement for recent browsers (PR#2111)
+ * Cross-site scripting (XSS) filtering is now requested from your browser (PR#2114)
+ * Dell N2000 series support (#675/PR#2115)
+ * All logging is now done through syslog (PR#2124)
+ * IP forwarding is now activated by default per PacketFence package installation (#2145/PR#2146/PR#2148/PR#2149)
+ * Added more fine grain stats for the captive portal (#1962/PR#2173)
+ * Many documentation improvements (PR#2136/PR#2214)
+
+Bug Fixes
++++++++++
+
+ * Fixed addition of an UDP SRV record port as a TCP port (PR#1886)
+ * Restored pf::api compatibility to Sourcefire module (#2048/PR#2019)
+ * Avoid opening a double entry with wrong accounting values (PR#2113)
+ * Added the ability to "format" the CN when using PKI (#2116/PR#2119)
+ * pfdhcplistener doesn't work on a monitor interface (#1377)
+ * pfqueue stats: Outstanding Task Counters isn't accurate (#1726)
+ * pfdhcplistener: Segfaulting when keepalived transitions quickly from backup/master/backup (#1737)
+ * pfdhcplistener takes a minute to die (#1791)
+ * captive-portal: i18n labels for dynamic fields (#1911)
+
+
+Version 6.5.1 released on 2017-02-24
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bug Fixes
++++++++++
+ * Fix incorrect node cleanup job handling.
+ * Fix multiple firewall SSO not working when cached updates were enabled.
+ * Removed usage of pf_memoize which could create a race condition when adding a node.
+ * Fix incorrect locationlog informations because of a null role.
+ * Fixed syntax error in generated Suricata rules
+ * Fixed the Portal preview through the admin
+ * Fixed issue extracting the SSID from the switch HP::Controller_MSM710
+
+Version 6.5.0 released on 2016-01-30
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+ * Twilio support as authentication source (PR#1951)
+ * New Redis driven cache for NTLM (Active Directory) 802.1X authentications (PR#1885)
+ * New Firewall SSO for WatchGuard (PR#1851)
+ * Syslog based SSO support for Palo Alto firewalls (PR#1859)
+ * Ubiquiti EdgeSwitch support (PR#1816)
+ * New syslog receiver to update the iplog from Infoblox and ISC DHCP syslog lines (PR#1868)
+ * Can now specify specific ports for passthroughs (#1078/PR#1926)
+
+Enhancements
+++++++++++++
+ * Added a RADIUS filter scope for VoIP devices (PR#1807)
+ * Ability to customize the OU in which the machine account will be created (#1927)
+ * Added new routes service to manage static routes (PR#1891)
+ * Added an authentication source that prompts for the password of a predefined user (PR#1810)
+ * Added Aruba webauth documentation (PR#1949)
+ * Eduroam authentication sources can now match rule (PR#1940)
+ * Maintenance patching can now use git in order to ignore files that shouldn't be patched via the maintenance script (#807/PR#1931)
+ * Can now print multiple guest passes per page without the AUP in the administration interface (#1409/PR#1930)
+ * Allow to whitelist unregistered devices from violations (#1278/PR#1929)
+ * Changed password.valid_from default value to "0000-00-00 00:00:00" so its value is valid across the whole application (#1920/PR#1922)
+ * Added Percona xtrabackup restore procedure documentation (#1646/PR#1919)
+ * Added a way to track if files backups and database backup succeeded (PR#1904)
+ * pfmon will not register and start a process for disabled task (PR#1899)
+ * Added a way to define two different ports for disconnect and CoA (PR#1894)
+ * Configurator database step now takes care of 'mysql_secure_installation' (PR#1878)
+ * Improved clustering guide for MariaDB and systemd (PR#1875)
+ * Added a portal module action to skip other actions (PR#1869)
+ * Reduced p0f CPU usage (PR#1867)
+ * Updated collectd in order to have new graphs (PR#1863)
+ * Do not "match" a rule if "requested" action if not configured in it (#1858/PR#1861)
+ * Improved monit checks accuracy (PR#1849)
+ * Rate limited the DHCP listener processes to prevent specific devices from performing a denial of service on the DHCP listening processes (#1722/PR#1845)
+ * Improved performance of radacct database table cleanup (PR#1839)
+ * Email templates can now be specified on a per-portal basis (#1322/PR#1823)
+ * Added CLI login support for HP Procurve switches (#1710)
+ * Added support for Ruckus SmartZone using web auth enforcement
+ * Revamped default colours of the captive portal to a more neutral/grayish theme
+
+Bug Fixes
++++++++++
+ * Fixed iplog rotation retention configuration not always using the right param (#1896)
+ * Reworked and "simplified" the logic of filtering authentication source for a realm (PR#1943)
+ * Ability to customize the OU in which the machine account will be created (#1927/PR#1928)
+ * Now limiting dates to 2038-01-18 in admin interface (#1126/PR#1923)
+ * Remove unused configfile database table (PR#1902)
+ * Enable haproxy on portal interface (PR#1893)
+ * Prevent logging failure from making a process die (#1734/PR#1862)
+ * pfmon should run on every server in active-active (#1852/PR#1853)
+ * Removed the use of pf::cache::cached (#695/PR#1820)
+ * Removed error when we receive a RADIUS request to test the RADIUS status (PR#1803)
+ * Refactored pf::node::node_register to add return code and status code/message (#1797/PR#1798)
+ * Removed unused traplog database table (#367/PR#1785)
+ * RADIUS disconnect doesn't work on the Ruckus switch module (#1971/PR#1988)
+
+
+Version 6.4.0 released on 2016-11-16
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+
+* Added Mojo Networks WiFi equipment support (PR#1765)
+* Made Web admin reports more interactive (PR#1731)
+* Added new Eduroam authentication source type (PR#1642)
+* Allow to create different portal templates based on the browser locale (PR#1638)
+
+
+Enhancements
+++++++++++++
+
+* Improved IP log performance (PR#1832 / PR#1828 / PR#1790)
+* Added fault tolerance on RADIUS monitoring scripts (PR#1831)
+* Improved the database and maintenance backup script (PR#1830)
+* Added password caching support for Novell eDirectory (PR#1829)
+* Improved caching of LDAP person data (PR#1826)
+* Improved clustering documentation (PR#1825)
+* Added RADIUS command line interface support on port 1812 (PR#1817)
+* Removed useless htaccess file search for each HTTP request (PR#1806)
+* Turned off HTTP KeepAlive to avoid connections holding onto Apache processes (PR#1801)
+* Added Cisco MSE documentation (PR#1799)
+* Ability to query 'iplog_archive' table for detailed IP/MAC history (PR#1793)
+* Now also display the status for sub services from the Web interface (#1040 /PR#1792)
+* Requests made with username 'dummy' will not be recorded in the RADIUS audit log anymore (PR#1789)
+* More lightweight p0f processing (PR#1788)
+* Remove useless logging in pfdns.log (PR#1782)
+* Added an activation timeout on sponsor source (PR#1777)
+* Improved captive portal logging (PR#1769)
+* Allow the OAuth landing page template to be customizable (PR#1767)
+* Use RESTful call for RADIUS accounting instead of Perl (#1760)
+* Optimized getting node information from the database (PR#1753)
+* New action generateconfig for pfcmd service command (PR#1744)
+* Added memory limitation for httpd.portal processes (PR#1738)
+* Added predefined search in RADUIS audit log and DHCP Option 82 log (PR#1716)
+* Improved display of fingerprinting informations in the nodes search (PR#1709)
+* Allow captiveportal::Form::Authentication to be customize (PR#1666)
+* Default config overlay for switches.conf, profiles.conf, pfqueue.conf and violations.conf (PR#1647)
+* Optimized queries for finding open violations (PR#1718) 
+
+Bug Fixes
++++++++++
+
+* Fixed floating devices in active/active clusters (PR#1800)
+* Fixed and improved syntax of `pfcmd ipmachistory` (#1794)
+* Fixed wrong bandwidth calculation on RADIUS accounting (#1733)
+* Fixed empty Calling-Station-Id in RADIUS accounting (PR#1756)
+* Make sure connection caches are cleared after forking (#1748 / #1749 / PR#1751)
+* Added a workaround for DHCP clients that do not respect short lease times (#1673)
+* Added namespace parameter in WMI rule (PR#1633)
+* Fixed non-working switch ranges with external portal (#1574 / PR#1613)
+* Joining a domain will sometimes return a 500 even though it succeeded (#1821/#1818)
+* Cisco WLC ignores our CoA requests but accepts our Disconnect Requests (#1819)
+* pfdetect: pipe is closing when no content (#1814)
+* Condition `is a Phone` in RADIUS audit log is not working properly (#1813)
+* Condition AutoRegistration in RADIUS audit log is not working properly (#1812)
+* Configurator: Status on the services doesn't work (#1811)
+* Invalid SQL for iplog_cleanup_sql (#1802)
+* Added request cache support (#1775)
+* Added stack trace logging (#1774)
+* Removed redundant SQL indexes (#1773)
+* Removed unused code in pf::locationlog (#1772)
+* Fixed missing fields in RADIUS audit log (#1395)
+* Fixed RADIUS audit log hours selection (#1364)
+
+
+Version 6.3.0 released on 2016-10-05
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+
+* Added EAP-FAST support 
+* MySQL is now supported as the Fingerbank database backend
+* Integration with Cisco MSE adds maps, location based portals and notifications
+* Added the ability to locate a device based on DHCP Option 82
+* Added support for Meraki wired switches
+* New SQL reporting allows creation of personalized reports
+
+Enhancements
+++++++++++++
+
+* Added support for Brocade CLI RADIUS authentication
+* Added support for OpenWrt Chaos Calmer 15.05 with hostapd
+* Added configuration conflict handling for active/active clusters
+* Fingerbank configuration is now cached
+* Removed the pf/var directory from the backups to make them smaller
+* Fingerbank is now configurable from the initial PacketFence configurator
+* Added support for Xirrus switches CLI RADIUS authentication
+* Pinterest and Instagram are now supported as OAuth authentication sources
+* Support for Suricata md5 extraction over SMTP protocol 
+* Added sample monit helper scripts under pf/addons
+* Added support for custom AUP template per portal module
+* Several improvements to Fingerbank to make it more user-friendly
+* Added option to export nodes and users within the web administration interface
+* Third parties can now extend what can be matched in profile filters
+* PacketFence created interfaces will now be excluded from Red Hat's NetworkManager
+* Added the ability to restrict the modification of node roles by a user
+
+
+Bug Fixes
++++++++++
+
+* Added timeout to captive portal to prevent long running requests (#1570)
+* Do not start pfqueue processes for pfdetect if it's not running (#1593)
+
+Version 6.2.1 released on 2016-07-08
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Enhancements
++++++++++
+
+* Forbid trace mode in Apache default configuration
+* Improved validation of portal modules configuration
+
+Bug Fixes
++++++++++
+
+* Fixed Debian 7 failing to start httpd.admin
+* Fixed missing Metadefender configuration section
+* Fixed missing parameter for fetchVlanForNode in pfsetvlan
+* Fixed incorrect NAS-Port use for RADIUS CoA on Cisco WLCs
+* Fix incorrect domain handling in Active/Active
+
+
+Version 6.2.0 released on 2016-07-05
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bug Fixes
++++++++++
+
+* Added missing index to radacct table (fixes #1586)
+* Fixed searching nodes for "all" devices (fixes #1584)
+* Fixed invalid destination URL parsing
+* Fixed handling of provisioner return code in violations
+* Fixed binding of IP addresses in Active/Active mode
+* Fixed cluster status page issues with pid files
+* Fixed missing person lookup when using 802.1x autoregistration
+* Fixed permission issue on logrotation
+* Fixed invalid i18n of MAC address in node location view (fixes #1591)
+* Fixed L2 cache write error of new switches namespaces
+
+
+Version 6.1.1 released on 2016-06-22
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bug Fixes
++++++++++
+
+* Fixed missing schema version insert in database upgrade script
+* Fixed too short CA cert validity in raddb/certs/passwords.mk
+
+Version 6.1.0 released on 2016-06-21
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+
+* Added support for CoovaChilli capable equipment
+* Added page to visualize the status of the services on all cluster members
+* Added support for RADIUS Change of Authorization on Meraki
+* Added configurable actions to be executed at the end of a portal module
+* Automatic registration of devices is now configurable from the GUI on a per profile basis
+* Added switch and switch group in violation trigger
+* Added switch group as a portal profile filter
+* Moved RADIUS audit log in its own module
+* Saved searches support for the RADIUS audit log module
+* The portal now supports RADIUS Challenge Response authentication
+
+Enhancements
+++++++++++++
+
+* Added module to redirect to internal or external pages within the portal modules configuration
+* Added configuration checkup for cluster.conf
+* Added ability to limit the number of logins when creating a local account
+* Added choice of sending either RADIUS CoA or Disconnect when deauthenticating a device
+* Admin interface is now available on all members of the cluster without the need of being the master
+* FreeRADIUS now logs to a separate file per process (authentication, accounting, load-balancer)
+* Improved performance of the online/offline search
+
+Bug Fixes
++++++++++
+
+* Fix profile filter saving incorrectly on Debian Jessie
+* Numerous improvements to i18n in the portal and administration GUI
+* Fixed e-mail registration not working when activating access through a proxy or firewall
+* Authentication log (auth_log) will now be cleaned automatically via pfmon (#1511)
+* Fixes incorrect graphite aggregation of metrics when data should not be averaged
+
+Version 6.0.3 released on 2016-06-02
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bug Fixes (bug Id is denoted with #id)
+++++++++++++++++++++++++++++++++++++++
+
+* Fixed example in vlan filters showing incorrect operand for user_name
+* Fixed the display of the aup when printing a user
+* Fixed email_instructions blocking email registration
+* Fixed FreeRADIUS dynamic clients hanging the server when the database fails to respond (#1500)
+* Fixed violation_add when applying one through bulk actions (#1510)
+* Fixed sessions remembering failed authentication sources
+* Fixed to listen to DHCPREQUEST in registration  network when in cluster mode
+
+
+Version 6.0.2 released on 2016-05-26
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bug Fixes (bug Id is denoted with #id)
+++++++++++++++++++++++++++++++++++++++
+
+* Fixed pfdns to prevent pid file deletion when a child dies (#1444)
+* PacketFence will now handle the case where a source in the session is not available anymore
+* Fixed missing PID when using device registration (#1447)
+* Fingerbank update will no longer sync all servers anymore 
+* VoIP detection flags default will now be undef in admin interface
+* Suricata renamed to suricata_event in violations.conf.example
+* The captive portal will now handle User Agent strings properly
+* PacketFence will now delete the user (not device) session after activating sponsor
+* Fixed incorrect MAC address formatting in the reporting section of the GUI
+* Fixed "reuse dot1x credentials" in captive portal
+* Fixed incorrect SNMP traps handling
+* Fixed incorrect MAC address handling in radius accounting
+* Added a check to database backup script for mariadb
+* Fixed unregistration date handling when using email registration
+
+Version 6.0.1 released on 2016-04-28
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bug Fixes (bug Id is denoted with #id)
+++++++++++++++++++++++++++++++++++++++
+
+* Added back the option to set the logo in a portal profile
+* Fixed Blackhole and Null authentication portal modules (#1439)
+* Added missing username field in Debian maintenance crontab
+* Fixed web authentication web form release in captive portal 
+* Validate configuration identifiers so they don't contain invalid characters (#1417)
+* Fixed incorrect samba handling of "%h" in server name
+* Fixed registration ACL computing for Cisco WLC and 2960 in web authentication
+* Adjust pfdetect startup order to allow Snort / Suricata to start 
+* Fixed pfsetvlan compilation error
+* Fixed violations internationalization
+* Fix incorrect rogue dhcp detection
+
+Version 6.0.0 released on 2016-04-19
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+
+* Fully redesigned frontend and backend of the captive portal
+* 'Parking' state for unregistered devices (where it will have a longer DHCP lease time and will only access a lightweight portal)
+* CentOS 7 and Debian 8 (Jessie) support
+* RADIUS support for Avaya switches
+* pfdns filter engine (added a way to return custom answers in pfdns)
+* Redirect URL are defined in Role by Web Auth URL switch configuration (Cisco)
+* Added support for Captive-Portal DHCP attribute (RFC7710)
+* Added Google Project Fi as a SMS carrier for SMS signup option
+* FreeRADIUS 3 support with Redis integration
+
+Enhancements
+++++++++++++
+
+* Added ability to expire users
+* Automatically update all the Fingerbank databases (Redis, p0f, SQLite3)
+* Do not allow the TRACE method to be used in any of the web processes
+* Can now limit the maximum unregdate an administrator can set to a person
+* Added option to disable the accounting recording in the SQL tables
+* Added caching of the latest accounting request for use in access reevaluation
+* Reduced the number of webservices calls during RADIUS accounting
+* Added configuration for Apache 2.4 with Template Toolkit
+* Added a timer for each RADIUS request (radius audit log)
+* Assign the voice role to VoIP devices when PacketFence detects them
+* Renamed VLAN to Role in admin gui violation
+* Unregister a node from a secure connection to an unsecured one is now managed by the VLAN filters
+* Location history of a node show the role instead of the VLAN id
+* Documentation to configure Cisco switches with Identity Networking Policy
+* Trigger violation on source or destination IP address if they are in the trapping range networks
+* Performance improvement for VoIP detection
+* Added new RADIUS filter return option (random number in a range)
+* Reinstated iplog (iplog_history and iplog_archive) rotation/cleanup jobs performed by pfmon
+ 
+Bug Fixes (bug Id is denoted with #id)
+++++++++++++++++++++++++++++++++++++++
+
+* Compute unregistration for secure connections
+* Fixed unescape value in LDAP search
+* Fixed Apache 2.4 core dump
+* Fixed update locationlog from accounting start with the wrong connection type
+ 
 Version 5.7.0 released on 2016-02-17
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -158,7 +848,7 @@ Enhancements
 * Added ability to e-mail device owner as a violation action
 * The PacketFence syslog parser (pfdetect) has been reworked to allow multiple logs to be parsed concurently
 * New ntlm_auth wrapper will log authentication latency to StatsD automatically
-* Handle Microsoft Windows based captive-portal detection mecanisms
+* Handle Microsoft Windows based captive-portal detection mechanisms
 * Manage pfdhcplistener status with keepalived and run pfdhcplistener on all cluster's members
 * New portal profile filter (sub connection type)
 * Added switch IP and description in the available columns in the node list view
@@ -1153,5 +1843,4 @@ Translations
 ++++++++++++
 
 * Translated all remediation pages to French
-* Updated Brazilian Portuguese (pt_BR) translation
-* Updated Spanish (es) translation
+* Updated Brazilian Portuguese (pt_BR)

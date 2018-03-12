@@ -15,7 +15,6 @@ use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
 
 use pf::constants qw($TRUE);
-use pf::config::cached;
 use File::Slurp;
 use pf::constants::filters qw(%FILTERS_IDENTIFIERS %CONFIGSTORE_MAP %ENGINE_MAP);
 use pfconfig::manager;
@@ -83,8 +82,9 @@ Update a filters configuration
 sub update :Chained('object') :PathPart :Args(0) {
     my ($self, $c) = @_;
     $c->stash->{current_view} = 'JSON';
-    
-    pf::util::safe_file_update($c->stash->{object}->configFile, $c->request->param('content')); 
+
+    pf::util::safe_file_update($c->stash->{object}->configFile, $c->request->param('content'));
+    $self->audit_current_action($c, configfile => $c->stash->{object}->configFile );
 
     my $manager = pfconfig::manager->new;
     # Try to build the engine and look for any errors during the creation
@@ -96,8 +96,6 @@ sub update :Chained('object') :PathPart :Args(0) {
         $c->response->status(HTTP_BAD_REQUEST);
     }
     else {
-        # Reload the pf::config::cached cache
-        pf::config::cached::ReloadConfigs($TRUE);
         # Reload it in pfconfig and sync in cluster
         my ($success, $msg) = $c->stash->{object}->commitPfconfig();
         unless($success){
@@ -126,7 +124,7 @@ sub _clean_error {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -147,7 +145,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;
 

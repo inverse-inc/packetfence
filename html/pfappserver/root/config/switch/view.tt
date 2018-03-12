@@ -59,7 +59,13 @@
         </div>
         [% form.field('AccessListMap').render | none %]
         [% form.block('access_lists').render | none %]
-
+        <div class="control-group">
+          <div class="controls">
+            <h6>[% l('Role mapping by WebAuth URL') %]</h6>
+          </div>
+        </div>
+        [% form.field('UrlMap').render | none %]
+        [% form.block('urls').render | none %]
       </div><!--tab-pane-->
 
       <div class="tab-pane fade" id="switchInline">
@@ -75,8 +81,8 @@
                     [% trigger.field('value').render_element | none %]
                   </td>
                   <td class="action">
-                    <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
-                    <a class="btn-icon" href="#delete"><i class="icon-minus-sign"></i></a>
+                    <a class="btn-icon" href="#add"><i class="icon-plus-circle"></i></a>
+                    <a class="btn-icon" href="#delete"><i class="icon-minus-circle"></i></a>
                   </td>
                 </tr>
                 [% END -%]
@@ -111,7 +117,7 @@
             <div class="control-group">
               <label class="control-label" for="pid">Add member</label>
               <div class="controls">
-                <input name="newMember" id="newMember" value="" data-provide="typeahead" placeholder="Add a member" type="text">
+                <input name="newMember" id="newMember" value="" data-provide="typeahead" placeholder="[% l('Add a member') %]" type="text">
                 <button name="addNewMember" id="addNewMember" data-group="[% item.id %]" class="btn btn-mini btn-success">+</button>
               </div>
             </div>
@@ -121,7 +127,7 @@
                 <th>Identifier</th>
                 <th>Description</th>
               </tr>
-              <tr class="[% ' hidden' IF item.members.keys.size > 0 %]">
+              <tr class="[% ' hidden' IF item.members.keys.size %]">
                 <td colspan="3">
                 <div id="switchMembersEmpty" class="unwell unwell-horizontal">
                   <p>
@@ -155,13 +161,9 @@
   </div><!--modal-body-->
 
   <div class="modal-footer">
+    [% IF can_access("SWITCHES_UPDATE") %]<a href="[% c.uri_for(c.controller('Config::Switch').action_for('invalidate_cache'), [ item.id ]) %]" id="invalidate_cache" class="btn btn-danger pull-left"> [% l('Invalidate cache') %]</a>[% END %]
     <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
     [% IF can_access("SWITCHES_UPDATE") %]<button class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>[% END %]
   </div>
 
 </form>
-<script>
-    $('input[type="password"][pfpass="1"]').each(function(i,e){
-        e.readonly = 0;
-    });
-</script>

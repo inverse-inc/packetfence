@@ -19,7 +19,7 @@ use warnings;
 
 use pfconfig::namespaces::config;
 use Config::IniFiles;
-use pf::file_paths;
+use pf::file_paths qw($admin_roles_config_file);
 use pf::constants::admin_roles;
 
 use base 'pfconfig::namespaces::config';
@@ -42,6 +42,7 @@ sub build_child {
     }
     $ADMIN_ROLES{NONE}{ACTIONS} = {};
     $ADMIN_ROLES{ALL}{ACTIONS} = { map { $_ => undef } @pf::constants::admin_roles::ADMIN_ACTIONS };
+    $ADMIN_ROLES{ALL_PF_ONLY}{ACTIONS} = { map { $_ => undef } grep {$_ !~ /^SWITCH_LOGIN_/} @pf::constants::admin_roles::ADMIN_ACTIONS };
 
     foreach my $key ( keys %ADMIN_ROLES ) {
         $self->cleanup_after_read( $key, $ADMIN_ROLES{$key} );
@@ -54,12 +55,13 @@ sub build_child {
 sub cleanup_after_read {
     my ( $self, $id, $item ) = @_;
 
+    delete $item->{actions};
+
     # Seems we don't need to do it for the HASH, but I'll leave it here
     # just in case. Remove this when confirmed everything works fine
     #    $self->expand_list($item, qw(actions allowed_roles allowed_access_levels));
 }
 
-=back
 
 =head1 AUTHOR
 
@@ -67,7 +69,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

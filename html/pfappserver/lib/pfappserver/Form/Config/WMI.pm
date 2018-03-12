@@ -24,6 +24,17 @@ has_field 'id' =>
    label => 'Name',
    required => 1,
    messages => { required => 'Please specify a name for the scan engine' },
+   apply => [ pfappserver::Base::Form::id_validator('name') ]
+  );
+
+has_field 'on_tab' =>
+  (
+   type => 'Checkbox',
+   label => 'On Node tab',
+   checkbox_value => '1',
+   unchecked_value => '0',
+   tags => { after_element => \&help,
+             help => 'Scan this WMI element while editing a node' },
   );
 
 has_field 'request' =>
@@ -32,6 +43,15 @@ has_field 'request' =>
    label => 'Request',
    required => 1,
    messages => { required => 'Please specify the sql request like "select * from Win32_Product"' },
+  );
+
+has_field 'namespace' =>
+  (
+   type => 'Text',
+   label => 'Namespace',
+   required => 1,
+   default => 'ROOT\cimv2',
+   messages => { required => 'Please specify the namespace you want to use "ROOT\cimv2"' },
   );
 
 
@@ -48,7 +68,7 @@ has_field 'action' =>
 
 has_block definition =>
   (
-   render_list => [ qw(request action) ],
+   render_list => [ qw( on_tab namespace request action) ],
   );
 
 sub filter_inflate {
@@ -71,7 +91,7 @@ sub filter_deflate {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -92,5 +112,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

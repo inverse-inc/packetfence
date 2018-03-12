@@ -14,12 +14,14 @@ use strict;
 use warnings;
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
-with 'pfappserver::Base::Form::Role::Help';
+with qw(
+    pfappserver::Base::Form::Role::Help
+    pfappserver::Role::Form::RolesAttribute
+);
 
 use pf::admin_roles;
 use pf::constants::admin_roles qw(@ADMIN_ACTIONS);
-
-has roles => ( is => 'rw', default => sub { [] } );
+use pf::Authentication::constants;
 
 ## Definition
 has_field 'id' =>
@@ -58,7 +60,19 @@ has_field 'allowed_roles' =>
    element_class => ['chzn-select'],
    element_attr => {'data-placeholder' => 'Click to add a role' },
    tags => { after_element => \&help,
-             help => 'List of roles available to the admin user. If none are provided then all roles are available' },
+             help => 'List of roles available to the admin user to assign to a user. If none are provided then all roles are available' },
+  );
+
+has_field 'allowed_node_roles' =>
+  (
+   type => 'Select',
+   multiple => 1,
+   label => 'Allowed node roles',
+   options_method => \&options_roles,
+   element_class => ['chzn-select'],
+   element_attr => {'data-placeholder' => 'Click to add a role' },
+   tags => { after_element => \&help,
+             help => 'List of roles available to the admin user to assign to a node. If none are provided then all roles are available' },
   );
 
 has_field 'allowed_access_levels' =>
@@ -73,6 +87,26 @@ has_field 'allowed_access_levels' =>
              help => 'List of access levels available to the admin user. If none are provided then all access levels are available' },
   );
 
+has_field 'allowed_actions' =>
+  (
+   type => 'Select',
+   multiple => 1,
+   label => 'Allowed actions',
+   options_method => \&options_allowed_actions,
+   element_class => ['chzn-select'],
+   element_attr => {'data-placeholder' => 'Click to add an action' },
+   tags => { after_element => \&help,
+             help => 'List of actions available to the admin user. If none are provided then all actions are available' },
+  );
+
+has_field 'allowed_unreg_date' =>
+  (
+   type => 'DatePicker',
+   label => 'Maximum allowed unregistration date',
+   tags => { after_element => \&help,
+             help => 'The maximal unregistration date that can be set.' },
+  );
+
 has_field 'allowed_access_durations' =>
   (
    type => 'Text',
@@ -80,7 +114,7 @@ has_field 'allowed_access_durations' =>
    label => 'Allowed user access durations',
    element_attr => {'data-placeholder' => 'Click to add a admin roles' },
    tags => { after_element => \&help,
-             help => 'A comma seperated list of access durations available to the admin user. If none are provided then the configured values are used'},
+             help => 'A comma seperated list of access durations available to the admin user. If none are provided then the default access durations are used'},
   );
 
 sub build_do_form_wrapper{ 0 }
@@ -91,7 +125,7 @@ sub options_actions {
     my %groups;
     my @options;
     foreach my $role (@ADMIN_ACTIONS) {
-        $role =~ m/^(.+?)(_(WRITE|READ|CREATE|UPDATE|DELETE|SET_ROLE|SET_ACCESS_DURATION|SET_UNREG_DATE|SET_ACCESS_LEVEL|MARK_AS_SPONSOR|CREATE_MULTIPLE))?$/;
+        $role =~ m/^(.+?)(_(WRITE|READ|CREATE|UPDATE|DELETE|SET_ROLE|SET_ACCESS_DURATION|SET_UNREG_DATE|SET_ACCESS_LEVEL|SET_TIME_BALANCE|SET_BANDWIDTH_BALANCE|MARK_AS_SPONSOR|CREATE_MULTIPLE|READ_SPONSORED|SET_TENANT_ID))?$/;
         $groups{$1} = [] unless $groups{$1};
         push(@{$groups{$1}}, { value => $role, label => $self->_localize($role) })
     }
@@ -105,7 +139,7 @@ sub options_actions {
 
 =head2 options_allowed_access_levels
 
-TODO: documention
+The list of allowed access levels
 
 =cut
 
@@ -124,22 +158,20 @@ sub options_roles {
     return \@roles;
 }
 
-=head2 ACCEPT_CONTEXT
+=head2 options_allowed_actions
 
-To automatically add the context to the Form
+TODO: documention
 
 =cut
 
-sub ACCEPT_CONTEXT {
-    my ($class, $c, @args) = @_;
-    my ($status, $roles) = $c->model('Roles')->list();
-    return $class->SUPER::ACCEPT_CONTEXT($c, roles => $roles, @args);
+sub options_allowed_actions {
+    my ($self) = @_;
+    return  map { {label => $_, value => $_} } keys %Actions::ACTION_CLASS_TO_TYPE;
 }
-
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -160,5 +192,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

@@ -26,7 +26,8 @@ Will replay a pcap to simulate pfdhcplistener traffic
 use strict;
 use warnings;
 use lib qw(/usr/local/pf/lib);
-use pf::dhcp::processor();
+use pf::dhcp::processor_v4();
+use pf::dhcp::processor_v6();
 use pf::util::dhcpv6();
 use pf::client;
 pf::client::setClient("pf::api::can_fork");
@@ -38,7 +39,8 @@ use NetPacket::Ethernet qw(ETH_TYPE_IP);
 use NetPacket::IP;
 use NetPacket::IPv6;
 use NetPacket::UDP;
-use pf::config;
+use pf::constants qw($TRUE);
+use pf::config qw(%Config @listen_ints @dhcplistener_ints $NO_VLAN %ConfigNetworks @inline_enforcement_nets);
 use NetAddr::IP;
 use Net::Pcap qw(pcap_open_offline pcap_loop);
 use Pod::Usage;
@@ -46,6 +48,7 @@ use List::MoreUtils qw(any);
 use pf::util;
 use pf::node;
 use pf::fingerbank;
+use pf::api;
 my %options;
 GetOptions(\%options, "interface|i=s", "pcap|p=s", "help|h") or die("Error in command line arguments\n");
 
@@ -106,7 +109,7 @@ sub process_pkt {
         );
         # we send all IPv4 DHCPv4 codepath
         if($l2->{type} eq ETH_TYPE_IP) {
-            pf::dhcp::processor->new(%args)->process_packet();
+            pf::dhcp::processor_v4->new(%args)->process_packet();
         } else {
             #ignore for now
             process_dhcpv6("pf::api", $l4->{data});
@@ -171,7 +174,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

@@ -14,23 +14,35 @@ pf::factory::condition::access_filter
 
 use strict;
 use warnings;
-use Module::Pluggable search_path => 'pf::condition', sub_name => '_modules', require => 1;
+use Module::Pluggable
+  search_path => 'pf::condition',
+  sub_name    => '_modules',
+  inner       => 0,
+  require     => 1;
 use pf::config::util qw(str_to_connection_type);
+use pf::constants::eap_type qw(%RADIUS_EAP_TYPE_2_VALUES);
 
 our @MODULES;
 
 sub factory_for {'pf::condition'}
 
 our %ACCESS_FILTER_OPERATOR_TO_CONDITION_TYPE = (
-    'is'                => 'pf::condition::equals',
-    'is_not'            => 'pf::condition::not_equals',
-    'match'             => 'pf::condition::matches',
-    'regex'             => 'pf::condition::regex',
-    'match_not'         => 'pf::condition::not_matches',
-    'defined'           => 'pf::condition::is_defined',
-    'not_defined'       => 'pf::condition::not_defined',
-    'date_is_before'    => 'pf::condition::date_before',
-    'date_is_after'     => 'pf::condition::date_after',
+    'is'                        => 'pf::condition::equals',
+    'is_not'                    => 'pf::condition::not_equals',
+    'includes'                  => 'pf::condition::includes',
+    'match'                     => 'pf::condition::matches',
+    'regex'                     => 'pf::condition::regex',
+    'match_not'                 => 'pf::condition::not_matches',
+    'regex_not'                 => 'pf::condition::regex_not',
+    'defined'                   => 'pf::condition::is_defined',
+    'not_defined'               => 'pf::condition::not_defined',
+    'date_is_before'            => 'pf::condition::date_before',
+    'date_is_after'             => 'pf::condition::date_after',
+    'greater'                   => 'pf::condition::greater',
+    'greater_equals'            => 'pf::condition::greater_equals',
+    'lower'                     => 'pf::condition::lower',
+    'lower_equals'              => 'pf::condition::lower_equals',
+    'fingerbank::device_is_a'   => 'pf::condition::fingerbank::device_is_a',
 );
 
 sub modules {
@@ -73,10 +85,21 @@ sub _build_parent_condition {
     });
 }
 
+my %VALUE_FILTERS = (
+    connection_type => \&str_to_connection_type,
+    connection_sub_type => sub {
+        return $RADIUS_EAP_TYPE_2_VALUES{$_[0]};
+    },
+);
+
 sub _build_sub_condition {
     my ($data) = @_;
     my $condition_class = $ACCESS_FILTER_OPERATOR_TO_CONDITION_TYPE{$data->{operator}};
-    my $value = $data->{filter} eq 'connection_type' ? str_to_connection_type($data->{value}) : $data->{value};
+    my $filter = $data->{filter};
+    my $value = $data->{value};
+    if (exists $VALUE_FILTERS{$filter}) {
+        $value = $VALUE_FILTERS{$filter}->($value);
+    }
     return $condition_class ? $condition_class->new({value => $value}) : undef;
 }
 
@@ -86,7 +109,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

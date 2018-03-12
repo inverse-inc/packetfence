@@ -16,7 +16,14 @@ extends 'pf::Authentication::Source';
 
 has '+class' => (default => 'abstact');
 has '+type' => (default => 'OAuth');
-has '+unique' => (default => 1);
+
+=head2 dynamic_routing_module
+
+Which module to use for DynamicRouting
+
+=cut
+
+sub dynamic_routing_module { 'Authentication::OAuth' }
 
 =head2 available_rule_classes
 
@@ -77,13 +84,21 @@ sub lookup_from_provider_info {
     $logger->warn("Provider information lookup is not implemented on this OAuth source.");
 }
 
+=head2 additional_client_attributes
+
+Provide a hook for additional attributes to be passed to the auth source
+
+=cut
+
+sub additional_client_attributes { }
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -104,7 +119,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;
 
 # vim: set shiftwidth=4:

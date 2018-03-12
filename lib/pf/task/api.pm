@@ -17,6 +17,7 @@ use warnings;
 use base 'pf::task';
 use POSIX;
 use pf::log;
+use pf::api;
 use pf::api::can_fork;
 use threads;
 my $logger = get_logger();
@@ -40,7 +41,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

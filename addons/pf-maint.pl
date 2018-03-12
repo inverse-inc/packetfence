@@ -23,6 +23,7 @@ pf-maint.pl [options]
    -n --no-ask             Do not ask to patch
    -d --pf-dir             The PacketFence directory
    -p --patch-bin          The patch binary default /usr/bin/patch
+   -t --test               Test if PacketFence has to be patched
 
 =cut
 
@@ -44,7 +45,27 @@ our $COMMIT;
 our $BASE_COMMIT;
 our $NO_ASK;
 our $PATCH_BIN = '/usr/bin/patch';
+our $GIT_BIN = '/usr/bin/git';
 our $COMMIT_ID_FILE = catfile($PF_DIR,'conf','git_commit_id');
+our $test;
+
+# Files that should be excluded from patching
+# Will only work when using git to patch a server
+our @excludes = (
+    # Files
+    ".gitattributes",
+    ".gitconfig",
+    ".gitignore",
+    "addons/logrotate",
+    "packetfence.logrotate",
+    # Directories
+    ".github/*",
+    ".tx/*",
+    "debian/*",
+    "docs/*",
+    "src/*",
+    "t/*",
+);
 
 GetOptions(
     "github-user|u=s" => \$GITHUB_USER,
@@ -52,14 +73,22 @@ GetOptions(
     "pf-dir|d=s"      => \$PF_DIR,
     "commit|c=s"      => \$COMMIT,
     "patch-bin|p=s"   => \$PATCH_BIN,
+    "git-bin|p=s"     => \$GIT_BIN,
     "base-commit|b=s" => \$BASE_COMMIT,
     "no-ask|n"        => \$NO_ASK,
-    "help|h"          => \$help
+    "help|h"          => \$help,
+    "test|t"          => \$test
 ) or podusage(2);
 
 pod2usage(1) if $help;
 
 die "$PATCH_BIN does not exists or is not executable please install or make it executable" unless patch_bin_exists();
+
+unless(git_bin_exists()) {
+    print STDERR "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+    print STDERR "$GIT_BIN does not exist, it is advised to install git to improve the patching process\n";
+    print STDERR "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+}
 
 our $PATCHES_DIR = catdir( $PF_DIR, '.patches' );
 mkdir $PATCHES_DIR or die "cannot create $PATCHES_DIR" unless -d $PATCHES_DIR;
@@ -78,7 +107,12 @@ die "Cannot base commit\n" unless $base;
 print "Currently at $base\n";
 
 my $head = $COMMIT || get_head();
-die "Already up to date\n" if $base eq $head;
+if ($base eq $head) {
+    print "Already up to date\n";
+    exit 0;
+}
+exit 1 if defined($test);
+
 print "Latest maintenance version is $head\n";
 
 my $patch_data = get_patch_data( $base, $head );
@@ -138,7 +172,12 @@ sub apply_patch {
     my ( $data, $base, $head ) = @_;
     my $file = make_patch_filename( $base, $head );
     chdir $PF_DIR or die "cannot change directory $PF_DIR\n";
-    system "$PATCH_BIN -b -p1 < $file";
+    if(git_bin_exists()) {
+        system "$GIT_BIN apply --reject --verbose ".join(' ', map{"--exclude=$_"} @excludes)." < $file";
+    }
+    else {
+        system "$PATCH_BIN -b -p1 < $file";
+    }
     write_file( $COMMIT_ID_FILE, $head );
 }
 
@@ -159,6 +198,10 @@ sub get_url {
 
 sub patch_bin_exists {
      -x $PATCH_BIN
+}
+
+sub git_bin_exists {
+     -x $GIT_BIN
 }
 
 sub show_patch {
@@ -187,7 +230,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

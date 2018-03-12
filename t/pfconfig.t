@@ -7,7 +7,8 @@ use diagnostics;
 use lib '/usr/local/pf/lib';
 BEGIN {
     use lib qw(/usr/local/pf/t);
-    use PfFilePaths;
+    use test_paths_serial;
+    use setup_test_config;
     `cp $pf::file_paths::switches_config_file $pf::file_paths::switches_config_file.tmp`;
     $pf::file_paths::switches_config_file = "$pf::file_paths::switches_config_file.tmp";
 
@@ -95,7 +96,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

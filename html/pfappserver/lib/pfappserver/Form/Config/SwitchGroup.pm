@@ -27,6 +27,7 @@ has_field 'id' =>
    label => 'Group name',
    required => 1,
    messages => { required => 'Please specify a group name' },
+   apply => [ pfappserver::Base::Form::id_validator('group name') ]
   );
 
 =head2 group
@@ -45,7 +46,7 @@ has_field 'group' =>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -66,6 +67,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

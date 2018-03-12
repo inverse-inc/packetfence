@@ -20,7 +20,7 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use pf::file_paths;
+use pf::file_paths qw($billing_tiers_config_file);
 use pf::constants::authentication;
 use pf::Authentication::constants;
 use pf::Authentication::Action;
@@ -47,7 +47,6 @@ sub build_child {
     return \%cfg;
 }
 
-=back
 
 =head1 AUTHOR
 
@@ -55,7 +54,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

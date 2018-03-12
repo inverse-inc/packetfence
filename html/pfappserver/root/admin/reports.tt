@@ -1,24 +1,14 @@
 [%  jsFiles = [
-        'app/raphael/raphael-min',
-        'app/raphael/g.raphael-min',
-        'app/raphael/g.bar-min',
-        'app/raphael/g.dot-min',
-        'app/raphael/g.line-min',
-        'app/raphael/g.pie-min',
+        'js/vendor/raphael.min',
         'app/graphs',
-        'app/bootstrap-datepicker',
-        'app/bootstrap-timepicker',
-        'app/jquery.ba-hashchange',
         'admin/config/items',
-        'app/chosen.jquery.min',
-        'js/bootstrapSwitch',
         'js/node',
         'js/user',
+        'admin/searches',
         'admin/nodes',
-        'admin/reports'
+        'js/reports'
         ]
      cssFiles = [
-        'app/bootstrap-timepicker',
         'admin/reports'
         ] -%]
 [% MACRO list_entry(action,description) BLOCK %]
@@ -27,10 +17,9 @@
               </li>
 [% END -%]
 
-    <div class="container-fluid">
+    <div class="sidenav-fluid">
       <div class="row-fluid">
-        <div class="span2">
-          <div class="sidebar-nav well">
+        <div class="sidenav sidenav-section span3">
             <ul class="nav nav-list">
               <li class="nav-header">[% l('Nodes') %]</li>
               [% list_entry('graph/nodes', 'Nodes States') | none %]
@@ -42,19 +31,32 @@
               <li class="nav-header">[% l('ACCOUNTING') %]</li>
               [% list_entry('graph/nodebandwidth', 'Top 25 Bandwidth Consumers') | none %]
               [% list_entry('graph/osclassbandwidth', 'Bandwidth per Operating System') | none %]
-              <li class="nav-header">[% l('RADIUS') %]</li>
-              [% list_entry('radiuslog', 'RADIUS Audit Log') | none %]
+              <li class="nav-header">[% l('Authentication') %]</li>
+              [% list_entry('graph/topauthenticationfailures_by_mac', 'Top 25 Failures by MAC') | none %]
+              [% list_entry('graph/topauthenticationfailures_by_ssid', 'Top 25 Failures by SSID') | none %]
+              [% list_entry('graph/topauthenticationfailures_by_username', 'Top 25 Failures by Username') | none %]
+              [% list_entry('graph/topauthenticationsuccesses_by_mac', 'Top 25 Successes by MAC') | none %]
+              [% list_entry('graph/topauthenticationsuccesses_by_ssid', 'Top 25 Successes by SSID') | none %]
+              [% list_entry('graph/topauthenticationsuccesses_by_username', 'Top 25 Successes by Username') | none %]
+              [% list_entry('graph/topauthenticationsuccesses_by_computername', 'Top 25 Successes by Computername') | none %]
+              <li class="nav-header">[% l('Other reports') %]</li>
+              [% FOREACH report_id IN builtin_report_ids %]
+              [% list_entry('dynamicreport/' _ report_id, dynamic_reports.$report_id.description) | none %]
+              [% END %]
+              <li class="nav-header">[% l('Custom reports') %] [% doc('_custom_reports') | none %]</li>
+              [% FOREACH report_id IN custom_report_ids %]
+              [% list_entry('dynamicreport/' _ report_id, dynamic_reports.$report_id.description) | none %]
+              [% END %]
             </ul>
           </div><!--/.well -->
-        </div><!--/span-->
-        <div class="span10">
+      </div><!--/span-->
+    </div>
 
-
-          <div class="loader"><p><img src="[% c.uri_for('/static/app/loader-48.gif') %]"></p></div>
-          <div id="section">
+    <div class="row-fluid">
+      <div class="container-fluid offset3 span15 span18-navbarcollapse">
+        <div id="section" class="card">
             <div class="graph"></div>
           </div>
         </div><!--/span -->
-
       </div><!--/row -->
     </div><!--/.fluid-container-->

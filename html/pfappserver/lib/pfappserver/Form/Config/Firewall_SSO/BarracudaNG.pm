@@ -18,16 +18,6 @@ use pf::config;
 use pf::util;
 use File::Find qw(find);
 
-## Definition
-has 'roles' => (is => 'ro', default => sub {[]});
-
-has_field 'id' =>
-  (
-   type => 'Text',
-   label => 'Hostname or IP Address',
-   required => 1,
-   messages => { required => 'Please specify the hostname or IP of the firewall' },
-  );
 has_field 'username' =>
   (
    type => 'Text',
@@ -35,13 +25,7 @@ has_field 'username' =>
    required => 1,
    messages => { required => 'Please specify the username for the Barracuda' },
   );
-has_field 'password' =>
-  (
-   type => 'Password',
-   label => 'Password',
-   required => 1,
-   messages => { required => 'You must specify the password' },
-  );
+
 has_field 'port' =>
   (
    type => 'PosInteger',
@@ -54,44 +38,15 @@ has_field 'type' =>
   (
    type => 'Hidden',
   );
-has_field 'categories' =>
-  (
-   type => 'Select',
-   multiple => 1,
-   label => 'Roles',
-   options_method => \&options_categories,
-   element_class => ['chzn-select'],
-   element_attr => {'data-placeholder' => 'Click to add a role'},
-   tags => { after_element => \&help,
-             help => 'Nodes with the selected roles will be affected' },
-  );
 
 has_block definition =>
   (
-   render_list => [ qw(id type username password port categories cache_updates cache_timeout) ],
+   render_list => [ qw(id type username password port categories networks cache_updates cache_timeout username_format default_realm) ],
   );
-
-has_field 'uid' =>
-  (
-   type => 'Select',
-   label => 'UID type',
-   options_method => \&uid_type,
-  );
-
 
 =head2 Methods
 
 =cut
-
-=head2 uid_type
-
-What UID we have to send to the Firewall , uid or 802.1x username
-
-=cut
-
-sub uid_type {
-    return ( { label => "PID", value => "pid" } , { label => "802.1x Username", value => "802.1x" } );
-}
 
 =head2 options_categories
 
@@ -100,7 +55,7 @@ sub uid_type {
 sub options_categories {
     my $self = shift;
 
-    my ($status, $result) = $self->form->ctx->model('Roles')->list();
+    my ($status, $result) = $self->form->ctx->model('Config::Roles')->listFromDB();
     my @roles = map { $_->{name} => $_->{name} } @{$result} if ($result);
     return ('' => '', @roles);
 }
@@ -113,7 +68,7 @@ sub options_categories {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -134,5 +89,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

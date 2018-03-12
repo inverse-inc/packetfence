@@ -14,13 +14,14 @@ $YUM makecache
 REPOQUERY="repoquery --queryformat=%{NAME} --disablerepo=* $PF_REPO $STD_REPOS -C --pkgnarrow=all"
 
 TEMPFILE="/tmp/$$.$RANDOM"
+EL_VERSION=$(cat /etc/redhat-release | perl -p -e's/^.*(\d+)\..*$/$1/' )
 
-rpm -q --requires --specfile $SPEC | grep -v packetfence \
+rpm -q -D"el$EL_VERSION 1" --requires --specfile $SPEC | grep -v packetfence \
     | perl -pi -e's/ +$//' | sort -u \
     | while read i
         do
             COUNT=$( $REPOQUERY --whatprovides "$i" | sort -u | tee $TEMPFILE | wc -l)
-            if [ $COUNT = 0 ];then
+            if [ "$COUNT" ==  "0" ];then
                 echo "No package found that provides '$i'"
             elif [ $COUNT != 1 ];then
                 echo "Too many packages provide '$i' : $(cat $TEMPFILE | tr '\n' ' ')"

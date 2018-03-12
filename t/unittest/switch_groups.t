@@ -19,7 +19,7 @@ BEGIN {
     #include test libs
     use lib qw(/usr/local/pf/t);
     #Module for overriding configuration paths
-    use PfFilePaths;
+    use setup_test_config;
 }
 
 use pf::node;
@@ -35,7 +35,7 @@ my $switch;
 $switch = pf::SwitchFactory->instantiate("172.16.8.21" );
 ok($switch, "Can instantiate a switch member of a group");
 
-is($switch->{_type}, "Meraki::AP_http",
+is($switch->{_type}, "Meraki::MR",
     "Type is properly inherited from group");
 
 is($switch->{_defaultVlan}, -1,
@@ -46,7 +46,7 @@ is($switch->{_customVlan1}, "patate",
 
 $switch = pf::SwitchFactory->instantiate("172.16.8.23");
 
-is($switch->{_type}, "Meraki::AP_http",
+is($switch->{_type}, "Meraki::MR",
     "Type is properly inherited from group");
 
 is($switch->{_defaultVlan}, 42,
@@ -63,7 +63,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

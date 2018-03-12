@@ -10,17 +10,27 @@ pf::Authentication::Source::SMSSource
 
 use pf::constants qw($TRUE $FALSE);
 use pf::Authentication::constants;
+use pf::sms_carrier;
+use pf::log;
+use pf::constants qw($TRUE $FALSE);
 
 use Moose;
 extends 'pf::Authentication::Source';
+with qw(pf::Authentication::CreateLocalAccountRole pf::Authentication::SMSRole);
 
-has '+class' => (default => 'external');
-has '+type' => (default => 'SMS');
-has '+unique' => (default => 1);
-has 'sms_carriers' => (isa => 'ArrayRef', is => 'rw', default => sub {[]});
-has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
+has '+class'          => (default => 'external');
+has '+type'           => (default => 'SMS');
+has 'sms_carriers'    => (isa => 'ArrayRef', is => 'rw', default => sub {[]});
 
 =head1 METHODS
+
+=head2 dynamic_routing_module
+
+Which module to use for DynamicRouting
+
+=cut
+
+sub dynamic_routing_module { 'Authentication::SMS' }
 
 =head2 around BUILDARGS
 
@@ -91,7 +101,25 @@ List of mandatory fields for this source
 =cut
 
 sub mandatoryFields {
-    return qw(email phone mobileprovider);
+    return qw(telephone mobileprovider);
+}
+
+=head2 sendSMS
+
+Sends an SMS via email
+
+=cut
+
+sub sendSMS {
+    my ($self, $info) = @_;
+    require pf::config::util;
+    my $email = sprintf($info->{activation}{'carrier_email_pattern'}, $info->{'to'});
+    my $msg = MIME::Lite->new(
+        To          =>  $email,
+        Subject     =>  "Network Activation",
+        Data        =>  $info->{message} . "\n",
+    );
+    return pf::config::util::send_mime_lite($msg);
 }
 
 =head1 AUTHOR
@@ -100,7 +128,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -121,7 +149,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;
 
 # vim: set shiftwidth=4:

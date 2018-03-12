@@ -20,7 +20,7 @@ use warnings;
 use pfconfig::namespaces::config;
 use Config::IniFiles;
 use pf::log;
-use pf::file_paths;
+use pf::file_paths qw($switches_config_file $switches_default_config_file);
 use pf::util;
 use List::MoreUtils qw(any uniq);
 
@@ -29,7 +29,12 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file}            = $switches_config_file;
-    $self->{child_resources} = [ 'resource::default_switch', 'resource::switches_ranges' ];
+    $self->{child_resources} = [ 'resource::default_switch', 'resource::switches_group', 'resource::switches_ranges', 'interfaces::management_network', 'resource::SwitchTypesConfigured', 'resource::cli_switches', 'resource::SwitchReverseLookup' ];
+
+    $self->{management_network} = $self->{cache}->get_cache('interfaces::management_network');
+    $self->{local_secret} = $self->{cache}->get_cache('resource::local_secret');
+    my $defaults = Config::IniFiles->new(-file => $switches_default_config_file);
+    $self->{added_params}{'-import'} = $defaults;
 }
 
 sub build_child {
@@ -45,7 +50,6 @@ sub build_child {
         SNMPVersionTrap   => '1',
         SNMPCommunityTrap => 'public'
     };
-
 
     my @keys;
     # default is always first
@@ -69,7 +73,7 @@ sub build_child {
         }
     }
 
-    foreach my $switch ( values %tmp_cfg ) {
+    while ( my ($name, $switch) = each %tmp_cfg) {
 
         # transforming uplink and inlineTrigger to arrays
         foreach my $key (qw(uplink inlineTrigger)) {
@@ -77,17 +81,19 @@ sub build_child {
             $switch->{$key} = [ split /\s*,\s*/, $value ];
         }
 
+        $self->updateReverseLookup($name, $switch, qw(group));
         # transforming vlans and roles to hashes
-        my %merged = ( Vlan => {}, Role => {}, AccessList => {} );
-        foreach my $key ( grep {/(Vlan|Role|AccessList)$/} keys %{$switch} ) {
+        my %merged = ( Vlan => {}, Role => {}, AccessList => {} , Url => {} );
+        foreach my $key ( grep {/(Vlan|Role|AccessList|Url)$/} keys %{$switch} ) {
             next unless my $value = $switch->{$key};
-            if ( my ( $type_key, $type ) = ( $key =~ /^(.+)(Vlan|Role|AccessList)$/ ) ) {
+            if ( my ( $type_key, $type ) = ( $key =~ /^(.+)(Vlan|Role|AccessList|Url)$/ ) ) {
                 $merged{$type}{$type_key} = $value;
             }
         }
         $switch->{roles}        = $merged{Role};
         $switch->{vlans}        = $merged{Vlan};
         $switch->{access_lists} = $merged{AccessList};
+        $switch->{urls}         = $merged{Url};
         $switch->{VoIPEnabled}  = (
             $switch->{VoIPEnabled} =~ /^\s*(y|yes|true|enabled|1)\s*$/i
             ? 1
@@ -106,12 +112,43 @@ sub build_child {
         }
     }
 
+    if($self->{management_network}){
+        my @management_ips;
+        push @management_ips, $self->{management_network}->tag('vip') if(defined($self->{management_network}->tag('vip')));
+        push @management_ips, $self->{management_network}->tag('ip') if(defined($self->{management_network}->tag('ip')));
+        foreach my $management_ip (@management_ips){
+            $tmp_cfg{$management_ip} = {
+                type => 'PacketFence',
+                mode => 'production',
+                radiusSecret => $self->{local_secret},
+                SNMPVersionTrap   => '1',
+                SNMPCommunityTrap => 'public'
+            };
+        }
+    }
+
     foreach my $key ( keys %tmp_cfg ) {
         $self->cleanup_after_read( $key, $tmp_cfg{$key} );
     }
 
     return \%tmp_cfg;
 
+}
+
+sub updateReverseLookup {
+    my ( $self, $key, $data, @fields ) = @_;
+    foreach my $field (@fields) {
+        my $values = $data->{$field};
+        if ( ref($values) eq '' ) {
+            next if !defined $values || $values eq '';
+
+            $values = [$values];
+        }
+
+        for my $val (@$values) {
+            push @{ $self->{reverseLookup}{$field}{$val} }, $key;
+        }
+    }
 }
 
 sub cleanup_after_read {
@@ -139,7 +176,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -165,4 +202,3 @@ USA.
 # vim: set shiftwidth=4:
 # vim: set expandtab:
 # vim: set backspace=indent,eol,start:
-

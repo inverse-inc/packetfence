@@ -17,103 +17,53 @@ with 'pfappserver::Base::Form::Role::Help';
 use pf::config;
 use pf::util;
 use File::Find qw(find);
+use pf::constants::firewallsso qw($SYSLOG_TRANSPORT $HTTP_TRANSPORT);
 
-## Definition
-has 'roles' => (is => 'ro', default => sub {[]});
-
-has_field 'id' =>
+has_field 'transport' =>
   (
-   type => 'Text',
-   label => 'Hostname or IP Address',
-   required => 1,
-   messages => { required => 'Please specify the hostname or IP of the Firewall' },
+   type => 'Select',
+   options => [{ label => 'Syslog', value => $SYSLOG_TRANSPORT }, { label => 'HTTP' , value => $HTTP_TRANSPORT }],
+   default => $HTTP_TRANSPORT,
   );
-has_field 'password' =>
+
+has_field '+password' =>
   (
-   type => 'Password',
+   type => 'ObfuscatedText',
    label => 'Secret or Key',
-   required => 1,
-   messages => { required => 'You must specify the password or the key' },
-  );
-has_field 'port' =>
-  (
-   type => 'PosInteger',
-   label => 'Port of the service',
    tags => { after_element => \&help,
-             help => 'If you use an alternative port, please specify' },
+             help => 'If using the HTTP transport, specify the password for the Palo Alto API' },
+   required => 0,
+  );
+
+has_field '+port' =>
+  (
+   tags => { after_element => \&help,
+             help => 'If you use an alternative port, please specify. This parameter is ignored when the Syslog transport is selected.' },
     default => 443,
   );
+
 has_field 'type' =>
   (
    type => 'Hidden',
   );
-has_field 'categories' =>
-  (
-   type => 'Select',
-   multiple => 1,
-   label => 'Roles',
-   options_method => \&options_categories,
-   element_class => ['chzn-select'],
-   element_attr => {'data-placeholder' => 'Click to add a role'},
-   tags => { after_element => \&help,
-             help => 'Nodes with the selected roles will be affected' },
-  );
 
-has_field 'uid' =>
+has_field 'vsys' =>
   (
-   type => 'Select',
-   label => 'UID type',
-   options_method => \&uid_type,
+   type => 'PosInteger',
+   label => 'Vsys ',
+    tags => { after_element => \&help,
+             help => 'Please define the Virtual System number. This only has an effect when used with the HTTP transport.' },
+   default => 1,
   );
 
 has_block definition =>
   (
-   render_list => [ qw(id type password port categories cache_updates cache_timeout) ],
+   render_list => [ qw(id type vsys transport port password categories networks cache_updates cache_timeout username_format default_realm) ],
   );
-
-has_field 'uid' =>
-  (
-   type => 'Select',
-   label => 'UID type',
-   options_method => \&uid_type,
-  );
-
-
-=head2 Methods
-
-=cut
-
-=head2 uid_type
-
-What UID we have to send to the Firewall , uid or 802.1x username
-
-=cut
-
-sub uid_type {
-    return ( { label => "PID", value => "pid" } , { label => "802.1x Username", value => "802.1x" } );
-}
-
-=head2 options_categories
-
-=cut
-
-sub options_categories {
-    my $self = shift;
-
-    my ($status, $result) = $self->form->ctx->model('Roles')->list();
-    my @roles = map { $_->{name} => $_->{name} } @{$result} if ($result);
-    return ('' => '', @roles);
-}
-
-
-
-=over
-
-=back
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -134,5 +84,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+
 1;

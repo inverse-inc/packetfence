@@ -29,6 +29,7 @@ my %OP_MAP = (
     in          => 'IN',
     not_in      => 'NOT IN',
     is_null     => 'IS NULL',
+    is_not_null => 'IS NOT NULL',
 );
 
 =head2 Methods
@@ -38,7 +39,7 @@ my %OP_MAP = (
 =item process_query
 
 transform search queries from search form
-To create where arguements for the sql builder
+To create where arguments for the sql builder
 
 =cut
 
@@ -52,7 +53,7 @@ sub process_query {
     my @escape;
     my @where_args = ($query->{name}, $sql_op);
     my $value = $query->{value};
-    return unless defined $value || $sql_op eq 'IS NULL';
+    return unless defined $value || $sql_op eq 'IS NULL' || $sql_op eq 'IS NOT NULL';
     my @values;
     if($sql_op eq 'LIKE' || $sql_op eq 'NOT LIKE') {
         #escaping the % and _ charcaters
@@ -106,13 +107,13 @@ add joins to the sql builder
 
 sub add_joins {}
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =back
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

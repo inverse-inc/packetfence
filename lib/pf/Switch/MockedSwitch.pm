@@ -6,7 +6,6 @@ pf::Switch::MockedSwitch - Fake switch module designed to document our interface
 
 =head1 SYNOPSIS
 
-pf::Switch::MockedSwitch is first an exercice to be able to see what our pfsetvlan daemon does under stress.
 As it was implemented it became obvious that it would be useful to help us understand our own switch interfaces too.
 
 This modules extends pf::Switch.
@@ -43,8 +42,14 @@ use Time::HiRes qw( usleep );
 
 use base ('pf::Switch');
 
-use pf::constants;
-use pf::config;
+use pf::constants qw($TRUE $FALSE);
+use pf::constants::role qw($MAC_DETECTION_ROLE);
+use pf::config qw(
+    %Config
+    $MAC
+    $PORT
+    $SSID
+);
 # importing switch constants
 use pf::Switch::constants;
 use pf::util;
@@ -532,27 +537,10 @@ sub bouncePort {
     my ($self, $ifIndex) = @_;
 
     #$self->setAdminStatus( $ifIndex, $SNMP::DOWN );
-    sleep($Config{'vlan'}{'bounce_duration'});
+    sleep($Config{'snmp_traps'}{'bounce_duration'});
     #$self->setAdminStatus( $ifIndex, $SNMP::UP );
 
     return $TRUE;
-}
-
-=item getSysUptime - returns the sysUpTime
-
-=cut
-
-sub getSysUptime {
-    my ($self)        = @_;
-    my $logger        = $self->logger;
-    my $oid_sysUptime = '1.3.6.1.2.1.1.3.0';
-    if ( !$self->connectRead() ) {
-        return '';
-    }
-    $logger->debug("SNMP fake get_request for sysUptime: $oid_sysUptime");
-    my $result = $self->{_sessionRead}
-        ->get_request( -varbindlist => [$oid_sysUptime] );
-    return $result->{$oid_sysUptime};
 }
 
 =item getIfType - return the ifType
@@ -898,7 +886,7 @@ sub parseTrap {
         #populate list of Vlans we must potentially connect to to
         #convert the dot1dBasePort into an ifIndex
         my @vlansToTest = ();
-        my $macDetectionVlan = $self->getVlanByName('macDetection');
+        my $macDetectionVlan = $self->getVlanByName($MAC_DETECTION_ROLE);
         push @vlansToTest, $trapHashRef->{'trapVlan'};
         push @vlansToTest, $macDetectionVlan;
         foreach my $currentVlan ( values %{ $self->{_vlans} } ) {
@@ -2941,30 +2929,29 @@ sub parseRequest {
     if (defined($radius_request->{'NAS-Port-Id'})) {
         $nas_port_id = $radius_request->{'NAS-Port-Id'};
     }
-    return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id);
-}
-
-=item parseUrl
-
-Extract all the param from the url.
-
-=cut
-
-sub parseUrl {
-    my ($self,$req) = @_;
-    my $logger = $self->logger;
-    $logger->warn("Not implemented");
-    return;
+    return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, undef, $nas_port_id);
 }
 
 sub getAcceptForm {
-    my ( $self, $mac , $destination_url) = @_;
+    my ( $self, $mac, $destination_url, $portalSession ) = @_;
     return "";
 }
 
-sub parseSwitchIdFromRequest {
-    my ( $class, $req) = @_;
-    return "";
+=item parseExternalPortalRequest
+
+Parse external portal request using URI and it's parameters then return an hash reference with the appropriate parameters
+
+See L<pf::web::externalportal::handle>
+
+=cut
+
+sub parseExternalPortalRequest {
+    my ( $self, $r, $req ) = @_;
+
+    # Using a hash to contain external portal parameters
+    my %params = ();
+
+    return \%params;
 }
 
 =item deauth_source_ip
@@ -3021,6 +3008,17 @@ sub cache {
    return pf::CHI->new( namespace => 'switch' );
 }
 
+=item cache_distributed
+
+Returns the distributed cache for the switch namespace
+
+=cut
+
+sub cache_distributed {
+    my ( $self ) = @_;
+    return pf::CHI->new( namespace => 'switch_distributed' );
+}
+
 =item returnAuthorizeWrite
 
 Return RADIUS attributes to allow write access
@@ -3044,6 +3042,169 @@ sub returnAuthorizeRead {
     return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "PacketFence does not support this switch for enable access login" ) ];
 }
 
+=item setSession
+
+Create a session id and save in in the locationlog.
+
+=cut
+
+sub setSession {
+    my($args) = @_;
+    my $mac = $args->{'mac'};
+    my $session_id = generate_session_id(6);
+    my $chi = pf::CHI->new(namespace => 'httpd.portal');
+    $chi->set($session_id,{
+        client_mac => $mac,
+        wlan => $args->{'ssid'},
+        switch_id => $args->{'switch'}->{'_id'},
+    });
+    pf::locationlog::locationlog_set_session($mac, $session_id);
+    return $session_id;
+}
+
+=item getUrlByName
+
+Get the switch-specific url of a given global role in switches.conf
+
+=cut
+
+sub getUrlByName {
+    my ($self, $roleName) = @_;
+    my $logger = $self->logger;
+
+    # skip if not defined or empty
+    return if (!defined($self->{'_urls'}) || !%{$self->{'_urls'}});
+
+    # return if found
+    return $self->{'_urls'}->{$roleName} if (defined($self->{'_urls'}->{$roleName}));
+
+    # otherwise log and return undef
+    $logger->trace("(".$self->{_id}.") No parameter ${roleName}Url found in conf/switches.conf");
+    return;
+}
+
+
+sub shouldUseCoA {
+    my ($self, $args) = @_;
+    # Roles are configured and the user should have one
+    return (defined($args->{role}) && isenabled($self->{_RoleMap}) && isenabled($self->{_useCoA}));
+}
+
+
+sub externalPortalEnforcement {
+    my ( $self ) = @_;
+    my $logger = pf::log::get_logger;
+
+    return $TRUE if ( $self->supportsExternalPortal && isenabled($self->{_ExternalPortalEnforcement}) );
+
+    $logger->info("External portal enforcement either not supported '" . $self->supportsExternalPortal . "' or not configured '" . $self->{_ExternalPortalEnforcement} . "' on network equipment '" . $self->{_id} . "'");
+    return $FALSE;
+}
+
+=item getLldpLocPortDesc
+
+Query the switch for lldpLocPortDesc table and cache the result
+
+=cut
+
+sub getLldpLocPortDesc {
+    my ( $self ) = @_;
+    my $logger = $self->logger;
+
+    # if can't SNMP read abort
+    return if ( !$self->connectRead() );
+
+    my $oid_lldpLocPortDesc = '1.0.8802.1.1.2.1.3.7.1.4'; # from LLDP-MIB
+    $logger->trace("SNMP get_table for lldpLocPortDesc: $oid_lldpLocPortDesc");
+    my $cache = $self->cache_distributed;
+    my $result = $cache->compute($self->{'_id'} . "-" . $oid_lldpLocPortDesc, sub { $self->{_sessionRead}->get_table( -baseoid => $oid_lldpLocPortDesc, -maxrepetitions  => 1 ) } );
+    # here's what we are getting here. Looking for the last element of the OID: lldpRemLocalPortNum
+    # iso.0.8802.1.1.2.1.3.7.1.4.10 = STRING: "FastEthernet1/0/8"
+    # iso.0.8802.1.1.2.1.3.7.1.4.11 = STRING: "FastEthernet1/0/9"
+    # iso.0.8802.1.1.2.1.3.7.1.4.12 = STRING: "FastEthernet1/0/10"
+    # iso.0.8802.1.1.2.1.3.7.1.4.13 = STRING: "FastEthernet1/0/11"
+    # NOTE: We set the maxrepetitions to '1' to use 'get-next-requests' instead of 'get-bulk-requests' which tend to return empty results if response is to big
+
+    return $result;
+}
+
+=item ifIndexToLldpLocalPort
+
+Translate an ifIndex into an LLDP Local Port number.
+
+We use ifDescr to lookup the lldpRemLocalPortNum in the lldpLocPortDesc table.
+
+=cut
+
+sub ifIndexToLldpLocalPort {
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
+
+    # if can't SNMP read abort
+    return if ( !$self->connectRead() );
+
+    my $ifDescr = $self->getIfDesc($ifIndex);
+    return if (!defined($ifDescr) || $ifDescr eq '');
+
+    # Get lldpLocPortDesc
+    my $oid_lldpLocPortDesc = '1.0.8802.1.1.2.1.3.7.1.4'; # from LLDP-MIB
+    my $result = $self->getLldpLocPortDesc();
+
+    foreach my $entry ( keys %{$result} ) {
+        if ( $result->{$entry} eq $ifDescr ) {
+            if ( $entry =~ /^$oid_lldpLocPortDesc\.([0-9]+)$/ ) {
+                return $1;
+            }
+        }
+    }
+
+    # nothing found
+    return;
+}
+
+=item invalidate_distributed_cache
+
+Invalidate the distributed cache for a given switch object
+
+=cut
+
+sub invalidate_distributed_cache {
+    my ( $self ) = @_;
+    my $logger = $self->logger;
+
+    $logger->info("Invalidating distributed switch cache for switch '" . $self->{_id} . "'");
+
+    if ( $self->{_id} =~ /\// ) {
+        $logger->info("Processing switch range '" . $self->{_id} . "'");
+        my $ip = new Net::IP($self->{_id});
+        do {
+            $logger->info("Invalidating distributed switch cache for switch '" . $ip->ip() . "' part of switch range '" . $self->{_id} . "'");
+            $self->remove_switch_from_cache($ip->ip());
+        } while (++$ip);
+    } else {
+        $self->remove_switch_from_cache($self->{_id});
+    }
+}
+
+=item remove_switch_from_cache
+
+Remove all switch distributed cache keys for a given switch
+
+=cut
+
+sub remove_switch_from_cache {
+    my ( $self, $key ) = @_;
+    my $logger = $self->logger;
+
+    my $cache = $self->cache_distributed;
+    my %cache_content = $cache->get_keys();
+
+    foreach ( keys %cache_content ) {
+        $cache->remove($_) if $_ =~ /^$key-/;
+    }
+}
+
+
 =back
 
 =head1 AUTHOR
@@ -3052,7 +3213,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

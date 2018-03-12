@@ -14,7 +14,7 @@ pf::ConfigStore::Profile
 
 use Moo;
 use namespace::autoclean;
-use pf::file_paths;
+use pf::file_paths qw($profiles_config_file $profiles_default_config_file);
 
 use pf::ConfigStore;
 
@@ -26,6 +26,8 @@ with 'pf::ConfigStore::Role::ValidGenericID';
 =cut
 
 sub configFile { $profiles_config_file }
+
+sub importConfigFile { $profiles_default_config_file }
 
 sub pfconfigNamespace {'config::Profiles'}
 
@@ -72,14 +74,14 @@ sub cleanupBeforeCommit {
 =cut
 
 sub _fields_expanded {
-    return qw(sources filter locale mandatory_fields custom_fields_authentication_sources allowed_devices provisioners billing_tiers scans);
+    return qw(sources filter locale allowed_devices provisioners billing_tiers scans);
 }
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

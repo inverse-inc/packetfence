@@ -20,7 +20,7 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use pf::file_paths;
+use pf::file_paths qw($authentication_config_file);
 use pf::constants::authentication;
 use pf::Authentication::constants;
 use pf::Authentication::Action;
@@ -45,6 +45,10 @@ sub build_child {
     my ($self) = @_;
 
     my %cfg = %{ $self->{cfg} };
+
+    foreach my $key ( keys %cfg ) {
+        $self->cleanup_after_read( $key, $cfg{$key} );
+    }
 
     my @authentication_sources = ();
     my %authentication_lookup  = ();
@@ -103,7 +107,7 @@ sub build_child {
                     else {
                         $current_rule->add_action(
                             pf::Authentication::Action->new(
-                                { 
+                                {
                                     type    => $type,
                                     class   => pf::Authentication::Action->getRuleClassForAction($type),
                                 }
@@ -139,13 +143,13 @@ sub build_child {
     my %resources;
     $resources{authentication_sources} = \@authentication_sources;
     $resources{authentication_lookup}  = \%authentication_lookup;
-    $resources{authentication_config_hash}  = \%authentication_config_hash; 
+    $resources{authentication_config_hash}  = \%authentication_config_hash;
 
     return \%resources;
 
 }
 
-=item newAuthenticationSource
+=head2 newAuthenticationSource
 
 Returns an instance of pf::Authentication::Source::* for the given type
 
@@ -164,7 +168,10 @@ sub newAuthenticationSource {
     return $source;
 }
 
-=back
+sub cleanup_after_read {
+    my ( $self, $id, $data ) = @_;
+    $self->expand_list( $data, qw(realms local_realm reject_realm) );
+}
 
 =head1 AUTHOR
 
@@ -172,7 +179,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

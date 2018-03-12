@@ -15,7 +15,7 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
 use pf::factory::provisioner;
-use pf::config;
+use pf::config qw(%Profiles_Config);
 use List::MoreUtils qw(any);
 
 BEGIN {
@@ -58,7 +58,7 @@ sub index :Path :Args(0) {
 
 before [qw(remove)] => sub {
     my ($self, $c, @args) = @_;
-    # We check that it's not used by any portal profile
+    # We check that it's not used by any connection profile
     my $count = 0;
     while (my ($id, $config) = each %Profiles_Config) {
         $count ++ if ( any { $_ eq $c->stash->{'id'} } @{$config->{provisioners}});
@@ -66,7 +66,7 @@ before [qw(remove)] => sub {
 
     if ($count > 0) {
         $c->response->status($STATUS::FORBIDDEN);
-        $c->stash->{status_msg} = "The provisioner is used by at least a Portal Profile.";
+        $c->stash->{status_msg} = "The provisioner is used by at least a Connection Profile.";
         $c->stash->{current_view} = 'JSON';
         $c->detach();
     }
@@ -93,7 +93,7 @@ sub create_type : Path('create') : Args(1) {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -114,7 +114,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;
 

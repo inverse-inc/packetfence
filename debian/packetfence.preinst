@@ -21,38 +21,127 @@ stop_service_if_exists() {
     fi
 }
 
+# Remove a no-longer used conffile; taken from http://wiki.debian.org/DpkgConffileHandling
+rm_conffile() {
+    CONFFILE="$1"
+
+    if [ -e "$CONFFILE" ]; then
+        md5sum="`md5sum \"$CONFFILE\" | sed -e \"s/ .*//\"`"
+        old_md5sum="`dpkg-query -W -f='${Conffiles}' $PKGNAME | sed -n -e \"\\\\' $CONFFILE'{s/ obsolete$//;s/.* //p}\"`"
+        if [ "$md5sum" != "$old_md5sum" ]; then
+            echo "Obsolete conffile $CONFFILE has been modified by you."
+            echo "Saving as $CONFFILE.dpkg-bak ..."
+            mv -f "$CONFFILE" "$CONFFILE".dpkg-bak
+        else
+            echo "Removing obsolete conffile $CONFFILE ..."
+            rm -f "$CONFFILE"
+        fi
+    fi
+}
+
 case "$1" in
     install)
         stop_service_if_exists packetfence
         if [ -z "$(getent passwd pf)" ]; then
+            if ! /usr/bin/id -g pf &>/dev/null; then
                 useradd -U -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf
-                echo "create pf user"
+            else
+                useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf -g pf
+            fi
+            echo "create pf user"
         else
                 echo "pf user already exist"
         fi
         usermod pf -a -G fingerbank,winbindd_priv
-        if [ -e /etc/lsb-release ]; then
-            usermod dhcpd -a -G pf
-        fi
+
+        # prevent conflicting mariadb service from starting 
+        /bin/systemctl mask mariadb
+        /bin/systemctl stop mariadb
+        # journald 
+        /usr/bin/install -d -g systemd-journal /var/log/journal
+        /usr/bin/setfacl -R -nm g:adm:rx,d:g:adm:rx /var/log/journal
+        echo "RateLimitInterval=0" >> /etc/systemd/journald.conf
+        echo "RateLimitBurst=0" >> /etc/systemd/journald.conf
+        echo "ForwardToWall=no" >> /etc/systemd/journald.conf
+        echo "SystemMaxUse=1G" >> /etc/systemd/journald.conf
+        echo "SystemKeepFree=1G" >> /etc/systemd/journald.conf
+        echo "Restarting journald to enable persistent logging"
+        /bin/systemctl restart systemd-journald
+
         exit 0
     ;;
     
     upgrade)
+        # mv the old raddb dir if upgrading from FreeRADIUS 2
+        echo "Upgrading from $2"
+        if dpkg --compare-versions "$2" lt "6"; then
+          mv /usr/local/pf/raddb /usr/local/pf/raddb2
+          for file in \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Pay.pm \
+            /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Fingerprints.pm \
+            /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/MacAddress.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/PacketFence/Controller/Access.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/PacketFence/Controller/Aup.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/PacketFence/Controller/Enabler.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/PacketFence/Controller/Oauth2.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/PacketFence/Controller/PreRegister.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/PacketFence/Controller/Redirect.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/PacketFence/Controller/Release.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/PacketFence/Controller/SAML.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/PacketFence/Controller/Activate/Sms.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/PacketFence/Controller/Billing.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/PacketFence/Controller/CaptivePortal.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/PacketFence/Controller/Signup.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Billing.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Access.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Aup.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/CaptivePortal.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Oauth2.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/PreRegister.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Release.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Signup.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/SAML.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Activate/Sms.pm \
+            /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/TLSProfile.pm
+          do
+
+            rm_conffile "$file"
+
+            # must get rid of the overrides otherwise they corrupt the database
+            if dpkg-statoverride --list | grep -qw $file$; then
+              dpkg-statoverride --remove $file
+            fi
+
+          done
+          test -d /usr/local/pf/html/captive-portal/wispr && rmdir --ignore-fail-on-non-empty /usr/local/pf/html/captive-portal/wispr
+          test -d /usr/local/pf/var/cache && rmdir --ignore-fail-on-non-empty /usr/local/pf/var/cache
+        fi
+
+        if dpkg --compare-versions "$2" lt "7"; then
+            # journald 
+            /usr/bin/install -d -g systemd-journal /var/log/journal
+            /usr/bin/setfacl -R -nm g:adm:rx,d:g:adm:rx /var/log/journal
+            echo "RateLimitInterval=0" >> /etc/systemd/journald.conf
+            echo "RateLimitBurst=0" >> /etc/systemd/journald.conf
+            echo "ForwardToWall=no" >> /etc/systemd/journald.conf
+        fi
+        set +e 
+        rm /etc/init.d/packetfence
+        rm /etc/rc*.d/*packetfence
+        set -e 
         stop_service_if_exists pfappserver
         stop_service_if_exists packetfence
-        if [ -d "/usr/local/pf/html/captive-portal/wispr" ] ; then
-                rm -fr /usr/local/pf/html/captive-portal/wispr
-        fi
-        if [ -d "/usr/local/pf/var/cache" ] ; then
-                rm -fr /usr/local/pf/var/cache/
-        fi
-        if [ -e "/usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Fingerprints.pm" ] ; then
-                rm -fr /usr/local/pf/html/pfappserver/lib/pfappserver/Controller/Config/Fingerprints.pm
-        fi
-        if [ -e "/usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Pay.pm" ] ; then
-                rm -fr /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Pay.pm
-        fi
+
+
+        # prevent conflicting mariadb service from starting 
+        /bin/systemctl mask mariadb
+        /bin/systemctl stop mariadb
+
         usermod pf -a -G fingerbank,winbindd_priv
+        systemctl disable packetfence-redis-cache
+        systemctl disable packetfence-config
+        systemctl disable packetfence.service
         exit 0
     ;;
     abort-upgrade)

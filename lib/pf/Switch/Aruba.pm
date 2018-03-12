@@ -59,11 +59,13 @@ use warnings;
 use base ('pf::Switch');
 
 use POSIX;
-use Net::Telnet;
 use Try::Tiny;
 
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $MAC
+    $SSID
+);
 use pf::Switch::constants;
 use pf::util;
 sub description { 'Aruba Networks' }
@@ -126,9 +128,6 @@ sub parseTrap {
         $trapHashRef->{'trapType'}    = 'dot11Deauthentication';
         $trapHashRef->{'trapMac'} = parse_mac_from_trap($1);
 
-    } elsif ( $trapString =~ /\.1\.3\.6\.1\.4\.1\.14823\.2\.3\.1\.11\.1\.1\.5\.0 = $SNMP::MAC_ADDRESS_FORMAT/ ) {
-        $trapHashRef->{'trapType'}    = 'wirelessIPS';
-        $trapHashRef->{'trapMac'} = parse_mac_from_trap($1);
     } else {
         $logger->debug("trap currently not handled");
         $trapHashRef->{'trapType'} = 'unknown';
@@ -345,6 +344,7 @@ sub getTelnetSession {
     # FIXME: we do not honor the $self->{_cliTransport} parameter
     my $session;
     eval {
+        require Net::Telnet;
         $session = Net::Telnet->new(
             Host    => $self->{_controllerIp} || $self->{_ip},
             Timeout => 5,
@@ -471,7 +471,7 @@ sub radiusDisconnect {
         my $connection_info = {
             nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
-            LocalAddr => $self->deauth_source_ip(),
+            LocalAddr => $self->deauth_source_ip($send_disconnect_to),
         };
 
         $logger->debug("network device supports roles. Evaluating role to be returned");
@@ -494,8 +494,7 @@ sub radiusDisconnect {
         # merging additional attributes provided by caller to the standard attributes
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
 
-        # Roles are configured and the user should have one
-        if ( defined($role) && (defined($node_info->{'status'}) && isenabled($self->{_RoleMap}) ) ) {
+        if ( $self->shouldUseCoA({role => $role}) ) {
 
             $attributes_ref = {
                 %$attributes_ref,
@@ -537,25 +536,73 @@ sub extractVLAN {
     return ($radius_request->{'Aruba-User-Vlan'});
 }
 
-=item parseUrl
 
-This is called when we receive a http request from the device and return specific attributes:
+=item parseExternalPortalRequest
 
-client mac address
-SSID
-client ip address
-redirect url
-grant url
-status code
+Parse external portal request using URI and it's parameters then return an hash reference with the appropriate parameters
+
+See L<pf::web::externalportal::handle>
 
 =cut
 
-sub parseUrl {
-    my($self, $req) = @_;
+sub parseExternalPortalRequest {
+    my ( $self, $r, $req ) = @_;
     my $logger = $self->logger;
-    return ($$req->param('mac'),$$req->param('essid'),$$req->param('ip'),$$req->param('url'),undef,undef);
+
+    # Using a hash to contain external portal parameters
+    my %params = ();
+
+    %params = (
+        switch_id               => defined($req->param('switchip')) ? $req->param('switchip') : $req->param('apname'),
+        client_mac              => clean_mac($req->param('mac')),
+        client_ip               => $req->param('ip'),
+        ssid                    => $req->param('essid'),
+        redirect_url            => $req->param('url'),
+        synchronize_locationlog =>  $FALSE,
+    );
+
+    return \%params;
 }
 
+=item returnAuthorizeWrite
+
+Return radius attributes to allow write access
+
+=cut
+
+sub returnAuthorizeWrite {
+   my ($self, $args) = @_;
+   my $logger = $self->logger;
+   my $radius_reply_ref = {};
+   my $status;
+   $radius_reply_ref->{'Class'} = 'root';
+   $radius_reply_ref->{'Reply-Message'} = "Switch enable access granted by PacketFence";
+   $logger->info("User $args->{'user_name'} logged in $args->{'switch'}{'_id'} with write access");
+   my $filter = pf::access_filter::radius->new;
+   my $rule = $filter->test('returnAuthorizeWrite', $args);
+   ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+   return [$status, %$radius_reply_ref];
+}
+
+=item returnAuthorizeRead
+
+Return radius attributes to allow read access
+
+=cut
+
+sub returnAuthorizeRead {
+   my ($self, $args) = @_;
+   my $logger = $self->logger;
+   my $radius_reply_ref = {};
+   my $status;
+   $radius_reply_ref->{'Class'} = 'read-only';
+   $radius_reply_ref->{'Reply-Message'} = "Switch read access granted by PacketFence";
+   $logger->info("User $args->{'user_name'} logged in $args->{'switch'}{'_id'} with read access");
+   my $filter = pf::access_filter::radius->new;
+   my $rule = $filter->test('returnAuthorizeRead', $args);
+   ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+   return [$status, %$radius_reply_ref];
+}
 
 =item
 
@@ -569,7 +616,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

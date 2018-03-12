@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Moose;
 extends 'captiveportal::View::HTML';
-use pf::file_paths;
+use pf::file_paths qw($install_dir);
 
 __PACKAGE__->config(
     TEMPLATE_EXTENSION => '.xml',
@@ -45,7 +45,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

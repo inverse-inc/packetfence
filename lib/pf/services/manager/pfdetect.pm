@@ -1,4 +1,5 @@
 package pf::services::manager::pfdetect;
+
 =head1 NAME
 
 pf::services::manager::pfdetect add documentation
@@ -14,14 +15,12 @@ pf::services::manager::pfdetect
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths;
-use pf::config;
-use pf::util;
+use pf::config qw(%ConfigDetect);;
 extends 'pf::services::manager';
 
 has '+name' => (default => sub { 'pfdetect' });
 
-has '+launcher' => (default => sub {"%1\$s -d &"});
+sub _cmdLine { my $self = shift; $self->executable; }
 
 sub isManaged { keys(%ConfigDetect) > 0 }
 
@@ -33,7 +32,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -55,4 +54,3 @@ USA.
 =cut
 
 1;
-

@@ -24,24 +24,22 @@ F<pf.conf.defaults>, F<networks.conf>, F<dhcp_fingerprints.conf>, F<oui.txt>, F<
 use strict;
 use warnings;
 use pf::log;
-use pf::config::cached;
-use pf::file_paths;
 use pf::constants;
 use Date::Parse;
 use File::Basename qw(basename);
 use File::Spec;
 use Net::Interface;
-use Net::Netmask;
+use pfconfig::objects::Net::Netmask;
 use POSIX;
 use Readonly;
 use threads;
 use Try::Tiny;
 use File::Which;
 use Socket;
-use List::MoreUtils qw(any);
 use Time::Local;
+use Linux::Distribution;
 use DateTime;
-use pf::constants::Portal::Profile;
+use pf::constants::Connection::Profile;
 use pf::cluster;
 use pf::constants::config qw(
   $IF_ENFORCEMENT_DNS
@@ -67,12 +65,13 @@ use pf::constants::config qw(
   $SELFREG_MODE_GOOGLE
   $SELFREG_MODE_FACEBOOK
   $SELFREG_MODE_GITHUB
+  $SELFREG_MODE_INSTAGRAM
   $SELFREG_MODE_LINKEDIN
+  $SELFREG_MODE_PINTEREST
   $SELFREG_MODE_WIN_LIVE
   $SELFREG_MODE_TWITTER
   $SELFREG_MODE_NULL
   $SELFREG_MODE_KICKBOX
-  $SELFREG_MODE_CHAINED
   $SELFREG_MODE_BLACKHOLE
   %NET_INLINE_TYPES
 );
@@ -80,23 +79,11 @@ use pfconfig::cached_array;
 use pfconfig::cached_scalar;
 use pfconfig::cached_hash;
 use pf::util;
-use Module::Pluggable (
-  search_path => 'pf::ConfigStore',
-  'sub_name'  => 'configStores',
-  require     => 1,
-  except      => [qw(
-      pf::ConfigStore::Group
-      pf::ConfigStore::Hierarchy
-      pf::ConfigStore::Interface
-      pf::ConfigStore::SwitchGroup
-      pf::ConfigStore::Role::ValidGenericID
-  )]
-);
 
 # Categorized by feature, pay attention when modifying
 our (
     @listen_ints, @dhcplistener_ints, @ha_ints, $monitor_int,
-    @internal_nets, @routed_isolation_nets, @routed_registration_nets, @inline_nets, @portal_ints,
+    @internal_nets, @routed_isolation_nets, @routed_registration_nets, @inline_nets, @portal_ints,@radius_ints,
     @inline_enforcement_nets, @vlan_enforcement_nets, $management_network,
 #pf.conf.default variables
     %Default_Config,
@@ -117,7 +104,7 @@ our (
 #profiles.conf variables
     @Profile_Filters, %Profiles_Config,
 
-    %connection_type, %connection_type_to_str, %connection_type_explained,
+    %connection_type, %connection_type_to_str, %connection_type_explained, %connection_type_explained_to_str,
     %connection_group, %connection_group_to_str,
     %mark_type_to_str, %mark_type,
     $thread, $fqdn, $reverse_fqdn,
@@ -140,16 +127,32 @@ our (
     %ConfigBillingTiers,
 #adminroles.conf
     %ConfigAdminRoles,
+#portal_modules.conf
+    %ConfigPortalModules,
+#conf/local_secret
+    $local_secret,
+#Switches Group
+    %ConfigSwitchesGroup,
+#Switches List
+    %ConfigSwitchesList,
+#Reports
+    %ConfigReport,
+#Surveys
+    %ConfigSurvey,
+#Roles
+    %ConfigRoles,
+#device_Registration.conf
+    %ConfigDeviceRegistration,
 );
 
 BEGIN {
     use Exporter ();
-    our ( @ISA, @EXPORT );
+    our ( @ISA, @EXPORT_OK );
     @ISA = qw(Exporter);
     # Categorized by feature, pay attention when modifying
-    @EXPORT = qw(
+    @EXPORT_OK = qw(
         @listen_ints @dhcplistener_ints @ha_ints $monitor_int
-        @internal_nets @routed_isolation_nets @routed_registration_nets @inline_nets $management_network @portal_ints
+        @internal_nets @routed_isolation_nets @routed_registration_nets @inline_nets $management_network @portal_ints @radius_ints
         @inline_enforcement_nets @vlan_enforcement_nets
         $IPTABLES_MARK_UNREG $IPTABLES_MARK_REG $IPTABLES_MARK_ISOLATION
         %mark_type_to_str %mark_type
@@ -166,32 +169,40 @@ BEGIN {
         $WIRELESS $WIRED $EAP
         $WEB_ADMIN_NONE $WEB_ADMIN_ALL
         $VOIP $NO_VOIP $NO_PORT $NO_VLAN
-        %connection_type %connection_type_to_str %connection_type_explained
+        %connection_type %connection_type_to_str %connection_type_explained %connection_type_explained_to_str
         %connection_group %connection_group_to_str
-        $RADIUS_API_LEVEL $ROLE_API_LEVEL $INLINE_API_LEVEL $AUTHENTICATION_API_LEVEL $SOH_API_LEVEL $BILLING_API_LEVEL
+        $RADIUS_API_LEVEL $ROLE_API_LEVEL $INLINE_API_LEVEL $AUTHENTICATION_API_LEVEL $BILLING_API_LEVEL
         $ROLES_API_LEVEL
-        $SELFREG_MODE_EMAIL $SELFREG_MODE_SMS $SELFREG_MODE_SPONSOR $SELFREG_MODE_GOOGLE $SELFREG_MODE_FACEBOOK $SELFREG_MODE_GITHUB $SELFREG_MODE_LINKEDIN $SELFREG_MODE_WIN_LIVE $SELFREG_MODE_TWITTER $SELFREG_MODE_NULL $SELFREG_MODE_KICKBOX $SELFREG_MODE_CHAINED $SELFREG_MODE_BLACKHOLE
+        $SELFREG_MODE_EMAIL $SELFREG_MODE_SMS $SELFREG_MODE_SPONSOR $SELFREG_MODE_GOOGLE $SELFREG_MODE_FACEBOOK $SELFREG_MODE_GITHUB $SELFREG_MODE_INSTAGRAM $SELFREG_MODE_LINKEDIN $SELFREG_MODE_PRINTEREST $SELFREG_MODE_WIN_LIVE $SELFREG_MODE_TWITTER $SELFREG_MODE_NULL $SELFREG_MODE_KICKBOX $SELFREG_MODE_BLACKHOLE
         %CAPTIVE_PORTAL
         $HTTP $HTTPS
-        normalize_time access_duration
+        access_duration
         $BANDWIDTH_DIRECTION_RE $BANDWIDTH_UNITS_RE
         is_vlan_enforcement_enabled is_inline_enforcement_enabled is_dns_enforcement_enabled is_type_inline
-        is_in_list
         $LOG4PERL_RELOAD_TIMER
         @Profile_Filters %Profiles_Config
         %ConfigFirewallSSO
         $OS
+        $DISTRIB $DIST_VERSION
         %Doc_Config
         %ConfigRealm
         %ConfigProvisioning
         %ConfigDomain
-        $TRUE $FALSE $default_pid
+        $default_pid
         %ConfigScan
         %ConfigWmi
         %ConfigPKI_Provider
         %ConfigDetect
         %ConfigBillingTiers
         %ConfigAdminRoles
+        %ConfigPortalModules
+        $local_secret
+        %ConfigSwitchesGroup
+        %ConfigSwitchesList
+        %ConfigReport
+        %ConfigSurvey
+        %ConfigRoles
+        %ConfigDeviceRegistration
     );
 }
 
@@ -206,12 +217,14 @@ if($cluster_enabled) {
     tie @inline_enforcement_nets, 'pfconfig::cached_array', "interfaces::inline_enforcement_nets($host_id)";
     tie @internal_nets, 'pfconfig::cached_array', "interfaces::internal_nets($host_id)";
     tie @portal_ints, 'pfconfig::cached_array', "interfaces::portal_ints($host_id)";
+    tie @radius_ints, 'pfconfig::cached_array', "interfaces::radius_ints($host_id)";
     tie @vlan_enforcement_nets, 'pfconfig::cached_array', "interfaces::vlan_enforcement_nets($host_id)";
     tie $management_network, 'pfconfig::cached_scalar', "interfaces::management_network($host_id)";
     tie $monitor_int, 'pfconfig::cached_scalar', "interfaces::monitor_int($host_id)";
     tie @routed_isolation_nets, 'pfconfig::cached_array', "interfaces::routed_isolation_nets($host_id)";
     tie @routed_registration_nets, 'pfconfig::cached_array', "interfaces::routed_registration_nets($host_id)";
     tie @inline_nets, 'pfconfig::cached_array', "interfaces::inline_nets($host_id)";
+    tie %ConfigDomain, 'pfconfig::cached_hash', "config::Domain($host_id)";
 }
 else {
     tie %Config, 'pfconfig::cached_hash', "config::Pf";
@@ -221,12 +234,14 @@ else {
     tie @inline_enforcement_nets, 'pfconfig::cached_array', "interfaces::inline_enforcement_nets";
     tie @internal_nets, 'pfconfig::cached_array', "interfaces::internal_nets";
     tie @portal_ints, 'pfconfig::cached_array', "interfaces::portal_ints";
+    tie @radius_ints, 'pfconfig::cached_array', "interfaces::radius_ints";
     tie @vlan_enforcement_nets, 'pfconfig::cached_array', "interfaces::vlan_enforcement_nets";
     tie $management_network, 'pfconfig::cached_scalar', "interfaces::management_network";
     tie $monitor_int, 'pfconfig::cached_scalar', "interfaces::monitor_int";
     tie @routed_isolation_nets, 'pfconfig::cached_array', "interfaces::routed_isolation_nets";
     tie @routed_registration_nets, 'pfconfig::cached_array', "interfaces::routed_registration_nets";
     tie @inline_nets, 'pfconfig::cached_array', "interfaces::inline_nets";
+    tie %ConfigDomain, 'pfconfig::cached_hash', "config::Domain";
 }
 
 tie %Default_Config, 'pfconfig::cached_hash', 'config::PfDefault';
@@ -246,8 +261,6 @@ tie %ConfigFirewallSSO, 'pfconfig::cached_hash', 'config::Firewall_SSO';
 
 tie %ConfigRealm, 'pfconfig::cached_hash', 'config::Realm';
 
-tie %ConfigDomain, 'pfconfig::cached_hash', 'config::Domain';
-
 tie %ConfigProvisioning, 'pfconfig::cached_hash', 'config::Provisioning';
 
 tie %ConfigScan, 'pfconfig::cached_hash', 'config::Scan';
@@ -262,11 +275,21 @@ tie %ConfigBillingTiers, 'pfconfig::cached_hash', 'config::BillingTiers';
 
 tie %ConfigAdminRoles, 'pfconfig::cached_hash', 'config::AdminRoles';
 
-sub import {
-    pf::config->export_to_level(1,@_);
-    pf::file_paths->export_to_level(1);
-}
-use pf::util::apache qw(url_parser);
+tie %ConfigPortalModules, 'pfconfig::cached_hash', 'config::PortalModules';
+
+tie $local_secret, 'pfconfig::cached_scalar', 'resource::local_secret';
+
+tie %ConfigSwitchesGroup, 'pfconfig::cached_hash', 'resource::switches_group';
+
+tie %ConfigSwitchesList, 'pfconfig::cached_hash', 'resource::switches_list';
+
+tie %ConfigReport, 'pfconfig::cached_hash', 'config::Report';
+
+tie %ConfigSurvey, 'pfconfig::cached_hash', 'config::Survey';
+
+tie %ConfigRoles, 'pfconfig::cached_hash', 'config::Roles';
+
+tie %ConfigDeviceRegistration, 'pfconfig::cached_hash', 'config::DeviceRegistration';
 
 $thread = 0;
 
@@ -282,6 +305,11 @@ Readonly our $WIPS_VID => '1100020';
 
 # OS Specific
 Readonly::Scalar our $OS => os_detection();
+
+# OS Version Specific
+Readonly::Scalar our $LINUX => Linux::Distribution->new;
+Readonly::Scalar our $DISTRIB => $LINUX->distribution_name();
+Readonly::Scalar our $DIST_VERSION => $LINUX->distribution_version();
 
 # Interface types
 Readonly our $IF_INTERNAL => 'internal';
@@ -351,20 +379,17 @@ Readonly our $WEB_ADMIN_ALL => 4294967295;
     $UNKNOWN => 'Unknown',
 );
 
+%connection_type_explained_to_str = map { $connection_type_explained{$_} => $connection_type_to_str{$_} } keys %connection_type_explained;
+
 # VoIP constants
 Readonly our $VOIP    => 'yes';
 Readonly our $NO_VOIP => 'no';
-
-# HTTP constants
-Readonly our $HTTP => 'http';
-Readonly our $HTTPS => 'https';
 
 # API version constants
 Readonly::Scalar our $RADIUS_API_LEVEL => 1.02;
 Readonly::Scalar our $ROLE_API_LEVEL => 1.04;
 Readonly::Scalar our $INLINE_API_LEVEL => 1.01;
 Readonly::Scalar our $AUTHENTICATION_API_LEVEL => 1.11;
-Readonly::Scalar our $SOH_API_LEVEL => 1.00;
 Readonly::Scalar our $BILLING_API_LEVEL => 1.00;
 Readonly::Scalar our $ROLES_API_LEVEL => 0.90;
 
@@ -401,50 +426,6 @@ Readonly::Scalar our $ALWAYS => "always";
 
 Readonly::Scalar our $NO_PORT => 0;
 Readonly::Scalar our $NO_VLAN => 0;
-
-# SoH filters
-Readonly our $SOH_ACTION_ACCEPT => 'accept';
-Readonly our $SOH_ACTION_REJECT => 'reject';
-Readonly our $SOH_ACTION_VIOLATION => 'violation';
-
-Readonly::Array our @SOH_ACTIONS =>
-  (
-   $SOH_ACTION_ACCEPT,
-   $SOH_ACTION_REJECT,
-   $SOH_ACTION_VIOLATION
-  );
-
-Readonly our $SOH_CLASS_FIREWALL => 'firewall';
-Readonly our $SOH_CLASS_ANTIVIRUS => 'antivirus';
-Readonly our $SOH_CLASS_ANTISPYWARE => 'antispyware';
-Readonly our $SOH_CLASS_AUTO_UPDATES => 'auto-updates';
-Readonly our $SOH_CLASS_SECURITY_UPDATES => 'security-updates';
-
-Readonly::Array our @SOH_CLASSES =>
-  (
-   $SOH_CLASS_FIREWALL,
-   $SOH_CLASS_ANTIVIRUS,
-   $SOH_CLASS_ANTISPYWARE,
-   $SOH_CLASS_AUTO_UPDATES,
-   $SOH_CLASS_SECURITY_UPDATES
-  );
-
-Readonly our $SOH_STATUS_OK => 'ok';
-Readonly our $SOH_STATUS_INSTALLED => 'installed';
-Readonly our $SOH_STATUS_ENABLED => 'enabled';
-Readonly our $SOH_STATUS_DISABLED => 'disabled';
-Readonly our $SOH_STATUS_UP2DATE => 'up2date';
-Readonly our $SOH_STATUS_MICROSOFT => 'microsoft';
-
-Readonly::Array our @SOH_STATUS =>
-  (
-   $SOH_STATUS_OK,
-   $SOH_STATUS_INSTALLED,
-   $SOH_STATUS_ENABLED,
-   $SOH_STATUS_DISABLED,
-   $SOH_STATUS_UP2DATE,
-   $SOH_STATUS_MICROSOFT
-  );
 
 # Log Reload Timer in seconds
 Readonly our $LOG4PERL_RELOAD_TIMER => 5 * 60;
@@ -782,15 +763,15 @@ sub get_network_type {
     if (!defined($type)) {
         # not defined
         return;
-    } elsif ($type =~ /^$NET_TYPE_VLAN_REG$/i) {
+    } elsif ($type =~ /^$NET_TYPE_VLAN_REG/i) {
         # vlan-registration
         return $NET_TYPE_VLAN_REG;
 
-    } elsif ($type =~ /^$NET_TYPE_VLAN_ISOL$/i) {
+    } elsif ($type =~ /^$NET_TYPE_VLAN_ISOL/i) {
         # vlan-isolation
         return $NET_TYPE_VLAN_ISOL;
 
-    } elsif ( $type =~ /^$NET_TYPE_DNS_ENFORCEMENT$/i ) {
+    } elsif ( $type =~ /^$NET_TYPE_DNS_ENFORCEMENT/i ) {
 
         # dns-enforcement
         return $NET_TYPE_DNS_ENFORCEMENT;
@@ -831,7 +812,7 @@ sub is_network_type_vlan_reg {
     }
 }
 
-=head2 is_network_type_dns_enforcement
+=item is_network_type_dns_enforcement
 
 Returns true if given network is of type dns-enforcement and false otherwise.
 
@@ -883,52 +864,6 @@ sub is_network_type_inline {
     }
 }
 
-=item is_in_list
-
-Searches for an item in a comma separated list of elements (like we do in our configuration files).
-
-Returns true or false values based on if item was found or not.
-
-=cut
-
-sub is_in_list {
-    my ($item, $list) = @_;
-    my @list = (ref($list) eq 'ARRAY') ? @$list : split( /\s*,\s*/, $list );
-    return $TRUE if any { $_ eq $item } @list;
-    return $FALSE;
-}
-
-=item is_omapi_lookup_enabled
-
-Check whether pf::iplog::ip2mac or pf::iplog::mac2ip are configured to use OMAPI based on configuration parameters.
-
-=cut
-
-sub is_omapi_lookup_enabled {
-    if ( isenabled($Config{'omapi'}{'ip2mac_lookup'}) || isenabled($Config{'omapi'}{'mac2ip_lookup'}) ) {
-        return $TRUE;
-    }
-
-    return $FALSE;
-}
-
-=item is_omapi_configured
-
-Check if required OMAPI configuration parameters (omapi.key_name & omapi.key_base64) are present before configuring it
-
-=cut
-
-sub is_omapi_configured {
-    return $FALSE unless $Config{'omapi'}{'host'} eq "localhost";
-
-    if ( ($Config{'omapi'}{'key_name'} && $Config{'omapi'}{'key_name'} ne '') && ($Config{'omapi'}{'key_base64'} && $Config{'omapi'}{'key_base64'} ne '') ) {
-        return $TRUE;
-    }
-
-    $logger->warn("OMAPI lookup is locally enabled but missing required configuration parameters 'key_name' and/or 'key_base64'");
-    return $FALSE;
-}
-
 =item configreload
 
 Reload the config
@@ -937,21 +872,20 @@ Reload the config
 
 sub configreload {
     my ($force) = @_;
-    pf::CHI->new(namespace => 'configfiles')->clear() if $force;
-    foreach my $cs (pf::config->configStores()) {
-        my $temp = $cs->new;
-        #Force the loading of cached config
-        $temp->cachedConfig;
-    }
     require pf::web::filter;
-    pf::config::cached::updateCacheControl();
-    pf::config::cached::ReloadConfigs($force);
+    require pf::CHI;
+    my $chi = pf::CHI->new(namespace => 'configfiles');
+    $chi->clear;
 
     # reload pfconfig's config
     require pfconfig::manager;
     my $manager = pfconfig::manager->new;
     $manager->expire_all;
+    load_configdata_into_db();
+    return ;
+}
 
+sub load_configdata_into_db {
     # reload violations into DB
     require pf::violation_config;
     pf::violation_config::loadViolationsIntoDb();
@@ -960,7 +894,11 @@ sub configreload {
     require pf::freeradius;
     pf::freeradius::freeradius_populate_nas_config(\%pf::SwitchFactory::SwitchConfig);
 
-    return ;
+    require pf::nodecategory;
+    pf::nodecategory::nodecategory_populate_from_config( \%pf::config::ConfigRoles );
+
+    require pf::Survey;
+    pf::Survey::reload_from_config( \%pf::config::ConfigSurvey );
 }
 
 =back
@@ -973,7 +911,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

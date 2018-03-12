@@ -1,0 +1,63 @@
+/// _components.input.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
+
+.#{$pf-namespace}input-checkbox-container {
+
+  label {
+    cursor: pointer;
+    display: inline-block;
+    margin-left: $inuit-base-spacing-unit--small;
+    vertical-align: middle;
+  }
+
+  label p {
+    margin: 0;
+  }
+
+  label p.caption {
+    @include font-size($inuit-base-font-size * 0.8, none);
+    color: $pf-input-caption;
+  }
+}
+
+
+.#{$pf-namespace}input-container {
+
+  label {
+    cursor: pointer;
+    display: block;
+    vertical-align: middle;
+
+    &.radio {
+      padding: quarter($spacing-unit) 0;
+      input[type="radio"] {
+        display: inline-block;
+        margin: 0 halve($spacing-unit);
+        width: auto;
+      }
+    }
+  }
+
+  input, select {
+    border: 1px solid $pf-list-icon-color;
+    border-radius: $pf-border-radius;
+    color: $pf-color-gray;
+    padding: halve($spacing-unit);
+    transition: border-color 0.15s linear;
+    width: 100%;
+
+    &:hover {
+      border-color: darken($pf-list-icon-color, 20%);
+    }
+
+    &:focus {
+      outline: none;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+      border-color: $inuit-btn-background;
+    }
+  }
+  
+  select {
+    background-color: white;
+    height: $spacing-unit + $inuit-base-font-size * 1.2;
+  }
+}

@@ -14,47 +14,38 @@ pf::ConfigStore::PF
 
 use Moo;
 use namespace::autoclean;
-use pf::config;
-use pf::config::cached;
-use pf::file_paths;
+use pf::config qw(
+    %Default_Config
+    %Config
+    %Doc_Config
+);
+use pf::IniFiles;
+use pf::file_paths qw($pf_config_file $pf_default_file);
 
 extends 'pf::ConfigStore';
+has serviceUpdated => ( is => "rw" );
 
 =head2 Methods
-
-=over
-
-=item _buildCachedConfig
 
 =cut
 
 sub configFile {$pf_config_file};
 
+sub importConfigFile { $pf_default_file }
+
 sub pfconfigNamespace {'config::Pf'}
 
-sub _buildCachedConfig {
-    my ($self) = @_;
-    return pf::config::cached->new(
-        -file         => $config_file,
-        -allowempty   => 1,
-        -import       => pf::config::cached->new(-file => $default_config_file),
-        -onpostreload => [
-            'reload_pf_config' => sub {
-                my ($config) = @_;
-                $config->{imported}->ReadConfig;
-              }
-        ],
-
-    );
-}
-
-=item remove
+=head2 remove
 
 Delete an existing item
 
 =cut
 
 sub remove { return; }
+
+=head2 cleanupAfterRead
+
+=cut
 
 sub cleanupAfterRead {
     my ( $self,$section, $data ) = @_;
@@ -68,7 +59,7 @@ sub cleanupAfterRead {
         my $type = $doc->{type} || "text";
         my $subtype = $doc->{subtype};
         # Value should always be defined for toggles (checkbox and select) and times (duration)
-        if ($type eq "toggle" || $type eq "time") {
+        if ($type eq "toggle" || $type eq "time" || $type eq "timezone" ) {
             $data->{$key} = $Default_Config{$section}{$key} unless ($data->{$key});
         } elsif ($type eq "date") {
             my $time = str2time($data->{$key} || $Default_Config{$section}{$key});
@@ -78,7 +69,7 @@ sub cleanupAfterRead {
             my $value = $data->{$key};
             my @values = split( /\s*,\s*/, $value ) if $value;
             $data->{$key} = \@values;
-        } elsif ($type eq 'list') {
+        } elsif ( $type eq 'list' ) {
             my $value = $data->{$key};
             if ($value) {
                 $data->{$key} = join("\n", split( /\s*,\s*/, $value));
@@ -87,7 +78,16 @@ sub cleanupAfterRead {
                 # No custom value, use default value
                 $data->{$key} = join("\n", split( /\s*,\s*/, $defaults->{$key}));
             }
-        } elsif ( $type eq 'merged_list' ) { 
+        } elsif ( $type eq 'fingerbank_select' ) {
+            my $value = $data->{$key};
+            if ($value) {
+                $data->{$key} = [split( /\s*,\s*/, $value)];
+            }
+            elsif ($defaults->{$key}) {
+                # No custom value, use default value
+                $data->{$key} = [split( /\s*,\s*/, $defaults->{$key})];
+            }
+         } elsif ( $type eq 'merged_list' ) {
             my $value = $data->{$key};
             if ($value ne $defaults->{$key}) {
                 $data->{$key} = join("\n", split( /\s*,\s*/, $value));
@@ -116,21 +116,30 @@ sub cleanupBeforeCommit {
         if (exists $Doc_Config{$doc_section} ) {
             my $doc = $Doc_Config{$doc_section};
             my $type = $doc->{type} || "text";
-            if($type eq 'list' || $type eq 'merged_list' ) {
+            if($type eq 'list' || $type eq 'merged_list' || $type eq 'fingerbank_select') {
                 my $value = $assignment->{$key};
                 $assignment->{$key} = join(",",split( /\v+/, $value )) if $value;
             }
         }
     }
+    $self->serviceUpdated(1) if $section eq "services" ;
 }
 
-__PACKAGE__->meta->make_immutable;
+sub commit {
+    my $self = shift;
+    my ( $result, $error ) = $self->SUPER::commit();
+    if ( $result and $self->serviceUpdated ) {
+        my $rc =
+          system("sudo /usr/local/pf/bin/pfcmd service pf updatesystemd");
+    }
+    return ( $result, $error );
+}
 
-=back
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -152,4 +161,3 @@ USA.
 =cut
 
 1;
-

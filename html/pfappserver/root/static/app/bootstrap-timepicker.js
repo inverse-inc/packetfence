@@ -165,6 +165,7 @@
 
             switch (e.keyCode) {
                 case 9: //tab
+                case 13: //enter
                     if (this.showMeridian) {
                         if (input == 'meridian') {
                             this.hideWidget();
@@ -179,6 +180,9 @@
                                 this.hideWidget();
                             }
                         }
+                    }
+                    if (e.keyCode == 13) {
+                        this.update();
                     }
                 break;
                 case 27: // escape

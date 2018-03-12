@@ -169,21 +169,11 @@ our %WHERE_SINGLE_OPS = (
 sub _single_where_clause {
     my ($self,$op) = @_;
     my @clauses;
-    if (exists $WHERE_SINGLE_OPS{lc($op)}) {
-        my $has_elements = $self->has_where_clause_elements;
-        if($self->has_where_clause_elements) {
-            my $last_elem = $self->last_where_clause_element;
-            if(!exists $WHERE_SINGLE_OPS{$last_elem} ) {
-                $self->_add_implict_and() if $op eq '(';
-                @clauses = ($op);
-            }
-        } elsif($op eq '(') {
-            @clauses = ($op);
-        } else {
-            die "$op cannot be first where clause";
-        }
-    } elsif( ref($op) eq 'SCALAR'  ) {
-        @clauses = $$op;
+    if( ref($op) eq 'SCALAR'  ) {
+        @clauses = ($$op);
+    }
+    elsif (exists $WHERE_SINGLE_OPS{lc($op)}) {
+        @clauses = ($op);
     }
     else {
         die "$op cannot be added to where clause";
@@ -213,7 +203,7 @@ sub _where_clause {
         my $method = $OP_GROUP_MAP{$op};
         push @clauses, $self->$method($lhs,$op,@rhs);
     } else {
-        die "invalid operator $op provided";
+        die "invalid operator '$op' provided";
     }
     return @clauses;
 }
@@ -223,7 +213,7 @@ sub _add_implict_and {
     my $logger = get_logger();
     if($self->has_where_clause_elements) {
         my $last_elem = $self->last_where_clause_element;
-        if($last_elem eq ')' || ! exists $WHERE_SINGLE_OPS{$last_elem} ) {
+        if($last_elem eq ')' || ! exists $WHERE_SINGLE_OPS{lc($last_elem)} ) {
            $self->add_to_where_clause_elements('and');
         }
     }
@@ -297,7 +287,7 @@ sub _in {
     if( @rhs ) {
         #if rhs side value is undefined
         my $formatted_lhs = $self->format_column($lhs);
-        push @clauses,$formatted_lhs, $op,'in','(',join(", ",$self->_format_values(@rhs)),')';
+        push @clauses,$formatted_lhs, $op,'(' . join(", ",$self->_format_values(@rhs)) . ')';
 
     } else {
         die "invalid amount operands provided";
@@ -314,7 +304,9 @@ sub _format_identifier {
 sub _format_values {
     my ($self,@values) = @_;
     my $dbh = get_db_handle();
-    return map { $dbh->quote($_) } @values;
+    return map {
+       ref $_ eq 'SCALAR' ? $$_ : $dbh->quote($_)
+    } @values;
 
 }
 
@@ -380,7 +372,7 @@ sub sql_count {
             $self->where_clause(),
             $self->group_by_clause(),
             $self->having_clause(),
-        ") as x"
+        ") AS x"
     ) if($self->has_group_by_clause_elements);
 
     return (
@@ -419,7 +411,7 @@ sub select_clause {
 sub select_count_clause {
     my ($self,$dbh) = @_;
 
-    my $sql = 'SELECT COUNT(*) as count ';
+    my $sql = 'SELECT COUNT(*) AS count ';
 
     return $sql;
 }
@@ -442,7 +434,7 @@ sub format_column {
         my $table_name = (exists $column->{table} && $column->{table} ) || $self->first_from_clause_element->{table};
         $column_text = join('.', map {$dbh->quote_identifier($_) } ($table_name,$column->{name}));
     }
-    $column_text .= " as $as" if defined $as;
+    $column_text .= " AS $as" if defined $as;
     return $column_text;
 }
 
@@ -476,7 +468,7 @@ sub format_from {
     my @clause_parts;
     my $dbh = $self->dbh;
     if($type eq 'HASH') {
-        my ($table,$as,$join_type,$using,$on) = @{$from_clause}{qw(table as join using on)};
+        my ($table, $as, $join_type, $using, $on) = @{$from_clause}{qw(table as join using on)};
         if(defined $table) {
             if(ref($table) ) {
                 $table = $$table;
@@ -486,19 +478,19 @@ sub format_from {
             if($join_type) {
                 $join_type = uc($join_type);
                 if(exists $VALID_JOIN_TYPES{$join_type}) {
-                    push @clause_parts,$join_type;
+                    push @clause_parts, $join_type;
                 }
-                push @clause_parts,"JOIN",$table;
-                push @clause_parts,'as',$as if defined $as && length($as) > 0;
+                push @clause_parts, "JOIN", $table;
+                push @clause_parts, 'AS', $as if defined $as && length($as) > 0;
                 if ($using) {
-                    push @clause_parts,'using(',$dbh->quote_identifier($using),')';
+                    push @clause_parts, 'USING(', $dbh->quote_identifier($using), ')';
                 } elsif ($on) {
-                    push @clause_parts,'on',$self->format_from_on(@$on);
+                    push @clause_parts, 'ON', $self->format_from_on(@$on);
                 }
             } else {
                 @clause_parts = ($table);
             }
-            $clause = join(' ',@clause_parts);
+            $clause = join(' ', @clause_parts);
         } else {
             die "table not defined";
         }
@@ -540,7 +532,7 @@ sub where_clause {
     my ($self,@args) = @_;
     my $sql = '';
     if($self->has_where_clause_elements) {
-        $sql = join(' ','WHERE',$self->where_clause_elements());
+        $sql = join(' ', 'WHERE', $self->where_clause_elements());
     }
     return $sql;
 }
@@ -634,7 +626,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

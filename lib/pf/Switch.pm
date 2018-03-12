@@ -17,6 +17,7 @@ use warnings;
 
 use Carp;
 use Data::Dumper;
+use Net::IP;
 use Net::SNMP;
 use pf::log;
 use Try::Tiny;
@@ -25,7 +26,22 @@ our $VERSION = 2.10;
 
 use pf::CHI;
 use pf::constants;
-use pf::config;
+use pf::constants::role qw($VOICE_ROLE $MAC_DETECTION_ROLE $REJECT_ROLE);
+use pf::config qw(
+    $ROLES_API_LEVEL
+    $management_network
+    %Config
+    $WIRED_SNMP_TRAPS
+    $VOIP
+    $WIRED_802_1X
+    $WIRED_MAC_AUTH
+    $NO_VOIP
+);
+use Errno qw(EINTR);
+use pf::file_paths qw(
+    $control_dir
+);
+use pf::dal;
 use pf::locationlog;
 use pf::node;
 use pf::cluster;
@@ -37,12 +53,26 @@ use pf::Switch::constants;
 use pf::util;
 use pf::util::radius qw(perform_disconnect);
 use List::MoreUtils qw(any all);
+use List::Util qw(first);
 use Scalar::Util qw(looks_like_number);
-use List::MoreUtils qw(any);
 use pf::StatsD;
 use pf::util::statsd qw(called);
 use Time::HiRes;
 use pf::access_filter::radius;
+use File::Spec::Functions;
+use File::FcntlLock;
+
+#
+# %TRAP_NORMALIZERS
+# A hash of cisco trap normalizers
+# Use the following convention when adding a normalizer
+# <nameOfTrapNotificationType>TrapNormalizer
+#
+our %TRAP_NORMALIZERS = (
+    '.1.3.6.1.6.3.1.1.5.3' => 'linkDownTrapNormalizer',
+    '.1.3.6.1.6.3.1.1.5.4' => 'linkUpTrapNormalizer',
+    '.1.2.840.10036.1.6.0.2' => 'dot11DeauthenticateTrapNormalizer',
+);
 
 =head1 SUBROUTINES
 
@@ -194,6 +224,7 @@ sub supportsAccessListBasedEnforcement {
     return $FALSE;
 }
 
+
 =item supportsRoamingAccounting
 
 =cut
@@ -261,57 +292,61 @@ sub supportsMABFloatingDevices {
 sub new {
     my ($class, $argv) = @_;
     my $self = bless {
-        '_error'                    => undef,
-        '_id'                       => undef,
-        '_macSearchesMaxNb'         => undef,
-        '_macSearchesSleepInterval' => undef,
-        '_mode'                     => undef,
-        '_sessionRead'              => undef,
-        '_sessionWrite'             => undef,
-        '_sessionControllerWrite'   => undef,
-        '_SNMPAuthPasswordRead'     => undef,
-        '_SNMPAuthPasswordTrap'     => undef,
-        '_SNMPAuthPasswordWrite'    => undef,
-        '_SNMPAuthProtocolRead'     => undef,
-        '_SNMPAuthProtocolTrap'     => undef,
-        '_SNMPAuthProtocolWrite'    => undef,
-        '_SNMPCommunityRead'        => undef,
-        '_SNMPCommunityTrap'        => undef,
-        '_SNMPCommunityWrite'       => undef,
-        '_SNMPEngineID'             => undef,
-        '_SNMPPrivPasswordRead'     => undef,
-        '_SNMPPrivPasswordTrap'     => undef,
-        '_SNMPPrivPasswordWrite'    => undef,
-        '_SNMPPrivProtocolRead'     => undef,
-        '_SNMPPrivProtocolTrap'     => undef,
-        '_SNMPPrivProtocolWrite'    => undef,
-        '_SNMPUserNameRead'         => undef,
-        '_SNMPUserNameTrap'         => undef,
-        '_SNMPUserNameWrite'        => undef,
-        '_SNMPVersion'              => 1,
-        '_SNMPVersionTrap'          => 1,
-        '_cliEnablePwd'             => undef,
-        '_cliPwd'                   => undef,
-        '_cliUser'                  => undef,
-        '_cliTransport'             => undef,
-        '_wsPwd'                    => undef,
-        '_wsUser'                   => undef,
-        '_wsTransport'              => undef,
-        '_radiusSecret'             => undef,
-        '_controllerIp'             => undef,
-        '_controllerPort'           => undef,
-        '_uplink'                   => undef,
-        '_vlans'                    => undef,
-        '_VoIPEnabled'              => undef,
-        '_roles'                    => undef,
-        '_inlineTrigger'            => undef,
-        '_deauthMethod'             => undef,
-        '_switchIp'                 => undef,
-        '_ip'                       => undef,
-        '_portalURL'                => undef,
-        '_switchMac'                => undef,
-        '_VlanMap'                  => 'enabled',
-        '_RoleMap'                  => 'enabled',
+        '_error'                        => undef,
+        '_id'                           => undef,
+        '_macSearchesMaxNb'             => undef,
+        '_macSearchesSleepInterval'     => undef,
+        '_mode'                         => undef,
+        '_sessionRead'                  => undef,
+        '_sessionWrite'                 => undef,
+        '_sessionControllerWrite'       => undef,
+        '_SNMPAuthPasswordRead'         => undef,
+        '_SNMPAuthPasswordTrap'         => undef,
+        '_SNMPAuthPasswordWrite'        => undef,
+        '_SNMPAuthProtocolRead'         => undef,
+        '_SNMPAuthProtocolTrap'         => undef,
+        '_SNMPAuthProtocolWrite'        => undef,
+        '_SNMPCommunityRead'            => undef,
+        '_SNMPCommunityTrap'            => undef,
+        '_SNMPCommunityWrite'           => undef,
+        '_SNMPEngineID'                 => undef,
+        '_SNMPPrivPasswordRead'         => undef,
+        '_SNMPPrivPasswordTrap'         => undef,
+        '_SNMPPrivPasswordWrite'        => undef,
+        '_SNMPPrivProtocolRead'         => undef,
+        '_SNMPPrivProtocolTrap'         => undef,
+        '_SNMPPrivProtocolWrite'        => undef,
+        '_SNMPUserNameRead'             => undef,
+        '_SNMPUserNameTrap'             => undef,
+        '_SNMPUserNameWrite'            => undef,
+        '_SNMPVersion'                  => 1,
+        '_SNMPVersionTrap'              => 1,
+        '_cliEnablePwd'                 => undef,
+        '_cliPwd'                       => undef,
+        '_cliUser'                      => undef,
+        '_cliTransport'                 => undef,
+        '_wsPwd'                        => undef,
+        '_wsUser'                       => undef,
+        '_wsTransport'                  => undef,
+        '_radiusSecret'                 => undef,
+        '_controllerIp'                 => undef,
+        '_disconnectPort'               => undef,
+        '_coaPort'                      => undef,
+        '_uplink'                       => undef,
+        '_vlans'                        => undef,
+        '_ExternalPortalEnforcement'    => 'disabled',    
+        '_VoIPEnabled'                  => undef,
+        '_roles'                        => undef,
+        '_inlineTrigger'                => undef,
+        '_deauthMethod'                 => undef,
+        '_useCoA'                       => 'enabled',
+        '_switchIp'                     => undef,
+        '_ip'                           => undef,
+        '_switchMac'                    => undef,
+        '_VlanMap'                      => 'enabled',
+        '_RoleMap'                      => 'enabled',
+        '_UrlMap'                       => 'enabled',
+        '_TenantId'                     => $DEFAULT_TENANT_ID,
         map { "_".$_ => $argv->{$_} } keys %$argv,
     }, $class;
     return $self;
@@ -373,8 +408,7 @@ sub connectRead {
     } else {
         my $oid_sysLocation = '1.3.6.1.2.1.1.6.0';
         $logger->trace("SNMP get_request for sysLocation: $oid_sysLocation");
-        my $result = $self->{_sessionRead}
-            ->get_request( -varbindlist => [$oid_sysLocation] );
+        my $result = $self->cachedSNMPRequest([-varbindlist => [$oid_sysLocation]], {expires_in => '10m'});
         if ( !defined($result) ) {
             $logger->error( "error creating SNMP v"
                     . $self->{_SNMPVersion}
@@ -386,6 +420,29 @@ sub connectRead {
         }
     }
     return 1;
+}
+
+=item cachedSNMPRequest
+
+Get a cached SNMP request using the default cache expiration
+
+    $self->cachedSNMPRequest([-varbindlist => ['1.3.6.1.2.1.1.6.0']]);
+
+Get a cached SNMP request using a provided expiration
+
+    $self->cachedSNMPRequest([-varbindlist => ['1.3.6.1.2.1.1.6.0']], {expires_in => '10m'});
+
+=cut
+
+sub cachedSNMPRequest {
+    my ($self, $args, $options) = @_;
+    my $session = $self->{_sessionRead};
+    if(!defined $session) {
+        $self->logger->error("Trying read to from a undefined session");
+        return undef;
+    }
+    $options //= {};
+    return $self->cache->compute($self->{'_id'} . "-" . $args, $options, sub {$self->{_sessionRead}->get_request(@$args)});
 }
 
 =item disconnectRead - closing read connection to switch
@@ -506,7 +563,7 @@ Establishes an SNMP write connection to the controller of the network device as 
 
 sub connectWriteToController {
     my $self   = shift;
-    return $self->connectWriteTo($self->{_controllerIp}, '_sessionControllerWrite',$self->{_controllerPort});
+    return $self->connectWriteTo($self->{_controllerIp}, '_sessionControllerWrite',$self->{_disconnectPort});
 }
 
 =item disconnectWriteTo
@@ -572,7 +629,7 @@ sub setVlan {
     }
 
     my $vlan = $self->getVlan($ifIndex);
-    my $macDetectionVlan = $self->getVlanByName('macDetection');
+    my $macDetectionVlan = $self->getVlanByName($MAC_DETECTION_ROLE);
 
     if ( !defined($presentPCMac) && ( $newVlan ne $macDetectionVlan ) ) {
         my @macArray = $self->_getMacAtIfIndex( $ifIndex, $vlan );
@@ -712,7 +769,7 @@ sub getVlanByName {
         # VLAN name doesn't exist
         $pf::StatsD::statsd->increment(called() . ".error" );
         $logger->warn("No parameter ${vlanName}Vlan found in conf/switches.conf for the switch " . $self->{_id});
-        return;
+        return undef;
     }
 
     if ($vlanName eq "inline" && length($self->{'_vlans'}->{$vlanName}) == 0) {
@@ -746,6 +803,27 @@ sub getAccessListByName {
     $logger->trace("No parameter ${access_list_name}AccessList found in conf/switches.conf for the switch " . $self->{_id});
     return;
 
+}
+
+=item getUrlByName
+
+Get the switch-specific url of a given global role in switches.conf
+
+=cut
+
+sub getUrlByName {
+    my ($self, $roleName) = @_;
+    my $logger = $self->logger;
+
+    # skip if not defined or empty
+    return if (!defined($self->{'_urls'}) || !%{$self->{'_urls'}});
+
+    # return if found
+    return $self->{'_urls'}->{$roleName} if (defined($self->{'_urls'}->{$roleName}));
+
+    # otherwise log and return undef
+    $logger->trace("(".$self->{_id}.") No parameter ${roleName}Url found in conf/switches.conf");
+    return;
 }
 
 =item setVlanByName - set the ifIndex VLAN to the VLAN identified by given name in switches.conf
@@ -798,7 +876,7 @@ sub setMacDetectionVlan {
     my ( $self, $ifIndex, $switch_locker_ref,
         $closeAllOpenLocationlogEntries )
         = @_;
-    return $self->setVlan( $ifIndex, $self->getVlanByName('macDetection'),
+    return $self->setVlan( $ifIndex, $self->getVlanByName($MAC_DETECTION_ROLE),
         $switch_locker_ref, undef, $closeAllOpenLocationlogEntries );
 }
 
@@ -1145,7 +1223,7 @@ sub getIfDesc {
         return '';
     }
     $logger->trace("SNMP get_request for ifDesc: $oid");
-    my $result = $self->{_sessionRead}->get_request( -varbindlist => [$oid] );
+    my $result = $self->cachedSNMPRequest([-varbindlist => [$oid]]);
     if ( exists( $result->{$oid} )
         && ( $result->{$oid} ne 'noSuchInstance' ) )
     {
@@ -1167,7 +1245,7 @@ sub getIfName {
         return '';
     }
     $logger->trace("SNMP get_request for ifName: $oid");
-    my $result = $self->{_sessionRead}->get_request( -varbindlist => [$oid] );
+    my $result = $self->cachedSNMPRequest([-varbindlist => [$oid]]);
     if ( exists( $result->{$oid} )
         && ( $result->{$oid} ne 'noSuchInstance' ) )
     {
@@ -1232,7 +1310,7 @@ sub bouncePort {
     my ($self, $ifIndex) = @_;
 
     $self->setAdminStatus( $ifIndex, $SNMP::DOWN );
-    sleep($Config{'vlan'}{'bounce_duration'});
+    sleep($Config{'snmp_traps'}{'bounce_duration'});
     $self->setAdminStatus( $ifIndex, $SNMP::UP );
 
     return $TRUE;
@@ -1398,12 +1476,16 @@ sub getPhonesDPAtIfIndex {
     my @phones = ();
     # CDP
     if ($self->supportsCdp()) {
-        push @phones, $self->getPhonesCDPAtIfIndex($ifIndex);
+        if (!defined($self->{_VoIPCDPDetect}) || isenabled($self->{_VoIPCDPDetect}) ) {
+            push @phones, $self->getPhonesCDPAtIfIndex($ifIndex);
+        }
     }
 
     # LLDP
     if ($self->supportsLldp()) {
-        push @phones, $self->getPhonesLLDPAtIfIndex($ifIndex);
+        if (!defined($self->{_VoIPLLDPDetect}) || isenabled($self->{_VoIPLLDPDetect}) ) {
+            push @phones, $self->getPhonesLLDPAtIfIndex($ifIndex);
+        }
     }
 
     # filtering duplicates w/ hashmap (key collisions handles it)
@@ -1451,10 +1533,7 @@ sub hasPhoneAtIfIndex {
 sub isPhoneAtIfIndex {
     my ( $self, $mac, $ifIndex ) = @_;
     my $logger = $self->logger;
-    if ( !$self->isVoIPEnabled() ) {
-        $logger->debug( "VoIP not enabled on switch " . $self->{_id} );
-        return 0;
-    }
+
     if ( $self->isFakeVoIPMac($mac) ) {
         $logger->debug("MAC $mac is fake VoIP MAC");
         return 1;
@@ -1471,16 +1550,18 @@ sub isPhoneAtIfIndex {
         return 1;
     }
 
-    if (defined($node_info->{dhcp_fingerprint}) && $node_info->{dhcp_fingerprint} =~ /VoIP Phone/) {
-        $logger->debug("DHCP fingerprint for $mac indicates VoIP phone");
-        return 1;
-    }
+    if (!defined($self->{_VoIPDHCPDetect}) || isenabled($self->{_VoIPDHCPDetect}) ) {
+        if (defined($node_info->{dhcp_fingerprint}) && $node_info->{dhcp_fingerprint} =~ /VoIP Phone/) {
+            $logger->debug("DHCP fingerprint for $mac indicates VoIP phone");
+            return 1;
+        }
 
-    #unknown DHCP fingerprint or no DHCP fingerprint
-    if (defined($node_info->{dhcp_fingerprint}) && $node_info->{dhcp_fingerprint} ne ' ') {
-        $logger->debug(
-            "DHCP fingerprint for $mac indicates " .$node_info->{dhcp_fingerprint}. ". This is not a VoIP phone"
-        );
+        #unknown DHCP fingerprint or no DHCP fingerprint
+        if (defined($node_info->{dhcp_fingerprint}) && $node_info->{dhcp_fingerprint} ne ' ') {
+            $logger->debug(
+                "DHCP fingerprint for $mac indicates " .$node_info->{dhcp_fingerprint}. ". This is not a VoIP phone"
+            );
+        }
     }
 
     if (defined($ifIndex)) {
@@ -1737,23 +1818,6 @@ sub reverseBitmask {
     }
 
     return $flippedBitMask;
-}
-
-=item getSysUptime - returns the sysUpTime
-
-=cut
-
-sub getSysUptime {
-    my ($self)        = @_;
-    my $logger        = $self->logger;
-    my $oid_sysUptime = '1.3.6.1.2.1.1.3.0';
-    if ( !$self->connectRead() ) {
-        return '';
-    }
-    $logger->trace("SNMP get_request for sysUptime: $oid_sysUptime");
-    my $result = $self->{_sessionRead}
-        ->get_request( -varbindlist => [$oid_sysUptime] );
-    return $result->{$oid_sysUptime};
 }
 
 =item getIfType - return the ifType
@@ -2194,7 +2258,7 @@ sub getAllMacs {
 
     my @vlansToConsider = values %{ $self->{_vlans} };
     if ( $self->isVoIPEnabled() ) {
-        my $voiceVlan = $self->getVlanByName('voice');
+        my $voiceVlan = $self->getVlanByName($VOICE_ROLE);
         if ( defined( $voiceVlan ) ) {
             if ( grep( { $_ == $voiceVlan } @vlansToConsider ) == 0 ) {
                 push @vlansToConsider, $voiceVlan;
@@ -2678,19 +2742,21 @@ sub radiusDisconnect {
         $send_disconnect_to = $self->{'_controllerIp'};
     }
     # allowing client code to override where we connect with NAS-IP-Address
-    $send_disconnect_to = $add_attributes_ref->{'NAS-IP-Address'}
-        if (defined($add_attributes_ref->{'NAS-IP-Address'}));
+    if ( defined($add_attributes_ref->{'NAS-IP-Address'}) && $add_attributes_ref->{'NAS-IP-Address'} ne '' ) {
+        $logger->info("'NAS-IP-Address' additionnal attribute is set. Using it '" . $add_attributes_ref->{'NAS-IP-Address'} . "' to perform deauth");
+        $send_disconnect_to = $add_attributes_ref->{'NAS-IP-Address'};
+    }
 
     my $response;
     try {
         my $connection_info = {
             nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
-            LocalAddr => $self->deauth_source_ip(),
+            LocalAddr => $self->deauth_source_ip($send_disconnect_to),
         };
 
-        if (defined($self->{'_controllerPort'}) && $self->{'_controllerPort'} ne '') {
-            $connection_info->{'nas_port'} = $self->{'_controllerPort'};
+        if (defined($self->{'_disconnectPort'}) && $self->{'_disconnectPort'} ne '') {
+            $connection_info->{'nas_port'} = $self->{'_disconnectPort'};
         }
 
         # transforming MAC to the expected format 00-11-22-33-CA-FE
@@ -2714,7 +2780,7 @@ sub radiusDisconnect {
     };
     return if (!defined($response));
 
-    return $TRUE if ($response->{'Code'} eq 'Disconnect-ACK');
+    return $TRUE if ( ($response->{'Code'} eq 'Disconnect-ACK') || ($response->{'Code'} eq 'CoA-ACK') );
 
     $logger->warn(
         "Unable to perform RADIUS Disconnect-Request."
@@ -2807,8 +2873,8 @@ Return RLM_MODULE_USERLOCK if the vlan id is -1
 sub handleRadiusDeny {
     my ($self, $args) =@_;
     my $logger = $self->logger();
- 
-    if (defined($args->{'vlan'}) && $args->{'vlan'} == -1) {
+
+    if (( defined($args->{'vlan'}) && $args->{'vlan'} eq "-1" ) || ( defined($args->{'user_role'}) && $args->{'user_role'} eq $REJECT_ROLE )) {
         $logger->info("According to rules in fetchRoleForNode this node must be kicked out. Returning USERLOCK");
         $self->disconnectRead();
         $self->disconnectWrite();
@@ -2912,8 +2978,8 @@ sub wiredeauthTechniques {
 }
 
 sub synchronize_locationlog {
-    my ( $self, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role) = @_;
-    locationlog_synchronize($self->{_id},$self->{_ip},$self->{_switchMac}, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role);
+    my ( $self, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc) = @_;
+    locationlog_synchronize($self->{_id},$self->{_ip},$self->{_switchMac}, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc);
 }
 
 
@@ -2954,20 +3020,7 @@ sub parseRequest {
     my $eap_type        = ( exists($radius_request->{'EAP-Type'}) ? $radius_request->{'EAP-Type'} : 0 );
     my $nas_port_id     = ( defined($radius_request->{'NAS-Port-Id'}) ? $radius_request->{'NAS-Port-Id'} : undef );
 
-    return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, undef);
-}
-
-=item parseUrl
-
-Extract all the param from the url.
-
-=cut
-
-sub parseUrl {
-    my ($self,$req) = @_;
-    my $logger = $self->logger();
-    $logger->warn("Not implemented");
-    return;
+    return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, undef, $nas_port_id);
 }
 
 =item getAcceptForm
@@ -2977,22 +3030,23 @@ Get the accept form that will trigger the device registration on the switch
 =cut
 
 sub getAcceptForm {
-    my ( $self, $mac , $destination_url) = @_;
+    my ( $self, $mac, $destination_url, $portalSession ) = @_;
     my $logger = $self->logger();
     $logger->error("This function is not implemented.");
     return;
 }
 
-=item parseSwitchIdFromRequest
+=item parseExternalPortalRequest
 
-Extract the switch id from an http request (for the external portal).
-The object isn't created at that point
+Parse external portal request using URI and it's parameters then return an hash reference with the appropriate parameters
+
+See L<pf::web::externalportal::handle>
 
 =cut
 
-sub parseSwitchIdFromRequest {
-    my ( $class, $req) = @_;
-    my $logger = $class->logger;
+sub parseExternalPortalRequest {
+    my ( $self, $r, $req ) = @_;
+    my $logger = $self->logger;
     $logger->error("This function is not implemented.");
     return;
 }
@@ -3060,12 +3114,33 @@ Takes into account the active/active clustering and centralized deauth
 =cut
 
 sub deauth_source_ip {
-    my ($self) = @_;
-    if($cluster_enabled){
-        return isenabled($Config{active_active}{centralized_deauth}) ? pf::cluster::management_cluster_ip() : pf::cluster::current_server->{management_ip};
-    }
-    else {
-        return $management_network->tag('vip') || $management_network->tag('ip');
+    my ($self,$dst_ip) = @_;
+    my $logger = $self->logger();
+    my $chi = pf::CHI->new(namespace => 'route_int');
+    my $int = $chi->compute($dst_ip, sub {
+                                         my @interface_src = split(" ", pf_run("sudo ip route get $dst_ip"));
+                                         if ($interface_src[1] eq 'via') {
+                                             return $interface_src[4];
+                                         } else {
+                                             return $interface_src[2];
+                                         }
+                                      }
+                           );
+    if (defined($Config{ 'interface ' . $int })) {
+        if($cluster_enabled){
+            return isenabled($Config{active_active}{centralized_deauth}) ? pf::cluster::cluster_ip($int) : pf::cluster::current_server->{"interface $int"}->{ip};
+        }
+        else {
+            return $Config{ 'interface ' . $int }{'vip'} || $Config{ 'interface ' . $int }{'ip'}
+        }
+    } else {
+        $logger->warn("Interface $int has not been found in the configuration, using the management interface");
+        if($cluster_enabled){
+            return isenabled($Config{active_active}{centralized_deauth}) ? pf::cluster::management_cluster_ip() : pf::cluster::current_server->{management_ip};
+        }
+        else {
+            return $management_network->tag('vip') || $management_network->tag('ip');
+        }
     }
 }
 
@@ -3091,6 +3166,17 @@ sub cache {
    return pf::CHI->new( namespace => 'switch' );
 }
 
+=item cache_distributed
+
+Returns the distributed cache for the switch namespace
+
+=cut
+
+sub cache_distributed {
+    my ( $self ) = @_;
+    return pf::CHI->new( namespace => 'switch_distributed' );
+}
+
 =item returnAuthorizeWrite
 
 Return radius attributes to allow write access
@@ -3101,7 +3187,9 @@ sub returnAuthorizeWrite {
     my ($self, $args) = @_;
     my $radius_reply_ref = {};
     my $status = $RADIUS::RLM_MODULE_FAIL;
-    $radius_reply_ref->{'Reply-Message'} = "PacketFence does not support this switch for enable access login";
+    my $msg = "PacketFence does not support this switch for read/write access login";
+    $self->logger->info($msg);
+    $radius_reply_ref->{'Reply-Message'} = $msg;
     my $filter = pf::access_filter::radius->new;
     my $rule = $filter->test('returnAuthorizeWrite', $args);
     if (defined($rule)) {
@@ -3121,13 +3209,435 @@ sub returnAuthorizeRead {
     my ($self, $args) = @_;
     my $radius_reply_ref ={};
     my $status = $RADIUS::RLM_MODULE_FAIL;
-    $radius_reply_ref->{'Reply-Message'} = "PacketFence does not support this switch for read access login";
+    my $msg = "PacketFence does not support this switch for read access login";
+    $self->logger->info($msg);
+    $radius_reply_ref->{'Reply-Message'} = $msg;
     my $filter = pf::access_filter::radius->new;
     my $rule = $filter->test('returnAuthorizeRead', $args);
     if (defined($rule)) {
         ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
     }
     return [$status, %$radius_reply_ref];
+}
+
+=item setSession
+
+Create a session id and save in in the locationlog.
+
+=cut
+
+sub setSession {
+    my($self, $args) = @_;
+    my $mac = $args->{'mac'};
+    my $session_id = generate_session_id(6);
+    my $chi = pf::CHI->new(namespace => 'httpd.portal');
+    $chi->set($session_id,{
+        client_mac => $mac,
+        wlan => $args->{'ssid'},
+        switch_id => $args->{'switch'}->{'_id'},
+    });
+    pf::locationlog::locationlog_set_session($mac, $session_id);
+    return $session_id;
+}
+
+=item shouldUseCoA
+
+Check if switch should use CoA
+
+=cut
+
+sub shouldUseCoA {
+    my ($self, $args) = @_;
+    # Roles are configured and the user should have one
+    return (defined($args->{role}) && isenabled($self->{_RoleMap}) && isenabled($self->{_useCoA}));
+}
+
+=item getRelayAgentInfoOptRemoteIdSub
+
+Return the RelayAgentInfoOptRemoteIdSub to match with switch mac in dhcp option 82.
+In this case this is not supported on this switch and we return undef
+
+=cut
+
+sub getRelayAgentInfoOptRemoteIdSub {
+    my($self) = @_;
+    return undef;
+}
+
+=item externalPortalEnforcement
+
+Evaluate wheter or not external portal enforcement is available on requested network equipment
+
+=cut
+
+sub externalPortalEnforcement {
+    my ( $self ) = @_;
+    my $logger = pf::log::get_logger;
+
+    return $TRUE if ( $self->supportsExternalPortal && isenabled($self->{_ExternalPortalEnforcement}) );
+
+    $logger->info("External portal enforcement either not supported '" . $self->supportsExternalPortal . "' or not configured '" . $self->{_ExternalPortalEnforcement} . "' on network equipment '" . $self->{_id} . "'");
+    return $FALSE;
+}
+
+=item handleTrap
+
+Trap handling logic
+
+=back
+
+=head1 Methods for trap handling
+
+=over
+
+=item normalizeTrap
+
+Normalize a trap to the packetfence internal format.
+
+Example
+
+  {
+    trapType => 'up',
+    trapIfIndex => 1,
+  }
+
+The minimum information needed for the normalized trap data is the trapType
+If a trap cannot be normalized then trapType will be set to 'unknown'
+
+=cut
+
+sub normalizeTrap {
+    my ($self, $trapInfo) = @_;
+    my $normalizer = $self->findTrapNormalizer($trapInfo);
+    if ($normalizer) {
+        return $self->$normalizer($trapInfo);
+    }
+    return {trapType => 'unknown'};
+}
+
+=item findTrapNormalizer
+
+find the method to be used for normalizing a trap
+
+=cut
+
+sub findTrapNormalizer {
+    my ($self, $trapInfo) = @_;
+    my ($pdu, $variables) = @$trapInfo;
+    my $snmpTrapOID =  $self->findTrapOID($variables);
+    return undef unless $snmpTrapOID;
+    if (exists $TRAP_NORMALIZERS{$snmpTrapOID}) {
+        return $TRAP_NORMALIZERS{$snmpTrapOID};
+    }
+    return $self->_findTrapNormalizer($snmpTrapOID, $pdu, $variables);
+}
+
+=item _findTrapNormalizer
+
+The method for a pf::Switch subclass to override in order to find the trap normalizer method
+
+=cut
+
+sub _findTrapNormalizer {
+    return undef;
+}
+
+=item linkDownTrapNormalizer
+
+The trap normalizer for the linkDown trap
+
+=cut
+
+sub linkDownTrapNormalizer {
+    my ($self, $trapInfo) = @_;
+    return {
+        trapType => 'down',
+        trapIfIndex => $self->getIfIndexFromTrap($trapInfo->[1]),
+    };
+}
+
+=item linkUpTrapNormalizer
+
+The trap normalizer for the linkUp trap
+
+=cut
+
+sub linkUpTrapNormalizer {
+    my ($self, $trapInfo) = @_;
+    return {
+        trapType => 'up',
+        trapIfIndex => $self->getIfIndexFromTrap($trapInfo->[1]),
+    };
+}
+
+=item dot11DeauthenticateTrapNormalizer
+
+The trap normalizer for the dot11Deauthenticate trap
+
+=cut
+
+sub dot11DeauthenticateTrapNormalizer {
+    my ($self, $trapInfo) = @_;
+    return {
+        trapType => 'dot11Deauthentication',
+        trapMac => $self->getMacFromTrapVariablesForOIDBase($trapInfo->[1], '.1.2.840.10036.1.1.1.18.')
+    };
+}
+
+=item findTrapVarWithBase
+
+find the trap variables that start with an OID
+
+=cut
+
+sub findTrapVarWithBase {
+    my ($self, $variables, $base) = @_;
+    return grep { $_->[0] =~ /^\Q$base\E/ } @$variables;
+}
+
+=item getIfIndexFromTrap
+
+get the IfIndex from a trap
+
+=cut
+
+sub getIfIndexFromTrap {
+    my ($self, $variables) = @_;
+    my @indexes = $self->findTrapVarWithBase($variables,".1.3.6.1.2.1.2.2.1.1");
+    return undef unless @indexes;
+    return undef unless $indexes[0][1] =~ /(INTEGER|Gauge32): (\d+)/;
+    return $2;
+}
+
+=item findTrapOID
+
+find the traps notification type OID
+
+=cut
+
+sub findTrapOID {
+    my ($self, $variables) = @_;
+    my $variable = first { $_->[0] eq '.1.3.6.1.6.3.1.1.4.1.0'} @$variables;
+    return undef unless $variable;
+    $variable->[1] =~ /OID: (.*)/;
+    return $1;
+}
+
+=item getMacFromTrapVariablesForOIDBase
+
+Get a mac from a trap variable based of it's OID
+
+=cut
+
+sub getMacFromTrapVariablesForOIDBase {
+    my ($self, $variables, $base) = @_;
+    my ($variable) = $self->findTrapVarWithBase($variables, $base);
+    return undef unless $variable;
+    return $self->extractMacFromVariable($variable);
+}
+
+=item extractMacFromVariable
+
+extract the mac address from a trap variable
+
+=cut
+
+sub extractMacFromVariable {
+    my ($self, $variable) = @_;
+    return undef unless $variable->[1] =~ /$SNMP::MAC_ADDRESS_FORMAT/;
+    return parse_mac_from_trap($1);
+}
+
+=item TO_JSON
+
+TO_JSON
+
+=cut
+
+sub TO_JSON {
+    my ($self) = @_;
+    my %data = %$self;
+    delete @data{qw(_sessionRead _sessionWrite _sessionControllerWrite)};
+    return \%data;
+}
+
+=item handleTrap
+
+A hook for switch specific trap handling
+If a true value is returned then the trap will be handled using the default logic.
+
+=cut
+
+sub handleTrap { 1 }
+
+
+=item getExclusiveLock
+
+Get an exclusive lock for the switch
+
+=cut
+
+sub getExclusiveLock {
+    my ($self, $nonblock) = @_;
+    return $self->getExclusiveLockForScope('', $nonblock);
+}
+
+=item getExclusiveLockForScope
+
+Get an exclusive lock for the switch for a particular scope
+
+=cut
+
+sub getExclusiveLockForScope {
+    my ($self, $scope, $nonblock) = @_;
+    my $fh;
+    my $filename = "$control_dir/switch:$self->{_id}:$scope";
+    unless (open($fh, ">", $filename)) {
+        $self->logger("Cannot open $filename: $!");
+        return undef;
+    }
+    my $fs = File::FcntlLock->new(
+        l_type   => F_WRLCK,
+        l_whence => SEEK_SET,
+        l_start => 0,
+        l_len => 0,
+    );
+    my $type = $nonblock ? F_SETLK : F_SETLKW;
+    my $result;
+    1 while(!defined($result = $fs->lock($fh, $type)) && $! == EINTR);
+    unless (defined $result) {
+        $self->logger("Error getting lock on $filename: $!");
+        return undef;
+    }
+    return $fh;
+}
+
+=item getLldpLocPortDesc
+
+Query the switch for lldpLocPortDesc table and cache the result
+
+=cut
+
+sub getLldpLocPortDesc {
+    my ( $self ) = @_;
+    my $logger = $self->logger;
+
+    # if can't SNMP read abort
+    return if ( !$self->connectRead() );
+
+    my $oid_lldpLocPortDesc = '1.0.8802.1.1.2.1.3.7.1.4'; # from LLDP-MIB
+    $logger->trace("SNMP get_table for lldpLocPortDesc: $oid_lldpLocPortDesc");
+    my $cache = $self->cache_distributed;
+    my $result = $cache->compute($self->{'_id'} . "-" . $oid_lldpLocPortDesc, sub { $self->{_sessionRead}->get_table( -baseoid => $oid_lldpLocPortDesc, -maxrepetitions  => 1 ) } );
+    # here's what we are getting here. Looking for the last element of the OID: lldpRemLocalPortNum
+    # iso.0.8802.1.1.2.1.3.7.1.4.10 = STRING: "FastEthernet1/0/8"
+    # iso.0.8802.1.1.2.1.3.7.1.4.11 = STRING: "FastEthernet1/0/9"
+    # iso.0.8802.1.1.2.1.3.7.1.4.12 = STRING: "FastEthernet1/0/10"
+    # iso.0.8802.1.1.2.1.3.7.1.4.13 = STRING: "FastEthernet1/0/11"
+    # NOTE: We set the maxrepetitions to '1' to use 'get-next-requests' instead of 'get-bulk-requests' which tend to return empty results if response is to big
+
+    return $result;
+}
+
+=item ifIndexToLldpLocalPort
+
+Translate an ifIndex into an LLDP Local Port number.
+
+We use ifDescr to lookup the lldpRemLocalPortNum in the lldpLocPortDesc table.
+
+=cut
+
+sub ifIndexToLldpLocalPort {
+    my ( $self, $ifIndex ) = @_;
+    my $logger = $self->logger;
+
+    # if can't SNMP read abort
+    return if ( !$self->connectRead() );
+
+    my $ifDescr = $self->getIfDesc($ifIndex);
+    return if (!defined($ifDescr) || $ifDescr eq '');
+
+    # Get lldpLocPortDesc
+    my $oid_lldpLocPortDesc = '1.0.8802.1.1.2.1.3.7.1.4'; # from LLDP-MIB
+    my $result = $self->getLldpLocPortDesc();
+
+    foreach my $entry ( keys %{$result} ) {
+        if ( $result->{$entry} eq $ifDescr ) {
+            if ( $entry =~ /^$oid_lldpLocPortDesc\.([0-9]+)$/ ) {
+                return $1;
+            }
+        }
+    }
+
+    # nothing found
+    return;
+}
+
+=item invalidate_distributed_cache
+
+Invalidate the distributed cache for a given switch object
+
+=cut
+
+sub invalidate_distributed_cache {
+    my ( $self ) = @_;
+    my $logger = $self->logger;
+
+    $logger->info("Invalidating distributed switch cache for switch '" . $self->{_id} . "'");
+
+    if ( $self->{_id} =~ /\// ) {
+        $logger->info("Processing switch range '" . $self->{_id} . "'");
+        my $ip = new Net::IP($self->{_id});
+        do {
+            $logger->info("Invalidating distributed switch cache for switch '" . $ip->ip() . "' part of switch range '" . $self->{_id} . "'");
+            $self->remove_switch_from_cache($ip->ip());
+        } while (++$ip);
+    } else {
+        $self->remove_switch_from_cache($self->{_id});
+    }
+}
+
+=item remove_switch_from_cache
+
+Remove all switch distributed cache keys for a given switch
+
+=cut
+
+sub remove_switch_from_cache {
+    my ( $self, $key ) = @_;
+    my $logger = $self->logger;
+
+    my $cache = $self->cache_distributed;
+    my %cache_content = $cache->get_keys();
+
+    foreach ( keys %cache_content ) {
+        $cache->remove($_) if $_ =~ /^$key-/;
+    }
+}
+
+=item isMacInAddressTableAtIfIndex
+
+isMacInAddressTableAtIfIndex
+
+=cut
+
+sub isMacInAddressTableAtIfIndex {
+    my ($self) = @_;
+    my $logger = $self->logger;
+    $logger->warn("isMacInAddressTableAtIfIndex is not supported or implemented for this switch");
+
+    return 0;
+}
+
+=item setCurrentTenant
+
+Set the current tenant in the DAL based on the tenant ID configured in the switch
+
+=cut
+
+sub setCurrentTenant {
+    my ($self) = @_;
+    pf::dal->set_tenant($self->{_TenantId});
 }
 
 =back
@@ -3138,7 +3648,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

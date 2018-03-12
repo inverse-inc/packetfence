@@ -1,0 +1,26 @@
+package pfconfig::objects::Net::Netmask;
+
+use base qw(Net::Netmask);
+
+sub new {
+    my $package = shift;
+    my $o = Net::Netmask->new(@_);
+    return bless $o, $package;
+}
+
+sub TO_JSON {
+    my ($self) = @_;
+    my $o = {
+       ip => $self->{Tip}, 
+       ip_int => $self->{IBASE},
+       # Golang pfconfig driver expects this to be a string
+       mask => $self->{BITS}."",
+       int => $self->{Tint},
+       ipv6_address => $self->{Tipv6_address},
+       ipv6_prefix => $self->{Tipv6_prefix},
+    };
+    $o->{vip} = $self->{Tvip} if(defined($self->{Tvip}));
+    return $o;
+}
+
+1;

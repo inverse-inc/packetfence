@@ -131,8 +131,7 @@ sub _setVlan {
     my $id = $self->{_id};
     $logger->trace( "locking - trying to lock \$switch_locker{$id} in _setVlan" );
     {
-        lock %{ $switch_locker_ref->{ $id } };
-        $logger->trace( "locking - \$switch_locker{$id} locked in _setVlan" );
+        my $lock = $self->getExclusiveLock();
 
         # get current egress and untagged ports
         $self->{_sessionRead}->translate(0);
@@ -222,7 +221,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

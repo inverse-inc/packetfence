@@ -27,7 +27,6 @@ use Try::Tiny;
 use base ('pf::Switch::Huawei');
 
 use pf::constants;
-use pf::config;
 sub description { 'Huawei S5710' }
 
 =head1 SUBROUTINES
@@ -64,7 +63,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

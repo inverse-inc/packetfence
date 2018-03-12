@@ -11,10 +11,10 @@ pf::Authentication::Source::GithubSource
 use pf::person;
 use Moose;
 extends 'pf::Authentication::Source::OAuthSource';
+with 'pf::Authentication::CreateLocalAccountRole';
 
 has '+type' => (default => 'Github');
 has '+class' => (default => 'external');
-has '+unique' => (default => 1);
 has 'scope' => (isa => 'Str', is => 'rw', default => 'user,user:email');
 has 'client_id' => (isa => 'Str', is => 'rw', required => 1);
 has 'client_secret' => (isa => 'Str', is => 'rw', required => 1);
@@ -23,9 +23,16 @@ has 'authorize_path' => (isa => 'Str', is => 'rw', default => '/login/oauth/auth
 has 'access_token_path' => (isa => 'Str', is => 'rw', default => '/login/oauth/access_token');
 has 'access_token_param' => (isa => 'Str', is => 'rw', default => 'access_token');
 has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://api.github.com/user');
-has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/github');
+has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/callback');
 has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => 'api.github.com,*.github.com,github.com');
-has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
+
+=head2 dynamic_routing_module
+
+Which module to use for DynamicRouting
+
+=cut
+
+sub dynamic_routing_module { 'Authentication::OAuth::Github' }
 
 =head2 lookup_from_provider_info
 
@@ -45,7 +52,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -66,7 +73,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;
 
 # vim: set shiftwidth=4:

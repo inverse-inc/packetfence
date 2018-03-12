@@ -20,7 +20,9 @@ use File::Basename qw(basename);
 use Getopt::Std;
 use Net::Pcap 0.16;
 use Pod::Usage;
-use POSIX qw(:signal_h);
+use POSIX qw(:signal_h pause :sys_wait_h SIG_BLOCK SIG_UNBLOCK);
+use Fcntl qw(:flock);
+use Systemd::Daemon qw{ -soft };
 
 BEGIN {
     # log4perl init
@@ -29,117 +31,123 @@ BEGIN {
     use pf::log(service => 'pfdhcplistener');
 }
 
+use Try::Tiny;
+use pf::util::dhcp;
 use pf::constants;
-use pf::clustermgmt;
-use pf::config;
-use pf::config::cached;
+use pf::constants::config qw( $NET_TYPE_INLINE_L2 $NET_TYPE_INLINE_L3 );
+use pf::config qw(
+    %Config
+    @listen_ints
+    @dhcplistener_ints
+    $NO_VLAN
+    %ConfigNetworks
+    @inline_enforcement_nets
+);
+use pf::file_paths qw($var_dir);
 use pf::util;
 use pf::config::util;
 use pf::services::util;
 use pf::util::dhcp;
 use pf::StatsD;
-use List::MoreUtils qw(any);
+use List::MoreUtils qw(any uniq);
 use NetAddr::IP;
-use pf::SwitchFactory;
 use MIME::Base64();
 use NetPacket::Ethernet qw(ETH_TYPE_IP ETH_TYPE_IPv6);
 use NetPacket::IP;
 use NetPacket::IPv6;
 use NetPacket::UDP;
-
-
-pf::SwitchFactory::preLoadModules();
+use pf::CHI::Request;
+use pf::api::queue_cluster;
 
 # initialization
 # --------------
 # assign process name (see #1464)
-our $PROGRAM_NAME = "pfdhcplistener";
+our @REGISTERED_TASKS;
+our $IS_CHILD = 0;
+our $PARENT_PID;
+our %CHILDREN;
+our @TASKS_RUN;
+our $ALARM_RECV = 0;
+our $TIMEOUT = 1 * 1000; # 1 second or 1000 milliseconds
+our $running = 1;
+
+$SIG{HUP}  = \&reload_config;
+$SIG{INT}  = \&normal_sighandler;
+$SIG{TERM} = \&normal_sighandler;
+$SIG{CHLD} = \&child_sighandler;
+$SIG{ALRM} = \&alarm_sighandler;
+
+$SIG{PIPE} = 'IGNORE';
+
+my %args;
+getopts( 'dh', \%args );
+
+my $daemonize = $args{d};
+
+pod2usage( -verbose => 1 ) if ( $args{h} );
+our $PROGRAM_NAME = $0 = "pfdhcplistener";
 
 my $logger = get_logger( $PROGRAM_NAME );
 
-# init signal handlers
-POSIX::sigaction(
-    &POSIX::SIGHUP,
-    POSIX::SigAction->new(
-        'reload_config', POSIX::SigSet->new(), &POSIX::SA_NODEFER
-    )
-) or $logger->logdie("pfdhcplistener: could not set SIGHUP handler: $!");
+our %NET_TYPES_FOR_EXTERNAL_QUEUE = (
+    'dhcp-listener' => 1,
+    'management' => 1,
+);
 
-POSIX::sigaction(
-    &POSIX::SIGTERM,
-    POSIX::SigAction->new(
-        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
-    )
-) or $logger->logdie("pfdhcplistener: could not set SIGTERM handler: $!");
-
-POSIX::sigaction(
-    &POSIX::SIGINT,
-    POSIX::SigAction->new(
-        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
-    )
-) or $logger->logdie("pfdhcplistener: could not set SIGINT handler: $!");
-
-
-my %args;
-getopts( 'dhi:', \%args );
-
-my $daemonize = $args{d};
-my $interface = $args{i};
-
-pod2usage( -verbose => 1 ) if ( $args{h} || !$args{i} );
 
 my $is_inline_vlan;
+my $inline_sub_connection_type;
 my $interface_ip;
 my $interface_vlan;
 my $pcap;
 my $net_type;
-my $process;
+my $process_broadcast;
+my $interface;
+my $send_queue = 'pfdhcplistener';
+
+my $rate_limit_hash = {};
+my $rate_limit_cache = CHI->new( driver => 'Memory', datastore => $rate_limit_hash );
 
 sub reload_config {
-    $process = pf::cluster::is_vip_running($interface);
-    $logger->info("Reload configuration on $interface with status $process");
+    # reload the defaults every time
+    $process_broadcast = $TRUE;
+
+    # We do not process broadcast on the node which does not hold the VIP
+    if ( $pf::cluster::cluster_enabled && ! pf::cluster::is_vip_running($interface) ) { 
+        $process_broadcast = $FALSE;
+    }
+    $logger->info("Reload configuration on $interface");
 }
 
-$PROGRAM_NAME = $0 = "${PROGRAM_NAME}_${interface}";
+my $pidfile = "${var_dir}/run/$PROGRAM_NAME.pid";
+
+our $HAS_LOCK = 0;
+open(my $fh, ">>$pidfile");
+flock($fh, LOCK_EX | LOCK_NB) or die "cannot lock $pidfile another pfdhcplistener is running\n";
+$HAS_LOCK = 1;
+
 
 # standard signals and daemonize
 daemonize($PROGRAM_NAME) if ($daemonize);
 
-my $net_addr = NetAddr::IP->new($Config{"interface $interface"}{'ip'},$Config{"interface $interface"}{'mask'});
+$PARENT_PID = $$;
+
+my $net_addr;
 
 # start dhcp monitor
 if ( isenabled( $Config{'network'}{'dhcpdetector'} ) ) {
-    if (any { $_ eq $interface } @listen_ints, @dhcplistener_ints ) {
-        $net_type = $Config{"interface $interface"}{'type'};
-        $interface_ip = $Config{"interface $interface"}{'ip'};
-        $interface_vlan = get_vlan_from_int($interface) || $NO_VLAN;
-
-        foreach my $network (keys %ConfigNetworks) {
-            my %net = %{$ConfigNetworks{$network}};
-            my $network_obj = NetAddr::IP->new($network,$ConfigNetworks{$network}{netmask});
-
-            # are we listening on an inline interface ?
-            next if (!pf::config::is_network_type_inline($network));
-            my $ip = new NetAddr::IP::Lite clean_ip($net{'next_hop'}) if defined($net{'next_hop'});
-            if (grep( { $_->tag("int") eq $interface} @inline_enforcement_nets) != 0 || (defined($net{'next_hop'}) && $net_addr->contains($ip))) {
-                $logger->warn("DHCP detector on an inline interface");
-                $is_inline_vlan = $TRUE;
-            }
-        }
-        $logger->info("DHCP detector on $interface enabled");
-        reload_config();
-        dhcp_detector();
-    }
-    $logger->warn(
-        "pfdhcplistener for $interface finished - this is bad. " .
-        "Are you sure the interface you are trying to run the listener on is configured in packetfence to do so?"
-    );
+    Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
+    start();
+    cleanup();
 }
 
 END {
-    if ( defined($interface) ) {
-        deletepid($PROGRAM_NAME);
-        $logger->info("stopping pfdhcplistener for interface $interface");
+    if (!$args{h} && $HAS_LOCK) {
+        unless ($IS_CHILD) {
+            Systemd::Daemon::notify( STOPPING => 1 );
+            deletepid();
+            $logger->info("stopping pfdhcplistener");
+        }
     }
 }
 
@@ -151,7 +159,48 @@ exit(0);
 
 =cut
 
-sub dhcp_detector {
+=head2 setup_global
+
+setup_global
+
+=cut
+
+sub setup_global {
+    my ($int) = @_;
+    $interface = $int;
+    $net_type = $Config{"interface $interface"}{'type'};
+    $interface_ip = $Config{"interface $interface"}{'ip'};
+    $interface_vlan = get_vlan_from_int($interface) || $NO_VLAN;
+    $send_queue = queue_for_net_type($net_type);
+    $net_addr = NetAddr::IP->new($Config{"interface $interface"}{'ip'},$Config{"interface $interface"}{'mask'});
+
+    if (grep( { $_->tag("int") eq $interface} @inline_enforcement_nets) != 0 ) {
+        $logger->warn("DHCP detector on an inline interface");
+        $is_inline_vlan = $TRUE;
+    }
+    $logger->info("DHCP detector on $interface enabled");
+    return ;
+}
+
+=head2 queue_for_net_type
+
+Determine which send queue
+
+=cut
+
+sub queue_for_net_type {
+    my ($net_type) = @_;
+    return (any { exists $NET_TYPES_FOR_EXTERNAL_QUEUE{$_} } expand_csv($net_type) ) ? 'pfdhcplistener_external' : 'pfdhcplistener' ;
+}
+
+=head2 setup_pcap
+
+setup_pcap
+
+=cut
+
+sub setup_pcap {
+    my ($interface) = @_;
     my $filter = make_pcap_filter(@{$Config{network}{dhcp_filter_by_message_types}});
     my $filter_t;
     my $net;
@@ -162,7 +211,7 @@ sub dhcp_detector {
     # updating process name so we know what interface we are listening on
     # WARNING: the format is expected by watchdog in pf::services. Don't change lightly.
     $PROGRAM_NAME = basename($PROGRAM_NAME) . ": listening on $interface";
-    $pcap = Net::Pcap::pcap_open_live( $interface, 576, 1, 0, \$err );
+    $pcap = Net::Pcap::pcap_open_live( $interface, $Config{services}{pfdhcplistener_packet_size}, 1, $TIMEOUT, \$err );
 
     if (!defined($pcap)) {
         $logger->logdie("Unable to initiate packet capture. Is $interface an actual network interface?");
@@ -174,16 +223,21 @@ sub dhcp_detector {
     }
 
     Net::Pcap::setfilter( $pcap, $filter_t );
-    my $result = Net::Pcap::loop( $pcap, -1, \&process_pkt, [ $interface , $pcap ] );
-    $logger->logdie(Net::Pcap::pcap_geterr($pcap)) if ($result == -1);
+    return $pcap;
 }
+
 
 sub process_pkt {
     my ( $user_data, $hdr, $pkt ) = @_;
-    if ($process || !$pf::cluster::cluster_enabled){
         eval {
             my $l2 = NetPacket::Ethernet->decode($pkt);
 
+            if ( ! $process_broadcast ) { 
+                if ( $l2->{'dest_mac'} eq 'ffffffffffff' ) { 
+                    $logger->trace("Skipping broadcast request.");
+                    return;
+                } 
+            }       
             # Skip frames that has a VLAN tag to avoid processing frames more than
             # once when pfdhcplistener listens on both a vlan interface and its parent
             #
@@ -197,20 +251,19 @@ sub process_pkt {
             # a tagged frame and return the 'inner' ether_type of the frame.
             #
             # For this reason we check to see if $l2->{tpid} is set
-            if ( defined $l2->{tpid} ) {
+            if ( defined $l2->{tpid} && $net_type ne "monitor" ) {
                 $logger->trace("Skipping VLAN packets since it is probably addressed to another interface (offload decapsulated tagged packet).");
                 return;
             }
 
             # Skip frames that aren't ETH_TYPE_IP/ETH_TYPE_IPv6
             if ( ($l2->{type} ne ETH_TYPE_IP) && ($l2->{type} ne ETH_TYPE_IPv6) ) {
-                $logger->trace("Skipping non ETH_TYPE_IP / ETH_TYPE_IPv6 frame");
+                $logger->trace("Skipping non ETH_TYPE_IP (IPv4) / ETH_TYPE_IPv6 (IPv6) packet");
                 return;
             }
 
             my $l3 = $l2->{type} eq ETH_TYPE_IP ? NetPacket::IP->decode($l2->{'data'}) : NetPacket::IPv6->decode($l2->{'data'});
             my $l4 = NetPacket::UDP->decode($l3->{'data'});
-            my $udp_payload_b64 = MIME::Base64::encode($l4->{data});
             my %args = (
                 src_mac => clean_mac($l2->{'src_mac'}),
                 dest_mac => clean_mac($l2->{'dest_mac'}),
@@ -221,29 +274,115 @@ sub process_pkt {
                 interface_ip => $interface_ip,
                 interface_vlan => $interface_vlan,
                 net_type => $net_type,
+                inline_sub_connection_type => $inline_sub_connection_type,
             );
 
             my $statsd_interface = $interface;
             $statsd_interface =~ s/\./_/g;
-            $pf::StatsD::statsd->increment("pfdhcplistener_$statsd_interface\::process_pkt.count" );
+            $pf::StatsD::statsd->increment("pfdhcplistener_$statsd_interface\::process_pkt_total.count" );
 
-            # we send all IPv4 DHCPv4 codepath
+            # IPv4 processing
             if ( $l2->{type} eq ETH_TYPE_IP ) {
-                my $apiclient = pf::api::queue->new(queue => 'pfdhcplistener');
-                $apiclient->notify('process_dhcp', %args, udp_payload_b64 => $udp_payload_b64);
+                $pf::StatsD::statsd->increment("pfdhcplistener_$statsd_interface\::process_pkt_ipv4.count" );
+                my ($dhcp);
+
+                # we need success flag here because we can't next inside try catch
+                my $success;
+                try {
+                    $dhcp = decode_dhcp($l4->{'data'});
+                    $success = 1;
+                } catch {
+                    $logger->warn("Unable to parse DHCP packet: $_");
+                };
+                return if (!$success);
+                $args{dhcp} = $dhcp;
+                
+                my $dhcp_mac = clean_mac( substr( $dhcp->{'chaddr'}, 0, 12 ) );
+                if ( $dhcp_mac ne "00:00:00:00:00:00" && !valid_mac($dhcp_mac) ) {
+                    $logger->debug( sub {
+                        "invalid CHADDR value ($dhcp_mac) in DHCP packet from $dhcp->{src_mac} ($dhcp->{src_ip})"
+                    });
+                    return;
+                }
+                
+                # don't process a packet for which we don't have a MAC address
+                unless($dhcp_mac) {
+                    $logger->debug("chaddr is undefined in DHCP packet");
+                    return;
+                }
+
+
+                # adding to dhcp hashref some frame information we care about
+                $dhcp->{'src_mac'} = $args{'src_mac'};
+                $dhcp->{'dest_mac'} = $args{'dest_mac'};
+                $dhcp->{'src_ip'} = $args{'src_ip'};
+                $dhcp->{'dest_ip'} = $args{'dest_ip'};
+                $dhcp->{'chaddr'} = $dhcp_mac;
+
+                if (!valid_mac($dhcp->{'src_mac'})) {
+                    $logger->debug("Source MAC is invalid. skipping");
+                    return;
+                }
+
+
+                if ($is_inline_vlan) {
+                    my $ip = new NetAddr::IP::Lite clean_ip($l3->{'src_ip'});
+                    if ($net_addr->contains($ip) || ($ip->addr eq '0.0.0.0')) {
+                        $args{inline_sub_connection_type} = $NET_TYPE_INLINE_L2;
+                    } else {
+                        $args{inline_sub_connection_type} = $NET_TYPE_INLINE_L3;
+                   }
+                }
+
+                # If its a DHCPREQUEST, we take the IP address from the option
+                my $dhcp_ip = ( $dhcp->{'op'} == 1 && $dhcp->{'options'}{'53'} == 3 ) ? $dhcp->{'options'}{'50'} : $dhcp->{yiaddr};
+                my $rate_limit_key;
+                if(defined($dhcp_ip)) {
+                    # Key is with BOOT type, DHCP type, IP and MAC
+                    $rate_limit_key = $dhcp->{'op'} . "-" . $dhcp->{'options'}{'53'} . "-$dhcp_ip-" . $dhcp_mac;
+                    $logger->trace("Rate limit key : $rate_limit_key");
+                }
+
+                my $rate_limiting = $Config{network}->{dhcp_rate_limiting};
+                # We send the packet to be processed if:
+                #  - there is no rate limit key (packet doesn't contain info to be rate-limited)
+                #  - there is no rate limiting configured
+                #  - there is no cache entry (packet wasn't seen in the last $rate_limiting seconds)
+                if(!defined($rate_limit_key) || $rate_limiting == 0 || !$rate_limit_cache->get($rate_limit_key)) {
+                    my $apiclient = api_client();
+                    $apiclient->notify('process_dhcpv4', %args);
+                    if(defined($rate_limit_key) && $rate_limiting != 0) {
+                        $rate_limit_cache->set($rate_limit_key, 1, $rate_limiting);
+                    }
+                }
+                else {
+                    $logger->debug("[$dhcp_mac] Ignoring packet due to rate-limiting ($rate_limit_key)");
+                }
             }
+
+            # IPv6 processing
+            elsif ( $l2->{type} eq ETH_TYPE_IPv6 ) {
+                $pf::StatsD::statsd->increment("pfdhcplistener_$statsd_interface\::process_pkt_ipv6.count" );
+
+                # TODO: Rate-limiting for IPv6 just as for IPv4
+
+                my $apiclient = api_client();
+                $apiclient->notify('process_dhcpv6', MIME::Base64::encode($l4->{data}));
+            }
+
+            # Non IPv4 nor IPv6 packet
             else {
-                my $apiclient = pf::api::queue->new;
-                $apiclient->notify('process_dhcpv6', $udp_payload_b64);
+                $logger->debug("Skipping non IPv4 nor IPv6 DHCP packet from MAC address '$args{'src_mac'}' (IP: '$args{'src_ip'}') for IP '$args{'dest_ip'}'");
+                return; 
             }
         };
 
         if($@) {
             $logger->error("Error processing packet: $@");
         }
-    }
+    
     #reload all cached configs after each iteration
-    pf::config::cached::ReloadConfigs();
+    pf::CHI::Request::clear_all();
     #Only perform stats when in debug mode
     $logger->debug( sub {
         my $pcap = $user_data->[1];
@@ -253,10 +392,232 @@ sub process_pkt {
     });
 }
 
+=head2 api_client
+
+get the api client
+
+=cut
+
+sub api_client {
+    return pf::api::queue_cluster->new(
+        queue => $send_queue,
+        jsonrpc_args => {
+            connect_timeout_ms => 500,
+            timeout_ms => 500,
+        }
+    );
+}
+
 sub normal_sighandler {
-    Net::Pcap::pcap_breakloop($pcap);
+    $running = 0;
+    if ($pcap) {
+        Net::Pcap::pcap_breakloop($pcap);
+    }
     $logger->trace( "pfdhcplistener: caught SIG" . $_[0] . " - terminating" );
 }
+
+=head2 runtasks
+
+run all runtasks
+
+=cut
+
+sub runtasks {
+    my $mask = POSIX::SigSet->new(POSIX::SIGCHLD());
+    sigprocmask(SIG_BLOCK, $mask);
+    while (@REGISTERED_TASKS) {
+        my $task = shift @REGISTERED_TASKS;
+        runtask($task);
+    }
+    sigprocmask(SIG_UNBLOCK, $mask);
+}
+
+=head2 runtask
+
+creates a new child to run a task
+
+=cut
+
+sub runtask {
+    my ($task) = @_;
+    my $pid = fork();
+    if ($pid) {
+        $CHILDREN{$pid} = $task;
+    }
+    elsif ($pid == 0) {
+        $SIG{CHLD} = 'DEFAULT';
+        $IS_CHILD = 1;
+        Log::Log4perl::MDC->put('tid', $$);
+        setup_global($task);
+        reload_config();
+        _runtask($interface);
+    }
+}
+
+=head2 _runtask
+
+the task to is ran in a loop until it is finished
+
+=cut
+
+sub _runtask {
+    my ($interface) = @_;
+    $0 = "$0 - $interface";
+    setup_pcap($interface);
+    while (is_running()) {
+        my $result = Net::Pcap::dispatch( $pcap, -1, \&process_pkt, [ $interface , $pcap ] );
+        if ($result == -1) {
+            $logger->error(Net::Pcap::pcap_geterr($pcap));
+            last;
+        }
+    }
+    exit;
+}
+
+=head2 is_running
+
+is_running
+
+=cut
+
+sub is_running {
+    return $running && is_parent_alive();
+}
+
+=head2 is_parent_alive
+
+Checks to see if parent is alive
+
+=cut
+
+sub is_parent_alive {
+    kill(0, $PARENT_PID);
+}
+
+=head2 register_task
+
+registers the task to run
+
+=cut
+
+sub register_task {
+    my ($taskId) = @_;
+    push @REGISTERED_TASKS, $taskId;
+
+}
+
+=head2 waitforit
+
+waits for signals
+
+=cut
+
+sub waitforit {
+    while ($running) {
+        #  Only pause if their are no registered tasks
+        pause unless @REGISTERED_TASKS;
+        runtasks();
+    }
+}
+
+=head2 alarm_sighandler
+
+the alarm signal handler
+
+=cut
+
+sub alarm_sighandler {
+    $ALARM_RECV = 1;
+}
+
+=head2 child_sighandler
+
+reaps the children
+
+=cut
+
+sub child_sighandler {
+    local ($!, $?);
+    while (1) {
+        my $child = waitpid(-1, WNOHANG);
+        last unless $child > 0;
+        my $task = delete $CHILDREN{$child};
+        register_task($task);
+    }
+}
+
+=head2 registertasks
+
+    Register all tasks
+
+=cut
+
+sub registertasks {
+    for my $task (get_tasks()) {
+        register_task($task);
+    }
+}
+
+=head2 get_tasks
+
+get_tasks
+
+=cut
+
+sub get_tasks {
+    return uniq ( @listen_ints, @dhcplistener_ints);
+}
+
+=head2 start
+
+start
+
+=cut
+
+sub start {
+    registertasks();
+    runtasks();
+    waitforit();
+}
+
+=head2 cleanup
+
+cleans after children
+
+=cut
+
+sub cleanup {
+    kill_and_wait_for_children('INT',  30);
+    signal_children('KILL');
+}
+
+=head2 kill_and_wait_for_children
+
+signal children and waits for them to exit process
+
+=cut
+
+sub kill_and_wait_for_children {
+    my ($signal, $waittime) = @_;
+    signal_children($signal);
+    $ALARM_RECV = 0;
+    alarm $waittime;
+    while (((keys %CHILDREN) != 0) && !$ALARM_RECV) {
+        pause;
+    }
+}
+
+=head2 signal_children
+
+sends a signal to all active children
+
+=cut
+
+sub signal_children {
+    my ($signal) = @_;
+    kill($signal, keys %CHILDREN);
+}
+
 
 =back
 
@@ -272,7 +633,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

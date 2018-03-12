@@ -15,7 +15,11 @@ use strict;
 use warnings;
 use pf::config;
 use List::MoreUtils qw(any);
-use Module::Pluggable search_path => 'pf::api', sub_name => 'modules', require => 1;
+use Module::Pluggable
+  search_path => 'pf::api',
+  sub_name    => 'modules',
+  inner       => 0,
+  require     => 1;
 use pf::cluster;
 use pf::constants::api;
 
@@ -47,7 +51,12 @@ sub getClient {
 }
 
 sub getManagementClient {
-    $CURRENT_CLIENT->new(proto => 'https', host => pf::cluster::management_cluster_ip());
+    if($cluster_enabled) {
+        return $CURRENT_CLIENT->new(proto => 'https', host => pf::cluster::management_cluster_ip());
+    }
+    else {
+        return getClient();
+    }
 }
  
 =head1 AUTHOR
@@ -56,7 +65,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

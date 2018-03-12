@@ -15,7 +15,6 @@ pfappserver::Model::Config::Realm
 use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 use namespace::autoclean;
-use pf::config::cached;
 use pf::config;
 use pf::ConfigStore::Realm;
 
@@ -42,13 +41,13 @@ sub search {
     }
 }
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =back
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

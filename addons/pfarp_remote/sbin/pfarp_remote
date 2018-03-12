@@ -205,7 +205,7 @@ sub soap_send {
             'ip' => $srcip,
         );
 
-        my $result = $soap->update_iplog(%data);
+        my $result = $soap->update_ip4log(%data);
         if ($result->fault) {
           syslog("warning", "arp could not be added");
         } else {
@@ -346,7 +346,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

@@ -18,35 +18,38 @@ set -e
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
+if $(dpkg-distribution --is_jessie) ; then
+    DIST=jessie
+fi
+if $(dpkg-distribution --is_wheezy) ; then
+    DIST=wheezy
+fi
+if $(dpkg-distribution --is_precise) ; then
+    DIST=precise
+fi
 
 case "$1" in
     upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
     ;;
 
     remove)
-        #remove user and group pf
-        if [ -x /etc/init.d/packetfence ]; then
-            invoke-rc.d packetfence stop
-        fi
-        set +e
-        userdel pf
-        if [ $? -ne 0 ]; then
-            echo "Unable to remove pf user"
-        fi
-        if [ -e /etc/lsb-release ]; then
-            groupdel pf
-            if [ $? -ne 0 ]; then
-                echo "Unable to remove pf group"
+        if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
+            if [ -x /etc/init.d/packetfence ]; then
+                invoke-rc.d packetfence stop
             fi
         fi
-        set -e
-        # removing init scripts
-        if [ -e /etc/lsb-release ]; then
-            update-rc.d -f packetfence remove > /dev/null 2>&1
-        else
-            update-rc.d packetfence remove > /dev/null 2>&1
+        if [ ${DIST} = "jessie" ] ; then
+            systemctl set-default multi-user.target
+            systemctl isolate multi-user.target
         fi
-        # removing init scripts
+        if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
+            # removing init scripts
+            if [ -e /etc/lsb-release ]; then
+                update-rc.d -f packetfence remove > /dev/null 2>&1
+            else
+                update-rc.d packetfence remove > /dev/null 2>&1
+            fi
+        fi
     ;;
     purge)
         # purging all files

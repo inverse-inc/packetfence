@@ -17,10 +17,32 @@ use Fcntl ':mode'; # symbolic file permissions
 use Try::Tiny;
 use Readonly;
 
+use pf::validation::profile_filters;
 use pf::constants;
 use pf::constants::config qw($TIME_MODIFIER_RE);
-use pf::config;
-use pf::config::cached;
+use pf::config qw(
+    %Config
+    $management_network
+    $IF_INTERNAL
+    $IF_ENFORCEMENT_VLAN
+    $IF_ENFORCEMENT_INLINE
+    %ConfigNetworks
+    $monitor_int
+    %ConfigAuthentication
+    %ConfigNetworks
+    @internal_nets
+    %Doc_Config
+    $INLINE_API_LEVEL
+    $ROLE_API_LEVEL
+    $RADIUS_API_LEVEL
+    $ROLES_API_LEVEL
+    %Profiles_Config
+    %ConfigBillingTiers
+    $SELFREG_MODE_EMAIL
+    $SELFREG_MODE_SMS
+    $SELFREG_MODE_SPONSOR
+    is_inline_enforcement_enabled
+);
 use pf::violation_config;
 use pf::util;
 use pf::config::util;
@@ -32,7 +54,18 @@ use pfconfig::manager;
 use pfconfig::namespaces::config::Pf;
 use pf::version;
 use File::Slurp;
-use pf::file_paths;
+use pf::file_paths qw(
+    $conf_dir
+    $lib_dir
+    $install_dir
+    $network_config_file
+    $bin_dir
+    $log_dir
+    @log_files
+    $generated_conf_dir
+);
+use Crypt::OpenSSL::X509;
+use Date::Parse;
 use pf::factory::condition::profile;
 use pf::condition_parser qw(parse_condition_string);
 
@@ -98,13 +131,6 @@ sub sanity_check {
         );
     }
 
-    if (!-f $lib_dir . '/pf/pfcmd/pfcmd_pregrammar.pm') {
-        add_problem( $FATAL,
-            "You are missing a critical file for PacketFence's proper operation. " .
-            "See instructions to re-create the file in: perldoc $lib_dir/pf/pfcmd/pfcmd.pm"
-        );
-    }
-
     service_exists(@services);
     interfaces_defined();
     interfaces();
@@ -113,19 +139,9 @@ sub sanity_check {
         freeradius();
     }
 
-    if ( isenabled($Config{'trapping'}{'detection'}) ) {
-        ids();
-
-        #TODO Suricata check
-    }
-
-    scan() if ( lc($Config{'scan'}{'engine'}) ne "none" );
-    scan_openvas() if ( lc($Config{'scan'}{'engine'}) eq "openvas" );
-
     billing();
 
     database();
-    omapi();
     authentication();
     network();
     fingerbank();
@@ -138,13 +154,16 @@ sub sanity_check {
     permissions();
     violations();
     switches();
-    portal_profiles();
+    connection_profiles();
     guests();
-    unsupported();
     vlan_filter_rules();
     apache_filter_rules();
     db_check_version();
     valid_certs();
+    portal_modules();
+    cluster();
+    provisioning();
+    scan();
 
     return @problems;
 }
@@ -154,13 +173,15 @@ sub service_exists {
 
     foreach my $service (@services) {
         my $exe = ( $Config{'services'}{"${service}_binary"} || "$install_dir/sbin/$service" );
-        if ($service =~ /httpd\.(.*)/) {
+        if ($service =~ /^(pfipset|pfsso|httpd\.dispatcher|api-frontend)$/) {
+            $exe = "$bin_dir/pfhttpd";
+        } elsif ($service =~ /httpd\.(.*)/) {
             $exe = ( $Config{'services'}{"httpd_binary"} || "$install_dir/sbin/$service" );
         } elsif ($service =~ /redis_(.*)/) {
             $exe = ( $Config{'services'}{"redis_binary"} || "$install_dir/sbin/$service" );
         }
         if ( !-e $exe ) {
-            add_problem( $FATAL, "$exe for $service does not exist !" );
+            add_problem( $WARN, "$exe for $service does not exist !" );
         }
     }
 }
@@ -188,7 +209,7 @@ sub interfaces_defined {
             }
         }
 
-        my $int_types = qr/(?:internal|management|managed|monitor|dhcplistener|dhcp-listener|high-availability|portal)/;
+        my $int_types = qr/(?:internal|management|managed|monitor|dhcplistener|dhcp-listener|high-availability|portal|radius)/;
         if (defined($int_conf{'type'}) && $int_conf{'type'} !~ /$int_types/) {
             add_problem( $FATAL, "invalid network type $int_conf{'type'} for $interface" );
         }
@@ -284,113 +305,31 @@ Validation to make sure Fingerbank outside lib symlink is present
 
 sub fingerbank {
     if ( !-l '/usr/local/pf/lib/fingerbank' ) {
-        add_problem( $FATAL, "Fingerbank symlink does not exists" );
+        add_problem( $WARN, "Fingerbank symlink does not exists" );
     }
 }
 
-=item ids
-
-Validation related to the Snort/Suricata IDS usage
-
-=cut
-
-sub ids {
-
-    # make sure a monitor device is present if trapping.detection is enabled
-    if ( !$monitor_int ) {
-        add_problem( $FATAL,
-            "monitor interface not defined, please disable trapping.detection " .
-            "or set an interface type=...,monitor in pf.conf"
-        );
-    }
-
-    # make sure named pipe 'alert' is present if trapping.detection is enabled
-    my $alertpipe = "$install_dir/var/alert";
-    if ( !-p $alertpipe ) {
-        if ( !POSIX::mkfifo( $alertpipe, oct(666) ) ) {
-            add_problem( $FATAL, "IDS alert pipe ($alertpipe) does not exist and unable to create it" );
-        }
-    }
-
-    # make sure trapping.detection_engine=snort|suricata
-    if ( $Config{'trapping'}{'detection_engine'} ne 'snort' && $Config{'trapping'}{'detection_engine'} ne 'suricata' ) {
-        add_problem( $FATAL,
-            "Detection Engine (trapping.detection_engine) needs to be either snort or suricata."
-        );
-    }
-
-    if ( $Config{'trapping'}{'detection_engine'} eq "snort" && !-x $Config{'services'}{'snort_binary'} ) {
-        add_problem( $FATAL, "snort binary is not executable / does not exist!" );
-    }
-    elsif ( $Config{'trapping'}{'detection_engine'} eq "suricata" && !-x $Config{'services'}{'suricata_binary'} ) {
-        add_problem( $FATAL, "suricata binary is not executable / does not exist!" );
-    }
-
-}
-
-=item scan
-
-Validation related to the vulnerability scanning engine option.
-
-=cut
-
-sub scan {
-
-    # Check if the configuration provided scan engine is instanciable
-    my $scan_engine = 'pf::scan::' . lc($Config{'scan'}{'engine'});
-    $scan_engine = untaint_chain($scan_engine);
-    try {
-        eval "$scan_engine->require()";
-        die($@) if ($@);
-        my $scan = $scan_engine->new(
-            host => $Config{'scan'}{'host'},
-            user => $Config{'scan'}{'user'},
-            pass => $Config{'scan'}{'pass'},
-        );
-    } catch {
-        chomp($_);
-        add_problem( $FATAL, "SCAN: Incorrect scan engine declared in pf.conf: $_" );
-    };
-}
-
-=item scan_openvas
-
-Validation related to the OpenVAS vulnerability scanning engine usage.
-
-=cut
-
-sub scan_openvas {
-    # Check if the mandatory informations are provided in the config file
-    if ( !$Config{'scan'}{'openvas_configid'} ) {
-        add_problem( $WARN, "SCAN: The use of OpenVas as a scanning engine require to fill the " .
-                "scan.openvas_configid field in pf.conf" );
-    }
-    if ( !$Config{'scan'}{'openvas_reportformatid'} ) {
-        add_problem( $WARN, "SCAN: The use of OpenVas as a scanning engine require to fill the " .
-                "scan.openvas_reportformatid field in pf.conf");
-    }
-}
-
-=item omapi
-
-Validation related to the OMAPI configuration
-
-=cut
-
-sub omapi {
-    if ( (pf::config::is_omapi_lookup_enabled) && ($Config{'omapi'}{'host'} eq "localhost") && (!pf::config::is_omapi_configured) ) {
-        add_problem( $WARN, "OMAPI lookup is locally enabled but missing required configuration parameters 'key_name' and/or 'key_base64'" );
-    }
-}
 
 sub authentication {
+    authentication_unique_sources();
     authentication_rules_classes();
+}
+
+sub authentication_unique_sources {
+    foreach my $authentication_source ( @pf::authentication::authentication_sources ) {
+        if ( $authentication_source->unique ) {
+            my $count = @{pf::authentication::getAuthenticationSourcesByType($authentication_source->type)};
+            if ( $count > 1 ) {
+                add_problem( $FATAL, "Tried to use an authentication source '" . $authentication_source->id . "' of type '" . $authentication_source->type . "' while this type being unique and an authentication source of this type already exists" );
+            }
+        }
+    }
 }
 
 sub authentication_rules_classes {
     foreach my $authentication_source_id ( keys %ConfigAuthentication ) {
         if( $authentication_source_id =~ /\./ ) {
-            add_problem( $FATAL, "The id of a source cannot contain a space or a dot '$authentication_source_id'");
+            add_problem( $WARN, "The id of a source cannot contain a space or a dot '$authentication_source_id'");
         }
         next if !$ConfigAuthentication{$authentication_source_id}{'rules'};
 
@@ -428,9 +367,9 @@ Configuration validation of the network portion of the config
 
 sub network {
 
-    # check that networks.conf is not empty when services.dhcpd
+    # check that networks.conf is not empty when services.pfdhcp
     # is enabled
-    if (isenabled($Config{'services'}{'dhcpd'}) && ((!-e $network_config_file ) || (-z $network_config_file ))){
+    if (isenabled($Config{'services'}{'pfdhcp'}) && ((!-e $network_config_file ) || (-z $network_config_file ))){
         add_problem( $WARN, "networks.conf is empty but services.dhcpd is enabled. Disable it to remove this warning." );
     }
 
@@ -483,7 +422,7 @@ sub network {
             );
             my $max_lease_valid = ( !defined($net{'dhcp_max_lease_time'}) || $net{'dhcp_max_lease_time'} =~ /^\d+$/ );
             if (!($netmask_valid && $gw_valid && $domainname_valid && $range_valid && $default_lease_valid && $max_lease_valid)) {
-                add_problem( $FATAL, "networks.conf: Incomplete DHCP information for network $network" );
+                add_problem( $WARN, "networks.conf: Incomplete DHCP information for network $network" );
             }
         }
 
@@ -603,7 +542,7 @@ sub web_admin {
 
     # make sure admin port exists
     if ( !$Config{'ports'}{'admin'} ) {
-        add_problem( $FATAL, "please set the web admin port in pf.conf (ports.admin)" );
+        add_problem( $WARN, "please set the web admin port in pf.conf (ports.admin)" );
     }
 
 }
@@ -615,11 +554,6 @@ Registration configuration sanity
 =cut
 
 sub registration {
-
-    # warn when scan.registration=enabled and trapping.registration=disabled
-    if ( isenabled( $Config{'scan'}{'registration'} ) && isdisabled( $Config{'trapping'}{'registration'} ) ) {
-        add_problem( $WARN, "scan.registration is enabled but trapping.registration is not ... this is strange!" );
-    }
 
 }
 
@@ -636,9 +570,11 @@ sub is_config_documented {
     #starting with documentation vs configuration
     #i.e. make sure that pf.conf contains everything defined in
     #documentation.conf
-    foreach my $section ( sort keys %Doc_Config) {
+    foreach my $section ( keys %Doc_Config) {
+        next unless $section =~ /\./;
         my ( $group, $item ) = split( /\./, $section );
-        my $type = $Doc_Config{$section}{'type'};
+        my $doc = $Doc_Config{$section};
+        my $type = $doc->{'type'};
 
         next if ( $section =~ /^(proxies|passthroughs)$/ || $group =~ /^(interface|services)$/ );
         next if ( ( $group eq 'alerting' ) && ( $item eq 'fromaddr' ) );
@@ -646,21 +582,21 @@ sub is_config_documented {
         next if ( $item =~ /^temporary_/i );
 
         if ( !exists $Config{$group} || !exists $Config{$group}{$item} ) {
-            add_problem( $FATAL, "pf.conf value $group\.$item is not defined!" );
+            add_problem( $WARN, "pf.conf value $group\.$item is not defined!" );
         } elsif (defined( $Config{$group}{$item} ) ) {
             if ( $type eq "time" ) {
                 if ( $cached_pf_config->{_file_cfg}{$group}{$item} !~ /\d+$TIME_MODIFIER_RE$/ ) {
-                    add_problem( $FATAL,
+                    add_problem( $WARN,
                         "pf.conf value $group\.$item does not explicity define interval (eg. 7200s, 120m, 2h) " .
                         "- please define it before running packetfence"
                     );
                 }
             } elsif ( $type eq "multi" || $type eq "toggle" ) {
-                my @selectedOptions = split( /\s*,\s*/, $cached_pf_config->{_file_cfg}{$group}{$item} );
-                my @availableOptions = @{$Doc_Config{$section}{'options'}};
+                my @selectedOptions = split( /\s*,\s*/, $cached_pf_config->{_file_cfg}{$group}{$item} // '' );
+                my @availableOptions = @{$doc->{'options'}};
                 foreach my $currentSelectedOption (@selectedOptions) {
                     if ( grep(/^$currentSelectedOption$/, @availableOptions) == 0 ) {
-                        add_problem( $FATAL,
+                        add_problem( $WARN,
                             "pf.conf values for $group\.$item must be among the following: " .
                             join("|",@availableOptions) .  " but you used $currentSelectedOption. " .
                             "If you are sure of this choice, please update conf/documentation.conf"
@@ -668,8 +604,14 @@ sub is_config_documented {
                     }
                 }
             }
+            elsif ($type eq 'numeric') {
+                if (exists $doc->{minimum}) {
+                    my $minimum = $doc->{minimum};
+                    add_problem( $WARN,"$section is less than the minimum value of $minimum" ) if $Config{$group}{$item} < $minimum;
+                }
+            }
         } elsif( $Config{$group}{$item} ne "0"  ) {
-            add_problem( $FATAL, "pf.conf value $group\.$item is not defined!" );
+            add_problem( $WARN, "pf.conf value $group\.$item is not defined!" );
         }
     }
 
@@ -683,7 +625,7 @@ sub is_config_documented {
         foreach my $item  (keys %{$Config{$section}}) {
             next if ( $item =~ /^temporary_/i );
             if ( !defined( $Doc_Config{"$section.$item"} ) ) {
-                add_problem( $FATAL,
+                add_problem( $WARN,
                     "unknown configuration parameter $section.$item ".
                     "if you added the parameter yourself make sure it is present in conf/documentation.conf"
                 );
@@ -704,7 +646,6 @@ sub extensions {
     my @extensions = (
         { 'name' => 'Inline', 'module' => 'pf::inline::custom', 'api' => $INLINE_API_LEVEL, },
         { 'name' => 'Role', 'module' => 'pf::role::custom', 'api' => $ROLE_API_LEVEL, },
-        { 'name' => 'SoH', 'module' => 'pf::soh::custom', 'api' => $SOH_API_LEVEL, },
         { 'name' => 'RADIUS', 'module' => 'pf::radius::custom', 'api' => $RADIUS_API_LEVEL, },
         { 'name' => 'Roles', 'module' => 'pf::roles::custom', 'api' => $ROLES_API_LEVEL, },
     );
@@ -718,12 +659,12 @@ sub extensions {
             die($@) if ($@);
 
             if (!defined($extension_ref->{module}->VERSION())) {
-                add_problem($FATAL,
+                add_problem($WARN,
                     "$extension_ref->{name} extension point ($extension_ref->{module}) VERSION is not defined."
                 );
             }
             elsif ($extension_ref->{api} > $extension_ref->{module}->VERSION()) {
-                add_problem( $FATAL,
+                add_problem( $WARN,
                     "$extension_ref->{name} extension point ($extension_ref->{module}) is not at the correct API level. " .
                     "Did you read the UPGRADE document?"
                 );
@@ -731,18 +672,9 @@ sub extensions {
         }
         catch {
             chomp($_);
-            add_problem($FATAL, "Uncaught exception while trying to identify $extension_ref->{name} extension version: $_");
+            add_problem($WARN, "Uncaught exception while trying to identify $extension_ref->{name} extension version: $_");
         };
     }
-
-    # TODO we might want to re-add that to the above if we ever get
-    # catastrophic chains of extension failures that are confusing to users
-
-    # we ignore "version check failed" or "version x required"
-    # as it means that pf::role::custom's version is not good which we already catched above
-    #if ($_ !~ /(?:version check failed)|(?:version .+ required)/) {
-    #        add_problem( $FATAL, "Uncaught exception while trying to identify RADIUS extension version: $_" );
-    #}
 }
 
 =item permissions
@@ -762,21 +694,6 @@ sub permissions {
     if (!($pfcmd_mode & S_ISUID && $pfcmd_mode & S_ISGID)) {
         add_problem( $FATAL, "pfcmd needs setuid and setgid bit set to run properly. Fix with chmod ug+s $bin_dir/pfcmd" );
     }
-
-    # Disabled because it was causing too many false positives
-    # pfcmd (setuid root) changes ownership to root all the time
-    ## owner must be pf otherwise we can't modify configuration
-    ## only a warning because pf can still run, it's the config we can't change (friendlier cluster failover handling)
-    #my @configuration_files = qw(
-    #    floating_network_devices.conf networks.conf pf.conf switches.conf violations.conf
-    #);
-    #foreach my $conf_file (@configuration_files) {
-    #    # if file doesn't exist it is created correctly so no need to complain
-    #    next if (!-f $conf_dir . '/' . $conf_file);
-    #
-    #    add_problem( $WARN, "$conf_file must be owned by user pf. Fix with chown pf $conf_dir/$conf_file" )
-    #        unless (getpwuid((stat($conf_dir . '/' . $conf_file))[4]) eq 'pf');
-    #}
 
     # log owner must be pf otherwise apache or pf daemons won't start
     foreach my $log_file (@log_files) {
@@ -840,14 +757,14 @@ sub violations {
     while(my ($vid, $config) = each %pf::violation_config::Violation_Config ){
         foreach my $attr (@deprecated_attr){
             if(exists $config->{$attr}){
-                add_problem($FATAL, "Violation attribute $attr is deprecated in violation $vid. Please adjust your configuration according to the upgrade guide.");
+                add_problem($WARN, "Violation attribute $attr is deprecated in violation $vid. Please adjust your configuration according to the upgrade guide.");
             }
         }
-        
+
         my @actions = split(/\s*,\s*/, $config->{actions});
         foreach my $action (@deprecated_actions){
             if(List::MoreUtils::any {$_ eq $action} @actions){
-                add_problem($FATAL, "Violation action $action is deprecated in violation $vid. Please adjust your configuration according to the upgrade guide.");
+                add_problem($WARN, "Violation action $action is deprecated in violation $vid. Please adjust your configuration according to the upgrade guide.");
             }
         }
     }
@@ -893,7 +810,7 @@ sub switches {
                 $group_section = $switches_conf{$group};
                 add_problem( $WARN, "switches.conf | Switch $section has group parameter" ) if $is_group;
             } else {
-                add_problem( $FATAL, "switches.conf | Switch $section references a non existent group '$data->{group}'" );
+                add_problem( $WARN, "switches.conf | Switch $section references a non existent group '$data->{group}'" );
             }
         }
         if ( $section eq '127.0.0.1' ) {
@@ -906,7 +823,7 @@ sub switches {
             add_problem( $WARN, "switches.conf | Error around $section Did you define the same switch twice?" );
         }
         if ( (!defined $type) || $type eq '' ) {
-            add_problem( $FATAL, "switches.conf | Switch type for switch ($section) is not defined");
+            add_problem( $WARN, "switches.conf | Switch type for switch ($section) is not defined");
         } else {
             # check type
             $type = "pf::Switch::$type";
@@ -1002,7 +919,7 @@ Validation related to the billing engine feature.
 sub billing {
     # validate each profile has at least a billing tier if it has one or more billing source
     foreach my $profile_id (keys %Profiles_Config){
-        my $profile = pf::Portal::ProfileFactory->_from_profile($profile_id);
+        my $profile = pf::Connection::ProfileFactory->_from_profile($profile_id);
         if($profile->getBillingSources() > 0 && @{$profile->getBillingTiers()} == 0){
             add_problem($WARN, "Profile $profile_id has billing sources configured but no billing tiers.");
         }
@@ -1040,57 +957,45 @@ sub guests {
     }
 }
 
-=item unsupported
+=item connection_profiles
 
-Feature that we know don't work under certain circumstances (or other features activated)
-
-=cut
-
-sub unsupported {
-
-    # SMS confirmation doesn't work with pre-registration
-    # This was not implemented due to a time constraint. We can fix it.
-    if (isenabled($Config{'guests_self_registration'}{'preregistration'}) && $guest_self_registration{$SELFREG_MODE_SMS}) {
-        add_problem( $WARN, "Registering by SMS doesn't work with preregistration enabled." );
-    }
-}
-
-=item portal_profiles
-
-Make sure that portal profiles, if defined, have a filter and no unsupported parameters.
+Make sure that connection profiles, if defined, have a filter and no unsupported parameters.
 
 Make sure only one external authentication source is selected for each type.
 
 =cut
 
 # TODO: We might want to check if specified auth module(s) are valid... to do so, we'll have to separate the auth thing from the extension check.
-sub portal_profiles {
+sub connection_profiles {
 
     my $profile_params = qr/(?:locale |filter|logo|guest_self_reg|guest_modes|template_path|
         billing_tiers|description|sources|redirecturl|always_use_redirecturl|
-        mandatory_fields|nbregpages|allowed_devices|allow_android_devices|
+        allowed_devices|allow_android_devices|
         reuse_dot1x_credentials|provisioners|filter_match_style|sms_pin_retry_limit|
-        sms_request_limit|login_attempt_limit|block_interval|dot1x_recompute_role_from_portal|scan)/x;
+        sms_request_limit|login_attempt_limit|block_interval|dot1x_recompute_role_from_portal|scan|root_module|preregistration|autoregister|access_registration_when_registered|device_registration)/x;
+    my $validator = pf::validation::profile_filters->new;
 
-    foreach my $portal_profile ( keys %Profiles_Config ) {
-        my $data = $Profiles_Config{$portal_profile};
+    foreach my $connection_profile ( keys %Profiles_Config ) {
+        my $data = $Profiles_Config{$connection_profile};
         # Checks for the non default profiles
-        if ($portal_profile ne 'default' ) {
-            add_problem( $WARN, "template directory '$install_dir/html/captive-portal/profile-templates/$portal_profile' for profile $portal_profile does not exist using default templates" )
-                if (!-d "$install_dir/html/captive-portal/profile-templates/$portal_profile");
+        if ($connection_profile ne 'default' ) {
+            add_problem( $WARN, "template directory '$install_dir/html/captive-portal/profile-templates/$connection_profile' for profile $connection_profile does not exist using default templates" )
+                if (!-d "$install_dir/html/captive-portal/profile-templates/$connection_profile");
 
-            add_problem ( $FATAL, "missing filter parameter for profile $portal_profile" )
+            add_problem ( $WARN, "missing filter parameter for profile $connection_profile" )
                 if (!defined($data->{'filter'}) );
         }
 
 
         foreach my $key ( keys %$data ) {
-            add_problem( $WARN, "invalid parameter $key for profile $portal_profile" )
+            add_problem( $WARN, "invalid parameter $key for profile $connection_profile" )
                 if ( $key !~ /$profile_params/ );
             if ($key eq 'filter') {
                 foreach my $filter (@{$data->{filter}}) {
-                    add_problem( $FATAL, "Filter '$filter' is invalid for profile '$portal_profile' please update to newer format 'type:data'" )
-                        unless $filter =~ $pf::factory::condition::profile::PROFILE_FILTER_REGEX;
+                    my ($rc, $message) = $validator->validate($filter);
+                    unless ($rc) {
+                        add_problem( $WARN, "Filter '$filter' is invalid for profile '$connection_profile': $message ");
+                    }
                 }
             }
         }
@@ -1101,7 +1006,7 @@ sub portal_profiles {
             my $type = $source->{'type'};
             $external{$type} = 0 unless (defined $external{$type});
             $external{$type}++;
-            add_problem ( $FATAL, "many authentication sources of type $type are selected for profile $portal_profile" )
+            add_problem ( $WARN, "many authentication sources of type $type are selected for profile $connection_profile" )
               if ($external{$type} > 1);
         }
     }
@@ -1119,19 +1024,19 @@ sub vlan_filter_rules {
     foreach my $rule  ( sort keys  %ConfigVlanFilters ) {
         if ($rule =~ /^[^:]+:(.*)$/) {
             my ($condition, $msg) = parse_condition_string($1);
-            add_problem ( $FATAL, "Cannot parse condition '$1' in $rule for vlan filter rule" . "\n" . $msg)
+            add_problem ( $WARN, "Cannot parse condition '$1' in $rule for vlan filter rule" . "\n" . $msg)
                 if !defined $condition;
-            add_problem ( $FATAL, "Missing scope attribute in $rule vlan filter rule")
+            add_problem ( $WARN, "Missing scope attribute in $rule vlan filter rule")
                 if (!defined($ConfigVlanFilters{$rule}->{'scope'}));
-            add_problem ( $FATAL, "Missing role attribute in $rule vlan filter rule")
+            add_problem ( $WARN, "Missing role attribute in $rule vlan filter rule")
                 if (!defined($ConfigVlanFilters{$rule}->{'role'}));
         } else {
-            add_problem ( $FATAL, "Missing filter attribute in $rule vlan filter rule")
+            add_problem ( $WARN, "Missing filter attribute in $rule vlan filter rule")
                 if (!defined($ConfigVlanFilters{$rule}->{'filter'}));
-            add_problem ( $FATAL, "Missing operator attribute in $rule vlan filter rule")
+            add_problem ( $WARN, "Missing operator attribute in $rule vlan filter rule")
                 if (!defined($ConfigVlanFilters{$rule}->{'operator'}));
-            add_problem ( $FATAL, "Missing value attribute in $rule vlan filter rule")
-                if (!defined($ConfigVlanFilters{$rule}->{'value'}));
+            add_problem ( $WARN, "Missing value attribute in $rule vlan filter rule")
+                if (!defined($ConfigVlanFilters{$rule}->{'value'}) && $ConfigVlanFilters{$rule}->{'operator'} ne 'defined' && $ConfigVlanFilters{$rule}->{'operator'} ne 'not_defined');
         }
     }
 }
@@ -1146,18 +1051,18 @@ sub apache_filter_rules {
     my %ConfigApacheFilters = %pf::web::filter::ConfigApacheFilters;
     foreach my $rule  ( sort keys  %ConfigApacheFilters ) {
         if ($rule =~ /^\w+:(.*)$/) {
-            add_problem ( $FATAL, "Missing action attribute in $rule apache filter rule")
+            add_problem ( $WARN, "Missing action attribute in $rule apache filter rule")
                 if (!defined($ConfigApacheFilters{$rule}->{'action'}));
-            add_problem ( $FATAL, "Missing redirect_url attribute in $rule apache filter rule")
+            add_problem ( $WARN, "Missing redirect_url attribute in $rule apache filter rule")
                 if (!defined($ConfigApacheFilters{$rule}->{'redirect_url'}));
         } else {
-            add_problem ( $FATAL, "Missing filter attribute in $rule apache filter rule")
+            add_problem ( $WARN, "Missing filter attribute in $rule apache filter rule")
                 if (!defined($ConfigApacheFilters{$rule}->{'filter'}));
-            add_problem ( $FATAL, "Missing method attribute in $rule apache filter rule")
+            add_problem ( $WARN, "Missing method attribute in $rule apache filter rule")
                 if (!defined($ConfigApacheFilters{$rule}->{'method'}));
-            add_problem ( $FATAL, "Missing value attribute in $rule apache filter rule")
+            add_problem ( $WARN, "Missing value attribute in $rule apache filter rule")
                 if (!defined($ConfigApacheFilters{$rule}->{'value'}));
-            add_problem ( $FATAL, "Missing operator attribute in $rule apache filter rule")
+            add_problem ( $WARN, "Missing operator attribute in $rule apache filter rule")
                 if (!defined($ConfigApacheFilters{$rule}->{'operator'}));
         }
     }
@@ -1170,10 +1075,15 @@ Make sure the database schema matches the current version of PacketFence
 =cut
 
 sub db_check_version {
-    unless(pf::version::version_check_db()) {
-        my $version = pf::version::version_get_current;
-        my $db_version = pf::version::version_get_last_db_version || 'unknown';
-        add_problem ( $FATAL, "The PacketFence database schema version '$db_version' does not match the current installed version '$version'\nPlease refer to the UPGRADE guide on how to complete an upgrade of PacketFence\n" );
+    eval {
+        unless(pf::version::version_check_db()) {
+            my $version = pf::version::version_get_current;
+            my $db_version = pf::version::version_get_last_db_version || 'unknown';
+            add_problem ( $FATAL, "The PacketFence database schema version '$db_version' does not match the current installed version '$version'\nPlease refer to the UPGRADE guide on how to complete an upgrade of PacketFence\n" );
+        }
+    };
+    if($@) {
+        add_problem($FATAL, "Cannot connect to database to check schema version: $@");
     }
 }
 
@@ -1193,6 +1103,17 @@ sub valid_certs {
         return;
     }
 
+    my $haproxy_crt = "$install_dir/conf/ssl/server.pem";
+
+    eval {
+        if(pf::util::cert_expires_in($haproxy_crt)){
+            add_problem($WARN, "The certificate used by haproxy ($haproxy_crt) has expired.\nRegenerate a new self-signed certificate or update your current certificate.");
+        }
+    };
+    if($@){
+        add_problem($WARN, "Cannot open the following certificate $haproxy_crt")
+    }
+
 
     my $httpd_conf = read_file("$generated_conf_dir/ssl-certificates.conf");
 
@@ -1206,8 +1127,8 @@ sub valid_certs {
     }
 
     eval {
-        if(cert_has_expired($httpd_crt)){
-            add_problem($FATAL, "The certificate used by Apache ($httpd_crt) has expired.\nRegenerate a new self-signed certificate or update your current certificate.");
+        if(pf::util::cert_expires_in($httpd_crt)){
+            add_problem($WARN, "The certificate used by Apache ($httpd_crt) has expired.\nRegenerate a new self-signed certificate or update your current certificate.");
         }
     };
     if($@){
@@ -1229,8 +1150,8 @@ sub valid_certs {
         }
 
         eval {
-            if(cert_has_expired($radius_crt)){
-                add_problem($FATAL, "The certificate used by FreeRADIUS ($radius_crt) has expired.\n" .
+            if(pf::util::cert_expires_in($radius_crt)){
+                add_problem($WARN, "The certificate used by FreeRADIUS ($radius_crt) has expired.\n" .
                          "Regenerate a new self-signed certificate or update your current certificate.");
             }
         };
@@ -1244,6 +1165,128 @@ sub valid_certs {
     }
 }
 
+sub portal_modules {
+    require pf::ConfigStore::PortalModule;
+    require pf::Connection::ProfileFactory;
+    require captiveportal::DynamicRouting::Application;
+    require captiveportal::DynamicRouting::Factory;
+
+    my $cs = pf::ConfigStore::PortalModule->new;
+    foreach my $module (@{$cs->readAll("id")}){
+        if(defined($module->{modules})){
+            foreach my $sub_module (@{$module->{modules}}){
+                unless($cs->hasId($sub_module)){
+                    add_problem($WARN, "Portal Module $sub_module is used by ".$module->{id}." but is not declared.")
+                }
+            }
+        }
+        if($module->{type} eq "Root"){
+            my $factory = captiveportal::DynamicRouting::Factory->new();
+            my ($result, $msg) = $factory->check_cyclic($module->{id});
+            unless($result) {
+                add_problem($WARN, $msg);
+            }
+        }
+    }
+}
+
+=item provisioning
+
+Validate provisioning configuration
+
+=cut
+
+sub provisioning {
+    require pf::ConfigStore::Provisioning;
+    my $cs = pf::ConfigStore::Provisioning->new;
+    foreach my $provisioner (@{$cs->readAll("id")}) {
+        foreach my $device_id (@{$provisioner->{oses}}) {
+            add_problem($WARN, "Device ID $device_id is invalid in provisioner ".$provisioner->{id}) unless(valid_fingerbank_device_id($device_id));
+        }
+    }
+}
+
+=item scan
+
+Validate scan configuration
+
+=cut
+
+sub scan {
+    require pf::ConfigStore::Scan;
+    my $cs = pf::ConfigStore::Scan->new;
+    foreach my $scanner (@{$cs->readAll("id")}) {
+        foreach my $device_id (@{$scanner->{oses}}) {
+            add_problem($WARN, "Device ID $device_id is invalid in scanner ".$scanner->{id}) unless(valid_fingerbank_device_id($device_id));
+        }
+    }
+}
+
+=item cluster
+
+Validate the configuration of the cluster
+
+=cut
+
+sub cluster {
+    require pf::cluster;
+    require pf::ConfigStore::Interface;
+    require pfconfig::namespaces::config::Cluster;
+    require List::MoreUtils;
+
+    unless($pf::cluster::cluster_enabled){
+        return;
+    }
+
+    my $int_cs = pf::ConfigStore::Interface->new;
+    my @ints = @{$int_cs->readAll('name')};
+    my @servers = @pf::cluster::cluster_servers;
+
+    my $cluster_config = pfconfig::namespaces::config::Cluster->new;
+    $cluster_config->build();
+
+    unshift @servers, $cluster_config->{_CLUSTER};
+
+    unless(List::MoreUtils::any { $_->{host} eq $pf::cluster::host_id} @servers) {
+        add_problem($FATAL, "current host ($pf::cluster::host_id) is missing from the cluster.conf file");
+    }
+
+    # Check each member configuration
+    foreach my $server (@servers){
+        my $server_name = $server->{host};
+        if(!defined($server->{management_ip})){
+            add_problem($FATAL, "management_ip is not defined for $server_name")
+        }
+        elsif(!valid_ip($server->{management_ip})){
+            add_problem($FATAL, "management_ip is not a valid IP address for $server_name");
+        }
+
+        foreach my $int (@ints) {
+            unless(exists($server->{"interface ".$int->{name}})) {
+                add_problem($FATAL, "Interface $int->{name} is not defined for $server_name");
+            }
+        }
+    }
+
+}
+
+=item valid_fingerbank_device_id
+
+=cut
+
+sub valid_fingerbank_device_id {
+    require fingerbank::Model::Device;
+    require pf::error;
+    my ($device_id) = @_;
+    my ($status, $result) = fingerbank::Model::Device->read($device_id);
+    if($status == $STATUS::NOT_FOUND) {
+        return $FALSE;
+    }
+    else {
+        return $TRUE;
+    }
+}
+
 =back
 
 =head1 AUTHOR
@@ -1252,7 +1295,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

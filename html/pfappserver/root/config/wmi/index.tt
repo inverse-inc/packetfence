@@ -15,7 +15,7 @@
         </div>
       </div>
 
-      <h2>[% l('WMI Rules')  %]</h2>
+      <h2>[% l('WMI Rules') %] [% doc('_wmi_rules_definition') | none %]</h2>
 
       [% INCLUDE config/wmi/list.tt %]
 

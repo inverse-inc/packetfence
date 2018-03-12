@@ -78,6 +78,14 @@ has_field 'nat_enabled' => (
     label => 'Enable NATting',
 );
 
+has_field 'dhcpd' =>
+  (
+   type => 'Toggle',
+   checkbox_value => "enabled",
+   unchecked_value => "disabled",
+   default => "enabled",
+   label => 'DHCP server',
+   );
 
 =head2 update_fields
 
@@ -128,7 +136,7 @@ sub validate {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -149,5 +157,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

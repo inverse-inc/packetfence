@@ -1,4 +1,9 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
 $(function () {
+    /* Load localized labels */
+    var labels = document.getElementById('labels');
+    window.labels = JSON.parse(labels.textContent || labels.innerHTML);
+
     /* Activate toggle buttons */
     $('body').on(
         {'mouseenter': function(event) {
@@ -54,7 +59,7 @@ $(function () {
     $('body').on('blur', 'input[data-required]', function() {
         isFormInputEmpty($(this));
     });
-    $('body').on('changeDate', 'input.datepicker[data-required]', function() {
+    $('body').on('changeDate', '.input-date[data-required]', function() {
         isFormInputEmpty($(this));
     });
 
@@ -79,9 +84,9 @@ function getStatusMsg(jqXHR) {
     return status_msg;
 }
 
-function resetAlert(parent) {
-    parent.children('.alert').clearQueue().remove();
-    parent.children('.error').removeClass('error');
+function resetAlert(p) {
+    p.find('.alert').clearQueue().remove();
+    p.find('.error').removeClass('error');
 }
 
 
@@ -90,7 +95,7 @@ function showAlert(type, sibling, msg, permanent, time) {
         time = 5000;
     }
     var alert = $(type).first().clone();
-    alert.find('span').first().html(msg);
+    alert.find('span').first().text(msg);
     sibling.before(alert);
     if (permanent)
         alert.fadeIn('fast');
@@ -125,9 +130,19 @@ function showError(sibling, msg, permanent, time) {
         var form = sibling.closest('form');
         $.each(msg, function(name, error) {
             var input = form.find('[name="' + name + '"]');
-            var control = input.closest('.control-group');
+            var control;
+            if (input.length) {
+                control = input.closest('.control-group');
+            } else {
+                control = form.find('[id="' + name + '"].control-group:not(.hidden)');
+            }
+            if (!control.length) {
+                var label = form.find('.control-group:not(.hidden) > label[for="' + name + '"].control-label');
+                control = label.closest('.control-group');
+            }
             control.addClass('error');
             showTab(control, input);
+            showCollapse(input);
             showAlert('.alert-error', sibling, error, permanent, time);
         });
     }
@@ -152,13 +167,13 @@ function isFormInputEmpty(input) {
     var value;
 
     if (input.attr('data-toggle') == 'buttons-radio')
-        value = input.find('.active').length == 0? null : 1;
+        value = input.find('.active').length === 0? null : 1;
     else
         value = input.val();
 
-    if (value == null
-        || typeof value == 'string' && $.trim(value).length == 0
-        || value.length == 0) {
+    if (value === null ||
+        typeof value == 'string' && $.trim(value).length === 0 ||
+        value.length === 0) {
         control.addClass('error');
         empty = true;
 
@@ -196,6 +211,10 @@ function isInvalidNumber(input, min, max) {
     return isInvalid;
 }
 
+function showCollapse(input) {
+    input.closest('.collapse').collapse('show');
+}
+
 function isFormValid(form) {
     var valid = true;
     form.find('input[data-required]:not(:disabled), input[type="number"]:not(:disabled)').each(function() {
@@ -203,6 +222,9 @@ function isFormValid(form) {
         var control = input.closest('.control-group');
         input.trigger('blur');
         valid = !control.hasClass('error');
+        if (!valid) {
+            showCollapse(input);
+        }
 
         return valid;
     });
@@ -230,6 +252,63 @@ function _(key) {
     }
 
     return value;
+}
+
+/* Fixes chosen 'cut-off' when in overflow hidden elements.
+   See https://github.com/harvesthq/chosen/issues/86
+*/
+function fixChosenClipping($chosenSelect) {
+    // Disable mouse scroll if its dropdown is open.
+    $chosenSelect
+        .bind('chosen:showing_dropdown', function() {
+            $(this).next('.chosen-container')
+                .bind("mousewheel", function() {
+                    return false;
+                });
+            $(window).scroll(function() {
+                $chosenSelect.next('.chosen-container').trigger('mouseenter.chosen');
+            });
+        })
+        .bind('chosen:hiding_dropdown', function() {
+            $(this).next('.chosen-container')
+                .unbind('mousewheel');
+            $(this).find('.chosen-drop')
+                .removeClass('fixed')
+                .attr('style', '');
+            $(window).off('scroll');
+        });
+
+    // Reposition the dropdown to fixed, so it's always on top.
+    $chosenSelect.next('.chosen-container')
+        .bind('mouseenter.chosen', function() {
+            var x = $(this).offset().left,
+                y = $(this).offset().top + $(this).height(),
+                w = $(this).width(),
+                $dropdown = $(this).find('.chosen-drop');
+
+            // If the menu is partially visible, don't change
+            // its dropdown to be fixed. This is only needed if your
+            // chosen menu might be clipped by a div or something.
+
+            // Find all the parents that might be clipping off.
+            var parents = $(this).parents().filter(function() {
+                var overflow = $(this).css('overflow');
+                return overflow === 'auto' || overflow === 'hidden' || overflow === 'scroll';
+            });
+
+            // If at least one parent is clipping off the bottom of
+            // the menu, don't proceed any further.
+            for (var i = 0; i < parents.length; i++) {
+                var parentEdge = $(parents[i]).offset().top + $(parents[i]).outerHeight();
+                if (y > parentEdge) {
+                    $dropdown.css({ 'display': 'none' });
+                    return false;
+                }
+            }
+
+            $dropdown.addClass('fixed')
+                .css({ 'top': y - $(document).scrollTop(), 'left': x, 'width': w });
+        });
 }
 
 String.prototype.asCSSIdentifier = function() {

@@ -40,6 +40,7 @@
 [% IF user.password.defined  %]
             [%- IF can_access("USERS_UPDATE") %]
             <div class="tab-pane fade in" id="userPassword">
+              [% form.field('login_remaining').render | none %]
               <div class="control-group">
                 <label class="control-label" for="password">[% l('Password') %]</label>
                 <div class="controls">
@@ -62,6 +63,21 @@
                   <div class="controls">
                     <a class="btn btn-info" href="[% c.uri_for(c.controller('User').action_for('print'), [], [], { pids => user.pid }) %]" target="_new">[% l('Print') %]</a>
                     <a class="btn btn-info" href="[% c.uri_for(c.controller('User').action_for('mail'), [], [], { pids => user.pid }) %]" id="mailPassword" data-loading-text="[% l('mail_loading') %]">[% l('mail_btn') %]</a>
+                    [% IF sms_source %]
+                         <a class="btn btn-info" href="[% c.uri_for(c.controller('User').action_for('sms'), [], [], { pids => user.pid }) %]" id="smsPassword" data-loading-text="[% l('sms_loading') %]">[% l('sms_btn') %]</a>
+                        [% IF sms_carriers.size %]
+                          [% IF sms_carriers.size == 1 %]
+                            <input type="hidden" name="sms_carrier" value="[% sms_carriers.0.id %]" />
+                          [% ELSE %]
+                            <select name="sms_carrier">
+                              <option value="">[% l('Choose the Provider') %]</option>
+                            [% FOREACH sms_carrier IN sms_carriers %]
+                              <option value="[% sms_carrier.id %]">[% sms_carrier.name %]</option>
+                            [% END %]
+                            </select>
+                          [% END %]
+                        [% END %]
+                    [% END %]
                   </div>
                 </div>
               </div> 
@@ -71,7 +87,7 @@
             <div class="tab-pane fade" id="userActions">
               <div class="control-group">
                 <label class="control-label" for="valid_from">[% l('Registration Window') %]</label>
-                <div class="controls input-daterange datepicker">
+                <div class="controls input-daterange" data-date-format="yyyy-mm-dd">
                   [% form.field('valid_from').render_element | none %] <i class="icon-arrow-right"></i>
                   [% form.field('expiration').render_element | none %]
                 </div>
@@ -100,8 +116,8 @@
                           [% field_value.render_element | none %]
                         </td>
                         <td class="action">
-                          <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
-                          <a class="btn-icon[% ' hidden' IF loop.size == 2 %]" href="#delete"><i class="icon-minus-sign"></i></a>
+                          <a class="btn-icon" href="#add"><i class="icon-plus-circle"></i></a>
+                          <a class="btn-icon[% ' hidden' IF loop.size == 2 %]" href="#delete"><i class="icon-minus-circle"></i></a>
                         </td>
                       </tr>
                       [% END -%]
@@ -133,7 +149,8 @@
         </div><!--modal-body-->
 
         <div class="modal-footer">
-          [% IF can_access("USERS_DELETE") %]<a href="[% c.uri_for(c.controller('User').action_for('delete'), [ user.pid ]) %]" id="deleteUser" class="btn btn-danger pull-left[% ' disabled' IF  nodes.size > 0 %]"><i class="icon-trash icon-white"></i> [% l('Delete') %]</a>[% END %]
+          [% IF can_access("USERS_DELETE") %]<a href="[% c.uri_for(c.controller('User').action_for('delete'), [ user.pid ]) %]" id="deleteUser" class="btn btn-danger pull-left[% ' disabled' IF nodes && nodes.size > 0 %]"><i class="icon-trash icon-white"></i> [% l('Delete') %]</a>[% END %]
+          [% IF can_access("USERS_UPDATE") %]<a href="[% c.uri_for(c.controller('User').action_for('unassignNodes'), [ user.pid ]) %]" id="unassignUserNodes" class="btn btn-warning pull-left[% ' disabled' IF nodes && nodes.size > 0 %]"><i class="icon-trash icon-white"></i> [% l('Unassign nodes') %]</a>[% END %]
           <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
           [% IF can_access("USERS_UPDATE") %]<button type="submit" class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>[% END %]
         </div><!--modal-footer-->

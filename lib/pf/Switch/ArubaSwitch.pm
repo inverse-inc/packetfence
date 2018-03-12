@@ -37,7 +37,12 @@ sub description { 'Aruba Switches' }
 use pf::Switch::constants;
 use pf::util;
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $MAC
+    $PORT
+    $WIRED_802_1X
+    $WIRED_MAC_AUTH
+);
 
 =head1 SUBROUTINES
 
@@ -93,23 +98,6 @@ sub dot1xPortReauthenticate {
 }
 
 
-=head2 parseTrap
-
-All traps ignored
-
-=cut
-
-sub parseTrap {
-    my ( $self, $trapString ) = @_;
-    my $trapHashRef;
-    my $logger = $self->logger;
-
-    $logger->debug("trap ignored, not useful for switch");
-    $trapHashRef->{'trapType'} = 'unknown';
-
-    return $trapHashRef;
-}
-
 =head2 getIfIndexByNasPortId
 
 Fetch the ifindex on the switch by NAS-Port-Id radius attribute
@@ -119,14 +107,13 @@ Fetch the ifindex on the switch by NAS-Port-Id radius attribute
 sub getIfIndexByNasPortId {
     my ($self, $ifDesc_param) = @_;
 
-    if ( !$self->connectRead() ) {
+    if ( !$self->connectRead() || !defined($ifDesc_param)) {
         return 0;
     }
 
     my @ifDescTemp = split(':',$ifDesc_param);
     my $OID_ifDesc = '1.3.6.1.2.1.2.2.1.2';
-    my $cache = $self->cache;
-    my $result = $cache->compute([$self->{'_id'},$OID_ifDesc], sub { $self->{_sessionRead}->get_table( -baseoid => $OID_ifDesc )});
+    my $result = $self->cachedSNMPRequest([-baseoid => $OID_ifDesc]);
     foreach my $key ( keys %{$result} ) {
         my $ifDesc = $result->{$key};
         if ( $ifDesc =~ /$ifDescTemp[1]$/i ) {
@@ -238,7 +225,7 @@ sub radiusDisconnect {
         my $connection_info = {
             nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
-            LocalAddr => $self->deauth_source_ip(),
+            LocalAddr => $self->deauth_source_ip($send_disconnect_to),
         };
 
         $logger->debug("[$self->{'_ip'}] Network device supports roles. Evaluating role to be returned.");
@@ -261,8 +248,7 @@ sub radiusDisconnect {
         # merging additional attributes provided by caller to the standard attributes
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
 
-        # Roles are configured and the user should have one
-        if ( defined($role) && (defined($node_info->{'status'}) && isenabled($self->{_RoleMap}) ) ) {
+        if ( $self->shouldUseCoA({role => $role}) ) {
 
             $attributes_ref = {
                 %$attributes_ref,
@@ -282,7 +268,7 @@ sub radiusDisconnect {
     };
     return if (!defined($response));
 
-    return $TRUE if ($response->{'Code'} eq 'CoA-ACK');
+    return $TRUE if ( ($response->{'Code'} eq 'Disconnect-ACK') || ($response->{'Code'} eq 'CoA-ACK') );
 
     $logger->warn(
         "[$self->{'_ip'}] Unable to perform RADIUS Disconnect-Request."
@@ -298,7 +284,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

@@ -78,7 +78,7 @@ sub set {
     return $self->{cache}->set( $key, $value );
 }
 
-=head2
+=head2 remove
 
 Remove an element in the backend
 
@@ -89,9 +89,9 @@ sub remove {
     return $self->{cache}->remove($key);
 }
 
-=head2
+=head2 clear
 
-Remove an element in the backend
+Clear an element in the backend
 
 =cut
 
@@ -128,15 +128,13 @@ sub list_matching {
     return @valid_keys;
 }
 
-=back
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

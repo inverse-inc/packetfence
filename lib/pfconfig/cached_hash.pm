@@ -46,7 +46,6 @@ use warnings;
 use Tie::Hash;
 use IO::Socket::UNIX qw( SOCK_STREAM );
 use JSON::MaybeXS;
-use pfconfig::timeme;
 use List::MoreUtils qw(first_index);
 use pf::log;
 use pfconfig::cached;
@@ -177,6 +176,7 @@ Proxies to pfconfig
 
 sub EXISTS {
     my ( $self, $key ) = @_;
+    return undef unless defined $key;
     return $self->compute_from_subcache("__PFCONFIG_KEY_EXISTS_${key}__", sub {
         my $reply =  $self->_get_from_socket( $self->{_namespace}, "key_exists", ( search => $key ) );
         return defined $reply ? $reply->{result} : undef;
@@ -233,7 +233,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

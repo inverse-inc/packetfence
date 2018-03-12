@@ -12,14 +12,14 @@ Form definition to create or update a floating network device.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
-with 'pfappserver::Base::Form::Role::Help';
+with 'pfappserver::Base::Form::Role::Help',
+     'pfappserver::Role::Form::RolesAttribute';
 
 use pf::config;
+use pf::file_paths qw($lib_dir);
 use pf::util;
 use File::Find qw(find);
-
-## Definition
-has 'roles' => (is => 'ro', default => sub {[]});
+use pf::constants::firewallsso;
 
 has_field 'id' =>
   (
@@ -30,7 +30,7 @@ has_field 'id' =>
   );
 has_field 'password' =>
   (
-   type => 'Password',
+   type => 'ObfuscatedText',
    label => 'Secret or Key',
    required => 1,
    messages => { required => 'You must specify the password or the key' },
@@ -84,6 +84,35 @@ has_field 'cache_timeout' =>
    tags => { after_element => \&help,
              help => 'Adjust the "Cache timeout" to half the expiration delay in your firewall.<br/>Your DHCP renewal interval should match this value.' },
   );
+has_field 'networks' =>
+  (
+   type => 'Text',
+   label => 'Networks on which to do SSO',
+   tags => { after_element => \&help,
+             help => 'Comma delimited list of networks on which the SSO applies.<br/>Format : 192.168.0.0/24' },
+  );
+
+has_field 'username_format' =>
+  (
+   type => 'Text',
+   label => 'Username format',
+   default => '$pf_username',
+   tags => { after_element => \&help,
+             help => 'Defines how to format the username that is sent to your firewall. $username represents the username and $realm represents the realm of your user if applicable. $pf_username represents the unstripped username as it is stored in the PacketFence database. If left empty, it will use the username as stored in PacketFence (value of $pf_username).' },
+  );
+
+has_field 'default_realm' =>
+  (
+   type => 'Text',
+   label => 'Default realm',
+   tags => { after_element => \&help,
+             help => 'The default realm to be used while formatting the username when no realm can be extracted from the username.' },
+  );
+
+has_block 'definition' =>
+  (
+   render_list => [ qw(id type password port categories networks cache_updates cache_timeout username_format default_realm) ],
+  );
 
 =head2 Methods
 
@@ -108,34 +137,7 @@ Dynamically extract the descriptions from the various Firewall modules.
 sub options_type {
     my $self = shift;
 
-    my %paths = ();
-    my $wanted = sub {
-        if ((my ($module, $pack, $firewall) = $_ =~ m/$lib_dir\/((pf\/firewallsso\/([A-Z0-9][\w\/]+))\.pm)\z/)) {
-            $pack =~ s/\//::/g; $firewall =~ s/\//::/g;
-
-            # Parent folder is the vendor name
-            my @p = split /::/, $firewall;
-            my $vendor = shift @p;
-
-            # Only switch types with a 'description' subroutine are displayed
-            require $module;
-            if ($pack->can('description')) {
-                $paths{$vendor} = {} unless ($paths{$vendor});
-                $paths{$vendor}->{$firewall} = $pack->description;
-            }
-        }
-    };
-    find({ wanted => $wanted, no_chdir => 1 }, ("$lib_dir/pf/firewallsso"));
-
-    # Sort vendors and switches for display
-    my @modules;
-    foreach my $vendor (sort keys %paths) {
-        my @firewall = map {{ value => $_, label => $paths{$vendor}->{$_} }} sort keys %{$paths{$vendor}};
-        push @modules, { group => $vendor,
-                         options => \@firewall };
-    }
-
-    return @modules;
+    return map{$_ => $_} $pf::constants::firewallsso::FIREWALL_TYPES;
 }
 
 =head2 options_categories
@@ -145,11 +147,10 @@ sub options_type {
 sub options_categories {
     my $self = shift;
 
-    my ($status, $result) = $self->form->ctx->model('Roles')->list();
+    my $result = $self->form->roles;
     my @roles = map { $_->{name} => $_->{name} } @{$result} if ($result);
     return ('' => '', @roles);
 }
-
 
 
 =over
@@ -158,7 +159,7 @@ sub options_categories {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -179,5 +180,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

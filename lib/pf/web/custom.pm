@@ -26,9 +26,8 @@ use Readonly;
 
 use pf::config;
 use pf::util;
-use pf::iplog;
+use pf::ip4log;
 use pf::node qw(node_attributes node_view node_modify);
-use pf::useragent;
 use pf::web;
 
 =head1 WARNING
@@ -99,7 +98,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

@@ -57,7 +57,10 @@ use base ('pf::Switch');
 
 use pf::accounting qw(node_accounting_current_sessionid);
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $MAC
+    $SSID
+);
 use pf::util;
 
 =head1 SUBROUTINES
@@ -114,14 +117,9 @@ sub parseTrap {
     my $trapHashRef;
     my $logger = $self->logger;
 
-    # Handle WIPS Trap
-    if ( $trapString =~ /BEGIN VARIABLEBINDINGS.*\.1\.3\.6\.1\.4\.1\.388\.50\.1\.2\.1\.4 = STRING: "Unsanctioned AP ([A-F0-9]{2}-[A-F0-9]{2}-[A-F0-9]{2}-[A-F0-9]{2}-[A-F0-9]{2}-[A-F0-9]{2})/){
-        $trapHashRef->{'trapType'}    = 'wirelessIPS';
-        $trapHashRef->{'trapMac'} = clean_mac($1);
-    } else {
-        $logger->debug("trap currently not handled");
-        $trapHashRef->{'trapType'} = 'unknown';
-    }
+    $logger->debug("trap currently not handled");
+    $trapHashRef->{'trapType'} = 'unknown';
+
     return $trapHashRef;
 }
 
@@ -236,7 +234,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

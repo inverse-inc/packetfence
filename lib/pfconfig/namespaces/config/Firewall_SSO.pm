@@ -18,7 +18,8 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use pf::file_paths;
+use pfconfig::objects::NetAddr::IP;
+use pf::file_paths qw($firewall_sso_config_file);
 
 use base 'pfconfig::namespaces::config';
 
@@ -33,6 +34,8 @@ sub build_child {
 
     foreach my $key ( keys %tmp_cfg ) {
         $self->cleanup_after_read( $key, $tmp_cfg{$key} );
+        my @networks = map { pfconfig::objects::NetAddr::IP->new($_) } @{$tmp_cfg{$key}{networks}};
+        $tmp_cfg{$key}{networks} = \@networks;
     }
 
     return \%tmp_cfg;
@@ -41,10 +44,9 @@ sub build_child {
 
 sub cleanup_after_read {
     my ( $self, $id, $data ) = @_;
-    $self->expand_list( $data, qw(categories) );
+    $self->expand_list( $data, qw(categories networks) );
 }
 
-=back
 
 =head1 AUTHOR
 
@@ -52,7 +54,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

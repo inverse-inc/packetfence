@@ -13,7 +13,10 @@ pfappserver::Model::Config::PF
 
 use Moose;
 use namespace::autoclean;
-use pf::config;
+use pf::config qw(
+    %Doc_Config
+    %Default_Config
+);
 use pf::ConfigStore::Pf;
 
 extends 'pfappserver::Base::Model::Config';
@@ -63,13 +66,13 @@ sub help {
     });
 }
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =back
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

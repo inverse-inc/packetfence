@@ -32,7 +32,6 @@ use warnings;
 
 use IO::Socket::UNIX qw( SOCK_STREAM );
 use JSON::MaybeXS;
-use pfconfig::timeme;
 use pf::log;
 use pfconfig::util qw($undef_element);
 use pfconfig::constants;
@@ -49,10 +48,10 @@ Creates the object but shouldn't be used since it's made as an interface to use 
 =cut
 
 sub new {
-    my ($class) = @_;
+    my ($class, @args) = @_;
     my $self = bless {}, $class;
 
-    $self->init();
+    $self->init(@args);
 
     return $self;
 }
@@ -241,7 +240,7 @@ sub is_valid {
         return 0;
     }
 
-    my $memory_timestamp = $self->{memorized_at} || time;
+    my $memory_timestamp = $self->{memorized_at} // 0;
 
 #$logger->trace("Control file has timestamp $file_timestamp and memory has timestamp $memory_timestamp for key $what");
 # if the timestamp of the file is after the one we have in memory
@@ -251,7 +250,7 @@ sub is_valid {
         return 1;
     }
     else {
-        $logger->info("Memory configuration is not valid anymore for key $what in local cached_hash");
+        $logger->debug("Memory configuration is not valid anymore for key $what in local cached_hash");
         return 0;
     }
 }
@@ -269,7 +268,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

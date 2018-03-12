@@ -30,10 +30,9 @@ BEGIN {
 
 use pf::action;
 use pf::class;
-use pf::config;
-use pf::config::cached;
+use pf::config qw(%ConfigDetect);
 use pf::db;
-use pf::iplog;
+use pf::ip4log;
 use pf::node;
 use pf::person;
 use pf::util;
@@ -41,10 +40,12 @@ use pf::services::util;
 use pf::violation;
 use pf::SwitchFactory;
 
-pf::SwitchFactory::preLoadModules();
+pf::SwitchFactory->preloadConfiguredModules();
 use pf::factory::detect::parser;
 use pf::client;
 use pfconfig::cached_hash;
+use pf::CHI::Request;
+use Systemd::Daemon qw{ -soft };
 
 # initialization
 # --------------
@@ -97,7 +98,9 @@ my $IS_CHILD = 0;
 my $running = 1;
 
 sub start_detectors {
+    Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
     foreach my $id (keys %ConfigDetect) {
+        next unless isenabled($ConfigDetect{$id}{status});
         run_detector($id);
     }
 }
@@ -110,17 +113,18 @@ creates a new child to run a task
 
 sub run_detector {
     my ($id) = @_;
-    my $detector = $ConfigDetect{$id};
-    $detector->{id} = $id;
+    db_disconnect();
     my $pid = fork();
-    if($pid) {
-        $CHILDREN{$pid} = $detector->{id};
+    if ($pid) {
+        $CHILDREN{$pid} = $id;
         $SIG{CHLD} = "IGNORE";
-    } elsif ($pid == 0) {
+    }
+    elsif ($pid == 0) {
         $SIG{CHLD} = "DEFAULT";
         $IS_CHILD = 1;
-        _run_detector($detector);
-    } else {
+        _run_detector($id);
+    }
+    else {
     }
 }
 
@@ -131,39 +135,37 @@ the task to is ran in a loop until it is finished
 =cut
 
 sub _run_detector {
-    my ($detector) = @_;
-    $0 = "pfdetect - ".$detector->{id};
+    my ($id) = @_;
+    my $parser = pf::factory::detect::parser->new($id);
 
-    my $alert_pipe = $detector->{path};
+    $0 = "pfdetect - $id";
+
+    my $alert_pipe = $parser->path;
     my $alert_pipe_fh;
 
-    if ( !open( $alert_pipe_fh, '<', "$alert_pipe" ) ) {
+    if ( !open( $alert_pipe_fh, '+<', "$alert_pipe" ) ) {
         $logger->error("unable to open alert pipe ($alert_pipe): $!");
         _exit(1);
     } else {
         $logger->info("listening on $alert_pipe");
     }
 
-    my $parser_type = $detector->{type};
-
-    my $parser = pf::factory::detect::parser->new($parser_type);
-
-    my $client = pf::client->getClient();
+    my $client = $parser->getApiClient();
 
     while (<$alert_pipe_fh>) {
         last unless $running;
 
         my $line = $_;
+        chomp($line);
         $logger->info("alert received: '$line'");
         my $data = $parser->parse($line);
-        unless($data || $data eq '0') { # Getting '0' from the parser indicates "job's done" which mean, nothing more to do for that line
+        unless(defined $data) { # Error parsing line
             $logger->warn("unknown input: $line ");
             next;
         }
         next if $data eq "0";   # Getting '0' from the parser indicates "job's done" which mean, nothing more to do for that line
-        while (my ($type, $value) = each %{$data->{events}}) {
-            $client->notify( event_add => ( $data->{date}, $data->{srcip}, $type, $value ));
-        }
+        
+        $client->notify( 'event_add', %{$data} );
 
         #Stop running if parent is no longer alive
         unless(is_parent_alive()) {
@@ -171,8 +173,7 @@ sub _run_detector {
             $running = 0;
         }
 
-        #reload all cached configs after each iteration
-        pf::config::cached::ReloadConfigs();
+        pf::CHI::Request::clear_all();
     }
 
     $logger->trace("$$ shutting down");
@@ -203,6 +204,7 @@ while($running){
 
 
 END {
+    Systemd::Daemon::notify( STOPPING => 1 );
     deletepid();
 }
 
@@ -225,7 +227,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

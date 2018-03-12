@@ -3,7 +3,6 @@ use Moose;
 use Moose::Util qw(apply_all_roles);
 use namespace::autoclean;
 use Log::Log4perl::Catalyst;
-
 use Catalyst::Runtime 5.80;
 
 # Set flags and add plugins for the application.
@@ -25,7 +24,7 @@ use Catalyst qw/
   Authentication
   Session
   Session::Store::CHI
-  Session::State::Cookie
+  Session::State::MAC
   StackTrace
   Unicode::Encoding
   /;
@@ -40,12 +39,28 @@ BEGIN {
 }
 
 use captiveportal::Role::Request;
-use pf::config::cached;
-use pf::file_paths;
 use pf::CHI;
+use pf::CHI::Request;
 use CHI::Driver::SubNamespace;
 
+use pf::config qw(%Config);
+
 extends 'Catalyst';
+
+around 'handle_request' => sub {
+    my ($orig, $self, @args) = @_;
+    my @res;
+    # Request timeout handling
+    eval {
+        local $SIG{ALRM} = sub { die "Timeout reached" };
+        alarm $Config{captive_portal}{request_timeout};
+        @res = $self->$orig(@args);
+        alarm 0;
+    };
+    die $@ if($@);
+    
+    return @res;
+};
 
 Catalyst::Request->meta->make_mutable;
 
@@ -100,8 +115,8 @@ __PACKAGE__->config(
 );
 
 before handle_request => sub {
-    Log::Log4perl::MDC->put('mac', 'unknown');
-    pf::config::cached::ReloadConfigs();
+    pf::CHI::Request::clear_all();
+    pf::log::reset_log_context();
 };
 
 sub loadCustomStatic {
@@ -114,6 +129,19 @@ sub loadCustomStatic {
     return $dirs;
 }
 
+=head2 csp_server_headers
+
+Return CSP (Content-Security-Policy) headers
+
+=cut
+
+sub csp_server_headers {
+    my ($c) = @_;
+    
+    my $captive_portal_network_detection_ip = $Config{'captive_portal'}{'network_detection_ip'};
+    $c->response->header('Content-Security-Policy' => "default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self' http://$captive_portal_network_detection_ip/; style-src 'self'; font-src 'self';");
+}
+
 =head2 user_cache
 
 Returns the user/mac specific cache
@@ -122,12 +150,49 @@ Returns the user/mac specific cache
 
 sub user_cache {
     my ($c) = @_;
-    return CHI->new(
-        driver     => 'SubNamespace',
-        chi_object => pf::CHI->new(namespace => 'httpd.portal'),
-        namespace  => $c->portalSession->clientMac
-    );
+    return $c->stash->{application}->user_cache;
 }
+
+=head2 _user_session_backend
+
+To get the backend of the session
+
+=cut
+
+sub _user_session_backend {
+    my ($c) = @_;
+    return pf::CHI->new(namespace  => 'httpd.portal');
+}
+
+=head2 _build_user_session
+
+This builds the user session using the browser session ID
+
+=cut
+
+sub _build_user_session {
+    my ($c) = @_;
+    return $c->_user_session_backend->get("user_session:".$c->browser_session_id) || {};
+}
+
+=head2 _save_user_session
+
+This needs to be called at the end of the request of whenever we want to save the session
+
+=cut
+
+sub _save_user_session {
+    my ($c) = @_;
+    $c->_user_session_backend->set("user_session:".$c->browser_session_id, $c->user_session);
+}
+
+=head2 user_session
+
+A secure user session based on the session ID and not only the MAC
+
+=cut
+
+has 'user_session' => (is => 'rw', builder => '_build_user_session', lazy => 1);
 
 has portalSession => (
     is => 'rw',
@@ -161,6 +226,8 @@ after finalize => sub {
                 $c->log->error("Error with a deferred action: $@");
             }
         }
+
+        $c->request->_clear_body;
     }
 };
 
@@ -208,7 +275,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

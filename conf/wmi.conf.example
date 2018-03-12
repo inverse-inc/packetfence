@@ -1,5 +1,6 @@
 # Detect installed software and trigger a violation
 [Software_Installed]
+namespace=ROOT\cimv2
 request=select * from Win32_Product
 action= <<EOT
 [Google]
@@ -14,6 +15,7 @@ EOT
 
 # Detect the current user logged in and register the device
 [logged_user]
+namespace=ROOT\cimv2
 request=select UserName from Win32_ComputerSystem
 action= <<EOT
 [UserName]
@@ -28,6 +30,7 @@ EOT
 
 # Detect the running process and if it exist then bybass the scan
 [Process_Running]
+namespace=ROOT\cimv2
 request=select Name from Win32_Process
 action= <<EOT
 [explorer]
@@ -38,3 +41,34 @@ value = explorer.exe
 [1:explorer]
 action = allow
 EOT
+
+# Detect if the SCCM client is installed
+[SCCM]
+request=select * from Win32_Process where name='CcmExec.exe'
+action=[sccm]
+namespace=ROOT\cimv2
+on_tab=1
+
+# Detect security product like Firewall, Antivirus or Antispyware
+[FireWall]
+request=select * from FirewallProduct
+action= <<EOT
+[firewall]
+attribute = Name
+operator = match
+value = *
+EOT
+namespace=ROOT\SecurityCenter2
+on_tab=1
+
+[Antivirus]
+request=select * from AntiVirusProduct
+namespace=ROOT\SecurityCenter2
+action=[antivirus]
+on_tab=1
+
+[AntiSpyware]
+request=select * from AntiSpywareProduct
+namespace=ROOT\SecurityCenter2
+action=[antispyware]
+on_tab=1

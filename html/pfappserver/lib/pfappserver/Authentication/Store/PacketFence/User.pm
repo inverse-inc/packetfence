@@ -9,13 +9,14 @@ use warnings;
 use pf::constants;
 use pf::config qw($WEB_ADMIN_ALL);
 use pf::authentication;
-use pf::Authentication::constants;
+use pf::Authentication::constants qw($LOGIN_SUCCESS $LOGIN_CHALLENGE);
 use pf::log;
 use List::MoreUtils qw(all any);
 use pf::config::util;
 use pf::util;
+use pf::constants::realm;
 
-BEGIN { __PACKAGE__->mk_accessors(qw/_user _store _roles/) }
+BEGIN { __PACKAGE__->mk_accessors(qw/_user _store _roles _challenge/) }
 
 use overload '""' => sub { shift->id }, fallback => 1;
 
@@ -44,23 +45,17 @@ sub supported_features {
 sub check_password {
   my ($self, $password) = @_;
 
-  my $internal_sources = pf::authentication::getInternalAuthenticationSources();
-  my ($stripped_username,$realm) = strip_username($self->_user);
-  my $realm_source = get_realm_source($stripped_username, $realm);
-  if($realm_source && any {$_->id eq $realm_source->id} @{$internal_sources}){
-    get_logger->info("Found realm source ".$realm_source->id." for user $stripped_username in realm $realm. Using it as the only source.");
-    $internal_sources = [$realm_source];
+  my ($result, $roles) = pf::authentication::adminAuthentication($self->_user, $password);
+  if($result == $LOGIN_SUCCESS) {
+    $self->_roles($roles);
+    return $TRUE;
   }
-  $self->{_user} = isenabled($realm_source->{'stripped_user_name'}) ? $stripped_username : $self->{_user};
-  my ($result, $message, $source_id) = &pf::authentication::authenticate( { 'username' => $self->_user, 'password' => $password, 'rule_class' => $Rules::ADMIN }, @{$internal_sources});
-
-  if ($result) {
-      my $value = &pf::authentication::match($source_id, { username => $self->_user, 'rule_class' => $Rules::ADMIN }, $Actions::SET_ACCESS_LEVEL);
-      $self->_roles([split /\s*,\s*/,$value]) if defined $value;
-      return (defined $value && all{ $_ ne 'NONE'} @{$self->_roles});
+  elsif($result == $LOGIN_CHALLENGE) {
+    $self->_challenge();
   }
-
-  return $FALSE;
+  else {
+    return $FALSE;
+  }
 }
 
 sub roles {
@@ -84,7 +79,7 @@ sub AUTOLOAD {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

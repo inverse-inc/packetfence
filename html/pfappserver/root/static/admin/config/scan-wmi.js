@@ -19,7 +19,7 @@ var ScanWMIRuleView = function(options) {
     var that = this;
     this.parent = options.parent;
     this.items = options.items;
-    options.parent.on('click', '#wmi_rulesEmpty [href=#add]', function(event) {
+    options.parent.on('click', '#wmi_rulesEmpty [href="#add"]', function(event) {
         $('#wmi_rules').trigger('addrow');
         $('#wmi_rulesEmpty').addClass('hidden');
         return false;

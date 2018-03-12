@@ -23,26 +23,61 @@ use pf::log;
 use pf::person;
 use pf::util;
 use pf::authentication;
+use pf::pfqueue::producer::redis;
+use pf::CHI;
+
+my $CHI_CACHE = pf::CHI->new( namespace => 'person_lookup' );
+
+=head2 lookup_person
+
+Lookup informations on a person
+
+=cut
 
 sub lookup_person {
-    my ($pid,$source_id) = @_;
+    my ($pid, $source_id) = @_;
     my $logger = get_logger();
+    unless (defined $source_id) {
+        $logger->info("undefined source id provided");
+        return;
+    }
     my $source = pf::authentication::getAuthenticationSource($source_id);
     if (!$source) {
        $logger->info("Unable to locate the source $source_id");
-       return "Unable to locate the source $source_id!\n";
+       return;
     }
 
     unless (person_exist($pid)) {
-        return "Person $pid is not a registered user!\n";
+        $logger->info("Person $pid is not a registered user!");
+        return;
     }
-    my $person = $source->search_attributes($pid);
-    if (!$person) {
-       $logger->info("Cannot search attributes for user '$pid'");
-       return "Cannot search attributes for user '$pid'!\n";
+    my $person = $CHI_CACHE->get("$source_id.$pid");
+    unless($person){
+        $person = $source->search_attributes($pid);
+        if (!$person) {
+           $logger->debug("Cannot search attributes for user '$pid'");
+           return;
+        } else {
+            $CHI_CACHE->set("$source_id.$pid", $person);
+            $logger->info("Successfully did a person lookup for $pid");
+            person_modify($pid, %$person);
+            return;
+        }
     }
+    $logger->info("Already did a person lookup for $pid");
+    return;
+}
 
-    person_modify($pid, %$person);
+=head2 async_lookup_person
+
+Lookup a person asynchronously using the queue
+
+=cut
+
+sub async_lookup_person {
+    my ($pid, $source_id) = @_;
+    my $client = pf::pfqueue::producer::redis->new();
+    $client->submit("general", person_lookup => {pid => $pid, source_id => $source_id});
 }
 
 =head1 AUTHOR
@@ -53,7 +88,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,0 +1,23 @@
+# DRBD checks
+
+check file syslog with path /var/log/messages
+    group DRBD
+    every 450 cycles    # every 15 minutes (if 1 cycle is 2 seconds)
+    ignore content = "monit"
+    if match "lost: " then alert
+    if match "Process pause detected for" then alert
+    if match "Split-Brain detected" then alert
+    if match "cannot run anywhere" then alert
+
+check file drbd with path /proc/drbd
+    group DRBD
+    every 450 cycles    # every 15 minutes (if 1 cycle is 2 seconds)
+    if match "Inconsistent" then alert  
+    if match "Unknown" then alert
+    if match "StandAlone" then alert
+    if match "WFConnection" then alert
+
+check filesystem drbdfs with path /dev/drbd0
+    group DRBD
+    every 450 cycles    # every 15 minutes (if 1 cycle is 2 seconds)
+    if space usage > 80 % then alert

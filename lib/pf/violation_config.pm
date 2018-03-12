@@ -22,6 +22,7 @@ use pf::class qw(class_merge);
 use pf::db;
 use pfconfig::cached_hash;
 use pf::util;
+use pf::dal::class;
 
 our (%Violation_Config);
 
@@ -42,9 +43,18 @@ sub loadViolationsIntoDb {
         $logger->error("Can't connect to db");
         return;
     }
+
+    if (db_readonly_mode()) {
+        my $msg = "Cannot reload violations when the database is in read only mode\n";
+        print STDERR $msg;
+        $logger->error($msg);
+        return;
+    }
+
+    my @keys;
     while(my ($violation,$data) = each %Violation_Config) {
         # parse grace, try to understand trailing signs, and convert back to seconds
-        my @time_values = (qw(grace delay_by));
+        my @time_values = qw(grace delay_by);
         push (@time_values,'window') if (defined $data->{'window'} && $data->{'window'} ne "dynamic");
         foreach my $key (@time_values) {
             my $value = $data->{$key};
@@ -52,6 +62,8 @@ sub loadViolationsIntoDb {
                 $data->{$key} = normalize_time($value);
             }
         }
+
+        $violation = 0 if ($violation eq "defaults");
 
         # be careful of the way parameters are passed, whitelists, actions are expected at the end
         class_merge(
@@ -75,7 +87,18 @@ sub loadViolationsIntoDb {
             $data->{'whitelisted_roles'} || '',
             $data->{'actions'},
         );
+        push @keys, $violation;
     }
+    remove_deleted_violations(\@keys);
+}
+
+sub remove_deleted_violations {
+    my ($ids) = @_;
+    my ($status, $rows) = pf::dal::class->remove_items(
+        -where => {
+            vid => { -not_in => $ids }
+        }
+    );
 }
 
 =head1 AUTHOR
@@ -85,7 +108,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

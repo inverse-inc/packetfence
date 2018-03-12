@@ -20,9 +20,16 @@ use Moose;
 use Readonly;
 use URI::Escape::XS qw(uri_escape uri_unescape);
 use namespace::autoclean;
-use pf::config;
+use pf::config qw(
+    $management_network
+    %Config
+    %ConfigReport
+);
 use pf::cluster;
 use Sys::Hostname;
+DateTime::Locale->add_aliases({
+    'i_default' => 'en',
+});
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
@@ -193,6 +200,7 @@ sub _graphPie :Private {
                    series => $result->{series},
                    values => $result->{values},
                    piecut => $result->{piecut},
+                   items  => $result->{items},
                    graphtype => 'pie',
                    template => 'graph/pie.tt',
                    current_view => 'HTML'
@@ -288,12 +296,6 @@ sub _buildGraphiteURL :Private {
       ? $management_network->tag('vip')
       : $management_network->tag('ip');
 
-    my $options =
-      {
-       graphite_host => $management_ip,
-       graphite_port => '9000'
-      };
-
     if (!$width) {
         $width = 1170;
     }
@@ -334,11 +336,9 @@ sub _buildGraphiteURL :Private {
     $params->{hideAxes} = 'false';
     $params->{colorList} = '#1f77b4,#ff7f0e,#2ca02c,#d62728,#9467bd,#8c564b,#e377c2,#7f7f7f,#bcbd22,#17becf';
 
-    my $url = sprintf('http://%s:%s/render?%s',
-                      $options->{graphite_host},
-                      $options->{graphite_port},
+    my $url = sprintf('./metrics/render?%s',
                       join('&', map { $_ . '=' . uri_escape($params->{$_}) }
-                          grep { $_ ne "target" } keys(%$params))); # we don't map the target here. It can be an arrayref
+                          grep { $_ ne "target" } grep { $_ ne "description" } keys(%$params))); # we don't map the target here. It can be an arrayref
 
     # targets can be an arrayref of graphite queries, so we need to handle it
     if (ref $params->{'target'} eq  "ARRAY") {
@@ -367,66 +367,56 @@ sub dashboard :Local :AdminRole('REPORTS') {
 
     $graphs = [
                {
-                'description' => 'Registrations/min',
+                'description' => $c->loc('Registrations/min'),
                 'target' => [ 'alias(groupByNode(summarize(stats.counters.*.pf__node__node_register.called.count,"1min"),5,"sum"),"End-Points registered")',
                     'alias(groupByNode(summarize(stats.counters.*.pf__node__node_deregister.called.count,"1min"),5,"sum"), "End-Points deregistered")' ],
                 'lineMode' => "staircase",
                 'columns' => 2,
                },
                {
-                'description' => 'Server Load',
-                'target' => 'aliasByNode(*.load.load.midterm,0)',
-                'columns' => 2
-               },
-               {
-                'description' => 'Available Memory',
-                'target' => 'groupByNode(*.memory.memory-{free,cached,buffered}, 0, "sumSeries") ',
-                'columns' => 2
-               },
-               {
-                'description' => 'RADIUS Total Access-Requests/s',
+                'description' => $c->loc('RADIUS Total Access-Requests/s'),
                 'vtitle' => 'requests',
                 'target' =>'alias(sum(*.radsniff-exchanged.radius_count-access_request.received),"Access-Requests")',
                 'columns' => 1
                },
                {
-                'description' => 'RADIUS Access-Requests/s per server',
+                'description' => $c->loc('RADIUS Access-Requests/s per server'),
                 'vtitle' => 'requests',
                 'target' => 'aliasByNode(*.radsniff-exchanged.radius_count-access_request.received,0)',
                 'columns' => 1
                },
                {
-                'description' => 'RADIUS Access-Accepts/s per server',
+                'description' => $c->loc('RADIUS Access-Accepts/s per server'),
                 'vtitle' => 'replies',
                 'target' => 'aliasByNode(*.radsniff-exchanged.radius_count-access_accept.received,0)',
                 'columns' => 2
                },
                {
-                'description' => 'RADIUS Access-Rejects/s per server',
+                'description' => $c->loc('RADIUS Access-Rejects/s per server'),
                 'vtitle' => 'replies',
                 'target' => 'aliasByNode(*.radsniff-exchanged.radius_count-access_reject.received,0)',
                 'columns' => 2
                },
                {
-                'description' => 'Apache AAA call timing',
+                'description' => $c->loc('Apache AAA call timing'),
                 'vtitle' => 'ms',
-                'target' => 'aliasByNode(stats.timers.*.freeradius__main__post_auth.timing.mean_90,2)',
+                'target' => 'aliasByNode(stats.timers.*.pf__api__radius_rest_authorize.timing.mean_90,2)',
                 'columns' => 1
                },
                {
-                'description' => 'Apache AAA Open Connections per server',
+                'description' => $c->loc('Apache AAA Open Connections per server'),
                 'vtitle' => 'connections',
                 'target' => 'aliasByNode(*.apache-aaa.apache_connections,0)',
                 'columns' => 1
                },
                {
-                'description' => 'NTLM call timing',
+                'description' => $c->loc('NTLM call timing'),
                 'vtitle' => 'ms',
                 'target' => 'aliasByNode(stats.timers.*.ntlm_auth.time.mean_90,2)',
                 'columns' => 1
                },
                {
-                'description' => 'NTLM authentication failures',
+                'description' => $c->loc('NTLM authentication failures'),
                 'vtitle' => 'failures/s',
                 'target' => [ 'aliasSub(stats.counters.*.ntlm_auth.failures.count,"^stats.counters.([^.]+).ntlm_auth.failures.count$", "\1 failures")',
                             _generate_timeout_group() ],
@@ -434,47 +424,141 @@ sub dashboard :Local :AdminRole('REPORTS') {
                 'drawNullAsZero' => 'true'
                },
                {
-                'description' => 'Portal Open Connections per server',
+                'description' => $c->loc('Portal Open Connections per server'),
                 'vtitle' => 'connections',
                 'target' => 'aliasByNode(*.apache-portal.apache_connections,0)',
                 'columns' => 1
                },
                {
-                'description' => 'Apache Webservices Open Connections per server',
+                'description' => $c->loc('Apache Webservices Open Connections per server'),
                 'vtitle' => 'connections',
                 'target' => 'aliasByNode(*.apache-webservices.apache_connections,0)',
                 'columns' => 1
                },
                {
-                'description' => 'RADIUS Average Access-Request Latency',
+                'description' => $c->loc('RADIUS Average Access-Request Latency'),
                 'vtitle' => 'ms',
                 'target' => 'aliasByNode(*.radsniff-exchanged.radius_latency-access_request.smoothed,0)',
                 'columns' => 1
                },
                {
-                'description' => 'PF Database Threads',
+                'description' => $c->loc('PF Database Threads'),
                 'vtitle' => 'threads',
                 'target' => 'aliasByNode(*.mysql-pf.threads-*,2)',
                 'columns' => 1
                },
                {
-                'description' => 'RADIUS Accounting requests received/s',
+                'description' => $c->loc('RADIUS Accounting requests received/s'),
                 'vtitle' => 'requests',
                 'target' => 'aliasByNode(*.radsniff-exchanged.radius_count-accounting_request.received,0)',
                 'columns' => 1
                },
                {
-                'description' => 'RADIUS Accounting Latency',
+                'description' => $c->loc('RADIUS Accounting Latency'),
                 'vtitle' => 'ms',
                 'target' => 'aliasByNode(*.radsniff-exchanged.radius_latency-accounting_request.smoothed,0)',
                 'columns' => 1
                },
+              ];
+
+    foreach my $graph (@$graphs) {
+        $graph->{url} = $self->_buildGraphiteURL($c, $start, $width, $graph);
+    }
+    $c->stash->{graphs} = $graphs;
+    $c->stash->{current_view} = 'HTML';
+}
+
+=head2 systemstate
+
+=cut
+
+sub systemstate :Local :AdminRole('REPORTS') {
+    my ($self, $c, $start, $end) = @_;
+    my $graphs = [];
+    my $width = $c->request->param('width');
+    $start //= '';
+
+    $self->_saveRange($c, $DASHBOARD, $start, $end);
+
+    $graphs = [
                {
-                'description' => 'Endpoints Online',
-                'vtitle' => 'Endpoints',
-                'target' => 'aliasByNode(stats.gauges.*.nodes.online,2)',
+                'description' => $c->loc('Server Load'),
+                'target' => 'aliasByNode(*.load.load.midterm,0)',
                 'columns' => 2
                },
+               {
+                'description' => $c->loc('CPU Wait'),
+                'target' => 'aliasByNode(*.*.cpu-wait,0,1)',
+                'columns' => 2
+               },
+               {
+                'description' => $c->loc('Disk IO Time'),
+                'target' => 'aliasByNode(*.*.disk_io_time.io_time,0,1)',
+                'columns' => 2
+               },
+               {
+                'description' => $c->loc('Available Memory'),
+                'target' => 'groupByNode(*.memory.memory-{free,cached,buffered}, 0, "sumSeries") ',
+                'columns' => 2
+               },
+               {
+                'description' => $c->loc('Available Swap'),
+                'target' => 'aliasByNode(*.swap.swap-free, 0) ',
+                'columns' => 2
+               },
+               {
+                'description' => $c->loc('Conntrack percent used'),
+                'target' => 'aliasByNode(*.conntrack.percent-used,0)',
+                'columns' => 2
+               },
+              ];
+
+    foreach my $graph (@$graphs) {
+        $graph->{url} = $self->_buildGraphiteURL($c, $start, $width, $graph);
+    }
+    $c->stash->{graphs} = $graphs;
+    $c->stash->{current_view} = 'HTML';
+}
+
+
+=head2 logstate
+
+=cut
+
+sub logstate :Local :AdminRole('REPORTS') {
+    my ($self, $c, $start, $end) = @_;
+    my $graphs = [];
+    my $width = $c->request->param('width');
+    $start //= '';
+
+    $self->_saveRange($c, $DASHBOARD, $start, $end);
+
+    $graphs = [
+               {
+                'description' => $c->loc('Logs Tracking packetfence.log'),
+                'target' => '*.tail-PacketFence.counter*',
+                'columns' => 2
+               },
+               {
+                'description' => $c->loc('Logs Tracking pfmon.log'),
+                'target' => '*.tail-pfmon.counter*',
+                'columns' => 2
+               },
+               {
+                'description' => $c->loc('Logs Tracking pfdhcplistener.log'),
+                'target' => '*.tail-pfdhcplistener.counter*',
+                'columns' => 2
+               },
+               {
+                'description' => $c->loc('Logs Tracking radius-load_balancer.log'),
+                'target' => '*.tail-radius-load_balancer.counter*',
+                'columns' => 2
+               },
+               {
+                'description' => $c->loc('Logs Tracking radius.log'),
+                'target' => '*.tail-radius-auth.counter*',
+                'columns' => 2
+               }
               ];
 
     foreach my $graph (@$graphs) {
@@ -490,6 +574,12 @@ sub dashboard :Local :AdminRole('REPORTS') {
 
 sub reports :Local :AdminRole('REPORTS') {
     my ($self, $c, $start, $end) = @_;
+
+    my @builtin_report_ids = sort { $ConfigReport{$a}->{description} cmp $ConfigReport{$b}->{description} } map { $ConfigReport{$_}->{type} eq "builtin" ? $_ : () } keys %ConfigReport;
+    my @custom_report_ids = sort { $ConfigReport{$a}->{description} cmp $ConfigReport{$b}->{description} } map { $ConfigReport{$_}->{type} ne "builtin" ? $_ : () } keys %ConfigReport;
+    $c->stash->{builtin_report_ids} = \@builtin_report_ids;
+    $c->stash->{custom_report_ids} = \@custom_report_ids;
+    $c->stash->{dynamic_reports} = \%ConfigReport;
 
     $self->_saveRange($c, $REPORTS, $start, $end);
 
@@ -701,6 +791,8 @@ sub os :Local :AdminRole('REPORTS') {
                                   count => 'count' },
                      }
                     );
+    $self->_add_links($c, 'device_type', 'equal', 'label');
+
 }
 
 =head2 connectiontype
@@ -722,6 +814,7 @@ sub connectiontype :Local :AdminRole('REPORTS') {
                                    'count' => 'connections' },
                      }
                     );
+    $self->_add_links($c, 'connection_type', 'equal', 'connection_type_orig');
 }
 
 =head2 ssid
@@ -743,6 +836,7 @@ sub ssid :Local :AdminRole('REPORTS') {
                                    count => 'nodes' },
                      }
                     );
+    $self->_add_links($c, 'ssid', 'equal', 'label');
 }
 
 =head2 nodebandwidth
@@ -768,7 +862,26 @@ sub nodebandwidth :Local :AdminRole('REPORTS') {
                        options => ['accttotal', 'acctinput', 'acctoutput'],
                        option => $option }
                     );
+    $self->_add_links($c, 'mac', 'equal', 'label');
 }
+
+
+=head2 _add_links
+
+
+=cut
+
+sub _add_links {
+    my ($self, $c, $name, $op, $value_key) = @_;
+    my $items = $c->stash->{items};
+    if ($items) {
+        for my $item (@$items) {
+            $item->{link} = "/admin/nodes#/node/advanced_search?searches.0.name=$name&searches.0.op=$op&searches.0.value=" . $item->{$value_key};
+        }
+    }
+    return ;
+}
+
 
 =head2 osclassbandwidth
 
@@ -791,14 +904,150 @@ sub osclassbandwidth :Local :AdminRole('REPORTS') {
                                    count => $option."octets",
                                    value => $option },
                      });
+    $self->_add_links($c, 'dhcp_fingerprint', 'equal', 'label');
 }
+
+=head2 topauthenticationfailures_by_mac
+
+Radius AAA errors by mac for a specific period.
+
+Defined as a report.
+
+=cut
+
+sub topauthenticationfailures_by_mac :Local :AdminRole('REPORTS') {
+    my ( $self, $c, $start, $end ) = @_;
+    $self->_saveRange($c, $REPORTS, $start, $end);
+    $self->_graphPie($c, $c->loc('Top Authentication Failures'), $REPORTS,
+                     { fields => { label => 'mac',
+                                   count => 'count',
+                                   value => 'count' },
+                     });
+    $self->_add_links($c, 'mac', 'equal', 'label');
+}
+
+=head2 topauthenticationfailures_by_ssid
+
+Radius AAA errors by ssid for a specific period.
+
+Defined as a report.
+
+=cut
+
+sub topauthenticationfailures_by_ssid :Local :AdminRole('REPORTS') {
+    my ( $self, $c, $start, $end ) = @_;
+    $self->_saveRange($c, $REPORTS, $start, $end);
+    $self->_graphPie($c, $c->loc('Top Authentication Failures'), $REPORTS,
+                     { fields => { label => 'ssid',
+                                   count => 'count',
+                                   value => 'count' },
+                     });
+    $self->_add_links($c, 'ssid', 'equal', 'label');
+}
+
+=head2 topauthenticationfailures_by_username
+
+Radius AAA errors by username for a specific period.
+
+Defined as a report.
+
+=cut
+
+sub topauthenticationfailures_by_username :Local :AdminRole('REPORTS') {
+    my ( $self, $c, $start, $end ) = @_;
+    $self->_saveRange($c, $REPORTS, $start, $end);
+    $self->_graphPie($c, $c->loc('Top Authentication Failures'), $REPORTS,
+                     { fields => { label => 'user_name',
+                                   count => 'count',
+                                   value => 'count' },
+                     });
+    $self->_add_links($c, 'person_name', 'equal', 'label');
+}
+
+=head2 topauthenticationsuccesses_by_mac
+
+Radius AAA successes by mac for a specific period.
+
+Defined as a report.
+
+=cut
+
+sub topauthenticationsuccesses_by_mac :Local :AdminRole('REPORTS') {
+    my ( $self, $c, $start, $end ) = @_;
+    $self->_saveRange($c, $REPORTS, $start, $end);
+    $self->_graphPie($c, $c->loc('Top Authentication Successes'), $REPORTS,
+                     { fields => { label => 'mac',
+                                   count => 'count',
+                                   value => 'count' },
+                     });
+    $self->_add_links($c, 'mac', 'equal', 'label');
+}
+
+=head2 topauthenticationsuccesses_by_ssid
+
+Radius AAA successes by ssid for a specific period.
+
+Defined as a report.
+
+=cut
+
+sub topauthenticationsuccesses_by_ssid :Local :AdminRole('REPORTS') {
+    my ( $self, $c, $start, $end ) = @_;
+    $self->_saveRange($c, $REPORTS, $start, $end);
+    $self->_graphPie($c, $c->loc('Top Authentication Successes'), $REPORTS,
+                     { fields => { label => 'ssid',
+                                   count => 'count',
+                                   value => 'count' },
+                     });
+    $self->_add_links($c, 'ssid', 'equal', 'label');
+}
+
+=head2 topauthenticationsuccesses_by_username
+
+Radius AAA successes by username for a specific period.
+
+Defined as a report.
+
+=cut
+
+sub topauthenticationsuccesses_by_username :Local :AdminRole('REPORTS') {
+    my ( $self, $c, $start, $end ) = @_;
+    $self->_saveRange($c, $REPORTS, $start, $end);
+    $self->_graphPie($c, $c->loc('Top Authentication Successes'), $REPORTS,
+                     { fields => { label => 'user_name',
+                                   count => 'count',
+                                   value => 'count' },
+                     });
+    $self->_add_links($c, 'person_name', 'equal', 'label');
+}
+
+=head2 topauthenticationsuccesses_by_computername
+
+Radius AAA successes by computername for a specific period.
+
+Defined as a report.
+
+=cut
+
+sub topauthenticationsuccesses_by_computername :Local :AdminRole('REPORTS') {
+    my ( $self, $c, $start, $end ) = @_;
+    $self->_saveRange($c, $REPORTS, $start, $end);
+    $self->_graphPie($c, $c->loc('Top Authentication Successes'), $REPORTS,
+                     { fields => { label => 'computer_name',
+                                   count => 'count',
+                                   value => 'count' },
+                     });
+    $self->_add_links($c, 'computername', 'equal', 'label');
+}
+
+
 
 sub _generate_hosts {
     my @hosts;
     if (@cluster_hosts) {
         @hosts = @cluster_hosts;
     }
-    elsif ($Config{'monitoring'}{'graphite_hosts'}) {
+    elsif ($Config{'graphite'}{'graphite_hosts'}) {
 
     }
     else {
@@ -815,7 +1064,7 @@ sub _generate_timeout_group {
         push @group_members,
                          "removeBelowValue(diffSeries(stats.counters.$host.freeradius__main__authenticate.count.count,stats.timers.$host.ntlm_auth.time.count),0)"
 ;
-    }
+    } 
 
     return 'aliasSub(aliasByNode( group(' . join( ', ', @group_members ) . ') ,2), "^(\w+)", "\1 timeouts"  ) ';
 }
@@ -823,7 +1072,7 @@ sub _generate_timeout_group {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -844,6 +1093,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

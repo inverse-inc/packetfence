@@ -1,0 +1,50 @@
+IpsetNetwork:
+    type: object
+    properties:
+        network:
+            type: string
+            description: The IPv4 network identifier
+
+IpsetRoleId:
+    type: object
+    properties:
+        role_id:
+            type: integer
+            description: The client's node
+
+IpsetIp:
+    type: object
+    properties:
+        ip:
+            type: string
+            description: The IPv4 address of the client
+
+IpsetPort:
+    type: object
+    properties:
+        port:
+            type: string
+            description: The port to allow through. Can be prefixed with a protocol `tcp:` or `udp:`. When the protocol is omited, then the port will be opened for both protocols. example: tcp:65535
+
+IpsetMac:
+    type: object
+    properties:
+        mac:
+            type: string
+            description: The clients MAC address. example: 01:23:45:67:89:AB
+
+IpsetType:
+    type: object
+    properties:
+        type:
+            type: string
+            description: The Ipset type.
+            enum: [Reg, Unreg]
+            
+IpsetStatus:
+    type: object
+    properties:
+        type:
+            type: string
+            description: The response status.
+            enum: [ACK, NAK]

@@ -76,7 +76,10 @@ use pf::log;
 use Readonly;
 
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    %ConfigFloatingDevices
+    $WIRED_MAC_AUTH
+);
 use pf::locationlog;
 use pf::util;
 use pf::config::util;
@@ -202,7 +205,7 @@ sub disablePortConfig {
 
     my @locationlog = pf::locationlog::locationlog_view_open_switchport_no_VoIP($switch->{_ip}, $switch_port);
     my $radius_triggered;
-    if(scalar(@locationlog) > 0){
+    if (@locationlog && $locationlog[0]) {
         $radius_triggered = (str_to_connection_type($locationlog[0]->{connection_type}) eq $WIRED_MAC_AUTH);
     }
     # if we don't have locationlog info then we'll act like before (WIRED SNMP)
@@ -233,7 +236,14 @@ sub disableMABFloating {
     my ( $self, $switch, $ifIndex ) = @_;
 
     if($switch->supportsMABFloatingDevices){
-        $switch->disableMABFloatingDevice($ifIndex);
+        if($switch->supportsMABFloatingDevices){
+            require pf::api::jsonrpcclient;
+            require pf::cluster;
+            #CAUTION: Don't use pf::client::getManagementClient here, it will return you an instance of pf::api::local which will not send it to the cluster master
+            my $apiclient = pf::api::jsonrpcclient->new(proto => "https", "host" => pf::cluster::management_cluster_ip());
+            my %data = ( 'switch' => $switch->{_id} , ifIndex => $ifIndex );
+            my ($result) = $apiclient->notify( 'disableMABFloatingInQueue', %data );
+        }
     }
 }
 
@@ -252,7 +262,13 @@ sub enableMABFloating{
         $self->enablePortConfig($mac, $switch, $ifIndex, undef, $TRUE);
     }
     if($switch->supportsMABFloatingDevices){
-        $switch->enableMABFloatingDevice($ifIndex);
+        require pf::api::jsonrpcclient;
+        require pf::cluster;
+        #CAUTION: Don't use pf::client::getManagementClient here, it will return you an instance of pf::api::local which will not send it to the cluster master
+        my $apiclient = pf::api::jsonrpcclient->new(proto => "https", "host" => pf::cluster::management_cluster_ip());
+        my %data = ( 'switch' => $switch->{_id} , ifIndex => $ifIndex );
+        my ($result) = $apiclient->notify( 'enableMABFloatingInQueue', %data );
+
         # disconnect and close additionnal entries that could have been opened (a device was authentified before the floating)
         $self->_disconnectCurrentDevices($switch, $ifIndex);
         pf::locationlog::locationlog_update_end_switchport_no_VoIP($switch->{_ip}, $ifIndex);
@@ -314,7 +330,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

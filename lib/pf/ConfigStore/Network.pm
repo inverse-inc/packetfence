@@ -15,15 +15,13 @@ pf::ConfigStore::Network
 use Moo;
 use namespace::autoclean;
 use pf::log;
-use pf::config;
+use pf::config qw(%ConfigNetworks %Config);
 use pf::util qw(isenabled);
-use pf::file_paths;
+use pf::file_paths qw($network_config_file);
 
 extends 'pf::ConfigStore';
 
 =head1 METHODS
-
-=head2 _buildCachedConfig
 
 =cut
 
@@ -144,10 +142,12 @@ sub cleanupBeforeCommit {
     my $config = $self->cachedConfig;
     unless ( $config->SectionExists($id) ) {
         # Set default values when creating a new network
+        $network->{type} =~ s/\s+//;
+        my @types = split(',',$network->{type});
         $network->{named} = 'enabled' unless ($network->{named});
         $network->{dhcpd} = 'enabled' unless ($network->{dhcpd});
         $network->{fake_mac_enabled} = 'disabled' if ($network->{type} ne $pf::config::NET_TYPE_INLINE_L3);
-        $network->{'domain-name'} = $network->{type} . "." . $Config{general}{domain}
+        $network->{'domain-name'} = $types[0] . "." . $Config{general}{domain}
             unless $network->{'domain-name'};
     } else {
         if ($network->{type} && $network->{type} eq $pf::config::NET_TYPE_INLINE_L3) {
@@ -156,11 +156,11 @@ sub cleanupBeforeCommit {
     }
 }
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

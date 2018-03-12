@@ -1,7 +1,25 @@
 <copyright>
-  <year>2015</year>
+  <year>2018</year>
   <holder>Inverse inc.</holder>
 </copyright>
+
+<revhistory>
+  <revision>
+    <revnumber>1.2</revnumber>
+    <date>2018-02-01</date>
+    <revremark>-Adding precisions</revremark>
+    <revremark>-Adding tests</revremark>
+  </revision>
+</revhistory>
+
+<revhistory>
+  <revision>
+    <revnumber>1.1</revnumber>
+    <date>2017-12-13</date>
+    <revremark>-Adding of the maintenance</revremark>
+    <revremark>-Adding of the shutdown procedure</revremark>
+  </revision>
+</revhistory>
 
 <revhistory>
   <revision>

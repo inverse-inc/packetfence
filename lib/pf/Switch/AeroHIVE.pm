@@ -37,13 +37,17 @@ Nothing documented at this point.
 use strict;
 use warnings;
 
-use Net::Appliance::Session;
 use Try::Tiny;
 
 use base ('pf::Switch');
 
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $ROLES_API_LEVEL
+    $MAC
+    $SSID
+);
+use pf::file_paths qw($lib_dir);
 # RADIUS constants (RADIUS:: namespace)
 use pf::radius::constants;
 use pf::roles::custom $ROLES_API_LEVEL;
@@ -183,6 +187,7 @@ sub _deauthenticateMacTelnet {
 
     my $session;
     eval {
+        require Net::Appliance::Session;
         $session = Net::Appliance::Session->new(
             Host      => $self->{_ip},
             Timeout   => 5,
@@ -318,7 +323,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

@@ -17,9 +17,11 @@ use URI::Escape::XS qw(uri_escape uri_unescape);
 use WWW::Curl::Easy;
 use pf::log;
 use Readonly;
+use pf::util;
 
 use Moose;
 extends 'pf::Authentication::Source';
+with qw(pf::Authentication::InternalRole);
 
 has '+type' => ( default => 'HTTP' );
 has 'protocol' => ( isa => 'Str', is => 'rw', default => 'http' );
@@ -31,6 +33,14 @@ has 'authentication_url' => ( isa => 'Str', is => 'rw', default => '' );
 has 'authorization_url' => ( isa => 'Str', is => 'rw', default => '' );
 
 =head1 METHODS
+
+=head2 dynamic_routing_module
+
+Which module to use for DynamicRouting
+
+=cut
+
+sub dynamic_routing_module { 'Authentication::Login' }
 
 =head2 has_authentication_rules
 
@@ -225,6 +235,19 @@ sub match {
             push(@actions, $action);
         }
 
+        my $time_balance = $result->{'time_balance'};
+        if (defined $time_balance) {
+            $action =  pf::Authentication::Action->new({type => $Actions::SET_TIME_BALANCE,
+                                                        value => $time_balance});
+            push(@actions, $action);
+        }
+
+        my $bandwidth_balance = $result->{'bandwidth_balance'};
+        if (defined $bandwidth_balance) {
+            $action =  pf::Authentication::Action->new({type => $Actions::SET_BANDWIDTH_BALANCE,
+                                                        value => $bandwidth_balance});
+            push(@actions, $action);
+        }
         return \@actions;
     }
 
@@ -238,7 +261,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -259,7 +282,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;
 
 # vim: set shiftwidth=4:

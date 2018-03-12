@@ -6,7 +6,7 @@ pf::Switch::WirelessModuleTemplate
 
 =head1 SYNOPSIS
 
-The pf::Switch::WirelessModuleTemplate module implements an object oriented interface to 
+The pf::Switch::WirelessModuleTemplate module implements an object oriented interface to
 manage <HARDWARE>
 
 =head1 STATUS
@@ -45,7 +45,9 @@ use warnings;
 use base ('pf::Switch');
 
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $MAC $SSID
+);
 
 =head1 SUBROUTINES
 
@@ -70,22 +72,6 @@ sub getVersion {
     # IMPLEMENT!
 }
 
-=item parseTrap
-
-=cut
-
-sub parseTrap {
-    # Optional for Wireless devices
-    my ( $self, $trapString ) = @_;
-    my $trapHashRef;
-    my $logger = $self->logger;
-    
-    $logger->debug("trap currently not handled");
-    $trapHashRef->{'trapType'} = 'unknown';
-        
-    return $trapHashRef;
-}
-
 =item deauthenticateMacDefault
 
 deauthenticate a MAC address from wireless network (including 802.1x)
@@ -104,7 +90,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

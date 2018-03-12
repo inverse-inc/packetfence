@@ -32,7 +32,10 @@ use pfappserver::Base::Action::AdminRole;
 use pf::config;
 use List::MoreUtils qw(all);
 
-BEGIN { extends 'Catalyst::Controller'; }
+BEGIN {
+    extends 'Catalyst::Controller';
+    with 'pfappserver::Role::Controller::Audit';
+}
 
 =head1 METHODS
 
@@ -106,7 +109,7 @@ sub object :Chained('/') :PathPart('interface') :CaptureArgs(1) {
         $c->stash->{ifname} = $name;
         $c->stash->{vlan} = $vlan;
     }
-    $c->stash->{high_availability} = scalar @pf::config::ha_ints && all { $interface ne $_ } @pf::config::ha_ints ;
+    $c->stash->{high_availability} = scalar @pf::config::ha_ints && all { $interface ne $_->{Tint} } @pf::config::ha_ints ;
 }
 
 =item create
@@ -142,6 +145,7 @@ sub create :Chained('object') :PathPart('create') :Args(0) :AdminRole('INTERFACE
             if (is_success($status)) {
                 ($status, $result) = $c->model('Interface')->update($interface, $data);
             }
+            $self->audit_current_action($c, status => $status, interface => $interface);
 
         }
         $c->response->status($status);
@@ -172,6 +176,7 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) :AdminRole('INTERFACE
 
     my $interface = $c->stash->{interface};
     my ($status, $status_msg) = $c->model('Interface')->delete($interface, $c->req->uri->host);
+    $self->audit_current_action($c, status => $status, interface => $interface);
 
     if ( is_success($status) ) {
         $c->stash->{status_msg} = $status_msg;
@@ -196,6 +201,7 @@ sub down :Chained('object') :PathPart('down') :Args(0) :AdminRole('INTERFACES_UP
 
     my $interface = $c->stash->{interface};
     my ($status, $status_msg) = $c->model('Interface')->down($interface, $c->req->uri->host);
+    $self->audit_current_action($c, status => $status, interface => $interface);
 
     if ( is_success($status) ) {
         $c->stash->{status_msg} = $status_msg;
@@ -227,9 +233,17 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('INTERFACES_RE
     my $interfaces = $c->model('Interface')->get('all');
     my $types = $c->model('Enforcement')->getAvailableTypes($mechanism, $interface, $interfaces);
 
-    if ( $interface_ref->{$interface}->{'type'} =~ 'portal' ) {
-        $interface_ref->{$interface}->{'additional_listening_daemons'} = [ "portal" ];
-        $interface_ref->{$interface}->{'type'} =~ s/,portal//;
+    if ( $interface_ref->{$interface}->{'type'} =~ 'portal') {
+        if ($interface_ref->{$interface}->{'type'} !~ /^portal/i ) {
+            push @{$interface_ref->{$interface}->{'additional_listening_daemons'}}, "portal";
+            $interface_ref->{$interface}->{'type'} =~ s/,portal//;
+        }
+    }
+    if ( $interface_ref->{$interface}->{'type'} =~ 'radius') {
+        if ($interface_ref->{$interface}->{'type'} !~ /^radius/i ) {
+            push @{$interface_ref->{$interface}->{'additional_listening_daemons'}}, "radius";
+            $interface_ref->{$interface}->{'type'} =~ s/,radius//;
+        }
     }
 
     # Build form
@@ -280,6 +294,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('INTERFACE
             }
 
             ($status, $result) = $c->model('Interface')->update($c->stash->{interface}, $data);
+            $self->audit_current_action($c, status => $status, interface => $c->stash->{interface});
         }
         if (is_error($status)) {
             $c->response->status($status);
@@ -306,6 +321,7 @@ sub up :Chained('object') :PathPart('up') :Args(0) :AdminRole('INTERFACES_UPDATE
 
     my $interface = $c->stash->{interface};
     my ($status, $status_msg) = $c->model('Interface')->up($interface);
+    $self->audit_current_action($c, status => $status, interface => $c->stash->{interface});
 
     if ( is_success($status) ) {
         $c->stash->{status_msg} = $status_msg;
@@ -359,7 +375,7 @@ around create_action => sub {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -380,6 +396,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

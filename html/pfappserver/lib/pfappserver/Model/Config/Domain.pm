@@ -15,12 +15,10 @@ pfappserver::Model::Config::Domain
 use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 use namespace::autoclean;
-use pf::config::cached;
 use pf::config;
 use pf::ConfigStore::Domain;
 use pf::util;
 use pf::domain;
-use pf::file_paths;
 
 extends 'pfappserver::Base::Model::Config';
 
@@ -52,18 +50,18 @@ sub status {
 
     my $chroot_path = pf::domain::chroot_path($domain);
     my ($join_status, $join_output) = pf::domain::test_join($domain);
-  
+
     return ($join_status, $join_output);
 
 }
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =back
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

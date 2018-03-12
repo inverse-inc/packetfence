@@ -1,3 +1,7 @@
+.card {
+  margin-top: 0 !important;
+}
+
 .modal-body {
     max-height: 480px;
 }
@@ -36,8 +40,8 @@ form[name="enforcement"] .table th,
 form[name="enforcement"] .table td {
     border-top: 0;
 }
-form[name="enforcement"] .table tr th:first-child,
-form[name="enforcement"] .table tr td:first-child {
+form[name="enforcement"] .table tr th:not(:last-child),
+form[name="enforcement"] .table tr td:not(:last-child) {
     border-right: 1px solid #ddd;
     width: 33%;
 }

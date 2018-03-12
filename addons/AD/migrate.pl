@@ -13,7 +13,7 @@ Util to migrate existing OS Active Directory configuration into PacketFence and 
 use lib '/usr/local/pf/lib';
 
 use Term::ReadKey;
-use pf::file_paths;
+use pf::file_paths qw($domain_config_file);
 
 BEGIN {
   use Log::Log4perl;
@@ -43,12 +43,12 @@ chomp($NAMESERVER);
 
 print "CAUTION: This account needs to have the rights to bind a new server on the domain. \n";
 print "What is the username to bind this server on the domain : ";
-my $user =  <STDIN>; 
+my $user =  <STDIN>;
 chomp ($user);
 
 print "Password: ";
 ReadMode('noecho');
-my $password =  <STDIN>; 
+my $password =  <STDIN>;
 ReadMode(0);
 chomp ($password);
 print "\n";
@@ -58,7 +58,7 @@ my $server_name = <STDIN>;
 chomp($server_name);
 
 my $cs = pf::ConfigStore::Domain->new;
-$cs->update_or_create($WORKGROUP, {workgroup => $WORKGROUP, dns_name => $REALM, dns_server => $NAMESERVER, ad_server => $SERVER, bind_dn => $user, bind_pass => $password, server_name => $server_name});
+$cs->update_or_create($WORKGROUP, {workgroup => $WORKGROUP, dns_name => $REALM, dns_servers => $NAMESERVER, ad_server => $SERVER, bind_dn => $user, bind_pass => $password, server_name => $server_name});
 $cs->commit();
 
 print "Configuring realm : '$REALM' \n";
@@ -93,7 +93,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

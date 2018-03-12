@@ -26,11 +26,11 @@ __PACKAGE__->config(
     action => {
         # Reconfigure the object dispatcher from pfappserver::Base::Controller::Crud
         object => { Chained => '/', PathPart => 'savedsearch/user', CaptureArgs => 1 },
-        view   => { AdminRole => 'USERS_READ' },
-        list   => { AdminRole => 'USERS_READ' },
-        create => { AdminRole => 'USERS_READ' },
-        update => { AdminRole => 'USERS_READ' },
-        remove => { AdminRole => 'USERS_READ' },
+        view   => { AdminRoleAny => [qw(USERS_READ USERS_READ_SPONSORED)] },
+        list   => { AdminRoleAny => [qw(USERS_READ USERS_READ_SPONSORED)] },
+        create => { AdminRoleAny => [qw(USERS_READ USERS_READ_SPONSORED)] },
+        update => { AdminRoleAny => [qw(USERS_READ USERS_READ_SPONSORED)] },
+        remove => { AdminRoleAny => [qw(USERS_READ USERS_READ_SPONSORED)] },
     },
     action_args => {
         '*' => { model => 'SavedSearch::User', form => 'SavedSearch'}
@@ -49,11 +49,11 @@ before 'create' => sub {
 };
 
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

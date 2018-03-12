@@ -14,13 +14,8 @@ use strict;
 use warnings;
 
 use base ('pf::Switch::Juniper');
-use Net::Appliance::Session;
 
-use pf::config;
 sub description { 'Juniper EX Series' }
-
-# importing switch constants
-use pf::Switch::constants;
 
 =head1 AUTHOR
 
@@ -28,7 +23,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

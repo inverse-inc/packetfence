@@ -16,18 +16,32 @@ set -e
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
+if $(dpkg-distribution --is_jessie) ; then
+    DIST=jessie
+fi
+if $(dpkg-distribution --is_wheezy) ; then
+    DIST=wheezy
+fi
+if $(dpkg-distribution --is_precise) ; then
+    DIST=precise
+fi
 
 case "$1" in
     upgrade|deconfigure)
     ;;
 
     remove)
-        if [ -x "/etc/init.d/packetfence-config" ]; then
+        if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
+            if [ -x "/etc/init.d/packetfence-config" ]; then
                 if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
-                        invoke-rc.d packetfence-config stop || exit $?
+                    invoke-rc.d packetfence-config stop || exit $?
                 else
-                        /etc/init.d/packetfence-config stop || exit $?
+                    /etc/init.d/packetfence-config stop || exit $?
                 fi
+            fi
+        fi
+        if [ ${DIST} = "jessie" ] ; then
+            systemctl stop packetfence-config || exit $?
         fi
     ;;
 

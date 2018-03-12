@@ -15,7 +15,7 @@ use warnings;
 use lib '/usr/local/pf/lib';
 BEGIN {
     use lib qw(/usr/local/pf/t);
-    use PfFilePaths;
+    use setup_test_config;
 }
 
 use File::Basename qw(basename);
@@ -29,11 +29,11 @@ Log::Log4perl::MDC->put( 'proc', basename($0) );
 Log::Log4perl::MDC->put( 'tid',  0 );
 
 BEGIN {
-    use_ok('pf::Portal::ProfileFactory');
+    use_ok('pf::Connection::ProfileFactory');
     use_ok('pf::Portal::Session');
 }
 
-use pf::config;
+use pf::config qw($management_network);
 use pf::util;
 
 =head1 SETUP
@@ -86,7 +86,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

@@ -14,9 +14,18 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
 with 'pfappserver::Base::Form::Role::Defaults';
-use pf::config;
+use pf::config qw(%Default_Config %Doc_Config);
+use pf::log;
 use pf::IniFiles;
-use pf::file_paths;
+use pf::file_paths qw($pf_default_file);
+use pf::authentication;
+use pf::web::util;
+use List::MoreUtils qw(any);
+
+# For passthroughs validation
+use pf::util::dns;
+use pfconfig::namespaces::resource::passthroughs;
+use pfconfig::namespaces::resource::isolation_passthroughs;
 
 has 'section' => ( is => 'ro' );
 
@@ -32,19 +41,22 @@ sub field_list {
 
     my $list = [];
     my $section = $self->section;
-    my $default_pf_config = pf::IniFiles->new(-file => $default_config_file, -allowempty => 1);
+    my $default_pf_config = pf::IniFiles->new(-file => $pf_default_file, -allowempty => 1);
     my @section_fields = $default_pf_config->Parameters($section);
     foreach my $name (@section_fields) {
         my $doc_section_name = "$section.$name";
         my $doc_section = $Doc_Config{$doc_section_name};
         my $defaults = $Default_Config{$section};
         $doc_section->{description} =~ s/\n//sg;
+        my $doc_anchor = $doc_section->{guide_anchor};
+        my $doc_anchor_html = defined($doc_anchor) ? " " . pf::web::util::generate_doc_link($doc_anchor) . " " : '';
         my $field =
           { element_attr => { 'placeholder' => $defaults->{$name} },
             tags => { after_element => \&help, # role method, defined in Base::Form::Role::Help
-                      help => $doc_section->{description} },
+                      help => $doc_section->{description} . $doc_anchor_html },
             id => $name,
             label => $doc_section_name,
+            type => 'Text',
           };
         my $type = $doc_section->{type} || "text";
         #skip if hidden
@@ -77,6 +89,14 @@ sub field_list {
                 #   if $field->{element_attr}->{placeholder};
                 last;
             };
+            $type eq 'fingerbank_select' && do {
+                $field->{type} = 'FingerbankSelect';
+                $field->{multiple} = 1;
+                $field->{element_class} = ['chzn-deselect'];
+                $field->{element_attr} = {'data-placeholder' => 'Click to add an OS'};
+                $field->{fingerbank_model} = 'fingerbank::Model::Device';
+                last;
+            };
             $type eq 'merged_list' && do {
                 delete $field->{element_attr}->{placeholder};
                 $field->{tags}->{before_element} = \&defaults_list;
@@ -87,6 +107,26 @@ sub field_list {
             };
             $type eq 'numeric' && do {
                 $field->{type} = 'PosInteger';
+                if (exists $doc_section->{minimum}) {
+                    my $minimum = $doc_section->{minimum};
+                    $field->{apply} = [{
+                            check   => sub {$_[0] >= $minimum},
+                            message => sub {
+                                my ($value, $field) = @_;
+                                return $field->name . " must be greater or equal to $minimum";
+                            },
+                        }];
+                }
+                last;
+            };
+            $type eq 'hex' && do {
+                    $field->{apply} = [{
+                            check   => sub {$_[0]  =~ /^[0-9a-fA-F]+$/},
+                            message => sub {
+                                my ($value, $field) = @_;
+                                return $field->name . " must be hexadecimal";
+                            },
+                        }];
                 last;
             };
             $type eq 'multi' && do {
@@ -102,8 +142,18 @@ sub field_list {
                 $field->{type} = 'Select';
                 $field->{element_class} = ['chzn-deselect', 'input'];
                 $field->{element_attr} = {'data-placeholder' => 'Select a role'};
-                my $roles = $self->ctx->model('Roles')->list();
+                my $roles = $self->ctx->model('Config::Roles')->listFromDB();
                 my @options = ({ value => '', label => ''}, map { { value => $_->{name}, label => $_->{name} } } @$roles);
+                $field->{options} = \@options;
+                last;
+            };
+            $type eq 'timezone' && do {
+                $field->{type} = 'Select';
+                $field->{element_class} = ['chzn-deselect'];
+                $field->{element_attr} = {'data-placeholder' => 'Select a timezone'};
+                my @timezones = DateTime::TimeZone->all_names();
+                my @matched_options = map { m/^.+\/.+$/g } @timezones;
+                my @options = ({ value => '', label => ''}, map { { value => $_, label => $_ } } @matched_options);
                 $field->{options} = \@options;
                 last;
             };
@@ -156,11 +206,119 @@ sub field_list {
                 $field->{type} = 'ObfuscatedText';
                 last;
             };
+            $type eq 'sms_sources' && do {
+                $field->{type} = 'Select';
+                $field->{element_class} = ['chzn-deselect'];
+                $field->{element_attr} = {'data-placeholder' => 'No selection'};
+                my @options = ({value => '', label => 'None' }, map { { value => $_, label => $_ } } get_sms_source_ids());
+                $field->{options} = \@options;
+            }
         }
+        if ($field->{type} eq 'Text') {
+            if (exists $doc_section->{minimum_length}) {
+                my $minimum_length = $doc_section->{minimum_length};
+                push(
+                    @{$field->{apply}},
+                    {
+                        check   => sub {length($_[0]) >= $minimum_length},
+                        message => sub {
+                            my ($value, $field) = @_;
+                            return $field->name . " must be greater or equal to $minimum_length";
+                        },
+                    });
+            }
+            if (exists $doc_section->{maximum_length}) {
+                my $maximum_length = $doc_section->{maximum_length};
+                push(
+                    @{$field->{apply}},
+                    {
+                        check   => sub {length($_[0]) <= $maximum_length},
+                        message => sub {
+                            my ($value, $field) = @_;
+                            return $field->name . " must be greater or equal to $maximum_length";
 
+                        },
+                    });
+            }
+        }
+        if (my $validate_method = $self->validator_for_field($doc_section_name)) {
+            $field->{validate_method} = $validate_method;
+        }
         push(@$list, $name => $field);
     }
     return $list;
+}
+
+our %FIELD_VALIDATORS = (
+    "general.hostname" => sub { validate_fqdn_not_in_passthroughs(@_, [ "passthroughs", "isolation_passthroughs" ]) },
+    "general.domain" => sub { validate_fqdn_not_in_passthroughs(@_, [ "passthroughs", "isolation_passthroughs" ]) },
+    "fencing.passthroughs" => sub { validate_fqdn_not_in_passthroughs(@_, ["passthroughs"]) },
+    "fencing.isolation_passthroughs" => sub { validate_fqdn_not_in_passthroughs(@_, ["isolation_passthroughs"]) },
+);
+
+=head2 validator_for_field
+
+Get the validator for a field
+
+=cut
+
+sub validator_for_field {
+    my ($self, $field) = @_;
+
+    return $FIELD_VALIDATORS{$field};
+}
+
+=head2 validate_fqdn_field
+
+For an FQDN, this validates that its not part of the passthroughs
+
+=cut
+
+=head2 validate_passthroughs_field
+
+For a passthrough form field, this validates that the passthroughs it contains won't match the portal FQDN
+
+=cut
+
+sub validate_fqdn_not_in_passthroughs {
+    my (undef, $field, $modules) = @_; 
+
+    get_logger->debug("Validating field ".$field->name);
+
+    my $cs = pf::ConfigStore::Pf->new;
+    my $general = $cs->read("general");
+    my $fencing = $cs->read("fencing");
+
+    my $params = $field->form->params;
+    # Use the hostname + domain from the form if its there, otherwise, restore it from the ConfigStore
+    my $hostname = $params->{hostname} // $general->{hostname};
+    my $domain = $params->{domain} // $general->{domain};
+    my $fqdn = "$hostname.$domain";
+
+    get_logger->debug("Validating passthroughs using FQDN $fqdn");
+
+    for my $module (@$modules) {
+        my $passthroughs_txt = [ split(/\r?\n/, (defined($params->{$module}) ? $params->{$module} : $fencing->{$module})) ];
+
+        get_logger->debug("Validating FQDN against passthroughs: " . join(",", @$passthroughs_txt));
+
+        my $passthroughs = "pfconfig::namespaces::resource::$module"->_build($passthroughs_txt);
+        my ($res, undef) = pf::util::dns::_matches_passthrough($passthroughs, $fqdn);
+
+        if($res) {
+            $field->add_error("Passthroughs cannot contain the portal FQDN ($fqdn) or any wildcard for this domain");
+        }
+    }
+}
+
+=head2 get_sms_source_ids
+
+get_sms_source_ids
+
+=cut
+
+sub get_sms_source_ids {
+    return map { $_->id } grep { $_->can("sendSMS") } @{getAllAuthenticationSources()};
 }
 
 #sub validate {
@@ -178,7 +336,7 @@ sub field_list {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -199,5 +357,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

@@ -19,7 +19,6 @@ F<conf/switches.conf>
 use strict;
 use warnings;
 use pf::constants;
-use pf::config;
 use base ('pf::Switch::Dell');
 
 sub description { 'Dell Force 10' }
@@ -48,13 +47,14 @@ Fetch the ifindex on the switch by NAS-Port-Id radius attribute
 sub getIfIndexByNasPortId {
     my ($self, $ifDesc_param) = @_;
     my $logger = $self->logger;
-    if ( !$self->connectRead() ) {
+
+    if ( !$self->connectRead() || !defined($ifDesc_param)) {
         return 0;
     }
+
     my @ifDesc_val = split('/',$ifDesc_param);
     my $OID_ifDesc = '1.3.6.1.2.1.17.1.4.1.2.'.$ifDesc_param;
-    my $cache = $self->cache;
-    my $result = $cache->compute([$self->{'_id'},$OID_ifDesc], sub { $self->{_sessionRead}->get_request( -varbindlist => [ "$OID_ifDesc" ])});
+    my $result = $self->cachedSNMPRequest([-varbindlist => [ $OID_ifDesc ]]);
     return $result->{"$OID_ifDesc"};
 }
 
@@ -65,7 +65,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

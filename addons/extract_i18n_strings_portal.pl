@@ -14,8 +14,9 @@ can be localized.
 =cut
 
 use File::Find;
-use lib qw(/usr/local/pf/lib /usr/local/pf/html/pfappserver/lib);
+use lib qw(/usr/local/pf/lib);
 use pf::web::constants;
+use pf::person;
 
 use constant {
     CONF => 'conf',
@@ -132,23 +133,38 @@ Extract localizable strings from Models and Controllers classes.
 =cut
 
 sub parse_mc {
-    my $base = 'lib/pf/web/';
     my @modules = ('lib/pf/web.pm');
+    my @dir = qw(lib/pf/web html/captive-portal/lib/captiveportal/PacketFence/Controller html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting html/captive-portal/lib/captiveportal/PacketFence/Form);
 
     my $pm = sub {
         return unless -f && m/\.pm$/;
         push(@modules, $File::Find::name);
     };
 
-    find($pm, $base);
+    foreach my $base (@dir) {
+        find($pm, $base);
+    }
 
     my $line;
     foreach my $module (@modules) {
         open(PM, $module);
+        $module =~ s/^\.\///;
         while (defined($line = <PM>)) {
             chomp $line;
             if ($line =~ m/i18n(_format)?\(['"]([^\$].+?[^'"\\])["']\)/) {
                 my $string = $2;
+                $string =~ s/\\'/'/g;
+                add_string($string, $module);
+            } elsif ($line =~ m/i18n(_format)?\(['"](.+?)["']/) {
+                my $string = $2;
+                $string =~ s/\\'/'/g;
+                add_string($string, $module);
+            } elsif ($line =~ m/(title|message|label)\s+=>\s+['"]([^\$].+?[^'"\\])["']/) {
+                my $string = $2;
+                $string =~ s/\\'/'/g;
+                add_string($string, $module);
+            } elsif ($line =~ m/showError\((?:\$c,)?\s?['"]([^\$].+?[^'"\\])["']/) {
+                my $string = $1;
                 $string =~ s/\\'/'/g;
                 add_string($string, $module);
             }
@@ -177,6 +193,19 @@ sub extract_modules {
     const('pf::web::constants', 'Locales', \@WEB::LOCALES);
 }
 
+=head2 parse_person
+
+Extract pf::person::FIELDS with the first caracter as upper
+
+=cut
+
+sub parse_person {
+    foreach my $field (@pf::person::FIELDS){
+        add_string(ucfirst($field),'pf::person::FIELDS');
+    }
+}
+
+
 =head2 print_po
 
 Print the PO file constructed from the extracted localizable strings.
@@ -195,7 +224,7 @@ sub print_po {
 
     print <<EOT;
 # English translations for $package package.
-# Copyright (C) 2005-2016 Inverse inc.
+# Copyright (C) 2005-2018 Inverse inc.
 # This file is distributed under the same license as the $package package.
 #
 msgid ""
@@ -207,7 +236,7 @@ msgstr ""
 "Language-Team: English\\n"
 "Language: en\\n"
 "MIME-Version: 1.0\\n"
-"Content-Type: text/plain; charset=ASCII\\n"
+"Content-Type: text/plain; charset=UTF-8\\n"
 "Content-Transfer-Encoding: 8bit\\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\\n"
 
@@ -256,6 +285,7 @@ sub verify {
 
 &parse_po;
 &parse_tt;
+&parse_person;
 &parse_mc;
 &extract_modules;
 &print_po;
@@ -267,7 +297,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

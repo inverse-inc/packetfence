@@ -1,0 +1,45 @@
+# ======================================================================
+#
+# Copyright (C) 2000-2003 Paul Kulchenko (paulclinger@yahoo.com)
+# SOAP::Lite is free software; you can redistribute it
+# and/or modify it under the same terms as Perl itself.
+#
+# $Id: Header.pod 98 2007-10-09 09:41:55Z kutterma $
+#
+# ======================================================================
+
+=pod
+
+=head1 NAME
+
+SOAP::Header - similar to SOAP::Data elements, a SOAP::Header object simply is encoded in the SOAP Header block
+
+=head1 DESCRIPTION
+
+Objects instantiated from the SOAP::Header class are functionally the same as SOAP::Data objects, and as such share all the methods from that class. The distinction may be cosmetic, but it is present so that applications may more easily distinguish header blocks from more generic data elements. 
+
+=head1 SEE ALSO
+
+L<SOAP::Data> 
+
+=head1 ACKNOWLEDGEMENTS
+
+Special thanks to O'Reilly publishing which has graciously allowed SOAP::Lite to republish and redistribute large excerpts from I<Programming Web Services with Perl>, mainly the SOAP::Lite reference found in Appendix B.
+
+=head1 COPYRIGHT
+
+Copyright (C) 2000-2004 Paul Kulchenko. All rights reserved.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=head1 AUTHORS
+
+Paul Kulchenko (paulclinger@yahoo.com)
+
+Randy J. Ray (rjray@blackperl.com)
+
+Byrne Reese (byrne@majordojo.com)
+
+=cut
+

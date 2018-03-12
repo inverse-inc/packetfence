@@ -16,7 +16,7 @@ use diagnostics;
 use lib '/usr/local/pf/lib';
 BEGIN {
     use lib qw(/usr/local/pf/t);
-    use PfFilePaths;
+    use setup_test_config;
 }
 
 use Test::More tests => 4;
@@ -39,7 +39,6 @@ can_ok('pf::nodecategory', qw(
     nodecategory_view_by_name
     nodecategory_add
     nodecategory_modify
-    nodecategory_delete
     nodecategory_exist
     nodecategory_lookup
 ));
@@ -55,7 +54,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

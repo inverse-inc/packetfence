@@ -28,7 +28,7 @@ use pf::violation qw(violation_count_reevaluate_access violation_exist_open viol
 
 use pf::authentication;
 use pf::Authentication::constants;
-use pf::Portal::ProfileFactory;
+use pf::Connection::ProfileFactory;
 
 our $VERSION = 1.04;
 
@@ -75,7 +75,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

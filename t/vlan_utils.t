@@ -22,7 +22,7 @@ BEGIN {
     use lib qw(/usr/local/pf/t /root/code/packetfence/t);
 
     #Module for overriding configuration paths
-    use PfFilePaths;
+    use setup_test_config;
 }
 
 use Test::More tests => 6;
@@ -85,7 +85,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

@@ -17,10 +17,24 @@ set -e
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
+if $(dpkg-distribution --is_jessie) ; then
+    DIST=jessie
+fi
+if $(dpkg-distribution --is_wheezy) ; then
+    DIST=wheezy
+fi
+if $(dpkg-distribution --is_precise) ; then
+    DIST=precise
+fi
 
 case "$1" in
     configure)
-	update-rc.d packetfence-remote-arp-sensor defaults 60 || exit 0
+        if [ ${DIST} = "jessie" ] ; then
+            systemctl enable packetfence-remote-arp-sensor
+        fi
+        if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
+            update-rc.d packetfence-remote-arp-sensor defaults 60 || exit 0
+        fi
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

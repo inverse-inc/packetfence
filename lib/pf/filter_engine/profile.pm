@@ -21,7 +21,7 @@ use pf::factory::condition::profile;
 use pf::condition::any;
 use pf::condition::all;
 use pf::condition::true;
-use pf::constants::Portal::Profile qw($DEFAULT_PROFILE $MATCH_STYLE_ALL);
+use pf::constants::Connection::Profile qw($DEFAULT_PROFILE $MATCH_STYLE_ALL);
 
 sub BUILDARGS {
     my ($self,$args)      = @_;
@@ -34,13 +34,19 @@ sub BUILDARGS {
         next if $id eq $DEFAULT_PROFILE;
         my $profile = $config->{$id};
         my @conditions = map {pf::factory::condition::profile->instantiate($_)} @{$profile->{'filter'}};
+        if ($profile->{'advanced_filter'} ) {
+            push @conditions, pf::factory::condition::profile->instantiate_advanced($profile->{'advanced_filter'});
+        }
+
         my $condition;
         #If there is only one condition no need to wrap it in an any or all condition
         if (@conditions == 1) {
             $condition = $conditions[0];
-        } elsif (defined($profile->{filter_match_style}) && $profile->{filter_match_style} eq $MATCH_STYLE_ALL) {
+        }
+        elsif (defined($profile->{filter_match_style}) && $profile->{filter_match_style} eq $MATCH_STYLE_ALL) {
             $condition = pf::condition::all->new({conditions => \@conditions});
-        } else {
+        }
+        else {
             $condition = pf::condition::any->new({conditions => \@conditions});
         }
         push @filters, pf::filter->new({answer => $id, condition => $condition});
@@ -58,7 +64,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,102 +1,27 @@
 Documentation README
 ====================
 
-CAUTION: This is work in progress.
+The documentation of PacketFence is formatted in http://www.methods.co.nz/asciidoc/[AsciiDoc].
 
-asciidoc
---------
+To convert the documentation to the PDF or HTML format, you need various tools:
 
-* Documentation: http://www.methods.co.nz/asciidoc/
-* Useful cheatsheet: http://powerman.name/doc/asciidoc
+* asciidoc (.asciidoc to .docbook)
+* xsltproc (.docbook to .fo)
+* fop (.fo to .pdf)
+* asciidoctor (.docbook to .html)
 
-Minimum version 8.6.2 is required to produce the PDF Guides.
+The Makefile at the root of the repository will call those tools:
 
-Convert to PDF 
-~~~~~~~~~~~~~~
+* To generate PDF documents
 
-Here's the example with the Admin guide.
+  make pdf
 
-. First asciidoc to docbook
+* To generate HTML documents
 
-  $ asciidoc -a docinfo2 -b docbook -d book \
-    -o docs/docbook/PacketFence_Administration_Guide.docbook \
-    docs/PacketFence_Administration_Guide.asciidoc
-
-. Then render the PDF from the docbook
-
-  $ fop -c docs/fonts/fop-config.xml \
-    -xsl docs/docbook/xsl/packetfence-fo.xsl \
-    -xml docs/docbook/PacketFence_Administration_Guide.docbook \
-    -pdf docs/PacketFence_Administration_Guide.pdf
-
-Batch convert
--------------
-
-  $ for GUIDE in PacketFence_Administration_Guide \
-      PacketFence_Network_Devices_Configuration_Guide \
-      PacketFence_Developers_Guide PacketFenceZEN_Installation_Guide; do
-        asciidoc -a docinfo2 -b docbook -d book \
-          -o docs/docbook/$GUIDE.docbook \
-          docs/$GUIDE.asciidoc;
-        fop -c docs/fonts/fop-config.xml \
-          -xml docs/docbook/$GUIDE.docbook \
-          -xsl docs/docbook/xsl/packetfence-fo.xsl \
-          -pdf docs/$GUIDE.pdf
-    done
+  make html
 
 Troubleshooting
 ---------------
-
-IO Exception with stylesheet file: titlepage-fo.xsl
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-If you get an error like:
-
-  file://.../docs/docbook/xsl/packetfence-fo.xsl; Line #46; Column #40; Had IO Exception with stylesheet file: titlepage-fo.xsl
-
-or
-
-  ERROR:  '.../docs/docbook/xsl/titlepage-fo.xsl (No such file or directory)'
-  FATAL ERROR:  'Could not compile stylesheet'
-
-It's because you are missing the XSL template for the titlepage. Rebuilt it with:
-
-Debian / Ubuntu::
-----
-  $ xsltproc -o docs/docbook/xsl/titlepage-fo.xsl /usr/share/xml/docbook/stylesheet/docbook-xsl/template/titlepage.xsl docs/docbook/xsl/titlepage-fo.xml
-----
-CentOS / RHEL / Fedora::
-----
-  $ xsltproc -o docs/docbook/xsl/titlepage-fo.xsl /usr/share/sgml/docbook/xsl-stylesheets/template/titlepage.xsl docs/docbook/xsl/titlepage-fo.xml
-----
-OSX::
-----
-  $ xsltproc -o docs/docbook/xsl/titlepage-fo.xsl /opt/local/share/xsl/docbook-xsl/template/titlepage.xsl docs/docbook/xsl/titlepage-fo.xml
-----
-
-NOTE: On some platform the titlepage.xsl is located elsewhere (like `/opt/local/share/xsl/docbook-xsl/template/titlepage.xsl` on OSX).
-
-Title page template modified but no effect visible
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-If you modify the titlepage template (`docs/docbook/xsl/titlepage-fo.xml`) you need to rebuilt the XSL template. See <<_io_exception_with_stylesheet_file_titlepage_fo_xsl,IO Exception with stylesheet file: titlepage-fo.xsl>> to find out how.
-
-On OSX: failed to load external entity (or IO Exceptions)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Errors like:
-
-  warning: failed to load external entity "/usr/share/xml/docbook/stylesheet/docbook-xsl/template/titlepage.xsl"
-
-or
-
-  Had IO Exception with stylesheet file: /usr/share/xml/docbook/stylesheet/docbook-xsl/fo/docbook.xsl
-
-Are caused because docbook installation (with macport) on OSX uses different directories than on Linux. Simplest way to get everything working without changing source is to create a symlink:
-
-  $ sudo mkdir -p /usr/share/xml/docbook/stylesheet/
-  $ sudo ln -s /opt/local/share/xsl/docbook-xsl /usr/share/xml/docbook/stylesheet/
-
 
 Making it work on RHEL5 / CentOS 5
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

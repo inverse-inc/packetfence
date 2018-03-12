@@ -42,7 +42,10 @@ use base ('pf::Switch');
 
 use pf::accounting qw(node_accounting_dynauth_attr);
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $MAC
+    $SSID
+);
 use pf::util;
 
 sub description { 'Ruckus Wireless Controllers' }
@@ -67,7 +70,7 @@ Will be activated only if HTTP is selected as a deauth method
 
 =cut
 
-sub supportsWebFormRegistration { 
+sub supportsWebFormRegistration {
     my ($self) = @_;
     return $self->{_deauthMethod} eq $SNMP::HTTP;
 }
@@ -110,14 +113,9 @@ sub parseTrap {
     my $trapHashRef;
     my $logger = $self->logger;
 
-    # Handle WIPS Trap
-    if ( $trapString =~ /\.1\.3\.6\.1\.4\.1\.25053\.2\.2\.2\.20 = STRING: \"([a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2})/ ) {
-        $trapHashRef->{'trapType'}    = 'wirelessIPS';
-        $trapHashRef->{'trapMac'} = clean_mac($1);
-    } else {
-        $logger->debug("trap currently not handled.  TrapString was: $trapString");
-        $trapHashRef->{'trapType'} = 'unknown';
-    }
+    $logger->debug("trap currently not handled.  TrapString was: $trapString");
+    $trapHashRef->{'trapType'} = 'unknown';
+
     return $trapHashRef;
 }
 
@@ -143,7 +141,7 @@ sub deauthenticateMacDefault {
 
     $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
     return $self->radiusDisconnect(
-        $mac, { 'Acct-Session-Id' => $dynauth->{'acctsessionid'}, 'User-Name' => $dynauth->{'username'} },
+        $mac, { 'User-Name' => $dynauth->{'username'} },
     );
 }
 
@@ -167,24 +165,34 @@ sub deauthTechniques {
     return $method,$tech{$method};
 }
 
-=item parseUrl
 
-This is called when we receive a http request from the device and return specific attributes:
+=item parseExternalPortalRequest
 
-client mac address
-SSID
-client ip address
-redirect url
-grant url
-status code
+Parse external portal request using URI and it's parameters then return an hash reference with the appropriate parameters
+
+See L<pf::web::externalportal::handle>
 
 =cut
 
-sub parseUrl {
-    my($self, $req) = @_;
+sub parseExternalPortalRequest {
+    my ( $self, $r, $req ) = @_;
     my $logger = $self->logger;
-    return (clean_mac($$req->param('client_mac')),$$req->param('ssid'),defined($$req->param('uip')) ? $$req->param('uip') : undef,$$req->param('url'),undef,undef);
+
+    # Using a hash to contain external portal parameters
+    my %params = ();
+
+    %params = (
+        switch_id               => $req->param('sip'),
+        client_mac              => clean_mac($req->param('client_mac')),
+        client_ip               => defined($req->param('uip')) ? $req->param('uip') : undef,
+        ssid                    => $req->param('ssid'),
+        redirect_url            => $req->param('url'),
+        synchronize_locationlog => $FALSE,
+    );
+
+    return \%params;
 }
+
 
 =item getAcceptForm
 
@@ -193,11 +201,11 @@ Creates the form that should be given to the client device to trigger a reauthen
 =cut
 
 sub getAcceptForm {
-    my ( $self, $mac , $destination_url, $cgi_session) = @_;
+    my ( $self, $mac, $destination_url, $portalSession ) = @_;
     my $logger = $self->logger;
     $logger->debug("Creating web release form");
 
-    my $client_ip = $cgi_session->param("ecwp-original-param-uip");
+    my $client_ip = $portalSession->param("ecwp-original-param-uip");
     my $controller_ip = $self->{_ip};
 
     my $html_form = qq[
@@ -225,7 +233,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

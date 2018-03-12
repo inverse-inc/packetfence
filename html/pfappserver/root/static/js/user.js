@@ -1,3 +1,5 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
+
 "use strict";
 
 /*
@@ -59,13 +61,21 @@ var UserView = function(options) {
 
     this.proxyFor($('body'), 'submit', 'form[name="simpleUserSearch"]', this.submitSearch);
 
+    this.proxyFor($('body'), 'click', '#simpleUserSearchResetBtn', this.resetSimpleSearch);
+
     this.proxyFor($('body'), 'submit', 'form[name="advancedUserSearch"]', this.submitSearch);
 
+    this.proxyFor($('body'), 'click', '#advancedUserSearchResetBtn', this.resetAdvancedUserSearch);
+
     this.proxyClick($('body'), '#modalUser [href$="/delete"]', this.deleteUser);
+    
+    this.proxyClick($('body'), '#modalUser [href$="/unassignNodes"]', this.unassignUserNodes);
 
     this.proxyClick($('body'), '#modalUser #resetPassword', this.resetPassword);
 
     this.proxyClick($('body'), '#modalUser #mailPassword', this.mailPassword);
+
+    this.proxyClick($('body'), '#modalUser #smsPassword', this.smsPassword);
 
     this.proxyFor($('body'), 'show', 'a[data-toggle="tab"][href="#userViolations"]', this.updateTab);
 
@@ -76,11 +86,15 @@ var UserView = function(options) {
     this.proxyFor($('body'), 'switch-change', '#modalUser .switch', this.toggleViolation);
 
     /* Update the advanced search form to the next page or resort the query */
-    this.proxyClick($('body'), '[href*="#user/advanced_search"]', this.advancedSearchUpdater);
+    this.proxyClick($('body'), '[href*="/user/advanced_search"]', this.changeOrderAdvanced);
+
+    this.proxyClick($('body'), '[href*="/user/simple_search"]', this.changeOrderSimple);
 
     this.proxyClick($('body'), '.users .pagination a', this.searchPagination);
 
-    this.proxyClick($('body'), '#modalPasswords a[href$="mail"]', this.mailPasswordFromForm);
+    this.proxyClick($('body'), '#modalPasswords a[href$="mail"]', this.sendPasswordFromForm);
+
+    this.proxyClick($('body'), '#modalPasswords a[href$="sms"]', this.sendPasswordFromForm);
 
     this.proxyClick($('body'), '#modalPasswords a[href$="print"]', this.printPasswordFromForm);
 
@@ -106,7 +120,9 @@ var UserView = function(options) {
         });
         /* Disable checked columns from import tab since they are required */
         $('form[name="users"] .columns :checked').attr('disabled', 'disabled');
+
     });
+
 };
 
 UserView.prototype.proxyFor = function(obj, action, target, method) {
@@ -121,21 +137,21 @@ UserView.prototype.readUser = function(e) {
     e.preventDefault();
 
     var section = $('#section');
-    var loader = section.prev('.loader');
-    loader.show();
+    section.loader();
     section.fadeTo('fast', 0.5);
     this.users.get({
         url: $(e.target).attr('href'),
         always: function() {
-            loader.hide();
             section.stop();
-            section.fadeTo('fast', 1.0);
+            section.fadeTo('fast', 1.0, function() {
+                section.loader('hide');
+            });
         },
         success: function(data) {
             $('#modalUser').remove();
             $('body').append(data);
             var modal = $("#modalUser");
-            modal.find('.datepicker').datepicker({ autoclose: true });
+            modal.find('.input-date').datepicker({ autoclose: true });
             modal.find('#ruleActions tr:not(.hidden) select[name$=type]').each(function() {
                 updateAction($(this), true);
             });
@@ -188,7 +204,8 @@ UserView.prototype.createUser = function(e) {
             }
             else {
                 // We received JSON
-                var data = $.parseJSON(body.text());
+                var text = body.find('textarea').val();
+                var data = $.parseJSON(text);
                 if (data.status < 300)
                     showPermanentSuccess(form, data.status_msg);
                 else
@@ -241,6 +258,28 @@ UserView.prototype.deleteUser = function(e) {
             modal.modal('hide');
             modal.on('hidden', function() {
                 $(window).hashchange();
+            });
+        },
+        errorSibling: modal_body.children().first()
+    });
+};
+
+UserView.prototype.unassignUserNodes = function(e) {
+    e.preventDefault();
+
+    var modal = $('#modalUser');
+    var modal_body = modal.find('.modal-body');
+    var btn = $(e.target);
+    var url = btn.attr('href');
+    this.users.get({
+        url: url,
+        success: function(data) {
+            modal.modal('hide');
+            modal.on('hidden', function() {
+                $(window).hashchange();
+            });
+            $("#section").on('section.loaded', function() {
+              showSuccess($("#section").find('h2').first(), data.status_msg);
             });
         },
         errorSibling: modal_body.children().first()
@@ -308,8 +347,35 @@ UserView.prototype.mailPassword = function(e) {
     });
 };
 
+UserView.prototype.smsPassword = function(e) {
+    e.preventDefault();
+
+    var btn = $(e.target);
+    var url = btn.attr('href'); // pid is in the URL
+    var modal_body = btn.closest('.modal').find('.modal-body');
+    var control = $('#userPassword .control-group').first();
+    var data = {};
+    var sms_carrier = $('#userPassword [name="sms_carrier"]');
+    if (sms_carrier.length) {
+        data["sms_carrier"] = sms_carrier.val();
+    }
+    btn.button('loading');
+    this.users.post({
+        url: url,
+        data: data,
+        always: function() {
+            btn.button('reset');
+            resetAlert(modal_body);
+        },
+        success: function(data) {
+            showSuccess(control, data.status_msg);
+        },
+        errorSibling: control
+    });
+};
+
 /* See root/user/list_password.tt */
-UserView.prototype.mailPasswordFromForm = function(e) {
+UserView.prototype.sendPasswordFromForm = function(e) {
     e.preventDefault();
 
     var btn = $(e.target);
@@ -358,17 +424,17 @@ UserView.prototype.readNode = function(e) {
 
     var url = $(e.target).attr('href');
     var section = $('#section');
-    var loader = section.prev('.loader');
     var modalUser = $("#modalUser");
     var modalUser_body = modalUser.find('.modal-body').first();
-    loader.show();
+    section.loader();
     section.fadeTo('fast', 0.5);
     this.users.get({
         url: url,
         always: function() {
-            loader.hide();
             section.stop();
-            section.fadeTo('fast', 1.0);
+            section.fadeTo('fast', 1.0, function() {
+                section.loader('hide');
+            });
         },
         success: function(data) {
             $('body').append(data);
@@ -377,6 +443,12 @@ UserView.prototype.readNode = function(e) {
                 modalNode.modal('show');
             });
             modalNode.one('hidden', function (e) {
+                modalUser.one('shown', function (e) {
+                    $('a[data-toggle="tab"][href="#userInfo"]').one('shown', function(e)  {
+                        $('a[data-toggle="tab"][href="#userDevices"]').tab('show');
+                    });
+                    $('a[data-toggle="tab"][href="#userInfo"]').tab('show');
+                });
                 modalUser.modal('show');
             });
             modalUser.modal('hide');
@@ -420,10 +492,10 @@ UserView.prototype.advancedSearchUpdater = function(e) {
     var link = $(e.currentTarget);
     var form = $('#advancedSearch');
     var href = link.attr("href");
-    if(href) {
+    if (href) {
         href = href.replace(/^.*#user\/advanced_search\//,'');
         var values = href.split("/");
-        for(var i =0;i<values.length;i+=2) {
+        for(var i = 0; i < values.length; i += 2) {
             var name = values[i];
             var value = values[i + 1];
             form.find('[name="' + name + '"]:not(:disabled)').val(value);
@@ -439,30 +511,74 @@ UserView.prototype.submitItems = function(e) {
     var status_container = $("#section").find('h2').first();
     var items = $("#items").serialize();
     var users = this.users;
-    if (items.length) {
-        if (section) {
-            $("body,html").animate({scrollTop:0}, 'fast');
-            var loader = section.prev('.loader');
-            loader.show();
-            section.fadeTo('fast', 0.5, function() {
-                users.post({
-                    url: target.attr("data-target"),
-                    data: items,
-                    success: function(data) {
-                        $("#section").one('section.loaded', function() {
-                            showSuccess($("#section").find('h2').first(), data.status_msg);
-                        });
-                    },
-                    always: function(data) {
-                        loader.hide();
-                        section.fadeTo('fast', 1.0);
-                    },
-                    errorSibling: status_container
+    var modal = $('#bulkConfirmation');
+    var confirm_link = modal.find('a.btn-primary').first();
+    confirm_link.off('click');
+    confirm_link.click(function() {
+        modal.modal('hide');
+        if (items.length) {
+            if (section) {
+                $("body,html").animate({scrollTop:0}, 'fast');
+                section.loader();
+                section.fadeTo('fast', 0.5, function() {
+                    users.post({
+                        url: target.attr("data-target"),
+                        data: items,
+                        always: function(data) {
+                            $(window).hashchange();
+                        },
+                        success: function(data) {
+                            var show_msg = function() {
+                                showSuccess($("#section").find('h2').first(), data.status_msg);
+                                $("#section").off('section.loaded', show_msg);
+                            };
+                            $("#section").on('section.loaded', show_msg);
+                        },
+                        errorSibling: status_container
+                    });
                 });
-            });
+            }
         }
-    }
+    });
+    modal.modal({ show: true });
 };
+
+
+UserView.prototype.changeOrderAdvanced = function(e) {
+    this.changeOrder(e, "#advancedUserSearch");
+}
+
+UserView.prototype.changeOrderSimple = function(e) {
+    this.changeOrder(e, "#simpleUserSearch");
+}
+
+UserView.prototype.changeOrder = function(e, form_id) {
+    var that = this;
+    e.preventDefault();
+    var link = $(e.currentTarget);
+    var href = link.attr("href");
+    var section = $('#section');
+    var status_container = $("#section").find('h2').first();
+    var form = $(form_id);
+    section.loader();
+    section.fadeTo('fast', 0.5, function() {
+        that.users.post({
+            url: href,
+            data: form.serialize(),
+            always: function() {
+                section.fadeTo('fast', 1.0, function() {
+                    section.loader('hide');
+                });
+            },
+            success: function(data) {
+                section.html(data);
+                section.trigger('section.loaded');
+            },
+            errorSibling: status_container
+        });
+    });
+    return false;
+}
 
 UserView.prototype.searchPagination = function(e) {
     var that = this;
@@ -471,23 +587,20 @@ UserView.prototype.searchPagination = function(e) {
     var pagination = link.closest('.pagination');
     var formId = pagination.attr('data-from-form') || '#search';
     var form = $(formId);
-    if(form.length == 0) {
+    if (form.length === 0)
         form = $('#search');
-    }
-//    var columns = $('#columns');
     var href = link.attr("href");
     var section = $('#section');
     var status_container = $("#section").find('h2').first();
-    var loader = section.prev('.loader');
-    loader.show();
-    section.fadeTo('fast', 0.5);
+    section.loader();
     section.fadeTo('fast', 0.5, function() {
         that.users.post({
             url: href,
             data: form.serialize(),
             always: function() {
-                loader.hide();
-                section.fadeTo('fast', 1.0);
+                section.fadeTo('fast', 1.0, function() {
+                    section.loader('hide');
+                });
             },
             success: function(data) {
                 section.html(data);
@@ -505,18 +618,17 @@ UserView.prototype.submitSearch = function(e) {
     var form = $(e.currentTarget);
     var href = form.attr("action");
     var section = $('#section');
-    var columns = $('#columns');
     $("body,html").animate({scrollTop:0}, 'fast');
     var status_container = $("#section").find('h2').first();
-    var loader = section.prev('.loader');
-    loader.show();
+    section.loader();
     section.fadeTo('fast', 0.5, function() {
         that.users.post({
             url: href,
             data: form.serialize(),
             always: function() {
-                loader.hide();
-                section.fadeTo('fast', 1.0);
+                section.fadeTo('fast', 1.0, function() {
+                    section.loader('hide');
+                });
             },
             success: function(data) {
                 section.html(data);
@@ -526,4 +638,19 @@ UserView.prototype.submitSearch = function(e) {
         });
     });
     return false;
+};
+
+UserView.prototype.resetAdvancedUserSearch = function(e) {
+    var form = $('form[name="advancedUserSearch"]');
+    form.find('#advancedUserSearchConditions').find('tbody').children(':not(.hidden)').find('[href="#delete"]').click();
+    form.find('#advancedUserSearchConditionsEmpty [href="#add"]').click();
+    form[0].reset();
+    form.submit();
+};
+
+UserView.prototype.resetSimpleSearch = function(e) {
+    console.log('resetSimpleSearch');
+    var form = $('#simpleUserSearch');
+    form[0].reset();
+    form.submit();
 };

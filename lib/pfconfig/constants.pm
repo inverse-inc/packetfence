@@ -18,14 +18,12 @@ use strict;
 use warnings;
 use Readonly;
 
-Readonly::Scalar our $CONFIG_FILE_PATH => "/usr/local/pf/conf/pfconfig.conf";
-Readonly::Scalar our $SOCKET_PATH => "/usr/local/pf/var/run/pfconfig.sock";
+our $CONFIG_FILE_PATH = "/usr/local/pf/conf/pfconfig.conf";
+our $SOCKET_PATH = "/usr/local/pf/var/run/pfconfig.sock";
 Readonly::Scalar our $CONTROL_FILE_DIR => "/usr/local/pf/var/control";
 
 
 Readonly::Scalar our $DEFAULT_BACKEND => "mysql";
-
-=bac
 
 =head1 AUTHOR
 
@@ -33,7 +31,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

@@ -18,22 +18,36 @@ use warnings;
 use pf::log;
 
 use pf::constants;
+use Scalar::Util qw(blessed);
 use pf::constants::trigger qw($TRIGGER_ID_PROVISIONER $TRIGGER_TYPE_PROVISIONER);
-use pf::config;
+use pf::config qw(
+    %ConfigFloatingDevices
+    $WIRELESS_MAC_AUTH
+    %Config
+    $WIRED_MAC_AUTH
+    $EAP
+    $VOIP
+    $ALWAYS
+    $MAC
+    $PORT
+    $SSID
+);
 use pf::node qw(node_exist node_modify);
 use pf::Switch::constants;
+use pf::constants::role qw($VOICE_ROLE $REJECT_ROLE);
 use pf::util;
 use pf::config::util;
 use pf::floatingdevice::custom;
 use pf::constants::scan qw($POST_SCAN_VID);
 use pf::authentication;
 use pf::Authentication::constants;
-use pf::Portal::ProfileFactory;
+use pf::Connection::ProfileFactory;
 use pf::access_filter::vlan;
 use pf::person;
 use pf::lookup::person;
 use pf::util::statsd qw(called);
 use pf::StatsD::Timer;
+use pf::constants::realm;
 
 our $VERSION = 1.04;
 
@@ -79,7 +93,7 @@ sub fetchRoleForNode {
     if ($self->isInlineTrigger($args)) {
         $logger->info("Inline trigger match, the node is in inline mode");
         my $inline = $self->getInlineRole($args);
-        $logger->info("PID: \"" .$node_info->{pid}. "\", Status: " .$node_info->{status}. ". Returned VLAN: $inline");
+        $logger->info("PID: \"" .$node_info->{pid}. "\", Status: " .$node_info->{status}. ". Returned Role: $inline->{'role'}");
         return ({ role => "inline", wasInline => 1 });
     }
 
@@ -114,12 +128,6 @@ sub fetchRoleForNode {
     # there were no violation, now onto registration handling
     $answer = $self->getRegistrationRole($args);
     if (defined($answer->{role}) && $answer->{role} ne "0") {
-        if ( $args->{'connection_type'} && ($args->{'connection_type'} & $WIRELESS_MAC_AUTH) == $WIRELESS_MAC_AUTH ) {
-            if (isenabled($node_info->{'autoreg'})) {
-                $logger->info("Connection type is WIRELESS_MAC_AUTH and the device was coming from a secure SSID with auto registration");
-                node_modify($args->{'mac'}, ('autoreg' => 'no'));
-            }
-        }
         return $answer;
     }
 
@@ -299,13 +307,6 @@ sub getRegistrationRole {
     my ($self, $args) = @_;
     my $logger = $self->logger;
 
-    # trapping on registration is enabled
-
-    if (!isenabled($Config{'trapping'}{'registration'})) {
-        $logger->debug("Registration trapping disabled: skipping node is registered test");
-        return ({ role => 0});
-    }
-
     if (!defined($args->{'node_info'})) {
         # Vlan Filter
         my $role = $self->filterVlan('RegistrationRole',$args);
@@ -314,7 +315,6 @@ sub getRegistrationRole {
             return ({role => $role});
         }
         $logger->info("doesn't have a node entry; belongs into registration VLAN");
-        my $vlan = $args->{'switch'}->getVlanByName('registration');
         return ({role => 'registration'});
     }
 
@@ -327,7 +327,6 @@ sub getRegistrationRole {
             return ({role => $role});
         }
         $logger->info("is of status $n_status; belongs into registration VLAN");
-        my $vlan = $args->{'switch'}->getVlanByName('registration');
         return ({role => 'registration'});
     }
     return ({ role => 0});
@@ -366,17 +365,8 @@ sub getRegisteredRole {
     my ($self, $args) = @_;
     my $logger = $self->logger;
 
-    my $options = {};
-    $options->{'last_connection_type'} = connection_type_to_str($args->{'connection_type'}) if (defined( $args->{'connection_type'}));
-    $options->{'last_switch'}          = $args->{'switch'}->{_id} if (defined($args->{'switch'}->{_id}));
-    $options->{'last_port'}            = $args->{'ifIndex'} if (defined($args->{'ifIndex'}));
-    $options->{'last_ssid'}            = $args->{'ssid'} if (defined($args->{'ssid'}));
-    $options->{'last_dot1x_username'}  = $args->{'user_name'} if (defined($args->{'user_name'}));
-    $options->{'realm'}                = $args->{'realm'} if (defined($args->{'realm'}));
-
-    my $profile = pf::Portal::ProfileFactory->instantiate($args->{'mac'},$options);
-
     my ($vlan, $role, $result, $person, $source, $portal);
+    my $profile = $args->{'profile'};
 
     if (defined($args->{'node_info'}->{'pid'})) {
         $person = pf::person::person_view_simple($args->{'node_info'}->{'pid'});
@@ -399,17 +389,17 @@ sub getRegisteredRole {
         pf::violation::violation_add( $args->{'mac'}, $POST_SCAN_VID );
     }
 
-    $role = _check_bypass($args);
-    if( $role ) {
-        return $role;
-    }
-
     $logger->debug("Trying to determine VLAN from role.");
 
     # Vlan Filter
     $role = $self->filterVlan('RegisteredRole',$args);
     if ( $role ) {
         return ({ role => $role});
+    }
+
+    $role = _check_bypass($args);
+    if( $role ) {
+        return $role;
     }
 
     # Try MAC_AUTH, then other EAP methods and finally anything else.
@@ -419,28 +409,17 @@ sub getRegisteredRole {
     } elsif ( $args->{'connection_type'} && ($args->{'connection_type'} & $WIRELESS_MAC_AUTH) == $WIRELESS_MAC_AUTH ) {
         $logger->info("Connection type is WIRELESS_MAC_AUTH. Getting role from node_info" );
         $role = $args->{'node_info'}->{'category'};
-
-
-        if (isenabled($args->{'node_info'}->{'autoreg'})) {
-            $logger->info("Device is comming from a secure connection and has been auto registered, we unreg it and forward it to the portal" );
-            $role = 'registration';
-            my %info = (
-                'status' => 'unreg',
-                'autoreg' => 'no',
-            );
-            node_modify($args->{'mac'},%info);
-        }
     }
 
     # If it's an EAP connection with a username, we try to match that username with authentication sources to calculate
     # the role based on the rules defined in the different authentication sources.
     # FIRST HIT MATCH
     elsif ( defined $args->{'user_name'} && $args->{'connection_type'} && ($args->{'connection_type'} & $EAP) == $EAP ) {
-        if ( (isenabled($args->{'node_info'}->{'autoreg'}) && $args->{'autoreg'}) && isdisabled($profile->dot1xRecomputeRoleFromPortal) ) {
+        if ( isdisabled($profile->dot1xRecomputeRoleFromPortal) ) {
             $logger->info("Role has already been computed and we don't want to recompute it. Getting role from node_info" );
             $role = $args->{'node_info'}->{'category'};
         } else {
-            my @sources = get_user_sources($profile, $args->{'stripped_user_name'}, $args->{'realm'});
+            my @sources = $profile->getFilteredAuthenticationSources($args->{'stripped_user_name'}, $args->{'realm'});
             my $stripped_user = '';
             $stripped_user = $args->{'stripped_user_name'} if(defined($args->{'stripped_user_name'}));
             my $params = {
@@ -450,29 +429,44 @@ sub getRegisteredRole {
                 stripped_user_name => $stripped_user,
                 rule_class => 'authentication',
                 radius_request => $args->{radius_request},
+                realm => $args->{realm},
+                context => $pf::constants::realm::RADIUS_CONTEXT,
             };
-            $role = &pf::authentication::match([@sources], $params, $Actions::SET_ROLE, \$source);
-            # create a person entry for pid if it doesn't exist
-            if ( !pf::person::person_exist($args->{'user_name'}) ) {
-                $logger->info("creating person $args->{'user_name'} because it doesn't exist");
-                pf::person::person_add($args->{'user_name'});
-                pf::lookup::person::lookup_person($args->{'user_name'},$source);
-            } else {
-                $logger->debug("person $args->{'user_name'} already exists");
-            }
+            my $matched = pf::authentication::match2([@sources], $params);
+            $source = $matched->{source_id};
+            my $values = $matched->{values};
+            $role = $values->{$Actions::SET_ROLE};
+            my $unregdate = $values->{$Actions::SET_UNREG_DATE};
+            my $time_balance =  $values->{$Actions::SET_TIME_BALANCE};
+            my $bandwidth_balance =  $values->{$Actions::SET_BANDWIDTH_BALANCE};
             pf::person::person_modify($args->{'user_name'},
                 'source'  => $source,
                 'portal'  => $profile->getName,
             );
+            # Don't do a person lookup if autoreg (already did it);
+            pf::lookup::person::async_lookup_person($args->{'user_name'}, $source) if !($args->{'autoreg'});
             $portal = $profile->getName;
             my %info = (
-                'autoreg' => 'no',
                 'pid' => $args->{'user_name'},
             );
-            if (defined $role) {
-                %info = (%info, (category => $role));
+            if (defined $unregdate) {
+                $info{unregdate} = $unregdate;
             }
-            node_modify($args->{'mac'},%info);
+            if (defined $role) {
+                $info{category} = $role;
+            }
+            if (defined $time_balance) {
+                $info{time_balance} = pf::util::normalize_time($time_balance);
+            }
+            if (defined $bandwidth_balance) {
+                $info{bandwidth_balance} = pf::util::unpretty_bandwidth($bandwidth_balance);
+            }
+            if (blessed ($args->{node_info})) {
+                $args->{node_info}->merge(\%info);
+            }
+            else {
+                node_modify($args->{'mac'},%info);
+            }
         }
     }
     # If a user based role has been found by matching authentication sources rules, we return it
@@ -541,19 +535,8 @@ sub getNodeInfoForAutoReg {
     my ($self, $args) = @_;
     my $logger = $self->logger;
 
-    #define the current connection value to instantiate the correct portal
-    my $options = {};
 
-    $options->{'last_connection_type'} = connection_type_to_str($args->{'connection_type'}) if (defined( $args->{'connection_type'}));
-    $options->{'last_switch'}          = $args->{'switch'}->{_id} if (defined($args->{'switch'}->{_id}));
-    $options->{'last_port'}            = $args->{'switch'}->{switch_port} if (defined($args->{'switch'}->{switch_port}));
-    $options->{'last_vlan'}            = $args->{'vlan'} if (defined($args->{'vlan'}));
-    $options->{'last_ssid'}            = $args->{'ssid'} if (defined($args->{'ssid'}));
-    $options->{'last_dot1x_username'}  = $args->{'user_name'} if (defined($args->{'user_name'}));
-    $options->{'realm'}                = $args->{'realm'} if (defined($args->{'realm'}));
-
-    my $profile = pf::Portal::ProfileFactory->instantiate($args->{'mac'},$options);
-
+    my $profile = $args->{'profile'};
     my $role = $self->filterVlan('NodeInfoForAutoReg', $args);
 
     # we do not set a default VLAN here so that node_register will set the default normalVlan from switches.conf
@@ -578,12 +561,13 @@ sub getNodeInfoForAutoReg {
     # this might look circular but if a VoIP dhcp fingerprint was seen, we'll set node.voip to VOIP
     if ($args->{'isPhone'}) {
         $node_info{'voip'} = $VOIP;
+        $node_info{'category'} = $VOICE_ROLE;
     }
 
     # under 802.1X EAP, we trust the username provided since it authenticated
     if (defined($args->{'connection_type'}) && (($args->{'connection_type'} & $EAP) == $EAP) && defined($args->{'user_name'})) {
         $logger->debug("EAP connection with a username \"$args->{'user_name'}\". Trying to match rules from authentication sources.");
-        my @sources = get_user_sources($profile, $args->{'stripped_user_name'}, $args->{'realm'});
+        my @sources = $profile->getFilteredAuthenticationSources($args->{'stripped_user_name'}, $args->{'realm'});
         my $stripped_user = '';
         $stripped_user = $args->{'stripped_user_name'} if(defined($args->{'stripped_user_name'}));
         my $params = {
@@ -592,17 +576,28 @@ sub getNodeInfoForAutoReg {
             SSID => $args->{'ssid'},
             stripped_user_name => $stripped_user,
             radius_request => $args->{radius_request},
+            realm => $args->{realm},
+            context => $pf::constants::realm::RADIUS_CONTEXT,
         };
 
-        my $source;
+        my $matched = pf::authentication::match2([@sources], $params);
+        my $source = $matched->{source_id};
+
+        my $values = $matched->{values};
         # Don't override vlan filter role
         if (!defined($role)) {
-            $role = &pf::authentication::match([@sources], $params, $Actions::SET_ROLE, \$source);
+            $role = $values->{$Actions::SET_ROLE};
         }
-        my $value = &pf::authentication::match([@sources], $params, $Actions::SET_UNREG_DATE);
+        my $unregdate = $values->{$Actions::SET_UNREG_DATE};
+        my $time_balance =  $values->{$Actions::SET_TIME_BALANCE};
+        my $bandwidth_balance =  $values->{$Actions::SET_BANDWIDTH_BALANCE};        
+        $node_info{'time_balance'} = pf::util::normalize_time($time_balance) if (defined($time_balance));
+        $node_info{'bandwidth_balance'} = pf::util::unpretty_bandwidth($bandwidth_balance) if (defined($bandwidth_balance));
+        # Trigger a person lookup for 802.1x users
+        pf::lookup::person::async_lookup_person($args->{'user_name'}, $source);
 
-        if (defined $value) {
-            $node_info{'unregdate'} = $value;
+        if (defined $unregdate) {
+            $node_info{'unregdate'} = $unregdate;
             if (defined $role) {
                 %node_info = (%node_info, (category => $role));
             }
@@ -642,6 +637,7 @@ sub shouldAutoRegister {
     #$args->{'connection'}_type is set to the connnection type expressed as the constant in pf::config
     #$args->{'user_name'} is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$args->{'ssid'} is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)
+    #$args->{'profile'} is set to the connection profile for the connection.
     my ($self, $args) = @_;
     my $logger = $self->logger;
 
@@ -651,12 +647,12 @@ sub shouldAutoRegister {
     # handling switch-config first because I think it's the most important to honor
     if (defined($switch->{switch_in_autoreg_mode}) && $switch->{switch_in_autoreg_mode}) {
         $logger->trace("returned yes because it's from the switch's config (" . $args->{'switch'}->{_id} . ")");
-        return 1;
+        return $TRUE;
 
     # if we have a violation action set to autoreg
     } elsif (defined($args->{'violation_autoreg'}) && $args->{'violation_autoreg'}) {
         $logger->trace("returned yes because it's from a violation with action autoreg");
-        return 1;
+        return $TRUE;
     }
 
     if ($args->{'isPhone'}) {
@@ -666,22 +662,26 @@ sub shouldAutoRegister {
     my $role = $self->filterVlan('AutoRegister',$args);
     if ($role) {
         my $vlan = $switch->getVlanByName($role);
-        if (defined($vlan) && $vlan eq -1) {
-            return 0;
+        if (defined($vlan) && $vlan eq "-1") {
+            return $FALSE;
         } else {
             return $role;
         }
+    }
+    if (isenabled($args->{'profile'}->{'_autoregister'}) && $args->{node_info}->{status} ne $pf::node::STATUS_PENDING) {
+        $logger->debug("Autoregistration set on profile " . $args->{'profile'}->getName() );
+        return $TRUE;
     }
 
     # custom example: auto-register 802.1x users
     # Since they already have validated credentials through EAP to do 802.1X
     #if (defined($conn_type) && (($conn_type & $EAP) == $EAP)) {
     #    $logger->trace("returned yes because it's a 802.1X client that successfully authenticated already");
-    #    return 1;
+    #    return $TRUE;
     #}
 
     # otherwise don't autoreg
-    return 0;
+    return $FALSE;
 }
 
 =head2 isInlineTrigger
@@ -698,13 +698,14 @@ sub isInlineTrigger {
 
             # TODO we should refactor this into objects where trigger types provide their own matchers
             # at first, we are liberal in what we accept
-            if ($trigger !~ /^\w+::(.*)$/) {
-                $logger->warn("[$args->{'mac'}] Invalid trigger id ($trigger)");
+
+            if (!$trigger->{'type'} || !$trigger->{'value'}) {
+                $logger->warn("[$args->{'mac'}] Invalid trigger id ($trigger->{'type'})");
                 return $FALSE;
             }
 
-            my ( $type, $tid ) = split( /::/, $trigger );
-            $type = lc($type);
+            my $type = lc($trigger->{'type'});
+            my $tid = $trigger->{'value'};
             $tid =~ s/\s+$//; # trim trailing whitespace
 
             return $TRUE if ($type eq $ALWAYS);
@@ -725,6 +726,12 @@ sub isInlineTrigger {
 sub _check_bypass {
     my ( $args ) = @_;
     my $logger = get_logger();
+
+    # If the role of the node is the REJECT role, then we early return as it has precedence over the bypass role and VLAN
+    if($args->{node_info}->{category} eq $REJECT_ROLE) {
+        $logger->debug("Not considering bypass role and VLAN since the role of the device is $REJECT_ROLE");
+        return undef;
+    }
 
     # Bypass VLAN/role is configured in node record so we return accordingly
     if ( defined( $args->{'node_info'}->{'bypass_vlan'} ) && ( $args->{'node_info'}->{'bypass_vlan'} ne '' ) ) {
@@ -762,7 +769,7 @@ sub filterVlan {
     my $timer = pf::StatsD::Timer->new({ sample_rate => 1});
     my ($self, $scope, $args) = @_;
     my $filter = pf::access_filter::vlan->new;
-    $args->{'owner'}= person_view($args->{'node_info'}->{'pid'});
+    $args->{'owner'}= person_view_simple($args->{'node_info'}->{'pid'});
     my $role = $filter->filter($scope, $args);
     return $role;
 }
@@ -773,7 +780,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

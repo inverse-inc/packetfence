@@ -1,0 +1,45 @@
+# ======================================================================
+#
+# Copyright (C) 2000-2003 Paul Kulchenko (paulclinger@yahoo.com)
+# SOAP::Lite is free software; you can redistribute it
+# and/or modify it under the same terms as Perl itself.
+#
+# $Id: Utils.pod 98 2007-10-09 09:41:55Z kutterma $
+#
+# ======================================================================
+
+=pod
+
+=head1 NAME
+
+SOAP::Utils - a utility package for SOAP::Lite
+
+=head1 DESCRIPTION
+
+This class gives you access to a number of subroutines to assist in data formating, encoding, etc. Many of the subroutines are private, and are not documented here, but a few are made public.
+
+=head1 METHODS
+
+=over
+
+=item format_datetime
+
+Returns a valid xsd:datetime string given a time object returned by Perl's localtime function. Usage:
+
+    print SOAP::Utils::format_datetime(localtime);
+
+=back
+
+=head1 COPYRIGHT
+
+Copyright (C) 2000-2004 Paul Kulchenko. All rights reserved.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=head1 AUTHORS
+
+Byrne Reese (byrne@majordojo.com)
+
+=cut
+

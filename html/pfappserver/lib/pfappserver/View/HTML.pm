@@ -2,7 +2,6 @@ package pfappserver::View::HTML;
 
 use strict;
 use warnings;
-use pf::file_paths;
 use pf::admin_roles;
 
 use base 'Catalyst::View::TT';
@@ -93,7 +92,7 @@ sub can_access_group_any {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

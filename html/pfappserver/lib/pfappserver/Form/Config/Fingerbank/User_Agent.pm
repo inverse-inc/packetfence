@@ -17,14 +17,14 @@ extends 'pfappserver::Base::Form';
 has_field 'id' =>
   (
    type => 'Text',
-   label => 'User Agent ID',
+   label => 'ID',
    readonly => 1,
   );
 
 has_field 'value' =>
   (
    type => 'Text',
-   label => 'User Agent',
+   label => 'Value',
   );
 
 has_field created_at =>
@@ -44,7 +44,7 @@ has_block definition =>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -65,5 +65,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

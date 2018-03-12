@@ -3,6 +3,7 @@ Network Devices Configuration Guide
 :encoding: UTF-8
 :lang: en
 :doctype: book
+:toc: left
 
 ////
 
@@ -23,7 +24,7 @@ them with PacketFence in VLAN enforcement. Switches, wireless controllers and
 wireless access points are all considered network devices in PacketFence's 
 terms.
 
-The latest version of this guide is available at http://www.packetfence.org/documentation/ 
+The latest version of this guide is available at https://packetfence.org/documentation/
 
 Other sources of information
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -34,7 +35,7 @@ Developers Guide::
   Covers captive portal customization, VLAN management customization and 
   instructions for supporting new hardware. 
 `NEWS`::
-  Covers noteworthy features, improvements and bugfixes by release. 
+  Covers noteworthy features, improvements and bug fixes by release. 
 `UPGRADE`::
   Covers compatibility related changes, manual instructions and general notes 
   about upgrading. 
@@ -57,9 +58,9 @@ enforcement.
 List of supported Network Devices
 ---------------------------------
 
-PacketFence supports a whole lot of different wireless and wired network equipments from various vendors running 
+PacketFence supports a whole lot of different wireless and wired network equipment from various vendors running 
 different versions. Since we want to provide the most accurate information and avoid duplication of that same 
-information, please refer to our website http://www.packetfence.org/about/supported_switches_and_aps.html
+information, please refer to our website https://packetfence.org/about.html#/material
 
 You'll find on this page the enforcement modes supported by each and every single piece of equipment we tested and 
 worked with. 
@@ -135,7 +136,7 @@ On each interface:
   port-security intrusion-mode blockmac
   undo enable snmp trap updown
 
-In Mac Auth 
+In MAC Auth 
 +++++++++++
  Voice vlan : 6
  Normal vlan : 1
@@ -156,7 +157,7 @@ Global config settings:
  radius scheme packetfence
   server-type extended
   primary authentication 192.168.1.5
-  primary accounting 1192.168.1.5
+  primary accounting 192.168.1.5
   key authentication P@cketfence
   key accounting cipher P@cketfence
   user-name-format without-domain
@@ -358,7 +359,7 @@ Alcatel
 OS6250, OS6450 
 ^^^^^^^^^^^^^^
 
-PacketFence supports this switch using 802.1x, Mac authentication and also supports VoIP.
+PacketFence supports this switch using 802.1X, Mac authentication and also supports VoIP.
 
 Global configuration
 ++++++++++++++++++++
@@ -374,7 +375,7 @@ Next, configure the RADIUS server to be PacketFence
 
     aaa radius-server "packetfence" host 192.168.1.5 key useStrongerSecret
     aaa authentication mac packetfence
-    aaa authentication 802.1x packetfence
+    aaa authentication 802.1X packetfence
 
 You now need to configure a user profile (equivalent of a role) that will determine which VLAN is assigned to the device. In this case the profile names are 'unreg', 'employee' and 'guest'.
 
@@ -398,7 +399,7 @@ Next, configure the switch in PacketFence. In the case of this example, the upli
     defaultRole=employee
     guestRole=guest
 
-802.1x
+802.1X
 ++++++
 
 First, make sure you followed the steps above in 'Global configuration'
@@ -406,18 +407,18 @@ First, make sure you followed the steps above in 'Global configuration'
 You will need to configure the ports you want to do authentication on.
 
     vlan port mobile 1/2
-    vlan port 1/2 802.1x enable
-    802.1x 1/2 supplicant policy authentication pass group-mobility block fail block
-    802.1x 1/2 non-supplicant policy authentication pass group-mobility block fail block
+    vlan port 1/2 802.1X enable
+    802.1X 1/2 supplicant policy authentication pass group-mobility block fail block
+    802.1X 1/2 non-supplicant policy authentication pass group-mobility block fail block
 
-Mac Authentication
+MAC Authentication
 ++++++++++++++++++
 
-First, make sure you followed the steps above in 'Global configuration' and '802.1x'
+First, make sure you followed the steps above in 'Global configuration' and '802.1X'
 
-Next configure the interface to bypass 802.1x authentication
+Next configure the interface to bypass 802.1X authentication
 
-    802.1x 1/2 supplicant bypass enable
+    802.1X 1/2 supplicant bypass enable
 
 VoIP
 ++++
@@ -438,7 +439,7 @@ Next, make sure you enable VoIP in the switch configuration in PacketFence and c
 OS6860
 ^^^^^^
 
-PacketFence supports this switch using 802.1x, Mac authentication and also supports VoIP.
+PacketFence supports this switch using 802.1X, Mac authentication and also supports VoIP.
 
 NOTE: This documentation is made for Alcatel OS 8.1+. Lower versions do not support this configuration.
 
@@ -456,7 +457,7 @@ Next, configure the RADIUS server to be PacketFence
 
     aaa radius-server "packetfence" host 192.168.1.5 key useStrongerSecret
     aaa device-authentication mac packetfence
-    aaa device-authentication 802.1x packetfence
+    aaa device-authentication 802.1X packetfence
 
 You now need to configure an edge profile (equivalent of a role) that will determine which VLAN is assigned to the device. In this case the profile names are 'unreg', 'employee' and 'guest'.
 
@@ -494,7 +495,7 @@ Next, configure the switch in PacketFence. In the case of this example, the upli
     defaultRole=employee
     guestRole=guest
 
-Mac Authentication
+MAC Authentication
 ++++++++++++++++++
 
 First, make sure you followed the steps above in 'Global configuration'
@@ -507,7 +508,7 @@ You will need to create an edge template and apply it on the ports you want to d
     unp port 1/1/2 port-type edge
     unp port 1/1/2 edge-template pf_mab
 
-802.1x
+802.1X
 ++++++
 
 First, make sure you followed the steps above in 'Global configuration'
@@ -515,9 +516,9 @@ First, make sure you followed the steps above in 'Global configuration'
 You will need to create an edge template and apply it on the ports you want to do authentication on.
 
     unp edge-template pf_dot1x
-    unp edge-template pf_dot1x 802.1x-authentication enable
+    unp edge-template pf_dot1x 802.1X-authentication enable
     unp edge-template pf_dot1x mac-authentication enable
-    unp edge-template pf_dot1x 802.1x-authentication failure-policy mac-authentication
+    unp edge-template pf_dot1x 802.1X-authentication failure-policy mac-authentication
     unp port 1/1/2 port-type edge
     unp port 1/1/2 edge-template pf_dot1x
 
@@ -548,29 +549,36 @@ AT8000GS
 
 PacketFence supports the AT8000GS switch using :
 
-* Mac Authentication (mac-only)
+* MAC Authentication
 * 802.1X
+* 802.1X + VOIP
 
-VoIP support is limited using 802.1X/MAC authentication.  We do have a limitation where the phone needs to be on the same VLAN as the PC (no voice VLAN concept).
+Assumptions
++++++++++++
 
-Mac Authentication
+  PacketFence management IP: 192.168.1.5
+  Switch management IP: 10.0.0.14
+  Guest VLAN (Internet): VLAN 1
+
+
+MAC Authentication
 ++++++++++++++++++
 
-First, activate 802.1X globally:
+First, enable 802.1X globally:
 
    dot1x system-auth-control
 
 Next, configure the RADIUS server and AAA settings:
 
-   radius-server host 10.0.0.100               
-   radius-server key qwerty
+   radius-server host 192.168.1.5               
+   radius-server key useStrongerSecret
    radius-server source-ip 10.0.0.14
    aaa authentication dot1x default radius 
    aaa accounting dot1x radius
 
 In order to get mac authentication, you need to enable the guest VLAN globally: 
 
-   interface vlan 5
+   interface vlan 1
    name "Guest Vlan"
    dot1x guest-vlan
    exit
@@ -589,16 +597,16 @@ Finally, enable the necessary 802.1X settings for mac-only authentication:
 
 The settings are almost the same as the MAC Authentication with some small differences.
 
-First, activate 802.1X globally:
+First, enable 802.1X globally:
 
    dot1x system-auth-control
 
 Next, configure the RADIUS server and AAA settings:
 
-   radius-server host 10.0.0.100
-   radius-server key qwerty
+   radius-server host 192.168.1.5               
+   radius-server key useStrongerSecret
    radius-server source-ip 10.0.0.14
-   aaa authentication dot1x default radius
+   aaa authentication dot1x default radius 
    aaa accounting dot1x radius
 
 Finally, enable the necessary 802.1X settings:
@@ -606,6 +614,118 @@ Finally, enable the necessary 802.1X settings:
    interface ethernet g1    
    dot1x radius-attributes vlan
    dot1x port-control auto
+
+802.1X + VOIP
++++++++++++++
+
+
+First, enable 802.1X globally:
+
+   dot1x system-auth-control
+
+Next, configure the RADIUS server configuration and AAA settings:
+
+
+   radius-server host 192.168.1.5               
+   radius-server key useStrongerSecret
+   radius-server source-ip 10.0.0.14
+   aaa authentication dot1x default radius 
+   aaa accounting dot1x radius
+
+Then, LLDP configuration:
+
+   hostname switch-name
+   ip domain-name domain.local
+   lldp med network-policy 1 voice vlan 100 vlan-type tagged dscp 34
+   lldp med network-policy 2 voice-signaling vlan 100 vlan-type tagged dscp 34
+
+Finally, enable the necessary 802.1X and VOIP settings on each interface:
+
+   interface ethernet g1
+    dot1x port-control force-authorized
+    no dot1x guest-vlan enable
+    no dot1x mac-authentication
+    no dot1x radius-attributes vlan
+    no dot1x re-authentication
+    switchport mode trunk
+    switchport trunk native vlan 5
+    switchport trunk allowed vlan add 100
+    lldp med enable network-policy
+    lldp med network-policy add 1
+    lldp med network-policy add 2
+
+GS950
+^^^^^
+
+PacketFence supports the GS950 switch using :
+
+* MAC Authentication
+* 802.1X (without fallback to MAC authentication)
+
+Global configuration
+++++++++++++++++++++
+
+First, ensure that the VLANs you want to assign are part of the VLAN database via the following page:
+
+image::docs/images/allied-telesis-gs950/vlan-config.png[scaledwidth="100%",alt="VLAN configuration"]
+
+Note that they only need to be tagged on the trunk and don't need any specific configuration for the dynamic VLAN assignment here.
+
+Next, configure the RADIUS server (Security->RADIUS):
+
+image::docs/images/allied-telesis-gs950/radius-server.png[scaledwidth="100%",alt="RADIUS configuration"]
+
+Next, configure an SNMP community (SNMP->Community Table)
+
+image::docs/images/allied-telesis-gs950/snmp-config.png[scaledwidth="100%",alt="SNMP configuration"]
+
+MAC authentication
+++++++++++++++++++
+
+Go in Security->Port Access Control, select the port you want to enable MAB on, and ensure you set:
+
+[options="compact"]
+* Authentication Mode: MAC Based
+* Port Control: Auto
+* Supplicant Mode: Single
+* VLAN Assignment: Enabled
+
+image::docs/images/allied-telesis-gs950/port-control-MAB.png[scaledwidth="100%",alt="MAB config"]
+
+802.1x
+++++++
+
+Go in Security->Port Access Control, select the port you want to enable MAB on, and ensure you set:
+
+[options="compact"]
+* Authentication Mode: 802.1X
+* Port Control: Auto
+* Supplicant Mode: Multiple
+* VLAN Assignment: Enabled
+
+image::docs/images/allied-telesis-gs950/port-control-802.1x.png[scaledwidth="100%",alt="802.1x configuration"]
+
+PacketFence configuration
++++++++++++++++++++++++++
+
+Ensure you configure at least:
+
+[options="compact"]
+* Type: Allied Telesis GS950
+* RADIUS secret: useStrongerSecret
+* SNMP Version: v2c
+* SNMP Community Read: private
+* SNMP Community Write: private
+
+If you are using MAC authentication on this switch, you must adjust the FreeRADIUS configuration so it transforms the EAP requests this switch sends into requests that PacketFence will interpret as MAC authentication. This configuration will also set missing attributes in the RADIUS requests since this switch doesn't follow the standard attributes that are usually sent during RADIUS authentication.
+
+To adjust it, go in `/usr/local/pf/conf/radiusd/packetfence` and add the following below the line that contains `packetfence-eap-mac-policy`:
+
+  packetfence-allied-gs950-mab
+
+And then restart FreeRADIUS:
+
+  # /usr/local/pf/bin/pfcmd service radiusd restart
 
 Amer 
 ~~~~
@@ -638,8 +758,77 @@ Avaya
 Avaya bought Nortel's wired networks assets. So Avaya switches are, in effect, re-branded 
 Nortels. See <<_nortel,Nortel section>> of this document for configuration instructions. 
 
+802.1X with MAC Authentication Bypass and VoIP
+++++++++++++++++++++++++++++++++++++++++++++++
+
+NOTE: The configuration below requires an ntp server. We use the PacketFence server as the NTP server but any other one will do. If you want to use the PacketFence server for NTP, make sure you install the appropriate service and open port 123 in `/usr/local/pf/conf/iptables.conf`
+
+Global config settings:
+
+  sntp server primary address 192.168.1.5
+  sntp enable
+  radius server host 192.168.1.5 acct-enable 
+  radius server host key useStrongerSecret
+  radius server host key useStrongerSecret used-by eapol
+  radius server host key useStrongerSecret used-by non-eapol
+  radius dynamic-server client 192.168.1.5
+  radius dynamic-server client 192.168.1.5 secret useStrongerSecret
+  radius dynamic-server client 192.168.1.5 enable
+  radius dynamic-server client 192.168.1.5 process-change-of-auth-requests
+  radius dynamic-server client 192.168.1.5 process-disconnect-requests
+
+  vlan create 2,3,4,5 type port
+  vlan create 100 type port voice-vlan
+  vlan name 2 "Reg"
+  vlan name 3 "Isol"
+  vlan name 4 "Detect"
+  vlan name 5 "Guest"
+  vlan name 100 "Voice"
+
+  #Uplink configuration
+  vlan ports 24 tagging tagAll 
+  vlan configcontrol autopvid
+
+  eapol multihost allow-non-eap-enable
+  eapol multihost radius-non-eap-enable
+  eapol multihost non-eap-phone-enable
+  eapol multihost use-radius-assigned-vlan
+  eapol multihost non-eap-use-radius-assigned-vlan
+  eapol multihost eap-packet-mode unicast
+  eapol multihost non-eap-reauthentication-enable
+  eapol multihost adac-non-eap-enable
+  no eapol multihost non-eap-pwd-fmt ip-addr
+  no eapol multihost non-eap-pwd-fmt port-number
+  eapol multihost voip-vlan 1 enable vid 100
+
+  adac voice-vlan 100
+  adac uplink-port 24
+  adac op-mode tagged-frames
+  adac enable
+
+  qos if-group name TrustedLinks class trusted
+  qos if-assign port ALL name TrustedLinks
+
+Port 1 configuration:
+
+  interface FastEthernet ALL
+  vlan ports 1 tagging tagAll
+  vlan members 2,3,4,5 1
+  vlan ports 1 pvid 2
+  eapol multihost port 1 enable eap-mac-max 8 allow-non-eap-enable non-eap-mac-max 8 radius-non-eap-enable use-radius-assigned-vlan non-eap-use-radius-assigned-vlan eap-packet-mode unicast adac-non-eap-enable
+  eapol port 1 status auto traffic-control in re-authentication enable
+  eapol port 1 radius-dynamic-server enable
+  lldp port 1 vendor-specific avaya dot1q-framing tagged
+  no adac detection port 1 mac
+  adac port 1 tagged-frames-tagging tag-all
+  adac port 1 enable
+  spanning-tree port 1 learning fast
+
+
 Brocade
 ~~~~~~~
+
+NOTE: By default, all deconnections will be done using SNMP.
 
 ICX 6400 Series
 ^^^^^^^^^^^^^^^
@@ -707,6 +896,16 @@ Where `xx` is the switch port number
    mac-authentication enable-dynamic-vlan
    voice-vlan 100
 
+Radius CLI Login
+++++++++++++++++
+
+If you want to use the server PacketFence to authenticate users on the Brocade switch.
+
+ * Configure the radius server to send user authentication request to PacketFence
+   
+   aaa authentication login default radius local
+
+NOTE: Make sure to have a local account in case the switch can not reach the PacketFence server
 
 Cisco
 ~~~~~
@@ -727,9 +926,9 @@ On some recent models, we can also use more secure and robust features like:
 Depending of the switch model, we recommend the use of the most secure and reliable feature 
 first. In other words, you should consider the following order:
 
-. 802.1X/MAB 
-. Port-Security 
-. linkUp/linkDown 
+. 802.1X/MAB
+. Port-Security
+. linkUp/linkDown
 
 2900XL / 3500XL Series
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -870,10 +1069,50 @@ On each interface _with VoIP_:
   snmp trap mac-notification added 
   snmp trap mac-notification removed 
 
+3550 (802.1X with MAB)
+^^^^^^^^^^^^^^^^^^^^^^
+
+CAUTION: The Catalyst 3550 does *not* support 802.1X with Multi-Domain, it can only support 802.1X with MAB using Multi-Host, MAB, and port security. 
+
+CAUTION: The Catalyst 3550 does *not* support CoA. https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst3750/software/release/12-2_55_se/release/notes/OL23054.html[Minimal IOS required for CoA is 12.2(52)SE]. Latest available IOS for 3550 is 12.2(46)SE. Set "Deauthentication Method" to "SNMP" in PacketFence Administration GUI under Network-> Switches for the switch IP configured below.
+
+Global settings:
+++++++++++++++++
+
+  dot1x system-auth-control 
+  aaa new-model 
+  aaa group server radius packetfence 
+   server 192.168.1.5 auth-port 1812 acct-port 1813
+  aaa authentication login default local 
+  aaa authentication dot1x default group packetfence 
+  aaa authorization network default group packetfence 
+
+RADIUS server configuration:
+
+  radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 2 key useStrongerSecret 
+  radius-server vsa send authentication 
+
+Enable SNMP on the switch:
+
+  snmp-server community public RO
+  snmp-server community private RW
+
+On each interface:
+
+  switchport mode access
+  dot1x mac-auth-bypass
+  dot1x pae authenticator
+  dot1x port-control auto
+  dot1x violation-mode protect
+  dot1x timeout quiet-period 2
+  dot1x timeout reauth-period 7200
+  dot1x timeout tx-period 3
+  dot1x reauthentication
+
 2960 
 ^^^^
 
-CAUTION: For 802.1X and MAB configurations, refer to <<Catalyst_2970,this section below>>.
+CAUTION: For 802.1X and MAB configurations, refer to <<Catalyst_RADIUS,this section below>>.
 
 Port­Security for IOS earlier than 12.2(46)SE  
 +++++++++++++++++++++++++++++++++++++++++++++
@@ -969,24 +1208,49 @@ Use the following templates for interface `IfIndex` in bogus MAC addresses
 * Gi0/1...Gi0/48 -> 10101...10148 
 ===========================================================================
 
-[[Catalyst_2970]]
-2970, 3560, 3550, 3750
+[[Catalyst_RADIUS]]
+2960, 2970, 3560, 3750
 ^^^^^^^^^^^^^^^^^^^^^^
 
-CAUTION: The Catalyst 3550 does *not* support 802.1X with Multi-Domain, it 
-can only support 802.1X with MAB using Multi-Host, MAB, and Port-Security. 
-
-802.1X with MAC Authentication bypass (Multi­Domain) 
-++++++++++++++++++++++++++++++++++++++++++++++++++++
+NOTE: You shouldn't use any port-security features when doing 802.1X and/or Mac Authentication. This can cause unexpected behavior.
 
 [WARNING]
 ====
 Make sure that you have a local account, because enabling 802.1X or MAB will ask for a username and password on the next login.
 ====
 
-Global config settings:
+Global settings:
+++++++++++++++++
 
   dot1x system-auth-control 
+  aaa new-model 
+  aaa group server radius packetfence 
+   server name pfnac
+  aaa authentication login default local 
+  aaa authentication dot1x default group packetfence 
+  aaa authorization network default group packetfence 
+
+RADIUS server configuration:
+
+  radius server pfnac
+    address ipv4 192.168.1.5 auth-port 1812 acct-port 1813
+    automate-tester username dummy ignore-acct-port idle-time 3
+    key 0 useStrongerSecret
+  
+  radius-server vsa send authentication 
+
+CoA configuration
+
+  aaa server radius dynamic-author
+   client 192.168.1.5 server-key useStrongerSecret
+  port 3799
+
+Activate SNMP v1 on the switch:
+
+  snmp-server community public RO
+
+802.1X with MAC Authentication bypass (Multi­Domain) 
+++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 On each interface:
 
@@ -999,48 +1263,15 @@ On each interface:
   authentication periodic 
   authentication timer restart 10800 
   authentication timer reauthenticate 10800 
+  authentication violation replace
   mab 
   no snmp trap link-status 
   dot1x pae authenticator 
   dot1x timeout quiet-period 2 
   dot1x timeout tx-period 3 
 
-AAA Groups and Configuration:
-
-  aaa new-model 
-  aaa group server radius packetfence 
-   server 192.168.1.5 auth-port 1812 acct-port 1813 
-  aaa authentication login default local 
-  aaa authentication dot1x default group packetfence 
-  aaa authorization network default group packetfence 
-
-Radius server configuration:
-
-  radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 2 key useStrongerSecret 
-  radius-server vsa send authentication 
-
-CoA configuration
-
-  aaa server radius dynamic-author
-   client 192.168.1.5 server-key useStrongerSecret
-  port 3799
-  
-Activate the snmp v1 on the switch:
-
-  snmp-server community public RO
-
-
 802.1X with MAC Authentication bypass (Multi­Host)
 ++++++++++++++++++++++++++++++++++++++++++++++++++
-
-[WARNING]
-====
-Make sure that you have a local account, because enabling 802.1X or MAB will ask for a username and password on the next login.
-====
-
-Global config settings:
-
-  dot1x system-auth-control 
 
 On each interface:
 
@@ -1051,49 +1282,17 @@ On each interface:
   authentication periodic 
   authentication timer restart 10800 
   authentication timer reauthenticate 7200 
+  authentication violation replace
   mab 
   no snmp trap link-status 
   dot1x pae authenticator 
   dot1x timeout quiet-period 2 
   dot1x timeout tx-period 3 
 
-AAA Groups and Configuration 
-
-  aaa new-model 
-  aaa group server radius packetfence 
-   server 192.168.1.5 auth-port 1812 acct-port 1813 
-  aaa authentication login default local 
-  aaa authentication dot1x default group packetfence 
-  aaa authorization network default group packetfence 
-
-Radius server configuration 
-
-  radius-server host 10.10.10.10 auth-port 1812 acct-port 1813 timeout 2 key useStrongerSecret 
-  radius-server vsa send authentication 
-
-CoA configuration
-
-  aaa server radius dynamic-author
-   client 192.168.1.5 server-key useStrongerSecret
-  port 3799
-
-Activate the snmp v1 on the switch:
-
-  snmp-server community public RO
-
 MAC Authentication bypass only 
 ++++++++++++++++++++++++++++++
 
-[WARNING]
-====
-Make sure that you have a local account, because enabling 802.1X or MAB will ask for a username and password on the next login.
-====
-
-Global config settings 
-
-  dot1x system-auth-control 
-
-On each interface
+On each interface:
 
   switchport mode access 
   switchport voice vlan 100 
@@ -1105,37 +1304,14 @@ On each interface
   authentication periodic 
   authentication timer restart 10800 
   authentication timer reauthenticate 7200 
+  authentication violation replace
   mab 
   no snmp trap link-status 
-
-AAA Groups and Configuration 
-
-  aaa new-model 
-  aaa group server radius packetfence 
-   server 192.168.1.5 auth-port 1812 acct-port 1813 
-  aaa authentication login default local 
-  aaa authentication dot1x default group packetfence 
-  aaa authorization network default group packetfence 
-
-Radius server configuration 
-
-  radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 2 key useStrongerSecret 
-  radius-server vsa send authentication 
-
-CoA configuration
-
-  aaa server radius dynamic-author
-   client 192.168.1.5 server-key useStrongerSecret
-  port 3799
-
-Activate the snmp v1 on the switch:
-
-  snmp-server community public RO
 
 [NOTE]
 .802.1X on various models of 2960
 ============================================================================
-There's a lot of different versions of the Catalyst 2960 serie. Some of them
+There's a lot of different versions of the Catalyst 2960. Some of them
 may not accept the command stated in this guide for 802.1X.
 
 We have found a couple of commands that are working great or MAB:
@@ -1201,16 +1377,13 @@ Web auth
 
 The Catalyst 2960 supports web authentication from IOS 12.2.55SE3. This procedure has been tested on IOS 15.0.2SE5.
 
-In this example, the ACL for registration is 'redirect' and the ACL for registered devices is 'registered'
+In this example, the ACL that triggers the redirection to the portal for registration is 'registration'.
 
 Configure the global configuration of the switch using the section __MAC Authentication bypass only__ of the 2960 in this document.
 
-Then add this additionnal configuration on the global level
+Then add this additional configuration on the global level
 
-  ip dhcp snooping
   ip device tracking
-  nmsp enable
-  udld enable
   ip http server
   ip http secure-server
   snmp-server community public RO
@@ -1218,13 +1391,10 @@ Then add this additionnal configuration on the global level
 
 Add the required access lists
 
-  ip access-list extended redirect
+  ip access-list extended registration
    deny ip any host <your captive portal ip> 
    permit tcp any any eq www
    permit tcp any any eq 443
-
-  ip access-list extended registered
-   permit ip any any
 
 Then on each controlled interface
 
@@ -1233,15 +1403,16 @@ Then on each controlled interface
    authentication priority mab
    authentication port-control auto
    authentication periodic
+   authentication violation replace
    mab
    spanning-tree portfast
 
 PacketFence switch configuration 
 
-* Select the type to 'Cisco Catalyst 2960 with Web Auth'
-* Set 'Portal URL' to 'http://<your_captive_portal_ip>'
-* Set the 'Registration' role to 'redirect'
-* Set your registered roles to 'registered'
+* Select the type to 'Cisco Catalyst 2960'
+* Set the 'Registration' role to 'registration' (If left empty then it will use the role name)
+* Set Role by Web Auth URL for registration to 'http://<your_captive_portal_ip>/Cisco::Catalyst_2960'
+* The URL can contain dynamic parameters, like the MAC address ($mac), the switch IP ($switch_ip), the username ($user_name).
 * Screenshots of this configuration are available in the Cisco WLC section of this guide.
 
 Downloadable ACLs
@@ -1254,6 +1425,19 @@ These ACLs are defined by role like the VLANs which means you can define differe
 Add the following configuration setting on the global level 
 
    ip device tracking
+
+For IOS 12.2, you need to create this acl and assign it to the switch port interface:
+
+ ip access-list extended Auth-Default-ACL
+  permit udp any range bootps 65347 any range bootpc 65348
+  permit udp any any range bootps 65347
+  permit udp any any eq domain
+  deny   ip any any
+
+ interface GigabitEthernetx/y/z
+  ...
+  ip access-group Auth-Default-ACL in
+  ...
 
 Before continuing, configure your switch to be in MAC authentication bypass or 802.1X.
 
@@ -1280,6 +1464,56 @@ image::docs/images/cisco-downloadable-acl-deny-shares.png[scaledwidth="100%",alt
 Or also you could restrict your users to use only your DNS server where 192.168.5.2 is your DNS server
 
 image::docs/images/cisco-downloadable-acl-force-dns.png[scaledwidth="100%",alt="Force DNS ACL"]
+
+
+Web auth and Downloadable ACLs
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+It's possible to mix web authentication and downloadable ACLs starting from version 12.2 of the IOS, each roles can be configured to forward the device to the captive portal for an http or an https and only allow specific traffic with the ACL.
+To do that, you need to configure PacketFence with Role by Web Auth URL and with Role by access list (For each role you need).
+On the switch you need to change the Auth-Default-ACL to add the portal IP address:
+
+For IOS 12.2:
+
+  ip access-list extended Auth-Default-ACL
+   permit udp any range bootps 65347 any range bootpc 65348
+   permit udp any any range bootps 65347
+   permit ip any host ip_of_the_captive_portal
+   permit udp any any eq domain
+   deny   ip any any
+
+And assign this ACL on the switch port yo want to do ACL per port.
+
+ interface GigabitEthernetx/y/z
+  ...
+  ip access-group Auth-Default-ACL in
+  ...
+
+For IOS 15.0:
+
+  Extended IP access list Auth-Default-ACL
+    10 permit udp any range bootps 65347 any range bootpc 65348
+    20 permit udp any any range bootps 65347
+    30 deny ip any any
+
+  conf t
+  ip access-list extend  Auth-Default-ACL
+  21 permit ip any host ip_of_the_captive_portal
+
+For IOS 15.2:
+
+  Extended IP access list Auth-Default-ACL
+      10 permit udp any any eq domain
+      20 permit tcp any any eq domain
+      30 permit udp any eq bootps any
+      40 permit udp any any eq bootpc
+      50 permit udp any eq bootpc any
+      60 deny ip any any
+
+  conf t
+  ip access-list extend  Auth-Default-ACL
+  51 permit ip any host ip_of_the_captive_portal
+
 
 Stacked 29xx, Stacked 35xx, Stacked 3750, 4500 Series, 6500 Series
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1338,7 +1572,7 @@ IOS XE Switches
 
 PacketFence supports the IOS XE switches in MAC Authentication Bypass, 802.1X and web authentication.
 
-Mac Authentication Bypass
+MAC Authentication Bypass
 +++++++++++++++++++++++++
 
 Global config settings:
@@ -1354,6 +1588,7 @@ On each interface:
   authentication periodic
   authentication timer restart 10800
   authentication timer reauthenticate 10800
+  authentication violation replace
   mab
   no snmp trap link-status
   dot1x pae authenticator
@@ -1369,7 +1604,7 @@ AAA groups and configuration:
   aaa authentication dot1x default group packetfence 
   aaa authorization network default group packetfence 
 
-Radius server configuration:
+RADIUS server configuration:
 
   radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 2 key useStrongerSecret 
   radius-server vsa send authentication 
@@ -1392,7 +1627,7 @@ Follow the same configuration as for MAC Authentication Bypass but change the `a
 
   authentication priority dot1x
 
-802.1X with Mac Authentication fallback
+802.1X with MAC Authentication fallback
 +++++++++++++++++++++++++++++++++++++++
 
 Follow the same configuration as for MAC Authentication Bypass but change the `authentication priority` line with the following:
@@ -1415,12 +1650,16 @@ Web auth requires at least MAC Authentication Bypass to be activated on the swit
   ip access-list extended registered
    permit ip any any
 
+Global config settings:
+
+ ip device tracking
+
 PacketFence switch configuration:
 
-* Select the type to 'Cisco Catalyst 2960 with Web Auth'
-* Set 'Portal URL' to 'http://<your_captive_portal_ip>'
-* Set the 'Registration' role to 'redirect'
-* Set your registered roles to 'registered'
+* Select the type to 'Cisco Catalyst 2960'
+* Set the 'Registration' role to 'registration' (If left empty then it will use the role name)
+* Set Role by Web Auth URL for registration to 'http://<your_captive_portal_ip>/Cisco::Catalyst_2960'
+* The URL can contain dynamic parameters, like the MAC address ($mac), the switch IP ($switch_ip), the username ($user_name).
 * Screenshots of this configuration are available in the Cisco WLC section of this guide.
 
 NOTE: AAA authentication is slow to come up after a reload of the IOS XE switches. This makes the recovery from a reboot longer to complete. This is due to a bug in IOS XE. A workaround is to execute the following command `no aaa accounting system default start-stop group tacacs+`.
@@ -1457,7 +1696,7 @@ RADIUS server configuration:
   radius server packetfence
    address ipv4 192.168.1.5 auth-port 1812 acct-port 1813
    key useStrongerSecret
-   automate-tester username cisco idle-time 1
+   automate-tester username cisco ignore-acct-port idle-time 1
 
 CoA configuration:
 
@@ -1553,7 +1792,7 @@ for 802.1X with MAC Authentication fallback:
    20 class AAA_SVR_DOWN_AUTHD_HOST do-until-failure
     10 activate service-template CRITICAL_AUTH_VLAN
     20 activate service-template DEFAULT_CRITICAL_VOICE_TEMPLATE
-    30 activate service-template CRITICAL-ACCES
+    30 activate service-template CRITICAL-ACCESS
     40 pause reauthentication
     50 authorize
    30 class DOT1X_NO_RESP do-until-failure
@@ -1581,6 +1820,9 @@ for 802.1X with MAC Authentication fallback:
   event authentication-success match-all
    10 class always do-until-failure
     10 activate service-template DEFAULT_LINKSEC_POLICY_SHOULD_SECURE
+  event violation match-all
+   10 class always do-all
+    10 replace
 
 for MAC Authentication only:
 
@@ -1598,7 +1840,7 @@ for MAC Authentication only:
     20 class AAA_SVR_DOWN_AUTHD_HOST do-until-failure
      10 activate service-template CRITICAL_AUTH_VLAN
      20 activate service-template DEFAULT_CRITICAL_VOICE_TEMPLATE
-     30 activate service-template CRITICAL-ACCES
+     30 activate service-template CRITICAL-ACCESS
      40 pause reauthentication
      50 authorize
     30 class always do-until-failure
@@ -1632,7 +1874,7 @@ for 802.1X only:
     20 class AAA_SVR_DOWN_AUTHD_HOST do-until-failure
      10 activate service-template CRITICAL_AUTH_VLAN
      20 activate service-template DEFAULT_CRITICAL_VOICE_TEMPLATE
-     30 activate service-template CRITICAL-ACCES
+     30 activate service-template CRITICAL-ACCESS
      40 pause reauthentication
      50 authorize
     30 class DOT1X_FAILED do-until-failure
@@ -1708,7 +1950,7 @@ Interface Template (802.1X):
    authentication timer reauthenticate server
    service-policy type control subscriber DOT1X
 
-On each interface for 802.1X with MAC Authentcation:
+On each interface for 802.1X with MAC Authentication:
 
   source template identity-template-mab
   dot1x timeout tx-period 5
@@ -1754,6 +1996,27 @@ To see what is the status of a port let's run:
 
         dot1x            Authc Success
 
+Debug command:
+
+In order to be able to debug the Identity Networking Policy you can launch the following command in the switch cli:
+
+ term mon
+ debug pre all
+
+DHCP Option 82
+++++++++++++++
+
+In order to enable the DHCP Option 82, you need to add the following parameters.
+Let's say you want to enable it for the vlan 1 to 1024:
+
+ ip dhcp snooping
+ ip dhcp snooping vlan 1-1024
+
+On uplink interfaces:
+
+ ip dhcp snooping trust
+ 
+
 Router ISR 1800 Series 
 ++++++++++++++++++++++
 
@@ -1771,6 +2034,172 @@ On each interface:
 
   switchport mode access 
   switchport access vlan 4 
+
+EAP-FAST authentication Support
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+PacketFence supports Cisco NEAT through EAP-MD5, EAP-FAST, EAP-GTC and EAP-MSCHAPv2 authentication methods. Upon successful authentication against PacketFence, the authenticator switch will give trunk access to the supplicant switch. 
+
+Here is an official Cisco guide, from which the following configuration derives: https://www.cisco.com/c/en/us/support/docs/lan-switching/8021x/116681-config-neat-cise-00.html
+
+The following configuration example contains required changes to be applied on both authenticator and supplicant switches to provide EAP-FAST authentication against PacketFence.
+
+Authenticator
++++++++++++++
+
+Global settings:
+
+ aaa group server radius packetfence
+  server 192.168.1.5 auth-port 1812 acct-port 1813
+ aaa authentication dot1x default group packetfence
+ aaa authorization network default group packetfence 
+
+ cisp enable
+
+Uplink configuration:
+
+ interface FastEthernet0/20
+  switchport mode access
+  authentication port-control auto
+  dot1x pae authenticator
+
+Supplicant
+++++++++++
+
+Global settings (replace username and password): 
+  
+ cisp enable
+
+ eap profile EAP_PRO
+  method fast
+
+ dot1x credentials EAP_PRO
+  username switches
+  password 7 03174C02120C29495D
+ ! Password is switches
+ !
+ dot1x supplicant force-multicast
+
+Uplink settings:
+
+ interface GigabitEthernet1/0/24
+  switchport mode trunk
+  dot1x pae supplicant
+  dot1x credentials EAP_PRO
+  dot1x supplicant eap profile EAP_PRO  
+
+Device Sensor for Cisco Equipment
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Device sensor is a way to be able to receive some information about endpoints from the RADIUS accounting packet. (like DHCP, CDP, LLDP and HTTP information)
+In order to enable Device Sensor feature, you need to add the following parameters to your switch configuration:
+
+ radius server packetfence
+ address ipv4 192.168.1.5 auth-port 1812 acct-port 1813
+  key useStrongerSecret
+
+ aaa group server radius packetfence
+  server name packetfence
+ !
+ aaa accounting update newinfo
+ aaa accounting identity default start-stop group packetfence
+ !
+ !
+ device-sensor filter-list dhcp list dhcp-list
+  option name host-name
+  option name parameter-request-list
+  option name class-identifier
+ !
+ device-sensor filter-list lldp list lldp-list
+  tlv name system-description
+ !
+ device-sensor filter-list cdp list cdp-list
+  tlv name version-type
+  tlv name platform-type
+ !
+ device-sensor filter-list dhcp list lldp-list
+ device-sensor filter-spec dhcp include list dhcp-list
+ device-sensor filter-spec lldp include list lldp-list
+ device-sensor filter-spec cdp include list cdp-list
+ device-sensor notify all-changes
+
+This configuration will make the switch send information about DHCP, LLDP and CDP of the endpoint in the RADIUS accounting packets.
+
+Cisco Small Business
+~~~~~~~~~~~~~~~~~~~~
+
+The Cisco Small Business switches support MAC based authentication (MAB) as well as 802.1X and VoIP. Both technologies can be combined and will work correctly together on the same switchport.
+
+Nothing is required to activate VoIP on the switch, you must simply configure the voice VLAN you want PacketFence to assign in the PacketFence switch configuration as well as enabling VoIP there. Note that your phones must *not* tag their packets on the network and should send their traffic untagged when connected into a PacketFence enabled port. This means you should not have the voice VLAN capabilities enabled on the switch itself as they might conflict with the authorization attributes returned by PacketFence.
+
+Global configuration
+++++++++++++++++++++
+
+CAUTION: Before executing these steps, make sure you have a local account configured to login on the switch or are pointing to a RADIUS server for management. Otherwise, you will not be able to login into the switch anymore.
+
+You must first define your RADIUS server and point it to PacketFence:
+
+  dot1x system-auth-control 
+  radius-server key useStrongerSecret
+  radius-server host 192.168.1.5
+
+  aaa accounting dot1x start-stop group radius
+
+  snmp-server community public ro view Default 
+  snmp-server community private rw view Default 
+
+SNMP configuration for the Cisco SG300:
+
+  snmp-server community public ro view DefaultSuper
+  snmp-server community private rw view DefaultSuper
+
+MAC Authentication
+++++++++++++++++++
+
+In order to configure MAC authentication, you must enable it on each interface
+
+  interface x/y/z
+   dot1x host-mode multi-sessions 
+   dot1x reauthentication 
+   dot1x timeout quiet-period 10 
+   dot1x timeout server-timeout 5 
+   dot1x timeout supp-timeout 3 
+   dot1x authentication mac 
+   dot1x radius-attributes vlan 
+   dot1x port-control auto 
+   spanning-tree portfast 
+   switchport mode general 
+   switchport general pvid 2 
+
+802.1X with MAB
++++++++++++++++
+
+In order to configure 802.1X with a fall-back to MAC authentication, you must enable it on each interface
+
+  interface x/y/z
+   dot1x host-mode multi-sessions 
+   dot1x reauthentication 
+   dot1x timeout quiet-period 10 
+   dot1x timeout server-timeout 5 
+   dot1x timeout supp-timeout 3 
+   dot1x authentication dot1x mac 
+   dot1x radius-attributes vlan 
+   dot1x port-control auto 
+   spanning-tree portfast 
+   switchport mode general 
+   switchport general pvid 2 
+
+Once you have configured your switchports, you must configure the switch in PacketFence with the following information:
+
+* 'Definition->Type': `Cisco SG500`
+* 'Definition->Mode': `production`
+* 'Definition->Deauthentication Method': `SNMP`
+* 'Definition->VoIP' enabled if you need VoIP on this switch.
+* 'Roles->voice VLAN' set to the VLAN you want to assign to the VoIP devices connecting to this switch.
+* 'RADIUS->Secret Passphrase': `useStrongerSecret`
+* 'SNMP->Version': `v2c`
+* 'SNMP->Community Read': `public`
+* 'SNMP->Community Write': `private`
 
 D-Link
 ~~~~~~
@@ -1838,7 +2267,7 @@ Dell
 Force 10
 ^^^^^^^^
 
-PacketFence supports this switch using RADIUS, MAC-Authentication and 802.1Xx.
+PacketFence supports this switch using RADIUS, MAC-Authentication and 802.1X.
 
 Global config settings
 
@@ -1875,7 +2304,109 @@ On each interface:
 
   To be contributed... 
 
-Edge­corE 
+N1500 Series Switch
+^^^^^^^^^^^^^^^^^^^
+
+PacketFence supports this switch using RADIUS, MAC-Authentication, 802.1x and VoIP
+
+802.1X with MAC Authentication fallback and VoIP
+++++++++++++++++++++++++++++++++++++++++++++++++
+
+We assume that the switch ip is 192.168.1.254
+
+First on the uplink add this configuration:
+
+  dot1x port-control force-authorized
+  switchport mode trunk
+  switchport trunk allowed vlan 1-5,100
+
+
+Global config settings
+
+  configure
+  vlan 2,3,4,5,100
+  vlan 2
+  name "Registration"
+  vlan 3
+  name "Isolation"
+  vlan 4
+  name "Mac detection"
+  vlan 5
+  name "Guest"
+  vlan 100
+  name "VoIP"
+
+  authentication enable
+  dot1x system-auth-control
+  aaa authentication dot1x default radius
+  aaa authorization network default radius
+  dot1x dynamic-vlan enable
+  voice vlan
+  aaa server radius dynamic-author
+  client 192.168.1.5 server-key "useStrongerSecret"
+  exit
+  radius-server host auth 192.168.1.5
+  name "PacketFence"
+  usage 802.1x
+  key "useStrongerSecret"
+  exit
+  aaa server radius dynamic-author
+  client 192.168.1.5 server-key "useStrongerSecret"
+  exit
+
+  snmp-server community "private" rw
+  snmp-server community "public" ro
+
+On each interface (not uplink)
+
+  switchport voice detect auto
+  switchport mode general
+  switchport access vlan 10
+  dot1x port-control mac-based
+  dot1x reauthentication
+  dot1x mac-auth-bypass
+  authentication order mab
+  authentication priority mab
+  lldp transmit-tlv sys-desc sys-cap
+  lldp transmit-mgmt
+  lldp notification
+  lldp med confignotification
+  voice vlan 100
+  exit
+
+
+N2000 Series (N2024P)
+^^^^^^^^^^^^^^^^^^^^^
+
+This configuration was tested with firmware version 6.2.1.6
+
+Global config settings:
+
+Radius configuration:
+
+  aaa authentication login "defaultList" local
+  authentication enable
+  dot1x system-auth-control
+  aaa authentication dot1x default radius
+  aaa authorization network default radius
+  dot1x dynamic-vlan enable
+  radius-server key "useStrongerSecret"
+  radius-server host auth 192.168.1.5
+  name "PacketFence"
+
+802.1X interface configuration:
+
+  interface Gi0/0/1
+  switchport mode general
+  switchport general allowed vlan add 1-3,100
+  dot1x port-control mac-based
+  dot1x unauth-vlan 2
+  dot1x mac-auth-bypass
+  authentication order mab dot1x
+  voice vlan 100
+  exit
+
+Edge core
 ~~~~~~~~~
 
 PacketFence supports Edge-corE switches without VoIP using linkUp/linkDown traps.
@@ -1938,7 +2469,7 @@ Matrix N3
 linkUp/linkDown traps are enabled by default so we disable them and enable MAC locking 
 only. Also, by default this switch doesn't do an electrical low-level linkDown when setting the 
 port to admin down. So we need to activate a global option called `forcelinkdown` to enable 
-this behaviour. Without this option, clients don't understand that they lost their connection and 
+this behavior. Without this option, clients don't understand that they lost their connection and 
 they never do a new DHCP on VLAN change. 
 
 Global config settings 
@@ -2052,6 +2583,7 @@ PacketFence supports Extreme Networks switches using:
 * MAC Address Lockdown (Port Security)
 * Netlogin - MAC Authentication
 * Netlogin - 802.1X
+* RADIUS authentication for CLI access
 
 Don't forget to save the configuration!
 
@@ -2100,7 +2632,7 @@ AAA Configuration
   configure radius netlogin primary shared-secret 12345
   enable radius netlogin
 
-Netlogin (Mac Authentication)
+Netlogin (MAC Authentication)
 
   configure netlogin vlan temp
   enable netlogin mac
@@ -2132,6 +2664,21 @@ Netlogin (802.1X)
   configure netlogin ports 1-48 no-restart
 
 NOTE: You can mix the MAC Authentication and 802.1X on the same switchport. If the device fails 802.1X authentication, it will roll back to the MAC Authentication.
+
+RADIUS authentication for CLI access
+++++++++++++++++++++++++++++++++++++
+
+Configure RADIUS server IP address as primary server and the switch IP address as the client-ip.  Be sure to specify the correct virtual router
+
+  configure radius mgmt-access primary server <SERVER_IP> 1815 client-ip <CLIENT_IP> vr <VR>
+
+Configure the RADIUS shared-secret
+
+  configure radius mgmt-access primary shared-secret <SHARED_SECRET>
+
+Enable RADIUS for management access
+
+  enable radius mgmt-access
 
 Foundry
 ~~~~~~~
@@ -2201,7 +2748,7 @@ PacketFence supports this controller with the following technologies:
 * Wireless 802.1X
 * Wireless MAC Authentication
 
-Controlleur configuration
+Controller configuration
 +++++++++++++++++++++++++
 
 Setup NTP server:
@@ -2209,7 +2756,7 @@ Setup NTP server:
 	<AC>system-view
 	[AC] ntp-service unicast-server 208.69.56.110
 
-Setup the radius serveur (@IP of PacketFence) authentication + accounting:
+Setup the radius server (@IP of PacketFence) authentication + accounting:
 
 [NOTE]
 ===============================
@@ -2242,7 +2789,7 @@ In this configuration I will use the ip address of the VIP of PacketFence: 192.1
 Create an Secure dot1x SSID
 +++++++++++++++++++++++++++
 
-Activate the dotx globaly:
+Activate the dotx globally:
 
 	<AC>system-view
 	[AC] dot1x enable
@@ -2313,7 +2860,7 @@ Configure VAPs and deliver configurations to the APs:
 Create your Open ssid
 +++++++++++++++++++++
 
-Activate the mac-auth globaly:
+Activate the mac-auth globally:
 
 	<AC>system-view
 	[AC] mac-authen
@@ -2378,7 +2925,7 @@ PacketFence supports these switches with the following technologies:
 802.1X
 ++++++
 
-Radius scheme creation:
+RADIUS scheme creation:
 
   radius scheme packetfence
   primary authentication 192.168.1.5 1812 key useStrongerSecret
@@ -2458,7 +3005,7 @@ Interfaces configuration:
 MAC Authentication
 ++++++++++++++++++
 
-Radius scheme creation:
+RADIUS scheme creation:
 
   radius scheme packetfence
   primary authentication 192.168.1.5 1812 key useStrongerSecret
@@ -2516,6 +3063,81 @@ Add the following to the previous interfaces configuration.
 HP
 ~~
 
+HPE 1910 Serie
+^^^^^^^^^^^^^^
+
+The HP 1910 Serie is based on the 3Com OS and most of the configuration will be done from the GUI.
+
+VLAN creation:
+* go to *Network*, *VLAN*,
+* click on the _Create_ tab
+* create the VLANs
+
+
+Configure PacketFence as a RADIUS server:
+* go to *Authentication*, *RADIUS*
+* click on the _RADIUS Server_ tab
+* from _Server Type_, select *Authentication Server*
+* from _Primary Server_, give the *PacketFence IP address*
+* click *Apply*
+
+Then:
+* click on the _RADIUS Setup_ tab
+* check the box _Authentication Server Shared Key_
+* give the *shared key*
+* from _Username Format_, select *without-domain*
+* click *Apply*
+
+Create a new authentication domain:
+* go to *Authentication*, *AAA*,
+* click on the _Domain Setup_ tab,
+
+WARNING: We will need to create a specific authentication domain and *not making it as the default domain*.
+
+Configure the 802.1X and authentication method:
+* go to *Authentication*
+* click on the _802.1X_ tab
+* check the _Enable 802.1X_ box
+* from _Authentication Method_, select *EAP*
+
+Configure the authentication domain:
+
+INFO: Even limited, there is a command line access.
+
+* connect to the switch using ss,
+* type the command:
+
+ _cmdline-mode on
+
+* password is: *512900*
+* Type the commands:
+
+ System-view
+ Mac-authentication domain YOUR_DOMAIN_NAME
+ Mac-authentication user-name-format mac-address with-hyphen
+
+* change the _YOUR_DOMAIN_NAME_ with the one from your environment
+* do not close your terminal, we will come back to this later
+
+* from the GUI, go to *Authentication*, *802.1X*
+* from _Port_, select the port your are connected to. *GigabitEthernet X/X/X*
+* from _Port Control_, select *MAC Based*
+* from _Max Number of Users_, give *2*
+* check the box _Enable Re-Authentication_
+* click on *Apply*
+
+
+Enable the MAC Authentication in SSH, as well:
+* back on the SSH terminal
+* type the following command:
+
+ Mac-authentication interface gX/X/X
+
+* modify the interface name for your environment
+
+The configuration is done.
+
+
 E4800G and E5500G Switch series
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -2558,6 +3180,19 @@ On each interface:
 
 where `xx` stands for the interface index
 
+CLI authentication
+++++++++++++++++++
+
+You can use PacketFence for RADIUS CLI authentication on the 2500 Series.
+
+Global config settings
+
+  radius-server host 192.168.1.5 key useStrongerSecret
+  aaa authentication ssh login radius local
+  aaa authentication telnet login radius local
+
+Next, make sure you configure the switch in PacketFence accordingly as well as the proper administrative access. Refer to the Administration Guide for more details.
+
 2600 Series and 3400cl Series
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -2587,16 +3222,22 @@ In order to enable RADIUS mac authentication on the ports, you first need to joi
 
 Next, define the RADIUS server host:
 
-   radius-server host 192.168.1.5 key use_stong_secret
+   radius-server host 192.168.1.5 key useStrongerSecret
 
-Since HP now supports server-group, let's create a group for the MAC authentication.  Another one can be used for management access:
+Next, we create a server-group that points to the PacketFence server,
 
    aaa server-group radius "packetfence" host 192.168.1.5
-   aaa server-group radius "management" host 10.0.0.15
 
-Configure the AAA authentication for MAC authentication to use the proper server-group:
+Configure the AAA authentication for MAC authentication to use the right server-group:
 
    aaa authentication mac-based chap-radius server-group "packetfence"
+
+Optionally, you can configure the SSH and telnet authentication to point to PacketFence (make sure you also follow instructions in the Administration Guide to activate the CLI access):
+
+  aaa authentication login privilege-mode
+
+  aaa authentication ssh login radius server-group packetfence local
+  aaa authentication telnet login radius server-group packetfence local
 
 Finally, enable MAC authentication on all necessary ports:
 
@@ -2724,7 +3365,7 @@ Basic configuration
 
 ----
 
-l2protocol-tunnel user-defined-protocol 802.1x protocol-mac 0180-c200-0003 group-mac 0100-0000-0002
+l2protocol-tunnel user-defined-protocol 802.1X protocol-mac 0180-c200-0003 group-mac 0100-0000-0002
 domain pf
 
 dot1x enable
@@ -2787,9 +3428,9 @@ IBM
 RackSwitch G8052
 ^^^^^^^^^^^^^^^^
 
-PacketFence supports only 802.1x authentication. It has been tested on version 7.9.11.0.
+PacketFence supports only 802.1X authentication. It has been tested on version 7.9.11.0.
 
-Radius configuration
+RADIUS configuration
 ++++++++++++++++++++
 
 ----
@@ -2817,7 +3458,7 @@ Port configuration
 ++++++++++++++++++
 
 ----
-RS G8052(config)# configure termninal
+RS G8052(config)# configure terminal
 RS G8052(config)# interface port 1
 RS G8052(config-if)# dot1x mode auto
 RS G8052(config-if)# dot1x quiet-time 2
@@ -3008,7 +3649,7 @@ Ctrl-D
 # commit comment "packetfenced VoIP"
 ----
 
-802.1x configuration
+802.1X configuration
 ++++++++++++++++++++
 
 ----
@@ -3201,7 +3842,7 @@ Don't forget to save the configuration!
 GS108Tv2 / GS110T / GS110TP
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-PacketFence supports certain lower-end Netgear switches in Link Up/Link Down traps. These "web-managed" switches have no command-line interface and only a subset of the port security and 802.1X functionnality needed to interoperate with PacketFence in these more advanced modes. There is no way to send a trap upon port security violation, and there is only pure 802.1X, no MAC Address Bypass.
+PacketFence supports certain lower-end Netgear switches in Link Up/Link Down traps. These "web-managed" switches have no command-line interface and only a subset of the port security and 802.1X functionality needed to interoperate with PacketFence in these more advanced modes. There is no way to send a trap upon port security violation, and there is only pure 802.1X, no MAC Address Bypass.
 
 [float]
 Switch Configuration
@@ -3409,6 +4050,153 @@ Global config settings
 
   SNMP-server host 192.168.1.5 public version 1
 
+
+Ubiquiti
+~~~~~~~~
+
+EdgeSwitch
+^^^^^^^^^^
+
+PacketFence supports the EdgeSwitch with the following techniques:
+
+* 802.1X with MAC Authentication fallback
+* 802.1X with MAC Authentication fallback with VoIP
+
+802.1X with MAC Authentication fallback
++++++++++++++++++++++++++++++++++++++++
+
+We assume that the switch ip is 192.168.1.254
+
+First on the uplink add this configuration:
+
+  dot1x port-control force-authorized
+  vlan participation include 1,2,3,4,5,100
+  vlan tagging 2,3,4,5,100
+
+Global config settings:
+
+  vlan database
+  vlan 1
+  vlan 2
+  vlan 3
+  vlan 4
+  vlan 5
+  vlan 100
+  exit
+
+  configure
+  dot1x system-auth-control
+  aaa authentication dot1x default radius
+  authorization network radius
+  dot1x dynamic-vlan enable
+  radius accounting mode
+  radius server host auth "192.168.1.5" name "PacketFence"
+  radius server key auth "192.168.1.5"
+
+  Enter secret (64 characters max):useStrongerSecret
+
+  radius server primary "192.168.1.5"
+  no radius server msgauth "192.168.1.5"
+  radius server attribute 4 192.168.1.254
+
+  radius server attribute 32 "EdgeSwitch"
+  radius server host acct "192.168.1.5" name PacketFence-ACCT
+  radius server key acct "192.168.1.5"
+
+  Enter secret (64 characters max):useStrongerSecret
+
+  snmp-server community public ro
+  snmp-server community private rw
+  exit
+
+On each interface (not uplink)
+
+  dot1x port-control mac-based
+  dot1x re-authentication
+  dot1x timeout reauth-period 1800
+  dot1x timeout supp-timeout 10
+  dot1x timeout guest-vlan-period 3
+  dot1x timeout server-timeout 1800
+  dot1x mac-auth-bypass
+  dot1x unauthenticated-vlan 4
+  vlan participation include 1,2,3,4,5,100
+  exit
+
+
+802.1X with MAC Authentication fallback with VoIP
++++++++++++++++++++++++++++++++++++++++++++++++++
+
+We assume that the switch ip is 192.168.1.254
+
+First on the uplink add this configuration:
+
+  dot1x port-control force-authorized
+  vlan participation include 1,2,3,4,5,100
+  vlan tagging 2,3,4,5,100
+
+Global config settings:
+
+  vlan database
+  vlan 1
+  vlan 2
+  vlan 3
+  vlan 4
+  vlan 5
+  vlan 100
+  exit
+
+  configure
+  dot1x system-auth-control
+  aaa authentication dot1x default radius
+  authorization network radius
+  dot1x dynamic-vlan enable
+  voice vlan 100
+  radius accounting mode
+  radius server host auth "192.168.1.5" name "PacketFence"
+  radius server key auth "192.168.1.5"
+
+  Enter secret (64 characters max):useStrongerSecret
+
+  radius server primary "192.168.1.5"
+  no radius server msgauth "192.168.1.5"
+  radius server attribute 4 192.168.1.254
+
+  radius server attribute 32 "EdgeSwitch"
+  radius server host acct "192.168.1.5" name PacketFence-ACCT
+  radius server key acct "192.168.1.5"
+
+  Enter secret (64 characters max):useStrongerSecret
+
+  snmp-server community public ro
+  snmp-server community private rw
+  exit
+
+On each interface (not uplink)
+
+  dot1x port-control mac-based
+  dot1x re-authentication
+  dot1x timeout reauth-period 1800
+  dot1x timeout supp-timeout 10
+  dot1x timeout guest-vlan-period 3
+  dot1x timeout server-timeout 1800
+  dot1x mac-auth-bypass
+  dot1x unauthenticated-vlan 4
+  vlan participation include 1,2,3,4,5,100
+  voice vlan 100
+  auto-voip protocol-based
+  lldp transmit
+  lldp receive
+  lldp transmit-tlv port-desc
+  lldp transmit-tlv sys-name
+  lldp transmit-tlv sys-desc
+  lldp transmit-tlv sys-cap
+  lldp transmit-mgmt
+  lldp notification
+  lldp med
+  lldp med confignotification
+  exit
+
+
 Wireless Controllers and Access Point Configuration
 ---------------------------------------------------
 
@@ -3457,43 +4245,8 @@ You can try modules similar to your equipment if any (read appropriate instructi
 
 If none of the above worked then you can fallback to inline enforcement or let us know what equipment you are using on the https://lists.sourceforge.net/lists/listinfo/packetfence-devel[packetfence-devel mailing list].
 
-AeroHIVE
-~~~~~~~~
-
-AeroHIVE products are a bit different compared to the other vendors. They support either a local HiveManager (kind of wireless controller) or a cloud-based HVM. However, the configuration is the same for the local and the cloud-based controller. Note that all the config are made on the HVM and then pushed to the APs. 
-
-[float]
-AAA Client Settings
-+++++++++++++++++++
-
-In the HVM, go to *Configuration -> AAA Authentication -> AAA Client Settings*, and insert the proper properties:
-
-* Give a RADIUS Name
-* Add a RADIUS server with Authentication as the server type and primary as the role
-* Make sure Permit Dynamic Change of Authorization is ticked (RFC 3576)
-
-[float]
-Public SSID
-++++++++++++
-
-Again in the HVM, go to *Configuration -> SSIDs*, and create a new SSID with the following:
-
-* Give a Profile Name and an SSID Name
-* Choose Open as the Access Security 
-* Select Enable Mac Authentication
-* Select your RADIUS server from the RADIUS Server dropdown list
-
-[float]
-Secure SSID
-++++++++++++
-
-In the HVM, go to *Configuration -> SSIDs*, and create a new SSID with the following :
-
-* Give a Profile Name and an SSID Name
-* Choose WPA2 Enterprise as the Access Security 
-* Select WPA2-802.1X as the key management
-* Select CCMP as the encryption method
-* Select your RADIUS server from the RADIUS Server dropdown list
+// Aerohive Networks
+include::networkdevice/aerohive.asciidoc[]
 
 [float]
 Roles (User Profiles)
@@ -3512,155 +4265,20 @@ And in the AeroHIVE configuration, you have :
 Last step is to allow the User Profile to be returned for a particular SSID.  Go to *Configuration -> SSIDs -> Your_SSID -> User Profiles for Traffic Management*, and select the User Profiles you will
 return for the devices.
 
-NOTE: The VLAN ID is *NOT* returned by PacketFence if a role is available for a given category.   The VLAN ID needs to be configured in the User Profile definition on the AeroHIVE side.
+In version 6 or later of the HiveOS, we do return VLAN ID matching the number that the *User Profile* has. Create your *User Profile* in the HiveManager as usual, assign the matching VLAN, and in PacketFence configuration add the wanted VLAN ID in the section *Roles by VLAN*.
 
-[float]
-Caching and Roaming
-++++++++++++++++++++
 
-AeroHIVE have a session replication feature to ease the EAP session roaming between two access points. However, this may cause problems when you bounce the wireless card of a client, it will not do a new RADIUS request. Two settings can be tweaked to reduce the caching impact, it is the roaming cache update interval and roaming cache ageout. They are located in *Configuration -> SSIDs -> [SSID Name] -> Optional Settings -> Advanced*.
-The other way to support Roaming is to enable snmp trap in the AeroHIVE configuration to PacketFence server. PacketFence will recognise the ahConnectionChangeEvent and will change the location of the node in his base.
 
-[float]
-External captive portal
-^^^^^^^^^^^^^^^^^^^^^^^
-
-First configure the AAA server as described in the section above in the Hive Manager.
-
-Portal configuration
-++++++++++++++++++++
-* Go in *Configuration -> Authentication -> Captive Web Portals* and create a new portal
-* Select Select *Registration Type* = *External Authentication*
-* Go in the section *Captive Web Portal Login Page Settings* set the *Login URL* to http://pf_ip/ and *Password Encryption* to *No Encryption*
-
-////
-
-This option is currently broken but will be needed so it redirects the user at the end of the authentication.
-* Go in the section * Captive Web Portal Success Page Settings* and check *Redirect to the initially requested page* at the bottom.
-
-////
-
-[float]
-External portal SSID
-++++++++++++++++++++
-
-Again in the Hive Manager, go to *Configuration -> SSIDs*, and create a new SSID with the following:
-
-* Give a Profile Name and an SSID Name
-* Choose Open as the Access Security 
-* Select Enable Captive Web Portal
-* Select your RADIUS server from the RADIUS Server dropdown list
-
-In the guided configuration you now be able to select your new SSID, the Portal you want to use and the AAA server.
-
-Anyfi
-~~~~~
-
-In this section, we cover the basic configuration of the Anyfi Gateway to create a hotspot SSID available on all access points.
-
-This does not cover the configuration of other Anyfi network elements such as the Controller. Please refer to http://www.anyfinetworks.com/resources[Anyfi Networks' website] for relevant documentation.
-
-In this configuration eth0 will be the management interface of the Anyfi Gateway and eth1 will be the interface that will bridge the tagged packets to your network.
-
-Interfaces configuration
-++++++++++++++++++++++++
-
-  interfaces {
-      bridge br0 {
-          ...
-      }
-      ethernet eth0 {
-          description "Management network"
-          address 192.168.0.20/24
-      }
-      ethernet eth1 {
-          description "Wi-Fi client traffic" 
-          bridge-group {
-              bridge br0
-          }
-      }
-  }
-
-MAC authentication
-^^^^^^^^^^^^^^^^^^
-
-This section will allow you to configure the 'Anyfi-Hotspot' SSID that will use MAC authentication.
-
-SSID configuration
-++++++++++++++++++
-
-  service {
-      anyfi {
-          gateway anyfi-hotspot {
-              accounting {
-                  radius-server 192.168.0.5 {
-                      port 1813
-                      secret useStrongerSecret
-                  }
-              }
-              authorization {
-                  radius-server 192.168.0.5 {
-                      port 1812
-                      secret useStrongerSecret
-                  }
-              }
-              bridge br0
-              controller <Anyfi Controller's IP or FQDN>
-              isolation
-              nas {
-                  identifier anyfi
-                  port 3799
-              }
-              ssid Anyfi-Hotspot
-          }
-      }
-  }
-
-802.1X
-^^^^^^
-
-This section will allow you to configure the 'Anyfi-Secure' SSID that will authenticate users using 802.1X.
-
-SSID configuration
-++++++++++++++++++
-  service {
-      anyfi {
-          gateway secure-gw {
-              accounting {
-                  radius-server 192.168.0.5 {
-                      port 1813
-                      secret useStrongerSecret
-                  }
-              }
-              authentication {
-                  eap {
-                      radius-server 192.168.0.5 {
-                          port 1812
-                          secret useStrongerSecret
-                      }
-                  }
-              }
-              bridge br0
-              controller <Anyfi Controller's IP or FQDN>
-              isolation
-              nas {
-                  identifier anyfi
-                  port 3799
-              }
-              ssid Anyfi-Secure
-              wpa2 {
-              }
-          }
-      }
-  }
+// Anyfi Networks
+include::networkdevice/anyfi.asciidoc[]
 
 Avaya
 ~~~~~
 
-Wireless Controller (WC)
-^^^^^^^^^^^^^^^^^^^^^^^^
+Wireless Controller
+^^^^^^^^^^^^^^^^^^^
 
-  To be contributed....
+NOTE: To be contributed....
 
 Aruba
 ~~~~~
@@ -3727,6 +4345,147 @@ In order to use the WIPS feature in PacketFence, please follow those simple step
 
 First, configure PacketFence to be a trap receiver.  Under *Configuration > SNMP > Trap Receivers*, add an entry for the PF management IP.  By default, all traps will be enabled.  If you want to disable some, you will need
 to connect via CLI, and run the *snmp-server trap disable <trapname>* command.
+
+WebAuth
++++++++
+
+First of all you will need to configure a guest VLAN.
+
+image::docs/images/aruba-create-guest-vlan.png[scaledwidth="100%",alt="Guest VLAN"]
+
+Next, you will need to configure a RADIUS server.
+
+image::docs/images/aruba-radius-server.png[scaledwidth="100%",alt="RADIUS server"]
+
+  aaa authentication-server radius "packetfence"
+  host 192.168.1.5
+  key useStrongerSecret
+
+Add your RADIUS server to a AAA group, under `Security -> Authentication -> Servers -> Server Group`:
+
+  aaa server-group "packetfence"
+  auth-server "packetfence" position 1
+
+Then define the `RFC 3576` server, which will allow you to do CoA.
+
+image::docs/images/aruba-config-coa.png[scaledwidth="100%",alt="RADIUS CoA server"]
+
+  aaa rfc-3576-server "192.168.1.5"
+  key useStrongerSecret
+
+Next, you will need to create the policy that will redirect users to the PacketFence captive portal when they are not authenticated. Go to `Security -> Authentication -> L3 Authentication -> Captive Portal Authentication Profile`.
+
+image::docs/images/aruba-l3-auth1.png[scaledwidth="100%",alt="Layer 3 profile"]
+image::docs/images/aruba-l3-auth2.png[scaledwidth="100%",alt="Layer 3 profile 2"]
+
+  aaa authentication captive-portal "packetfence-externalportal"
+  default-role auth-guest
+  redirect-pause 3
+  no logout-popup-window
+  login-page https://192.168.1.5/Aruba
+  switchip-in-redirection-url
+
+Now create the policy for the guest access, for example Internet only.
+
+Add the authentication for the Captive Portal Profile via `Security -> Authentication -> L3 Authentication -> Captive Portal Authentication Profile -> Server Group`:
+
+  aaa authentication captive-portal "packetfence-externalportal"
+  server-group "packetfence"
+
+Adjust the configuration of the AAA profile through `Security -> Authentication -> Profiles -> AAA Profiles`:
+
+image::docs/images/aruba-config-aaa-profile1.png[scaledwidth="30%",alt="AAA profile 1"]
+image::docs/images/aruba-config-aaa-profile2.png[scaledwidth="100%",alt="AAA profile 2"]
+image::docs/images/aruba-config-aaa-profile3.png[scaledwidth="100%",alt="AAA profile 3"]
+image::docs/images/aruba-config-aaa-profile4.png[scaledwidth="100%",alt="AAA profile 4"]
+image::docs/images/aruba-config-aaa-profile5.png[scaledwidth="100%",alt="AAA profile 5"]
+image::docs/images/aruba-config-aaa-profile6.png[scaledwidth="100%",alt="AAA profile 6"]
+
+  aaa profile "packetfence-externalportal"
+  initial-role packetfence-portal
+  radius-interim-accounting
+  radius-accounting "packetfence"
+  rfc-3576-server "192.168.1.5"
+
+Define a policy to permit the traffic.
+
+First add a destination, `Advanced Services -> Stateful Firewall -> Destinations`:
+
+  netdestination packetfence-portal
+  host 192.168.1.5
+
+Create an ACL for the redirection, `Security -> Firewall Policies`:
+
+image::docs/images/aruba-config-policy1.png[scaledwidth="100%",alt="Policy 1"]
+image::docs/images/aruba-config-policy2.png[scaledwidth="100%",alt="Policy 2"]
+image::docs/images/aruba-config-policy3.png[scaledwidth="100%",alt="Policy 3"]
+image::docs/images/aruba-config-policy4.png[scaledwidth="100%",alt="Policy 4"]
+image::docs/images/aruba-config-policy5.png[scaledwidth="100%",alt="Policy 5"]
+
+Source NAT on VLAN
+
+  ip access-list session "packetfence-externalportal"
+  alias "user" alias "packetfence-portal" "svc-http" permit queue low
+  alias "user" alias "packetfence-portal" "svc-https" permit queue low
+
+Source NAT per Application
+
+  ip access-list session "packetfence-externalportal"
+  alias "user" alias "packetfence-portal" "svc-http" src-nat queue low
+  alias "user" alias "packetfence-portal" "svc-https" src-nat queue low
+
+Now add the newly created policy to the Captive Portal Profile, `Security -> User Roles`:
+
+image::docs/images/aruba-config-user-role.png[scaledwidth="100%",alt="User Role"]
+image::docs/images/aruba-interface-redirection.png[scaledwidth="100%",alt="Interface de redirection"]
+
+  user-role "packetfence-portal"
+  access-list session "packetfence-externalportal" position 1
+  access-list session "captiveportal" position 2
+  access-list session "guest-logon-access" position 3
+  access-list session "block-internal-access" position 4
+  access-list session "v6-logon-control" position 5
+  access-list session "captiveportal6" position 6
+  captive-portal "packetfence-externalportal"
+
+Finaly create the SSID and associate the profile to it, `Virtual AP profile`:
+
+  wlan virtual-ap "packetfence-externalportal"
+  ssid-profile "packetfence-externalportal"
+  aaa-profile "packetfence"
+
+General AP settings and master-slave controller case.
+
+image::docs/images/aruba-ap-config1.png[scaledwidth="30%",alt="Config AP 1"]
+image::docs/images/aruba-ap-config2.png[scaledwidth="100%",alt="Config AP 2"]
+image::docs/images/aruba-ap-config3.png[scaledwidth="100%",alt="Config AP 3"]
+image::docs/images/aruba-ap-config4.png[scaledwidth="100%",alt="Config AP 4"]
+image::docs/images/aruba-ap-config5.png[scaledwidth="100%",alt="Config AP 5"]
+image::docs/images/aruba-ap-config6.png[scaledwidth="100%",alt="Config AP 6"]
+image::docs/images/aruba-ap-config7.png[scaledwidth="100%",alt="Config AP 7"]
+image::docs/images/aruba-ap-config8.png[scaledwidth="100%",alt="Config AP 8"]
+image::docs/images/aruba-ap-config9.png[scaledwidth="100%",alt="Config AP 9"]
+image::docs/images/aruba-ap-config10.png[scaledwidth="100%",alt="Config AP 10"]
+image::docs/images/aruba-ap-config11.png[scaledwidth="100%",alt="Config AP 11"]
+
+image::docs/images/aruba-secondary-controller.png[scaledwidth="100%",alt="Secondary controller configuration"]
+
+The next step will be to configure the Aruba WiFi controller for WebAuth in PacketFence, add the switch with the model choice `Aruba Network`, 
+
+image::docs/images/aruba-wlc1.png[scaledwidth="80%",alt="Add Aruba wireless controller"]
+image::docs/images/aruba-wlc-roles.png[scaledwidth="80%",alt="Aruba wireless controller roles configuration"]
+
+Check the box `External Portal Enforcement`, in the Roles section, choose `Role by Switch Role`, as the registration role, enter your default role: `packetfence-portal` and choose the policy matching roles, for instance guest: `internet-only`.
+
+CLI authentication
+++++++++++++++++++
+
+In order to enable CLI login on the Aruba controller via the PacketFence server, you need to point management authentication to the RADIUS server you created while configuring the SSIDs in the previous sections above.
+
+aaa authentication mgmt
+  default-role read-only
+  enable
+  server-group PacketFence
 
 Aruba Controller 200
 ^^^^^^^^^^^^^^^^^^^^
@@ -3858,7 +4617,7 @@ When done, click on the *Apply* button.
 
 Secure SSID
 +++++++++++
-Since the BE20 doesn't support Open SSID with Mac Authentication, we will only describe how to configure a WPA2-Enterprise SSID.  First, we will configure the 5GHz antenna.
+Since the BE20 doesn't support Open SSID with MAC Authentication, we will only describe how to configure a WPA2-Enterprise SSID.  First, we will configure the 5GHz antenna.
 
 Click on *Wifi-1-1 -> Access SSID Config*.  From the *Configuration for SSID* dropdown, select the 1 entry.  Modify the fields like the following:
 
@@ -3996,6 +4755,7 @@ Aironet 1600
 ^^^^^^^^^^^^
 
 CoA and radius:
+
 ----
 radius-server attribute 32 include-in-access-req format %h
 radius-server vsa send accounting
@@ -4018,7 +4778,7 @@ Wireless LAN Controller (WLC) or Wireless Services Module (WiSM)
 In this section, we cover the basic configuration of the WiSM for PacketFence using the web interface.
 
 * First, globally define the FreeRADIUS server running on PacketFence
-  (PacketFence's IP) and make sure _Support for RFC 3576_ is enabled (if not present it is enabled by default)
+  (PacketFence's IP) and make sure _Support for RFC 3576_ (also called _Support for CoA_) is enabled. When the option is missing from your WLC, it is enabled by default.
 
 image::docs/images/cisco-wlc-radius-define.png[scaledwidth="100%",alt="Freeradius server"]
 
@@ -4061,14 +4821,14 @@ image::docs/images/cisco-wlc-secure-radius.png[scaledwidth="100%",alt="Radius se
 
 image::docs/images/cisco-wlc-non-secure-radius-advance.png[scaledwidth="100%",alt="Radius advanced non secure"]
 
-* Finally, in _Controller > Interfaces_ tab, create an interface per VLAN that could assigned
+* Finally, in _Controller > Interfaces_ tab, create an interface per VLAN that could be assigned
 
 image::docs/images/cisco-wlc-interface-ssid.png[scaledwidth="100%",alt="SSID Interface"]
 
 You are good to go!
 
 Wireless LAN Controller (WLC) Web Auth
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+++++++++++++++++++++++++++++++++++++++
 
 In this section, we cover the basic configuration of the WLC Web Auth for PacketFence using the web interface.
 The idea is to forward the device to the captive portal with an ACL if the device is in an unreg state and 
@@ -4098,6 +4858,8 @@ image::docs/images/SSID_5.png[scaledwidth="100%",alt="SSID step 5"]
 
 image::docs/images/SSID_6.png[scaledwidth="100%",alt="SSID step 6"]
 
+NOTE: On more recent controllers, the value 'Radius NAC' in the 'NAC State' setting will be called 'ISE NAC'.
+
 image::docs/images/SSID_7.png[scaledwidth="100%",alt="SSID step 7"]
 
 * Then you have to create two ACLs - one to deny all traffic except the required one to hit the portal (Pre-Auth-For-WebRedirect ) and the other
@@ -4106,7 +4868,7 @@ one to allow anything (Authorize_any) .
 image::docs/images/ACL.png[scaledwidth="100%",alt="ACL"]
 
 * Then the last step is to configure the WLC in PacketFence.
-Portal URL definition
+Role by Web Auth URL
 
 image::docs/images/WLC_PACKETFENCE.png[scaledwidth="100%",alt="ACL"]
 
@@ -4115,11 +4877,26 @@ Role definition
 image::docs/images/WLC_PACKETFENCE2.png[scaledwidth="100%",alt="ACL"]
 
 Troubleshooting ignored RADIUS replies
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In the event the WLC ignores the RADIUS replies from PacketFence (you receive multiple requests but access is never granted), validate the following elements : 
+
 * RADIUS secret is properly configured in PacketFence and the WLC controller.
 * The SSL certificate used by PacketFence is not expired.
+
+Device Sensor
+^^^^^^^^^^^^^
+
+When using a Cisco WLC, you can enable device sensor by making sure the configuration looks like the following screenshot:
+
+image::docs/images/wlc-device-sensor.png[scaledwidth="100%",alt="Device Sensor"]
+
+NOTE: Please refer to the wired configuration of Cisco equipment to learn more about device sensor.
+
+// CoovaChilli
+
+include::networkdevice/coovachilli.asciidoc[]
+
 
 D-Link
 ~~~~~~
@@ -4127,7 +4904,7 @@ D-Link
 DWL Access-Points and DWS 3026
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-  To be contributed...
+NOTE: To be contributed...
 
 
 Extricom
@@ -4158,101 +4935,127 @@ Secure SSID
 
 The final step is to enable SNMP Agent and SNMP Traps on the controller. This is done under the following tab in the administrative UI: *Advanced -> SNMP*.
 
-Hostapd
-~~~~~~~
+Fortinet FortiGate
+~~~~~~~~~~~~~~~~~~
 
-OpenWRT
-^^^^^^^
+This section shows how to configure a 802.1X SSID on a Fortigate 50E running on FortiOS 5.4.
 
-In this section, we cover the basic configuration of the OpenWRT access point (Hostapd software).
-Hostapd must have been compiled with dynamic vlan support and you need to create a file /etc/config/hostapd.vlan that contain:
+You will need to have the CLI access on the Fortigate to do the configuration.
 
-  *           wlan0.#
+RADIUS
+^^^^^^
 
-And you need to replace the /lib/wifi/hostapd.sh script file with the one included in /usr/local/pf/addons/hostapd
+ FGT50E # config user radius 
+ FGT50E (radius) # edit packetfence
+ new entry 'packetfence' added
+ FGT50E (packetfence) # set server 192.168.1.5
+ FGT50E (packetfence) # set secret useStrongerSecret
+ FGT50E (packetfence) # set nas-ip 192.168.1.1
+ FGT50E (packetfence) # set radius-coa enable 
+ FGT50E (packetfence) # config accounting-server 
+ FGT50E (accounting-server) # edit 1
+ new entry '1' added
+ FGT50E (1) # set status enable
+ FGT50E (1) # set server 192.168.1.5
+ FGT50E (1) # set secret useStrongerSecret
+ FGT50E (1) # end
+ FGT50E (packetfence) # end
 
-[float]
-Open SSID
-+++++++++
+802.1X SSID
+^^^^^^^^^^^
 
-Configure your SSID using uci command:
+ FGT50E #config wireless-controller vap
+ FGT50E (vap) # edit PF-Secure
+ new entry 'PF-Secure' added
+ FGT50E (PF-Secure) # edit "PF-Secure"
+ FGT50E (PF-Secure) # set vdom "root"
+ FGT50E (PF-Secure) # set ssid "PF-Secure"
+ FGT50E (PF-Secure) # set security wpa2-only-enterprise
+ FGT50E (PF-Secure) # set auth radius
+ FGT50E (PF-Secure) # set radius-server "packetfence"
+ FGT50E (PF-Secure) # set schedule "always"
+ FGT50E (PF-Secure) # set local-bridging enable
+ FGT50E (PF-Secure) # set dynamic-vlan enable
+ FGT50E (PF-Secure) # end
 
-  uci add_list wireless.@wifi-iface[0]=wifi-iface
-  uci add_list wireless.@wifi-iface[0].device=radio0
-  uci add_list wireless.@wifi-iface[0].mode=ap
-  uci add_list wireless.@wifi-iface[0].ssid=OpenWrt-OPEN
-  uci add_list wireless.@wifi-iface[0].network=lan
-  uci add_list wireless.@wifi-iface[0].encryption=none
-  uci add_list wireless.@wifi-iface[0].auth_server=192.168.1.5
-  uci add_list wireless.@wifi-iface[0].auth_port=1812
-  uci add_list wireless.@wifi-iface[0].auth_secret=useStrongerSecret
-  uci add_list wireless.@wifi-iface[0].dynamic_vlan=2
-  uci add_list wireless.@wifi-iface[0].vlan_file=/etc/config/hostapd.vlan
-  uci add_list wireless.@wifi-iface[0].vlan_tagged_interface=eth0
-  uci add_list wireless.@wifi-iface[0].radius_das_port=3799
-  uci add_list wireless.@wifi-iface[0].radius_das_client='192.168.1.5 useStrongerSecret'
-  uci add_list wireless.@wifi-iface[0].macfilter=2
+// Hostapd
 
-[float]
-Secure SSID
-+++++++++++
-
-Configure your SSID using uci command:
-
-  uci add_list wireless.@wifi-iface[0]=wifi-iface
-  uci add_list wireless.@wifi-iface[0].device=radio0
-  uci add_list wireless.@wifi-iface[0].mode=ap
-  uci add_list wireless.@wifi-iface[0].ssid=OpenWrt-SECURE
-  uci add_list wireless.@wifi-iface[0].network=lan
-  uci add_list wireless.@wifi-iface[0].auth_server=192.168.1.5
-  uci add_list wireless.@wifi-iface[0].auth_port=1812
-  uci add_list wireless.@wifi-iface[0].auth_secret=useStrongerSecret
-  uci add_list wireless.@wifi-iface[0].dynamic_vlan=2
-  uci add_list wireless.@wifi-iface[0].vlan_file=/etc/config/hostapd.vlan
-  uci add_list wireless.@wifi-iface[0].vlan_tagged_interface=eth0
-  uci add_list wireless.@wifi-iface[0].radius_das_port=3799
-  uci add_list wireless.@wifi-iface[0].radius_das_client='192.168.1.5 useStrongerSecret'
-  uci add_list wireless.@wifi-iface[0].encryption=wpa2
-  uci add_list wireless.@wifi-iface[0].acct_server=192.168.1.5
-  uci add_list wireless.@wifi-iface[0].acct_port=1813
-  uci add_list wireless.@wifi-iface[0].acct_secret=s3cr3t
-  uci add_list wireless.@wifi-iface[0].nasid=ubiquiti
-
-Then launch 'uci commit wireless' and 'wifi' command to enable your configuration
-
-Hostapd (software)
-^^^^^^^^^^^^^^^^^^
-
-To configure Hostapd software you can use the same configuration parameters above in the configuration file.
+include::networkdevice/hostapd.asciidoc[]
 
 Meraki
 ~~~~~~
 
+To add the AP on PacketFence use the internal IP of the AP.
+
+WebAuth
++++++++
+
 In this section, we will cover the configuration of the Meraki controller to use Web authentication.
 
-CAUTION: There is currently no way to reevaluate the access of the device using PacketFence. This means that there is no real-time action when trying to isolate a device. The RADIUS reauthentication delay will determine the maximum response time of the access reevaluation.
+NOTE: While using the WebAuth mode on the Meraki controller, you need to use "Role mapping by Switch Role" and "Role by Web Auth URL" in the tab 'Roles' from the switch configuration.
 
-First create a new SSID and then edit its settings.
+Configure your SSID as shown below:
 
-Configure it as seen in the screenshot below.
+image::docs/images/Meraki-V2-1.png[scaledwidth="100%",alt="Security and RADIUS configuration"]
 
-image::docs/images/meraki-radius-config.png[scaledwidth="100%",alt="RADIUS configuration"]
+image::docs/images/Meraki-V2-2.png[scaledwidth="100%",alt="Network configuration"]
 
-NOTE: Make sure to configure your RADIUS server so it's accessible externally under a domain name or a public IP address. Replace `pf.domain.net` by what you will configure. The only port needed is 1812 in UDP. Refer to the Meraki documentation for more details.
+NOTE: It is mandatory that you use the Airespace-ACL-Name as "RADIUS attribute specifying group policy name".
 
-Next, just below, configure the options for the users access as shown in the screenshot below.
+The switch module to use for this configuration is "Meraki cloud controller V2".
 
-image::docs/images/meraki-network-config.png[scaledwidth="100%",alt="Network configuration"]
+Next, configure the roles for the devices on your network. Go in 'Network-wide->Group policies', then you will be able to create policies that can be configured as roles in the switch configuration of PacketFence. Creation of the policy `Guest`:
 
-Where 192.168.1.5 is the IP address of your PacketFence server.
+image::docs/images/Meraki-config-policy.png[scaledwidth="100%",alt="Group policies"]
 
-NOTE: Make sure you select bridge mode so your users are not NATed through your AP. If you need the devices to be on another VLAN, modify the VLAN tagging of the SSID.
+Your configuration for the tab "Roles" in PacketFence will look like the following:
 
-Next go in *Wireless->Configure->Splash page*. Select the *Custom splash URL* and configure the URL pointing to your PacketFence server.
+image::docs/images/Meraki-config-pf-role.png[scaledwidth="100%",alt="PacketFence role configuration"]
 
-image::docs/images/meraki-splash-config.png[scaledwidth="100%",alt="Splash page configuration"]
+image::docs/images/Meraki-config-pf-url.png[scaledwidth="100%",alt="PacketFence URL configuration"]
 
-NOTE: Even if you enabled the bridge mode on the access point, it will still send a NATed IP address during the initial HTTP request. To workaround this you will need to forward the DHCP traffic of the network your nodes are connected to so PacketFence has the proper IP information of the devices.
+VLAN enforcement
+++++++++++++++++
+
+This section will cover how to configure the Meraki WiFI controller to use with VLAN enforcement, use the configuration in the section `WebAuth` for the SSID.
+
+In the configuration of PacketFence, use "Role by VLAN ID" and fill your VLANs matching roles.
+
+image::docs/images/Meraki-vlan-pf.png[scaledwidth="100%",alt="PacketFence role configuration"]
+
+Switch MS220-8
+++++++++++++++
+
+NOTE: You should already have one port setup as Uplink, using a mode trunk, with at least your Registration and Production VLAN allowed on it.
+
+The Meraki switch offer configuration for VLAN enforcement only.
+
+You will need to access the Meraki dashboard to configure your switch. When you reach it you will need first to create a policy. You can create a "MAC authentication bypass" or a "802.1X" policy. Depending if you want to authenticate user via dot1x or MAB. You cannot combine both neither use a fallback mode on the same port, each port with a policy applied will be exclusive to MAB or dot1x.
+
+To access the policy creation go to 'Switch->Access policies' in the Meraki dashboard menu. From there create a new policy, use the example below to create your policy.
+
+image::docs/images/Meraki-switch-policies.png[scaledwidth="100%",alt="Access policies"]
+
+You now need to apply one of your policies to ports. To do so, go to 'Switch->Switch ports' and chose your options. To add a policy you created earlier, select it in the drop down list in `Access policy`. You need to configure the port in "mode access", the default access VLAN is not important if your VLANs are properly configured on PacketFence.
+
+image::docs/images/Meraki-switch-port.png[scaledwidth="100%",alt="Switch Ports"]
+
+RADSEC
+++++++
+
+It is possible to use RADSEC between Meraki and PacketFence in order to perform RADIUS over TCP and encrypted using TLS. Before performing the steps outlined in this section, make sure you have a working SSID using normal unencrypted RADIUS by following the steps in the sections above
+
+Then, in order to enable RADSEC, go in your SSID configuration and under 'RADIUS proxy', select 'Use Meraki proxy' and save the settings.
+
+After saving, check the RADSEC checkbox and save your settings.
+
+Now, on your PacketFence server, you must add the Meraki CA root to the trusted Certificate Authorities of FreeRADIUS when performing RADSEC. You should download the Meraki CA certificate from here http://changeme.com/meraki-root.crt and append it to the content of /usr/local/pf/raddb/certs/ca.pem on your PacketFence server.
+
+Next, restart radiusd to reload the CA certificates using:
+
+  # /usr/local/pf/bin/pfcmd service radiusd restart
+
+NOTE: RADSEC is done over port 2083 so make sure your server is available via a public IP address for this port and allows connections from your Meraki cloud controller. Refer to the Meraki documentation for details.
 
 Mikrotik
 ~~~~~~~~
@@ -4307,6 +5110,112 @@ Configure your access point with the following configuration:
   add address=192.168.1.5 secret=useStrongerSecret service=wireless
   /radius incoming
   set accept=yes
+
+Webauth
++++++++
+
+You can use webauth (external captive portal) on Mikrotik APs. In order to do so, you will have to activate the hotspot feature in the AP configuration as well as modify the redirection template so that it points to PacketFence.
+
+First, you must establish an FTP connection to your access point and replace the content of `hotspot/login.html` with the following:
+
+  <html>
+  <head><title>...</title></head>
+  <body>
+  $(if chap-id)
+  <noscript>
+  <center><b>JavaScript required. Enable JavaScript to continue.</b></center>
+  </noscript>
+  $(endif)
+  <center>If you are not redirected in a few seconds, click 'continue' below<br>
+  <form name="redirect" action="http://192.168.1.5/Mikrotik" method="get">
+    <input type="hidden" name="mac" value="$(mac)">
+    <input type="hidden" name="ip" value="$(ip)">
+    <input type="hidden" name="username" value="$(username)">
+    <input type="hidden" name="link-login" value="$(link-login)">
+    <input type="hidden" name="link-orig" value="$(link-orig)">
+    <input type="hidden" name="error" value="$(error)">
+    <input type="hidden" name="chap-id" value="$(chap-id)">
+    <input type="hidden" name="chap-challenge" value="$(chap-challenge)">
+    <input type="hidden" name="link-login-only" value="$(link-login-only)">
+    <input type="hidden" name="link-orig-esc" value="$(link-orig-esc)">
+    <input type="hidden" name="mac-esc" value="$(mac-esc)">
+    <input type="hidden" name="ap-id" value="AP_IP_ADDRESS_HERE">
+    <input type="submit" value="continue">
+  </form>
+  <script language="JavaScript">
+  <!--
+     document.redirect.submit();
+  //-->
+  </script></center>
+  </body>
+  </html>
+
+Next, in the `login.html` you have just uploaded, make sure you change `AP_IP_ADDRESS_HERE` by the management IP address of your access point and `192.168.1.5` by the IP address of your PacketFence captive portal.
+
+Now, you must configure the hotspot feature on your AP. This configuration is done on top of an existing SSID you have previously configured which is on interface `wlan1`. Adjust the interface name if needed.
+
+  /ip hotspot
+  setup
+
+  hotspot interface: wlan1
+
+  local address of network: 10.5.50.1/24
+  masquerade network: yes
+  
+Set pool for HotSpot addresses 
+
+  address pool of network: 10.5.50.2-10.5.50.254
+
+Select hotspot SSL certificate 
+
+  select certificate: none
+
+Select SMTP server 
+
+  ip address of smtp server: 0.0.0.0
+  
+Setup DNS configuration 
+
+  dns servers: 8.8.8.8
+  
+DNS name of local hotspot server 
+
+  dns name: myhotspot
+  
+Create local hotspot user 
+
+  name of local hotspot user: admin
+  password for the user: 
+
+
+Next, you need to allow access to the PacketFence portal in the hotspot access list. Change `192.168.1.5` with the IP address you pointed to in `login.html`
+
+  /ip hotspot walled-garden
+  add dst-host=192.168.1.5
+  add src-address=192.168.1.5
+
+  /ip hotspot walled-garden ip
+  add action=accept disabled=no dst-host=192.168.1.5
+  add action=accept disabled=no src-address=192.168.1.5
+
+Now, you will also need to configure the hotspot to point to your PacketFence RADIUS server:
+
+  /radius
+  add address=192.168.1.5 secret=useStrongerSecret service=hotspot
+
+  /ip hotspot profile
+  add hotspot-address=10.5.50.1 name=hsprof1 use-radius=yes
+
+Next, you need to configure PacketFence to use webauth for this Access Point using the following `switches.conf` configuration. Change `AP_IP_ADDRESS_HERE` by the IP address you've put in login.html.
+
+  [AP_IP_ADDRESS_HERE]
+  VlanMap=Y
+  RoleMap=N
+  mode=production
+  ExternalPortalEnforcement=Y
+  type=Mikrotik
+  radiusSecret=useStrongerSecret
+  registrationVlan=-1
 
 HP
 ~~
@@ -4457,7 +5366,7 @@ Under *Configuration -> Wireless -> ESS*, select the SSID you want to add to you
 Roles (Per-User Firewall)
 +++++++++++++++++++++++++
 
-Since PacketFence 3.3.0, we now support roles (per-user firwall rules) for the Meru hardware.  To add firewall rules, go in *Configuration -> QoS System Settings -> QoS and Firewall Rules*.  When you add a rule, you have to pay attention to two things:
+Since PacketFence 3.3.0, we now support roles (per-user firewall rules) for the Meru hardware.  To add firewall rules, go in *Configuration -> QoS System Settings -> QoS and Firewall Rules*.  When you add a rule, you have to pay attention to two things:
 
 * The rule is applied to the controller physical interface right away, so make sure you are not too wide on your ACL to lock you out!
 * The rules are grouped using the Firewall Filter ID (We will use this ID for the roles)
@@ -4467,6 +5376,82 @@ So, since the matching is done using the Firewall Filter ID configuration field,
    roles=Guests=1;Staff=2
 
 NOTE: You need to have the *Per-User Firewall* license in order to benefit this feature.
+
+Mojo Networks
+~~~~~~~~~~~~~
+
+PacketFence supports only SSIDs configured with 802.1X.
+
+Configure the 802.1X Secure SSID:
++++++++++++++++++++++++++++++++++
+* Login to the https://dashboard.mojonetworks.com
+* Create the 802.1X SSID:
+* Go to *Services -> Mojo Wireless Manager*
+* Then click on *Configuration -> Device Configuration -> SSID Profiles -> Add a new Profile -> WLAN* 
+
+NOTE: (Leave the default configuration for the other settings)
+
+   Profile Name: PF-Secure-802.1X
+   SSID: PF-Secure
+   Security: WPA2; 802.1X
+   NAS ID: %m-%s
+   Dynamic VLANs: Enable VLAN Pool 1,2,4,5 (All VLANs that you will use)
+   Called-Station-ID: %m-%s
+   COA: Checked
+
+RADIUS Authentication:
+
+   Primary Authentication Server:
+   Server IP: 192.168.1.5
+   Port Number: 1812
+   Shared Secret: useStrongerSecret
+
+RADIUS Accounting Server Details
+
+   Primary Authentication Server:
+   Server IP: 192.168.1.5
+   Port Number: 1813
+   Shared Secret: useStrongerSecret
+
+Click the 'Save' button to save the PF-Secure SSID configuration.
+
+Broadcast the SSID on the Access Point:
++++++++++++++++++++++++++++++++++++++++
+* Go to *Configuration -> Device Template -> System Template* 
+* Then *Radio Settings -> Define settings for model -> Chose your AP model*
+* Finally *Radio 1 - 2x2 b/g/n Configuration -> Add SSID Profile -> Select your SSID profile previously created -> Ok*
+
+Click the 'Save' button to broadcast the PF-Secure SSID.
+
+Configure the Mojo Networks AP in PacketFence:
+++++++++++++++++++++++++++++++++++++++++++++++
+
+Add a Switch with the IP address of the Access Point (AP) with the following configuration:
+
+* Go to *Configuration -> Network -> Switches -> Add switch to group -> Default*
+
+   Definition:
+    IP Address/MAC Address/Range (CIDR): Local IP of the AP
+    Description: Mojo Networks Access Point
+    Type: Mojo Networks AP
+    Mode: Production
+    Switch Group: None
+    Deauthentication Method: RADIUS
+    Use CoA: Checked
+   
+   Roles:
+    Role by VLAN ID: Checked
+    registration: 2
+    isolation: 3
+    guest: 5
+    default: 1
+
+   NOTE: Role by VLAN ID remain the only category checked.
+
+   Radius:
+    Secret Passphrase: useStrongerSecret
+
+Click the 'Save' button to save the AP configuration.
 
 Motorola
 ~~~~~~~~
@@ -4563,7 +5548,7 @@ Roles (Per-User Firewall)
 
 Since PacketFence 3.3.0, we now support roles for the Motorola hardware using WiNGS 5.x.  To add roles, go in *Configuration -> Security -> Wireless Client Roles*.  First create a global policy that
 will contain your roles.  Next, create your Roles by clicking on the *Add* button on the bottom right.  It is important to configure the Group Configuration line properly by setting the string
-name that we will use in the RADIUS packet.  For exemple, for a Guests Role, you can put *Group Configuration Exact Guests*, and for a Staff Roles, you can put *Group Configuration Exact Staff*. 
+name that we will use in the RADIUS packet.  For example, for a Guests Role, you can put *Group Configuration Exact Guests*, and for a Staff Roles, you can put *Group Configuration Exact Staff*. 
 In the roles configuration in switches.conf, you would have something like :
 
    roles=CategoryGuests=Guests;CategoryStaff=Staff
@@ -4673,7 +5658,7 @@ Under *Configuration -> AAA Servers*, click on the *Create New* button.  Enter t
 * Enter a server name
 * Select either RADIUS or RADIUS accounting as the type
 * Use PAP as the Auth Method
-* Enter the IP addres, and shared secret.
+* Enter the IP address, and shared secret.
 * Hit OK
 
 Repeat the steps for the RADIUS and RADIUS accounting types.  We need 1 definition for each otherwise RADIUS dynamic authorization won't work.
@@ -4725,7 +5710,7 @@ Next, you need to configure the Alarm Settings.  Under *Configure > Alarm Settin
 
 Finally, enable the WIPS feature on the controller.  Under *Configure > WIPS > Intrusion Detection and Prevention*, make sure both box are selected, click Apply. 
 
-Web authentication
+Web Authentication
 ^^^^^^^^^^^^^^^^^^
 
 In order to use PacketFence as an external captive portal for web authentication, you will need to configure first your RADIUS authentication and accounting server (see steps above).
@@ -4736,10 +5721,10 @@ Hotspot configuration
 
 Configure the Hotspot service profile to redirect devices to your PacketFence portal. Go on the ZoneDirector administration web page to the section *Configure->Hotspot Services->Create New*
 
-image::docs/images/ruckus_hotspot_service.png[scaledwidth="100%",alt="Hotsport Service"]
+image::docs/images/ruckus_hotspot_service.png[scaledwidth="100%",alt="Hotspot Service"]
 
  1 - Name of your Hotspot service
- 2 - Login Page: Url of PacketFence portal interface (http://192.168.1.5)
+ 2 - Login Page: Url of PacketFence portal interface (http://192.168.1.5/Ruckus)
  3 - Start Page: redirect to the following URL: http://192.168.1.5
  4 - Authentication Server: Select the PacketFence authentication RADIUS server (default port 1812)
  5 - Accounting Server: Select the PacketFence accounting RADIUS server (default 1813)
@@ -4753,7 +5738,7 @@ WLAN configuration
 
 Go to *Configure->WLANs->WLANs->Create New*
 
-image::docs/images/ruckus_create_ssid.png[scaledwidth="100%",alt="Hotsport Service"]
+image::docs/images/ruckus_create_ssid.png[scaledwidth="100%",alt="Hotspot Service"]
 
  1 - Name of your SSID
  2 - Type: Hotspot Service (WISPr)
@@ -4768,7 +5753,7 @@ Save your configuration.
 PacketFence configuration
 +++++++++++++++++++++++++
 
-On the ZoneDirector configuration in PacketFence, you will need to specify -1 as the registration vlan in order to display the captive portal to the end device. 
+On the ZoneDirector configuration in PacketFence, you will need to specify -1 as the registration VLAN in order to display the captive portal to the end device. 
 
 You will need to deactivate the force secure redirect on the captive portal under *Configuration->Captive Portal->Secure redirect->Unchecked*
 
@@ -4783,6 +5768,55 @@ Example:
  mask=255.255.255.0
 
 To apply the configuration, restart PacketFence using the following command: service packetfence restart
+
+Ruckus SmartZone
+~~~~~~~~~~~~~~~~
+
+Webauth
++++++++
+
+SmartZone configuration
+^^^^^^^^^^^^^^^^^^^^^^^
+
+First, you will need to define your RADIUS server in 'Configuration->Service and Profiles->Authentication'.
+
+Create your server using the following information (where 192.168.1.5 is the IP address of your PacketFence management interface):
+
+* 'IP Address:' 192.168.1.5
+* 'Port': 1812
+* 'Secret': useStrongerSecret
+
+Then, in 'Configuration->Service and Profiles->Accounting', create a server with the following information:
+
+* 'IP Address:' 192.168.1.5
+* 'Port': 1813
+* 'Secret': useStrongerSecret
+
+After, create a Hotspot in 'Configuration->AP Zones->Your Zone->Hotspot WISPr->Create New'. Adjust 192.168.1.5 to the IP address of your portal.
+
+image::docs/images/ruckus-smartzone-webauth-hotspot.png[scaledwidth="100%",alt="Ruckus SmartZone Hotspot"]
+
+Then, still on this page, in the 'Walled Gardens', make sure you add the portal IP address in this list.
+
+Next, you will need to configure your WLAN to use the Hotspot authentication and point it to PacketFence. Also ensure you set 'Use the controller as a proxy'.
+
+image::docs/images/ruckus-smartzone-webauth-ssid.png[scaledwidth="100%",alt="Ruckus SmartZone SSID"]
+
+Now, you should configure the Northbound API of the SmartZone so PacketFence can communicate with it. In order to do so, go in 'Configuration->System->Northbound Portal Interface' and set the 'Password' and save it. Keep the password closeby as it will be required for the PacketFence configuration. In this example, it will be `passwordForNorthboundAPI`.
+
+PacketFence configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In PacketFence, add a switch in 'Configuration->Switches' with the following configuration:
+
+* 'Definition->External Portal Enforcement' should be enabled
+* 'Definition->Type': `Ruckus SmartZone Wireless Controller`
+* 'Definition->Mode': `production`
+* 'Roles->Role by VLAN ID' should be enabled
+* 'Roles->registration VLAN': `-1`
+* 'Roles->Role by Switch Role' should be disabled
+* 'RADIUS->Secret passphrase': `useStrongerSecret`
+* 'Web Services->Password': `passwordForNorthboundAPI`
 
 Trapeze
 ~~~~~~~
@@ -4835,6 +5869,45 @@ Finally, we need to tie the service profiles with the proper AAA configuration.
   set authentication mac ssid PacketFence-Public * PF-RADIUS
   set authentication dot1x ssid PacketFence-Secure ** pass-through PF-RADIUS
 
+Ubiquiti
+~~~~~~~~
+
+Web authentication
+^^^^^^^^^^^^^^^^^^
+
+In order to configure web-authentication (external captive-portal) on Ubiquiti access points, you must have access to a Unifi controller and your APs must be connected to it.
+
+First, you must configure the guest policy. Go in 'Settings->Guest Control' and configure it as shown below:
+
+image::docs/images/ubiquiti-unifi-guest-policy.png[scaledwidth="100%",alt="Unifi web-auth policy"]
+
+Make sure you enabled 'Enable Guest Portal', and that you've set 'External portal server'.
+
+You also need to enter the IP address of a portal enabled interface on the PacketFence server in 'Custom Portal'. Then in the 'ACCESS CONTROL' section, add that same IP address to the 'Pre-Authorization Access'
+
+Then, still in the settings, create or edit a new SSID with the following settings:
+
+image::docs/images/ubiquiti-unifi-guest-ssid.png[scaledwidth="100%",alt="Unifi web-auth SSID"]
+
+Once this is done, you will need to define all your APs MAC addresses in the PacketFence switches with a configuration similar to this:
+
+  [00:11:22:33:44:55]
+  description=Ubiquiti AP
+  ExternalPortalEnforcement=Y
+  type=Ubiquiti::Unifi
+  controllerIp=1.2.3.4
+  wsTransport=HTTPS
+  wsUser=admin
+  wsPwd=admin
+
+Where :
+
+[options="compact"]
+* *wsTransport* is the protocol used to connect to port 8443 of the Unifi controller and should be HTTPS. This is configured in the 'Web Services' tab of the switch.
+* *wsUser* is a valid administrator username on your Unifi controller. This is configured in the 'Web Services' tab of the switch.
+* *wsPwd* is the password that is associated to the wsUser. This is configured in the 'Web Services' tab of the switch.
+* *controllerIp* is the IP address of your Unifi controller. This is configured in the 'Definition' tab of the switch.
+
 Xirrus
 ~~~~~~
 
@@ -4876,7 +5949,7 @@ External portal SSID
 * Set *Encryption / Authentication* to None / Open
 * Then check the WPR checkbox
 * Then in in the section Web Page Redirect Configuration set *Server* to External Login
-* Set the *Redirect URL* to http://192.168.1.5/Xirrus::AP_http
+* Set the *Redirect URL* to http://192.168.1.5/Xirrus
 * Set the *Redirect Secret* to any passphrase of your choice
 * In the *RADIUS Configuration* section set the RADIUS server to point to your PacketFence server
 

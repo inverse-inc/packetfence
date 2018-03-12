@@ -24,7 +24,9 @@ use Net::SNMP;
 
 use base ('pf::Switch::IBM');
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $WIRED_802_1X
+);
 use pf::Switch::constants;
 use pf::util;
 use pf::node qw(node_attributes);
@@ -95,7 +97,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

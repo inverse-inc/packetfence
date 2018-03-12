@@ -65,14 +65,19 @@ BEGIN {
         report_statics_active
         report_unknownprints_all
         report_unknownprints_active
-        report_unknownuseragents_all
-        report_unknownuseragents_active
-
+        report_topauthenticationfailures_by_mac
+        report_topauthenticationfailures_by_ssid
+        report_topauthenticationfailures_by_username
+        report_topauthenticationsuccesses_by_mac
+        report_topauthenticationsuccesses_by_ssid
+        report_topauthenticationsuccesses_by_username
+        report_topauthenticationsuccesses_by_computername
+        
         translate_connection_type
     );
 }
 
-use pf::config;
+use pf::config qw(%connection_type_explained);
 use pf::db;
 use pf::util;
 use pf::config::util;
@@ -95,26 +100,26 @@ sub report_db_prepare {
     my $logger = get_logger();
 
     $report_statements->{'report_inactive_all_sql'} = get_db_handle()->prepare(
-        qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,device_type as os from node n where n.mac not in (select i.mac from iplog i where i.end_time=0 or i.end_time > now()) ]);
+        qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,device_type as os from node n where n.mac not in (select i.mac from ip4log i where i.end_time=0 or i.end_time > now()) ]);
 
     $report_statements->{'report_active_all_sql'} = get_db_handle()->prepare(
-        qq [ select n.mac,ip,start_time,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,device_type as os from (node n,iplog i) where i.mac=n.mac and (i.end_time=0 or i.end_time > now()) ]);
+        qq [ select n.mac,ip,start_time,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,device_type as os from (node n,ip4log i) where i.mac=n.mac and (i.end_time=0 or i.end_time > now()) ]);
 
     $report_statements->{'report_unregistered_all_sql'} = get_db_handle()->prepare(
         qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,device_type as os FROM node n where n.status='unreg' ]);
 
     $report_statements->{'report_unregistered_active_sql'} = get_db_handle()->prepare(
-        qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,device_type as os FROM (node n,iplog i) where n.status='unreg' and i.mac=n.mac and (i.end_time=0 or i.end_time > now()) ]);
+        qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,device_type as os FROM (node n,ip4log i) where n.status='unreg' and i.mac=n.mac and (i.end_time=0 or i.end_time > now()) ]);
 
     $report_statements->{'report_registered_all_sql'} = get_db_handle()->prepare(
         qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,device_type as os FROM node n where n.status='reg' ]);
 
     $report_statements->{'report_registered_active_sql'} = get_db_handle()->prepare(
-        qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,device_type as os FROM (node n,iplog i) where n.status='reg' and i.mac=n.mac and (i.end_time=0 or i.end_time > now()) ]);
+        qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,device_type as os FROM (node n,ip4log i) where n.status='reg' and i.mac=n.mac and (i.end_time=0 or i.end_time > now()) ]);
 
     $report_statements->{'report_os_sql'} = get_db_handle()->prepare(qq[
         SELECT device_type as description, n.dhcp_fingerprint, COUNT(DISTINCT n.mac) AS count, ROUND(COUNT(DISTINCT n.mac)/(SELECT COUNT(*) FROM node)*100,1) AS percent
-        FROM (node n, iplog i)
+        FROM (node n, ip4log i)
         WHERE n.mac = i.mac AND i.start_time BETWEEN ? AND ?
         GROUP BY device_type
         ORDER BY percent desc
@@ -122,7 +127,7 @@ sub report_db_prepare {
 
     $report_statements->{'report_os_active_sql'} = get_db_handle()->prepare(qq[
         SELECT device_type as description, n.dhcp_fingerprint, count(*) as count, ROUND(COUNT(*)/(SELECT COUNT(*) FROM node)*100,1) AS percent
-        FROM (node n, iplog i)
+        FROM (node n, ip4log i)
         WHERE n.mac = i.mac AND (i.end_time = 0 or i.end_time > now())
         GROUP BY device_type
         ORDER BY percent desc
@@ -139,50 +144,34 @@ sub report_db_prepare {
         qq [ select device_class as description,count(*) as count,ROUND(COUNT(*)/(SELECT COUNT(*) FROM node)*100,1) as percent from node n group by device_class order by percent desc ]);
 
     $report_statements->{'report_osclass_active_sql'} = get_db_handle()->prepare(
-        qq [ select device_class as description,count(*) as count,ROUND(COUNT(*)/(SELECT COUNT(*) FROM node,iplog where node.mac=iplog.mac and (iplog.end_time=0 or iplog.end_time > now()))*100,1) as percent from (node n,iplog i) where n.mac=i.mac and (i.end_time=0 or i.end_time > now()) group by device_class order by percent desc ]);
+        qq [ select device_class as description,count(*) as count,ROUND(COUNT(*)/(SELECT COUNT(*) FROM node,ip4log where node.mac=ip4log.mac and (ip4log.end_time=0 or ip4log.end_time > now()))*100,1) as percent from (node n,ip4log i) where n.mac=i.mac and (i.end_time=0 or i.end_time > now()) group by device_class order by percent desc ]);
 
     $report_statements->{'report_unknownprints_all_sql'} = get_db_handle()->prepare(
         qq [SELECT mac,dhcp_fingerprint,computername,user_agent FROM node WHERE device_type IS NULL and dhcp_fingerprint!=0 ORDER BY dhcp_fingerprint, mac ]);
 
     $report_statements->{'report_unknownprints_active_sql'} = get_db_handle()->prepare(
-        qq [SELECT node.mac,dhcp_fingerprint,computername,user_agent FROM node,iplog WHERE device_type IS NULL and dhcp_fingerprint!=0 and node.mac=iplog.mac and (iplog.end_time=0 or iplog.end_time > now()) ORDER BY dhcp_fingerprint, mac]);
+        qq [SELECT node.mac,dhcp_fingerprint,computername,user_agent FROM node,ip4log WHERE device_type IS NULL and dhcp_fingerprint!=0 and node.mac=ip4log.mac and (ip4log.end_time=0 or ip4log.end_time > now()) ORDER BY dhcp_fingerprint, mac]);
 
     $report_statements->{'report_statics_sql'} = get_db_handle()->prepare(qq[
         SELECT *
-        FROM node, iplog
-        WHERE (dhcp_fingerprint = "" OR dhcp_fingerprint IS NULL) AND node.mac = iplog.mac AND iplog.end_time BETWEEN ? AND ?
+        FROM node, ip4log
+        WHERE (dhcp_fingerprint = "" OR dhcp_fingerprint IS NULL) AND node.mac = ip4log.mac AND ip4log.end_time BETWEEN ? AND ?
     ]);
 
     $report_statements->{'report_statics_all_sql'} = get_db_handle()->prepare(
         qq [SELECT * FROM node WHERE dhcp_fingerprint="" OR dhcp_fingerprint IS NULL]);
 
     $report_statements->{'report_statics_active_sql'} = get_db_handle()->prepare(
-        qq [SELECT * FROM node,iplog WHERE (dhcp_fingerprint="" OR dhcp_fingerprint IS NULL) AND node.mac=iplog.mac and (iplog.end_time=0 or iplog.end_time > now()) ]);
+        qq [SELECT * FROM node,ip4log WHERE (dhcp_fingerprint="" OR dhcp_fingerprint IS NULL) AND node.mac=ip4log.mac and (ip4log.end_time=0 or ip4log.end_time > now()) ]);
 
     $report_statements->{'report_openviolations_all_sql'} = get_db_handle()->prepare(
         qq [SELECT n.pid as owner, n.mac as mac, v.status as status, v.start_date as start_date, c.description as violation from violation v LEFT JOIN node n ON v.mac=n.mac LEFT JOIN class c on c.vid=v.vid WHERE v.status="open" order by n.pid ]);
 
     $report_statements->{'report_openviolations_active_sql'} = get_db_handle()->prepare(
-        qq [SELECT n.pid as owner, n.mac as mac, v.status as status, v.start_date as start_date, c.description as violation from (violation v, iplog i) LEFT JOIN node n ON v.mac=n.mac LEFT JOIN class c on c.vid=v.vid WHERE v.status="open" and n.mac=i.mac and (i.end_time=0 or i.end_time > now()) order by n.pid ]);
-
-    $report_statements->{'report_unknownuseragents_all_sql'} = get_db_handle()->prepare(qq[
-        SELECT n.user_agent, nu.browser, nu.os, n.computername, device_type as description, n.dhcp_fingerprint
-        FROM node as n
-            JOIN node_useragent AS nu USING (mac)
-        WHERE (nu.browser IS NULL OR nu.os IS NULL) AND n.user_agent != ''
-    ]);
-
-    $report_statements->{'report_unknownuseragents_active_sql'} = get_db_handle()->prepare(qq[
-        SELECT n.user_agent, nu.browser, nu.os, n.computername, device_type as description, n.dhcp_fingerprint
-        FROM node as n
-            JOIN node_useragent AS nu USING (mac)
-            LEFT JOIN iplog USING (mac)
-        WHERE (nu.browser IS NULL OR nu.os IS NULL) AND n.user_agent != ''
-            AND (iplog.end_time=0 OR iplog.end_time > now())
-    ]);
+        qq [SELECT n.pid as owner, n.mac as mac, v.status as status, v.start_date as start_date, c.description as violation from (violation v, ip4log i) LEFT JOIN node n ON v.mac=n.mac LEFT JOIN class c on c.vid=v.vid WHERE v.status="open" and n.mac=i.mac and (i.end_time=0 or i.end_time > now()) order by n.pid ]);
 
     $report_statements->{'report_connectiontype_sql'} = get_db_handle()->prepare(qq[
-        SELECT connection_type, COUNT(DISTINCT mac) AS connections,
+        SELECT connection_type, connection_type as connection_type_orig, COUNT(DISTINCT mac) AS connections,
             ROUND(COUNT(DISTINCT mac)/
                 (SELECT COUNT(DISTINCT mac)
                     FROM locationlog
@@ -211,12 +200,12 @@ sub report_db_prepare {
         SELECT connection_type,count(*) as connections,
             ROUND(COUNT(*)/
                 (SELECT COUNT(*) FROM locationlog INNER JOIN node ON node.mac=locationlog.mac
-                    INNER JOIN iplog ON node.mac=iplog.mac
-                    WHERE iplog.end_time = 0 OR iplog.end_time > now() AND locationlog.end_time = 0
+                    INNER JOIN ip4log ON node.mac=ip4log.mac
+                    WHERE ip4log.end_time = 0 OR ip4log.end_time > now() AND locationlog.end_time = 0
                 )*100,1
             ) AS percent
-        FROM locationlog INNER JOIN node ON node.mac=locationlog.mac INNER JOIN iplog ON node.mac=iplog.mac
-        WHERE iplog.end_time = 0 OR iplog.end_time > now() AND locationlog.end_time = 0
+        FROM locationlog INNER JOIN node ON node.mac=locationlog.mac INNER JOIN ip4log ON node.mac=ip4log.mac
+        WHERE ip4log.end_time = 0 OR ip4log.end_time > now() AND locationlog.end_time = 0
         GROUP BY connection_type
     ]);
 
@@ -236,13 +225,13 @@ sub report_db_prepare {
         SELECT connection_type, count(*) as connections,
             ROUND( COUNT(*) /
                 (SELECT COUNT(*) FROM locationlog
-                    INNER JOIN node ON node.mac=locationlog.mac INNER JOIN iplog ON node.mac=iplog.mac
-                    WHERE node.status = "reg" AND (iplog.end_time =0 OR iplog.end_time > now())
+                    INNER JOIN node ON node.mac=locationlog.mac INNER JOIN ip4log ON node.mac=ip4log.mac
+                    WHERE node.status = "reg" AND (ip4log.end_time =0 OR ip4log.end_time > now())
                         AND locationlog.end_time = 0
                 )*100,1
             ) AS percent
-        FROM locationlog INNER JOIN node ON node.mac=locationlog.mac INNER JOIN iplog ON node.mac=iplog.mac
-        WHERE node.status = "reg" AND (iplog.end_time = 0 OR iplog.end_time > now()) AND locationlog.end_time = 0
+        FROM locationlog INNER JOIN node ON node.mac=locationlog.mac INNER JOIN ip4log ON node.mac=ip4log.mac
+        WHERE node.status = "reg" AND (ip4log.end_time = 0 OR ip4log.end_time > now()) AND locationlog.end_time = 0
         GROUP BY connection_type
     ]);
 
@@ -251,13 +240,13 @@ sub report_db_prepare {
            (SELECT COUNT(DISTINCT locationlog.mac)
                 FROM locationlog
                     INNER JOIN node ON node.mac = locationlog.mac AND locationlog.end_time = 0
-                    INNER JOIN iplog ON node.mac = iplog.mac
-                WHERE ssid != "" AND iplog.start_time BETWEEN ? AND ?
+                    INNER JOIN ip4log ON node.mac = ip4log.mac
+                WHERE ssid != "" AND ip4log.start_time BETWEEN ? AND ?
            )*100,1) AS percent
        FROM locationlog
            INNER JOIN node ON node.mac = locationlog.mac AND locationlog.end_time = 0
-           INNER JOIN iplog ON node.mac = iplog.mac
-       WHERE ssid != "" AND iplog.end_time BETWEEN ? AND ?
+           INNER JOIN ip4log ON node.mac = ip4log.mac
+       WHERE ssid != "" AND ip4log.end_time BETWEEN ? AND ?
        GROUP BY ssid
        ORDER BY nodes
     ]);
@@ -281,13 +270,13 @@ sub report_db_prepare {
            (SELECT COUNT(*)
                 FROM locationlog
                     INNER JOIN node ON node.mac=locationlog.mac AND locationlog.end_time = 0
-                    INNER JOIN iplog ON node.mac=iplog.mac
-                WHERE ssid != "" AND (iplog.end_time=0 OR iplog.end_time > now())
+                    INNER JOIN ip4log ON node.mac=ip4log.mac
+                WHERE ssid != "" AND (ip4log.end_time=0 OR ip4log.end_time > now())
            )*100,1) as percent
        FROM locationlog
            INNER JOIN node ON node.mac=locationlog.mac AND locationlog.end_time = 0
-           INNER JOIN iplog ON node.mac=iplog.mac
-       WHERE ssid != "" AND (iplog.end_time=0 OR iplog.end_time > now())
+           INNER JOIN ip4log ON node.mac=ip4log.mac
+       WHERE ssid != "" AND (ip4log.end_time=0 OR ip4log.end_time > now())
        GROUP BY ssid
        ORDER BY nodes
     ]);
@@ -298,27 +287,14 @@ sub report_db_prepare {
             ROUND(
                 SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)/(
                     SELECT SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)
-                    FROM radacct_log RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
-                    INNER JOIN node n ON n.mac = LOWER(CONCAT(
-                        SUBSTRING(radacct.callingstationid,1,2),':',
-                        SUBSTRING(radacct.callingstationid,3,2),':',
-                        SUBSTRING(radacct.callingstationid,5,2),':',
-                        SUBSTRING(radacct.callingstationid,7,2),':',
-                        SUBSTRING(radacct.callingstationid,9,2),':',
-                        SUBSTRING(radacct.callingstationid,11,2)))
+                    FROM radacct_log RIGHT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
+                    INNER JOIN node n ON n.mac = radacct.callingstationid
                     WHERE timestamp BETWEEN ? AND ?
                 )*100,1
             ) AS percent
         FROM radacct_log
-            INNER JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
-            INNER JOIN node n ON n.mac = LOWER(CONCAT(
-                SUBSTRING(radacct.callingstationid,1,2),':',
-                SUBSTRING(radacct.callingstationid,3,2),':',
-                SUBSTRING(radacct.callingstationid,5,2),':',
-                SUBSTRING(radacct.callingstationid,7,2),':',
-                SUBSTRING(radacct.callingstationid,9,2),':',
-                SUBSTRING(radacct.callingstationid,11,2))
-            )
+            INNER JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
+            INNER JOIN node n ON n.mac = radacct.callingstationid
         WHERE timestamp BETWEEN ? AND ?
         GROUP BY device_class
         ORDER BY percent DESC;
@@ -330,26 +306,13 @@ sub report_db_prepare {
             ROUND(
                 SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)/(
                     SELECT SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)
-                    FROM radacct_log RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
-                    INNER JOIN node n ON n.mac = LOWER(CONCAT(
-                        SUBSTRING(radacct.callingstationid,1,2),':',
-                        SUBSTRING(radacct.callingstationid,3,2),':',
-                        SUBSTRING(radacct.callingstationid,5,2),':',
-                        SUBSTRING(radacct.callingstationid,7,2),':',
-                        SUBSTRING(radacct.callingstationid,9,2),':',
-                        SUBSTRING(radacct.callingstationid,11,2)))
+                    FROM radacct_log RIGHT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
+                    INNER JOIN node n ON n.mac = radacct.callingstationid
                 )*100,1
             ) AS percent
         FROM radacct_log
-            INNER JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
-            INNER JOIN node n ON n.mac = LOWER(CONCAT(
-                SUBSTRING(radacct.callingstationid,1,2),':',
-                SUBSTRING(radacct.callingstationid,3,2),':',
-                SUBSTRING(radacct.callingstationid,5,2),':',
-                SUBSTRING(radacct.callingstationid,7,2),':',
-                SUBSTRING(radacct.callingstationid,9,2),':',
-                SUBSTRING(radacct.callingstationid,11,2))
-            )
+            INNER JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
+            INNER JOIN node n ON n.mac = radacct.callingstationid
         GROUP BY device_class
         ORDER BY percent DESC;
     ]);
@@ -360,46 +323,26 @@ sub report_db_prepare {
             ROUND(
                 SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)/(
                     SELECT SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)
-                    FROM radacct_log RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
-                    INNER JOIN node n ON n.mac = LOWER(CONCAT(
-                        SUBSTRING(radacct.callingstationid,1,2),':',
-                        SUBSTRING(radacct.callingstationid,3,2),':',
-                        SUBSTRING(radacct.callingstationid,5,2),':',
-                        SUBSTRING(radacct.callingstationid,7,2),':',
-                        SUBSTRING(radacct.callingstationid,9,2),':',
-                        SUBSTRING(radacct.callingstationid,11,2)))
+                    FROM radacct_log RIGHT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
+                    INNER JOIN node n ON n.mac = radacct.callingstationid
                     WHERE timestamp >= DATE_SUB(NOW(),INTERVAL ? SECOND)
                 )*100,1
             ) AS percent
         FROM radacct_log
-            INNER JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
-            INNER JOIN node n ON n.mac = LOWER(CONCAT(
-                SUBSTRING(radacct.callingstationid,1,2),':',
-                SUBSTRING(radacct.callingstationid,3,2),':',
-                SUBSTRING(radacct.callingstationid,5,2),':',
-                SUBSTRING(radacct.callingstationid,7,2),':',
-                SUBSTRING(radacct.callingstationid,9,2),':',
-                SUBSTRING(radacct.callingstationid,11,2))
-            )
+            INNER JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
+            INNER JOIN node n ON n.mac = radacct.callingstationid
         WHERE timestamp >= DATE_SUB(NOW(),INTERVAL ? SECOND)
         GROUP BY device_class
         ORDER BY percent DESC;
     ]);
 
     $report_statements->{'report_nodebandwidth_sql'} = get_db_handle()->prepare(qq [
-        SELECT LOWER(CONCAT(
-                SUBSTRING(radacct.callingstationid,1,2),':',
-                SUBSTRING(radacct.callingstationid,3,2),':',
-                SUBSTRING(radacct.callingstationid,5,2),':',
-                SUBSTRING(radacct.callingstationid,7,2),':',
-                SUBSTRING(radacct.callingstationid,9,2),':',
-                SUBSTRING(radacct.callingstationid,11,2)
-            )) as callingstationid,
+        SELECT radacct.callingstationid as callingstationid,
             SUM(radacct_log.acctinputoctets) AS acctinputoctets,
             SUM(radacct_log.acctoutputoctets) AS acctoutputoctets,
             SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotaloctets
         FROM radacct_log
-        LEFT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        LEFT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
         WHERE radacct_log.timestamp BETWEEN ? AND ?
         GROUP BY radacct.callingstationid
         HAVING radacct.callingstationid IS NOT NULL
@@ -408,19 +351,12 @@ sub report_db_prepare {
     ]);
 
     $report_statements->{'report_nodebandwidth_all_sql'} = get_db_handle()->prepare(qq [
-        SELECT LOWER(CONCAT(
-                SUBSTRING(radacct.callingstationid,1,2),':',
-                SUBSTRING(radacct.callingstationid,3,2),':',
-                SUBSTRING(radacct.callingstationid,5,2),':',
-                SUBSTRING(radacct.callingstationid,7,2),':',
-                SUBSTRING(radacct.callingstationid,9,2),':',
-                SUBSTRING(radacct.callingstationid,11,2)
-            )) as callingstationid,
+        SELECT radacct.callingstationid as callingstationid,
             SUM(radacct_log.acctinputoctets) AS acctinputoctets,
             SUM(radacct_log.acctoutputoctets) AS acctoutputoctets,
             SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotaloctets
         FROM radacct_log
-        LEFT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        LEFT JOIN radacct ON radacct_log.acctuniqueid = radacct.acctuniqueid
         GROUP BY radacct.callingstationid
         HAVING radacct.callingstationid IS NOT NULL
         ORDER BY accttotaloctets DESC
@@ -430,6 +366,153 @@ sub report_db_prepare {
     $report_statements->{'report_topsponsor_sql'} = get_db_handle()->prepare(qq [
         SELECT email,count(*) as sponsor
         FROM email_activation limit 25;
+    ]);
+
+    $report_statements->{'report_topauthenticationfailures_by_mac_sql'} = get_db_handle()->prepare(qq[
+        SELECT
+            `mac`, 
+            COUNT(1) AS `count`, 
+            SUM(100) / `total` AS `percent`
+        FROM `radius_audit_log`
+        CROSS JOIN (
+                SELECT 
+                    COUNT(1) AS `total` 
+                FROM `radius_audit_log` 
+                WHERE `auth_status`='Reject'
+                    AND `created_at` BETWEEN ? AND ?
+            ) `x`
+        WHERE `auth_status`='Reject'
+            AND `created_at` BETWEEN ? AND ?
+            AND `mac` IS NOT NULL
+        GROUP BY 1
+        ORDER BY `percent` DESC
+        LIMIT 25;
+    ]);
+
+    $report_statements->{'report_topauthenticationfailures_by_ssid_sql'} = get_db_handle()->prepare(qq[
+        SELECT
+            `ssid`, 
+            COUNT(1) AS `count`, 
+            SUM(100) / `total` AS `percent`
+        FROM `radius_audit_log`
+        CROSS JOIN (
+                SELECT 
+                    COUNT(1) AS `total` 
+                FROM `radius_audit_log` 
+                WHERE `auth_status`='Reject'
+                    AND `created_at` BETWEEN ? AND ?
+            ) `x`
+        WHERE `auth_status`='Reject'
+            AND `created_at` BETWEEN ? AND ?
+            AND `ssid` IS NOT NULL
+        GROUP BY 1
+        ORDER BY `percent` DESC
+        LIMIT 25;
+    ]);
+
+    $report_statements->{'report_topauthenticationfailures_by_username_sql'} = get_db_handle()->prepare(qq[
+        SELECT
+            `user_name`, 
+            COUNT(1) AS `count`, 
+            SUM(100) / `total` AS `percent`
+        FROM `radius_audit_log`
+        CROSS JOIN (
+                SELECT 
+                    COUNT(1) AS `total` 
+                FROM `radius_audit_log` 
+                WHERE `auth_status`='Reject'
+                    AND `created_at` BETWEEN ? AND ?
+            ) `x`
+        WHERE `auth_status`='Reject'
+            AND `created_at` BETWEEN ? AND ?
+            AND `user_name` IS NOT NULL
+        GROUP BY 1
+        ORDER BY `percent` DESC
+        LIMIT 25;
+    ]);
+
+    $report_statements->{'report_topauthenticationsuccesses_by_mac_sql'} = get_db_handle()->prepare(qq[
+        SELECT
+            `mac`, 
+            COUNT(1) AS `count`, 
+            SUM(100) / `total` AS `percent`
+        FROM `radius_audit_log`
+        CROSS JOIN (
+                SELECT 
+                    COUNT(1) AS `total` 
+                FROM `radius_audit_log` 
+                WHERE `auth_status`='Accept'
+                    AND `created_at` BETWEEN ? AND ?
+            ) `x`
+        WHERE `auth_status`='Accept'
+            AND `created_at` BETWEEN ? AND ?
+            AND `mac` IS NOT NULL
+        GROUP BY 1
+        ORDER BY `percent` DESC
+        LIMIT 25;
+    ]);
+
+    $report_statements->{'report_topauthenticationsuccesses_by_ssid_sql'} = get_db_handle()->prepare(qq[
+        SELECT
+            `ssid`, 
+            COUNT(1) AS `count`, 
+            SUM(100) / `total` AS `percent`
+        FROM `radius_audit_log`
+        CROSS JOIN (
+                SELECT 
+                    COUNT(1) AS `total` 
+                FROM `radius_audit_log` 
+                WHERE `auth_status`='Accept'
+                    AND `created_at` BETWEEN ? AND ?
+            ) `x`
+        WHERE `auth_status`='Accept'
+            AND `created_at` BETWEEN ? AND ?
+            AND `ssid` IS NOT NULL
+        GROUP BY 1
+        ORDER BY `percent` DESC
+        LIMIT 25;
+    ]);
+
+    $report_statements->{'report_topauthenticationsuccesses_by_username_sql'} = get_db_handle()->prepare(qq[
+        SELECT
+            `user_name`, 
+            COUNT(1) AS `count`, 
+            SUM(100) / `total` AS `percent`
+        FROM `radius_audit_log`
+        CROSS JOIN (
+                SELECT 
+                    COUNT(1) AS `total` 
+                FROM `radius_audit_log` 
+                WHERE `auth_status`='Accept'
+                    AND `created_at` BETWEEN ? AND ?
+            ) `x`
+        WHERE `auth_status`='Accept'
+            AND `created_at` BETWEEN ? AND ?
+            AND `user_name` IS NOT NULL
+        GROUP BY 1
+        ORDER BY `percent` DESC
+        LIMIT 25;
+    ]);
+
+    $report_statements->{'report_topauthenticationsuccesses_by_computername_sql'} = get_db_handle()->prepare(qq[
+        SELECT
+            `computer_name`, 
+            COUNT(1) AS `count`, 
+            SUM(100) / `total` AS `percent`
+        FROM `radius_audit_log`
+        CROSS JOIN (
+                SELECT 
+                    COUNT(1) AS `total` 
+                FROM `radius_audit_log` 
+                WHERE `auth_status`='Accept'
+                    AND `created_at` BETWEEN ? AND ?
+            ) `x`
+        WHERE `auth_status`='Accept'
+            AND `created_at` BETWEEN ? AND ?
+            AND `computer_name` IS NOT NULL
+        GROUP BY 1
+        ORDER BY `percent` DESC
+        LIMIT 25;
     ]);
 
     $report_db_prepared = 1;
@@ -674,14 +757,6 @@ sub report_unknownprints_active {
         $datum->{'vendor'} = oui_to_vendor( $datum->{'mac'} );
     }
     return (@data);
-}
-
-sub report_unknownuseragents_all {
-    return db_data(REPORT, $report_statements, 'report_unknownuseragents_all_sql');
-}
-
-sub report_unknownuseragents_active {
-    return db_data(REPORT, $report_statements, 'report_unknownuseragents_active_sql');
 }
 
 sub report_connectiontype {
@@ -1062,6 +1137,216 @@ sub report_nodebandwidth_all {
 }
 
 
+=item _report_topauthenticationfailures_by_mac
+
+Reporting - Radius AAA Auth failures by mac
+
+Sub that supports a range from now til $range window.
+
+=cut
+
+sub report_topauthenticationfailures_by_mac {
+    my ($start, $end) = @_;
+
+    my @data = db_data(REPORT, $report_statements, 'report_topauthenticationfailures_by_mac_sql', $start, $end, $start, $end);
+    my $total = 0;
+    my @return_data;
+    foreach my $record (@data) {
+        $total += $record->{'count'};
+    }
+    foreach my $record (@data) {
+        if ( $record->{'count'} > 0 ) {
+            if ( $record->{'mac'} eq '' ) {
+                $record->{'mac'} = 'Unknown';
+            }
+            $record->{'percent'} = sprintf("%.1f", ( $record->{'count'} / $total ) * 100 );
+            push @return_data, $record;
+        }
+    }
+    push @return_data, { mac => "Total", percent => "100", count => $total, total => $total };
+    return (@return_data);    
+}
+
+=item _report_topauthenticationfailures_by_ssid
+
+Reporting - Radius AAA Auth failures by ssid
+
+Sub that supports a range from now til $range window.
+
+=cut
+
+sub report_topauthenticationfailures_by_ssid {
+    my ($start, $end) = @_;
+
+    my @data = db_data(REPORT, $report_statements, 'report_topauthenticationfailures_by_ssid_sql', $start, $end, $start, $end);
+    my $total = 0;
+    my @return_data;
+    foreach my $record (@data) {
+        $total += $record->{'count'};
+    }
+    foreach my $record (@data) {
+        if ( $record->{'count'} > 0 ) {
+            if ( $record->{'ssid'} eq '' ) {
+                $record->{'ssid'} = 'Unknown';
+            }
+            $record->{'percent'} = sprintf("%.1f", ( $record->{'count'} / $total ) * 100 );
+            push @return_data, $record;
+        }
+    }
+    push @return_data, { ssid => "Total", percent => "100", count => $total, total => $total };
+    return (@return_data);    
+}
+
+=item _report_topauthenticationfailures_by_username
+
+Reporting - Radius AAA Auth failures by username
+
+Sub that supports a range from now til $range window.
+
+=cut
+
+sub report_topauthenticationfailures_by_username {
+    my ($start, $end) = @_;
+
+    my @data = db_data(REPORT, $report_statements, 'report_topauthenticationfailures_by_username_sql', $start, $end, $start, $end);
+    my $total = 0;
+    my @return_data;
+    foreach my $record (@data) {
+        $total += $record->{'count'};
+    }
+    foreach my $record (@data) {
+        if ( $record->{'count'} > 0 ) {
+            if ( $record->{'user_name'} eq '' ) {
+                $record->{'user_name'} = 'Unknown';
+            }
+            $record->{'percent'} = sprintf("%.1f", ( $record->{'count'} / $total ) * 100 );
+            push @return_data, $record;
+        }
+    }
+    push @return_data, { user_name => "Total", percent => "100", count => $total, total => $total };
+    return (@return_data);    
+}
+
+=item _report_topauthenticationsuccesses_by_mac
+
+Reporting - Radius AAA Auth successes by mac
+
+Sub that supports a range from now til $range window.
+
+=cut
+
+sub report_topauthenticationsuccesses_by_mac {
+    my ($start, $end) = @_;
+
+    my @data = db_data(REPORT, $report_statements, 'report_topauthenticationsuccesses_by_mac_sql', $start, $end, $start, $end);
+    my $total = 0;
+    my @return_data;
+    foreach my $record (@data) {
+        $total += $record->{'count'};
+    }
+    foreach my $record (@data) {
+        if ( $record->{'count'} > 0 ) {
+            if ( $record->{'mac'} eq '' ) {
+                $record->{'mac'} = 'Unknown';
+            }
+            $record->{'percent'} = sprintf("%.1f", ( $record->{'count'} / $total ) * 100 );
+            push @return_data, $record;
+        }
+    }
+    push @return_data, { mac => "Total", percent => "100", count => $total, total => $total };
+    return (@return_data);    
+}
+
+=item _report_topauthenticationsuccesses_by_ssid
+
+Reporting - Radius AAA Auth successes by ssid
+
+Sub that supports a range from now til $range window.
+
+=cut
+
+sub report_topauthenticationsuccesses_by_ssid {
+    my ($start, $end) = @_;
+
+    my @data = db_data(REPORT, $report_statements, 'report_topauthenticationsuccesses_by_ssid_sql', $start, $end, $start, $end);
+    my $total = 0;
+    my @return_data;
+    foreach my $record (@data) {
+        $total += $record->{'count'};
+    }
+    foreach my $record (@data) {
+        if ( $record->{'count'} > 0 ) {
+            if ( $record->{'ssid'} eq '' ) {
+                $record->{'ssid'} = 'Unknown';
+            }
+            $record->{'percent'} = sprintf("%.1f", ( $record->{'count'} / $total ) * 100 );
+            push @return_data, $record;
+        }
+    }
+    push @return_data, { ssid => "Total", percent => "100", count => $total, total => $total };
+    return (@return_data);    
+}
+
+=item _report_topauthenticationsuccesses_by_username
+
+Reporting - Radius AAA Auth successes by username
+
+Sub that supports a range from now til $range window.
+
+=cut
+
+sub report_topauthenticationsuccesses_by_username {
+    my ($start, $end) = @_;
+
+    my @data = db_data(REPORT, $report_statements, 'report_topauthenticationsuccesses_by_username_sql', $start, $end, $start, $end);
+    my $total = 0;
+    my @return_data;
+    foreach my $record (@data) {
+        $total += $record->{'count'};
+    }
+    foreach my $record (@data) {
+        if ( $record->{'count'} > 0 ) {
+            if ( $record->{'user_name'} eq '' ) {
+                $record->{'user_name'} = 'Unknown';
+            }
+            $record->{'percent'} = sprintf("%.1f", ( $record->{'count'} / $total ) * 100 );
+            push @return_data, $record;
+        }
+    }
+    push @return_data, { user_name => "Total", percent => "100", count => $total, total => $total };
+    return (@return_data);    
+}
+
+=item _report_topauthenticationsuccesses_by_computername
+
+Reporting - Radius AAA Auth successes by computername
+
+Sub that supports a range from now til $range window.
+
+=cut
+
+sub report_topauthenticationsuccesses_by_computername {
+    my ($start, $end) = @_;
+
+    my @data = db_data(REPORT, $report_statements, 'report_topauthenticationsuccesses_by_computername_sql', $start, $end, $start, $end);
+    my $total = 0;
+    my @return_data;
+    foreach my $record (@data) {
+        $total += $record->{'count'};
+    }
+    foreach my $record (@data) {
+        if ( $record->{'count'} > 0 ) {
+            if ( $record->{'computer_name'} eq '' ) {
+                $record->{'computer_name'} = 'Unknown';
+            }
+            $record->{'percent'} = sprintf("%.1f", ( $record->{'count'} / $total ) * 100 );
+            push @return_data, $record;
+        }
+    }
+    push @return_data, { computer_name => "Total", percent => "100", count => $total, total => $total };
+    return (@return_data);    
+}
+
 =item translate_connection_type
 
 Translates connection_type database string into a human-understandable string
@@ -1118,7 +1403,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

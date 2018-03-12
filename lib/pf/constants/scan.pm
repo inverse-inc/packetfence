@@ -26,6 +26,7 @@ our @EXPORT_OK = qw(
   $STATUS_NEW
   $STATUS_STARTED
   $STATUS_CLOSED
+  $WMI_NS_ERR
 );
 
 use Readonly;
@@ -39,6 +40,7 @@ Readonly our $SEVERITY_INFO     => 3;
 Readonly our $STATUS_NEW => 'new';
 Readonly our $STATUS_STARTED => 'started';
 Readonly our $STATUS_CLOSED => 'closed';
+Readonly our $WMI_NS_ERR => '0x80041010';
 
 =head1 AUTHOR
 
@@ -46,7 +48,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

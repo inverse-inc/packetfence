@@ -1,0 +1,127 @@
+== POD.pod, cut == insert, map:ppc, sc:p ==
+
+=pod
+
+<SPLIT><CURSOR>
+
+=cut
+
+== POD.for, cut == insert, map:pfc, sc:f ==
+
+=for  <CURSOR>
+
+<SPLIT>
+
+=cut
+
+== POD.begin html, end == insert, map:pbh, sc:h ==
+
+=begin  html
+
+<SPLIT><CURSOR>
+
+=end    html  #  back to Perl
+
+== POD.begin man, end == insert, map:pbm, sc:m ==
+
+=begin  man 
+
+<SPLIT><CURSOR>
+
+=end    man   #  back to Perl
+
+== POD.begin text, end == insert, map:pbt, sc:t ==
+
+=begin  text
+
+<SPLIT><CURSOR>
+
+=end    text  #  back to Perl
+
+== POD.head1 == insert, map:ph1, sc:1 ==
+
+=head1 <CURSOR>
+
+== POD.head2 == insert, map:ph2, sc:2 ==
+
+=head2 <CURSOR>
+
+== POD.head2method == insert, map:pmd, sc:2 ==
+
+=head2 |?METHOD|
+
+|METHOD|<CURSOR>
+
+=cut
+
+== POD.head3 == insert, map:ph3, sc:3 ==
+
+=head3 <CURSOR>
+
+== POD.over, back == insert, map:pob, sc:o ==
+
+=over 2
+
+=item *
+
+<SPLIT><CURSOR>
+
+=item *
+
+
+
+=back
+
+== POD.item == insert, map:pi, sc:i ==
+
+=item *
+
+<CURSOR>
+
+== POD.invisible POD.Improvement ==
+
+=for Improvement: |?KEYWORD|
+<CURSOR><single paragraph>
+
+=cut
+
+== POD.invisible POD.Optimization ==
+
+=for Optimization: |?KEYWORD|
+<CURSOR><single paragraph>
+
+=cut
+
+== POD.invisible POD.Rationale ==
+
+=for Rationale: |?KEYWORD|
+<CURSOR><single paragraph>
+
+=cut
+
+== POD.invisible POD.Workaround ==
+
+=for Workaround: |?KEYWORD|
+<CURSOR><single paragraph>
+
+=cut
+
+== ENDTEMPLATE ==
+
+== LIST: POD_markup == hash ==
+  'bold B'         :   'B',
+  'literal C'      :   'C',
+  'escape E'       :   'E',
+  'filename F'     :   'F',
+  'italic I'       :   'I',
+  'link L'         :   'L',
+  'nonbr. spaces S':   'S',
+  'index X'        :   'X',
+  'zero-width Z'   :   'Z'
+== ENDLIST ==
+
+== POD.markup sequences == expandmenu, insert, map:pm, sc:m ==
+|PickList( 'Markup', 'POD_markup' )|
+|PICK|<<SPLIT><CURSOR>>
+== ENDTEMPLATE ==
+

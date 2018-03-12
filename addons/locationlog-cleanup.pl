@@ -22,14 +22,14 @@ locationlog-cleanup
 use strict;
 use warnings;
 use lib qw(/usr/local/pf/lib);
-use pf::config;
+use pf::config qw(%Config);
 use pf::locationlog;
 
 use Getopt::Long;
 use Pod::Usage;
 
 my %options = (
-    expire   => $Config{'expire'}{'locationlog'},
+    expire   => $Config{'maintenance'}{'locationlog_cleanup_window'},
     batch    => $Config{maintenance}{locationlog_cleanup_batch},
     timeout  => $Config{maintenance}{locationlog_cleanup_timeout},
     help     => undef,
@@ -49,7 +49,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

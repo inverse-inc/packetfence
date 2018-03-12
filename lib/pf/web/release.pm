@@ -20,7 +20,8 @@ use URI::Escape::XS qw(uri_escape);
 
 use pf::class;
 use pf::config;
-use pf::iplog;
+use pf::file_paths qw($bin_dir);
+use pf::ip4log;
 use pf::node;
 use pf::Portal::Session;
 use pf::constants::scan qw($SCAN_VID);
@@ -176,7 +177,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

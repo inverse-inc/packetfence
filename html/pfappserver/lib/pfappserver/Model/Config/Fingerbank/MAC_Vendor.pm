@@ -15,7 +15,6 @@ pfappserver::Model::Config::Fingerbank::MAC_Vendor
 use fingerbank::Model::MAC_Vendor();
 use Moose;
 use namespace::autoclean;
-use pf::config::cached;
 use HTTP::Status qw(:constants :is);
 
 extends 'pfappserver::Base::Model::Fingerbank';
@@ -25,11 +24,11 @@ has '+fingerbankModel' => ( default => 'fingerbank::Model::MAC_Vendor');
 has '+search_fields' => ( default => sub { [qw(name mac) ] } );
 
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

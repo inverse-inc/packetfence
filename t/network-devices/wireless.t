@@ -24,7 +24,7 @@ use Test::MockObject::Extends;
 
 BEGIN {
     use lib qw(/usr/local/pf/t);
-    use PfFilePaths;
+    use setup_test_config;
 }
 use TestUtils;
 
@@ -44,7 +44,7 @@ my $mock = new Test::MockModule('pf::roles');
 $mock->mock('node_attributes', sub {
     return { mac => 'aa:bb:cc:dd:ee:ff', pid => 1, detect_date => '', regdate => '', unregdate => '', category => 'default',
         lastskip => '', status => 'reg', user_agent => '', computername => '', notes => '', last_arp => '',
-        last_dhcp => '', dhcp_fingerprint => '', switch => '', port => '', bypass_vlan => 1, nbopenviolations => ''}
+        last_dhcp => '', dhcp_fingerprint => '', switch => '', port => '', bypass_vlan => 1, }
 });
 
 # + no warnings
@@ -102,7 +102,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

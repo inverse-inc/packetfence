@@ -6,7 +6,7 @@ pf::Switch::HP::Procurve_2600 - Object oriented module to access SNMP enabled HP
 
 =head1 SYNOPSIS
 
-The pf::Switch::HP::Procurve_2600 module implements an object 
+The pf::Switch::HP::Procurve_2600 module implements an object
 oriented interface to access SNMP enabled HP Procurve 2600 switches.
 
 =head1 BUGS AND LIMITATIONS
@@ -17,16 +17,17 @@ VoIP not tested using MAC Authentication/802.1X
 
 use strict;
 use warnings;
-use Net::SNMP;
+
 use base ('pf::Switch::HP');
 
 sub description { 'HP ProCurve 2600 Series' }
 
 # importing switch constants
-use pf::Switch::constants;
-use pf::util;
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $MAC
+    $PORT
+);
 
 # CAPABILITIES
 # access technology supported
@@ -41,7 +42,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

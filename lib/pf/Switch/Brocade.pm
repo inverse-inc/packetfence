@@ -72,7 +72,13 @@ sub description { 'Brocade Switches' }
 use pf::Switch::constants;
 use pf::util;
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $MAC
+    $PORT
+    $WIRED_802_1X
+    $WIRED_MAC_AUTH
+);
+use pf::constants::role qw($VOICE_ROLE);
 
 =head1 SUBROUTINES
 
@@ -119,7 +125,7 @@ sub getVersion {
 =item _dot1xPortReauthenticate
 
 Actual implementation.
- 
+
 Allows callers to refer to this implementation even though someone along the way override the above call.
 
 =cut
@@ -135,7 +141,7 @@ sub dot1xPortReauthenticate {
         return 0;
     }
 
-    $logger->trace("SNMP set_request force port in unauthorized mode on ifIndex: $ifIndex");    
+    $logger->trace("SNMP set_request force port in unauthorized mode on ifIndex: $ifIndex");
     my $result = $self->{_sessionWrite}->set_request(-varbindlist => [
         "$oid_brcdDot1xAuthPortConfigPortControl.$ifIndex", Net::SNMP::INTEGER, $BROCADE::FORCE_UNAUTHORIZED
     ]);
@@ -155,23 +161,6 @@ sub dot1xPortReauthenticate {
     return (defined($result));
 }
 
-=item parseTrap
-
-All traps ignored
-
-=cut
-
-sub parseTrap {
-    my ( $self, $trapString ) = @_;
-    my $trapHashRef;
-    my $logger = $self->logger;
-
-    $logger->debug("trap ignored, not useful for switch");
-    $trapHashRef->{'trapType'} = 'unknown';
-
-    return $trapHashRef;
-}
-
 =item getVoipVSA
 
 Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
@@ -185,7 +174,7 @@ sub getVoipVsa {
         'Foundry-MAC-Authent-needs-802.1x' => $FALSE,
         'Tunnel-Type'               => $RADIUS::VLAN,
         'Tunnel-Medium-Type'        => $RADIUS::ETHERNET,
-        'Tunnel-Private-Group-ID'   => "T:".$self->getVlanByName('voice'),
+        'Tunnel-Private-Group-ID'   => "T:".$self->getVlanByName($VOICE_ROLE),
     );
 }
 
@@ -210,7 +199,7 @@ sub wiredeauthTechniques {
     my ($self, $method, $connection_type) = @_;
     my $logger = $self->logger;
     if ($connection_type == $WIRED_802_1X) {
-        my $default = $SNMP::RADIUS;
+        my $default = $SNMP::SNMP;
         my %tech = (
             $SNMP::SNMP => 'dot1xPortReauthenticate',
             $SNMP::RADIUS => 'deauthenticateMacRadius',
@@ -269,13 +258,10 @@ sub getPhonesLLDPAtIfIndex {
 
     my $oid_lldpRemPortId = '1.0.8802.1.1.2.1.4.1.1.7';
     my $oid_lldpRemSysCapEnabled = '1.0.8802.1.1.2.1.4.1.1.12';
+    my $baseoid = "$oid_lldpRemSysCapEnabled.$CISCO::DEFAULT_LLDP_REMTIMEMARK.$lldpPort";
 
-    $logger->trace(
-        "SNMP get_next_request for lldpRemSysCapEnabled: "
-        . "$oid_lldpRemSysCapEnabled.$CISCO::DEFAULT_LLDP_REMTIMEMARK.$lldpPort"
-    );
-    my $cache = $self->cache;
-    my $result = $cache->compute([$self->{'_id'},$oid_lldpRemSysCapEnabled.$CISCO::DEFAULT_LLDP_REMTIMEMARK.$lldpPort], sub { $self->{_sessionRead}->get_table( -baseoid => "$oid_lldpRemSysCapEnabled.$CISCO::DEFAULT_LLDP_REMTIMEMARK.$lldpPort" ); });
+    $logger->trace(sub {"SNMP get_next_request for lldpRemSysCapEnabled: $baseoid"});
+    my $result = $self->cachedSNMPRequest([-baseoid => $baseoid]);
 
     # Cap entries look like this:
     # iso.0.8802.1.1.2.1.4.1.1.12.0.10.29 = Hex-STRING: 24 00
@@ -302,7 +288,7 @@ sub getPhonesLLDPAtIfIndex {
                 );
                 next if (!defined($portIdResult));
                 if ($portIdResult->{"$oid_lldpRemPortId.$CISCO::DEFAULT_LLDP_REMTIMEMARK.$lldpPort.$lldpRemIndex"}
-                        =~ /^0x([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})$/i) {
+                        =~ /^(?:0x)?([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})(?::..)?$/i) {
                     push @phones, lc("$1:$2:$3:$4:$5:$6");
                 }
             }
@@ -311,44 +297,46 @@ sub getPhonesLLDPAtIfIndex {
     return @phones;
 }
 
-=item ifIndexToLldpLocalPort
 
-Translate an ifIndex into an LLDP Local Port number.
-We use ifDescr to lookup the lldpRemLocalPortNum in the lldpLocPortDesc table.
+=item returnAuthorizeWrite
 
-Copied from Cisco Catalyst 2960
+Return radius attributes to allow write access
 
 =cut
 
-sub ifIndexToLldpLocalPort {
-    my ( $self, $ifIndex ) = @_;
-    my $logger = $self->logger;
+sub returnAuthorizeWrite {
+   my ($self, $args) = @_;
+   my $logger = $self->logger;
+   my $radius_reply_ref = {};
+   my $status;
+   $radius_reply_ref->{'Foundry-Privilege-Level'} = '0';
+   $radius_reply_ref->{'Reply-Message'} = "Switch enable access granted by PacketFence";
+   $logger->info("User $args->{'user_name'} logged in $args->{'switch'}{'_id'} with write access");
+   my $filter = pf::access_filter::radius->new;
+   my $rule = $filter->test('returnAuthorizeWrite', $args);
+   ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+   return [$status, %$radius_reply_ref];
 
-    # if can't SNMP read abort
-    return if ( !$self->connectRead() );
+}
 
-    my $ifDescr = $self->getIfDesc($ifIndex);
-    return if (!defined($ifDescr) || $ifDescr eq '');
+=item returnAuthorizeRead
 
-    my $oid_lldpLocPortDesc = '1.0.8802.1.1.2.1.3.7.1.4'; # from LLDP-MIB
+Return radius attributes to allow read access
 
-    $logger->trace("SNMP get_table for lldpLocPortDesc: $oid_lldpLocPortDesc");
-    my $result = $self->{_sessionRead}->get_table( -baseoid => $oid_lldpLocPortDesc);
-    # here's what we are getting here. Looking for the last element of the OID: lldpRemLocalPortNum
-    # iso.0.8802.1.1.2.1.3.7.1.4.10 = STRING: "FastEthernet1/0/8"
-    # iso.0.8802.1.1.2.1.3.7.1.4.11 = STRING: "FastEthernet1/0/9"
-    # iso.0.8802.1.1.2.1.3.7.1.4.12 = STRING: "FastEthernet1/0/10"
-    # iso.0.8802.1.1.2.1.3.7.1.4.13 = STRING: "FastEthernet1/0/11"
-    foreach my $entry ( keys %{$result} ) {
-        if ( $result->{$entry} eq $ifDescr ) {
-            if ( $entry =~ /^$oid_lldpLocPortDesc\.([0-9]+)$/ ) {
-                return $1;
-            }
-        }
-    }
+=cut
 
-    # nothing found
-    return;
+sub returnAuthorizeRead {
+   my ($self, $args) = @_;
+   my $logger = $self->logger;
+   my $radius_reply_ref = {};
+   my $status;
+   $radius_reply_ref->{'Foundry-Privilege-Level'} = '5';
+   $radius_reply_ref->{'Reply-Message'} = "Switch read access granted by PacketFence";
+   $logger->info("User $args->{'user_name'} logged in $args->{'switch'}{'_id'} with read access");
+   my $filter = pf::access_filter::radius->new;
+   my $rule = $filter->test('returnAuthorizeRead', $args);
+   ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+   return [$status, %$radius_reply_ref];
 }
 
 =back
@@ -359,7 +347,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

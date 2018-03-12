@@ -545,7 +545,7 @@ Upgrading from a version prior to 3.1.0
     - dhcp_dumper.pl addon changes
     Deep and important refactoring of the addon. Output format changed.
 
-    - SNMP traps limit mecanism
+    - SNMP traps limit mechanism
     PacketFence can now limits the number of SNMP traps coming from a single
     ifIndex. See pf/conf/documentation.conf under vlan for more infos.
 

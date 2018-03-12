@@ -24,60 +24,25 @@ use overload '""' => "toString";
 
 BEGIN {
     use Exporter ();
-    our (@ISA, @EXPORT, @EXPORT_OK);
+    our (@ISA, @EXPORT_OK);
     @ISA = qw(Exporter);
-    @EXPORT = qw(run_scan $scan_db_prepared scan_db_prepare);
-    @EXPORT_OK = qw(scan_insert_sql scan_select_sql scan_update_status_sql);
 }
 
 use pf::constants;
 use pf::constants::scan qw($SEVERITY_HOLE $SEVERITY_WARNING $SEVERITY_INFO $STATUS_CLOSED $STATUS_NEW $STATUS_STARTED);
 use pf::config;
-use pf::db;
-use pf::iplog;
+use pf::dal::scan;
+use pf::error qw(is_error is_success);
+use pf::ip4log;
 use pf::scan::nessus;
 use pf::scan::openvas;
 use pf::scan::wmi;
 use pf::util;
 use pf::violation qw(violation_close violation_exist_open violation_trigger violation_modify);
-use pf::Portal::ProfileFactory;
+use pf::Connection::ProfileFactory;
 use pf::api::jsonrpcclient;
 use Text::CSV_XS;
-
-# DATABASE HANDLING
-use constant SCAN       => 'scan';
-our $scan_db_prepared   = 0;
-our $scan_statements    = {};
-
-sub scan_db_prepare {
-    my $logger = get_logger();
-
-    $logger->debug("Preparing database statements.");
-
-    $scan_statements->{'scan_insert_sql'} = get_db_handle()->prepare(qq[
-            INSERT INTO scan (
-                id, ip, mac, type, start_date, update_date, status, report_id
-            ) VALUES (
-                ?, ?, ?, ?, ?, ?, ?, ?
-            )
-    ]);
-
-    $scan_statements->{'scan_select_sql'} = get_db_handle()->prepare(qq[
-            SELECT id, ip, mac, type, start_date, update_date, status, report_id
-            FROM scan
-            WHERE id = ?
-    ]);
-
-    $scan_statements->{'scan_update_sql'} = get_db_handle()->prepare(qq[
-            UPDATE scan SET
-                status = ?, report_id =?
-            WHERE id = ?
-    ]);
-
-    $scan_db_prepared = 1;
-    return 1;
-}
-
+use List::MoreUtils qw(any);
 
 =head1 SUBROUTINES
 
@@ -119,7 +84,7 @@ sub parse_scan_report {
     my ( $scan, $scan_vid ) = @_;
     my $logger = get_logger();
 
-    $logger->debug("Scan report to analyze. Scan id: $scan"); 
+    $logger->debug("Scan report to analyze. Scan id: $scan");
 
     my $scan_report = $scan->getReport();
 
@@ -203,13 +168,8 @@ Retrieve a scan object populated from the database using the scan id
 sub retrieve_scan {
     my ( $scan_id ) = @_;
     my $logger = get_logger();
-
-    my $query = db_query_execute(SCAN, $scan_statements, 'scan_select_sql', $scan_id) || return 0;
-    my $scan_infos = $query->fetchrow_hashref();
-    $query->finish();
-
-    if (!defined($scan_infos) || $scan_infos->{'id'} ne $scan_id) {
-        $logger->warn("Invalid scan object requested");
+    my ($status, $scan_infos) = pf::dal::scan->find({id => $scan_id});
+    if (is_error($status)) {
         return;
     }
 
@@ -236,13 +196,13 @@ sub run_scan {
     $host_ip = clean_ip($host_ip);  # untainting ip
 
     # Resolve mac address
-    my $host_mac = $mac || pf::iplog::ip2mac($host_ip);
+    my $host_mac = $mac || pf::ip4log::ip2mac($host_ip);
     if ( !$host_mac ) {
         $logger->warn("Unable to find MAC address for the scanned host $host_ip. Scan aborted.");
         return;
     }
 
-    my $profile = pf::Portal::ProfileFactory->instantiate($host_mac);
+    my $profile = pf::Connection::ProfileFactory->instantiate($host_mac);
     my $scanner = $profile->findScan($host_mac);
     # If no scan detected then we abort
     if (!$scanner) {
@@ -252,7 +212,7 @@ sub run_scan {
     my $epoch   = time;
     my $date    = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime($epoch));
     my $id      = generate_id($epoch, $host_mac);
-    my $type    = lc($scanner->{'type'});
+    my $type    = lc($scanner->{'_type'});
 
     # Check the scan engine
     # If set to "none" we abort the scan
@@ -265,19 +225,32 @@ sub run_scan {
             scanIp     => $host_ip,
             scanMac    => $host_mac,
             type       => $type,
-            %$scanner,
     );
+    while(my ($key, $val) = each(%scan_attributes)) {
+        $scanner->{"_".$key}=$val;
+    }
 
-    db_query_execute(SCAN, $scan_statements, 'scan_insert_sql',
-            $id, $host_ip, $host_mac, $type, $date, '0000-00-00 00:00:00', $STATUS_NEW, 'NULL'
-    ) || return 0;
+    my $status = pf::dal::scan->create({
+        id => $id,
+        ip => $host_ip,
+        mac => $host_ip,
+        type => $type,
+        start_date => $date,
+        update_date => $ZERO_DATE,
+        status => $STATUS_NEW,
+        report_id => 'NULL',
+    });
+
+    if (is_error($status)) {
+        return 0;
+    }
 
     # Instantiate the new scan object
-    my $scan = instantiate_scan_engine($type, %scan_attributes);
+    my $scan = $scanner;
 
     # Start the scan (it return the scan_id if it failed)
     my $failed_scan = $scan->startScan();
-    
+
     # Hum ... somethings wrong in the scan ?
     if ( $failed_scan ) {
 
@@ -307,11 +280,19 @@ Update the status and reportId of the scan in the database.
 sub statusReportSyncToDb {
     my ( $self ) = @_;
     my $logger = get_logger();
-
-    db_query_execute(SCAN, $scan_statements, 'scan_update_sql', 
-        $self->{'_status'}, $self->{'_reportId'}, $self->{'_id'}
-    ) || return 0;
-    return $TRUE;
+    my ($status, $rows) = pf::dal::scan->update_items(
+        -set => {
+            status => $self->{_status},
+            report_id => $self->{_reportId},
+        },
+        -where => {
+            id => $self->{'_id'}
+        }
+    );
+    if (is_error($status)) {
+        return $FALSE;
+    }
+    return $rows ? $TRUE : $FALSE;
 }
 
 =item isNotExpired
@@ -343,6 +324,57 @@ sub toString {
     return $self->{'_id'};
 }
 
+=item matchCategory
+
+Check if the category matches the configuration of the scanner
+
+=cut
+
+sub matchCategory {
+    my ($self, $node_attributes) = @_;
+    my $category = [split(/\s*,\s*/, $self->{_categories})];
+    my $node_cat = $node_attributes->{'category'};
+
+    get_logger->debug( sub { "Tring to match the role '$node_cat' against " . join(",", @$category) });
+    # validating that the node is under the proper category for provisioner
+    return @$category == 0 || any { $_ eq $node_cat } @$category;
+}
+
+=item matchOS
+
+Check if the OS matches the configuration of the scanner
+
+=cut
+
+sub matchOS {
+    my ($self, $node_attributes) = @_;
+    my @oses = @{$self->{_oses} || []};
+
+    #if no oses are defined then it will match all the oses
+    return $TRUE if @oses == 0;
+
+    my $device_name = $node_attributes->{device_type};
+    get_logger->debug( sub { "Trying see if device $device_name is one of: " . join(",", @oses) });
+
+    for my $os (@oses) {
+        return $TRUE if fingerbank::Model::Device->is_a($device_name, $os);
+    }
+
+    return $FALSE;
+}
+
+=item match
+
+Check if the device matches the configuration of the scanner
+
+=cut
+
+sub match {
+    my ($self, $os, $node_attributes) = @_;
+    $node_attributes->{device_type} = defined($os) ? $os : $node_attributes->{device_name};
+    return $self->matchCategory($node_attributes) && $self->matchOS($node_attributes) ;
+}
+
 =back
 
 =head1 AUTHOR
@@ -351,7 +383,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

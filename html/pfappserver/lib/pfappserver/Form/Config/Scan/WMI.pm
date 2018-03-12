@@ -13,6 +13,7 @@ Form definition to create or update a WMI Scan Engine.
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Scan';
 with 'pfappserver::Base::Form::Role::Help';
+use pf::ConfigStore::WMI;
 
 use pf::config;
 use pf::util;
@@ -87,7 +88,7 @@ sub oses {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -108,5 +109,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

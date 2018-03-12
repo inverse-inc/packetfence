@@ -1,0 +1,40 @@
+/// _components.iconic.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
+
+$pf-iconic-size--tiny:     $inuit-base-line-height;
+$pf-iconic-size--small:    $inuit-base-line-height * 3/2;
+$pf-iconic-size--large:    $inuit-base-line-height * 7/3;
+
+.#{$pf-namespace}iconic {
+  width: 100%; // fill container
+
+  use {
+    fill: $inuit-base-text-color;
+  }  
+
+  &--tiny {
+    height: $pf-iconic-size--tiny;
+    width: $pf-iconic-size--tiny;
+  }
+
+  &--small {
+    height: $pf-iconic-size--small;
+    width: $pf-iconic-size--small;
+  }
+
+  &--large {
+    width: $pf-iconic-size--large;
+
+    @include media-query(palm) {
+      width: $pf-iconic-size--small;
+    }
+  }
+}
+
+.#{$pf-namespace}iconic__hide {
+  display: block;
+  position: absolute;
+  left: -100%;
+  height: 0;
+  width: 0;
+  overflow: hidden;
+}

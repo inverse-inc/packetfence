@@ -16,7 +16,6 @@ It should work on all D2 switches and maybe more.
 use strict;
 use warnings;
 use Net::SNMP;
-use Net::Telnet;
 use pf::Switch::constants;
 
 use base ('pf::Switch::Enterasys');
@@ -52,7 +51,7 @@ sub _setVlan {
 
     $logger->trace("locking - trying to lock \$switch_locker{".$self->{_ip}."} in _setVlan");
     {
-        lock %{ $switch_locker_ref->{$self->{_ip}} };
+        my $lock = $self->getExclusiveLock();
         $logger->trace("locking - \$switch_locker{".$self->{_ip}."} locked in _setVlan");
 
         # get current egress and untagged ports
@@ -137,7 +136,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

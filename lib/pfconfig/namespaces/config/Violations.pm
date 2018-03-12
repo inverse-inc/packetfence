@@ -18,7 +18,10 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use pf::file_paths;
+use pf::file_paths qw(
+    $violations_config_file
+    $violations_default_config_file
+);
 
 use base 'pfconfig::namespaces::config';
 
@@ -27,6 +30,8 @@ sub init {
     $self->{file}            = $violations_config_file;
     $self->{default_section} = "defaults";
     $self->{child_resources} = [ 'FilterEngine::Violation' ];
+    my $defaults = Config::IniFiles->new(-file => $violations_default_config_file);
+    $self->{added_params}{'-import'} = $defaults;
 }
 
 sub build_child {
@@ -49,7 +54,6 @@ sub cleanup_after_read {
     $self->expand_list( $data, qw(whitelisted_roles) );
 }
 
-=back
 
 =head1 AUTHOR
 
@@ -57,7 +61,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

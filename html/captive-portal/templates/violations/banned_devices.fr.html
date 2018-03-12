@@ -1,7 +1,8 @@
-        <div id="about">
-          <img src="/content/images/quarantine.png" alt="[% i18n('Quarantine') %]" />
-          <h1>[% i18n("Quarantine Established!") %]</h1>
-          <p>
-            <strong>Appareil non autorisé</strong>: Vous avez été détecté utilisant un appareil qui a été explicitement refusé par votre administrateur réseaux.
-          </p>
-        </div>
+<div class="layout--center">
+  <h5>Appareil non autorisé</h5>
+</div>
+
+<div class="media media--error u-p u-mb">
+  <div class="media__img">[% flashIcon(level='error') %]</div>
+  <p class="media__body">Vous avez été détecté utilisant un appareil qui a été explicitement refusé par votre administrateur réseaux.</p>
+</div>

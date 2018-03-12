@@ -1,3 +1,5 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
+
 $(function() { // DOM ready
     var items = new Provisioners();
     var view = new ProvisionerView({ items: items, parent: $('#section') });
@@ -16,6 +18,8 @@ Provisioners.prototype.id  = '#provisioners';
 Provisioners.prototype.formName  = 'modalProvisioner';
 
 Provisioners.prototype.modalId   = '#modalProvisioner';
+
+Provisioners.prototype.createSelector = ".createProvisioner";
 
 /*
  * The ProvisionerView class defines the DOM operations from the Web interface.
@@ -37,7 +41,7 @@ var ProvisionerView = function(options) {
 };
 
 ProvisionerView.prototype = (function(){
-    function F(){};
+    function F(){}
     F.prototype = ItemView.prototype;
     return new F();
 })();

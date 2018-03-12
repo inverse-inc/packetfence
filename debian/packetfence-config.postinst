@@ -17,12 +17,26 @@ set -e
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
+if $(dpkg-distribution --is_jessie) ; then
+    DIST=jessie
+fi
+if $(dpkg-distribution --is_wheezy) ; then
+    DIST=wheezy
+fi
+if $(dpkg-distribution --is_precise) ; then
+    DIST=precise
+fi
 
 case "$1" in
     configure)
 	chown pf.pf /usr/local/pf/conf/pfconfig.conf
 	/sbin/ldconfig
-	update-rc.d packetfence-config defaults 60 || exit 0
+        if [ ${DIST} = "jessie" ] ; then
+	    systemctl enable packetfence-config
+        fi
+        if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
+            update-rc.d packetfence-config defaults 60 || exit 0
+        fi
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

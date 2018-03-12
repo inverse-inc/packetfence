@@ -18,7 +18,7 @@ use pfconfig::cached_hash;
 
 BEGIN {
     use Exporter ();
-    our ( @ISA, @EXPORT, @EXPORT_OK );
+    our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     @EXPORT = qw(%ConfigPfqueue);
 }
@@ -31,7 +31,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

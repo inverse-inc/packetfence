@@ -14,15 +14,17 @@ use strict;
 use warnings;
 BEGIN {
     use lib qw(/usr/local/pf/t /usr/local/pf/lib);
-    use PfFilePaths;
+    use setup_test_config;
 }
 
 use Test::More tests => 21;                      # last test to print
 
 use Test::NoWarnings;
+use List::MoreUtils qw(uniq);
 
 my %SwitchConfig;
 tie %SwitchConfig, 'pfconfig::cached_hash', 'config::Switch';
+tie my $management_network, 'pfconfig::cached_scalar', "interfaces::management_network";
 
 ##
 # Test FETCH
@@ -52,7 +54,17 @@ ok(!exists($SwitchConfig{zammit}), "zammit switch doesn't exists");
 ##
 # Test keys and KEYS
 
+
 my $SWITCH_COUNT = 25;
+
+my @extra_switches;
+
+push @extra_switches, $management_network->tag('vip') if $management_network->tag('vip');
+push @extra_switches, $management_network->tag('ip')  if $management_network->tag('ip');
+
+@extra_switches = uniq @extra_switches;
+
+$SWITCH_COUNT += @extra_switches;
 
 my @keys = tied(%SwitchConfig)->keys();
 
@@ -83,7 +95,7 @@ is(ref(\@values), 'ARRAY',
 ##
 # Test search
 my @search = tied(%SwitchConfig)->search("type", "Aruba");
-is(@search, 4, 
+is(@search, 4,
     "Search yielded the right amount of data");
 foreach my $element (@search){
     is($element->{type}, "Aruba",
@@ -101,7 +113,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

@@ -5,50 +5,45 @@ pf::cmd::pf::service add documentation
 
 =head1 SYNOPSIS
 
-pfcmd service <service> [start|stop|restart|status|watch] [--ignore-checkup]
+pfcmd service <service> [start|stop|restart|status|generateconfig|updatesystemd] [--ignore-checkup]
 
   stop/stop/restart specified service
-  status returns PID of specified PF daemon or 0 if not running
-  watch acts as a service watcher which can send email/restart the services
+  status returns PID of specified PF daemon or 0 if not running.
 
   --ignore-checkup will start the requested services even if the checkup fails
 
 Services managed by PacketFence:
 
-  carbon-cache     | carbon-cache daemon
-  carbon-relay     | carbon-relay daemon
-  collectd         | collectd daemon
-  dhcpd            | dhcpd daemon
   haproxy          | haproxy daemon
   httpd.aaa        | Apache AAA webservice
   httpd.admin      | Apache Web admin
+  httpd.collector  | Apache Collector daemon
+  httpd.dispatcher | Captive portal dispatcher
+  httpd.parking    | Apache Parking Portal
   httpd.portal     | Apache Captive Portal
   httpd.proxy      | Apache Proxy Interception
   httpd.webservices| Apache Webservices
   iptables         | PacketFence firewall rules
   keepalived       | Virtual IP management
+  netdata          | Monitoring service
   pf               | all services that should be running based on your config
   pfbandwidthd     | A pf service to monitor bandwidth usages
   pfdetect         | PF snort alert parser
+  pfdhcp           | dhcpd daemon
   pfdhcplistener   | PF DHCP monitoring daemon
   pfdns            | DNS daemon
-  pfmon            | PF ARP monitoring daemon
-  pfsetvlan        | PF VLAN isolation daemon
+  pfipset          | IPSET daemon
+  pffilter         | PF conditions filtering daemon
+  pfmon            | PF monitoring daemon
+  pfqueue          | PF queueing service
+  pfstats          | PF statistics daemon
   radiusd          | FreeRADIUS daemon
   radsniff         | radsniff daemon
+  redis_ntlm_cache | Redis for the NTLM cache
   redis_queue      | Redis for pfqueue
+  routes           | manage static routes
   snmptrapd        | SNMP trap receiver daemon
-  snort            | Sourcefire Snort IDS
-  statsd           | statsd service
-  suricata         | Suricata IDS
   winbindd         | Winbind daemon
-
-watch
-
- Watch performs services checks to make sure that everything is fine. It's
- behavior is controlled by servicewatch configuration parameters. watch is
- typically best called from cron with something like:
- */5 * * * * /usr/local/pf/bin/pfcmd service pf watch
 
 =head1 DESCRIPTION
 
@@ -64,34 +59,29 @@ use Term::ANSIColor;
 our ($SERVICE_HEADER, $IS_INTERACTIVE);
 our ($RESET_COLOR, $WARNING_COLOR, $ERROR_COLOR, $SUCCESS_COLOR);
 use pf::log;
-use pf::file_paths;
-use pf::config;
+use pf::file_paths qw($install_dir);
+use pf::config qw(%Config);
 use pf::config::util;
 use pf::util;
 use pf::constants;
 use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE $EXIT_SERVICES_NOT_STARTED $EXIT_FATAL);
 use pf::services;
 use List::MoreUtils qw(part any true all);
-use constant {
-    JUST_MANAGED                => 0b0000001,
-    INCLUDE_START_DEPENDS_ON    => 0b0000010,
-    INCLUDE_STOP_DEPENDS_ON     => 0b0000100,
-};
+use pf::constants::services qw(JUST_MANAGED);
+use pf::cluster;
+
 my $logger = get_logger();
 
 our %ACTION_MAP = (
     status  => \&statusOfService,
     start   => \&startService,
     stop    => \&stopService,
-    watch   => \&watchService,
     restart => \&restartService,
+    generateconfig => \&generateConfig,
+    updatesystemd    => \&updateSystemd,
 );
 
 our $ignore_checkup = $FALSE;
-
-sub _byIndexOrder {
-    $a->orderIndex <=> $b->orderIndex;
-}
 
 sub parseArgs {
     my ($self) = @_;
@@ -121,9 +111,9 @@ sub _run {
     $SERVICE_HEADER ="service|command\n";
     $IS_INTERACTIVE = is_interactive();
     $RESET_COLOR =  $IS_INTERACTIVE ? color 'reset' : '';
-    $WARNING_COLOR =  $IS_INTERACTIVE ? color $Config{advanced}{pfcmd_warning_color} : '';
-    $ERROR_COLOR =  $IS_INTERACTIVE ? color $Config{advanced}{pfcmd_error_color} : '';
-    $SUCCESS_COLOR =  $IS_INTERACTIVE ? color $Config{advanced}{pfcmd_success_color} : '';
+    $WARNING_COLOR = $IS_INTERACTIVE ? color $YELLOW_COLOR : '';
+    $ERROR_COLOR = $IS_INTERACTIVE ? color $RED_COLOR : '';
+    $SUCCESS_COLOR = $IS_INTERACTIVE ? color $GREEN_COLOR : '';
     my $actionHandler;
     $action =~ /^(.*)$/;
     $action = $1;
@@ -143,8 +133,15 @@ sub postPfStartService {
 sub startService {
     my ($service,@services) = @_;
     use sort qw(stable);
-    my @managers = sort _byIndexOrder getManagers(\@services,INCLUDE_START_DEPENDS_ON | JUST_MANAGED);
+    my @managers = pf::services::getManagers(\@services,JUST_MANAGED);
+
+    if ( !@managers ) {
+        print "Service '$service' is not managed by PacketFence. Therefore, no action will be performed\n";
+        return $EXIT_SUCCESS;
+    }
+
     print $SERVICE_HEADER;
+
     my $count = 0;
     postPfStartService(\@managers) if $service eq 'pf';
 
@@ -155,6 +152,12 @@ sub startService {
             _doStart($manager);
         }
     }
+    # Just before the checkup we make sure that the configuration is correct in the cluster if applicable
+    
+    if($cluster_enabled && $service eq 'pf') {
+        pf::cluster::handle_config_conflict();
+    }
+
     if($checkupManagers && @$checkupManagers) {
         checkup( map {$_->name} @$checkupManagers);
         foreach my $manager (@$checkupManagers) {
@@ -163,6 +166,29 @@ sub startService {
     }
     return $EXIT_SUCCESS;
 }
+
+sub generateConfig {
+    my ($service, @services) = @_;
+    use sort qw(stable);
+    my @managers = pf::services::getManagers(\@services);
+    print $SERVICE_HEADER;
+    for my $manager (@managers) {
+        _doGenerateConfig($manager);
+    }
+    return $EXIT_SUCCESS;
+}
+
+sub updateSystemd {
+    my ( $service, @services ) = @_;
+    my @managers = pf::services::getManagers( \@services );
+    print $SERVICE_HEADER;
+    for my $manager (@managers) {
+        _doUpdateSystemd($manager);
+    }
+    system("sudo systemctl daemon-reload");
+    return $EXIT_SUCCESS;
+}
+
 
 sub checkup {
     require pf::services;
@@ -214,35 +240,46 @@ sub _doStart {
     print $manager->name,"|${color}${command}${RESET_COLOR}\n";
 }
 
-sub getManagers {
-    my ($services,$flags) = @_;
-    $flags = 0 unless defined $flags;
-    my %seen;
-    my $includeStartDependsOn = $flags & INCLUDE_START_DEPENDS_ON;
-    my $includeStopDependsOn = $flags & INCLUDE_STOP_DEPENDS_ON;
-    my $justManaged      = $flags & JUST_MANAGED;
-    my @temp = grep { defined $_ } map { pf::services::get_service_manager($_) } @$services;
-    my @serviceManagers;
-    foreach my $m (@temp) {
-        next if $seen{$m->name} || ( $justManaged && !$m->isManaged );
-        my @managers;
-        #Get dependencies
-        if ( $includeStartDependsOn ) {
-            @managers = grep { defined $_ } map { pf::services::get_service_manager($_) } @{$m->startDependsOnServices};
-        } elsif ( $includeStopDependsOn ) {
-            @managers = grep { defined $_ } map { pf::services::get_service_manager($_) } @{$m->stopDependsOnServices};
-        }
-        if($m->isa("pf::services::manager::submanager")) {
-            push @managers,$m->managers;
-        } else {
-            push @managers,$m;
-        }
-        #filter out managers already seen
-        @managers = grep { !$seen{$_->name}++ } @managers;
-        $seen{$m->name}++;
-        push @serviceManagers,@managers;
+sub _doGenerateConfig {
+    my ($manager) = @_;
+    my $command;
+    my $color = '';
+    if($manager->generateConfig()) {
+        $command = 'config generated';
+        $color =  $SUCCESS_COLOR;
+    } else {
+        $command = 'config not generated';
+        $color =  $ERROR_COLOR;
     }
-    return @serviceManagers;
+    print $manager->name,"|${color}${command}${RESET_COLOR}\n";
+}
+
+sub _doUpdateSystemd {
+    my ($manager) = @_;
+    my $command;
+    my $color = '';
+    if ( $manager->isManaged ) {
+        if ( $manager->sysdEnable() ) {
+            $command = 'Service enabled';
+            $color   = $SUCCESS_COLOR;
+        }
+        else {
+            $command = 'Service not enabled';
+            $color   = $ERROR_COLOR;
+        }
+    }
+    else {
+        if ( $manager->sysdDisable() ) {
+            $command = 'Service disabled';
+            $color   = $SUCCESS_COLOR;
+        }
+        else {
+            $command = 'Service not disabled';
+            $color   = $ERROR_COLOR;
+        }
+    }
+
+    print $manager->name, "|${color}${command}${RESET_COLOR}\n";
 }
 
 sub getIptablesTechnique {
@@ -253,7 +290,7 @@ sub getIptablesTechnique {
 
 sub stopService {
     my ($service,@services) = @_;
-    my @managers = reverse sort _byIndexOrder getManagers(\@services, INCLUDE_STOP_DEPENDS_ON);
+    my @managers = pf::services::getManagers(\@services);
 
     print $SERVICE_HEADER;
     foreach my $manager (@managers) {
@@ -297,38 +334,9 @@ sub restartService {
     return startService(@_);
 }
 
-sub watchService {
-    my ($service,@services) = @_;
-    my @stoppedServiceManagers =
-        grep { $_->status eq '0'  }
-        getManagers(\@services, JUST_MANAGED | INCLUDE_START_DEPENDS_ON);
-    if(@stoppedServiceManagers) {
-        my @stoppedServices = map { $_->name } @stoppedServiceManagers;
-        $logger->info("watch found incorrectly stopped services: " . join(", ", @stoppedServices));
-        print "The following processes are not running:\n" . " - "
-            . join( "\n - ", @stoppedServices ) . "\n";
-        if ( isenabled( $Config{'servicewatch'}{'email'} ) ) {
-            my %message;
-            $message{'subject'} = "PF WATCHER ALERT";
-            $message{'message'}
-                = "The following processes are not running:\n" . " - "
-                . join( "\n - ", @stoppedServices ) . "\n";
-            pfmailer(%message);
-        }
-        if ( isenabled( $Config{'servicewatch'}{'restart'} ) ) {
-            print $SERVICE_HEADER;
-            foreach my $manager (@stoppedServiceManagers) {
-                $manager->watch;
-                print join('|',$manager->name,"watch"),"\n";
-            }
-        }
-    }
-    return $EXIT_SUCCESS;
-}
-
 sub statusOfService {
     my ($service,@services) = @_;
-    my @managers = getManagers(\@services);
+    my @managers = pf::services::getManagers(\@services);
     print "service|shouldBeStarted|pid\n";
     my $notStarted = 0;
     foreach my $manager (@managers) {
@@ -358,7 +366,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

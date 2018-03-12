@@ -21,13 +21,12 @@ use POSIX;
 
 use base ('pf::Switch::HP::Controller_MSM710');
 
-use pf::config;
+use pf::file_paths qw($lib_dir);
 sub description { 'HP ProCurve MSM Access Point' }
 
 # importing switch constants
 use pf::Switch::constants;
 use pf::util;
-use Net::Appliance::Session;
 
 =head1 SUBROUTINES
 
@@ -46,14 +45,15 @@ sub _deauthenticateMacWithSSH {
     my $logger = $self->logger;
     my $session;
     my @addition_ops;
-    if (defined $self->{_controllerPort} && $self->{_cliTransport} eq 'SSH' ) {
+    if (defined $self->{_disconnectPort} && $self->{_cliTransport} eq 'SSH' ) {
         @addition_ops = (
             connect_options => {
-                ops => [ '-p' => $self->{_controllerPort}  ]
+                ops => [ '-p' => $self->{_disconnectPort}  ]
             }
         );
     }
     eval {
+        require Net::Appliance::Session;
         $session = Net::Appliance::Session->new(
             Host      => $self->{_ip},
             Timeout   => 20,
@@ -109,7 +109,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

@@ -25,7 +25,6 @@ use POSIX;
 use JSON;
 use Time::HiRes qw(time);
 use pfconfig::cached_scalar;
-use pf::error qw(is_success is_error);
 use fingerbank::Model::Device;
 use fingerbank::Model::DHCP_Fingerprint;
 use fingerbank::Model::DHCP_Vendor;
@@ -43,11 +42,26 @@ use pf::StatsD::Timer;
 Readonly::Scalar our $STATUS_OPEN => 'open';
 Readonly::Scalar our $STATUS_DELAYED => 'delayed';
 
-use constant VIOLATION => 'violation';
-
 use pf::factory::condition::violation;
 pf::factory::condition::violation->modules;
 tie our $VIOLATION_FILTER_ENGINE , 'pfconfig::cached_scalar' => 'FilterEngine::Violation';
+
+our %POST_OPEN_ACTIONS = (
+    "1300003" => sub {
+        my ($info) = @_;
+        require pf::parking;
+        my $mac = $info->{mac};
+        pf::parking::park($mac, pf::ip4log::mac2ip($mac));
+    },
+);
+our %POST_CLOSE_ACTIONS = (
+    "1300003" => sub {
+        my ($info) = @_;
+        require pf::parking;
+        my $mac = $info->{mac};
+        pf::parking::remove_parking_actions($mac, pf::ip4log::mac2ip($mac));
+    },
+);
 
 BEGIN {
     use Exporter ();
@@ -60,10 +74,7 @@ BEGIN {
         violation_force_close
         violation_close
         violation_view
-        violation_count_all
         violation_view_all
-        violation_view_all_active
-        violation_view_open_all
         violation_add
         violation_view_open
         violation_view_open_desc
@@ -87,25 +98,28 @@ BEGIN {
         violation_clear_errors
         violation_last_errors
         violation_run_delayed
+        violation_count_vid
+        violation_count_open_vid
     );
 }
 use pf::action;
 use pf::accounting qw($ACCOUNTING_TRIGGER_RE);
 use pf::class qw(class_view);
-use pf::config;
+use pf::constants qw(
+    $TRUE
+    $FALSE
+    $ZERO_DATE
+);
 use pf::enforcement;
 use pf::db;
+use pf::dal::violation;
+use pf::error qw(is_error is_success);
 use pf::constants::scan qw($SCAN_VID $POST_SCAN_VID $PRE_SCAN_VID);
+use pf::constants::role qw($REGISTRATION_ROLE);
 use pf::util;
 use pf::config::util;
 use pf::client;
 use pf::violation_config;
-
-# The next two variables and the _prepare sub are required for database handling magic (see pf::db)
-our $violation_db_prepared = 0;
-# in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
-# the hash if required
-our $violation_statements = {};
 
 our @ERRORS;
 our @WARNINGS;
@@ -118,135 +132,31 @@ This list is incomplete.
 
 =cut
 
-sub violation_db_prepare {
-    my $logger = get_logger();
-    $logger->debug("Preparing pf::violation database queries");
-
-    $violation_statements->{'violation_desc_sql'} = get_db_handle()->prepare(qq [ desc violation ]);
-
-    $violation_statements->{'violation_add_sql'} = get_db_handle()->prepare(
-        qq [ insert into violation(mac,vid,start_date,release_date,status,ticket_ref,notes) values(?,?,?,?,?,?,?) ]);
-
-    $violation_statements->{'violation_modify_sql'} = get_db_handle()->prepare(
-        qq [ update violation set mac=?,vid=?,start_date=?,release_date=?,status=?,ticket_ref=?,notes=? where id=? ]);
-
-    $violation_statements->{'violation_exist_sql'} = get_db_handle()->prepare(
-        qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation where mac=? and vid=? and start_date=? ]);
-
-    $violation_statements->{'violation_exist_open_sql'} = get_db_handle()->prepare(
-        qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation where mac=? and vid=? and status="open" order by vid asc ]);
-
-    $violation_statements->{'violation_exist_id_sql'} = get_db_handle()->prepare(
-        qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation where id=? ]);
-
-    $violation_statements->{'violation_view_sql'} = get_db_handle()->prepare(
-        qq [ select violation.id,violation.mac,node.computername,violation.vid,violation.start_date,violation.release_date,violation.status,violation.ticket_ref,violation.notes from violation,node where violation.mac=node.mac and violation.id=? order by start_date desc ]);
-
-    $violation_statements->{'violation_count_all_sql'} = qq[
-        SELECT count(*) as nb
-        FROM violation
-    ];
-
-    $violation_statements->{'violation_view_all_sql'} = get_db_handle()->prepare(qq[
-        SELECT violation.id,violation.mac,node.computername,violation.vid,violation.start_date,violation.release_date,violation.status,violation.ticket_ref,violation.notes
-        FROM violation,node
-        WHERE violation.mac=node.mac
-        ORDER BY start_date DESC
-    ]);
-
-    $violation_statements->{'violation_view_open_sql'} = get_db_handle()->prepare(
-        qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation where mac=? and status!="closed" order by start_date desc ]);
-
-    $violation_statements->{'violation_view_open_desc_sql'} = get_db_handle()->prepare(
-        qq [ select v.id,v.start_date,c.description,v.vid,v.status from violation v inner join class c on v.vid=c.vid where v.mac=? and v.status!="closed" order by start_date desc ]);
-
-    $violation_statements->{'violation_view_open_uniq_sql'} = get_db_handle()->prepare(
-        qq [ select mac from violation where status!="closed" group by mac ]);
-
-    $violation_statements->{'violation_view_open_all_sql'} = get_db_handle()->prepare(
-        qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation where status="open" ]);
-
-    $violation_statements->{'violation_view_desc_sql'} = get_db_handle()->prepare(qq[
-        SELECT v.id,v.start_date,v.release_date,c.description,v.vid,v.status
-        FROM violation v
-        INNER JOIN class c ON v.vid=c.vid
-        WHERE v.mac=? order by start_date desc
-    ]);
-
-    $violation_statements->{'violation_view_top_sql'} = get_db_handle()->prepare(qq[
-        SELECT id, mac, v.vid, start_date, release_date, status, ticket_ref, notes
-        FROM violation v, class c
-        WHERE v.vid=c.vid AND mac=? AND status="open"
-        ORDER BY priority ASC LIMIT 1
-    ]);
-
-    $violation_statements->{'violation_view_all_active_sql'} = get_db_handle()->prepare(
-        qq [ select v.mac,v.vid,v.start_date,v.release_date,v.status,v.ticket_ref,v.notes,i.ip,i.start_time,i.end_time from violation v left join iplog i on v.mac=i.mac where v.status="open" and i.end_time=0 group by v.mac]);
-
-    $violation_statements->{'violation_delete_sql'} = get_db_handle()->prepare(qq [ delete from violation where id=? ]);
-
-    $violation_statements->{'violation_close_sql'} = get_db_handle()->prepare(
-        qq [ update violation set release_date=now(),status="closed" where mac=? and vid=? and status!="closed" ]);
-
-    $violation_statements->{'violation_grace_sql'} = get_db_handle()->prepare(
-        qq [ select unix_timestamp(start_date)+grace_period-unix_timestamp(now()) from violation v left join class c on v.vid=c.vid where mac=? and v.vid=? and status="closed" order by start_date desc ]);
-
-    $violation_statements->{'violation_count_sql'} = get_db_handle()->prepare(
-        qq [ select count(*) from violation where mac=? and status="open" ]);
-
-    $violation_statements->{'violation_count_reevaluate_access_sql'} = get_db_handle()->prepare(
-        qq [ select count(*) from violation, action where violation.vid=action.vid and action.action='reevaluate_access' and mac=? and status!="closed" ]);
-
-    $violation_statements->{'violation_count_vid_sql'} = get_db_handle()->prepare(
-        qq [ select count(*) from violation where mac=? and vid=? ]);
-
-    $violation_statements->{'violation_release_sql'} = get_db_handle()->prepare(
-        qq [ select id,mac,vid,notes,status from violation where release_date !=0 AND release_date <= NOW() AND status != "closed" LIMIT ? ]);
-
-    $violation_statements->{'violation_last_closed_sql'} = get_db_handle()->prepare(
-        qq [ select mac,vid,release_date from violation where mac = ? AND vid = ? AND status = "closed" ORDER BY release_date DESC LIMIT 1 ]);
-
-    $violation_statements->{'violation_exist_acct_sql'} = get_db_handle()->prepare(
-        qq [ select id from violation where mac = ? AND vid = ? AND release_date >= ? AND release_date <= NOW()]);
-
-    $violation_db_prepared = 1;
-    return 1;
-}
-
-#
-#
-sub violation_desc {
-    return db_data(VIOLATION, $violation_statements, 'violation_desc_sql');
-}
-
 #
 sub violation_modify {
     my ( $id, %data ) = @_;
     my $logger = get_logger();
 
     return (0) if ( !$id );
-    my $existing = violation_exist_id($id);
+    my ($status, $existing) = pf::dal::violation->find_or_create({
+        %data,
+        vid => $id,
+    });
 
-    if ( !$existing ) {
-        if ( violation_add( $data{mac}, $data{vid}, %data ) ) {
-            $logger->warn(
-                "modify of non-existent violation $id attempted - violation added"
-            );
-            return (2);
-        } else {
-            $logger->error(
-                "modify of non-existent violation $id attempted - violation add failed"
-            );
-            return (0);
-        }
+    if (is_error($status)) {
+        return (0);
+    }
+
+    if ($status == $STATUS::CREATED) {
+        $logger->warn(
+            "modify of non-existent violation $id attempted - violation added"
+        );
+        return (2);
     }
 
     # Check if the violation was open or closed
     my $was_closed = ($existing->{status} eq 'closed') ? 1 : 0;
-
-    foreach my $item ( keys(%data) ) {
-        $existing->{$item} = $data{$item};
-    }
+    $existing->merge(\%data);
 
     $logger->info( "violation for mac "
             . $existing->{mac} . " vid "
@@ -257,140 +167,172 @@ sub violation_modify {
     if ($data{status} eq 'closed' && !$was_closed && $existing->{release_date} eq '') {
         $existing->{release_date} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time));
     } elsif ($data{status} eq 'open' && $was_closed) {
-        $existing->{release_date} = "";
+        $existing->{release_date} = $ZERO_DATE;
     }
 
-    db_query_execute(VIOLATION, $violation_statements, 'violation_modify_sql',
-        $existing->{mac},        $existing->{vid},
-        $existing->{start_date}, $existing->{release_date},
-        $existing->{status},     $existing->{ticket_ref},
-        $existing->{notes},      $id
-    ) || return (0);
-    return (1);
+    $status = $existing->save();
+
+    return (is_success($status));
 }
 
 sub violation_grace {
     my ( $mac, $vid ) = @_;
-
-    my $query = db_query_execute(VIOLATION, $violation_statements, 'violation_grace_sql', $mac, $vid)
-        || return (0);
-    my ($val) = $query->fetchrow_array();
-    $query->finish();
-    $val = 0 if ( !$val );
-    return ($val);
+    my ($status, $iter) = pf::dal::violation->search(
+        -where => {
+            'status' => "closed",
+            'violation.vid' => $vid,
+            'mac' => $mac,
+        },
+        -columns => ['unix_timestamp(start_date)+grace_period-unix_timestamp(now())|grace'],
+        -from => [-join => qw(violation =>{violation.vid=class.vid} class)],
+        -order_by => {-desc => "start_date"},
+    );
+    my $grace = $iter->next(undef);
+    return ($grace ? $grace->{grace} : 0);
 }
 
 sub violation_count {
     my ($mac) = @_;
+    my ($status, $count) = pf::dal::violation->count(
+        -where => {
+            mac => $mac,
+            status => "open",
+        }
+    );
 
-    my $query = db_query_execute(VIOLATION, $violation_statements, 'violation_count_sql', $mac)
-        || return (0);
-    my ($val) = $query->fetchrow_array();
-    $query->finish();
-    return ($val);
+    return ($count);
 }
 
 sub violation_count_reevaluate_access {
     my ($mac) = @_;
+    my ($status, $count) = pf::dal::violation->count(
+        -where => {
+            mac => $mac,
+            status => "open",
+            'action.action' => 'reevaluate_access',
+            'violation.vid' => { -ident => 'action.vid'},
+        },
+        -from => [qw(violation action)],
+    );
 
-    my $query = db_query_execute(VIOLATION, $violation_statements, 'violation_count_reevaluate_access_sql', $mac)
-        || return (0);
-    my ($val) = $query->fetchrow_array();
-    $query->finish();
-    return ($val);
+    return ($count);
 }
 
 sub violation_count_vid {
     my ( $mac, $vid ) = @_;
-    my $query = db_query_execute(VIOLATION, $violation_statements, 'violation_count_vid_sql', $mac, $vid)
-        || return (0);
-    my ($val) = $query->fetchrow_array();
-    $query->finish();
-    return ($val);
+    my ($status, $count) = pf::dal::violation->count(
+        -where => {
+            mac => $mac,
+            vid => $vid,
+        }
+    );
+
+    return ($count);
+}
+
+sub violation_count_open_vid {
+    my ( $mac, $vid ) = @_;
+    my ($status, $count) = pf::dal::violation->count(
+        -where => {
+            mac => $mac,
+            vid => $vid,
+            status => "open",
+        }
+    );
+
+    return ($count);
 }
 
 sub violation_exist {
     my ( $mac, $vid, $start_date ) = @_;
-
-    my $query = db_query_execute(VIOLATION, $violation_statements, 'violation_exist_sql', $mac, $vid, $start_date)
-        || return (0);
-    my $val = $query->fetchrow_hashref();
-    $query->finish();
-    return ($val);
+    return _db_item({
+        -where => {
+            mac => $mac,
+            vid => $vid,
+            start_date => $start_date
+        },
+        -columns => [qw(id mac vid start_date release_date status ticket_ref notes)],
+        -limit => 1,
+        -no_default_join => 1,
+    });
 }
 
 sub violation_exist_id {
     my ($id) = @_;
-    my $query = db_query_execute(VIOLATION, $violation_statements, 'violation_exist_id_sql', $id)
-        || return (0);
-    my $val = $query->fetchrow_hashref();
-    $query->finish();
-    return ($val);
+    return _db_item({
+        -where => {
+            id => $id,
+        },
+        -columns => [qw(id mac vid start_date release_date status ticket_ref notes)],
+        -limit => 1,
+        -no_default_join => 1,
+    });
 }
 
 sub violation_exist_open {
     my ( $mac, $vid ) = @_;
-    my $query = db_query_execute(VIOLATION, $violation_statements, 'violation_exist_open_sql', $mac, $vid)
-        || return (0);
-    my ($val) = $query->fetchrow_array();
-    $query->finish();
-    return ($val);
+    return _db_item({
+        -where => {
+            vid => $vid,
+            mac => $mac,
+            status => 'open',
+        },
+        -columns => [qw(id mac vid start_date release_date status ticket_ref notes)],
+        -no_default_join => 1,
+        -limit => 1,
+    });
 }
 
 sub violation_view {
     my ($id) = @_;
-    return db_data(VIOLATION, $violation_statements, 'violation_view_sql', $id);
-}
-
-sub violation_count_all {
-    my ( $id, %params ) = @_;
-    my $logger = get_logger();
-
-    # Hack! we prepare the statement here so that $node_count_all_sql is pre-filled
-    violation_db_prepare() if (!$violation_db_prepared);
-    my $violation_count_all_sql = $violation_statements->{'violation_count_all_sql'};
-
-    if ( defined( $params{'where'} ) ) {
-        my @where = ();
-        if ( ref($params{'where'}{'between'}) ) {
-            push(@where, sprintf '%s BETWEEN %s AND %s',
-                 $params{'where'}{'between'}->[0],
-                 get_db_handle()->quote($params{'where'}{'between'}->[1]),
-                 get_db_handle()->quote($params{'where'}{'between'}->[2]));
-        }
-        if (@where) {
-            $violation_count_all_sql .= ' WHERE ' . join(' AND ', @where);
-        }
-    }
-
-    # Hack! Because of the nature of the query built here (we cannot prepare it), we construct it as a string
-    # and pf::db will recognize it and prepare it as such
-    $violation_statements->{'violation_count_all_sql_custom'} = $violation_count_all_sql;
-    #$logger->debug($node_count_all_sql);
-
-    return db_data(VIOLATION, $violation_statements, 'violation_count_all_sql_custom');
-}
-
-sub violation_view_all {
-    return db_data(VIOLATION, $violation_statements, 'violation_view_all_sql');
+    return _db_data({
+        -where => {
+            'violation.mac' => {-ident => 'node.mac'},
+            'violation.id' => $id, 
+        },
+        -columns => [qw(violation.id violation.mac node.computername violation.vid violation.start_date violation.release_date violation.status violation.ticket_ref violation.notes)],
+        -from => [qw(violation node)],
+    });
 }
 
 sub violation_view_top {
     my ($mac) = @_;
-    my $query = db_query_execute(VIOLATION, $violation_statements, 'violation_view_top_sql', $mac) || return (0);
-    my $ref = $query->fetchrow_hashref();
-    $query->finish();
-    return ($ref);
+    return _db_item({
+        -where => {
+            mac => $mac,
+            status => 'open',
+        },
+        -columns => [qw(id mac violation.vid start_date release_date status ticket_ref notes)],
+        -from => [-join => qw(violation {violation.vid=class.vid} class)],
+        -order_by => {-asc => 'priority'},
+        -limit => 1,
+    });
 }
 
 sub violation_view_open {
     my ($mac) = @_;
-    return db_data(VIOLATION, $violation_statements, 'violation_view_open_sql', $mac);
+    return _db_data({
+        -where => {
+            status => "open",
+            mac => $mac,
+        },
+        -columns => [qw(id mac vid start_date release_date status ticket_ref notes)],
+        -order_by => { -desc => 'start_date' },
+        -no_default_join => 1,
+    });
 }
 
 sub violation_view_open_desc {
     my ($mac) = @_;
-    return db_data(VIOLATION, $violation_statements, 'violation_view_open_desc_sql', $mac);
+    return _db_data({
+        -where => {
+            status => "open",
+            mac => $mac,
+        },
+        -columns => [qw(id start_date c.description violation.vid status)],
+        -from => [-join => qw(violation <=>{violation.vid=class.vid} class)],
+        -order_by => { -desc => 'start_date' },
+    });
 }
 
 =item violation_view_open_uniq
@@ -401,25 +343,30 @@ Since trap violations stay open, this has the intended effect of getting all MAC
 =cut
 
 sub violation_view_open_uniq {
-    return db_data(VIOLATION, $violation_statements, 'violation_view_open_uniq_sql');
+    return _db_data({
+        -where => {
+            status => "open",
+        },
+        -group_by => "mac",
+        -columns => [qw(mac)],
+    });
 }
 
 sub violation_view_desc {
     my ($mac) = @_;
-    return db_data(VIOLATION, $violation_statements, 'violation_view_desc_sql', $mac);
-}
-
-sub violation_view_open_all {
-    return db_data(VIOLATION, $violation_statements, 'violation_view_open_all_sql');
-}
-
-sub violation_view_all_active {
-    return db_data(VIOLATION, $violation_statements, 'violation_view_all_active_sql');
+    return _db_data({
+        -where => {
+            mac => $mac,
+        },
+        -columns => [qw(id start_date release_date class.description violation.vid status)],
+        -from => [-join => qw(violation <=>{violation.vid=class.vid} class)],
+        -order_by => {-desc => 'start_date'},
+    });
 }
 
 #
 sub violation_add {
-    my $timer = pf::StatsD::Timer->new;
+    my $timer = pf::StatsD::Timer->new({level => 6});
     my ( $mac, $vid, %data ) = @_;
     my $logger = get_logger();
     return (0) if ( !$vid );
@@ -429,7 +376,7 @@ sub violation_add {
     #defaults
     $data{start_date} = mysql_date()
         if ( !defined $data{start_date} || !$data{start_date} );
-    $data{release_date} = 0 if ( !defined $data{release_date} );
+    $data{release_date} = $ZERO_DATE if ( !defined $data{release_date} );
     $data{status} = "open" if ( !defined $data{status} || !$data{status} );
     $data{notes}  = ""     if ( !defined $data{notes} );
     $data{ticket_ref} = "" if ( !defined $data{ticket_ref} );
@@ -469,12 +416,13 @@ sub violation_add {
 
         # check if we are under the grace period of a previous violation
         my ($remaining_time) = violation_grace( $mac, $vid );
-        if ( $remaining_time > 0 && $data{'force'} ne $TRUE ) {
+        my $force = defined $data{'force'} ? $data{'force'} : $FALSE;
+        if ( $remaining_time > 0 && $force ne $TRUE ) {
             my $msg = "$remaining_time grace remaining on violation $vid for node $mac. Not adding violation.";
             violation_add_errors($msg);
             $logger->info($msg);
             return (-1);
-        } elsif ( $remaining_time > 0 && $data{'force'} eq $TRUE ) {
+        } elsif ( $remaining_time > 0 && $force eq $TRUE ) {
             my $msg = "Force violation $vid for node $mac even if $remaining_time grace remaining";
             $logger->info($msg);
         } else {
@@ -484,13 +432,21 @@ sub violation_add {
     }
 
     # insert violation into db
-    my $result = db_query_execute(VIOLATION, $violation_statements, 'violation_add_sql',
-        $mac, $vid, $data{start_date}, $data{release_date}, $data{status}, $data{ticket_ref}, $data{notes});
-    if ($result) {
+    my $status = pf::dal::violation->create({
+        mac          => $mac,
+        vid          => $vid,
+        start_date   => $data{start_date},
+        release_date => $data{release_date},
+        status       => $data{status},
+        ticket_ref   => $data{ticket_ref},
+        notes        => $data{notes}
+    });
+    if (is_success($status)) {
         my $last_id = get_db_handle->last_insert_id(undef,undef,undef,undef);
         $logger->info("violation $vid added for $mac");
         if($data{status} eq 'open') {
             pf::action::action_execute( $mac, $vid, $data{notes} );
+            violation_post_open_action($mac, $vid);
         }
         return ($last_id);
     } else {
@@ -498,7 +454,6 @@ sub violation_add {
         violation_add_errors($msg);
         $logger->error($msg);
     }
-
     return (0);
 }
 
@@ -560,19 +515,12 @@ sub info_for_violation_engine {
             $device_id = $device->id
         }
     }
-    if(defined($device_id)){
-        $devices = $cache->compute("fingerbank::Model::Device_parents_$device_id", sub {
-            my (undef,$device) = fingerbank::Model::Device->read($device_id,1);
-            $devices = $device->{parents_ids};
-            push @$devices, $device->{id};
-            @$devices = map {$_.""} @$devices;
-            return $devices;
-        });
-    }
 
     my $attr_map = {
         dhcp_fingerprint => "fingerbank::Model::DHCP_Fingerprint",
         dhcp_vendor => "fingerbank::Model::DHCP_Vendor",
+        dhcp6_fingerprint => "fingerbank::Model::DHCP6_Fingerprint",
+        dhcp6_enterprise => "fingerbank::Model::DHCP6_Enterprise",
         user_agent => "fingerbank::Model::User_Agent",
     };
     my $results = {};
@@ -589,12 +537,15 @@ sub info_for_violation_engine {
     });
 
     my $info = {
-      device_id => $devices,
+      device_id => $device_id,
       dhcp_fingerprint_id => $results->{dhcp_fingerprint},
       dhcp_vendor_id => $results->{dhcp_vendor},
+      dhcp6_fingerprint_id => $results->{dhcp6_fingerprint},
+      dhcp6_enterprise_id => $results->{dhcp6_enterprise},
       mac => $mac,
       mac_vendor_id => defined($mac_vendor) ? $mac_vendor->{id} : undef,
       user_agent_id => $results->{user_agent},
+      last_switch => $node_info->{'last_switch'},
     };
 
     my $trigger_info = $pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE{$type};
@@ -614,7 +565,7 @@ Returns 1 if at least one violation is added, 0 otherwise.
 =cut
 
 sub violation_trigger {
-    my $timer = pf::StatsD::Timer->new;
+    my $timer = pf::StatsD::Timer->new({level => 6});
 
     my ( $argv ) = @_;
     my $logger = get_logger();
@@ -734,8 +685,8 @@ sub violation_trigger {
 
 sub violation_delete {
     my ($id) = @_;
-    db_query_execute(VIOLATION, $violation_statements, 'violation_delete_sql', $id);
-    return (0);
+    my $status = pf::dal::violation->remove_by_id({id => $id});
+    return (is_success($status));
 }
 
 #return -1 on failure, because grace=0 is unlimited
@@ -758,9 +709,19 @@ sub violation_close {
     if ( $num <= $max || $max == 0 ) {
 
         my $grace = $class_info->{'grace_period'};
-        db_query_execute(VIOLATION, $violation_statements, 'violation_close_sql', $mac, $vid)
-            || return (0);
+        my ($status, $rows) = pf::dal::violation->update_items(
+            -set => {
+                release_date => \'NOW()',
+                status => 'closed',
+            },
+            -where => {
+                mac => $mac,
+                vid => $vid,
+                status => { "!=" => "closed"},
+            }
+        );
         $logger->info("violation $vid closed for $mac");
+        violation_post_close_action($mac, $vid);
         return ($grace);
     }
     return (-1);
@@ -773,9 +734,22 @@ sub violation_force_close {
     my ( $mac, $vid ) = @_;
     my $logger = get_logger();
 
-    db_query_execute(VIOLATION, $violation_statements, 'violation_close_sql', $mac, $vid)
-        || return (0);
+    my $should_run_actions = violation_exist_open($mac, $vid);
+    my ($status, $rows) = pf::dal::violation->update_items(
+        -set => {
+            release_date => \'NOW()',
+            status => 'closed',
+        },
+        -where => {
+            mac => $mac,
+            vid => $vid,
+            status => { "!=" => "closed"},
+        }
+    );
     $logger->info("violation $vid force-closed for $mac");
+    if($should_run_actions) {
+        violation_post_close_action($mac, $vid);
+    }
     return (1);
 }
 
@@ -798,12 +772,19 @@ sub violation_exist_acct {
     } else {
        $ceil = 0;
     }
-
-    my $query = db_query_execute(VIOLATION, $violation_statements, 'violation_exist_acct_sql', $mac, $vid, $ceil)
-        || return (0);
-    my $val = $query->fetchrow_hashref();
-    $query->finish();
-    return ($val);
+    
+    return _db_item({
+        -where => {
+            mac => $mac,
+            vid => $vid,
+            release_date => {
+                ">=" => $ceil,
+                "<=" => \'NOW()',
+            },
+        },
+        -no_default_join => 1,
+        -columns => [qw(id)],
+    });
 }
 
 =item * violation_view_last_closed - grab the last closed violation within the accounting interval window
@@ -813,7 +794,16 @@ sub violation_exist_acct {
 sub violation_view_last_closed {
     my ( $mac, $vid ) = @_;
 
-    return db_data(VIOLATION, $violation_statements, 'violation_last_closed_sql', $mac, $vid);
+    return _db_data({
+        -where => {
+            mac => $mac,
+            vid => $vid,
+            status => "closed",
+        },
+        -order_by => {-desc => 'release_date'} ,
+        -columns => [qw(mac vid release_date)],
+        -no_default_join => 1,
+    });
 }
 
 =item * _is_node_category_whitelisted - is a node immune to a given violation based on its category
@@ -839,11 +829,17 @@ sub _is_node_category_whitelisted {
         return 0;
     }
 
+    my $node_role = $node_info->{category};
+    # matching registration role for unregistered devices
+    if($node_info->{status} eq $pf::node::STATUS_UNREGISTERED) {
+        $node_role = $REGISTRATION_ROLE;
+    }
+
     # trying to match node's category on whitelisted categories
     my $role_found = 0;
     # whitelisted_roles is of the form "cat1,cat2,cat3,etc."
     foreach my $role (@{$class->{'whitelisted_roles'}}) {
-        if (lc($role) eq lc($node_info->{'category'})) {
+        if (lc($role) eq lc($node_role)) {
             $role_found = 1;
         }
     }
@@ -866,10 +862,21 @@ sub violation_maintenance {
     my $end_time;
     my $rows_processed = 0;
     while(1) {
-        my $query = db_query_execute(VIOLATION, $violation_statements, 'violation_release_sql',$batch) || return (0);
-        my $rows = $query->rows;
+        my ($status, $iter) = pf::dal::violation->search(
+            -where => {
+                status => ["open", "delayed"],
+                release_date => [-and => {"!=" => $ZERO_DATE}, {"<=" => \'NOW()'}],
+            },
+           -limit => $batch,
+           -columns => [qw(id mac vid notes status)],
+           -no_default_join => 1,
+        );
+        if (is_error($status)) {
+            last;
+        }
+        my $rows = $iter->sth->rows;
         my $client = pf::client::getClient();
-        while (my $row = $query->fetchrow_hashref()) {
+        while (my $row = $iter->next(undef)) {
             if($row->{status} eq 'delayed' ) {
                 $client->notify(violation_delayed_run => ($row));
             }
@@ -884,10 +891,9 @@ sub violation_maintenance {
             }
         }
         $rows_processed+=$rows;
-        $query->finish;
         $end_time = time;
         $logger->trace( sub { "processed $rows_processed violations during violation maintenance ($start_time $end_time) " });
-        last if $rows == 0 || ((time - $start_time) > $timelimit);
+        last if $rows <= 0 || (($end_time - $start_time) > $timelimit);
     }
     $logger->info(  "processed $rows_processed violations during violation maintenance ($start_time $end_time) " );
     return (1);
@@ -923,6 +929,63 @@ sub _violation_run_delayed {
     pf::action::action_execute( $mac, $vid, $notes );
 }
 
+=item violation_post_open_action
+
+Execute an action that should occur after opening the violation if necessary
+
+=cut
+
+sub violation_post_open_action {
+    my ($mac, $vid) = @_;
+    if(exists($POST_OPEN_ACTIONS{$vid})) {
+        $POST_OPEN_ACTIONS{$vid}->({mac => $mac, vid => $vid});
+    }
+}
+
+=item violation_post_close_action
+
+Execute an action that should occur after closing the violation if necessary
+
+=cut
+
+sub violation_post_close_action {
+    my ($mac, $vid) = @_;
+    if(exists($POST_CLOSE_ACTIONS{$vid})) {
+        $POST_CLOSE_ACTIONS{$vid}->({mac => $mac, vid => $vid});
+    }
+}
+
+
+=head2 _db_item
+
+_db_item
+
+=cut
+
+sub _db_item {
+    my ($args) = @_;
+    my ($status, $iter) = pf::dal::violation->search(%$args);
+    if (is_error($status)) {
+        return (0);
+    }
+    my $item = $iter->next(undef);
+    return ($item);
+}
+=head2 _db_data
+
+_db_data
+
+=cut
+
+sub _db_data {
+    my ($args) = @_;
+    my ($status, $iter) = pf::dal::violation->search(%$args);
+    if (is_error($status)) {
+        return;
+    }
+    return @{$iter->all(undef) // []};
+}
+
 =back
 
 =head1 AUTHOR
@@ -933,7 +996,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

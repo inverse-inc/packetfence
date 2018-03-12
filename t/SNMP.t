@@ -15,7 +15,7 @@ my $logger = Log::Log4perl->get_logger( basename($0) );
 Log::Log4perl::MDC->put( 'proc', basename($0) );
 Log::Log4perl::MDC->put( 'tid',  0 );
 BEGIN { use lib qw(/usr/local/pf/t); }
-BEGIN { use PfFilePaths; }
+BEGIN { use setup_test_config; }
 
 use pf::SwitchFactory;
 
@@ -157,7 +157,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

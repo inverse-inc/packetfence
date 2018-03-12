@@ -1,0 +1,87 @@
+/locationlogs:
+  get:
+    summary: Returns a list of locationlog entries
+    description: The list of logs will be limited to 100 and a cursor will be returned for iterating on other logs. Iteration is only needed if the nextCursor is not an empty value.
+    parameters:
+      - $ref: '#/components/parameters/cursor'
+    responses:
+      '200':
+        description: List of locationlog entries
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LocationlogList"
+  post:
+    summary: Creates a locationlog entry
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Locationlog"
+    responses:
+      '201':
+        $ref: "#/components/responses/Created"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '409':
+        $ref: "#/components/responses/Duplicate"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+
+'/locationlog/{locationlog_id}':
+  get:
+    summary: Returns a specific locationlog entry by its row ID.
+    parameters:
+      - name: locationlog_id
+        in: path
+        required: true
+        description: The ID of the row to fetch.
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: A specific locationlog entry.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                item:
+                  $ref: "#/components/schemas/Locationlog"
+  put:
+    summary: Allows to update a whole locationlog entry
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Locationlog"
+    responses:
+      '200':
+        $ref: "#/components/responses/Message"    
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+  patch:
+    summary: Allows to update parts of a locationlog entry.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Locationlog"
+    responses:
+      '200':
+        $ref: "#/components/responses/Message"    
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+  delete:
+    summary: Allows to delete a locationlog entry
+    responses:
+      '204':
+        description: Deleted locationlog entry
+

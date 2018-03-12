@@ -32,6 +32,20 @@ ldap {
 	#  searches will start from.
 	base_dn = 'dc=example,dc=org'
 
+    #
+    # Novell eDirectory support
+    #
+    # Since Novell eDirectory does not provide any NT/LM hash to successfully complete mschap,
+    # FreeRADIUS needs the cleartext password which is usually provided by a specific attribute
+    # in the eDirectory.
+    #
+    # Enable Novell eDirectory support
+    #edir = yes
+    #edir_account_policy_check = yes
+    #
+    # eDirectory attribute for Universal Password
+    #password_attribute = nspmPassword
+
 	#
 	#  SASL parameters to use for admin binds
 	#

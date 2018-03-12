@@ -31,20 +31,30 @@ use strict;
 use warnings;
 
 use Net::SNMP;
+use Try::Tiny;
 
 use base ('pf::Switch::Nortel');
 
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $WIRED_MAC_AUTH
+    $WIRED_802_1X
+    $WIRED_MAC_AUTH
+);
 use pf::Switch::constants;
 use pf::util;
 use pf::accounting qw(node_accounting_current_sessionid);
 use pf::node qw(node_attributes);
 use pf::util::radius qw(perform_coa perform_disconnect);
+use pf::log;
 
 sub description { 'Avaya Switch Module' }
 
 =head1 CAPABILITIES
+
+TODO: This list is incomplete
+
+=cut
 
 =head1 METHODS
 
@@ -52,6 +62,76 @@ TODO: This list is incomplete
 
 =cut
 
+sub supportsWiredMacAuth { return $SNMP::TRUE; }
+sub supportsWiredDot1x { return $SNMP::TRUE }
+sub supportsRadiusVoip { return $SNMP::TRUE }
+
+=head2 identifyConnectionType
+
+Used to override L<pf::Connection::identifyType> behavior if needed on a per switch module basis.
+
+=cut
+
+sub _identifyConnectionType {
+    my ($self, $nas_port_type, $eap_type, $mac, $user_name) = @_;
+    my $logger = $self->logger();
+
+    unless( defined($nas_port_type) ){
+        $logger->info("Request type is not set. On Nortel this means it's MAC AUTH");
+        return $WIRED_MAC_AUTH;
+    }
+
+    # if we're not overiding, we call the parent method
+    return $self->SUPER::_identifyConnectionType($nas_port_type, $eap_type, $mac, $user_name);
+
+}
+
+=head2 parseRequest
+
+Takes FreeRADIUS' RAD_REQUEST hash and process it to return
+NAS Port type (Ethernet, Wireless, etc.)
+Network Device IP
+EAP
+MAC
+NAS-Port (port)
+User-Name
+
+=cut
+
+
+sub parseRequest {
+    my ($self, $radius_request) = @_;
+    my $client_mac = clean_mac($radius_request->{'Calling-Station-Id'}) || clean_mac($radius_request->{'User-Name'});
+    my $user_name = $radius_request->{'User-Name'};
+    my $nas_port_type = $radius_request->{'NAS-Port-Type'};
+    my $port = $radius_request->{'NAS-Port'};
+    my $eap_type = 0;
+    if (exists($radius_request->{'EAP-Type'})) {
+        $eap_type = $radius_request->{'EAP-Type'};
+    }
+    my $nas_port_id;
+    if (defined($radius_request->{'NAS-Port-Id'})) {
+        $nas_port_id = $radius_request->{'NAS-Port-Id'};
+    }
+    return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, undef, $nas_port_id);
+}
+
+
+=head2 getVoipVSA
+
+Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
+
+=cut
+
+sub getVoipVsa {
+    return ();
+}
+
+=head2 parseTrap
+
+Unimplemented base method meant to be overriden in switches that support SNMP trap based methods.
+
+=cut
 
 sub parseTrap {
     my ( $self, $trapString ) = @_;
@@ -90,6 +170,12 @@ sub parseTrap {
     return $trapHashRef;
 }
 
+=head2 getIfIndex
+
+return the ifindex based on the slot number and the port number
+
+=cut
+
 sub getIfIndex {
     my ($self, $ifDesc_param,$param2) = @_;
 
@@ -107,6 +193,12 @@ sub getIfIndex {
         }
     }
 }
+
+=head2 getBoardPortFromIfIndex
+
+return the slot and the port number based on the ifindex
+
+=cut
 
 sub getBoardPortFromIfIndex {
     my ( $self, $ifIndex ) = @_;
@@ -138,6 +230,12 @@ sub getBoardPortFromIfIndexForSecurityStatus {
     return ( $board, $port );
 }
 
+=head2 getAllSecureMacAddresses - return all MAC addresses in security table and their VLAN
+
+Returns an hashref with MAC => ifIndex => Array(VLANs)
+
+=cut
+
 sub getAllSecureMacAddresses {
     my ($self) = @_;
     my $logger = $self->logger;
@@ -166,6 +264,12 @@ sub getAllSecureMacAddresses {
 
     return $secureMacAddrHashRef;
 }
+
+=head2 getSecureMacAddresses - return all MAC addresses in security table and their VLAN for a given ifIndex
+
+Returns an hashref with MAC => Array(VLANs)
+
+=cut
 
 sub getSecureMacAddresses {
     my ( $self, $ifIndex ) = @_;
@@ -201,8 +305,10 @@ sub getSecureMacAddresses {
 }
 
 
-#called with $authorized set to true, creates a new line to authorize the MAC
-#when $authorized is set to false, deletes an existing line
+=head2 authorizeMAC - authorize a MAC address and de-authorize the previous one if required
+
+=cut
+
 sub _authorizeMAC {
     my ( $self, $ifIndex, $mac, $authorize ) = @_;
     my $OID_s5SbsAuthCfgAccessCtrlType = '1.3.6.1.4.1.45.1.6.5.3.10.1.4';
@@ -218,9 +324,9 @@ sub _authorizeMAC {
         return 0;
     }
 
-    # careful readers will notice that we don't use getBoardPortFromIfIndex here. 
+    # careful readers will notice that we don't use getBoardPortFromIfIndex here.
     # That's because Nortel thought that it made sense to start BoardIndexes differently for different OIDs
-    # on the same switch!!! 
+    # on the same switch!!!
     my ( $boardIndx, $portIndx ) = $self->getBoardPortFromIfIndexForSecurityStatus($ifIndex);
     my @boardIndx;
 
@@ -230,7 +336,7 @@ sub _authorizeMAC {
     } else {
         push (@boardIndx, $boardIndx);
     }
- 
+
     my $cfgStatus = ($authorize) ? 2 : 3;
     my $mac_oid = mac2oid($mac);
 
@@ -269,6 +375,15 @@ sub _authorizeMAC {
     $logger->warn("MAC authorize / deauthorize failed with " . $self->{_sessionWrite}->error());
     return;
 }
+
+=head2 getPhonesLLDPAtIfIndex
+
+Return list of MACs found through LLDP on a given ifIndex.
+
+If this proves to be generic enough, it could be promoted to L<pf::Switch>.
+In that case, create a generic ifIndexToLldpLocalPort also.
+
+=cut
 
 sub getPhonesLLDPAtIfIndex {
     my ( $self, $ifIndex ) = @_;
@@ -324,24 +439,6 @@ sub getPhonesLLDPAtIfIndex {
 
 
 
-
-=head2 parseRequest
-
-Redefinition of pf::Switch::parseRequest due to client mac being parsed from User-Name rather than Calling-Station-Id
-
-=cut
-
-sub parseRequest {
-    my ( $self, $radius_request ) = @_;
-    my $client_mac      = clean_mac($radius_request->{'User-Name'});
-    my $user_name       = $radius_request->{'TLS-Client-Cert-Common-Name'} || $radius_request->{'User-Name'};
-    my $nas_port_type   = $radius_request->{'NAS-Port-Type'};
-    my $port            = $radius_request->{'NAS-Port'};
-    my $eap_type        = ( exists($radius_request->{'EAP-Type'}) ? $radius_request->{'EAP-Type'} : 0 );
-    my $nas_port_id     = ( defined($radius_request->{'NAS-Port-Id'}) ? $radius_request->{'NAS-Port-Id'} : undef );
-
-    return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, undef);
-}
 
 =head2 deauthenticateMac
 
@@ -469,31 +566,30 @@ sub radiusDisconnect {
         my $connection_info = {
             nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
-            LocalAddr => $self->deauth_source_ip(),
+            LocalAddr => $self->deauth_source_ip($send_disconnect_to),
         };
 
         $logger->debug("network device supports roles. Evaluating role to be returned");
         my $roleResolver = pf::roles::custom->instance();
         my $role = $roleResolver->getRoleForNode($mac, $self);
 
-        my $acctsessionid = node_accounting_current_sessionid($mac);
         my $node_info = node_attributes($mac);
         # transforming MAC to the expected format 00-11-22-33-CA-FE
         $mac = uc($mac);
         $mac =~ s/:/-/g;
+        my $time = time;
 
         # Standard Attributes
         my $attributes_ref = {
-            #'Calling-Station-Id' => $mac,
+            'Calling-Station-Id' => $mac,
             'NAS-IP-Address' => $send_disconnect_to,
-            'Acct-Session-Id' => $acctsessionid,
+            'Event-Timestamp' => $time,
         };
 
         # merging additional attributes provided by caller to the standard attributes
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
 
-        # Roles are configured and the user should have one
-        if (defined($role) && (defined($node_info->{'status'}) ) ) {
+        if ( $self->shouldUseCoA({role => $role}) ) {
 
             $attributes_ref = {
                 %$attributes_ref,
@@ -513,7 +609,7 @@ sub radiusDisconnect {
     };
     return if (!defined($response));
 
-    return $TRUE if ($response->{'Code'} eq 'CoA-ACK');
+    return $TRUE if ( ($response->{'Code'} eq 'Disconnect-ACK') || ($response->{'Code'} eq 'CoA-ACK') );
 
     $logger->warn(
         "Unable to perform RADIUS Disconnect-Request."
@@ -529,7 +625,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

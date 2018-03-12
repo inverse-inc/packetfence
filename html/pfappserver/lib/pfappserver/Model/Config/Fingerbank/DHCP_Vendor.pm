@@ -15,7 +15,6 @@ pfappserver::Model::Config::Fingerbank::DHCP_Vendor
 use fingerbank::Model::DHCP_Vendor();
 use Moose;
 use namespace::autoclean;
-use pf::config::cached;
 use HTTP::Status qw(:constants :is);
 
 extends 'pfappserver::Base::Model::Fingerbank';
@@ -23,11 +22,11 @@ extends 'pfappserver::Base::Model::Fingerbank';
 has '+fingerbankModel' => ( default => 'fingerbank::Model::DHCP_Vendor');
 
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

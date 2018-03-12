@@ -21,8 +21,8 @@ use warnings;
 use pf::log;
 use pf::constants;
 use pf::constants::config qw($TIME_MODIFIER_RE $DEADLINE_UNIT);
-use pf::config;
-use pf::file_paths;
+use pf::config qw(%Config);
+use pf::file_paths qw($ssl_configuration_file);
 use pf::util;
 use pf::config::util;
 use pf::web;
@@ -232,24 +232,24 @@ sub getcookie {
     }
 }
 
-=item build_captive_portal_detection_mecanisms_regex
+=item build_captive_portal_detection_mechanisms_regex
 
-Build a regex that detects if the request is a captive portal detection mecanism request.
+Build a regex that detects if the request is a captive portal detection mechanism request.
 
-Such mecanisms are used by end-points to detect the presence of captive portal and then prompt the end-user accordingly.
+Such mechanisms are used by end-points to detect the presence of captive portal and then prompt the end-user accordingly.
 
 Using configuration values from 'captive_portal.detection_mecanism_urls'.
 
 =cut
 
-sub build_captive_portal_detection_mecanisms_regex {
-    my @captive_portal_detection_mecanism_urls = @{ $Config{'captive_portal'}{'detection_mecanism_urls'} };
+sub build_captive_portal_detection_mechanisms_regex {
+    my @captive_portal_detection_mechanism_urls = @{ $Config{'captive_portal'}{'detection_mecanism_urls'} };
 
-    foreach ( @captive_portal_detection_mecanism_urls ) { s{([^/])$}{$1\$} };
+    foreach ( @captive_portal_detection_mechanism_urls ) { s{([^/])$}{$1\$} };
 
-    my $captive_portal_detection_mecanism_urls = join( '|', @captive_portal_detection_mecanism_urls ) if ( @captive_portal_detection_mecanism_urls ne '0' );
-    if ( defined($captive_portal_detection_mecanism_urls) ) {
-        return qr/ ^(?: $captive_portal_detection_mecanism_urls ) /x; # eXtended pattern
+    my $captive_portal_detection_mechanism_urls = join( '|', @captive_portal_detection_mechanism_urls ) if ( @captive_portal_detection_mechanism_urls ne '0' );
+    if ( defined($captive_portal_detection_mechanism_urls) ) {
+        return qr/ ^(?: $captive_portal_detection_mechanism_urls ) /x; # eXtended pattern
     } else {
         return '';
     }
@@ -297,6 +297,29 @@ sub is_certificate_self_signed {
     return $self_signed;
 }
 
+=head2 generate_doc_url
+
+Generate the URL to a section of documentation
+
+=cut
+
+sub generate_doc_url {
+    my ($section, $guide) = @_;
+    $guide //= "Administration_Guide";
+    return "/static/doc/PacketFence_$guide.html#$section"
+}
+
+=head2 generate_doc_url
+
+Generate the HTML link to a section of documentation
+
+=cut
+
+sub generate_doc_link {
+    my ($section, $guide) = @_;
+    return '<a target="_blank" href="' . generate_doc_url($section, $guide) . '"><i class="icon-question-circle-o"></i></a>';
+}
+
 =back
 
 =head1 AUTHOR
@@ -305,7 +328,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

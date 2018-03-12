@@ -6,6 +6,7 @@ cat <<'EOF' > .gitignore
 *~
 logs/
 var/
+html/common/node_modules/
 EOF
 git add .
 git commit -a -m"initial import"

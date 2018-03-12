@@ -16,10 +16,17 @@ The factory for creating pf::scan objects
 
 use strict;
 use warnings;
-use Module::Pluggable search_path => 'pf::scan', sub_name => 'modules' , require => 1, except => qr/^pf::scan::wmi::(.*)$/;
+use Module::Pluggable
+  search_path => 'pf::scan',
+  sub_name    => 'modules',
+  require     => 1,
+  inner       => 0,
+  except      => qr/^pf::scan::wmi::(.*)$/;
 use List::MoreUtils qw(any);
 use pf::scan;
-use pf::config;
+use pf::config qw(
+    %ConfigScan
+);
 
 our @MODULES = __PACKAGE__->modules;
 
@@ -32,7 +39,7 @@ sub new {
     $data->{id} = $name;
     if ($data) {
         my $subclass = $class->getModuleName($name,$data);
-        $object = $subclass->new($data);
+        $object = $subclass->new(%$data);
     }
     return $object;
 }
@@ -53,7 +60,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

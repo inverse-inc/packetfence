@@ -24,8 +24,12 @@ sub description {'HP ProCurve 2920 Series'}
 
 # importing switch constants
 use pf::Switch::constants;
+use pf::constants::role qw($VOICE_ROLE);
 use pf::util;
-use pf::config;
+use pf::config qw(
+    $MAC
+    $PORT
+);
 use pf::constants;
 
 # CAPABILITIES
@@ -47,7 +51,7 @@ Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
 sub getVoipVsa {
     my ($self) = @_;
     my $logger = $self->logger;
-    my $vlanid = sprintf( "%03x\n", $self->getVlanByName('voice') );
+    my $vlanid = sprintf( "%03x\n", $self->getVlanByName($VOICE_ROLE) );
     my $hexvlan = hex( "31000" . $vlanid );
     return ( 'Egress-VLANID' => $hexvlan, );
 }
@@ -99,7 +103,7 @@ sub getPhonesLLDPAtIfIndex {
                     );
                     if ($MACresult
                         && ($MACresult->{"$oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"}
-                            =~ /^0x([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})$/i
+                            =~ /^(?:0x)?([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})(?::..)?$/i
                         )
                         )
                     {
@@ -120,7 +124,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

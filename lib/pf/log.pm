@@ -16,11 +16,21 @@ use strict;
 use warnings;
 use Log::Log4perl;
 use Log::Log4perl::Level;
-use pf::file_paths;
+use Log::Log4perl::Layout::PatternLayout;
+use pf::file_paths qw($log_conf_dir $log_config_file);
 use pf::log::trapper;
 use File::Basename qw(basename);
+use Carp;
 
 Log::Log4perl->wrapper_register(__PACKAGE__);
+
+
+Log::Log4perl::Layout::PatternLayout::add_global_cspec('Z', sub {
+    my ($layout, $message, $category, $priority, $caller_level) = @_;
+    my $number = $Log::Log4perl::Level::SYSLOG{$priority};
+    return "<$number>";
+});
+
 sub import {
     my ($self,%args) = @_;
     my ($package, $filename, $line) = caller;
@@ -30,8 +40,11 @@ sub import {
             Log::Log4perl->init_and_watch("$log_conf_dir/${service}.conf",5 * 60);
             Log::Log4perl::MDC->put( 'proc', $service );
         } else {
-            Log::Log4perl->init($log_config_file);
-            Log::Log4perl::MDC->put( 'proc', basename($0) );
+            Log::Log4perl->init_and_watch($log_config_file, 5 * 60);
+            my $proc = basename($0);
+            $proc =~ /^(.*)$/;
+            $proc = $1;
+            Log::Log4perl::MDC->put( 'proc', $proc);
         }
         #Install logging in the die handler
         $SIG{__DIE__} = sub {
@@ -59,6 +72,34 @@ sub import {
 
 sub get_logger { Log::Log4perl->get_logger(@_); }
 
+sub logstacktrace {
+##################################################
+    my $logger = get_logger();
+    return unless $logger->is_trace;
+
+    local $Carp::CarpLevel = $Carp::CarpLevel + 1;
+
+    my $msg = $logger->warning_render(@_);
+
+    my $message = Carp::longmess($msg);
+    $logger->trace($message);
+
+}
+
+=head2 reset_log_context
+
+Reset the logging context
+
+=cut
+
+sub reset_log_context {
+    my ($self) = @_;
+    for my $ctx (qw(ip mac)) {
+        Log::Log4perl::MDC->put($ctx, 'unknown');
+    }
+    return;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -66,7 +107,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

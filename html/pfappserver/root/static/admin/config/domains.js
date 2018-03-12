@@ -1,3 +1,5 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
+
 var domainView;
 $(function() { // DOM ready
     var items = new Domains();
@@ -7,16 +9,17 @@ $(function() { // DOM ready
 /*
  * The FloatingDevices class defines the operations available from the controller.
  */
-var Domains = function() {
-};
+function Domains() {
+}
 
 Domains.prototype = new Items();
 Domains.prototype.id  = '#domains';
 Domains.prototype.formName  = 'modalDomain';
 Domains.prototype.modalId   = '#modalDomain';
+Domains.prototype.createSelector = ".createDomain";
 
 
-var DomainView = function(options) {
+function DomainView(options) {
     ItemView.call(this,options);
     var that = this;
     this.parent = options.parent;
@@ -28,10 +31,13 @@ var DomainView = function(options) {
 
     var delete_item = $.proxy(this.deleteItem, this);
     options.parent.on('click', id + ' [href$="/delete"]', delete_item);
-};
+
+    var save_and_join = $.proxy(this.updateAndJoinDomain, this);
+    options.parent.on('click', '#saveAndJoinDomain', save_and_join);
+}
 
 DomainView.prototype = (function(){
-    function F(){};
+    function F(){}
     F.prototype = ItemView.prototype;
     return new F();
 })();
@@ -41,15 +47,16 @@ DomainView.prototype.constructor = ItemView;
 DomainView.prototype.showWait = function(title) {
   var that = this;
   $('#modalDomainWait h3').html(title); 
-  $('#modalDomainWait').modal('show');
   $('#domainProgressBar').css('width', '1%');
+  $('#modalDomainWait').modal('show');
 };
 
-DomainView.prototype.updateItem = function(e) {
+DomainView.prototype.updateAndJoinDomain = function(e) {
   e.preventDefault();
 
   var that = this;
-  var form = $(e.target);
+  var target = $(e.target);
+  var form = target.closest('form');
   var table = $(this.items.id);
   var btn = form.find('.btn');
   var modal = form.closest('.modal');
@@ -61,18 +68,18 @@ DomainView.prototype.updateItem = function(e) {
       modal.modal('hide');
       that.showWait("The server is currently joining the domain");
       this.items.post({
-          url: form.attr('action'),
+          url: target.attr('href'),
           data: form.serialize(),
           always: function() {
               // Restore hidden/template rows
               form.find('tr.hidden :input').removeAttr('disabled');
               btn.button('reset');
-              $('#modalDomainWait').modal('hide');          
+              $('#modalDomainWait').modal('hide');
           },
           success: function(data) {
               var content = $('<div></div>');
               content.append('<h3>Result of the domain join</h3>'); 
-              content.append($('<pre>'+data.items['join_output']+'</pre>')); 
+              content.append($('<pre>' + data.items.join_output + '</pre>'));
               that.showResultModal(content); 
               that.list();
           },
@@ -164,28 +171,31 @@ DomainView.prototype.setPassword = function(domain,callback) {
         'type'  : "POST",
         'data'  : form.serialize(),
         })
-        .success(function(data) {
+        .done(function(data) {
             modal.modal('hide');     
-            form.find('input[type="password"]').val('');
+            form.find('input[name="username"]').val('');
+            form.find('input[name="password"]').val('');
             callback();
         })
         .fail(function(jqXHR) {
             $("body,html").animate({scrollTop:0}, 'fast');
             var status_msg = getStatusMsg(jqXHR);
-            form.find('input[type="password"]').val('');
+            form.find('input[name="username"]').val('');
+            form.find('input[name="password"]').val('');
             showError($('#section h2'), status_msg);
         });
     return false;
   });
   modal.modal('show');
-}
+};
 
 $(document).ready(function(){
   $('#section').on('click', '.rejoin_domain', function(event){
     var that = this;
-    event.preventDefault()
-    var domain_name = $(event.target).parent().parent().children().children().html()
+    event.preventDefault();
+    var domain_name = $(event.target).parent().parent().children().children().html();
     domainView.setPassword(domain_name, function(){
+      var view = domainView;
       var jbtn = $(that);
       var initial_content = jbtn.html();
       jbtn.attr('disabled', 'disabled');
@@ -196,15 +206,16 @@ $(document).ready(function(){
           'url'   : jbtn.attr('href'),
           'type'  : "GET",
           })
-          .success(function(data) {
+          .done(function(data) {
               $("body,html").animate({scrollTop:0}, 'fast');
               var content = $('<div></div>');
               content.append('<h3>Result of the domain leave</h3>'); 
-              content.append($('<pre>'+data.items['leave_output']+'</pre>')); 
+              content.append($('<pre>'+data.items.leave_output+'</pre>'));
               content.append('<h3>Result of the domain join</h3>'); 
-              content.append($('<pre>'+data.items['join_output']+'</pre>')); 
+              content.append($('<pre>'+data.items.join_output+'</pre>'));
               $('#modalDomainWait').modal('hide');
               domainView.showResultModal(content); 
+              view.list();
               jbtn.html(initial_content);
               jbtn.removeAttr('disabled');
           })
@@ -221,7 +232,7 @@ $(document).ready(function(){
 
   $('#section').on('click', '#refresh_domains', function(event){
     
-    event.preventDefault()
+    event.preventDefault();
     var initial_content = $('#refresh_domains').html();
     $('#refresh_domains').attr('disabled', 'disabled');
     // need to be i18ned 
@@ -231,7 +242,7 @@ $(document).ready(function(){
         'url'   : $('#refresh_domains').attr('href'),
         'type'  : "GET",
         })
-        .success(function(data) {
+        .done(function(data) {
             $("body,html").animate({scrollTop:0}, 'fast');
             $('#modalDomainWait').modal('hide');
             showSuccess($('#section h2'), data.status_msg);
@@ -252,7 +263,7 @@ $(document).ready(function(){
     var width = $('#domainProgressBar').width();
     if(!width && width !== 0) return; 
     var parentWidth = $('#domainProgressBar').offsetParent().width();
-    var width = 100*width/parentWidth;
+    width = 100*width/parentWidth;
     if(width == 100){
       width = 0;
     }
@@ -265,4 +276,4 @@ $(document).ready(function(){
     $('#domainProgressBar').css('width', width+'%');
   }, 15000);
 
-})
+});

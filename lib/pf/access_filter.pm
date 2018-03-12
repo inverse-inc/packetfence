@@ -61,7 +61,7 @@ sub test {
 
 =head2 filter
 
- Filter the arguements passed
+ Filter the arguments passed
 
 =cut
 
@@ -100,7 +100,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

@@ -29,14 +29,21 @@ use pf::log;
 
 BEGIN {
     use Exporter ();
-    our ( @ISA, @EXPORT, @EXPORT_OK );
+    our ( @ISA, @EXPORT_OK );
     @ISA       = qw(Exporter);
-    @EXPORT    = qw();
     @EXPORT_OK = qw(reevaluate_access);
 }
 
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $INLINE_API_LEVEL
+    $ROLE_API_LEVEL
+    %Config
+    $INLINE
+    %connection_type_explained
+    $WIRED
+    $WIRELESS
+);
 use pf::inline::custom $INLINE_API_LEVEL;
 use pf::iptables;
 use pf::locationlog;
@@ -47,9 +54,9 @@ use pf::config::util;
 use pf::role::custom $ROLE_API_LEVEL;
 use pf::client;
 use pf::cluster;
-use pf::firewallsso;
 use pf::constants::dhcp qw($DEFAULT_LEASE_LENGTH);
-use pf::iplog;
+use pf::ip4log;
+use pf::Connection::ProfileFactory;
 
 use Readonly;
 
@@ -72,26 +79,16 @@ sub reevaluate_access {
     # Untaint MAC
     $mac = clean_mac($mac);
 
-    # function must be in advanced.reevaluate_access_reasons list otherwise bail out
-    if ( none { $_ eq $function } split( /\s*,\s*/, $Config{'advanced'}{'reevaluate_access_reasons'} ) ) {
-        $logger->info("access re-evaluation requested but denied by configuration");
-        return $FALSE;
-    }
-
     $logger->info("re-evaluating access ($function called)");
     $opts{'force'} = '1' if ($function eq 'admin_modify');
 
     if(isenabled($Config{advanced}{sso_on_access_reevaluation})){
         my $node = node_attributes($mac);
-        my $ip = pf::iplog::mac2ip($mac);
+        my $ip = pf::ip4log::mac2ip($mac);
         if($ip){
-            my $firewallsso = pf::firewallsso->new;
-            if($node->{status} eq $STATUS_REGISTERED){
-                $firewallsso->do_sso('Update', $mac, $ip, $DEFAULT_LEASE_LENGTH);
-            }
-            else {
-                $firewallsso->do_sso('Stop', $mac, $ip, $DEFAULT_LEASE_LENGTH);
-            }
+            my $firewallsso_method = ( $node->{status} eq $STATUS_REGISTERED ) ? "Update" : "Stop";
+            my $client = pf::client::getClient();
+            $client->notify( 'firewallsso', (method => $firewallsso_method, mac => $mac, ip => $ip, timeout => $DEFAULT_LEASE_LENGTH) );
         }
         else {
             $logger->error("Can't do SSO for $mac because can't find its IP address");
@@ -131,7 +128,7 @@ sub reevaluate_access {
 
 =item _vlan_reevaluation
 
-Sends local SNMP traps to pfsetvlan if we should reevaluate the VLAN of a node.
+reevaluate the VLAN of a node.
 
 =cut
 
@@ -149,11 +146,14 @@ sub _vlan_reevaluation {
                 . $connection_type_explained{$conn_type} );
 
         my $client;
+        my $cluster_deauth;
         if ($cluster_enabled && isenabled($Config{active_active}{centralized_deauth})){
             $client = pf::client::getManagementClient();
+            $cluster_deauth = 1;
         }
         else {
-            $client = pf::client::getClient();
+            $client = pf::api::queue->new(queue => 'priority');
+            $cluster_deauth = 0;
         }
         my %data = (
             'switch'           => $switch_id,
@@ -162,14 +162,20 @@ sub _vlan_reevaluation {
             'ifIndex'          => $ifIndex
         );
         if ( ( $conn_type & $WIRED ) == $WIRED ) {
-            $logger->debug("Calling json WebAPI with ReAssign request on switch (".$switch_id.")");
-            $client->notify( 'ReAssignVlan', %data );
-
+            $logger->debug("Calling API with ReAssign request on switch (".$switch_id.")");
+            if ($cluster_deauth) {
+                $client->notify( 'ReAssignVlan_in_queue', %data );
+            } else {
+                $client->notify( 'ReAssignVlan', %data );
+            }
         }
         elsif ( ( $conn_type & $WIRELESS ) == $WIRELESS ) {
-            $logger->debug("Calling json WebAPI with desAssociate request on switch (".$switch_id.")");
-            $client->notify( 'desAssociate', %data );
-
+            $logger->debug("Calling API with desAssociate request on switch (".$switch_id.")");
+            if ($cluster_deauth) {
+                $client->notify( 'desAssociate_in_queue', %data );
+            } else {
+                $client->notify( 'desAssociate', %data );
+            }
         }
         else {
             $logger->error("Connection type is neither wired nor wireless. Cannot reevaluate VLAN");
@@ -225,6 +231,7 @@ sub _should_we_reassign_vlan {
         user_name => $user_name,
         ssid => $ssid,
         node_info => pf::node::node_attributes($mac),
+        profile => pf::Connection::ProfileFactory->instantiate($mac),
     };
 
     my $newRole = $role_obj->fetchRoleForNode( $args );
@@ -245,14 +252,21 @@ sub _should_we_reassign_vlan {
             }
         }
     }
-    if (defined($role)) {
-        if ($role ne $newRole->{role}) {
-            $logger->info(
-                "Reassignment required (current Role = $role but should be in Role $newRole->{role})"
-            );
-            return $TRUE;
-        }
+
+    # If the role in the locationlog is not defined and the new one is, then we reevaluate access
+    if (!defined($role) && defined($newRole->{role})) {
+        $logger->info(
+            "Reassignment required (current Role is undefined and should be in Role $newRole->{role})"
+        );
+        return $TRUE;
     }
+    elsif ($role ne $newRole->{role}) {
+        $logger->info(
+            "Reassignment required (current Role = $role but should be in Role $newRole->{role})"
+        );
+        return $TRUE;
+    }
+
     $logger->debug("No reassignment required.");
     return $FALSE;
 }
@@ -265,7 +279,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

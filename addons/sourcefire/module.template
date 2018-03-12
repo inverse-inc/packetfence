@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<?meta name="GENERATOR" content="XML::Smart/1.6.9 Perl/5.010001 [linux]" ?>
+<module name="PacketFence">
+  <global_config>
+    <display_name>PacketFence Agent</display_name>
+    <description>Dispatch an Alert to PacketFence for Remediation</description>
+    <version>1.0</version>
+    <binary>pfdetect.pl</binary>
+  </global_config>
+  <config_template online_help="topic://EditInstance">
+    <string required="true">
+      <name>host_addr</name>
+      <display_name>PacketFence management host/ip</display_name>
+    </string>
+    <integer required="true">
+      <name>port</name>
+      <display_name>PacketFence management port</display_name>
+      <default_value>9090</default_value>
+      <constraints>
+        <min>1</min>
+        <max>65535</max>
+      </constraints>
+    </integer>
+    <string required="true">
+      <name>user</name>
+      <display_name>WebUI Username</display_name>
+    </string>
+    <password required="true">
+      <name>password</name>
+      <display_name>WebUI Password</display_name>
+    </password>
+  </config_template>
+  <remediation_type name="blocksource">
+    <display_name>Block Source</display_name>
+    <policy_event_data>
+      <pe_item>sig_id</pe_item>
+      <pe_item>src_ip_addr</pe_item>
+    </policy_event_data>
+    <config_template online_help="topic://RemediationEdit"/>
+  </remediation_type>
+</module>
+

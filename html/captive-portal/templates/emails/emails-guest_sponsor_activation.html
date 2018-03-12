@@ -1,0 +1,56 @@
+<html>
+<head>
+  <style type="text/css">
+    [% INCLUDE emails.css %]
+  </style>
+</head>
+<body>
+<table class="body-wrap">
+  <tr>
+    <td></td>
+    <td class="container" width="600">
+      <div class="content">
+        <table class="main" width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td class="content-wrap">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td class="content-block">
+                    <h1 class="align-center">[% i18n("Guest request") %]</h1>
+                    <p>[% i18n("Hello") %],</p>
+                    <p>[% firstname %] [% lastname %] [% i18n("requested guest access to your network.") %]</p>
+                    <p>[% i18n("Do NOT authorize access if you were not expecting this guest.") %]</p>
+                    <p>[% i18n("Here is the information the guest provided with registration form") %]:</p>          
+                    <p>[% i18n("Firstname") %]: [% firstname %]</br>
+                    [% i18n("Lastname") %]: [% lastname %]</br>
+                    [% i18n("Phone number") %]: [% telephone %]</br>
+                    [% i18n("Email") %]: [% pid %]</p>
+                    <a href="[% activation_uri %]" class="btn-primary">[% i18n ("Activate the sponsor access for guest ") %][% firstname %]</a>
+                    [% IF is_preregistration -%]
+                    <p>[% i18n("Once you click on the activation link the guest will be sent a username and password by email which will allow him to register as a guest in the network once on-site.") %]</p>
+                    [% ELSE %]
+                    <p>[% i18n("Until you click on the activation link this guest will have NO Internet access.") %]</p>
+                    [%- END %]
+                    <p>[% i18n("Thank you for your cooperation.") %]</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </td>
+  </tr>
+</table>
+<div class="footer">
+  <table width="100%">
+    <tr>
+      <td class="aligncenter content-block">
+        <p>-----</br></p>
+        <p>[% i18n("This is a post only E-mail, please do not reply.") %]</p>
+      </td>
+    </tr>
+  </table>
+</div>
+</body>
+</html>

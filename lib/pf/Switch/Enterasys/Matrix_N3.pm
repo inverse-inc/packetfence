@@ -16,7 +16,6 @@ It should work on all Matrix chassis.
 use strict;
 use warnings;
 use Net::SNMP;
-use Net::Telnet;
 use base ('pf::Switch::Enterasys');
 
 sub description { 'Enterasys Matrix N3' }
@@ -90,10 +89,8 @@ sub _setVlan {
         return 0;
     }
 
-    $logger->trace("locking - trying to lock \$switch_locker{".$self->{_ip}."} in _setVlan");
     {   
-        lock %{ $switch_locker_ref->{$self->{_ip}} };
-        $logger->trace("locking - \$switch_locker{".$self->{_ip}."} locked in _setVlan");
+        my $lock = $self->getExclusiveLock();
 
         # get current egress and untagged ports
         $self->{_sessionRead}->translate(0);
@@ -228,7 +225,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

@@ -8,17 +8,32 @@ pf::Authentication::Source::SponsorEmailSource
 
 =cut
 
-use pf::Authentication::constants;
-
 use Moose;
+
+use pf::Authentication::constants;
+use pf::config qw(%Config);
+use pf::constants qw($TRUE $FALSE);
+use pf::constants::authentication::messages;
+use pf::log;
+use pf::util;
+
 extends 'pf::Authentication::Source';
+with 'pf::Authentication::CreateLocalAccountRole';
 
 has '+class' => (default => 'external');
 has '+type' => (default => 'SponsorEmail');
-has '+unique' => (default => 1);
 has 'allow_localdomain' => (isa => 'Str', is => 'rw', default => 'yes');
-has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
 has 'activation_domain' => (isa => 'Maybe[Str]', is => 'rw');
+has 'sponsorship_bcc' => (isa => 'Maybe[Str]', is => 'rw');
+has 'email_activation_timeout' => (isa => 'Str', is => 'rw', default => '30m');
+
+=head2 dynamic_routing_module
+
+Which module to use for DynamicRouting
+
+=cut
+
+sub dynamic_routing_module { 'Authentication::Sponsor' }
 
 =head2 available_attributes
 
@@ -72,8 +87,31 @@ List of mandatory fields for this source
 =cut
 
 sub mandatoryFields {
-    return qw(email sponsor_email);
+    return qw(email sponsor);
 }
+
+
+=head2 authenticate
+
+=cut
+
+sub authenticate {
+    my ( $self, $username, $password ) = @_;
+    my $logger = pf::log::get_logger;
+
+    my $localdomain = $Config{'general'}{'domain'};
+
+    # Verify if allowed to use local domain
+    unless ( isenabled($self->allow_localdomain) ) {
+        if ( $username =~ /[@.]$localdomain$/i ) {
+            $logger->warn("Tried to authenticate using SponsorEmailSource with PID '$username' matching local domain '$localdomain' while 'allow_localdomain' is disabled");
+            return ($FALSE, $pf::constants::authentication::messages::LOCALDOMAIN_EMAIL_UNAUTHORIZED);
+        }
+    }
+
+    return $TRUE;
+}
+
 
 =head1 AUTHOR
 
@@ -81,7 +119,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -102,7 +140,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;
 
 # vim: set shiftwidth=4:

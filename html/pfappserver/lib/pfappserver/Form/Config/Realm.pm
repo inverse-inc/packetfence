@@ -17,9 +17,9 @@ with 'pfappserver::Base::Form::Role::Help';
 use pf::config;
 use pf::authentication;
 use pf::util;
+use pf::ConfigStore::Domain;
 
-has domains => ( is => 'rw');
-has sources => ( is => 'rw');
+has domains => ( is => 'rw', builder => '_build_domains');
 
 ## Definition
 has_field 'id' =>
@@ -28,6 +28,7 @@ has_field 'id' =>
    label => 'Realm',
    required => 1,
    messages => { required => 'Please specify a Realm' },
+   apply => [ pfappserver::Base::Form::id_validator('realm') ]
   );
 
 has_field 'options' =>
@@ -35,9 +36,8 @@ has_field 'options' =>
    type => 'TextArea',
    label => 'Realm Options',
    required => 0,
-   default => 'strip',
    tags => { after_element => \&help,
-             help => 'You can add options in the realm definition' },
+             help => 'You can add FreeRADIUS options in the realm definition' },
   );
 
 has_field 'domain' =>
@@ -52,19 +52,38 @@ has_field 'domain' =>
              help => 'The domain to use for the authentication in that realm' },
   );
 
-has_field 'source' =>
+has_field 'radius_strip_username' =>
   (
-   type => 'Select',
-   multiple => 0,
-   label => 'Source',
-   options_method => \&options_sources,
-   element_class => ['chzn-deselect'],
-   element_attr => {'data-placeholder' => 'Click to select a source'},
+   type => 'Toggle',
+   checkbox_value => "enabled",
+   unchecked_value => "disabled",
+   default => "enabled",
+   label => 'Strip in RADIUS authorization',
    tags => { after_element => \&help,
-             help => 'The authentication source to use in that realm.<br/>(Must also be defined in the portal profile)' },
+             help => 'Should the usernames matching this realm be stripped when used in the authorization phase of 802.1x. Note that this doesn\'t control the stripping in FreeRADIUS, use the options above for that.' },
   );
 
+has_field 'portal_strip_username' =>
+  (
+   type => 'Toggle',
+   checkbox_value => "enabled",
+   unchecked_value => "disabled",
+   default => "enabled",
+   label => 'Strip on the portal',
+   tags => { after_element => \&help,
+             help => 'Should the usernames matching this realm be stripped when used on the captive portal' },
+  );
 
+has_field 'admin_strip_username' =>
+  (
+   type => 'Toggle',
+   checkbox_value => "enabled",
+   unchecked_value => "disabled",
+   default => "enabled",
+   label => 'Strip on the admin',
+   tags => { after_element => \&help,
+             help => 'Should the usernames matching this realm be stripped when used on the administration interface' },
+  );
 
 =head2 options_roles
 
@@ -73,32 +92,15 @@ has_field 'source' =>
 sub options_domains {
     my $self = shift;
     my @domains = map { $_->{id} => $_->{id} } @{$self->form->domains} if ($self->form->domains);
+    unshift @domains, ("" => "");
     return @domains;
 }
 
-=head2 options_sources
-
-=cut
-
-sub options_sources {
-    my $self = shift;
-    my @sources = map { $_->id => $_->id } @{$self->form->sources} if ($self->form->sources);
-    unshift @sources, ("" => "");
-    return @sources;
+sub _build_domains {
+    my ($self) = @_;
+    my $cs = pf::ConfigStore::Domain->new;
+    return $cs->readAll("id");
 }
-
-=head2 ACCEPT_CONTEXT
-
-To automatically add the context to the Form
-
-=cut
-
-sub ACCEPT_CONTEXT {
-    my ($self, $c, @args) = @_;
-    my (undef, $domains) = $c->model('Config::Domain')->readAll();
-    return $self->SUPER::ACCEPT_CONTEXT($c, domains => $domains, sources => pf::authentication::getInternalAuthenticationSources(), @args);
-}
-
 
 =over
 
@@ -106,7 +108,7 @@ sub ACCEPT_CONTEXT {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -127,5 +129,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+
 1;

@@ -1,0 +1,51 @@
+Ip4logWithTenantIdList:
+  allOf:
+    - $ref: '#/components/schemas/Iterable'
+    - type: object
+      properties:
+        type: array
+        items:
+          items:
+            $ref: '#/components/schemas/Ip4logWithTenantId'
+        
+Ip4logList:
+  allOf:
+    - $ref: '#/components/schemas/Iterable'
+    - type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ip4logWithTenantId'
+            
+Ip4logItem:
+    - type: object
+      properties:
+        item:
+          type: object
+          $ref: "#/components/schemas/Ip4log"
+    
+Ip4logWithTenantId:
+  allOf:
+    - $ref: '#/components/schemas/Ip4log'
+    - type: object
+      properties:
+        tenant_id:
+          description: The unique numeric identifier of the node tenant.
+          type: string
+    
+Ip4log:
+  type: object
+  properties:
+    ip:
+      description: The ipv4 address of the node.
+      type: string
+    mac:
+      description: The MAC address of the node.
+      type: string
+    start_time:
+      description: The date/time the node was first seen.
+      type: string
+    end_time:
+      description: The date/time the node was last seen.
+      type: string

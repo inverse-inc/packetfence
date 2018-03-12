@@ -25,8 +25,8 @@ use pf::Sereal qw($DECODER $ENCODER);
 use base 'pfconfig::backend';
 
 sub init {
-
-    # abstact
+    my ($self) = @_;
+    $self->{should_clear} = 0;
 }
 
 =head2 _get_db
@@ -37,13 +37,15 @@ Get a connection to the database
 
 sub _get_db {
     my ($self) = @_;
-    return $self->{_db} if (defined $self->{_db});
+    return $self->{_db} if (defined $self->{_db} && $self->{_db}->ping);
     my $logger = get_logger;
+    $logger->info("Connecting to MySQL database");
+    
     my $cfg    = pfconfig::config->new->section('mysql');
     my $db;
     eval {
         $db = DBI->connect( "DBI:mysql:database=$cfg->{db};host=$cfg->{host};port=$cfg->{port}",
-            $cfg->{user}, $cfg->{pass}, { 'RaiseError' => 1 } );
+            $cfg->{user}, $cfg->{pass}, { 'RaiseError' => 1, mysql_auto_reconnect => 1 } );
     };
     if($@) {
         $logger->error("Caught error $@ while connecting to database.");
@@ -52,6 +54,36 @@ sub _get_db {
     $self->{_db} = $db;
     return $db;
 }
+
+=head2 db_readonly_mode
+
+Whether or not the database is in read only mode
+In which case, we should not read from it since it can't be updated
+
+=cut
+
+sub db_readonly_mode {
+    my ($self) = @_;
+
+    my $logger = get_logger;
+
+    my $dbh = $self->{_db} || $self->_get_db();
+    my $sth = $dbh->prepare_cached('SELECT @@global.read_only;');
+
+    my $result;
+    eval {
+        $sth->execute;
+        my $row = $sth->fetch;
+        $sth->finish;
+        $result = $row->[0];
+    };
+    if($@) {
+        $logger->error("Cannot connect to database to see if its in read-only mode. Will consider it in read-only.");
+        return 1;
+    }
+    return $result;
+}
+
 
 =head2 _db_error
 
@@ -79,6 +111,20 @@ sub get {
         $self->_db_error();
         return undef;
     }
+
+    if($self->db_readonly_mode) {
+        $logger->error("Not gathering data from backend since its in read-only mode.");
+        # Signal that we should clear the backend when we recover a read/write connection
+        # This is done since outside of this backend, the process could load a different version of what is in the DB which will cause issues when we go out of read-only
+        $self->{should_clear} = 1;
+        return undef;
+    }
+    elsif($self->{should_clear}) {
+        $logger->info("Signaled to clear the backend. Clearing now.");
+        $self->{should_clear} = 0;
+        $self->clear();
+    }
+
     my $statement = $db->prepare( "SELECT value FROM keyed WHERE id=" . $db->quote($key) );
     eval {
         $statement->execute();
@@ -168,6 +214,7 @@ sub list {
         $self->_db_error();
         return ();
     }
+    
     my $statement = $db->prepare( "SELECT id FROM keyed");
     eval {
         $statement->execute();
@@ -195,6 +242,7 @@ sub list_matching {
         $self->_db_error();
         return ();
     }
+
     my $statement = $db->prepare( "SELECT id FROM keyed where id regexp ".$db->quote($expression) );
     eval {
         $statement->execute();
@@ -222,7 +270,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

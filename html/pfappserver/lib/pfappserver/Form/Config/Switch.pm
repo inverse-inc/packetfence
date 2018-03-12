@@ -17,11 +17,18 @@ with 'pfappserver::Base::Form::Role::Help';
 use File::Find qw(find);
 use File::Spec::Functions;
 
-use pf::config;
+use pf::config qw(
+    $PORT
+    $MAC
+    $SSID
+    $ALWAYS
+);;
 use pf::Switch::constants;
+use pf::constants::role qw(@ROLES);
 use pf::SwitchFactory;
 use pf::util;
 use List::MoreUtils qw(any);
+use pf::ConfigStore::SwitchGroup;
 
 has 'roles' => ( is => 'rw' );
 
@@ -70,6 +77,16 @@ has_field 'deauthMethod' =>
    label => 'Deauthentication Method',
    element_class => ['chzn-deselect'],
   );
+  
+has_field 'useCoA' =>
+  (
+   type => 'Toggle',
+   label => 'Use CoA',
+   default => 'enabled',
+   tags => { after_element => \&help,
+             help => 'Use CoA when available to deauthenticate the user. When disabled, RADIUS Disconnect will be used instead if it is available.' },
+  );
+
 has_field 'VlanMap' =>
   (
    type => 'Toggle',
@@ -89,6 +106,12 @@ has_field 'AccessListMap' =>
    label => 'Role by access list',
    default => undef,
   );
+has_field 'UrlMap' =>
+  (
+   type => 'Toggle',
+   label => 'Role by Web Auth URL',
+   default => undef,
+  );
 has_field 'cliAccess' =>
   (
    type => 'Toggle',
@@ -96,11 +119,47 @@ has_field 'cliAccess' =>
    tags => { after_element => \&help,
              help => 'Allow this switch to use PacketFence as a radius server for CLI access'},
   );
+has_field 'ExternalPortalEnforcement' => (
+    type    => 'Toggle',
+    label   => 'External Portal Enforcement',
+    tags    => {
+        after_element   => \&help,
+        help            => 'Enable external portal enforcement when supported by network equipment',
+    },
+);
 has_field 'VoIPEnabled' =>
   (
    type => 'Toggle',
    label => 'VoIP',
   );
+
+has_field 'VoIPLLDPDetect' =>
+  (
+   type => 'Toggle',
+   label => 'VoIPLLDPDetect',
+   default => undef,
+   tags => { after_element => \&help,
+             help => 'Detect VoIP with a SNMP request in the LLDP MIB'},
+  );
+
+has_field 'VoIPCDPDetect' =>
+  (
+   type => 'Toggle',
+   label => 'VoIPCDPDetect',
+   default => undef,
+   tags => { after_element => \&help,
+             help => 'Detect VoIP with a SNMP request in the CDP MIB'},
+  );
+
+has_field 'VoIPDHCPDetect' =>
+  (
+   type => 'Toggle',
+   label => 'VoIPDHCPDetect',
+   default => undef,
+   tags => { after_element => \&help,
+             help => 'Detect VoIP with the DHCP Fingerprint'},
+  );
+
 has_field 'uplink_dynamic' =>
   (
    type => 'Checkbox',
@@ -242,7 +301,7 @@ has_field macSearchesSleepInterval  =>
 
 has_block definition =>
   (
-   render_list => [ qw(description type mode group deauthMethod cliAccess VoIPEnabled uplink_dynamic uplink controllerIp controllerPort portalURL) ],
+   render_list => [ qw(description type mode group deauthMethod useCoA cliAccess ExternalPortalEnforcement VoIPEnabled VoIPLLDPDetect VoIPCDPDetect VoIPDHCPDetect uplink_dynamic uplink controllerIp disconnectPort coaPort) ],
   );
 has_field 'SNMPVersion' =>
   (
@@ -424,23 +483,23 @@ has_field controllerIp =>
     },
   );
 
-has_field controllerPort =>
+has_field disconnectPort =>
   (
     type => 'PosInteger',
-    label => 'Controller Port',
+    label => 'Disconnect Port',
     tags => {
         after_element => \&help_list,
-        help => 'For CoA request, if we have to send to another port'
+        help => 'For Disconnect request, if we have to send to another port'
     },
   );
 
-has_field 'portalURL' =>
+has_field coaPort =>
   (
-   type => 'Text',
-   label => 'Portal URL',
-   tags => {
-       after_element => \&help_list,
-       help => 'Only for external captive portal, specify the URL of the captive portal that will be send back as a RADIUS attribute'
+    type => 'PosInteger',
+    label => 'CoA Port',
+    tags => {
+        after_element => \&help_list,
+        help => 'For CoA request, if we have to send to another port'
     },
   );
 
@@ -470,52 +529,47 @@ sub field_list {
     my $list = [];
 
     # Add VLAN & role mapping for default roles
-    foreach my $role (@SNMP::ROLES) {
-        my $field =
-          {
-           type => 'Text',
-           label => $role,
-          };
-        push(@$list, $role.'Role' => $field);
-
-        $field =
-          {
-           type => 'TextArea',
-           label => $role,
-          };
-        push(@$list, $role.'AccessList' => $field);
-
-        # The VLAN mapping for default roles is mandatory for the default switch
-        $field =
-          {
-           type => 'Text',
-           label => $role,
-          };
-        push(@$list, $role.'Vlan' => $field);
+    foreach my $role (@ROLES) {
+        $self->_add_role_mappings($list, $role);
     }
 
-    # Add VLAN & role mapping for custom roles
     if (defined $self->roles) {
         foreach my $role (map { $_->{name} } @{$self->roles}) {
-            my $field =
-              {
-               type => 'Text',
-               label => $role,
-              };
-            push(@$list, $role.'Vlan' => $field);
-            push(@$list, $role.'Role' => $field);
-
-            $field =
-              {
-               type => 'TextArea',
-               label => $role,
-              };
-            push(@$list, $role.'AccessList' => $field);
-
+            $self->_add_role_mappings($list, $role);
         }
     }
 
     return $list;
+}
+
+=head2 _add_role_mappings
+
+Add VLAN & role mapping for custom roles
+
+=cut
+
+sub _add_role_mappings {
+    my ($self, $list, $role) = @_;
+    my $text_field = {
+        type              => 'Text',
+        label             => $role,
+        wrap_label_method => \&role_label_wrap,
+    };
+    foreach my $type (qw(Role Url Vlan)) {
+        push(@$list, $role . $type => $text_field);
+    }
+
+    my $text_area_field = {
+        type              => 'TextArea',
+        label             => $role,
+        wrap_label_method => \&role_label_wrap,
+    };
+    push(@$list, $role . 'AccessList' => $text_area_field);
+}
+
+sub role_label_wrap {
+    my ($self, $label) = @_;
+    return $label;
 }
 
 =head2 update_fields
@@ -535,7 +589,7 @@ sub update_fields {
     my $placeholders = $cs->fullConfig($inherit_from);
 
     if (defined $id && $id eq 'default') {
-        foreach my $role (@SNMP::ROLES) {
+        foreach my $role (@ROLES) {
             $self->field($role.'Vlan')->required(1);
         }
     } elsif ($placeholders) {
@@ -574,11 +628,12 @@ Dynamically build the block list of the roles mapping.
 sub build_block_list {
     my $self = shift;
 
-    my (@vlans, @roles, @access_lists);
+    my (@vlans, @roles, @access_lists, @urls);
     if ($self->form->roles) {
-        @vlans = map { $_.'Vlan' } @SNMP::ROLES, map { $_->{name} } @{$self->form->roles};
-        @roles = map { $_.'Role' } @SNMP::ROLES, map { $_->{name} } @{$self->form->roles};
-        @access_lists = map { $_.'AccessList' } @SNMP::ROLES, map { $_->{name} } @{$self->form->roles};
+        @vlans = map { $_.'Vlan' } @ROLES, map { $_->{name} } @{$self->form->roles};
+        @roles = map { $_.'Role' } @ROLES, map { $_->{name} } @{$self->form->roles};
+        @access_lists = map { $_.'AccessList' } @ROLES, map { $_->{name} } @{$self->form->roles};
+        @urls = map { $_.'Url' } @ROLES, map { $_->{name} } @{$self->form->roles};
     }
 
     return
@@ -591,6 +646,9 @@ sub build_block_list {
        },
        { name => 'access_lists',
          render_list => \@access_lists,
+       },
+       { name => 'urls',
+         render_list => \@urls,
        }
       ];
 }
@@ -675,7 +733,7 @@ sub options_SNMPVersion {
 sub options_cliTransport {
     my $self = shift;
 
-    my @transports = map { $_ => $_ } qw/Telnet SSH Serial/;
+    my @transports = map { $_ => $_ } qw/Telnet SSH/;
 
     return ('' => '', @transports);
 }
@@ -762,7 +820,7 @@ sub validate {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -783,5 +841,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

@@ -106,10 +106,6 @@ case "$1" in
   condrestart)
 	if [ -f /usr/local/pf/var/run/pfmon.pid ]; then
 		restart
-	else
-		if [ -f /usr/local/pf/var/run/pfsetvlan.pid ]; then
-			restart
-		fi
 	fi
 	;;
   *)

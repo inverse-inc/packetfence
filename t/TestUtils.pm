@@ -26,11 +26,10 @@ BEGIN {
         @cli_tests @compile_tests @dao_tests @integration_tests @quality_tests @quality_failing_tests @unit_tests
         use_test_db
         get_all_perl_binaries get_all_perl_cgi get_all_perl_modules
-        get_all_php
         get_networkdevices_modules get_networkdevices_classes
     );
 }
-use pf::config;
+use pf::config qw(%Config);
 
 # Tests are categorized here
 our @cli_tests = qw(
@@ -38,7 +37,11 @@ our @cli_tests = qw(
 );
 
 our @compile_tests = qw(
-    pf.t pfconfig.t binaries.t pfappserver_libs.t captive-portal_libs.t
+    pf.t template.t
+);
+
+our @slow_compile_tests = qw(
+    pf-slow.t pfappserver_libs-slow.t captive-portal_libs-slow.t template.t
 );
 
 our @dao_tests = qw(
@@ -59,8 +62,8 @@ our @quality_failing_tests = qw(
 
 our @unit_tests = qw(
     config.t enforcement.t floatingdevice.t hardware-snmp-objects.t import.t inline.t linux.t network-devices/cisco.t
-    network-devices/roles.t network-devices/threecom.t network-devices/wireless.t nodecategory.t person.t pfsetvlan.t
-    Portal.t radius.t services.t SNMP.t soh.t SwitchFactory.t useragent.t util.t util-dhcp.t util-radius.t
+    network-devices/roles.t network-devices/threecom.t network-devices/wireless.t nodecategory.t person.t
+    Portal.t radius.t services.t SNMP.t SwitchFactory.t util.t util-dhcp.t util-radius.t
     role.t web.t
 );
 
@@ -71,6 +74,17 @@ our @unit_failing_tests = qw(
 our @config_store_test = qw(
     ConfigStore/Base.t ConfigStore/Group.t
 );
+
+=head2 get_compile_tests
+
+get_compile_tests
+
+=cut
+
+sub get_compile_tests {
+    my ($slow) = @_;
+    return $slow ? @slow_compile_tests : @compile_tests ;
+}
 
 =head2 use_test_db
 
@@ -102,12 +116,17 @@ and return all the normal files under
 
 =cut
 
-my @excluded_binaries = qw(
+my %exclusions = map { $_ => 1 } qw(
    /usr/local/pf/bin/pfcmd
+   /usr/local/pf/bin/pfhttpd
    /usr/local/pf/sbin/pfdns
    /usr/local/pf/bin/ntlm_auth_wrapper
+   /usr/local/pf/addons/sourcefire/pfdetect.pl
+   /usr/local/pf/bin/pfdns
+   /usr/local/pf/bin/pfdhcp
+   /usr/local/pf/bin/pfipset
+   /usr/local/pf/bin/pfstats
 );
-my %exclusions = map { $_ => 1 } @excluded_binaries;
 
 sub get_all_perl_binaries {
 
@@ -119,7 +138,7 @@ sub get_all_perl_binaries {
         wanted => sub {
             /^.*\.pl\z/s
             && $File::Find::name !~ /^.*addons\/legacy\/.*\.pl\z/s
-            && push(@list, $File::Find::name);
+            && push(@list, $File::Find::name) if not exists $exclusions{ $File::Find::name } ;
         }}, '/usr/local/pf/lib/pf', '/usr/local/pf/addons'
     );
 
@@ -127,8 +146,9 @@ sub get_all_perl_binaries {
     File::Find::find({
         wanted => sub {
             # add to list if it's a regular file
-            push(@list, $File::Find::name) if ((-f $File::Find::name) && 
-                not exists $exclusions{ $File::Find::name } );
+            my $name = $File::Find::name;
+            push(@list, $name) if ((-f $name) &&
+                (not exists $exclusions{ $name }) && $_ !~ /^\./ );
         }}, '/usr/local/pf/bin', '/usr/local/pf/sbin'
     );
 
@@ -164,9 +184,6 @@ Return all the files ending with .pm under
 
   /usr/local/pf/addons
   /usr/local/pf/conf/authentication
-  /usr/local/pf/lib/pf
-
-One exception: pfcmd_pregrammar.pm because it's generated
 
 =cut
 
@@ -175,34 +192,13 @@ sub get_all_perl_modules {
     my @list;
 
     # find2perl /usr/local/pf/lib/pf /usr/local/pf/addons -name "*.pm"
-    # Except that I'm explictly throwing out pfcmd_pregrammar.pm and anything in addons/legacy/
+    # Except that I'm explictly throwing out anything in addons/legacy/
     File::Find::find({
         wanted => sub {
             /^.*\.pm\z/s
-            && ! /^.*pfcmd_pregrammar\.pm\z/s
             && $File::Find::name !~ /^.*addons\/legacy\/.*\.pm\z/s
             && push(@list, $File::Find::name);
-        }}, '/usr/local/pf/lib/pf', '/usr/local/pf/addons', '/usr/local/pf/html/pfappserver/lib'
-    );
-
-    return @list;
-}
-
-=head2 get_all_php
-
-Return all the files ending with .php or .inc under F</usr/local/pf/html>
-
-=cut
-
-sub get_all_php {
-
-    my @list;
-
-    # find2perl  /usr/local/pf/html -name "*.php" -o -name "*.inc"
-    File::Find::find({
-        wanted => sub {
-           /^.*\.php\z/s || /^.*\.inc\z/s && push(@list, $File::Find::name);
-        }}, '/usr/local/pf/html'
+        }}, '/usr/local/pf/lib/pf', '/usr/local/pf/addons'
     );
 
     return @list;
@@ -280,7 +276,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

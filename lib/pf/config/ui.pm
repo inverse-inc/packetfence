@@ -26,7 +26,8 @@ use pf::log;
 our $VERSION = 1.00;
 
 use pf::config;
-use pf::config::cached;
+use pf::file_paths qw($ui_config_file);
+use pf::IniFiles;
 
 my $singleton;
 
@@ -87,7 +88,7 @@ sub _ui_conf {
 
     unless (defined $_ui_conf_tie) {
         my %conf;
-        tie %conf, 'pf::config::cached', ( -file => $ui_config_file );
+        tie %conf, 'pf::IniFiles', ( -file => $ui_config_file );
         my @errors = @Config::IniFiles::errors;
         if ( scalar(@errors) || !%conf ) {
             $logger->logdie("Error reading ui.conf: " . join( "\n", @errors ) . "\n" );
@@ -145,7 +146,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

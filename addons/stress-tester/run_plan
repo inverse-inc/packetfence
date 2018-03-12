@@ -1,0 +1,105 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use Config::IniFiles;
+use Getopt::Long;
+use POSIX qw(:signal_h);
+
+BEGIN {
+  use Log::Log4perl qw(get_logger);
+  my $log_conf = q(
+  log4perl.rootLogger              = INFO, SCREEN
+  log4perl.appender.SCREEN         = Log::Log4perl::Appender::Screen
+  log4perl.appender.SCREEN.stderr  = 0
+  log4perl.appender.SCREEN.layout  = Log::Log4perl::Layout::PatternLayout
+  log4perl.appender.SCREEN.layout.ConversionPattern = %p : %m %n
+  );
+  Log::Log4perl::init(\$log_conf);
+}
+
+my $logger = get_logger;
+
+POSIX::sigaction(
+    &POSIX::SIGHUP,
+    POSIX::SigAction->new(
+        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
+) or $logger->logdie("run_test: could not set SIGHUP handler: $!");
+
+POSIX::sigaction(
+    &POSIX::SIGTERM,
+    POSIX::SigAction->new(
+        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
+) or $logger->logdie("run_test: could not set SIGTERM handler: $!");
+
+POSIX::sigaction(
+    &POSIX::SIGINT,
+    POSIX::SigAction->new(
+        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
+) or $logger->logdie("run_test: could not set SIGINT handler: $!");
+
+my %CHILDREN;
+my $IS_CHILD = 0;
+our $RUNNING = 1;
+
+sub execute_plan {
+    my ($plan, $command, $delay_by) = @_;
+    $0 = "$0 - $plan";
+    sleep $delay_by;
+    $logger->info("Executing $plan");
+    $logger->info("Result of $command : ".`$command`);
+    exit;
+}
+
+sub execute {
+    my $config_file = $ARGV[0];
+
+    unless(-f $config_file){
+        die "Configuration file doesn't exist";
+    }
+
+    my $config = Config::IniFiles->new(-file => $config_file) || die @Config::IniFiles::errors;
+
+    foreach my $plan ($config->Sections){
+        my $delay_by = $config->val($plan, "delay_by") // 0;
+        my $command = $config->val($plan, "command");
+        die "command not defined for plan $plan" unless($command);
+        my $pid = fork();
+        if($pid){
+            $CHILDREN{$pid} = $plan;
+            $SIG{CHLD} = "IGNORE";
+        }
+        else {
+            $SIG{CHLD} = "DEFAULT";
+            $IS_CHILD = 1;
+            execute_plan($plan, $command, $delay_by);
+        }
+    }
+}
+
+sub normal_sighandler {
+    foreach my $pid (keys %CHILDREN){
+        kill(SIGKILL, $pid);
+    }
+    $RUNNING = 0;
+    $logger->info( "run_test: caught SIG" . $_[0] . " - terminating" );
+}
+
+execute();
+while($RUNNING){
+    sleep 1;
+    foreach my $pid (keys %CHILDREN){
+        unless(kill(0,$pid)){
+            $logger->info("Child $pid ($CHILDREN{$pid}) is dead.");
+            delete $CHILDREN{$pid};
+        }
+    }
+    unless(scalar(keys(%CHILDREN)) > 0){
+        $logger->info("All plans completed");
+        $RUNNING = 0;
+    }
+}

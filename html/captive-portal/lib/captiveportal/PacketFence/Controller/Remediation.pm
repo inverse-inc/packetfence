@@ -6,7 +6,7 @@ use pf::violation;
 use pf::class;
 use pf::node;
 use List::Util qw(first);
-use pf::config;
+use pf::config qw(%Config);
 use pf::util;
 use File::Spec::Functions;
 
@@ -48,32 +48,21 @@ sub index : Path : Args(0) {
         my $class = class_view($vid);
 
         # Retrieve violation template name
-        my $template = $class->{'template'}; 
+        my $template = $class->{'template'};
 
         my $node_info = node_view($mac);
         $c->stash(
+            'title'        => "violation: quarantine established",
             'template'     => 'remediation.html',
             'notes'        => $violation->{'notes'},
             map { $_ => $node_info->{$_} }
               qw(dhcp_fingerprint last_switch last_port
               last_vlan last_connection_type last_ssid username)
         );
-        
+
         # Find the subtemplate
         my $langs = $c->forward(Root => 'getLanguages');
-        my $paths = $c->forward('getTemplateIncludePath');
-        push(@$langs, ''); # default template
-        foreach my $lang (@$langs) {
-            my $file = "violations/$template" . ($lang?".$lang":"") . ".html";
-            foreach my $dir (@$paths) {
-                if ( -f "$dir/$file" ) {
-                    # We found our sub template. Stop here.
-                    $logger->info("Showing the $file  remediation page.");
-                    $c->stash->{'sub_template'} = $file;
-                    return;
-                }
-            }
-        }
+        $c->stash->{sub_template} = $c->profile->findViolationTemplate($template, $langs);
 
     } else {
         $logger->info( "No open violation for " . $mac );
@@ -88,18 +77,14 @@ sub scan_status : Private {
     my ( $self, $c, $scan_start_time ) = @_;
     my $portalSession = $c->portalSession;
 
-    my $refresh_timer = 10;    # page will refresh each 10 seconds
-
     $c->stash(
+        title => "scan: scan in progress",
         template    => 'scan-in-progress.html',
-        timer         => $Config{'trapping'}{'redirtimer'},
-        txt_message => i18n_format(
+        timer         => $Config{'captive_portal'}{'network_redirect_delay'},
+        txt_message => [
             'scan in progress contact support if too long',
             $scan_start_time
-        ),
-        txt_auto_refresh =>
-          i18n_format( 'automatically refresh', $refresh_timer ),
-        refresh_timer => $refresh_timer,
+        ],
     );
 }
 
@@ -113,27 +98,13 @@ sub getViolation {
     return $violation;
 }
 
-=head2 getTemplateIncludePath
-
-=cut
-
-sub getTemplateIncludePath : Private {
-    my ($self, $c) = @_;
-    my $profile = $c->profile;
-    my @paths = ($CAPTIVE_PORTAL{'TEMPLATE_DIR'});
-    if ($profile->getName ne 'default') {
-        unshift @paths,catdir($CAPTIVE_PORTAL{'PROFILE_TEMPLATE_DIR'},trim_path($profile->getTemplatePath));
-    }
-    return \@paths;
-}
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -154,6 +125,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

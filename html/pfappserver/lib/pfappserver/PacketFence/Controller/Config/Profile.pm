@@ -8,7 +8,7 @@ pfappserver::PacketFence::Controller::Config::Profile add documentation
 
 =head1 DESCRIPTION
 
-PortalProfile
+ConnectionProfile
 
 =cut
 
@@ -16,16 +16,32 @@ use strict;
 use warnings;
 use Moose;
 use namespace::autoclean;
-use pf::config;
+use MIME::Lite::TT;
+use Encode qw(encode);
 use File::Copy;
+use pf::constants::user;
 use HTTP::Status qw(:constants is_error is_success);
-use pf::util;
 use File::Slurp qw(read_dir read_file write_file);
 use File::Spec::Functions;
+use File::Find;
 use File::Copy::Recursive qw(dircopy);
 use File::Basename qw(fileparse);
 use Readonly;
 use pf::cluster;
+use pf::Connection::ProfileFactory;
+use captiveportal::DynamicRouting::Application;
+use pf::config qw(%connection_type %ConfigSwitchesGroup);
+use pf::constants qw($TRUE $FALSE);
+use pf::locationlog qw(locationlog_unique_ssids);
+use pf::util;
+use pf::file_paths qw(
+    $captiveportal_profile_templates_path
+    $captiveportal_default_profile_templates_path
+    $captiveportal_templates_path
+);
+use List::Util qw(any);
+use List::MoreUtils qw(uniq);
+use pf::constants::eap_type qw(%RADIUS_EAP_TYPE_2_VALUES);
 
 Readonly our %FILTER_FILES =>
   (
@@ -38,6 +54,7 @@ BEGIN {
     extends 'pfappserver::Base::Controller';
 }
 with 'pfappserver::Base::Controller::Crud::Config' => {excludes => [qw(object)]};
+with 'pfappserver::Base::Controller::Crud::Config::Clone';
 
 __PACKAGE__->config(
     # Reconfigure the models and forms for actions
@@ -47,11 +64,12 @@ __PACKAGE__->config(
     },
     action => {
         # Configure access rights
-        view   => { AdminRole => 'PORTAL_PROFILES_READ' },
-        list   => { AdminRole => 'PORTAL_PROFILES_READ' },
-        create => { AdminRole => 'PORTAL_PROFILES_CREATE' },
-        update => { AdminRole => 'PORTAL_PROFILES_UPDATE' },
-        remove => { AdminRole => 'PORTAL_PROFILES_DELETE' },
+        view   => { AdminRole => 'CONNECTION_PROFILES_READ' },
+        list   => { AdminRole => 'CONNECTION_PROFILES_READ' },
+        create => { AdminRole => 'CONNECTION_PROFILES_CREATE' },
+        clone  => { AdminRole => 'CONNECTION_PROFILES_CREATE' },
+        update => { AdminRole => 'CONNECTION_PROFILES_UPDATE' },
+        remove => { AdminRole => 'CONNECTION_PROFILES_DELETE' },
     },
 );
 
@@ -59,7 +77,7 @@ __PACKAGE__->config(
 
 =head2 object
 
-Portal Profile chained dispatcher
+Connection Profile chained dispatcher
 
 /config/profile/*
 
@@ -91,13 +109,8 @@ after create => sub {
     my ($self, $c) = @_;
     if (is_success($c->response->status) && $c->request->method eq 'POST') {
         my $model = $self->getModel($c);
-        my ($local_result, $failed_syncs) = $self->copyDefaultFiles($c);
-
-        if(@$failed_syncs) {
-            $c->response->status(HTTP_INTERNAL_SERVER_ERROR);
-            $c->stash->{status_msg} = "Failed to sync file on ".join(', ', @$failed_syncs);
-        }
-
+        my $profile_dir = $self->_makeFilePath($c);
+        pf_make_dir($profile_dir);
         $c->response->location(
             $c->pf_hash_for(
                 $c->controller('Config::Profile')->action_for('view'),
@@ -107,12 +120,68 @@ after create => sub {
     }
 };
 
-sub sort_profiles :Local :Args(0) :AdminRole('PORTAL_PROFILES_READ') {
+after clone => sub {
+    my ($self, $c) = @_;
+    if (is_success($c->response->status) && $c->request->method eq 'POST') {
+        my $model = $self->getModel($c);
+        my $profile_dir = $self->_makeFilePath($c);
+        my $cloned_profile_dir = $self->_cloneFilePath($c);
+        pf_make_dir($profile_dir);
+        my($num_of_files_and_dirs, $num_of_dirs, $depth_traversed) = dircopy($cloned_profile_dir, $profile_dir);
+        $c->log->info("Copied $num_of_files_and_dirs files, $num_of_dirs directories, $depth_traversed deep with: $cloned_profile_dir to $profile_dir");
+        $c->response->location(
+            $c->pf_hash_for(
+                $c->controller('Config::Profile')->action_for('view'),
+                [$c->stash->{$model->idKey}]
+            )
+        );
+    }
+};
+
+=head2 after view
+
+Append additional data after the view
+
+=cut
+
+after view => sub {
+    my ($self, $c) = @_;
+    my ($status, $roles) = $c->model('Config::Roles')->listFromDB;
+    # get list of ssids from database locationlog
+    my @ssids = locationlog_unique_ssids();
+    # get list of ssids from form fields
+    my $form_filter = $c->stash->{form}->field('filter');
+    if(defined $form_filter) {
+        foreach my $ssid (@{$form_filter->value//[]}) {
+            if(defined $ssid->{type} && $ssid->{type} eq "ssid" 
+                && defined $ssid->{match} && $ssid->{match} ne ""
+            ) {
+                push(@ssids, $ssid->{match});
+            }
+        }
+    }
+    my @unique_ssids = uniq( @ssids );
+    $c->stash({
+        connection_types => [ keys %connection_type ],
+        connection_sub_types => [ sort keys %RADIUS_EAP_TYPE_2_VALUES ],
+        node_roles => $roles,
+        switch_groups => [ keys %ConfigSwitchesGroup ],
+        ssids => [ @unique_ssids ],
+    });
+};
+
+sub sort_profiles :Local :Args(0) :AdminRole('CONNECTION_PROFILES_READ') {
     my ($self, $c) = @_;
     $c->stash->{current_view} = 'JSON';
 }
 
-sub upload :Chained('object') :PathPart('upload') :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
+=head2 upload
+
+Handles file uploads
+
+=cut
+
+sub upload :Chained('object') :PathPart('upload') :Args() :AdminRole('CONNECTION_PROFILES_UPDATE') {
     my ($self, $c, @pathparts) = @_;
     $c->stash->{current_view} = 'JSON';
     $self->validatePathParts($c, @pathparts);
@@ -129,6 +198,12 @@ sub upload :Chained('object') :PathPart('upload') :Args() :AdminRole('PORTAL_PRO
     }
 }
 
+=head2 validatePathParts
+
+Validate all the path parts given to make sure no .. characaters are given
+
+=cut
+
 sub validatePathParts {
     my ($self, $c, @pathparts) = @_;
     if ( grep { /(\.\.)|[\/\0\?\*\+\%\$]/} @pathparts ) {
@@ -137,12 +212,17 @@ sub validatePathParts {
     }
 }
 
-sub edit :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
+=head2 edit
+
+Edit a file from the profile
+
+=cut
+
+sub edit :Chained('object') :PathPart :Args() :AdminRole('CONNECTION_PROFILES_UPDATE') {
     my ($self, $c, @pathparts) = @_;
     my $full_file_name = catfile(@pathparts);
     my ($file_name,$directory) = fileparse($full_file_name);
-    my $file_path = $self->_makeFilePath($c,$full_file_name);
-    my $file_content = read_file($file_path);
+    my $file_content = $self->getFileContent($c, $full_file_name);
     $directory = '' if $directory eq './';
     $directory = catfile($c->stash->{id}, $directory);
     $directory .= "/" unless $directory =~ /\/$/;
@@ -154,21 +234,41 @@ sub edit :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE
     );
 }
 
-sub edit_new :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
+=head2 getFileContent
+
+Get the content of a file
+
+=cut
+
+sub getFileContent {
+    my ($self, $c, $file_path) = @_;
+    foreach my $dir ($self->mergedPaths($c)) {
+        my $file = catfile($dir,$file_path);
+        next unless -f $file;
+        my $content = read_file($file, binmode => ':utf8');
+        return $content;
+    }
+    return;
+}
+
+=head2 edit_new
+
+Create a new file in edit mode
+
+=cut
+
+sub edit_new :Chained('object') :PathPart :Args() :AdminRole('CONNECTION_PROFILES_UPDATE') {
     my ($self, $c, @pathparts) = @_;
     $self->validatePathParts($c, @pathparts);
     my $full_file_name = catfile(@pathparts);
     my $file_path = $self->_makeFilePath($c, $full_file_name);
     my $file_content = '';
     if (-e $file_path) {
-        $file_content = read_file($file_path);
+        $file_content = read_file($file_path, binmode => ':utf8');
     }
     elsif($full_file_name =~ /\.html$/) {
         $file_content = <<'HTML';
-[% title = i18n("New File Title") %]
-[% INCLUDE header.html %]
-
-[% INCLUDE footer.html %]
+<!--- Your content here --->
 HTML
     }
     my ($file_name, $directory) = fileparse($full_file_name);
@@ -182,7 +282,13 @@ HTML
     );
 }
 
-sub rename :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
+=head2 rename
+
+Rename a file
+
+=cut
+
+sub rename :Chained('object') :PathPart :Args() :AdminRole('CONNECTION_PROFILES_UPDATE') {
     my ($self, $c,@pathparts) = @_;
     my $request = $c->request;
     my $to = $request->param('to');
@@ -200,7 +306,13 @@ sub rename :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDA
     $c->response->location( $c->pf_hash_for($c->controller('Config::Profile')->action_for('edit'), [$c->stash->{id}], catfile(@pathparts,$to)) );
 }
 
-sub new_file :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
+=head2 new_file
+
+Create a new file
+
+=cut
+
+sub new_file :Chained('object') :PathPart :Args() :AdminRole('CONNECTION_PROFILES_UPDATE') {
     my ($self, $c, @pathparts) = @_;
     my $path = catfile(@pathparts);
     my $request = $c->request;
@@ -220,32 +332,127 @@ sub new_file :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UP
 
 }
 
-sub save :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
+=head2 save
+
+Save the contents of a file
+
+=cut
+
+sub save :Chained('object') :PathPart :Args() :AdminRole('CONNECTION_PROFILES_UPDATE') {
     my ($self, $c, @pathparts) = @_;
     my $file_content = $c->req->param("file_content") || '';
     my $path = $self->_makeFilePath($c, @pathparts);
+    my (undef, $file_parent_dir, undef) = fileparse($path);
+    pf_make_dir($file_parent_dir);
     $c->stash->{current_view} = 'JSON';
-    write_file($path, $file_content);
+    write_file($path, {binmode => ':utf8'}, $file_content);
     # Sync file in cluster if necessary
     $self->_sync_file($c, $path);
 }
 
-sub show_preview :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_READ') {
+=head2 show_preview
+
+Show the preview of a file
+
+=cut
+
+sub show_preview :Chained('object') :PathPart :Args() :AdminRole('CONNECTION_PROFILES_READ') {
     my ($self, $c, @pathparts) = @_;
     my $file_name = catfile(@pathparts);
     $c->stash(file_name => $file_name);
 }
 
-sub preview :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_READ') {
+=head2 preview
+
+Preview a file
+
+=cut
+
+sub preview :Chained('object') :PathPart :Args() :AdminRole('CONNECTION_PROFILES_READ') {
     my ($self, $c, @pathparts) = @_;
-    my $template_path = $self->_makeFilePath($c);
-    my $new_template = $self->_makePreviewTemplate($c, @pathparts);
-    $self->add_fake_profile_data($c, $new_template, @pathparts);
-    $c->stash(
-              additional_template_paths => [$template_path],
-              template => $new_template
-             );
+    my $template = catfile(@pathparts);
+    $self->add_fake_profile_data($c, $template, @pathparts);
+    my $profile = pf::Connection::ProfileFactory->instantiate("00:11:22:33:44:55", {portal => $c->stash->{id}});
+    my $application = captiveportal::DynamicRouting::Application->new(
+        user_session => {},
+        session => {client_mac => $c->stash->{client_mac}, client_ip => $c->stash->{client_ip}},
+        profile => $profile,
+        request => $c->request,
+        root_module_id => $profile->getRootModuleId(),
+    );
+
+    $application->render($template, $c->stash);
+    $c->response->body($application->template_output);
+    $c->response->content_type('text/html');
+    $c->detach();
+
 }
+
+=head2 preview_emails
+
+Preview a email
+
+=cut
+
+sub preview_emails :Chained('object') :PathPart('preview/emails') :Args() :AdminRole('CONNECTION_PROFILES_READ') {
+    my ($self, $c, @pathparts) = @_;
+    my $template = catfile(@pathparts);
+    my %TmplOptions = (
+        INCLUDE_PATH    => [ map { $_ . "/emails/" } $self->mergedPaths($c)],
+        ENCODING        => 'utf8',
+    );
+    my %info;
+    my %vars = (
+        %info,
+        i18n => \&pf::web::i18n,
+        i18n_format => \&pf::web::i18n_format,
+        firstname => 'Firstname',
+        lastname => 'Lastname',
+        username => 'Username',
+        tier_description => 'Your Tier Description',
+        tier_name => 'Tier Name',
+        tier_price => '1.00',
+        transaction_id => '1223',
+        password => 'password',
+        txt_expiration => 'Expiration',
+        txt_duration => '3 days',
+        activation_uri => '',
+        pid => 'pid',
+        valid_from => 'Dec 31, 1999',
+        telephone => '1234567',
+        description => 'description',
+        mac => '00:00:00:00:00:00',
+        os => 'Windows',
+        hostname => 'hostname',
+        domain => 'domain',
+        URL_BILLING => '/billing',
+        URL_STATUS => '/status',
+        additionnal_message => 'Additional Message',
+    );
+
+    utf8::decode($info{'subject'});
+    my $msg = MIME::Lite::TT->new(
+        From        =>  $info{'from'},
+        To          =>  $info{'contact_info'},
+        Bcc         =>  $info{'bcc'},
+        Subject     =>  encode("MIME-Header", $info{'subject'}),
+        Template    =>  $template,
+        TmplOptions =>  \%TmplOptions,
+        TmplParams  =>  \%vars,
+        TmplUpgrade =>  1,
+    );
+
+    $c->response->content_type('text/html');
+    $c->response->body($msg->{Data} // "Test");
+    $c->detach();
+
+}
+
+=head2 add_fake_profile_data
+
+Add fake profile data for a preview
+
+=cut
 
 sub add_fake_profile_data {
     my ($self, $c, $template, @pathparts) = @_;
@@ -255,33 +462,56 @@ sub add_fake_profile_data {
     }
 }
 
-sub _makePreviewTemplate {
-    my ($self, $c, @pathparts) = @_;
-    my $template;
-    if ($pathparts[0] eq 'violations') {
-        $template = 'remediation.html';
-    } else {
-        my $file_content = read_file($self->_makeFilePath($c,@pathparts));
-        $file_content =~ s/
-            \[%\s*INCLUDE\s+\$[a-zA-Z_][a-zA-Z0-9_]+\s*%\]/
-         <div>Your included template here<\/div>
-        /x;
-        $template = \$file_content;
-    }
-    return $template;
-}
+=head2 _makeFilePath
+
+Make the file path for the current profile
+
+=cut
 
 sub _makeFilePath {
     my ($self, $c, @pathparts) = @_;
-    return catfile($CAPTIVE_PORTAL{PROFILE_TEMPLATE_DIR},$c->stash->{id}, @pathparts);
+    return catfile($captiveportal_profile_templates_path,$c->stash->{id}, @pathparts);
 }
 
-sub _makeDefaultFilePath {
+=head2 _cloneFilePath
+
+Clone the file path for the current profile, from the previous profile
+
+=cut
+
+sub _cloneFilePath {
     my ($self, $c, @pathparts) = @_;
-    return catfile($CAPTIVE_PORTAL{TEMPLATE_DIR}, @pathparts);
+    return catfile($captiveportal_profile_templates_path,$c->stash->{cloned_id}, @pathparts);
 }
 
-sub delete_file :Chained('object') :PathPart('delete') :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
+=head2 mergedPaths
+
+Returns all the merge paths
+
+=cut
+
+sub mergedPaths {
+    my ($self, $c) = @_;
+    return grep { -d } (catfile($captiveportal_profile_templates_path, $c->stash->{id}), $self->parentPaths($c));
+}
+
+=head2 parentPaths
+
+Return the parent paths
+
+=cut
+
+sub parentPaths {
+    return ($captiveportal_default_profile_templates_path, $captiveportal_templates_path);
+}
+
+=head2 delete_file
+
+Delete file a from the profile
+
+=cut
+
+sub delete_file :Chained('object') :PathPart('delete') :Args() :AdminRole('CONNECTION_PROFILES_UPDATE') {
     my ($self, $c, @pathparts) = @_;
 
     $c->stash->{current_view} = 'JSON';
@@ -296,39 +526,36 @@ sub delete_file :Chained('object') :PathPart('delete') :Args() :AdminRole('PORTA
     unlink($file_path);
 }
 
-sub revert_file :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
+=head2 revert_file
+
+Revert a file from the filesystem
+
+=cut
+
+sub revert_file :Chained('object') :PathPart :Args() :AdminRole('CONNECTION_PROFILES_UPDATE') {
     my ($self, $c, @pathparts) = @_;
     $c->stash->{current_view} = 'JSON';
-    my $file_path = $self->_makeFilePath($c,@pathparts);
-    my $default_file_path = $self->_makeDefaultFilePath($c, @pathparts);
-    copy($default_file_path, $file_path);
-    # Sync file in cluster if necessary
-    $self->_sync_file($c, $file_path);
+    my $file_path = $self->_makeFilePath($c, @pathparts);
+    unlink($file_path);
+    $self->_sync_revert_file($c, $file_path);
 }
 
-sub files :Chained('object') :PathPart :Args(0) :AdminRole('PORTAL_PROFILES_READ') {
+=head2 files
+
+Display all the files
+
+=cut
+
+sub files :Chained('object') :PathPart :Args(0) :AdminRole('CONNECTION_PROFILES_READ') {
     my ($self, $c) = @_;
-    $c->stash(root => $self->_getFilesInfo($c));
+    $c->stash(root => $self->mergeFilesFromPaths($c, $self->mergedPaths($c)));
 }
 
-sub _getFilesInfo {
-    my ($self, $c) = @_;
-    my $profile = $c->stash->{id};
-    my $root_path = $self->_makeFilePath($c);
-    my %default_files =
-        map { catfile($root_path,$_) => 1 }
-        _readDirRecursive($self->_makeDefaultFilePath($c));
-    my %root = (
-        'type'   => 'dir',
-        'name' => $profile,
-        'entries' => [
-            map {$self->_makeFileInfo( $root_path, $_, \%default_files)}
-            sort grep { !exists $FILTER_FILES{$_} && !m/^\./ } read_dir($root_path)],
-        'hidden' => 0,
-        'size'   => 0,
-    );
-    return \%root;
-}
+=head2 path_exists
+
+Checks to see if the path exists
+
+=cut
 
 sub path_exists :Private {
     my ($self, $c) = @_;
@@ -338,7 +565,13 @@ sub path_exists :Private {
     }
 }
 
-sub copy_file :Chained('object'): PathPart('copy'): Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
+=head2 copy_file
+
+Copy files from one path to another
+
+=cut
+
+sub copy_file :Chained('object'): PathPart('copy'): Args() :AdminRole('CONNECTION_PROFILES_UPDATE') {
     my ($self, $c, @pathparts) = @_;
     my $from = catfile(@pathparts);
     my $request = $c->request;
@@ -351,7 +584,8 @@ sub copy_file :Chained('object'): PathPart('copy'): Args() :AdminRole('PORTAL_PR
         $c->stash->{path} = $to_path;
         $c->forward('path_exists');
         $c->stash->{current_view} = 'JSON';
-        copy($from_path, $to_path);
+        $c->log->info("Copying file $from_path to $to_path");
+        pf::util::safe_file_update($to_path, $self->getFileContent($c, $from));
         # Sync file in cluster if necessary
         $self->_sync_file($c, $to_path);
     }
@@ -365,96 +599,57 @@ sub copy_file :Chained('object'): PathPart('copy'): Args() :AdminRole('PORTAL_PR
     }
 }
 
-sub _makeFileInfo {
-    my ($self, $root_path, $file_name, $default_files) = @_;
-    my $full_path = catfile($root_path, $file_name);
-    my $i = 0;
-    my %data =
-      (
-       name => $file_name,
-       size => format_bytes(-s $full_path),
-       hidden => 1,
-      );
-    if (-d $full_path) {
-        $data{'type'} = 'dir';
-        $data{'entries'} =
-          [
-           grep { $_->{name} = catfile($file_name, $_->{name}) }
-           map { $self->_makeFileInfo($full_path, $_, $default_files) }
-           sort grep { !m/^\./ } (read_dir($full_path))
-          ];
-    }
-    else {
-        $data{'editable'} = $self->isEditable($full_path);
-        $data{'delete_or_revert'} =
-          (
-           (exists $default_files->{$full_path}) ?
-           'revert' :
-           'delete'
-          );
-        $data{'delete_or_revert_disabled'} = $self->isDeleteOrRevertDisabled($full_path);
-        $data{'previewable'} = $self->isPreviewable($full_path);
-    }
-   return \%data;
-}
+=head2 isPreviewable
+
+Check to see if a file is previewable
+
+=cut
 
 sub isPreviewable {
     my ($self, $file_name) = @_;
-    return $file_name =~ /\.html$/;
+    return $file_name =~ /\.html$/ ? 1 : 0;
 }
 
+=head2 isDeleteOrRevertDisabled
+
+Checks to see of a file show the delete or revert button
+
+=cut
+
 sub isDeleteOrRevertDisabled {
-    return 0;
+    my ($self, $c, $short_path) = @_;
+    my $file = $self->_makeFilePath($c, $short_path);
+    return ! -e $file;
 }
+
+
+=head2 isEditable
+
+Checks to see if a file is editable
+
+=cut
 
 sub isEditable {
     my ($self, $file_name) = @_;
-    if ($file_name =~ /\.html$/) {
-        return 1;
-    }
-    return 0;
+    return $file_name =~ /\.html$/ ? 1 : 0;
 }
 
-sub _readDirRecursive {
-    my ($root_path) = @_;
-    my @files;
-    foreach my $entry (read_dir($root_path)) {
-        my $full_path = catfile($root_path, $entry);
-        if (-d $full_path) {
-            push @files, map {catfile($entry, $_) } _readDirRecursive($full_path);
-        }
-        elsif ($entry !~ m/^\./) {
-            push @files, $entry;
-        }
-    }
-    return @files;
-}
+=head2 revert_all
 
-sub revert_all :Chained('object') :PathPart :Args(0) :AdminRole('PORTAL_PROFILES_UPDATE') {
+Revert all the files
+
+=cut
+
+sub revert_all :Chained('object') :PathPart :Args(0) :AdminRole('CONNECTION_PROFILES_UPDATE') {
     my ($self,$c) = @_;
 
     $c->stash->{current_view} = 'JSON';
-    if($cluster_enabled){
-        $c->response->status(HTTP_NOT_IMPLEMENTED);
-        $c->stash->{status_msg} = "Cannot revert all files in cluster mode. Please use the command line to copy the files from the default profile or revert files individually.";
-        $c->detach;
-    }
+    my $dir = $self->_makeFilePath($c);
+    my $list = empty_dir($dir);
+    $self->_sync_revert_all($c, $dir);
 
-    my ($local_result, $failed_syncs) = $self->copyDefaultFiles($c);
-
-    my $status_msg = "Copied " . ($local_result->{entries_copied} - $local_result->{dir_copied}) . " files";
+    my $status_msg = "Reverted " . scalar @$list  . " files";
     $c->stash->{status_msg} = $status_msg;
-}
-
-sub copyDefaultFiles {
-    my ($self, $c) = @_;
-    my $to_dir = $self->_makeFilePath($c);
-    my $from_dir = $self->_makeDefaultFilePath($c);
-    my $local_result = {};
-    ($local_result->{entries_copied}, $local_result->{dir_copied}, undef) = dircopy($from_dir, $to_dir);
-    my $failed_syncs = pf::cluster::send_dir_copy($from_dir, $to_dir);
-
-    return ($local_result, $failed_syncs);
 }
 
 =head2 _sync_file
@@ -477,9 +672,141 @@ sub _sync_file {
     return $TRUE;
 }
 
+=head2 _sync_revert_all
+
+=cut
+
+sub _sync_revert_all {
+    my ($self, $c, $dir) = @_;
+    if ($cluster_enabled) {
+        my $id = $c->stash->{id};
+        $c->log->info("Synching revert of profile '$id' in cluster");
+        my $failed = pf::cluster::sync_directory_empty($dir);
+        if (@$failed) {
+            $c->response->status(HTTP_INTERNAL_SERVER_ERROR);
+            $c->stash->{status_msg} = "Failed to revert profile $id on " . join(', ', @$failed);
+            return $FALSE;
+        }
+    }
+    return $TRUE;
+}
+
+=head2 _sync_revert_file
+
+=cut
+
+sub _sync_revert_file {
+    my ($self, $c, $file) = @_;
+    if ($cluster_enabled) {
+        my $id = $c->stash->{id};
+        $c->log->info("Synching revert of file '$file' profile '$id' in cluster");
+        my $failed = pf::cluster::sync_file_deletes([$file]);
+        if (@$failed) {
+            $c->response->status(HTTP_INTERNAL_SERVER_ERROR);
+            $c->stash->{status_msg} = "Failed to revert profile $id on " . join(', ', @$failed);
+            return $FALSE;
+        }
+    }
+    return $TRUE;
+}
+
+=head2 mergeFilesFromPaths
+
+Create a merged directory tree of the directories given
+
+=cut
+
+sub mergeFilesFromPaths {
+    my ($self, $c, @dirs) = @_;
+    my %paths;
+    my $root;
+    my @paths;
+    find({
+        wanted => sub {
+                my $full_path = my $path = $_;
+                #Just get the file path minus the parent directory
+                $path =~ s/^\Q$File::Find::topdir\E\/?//;
+                return if exists $paths{$path};
+                my $dir = $File::Find::dir;
+                #Just get the directory path minus the parent directory
+                $dir =~ s/^\Q$File::Find::topdir\E\/?//;
+                my $data;
+                if (-d) {
+                    $data = { name => $path, type => 'dir' , size => 0, entries => [], hidden => 1 };
+                    push @paths, $data;
+                } else {
+                    $data = $self->makeFileInfo($c, $path, $full_path);
+                }
+                $paths{$path} = $data;
+                if($path ne '') {
+                    push @{ $paths{$dir}{entries} }, $data;
+                } else {
+                    $root = $data;
+                }
+            },
+            no_chdir => 1
+        }, @dirs);
+    $root->{hidden} = 0;
+    sortEntry($root);
+    return $root;
+}
+
+=head2 sortEntry
+
+Sorts the dir entries by name
+
+=cut
+
+sub sortEntry {
+    my ($root) = @_;
+    if ($root->{type} eq 'dir' && exists $root->{entries}) {
+        my $entries = $root->{entries};
+        foreach my $entry (@$entries) {
+            if ($entry->{type} eq 'dir') {
+                sortEntry($entry);
+            }
+        }
+        @$entries = sort {  $a->{type} eq $b->{type} ? $a->{name} cmp $b->{name} : $a->{type} cmp $b->{type} } @$entries;
+    }
+}
+
+
+=head2 makeFileInfo
+
+Create a hash with the file information
+
+=cut
+
+
+sub makeFileInfo {
+    my ($self, $c, $short_path, $full_path) = @_;
+    my %data = (
+        name => $short_path,
+        full_path => $full_path,
+        type => 'file',
+        size => format_bytes(-s $full_path),
+        editable => $self->isEditable($full_path),
+        previewable => $self->isPreviewable($full_path),
+        delete_or_revert_disabled => $self->isDeleteOrRevertDisabled($c, $short_path),
+        delete_or_revert => $self->revertableOrDeletable($short_path),
+    );
+    return \%data;
+}
+
+=head2 revertableOrDeletable
+
+Checks to see if the file is deletable or revertable
+
+=cut
+
+sub revertableOrDeletable {
+    my ($self, $path) = @_;
+    return ( any { -f catfile($_,$path) } $self->parentPaths ) ? 'revert' : 'delete';
+}
+
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -501,4 +828,3 @@ USA.
 =cut
 
 1;
-

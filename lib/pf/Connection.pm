@@ -4,7 +4,12 @@ use Moose;
 
 use pf::constants;
 use pf::radius::constants;
-use pf::config;
+use pf::config qw(
+    $WIRELESS_MAC_AUTH
+    $WIRELESS_802_1X
+    $WIRED_MAC_AUTH
+    $WIRED_802_1X
+);
 use pf::log;
 
 has 'type'          => (is => 'rw', isa => 'Str');                  # Printable string to display the type of a connection
@@ -76,6 +81,43 @@ sub _stringToAttributes {
     ( lc($type) =~ /^8021x/ ) ? $self->is8021X($TRUE) : $self->is8021X($FALSE);
 }
 
+=head2 backwardCompatibleToAttributes
+
+Go from a backward compatible string (L<%pf::config::connection_type>) to attributes for this class
+
+=cut
+
+sub backwardCompatibleToAttributes {
+    my ($self, $type) = @_;
+
+    return if( lc($type) =~ /inline/ || !$type );
+
+    # We set the transport type
+    ( lc($type) =~ /^wireless-802\.11/ ) ? $self->transport("Wireless") : $self->transport("Wired");
+
+    # We check if SNMP. If so, we return immediately while setting the flag
+    if ( (lc($type) =~ /^snmp/) ) { 
+        $self->isSNMP($TRUE);
+        return
+    }
+    else {
+        $self->isSNMP($FALSE);
+    }
+
+    # We check if mac authentication
+    ( lc($type) eq "wired_mac_auth" || lc($type) eq "Ethernet-NoEAP" ) ? $self->isMacAuth($TRUE) : $self->isMacAuth($FALSE);
+
+    # We check if EAP
+    if ( lc($type) =~ /eap$/ && lc($type) !~ /noeap$/ ) {
+        $self->isEAP($TRUE);
+        $self->is8021X($TRUE); 
+        $self->isMacAuth($FALSE);
+    }
+    else {
+        $self->isEAP($FALSE) ; $self->is8021X($FALSE) ; $self->isMacAuth($TRUE);
+    }
+}
+
 =head2 attributesToBackwardCompatible
 
 Only for backward compatibility while we introduce the new connection types.
@@ -110,11 +152,16 @@ sub identifyType {
 
     # We first identify the transport mode using the NAS-Port-Type attribute of the RADIUS Access-Request as per RFC2875
     # Assumption: If NAS-Port-Type is either undefined or does not contain "Wireless", we treat is as "Wired"
-    if ( $nas_port_type =~ /^\d+/ ) { 
-        # if it's an integer, look up the type in the radius constants.
-        $nas_port_type = $RADIUS::NAS_port_type{$nas_port_type};
-    } 
-    ( (defined($nas_port_type)) && (lc($nas_port_type) =~ /^wireless/) ) ? $self->transport("Wireless") : $self->transport("Wired");
+    if (defined $nas_port_type) {
+        if ($nas_port_type =~ /^\d+/ && exists $RADIUS::NAS_port_type{$nas_port_type}) {
+            # if it's an integer, look up the type in the radius constants.
+            $nas_port_type = $RADIUS::NAS_port_type{$nas_port_type};
+        }
+        $self->transport($nas_port_type =~ /^wireless/i ? "Wireless" : "Wired");
+    }
+    else {
+        $self->transport("Wired");
+    }
 
     # Handling EAP connection
     if(defined($eap_type) && ($eap_type ne 0)) {
@@ -147,7 +194,7 @@ sub identifyType {
     $self->_attributesToString;
 }
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 
 =head1 AUTHOR
@@ -156,7 +203,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

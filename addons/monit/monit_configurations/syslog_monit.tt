@@ -1,0 +1,2 @@
+if $programname == 'monit' then [% MONIT_LOG_FILE %]
+& ~

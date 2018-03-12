@@ -1,68 +1,56 @@
-[% title = i18n("PacketFence Registration System") %]
-[% INCLUDE header.html %]
-
-[%# WELCOME TEXT %]
-<div id="about">
-    <img src="/content/images/registration.png" alt="Registration" />
-    <h1>[% i18n("Guest Registration") %]</h1>
-    <p>[% i18n("guest network disclaimer") %]</p>
-    <hr/>
-</div>
-    [%# ERROR %]
-    [% IF txt_validation_error.defined %]<div class="error"><p>[% i18n(txt_validation_error) %]</p></div>[% END %]
-
 <form id="billing_form" name="billing" method="post" action="/billing/confirm">
   <input type="hidden" name="destination_url" value="[% destination_url %]" />
 
-  [%# AUP %]
-  <div class="input">
-    <div>[% i18n("Acceptable Use Policy") %]</div>
-    <div id="aup">
-      <div class="notmobile">
-        [% INCLUDE aup_text.html %]
-      </div>
-      <div class="mobile">
-        <input name="aup_signed" type="checkbox" value="on" /> [% i18n("I have read and accept the terms") %]
-      </div>
-    </div>
-    <div class="notmobile"><label><input name="aup_signed" type="checkbox" value="on" /> [% i18n("I accept the terms") %]</label></div>
-  </div>
-
-  [% FOREACH field IN mandatory_fields %]
-    <div class="input">
-      <span>[% i18n("$field") %]</span>
-      <input class="field" name="[% field %]" type="text" value="[% c.stash.$field | html %]" /><br/>
-    </div>
-  [% END %]
-
-  [% IF profile.billing_tiers.size %]
-  [%# TIERS CHOICE %]
-  <div class="input">
-    <span>[% i18n("Internet Access Package") %]</span>
-    [% FOREACH tier IN profile.billing_tiers %]
-    <input name="tier" type="radio" [% IF selected_tier == tier.id %] checked="checked"[% END %]
-              value="[% i18n(tier.id) | html %]"/>
-    <b>[% i18n(tier.name) | html %] - $[% i18n(tier.price) | html %]</b><br/>
-    <em>[% i18n(tier.description) | html %]</em><br/>
-    [% END %]
+  [% IF fields.exists('aup') %]
+  <div class="card">
+    [% form.get_field('aup').render | none %]
   </div>
   [% END %]
 
-  [% IF billing_sources.size %]
-    [% add_separator = 0 %]
-    [% FOREACH billing IN billing_sources %]
-    <div class="input">
-      [% IF add_separator %]
-        <div class="separator"><div class="or_separator">or</div></div>
-      [% ELSE %]
-        [% add_separator = 1 %]
+  <div class="card[% IF fields.exists('aup') %] card--hidden card--disabled[% END %] layout layout--center">
+    <div class="layout__item u-2/3 u-1/1-palm">
+      [% FOREACH field IN fields.keys %]
+      [% NEXT IF field == 'aup' %]
+      <div class="input-container">
+        [% form.get_field(field).render | none %]
+      </div>
       [% END %]
-      
-      <input  id="billing_source_[% billing.id | html %]" name="billing_source_[% billing.id | html %]" type="submit" value="[% i18n("Pay with ${billing.type}") %]" class="btn">
+
+      [% IF billing_tiers.size %]
+      <p class="u-mt u-mb--">[% i18n("Internet Access Package") %]</p>
+      <ul class="list-ui list-ui--btns">
+        [% FOREACH tier IN billing_tiers %]
+        <li class="list-ui__item input-checkbox-container u-pl">
+          <input name="tier" type="radio" [% IF selected_tier == tier.id %] checked="checked"[% END %]
+                 id="[% tier.id %]"
+                 value="[% i18n(tier.id) | html %]"/>
+          <label for="[% tier.id %]">
+            <p>[% i18n(tier.name) | html %] - $[% i18n(tier.price) | html %]</p>
+            <p class="caption">[% i18n(tier.description) | html %]</p>
+          </label>
+        </li>
+        [% END %]
+      </ul>
+      [% END %]
+
+      [% IF billing_sources.size %]
+      <ul class="list-ui list-ui--btns u-mt">
+        [% FOREACH billing IN billing_sources %]
+        <li class="list-ui__item">
+          <button id="billing_source_[% billing.id | html %]"
+                  name="billing_source_[% billing.id | html %]"
+                  type="submit" class="btn btn--full btn--light">
+            <div class="flag">
+              <div class="flag__img">[% billingIcon(billing=billing.id,size='small') %]</div>
+              <p class="flag__body">[% i18n("Pay with ${billing.type}") %]</p>
+            </div>
+          </button>
+        </li>
+        [% END %]
+      </ul>
+      [% END %]
     </div>
-    [% END %]
-  [% END %]
+  </div>
 
 </form>
 
-[% INCLUDE footer.html %]

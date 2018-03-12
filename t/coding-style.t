@@ -17,18 +17,17 @@ use Test::More;
 use Test::NoWarnings;
 BEGIN {
     use lib qw(/usr/local/pf/t);
-    use PfFilePaths;
+    use setup_test_config;
 }
 
-use TestUtils qw(get_all_perl_binaries get_all_perl_cgi get_all_perl_modules get_all_php);
+use TestUtils qw(get_all_perl_binaries get_all_perl_cgi get_all_perl_modules);
 
 my @files;
 
 # TODO add our javascript to these tests
 push(@files, TestUtils::get_all_perl_binaries());
 push(@files, TestUtils::get_all_perl_cgi());
-push(@files, TestUtils::get_all_perl_modules());
-push(@files, TestUtils::get_all_php());
+push(@files, grep {!m#addons/sourcefire/#}  TestUtils::get_all_perl_modules());
 
 # all files + no warnings
 plan tests => scalar @files * 1 + 1;
@@ -58,7 +57,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

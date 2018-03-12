@@ -16,9 +16,11 @@ pf::pftest::authentication
 use strict;
 use warnings;
 use pf::cmd;
+use pf::constants;
 use base qw(pf::cmd);
 use Term::ANSIColor;
 use IO::Interactive qw(is_interactive);
+use pf::Authentication::constants qw($LOGIN_SUCCESS $LOGIN_FAILURE $LOGIN_CHALLENGE);
 
 sub parseArgs { $_[0]->args >= 2 }
 our $indent = "  ";
@@ -27,8 +29,6 @@ sub _run {
     my ($self) = @_;
     require pf::authentication;
     import pf::authentication;
-    require pf::config;
-    import pf::config;
     my $show_color = colors_supported();;
     my ($user,$pass,@source_ids) = $self->args;
     my @sources;
@@ -38,39 +38,50 @@ sub _run {
         @sources = @pf::authentication::authentication_sources;
     }
 
+    my @CONTEXTS_TO_TEST = (
+        $pf::constants::realm::ADMIN_CONTEXT,
+        $pf::constants::realm::PORTAL_CONTEXT,
+    );
 
     print "Testing authentication for \"$user\"\n\n";
     eval {
         foreach my $source (@sources) {
-            print "Authenticating against " . $source->id . "\n";
-            my ($result,$message) = $source->authenticate($user,$pass);
-            $message = '' unless defined $message;
-            if ($result) {
-                print color $pf::config::Config{advanced}{pfcmd_success_color} if $show_color;
-                print $indent,"Authentication SUCCEEDED against ",$source->id," ($message) \n";
-            } else {
-                print color $pf::config::Config{advanced}{pfcmd_error_color} if $show_color;
-                print $indent,"Authentication FAILED against ",$source->id," ($message) \n";
-            }
-            print color 'reset' if $show_color;
-            my $actions;
-            foreach my $class ( @Rules::CLASSES ) {
-                if( $actions = pf::authentication::match([$source], {username => $user, rule_class => $class})) {
-                    print color $pf::config::Config{advanced}{pfcmd_success_color} if $show_color;
-                    print $indent ,"Matched against ",$source->id," for '$class' rules\n";
-                    if(ref($actions)) {
-                        local $indent = $indent x 2;
-                        foreach my $action (@$actions) {
-                            print $indent ,$action->type," : ",$action->value,"\n";
-                        }
-                    }
-                } else {
-                    print color $pf::config::Config{advanced}{pfcmd_error_color} if $show_color;
-                    print $indent,"Did not match against ",$source->id,"\n";
+            foreach my $context (@CONTEXTS_TO_TEST) {
+                next if($source->type eq "SAML");
+                print "Authenticating against '" . $source->id . "' in context '$context'\n";
+                my ($result,$message) = pf::authentication::authenticate({username => $user, password => $pass, context => $context}, $source);
+                $message = '' unless defined $message;
+                if ($result == $LOGIN_SUCCESS) {
+                    print color $GREEN_COLOR if $show_color;
+                    print $indent,"Authentication SUCCEEDED against ",$source->id," ($message)\n";
                 }
+                elsif ($result == $LOGIN_CHALLENGE) {
+                    print color $YELLOW_COLOR if $show_color;
+                    print $indent,"Authentication CHALLENGE return for ",$source->id," (Challenge message $message->{message})\n";
+                } else {
+                    print color $RED_COLOR if $show_color;
+                    print $indent,"Authentication FAILED against ",$source->id," ($message)\n";
+                }
+                print color 'reset' if $show_color;
+                my $matched;
+                foreach my $class ( @Rules::CLASSES ) {
+                    if( $matched = pf::authentication::match2([$source], {username => $user, rule_class => $class, context => $context})) {
+                        print color $GREEN_COLOR if $show_color;
+                        print $indent ,"Matched against ",$source->id," for '$class' rules\n";
+                        {
+                            local $indent = $indent x 2;
+                            foreach my $action (@{$matched->{actions}}) {
+                                print $indent ,$action->type," : ",$action->value,"\n";
+                            }
+                        }
+                    } else {
+                        print color $RED_COLOR if $show_color;
+                        print $indent,"Did not match against ",$source->id," for '$class' rules\n";
+                    }
+                }
+                print color 'reset' if $show_color;
+                print "\n";
             }
-            print color 'reset' if $show_color;
-            print "\n";
         }
     };
     print color 'reset' if $show_color;
@@ -85,7 +96,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

@@ -17,11 +17,21 @@ use warnings;
 use Crypt::SMIME;
 use MIME::Base64 qw(decode_base64);
 use pf::log;
+use pf::constants;
+use fingerbank::Constant;
 
 use Moo;
 extends 'pf::provisioner';
 
 =head1 Atrributes
+
+=head2 enforce
+
+If the provisioner has to be enforced on each connection
+
+=cut
+
+has 'enforce' => (is => 'rw', default => sub { 0 });
 
 =head2 oses
 
@@ -30,7 +40,7 @@ The set the default OS to IOS
 =cut
 
 # Will always ignore the oses parameter provided and use ['Apple iPod, iPhone or iPad']
-has 'oses' => (is => 'ro', default => sub { ['Apple iPod, iPhone or iPad', 'Macintosh'] }, coerce => sub { ['Apple iPod, iPhone or iPad', 'Macintosh'] });
+has 'oses' => (is => 'ro', default => sub { [$fingerbank::Constant::PARENT_IDS{IOS}, $fingerbank::Constant::PARENT_IDS{MACOS}] }, coerce => sub { [$fingerbank::Constant::PARENT_IDS{IOS}, $fingerbank::Constant::PARENT_IDS{MACOS}] });
 
 =head2 broadcast
 
@@ -193,8 +203,10 @@ always authorize
 sub authorize {
     my ($self, $mac) = @_;
     my $info = pf::node::node_view($mac);
-    $self->for_username($info->{pid});
-    return 1;
+    unless($info->{pid} eq $default_pid) {
+        $self->for_username($info->{pid});
+    }
+    return $FALSE;
 }
 
 
@@ -239,7 +251,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

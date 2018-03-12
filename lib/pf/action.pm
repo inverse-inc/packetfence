@@ -26,6 +26,12 @@ use pf::node;
 use pf::person;
 use pf::util;
 use pf::violation_config;
+use pf::config qw(access_duration);
+
+use pf::provisioner;
+use pf::constants;
+use pf::dal::action;
+use pf::error qw(is_error is_success);
 
 use constant ACTION => 'action';
 
@@ -71,97 +77,93 @@ BEGIN {
     );
 }
 
-use pf::config;
+use pf::config qw(
+    %Config
+    $fqdn
+);
 use pf::db;
 use pf::util;
 use pf::config::util;
-use pf::class qw(class_view class_view_actions);
+use pf::class qw(class_view);
 use pf::violation qw(violation_force_close);
-use pf::Portal::ProfileFactory;
+use pf::Connection::ProfileFactory;
 use pf::constants::scan qw($POST_SCAN_VID $PRE_SCAN_VID);
+use pf::file_paths qw($violation_log);
 
-# The next two variables and the _prepare sub are required for database handling magic (see pf::db)
-our $action_db_prepared = 0;
-# in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
-# the hash if required
-our $action_statements = {};
-
-sub action_db_prepare {
-    my $logger = get_logger();
-    $logger->debug("Preparing pf::action database queries");
-
-    $action_statements->{'action_add_sql'} = get_db_handle()->prepare(qq[ insert into action(vid,action) values(?,?) ]);
-
-    $action_statements->{'action_delete_sql'} = get_db_handle()->prepare(qq[ delete from action where vid=? and action=? ]);
-
-    $action_statements->{'action_delete_all_sql'} = get_db_handle()->prepare(qq[ delete from action where vid=? ]);
-
-    $action_statements->{'action_exist_sql'} = get_db_handle()->prepare(
-        qq[ select vid,action from action where vid=? and action=? ]);
-
-    $action_statements->{'action_view_sql'} = get_db_handle()->prepare(
-        qq[ select vid,action from action where vid=? and action=? ]);
-
-    $action_statements->{'action_view_all_sql'} = get_db_handle()->prepare(qq[ select vid,action from action where vid=? ]);
-
-    $action_db_prepared = 1;
-}
+our $logger = get_logger();
 
 sub action_exist {
     my ($vid, $action) = @_;
-    my $query = db_query_execute(ACTION, $action_statements, 'action_exist_sql', $vid, $action) || return (0);
-    my ($val) = $query->fetchrow_array();
-    $query->finish();
-
-    return ($val);
+    my ($status, $iter) = pf::dal::action->search(
+        -where => {
+            vid => $vid,
+            action => $action
+        }, 
+        -columns => [\1]
+    );
+    if (is_error($status)) {
+        return (0);
+    }
+    my $items = $iter->all(undef);
+    return (scalar @$items);
 }
 
 sub action_add {
     my ($vid, $action) = @_;
-    my $logger = get_logger();
-    if ( action_exist( $vid, $action ) ) {
-        $logger->warn("attempt to add existing action $action to class $vid");
-        return (2);
+    my ($status, $item) = pf::dal::action->find_or_create({vid => $vid, action => $action});
+    if (is_error($status)) {
+        return (0);
     }
-    db_query_execute(ACTION, $action_statements, 'action_add_sql', $vid, $action) || return (0);
-    $logger->debug("action $action added to class $vid");
-
-    return (1);
+    if ($status == $STATUS::CREATED) {
+        return (1);
+    }
+    return (2);
 }
 
 sub action_view {
     my ($vid, $action) = @_;
-
-    my $query = db_query_execute(ACTION, $action_statements, 'action_view_sql', $vid, $action) || return (0);
-    my $ref = $query->fetchrow_hashref();
-
-    # just get one row and finish
-    $query->finish();
-
-    return ($ref);
+    my ($status, $item) = pf::dal::action->find({vid => $vid, action => $action});
+    if (is_error($status)) {
+        return (0);
+    }
+    return ($item->to_hash());
 }
 
 sub action_view_all {
     my ($vid) = @_;
-
-    return db_data(ACTION, $action_statements, 'action_view_all_sql', $vid );
+    my ($status, $iter) = pf::dal::action->search(
+        -where => {
+            vid => $vid
+        }
+    );
+    if (is_error($status)) {
+        return;
+    }
+    my $items = $iter->all(undef);
+    return @$items;
 }
 
 sub action_delete {
     my ($vid, $action) = @_;
-    my $logger = get_logger();
-    db_query_execute(ACTION, $action_statements, 'action_delete_sql', $vid, $action) || return (0);
+    my $status = pf::dal::action->remove_by_id({vid => $vid, action => $action});
+    if (is_error($status)) {
+        return (0);
+    }
     $logger->debug("action $action deleted from class $vid");
-
     return (1);
 }
 
 sub action_delete_all {
     my ($vid) = @_;
-    my $logger = get_logger();
-    db_query_execute(ACTION, $action_statements, 'action_delete_all_sql', $vid) || return (0);
-    $logger->debug("all actions for class $vid deleted");
-
+    my ($status, $rows) = pf::dal::action->remove_items(
+        -where => {
+            vid => $vid
+        }
+    );
+    if (is_error($status)) {
+        return (undef);
+    }
+    $logger->debug("all actions ($rows) for class $vid deleted");
     return (1);
 }
 
@@ -173,10 +175,11 @@ sub action_api {
     my @params = split(' ', $class_info->{'external_command'});
     my $return;
     my $node_info = node_view($mac);
-    my $ip = pf::iplog::mac2ip($mac) || 0;
+    my $ip = pf::ip4log::mac2ip($mac) || 0;
     $node_info = {%$node_info, 'last_ip' => $ip};
     # Replace parameters in the cli by the real one (for example: $last_ip will be changed to the value of $node_info->{last_ip})
     foreach my $param (@params) {
+        $param =~ s/\$vid/$vid/ge;
         $param =~ s/\$(.*)/$node_info->{$1}/ge;
         $return .= $param." ";
     }
@@ -188,42 +191,39 @@ sub action_api {
     return;
 }
 
+our %ACTIONS = (
+    $REEVALUATE_ACCESS    => \&action_reevaluate_access,
+    $EMAIL_ADMIN          => \&action_email_admin,
+    $EMAIL_USER           => \&action_email_user,
+    $LOG                  => \&action_log,
+    $EXTERNAL             => \&action_api,
+    $CLOSE                => \&action_close,
+    $ROLE                 => \&action_role,
+    $UNREG                => \&action_unreg,
+    $ENFORCE_PROVISIONING => \&action_enforce_provisioning,
+    $AUTOREG              => \&action_autoregister,
+);
+
 sub action_execute {
     my ($mac, $vid, $notes) = @_;
     my $logger = get_logger();
     my $leave_open = 0;
-    my @actions = class_view_actions($vid);
+    my @actions = action_view_all($vid);
     # Sort the actions in reverse order in order to always finish with the autoreg action
     @actions = sort { $b->{action} cmp $a->{action} } @actions;
     foreach my $row (@actions) {
         my $action = lc $row->{'action'};
         $logger->info("executing action '$action' on class $vid");
-        if ( $action eq $REEVALUATE_ACCESS ) {
-            $leave_open = 1;
-            action_reevaluate_access( $mac, $vid );
-        } elsif ( $action eq $EMAIL_ADMIN ) {
-            action_email_admin( $mac, $vid, $notes );
-        } elsif ( $action eq $EMAIL_USER ) {
-            action_email_user( $mac, $vid, $notes );
-        } elsif ( $action eq $LOG ) {
-            action_log( $mac, $vid );
-        } elsif ( $action eq $EXTERNAL ) {
-            action_api( $mac, $vid );
-        } elsif ( $action eq $CLOSE ) {
-            action_close( $mac, $vid );
-        } elsif ( $action eq $ROLE ) {
-            action_role( $mac, $vid );
-        } elsif ( $action eq $UNREG ) {
-            action_unreg( $mac, $vid );
-        } elsif ( $action eq $ENFORCE_PROVISIONING ) {
-            action_enforce_provisioning( $mac, $vid, $notes );
-        } elsif ( $action eq $AUTOREG ) {
-            action_autoregister($mac, $vid);
-        } else {
+        if (!exists $ACTIONS{$action}) {
             $logger->error( "unknown action '$action' for class $vid", 1 );
+            next;
         }
+        if ($action eq $REEVALUATE_ACCESS) {
+            $leave_open = 1;
+        }
+        $ACTIONS{$action}->($mac, $vid, $notes);
     }
-    if ( !$leave_open && !( ($vid eq $POST_SCAN_VID) || ($vid eq $PRE_SCAN_VID) ) ) {
+    if (!$leave_open && !($vid eq $POST_SCAN_VID || $vid eq $PRE_SCAN_VID)) {
         $logger->info("this is a non-reevaluate-access violation, closing violation entry now");
         require pf::violation;
         pf::violation::violation_force_close( $mac, $vid );
@@ -234,15 +234,19 @@ sub action_execute {
 sub action_enforce_provisioning {
     my ($mac, $vid, $notes) = @_;
     my $logger = get_logger();
-    my $profile = pf::Portal::ProfileFactory->instantiate($mac);
+    my $profile = pf::Connection::ProfileFactory->instantiate($mac);
     if (defined(my $provisioner = $profile->findProvisioner($mac))) {
-        unless ($provisioner->authorize($mac) == 1) {
+        my $result = $provisioner->authorize($mac);
+        if ($result == $TRUE) {
+            $logger->debug("$mac is still authorized with it's provisioner");
+        }
+        elsif($result == $pf::provisioner::COMMUNICATION_FAILED){
+            $logger->info("Not enforcing provisioning since communication failed...");
+        }
+        else{
             $logger->warn("$mac is not authorized anymore with it's provisionner. Putting node as pending.");
             node_modify($mac, status => $pf::node::STATUS_PENDING);
             pf::enforcement::reevaluate_access($mac, "manage_vopen");
-        }
-        else{
-            $logger->debug("$mac is still authorized with it's provisioner");
         }
     }
     else{
@@ -285,31 +289,30 @@ sub action_email_admin {
 sub action_email_user {
     my ($mac, $vid, $notes) = @_;
     my $node_info = node_attributes($mac);
-    my $person = person_view($node_info->{pid});
+    my $person    = person_view( $node_info->{pid} );
 
-    if(defined($person->{email}) && $person->{email}){
+    if (defined($person->{email}) && $person->{email}) {
         my %message;
-
         require pf::lookup::node;
         my $class_info  = class_view($vid);
         my $description = $class_info->{'description'};
 
-        my $additionnal_message = join('<br/>', split('\n',$pf::violation_config::Violation_Config{$vid}{user_mail_message}));
-
-        pf::util::send_email(
-            $Config{'alerting'}{'smtpserver'},
-            $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn, $person->{email},
+        my $additionnal_message = join('<br/>', split('\n', $pf::violation_config::Violation_Config{$vid}{user_mail_message}));
+        my $to = $person->{email};
+        pf::config::util::send_email(
+            'violation-triggered',
+            $to,
             "$description detection on $mac",
-            "violation-triggered",
-            description => $description,
-            hostname => $node_info->{computername},
-            os => $node_info->{device_type},
-            mac => $mac,
-            additionnal_message => $additionnal_message,
+            {
+                description         => $description,
+                hostname            => $node_info->{computername},
+                os                  => $node_info->{device_type},
+                mac                 => $mac,
+                additionnal_message => $additionnal_message,
+            }
         );
-
     }
-    else{
+    else {
         get_logger->warn("Cannot send violation email for $vid as node we don't have the e-mail address of $node_info->{pid}");
     }
 }
@@ -317,8 +320,8 @@ sub action_email_user {
 sub action_log {
     my ($mac, $vid) = @_;
     my $logger = get_logger();
-    require pf::iplog;
-    my $ip = pf::iplog::mac2ip($mac) || 0;
+    require pf::ip4log;
+    my $ip = pf::ip4log::mac2ip($mac) || 0;
 
     my $class_info  = class_view($vid);
     my $description = $class_info->{'description'};
@@ -327,7 +330,7 @@ sub action_log {
     #my $date = $violation_info->{'start_date'};
     my $date = mysql_date();
 
-    my $logfile = untaint_chain($Config{'alerting'}{'log'});
+    my $logfile = $violation_log;
     $logger->info(
         "$logfile $date: $description ($vid) detected on node $mac ($ip)");
     my $log_fh;
@@ -346,13 +349,16 @@ sub action_reevaluate_access {
 sub action_autoregister {
     my ($mac, $vid) = @_;
     my $logger = get_logger();
+    my $unregdate = access_duration($pf::violation_config::Violation_Config{$vid}{access_duration});
+    my ( $status, $status_msg );
 
     if(pf::node::is_node_registered($mac)){
         $logger->debug("Calling autoreg on already registered node. Doing nothing.");
     }
     else {
         require pf::role::custom;
-        if(!pf::node::node_register($mac, "default")){
+        ( $status, $status_msg ) = pf::node::node_register($mac, "default", "unregdate"=>$unregdate);
+        if(!$status){
             $logger->error("auto-registration of node $mac failed");
             return;
         }
@@ -364,8 +370,6 @@ sub action_autoregister {
 
 sub action_close {
    my ($mac, $vid) = @_;
-   my $logger = get_logger();
-
    #We need to fetch which violation id to close
    my $class = class_view($vid);
 
@@ -393,7 +397,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

@@ -20,7 +20,7 @@ use pf::log;
 use URI::Escape::XS qw(uri_escape);
 use Data::UUID;
 
-use pf::config;
+use pf::config qw(%Config);
 use pf::util;
 use pf::web::util;
 
@@ -41,8 +41,7 @@ sub translate {
     my $logger = get_logger();
     $logger->warn("hitting interceptor with URL: " . $r->uri);
     #Fetch the captive portal URL
-    my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
-    my $url = "$proto://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'};
+    my $url = pf::config::util::get_captive_portal_uri();
 
     my $parsed_portal = APR::URI->parse($r->pool, $url);
     my $parsed_request = APR::URI->parse($r->pool, $r->uri);
@@ -198,8 +197,7 @@ sub reverse {
     my $logger = get_logger();
     $logger->trace("Reverse proxy :".$r->uri);
     my $parsed_request = APR::URI->parse($r->pool, $r->uri);
-    my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
-    my $url = "$proto://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'};
+    my $url = pf::config::util::get_captive_portal_uri();
     my $parsed_portal = APR::URI->parse($r->pool, $url);
     $parsed_portal->scheme(undef);
     $parsed_portal->scheme('http');
@@ -212,7 +210,6 @@ sub reverse {
         if ($session && $session->{remote_ip}) {
             $r->headers_in->set('X-Forwarded-For' => $session->{remote_ip});
             $r->headers_in->set('Host' => $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'});
-            my $url = "$proto://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'};
             $parsed_portal->scheme('https');
             my $url_proxy = $parsed_portal->unparse.$r->uri;
             return proxy_redirect($r, $url_proxy);
@@ -246,7 +243,7 @@ sub reverse {
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 This program is free software; you can redistribute it and/or

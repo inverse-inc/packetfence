@@ -2,16 +2,17 @@ package captiveportal::PacketFence::Controller::Root;
 use Moose;
 use namespace::autoclean;
 use pf::web::constants;
+use pf::constants::Connection::Profile qw($PENDING_POLICY);
 use URI::Escape::XS qw(uri_escape uri_unescape);
 use HTML::Entities;
 use pf::enforcement qw(reevaluate_access);
-use pf::config;
+use pf::config qw(%Config $fqdn);
+use pf::file_paths qw($conf_dir);
 use pf::log;
 use pf::util;
 use pf::Portal::Session;
 use pf::web;
 use pf::node;
-use pf::useragent;
 use pf::violation;
 use pf::class;
 use Cache::FileCache;
@@ -20,6 +21,14 @@ use POSIX;
 use Locale::gettext qw(bindtextdomain textdomain bind_textdomain_codeset);
 use List::Util 'first';
 use List::MoreUtils qw(uniq);
+use captiveportal::DynamicRouting::Factory;
+use captiveportal::DynamicRouting::Application;
+use pf::StatsD::Timer;
+use File::Slurp qw(read_file);
+use pf::error;
+use pf::parking;
+use pf::constants::parking qw($PARKING_VID);
+use pf::db;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -45,9 +54,75 @@ captiveportal::PacketFence::Controller::Root - Root Controller for captiveportal
 
 sub auto : Private {
     my ( $self, $c ) = @_;
-    $c->forward('setupCommonStash');
+    $c->stash->{statsd_timer} = pf::StatsD::Timer->new({ 'stat' => 'captiveportal/' . $c->request->path, level => 6 });
     $c->forward('setupLanguage');
+    $c->forward('setupDynamicRouting');
+    $c->forward('checkReadonly');
+    $c->forward('checkForParking');
+    $c->forward('updateNodeLastSeen');
+
     return 1;
+}
+
+=head2 updateNodeLastSeen
+
+Update node.last_seen
+
+=cut
+
+sub updateNodeLastSeen :Private {
+    my ($self, $c) = @_;
+    # update last_seen of MAC address as some activity from it has been seen
+    node_update_last_seen($c->portalSession->clientMac);
+}
+
+=head2 checkForParking
+
+Check if the device is in parking and if it should be redirected to the parking portal
+
+=cut
+
+sub checkForParking :Private {
+    my ($self, $c) = @_;
+    if (isenabled($Config{parking}{show_parking_portal}) && violation_count_open_vid($c->portalSession->clientMac, $PARKING_VID)) {
+        get_logger->warn("Client should not have reached the normal portal as it is in parking. Retriggering parking actions.");
+        pf::parking::park($c->portalSession->clientMac, $c->portalSession->clientIP->normalizedIP);
+        # Redirecting to an invalid URL so it is caught by the parking portal
+        $c->res->redirect("http://$fqdn/back-to-parking");
+        $c->detach();
+    }
+}
+
+sub setupDynamicRouting : Private {
+    my ($self, $c) = @_;
+    my $timer = pf::StatsD::Timer->new({level => 7});
+
+    my $node = node_attributes($c->portalSession->clientMac);
+
+    my $request = $c->request;
+    my $profile = $c->portalSession->profile;
+    my $application = captiveportal::DynamicRouting::Application->new(
+        user_session => $c->user_session,
+        session => $c->session,
+        profile => $profile,
+        request => $request,
+        root_module_id => ( defined($node->{status}) && $node->{status} eq $pf::node::STATUS_PENDING ) ? $PENDING_POLICY : $profile->getRootModuleId(),
+    );
+    $application->session->{client_mac} = $c->portalSession->clientMac;
+    $application->session->{client_ip} = $c->portalSession->clientIP->normalizedIP;
+    my $factory = captiveportal::DynamicRouting::Factory->new();
+    unless($factory->build_application($application)){
+        my $server_error_template = $profile->getTemplatePath("server_error.html");
+        $c->log->debug("Using error template : $server_error_template");
+        my $content = read_file($server_error_template);
+        $c->response->body($content);
+        $c->response->status($STATUS::INTERNAL_SERVER_ERROR);
+        $c->detach();
+    }
+
+    $application->preprocessing();
+
+    $c->stash(application => $application);
 }
 
 =head2 index
@@ -58,53 +133,46 @@ index
 
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
-    $c->response->redirect('captive-portal');
+
+    $c->forward('dynamic_application');
 }
 
 
-sub default : Path {
-    my ( $self, $c ) = @_;
-    my $request  = $c->request;
-    my $r = $request->{'env'}->{'psgi.input'};
-    if ($r->can('pnotes') && $r->pnotes('last_uri') ) {
-        $c->forward(CaptivePortal => 'index');
-    }
-    $c->response->body('Page not found');
-    $c->response->status(404);
-}
+=head2 default
 
-=head2 setupCommonStash
-
-Add all the common variables in the stash
+We send everything we don't know about inside the dynamic application
 
 =cut
 
-sub setupCommonStash : Private {
+sub default : Path {
     my ( $self, $c ) = @_;
-    my $logger = $c->log();
-    my $portalSession   = $c->portalSession;
-    my $destination_url = $portalSession->destinationUrl;
+    $c->forward('dynamic_application');
+}
 
-    if (defined( $portalSession->clientMac ) ) {
-        my $node_info = node_view($portalSession->clientMac);
-        if ( defined( $node_info ) ) {
-            $c->stash(
-                map { $_ => $node_info->{$_} }
-                  qw(dhcp_fingerprint last_switch last_port
-                  last_vlan last_connection_type last_ssid username)
-            );
+sub dynamic_application :Private {
+    my ($self, $c) = @_;
+    my $application = $c->stash->{application};
+    eval {
+        $application->execute();
+    };
+    if($@) {
+        # Die unless it is a detaching
+        if(ref($@) ne "captiveportal::DynamicRouting::Detach") {
+            die $@;
         }
     }
-    $c->stash(
-        pf::web::constants::to_hash(),
-        destination_url => encode_entities($destination_url),
-        logo            => $c->profile->getLogo,
-    );
-    $c->stash(
-        client_mac => $portalSession->clientMac,
-        client_ip => $portalSession->clientIp,
-    );
 
+    if($application->response_code =~ /^(301|302)$/){
+        $c->response->redirect($application->template_output, $application->response_code);
+    }
+    else {
+        $c->response->header('Cache-Control', "no-cache, no-store, must-revalidate");
+        $c->response->header('Pragma', "no-cache");
+        $c->response->header('Expire', '10');
+        $c->response->body($application->template_output);
+        $c->response->status($application->response_code);
+    }
+    $c->detach;
 }
 
 =head2 setupLanguage
@@ -126,6 +194,8 @@ sub setupLanguage : Private {
         $logger->error("Error while setting locale to $locale.utf8. Is the locale generated on your system?");
     }
     $c->stash->{locale} = $newlocale;
+    $c->session->{locale} = $newlocale;
+    delete $ENV{'LANGUAGE'}; # Make sure $LANGUAGE is empty otherwise it will override LC_MESSAGES
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     bind_textdomain_codeset( "packetfence", "utf-8" );
     textdomain("packetfence");
@@ -167,7 +237,7 @@ sub getLanguages :Private {
     # 1. Check if a language is specified in the URL
     if ( defined($c->request->param('lang')) ) {
         my $user_chosen_language = $c->request->param('lang');
-        $user_chosen_language =~ s/^(\w{2})(_\w{2})?/lc($1) . uc($2)/e;
+        $user_chosen_language =~ s/^(\w{2})(_\w{2})?/lc($1) . uc($2 \/\/ "")/e;
         if (grep(/^$user_chosen_language$/, @authorized_locales)) {
             $lang = $user_chosen_language;
             # Store the language in the session
@@ -205,6 +275,7 @@ sub getLanguages :Private {
     foreach my $browser_language (@$browser_languages) {
         $browser_language =~ s/^(\w{2})(_\w{2})?/lc($1) . uc($2 || "")/e;
         my $language = $1;
+        next unless(defined($language));
         if (grep(/^$language$/, @authorized_locales)) {
             $lang = $browser_language;
             my $match = first { /$language(.*)/ } @authorized_locales;
@@ -245,8 +316,6 @@ sub getRequestLanguages : Private{
     return \@l;
 }
 
-
-
 =head2 end
 
 Attempt to render a view, if needed.
@@ -255,19 +324,49 @@ Attempt to render a view, if needed.
 
 sub end : ActionClass('RenderView') {
     my ( $self, $c ) = @_;
+    
+    if (isenabled($Config{'advanced'}{'portal_csp_security_headers'})) {
+        $c->csp_server_headers();
+    }
+    
+    # We save the user session
+    $c->_save_user_session();
+
     if (scalar $c->has_errors) {
         my $errors = $c->error;
         for my $error ( @$errors ) {
             $c->log->error($error);
         }
         my $txt_message = join(' ',grep { ref($_) eq '' } @$errors);
-        $c->stash(
-            template => 'error.html',
-            txt_message => $txt_message,
-        );
+        if($c->stash->{application}){
+            $c->stash(
+                title => "An error occured",
+                template => 'error.html',
+                message => $txt_message,
+            );
+        }
+        else {
+            $c->response->body("Application error : ".$txt_message);
+        }
         $c->response->status(500);
         $c->clear_errors;
     }
+    $c->stash->{statsd_timer} = undef;
+}
+
+=head2 checkReadonly
+
+checkReadonly
+
+=cut
+
+sub checkReadonly : Private {
+    my ($self, $c) = @_;
+    if (db_readonly_mode()) {
+        $c->stash->{template} = "readonly.html";
+        $c->detach();
+    }
+    return;
 }
 
 =head1 AUTHOR
@@ -276,7 +375,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -297,6 +396,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

@@ -15,9 +15,20 @@ pf::CHI
 use strict;
 use warnings;
 use base qw(CHI);
-use Module::Pluggable search_path => ['CHI::Driver', 'pf::Role::CHI'], sub_name => '_preload_chi_drivers', require => 1, except => qr/(^CHI::Driver::.*Test|FastMmap)/;
+use Module::Pluggable
+  search_path => [ 'CHI::Driver', 'pf::Role::CHI' ],
+  sub_name    => '_preload_chi_drivers',
+  require     => 1,
+  inner       => 0,
+  except      => qr/(^CHI::Driver::.*Test|FastMmap)/;
 use Clone();
-use pf::file_paths;
+use pf::file_paths qw(
+    $chi_defaults_config_file
+    $chi_config_file
+    $var_dir
+    $pf_default_file
+    $pf_config_file
+);
 use pf::IniFiles;
 use Hash::Merge;
 use List::MoreUtils qw(uniq any);
@@ -26,7 +37,8 @@ use DBI;
 use Scalar::Util qw(tainted reftype);
 use pf::log;
 use Log::Any::Adapter;
-use Redis::Fast;
+use pf::Redis;
+use CHI::Driver;
 Log::Any::Adapter->set('Log4perl');
 
 my @PRELOADED_CHI_DRIVERS;
@@ -62,11 +74,14 @@ Hash::Merge::specify_behavior(
     'PF_CHI_MERGE'
 );
 
-our @CACHE_NAMESPACES = qw(configfilesdata configfiles httpd.admin httpd.portal pfdns switch.overlay ldap_auth omapi fingerbank firewall_sso switch metascan);
+our @CACHE_NAMESPACES = qw(configfilesdata configfiles httpd.admin httpd.portal pfdns switch.overlay ldap_auth fingerbank firewall_sso switch metadefender accounting clustering person_lookup route_int provisioning switch_distributed);
 
 our $chi_default_config = pf::IniFiles->new( -file => $chi_defaults_config_file) or die "Cannot open $chi_defaults_config_file";
 
 our $chi_config = pf::IniFiles->new( -file => $chi_config_file, -allowempty => 1, -import => $chi_default_config) or die "Cannot open $chi_config_file";
+
+our $pf_default_config = pf::IniFiles->new( -file => $pf_default_file) or die "Cannot open $pf_default_file";
+
 
 our %DEFAULT_CONFIG = (
     'namespace' => {
@@ -83,7 +98,7 @@ our %DEFAULT_CONFIG = (
             driver => 'Redis',
             compress_threshold => 10000,
             server => '127.0.0.1:6379',
-            redis_class => 'Redis::Fast',
+            redis_class => 'pf::Redis',
             prefix => 'pf',
             expires_on_backend => 1,
             reconnect => 60,
@@ -103,7 +118,6 @@ sub chiConfigFromIniFile {
     foreach my $key (@keys) {
         $args{$key} = sectionData($chi_config,$key);
     }
-    my $dbi = delete $args{dbi};
     copyStorage($args{storage});
     foreach my $storage (values %{$args{storage}}) {
         my $driver = $storage->{driver};
@@ -111,7 +125,7 @@ sub chiConfigFromIniFile {
             if($driver eq 'File') {
                 setFileDriverParams($storage);
             } elsif($driver eq 'DBI') {
-                setDBIDriverParams($storage, $dbi);
+                setDBIDriverParams($storage);
             }
         }
         foreach my $param (qw(servers traits roles)) {
@@ -160,12 +174,21 @@ sub setFileDriverParams {
 
 sub setDBIDriverParams {
     my ($storage, $dbi) = @_;
-    $storage->{table_prefix} = 'cache_';
-    $storage->{dbh} = sub {
-        my ($db,$host,$port,$user,$pass) = @{$dbi}{qw(db host port user pass)};
-        return DBI->connect( "dbi:mysql:dbname=$db;host=$host;port=$port",
-        $user, $pass, { RaiseError => 0, PrintError => 0 } );
-    }
+    $storage->{dbh} = \&getDbi;
+}
+
+=head2 getDbi
+
+Get the DBI using the database config from pf.conf
+
+=cut
+
+sub getDbi {
+    my $pf_config = pf::IniFiles->new( -file => $pf_config_file, -allowempty => 1, -import => $pf_default_config) or die "Cannot open $pf_config_file";
+    my ($db,$host,$port,$user,$pass) = @{sectionData($pf_config, "database")}{qw(db host port user pass)};
+    return DBI->connect( "dbi:mysql:dbname=$db;host=$host;port=$port",
+    $user, $pass, { RaiseError => 0, PrintError => 0 } );
+
 }
 
 sub setRawL1CacheAsLast {
@@ -203,7 +226,6 @@ sub preload_chi_drivers {
 
 
 __PACKAGE__->config(chiConfigFromIniFile());
-__PACKAGE__->preload_chi_drivers();
 
 =head2 listify
 
@@ -215,6 +237,21 @@ sub listify($) {
     ref($_[0]) eq 'ARRAY' ? $_[0] : [$_[0]]
 }
 
+=head2 get_redis_config
+
+Get the redis config from pf::CHI
+
+=cut
+
+sub get_redis_config {
+    # This code was adapted from CHI::Driver::Redis::BUILD
+    my $config = CHI::Driver->non_common_constructor_params(pf::CHI->config->{storage}{redis});
+    $config->{encoding} //= undef;
+    delete @$config{qw(redis redis_class redis_options prefix driver traits)};
+    return $config;
+}
+
+
 
 =head1 AUTHOR
 
@@ -223,7 +260,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

@@ -18,7 +18,7 @@ BEGIN {
     #include test libs
     use lib qw(/usr/local/pf/t);
     #Module for overriding configuration paths
-    use PfFilePaths;
+    use setup_test_config;
 }
 
 use Test::More tests => 10;
@@ -89,7 +89,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

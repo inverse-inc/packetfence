@@ -6,19 +6,21 @@
     </td>
     <td>[% item.value | html%]</td>
     <td>
-      [%- IF can_access("FINGERBANK_CREATE") %]
-      <a class="btn btn-mini" href="[% c.uri_for(c.controller.action_for('clone'), [ item.id ]) %]">[% l('Clone') %]</a>
-      <a class="btn btn-mini" href="[% c.uri_for(c.controller.action_for('add_child'), [ item.id ]) %]">[% l('Add Child') %]</a>
-      [%- END %]
-      [%- IF scope == 'Local' && can_access("FINGERBANK_DELETE") %]
-      <a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller.action_for('remove'), [ item.id ]) %]">[% l('Delete') %]</a>
-      [%- END %]
+      <div class="text-right">
+        [%- IF can_access("FINGERBANK_CREATE") %]
+        <a class="btn btn-mini" href="[% c.uri_for(c.controller.action_for('clone'), [ item.id ]) %]">[% l('Clone') %]</a>
+        <a class="btn btn-mini" href="[% c.uri_for(c.controller.action_for('add_child'), [ item.id ]) %]">[% l('Add Child') %]</a>
+        [%- END %]
+        [%- IF scope == 'Local' && can_access("FINGERBANK_DELETE") %]
+        <a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller.action_for('remove'), [ item.id ]) %]">[% l('Delete') %]</a>
+        [%- END %]
+      </div>
     </td>
   </tr>
   <tr class="hidden">
     <td colspan="3">
         <div class="collapse" id="children_[%item.id%]">
-            <table></table>
+            <table class="table"></table>
         </div>
     </td>
   </tr>

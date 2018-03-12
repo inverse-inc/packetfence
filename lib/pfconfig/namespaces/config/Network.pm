@@ -18,8 +18,8 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use pf::file_paths;
 use pf::constants;
+use pf::file_paths qw($network_config_file);
 use pf::constants::config;
 use pfconfig::util qw(is_type_inline);
 
@@ -29,7 +29,8 @@ sub init {
     my ($self) = @_;
     $self->{file}            = $network_config_file;
     $self->{child_resources} = [
-        'interfaces'
+        'interfaces',
+        'resource::network_config'
     ];
 }
 
@@ -170,7 +171,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

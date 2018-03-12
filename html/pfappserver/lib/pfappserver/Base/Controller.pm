@@ -25,8 +25,7 @@ use pfappserver::Base::Action::SimpleSearch;
 use pf::util qw(load_oui download_oui calc_page_count);
 # imported only for the $TIME_MODIFIER_RE regex. Ideally shouldn't be
 # imported but it's better than duplicating regex all over the place.
-use pf::config;
-use pf::config::cached;
+use pf::config qw(%Config);
 use Moose;
 use Class::MOP;
 use Catalyst::Utils;
@@ -37,7 +36,10 @@ use List::Util qw(first);
 
 use File::Spec::Functions;
 
-BEGIN { extends 'Catalyst::Controller'; }
+BEGIN {
+    extends 'Catalyst::Controller';
+    with 'pfappserver::Role::Controller::Audit';
+}
 
 our %VALID_PARAMS =
   (
@@ -54,14 +56,14 @@ our %VALID_PARAMS =
 
 =head2 auto
 
-Allow only authenticated users
+Allow only authenticated users except from the configurator realm
 
 =cut
 
 sub auto :Private {
     my ($self, $c) = @_;
 
-    unless ($c->user_in_realm('admin')) {
+    if (!$self->configurator_accessible($c) && !$c->user_allowed_in_admin()) {
         $c->response->status(HTTP_UNAUTHORIZED);
         $c->response->location($c->req->referer);
         $c->stash->{template} = 'admin/unauthorized.tt';
@@ -69,7 +71,23 @@ sub auto :Private {
         return 0;
     }
 
+    if ($c->session->{user_challenge}) {
+        $c->go('/admin/challenge');
+        return 0;
+    }
+
     return 1;
+}
+
+=head2 configurator_accessible
+
+Check if the current action can be accessed within the configurator and if the current user is in the configurator realm
+
+=cut
+
+sub configurator_accessible {
+    my ($self, $c) = @_;
+    return $c->action->attributes->{AdminConfigurator} && $c->user_in_realm('configurator');
 }
 
 =head2 valid_param
@@ -226,8 +244,17 @@ sub add_fake_profile_data {
         last_vlan   => '102',
         last_ssid   => 'PacketFence-Secure',
         last_switch => '10.0.0.4',
+        message     => 'Test message',
         dhcp_fingerprint      => '1,28,2,3,15,6,119,12,44,47,26,121,42',
         last_connection_type  => 'Wireless-802.11-EAP',
+        nodes       => [{ status           => 'reg',
+                          mac              => '00:11:22:33:44:55',
+                          device_class     => 'Ubuntu',
+                          regdate          => '2016-01-02 03:04:05' },
+                       { status           => 'reg',
+                          mac              => '11:22:33:44:55:66',
+                          device_class     => 'Android',
+                          regdate          => '2016-02-03 04:05:06' }]
     );
 
 }
@@ -263,7 +290,7 @@ sub getModel {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

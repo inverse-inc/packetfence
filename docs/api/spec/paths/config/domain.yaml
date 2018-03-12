@@ -1,0 +1,297 @@
+/config/domain/{domain_id}:
+  delete:
+    parameters: []
+    responses:
+      '204':
+        description: Deleted a config item
+    summary: Delete a config item
+  get:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              ad_server:
+                description: The IP address or DNS name of your Active Directory server
+                type: string
+              bind_dn:
+                description: The username of a Domain Admin to use to join the server
+                  to the domain
+                type: string
+              bind_pass:
+                description: The password of a Domain Admin to use to join the server
+                  to the domain. Will not be stored permanently and is only used while
+                  joining the domain.
+                type: string
+              dns_name:
+                description: The DNS name (FQDN) of the domain.
+                type: string
+              dns_servers:
+                description: The IP address(es) of the DNS server(s) for this domain.
+                  Comma delimited if multiple.
+                type: string
+              id:
+                description: Specify a unique identifier for your configuration.<br/>This
+                  doesn't have to be related to your domain
+                type: string
+              ntlm_cache:
+                description: Should the NTLM cache be enabled for this domain?
+                type: string
+              ntlm_cache_batch:
+                description: When this is enabled, all users matching the LDAP filter
+                  will be inserted in the cache via a background job (maintenance.populate_ntlm_redis_cache_interval
+                  controls the interval).
+                type: string
+              ntlm_cache_batch_one_at_a_time:
+                description: Whether or not to fetch users on your AD one by one instead
+                  of doing a single batch fetch. This is useful when your AD is loaded
+                  or experiencing issues during the sync. Note that this makes the
+                  batch job much longer and is about 4 times slower when enabled.
+                type: string
+              ntlm_cache_expiry:
+                description: The amount of seconds an entry should be cached. This
+                  should be adjusted to twice the value of maintenance.populate_ntlm_redis_cache_interval
+                  if using the batch mode.
+                type: integer
+              ntlm_cache_filter:
+                description: An LDAP query to filter out the users that should be
+                  cached.
+                type: string
+              ntlm_cache_on_connection:
+                description: When this is enabled, an async job will cache the NTLM
+                  credentials of the user every time he connects.
+                type: string
+              ntlm_cache_source:
+                description: The source to use to connect to your Active Directory
+                  server for NTLM caching.
+                type: string
+              ou:
+                description: Precreate the computer account in a specific OU. The
+                  OU string read from top to bottom without RDNs and delimited by
+                  a '/'. E.g. "Computers/Servers/Unix"
+                type: string
+              registration:
+                description: If this option is enabled, the device will be able to
+                  reach the Active Directory from the registration VLAN.
+                type: string
+              server_name:
+                description: This server's name (account name) in your Active Directory.
+                  Use '%h' to automatically use this server hostname
+                type: string
+              sticky_dc:
+                description: This is used to specify a sticky domain controller to
+                  connect to. If not specified, default '*' will be used to connect
+                  to any available domain controller
+                type: string
+              workgroup:
+                description: Workgroup
+                type: string
+            required:
+            - id
+            - workgroup
+            - ad_server
+            - dns_servers
+            - server_name
+            - sticky_dc
+            - dns_name
+            - ou
+            type: object
+      required: true
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  patch:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              ad_server:
+                description: The IP address or DNS name of your Active Directory server
+                type: string
+              bind_dn:
+                description: The username of a Domain Admin to use to join the server
+                  to the domain
+                type: string
+              bind_pass:
+                description: The password of a Domain Admin to use to join the server
+                  to the domain. Will not be stored permanently and is only used while
+                  joining the domain.
+                type: string
+              dns_name:
+                description: The DNS name (FQDN) of the domain.
+                type: string
+              dns_servers:
+                description: The IP address(es) of the DNS server(s) for this domain.
+                  Comma delimited if multiple.
+                type: string
+              ntlm_cache:
+                description: Should the NTLM cache be enabled for this domain?
+                type: string
+              ntlm_cache_batch:
+                description: When this is enabled, all users matching the LDAP filter
+                  will be inserted in the cache via a background job (maintenance.populate_ntlm_redis_cache_interval
+                  controls the interval).
+                type: string
+              ntlm_cache_batch_one_at_a_time:
+                description: Whether or not to fetch users on your AD one by one instead
+                  of doing a single batch fetch. This is useful when your AD is loaded
+                  or experiencing issues during the sync. Note that this makes the
+                  batch job much longer and is about 4 times slower when enabled.
+                type: string
+              ntlm_cache_expiry:
+                description: The amount of seconds an entry should be cached. This
+                  should be adjusted to twice the value of maintenance.populate_ntlm_redis_cache_interval
+                  if using the batch mode.
+                type: integer
+              ntlm_cache_filter:
+                description: An LDAP query to filter out the users that should be
+                  cached.
+                type: string
+              ntlm_cache_on_connection:
+                description: When this is enabled, an async job will cache the NTLM
+                  credentials of the user every time he connects.
+                type: string
+              ntlm_cache_source:
+                description: The source to use to connect to your Active Directory
+                  server for NTLM caching.
+                type: string
+              ou:
+                description: Precreate the computer account in a specific OU. The
+                  OU string read from top to bottom without RDNs and delimited by
+                  a '/'. E.g. "Computers/Servers/Unix"
+                type: string
+              registration:
+                description: If this option is enabled, the device will be able to
+                  reach the Active Directory from the registration VLAN.
+                type: string
+              server_name:
+                description: This server's name (account name) in your Active Directory.
+                  Use '%h' to automatically use this server hostname
+                type: string
+              sticky_dc:
+                description: This is used to specify a sticky domain controller to
+                  connect to. If not specified, default '*' will be used to connect
+                  to any available domain controller
+                type: string
+              workgroup:
+                description: Workgroup
+                type: string
+            required:
+            - workgroup
+            - ad_server
+            - dns_servers
+            - server_name
+            - sticky_dc
+            - dns_name
+            - ou
+            type: object
+      required: true
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  put:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              ad_server:
+                description: The IP address or DNS name of your Active Directory server
+                type: string
+              bind_dn:
+                description: The username of a Domain Admin to use to join the server
+                  to the domain
+                type: string
+              bind_pass:
+                description: The password of a Domain Admin to use to join the server
+                  to the domain. Will not be stored permanently and is only used while
+                  joining the domain.
+                type: string
+              dns_name:
+                description: The DNS name (FQDN) of the domain.
+                type: string
+              dns_servers:
+                description: The IP address(es) of the DNS server(s) for this domain.
+                  Comma delimited if multiple.
+                type: string
+              ntlm_cache:
+                description: Should the NTLM cache be enabled for this domain?
+                type: string
+              ntlm_cache_batch:
+                description: When this is enabled, all users matching the LDAP filter
+                  will be inserted in the cache via a background job (maintenance.populate_ntlm_redis_cache_interval
+                  controls the interval).
+                type: string
+              ntlm_cache_batch_one_at_a_time:
+                description: Whether or not to fetch users on your AD one by one instead
+                  of doing a single batch fetch. This is useful when your AD is loaded
+                  or experiencing issues during the sync. Note that this makes the
+                  batch job much longer and is about 4 times slower when enabled.
+                type: string
+              ntlm_cache_expiry:
+                description: The amount of seconds an entry should be cached. This
+                  should be adjusted to twice the value of maintenance.populate_ntlm_redis_cache_interval
+                  if using the batch mode.
+                type: integer
+              ntlm_cache_filter:
+                description: An LDAP query to filter out the users that should be
+                  cached.
+                type: string
+              ntlm_cache_on_connection:
+                description: When this is enabled, an async job will cache the NTLM
+                  credentials of the user every time he connects.
+                type: string
+              ntlm_cache_source:
+                description: The source to use to connect to your Active Directory
+                  server for NTLM caching.
+                type: string
+              ou:
+                description: Precreate the computer account in a specific OU. The
+                  OU string read from top to bottom without RDNs and delimited by
+                  a '/'. E.g. "Computers/Servers/Unix"
+                type: string
+              registration:
+                description: If this option is enabled, the device will be able to
+                  reach the Active Directory from the registration VLAN.
+                type: string
+              server_name:
+                description: This server's name (account name) in your Active Directory.
+                  Use '%h' to automatically use this server hostname
+                type: string
+              sticky_dc:
+                description: This is used to specify a sticky domain controller to
+                  connect to. If not specified, default '*' will be used to connect
+                  to any available domain controller
+                type: string
+              workgroup:
+                description: Workgroup
+                type: string
+            required:
+            - workgroup
+            - ad_server
+            - dns_servers
+            - server_name
+            - sticky_dc
+            - dns_name
+            - ou
+            type: object
+      required: true
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

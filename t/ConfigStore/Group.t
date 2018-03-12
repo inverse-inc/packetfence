@@ -13,24 +13,38 @@ Group
 
 use strict;
 use warnings;
+use File::Temp;
 
 use Test::More tests => 17;
 
 use Test::NoWarnings;
 BEGIN {
     use lib qw(/usr/local/pf/t /usr/local/pf/lib);
-    use PfFilePaths;
+    use setup_test_config;
 }
 
 use_ok("pf::ConfigStore");
 use_ok("ConfigStore::GroupTest");
+my $fh = File::Temp->new;
 
 
-my $config = new_ok("pf::ConfigStore",[configFile => './data/group.conf']);
+my $path = $fh->filename;
 
-my $group1 = new_ok("ConfigStore::GroupTest",[group => 'group1',configFile => './data/group.conf']);
+{
+    local $/ = undef;
+    open(my $group_fh , "<", "./data/group.conf");
+    my $contents = <$group_fh>;
+    print $fh $contents;
+    $fh->flush;
+    $fh->close;
+    close($group_fh);
+}
 
-my $group2 = new_ok("ConfigStore::GroupTest",[group => 'group2',configFile => './data/group.conf']);
+my $config = new_ok("pf::ConfigStore",[configFile => $path]);
+
+my $group1 = new_ok("ConfigStore::GroupTest",[group => 'group1',configFile => $path]);
+
+my $group2 = new_ok("ConfigStore::GroupTest",[group => 'group2',configFile => $path]);
 
 
 is_deeply($group1->readAllIds,[qw(section1 section2)],"group1 sections");
@@ -45,11 +59,19 @@ ok($group1->hasId('section3'),"section3 created in group1");
 
 is_deeply($group1->readAllIds,[qw(section1 section2 section3)],"group1 sections after create");
 
+$group1->commit();
+
+$config = pf::ConfigStore->new({configFile => $path});
+
 is_deeply($config->readAllIds,['group1 section1','group1 section2','group2 section1','group2 section2','group1 section3'],"config sections");
 
 $group1->sortItems([qw(section3 section2 section1)]);
 
 is_deeply($group1->readAllIds,[qw(section3 section2 section1)],"group1 sections resorted");
+
+$group1->commit();
+
+$config = pf::ConfigStore->new({configFile => $path});
 
 is_deeply($config->readAllIds,['group2 section1','group2 section2','group1 section3','group1 section2','group1 section1'],"config after resort sections");
 
@@ -71,7 +93,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2015 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

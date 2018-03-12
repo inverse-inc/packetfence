@@ -13,7 +13,7 @@ Form to import multiple nodes from a CSV file.
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
 
-use pf::config;
+use pf::config qw(%Config);
 
 has '+enctype' => ( default => 'multipart/form-data');
 
@@ -89,14 +89,14 @@ sub init_object {
       {
        'columns' =>
        [
-        { 'enabled' => 1, name => 'mac', label => 'MAC Address' },
-        { 'enabled' => 0, name => 'pid', label => 'Owner' },
-        { 'enabled' => 0, name => 'category', label => 'Role' },
-        { 'enabled' => 0, name => 'unregdate', label => 'Unregistration Date' },
-        { 'enabled' => 0, name => 'voip', label => 'Voice Over IP (yes/no)' },
-        { 'enabled' => 0, name => 'notes', label => 'Notes' },
-        { 'enabled' => 0, name => 'bypass_role', label => 'Bypass Role' },
-        { 'enabled' => 0, name => 'bypass_vlan', label => 'Bypass VLAN' },
+        { 'enabled' => 1, name => 'mac', label => $self->_localize('MAC Address') },
+        { 'enabled' => 0, name => 'pid', label => $self->_localize('Owner') },
+        { 'enabled' => 0, name => 'category', label => $self->_localize('Role') },
+        { 'enabled' => 0, name => 'unregdate', label => $self->_localize('Unregistration Date') },
+        { 'enabled' => 0, name => 'voip', label => $self->_localize('Voice Over IP (yes/no)') },
+        { 'enabled' => 0, name => 'notes', label => $self->_localize('Notes') },
+        { 'enabled' => 0, name => 'bypass_role', label => $self->_localize('Bypass Role') },
+        { 'enabled' => 0, name => 'bypass_vlan', label => $self->_localize('Bypass VLAN') },
        ]
       };
 
@@ -130,7 +130,7 @@ sub default_default_category_id {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -151,5 +151,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

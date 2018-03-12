@@ -16,25 +16,40 @@ use strict;
 use warnings;
 use pf::log;
 use pf::util;
+use List::MoreUtils qw(natatime);
+
+our %MAC_KEYS = (
+    'mac' => 1,
+    'Calling-Station-Id' => 1,
+    'User-Name' => 1,
+);
 
 sub add_mac_to_log_context {
     my ($args) = @_;
-    Log::Log4perl::MDC->put('mac', 'unknown');
     return unless defined $args;
     my $params;
     if (@$args == 1) {
-        if (ref($args->[0]) eq 'HASH') {
-            $params = $args->[0];
+        my $tmp = $args->[0];
+        if (ref($tmp) eq 'HASH') {
+            $params = [%$tmp];
+        }
+        else {
+            return;
         }
     }
     else {
-        $params = {@$args};
+        $params = $args;
     }
-    if ($params) {
-        for my $key (qw(mac Calling-Station-Id User-Name)) {
-            if (exists $params->{$key} && valid_mac (my $mac = $params->{$key})) {
-                Log::Log4perl::MDC->put('mac', $mac);
-                last;
+    if ((@$params % 2) == 0 ) {
+        my $it = natatime 2, @$params;
+        while (my ($k, $v) = $it->()) {
+            last unless defined $k;
+            if (exists $MAC_KEYS{$k}) {
+                my $mac = clean_mac($v);
+                if ($mac) {
+                    Log::Log4perl::MDC->put('mac', $mac);
+                    last;
+                }
             }
         }
     }
@@ -46,7 +61,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

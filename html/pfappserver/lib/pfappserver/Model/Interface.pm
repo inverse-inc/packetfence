@@ -16,9 +16,10 @@ use namespace::autoclean;
 use Net::Netmask;
 
 use pf::constants;
-use pf::config;
+use pf::config qw(%ConfigDomain);
 use pf::error qw(is_error is_success);
 use pf::util;
+use pf::util::IP;
 use pf::log;
 
 extends 'Catalyst::Model';
@@ -78,6 +79,7 @@ sub create {
 
 sub delete {
     my ($self, $interface, $host) = @_;
+
     my $models = $self->{models};
     my $logger = get_logger();
 
@@ -120,12 +122,18 @@ sub delete {
 
     # Delete corresponding interface entry from pf.conf
     $models->{interface}->remove($interface);
-    $models->{interface}->commit();
+    ($status, $status_msg) = $models->{interface}->commit();
+    if(is_error($status)) {
+        return ($status, $status_msg);
+    }
 
     # Remove associated network entries
     @results = $self->_listInterfaces('all');
     if ($models->{network}->cleanupNetworks(\@results)) {
-        $models->{network}->commit();
+        ($status, $status_msg) = $models->{network}->commit();
+        if(is_error($status)) {
+            return ($status, $status_msg);
+        }
     }
 
     return ($STATUS::OK, ["Interface VLAN [_1] successfully deleted",$interface]);
@@ -203,16 +211,18 @@ sub exists {
 Returns an hashref with:
 
     $interface => {
-        name       => physical int (eth0 even if in a VLAN int)
-        ipaddress  => ...
-        netmask    => ...
-        is_running    => true / false value
-        network    => network address (ie 192.168.0.0 for a 192.168.0.1 IP)
-        hwaddress  => mac address
-        type       => enforcement type (see Enforcement model)
+        name            => physical int (eth0 even if in a VLAN int)
+        ipaddress       => ...
+        netmask         => ...
+        ipv6_address    => ...
+        ipv6_prefix     => ...
+        is_running      => true / false value
+        network         => network address (ie 192.168.0.0 for a 192.168.0.1 IP)
+        hwaddress       => mac address
+        type            => enforcement type (see Enforcement model)
     # and optionnally:
-        vlan       => vlan tag
-        dns        => network dns
+        vlan            => vlan tag
+        dns             => network dns
     }
 
 Where $interface is physical interface if there's no VLAN interface (eth0)
@@ -255,12 +265,13 @@ sub get {
                 $result->{"$interface"}->{'dns'} = $network->{dns};
                 $result->{"$interface"}->{'dhcpd_enabled'} = $network->{dhcpd};
                 $result->{"$interface"}->{'nat_enabled'} = $network->{nat_enabled};
+                $result->{"$interface"}->{'split_network'} = $network->{split_network};
+                $result->{"$interface"}->{'reg_network'} = $network->{reg_network};
                 $result->{"$interface"}->{'network_iseditable'} = $TRUE;
             }
         }
         $result->{"$interface"}->{'type'} = $self->getType($interface_ref);
     }
-
     return $result;
 }
 
@@ -273,11 +284,16 @@ sub update {
     my $models = $self->{models};
     my $logger = get_logger();
 
-    my ($ipaddress, $netmask, $status, $status_msg);
+    my ($ipaddress, $netmask, $ipv6_address, $ipv6_prefix, $status, $status_msg);
+
+    # Normalizing IPv6 address if exists
+    $interface_ref->{'ipv6_address'} = pf::util::IP::detect($interface_ref->{'ipv6_address'})->normalizedIP if $interface_ref->{'ipv6_address'};
 
     $interface_ref->{netmask} = '255.255.255.0' unless ($interface_ref->{netmask});
     $ipaddress = $interface_ref->{ipaddress};
     $netmask = $interface_ref->{netmask};
+    $ipv6_address = $interface_ref->{'ipv6_address'} if $interface_ref->{'ipv6_address'};
+    $ipv6_prefix = $interface_ref->{'ipv6_prefix'} if $interface_ref->{'ipv6_prefix'};
 
     # This method does not handle the 'all' interface neither the 'lo' one
     return ($STATUS::FORBIDDEN, ["This method does not handle interface [_1]",$interface])
@@ -302,12 +318,12 @@ sub update {
         $models->{network}->renameItem($network, $new_network);
     }
 
-    if ( !defined($interface_before->{ipaddress})
-         || !defined($interface_before->{netmask})
-         || !defined($ipaddress)
-         || $ipaddress ne $interface_before->{ipaddress}
-         || $netmask ne $interface_before->{netmask}) {
-        my $gateway = $models->{'system'}->getDefaultGateway();
+    my $network_configuration_changed = $FALSE;
+    my $gateway = $models->{'system'}->getDefaultGateway();
+
+    # IPv4 handling (live OS change)
+    if ( !defined($interface_before->{ipaddress}) || !defined($interface_before->{netmask}) || !defined($ipaddress) || $ipaddress ne $interface_before->{ipaddress} || $netmask ne $interface_before->{netmask} ) {
+        $network_configuration_changed = $TRUE;
         my $isDefaultRoute = (defined($interface_before->{ipaddress}) && $gateway eq $interface_before->{ipaddress});
 
         # Delete previous IP address
@@ -334,7 +350,7 @@ sub update {
             $cmd = sprintf "sudo ip addr add %s/%i broadcast %s dev %s", $ipaddress, $netmask, $broadcast, $interface;
             eval { $status = pf_run($cmd) };
             if ( $@ || $status ) {
-                $status_msg = ["Can't delete previous IP address of interface [_1] ([_2])",$interface,$ipaddress];
+                $status_msg = ["Can't add new IP address on interface [_1] ([_2])",$interface,$ipaddress];
                 $logger->error($status);
                 $logger->error("$cmd: $status");
                 return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
@@ -343,6 +359,48 @@ sub update {
                 # Restore gateway
                 $models->{'system'}->setDefaultRoute($ipaddress);
             }
+        }
+    }
+
+    # IPv6 handling (live OS change)
+    if ( !defined($interface_before->{ipv6_address}) || !defined($interface_before->{ipv6_prefix}) || !defined($ipv6_address) || $ipv6_address ne $interface_before->{ipv6_address} || $ipv6_prefix ne $interface_before->{ipv6_prefix} ) {
+        $network_configuration_changed = $TRUE;
+
+        # Delete previous IP address
+        my $cmd;
+        if ( defined($interface_before->{ipv6_network}) && $interface_before->{ipv6_network} ne '' ) {
+            $cmd = sprintf "sudo ip -6 addr del %s dev %s", $interface_before->{ipv6_network}, $interface_before->{name};
+            eval { $status = pf_run($cmd) };
+            if ( $@ || $status ) {
+                $status_msg = ["Can't delete previous IPv6 address of interface [_1] ([_2])", $interface, $interface_before->{ipv6_network}];
+                $logger->error("Can't delete previous IPv6 address of interface $interface");
+                $logger->error("$cmd: $status");
+                return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+            }
+        }
+
+        # Add new IP address and netmask
+        if ( $ipv6_address && $ipv6_address ne '' ) {
+            my $block = Net::Netmask->new($ipaddress.':'.$netmask);
+            my $broadcast = $block->broadcast();
+            $netmask = $block->bits();
+
+            $logger->debug("IPv6 address has changed ($interface $ipv6_address/$ipv6_prefix)");
+
+            $cmd = sprintf "sudo ip -6 addr add %s/%i dev %s", $ipv6_address, $ipv6_prefix, $interface;
+            eval { $status = pf_run($cmd) };
+            if ( $@ || $status ) {
+                $status_msg = ["Can't add new IPv6 address on interface [_1] ([_2])", $interface, $ipv6_address];
+                $logger->error($status);
+                $logger->error("$cmd: $status");
+                return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+            }
+        }
+    }
+
+    # Persistent OS change
+    if ( $network_configuration_changed ) {
+        if ($ipaddress && $ipaddress ne '') {
             my $interfaces = $self->get('all');
             $models->{'system'}->write_network_persistent($interfaces,$gateway);
         }
@@ -353,7 +411,11 @@ sub update {
 
     # Set type
     $interface_ref->{network} = $new_network;
-    $self->setType($interface, $interface_ref);
+    ($status, $status_msg) = $self->setType($interface, $interface_ref);
+
+    if(is_error($status)) {
+        return ($status, $status_msg);
+    }
 
     return ($STATUS::OK, ["Interface [_1] successfully edited",$interface]);
 }
@@ -394,7 +456,6 @@ sub getType {
         $name = $interface_ref->{name};
         $name .= '.' . $interface_ref->{vlan} if ($interface_ref->{vlan});
         ($status, $interface) = $models->{interface}->read($name);
-
         # if the interface is not defined in pf.conf
         if ( is_error($status) ) {
             $type = 'none';
@@ -402,8 +463,9 @@ sub getType {
         # rely on pf.conf's info
         else {
             $type = $interface->{type};
-            $type = ($type =~ /management|managed/i) ? 'management' : 'other';
-            $type .= ($interface->{type} =~ /portal/i) ? ',portal' : '';
+            if ($type !~ /radius/i && $type !~ /portal/i) {
+                $type = ($type =~ /management|managed/i) ? 'management' : 'other';
+            }
         }
     }
 
@@ -424,7 +486,7 @@ sub setType {
     my $models = $self->{models};
 
     my $type = $interface_ref->{type} || 'none';
-    my ($status, $network_ref);
+    my ($status, $network_ref, $status_msg);
 
     # we ignore interface type 'Other' (it basically means unsupported in configurator)
     return if ( $type =~ /^other$/i );
@@ -445,13 +507,13 @@ sub setType {
                                     $self->_prepare_interface_for_pfconf($interface, $interface_ref, $type));
 
         # Update networks.conf
-        if ( $type =~ /management|portal/ ) {
+        if ( $type =~ /management|portal|^radius$/ ) {
             # management interfaces must not appear in networks.conf
             $models->{network}->remove($interface_ref->{network}) if ($interface_ref->{network});
         }
         else {
             ($status, $network_ref) = $models->{network}->read($interface_ref->{network});
-            my $is_vlan = $type =~ /^vlan-isolation$|^vlan-registration$|^dns-enforcement$/i;
+            my $is_vlan = $type =~ /^vlan-isolation|^vlan-registration|^dns-enforcement/i;
             if (is_error($status)) {
                 # Create new network with default values depending on the type
                 if ( $is_vlan) {
@@ -478,14 +540,24 @@ sub setType {
             }
             $network_ref->{dhcpd} = isenabled($interface_ref->{'dhcpd_enabled'}) ? 'enabled' : 'disabled';
             $network_ref->{nat_enabled} = isenabled($interface_ref->{'nat_enabled'}) ? 'enabled' : 'disabled';
+            $network_ref->{split_network} = isenabled($interface_ref->{'split_network'}) ? 'enabled' : 'disabled';
+            $network_ref->{reg_network} = $interface_ref->{'reg_network'};
             $network_ref->{dhcp_start} = Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(10);
             $network_ref->{dhcp_end} = Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(-10);
             $models->{network}->update_or_create($interface_ref->{network}, $network_ref);
         }
     }
     $logger->debug("Committing changes to $interface interface");
-    $models->{network}->commit();
-    $models->{interface}->commit();
+    
+    ($status, $status_msg) = $models->{network}->commit();
+    if(is_error($status)) {
+        return ($status, $status_msg);
+    }
+
+    ($status, $status_msg) = $models->{interface}->commit();
+    if(is_error($status)) {
+        return ($status, $status_msg);
+    }
 }
 
 
@@ -568,10 +640,11 @@ sub _listInterfaces {
     $ifname = '' if ($ifname eq 'all');
     my $cmd =
       {
-       link => "sudo ip -4 -o link show $ifname",
-       addr => "sudo ip -4 -o addr show %s"
+        link        => "sudo ip -4 -o link show $ifname",
+        addr        => "sudo ip -4 -o addr show %s",
+        ipv6_addr   => "sudo ip -6 -o addr show %s",
       };
-    my ($link, $addr);
+    my ($link, $addr, $ipv6_addr);
     eval { $link = pf_run($cmd->{link}) };
     if ($link) {
         # Parse output of ip command
@@ -601,6 +674,16 @@ sub _listInterfaces {
                     $interface->{netmask} = $netmask;
                 }
             }
+            eval { $ipv6_addr = pf_run(sprintf $cmd->{ipv6_addr}, $name) };
+            if ( $ipv6_addr ) {
+                if ($ipv6_addr =~ m/\binet6 (([^\/]+)\/(\d+)) scope global/) {
+                    $interface->{ipv6_network}  = $1,
+                    $interface->{ipv6_address}  = $2,
+                    $interface->{ipv6_prefix}   = $3,
+                }
+                # Normalizing IPv6 address if exists
+                $interface->{ipv6_address} = pf::util::IP::detect($interface->{ipv6_address})->normalizedIP if $interface->{ipv6_address};
+            }
             # we add it to the interfaces if it's not a virtual interface for the domains
             push(@interfaces_list, $interface) unless exists $ConfigDomain{$interface->{name}};
         }
@@ -622,16 +705,22 @@ sub _prepare_interface_for_pfconf {
     my $logger = get_logger();
 
     my $int_config_ref = {
-        ip => $int_model->{'ipaddress'},
-        mask => $int_model->{'netmask'},
-        vip => $int_model->{'vip'},
+        ip              => $int_model->{'ipaddress'},
+        mask            => $int_model->{'netmask'},
+        vip             => $int_model->{'vip'},
     };
+
+    $int_config_ref->{'ipv6_address'}   = $int_model->{'ipv6_address'};
+    $int_config_ref->{'ipv6_prefix'}    = $int_model->{'ipv6_prefix'};
 
     # logic to match our awkward relationship between pf.conf's type and
     # enforcement with networks.conf's type
     if ($type =~ /^vlan/i) {
         $int_config_ref->{'type'} = 'internal';
         $int_config_ref->{'enforcement'} = 'vlan';
+        if ($type =~ /radius/i) {
+            $int_config_ref->{'type'} .= ",radius";
+        }
     }
     elsif ($type eq "dns-enforcement") {
         $int_config_ref->{'type'} = 'internal';
@@ -644,6 +733,14 @@ sub _prepare_interface_for_pfconf {
     elsif ($type =~ /^inlinel\d/i) {
         $int_config_ref->{'type'} = 'internal';
         $int_config_ref->{'enforcement'} = $type;
+    }
+    elsif ($type =~ /^radius$/i) {
+        $int_config_ref->{'type'} = 'radius';
+        $int_config_ref->{'enforcement'} = undef;
+    }
+    elsif ($type =~ /^portal$/i) {
+        $int_config_ref->{'type'} = 'portal';
+        $int_config_ref->{'enforcement'} = undef;
     }
     else {
         if($int_model->{'high_availability'}) {
@@ -777,7 +874,7 @@ sub map_interface_to_networks {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -798,6 +895,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

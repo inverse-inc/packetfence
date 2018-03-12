@@ -20,12 +20,14 @@ use JSON::MaybeXS;
 use URI::Escape::XS qw(uri_escape);
 use List::Util qw(pairmap);
 
-use pf::config qw($FALSE $TRUE $default_pid);
+use pf::config qw($default_pid);
+use pf::constants qw($FALSE $TRUE);
 use pf::Authentication::constants;
 use pf::util;
 use pf::log;
 
 extends 'pf::Authentication::Source::BillingSource';
+with 'pf::Authentication::CreateLocalAccountRole';
 our $logger = get_logger;
 
 =head2 Attributes
@@ -202,6 +204,7 @@ sub charge {
 
 sub verify {
     my ($self, $session, $params, $uri) = @_;
+    use Data::Dumper; get_logger->debug(Dumper($params));
     my $token = $params->{stripeToken};
     die "No Token found" unless defined $token;
     my $style = $self->style;
@@ -312,7 +315,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

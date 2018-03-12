@@ -1,17 +1,57 @@
+  <div class="hidden" id="filter_templates">
+     <input type="text" name="default_filter_match" id="default_filter_match" value="" class="input-medium" data-required="required"/>
+     <input id="switch_filter_match" name="switch_filter_match" autocomplete="off" type="text" class="span6" data-provide="typeahead" placeholder="[% l('String...') %]">
+     <input type="text" name="ssid_filter_match" id="ssid_filter_match" value="" class="input-medium" data-required="required" placeholder="[% l('Enter SSID') %]" list="ssid_datalist"/>
+     <select name="switch_group_filter_match" id="switch_group_filter_match" data-required="required">
+       [% FOREACH switch_group IN switch_groups %]
+          <option value="[% switch_group %]">[% switch_group %]</option>
+       [% END %]
+     </select>
+     <select name="connection_type_filter_match" id="connection_type_filter_match" data-required="required">
+       [% FOREACH connection_type IN connection_types %]
+          <option value="[% connection_type %]">[% connection_type %]</option>
+       [% END %]
+     </select>
+     <select name="connection_sub_type_filter_match" id="connection_sub_type_filter_match" data-required="required">
+       [% FOREACH connection_sub_type IN connection_sub_types %]
+          <option value="[% connection_sub_type %]">[% connection_sub_type %]</option>
+       [% END %]
+     </select>
+     <select name="node_role_filter_match" id="node_role_filter_match" data-required="required">
+       [% FOREACH node_role IN node_roles %]
+          <option value="[% node_role.name %]"> [% node_role.name %] </option>
+       [% END %]
+     </select>
+  </div>
+     <datalist id="ssid_datalist">
+        [% FOREACH ssid IN ssids %]
+            <option value="[% ssid %]">[% ssid %]</option>
+        [% END %]
+     </datalist>
           [% IF item && item.id.defined %]
             [%  CALL form.field('id').set_element_attr('readonly','readonly') %]
           [% END %]
           [% form.block('definition').render | none %]
           [% IF form.field('filter') %]
             <div class="control-group">
-              <label class="control-label" for="sources">[% l('Filters') %] <i class="icon-exclamation-sign"></i> </label>
+              <label class="control-label" for="sources">[% l('Filters') %]</label>
               <div class="controls">
                 <dl>
                   <dt>[% l('If [_1] of the following conditions are met:', [ form.field('filter_match_style').render_element ]) | none %]</dt>
                   <dd><br/> [% form.field('filter').render | none %] </dd>
+                  <dd>
+                    <div id="filterEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('filter').index > 1 %]">
+                      <p>
+                        <i class="icon-group icon-large"></i>
+                        [% l('With no filter specified, an advanced filter must be specified.') %]
+                        <a href="#add">[% l('Add a filter.') %]</a>
+                      </p>
+                    </div>
+                  </dd>
                 </dl>
               </div>
             </div>
+            [% form.field('advanced_filter').render | none %]
           [% END -%]
           <div class="control-group">
             <label class="control-label" for="sources">[% l('Sources') %]</label>
@@ -31,7 +71,7 @@
             </div>
           </div>
           <div class="control-group">
-            <label class="control-label" for="billing_tiers">[% l('Billing tiers') %]</label>
+            <label class="control-label" for="billing_tiers">[% l('Billing Tiers') %]</label>
             <div class="controls">
               [% form.field('billing_tiers').render | none %]
               <div id="billing_tiersEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('billing_tiers').index > 1 %]">
@@ -74,6 +114,13 @@
                   [%- END -%]<br/>
                   <a href="#add">[% l('Add a Scan.') %]</a>
                 </p>
+              </div>
+            </div>
+          </div>
+          <div class="control-group">
+            <div>
+              [% form.field('device_registration').render | none %]
+              <div id="device_registrationEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('device_registration').index > 1 %]">
               </div>
             </div>
           </div>

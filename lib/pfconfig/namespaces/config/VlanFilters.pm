@@ -18,7 +18,10 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use pf::file_paths;
+use pf::file_paths qw(
+    $vlan_filters_config_file
+    $vlan_filters_config_default_file
+);
 
 use base 'pfconfig::namespaces::config';
 
@@ -26,11 +29,13 @@ sub init {
     my ($self) = @_;
     $self->{file} = $vlan_filters_config_file;
     $self->{child_resources} = [ 'FilterEngine::VlanScopes'];
+
+    my $defaults = Config::IniFiles->new( -file => $vlan_filters_config_default_file );
+    $self->{added_params}->{'-import'} = $defaults;
 }
 
 sub build_child {
     my ($self) = @_;
-
     my %tmp_cfg = %{ $self->{cfg} };
 
     $self->cleanup_whitespaces( \%tmp_cfg );
@@ -45,7 +50,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -71,4 +76,3 @@ USA.
 # vim: set shiftwidth=4:
 # vim: set expandtab:
 # vim: set backspace=indent,eol,start:
-

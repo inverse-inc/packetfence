@@ -15,19 +15,25 @@
         </div>
       </div>
 
-      <h2>[% l('Provisioning') %]</h2>
+      <div class="card">
+        <div class="card-title">
+      <h2>[% l('Provisioning') %] [% doc('_apple_android_and_windows_wireless_provisioning') | none %]</h2>
+        </div>
 
-      [% INCLUDE config/provisioning/list.tt %]
+        <div class="card-block">
+          [% INCLUDE config/provisioning/list.tt %]
+        </div>
 
       [%- IF can_access("PROVISIONING_CREATE") %]
         <div class="form-actions">
           <div class="btn-group">
-            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">[% l('Add provisioner') %] <span class="caret"></span></a>
-            <ul id="createSource" class="dropdown-menu">
+            <a class="btn dropdown-toggle" data-toggle="dropdown">[% l('Add provisioner') %] <span class="caret"></span></a>
+            <ul class="dropdown-menu">
               [% FOREACH type IN types -%]
-                <li><a class="createItem" href="[% c.uri_for(c.controller.action_for('create_type'), type) %]">[% l(type) %]</a></li>
+                <li><a class="createProvisioner" href="[% c.uri_for(c.controller.action_for('create_type'), type) %]">[% l(type) %]</a></li>
               [% END -%]
             </ul>
           </div>
         </div>
       [%- END %]
+      </div>

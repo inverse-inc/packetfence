@@ -74,7 +74,7 @@ sub _setVlan {
             . $self->{_id}
             . "} in _setVlan" );
     {
-        lock %{ $switch_locker_ref->{ $self->{_id} } };
+        my $lock = $self->getExclusiveLock();
         $logger->trace( "locking - \$switch_locker{"
                 . $self->{_id}
                 . "} locked in _setVlan" );
@@ -198,7 +198,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,15 +1,25 @@
 package captiveportal::PacketFence::Model::Portal::Session;
 use Moose;
 
-use pf::iplog;
-use pf::config;
+use pf::util::IP;
+use pf::ip4log;
+use pf::ip6log;
+use pf::config qw(
+    $management_network
+    %CAPTIVE_PORTAL
+    %ConfigNetworks
+    $NO_PORT
+    $NO_VLAN
+    $NO_VOIP
+    $INLINE
+);
 use constant LOOPBACK_IPV4 => '127.0.0.1';
 use pf::log;
 use pf::util;
 use pf::config::util;
 use pf::locationlog qw(locationlog_synchronize);
 use NetAddr::IP;
-use pf::Portal::ProfileFactory;
+use pf::Connection::ProfileFactory;
 use File::Spec::Functions qw(catdir);
 use pf::activation qw(view_by_code);
 use pf::web::constants;
@@ -17,6 +27,8 @@ use URI::URL;
 use URI::Escape::XS qw(uri_escape uri_unescape);
 use HTML::Entities;
 use List::MoreUtils qw(any);
+use pf::constants::Portal::Session qw($DUMMY_MAC);
+use pf::dal::tenant;
 
 =head1 NAME
 
@@ -32,7 +44,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -53,9 +65,9 @@ USA.
 
 =cut
 
-has clientIp => (
+has clientIP => (
     is      => 'rw',
-    builder => '_build_clientIp',
+    builder => '_build_clientIP',
     lazy    => 1,
 );
 
@@ -85,16 +97,6 @@ has redirectURL => (
     is       => 'rw',
 );
 
-has _destination_url => (
-    is       => 'rw',
-);
-
-has destinationUrl => (
-    is      => 'ro',
-    builder => '_build_destinationUrl',
-    lazy => 1,
-);
-
 has dispatcherSession => (
     is      => 'rw',
     builder => '_build_dispatcherSession',
@@ -112,12 +114,13 @@ sub ACCEPT_CONTEXT {
     return $previous_model if(defined($previous_model) && $previous_model->{options}->{in_uri_portal} && !($r->can('pnotes') && defined ($r->pnotes('last_uri') ) ) );
     my $model;
     my $remoteAddress = $request->address;
-    my $forwardedFor  = $request->{'env'}->{'HTTP_X_FORWARDED_FOR'};
+    my $forwardedFor  = $request->{'env'}->{'HTTP_X_FORWARDED_FOR_PACKETFENCE'} ||  $request->{'env'}->{'HTTP_X_FORWARDED_FOR'};
     my $redirectURL;
     my $uri = $request->uri;
     my $options;
     my $mgmt_ip = $management_network->{'Tvip'} || $management_network->{'Tip'} if $management_network;
-    my $destination_url = $request->param('destination_url');
+
+    $self->setupTenant($c);
 
     if( $r->can('pnotes') && defined ( my $last_uri = $r->pnotes('last_uri') )) {
         $options = {
@@ -125,60 +128,35 @@ sub ACCEPT_CONTEXT {
             'in_uri_portal' => 1,
         };
     } elsif ( $c->action && $c->controller->isa('captiveportal::Controller::Activate::Email') && $c->action->name eq 'code' ) {
-        my $code = $c->request->arguments->[0];
-        my $data = view_by_code("1:".$code);
+        my ($type, $code) = @{$c->request->arguments}[0,1];
+        my $data = view_by_code($type, $code);
         $options = {
             'portal' => $data->{portal},
         };
-    } elsif ( $forwardedFor && $mgmt_ip && ( $forwardedFor =~  $mgmt_ip) && defined($request->param('PORTAL'))) {
-        $options = {
-            'portal' => $request->param('PORTAL'),
-        };
+        pf::dal->set_tenant($data->{tenant_id});
+    } elsif ( $forwardedFor && ( $forwardedFor =~  '127.0.0.1') ) {
+        if (defined($request->param('PORTAL'))) {
+            $options = {
+                'portal' => $request->param('PORTAL'),
+            };
+        } elsif (defined(my $cookie = $request->cookie("PF_PORTAL"))) {
+            $options = {
+                'portal' => $cookie->value,
+            };
+        }
     }
 
     $model =  $self->new(
         remoteAddress => $remoteAddress,
         forwardedFor  => $forwardedFor,
         options       => $options,
-        _destination_url => $destination_url,
         @args,
     );
     $c->session->{$class} = $model;
     return $model;
 }
 
-sub _build_destinationUrl {
-    my ($self) = @_;
-    my $url = $self->_destination_url;
-
-    # Return portal profile's redirection URL if destination_url is not set or if redirection URL is forced
-    if (!defined($url) || !$url || isenabled($self->profile->forceRedirectURL)) {
-        return $self->profile->getRedirectURL;
-    }
-
-    my $host = eval {
-        URI::URL->new($url)->host();
-    };
-    if($@){
-        get_logger->warn("Can't decode destination URL");
-        return $self->profile->getRedirectURL;
-    }
-    else {
-        get_logger->debug("Destination URL host is : $host");
-
-        my @portal_hosts = portal_hosts();
-        # if the destination URL points to the portal, we put the default URL of the portal profile
-        if ( any { $_ eq $host } @portal_hosts) {
-            get_logger->info("Replacing destination URL since it points to the captive portal");
-            return $self->profile->getRedirectURL;
-        }
-    }
-
-    # Respect the user's initial destination URL
-    return decode_entities(uri_unescape($url));
-}
-
-sub _build_clientIp {
+sub _build_clientIP {
     my ($self) = @_;
     my $logger = get_logger();
 
@@ -192,7 +170,7 @@ sub _build_clientIp {
         if(defined($session_ip)){
             $logger->info("Detected external portal client. Using the IP $session_ip address in it's session.");
             Log::Log4perl::MDC->put( 'ip', $session_ip );
-            return $session_ip;
+            return pf::util::IP::detect($session_ip);
         }
         else{
             $logger->error("Tried to compute the IP address from external portal session but found an undefined value");
@@ -211,7 +189,7 @@ sub _build_clientIp {
     if ( ( !$proxied_lookup{$directly_connected_ip} )
         && !( $directly_connected_ip ne '127.0.0.1' ) ) {
         Log::Log4perl::MDC->put( 'ip', $directly_connected_ip );
-        return $directly_connected_ip;
+        return pf::util::IP::detect($directly_connected_ip);
     }
 
     my $forwarded_for = $self->forwardedFor;
@@ -224,7 +202,7 @@ sub _build_clientIp {
             "Remote Address is $directly_connected_ip. Client is behind proxy? "
               . "Returning: $ip according to HTTP Headers" );
         Log::Log4perl::MDC->put( 'ip', $ip);
-        return $ip;
+        return pf::util::IP::detect($ip);
     }
 
     $logger->debug(
@@ -232,31 +210,39 @@ sub _build_clientIp {
 
      );
     Log::Log4perl::MDC->put( 'ip', $directly_connected_ip );
-    return $directly_connected_ip;
+    return pf::util::IP::detect($directly_connected_ip);
 }
 
 sub _build_clientMac {
     my ($self) = @_;
-    my $clientIp = $self->clientIp;
+    my $clientIP = $self->clientIP;
     my $mac;
-    if (defined $clientIp) {
-        $clientIp = clean_ip($clientIp);
+    if (defined $clientIP) {
         while ( my ($network,$network_config) = each %ConfigNetworks ) {
             next unless defined $network_config->{'fake_mac_enabled'} && isenabled($network_config->{'fake_mac_enabled'});
             next if !pf::config::is_network_type_inline($network);
             my $net_addr = NetAddr::IP->new($network,$network_config->{'netmask'});
-            my $ip = new NetAddr::IP::Lite $clientIp;
+            my $ip = new NetAddr::IP::Lite $clientIP->normalizedIP;
             if ($net_addr->contains($ip)) {
                 my $fake_mac = '00:00:' . join(':', map { sprintf("%02x", $_) } split /\./, $ip->addr());
                 my $gateway = $network_config->{'gateway'};
                 locationlog_synchronize($gateway, $gateway, undef, $NO_PORT, $NO_VLAN, $fake_mac, $NO_VOIP, $INLINE);
-                pf::iplog::open($ip->addr(), $fake_mac);
+                if ( $clientIP->type eq $pf::IPv6::TYPE ) {
+                    pf::ip6log::open($clientIP->normalizedIP, $fake_mac);
+                } else {
+                    pf::ip4log::open($clientIP->normalizedIP, $fake_mac);
+                }
                 $mac = $fake_mac;
                 last;
             }
         }
-        $mac = pf::iplog::ip2mac( $clientIp ) unless defined $mac;
+        if ( $clientIP->type eq $pf::IPv6::TYPE ) {
+            $mac = pf::ip6log::ip2mac( $clientIP->normalizedIP ) unless defined $mac;
+        } else {
+            $mac = pf::ip4log::ip2mac( $clientIP->normalizedIP ) unless defined $mac;
+        }
     }
+
     Log::Log4perl::MDC->put('mac', $mac) if defined $mac;
     return $mac;
 }
@@ -264,18 +250,28 @@ sub _build_clientMac {
 sub _build_profile {
     my ($self) = @_;
     my $options =  $self->options;
-    $options->{'last_ip'} = $self->clientIp;
-    return pf::Portal::ProfileFactory->instantiate( $self->clientMac, $options );
+    $options->{'last_ip'} = $self->clientIP->normalizedIP;
+    return pf::Connection::ProfileFactory->instantiate( $self->clientMac, $options );
 }
 
 sub _build_dispatcherSession {
     my ($self) = @_;
-    my $session = new pf::Portal::Session()->session;
-    my %session_data;
     my $logger = get_logger();
+
+    # Restore with a dummy MAC since we don't care about what contains the session if it can't be restored from the session ID
+    my $portal_session = new pf::Portal::Session(client_mac => $DUMMY_MAC);
+
+    if($portal_session->{_dummy_session}) {
+        $logger->debug("Ignoring dispatcher session as it wasn't restored from a valid session ID");
+        return {};
+    }
+
+    my $session = $portal_session->session;
+
+    my %session_data;
     foreach my $key ($session->param) {
         my $value = $session->param($key);
-        $logger->debug( sub { "Adding session parameter from dispatcher session to Catalyst session : $key : " . $value // 'undef' });
+        $logger->debug( sub { "Adding session parameter from dispatcher session to Catalyst session : $key : " . ($value // 'undef') });
         $session_data{$key} = $value;
     }
     $logger->info("External captive portal detected !") if($session_data{is_external_portal});
@@ -287,17 +283,25 @@ sub _build_dispatcherSession {
 sub templateIncludePath {
     my ($self)  = @_;
     my $profile = $self->profile;
-    my @paths   = ( $CAPTIVE_PORTAL{'TEMPLATE_DIR'} );
-    if ( $profile->getName ne 'default' ) {
-        unshift @paths,
-          catdir(
-            $CAPTIVE_PORTAL{'PROFILE_TEMPLATE_DIR'},
-            trim_path( $profile->getTemplatePath )
-          );
-    }
-    return \@paths;
+    return $profile->{_template_paths};
 }
 
-__PACKAGE__->meta->make_immutable;
+=head2 setupTenant
+
+Setup the current tenant
+
+=cut
+
+sub setupTenant {
+    my ($self, $c) = @_;
+    my $hostname = $c->request->uri->host;
+    $c->log->trace("Trying to find tenant for hostname $hostname");
+    if(my $tenant = pf::dal::tenant->search(-where => { portal_domain_name => $hostname })->next()) {
+        $c->log->debug("Found tenant for portal domain name $hostname");
+        pf::dal->set_tenant($tenant->id);
+    }
+}
+
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

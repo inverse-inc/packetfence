@@ -14,22 +14,27 @@ can be localized.
 =cut
 
 use File::Find;
-use lib qw(/usr/local/pf/lib /usr/local/pf/html/pfappserver/lib);
+use lib qw(/usr/local/pf/lib);
 use pf::action;
 use pf::admin_roles;
+use pf::api;
+use pf::api::attributes;
 use pf::Authentication::Source;
 use pf::Authentication::constants;
 use pf::factory::provisioner;
-use pf::factory::firewallsso;
 use pf::factory::condition::profile;
 use pf::Switch::constants;
 use pfappserver::PacketFence::Controller::Graph;
 use pfappserver::Model::Node;
+use pfappserver::Model::Node::Tab::MSE;
 use pfappserver::Form::Config::Wrix;
 use pfappserver::Form::Config::ProfileCommon;
 use pf::config;
 use pf::radius_audit_log;
 use pf::constants::admin_roles qw(@ADMIN_ACTIONS);
+use pf::dhcp_option82;
+use pf::factory::detect::parser;
+use pf::factory::scan;
 
 use constant {
     APP => 'html/pfappserver',
@@ -51,6 +56,8 @@ Add a localizable sring to the list.
 sub add_string {
     my ($string, $source) = @_;
 
+    $string =~ s/\\'/'/g; # unescape single-quotes
+    $string =~ s/(?<!\\)\\/\\\\/g; # escape backslashes
     $string =~ s/(?<!\\)\"/\\\"/g; # escape double-quotes
     unless ($strings{$string}) {
         $strings{$string} = [];
@@ -132,8 +139,16 @@ sub parse_tt {
         open(TT, $template);
         while (defined($line = <TT>)) {
             chomp $line;
-            while ($line =~ m/\[\% l\(['"](.+?(?!\\))['"](,.*)?\) (\| (js|none) )?\%\]/g) {
-                add_string($1, $template) unless ($1 =~ m/\${/);
+            while ($line =~ m/\[\%\s?l\(['"](.+?(?!\\))['"](,.*)?\)\s?(\| (js|none) )?\%\]/g) {
+                my $string = $1;
+                $string =~ s/\[_(\d+)\]/\%$1/g;
+                add_string($string, $template) unless ($string =~ m/\${/);
+                next;
+            }
+            while ($line =~ m/l\(['"](.+?(?!\\))['"](,.*)?\)/g) {
+                my $string = $1;
+                $string =~ s/\[_(\d+)\]/\%$1/g;
+                add_string($string, $template) unless ($string =~ m/\${/);
             }
         }
         close(TT);
@@ -157,6 +172,16 @@ sub parse_tt {
     while (defined($line = <TT>)) {
         chomp $line;
         if ($line =~ m/\[\% ?list_entry\(\s*'[^']*',\s*'([^']*)'\)( \| none)? ?\%\]/g) {
+            add_string($1, $template);
+        }
+    }
+    close(TT);
+
+    $template = $dir . '/config/source/index.tt';
+    open(TT, $template);
+    while (defined($line = <TT>)) {
+        chomp $line;
+        if ($line =~ m/\[\% ?source_create\(\s*'[^']*',\s*'([^']*)',\s*[^']+\)( \| none)? ?\%\]/g) {
             add_string($1, $template);
         }
     }
@@ -188,9 +213,10 @@ sub parse_mc {
         open(PM, $module);
         while (defined($line = <PM>)) {
             chomp $line;
-            if ($line =~ m/->(loc|_localize)\(['"]([^\$].+?[^'"\\])["']\)/) {
+            if ($line =~ m/->(loc|_localize)\(['"]([^\$].+?[^'"\\])["'] *[\),]/ ||
+                $line =~ m/(description)\s+=>\s+'(.+?[^\\])[']/) {
                 my $string = $2;
-                $string =~ s/\\'/'/g;
+                $string =~ s/\[_(\d+)\]/\%$1/g;
                 add_string($string, $module);
             }
         }
@@ -220,12 +246,17 @@ sub parse_forms {
         open(PM, $form);
         while (defined($line = <PM>)) {
             chomp $line;
-            if ($line =~ m/(?:label|required|help)\s+=>\s+"(.+?[^\\])["]/ ||
-                $line =~ m/(?:label|required|help)\s+=>\s+'(.+?[^\\])[']/) {
+            if ($line =~ m/(?:label|required|help|'data-placeholder')\s+=>\s+"(.+?[^\\])["]/ ||
+                $line =~ m/(?:label|required|help|'data-placeholder')\s+=>\s+'(.+?[^\\])[']/) {
                 my $string = $1;
-                $string =~ s/\\'/'/g;
                 add_string($string, $form);
             }
+            if ($line =~ m/->(loc|_localize)\(['"]([^\$].+?[^'"\\])["'] *[\),]/) {
+                my $string = $2;
+                $string =~ s/\[_(\d+)\]/\%$1/g;
+                add_string($string, $form);
+            }
+
         }
         close(PM);
     }
@@ -314,12 +345,12 @@ sub extract_modules {
     }
 
     const('pf::config', 'VALID_TRIGGER_TYPES', keys(%pf::factory::condition::violation::TRIGGER_TYPE_TO_CONDITION_TYPE));
-    const('pf::config', 'SoH Actions', \@pf::config::SOH_ACTIONS);
-    const('pf::config', 'SoH Classes', \@pf::config::SOH_CLASSES);
-    const('pf::config', 'SoH Status', \@pf::config::SOH_STATUS);
     const('pf::config', 'Inline triggers', [$pf::config::MAC, $pf::config::PORT, $pf::config::SSID, $pf::config::ALWAYS]);
     const('pf::config', 'Network types', [$pf::config::NET_TYPE_VLAN_REG, $pf::config::NET_TYPE_VLAN_ISOL, $pf::config::NET_TYPE_INLINE, 'management', 'other']);
     const('pf::radius_audit_log', 'RADIUS Audit Log', \@pf::radius_audit_log::FIELDS);
+    const('pf::dhcp_option82', 'DHCP Option 82', [values %pf::dhcp_option82::HEADINGS]);
+    const('pf::factory::detect::parser', 'Detect Parsers', [map { /^pf::detect::parser::(.*)/;"pfdetect_type_$1"  } @pf::factory::detect::parser::MODULES]);
+    const('pf::factory::scan', 'Scans Engine', [map { /^pf::scan(.*)/; my $x = $1;  $x =~ s/(::)/_/g; "scan_type$x"  } @pf::factory::scan::MODULES]);
 
     my @values = map { "${_}_action" } @pf::action::VIOLATION_ACTIONS;
     const('pf::action', 'VIOLATION_ACTIONS', \@values);
@@ -341,7 +372,7 @@ sub extract_modules {
       id
       client_secret
       host
-      realm
+      authenticate_realm
       secret
       basedn
       encryption
@@ -366,6 +397,11 @@ sub extract_modules {
       md5_hash
       transaction_key
       api_login_id
+      shared_secret
+      merchant_id
+      terminal_id
+      shared_secret_direct
+      domains
     );
     foreach (@$types) {
         my $type = "pf::Authentication::Source::${_}Source";
@@ -376,6 +412,17 @@ sub extract_modules {
            usernameattribute => 'cn',
            authentication_source => undef,
            chained_authentication_source => undef,
+           authorization_source_id => undef,
+           idp_ca_cert_path => undef,
+           idp_cert_path => undef,
+           idp_entity_id => undef,
+           idp_metadata_path => undef,
+           sp_cert_path => undef,
+           sp_entity_id => undef,
+           sp_key_path => undef,
+           group_header => undef,
+           user_header => undef,
+           proxy_addresses => undef,
           });
         $attributes = $source->available_attributes();
 
@@ -385,6 +432,10 @@ sub extract_modules {
         } @$attributes;
         const($type, 'available_attributes', \@values) if (@values);
     }
+
+    pf::api::attributes::updateAllowedAsActions();
+    @values = map { substr($_, 9) } keys %pf::api::attributes::ALLOWED_ACTIONS;
+    const('pf::api', 'Allowed actions', \@values);
 
     @values = map( { @$_ } values %Actions::ACTIONS);
     const('pf::Authentication::constants', 'Actions', \@values);
@@ -398,9 +449,6 @@ sub extract_modules {
     @values = sort map { "profile.filter." . $_ } keys %pf::factory::condition::profile::PROFILE_FILTER_TYPE_TO_CONDITION_TYPE;
     const('profile.filter', 'Portal Profile Filters', \@values);
 
-    @values = sort grep {$_} map { /^pf::firewallsso::(.*)/; $1 } @pf::factory::firewallsso::MODULES;
-    const('pf::firewallsso', 'Firewall SSO', \@values);
-
     const('pf::Switch::constants', 'Modes', \@SNMP::MODES);
 
     const('pf::pfcmd::report', 'SQL', ['dhcp_fingerprint']);
@@ -408,6 +456,8 @@ sub extract_modules {
 
     $attributes = pfappserver::Model::Node->availableStatus();
     const('pfappserver::Model::Node', 'availableStatus', $attributes);
+
+    const('pfappserver::Model::Node::Tab::MSE', 'MSE Tab', \@pfappserver::Model::Node::Tab::MSE::FIELDS);
 
     const('pfappserver::PacketFence::Controller::Graph', 'graph type', \@pfappserver::PacketFence::Controller::Graph::GRAPHS);
 
@@ -419,13 +469,9 @@ sub extract_modules {
 
     const('pfappserver::Form::Config::Wrix', 'open hours', \@pfappserver::Form::Config::Wrix::HOURS);
 
-    @values = pfappserver::Form::Config::ProfileCommon->options_mandatory_fields();
-    @values = map { $_->{label} } @values;
-    const('pfappserver::Form::Config::ProfileCommon', 'mandatory fields', \@values);
-
     const('pfappserver::Form::Field::Duration', 'Operators', ['add', 'subtract']);
 
-    const('html/pfappserver/root/user/list_password.tt', 'options', ['mail_loading']);
+    const('html/pfappserver/root/user/list_password.tt', 'options', ['mail_loading', 'sms_loading']);
 }
 
 =head2 print_po
@@ -446,7 +492,7 @@ sub print_po {
 
     print <<EOT;
 # English translations for $package package.
-# Copyright (C) 2005-2016 Inverse inc.
+# Copyright (C) 2005-2018 Inverse inc.
 # This file is distributed under the same license as the $package package.
 #
 msgid ""
@@ -520,7 +566,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

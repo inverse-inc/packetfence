@@ -31,18 +31,20 @@ sub managers {
     return ();
 }
 
-=head2 generateConfig startService postStartCleanup stop watch
+=head2 generateConfig startService postStartCleanup stop 
 
-Delegating generateConfig startService postStartCleanup stop watch to sub managers
+Delegating generateConfig startService postStartCleanup stop to sub managers
 
 =cut
 
-around [qw(generateConfig startService postStartCleanup watch stop)] => sub {
-    my ($orig,$self,$quick) = @_;
-    my $count = 0;
-    my $pass = true {$count++; $_->$orig($quick) } $self->managers;
-    return $pass == $count;
-};
+for my $func (qw(generateConfig startService postStartCleanup stop)) {
+    around $func => sub {
+        my ($orig,$self,$quick) = @_;
+        my $count = 0;
+        my $pass = true {$count++; $_->$func($quick) } $self->managers;
+        return $pass == $count;
+    };
+}
 
 =head2 removeStalePid
 
@@ -76,7 +78,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

@@ -5,6 +5,7 @@ use namespace::autoclean;
 extends 'Catalyst::Model';
 
 use pf::config;
+use pf::file_paths qw($bin_dir);
 use pf::error;
 use pf::util;
 use pf::services;
@@ -94,13 +95,57 @@ configuration.
 =cut
 
 sub status {
-    my ($self) = @_;
+    my ($self, $just_managed) = @_;
     my $logger = get_logger();
+    my @services;
+    foreach my $manager (grep { defined($_) } map {  pf::services::get_service_manager($_)  } @pf::services::ALL_SERVICES) {
+        my $is_managed = $manager->isManaged();
+        if ($just_managed && !$is_managed) {
+            next;
+        }
+        my %info = (
+            name   => $manager->name,
+            status => $manager->status(1),
+            is_managed => $is_managed,
+        );
+        if ($manager->isa("pf::services::manager::submanager")) {
+            foreach my $submanager ($manager->managers) {
+                push @{$info{managers}}, {name => $submanager->name, status => $submanager->status(1), is_managed => $is_managed};
+            }
+        }
+        push @services, \%info;
+    }
 
-    my %services_ref = map { $_->name => $_->status(1) } grep { defined($_) && $_->isManaged }  map {  pf::services::get_service_manager($_)  } @pf::services::ALL_SERVICES;
-    return ($STATUS::OK, { services => \%services_ref}) if ( keys %services_ref );
+    return ($STATUS::OK, { services => \@services})
+        if @services;
 
     return ($STATUS::INTERNAL_SERVER_ERROR, "Unidentified error see server side logs for details.");
+}
+
+=item server_status
+
+Calls the webservices in order to get the server services status
+
+Returns a tuple status, hashref with servicename => true / false values.
+Returns only the list of services that should be started based on
+configuration.
+
+=cut
+
+sub server_status {
+    my ($self, $cluster_id) = @_;
+    my $server_status;
+    eval {
+        ($server_status) = pf::cluster::call_server($cluster_id, 'services_status', ['pf']);
+    };
+    unless($@) {
+        my %services_ref = map { $_ => $server_status->{$_} ne '0' } keys %$server_status;
+        return ($STATUS::OK, { services => \%services_ref}) if ( keys %services_ref );
+    }
+
+    my $msg = "Cannot get status from server $cluster_id : $@";
+    get_logger->error($msg);
+    return ($STATUS::INTERNAL_SERVER_ERROR, $msg);
 }
 
 =item service_status
@@ -224,7 +269,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -245,6 +290,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

@@ -29,7 +29,7 @@ Catalyst Controller.
 sub unreg :Local :Args(1) {
     my ($self, $c, $mac) = @_;
     my $node = node_view($mac);
-    my $username = lc($c->session->{username});
+    my $username = lc($c->user_session->{username});
     my $owner = lc($node->{pid});
     if ($username && $node) {
         $c->log->info("'$username' attempting to unregister $mac owned by '$owner'");
@@ -53,7 +53,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -74,6 +74,6 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

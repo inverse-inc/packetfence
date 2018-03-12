@@ -1,0 +1,15 @@
+[Unit]
+Description=PacketFence API frontend Service
+Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
+After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+Before=packetfence-httpd.portal.service
+
+[Service]
+Type=notify
+LimitNOFILE=infinity
+ExecStart=/usr/local/pf/bin/pfhttpd -conf /usr/local/pf/conf/caddy-services/api.conf -log-name api-frontend
+Restart=on-failure
+Slice=packetfence.slice
+
+[Install]
+WantedBy=packetfence.target

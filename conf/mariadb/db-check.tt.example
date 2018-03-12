@@ -1,0 +1,32 @@
+#!/bin/bash
+
+STATUS=undefined
+TIMEOUT=1
+PFUSER='[% replication_user %]'
+PFPASS='[% replication_password %]'
+
+STATUS=$( \
+    mysql --connect-timeout=$TIMEOUT -h $HAPROXY_SERVER_ADDR -P $HAPROXY_SERVER_PORT -u $PFUSER -p${PFPASS} \
+    -N --silent information_schema -e \
+    'select variable_value from global_status where variable_name = "WSREP_CLUSTER_STATUS";' 2>/dev/shm/wsrep.err  )
+
+READONLY=$(
+    mysql --connect-timeout=$TIMEOUT -h $HAPROXY_SERVER_ADDR -P $HAPROXY_SERVER_PORT -u $PFUSER -p${PFPASS} \
+    -N --silent information_schema -e \
+    'select variable_value from global_variables  where variable_name = "read_only";' 2>/dev/shm/wsrep.err  )
+
+case $HAPROXY_SERVER_NAME in
+    "[% hostname %]")
+        # anything with Primary in it is good. Otherwise it means we can't connect at all
+        if [[ $STATUS =~ Primary ]]; then
+            exit 0
+        fi
+        ;;
+
+    *)
+        if [[ $STATUS == "Primary" && $READONLY == "OFF" ]]; then
+            exit 0
+        fi
+        ;;
+esac
+exit 1

@@ -32,6 +32,7 @@ use base ('pf::Switch');
 use Net::SNMP;
 
 use pf::Switch::constants;
+use pf::constants::role qw($VOICE_ROLE);
 use pf::util;
 
 =head1 METHODS
@@ -41,6 +42,17 @@ TODO: This list is incomplete
 =over
 
 =cut
+
+#
+# %TRAP_NORMALIZERS
+# A hash of cisco trap normalizers
+# Use the following convention when adding a normalizer
+# <nameOfTrapNotificationType>TrapNormalizer
+#
+
+our %TRAP_NORMALIZERS = (
+    '.1.3.6.1.4.1.11.2.14.12.4.0.1' => 'hpicfIntrusionTrapTrapNormalizer',
+);
 
 sub getVersion {
     my ($self)                = @_;
@@ -77,7 +89,7 @@ sub parseTrap {
 
     #-- secureMacAddrViolation SNMP v3
     } elsif ( $trapString
-        =~ /BEGIN VARIABLEBINDINGS.*OID: \.1\.3\.6\.1\.4\.1\.11\.2\.14\.12\.4\.0\.\d+\|\.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.2\.1\.\d+ = INTEGER: 1\|\.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.3\.1\.(\d+) = INTEGER: \d+\|\.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.4\.1\.\d+ = $SNMP::MAC_ADDRESS_FORMAT/ ) {   
+        =~ /BEGIN VARIABLEBINDINGS.*OID: \.1\.3\.6\.1\.4\.1\.11\.2\.14\.12\.4\.0\.\d+\|\.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.2\.1\.\d+ = INTEGER: 1\|\.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.3\.1\.(\d+) = INTEGER: \d+\|\.1\.3\.6\.1\.4\.1\.11\.2\.14\.2\.10\.2\.1\.4\.1\.\d+ = $SNMP::MAC_ADDRESS_FORMAT/ ) {
 
         $trapHashRef->{'trapType'} = 'secureMacAddrViolation';
         $trapHashRef->{'trapIfIndex'} = $1;
@@ -92,7 +104,7 @@ sub parseTrap {
         $trapHashRef->{'trapType'} = ( ( $1 == 2 ) ? "down" : "up" );
         $trapHashRef->{'trapIfIndex'} = $2;
     } elsif ( $trapString
-        =~ /\.1\.3\.6\.1\.2\.1\.2\.2\.1\.8\.([0-9]+) = INTEGER: [a-z]+(\([0-9]+\))/
+        =~ /\.1\.3\.6\.1\.2\.1\.2\.2\.1\.8\.([0-9]+) = INTEGER: [a-z]+\(([0-9]+)\)/
         )
     {
         $trapHashRef->{'trapType'} = ( ( $2 == 2 ) ? "down" : "up" );
@@ -117,14 +129,8 @@ sub _setVlan {
         = '1.3.6.1.2.1.17.7.1.4.3.1.2';                  # Q-BRIDGE-MIB
     my $result;
 
-    $logger->trace( "locking - trying to lock \$switch_locker{"
-            . $self->{_id}
-            . "} in _setVlan" );
     {
-        lock %{ $switch_locker_ref->{ $self->{_id} } };
-        $logger->trace( "locking - \$switch_locker{"
-                . $self->{_id}
-                . "} locked in _setVlan" );
+        my $lock = $self->getExclusiveLock();
 
         # get current egress and untagged ports
         $self->{_sessionRead}->translate(0);
@@ -491,7 +497,7 @@ sub getVoiceVlan {
     my ($self, $ifIndex) = @_;
     my $logger = $self->logger;
 
-    my $voiceVlan = $self->getVlanByName('voice');
+    my $voiceVlan = $self->getVlanByName($VOICE_ROLE);
     if (defined($voiceVlan)) {
         return $voiceVlan;
     }
@@ -499,6 +505,117 @@ sub getVoiceVlan {
     # otherwise say it didn't work
     $logger->warn("Voice VLAN was requested but it's not configured!");
     return -1;
+}
+
+=item returnAuthorizeWrite
+
+Return radius attributes to allow write access
+
+=cut
+
+sub returnAuthorizeWrite {
+   my ($self, $args) = @_;
+   my $logger = $self->logger;
+   my $radius_reply_ref = {};
+   my $status;
+   $radius_reply_ref->{'APC-Service-Type'} = 'Admin';
+   $radius_reply_ref->{'Reply-Message'} = "Switch enable access granted by PacketFence";
+   $logger->info("User $args->{'user_name'} logged in $args->{'switch'}{'_id'} with write access");
+   my $filter = pf::access_filter::radius->new;
+   my $rule = $filter->test('returnAuthorizeWrite', $args);
+   ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+   return [$status, %$radius_reply_ref];
+}
+
+=item returnAuthorizeRead
+
+Return radius attributes to allow read access
+
+=cut
+
+sub returnAuthorizeRead {
+   my ($self, $args) = @_;
+   my $logger = $self->logger;
+   my $radius_reply_ref = {};
+   my $status;
+   $radius_reply_ref->{'APC-Service-Type'} = 'ReadOnly';
+   $radius_reply_ref->{'Reply-Message'} = "Switch read access granted by PacketFence";
+   $logger->info("User $args->{'user_name'} logged in $args->{'switch'}{'_id'} with read access");
+   my $filter = pf::access_filter::radius->new;
+   my $rule = $filter->test('returnAuthorizeRead', $args);
+   ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+   return [$status, %$radius_reply_ref];
+}
+
+our $HUB_INTRUDER_PORT_OID = ".1.3.6.1.4.1.11.2.14.2.10.2.1.3.1.";
+
+=item hpicfIntrusionTrapTrapNormalizer
+
+The trap normalizer for hpicfIntrusionTrapTrapNormalizer traps
+
+    [
+        {
+            'notificationtype' => 'TRAP',
+            'version'          => 0,
+            'receivedfrom'     => 'UDP: [10.9.16.151]:161->[10.13.0.70]',
+            'switchIp'         => '10.9.16.151',
+            'errorstatus'      => 0,
+            'messageid'        => 0,
+            'community'        => 'c5dM_pub',
+            'transactionid'    => 4225,
+            'errorindex'       => 0,
+            'requestid'        => 0
+        },
+        [
+            [
+                '.1.3.6.1.2.1.1.3.0',
+                'Timeticks: (521829650) 60 days, 9:31:36.50', 67
+            ],
+            [ '.1.3.6.1.6.3.1.1.4.1.0', 'OID: .1.3.6.1.4.1.11.2.14.12.4.0.1', 6 ],
+            [ '.1.3.6.1.4.1.11.2.14.2.10.2.1.2.1.14', 'INTEGER: 1',  2 ],
+            [ '.1.3.6.1.4.1.11.2.14.2.10.2.1.3.1.14', 'INTEGER: 14', 2 ],
+            [
+                '.1.3.6.1.4.1.11.2.14.2.10.2.1.4.1.14',
+                'Hex-STRING: 00 21 B7 B0 29 B0 ',
+                4
+            ],
+            [ '.1.3.6.1.4.1.11.2.14.2.10.2.1.6.1.14', 'INTEGER: 1', 2 ],
+            [ '.1.3.6.1.4.1.11.2.14.2.10.2.1.7.1.14', 'INTEGER: 1', 2 ],
+            [ '.1.3.6.1.6.3.18.1.3.0',  'IpAddress: 10.9.16.151',         64 ],
+            [ '.1.3.6.1.6.3.18.1.4.0',  'STRING: "c5dM_pub"',             4 ],
+            [ '.1.3.6.1.6.3.1.1.4.3.0', 'OID: .1.3.6.1.4.1.11.2.14.12.4', 6 ]
+        ]
+    ];
+
+=cut
+
+sub hpicfIntrusionTrapTrapNormalizer {
+    my ($self, $trapInfo) = @_;
+    my ($pdu, $variables) = @$trapInfo;
+    my ($variable) = $self->findTrapVarWithBase($variables, $HUB_INTRUDER_PORT_OID);
+    $variable->[1] =~ /INTEGER: (\d+)/;
+    my $ifIndex = $1;
+    return {
+        trapType => 'secureMacAddrViolation',
+        trapIfIndex => $ifIndex,
+        trapVlan => $self->getVlan( $ifIndex ),
+        trapMac => $self->getMacFromTrapVariablesForOIDBase($variables, '.1.3.6.1.4.1.11.2.14.2.10.2.1.4.'),
+    }
+}
+
+
+=item _findTrapNormalizer
+
+Find the normalizer method for the trap for HP switches
+
+=cut
+
+sub _findTrapNormalizer {
+    my ($self, $snmpTrapOID, $pdu, $variables) = @_;
+    if (exists $TRAP_NORMALIZERS{$snmpTrapOID}) {
+        return $TRAP_NORMALIZERS{$snmpTrapOID};
+    }
+    return undef;
 }
 
 =back
@@ -509,7 +626,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

@@ -9,13 +9,22 @@ pf::cmd::pf::cache add documentation
 
 Namespaces:
 
-  configfilesdata
+  accounting
+  clustering
   configfiles
+  configfilesdata
+  fingerbank
+  firewall_sso
   httpd.admin
   httpd.portal
+  ldap_auth
+  metadefender
+  person_lookup
   pfdns
-  switch.overlay
+  provisioning
+  route_int
   switch
+  switch.overlay
 
 Options:
 
@@ -42,7 +51,7 @@ use List::MoreUtils qw(any);
 
 =head2 parseArgs
 
-parsing the arguements for the cache command
+parsing the arguments for the cache command
 
 =cut
 
@@ -50,7 +59,7 @@ sub parseArgs {
     my ($self) = @_;
     my @args = $self->args;
     if (@args <= 1 || @args > 3 ) {
-        print STDERR  "invalid arguements\n";
+        print STDERR  "invalid arguments\n";
         return 0;
     }
     my $namespace = shift @args;
@@ -158,7 +167,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

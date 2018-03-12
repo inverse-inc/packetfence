@@ -19,7 +19,7 @@ extends 'pf::services::manager';
 
 has '+name' => ( default => sub { 'pfbandwidthd' } );
 
-has '+launcher' => (default => sub { '%1$s -d' } );
+sub _cmdLine { my $self = shift; $self->executable ; }
 
 =head1 AUTHOR
 
@@ -27,7 +27,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

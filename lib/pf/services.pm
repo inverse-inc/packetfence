@@ -16,8 +16,7 @@ to generate or validate some configuration files.
 Read the following configuration files: F<dhcpd_vlan.conf>,
 F<networks.conf>, F<violations.conf> and F<switches.conf>.
 
-Generate the following configuration files: F<dhcpd.conf>, F<named.conf>,
-F<snort.conf>, F<httpd.conf>, F<snmptrapd.conf>.
+Generate the following configuration file: F<snmptrapd.conf>.
 
 =cut
 
@@ -25,12 +24,16 @@ use strict;
 use warnings;
 
 use pf::config;
+use pf::constants::services qw(JUST_MANAGED);
+use List::MoreUtils qw(any);
 use Module::Pluggable
-  'search_path' => [qw(pf::services::manager)],
-  'sub_name'    => 'managers',
-  'require'     => 1,
-  'except'      => qr/^pf::services::manager::roles|^pf::services::manager::(httpd|submanager|winbindd_child|radiusd_child|redis)$/,
-  ;
+    'search_path' => [qw(pf::services::manager)],
+    'sub_name'    => 'managers',
+    'require'     => 1,
+    'inner'       => 0,
+    'except' =>
+    qr/^pf::services::manager::roles|^pf::services::manager::(pf|systemd|httpd|submanager|radiusd_child|redis)$/,
+    ;
 
 
 
@@ -41,9 +44,10 @@ our %MANAGERS = map { $_->new->name => $_ } @MANAGERS;
 our @APACHE_SERVICES = map { $_ } grep { $_->isa('pf::services::manager::httpd') } @MANAGERS;
 
 # all service managers except for keepalived
-our @ALL_SERVICES = sub {
-    return sort map { $_->new->name; } @MANAGERS;
-  } ->();
+our @ALL_SERVICES = sort keys %MANAGERS;
+
+our @ALL_MANAGERS = map { $_->new->can("managers") ? $_->new->managers : $_->new  } @MANAGERS;
+our %ALL_MANAGERS = map { $_->name => $_ } @ALL_MANAGERS;
 
 our %ALLOWED_ACTIONS = (
     stop    => undef,
@@ -98,6 +102,34 @@ sub service_list {
     } @_;
 }
 
+=head2 getManagers
+
+=cut
+
+sub getManagers {
+    my ($services,$flags) = @_;
+    $services = (any { $_ eq 'pf'} @$services) ? [@pf::services::ALL_SERVICES] : $services;
+    $flags = 0 unless defined $flags;
+    my %seen;
+    my $justManaged      = $flags & JUST_MANAGED;
+    my @temp = grep { defined $_ } map { pf::services::get_service_manager($_) } @$services;
+    my @serviceManagers;
+    foreach my $m (@temp) {
+        next if $seen{$m->name} || ( $justManaged && !$m->isManaged );
+        my @managers;
+        if($m->isa("pf::services::manager::submanager")) {
+            push @managers,$m->managers;
+        } else {
+            push @managers,$m;
+        }
+        #filter out managers already seen
+        @managers = grep { !$seen{$_->name}++ } @managers;
+        $seen{$m->name}++;
+        push @serviceManagers,@managers;
+    }
+    return @serviceManagers;
+}
+
 
 =head1 AUTHOR
 
@@ -107,7 +139,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 

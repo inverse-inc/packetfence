@@ -12,7 +12,6 @@ pftest <cmd> [options]
   authentication              | checks authentication sources
   mysql                       | runs the mysql tuner
   profile_filter              | checks which profile will be used for a mac
-  iplog                       | checks for multiple open iplog entries
   locationlog                 | checks for multiple open locationlog entries
 
 Please view "pftest.pl help <command>" for details on each option
@@ -37,7 +36,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

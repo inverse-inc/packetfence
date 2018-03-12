@@ -62,7 +62,6 @@ Maybe we can switch to use autolearn with forced 02:00... addresses to fill the 
 use strict;
 use warnings;
 use Net::SNMP;
-use Net::Telnet;
 
 use base ('pf::Switch::ThreeCom');
 
@@ -411,6 +410,7 @@ sub _authorizeMacWithTelnet {
     # Warning: this generates a warning on empty password
     my $session;
     eval {
+        require Net::Telnet;
         $session = new Net::Telnet( Host => $self->{_ip}, Timeout => 20 );
 
         #$session->input_log('/tmp/test.txt');
@@ -718,7 +718,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

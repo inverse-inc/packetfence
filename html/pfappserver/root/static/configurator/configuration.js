@@ -1,3 +1,5 @@
+/* -*- Mode: js; indent-tabs-mode: nil; js-indent-level: 4 -*- */
+
 function registerExits() {
     $('#tracker a, .form-actions button').click(function(event) {
         var href = $(this).attr('href');
@@ -12,12 +14,13 @@ function initStep() {
 
 function saveStep(href) {
     var valid = true;
+    resetAlert($('form[name="config"] h3').first());
 
     $('form[name="config"] .control-group').each(function(index) {
         var e = $(this);
         var i = e.find('input, textarea').first();
         if (i.length) {
-            if ($.trim(i.val()).length == 0) {
+            if (!i.attr('placeholder') && $.trim(i.val()).length == 0) {
                 e.addClass('error');
                 valid = false;
             }
@@ -33,6 +36,7 @@ function saveStep(href) {
                    'general.hostname': $('#general_hostname').val(),
                    'general.dhcpservers': $('#general_dhcpservers').val(),
                    'alerting.emailaddr': $('#alerting_emailaddr').val(),
+                   'alerting.smtpserver': $('#alerting_smtpserver').val(),
                    'advanced.hash_passwords': $('input[name="advanced.hash_passwords"]:checked').val()}
         }).done (function(data) {
             window.location.href = href;
@@ -43,8 +47,7 @@ function saveStep(href) {
         });
     }
     else {
-        var form = $('form[name="config"]');
-        resetAlert(form.parent());
+        var form = $('form[name="config"] h3').first();
         showError(form, 'Please verify your configuration.');
         $("body,html").animate({scrollTop:0}, 'fast');
     }

@@ -1,0 +1,8 @@
+
+<div id="modulesTree">
+</div>
+
+<script id="modulesTreeData" type="text/json">
+  [% structured_roots_json | none %]
+</script>
+

@@ -15,7 +15,6 @@ Is the Base class for Rose DB catalyst models
 
 use Moose;
 use namespace::autoclean;
-use pf::config::cached;
 use pf::log;
 use Module::Load;
 use HTTP::Status qw(:constants :is);
@@ -316,11 +315,11 @@ sub ACCEPT_CONTEXT {
     return $self->new( \%args );
 }
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

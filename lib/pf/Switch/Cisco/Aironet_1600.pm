@@ -16,8 +16,13 @@ This modules extends pf::Switch::Cisco::Aironet
 use strict;
 use warnings;
 use Net::SNMP;
+use Try::Tiny;
 
-use pf::config;
+use pf::constants qw($TRUE);
+use pf::config qw(
+    $MAC
+    $SSID
+);
 use pf::Switch::constants;
 use pf::util qw(format_mac_as_cisco);
 use pf::util::radius qw(perform_coa perform_disconnect);
@@ -100,7 +105,7 @@ sub radiusDisconnect {
         my $connection_info = {
             nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
-            LocalAddr => $self->deauth_source_ip(),
+            LocalAddr => $self->deauth_source_ip($send_disconnect_to),
         };
 
         $logger->debug("network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
@@ -125,7 +130,7 @@ sub radiusDisconnect {
     };
     return if (!defined($response));
 
-    return $TRUE if ($response->{'Code'} eq 'CoA-ACK');
+    return $TRUE if ( ($response->{'Code'} eq 'Disconnect-ACK') || ($response->{'Code'} eq 'CoA-ACK') );
 
     $logger->warn(
         "Unable to perform RADIUS Disconnect-Request on (".$self->{'_id'}.")."
@@ -141,7 +146,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

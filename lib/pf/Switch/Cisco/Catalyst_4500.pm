@@ -39,14 +39,14 @@ Fetch the ifindex on the switch by NAS-Port-Id radius attribute
 sub getIfIndexByNasPortId {
     my ($self, $ifDesc_param) = @_;
 
-    if ( !$self->connectRead() ) {
+    if ( !$self->connectRead() || !defined($ifDesc_param)) {
         return 0;
     }
 
     my $OID_ifDesc = '1.3.6.1.2.1.2.2.1.2';
     my $ifDescHashRef;
     my $cache = $self->cache;
-    my $result = $cache->compute([$self->{'_id'},$OID_ifDesc], sub { $self->{_sessionRead}->get_table( -baseoid => $OID_ifDesc )});
+    my $result = $cache->compute($self->{'_id'} . "-" . $OID_ifDesc, sub { $self->{_sessionRead}->get_table( -baseoid => $OID_ifDesc )});
     foreach my $key ( keys %{$result} ) {
         my $ifDesc = $result->{$key};
         if ( $ifDesc =~ /$ifDesc_param$/i ) {
@@ -62,7 +62,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

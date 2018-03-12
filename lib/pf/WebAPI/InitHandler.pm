@@ -15,17 +15,20 @@ use strict;
 use warnings;
 
 use Apache2::RequestRec ();
-use pf::config::cached;
 use pf::StatsD qw($statsd);
 use pf::db;
 use pf::CHI;
+use pf::CHI::Request;
 use pf::SwitchFactory();
+use pf::dal;
+use pf::constants qw($DEFAULT_TENANT_ID);
 
 use Apache2::Const -compile => 'OK';
 
 sub handler {
     my $r = shift;
-    pf::config::cached::ReloadConfigs();
+    pf::CHI::Request::clear_all();
+    pf::dal->reset_tenant();
     return Apache2::Const::OK;
 }
 
@@ -38,7 +41,7 @@ Refresh any configurations
 =cut
 
 sub child_init {
-    my ($child_pool, $s) = @_;
+    my ($class, $child_pool, $s) = @_;
     #Avoid child processes having the same random seed
     srand();
     pf::StatsD->initStatsd;
@@ -57,13 +60,33 @@ Close connections to avoid any sharing of sockets
 =cut
 
 sub post_config {
-    my ($conf_pool, $log_pool, $temp_pool, $s) = @_;
+    my ($class, $conf_pool, $log_pool, $temp_pool, $s) = @_;
     pf::StatsD->closeStatsd;
     db_disconnect();
+    $class->preloadSwitches();
     pf::CHI->clear_memoized_cache_objects;
-    pf::SwitchFactory::preLoadModules();
+    $class->post_config_hook();
     return Apache2::Const::OK;
 }
+
+=head2 preloadSwitches
+
+Preload switches in the post_config
+
+=cut
+
+sub preloadSwitches {
+    my ($class) = @_;
+    pf::SwitchFactory->preloadConfiguredModules();
+}
+
+=head2 post_config_hook
+
+post config hook allow child class to add additional actions
+
+=cut
+
+sub post_config_hook { }
 
 =head1 AUTHOR
 
@@ -72,7 +95,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

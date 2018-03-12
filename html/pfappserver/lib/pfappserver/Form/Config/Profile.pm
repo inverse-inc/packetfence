@@ -6,7 +6,7 @@ pfappserver::Form::Config::Profile
 
 =head1 DESCRIPTION
 
-Portal profile.
+Connection profile.
 
 =cut
 
@@ -31,15 +31,9 @@ The filter container field
 has_field 'filter' =>
   (
    type => 'DynamicTable',
-   'num_when_empty' => 2,
+   label => 'Filters',
    'do_label' => 0,
    'sortable' => 1,
-   inflate_default_method => sub {
-       [
-        map { pfappserver::Form::Field::ProfileFilter->filter_inflate($_) }
-        @{$_[1]}
-       ]
-   }
   );
 
 =head2 filter.conatains
@@ -51,7 +45,6 @@ The filter container field contents
 has_field 'filter.contains' =>
   (
    type => '+ProfileFilter',
-   label => 'Filter',
    widget_wrapper => 'DynamicTableRow',
   );
 
@@ -74,6 +67,10 @@ sub options_filter_match_style {
     return  map { { value => $_, label => $_ } } qw(all any);
 }
 
+has_field 'advanced_filter' => 
+(
+    type => 'TextArea',
+);
 
 =head1 METHODS
 
@@ -93,10 +90,24 @@ sub update_fields {
     $self->SUPER::update_fields();
 }
 
+=head2 validate
+
+=cut
+
+sub validate {
+    my ($self) = @_;
+    my $value = $self->value;
+    if (@{$value->{filter}} == 0 && !exists $value->{advanced_filter} ) {
+        $self->field('filter')->add_error("A filter or an advanced filter must be specified");
+        $self->field('advanced_filter')->add_error("A filter or an advanced filter must be specified");
+    }
+    return 1;
+}
+
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -117,5 +128,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

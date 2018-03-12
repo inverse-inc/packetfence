@@ -1,0 +1,522 @@
+/config/switches:
+  get:
+    parameters:
+    - $ref: '#/components/parameters/cursor'
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/Iterable'
+              - properties:
+                  items:
+                    properties:
+                      AccessListMap:
+                        description: Role by access list
+                        type: string
+                      ExternalPortalEnforcement:
+                        description: Enable external portal enforcement when supported
+                          by network equipment
+                        type: string
+                      RoleMap:
+                        description: Role by Switch Role
+                        type: string
+                      SNMPAuthPasswordRead:
+                        description: Auth Password Read
+                        type: string
+                      SNMPAuthPasswordTrap:
+                        description: Auth Password Trap
+                        type: string
+                      SNMPAuthPasswordWrite:
+                        description: Auth Password Write
+                        type: string
+                      SNMPAuthProtocolRead:
+                        description: Auth Protocol Read
+                        type: string
+                      SNMPAuthProtocolTrap:
+                        description: Auth Protocol Trap
+                        type: string
+                      SNMPAuthProtocolWrite:
+                        description: Auth Protocol Write
+                        type: string
+                      SNMPCommunityRead:
+                        description: Community Read
+                        type: string
+                      SNMPCommunityTrap:
+                        description: Community Trap
+                        type: string
+                      SNMPCommunityWrite:
+                        description: Community Write
+                        type: string
+                      SNMPEngineID:
+                        description: Engine ID
+                        type: string
+                      SNMPPrivPasswordRead:
+                        description: Priv Password Read
+                        type: string
+                      SNMPPrivPasswordTrap:
+                        description: Priv Password Trap
+                        type: string
+                      SNMPPrivPasswordWrite:
+                        description: Priv Password Write
+                        type: string
+                      SNMPPrivProtocolRead:
+                        description: Priv Protocol Read
+                        type: string
+                      SNMPPrivProtocolTrap:
+                        description: Priv Protocol Trap
+                        type: string
+                      SNMPPrivProtocolWrite:
+                        description: Priv Protocol Write
+                        type: string
+                      SNMPUserNameRead:
+                        description: User Name Read
+                        type: string
+                      SNMPUserNameTrap:
+                        description: User Name Trap
+                        type: string
+                      SNMPUserNameWrite:
+                        description: User Name Write
+                        type: string
+                      SNMPVersion:
+                        description: Version
+                        type: string
+                      SNMPVersionTrap:
+                        description: Version Trap
+                        type: string
+                      UrlMap:
+                        description: Role by Web Auth URL
+                        type: string
+                      VlanMap:
+                        description: Role by VLAN ID
+                        type: string
+                      VoIPCDPDetect:
+                        description: Detect VoIP with a SNMP request in the CDP MIB
+                        type: string
+                      VoIPDHCPDetect:
+                        description: Detect VoIP with the DHCP Fingerprint
+                        type: string
+                      VoIPEnabled:
+                        description: VoIP
+                        type: string
+                      VoIPLLDPDetect:
+                        description: Detect VoIP with a SNMP request in the LLDP MIB
+                        type: string
+                      always_trigger:
+                        description: Always trigger
+                        type: string
+                      cliAccess:
+                        description: Allow this switch to use PacketFence as a radius
+                          server for CLI access
+                        type: string
+                      cliEnablePwd:
+                        description: Enable Password
+                        type: string
+                      cliPwd:
+                        description: Password
+                        type: string
+                      cliTransport:
+                        description: Transport
+                        type: string
+                      cliUser:
+                        description: Username
+                        type: string
+                      coaPort:
+                        description: For CoA request, if we have to send to another
+                          port
+                        type: integer
+                      controllerIp:
+                        description: Use instead this IP address for de-authentication
+                          requests. Normally used for Wi-Fi only
+                        type: string
+                      deauthMethod:
+                        description: Deauthentication Method
+                        type: string
+                      description:
+                        description: Description
+                        type: string
+                      disconnectPort:
+                        description: For Disconnect request, if we have to send to
+                          another port
+                        type: integer
+                      group:
+                        description: Changing the group requires to save to see the
+                          new default values
+                        type: string
+                      id:
+                        description: IP Address/MAC Address/Range (CIDR)
+                        type: string
+                      inlineAccessList:
+                        description: inline
+                        type: string
+                      inlineRole:
+                        description: inline
+                        type: string
+                      inlineTrigger:
+                        description: InlineTrigger
+                        items:
+                          description: InlineTrigger
+                          properties:
+                            type:
+                              description: Type
+                              type: string
+                            value:
+                              description: Value
+                              type: string
+                          type: object
+                        type: array
+                      inlineUrl:
+                        description: inline
+                        type: string
+                      inlineVlan:
+                        description: inline
+                        type: string
+                      isolationAccessList:
+                        description: isolation
+                        type: string
+                      isolationRole:
+                        description: isolation
+                        type: string
+                      isolationUrl:
+                        description: isolation
+                        type: string
+                      isolationVlan:
+                        description: isolation
+                        type: string
+                      macDetectionAccessList:
+                        description: macDetection
+                        type: string
+                      macDetectionRole:
+                        description: macDetection
+                        type: string
+                      macDetectionUrl:
+                        description: macDetection
+                        type: string
+                      macDetectionVlan:
+                        description: macDetection
+                        type: string
+                      macSearchesMaxNb:
+                        description: Maximum number of MAC addresses retrived from
+                          a port
+                        type: integer
+                      macSearchesSleepInterval:
+                        description: Sleep interval between queries of MAC addresses
+                        type: integer
+                      mac_trigger:
+                        description: Mac trigger
+                        type: string
+                      mode:
+                        description: Mode
+                        type: string
+                      port_trigger:
+                        description: Port trigger
+                        type: integer
+                      radiusSecret:
+                        description: Secret Passphrase
+                        type: string
+                      registrationAccessList:
+                        description: registration
+                        type: string
+                      registrationRole:
+                        description: registration
+                        type: string
+                      registrationUrl:
+                        description: registration
+                        type: string
+                      registrationVlan:
+                        description: registration
+                        type: string
+                      ssid_trigger:
+                        description: Ssid trigger
+                        type: string
+                      type:
+                        description: Type
+                        type: string
+                      uplink:
+                        description: Comma-separated list of the switch uplinks
+                        type: string
+                      uplink_dynamic:
+                        description: Dynamically lookup uplinks
+                        type: string
+                      useCoA:
+                        description: Use CoA when available to deauthenticate the
+                          user. When disabled, RADIUS Disconnect will be used instead
+                          if it is available.
+                        type: string
+                      wsPwd:
+                        description: Password
+                        type: string
+                      wsTransport:
+                        description: Transport
+                        type: string
+                      wsUser:
+                        description: Username
+                        type: string
+                    required:
+                    - id
+                    type: object
+                type: object
+        description: A list of connection profiles
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  post:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              AccessListMap:
+                description: Role by access list
+                type: string
+              ExternalPortalEnforcement:
+                description: Enable external portal enforcement when supported by
+                  network equipment
+                type: string
+              RoleMap:
+                description: Role by Switch Role
+                type: string
+              SNMPAuthPasswordRead:
+                description: Auth Password Read
+                type: string
+              SNMPAuthPasswordTrap:
+                description: Auth Password Trap
+                type: string
+              SNMPAuthPasswordWrite:
+                description: Auth Password Write
+                type: string
+              SNMPAuthProtocolRead:
+                description: Auth Protocol Read
+                type: string
+              SNMPAuthProtocolTrap:
+                description: Auth Protocol Trap
+                type: string
+              SNMPAuthProtocolWrite:
+                description: Auth Protocol Write
+                type: string
+              SNMPCommunityRead:
+                description: Community Read
+                type: string
+              SNMPCommunityTrap:
+                description: Community Trap
+                type: string
+              SNMPCommunityWrite:
+                description: Community Write
+                type: string
+              SNMPEngineID:
+                description: Engine ID
+                type: string
+              SNMPPrivPasswordRead:
+                description: Priv Password Read
+                type: string
+              SNMPPrivPasswordTrap:
+                description: Priv Password Trap
+                type: string
+              SNMPPrivPasswordWrite:
+                description: Priv Password Write
+                type: string
+              SNMPPrivProtocolRead:
+                description: Priv Protocol Read
+                type: string
+              SNMPPrivProtocolTrap:
+                description: Priv Protocol Trap
+                type: string
+              SNMPPrivProtocolWrite:
+                description: Priv Protocol Write
+                type: string
+              SNMPUserNameRead:
+                description: User Name Read
+                type: string
+              SNMPUserNameTrap:
+                description: User Name Trap
+                type: string
+              SNMPUserNameWrite:
+                description: User Name Write
+                type: string
+              SNMPVersion:
+                description: Version
+                type: string
+              SNMPVersionTrap:
+                description: Version Trap
+                type: string
+              UrlMap:
+                description: Role by Web Auth URL
+                type: string
+              VlanMap:
+                description: Role by VLAN ID
+                type: string
+              VoIPCDPDetect:
+                description: Detect VoIP with a SNMP request in the CDP MIB
+                type: string
+              VoIPDHCPDetect:
+                description: Detect VoIP with the DHCP Fingerprint
+                type: string
+              VoIPEnabled:
+                description: VoIP
+                type: string
+              VoIPLLDPDetect:
+                description: Detect VoIP with a SNMP request in the LLDP MIB
+                type: string
+              always_trigger:
+                description: Always trigger
+                type: string
+              cliAccess:
+                description: Allow this switch to use PacketFence as a radius server
+                  for CLI access
+                type: string
+              cliEnablePwd:
+                description: Enable Password
+                type: string
+              cliPwd:
+                description: Password
+                type: string
+              cliTransport:
+                description: Transport
+                type: string
+              cliUser:
+                description: Username
+                type: string
+              coaPort:
+                description: For CoA request, if we have to send to another port
+                type: integer
+              controllerIp:
+                description: Use instead this IP address for de-authentication requests.
+                  Normally used for Wi-Fi only
+                type: string
+              deauthMethod:
+                description: Deauthentication Method
+                type: string
+              description:
+                description: Description
+                type: string
+              disconnectPort:
+                description: For Disconnect request, if we have to send to another
+                  port
+                type: integer
+              group:
+                description: Changing the group requires to save to see the new default
+                  values
+                type: string
+              id:
+                description: IP Address/MAC Address/Range (CIDR)
+                type: string
+              inlineAccessList:
+                description: inline
+                type: string
+              inlineRole:
+                description: inline
+                type: string
+              inlineTrigger:
+                description: InlineTrigger
+                items:
+                  description: InlineTrigger
+                  properties:
+                    type:
+                      description: Type
+                      type: string
+                    value:
+                      description: Value
+                      type: string
+                  type: object
+                type: array
+              inlineUrl:
+                description: inline
+                type: string
+              inlineVlan:
+                description: inline
+                type: string
+              isolationAccessList:
+                description: isolation
+                type: string
+              isolationRole:
+                description: isolation
+                type: string
+              isolationUrl:
+                description: isolation
+                type: string
+              isolationVlan:
+                description: isolation
+                type: string
+              macDetectionAccessList:
+                description: macDetection
+                type: string
+              macDetectionRole:
+                description: macDetection
+                type: string
+              macDetectionUrl:
+                description: macDetection
+                type: string
+              macDetectionVlan:
+                description: macDetection
+                type: string
+              macSearchesMaxNb:
+                description: Maximum number of MAC addresses retrived from a port
+                type: integer
+              macSearchesSleepInterval:
+                description: Sleep interval between queries of MAC addresses
+                type: integer
+              mac_trigger:
+                description: Mac trigger
+                type: string
+              mode:
+                description: Mode
+                type: string
+              port_trigger:
+                description: Port trigger
+                type: integer
+              radiusSecret:
+                description: Secret Passphrase
+                type: string
+              registrationAccessList:
+                description: registration
+                type: string
+              registrationRole:
+                description: registration
+                type: string
+              registrationUrl:
+                description: registration
+                type: string
+              registrationVlan:
+                description: registration
+                type: string
+              ssid_trigger:
+                description: Ssid trigger
+                type: string
+              type:
+                description: Type
+                type: string
+              uplink:
+                description: Comma-separated list of the switch uplinks
+                type: string
+              uplink_dynamic:
+                description: Dynamically lookup uplinks
+                type: string
+              useCoA:
+                description: Use CoA when available to deauthenticate the user. When
+                  disabled, RADIUS Disconnect will be used instead if it is available.
+                type: string
+              wsPwd:
+                description: Password
+                type: string
+              wsTransport:
+                description: Transport
+                type: string
+              wsUser:
+                description: Username
+                type: string
+            required:
+            - id
+            type: object
+      required: true
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '409':
+        $ref: '#/components/responses/Duplicate'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

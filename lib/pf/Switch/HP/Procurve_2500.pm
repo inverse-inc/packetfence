@@ -6,7 +6,7 @@ pf::Switch::HP::Procurve_2500 - Object oriented module to access SNMP enabled HP
 
 =head1 SYNOPSIS
 
-The pf::Switch::HP::Procurve_2500 module implements an object 
+The pf::Switch::HP::Procurve_2500 module implements an object
 oriented interface to access SNMP enabled HP Procurve 2500 switches.
 
 =head1 STATUS
@@ -29,9 +29,11 @@ sub description { 'HP ProCurve 2500 Series' }
 use pf::Switch::constants;
 use pf::util;
 use pf::constants;
-use pf::config;
+use pf::config qw(
+    $MAC
+    $PORT
+);
 use pf::log;
-use Net::SSH2;
 
 # CAPABILITIES
 # access technology supported
@@ -56,6 +58,7 @@ sub _connect {
     my $enable_user = "manager";
 
     eval {
+        require Net::SSH2;
         $ssh = Net::SSH2->new();
         $ssh->connect($self->{_ip}, 22 ) or die "Cannot connect $!"  ;
         $ssh->auth_password($self->{_cliUser},$self->{_cliPwd}) or die "Cannot authenticate" ;
@@ -77,7 +80,7 @@ sub _connect {
     $logger->debug("SSH output : $_") while <$chan>;
     print $chan $self->{_cliEnablePwd}."\n";
     $logger->debug("SSH output : $_") while <$chan>;
-    
+
     return ($ssh, $chan);
 }
 
@@ -122,7 +125,7 @@ sub disableMABByIfIndex {
     $logger->debug("SSH output : $_") while <$chan>;
     print $chan "no aaa port-access mac-based $ifIndex\n";
     $logger->debug("SSH output : $_") while <$chan>;
-    
+
     $ssh->disconnect();
 
     return 1;
@@ -328,7 +331,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

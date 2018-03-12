@@ -15,10 +15,15 @@ pf::ConfigStore::Realm
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths;
+use pf::file_paths qw(
+    $realm_config_file
+    $realm_default_config_file
+);
 extends 'pf::ConfigStore';
 
-sub configFile { $realm_config_file };
+sub configFile { $realm_config_file }
+
+sub importConfigFile { $realm_default_config_file }
 
 sub pfconfigNamespace {'config::Realm'}
 
@@ -68,7 +73,7 @@ sub join_options {
     return join("\n",@$options);
 }
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 AUTHOR
 
@@ -76,7 +81,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

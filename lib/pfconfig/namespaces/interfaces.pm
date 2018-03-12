@@ -19,7 +19,7 @@ use pf::log;
 use pf::constants::config qw(%NET_INLINE_TYPES);
 use pfconfig::namespaces::config::Pf;
 use pfconfig::util qw(is_type_inline);
-use Net::Netmask;
+use pfconfig::objects::Net::Netmask;
 use Net::Interface;
 use Socket;
 use pf::util;
@@ -36,6 +36,7 @@ sub init {
         inline_enforcement_nets => [],
         vlan_enforcement_nets   => [],
         portal_ints             => [],
+        radius_ints             => [],
         monitor_int             => '',
         management_network      => '',
     };
@@ -46,6 +47,7 @@ sub init {
         'interfaces::monitor_int',             'interfaces::management_network',
         'interfaces::portal_ints',             'interfaces::inline_nets',
         'interfaces::routed_isolation_nets',   'interfaces::routed_registration_nets',
+        'interfaces::radius_ints',             'resource::network_config',
     ];
     if($host_id){
         @{$self->{child_resources}} = map { "$_($host_id)" } @{$self->{child_resources}}; 
@@ -73,12 +75,17 @@ sub build {
         my $mask = $Config{$interface}{'mask'};
         my $type = $Config{$interface}{'type'};
 
+        my $ipv6_address    = $Config{$interface}{'ipv6_address'} if ( defined($Config{$interface}{'ipv6_address'}) && $Config{$interface}{'ipv6_address'} ne '' );
+        my $ipv6_prefix     = $Config{$interface}{'ipv6_prefix'} if ( defined($Config{$interface}{'ipv6_prefix'}) && $Config{$interface}{'ipv6_prefix'} ne '' );
+
         if ( defined($ip) && defined($mask) ) {
             $ip =~ s/ //g;
             $mask =~ s/ //g;
-            $int_obj = new Net::Netmask( $ip, $mask );
+            $int_obj = pfconfig::objects::Net::Netmask->new( $ip, $mask );
             $int_obj->tag( "ip",  $ip );
             $int_obj->tag( "int", $int );
+            $int_obj->tag( "ipv6_address", $ipv6_address ) if ( defined($ipv6_address) && $ipv6_address ne '' );
+            $int_obj->tag( "ipv6_prefix", $ipv6_prefix ) if ( defined($ipv6_prefix) && $ipv6_prefix ne '' );
         }
 
         if ( !defined($type) ) {
@@ -89,7 +96,7 @@ sub build {
         }
 
         die "Missing mandatory element ip or netmask on interface $int"
-            if ( $type =~ /internal|managed|management|portal/ && !defined($int_obj) );
+            if ( $type =~ /internal|managed|management|portal|radius/ && !defined($int_obj) );
 
         foreach my $type ( split( /\s*,\s*/, $type ) ) {
             if ( $type eq 'internal' ) {
@@ -122,12 +129,17 @@ sub build {
                 push @{ $self->{_interfaces}->{dhcplistener_ints} }, $int;
             }
             elsif ( $type eq 'high-availability' ) {
-                push @{ $self->{_interfaces}->{ha_ints} }, $int;
+                push @{ $self->{_interfaces}->{ha_ints} }, $int_obj;
             }
             elsif ( $type eq 'portal' ) {
                 $int_obj->tag( "vip", $self->_fetch_virtual_ip( $int, $interface ) );
                 push @{ $self->{_interfaces}->{portal_ints} }, $int_obj;
             }
+            elsif ( $type eq 'radius' ) {
+                $int_obj->tag( "vip", $self->_fetch_virtual_ip( $int, $interface ) );
+                push @{ $self->{_interfaces}->{radius_ints} }, $int_obj;
+            }
+
         }
     }
 
@@ -165,7 +177,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

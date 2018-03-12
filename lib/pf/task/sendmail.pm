@@ -16,7 +16,6 @@ use strict;
 use warnings;
 use base 'pf::task';
 use POSIX;
-use Net::SMTP;
 use pf::util qw(untaint_chain);
 use pf::log;
 use pf::config;
@@ -40,7 +39,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

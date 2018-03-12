@@ -39,7 +39,7 @@ use Net::SNMP;
 use base ('pf::Switch');
 
 use pf::constants;
-use pf::config;
+use pf::constants::role qw($VOICE_ROLE);
 use pf::Switch::constants;
 use pf::util;
 
@@ -55,6 +55,16 @@ sub supportsFloatingDevice { return $TRUE; }
 
 # special features
 sub supportsLldp { return $TRUE; }
+
+#
+# %TRAP_NORMALIZERS
+# A hash of nortel trap normalizers
+# Use the following convention when adding a normalizer
+# <nameOfTrapNotificationType>TrapNormalizer
+#
+our %TRAP_NORMALIZERS = (
+   '.1.3.6.1.4.1.45.1.6.2.1.0.5' => 's5EtrSbsMacAccessViolationTrapNormalizer',
+);
 
 =back
 
@@ -247,7 +257,7 @@ sub getVoiceVlan {
     my ($self, $ifIndex) = @_;
     my $logger = $self->logger;
 
-    my $voiceVlan = $self->getVlanByName('voice');
+    my $voiceVlan = $self->getVlanByName($VOICE_ROLE);
     if (defined($voiceVlan)) {
         return $voiceVlan;
     }
@@ -356,11 +366,8 @@ sub _setVlan {
         return 0;
     }
 
-    $logger->trace( "locking - trying to lock \$switch_locker{" . $self->{_ip} . "} in _setVlan" );
-
     {
-        lock %{ $switch_locker_ref->{ $self->{_ip} } };
-        $logger->trace( "locking - \$switch_locker{" . $self->{_ip} . "} locked in _setVlan" );
+        my $lock = $self->getExclusiveLock();
 
         $logger->trace("SNMP get_request for rcVlanPortMembers");
         $self->{_sessionRead}->translate(0);
@@ -419,7 +426,7 @@ Should return either 0 or 1
 sub getFirstBoardIndex {
     my ($self) = @_;
     my $logger = $self->logger;
-  
+
     if ( !$self->connectRead() ) {
         return 1;
     }
@@ -768,7 +775,7 @@ sub getPhonesLLDPAtIfIndex {
                         && ($MACresult->{
                                 "$oid_lldpRemPortId.$cache_lldpRemTimeMark.$cache_lldpRemLocalPortNum.$cache_lldpRemIndex"
                             }
-                            =~ /^0x([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})$/i
+                            =~ /^(?:0x)?([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})([0-9A-Z]{2})(?::..)?$/i
                         )
                         )
                     {
@@ -806,11 +813,9 @@ sub setTagVlansByIfIndex {
         return 0;
     }
 
-    $logger->trace( "locking - trying to lock \$switch_locker{" . $self->{_ip} . "} in setTaggedVlan" );
     my $result;
     {
-        lock %{ $switch_locker_ref->{ $self->{_ip} } };
-        $logger->trace( "locking - \$switch_locker{" . $self->{_ip} . "} locked in setTaggedVlan" );
+        my $lock = $self->getExclusiveLock();
 
         # since all VLANs are located in separated OIDs we need to fetch the portList for each VLAN
         my $fetch_vlan_port_list_ref = [];
@@ -829,7 +834,7 @@ sub setTagVlansByIfIndex {
             my $updated_port_member_list = $self->modifyBitmask(
                 $result->{"$OID_rcVlanPortMembers.$vlan"}, $ifIndex, $setTo
             );
-            
+
             push @$set_vlan_port_list_ref,
                 "$OID_rcVlanPortMembers.$vlan", Net::SNMP::OCTET_STRING, $updated_port_member_list;
         }
@@ -876,6 +881,62 @@ sub setTaggedVlans {
     return $self->setTagVlansByIfIndex($ifIndex, $TRUE, $switch_locker_ref, @vlans);
 }
 
+=item _findTrapNormalizer
+
+find trap normaliziers for pf::Switch::Nortel
+
+=cut
+
+sub _findTrapNormalizer {
+    my ($self, $snmpTrapOID, $pdu, $variables) = @_;
+    if (exists $TRAP_NORMALIZERS{$snmpTrapOID}) {
+        return $TRAP_NORMALIZERS{$snmpTrapOID};
+    }
+    return undef;
+}
+
+=item s5EtrSbsMacAccessViolationTrapNormalizer
+
+normalizer for the s5EtrSbsMacAccessViolation trap
+
+=cut
+
+sub s5EtrSbsMacAccessViolationTrapNormalizer {
+    my ($self, $trapInfo) = @_;
+    my $logger = $self->logger;
+    my ($pdu, $variables) = @$trapInfo;
+    my ($variable) = $self->findTrapVarWithBase($variables, '.1.3.6.1.4.1.45.1.6.5.3.12.1.3.');
+    return undef unless $variable;
+    unless ($variable) {
+        $logger->error("Cannot find OID .1.3.6.1.4.1.45.1.6.5.3.12.1.3. in trap");
+        return undef;
+    }
+    my $trapMac = $self->extractMacFromVariable($variable);
+    unless ($trapMac) {
+        $logger->error("Cannot extract a mac address from OID .1.3.6.1.4.1.45.1.6.5.3.12.1.3.");
+        return undef;
+    }
+    unless ($variable->[0] =~ /^\Q.1.3.6.1.4.1.45.1.6.5.3.12.1.3.\E(\d+)\.(\d+)$/) {
+        $logger->error("Cannot extract the board and port index from $variable->[0]");
+        return undef;
+    }
+    my $boardIndex = $1;
+    my $portIndex = $2;
+    my $trapIfIndex = ( $boardIndex - $self->getFirstBoardIndex() ) * $self->getBoardIndexWidth() + $portIndex;
+    if ($trapIfIndex <= 0) {
+        $logger->warn(
+            "Trap ifIndex is invalid. Should this switch be factory-reset? "
+            . "See Nortel's BayStack Stacking issues in module documentation for more information."
+        );
+    }
+    return {
+        trapType => 'secureMacAddrViolation',
+        trapIfIndex => $trapIfIndex,
+        trapVlan => $self->getVlan( $trapIfIndex ),
+        trapMac => $trapMac
+    };
+}
+
 =back
 
 =head1 AUTHOR
@@ -884,7 +945,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

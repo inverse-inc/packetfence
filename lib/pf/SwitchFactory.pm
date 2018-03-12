@@ -20,7 +20,6 @@ use Carp;
 use pf::log;
 use pf::util;
 use pf::freeradius;
-use pf::file_paths;
 use Module::Load;
 use Benchmark qw(:all);
 use List::Util qw(first);
@@ -36,12 +35,21 @@ our %SwitchConfig;
 tie %SwitchConfig, 'pfconfig::cached_hash', 'config::Switch';
 my @SwitchRanges;
 tie @SwitchRanges, 'pfconfig::cached_array', 'resource::switches_ranges';
+our %SwitchTypesConfigured;
+tie %SwitchTypesConfigured, 'pfconfig::cached_hash', 'resource::SwitchTypesConfigured';
 
 #Loading all the switch modules ahead of time
 use Module::Pluggable
   search_path => [qw(pf::Switch)],
   'require' => 1,
-  sub_name    => 'modules';
+  inner       => 0,
+  sub_name    => '_all_modules';
+
+use Module::Pluggable
+  search_path => [qw(pf::Switch)],
+  'before_require' => \&isTypeConfigured,
+  'require' => 1,
+  sub_name    => '_configured_modules';
 
 our @MODULES;
 our %TYPE_TO_MODULE;
@@ -66,7 +74,7 @@ sub hasId { exists $SwitchConfig{$_[0]} }
 =cut
 
 sub instantiate {
-    my $timer = pf::StatsD::Timer->new;
+    my $timer = pf::StatsD::Timer->new({level => 7});
     my ( $class, $switchRequest ) = @_;
     my $logger = get_logger();
     my @requestedSwitches;
@@ -75,7 +83,6 @@ sub instantiate {
     my $switch_mac;
     my $switch_overlay_cache = pf::CHI->new(namespace => 'switch.overlay');
 
-    pfconfig::timeme::timeme('building stuff', sub {
     if(ref($switchRequest) eq 'HASH') {
         if(exists $switchRequest->{switch_mac} && defined $switchRequest->{switch_mac}) {
             $switch_mac = $switchRequest->{switch_mac};
@@ -93,7 +100,6 @@ sub instantiate {
             $switch_mac = $switchRequest;
         }
     }
-    });
 
     my $switch_data;
     foreach my $search (@requestedSwitches){
@@ -139,13 +145,9 @@ sub instantiate {
     }
 
 
-    my $switchOverlay;
-    pfconfig::timeme::timeme('overlayget', sub {
     # find the module to instantiate
-    $switchOverlay = $switch_overlay_cache->get($requestedSwitch) || {};
-    });
+    my $switchOverlay = $switch_overlay_cache->get($requestedSwitch) || {};
     my ($module, $type);
-    pfconfig::timeme::timeme('type import', sub {
     $type = untaint_chain( $switch_data->{'type'} );
     if ($requestedSwitch ne 'default') {
         $module = getModule($type);
@@ -159,20 +161,16 @@ sub instantiate {
         return 0;
     }
     $module = untaint_chain($module);
-    });
     # load the module to instantiate
 
-    my $result;
-    pfconfig::timeme::timeme('creating', sub {
     $logger->debug("creating new $module object");
-    $result = $module->new({
+    my $result = $module->new({
          id => $requestedSwitch,
          ip => $switch_ip,
          switchIp => $switch_ip,
          switchMac => $switch_mac,
          %$switch_data,
          %$switchOverlay,
-    });
     });
 
     return $result;
@@ -225,18 +223,32 @@ sub buildVendorsList {
     }
 }
 
-=item preLoadModules
+=item preloadAllModules
 
-pre load modules
+Preload all switch module
 
 =cut
 
-sub preLoadModules {
+sub preloadAllModules {
+    my ($class) = @_;
     unless (@MODULES) {
-        require pf::Switch;
-        @MODULES        = __PACKAGE__->modules;
+        @MODULES  = $class->_all_modules;
         buildTypeToModuleMap();
         buildVendorsList();
+    }
+}
+
+=item preloadConfiguredModules
+
+Preloads only the configured switch modules
+
+=cut
+
+sub preloadConfiguredModules {
+    my ($class) = @_;
+    unless (@MODULES) {
+        @MODULES = $class->_configured_modules;
+        buildTypeToModuleMap();
     }
 }
 
@@ -256,6 +268,16 @@ sub buildTypeToModuleMap {
       grep { $_->can('description') } @MODULES;
 }
 
+=item isTypeConfigured
+
+Checks to see if the type is configured
+
+=cut
+
+sub isTypeConfigured {
+    exists $SwitchTypesConfigured{$_[0]}
+}
+
 =back
 
 =head1 AUTHOR
@@ -264,7 +286,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

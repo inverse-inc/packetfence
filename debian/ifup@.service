@@ -1,0 +1,19 @@
+# This file overrides the default debian ifup configuration.
+# It is made necessary by an issue that shuts down eth0 when isolating 
+# a systemd target other than multi-user.
+# see here for some details:  https://bugs.launchpad.net/ubuntu/+source/systemd/+bug/1449380
+[Unit]
+Description=ifup for %I
+After=local-fs.target network-pre.target networking.service systemd-sysctl.service
+Before=network.target
+BindsTo=sys-subsystem-net-devices-%i.device
+After=sys-subsystem-net-devices-%i.device
+ConditionPathIsDirectory=/run/network
+DefaultDependencies=no
+PartOf=network.target
+IgnoreOnIsolate=yes
+
+[Service]
+ExecStart=/sbin/ifup --allow=hotplug %I
+ExecStop=/sbin/ifdown %I
+RemainAfterExit=true

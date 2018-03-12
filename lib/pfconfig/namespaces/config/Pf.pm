@@ -22,9 +22,20 @@ use pfconfig::namespaces::config;
 use Config::IniFiles;
 use File::Slurp qw(read_file);
 use pf::log;
-use pf::file_paths;
+use pf::file_paths qw(
+    $pf_default_file
+    $pf_config_file
+    $log_dir
+);
 use pf::util;
+use pf::constants::config qw($DEFAULT_SMTP_PORT $DEFAULT_SMTP_PORT_SSL $DEFAULT_SMTP_PORT_TLS);
 use List::MoreUtils qw(uniq);
+
+our %ALERTING_PORTS = (
+    none => $DEFAULT_SMTP_PORT,
+    ssl => $DEFAULT_SMTP_PORT_SSL,
+    starttls => $DEFAULT_SMTP_PORT_TLS,
+);
 
 use base 'pfconfig::namespaces::config';
 
@@ -62,7 +73,7 @@ sub init {
     $self->{doc_config}      = $self->{cache}->get_cache('config::Documentation');
     $self->{cluster_config}  = $self->{cache}->get_cache('config::Cluster');
 
-    $self->{child_resources} = [ 'resource::CaptivePortal', 'resource::Database', 'resource::fqdn', 'config::Pfdetect' ];
+    $self->{child_resources} = [ 'resource::CaptivePortal', 'resource::Database', 'resource::fqdn', 'config::Pfdetect', 'resource::trapping_range', 'resource::stats_levels', 'resource::passthroughs', 'resource::isolation_passthroughs' ];
     if(defined($host_id)){
         push @{$self->{child_resources}}, "interfaces($host_id)";
     }
@@ -103,15 +114,10 @@ sub build_child {
         $Config{$group}{$item} = normalize_time( $Config{$group}{$item} ) if ( $Config{$group}{$item} );
     }
 
-    # determine absolute paths
-    foreach my $val ("alerting.log") {
+    foreach my $val ("fencing.passthroughs", "fencing.isolation_passthroughs", "captive_portal.other_domain_names") {
         my ( $group, $item ) = split( /\./, $val );
-        if ( !File::Spec->file_name_is_absolute( $Config{$group}{$item} ) ) {
-            $Config{$group}{$item} = File::Spec->catfile( $log_dir, $Config{$group}{$item} );
-        }
+        $Config{$group}{$item} = [ split( /\s*,\s*/, $Config{$group}{$item}  // '' ) ];
     }
-
-    $Config{trapping}{passthroughs} = [ split( /\s*,\s*/, $Config{trapping}{passthroughs} || '' ) ];
 
     # We're looking for the merged_list configurations and we merge the default value with
     # the user defined value
@@ -119,7 +125,7 @@ sub build_child {
         if(defined($value->{type}) && $value->{type} eq "merged_list"){
             my ($category, $attribute) = split /\./, $key;
             my $additionnal = $Config{$category}{$attribute} || '';
-            $Config{$category}{$attribute} = [ split( /\s*,\s*/, $Default_Config{$category}{$attribute}), split( /\s*,\s*/, $additionnal ) ];
+            $Config{$category}{$attribute} = [ split( /\s*,\s*/, $Default_Config{$category}{$attribute} // ''), split( /\s*,\s*/, $additionnal ) ];
             $Config{$category}{$attribute} = [ uniq @{$Config{$category}{$attribute}} ];
         }
     }
@@ -127,14 +133,11 @@ sub build_child {
     $Config{network}{dhcp_filter_by_message_types}
         = [ split( /\s*,\s*/, $Config{network}{dhcp_filter_by_message_types} || '' ) ];
 
-    # Fetch default OMAPI key_base64 (conf/pf_omapi_key file) if none is provided
-    if ( ($Config{omapi}{key_base64} eq '') && (-e $pf_omapi_key_file)) {
-        $Config{omapi}{key_base64} = read_file($pf_omapi_key_file);
-        $Config{omapi}{key_base64}=~ s/\R//g;   # getting rid of any carriage return
+    if (($Config{alerting}{smtp_port} // 0) == 0) {
+        $Config{alerting}{smtp_port} = $ALERTING_PORTS{$Config{alerting}{smtp_encryption}} // $DEFAULT_SMTP_PORT;
     }
 
     return \%Config;
-
 }
 
 =head1 AUTHOR
@@ -143,7 +146,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

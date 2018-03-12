@@ -1,0 +1,23 @@
+[% IF c.action.name == "view"  %]
+[% SET action_url = c.uri_for(c.controller.action_for('update'), [ item.id ]) %]
+[%ELSE%]
+[% SET action_url = c.req.uri %]
+[% END %]
+<form name="modalItem" class="form-horizontal form-condensed" action="[% action_url %]" method="post">
+  [%- IF item.id %]<input type="hidden" name="id" value="[% item.id | html %]">[% END %]
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">&times;</a>
+    <h3>[% IF item %]<i>[% l('TrafficShaping Entry') %]</i> [% item.id | html %][% ELSE %][% l('New TrafficShaping Entry') %][% END %]</h3>
+  </div>
+
+  <div class="modal-body">
+        [% form.field('id').render | none UNLESS item && item.id.defined  %]
+        [% form.block('definition').render | none %]
+  </div><!--modal-body-->
+
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
+    [% IF can_access("TRAFFIC_SHAPING_UPDATE") %]<button class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>[% END %]
+  </div>
+
+</form>

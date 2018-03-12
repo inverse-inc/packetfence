@@ -1,0 +1,1650 @@
+/config/maintenance_tasks:
+  get:
+    parameters:
+    - $ref: '#/components/parameters/cursor'
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: '#/components/schemas/Iterable'
+              - properties:
+                  items:
+                    discriminator:
+                      propertyName: type
+                    oneOf:
+                    - properties:
+                        delete_window:
+                          description: How long can an unregistered node be inactive
+                            on the network before being deleted.<br>This shouldn't
+                            be used if you are using port-security
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                        id:
+                          description: Pfmon Name
+                          type: string
+                        interval:
+                          description: Interval (frequency) at which the task is executed.<br>Requires
+                            a restart of pfmon to be fully effective. Otherwise, it
+                            will be taken in consideration next time the tasks runs.
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                        status:
+                          description: Whether or not this task is enabled.<br>Requires
+                            a restart of pfmon to be effective.
+                          type: string
+                        type:
+                          description: Type
+                          type: string
+                        unreg_window:
+                          description: How long can a registered node be inactive
+                            on the network before it becomes unregistered
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                      required:
+                      - id
+                      - type
+                      type: object
+                    - properties:
+                        id:
+                          description: Pfmon Name
+                          type: string
+                        interval:
+                          description: Interval (frequency) at which the task is executed.<br>Requires
+                            a restart of pfmon to be fully effective. Otherwise, it
+                            will be taken in consideration next time the tasks runs.
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                        status:
+                          description: Whether or not this task is enabled.<br>Requires
+                            a restart of pfmon to be effective.
+                          type: string
+                        type:
+                          description: Type
+                          type: string
+                      required:
+                      - id
+                      - type
+                      type: object
+                    - properties:
+                        id:
+                          description: Pfmon Name
+                          type: string
+                        interval:
+                          description: Interval (frequency) at which the task is executed.<br>Requires
+                            a restart of pfmon to be fully effective. Otherwise, it
+                            will be taken in consideration next time the tasks runs.
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                        status:
+                          description: Whether or not this task is enabled.<br>Requires
+                            a restart of pfmon to be effective.
+                          type: string
+                        type:
+                          description: Type
+                          type: string
+                      required:
+                      - id
+                      - type
+                      type: object
+                    - properties:
+                        certificates:
+                          description: SSL certificate(s) to monitor. Comma-delimited
+                            list
+                          type: string
+                        delay:
+                          description: Minimum gap before certificate expiration date
+                            (will the certificate expires in ...)
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                        id:
+                          description: Pfmon Name
+                          type: string
+                        interval:
+                          description: Interval (frequency) at which the task is executed.<br>Requires
+                            a restart of pfmon to be fully effective. Otherwise, it
+                            will be taken in consideration next time the tasks runs.
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                        status:
+                          description: Whether or not this task is enabled.<br>Requires
+                            a restart of pfmon to be effective.
+                          type: string
+                        type:
+                          description: Type
+                          type: string
+                      required:
+                      - id
+                      - type
+                      type: object
+                    - properties:
+                        batch:
+                          description: Amount of items that will be processed in each
+                            batch of this task. Batches are executed until there is
+                            no more items to process or until the timeout is reached.
+                          type: integer
+                        id:
+                          description: Pfmon Name
+                          type: string
+                        interval:
+                          description: Interval (frequency) at which the task is executed.<br>Requires
+                            a restart of pfmon to be fully effective. Otherwise, it
+                            will be taken in consideration next time the tasks runs.
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                        status:
+                          description: Whether or not this task is enabled.<br>Requires
+                            a restart of pfmon to be effective.
+                          type: string
+                        timeout:
+                          description: Maximum amount of time this task can run.
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                        type:
+                          description: Type
+                          type: string
+                        window:
+                          description: Window to apply the job to. In the case of
+                            a deletion, setting this to 7 days would delete affected
+                            data older than 7 days.
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                      required:
+                      - id
+                      - type
+                      type: object
+                    - properties:
+                        batch:
+                          description: Amount of items that will be processed in each
+                            batch of this task. Batches are executed until there is
+                            no more items to process or until the timeout is reached.
+                          type: integer
+                        id:
+                          description: Pfmon Name
+                          type: string
+                        interval:
+                          description: Interval (frequency) at which the task is executed.<br>Requires
+                            a restart of pfmon to be fully effective. Otherwise, it
+                            will be taken in consideration next time the tasks runs.
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                        status:
+                          description: Whether or not this task is enabled.<br>Requires
+                            a restart of pfmon to be effective.
+                          type: string
+                        timeout:
+                          description: Maximum amount of time this task can run.
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                        type:
+                          description: Type
+                          type: string
+                        window:
+                          description: Window to apply the job to. In the case of
+                            a deletion, setting this to 7 days would delete affected
+                            data older than 7 days.
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                      required:
+                      - id
+                      - type
+                      type: object
+                    - properties:
+                        id:
+                          description: Pfmon Name
+                          type: string
+                        interval:
+                          description: Interval (frequency) at which the task is executed.<br>Requires
+                            a restart of pfmon to be fully effective. Otherwise, it
+                            will be taken in consideration next time the tasks runs.
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                        process_switchranges:
+                          description: Whether or not a switch range should be expanded
+                            to process each of its IPs
+                          type: string
+                        status:
+                          description: Whether or not this task is enabled.<br>Requires
+                            a restart of pfmon to be effective.
+                          type: string
+                        type:
+                          description: Type
+                          type: string
+                      required:
+                      - id
+                      - type
+                      type: object
+                    - properties:
+                        id:
+                          description: Pfmon Name
+                          type: string
+                        interval:
+                          description: Interval (frequency) at which the task is executed.<br>Requires
+                            a restart of pfmon to be fully effective. Otherwise, it
+                            will be taken in consideration next time the tasks runs.
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                        status:
+                          description: Whether or not this task is enabled.<br>Requires
+                            a restart of pfmon to be effective.
+                          type: string
+                        type:
+                          description: Type
+                          type: string
+                      required:
+                      - id
+                      - type
+                      type: object
+                    - properties:
+                        id:
+                          description: Pfmon Name
+                          type: string
+                        interval:
+                          description: Interval (frequency) at which the task is executed.<br>Requires
+                            a restart of pfmon to be fully effective. Otherwise, it
+                            will be taken in consideration next time the tasks runs.
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                        status:
+                          description: Whether or not this task is enabled.<br>Requires
+                            a restart of pfmon to be effective.
+                          type: string
+                        type:
+                          description: Type
+                          type: string
+                      required:
+                      - id
+                      - type
+                      type: object
+                    - properties:
+                        id:
+                          description: Pfmon Name
+                          type: string
+                        interval:
+                          description: Interval (frequency) at which the task is executed.<br>Requires
+                            a restart of pfmon to be fully effective. Otherwise, it
+                            will be taken in consideration next time the tasks runs.
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                        status:
+                          description: Whether or not this task is enabled.<br>Requires
+                            a restart of pfmon to be effective.
+                          type: string
+                        type:
+                          description: Type
+                          type: string
+                      required:
+                      - id
+                      - type
+                      type: object
+                    - properties:
+                        batch:
+                          description: Amount of items that will be processed in each
+                            batch of this task. Batches are executed until there is
+                            no more items to process or until the timeout is reached.
+                          type: integer
+                        id:
+                          description: Pfmon Name
+                          type: string
+                        interval:
+                          description: Interval (frequency) at which the task is executed.<br>Requires
+                            a restart of pfmon to be fully effective. Otherwise, it
+                            will be taken in consideration next time the tasks runs.
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                        rotate:
+                          description: Enable or disable ip6log rotation (moving ip6log_history
+                            records to ip6log_archive)<br>If disabled, this task will
+                            delete from the ip6log_history table rather than the ip6log_archive.
+                          type: string
+                        rotate_batch:
+                          description: Amount of items that will be processed in each
+                            batch of this task. Batches are executed until there is
+                            no more items to process or until the timeout is reached.
+                          type: integer
+                        rotate_timeout:
+                          description: Maximum amount of time this task can run.
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                        rotate_window:
+                          description: How long to keep ip6log history entry before
+                            rotating it to ip6log archive.
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                        status:
+                          description: Whether or not this task is enabled.<br>Requires
+                            a restart of pfmon to be effective.
+                          type: string
+                        timeout:
+                          description: Maximum amount of time this task can run.
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                        type:
+                          description: Type
+                          type: string
+                        window:
+                          description: How long to keep a ip6log archive entry before
+                            deleting it (or ip6log history if rotation is disabled)
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                      required:
+                      - id
+                      - type
+                      type: object
+                    - properties:
+                        batch:
+                          description: Amount of items that will be processed in each
+                            batch of this task. Batches are executed until there is
+                            no more items to process or until the timeout is reached.
+                          type: integer
+                        id:
+                          description: Pfmon Name
+                          type: string
+                        interval:
+                          description: Interval (frequency) at which the task is executed.<br>Requires
+                            a restart of pfmon to be fully effective. Otherwise, it
+                            will be taken in consideration next time the tasks runs.
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                        status:
+                          description: Whether or not this task is enabled.<br>Requires
+                            a restart of pfmon to be effective.
+                          type: string
+                        timeout:
+                          description: Maximum amount of time this task can run.
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                        type:
+                          description: Type
+                          type: string
+                        window:
+                          description: Window
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                      required:
+                      - id
+                      - type
+                      type: object
+                    - properties:
+                        batch:
+                          description: Amount of items that will be processed in each
+                            batch of this task. Batches are executed until there is
+                            no more items to process or until the timeout is reached.
+                          type: integer
+                        id:
+                          description: Pfmon Name
+                          type: string
+                        interval:
+                          description: Interval (frequency) at which the task is executed.<br>Requires
+                            a restart of pfmon to be fully effective. Otherwise, it
+                            will be taken in consideration next time the tasks runs.
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                        status:
+                          description: Whether or not this task is enabled.<br>Requires
+                            a restart of pfmon to be effective.
+                          type: string
+                        timeout:
+                          description: Maximum amount of time this task can run.
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                        type:
+                          description: Type
+                          type: string
+                      required:
+                      - id
+                      - type
+                      type: object
+                    - properties:
+                        batch:
+                          description: Amount of items that will be processed in each
+                            batch of this task. Batches are executed until there is
+                            no more items to process or until the timeout is reached.
+                          type: integer
+                        id:
+                          description: Pfmon Name
+                          type: string
+                        interval:
+                          description: Interval (frequency) at which the task is executed.<br>Requires
+                            a restart of pfmon to be fully effective. Otherwise, it
+                            will be taken in consideration next time the tasks runs.
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                        status:
+                          description: Whether or not this task is enabled.<br>Requires
+                            a restart of pfmon to be effective.
+                          type: string
+                        timeout:
+                          description: Maximum amount of time this task can run.
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                        type:
+                          description: Type
+                          type: string
+                      required:
+                      - id
+                      - type
+                      type: object
+                    - properties:
+                        id:
+                          description: Pfmon Name
+                          type: string
+                        interval:
+                          description: Interval (frequency) at which the task is executed.<br>Requires
+                            a restart of pfmon to be fully effective. Otherwise, it
+                            will be taken in consideration next time the tasks runs.
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                        status:
+                          description: Whether or not this task is enabled.<br>Requires
+                            a restart of pfmon to be effective.
+                          type: string
+                        type:
+                          description: Type
+                          type: string
+                      required:
+                      - id
+                      - type
+                      type: object
+                    - properties:
+                        id:
+                          description: Pfmon Name
+                          type: string
+                        interval:
+                          description: Interval (frequency) at which the task is executed.<br>Requires
+                            a restart of pfmon to be fully effective. Otherwise, it
+                            will be taken in consideration next time the tasks runs.
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                        status:
+                          description: Whether or not this task is enabled.<br>Requires
+                            a restart of pfmon to be effective.
+                          type: string
+                        type:
+                          description: Type
+                          type: string
+                      required:
+                      - id
+                      - type
+                      type: object
+                    - properties:
+                        id:
+                          description: Pfmon Name
+                          type: string
+                        interval:
+                          description: Interval (frequency) at which the task is executed.<br>Requires
+                            a restart of pfmon to be fully effective. Otherwise, it
+                            will be taken in consideration next time the tasks runs.
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                        status:
+                          description: Whether or not this task is enabled.<br>Requires
+                            a restart of pfmon to be effective.
+                          type: string
+                        type:
+                          description: Type
+                          type: string
+                      required:
+                      - id
+                      - type
+                      type: object
+                    - properties:
+                        id:
+                          description: Pfmon Name
+                          type: string
+                        interval:
+                          description: Interval (frequency) at which the task is executed.<br>Requires
+                            a restart of pfmon to be fully effective. Otherwise, it
+                            will be taken in consideration next time the tasks runs.
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                        status:
+                          description: Whether or not this task is enabled.<br>Requires
+                            a restart of pfmon to be effective.
+                          type: string
+                        type:
+                          description: Type
+                          type: string
+                      required:
+                      - id
+                      - type
+                      type: object
+                    - properties:
+                        id:
+                          description: Pfmon Name
+                          type: string
+                        interval:
+                          description: Interval (frequency) at which the task is executed.<br>Requires
+                            a restart of pfmon to be fully effective. Otherwise, it
+                            will be taken in consideration next time the tasks runs.
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                        status:
+                          description: Whether or not this task is enabled.<br>Requires
+                            a restart of pfmon to be effective.
+                          type: string
+                        type:
+                          description: Type
+                          type: string
+                      required:
+                      - id
+                      - type
+                      type: object
+                    - properties:
+                        batch:
+                          description: Amount of items that will be processed in each
+                            batch of this task. Batches are executed until there is
+                            no more items to process or until the timeout is reached.
+                          type: integer
+                        id:
+                          description: Pfmon Name
+                          type: string
+                        interval:
+                          description: Interval (frequency) at which the task is executed.<br>Requires
+                            a restart of pfmon to be fully effective. Otherwise, it
+                            will be taken in consideration next time the tasks runs.
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                        rotate:
+                          description: Enable or disable ip4log rotation (moving ip4log_history
+                            records to ip4log_archive)<br>If disabled, this task will
+                            delete from the ip4log_history table rather than the ip4log_archive.
+                          type: string
+                        rotate_batch:
+                          description: Amount of items that will be processed in each
+                            batch of this task. Batches are executed until there is
+                            no more items to process or until the timeout is reached.
+                          type: integer
+                        rotate_timeout:
+                          description: Maximum amount of time this task can run.
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                        rotate_window:
+                          description: How long to keep ip4log history entry before
+                            rotating it to ip4log archive.
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                        status:
+                          description: Whether or not this task is enabled.<br>Requires
+                            a restart of pfmon to be effective.
+                          type: string
+                        timeout:
+                          description: Maximum amount of time this task can run.
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                        type:
+                          description: Type
+                          type: string
+                        window:
+                          description: How long to keep a ip4log archive entry before
+                            deleting it (or ip4log history if rotation is disabled)
+                          properties:
+                            interval:
+                              description: Interval
+                              type: integer
+                            unit:
+                              description: Unit
+                              type: string
+                          type: object
+                      required:
+                      - id
+                      - type
+                      type: object
+                type: object
+        description: A list of connection profiles
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  post:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            discriminator:
+              propertyName: type
+            oneOf:
+            - properties:
+                delete_window:
+                  description: How long can an unregistered node be inactive on the
+                    network before being deleted.<br>This shouldn't be used if you
+                    are using port-security
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                id:
+                  description: Pfmon Name
+                  type: string
+                interval:
+                  description: Interval (frequency) at which the task is executed.<br>Requires
+                    a restart of pfmon to be fully effective. Otherwise, it will be
+                    taken in consideration next time the tasks runs.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                status:
+                  description: Whether or not this task is enabled.<br>Requires a
+                    restart of pfmon to be effective.
+                  type: string
+                type:
+                  description: Type
+                  type: string
+                unreg_window:
+                  description: How long can a registered node be inactive on the network
+                    before it becomes unregistered
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+              required:
+              - id
+              - type
+              type: object
+            - properties:
+                id:
+                  description: Pfmon Name
+                  type: string
+                interval:
+                  description: Interval (frequency) at which the task is executed.<br>Requires
+                    a restart of pfmon to be fully effective. Otherwise, it will be
+                    taken in consideration next time the tasks runs.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                status:
+                  description: Whether or not this task is enabled.<br>Requires a
+                    restart of pfmon to be effective.
+                  type: string
+                type:
+                  description: Type
+                  type: string
+              required:
+              - id
+              - type
+              type: object
+            - properties:
+                id:
+                  description: Pfmon Name
+                  type: string
+                interval:
+                  description: Interval (frequency) at which the task is executed.<br>Requires
+                    a restart of pfmon to be fully effective. Otherwise, it will be
+                    taken in consideration next time the tasks runs.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                status:
+                  description: Whether or not this task is enabled.<br>Requires a
+                    restart of pfmon to be effective.
+                  type: string
+                type:
+                  description: Type
+                  type: string
+              required:
+              - id
+              - type
+              type: object
+            - properties:
+                certificates:
+                  description: SSL certificate(s) to monitor. Comma-delimited list
+                  type: string
+                delay:
+                  description: Minimum gap before certificate expiration date (will
+                    the certificate expires in ...)
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                id:
+                  description: Pfmon Name
+                  type: string
+                interval:
+                  description: Interval (frequency) at which the task is executed.<br>Requires
+                    a restart of pfmon to be fully effective. Otherwise, it will be
+                    taken in consideration next time the tasks runs.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                status:
+                  description: Whether or not this task is enabled.<br>Requires a
+                    restart of pfmon to be effective.
+                  type: string
+                type:
+                  description: Type
+                  type: string
+              required:
+              - id
+              - type
+              type: object
+            - properties:
+                batch:
+                  description: Amount of items that will be processed in each batch
+                    of this task. Batches are executed until there is no more items
+                    to process or until the timeout is reached.
+                  type: integer
+                id:
+                  description: Pfmon Name
+                  type: string
+                interval:
+                  description: Interval (frequency) at which the task is executed.<br>Requires
+                    a restart of pfmon to be fully effective. Otherwise, it will be
+                    taken in consideration next time the tasks runs.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                status:
+                  description: Whether or not this task is enabled.<br>Requires a
+                    restart of pfmon to be effective.
+                  type: string
+                timeout:
+                  description: Maximum amount of time this task can run.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                type:
+                  description: Type
+                  type: string
+                window:
+                  description: Window to apply the job to. In the case of a deletion,
+                    setting this to 7 days would delete affected data older than 7
+                    days.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+              required:
+              - id
+              - type
+              type: object
+            - properties:
+                batch:
+                  description: Amount of items that will be processed in each batch
+                    of this task. Batches are executed until there is no more items
+                    to process or until the timeout is reached.
+                  type: integer
+                id:
+                  description: Pfmon Name
+                  type: string
+                interval:
+                  description: Interval (frequency) at which the task is executed.<br>Requires
+                    a restart of pfmon to be fully effective. Otherwise, it will be
+                    taken in consideration next time the tasks runs.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                status:
+                  description: Whether or not this task is enabled.<br>Requires a
+                    restart of pfmon to be effective.
+                  type: string
+                timeout:
+                  description: Maximum amount of time this task can run.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                type:
+                  description: Type
+                  type: string
+                window:
+                  description: Window to apply the job to. In the case of a deletion,
+                    setting this to 7 days would delete affected data older than 7
+                    days.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+              required:
+              - id
+              - type
+              type: object
+            - properties:
+                id:
+                  description: Pfmon Name
+                  type: string
+                interval:
+                  description: Interval (frequency) at which the task is executed.<br>Requires
+                    a restart of pfmon to be fully effective. Otherwise, it will be
+                    taken in consideration next time the tasks runs.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                process_switchranges:
+                  description: Whether or not a switch range should be expanded to
+                    process each of its IPs
+                  type: string
+                status:
+                  description: Whether or not this task is enabled.<br>Requires a
+                    restart of pfmon to be effective.
+                  type: string
+                type:
+                  description: Type
+                  type: string
+              required:
+              - id
+              - type
+              type: object
+            - properties:
+                id:
+                  description: Pfmon Name
+                  type: string
+                interval:
+                  description: Interval (frequency) at which the task is executed.<br>Requires
+                    a restart of pfmon to be fully effective. Otherwise, it will be
+                    taken in consideration next time the tasks runs.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                status:
+                  description: Whether or not this task is enabled.<br>Requires a
+                    restart of pfmon to be effective.
+                  type: string
+                type:
+                  description: Type
+                  type: string
+              required:
+              - id
+              - type
+              type: object
+            - properties:
+                id:
+                  description: Pfmon Name
+                  type: string
+                interval:
+                  description: Interval (frequency) at which the task is executed.<br>Requires
+                    a restart of pfmon to be fully effective. Otherwise, it will be
+                    taken in consideration next time the tasks runs.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                status:
+                  description: Whether or not this task is enabled.<br>Requires a
+                    restart of pfmon to be effective.
+                  type: string
+                type:
+                  description: Type
+                  type: string
+              required:
+              - id
+              - type
+              type: object
+            - properties:
+                id:
+                  description: Pfmon Name
+                  type: string
+                interval:
+                  description: Interval (frequency) at which the task is executed.<br>Requires
+                    a restart of pfmon to be fully effective. Otherwise, it will be
+                    taken in consideration next time the tasks runs.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                status:
+                  description: Whether or not this task is enabled.<br>Requires a
+                    restart of pfmon to be effective.
+                  type: string
+                type:
+                  description: Type
+                  type: string
+              required:
+              - id
+              - type
+              type: object
+            - properties:
+                batch:
+                  description: Amount of items that will be processed in each batch
+                    of this task. Batches are executed until there is no more items
+                    to process or until the timeout is reached.
+                  type: integer
+                id:
+                  description: Pfmon Name
+                  type: string
+                interval:
+                  description: Interval (frequency) at which the task is executed.<br>Requires
+                    a restart of pfmon to be fully effective. Otherwise, it will be
+                    taken in consideration next time the tasks runs.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                rotate:
+                  description: Enable or disable ip6log rotation (moving ip6log_history
+                    records to ip6log_archive)<br>If disabled, this task will delete
+                    from the ip6log_history table rather than the ip6log_archive.
+                  type: string
+                rotate_batch:
+                  description: Amount of items that will be processed in each batch
+                    of this task. Batches are executed until there is no more items
+                    to process or until the timeout is reached.
+                  type: integer
+                rotate_timeout:
+                  description: Maximum amount of time this task can run.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                rotate_window:
+                  description: How long to keep ip6log history entry before rotating
+                    it to ip6log archive.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                status:
+                  description: Whether or not this task is enabled.<br>Requires a
+                    restart of pfmon to be effective.
+                  type: string
+                timeout:
+                  description: Maximum amount of time this task can run.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                type:
+                  description: Type
+                  type: string
+                window:
+                  description: How long to keep a ip6log archive entry before deleting
+                    it (or ip6log history if rotation is disabled)
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+              required:
+              - id
+              - type
+              type: object
+            - properties:
+                batch:
+                  description: Amount of items that will be processed in each batch
+                    of this task. Batches are executed until there is no more items
+                    to process or until the timeout is reached.
+                  type: integer
+                id:
+                  description: Pfmon Name
+                  type: string
+                interval:
+                  description: Interval (frequency) at which the task is executed.<br>Requires
+                    a restart of pfmon to be fully effective. Otherwise, it will be
+                    taken in consideration next time the tasks runs.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                status:
+                  description: Whether or not this task is enabled.<br>Requires a
+                    restart of pfmon to be effective.
+                  type: string
+                timeout:
+                  description: Maximum amount of time this task can run.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                type:
+                  description: Type
+                  type: string
+                window:
+                  description: Window
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+              required:
+              - id
+              - type
+              type: object
+            - properties:
+                batch:
+                  description: Amount of items that will be processed in each batch
+                    of this task. Batches are executed until there is no more items
+                    to process or until the timeout is reached.
+                  type: integer
+                id:
+                  description: Pfmon Name
+                  type: string
+                interval:
+                  description: Interval (frequency) at which the task is executed.<br>Requires
+                    a restart of pfmon to be fully effective. Otherwise, it will be
+                    taken in consideration next time the tasks runs.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                status:
+                  description: Whether or not this task is enabled.<br>Requires a
+                    restart of pfmon to be effective.
+                  type: string
+                timeout:
+                  description: Maximum amount of time this task can run.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                type:
+                  description: Type
+                  type: string
+              required:
+              - id
+              - type
+              type: object
+            - properties:
+                batch:
+                  description: Amount of items that will be processed in each batch
+                    of this task. Batches are executed until there is no more items
+                    to process or until the timeout is reached.
+                  type: integer
+                id:
+                  description: Pfmon Name
+                  type: string
+                interval:
+                  description: Interval (frequency) at which the task is executed.<br>Requires
+                    a restart of pfmon to be fully effective. Otherwise, it will be
+                    taken in consideration next time the tasks runs.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                status:
+                  description: Whether or not this task is enabled.<br>Requires a
+                    restart of pfmon to be effective.
+                  type: string
+                timeout:
+                  description: Maximum amount of time this task can run.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                type:
+                  description: Type
+                  type: string
+              required:
+              - id
+              - type
+              type: object
+            - properties:
+                id:
+                  description: Pfmon Name
+                  type: string
+                interval:
+                  description: Interval (frequency) at which the task is executed.<br>Requires
+                    a restart of pfmon to be fully effective. Otherwise, it will be
+                    taken in consideration next time the tasks runs.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                status:
+                  description: Whether or not this task is enabled.<br>Requires a
+                    restart of pfmon to be effective.
+                  type: string
+                type:
+                  description: Type
+                  type: string
+              required:
+              - id
+              - type
+              type: object
+            - properties:
+                id:
+                  description: Pfmon Name
+                  type: string
+                interval:
+                  description: Interval (frequency) at which the task is executed.<br>Requires
+                    a restart of pfmon to be fully effective. Otherwise, it will be
+                    taken in consideration next time the tasks runs.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                status:
+                  description: Whether or not this task is enabled.<br>Requires a
+                    restart of pfmon to be effective.
+                  type: string
+                type:
+                  description: Type
+                  type: string
+              required:
+              - id
+              - type
+              type: object
+            - properties:
+                id:
+                  description: Pfmon Name
+                  type: string
+                interval:
+                  description: Interval (frequency) at which the task is executed.<br>Requires
+                    a restart of pfmon to be fully effective. Otherwise, it will be
+                    taken in consideration next time the tasks runs.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                status:
+                  description: Whether or not this task is enabled.<br>Requires a
+                    restart of pfmon to be effective.
+                  type: string
+                type:
+                  description: Type
+                  type: string
+              required:
+              - id
+              - type
+              type: object
+            - properties:
+                id:
+                  description: Pfmon Name
+                  type: string
+                interval:
+                  description: Interval (frequency) at which the task is executed.<br>Requires
+                    a restart of pfmon to be fully effective. Otherwise, it will be
+                    taken in consideration next time the tasks runs.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                status:
+                  description: Whether or not this task is enabled.<br>Requires a
+                    restart of pfmon to be effective.
+                  type: string
+                type:
+                  description: Type
+                  type: string
+              required:
+              - id
+              - type
+              type: object
+            - properties:
+                id:
+                  description: Pfmon Name
+                  type: string
+                interval:
+                  description: Interval (frequency) at which the task is executed.<br>Requires
+                    a restart of pfmon to be fully effective. Otherwise, it will be
+                    taken in consideration next time the tasks runs.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                status:
+                  description: Whether or not this task is enabled.<br>Requires a
+                    restart of pfmon to be effective.
+                  type: string
+                type:
+                  description: Type
+                  type: string
+              required:
+              - id
+              - type
+              type: object
+            - properties:
+                batch:
+                  description: Amount of items that will be processed in each batch
+                    of this task. Batches are executed until there is no more items
+                    to process or until the timeout is reached.
+                  type: integer
+                id:
+                  description: Pfmon Name
+                  type: string
+                interval:
+                  description: Interval (frequency) at which the task is executed.<br>Requires
+                    a restart of pfmon to be fully effective. Otherwise, it will be
+                    taken in consideration next time the tasks runs.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                rotate:
+                  description: Enable or disable ip4log rotation (moving ip4log_history
+                    records to ip4log_archive)<br>If disabled, this task will delete
+                    from the ip4log_history table rather than the ip4log_archive.
+                  type: string
+                rotate_batch:
+                  description: Amount of items that will be processed in each batch
+                    of this task. Batches are executed until there is no more items
+                    to process or until the timeout is reached.
+                  type: integer
+                rotate_timeout:
+                  description: Maximum amount of time this task can run.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                rotate_window:
+                  description: How long to keep ip4log history entry before rotating
+                    it to ip4log archive.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                status:
+                  description: Whether or not this task is enabled.<br>Requires a
+                    restart of pfmon to be effective.
+                  type: string
+                timeout:
+                  description: Maximum amount of time this task can run.
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+                type:
+                  description: Type
+                  type: string
+                window:
+                  description: How long to keep a ip4log archive entry before deleting
+                    it (or ip4log history if rotation is disabled)
+                  properties:
+                    interval:
+                      description: Interval
+                      type: integer
+                    unit:
+                      description: Unit
+                      type: string
+                  type: object
+              required:
+              - id
+              - type
+              type: object
+      required: true
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '409':
+        $ref: '#/components/responses/Duplicate'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

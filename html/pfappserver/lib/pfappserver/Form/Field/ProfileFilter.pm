@@ -2,7 +2,7 @@ package pfappserver::Form::Field::ProfileFilter;
 
 =head1 NAME
 
-pfappserver::Form::Field::ProfileFilter - a filter for the portal profile
+pfappserver::Form::Field::ProfileFilter - a filter for the connection profile
 
 =head1 DESCRIPTION
 
@@ -19,6 +19,7 @@ use namespace::autoclean;
 
 use pf::config;
 use pf::factory::condition::profile;
+use pf::validation::profile_filters;
 
 has '+do_wrapper' => ( default => 1 );
 has '+do_label' => ( default => 1 );
@@ -64,7 +65,7 @@ sub filter_deflate {
     my ($self, $value) = @_;
     my $type = $value->{type};
     my $match = $value->{match};
-    return  $match ? "${type}:${match}"  : "" ;
+    return "${type}:${match}";
 }
 
 sub options_type {
@@ -74,9 +75,26 @@ sub options_type {
       sort keys %pf::factory::condition::profile::PROFILE_FILTER_TYPE_TO_CONDITION_TYPE;
 }
 
+=head2 validate
+
+Validate filter
+
+=cut
+
+sub validate {
+    my ($self) = @_;
+    my $validator = pf::validation::profile_filters->new;
+    my $value = $self->filter_deflate($self->value);
+    my ($rc, $message) = $validator->validate($value);
+    unless ($rc) {
+        $self->add_error($message);
+    }
+    return $rc;
+}
+
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -97,5 +115,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 1;

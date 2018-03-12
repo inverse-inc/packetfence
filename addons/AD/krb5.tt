@@ -39,8 +39,8 @@
 [realms]
 [% FOREACH domain IN domains.keys.sort %]
   [% domains.$domain.dns_name %] = {
-      kdc = [% domains.$domain.ad_server %]
-      admin_server = [% domains.$domain.ad_server %]
+      kdc = [% domains.$domain.ad_server %]:88
+      admin_server = [% domains.$domain.ad_server %]:749
       default_domain = [% domains.$domain.dns_name %]
   }
 [% END %]

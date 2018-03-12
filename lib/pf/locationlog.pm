@@ -19,6 +19,8 @@ use pf::log;
 use pf::floatingdevice::custom;
 use pf::StatsD::Timer;
 use pf::util::statsd qw(called);
+use pf::CHI::Request;
+use CHI::Memoize qw(memoize memoized);
 
 use constant LOCATIONLOG => 'locationlog';
 
@@ -33,9 +35,6 @@ BEGIN {
         locationlog_history_mac
         locationlog_history_switchport
 
-        locationlog_count_all
-        locationlog_view_all
-        locationlog_view_all_open_mac
         locationlog_view_open
         locationlog_view_open_mac
         locationlog_view_open_switchport
@@ -46,7 +45,6 @@ BEGIN {
         locationlog_cleanup
 
         locationlog_insert_start
-        locationlog_insert_closed
         locationlog_update_end
         locationlog_update_end_mac
         locationlog_update_end_switchport_no_VoIP
@@ -55,21 +53,25 @@ BEGIN {
 
         locationlog_set_session
         locationlog_get_session
-        locationlog_online_nodes_count
+        locationlog_last_entry_mac
+        
+        locationlog_unique_ssids
     );
 }
 
-use pf::config;
+use pf::config qw(
+    $WIRED
+    $NO_VOIP
+    $VOIP
+);
 use pf::db;
+use pf::dal;
+use pf::dal::locationlog;
+use pf::error qw(is_error is_success);
 use pf::node;
 use pf::util;
 use pf::config::util;
-
-# The next two variables and the _prepare sub are required for database handling magic (see pf::db)
-our $locationlog_db_prepared = 0;
-# in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
-# the hash if required
-our $locationlog_statements = {};
+use pf::constants;
 
 =head1 DATA FORMAT
 
@@ -99,169 +101,6 @@ TODO: list incomplete
 
 =cut
 
-sub locationlog_db_prepare {
-    my $logger = get_logger();
-    $logger->debug("Preparing pf::locationlog database queries");
-
-    $locationlog_statements->{'locationlog_history_mac_sql'} = get_db_handle()->prepare(qq[
-        SELECT mac, switch, switch_ip, switch_mac, port, vlan, role, connection_type, connection_sub_type, dot1x_username, ssid, start_time, end_time, stripped_user_name, realm
-        FROM locationlog
-        WHERE mac = ?
-        ORDER BY start_time DESC, end_time DESC
-        LIMIT 25
-    ]);
-
-    $locationlog_statements->{'locationlog_history_switchport_sql'} = get_db_handle()->prepare(qq[
-        SELECT mac, switch, switch_ip, switch_mac, port, vlan, role, connection_type, connection_sub_type, dot1x_username, ssid, start_time, end_time, stripped_user_name, realm
-        FROM locationlog
-        WHERE switch = ? and port = ?
-        ORDER BY start_time desc, end_time desc
-    ]);
-
-    $locationlog_statements->{'locationlog_history_mac_date_sql'} = get_db_handle()->prepare(qq[
-        SELECT mac, switch, switch_ip, switch_mac, port, vlan, role, connection_type, connection_sub_type, dot1x_username, ssid, start_time, end_time, stripped_user_name, realm,
-          UNIX_TIMESTAMP(start_time) AS start_timestamp,
-          UNIX_TIMESTAMP(end_time) AS end_timestamp
-        FROM locationlog
-        WHERE mac = ? AND start_time < from_unixtime(?) AND end_time > from_unixtime(?)
-        ORDER BY start_time desc, end_time desc
-    ]);
-
-    $locationlog_statements->{'locationlog_history_switchport_date_sql'} = get_db_handle()->prepare(qq[
-        SELECT mac, switch, switch_ip, switch_mac, port, vlan, role, connection_type, connection_sub_type, dot1x_username, ssid, start_time, end_time, stripped_user_name, realm
-        FROM locationlog
-        WHERE
-            switch = ? AND port = ? AND start_time < from_unixtime(?)
-            AND end_time > from_unixtime(?)
-        ORDER BY start_time desc, end_time desc
-    ]);
-
-    $locationlog_statements->{'locationlog_count_wired_sql'} = get_db_handle()->prepare(qq[
-        SELECT count(*) AS nb FROM (
-          SELECT mac, DATE_FORMAT(start_time,"%Y/%m/%d") AS start_day
-          FROM locationlog
-          WHERE start_time > ? AND start_time < ? AND connection_type NOT LIKE 'Wireless%' GROUP BY start_day, mac
-        ) AS wired_count
-    ]);
-
-    $locationlog_statements->{'locationlog_count_wireless_sql'} = get_db_handle()->prepare(qq[
-        SELECT count(*) AS nb FROM (
-          SELECT mac, DATE_FORMAT(start_time,"%Y/%m/%d") AS start_day
-          FROM locationlog
-          WHERE start_time > ? AND start_time < ? AND connection_type LIKE 'Wireless%' GROUP BY start_day, mac
-        ) AS wired_count
-    ]);
-
-    $locationlog_statements->{'locationlog_view_all_sql'} = get_db_handle()->prepare(qq[
-        SELECT mac, switch, switch_ip, switch_mac, port, vlan, role, connection_type, connection_sub_type, dot1x_username, ssid, start_time, end_time, stripped_user_name, realm
-        FROM locationlog
-        ORDER BY start_time desc, end_time desc
-    ]);
-
-    $locationlog_statements->{'locationlog_view_open_sql'} = get_db_handle()->prepare(qq[
-        SELECT mac, switch, switch_ip, switch_mac, port, vlan, role, connection_type, connection_sub_type, dot1x_username, ssid, start_time, end_time, stripped_user_name, realm
-        FROM locationlog
-        WHERE end_time = 0
-        ORDER BY start_time desc
-    ]);
-
-    $locationlog_statements->{'locationlog_view_open_mac_sql'} = get_db_handle()->prepare(qq[
-        SELECT mac, switch, switch_ip, switch_mac, port, vlan, role, connection_type, connection_sub_type, dot1x_username, ssid, start_time, end_time, stripped_user_name, realm
-        FROM locationlog
-        WHERE mac = ? AND end_time = 0
-        ORDER BY start_time desc
-    ]);
-
-    $locationlog_statements->{'locationlog_view_open_switchport_sql'} = get_db_handle()->prepare(qq[
-        SELECT mac, switch, switch_ip, switch_mac, port, vlan, role, connection_type, connection_sub_type, dot1x_username, ssid, start_time, end_time, stripped_user_name, realm
-        FROM locationlog
-            LEFT JOIN node USING (mac)
-        WHERE switch = ? AND port = ? AND node.voip = ? AND end_time = 0
-        ORDER BY start_time desc
-    ]);
-
-    $locationlog_statements->{'locationlog_view_open_switchport_no_VoIP_sql'} = get_db_handle()->prepare(qq[
-        SELECT mac, switch, switch_ip, switch_mac, port, vlan, role, connection_type, connection_sub_type, dot1x_username, ssid, start_time, end_time, stripped_user_name, realm
-        FROM locationlog
-            LEFT JOIN node USING (mac)
-        WHERE switch = ? AND port = ?
-            AND (node.voip = '' OR node.voip = 'no')
-            AND end_time = 0
-        ORDER BY start_time desc
-    ]);
-
-    $locationlog_statements->{'locationlog_view_open_switchport_only_VoIP_sql'} = get_db_handle()->prepare(qq[
-        SELECT mac, switch, switch_ip, switch_mac, port, vlan, role, connection_type, connection_sub_type, dot1x_username, ssid, start_time, end_time, stripped_user_name, realm
-        FROM locationlog
-            LEFT JOIN node USING (mac)
-        WHERE switch = ? AND port = ?
-            AND node.voip = 'yes'
-            AND end_time = 0
-        ORDER BY start_time desc
-    ]);
-
-    $locationlog_statements->{'locationlog_insert_start_no_mac_sql'} = get_db_handle()->prepare(qq[
-        INSERT INTO locationlog (
-            mac, switch, switch_ip, switch_mac, port, vlan, role, connection_type, connection_sub_type, dot1x_username, ssid, stripped_user_name, realm, start_time
-        ) VALUES (
-            NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW() )
-    ]);
-
-    $locationlog_statements->{'locationlog_insert_start_with_mac_sql'} = get_db_handle()->prepare(qq[
-        INSERT INTO locationlog (
-            mac, switch, switch_ip, switch_mac, port, vlan, role, connection_type, connection_sub_type, dot1x_username, ssid, stripped_user_name, realm, start_time
-        ) VALUES (
-            ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?, ?, NOW() )
-    ]);
-
-    $locationlog_statements->{'locationlog_insert_closed_sql'} = get_db_handle()->prepare(qq[
-        INSERT INTO locationlog (
-            mac, switch, switch_ip, switch_mac, port, vlan, role, connection_type, connection_sub_type, dot1x_username, ssid, stripped_user_name, realm, start_time, end_time
-        ) VALUES (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW()
-        )
-    ]);
-
-    $locationlog_statements->{'locationlog_update_end_switchport_sql'} = get_db_handle()->prepare(qq[
-        UPDATE locationlog SET end_time = now()
-        WHERE switch = ? AND port = ? AND end_time = 0
-    ]);
-
-    $locationlog_statements->{'locationlog_update_end_switchport_no_VoIP_sql'} = get_db_handle()->prepare(qq[
-        UPDATE locationlog
-            INNER JOIN node USING (mac)
-        SET end_time = now()
-        WHERE switch = ? AND port = ? AND (node.voip = 'no' or node.voip = '') AND end_time = 0
-    ]);
-
-    $locationlog_statements->{'locationlog_update_end_switchport_only_VoIP_sql'} = get_db_handle()->prepare(qq[
-        UPDATE locationlog
-            INNER JOIN node USING (mac)
-        SET end_time = now()
-        WHERE switch = ? AND port = ? AND node.voip = 'yes' AND end_time = 0
-    ]);
-
-    $locationlog_statements->{'locationlog_update_end_mac_sql'} = get_db_handle()->prepare(
-        qq [ UPDATE locationlog SET end_time = now() WHERE mac = ? AND end_time = 0]);
-
-    $locationlog_statements->{'locationlog_close_sql'} = get_db_handle()->prepare(
-        qq [ UPDATE locationlog SET end_time = now() WHERE end_time = 0]);
-
-    $locationlog_statements->{'locationlog_cleanup_sql'} = get_db_handle()->prepare(
-        qq [ delete from locationlog where end_time < DATE_SUB(?, INTERVAL ? SECOND) and end_time != 0 LIMIT ?]);
-
-    $locationlog_statements->{'locationlog_set_session_sql'} = get_db_handle()->prepare(
-        qq [ UPDATE locationlog SET session_id = ? WHERE mac = ? AND end_time = 0 ]);
-
-    $locationlog_statements->{'locationlog_get_session_sql'} = get_db_handle()->prepare(
-        qq [ SELECT mac, switch, switch_ip, switch_mac, port, vlan, role, connection_type, connection_sub_type, dot1x_username, ssid, start_time, end_time, stripped_user_name, realm, session_id from locationlog WHERE session_id = ? AND end_time = 0 order by start_time desc]);
-
-    $locationlog_statements->{'locationlog_online_nodes_count_sql'} = get_db_handle()->prepare(
-        qq [ SELECT count(*) nb from locationlog WHERE end_time = 0]);
-
-    $locationlog_db_prepared = 1;
-}
-
 # TODO: extract this out of here and into pf::pfcmd::report
 # think about web ui and pfcmd
 sub locationlog_history_mac {
@@ -270,22 +109,32 @@ sub locationlog_history_mac {
 
     require pf::pfcmd::report;
     import pf::pfcmd::report;
+    my $where = {
+        mac => $mac,
+    };
+    my ($start_time, $end_time);
 
     if ( defined( $params{'date'} ) ) {
-        return translate_connection_type(
-            db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_history_mac_date_sql',
-                $mac, $params{'date'}, $params{'date'})
-        );
+        $start_time = $end_time = $params{'date'};
     } elsif ( defined( $params{'start_time'} ) && defined( $params{'end_time'} ) ) {
-        return translate_connection_type(
-            db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_history_mac_date_sql',
-                $mac, $params{'end_time'}, $params{'start_time'})
-        );
-    } else {
-        return translate_connection_type(
-            db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_history_mac_sql', $mac)
-        );
+        $start_time = $params{'start_time'};
+        $end_time = $params{'end_time'};
     }
+    if ($start_time && $end_time) {
+        $where->{start_time} = { "<" => \['from_unixtime(?)', $end_time] };
+        $where->{end_time} = { ">" => \['from_unixtime(?)', $start_time] };
+    }
+
+    return translate_connection_type(_db_list({
+        -columns => [
+            qw(mac switch switch_ip switch_mac port vlan role connection_type connection_sub_type dot1x_username ssid start_time end_time stripped_user_name realm ifDesc
+              UNIX_TIMESTAMP(start_time)|start_timestamp
+              UNIX_TIMESTAMP(end_time)|end_timestamp)
+        ],
+        -where => $where,
+        -order_by => [{-desc => 'start_time'}, {-desc => 'end_time'}],
+        -limit => 25,
+    }));
 }
 
 # TODO: extract this out of here and into pf::pfcmd::report
@@ -295,85 +144,91 @@ sub locationlog_history_switchport {
 
     require pf::pfcmd::report;
     import pf::pfcmd::report;
-    if ( defined( $params{'date'} ) ) {
-        return translate_connection_type(db_data(LOCATIONLOG, $locationlog_statements,
-            'locationlog_history_switchport_date_sql', $switch, $params{'ifIndex'}, $params{'date'}, $params{'date'}));
-    } else {
-        return translate_connection_type(db_data(LOCATIONLOG, $locationlog_statements,
-            'locationlog_history_switchport_sql', $switch, $params{'ifIndex'}));
+    my $where = {
+        switch => $switch,
+        port => $params{'ifIndex'},
+    };
+    my $date = $params{'date'};
+    if ( defined($date)) {
+        $where->{start_time} = { "<" => \['from_unixtime(?)', $date] };
+        $where->{end_time} = { ">" => \['from_unixtime(?)', $date] };
     }
-}
-
-sub locationlog_count_all {
-    my ( $id, %params ) = @_;
-
-    my %where = %{$params{where}};
-    if ($where{start_date} && $where{end_date} && $where{value}) {
-        if ($where{value} eq 'wired') {
-            return db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_count_wired_sql',
-                           $where{start_date}, $where{end_date});
-        }
-        elsif ($where{value} eq 'wireless') {
-            return db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_count_wireless_sql',
-                           $where{start_date}, $where{end_date});
-        }
-    }
-}
-
-sub locationlog_view_all {
-    return db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_view_all_sql');
-}
-
-sub locationlog_view_all_open_mac {
-    my ($mac) = @_;
-    $mac = clean_mac($mac);
-
-    return db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_view_open_mac_sql', $mac);
+    return translate_connection_type(_db_list({
+        -columns => [
+            qw(mac switch switch_ip switch_mac port vlan role connection_type connection_sub_type dot1x_username ssid start_time end_time stripped_user_name realm ifDesc)
+        ],
+        -where => $where,
+        -order_by => [{-desc => 'start_time'}, {-desc => 'end_time'}],
+    }));
 }
 
 sub locationlog_view_open {
-    return db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_view_open_sql');
+    return _db_list({
+        -where => {
+            end_time => $ZERO_DATE,
+        },
+        -order_by => { -desc => 'start_time' },
+    });
 }
 
 sub locationlog_view_open_switchport {
     my ( $switch, $ifIndex, $voip ) = @_;
-    return db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_view_open_switchport_sql', $switch, $ifIndex, $voip );
+    return _db_list({
+        -where => {
+            switch => $switch,
+            port => $ifIndex,
+            'node.voip' => $voip,
+            end_time => $ZERO_DATE,
+        },
+        -from => [-join => qw(locationlog =>{locationlog.mac=node.mac} node)],
+        -order_by => { -desc => 'start_time' },
+    });
 }
 
 sub locationlog_view_open_switchport_no_VoIP {
     my ( $switch, $ifIndex ) = @_;
-    return db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_view_open_switchport_no_VoIP_sql',
-        $switch, $ifIndex);
+    return _db_list({
+        -where => {
+            switch => $switch,
+            port => $ifIndex,
+            'node.voip' => { "!=" => "yes"},
+            end_time => $ZERO_DATE,
+        },
+        -from => [-join => qw(locationlog =>{locationlog.mac=node.mac} node)],
+        -order_by => { -desc => 'start_time' },
+    });
 }
 
 sub locationlog_view_open_switchport_only_VoIP {
     my ( $switch, $ifIndex ) = @_;
-    my $query = db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_view_open_switchport_only_VoIP_sql',
-        $switch, $ifIndex)
-        || return (0);
-
-    my $ref = $query->fetchrow_hashref();
-
-    # just get one row and finish
-    $query->finish();
-    return ($ref);
+    return _db_item({
+        -where => {
+            switch => $switch,
+            port => $ifIndex,
+            'node.voip' => "yes",
+            end_time => $ZERO_DATE,
+        },
+        -from => [-join => qw(locationlog =>{locationlog.mac=node.mac} node)],
+        -limit => 1,
+        -order_by => { -desc => 'start_time' },
+    });
 }
 
 sub locationlog_view_open_mac {
     my ($mac) = @_;
     $mac = clean_mac($mac);
-
-    my $query = db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_view_open_mac_sql', $mac)
-        || return (0);
-    my $ref = $query->fetchrow_hashref();
-
-    # just get one row and finish
-    $query->finish();
-    return ($ref);
+    return _db_item({
+        -where => {
+            mac => $mac,
+            end_time => $ZERO_DATE,
+        },
+        -limit => 1,
+        -order_by => { -desc => 'start_time' },
+    });
 }
 
 sub locationlog_insert_start {
-    my ( $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $locationlog_mac ) = @_;
+    my ( $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $locationlog_mac, $ifDesc ) = @_;
     my $logger = get_logger();
 
     my $conn_type = connection_type_to_str($connection_type)
@@ -386,32 +241,27 @@ sub locationlog_insert_start {
     if (!(defined($vlan)) && defined($locationlog_mac->{'vlan'})) {
         $vlan = $locationlog_mac->{'vlan'};
     }
-    if (!(defined($role)) && defined($locationlog_mac->{'role'})) {
-        $role = $locationlog_mac->{'role'};
-    }
+    my %values = (
+        switch              => $switch,
+        switch_ip           => $switch_ip,
+        switch_mac          => $switch_mac,
+        port                => $ifIndex,
+        vlan                => $vlan,
+        role                => $role,
+        connection_sub_type => $connection_sub_type,
+        connection_type     => $conn_type,
+        dot1x_username      => $user_name,
+        ssid                => $ssid,
+        stripped_user_name  => $stripped_user_name,
+        realm               => $realm,
+        ifDesc              => $ifDesc,
+        start_time          => \'NOW()',
+    );
     if ( defined($mac) ) {
-        db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_insert_start_with_mac_sql',
-            lc($mac), $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $role, $conn_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm)
-            || return (0);
-    } else {
-        db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_insert_start_no_mac_sql',
-            $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $role, $conn_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm)
-            || return (0);
+        $values{mac} = lc($mac);
     }
-    return (1);
-}
-
-sub locationlog_insert_closed {
-    my ( $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role ) = @_;
-    my $logger = get_logger();
-
-    my $conn_type = connection_type_to_str($connection_type)
-        or $logger->info("Asked to insert a locationlog entry with connection type unknown.");
-
-    db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_insert_closed_sql',
-        lc($mac), $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $role, $conn_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm)
-        || return (0);
-    return (1);
+    my $status = pf::dal::locationlog->create(\%values);
+    return (is_success($status));
 }
 
 sub locationlog_update_end {
@@ -423,37 +273,72 @@ sub locationlog_update_end {
         locationlog_update_end_mac($mac);
     } else {
         $logger->info("locationlog_update_end called without mac");
-        db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_update_end_switchport_sql',
-            $switch, $ifIndex)
-            || return (0);
+        my ($status, $rows) = pf::dal::locationlog->update_items(
+            -set => {
+                end_time => \'NOW()',
+            },
+            -where => {
+                port => $ifIndex,
+                switch => $switch,
+            }
+        );
     }
     return (1);
 }
 
 sub locationlog_update_end_switchport_no_VoIP {
     my ( $switch, $ifIndex ) = @_;
-
-    db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_update_end_switchport_no_VoIP_sql',
-        $switch, $ifIndex)
-        || return (0);
-    return (1);
+    my ($status, $rows) = pf::dal::locationlog->update_items(
+        -set => {
+            end_time => \'NOW()',
+        },
+        -where => {
+            switch => $switch,
+            port => $ifIndex,
+            'node.voip' => {"!=" => "yes"},
+            end_time => $ZERO_DATE,
+        },
+        -table => [-join => qw(locationlog {locationlog.mac=node.mac} node)],
+    );
+    return ($rows);
 }
 
 sub locationlog_update_end_switchport_only_VoIP {
     my ( $switch, $ifIndex ) = @_;
 
-    db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_update_end_switchport_only_VoIP_sql',
-        $switch, $ifIndex)
-        || return (0);
-    return (1);
+    my ($status, $rows) = pf::dal::locationlog->update_items(
+        -set => {
+            end_time => \'NOW()',
+        },
+        -where => {
+            switch => $switch,
+            port => $ifIndex,
+            'node.voip' => "yes",
+            end_time => $ZERO_DATE,
+        },
+        -table => [-join => qw(locationlog {locationlog.mac=node.mac} node)],
+    );
+    return ($rows);
 }
 
 sub locationlog_update_end_mac {
-    my ($mac) = @_;
+    my ($mac, $tenant_id) = @_;
+    my %options = (
+        -set => {
+            end_time => \'NOW()',
+        },
+        -where => {
+            mac => $mac,
+            end_time => $ZERO_DATE,
+        }
+    );
+    if (defined $tenant_id) {
+        $options{-where}{tenant_id} = $tenant_id;
+        $options{-no_auto_tenant_id} = 1;
+    }
 
-    db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_update_end_mac_sql', $mac)
-        || return (0);
-    return (1);
+    my ($status, $rows) = pf::dal::locationlog->update_items(%options);
+    return ($rows);
 }
 
 =item * locationlog_synchronize
@@ -466,12 +351,16 @@ synchronize locationlog to current values if necessary
 
 sub locationlog_synchronize {
     my $timer = pf::StatsD::Timer->new({ sample_rate => 0.2 });
-    my ( $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role) = @_;
+    my ( $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc) = @_;
+
+    $voip_status = $NO_VOIP if !defined $voip_status || $voip_status ne $VOIP; #Set the default voip status
     my $logger = get_logger();
+    $logger->trace(sub {"sync locationlog with ifDesc " . ($ifDesc // "undef")});
     $logger->trace("locationlog_synchronize called");
 
     # flag to determine if we must insert a new record or not
     my $mustInsert = 0;
+    my $inserted = 0;
 
     if ( defined($mac) ) {
 
@@ -495,9 +384,14 @@ sub locationlog_synchronize {
                 }
 
                 $logger->debug("closing old locationlog entry because something about this node changed");
-                db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_update_end_mac_sql', $mac)
-                    || return (0);
-                locationlog_insert_start($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $locationlog_mac);
+
+                unless (defined (locationlog_update_end_mac($mac))) {
+                    return (0);
+                }
+                locationlog_insert_start($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $locationlog_mac, $ifDesc);
+
+                # We just inserted an entry so we won't want to add another one
+                $inserted = 1;
             }
 
         } else {
@@ -530,27 +424,32 @@ sub locationlog_synchronize {
 
             # close entries of same voip status
             if ($voip_status eq $NO_VOIP) {
-                db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_update_end_switchport_no_VoIP_sql',
-                    $switch, $ifIndex);
+                locationlog_update_end_switchport_no_VoIP($switch, $ifIndex);
             } else {
-                db_query_execute(LOCATIONLOG, $locationlog_statements,
-                    'locationlog_update_end_switchport_only_VoIP_sql', $switch, $ifIndex);
+                locationlog_update_end_switchport_only_VoIP($switch, $ifIndex);
             }
             $mustInsert = 1;
         }
     }
 
     # we insert a locationlog entry
-    if ($mustInsert) {
-        locationlog_insert_start($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role)
+    if ($mustInsert && !$inserted) {
+        locationlog_insert_start($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, undef, $ifDesc)
             or $logger->warn("Unable to insert a locationlog entry.");
     }
     return 1;
 }
 
 sub locationlog_close_all {
-    db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_close_sql');
-    return (0);
+    my ($status, $rows) = pf::dal::locationlog->update_items(
+        -set => {
+            end_time => \'NOW()',
+        },
+        -where => {
+            end_time => $ZERO_DATE,
+        }
+    );
+    return ($rows);
 }
 
 sub locationlog_cleanup {
@@ -558,22 +457,27 @@ sub locationlog_cleanup {
     my ($expire_seconds, $batch, $time_limit) = @_;
     my $logger = get_logger();
     $logger->debug("calling locationlog_cleanup with time=$expire_seconds batch=$batch timelimit=$time_limit");
-    my $now = db_now();
-    my $start_time = time;
-    my $end_time;
-    my $rows_deleted = 0;
-    while (1) {
-        my $query = db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_cleanup_sql', $now, $expire_seconds, $batch)
-        || return (0);
-        my $rows = $query->rows;
-        $query->finish;
-        $end_time = time;
-        $rows_deleted+=$rows if $rows > 0;
-        $logger->trace( sub { "deleted $rows_deleted entries from locationlog during locationlog cleanup ($start_time $end_time) " });
-        last if $rows == 0 || (( $end_time - $start_time) > $time_limit );
+
+    if($expire_seconds eq "0") {
+        $logger->debug("Not deleting because the window is 0");
+        return;
     }
-    $logger->trace( "deleted $rows_deleted entries from locationlog during locationlog cleanup ($start_time $end_time) " );
-    return (0);
+
+    my $now = pf::dal->now();
+
+    my ($status, $rows) = pf::dal::locationlog->batch_remove(
+        {
+            -where => {
+                end_time => {
+                     "<" => \[ 'DATE_SUB(?, INTERVAL ? SECOND)', $now, $expire_seconds ] ,
+                     "!=" => $ZERO_DATE,
+                },
+            },
+            -limit => $batch,
+        },
+        $time_limit
+    );
+    return ($rows);
 }
 
 =item * _is_locationlog_accurate
@@ -584,7 +488,7 @@ return 1 if locationlog entry is accurate, 0 otherwise
 
 # Note: voip_status was removed from the accuracy check, feel free to revisit this assumption if we face VoIP problems
 sub _is_locationlog_accurate {
-    my $timer = pf::StatsD::Timer->new({ sample_rate => 0.05 });
+    my $timer = pf::StatsD::Timer->new({ sample_rate => 0.05, level => 7 });
     my ( $locationlog_mac, $switch, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $role ) = @_;
     my $logger = get_logger();
     $logger->trace("verifying if locationlog is accurate called");
@@ -602,11 +506,15 @@ sub _is_locationlog_accurate {
     my $conn_typeChanged = ($locationlog_mac->{connection_type} ne connection_type_to_str($connection_type));
     my $userChanged = ($locationlog_mac->{'dot1x_username'} ne $user_name);
     my $ssidChanged = ($locationlog_mac->{'ssid'} ne $ssid);
+
     my $roleChanged = '0';
-    if (defined($role)) {
-        my $old_role = $locationlog_mac->{'role'};
-        $roleChanged = ( defined ($old_role) && $old_role ne $role);
-    }
+    my $old_role = $locationlog_mac->{'role'};
+    $roleChanged = (
+        (!defined($old_role) && defined($role))
+        || (defined($old_role) && !defined($role))
+        || (defined($old_role) && defined($role) && $old_role ne $role)
+    );
+
     # ifIndex on wireless is not important
     my $ifIndexChanged = 0;
     if (($connection_type & $WIRED) == $WIRED) {
@@ -624,35 +532,81 @@ sub _is_locationlog_accurate {
 
 sub locationlog_get_session {
     my ( $session_id ) = @_;
-    my @entries = db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_get_session_sql', $session_id );
-    return $entries[0];
+    return _db_item({
+        -where => {
+            session_id => $session_id,
+            end_time => $ZERO_DATE,
+        },
+        -order_by => { -desc => 'start_time' },
+        -limit => 1,
+    });
 }
 
 sub locationlog_set_session {
     my ( $mac, $session_id ) = @_;
-    return db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_set_session_sql', $session_id, $mac );
+    my ($status, $rows) = pf::dal::locationlog->update_items(
+       -set => {
+           session_id => $session_id,
+       },
+       -where => {
+           mac => $mac,
+           end_time => $ZERO_DATE,
+       }
+   );
+   return $rows;
 }
 
-=item locationlog_online_nodes_count
+=item locationlog_last_entry_mac
 
-Get of the count of the current online nodes
+Return the last locationlog entry for a mac even if it's open or close.
 
 =cut
 
-sub locationlog_online_nodes_count {
-    my $sth = db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_online_nodes_count_sql');
-    my $logger = get_logger();
-    unless ($sth) {
-        $logger->error("Problem with locationlog_online_nodes_count");
-        return undef;
+sub locationlog_last_entry_mac {
+   my ($mac) = @_;
+   $mac = clean_mac($mac);
+   return _db_item({
+       -where => {
+           mac => $mac,
+       },
+       -order_by => { -desc => 'start_time' },
+       -limit => 1,
+   });
+}
+
+sub _db_item {
+    my ($args) = @_;
+    my ($status, $iter) = pf::dal::locationlog->search(%$args);
+
+    if (is_error($status)) {
+        return (0);
     }
-    my $row = $sth->fetch;
-    $sth->finish;
-    unless ($row) {
-        $logger->error("Problem with locationlog_online_nodes_count");
-        return undef;
+    return ($iter->next(undef));
+}
+
+sub _db_list {
+    my ($args) = @_;
+    my ($status, $iter) = pf::dal::locationlog->search(%$args);
+    if (is_error($status)) {
+        return;
     }
-    return $row->[0];
+    return @{$iter->all(undef) // []};
+}
+
+=item locationlog_unique_ssids
+
+Return a list of unique SSIDs that have been seen.
+
+=cut
+
+sub locationlog_unique_ssids {
+    return map { $_->{ssid} } _db_list({
+        -columns => [ -distinct => 'ssid' ],
+        -where   => {
+            ssid => { "!=" => [ -and => "", undef ] },
+        },
+        -order_by => 'ssid',
+    });
 }
 
 =back
@@ -663,7 +617,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

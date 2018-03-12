@@ -13,7 +13,20 @@ pf::services::manager::httpd
 
 use strict;
 use warnings;
-use pf::config;
+use pf::config qw(
+    %Config
+    $OS
+    %CAPTIVE_PORTAL
+    $SELFREG_MODE_EMAIL
+    $SELFREG_MODE_SPONSOR
+    $management_network
+);
+use pf::file_paths qw(
+    $install_dir
+    $conf_dir
+    $generated_conf_dir
+    $var_dir
+);
 use Moo;
 use POSIX;
 use pf::util;
@@ -22,9 +35,57 @@ use pf::util::apache qw(url_parser);
 use pf::web::constants;
 use pf::authentication;
 use pf::log;
+use pf::cluster;
+use Template;
+
 extends 'pf::services::manager';
 
-has '+launcher' => ( builder => 1, lazy => 1 );
+has configFilePath => (is => 'rw', builder => 1, lazy => 1);
+
+has configTemplateFilePath => (is => 'rw', builder => 1, lazy => 1);
+
+sub _cmdLine {
+    my $self = shift;
+    $self->executable . " -f $install_dir/var/conf/httpd.conf.d/" . $self->name . " -DFOREGROUND  -D$OS";
+}
+
+sub createVars {
+    my ($self) = @_;
+    (my $shortname = $self->name) =~ s/^httpd\.//;
+    my $captive_portal = Clone::clone($Config{'captiveportal'});
+    my %vars = (
+        ports => $Config{'ports'},
+        port => $self->port,
+        vhosts => $self->vhosts,
+        install_dir => $install_dir,
+        var_dir => $var_dir,
+        apache_version => $self->apache_version,
+        aliases => $self->_generate_aliases(),
+        allowed_from_all_urls => $self->allowed_from_all_urls($captive_portal),
+        server_admin => $self->serverAdmin,
+        server_name  => $Config{'general'}{'hostname'} . "." . $Config{'general'}{'domain'},
+        name => $self->name,
+        shortname => $shortname,
+        $self->additionalVars,
+    );
+    return \%vars;
+}
+
+sub port { undef }
+
+sub vhosts { [] }
+
+sub apache_version {
+    my ($self) = @_;
+    my $cmd = $self->executable . " -v";
+    my $result = pf_run($cmd);
+    $result =~ m#Server version: Apache/(\d+\.\d+)#;
+    return $1;
+}
+
+sub additionalVars {
+
+}
 
 sub executable {
     my ($self) = @_;
@@ -32,15 +93,17 @@ sub executable {
     return $service;
 }
 
-sub _build_launcher {
+sub _build_configFilePath {
     my ($self) = @_;
-    my $name = $self->name;
-    return "%1\$s -f $conf_dir/httpd.conf.d/$name -D$OS"
+    return "$var_dir/conf/httpd.conf.d/" . $self->name;
+}
+
+sub _build_configTemplateFilePath {
+    my ($self) = @_;
+    return "$conf_dir/httpd.conf.d/" . $self->name . ".tt";
 }
 
 =head2 generateConfig
-
-TODO: documention
 
 =cut
 
@@ -48,10 +111,19 @@ our $WAS_GENERATED;
 
 sub generateConfig {
     my ($self) = @_;
+    my $vars = $self->createVars();
+    my $tt = Template->new(ABSOLUTE => 1);
+    $tt->process($self->configTemplateFilePath, $vars, $self->configFilePath) or die $tt->error();
+    $self->generateCommonConfig();
+}
+
+sub generateCommonConfig {
+    my ($self) = @_;
     return 1 if $WAS_GENERATED;
     $WAS_GENERATED = 1;
     my $logger = get_logger();
 
+    my $vars = $self->createVars();
     # injecting Web constants first
     my %tags = pf::web::constants::to_hash();
 
@@ -118,13 +190,42 @@ sub generateConfig {
     parse_template( \%tags, "$conf_dir/httpd.conf.d/ssl-certificates.conf", "$generated_conf_dir/ssl-certificates.conf", "#" );
 
     # TODO we *could* do something smarter and process all of conf/httpd.conf.d/
-    my @config_files = ( 'captive-portal-common.conf');
-    foreach my $config_file (@config_files) {
-        $logger->info("generating $generated_conf_dir/$config_file");
-        parse_template(\%tags, "$conf_dir/httpd.conf.d/$config_file", "$generated_conf_dir/$config_file");
-    }
+    my $config_file = "captive-portal-common";
+    my $tt = Template->new(ABSOLUTE => 1);
+    $logger->info("generating $generated_conf_dir/$config_file");
+    $tt->process("$conf_dir/httpd.conf.d/$config_file.tt", $vars, "$generated_conf_dir/$config_file") or die $tt->error();
 
     return 1;
+}
+
+=head2 allowed_from_all_urls
+
+Get all the urls that are allowed from
+
+=cut
+
+sub allowed_from_all_urls {
+    my ($self, $captive_portal) = @_;
+    my $allowed_from_all_urls = '';
+    if (!$captive_portal->{status_only_on_production}) {
+        $allowed_from_all_urls = "|$WEB::URL_STATUS";
+    }
+    my $guest_regist_allowed = scalar keys %pf::authentication::guest_self_registration;
+    if ($guest_regist_allowed && isenabled($Config{'guests_self_registration'}{'preregistration'})) {
+
+        # | is for a regexp "or" as this is pulled from a 'Location ~' statement
+        $allowed_from_all_urls .= "|$WEB::URL_SIGNUP|$WEB::URL_PREREGISTER";
+    }
+
+    # /activate/email allowed if sponsor or email mode enabled
+    my $email_enabled   = $pf::authentication::guest_self_registration{$pf::constants::config::SELFREG_MODE_EMAIL};
+    my $sponsor_enabled = $pf::authentication::guest_self_registration{$pf::constants::config::SELFREG_MODE_SPONSOR};
+    if ($guest_regist_allowed && ($email_enabled || $sponsor_enabled)) {
+
+        # | is for a regexp "or" as this is pulled from a 'Location ~' statement
+        $allowed_from_all_urls .= "|$WEB::URL_EMAIL_ACTIVATION";
+    }
+    return $allowed_from_all_urls;
 }
 
 =head2 calculate_max_clients
@@ -200,6 +301,18 @@ sub _generate_aliases {
     return $aliases;
 }
 
+sub serverAdmin {
+    my ($self) = @_;
+    my $server_admin;
+    if (defined($Config{'alerting'}{'fromaddr'}) && $Config{'alerting'}{'fromaddr'} ne '') {
+        $server_admin = $Config{'alerting'}{'fromaddr'};
+    }
+    else {
+        $server_admin = "root\@" . $Config{'general'}{'hostname'} . "." . $Config{'general'}{'domain'};
+    }
+    return $server_admin;
+}
+
 
 =head1 AUTHOR
 
@@ -208,7 +321,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 
@@ -230,4 +343,3 @@ USA.
 =cut
 
 1;
-

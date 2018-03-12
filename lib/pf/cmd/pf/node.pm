@@ -7,6 +7,8 @@ pf::cmd::pf::node add documentation
 
  pfcmd node <add|count|view|edit|delete> mac [assignments]
 
+When using edit, you can specify the --reevaluate-access flag so that the network access of the device is adjusted if PacketFence has a location entry for the device.
+
 manipulate node entries
 
 examples:
@@ -35,6 +37,7 @@ use pf::util;
 use pf::log;
 use pf::constants;
 use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
+use pf::enforcement;
 my $pid_re = qr{(?:
     ( [a-zA-Z0-9\-\_\.\@\/\:\+\!,]+ )                               # unquoted allowed
     |                                                               # OR
@@ -58,7 +61,7 @@ $/xms;
 our $COUNT_RE = qr/^ (?: (all) | ( $RE{net}{MAC} ) | (?: ( category | pid  ) \s* [=] \s* $pid_re )) \s*/xms;
 
 our @FIELDS = qw(
-  mac computername pid category status bypass_vlan nbopenviolations voip
+  mac computername pid category status bypass_vlan voip
   detect_date regdate unregdate last_connection_type last_switch last_port last_vlan last_ssid last_dot1x_username user_agent dhcp_fingerprint last_arp last_dhcp lastskip notes);
 
 =head2 action_view
@@ -102,14 +105,18 @@ sub parse_view {
         $params{'where'}{'value'} = $4;
     }
     if($8) {
-        $params{orderby} = "order by $8";
+        my $orderby = $8;
         if($9) {
-            $params{orderby} .= " $9";
+            if (lc($9) eq 'desc') {
+                $orderby = "-$orderby";
+            }
         }
+        $params{orderby} = [$orderby];
     }
     if($10) {
         my $limit = "limit $11,$12";
-        $params{limit} = $limit;
+        $params{offset} = $11;
+        $params{limit} = $12;
     }
     $self->{params} = \%params;
     return 1;
@@ -234,9 +241,16 @@ sub action_edit {
         return $EXIT_FAILURE;
     }
     my ($result) = node_modify($mac,%{$self->{params}});
-    return $EXIT_SUCCESS if $result == 1;
-    print STDOUT "Unable to modify node '$mac'\n";
-    return $EXIT_FAILURE;
+    unless ($result == 1) {
+        print STDOUT "Unable to modify node '$mac'\n";
+        return $EXIT_FAILURE;
+    }
+
+    if ($self->{reevaluate_access}) {
+        pf::enforcement::reevaluate_access($mac, "admin_modify");
+    }
+
+    return $EXIT_SUCCESS;
 }
 
 =head2 parse_edit
@@ -298,7 +312,9 @@ sub _parse_attributes {
     for my $attribute (@attributes) {
         if($attribute =~ /^([a-zA-Z0-9_-]+)=(.*)$/ ) {
             $params{$1} = $2;
-        } else {
+        } elsif ($self->{action} eq "edit" && $attribute eq "--reevaluate-access") {
+            $self->{reevaluate_access} = $TRUE;   
+        }else {
             print STDERR "$attribute is badily formatted\n";
             return 0;
         }
@@ -344,7 +360,7 @@ Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

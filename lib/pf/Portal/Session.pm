@@ -29,16 +29,23 @@ use POSIX qw(locale_h); #qw(setlocale);
 use Readonly;
 use URI::Escape::XS qw(uri_escape uri_unescape);
 use File::Spec::Functions;
+use Digest::MD5 qw(md5_hex);
+use Crypt::GeneratePassword qw(word);
 
 use pf::constants;
-use pf::config;
-use pf::iplog;
-use pf::Portal::ProfileFactory;
+use pf::config qw(
+    %CAPTIVE_PORTAL
+    $management_network
+);
+use pf::file_paths qw($conf_dir);
+use pf::ip4log;
+use pf::Connection::ProfileFactory;
 use pf::util;
 use pf::web::constants;
 use pf::web::util;
 use pf::web::constants;
 use pf::activation qw(view_by_code);
+use pf::constants::Portal::Session qw($DUMMY_MAC);
 
 =head1 CONSTANTS
 
@@ -90,10 +97,11 @@ sub _initialize {
 
     $self->{'_cgi'} = $cgi;
 
-    my $sid = $cgi->cookie(SESSION_ID) || $cgi->param(SESSION_ID) || $cgi;
+    my $md5_mac = defined($mac) ? md5_hex($mac) : undef;
+    my $sid = $cgi->cookie(SESSION_ID) || $cgi->param(SESSION_ID) || $md5_mac || md5_hex(word(8, 12));
     $logger->debug("using session id '$sid'" );
     my $session;
-    $self->{'_session'} = $session = new CGI::Session( "driver:chi", $sid, { chi_class => 'pf::CHI', namespace => 'httpd.portal' } );
+    $self->{'_session'} = $session = new CGI::Session( "driver:chi;id:static", $sid, { chi_class => 'pf::CHI', namespace => 'httpd.portal' } );
     $logger->error(CGI::Session->errstr()) unless $session;
     $session->expires($EXPIRES_IN);
 
@@ -102,15 +110,20 @@ sub _initialize {
         }
     );
 
-    $self->{'_client_mac'} = $mac || $self->session->param("_client_mac") || $self->_restoreFromSession("_client_mac",sub {
+    # Don't assign $mac if the dummy MAC was used for restoring the session
+    $self->{'_client_mac'} = ((defined($mac) && $mac ne $DUMMY_MAC) ? $mac : undef) || $self->session->param("_client_mac") || $self->_restoreFromSession("_client_mac",sub {
             return $self->getClientMac;
         }
     );
-    $self->session->param("_client_mac",$self->{'_client_mac'});
+
+    my $client_mac = $self->{_client_mac};
+    $self->{_dummy_session} = (defined($client_mac) && $client_mac eq $DUMMY_MAC);
+
+    $self->session->param("_client_mac", $client_mac);
 
     $self->{'_guest_node_mac'} = undef;
     $self->{'_profile'} = $self->_restoreFromSession("_profile", sub {
-            return pf::Portal::ProfileFactory->instantiate($self->getClientMac);
+            return pf::Connection::ProfileFactory->instantiate($self->getClientMac);
         }
     );
 
@@ -118,23 +131,14 @@ sub _initialize {
         my $option = {
             'last_uri' => $cgi->url(-absolute=>1),
         };
-        $self->session->param('_profile',pf::Portal::ProfileFactory->instantiate($self->getClientMac,$option));
+        $self->session->param('_profile',pf::Connection::ProfileFactory->instantiate($self->getClientMac,$option));
         $self->{'_profile'} = $self->_restoreFromSession("_profile", sub {
-                return pf::Portal::ProfileFactory->instantiate($self->getClientMac,$option);
-            }
-        );
-    } elsif (defined($cgi->url_param('code'))) {
-        my $data = view_by_code("1:".$cgi->param('code'));
-        $options = {
-            'portal' => $data->{portal},
-        };
-        $self->{'_profile'} = $self->_restoreFromSession("_profile", sub {
-                return pf::Portal::ProfileFactory->instantiate($self->getClientMac,$options);
+                return pf::Connection::ProfileFactory->instantiate($self->getClientMac,$option);
             }
         );
     } else {
         $self->{'_profile'} = $self->_restoreFromSession("_profile", sub {
-                return pf::Portal::ProfileFactory->instantiate($self->getClientMac);
+                return pf::Connection::ProfileFactory->instantiate($self->getClientMac);
             }
         );
     }
@@ -200,6 +204,7 @@ sub _initializeI18n {
         $logger->error("Error while setting locale to $locale.utf8. Is the locale generated on your system?");
     }
     $self->stash->{locale} = $newlocale;
+    delete $ENV{'LANGUAGE'}; # Make sure $LANGUAGE is empty otherwise it will override LC_MESSAGES
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     bind_textdomain_codeset( "packetfence", "utf-8" );
     textdomain("packetfence");
@@ -214,7 +219,7 @@ Returns destination_url properly parsed, defended against XSS and with configure
 sub _getDestinationUrl {
     my ($self) = @_;
 
-    # Return portal profile's redirection URL if destination_url is not set or if redirection URL is forced
+    # Return connection profile's redirection URL if destination_url is not set or if redirection URL is forced
     if (!defined($self->cgi->param("destination_url")) || $self->getProfile->forceRedirectURL) {
         return $self->getProfile->getRedirectURL;
     }
@@ -379,7 +384,7 @@ sub getClientMac {
     elsif (defined($self->cgi->param('mac'))) {
         return encode_entities($self->cgi->param('mac'));
     }
-    return encode_entities(pf::iplog::ip2mac($self->getClientIp));
+    return encode_entities(pf::ip4log::ip2mac($self->getClientIp));
 }
 
 
@@ -444,7 +449,7 @@ sub setDestinationUrl {
 
 =item getProfile
 
-Returns the proper captive portal profile for the current session.
+Returns the proper connection profile for the current session.
 
 =cut
 
@@ -483,11 +488,7 @@ sub setGuestNodeMac {
 sub getTemplateIncludePath {
     my ($self) = @_;
     my $profile = $self->getProfile;
-    my @paths = ($CAPTIVE_PORTAL{'TEMPLATE_DIR'});
-    if ($profile->getName ne 'default') {
-        unshift @paths,catdir($CAPTIVE_PORTAL{'PROFILE_TEMPLATE_DIR'},trim_path($profile->getTemplatePath));
-    }
-    return \@paths;
+    return $profile->{_template_paths};
 }
 
 =item getRequestLanguages
@@ -544,7 +545,7 @@ sub getLanguages {
     # 1. Check if a language is specified in the URL
     if ( defined($self->getCgi->url_param('lang')) ) {
         my $user_chosen_language = $self->getCgi->url_param('lang');
-        $user_chosen_language =~ s/^(\w{2})(_\w{2})?/lc($1) . uc($2)/e;
+        $user_chosen_language =~ s/^(\w{2})(_\w{2})?/lc($1) . uc($2 || "")/e;
         if (grep(/^$user_chosen_language$/, @authorized_locales)) {
             $lang = $user_chosen_language;
             # Store the language in the session
@@ -566,7 +567,7 @@ sub getLanguages {
     # 3. Check the accepted languages of the browser
     my $browser_languages = $self->getRequestLanguages();
     foreach my $browser_language (@$browser_languages) {
-        $browser_language =~ s/^(\w{2})(_\w{2})?/lc($1) . uc($2)/e;
+        $browser_language =~ s/^(\w{2})(_\w{2})?/lc($1) . uc($2 || "")/e;
         if (grep(/^$browser_language$/, @authorized_locales)) {
             $lang = $browser_language;
             push(@languages, $lang) unless (grep/^$lang$/, @languages);
@@ -595,7 +596,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

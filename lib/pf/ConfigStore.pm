@@ -10,18 +10,21 @@ pf::ConfigStore
 
 pf::ConfigStore
 
-Is the Base class for accessing pf::config::cached
+Is the Base class for accessing pf::IniFiles
 
 =cut
 
 use Moo;
 use namespace::autoclean;
-use pf::config::cached;
+use pf::IniFiles;
 use pf::log;
 use List::MoreUtils qw(uniq);
 use pfconfig::manager;
 use pf::api::jsonrpcclient;
 use pf::cluster;
+use pf::constants;
+use pf::CHI;
+use pf::generate_filter qw(filter_with_offset_limit);
 
 =head1 FIELDS
 
@@ -33,7 +36,8 @@ has cachedConfig =>
   (
    is => 'ro',
    lazy => 1,
-   isa => sub {pf::config::cached->isa($_[0])},
+   clearer => 1,
+   isa => sub {pf::IniFiles->isa($_[0])},
    builder => '_buildCachedConfig'
 );
 
@@ -42,6 +46,8 @@ has configFile => ( is => 'ro');
 has pfconfigNamespace => ( is => 'ro', default => sub {undef});
 
 has default_section => ( is => 'ro');
+
+has importConfigFile => ( is => 'rw');
 
 
 =head1 METHODS
@@ -64,15 +70,42 @@ sub validParam { 1; }
 
 =head2 _buildCachedConfig
 
-Build the pf::config::cached object
+Build the pf::IniFiles object
 
 =cut
 
 sub _buildCachedConfig {
     my ($self) = @_;
-    my @args = (-file => $self->configFile, -allowempty => 1);
-    push @args, -default => $self->default_section if defined $self->default_section;
-    return pf::config::cached->new(@args);
+    my $chi             = $self->cache;
+    my $file_path       = $self->configFile;
+    my @args            = (-file => $file_path, -allowempty => 1);
+    my $default_section = $self->default_section;
+    push @args, -default => $default_section if defined $default_section;
+    my $importConfigFile = $self->importConfigFile;
+    if (defined $importConfigFile) {
+        push @args, -import => pf::IniFiles->new(-file => $importConfigFile, -allowempty => 1);
+    }
+    return $chi->compute(
+        $file_path,
+        {
+            expire_if => sub { $self->expire_if(@_) }
+        },
+        sub {
+            my $config = pf::IniFiles->new(@args);
+            if ($config) {
+                $config->SetLastModTimestamp;
+            }
+            return $config;
+        });
+}
+
+sub cache { pf::CHI->new(namespace => 'configfiles'); }
+
+sub expire_if  {
+    my ($self, $cached_obj) = @_;
+    my $config = $cached_obj->value;
+    return 1 unless $config;
+    return $config->HasChanged();
 }
 
 =head2 rollback
@@ -83,8 +116,12 @@ Rollback changes that were made
 
 sub rollback {
     my ($self) = @_;
-    my $config = $self->cachedConfig;
-    return $config->Rollback();
+    my $file_path = $self->configFile;
+    my $cache = $self->cache;
+    if ($cache->l1_cache) {
+        $cache->l1_cache->remove($file_path);
+    }
+    $self->clear_cachedConfig;
 }
 
 =head2 rewriteConfig
@@ -96,7 +133,10 @@ Save the cached config
 sub rewriteConfig {
     my ($self) = @_;
     my $config = $self->cachedConfig;
-    return $config->RewriteConfig();
+    $config->removeDefaultValues();
+    my $result = $config->RewriteConfig();
+    $config->ReadConfig();
+    return $result;
 }
 
 =head2 readAllIds
@@ -245,12 +285,14 @@ sub _update_section {
     while ( my ($param, $value) = each %$assignments ) {
         my $param_exists = $config->exists($section, $param);
         my $default_value = $config->val($default_section,$param) if ($use_default);
+        my $imported_value = $imported->val($section, $param) if $imported;
         if(defined $value ) { #If value is defined the update or add to section
             if ( $param_exists ) {
                 #If value is defined the update or add to section
                 #Only set the value if not equal to the default value otherwise delete it
-                if ( defined $default_value && $default_value eq $value) {
-                    $config->delval($section, $param, $value);
+                if ((defined $default_value && $default_value eq $value) &&
+                    (!defined $imported_value || $imported_value eq $value)) {
+                    $config->delval($section, $param);
                 } else {
                     $config->setval($section, $param, $value);
                 }
@@ -317,7 +359,26 @@ Removes an existing item
 
 sub remove {
     my ($self, $id) = @_;
+    if (!$self->canDelete($id)) {
+        return $FALSE;
+    }
     return $self->cachedConfig->DeleteSection($self->_formatSectionName($id));
+}
+
+
+=head2 canDelete
+
+canDelete
+
+=cut
+
+sub canDelete {
+    my ($self, $id) = @_;
+    my $default_section = $self->default_section;
+    return $TRUE
+        if !defined $default_section;
+
+    return $self->_formatSectionName($id) ne $default_section;
 }
 
 =head2 Copy
@@ -385,12 +446,12 @@ sub expand_list {
 }
 
 sub split_list {
-    my ($self,$list) = @_;
+    my ($self, $list) = @_;
     return split(/\s*,\s*/,$list);
 }
 
 sub join_list {
-    my ($self,@list) = @_;
+    my ($self, @list) = @_;
     return join(',',@list);
 }
 
@@ -399,10 +460,12 @@ sub join_list {
 =cut
 
 sub flatten_list {
-    my ( $self,$object,@columns ) = @_;
+    my ($self, $object, @columns) = @_;
     foreach my $column (@columns) {
-        if (exists $object->{$column} && ref($object->{$column}) eq 'ARRAY') {
-            $object->{$column} = $self->join_list(@{$object->{$column}});
+        next unless exists $object->{$column};
+        my $val = $object->{$column};
+        if (ref($val) eq 'ARRAY') {
+            $object->{$column} = $self->join_list(@$val);
         }
     }
 }
@@ -422,13 +485,23 @@ sub commit {
         $error = $@;
         get_logger->error($error);
     }
-    unless($result) {
-        $error //= "Unable to commit changes to file please run pfcmd fixpermissions and try again";
+
+    if($result){
+        if(pf::cluster::increment_config_version()) {
+            ($result,$error) = $self->commitPfconfig;
+        }
+        else {
+            $result = $FALSE;
+            $error = "Can't increment configuration version.";
+        }
+    }
+    else {
+        $error //= "Unable to commit changes to file please run '/usr/local/pf/bin/pfcmd fixpermissions' and try again";
         $self->rollback();
     }
 
-    if($result){
-        ($result,$error) = $self->commitPfconfig;
+    if($error) {
+        get_logger->error($error);
     }
 
     return ($result, $error);
@@ -477,15 +550,61 @@ sub commitCluster {
 sub search {
     my ($self, $field, $value, $idKey) = @_;
     return unless defined $field && defined $value;
-    return grep { exists $_->{$field} && defined $_->{$field} && $_->{$field} eq $value  } @{$self->readAll($idKey)};
-
+    return $self->filter(
+        sub {
+            my $i = shift;
+            return exists $i->{$field} && defined $i->{$field} && $i->{$field} eq $value;
+        },
+        $idKey
+    );
 }
 
-__PACKAGE__->meta->make_immutable;
+=head2 search_like
+
+search_like
+
+=cut
+
+sub search_like {
+    my ($self, $field, $re, $idKey) = @_;
+    return unless defined $field && defined $re;
+    return $self->filter(
+        sub {
+            return exists $_[0]->{$field} && defined $_[0]->{$field} && $_[0]->{$field} =~ $re;
+        },
+        $idKey
+    );
+}
+
+=head2 filter
+
+$self->filter($method, $idKey = undef)
+
+=cut
+
+sub filter {
+    my ($self, $filter, $idKey) = @_;
+    return unless defined $filter;
+    return grep {my $i = $_; $filter->($i) } @{$self->readAll($idKey)};
+}
+
+=head2 filter_offset_limit
+
+$self->filter_offset_limit($method, $offset, $limit, $idKey = undef);
+
+=cut
+
+sub filter_offset_limit {
+    my ($self, $filter, $offset, $limit, $idKey) = @_;
+    return unless defined $filter;
+    return filter_with_offset_limit($filter, $offset, $limit, $self->readAll($idKey));
+}
+
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2016 Inverse inc.
+Copyright (C) 2005-2018 Inverse inc.
 
 =head1 LICENSE
 

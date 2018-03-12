@@ -3,7 +3,7 @@
   <button class="close" data-dismiss="alert">&times;</button>
   <strong>[% l('Error!') %]</strong> <span>[% error %]</span>
 </div>[% END %]
-<p>[% l('Manually add nodes to the system.') %]</p>
+<p class="p3 p-info">[% l('Manually add nodes to the system.') %]</p>
 
 <iframe class="hidden" src="about:blank" id="iframe_form" name="iframe_form"></iframe>
 
@@ -12,7 +12,7 @@
 
   <ul class="nav nav-tabs">
     <li class="active"><a href="#single" data-toggle="tab"><i class="icon-desktop"></i> [% l('Single') %]</a></li>
-    <li><a href="#import" data-toggle="tab"><i class="icon-upload-alt"></i> [% l('Import') %]</a></li>
+    <li><a href="#import" data-toggle="tab"><i class="icon-upload"></i> [% l('Import') %]</a></li>
   </ul>
 
   <div class="tab-content">
@@ -36,7 +36,7 @@
       <div class="control-group">
         <label class="control-label">[% l('Columns Order') %]</label>
         <div class="controls">
-          <table class="columns table table-sortable table-condensed">
+          <table id="node-import" class="columns table table-sortable table-condensed">
             <tbody>
               [% FOREACH column IN form_import.field('columns').fields -%]
               <tr>

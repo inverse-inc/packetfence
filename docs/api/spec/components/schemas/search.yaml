@@ -1,0 +1,35 @@
+
+Search:
+  type: object
+  properties:
+    field:
+        description: 'The field to perform the search on. It is possible to specify fields from other API endpoints (ex: ip4log.ip)'
+        type: string
+    op:
+        description: The operator to use against the value of the field. Can be `and`, `or`, `is`, `is_not`, `match`, `not_match`, `contains`, `not_contains`, `between` and `not_between`
+        type: string
+    value:
+        description: The search term to use when performing the search using on the specified field. This field must be used when the operator performs the condition against a single string value.
+        type: string
+    values:
+        description: An array of simple/complex searches to use with the provided operator. To be used when the operator expects complex values as arguments. Refer to the examples for how to use this efficiently. This field must follow the same structure as this schema.
+        type: array
+        items:
+          type: object
+  example:
+    op: and
+    values:
+      - field: detect_date
+        op: between
+        values: 
+          # A space was voluntarily added at the end of those since the swagger rendering app was transforming those into empty hashes without it.
+          - '2017-01-01 '
+          - '2017-01-02 '
+      - op: or
+        values:
+          - field: mac
+            op: ends_with
+            value: "ab:cd"
+          - field: pid
+            op: equals
+            value: lzammit

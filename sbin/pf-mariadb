@@ -1,0 +1,373 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use lib '/usr/local/pf/lib';
+
+use pf::services::util;
+use POSIX qw(:signal_h pause :sys_wait_h setuid setgid);
+use pf::log;
+use pf::cluster;
+use pf::config qw(
+    %Config
+);
+use pf::util;
+use DBI;
+use pf::constants;
+use JSON::MaybeXS;
+use pf::CHI;
+use List::MoreUtils qw(any);
+
+our $PROGRAM_NAME = $0 = "pf-mariadb";
+
+my $logger = get_logger( $PROGRAM_NAME );
+
+our $RUNNING = 1;
+
+our $MYSQLD_SPAWNER_PID;
+our $QUORUM_MGMT_SERVER_PID;
+our $QUORUM_CLIENT_SERVER_PID;
+our $IS_CHILD;
+
+# How many times should we attempt to connect to a galera cluster when an alive quorum is there
+# After this, the management node will declare a new cluster if its not in maintenance mode
+# TODO: move this to configuration
+our $PEERS_ALIVE_CONNECT_ATTEMPT = 1;
+
+# Time to wait between starts after a failure
+# TODO: move this to configuration
+our $WAIT_TIME_FAIL = 10;
+
+# Time to wait between attempts to discover alive servers
+# TODO: move this to configuration
+our $WAIT_TIME_ALIVE = 10;
+
+# We start with the assumption that we failed
+our $failed = $TRUE;
+our $failed_counts = {};
+
+our $MYSQL_CONNECT_TIMEOUT = 5;
+
+# init signal handlers
+my $old_child_sigaction = POSIX::SigAction->new;
+POSIX::sigaction(
+    &POSIX::SIGCHLD,
+    POSIX::SigAction->new(
+        'child_sighandler' , POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    ),
+    $old_child_sigaction
+) or die("pf-mariadb could not set SIGCHLD handler: $!");
+
+POSIX::sigaction(
+    &POSIX::SIGTERM,
+    POSIX::SigAction->new(
+        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
+) or $logger->logdie("pf-mariadb: could not set SIGTERM handler: $!");
+
+POSIX::sigaction(
+    &POSIX::SIGINT,
+    POSIX::SigAction->new(
+        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
+) or $logger->logdie("pf-mariadb: could not set SIGINT handler: $!");
+
+
+my $STARTED_BECAUSE;
+
+=head2 record_started_because
+
+Increment a counter for a starting strategy
+
+=cut
+
+sub record_started_because {
+    my ($started_because) = @_;
+    if(!$started_because) {
+        die "Missing starting reason";
+    }
+
+    $STARTED_BECAUSE = $started_because;
+
+}
+
+=head2 launch_mysql
+
+Launch MySQL/MariaDB with a specific set of arguments
+
+=cut
+
+sub launch_mysql {
+    my ($exec, @args) = @_;
+    $exec //= 1;
+    
+    my $args = join(' ', @args);
+    # Must not lookup in /sbin for mysqld, but in /usr/sbin
+    $ENV{PATH} = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin:/root/bin:/bin";
+    my $cmd = "mysqld_safe --defaults-file=/usr/local/pf/var/conf/mariadb.conf $args";
+    print "Starting MySQL with command: $cmd \n";
+    if($exec) {
+        exec($cmd);
+    } else {
+        `$cmd`;
+    }
+}
+
+=head2 fork_launch_mysql
+
+Fork and start MySQL/MariaDB
+Also record the startup method for future usage
+
+=cut
+
+sub fork_launch_mysql {
+    my ($started_because, @args) = @_;
+    my $pid = fork();
+
+    record_started_because($started_because);
+
+    if($pid) {
+        $MYSQLD_SPAWNER_PID = $pid;
+    } elsif ($pid == 0) {
+        POSIX::sigaction(
+            &POSIX::SIGCHLD,
+            $old_child_sigaction,
+        ) or die("pf-mariadb could not set SIGCHLD handler: $!");
+
+        my (undef, undef,$uid,$gid) = getpwnam('mysql');
+        my $sockdir = "/var/run/mysqld";
+        mkdir $sockdir;
+        chown $uid, $gid, $sockdir;
+        setgid($gid);
+        setuid($uid);
+
+        $SIG{CHLD} = "DEFAULT";
+        $IS_CHILD = 1;
+        $0 = "pf-mariadb - mysqld spawner";
+        launch_mysql($TRUE, @args);
+        $RUNNING = 0;
+        exit;
+    }
+}
+
+=head2 ping_quorum
+
+Whether or not there is a ping quorum (i.e. servers are booted and online)
+
+=cut
+
+sub ping_quorum {
+    my $alive = 0;
+    foreach my $server (pf::cluster::enabled_servers()) {
+        if(ping($server->{management_ip})) {
+            $alive ++;
+        }
+    }
+    return ($alive > (scalar(pf::cluster::enabled_servers()) / 2));
+}
+
+=head2 test_db
+
+Test the connection to the database for a specific host using the replication credentials
+
+=cut
+
+sub test_db {
+    my ($host) = @_;
+    my $mydbh = DBI->connect( "dbi:mysql:dbname=mysql;host=$host;port=3306;mysql_connect_timeout=$MYSQL_CONNECT_TIMEOUT",
+        $Config{active_active}{galera_replication_username}, $Config{active_active}{galera_replication_password}, { RaiseError => 0, PrintError => 0, mysql_auto_reconnect => 1 } );
+    # make sure we have a database handle
+    if ($mydbh) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+}
+
+=head2 db_available
+
+One of the cluster members has its database running.
+
+=cut
+
+sub db_available {
+    my $alive = 0;
+
+    foreach my $server (pf::cluster::enabled_servers()) {
+        my $host = $server->{management_ip};
+        $alive ++ if(test_db($host));
+    }
+    return ($alive > 0);
+}
+
+=head2 get_failed_count
+
+Get the count of fails for a specific startup method
+
+=cut
+
+sub get_failed_count {
+    return $failed_counts->{$_[0]} // 0;
+}
+
+=head2 startup_clean_shutdown
+
+Startup procedure when service was cleanly shutdown
+
+=cut
+
+sub startup_clean_shutdown {
+    if(db_available()) {
+        $logger->info("There is a peer with an alive DB. Will attempt to connect to the cluster");
+        fork_launch_mysql("db-peer-available");
+    }
+    elsif(ping_quorum()) {
+        $logger->info("There is an alive quorum but no db available on any server");
+        my $safe_to_bootstrap = `cat /var/lib/mysql/grastate.dat | grep 'safe_to_bootstrap: 1'`;
+        if($safe_to_bootstrap) {
+            $logger->info("This node is safe to bootstrap from. Starting in bootstrap mode.");
+            bootstrap_new_cluster();
+        }
+        else {
+            $logger->info("This node is not safe to bootstrap from. Starting in normal mode to connect to a bootstrapped peer.");
+            fork_launch_mysql("peers-alive-no-db-attempt-connect-to-bootstrapped");
+        }
+    }
+    else {
+        $logger->info("There isn't a ping quorum yet nor a server with an alive database, will wait until the majority of the servers are alive.");
+        sleep $WAIT_TIME_ALIVE;
+        attempt_start();
+    }
+}
+
+
+=head2 _check_pid
+
+Check if a PID is alive
+
+=cut
+
+sub _check_pid {
+    my ($pid) = @_;
+    return $pid && kill(0, $pid);
+}
+
+=head2 attempt_start
+
+Attempt a startup of MySQL based on the current state of things
+
+Refer to the clustering guide for details on how this works.
+
+=cut
+
+sub attempt_start {
+    # Just start it without anything special if we're in standalone mode or if we're a single cluster node
+    if(!$cluster_enabled || scalar(pf::cluster::enabled_servers()) == 1) {
+        fork_launch_mysql("standalone");
+    }
+    elsif(!_check_pid($MYSQLD_SPAWNER_PID) && -f "/var/lib/mysql/gvwstate.dat") {
+        fork_launch_mysql("dirty-shutdown");
+    }
+    else {
+        startup_clean_shutdown();
+    }
+}
+
+=head2 bootstrap_new_cluster
+
+=cut
+
+sub bootstrap_new_cluster {
+    `sed -i.bak "s/safe_to_bootstrap: 0/safe_to_bootstrap: 1/g" /var/lib/mysql/grastate.dat`;
+    launch_mysql($FALSE, "--wsrep-recover");
+    fork_launch_mysql("create-new-cluster", "--wsrep-new-cluster");
+}
+
+if(pf::cluster::is_in_maintenance) {
+    my $msg = "Not starting because this node is in maintenance mode";
+    print STDERR "$msg\n";
+    $logger->error($msg);
+    exit;
+}
+
+if(defined($ARGV[0]) && $ARGV[0] eq "--force-new-cluster") {
+    bootstrap_new_cluster();
+    while($RUNNING) {
+        pause;
+    }
+    exit;
+}
+
+# Do an initial startup
+attempt_start();
+
+while($RUNNING){
+    if(!_check_pid($MYSQLD_SPAWNER_PID)) {
+        $failed = $TRUE;
+        print "Failed starting with mode: $STARTED_BECAUSE \n";
+        $failed_counts->{$STARTED_BECAUSE} //= 0;
+        $failed_counts->{$STARTED_BECAUSE} ++;
+
+        print "MariaDB is not alive \n";
+        attempt_start();
+    }
+    elsif($cluster_enabled) {
+        if(test_db(pf::cluster::current_server()->{management_ip})) {
+            # We're coming from a previous failure, so we log it 
+            if($failed) {
+                $logger->info("Successful clustered connection to the DB.");
+            }
+            $failed_counts = {};
+            $failed = $FALSE;
+        }
+        else {
+            $failed = $TRUE;
+        }
+    }
+    sleep 5;
+}
+
+
+END {
+    deletepid();
+}
+
+exit(0);
+
+=head2 normal_sighandler
+
+Cleanup and stop processing when geting a signal
+
+=cut
+
+sub normal_sighandler {
+    $RUNNING = 0;
+    if(!$IS_CHILD) {
+        # Don't listen to child signals anymore when cleaning up
+        $SIG{CHLD} = "IGNORE";
+
+        kill(SIGTERM, $MYSQLD_SPAWNER_PID) if($MYSQLD_SPAWNER_PID);
+        kill(SIGTERM, $QUORUM_MGMT_SERVER_PID) if($QUORUM_MGMT_SERVER_PID);
+        kill(SIGTERM, $QUORUM_CLIENT_SERVER_PID) if($QUORUM_CLIENT_SERVER_PID);
+        `pkill mysqld`;
+        deletepid();
+        $logger->debug( "pfmariadb caught SIG" . $_[0] . " - terminating" );
+    }
+}
+
+=head2 child_sighandler
+
+When a child dies, we cleanup any leftover mysqld processes
+
+=cut
+
+sub child_sighandler {
+    local ($!, $?);
+
+    while(1) {
+        my $child = waitpid(-1, WNOHANG);
+        last unless $child > 0;
+    }
+}
