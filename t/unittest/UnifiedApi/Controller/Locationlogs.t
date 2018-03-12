@@ -51,7 +51,7 @@ my %values = (
 my $status = pf::dal::locationlog->create(\%values);
 
 #run tests
-use Test::More tests => 71;
+use Test::More tests => 74;
 use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
@@ -280,6 +280,33 @@ $t->post_ok(
 $items = $t->tx->res->json->{items};
 
 is(@$items, 256, "Returns 256 items");
+
+$t->post_ok(
+    '/api/v1/locationlogs/search' => json => {
+        'fields' => [qw(mac)],
+        'sort' => ['mac'],
+        'limit' => 256,
+        'query' => {
+            op => 'and',
+            'values' => [
+                {
+                    op => 'not_equals',
+                    field => 'mac' ,
+                    value => '01:02:03:04:05:01',
+                },
+                {
+                    op => 'not_equals',
+                    field => 'mac' ,
+                    value => '01:02:03:04:05:02',
+                },
+            ],
+        },
+    }
+  )
+  ->status_is(200)
+;
+
+is(scalar @{$t->tx->res->json->{items}}, 254, "Return a complex query");
 
 =head1 AUTHOR
 
