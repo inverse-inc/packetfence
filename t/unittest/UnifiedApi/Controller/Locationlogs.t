@@ -51,7 +51,7 @@ my %values = (
 my $status = pf::dal::locationlog->create(\%values);
 
 #run tests
-use Test::More tests => 20;
+use Test::More tests => 71;
 use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
@@ -73,16 +73,214 @@ $t->get_ok('/api/v1/locationlogs' => json => { })
   ->json_is('/items/0/ifDesc','test ifDesc')
   ->json_is('/items/0/start_time','0000-00-00 00:00:01')
   ->json_is('/items/0/end_time','0000-00-00 00:00:02')  
+#  ->json_has('/')
   ->status_is(200);
-  
-#debug output
-#my $items = $t->tx->res->json->{items};
-#use Data::Dumper;print Dumper($items);
+
+$t->post_ok('/api/v1/locationlogs/search', {'Content-Type' => 'application/json'} => '{')
+  ->status_is(400);
+
+$t->post_ok(
+    '/api/v1/locationlogs/search' => json => {
+        query => {
+            op    => 'equals',
+            field => 'bob',
+            value => 'bob'
+        }
+    }
+  )
+  ->status_is(422, "Invalid field in query")
+;
+
+$t->post_ok(
+    '/api/v1/locationlogs/search' => json => {
+        fields => [qw(bob)],
+        query => {
+            op    => 'equals',
+            field => 'mac',
+            value => 'bob'
+        }
+    }
+  )
+  ->status_is(422, "Invalid field in fields array")
+;
+
+$t->post_ok(
+    '/api/v1/locationlogs/search' => json => {
+        query => {
+            op    => 'equals',
+            field => 'mac',
+            value => 'bob'
+        }
+    }
+  )
+  ->status_is(200)
+;
+
+my $items = $t->tx->res->json->{items};
+is_deeply($items, [], "Empty response");
+
+simple_single_query(
+    {
+    },
+    \%values,
+    "Got back 00:01:02:03:04:05"
+);
+
+simple_single_query(
+    {
+        query => {
+            op    => 'equals',
+            field => 'mac',
+            value => '00:01:02:03:04:05'
+        },
+    },
+    \%values,
+    "Got back 00:01:02:03:04:05"
+);
+
+simple_single_query(
+    {
+        query => {
+            op    => 'not_equals',
+            field => 'mac',
+            value => '00:01:02:03:04:06'
+        },
+    },
+    \%values,
+    "Got back 00:01:02:03:04:05"
+);
+
+simple_single_query(
+    {
+        query => {
+            op    => 'starts_with',
+            field => 'mac',
+            value => '00:01',
+        },
+    },
+    \%values,
+    "Got back 00:01:02:03:04:05"
+);
+
+simple_single_query(
+    {
+        query => {
+            op    => 'ends_with',
+            field => 'mac',
+            value => '04:05',
+        },
+    },
+    \%values,
+    "Got back 00:01:02:03:04:05"
+);
+
+simple_single_query(
+    {
+        fields => [qw(mac)],
+        query => {
+            op    => 'equals',
+            field => 'mac',
+            value => '00:01:02:03:04:05'
+        },
+    },
+    { mac => "00:01:02:03:04:05" },
+    "Got back 00:01:02:03:04:05"
+);
+
+sub simple_single_query {
+    my ($query, $value, $msg) = @_;
+    $t->post_ok(
+        '/api/v1/locationlogs/search' => json => $query
+      )
+      ->status_is(200)
+    ;
+
+    my $items = $t->tx->res->json->{items};
+    my $item = $items->[0];
+    delete $item->{id};
+    is_deeply($item, $value, $msg)
+}
 
 #truncate the locationlog table
 pf::dal::locationlog->remove_items();
-  
-  
+
+for my $o (0 .. 255) {
+    my $status = pf::dal::locationlog->create(
+        {
+            %values,
+            mac        => sprintf("01:02:03:04:05:%02x", $o),
+            switch_mac => sprintf('06:07:08:09:0a:%02x', $o),
+            port       => $o + int(rand(85)),
+            vlan       => $o,
+        }
+    );
+}
+
+simple_single_query(
+    {
+        'fields' => [qw(mac)],
+        'limit' => 1,
+        'sort' => ['mac DESC'],
+    },
+    {mac => '01:02:03:04:05:ff'},
+    "Got back 00:01:02:03:04:ff"
+);
+
+$t->post_ok(
+    '/api/v1/locationlogs/search?cursor=1' => json => {
+        'fields' => [qw(mac)],
+        'limit' => 1,
+        'cursor' => 1,
+        'sort' => ['mac'],
+    }
+  )
+  ->status_is(200)
+;
+
+is_deeply($t->tx->res->json->{items}[0], { mac => '01:02:03:04:05:01'});
+
+$t->post_ok(
+    '/api/v1/locationlogs/search' => json => { }
+  )
+  ->status_is(200)
+;
+$items = $t->tx->res->json->{items};
+
+is(@$items, 25, "Returns the defaults items count");
+
+$t->post_ok(
+    '/api/v1/locationlogs/search' => json => { limit => 100 }
+  )
+  ->status_is(200)
+  ->json_is('/nextCursor', 100)
+  ->json_is('/prevCursor', 0)
+;
+$items = $t->tx->res->json->{items};
+
+is(@$items, 100, "Returns 100 items");
+
+$t->post_ok(
+    '/api/v1/locationlogs/search' => json => { limit => 256 }
+  )
+  ->status_is(200)
+  ->json_hasnt('/nextCursor')
+  ->json_is('/prevCursor', 0)
+;
+$items = $t->tx->res->json->{items};
+
+is(@$items, 256, "Returns 256 items");
+
+$t->post_ok(
+    '/api/v1/locationlogs/search' => json => { limit => 267 }
+  )
+  ->status_is(200)
+  ->json_hasnt('/nextCursor')
+  ->json_is('/prevCursor', 0)
+;
+$items = $t->tx->res->json->{items};
+
+is(@$items, 256, "Returns 256 items");
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -111,4 +309,3 @@ USA.
 =cut
 
 1;
- 

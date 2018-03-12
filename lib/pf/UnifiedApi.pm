@@ -73,6 +73,9 @@ our @API_V1_ROUTES = (
         collection => {
             subroutes    => {
                 'by_mac/:search' => { get => 'by_mac' },                
+                'search' => {
+                    'post' => 'search'
+                },
             },
         },      
     },
@@ -126,6 +129,9 @@ our @API_V1_ROUTES = (
                 'history/:search' => { get => 'history' },
                 'archive/:search' => { get => 'archive' },
                 'open/:search' => { get => 'open' }, 
+                'search' => {
+                    'post' => 'search'
+                },
             },
         },
     },    
