@@ -120,13 +120,14 @@ sub deauthenticateMacWebservices {
     }
     my $ua = LWP::UserAgent->new;
     $ua->timeout(10);
+    $ua->ssl_opts(verify_hostname => 0);
     my $res = $ua->post("https://$controllerIp:9443/portalintf", Content => $payload, "Content-Type" => "application/json");
     if($res->is_success) {
         $logger->info("Contacted Ruckus to perform deauthentication");
         $logger->debug("Got the following response: ".$res->decoded_content);
     }
     else {
-        $logger->error("Failed to contact Ruckus for deauthentication");
+        $logger->error("Failed to contact Ruckus for deauthentication: ".$res->status_line);
     }
 }
 
