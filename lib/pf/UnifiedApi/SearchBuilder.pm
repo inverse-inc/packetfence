@@ -19,33 +19,31 @@ use pf::SQL::Abstract;
 use pf::UnifiedApi::Search;
 use pf::error qw(is_error);
 
-has dal => ( is => 'rw' );
-
 our %OP_HAS_SUBQUERIES = (
     'and' => 1,
     'or' => 1,
 );
 
 sub search {
-    my ( $self, $query_info ) = @_;
-    my ($status, $columns) = $self->make_columns($query_info);
+    my ( $self, $search_info ) = @_;
+    my ($status, $columns) = $self->make_columns($search_info);
     if ( is_error($status) ) {
         return $status, $columns;
     }
 
-    ($status, my $where) = $self->make_where($query_info);
+    ($status, my $where) = $self->make_where($search_info);
     if ( is_error($status, $where ) ) {
         return $status, $where;
     }
 
-    ($status, my $from) = $self->make_from($query_info);
+    ($status, my $from) = $self->make_from($search_info);
     if ( is_error($status, $from ) ) {
         return $status, $from;
     }
 
-    my $offset   = $self->make_offset($query_info);
-    my $limit    = $self->make_limit($query_info);
-    my $order_by = $self->make_order_by($query_info);
+    my $offset   = $self->make_offset($search_info);
+    my $limit    = $self->make_limit($search_info);
+    my $order_by = $self->make_order_by($search_info);
     my %search_args = (
         -with_class => undef,
         -where      => $where,
@@ -58,7 +56,7 @@ sub search {
         $search_args{'-columns'} = $columns;
     }
 
-    ( $status, my $iter ) = $self->dal->search( %search_args );
+    ( $status, my $iter ) = $search_info->{dal}->search( %search_args );
 
     if ( is_error($status) ) {
         return $status, {msg =>  "Error fulfilling search"}
@@ -80,26 +78,26 @@ sub search {
 }
 
 sub make_offset {
-    my ($self, $query) = @_;
-    return int($query->{'cursor'} || '0');
+    my ($self, $s) = @_;
+    return int($s->{'cursor'} || '0');
 }
 
 sub make_limit {
-    my ($self, $q) = @_;
-    my $limit = int($q->{limit} // 0) || 25;
+    my ($self, $s) = @_;
+    my $limit = int($s->{limit} // 0) || 25;
     $limit++;
     return $limit;
 }
 
 sub make_from {
-    my ($self, $q) = @_;
-    return 200, [$self->dal->table];
+    my ($self, $s) = @_;
+    return 200, [$s->{dal}->table];
 }
 
 sub make_columns {
-    my ( $self, $q ) = @_;
-    my $cols = $q->{fields} // [];
-    my @errors = map { {msg => "$_ is an invalid field" } } grep { !$self->valid_column($_) } @$cols;
+    my ( $self, $s ) = @_;
+    my $cols = $s->{fields} // [];
+    my @errors = map { {msg => "$_ is an invalid field" } } grep { !$self->valid_column($s, $_) } @$cols;
     if (@errors) {
         return 422,
           {
@@ -112,27 +110,27 @@ sub make_columns {
 }
 
 sub valid_column {
-    my ($self, $col) = @_;
-    my $meta = $self->dal->get_meta;
+    my ($self, $s, $col) = @_;
+    my $meta = $s->{dal}->get_meta;
     return exists $meta->{$col};
 }
 
 sub verify_query {
-    my ($self, $query) = @_;
+    my ($self, $s, $query) = @_;
     my $op = $query->{op} // '(null)';
     if (!$self->is_valid_op($query)) {
         return 422, {msg => "$op is not valid"};
     }
 
-    if ($OP_HAS_SUBQUERIES{$op}) {
+    if (exists $OP_HAS_SUBQUERIES{$op}) {
         for my $q (@{$query->{values} // []}) {
-            my ($status, $query) = $self->verify_query($query);
+            my ($status, $query) = $self->verify_query($s, $q);
             if (is_error($status)) {
                 return $status, $query;
             }
         }
     } else {
-        my $status = $self->validate_field($query);
+        my $status = $self->validate_field($s, $query);
         if (is_error($status)) {
             return $status, {msg => "$query->{field} is an invalid field"};
         }
@@ -142,8 +140,8 @@ sub verify_query {
 }
 
 sub validate_field {
-    my ($self, $q) = @_;
-    return $self->dal->validate_field($q->{field}, $q->{value});
+    my ($self, $s, $q) = @_;
+    return $s->{dal}->validate_field($q->{field}, $q->{value});
 }
 
 sub is_valid_op {
@@ -152,13 +150,13 @@ sub is_valid_op {
 }
 
 sub make_where {
-    my ($self, $query_info) = @_;
-    my $query = $query_info->{query};
+    my ($self, $s) = @_;
+    my $query = $s->{query};
     if (!defined $query) {
         return 200, {};
     }
 
-    (my $status, $query) = $self->verify_query($query);
+    (my $status, $query) = $self->verify_query($s, $query);
     if (is_error($status)) {
         return $status, $query;
     }
