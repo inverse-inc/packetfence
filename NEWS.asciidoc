@@ -26,6 +26,7 @@ New Features
 * Added a configuration parameter to allow to unregister a device on an accounting stop (PR #2685)
 * Adding CLI support on Aruba 5400 switches (PR #2965)
 * Username stripping (removing the realm) is now configurable via the realms instead of the sources
+* Add PacketFence integration with JAMF API for Apple computers and mobile devices management (PR #2797)
 
 Enhancements
 ++++++++++++
