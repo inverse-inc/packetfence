@@ -99,7 +99,7 @@ sub options_domains {
 sub _build_domains {
     my ($self) = @_;
     my $cs = pf::ConfigStore::Domain->new;
-    return $cs->readAll();
+    return $cs->readAll("id");
 }
 
 =over
