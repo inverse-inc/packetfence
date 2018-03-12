@@ -48,6 +48,8 @@ sub getVlanFromPool {
     my ($self, $args) = @_;
     my $logger =  pf::log::get_logger();
 
+    return unless(defined($args->{vlan}));
+
     return $args->{'vlan'} if $self->rangeValidator($args->{'vlan'});
     my $range = Number::Range->new($args->{'vlan'});
     my $vlan;
