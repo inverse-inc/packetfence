@@ -1,6 +1,6 @@
 DhcpMacIp:
     type: object
-    description: The schema used when returning a dhcp MAC address and IPv4 address pair
+    description: The schema used when returning a DHCP MAC address and IPv4 address pair
     properties:
         result:
             type: object
@@ -18,23 +18,23 @@ DhcpInterfaceStats:
     description: The schema used for a collection of interface initialization and statistics
     items:
         type: object
-        description: Statistics of the dhcp scope
+        description: Statistics of the DHCP scope
         properties:
             interface:
                 type: string
-                description: Network interface name where the dhcp scope is provided
+                description: Network interface name where the DHCP scope is provided
             network:
                 type: string
                 description: Network address
             free:
                 type: integer
-                description: Available number of IPv4 addresses in the dhcp scope
+                description: Available number of IPv4 addresses in the DHCP scope
             category:
                 type: string
-                description: Associated role of the dhcp scope
+                description: Associated role of the DHCP scope
             options:
                 type: object
-                description: Dhcp options of the dhcp scope
+                description: Dhcp options of the DHCP scope
                 properties:
                     optionDomainName:
                         type: string
@@ -60,13 +60,13 @@ DhcpInterfaceStats:
                     properties:
                         mac:
                             type: string
-                            description: The IPv4 address of the dhcp member
+                            description: The IPv4 address of the DHCP member
                         ip:
                             type: string
-                            description: The MAC address of the dhcp member
+                            description: The MAC address of the DHCP member
             status:
                 type: string
-                description: Status of the dhcp scope
+                description: Status of the DHCP scope
                 enum: [Normal, "Calculated available IP X is different than what we have available in the pool Y", "Init Lease success"]
                     
 DhcpMacResponse:
