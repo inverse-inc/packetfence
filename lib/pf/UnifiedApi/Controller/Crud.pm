@@ -109,7 +109,7 @@ sub where_for_list {
 
 sub search_builder {
     my ($self) = @_;
-    return $self->search_builder_class->new(dal=> $self->dal);
+    return $self->search_builder_class->new();
 }
 
 sub list_cursor {
@@ -290,13 +290,20 @@ sub replace {
 
 sub search {
     my ($self) = @_;
-    my ($status, $query_info) = $self->parse_json;
+    my ($status, $data) = $self->parse_json;
     if (is_error($status)) {
-        return $self->render(json => $query_info, status => $status);
+        return $self->render(json => $data, status => $status);
     }
 
-    $query_info->{cursor} = $self->req->query_params->param('cursor');
-    ($status, my $response) = $self->search_builder->search($query_info);
+    my %search_info = (
+        dal => $self->dal,
+        (
+            map { exists $data->{$_} ? ($_ => $data->{$_}) : () } qw(limit query fields sort)
+        ),
+        cursor => $self->req->query_params->param('cursor') // undef,
+    );
+
+    ($status, my $response) = $self->search_builder->search(\%search_info);
     if ( is_error($status) ) {
         return $self->render_error(
             $status,
