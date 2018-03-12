@@ -16,6 +16,94 @@ use strict;
 use warnings;
 use Moo;
 extends qw(pf::UnifiedApi::SearchBuilder);
+use pf::dal::node;
+use pf::constants qw($ZERO_DATE);
+
+our @LOCATION_LOG_JOIN = (
+    "=>{locationlog.mac=node.mac,node.tenant_id=locationlog.tenant_id,locationlog.end_time='$ZERO_DATE'}",
+    'locationlog',
+    {
+        operator  => '=>',
+        condition => {
+            'node.mac'       => { '=' => { -ident => '%2$s.mac' } },
+            'node.tenant_id' => { '=' => { -ident => '%2$s.tenant_id' } },
+            'locationlog2.end_time' => $ZERO_DATE,
+            -or                     => [
+                '%1$s.start_time' => { '<' => { -ident => '%2$s.start_time' } },
+                '%1$s.start_time' => undef,
+                -and              => [
+                    '%1$s.start_time' =>
+                      { '=' => { -ident => '%2$s.start_time' } },
+                    '%1$s.id' => { '<' => { -ident => '%2$s.id' } },
+                ],
+            ],
+        },
+    },
+    'locationlog|locationlog2',
+);
+
+our @IP4LOG_JOIN = (
+    {
+        operator  => '=>',
+        condition => {
+            'ip4log.ip' => {
+                "=" => \
+"( SELECT `ip` FROM `ip4log` WHERE `mac` = `node`.`mac` AND `tenant_id` = `node`.`tenant_id`  ORDER BY `start_time` DESC LIMIT 1 )",
+            }
+        }
+    },
+    'ip4log',
+);
+
+our %ALLOWED_JOIN_FIELDS = (
+    'ip4log.ip' => {
+        join_spec => \@IP4LOG_JOIN,
+        namespace => 'ip4log',
+    },
+    (
+        map {
+            (
+                "locationlog.$_" => {
+                    join_spec => \@LOCATION_LOG_JOIN,
+                    namespace => 'locationlog'
+                }
+            )
+          } qw(
+          switch port vlan
+          role connection_type connection_sub_type
+          dot1x_username ssid start_time
+          end_time switch_ip switch_mac
+          stripped_user_name realm session_id
+          ifDesc
+          )
+      )
+);
+
+sub valid_column {
+    my ($self, $s, $col) = @_;
+    return exists $ALLOWED_JOIN_FIELDS{$col} || $self->SUPER::valid_column($s, $col);
+}
+
+sub make_from {
+    my ($self, $s) = @_;
+    my @from = ($s->{dal}->table);
+    my %found;
+    my @join_specs;
+    foreach my $f (@{$s->{fields} // []}) {
+        if (exists $ALLOWED_JOIN_FIELDS{$f}) {
+            my $jf = $ALLOWED_JOIN_FIELDS{$f};
+            my $namespace = $jf->{namespace};
+            next if exists $found{$namespace};
+            $found{$namespace} = 1;
+            push @join_specs, @{$jf->{join_spec} // []};
+        }
+    }
+    if (@join_specs) {
+        unshift @from, '-join';
+        push @from, @join_specs;
+    }
+    return 200, \@from;
+}
 
 =head1 AUTHOR
 

@@ -24,17 +24,41 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 3;
+use Test::More tests => 4;
 
 #This test will running last
 use Test::NoWarnings;
 use pf::UnifiedApi::SearchBuilder::Nodes;
+use pf::error qw(is_error);
+use pf::constants qw($ZERO_DATE);
+use pf::dal::node;
+my $dal = "pf::dal::node";
 
-#This is the first test
-ok (1 == 1,"Yes 1 does equals 1");
+my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
 
-#This is the second test
-ok (1 != 2,"No 1 does not equals 2");
+is_deeply(
+    [ $sb->make_columns( { dal => $dal, fields => [ 'mac', 'ip4log.ip', 'locationlog.ssid', 'locationlog.port' ] } ) ],
+    [ 200, [ 'mac', 'ip4log.ip', 'locationlog.ssid', 'locationlog.port'] ],
+    'Return the joined columns'
+);
+
+{
+    my ($status, $col) = $sb->make_columns({ dal => $dal,  fields => [qw(mac $garbage ip4log.ip)] });
+    ok(is_error($status), "Do no accept invalid columns");
+}
+
+is_deeply(
+    [ $sb->make_from( {dal => $dal,  fields => [ 'mac', 'ip4log.ip', 'locationlog.ssid', 'locationlog.port' ] } ) ],
+    [
+        200,
+        [
+            -join => 'node',
+            @pf::UnifiedApi::SearchBuilder::Nodes::IP4LOG_JOIN,
+            @pf::UnifiedApi::SearchBuilder::Nodes::LOCATION_LOG_JOIN,
+        ]
+    ],
+    'Return the joined columns'
+);
 
 =head1 AUTHOR
 
@@ -64,4 +88,3 @@ USA.
 =cut
 
 1;
-
