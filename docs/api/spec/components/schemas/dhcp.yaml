@@ -58,7 +58,7 @@ DhcpInterfaceStats:
                     description: A collection of MAC address and IPv4 address pairs
                     properties:
                         type: object
-                        description: A "key": "value" list of dhcp leases where "key" is the MAC address and "value" is the IPv4 address
+                        description: "A `key`: `value` list of dhcp leases where `key` is the MAC address and `value` is the IPv4 address"
                         additionalProperties:
                             type: string
                 status:
