@@ -347,14 +347,14 @@ sub _runtask {
             $logger->error("Parent is no longer running shutting down");
             $running = 0;
         }
-        reload_config();
     } continue {
+        reload_config();
         if ($TASKS > 0) {
             $TASKS--;
         }
     }
-    $logger->trace("$$ shutting down");
-    exit;
+    $logger->info("$$ shutting down");
+    POSIX::_exit(0);
 }
 
 sub is_worker_runnable {
