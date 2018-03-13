@@ -310,7 +310,7 @@ sub _runtask {
         my $task = pf::factory::pfmon::task->new($task_id);
         my $interval = $task->interval;
         unless ($interval) {
-            $logger->trace("task $task_id is disabled");
+            $logger->warn("task $task_id is disabled");
             $time_taken = 0;
             alarm 60;
             pause;
@@ -328,7 +328,7 @@ sub _runtask {
         $logger->trace("$task_id is running");
         my $start = time();
         if (db_check_readonly()) {
-            $logger->trace(sub { "The database is in readonly mode skipping task $task_id" });
+            $logger->warn(sub { "The database is in readonly mode skipping task $task_id" });
             $time_taken = 0;
             next;
         }
