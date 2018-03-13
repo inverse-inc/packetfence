@@ -57,7 +57,7 @@ use fingerbank::Config;
 use fingerbank::Redis;
 use fingerbank::DB;
 use pf::cluster;
-use Time::HiRes qw(time sleep);
+use Time::HiRes qw(time sleep alarm);
 use pf::option82 qw(search_switch);
 use pf::CHI::Request;
 use pf::domain::ntlm_cache;
@@ -466,7 +466,7 @@ sub _runtask {
         my $final_interval = $interval - $time_taken;
         $logger->trace("$id is sleeping for $final_interval ($interval from configuration - $time_taken)");
         # Only wait if the interval is positive
-        if($final_interval > 0) {
+        if ($final_interval > 0) {
             alarm $final_interval;
             pause;
             last unless $running;
