@@ -12,7 +12,7 @@
             schema:
               $ref: "#/components/schemas/ServicesList"
 
-/service/:service/status:
+/service/{service}/status:
   get:
     summary: Returns a service status
     parameters:
@@ -34,7 +34,7 @@
       '404':
         $ref: "#/components/responses/NotFound"
 
-/service/:service/start:
+/service/{service}/start:
   post:
     summary: Starts a service and return the PID
     parameters:
@@ -52,7 +52,7 @@
       '404':
         $ref: "#/components/responses/NotFound"
         
-/service/:service/stop:
+/service/{service}/stop:
   post:
     summary: Stops a service
     parameters:
@@ -70,7 +70,7 @@
       '404':
         $ref: "#/components/responses/NotFound"
 
-/service/:service/restart:
+/service/{service}/restart:
   post:
     summary: Restarts a service and returns the PID
     parameters:
@@ -88,7 +88,7 @@
       '404':
         $ref: "#/components/responses/NotFound"
 
-/service/:service/enable:
+/service/{service}/enable:
   post:
     summary: Enables a service so it starts automatically after reboot
     parameters:
@@ -106,7 +106,7 @@
       '404':
         $ref: "#/components/responses/NotFound"
 
-/service/:service/disable:
+/service/{service}/disable:
   post:
     summary: Disables a service so it doesn't start automatically after reboot
     parameters:

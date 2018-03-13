@@ -44,13 +44,17 @@ curl http://127.0.0.1:22222/api/v1/dhcp/stats/eth1.137 | python -m json.tool
 ```
 
 ```
-   "192.168.0.0/24": {
+[
+   {
         "category": "registration",
         "free": 253,
         "interface": "eth1.137",
-        "members": {
-            "10:1f:74:b2:f6:a5": "192.168.0.2"
-        },
+        "members": [
+            { 
+                "mac": "10:1f:74:b2:f6:a5", 
+                "ip": "192.168.0.2" 
+            }
+        ],
         "network": "192.168.0.0/24",
         "options": {
             "optionDomainName": "inlinel2.fabianfence",
@@ -61,6 +65,7 @@ curl http://127.0.0.1:22222/api/v1/dhcp/stats/eth1.137 | python -m json.tool
             "optionSubnetMask": "255.255.255.0"
         }
     }
+]
 ```
 
 ## Add,modify options

@@ -26,7 +26,7 @@ type Stats struct {
 	Free         int               `json:"free"`
 	Category     string            `json:"category"`
 	Options      map[string]string `json:"options"`
-	Members      map[string]string `json:"members"`
+	Members      []Node            `json:"members"`
 	Status       string            `json:"status"`
 }
 

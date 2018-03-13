@@ -186,7 +186,7 @@ func (h *Interface) run(jobs chan job) {
 		for {
 
 			Request := <-inchannel
-			stats := make(map[string]Stats)
+			var stats []Stats
 
 			// Send back stats
 			if Request.(ApiReq).Req == "stats" {
@@ -210,8 +210,7 @@ func (h *Interface) run(jobs chan job) {
 						}
 					}
 
-					var Members map[string]string
-					Members = make(map[string]string)
+					var Members []Node
 					members := v.dhcpHandler.hwcache.Items()
 					var Status string
 					var Count int
@@ -220,7 +219,7 @@ func (h *Interface) run(jobs chan job) {
 						Count++
 						result := make(net.IP, 4)
 						binary.BigEndian.PutUint32(result, binary.BigEndian.Uint32(v.dhcpHandler.start.To4())+uint32(item.Object.(int)))
-						Members[i] = result.String()
+						Members = append(Members, Node{IP: result.String(), Mac: i})
 					}
 
 					if Count == (v.dhcpHandler.leaseRange - (int(statistics.RunContainerValues) + int(statistics.ArrayContainerValues))) {
@@ -229,7 +228,7 @@ func (h *Interface) run(jobs chan job) {
 						Status = "Calculated available IP " + strconv.Itoa(v.dhcpHandler.leaseRange-Count) + " is different than what we have available in the pool " + strconv.Itoa(int(statistics.RunContainerValues))
 					}
 
-					stats[v.network.String()] = Stats{EthernetName: Request.(ApiReq).NetInterface, Net: v.network.String(), Free: int(statistics.RunContainerValues) + int(statistics.ArrayContainerValues), Category: v.dhcpHandler.role, Options: Options, Members: Members, Status: Status}
+					stats = append(stats, Stats{EthernetName: Request.(ApiReq).NetInterface, Net: v.network.String(), Free: int(statistics.RunContainerValues) + int(statistics.ArrayContainerValues), Category: v.dhcpHandler.role, Options: Options, Members: Members, Status: Status})
 				}
 				outchannel <- stats
 			}
@@ -238,7 +237,7 @@ func (h *Interface) run(jobs chan job) {
 
 				for _, v := range h.network {
 					initiaLease(&v.dhcpHandler)
-					stats[v.network.String()] = Stats{EthernetName: Request.(ApiReq).NetInterface, Net: v.network.String(), Category: v.dhcpHandler.role, Status: "Init Lease success"}
+					stats = append(stats, Stats{EthernetName: Request.(ApiReq).NetInterface, Net: v.network.String(), Category: v.dhcpHandler.role, Status: "Init Lease success"})
 				}
 				outchannel <- stats
 			}
@@ -251,7 +250,7 @@ func (h *Interface) run(jobs chan job) {
 						statistiques = v.dhcpHandler.available.Stats()
 						spew.Dump(v.dhcpHandler.available.Stats())
 						log.LoggerWContext(ctx).Info(v.dhcpHandler.available.String())
-						stats[v.network.String()] = Stats{EthernetName: Request.(ApiReq).NetInterface, Net: v.network.String(), Free: int(statistiques.RunContainerValues) + int(statistiques.ArrayContainerValues), Category: v.dhcpHandler.role, Status: "Debug finished"}
+						stats = append(stats, Stats{EthernetName: Request.(ApiReq).NetInterface, Net: v.network.String(), Free: int(statistiques.RunContainerValues) + int(statistiques.ArrayContainerValues), Category: v.dhcpHandler.role, Status: "Debug finished"})
 					}
 				}
 				outchannel <- stats

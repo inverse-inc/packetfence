@@ -1,6 +1,6 @@
 DhcpMacIp:
     type: object
-    description: The schema used when returning a dhcp MAC address and IPv4 address pair
+    description: The schema used when returning a DHCP MAC address and IPv4 address pair
     properties:
         result:
             type: object
@@ -12,59 +12,62 @@ DhcpMacIp:
                 ip:
                     type: string
                     description: The IPv4 address
-                    
+
 DhcpInterfaceStats:
-    type: object
-    description: The schema used for interface initialization and statistics
-    properties:
+    type: array
+    description: The schema used for a collection of interface initialization and statistics
+    items:
         type: object
-        additionalProperties:
-            type: object
-            description: Statistics of the dhcp scope
-            properties:
-                interface:
-                    type: string
-                    description: Network interface name where the dhcp scope is provided
-                network:
-                    type: string
-                    description: Network address
-                free:
-                    type: integer
-                    description: Available number of IPv4 addresses in the dhcp scope
-                category:
-                    type: string
-                    description: Associated role of the dhcp scope
-                options:
+        description: Statistics of the DHCP scope
+        properties:
+            interface:
+                type: string
+                description: Network interface name where the DHCP scope is provided
+            network:
+                type: string
+                description: Network address
+            free:
+                type: integer
+                description: Available number of IPv4 addresses in the DHCP scope
+            category:
+                type: string
+                description: Associated role of the DHCP scope
+            options:
+                type: object
+                description: Dhcp options of the DHCP scope
+                properties:
+                    optionDomainName:
+                        type: string
+                        description: Domain name
+                    optionDomainNameServer:
+                        type: string
+                        description: DNS IPv4 addresses
+                    optionIPAddressLeaseTime:
+                        type: string
+                        description: Lease time
+                    optionRouter:
+                        type: string
+                        description: Gateway IPv4 addresses
+                    optionSubnetMask:
+                        type: string
+                        description: Netmask
+            members:
+                type: array
+                description: A collection of MAC address and IPv4 address pairs
+                items:
                     type: object
-                    description: Dhcp options of the dhcp scope
+                    description: A MAC address and IPv4 address pair
                     properties:
-                        optionDomainName:
+                        mac:
                             type: string
-                            description: Domain name
-                        optionDomainNameServer:
+                            description: The IPv4 address of the DHCP member
+                        ip:
                             type: string
-                            description: DNS IPv4 addresses
-                        optionIPAddressLeaseTime:
-                            type: string
-                            description: Lease time
-                        optionRouter:
-                            type: string
-                            description: Gateway IPv4 addresses
-                        optionSubnetMask:
-                            type: string
-                            description: Netmask
-                members:
-                    type: object
-                    description: A collection of MAC address and IPv4 address pairs
-                    properties:
-                        type: object
-                        description: A "key": "value" list of dhcp leases where "key" is the MAC address and "value" is the IPv4 address
-                        additionalProperties:
-                            type: string
-                status:
-                    type: string
-                    description: Status of the dhcp scope
-                    enum: [Normal, "Calculated available IP X is different than what we have available in the pool Y", "Init Lease success"]
+                            description: The MAC address of the DHCP member
+            status:
+                type: string
+                description: Status of the DHCP scope
+                enum: [Normal, "Calculated available IP X is different than what we have available in the pool Y", "Init Lease success"]
                     
 DhcpMacResponse:
     type: object
