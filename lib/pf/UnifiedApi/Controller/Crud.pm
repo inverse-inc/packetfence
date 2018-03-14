@@ -18,6 +18,7 @@ use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use Mojo::JSON qw(decode_json);
 use pf::error qw(is_error);
 use pf::log;
+use pf::UnifiedApi::Search;
 
 our %OP_HAS_SUBQUERIES = (
     'and' => 1,
@@ -378,7 +379,7 @@ sub verify_query {
 
     if ($OP_HAS_SUBQUERIES{$op}) {
         for my $q (@{$query->{values} // []}) {
-            my ($status, $query) = $self->verify_query($query);
+            my ($status, $query) = $self->verify_query($q);
             if (is_error($status)) {
                 return ($status, $query);
             }
