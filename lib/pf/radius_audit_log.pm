@@ -220,6 +220,7 @@ sub radius_audit_log_cleanup {
             },
         },
         -limit => $batch,
+        -no_auto_tenant_id => 1,
     );
     pf::dal::radius_audit_log->batch_remove(\%search, $time_limit);
     return;
