@@ -32,7 +32,7 @@ use Module::Pluggable
     'require'     => 1,
     'inner'       => 0,
     'except' =>
-    qr/^pf::services::manager::roles|^pf::services::manager::(pf|systemd|httpd|submanager|radiusd_child|redis)$/,
+    qr/^pf::services::manager::roles|^pf::services::manager::(pf|systemd|httpd|submanager|radiusd_child|redis|haproxy)$/,
     ;
 
 
