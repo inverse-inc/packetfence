@@ -1,0 +1,16 @@
+[Unit]
+Description=PacketFence HAProxy Load Balancer for connecting to clustered databases
+Before=packetfence-httpd.portal.service packetfence-httpd.admin.service 
+Wants=packetfence-config.service 
+
+[Service]
+StartLimitBurst=3
+StartLimitInterval=10
+PIDFile=/usr/local/pf/var/run/haproxy-db.pid
+ExecStartPre=/usr/local/pf/bin/pfcmd service haproxy-db generateconfig
+ExecStart=/usr/sbin/haproxy-systemd-wrapper -f /usr/local/pf/var/conf/haproxy-db.conf -p /usr/local/pf/var/run/haproxy-db.pid
+ExecReload=/bin/kill -USR2 $MAINPID
+Restart=on-failure
+
+[Install]
+WantedBy=packetfence-cluster.target

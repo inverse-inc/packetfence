@@ -1,13 +1,13 @@
-package pf::services::manager::haproxy;
+package pf::services::manager::haproxy_db;
 =head1 NAME
 
-pf::services::manager::haproxy add documentation
+pf::services::manager::haproxy_db add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::services::manager::haproxy
+pf::services::manager::haproxy_db
 
 =cut
 
@@ -41,18 +41,18 @@ use pf::dal::tenant;
 
 extends 'pf::services::manager';
 
-has '+name' => (default => sub { 'haproxy' } );
+has '+name' => (default => sub { 'haproxy-db' } );
 
 sub _cmdLine {
     my $self = shift;
-    $self->executable . " -f $generated_conf_dir/haproxy.conf -p $install_dir/var/run/haproxy.pid";
+    $self->executable . " -f $generated_conf_dir/haproxy-db.conf -p $install_dir/var/run/haproxy-db.pid";
 }
 
 has '+shouldCheckup' => ( default => sub { 0 }  );
 
 sub executable {
     my ($self) = @_;
-    my $service = ( $Config{'services'}{"haproxy_binary"} || "$install_dir/sbin/haproxy" );
+    my $service = ( $Config{'services'}{"haproxy-db_binary"} || "$install_dir/sbin/haproxy" );
     return $service;
 }
 
@@ -75,7 +75,7 @@ sub generateConfig {
     my ($package, $filename, $line) = caller();
 
     my %tags;
-    $tags{'template'} = "$conf_dir/haproxy.conf";
+    $tags{'template'} = "$conf_dir/haproxy-db.conf";
     $tags{'http'} = '';
     $tags{'mysql_backend'} = '';
     $tags{'var_dir'} = $var_dir;
@@ -265,7 +265,7 @@ EOT
 
 
     $tags{captiveportal_templates_path} = $captiveportal_templates_path;
-    parse_template( \%tags, "$conf_dir/haproxy.conf", "$generated_conf_dir/haproxy.conf" );
+    parse_template( \%tags, "$conf_dir/haproxy-db.conf", "$generated_conf_dir/haproxy-db.conf" );
 
     my $fqdn = $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'};
 
