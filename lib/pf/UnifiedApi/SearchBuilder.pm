@@ -26,6 +26,7 @@ our %OP_HAS_SUBQUERIES = (
 
 sub search {
     my ( $self, $search_info ) = @_;
+    $search_info->{found_fields} = [];
     my ($status, $columns) = $self->make_columns($search_info);
     if ( is_error($status) ) {
         return $status, $columns;
@@ -105,7 +106,10 @@ sub make_columns {
             errors => \@errors
           };
     }
-
+    
+    push @{$s->{found_fields}}, @$cols;
+    my $t = $s->{dal}->table;
+    @$cols = map { /\./ ? $_ : "${t}.$_" } @$cols;
     return 200, $cols;
 }
 
@@ -130,18 +134,21 @@ sub verify_query {
             }
         }
     } else {
-        my $status = $self->validate_field($s, $query);
+        my $field = $query->{field};
+        my $status = $self->is_valid_query($s, $query);
         if (is_error($status)) {
-            return $status, {msg => "$query->{field} is an invalid field"};
+            return $status, {msg => "$field is an invalid field"};
         }
+
+        push @{$s->{found_fields}}, $field;
     }
 
     return (200, $query);
 }
 
-sub validate_field {
+sub is_valid_query {
     my ($self, $s, $q) = @_;
-    return $s->{dal}->validate_field($q->{field}, $q->{value});
+    return $self->valid_column($s, $q->{field});
 }
 
 sub is_valid_op {
