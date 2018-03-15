@@ -36,29 +36,90 @@ my $dal = "pf::dal::node";
 
 my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
 
-is_deeply(
-    [ $sb->make_columns( { dal => $dal, fields => [ 'mac', 'ip4log.ip', 'locationlog.ssid', 'locationlog.port' ] } ) ],
-    [ 200, [ 'mac', 'ip4log.ip', 'locationlog.ssid', 'locationlog.port'] ],
-    'Return the joined columns'
-);
-
 {
     my ($status, $col) = $sb->make_columns({ dal => $dal,  fields => [qw(mac $garbage ip4log.ip)] });
     ok(is_error($status), "Do no accept invalid columns");
 }
 
-is_deeply(
-    [ $sb->make_from( {dal => $dal,  fields => [ 'mac', 'ip4log.ip', 'locationlog.ssid', 'locationlog.port' ] } ) ],
-    [
-        200,
+{
+    my @f = qw(mac ip4log.ip locationlog.ssid locationlog.port); 
+
+    my %search_info = (
+        dal => $dal, 
+        fields => \@f,
+    );
+
+    is_deeply(
+        [ $sb->make_columns( \%search_info ) ],
+        [ 200, [ 'mac', 'ip4log.ip', 'locationlog.ssid', 'locationlog.port'] ],
+        'Return the columns'
+    );
+
+    is_deeply(
+        [ 
+            $sb->make_from(\%search_info)
+        ],
         [
-            -join => 'node',
-            @pf::UnifiedApi::SearchBuilder::Nodes::IP4LOG_JOIN,
-            @pf::UnifiedApi::SearchBuilder::Nodes::LOCATION_LOG_JOIN,
-        ]
-    ],
-    'Return the joined columns'
-);
+            200,
+            [
+                -join => 'node',
+                @pf::UnifiedApi::SearchBuilder::Nodes::IP4LOG_JOIN,
+                @pf::UnifiedApi::SearchBuilder::Nodes::LOCATION_LOG_JOIN,
+            ]
+        ],
+        'Return the joined tables'
+    );
+}
+
+{
+    my @f = qw(mac locationlog.ssid locationlog.port); 
+
+    my %search_info = (
+        dal => $dal, 
+        fields => \@f,
+        query => {
+            op => 'equals',
+            field => 'ip4log.ip',
+            value => "1.1.1.1"
+        },
+    );
+
+    is_deeply(
+        [ $sb->make_columns( \%search_info ) ],
+        [ 200, [ 'mac', 'locationlog.ssid', 'locationlog.port'] ],
+        'Return the columns'
+    );
+    is_deeply(
+        [ 
+            $sb->make_where(\%search_info)
+        ],
+        [
+            200,
+            {
+                'ip4log.ip' => { "=" => "1.1.1.1"},
+            },
+        ],
+        'Return the joined tables'
+    );
+
+    $sb->make_where(\%search_info);
+    use Data::Dumper;print Dumper(\%search_info);
+
+    is_deeply(
+        [ 
+            $sb->make_from(\%search_info)
+        ],
+        [
+            200,
+            [
+                -join => 'node',
+                @pf::UnifiedApi::SearchBuilder::Nodes::LOCATION_LOG_JOIN,
+                @pf::UnifiedApi::SearchBuilder::Nodes::IP4LOG_JOIN,
+            ]
+        ],
+        'Return the joined tables'
+    );
+}
 
 =head1 AUTHOR
 
