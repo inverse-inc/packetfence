@@ -1633,6 +1633,11 @@ For all your LinkedIn sources, change the domains to:
 
   www.linkedin.com,api.linkedin.com,*.licdn.comlatform.linkedin.com
   
+Portal redirection timer
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+The redirection timer configuration (length of the timer bar at the end of the portal) has been moved from the fencing section to the captive_portal section. More precisely, it has moved from `fencing.redirtimer` to `captive_portal.network_redirect_delay`.
+  
 Database schema update (All linux distributions)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
