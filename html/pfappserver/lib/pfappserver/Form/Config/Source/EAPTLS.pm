@@ -16,7 +16,7 @@ use strict;
 use warnings;
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Source';
-with 'pfappserver::Base::Form::Role::Help', 'pfappserver::Base::Form::Role::InternalSource';
+with 'pfappserver::Base::Form::Role::Help';
 
 use pf::Authentication::Source::EAPTLSSource;
 
