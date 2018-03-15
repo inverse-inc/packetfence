@@ -89,7 +89,7 @@ sub make_from {
     my @from = ($s->{dal}->table);
     my %found;
     my @join_specs;
-    foreach my $f (@{$s->{fields} // []}) {
+    foreach my $f (@{$s->{found_fields} // []}) {
         if (exists $ALLOWED_JOIN_FIELDS{$f}) {
             my $jf = $ALLOWED_JOIN_FIELDS{$f};
             my $namespace = $jf->{namespace};
