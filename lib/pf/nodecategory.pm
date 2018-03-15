@@ -110,7 +110,7 @@ sub nodecategory_upsert {
             notes => $data{notes},
 
         });
-        my ($status) = $obj->save;
+        my ($status) = $obj->upsert;
         if (is_error($status)) {
             $logger->error("Cannot save nodecategory (role) in the database.");
         }
