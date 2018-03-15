@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 4;
+use Test::More tests => 7;
 
 #This test will running last
 use Test::NoWarnings;
@@ -51,7 +51,7 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
 
     is_deeply(
         [ $sb->make_columns( \%search_info ) ],
-        [ 200, [ 'mac', 'ip4log.ip', 'locationlog.ssid', 'locationlog.port'] ],
+        [ 200, [ 'node.mac', 'ip4log.ip', 'locationlog.ssid', 'locationlog.port'] ],
         'Return the columns'
     );
 
@@ -86,7 +86,7 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
 
     is_deeply(
         [ $sb->make_columns( \%search_info ) ],
-        [ 200, [ 'mac', 'locationlog.ssid', 'locationlog.port'] ],
+        [ 200, [ 'node.mac', 'locationlog.ssid', 'locationlog.port'] ],
         'Return the columns'
     );
     is_deeply(
@@ -103,7 +103,6 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
     );
 
     $sb->make_where(\%search_info);
-    use Data::Dumper;print Dumper(\%search_info);
 
     is_deeply(
         [ 

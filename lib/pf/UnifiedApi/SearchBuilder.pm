@@ -90,9 +90,27 @@ sub make_limit {
     return $limit;
 }
 
+
 sub make_from {
     my ($self, $s) = @_;
-    return 200, [$s->{dal}->table];
+    my @from = ($s->{dal}->table);
+    my %found;
+    my @join_specs;
+    my $allow_joins = $self->allowed_join_fields;
+    foreach my $f (@{$s->{found_fields} // []}) {
+        if (exists $allow_joins->{$f}) {
+            my $jf = $allow_joins->{$f};
+            my $namespace = $jf->{namespace};
+            next if exists $found{$namespace};
+            $found{$namespace} = 1;
+            push @join_specs, @{$jf->{join_spec} // []};
+        }
+    }
+    if (@join_specs) {
+        unshift @from, '-join';
+        push @from, @join_specs;
+    }
+    return 200, \@from;
 }
 
 sub make_columns {
@@ -113,10 +131,21 @@ sub make_columns {
     return 200, $cols;
 }
 
+sub allowed_join_fields { {} }
+
 sub valid_column {
     my ($self, $s, $col) = @_;
-    my $meta = $s->{dal}->get_meta;
-    return exists $meta->{$col};
+    return $self->is_table_field($s, $col) || $self->is_join_field($s, $col);
+}
+
+sub is_join_field {
+    my ($self, $s, $col) = @_;
+    return exists $self->allowed_join_fields->{$col};
+}
+
+sub is_table_field {
+    my ($self, $s, $col) = @_;
+    return exists $s->{dal}->get_meta->{$col};
 }
 
 sub verify_query {
@@ -135,9 +164,8 @@ sub verify_query {
         }
     } else {
         my $field = $query->{field};
-        my $status = $self->is_valid_query($s, $query);
-        if (is_error($status)) {
-            return $status, {msg => "$field is an invalid field"};
+        if ( !$self->is_valid_query($s, $query)) {
+            return 422, {msg => "$field is an invalid field"};
         }
 
         push @{$s->{found_fields}}, $field;

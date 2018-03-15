@@ -79,30 +79,8 @@ our %ALLOWED_JOIN_FIELDS = (
       )
 );
 
-sub valid_column {
-    my ($self, $s, $col) = @_;
-    return exists $ALLOWED_JOIN_FIELDS{$col} || $self->SUPER::valid_column($s, $col);
-}
-
-sub make_from {
-    my ($self, $s) = @_;
-    my @from = ($s->{dal}->table);
-    my %found;
-    my @join_specs;
-    foreach my $f (@{$s->{found_fields} // []}) {
-        if (exists $ALLOWED_JOIN_FIELDS{$f}) {
-            my $jf = $ALLOWED_JOIN_FIELDS{$f};
-            my $namespace = $jf->{namespace};
-            next if exists $found{$namespace};
-            $found{$namespace} = 1;
-            push @join_specs, @{$jf->{join_spec} // []};
-        }
-    }
-    if (@join_specs) {
-        unshift @from, '-join';
-        push @from, @join_specs;
-    }
-    return 200, \@from;
+sub allowed_join_fields {
+    \%ALLOWED_JOIN_FIELDS
 }
 
 =head1 AUTHOR
