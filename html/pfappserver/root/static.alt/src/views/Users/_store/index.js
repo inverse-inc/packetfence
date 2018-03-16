@@ -11,9 +11,10 @@ const getters = {
 
 const actions = {
   search: ({state, getters, commit, dispatch}, query) => {
+    let apiPromise = Object.keys(query).length ? api.search({ query }) : api.all()
     return new Promise((resolve, reject) => {
       commit('SEARCH_REQUEST')
-      api.search(query).then(items => {
+      apiPromise.then(items => {
         commit('SEARCH_SUCCESS', items)
         resolve(items)
       }).catch(err => {
@@ -21,6 +22,9 @@ const actions = {
         reject(err)
       })
     })
+  },
+  getUser: ({dispatch}, pid) => {
+    return api.user(pid)
   }
 }
 
