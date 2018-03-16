@@ -90,7 +90,6 @@ sub make_limit {
     return $limit;
 }
 
-
 sub make_from {
     my ($self, $s) = @_;
     my @from = ($s->{dal}->table);
@@ -127,7 +126,7 @@ sub make_columns {
     
     push @{$s->{found_fields}}, @$cols;
     my $t = $s->{dal}->table;
-    @$cols = map { /\./ ? $_ : "${t}.$_" } @$cols;
+    @$cols = map { $self->is_table_field($s, $_) ? "${t}.$_" : $_ } @$cols;
     return 200, $cols;
 }
 
