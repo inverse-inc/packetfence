@@ -13,7 +13,7 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/packetfence/go/interval"
+	"github.com/inverse-inc/packetfence/go/interval"
 )
 
 func main() {
