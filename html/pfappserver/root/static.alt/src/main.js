@@ -9,6 +9,9 @@ import router from './router'
 
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import 'vue-awesome/icons/search'
+import 'vue-awesome/icons/plus-circle'
+import 'vue-awesome/icons/minus-circle'
+import 'vue-awesome/icons/arrow-circle-right'
 
 Vue.config.productionTip = process.env.NODE_ENV === 'production'
 

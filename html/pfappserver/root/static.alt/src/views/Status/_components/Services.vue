@@ -9,13 +9,13 @@
          :value="service.item.enabled"
          :sync="true"
          :disabled="service.item.loading"
-         width="90"
+         width="90" class="d-inline-block"
          :labels="{ checked: 'enabled', unchecked: 'disabled' }"></toggle-button>
         <toggle-button
          :value="service.item.alive"
          :sync="true"
          :disabled="service.item.loading"
-         width="90"
+         width="90" class="d-inline-block"
          :labels="{ checked: 'running', unchecked: 'stopped' }"
          :color="{ unchecked: '#be2125' }"></toggle-button>
       </template>

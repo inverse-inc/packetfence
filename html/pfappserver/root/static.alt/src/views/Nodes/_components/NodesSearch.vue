@@ -1,10 +1,10 @@
 <template>
-  <b-card class="mt-3" header-tag="header" no-body>
-    <div slot="header">
-      <div class="float-right"><toggle-button v-model="advancedMode">Advanced</toggle-button></div>
-      <h4>Search Nodes</h4>
-    </div>
-    <pf-search quick-with-fields="true" :fields="fields" :advanced-mode="advancedMode"></pf-search>
+  <b-card class="mt-3" no-body>
+    <b-card-header>
+      <div class="float-right"><toggle-button v-model="advancedMode">{{ $t('Advanced') }}</toggle-button></div>
+      <h4 class="mb-0">{{ $t('Search Nodes') }}</h4>
+    </b-card-header>
+    <pf-search quick-with-fields="true" :fields="fields" :store="$store" :advanced-mode="advancedMode" @submit-search="onSearch"></pf-search>
     <div class="card-body">
       <b-table hover :items="items" :fields="columns"></b-table>
     </div>
@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import { pfSearchConditionType as attributeType } from '@/globals/pfSearch'
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import pfSearch from '@/components/pfSearch'
 import ToggleButton from '@/components/ToggleButton'
 
@@ -28,16 +28,32 @@ export default {
   data () {
     return {
       advancedMode: false,
+      // Fields must match the database schema
       fields: [ // keys match with b-form-select
         {
           value: 'mac',
           text: 'MAC Address',
-          type: attributeType.SUBSTRING
+          types: [conditionType.SUBSTRING]
         },
         {
-          value: 'bypass_role',
+          value: 'bypass_role_id',
           text: 'Bypass Role',
-          type: attributeType.SUBSTRING
+          types: [conditionType.ROLE, conditionType.SUBSTRING]
+        },
+        {
+          value: 'locationlog.connection_type',
+          text: 'Connection Type',
+          types: [conditionType.CONNECTION_TYPE]
+        },
+        {
+          value: 'category_id',
+          text: 'Node Role',
+          types: [conditionType.ROLE, conditionType.SUBSTRING]
+        },
+        {
+          value: 'voip',
+          text: 'VoIP',
+          types: [conditionType.BOOL]
         }
       ],
       columns: [
@@ -64,8 +80,20 @@ export default {
       return this.$store.state.$_nodes.items
     }
   },
+  methods: {
+    onSearch (condition) {
+      let query = Object.assign({}, condition)
+      if (!this.advancedMode) {
+        query.values.splice(1)
+      }
+      this.$store.dispatch('$_nodes/search', query)
+    }
+  },
   created () {
     this.$store.dispatch('$_nodes/search', {})
+    if (this.$store.state.config.roles.length === 0) {
+      this.$store.dispatch('config/getRoles')
+    }
   }
 }
 </script>

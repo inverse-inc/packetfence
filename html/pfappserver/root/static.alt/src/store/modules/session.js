@@ -1,4 +1,7 @@
 
+/**
+ * "session" store module
+ */
 import Vue from 'vue'
 import Acl from 'vue-browser-acl'
 import apiCall from '@/utils/api'
