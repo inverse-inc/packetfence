@@ -5804,6 +5804,11 @@ image::docs/images/ruckus-smartzone-webauth-ssid.png[scaledwidth="100%",alt="Ruc
 
 Now, you should configure the Northbound API of the SmartZone so PacketFence can communicate with it. In order to do so, go in 'Configuration->System->Northbound Portal Interface' and set the 'Password' and save it. Keep the password closeby as it will be required for the PacketFence configuration. In this example, it will be `passwordForNorthboundAPI`.
 
+In order to receive the information not encrypted in the URL, you will need to connect on the Ruckus SmartZone controller using SSH and do the following command:
+
+ no encrypt-mac-ip
+
+
 PacketFence configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
