@@ -28,7 +28,7 @@ func main() {
 	job2 := func() {
 		fmt.Println("#2 >>> ", time.Now().UTC())
 	}
-	// Run our first job every 500 milli-seconds, runs concurrently
+	// Run our second job every 500 milli-seconds, runs concurrently
 	interval.Every("500ms").Run(job2)
 
 
