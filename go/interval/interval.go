@@ -41,17 +41,17 @@ func (r *recurrent) nextRun() (time.Duration, error) {
 }
 
 func Every(duration string) *Job {
-    t, err := time.ParseDuration(duration)
-    if err != nil {
-        return &Job{err: errors.New("Could not parse duration: " + duration)}
-    }
-    r := new(recurrent)
-    r.started = time.Now().UTC()
-    r.count = 0
-    r.delay = t.Nanoseconds()
-    j := new(Job)
-    j.schedule = r
-    return j
+	t, err := time.ParseDuration(duration)
+	if err != nil {
+		return &Job{err: errors.New("Could not parse duration: " + duration)}
+	}
+	r := new(recurrent)
+	r.started = time.Now().UTC()
+	r.count = 0
+	r.delay = t.Nanoseconds()
+	j := new(Job)
+	j.schedule = r
+	return j
 }
 
 func (j *Job) Run(f func()) (*Job, error) {
@@ -89,7 +89,7 @@ func runJob(job *Job) {
 		job.err = errors.New("bad function chaining")
 		return
 	}
-    rj.count += 1
+	rj.count += 1
 	if job.IsRunning() {
 		return
 	}
