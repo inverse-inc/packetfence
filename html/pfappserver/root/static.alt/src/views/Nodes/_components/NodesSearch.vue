@@ -2,9 +2,9 @@
   <b-card class="mt-3" no-body>
     <b-card-header>
       <div class="float-right"><toggle-button v-model="advancedMode">{{ $t('Advanced') }}</toggle-button></div>
-      <h4 class="mb-0">{{ $t('Search Nodes') }}</h4>
+      <h4 class="mb-0" v-t="'Search Nodes'"></h4>
     </b-card-header>
-    <pf-search quick-with-fields="true" :fields="fields" :store="$store" :advanced-mode="advancedMode" @submit-search="onSearch"></pf-search>
+    <pf-search :fields="fields" :store="$store" :advanced-mode="advancedMode" @submit-search="onSearch"></pf-search>
     <div class="card-body">
       <b-table hover :items="items" :fields="columns"></b-table>
     </div>

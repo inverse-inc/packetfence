@@ -1,7 +1,7 @@
 <template>
     <div class="card-body">
         <div class="textright" v-if="!advancedMode">
-            <b-form v-if="quickWithoutFields" @submit.prevent="onSubmit">
+            <b-form v-if="!quickWithFields" @submit.prevent="onSubmit">
               <div class="input-group">
                 <div class="input-group-prepend">
                   <div class="input-group-text"><icon name="search"></icon></div>
@@ -44,9 +44,9 @@ export default {
     fields: {
       type: Array
     },
-    quickWithoutFields: {
+    quickWithFields: {
       type: Boolean,
-      default: false
+      default: true
     },
     quickPlaceholder: {
       type: String,
