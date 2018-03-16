@@ -227,7 +227,7 @@ simple_single_query(
 );
 
 $t->post_ok(
-    '/api/v1/locationlogs/search?cursor=1' => json => {
+    '/api/v1/locationlogs/search' => json => {
         'fields' => [qw(mac)],
         'limit' => 1,
         'cursor' => 1,

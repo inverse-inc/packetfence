@@ -290,20 +290,12 @@ sub replace {
 
 sub search {
     my ($self) = @_;
-    my ($status, $data) = $self->parse_json;
+    my ($status, $search_info_or_error) = $self->build_search_info;
     if (is_error($status)) {
-        return $self->render(json => $data, status => $status);
+        return $self->render(json => $search_info_or_error, status => $status);
     }
 
-    my %search_info = (
-        dal => $self->dal,
-        (
-            map { exists $data->{$_} ? ($_ => $data->{$_}) : () } qw(limit query fields sort)
-        ),
-        cursor => $self->req->query_params->param('cursor') // undef,
-    );
-
-    ($status, my $response) = $self->search_builder->search(\%search_info);
+    ($status, my $response) = $self->search_builder->search($search_info_or_error);
     if ( is_error($status) ) {
         return $self->render_error(
             $status,
@@ -316,6 +308,23 @@ sub search {
         json   => $response,
         status => $status
     );
+}
+
+sub build_search_info {
+    my ($self) = @_;
+    my ($status, $data_or_error) =  $self->parse_json;
+    if (is_error($status)) {
+        return $status, $data_or_error;
+    }
+
+    my %search_info = (
+        dal => $self->dal,
+        (
+            map { exists $data_or_error->{$_} ? ($_ => $data_or_error->{$_}) : () } qw(limit query fields sort cursor)
+        ),
+    );
+
+    return 200, \%search_info;
 }
 
 =head1 AUTHOR
