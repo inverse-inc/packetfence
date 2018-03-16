@@ -1,9 +1,9 @@
 <template>
-  <b-card class="mt-3" header-tag="header" no-body>
-    <div slot="header">
+  <b-card class="mt-3" no-body>
+    <b-card-header>
       <div class="float-right"><toggle-button v-model="advancedMode">{{ $t('Advanced') }}</toggle-button></div>
-      <h4 v-t="'Search Users'"></h4>
-    </div>
+      <h4 class="mb-0" v-t="'Search Users'"></h4>
+    </b-card-header>
     <pf-search quick-without-fields="true" quick-placeholder="Search by name or email"
        :advanced-mode="advancedMode" :fields="fields"></pf-search>
     <div class="card-body">

@@ -1,8 +1,9 @@
 <template>
-  <b-card class="mt-3">
-    <div slot="header">
+  <b-card class="mt-3" no-body>
+    <b-card-header>
       <h4 v-t="'Services'"></h4>
-    </div>
+    </b-card-header>
+    <div class="card-body">
     <b-table small="true" :fields="fields" :items="services">
       <template slot="state" slot-scope="service">
         <toggle-button
@@ -20,6 +21,7 @@
          :color="{ unchecked: '#be2125' }"></toggle-button>
       </template>
     </b-table>
+    </div>
   </b-card>
 </template>
 
