@@ -5,7 +5,7 @@ global
 	daemon
 	pidfile %%var_dir%%/run/haproxy-portal.pid
 	log %%active_active_ip%% local0
-	stats socket /tmp/proxystats level admin
+	stats socket /tmp/proxystats level admin process 1
 	maxconn 4000
 	#Followup of https://github.com/inverse-inc/packetfence/pull/893
 	#haproxy 1.6.11 | intermediate profile | OpenSSL 1.0.1e | SRC: https://mozilla.github.io/server-side-tls/ssl-config-generator/?server=haproxy-1.6.11&openssl=1.0.1e&hsts=yes&profile=intermediate

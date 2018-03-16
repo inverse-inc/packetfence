@@ -15,6 +15,7 @@ use strict;
 use warnings;
 use Moo;
 
+use pf::log;
 use pf::util;
 use pf::cluster;
 use pf::config qw(
@@ -51,6 +52,45 @@ sub executable {
     my ($self) = @_;
     my $service = ( $Config{'services'}{"haproxy-db_binary"} || "$install_dir/sbin/haproxy" );
     return $service;
+}
+
+sub generateConfig {
+    my ($self,$quick) = @_;
+    my $logger = get_logger();
+    my ($package, $filename, $line) = caller();
+
+    my %tags;
+    $tags{'template'} = $self->haproxy_config_template;
+    $tags{'http'} = '';
+    $tags{'mysql_backend'} = '';
+    $tags{'var_dir'} = $var_dir;
+    $tags{'conf_dir'} = $var_dir.'/conf';
+    if ($OS eq 'debian') {
+        $tags{'os_path'} = '/etc/haproxy/errors/';
+    } else {
+         $tags{'os_path'} = '/usr/share/haproxy/';
+    }
+    
+    my $i = 0;
+    my @mysql_backend = map { $_->{management_ip} } pf::cluster::mysql_servers();
+    foreach my $mysql_back (@mysql_backend) {
+        # the second server (the one without the VIP) will be the prefered MySQL server
+        if ($i == 0) {
+        $tags{'mysql_backend'} .= <<"EOT";
+server MySQL$i $mysql_back:3306 check
+EOT
+        } else {
+        $tags{'mysql_backend'} .= <<"EOT";
+server MySQL$i $mysql_back:3306 check backup
+EOT
+        }
+    $i++;
+    }
+
+    $tags{captiveportal_templates_path} = $captiveportal_templates_path;
+    parse_template( \%tags, $self->haproxy_config_template, "$generated_conf_dir/".$self->name.".conf" );
+
+    return 1;
 }
 
 sub isManaged {
