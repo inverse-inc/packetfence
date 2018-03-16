@@ -24,6 +24,7 @@ CSP must be disabled.
 * [vue-i18n](https://kazupon.github.io/vue-i18n/)
 * [vue-browser-acl](https://github.com/mblarsen/vue-browser-acl)
 * [axios](https://github.com/axios/axios)
+* [vue-awesome](https://justineo.github.io/vue-awesome/demo/)
 
 ## Files Structure
 
