@@ -192,7 +192,8 @@ ifeq ($(jessie),yes)
 	dh_systemd_enable
 endif
 	dh_installinit --no-restart-on-upgrade
-	dh_installinit --name=packetfence-haproxy
+	dh_installinit --name=packetfence-haproxy-portal
+	dh_installinit --name=packetfence-haproxy-db
 	dh_installinit --name=packetfence-httpd.aaa
 	dh_installinit --name=packetfence-httpd.admin
 	dh_installinit --name=packetfence-httpd.collector
