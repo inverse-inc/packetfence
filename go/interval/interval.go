@@ -28,8 +28,8 @@ type recurrent struct {
 }
 
 func (r *recurrent) nextRun() (time.Duration, error) {
-	if r.delay == 0 {
-		return 0, errors.New("invlaid delay")
+	if r.delay < 0 {
+		return 0, errors.New("invalid delay")
 	}
 	if !r.done {
 		r.done = true
