@@ -322,7 +322,7 @@ sub update_person_from_fields {
     }
 
     # not sure we should set the portal + source here...
-    person_modify($options{pid}, %{ $self->request_fields }, portal => $self->app->profile->getName, source => $self->source->id, lang => $lang);
+    person_modify($options{pid}, %{ $self->request_fields }, portal => $self->app->profile->getName, source => $self->source->id, lang => $lang, %{$options{additionnal_fields}});
 }
 
 =head1 AUTHOR
