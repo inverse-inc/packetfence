@@ -57,7 +57,8 @@ sub build_child {
         my $actions = $module->{actions};
         if (defined $actions) {
             if ($actions) {
-                $module->{actions} = inflate_actions($actions);
+                $self->expand_list($module, qw(actions));
+                $module->{actions} = inflate_actions($module->{actions});
             }
             else {
                 delete $module->{actions};
