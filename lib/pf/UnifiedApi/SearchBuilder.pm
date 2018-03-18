@@ -26,19 +26,55 @@ our %OP_HAS_SUBQUERIES = (
 
 sub search {
     my ( $self, $search_info ) = @_;
+    my ($status, $search_args) = $self->make_search_args($search_info);
+    if ( is_error($status) ) {
+        return $status, $search_args;
+    }
+
+    ( $status, my $iter ) = $search_info->{dal}->search( %$search_args );
+    if ( is_error($status) ) {
+        return $status, {msg =>  "Error fulfilling search"}
+    }
+
+    my $limit = $search_args->{'-limit'};
+    my $offset = $search_args->{'-offset'};
+    my $items      = $iter->all();
+    my $nextCursor = undef;
+    if ( @$items == $limit ) {
+        pop @$items;
+        $nextCursor = $offset + $limit - 1;
+    }
+
+    return $status,
+      {
+        prevCursor => $offset,
+        items      => $items,
+        ( defined $nextCursor ? ( nextCursor => $nextCursor ) : () )
+      }
+      ;
+}
+
+=head2 make_search_args
+
+Make search args
+
+=cut
+
+sub make_search_args {
+    my ($self, $search_info) = @_;
     $search_info->{found_fields} = [];
     my ($status, $columns) = $self->make_columns($search_info);
-    if ( is_error($status) ) {
+    if (is_error($status)) {
         return $status, $columns;
     }
 
     ($status, my $where) = $self->make_where($search_info);
-    if ( is_error($status, $where ) ) {
+    if (is_error($status, $where)) {
         return $status, $where;
     }
 
     ($status, my $from) = $self->make_from($search_info);
-    if ( is_error($status, $from ) ) {
+    if (is_error($status, $from)) {
         return $status, $from;
     }
 
@@ -57,25 +93,7 @@ sub search {
         $search_args{'-columns'} = $columns;
     }
 
-    ( $status, my $iter ) = $search_info->{dal}->search( %search_args );
-
-    if ( is_error($status) ) {
-        return $status, {msg =>  "Error fulfilling search"}
-    }
-
-    my $items      = $iter->all();
-    my $nextCursor = undef;
-    if ( @$items == $limit ) {
-        pop @$items;
-        $nextCursor = $offset + $limit - 1;
-    }
-    return $status,
-      {
-        prevCursor => $offset,
-        items      => $items,
-        ( defined $nextCursor ? ( nextCursor => $nextCursor ) : () )
-      },
-      ;
+    return 200, \%search_args;
 }
 
 sub make_offset {
