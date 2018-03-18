@@ -25,7 +25,7 @@ BEGIN {
     use setup_test_config;
 }
 #run tests
-use Test::More tests => 33;
+use Test::More tests => 31;
 use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
@@ -38,11 +38,11 @@ $t->get_ok('/api/v1/dhcp_option82s' => json => { })
   ->json_is('/items', []) 
   ->status_is(200);
 
+my $mac = "00:01:02:03:04:05";
+
 #insert known data
-my $dt_format = DateTime::Format::Strptime->new(pattern => '%Y-%m-%d %H:%M:%S');
-my $dt_now = DateTime->now(time_zone=>'local');
 my %values = (
-    mac               => '00:01:02:03:04:05',
+    mac               => $mac,
     option82_switch   => 'option82_switch',
     switch_id         => 'test switch_id',
     port              => 'port',
@@ -57,32 +57,20 @@ $t->post_ok('/api/v1/dhcp_option82s' => json => \%values)
   ->status_is(201);
 
 $t->get_ok('/api/v1/dhcp_option82s' => json => { })
-  ->json_is('/items/0/mac', $values{mac})
-  ->json_is('/items/0/created_at', $dt_format->format_datetime($dt_now))
-  ->json_is('/items/0/option82_switch', $values{option82_switch})
-  ->json_is('/items/0/switch_id', $values{switch_id})
-  ->json_is('/items/0/port', $values{port})
-  ->json_is('/items/0/vlan', $values{vlan})
-  ->json_is('/items/0/circuit_id_string', $values{circuit_id_string})
-  ->json_is('/items/0/module', $values{module})
-  ->json_is('/items/0/host', $values{host})
   ->status_is(200);
 
-my $mac = $t->tx->res->json->{items}[0]{mac};
+while (my ($k, $v) = each %values) {
+    $t->json_is("/items/0/$k", $v);
+}
 
 #run unittest, use $mac
 $t->get_ok("/api/v1/dhcp_option82/$mac")
-  ->json_is('/item/mac', $values{mac})
-  ->json_is('/item/created_at', $dt_format->format_datetime($dt_now))
-  ->json_is('/item/option82_switch', $values{option82_switch})
-  ->json_is('/item/switch_id', $values{switch_id})
-  ->json_is('/item/port', $values{port})
-  ->json_is('/item/vlan', $values{vlan})
-  ->json_is('/item/circuit_id_string', $values{circuit_id_string})
-  ->json_is('/item/module', $values{module})
-  ->json_is('/item/host', $values{host})
   ->status_is(200);
-  
+
+while (my ($k, $v) = each %values) {
+    $t->json_is("/item/$k", $v);
+}
+
 #truncate the dhcp_option82 table
 #pf::dal::dhcp_option82->remove_items();
 $t->delete_ok("/api/v1/dhcp_option82/$mac")
