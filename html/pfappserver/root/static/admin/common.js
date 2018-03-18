@@ -143,7 +143,7 @@ function changeInputFromTemplate(oldInput, template, keep_value) {
     newInput.removeAttr('id');
     newInput.attr('id', oldInput.attr('id'));
     newInput.attr('name', oldInput.attr('name'));
-    newInput.attr('data-required', 1);
+    newInput.attr('data-required', oldInput.attr('data-required'));
     if (keep_value && oldInput.val()) {
         if (newInput.attr('multiple')) {
             newInput.val(oldInput.val().split(","));
