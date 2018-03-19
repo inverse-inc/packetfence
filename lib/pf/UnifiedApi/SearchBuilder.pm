@@ -151,12 +151,14 @@ sub make_columns {
 
 =head2 allowed_join_fields
 
-Returns hash of the allowed joined fields.
+Returns a hash of the allowed joined fields for the search builder
+
+This is meant to be overridden in the sub classes
 
 Should have the following format
 
   {
-    'join.fieldname' => {
+    'jointable.fieldname' => {
         join_spec => [
             #SQL::Abstract::More join spec
         ],
