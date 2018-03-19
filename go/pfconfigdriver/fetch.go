@@ -43,16 +43,25 @@ func getPfconfigSocketPath() string {
 
 // Struct that encapsulates the necessary information to do a query to pfconfig
 type Query struct {
-	encoding string `json:"encoding"`
-	method   string `json:"method"`
-	ns       string `json:"key"`
+	encoding string
+	method   string
+	ns       string
 }
 
 // Get the payload to send to pfconfig based on the Query attributes
 // Also sets the payload attribute at the same time
 func (q *Query) GetPayload() string {
-	bytes, err := json.Marshal(q);
-	return string(bytes) + "\n";
+	j, err := json.Marshal(struct {
+		Encoding string `json:"encoding"`
+		Method   string `json:"method"`
+		NS       string `json:"key"`
+	}{
+		Encoding: q.encoding,
+		Method:   q.method,
+		NS:       q.ns,
+	})
+	sharedutils.CheckError(err)
+	return string(j) + "\n"
 }
 
 // Get a string identifier of the query
