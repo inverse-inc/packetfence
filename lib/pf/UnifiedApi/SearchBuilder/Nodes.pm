@@ -58,14 +58,12 @@ our @IP4LOG_JOIN = (
 our %ALLOWED_JOIN_FIELDS = (
     'ip4log.ip' => {
         join_spec => \@IP4LOG_JOIN,
-        namespace => 'ip4log',
     },
     (
         map {
             (
                 "locationlog.$_" => {
                     join_spec => \@LOCATION_LOG_JOIN,
-                    namespace => 'locationlog'
                 }
             )
           } qw(
