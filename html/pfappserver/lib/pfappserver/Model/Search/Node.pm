@@ -195,9 +195,11 @@ sub default_query {
                         'node.mac' => { '=' => { -ident => '%2$s.callingstationid' } },
                         -or => [
                             '%1$s.acctstarttime' => { '<' => { -ident => '%2$s.acctstarttime' } },
-                            '%1$s.acctstarttime' => undef,
                             -and => [
-                                '%1$s.acctstarttime' => { '=' => { -ident => '%2$s.acctstarttime' } },
+                                -or => [
+                                    '%1$s.acctstarttime' => { '=' => { -ident => '%2$s.acctstarttime' } },
+                                    -and => ['%1$s.acctstarttime' => undef, '%2$s.acctstarttime' => undef],
+                                ],
                                 '%1$s.radacctid' => { '<' => { -ident => '%2$s.radacctid' } },
                             ],
                         ],
