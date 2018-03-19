@@ -1,6 +1,3 @@
-[config]
-file=stats.conf
-
 [metric 'sample metric 1']
 type=mysql_query
 statsd_type=gauge

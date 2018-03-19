@@ -62,7 +62,6 @@ func SendMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats, metric s
 	switch conf.StatsdType {
 	case "gauge":
 		StatsdClient.Gauge(conf.StatsdNS, metric)
-		log.LoggerWContext(ctx).Info("Column: " + metric)
 
 	default:
 		log.LoggerWContext(ctx).Info("Unhandled statsd type: " + conf.StatsdType)
