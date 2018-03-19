@@ -334,7 +334,7 @@ func main() {
 	var keyConfStats pfconfigdriver.PfconfigKeys
 	keyConfStats.PfconfigNS = "config::Stats"
 	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfStats)
-    re_metric := regexp.MustCompile("^metric .*")
+    RegExpMetric := regexp.MustCompile("^metric .*")
 
 	for _, key := range keyConfStats.Keys {
 		var ConfStat pfconfigdriver.PfStats
@@ -342,7 +342,7 @@ func main() {
 
 		pfconfigdriver.FetchDecodeSocket(ctx, &ConfStat)
 
-		if re_metric.MatchString(key) {
+		if RegExpMetric.MatchString(key) {
 			err = ProcessMetricConfig(ctx, ConfStat)
 			if err != nil {
 				log.LoggerWContext(ctx).Error(err.Error())
