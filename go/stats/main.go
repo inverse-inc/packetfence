@@ -334,19 +334,31 @@ func main() {
 	var keyConfStats pfconfigdriver.PfconfigKeys
 	keyConfStats.PfconfigNS = "config::Stats"
 	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfStats)
+    re_metric := regexp.MustCompile("^metric .*")
 
 	for _, key := range keyConfStats.Keys {
 		var ConfStat pfconfigdriver.PfStats
 		ConfStat.PfconfigHashNS = key
 
 		pfconfigdriver.FetchDecodeSocket(ctx, &ConfStat)
-		files = append(files, ConfStat.File)
 
-		go tailFile(ConfStat, config, done)
+		if re_metric.MatchString(key) {
+			err = ProcessMetricConfig(ctx, ConfStat)
+			if err != nil {
+				log.LoggerWContext(ctx).Error(err.Error())
+			}
+		}
+
+		if ConfStat.File != "" {
+			files = append(files, ConfStat.File)
+			go tailFile(ConfStat, config, done)
+		}
 	}
 
-	for _ = range files {
-		<-done
+	if len(files) > 0 {
+		for _ = range files {
+			<-done
+		}
 	}
 
 	for {

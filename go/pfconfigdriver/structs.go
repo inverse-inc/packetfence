@@ -356,4 +356,9 @@ type PfStats struct {
 	PfconfigNS     string `val:"config::Stats"`
 	File           string `json:"file"`
 	Match          string `json:"match"`
+	Type           string `json:"type"`
+	StatsdType     string `json:"statsd_type"`
+	StatsdNS       string `json:"statsd_ns"`
+	MySQLQuery     string `json:"mysql_query"`
+	Interval       string `json:"interval"`
 }
