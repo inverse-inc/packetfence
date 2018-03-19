@@ -397,18 +397,13 @@ checks if process is alive
 =cut
 
 sub isAlive {
-    my ($self,$pid) = @_;
-    my $result;
-    $pid = $self->pid unless defined $pid;
-    eval {
-        $result = pf_run("sudo kill -0 $pid >/dev/null 2>&1", (accepted_exit_status => [ 0 ]));
-    };
-    if($@ || !defined($result)){
-        return $FALSE;
-    }
-    else {
-        return $TRUE;
-    }
+    my ($self) = @_;
+    my $logger = get_logger();
+    my $name = $self->{name};
+    my $res = system("sudo systemctl status packetfence-$name");
+    my $alive = $res == 0;
+    $logger->debug("sudo systemctl status packetfence-$name returned code $res");
+    return $alive;
 }
 
 
