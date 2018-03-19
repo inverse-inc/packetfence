@@ -1,0 +1,56 @@
+global
+  external-check
+  user haproxy
+	group haproxy
+	daemon
+	pidfile %%var_dir%%/run/haproxy-db.pid
+	log %%active_active_ip%% local0
+	stats socket /tmp/proxystats level admin process 1
+	maxconn 4000
+
+listen stats
+  bind  %%management_ip%%:1026
+  mode http
+  timeout connect 10s
+  timeout client 1m
+  timeout server 1m
+  stats enable
+  stats uri /stats
+  stats realm HAProxy\ Statistics
+  stats auth admin:packetfence
+
+
+defaults
+	log	global
+	mode	http
+	option	httplog
+	option	dontlognull
+        timeout connect 5000
+        timeout client 50000
+        timeout server 50000
+        errorfile 400 %%os_path%%400.http
+        errorfile 403 %%captiveportal_templates_path%%/rate-limiting.http
+        errorfile 408 %%os_path%%408.http
+        errorfile 500 %%os_path%%500.http
+        errorfile 502 %%os_path%%502.http
+        errorfile 503 %%os_path%%503.http
+        errorfile 504 %%os_path%%504.http
+
+frontend  main
+    bind localhost:3306
+    mode tcp
+    option tcplog
+    default_backend             mysql
+    %%bind-process%%
+
+backend mysql
+    mode tcp
+    option tcplog
+    # disabled for now since it proved to be useless - jsemaan@inverse.ca
+    # TODO: remove it after cluster testing
+    #option external-check
+    #external-check command /usr/local/pf/var/run/db-check
+    #external-check path "/usr/bin:/bin"
+    timeout connect 3s
+%%mysql_backend%%
+

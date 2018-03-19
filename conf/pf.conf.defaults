@@ -348,15 +348,25 @@ etcd=enabled
 # Location of the etcd binary. Only necessary to change if you are not running the RPMed version.
 etcd_binary=/usr/bin/etcd
 #
-# services.haproxy
+# services.haproxy-portal
 #
-# Should haproxy be started?
-haproxy=enabled
+# Should haproxy-portal be started?
+haproxy-portal=enabled
 #
-# services.haproxy_binary
+# services.haproxy-portal_binary
 #
-# Location of the haproxy binary. Only necessary to change if you are not running the RPMed version.
-haproxy_binary=/usr/sbin/haproxy-systemd-wrapper
+# Location of the haproxy-portal binary. Only necessary to change if you are not running the RPMed version.
+haproxy-portal_binary=/usr/sbin/haproxy-systemd-wrapper
+#
+# services.haproxy-db
+#
+# Should haproxy-db be started?
+haproxy-db=enabled
+#
+# services.haproxy-db_binary
+#
+# Location of the haproxy-db binary. Only necessary to change if you are not running the RPMed version.
+haproxy-db_binary=/usr/sbin/haproxy-systemd-wrapper
 #
 # services.pffilter
 #

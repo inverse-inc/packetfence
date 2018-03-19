@@ -135,7 +135,8 @@ conf/pfconfig.conf
 conf/allowed-gaming-oui.txt
 conf/cluster.conf
 conf/domain.conf
-conf/haproxy.conf
+conf/haproxy-portal.conf
+conf/haproxy-db.conf
 conf/keepalived.conf
 conf/report.conf
 conf/device_registration.conf
