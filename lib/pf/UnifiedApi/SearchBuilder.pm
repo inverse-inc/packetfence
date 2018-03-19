@@ -227,13 +227,12 @@ sub make_order_by {
 sub normalize_sort {
     my ($order_by) = @_;
     my $direction = '-asc';
-    if ($order_by =~ /^([^ ]+) (DESC|ASC)$/ ) {
+    if ($order_by =~ /^([^ ]+) (DESC|ASC)$/i ) {
        $order_by = $1;
        $direction = "-" . lc($2);
     }
     return { $direction => $order_by }
 }
-
 
 =head1 AUTHOR
 
