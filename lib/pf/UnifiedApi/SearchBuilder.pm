@@ -122,7 +122,7 @@ sub make_join_specs {
     foreach my $f (@{$s->{found_fields} // []}) {
         if (exists $allow_joins->{$f}) {
             my $jf = $allow_joins->{$f};
-            my ($namespace) = split(/\./, $f, 1);
+            my ($namespace, undef) = split(/\./, $f, 2);
             next if exists $found{$namespace};
             $found{$namespace} = 1;
             push @join_specs, @{$jf->{join_spec} // []};
