@@ -41,19 +41,6 @@ has '+name' => (default => sub { 'haproxy-db' } );
 
 has '+haproxy_config_template' => (default => sub { "$conf_dir/haproxy-db.conf" });
 
-sub _cmdLine {
-    my $self = shift;
-    $self->executable . " -f $generated_conf_dir/haproxy-db.conf -p $install_dir/var/run/haproxy-db.pid";
-}
-
-has '+shouldCheckup' => ( default => sub { 0 }  );
-
-sub executable {
-    my ($self) = @_;
-    my $service = ( $Config{'services'}{"haproxy-db_binary"} || "$install_dir/sbin/haproxy" );
-    return $service;
-}
-
 sub generateConfig {
     my ($self,$quick) = @_;
     my $logger = get_logger();
