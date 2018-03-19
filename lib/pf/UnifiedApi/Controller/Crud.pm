@@ -312,21 +312,21 @@ sub search {
 
 sub build_search_info {
     my ($self) = @_;
-    if ($self->req->method eq 'POST' ) {
-        my ($status, $data_or_error) = $self->parse_json;
-        if (is_error($status)) {
-            return $status, $data_or_error;
-        }
-
-        my %search_info = (
-            dal => $self->dal,
-            (
-                map { exists $data_or_error->{$_} ? ($_ => $data_or_error->{$_}) : () } qw(limit query fields sort cursor)
-            ),
-        );
-        return 200, \%search_info;
+    my ( $status, $data_or_error ) = $self->parse_json;
+    if ( is_error($status) ) {
+        return $status, $data_or_error;
     }
-    return 422, {msg => "get not supported"};
+
+    return 200, {
+        dal => $self->dal,
+        (
+            map {
+                exists $data_or_error->{$_}
+                  ? ( $_ => $data_or_error->{$_} )
+                  : ()
+            } qw(limit query fields sort cursor)
+        )
+    };
 }
 
 =head1 AUTHOR
