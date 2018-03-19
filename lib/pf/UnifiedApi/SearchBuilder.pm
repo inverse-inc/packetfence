@@ -122,7 +122,7 @@ sub make_join_specs {
     foreach my $f (@{$s->{found_fields} // []}) {
         if (exists $allow_joins->{$f}) {
             my $jf = $allow_joins->{$f};
-            my $namespace = $jf->{namespace};
+            my ($namespace) = split(/\./, $f, 1);
             next if exists $found{$namespace};
             $found{$namespace} = 1;
             push @join_specs, @{$jf->{join_spec} // []};
@@ -148,6 +148,22 @@ sub make_columns {
     @$cols = map { $self->is_table_field($s, $_) ? "${t}.$_" : $_ } @$cols;
     return 200, $cols;
 }
+
+=head2 allowed_join_fields
+
+Returns hash of the allowed joined fields.
+
+Should have the following format
+
+  {
+    'join.fieldname' => {
+        join_spec => [
+            #SQL::Abstract::More join spec
+        ],
+    },
+  }
+
+=cut
 
 sub allowed_join_fields { {} }
 
