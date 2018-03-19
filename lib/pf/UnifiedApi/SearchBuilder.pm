@@ -54,12 +54,6 @@ sub search {
       ;
 }
 
-=head2 make_search_args
-
-Make search args
-
-=cut
-
 sub make_search_args {
     my ($self, $search_info) = @_;
     $search_info->{found_fields} = [];
@@ -111,6 +105,17 @@ sub make_limit {
 sub make_from {
     my ($self, $s) = @_;
     my @from = ($s->{dal}->table);
+    my @join_specs = $self->make_join_specs($s);
+    if (@join_specs) {
+        unshift @from, '-join';
+        push @from, @join_specs;
+    }
+
+    return 200, \@from;
+}
+
+sub make_join_specs {
+    my ($self, $s) = @_;
     my %found;
     my @join_specs;
     my $allow_joins = $self->allowed_join_fields;
@@ -123,11 +128,7 @@ sub make_from {
             push @join_specs, @{$jf->{join_spec} // []};
         }
     }
-    if (@join_specs) {
-        unshift @from, '-join';
-        push @from, @join_specs;
-    }
-    return 200, \@from;
+    return @join_specs;
 }
 
 sub make_columns {
