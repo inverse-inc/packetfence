@@ -26,7 +26,7 @@ sub build {
     my ($self) = @_;
     my $interfaces = $self->{_interfaces};
     my $mn = $interfaces->{management_network};
-    push @{ $interfaces->{radius_ints} }, $mn if defined $mn;
+    push @{ $interfaces->{radius_ints} }, $mn if $mn;
     return $interfaces->{radius_ints} // [];
 }
 
