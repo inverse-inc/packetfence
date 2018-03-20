@@ -58,9 +58,23 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 }
 
 func SendMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats, metric string) {
+	log.LoggerWContext(ctx).Info("Metric " + conf.StatsdNS + ": " + metric)
 	switch conf.StatsdType {
+	case "count":
+		StatsdClient.Count(conf.StatsdNS, metric)
+		break
+
 	case "gauge":
 		StatsdClient.Gauge(conf.StatsdNS, metric)
+		break
+
+	case "histogram":
+		StatsdClient.Histogram(conf.StatsdNS, metric)
+		break
+
+	case "unique":
+		StatsdClient.Unique(conf.StatsdNS, metric)
+		break
 
 	default:
 		log.LoggerWContext(ctx).Info("Unhandled statsd type: " + conf.StatsdType)
