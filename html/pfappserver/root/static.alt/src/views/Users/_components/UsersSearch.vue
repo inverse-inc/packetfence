@@ -4,15 +4,24 @@
       <div class="float-right"><toggle-button v-model="advancedMode">{{ $t('Advanced') }}</toggle-button></div>
       <h4 class="mb-0" v-t="'Search Users'"></h4>
     </b-card-header>
-    <pf-search :quick-with-fields="false" quick-placeholder="Search by name or email" :fields="fields" :store="$store" :advanced-mode="advancedMode" @submit-search="onSearch"></pf-search>
+    <pf-search :quick-with-fields="false" quick-placeholder="Search by name or email"
+      :fields="fields" :store="$store" :advanced-mode="advancedMode"
+      @submit-search="onSearch" @reset-search="onReset"></pf-search>
     <div class="card-body">
+      <b-row align-h="end">
+        <b-form inline>
+          <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[10,25,50,100]" :disabled="isLoading"
+            @input="onPageSizeChange" />
+        </b-form>
+        <b-pagination align="right" :per-page="pageSizeLimit" :total-rows="totalRows" v-model="requestPage" :disabled="isLoading"
+          @input="onPageChange" />
+      </b-row>
       <b-table hover :items="items" :fields="columns"></b-table>
     </div>
   </b-card>
 </template>
 
 <script>
-// import { mapGetters } from 'vuex'
 import { pfSearchConditionType as attributeType } from '@/globals/pfSearch'
 import pfSearch from '@/components/pfSearch'
 import ToggleButton from '@/components/ToggleButton'
@@ -23,9 +32,6 @@ export default {
     'pf-search': pfSearch,
     'toggle-button': ToggleButton
   },
-  // computed: {
-  //   ...mapGetters(['session/username'])
-  // },
   data () {
     return {
       advancedMode: false,
@@ -63,25 +69,69 @@ export default {
           label: this.$i18n.t('email'),
           sortable: true
         }
-      ]
+      ],
+      condition: null,
+      requestPage: 1,
+      currentPage: 1,
+      pageSizeLimit: 10
     }
   },
   computed: {
+    isLoading () {
+      return this.$store.getters['$_users/isLoading']
+    },
     items () {
       return this.$store.state.$_users.items
+    },
+    totalRows () {
+      return this.$store.state.$_users.searchMaxPageNumber * this.pageSizeLimit
     }
   },
   methods: {
-    onSearch (condition) {
-      let query = Object.assign({}, condition)
+    onSearch (newCondition) {
+      let _this = this
+      let condition = newCondition
       if (!this.advancedMode) {
-        query.values.splice(1)
+        // Build quick search query
+        condition = {
+          op: 'or',
+          values: [
+            { field: 'pid', op: 'contains', value: newCondition },
+            { field: 'email', op: 'contains', value: newCondition }
+          ]
+        }
       }
-      this.$store.dispatch('$_users/search', query)
+      this.requestPage = 1 // reset to the first page
+      this.$store.dispatch('$_users/setSearchQuery', condition)
+      this.$store.dispatch('$_users/search', this.requestPage).then(() => {
+        _this.currentPage = _this.requestPage
+        _this.condition = condition
+      }).catch(() => {
+        _this.requestPage = _this.currentPage
+      })
+    },
+    onReset () {
+      this.$store.dispatch('$_users/setSearchQuery', undefined) // reset search
+      this.requestPage = 1 // reset to the first page
+      this.$store.dispatch('$_users/search', this.requestPage)
+    },
+    onPageSizeChange () {
+      this.requestPage = 1 // reset to the first page
+      this.$store.dispatch('$_users/setSearchPageSize', this.pageSizeLimit)
+      this.$store.dispatch('$_users/search', this.requestPage)
+    },
+    onPageChange () {
+      let _this = this
+      this.$store.dispatch('$_users/search', this.requestPage).then(() => {
+        _this.currentPage = _this.requestPage
+      }).catch(() => {
+        _this.requestPage = _this.currentPage
+      })
     }
   },
   created () {
-    this.$store.dispatch('$_users/search', {})
+    this.$store.dispatch('$_users/search', this.requestPage)
+    this.pageSizeLimit = this.$store.state.$_users.searchPageSize
   }
 }
 </script>

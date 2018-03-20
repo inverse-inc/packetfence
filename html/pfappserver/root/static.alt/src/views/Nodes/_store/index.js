@@ -3,9 +3,15 @@
  */
 import api from '../_api'
 
+const STORAGE_SEARCH_LIMIT_KEY = 'nodes-search-limit'
+
 const state = {
   status: '',
-  items: []
+  items: [],
+  searchQuery: null,
+  searchCursor: 0,
+  searchMaxPageNumber: 1,
+  searchPageSize: localStorage.getItem(STORAGE_SEARCH_LIMIT_KEY) || 10
 }
 
 const getters = {
@@ -13,13 +19,27 @@ const getters = {
 }
 
 const actions = {
-  search: ({state, getters, commit, dispatch}, query) => {
-    let apiPromise = Object.keys(query).length ? api.search({ query }) : api.all()
+  setSearchQuery: ({commit}, query) => {
+    commit('SEARCH_QUERY_UPDATED', query)
+    commit('SEARCH_MAX_PAGE_NUMBER_UPDATED', 1) // reset page count
+  },
+  setSearchPageSize: ({commit}, limit) => {
+    localStorage.setItem(STORAGE_SEARCH_LIMIT_KEY, limit)
+    commit('SEARCH_LIMIT_UPDATED', limit)
+    commit('SEARCH_MAX_PAGE_NUMBER_UPDATED', 1) // reset page count
+  },
+  search: ({state, getters, commit, dispatch}, page) => {
+    let body = {
+      cursor: state.searchPageSize * (page - 1),
+      limit: state.searchPageSize
+    }
+    let apiPromise = state.searchQuery ? api.search(Object.assign(body, {query: state.searchQuery})) : api.all(body)
     return new Promise((resolve, reject) => {
       commit('SEARCH_REQUEST')
-      apiPromise.then(items => {
-        commit('SEARCH_SUCCESS', items)
-        resolve(items)
+      apiPromise.then(response => {
+        commit('SEARCH_CURSOR_UPDATED', page)
+        commit('SEARCH_SUCCESS', response)
+        resolve(response)
       }).catch(err => {
         commit('SEARCH_ERROR', err.response)
         reject(err)
@@ -32,12 +52,28 @@ const actions = {
 }
 
 const mutations = {
+  SEARCH_QUERY_UPDATED: (state, query) => {
+    state.searchQuery = query
+  },
+  SEARCH_CURSOR_UPDATED: (state, page) => {
+    state.searchCursor = state.searchPageSize * page
+  },
+  SEARCH_MAX_PAGE_NUMBER_UPDATED: (state, page) => {
+    state.searchMaxPageNumber = page
+  },
+  SEARCH_LIMIT_UPDATED: (state, limit) => {
+    state.searchPageSize = limit
+  },
   SEARCH_REQUEST: (state) => {
     state.status = 'loading'
   },
-  SEARCH_SUCCESS: (state, items) => {
+  SEARCH_SUCCESS: (state, response) => {
     state.status = 'success'
-    state.items = items
+    state.items = response.items
+    let nextPage = Math.floor(response.nextCursor / state.searchPageSize) + 1
+    if (nextPage > state.searchMaxPageNumber) {
+      state.searchMaxPageNumber = nextPage
+    }
   },
   SEARCH_ERROR: (state, response) => {
     state.status = 'error'

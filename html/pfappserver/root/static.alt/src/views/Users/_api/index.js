@@ -1,14 +1,14 @@
 import apiCall from '@/utils/api'
 
 export default {
-  all: () => {
-    return apiCall.get('users').then(response => {
-      return response.data.items
+  all: params => {
+    return apiCall.get('users', { params }).then(response => {
+      return response.data
     })
   },
-  search: query => {
-    return apiCall.post('users', query).then(response => {
-      return response.data.items
+  search: body => {
+    return apiCall.post('users/search', body).then(response => {
+      return response.data
     })
   },
   user: userId => {

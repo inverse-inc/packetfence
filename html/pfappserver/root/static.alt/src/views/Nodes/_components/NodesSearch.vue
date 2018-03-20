@@ -4,8 +4,17 @@
       <div class="float-right"><toggle-button v-model="advancedMode">{{ $t('Advanced') }}</toggle-button></div>
       <h4 class="mb-0" v-t="'Search Nodes'"></h4>
     </b-card-header>
-    <pf-search :fields="fields" :store="$store" :advanced-mode="advancedMode" @submit-search="onSearch"></pf-search>
+    <pf-search :fields="fields" :store="$store" :advanced-mode="advancedMode"
+      @submit-search="onSearch" @reset-search="onReset"></pf-search>
     <div class="card-body">
+      <b-row align-h="end">
+        <b-form inline>
+          <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[10,25,50,100]" :disabled="isLoading"
+            @input="onPageSizeChange" />
+        </b-form>
+        <b-pagination align="right" :per-page="pageSizeLimit" :total-rows="totalRows" v-model="requestPage" :disabled="isLoading"
+          @input="onPageChange" />
+      </b-row>
       <b-table hover :items="items" :fields="columns"></b-table>
     </div>
   </b-card>
@@ -72,27 +81,60 @@ export default {
           label: this.$i18n.t('Owner'),
           sortable: true
         }
-      ]
+      ],
+      condition: null,
+      requestPage: 1,
+      currentPage: 1,
+      pageSizeLimit: 10
     }
   },
   computed: {
+    isLoading () {
+      return this.$store.getters['$_nodes/isLoading']
+    },
     items () {
       return this.$store.state.$_nodes.items
+    },
+    totalRows () {
+      return this.$store.state.$_nodes.searchMaxPageNumber * this.pageSizeLimit
     }
   },
   methods: {
     onSearch (condition) {
-      let query = Object.assign({}, condition)
-      if (!this.advancedMode) {
-        query.values.splice(1)
-      }
-      this.$store.dispatch('$_nodes/search', query)
+      let _this = this
+      this.requestPage = 1 // reset to the first page
+      this.$store.dispatch('$_nodes/setSearchQuery', condition)
+      this.$store.dispatch('$_nodes/search', this.requestPage).then(() => {
+        _this.currentPage = _this.requestPage
+        _this.condition = condition
+      }).catch(() => {
+        _this.requestPage = _this.currentPage
+      })
+    },
+    onReset () {
+      this.$store.dispatch('$_nodes/setSearchQuery', undefined) // reset search
+      this.requestPage = 1 // reset to the first page
+      this.$store.dispatch('$_nodes/search', this.requestPage)
+    },
+    onPageSizeChange () {
+      this.requestPage = 1 // reset to the first page
+      this.$store.dispatch('$_nodes/setSearchPageSize', this.pageSizeLimit)
+      this.$store.dispatch('$_nodes/search', this.requestPage)
+    },
+    onPageChange () {
+      let _this = this
+      this.$store.dispatch('$_nodes/search', this.requestPage).then(() => {
+        _this.currentPage = _this.requestPage
+      }).catch(() => {
+        _this.requestPage = _this.currentPage
+      })
     }
   },
   created () {
-    this.$store.dispatch('$_nodes/search', {})
+    this.$store.dispatch('$_nodes/search', this.requestPage)
     if (this.$store.state.config.roles.length === 0) {
       this.$store.dispatch('config/getRoles')
+      this.pageSizeLimit = this.$store.state.$_nodes.searchPageSize
     }
   }
 }
