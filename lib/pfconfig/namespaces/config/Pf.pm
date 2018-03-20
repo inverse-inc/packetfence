@@ -30,6 +30,7 @@ use pf::file_paths qw(
 use pf::util;
 use pf::constants::config qw($DEFAULT_SMTP_PORT $DEFAULT_SMTP_PORT_SSL $DEFAULT_SMTP_PORT_TLS);
 use List::MoreUtils qw(uniq);
+use DateTime::TimeZone;
 
 our %ALERTING_PORTS = (
     none => $DEFAULT_SMTP_PORT,
@@ -135,6 +136,12 @@ sub build_child {
 
     if (($Config{alerting}{smtp_port} // 0) == 0) {
         $Config{alerting}{smtp_port} = $ALERTING_PORTS{$Config{alerting}{smtp_encryption}} // $DEFAULT_SMTP_PORT;
+    }
+
+    unless ($Config{general}{timezone}) {
+        my $tz = DateTime::TimeZone->new(name => 'local')->name();
+        $logger->info("No timezone defined, using $tz");
+        $Config{general}{timezone} = $tz;
     }
 
     return \%Config;

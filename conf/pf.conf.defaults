@@ -17,8 +17,9 @@ dhcpservers=127.0.0.1
 #
 # general.timezone
 #
-#System's timezone in string format. List generated from Perl library DataTime::TimeZone
-timezone=America/Montreal
+# System's timezone in string format. List generated from Perl library DateTime::TimeZone
+# When left empty, it will use the timezone of the server
+timezone=
 
 [network]
 #
