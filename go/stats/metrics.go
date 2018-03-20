@@ -15,8 +15,9 @@ var MySQLdatabase *sql.DB
 func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error {
 
 	// Read DB config
-	configDatabase := readDBConfig()
-	connectDB(configDatabase, MySQLdatabase)
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Database)
+	configDatabase := pfconfigdriver.Config.PfConf.Database
+	connectDB(configDatabase)
 	MySQLdatabase.SetMaxIdleConns(0)
 	MySQLdatabase.SetMaxOpenConns(500)
 
