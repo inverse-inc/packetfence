@@ -427,25 +427,29 @@ sub generate_passthrough_rules {
     generate_provisioning_passthroughs();
 
     $logger->info("Adding NAT Masquerade statement.");
-    my $mgmt_int = $management_network->tag("int");
     my $SNAT_ip;
-    if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
-        if (defined($management_network->{'Tvip'}) && $management_network->{'Tvip'} ne '') {
-            $SNAT_ip = $management_network->{'Tvip'};
-        } else {
-            $SNAT_ip = $management_network->{'Tip'};
-       }
+    if ($management_network) {
+        my $mgmt_int = $management_network->tag("int");
+        if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
+            if (defined($management_network->{'Tvip'}) && $management_network->{'Tvip'} ne '') {
+                $SNAT_ip = $management_network->{'Tvip'};
+            } else {
+                $SNAT_ip = $management_network->{'Tip'};
+           }
+        }
     }
 
-    foreach my $network ( keys %ConfigNetworks ) {
-        my $network_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
-        if ( pf::config::is_network_type_inline($network) ) {
-            my $nat = $ConfigNetworks{$network}{'nat_enabled'};
-            if (defined ($nat) && (isenabled($nat))) {
+    if ($SNAT_ip) {
+        foreach my $network ( keys %ConfigNetworks ) {
+            my $network_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
+            if ( pf::config::is_network_type_inline($network) ) {
+                my $nat = $ConfigNetworks{$network}{'nat_enabled'};
+                if (defined ($nat) && (isenabled($nat))) {
+                    $$nat_rules_ref .= "-A POSTROUTING -s $network/$network_obj->{BITS} -o $mgmt_int -j SNAT --to $SNAT_ip\n";
+                }
+            } else {
                 $$nat_rules_ref .= "-A POSTROUTING -s $network/$network_obj->{BITS} -o $mgmt_int -j SNAT --to $SNAT_ip\n";
             }
-        } else {
-            $$nat_rules_ref .= "-A POSTROUTING -s $network/$network_obj->{BITS} -o $mgmt_int -j SNAT --to $SNAT_ip\n";
         }
     }
 
