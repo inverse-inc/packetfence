@@ -821,6 +821,18 @@ sub to_hash {
     return \%hash;
 }
 
+=head2 field_names
+
+field_names
+
+=cut
+
+sub field_names {
+    my ($self) = @_;
+    return $self->table_field_names;
+}
+
+
 =head2 now
 
 now

@@ -97,13 +97,13 @@ sub _defaults {
     return {%DEFAULTS};
 }
 
-=head2 field_names
+=head2 table_field_names
 
 Field names of chi_cache
 
 =cut
 
-sub field_names {
+sub table_field_names {
     return [@FIELD_NAMES];
 }
 
