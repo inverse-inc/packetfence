@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"encoding/binary"
 	"math/rand"
 	"net"
@@ -21,7 +20,7 @@ type NodeInfo struct {
 }
 
 // connectDB connect to the database
-func connectDB(configDatabase pfconfigdriver.PfConfDatabase, db *sql.DB) {
+func connectDB(configDatabase pfconfigdriver.PfConfDatabase) {
 	MySQLdatabase = database.ConnectFromConfig(configDatabase)
 }
 

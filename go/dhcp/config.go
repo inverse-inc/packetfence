@@ -54,14 +54,6 @@ func newDHCPConfig() *Interfaces {
 	return &p
 }
 
-// readDBConfig read pfconfig database configuration
-func readDBConfig() pfconfigdriver.PfConfDatabase {
-	var sections pfconfigdriver.PfConfDatabase
-
-	pfconfigdriver.FetchDecodeSocket(ctx, &sections)
-	return sections
-}
-
 func (d *Interfaces) readConfig() {
 
 	var interfaces pfconfigdriver.ListenInts

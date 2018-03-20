@@ -61,9 +61,10 @@ func main() {
 	GlobalMacCache = cache.New(5*time.Minute, 10*time.Minute)
 
 	// Read DB config
-	configDatabase := readDBConfig()
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Database)
+	configDatabase := pfconfigdriver.Config.PfConf.Database
 
-	connectDB(configDatabase, MySQLdatabase)
+	connectDB(configDatabase)
 
 	MySQLdatabase.SetMaxIdleConns(0)
 	MySQLdatabase.SetMaxOpenConns(500)
