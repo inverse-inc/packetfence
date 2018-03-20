@@ -18,8 +18,6 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Database)
 	configDatabase := pfconfigdriver.Config.PfConf.Database
 	connectDB(configDatabase)
-	MySQLdatabase.SetMaxIdleConns(0)
-	MySQLdatabase.SetMaxOpenConns(500)
 
 	job := func() {}
 
