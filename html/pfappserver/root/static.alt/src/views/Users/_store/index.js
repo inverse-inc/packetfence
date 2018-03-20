@@ -10,7 +10,7 @@ const state = {
   status: '',
   items: [],
   searchQuery: null,
-  searchSortBy: 'mac',
+  searchSortBy: 'pid',
   searchSortDesc: false,
   searchMaxPageNumber: 1,
   searchPageSize: localStorage.getItem(STORAGE_SEARCH_LIMIT_KEY) || 10
