@@ -326,7 +326,7 @@ sub _decode_dhcp_option82_suboption2 {
         $option->{switch} = clean_mac(unpack("H*", $data));
         $option->{switch_id} =  get_switch_from_option82($option->{switch});
     }
-    else {
+    elsif ($type == 1) {
         $option->{host} = $data;
     }
 }
