@@ -24,6 +24,35 @@ our %OP_HAS_SUBQUERIES = (
     'or' => 1,
 );
 
+
+=head2 $self->search($search_info)
+
+Search using search_info
+
+    my ($http_status, $search_result_or_error) = $self->search({
+        'dal' => 'pf::dal::node',
+        'cursor' => '1',
+        'limit' => 25,
+        'query' => {},
+        'fields' => [...],
+        'sort' => [...]
+    });
+
+dal    Class name of dal module. (Mandatory)
+
+cursor The cursor of the where start search. (Optional)
+
+limit  The maximum items to return
+
+query  The query object to use for searching
+
+fields An array of fields to return
+
+sort   An array of the sort order for the search
+
+=cut
+
+
 sub search {
     my ( $self, $search_info ) = @_;
     my ($status, $search_args) = $self->make_search_args($search_info);
@@ -53,6 +82,14 @@ sub search {
       }
       ;
 }
+
+=head2 $self->make_search_args($search_info)
+
+Make the search args from the search_info
+
+    my ($http_status, $search_args_or_error) = $self->make_search_args($search_info);
+
+=cut
 
 sub make_search_args {
     my ($self, $search_info) = @_;
@@ -90,10 +127,26 @@ sub make_search_args {
     return 200, \%search_args;
 }
 
+=head2 $self->make_offset($search_info)
+
+Make the offset based off the search_info
+
+    my $offset = $self->make_offset($search_info)
+
+=cut
+
 sub make_offset {
     my ($self, $s) = @_;
     return int($s->{'cursor'} || '0');
 }
+
+=head2 $self->make_limit($search_info)
+
+Make the limit based off the search_info
+
+    my $limit = $self->make_limit($search_info)
+
+=cut
 
 sub make_limit {
     my ($self, $s) = @_;
@@ -101,6 +154,14 @@ sub make_limit {
     $limit++;
     return $limit;
 }
+
+=head2 $self->make_from($search_info)
+
+Make the from for SQL::Abstract::More based off the search_info
+
+    my ($http_status, $from_or_error) = $self->make_from($search_info);
+
+=cut
 
 sub make_from {
     my ($self, $s) = @_;
@@ -113,6 +174,14 @@ sub make_from {
 
     return 200, \@from;
 }
+
+=head2 $self->make_join_specs($search_info)
+
+Make the SQL::Abstract::More join_specs from the search_info
+
+    my @join_specs = $self->make_from($search_info);
+
+=cut
 
 sub make_join_specs {
     my ($self, $s) = @_;
@@ -131,10 +200,18 @@ sub make_join_specs {
     return @join_specs;
 }
 
+=head2 $self->make_columns($search_info)
+
+Make the SQL::Abstract::More columns from the search_info
+
+    my ($http_status, $columns_or_error) = $self->make_columns($search_info);
+
+=cut
+
 sub make_columns {
     my ( $self, $s ) = @_;
     my $cols = $s->{fields} // [];
-    my @errors = map { {msg => "$_ is an invalid field" } } grep { !$self->valid_column($s, $_) } @$cols;
+    my @errors = map { {msg => "$_ is an invalid field" } } grep { !$self->is_valid_field($s, $_) } @$cols;
     if (@errors) {
         return 422,
           {
@@ -142,7 +219,7 @@ sub make_columns {
             errors => \@errors
           };
     }
-    
+
     push @{$s->{found_fields}}, @$cols;
     my $t = $s->{dal}->table;
     @$cols = map { $self->is_table_field($s, $_) ? "${t}.$_" : $_ } @$cols;
@@ -169,25 +246,55 @@ Should have the following format
 
 sub allowed_join_fields { {} }
 
-sub valid_column {
+=head2 $self->is_valid_field($search_info, $field_name)
+
+Checks if a field is valid
+
+    my $bool = $self->is_valid_field($search_info, $field_name)
+
+=cut
+
+sub is_valid_field {
     my ($self, $s, $col) = @_;
     return $self->is_table_field($s, $col) || $self->is_join_field($s, $col);
 }
 
+=head2 $self->is_join_field($search_info, $field_name)
+
+Checks if a field is a join field
+
+    my $bool = $self->is_join_field($search_info, $field_name)
+
+=cut
+
 sub is_join_field {
-    my ($self, $s, $col) = @_;
-    return exists $self->allowed_join_fields->{$col};
+    my ($self, $s, $f) = @_;
+    return exists $self->allowed_join_fields->{$f};
 }
 
+=head2 $self->is_table_field($search_info, $field_name)
+
+Checks if a field is a table field
+
+    my $bool = $self->is_table_field($search_info, $field_name)
+
+=cut
+
 sub is_table_field {
-    my ($self, $s, $col) = @_;
-    return exists $s->{dal}->get_meta->{$col};
+    my ($self, $s, $f) = @_;
+    return exists $s->{dal}->get_meta->{$f};
 }
+
+=head2 $self->verify_query($search_info, $query)
+
+    my ($http_status, $query_or_error) = $self->verify_query($search_info, $query);
+
+=cut
 
 sub verify_query {
     my ($self, $s, $query) = @_;
     my $op = $query->{op} // '(null)';
-    if (!$self->is_valid_op($query)) {
+    if (!$self->is_valid_op($op)) {
         return 422, {msg => "$op is not valid"};
     }
 
@@ -213,15 +320,39 @@ sub verify_query {
     return (200, $query);
 }
 
+=head2 $self->is_valid_query($search_info, $query)
+
+Checks if a query is a valid query
+
+    my $bool = $self->is_valid_query($search_info, $query)
+
+=cut
+
 sub is_valid_query {
     my ($self, $s, $q) = @_;
-    return $self->valid_column($s, $q->{field});
+    return $self->is_valid_field($s, $q->{field});
 }
 
+=head2 $self->is_valid_op($search_info, $op)
+
+Checks if a query is a valid query
+
+    my $bool = $self->is_valid_op($search_info, $op)
+
+=cut
+
 sub is_valid_op {
-    my ($self, $q) = @_;
-    return pf::UnifiedApi::Search::valid_op($q->{op});
+    my ($self, $op) = @_;
+    return pf::UnifiedApi::Search::valid_op($op);
 }
+
+=head2 $self->make_where($search_info)
+
+Makes the SQL::Abstract::More where clause from the search_info
+
+    my ($http_status, $where_or_error) = $self->make_where($search_info)
+
+=cut
 
 sub make_where {
     my ($self, $s) = @_;
@@ -239,15 +370,31 @@ sub make_where {
     return 200, $where;
 }
 
+=head2 $self->make_order_by($search_info)
+
+Makes the SQL::Abstract::More order by clause from the search_info
+
+    my $order_by = $self->make_order_by($search_info)
+
+=cut
+
 sub make_order_by {
-    my ($self, $q) = @_;
-    my $sort = $q->{sort} // [];
+    my ($self, $s) = @_;
+    my $sort = $s->{sort} // [];
     local $_;
-    return [map { normalize_sort($_)  } @$sort ];
+    return [map { $self->normalize_order_by($_)  } @$sort ];
 }
 
-sub normalize_sort {
-    my ($order_by) = @_;
+=head2 $self->normalize_order_by($order_by_field)
+
+Normalize a sort field to the SQL::Abstract::More order by spec
+
+    my $order_by_spec = $self->normalize_order_by($order_by_field)
+
+=cut
+
+sub normalize_order_by {
+    my ($self, $order_by) = @_;
     my $direction = '-asc';
     if ($order_by =~ /^([^ ]+) (DESC|ASC)$/i ) {
        $order_by = $1;
