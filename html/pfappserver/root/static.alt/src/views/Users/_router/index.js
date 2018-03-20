@@ -1,5 +1,6 @@
 import UsersView from '../'
 import UsersSearch from '../_components/UsersSearch'
+import UserView from '../_components/UserView'
 
 const route = {
   path: '/users',
@@ -10,6 +11,12 @@ const route = {
     {
       path: 'search',
       component: UsersSearch
+    },
+    {
+      path: '/user/:pid',
+      name: 'user',
+      component: UserView,
+      props: true
     }
   ]
 }

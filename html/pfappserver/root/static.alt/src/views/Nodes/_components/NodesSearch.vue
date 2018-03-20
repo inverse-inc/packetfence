@@ -1,5 +1,5 @@
 <template>
-  <b-card class="mt-3" no-body>
+  <b-card no-body>
     <b-card-header>
       <div class="float-right"><toggle-button v-model="advancedMode">{{ $t('Advanced') }}</toggle-button></div>
       <h4 class="mb-0" v-t="'Search Nodes'"></h4>
@@ -15,8 +15,8 @@
         <b-pagination align="right" :per-page="pageSizeLimit" :total-rows="totalRows" v-model="requestPage" :disabled="isLoading"
           @input="onPageChange" />
       </b-row>
-      <b-table hover :items="items" :fields="columns" :sort-by="sortBy" :sort-desc="sortDesc"
-        @sort-changed="onSortingChanged" no-local-sorting></b-table>
+      <b-table stacked="sm" :items="items" :fields="columns" :sort-by="sortBy" :sort-desc="sortDesc"
+        @sort-changed="onSortingChanged" @row-clicked="onRowClick" hover no-local-sorting></b-table>
     </div>
   </b-card>
 </template>
@@ -140,6 +140,9 @@ export default {
       this.requestPage = 1 // reset to the first page
       this.$store.dispatch('$_nodes/setSearchSorting', params)
       this.$store.dispatch('$_nodes/search', this.requestPage)
+    },
+    onRowClick (item, index) {
+      this.$router.push({ name: 'node', params: { mac: item.mac } })
     }
   },
   created () {

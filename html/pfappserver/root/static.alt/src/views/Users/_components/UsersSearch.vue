@@ -1,5 +1,5 @@
 <template>
-  <b-card class="mt-3" no-body>
+  <b-card no-body>
     <b-card-header>
       <div class="float-right"><toggle-button v-model="advancedMode">{{ $t('Advanced') }}</toggle-button></div>
       <h4 class="mb-0" v-t="'Search Users'"></h4>
@@ -17,7 +17,7 @@
           @input="onPageChange" />
       </b-row>
       <b-table hover :items="items" :fields="columns" :sort-by="sortBy" :sort-desc="sortDesc"
-        @sort-changed="onSortingChanged" no-local-sorting></b-table>
+        @sort-changed="onSortingChanged" @row-clicked="onRowClick" no-local-sorting></b-table>
     </div>
   </b-card>
 </template>
@@ -139,6 +139,9 @@ export default {
       this.requestPage = 1 // reset to the first page
       this.$store.dispatch('$_users/setSearchSorting', params)
       this.$store.dispatch('$_users/search', this.requestPage)
+    },
+    onRowClick (item, index) {
+      this.$router.push({ name: 'user', params: { pid: item.pid } })
     }
   },
   created () {
