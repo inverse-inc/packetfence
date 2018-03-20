@@ -167,6 +167,17 @@ sub handle_callback {
         my $info = $self->_decode_response($response); 
         my $pid = $self->_extract_username_from_response($info); 
         
+        my ( $status, $status_msg );
+        ( $status, $status_msg ) = $self->filter_response($info)
+        
+        if (!$status) {
+            get_logger->info("OAuth2: filter_response rejected acceptance for user":.$pid.". Details: ".$status_msg);
+            pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED);
+            $self->app->flash->{error} = "OAuth2: login rejected - Reason: ".$status_msg ;
+            $self->landing();
+            return; 
+        }
+
         $self->username($pid);
 
         get_logger->info("OAuth2 successfull for username ".$self->username);
@@ -222,6 +233,19 @@ sub auth_source_params_child {
     return {
         user_email => $self->username(),
     };
+}
+
+=head2 filter_response
+
+Function that validates if the response from OAuth should be accepted.
+Meant to be overwritten by the specific modules.
+
+=cut
+
+sub filter_response {
+    my ($self, $info) = @_;
+    # Return accept/reject response and status message to display to the user in case of failure
+    return (1,"");
 }
 
 =head1 AUTHOR
