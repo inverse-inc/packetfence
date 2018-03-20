@@ -226,21 +226,23 @@ sub make_columns {
     return 200, $cols;
 }
 
-=head2 allowed_join_fields
+=head2 $self->allowed_join_fields()
 
 Returns a hash of the allowed joined fields for the search builder
+
+    my $allowed_join_fields = $self->allowed_join_fields();
 
 This is meant to be overridden in the sub classes
 
 Should have the following format
 
-  {
-    'jointable.fieldname' => {
-        join_spec => [
-            #SQL::Abstract::More join spec
-        ],
-    },
-  }
+    {
+      'jointable.fieldname' => {
+          join_spec => [
+              #SQL::Abstract::More join spec
+          ],
+      },
+    }
 
 =cut
 
