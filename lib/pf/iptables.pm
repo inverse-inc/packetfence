@@ -784,6 +784,8 @@ sub generate_domain_rules {
         $$filter_forward_domain .= "-A FORWARD -i $name-b -j ACCEPT\n";
     }
 
+    return if !$management_network;
+
     # MOVE ME TO SOMEWHERE - BUT WHERE ????? - ANYWHERE IS BETTER THAN THIS !
     my $domain_network = "169.254.0.0/16";
 
