@@ -220,9 +220,14 @@ sub make_columns {
           };
     }
 
-    push @{$s->{found_fields}}, @$cols;
-    my $t = $s->{dal}->table;
-    @$cols = map { $self->is_table_field($s, $_) ? "${t}.$_" : $_ } @$cols;
+    if (@$cols) {
+        push @{$s->{found_fields}}, @$cols;
+        my $t = $s->{dal}->table;
+        @$cols = map { $self->is_table_field($s, $_) ? "${t}.$_" : $_ } @$cols;
+    } else {
+        $cols = $s->{dal}->table_field_names;
+    }
+
     return 200, $cols;
 }
 
