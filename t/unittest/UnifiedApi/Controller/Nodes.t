@@ -30,7 +30,7 @@ BEGIN {
 
 #insert known data
 #run tests
-use Test::More tests => 3;
+use Test::More tests => 5;
 use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
@@ -38,6 +38,8 @@ my $t = Test::Mojo->new('pf::UnifiedApi');
 $t->get_ok('/api/v1/nodes')
   ->status_is(200);
 
+$t->post_ok('/api/v1/nodes/search' => json => { fields => [qw(mac ip4log.ip)]  })
+  ->status_is(200);
 
 =head1 AUTHOR
 

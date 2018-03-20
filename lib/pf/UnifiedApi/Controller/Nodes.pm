@@ -17,6 +17,9 @@ use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
 use pf::dal::node;
 use pf::locationlog qw(locationlog_history_mac locationlog_view_open_mac);
+use pf::UnifiedApi::SearchBuilder::Nodes;
+
+has 'search_builder_class' => 'pf::UnifiedApi::SearchBuilder::Nodes';
 
 has dal => 'pf::dal::node';
 has url_param_name => 'node_id';

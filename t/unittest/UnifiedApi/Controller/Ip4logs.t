@@ -57,35 +57,38 @@ my $status = pf::ip4log::open($ip, $mac, $lease_length);
 
 #run unittest on single dB entry
 $t->get_ok('/api/v1/ip4logs' => json => { })
-  ->json_is('/items/0/end_time',$dt_format->format_datetime($dt_end))
-  ->json_is('/items/0/ip',$ip)
-  ->json_is('/items/0/start_time',$dt_format->format_datetime($dt_start))
+  ->status_is(200)
   ->json_is('/items/0/mac',$mac)
-  ->status_is(200);
-  
+  ->json_is('/items/0/ip',$ip)
+  ->json_has('/items/0/start_time')
+  ->json_has('/items/0/end_time')
+;
 #run unittest on list by mac
 $t->get_ok('/api/v1/ip4logs/open/'.$mac => json => { })
-  ->json_is('/item/end_time',$dt_format->format_datetime($dt_end))
+  ->status_is(200)
   ->json_is('/item/ip',$ip)
-  ->json_is('/item/start_time',$dt_format->format_datetime($dt_start))
   ->json_is('/item/mac',$mac)
-  ->status_is(200);
+  ->json_has('/item/start_time')
+  ->json_has('/item/end_time')
+;
   
 #run unittest on history list by mac
 $t->get_ok('/api/v1/ip4logs/history/'.$mac => json => { })
-  ->json_is('/items/0/end_time',$dt_format->format_datetime($dt_end))
+  ->status_is(200)
   ->json_is('/items/0/ip',$ip)
-  ->json_is('/items/0/start_time',$dt_format->format_datetime($dt_start))
   ->json_is('/items/0/mac',$mac)
-  ->status_is(200);
+  ->json_has('/items/0/start_time')
+  ->json_has('/items/0/end_time')
+;
   
 #run unittest on archive list by mac
 $t->get_ok('/api/v1/ip4logs/archive/'.$mac => json => { })
-  ->json_is('/items/0/end_time',$dt_format->format_datetime($dt_end))
   ->json_is('/items/0/ip',$ip)
-  ->json_is('/items/0/start_time',$dt_format->format_datetime($dt_start))
   ->json_is('/items/0/mac',$mac)
-  ->status_is(200);
+  ->json_has('/items/0/start_time')
+  ->json_has('/items/0/end_time')
+  ->status_is(200)
+;
   
 #debug output
 #my $j = $t->tx->res->json;
