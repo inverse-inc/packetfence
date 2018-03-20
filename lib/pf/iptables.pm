@@ -427,9 +427,9 @@ sub generate_passthrough_rules {
     generate_provisioning_passthroughs();
 
     $logger->info("Adding NAT Masquerade statement.");
-    my $SNAT_ip;
+    my ($SNAT_ip, $mgmt_int);
     if ($management_network) {
-        my $mgmt_int = $management_network->tag("int");
+        $mgmt_int = $management_network->tag("int");
         if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
             if (defined($management_network->{'Tvip'}) && $management_network->{'Tvip'} ne '') {
                 $SNAT_ip = $management_network->{'Tvip'};
