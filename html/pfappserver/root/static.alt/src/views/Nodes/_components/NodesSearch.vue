@@ -15,7 +15,8 @@
         <b-pagination align="right" :per-page="pageSizeLimit" :total-rows="totalRows" v-model="requestPage" :disabled="isLoading"
           @input="onPageChange" />
       </b-row>
-      <b-table hover :items="items" :fields="columns"></b-table>
+      <b-table hover :items="items" :fields="columns" :sort-by="sortBy" :sort-desc="sortDesc"
+        @sort-changed="onSortingChanged" no-local-sorting></b-table>
     </div>
   </b-card>
 </template>
@@ -92,6 +93,12 @@ export default {
     isLoading () {
       return this.$store.getters['$_nodes/isLoading']
     },
+    sortBy () {
+      return this.$store.state.$_nodes.searchSortBy
+    },
+    sortDesc () {
+      return this.$store.state.$_nodes.searchSortDesc
+    },
     items () {
       return this.$store.state.$_nodes.items
     },
@@ -112,8 +119,8 @@ export default {
       })
     },
     onReset () {
-      this.$store.dispatch('$_nodes/setSearchQuery', undefined) // reset search
       this.requestPage = 1 // reset to the first page
+      this.$store.dispatch('$_nodes/setSearchQuery', undefined) // reset search
       this.$store.dispatch('$_nodes/search', this.requestPage)
     },
     onPageSizeChange () {
@@ -128,6 +135,11 @@ export default {
       }).catch(() => {
         _this.requestPage = _this.currentPage
       })
+    },
+    onSortingChanged (params) {
+      this.requestPage = 1 // reset to the first page
+      this.$store.dispatch('$_nodes/setSearchSorting', params)
+      this.$store.dispatch('$_nodes/search', this.requestPage)
     }
   },
   created () {

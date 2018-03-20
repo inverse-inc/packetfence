@@ -5,11 +5,13 @@ import api from '../_api'
 
 const STORAGE_SEARCH_LIMIT_KEY = 'nodes-search-limit'
 
+// Default values
 const state = {
   status: '',
   items: [],
   searchQuery: null,
-  searchCursor: 0,
+  searchSortBy: 'mac',
+  searchSortDesc: false,
   searchMaxPageNumber: 1,
   searchPageSize: localStorage.getItem(STORAGE_SEARCH_LIMIT_KEY) || 10
 }
@@ -28,16 +30,22 @@ const actions = {
     commit('SEARCH_LIMIT_UPDATED', limit)
     commit('SEARCH_MAX_PAGE_NUMBER_UPDATED', 1) // reset page count
   },
+  setSearchSorting: ({commit}, params) => {
+    commit('SEARCH_SORT_BY_UPDATED', params.sortBy)
+    commit('SEARCH_SORT_DESC_UPDATED', params.sortDesc)
+    commit('SEARCH_MAX_PAGE_NUMBER_UPDATED', 1) // reset page count
+  },
   search: ({state, getters, commit, dispatch}, page) => {
+    let sort = [state.searchSortDesc ? `${state.searchSortBy} DESC` : state.searchSortBy]
     let body = {
       cursor: state.searchPageSize * (page - 1),
-      limit: state.searchPageSize
+      limit: state.searchPageSize,
+      sort
     }
     let apiPromise = state.searchQuery ? api.search(Object.assign(body, {query: state.searchQuery})) : api.all(body)
     return new Promise((resolve, reject) => {
       commit('SEARCH_REQUEST')
       apiPromise.then(response => {
-        commit('SEARCH_CURSOR_UPDATED', page)
         commit('SEARCH_SUCCESS', response)
         resolve(response)
       }).catch(err => {
@@ -55,8 +63,11 @@ const mutations = {
   SEARCH_QUERY_UPDATED: (state, query) => {
     state.searchQuery = query
   },
-  SEARCH_CURSOR_UPDATED: (state, page) => {
-    state.searchCursor = state.searchPageSize * page
+  SEARCH_SORT_BY_UPDATED: (state, field) => {
+    state.searchSortBy = field
+  },
+  SEARCH_SORT_DESC_UPDATED: (state, desc) => {
+    state.searchSortDesc = desc
   },
   SEARCH_MAX_PAGE_NUMBER_UPDATED: (state, page) => {
     state.searchMaxPageNumber = page
