@@ -126,7 +126,7 @@ sub nodecategory_upsert {
 =cut
 
 sub nodecategory_view_all {
-    my ($status, $iter) = pf::dal::node_category->search(class => undef);
+    my ($status, $iter) = pf::dal::node_category->search(-with_class => undef);
     if (is_error($status)) {
         return;
     }
