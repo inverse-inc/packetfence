@@ -248,6 +248,11 @@ aaa=7070
 #
 # Port the mod_status for httpd.portal listens on.
 httpd_portal_modstatus=1444
+#
+# ports.unified_api
+#
+# port to use for accessing the Unified API
+unifiedapi=9999
 
 [database]
 #

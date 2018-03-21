@@ -23,6 +23,8 @@
 -A input-management-if --protocol tcp --match tcp --dport %%webservices_port%% --jump ACCEPT
 # AAA 
 -A input-management-if --protocol tcp --match tcp --dport %%aaa_port%% --jump ACCEPT
+# Unified API
+-A input-management-if --protocol tcp --match tcp --dport %%unifiedapi_port%% --jump ACCEPT
 # httpd.portal modstatus
 -A input-management-if --protocol tcp --match tcp --dport %%httpd_portal_modstatus%% --jump ACCEPT
 # httpd.collector
