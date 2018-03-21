@@ -45,9 +45,9 @@ func main() {
 ```
 
 ## How it works?
-By specifying the chain of calls, a `Job` struct is instantiated and a goroutine is starts observing the `Job`.
+By specifying the chain of calls, a `Job` struct is instantiated and a Goroutine is started observing the `Job`.
 
-The goroutine will be on pause until:
+The Goroutine will be on pause until:
 * The next run interval is due. This will cause to execute the job.
 * The `SkipWait` channel is activated. This will cause to execute the job.
 * The `Quit` channel is activated. This will cause to finish the job.
