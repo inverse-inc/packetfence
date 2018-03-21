@@ -100,18 +100,22 @@ sub make_search_args {
     }
 
     ($status, my $where) = $self->make_where($search_info);
-    if (is_error($status, $where)) {
+    if (is_error($status)) {
         return $status, $where;
     }
 
     ($status, my $from) = $self->make_from($search_info);
-    if (is_error($status, $from)) {
+    if (is_error($status)) {
         return $status, $from;
+    }
+
+    ($status, my $order_by) = $self->make_order_by($search_info);
+    if (is_error($status)) {
+        return $status, $order_by;
     }
 
     my $offset   = $self->make_offset($search_info);
     my $limit    = $self->make_limit($search_info);
-    my $order_by = $self->make_order_by($search_info);
     my %search_args = (
         -with_class => undef,
         -where      => $where,
@@ -119,10 +123,8 @@ sub make_search_args {
         -offset     => $offset,
         -order_by   => $order_by,
         -from       => $from,
+        -columns    => $columns,
     );
-    if (@$columns) {
-        $search_args{'-columns'} = $columns;
-    }
 
     return 200, \%search_args;
 }
@@ -381,32 +383,51 @@ sub make_where {
 
 Makes the SQL::Abstract::More order by clause from the search_info
 
-    my $order_by = $self->make_order_by($search_info)
+    my ($status, $order_by_or_error) = $self->make_order_by($search_info)
 
 =cut
 
 sub make_order_by {
     my ($self, $s) = @_;
     my $sort = $s->{sort} // [];
-    local $_;
-    return [map { $self->normalize_order_by($_)  } @$sort ];
+    my @errors;
+    my @order_by_specs;
+    for my $sort_spec (@$sort) {
+        my $order_by = $self->normalize_order_by($s, $sort_spec);
+        if (defined $order_by) {
+            push @order_by_specs, $order_by;
+        } else {
+            push @errors, {msg => "$sort_spec is invalid"};
+        }
+    }
+
+    if (@errors) {
+        return 422, { msg => 'Invalid field(s) in sort', errors => \@errors};
+    }
+
+    return 200, \@order_by_specs;
 }
 
 =head2 $self->normalize_order_by($order_by_field)
 
 Normalize a sort field to the SQL::Abstract::More order by spec
 
-    my $order_by_spec = $self->normalize_order_by($order_by_field)
+    my $order_by_spec_or_undef = $self->normalize_order_by($order_by_field)
 
 =cut
 
 sub normalize_order_by {
-    my ($self, $order_by) = @_;
+    my ($self, $s, $order_by) = @_;
     my $direction = '-asc';
     if ($order_by =~ /^([^ ]+) (DESC|ASC)$/i ) {
        $order_by = $1;
        $direction = "-" . lc($2);
     }
+
+    if (!$self->is_valid_field($s, $order_by)) {
+        return undef;
+    }
+
     return { $direction => $order_by }
 }
 

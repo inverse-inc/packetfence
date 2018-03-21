@@ -51,7 +51,7 @@ my %values = (
 my $status = pf::dal::locationlog->create(\%values);
 
 #run tests
-use Test::More tests => 74;
+use Test::More tests => 76;
 use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
@@ -307,6 +307,15 @@ $t->post_ok(
 ;
 
 is(scalar @{$t->tx->res->json->{items}}, 254, "Return a complex query");
+
+$t->post_ok(
+    '/api/v1/locationlogs/search' => json => {
+        'fields' => [qw(mac)],
+        'sort'   => ["${$}_bad_field"],
+    }
+  )
+  ->status_is(422)
+;
 
 =head1 AUTHOR
 
