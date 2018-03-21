@@ -185,6 +185,18 @@ our @API_V1_ROUTES = (
         Config::TrafficShapingPolicies
         Config::Violations
     ),
+    {
+        controller => 'I18N',
+        allow_singular => 1,
+        collection => {
+            path => '/i18n',
+            http_methods => {
+                get => "list",
+            },
+            subroutes => undef,
+        },
+        resource => undef,
+    }
 );
 
 sub startup {
