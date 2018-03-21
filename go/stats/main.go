@@ -334,7 +334,12 @@ func main() {
 	var keyConfStats pfconfigdriver.PfconfigKeys
 	keyConfStats.PfconfigNS = "config::Stats"
 	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfStats)
-    RegExpMetric := regexp.MustCompile("^metric .*")
+	RegExpMetric := regexp.MustCompile("^metric .*")
+
+	// Read DB config
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Database)
+	configDatabase := pfconfigdriver.Config.PfConf.Database
+	connectDB(configDatabase)
 
 	for _, key := range keyConfStats.Keys {
 		var ConfStat pfconfigdriver.PfStats
