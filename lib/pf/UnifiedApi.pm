@@ -186,16 +186,19 @@ our @API_V1_ROUTES = (
         Config::Violations
     ),
     {
-        controller => 'I18N',
-        allow_singular => 1,
+        controller => 'Translations',
         collection => {
-            path => '/i18n',
             http_methods => {
                 get => "list",
             },
             subroutes => undef,
         },
-        resource => undef,
+        resource => {
+            http_methods => {
+                get => "get",
+            },
+            subroutes => undef,
+        },
     }
 );
 
