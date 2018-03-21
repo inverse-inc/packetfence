@@ -46,7 +46,7 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 		break
 
 	default:
-		log.LoggerWContext(ctx).Info("Unhandled type: " + conf.Type)
+		log.LoggerWContext(ctx).Warn("Unhandled type: " + conf.Type)
 	}
 
 	_, err := interval.Every(conf.Interval).Run(job)
@@ -58,7 +58,6 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 }
 
 func SendMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats, metric string) {
-	log.LoggerWContext(ctx).Info("Metric " + conf.StatsdNS + ": " + metric)
 	switch conf.StatsdType {
 	case "count":
 		StatsdClient.Count(conf.StatsdNS, metric)
@@ -77,6 +76,6 @@ func SendMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats, metric s
 		break
 
 	default:
-		log.LoggerWContext(ctx).Info("Unhandled statsd type: " + conf.StatsdType)
+		log.LoggerWContext(ctx).Warn("Unhandled statsd type: " + conf.StatsdType)
 	}
 }

@@ -1,7 +1,7 @@
 [metric 'sample metric count']
 type=mysql_query
 statsd_type=count
-statsd_ns=source.statsd.test.count
+statsd_ns=source.statsd.test.001
 # mysql_query must return a single column with a single row
 mysql_query=SELECT ROUND((RAND() * (100-1))+1)
 interval=1s
@@ -9,7 +9,7 @@ interval=1s
 [metric 'sample metric gauge']
 type=mysql_query
 statsd_type=gauge
-statsd_ns=source.statsd.test.gauge
+statsd_ns=source.statsd.test.002
 # mysql_query must return a single column with a single row
 mysql_query=SELECT ROUND((RAND() * (100-1))+1)
 interval=1s
@@ -17,7 +17,7 @@ interval=1s
 [metric 'sample metric histogram']
 type=mysql_query
 statsd_type=histogram
-statsd_ns=source.statsd.test.histogram
+statsd_ns=source.statsd.test.003
 # mysql_query must return a single column with a single row
 mysql_query=SELECT ROUND((RAND() * (100-1))+1)
 interval=1s
