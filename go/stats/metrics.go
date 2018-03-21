@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"strconv"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/inverse-inc/packetfence/go/interval"
@@ -55,15 +56,18 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 func SendMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats, metric string) {
 	switch conf.StatsdType {
 	case "count":
-		StatsdClient.Count(conf.StatsdNS, metric)
+		f, _ := strconv.ParseFloat(metric, 64)
+		StatsdClient.Count(conf.StatsdNS, f)
 		break
 
 	case "gauge":
-		StatsdClient.Gauge(conf.StatsdNS, metric)
+		f, _ := strconv.ParseFloat(metric, 64)
+		StatsdClient.Gauge(conf.StatsdNS, f)
 		break
 
 	case "histogram":
-		StatsdClient.Histogram(conf.StatsdNS, metric)
+		f, _ := strconv.ParseFloat(metric, 64)
+		StatsdClient.Histogram(conf.StatsdNS, f)
 		break
 
 	case "unique":
