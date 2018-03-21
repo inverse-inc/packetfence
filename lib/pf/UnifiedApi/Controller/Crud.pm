@@ -25,7 +25,6 @@ our %OP_HAS_SUBQUERIES = (
     'or' => 1,
 );
 
-
 =head1 ATTRIBUTES
 
 =cut
@@ -62,7 +61,6 @@ Example:
 
 has 'parent_primary_key_map' => sub { {} };
 
-
 =head2 search_builder_class
 
 search_builder_class
@@ -71,35 +69,71 @@ search_builder_class
 
 has 'search_builder_class' => "pf::UnifiedApi::SearchBuilder";
 
-
 =head1 METHODS
 
 =cut
 
 sub list {
     my ($self) = @_;
-    my $number_of_results = $self->list_number_of_results;
-    my $limit = $number_of_results + 1;
-    my $cursor = $self->list_cursor();
-    my ($status, $iter) = $self->dal->search(
-        -limit => $limit,
-        -offset => $cursor,
-        -with_class => undef,
-        -where => $self->where_for_list,
-    );
-    my $items = $iter->all;
-    my $prevCursor = $cursor - $number_of_results;
-    my %results = (
-        items => $items,
-    );
-    if (@$items == $limit) {
-        pop @$items;
-        $results{nextCursor} = $cursor + $number_of_results
+    my ($status, $search_info_or_error) = $self->build_list_search_info;
+    if (is_error($status)) {
+        return $self->render(json => $search_info_or_error, status => $status);
     }
-    if ($prevCursor >= 0 ) {
-        $results{prevCursor} = $prevCursor;
+
+    ($status, my $response) = $self->search_builder->search($search_info_or_error);
+    if ( is_error($status) ) {
+        return $self->render_error(
+            $status,
+            $response->{msg},
+            $response->{errors}
+        );
     }
-    $self->render(json => \%results, status => $status);
+
+    return $self->render(
+        json   => $response,
+        status => $status
+    );
+}
+
+sub build_list_search_info {
+    my ($self) = @_;
+    my $params = $self->req->query_params->to_hash;
+
+    return 200, {
+        dal => $self->dal,
+        query => $self->build_list_search_query,
+        (
+            map {
+                exists $params->{$_}
+                  ? ( $_ => $params->{$_} )
+                  : ()
+            } qw(limit fields sort cursor)
+        )
+    };
+}
+
+sub build_list_search_query {
+    my ($self) = @_;
+    my $parent_data = $self->parent_data;
+    if (keys %$parent_data == 0) {
+        return undef;
+    }
+
+    my $query;
+    my @sub_queries;
+    while (my ($k, $v) = each %$parent_data) {
+        next if !defined $v || ref $v;
+        push @sub_queries, { field => $k, op => 'equals', value => $v };
+    }
+
+    if (@sub_queries) {
+        $query = {
+            values => \@sub_queries,
+            op => 'and',
+        }
+    }
+
+    return $query;
 }
 
 sub where_for_list {
