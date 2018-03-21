@@ -100,6 +100,7 @@ our @NODE_FIELDS = qw(
     stripped_user_name
     user_name
     uuid
+    created_at
 );
 
 our @RADIUS_FIELDS = qw(request_time radius_request radius_reply);
