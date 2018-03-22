@@ -2,6 +2,7 @@ package interval
 
 import (
 	"errors"
+	"math/rand"
 	"sync"
 	"time"
 )
@@ -21,10 +22,11 @@ type Job struct {
 }
 
 type recurrent struct {
-	delay   int64
-	started time.Time
-	count   int64
-	done    bool
+	randomize bool
+	delay     int64
+	started   time.Time
+	count     int64
+	done      bool
 }
 
 func (r *recurrent) nextRun() (time.Duration, error) {
@@ -34,6 +36,12 @@ func (r *recurrent) nextRun() (time.Duration, error) {
 	if !r.done {
 		r.done = true
 		return 0, nil
+	}
+	if r.randomize {
+		r.randomize = false
+		//add jitter to time started
+		jitter := rand.Int63n(r.delay)
+		r.started = r.started.Add(-time.Duration(jitter))
 	}
 	//adjust offset for processing time drift
 	offset := (r.count * r.delay) - time.Since(r.started).Nanoseconds()
@@ -51,6 +59,17 @@ func Every(duration string) *Job {
 	r.delay = t.Nanoseconds()
 	j := new(Job)
 	j.schedule = r
+	return j
+}
+
+func (j *Job) Randomize() *Job {
+	rj, ok := j.schedule.(*recurrent)
+	if !ok {
+		j.err = errors.New("bad function chaining")
+		return j
+	}
+	rj.done = true
+	rj.randomize = true
 	return j
 }
 

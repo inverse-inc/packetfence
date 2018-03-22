@@ -46,7 +46,7 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 		log.LoggerWContext(ctx).Warn("Unhandled type: " + conf.Type)
 	}
 
-	_, err := interval.Every(conf.Interval).Run(job)
+	_, err := interval.Every(conf.Interval).Randomize().Run(job)
 	if err != nil {
 		return err
 	}
