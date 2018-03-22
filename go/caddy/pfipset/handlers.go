@@ -127,7 +127,7 @@ func handlePassthrough(res http.ResponseWriter, req *http.Request) {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
-	Port, valid_port := validate_port(o.Port)
+	Port, valid_port := validatePort(o.Port)
 	if !valid_port {
 		handleError(res, http.StatusBadRequest)
 		return
@@ -169,7 +169,7 @@ func handleIsolationPassthrough(res http.ResponseWriter, req *http.Request) {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
-	Port, valid_port := validate_port(o.Port)
+	Port, valid_port := validatePort(o.Port)
 	if !valid_port {
 		handleError(res, http.StatusBadRequest)
 		return
@@ -211,7 +211,7 @@ func handleLayer2(res http.ResponseWriter, req *http.Request) {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
-	Type, valid_type := validate_type(o.Type)
+	Type, valid_type := validateType(o.Type)
 	if !valid_type {
 		handleError(res, http.StatusBadRequest)
 		return
@@ -221,12 +221,12 @@ func handleLayer2(res http.ResponseWriter, req *http.Request) {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
-	RoleId, valid_roleid := validate_roleid(o.RoleId)
+	RoleId, valid_roleid := validateRoleId(o.RoleId)
 	if !valid_roleid {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
-	Mac, valid_mac := validate_mac(o.Mac)
+	Mac, valid_mac := validateMac(o.Mac)
 	if !valid_mac {
 		handleError(res, http.StatusBadRequest)
 		return
@@ -304,7 +304,7 @@ func handleMarkIpL2(res http.ResponseWriter, req *http.Request) {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
-	RoleId, valid_roleid := validate_roleid(o.RoleId)
+	RoleId, valid_roleid := validateRoleId(o.RoleId)
 	if !valid_roleid {
 		handleError(res, http.StatusBadRequest)
 		return
@@ -359,7 +359,7 @@ func handleMarkIpL3(res http.ResponseWriter, req *http.Request) {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
-	RoleId, valid_roleid := validate_roleid(o.RoleId)
+	RoleId, valid_roleid := validateRoleId(o.RoleId)
 	if !valid_roleid {
 		handleError(res, http.StatusBadRequest)
 		return
@@ -409,7 +409,7 @@ func handleLayer3(res http.ResponseWriter, req *http.Request) {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
-	Type, valid_type := validate_type(o.Type)
+	Type, valid_type := validateType(o.Type)
 	if !valid_type {
 		handleError(res, http.StatusBadRequest)
 		return
@@ -419,7 +419,7 @@ func handleLayer3(res http.ResponseWriter, req *http.Request) {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
-	RoleId, valid_roleid := validate_roleid(o.RoleId)
+	RoleId, valid_roleid := validateRoleId(o.RoleId)
 	if !valid_roleid {
 		handleError(res, http.StatusBadRequest)
 		return
@@ -481,7 +481,7 @@ func (IPSET *pfIPSET) handleUnmarkMac(res http.ResponseWriter, req *http.Request
 	if err != nil {
 		panic(err)
 	}
-	Mac, valid_mac := validate_mac(o.Mac)
+	Mac, valid_mac := validateMac(o.Mac)
 	if !valid_mac {
 		handleError(res, http.StatusBadRequest)
 		return

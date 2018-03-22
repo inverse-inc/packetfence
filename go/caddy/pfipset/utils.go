@@ -315,7 +315,7 @@ func (IPSET *pfIPSET) detectType(ctx context.Context) error {
 	return nil
 }
 
-func validate_mac(mac string) (string, bool) {
+func validateMac(mac string) (string, bool) {
 	re := regexp.MustCompile("(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}")
 	if re.Match([]byte(mac)) {
 		return mac, true
@@ -323,7 +323,7 @@ func validate_mac(mac string) (string, bool) {
 	return "", false
 }
 
-func validate_type(_type string) (string, bool) {
+func validateType(_type string) (string, bool) {
 	re := regexp.MustCompile("[a-zA-Z]+")
 	if re.Match([]byte(_type)) {
 		return _type, true
@@ -331,7 +331,7 @@ func validate_type(_type string) (string, bool) {
 	return "", false
 }
 
-func validate_roleid(roleid string) (string, bool) {
+func validateRoleId(roleid string) (string, bool) {
 	re := regexp.MustCompile("[0-9]+")
 	if re.Match([]byte(roleid)) {
 		return roleid, true
@@ -339,7 +339,7 @@ func validate_roleid(roleid string) (string, bool) {
 	return "", false
 }
 
-func validate_port(port string) (string, bool) {
+func validatePort(port string) (string, bool) {
 	re := regexp.MustCompile("(?:udp|tcp):[0-9]+")
 	if re.Match([]byte(port)) {
 		return port, true
