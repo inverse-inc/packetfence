@@ -36,6 +36,7 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 					return
 				}
 				SendMetricConfig(ctx, conf, result)
+				break
 			}
 			return
 		}
