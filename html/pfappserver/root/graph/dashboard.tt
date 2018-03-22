@@ -90,9 +90,19 @@ setTimeout(function(){
         <b>Netdata statistics on the System</b>
     </div>
     <div style="width: 100%; max-height: calc(100% - 15px); text-align: center; display: inline-block;">
-            <div data-netdata="netdata.requests"
-                    data-title="Chart Refreshes/s"
-                    data-common-max="netdata-requests"
+            <div data-netdata="freeradius_Freeradius_Auth.authentication"
+                    data-title="Radius Access Accepts"
+                    data-common-max="access-accepts"
+                    data-decimal-digits="0"
+                    data-chart-library="gauge"
+                    data-width="20%"
+                    data-height="100%"
+                    data-after="-300"
+                    data-points="300"
+                    ></div>
+            <div data-netdata="freeradius_Freeradius_Acct.proxy-auth"
+                    data-title="Radius Access Requests"
+                    data-common-max="gauge"
                     data-decimal-digits="0"
                     data-chart-library="gauge"
                     data-width="20%"
@@ -122,19 +132,12 @@ setTimeout(function(){
                     data-after="-300"
                     data-points="300"
                     ></div>
-             <div>
-                 <a href="#">
-                    <img src="https://172.20.145.9:1443/netdata/127.0.0.1/api/v1/badge.svg?chart=system.uptime"></img>
-                 </a>
-                 <a href="#">
-                    <img src="https://172.20.145.9:1443/netdata/127.0.0.1/api/v1/badge.svg?chart=system.uptime"></img>
-                 </a>
-                 <a href="#">
-                    <img src="https://172.20.145.9:1443/netdata/127.0.0.1/api/v1/badge.svg?chart=system.uptime"></img>
-                 </a>
-            </div>
         </div>
     </div>
+</div>
+
+<div style="width: 100%; height: 15px; text-align: center; display: inline-block;">
+    <b>Server stats</b>
 </div>
 
 <div style="width: 100%; text-align: center; display: inline-block;">
@@ -214,7 +217,12 @@ setTimeout(function(){
                     ></div>
         </div>
     </div>
-
+    <div>
+        <a href="#">
+           <img src="https://172.20.145.9:1443/netdata/127.0.0.1/api/v1/badge.svg?chart=system.uptime"></img>
+        </a>
+    </div>
+<br>
 </div>
 </body>
 </html>
