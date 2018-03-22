@@ -68,7 +68,9 @@ func (c *Client) Call(ctx context.Context, method, path string, decodeResponseIn
 }
 
 func (c *Client) CallWithBody(ctx context.Context, method, path string, payload interface{}, decodeResponseIn interface{}) error {
-	return nil
+	data, err := json.Marshal(payload)
+	sharedutils.CheckError(err)
+	return c.call(ctx, method, path, string(data), decodeResponseIn)
 }
 
 func (c *Client) call(ctx context.Context, method, path, body string, decodeResponseIn interface{}) error {
