@@ -154,3 +154,41 @@
         $ref: "#/components/responses/IpsetIp"
       '400':
         $ref: "#/components/responses/BadRequest"
+
+/ipset/add_ip/{set_name}:
+  post:
+    summary: Add an IP to a specific ipset
+    description: Add an IP to a specific ipset
+    parameters:
+      - $ref: '#/components/parameters/local'
+      - $ref: '#/components/parameters/ipset_name'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/IpsetIp"
+    responses:
+      '200':
+        $ref: "#/components/responses/IpsetIp"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+
+/ipset/remove_ip/{set_name}:
+  post:
+    summary: Removes an IP from a specific ipset
+    description: Removes an IP from a specific ipset
+    parameters:
+      - $ref: '#/components/parameters/local'
+      - $ref: '#/components/parameters/ipset_name'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/IpsetIp"
+    responses:
+      '200':
+        $ref: "#/components/responses/IpsetIp"
+      '400':
+        $ref: "#/components/responses/BadRequest"
