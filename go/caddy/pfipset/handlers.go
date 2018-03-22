@@ -8,8 +8,10 @@ import (
 	"net"
 	"net/http"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/diegoguarnieri/go-conntrack/conntrack"
 	ipset "github.com/digineo/go-ipset"
+	"github.com/gorilla/mux"
 	"github.com/inverse-inc/packetfence/go/log"
 )
 
@@ -26,6 +28,86 @@ type PostOptions struct {
 	Port    string `json:"port,omitempty"`
 	Mac     string `json:"mac,omitempty"`
 	Type    string `json:"type,omitempty"`
+}
+
+func handleAddIp(res http.ResponseWriter, req *http.Request) {
+	IPSET := pfIPSETFromContext(req.Context())
+
+	body, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		panic(err)
+	}
+	var o PostOptions
+	err = json.Unmarshal(body, &o)
+	if err != nil {
+		panic(err)
+	}
+	Ip := net.ParseIP(o.Ip)
+	if Ip == nil {
+		handleError(res, http.StatusBadRequest)
+		return
+	}
+	Local := req.URL.Query().Get("local")
+	setName := mux.Vars(req)["set_name"]
+
+	spew.Dump(setName, Ip.String())
+
+	IPSET.jobs <- job{"Add", setName, Ip.String()}
+	if Local == "0" {
+		updateClusterAddIp(req.Context(), setName, req.Body)
+	}
+	var result = map[string][]*Info{
+		"result": {
+			&Info{Ip: Ip.String(), Status: "ACK"},
+		},
+	}
+
+	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	res.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(res).Encode(result); err != nil {
+		panic(err)
+	}
+
+}
+
+func handleRemoveIp(res http.ResponseWriter, req *http.Request) {
+	IPSET := pfIPSETFromContext(req.Context())
+
+	body, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		panic(err)
+	}
+	var o PostOptions
+	err = json.Unmarshal(body, &o)
+	if err != nil {
+		panic(err)
+	}
+	Ip := net.ParseIP(o.Ip)
+	if Ip == nil {
+		handleError(res, http.StatusBadRequest)
+		return
+	}
+	Local := req.URL.Query().Get("local")
+	setName := mux.Vars(req)["set_name"]
+
+	spew.Dump(setName, Ip.String())
+
+	IPSET.jobs <- job{"Del", setName, Ip.String()}
+	if Local == "0" {
+		updateClusterRemoveIp(req.Context(), setName, req.Body)
+	}
+	var result = map[string][]*Info{
+		"result": {
+			&Info{Ip: Ip.String(), Status: "ACK"},
+		},
+	}
+
+	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	res.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(res).Encode(result); err != nil {
+		panic(err)
+	}
+
 }
 
 func handlePassthrough(res http.ResponseWriter, req *http.Request) {

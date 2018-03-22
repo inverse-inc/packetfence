@@ -142,6 +142,32 @@ func updateClusterMarkIpL2(ctx context.Context, body io.Reader) {
 	}
 }
 
+func updateClusterAddIp(ctx context.Context, setName string, body io.Reader) {
+	logger := log.LoggerWContext(ctx)
+
+	for _, member := range getClusterMembersIps(ctx) {
+		err := post(ctx, "https://"+member.String()+":22223/ipset/add_ip/"+setName+"?local=1", body)
+		if err != nil {
+			logger.Error("Not able to contact " + member.String() + err.Error())
+		} else {
+			logger.Info("Updated " + member.String())
+		}
+	}
+}
+
+func updateClusterRemoveIp(ctx context.Context, setName string, body io.Reader) {
+	logger := log.LoggerWContext(ctx)
+
+	for _, member := range getClusterMembersIps(ctx) {
+		err := post(ctx, "https://"+member.String()+":22223/ipset/remove_ip/"+setName+"?local=1", body)
+		if err != nil {
+			logger.Error("Not able to contact " + member.String() + err.Error())
+		} else {
+			logger.Info("Updated " + member.String())
+		}
+	}
+}
+
 func updateClusterPassthrough(ctx context.Context, body io.Reader) {
 	logger := log.LoggerWContext(ctx)
 
@@ -209,8 +235,8 @@ func (IPSET *pfIPSET) initIPSet(ctx context.Context, db *sql.DB) {
 	}
 	defer rows.Close()
 	var (
-		IpStr string
-		Mac   string
+		IpStr  string
+		Mac    string
 		NodeId string
 	)
 	for rows.Next() {
@@ -289,7 +315,7 @@ func (IPSET *pfIPSET) detectType(ctx context.Context) error {
 	return nil
 }
 
-func validate_mac (mac string) (string, bool) {
+func validate_mac(mac string) (string, bool) {
 	re := regexp.MustCompile("(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}")
 	if re.Match([]byte(mac)) {
 		return mac, true
@@ -297,7 +323,7 @@ func validate_mac (mac string) (string, bool) {
 	return "", false
 }
 
-func validate_type (_type string) (string, bool) {
+func validate_type(_type string) (string, bool) {
 	re := regexp.MustCompile("[a-zA-Z]+")
 	if re.Match([]byte(_type)) {
 		return _type, true
@@ -305,7 +331,7 @@ func validate_type (_type string) (string, bool) {
 	return "", false
 }
 
-func validate_roleid (roleid string) (string, bool) {
+func validate_roleid(roleid string) (string, bool) {
 	re := regexp.MustCompile("[0-9]+")
 	if re.Match([]byte(roleid)) {
 		return roleid, true
@@ -313,7 +339,7 @@ func validate_roleid (roleid string) (string, bool) {
 	return "", false
 }
 
-func validate_port (port string) (string, bool) {
+func validate_port(port string) (string, bool) {
 	re := regexp.MustCompile("(?:udp|tcp):[0-9]+")
 	if re.Match([]byte(port)) {
 		return port, true
