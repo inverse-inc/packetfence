@@ -36,10 +36,11 @@ type PrettyTokenInfo struct {
 }
 
 type ApiAAAHandler struct {
-	Next           httpserver.Handler
-	router         *httprouter.Router
-	authentication *aaa.TokenAuthenticationMiddleware
-	authorization  *aaa.TokenAuthorizationMiddleware
+	Next               httpserver.Handler
+	router             *httprouter.Router
+	webservicesBackend *aaa.MemAuthenticationBackend
+	authentication     *aaa.TokenAuthenticationMiddleware
+	authorization      *aaa.TokenAuthorizationMiddleware
 }
 
 // Setup the api-aaa middleware
@@ -74,12 +75,11 @@ func buildApiAAAHandler(ctx context.Context) (ApiAAAHandler, error) {
 
 	// Backend for the pf.conf webservices user
 	if pfconfigdriver.Config.PfConf.Webservices.User != "" {
-		apiAAA.authentication.AddAuthenticationBackend(aaa.NewMemAuthenticationBackend(
-			map[string]string{
-				pfconfigdriver.Config.PfConf.Webservices.User: pfconfigdriver.Config.PfConf.Webservices.Pass,
-			},
+		apiAAA.webservicesBackend = aaa.NewMemAuthenticationBackend(
+			map[string]string{},
 			pfconfigdriver.Config.AdminRoles.Element["ALL"].Actions,
-		))
+		)
+		apiAAA.authentication.AddAuthenticationBackend(apiAAA.webservicesBackend)
 	}
 
 	db, err := db.DbFromConfig(ctx)
@@ -207,6 +207,9 @@ func (h ApiAAAHandler) HandleAAA(w http.ResponseWriter, r *http.Request) bool {
 
 func (h ApiAAAHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 	ctx := r.Context()
+
+	// Reload the webservices user info
+	h.webservicesBackend.SetUser(pfconfigdriver.Config.PfConf.Webservices.User, pfconfigdriver.Config.PfConf.Webservices.Pass)
 
 	defer panichandler.Http(ctx, w)
 
