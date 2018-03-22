@@ -50,8 +50,6 @@ func handleAddIp(res http.ResponseWriter, req *http.Request) {
 	Local := req.URL.Query().Get("local")
 	setName := mux.Vars(req)["set_name"]
 
-	spew.Dump(setName, Ip.String())
-
 	IPSET.jobs <- job{"Add", setName, Ip.String()}
 	if Local == "0" {
 		updateClusterAddIp(req.Context(), setName, req.Body)
