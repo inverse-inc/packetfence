@@ -329,19 +329,18 @@ func main() {
 	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfStats)
 	RegExpMetric := regexp.MustCompile("^metric .*")
 
-	for _, key := range keyConfStats.Keys {
+	// Read DB config
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Database)
+	configDatabase := pfconfigdriver.Config.PfConf.Database
+	connectDB(configDatabase)
+
+    for _, key := range keyConfStats.Keys {
 		var ConfStat pfconfigdriver.PfStats
 		ConfStat.PfconfigHashNS = key
 
 		pfconfigdriver.FetchDecodeSocket(ctx, &ConfStat)
 
 		if RegExpMetric.MatchString(key) {
-
-			// Read DB config
-			pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Database)
-			configDatabase := pfconfigdriver.Config.PfConf.Database
-			connectDB(configDatabase)
-
 			err = ProcessMetricConfig(ctx, ConfStat)
 			if err != nil {
 				log.LoggerWContext(ctx).Error(err.Error())
