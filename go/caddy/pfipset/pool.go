@@ -5,9 +5,9 @@ import (
 )
 
 type job struct {
-	Method  string `json:"method"`
-	Set     string `json:"set"`
-	Message string `json:"message"`
+	Method  string
+	Set     string
+	Message string
 }
 
 func doWork(id int, jobe job) {

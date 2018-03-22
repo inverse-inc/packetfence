@@ -121,7 +121,6 @@ func buildPfipsetHandler(ctx context.Context) (PfipsetHandler, error) {
 	api.HandleFunc("/ipset/passthrough_isolation", handleIsolationPassthrough).Methods("POST")
 	api.HandleFunc("/ipset/add_ip/{set_name}", handleAddIp).Methods("POST")
 	api.HandleFunc("/ipset/remove_ip/{set_name}", handleRemoveIp).Methods("POST")
-	api.HandleFunc("/ipset/perform_job", handlePerformJob).Methods("POST")
 
 	return pfipset, nil
 }

@@ -16,9 +16,9 @@ import (
 )
 
 type Info struct {
-	Status string `json:"status,omitempty"`
-	Mac    string `json:"mac,omitempty"`
-	Ip     string `json:"ip,omitempty"`
+	Status string `json:"status"`
+	Mac    string `json:"mac"`
+	Ip     string `json:"ip"`
 }
 
 type PostOptions struct {
@@ -28,35 +28,6 @@ type PostOptions struct {
 	Port    string `json:"port,omitempty"`
 	Mac     string `json:"mac,omitempty"`
 	Type    string `json:"type,omitempty"`
-}
-
-func handlePerformJob(res http.ResponseWriter, req *http.Request) {
-	IPSET := pfIPSETFromContext(req.Context())
-
-	body, err := ioutil.ReadAll(req.Body)
-	if err != nil {
-		panic(err)
-	}
-	var o job
-	err = json.Unmarshal(body, &o)
-	if err != nil {
-		panic(err)
-	}
-
-	IPSET.jobs <- o
-
-	var result = map[string][]*Info{
-		"result": {
-			&Info{Status: "ACK"},
-		},
-	}
-
-	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	res.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(res).Encode(result); err != nil {
-		panic(err)
-	}
-
 }
 
 func handleAddIp(res http.ResponseWriter, req *http.Request) {

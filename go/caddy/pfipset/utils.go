@@ -1,11 +1,9 @@
 package pfipset
 
 import (
-	"bytes"
 	"context"
 	"crypto/tls"
 	"database/sql"
-	"encoding/json"
 	"io"
 	"net"
 	"net/http"
@@ -14,7 +12,6 @@ import (
 	ipset "github.com/digineo/go-ipset"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
 
 var body io.Reader
@@ -65,21 +62,6 @@ func getClusterMembersIps(ctx context.Context) []net.IP {
 		}
 	}
 	return members
-}
-
-func updateClusterJob(ctx context.Context, j job) {
-	logger := log.LoggerWContext(ctx)
-
-	jsonJob, err := json.Marshal(j)
-	sharedutils.CheckError(err)
-	for _, member := range getClusterMembersIps(ctx) {
-		err := post(ctx, "https://"+member.String()+":22223/ipset/perform_job", bytes.NewBuffer(jsonJob))
-		if err != nil {
-			logger.Error("Not able to contact " + member.String() + err.Error())
-		} else {
-			logger.Info("Updated " + member.String())
-		}
-	}
 }
 
 func updateClusterL2(ctx context.Context, body io.Reader) {
