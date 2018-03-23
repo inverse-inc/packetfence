@@ -70,6 +70,8 @@ func getClusterMembersIps(ctx context.Context) []net.IP {
 func updateClusterRequest(ctx context.Context, req *http.Request) {
 	logger := log.LoggerWContext(ctx)
 
+	log.LoggerWContext(ctx).Info("Syncing to peers")
+
 	apiClient := unifiedapiclient.NewFromConfig(context.Background())
 	body, err := ioutil.ReadAll(req.Body)
 	sharedutils.CheckError(err)
