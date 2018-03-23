@@ -79,6 +79,7 @@ func buildApiAAAHandler(ctx context.Context) (ApiAAAHandler, error) {
 			map[string]string{},
 			pfconfigdriver.Config.AdminRoles.Element["ALL"].Actions,
 		)
+		apiAAA.webservicesBackend.SetUser(pfconfigdriver.Config.PfConf.Webservices.User, pfconfigdriver.Config.PfConf.Webservices.Pass)
 		apiAAA.authentication.AddAuthenticationBackend(apiAAA.webservicesBackend)
 	}
 
