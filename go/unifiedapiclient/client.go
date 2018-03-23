@@ -8,8 +8,10 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -22,11 +24,19 @@ const (
 
 var httpClient *http.Client
 
+func dialTimeout(network, addr string) (net.Conn, error) {
+	return net.DialTimeout(network, addr, 1*time.Second)
+}
+
 func init() {
 	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
+		TLSHandshakeTimeout: 1 * time.Second,
+		Dial:                dialTimeout,
 	}
-	httpClient = &http.Client{Transport: tr}
+	httpClient = &http.Client{
+		Transport: tr,
+	}
 }
 
 type Client struct {
@@ -104,7 +114,7 @@ func (c *Client) call(ctx context.Context, method, path, body string, decodeResp
 		err := dec.Decode(&errRep)
 
 		if err != nil {
-			return errors.New("Error body doesn't follow the Unified API, couldn't extract the error message from it.")
+			return errors.New("Error body doesn't follow the Unified API standard, couldn't extract the error message from it.")
 		}
 
 		return errors.New(errRep.Message)
