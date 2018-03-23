@@ -11,3 +11,13 @@
 .graph-2c {
   width: 100%;
 }
+
+.dygraph-title {
+  color: $grayLight;
+  line-height: 1em;
+  text-transform: uppercase;
+}
+
+.netdata-container-with-legend {
+  margin: $fontSizeSmall 0;
+}
