@@ -79,7 +79,7 @@ func updateClusterRequest(ctx context.Context, req *http.Request) {
 	for _, member := range getClusterMembersIps(ctx) {
 		apiClient.Host = member.String()
 
-		err := apiClient.CallWithBody(ctx, req.Method, req.URL.Path+"?local=1", body, &unifiedapiclient.DummyReply{})
+		err := apiClient.CallWithStringBody(ctx, req.Method, req.URL.Path+"?local=1", string(body), &unifiedapiclient.DummyReply{})
 		if err != nil {
 			logger.Error("Not able to contact " + member.String() + err.Error())
 		} else {
