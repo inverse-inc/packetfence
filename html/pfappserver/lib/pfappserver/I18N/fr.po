@@ -12056,7 +12056,7 @@ msgstr "ID unique"
 # conf/documentation.conf (interface.enforcement options)
 # html/pfappserver/root/node/tab_Location_view.tt
 msgid "vlan"
-msgstr "SNMP"
+msgstr "VLAN"
 
 # pf::config (Network types)
 msgid "vlan-isolation"
