@@ -36,12 +36,8 @@ func (IPSET *pfIPSET) AddToContext(ctx context.Context) context.Context {
 // Detect the vip on each interfaces
 func getClusterMembersIps(ctx context.Context) []net.IP {
 
-	var keyConfCluster pfconfigdriver.PfconfigKeys
-	keyConfCluster.PfconfigNS = "resource::cluster_hosts_ip"
-
-	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfCluster)
 	var members []net.IP
-	for _, key := range keyConfCluster.Keys {
+	for _, key := range pfconfigdriver.Config.Cluster.HostsIp.Keys {
 		var ConfNet pfconfigdriver.PfClusterIp
 		ConfNet.PfconfigHashNS = key
 
