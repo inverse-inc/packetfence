@@ -3,6 +3,7 @@ package pfipset
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -74,6 +75,20 @@ func buildPfipsetHandler(ctx context.Context) (PfipsetHandler, error) {
 			}
 		}(i)
 	}
+
+	go func() {
+		ctx := log.LoggerNewContext(context.Background())
+		for {
+			time.Sleep(1 * time.Second)
+			currentQueueSize := len(pfipset.IPSET.jobs)
+			// Log a warning when queue is halfway full, and an error when its full
+			if currentQueueSize >= maxQueueSize {
+				log.LoggerWContext(ctx).Error("Queue has reached its maximum. Ipset related calls will be delayed and may timeout. Investigate previous logs to determine the cause of this backlog.")
+			} else if currentQueueSize > (maxQueueSize * 0.5) {
+				log.LoggerWContext(ctx).Warn(fmt.Sprintf("Queue has reached %d. Until it reaches %d, everything will still work.", currentQueueSize, maxQueueSize))
+			}
+		}
+	}()
 
 	// Default http timeout
 	http.DefaultClient.Timeout = 10 * time.Second
