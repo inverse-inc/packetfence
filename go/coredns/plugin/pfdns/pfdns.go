@@ -377,18 +377,16 @@ func (pf *pfdns) WebservicesInit() error {
 func (pf *pfdns) PassthrouthsInit() error {
 	var ctx = context.Background()
 
-	var wildcard pfconfigdriver.PassthroughsConf
-	wildcard.PfconfigArray = "wildcard"
-	pfconfigdriver.FetchDecodeSocket(ctx, &wildcard)
+	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.Passthroughs.Registration)
 
 	pf.FqdnPort = make(map[*regexp.Regexp][]string)
 
-	for k, v := range wildcard.Wildcard {
+	for k, v := range pfconfigdriver.Config.Passthroughs.Registration.Wildcard {
 		rgx, _ := regexp.Compile(".*" + k)
 		pf.FqdnPort[rgx] = v
 	}
 
-	for k, v := range wildcard.Normal {
+	for k, v := range pfconfigdriver.Config.Passthroughs.Registration.Normal {
 		rgx, _ := regexp.Compile(k)
 		pf.FqdnPort[rgx] = v
 	}
@@ -398,18 +396,16 @@ func (pf *pfdns) PassthrouthsInit() error {
 func (pf *pfdns) PassthrouthsIsolationInit() error {
 	var ctx = context.Background()
 
-	var wildcard pfconfigdriver.PassthroughsIsolationConf
-	wildcard.PfconfigArray = "wildcard"
-	pfconfigdriver.FetchDecodeSocket(ctx, &wildcard)
+	pfconfigdriver.FetchDecodeSocket(ctx, &pfconfigdriver.Config.Passthroughs.Isolation)
 
 	pf.FqdnIsolationPort = make(map[*regexp.Regexp][]string)
 
-	for k, v := range wildcard.Wildcard {
+	for k, v := range pfconfigdriver.Config.Passthroughs.Isolation.Wildcard {
 		rgx, _ := regexp.Compile(".*" + k)
 		pf.FqdnIsolationPort[rgx] = v
 	}
 
-	for k, v := range wildcard.Normal {
+	for k, v := range pfconfigdriver.Config.Passthroughs.Isolation.Normal {
 		rgx, _ := regexp.Compile(k)
 		pf.FqdnIsolationPort[rgx] = v
 	}

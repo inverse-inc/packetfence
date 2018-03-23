@@ -43,6 +43,10 @@ type TypedConfig struct {
 }
 
 type configStruct struct {
+	Passthroughs struct {
+		Registration PassthroughsConf
+		Isolation    PassthroughsIsolationConf
+	}
 	Interfaces struct {
 		ListenInts        ListenInts
 		ManagementNetwork ManagementNetwork
@@ -291,25 +295,19 @@ type PassthroughsConf struct {
 	StructConfig
 	PfconfigMethod string `val:"hash_element"`
 	PfconfigNS     string `val:"resource::passthroughs"`
-	PfconfigArray  string `val:"_"`
 	Wildcard       map[string][]string
 	Normal         map[string][]string
 }
 
 type PassthroughsIsolationConf struct {
-	StructConfig
-	PfconfigMethod string `val:"hash_element"`
-	PfconfigNS     string `val:"resource::isolation_passthroughs"`
-	PfconfigArray  string `val:"_"`
-	Wildcard       map[string][]string
-	Normal         map[string][]string
+	PassthroughsConf
+	PfconfigNS string `val:"resource::isolation_passthroughs"`
 }
 
 type AuthenticationSourceEduroam struct {
 	StructConfig
 	PfconfigMethod string `val:"hash_element"`
 	PfconfigNS     string `val:"resource::authentication_sources_eduroam"`
-	PfconfigArray  string `val:"_"`
 	PfconfigHashNS string `val:"-"`
 	Description    string `json:"description"`
 	RadiusSecret   string `json:"radius_secret"`
@@ -323,7 +321,6 @@ type AuthenticationSourceRadius struct {
 	StructConfig
 	PfconfigMethod string `val:"hash_element"`
 	PfconfigNS     string `val:"resource::authentication_sources_radius"`
-	PfconfigArray  string `val:"_"`
 	PfconfigHashNS string `val:"-"`
 	Description    string `json:"description"`
 	Secret         string `json:"secret"`
@@ -338,7 +335,6 @@ type AuthenticationSourceLdap struct {
 	StructConfig
 	PfconfigMethod    string `val:"hash_element"`
 	PfconfigNS        string `val:"resource::authentication_sources_ldap"`
-	PfconfigArray     string `val:"_"`
 	PfconfigHashNS    string `val:"-"`
 	Description       string `json:"description"`
 	Password          string `json:"password"`
