@@ -182,11 +182,10 @@ type PfconfigKeys struct {
 
 type ListenInts struct {
 	StructConfig
-	PfconfigHostnameOverlay string `val:"yes"`
-	PfconfigMethod          string `val:"element"`
-	PfconfigNS              string `val:"interfaces::listen_ints"`
-	PfconfigArray           string `val:"yes"`
-	Element                 []string
+	PfconfigMethod string `val:"element"`
+	PfconfigNS     string `val:"interfaces::listen_ints"`
+	PfconfigArray  string `val:"yes"`
+	Element        []string
 }
 
 type PfClusterIp struct {
@@ -199,34 +198,32 @@ type PfClusterIp struct {
 
 type PfNetwork struct {
 	StructConfig
-	PfconfigHostnameOverlay string `val:"yes"`
-	PfconfigMethod          string `val:"keys"`
-	PfconfigNS              string `val:"config::Network"`
-	Keys                    []string
+	PfconfigMethod string `val:"keys"`
+	PfconfigNS     string `val:"config::Network"`
+	Keys           []string
 }
 
 type NetworkConf struct {
 	StructConfig
-	PfconfigHostnameOverlay string `val:"yes"`
-	PfconfigMethod          string `val:"hash_element"`
-	PfconfigNS              string `val:"config::Network"`
-	PfconfigHashNS          string `val:"-"`
-	Dns                     string `json:"dns"`
-	DhcpStart               string `json:"dhcp_start"`
-	Gateway                 string `json:"gateway"`
-	DomainName              string `json:"domain-name"`
-	NatEnabled              string `json:"nat_enabled"`
-	DhcpMaxLeaseTime        string `json:"dhcp_max_lease_time"`
-	Named                   string `json:"named"`
-	FakeMacEnabled          string `json:"fake_mac_enabled"`
-	Dhcpd                   string `json:"dhcpd"`
-	DhcpEnd                 string `json:"dhcp_end"`
-	Type                    string `json:"type"`
-	Netmask                 string `json:"netmask"`
-	DhcpDefaultLeaseTime    string `json:"dhcp_default_lease_time"`
-	NextHop                 string `json:"next_hop"`
-	SplitNetwork            string `json:"split_network"`
-	RegNetwork              string `json:"reg_network"`
+	PfconfigMethod       string `val:"hash_element"`
+	PfconfigNS           string `val:"config::Network"`
+	PfconfigHashNS       string `val:"-"`
+	Dns                  string `json:"dns"`
+	DhcpStart            string `json:"dhcp_start"`
+	Gateway              string `json:"gateway"`
+	DomainName           string `json:"domain-name"`
+	NatEnabled           string `json:"nat_enabled"`
+	DhcpMaxLeaseTime     string `json:"dhcp_max_lease_time"`
+	Named                string `json:"named"`
+	FakeMacEnabled       string `json:"fake_mac_enabled"`
+	Dhcpd                string `json:"dhcpd"`
+	DhcpEnd              string `json:"dhcp_end"`
+	Type                 string `json:"type"`
+	Netmask              string `json:"netmask"`
+	DhcpDefaultLeaseTime string `json:"dhcp_default_lease_time"`
+	NextHop              string `json:"next_hop"`
+	SplitNetwork         string `json:"split_network"`
+	RegNetwork           string `json:"reg_network"`
 }
 
 type Interface struct {
@@ -238,29 +235,28 @@ type Interface struct {
 
 type RessourseNetworkConf struct {
 	StructConfig
-	PfconfigHostnameOverlay string    `val:"yes"`
-	PfconfigMethod          string    `val:"hash_element"`
-	PfconfigNS              string    `val:"resource::network_config"`
-	PfconfigHashNS          string    `val:"-"`
-	Dns                     string    `json:"dns"`
-	DhcpStart               string    `json:"dhcp_start"`
-	Gateway                 string    `json:"gateway"`
-	DomainName              string    `json:"domain-name"`
-	NatEnabled              string    `json:"nat_enabled"`
-	DhcpMaxLeaseTime        string    `json:"dhcp_max_lease_time"`
-	Named                   string    `json:"named"`
-	FakeMacEnabled          string    `json:"fake_mac_enabled"`
-	Dhcpd                   string    `json:"dhcpd"`
-	DhcpEnd                 string    `json:"dhcp_end"`
-	Type                    string    `json:"type"`
-	Netmask                 string    `json:"netmask"`
-	DhcpDefaultLeaseTime    string    `json:"dhcp_default_lease_time"`
-	NextHop                 string    `json:"next_hop"`
-	SplitNetwork            string    `json:"split_network"`
-	RegNetwork              string    `json:"reg_network"`
-	Dnsvip                  string    `json:"dns_vip"`
-	ClusterIPs              string    `json:"cluster_ips"`
-	Interface               Interface `json:"interface"`
+	PfconfigMethod       string    `val:"hash_element"`
+	PfconfigNS           string    `val:"resource::network_config"`
+	PfconfigHashNS       string    `val:"-"`
+	Dns                  string    `json:"dns"`
+	DhcpStart            string    `json:"dhcp_start"`
+	Gateway              string    `json:"gateway"`
+	DomainName           string    `json:"domain-name"`
+	NatEnabled           string    `json:"nat_enabled"`
+	DhcpMaxLeaseTime     string    `json:"dhcp_max_lease_time"`
+	Named                string    `json:"named"`
+	FakeMacEnabled       string    `json:"fake_mac_enabled"`
+	Dhcpd                string    `json:"dhcpd"`
+	DhcpEnd              string    `json:"dhcp_end"`
+	Type                 string    `json:"type"`
+	Netmask              string    `json:"netmask"`
+	DhcpDefaultLeaseTime string    `json:"dhcp_default_lease_time"`
+	NextHop              string    `json:"next_hop"`
+	SplitNetwork         string    `json:"split_network"`
+	RegNetwork           string    `json:"reg_network"`
+	Dnsvip               string    `json:"dns_vip"`
+	ClusterIPs           string    `json:"cluster_ips"`
+	Interface            Interface `json:"interface"`
 }
 
 type PfRoles struct {
