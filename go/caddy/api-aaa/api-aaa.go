@@ -209,7 +209,9 @@ func (h ApiAAAHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, e
 	ctx := r.Context()
 
 	// Reload the webservices user info
-	h.webservicesBackend.SetUser(pfconfigdriver.Config.PfConf.Webservices.User, pfconfigdriver.Config.PfConf.Webservices.Pass)
+	if pfconfigdriver.Config.PfConf.Webservices.User != "" {
+		h.webservicesBackend.SetUser(pfconfigdriver.Config.PfConf.Webservices.User, pfconfigdriver.Config.PfConf.Webservices.Pass)
+	}
 
 	defer panichandler.Http(ctx, w)
 
