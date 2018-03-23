@@ -18,6 +18,7 @@ use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use Mojo::JSON qw(decode_json);
 use pf::error qw(is_error);
 use pf::log;
+use pf::util qw(expand_csv);
 use pf::UnifiedApi::SearchBuilder;
 
 our %OP_HAS_SUBQUERIES = (
@@ -107,7 +108,14 @@ sub build_list_search_info {
                 exists $params->{$_}
                   ? ( $_ => $params->{$_} )
                   : ()
-            } qw(limit fields sort cursor)
+            } qw(limit cursor)
+        ),
+        (
+            map {
+                exists $params->{$_}
+                  ? ( $_ => expand_csv($params->{$_}) )
+                  : ()
+            } qw(fields sort)
         )
     };
 }
