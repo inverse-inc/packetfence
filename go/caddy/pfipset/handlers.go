@@ -8,7 +8,6 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/diegoguarnieri/go-conntrack/conntrack"
 	ipset "github.com/digineo/go-ipset"
 	"github.com/gorilla/mux"
@@ -34,12 +33,7 @@ type PostOptions struct {
 func handleAddIp(res http.ResponseWriter, req *http.Request) {
 	IPSET := pfIPSETFromContext(req.Context())
 
-	Local := req.URL.Query().Get("local")
-	if Local == "0" {
-		newReq, err := sharedutils.CopyHttpRequest(req)
-		sharedutils.CheckError(err)
-		updateClusterRequest(req.Context(), newReq)
-	}
+	updateClusterRequest(req.Context(), req)
 
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
@@ -75,12 +69,7 @@ func handleAddIp(res http.ResponseWriter, req *http.Request) {
 func handleRemoveIp(res http.ResponseWriter, req *http.Request) {
 	IPSET := pfIPSETFromContext(req.Context())
 
-	Local := req.URL.Query().Get("local")
-	if Local == "0" {
-		newReq, err := sharedutils.CopyHttpRequest(req)
-		sharedutils.CheckError(err)
-		updateClusterRequest(req.Context(), newReq)
-	}
+	updateClusterRequest(req.Context(), req)
 
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
@@ -97,8 +86,6 @@ func handleRemoveIp(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	setName := mux.Vars(req)["set_name"]
-
-	spew.Dump(setName, Ip.String())
 
 	IPSET.jobs <- job{"Del", setName, Ip.String()}
 	var result = map[string][]*Info{
@@ -118,12 +105,7 @@ func handleRemoveIp(res http.ResponseWriter, req *http.Request) {
 func handlePassthrough(res http.ResponseWriter, req *http.Request) {
 	IPSET := pfIPSETFromContext(req.Context())
 
-	Local := req.URL.Query().Get("local")
-	if Local == "0" {
-		newReq, err := sharedutils.CopyHttpRequest(req)
-		sharedutils.CheckError(err)
-		updateClusterRequest(req.Context(), newReq)
-	}
+	updateClusterRequest(req.Context(), req)
 
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
@@ -208,12 +190,7 @@ func handleIsolationPassthrough(res http.ResponseWriter, req *http.Request) {
 func handleLayer2(res http.ResponseWriter, req *http.Request) {
 	IPSET := pfIPSETFromContext(req.Context())
 
-	Local := req.URL.Query().Get("local")
-	if Local == "0" {
-		newReq, err := sharedutils.CopyHttpRequest(req)
-		sharedutils.CheckError(err)
-		updateClusterRequest(req.Context(), newReq)
-	}
+	updateClusterRequest(req.Context(), req)
 
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
@@ -296,12 +273,7 @@ func (IPSET *pfIPSET) IPSEThandleLayer2(ctx context.Context, Ip string, Mac stri
 func handleMarkIpL2(res http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
 
-	Local := req.URL.Query().Get("local")
-	if Local == "0" {
-		newReq, err := sharedutils.CopyHttpRequest(req)
-		sharedutils.CheckError(err)
-		updateClusterRequest(req.Context(), newReq)
-	}
+	updateClusterRequest(req.Context(), req)
 
 	IPSET := pfIPSETFromContext(req.Context())
 
@@ -353,12 +325,7 @@ func (IPSET *pfIPSET) IPSEThandleMarkIpL2(ctx context.Context, Ip string, Networ
 func handleMarkIpL3(res http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
 
-	Local := req.URL.Query().Get("local")
-	if Local == "0" {
-		newReq, err := sharedutils.CopyHttpRequest(req)
-		sharedutils.CheckError(err)
-		updateClusterRequest(req.Context(), newReq)
-	}
+	updateClusterRequest(req.Context(), req)
 
 	IPSET := pfIPSETFromContext(req.Context())
 
@@ -410,12 +377,7 @@ func (IPSET *pfIPSET) IPSEThandleMarkIpL3(ctx context.Context, Ip string, Networ
 func handleLayer3(res http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
 
-	Local := req.URL.Query().Get("local")
-	if Local == "0" {
-		newReq, err := sharedutils.CopyHttpRequest(req)
-		sharedutils.CheckError(err)
-		updateClusterRequest(req.Context(), newReq)
-	}
+	updateClusterRequest(req.Context(), req)
 
 	IPSET := pfIPSETFromContext(req.Context())
 
@@ -490,12 +452,7 @@ func (IPSET *pfIPSET) handleUnmarkMac(res http.ResponseWriter, req *http.Request
 	ctx := req.Context()
 	logger := log.LoggerWContext(ctx)
 
-	Local := req.URL.Query().Get("local")
-	if Local == "0" {
-		newReq, err := sharedutils.CopyHttpRequest(req)
-		sharedutils.CheckError(err)
-		updateClusterRequest(req.Context(), newReq)
-	}
+	updateClusterRequest(req.Context(), req)
 
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
@@ -538,12 +495,7 @@ func (IPSET *pfIPSET) handleUnmarkIp(res http.ResponseWriter, req *http.Request)
 	ctx := req.Context()
 	logger := log.LoggerWContext(ctx)
 
-	Local := req.URL.Query().Get("local")
-	if Local == "0" {
-		newReq, err := sharedutils.CopyHttpRequest(req)
-		sharedutils.CheckError(err)
-		updateClusterRequest(req.Context(), newReq)
-	}
+	updateClusterRequest(req.Context(), req)
 
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {

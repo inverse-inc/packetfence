@@ -67,8 +67,16 @@ func getClusterMembersIps(ctx context.Context) []net.IP {
 	return members
 }
 
-func updateClusterRequest(ctx context.Context, req *http.Request) {
+func updateClusterRequest(ctx context.Context, origReq *http.Request) {
 	logger := log.LoggerWContext(ctx)
+
+	Local := origReq.URL.Query().Get("local")
+	if Local != "0" {
+		return
+	}
+
+	req, err := sharedutils.CopyHttpRequest(origReq)
+	sharedutils.CheckError(err)
 
 	log.LoggerWContext(ctx).Info("Syncing to peers")
 
