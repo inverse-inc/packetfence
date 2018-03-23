@@ -19,11 +19,13 @@ use pf::UnifiedApi;
 use re 'regexp_pattern';
 use Data::Dumper;
 use Module::Load;
+use File::Spec;
 use pf::UnifiedApi::GenerateSpec;
 use boolean;
 use pf::file_paths qw($install_dir);
 use YAML::XS qw(Dump);;
 use File::Slurp qw(write_file);
+use File::Path qw(make_path);
 $YAML::XS::Boolean = 'boolean';
 
 our %METHODS_WITH_ID = (
@@ -35,6 +37,9 @@ our %PATH_CONFIG_HANDLER = (
     collection => {
         'post'   => \&configCollectionPost,
         'get'    => \&configCollectionGet,
+        'actions' => {
+            'search' => \&configCollectionActionSearch,
+        },
     },
     resource => {
         'get'    => \&configResourceGet,
@@ -49,25 +54,33 @@ my $app = pf::UnifiedApi->new;
 my @route_infos = map { walkRootRoutes($_) } @{ $app->routes->children };
 
 my %paths;
+#print Dumper(\@route_infos);
+#exit;
 for my $route_info (@route_infos) {
    for my $child (@{$route_info->{children}}) {
         my $methods = $child->{methods};
         next if !defined $methods || @$methods == 0;
-
-        my $path = $child->{path};
-        next if $path !~ m#/config/#;
-
         my $controller = "pf::UnifiedApi::Controller::$child->{controller}";
-        load $controller;
-        my $c = $controller->new(app => $app);
-
-        for my $m (@$methods) {
-            $m = lc($m);
-            my @forms = buildForms($c, $child, $m);
-            next if @forms == 0;
-            $paths{$path}{$m} = pathMethodInfo($m, $child, \@forms);
+        my $path = $child->{path};
+        if ($path =~ m#/config/#) {
+            createConfigOpenApiSpecs($controller, $app, $methods, \%paths, $child);
         }
    } 
+}
+
+sub createConfigOpenApiSpecs {
+    my ($controller, $app, $methods, $paths, $child) = @_;
+    load $controller;
+    my $c = $controller->new(app => $app);
+    my $path = $child->{path};
+    for my $m (@$methods) {
+        $m = lc($m);
+        my @forms = buildForms($c, $child, $m);
+        next if @forms == 0;
+        if (my $info = configPathMethodInfo($m, $child, \@forms)) {
+            $paths->{$path}{$m} = $info;
+        }
+    }
 }
 
 {
@@ -79,6 +92,8 @@ for my $route_info (@route_infos) {
         unlink ($file_path);
         my $dump = Dump({$p => $d});
         $dump =~ s/---\n//;
+        my (undef, $dir, undef ) = File::Spec->splitpath( $file_path );
+        make_path($dir);
         write_file($file_path, $dump);
     }
 }
@@ -101,11 +116,22 @@ sub buildForms {
     return map { $_->new(@form_parameters) } @form_classes;
 }
 
-sub pathMethodInfo {
+sub configPathMethodInfo {
     my ($method, $child, $forms) = @_;
     my $path_type = $child->{path_type};
-    if (exists $PATH_CONFIG_HANDLER{$path_type}{$method}) {
-        return $PATH_CONFIG_HANDLER{$path_type}{$method}->($child, $method, $forms);
+    my $action = $child->{action};
+    print "$path_type : $action\n";
+    my $handlers = $PATH_CONFIG_HANDLER{$path_type};
+    if (!$handlers) {
+        die "invalid path_type : $path_type\n";
+    }
+
+    if (exists $handlers->{actions}{$action}) {
+        return $handlers->{actions}{$action}->($method, $child, $forms);
+    }
+
+    if (exists $handlers->{$method}) {
+        return $handlers->{$method}->($child, $method, $forms);
     }
     
     return { }
@@ -342,6 +368,10 @@ sub walk {
     $depth++;
     my @children = map { walk( $_, $depth, $full_path, \@paths ) } @$children;
     return \%info, @children;
+}
+
+sub configCollectionActionSearch {
+    return undef;
 }
 
 =head1 AUTHOR
