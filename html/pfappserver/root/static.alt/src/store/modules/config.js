@@ -5,13 +5,17 @@
 import apiCall from '@/utils/api'
 
 const api = {
-  getRoles: () => {
+  getRoles () {
     return apiCall({url: 'config/roles', method: 'get'})
+  },
+  getViolations () {
+    return apiCall({url: 'config/violations', method: 'get'})
   }
 }
 
 const state = {
-  roles: []
+  roles: [],
+  violations: {}
 }
 
 const getters = {
@@ -23,12 +27,25 @@ const actions = {
       commit('ROLES_UPDATED', response.data.items)
       return response.data.items
     })
+  },
+  getViolations: ({commit, dispatch}) => {
+    return api.getViolations().then(response => {
+      commit('VIOLATIONS_UPDATED', response.data.items)
+      return response.data.items
+    })
   }
 }
 
 const mutations = {
   ROLES_UPDATED: (state, roles) => {
     state.roles = roles
+  },
+  VIOLATIONS_UPDATED: (state, violations) => {
+    let ref = {}
+    for (let violation of violations) {
+      ref[violation.id] = Object.assign({}, violation)
+    }
+    state.violations = ref
   }
 }
 

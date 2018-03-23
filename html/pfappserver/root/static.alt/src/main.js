@@ -2,16 +2,18 @@ import Vue from 'vue'
 import VueI18n from 'vue-i18n'
 import BootstrapVue from 'bootstrap-vue'
 import Icon from 'vue-awesome/components/Icon'
-
-import store from './store'
-import App from './App'
-import router from './router'
-
-import 'bootstrap-vue/dist/bootstrap-vue.css'
+import 'vue-awesome/icons/close'
 import 'vue-awesome/icons/search'
 import 'vue-awesome/icons/plus-circle'
 import 'vue-awesome/icons/minus-circle'
 import 'vue-awesome/icons/arrow-circle-right'
+
+import store from './store'
+import router from './router'
+import filters from './utils/filters'
+import App from './App'
+
+import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 Vue.config.productionTip = process.env.NODE_ENV === 'production'
 
@@ -24,6 +26,11 @@ const i18n = new VueI18n({
   locale: 'en',
   messages: { en: {} }
 })
+
+// Register global filters
+for (const filter of Object.keys(filters)) {
+  Vue.filter(filter, filters[filter])
+}
 
 /* eslint-disable no-new */
 new Vue({

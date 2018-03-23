@@ -4,7 +4,7 @@
       <div class="float-right"><toggle-button v-model="advancedMode">{{ $t('Advanced') }}</toggle-button></div>
       <h4 class="mb-0" v-t="'Search Nodes'"></h4>
     </b-card-header>
-    <pf-search :fields="fields" :store="$store" :advanced-mode="advancedMode"
+    <pf-search :fields="fields" :store="$store" :advanced-mode="advancedMode" :condition="condition"
       @submit-search="onSearch" @reset-search="onReset"></pf-search>
     <div class="card-body">
       <b-row align-h="end">
@@ -38,11 +38,20 @@ export default {
   data () {
     return {
       advancedMode: false,
-      // Fields must match the database schema
+      /**
+       *  Fields on which a search can be defined.
+       *  The names must match the database schema.
+       *  The keys must conform to the format of the b-form-select's options property.
+       */
       fields: [ // keys match with b-form-select
         {
           value: 'mac',
           text: 'MAC Address',
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'computername',
+          text: 'Computer Name',
           types: [conditionType.SUBSTRING]
         },
         {
@@ -66,6 +75,9 @@ export default {
           types: [conditionType.BOOL]
         }
       ],
+      /**
+       * The columns that can be displayed in the results table.
+       */
       columns: [
         {
           key: 'mac',
@@ -150,6 +162,8 @@ export default {
     if (this.$store.state.config.roles.length === 0) {
       this.$store.dispatch('config/getRoles')
       this.pageSizeLimit = this.$store.state.$_nodes.searchPageSize
+      // Restore search parameters
+      this.condition = this.$store.state.$_nodes.searchQuery
     }
   }
 }

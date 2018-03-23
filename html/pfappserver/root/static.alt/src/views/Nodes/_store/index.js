@@ -1,6 +1,7 @@
 /**
  * "$_nodes" store module
  */
+import Vue from 'vue'
 import api from '../_api'
 
 const STORAGE_SEARCH_LIMIT_KEY = 'nodes-search-limit'
@@ -9,6 +10,7 @@ const STORAGE_SEARCH_LIMIT_KEY = 'nodes-search-limit'
 const state = {
   status: '',
   items: [],
+  nodes: {},
   searchQuery: null,
   searchSortBy: 'mac',
   searchSortDesc: false,
@@ -54,8 +56,69 @@ const actions = {
       })
     })
   },
-  getNode: ({dispatch}, mac) => {
-    return api.node(mac)
+  getNode: ({commit}, mac) => {
+    let node = {} // ip4: { history: [] }, ip6: { history: [] } }
+
+    return api.node(mac).then(item => {
+      Object.assign(node, item)
+      commit('NODE_REPLACED', node)
+
+      // Fetch ip4log history
+      let ip4 = {}
+      api.ip4logOpen(mac).then(item => {
+        Object.assign(ip4, item)
+        ip4.active = item.end_time === '0000-00-00 00:00:00'
+      }).catch(() => {
+        Object.assign(ip4, { active: false })
+      }).finally(() => {
+        api.ip4logHistory(mac).then(items => {
+          if (items && items.length > 0) {
+            Object.assign(ip4, { history: items })
+            if (!ip4.active && !ip4.end_time) {
+              ip4.end_time = items[0].end_time
+            }
+          }
+        }).catch(() => {
+          // noop
+        }).finally(() => {
+          commit('NODE_UPDATED', { mac, prop: 'ip4', data: ip4 })
+        })
+      })
+
+      // Fetch ip6log history
+      let ip6 = {}
+      api.ip6logOpen(mac).then(item => {
+        Object.assign(ip6, item)
+        ip6.active = item.end_time === '0000-00-00 00:00:00'
+      }).catch(() => {
+        Object.assign(ip6, { active: false })
+      }).finally(() => {
+        api.ip6logHistory(mac).then(items => {
+          if (items && items.length > 0) {
+            Object.assign(ip6, { history: items })
+            if (!ip6.active && !ip6.end_time) {
+              ip6.end_time = items[0].end_time
+            }
+          }
+        }).catch(() => {
+          // noop
+        }).finally(() => {
+          commit('NODE_UPDATED', { mac, prop: 'ip6', data: ip6 })
+        })
+      })
+
+      // Fetch locationlogs
+      api.locationlogs(mac).then(items => {
+        commit('NODE_UPDATED', { mac, prop: 'locations', data: items })
+      })
+
+      // Fetch violations
+      api.violations(mac).then(items => {
+        commit('NODE_UPDATED', { mac, prop: 'violations', data: items })
+      })
+
+      return node
+    })
   }
 }
 
@@ -91,6 +154,12 @@ const mutations = {
     if (response && response.data) {
       state.message = response.data.message
     }
+  },
+  NODE_REPLACED: (state, data) => {
+    Vue.set(state.nodes, data.mac, data)
+  },
+  NODE_UPDATED: (state, params) => {
+    Vue.set(state.nodes[params.mac], params.prop, params.data)
   }
 }
 
