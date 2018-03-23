@@ -233,14 +233,3 @@ func ShuffleIP(a []byte) (r []byte) {
 	}
 	return ShuffleNetIP(array)
 }
-
-// readWebservicesConfig read pfconfig webservices configuration
-func readWebservicesConfig() pfconfigdriver.PfConfWebservices {
-	var webservices pfconfigdriver.PfConfWebservices
-	webservices.PfconfigNS = "config::Pf"
-	webservices.PfconfigMethod = "hash_element"
-	webservices.PfconfigHashNS = "webservices"
-
-	pfconfigdriver.FetchDecodeSocket(ctx, &webservices)
-	return webservices
-}

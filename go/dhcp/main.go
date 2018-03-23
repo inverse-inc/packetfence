@@ -85,7 +85,8 @@ func main() {
 	// Read pfconfig
 	DHCPConfig = newDHCPConfig()
 	DHCPConfig.readConfig()
-	webservices = readWebservicesConfig()
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Webservices)
+	webservices = pfconfigdriver.Config.PfConf.Webservices
 
 	// Queue value
 	var (
