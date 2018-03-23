@@ -334,7 +334,7 @@ func main() {
 	configDatabase := pfconfigdriver.Config.PfConf.Database
 	connectDB(configDatabase)
 
-    for _, key := range keyConfStats.Keys {
+	for _, key := range keyConfStats.Keys {
 		var ConfStat pfconfigdriver.PfStats
 		ConfStat.PfconfigHashNS = key
 

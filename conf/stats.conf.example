@@ -77,3 +77,19 @@ statsd_ns=source.packetfence.violations
 # mysql_query must return a single column with a single row
 mysql_query=select count(distinct mac) from violation where status='open'
 interval=60s
+
+[metric 'number of successful radius authentications in the last day']
+type=mysql_query
+statsd_type=histogram
+statsd_ns=source.packetfence.authentication.success_last_day
+# mysql_query must return a single column with a single row
+mysql_query=select count(1) from radius_audit_log where auth_status='Accept' and created_at >= NOW() - INTERVAL 1 DAY;
+interval=60s
+
+[metric 'number of failed radius authentications in the last day']
+type=mysql_query
+statsd_type=histogram
+statsd_ns=source.packetfence.authentication.failed_last_day
+# mysql_query must return a single column with a single row
+mysql_query=select count(1) from radius_audit_log where auth_status='Reject' and created_at >= NOW() - INTERVAL 1 DAY;
+interval=60s
