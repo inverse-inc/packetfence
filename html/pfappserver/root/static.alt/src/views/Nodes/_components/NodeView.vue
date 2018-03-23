@@ -55,9 +55,12 @@
             <b-table stacked="sm" :items="node.locations" :fields="locationFields">
                 <template slot="switch" slot-scope="location">
                     {{ location.item.switch_ip }} / {{ location.item.switch_mac }}<br/>
-                    <b-badge>{{ location.item.ssid }}</b-badge>
+                    <b-badge><icon name="wifi" size="sm"></icon> {{ location.item.ssid }}</b-badge>
                     <b-badge>{{ $t('Role') }}: {{ location.item.role }}</b-badge>
                     <b-badge>{{ $t('VLAN') }}: {{ location.item.vlan }}</b-badge>
+                </template>
+                <template slot="connection_type" slot-scope="location">
+                    {{ location.item.connection_type }} {{ connectionSubType(location.item.connection_sub_type) }}
                 </template>
             </b-table>
         </b-tab>
@@ -88,6 +91,7 @@
 // import Vue from 'vue'
 import ToggleButton from '@/components/ToggleButton'
 import pfFormRow from '@/components/pfFormRow'
+import { pfEapType as eapType } from '@/globals/pfEapType'
 
 export default {
   name: 'NodeView',
@@ -107,12 +111,14 @@ export default {
         },
         {
           key: 'start_time',
-          label: this.$i18n.t('Start Time')
+          label: this.$i18n.t('Start Time'),
+          'class': 'text-nowrap'
         },
         {
           key: 'end_time',
           label: this.$i18n.t('End Time'),
-          formatter: this.$options.filters.pfDate
+          formatter: this.$options.filters.pfDate,
+          'class': 'text-nowrap'
         }
       ],
       locationFields: [
@@ -130,12 +136,14 @@ export default {
         },
         {
           key: 'start_time',
-          label: this.$i18n.t('Start Time')
+          label: this.$i18n.t('Start Time'),
+          'class': 'text-nowrap'
         },
         {
           key: 'end_time',
           label: this.$i18n.t('End Time'),
-          formatter: this.$options.filters.pfDate
+          formatter: this.$options.filters.pfDate,
+          'class': 'text-nowrap'
         }
       ],
       violationFields: [
@@ -145,11 +153,13 @@ export default {
         },
         {
           key: 'start_date',
-          label: this.$i18n.t('Start Time')
+          label: this.$i18n.t('Start Time'),
+          'class': 'text-nowrap'
         },
         {
           key: 'release_date',
-          label: this.$i18n.t('Release Date')
+          label: this.$i18n.t('Release Date'),
+          'class': 'text-nowrap'
         }
       ]
     }
@@ -162,6 +172,11 @@ export default {
   methods: {
     close () {
       this.$router.push({ name: 'nodes' })
+    },
+    connectionSubType (type) {
+      if (type && eapType[type]) {
+        return eapType[type]
+      }
     },
     violationDescription (id) {
       return this.$store.state.config.violations[id].desc
