@@ -26,6 +26,14 @@ var pfconfigSocketPathCache string
 
 var SocketTimeout time.Duration = 60 * time.Second
 
+var myHostname string
+
+func init() {
+	var err error
+	myHostname, err = os.Hostname()
+	sharedutils.CheckError(err)
+}
+
 // Get the pfconfig socket path depending on whether or not we're in testing
 // Since the environment is not bound to change at runtime, the socket path is computed once and cached in pfconfigSocketPathCache
 // If the socket should be re-computed, empty out pfconfigSocketPathCache and run this function
@@ -194,7 +202,13 @@ func decodeJsonInterface(ctx context.Context, b []byte, o interface{}) {
 //		PfconfigHashNS - the hash element key when using the hash_element method, this attribute has no effect when using any other method
 func createQuery(ctx context.Context, o PfconfigObject) Query {
 	query := Query{}
+
 	query.ns = metadataFromField(ctx, o, "PfconfigNS")
+
+	if metadataFromField(ctx, o, "PfconfigHostnameOverlay") == "yes" {
+		query.ns = query.ns + "(" + myHostname + ")"
+	}
+
 	query.method = metadataFromField(ctx, o, "PfconfigMethod")
 	if query.method == "hash_element" {
 		query.ns = query.ns + ";" + metadataFromField(ctx, o, "PfconfigHashNS")
