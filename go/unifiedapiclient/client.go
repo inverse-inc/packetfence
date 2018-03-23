@@ -74,16 +74,16 @@ func NewFromConfig(ctx context.Context) *Client {
 }
 
 func (c *Client) Call(ctx context.Context, method, path string, decodeResponseIn interface{}) error {
-	return c.call(ctx, method, path, "", decodeResponseIn)
+	return c.CallWithStringBody(ctx, method, path, "", decodeResponseIn)
 }
 
 func (c *Client) CallWithBody(ctx context.Context, method, path string, payload interface{}, decodeResponseIn interface{}) error {
 	data, err := json.Marshal(payload)
 	sharedutils.CheckError(err)
-	return c.call(ctx, method, path, string(data), decodeResponseIn)
+	return c.CallWithStringBody(ctx, method, path, string(data), decodeResponseIn)
 }
 
-func (c *Client) call(ctx context.Context, method, path, body string, decodeResponseIn interface{}) error {
+func (c *Client) CallWithStringBody(ctx context.Context, method, path, body string, decodeResponseIn interface{}) error {
 	r := c.buildRequest(ctx, method, path, body)
 	resp, err := httpClient.Do(r)
 	defer c.ensureRequestComplete(ctx, resp)
@@ -107,7 +107,7 @@ func (c *Client) call(ctx context.Context, method, path, body string, decodeResp
 			return err
 		}
 
-		return c.call(ctx, method, path, body, decodeResponseIn)
+		return c.CallWithStringBody(ctx, method, path, body, decodeResponseIn)
 	} else {
 		errRep := ErrorReply{}
 		dec := json.NewDecoder(resp.Body)
@@ -142,7 +142,7 @@ func (c *Client) login(ctx context.Context) error {
 
 	reply := LoginReply{}
 
-	err = c.call(ctx, "POST", API_LOGIN_PATH, string(loginBodyBytes), &reply)
+	err = c.CallWithStringBody(ctx, "POST", API_LOGIN_PATH, string(loginBodyBytes), &reply)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error while performing a login on the UnifiedAPI: %s", err))
 		return err
