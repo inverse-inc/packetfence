@@ -26,6 +26,13 @@ components:
         items:
           type: string
         type: array
+    ipset_name:
+      description: The name of the ipset to manipulate
+      in: path
+      name: set_name
+      required: true
+      schema:
+        type: string
     limit:
       description: The maximum amount of entries to get.
       in: query|body
@@ -44438,6 +44445,25 @@ paths:
                 type: object
           description: A specific MAC address
       summary: Returns all open ip4logs by MAC address
+  /ipset/add_ip/{set_name}:
+    post:
+      description: Add an IP to a specific ipset
+      parameters:
+      - $ref: '#/components/parameters/local'
+      - $ref: '#/components/parameters/ipset_name'
+      - *1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IpsetIp'
+        required: true
+      responses:
+        '200':
+          $ref: '#/components/responses/IpsetIp'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+      summary: Add an IP to a specific ipset
   /ipset/mark_ip_layer2:
     post:
       description: '...'
@@ -44546,6 +44572,25 @@ paths:
         '400':
           $ref: '#/components/responses/BadRequest'
       summary: '...'
+  /ipset/remove_ip/{set_name}:
+    post:
+      description: Removes an IP from a specific ipset
+      parameters:
+      - $ref: '#/components/parameters/local'
+      - $ref: '#/components/parameters/ipset_name'
+      - *1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IpsetIp'
+        required: true
+      responses:
+        '200':
+          $ref: '#/components/responses/IpsetIp'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+      summary: Removes an IP from a specific ipset
   /ipset/umark_ip:
     post:
       description: '...'

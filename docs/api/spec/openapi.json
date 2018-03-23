@@ -27,6 +27,15 @@
                "type" : "array"
             }
          },
+         "ipset_name" : {
+            "description" : "The name of the ipset to manipulate",
+            "in" : "path",
+            "name" : "set_name",
+            "required" : "1",
+            "schema" : {
+               "type" : "string"
+            }
+         },
          "limit" : {
             "description" : "The maximum amount of entries to get.",
             "in" : "query|body",
@@ -59482,6 +59491,47 @@
             "summary" : "Returns all open ip4logs by MAC address"
          }
       },
+      "/ipset/add_ip/{set_name}" : {
+         "post" : {
+            "description" : "Add an IP to a specific ipset",
+            "parameters" : [
+               {
+                  "$ref" : "#/components/parameters/local"
+               },
+               {
+                  "$ref" : "#/components/parameters/ipset_name"
+               },
+               {
+                  "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+                  "in" : "header",
+                  "name" : "X-PacketFence-Tenant-Id",
+                  "required" : "0",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
+            "requestBody" : {
+               "content" : {
+                  "application/json" : {
+                     "schema" : {
+                        "$ref" : "#/components/schemas/IpsetIp"
+                     }
+                  }
+               },
+               "required" : "1"
+            },
+            "responses" : {
+               "200" : {
+                  "$ref" : "#/components/responses/IpsetIp"
+               },
+               "400" : {
+                  "$ref" : "#/components/responses/BadRequest"
+               }
+            },
+            "summary" : "Add an IP to a specific ipset"
+         }
+      },
       "/ipset/mark_ip_layer2" : {
          "post" : {
             "description" : "...",
@@ -59708,6 +59758,47 @@
                }
             },
             "summary" : "..."
+         }
+      },
+      "/ipset/remove_ip/{set_name}" : {
+         "post" : {
+            "description" : "Removes an IP from a specific ipset",
+            "parameters" : [
+               {
+                  "$ref" : "#/components/parameters/local"
+               },
+               {
+                  "$ref" : "#/components/parameters/ipset_name"
+               },
+               {
+                  "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+                  "in" : "header",
+                  "name" : "X-PacketFence-Tenant-Id",
+                  "required" : "0",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
+            "requestBody" : {
+               "content" : {
+                  "application/json" : {
+                     "schema" : {
+                        "$ref" : "#/components/schemas/IpsetIp"
+                     }
+                  }
+               },
+               "required" : "1"
+            },
+            "responses" : {
+               "200" : {
+                  "$ref" : "#/components/responses/IpsetIp"
+               },
+               "400" : {
+                  "$ref" : "#/components/responses/BadRequest"
+               }
+            },
+            "summary" : "Removes an IP from a specific ipset"
          }
       },
       "/ipset/umark_ip" : {
