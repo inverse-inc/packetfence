@@ -9,6 +9,7 @@
         <b-navbar-nav>
           <b-nav-item to="/status" v-can:access.some="[['reports', 'services']]">{{ $t('Status') }}</b-nav-item>
           <b-nav-item href="#" v-can:access="'reports'">{{ $t('Reports') }}</b-nav-item>
+          <b-nav-item to="/auditing" v-can:read="'auditing'">{{ $t('Auditing') }}</b-nav-item>
           <b-nav-item to="/nodes" v-can:read="'nodes'">{{ $t('Nodes') }}</b-nav-item>
           <b-nav-item to="/users" v-can:read="'users'">{{ $t('Users') }}</b-nav-item>
           <b-nav-item href="#" v-can:read="'configuration_main'">{{ $t('Configuration') }}</b-nav-item>
