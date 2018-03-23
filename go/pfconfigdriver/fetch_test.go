@@ -210,6 +210,14 @@ func TestCreateQuery(t *testing.T) {
 	if query.ns != "interfaces::management_network("+myHostname+")" {
 		t.Error("Wrong namespace name out of createQuery", query.ns)
 	}
+
+	// Test requesting a hostname overlay manually
+	general.PfconfigNS = "config::Pf(testing)"
+	general.PfconfigHostnameOverlay = "yes"
+	query = createQuery(ctx, &general)
+	if query.ns != "config::Pf(testing);general" {
+		t.Error("Wrong namespace name out of createQuery", query.ns)
+	}
 }
 
 // fetches resource::fqdn requesting Sereal encoding for the reply

@@ -11,6 +11,7 @@ import (
 	"net"
 	"os"
 	"reflect"
+	"regexp"
 	"time"
 
 	"github.com/inverse-inc/packetfence/go/log"
@@ -27,6 +28,8 @@ var pfconfigSocketPathCache string
 var SocketTimeout time.Duration = 60 * time.Second
 
 var myHostname string
+
+var nsHasOverlayRe = regexp.MustCompile(`.*\(.*\)$`)
 
 func init() {
 	var err error
@@ -205,7 +208,7 @@ func createQuery(ctx context.Context, o PfconfigObject) Query {
 
 	query.ns = metadataFromField(ctx, o, "PfconfigNS")
 
-	if metadataFromField(ctx, o, "PfconfigHostnameOverlay") == "yes" {
+	if metadataFromField(ctx, o, "PfconfigHostnameOverlay") == "yes" && !nsHasOverlayRe.MatchString(query.ns) {
 		query.ns = query.ns + "(" + myHostname + ")"
 	}
 
