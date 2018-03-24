@@ -1,6 +1,6 @@
 [metric 'test ICMP IPv4']
 type=icmp_ipv4
-statsd_type=histogram
+statsd_type=timing
 statsd_ns=source.packetfence.ping_google
 host=google.ca
 interval=5s
