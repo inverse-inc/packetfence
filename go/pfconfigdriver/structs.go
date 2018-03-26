@@ -59,6 +59,12 @@ type configStruct struct {
 		Database      PfConfDatabase
 	}
 	AdminRoles AdminRoles
+	Cluster    struct {
+		HostsIp struct {
+			PfconfigKeys
+			PfconfigNS string `val:"resource::cluster_hosts_ip"`
+		}
+	}
 }
 
 var Config configStruct
@@ -178,6 +184,14 @@ type PfconfigKeys struct {
 	PfconfigMethod string `val:"keys"`
 	PfconfigNS     string `val:"-"`
 	Keys           []string
+}
+
+type PfconfigKeysInt interface {
+	GetKeys() *[]string
+}
+
+func (pk *PfconfigKeys) GetKeys() *[]string {
+	return &(pk.Keys)
 }
 
 type ListenInts struct {

@@ -8,11 +8,11 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/diegoguarnieri/go-conntrack/conntrack"
 	ipset "github.com/digineo/go-ipset"
 	"github.com/gorilla/mux"
 	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
 
 type Info struct {
@@ -33,6 +33,8 @@ type PostOptions struct {
 func handleAddIp(res http.ResponseWriter, req *http.Request) {
 	IPSET := pfIPSETFromContext(req.Context())
 
+	updateClusterRequest(req.Context(), req)
+
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		panic(err)
@@ -47,13 +49,9 @@ func handleAddIp(res http.ResponseWriter, req *http.Request) {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
-	Local := req.URL.Query().Get("local")
 	setName := mux.Vars(req)["set_name"]
 
 	IPSET.jobs <- job{"Add", setName, Ip.String()}
-	if Local == "0" {
-		updateClusterAddIp(req.Context(), setName, req.Body)
-	}
 	var result = map[string][]*Info{
 		"result": {
 			&Info{Ip: Ip.String(), Status: "ACK"},
@@ -71,6 +69,8 @@ func handleAddIp(res http.ResponseWriter, req *http.Request) {
 func handleRemoveIp(res http.ResponseWriter, req *http.Request) {
 	IPSET := pfIPSETFromContext(req.Context())
 
+	updateClusterRequest(req.Context(), req)
+
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		panic(err)
@@ -85,15 +85,9 @@ func handleRemoveIp(res http.ResponseWriter, req *http.Request) {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
-	Local := req.URL.Query().Get("local")
 	setName := mux.Vars(req)["set_name"]
 
-	spew.Dump(setName, Ip.String())
-
 	IPSET.jobs <- job{"Del", setName, Ip.String()}
-	if Local == "0" {
-		updateClusterRemoveIp(req.Context(), setName, req.Body)
-	}
 	var result = map[string][]*Info{
 		"result": {
 			&Info{Ip: Ip.String(), Status: "ACK"},
@@ -111,6 +105,8 @@ func handleRemoveIp(res http.ResponseWriter, req *http.Request) {
 func handlePassthrough(res http.ResponseWriter, req *http.Request) {
 	IPSET := pfIPSETFromContext(req.Context())
 
+	updateClusterRequest(req.Context(), req)
+
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		panic(err)
@@ -130,12 +126,8 @@ func handlePassthrough(res http.ResponseWriter, req *http.Request) {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
-	Local := req.URL.Query().Get("local")
 
 	IPSET.jobs <- job{"Add", "pfsession_passthrough", Ip.String() + "," + Port}
-	if Local == "0" {
-		updateClusterPassthrough(req.Context(), req.Body)
-	}
 	var result = map[string][]*Info{
 		"result": {
 			&Info{Ip: Ip.String(), Status: "ACK"},
@@ -153,6 +145,13 @@ func handlePassthrough(res http.ResponseWriter, req *http.Request) {
 func handleIsolationPassthrough(res http.ResponseWriter, req *http.Request) {
 	IPSET := pfIPSETFromContext(req.Context())
 
+	Local := req.URL.Query().Get("local")
+	if Local == "0" {
+		newReq, err := sharedutils.CopyHttpRequest(req)
+		sharedutils.CheckError(err)
+		updateClusterRequest(req.Context(), newReq)
+	}
+
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		panic(err)
@@ -172,12 +171,8 @@ func handleIsolationPassthrough(res http.ResponseWriter, req *http.Request) {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
-	Local := req.URL.Query().Get("local")
 
 	IPSET.jobs <- job{"Add", "pfsession_isol_passthrough", Ip.String() + "," + Port}
-	if Local == "0" {
-		updateClusterPassthroughIsol(req.Context(), req.Body)
-	}
 	var result = map[string][]*Info{
 		"result": {
 			&Info{Ip: Ip.String(), Status: "ACK"},
@@ -194,6 +189,8 @@ func handleIsolationPassthrough(res http.ResponseWriter, req *http.Request) {
 
 func handleLayer2(res http.ResponseWriter, req *http.Request) {
 	IPSET := pfIPSETFromContext(req.Context())
+
+	updateClusterRequest(req.Context(), req)
 
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
@@ -229,15 +226,10 @@ func handleLayer2(res http.ResponseWriter, req *http.Request) {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
-	Local := req.URL.Query().Get("local")
 
 	// Update locally
 	IPSET.IPSEThandleLayer2(req.Context(), Ip.String(), Mac, Network.String(), Type, RoleId)
 
-	// Do we have to update the other members of the cluster
-	if Local == "0" {
-		updateClusterL2(req.Context(), req.Body)
-	}
 	var result = map[string][]*Info{
 		"result": {
 			&Info{Mac: Mac, Status: "ACK"},
@@ -281,6 +273,8 @@ func (IPSET *pfIPSET) IPSEThandleLayer2(ctx context.Context, Ip string, Mac stri
 func handleMarkIpL2(res http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
 
+	updateClusterRequest(req.Context(), req)
+
 	IPSET := pfIPSETFromContext(req.Context())
 
 	body, err := ioutil.ReadAll(req.Body)
@@ -307,15 +301,10 @@ func handleMarkIpL2(res http.ResponseWriter, req *http.Request) {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
-	Local := req.URL.Query().Get("local")
 
 	// Update locally
 	IPSET.IPSEThandleMarkIpL2(ctx, Ip.String(), Network.String(), RoleId)
 
-	// Do we have to update the other members of the cluster
-	if Local == "0" {
-		updateClusterMarkIpL3(req.Context(), req.Body)
-	}
 	var result = map[string][]*Info{
 		"result": {
 			&Info{Ip: Ip.String(), Status: "ACK"},
@@ -336,6 +325,8 @@ func (IPSET *pfIPSET) IPSEThandleMarkIpL2(ctx context.Context, Ip string, Networ
 func handleMarkIpL3(res http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
 
+	updateClusterRequest(req.Context(), req)
+
 	IPSET := pfIPSETFromContext(req.Context())
 
 	body, err := ioutil.ReadAll(req.Body)
@@ -362,15 +353,10 @@ func handleMarkIpL3(res http.ResponseWriter, req *http.Request) {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
-	Local := req.URL.Query().Get("local")
 
 	// Update locally
 	IPSET.IPSEThandleMarkIpL3(ctx, Ip.String(), Network.String(), RoleId)
 
-	// Do we have to update the other members of the cluster
-	if Local == "0" {
-		updateClusterMarkIpL3(req.Context(), req.Body)
-	}
 	var result = map[string][]*Info{
 		"result": {
 			&Info{Ip: Ip.String(), Status: "ACK"},
@@ -390,6 +376,8 @@ func (IPSET *pfIPSET) IPSEThandleMarkIpL3(ctx context.Context, Ip string, Networ
 
 func handleLayer3(res http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
+
+	updateClusterRequest(req.Context(), req)
 
 	IPSET := pfIPSETFromContext(req.Context())
 
@@ -422,15 +410,9 @@ func handleLayer3(res http.ResponseWriter, req *http.Request) {
 		handleError(res, http.StatusBadRequest)
 		return
 	}
-	Local := req.URL.Query().Get("local")
 
 	// Update locally
 	IPSET.IPSEThandleLayer3(ctx, Ip.String(), Network.String(), Type, RoleId)
-
-	// Do we have to update the other members of the cluster
-	if Local == "0" {
-		updateClusterL3(req.Context(), req.Body)
-	}
 
 	var result = map[string][]*Info{
 		"result": {
@@ -470,6 +452,8 @@ func (IPSET *pfIPSET) handleUnmarkMac(res http.ResponseWriter, req *http.Request
 	ctx := req.Context()
 	logger := log.LoggerWContext(ctx)
 
+	updateClusterRequest(req.Context(), req)
+
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		panic(err)
@@ -484,7 +468,6 @@ func (IPSET *pfIPSET) handleUnmarkMac(res http.ResponseWriter, req *http.Request
 		handleError(res, http.StatusBadRequest)
 		return
 	}
-	Local := req.URL.Query().Get("local")
 
 	for _, v := range IPSET.ListALL {
 		Ips := IPSET.mac2ip(req.Context(), Mac, v)
@@ -494,10 +477,6 @@ func (IPSET *pfIPSET) handleUnmarkMac(res http.ResponseWriter, req *http.Request
 			conn.DeleteConnectionBySrcIp(i)
 			logger.Info(fmt.Sprintf("Removed %s from %s", i, v.Name))
 		}
-	}
-	// Do we have to update the other members of the cluster
-	if Local == "0" {
-		updateClusterUnmarkMac(req.Context(), req.Body)
 	}
 	var result = map[string][]*Info{
 		"result": {
@@ -516,6 +495,8 @@ func (IPSET *pfIPSET) handleUnmarkIp(res http.ResponseWriter, req *http.Request)
 	ctx := req.Context()
 	logger := log.LoggerWContext(ctx)
 
+	updateClusterRequest(req.Context(), req)
+
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		panic(err)
@@ -530,7 +511,6 @@ func (IPSET *pfIPSET) handleUnmarkIp(res http.ResponseWriter, req *http.Request)
 		handleError(res, http.StatusBadRequest)
 		return
 	}
-	Local := req.URL.Query().Get("local")
 
 	for _, v := range IPSET.ListALL {
 		r := ipset.Test(v.Name, Ip.String())
@@ -540,10 +520,6 @@ func (IPSET *pfIPSET) handleUnmarkIp(res http.ResponseWriter, req *http.Request)
 			conn.DeleteConnectionBySrcIp(Ip.String())
 			logger.Info(fmt.Sprintf("Removed %s from %s", Ip, v.Name))
 		}
-	}
-	// Do we have to update the other members of the cluster
-	if Local == "0" {
-		updateClusterUnmarkIp(req.Context(), req.Body)
 	}
 	var result = map[string][]*Info{
 		"result": {

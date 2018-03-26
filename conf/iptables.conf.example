@@ -62,9 +62,6 @@
 -A input-management-if --protocol udp --match udp --dport 1192 --jump ACCEPT
 -A input-management-if --protocol tcp --match tcp --dport 4723 --jump ACCEPT
 
-# GO IPSET API
--A input-management-if --protocol tcp --match tcp --dport 22223 --jump ACCEPT
-
 # VRRP
 -A input-management-if -d 224.0.0.0/8 -j ACCEPT
 -A input-management-if -p vrrp -j ACCEPT
