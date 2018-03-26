@@ -49,6 +49,7 @@ use pf::db;
 use pf::dal::radius_nas;
 use pf::util qw(valid_mac);
 use pf::error qw(is_error);
+use pf::constants qw($DEFAULT_TENANT_ID);
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $freeradius_db_prepared = 0;
@@ -172,7 +173,7 @@ sub _build_radius_nas_row {
             $range_length = $end_ip - $start_ip + 1;
         }
     }
-    [$data->{TenantId}, $id, $id, $data->{radiusSecret}, $id . " (" . $data->{'type'} .")", $timestamp, $start_ip, $end_ip, $range_length]
+    [$data->{TenantId} // $DEFAULT_TENANT_ID, $id, $id, $data->{radiusSecret}, $id . " (" . $data->{'type'} .")", $timestamp, $start_ip, $end_ip, $range_length]
 }
 
 =back
