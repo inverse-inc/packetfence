@@ -3,16 +3,20 @@ package main
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"math"
 	"net"
 	"strconv"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/oliveagle/jsonpath"
+
 	"github.com/inverse-inc/packetfence/go/interval"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	util "github.com/inverse-inc/packetfence/go/sharedutils"
+	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 )
 
 var MySQLdatabase *sql.DB
@@ -64,7 +68,7 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 					break
 
 				default:
-					log.LoggerWContext(ctx).Warn("Unhandled statsd type " + conf.StatsdType + " for " + conf.Type)
+					log.LoggerWContext(ctx).Warn("Unhandled statsd_type " + conf.StatsdType + " for " + conf.Type)
 				}
 				break
 			}
@@ -113,12 +117,84 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 						break
 
 					default:
-						log.LoggerWContext(ctx).Warn("Unhandled statsd type " + conf.StatsdType + " for " + conf.Type)
+						log.LoggerWContext(ctx).Warn("Unhandled statsd_type " + conf.StatsdType + " for " + conf.Type)
 					}
 				}
 			}
 		}
 		break
+
+	case "api":
+		job = func() {
+			var raw json.RawMessage
+			apiclient := unifiedapiclient.NewFromConfig(ctx)
+			switch conf.ApiMethod {
+			case "GET":
+				err := apiclient.Call(ctx, "GET", conf.ApiPath, &raw)
+				if err != nil {
+					log.LoggerWContext(ctx).Error("API error", err.Error())
+					return
+				}
+				break
+			case "DELETE", "PATCH", "POST", "PUT":
+				//err := apiclient.CallWithStringBody(ctx, conf.ApiMethod, conf.ApiPath, conf.ApiPayload, &raw)
+				err := apiclient.CallWithBody(ctx, conf.ApiMethod, conf.ApiPath, conf.ApiPayload, &raw)
+				if err != nil {
+					log.LoggerWContext(ctx).Error("API error", err.Error())
+					return
+				}
+				break
+			default:
+				log.LoggerWContext(ctx).Warn("Unhandled api_method " + conf.ApiMethod)
+				return
+			}
+
+			//temporary workaround for issue: https://github.com/oliveagle/jsonpath/issues/12
+			if string(raw[0]) == "[" && string(raw[len(raw)-1]) == "]" {
+				//wrap `raw` in {"items": ... }
+				raw = []byte("{\"items\":" + string(raw) + "}")
+			}
+
+			if raw == nil {
+				log.LoggerWContext(ctx).Warn("Empty response from " + conf.ApiMethod + " " + conf.ApiPath)
+				return
+			}
+			var json_data interface{}
+			json.Unmarshal([]byte(raw), &json_data)
+			res, err := jsonpath.JsonPathLookup(json_data, conf.ApiCompile)
+			if err != nil {
+				log.LoggerWContext(ctx).Warn("api_compile '"+conf.ApiCompile+"' error from "+conf.ApiMethod+" "+conf.ApiPath, err.Error())
+				return
+			}
+			if res == nil {
+				log.LoggerWContext(ctx).Warn("api_compile '" + conf.ApiCompile + "' returns nil from " + conf.ApiMethod + " " + conf.ApiPath)
+				return
+			}
+			switch conf.StatsdType {
+			case "count":
+				StatsdClient.Count(conf.StatsdNS, res.(float64))
+				break
+
+			case "gauge":
+				StatsdClient.Gauge(conf.StatsdNS, res.(float64))
+				break
+
+			case "histogram":
+				StatsdClient.Histogram(conf.StatsdNS, res.(float64))
+				break
+
+			case "increment":
+				StatsdClient.Increment(conf.StatsdNS)
+				break
+
+			case "unique":
+				StatsdClient.Unique(conf.StatsdNS, res.(string))
+				break
+
+			default:
+				log.LoggerWContext(ctx).Warn("Unhandled statsd_type " + conf.StatsdType + " for " + conf.Type)
+			}
+		}
 
 	default:
 		log.LoggerWContext(ctx).Warn("Unhandled type: " + conf.Type)

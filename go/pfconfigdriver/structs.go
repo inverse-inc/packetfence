@@ -361,4 +361,8 @@ type PfStats struct {
 	MySQLQuery     string `json:"mysql_query"`
 	Interval       string `json:"interval"`
 	Host           string `json:"host"`
+	ApiMethod      string `json:"api_method"`
+	ApiPayload     string `json:"api_payload"`
+	ApiPath        string `json:"api_path"`
+	ApiCompile     string `json:"api_compile"`
 }
