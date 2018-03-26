@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/coreos/go-systemd/daemon"
-	"github.com/hpcloud/tail"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 
 	"github.com/inverse-inc/packetfence/go/log"
@@ -325,28 +324,28 @@ func main() {
 		}
 	}()
 
-	var files []string
-
-	config := tail.Config{Follow: true, ReOpen: true, Location: &tail.SeekInfo{-10, os.SEEK_END}}
-
-	done := make(chan bool)
-
 	var keyConfStats pfconfigdriver.PfconfigKeys
 	keyConfStats.PfconfigNS = "config::Stats"
 	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfStats)
+	RegExpMetric := regexp.MustCompile("^metric .*")
+
+	// Read DB config
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Database)
+	configDatabase := pfconfigdriver.Config.PfConf.Database
+	connectDB(configDatabase)
 
 	for _, key := range keyConfStats.Keys {
 		var ConfStat pfconfigdriver.PfStats
 		ConfStat.PfconfigHashNS = key
 
 		pfconfigdriver.FetchDecodeSocket(ctx, &ConfStat)
-		files = append(files, ConfStat.File)
 
-		go tailFile(ConfStat, config, done)
-	}
-
-	for _ = range files {
-		<-done
+		if RegExpMetric.MatchString(key) {
+			err = ProcessMetricConfig(ctx, ConfStat)
+			if err != nil {
+				log.LoggerWContext(ctx).Error(err.Error())
+			}
+		}
 	}
 
 	for {
@@ -356,27 +355,6 @@ func main() {
 		}
 
 		go forward(fd)
-	}
-}
-
-func tailFile(stats pfconfigdriver.PfStats, config tail.Config, done chan bool) {
-	defer func() { done <- true }()
-	t, err := tail.TailFile(stats.File, config)
-	if err != nil {
-		log.LoggerWContext(ctx).Error(err.Error())
-		return
-	}
-
-	rgx := regexp.MustCompile(stats.Match)
-
-	for line := range t.Lines {
-		if rgx.Match([]byte(line.Text)) {
-			StatsdClient.Gauge(stats.PfconfigHashNS, 1)
-		}
-	}
-	err = t.Wait()
-	if err != nil {
-		log.LoggerWContext(ctx).Error(err.Error())
 	}
 }
 

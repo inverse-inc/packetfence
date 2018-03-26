@@ -1,0 +1,102 @@
+[metric 'test ICMP IPv4']
+type=icmp_ipv4
+statsd_type=timing
+statsd_ns=source.packetfence.ping_google
+host=google.ca
+interval=5s
+
+[metric 'total online devices']
+type=mysql_query
+statsd_type=histogram
+statsd_ns=source.packetfence.devices.online
+# mysql_query must return a single column with a single row
+mysql_query=select count(distinct callingstationid) from radacct where acctstoptime is null
+interval=60s
+
+[metric 'total offline devices']
+type=mysql_query
+statsd_type=histogram
+statsd_ns=source.packetfence.devices.offline
+# mysql_query must return a single column with a single row
+mysql_query=select count(distinct callingstationid) from radacct where acctstoptime <= NOW()
+interval=60s
+
+[metric 'number of new registered devices during the past hour']
+type=mysql_query
+statsd_type=histogram
+statsd_ns=source.packetfence.devices.registered_last_hour
+# mysql_query must return a single column with a single row
+mysql_query=select count(distinct mac) from node where status='reg' and regdate >= NOW() - INTERVAL 1 HOUR
+interval=60s
+
+[metric 'number of new registered devices during the past day']
+type=mysql_query
+statsd_type=histogram
+statsd_ns=source.packetfence.devices.registered_last_day
+# mysql_query must return a single column with a single row
+mysql_query=select count(distinct mac) from node where status='reg' and regdate >= NOW() - INTERVAL 1 DAY
+interval=60s
+
+[metric 'number of new registered devices during the past week']
+type=mysql_query
+statsd_type=histogram
+statsd_ns=source.packetfence.devices.registered_last_week
+# mysql_query must return a single column with a single row
+mysql_query=select count(distinct mac) from node where status='reg' and regdate >= NOW() - INTERVAL 1 WEEK
+interval=60s
+
+[metric 'number of new registered devices during the past month']
+type=mysql_query
+statsd_type=histogram
+statsd_ns=source.packetfence.devices.registered_last_month
+# mysql_query must return a single column with a single row
+mysql_query=select count(distinct mac) from node where status='reg' and regdate >= NOW() - INTERVAL 1 MONTH
+interval=60s
+
+[metric 'number of new registered devices during the past year']
+type=mysql_query
+statsd_type=histogram
+statsd_ns=source.packetfence.devices.registered_last_year
+# mysql_query must return a single column with a single row
+mysql_query=select count(distinct mac) from node where status='reg' and regdate >= NOW() - INTERVAL 1 YEAR
+interval=60s
+
+[metric 'number of devices currently online and in the registration network']
+type=mysql_query
+statsd_type=histogram
+statsd_ns=source.packetfence.devices.online_registered
+# mysql_query must return a single column with a single row
+mysql_query=select count(distinct n.mac) from node n join radacct r on r.callingstationid=n.mac where n.status='reg' and (n.unregdate >= NOW() or n.unregdate = '0000-00-00 00:00:00') and r.acctstoptime is null
+interval=60s
+
+[metric 'number of devices currently registered']
+type=mysql_query
+statsd_type=histogram
+statsd_ns=source.packetfence.devices.registered
+# mysql_query must return a single column with a single row
+mysql_query=select count(distinct mac) from node where status='reg' and (unregdate >= NOW() or unregdate = '0000-00-00 00:00:00')
+interval=60s
+
+[metric 'number of currently open violations']
+type=mysql_query
+statsd_type=histogram
+statsd_ns=source.packetfence.violations
+# mysql_query must return a single column with a single row
+mysql_query=select count(distinct mac) from violation where status='open'
+interval=60s
+
+[metric 'number of successful radius authentications in the last day']
+type=mysql_query
+statsd_type=histogram
+statsd_ns=source.packetfence.authentication.success_last_day
+# mysql_query must return a single column with a single row
+mysql_query=select count(1) from radius_audit_log where auth_status='Accept' and created_at >= NOW() - INTERVAL 1 DAY;
+interval=60s
+
+[metric 'number of failed radius authentications in the last day']
+type=mysql_query
+statsd_type=histogram
+statsd_ns=source.packetfence.authentication.failed_last_day
+# mysql_query must return a single column with a single row
+mysql_query=select count(1) from radius_audit_log where auth_status='Reject' and created_at >= NOW() - INTERVAL 1 DAY;
+interval=60s
