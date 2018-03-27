@@ -15,7 +15,7 @@
     "build-dev": "NODE_ENV=dev node build/build.js"
   },
   "dependencies": {
-    "axios": "^0.17.1",
+    "axios": "^0.x",
     "bootstrap-vue": "^2.0.0-rc.1",
     "vue": "^2.5.2",
     "vue-browser-acl": "^0.5.5",
