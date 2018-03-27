@@ -15,7 +15,7 @@ dist:
 	npm run build
 	git add -f $(STATIC_FILES) $(DYNAMIC_FILES)
 	@if ! git diff --cached --quiet --exit-code; then \
-		git add --update $(shell dirname $(DYNAMIC_FILES)); \
+		git add --update dist; \
 		git add -f $(MANIFEST_FILES); \
 		git commit -m "(web admin alt) Update generated files"; \
 	else \
