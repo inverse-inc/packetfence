@@ -1,7 +1,7 @@
 [metric 'total dhcp leases remaining on enp0s8']
 type=api
 statsd_type=histogram
-statsd_ns=source.packetfence.test_api
+statsd_ns=source.packetfence.dhcp_leases_enp0s8
 api_method=GET
 api_path=/api/v1/dhcp/stats/enp0s8
 api_compile=$.items[0].free
