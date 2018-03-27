@@ -143,7 +143,7 @@ sub options_type {
     foreach my $vendor (sort keys %paths) {
         my @scan = map {{ value => $_, label => $paths{$vendor}->{$_} }} sort keys %{$paths{$vendor}};
         push @modules, { group => $vendor,
-                         options => \@scan };
+                         options => \@scan, value => '' };
     }
 
     return @modules;

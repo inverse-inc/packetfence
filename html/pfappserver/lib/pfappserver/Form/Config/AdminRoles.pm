@@ -131,7 +131,7 @@ sub options_actions {
     }
 
     @options = map {
-        { group => $self->_localize($_), options => $groups{$_} }
+        { group => $self->_localize($_), options => $groups{$_}, value => '' }
     } sort keys %groups;
 
     return \@options;

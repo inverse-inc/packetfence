@@ -215,7 +215,8 @@ sub options_UTC_Timezone {
     local $_;
     my @options = map {
         {   group   => $self->_localize($_),
-            options => options_UTC_Timezone_group($self, $_)
+            options => options_UTC_Timezone_group($self, $_),
+            value => '',
         }
     } DateTime::TimeZone->categories;
     unshift @options, { value => '', label => ''  };
