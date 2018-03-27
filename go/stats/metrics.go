@@ -137,8 +137,7 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 				}
 				break
 			case "DELETE", "PATCH", "POST", "PUT":
-				//err := apiclient.CallWithStringBody(ctx, conf.ApiMethod, conf.ApiPath, conf.ApiPayload, &raw)
-				err := apiclient.CallWithBody(ctx, conf.ApiMethod, conf.ApiPath, conf.ApiPayload, &raw)
+				err := apiclient.CallWithStringBody(ctx, conf.ApiMethod, conf.ApiPath, conf.ApiPayload, &raw)
 				if err != nil {
 					log.LoggerWContext(ctx).Error("API error", err.Error())
 					return
