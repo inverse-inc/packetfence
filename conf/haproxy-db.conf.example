@@ -41,7 +41,6 @@ frontend  main
     mode tcp
     option tcplog
     default_backend             mysql
-    %%bind-process%%
 
 backend mysql
     mode tcp

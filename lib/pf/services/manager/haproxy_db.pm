@@ -73,6 +73,13 @@ EOT
         }
     $i++;
     }
+    
+    $tags{'active_active_ip'} = pf::cluster::management_cluster_ip();
+    $tags{'management_ip'}
+        = defined( $management_network->tag('vip') )
+        ? $management_network->tag('vip')
+        : $management_network->tag('ip');
+
 
     $tags{captiveportal_templates_path} = $captiveportal_templates_path;
     parse_template( \%tags, $self->haproxy_config_template, "$generated_conf_dir/".$self->name.".conf" );
