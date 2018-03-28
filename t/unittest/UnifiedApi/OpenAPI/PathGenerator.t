@@ -44,6 +44,52 @@ is_deeply(
     "Simple generation"
 );
 
+my %getContent = standardGetContent();
+my %putContent = standardGetContent();
+
+delete $putContent{content}{"application/json"}{schema}{properties}{id};
+$putContent{content}{"application/json"}{schema}{required} = [qw(pvid)];
+
+sub standardGetContent {
+
+    return (
+        "content" => {
+            "application/json" => {
+                schema => {
+                    properties => {
+                        id => {
+                            description => 'MAC Address',
+                            type        => 'string'
+                        },
+                        ip => {
+                            description => 'IP Address',
+                            type        => 'string'
+                        },
+                        pvid => {
+                            description =>
+                              'VLAN in which PacketFence should put the port',
+                            type => 'integer'
+                        },
+                        taggedVlan => {
+                            description =>
+'Comma separated list of VLANs. If the port is a multi-vlan, these are the VLANs that have to be tagged on the port.',
+                            type => 'string'
+                        },
+                        trunkPort => {
+                            description =>
+                              'The port must be configured as a muti-vlan port',
+                            type => 'string'
+                        },
+                    },
+                    required => [qw(id pvid)],
+                    type     => 'object',
+                },
+            }
+        },
+    );
+}
+
+
 {
 
     my $generator = pf::UnifiedApi::OpenAPI::PathGenerator::Config->new;
@@ -77,41 +123,7 @@ is_deeply(
                 operationId => 'api.v1.Config::FloatingDevices.get',
                 parameters => [],
                 responses  => {
-                    "200" => {
-                        "content" => {
-                            "application/json" => {
-                                schema => {
-                                    properties => {
-                                        id => {
-                                            description => 'MAC Address',
-                                            type        => 'string'
-                                        },
-                                        ip => {
-                                            description => 'IP Address',
-                                            type        => 'string'
-                                        },
-                                        pvid => {
-                                            description =>
-'VLAN in which PacketFence should put the port',
-                                            type => 'integer'
-                                        },
-                                        taggedVlan => {
-                                            description =>
-'Comma separated list of VLANs. If the port is a multi-vlan, these are the VLANs that have to be tagged on the port.',
-                                            type => 'string'
-                                        },
-                                        trunkPort => {
-                                            description =>
-'The port must be configured as a muti-vlan port',
-                                            type => 'string'
-                                        },
-                                    },
-                                    required => [qw(id pvid)],
-                                    type => 'object',
-                                },
-                            }
-                        },
-                    },
+                    "200" => \%getContent,
                     "400" => {
                         "\$ref" => "#/components/responses/BadRequest",
                     },
@@ -134,8 +146,7 @@ is_deeply(
                 $controller,
                 [
                     {
-                        'operationId' => 'api.v1.Config::FloatingDevices.get',
-                        'name'        => 'api.v1.Config::FloatingDevices.get',
+                        'name'        => 'api.v1.Config::FloatingDevices.replace',
                         'children'    => [],
                         'path' =>
                           '/config/floating_device/{floating_device_id}',
@@ -155,8 +166,8 @@ is_deeply(
         ],
         [
             put => {
-                operationId => 'api.v1.Config::FloatingDevices.get',
                 parameters  => [],
+                requestBody => \%putContent,
                 responses   => {
                     "201" => {
                         "\$ref" => "#/components/responses/Created"
@@ -170,7 +181,7 @@ is_deeply(
                 },
             },
         ],
-        "Config remove"
+        "Config PUT"
     );
 }
 {
@@ -213,7 +224,7 @@ is_deeply(
                 },
             },
         ],
-        "Config remove"
+        "Config DELETE"
     );
 }
 
