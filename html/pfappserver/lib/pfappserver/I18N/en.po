@@ -11301,3 +11301,8 @@ msgstr ""
 msgid "{percent}% of {total_size}"
 msgstr ""
 
+msgid "multi_source_ids"
+msgstr "Sources"
+
+msgid "actions"
+msgstr "Actions"
