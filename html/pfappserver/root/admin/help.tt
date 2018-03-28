@@ -36,7 +36,7 @@
         [% END -%]
         <ul class="nav nav-pills nav-vertical">
           [%
-          guide('Administration Guide', 'Administration_Guide') | none;
+          guide('Administration Guide', 'Installation_Guide') | none;
           guide('Network Devices Configuration Guide', 'Network_Devices_Configuration_Guide') | none;
           guide('Inline Deployment Quick Guide using ZEN', 'Inline_Deployment_Quick_Guide_ZEN') | none;
           guide('Out-of-Band Deployment Quick Guide using ZEN', 'Out-of-Band_Deployment_Quick_Guide_ZEN') | none;
