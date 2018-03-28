@@ -252,7 +252,7 @@ sub create :Local :AdminRoleAny('USERS_CREATE') :AdminRoleAny('USERS_CREATE_MULI
 
     ($status, $result) = $c->model('Config::Roles')->listFromDB();
     if (is_success($status)) {
-        @roles = map { $_->{name} => $_->{name} } @$result;
+        @roles = @$result;
     }
 
     $form = pfappserver::Form::User::Create->new(ctx => $c, roles => \@roles);
