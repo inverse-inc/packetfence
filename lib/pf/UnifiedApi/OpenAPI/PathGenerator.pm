@@ -194,7 +194,10 @@ sub operations {
     my %ops;
     for my $action (@{$actions // []}) {
         for my $m (@{$action->{methods}}) {
-            $ops{lc($m)} = $self->operation($c, lc($m), $action);
+            $m = lc($m);
+            my $op = $self->operation($c, $m, $action);
+            next if !defined $op;
+            $ops{$m} = $self->operation($c, $m, $action);
         }
     }
 
@@ -230,16 +233,12 @@ sub operation_generation {
         return undef;
     }
 
-    if (!exists $generators->{$scope}{$m}) {
-        return undef;
-    }
-
     my $a = $action->{action};
-    if (!exists $generators->{$scope}{$m}{$a}) {
+    if (!exists $generators->{$scope}{$a}) {
         return undef;
     }
 
-    my $method = $generators->{$scope}{$m}{$a};
+    my $method = $generators->{$scope}{$a};
     return $self->$method($scope, $c, $m, $action);
 }
 
