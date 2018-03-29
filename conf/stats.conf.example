@@ -4,8 +4,21 @@ statsd_type=histogram
 statsd_ns=source.packetfence.dhcp_leases_enp0s8
 api_method=GET
 api_path=/api/v1/dhcp/stats/enp0s8
+# api_compile options see: http://goessner.net/articles/JsonPath/
 api_compile=$[0].free
 interval=5s
+
+[metric 'dummy POST example']
+type=api
+statsd_type=histogram
+statsd_ns=source.packetfence.test_api_post
+api_method=POST
+api_path=/api/v1/ipset/unmark_ip
+api_payload={"ip": "1.2.3.4"}
+# api_compile options see: http://goessner.net/articles/JsonPath/
+api_compile=$.some_random_value
+interval=5s
+
 
 [metric 'test ICMP IPv4']
 type=icmp_ipv4
