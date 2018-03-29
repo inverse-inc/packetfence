@@ -43,8 +43,8 @@ our %PATH_CONFIG_HANDLER = (
     },
     resource => {
         'get'    => \&configResourceGet,
-        'put'    => \&configResourceGet,
-        'patch'  => \&configResourceGet,
+        'put'    => \&configResourcePut,
+        'patch'  => \&configResourcePut,
         'delete' => \&configResourceDelete,
     }
 );
@@ -120,7 +120,6 @@ sub configPathMethodInfo {
     my ($method, $child, $forms) = @_;
     my $path_type = $child->{path_type};
     my $action = $child->{action};
-    print "$path_type : $action\n";
     my $handlers = $PATH_CONFIG_HANDLER{$path_type};
     if (!$handlers) {
         die "invalid path_type : $path_type\n";
@@ -175,22 +174,18 @@ sub configResourcePut {
 }
 
 sub configResourceGet {
-    my ($method, $child, $forms) = @_;
+    my ( $method, $child, $forms ) = @_;
     {
-        "parameters" => [
-            standardParameters()
-        ],
-        "requestBody" => {
-            "content" => {
-                "application/json" => {
-                    configCollectionPostJsonSchema($method, $child, $forms)
-                }
-            },
-            "required" => true,
-        },
-        "responses" => {
-            "201" => {
-                "\$ref" => "#/components/responses/Created"
+        "parameters" => [ standardParameters() ],
+        "responses"  => {
+            "204" => {
+                "content" => {
+                    "application/json" => {
+                        configCollectionPostJsonSchema(
+                            $method, $child, $forms
+                        )
+                    }
+                },
             },
             "400" => {
                 "\$ref" => "#/components/responses/BadRequest"
@@ -301,6 +296,7 @@ sub walk {
     if ( $depth == 0 && @$children == 0 ) {
         return;
     }
+
     my $verbose   = 1;
     my $rows      = [];
     my $path_part = $route->pattern->unparsed || '';
