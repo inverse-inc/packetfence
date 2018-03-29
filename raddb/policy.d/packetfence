@@ -36,7 +36,13 @@ packetfence-local-auth {
 packetfence-set-tenant-id {
     if ( "%{%{control:PacketFence-Tenant-Id}:-0}" == "0") {
         update control {
-                &PacketFence-Tenant-Id = "%{sql: SELECT IFNULL((SELECT tenant_id FROM radius_nas WHERE nasname = '%{Packet-Src-IP-Address}'), 1)}"
+                &PacketFence-Tenant-Id = "%{sql: SELECT IFNULL((SELECT tenant_id FROM radius_nas WHERE nasname = '%{Packet-Src-IP-Address}'), 0)}"
+        }
+
+        if ( &control:PacketFence-Tenant-Id == '0' ) {
+            update {
+                &control:PacketFence-Tenant-Id := "%{sql: SELECT IFNULL((SELECT tenant_id from radius_nas WHERE start_ip <= INET_ATON('%{Packet-Src-IP-Address}') and INET_ATON('%{Packet-Src-IP-Address}') <= end_ip order by range_length limit 1), 1)}"
+            }
         }
     }
 }
