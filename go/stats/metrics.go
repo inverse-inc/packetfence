@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/gdey/jsonpath"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/oliveagle/jsonpath"
 
 	"github.com/inverse-inc/packetfence/go/interval"
 	"github.com/inverse-inc/packetfence/go/log"
@@ -148,21 +148,20 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 				return
 			}
 
-			//temporary workaround for issue: https://github.com/oliveagle/jsonpath/issues/12
-			if string(raw[0]) == "[" && string(raw[len(raw)-1]) == "]" {
-				//wrap `raw` in {"items": ... }
-				raw = []byte("{\"items\":" + string(raw) + "}")
-			}
-
 			if raw == nil {
 				log.LoggerWContext(ctx).Warn("Empty response from " + conf.ApiMethod + " " + conf.ApiPath)
 				return
 			}
 			var json_data interface{}
 			json.Unmarshal([]byte(raw), &json_data)
-			res, err := jsonpath.JsonPathLookup(json_data, conf.ApiCompile)
+			prs, err := jsonpath.Parse(conf.ApiCompile)
 			if err != nil {
-				log.LoggerWContext(ctx).Warn("api_compile '"+conf.ApiCompile+"' error from "+conf.ApiMethod+" "+conf.ApiPath, err.Error())
+				log.LoggerWContext(ctx).Warn("api_compile '"+conf.ApiCompile+"' parse error from "+conf.ApiMethod+" "+conf.ApiPath, err.Error())
+				return
+			}
+			res, err := prs.Apply(json_data)
+			if err != nil {
+				log.LoggerWContext(ctx).Warn("api_compile '"+conf.ApiCompile+"' apply error from "+conf.ApiMethod+" "+conf.ApiPath, err.Error())
 				return
 			}
 			if res == nil {

@@ -4,7 +4,7 @@ statsd_type=histogram
 statsd_ns=source.packetfence.dhcp_leases_enp0s8
 api_method=GET
 api_path=/api/v1/dhcp/stats/enp0s8
-api_compile=$.items[0].free
+api_compile=$[0].free
 interval=5s
 
 [metric 'test ICMP IPv4']
