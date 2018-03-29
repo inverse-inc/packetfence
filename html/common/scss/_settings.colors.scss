@@ -7,7 +7,6 @@
 $pf-color-tint:                          #F1F1F1;    // light gray
 $pf-color-gray:                          #343434;    // dark gray
 $pf-color-light-gray:                    #96A0AA;    // light blue gray
-$pf-color-error:                         #C97064;    // red
 $pf-color-notice:                        #93BAB6;    // light blue
 
 /**
@@ -15,16 +14,17 @@ $pf-color-notice:                        #93BAB6;    // light blue
  */
 
 // Text color
-$inuit-base-text-color:                  #123622;    // very dark green
+$inuit-base-text-color:                  $pf-color-gray;    // Based text color
+$inuit-base-title-color:                 #333333; 
 
 // Background color
-$inuit-base-background-color:            #FEFEFE;    // almost white
+$inuit-base-background-color:            $pf-color-tint;    // almost white
 
 // Button background color
 $inuit-btn-background:                   #247BA0;
 
 // Button light background color
-$pf-btn-background-light:                #f7f7f7;    // light gray
+$pf-btn-background-light:                #a200ff;           //  #f7f7f7;
 
 // Navigation (dots and background color of round icons)
 $pf-base-accent-color:                   $inuit-btn-background;
@@ -54,6 +54,13 @@ $pf-list-icon-color:                     $pf-color-light-gray;
 // Input label
 $pf-input-caption:                       $pf-color-light-gray;
 
+// Icons colors
+$pf-icon-symbole-color:                  $pf-color-gray;  
+$pf-icon-background-color:               #333333; // $inuit-btn-background;
+
+// Error colors
+$pf-color-error:                         #C97064;    // red
+ 
 /**
  * Alternative blue-gray palette. Packaged as styles-dark.css in the repo.
  */

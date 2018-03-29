@@ -63,7 +63,7 @@ button.#{$inuit-btn-namespace}btn {
     transform: scale(1.25);
   }
   > * {
-    color: $inuit-base-text-color;
+     color: $inuit-base-text-color;
   }
 }
 
@@ -84,17 +84,17 @@ button.#{$inuit-btn-namespace}btn {
 }
 
 .#{$inuit-btn-namespace}btn--light {
-  background-color: $pf-btn-background-light;
-  border-color: $pf-btn-background-light;
+  background-color: $inuit-btn-background;
+  border-color: $inuit-btn-background;
   color: $pf-list-tint-color;
 
   &:hover {
-    background-color: darken($pf-btn-background-light, 5%);
+    background-color: darken($inuit-btn-background, 5%);
     color: $pf-list-tint-color;
   }
 
   &.#{$inuit-btn-namespace}btn--disabled {
-    background-color: darken($pf-btn-background-light, 5%);
+    background-color: darken($inuit-btn-background, 5%);
     color: lighten($pf-list-tint-color, 20%);
   }
   

@@ -5,13 +5,13 @@
   display: inline-block;
   user-select: none;
 
-  div {
-    width: 10px;
-    height: 10px;
-    margin: 5px 7px;
-    border: 2px solid $pf-base-accent-color;
-    transition: opacity 200ms ease;
-    border-radius: 30px;
+ div {
+   width: 10px;
+   height: 10px;
+   margin: 5px 7px;
+   border: 2px solid $pf-base-accent-color;
+   transition: opacity 200ms ease;
+   border-radius: 30px;
   }
 }
 
@@ -19,6 +19,7 @@
 .#{$pf-namespace}dot:hover div {
   background-color: $pf-base-accent-color;
 }
+
 
 .#{$pf-namespace}dot--disabled {
   cursor: not-allowed;

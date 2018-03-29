@@ -1,0 +1,169 @@
+Developer's Guide
+=================
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_PortalandEmailCustomisation_Guide-docinfo.xml for authors, copyright and
+    license information.
+
+////
+
+include::includes/global-attributes.asciidoc[]
+
+About this Guide
+----------------
+
+This guide will help you modifying PacketFence portal and emails to your particular needs.
+
+The latest version of this guide is available at https://packetfence.org/documentation/.
+
+Other sources of information
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Developers Guide::
+  Others type of dev modifications.
+Administration Guide::
+  Covers PacketFence installation, configuration and administration.
+`NEWS`::
+  Covers noteworthy features, improvements and bug fixes by release.
+`UPGRADE`::
+  Covers compatibility related changes, manual instructions and general notes
+  about upgrading.
+`ChangeLog`::
+  Covers all changes to the source code.
+
+These files are included in the package and release tarballs.
+
+Documentation
+-------------
+
+The in-depth or more technical documentation is always as close to the code
+as possible. Always look at the `POD` doc
+footnote:[Perl's Plain Old Documentation: http://perldoc.perl.org/perlpod.html].
+To do so, the preferred way is using the `perldoc` command as follows:
+
+  perldoc lib/pfconfig/cached.pm
+
+
+Code conventions
+----------------
+////
+Titre
+-----
+
+Titre
+~~~~~
+
+Titre
+^^^^^
+
+Titre
++++++
+
+////
+
+
+Presentation
+------------
+
+The aim of this Guide is to quickly give the way to customise PacketFence Portals and Emails.
+This documentation will gones in complement of the _Developers Guide_.
+
+Portal Customisation
+--------------------
+
+Portals are made of severals modules, depending of configured authentication methodes, ut the first module is always the *Root* modules.
+This root module is _html_ coded using a template called the *layout.htlm*.
+This layout will be modified will style included in the css configuration. 
+
+Colors Customisation
+~~~~~~~~~~~~~~~~~~~~
+
+The Portals are coded and compiled with https://github.com/inuitcss[InuitCSS], this will allow us to change colors with css, in a template.
+
+|===
+
+| *_settings.packetfence.scss*  | Colors to be compiled in css.
+
+| $inuit-base-text-color | Based text like User Name, Email, 
+
+| $inuit-base-background-color:     |  Page background (Check INFO)  
+
+| $inuit-btn-background:     |  Buttons and icons background
+
+| $pf-btn-background-light:     |   Buttons color 
+
+| $pf-base-accent-color:     |   Dots and  Icons background color
+
+| $pf-footer-background-color:     |    
+
+| $pf-footer-text-color:     |    
+
+| $pf-box-tint-background:     |    
+
+| $pf-box-tint-color:     |    
+
+| $pf-frame-background:     |    
+
+| $pf-list-tint-background:     |    
+
+| $pf-list-tint-color:     |    
+
+| $pf-list-background-light:     |    
+
+| $pf-list-icon-color:     |    
+
+| $pf-input-caption:     |    
+
+| $pf-icon-symbole-color:     |  Icon color (Shield, Key, ...)
+
+| $pf-icon-background-color   |   Icon Background color (Shield, Key, ...)
+
+|===
+INFO: To be able to see the page backgroup color, you need to replace  *<div class="layout layout--center frame--earlyMorning">* with  *<div class="layout layout--center">*, in /usr/local/pf/html/captive-portal/templates/layout.html
+
+TODO: Create variables: Button, TextButton, ButtonLight, TextLightButton,
+
+SCSS Files list
++++++++++++++++
+
+|===
+
+| *_components.iconic.scss*  | Icons grapical properties
+
+| *_base.headings.scss* | h1;h2;h3 colors.
+
+| *_components.dot.scss*  | Little dots colors, plain and empty ones.
+
+| *_objects.buttons.scss*  | Buttons colors.
+
+|===
+
+
+Most of the colors are in the *_settings.packetfence.scss*, in */usr/local/pf/html/common/scss*
+
+You can edit *_settings.packetfence.scss* with vi, included in the packages, or by installing vim.
+
+CSS Customisation
+^^^^^^^^^^^^^^^^^
+
+
+
+~~~~~
+
+//TODO: process the rest. I found quickest way to be:
+// paste from docbook then use vim(:1,9s#<\_.\{-1,}>##g) and reformat by hand
+
+include::includes/additional-info.asciidoc[]
+
+include::includes/commercial-support.asciidoc[]
+
+include::includes/license.asciidoc[]
+
+// vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:
