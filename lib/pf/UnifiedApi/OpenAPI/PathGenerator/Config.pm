@@ -26,81 +26,46 @@ our %METHODS_WITH_ID = (
 );
 
 our %OPERATION_GENERATORS = (
+    requestBody => {
+        create  => "createRequestBody",
+        search  => sub { undef },
+        replace => "replaceRequestBody",
+        update  => "updateRequestBody",
+    },
     responses => {
-        'post' => {
-            create => "createResponses",
-            search => sub { undef },
-        },
-        'get' => {
-            list => "listResponses",
-            get  => "getResponses",
-        },
-        'put' => {
-            replace => "replaceResponses",
-        },
-        'patch' => {
-            update => "updateResponses",
-        },
-        'delete' => {
-            remove => "removeResponses",
-        },
+        search  => sub { undef },
+        list    => "listResponses",
+        get     => "getResponses",
+        replace => "replaceResponses",
+        update  => "updateResponses",
+        remove  => "removeResponses",
     },
     parameters => {
-        'post' => {
-            create => "createParameters",
-            search => sub { undef },
-        },
-        'get' => {
-            list => "listParameters",
-            get  => "getParameters",
-        },
-        'put' => {
-            replace => "replaceParameters",
-        },
-        'patch' => {
-            update => "updateParameters",
-        },
-        'delete' => {
-            remove => "removeParameters",
-        },
+        create  => "createParameters",
+        search  => sub { undef },
+        list    => "listParameters",
+        get     => "getParameters",
+        replace => "replaceParameters",
+        update  => "updateParameters",
+        remove  => "removeParameters",
     },
     description => {
-        'post' => {
-            create => "createDescription",
-            search => sub { undef },
-        },
-        'get' => {
-            list => "listDescription",
-            get  => "getDescription",
-        },
-        'put' => {
-            replace => "replaceDescription",
-        },
-        'patch' => {
-            update => "updateDescription",
-        },
-        'delete' => {
-            remove => "removeDescription",
-        },
+        create  => "createDescription",
+        search  => sub { undef },
+        list    => "listDescription",
+        get     => "getDescription",
+        replace => "replaceDescription",
+        update  => "updateDescription",
+        remove  => "removeDescription",
     },
     operationId => {
-        'post' => {
-            create => "operationId",
-            search => sub { undef },
-        },
-        'get' => {
-            list => "operationId",
-            get  => "operationId",
-        },
-        'put' => {
-            replace => "operationId",
-        },
-        'patch' => {
-            update => "operationId",
-        },
-        'delete' => {
-            remove => "operationId",
-        },
+        create  => "operationId",
+        search  => sub { undef },
+        list    => "operationId",
+        get     => "operationId",
+        replace => "operationId",
+        update  => "operationId",
+        remove  => "operationId",
     }
 );
 
@@ -165,12 +130,6 @@ sub removeResponses {
             description => 'Deleted a config item'
         }
     };
-}
-
-sub setup {
-    my ($self, $c, $a) = @_;
-    my $controller = "pf::UnifiedApi::Controller::$c";
-    load $controller;
 }
 
 sub createParameters {
@@ -257,6 +216,32 @@ sub removeDescription {
 sub operationId {
     my ($self, $scope, $c, $m, $a) = @_;
 	return $a->{operationId};
+}
+
+sub createRequestBody {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return $self->requestBody($scope, $c, $m, $a);
+}
+
+sub replaceRequestBody {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return $self->requestBody($scope, $c, $m, $a);
+}
+
+sub updateRequestBody {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return $self->requestBody($scope, $c, $m, $a);
+}
+
+sub requestBody {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    my @forms = buildForms( $c, $a, $m );
+    return {
+        "content" => {
+            "application/json" =>
+              { configCollectionPostJsonSchema( $m, $a, \@forms ) },
+        }
+    };
 }
 
 =head1 AUTHOR
