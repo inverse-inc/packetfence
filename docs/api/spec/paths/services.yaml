@@ -12,6 +12,26 @@
             schema:
               $ref: "#/components/schemas/ServicesList"
 
+/services/cluster_status:
+  get:
+    summary: Returns a list of the status of the services on each cluster member
+    description: Returns a list of the status of the services on each cluster member
+    responses:
+      '200':
+        description: List of services
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                $SERVER_HOSTNAME:
+                  type: object
+                  properties:
+                    $SERVICE_NAME:
+                      $ref: "#/components/schemas/Service"
+
+                    
+
 /service/{service}/status:
   get:
     summary: Returns a service status
