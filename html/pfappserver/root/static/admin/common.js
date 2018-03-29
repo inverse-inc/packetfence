@@ -282,7 +282,7 @@ function doUpdateSection(ajax_data) {
                     section.find('.chzn-deselect:visible').chosen({allow_single_deselect: true, search_contains: true});
                     fixChosenClipping(section.find('.chzn-select:visible, .chzn-deselect:visible'));
                     section.find('.switch').bootstrapSwitch();
-                    if (typeof Clipboard !== 'undefined' && Clipboard.isSupported())
+                    if (typeof ClipboardJS !== 'undefined' && ClipboardJS.isSupported())
                         section.find('.clipboard .icon-clipboard').tooltip({ title: _('Copy') });
                     else
                         section.find('.clipboard .icon-clipboard').remove();
@@ -623,8 +623,8 @@ $(function () { // DOM ready
     $('#navbar [data-toggle="tooltip"]').tooltip({placement: 'bottom'});
 
     /* Configure tooltips of "copy to clipboard" buttons */
-    if (typeof Clipboard !== "undefined" && Clipboard.isSupported()) {
-        var clipboard = new Clipboard('.icon-clipboard.btn-icon');
+    if (typeof ClipboardJS !== "undefined" && ClipboardJS.isSupported()) {
+        var clipboard = new ClipboardJS('.icon-clipboard.btn-icon');
         clipboard.on('success', function(e) {
             var btn = $(e.trigger);
             btn.tooltip('destroy').tooltip({ title: _('Copied') }).tooltip('show');
