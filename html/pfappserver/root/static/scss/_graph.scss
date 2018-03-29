@@ -12,7 +12,8 @@
   width: 100%;
 }
 
-.dygraph-title {
+.dygraph-title,
+.gaugeChartTitle {
   color: $grayLight;
   line-height: 1em;
   text-transform: uppercase;
@@ -20,4 +21,16 @@
 
 .netdata-container-with-legend {
   margin: $fontSizeSmall 0;
+}
+
+#alarms {
+  .alert {
+    padding: 0;
+  }
+}
+
+[data-block="value"] {
+  display: inline-block;
+  line-height: 0.8em;
+  white-space: nowrap;
 }

@@ -20,18 +20,101 @@ var netdataServer = '/netdata/127.0.0.1';
 // Custom counters
 
 $(document).ready(function() {
-  setInterval(function () {
-    $.ajax({
-      url: '/netdata/127.0.0.1/api/v1/data?chart=system.uptime&after=-1',
-      method: 'GET'
-    }).done(function (response) {
-      var uptime = response.data[0][1];
-      var to = getTime(uptime);
-      $('#system_uptime').html(to.hours + ':' + to.minutes + ':' + to.seconds);
-    });
-  }, 1000);
+
+  /* Fetch counters */
+  getCounters();
+  setInterval(getCounters, 1000);
+
+  /* Fetch alarms */
+  getAlarms();
+  setInterval(getAlarms, 10000);
 });
 
+var countersInitialized = false;
+var fitties = [];
+function getCounters() {
+  $.ajax({
+    url: '/netdata/127.0.0.1/api/v1/data?chart=system.uptime&after=-1',
+    method: 'GET'
+  }).done(function (response) {
+    var time = response.data[0][1];
+    var to = getTime(time);
+    var el = $('#system_uptime');
+    if (to.days === 0) {
+      el.html(to.hours + ':' + to.minutes + ':' + to.seconds);
+    } else {
+      var uptime = [to.days + 'd'];
+      if (parseInt(to.hours)) {
+        uptime.push(to.hours + 'h');
+      }
+      if (to.minutes) {
+        uptime.push(to.minutes + 'm');
+      }
+      uptime.push(to.seconds + 's')
+      el.html(uptime.join(' '));
+      if (fitties.length === 0) {
+        fitties = fitty('#system_uptime');
+      }
+      else {
+        var fontSize = el.css('font-size');
+        fitties[0].unsubscribe();
+        el.css('font-size', fontSize);
+      }
+    }
+  });
+}
+
+function getAlarms() {
+  var colors = {
+    warning: {
+        color: '#c09853',
+        background: '#fcf8e3'
+    },
+    critical: {
+        color: '#b94a48',
+        background: '#f2dede'
+    }
+  };
+  $.ajax({
+    url: '/netdata/127.0.0.1/api/v1/alarms',
+    method: 'GET'
+  }).done(function (response) {
+    var alarms = response.alarms;
+    $.each(alarms, function (name, alarm) {
+      var el = $('#_' + alarm.id);
+      var status = alarm.status.toLowerCase();
+      var label = alarm.chart.split('.')[0].replace(/_/g, ' ') + ' - ' + alarm.family;
+      var isInitialized = true;
+      if (el.length === 0) {
+        el = $('[data-alarm="' + status + '"]').clone();
+        isInitialized = false;
+      }
+      el.attr('id', '_' + alarm.id);
+      var labelEl = el.find('[data-block="label"]'); labelEl.html(label);
+      var valueEl = el.find('[data-block="value"]'); valueEl.html(alarm.value_string);
+      if (!isInitialized) {
+        // Append sparkline
+        var sparkline = $(['<div data-netdata="' + alarm.chart + '"',
+          '     data-chart-library="sparkline"',
+          '     data-sparkline-linecolor="' + colors[status].color + '"',
+          '     data-sparkline-fillcolor="' + colors[status].background + '"',
+          '     data-height="30"',
+          '     data-after="-300"></div>'].join(''));
+        el.find('.alert').append(sparkline);
+      }
+      $('#alarms').append(el);
+      el.removeClass('hide');
+      fitty(labelEl[0], { minSize: 8, maxSize: 14 });
+      fitty(valueEl[0], { maxSize: 24 });
+    });
+    window.NETDATA.parseDom();
+  });
+}
+
+/**
+ * Extract time units and return an object.
+ * Hours, minutes and seconds are padded with zeros on two digits.
+ */
 function getTime(t) {
   var delta, days, hours, minutes, seconds, pad;
   pad = function(i) {
@@ -96,122 +179,155 @@ setTimeout(function(){
 
 </script>
 
-<div class="row-fluid">
-    <div class="span4">
-        <div class="card">
-            <div class="card-block text-center">
-                <h6 style="margin-top: 0">System Uptime</h6>
-                <div id="system_uptime" style="font-size: 2em">--:--:--</div>
+
+<!-- alarms templates -->
+<div class="span4 hide" data-alarm="warning">
+    <div class="alert text-center">
+        <div><span data-block="label"></span></div>
+        <div><strong data-block="value"></strong></div>
+    </div>
+</div>
+<div class="span4 hide" data-alarm="critical">
+    <div class="alert alert-error text-center">
+        <div><span data-block="label"></span></div>
+        <div><strong data-block="value"></strong></div>
+    </div>
+</div>
+<!-- end of alarms templates -->
+
+<div class="row-fluid" id="alarms">
+    <!-- alarms -->
+</div>
+
+<div class="row-fluid" id="alarms">
+    <div class="span18 text-center">
+        <ul class="nav nav-pills" style="display: inline-block">
+            <li class="active"><a data-toggle="pill" href="#system">System</a></li>
+            <li><a data-toggle="pill" href="#radius">RADIUS</a></li>
+            <li><a data-toggle="pill" href="#authentication">Authentication</a></li>
+            <li><a data-toggle="pill" href="#endpoints">Endpoints</a></li>
+        </ul>
+    </div>
+</div>
+
+<div class="tab-content">
+
+    <div class="tab-pane active" id="system">
+
+        <div class="row-fluid">
+            <div class="span4">
+                <div class="card">
+                    <div class="card-block text-center">
+                        <h6 style="margin-top: 0">System Uptime</h6>
+                        <div><span id="system_uptime" class="no-wrap">--:--:--</span></div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="span4">
+
         <div class="card">
+            <div class="card-title">
+                <h2>System Overview</h2>
+            </div>
             <div class="card-block">
-                <div data-netdata="system.cpu"
-                     data-title="CPU usage"
-                     data-chart-library="gauge"
-                     data-units="%"
-                     data-decimal-digits="0"
-                     data-gauge-max-value="100"
-                     data-after="-300"
-                     data-points="300"
-                     data-width="100%"
-                     data-height="150px"
-                     role="application"></div>
+                <div class="row-fluid">
+                    <div class="span9">
+                        <div data-netdata="system.cpu"
+                        data-title="CPU usage"
+                        data-chart-library="dygraph"
+                        data-height="200px"
+                        data-after="-300"
+                        data-dygraph-valuerange="[0, 100]"></div>
+                    </div>
+                    <div class="span9">
+                        <div data-netdata="system.load"
+                        data-title="System Load Average"
+                        data-chart-library="dygraph"
+                        data-height="200px"
+                        data-after="-300"
+                        data-dygraph-valuerange="[0, 100]"></div>
+                    </div>
+                </div>
+                <div class="row-fluid">
+                    <div class="span9">
+                        <div data-netdata="system.io"
+                        data-common-max="io"
+                        data-common-min="io"
+                        data-title="Disk I/O"
+                        data-chart-library="dygraph"
+                        data-height="200px"
+                        data-after="-300"></div>
+                    </div>
+                    <div class="span9">
+                        <div data-netdata="disk_space._"
+                        data-title="Disk Space Usage for /"
+                        data-chart-library="dygraph"
+                        data-height="200px"
+                        data-after="-300"></div>
+                    </div>
+                </div>
+                <div class="row-fluid">
+                    <div class="span9">
+                        <div data-netdata="system.ram"
+                        data-title="System RAM"
+                        data-common-max="ram"
+                        data-common-min="ram"
+                        data-chart-library="dygraph"
+                        data-height="200px"
+                        data-after="-300"></div>
+                    </div>
+                    <div class="span9">
+                        <div data-netdata="system.swap"
+                        data-title="System Swap"
+                        data-common-max="ram"
+                        data-common-min="ram"
+                        data-chart-library="dygraph"
+                        data-height="200px"
+                        data-after="-300"></div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
 
-<div class="card">
-    <div class="card-title">
-        <h2>System Overview</h2>
-    </div>
-    <div class="card-block">
-        <div class="row-fluid">
-            <div class="span9">
-                <div data-netdata="system.cpu"
-                    data-title="CPU usage"
-                    data-chart-library="dygraph"
-                    data-height="200px"
-                    data-after="-300"
-                    data-dygraph-valuerange="[0, 100]"></div>
+        <div class="card">
+            <div class="card-title">
+                <h2>IPv4 Networking</h2>
             </div>
-            <div class="span9">
-                <div data-netdata="system.load"
-                    data-title="System Load Average"
-                    data-chart-library="dygraph"
-                    data-height="200px"
-                    data-after="-300"
-                    data-dygraph-valuerange="[0, 100]"></div>
-            </div>
-        </div>
-        <div class="row-fluid">
-            <div class="span9">
-                <div data-netdata="system.io"
-                    data-common-max="io"
-                    data-common-min="io"
-                    data-title="Disk I/O"
-                    data-chart-library="dygraph"
-                    data-height="200px"
-                    data-after="-300"></div>
-            </div>
-            <div class="span9">
-                <div data-netdata="disk_space._"
-                    data-title="Disk Space Usage for /"
-                    data-chart-library="dygraph"
-                    data-height="200px"
-                    data-after="-300"></div>
+            <div class="card-block">
+                <div class="row-fluid">
+                    <div class="span9">
+                        <div data-netdata="system.ipv4"
+                        data-common-max="traffic"
+                        data-common-min="traffic"
+                        data-title="IPv4 Bandwidth"
+                        data-chart-library="dygraph"
+                        data-height="200px"
+                        data-after="-300"></div>
+                    </div>
+                    <div class="span9">
+                        <div data-netdata="ipv4.sockstat_sockets"
+                        data-common-max="traffic"
+                        data-common-min="traffic"
+                        data-title="IPv4 Sockets"
+                        data-chart-library="dygraph"
+                        data-height="200px"
+                        data-after="-300"></div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="row-fluid">
-            <div class="span9">
-                <div data-netdata="system.ram"
-                    data-title="System RAM"
-                    data-common-max="ram"
-                    data-common-min="ram"
-                    data-chart-library="dygraph"
-                    data-height="200px"
-                    data-after="-300"></div>
-            </div>
-            <div class="span9">
-                <div data-netdata="system.swap"
-                    data-title="System Swap"
-                    data-common-max="ram"
-                    data-common-min="ram"
-                    data-chart-library="dygraph"
-                    data-height="200px"
-                    data-after="-300"></div>
-            </div>
-        </div>
-    </div>
-</div>
 
-<div class="card">
-    <div class="card-title">
-        <h2>IPv4 Networking</h2>
     </div>
-    <div class="card-block">
-        <div class="row-fluid">
-            <div class="span9">
-                <div data-netdata="system.ipv4"
-                    data-common-max="traffic"
-                    data-common-min="traffic"
-                    data-title="IPv4 Bandwidth"
-                    data-chart-library="dygraph"
-                    data-height="200px"
-                    data-after="-300"></div>
-            </div>
-            <div class="span9">
-                <div data-netdata="ipv4.sockstat_sockets"
-                    data-common-max="traffic"
-                    data-common-min="traffic"
-                    data-title="IPv4 Sockets"
-                    data-chart-library="dygraph"
-                    data-height="200px"
-                    data-after="-300"></div>
-            </div>
-        </div>
+
+    <div class="tab-pane" id="radius">
+        RADIUS
+    </div>
+
+    <div class="tab-pane" id="authentication">
+        Authentication
+    </div>
+
+    <div class="tab-pane" id="endpoints">
+        Endpoints
     </div>
 </div>

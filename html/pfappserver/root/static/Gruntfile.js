@@ -57,6 +57,9 @@ module.exports = function(grunt) {
       'app/raphael/g.dot-min.js',
       'app/raphael/g.line-min.js',
       'app/raphael/g.pie-min.js'
+    ],
+    'js/vendor/fitty.min.js': [
+      'node_modules/fitty/dist/fitty.min.js'
     ]
   };
   var sass_include_paths = [

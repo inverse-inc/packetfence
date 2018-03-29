@@ -1,5 +1,6 @@
 [%  jsFiles = [
         'admin/status',
+        'js/vendor/fitty.min'
         ]
      cssFiles = [
         'admin/status',
