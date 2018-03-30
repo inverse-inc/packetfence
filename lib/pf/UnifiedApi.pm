@@ -151,7 +151,10 @@ our @API_V1_ROUTES = (
         collection => {
             http_methods => {
                 get => 'list',
-            }
+            },
+            subroutes => {
+                'cluster_status' => { get => 'cluster_status' },
+            },
         },
     },
     { controller => 'RadiusAuditLogs' },
