@@ -38,7 +38,7 @@ const api = {
     return apiCall({url: 'tenants', method: 'get'})
   },
   getLanguage: (locale) => {
-    return Promise.resolve({ en: {} })
+    return apiCall({url: `translation/${locale}`, method: 'get'})
   }
 }
 
@@ -103,18 +103,19 @@ const actions = {
       commit('TENANTS_UPDATED', response.data)
     })
   },
-  setLanguage: ({state, commit}, i18n, lang) => {
-    if (i18n.locale !== lang) {
-      if (!state.languages.contains(lang)) {
-        return api.getLanguage(lang).then(messages => {
-          i18n.setLocaleMessage(lang, messages)
-          state.languages.push(lang)
-          return setI18nLanguage(i18n, lang)
+  setLanguage: ({state, commit}, params) => {
+    if (params.i18n.locale !== params.lang || state.languages.indexOf(params.lang) < 0) {
+      if (state.languages.indexOf(params.lang) < 0) {
+        return api.getLanguage(params.lang).then(response => {
+          let messages = response.data.item.lexicon
+          params.i18n.setLocaleMessage(params.lang, messages)
+          state.languages.push(params.lang)
+          return setI18nLanguage(params.i18n, params.lang)
         })
       }
-      return Promise.resolve(setI18nLanguage(i18n, lang))
+      return Promise.resolve(setI18nLanguage(params.i18n, params.lang))
     }
-    return Promise.resolve(lang)
+    return Promise.resolve(params.lang)
   }
 }
 
