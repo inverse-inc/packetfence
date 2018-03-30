@@ -127,6 +127,7 @@ END
                             data-host="/netdata/[% member.value %]"
                             data-title="[% member.key %] - CPU usage"
                             data-chart-library="dygraph"
+                            data-colors="#455640 #73826e #91a58b #b4c6af #5D737E #6399B5 #BFE8FC #D8F2FF #FCFEFF"
                             data-height="200px"
                             data-after="-300"
                             data-dygraph-valuerange="[0, 100]"></div>
@@ -138,6 +139,7 @@ END
                             data-title="[% member.key %] - System Load Average"
                             data-host="/netdata/[% member.value %]"
                             data-chart-library="dygraph"
+                            data-colors="#5D737E #6399B5 #BFE8FC #D8F2FF #FCFEFF"
                             data-height="200px"
                             data-after="-300"
                             data-dygraph-valuerange="[0, 100]"></div>
@@ -153,6 +155,7 @@ END
                             data-common-min="io"
                             data-title="[% member.key %] - Disk I/O"
                             data-chart-library="dygraph"
+                            data-colors="#5D737E #6399B5 #BFE8FC #D8F2FF #FCFEFF"
                             data-height="200px"
                             data-after="-300"></div>
                         </div>
@@ -163,6 +166,7 @@ END
                             data-host="/netdata/[% member.value %]"
                             data-title="[% member.key %] - Disk Space Usage for /"
                             data-chart-library="dygraph"
+                            data-colors="#5D737E #6399B5 #BFE8FC #D8F2FF #FCFEFF"
                             data-height="200px"
                             data-after="-300"></div>
                         </div>
@@ -177,6 +181,7 @@ END
                             data-common-max="ram"
                             data-common-min="ram"
                             data-chart-library="dygraph"
+                            data-colors="#5D737E #6399B5 #BFE8FC #D8F2FF #FCFEFF"
                             data-height="200px"
                             data-after="-300"></div>
                         </div>
@@ -189,6 +194,7 @@ END
                             data-common-max="ram"
                             data-common-min="ram"
                             data-chart-library="dygraph"
+                            data-colors="#5D737E #6399B5 #BFE8FC #D8F2FF #FCFEFF"
                             data-height="200px"
                             data-after="-300"></div>
                         </div>
@@ -210,6 +216,7 @@ END
                             data-common-min="traffic"
                             data-title="[% member.key %] - IPv4 Bandwidth"
                             data-chart-library="dygraph"
+                            data-colors="#5D737E #6399B5 #BFE8FC #D8F2FF #FCFEFF"
                             data-height="200px"
                             data-after="-300"></div>
                         </div>
@@ -222,6 +229,7 @@ END
                             data-common-min="traffic"
                             data-title="[% member.key %] - IPv4 Sockets"
                             data-chart-library="dygraph"
+                            data-colors="#5D737E #6399B5 #BFE8FC #D8F2FF #FCFEFF"
                             data-height="200px"
                             data-after="-300"></div>
                         </div>
