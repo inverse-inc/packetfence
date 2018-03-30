@@ -35,7 +35,6 @@ my %remap = (
 
 while(my ($old, $new) = each(%remap)) {
     my $query = "UPDATE node set device_class='$new', device_type='$new' where device_class='$old';";
-    print $query . "\n";
     get_db_handle->do($query)
 }
 
@@ -43,6 +42,8 @@ my @conds = map { "device_class!='$_'" } values(%remap);
 my $condition = join(" AND ", @conds);
 
 get_db_handle->do("UPDATE node set device_class=NULL, device_type=NULL where $condition");
+
+print "Completed migration of the Fingerbank device names in the node table \n";
 
 =head1 AUTHOR
 
