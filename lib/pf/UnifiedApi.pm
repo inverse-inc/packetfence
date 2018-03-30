@@ -18,6 +18,7 @@ use Mojo::Base 'Mojolicious';
 use pf::dal;
 use pf::file_paths qw($log_conf_dir);
 use MojoX::Log::Log4perl;
+use pf::UnifiedApi::Controller;
 
 has commands => sub {
   my $commands = Mojolicious::Commands->new(app => shift);
@@ -204,6 +205,7 @@ our @API_V1_ROUTES = (
 
 sub startup {
     my ($self) = @_;
+    $self->controller_class('pf::UnifiedApi::Controller');
     $self->routes->namespaces(['pf::UnifiedApi::Controller', 'pf::UnifiedApi']);
     $self->hook(before_dispatch => \&set_tenant_id);
     $self->plugin('pf::UnifiedApi::Plugin::RestCrud');
@@ -219,9 +221,9 @@ sub setup_api_v1_routes {
         $api_v1_route->rest_routes($route);
     }
 
-    $r->any(sub {
+    $r->any('/*', sub {
         my ($c) = @_;
-        return $c->render(json => { message => "Unknown path", errors => [] }, status => 404);
+        return $c->unknown_action;
     });
 }
 
