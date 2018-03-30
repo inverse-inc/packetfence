@@ -9,22 +9,21 @@ var refresh = {
 };
 
 /*
- * This function is called at the initial loading of the page or when the window is resized.
- * In both cases, the default URL of the hashchange handler must be updated.
- * @see graphs.js
- */
+* This function is called at the initial loading of the page or when the window is resized.
+* In both cases, the default URL of the hashchange handler must be updated.
+* @see graphs.js
+*/
 function drawGraphs(options) {
     var default_href, pos,
-      links = $('.sidenav .nav-list a[href*="graph"]'),
-      width = $('#section').width() - 40;
+    links = $('.sidenav .nav-list a[href*="graph"]'),
+    width = $('#section').width() - 40;
 
     links.each(function() {
         // Add window width to graph links
         var a = $(this);
         var href = a.attr('href');
         pos = href.indexOf('?');
-        if (pos >= 0)
-            href = href.substring(0, pos);
+        if (pos >= 0) href = href.substring(0, pos);
         href += '?width=' + width;
         if (!default_href) default_href = href;
         a.attr('href', href);
@@ -35,21 +34,22 @@ function drawGraphs(options) {
         default_href = location.hash;
         pos = default_href.indexOf('?');
         if (pos >= 0)
-            default_href = default_href.substring(0, pos);
+        default_href = default_href.substring(0, pos);
         default_href = default_href.replace(/^.*#/,"/") + '?width=' + width;
         $(window).unbind('hashchange');
     }
     $(window).hashchange(pfOnHashChange(updateSection, default_href));
 
-    if (options && options.noreload)
+    if (options && options.noreload) {
         reloadGraphs({ delayed: true });
-    else
+    } else {
         reloadGraphs();
+    }
 }
 
 /**
- * Update the source URL of graph images and repeat in X seconds
- */
+* Update the source URL of graph images and repeat in X seconds
+*/
 function reloadGraphs(options) {
     if (!options || !options.delayed) {
         var d = new Date();
@@ -59,8 +59,9 @@ function reloadGraphs(options) {
         });
     }
 
-    if (refresh.timeout)
+    if (refresh.timeout) {
         window.clearTimeout(refresh.timeout);
+    }
     refresh.timeout = window.setTimeout(refresh.callback, refresh.delay);
 }
 
@@ -83,7 +84,7 @@ function init() {
 
     $('#section').on('section.loaded', function(event) {
         var section = $(this);
-        if (section.children('#dashboard, #systemstate, #logstate').length) {
+        if (section.children('#systemstate, #logstate').length) {
             // Set the end date of the range datepickers to today
             var today = new Date();
             $('.input-daterange input').each(function() {
@@ -123,6 +124,8 @@ function init() {
                     location.hash = hash;
                 }
             });
+        } else if (section.children('#dashboard').length) {
+            initDashboard();
         }
     });
 
@@ -132,26 +135,27 @@ function init() {
             var loader = section.prev('.loader');
             if (loader) loader.show();
             section.fadeTo('fast', 0.5);
-            $.ajax("/service/status")
-                .always(function() {
-                    if (loader) loader.hide();
-                    section.stop();
-                    section.fadeTo('fast', 1.0);
-                })
-                .done(function(data, textStatus, jqXHR) {
-                    section.find('.input-date').datepicker({ autoclose: true });
-                    if (section.chosen) {
-                        section.find('.chzn-select').chosen();
-                        section.find('.chzn-deselect').chosen({allow_single_deselect: true});
-                    }
-                    if (section.bootstrapSwitch)
-                        section.find('.switch').bootstrapSwitch();
-                    section.trigger('section.loaded');
-                    section.html(data);
-                })
-                .fail(function(jqXHR) {
-                    delayedRefresh(--attempt);
-                });
+            $.ajax({
+                url: '/service/status'
+            }).always(function() {
+                if (loader) loader.hide();
+                section.stop();
+                section.fadeTo('fast', 1.0);
+            }).done(function(data, textStatus, jqXHR) {
+                section.find('.input-date').datepicker({ autoclose: true });
+                if (section.chosen) {
+                    section.find('.chzn-select').chosen();
+                    section.find('.chzn-deselect').chosen({allow_single_deselect: true});
+                }
+                if (section.bootstrapSwitch) {
+                    section.find('.switch').bootstrapSwitch();
+                }
+                section.trigger('section.loaded');
+                section.html(data);
+            })
+            .fail(function(jqXHR) {
+                delayedRefresh(--attempt);
+            });
         } else {
             showPermanentError($("#section .table"), "Maximum attempts reached");
         }
@@ -162,39 +166,25 @@ function init() {
         var section_table = $("#section .table");
         showAlert("#deferred_service_alert", section_table, timeout.toString(), true);
         var alert_section = section_table.prev('.alert');
-        var timerId = setInterval(
-            function() {
-                if(timeout > 0) {
-                    timeout--;
-                    alert_section.find('span').first().html(timeout.toString());
-                }
+        var timerId = setInterval(function() {
+            if(timeout > 0) {
+                timeout--;
+                alert_section.find('span').first().html(timeout.toString());
             }
-            ,1000
-        );
+        }, 1000);
         var doRefresh = function() {
             clearInterval(timerId);
             alert_section.remove();
             retryStatusPage(attempt);
         };
-        var refreshTimeoutId = setTimeout(
-            function() {
-                alert_section.find('.btn').off('click.refresh');
-                doRefresh();
-            },
-            timeout * 1000
-        );
+        var refreshTimeoutId = setTimeout(function() {
+            alert_section.find('.btn').off('click.refresh');
+            doRefresh();
+        }, timeout * 1000);
         alert_section.find('.btn').on('click.refresh',function() {
-                clearTimeout(refreshTimeoutId);
-                doRefresh();
-            }
-        );
-    }
-
-    /* Update #section using an ajax request */
-    function updateStatusSection(newhash) {
-        var range = getDates();
-        activateNavLink();
-        return doUpdateSection(ajax_data);
+            clearTimeout(refreshTimeoutId);
+            doRefresh();
+        });
     }
 
     $("#section").on('click.modal.data-api', '[data-toggle="modal"][data-target][data-confirm-stop-href]', function (e) {
@@ -205,34 +195,33 @@ function init() {
             var section = $('#section');
             var loader = section.prev('.loader');
             if (loader) loader.show();
-            $.ajax(href)
-                .always(function() {
-                    if (loader) loader.hide();
-                    modal.hide();
-                })
-                .done(function(data, textStatus, jqXHR) {
-                    var docHeight = $(document).height();
-                    $("body").append("<div id='overlay'></div>");
-                    $("#overlay")
-                        .css({
-                            'opacity' : 0.4,
-                            'position': 'absolute',
-                            'top': 0,
-                            'left': 0,
-                            'background-color': 'black',
-                            'width': '100%',
-                            'height': '100%',
-                            'z-index': 9999
-                        });
-                })
-                .fail(function(jqXHR) {
-                    if (loader) loader.hide();
-                    section.stop();
-                    section.fadeTo('fast', 1.0);
-                    var status_msg = getStatusMsg(jqXHR);
-                    showPermanentError($("#section .table"), status_msg);
+            $.ajax({
+                url: href
+            }).always(function() {
+                if (loader) loader.hide();
+                modal.hide();
+            }).done(function(data, textStatus, jqXHR) {
+                var docHeight = $(document).height();
+                $("body").append("<div id='overlay'></div>");
+                $("#overlay")
+                .css({
+                    'opacity' : 0.4,
+                    'position': 'absolute',
+                    'top': 0,
+                    'left': 0,
+                    'background-color': 'black',
+                    'width': '100%',
+                    'height': '100%',
+                    'z-index': 9999
                 });
+            }).fail(function(jqXHR) {
+                if (loader) loader.hide();
+                section.stop();
+                section.fadeTo('fast', 1.0);
+                var status_msg = getStatusMsg(jqXHR);
+                showPermanentError($("#section .table"), status_msg);
             });
+        });
     });
 
     $('#section').on('click', '[data-href-background]', function() {
@@ -242,25 +231,25 @@ function init() {
         var loader = section.prev('.loader');
         if (loader) loader.show();
         section.fadeTo('fast', 0.5);
-        $.ajax(href)
-            .done(function(data, textStatus, jqXHR) {
-                /*If the status is accepted then wait for 60 seconds to refresh the page */
-                if (jqXHR.status == 202) {
-                    if (loader) loader.hide();
-                    section.stop();
-                    section.fadeTo('fast', 1.0);
-                    delayedRefresh(5);
-                } else {
-                    $(window).hashchange();
-                }
-            })
-            .fail(function(jqXHR) {
+        $.ajax({
+            url: href
+        }).done(function(data, textStatus, jqXHR) {
+            /*If the status is accepted then wait for 60 seconds to refresh the page */
+            if (jqXHR.status == 202) {
                 if (loader) loader.hide();
                 section.stop();
                 section.fadeTo('fast', 1.0);
-                var status_msg = getStatusMsg(jqXHR);
-                showPermanentError($("#section .table"), status_msg);
-            });
+                delayedRefresh(5);
+            } else {
+                $(window).hashchange();
+            }
+        }).fail(function(jqXHR) {
+            if (loader) loader.hide();
+            section.stop();
+            section.fadeTo('fast', 1.0);
+            var status_msg = getStatusMsg(jqXHR);
+            showPermanentError($("#section .table"), status_msg);
+        });
         return false;
     });
 
@@ -270,19 +259,19 @@ function init() {
         var section = $('#section');
         var modal = $('#confirmRestart');
         modal.find(".btn-primary").one('click', function(e) {
-            $.ajax(href)
-                .done(function(data, textStatus, jqXHR) {
-                    /*If the status is accepted then wait for 60 seconds to refresh the page */
-                    if (jqXHR.status == 202) {
-                        delayedRefresh(5);
-                    } else {
-                        $(window).hashchange();
-                    }
-                })
-                .fail(function(jqXHR) {
-                    var status_msg = getStatusMsg(jqXHR);
-                    showPermanentError($("#section .table"), status_msg);
-                });
+            $.ajax({
+                url: href
+            }).done(function(data, textStatus, jqXHR) {
+                /*If the status is accepted then wait for 60 seconds to refresh the page */
+                if (jqXHR.status == 202) {
+                    delayedRefresh(5);
+                } else {
+                    $(window).hashchange();
+                }
+            }).fail(function(jqXHR) {
+                var status_msg = getStatusMsg(jqXHR);
+                showPermanentError($("#section .table"), status_msg);
+            });
         });
         modal.modal('show');
         return false;
@@ -297,4 +286,141 @@ function init() {
     }
     $(window).hashchange(pfOnHashChange(updateSection, href));
     $(window).hashchange();
+}
+
+function initDashboard() {
+    // Retrieve members of cluster
+    var clusterEl = document.getElementById('cluster');
+    var cluster = JSON.parse(clusterEl.textContent || clusterEl.innerHTML);
+
+    /* Fetch counters */
+    getCounters();
+    var countersInterval = setInterval(getCounters, 1000);
+
+    /* Fetch alarms */
+    getAlarms();
+    var alarmsInterval = setInterval(getAlarms, 10000);
+
+    var fitties = {};
+    function getCounters() {
+        $.each(cluster, function (hostname, ip) {
+            $.ajax({
+                url: '/netdata/' + ip + '/api/v1/data?chart=system.uptime&after=-1',
+                method: 'GET'
+            }).done(function (response) {
+                var id = hostname.replace(/\./, '_') + '_sytem_uptime';
+                var time = response.data[0][1];
+                var to = getTime(time);
+                var el = $('#' + id);
+                if (el.length === 0) {
+                    el = $('[data-counter="uptime"]').clone();
+                    el.attr('id', id);
+                    $('#system-counters').append(el);
+                    el.removeClass('hide');
+                }
+                if (el.length === 0) {
+                  clearInterval(countersInterval);
+                  return;
+                }
+                el.find('[data-block="hostname"]').html(hostname);
+                var uptimeEl = el.find('[data-block="value"]');
+                if (to.days === 0) {
+                    uptimeEl.html(to.hours + ':' + to.minutes + ':' + to.seconds);
+                } else {
+                    var uptime = [to.days + 'd'];
+                    if (parseInt(to.hours)) {
+                        uptime.push(to.hours + 'h');
+                    }
+                    if (to.minutes) {
+                        uptime.push(to.minutes + 'm');
+                    }
+                    uptime.push(to.seconds + 's')
+                    uptimeEl.html(uptime.join(' '));
+                }
+                if (fitties[id]) {
+                    var fontSize = uptimeEl.css('font-size');
+                    fitties[id].unsubscribe();
+                    uptimeEl.css('font-size', fontSize);
+                } else {
+                    fitties[id] = fitty(uptimeEl[0]);
+                }
+            });
+        });
+    }
+
+    function getAlarms() {
+        var colors = {
+            warning: {
+                color: '#c09853',
+                background: '#fcf8e3'
+            },
+            critical: {
+                color: '#b94a48',
+                background: '#f2dede'
+            }
+        };
+        $.each(cluster, function (hostname, ip) {
+            $.ajax({
+                url: '/netdata/' + ip + '/api/v1/alarms',
+                method: 'GET'
+            }).done(function (response) {
+                var alarms = response.alarms;
+                $.each(alarms, function (name, alarm) {
+                    var el = $('#_' + alarm.id);
+                    var status = alarm.status.toLowerCase();
+                    var label = alarm.chart.split('.')[0].replace(/_/g, ' ') + ' - ' + alarm.family;
+                    var isInitialized = true;
+                    if (el.length === 0) {
+                        el = $('[data-alarm="' + status + '"]').clone();
+                        isInitialized = false;
+                        el.attr('id', '_' + alarm.id);
+                    }
+                    if (el.length === 0) {
+                        clearInterval(alarmsInterval);
+                        return;
+                    }
+                    var hostnameEl = el.find('[data-block="hostname"]'); hostnameEl.html(hostname);
+                    var labelEl = el.find('[data-block="label"]'); labelEl.html(label);
+                    var valueEl = el.find('[data-block="value"]'); valueEl.html(alarm.value_string);
+                    if (!isInitialized) {
+                        // Append sparkline
+                        var sparkline = $(['<div data-netdata="' + alarm.chart + '"',
+                        '     data-chart-library="sparkline"',
+                        '     data-sparkline-linecolor="' + colors[status].color + '"',
+                        '     data-sparkline-fillcolor="' + colors[status].background + '"',
+                        '     data-height="30"',
+                        '     data-after="-300"></div>'].join(''));
+                        el.find('.alert').append(sparkline);
+                    }
+                    $('#alarms').append(el);
+                    el.removeClass('hide');
+                    fitty(hostnameEl[0], { minSize: 8, maxSize: 11 });
+                    fitty(labelEl[0], { minSize: 8, maxSize: 14 });
+                    fitty(valueEl[0], { maxSize: 24 });
+                });
+                window.NETDATA.parseDom();
+            });
+        });
+    }
+
+    /**
+    * Extract time units and return an object.
+    * Hours, minutes and seconds are padded with zeros on two digits.
+    */
+    function getTime(t) {
+        var delta, days, hours, minutes, seconds, pad;
+        pad = function(i) {
+            if (i < 10) return '0' + i;
+            else return i.toString();
+        }
+        delta = t;
+        days = Math.floor(t/60/60/24);
+        delta -= days*60*60*24;
+        hours = Math.floor(delta/60/60);
+        delta -= hours*60*60;
+        minutes = Math.floor(delta/60);
+        delta -= minutes*60;
+        seconds = delta;
+        return { days: days, hours: pad(hours), minutes: pad(minutes), seconds: pad(seconds) };
+    }
 }

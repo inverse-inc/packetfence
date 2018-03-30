@@ -1,397 +1,243 @@
 [%
- IF cluster.keys.size == 0;
-   SET cluster = { localhost => '127.0.0.1' };
-   SET spanSize = 9;
- ELSE;
-   IF spanSize MOD 2 == 0;
-     SET spanSize = 9;
-   ELSE;
-     SET spanSize = 6;
-   END;
- END
+IF cluster.keys.size == 0;
+  SET cluster = { localhost => '127.0.0.1' };
+  SET spanSize = 9;
+ELSE;
+  IF spanSize MOD 2 == 0;
+    SET spanSize = 9;
+  ELSE;
+    SET spanSize = 6;
+  END;
+END
 %]
-<script id="cluster" type="text/json">
-{
-[%- FOREACH member IN cluster %]
-  "[% member.key %]": "[% member.value %]"[% ',' UNLESS loop.last %]
-[%- END %]
-}
-</script>
-
-<script>
-// this section has to appear before loading dashboard.js
-
-// Disable bootstrap
-var netdataNoBootstrap = true;
-
-// Select a theme.
-// uncomment on of the two themes:
-
-var netdataTheme = 'default'; // this is white
-// var netdataTheme = 'slate'; // this is dark
-
-
-// Set the default netdata server.
-// on charts without a 'data-host', this one will be used.
-// the default is the server that dashboard.js is downloaded from.
-
-var netdataServer = '/netdata/127.0.0.1';
-
-// Retrieve members of cluster
-var clusterEl = document.getElementById('cluster');
-var cluster = JSON.parse(clusterEl.textContent || clusterEl.innerHTML);
-
-$(document).ready(function() {
-  /* Fetch counters */
-  getCounters();
-  setInterval(getCounters, 1000);
-
-  /* Fetch alarms */
-  getAlarms();
-  setInterval(getAlarms, 10000);
-});
-
-var fitties = {};
-function getCounters() {
-  $.each(cluster, function (hostname, ip) {
-    $.ajax({
-      url: '/netdata/' + ip + '/api/v1/data?chart=system.uptime&after=-1',
-      method: 'GET'
-    }).done(function (response) {
-      var id = hostname.replace(/\./, '_') + '_sytem_uptime';
-      var time = response.data[0][1];
-      var to = getTime(time);
-      var el = $('#' + id);
-      if (el.length === 0) {
-        el = $('[data-counter="uptime"]').clone();
-        el.attr('id', id);
-        $('#system-counters').append(el);
-        el.removeClass('hide');
-      }
-      el.find('[data-block="hostname"]').html(hostname);
-      var uptimeEl = el.find('[data-block="value"]');
-      if (to.days === 0) {
-        uptimeEl.html(to.hours + ':' + to.minutes + ':' + to.seconds);
-      } else {
-        var uptime = [to.days + 'd'];
-        if (parseInt(to.hours)) {
-          uptime.push(to.hours + 'h');
+<div id="dashboard">
+    <script id="cluster" type="text/json">
+        {
+            [%- FOREACH member IN cluster %]
+            "[% member.key %]": "[% member.value %]"[% ',' UNLESS loop.last %]
+            [%- END %]
         }
-        if (to.minutes) {
-          uptime.push(to.minutes + 'm');
-        }
-        uptime.push(to.seconds + 's')
-        uptimeEl.html(uptime.join(' '));
-      }
-      if (fitties[id]) {
-        var fontSize = uptimeEl.css('font-size');
-        fitties[id].unsubscribe();
-        uptimeEl.css('font-size', fontSize);
-      } else {
-        fitties[id] = fitty(uptimeEl[0]);
-      }
-    });
-  });
-}
+    </script>
 
-function getAlarms() {
-  var colors = {
-    warning: {
-        color: '#c09853',
-        background: '#fcf8e3'
-    },
-    critical: {
-        color: '#b94a48',
-        background: '#f2dede'
-    }
-  };
-  $.each(cluster, function (hostname, ip) {
-    $.ajax({
-      url: '/netdata/' + ip + '/api/v1/alarms',
-      method: 'GET'
-    }).done(function (response) {
-      var alarms = response.alarms;
-      $.each(alarms, function (name, alarm) {
-        var el = $('#_' + alarm.id);
-        var status = alarm.status.toLowerCase();
-        var label = alarm.chart.split('.')[0].replace(/_/g, ' ') + ' - ' + alarm.family;
-        var isInitialized = true;
-        if (el.length === 0) {
-          el = $('[data-alarm="' + status + '"]').clone();
-          isInitialized = false;
-        }
-        el.attr('id', '_' + alarm.id);
-        var hostnameEl = el.find('[data-block="hostname"]'); hostnameEl.html(hostname);
-        var labelEl = el.find('[data-block="label"]'); labelEl.html(label);
-        var valueEl = el.find('[data-block="value"]'); valueEl.html(alarm.value_string);
-        if (!isInitialized) {
-          // Append sparkline
-          var sparkline = $(['<div data-netdata="' + alarm.chart + '"',
-            '     data-chart-library="sparkline"',
-            '     data-sparkline-linecolor="' + colors[status].color + '"',
-            '     data-sparkline-fillcolor="' + colors[status].background + '"',
-            '     data-height="30"',
-            '     data-after="-300"></div>'].join(''));
-          el.find('.alert').append(sparkline);
-        }
-        $('#alarms').append(el);
-        el.removeClass('hide');
-        fitty(hostnameEl[0], { minSize: 8, maxSize: 11 });
-        fitty(labelEl[0], { minSize: 8, maxSize: 14 });
-        fitty(valueEl[0], { maxSize: 24 });
-      });
-      window.NETDATA.parseDom();
-    });
-  });
-}
+    <script>
+        // this section has to appear before loading dashboard.js
 
-/**
- * Extract time units and return an object.
- * Hours, minutes and seconds are padded with zeros on two digits.
- */
-function getTime(t) {
-  var delta, days, hours, minutes, seconds, pad;
-  pad = function(i) {
-      if (i < 10) return '0' + i;
-      else return i.toString();
-  }
-  delta = t;
-  days = Math.floor(t/60/60/24);
-  delta -= days*60*60*24;
-  hours = Math.floor(delta/60/60);
-  delta -= hours*60*60;
-  minutes = Math.floor(delta/60);
-  delta -= minutes*60;
-  seconds = delta;
-  return { days: days, hours: pad(hours), minutes: pad(minutes), seconds: pad(seconds) };
-}
-</script>
+        // Disable bootstrap
+        var netdataNoBootstrap = true;
 
-<!--
-    Load dashboard.js
+        // Select a theme.
+        // uncomment on of the two themes:
+        var netdataTheme = 'default'; // this is white
+        // var netdataTheme = 'slate'; // this is dark
 
-    to host this HTML file on your web server,
-    you have to load dashboard.js from the netdata server.
+        // Set the default netdata server.
+        // on charts without a 'data-host', this one will be used.
+        // the default is the server that dashboard.js is downloaded from.
+        var netdataServer = '/netdata/127.0.0.1';
+    </script>
 
-    So, pick one the two below
-    If you pick the first, set the server name/IP.
+    <!--
+        Load dashboard.js
+        to host this HTML file on your web server,
+        you have to load dashboard.js from the netdata server.
+    -->
+    <script type="text/javascript" src="/netdata/127.0.0.1/dashboard.js?v20170724-7"></script>
 
-    The second assumes you host this file on /usr/share/netdata/web
-    and that you have chown it to be owned by netdata:netdata
--->
-<!-- <script type="text/javascript" src="http://my.server:19999/dashboard.js"></script> -->
-<script type="text/javascript" src="/netdata/127.0.0.1/dashboard.js?v20170724-7"></script>
+    <script>
+        // Set options for TV operation
+        // This has to be done, after dashboard.js is loaded
 
-<script>
-// Set options for TV operation
-// This has to be done, after dashboard.js is loaded
+        // destroy charts not shown (lowers memory on the browser)
+        NETDATA.options.current.destroy_on_hide = true;
 
-// destroy charts not shown (lowers memory on the browser)
-NETDATA.options.current.destroy_on_hide = true;
+        // set this to false, to always show all dimensions
+        NETDATA.options.current.eliminate_zero_dimensions = true;
 
-// set this to false, to always show all dimensions
-NETDATA.options.current.eliminate_zero_dimensions = true;
+        // lower the pressure on this browser
+        NETDATA.options.current.concurrent_refreshes = false;
 
-// lower the pressure on this browser
-NETDATA.options.current.concurrent_refreshes = false;
+        // if the tv browser is too slow (a pi?)
+        // set this to false
+        NETDATA.options.current.parallel_refresher = true;
 
-// if the tv browser is too slow (a pi?)
-// set this to false
-NETDATA.options.current.parallel_refresher = true;
+        // always update the charts, even if focus is lost
+        // NETDATA.options.current.stop_updates_when_focus_is_lost = false;
 
-// always update the charts, even if focus is lost
-// NETDATA.options.current.stop_updates_when_focus_is_lost = false;
+        // Since you may render charts from many servers and any of them may
+        // become offline for some time, the charts will break.
+        // This will reload the page every RELOAD_EVERY minutes
+        var RELOAD_EVERY = 5;
+        setTimeout(function(){
+            location.reload();
+        }, RELOAD_EVERY * 60 * 1000);
+    </script>
 
-// Since you may render charts from many servers and any of them may
-// become offline for some time, the charts will break.
-// This will reload the page every RELOAD_EVERY minutes
-
-var RELOAD_EVERY = 5;
-setTimeout(function(){
-    location.reload();
-}, RELOAD_EVERY * 60 * 1000);
-
-</script>
-
-
-<!-- alarms templates -->
-<div class="span4 hide" data-alarm="warning">
-    <div class="alert text-center">
-        <div><h6 data-block="hostname"></h6></div>
-        <div><span data-block="label"></span></div>
-        <div><strong data-block="value"></strong></div>
-    </div>
-</div>
-<div class="span4 hide" data-alarm="critical">
-    <div class="alert alert-error text-center">
-        <div><h6 data-block="hostname"></h6></div>
-        <div><span data-block="label"></span></div>
-        <div><strong data-block="value"></strong></div>
-    </div>
-</div>
-<!-- end of alarms templates -->
-
-<!-- systemuptime template -->
-<div class="span4 hide" data-counter="uptime">
-    <div class="card">
-        <div class="card-block text-center">
-            <h6><span data-block="hostname"></span> Uptime</h6>
-            <div><span data-block="value" class="no-wrap">--:--:--</span></div>
+    <!-- alarms templates -->
+    <div class="span4 hide" data-alarm="warning">
+        <div class="alert text-center">
+            <div><h6 data-block="hostname"></h6></div>
+            <div><span data-block="label"></span></div>
+            <div><strong data-block="value"></strong></div>
         </div>
     </div>
-</div>
-<!-- end of counters templates -->
+    <div class="span4 hide" data-alarm="critical">
+        <div class="alert alert-error text-center">
+            <div><h6 data-block="hostname"></h6></div>
+            <div><span data-block="label"></span></div>
+            <div><strong data-block="value"></strong></div>
+        </div>
+    </div>
+    <!-- end of alarms templates -->
 
+    <!-- systemuptime template -->
+    <div class="span4 hide" data-counter="uptime">
+        <div class="card">
+            <div class="card-block text-center">
+                <h6><span data-block="hostname"></span> Uptime</h6>
+                <div><span data-block="value" class="no-wrap">--:--:--</span></div>
+            </div>
+        </div>
+    </div>
+    <!-- end of counters templates -->
 
-<div class="row-fluid" id="alarms">
-    <!-- alarms -->
-</div>
-
-<div class="row-fluid">
-    <div class="span18 text-center">
-        <ul class="nav nav-pills" style="display: inline-block">
+    <div class="row-fluid" id="alarms">
+        <!-- alarms -->
+    </div>
+    <div class="text-center">
+        <ul class="nav nav-pills">
             <li class="active"><a data-toggle="pill" href="#system">System</a></li>
             <li><a data-toggle="pill" href="#radius">RADIUS</a></li>
             <li><a data-toggle="pill" href="#authentication">Authentication</a></li>
             <li><a data-toggle="pill" href="#endpoints">Endpoints</a></li>
         </ul>
     </div>
-</div>
-
-<div class="tab-content">
-
-    <div class="tab-pane active" id="system">
-
-        <div class="row-fluid" id="system-counters">
-        </div>
-
-        <div class="card">
-            <div class="card-title">
-                <h2>System Overview</h2>
+    <div class="tab-content">
+        <div class="tab-pane active" id="system">
+            <div class="row-fluid" id="system-counters">
             </div>
-            <div class="card-block">
-                <div class="row-fluid">
-                    [% FOREACH member IN cluster %]
-                    <div class="span[% spanSize %]">
-                        <div data-netdata="system.cpu"
-                        data-host="/netdata/[% member.value %]"
-                        data-title="[% member.key %] - CPU usage"
-                        data-chart-library="dygraph"
-                        data-height="200px"
-                        data-after="-300"
-                        data-dygraph-valuerange="[0, 100]"></div>
-                    </div>
-                    [% END %]
-                    [% FOREACH member IN cluster %]
-                    <div class="span[% spanSize %]">
-                        <div data-netdata="system.load"
-                        data-title="[% member.key %] - System Load Average"
-                        data-host="/netdata/[% member.value %]"
-                        data-chart-library="dygraph"
-                        data-height="200px"
-                        data-after="-300"
-                        data-dygraph-valuerange="[0, 100]"></div>
-                    </div>
-                    [% END %]
+            <div class="card">
+                <div class="card-title">
+                    <h2>System Overview</h2>
                 </div>
-                <div class="row-fluid">
-                    [% FOREACH member IN cluster %]
-                    <div class="span[% spanSize %]">
-                        <div data-netdata="system.io"
-                        data-host="/netdata/[% member.value %]"
-                        data-common-max="io"
-                        data-common-min="io"
-                        data-title="[% member.key %] - Disk I/O"
-                        data-chart-library="dygraph"
-                        data-height="200px"
-                        data-after="-300"></div>
+                <div class="card-block">
+                    <div class="row-fluid">
+                        [% FOREACH member IN cluster %]
+                        <div class="span[% spanSize %]">
+                            <div data-netdata="system.cpu"
+                            data-host="/netdata/[% member.value %]"
+                            data-title="[% member.key %] - CPU usage"
+                            data-chart-library="dygraph"
+                            data-height="200px"
+                            data-after="-300"
+                            data-dygraph-valuerange="[0, 100]"></div>
+                        </div>
+                        [% END %]
+                        [% FOREACH member IN cluster %]
+                        <div class="span[% spanSize %]">
+                            <div data-netdata="system.load"
+                            data-title="[% member.key %] - System Load Average"
+                            data-host="/netdata/[% member.value %]"
+                            data-chart-library="dygraph"
+                            data-height="200px"
+                            data-after="-300"
+                            data-dygraph-valuerange="[0, 100]"></div>
+                        </div>
+                        [% END %]
                     </div>
-                    [% END %]
-                    [% FOREACH member IN cluster %]
-                    <div class="span[% spanSize %]">
-                        <div data-netdata="disk_space._"
-                        data-host="/netdata/[% member.value %]"
-                        data-title="[% member.key %] - Disk Space Usage for /"
-                        data-chart-library="dygraph"
-                        data-height="200px"
-                        data-after="-300"></div>
+                    <div class="row-fluid">
+                        [% FOREACH member IN cluster %]
+                        <div class="span[% spanSize %]">
+                            <div data-netdata="system.io"
+                            data-host="/netdata/[% member.value %]"
+                            data-common-max="io"
+                            data-common-min="io"
+                            data-title="[% member.key %] - Disk I/O"
+                            data-chart-library="dygraph"
+                            data-height="200px"
+                            data-after="-300"></div>
+                        </div>
+                        [% END %]
+                        [% FOREACH member IN cluster %]
+                        <div class="span[% spanSize %]">
+                            <div data-netdata="disk_space._"
+                            data-host="/netdata/[% member.value %]"
+                            data-title="[% member.key %] - Disk Space Usage for /"
+                            data-chart-library="dygraph"
+                            data-height="200px"
+                            data-after="-300"></div>
+                        </div>
+                        [% END %]
                     </div>
-                    [% END %]
-                </div>
-                <div class="row-fluid">
-                    [% FOREACH member IN cluster %]
-                    <div class="span[% spanSize %]">
-                        <div data-netdata="system.ram"
-                        data-host="/netdata/[% member.value %]"
-                        data-title="[% member.key %] - System RAM"
-                        data-common-max="ram"
-                        data-common-min="ram"
-                        data-chart-library="dygraph"
-                        data-height="200px"
-                        data-after="-300"></div>
+                    <div class="row-fluid">
+                        [% FOREACH member IN cluster %]
+                        <div class="span[% spanSize %]">
+                            <div data-netdata="system.ram"
+                            data-host="/netdata/[% member.value %]"
+                            data-title="[% member.key %] - System RAM"
+                            data-common-max="ram"
+                            data-common-min="ram"
+                            data-chart-library="dygraph"
+                            data-height="200px"
+                            data-after="-300"></div>
+                        </div>
+                        [% END %]
+                        [% FOREACH member IN cluster %]
+                        <div class="span[% spanSize %]">
+                            <div data-netdata="system.swap"
+                            data-host="/netdata/[% member.value %]"
+                            data-title="[% member.key %] - System Swap"
+                            data-common-max="ram"
+                            data-common-min="ram"
+                            data-chart-library="dygraph"
+                            data-height="200px"
+                            data-after="-300"></div>
+                        </div>
+                        [% END %]
                     </div>
-                    [% END %]
-                    [% FOREACH member IN cluster %]
-                    <div class="span[% spanSize %]">
-                        <div data-netdata="system.swap"
-                        data-host="/netdata/[% member.value %]"
-                        data-title="[% member.key %] - System Swap"
-                        data-common-max="ram"
-                        data-common-min="ram"
-                        data-chart-library="dygraph"
-                        data-height="200px"
-                        data-after="-300"></div>
-                    </div>
-                    [% END %]
                 </div>
             </div>
-        </div>
-
-        <div class="card">
-            <div class="card-title">
-                <h2>IPv4 Networking</h2>
-            </div>
-            <div class="card-block">
-                <div class="row-fluid">
-                    <div class="span[% spanSize %]">
-                    [% FOREACH member IN cluster %]
-                        <div data-netdata="system.ipv4"
-                        data-host="/netdata/[% member.value %]"
-                        data-common-max="traffic"
-                        data-common-min="traffic"
-                        data-title="[% member.key %] - IPv4 Bandwidth"
-                        data-chart-library="dygraph"
-                        data-height="200px"
-                        data-after="-300"></div>
+            <div class="card">
+                <div class="card-title">
+                    <h2>IPv4 Networking</h2>
+                </div>
+                <div class="card-block">
+                    <div class="row-fluid">
+                        <div class="span[% spanSize %]">
+                            [% FOREACH member IN cluster %]
+                            <div data-netdata="system.ipv4"
+                            data-host="/netdata/[% member.value %]"
+                            data-common-max="traffic"
+                            data-common-min="traffic"
+                            data-title="[% member.key %] - IPv4 Bandwidth"
+                            data-chart-library="dygraph"
+                            data-height="200px"
+                            data-after="-300"></div>
+                        </div>
+                        [% END %]
+                        [% FOREACH member IN cluster %]
+                        <div class="span[% spanSize %]">
+                            <div data-netdata="ipv4.sockstat_sockets"
+                            data-host="/netdata/[% member.value %]"
+                            data-common-max="traffic"
+                            data-common-min="traffic"
+                            data-title="[% member.key %] - IPv4 Sockets"
+                            data-chart-library="dygraph"
+                            data-height="200px"
+                            data-after="-300"></div>
+                        </div>
+                        [% END %]
                     </div>
-                    [% END %]
-                    [% FOREACH member IN cluster %]
-                    <div class="span[% spanSize %]">
-                        <div data-netdata="ipv4.sockstat_sockets"
-                        data-host="/netdata/[% member.value %]"
-                        data-common-max="traffic"
-                        data-common-min="traffic"
-                        data-title="[% member.key %] - IPv4 Sockets"
-                        data-chart-library="dygraph"
-                        data-height="200px"
-                        data-after="-300"></div>
-                    </div>
-                    [% END %]
                 </div>
             </div>
         </div>
-
-    </div>
-
-    <div class="tab-pane" id="radius">
-        RADIUS
-    </div>
-
-    <div class="tab-pane" id="authentication">
-        Authentication
-    </div>
-
-    <div class="tab-pane" id="endpoints">
-        Endpoints
+        <div class="tab-pane" id="radius">
+            RADIUS
+        </div>
+        <div class="tab-pane" id="authentication">
+            Authentication
+        </div>
+        <div class="tab-pane" id="endpoints">
+            Endpoints
+        </div>
     </div>
 </div>
