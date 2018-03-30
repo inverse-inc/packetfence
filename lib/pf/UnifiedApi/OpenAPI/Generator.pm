@@ -1,8 +1,8 @@
-package pf::UnifiedApi::OpenAPI::PathGenerator;
+package pf::UnifiedApi::OpenAPI::Generator;
 
 =head1 NAME
 
-pf::UnifiedApi::OpenAPI::PathGenerator
+pf::UnifiedApi::OpenAPI::Generator
 
 Generates the OpenAPI Path information for a controller and action
 
@@ -10,7 +10,7 @@ Generates the OpenAPI Path information for a controller and action
 
 =head1 DESCRIPTION
 
-pf::UnifiedApi::OpenAPI::PathGenerator
+pf::UnifiedApi::OpenAPI::Generator
 
 =cut
 

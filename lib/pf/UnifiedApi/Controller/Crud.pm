@@ -20,7 +20,7 @@ use pf::error qw(is_error);
 use pf::log;
 use pf::util qw(expand_csv);
 use pf::UnifiedApi::SearchBuilder;
-use pf::UnifiedApi::OpenAPI::PathGenerator::Crud;
+use pf::UnifiedApi::OpenAPI::Generator::Crud;
 
 our %OP_HAS_SUBQUERIES = (
     'and' => 1,
@@ -77,7 +77,7 @@ openapi_path_generator_class
 
 =cut
 
-has 'openapi_path_generator_class' => 'pf::UnifiedApi::OpenAPI::PathGenerator::Crud';
+has 'openapi_path_generator_class' => 'pf::UnifiedApi::OpenAPI::Generator::Crud';
 
 =head1 METHODS
 

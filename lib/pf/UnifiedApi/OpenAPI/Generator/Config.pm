@@ -1,14 +1,14 @@
-package pf::UnifiedApi::OpenAPI::PathGenerator::Config;
+package pf::UnifiedApi::OpenAPI::Generator::Config;
 
 =head1 NAME
 
-pf::UnifiedApi::OpenAPI::PathGenerator::Config -
+pf::UnifiedApi::OpenAPI::Generator::Config -
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::UnifiedApi::OpenAPI::PathGenerator::Config
+pf::UnifiedApi::OpenAPI::Generator::Config
 
 =cut
 
@@ -18,7 +18,7 @@ use Module::Load;
 use Moo;
 use pf::UnifiedApi::GenerateSpec;
 
-extends qw(pf::UnifiedApi::OpenAPI::PathGenerator);
+extends qw(pf::UnifiedApi::OpenAPI::Generator);
 
 our %METHODS_WITH_ID = (
     get => 1,

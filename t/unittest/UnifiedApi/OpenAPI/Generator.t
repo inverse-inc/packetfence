@@ -16,8 +16,8 @@ use strict;
 use warnings;
 #
 use lib '/usr/local/pf/lib';
-use pf::UnifiedApi::OpenAPI::PathGenerator;
-use pf::UnifiedApi::OpenAPI::PathGenerator::Config;
+use pf::UnifiedApi::OpenAPI::Generator;
+use pf::UnifiedApi::OpenAPI::Generator::Config;
 use pf::UnifiedApi::Controller::Config::FloatingDevices;
 use pf::UnifiedApi;
 
@@ -34,7 +34,7 @@ my $app = pf::UnifiedApi->new;
 
 my $controller = pf::UnifiedApi::Controller::Config::FloatingDevices->new(app => $app);
 
-my $generator = pf::UnifiedApi::OpenAPI::PathGenerator->new;
+my $generator = pf::UnifiedApi::OpenAPI::Generator->new;
 
 is_deeply(
     $generator->generate($controller),
@@ -92,7 +92,7 @@ sub standardGetContent {
 
 {
 
-    my $generator = pf::UnifiedApi::OpenAPI::PathGenerator::Config->new;
+    my $generator = pf::UnifiedApi::OpenAPI::Generator::Config->new;
     is_deeply(
         [
             $generator->operations(
@@ -139,7 +139,7 @@ sub standardGetContent {
 
 {
 
-    my $generator = pf::UnifiedApi::OpenAPI::PathGenerator::Config->new;
+    my $generator = pf::UnifiedApi::OpenAPI::Generator::Config->new;
     is_deeply(
         [
             $generator->operations(
@@ -186,7 +186,7 @@ sub standardGetContent {
 }
 {
 
-    my $generator = pf::UnifiedApi::OpenAPI::PathGenerator::Config->new;
+    my $generator = pf::UnifiedApi::OpenAPI::Generator::Config->new;
     is_deeply(
         [
             $generator->operations(

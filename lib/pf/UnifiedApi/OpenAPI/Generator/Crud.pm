@@ -1,21 +1,21 @@
-package pf::UnifiedApi::OpenAPI::PathGenerator::Crud;
+package pf::UnifiedApi::OpenAPI::Generator::Crud;
 
 =head1 NAME
 
-pf::UnifiedApi::OpenAPI::PathGenerator::Crud -
+pf::UnifiedApi::OpenAPI::Generator::Crud -
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::UnifiedApi::OpenAPI::PathGenerator::Crud
+pf::UnifiedApi::OpenAPI::Generator::Crud
 
 =cut
 
 use strict;
 use warnings;
 use Moo;
-extends qw(pf::UnifiedApi::OpenAPI::PathGenerator);
+extends qw(pf::UnifiedApi::OpenAPI::Generator);
 
 our %OPERATION_GENERATORS = (
     requestBody => {

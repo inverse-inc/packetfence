@@ -15,11 +15,11 @@ pf::UnifiedApi::Controller::Config
 use strict;
 use warnings;
 use Mojo::Base qw(pf::UnifiedApi::Controller::RestRoute);
-use pf::UnifiedApi::OpenAPI::PathGenerator::Config;
+use pf::UnifiedApi::OpenAPI::Generator::Config;
 
 has 'config_store_class';
 has 'form_class';
-has 'openapi_path_generator_class' => 'pf::UnifiedApi::OpenAPI::PathGenerator::Config';
+has 'openapi_path_generator_class' => 'pf::UnifiedApi::OpenAPI::Generator::Config';
 
 sub list {
     my ($self) = @_;
