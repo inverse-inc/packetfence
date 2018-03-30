@@ -34,43 +34,72 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 				return
 			}
 			defer rows.Close()
+			cols, err := rows.Columns()
+			if err != nil {
+				log.LoggerWContext(ctx).Error(err.Error())
+				return
+			}
 			var (
+				field  sql.NullString
 				result string
 			)
+			namespace := conf.StatsdNS
 			for rows.Next() {
-				err := rows.Scan(&result)
-				if err != nil {
-					log.LoggerWContext(ctx).Error(err.Error())
+				switch len(cols) {
+				case 1:
+					err := rows.Scan(&result)
+					if err != nil {
+						log.LoggerWContext(ctx).Error(err.Error())
+						return
+					}
+					break
+
+				case 2:
+					err := rows.Scan(&field, &result)
+					if err != nil {
+						log.LoggerWContext(ctx).Error(err.Error())
+						return
+					}
+					switch field.String {
+					case "":
+						namespace = conf.StatsdNS + ";NULL"
+						break
+
+					default:
+						namespace = conf.StatsdNS + ";" + field.String
+					}
+					break
+
+				default:
 					return
 				}
 				switch conf.StatsdType {
 				case "count":
 					f64Result, _ := strconv.ParseFloat(result, 64)
-					StatsdClient.Count(conf.StatsdNS, f64Result)
+					StatsdClient.Count(namespace, f64Result)
 					break
 
 				case "gauge":
 					f64Result, _ := strconv.ParseFloat(result, 64)
-					StatsdClient.Gauge(conf.StatsdNS, f64Result)
+					StatsdClient.Gauge(namespace, f64Result)
 					break
 
 				case "histogram":
 					f64Result, _ := strconv.ParseFloat(result, 64)
-					StatsdClient.Histogram(conf.StatsdNS, f64Result)
+					StatsdClient.Histogram(namespace, f64Result)
 					break
 
 				case "increment":
-					StatsdClient.Increment(conf.StatsdNS)
+					StatsdClient.Increment(namespace)
 					break
 
 				case "unique":
-					StatsdClient.Unique(conf.StatsdNS, result)
+					StatsdClient.Unique(namespace, result)
 					break
 
 				default:
 					log.LoggerWContext(ctx).Warn("Unhandled statsd_type " + conf.StatsdType + " for " + conf.Type)
 				}
-				break
 			}
 			return
 		}
