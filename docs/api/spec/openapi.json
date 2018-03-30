@@ -5,7 +5,7 @@
             "description" : "The cursor pointer to fetch the data (value should be taken from previousCursor and nextCursor)",
             "in" : "query",
             "name" : "cursor",
-            "required" : "",
+            "required" : false,
             "schema" : {
                "type" : "string"
             }
@@ -14,7 +14,7 @@
             "description" : "Comma delimited fields that should be added to the resource by performing joins. For example, in order to get the IP address of a node when calling the nodes endpoints, setting 'ip4log.ip' into this field will provide the latest IP address of the device in the 'ip4log.ip' field of every node that is returned.",
             "in" : "body",
             "name" : "fields",
-            "required" : "",
+            "required" : false,
             "schema" : {
                "example" : [
                   "mac",
@@ -31,7 +31,7 @@
             "description" : "The name of the ipset to manipulate",
             "in" : "path",
             "name" : "set_name",
-            "required" : "1",
+            "required" : true,
             "schema" : {
                "type" : "string"
             }
@@ -40,7 +40,7 @@
             "description" : "The maximum amount of entries to get.",
             "in" : "query|body",
             "name" : "limit",
-            "required" : "",
+            "required" : false,
             "schema" : {
                "type" : "int"
             }
@@ -49,7 +49,7 @@
             "description" : "The local is used to determine if the request should be forwarded to the rest of the cluster. A value of '0' forwards the request and either a missing or alternate value does not forward the request to the rest of the cluster.",
             "in" : "query",
             "name" : "local",
-            "required" : "",
+            "required" : false,
             "schema" : {
                "default" : "0",
                "type" : "integer"
@@ -76,7 +76,7 @@
             "description" : "The JSON encoded search query following the Search schema defined in this spec",
             "in" : "body",
             "name" : "query",
-            "required" : "1",
+            "required" : true,
             "schema" : {
                "$ref" : "#/components/schemas/Search"
             }
@@ -85,7 +85,7 @@
             "description" : "A list of fields to sort on along with the ordering way (ASC or DESC).",
             "in" : "body",
             "name" : "sort",
-            "required" : "",
+            "required" : false,
             "schema" : {
                "example" : [
                   "iplog.ip DESC",
@@ -1674,7 +1674,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -1693,7 +1693,7 @@
                   "description" : "The user ID to fetch",
                   "in" : "path",
                   "name" : "user_id",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -1702,7 +1702,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -1733,7 +1733,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -1747,7 +1747,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -1768,7 +1768,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -1782,7 +1782,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -1809,7 +1809,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -1835,7 +1835,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -1849,7 +1849,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -1875,7 +1875,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -1894,7 +1894,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -1970,7 +1970,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -1990,7 +1990,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -2061,7 +2061,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -2081,7 +2081,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -2152,7 +2152,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -2177,7 +2177,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -2282,7 +2282,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -2358,7 +2358,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -2383,7 +2383,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -2402,7 +2402,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -2464,7 +2464,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -2484,7 +2484,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -2541,7 +2541,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -2561,7 +2561,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -2618,7 +2618,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -2643,7 +2643,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -2734,7 +2734,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -2796,7 +2796,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -2821,7 +2821,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -2840,7 +2840,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -3000,7 +3000,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -3020,7 +3020,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -3175,7 +3175,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -3195,7 +3195,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -3350,7 +3350,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -3375,7 +3375,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -3564,7 +3564,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -3724,7 +3724,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -3749,7 +3749,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -3768,7 +3768,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -3807,7 +3807,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -3827,7 +3827,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -3860,7 +3860,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -3880,7 +3880,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -3913,7 +3913,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -3938,7 +3938,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -4006,7 +4006,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -4045,7 +4045,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -4070,7 +4070,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -4089,7 +4089,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -4187,7 +4187,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -4207,7 +4207,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -4300,7 +4300,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -4320,7 +4320,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -4413,7 +4413,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -4438,7 +4438,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -4565,7 +4565,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -4663,7 +4663,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -4688,7 +4688,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -4707,7 +4707,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -5145,7 +5145,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -5165,7 +5165,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -5567,7 +5567,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -5587,7 +5587,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -5989,7 +5989,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -6014,7 +6014,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -6481,7 +6481,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -6919,7 +6919,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -6944,7 +6944,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -6963,7 +6963,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -7003,7 +7003,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -7023,7 +7023,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -7058,7 +7058,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -7078,7 +7078,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -7113,7 +7113,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -7138,7 +7138,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -7207,7 +7207,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -7247,7 +7247,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -7272,7 +7272,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -7291,7 +7291,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -8327,7 +8327,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -8347,7 +8347,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -9283,7 +9283,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -9303,7 +9303,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -10239,7 +10239,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -10264,7 +10264,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -11329,7 +11329,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -12365,7 +12365,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -12390,7 +12390,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -12409,7 +12409,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -12606,7 +12606,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -12626,7 +12626,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -12808,7 +12808,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -12828,7 +12828,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -13010,7 +13010,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -13035,7 +13035,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -13261,7 +13261,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -13458,7 +13458,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -13483,7 +13483,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -13502,7 +13502,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -15446,7 +15446,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -15466,7 +15466,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -17260,7 +17260,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -17280,7 +17280,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -19074,7 +19074,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -19099,7 +19099,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -21072,7 +21072,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -23016,7 +23016,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -23041,7 +23041,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -23060,7 +23060,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -23103,7 +23103,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -23123,7 +23123,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -23160,7 +23160,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -23180,7 +23180,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -23217,7 +23217,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -23242,7 +23242,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -23314,7 +23314,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -23357,7 +23357,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -23382,7 +23382,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -23401,7 +23401,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -23433,7 +23433,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -23453,7 +23453,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -23480,7 +23480,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -23500,7 +23500,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -23527,7 +23527,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -23552,7 +23552,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -23613,7 +23613,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -23645,7 +23645,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -23670,7 +23670,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -23689,7 +23689,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -24047,7 +24047,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -24067,7 +24067,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -24405,7 +24405,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -24425,7 +24425,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -24763,7 +24763,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -24788,7 +24788,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -25175,7 +25175,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -25533,7 +25533,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -25558,7 +25558,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -25577,7 +25577,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -31090,7 +31090,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -31110,7 +31110,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -36473,7 +36473,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -36493,7 +36493,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -41856,7 +41856,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -41881,7 +41881,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -47423,7 +47423,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -52936,7 +52936,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -52961,7 +52961,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -52980,7 +52980,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -53309,7 +53309,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -53329,7 +53329,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -53652,7 +53652,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -53672,7 +53672,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -53995,7 +53995,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -54017,7 +54017,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -54036,7 +54036,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -54365,7 +54365,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -54385,7 +54385,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -54708,7 +54708,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -54728,7 +54728,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -55051,7 +55051,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -55076,7 +55076,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -55434,7 +55434,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -55763,7 +55763,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -55791,7 +55791,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -56149,7 +56149,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -56478,7 +56478,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -56503,7 +56503,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -56522,7 +56522,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -56770,7 +56770,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -56790,7 +56790,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -57003,7 +57003,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -57023,7 +57023,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -57236,7 +57236,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -57261,7 +57261,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -57538,7 +57538,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -57786,7 +57786,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -57814,7 +57814,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -57874,7 +57874,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -57905,7 +57905,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -57930,7 +57930,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -57949,7 +57949,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -57980,7 +57980,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -58000,7 +58000,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -58025,7 +58025,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -58045,7 +58045,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -58070,7 +58070,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -58092,7 +58092,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -58111,7 +58111,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -58254,7 +58254,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -58274,7 +58274,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -58413,7 +58413,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -58433,7 +58433,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -58572,7 +58572,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -58597,7 +58597,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -58769,7 +58769,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -58912,7 +58912,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -58938,7 +58938,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -58960,7 +58960,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -58982,7 +58982,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -59002,7 +59002,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -59024,7 +59024,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -59047,7 +59047,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -59072,7 +59072,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -59095,7 +59095,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -59120,7 +59120,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -59141,7 +59141,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -59160,7 +59160,7 @@
                   "description" : "The MAC address to fetch.",
                   "in" : "path",
                   "name" : "mac",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -59169,7 +59169,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -59200,7 +59200,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -59214,7 +59214,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -59235,7 +59235,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -59249,7 +59249,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -59276,7 +59276,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -59302,7 +59302,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -59316,7 +59316,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -59346,7 +59346,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -59378,7 +59378,7 @@
                   "description" : "The MAC address to fetch",
                   "in" : "path",
                   "name" : "mac",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -59387,7 +59387,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -59419,7 +59419,7 @@
                   "description" : "The MAC address to fetch",
                   "in" : "path",
                   "name" : "mac",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -59428,7 +59428,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -59456,7 +59456,7 @@
                   "description" : "The MAC address to fetch",
                   "in" : "path",
                   "name" : "mac",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -59465,7 +59465,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -59505,7 +59505,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -59519,7 +59519,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -59543,7 +59543,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -59557,7 +59557,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -59581,7 +59581,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -59595,7 +59595,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -59619,7 +59619,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -59633,7 +59633,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -59657,7 +59657,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -59671,7 +59671,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -59695,7 +59695,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -59709,7 +59709,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -59733,7 +59733,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -59747,7 +59747,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -59774,7 +59774,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -59788,7 +59788,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -59812,7 +59812,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -59826,7 +59826,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -59850,7 +59850,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -59864,7 +59864,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -59884,7 +59884,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -59903,7 +59903,7 @@
                   "description" : "The ID of the row to fetch.",
                   "in" : "path",
                   "name" : "locationlog_id",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "integer"
                   }
@@ -59912,7 +59912,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -59943,7 +59943,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -59957,7 +59957,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -59978,7 +59978,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -59992,7 +59992,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -60019,7 +60019,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -60045,7 +60045,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -60059,7 +60059,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -60085,7 +60085,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -60107,7 +60107,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -60147,7 +60147,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -60166,7 +60166,7 @@
                   "description" : "The node ID to fetch",
                   "in" : "path",
                   "name" : "node_id",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -60175,7 +60175,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -60206,7 +60206,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -60220,7 +60220,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -60241,7 +60241,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -60255,7 +60255,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -60282,7 +60282,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -60308,7 +60308,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -60322,7 +60322,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -60348,7 +60348,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -60367,7 +60367,7 @@
                   "description" : "The radius audit log ID to fetch",
                   "in" : "path",
                   "name" : "radius_audit_log_id",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "integer"
                   }
@@ -60385,7 +60385,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -60416,7 +60416,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -60430,7 +60430,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -60451,7 +60451,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -60465,7 +60465,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -60501,7 +60501,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -60527,7 +60527,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -60541,7 +60541,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -60567,7 +60567,7 @@
                   "description" : "The service name to fetch",
                   "in" : "path",
                   "name" : "service",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -60576,14 +60576,14 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
                }
             ],
             "requestBody" : {
-               "required" : ""
+               "required" : false
             },
             "responses" : {
                "200" : {
@@ -60603,7 +60603,7 @@
                   "description" : "The service name to fetch",
                   "in" : "path",
                   "name" : "service",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -60612,14 +60612,14 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
                }
             ],
             "requestBody" : {
-               "required" : ""
+               "required" : false
             },
             "responses" : {
                "200" : {
@@ -60639,7 +60639,7 @@
                   "description" : "The service name to fetch",
                   "in" : "path",
                   "name" : "service",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -60648,14 +60648,14 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
                }
             ],
             "requestBody" : {
-               "required" : ""
+               "required" : false
             },
             "responses" : {
                "200" : {
@@ -60675,7 +60675,7 @@
                   "description" : "The service name to fetch",
                   "in" : "path",
                   "name" : "service",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -60684,14 +60684,14 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
                }
             ],
             "requestBody" : {
-               "required" : ""
+               "required" : false
             },
             "responses" : {
                "200" : {
@@ -60714,7 +60714,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -60745,7 +60745,7 @@
                   "description" : "The service name to fetch",
                   "in" : "path",
                   "name" : "service",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -60754,14 +60754,14 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
                }
             ],
             "requestBody" : {
-               "required" : ""
+               "required" : false
             },
             "responses" : {
                "200" : {
@@ -60785,7 +60785,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -60806,84 +60806,14 @@
             "summary" : "Returns a list of available services"
          }
       },
-      "/tenants" : {
-         "get" : {
-            "description" : "The list of tenants will be limited to 100 and a cursor will be returned for iterating on other tenants. Iteration is only needed if the nextCursor is not an empty value.",
-            "parameters" : [
-               {
-                  "$ref" : "#/components/parameters/cursor"
-               },
-               {
-                  "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
-                  "in" : "header",
-                  "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
-                  "schema" : {
-                     "type" : "string"
-                  }
-               }
-            ],
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "$ref" : "#/components/schemas/TenantsList"
-                        }
-                     }
-                  },
-                  "description" : "List of tenants"
-               }
-            },
-            "summary" : "Returns a list of tenants"
-         },
-         "post" : {
-            "parameters" : [
-               {
-                  "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
-                  "in" : "header",
-                  "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
-                  "schema" : {
-                     "type" : "string"
-                  }
-               }
-            ],
-            "requestBody" : {
-               "content" : {
-                  "application/json" : {
-                     "schema" : {
-                        "$ref" : "#/components/schemas/Tenant"
-                     }
-                  }
-               },
-               "required" : "1"
-            },
-            "responses" : {
-               "201" : {
-                  "$ref" : "#/components/responses/Created"
-               },
-               "400" : {
-                  "$ref" : "#/components/responses/BadRequest"
-               },
-               "409" : {
-                  "$ref" : "#/components/responses/Duplicate"
-               },
-               "422" : {
-                  "$ref" : "#/components/responses/UnprocessableEntity"
-               }
-            },
-            "summary" : "Creates a tenant"
-         }
-      },
-      "/tenants/{tenant_id}" : {
+      "/tenant/{tenant_id}" : {
          "delete" : {
             "parameters" : [
                {
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -60902,7 +60832,7 @@
                   "description" : "The tenant ID to fetch",
                   "in" : "path",
                   "name" : "tenant_id",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -60911,7 +60841,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -60942,7 +60872,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -60956,7 +60886,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -60977,7 +60907,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -60991,7 +60921,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -61007,14 +60937,44 @@
             "summary" : "Allows to update a whole tenant"
          }
       },
-      "/tenants_onboarding" : {
+      "/tenants" : {
+         "get" : {
+            "description" : "The list of tenants will be limited to 100 and a cursor will be returned for iterating on other tenants. Iteration is only needed if the nextCursor is not an empty value.",
+            "parameters" : [
+               {
+                  "$ref" : "#/components/parameters/cursor"
+               },
+               {
+                  "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
+                  "in" : "header",
+                  "name" : "X-PacketFence-Tenant-Id",
+                  "required" : 0,
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/TenantsList"
+                        }
+                     }
+                  },
+                  "description" : "List of tenants"
+               }
+            },
+            "summary" : "Returns a list of tenants"
+         },
          "post" : {
             "parameters" : [
                {
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -61024,45 +60984,11 @@
                "content" : {
                   "application/json" : {
                      "schema" : {
-                        "properties" : {
-                           "domain_name" : {
-                              "description" : "A valid domain name that will be used as the 802.1x realm",
-                              "type" : "string"
-                           },
-                           "name" : {
-                              "description" : "User friendly name of the tenant",
-                              "type" : "string"
-                           },
-                           "portal_domain_name" : {
-                              "description" : "A valid domain name that will be used for the tenant portal domain name",
-                              "type" : "string"
-                           },
-                           "ssids" : {
-                              "items" : {
-                                 "properties" : {
-                                    "name" : {
-                                       "description" : "The name of the SSID",
-                                       "type" : "string"
-                                    },
-                                    "security" : {
-                                       "description" : "The security type of the SSID. Valid types \"WPA2-Personnal\", \"WPA2-Enterprise\", \"MAC-Authentication\"",
-                                       "type" : "string"
-                                    }
-                                 },
-                                 "type" : "object"
-                              },
-                              "type" : "array"
-                           },
-                           "token" : {
-                              "description" : "The user token that allows to find the proper AP that the tenant is configuring",
-                              "type" : "string"
-                           }
-                        },
-                        "type" : "object"
+                        "$ref" : "#/components/schemas/Tenant"
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -61078,7 +61004,7 @@
                   "$ref" : "#/components/responses/UnprocessableEntity"
                }
             },
-            "summary" : "Allows to onboard a tenant and configure a remote access point using an onboarding token"
+            "summary" : "Creates a tenant"
          }
       },
       "/token_info" : {
@@ -61088,7 +61014,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -61132,7 +61058,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -61151,7 +61077,7 @@
                   "description" : "The user ID to fetch",
                   "in" : "path",
                   "name" : "user_id",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -61160,7 +61086,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -61191,7 +61117,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -61205,7 +61131,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -61226,7 +61152,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -61240,7 +61166,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -61270,7 +61196,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -61296,7 +61222,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -61310,7 +61236,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -61337,7 +61263,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -61383,7 +61309,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -61411,7 +61337,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -61430,7 +61356,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -61461,7 +61387,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -61475,7 +61401,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -61496,7 +61422,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -61510,7 +61436,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -61534,7 +61460,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -61548,7 +61474,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -61571,7 +61497,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -61590,7 +61516,7 @@
                   "description" : "The violation ID to fetch",
                   "in" : "path",
                   "name" : "violation_id",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -61599,7 +61525,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -61630,7 +61556,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -61644,7 +61570,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -61665,7 +61591,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -61679,7 +61605,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -61706,7 +61632,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -61732,7 +61658,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }
@@ -61746,7 +61672,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -61773,7 +61699,7 @@
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
-                  "required" : "0",
+                  "required" : 0,
                   "schema" : {
                      "type" : "string"
                   }

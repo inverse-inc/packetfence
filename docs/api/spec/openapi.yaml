@@ -45081,42 +45081,7 @@ paths:
                 $ref: '#/components/schemas/ServicesList'
           description: List of services
       summary: Returns a list of available services
-  /tenants:
-    get:
-      description: The list of tenants will be limited to 100 and a cursor will be
-        returned for iterating on other tenants. Iteration is only needed if the nextCursor
-        is not an empty value.
-      parameters:
-      - $ref: '#/components/parameters/cursor'
-      - *1
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TenantsList'
-          description: List of tenants
-      summary: Returns a list of tenants
-    post:
-      parameters:
-      - *1
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Tenant'
-        required: true
-      responses:
-        '201':
-          $ref: '#/components/responses/Created'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '409':
-          $ref: '#/components/responses/Duplicate'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-      summary: Creates a tenant
-  /tenants/{tenant_id}:
+  /tenant/{tenant_id}:
     delete:
       parameters:
       - *1
@@ -45178,7 +45143,22 @@ paths:
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
       summary: Allows to update a whole tenant
-  /tenants_onboarding:
+  /tenants:
+    get:
+      description: The list of tenants will be limited to 100 and a cursor will be
+        returned for iterating on other tenants. Iteration is only needed if the nextCursor
+        is not an empty value.
+      parameters:
+      - $ref: '#/components/parameters/cursor'
+      - *1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantsList'
+          description: List of tenants
+      summary: Returns a list of tenants
     post:
       parameters:
       - *1
@@ -45186,35 +45166,7 @@ paths:
         content:
           application/json:
             schema:
-              properties:
-                domain_name:
-                  description: A valid domain name that will be used as the 802.1x
-                    realm
-                  type: string
-                name:
-                  description: User friendly name of the tenant
-                  type: string
-                portal_domain_name:
-                  description: A valid domain name that will be used for the tenant
-                    portal domain name
-                  type: string
-                ssids:
-                  items:
-                    properties:
-                      name:
-                        description: The name of the SSID
-                        type: string
-                      security:
-                        description: The security type of the SSID. Valid types "WPA2-Personnal",
-                          "WPA2-Enterprise", "MAC-Authentication"
-                        type: string
-                    type: object
-                  type: array
-                token:
-                  description: The user token that allows to find the proper AP that
-                    the tenant is configuring
-                  type: string
-              type: object
+              $ref: '#/components/schemas/Tenant'
         required: true
       responses:
         '201':
@@ -45225,8 +45177,7 @@ paths:
           $ref: '#/components/responses/Duplicate'
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
-      summary: Allows to onboard a tenant and configure a remote access point using
-        an onboarding token
+      summary: Creates a tenant
   /token_info:
     post:
       parameters:
