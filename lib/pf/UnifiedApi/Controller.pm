@@ -86,7 +86,7 @@ sub get_json {
 
 sub unknown_action {
     my ($self) = @_;
-    return $self->render(json => { message => "Unknown path", errors => [] }, status => 404);
+    return $self->render_error(404, "Unknown path");
 }
 
 =head1 AUTHOR
