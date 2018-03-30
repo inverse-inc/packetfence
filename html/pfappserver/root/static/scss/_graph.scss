@@ -29,8 +29,11 @@
   }
 }
 
+[data-block="hostname"] {
+  color: inherit;
+  margin-bottom: 0;
+}
+
 [data-block="value"] {
-  display: inline-block;
-  line-height: 0.8em;
-  white-space: nowrap;
+  line-height: 1em;
 }
