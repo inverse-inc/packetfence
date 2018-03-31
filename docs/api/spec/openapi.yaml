@@ -45081,6 +45081,25 @@ paths:
                 $ref: '#/components/schemas/ServicesList'
           description: List of services
       summary: Returns a list of available services
+  /services/cluster_status:
+    get:
+      description: Returns a list of the status of the services on each cluster member
+      parameters:
+      - *1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  $SERVER_HOSTNAME:
+                    properties:
+                      $SERVICE_NAME:
+                        $ref: '#/components/schemas/Service'
+                    type: object
+                type: object
+          description: List of services
+      summary: Returns a list of the status of the services on each cluster member
   /tenant/{tenant_id}:
     delete:
       parameters:
