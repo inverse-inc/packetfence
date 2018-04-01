@@ -21,7 +21,7 @@ use pf::UnifiedApi::GenerateSpec;
 extends qw(pf::UnifiedApi::OpenAPI::Generator);
 
 our %METHODS_WITH_ID = (
-    get => 1,
+    get  => 1,
     post => 1,
 );
 
@@ -41,56 +41,47 @@ our %OPERATION_GENERATORS = (
         remove  => "removeResponses",
     },
     parameters => {
-        create  => "createParameters",
-        search  => sub { undef },
-        list    => "listParameters",
-        get     => "getParameters",
-        replace => "replaceParameters",
-        update  => "updateParameters",
-        remove  => "removeParameters",
+        (
+            map { $_ => "operationParameters" }
+              qw(create search list get replace update remove)
+        )
     },
     description => {
-        create  => "createDescription",
-        search  => sub { undef },
-        list    => "listDescription",
-        get     => "getDescription",
-        replace => "replaceDescription",
-        update  => "updateDescription",
-        remove  => "removeDescription",
+        (
+            map { $_ => "operationDescription" }
+              qw(create search list get replace update remove)
+        )
     },
     operationId => {
-        create  => "operationId",
-        search  => sub { undef },
-        list    => "operationId",
-        get     => "operationId",
-        replace => "operationId",
-        update  => "operationId",
-        remove  => "operationId",
+        (
+            map { $_ => "operationId" }
+              qw(create search list get replace update remove)
+        )
     }
 );
 
 sub operation_generators {
-    \%OPERATION_GENERATORS
+    \%OPERATION_GENERATORS;
 }
 
 sub createResponses {
-    my ($self, $scope, $c, $m, $a) = @_;
+    my ( $self, $scope, $c, $m, $a ) = @_;
     return undef;
 }
 
 sub listResponses {
-    my ($self, $scope, $c, $m, $a) = @_;
+    my ( $self, $scope, $c, $m, $a ) = @_;
     return undef;
 }
 
 sub getResponses {
-    my ($self, $scope, $c, $m, $a) = @_;
-    my @forms = buildForms($c, $a, $m);
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    my @forms = buildForms( $c, $a, $m );
     return {
         "200" => {
             "content" => {
                 "application/json" => {
-                        configCollectionPostJsonSchema($m, $a, \@forms)
+                    configCollectionPostJsonSchema( $m, $a, \@forms )
                 },
             }
         },
@@ -132,105 +123,46 @@ sub removeResponses {
     };
 }
 
-sub createParameters {
-    my ($self, $scope, $c, $m, $a) = @_;
-    []
-}
-
-sub listParameters {
-    my ($self, $scope, $c, $m, $a) = @_;
-    []
-}
-
-sub getParameters {
-    my ($self, $scope, $c, $m, $a) = @_;
-    []
-}
-
-sub replaceParameters {
-    my ($self, $scope, $c, $m, $a) = @_;
-    []
-}
-
-sub updateParameters {
-    my ($self, $scope, $c, $m, $a) = @_;
-    []
-}
-
-sub removeParameters {
-    my ($self, $scope, $c, $m, $a) = @_;
-    []
-}
-
 sub configCollectionPostJsonSchema {
-    my ($method, $child, $forms) = @_;
-    return "schema" => pf::UnifiedApi::GenerateSpec::formsToSchema($forms)
+    my ( $method, $child, $forms ) = @_;
+    return "schema" => pf::UnifiedApi::GenerateSpec::formsToSchema($forms);
 }
 
 sub buildForms {
-    my ($controller, $child, $m) = @_;
+    my ( $controller, $child, $m ) = @_;
     my @form_classes;
-    if ($controller->can("type_lookup")) {
-        @form_classes = values %{$controller->type_lookup};
+    if ( $controller->can("type_lookup") ) {
+        @form_classes = values %{ $controller->type_lookup };
     }
     else {
         my $form_class = $controller->form_class;
         return if $form_class eq 'pfappserver::Form::Config::Pf';
-        @form_classes = ($controller->form_class);
+        @form_classes = ( $controller->form_class );
     }
 
-    my @form_parameters = (!exists $METHODS_WITH_ID{$m}) ? (inactive => ['id'] ) : ();
+    my @form_parameters =
+      ( !exists $METHODS_WITH_ID{$m} ) ? ( inactive => ['id'] ) : ();
     return map { $_->new(@form_parameters) } @form_classes;
 }
 
-sub createDescription {
-    my ($self, $scope, $c, $m, $a) = @_;
-	return undef;
-}
-
-sub listDescription {
-    my ($self, $scope, $c, $m, $a) = @_;
-	return undef;
-}
-
-sub getDescription {
-    my ($self, $scope, $c, $m, $a) = @_;
-	return undef;
-}
-
-sub replaceDescription {
-    my ($self, $scope, $c, $m, $a) = @_;
-	return undef;
-}
-
-sub updateDescription {
-    my ($self, $scope, $c, $m, $a) = @_;
-	return undef;
-}
-
-sub removeDescription {
-    my ($self, $scope, $c, $m, $a) = @_;
-	return 'Deleted a config item';
-}
-
 sub operationId {
-    my ($self, $scope, $c, $m, $a) = @_;
-	return $a->{operationId};
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return $a->{operationId};
 }
 
 sub createRequestBody {
     my ( $self, $scope, $c, $m, $a ) = @_;
-    return $self->requestBody($scope, $c, $m, $a);
+    return $self->requestBody( $scope, $c, $m, $a );
 }
 
 sub replaceRequestBody {
     my ( $self, $scope, $c, $m, $a ) = @_;
-    return $self->requestBody($scope, $c, $m, $a);
+    return $self->requestBody( $scope, $c, $m, $a );
 }
 
 sub updateRequestBody {
     my ( $self, $scope, $c, $m, $a ) = @_;
-    return $self->requestBody($scope, $c, $m, $a);
+    return $self->requestBody( $scope, $c, $m, $a );
 }
 
 sub requestBody {
@@ -238,8 +170,9 @@ sub requestBody {
     my @forms = buildForms( $c, $a, $m );
     return {
         "content" => {
-            "application/json" =>
-              { configCollectionPostJsonSchema( $m, $a, \@forms ) },
+            "application/json" => { 
+                configCollectionPostJsonSchema( $m, $a, \@forms )
+            },
         }
     };
 }

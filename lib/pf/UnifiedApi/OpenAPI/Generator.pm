@@ -22,15 +22,14 @@ use Pod::Select qw(podselect);
 use Pod::Markdown;
 use Pod::Text;
 
-=head2 generate
+=head2 generate_path
 
-generate
+generate_path
 
 =cut
 
-sub generate {
+sub generate_path {
     my ($self, $controller, $actions) = @_;
-    $self->setup($controller, $actions);
     my %path;
     if (defined (my $summary = $self->summary($controller, $actions))) {
         $path{summary} = $summary
@@ -58,6 +57,17 @@ sub generate {
     }
 
     return \%path;
+}
+
+=head2 generate_schema
+
+generate_schema
+
+=cut
+
+sub generate_schema {
+    my ($self) = @_;
+    return ;
 }
 
 =head2 setup
@@ -240,6 +250,43 @@ sub operation_generation {
 
     my $method = $generators->{$scope}{$a};
     return $self->$method($scope, $c, $m, $action);
+}
+
+sub performLookup {
+    my ($self, $lookup, $key, $default) = @_;
+
+    if (!defined $key || !defined $lookup) {
+        return $default;
+    }
+
+    if (!exists $lookup->{$key}) {
+        return $default;
+    }
+
+    return $lookup->{$key};
+}
+
+sub operationDescriptionsLookup {
+    undef
+}
+
+sub operationParametersLookup {
+    undef
+}
+
+sub operationParameters {
+    my ($self, $scope, $c, $m, $a) = @_;
+    return $self->performLookup($self->operationParametersLookup, $a->{action}, []);
+}
+
+sub operationDescription {
+    my ($self, $scope, $c, $m, $a) = @_;
+    return $self->performLookup($self->operationDescriptionsLookup, $a->{action}, undef);
+}
+
+sub operationId {
+    my ($self, $scope, $c, $m, $a) = @_;
+    return $a->{operationId};
 }
 
 =head1 AUTHOR

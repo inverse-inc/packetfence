@@ -20,92 +20,52 @@ extends qw(pf::UnifiedApi::OpenAPI::Generator);
 our %OPERATION_GENERATORS = (
     requestBody => {
         (
-            map { $_ => "${_}RequestBody" } 
+            map { $_ => "${_}RequestBody" }
             qw(create search replace update)
         )
     },
     responses => {
         (
-            map { $_ => "${_}Responses" } 
-            qw(create list get search replace update)
+            map { $_ => "${_}Responses" }
+              qw(create list get search replace update)
         )
     },
     parameters => {
         (
-            map { $_ => "${_}Parameters" } 
-            qw(create search list get replace update remove)
+            map { $_ => "operationParameters" }
+              qw(create search list get replace update remove)
         )
     },
     description => {
         (
             map { $_ => "operationDescription" }
-            qw(create search list get replace update remove)
+              qw(create search list get replace update remove)
         )
     },
     operationId => {
         (
-            map { $_ => "operationId" } 
-            qw(create search list get replace update remove)
+            map { $_ => "operationId" }
+              qw(create search list get replace update remove)
         )
     }
 );
 
 sub operation_generators {
-    \%OPERATION_GENERATORS
-}
-
-sub operationId {
-    my ($self, $scope, $c, $m, $a) = @_;
-	return $a->{operationId};
+    \%OPERATION_GENERATORS;
 }
 
 my %OPERATION_DESCRIPTIONS = (
-    remove => 'Delete an item',
-    create => 'Create an item',
-    list  => 'List items',
-    get => 'Get an item',
+    remove  => 'Delete an item',
+    create  => 'Create an item',
+    list    => 'List items',
+    get     => 'Get an item',
     replace => 'Replace an item',
-    update => 'Update an item',
-    Remove => 'Remove an item',
+    update  => 'Update an item',
+    remove  => 'Remove an item',
 );
 
-sub operationDescriptions {
+sub operationDescriptionsLookup {
     return \%OPERATION_DESCRIPTIONS;
-}
-
-sub operationDescription {
-    my ($self, $scope, $c, $m, $a) = @_;
-    my $lookup = $self->operationDescriptions;
-    my $action = $a->{action};
-    if (!exists $lookup->{$action}) {
-        return undef;
-    }
-    return $lookup->{$action};
-}
-
-sub listParameters {
-    my ($self, $scope, $c, $m, $a) = @_;
-    []
-}
-
-sub getParameters {
-    my ($self, $scope, $c, $m, $a) = @_;
-    []
-}
-
-sub replaceParameters {
-    my ($self, $scope, $c, $m, $a) = @_;
-    []
-}
-
-sub updateParameters {
-    my ($self, $scope, $c, $m, $a) = @_;
-    []
-}
-
-sub removeParameters {
-    my ($self, $scope, $c, $m, $a) = @_;
-    []
 }
 
 my %SQLTYPES_TO_OPENAPI = (
@@ -136,9 +96,9 @@ sub propertiesFromDal {
     my $meta = $dal->get_meta;
     my %properties;
     while (my ($k, $v) = each %$meta) {
-        
-    }
 
+    }
+    return \%properties;
 }
 
 =head2 getResponses
@@ -149,16 +109,15 @@ getResponses
 
 sub getResponses {
     my ($self, $scope, $c, $m, $a) = @_;
-    my @paths = split ('/', $a->{path});
+    my @paths = split('/', $a->{path});
     return "200" => {
-        description => 'Get an item', 
-        content => {
+        description => 'Get an item',
+        content     => {
             "application/json" => {
                 schema => {
-                    type => 'object',
+                    type       => 'object',
                     properties => {
-                        item => {
-                        }
+                        item => {}
                     },
                 }
             },
@@ -176,9 +135,59 @@ sub removeResponses {
     my ($self, $scope, $c, $m, $a) = @_;
     return {
         '204' => {
-            description => 'Item deleted',        
+            description => 'Item deleted',
         },
     };
+}
+
+sub createRequestBody {
+    my ($self, $scope, $c, $m, $a) = @_;
+    return undef;
+}
+
+sub createResponses {
+    my ($self, $scope, $c, $m, $a) = @_;
+    return undef;
+}
+
+sub listResponses {
+    my ($self, $scope, $c, $m, $a) = @_;
+    return undef;
+}
+
+sub listRequestBody {
+    my ($self, $scope, $c, $m, $a) = @_;
+    return undef;
+}
+
+sub searchRequestBody {
+    my ($self, $scope, $c, $m, $a) = @_;
+    return undef;
+}
+
+sub searchResponses {
+    my ($self, $scope, $c, $m, $a) = @_;
+    return undef;
+}
+
+sub replaceRequestBody {
+    my ($self, $scope, $c, $m, $a) = @_;
+    return undef;
+}
+
+sub replaceResponses {
+    my ($self, $scope, $c, $m, $a) = @_;
+    return undef;
+}
+
+sub updateRequestBody {
+    my ($self, $scope, $c, $m, $a) = @_;
+    return undef;
+}
+
+sub updateResponses {
+    my ($self, $scope, $c, $m, $a) = @_;
+    return undef;
 }
 
 =head1 AUTHOR

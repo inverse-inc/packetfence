@@ -37,7 +37,7 @@ my $controller = pf::UnifiedApi::Controller::Config::FloatingDevices->new(app =>
 my $generator = pf::UnifiedApi::OpenAPI::Generator->new;
 
 is_deeply(
-    $generator->generate($controller),
+    $generator->generate_path($controller),
     {
         description => 'Configure floating devices',
     },
