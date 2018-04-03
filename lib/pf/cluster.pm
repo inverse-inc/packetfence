@@ -599,6 +599,7 @@ our %ignored_stores = (
     'pf::ConfigStore::Interface'            => 1,
     'pf::ConfigStore::Hierarchy'            => 1,
     'pf::ConfigStore::Role::ValidGenericID' => 1,
+    'pf::ConfigStore::Role::ReverseLookup'  => 1,
 );
 
 sub stores_to_sync {
