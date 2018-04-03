@@ -364,9 +364,25 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType) (answer A
 			// Search for the next available ip in the pool
 		retry:
 			if i.HasNext() {
-				element := i.Next()
-				handler.available.Remove(element)
-				free = int(element)
+				var element uint32
+				// Check if the device request a specific ip
+				if p.ParseOptions()[50] != nil {
+					element := uint32(binary.BigEndian.Uint32(p.ParseOptions()[50])) - uint32(binary.BigEndian.Uint32(handler.start.To4()))
+					if handler.available.Contains(element) {
+						// Ip is available, return OFFER with this ip address
+						free = int(element)
+					} else {
+						// Return NAK if the ip is not available
+						log.LoggerWContext(ctx).Info(p.CHAddr().String() + " Nak xID " + sharedutils.ByteToString(p.XId()))
+						answer.D = dhcp.ReplyPacket(p, dhcp.NAK, handler.ip.To4(), nil, 0, nil)
+						return answer
+					}
+				} else {
+					element := i.Next()
+					handler.available.Remove(element)
+					free = int(element)
+				}
+
 				// Lock it
 				handler.hwcache.Set(p.CHAddr().String(), free, time.Duration(5)*time.Second)
 				handler.xid.Set(sharedutils.ByteToString(p.XId()), 0, time.Duration(5)*time.Second)
@@ -536,6 +552,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType) (answer A
 				handler.available.Add(uint32(x.(int)))
 				handler.hwcache.Delete(p.CHAddr().String())
 			}
+			return answer
 		}
 		answer.Iface = h.intNet
 		log.LoggerWContext(ctx).Info(p.CHAddr().String() + " Nak " + sharedutils.ByteToString(p.XId()))
