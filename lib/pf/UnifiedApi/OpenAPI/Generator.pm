@@ -59,15 +59,16 @@ sub generate_path {
     return \%path;
 }
 
-=head2 generate_schema
 
-generate_schema
+=head2 generate_schemas
+
+generate_schemas
 
 =cut
 
-sub generate_schema {
+sub generate_schemas {
     my ($self) = @_;
-    return ;
+    return undef;
 }
 
 =head2 setup
