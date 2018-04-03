@@ -27,6 +27,9 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file} = $stats_config_file;
+    
+    $self->{listen_ints} = $self->{cache}->get_cache('interfaces::listen_ints');
+    $self->{roles} = $self->{cache}->get_cache('config::Roles');
 }
 
 sub build_child {
@@ -36,6 +39,19 @@ sub build_child {
 
     foreach my $key ( keys %tmp_cfg){
         $self->cleanup_whitespaces( \%tmp_cfg );
+    }
+
+    foreach my $int (@{$self->{listen_ints}}) {
+        $tmp_cfg{"metric 'doing something on $int'"} = {
+            'api_compile' => '$.some_random_value',
+            'statsd_type' => 'histogram',
+            'interval' => '5s',
+            'statsd_ns' => 'source.packetfence.test_api_post',
+            'api_path' => "/whatever/$int",
+            'api_payload' => '{"ip": "1.2.3.4"}',
+            'api_method' => 'POST',
+            'type' => 'api',
+        };
     }
 
     return \%tmp_cfg;
