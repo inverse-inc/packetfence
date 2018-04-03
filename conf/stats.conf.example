@@ -27,6 +27,14 @@ statsd_ns=source.packetfence.ping_google
 host=google.ca
 interval=5s
 
+[metric 'total number of unregistered devices']
+type=mysql_query
+statsd_type=histogram
+statsd_ns=source.packetfence.devices.unregistered
+# mysql_query must return a single column with a single row
+mysql_query=select count(distinct mac) from node where status='unreg'
+interval=60s
+
 [metric 'total online devices']
 type=mysql_query
 statsd_type=histogram
