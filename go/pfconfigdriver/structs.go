@@ -65,6 +65,7 @@ type configStruct struct {
 			PfconfigNS string `val:"resource::cluster_hosts_ip"`
 		}
 	}
+	UnifiedApiSystemUser UnifiedApiSystemUser
 }
 
 var Config configStruct

@@ -38,6 +38,7 @@ type PrettyTokenInfo struct {
 type ApiAAAHandler struct {
 	Next               httpserver.Handler
 	router             *httprouter.Router
+	systemBackend      *aaa.MemAuthenticationBackend
 	webservicesBackend *aaa.MemAuthenticationBackend
 	authentication     *aaa.TokenAuthenticationMiddleware
 	authorization      *aaa.TokenAuthorizationMiddleware
@@ -68,10 +69,21 @@ func buildApiAAAHandler(ctx context.Context) (ApiAAAHandler, error) {
 	apiAAA := ApiAAAHandler{}
 
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Webservices)
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.UnifiedApiSystemUser)
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.AdminRoles)
 
 	tokenBackend := aaa.NewMemTokenBackend(1 * time.Hour)
 	apiAAA.authentication = aaa.NewTokenAuthenticationMiddleware(tokenBackend)
+
+	// Backend for the system Unified API user
+	if pfconfigdriver.Config.UnifiedApiSystemUser.User != "" {
+		apiAAA.systemBackend = aaa.NewMemAuthenticationBackend(
+			map[string]string{},
+			pfconfigdriver.Config.AdminRoles.Element["ALL"].Actions,
+		)
+		apiAAA.systemBackend.SetUser(pfconfigdriver.Config.UnifiedApiSystemUser.User, pfconfigdriver.Config.UnifiedApiSystemUser.Pass)
+		apiAAA.authentication.AddAuthenticationBackend(apiAAA.systemBackend)
+	}
 
 	// Backend for the pf.conf webservices user
 	if pfconfigdriver.Config.PfConf.Webservices.User != "" {
