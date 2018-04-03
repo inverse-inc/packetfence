@@ -402,6 +402,12 @@ sub match_in_subclass {
             return $params->{'username'} || $params->{'email'};
         }
     }
+    elsif($result->count > 1) {
+        $logger->warn("[$self->{'id'} $rule->{'id'}] Found more than 1 match. Ignoring all of them. Make sure your filtering rules (on username and on email) can only return a single result");
+    }
+    else {
+        $logger->debug("[$self->{'id'} $rule->{'id'}] No match found for this LDAP filter");
+    }
 
     return undef;
 }
