@@ -1,0 +1,9 @@
+/components/schemas/config/ConnectionProfilesList:
+  allOf:
+  - $ref: '#/components/schemas/Iterable'
+  - properties:
+      items:
+        items:
+          $ref: '#/components/schemas/config/ConnectionProfile'
+        type: array
+    type: object

@@ -53,39 +53,30 @@ my $app = pf::UnifiedApi->new;
 
 my @route_infos = map { walkRootRoutes($_) } @{ $app->routes->children };
 
-my %paths;
 #print Dumper(\@route_infos);
 #exit;
+my %routes;
 for my $route_info (@route_infos) {
    for my $child (@{$route_info->{children}}) {
-        my $methods = $child->{methods};
-        next if !defined $methods || @$methods == 0;
-        my $controller = "pf::UnifiedApi::Controller::$child->{controller}";
+        next if !defined $child->{methods};
         my $path = $child->{path};
         if ($path =~ m#/config/#) {
-            createConfigOpenApiSpecs($controller, $app, $methods, \%paths, $child);
+            push @{$routes{paths}{$child->{path}}}, $child;
+            push @{$routes{controllers}{$child->{controller}}}, $child;
         }
    } 
 }
 
-sub createConfigOpenApiSpecs {
-    my ($controller, $app, $methods, $paths, $child) = @_;
-    load $controller;
-    my $c = $controller->new(app => $app);
-    my $path = $child->{path};
-    for my $m (@$methods) {
-        $m = lc($m);
-        my @forms = buildForms($c, $child, $m);
-        next if @forms == 0;
-        if (my $info = configPathMethodInfo($m, $child, \@forms)) {
-            $paths->{$path}{$m} = $info;
-        }
-    }
+{
+    my $openapi_paths = generateOpenAPIPaths($app, $routes{paths} // {});
+    saveToYaml($openapi_paths, "$install_dir/docs/api/spec/paths");
+    my $openapi_schemas = generateOpenAPISchemas($app, $routes{controllers});
+    saveToYaml($openapi_schemas, "$install_dir/docs/api/spec");
 }
 
-{
-    my $base_path = "$install_dir/docs/api/spec/paths";
-    while (my ($p, $d) = each %paths) {
+sub saveToYaml {
+    my ($yamls, $base_path) = @_;
+    while (my ($p, $d) = each %$yamls) {
         my $file_path = $p;
         $file_path =~ s#/\{[^\}]+\}##;
         $file_path = "${base_path}${file_path}.yaml";
@@ -99,6 +90,35 @@ sub createConfigOpenApiSpecs {
 }
 
 #print Dumper(\%paths, \@route_infos);
+sub generateOpenAPIPaths {
+    my ($app, $paths) = @_;
+    my %openapi_paths;
+    while ( my ( $path, $actions ) = each %$paths ) {
+        my $sub_class        = $actions->[0]->{controller};
+        my $controller_class = "pf::UnifiedApi::Controller::${sub_class}";
+        load $controller_class;
+        my $controller = $controller_class->new(app => $app);
+        my $generator = $controller->openapi_generator;
+        $openapi_paths{$path} = $generator->generate_path($controller, $actions);
+    }
+    return \%openapi_paths;
+}
+
+sub generateOpenAPISchemas {
+    my ($app, $sub_classes) = @_;
+    my %openapi_schemas;
+    while (my ($sub_class, $actions) = each %$sub_classes) {
+        my $controller_class = "pf::UnifiedApi::Controller::${sub_class}";
+        load $controller_class;
+        my $controller = $controller_class->new(app => $app);
+        my $generator = $controller->openapi_generator;
+        my $schemas = $generator->generate_schemas($controller, $actions);
+        if ($schemas) {
+            %openapi_schemas = (%openapi_schemas, %$schemas);
+        }
+    }
+    return \%openapi_schemas;
+}
 
 sub buildForms {
     my ($c, $child, $m) = @_;

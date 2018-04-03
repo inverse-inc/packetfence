@@ -28,7 +28,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 5;
+use Test::More tests => 6;
 
 my $app = pf::UnifiedApi->new;
 
@@ -47,46 +47,46 @@ is_deeply(
 my %getContent = standardGetContent();
 my %putContent = standardGetContent();
 
-delete $putContent{content}{"application/json"}{schema}{properties}{id};
-$putContent{content}{"application/json"}{schema}{required} = [qw(pvid)];
-
 sub standardGetContent {
 
     return (
         "content" => {
             "application/json" => {
-                schema => {
-                    properties => {
-                        id => {
-                            description => 'MAC Address',
-                            type        => 'string'
-                        },
-                        ip => {
-                            description => 'IP Address',
-                            type        => 'string'
-                        },
-                        pvid => {
-                            description =>
-                              'VLAN in which PacketFence should put the port',
-                            type => 'integer'
-                        },
-                        taggedVlan => {
-                            description =>
-'Comma separated list of VLANs. If the port is a multi-vlan, these are the VLANs that have to be tagged on the port.',
-                            type => 'string'
-                        },
-                        trunkPort => {
-                            description =>
-                              'The port must be configured as a muti-vlan port',
-                            type => 'string'
-                        },
-                    },
-                    required => [qw(id pvid)],
-                    type     => 'object',
-                },
+                schema => standardSchema(),
             }
         },
     );
+}
+
+sub standardSchema {
+    return {
+        properties => {
+            id => {
+                description => 'MAC Address',
+                type        => 'string'
+            },
+            ip => {
+                description => 'IP Address',
+                type        => 'string'
+            },
+            pvid => {
+                description => 'VLAN in which PacketFence should put the port',
+                type        => 'integer'
+            },
+            taggedVlan => {
+                description =>
+'Comma separated list of VLANs. If the port is a multi-vlan, these are the VLANs that have to be tagged on the port.',
+                type => 'string'
+            },
+            trunkPort => {
+                description =>
+                  'The port must be configured as a muti-vlan port',
+                type => 'string'
+            },
+        },
+        required => [qw(id pvid)],
+        type     => 'object',
+    };
 }
 
 
@@ -120,10 +120,13 @@ sub standardGetContent {
         ],
         [
             get => {
+                description => 'Get an item',
                 operationId => 'api.v1.Config::FloatingDevices.get',
                 parameters => [],
                 responses  => {
-                    "200" => \%getContent,
+                    "200" =>  {
+                        "\$ref" => "#/components/schemas/config/FloatingDevice",
+                    },
                     "400" => {
                         "\$ref" => "#/components/responses/BadRequest",
                     },
@@ -134,6 +137,145 @@ sub standardGetContent {
             },
         ],
         "Config Get"
+    );
+}
+
+{
+    my $generator = pf::UnifiedApi::OpenAPI::Generator::Config->new;
+
+    is_deeply(
+        $generator->generate_schemas(
+            $controller,
+            [
+                {
+                    'operationId' => 'api.v1.Config::FloatingDevices.create',
+                    'name'        => 'api.v1.Config::FloatingDevices.create',
+                    'children'    => [],
+                    'path'        => '/config/floating_devices',
+                    'depth'       => 2,
+                    'paths'       => [ '/config/floating_devices' ],
+                    'controller'  => 'Config::FloatingDevices',
+                    'path_type'   => 'collection',
+                    'methods'     => [ 'POST' ],
+                    'path_part'   => '',
+                    'action'      => 'create',
+                    'full_path'   => '/api/v1/config/floating_devices'
+                },
+                {
+                    'operationId' => 'api.v1.Config::FloatingDevices.list',
+                    'name'        => 'api.v1.Config::FloatingDevices.list',
+                    'children'    => [],
+                    'path'        => '/config/floating_devices',
+                    'depth'       => 2,
+                    'paths'       => [ '/config/floating_devices' ],
+                    'controller'  => 'Config::FloatingDevices',
+                    'path_type'   => 'collection',
+                    'methods'     => [ 'GET' ],
+                    'path_part'   => '',
+                    'action'      => 'list',
+                    'full_path'   => '/api/v1/config/floating_devices'
+                },
+                {
+                    'operationId' => 'api.v1.Config::FloatingDevices.search',
+                    'name'        => 'api.v1.Config::FloatingDevices.search',
+                    'children'    => [],
+                    'path'        => '/config/floating_devices/search',
+                    'depth'       => 3,
+                    'paths'       => [ '/config/floating_devices', '/search' ],
+                    'controller'  => 'Config::FloatingDevices',
+                    'path_type'   => 'collection',
+                    'methods'     => [ 'POST' ],
+                    'path_part'   => '',
+                    'action'      => 'search',
+                    'full_path'   => '/api/v1/config/floating_devices/search'
+                },
+                {
+                    'operationId' => 'api.v1.Config::FloatingDevices.update',
+                    'name'        => 'api.v1.Config::FloatingDevices.update',
+                    'children'    => [],
+                    'path'  => '/config/floating_device/{floating_device_id}',
+                    'depth' => 2,
+                    'paths' =>
+                      [ '/config/floating_device/{floating_device_id}' ],
+                    'controller' => 'Config::FloatingDevices',
+                    'path_type'  => 'resource',
+                    'methods'    => [ 'PATCH' ],
+                    'path_part'  => '',
+                    'action'     => 'update',
+                    'full_path' =>
+                      '/api/v1/config/floating_device/{floating_device_id}'
+                },
+                {
+                    'operationId' => 'api.v1.Config::FloatingDevices.remove',
+                    'name'        => 'api.v1.Config::FloatingDevices.remove',
+                    'children'    => [],
+                    'path'  => '/config/floating_device/{floating_device_id}',
+                    'depth' => 2,
+                    'paths' =>
+                      [ '/config/floating_device/{floating_device_id}' ],
+                    'controller' => 'Config::FloatingDevices',
+                    'path_type'  => 'resource',
+                    'methods'    => [ 'DELETE' ],
+                    'path_part'  => '',
+                    'action'     => 'remove',
+                    'full_path' =>
+                      '/api/v1/config/floating_device/{floating_device_id}'
+                },
+                {
+                    'operationId' => 'api.v1.Config::FloatingDevices.replace',
+                    'name'        => 'api.v1.Config::FloatingDevices.replace',
+                    'children'    => [],
+                    'path'  => '/config/floating_device/{floating_device_id}',
+                    'depth' => 2,
+                    'paths' =>
+                      [ '/config/floating_device/{floating_device_id}' ],
+                    'controller' => 'Config::FloatingDevices',
+                    'path_type'  => 'resource',
+                    'methods'    => [ 'PUT' ],
+                    'path_part'  => '',
+                    'action'     => 'replace',
+                    'full_path' =>
+                      '/api/v1/config/floating_device/{floating_device_id}'
+                },
+                {
+                    'operationId' => 'api.v1.Config::FloatingDevices.get',
+                    'name'        => 'api.v1.Config::FloatingDevices.get',
+                    'children'    => [],
+                    'path'  => '/config/floating_device/{floating_device_id}',
+                    'depth' => 2,
+                    'paths' =>
+                      [ '/config/floating_device/{floating_device_id}' ],
+                    'controller' => 'Config::FloatingDevices',
+                    'path_type'  => 'resource',
+                    'methods'    => [ 'GET' ],
+                    'path_part'  => '',
+                    'action'     => 'get',
+                    'full_path' =>
+                      '/api/v1/config/floating_device/{floating_device_id}'
+                }
+            ],
+        ),
+        {
+            '/components/schemas/config/FloatingDevicesList' => {
+                allOf => [
+                    { '$ref' => "#/components/schemas/Iterable" },
+                    {
+                        "properties" => {
+                            "items" => {
+                                "items" => {
+                                    "\$ref" =>
+                                      "#/components/schemas/config/FloatingDevice"
+                                },
+                                "type" => "array"
+                            }
+                        },
+                        "type" => "object"
+                    }
+                ]
+            },
+            '/components/schemas/config/FloatingDevice' => standardSchema(),
+        },
+        "Schemas For Config::FloatingDevices"
     );
 }
 
@@ -166,6 +308,7 @@ sub standardGetContent {
         ],
         [
             put => {
+                description => 'Replace an item',
                 parameters  => [],
                 requestBody => \%putContent,
                 responses   => {
@@ -184,6 +327,7 @@ sub standardGetContent {
         "Config PUT"
     );
 }
+
 {
 
     my $generator = pf::UnifiedApi::OpenAPI::Generator::Config->new;
@@ -214,7 +358,7 @@ sub standardGetContent {
         ],
         [
             delete => {
-                description => 'Deleted a config item',
+                description => 'Remove an item',
                 operationId => 'api.v1.Config::FloatingDevices.remove',
                 parameters => [],
                 responses  => {

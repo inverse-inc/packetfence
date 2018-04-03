@@ -1,296 +1,26 @@
 /config/scan/{scan_id}:
   delete:
+    description: Remove an item
+    operationId: api.v1.Config::Scans.remove
     parameters: []
     responses:
       '204':
         description: Deleted a config item
-    summary: Delete a config item
+  description: pf::UnifiedApi::Controller::Config::Scans
   get:
+    description: Get an item
+    operationId: api.v1.Config::Scans.get
     parameters: []
-    requestBody:
-      content:
-        application/json:
-          schema:
-            discriminator:
-              propertyName: type
-            oneOf:
-            - properties:
-                categories:
-                  description: Nodes with the selected roles will be affected
-                  items:
-                    description: Nodes with the selected roles will be affected
-                    type: string
-                  type: array
-                domain:
-                  description: Domain
-                  type: string
-                duration:
-                  description: Approximate duration of a scan. User being scanned
-                    on registration are presented a progress bar for this duration,
-                    afterwards the browser refreshes until scan is complete.
-                  properties:
-                    interval:
-                      description: Interval
-                      type: integer
-                    unit:
-                      description: Unit
-                      type: string
-                  type: object
-                id:
-                  description: Name
-                  type: string
-                oses:
-                  description: Nodes with the selected OS will be affected
-                  items:
-                    description: Nodes with the selected OS will be affected
-                    type: string
-                  type: array
-                password:
-                  description: Password
-                  type: string
-                post_registration:
-                  description: If this option is enabled, the PF system will scan
-                    host after on the production vlan.
-                  type: string
-                pre_registration:
-                  description: If this option is enabled, the PF system will scan
-                    host before the registration.
-                  type: string
-                registration:
-                  description: If this option is enabled, the PF system will scan
-                    each host after registration is complete.
-                  type: string
-                type:
-                  description: Type
-                  type: string
-                username:
-                  description: Username
-                  type: string
-                wmi_policy:
-                  description: Name of the policy to use
-                  type: string
-                wmi_rules:
-                  description: Wmi rules
-                  items:
-                    description: Wmi rule
-                    type: string
-                  type: array
-              required:
-              - id
-              - username
-              - password
-              - domain
-              type: object
-            - properties:
-                categories:
-                  description: Nodes with the selected roles will be affected
-                  items:
-                    description: Nodes with the selected roles will be affected
-                    type: string
-                  type: array
-                duration:
-                  description: Approximate duration of a scan. User being scanned
-                    on registration are presented a progress bar for this duration,
-                    afterwards the browser refreshes until scan is complete.
-                  properties:
-                    interval:
-                      description: Interval
-                      type: integer
-                    unit:
-                      description: Unit
-                      type: string
-                  type: object
-                id:
-                  description: Name
-                  type: string
-                ip:
-                  description: Hostname or IP Address
-                  type: string
-                openvas_configid:
-                  description: ID of the scanning configuration on the OpenVAS server
-                  type: string
-                openvas_reportformatid:
-                  description: ID of the .NBE report format on the OpenVAS server
-                  type: string
-                oses:
-                  description: Nodes with the selected OS will be affected
-                  items:
-                    description: Nodes with the selected OS will be affected
-                    type: string
-                  type: array
-                password:
-                  description: Password
-                  type: string
-                port:
-                  description: If you use an alternative port, please specify
-                  type: integer
-                post_registration:
-                  description: If this option is enabled, the PF system will scan
-                    host after on the production vlan.
-                  type: string
-                pre_registration:
-                  description: If this option is enabled, the PF system will scan
-                    host before the registration.
-                  type: string
-                registration:
-                  description: If this option is enabled, the PF system will scan
-                    each host after registration is complete.
-                  type: string
-                type:
-                  description: Type
-                  type: string
-                username:
-                  description: Username
-                  type: string
-              required:
-              - id
-              - username
-              - password
-              - ip
-              type: object
-            - properties:
-                categories:
-                  description: Nodes with the selected roles will be affected
-                  items:
-                    description: Nodes with the selected roles will be affected
-                    type: string
-                  type: array
-                duration:
-                  description: Approximate duration of a scan. User being scanned
-                    on registration are presented a progress bar for this duration,
-                    afterwards the browser refreshes until scan is complete.
-                  properties:
-                    interval:
-                      description: Interval
-                      type: integer
-                    unit:
-                      description: Unit
-                      type: string
-                  type: object
-                id:
-                  description: Name
-                  type: string
-                ip:
-                  description: Hostname or IP Address
-                  type: string
-                nessus_clientpolicy:
-                  description: Name of the policy to use on the nessus server
-                  type: string
-                oses:
-                  description: Nodes with the selected OS will be affected
-                  items:
-                    description: Nodes with the selected OS will be affected
-                    type: string
-                  type: array
-                password:
-                  description: Password
-                  type: string
-                port:
-                  description: If you use an alternative port, please specify
-                  type: integer
-                post_registration:
-                  description: If this option is enabled, the PF system will scan
-                    host after on the production vlan.
-                  type: string
-                pre_registration:
-                  description: If this option is enabled, the PF system will scan
-                    host before the registration.
-                  type: string
-                registration:
-                  description: If this option is enabled, the PF system will scan
-                    each host after registration is complete.
-                  type: string
-                type:
-                  description: Type
-                  type: string
-                username:
-                  description: Username
-                  type: string
-              required:
-              - id
-              - username
-              - password
-              - ip
-              type: object
-            - properties:
-                categories:
-                  description: Nodes with the selected roles will be affected
-                  items:
-                    description: Nodes with the selected roles will be affected
-                    type: string
-                  type: array
-                duration:
-                  description: Approximate duration of a scan. User being scanned
-                    on registration are presented a progress bar for this duration,
-                    afterwards the browser refreshes until scan is complete.
-                  properties:
-                    interval:
-                      description: Interval
-                      type: integer
-                    unit:
-                      description: Unit
-                      type: string
-                  type: object
-                id:
-                  description: Name
-                  type: string
-                ip:
-                  description: Hostname or IP Address
-                  type: string
-                nessus_clientpolicy:
-                  description: Name of the policy to use on the nessus server
-                  type: string
-                oses:
-                  description: Nodes with the selected OS will be affected
-                  items:
-                    description: Nodes with the selected OS will be affected
-                    type: string
-                  type: array
-                password:
-                  description: Password
-                  type: string
-                port:
-                  description: If you use an alternative port, please specify
-                  type: integer
-                post_registration:
-                  description: If this option is enabled, the PF system will scan
-                    host after on the production vlan.
-                  type: string
-                pre_registration:
-                  description: If this option is enabled, the PF system will scan
-                    host before the registration.
-                  type: string
-                registration:
-                  description: If this option is enabled, the PF system will scan
-                    each host after registration is complete.
-                  type: string
-                scannername:
-                  description: Name of the scanner to use on the nessus server
-                  type: string
-                type:
-                  description: Type
-                  type: string
-                username:
-                  description: Username
-                  type: string
-                verify_hostname:
-                  description: Verify hostname of server
-                  type: string
-              required:
-              - id
-              - username
-              - password
-              - ip
-              type: object
-      required: true
     responses:
-      '201':
-        $ref: '#/components/responses/Created'
+      '200':
+        $ref: '#/components/schemas/config/Scan'
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
   patch:
+    description: Update an item
+    operationId: api.v1.Config::Scans.update
     parameters: []
     requestBody:
       content:
@@ -321,6 +51,9 @@
                       description: Unit
                       type: string
                   type: object
+                id:
+                  description: Name
+                  type: string
                 oses:
                   description: Nodes with the selected OS will be affected
                   items:
@@ -358,6 +91,7 @@
                     type: string
                   type: array
               required:
+              - id
               - username
               - password
               - domain
@@ -381,6 +115,9 @@
                       description: Unit
                       type: string
                   type: object
+                id:
+                  description: Name
+                  type: string
                 ip:
                   description: Hostname or IP Address
                   type: string
@@ -421,6 +158,7 @@
                   description: Username
                   type: string
               required:
+              - id
               - username
               - password
               - ip
@@ -444,6 +182,9 @@
                       description: Unit
                       type: string
                   type: object
+                id:
+                  description: Name
+                  type: string
                 ip:
                   description: Hostname or IP Address
                   type: string
@@ -481,6 +222,7 @@
                   description: Username
                   type: string
               required:
+              - id
               - username
               - password
               - ip
@@ -504,6 +246,9 @@
                       description: Unit
                       type: string
                   type: object
+                id:
+                  description: Name
+                  type: string
                 ip:
                   description: Hostname or IP Address
                   type: string
@@ -547,19 +292,19 @@
                   description: Verify hostname of server
                   type: string
               required:
+              - id
               - username
               - password
               - ip
               type: object
-      required: true
     responses:
-      '201':
-        $ref: '#/components/responses/Created'
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
   put:
+    description: Replace an item
+    operationId: api.v1.Config::Scans.replace
     parameters: []
     requestBody:
       content:
@@ -590,6 +335,9 @@
                       description: Unit
                       type: string
                   type: object
+                id:
+                  description: Name
+                  type: string
                 oses:
                   description: Nodes with the selected OS will be affected
                   items:
@@ -627,6 +375,7 @@
                     type: string
                   type: array
               required:
+              - id
               - username
               - password
               - domain
@@ -650,6 +399,9 @@
                       description: Unit
                       type: string
                   type: object
+                id:
+                  description: Name
+                  type: string
                 ip:
                   description: Hostname or IP Address
                   type: string
@@ -690,6 +442,7 @@
                   description: Username
                   type: string
               required:
+              - id
               - username
               - password
               - ip
@@ -713,6 +466,9 @@
                       description: Unit
                       type: string
                   type: object
+                id:
+                  description: Name
+                  type: string
                 ip:
                   description: Hostname or IP Address
                   type: string
@@ -750,6 +506,7 @@
                   description: Username
                   type: string
               required:
+              - id
               - username
               - password
               - ip
@@ -773,6 +530,9 @@
                       description: Unit
                       type: string
                   type: object
+                id:
+                  description: Name
+                  type: string
                 ip:
                   description: Hostname or IP Address
                   type: string
@@ -816,11 +576,11 @@
                   description: Verify hostname of server
                   type: string
               required:
+              - id
               - username
               - password
               - ip
               type: object
-      required: true
     responses:
       '201':
         $ref: '#/components/responses/Created'

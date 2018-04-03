@@ -1,0 +1,9 @@
+/components/schemas/config/ViolationsList:
+  allOf:
+  - $ref: '#/components/schemas/Iterable'
+  - properties:
+      items:
+        items:
+          $ref: '#/components/schemas/config/Violation'
+        type: array
+    type: object

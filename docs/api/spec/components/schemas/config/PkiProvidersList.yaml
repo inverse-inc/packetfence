@@ -1,0 +1,9 @@
+/components/schemas/config/PkiProvidersList:
+  allOf:
+  - $ref: '#/components/schemas/Iterable'
+  - properties:
+      items:
+        items:
+          $ref: '#/components/schemas/config/PkiProvider'
+        type: array
+    type: object

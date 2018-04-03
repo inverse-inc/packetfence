@@ -1,0 +1,22 @@
+/components/schemas/config/FloatingDevice:
+  properties:
+    id:
+      description: MAC Address
+      type: string
+    ip:
+      description: IP Address
+      type: string
+    pvid:
+      description: VLAN in which PacketFence should put the port
+      type: integer
+    taggedVlan:
+      description: Comma separated list of VLANs. If the port is a multi-vlan, these
+        are the VLANs that have to be tagged on the port.
+      type: string
+    trunkPort:
+      description: The port must be configured as a muti-vlan port
+      type: string
+  required:
+  - id
+  - pvid
+  type: object

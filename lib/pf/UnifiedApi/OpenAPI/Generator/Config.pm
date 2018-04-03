@@ -17,6 +17,7 @@ use warnings;
 use Module::Load;
 use Moo;
 use pf::UnifiedApi::GenerateSpec;
+use Lingua::EN::Inflexion qw(noun);
 
 extends qw(pf::UnifiedApi::OpenAPI::Generator);
 
@@ -64,26 +65,37 @@ sub operation_generators {
     \%OPERATION_GENERATORS;
 }
 
+my %OPERATION_DESCRIPTIONS = (
+    remove  => 'Delete an item',
+    create  => 'Create an item',
+    list    => 'List items',
+    get     => 'Get an item',
+    replace => 'Replace an item',
+    update  => 'Update an item',
+    remove  => 'Remove an item',
+);
+
+sub operationDescriptionsLookup {
+    return \%OPERATION_DESCRIPTIONS;
+}
+
 sub createResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
-    return undef;
+    return {
+        "400" => {
+            "\$ref" => "#/components/responses/BadRequest"
+        },
+        "422" => {
+            "\$ref" => "#/components/responses/UnprocessableEntity"
+        }
+    };
 }
 
 sub listResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
-    return undef;
-}
-
-sub getResponses {
-    my ( $self, $scope, $c, $m, $a ) = @_;
-    my @forms = buildForms( $c, $a, $m );
     return {
         "200" => {
-            "content" => {
-                "application/json" => {
-                    configCollectionPostJsonSchema( $m, $a, \@forms )
-                },
-            }
+            "\$ref" => "#" . $self->schema_list_path($c),
         },
         "400" => {
             "\$ref" => "#/components/responses/BadRequest"
@@ -92,6 +104,72 @@ sub getResponses {
             "\$ref" => "#/components/responses/UnprocessableEntity"
         }
     };
+}
+
+sub getResponses {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return {
+        "200" => {
+            "\$ref" => "#" . $self->schema_item_path($c),
+        },
+        "400" => {
+            "\$ref" => "#/components/responses/BadRequest"
+        },
+        "422" => {
+            "\$ref" => "#/components/responses/UnprocessableEntity"
+        }
+    };
+}
+
+sub schema_item_path {
+    my ($self, $controller) = @_;
+    my $class = ref ($controller) || $controller;
+    $class =~ s/pf::UnifiedApi::Controller:://;
+    my @paths = split('::', $class);
+    my $name = pop @paths;
+    @paths = map { lc($_) } @paths;
+    my $noun = noun($name);
+    my $singular = $noun->singular;
+    my $prefix = "/components/schemas";
+    return join('/', $prefix, @paths, $singular);
+}
+
+sub schema_list_path {
+    my ($self, $controller) = @_;
+    my $class = ref ($controller) || $controller;
+    $class =~ s/pf::UnifiedApi::Controller:://;
+    my @paths = split('::', $class);
+    my $name = pop @paths;
+    @paths = map { lc($_) } @paths;
+    my $prefix = "/components/schemas";
+    return join('/', $prefix, @paths, "${name}List");
+}
+
+sub generate_schemas {
+    my ($self, $controller, $actions) = @_;
+    my $list_path = $self->schema_list_path($controller);
+    my $item_path = $self->schema_item_path($controller);
+    my @forms = buildForms($controller);
+    my $s = {
+        $list_path => {
+            allOf => [
+                { '$ref' => "#/components/schemas/Iterable" },
+                {
+                    "properties" => {
+                        "items" => {
+                            "items" => {
+                                "\$ref" => "#$item_path",
+                            },
+                            "type" => "array"
+                        }
+                    },
+                    "type" => "object"
+                },
+            ],
+        },
+        $item_path => pf::UnifiedApi::GenerateSpec::formsToSchema(\@forms)
+    };
+    return $s;
 }
 
 sub replaceResponses {
@@ -111,7 +189,14 @@ sub replaceResponses {
 
 sub updateResponses {
     my ($self, $scope, $c, $m, $a) = @_;
-    return undef;
+    return {
+        "400" => {
+            "\$ref" => "#/components/responses/BadRequest"
+        },
+        "422" => {
+            "\$ref" => "#/components/responses/UnprocessableEntity"
+        }
+    };
 }
 
 sub removeResponses {
@@ -129,7 +214,7 @@ sub configCollectionPostJsonSchema {
 }
 
 sub buildForms {
-    my ( $controller, $child, $m ) = @_;
+    my ($controller, $child) = @_;
     my @form_classes;
     if ( $controller->can("type_lookup") ) {
         @form_classes = values %{ $controller->type_lookup };
@@ -140,9 +225,7 @@ sub buildForms {
         @form_classes = ( $controller->form_class );
     }
 
-    my @form_parameters =
-      ( !exists $METHODS_WITH_ID{$m} ) ? ( inactive => ['id'] ) : ();
-    return map { $_->new(@form_parameters) } @form_classes;
+    return map { $_->new() } @form_classes;
 }
 
 sub operationId {

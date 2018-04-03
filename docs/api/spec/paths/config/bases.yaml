@@ -1,0 +1,24 @@
+/config/bases:
+  description: pf::UnifiedApi::Controller::Config::Bases
+  get:
+    description: List items
+    operationId: api.v1.Config::Bases.list
+    parameters: []
+    responses:
+      '200':
+        $ref: '#/components/schemas/config/BasesList'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  post:
+    description: Create an item
+    operationId: api.v1.Config::Bases.create
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            discriminator:
+              propertyName: type
+            oneOf: []

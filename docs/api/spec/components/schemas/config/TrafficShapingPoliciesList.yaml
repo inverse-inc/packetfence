@@ -1,0 +1,9 @@
+/components/schemas/config/TrafficShapingPoliciesList:
+  allOf:
+  - $ref: '#/components/schemas/Iterable'
+  - properties:
+      items:
+        items:
+          $ref: '#/components/schemas/config/TrafficShapingPolicy'
+        type: array
+    type: object
