@@ -22,7 +22,10 @@ use strict;
 use warnings;
 
 use JSON::MaybeXS;
-use pf::config qw(%Config);
+use pf::config qw(
+    %Config
+    $unified_api_system_user
+);
 use pf::log;
 use WWW::Curl::Easy;
 use Moo;
@@ -39,7 +42,7 @@ the username of the JSON REST call
 
 =cut
 
-has username => ( is => 'rw', default => sub {$Config{'webservices'}{'user'}} );
+has username => ( is => 'rw', default => sub {$unified_api_system_user->{'user'}} );
 
 =head2 password
 
@@ -47,7 +50,7 @@ the password of the JSON REST call
 
 =cut
 
-has password => ( is => 'rw', default => sub {$Config{'webservices'}{'pass'}} );
+has password => ( is => 'rw', default => sub {$unified_api_system_user->{'pass'}} );
 
 =head2 proto
 

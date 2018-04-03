@@ -131,6 +131,8 @@ our (
     %ConfigPortalModules,
 #conf/local_secret
     $local_secret,
+#conf/unified_api_system_pass
+    $unified_api_system_user,
 #Switches Group
     %ConfigSwitchesGroup,
 #Switches List
@@ -197,6 +199,7 @@ BEGIN {
         %ConfigAdminRoles
         %ConfigPortalModules
         $local_secret
+        $unified_api_system_user
         %ConfigSwitchesGroup
         %ConfigSwitchesList
         %ConfigReport
@@ -278,6 +281,8 @@ tie %ConfigAdminRoles, 'pfconfig::cached_hash', 'config::AdminRoles';
 tie %ConfigPortalModules, 'pfconfig::cached_hash', 'config::PortalModules';
 
 tie $local_secret, 'pfconfig::cached_scalar', 'resource::local_secret';
+
+tie $unified_api_system_user, 'pfconfig::cached_scalar', 'resource::unified_api_system_user';
 
 tie %ConfigSwitchesGroup, 'pfconfig::cached_hash', 'resource::switches_group';
 
