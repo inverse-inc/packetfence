@@ -42,15 +42,14 @@ sub build_child {
     }
 
     foreach my $int (@{$self->{listen_ints}}) {
-        $tmp_cfg{"metric 'doing something on $int'"} = {
-            'api_compile' => '$.some_random_value',
-            'statsd_type' => 'histogram',
-            'interval' => '5s',
-            'statsd_ns' => 'source.packetfence.test_api_post',
-            'api_path' => "/whatever/$int",
-            'api_payload' => '{"ip": "1.2.3.4"}',
-            'api_method' => 'POST',
+        $tmp_cfg{"metric 'total dhcp leases remaining on $int'"} = {
             'type' => 'api',
+            'statsd_type' => 'histogram',
+            'statsd_ns' => 'source.packetfence.dhcp_leases_'.$int,
+            'api_method' => 'GET',
+            'api_path' => "/api/v1/dhcp/stats/$int",
+            'api_compile' => '$[0].free',
+            'interval' => '60s',
         };
     }
 
