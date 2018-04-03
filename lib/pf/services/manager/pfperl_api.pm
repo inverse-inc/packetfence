@@ -1,25 +1,23 @@
-#!/usr/bin/perl
+package pf::services::manager::pfperl_api;
 
 =head1 NAME
 
-pfunified_api
+pf::services::manager::pfperl_api -
 
 =cut
 
 =head1 DESCRIPTION
 
-pfunified_api
+pf::services::manager::pfperl_api
 
 =cut
 
 use strict;
 use warnings;
-use lib qw(/usr/local/pf/lib);
-use Mojolicious::Commands;
+use Moo;
+extends 'pf::services::manager';
 
-# Start command line interface for application
-Mojolicious::Commands->start_app('pf::UnifiedApi::custom');
-
+has '+name' => (default => sub { 'pfperl-api' } );
 
 =head1 AUTHOR
 
@@ -47,4 +45,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
+
+1;
 

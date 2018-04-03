@@ -28,7 +28,7 @@ has commands => sub {
 };
 
 has log => sub {
-    return MojoX::Log::Log4perl->new("$log_conf_dir/pfunified_api.conf",5 * 60);
+    return MojoX::Log::Log4perl->new("$log_conf_dir/pfperl-api.conf",5 * 60);
 };
 
 =head2 startup
