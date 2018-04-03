@@ -72,7 +72,7 @@ my $daemonize = $args{d};
 
 pod2usage( -verbose => 1 ) if ( $args{h} );
 
-our $RUNNING = 1;
+our $RUNNING = 1000;
 our $started_successfully = 0;
 
 
@@ -196,6 +196,7 @@ sub _run_worker {
     $0 = "$0 - $id";
     while($RUNNING && is_parent_alive()) {
         $ns->loop_once(10);
+        $RUNNING--;
     }
 }
 
