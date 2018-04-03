@@ -802,15 +802,6 @@ After that, the algorithm looks at which version is on the most servers. In the 
 
 When pushing a version to the other servers, if the current server has the most recent version or is part of the quorum (depending on which push strategy was defined above), then it will be the one pushing the new configuration to the other servers. Otherwise, a webservice call is made to one of the servers running the selected version so that it pushes its configuration to its peers.
 
-Unsupported features in active/active
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The following features are not supported when using active/active clustering.
-
-* Switches using SNMP based enforcement (port-security, link up/down, ...)
-* SNMP roaming with the Aerohive controller. (4.7+ includes support for accounting roaming)
-* Inline enforcement
-
 Appendix
 --------
 
