@@ -135,6 +135,14 @@ type PfConfWebservices struct {
 	Host           string `json:"host"`
 }
 
+type UnifiedApiSystemUser struct {
+	StructConfig
+	PfconfigMethod string `val:"hash_element"`
+	PfconfigNS     string `val:"resource::unified_api_system_user"`
+	User           string `json:"user"`
+	Pass           string `json:"pass"`
+}
+
 type PfConfDatabase struct {
 	StructConfig
 	PfconfigMethod string `val:"hash_element"`

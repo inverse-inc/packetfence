@@ -686,6 +686,11 @@ if [ ! -f /usr/local/pf/conf/local_secret ]; then
     date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/local_secret
 fi
 
+# Create server API system user password
+if [ ! -f /usr/local/pf/conf/unified_api_system_pass ]; then
+    date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/unified_api_system_pass
+fi
+
 for service in httpd snmptrapd portreserve redis
 do
   if /bin/systemctl -a | grep $service > /dev/null 2>&1; then
