@@ -71,13 +71,13 @@ search_builder_class
 
 has 'search_builder_class' => "pf::UnifiedApi::SearchBuilder";
 
-=head2 openapi_path_generator_class
+=head2 openapi_generator_class
 
-openapi_path_generator_class
+openapi_generator_class
 
 =cut
 
-has 'openapi_path_generator_class' => 'pf::UnifiedApi::OpenAPI::Generator::Crud';
+has 'openapi_generator_class' => 'pf::UnifiedApi::OpenAPI::Generator::Crud';
 
 =head1 METHODS
 
