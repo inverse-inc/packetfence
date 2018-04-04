@@ -34,7 +34,7 @@ extends 'pf::services::manager';
 
 has '+name' => (default => sub { 'netdata' } );
 
-tie our @authenticationsources, 'pfconfig::cached_array', "resource::authentication_sources";
+tie our @authentication_sources_monitored, 'pfconfig::cached_array', "resource::authentication_sources_monitored";
 
 sub generateConfig {
     my ($self,$quick) = @_;
@@ -47,9 +47,8 @@ sub generateConfig {
         $tags{'members'} = join(" ", grep( {$_ ne $management_network->tag('ip')} values %{pf::cluster::members_ips($int)}));
     }
 
-    my @monitor_sources = grep {($_->{'monitor'} // '') eq '1'} @authenticationsources;
 
-    foreach my $source  (@monitor_sources) {
+    foreach my $source  (@authentication_sources_monitored) {
         if ($source->{'host'}) {
             $tags{'members'} .= " $source->{'host'}";
         }
