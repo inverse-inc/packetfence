@@ -107,7 +107,7 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 					switch ansb := ans.(type) {
 					case *dns.A:
 						for _, valeur := range v {
-							err := pf.apiClient.CallWithBody(ctx, "POST", "/api/v1/ipset/passthrough_isolation?local=1", map[string]interface{}{
+							err := pf.apiClient.CallWithBody(ctx, "POST", "/api/v1/ipset/passthrough_isolation?local=0", map[string]interface{}{
 								"ip":   ansb.A.String(),
 								"port": valeur,
 							}, &unifiedapiclient.DummyReply{})
@@ -132,7 +132,7 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 				switch ansb := ans.(type) {
 				case *dns.A:
 					for _, valeur := range v {
-						err := pf.apiClient.CallWithBody(ctx, "POST", "/api/v1/ipset/passthrough?local=1", map[string]interface{}{
+						err := pf.apiClient.CallWithBody(ctx, "POST", "/api/v1/ipset/passthrough?local=0", map[string]interface{}{
 							"ip":   ansb.A.String(),
 							"port": valeur,
 						}, &unifiedapiclient.DummyReply{})
