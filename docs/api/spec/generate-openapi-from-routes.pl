@@ -28,35 +28,10 @@ use File::Slurp qw(write_file);
 use File::Path qw(make_path);
 $YAML::XS::Boolean = 'boolean';
 
-our %METHODS_WITH_ID = (
-    get => 1,
-    post => 1,
-);
-
-our %PATH_CONFIG_HANDLER = (
-    collection => {
-        'post'   => \&configCollectionPost,
-        'get'    => \&configCollectionGet,
-        'actions' => {
-            'search' => \&configCollectionActionSearch,
-        },
-    },
-    resource => {
-        'get'    => \&configResourceGet,
-        'put'    => \&configResourcePut,
-        'patch'  => \&configResourcePut,
-        'delete' => \&configResourceDelete,
-    }
-);
-
 my $app = pf::UnifiedApi->new;
 
-my @route_infos = map { walkRootRoutes($_) } @{ $app->routes->children };
-
-#print Dumper(\@route_infos);
-#exit;
 my %routes;
-for my $route_info (@route_infos) {
+for my $route_info (map { walkRootRoutes($_) } @{ $app->routes->children }) {
    for my $child (@{$route_info->{children}}) {
         next if !defined $child->{methods};
         my $path = $child->{path};
@@ -67,16 +42,15 @@ for my $route_info (@route_infos) {
    } 
 }
 
-{
-    my $openapi_paths = generateOpenAPIPaths($app, $routes{paths} // {});
-    saveToYaml($openapi_paths, "$install_dir/docs/api/spec/paths");
-    my $openapi_schemas = generateOpenAPISchemas($app, $routes{controllers});
-    saveToYaml($openapi_schemas, "$install_dir/docs/api/spec");
-}
+my $openapi_paths = generateOpenAPIPaths($app, $routes{paths} // {});
+saveToYaml($openapi_paths, "$install_dir/docs/api/spec/paths");
+my $openapi_schemas = generateOpenAPISchemas($app, $routes{controllers});
+saveToYaml($openapi_schemas, "$install_dir/docs/api/spec");
 
 sub saveToYaml {
     my ($yamls, $base_path) = @_;
     while (my ($p, $d) = each %$yamls) {
+        next if !defined $d;
         my $file_path = $p;
         $file_path =~ s#/\{[^\}]+\}##;
         $file_path = "${base_path}${file_path}.yaml";
@@ -99,7 +73,10 @@ sub generateOpenAPIPaths {
         load $controller_class;
         my $controller = $controller_class->new(app => $app);
         my $generator = $controller->openapi_generator;
-        $openapi_paths{$path} = $generator->generate_path($controller, $actions);
+        next if !defined $generator;
+        my $data = $generator->generate_path($controller, $actions);
+        next if !defined $data;
+        $openapi_paths{$path} = $data;
     }
     return \%openapi_paths;
 }
@@ -118,186 +95,6 @@ sub generateOpenAPISchemas {
         }
     }
     return \%openapi_schemas;
-}
-
-sub buildForms {
-    my ($c, $child, $m) = @_;
-    my @form_classes;
-    if ($c->can("type_lookup")) {
-        @form_classes = values %{$c->type_lookup};
-    }
-    else {
-        my $form_class = $c->form_class;
-        return if $form_class eq 'pfappserver::Form::Config::Pf';
-        @form_classes = ($c->form_class);
-    }
-
-    my @form_parameters = (!exists $METHODS_WITH_ID{$m}) ? (inactive => ['id'] ) : ();
-    return map { $_->new(@form_parameters) } @form_classes;
-}
-
-sub configPathMethodInfo {
-    my ($method, $child, $forms) = @_;
-    my $path_type = $child->{path_type};
-    my $action = $child->{action};
-    my $handlers = $PATH_CONFIG_HANDLER{$path_type};
-    if (!$handlers) {
-        die "invalid path_type : $path_type\n";
-    }
-
-    if (exists $handlers->{actions}{$action}) {
-        return $handlers->{actions}{$action}->($method, $child, $forms);
-    }
-
-    if (exists $handlers->{$method}) {
-        return $handlers->{$method}->($child, $method, $forms);
-    }
-    
-    return { }
-}
-
-sub standardParameters {
-
-}
-
-sub configCollectionPostJsonSchema {
-    my ($method, $child, $forms) = @_;
-    return "schema" => pf::UnifiedApi::GenerateSpec::formsToSchema($forms)
-}
-
-sub configResourcePut {
-    my ($method, $child, $forms) = @_;
-    {
-        "parameters" => [
-            standardParameters()
-        ],
-        "requestBody" => {
-            "content" => {
-                "application/json" => {
-                    configCollectionPostJsonSchema($method, $child, $forms)
-                }
-            },
-            "required" => true,
-        },
-        "responses" => {
-            "201" => {
-                "\$ref" => "#/components/responses/Created"
-            },
-            "400" => {
-                "\$ref" => "#/components/responses/BadRequest"
-            },
-            "422" => {
-                "\$ref" => "#/components/responses/UnprocessableEntity"
-            }
-        },
-    };
-}
-
-sub configResourceGet {
-    my ( $method, $child, $forms ) = @_;
-    {
-        "parameters" => [ standardParameters() ],
-        "responses"  => {
-            "204" => {
-                "content" => {
-                    "application/json" => {
-                        configCollectionPostJsonSchema(
-                            $method, $child, $forms
-                        )
-                    }
-                },
-            },
-            "400" => {
-                "\$ref" => "#/components/responses/BadRequest"
-            },
-            "422" => {
-                "\$ref" => "#/components/responses/UnprocessableEntity"
-            }
-        },
-    };
-}
-
-sub configCollectionPost {
-    my ($method, $child, $forms) = @_;
-    {
-        "parameters" => [
-            standardParameters()
-        ],
-        "requestBody" => {
-            "content" => {
-                "application/json" => {
-                    configCollectionPostJsonSchema($method, $child, $forms)
-                }
-            },
-            "required" => true,
-        },
-        "responses" => {
-            "201" => {
-                "\$ref" => "#/components/responses/Created"
-            },
-            "400" => {
-                "\$ref" => "#/components/responses/BadRequest"
-            },
-            "409" => {
-                "\$ref" => "#/components/responses/Duplicate"
-            },
-            "422" => {
-                "\$ref" => "#/components/responses/UnprocessableEntity"
-            }
-        },
-    };
-}
-
-sub configCollectionGet {
-    my ( $method, $child, $forms ) = @_;
-    {
-        "parameters" => [
-            standardParameters(),
-            { "\$ref" => '#/components/parameters/cursor' }
-        ],
-        "responses" => {
-            "400" => {
-                "\$ref" => "#/components/responses/BadRequest"
-            },
-            "422" => {
-                "\$ref" => "#/components/responses/UnprocessableEntity"
-            },
-            '200' => {
-                "description" => "A list of connection profiles",
-                "content"     => {
-                    "application/json" => {
-                        "schema" => {
-                            "allOf" => [
-                                {
-                                    "\$ref" => "#/components/schemas/Iterable",
-                                },
-                                {
-                                    'type' => 'object',
-                                    'properties' => {
-                                        items => pf::UnifiedApi::GenerateSpec::formsToSchema($forms),
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-    };
-}
-
-sub configResourceDelete {
-    {
-        summary     => 'Delete a config item',
-        "parameters" => [
-            standardParameters()
-        ],
-        'responses' => {
-            '204' => {
-                description => 'Deleted a config item'
-            }
-        }
-    }
 }
 
 sub walkRootRoutes {
@@ -384,10 +181,6 @@ sub walk {
     $depth++;
     my @children = map { walk( $_, $depth, $full_path, \@paths ) } @$children;
     return \%info, @children;
-}
-
-sub configCollectionActionSearch {
-    return undef;
 }
 
 =head1 AUTHOR
