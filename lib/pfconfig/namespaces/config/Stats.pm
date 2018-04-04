@@ -27,6 +27,8 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file} = $stats_config_file;
+    
+    $self->{listen_ints} = $self->{cache}->get_cache('interfaces::listen_ints');
 }
 
 sub build_child {
@@ -36,6 +38,18 @@ sub build_child {
 
     foreach my $key ( keys %tmp_cfg){
         $self->cleanup_whitespaces( \%tmp_cfg );
+    }
+
+    foreach my $int (@{$self->{listen_ints}}) {
+        $tmp_cfg{"metric 'total dhcp leases remaining on $int'"} = {
+            'type' => 'api',
+            'statsd_type' => 'gauge',
+            'statsd_ns' => 'source.packetfence.dhcp_leases_'.$int,
+            'api_method' => 'GET',
+            'api_path' => "/api/v1/dhcp/stats/$int",
+            'api_compile' => '$[0].free',
+            'interval' => '60s',
+        };
     }
 
     return \%tmp_cfg;
