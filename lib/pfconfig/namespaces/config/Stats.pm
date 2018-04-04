@@ -29,7 +29,6 @@ sub init {
     $self->{file} = $stats_config_file;
     
     $self->{listen_ints} = $self->{cache}->get_cache('interfaces::listen_ints');
-    $self->{roles} = $self->{cache}->get_cache('config::Roles');
 }
 
 sub build_child {
