@@ -1,5 +1,6 @@
 [%  jsFiles = [
         'admin/status',
+        'js/vendor/fitty.min'
         ]
      cssFiles = [
         'admin/status',
@@ -39,6 +40,6 @@
     </div>
     <div class="row-fluid">
       <div class="container-fluid offset3 span15 span18-navbarcollapse">
-        <div id="section" class="card">
+        <div id="section">
         </div>
       </div><!--/row-->

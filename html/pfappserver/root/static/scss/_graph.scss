@@ -11,3 +11,34 @@
 .graph-2c {
   width: 100%;
 }
+
+.dygraph-title,
+.gaugeChartTitle {
+  color: $grayLight;
+  line-height: 1em;
+  text-transform: uppercase;
+}
+
+.netdata-container-with-legend {
+  margin: $fontSizeSmall 0;
+}
+
+#alarms {
+  .alert {
+    padding: 0;
+  }
+}
+
+[data-block="hostname"] {
+  color: inherit;
+  margin-bottom: 0;
+}
+
+[data-block="value"] {
+  line-height: 1em;
+}
+
+#dashboard .nav-pills {
+  display: inline-block;
+  margin: 0;
+}

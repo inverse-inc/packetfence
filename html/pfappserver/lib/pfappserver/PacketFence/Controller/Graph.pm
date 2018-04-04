@@ -465,6 +465,7 @@ sub dashboard :Local :AdminRole('REPORTS') {
         $graph->{url} = $self->_buildGraphiteURL($c, $start, $width, $graph);
     }
     $c->stash->{graphs} = $graphs;
+    $c->stash->{cluster} = pf::cluster::members_ips();
     $c->stash->{current_view} = 'HTML';
 }
 

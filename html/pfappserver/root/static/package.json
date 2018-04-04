@@ -16,5 +16,8 @@
     "grunt-postcss": ">=0.6.0",
     "grunt-sass": ">=0.18.1",
     "time-grunt": "latest"
+  },
+  "dependencies": {
+    "fitty": "^2.2.5"
   }
 }
