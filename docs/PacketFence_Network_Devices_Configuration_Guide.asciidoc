@@ -3355,6 +3355,69 @@ RADIUS configuration
   aaa port-access authenticator C4 client-limit 3
   aaa port-access authenticator active
 
+Downloadable ACLs
+^^^^^^^^^^^^^^^^^
+
+HP and Aruba switches running the ArubaOS-Switch operating system (previously called ProVision) support dynamic RADIUS-assigned ACLs. It requires RADIUS authentication using the 802.1X, Web authentication or MAC authentication available on the switch. You can define ACLs in PacketFence so that they can be automatically applied on the ports of the switches based on the role assigned. We have tested it successfully on the Aruba 2930M and 3810 series on version 16.05.0004.
+
+To use this feature, first configure RADIUS and the authentication method on your switch. Next, in the PacketFence web admin interface, go to the 'Configuration' page, and then 'Switches'. Click on the switch you want, then on the 'Roles' tab, and check 'Role by access list'. Now you are able to add ACLs for each role.
+
+1. Configure RADIUS operation on the switch:
+
+  radius-server host <ipv4-address> key <key-string>
+
+This command configures the IPv4 address and encryption key of a RADIUS server. The server should be accessible to the switch and configured to support authentication requests from clients using the switch to access the network.
+
+2. Configure RADIUS network accounting on the switch (optional).
+
+  aaa accounting network <start-stop|stop-only> radius
+
+You can also view ACL counter hits using either of the following commands:
+
+  show access-list radius <port-list>
+  show port-access <authenticator|mac-based|web-based> <port-list> clients detailed
+
+3. Configure an authentication method. Options include 802.1X, web-based authentication, and MAC authentication. You can configure 802.1X, web-based authentication, and/or MAC authentication to operate simultaneously on the same ports.
+
+* 802.1X Option:
+
+  aaa port-access authenticator <port-list>
+  aaa authentication port-access chap-radius
+  aaa port-access authenticator active
+
+* MAC Authentication Option:
+
+  aaa port-access mac-based <port-list>
+
+This command configures MAC authentication on the switch and activates this feature on the specified ports.
+
+* Web Authentication Option:
+
+  aaa port-access web-based <port-list>
+
+This command configures web-based authentication on the switch and activates this feature on the specified ports.
+
+For example, if you want the users that are in the registration VLAN to only use HTTP, HTTPS, DNS and DHCP you can configure this ACL in the registration category.
+
+image::docs/images/cisco-downloadable-acl-reg.png[scaledwidth="100%",alt="Registration ACL"]
+
+Now, for example, your normal users are placed in the 'default' category and your guests in the 'guest' category.
+
+The 'default' category uses the network 192.168.5.0/24 and 'guest' uses the network 192.168.10.0/24.
+
+You can prevent communications between both networks using these access lists
+
+image::docs/images/cisco-downloadable-acl-cross-network.png[scaledwidth="100%",alt="Cross network deny ACL"]
+
+You could also only prevent your guest users from using shared directories
+
+image::docs/images/cisco-downloadable-acl-deny-shares.png[scaledwidth="100%",alt="Deny shares ACL"]
+
+You could also restrict your users to use only your DNS server where 192.168.5.2 is your DNS server
+
+image::docs/images/cisco-downloadable-acl-force-dns.png[scaledwidth="100%",alt="Force DNS ACL"]
+
+
 Huawei
 ~~~~~~
 
