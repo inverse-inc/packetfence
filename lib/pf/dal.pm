@@ -124,6 +124,7 @@ sub db_execute {
                         $logger->trace("Ignoring error $errstr (errno: $err)");
                     } else {
                         $logger->error("Database query failed with non retryable error: $errstr (errno: $err) [$sql]{". join(", ", map { defined $_ ?  $_ : "NULL" } @bind)  . "}");
+                        db_disconnect();
                     }
                 }
                 last;
