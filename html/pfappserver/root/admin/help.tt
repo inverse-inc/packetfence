@@ -36,34 +36,13 @@
         [% END -%]
         <ul class="nav nav-pills nav-vertical">
           [%
-          guide('Administration Guide', 'Installation_Guide') | none;
+          guide('Installation Guide', 'Installation_Guide') | none;
           guide('Network Devices Configuration Guide', 'Network_Devices_Configuration_Guide') | none;
-          guide('Inline Deployment Quick Guide using ZEN', 'Inline_Deployment_Quick_Guide_ZEN') | none;
-          guide('Out-of-Band Deployment Quick Guide using ZEN', 'Out-of-Band_Deployment_Quick_Guide_ZEN') | none;
-          guide('Clustering Quick Installation Guide', 'Clustering_Guide') | none;
-          guide('PKI Quick Installation Guide', 'PKI_Quick_Install_Guide') | none;
+          guide('Clustering Guide', 'Clustering_Guide') | none;
           guide('Developer\'s Guide', 'Developers_Guide') | none
           %]
         </ul>
 
-        <h3>[% l('Integration Guides') %]</h3>
-        <ul class="nav nav-pills nav-vertical">
-          [%
-          guide('Aerohive Networks', 'Aerohive_Quick_Install_Guide') | none;
-          guide('Anyfi Networks', 'Anyfi_Quick_Install_Guide') | none;
-          guide('Barracuda firewall', 'Barracuda_Quick_Install_Guide') | none;
-          guide('Checkpoint firewall', 'Checkpoint_Quick_Install_Guide') | none;
-          guide('CoovaChilli access controller', 'CoovaChilli_Quick_Integration_Guide') | none;
-          guide('FortiGate firewall', 'FortiGate_Quick_Install_Guide') | none;
-          guide('Microsoft PKI (MSPKI)', 'MSPKI_Quick_Install_Guide') | none;
-          guide('MobileIron mobile device manager', 'MobileIron_Quick_Install_Guide') | none;
-          guide('OpenWrt', 'OpenWrt-Hostapd-15-05_Quick_Install_Guide') | none;
-          guide('OPSWAT Metadefender Endpoint Management', 'OPSWAT_Quick_Install_Guide') | none;
-          guide('PaloAlto firewall', 'PaloAlto_Quick_Install_Guide') | none;
-          guide('SentinelOne Server', 'SentinelOne_Quick_Install_Guide') | none;
-          guide('Symantec Endpoint Protection Manager', 'SEPM_Quick_Install_Guide') | none;
-          %]
-        </ul>
       </div>
     </div>
   </span>
