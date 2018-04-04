@@ -44,7 +44,7 @@ sub build_child {
     foreach my $int (@{$self->{listen_ints}}) {
         $tmp_cfg{"metric 'total dhcp leases remaining on $int'"} = {
             'type' => 'api',
-            'statsd_type' => 'histogram',
+            'statsd_type' => 'gauge',
             'statsd_ns' => 'source.packetfence.dhcp_leases_'.$int,
             'api_method' => 'GET',
             'api_path' => "/api/v1/dhcp/stats/$int",
