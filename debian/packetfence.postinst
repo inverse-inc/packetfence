@@ -78,6 +78,10 @@ case "$1" in
             date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/local_secret
         fi
 
+        # Create server API system user password
+        if [ ! -f /usr/local/pf/conf/unified_api_system_pass ]; then
+            date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/unified_api_system_pass
+        fi
 
 	    if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
 	        echo "Building default RADIUS certificates..."
