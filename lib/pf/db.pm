@@ -234,6 +234,7 @@ sub db_disconnect {
         $logger->debug("disconnecting db");
         $DBH->disconnect();
         $LAST_CONNECT = 0;
+        $DBH = undef;
     }
 }
 
