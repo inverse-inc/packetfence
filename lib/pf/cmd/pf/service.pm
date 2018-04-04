@@ -14,7 +14,8 @@ pfcmd service <service> [start|stop|restart|status|generateconfig|updatesystemd]
 
 Services managed by PacketFence:
 
-  haproxy          | haproxy daemon
+  haproxy-portal   | haproxy portal daemon
+  haproxy-db       | haproxy database daemon
   httpd.aaa        | Apache AAA webservice
   httpd.admin      | Apache Web admin
   httpd.collector  | Apache Collector daemon
