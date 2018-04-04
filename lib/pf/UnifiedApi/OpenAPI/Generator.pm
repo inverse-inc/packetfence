@@ -230,7 +230,7 @@ sub operation {
         }
     }
 
-    return \%op;
+    return keys %op == 0 ? undef : \%op;
 }
 
 sub operation_generators {
