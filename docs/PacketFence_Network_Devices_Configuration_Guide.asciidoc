@@ -3356,19 +3356,17 @@ RADIUS configuration
   aaa port-access authenticator active
 
 Downloadable ACLs
-^^^^^^^^^^^^^^^^^
++++++++++++++++++
 
 HP and Aruba switches running the ArubaOS-Switch operating system (previously called ProVision) support dynamic RADIUS-assigned ACLs. It requires RADIUS authentication using the 802.1X, Web authentication or MAC authentication available on the switch. You can define ACLs in PacketFence so that they can be automatically applied on the ports of the switches based on the role assigned. We have tested it successfully on the Aruba 2930M and 3810 series on version 16.05.0004.
 
 To use this feature, first configure RADIUS and the authentication method on your switch. Next, in the PacketFence web admin interface, go to the 'Configuration' page, and then 'Switches'. Click on the switch you want, then on the 'Roles' tab, and check 'Role by access list'. Now you are able to add ACLs for each role.
 
-1. Configure RADIUS operation on the switch:
+Configure RADIUS operation on the switch:
 
   radius-server host <ipv4-address> key <key-string>
 
-This command configures the IPv4 address and encryption key of a RADIUS server. The server should be accessible to the switch and configured to support authentication requests from clients using the switch to access the network.
-
-2. Configure RADIUS network accounting on the switch (optional).
+Configure RADIUS network accounting on the switch (optional).
 
   aaa accounting network <start-stop|stop-only> radius
 
@@ -3377,7 +3375,7 @@ You can also view ACL counter hits using either of the following commands:
   show access-list radius <port-list>
   show port-access <authenticator|mac-based|web-based> <port-list> clients detailed
 
-3. Configure an authentication method. Options include 802.1X, web-based authentication, and MAC authentication. You can configure 802.1X, web-based authentication, and/or MAC authentication to operate simultaneously on the same ports.
+Configure an authentication method. Options include 802.1X, web-based authentication, and MAC authentication. You can configure 802.1X, web-based authentication, and/or MAC authentication to operate simultaneously on the same ports.
 
 * 802.1X Option:
 
@@ -3388,8 +3386,6 @@ You can also view ACL counter hits using either of the following commands:
 * MAC Authentication Option:
 
   aaa port-access mac-based <port-list>
-
-This command configures MAC authentication on the switch and activates this feature on the specified ports.
 
 * Web Authentication Option:
 
