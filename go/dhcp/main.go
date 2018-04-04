@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"encoding/binary"
+	"sync"
 
 	"context"
 	_ "expvar"
@@ -33,6 +34,9 @@ var MySQLdatabase *sql.DB
 var GlobalIpCache *cache.Cache
 var GlobalMacCache *cache.Cache
 
+var GlobalTransactionCache *cache.Cache
+var GlobalTransactionLock *sync.Mutex
+
 // Control
 var ControlOut map[string]chan interface{}
 var ControlIn map[string]chan interface{}
@@ -59,6 +63,10 @@ func main() {
 	GlobalIpCache = cache.New(5*time.Minute, 10*time.Minute)
 	// Initialize Mac cache
 	GlobalMacCache = cache.New(5*time.Minute, 10*time.Minute)
+
+	// Initialize transaction cache
+	GlobalTransactionCache = cache.New(5*time.Minute, 10*time.Minute)
+	GlobalTransactionLock = &sync.Mutex{}
 
 	// Read DB config
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Database)
@@ -343,10 +351,21 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType) (answer A
 
 	if VIP[h.Name] {
 
+		log.LoggerWContext(ctx).Info(p.CHAddr().String() + " " + msgType.String() + " xID " + sharedutils.ByteToString(p.XId()))
+		GlobalTransactionLock.Lock()
+		cacheKey := p.CHAddr().String() + " " + msgType.String() + " xID " + sharedutils.ByteToString(p.XId())
+		if _, found := GlobalTransactionCache.Get(cacheKey); found {
+			log.LoggerWContext(ctx).Info("Not answering to packet. Already in progress")
+			GlobalTransactionLock.Unlock()
+			return answer
+		} else {
+			GlobalTransactionCache.Set(cacheKey, 1, time.Duration(5)*time.Second)
+			GlobalTransactionLock.Unlock()
+		}
+
 		switch msgType {
 
 		case dhcp.Discover:
-			log.LoggerWContext(ctx).Info(p.CHAddr().String() + " " + msgType.String() + " xID " + sharedutils.ByteToString(p.XId()))
 			var free int
 			i := handler.available.Iterator()
 
@@ -457,8 +476,6 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType) (answer A
 			if reqIP == nil {
 				reqIP = net.IP(p.CIAddr())
 			}
-
-			log.LoggerWContext(ctx).Info(p.CHAddr().String() + " " + msgType.String() + " " + reqIP.String() + " xID " + sharedutils.ByteToString(p.XId()))
 
 			answer.IP = reqIP
 			answer.Iface = h.intNet
