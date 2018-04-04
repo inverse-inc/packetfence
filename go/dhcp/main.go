@@ -278,13 +278,15 @@ func (h *Interface) runUnicast(jobs chan job, ip net.IP) {
 	ListenAndServeIfUnicast(h.Name, h, jobs, ip)
 }
 
-func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType) (answer Answer) {
+func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.MessageType) (answer Answer) {
 
 	var handler DHCPHandler
 	var NetScope net.IPNet
 	options := p.ParseOptions()
 	answer.MAC = p.CHAddr()
 	answer.SrcIP = h.Ipv4
+
+	ctx = log.AddToLogContext(ctx, "mac", answer.MAC.String())
 
 	// Detect the handler to use (config)
 	var NodeCache *cache.Cache
@@ -367,11 +369,12 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType) (answer A
 
 		prettyType := "DHCP" + strings.ToUpper(msgType.String())
 		clientMac := p.CHAddr().String()
+		clientHostname := string(options[dhcp.OptionHostName])
 
 		switch msgType {
 
 		case dhcp.Discover:
-			log.LoggerWContext(ctx).Info(prettyType + " from " + clientMac)
+			log.LoggerWContext(ctx).Info("DHCPDISCOVER from " + clientMac + " (" + clientHostname + ")")
 			var free int
 			i := handler.available.Iterator()
 
@@ -470,7 +473,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType) (answer A
 					GlobalOptions[key] = value
 				}
 			}
-			log.LoggerWContext(ctx).Info(p.CHAddr().String() + " Offer " + answer.IP.String() + " xID " + sharedutils.ByteToString(p.XId()))
+			log.LoggerWContext(ctx).Info("DHCPOFFER on " + answer.IP.String() + " to " + clientMac + " (" + clientHostname + ")")
 			answer.D = dhcp.ReplyPacket(p, dhcp.Offer, handler.ip.To4(), answer.IP, leaseDuration,
 				GlobalOptions.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
 
@@ -482,7 +485,6 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType) (answer A
 				reqIP = net.IP(p.CIAddr())
 			}
 
-			clientHostname := string(options[dhcp.OptionHostName])
 			log.LoggerWContext(ctx).Info(prettyType + " for " + reqIP.String() + " from " + clientMac + " (" + clientHostname + ")")
 
 			answer.IP = reqIP
@@ -577,7 +579,6 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType) (answer A
 				reqIP = net.IP(p.CIAddr())
 			}
 
-			log.LoggerWContext(ctx).Info(p.CHAddr().String() + " " + msgType.String() + " xID " + sharedutils.ByteToString(p.XId()))
 			if x, found := handler.hwcache.Get(p.CHAddr().String()); found {
 				handler.available.Add(uint32(x.(int)))
 				handler.hwcache.Delete(p.CHAddr().String())
@@ -585,6 +586,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType) (answer A
 
 			log.LoggerWContext(ctx).Info(prettyType + " of " + reqIP.String() + " from " + clientMac)
 
+			return answer
 		}
 
 		answer.Iface = h.intNet

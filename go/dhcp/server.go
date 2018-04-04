@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"net"
 
 	dhcp "github.com/krolaw/dhcp4"
@@ -15,7 +16,7 @@ type Answer struct {
 }
 
 type Handler interface {
-	ServeDHCP(req dhcp.Packet, msgType dhcp.MessageType) Answer
+	ServeDHCP(ctx context.Context, req dhcp.Packet, msgType dhcp.MessageType) Answer
 }
 
 // ServeConn is the bare minimum connection functions required by Serve()
