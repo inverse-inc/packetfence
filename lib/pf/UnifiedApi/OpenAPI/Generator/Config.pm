@@ -260,6 +260,21 @@ sub requestBody {
     };
 }
 
+=head2 generate_path
+
+generate_path
+
+=cut
+
+sub generate_path {
+    my ($self, $controller, $actions) = @_;
+    if (@$actions == 1 && $actions->[0]{action} eq 'search') {
+        return undef;
+    }
+
+    return $self->SUPER::generate_path($controller, $actions);
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
