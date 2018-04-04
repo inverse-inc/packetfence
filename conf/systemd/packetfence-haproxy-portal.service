@@ -8,7 +8,7 @@ StartLimitBurst=3
 StartLimitInterval=10
 PIDFile=/usr/local/pf/var/run/haproxy-portal.pid
 ExecStartPre=/usr/local/pf/bin/pfcmd service haproxy-portal generateconfig
-ExecStart=/usr/sbin/haproxy-systemd-wrapper -f /usr/local/pf/var/conf/haproxy-portal.conf -p /usr/local/pf/var/run/haproxy-portal.pid
+ExecStart=/usr/sbin/haproxy -Ws -f /usr/local/pf/var/conf/haproxy-portal.conf -p /usr/local/pf/var/run/haproxy-portal.pid
 ExecReload=/bin/kill -USR2 $MAINPID
 Restart=on-failure
 
