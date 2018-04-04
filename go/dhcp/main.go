@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"encoding/binary"
+	"strings"
 	"sync"
 
 	"context"
@@ -351,11 +352,12 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType) (answer A
 
 	if VIP[h.Name] {
 
-		log.LoggerWContext(ctx).Info(p.CHAddr().String() + " " + msgType.String() + " xID " + sharedutils.ByteToString(p.XId()))
+		log.LoggerWContext(ctx).Debug(p.CHAddr().String() + " " + msgType.String() + " xID " + sharedutils.ByteToString(p.XId()))
+
 		GlobalTransactionLock.Lock()
 		cacheKey := p.CHAddr().String() + " " + msgType.String() + " xID " + sharedutils.ByteToString(p.XId())
 		if _, found := GlobalTransactionCache.Get(cacheKey); found {
-			log.LoggerWContext(ctx).Info("Not answering to packet. Already in progress")
+			log.LoggerWContext(ctx).Debug("Not answering to packet. Already in progress")
 			GlobalTransactionLock.Unlock()
 			return answer
 		} else {
@@ -363,9 +365,13 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType) (answer A
 			GlobalTransactionLock.Unlock()
 		}
 
+		prettyType := "DHCP" + strings.ToUpper(msgType.String())
+		clientMac := p.CHAddr().String()
+
 		switch msgType {
 
 		case dhcp.Discover:
+			log.LoggerWContext(ctx).Info(prettyType + " from " + clientMac)
 			var free int
 			i := handler.available.Iterator()
 
@@ -471,11 +477,12 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType) (answer A
 			return answer
 
 		case dhcp.Request:
-
 			reqIP := net.IP(options[dhcp.OptionRequestedIPAddress])
 			if reqIP == nil {
 				reqIP = net.IP(p.CIAddr())
 			}
+
+			log.LoggerWContext(ctx).Info(prettyType + " for " + reqIP.String() + " from " + clientMac + " (COMPUTER_NAME_HERE)")
 
 			answer.IP = reqIP
 			answer.Iface = h.intNet
@@ -553,24 +560,32 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType) (answer A
 					GlobalIpCache.Set(reqIP.String(), p.CHAddr().String(), leaseDuration+(time.Duration(15)*time.Second))
 					GlobalMacCache.Set(p.CHAddr().String(), reqIP.String(), leaseDuration+(time.Duration(15)*time.Second))
 					// Update the cache
-					log.LoggerWContext(ctx).Info(p.CHAddr().String() + " Ack " + reqIP.String() + " xID " + sharedutils.ByteToString(p.XId()))
+					log.LoggerWContext(ctx).Info("DHCPACK on " + reqIP.String() + " to " + clientMac + " (COMPUTER_NAME_HERE)")
 					handler.hwcache.Set(p.CHAddr().String(), Index, leaseDuration+(time.Duration(15)*time.Second))
 
 				} else {
-					log.LoggerWContext(ctx).Info(p.CHAddr().String() + " Nak xID " + sharedutils.ByteToString(p.XId()))
+					log.LoggerWContext(ctx).Info("DHCPNAK on " + reqIP.String() + " to " + clientMac)
 					answer.D = dhcp.ReplyPacket(p, dhcp.NAK, handler.ip.To4(), nil, 0, nil)
 				}
 				return answer
 			}
 
 		case dhcp.Release, dhcp.Decline:
+			reqIP := net.IP(options[dhcp.OptionRequestedIPAddress])
+			if reqIP == nil {
+				reqIP = net.IP(p.CIAddr())
+			}
+
 			log.LoggerWContext(ctx).Info(p.CHAddr().String() + " " + msgType.String() + " xID " + sharedutils.ByteToString(p.XId()))
 			if x, found := handler.hwcache.Get(p.CHAddr().String()); found {
 				handler.available.Add(uint32(x.(int)))
 				handler.hwcache.Delete(p.CHAddr().String())
 			}
-			return answer
+
+			log.LoggerWContext(ctx).Info(prettyType + " of " + reqIP.String() + " from " + clientMac)
+
 		}
+
 		answer.Iface = h.intNet
 		log.LoggerWContext(ctx).Info(p.CHAddr().String() + " Nak " + sharedutils.ByteToString(p.XId()))
 		answer.D = dhcp.ReplyPacket(p, dhcp.NAK, handler.ip.To4(), nil, 0, nil)
