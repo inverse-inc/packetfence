@@ -482,7 +482,7 @@ func (h *Interface) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType) (answer A
 				reqIP = net.IP(p.CIAddr())
 			}
 
-			clientHostname := string(options[12])
+			clientHostname := string(options[dhcp.OptionHostName])
 			log.LoggerWContext(ctx).Info(prettyType + " for " + reqIP.String() + " from " + clientMac + " (" + clientHostname + ")")
 
 			answer.IP = reqIP
