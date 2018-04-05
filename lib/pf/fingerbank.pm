@@ -99,7 +99,7 @@ sub process {
     $query_args->{mac} = $mac;
 
     if(!$force && $query_args->{last_updated}->compare($process_timestamp) <= 0) {
-        $logger->info("No recent data found for $mac, will not trigger device profiling");
+        $logger->debug("No recent data found for $mac, will not trigger device profiling");
         return $TRUE;
     }
     else {
