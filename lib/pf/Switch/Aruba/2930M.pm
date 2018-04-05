@@ -2,13 +2,13 @@ package pf::Switch::Aruba::2930M;
 
 =head1 NAME
 
-pf::Switch::Aruba::2930M - Object oriented module to access SNMP enabled Aruba 2930M switches.
+pf::Switch::Aruba::2930M - Object oriented module to access Aruba 2930M switches.
 
 =head1 SYNOPSIS
 
 The pf::Switch::Aruba::2930M module implements an object oriented
-interface to access SNMP enabled Aruba 2930M switches using the
-ArubaOS-Switch operating system version 16.x and up to configure dynamic ACL.
+interface to access Aruba 2930M switches using the ArubaOS-Switch 
+operating system version 16.x and up to configure dynamic ACL.
 
 =head1 BUGS AND LIMITATIONS
 

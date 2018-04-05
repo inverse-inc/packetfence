@@ -3360,7 +3360,7 @@ Downloadable ACLs
 
 HP and Aruba switches running the ArubaOS-Switch operating system (previously called ProVision) support dynamic RADIUS-assigned ACLs. It requires RADIUS authentication using the 802.1X, Web authentication or MAC authentication available on the switch. You can define ACLs in PacketFence so that they can be automatically applied on the ports of the switches based on the role assigned. We have tested it successfully on the Aruba 2930M and 3810 series on version 16.05.0004.
 
-To use this feature, first configure RADIUS and the authentication method on your switch. Next, in the PacketFence web admin interface, go to the 'Configuration' page, and then 'Switches'. Click on the switch you want, then on the 'Roles' tab, and check 'Role by access list'. Now you are able to add ACLs for each role.
+To use this feature, first configure RADIUS and the authentication method on your switch. Next, in the PacketFence web admin interface, go to 'Configuration -> Policies and Access Control -> Switches'. Click on the switch you want, then on the 'Roles' tab, and check 'Role by access list'. Now you are able to add ACLs for each role.
 
 Configure RADIUS operation on the switch:
 
@@ -3393,13 +3393,13 @@ Configure an authentication method. Options include 802.1X, web-based authentica
 
 This command configures web-based authentication on the switch and activates this feature on the specified ports.
 
-For example, if you want the users that are in the registration VLAN to only use HTTP, HTTPS, DNS and DHCP you can configure this ACL in the registration category.
+For example, if you want the users that are in the registration VLAN to only use HTTP, HTTPS, DNS and DHCP you can configure this ACL in the registration role.
 
 image::docs/images/cisco-downloadable-acl-reg.png[scaledwidth="100%",alt="Registration ACL"]
 
-Now, for example, your normal users are placed in the 'default' category and your guests in the 'guest' category.
+Now, your normal users are placed in the 'default' role and your guests in the 'guest' role.
 
-The 'default' category uses the network 192.168.5.0/24 and 'guest' uses the network 192.168.10.0/24.
+The 'default' role uses the network 192.168.5.0/24 and 'guest' uses the network 192.168.10.0/24.
 
 You can prevent communications between both networks using these access lists
 
