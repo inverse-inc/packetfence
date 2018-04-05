@@ -288,8 +288,8 @@ rule_cache_key
 sub rule_cache_key {
     my ($self, $rule, $params, $extra) = @_;
     my %temp = %{$params // {}};
-    delete @temp{qw(current_date current_time current_time_period)};
-    return [$self->{id}, $rule->{id}, \%temp, $extra];
+    delete @temp{qw(current_date current_time current_time_period radius_request)};
+    return [$self->{id}, $rule->{id}, \%temp ];
 }
 
 =head2 match_in_subclass
