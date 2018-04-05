@@ -48,8 +48,13 @@ sub park {
     my ($mac,$ip) = @_;
     get_logger->debug("Setting client in parking");
     if(isenabled($Config{parking}{place_in_dhcp_parking_group})){
-        my $omapi = pf::OMAPI->get_client();
-        $omapi->create_host($mac, {group => $PARKING_DHCP_GROUP_NAME});
+        eval {
+            my $omapi = pf::OMAPI->get_client();
+            $omapi->create_host($mac, {group => $PARKING_DHCP_GROUP_NAME});
+        };
+        if($@) {
+            get_logger->warn("Failed to add client into the parking DHCP group using OMAPI ($@).");
+        }
     }
     if(isenabled($Config{parking}{show_parking_portal})){
         my $cmd = "sudo ipset add $PARKING_IPSET_NAME $ip 2>&1";
