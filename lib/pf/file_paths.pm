@@ -308,6 +308,7 @@ $captiveportal_default_profile_templates_path = catdir ($captiveportal_profile_t
     $dns_filters_config_file,
     $pfmon_config_file,
     $switch_filters_config_file,
+    $realm_config_file,
 );
 
 $pffilter_socket_path = catfile($var_dir, "run/pffilter.sock");
