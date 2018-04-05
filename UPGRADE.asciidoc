@@ -1688,6 +1688,21 @@ api_key=YOUR_API_KEY_GOES_HERE
 
 If you manage a large scale environment, you'll want to make sure your account can perform an unlimited amount of API requests on Fingerbank so that device profiling works correctly in a consistent way. In order to obtain this, contact fingerbank@inverse.ca. Note that most Inverse customers are entitled to free unlimited usage of the Fingerbank Cloud API.
 
+Changes to the default switch roles
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The default roles that were returned using "Role by Switch Role" have been removed. If you were relying on them to be returned in the RADIUS response, then you need to add them back in the default switch in the 'Roles' tab.
+
+The previous values were:
+
+ * `registration`: `registration`
+ * `isolation`: `isolation`
+ * `macDetection`: `macDetection`
+ * `inline`: `inline`
+ * `voice`: `voice`
+
+This is should only be necessary if you are using ACL assignment on your switches and using the default names that were there in PacketFence before.
+
 Database schema update (All linux distributions)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
