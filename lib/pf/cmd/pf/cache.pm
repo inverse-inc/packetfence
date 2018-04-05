@@ -6,6 +6,7 @@ pf::cmd::pf::cache add documentation
 =head1 SYNOPSIS
 
  pfcmd cache <namespace> <options>
+ pfcmd cache all clear
 
 Namespaces:
 
@@ -62,20 +63,29 @@ sub parseArgs {
         print STDERR  "invalid arguments\n";
         return 0;
     }
+
     my $namespace = shift @args;
-    unless ( any { $namespace eq $_ } @pf::CHI::CACHE_NAMESPACES ) {
+    my $action = shift @args;
+    if ( ($namespace eq 'all' && $action ne 'clear') || !any { $namespace eq $_ } @pf::CHI::CACHE_NAMESPACES ) {
         print STDERR "the namespace '$namespace' does not exist\n";
         return 0;
     }
+
     $namespace =~ /^(.*)$/;
     $namespace = $1;
-    my $action = shift @args;
+
     my $action_method = "action_$action";
     unless ($self->can($action_method)) {
         print STDERR "invalid option '$action'\n";
         return 0;
     }
-    $self->{cache} = pf::CHI->new( namespace => $namespace);
+
+    if ($action eq 'clear') {
+        $self->{caches} = [ map { pf::CHI->new( namespace => $_) } ( $namespace eq 'all'   ? @pf::CHI::CACHE_NAMESPACES  : ($namespace))];
+    } else {
+        $self->{cache} = pf::CHI->new( namespace => $namespace);
+    }
+
     $self->{action_method} = $action_method;
     $self->{key} = shift @args if $action eq 'remove' || $action eq 'dump' ;
     return 1;
@@ -102,8 +112,12 @@ Handles the clear action
 
 sub action_clear {
     my ($self) = @_;
-    my $cache = $self->{cache};
-    $cache->remove($_) for map { /^(.*)$/;$1  } $cache->get_keys;
+    for my $cache (@{$self->{caches}}) {
+        print "clearing " . $cache->namespace . "\n";
+        for my $key (map { /^(.*)$/;$1  } $cache->get_keys) {
+            $cache->remove($key);
+        }
+    }
 }
 
 =head2 action_expire
