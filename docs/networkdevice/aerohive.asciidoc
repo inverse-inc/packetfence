@@ -185,7 +185,7 @@ Create a new Captive Portal Profile:
 
 image::docs/images/pfaerohive14.png[scaledwidth="100%",alt="Captive Portal SSID configuration"]
 
-Create a SSID to add the Captive Portal fonction:
+Create a SSID to enable Captive Portal functionality:
 [options="compact"]
 * from the HiveManager, go to *CONFIGURATION -> SSIDS*
 * click on the New button
@@ -203,8 +203,8 @@ Configure and broadcast your SSID:
 image::docs/images/pfaerohive15.png[scaledwidth="100%",alt="External portal SSID configuration"]
 
 * under Authentication click on _<Captive Web Portal>_ and select the captive portal previously configured
-* once the _<RADIUS Settings>_ appaers under the captive portal, click on it
-* on that new windows _Choose RADIUS_ click New
+* once the _<RADIUS Settings>_ appears under the captive portal, click on it
+* on that new window _Choose RADIUS_ click New
 * give it a description and a name
 * under _RADIUS Servers_ click New
 
@@ -226,7 +226,7 @@ image::docs/images/pfaerohive19.png[scaledwidth="100%",alt="CoA configuration"]
 image::docs/images/pfaerohive20.png[scaledwidth="100%",alt="User Profile configuration"]
 
 * enter the profile name, the VLAN ID and create the default VLAN as the same as the attribute number
-* create a new default vlan, click on the *+* button
+* create a new default VLAN, click on the *+* button
 
 image::docs/images/pfaerohive21.png[scaledwidth="100%",alt="vlan configuration"]
 
