@@ -99,7 +99,9 @@ sub build_child {
         while(my ($key, $config) = (each %{$ConfigCluster{$self->{host_id}}})){
             if($key =~ /^interface /){
                 $logger->debug("Reconfiguring interface $key with cluster information");
-                $Config{$key} = $config;
+                while(my ($param, $value) = each(%$config)) {
+                    $Config{$key}{$param} = $value;
+                }
             }
         }
     }
