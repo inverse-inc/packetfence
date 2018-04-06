@@ -157,17 +157,19 @@ From _RADIUS_:
 
 This ends the PacketFence configuration.
 
-Web Auth (Hotspot-style) Configuration
+Web Auth (External Captive Portal) Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In this section we will describe the WebAuth configuration for Aerohive APs.
+In this section we will describe the WebAuth configuration using PacketFence as an external captive poral.
 
 Assumptions
 +++++++++++
 
 In this part, it is recommended that the default VLAN must be the native VLAN. This way, the AP and the others network equipments will be able to manage VLANs.
 
-Configure the Wireless APs
+You already have a Network Policy and at least one Access Point configured.
+
+Configure the external captive portal
 ++++++++++++++++++++++++++
 
 Create a new Captive Portal Profile:
@@ -177,32 +179,67 @@ Create a new Captive Portal Profile:
 * give it a name
 * _Registration Type_ must be *External Authentication*
 * click on _Captive Web Portal Login Page Settings_ to deploy the configuration window
-* _Login URL_ must be *http://192.168.1.5/Aerohive::AP*
+* _Login URL_ must be *http://192.168.1.5/AeroHIVE::AP*
 * _Password Encryption_ : *No Encryption (Plaintext Password)*
 * click on *Save*
 
 image::docs/images/pfaerohive14.png[scaledwidth="100%",alt="Captive Portal SSID configuration"]
 
-Create or modify an SSID to add the Captive Portal fonction:
+Create a SSID to enable Captive Portal functionality:
 [options="compact"]
-* from the HiveManager, go to *CONFIGURATION -> SSIDS -> Select your SSID.*
+* from the HiveManager, go to *CONFIGURATION -> SSIDS*
+* click on the New button
+* give your Profile and SSID a name
 * from _SSID Access Security_ , Check *Enable Captive Web Portal*
-* click *Save*
-* from the HiveManager, go to *CONFIGURATION -> NETWORK POLICIES*, Select your policy
-* from _Configure Interfaces and User Access_, you will now have a _CWP_ symbol under _Authentication_.
-* under _User Profile_ , click on *Add/Remove* and select the _default-profile_ (1) option to have the native VLAN as default
-* click on *Save*
+* before clicking on the button *Save* you should have something like this:
 
-image::docs/images/pfaerohive12.png[scaledwidth="100%",alt="Captive Portal SSID configuration"]
+image::docs/images/pfaerohive16.png[scaledwidth="100%",alt="SSID configuration"]
 
-Push your configuration to your AP:
+Configure and broadcast your SSID:
 [options="compact"]
-* from _Configure and Update Devices_, check your AP in _Device to Update_
-* click on _Update_
-* select _update Devices_
-* from _HiveOS Number of devices running earlier versions of HiveOS_, select *Upgrade these devices to the latest version of HiveOS*
-* click on _Update_
-* wait until the date and time appears under _Update Status_
+* from the HiveManager, go to *CONFIGURATION -> NETWORK POLICIES* 
+* choose Network Policy and click OK, you should see this:
+
+image::docs/images/pfaerohive15.png[scaledwidth="100%",alt="External portal SSID configuration"]
+
+* under Authentication click on _<Captive Web Portal>_ and select the captive portal previously configured
+* once the _<RADIUS Settings>_ appears under the captive portal, click on it
+* on that new window _Choose RADIUS_ click New
+* give it a description and a name
+* under _RADIUS Servers_ click New
+
+image::docs/images/pfaerohive17.png[scaledwidth="100%",alt="Radius configuration"]
+
+* click on Apply
+* click on _Optional Settings (not supported by RADIUS Proxy)_ and check *Permit Dynamic Change of Authorization Messages (RFC 3576)*
+
+image::docs/images/pfaerohive18.png[scaledwidth="100%",alt="CoA configuration"]
+
+* click on the Save button
+
+Configure the User profile:
+
+image::docs/images/pfaerohive19.png[scaledwidth="100%",alt="CoA configuration"]
+
+* under _User Profile_ , click on *Add/Remove* and click on New
+
+image::docs/images/pfaerohive20.png[scaledwidth="100%",alt="User Profile configuration"]
+
+* enter the profile name, the VLAN ID and create the default VLAN as the same as the attribute number
+* create a new default VLAN, click on the *+* button
+
+image::docs/images/pfaerohive21.png[scaledwidth="100%",alt="vlan configuration"]
+
+* click the Save button
+* make sure the new user profile name is selected and then Save
+
+Push the configuration to the Access Point:
+* click on Continue
+* select the AP and click Update - Update Devices
+* under Configuration: select *Perform a complete configuration update for all selected devices*
+* under HiveOS: select *Don't upgrade*
+* click on Update
+* wait until the AP is back online
 
 Configure PacketFence
 +++++++++++++++++++++
