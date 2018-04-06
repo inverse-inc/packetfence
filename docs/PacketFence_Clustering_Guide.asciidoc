@@ -163,7 +163,7 @@ Now, reload the configuration and restart packetfence-config. You will see error
 
   # systemctl restart packetfence-config
   # /usr/local/pf/bin/pfcmd configreload hard
-  # systemctl restart packetfence-haproxy
+  # systemctl restart packetfence-haproxy-db
 
 Configure cluster.conf
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -344,7 +344,7 @@ Reload the configuration and start the webservices on the new server
 
   # systemctl restart packetfence-config
   # /usr/local/pf/bin/pfcmd configreload
-  # /usr/local/pf/bin/pfcmd service haproxy restart
+  # /usr/local/pf/bin/pfcmd service haproxy-db restart
   # /usr/local/pf/bin/pfcmd service httpd.webservices restart
 
 Make sure that this server is binding to it's own management address. If it's not, verify the `/usr/local/pf/conf/cluster.conf` management interface configuration.
@@ -580,10 +580,10 @@ PacketFence-Config, type the command: ::
 
 HA-Proxy, type the command: ::
 ----
- systemctl status packetfence-haproxy
+ systemctl status packetfence-haproxy-db
 ----
 ----
- Loaded: loaded (/usr/lib/systemd/system/packetfence-haproxy.service; enabled; vendor preset: disabled)
+ Loaded: loaded (/usr/lib/systemd/system/packetfence-haproxy-db.service; enabled; vendor preset: disabled)
   Active: active (running) since ...
 ----
 
