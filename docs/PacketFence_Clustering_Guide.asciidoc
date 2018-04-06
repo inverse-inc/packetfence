@@ -187,75 +187,48 @@ management_ip=192.168.1.10
 
 [CLUSTER interface eth0]
 ip=192.168.1.10
-type=management,high-availability
 
 [CLUSTER interface eth1.2]
 ip=192.168.2.10
-type=internal
 
 [CLUSTER interface eth1.3]
 ip=192.168.3.10
-type=internal
 
 [pf1.example.com]
 management_ip=192.168.1.5
 
 [pf1.example.com interface eth0]
 ip=192.168.1.5
-type=management,high-availability
-mask=255.255.255.0
 
 [pf1.example.com interface eth1.2]
-enforcement=vlan
 ip=192.168.2.5
-type=internal
-mask=255.255.255.0
 
 [pf1.example.com interface eth1.3]
-enforcement=vlan
 ip=192.168.3.5
-type=internal
-mask=255.255.255.0
 
 [pf2.example.com]
 management_ip=192.168.1.6
 
 [pf2.example.com interface eth0]
 ip=192.168.1.6
-type=management,high-availability
-mask=255.255.255.0
 
 [pf2.example.com interface eth1.2]
-enforcement=vlan
 ip=192.168.2.6
-type=internal
-mask=255.255.255.0
 
 [pf2.example.com interface eth1.3]
-enforcement=vlan
 ip=192.168.3.6
-type=internal
-mask=255.255.255.0
 
 [pf3.example.com]
 management_ip=192.168.1.7
 
 [pf3.example.com interface eth0]
 ip=192.168.1.7
-type=management,high-availability
-mask=255.255.255.0
 
 [pf3.example.com interface eth1.2]
-enforcement=vlan
 ip=192.168.2.7
-type=internal
-mask=255.255.255.0
 
 [pf3.example.com interface eth1.3]
-enforcement=vlan
 ip=192.168.3.7
-type=internal
-mask=255.255.255.0
 
 ----
 
