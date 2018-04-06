@@ -730,7 +730,7 @@ haproxy dashboard
 
 You have the possibility to configure the haproxy dashboard which will give you statistics about the current state of your cluster.
 
-In order to active it uncomment the following lines from /usr/local/pf/conf/haproxy.conf
+In order to active it uncomment the following lines from /usr/local/pf/conf/haproxy-portal.conf
 
 ----
 listen stats %%active_active_ip%%:1025
@@ -757,11 +757,13 @@ CAUTION: If you're upgrading from a version prior to 5.0, the line may not be th
 Now restart haproxy and iptables in order to complete the configuration
 
 ----
-# /usr/local/pf/bin/pfcmd service haproxy restart
+# /usr/local/pf/bin/pfcmd service haproxy-portal restart
 # /usr/local/pf/bin/pfcmd service iptables restart
 ----
 
 You should now be able to connect to the dashboard on the following URL : http://pf.local:1025/stats
+
+NOTE: The same principle can be applied to haproxy-db with port 1026 in haproxy-db.conf
 
 Configuration conflict handling
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
