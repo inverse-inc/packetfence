@@ -259,7 +259,7 @@ Then, restart PacketFence to apply all your changes
 
 If no error is found in the previous configuration, the previous restart of packetfence should have started keepalived and radiusd-loadbalancer along with the other services.
 
-NOTE: You can check at any time with '/usr/local/pf/bin/pfcmd service pf status'
+NOTE: You can check the status of the services using '/usr/local/pf/bin/pfcmd service pf status'
 
 You should now have service using the first server on the IP addresses defined in the 'CLUSTER' sections.
 
