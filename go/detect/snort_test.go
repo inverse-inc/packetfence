@@ -1,8 +1,8 @@
 package detect
 
 import (
-    "testing"
-    "reflect"
+	"github.com/google/go-cmp/cmp"
+	"testing"
 )
 
 /*
@@ -17,30 +17,30 @@ import (
 
 */
 var parseTests = []struct {
-    line string
-    calls []ApiCall
+	line  string
+	calls []ApiCall
 }{
-    {
-        line: "07/28/2015-09:09:59.431113  [**] [1:2221002:1] SURICATA HTTP request field missing colon [**] [Classification: Generic Protocol Command Decode] [Priority: 3] {TCP} 10.220.10.186:44196 -> 199.167.22.51:8000",
-        calls : []ApiCall{
-            &JsonRpcApiCall{
-//                Method: "event_add",
-//                Params: []interface{}{"date", "07/28/2015-09:09:59.431113"},
-            },
-        },
-    },
+	{
+		line: "07/28/2015-09:09:59.431113  [**] [1:2221002:1] SURICATA HTTP request field missing colon [**] [Classification: Generic Protocol Command Decode] [Priority: 3] {TCP} 10.220.10.186:44196 -> 199.167.22.51:8000",
+		calls: []ApiCall{
+			&JsonRpcApiCall{
+				Method: "event_add",
+				Params: []interface{}{"date", "07/28/2015-09:09:59.431113"},
+			},
+		},
+	},
 }
 
 func TestSnortParse(t *testing.T) {
-   parser := NewSnortParser() 
-   for i, test := range parseTests {
-        calls, err := parser.Parse(test.line)
-        if err != nil {
-            t.Errorf("Error Parsing %d) %s: %v", i, test.line)
-        }
+	parser := NewSnortParser()
+	for i, test := range parseTests {
+		calls, err := parser.Parse(test.line)
+		if err != nil {
+			t.Errorf("Error Parsing %d) %s: %v", i, test.line)
+		}
 
-        if (!reflect.DeepEqual(calls, test.calls)) {
-            t.Errorf("Expected ApiCall Failed for %d) %s", i, test.line)
-        }
-   }
+		if !cmp.Equal(calls, test.calls) {
+			t.Errorf("Expected ApiCall Failed for %d) %s", i, test.line)
+		}
+	}
 }
