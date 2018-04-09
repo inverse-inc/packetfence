@@ -127,7 +127,6 @@ sub start {
     reload_config();
     registertasks();
     Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
-    runtasks();
     waitforit();
 }
 
@@ -238,7 +237,7 @@ run all runtasks
 sub runtasks {
     my $mask = POSIX::SigSet->new(POSIX::SIGCHLD());
     sigprocmask(SIG_BLOCK,$mask);
-    while(@REGISTERED_TASKS && $process) {
+    while(@REGISTERED_TASKS) {
         my $task = shift @REGISTERED_TASKS;
         runtask($task);
     }
@@ -378,12 +377,14 @@ waits for signals
 
 sub waitforit {
     while($running) {
-        alarm(1) if !$process;
-        #  Only pause if their are no registered tasks
-        pause unless(@REGISTERED_TASKS && $process);
+        if ($process) {
+            runtasks();
+        }
+
+        alarm(1);
+        pause;
         $logger->debug("Awake from pause");
         reload_config();
-        runtasks();
     }
 }
 
