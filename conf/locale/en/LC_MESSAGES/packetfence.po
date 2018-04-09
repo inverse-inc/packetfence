@@ -1069,3 +1069,6 @@ msgstr ""
 # html/captive-portal/lib/captiveportal/PacketFence/Authentication.pm
 msgid "Telephone number %s is not valid"
 msgstr ""
+
+msgid "Your network should be enabled within a minute or two. If it is not reboot your computer."
+msgstr ""
