@@ -88,16 +88,6 @@ sub FETCH {
     return $result;
 }
 
-=head2 STORE
-
-An empty implementation of STORE to avoid errors
-
-=cut
-
-sub STORE {
-
-}
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
