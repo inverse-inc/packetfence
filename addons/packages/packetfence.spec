@@ -1248,7 +1248,7 @@ fi
 %dir                    /usr/local/pf/go
                         /usr/local/pf/go/*
 
-%dir                    /usr/local/pf/logs
+%dir(02755, pf, pf)     /usr/local/pf/logs
 # logfiles
 %ghost                  %logdir/packetfence.log
 %ghost                  %logdir/snmptrapd.log
