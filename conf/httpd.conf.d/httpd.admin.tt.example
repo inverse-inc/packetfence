@@ -70,6 +70,9 @@
   <IfModule !mod_systemd.c>
     LoadModule systemd_module     /usr/lib/apache2/modules/mod_systemd.so
   </IfModule>
+  <IfModule !mod_setenvif.c>
+    LoadModule setenvif_module /usr/lib/apache2/modules/mod_setenvif.so
+  </IfModule>
 </IfDefine>
 
 #RHEL specific
@@ -138,6 +141,9 @@
   </IfModule>
   <IfModule !mod_systemd.c>
     LoadModule systemd_module   modules/mod_systemd.so
+  </IfModule>
+  <IfModule !mod_setenvif.c>
+    LoadModule setenvif_module modules/mod_setenvif.so
   </IfModule>
 </IfDefine>
 [% IF apache_version == "2.4" %]
@@ -229,6 +235,8 @@ ProxyHTMLLinks  script      src for
     AllowOverride None
 </Directory>
 
+SetEnvIf Request_URI "netdata" is_netdata
+
 [% FOREACH vhost IN vhosts %]
   Listen [% vhost %]:[% ports.admin %]
 
@@ -240,7 +248,7 @@ ProxyHTMLLinks  script      src for
       ServerName [% server_name %]
       DocumentRoot  [% install_dir %]/html/pfappserver/lib
       ErrorLog      "| /usr/bin/logger -thttpd_admin_err -plocal5.err" 
-      CustomLog     "| /usr/bin/logger -thttpd_admin_access -plocal5.info" combined
+      CustomLog     "| /usr/bin/logger -thttpd_admin_access -plocal5.info" combined env=!is_netdata
       AllowEncodedSlashes on
       SSLEngine on
       Include  [% var_dir %]/conf/ssl-certificates.conf
