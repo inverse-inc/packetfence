@@ -50,9 +50,9 @@ our @API_V1_ROUTES = (
                 },
                 {
                     controller => 'Users::Password',
-                    collection => undef,
+                    resource => undef,
                     allow_singular => 1,
-                    resource => {
+                    collection => {
                         http_methods => {
                             'get'    => 'get',
                             'delete' => 'remove',
