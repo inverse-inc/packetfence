@@ -4,60 +4,49 @@
  * Some predefined color variables
  */
 
-$pf-color-tint:                          #F1F1F1;    // light gray
-$pf-color-gray:                          #343434;    // dark gray
-$pf-color-light-gray:                    #96A0AA;    // light blue gray
-$pf-color-error:                         #C97064;    // red
-$pf-color-notice:                        #93BAB6;    // light blue
+$pf-color-error:                         #be2125;
+$pf-color-notice:                        #299144;
 
 /**
- * Color assignation to elements attributes
+ * Color assignation to objects and components
  */
 
 // Text color
-$inuit-base-text-color:                  #123622;    // very dark green
+$pf-base-text-color:                     #555555;
 
 // Background color
-$inuit-base-background-color:            #FEFEFE;    // almost white
+$pf-background:                          #efefef;
 
-// Button background color
-$inuit-btn-background:                   #247BA0;
+// Frame background color
+$pf-frame-background:                    #fefefe;
 
-// Button light background color
-$pf-btn-background-light:                #f7f7f7;    // light gray
+// Link color
+$pf-link-color:                          #0473b8;
 
-// Navigation (dots and background color of round icons)
-$pf-base-accent-color:                   $inuit-btn-background;
+// Media background color (alerts)
+$pf-media-background:                    #efefef;
 
 // Footer background
 $pf-footer-background-color:             transparent;
-//$pf-footer-background-color:             #333333;
 
 // Footer text color
-$pf-footer-text-color:                   $pf-color-light-gray;
+$pf-footer-text-color:                   $pf-base-text-color;
 
-// Tinted box
-$pf-box-tint-background:                 $pf-color-tint;
-$pf-box-tint-color:                      $pf-color-gray;
+// Primary button
+$pf-color-primary:                       #eb5b6b;
+$pf-color-primary-touch:                 #eb717f;
+$pf-color-primary-disabled:              rgb(163, 162, 162);
 
-// Frame background color
-$pf-frame-background:                    #FEFEFE;
+// Secondary button
+$pf-color-secondary:                     #0473b8;
+$pf-color-secondary-touch:               #0875ba;
+$pf-color-secondary-disabled:            #9caab3;
 
-// Tinted list
-$pf-list-tint-background:                lighten($pf-color-light-gray, 50%);
-$pf-list-tint-color:                     $pf-color-gray;
+// Tertiary button
+$pf-color-tertiary:                      $pf-link-color;
+$pf-color-tertiary-touch:                #0b6397;
 
-// Light list
-$pf-list-background-light:               #EFF3F7;    // almost white
-$pf-list-icon-color:                     $pf-color-light-gray;
-
-// Input label
-$pf-input-caption:                       $pf-color-light-gray;
-
-/**
- * Alternative blue-gray palette. Packaged as styles-dark.css in the repo.
- */
-
-//$pf-color-tint:                          #7B9CAA;    // light blue gray
-//$pf-base-accent-color:                   #4D616A;    // blue gray
-//$pf-box-tint-background:                 $pf-color-tint;
+// Input fields
+$pf-input-label:                         #828282;
+$pf-input-border:                        #ced4da;
+$pf-input-background:                    #ffffff;

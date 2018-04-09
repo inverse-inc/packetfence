@@ -1,11 +1,10 @@
 /// _components.input.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
 
-.#{$pf-namespace}input-checkbox-container {
-
+.input-checkbox-container {
   label {
     cursor: pointer;
     display: inline-block;
-    margin-left: $inuit-base-spacing-unit--small;
+    margin-left: $inuit-global-spacing-unit-small;
     vertical-align: middle;
   }
 
@@ -14,50 +13,79 @@
   }
 
   label p.caption {
-    @include font-size($inuit-base-font-size * 0.8, none);
-    color: $pf-input-caption;
+    @include inuit-font-size($pf-font-small, none);
   }
 }
 
 
-.#{$pf-namespace}input-container {
+.input-container {
+  padding-bottom: $inuit-global-spacing-unit-small;
+
+  &.input-container--last {
+    @extend .u-padding-bottom;
+    @extend .u-padding-bottom\@tablet;
+  }
 
   label {
     cursor: pointer;
     display: block;
-    vertical-align: middle;
-
-    &.radio {
-      padding: quarter($spacing-unit) 0;
-      input[type="radio"] {
-        display: inline-block;
-        margin: 0 halve($spacing-unit);
-        width: auto;
-      }
-    }
+    color: $pf-input-label;
+    font-weight: 600;
+    font-size: 75%;
+    text-transform: uppercase;
   }
 
-  input, select {
-    border: 1px solid $pf-list-icon-color;
-    border-radius: $pf-border-radius;
-    color: $pf-color-gray;
-    padding: halve($spacing-unit);
+  input, select, .input-btn {
+    border: 2px solid $pf-input-border;
+    border-radius: .25rem;
+    background-color: $pf-input-background;
+    padding: $inuit-global-spacing-unit-small;
     transition: border-color 0.15s linear;
     width: 100%;
 
-    &:hover {
-      border-color: darken($pf-list-icon-color, 20%);
-    }
-
     &:focus {
       outline: none;
-      box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
-      border-color: $inuit-btn-background;
     }
   }
-  
+
+  .error {
+    input, select, .input-btn {
+      border-color: $pf-color-error;
+    }
+    .error_message {
+      color: $pf-color-error;
+      font-size: 80%;
+    }
+  }
+
+  // Inner button to the input field
+  .input-btn {
+    float: right;
+    padding: 10px;
+    text-align: center;
+    border-left-width: 0;
+    border-top-left-radius: 0%;
+    border-bottom-left-radius: 0%;
+    line-height: 1.15;
+    .c-btn {
+      border-radius: 5px;
+      background-color: $pf-color-secondary;
+      color: #fff;
+      line-height: 1.15;
+      text-transform: uppercase;
+      height: auto;
+      min-height: auto;
+    }
+  }
+
+  .input-extend {
+    border-right-width: 0;
+    border-top-right-radius: 0%;
+    border-bottom-right-radius: 0%;
+  }
+
   select {
     background-color: white;
-    height: $spacing-unit + $inuit-base-font-size * 1.2;
+    height: $spacing-unit + $inuit-global-font-size * 1.2;
   }
 }

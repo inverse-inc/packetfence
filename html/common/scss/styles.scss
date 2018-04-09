@@ -1,81 +1,126 @@
 /// styles.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
 
-// Settings ---- Sass vars, etc.
-// Tools ------- Functions and mixins.
-// Generic ----- Generic, high-level styling, like resets, etc.
-// Base -------- Unclasses HTML elements (e.g. `h2`, `ul`).
-// Objects ----- Objects and abstractions.
-// Components -- Your designed UI elements (inuitcss includes none of these).
-// Trumps ------ Overrides and helper classes.
+/**
+ * CONTENTS
+ *
+ * SETTINGS
+ * Config...............Project-level configuration and feature switches.
+ * Core.................inuitcss’ core and setup settings.
+ * Global...............Project-wide variables and settings.
+ *
+ * TOOLS
+ * Font-size............A mixin which guarantees baseline-friendly line-heights.
+ * Clearfix.............Micro clearfix mixin.
+ * Hidden...............Mixin for hiding elements.
+ * Sass MQ..............inuitcss’ default media query manager.
+ *
+ * GENERIC
+ * Box-sizing...........Better default `box-sizing`.
+ * Normalize.css........A level playing field using @necolas’ Normalize.css.
+ * Reset................A tiny reset to complement Normalize.css.
+ * Shared...............Sensibly and tersely share some global commonalities
+ *                      (particularly useful when managing vertical rhythm).
+ *
+ * ELEMENTS
+ * Page.................Set up our document’s default `font-size` and
+ *                      `line-height`.
+ * Headings.............Very minimal (i.e. only font-size information) for
+ *                      headings 1 through 6.
+ * Images...............Base image styles.
+ * Tables...............Simple table styles.
+ *
+ * OBJECTS
+ * Wrapper..............Page constraint object.
+ * Layout...............Generic layout module.
+ * Media................Image- and text-like content side by side. The
+ *                      poster-child of OOCSS.
+ * Flag.................Table-layout-based advancement on the Media object.
+ * List-bare............Lists with no bullets or indents.
+ * List-inline..........A list whose items all site in a line.
+ * Box..................Simple boxing abstraction.
+ * Block................Image-on-top-of-text object.
+ * Ratio................A container for maintaining aspect ratio of content.
+ * Crop.................Provide a cropping context for media (images, etc.).
+ * Table................Classes for manipulating `table`s.
+ * Pack.................Pack items into available horizontal space.
+ *
+ * COMPONENTS
+ * Buttons..............An example button component, and how it fits into the
+ *                      inuitcss framework.
+ *
+ * UTILITIES
+ * Clearfix.............Bind our clearfix onto a utility class.
+ * Widths...............Simple width helper classes.
+ * Headings.............Reassigning our heading styles to helper classes.
+ * Spacings.............Nudge bits of the DOM around with these spacing
+ *                      classes.
+ * Responsive-Spacings..Enhances the function of normal spacings for
+ *                      responsive usage.
+ * Print................Reset-like styles taken from the HTML5 Boilerplate.
+ * Hide.................Helper classes to hide content
+ */
 
-// SETTINGS:
-$inuit-base-font-size:                   15px;
-@import "node_modules/inuit-defaults/settings.defaults";
+
+// SETTINGS
+$inuit-global-font-size: 16px;
+$pf-font-small: $inuit-global-font-size * 0.8;
+@import "settings/settings.core";
+@import "settings.global";
 @import "settings.packetfence";
 @import "settings.colors";
-@import "node_modules/inuit-responsive-settings/settings.responsive";
 
-// TOOLS:
-@import "node_modules/inuit-functions/tools.functions";
-@import "node_modules/inuit-mixins/tools.mixins";
-@import "node_modules/inuit-responsive-tools/tools.responsive";
-@import "node_modules/inuit-tools-widths/tools.widths";
+
+// TOOLS
+@import "tools/tools.font-size";
+@import "tools/tools.clearfix";
+@import "tools/tools.hidden";
+@import "node_modules/sass-mq/mq";
 @import "tools.functions";
 @import "tools.aliases";
 
-// GENERIC:
-@import "node_modules/inuit-normalize/generic.normalize";
-@import "node_modules/inuit-box-sizing/generic.box-sizing";
-@import "node_modules/inuit-reset/generic.reset";
-@import "node_modules/inuit-shared/generic.shared";
 
-// BASE:
-@import "node_modules/inuit-page/base.page";
-@import "node_modules/inuit-headings/base.headings";
-@import "node_modules/inuit-paragraphs/base.paragraphs";
-@import "base.body";
-//@import "base.header";
-@import "base.footer";
-@import "base.headings";
-@import "base.input";
-@import "base.paragraphs";
+// GENERIC
+@import "generic/generic.box-sizing";
+@import "generic/generic.normalize";
+@import "generic/generic.reset";
+@import "generic/generic.shared";
 
-// OBJECTS:
-//@import "node_modules/inuit-block/objects.block";
-$inuit-enable-box--flush:                true;
-$inuit-enable-box--small:                true;
-@import "node_modules/inuit-box/objects.box";
+
+// ELEMENTS
+@import "elements/elements.page";
+@import "elements.page";
+@import "elements.links";
+$inuit-font-size-h1:                     $inuit-global-font-size * 1.1875;
+$inuit-font-size-h2:                     $inuit-global-font-size * 1.1;
+@import "elements/elements.headings";
+@import "elements.headings";
+@import "elements/elements.images";
+@import "elements/elements.tables";
+@import "elements.footer";
+@import "elements.header";
+@import "elements.input";
+
+
+// OBJECTS
+@import "objects/objects.wrapper";
+@import "objects/objects.layout";
+@import "objects.layout";
+@import "objects/objects.block";
+@import "objects/objects.box";
 @import "objects.box";
-$inuit-btn-radius:                       $pf-border-radius;
-$inuit-enable-btn--full:                 true;
-$inuit-enable-btn--small:                true;
-@import "node_modules/inuit-buttons/objects.buttons";
-@import "objects.buttons";
-@import "node_modules/inuit-flag/objects.flag";
-$inuit-enable-layout--right:             true;
-$inuit-enable-layout--center:            true;
-$inuit-enable-layout--middle:            true;
-$inuit-enable-layout--auto:              true;
-$inuit-enable-layout--tiny:              true;
-@import "node_modules/inuit-layout/objects.layout";
-@import "node_modules/inuit-list-bare/objects.list-bare";
-$inuit-enable-list-block--tiny:          true;
-@import "node_modules/inuit-list-block/objects.list-block";
-@import "node_modules/inuit-list-inline/objects.list-inline";
-$inuit-enable-list-ui--tiny:             true;
-$inuit-list-ui-border-color:             $pf-base-accent-color;
-@import "node_modules/inuit-list-ui/objects.list-ui";
-@import "objects.list-ui";
-@import "node_modules/inuit-media/objects.media";
+@import "objects/objects.flag";
+@import "objects.flag";
+@import "objects/objects.list-bare";
+@import "objects/objects.list-inline";
+@import "objects/objects.media";
 @import "objects.media";
-@import "node_modules/inuit-pack/objects.pack";
-$inuit-enable-table--rows:                true;
-$inuit-enable-table--compact:             true;
-@import "node_modules/inuit-tables/objects.tables";
+@import "objects/objects.pack";
+@import "objects/objects.table";
 @import "objects.tables";
-//@import "node_modules/inuit-tabs/objects.tabs";
 
-// COMPONTENTS:
+
+// COMPONTENTS
+@import "components.buttons";
 @import "components.card";
 @import "components.divider";
 @import "components.dot";
@@ -84,29 +129,32 @@ $inuit-enable-table--compact:             true;
 @import "components.input";
 @import "components.timerbar";
 
-// TRUMPS:
-@import "node_modules/inuit-clearfix/trumps.clearfix";
-$inuit-enable-margins:                    true;
-$inuit-enable-margins--tiny:              true;
-$inuit-enable-margins--large:             true;
-$inuit-enable-margins--none:              true;
-$inuit-enable-paddings:                   true;
-$inuit-enable-paddings--tiny:             true;
-@import "node_modules/inuit-spacing/trumps.spacing";
-$inuit-enable-responsive-margins:         true;
-$inuit-enable-responsive-margins--small:  true;
-$inuit-enable-responsive-margins--none:   true;
-$inuit-enable-responsive-paddings:        true;
-$inuit-enable-responsive-paddings--tiny:  true;
-$inuit-enable-responsive-paddings--none:  true;
-@import "node_modules/inuit-responsive-spacing/trumps.spacing-responsive";
-@import "node_modules/inuit-widths/trumps.widths";
-@import "node_modules/inuit-responsive-widths/trumps.widths-responsive";
-@import "trumps.layout";
-@import "trumps.flag";
-@import "trumps.media";
-//@import "trumps.dev";
 
-.hide {
-  display: none;
-}
+// UTILITIES
+@import "utilities/utilities.clearfix";
+@import "utilities/utilities.widths";
+@import "utilities/utilities.headings";
+@import "utilities/utilities.spacings";
+$inuit-responsive-spacing-directions: (
+  null: null,
+  "-bottom": "-bottom",
+  "-top": "-top",
+  "-left": "-left",
+  "-right": "-right",
+  "-horizontal": "-left" "-right",
+  "-vertical": "-top" "-bottom"
+);
+$inuit-responsive-spacing-properties: (
+  "margin": "margin",
+  "padding": "padding"
+);
+$inuit-responsive-spacing-sizes: (
+  null:       $inuit-global-baseline * $inuit-global-spacing-unit-factor,
+  "-tiny":    $inuit-global-spacing-unit-tiny,
+  "-small":   $inuit-global-baseline * $inuit-global-spacing-unit-factor-small
+);
+@import "utilities/utilities.responsive-spacings";
+@import "utilities/utilities.print";
+@import "utilities/utilities.hide";
+@import "utilities.hide";
+@import "utilities.text";

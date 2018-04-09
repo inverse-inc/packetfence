@@ -1,32 +1,32 @@
 /// _components.frame.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
 
-.#{$inuit-layout-namespace}frame,
-%#{$inuit-layout-namespace}frame {
+.c-frame {
   background-color: $pf-frame-background;
+  border-radius: $pf-border-radius;
 }
 
-.#{$inuit-layout-namespace}frame--raised,
-%#{$inuit-layout-namespace}frame--raised {
+.c-frame--first {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.c-frame--last {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.c-frame--raised {
   -webkit-box-shadow: 3px 3px 18px 0px rgba(0,0,0,0.5);
   -moz-box-shadow: 3px 3px 18px 0px rgba(0,0,0,0.5);
   box-shadow: 3px 3px 18px 0px rgba(0,0,0,0.5);
 }
 
-.#{$inuit-layout-namespace}frame--bordered,
-%#{$inuit-layout-namespace}frame--bordered {
-  //border-radius: $pf-border-radius;
-  border: $inuit-base-spacing-unit/2 solid $pf-base-accent-color;
-  @include media-query(palm) {
-    border-width: $inuit-base-spacing-unit/3;
-    //border-radius: 0;
-  }
-}
-
 /*
  * See https://github.com/evankarageorgos/hue
+ *
+ * The following classes can be added to the page's body.
  */
-.#{$inuit-layout-namespace}frame--earlyMorning,
-%#{$inuit-layout-namespace}frame--earlyMorning {
+.c-frame--earlyMorning {
   min-height: 100%;
   background:
     linear-gradient(-180deg, #BCC5CE 0%, #929EAD 98%),
@@ -34,8 +34,7 @@
   background-blend-mode: screen;
 }
 
-.#{$inuit-layout-namespace}frame--air,
-%#{$inuit-layout-namespace}frame--air {
+.c-frame--air {
   min-height: 100%;
   background:
     linear-gradient(to bottom, #D5DEE7 0%, #E8EBF2 50%, #E2E7ED 100%),
