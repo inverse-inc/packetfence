@@ -99,7 +99,7 @@
         description: Deleted user
 
 
-'/users/{user_id}/nodes':
+'/user/{user_id}/nodes':
   get:
     summary: Allows to get the nodes of a user
     parameters:
