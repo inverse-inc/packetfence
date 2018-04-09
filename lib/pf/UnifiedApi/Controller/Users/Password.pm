@@ -20,6 +20,13 @@ has dal => 'pf::dal::password';
 has url_param_name => 'user_id';
 has primary_key => 'pid';
 
+sub make_create_data {
+    my ($self) = @_;
+    my $data = $self->SUPER::make_create_data();
+    $data->{pid} = $self->stash->{user_id};
+    return $data;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
