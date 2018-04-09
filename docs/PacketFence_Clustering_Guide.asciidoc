@@ -426,8 +426,8 @@ If at least one node is still alive, other nodes will be able to connect to it a
 
 When all nodes are ungracefuly shutdown, they will be able to recover when the last 2 running nodes will be able to talk to each other. If all nodes were shutdown at the same time, all of them must rejoin the cluster for it to form again. Until the cluster reaches a healthy state, you will not have any database service.
 
-Trouble shooting a cluster
---------------------------
+Troubleshooting a cluster
+-------------------------
 
 Recovering when a node is missing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
