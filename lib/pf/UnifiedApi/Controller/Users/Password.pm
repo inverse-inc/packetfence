@@ -22,9 +22,9 @@ has primary_key => 'pid';
 
 sub make_create_data {
     my ($self) = @_;
-    my $data = $self->SUPER::make_create_data();
+    my ($status, $data) = $self->SUPER::make_create_data();
     $data->{pid} = $self->stash->{user_id};
-    return $data;
+    return ($status, $data);
 }
 
 =head1 AUTHOR
