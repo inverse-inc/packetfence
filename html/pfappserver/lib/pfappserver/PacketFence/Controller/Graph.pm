@@ -27,6 +27,7 @@ use pf::config qw(
 );
 use pfconfig::cached_array;
 use pf::cluster;
+use pf::nodecategory;
 use Sys::Hostname;
 DateTime::Locale->add_aliases({
     'i_default' => 'en',
@@ -482,11 +483,13 @@ sub dashboard :Local :AdminRole('REPORTS') {
     }
 
     $c->stash(
-        graphs       => \@graphs,
-        cluster      => pf::cluster::members_ips(),
-        sources      => \@authentication_sources_monitored,
-        current_view => 'HTML',
-        tab          => $tab,
+        graphs         => \@graphs,
+        cluster        => pf::cluster::members_ips(),
+        sources        => \@authentication_sources_monitored,
+        nodecategories => [pf::nodecategory::nodecategory_view_all()],
+        current_view   => 'HTML',
+        tab            => $tab,
+        listen_ints => [@listen_ints],
     );
 }
 
