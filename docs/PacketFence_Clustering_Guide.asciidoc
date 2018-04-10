@@ -103,6 +103,8 @@ Basic PacketFence configuration
 
 Now, on *the first server* of your cluster, you should go through the configurator, until *step 7* (Services). You should leave the services stopped at the end of the configurator.
 
+NOTE: When configuring the network interfaces, ensure that you mark the management interface as high availability. Otherwise, you will not be able to perform the database synchronization.
+
 Then restart PacketFence's mariadb on *the first server*:
 
   # systemctl restart packetfence-mariadb
