@@ -51,7 +51,7 @@
         <div class="c-frame c-frame--last">
           <div class="o-layout--center u-padding-horizontal u-padding-horizontal@tablet">
 
-            [% IF logo %]<img src="[% logo %]" class="u-padding-vertical-small"/>[% END %]
+            [% IF logo %]<img src="[% logo %]" class="u-padding-bottom"/>[% END %]
 
             [% IF title.defined %]
             <!-- START title -->
@@ -61,7 +61,7 @@
 
             [% FOREACH level IN flash.keys %]
             <!-- START flash -->
-            <div class="o-media o-media--[% level %] o-layout--left u-padding-small u-padding@tablet u-margin-bottom">
+            <div class="o-media o-media--[% level %] o-layout--left u-padding-small u-padding@tablet">
               <div class="o-media__img">[% flashIcon(level=level, size='tiny') %]</div>
               <p class="o-media__body">[% i18n(flash.$level) %]</p>
             </div>
