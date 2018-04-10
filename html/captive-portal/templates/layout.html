@@ -53,22 +53,20 @@
 
             [% IF logo %]<img src="[% logo %]" class="u-padding-vertical-small"/>[% END %]
 
-            <div id="context-headers">
-              [% FOREACH level IN flash.keys %]
-              <!-- START flash -->
-              <div class="o-media o-media--[% level %] o-layout--left u-padding-small u-padding@tablet u-margin-bottom">
-                <div class="o-media__img">[% flashIcon(level=level, size='tiny') %]</div>
-                <p class="o-media__body">[% i18n(flash.$level) %]</p>
-              </div>
-              <!-- END flash -->
-              [% END %]
+            [% IF title.defined %]
+            <!-- START title -->
+            <h1 class="o-layout--center">[% i18n(title) %]</h1>
+            <!-- END title -->
+            [% END %]
 
-              [% IF title.defined %]
-              <!-- START title -->
-              <h1 class="o-layout--center">[% i18n(title) %]</h1>
-              <!-- END title -->
-              [% END %]
+            [% FOREACH level IN flash.keys %]
+            <!-- START flash -->
+            <div class="o-media o-media--[% level %] o-layout--left u-padding-small u-padding@tablet u-margin-bottom">
+              <div class="o-media__img">[% flashIcon(level=level, size='tiny') %]</div>
+              <p class="o-media__body">[% i18n(flash.$level) %]</p>
             </div>
+            <!-- END flash -->
+            [% END %]
 
           </div>
 
