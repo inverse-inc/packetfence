@@ -45285,63 +45285,7 @@ paths:
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
       summary: Allows to update a whole user
-  /users:
-    get:
-      description: The list of user will be limited to 100 and a cursor will be returned
-        for iterating on other users. Iteration is only needed if the nextCursor is
-        not an empty value.
-      parameters:
-      - $ref: '#/components/parameters/limit'
-      - $ref: '#/components/parameters/cursor'
-      - *1
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UsersList'
-          description: List of users
-      summary: Returns a list of users
-    post:
-      parameters:
-      - *1
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/User'
-        required: true
-      responses:
-        '201':
-          $ref: '#/components/responses/Created'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '409':
-          $ref: '#/components/responses/Duplicate'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-      summary: Creates a user
-  /users/search:
-    get:
-      description: The list of user will be limited to 100 and a cursor will be returned
-        for iterating on other users. Iteration is only needed if the nextCursor is
-        not an empty value.
-      parameters:
-      - *1
-      - $ref: '#/components/parameters/cursor'
-      - $ref: '#/components/parameters/limit'
-      - $ref: '#/components/parameters/search_query'
-      - $ref: '#/components/parameters/fields'
-      - $ref: '#/components/parameters/sort'
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UsersList'
-          description: List of users
-      summary: Allows to search through users
-  /users/{user_id}/nodes:
+  /user/{user_id}/nodes:
     get:
       parameters:
       - $ref: '#/components/parameters/cursor'
@@ -45354,7 +45298,7 @@ paths:
                 $ref: '#/components/schemas/NodesList'
           description: List of the user's nodes
       summary: Allows to get the nodes of a user
-  /users/{user_id}/password:
+  /user/{user_id}/password:
     delete:
       parameters:
       - *1
@@ -45429,6 +45373,62 @@ paths:
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
       summary: Allows to update the whole password entry for a user
+  /users:
+    get:
+      description: The list of user will be limited to 100 and a cursor will be returned
+        for iterating on other users. Iteration is only needed if the nextCursor is
+        not an empty value.
+      parameters:
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/cursor'
+      - *1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsersList'
+          description: List of users
+      summary: Returns a list of users
+    post:
+      parameters:
+      - *1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        '201':
+          $ref: '#/components/responses/Created'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Duplicate'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+      summary: Creates a user
+  /users/search:
+    get:
+      description: The list of user will be limited to 100 and a cursor will be returned
+        for iterating on other users. Iteration is only needed if the nextCursor is
+        not an empty value.
+      parameters:
+      - *1
+      - $ref: '#/components/parameters/cursor'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/search_query'
+      - $ref: '#/components/parameters/fields'
+      - $ref: '#/components/parameters/sort'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsersList'
+          description: List of users
+      summary: Allows to search through users
   /violation/{violation_id}:
     delete:
       parameters:
