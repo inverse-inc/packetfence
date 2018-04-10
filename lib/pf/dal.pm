@@ -238,26 +238,7 @@ sub save {
         return $status;
     }
 
-    my $dbh  = $self->get_dbh;
-    unless ($dbh->begin_work) {
-        my $err = $dbh->err;
-        pf::db::db_handle_error($err);
-        return mysql_error_to_status_code($err);
-    }
-    eval {
-        $status = $self->create_or_update();
-    };
-
-    if ($@) {
-        $self->logger->info("Error saving : $@");
-    }
-
-    $status =  $self->commit_or_rollback($status, $dbh);
-    if ($status == $STATUS::CREATED) {
-        $self->_save_old_data();
-        $self->after_create_hook();
-    }
-    return $status;
+    return $self->upsert;
 }
 
 sub create_or_update {
@@ -274,6 +255,7 @@ sub commit_or_rollback {
     my ($self, $status, $dbh) = @_;
     if (is_error($status)) {
         if(!$dbh->rollback()) {
+            $self->logger->error("Error rolling back");
             my $err = $dbh->err;
             pf::db::db_handle_error($err);
             $status = mysql_error_to_status_code($err);
@@ -281,6 +263,7 @@ sub commit_or_rollback {
     } else {
         if (!$dbh->commit) {
             my $err = $dbh->err;
+            $self->logger->error("Error commiting");
             pf::db::db_handle_error($err);
             $status = mysql_error_to_status_code($err);
         }
@@ -324,6 +307,16 @@ sub update {
         $self->_save_old_data();
         return $STATUS::OK;
     }
+
+    my $info = $sth->{Database}{mysql_info};
+    if ($info =~ /^.*: (\d+).*: (\d+).*: (\d+)/) {
+        my ($matched, $row, $warning) = ($1, $2, $3);
+        if ($matched) {
+            $self->_save_old_data();
+            return $STATUS::OK;
+        }
+    }
+
     return $STATUS::NOT_FOUND;
 }
 
@@ -341,8 +334,13 @@ sub update_items {
     );
     return $status, undef if is_error($status);
 
-    my $rows = $sth->rows;
-    return $STATUS::OK, $rows;
+    my $info = $sth->{Database}{mysql_info};
+    if ($info =~ /^.*: (\d+).*: (\d+).*: (\d+)/) {
+        my ($matched, $row, $warning) = ($1, $2, $3);
+        return $STATUS::OK, $matched;
+    }
+
+    return $STATUS::OK, $sth->rows;
 }
 
 =head2 insert
@@ -453,6 +451,7 @@ sub upsert {
         -on_conflict => $on_conflict,
     );
     return $status if is_error($status);
+
     my $rows = $sth->rows;
     $self->_save_old_data();
     if ($rows == 1) {
@@ -460,6 +459,7 @@ sub upsert {
         $self->update_auto_increment_field($sth);
         $self->after_create_hook();
     }
+
     return $status;
 }
 
@@ -514,6 +514,7 @@ sub _update_data {
     my $updateable_fields = $self->_updateable_fields;
     my $old_data = $self->__old_data;
     my %data;
+    my $logger = $self->logger;
     foreach my $field (@$updateable_fields) {
         my $new_value = $self->{$field};
         my $old_value = $old_data->{$field};
@@ -521,7 +522,7 @@ sub _update_data {
         next if (defined $new_value && defined $old_value && $new_value eq $old_value);
         if (is_error($self->validate_field($field, $new_value))) {
             my $table = $self->table;
-            $self->logger->error("Skipping invalid value (" . ($new_value // "NULL" ) . ") in when updating field ${table}.${field}");
+            $logger->error("Skipping invalid value (" . ($new_value // "NULL" ) . ") in when updating field ${table}.${field}");
             next;
         }
         $data{$field} = $new_value;
