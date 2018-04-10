@@ -181,7 +181,7 @@ Given a MAC address, the endpoint attributes (from the collector) and the Finger
 sub record_result {
     my ($mac, $attributes, $query_result) = @_;
     my $timer = pf::StatsD::Timer->new({level => 7});
-    pf::node::dal->update_items(
+    pf::dal::node->update_items(
         -set => {
             'device_type'   => $query_result->{'device'}{'name'},
             'device_class'  => $query_result->{device_class},
