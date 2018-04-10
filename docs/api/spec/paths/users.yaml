@@ -46,12 +46,7 @@
   get:
     summary: Returns a specific user by its ID
     parameters:
-      - name: user_id
-        in: path
-        required: true
-        description: The user ID to fetch
-        schema:
-          type: string
+      - $ref: "#/components/parameters/user_id"
     responses:
       '200':
         description: A specific user
@@ -64,6 +59,8 @@
                   $ref: "#/components/schemas/UserWithLinks"
   put:
     summary: Allows to update a whole user
+    parameters:
+      - $ref: "#/components/parameters/user_id"
     requestBody:
       required: true
       content:
@@ -79,6 +76,8 @@
         $ref: "#/components/responses/UnprocessableEntity"
   patch:
     summary: Allows to update parts of a user
+    parameters:
+      - $ref: "#/components/parameters/user_id"
     requestBody:
       required: true
       content:
@@ -94,6 +93,8 @@
         $ref: "#/components/responses/UnprocessableEntity"
   delete:
     summary: Allows to delete a user
+    parameters:
+      - $ref: "#/components/parameters/user_id"
     responses:
       '204':
         description: Deleted user
@@ -104,6 +105,7 @@
     summary: Allows to get the nodes of a user
     parameters:
       - $ref: '#/components/parameters/cursor'
+      - $ref: "#/components/parameters/user_id"
     responses:
       '200':
         description: List of the user's nodes
