@@ -319,8 +319,8 @@ function initDashboard() {
                     el.removeClass('hide');
                 }
                 if (el.length === 0) {
-                  clearInterval(countersInterval);
-                  return;
+                    clearInterval(countersInterval);
+                    return;
                 }
                 el.find('[data-block="hostname"]').html(hostname);
                 var uptimeEl = el.find('[data-block="value"]');
@@ -370,12 +370,14 @@ function initDashboard() {
                     var status = alarm.status.toLowerCase();
                     var label = alarm.chart.split('.')[0].replace(/_/g, ' ') + ' - ' + alarm.family;
                     var isInitialized = true;
-                    if (el.length === 0) {
+                    if (!el.get(0)) {
                         el = $('[data-alarm="' + status + '"]').clone();
                         isInitialized = false;
+                        el.removeAttr('data-alarm');
                         el.attr('id', '_' + alarm.id);
+                        $('#alarms').append(el);
                     }
-                    if (el.length === 0) {
+                    if (!el.get(0)) {
                         clearInterval(alarmsInterval);
                         return;
                     }
@@ -391,12 +393,11 @@ function initDashboard() {
                         '     data-height="30"',
                         '     data-after="-300"></div>'].join(''));
                         el.find('.alert').append(sparkline);
+                        fitty(hostnameEl[0], { minSize: 8, maxSize: 11 });
+                        fitty(labelEl[0], { minSize: 8, maxSize: 14 });
+                        fitty(valueEl[0], { maxSize: 24 });
+                        el.removeClass('hide');
                     }
-                    $('#alarms').append(el);
-                    el.removeClass('hide');
-                    fitty(hostnameEl[0], { minSize: 8, maxSize: 11 });
-                    fitty(labelEl[0], { minSize: 8, maxSize: 14 });
-                    fitty(valueEl[0], { maxSize: 24 });
                 });
                 window.NETDATA.parseDom();
             });
