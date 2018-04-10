@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 45;
+use Test::More tests => 47;
 
 use pf::error qw(is_success is_error);
 use pf::db;
@@ -80,6 +80,10 @@ $node = pf::dal::node->find({mac => $test_mac});
 ok($node, "Reloading node from database");
 
 is($node->sessionid, $new_session, "Changes were saved into database");
+
+is($node->save(), 200, "Saved and unchanged");
+
+is($node->update(), 200, "Updated and unchanged");
 
 $node->voip("bob");
 
