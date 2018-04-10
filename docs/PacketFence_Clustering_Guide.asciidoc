@@ -101,7 +101,7 @@ Then, disable the default MariaDB systemd service unit as PacketFence already pr
 Basic PacketFence configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Now, on *the first server* of your cluster, you should go through the configurator, until *step 6* (Fingerbank configuration). You should leave the services stopped at the end of the configurator.
+Now, on *the first server* of your cluster, you should go through the configurator, until *step 7* (Services). You should leave the services stopped at the end of the configurator.
 
 Then restart PacketFence's mariadb on *the first server*:
 
