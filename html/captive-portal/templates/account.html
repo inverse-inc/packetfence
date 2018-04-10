@@ -1,42 +1,47 @@
-<div class="layout--center">
-  <h2>[% i18n_format("Created account %s", account.pid) %]</h2>
-</div>
+<div class="o-layout o-layout--center u-padding u-padding@tablet">
 
-<div class="layout layout--center">
-  <div class="layout__item u-2/3 u-1/1-palm">
-    <ul class="list-ui list-ui--tiny">
-      <li class="list-ui__item">
+  <div class="o-layout__item u-1/1 u-margin-bottom">
+    <div class="o-media o-media--notice u-padding-small u-padding@tablet">
+      <div class="o-media__img">[% flashIcon(level='notice', size='tiny') %]</div>
+      <p class="o-media__body">[% i18n("An e-mail with the login informations will follow in the next minutes") %]</p>
+    </div>
+  </div>
+
+  <div class="o-layout__item">
+    <h2 class="o-layout--center">[% i18n_format("Created account %s", account.pid) %]</h2>
+  </div>
+
+  <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+    <ul class="o-list-bare">
+      <li class="o-list-bare__item u-margin-top">
         <div class="caption">[% i18n("Username") %]</div>
         <div>[% account.pid %]</div>
       </li>
-      <li class="list-ui__item">
+      <li class="o-list-bare__item u-margin-top">
         <div class="caption">[% i18n("Password") %]</div>
         <div>[% account.password %]</div>
       </li>
-      <li class="list-ui__item">
+      <li class="o-list-bare__item u-margin-top">
         <div class="caption">[% i18n("Email") %]</div>
         <div>[% account.email %]</div>
       </li>
       [% FOREACH action IN account.actions %]
-      <li class="list-ui__item">
+      <li class="o-list-bare__item u-margin-top">
         <div class="caption">[% i18n(action.type) %]</div>
         <div>[% action.value %]</div>
       </li>
       [% END %]
       [% IF account.local_user.login_remaining.defined %]
       [% IF account.local_user.login_remaining != 1 %]
-      <li class="list-ui__item">
-        <div class="caption">>Allowed amount of logins</div>
+      <li class="o-list-bare__item u-margin-top">
+        <div class="caption">Allowed amount of logins</div>
         <div>[% account.local_user.login_remaining %]</div>
       </li>
       [% ELSE %]
-      <li>[% i18n("This account can only be used once.") %]</li>
+      <li class="o-list-bare__item u-margin-top">[% i18n("This account can only be used once.") %]</li>
       [% END %]
       [% END %]
     </ul>
-    <div class="media media--notice u-p u-mt">
-      <div class="media__img">[% flashIcon(level='notice') %]</div>
-      <p class="media__body">[% i18n("An e-mail with the login informations will follow in the next minutes") %]</p>
-    </div>
   </div>
+
 </div>

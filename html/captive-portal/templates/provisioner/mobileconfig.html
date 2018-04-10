@@ -1,26 +1,21 @@
-<div class="media media--error u-p u-mb hide">
-  <div class="media__img">[% flashIcon(level=error) %]</div>
-  <p class="media__body" id="addMessage">We have detected that you aren't using the Safari browser. Please make sure you use Safari to complete this step.</p>
-</div>
-  
-<div class="layout--center">
+<div class="o-layout--center u-padding">
+
+  <div id="addMessage" class="o-media o-media--error u-padding u-margin-bottom hide">
+    <div class="o-media__img">[% flashIcon(level=error) %]</div>
+    <p class="o-media__body">We have detected that you aren't using the Safari browser. Please make sure you use Safari to complete this step.</p>
+  </div>
+
   <p>[% i18n("Your XML configuration have been generated and is now ready to download.  Follow the link below in order to get access to the secure SSID.") %]</p>
 
-  <div class="layout">
-    <div class="layout__item u-2/3 u-1/1-palm">
-      <a href="/wireless-profile.mobileconfig" class="btn btn--full">
-        <div class="flag flag--light">
-          <div class="flag__img">[% svgIcon(id='ic_phonelink_setup_black_24px',size='small') %]</div>
-          <p class="flag__body">[% i18n("Install wireless profile") %]</p>
-        </div>
+  <div class="o-layout">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      <a href="/wireless-profile.mobileconfig" class="c-btn c-btn--primary u-1/1">
+        [% i18n("Install wireless profile") %]
       </a>
 
       [% IF skipable %]
-      <a href="/captive-portal?next=next" class="btn btn--full btn--light u-mt">
-        <div class="flag">
-          <div class="flag__img">[% svgIcon(id='ic_forward_black_24px',size='small') %]</div>
-          <p class="flag__body">[% i18n("Continue") %]</p>
-        </div>
+      <a href="/captive-portal?next=next" class="c-btn c-btn--tertiary u-margin-top">
+        [% i18n("Continue") %]
       </a>
       [% END %]
     </div>

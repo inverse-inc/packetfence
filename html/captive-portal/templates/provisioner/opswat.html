@@ -1,20 +1,14 @@
-<div class="layout--center">
-  <h5 class="u-mb--">[% i18n("To complete your network activation you need to install the OPSWAT Metadefender Endpoint client.") %]</h5>
+<div class="o-layout--center u-padding">
+  <h5>[% i18n("To complete your network activation you need to install the OPSWAT Metadefender Endpoint client.") %]</h5>
   <p>[% i18n("Once the application is installed, click 'Continue' to activate your network connection") %]</p>
 
-  <div class="layout">
-    <div class="layout__item u-2/3 u-1/1-palm">
-      <a href="[% provisioner.agent_download_uri %]" class="btn btn--full" target="_blank">
-        <div class="flag flag--light">
-          <div class="flag__img">[% svgIcon(id='ic_phonelink_setup_black_24px',size='small') %]</div>
-          <p class="flag__body">[% i18n("Install Agent") %]</p>
-        </div>
+  <div class="o-layout">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      <a href="[% provisioner.agent_download_uri %]" class="c-btn c-btn--primary u-1/1" target="_blank">
+        [% i18n("Install Agent") %]
       </a>
-      <a href="/captive-portal" class="btn btn--full btn--light u-mt">
-        <div class="flag">
-          <div class="flag__img">[% svgIcon(id='ic_forward_black_24px',size='small') %]</div>
-          <p class="flag__body">[% i18n("Continue") %]</p>
-        </div>
+      <a href="/captive-portal" class="c-btn c-btn--tertiary u-1/1 u-margin-top">
+        [% i18n("Continue") %]
       </a>
     </div>
   </div>

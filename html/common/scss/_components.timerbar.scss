@@ -1,8 +1,8 @@
 /// _components.timerbar.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
 
-.#{$pf-namespace}timerbar {
+.c-timerbar {
   height: 15px;
-  width: 320px;
+  width: 100%;
   background-color: lightgrey;
   [class|=loaded] {
     height: 15px;

@@ -1,13 +1,16 @@
 /// _components.card.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
 
-.#{$pf-namespace}card {
+.c-card {
   height: auto;
   opacity: 1;
   transition: opacity 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-.#{$pf-namespace}card--hidden {
+.c-card--hidden {
   height: 0;
   opacity: 0;
   overflow: hidden;
+  &[class*=u-padding] {
+    padding: 0 !important;
+  }
 }

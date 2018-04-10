@@ -2,13 +2,13 @@
   <input type="hidden" name="destination_url" value="[% destination_url %]" />
 
   [% IF fields.exists('aup') %]
-  <div class="card">
+  <div class="c-card">
     [% form.get_field('aup').render | none %]
   </div>
   [% END %]
 
-  <div class="card[% IF fields.exists('aup') %] card--hidden card--disabled[% END %] layout layout--center">
-    <div class="layout__item u-2/3 u-1/1-palm">
+  <div class="c-card[% IF fields.exists('aup') %] c-card--hidden c-card--disabled[% END %] o-layout o-layout--center">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
       [% FOREACH field IN fields.keys %]
       [% NEXT IF field == 'aup' %]
       <div class="input-container">
@@ -17,16 +17,16 @@
       [% END %]
 
       [% IF billing_tiers.size %]
-      <p class="u-mt u-mb--">[% i18n("Internet Access Package") %]</p>
-      <ul class="list-ui list-ui--btns">
+      <p class="u-margin-top u-margin-bottom-tiny">[% i18n("Internet Access Package") %]</p>
+      <ul class="o-list-bare">
         [% FOREACH tier IN billing_tiers %]
-        <li class="list-ui__item input-checkbox-container u-pl">
+        <li class="o-list-bare__item input-checkbox-container u-margin-top">
           <input name="tier" type="radio" [% IF selected_tier == tier.id %] checked="checked"[% END %]
                  id="[% tier.id %]"
                  value="[% i18n(tier.id) | html %]"/>
           <label for="[% tier.id %]">
-            <p>[% i18n(tier.name) | html %] - $[% i18n(tier.price) | html %]</p>
-            <p class="caption">[% i18n(tier.description) | html %]</p>
+            [% i18n(tier.name) | html %] - $[% i18n(tier.price) | html %]
+            <p class="text-p3">[% i18n(tier.description) | html %]</p>
           </label>
         </li>
         [% END %]
@@ -34,23 +34,20 @@
       [% END %]
 
       [% IF billing_sources.size %]
-      <ul class="list-ui list-ui--btns u-mt">
+      <ul class="o-list-bare u-margin-top">
         [% FOREACH billing IN billing_sources %]
-        <li class="list-ui__item">
+        <li class="o-list-bare__item">
           <button id="billing_source_[% billing.id | html %]"
                   name="billing_source_[% billing.id | html %]"
-                  type="submit" class="btn btn--full btn--light">
-            <div class="flag">
-              <div class="flag__img">[% billingIcon(billing=billing.id,size='small') %]</div>
-              <p class="flag__body">[% i18n("Pay with ${billing.type}") %]</p>
-            </div>
-          </button>
-        </li>
-        [% END %]
-      </ul>
+                  type="submit" class="c-btn c-btn--secondary c-btn--ghost u-1/1 u-margin-bottom">
+          [% i18n("Pay with ${billing.type}") %]
+        </button>
+      </li>
       [% END %]
-    </div>
+    </ul>
+    [% END %]
   </div>
+</div>
 
 </form>
 

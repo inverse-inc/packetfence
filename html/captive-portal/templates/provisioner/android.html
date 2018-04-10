@@ -1,21 +1,15 @@
-<div class="layout--center">
+<div class="u-padding">
   <p>[% i18n("Your XML configuration have been generated and is now ready to download.  Follow the link below in order to get access to the secure SSID.") %]</p>
 
-  <div class="layout">
-    <div class="layout__item u-2/3 u-1/1-palm">
-      <a href="https://play.google.com/store/apps/details?id=org.packetfence.agent" class="btn btn--full" target="_blank">
-        <div class="flag flag--light">
-          <div class="flag__img">[% svgIcon(id='ic_phonelink_setup_black_24px',size='small') %]</div>
-          <p class="flag__body">[% i18n("Install wireless profile") %]</p>
-        </div>
+  <div class="o-layout o-layout--center">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      <a href="https://play.google.com/store/apps/details?id=org.packetfence.agent" class="c-btn c-btn--primary u-1/1" target="_blank">
+          [% i18n("Install wireless profile") %]
       </a>
 
       [% IF skipable %]
-      <a href="/captive-portal?next=next" class="btn btn--full btn--light u-mt">
-        <div class="flag">
-          <div class="flag__img">[% svgIcon(id='ic_forward_black_24px',size='small') %]</div>
-          <p class="flag__body">[% i18n("Continue") %]</p>
-        </div>
+      <a href="/captive-portal?next=next" class="c-btn c-btn--tertiary u-1/1 u-margin-top">
+          [% i18n("Continue") %]
       </a>
       [% END %]
     </div>

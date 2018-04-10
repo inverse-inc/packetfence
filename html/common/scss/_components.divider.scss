@@ -1,9 +1,9 @@
 /// _components.divider.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
 
-.divider {
-  border-top: 1px solid lighten($inuit-base-text-color, 50%);
+.c-divider {
+  border-top: 1px solid lighten($pf-base-text-color, 50%);
 }
 
-footer .divider {
+footer .c-divider {
   border-color: lighten($pf-footer-text-color, 50%);
 }

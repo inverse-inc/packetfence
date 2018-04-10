@@ -1,0 +1,34 @@
+/// _elements.header.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
+
+header {
+  background-color: $pf-background;
+  height: $pf-header-height;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1;
+
+  a {
+    text-decoration: none;
+  }
+
+  img {
+    max-height: $pf-header-height - ($inuit-global-baseline * $inuit-global-spacing-unit-factor-small);
+  }
+
+  .o-pack {
+    height: $pf-header-height - ($inuit-global-baseline * $inuit-global-spacing-unit-factor-small);
+  }
+
+  @include mq($from: tablet) {
+    height: $pf-header-height * $pf-header-tablet-ratio;
+
+    img {
+      max-height: $pf-header-height * $pf-header-tablet-ratio - ($inuit-global-baseline * $inuit-global-spacing-unit-factor-small * 2);
+    }
+
+    .o-pack {
+      height: $pf-header-height * $pf-header-tablet-ratio - ($inuit-global-baseline * $inuit-global-spacing-unit-factor);
+    }
+  }
+}

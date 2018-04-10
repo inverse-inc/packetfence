@@ -2,7 +2,7 @@
 
 $(function() {
 
-  var timerbar = $('.timerbar');
+  var timerbar = $('.c-timerbar');
   var time = window.waitTime || 25;
   var delay = time / 20;
   var loaded = 0;

@@ -5,15 +5,16 @@ $(function() {
 
   var dots,
       dotsParent = document.getElementById('dots'),
-      cards = $('.card');
+      cards = $('.c-card');
 
   initButtons();
   initDots();
   initSvgSprite();
+  initForm();
 
   function initButtons() {
     // Don't propagate mouse clicks on disabled buttons and links
-    $('.btn').on('click', function(event) {
+    $('.c-btn').on('click', function(event) {
       if ($(this).hasClass('disabled')) {
         event.stopPropagation();
         return false;
@@ -27,7 +28,7 @@ $(function() {
       }
       else {
         $form.data('submitted', true);
-        $form.find('[type="submit"].btn').addClass('btn--disabled');
+        $form.find('[type="submit"].btn').addClass('c-btn--disabled');
       }
     });
 
@@ -41,7 +42,7 @@ $(function() {
 
     // Hide box container
     $('.js-box-hide').on('click', function(event) {
-      $(this).closest('.box').addClass('hide');
+      $(this).closest('.o-box').addClass('hide');
       event.stopPropagation();
       return false;
     });
@@ -56,8 +57,8 @@ $(function() {
         cards[index].id = 'card-' + index;
         addDot(dotsParent,
                index,
-               !$card.hasClass('card--hidden'),
-               $card.hasClass('card--disabled'));
+               !$card.hasClass('c-card--hidden'),
+               $card.hasClass('c-card--disabled'));
       }
       dots = dotsParent.children;
       initAup();
@@ -74,23 +75,31 @@ $(function() {
     var $aup, checkAccept;
 
     $aup = $('#aup');
-    checkAccept = function() {
-      var $aup, index, $dot, $card;
+    checkAccept = function(event) {
+      var $aup, index, activateIndex = false, $dot, $card;
       $aup = $('#aup');
-      if ($aup.get(0) && $aup.get(0).checked) {
+      if ($aup.get(0) && (event || $aup.get(0).checked)) {
+        // Since the checkbox is actually hidden, clicking the label always mark it as checked
+        $aup.get(0).checked = true;
+        // Visit the next disabled card
         for (index = 0; index < dots.length; index++) {
           $dot = $(dots[index]);
           if ($dot.hasClass('dot--disabled')) {
             $dot.removeClass('dot--disabled');
-            activateCard({data: index});
-            return;
+            activateIndex = index;
+            break;
           }
         }
+        if (activateIndex === false) {
+          // .. or simply visit the next card
+          activateIndex = parseInt($('.dot--active').get(0).id.substring(4)) + 1;
+        }
+        activateCard({data: activateIndex});
       }
       else {
         for (index = 0; index < cards.length; index++) {
           $card = $(cards[index]);
-          if ($card.hasClass('card--disabled'))
+          if ($card.hasClass('c-card--disabled'))
             $(dots[index]).addClass('dot--disabled')
         }
       }
@@ -102,6 +111,66 @@ $(function() {
     }
   }
   
+  function initForm() {
+    var fieldsForm = false;
+    $('form input, form select').each(function(f) {
+      fieldsForm = $(this).closest('form');
+      $(this).on('keyup change', function(e) {
+        checkForm(fieldsForm);
+      });
+    });
+    if (fieldsForm) checkForm(fieldsForm);
+
+    // Add show/hide button to password field if the 'password-button' template is loaded
+    $('input[type="password"]').each(function() {
+      var $input = $(this);
+      var $tmp = $('[data-template="password-button"]').first();
+      if ($tmp.length === 0) return; // template not found
+      var $btn = $tmp.find('button').first();
+      $input.addClass('u-4/5').addClass('input-extend').after($tmp);
+
+      $btn.click(function(event) {
+        var change = "", label = "", state = "";
+        if ($(this).data('state') === 'hide') {
+          label = $(this).data('hide');
+          state = 'show';
+          change = "text";
+        } else {
+          label = $(this).data('show');
+          state = 'hide';
+          change = "password";
+        }
+        var rep = $("<input type='" + change + "' />")
+            .attr("id", $input.attr("id"))
+            .attr("name", $input.attr("name"))
+            .attr('class', $input.attr('class'))
+            .addClass('input-password')
+            .val($input.val())
+            .insertBefore($input);
+        $input.remove();
+        $input = rep;
+        $(this).data('state', state);
+        $(this).html(label);
+        return false;
+      });
+    });
+  }
+
+  function checkForm($form) {
+    var submitBtn = $form.find('[type="submit"]').first();
+    if (submitBtn[0]) {
+      var valid = true;
+      $form.find('input:not([type=hidden]), select').each(function(f) {
+        var minlength = $(this).attr('minlength') || 1;
+        if (this.value.length < parseInt(minlength) ) {
+          valid = false;
+          return false;
+        }
+      });
+      submitBtn.prop('disabled', !valid);
+    }
+  }
+
   function addDot(dotsParent, index, active, disabled) {
     var dot;
 
@@ -135,11 +204,10 @@ $(function() {
       $card = $(cards[index]);
       $dot = $(dots[index]);
       if (index == activeIndex) {
-        $card.removeClass('card--hidden');
+        $card.removeClass('c-card--hidden');
         $dot.addClass('dot--active');
-      }
-      else {
-        $card.addClass('card--hidden');
+      } else {
+        $card.addClass('c-card--hidden');
         $dot.removeClass('dot--active');
       }
     }

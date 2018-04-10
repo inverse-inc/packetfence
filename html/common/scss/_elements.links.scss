@@ -1,0 +1,11 @@
+/// _elements.links.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
+
+a {
+    &, &:visited, &:active {
+        color: $pf-link-color;
+    }
+    text-decoration: none;
+    &:hover {
+        text-decoration: underline;
+    }
+}

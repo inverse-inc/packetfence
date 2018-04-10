@@ -1,25 +1,16 @@
-<form class="card" action="/activate/sms" method="post">
-  <div class="layout layout--center">
-    <div class="layout__item u-2/3 u-1/1-palm">
-
-      <div class="input-container">
-        <label for="pin">[% i18n("PIN") %]</label>
-        <input id="pin" name="pin" type="number" autocorrect="off" autocapitalize="off" autofocus />
-      </div>
-
-      <button type="submit" name="submit" class="btn btn--full u-mt">
-        <div class="flag flag--light">
-          <div class="flag__img">[% svgIcon(id='ic_done_black_24px',size='small') %]</div>
-          <p class="flag__body">[% i18n("Continue") %]</p>
-        </div>
-      </button>
-
-      <a href="/captive-portal?no-pin=no-pin" class="btn btn--full btn--light u-mt">
-        <div class="flag">
-          <div class="flag__img">[% svgIcon(id='ic_forward_black_24px',size='small') %]</div>
-          <p class="flag__body">[% i18n("I don't have a PIN") %]</p>
-        </div>
-      </a>
+<div class="c-card o-layout o-layout--center u-padding u-padding@tablet">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+        <form action="/activate/sms" method="post">
+            <div class="input-container">
+                <label for="pin">[% i18n("PIN") %][% telephone %]</label>
+                <input id="pin" name="pin" title="PIN" type="number" pattern="[0-9]{4}" minlength="4" maxlength="4" required autocorrect="off" autocapitalize="off" class="text-center letter-expand" />
+            </div>
+            <button type="submit" name="submit" class="c-btn c-btn--primary u-1/1 u-margin-top" disabled>
+                [% i18n("Continue") %]
+            </button>
+        </form>
+        <a href="/captive-portal?no-pin=no-pin" class="c-btn c-btn--tertiary u-1/1 u-margin-top">
+            [% i18n("I don't have a PIN") %]</p>
+        </a>
     </div>
-  </div>
-</form>
+</div>

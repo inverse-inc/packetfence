@@ -1,0 +1,9 @@
+/// _elements.footer.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2 -*-
+
+$pf-footer-font-size: $pf-font-small;
+
+footer {
+  color: $pf-footer-text-color;
+  font-size: $pf-footer-font-size;
+  width: 100%;
+}

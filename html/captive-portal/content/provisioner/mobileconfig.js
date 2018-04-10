@@ -4,6 +4,6 @@ $(function() {
   'use strict';
 
   if (!navigator.userAgent.match('Safari') && navigator.userAgent.match('Macintosh')) {
-    $('#addMessage').closest('div.media').removeClass('hide');
+    $('#addMessage').removeClass('hide');
   }
 });

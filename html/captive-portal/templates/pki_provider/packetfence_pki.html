@@ -1,22 +1,23 @@
-<div class="layout--center">
-  <h3>[% i18n("Certificate generation for EAP TLS connection") %]</h3>
-</div>
+<div class="o-layout--center u-padding">
 
-<p>
-  [% i18n("In order to complete the registration process, you need to generate your user certificate.") %]
-  [% i18n("A random certificate password has been generated for you. Please note it as it will be necessary to complete the process.") %]
-</p>
-<p>
-  [% i18n("You can also modify the password below.") %]
-</p>
+  <h2>[% i18n("Certificate generation for EAP TLS connection") %]</h2>
 
-<form method="post" action="">
-  <div class="layout layout--center">
-    <div class="layout__item u-2/3 u-1/1-palm">
+  <div class="o-layout--left">
+    <p class="u-margin-bottom-tiny">
+      [% i18n("In order to complete the registration process, you need to generate your user certificate.") %]
+      [% i18n("A random certificate password has been generated for you. Please note it as it will be necessary to complete the process.") %]
+    </p>
+    <p>
+      [% i18n("You can also modify the password below.") %]
+    </p>
+  </div>
+
+  <form method="post" action="">
+    <div class="o-layout__item o-layout--left u-1/1 u-2/3@tablet u-3/5@desktop">
 
       <div class="input-container">
         <label for="certificate_pwd">[% i18n("Password") %]</label>
-        <input id="certificate_pwd" name="certificate_pwd" type="text" autocorrect="off" autocapitalize="off" value="[% certificate_pwd | html %]" />
+        <input id="certificate_pwd" name="certificate_pwd" type="password" autocorrect="off" autocapitalize="off" value="[% certificate_pwd | html %]" />
       </div>
 
       [% UNLESS certificate_email %]
@@ -27,16 +28,15 @@
       [% END %]
 
       [% submit %]
-      <div class="u-mt">
-        <button type="submit" name="submit" class="btn btn--full">
-          <div class="flag flag--light">
-            <div class="flag__img">[% svgIcon(id='ic_vpn_key_black_24px',size='small') %]</div>
-            <p class="flag__body">[% i18n("Generate certificate") %]</p>
-          </div>
+      <div class="u-margin-top">
+        <button type="submit" name="submit" class="c-btn c-btn--primary u-1/1" disabled>
+          [% i18n("Generate certificate") %]
         </button>
       </div>
 
     </div>
-  </div>
-</form>
+  </form>
 
+</div>
+
+[% INCLUDE 'password-button.inc' %]
