@@ -140,9 +140,6 @@ In `/usr/local/pf/conf/pf.conf` :
 [database]
 host=127.0.0.1
 
-[graphite]
-db_host=127.0.0.1
-
 [active_active]
 # Change these 2 values by the credentials you've set when configuring MariaDB above
 galera_replication_username=pfcluster
