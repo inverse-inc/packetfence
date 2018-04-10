@@ -98,11 +98,6 @@ Then, disable the default MariaDB systemd service unit as PacketFence already pr
 
   # systemctl disable mariadb
 
-Now, on *the first server*, create the PEM that combines the key and certificate for the http services. Adapt to your own paths if you are using different certificates. What matters is that the path to the PEM file should be /usr/local/pf/conf/ssl/server.pem since HAProxy will expect it to be there.
-
-  # cd /usr/local/pf/conf/ssl
-  # cat server.key server.crt > server.pem
-
 Basic PacketFence configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
