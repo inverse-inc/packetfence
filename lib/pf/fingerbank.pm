@@ -35,6 +35,7 @@ use pf::error qw(is_error);
 use pf::CHI;
 use pf::log;
 use pf::node qw(node_modify);
+use pf::dal::node;
 use pf::StatsD::Timer;
 use fingerbank::Config;
 use fingerbank::Collector;
@@ -60,6 +61,11 @@ our %ACTION_MAP_CONDITION = (
     "update-upstream-db" => sub {
         return $TRUE;
     },
+);
+
+our %RECORD_RESULT_ATTR_MAP = (
+    most_accurate_user_agent => "user_agent",
+    map { $_ => $_ } qw(dhcp_fingerprint dhcp_vendor dhcp6_fingerprint dhcp6_enterprise),
 );
 
 use fingerbank::Config;
@@ -175,20 +181,19 @@ Given a MAC address, the endpoint attributes (from the collector) and the Finger
 sub record_result {
     my ($mac, $attributes, $query_result) = @_;
     my $timer = pf::StatsD::Timer->new({level => 7});
-
-    my %attr_map = (
-        most_accurate_user_agent => "user_agent",
-        map { $_ => $_ } qw(dhcp_fingerprint dhcp_vendor dhcp6_fingerprint dhcp6_enterprise),
+    pf::node::dal->update_items(
+        -set => {
+            'device_type'   => $query_result->{'device'}{'name'},
+            'device_class'  => $query_result->{device_class},
+            'device_version' => $query_result->{'version'},
+            'device_score' => $query_result->{'score'},
+            map { $RECORD_RESULT_ATTR_MAP{$_} => $attributes->{$_} } keys(%RECORD_RESULT_ATTR_MAP),
+        },
+        -where => {
+            mac => $mac,
+        },
+        -no_auto_tenant_id => 1,
     );
-
-    node_modify( $mac, (
-        'device_type'   => $query_result->{'device'}{'name'},
-        'device_class'  => $query_result->{device_class},
-        'device_version' => $query_result->{'version'},
-        'device_score' => $query_result->{'score'},
-        map { $attr_map{$_} => $attributes->{$_} } keys(%attr_map),
-    ) );
-
 }
 
 =head2 update_collector_endpoint_data
