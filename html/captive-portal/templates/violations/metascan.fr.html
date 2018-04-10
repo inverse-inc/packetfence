@@ -1,13 +1,16 @@
-<div class="layout--center">
+<div class="u-padding">
+<div class="o-layout--center">
   <h5>Trafic malicieux</h5>
 </div>
 
-<div class="media media--error u-p u-mb">
-  <div class="media__img">[% flashIcon(level='error') %]</div>
-  <p class="media__body">Du trafic HTTP malicieux a été détecté à partir de votre poste.</p>
+<div class="o-media o-media--error u-padding u-margin-bottom">
+  <div class="o-media__img">[% flashIcon(level='error') %]</div>
+  <p class="o-media__body">Du trafic HTTP malicieux a été détecté à partir de votre poste.</p>
 </div>
 
-[% IF notes %]<div class="box box--accent">
+[% IF notes %]<div class="o-box">
   [% notes %]
 </div>[% END %]
 
+
+</div>

@@ -1,33 +1,23 @@
-<div class="layout--center">
-  <h5 class="u-mb--">[% i18n("To complete your network activation you need to install the Symantec Endpoint Manager") %]</h5>
+<div class="o-layout--center u-padding">
+  <h5>[% i18n("To complete your network activation you need to install the Symantec Endpoint Manager") %]</h5>
   <p>[% i18n("Once the application is installed, click next to activate your network connection") %]</p>
 
-  <div class="layout">
-    <div class="layout__item u-2/3 u-1/1-palm">
-      <a id="primary_download" href="[% provisioner.agent_download_uri %]" class="btn btn--full" target="_blank">
-        <div class="flag flag--light">
-          <div class="flag__img">[% svgIcon(id='ic_cloud_download_black_24px',size='small') %]</div>
-          <p class="flag__body">[% i18n("Download") %]</p>
-        </div>
+  <div class="o-layout">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      <a id="primary_download" href="[% provisioner.agent_download_uri %]" class="c-btn c-btn--primary u-1/1" target="_blank">
+        [% i18n("Download") %]
       </a>
 
       [% IF provisioner.alt_agent_download_uri %]
-      <p class="u-mt u-mb--">[% i18n("If you find the program above not working you can try this one:") %] </p>
-      <a id="alternate_download" href="[% provisioner.alt_agent_download_uri %]" class="btn btn--full">
-        <div class="flag flag--light">
-          <div class="flag__img">[% svgIcon(id='ic_cloud_download_black_24px',size='small') %]</div>
-          <p class="flag__body">[% i18n("Alternate installer") %]</p>
-        </div>
+      <p class="u-margin-top u-margin-bottom-tiny">[% i18n("If you find the program above not working you can try this one:") %] </p>
+      <a id="alternate_download" href="[% provisioner.alt_agent_download_uri %]" class="c-btn c-btn--primary c-btn--ghost u-1/1">
+        [% i18n("Alternate installer") %]
       </a>
-
       <script type="text/javascript" src="/content/provisioner/sepm.js"></script>
       [% END %]
 
-      <a href="/captive-portal" class="btn btn--full btn--light u-mt">
-        <div class="flag">
-          <div class="flag__img">[% svgIcon(id='ic_forward_black_24px',size='small') %]</div>
-          <p class="flag__body">[% i18n("Continue") %]</p>
-        </div>
+      <a href="/captive-portal" class="c-btn c-btn--secondary c-btn--ghost u-1/1 u-margin-top">
+        [% i18n("Continue") %]
       </a>
     </div>
   </div>

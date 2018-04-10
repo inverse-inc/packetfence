@@ -1,8 +1,14 @@
-<div class="layout--center">
-  <h3>[% i18n("Access to the guest network granted") %]</h3>
-</div>
+<div class="o-layout u-padding">
+  <div class="o-layout__item">
 
-<div class="media media--notice u-p u-mb">
-  <div class="media__img">[% flashIcon(level='notice') %]</div>
-  <p class="media__body">[% i18n("Access to the guest network has been granted.") %]</p>
+    <div class="o-layout--center">
+      <h3>[% i18n("Access to the guest network granted") %]</h3>
+    </div>
+
+    <div class="o-media o-media--notice u-padding u-margin-bottom">
+      <div class="o-media__img">[% flashIcon(level='notice', size='tiny') %]</div>
+      <p class="o-media__body">[% i18n("Access to the guest network has been granted.") %]</p>
+    </div>
+
+  </div>
 </div>
