@@ -127,6 +127,7 @@ $(function() {
       var $tmp = $('[data-template="password-button"]').first();
       if ($tmp.length === 0) return; // template not found
       var $btn = $tmp.find('button').first();
+      $tmp.outerHeight($input.outerHeight());
       $input.addClass('u-4/5').addClass('input-extend').after($tmp);
 
       $btn.click(function(event) {
@@ -147,6 +148,7 @@ $(function() {
             .addClass('input-password')
             .val($input.val())
             .insertBefore($input);
+        rep.outerHeight($input.outerHeight());
         $input.remove();
         $input = rep;
         $(this).data('state', state);
