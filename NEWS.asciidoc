@@ -32,6 +32,7 @@ Enhancements
 ++++++++++++
 * Distribute pfdhcplistener task among the cluster members (PR #2887) (#2858)Remove pfsetvlan
 * Remove pfsetvlan
+* Now allowing to use the RADIUS accounting cache when in cluster mode
 
 Bug Fixes
 +++++++++
