@@ -68,6 +68,9 @@ END
         // This will reload the page every RELOAD_EVERY minutes
         var RELOAD_EVERY = 5;
         setTimeout(function(){
+            var tab = $('#status-tabs').find('.active a').attr('href') // 'system';
+            tab = tab.replace('#', '');
+            location.hash = '#graph/dashboard?tab=' + tab;
             location.reload();
         }, RELOAD_EVERY * 60 * 1000);
     </script>
@@ -104,15 +107,15 @@ END
         <!-- alarms -->
     </div>
     <div class="text-center">
-        <ul class="nav nav-pills">
-            <li class="active"><a data-toggle="pill" href="#system">System</a></li>
-            <li><a data-toggle="pill" href="#radius">RADIUS</a></li>
-            <li><a data-toggle="pill" href="#authentication">Authentication</a></li>
-            <li><a data-toggle="pill" href="#endpoints">Endpoints</a></li>
+        <ul class="nav nav-pills" id="status-tabs">
+            <li [% IF tab == "system" %]class="active"[% END %]><a data-toggle="pill" href="#system">System</a></li>
+            <li [% IF tab == "radius" %]class="active"[% END %]><a data-toggle="pill" href="#radius">RADIUS</a></li>
+            <li [% IF tab == "authentication" %]class="active"[% END %]><a data-toggle="pill" href="#authentication">Authentication</a></li>
+            <li [% IF tab == "endpoints" %]class="active"[% END %]><a data-toggle="pill" href="#endpoints">Endpoints</a></li>
         </ul>
     </div>
     <div class="tab-content">
-        <div class="tab-pane active" id="system">
+        <div class="tab-pane[% IF tab == "system" %] active[% END %]" id="system">
             <div class="row-fluid" id="system-counters">
             </div>
             <div class="card">
@@ -238,13 +241,13 @@ END
                 </div>
             </div>
         </div>
-        <div class="tab-pane" id="radius">
+        <div class="tab-pane[% IF tab == "radius" %] active[% END %]" id="radius">
             RADIUS
         </div>
-        <div class="tab-pane" id="authentication">
+        <div class="tab-pane[% IF tab == "authentication" %] active[% END %]" id="authentication">
             Authentication
         </div>
-        <div class="tab-pane" id="endpoints">
+        <div class="tab-pane[% IF tab == "endpoints" %] active[% END %]" id="endpoints">
             Endpoints
         </div>
     </div>
