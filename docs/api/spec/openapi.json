@@ -96,6 +96,15 @@
                },
                "type" : "array"
             }
+         },
+         "user_id" : {
+            "description" : "The user ID",
+            "in" : "path",
+            "name" : "user_id",
+            "required" : "1",
+            "schema" : {
+               "type" : "string"
+            }
          }
       },
       "responses" : {
@@ -61094,6 +61103,9 @@
          "delete" : {
             "parameters" : [
                {
+                  "$ref" : "#/components/parameters/user_id"
+               },
+               {
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
@@ -61113,13 +61125,7 @@
          "get" : {
             "parameters" : [
                {
-                  "description" : "The user ID to fetch",
-                  "in" : "path",
-                  "name" : "user_id",
-                  "required" : "1",
-                  "schema" : {
-                     "type" : "string"
-                  }
+                  "$ref" : "#/components/parameters/user_id"
                },
                {
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
@@ -61152,6 +61158,9 @@
          },
          "patch" : {
             "parameters" : [
+               {
+                  "$ref" : "#/components/parameters/user_id"
+               },
                {
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
@@ -61187,6 +61196,9 @@
          },
          "put" : {
             "parameters" : [
+               {
+                  "$ref" : "#/components/parameters/user_id"
+               },
                {
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
@@ -61228,6 +61240,9 @@
                   "$ref" : "#/components/parameters/cursor"
                },
                {
+                  "$ref" : "#/components/parameters/user_id"
+               },
+               {
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
@@ -61256,6 +61271,9 @@
          "delete" : {
             "parameters" : [
                {
+                  "$ref" : "#/components/parameters/user_id"
+               },
+               {
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
                   "name" : "X-PacketFence-Tenant-Id",
@@ -61274,6 +61292,9 @@
          },
          "get" : {
             "parameters" : [
+               {
+                  "$ref" : "#/components/parameters/user_id"
+               },
                {
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
@@ -61305,6 +61326,9 @@
          },
          "patch" : {
             "parameters" : [
+               {
+                  "$ref" : "#/components/parameters/user_id"
+               },
                {
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
@@ -61340,6 +61364,9 @@
          },
          "post" : {
             "parameters" : [
+               {
+                  "$ref" : "#/components/parameters/user_id"
+               },
                {
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",
@@ -61378,6 +61405,9 @@
          },
          "put" : {
             "parameters" : [
+               {
+                  "$ref" : "#/components/parameters/user_id"
+               },
                {
                   "description" : "The tenant ID to use for this request. Can only be used if the API user has access to other tenants. When empty, it will default to use the tenant attached to the token.",
                   "in" : "header",

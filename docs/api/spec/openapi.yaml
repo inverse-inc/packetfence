@@ -78,6 +78,13 @@ components:
         items:
           type: string
         type: array
+    user_id:
+      description: The user ID
+      in: path
+      name: user_id
+      required: true
+      schema:
+        type: string
   responses:
     BadRequest:
       content:
@@ -45226,6 +45233,7 @@ paths:
   /user/{user_id}:
     delete:
       parameters:
+      - $ref: '#/components/parameters/user_id'
       - *1
       responses:
         '204':
@@ -45233,12 +45241,7 @@ paths:
       summary: Allows to delete a user
     get:
       parameters:
-      - description: The user ID to fetch
-        in: path
-        name: user_id
-        required: true
-        schema:
-          type: string
+      - $ref: '#/components/parameters/user_id'
       - *1
       responses:
         '200':
@@ -45253,6 +45256,7 @@ paths:
       summary: Returns a specific user by its ID
     patch:
       parameters:
+      - $ref: '#/components/parameters/user_id'
       - *1
       requestBody:
         content:
@@ -45270,6 +45274,7 @@ paths:
       summary: Allows to update parts of a user
     put:
       parameters:
+      - $ref: '#/components/parameters/user_id'
       - *1
       requestBody:
         content:
@@ -45289,6 +45294,7 @@ paths:
     get:
       parameters:
       - $ref: '#/components/parameters/cursor'
+      - $ref: '#/components/parameters/user_id'
       - *1
       responses:
         '200':
@@ -45301,6 +45307,7 @@ paths:
   /user/{user_id}/password:
     delete:
       parameters:
+      - $ref: '#/components/parameters/user_id'
       - *1
       responses:
         '204':
@@ -45308,6 +45315,7 @@ paths:
       summary: Allows to delete a password entry for a user
     get:
       parameters:
+      - $ref: '#/components/parameters/user_id'
       - *1
       responses:
         '200':
@@ -45322,6 +45330,7 @@ paths:
       summary: Get the password entry for a user
     patch:
       parameters:
+      - $ref: '#/components/parameters/user_id'
       - *1
       requestBody:
         content:
@@ -45339,6 +45348,7 @@ paths:
       summary: Allows to update parts of a password entry of a user
     post:
       parameters:
+      - $ref: '#/components/parameters/user_id'
       - *1
       requestBody:
         content:
@@ -45358,6 +45368,7 @@ paths:
       summary: Create a password entry for a user
     put:
       parameters:
+      - $ref: '#/components/parameters/user_id'
       - *1
       requestBody:
         content:
