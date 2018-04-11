@@ -457,13 +457,13 @@ END
                 </div>
                 <div class="card-block">
                     <div class="row-fluid">
-                    [% FOREACH nodecategory IN nodecategories %]
+                    [% FOREACH role IN roles %]
                         <div class="span[% spanSize %]">
-                            <div data-netdata="statsd_gauge_source.packetfence.devices.registered_per_role_[% nodecategory.name FILTER lower %]"
+                            <div data-netdata="statsd_gauge_source.packetfence.devices.registered_per_role_[% role.name FILTER lower %]"
                             data-host="/netdata/127.0.0.1"
                             data-common-max="traffic"
                             data-common-min="traffic"
-                            data-title="total number of registered devices in role: [% nodecategory.name %]"
+                            data-title="total number of registered devices in role: [% role.name %]"
                             data-chart-library="dygraph"
                             data-colors="#5D737E #6399B5 #BFE8FC #D8F2FF #FCFEFF"
                             data-height="200px"

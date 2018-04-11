@@ -486,7 +486,7 @@ sub dashboard :Local :AdminRole('REPORTS') {
         graphs         => \@graphs,
         cluster        => pf::cluster::members_ips(),
         sources        => \@authentication_sources_monitored,
-        nodecategories => [pf::nodecategory::nodecategory_view_all()],
+        roles          => \[pf::nodecategory::nodecategory_view_all()],
         current_view   => 'HTML',
         tab            => $tab,
         listen_ints => [@listen_ints],
