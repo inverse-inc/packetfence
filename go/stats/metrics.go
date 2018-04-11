@@ -7,6 +7,7 @@ import (
 	"math"
 	"net"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gdey/jsonpath"
@@ -227,9 +228,22 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 		log.LoggerWContext(ctx).Warn("Unhandled type: " + conf.Type)
 	}
 
-	_, err := interval.Every(conf.Interval).Randomize().Run(job)
-	if err != nil {
-		return err
+	switch strings.ToLower(conf.Randomize) {
+	case "1":
+	case "t":
+	case "true":
+	case "y":
+	case "yes":
+		_, err := interval.Every(conf.Interval).Randomize().Run(job)
+		if err != nil {
+			return err
+		}
+
+	default:
+		_, err := interval.Every(conf.Interval).Run(job)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
