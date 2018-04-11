@@ -13,3 +13,18 @@
         # Netdata is not designed to be exposed to potentially hostile networks
         # See https://github.com/firehol/netdata/issues/164
 	bind to = %%management_ip%%,127.0.0.1
+
+[statsd_gauge_source.packetfence.devices.registered_last_hour]
+	history=3600
+
+[statsd_gauge_source.packetfence.devices.registered_last_day]
+	history=86400
+
+[statsd_gauge_source.packetfence.devices.registered_last_week]
+	history=604800
+
+[statsd_gauge_source.packetfence.devices.registered_last_month]
+	history=2592000
+
+[statsd_gauge_source.packetfence.devices.registered_last_year]
+	history=31536000
