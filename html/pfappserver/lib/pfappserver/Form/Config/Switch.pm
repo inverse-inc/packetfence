@@ -667,10 +667,11 @@ sub options_type {
     foreach my $vendor (sort keys %pf::SwitchFactory::VENDORS) {
         my @switches = map {{ value => $_, label => $pf::SwitchFactory::VENDORS{$vendor}->{$_} }} sort keys %{$pf::SwitchFactory::VENDORS{$vendor}};
         push @modules, { group => $vendor,
-                         options => \@switches };
+                         options => \@switches,
+                         value => '' };
     }
 
-    return ({group => '', options => [{value => '', label => ''}]}, @modules);
+    return ({group => '', options => [{value => '', label => ''}], value => ''}, @modules);
 }
 
 =head2 options_groups
