@@ -302,7 +302,7 @@ sub _decode_dhcp_option82_suboption1 {
     if ($type == 0) {
         @{$option}{qw(vlan module port)} = unpack("nCC", $data);
     }
-    else {
+    elsif ($type == 1) {
         $option->{circuit_id_string} = $data;
     }
 }
