@@ -28,3 +28,9 @@
 
 [statsd_gauge_source.packetfence.devices.registered_last_year]
 	history=31536000
+
+[statsd_gauge_source.packetfence.devices.online_last_month]
+	history=2592000
+
+[statsd_gauge_source.packetfence.devices.offline_last_month]
+	history=2592000

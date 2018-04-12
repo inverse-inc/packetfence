@@ -378,27 +378,27 @@ END
                 <div class="card-block">
                     <div class="row-fluid">
                         <div class="span[% spanSize %]">
-                            <div data-netdata="statsd_gauge_source.packetfence.devices.online"
+                            <div data-netdata="statsd_gauge_source.packetfence.devices.online_last_month"
                             data-host="/netdata/127.0.0.1"
                             data-common-max="traffic"
                             data-common-min="traffic"
-                            data-title="total online devices"
+                            data-title="total online devices for the past month"
                             data-chart-library="dygraph"
                             data-colors="#5D737E #6399B5 #BFE8FC #D8F2FF #FCFEFF"
                             data-height="200px"
-                            data-after="-3600"
+                            data-after="-2592000"
                             data-decimal-digits="0"></div>
                         </div>
                         <div class="span[% spanSize %]">
-                            <div data-netdata="statsd_gauge_source.packetfence.devices.offline"
+                            <div data-netdata="statsd_gauge_source.packetfence.devices.offline_last_month"
                             data-host="/netdata/127.0.0.1"
                             data-common-max="traffic"
                             data-common-min="traffic"
-                            data-title="total offline devices"
+                            data-title="total offline devices for the past month"
                             data-chart-library="dygraph"
                             data-colors="#5D737E #6399B5 #BFE8FC #D8F2FF #FCFEFF"
                             data-height="200px"
-                            data-after="-3600"
+                            data-after="-2592000"
                             data-decimal-digits="0"></div>
                         </div>
                     </div>
