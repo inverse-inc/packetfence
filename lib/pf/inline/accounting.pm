@@ -134,10 +134,10 @@ sub inline_accounting_maintenance {
         my ($status, $iter) = pf::dal::inline_accounting->search(
             -where => {
                 'n.status' => $pf::node::STATUS_REGISTERED,
-                'n.bandwidth_balance' => [ 0, { "<" => \'a.outbytes + a.inbytes' } ],
+                'n.bandwidth_balance' => [ 0, { "<" => \'inline_accounting.outbytes + inline_accounting.inbytes' } ],
             },
-            -columns => [-distinct => qw(n.mac i.ip n.bandwidth_balance), 'COALESCE((a.outbytes+a.inbytes),0)|bandwidth_consumed'],
-            -from => [-join => 'node|n', '<=>{n.mac=i.mac}', 'ip4log|i', "=>{i.ip=a.ip,a.status='ACTIVE'}", 'inline_accounting|a'],
+            -columns => [-distinct => qw(n.mac i.ip n.bandwidth_balance), 'COALESCE((inline_accounting.outbytes+inline_accounting.inbytes),0)|bandwidth_consumed'],
+            -from => [-join => 'node|n', '<=>{n.mac=i.mac}', 'ip4log|i', "=>{i.ip=inline_accounting.ip,inline_accounting.status='ACTIVE'}", 'inline_accounting'],
             -for => 'UPDATE',
         );
         if (is_success($status)) {
@@ -176,7 +176,9 @@ sub inline_accounting_maintenance {
             lastmodified => { "<" => \['NOW() - INTERVAL ? SECOND', $accounting_session_timeout]}
         }
     );
-    if (is_success($status) && $rows > 0) {
+    if (is_error($status)) {
+        $logger->error("Error stopping counters of active network sessions that have exceeded the timeout");
+    } elsif ($rows > 0) {
         $logger->debug("Mark $rows session(s) as inactive after $accounting_session_timeout seconds");
     }
 
@@ -186,22 +188,24 @@ sub inline_accounting_maintenance {
             status => $INACTIVE
         },
         -where => {
-            status => $ACTIVE,
-            -and => \'DAY(lastmodified) != DAY(firstseen)',
+            -and => [\'DAY(lastmodified) != DAY(firstseen)', {status => $ACTIVE}],
         }
     );
-    if (is_success($status) && $rows > 0) {
+    if (is_error($status)) {
+        $logger->error("Error stopping counters of active network sessions that have exceeded the timeout");
+    } elsif($rows > 0) {
         $logger->debug("Mark $rows session(s) as inactive after a day change");
     }
 
     # Update bandwidth balance with new inactive sessions
     my ($subsql, @subbind) =  pf::dal::inline_accounting->select(
-        -from => ['inline_accounting a', 'ip4log i'],
+        -from => ['inline_accounting', 'ip4log'],
+        -columns => [\'SUM(inline_accounting.outbytes+inline_accounting.inbytes)'],
         -where => {
-            'a.ip' => {-ident => 'i.ip'},
-            'a.mac' => {-ident => 'i.mac'},
-            'a.status' => $INACTIVE,
-            'i.end_time' => $ZERO_DATE,
+            'inline_accounting.ip' => {-ident => 'ip4log.ip'},
+            'ip4log.mac' => {-ident => 'node.mac'},
+            'inline_accounting.status' => $INACTIVE,
+            'ip4log.end_time' => $ZERO_DATE,
         },
     );
 
@@ -214,7 +218,9 @@ sub inline_accounting_maintenance {
         }
     );
 
-    if (is_success($status) && $rows > 0) {
+    if (is_error($status)) {
+        $logger->error("Error updating bandwidth balance with new inactive sessions");
+    } elsif ($rows > 0) {
         $logger->debug("Updated the bandwidth balance of $rows nodes");
     }
 
