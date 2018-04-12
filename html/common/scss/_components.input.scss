@@ -35,7 +35,7 @@
     text-transform: uppercase;
   }
 
-  input, select, .input-btn {
+  input, select {
     border: 2px solid $pf-input-border;
     border-radius: .25rem;
     background-color: $pf-input-background;
@@ -50,7 +50,7 @@
   }
 
   .error {
-    input, select, .input-btn {
+    input, select {
       border-color: $pf-color-error;
     }
     .error_message {
@@ -59,30 +59,25 @@
     }
   }
 
-  // Inner button to the input field
-  .input-btn {
-    float: right;
-    padding: 10px;
-    text-align: center;
-    border-left-width: 0;
-    border-top-left-radius: 0%;
-    border-bottom-left-radius: 0%;
+  // Container for input field with inner button
+  .input-extend {
+    position: relative;
+
+    input {
+      padding-right: 5em;
+    }
+
     .c-btn {
+      position: absolute;
+      right: 0; top: 0; bottom: 0;
       border-radius: 5px;
+      margin: 1em;
       background-color: $pf-color-secondary;
       color: #fff;
-      line-height: 9px;
+      line-height: $inuit-global-line-height * 2/3;
       text-transform: uppercase;
-      height: auto;
-      min-height: auto;
       border: 0;
     }
-  }
-
-  .input-extend {
-    border-right-width: 0;
-    border-top-right-radius: 0%;
-    border-bottom-right-radius: 0%;
   }
 
   select {
