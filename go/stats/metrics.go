@@ -162,14 +162,14 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 			case "GET":
 				err := apiclient.Call(ctx, "GET", conf.ApiPath, &raw)
 				if err != nil {
-					log.LoggerWContext(ctx).Error("API error", err.Error())
+					log.LoggerWContext(ctx).Error("API error: " + err.Error())
 					return
 				}
 				break
 			case "DELETE", "PATCH", "POST", "PUT":
 				err := apiclient.CallWithStringBody(ctx, conf.ApiMethod, conf.ApiPath, conf.ApiPayload, &raw)
 				if err != nil {
-					log.LoggerWContext(ctx).Error("API error", err.Error())
+					log.LoggerWContext(ctx).Error("API error: " + err.Error())
 					return
 				}
 				break
@@ -186,12 +186,12 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 			json.Unmarshal([]byte(raw), &json_data)
 			prs, err := jsonpath.Parse(conf.ApiCompile)
 			if err != nil {
-				log.LoggerWContext(ctx).Warn("api_compile '"+conf.ApiCompile+"' parse error from "+conf.ApiMethod+" "+conf.ApiPath, err.Error())
+				log.LoggerWContext(ctx).Warn("api_compile '" + conf.ApiCompile + "' parse error from " + conf.ApiMethod + " " + conf.ApiPath + ": " + err.Error())
 				return
 			}
 			res, err := prs.Apply(json_data)
 			if err != nil {
-				log.LoggerWContext(ctx).Warn("api_compile '"+conf.ApiCompile+"' apply error from "+conf.ApiMethod+" "+conf.ApiPath, err.Error())
+				log.LoggerWContext(ctx).Warn("api_compile '" + conf.ApiCompile + "' apply error from " + conf.ApiMethod + " " + conf.ApiPath + ": " + err.Error())
 				return
 			}
 			if res == nil {
