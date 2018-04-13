@@ -25,6 +25,7 @@ use pf::config qw(
     %Config
     %ConfigReport
 );
+use pfconfig::cached_array;
 use pf::cluster;
 use Sys::Hostname;
 DateTime::Locale->add_aliases({
@@ -361,6 +362,7 @@ sub dashboard :Local :AdminRole('REPORTS') {
     my ($self, $c, $start, $end) = @_;
     my $width = $c->request->param('width');
     my $tab = $c->request->param('tab') // 'system';
+    tie my @authentication_sources_monitored, 'pfconfig::cached_array', "resource::authentication_sources_monitored";
     $start //= '';
 
     $self->_saveRange($c, $DASHBOARD, $start, $end);
@@ -482,6 +484,7 @@ sub dashboard :Local :AdminRole('REPORTS') {
     $c->stash(
         graphs       => \@graphs,
         cluster      => pf::cluster::members_ips(),
+        sources      => \@authentication_sources_monitored,
         current_view => 'HTML',
         tab          => $tab,
     );

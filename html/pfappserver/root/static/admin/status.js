@@ -294,8 +294,8 @@ function initDashboard() {
     var cluster = JSON.parse(clusterEl.textContent || clusterEl.innerHTML);
 
     /* Fetch counters */
-    getCounters();
-    var countersInterval = setInterval(getCounters, 1000);
+    // getCounters();
+    // var countersInterval = setInterval(getCounters, 1000);
 
     /* Fetch alarms */
     getAlarms();
@@ -312,13 +312,14 @@ function initDashboard() {
                 var time = response.data[0][1];
                 var to = getTime(time);
                 var el = $('#' + id);
-                if (el.length === 0) {
+                if (!el.get(0)) {
                     el = $('[data-counter="uptime"]').clone();
+                    el.removeAttr('data-counter');
                     el.attr('id', id);
                     $('#system-counters').append(el);
                     el.removeClass('hide');
                 }
-                if (el.length === 0) {
+                if (!el.get(0)) {
                     clearInterval(countersInterval);
                     return;
                 }
