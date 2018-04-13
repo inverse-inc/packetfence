@@ -35,9 +35,23 @@
               <td class="cell-fluid hidden-phone">[% interfaces.$i.netmask | html %][% IF interfaces.$i.ipv6_prefix %]<br/>[% interfaces.$i.ipv6_prefix | html %][% END %]</td>
               <td class="hidden-phone">[% IF interfaces.$i.type.match('management') %][% l('management') %][% ELSE %][% l(interfaces.$i.type) %][% END %]</td>
               <td>
+                [% IF interfaces.$i.vlan && can_access("INTERFACES_DELETE") -%]
+                  <div class="modal fade hide" id="modalDeleteInterface[% i %]">
+                      <div class="modal-header"></div>
+                      <div class="modal-body">
+                          <p>[% l('Really delete this interface?') %]</p>
+                      </div>
+                      <div class="modal-footer">
+                          <a class="btn btn-mini btn-danger" interface="[% i | html %]" href="[% c.uri_for(c.controller('Interface').action_for('delete'), [i]) %]">[% l('Delete') %]</a>
+                          <a class="btn btn-mini" data-dismiss="modal" interface="[% i | html %]" >[% l('Cancel') %]</a>
+                      </div>
+                  </div>
+                [% END %]
                 <div class="text-right">
                 [% IF interfaces.$i.vlan -%]
-                [% IF can_access("INTERFACES_DELETE") %]<a class="btn btn-mini btn-danger" interface="[% i | html %]" href="[% c.uri_for(c.controller('Interface').action_for('delete'), [i]) %]">[% l('Delete') %]</a>[% END %]
+                    [% IF can_access("INTERFACES_DELETE") %]
+                        <a class="btn btn-mini btn-danger" interface="[% i | html %]" data-toggle="modal" data-target="#modalDeleteInterface[% i | css_escape %]">[% l('Delete') %]</a>
+                    [% END %]
                 [% ELSE -%]
                 [% IF can_access("INTERFACES_CREATE") %]<a class="btn btn-mini" interface="[% i | html %]" href="[% c.uri_for(c.controller('Interface').action_for('create'), [i]) %]">[% l('Add VLAN') %]</a>[% END %]
                 [% END -%]
