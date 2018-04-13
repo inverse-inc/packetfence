@@ -141,7 +141,7 @@ Note that you cannot use the full locale in the template name (i.e. `aup_text.en
 CSS
 +++
 
-The default stylesheet is the result of processing some http://sass-lang.com/[Sass] files structured around the solid https://github.com/inuitcss/getting-started[inuitcss] architectural foundation.
+The default stylesheet is the result of processing some http://sass-lang.com/[Sass] files structured around the solid https://github.com/inuitcss/inuitcss[inuitcss] architectural foundation.
 
 * `/usr/local/pf/html/common/Gruntfile.js` -- the task runner configuration file
 * `/usr/local/pf/html/common/package.js` -- the npm dependencies required to process the Sass files
@@ -157,6 +157,8 @@ In order to prepare your environment to process the Sass files, you need to inst
 Once all modules are downloaded, you can customize the Sass files and generate a new stylesheet:
 
   grunt dist
+
+To change the color palette of the captive portal, modify the file `scss/_settings.colors.scss`.
 
 Workflow
 ++++++++
