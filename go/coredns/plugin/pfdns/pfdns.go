@@ -177,7 +177,7 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 	}
 
 	// Defer to the proxy middleware if the device is registered
-	if status == "reg" {
+	if status == "reg" && !violation {
 		fmt.Println(srcIP + " : " + mac + " serve dns " + state.QName())
 		return pf.Next.ServeDNS(ctx, w, r)
 	}
