@@ -282,6 +282,7 @@ SetEnvIf Request_URI "netdata" is_netdata
           RewriteCond %{HTTP_COOKIE} PF_PORTAL=([^;]+)
           RewriteRule ^(.*)$ - [E=X_PORTAL:%1]
           Header edit Location ^/(.*) /portal_preview/$1
+          Header edit Location http:\/\/.*\/access /portal_preview/access
           RequestHeader unset Accept-Encoding
           RequestHeader append X-Forwarded-For-PacketFence "127.0.0.1"
 
