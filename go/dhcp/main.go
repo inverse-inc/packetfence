@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"encoding/binary"
+	"fmt"
 	"strings"
 	"sync"
 
@@ -173,11 +174,18 @@ func main() {
 		if err != nil || interval == 0 {
 			return
 		}
+		cli := &http.Client{}
 		for {
 			req, err := http.NewRequest("GET", "http://127.0.0.1:22222", nil)
-			req.SetBasicAuth(webservices.User, webservices.Pass)
-			cli := &http.Client{}
-			_, err = cli.Do(req)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			req.Close = true
+			resp, err := cli.Do(req)
+			if resp != nil {
+				defer resp.Body.Close()
+			}
 			if err == nil {
 				daemon.SdNotify(false, "WATCHDOG=1")
 			}

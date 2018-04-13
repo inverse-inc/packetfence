@@ -113,7 +113,8 @@ func handleStats(res http.ResponseWriter, req *http.Request) {
 		fmt.Fprint(res, string(outgoingJSON))
 		return
 	}
-	http.Error(res, "Not found", http.StatusInternalServerError)
+
+	http.Error(res, `{"message": "Interface not found"}`, http.StatusNotFound)
 	return
 }
 
@@ -136,7 +137,7 @@ func handleInitiaLease(res http.ResponseWriter, req *http.Request) {
 		fmt.Fprint(res, string(outgoingJSON))
 		return
 	}
-	http.Error(res, "Not found", http.StatusInternalServerError)
+	http.Error(res, `{"message": Interface not found"}`, http.StatusNotFound)
 	return
 }
 
@@ -159,7 +160,7 @@ func handleDebug(res http.ResponseWriter, req *http.Request) {
 		fmt.Fprint(res, string(outgoingJSON))
 		return
 	}
-	http.Error(res, "Not found", http.StatusInternalServerError)
+	http.Error(res, `{"message": Interface not found"}`, http.StatusNotFound)
 	return
 }
 
