@@ -66,6 +66,7 @@ conf/nessus/remotescan.nessus
 conf/traffic_shaping.conf
 conf/syslog.conf
 conf/networks.conf
+conf/rsyslog.conf.tt
 conf/radiusd/acct.conf
 conf/radiusd/auth.conf
 conf/radiusd/cli.conf
