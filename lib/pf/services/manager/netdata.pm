@@ -88,7 +88,7 @@ EOT
             $tags{'alerts'} .= <<"EOT";
 template: $source->{'id'}_source_available
 families: *
-      on: source.$type.$source->{'id'}
+      on: statsd_gauge.source.$type.$source->{'id'}
    every: 10s
     crit: \$gauge != 1
    units: ok/failed
