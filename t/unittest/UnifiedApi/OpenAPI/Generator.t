@@ -29,6 +29,9 @@ BEGIN {
 }
 
 use Test::More tests => 6;
+#This test will running last
+use Test::NoWarnings;
+
 
 my $app = pf::UnifiedApi->new;
 
@@ -371,9 +374,6 @@ sub standardSchema {
         "Config DELETE"
     );
 }
-
-#This test will running last
-use Test::NoWarnings;
 
 =head1 AUTHOR
 
