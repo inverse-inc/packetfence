@@ -128,7 +128,13 @@ sub standardSchema {
                 parameters => [],
                 responses  => {
                     "200" =>  {
-                        "\$ref" => "#/components/schemas/config/FloatingDevice",
+                        content => {
+                            "application/json" => {
+                                schema => {
+                                    "\$ref" => "#/components/schemas/config/FloatingDevice",
+                                }
+                            }
+                        },
                     },
                     "400" => {
                         "\$ref" => "#/components/responses/BadRequest",

@@ -95,7 +95,13 @@ sub listResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
         "200" => {
-            "\$ref" => "#" . $self->schema_list_path($c),
+            content => {
+                "application/json" => {
+                    schema => {
+                        "\$ref" => "#" . $self->schema_list_path($c),
+                    }
+                }
+            },
         },
         "400" => {
             "\$ref" => "#/components/responses/BadRequest"
@@ -110,7 +116,13 @@ sub getResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
         "200" => {
-            "\$ref" => "#" . $self->schema_item_path($c),
+            content => {
+                "application/json" => {
+                    schema => {
+                        "\$ref" => "#" . $self->schema_item_path($c),
+                    }
+                }
+            },
         },
         "400" => {
             "\$ref" => "#/components/responses/BadRequest"
