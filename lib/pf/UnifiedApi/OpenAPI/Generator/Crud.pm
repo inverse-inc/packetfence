@@ -27,7 +27,7 @@ our %OPERATION_GENERATORS = (
     responses => {
         (
             map { $_ => "${_}Responses" }
-              qw(create list get search replace update)
+              qw(create list get search replace update remove)
         )
     },
     parameters => {
@@ -96,7 +96,9 @@ sub propertiesFromDal {
     my $meta = $dal->get_meta;
     my %properties;
     while (my ($k, $v) = each %$meta) {
-
+        $properties{name} = {
+            type => sqlTypeToOpenAPI($v->{type}),
+        };
     }
     return \%properties;
 }
@@ -132,11 +134,11 @@ removeResponses
 =cut
 
 sub removeResponses {
-    my ($self, $scope, $c, $m, $a) = @_;
+    my ( $self, $scope, $c, $m, $a ) = @_;
     return {
         '204' => {
             description => 'Item deleted',
-        },
+        }
     };
 }
 
