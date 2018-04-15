@@ -34,11 +34,8 @@ my %routes;
 for my $route_info (map { walkRootRoutes($_) } @{ $app->routes->children }) {
    for my $child (@{$route_info->{children}}) {
         next if !defined $child->{methods};
-        my $path = $child->{path};
-        if ($path =~ m#/config/#) {
-            push @{$routes{paths}{$child->{path}}}, $child;
-            push @{$routes{controllers}{$child->{controller}}}, $child;
-        }
+        push @{$routes{paths}{$child->{path}}}, $child;
+        push @{$routes{controllers}{$child->{controller}}}, $child;
    } 
 }
 
