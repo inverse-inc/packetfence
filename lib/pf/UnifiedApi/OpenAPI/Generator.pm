@@ -21,6 +21,7 @@ use Pod::Find qw(pod_where);
 use Pod::Select qw(podselect);
 use Pod::Markdown;
 use Pod::Text;
+use Lingua::EN::Inflexion qw(noun);
 
 =head2 generate_path
 
@@ -287,6 +288,30 @@ sub operationDescription {
 sub operationId {
     my ($self, $scope, $c, $m, $a) = @_;
     return $a->{operationId};
+}
+
+sub schema_item_path {
+    my ($self, $controller) = @_;
+    my $class = ref ($controller) || $controller;
+    $class =~ s/pf::UnifiedApi::Controller:://;
+    my @paths = split('::', $class);
+    my $name = pop @paths;
+    @paths = map { lc($_) } @paths;
+    my $noun = noun($name);
+    my $singular = $noun->singular;
+    my $prefix = "/components/schemas";
+    return join('/', $prefix, @paths, $singular);
+}
+
+sub schema_list_path {
+    my ($self, $controller) = @_;
+    my $class = ref ($controller) || $controller;
+    $class =~ s/pf::UnifiedApi::Controller:://;
+    my @paths = split('::', $class);
+    my $name = pop @paths;
+    @paths = map { lc($_) } @paths;
+    my $prefix = "/components/schemas";
+    return join('/', $prefix, @paths, "${name}List");
 }
 
 =head1 AUTHOR

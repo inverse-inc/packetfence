@@ -17,7 +17,6 @@ use warnings;
 use Module::Load;
 use Moo;
 use pf::UnifiedApi::GenerateSpec;
-use Lingua::EN::Inflexion qw(noun);
 
 extends qw(pf::UnifiedApi::OpenAPI::Generator);
 
@@ -131,30 +130,6 @@ sub getResponses {
             "\$ref" => "#/components/responses/UnprocessableEntity"
         }
     };
-}
-
-sub schema_item_path {
-    my ($self, $controller) = @_;
-    my $class = ref ($controller) || $controller;
-    $class =~ s/pf::UnifiedApi::Controller:://;
-    my @paths = split('::', $class);
-    my $name = pop @paths;
-    @paths = map { lc($_) } @paths;
-    my $noun = noun($name);
-    my $singular = $noun->singular;
-    my $prefix = "/components/schemas";
-    return join('/', $prefix, @paths, $singular);
-}
-
-sub schema_list_path {
-    my ($self, $controller) = @_;
-    my $class = ref ($controller) || $controller;
-    $class =~ s/pf::UnifiedApi::Controller:://;
-    my @paths = split('::', $class);
-    my $name = pop @paths;
-    @paths = map { lc($_) } @paths;
-    my $prefix = "/components/schemas";
-    return join('/', $prefix, @paths, "${name}List");
 }
 
 sub generate_schemas {
