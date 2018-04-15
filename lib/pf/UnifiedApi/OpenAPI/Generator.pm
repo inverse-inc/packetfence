@@ -208,7 +208,7 @@ sub operations {
             $m = lc($m);
             my $op = $self->operation($c, $m, $action);
             next if !defined $op;
-            $ops{$m} = $self->operation($c, $m, $action);
+            $ops{$m} = $op;
         }
     }
 
@@ -243,7 +243,6 @@ sub operation_generation {
     if (!exists $generators->{$scope}) {
         return undef;
     }
-
     my $a = $action->{action};
     if (!exists $generators->{$scope}{$a}) {
         return undef;
