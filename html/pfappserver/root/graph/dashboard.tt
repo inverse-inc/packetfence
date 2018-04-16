@@ -129,7 +129,6 @@ END
         <!-- alarms -->
     </div>
     <div class="text-center">
-<<<<<<< 2c31faca5062cde815be0ba331c41fe713be4a5e
         <ul class="nav nav-pills" id="status-tabs">
             <li [% IF tab == "system" %]class="active"[% END %]><a data-toggle="pill" href="#system">System</a></li>
             <li [% IF tab == "radius" %]class="active"[% END %]><a data-toggle="pill" href="#radius">RADIUS</a></li>
@@ -344,7 +343,7 @@ END
                 </div>
                 <div class="card-block">
                     <div class="row-fluid">
-                        <div class="span[% spanSize %]">
+                        <div class="span9">
                             <div data-netdata="statsd_gauge_source.packetfence.authentication.success_last_day"
                             data-host="/netdata/127.0.0.1"
                             data-common-max="traffic"
@@ -356,7 +355,7 @@ END
                             data-after="-86400"
                             data-decimal-digits="0"></div>
                         </div>
-                        <div class="span[% spanSize %]">
+                        <div class="span9">
                             <div data-netdata="statsd_gauge_source.packetfence.authentication.failed_last_day"
                             data-host="/netdata/127.0.0.1"
                             data-common-max="traffic"
