@@ -521,8 +521,18 @@ END
                 </div>
                 <div class="card-block">
                     <div class="row-fluid">
+                    [%
+                        SET sourcesSize = roles.size;
+                        IF sourcesSize == 1;
+                            SET spanSize = gridSize;
+                        ELSIF sourcesSize MOD 3 == 0;
+                            SET spanSize = gridSize / 3;
+                        ELSE;
+                            SET spanSize = gridSize / 2;
+                        END
+                    %]                    
                     [% FOREACH role IN roles %]
-                        <div class="span9">
+                        <div class="span[% spanSize %] text-center">
                             <div data-netdata="statsd_gauge_source.packetfence.devices.registered_per_role_[% role.name FILTER lower %]"
                             data-host="/netdata/127.0.0.1"
                             data-common-max="traffic"
