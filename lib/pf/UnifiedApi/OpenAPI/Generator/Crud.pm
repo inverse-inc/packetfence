@@ -103,6 +103,19 @@ sub propertiesFromDal {
     return \%properties;
 }
 
+our %OPERATION_PARAMETERS_LOOKUP = (
+    list => [
+        { "\$ref" => '#/components/parameters/cursor' },
+        { "\$ref" => '#/components/parameters/limit' },
+        { "\$ref" => '#/components/parameters/fields' },
+        { "\$ref" => '#/components/parameters/sort' },
+    ],
+);
+
+sub operationParametersLookup {
+    \%OPERATION_PARAMETERS_LOOKUP
+}
+
 =head2 getResponses
 
 getResponses
@@ -112,18 +125,27 @@ getResponses
 sub getResponses {
     my ($self, $scope, $c, $m, $a) = @_;
     my @paths = split('/', $a->{path});
-    return "200" => {
-        description => 'Get an item',
-        content     => {
-            "application/json" => {
-                schema => {
-                    type       => 'object',
-                    properties => {
-                        item => {}
-                    },
+    return {
+        "200" => {
+            content => {
+                "application/json" => {
+                    schema => {
+                        properties => {
+                            item => {
+                                "\$ref" => "#" . $self->schema_item_path($c),
+                            }
+                        },
+                        type => 'object',
+                    }
                 }
             },
         },
+        "400" => {
+            "\$ref" => "#/components/responses/BadRequest"
+        },
+        "422" => {
+            "\$ref" => "#/components/responses/UnprocessableEntity"
+        }
     };
 }
 
@@ -143,18 +165,34 @@ sub removeResponses {
 }
 
 sub createRequestBody {
-    my ($self, $scope, $c, $m, $a) = @_;
-    return undef;
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return {
+        "content" => {
+            "application/json" => {
+                "schema" => {
+                    "\$ref" => "#" . $self->schema_item_path($c)
+                }
+            }
+        }
+    };
 }
 
 sub createResponses {
     my ($self, $scope, $c, $m, $a) = @_;
-    return undef;
-}
-
-sub listResponses {
-    my ($self, $scope, $c, $m, $a) = @_;
-    return undef;
+    return {
+        '201' => {
+            "\$ref" => '#/components/responses/Created'
+        },
+        '400' => {
+            "\$ref" => '#/components/responses/BadRequest'
+        },
+        '409' => {
+            "\$ref" => '#/components/responses/Duplicate'
+        },
+        '422' => {
+            "\$ref" => '#/components/responses/UnprocessableEntity'
+        },
+    };
 }
 
 sub listRequestBody {
@@ -163,33 +201,77 @@ sub listRequestBody {
 }
 
 sub searchRequestBody {
-    my ($self, $scope, $c, $m, $a) = @_;
-    return undef;
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return {
+        "application/json" => {
+            "\$ref" => "#/components/schemas/Search",
+        }
+    };
+}
+
+sub listResponses {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return {
+        "200" => {
+            content => {
+                "application/json" => {
+                    schema => {
+                        "\$ref" => "#" . $self->schema_list_path($c),
+                    }
+                }
+            },
+        },
+        "400" => {
+            "\$ref" => "#/components/responses/BadRequest"
+        },
+        "422" => {
+            "\$ref" => "#/components/responses/UnprocessableEntity"
+        }
+    };
 }
 
 sub searchResponses {
     my ($self, $scope, $c, $m, $a) = @_;
-    return undef;
+    return $self->listResponses($scope, $c, $m, $a);
 }
 
 sub replaceRequestBody {
     my ($self, $scope, $c, $m, $a) = @_;
-    return undef;
+    return $self->updateRequestBody($scope, $c, $m, $a);;
 }
 
 sub replaceResponses {
-    my ($self, $scope, $c, $m, $a) = @_;
-    return undef;
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return $self->updateResponses($scope, $c, $m, $a);;
 }
 
 sub updateRequestBody {
-    my ($self, $scope, $c, $m, $a) = @_;
-    return undef;
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return {
+        "content" => {
+            "application/json" => {
+                "schema" => {
+                    "\$ref" => "#" . $self->schema_item_path($c),
+                }
+            }
+        },
+        "required" => "1"
+    };
 }
 
 sub updateResponses {
-    my ($self, $scope, $c, $m, $a) = @_;
-    return undef;
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return {
+        "200" => {
+            "\$ref" => "#/components/responses/Message"
+        },
+        "400" => {
+            "\$ref" => "#/components/responses/BadRequest"
+        },
+        "422" => {
+            "\$ref" => "#/components/responses/UnprocessableEntity"
+        }
+    };
 }
 
 =head1 AUTHOR

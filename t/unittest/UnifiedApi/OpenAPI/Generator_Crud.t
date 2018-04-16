@@ -27,7 +27,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 2;
+use Test::More tests => 7;
 #This test will running last
 use Test::NoWarnings;
 
@@ -67,20 +67,6 @@ my @actions = (
                 'full_path'   => '/api/v1/dhcp_option82s'
             },
             {
-                'operationId' => 'api.v1.DhcpOption82s.search',
-                'name'        => 'api.v1.DhcpOption82s.search',
-                'path'        => '/dhcp_option82s/search',
-                'children'    => [],
-                'depth'       => 3,
-                'paths'       => [ '/dhcp_option82s', '/search' ],
-                'controller'  => 'DhcpOption82s',
-                'path_type'   => 'collection',
-                'action'      => 'search',
-                'path_part'   => '',
-                'methods'     => [ 'POST' ],
-                'full_path'   => '/api/v1/dhcp_option82s/search'
-            },
-            {
                 'operationId' => 'api.v1.DhcpOption82s.update',
                 'name'        => 'api.v1.DhcpOption82s.update',
                 'path'        => '/dhcp_option82/{dhcp_option82_id}',
@@ -92,20 +78,6 @@ my @actions = (
                 'action'      => 'update',
                 'path_part'   => '',
                 'methods'     => [ 'PATCH' ],
-                'full_path'   => '/api/v1/dhcp_option82/{dhcp_option82_id}'
-            },
-            {
-                'operationId' => 'api.v1.DhcpOption82s.remove',
-                'name'        => 'api.v1.DhcpOption82s.remove',
-                'path'        => '/dhcp_option82/{dhcp_option82_id}',
-                'children'    => [],
-                'depth'       => 2,
-                'paths'       => [ '/dhcp_option82/{dhcp_option82_id}' ],
-                'controller'  => 'DhcpOption82s',
-                'path_type'   => 'resource',
-                'action'      => 'remove',
-                'path_part'   => '',
-                'methods'     => [ 'DELETE' ],
                 'full_path'   => '/api/v1/dhcp_option82/{dhcp_option82_id}'
             },
             {
@@ -122,6 +94,14 @@ my @actions = (
                 'methods'     => [ 'PUT' ],
                 'full_path'   => '/api/v1/dhcp_option82/{dhcp_option82_id}'
             },
+);
+
+{
+
+    my $controller = pf::UnifiedApi::Controller::DhcpOption82s->new(app => $app);
+    my $generator = pf::UnifiedApi::OpenAPI::Generator::Crud->new;
+    my %operators = $generator->operations($controller,
+        [
             {
                 'operationId' => 'api.v1.DhcpOption82s.get',
                 'name'        => 'api.v1.DhcpOption82s.get',
@@ -136,13 +116,67 @@ my @actions = (
                 'methods'     => [ 'GET' ],
                 'full_path'   => '/api/v1/dhcp_option82/{dhcp_option82_id}'
             }
-);
+        ]
+    );
+#    use Data::Dumper;print Dumper(\@operators);
+    is_deeply(
+        \%operators,
+        {
+            get => {
+                'parameters'  => [],
+                'operationId' => 'api.v1.DhcpOption82s.get',
+                'responses'   => {
+                    "200" => {
+                        content => {
+                            "application/json" => {
+                                schema => {
+                                    "properties" => {
+                                        "item" => {
+                                            "\$ref" => "#/components/schemas/DhcpOption82",
+                                        }
+                                    },
+                                    "type" => "object"
+                                }
+                            }
+                        },
+                    },
+                    "400" => {
+                        "\$ref" => "#/components/responses/BadRequest",
+                    },
+                    "422" => {
+                        "\$ref" => "#/components/responses/UnprocessableEntity"
+                    }
+                },
+                'description' => 'Get an item'
+            },
+        },
+        "Crud resource GET"
+    );
+}
 
 {
 
     my $controller = pf::UnifiedApi::Controller::DhcpOption82s->new(app => $app);
     my $generator = pf::UnifiedApi::OpenAPI::Generator::Crud->new;
-    my @operators = $generator->operations($controller, \@actions);
+    my @operators = $generator->operations(
+        $controller,
+        [
+            {
+                'operationId' => 'api.v1.DhcpOption82s.remove',
+                'name'        => 'api.v1.DhcpOption82s.remove',
+                'path'        => '/dhcp_option82/{dhcp_option82_id}',
+                'children'    => [],
+                'depth'       => 2,
+                'paths'       => [ '/dhcp_option82/{dhcp_option82_id}' ],
+                'controller'  => 'DhcpOption82s',
+                'path_type'   => 'resource',
+                'action'      => 'remove',
+                'path_part'   => '',
+                'methods'     => [ 'DELETE' ],
+                'full_path'   => '/api/v1/dhcp_option82/{dhcp_option82_id}'
+            },
+        ]
+    );
 #    use Data::Dumper;print Dumper(\@operators);
     is_deeply(
         \@operators,
@@ -157,40 +191,281 @@ my @actions = (
                     }
                 }
               },
-            get => {
-                'parameters'  => [],
-                'operationId' => 'api.v1.DhcpOption82s.get',
-                'responses'   => {
-                    'content' => {
-                        'application/json' => {
-                            'schema' => {
-                                'type'       => 'object',
-                                'properties' => {
-                                    'item' => {}
-                                }
-                            }
-                        }
-                    },
-                    'description' => 'Get an item'
-                },
-                'description' => 'Get an item'
+        ],
+        "Crud resource DELETE"
+    );
+}
+
+{
+
+    my $controller = pf::UnifiedApi::Controller::DhcpOption82s->new(app => $app);
+    my $generator = pf::UnifiedApi::OpenAPI::Generator::Crud->new;
+    my %operators = $generator->operations(
+        $controller,
+        [
+            {
+                'operationId' => 'api.v1.DhcpOption82s.update',
+                'name'        => 'api.v1.DhcpOption82s.update',
+                'path'        => '/dhcp_option82/{dhcp_option82_id}',
+                'children'    => [],
+                'depth'       => 2,
+                'paths'       => [ '/dhcp_option82/{dhcp_option82_id}' ],
+                'controller'  => 'DhcpOption82s',
+                'path_type'   => 'resource',
+                'action'      => 'update',
+                'path_part'   => '',
+                'methods'     => [ 'PATCH' ],
+                'full_path'   => '/api/v1/dhcp_option82/{dhcp_option82_id}'
             },
-            post => {
-                'parameters'  => [],
-                'operationId' => 'api.v1.DhcpOption82s.search'
-            },
-            put => {
-                'parameters'  => [],
-                'operationId' => 'api.v1.DhcpOption82s.replace',
-                'description' => 'Replace an item'
-            },
+        ]
+    );
+    is_deeply(
+        \%operators,
+        {
             patch => {
                 'parameters'  => [],
                 'operationId' => 'api.v1.DhcpOption82s.update',
-                'description' => 'Update an item'
+                'description' => 'Update an item',
+                "requestBody" => {
+                   "content" => {
+                      "application/json" => {
+                         "schema" => {
+                            "\$ref" => "#/components/schemas/DhcpOption82"
+                         }
+                      }
+                   },
+                   "required" => "1"
+                },
+                "responses" => {
+                   "200" => {
+                      "\$ref" => "#/components/responses/Message"
+                   },
+                   "400" => {
+                      "\$ref" => "#/components/responses/BadRequest"
+                   },
+                   "422" => {
+                      "\$ref" => "#/components/responses/UnprocessableEntity"
+                   }
+                },
             }
-        ],
-        "Crud DELETE"
+        },
+        "Crud resource PATCH"
+    );
+}
+
+{
+
+    my $controller = pf::UnifiedApi::Controller::DhcpOption82s->new(app => $app);
+    my $generator = pf::UnifiedApi::OpenAPI::Generator::Crud->new;
+    my %operators = $generator->operations(
+        $controller,
+        [
+            {
+                'operationId' => 'api.v1.DhcpOption82s.replace',
+                'name'        => 'api.v1.DhcpOption82s.replace',
+                'path'        => '/dhcp_option82/{dhcp_option82_id}',
+                'children'    => [],
+                'depth'       => 2,
+                'paths'       => [ '/dhcp_option82/{dhcp_option82_id}' ],
+                'controller'  => 'DhcpOption82s',
+                'path_type'   => 'resource',
+                'action'      => 'replace',
+                'path_part'   => '',
+                'methods'     => [ 'PUT' ],
+                'full_path'   => '/api/v1/dhcp_option82/{dhcp_option82_id}'
+            },
+        ]
+    );
+    is_deeply(
+        \%operators,
+        {
+            put => {
+                'parameters'  => [],
+                'operationId' => 'api.v1.DhcpOption82s.replace',
+                'description' => 'Replace an item',
+                "requestBody" => {
+                   "content" => {
+                      "application/json" => {
+                         "schema" => {
+                            "\$ref" => "#/components/schemas/DhcpOption82"
+                         }
+                      }
+                   },
+                   "required" => "1"
+                },
+                "responses" => {
+                   "200" => {
+                      "\$ref" => "#/components/responses/Message"
+                   },
+                   "400" => {
+                      "\$ref" => "#/components/responses/BadRequest"
+                   },
+                   "422" => {
+                      "\$ref" => "#/components/responses/UnprocessableEntity"
+                   }
+                },
+            }
+        },
+        "Crud resource PUT"
+    );
+}
+
+{
+
+    my $controller = pf::UnifiedApi::Controller::DhcpOption82s->new(app => $app);
+    my $generator = pf::UnifiedApi::OpenAPI::Generator::Crud->new;
+    my %operators = $generator->operations(
+        $controller,
+        [
+           {
+                'operationId' => 'api.v1.DhcpOption82s.search',
+                'name'        => 'api.v1.DhcpOption82s.search',
+                'path'        => '/dhcp_option82s/search',
+                'children'    => [],
+                'depth'       => 3,
+                'paths'       => [ '/dhcp_option82s', '/search' ],
+                'controller'  => 'DhcpOption82s',
+                'path_type'   => 'collection',
+                'action'      => 'search',
+                'path_part'   => '',
+                'methods'     => [ 'POST' ],
+                'full_path'   => '/api/v1/dhcp_option82s/search'
+            },
+        ]
+    );
+#    use Data::Dumper;print Dumper(\@operators);
+    is_deeply(
+        \%operators,
+        {
+            post => {
+                'parameters'  => [],
+                'operationId' => 'api.v1.DhcpOption82s.search',
+                'requestBody' => {
+                    "application/json" => {
+                        "\$ref" => "#/components/schemas/Search",
+                    }
+                },
+                'responses'  => {
+                    "200" => {
+                        content => {
+                            "application/json" => {
+                                schema => {
+                                    "\$ref" => "#/components/schemas/DhcpOption82sList"
+                                }
+                            }
+                        },
+                    },
+                    "400" => {
+                        "\$ref" => "#/components/responses/BadRequest"
+                    },
+                    "422" => {
+                        "\$ref" => "#/components/responses/UnprocessableEntity"
+                    }
+                }
+            },
+        },
+        "Crud collection SEARCH"
+    );
+}
+
+{
+
+    my $controller = pf::UnifiedApi::Controller::DhcpOption82s->new(app => $app);
+    my $generator = pf::UnifiedApi::OpenAPI::Generator::Crud->new;
+    my %operators = $generator->operations(
+        $controller,
+        [
+            {
+                'operationId' => 'api.v1.DhcpOption82s.create',
+                'name'        => 'api.v1.DhcpOption82s.create',
+                'path'        => '/dhcp_option82s',
+                'children'    => [],
+                'depth'       => 2,
+                'paths'       => [ '/dhcp_option82s' ],
+                'controller'  => 'DhcpOption82s',
+                'path_type'   => 'collection',
+                'action'      => 'create',
+                'path_part'   => '',
+                'methods'     => [ 'POST' ],
+                'full_path'   => '/api/v1/dhcp_option82s'
+            },
+            {
+                'operationId' => 'api.v1.DhcpOption82s.list',
+                'name'        => 'api.v1.DhcpOption82s.list',
+                'path'        => '/dhcp_option82s',
+                'children'    => [],
+                'depth'       => 2,
+                'paths'       => [ '/dhcp_option82s' ],
+                'controller'  => 'DhcpOption82s',
+                'path_type'   => 'collection',
+                'action'      => 'list',
+                'path_part'   => '',
+                'methods'     => [ 'GET' ],
+                'full_path'   => '/api/v1/dhcp_option82s'
+            },
+        ]
+    );
+#    use Data::Dumper;print Dumper(\@operators);
+    is_deeply(
+        \%operators,
+        {
+            post => {
+                'parameters'  => [],
+                'operationId' => 'api.v1.DhcpOption82s.create',
+                'description' => 'Create an item',
+                requestBody => {
+                    content => {
+                        "application/json" => {
+                            schema => {
+                                "\$ref" => "#/components/schemas/DhcpOption82"
+                            }
+                        }
+                    }
+                },
+                responses => {
+                    '201' => {
+                        "\$ref" => '#/components/responses/Created'
+                    },
+                    '400' => {
+                        "\$ref" => '#/components/responses/BadRequest'
+                    },
+                    '409' => {
+                        "\$ref" => '#/components/responses/Duplicate'
+                    },
+                    '422' => {
+                        "\$ref" => '#/components/responses/UnprocessableEntity'
+                    },
+                  },
+            },
+            get => {
+                'parameters'  => [
+                    { "\$ref" => '#/components/parameters/cursor' },
+                    { "\$ref" => '#/components/parameters/limit' },
+                    { "\$ref" => '#/components/parameters/fields' },
+                    { "\$ref" => '#/components/parameters/sort' },
+                ],
+                'operationId' => 'api.v1.DhcpOption82s.list',
+                'description' => 'List items',
+                'responses'  => {
+                    "200" => {
+                        content => {
+                            "application/json" => {
+                                schema => {
+                                    "\$ref" => "#/components/schemas/DhcpOption82sList"
+                                }
+                            }
+                        },
+                    },
+                    "400" => {
+                        "\$ref" => "#/components/responses/BadRequest"
+                    },
+                    "422" => {
+                        "\$ref" => "#/components/responses/UnprocessableEntity"
+                    }
+                },
+            },
+        },
+        "Crud collection POST/GET"
     );
 }
 
