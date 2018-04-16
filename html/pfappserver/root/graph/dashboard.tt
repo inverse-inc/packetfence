@@ -350,7 +350,7 @@ END
                             data-common-min="traffic"
                             data-title="number of successful radius authentications in the last day"
                             data-chart-library="dygraph"
-                            data-colors="#5D737E #6399B5 #BFE8FC #D8F2FF #FCFEFF"
+                            data-colors="[% palette(loop.index) %]"
                             data-height="200px"
                             data-after="-86400"
                             data-decimal-digits="0"></div>
@@ -362,7 +362,7 @@ END
                             data-common-min="traffic"
                             data-title="number of failed radius authentications in the last day"
                             data-chart-library="dygraph"
-                            data-colors="#5D737E #6399B5 #BFE8FC #D8F2FF #FCFEFF"
+                            data-colors="[% palette(loop.index) %]"
                             data-height="200px"
                             data-after="-86400"
                             data-decimal-digits="0"></div>
@@ -386,7 +386,7 @@ END
                             data-common-min="day"
                             data-title="number of dhcp leases free on [% interface %] for the past day"
                             data-chart-library="dygraph"
-                            data-colors="#5D737E #6399B5 #BFE8FC #D8F2FF #FCFEFF"
+                            data-colors="[% palette(loop.index) %]"
                             data-height="200px"
                             data-after="-86400"
                             data-decimal-digits="0"></div>
@@ -398,7 +398,7 @@ END
                             data-common-min="week"
                             data-title="number of dhcp leases free on [% interface %] for the past week"
                             data-chart-library="dygraph"
-                            data-colors="#5D737E #6399B5 #BFE8FC #D8F2FF #FCFEFF"
+                            data-colors="[% palette(loop.index) %]"
                             data-height="200px"
                             data-after="-604800"
                             data-decimal-digits="0"></div>
@@ -412,7 +412,7 @@ END
                             data-common-min="traffic"
                             data-title="number of dhcp leases free on [% interface %] for the past month"
                             data-chart-library="dygraph"
-                            data-colors="#5D737E #6399B5 #BFE8FC #D8F2FF #FCFEFF"
+                            data-colors="[% palette(loop.index) %]"
                             data-height="200px"
                             data-after="-2592000"
                             data-decimal-digits="0"></div>
@@ -424,7 +424,7 @@ END
                             data-common-min="year"
                             data-title="number of dhcp leases free on [% interface %] for the past year"
                             data-chart-library="dygraph"
-                            data-colors="#5D737E #6399B5 #BFE8FC #D8F2FF #FCFEFF"
+                            data-colors="[% palette(loop.index) %]"
                             data-height="200px"
                             data-after="-31536000"
                             data-decimal-digits="0"></div>                        
@@ -448,7 +448,7 @@ END
                             data-common-min="traffic"
                             data-title="total online devices for the past month"
                             data-chart-library="dygraph"
-                            data-colors="#5D737E #6399B5 #BFE8FC #D8F2FF #FCFEFF"
+                            data-colors="[% palette(loop.index) %]"
                             data-height="200px"
                             data-after="-2592000"
                             data-decimal-digits="0"></div>
@@ -460,7 +460,7 @@ END
                             data-common-min="traffic"
                             data-title="total offline devices for the past month"
                             data-chart-library="dygraph"
-                            data-colors="#5D737E #6399B5 #BFE8FC #D8F2FF #FCFEFF"
+                            data-colors="[% palette(loop.index) %]"
                             data-height="200px"
                             data-after="-2592000"
                             data-decimal-digits="0"></div>
@@ -481,7 +481,7 @@ END
                             data-common-min="traffic"
                             data-title="total number of devices currently registered"
                             data-chart-library="dygraph"
-                            data-colors="#5D737E #6399B5 #BFE8FC #D8F2FF #FCFEFF"
+                            data-colors="[% palette(loop.index) %]"
                             data-height="200px"
                             data-after="-3600"
                             data-decimal-digits="0"></div>
@@ -493,7 +493,7 @@ END
                             data-common-min="traffic"
                             data-title="total number of unregistered devices"
                             data-chart-library="dygraph"
-                            data-colors="#5D737E #6399B5 #BFE8FC #D8F2FF #FCFEFF"
+                            data-colors="[% palette(loop.index) %]"
                             data-height="200px"
                             data-after="-3600"
                             data-decimal-digits="0"></div>
@@ -507,7 +507,7 @@ END
                             data-common-min="traffic"
                             data-title="number of devices currently online and in the registration network"
                             data-chart-library="dygraph"
-                            data-colors="#5D737E #6399B5 #BFE8FC #D8F2FF #FCFEFF"
+                            data-colors="[% palette(loop.index) %]"
                             data-height="200px"
                             data-after="-3600"
                             data-decimal-digits="0"></div>
@@ -529,7 +529,7 @@ END
                             data-common-min="traffic"
                             data-title="total number of registered devices in role: [% role.name %]"
                             data-chart-library="dygraph"
-                            data-colors="#5D737E #6399B5 #BFE8FC #D8F2FF #FCFEFF"
+                            data-colors="[% palette(loop.index) %]"
                             data-height="200px"
                             data-after="-3600"
                             data-decimal-digits="0"></div>
@@ -555,7 +555,7 @@ END
                             data-common-min="hour"
                             data-title="number of new registered devices during the past hour"
                             data-chart-library="dygraph"
-                            data-colors="#5D737E #6399B5 #BFE8FC #D8F2FF #FCFEFF"
+                            data-colors="[% palette(loop.index) %]"
                             data-height="200px"
                             data-after="-3600"
                             data-decimal-digits="0"></div>
@@ -567,7 +567,7 @@ END
                             data-common-min="day"
                             data-title="number of new registered devices during the past day"
                             data-chart-library="dygraph"
-                            data-colors="#5D737E #6399B5 #BFE8FC #D8F2FF #FCFEFF"
+                            data-colors="[% palette(loop.index) %]"
                             data-height="200px"
                             data-after="-86400"
                             data-decimal-digits="0"></div>
@@ -581,7 +581,7 @@ END
                             data-common-min="week"
                             data-title="number of new registered devices during the past week"
                             data-chart-library="dygraph"
-                            data-colors="#5D737E #6399B5 #BFE8FC #D8F2FF #FCFEFF"
+                            data-colors="[% palette(loop.index) %]"
                             data-height="200px"
                             data-after="-604800"
                             data-decimal-digits="0"></div>
@@ -593,7 +593,7 @@ END
                             data-common-min="month"
                             data-title="number of new registered devices during the past month"
                             data-chart-library="dygraph"
-                            data-colors="#5D737E #6399B5 #BFE8FC #D8F2FF #FCFEFF"
+                            data-colors="[% palette(loop.index) %]"
                             data-height="200px"
                             data-after="-2592000"
                             data-decimal-digits="0"></div>
@@ -607,7 +607,7 @@ END
                             data-common-min="year"
                             data-title="number of new registered devices during the past year"
                             data-chart-library="dygraph"
-                            data-colors="#5D737E #6399B5 #BFE8FC #D8F2FF #FCFEFF"
+                            data-colors="[% palette(loop.index) %]"
                             data-height="200px"
                             data-after="-31536000"
                             data-decimal-digits="0"></div>
@@ -628,7 +628,7 @@ END
                             data-common-min="traffic"
                             data-title="number of currently open violations"
                             data-chart-library="dygraph"
-                            data-colors="#5D737E #6399B5 #BFE8FC #D8F2FF #FCFEFF"
+                            data-colors="[% palette(loop.index) %]"
                             data-height="200px"
                             data-after="-3600"
                             data-decimal-digits="0"></div>
