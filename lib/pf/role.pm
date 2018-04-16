@@ -540,7 +540,6 @@ sub getNodeInfoForAutoReg {
     # we do not set a default VLAN here so that node_register will set the default normalVlan from switches.conf
     my %node_info = (
         pid             => $default_pid,
-        notes           => 'AUTO-REGISTERED',
         status          => 'reg',
         auto_registered => 1, # tells node_register to autoreg
         autoreg         => 'yes',
@@ -552,7 +551,6 @@ sub getNodeInfoForAutoReg {
 
     # if we are called from a violation with action=autoreg, say so
     if (defined($args->{'violation_autoreg'}) && $args->{'$violation_autoreg'}) {
-        $node_info{'notes'} = 'AUTO-REGISTERED by violation';
         $node_info{'autoreg'} = 'no'; # This flag has not to be used for violation autoreg
     }
 
