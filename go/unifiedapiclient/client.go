@@ -70,7 +70,10 @@ func NewFromConfig(ctx context.Context) *Client {
 	var webservices pfconfigdriver.PfConfWebservices
 	pfconfigdriver.FetchDecodeSocket(ctx, &webservices)
 
-	return New(ctx, webservices.User, webservices.Pass, webservices.Proto, webservices.Host, webservices.UnifiedAPIPort)
+	var apiUser pfconfigdriver.UnifiedApiSystemUser
+	pfconfigdriver.FetchDecodeSocket(ctx, &apiUser)
+
+	return New(ctx, apiUser.User, apiUser.Pass, webservices.Proto, webservices.Host, webservices.UnifiedAPIPort)
 }
 
 func (c *Client) Call(ctx context.Context, method, path string, decodeResponseIn interface{}) error {
