@@ -293,61 +293,23 @@ function initDashboard() {
     var clusterEl = document.getElementById('cluster');
     var cluster = JSON.parse(clusterEl.textContent || clusterEl.innerHTML);
 
-    /* Fetch counters */
-    // getCounters();
-    // var countersInterval = setInterval(getCounters, 1000);
+    /* Hide missing charts */
+    $('[data-hide-missing]').each(function (index) {
+        var $chartEl = $(this);
+        $.ajax({
+            url: $chartEl.data('host') + '/api/v1/chart?chart=' + $chartEl.data('netdata'),
+            method: 'GET',
+        }).fail(function (data) {
+            $chartEl.hide();
+        }).done(function (response) {
+            // No error, show the graph
+            $chartEl.show();
+        });
+    });
 
     /* Fetch alarms */
     getAlarms();
     var alarmsInterval = setInterval(getAlarms, 10000);
-
-    var fitties = {};
-    function getCounters() {
-        $.each(cluster, function (hostname, ip) {
-            $.ajax({
-                url: '/netdata/' + ip + '/api/v1/data?chart=system.uptime&after=-1',
-                method: 'GET'
-            }).done(function (response) {
-                var id = hostname.replace(/\./, '_') + '_sytem_uptime';
-                var time = response.data[0][1];
-                var to = getTime(time);
-                var el = $('#' + id);
-                if (!el.get(0)) {
-                    el = $('[data-counter="uptime"]').clone();
-                    el.removeAttr('data-counter');
-                    el.attr('id', id);
-                    $('#system-counters').append(el);
-                    el.removeClass('hide');
-                }
-                if (!el.get(0)) {
-                    clearInterval(countersInterval);
-                    return;
-                }
-                el.find('[data-block="hostname"]').html(hostname);
-                var uptimeEl = el.find('[data-block="value"]');
-                if (to.days === 0) {
-                    uptimeEl.html(to.hours + ':' + to.minutes + ':' + to.seconds);
-                } else {
-                    var uptime = [to.days + 'd'];
-                    if (parseInt(to.hours)) {
-                        uptime.push(to.hours + 'h');
-                    }
-                    if (to.minutes) {
-                        uptime.push(to.minutes + 'm');
-                    }
-                    uptime.push(to.seconds + 's')
-                    uptimeEl.html(uptime.join(' '));
-                }
-                if (fitties[id]) {
-                    var fontSize = uptimeEl.css('font-size');
-                    fitties[id].unsubscribe();
-                    uptimeEl.css('font-size', fontSize);
-                } else {
-                    fitties[id] = fitty(uptimeEl[0]);
-                }
-            });
-        });
-    }
 
     function getAlarms() {
         var colors = {
@@ -403,26 +365,5 @@ function initDashboard() {
                 window.NETDATA.parseDom();
             });
         });
-    }
-
-    /**
-    * Extract time units and return an object.
-    * Hours, minutes and seconds are padded with zeros on two digits.
-    */
-    function getTime(t) {
-        var delta, days, hours, minutes, seconds, pad;
-        pad = function(i) {
-            if (i < 10) return '0' + i;
-            else return i.toString();
-        }
-        delta = t;
-        days = Math.floor(t/60/60/24);
-        delta -= days*60*60*24;
-        hours = Math.floor(delta/60/60);
-        delta -= hours*60*60;
-        minutes = Math.floor(delta/60);
-        delta -= minutes*60;
-        seconds = delta;
-        return { days: days, hours: pad(hours), minutes: pad(minutes), seconds: pad(seconds) };
     }
 }
