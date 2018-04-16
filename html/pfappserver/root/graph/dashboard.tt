@@ -133,7 +133,7 @@ END
             <li [% IF tab == "system" %]class="active"[% END %]><a data-toggle="pill" href="#system">System</a></li>
             <li [% IF tab == "radius" %]class="active"[% END %]><a data-toggle="pill" href="#radius">RADIUS</a></li>
             <li [% IF tab == "authentication" %]class="active"[% END %]><a data-toggle="pill" href="#authentication">Authentication</a></li>
-            <li>[% IF tab == "dhcp" %]class="active"[% END %]<a data-toggle="pill" href="#dhcp">DHCP</a></li>
+            <li [% IF tab == "dhcp" %]class="active"[% END %]><a data-toggle="pill" href="#dhcp">DHCP</a></li>
             <li [% IF tab == "endpoints" %]class="active"[% END %]><a data-toggle="pill" href="#endpoints">Endpoints</a></li>
         </ul>
     </div>
