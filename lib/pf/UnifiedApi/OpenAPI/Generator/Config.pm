@@ -137,7 +137,7 @@ sub generate_schemas {
     my $list_path = $self->schema_list_path($controller);
     my $item_path = $self->schema_item_path($controller);
     my @forms = buildForms($controller);
-    my $s = {
+    return {
         $list_path => {
             allOf => [
                 { '$ref' => "#/components/schemas/Iterable" },
@@ -156,7 +156,6 @@ sub generate_schemas {
         },
         $item_path => pf::UnifiedApi::GenerateSpec::formsToSchema(\@forms)
     };
-    return $s;
 }
 
 sub replaceResponses {
