@@ -133,6 +133,7 @@ END
             <li [% IF tab == "system" %]class="active"[% END %]><a data-toggle="pill" href="#system">System</a></li>
             <li [% IF tab == "radius" %]class="active"[% END %]><a data-toggle="pill" href="#radius">RADIUS</a></li>
             <li [% IF tab == "authentication" %]class="active"[% END %]><a data-toggle="pill" href="#authentication">Authentication</a></li>
+            <li>[% IF tab == "dhcp" %]class="active"[% END %]<a data-toggle="pill" href="#dhcp">DHCP</a></li>
             <li [% IF tab == "endpoints" %]class="active"[% END %]><a data-toggle="pill" href="#endpoints">Endpoints</a></li>
         </ul>
     </div>
@@ -336,9 +337,315 @@ END
                     </div>
                 </div>
             </div>
+            <div class="card">
+                <div class="card-title">
+                    <h2>Successful &amp; Unsuccessful RADIUS Authentications</h2>
+                </div>
+                <div class="card-block">
+                    <div class="row-fluid">
+                        <div class="span9">
+                            <div data-netdata="statsd_gauge_source.packetfence.authentication.success_last_day"
+                            data-host="/netdata/127.0.0.1"
+                            data-common-max="traffic"
+                            data-common-min="traffic"
+                            data-title="number of successful radius authentications in the last day"
+                            data-chart-library="dygraph"
+                            data-colors="[% palette(0) %]"
+                            data-height="200px"
+                            data-after="-86400"
+                            data-decimal-digits="0"></div>
+                        </div>
+                        <div class="span9">
+                            <div data-netdata="statsd_gauge_source.packetfence.authentication.failed_last_day"
+                            data-host="/netdata/127.0.0.1"
+                            data-common-max="traffic"
+                            data-common-min="traffic"
+                            data-title="number of failed radius authentications in the last day"
+                            data-chart-library="dygraph"
+                            data-colors="[% palette(0) %]"
+                            data-height="200px"
+                            data-after="-86400"
+                            data-decimal-digits="0"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane[% IF tab == "dhcp" %] active[% END %]" id="dhcp">
+        [% FOREACH interface IN listen_ints %]
+            <div class="card">
+                <div class="card-title">
+                    <h2>DHCP on [% interface %]</h2>
+                </div>
+                <div class="card-block">
+                    <div class="row-fluid">
+                        <div class="span9">
+                            <div data-netdata="statsd_gauge_source.packetfence.dhcp_leases_[% interface %]_day"
+                            data-host="/netdata/127.0.0.1"
+                            data-common-max="day"
+                            data-common-min="day"
+                            data-title="number of dhcp leases free on [% interface %] for the past day"
+                            data-chart-library="dygraph"
+                            data-colors="[% palette(loop.index) %]"
+                            data-height="200px"
+                            data-after="-86400"
+                            data-decimal-digits="0"></div>
+                        </div>
+                        <div class="span9">
+                            <div data-netdata="statsd_gauge_source.packetfence.dhcp_leases_[% interface %]_week"
+                            data-host="/netdata/127.0.0.1"
+                            data-common-max="week"
+                            data-common-min="week"
+                            data-title="number of dhcp leases free on [% interface %] for the past week"
+                            data-chart-library="dygraph"
+                            data-colors="[% palette(loop.index) %]"
+                            data-height="200px"
+                            data-after="-604800"
+                            data-decimal-digits="0"></div>
+                        </div>
+                    </div>
+                    <div class="row-fluid">
+                        <div class="span9">
+                            <div data-netdata="statsd_gauge_source.packetfence.dhcp_leases_[% interface %]_month"
+                            data-host="/netdata/127.0.0.1"
+                            data-common-max="traffic"
+                            data-common-min="traffic"
+                            data-title="number of dhcp leases free on [% interface %] for the past month"
+                            data-chart-library="dygraph"
+                            data-colors="[% palette(loop.index) %]"
+                            data-height="200px"
+                            data-after="-2592000"
+                            data-decimal-digits="0"></div>
+                        </div>
+                        <div class="span9">
+                            <div data-netdata="statsd_gauge_source.packetfence.dhcp_leases_[% interface %]_year"
+                            data-host="/netdata/127.0.0.1"
+                            data-common-max="year"
+                            data-common-min="year"
+                            data-title="number of dhcp leases free on [% interface %] for the past year"
+                            data-chart-library="dygraph"
+                            data-colors="[% palette(loop.index) %]"
+                            data-height="200px"
+                            data-after="-31536000"
+                            data-decimal-digits="0"></div>                        
+                        </div>
+                    </div>
+                </div>
+            </div>
+        [% END %]
         </div>
         <div class="tab-pane[% IF tab == "endpoints" %] active[% END %]" id="endpoints">
-            Endpoints
+            <div class="card">
+                <div class="card-title">
+                    <h2>Online &amp; Offline Devices</h2>
+                </div>
+                <div class="card-block">
+                    <div class="row-fluid">
+                        <div class="span9">
+                            <div data-netdata="statsd_gauge_source.packetfence.devices.online_last_month"
+                            data-host="/netdata/127.0.0.1"
+                            data-common-max="traffic"
+                            data-common-min="traffic"
+                            data-title="total online devices for the past month"
+                            data-chart-library="dygraph"
+                            data-colors="[% palette(0) %]"
+                            data-height="200px"
+                            data-after="-2592000"
+                            data-decimal-digits="0"></div>
+                        </div>
+                        <div class="span9">
+                            <div data-netdata="statsd_gauge_source.packetfence.devices.offline_last_month"
+                            data-host="/netdata/127.0.0.1"
+                            data-common-max="traffic"
+                            data-common-min="traffic"
+                            data-title="total offline devices for the past month"
+                            data-chart-library="dygraph"
+                            data-colors="[% palette(0) %]"
+                            data-height="200px"
+                            data-after="-2592000"
+                            data-decimal-digits="0"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">
+                    <h2>Registered &amp; Unregistered Devices</h2>
+                </div>
+                <div class="card-block">
+                    <div class="row-fluid">
+                        <div class="span9">
+                            <div data-netdata="statsd_gauge_source.packetfence.devices.registered"
+                            data-host="/netdata/127.0.0.1"
+                            data-common-max="traffic"
+                            data-common-min="traffic"
+                            data-title="total number of devices currently registered"
+                            data-chart-library="dygraph"
+                            data-colors="[% palette(0) %]"
+                            data-height="200px"
+                            data-after="-3600"
+                            data-decimal-digits="0"></div>
+                        </div>
+                        <div class="span9">
+                            <div data-netdata="statsd_gauge_source.packetfence.devices.unregistered"
+                            data-host="/netdata/127.0.0.1"
+                            data-common-max="traffic"
+                            data-common-min="traffic"
+                            data-title="total number of unregistered devices"
+                            data-chart-library="dygraph"
+                            data-colors="[% palette(0) %]"
+                            data-height="200px"
+                            data-after="-3600"
+                            data-decimal-digits="0"></div>
+                        </div>
+                    </div>
+                    <div class="row-fluid">
+                        <div class="span9">
+                            <div data-netdata="statsd_gauge_source.packetfence.devices.online_registered"
+                            data-host="/netdata/127.0.0.1"
+                            data-common-max="traffic"
+                            data-common-min="traffic"
+                            data-title="number of devices currently online and in the registration network"
+                            data-chart-library="dygraph"
+                            data-colors="[% palette(0) %]"
+                            data-height="200px"
+                            data-after="-3600"
+                            data-decimal-digits="0"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">
+                    <h2>Registered Devices Per Role</h2>
+                </div>
+                <div class="card-block">
+                    <div class="row-fluid">
+                    [%
+                        SET sourcesSize = roles.size;
+                        IF sourcesSize == 1;
+                            SET spanSize = gridSize;
+                        ELSIF sourcesSize MOD 3 == 0;
+                            SET spanSize = gridSize / 3;
+                        ELSE;
+                            SET spanSize = gridSize / 2;
+                        END
+                    %]                    
+                    [% FOREACH role IN roles %]
+                        <div class="span[% spanSize %] text-center">
+                            <div data-netdata="statsd_gauge_source.packetfence.devices.registered_per_role_[% role.name FILTER lower %]"
+                            data-host="/netdata/127.0.0.1"
+                            data-common-max="traffic"
+                            data-common-min="traffic"
+                            data-title="total number of registered devices in role: [% role.name %]"
+                            data-chart-library="dygraph"
+                            data-colors="[% palette(0) %]"
+                            data-height="200px"
+                            data-after="-3600"
+                            data-decimal-digits="0"></div>
+                        </div>
+                    [% IF loop.parity == "even" %]
+                    </div>
+                    <div class="row-fluid">
+                    [% END %]
+                    [% END %]
+                    </div>
+                </div>
+            </div>
+             <div class="card">
+                <div class="card-title">
+                    <h2>Registered Devices Per Timeframe</h2>
+                </div>
+                <div class="card-block">
+                    <div class="row-fluid">
+                        <div class="span9">
+                            <div data-netdata="statsd_gauge_source.packetfence.devices.registered_last_hour"
+                            data-host="/netdata/127.0.0.1"
+                            data-common-max="hour"
+                            data-common-min="hour"
+                            data-title="number of new registered devices during the past hour"
+                            data-chart-library="dygraph"
+                            data-colors="[% palette(0) %]"
+                            data-height="200px"
+                            data-after="-3600"
+                            data-decimal-digits="0"></div>
+                        </div>
+                        <div class="span9">
+                            <div data-netdata="statsd_gauge_source.packetfence.devices.registered_last_day"
+                            data-host="/netdata/127.0.0.1"
+                            data-common-max="day"
+                            data-common-min="day"
+                            data-title="number of new registered devices during the past day"
+                            data-chart-library="dygraph"
+                            data-colors="[% palette(0) %]"
+                            data-height="200px"
+                            data-after="-86400"
+                            data-decimal-digits="0"></div>
+                        </div>
+                    </div>
+                    <div class="row-fluid">
+                        <div class="span9">
+                            <div data-netdata="statsd_gauge_source.packetfence.devices.registered_last_week"
+                            data-host="/netdata/127.0.0.1"
+                            data-common-max="week"
+                            data-common-min="week"
+                            data-title="number of new registered devices during the past week"
+                            data-chart-library="dygraph"
+                            data-colors="[% palette(0) %]"
+                            data-height="200px"
+                            data-after="-604800"
+                            data-decimal-digits="0"></div>
+                        </div>
+                        <div class="span9">
+                            <div data-netdata="statsd_gauge_source.packetfence.devices.registered_last_month"
+                            data-host="/netdata/127.0.0.1"
+                            data-common-max="month"
+                            data-common-min="month"
+                            data-title="number of new registered devices during the past month"
+                            data-chart-library="dygraph"
+                            data-colors="[% palette(0) %]"
+                            data-height="200px"
+                            data-after="-2592000"
+                            data-decimal-digits="0"></div>
+                        </div>
+                    </div>
+                    <div class="row-fluid">
+                        <div class="span9">
+                            <div data-netdata="statsd_gauge_source.packetfence.devices.registered_last_year"
+                            data-host="/netdata/127.0.0.1"
+                            data-common-max="year"
+                            data-common-min="year"
+                            data-title="number of new registered devices during the past year"
+                            data-chart-library="dygraph"
+                            data-colors="[% palette(0) %]"
+                            data-height="200px"
+                            data-after="-31536000"
+                            data-decimal-digits="0"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">
+                    <h2>Device Violations</h2>
+                </div>
+                <div class="card-block">
+                    <div class="row-fluid">
+                        <div class="span9">
+                            <div data-netdata="statsd_gauge_source.packetfence.violations"
+                            data-host="/netdata/127.0.0.1"
+                            data-common-max="traffic"
+                            data-common-min="traffic"
+                            data-title="number of currently open violations"
+                            data-chart-library="dygraph"
+                            data-colors="[% palette(0) %]"
+                            data-height="200px"
+                            data-after="-3600"
+                            data-decimal-digits="0"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

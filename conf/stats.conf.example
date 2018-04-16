@@ -2,8 +2,9 @@
 type=mysql_query
 statsd_type=gauge
 statsd_ns=source.packetfence.devices.registered_per_role
-mysql_query=select name, count(distinct node.mac) from node_category right join node on node.category_id=node_category.category_id where node.status='reg' group by node_category.category_id;
+mysql_query=select name, count(distinct node.mac) from node_category left join node on node.category_id=node_category.category_id and node.status='reg' group by node_category.category_id
 interval=60s
+randomize=true
 
 [metric 'total number of unregistered devices']
 type=mysql_query
@@ -11,55 +12,56 @@ statsd_type=gauge
 statsd_ns=source.packetfence.devices.unregistered
 mysql_query=select count(distinct mac) from node where status='unreg'
 interval=60s
+randomize=true
 
-[metric 'total online devices']
+[metric 'total online devices for the past month']
 type=mysql_query
 statsd_type=gauge
-statsd_ns=source.packetfence.devices.online
+statsd_ns=source.packetfence.devices.online_last_month
 mysql_query=select count(distinct callingstationid) from radacct where acctstoptime is null
-interval=60s
+interval=720s
 
-[metric 'total offline devices']
+[metric 'total offline devices for the past month']
 type=mysql_query
 statsd_type=gauge
-statsd_ns=source.packetfence.devices.offline
+statsd_ns=source.packetfence.devices.offline_last_month
 mysql_query=select count(distinct callingstationid) from radacct where acctstoptime <= NOW()
-interval=60s
+interval=720s
 
 [metric 'number of new registered devices during the past hour']
 type=mysql_query
 statsd_type=gauge
 statsd_ns=source.packetfence.devices.registered_last_hour
 mysql_query=select count(distinct mac) from node where status='reg' and regdate >= NOW() - INTERVAL 1 HOUR
-interval=60s
+interval=1s
 
 [metric 'number of new registered devices during the past day']
 type=mysql_query
 statsd_type=gauge
 statsd_ns=source.packetfence.devices.registered_last_day
 mysql_query=select count(distinct mac) from node where status='reg' and regdate >= NOW() - INTERVAL 1 DAY
-interval=60s
+interval=24s
 
 [metric 'number of new registered devices during the past week']
 type=mysql_query
 statsd_type=gauge
 statsd_ns=source.packetfence.devices.registered_last_week
 mysql_query=select count(distinct mac) from node where status='reg' and regdate >= NOW() - INTERVAL 1 WEEK
-interval=60s
+interval=168s
 
 [metric 'number of new registered devices during the past month']
 type=mysql_query
 statsd_type=gauge
 statsd_ns=source.packetfence.devices.registered_last_month
 mysql_query=select count(distinct mac) from node where status='reg' and regdate >= NOW() - INTERVAL 1 MONTH
-interval=60s
+interval=720s
 
 [metric 'number of new registered devices during the past year']
 type=mysql_query
 statsd_type=gauge
 statsd_ns=source.packetfence.devices.registered_last_year
 mysql_query=select count(distinct mac) from node where status='reg' and regdate >= NOW() - INTERVAL 1 YEAR
-interval=60s
+interval=8760s
 
 [metric 'number of devices currently online and in the registration network']
 type=mysql_query
@@ -67,6 +69,7 @@ statsd_type=gauge
 statsd_ns=source.packetfence.devices.online_registered
 mysql_query=select count(distinct n.mac) from node n join radacct r on r.callingstationid=n.mac where n.status='reg' and (n.unregdate >= NOW() or n.unregdate = '0000-00-00 00:00:00') and r.acctstoptime is null
 interval=60s
+randomize=true
 
 [metric 'number of devices currently registered']
 type=mysql_query
@@ -74,6 +77,7 @@ statsd_type=gauge
 statsd_ns=source.packetfence.devices.registered
 mysql_query=select count(distinct mac) from node where status='reg' and (unregdate >= NOW() or unregdate = '0000-00-00 00:00:00')
 interval=60s
+randomize=true
 
 [metric 'number of currently open violations']
 type=mysql_query
@@ -81,6 +85,7 @@ statsd_type=gauge
 statsd_ns=source.packetfence.violations
 mysql_query=select count(distinct mac) from violation where status='open'
 interval=60s
+randomize=true
 
 [metric 'number of successful radius authentications in the last day']
 type=mysql_query
@@ -88,6 +93,7 @@ statsd_type=gauge
 statsd_ns=source.packetfence.authentication.success_last_day
 mysql_query=select count(1) from radius_audit_log where auth_status='Accept' and created_at >= NOW() - INTERVAL 1 DAY;
 interval=60s
+randomize=true
 
 [metric 'number of failed radius authentications in the last day']
 type=mysql_query
@@ -95,3 +101,4 @@ statsd_type=gauge
 statsd_ns=source.packetfence.authentication.failed_last_day
 mysql_query=select count(1) from radius_audit_log where auth_status='Reject' and created_at >= NOW() - INTERVAL 1 DAY;
 interval=60s
+randomize=true

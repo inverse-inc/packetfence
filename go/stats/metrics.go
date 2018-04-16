@@ -7,6 +7,7 @@ import (
 	"math"
 	"net"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gdey/jsonpath"
@@ -52,7 +53,6 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 						log.LoggerWContext(ctx).Error(err.Error())
 						return
 					}
-					break
 
 				case 2:
 					err := rows.Scan(&field, &result)
@@ -63,12 +63,10 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 					switch field.String {
 					case "":
 						namespace = conf.StatsdNS + ";NULL"
-						break
 
 					default:
 						namespace = conf.StatsdNS + ";" + field.String
 					}
-					break
 
 				default:
 					return
@@ -77,25 +75,20 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 				case "count":
 					f64Result, _ := strconv.ParseFloat(result, 64)
 					StatsdClient.Count(namespace, f64Result)
-					break
 
 				case "gauge":
 					f64Result, _ := strconv.ParseFloat(result, 64)
 					StatsdClient.Gauge(namespace, f64Result)
-					break
 
 				case "histogram":
 					f64Result, _ := strconv.ParseFloat(result, 64)
 					StatsdClient.Histogram(namespace, f64Result)
-					break
 
 				case "increment":
 					StatsdClient.Increment(namespace)
-					break
 
 				case "unique":
 					StatsdClient.Unique(namespace, result)
-					break
 
 				default:
 					log.LoggerWContext(ctx).Warn("Unhandled statsd_type " + conf.StatsdType + " for " + conf.Type)
@@ -103,7 +96,6 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 			}
 			return
 		}
-		break
 
 	case "icmp_ipv4":
 		job = func() {
@@ -129,21 +121,17 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 					case "count":
 						f64Duration := float64(duration / time.Millisecond)
 						StatsdClient.Count(conf.StatsdNS, f64Duration)
-						break
 
 					case "gauge":
 						f64Duration := float64(duration / time.Millisecond)
 						StatsdClient.Gauge(conf.StatsdNS, f64Duration)
-						break
 
 					case "histogram":
 						f64Duration := float64(duration / time.Millisecond)
 						StatsdClient.Histogram(conf.StatsdNS, f64Duration)
-						break
 
 					case "timing":
 						c.Send(conf.StatsdNS)
-						break
 
 					default:
 						log.LoggerWContext(ctx).Warn("Unhandled statsd_type " + conf.StatsdType + " for " + conf.Type)
@@ -151,7 +139,6 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 				}
 			}
 		}
-		break
 
 	case "api":
 		job = func() {
@@ -161,17 +148,17 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 			case "GET":
 				err := apiclient.Call(ctx, "GET", conf.ApiPath, &raw)
 				if err != nil {
-					log.LoggerWContext(ctx).Error("API error", err.Error())
+					log.LoggerWContext(ctx).Error("API error: " + err.Error())
 					return
 				}
-				break
+
 			case "DELETE", "PATCH", "POST", "PUT":
 				err := apiclient.CallWithStringBody(ctx, conf.ApiMethod, conf.ApiPath, conf.ApiPayload, &raw)
 				if err != nil {
-					log.LoggerWContext(ctx).Error("API error", err.Error())
+					log.LoggerWContext(ctx).Error("API error: " + err.Error())
 					return
 				}
-				break
+
 			default:
 				log.LoggerWContext(ctx).Warn("Unhandled api_method " + conf.ApiMethod)
 				return
@@ -185,12 +172,12 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 			json.Unmarshal([]byte(raw), &json_data)
 			prs, err := jsonpath.Parse(conf.ApiCompile)
 			if err != nil {
-				log.LoggerWContext(ctx).Warn("api_compile '"+conf.ApiCompile+"' parse error from "+conf.ApiMethod+" "+conf.ApiPath, err.Error())
+				log.LoggerWContext(ctx).Warn("api_compile '" + conf.ApiCompile + "' parse error from " + conf.ApiMethod + " " + conf.ApiPath + ": " + err.Error())
 				return
 			}
 			res, err := prs.Apply(json_data)
 			if err != nil {
-				log.LoggerWContext(ctx).Warn("api_compile '"+conf.ApiCompile+"' apply error from "+conf.ApiMethod+" "+conf.ApiPath, err.Error())
+				log.LoggerWContext(ctx).Warn("api_compile '" + conf.ApiCompile + "' apply error from " + conf.ApiMethod + " " + conf.ApiPath + ": " + err.Error())
 				return
 			}
 			if res == nil {
@@ -200,23 +187,18 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 			switch conf.StatsdType {
 			case "count":
 				StatsdClient.Count(conf.StatsdNS, res.(float64))
-				break
 
 			case "gauge":
 				StatsdClient.Gauge(conf.StatsdNS, res.(float64))
-				break
 
 			case "histogram":
 				StatsdClient.Histogram(conf.StatsdNS, res.(float64))
-				break
 
 			case "increment":
 				StatsdClient.Increment(conf.StatsdNS)
-				break
 
 			case "unique":
 				StatsdClient.Unique(conf.StatsdNS, res.(string))
-				break
 
 			default:
 				log.LoggerWContext(ctx).Warn("Unhandled statsd_type " + conf.StatsdType + " for " + conf.Type)
@@ -227,9 +209,18 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 		log.LoggerWContext(ctx).Warn("Unhandled type: " + conf.Type)
 	}
 
-	_, err := interval.Every(conf.Interval).Randomize().Run(job)
-	if err != nil {
-		return err
+	switch strings.ToLower(conf.Randomize) {
+	case "1", "t", "true", "y", "yes":
+		_, err := interval.Every(conf.Interval).Randomize().Run(job)
+		if err != nil {
+			return err
+		}
+
+	default:
+		_, err := interval.Every(conf.Interval).Run(job)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

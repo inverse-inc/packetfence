@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 	dhcp "github.com/krolaw/dhcp4"
 )
@@ -91,6 +92,34 @@ func handleMac2Ip(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	http.Error(res, "Not found", http.StatusInternalServerError)
+	return
+}
+
+func handleAllStats(res http.ResponseWriter, req *http.Request) {
+	var stats []Stats
+	var interfaces pfconfigdriver.ListenInts
+	pfconfigdriver.FetchDecodeSocket(ctx, &interfaces)
+
+	for _, i := range interfaces.Element {
+		if _, ok := ControlIn[i]; ok {
+			Request := ApiReq{Req: "stats", NetInterface: i, NetWork: ""}
+			ControlIn[i] <- Request
+
+			stat := <-ControlOut[i]
+
+			for _, s := range stat.([]Stats) {
+				stats = append(stats, s)
+			}
+		}
+	}
+	outgoingJSON, error := json.Marshal(stats)
+
+	if error != nil {
+		http.Error(res, error.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Fprint(res, string(outgoingJSON))
 	return
 }
 

@@ -383,6 +383,7 @@ type PfStats struct {
 	StatsdNS       string `json:"statsd_ns"`
 	MySQLQuery     string `json:"mysql_query"`
 	Interval       string `json:"interval"`
+	Randomize      string `json:"randomize"`
 	Host           string `json:"host"`
 	ApiMethod      string `json:"api_method"`
 	ApiPayload     string `json:"api_payload"`
