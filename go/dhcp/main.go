@@ -185,7 +185,7 @@ func main() {
 			req.Close = true
 			resp, err := cli.Do(req)
 			if resp != nil {
-				defer resp.Body.Close()
+				resp.Body.Close()
 			}
 			if err == nil {
 				daemon.SdNotify(false, "WATCHDOG=1")
