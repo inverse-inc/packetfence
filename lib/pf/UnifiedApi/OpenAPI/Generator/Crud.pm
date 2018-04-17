@@ -96,7 +96,7 @@ sub propertiesFromDal {
     my $meta = $dal->get_meta;
     my %properties;
     while (my ($k, $v) = each %$meta) {
-        $properties{name} = {
+        $properties{$k} = {
             type => sqlTypeToOpenAPI($v->{type}),
         };
     }
@@ -271,6 +271,67 @@ sub updateResponses {
         "422" => {
             "\$ref" => "#/components/responses/UnprocessableEntity"
         }
+    };
+}
+
+sub generate_schemas {
+    my ($self, $controller, $actions) = @_;
+    my $list_path = $self->schema_list_path($controller);
+    my $item_path = $self->schema_item_path($controller);
+    return {
+        $list_path => $self->generate_list_schema($controller, $actions),
+        $item_path => $self->generate_item_schema($controller, $actions)
+    };
+}
+
+sub generate_item_schema {
+    my ($self, $controller, $actions) = @_;
+    return {
+        properties => $self->item_properies($controller, $actions),
+        required => $self->item_required($controller, $actions),
+        type => 'object'
+    };
+}
+
+sub item_properies {
+    my ($self, $controller, $actions) = @_;
+    return  $self->propertiesFromDal($controller->dal);
+}
+
+sub item_required {
+    my ($self, $controller, $actions) = @_;
+    my $meta = $controller->dal->get_meta;
+    my @required;
+    while (my ($k, $v) = each %$meta) {
+        if ($self->isFieldRequired($k, $v)) {
+            push @required, $k;
+        }
+    }
+    return \@required;
+}
+
+sub isFieldRequired {
+    my ($self, $field, $meta) = @_;
+    return 0;
+}
+
+sub generate_list_schema {
+    my ($self, $controller, $actions) = @_;
+    return {
+        allOf => [
+            { '$ref' => "#/components/schemas/Iterable" },
+            {
+                "properties" => {
+                    "items" => {
+                        "items" => {
+                            "\$ref" => "#" . $self->schema_item_path($controller),
+                        },
+                        "type" => "array"
+                    }
+                },
+                "type" => "object"
+            },
+        ],
     };
 }
 
