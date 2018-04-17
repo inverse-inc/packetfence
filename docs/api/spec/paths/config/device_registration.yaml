@@ -13,7 +13,10 @@
     parameters: []
     responses:
       '200':
-        $ref: '#/components/schemas/config/DeviceRegistration'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/config/DeviceRegistration'
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':
@@ -26,28 +29,7 @@
       content:
         application/json:
           schema:
-            properties:
-              allowed_devices:
-                description: List of OS which will be allowed to be register via the
-                  self service portal.
-                items:
-                  description: List of OS which will be allowed to be register via
-                    the self service portal.
-                  type: string
-                type: array
-              category:
-                description: The role to assign to devices registered from the specific
-                  portal. If none is specified, the role of the registrant is used.
-                type: string
-              description:
-                description: Description
-                type: string
-              id:
-                description: Profile Name
-                type: string
-            required:
-            - id
-            type: object
+            $ref: '#/components/schemas/config/DeviceRegistration'
     responses:
       '400':
         $ref: '#/components/responses/BadRequest'
@@ -61,28 +43,7 @@
       content:
         application/json:
           schema:
-            properties:
-              allowed_devices:
-                description: List of OS which will be allowed to be register via the
-                  self service portal.
-                items:
-                  description: List of OS which will be allowed to be register via
-                    the self service portal.
-                  type: string
-                type: array
-              category:
-                description: The role to assign to devices registered from the specific
-                  portal. If none is specified, the role of the registrant is used.
-                type: string
-              description:
-                description: Description
-                type: string
-              id:
-                description: Profile Name
-                type: string
-            required:
-            - id
-            type: object
+            $ref: '#/components/schemas/config/DeviceRegistration'
     responses:
       '201':
         $ref: '#/components/responses/Created'

@@ -1,89 +1,38 @@
 /tenants:
+  description: pf::UnifiedApi::Controller::Tenants
   get:
-    summary: Returns a list of tenants
-    description: The list of tenants will be limited to 100 and a cursor will be returned for iterating on other tenants. Iteration is only needed if the nextCursor is not an empty value.
+    description: List items
+    operationId: api.v1.Tenants.list
     parameters:
-      - $ref: '#/components/parameters/cursor'
+    - $ref: '#/components/parameters/cursor'
+    - $ref: '#/components/parameters/limit'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/sort'
     responses:
       '200':
-        description: List of tenants
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/TenantsList"
+              $ref: '#/components/schemas/TenantsList'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
   post:
-    summary: Creates a tenant
+    description: Create an item
+    operationId: api.v1.Tenants.create
+    parameters: []
     requestBody:
-      required: true
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/Tenant"
+            $ref: '#/components/schemas/Tenant'
     responses:
       '201':
-        $ref: "#/components/responses/Created"
+        $ref: '#/components/responses/Created'
       '400':
-        $ref: "#/components/responses/BadRequest"
+        $ref: '#/components/responses/BadRequest'
       '409':
-        $ref: "#/components/responses/Duplicate"
+        $ref: '#/components/responses/Duplicate'
       '422':
-        $ref: "#/components/responses/UnprocessableEntity"
-
-'/tenant/{tenant_id}':
-  get:
-    summary: Returns a specific tenant by its ID
-    parameters:
-      - name: tenant_id
-        in: path
-        required: true
-        description: The tenant ID to fetch
-        schema:
-          type: string
-    responses:
-      '200':
-        description: A specific tenant
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                item:
-                  $ref: "#/components/schemas/Tenant"
-  put:
-    summary: Allows to update a whole tenant
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/Tenant"
-    responses:
-      '200':
-        $ref: "#/components/responses/Message"    
-      '400':
-        $ref: "#/components/responses/BadRequest"
-      '422':
-        $ref: "#/components/responses/UnprocessableEntity"
-  patch:
-    summary: Allows to update parts of a tenant
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/Tenant"
-    responses:
-      '200':
-        $ref: "#/components/responses/Message"    
-      '400':
-        $ref: "#/components/responses/BadRequest"
-      '422':
-        $ref: "#/components/responses/UnprocessableEntity"
-  delete:
-    summary: Allows to delete a tenant
-    responses:
-      '204':
-        description: Deleted tenant
-
-
-
+        $ref: '#/components/responses/UnprocessableEntity'

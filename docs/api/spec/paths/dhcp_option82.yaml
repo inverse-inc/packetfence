@@ -1,0 +1,60 @@
+/dhcp_option82/{dhcp_option82_id}:
+  delete:
+    description: Remove an item
+    operationId: api.v1.DhcpOption82s.remove
+    parameters: []
+    responses:
+      '204':
+        description: Item deleted
+  description: pf::UnifiedApi::Controller::DhcpOption82s
+  get:
+    description: Get an item
+    operationId: api.v1.DhcpOption82s.get
+    parameters: []
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              properties:
+                item:
+                  $ref: '#/components/schemas/DhcpOption82'
+              type: object
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  patch:
+    description: Update an item
+    operationId: api.v1.DhcpOption82s.update
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/DhcpOption82'
+      required: '1'
+    responses:
+      '200':
+        $ref: '#/components/responses/Message'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  put:
+    description: Replace an item
+    operationId: api.v1.DhcpOption82s.replace
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/DhcpOption82'
+      required: '1'
+    responses:
+      '200':
+        $ref: '#/components/responses/Message'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

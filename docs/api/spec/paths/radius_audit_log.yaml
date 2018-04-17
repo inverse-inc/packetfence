@@ -1,0 +1,60 @@
+/radius_audit_log/{radius_audit_log_id}:
+  delete:
+    description: Remove an item
+    operationId: api.v1.RadiusAuditLogs.remove
+    parameters: []
+    responses:
+      '204':
+        description: Item deleted
+  description: pf::UnifiedApi::Controller::RadiusAuditLogs
+  get:
+    description: Get an item
+    operationId: api.v1.RadiusAuditLogs.get
+    parameters: []
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              properties:
+                item:
+                  $ref: '#/components/schemas/RadiusAuditLog'
+              type: object
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  patch:
+    description: Update an item
+    operationId: api.v1.RadiusAuditLogs.update
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RadiusAuditLog'
+      required: '1'
+    responses:
+      '200':
+        $ref: '#/components/responses/Message'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  put:
+    description: Replace an item
+    operationId: api.v1.RadiusAuditLogs.replace
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RadiusAuditLog'
+      required: '1'
+    responses:
+      '200':
+        $ref: '#/components/responses/Message'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

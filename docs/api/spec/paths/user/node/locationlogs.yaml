@@ -1,0 +1,38 @@
+/user/{user_id}/node/{node_id}/locationlogs:
+  description: pf::UnifiedApi::Controller::Users::Nodes::Locationlogs
+  get:
+    description: List items
+    operationId: api.v1.Users.Nodes.Locationlogs.list
+    parameters:
+    - $ref: '#/components/parameters/cursor'
+    - $ref: '#/components/parameters/limit'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/sort'
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/users/nodes/LocationlogsList'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  post:
+    description: Create an item
+    operationId: api.v1.Users.Nodes.Locationlogs.create
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/users/nodes/Locationlog'
+    responses:
+      '201':
+        $ref: '#/components/responses/Created'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '409':
+        $ref: '#/components/responses/Duplicate'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

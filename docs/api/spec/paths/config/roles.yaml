@@ -6,31 +6,11 @@
     parameters: []
     responses:
       '200':
-        $ref: '#/components/schemas/config/RolesList'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/config/RolesList'
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
-  post:
-    description: Create an item
-    operationId: api.v1.Config::Roles.create
-    parameters: []
-    requestBody:
-      content:
-        application/json:
-          schema:
-            properties:
-              id:
-                description: Name
-                type: string
-              max_nodes_per_pid:
-                description: The maximum number of nodes a user having this role can
-                  register.
-                type: integer
-              notes:
-                description: Description
-                type: string
-            required:
-            - id
-            - max_nodes_per_pid
-            type: object

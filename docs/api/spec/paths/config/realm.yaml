@@ -13,7 +13,10 @@
     parameters: []
     responses:
       '200':
-        $ref: '#/components/schemas/config/Realm'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/config/Realm'
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':
@@ -26,32 +29,7 @@
       content:
         application/json:
           schema:
-            properties:
-              admin_strip_username:
-                description: Should the usernames matching this realm be stripped
-                  when used on the administration interface
-                type: string
-              domain:
-                description: The domain to use for the authentication in that realm
-                type: string
-              id:
-                description: Realm
-                type: string
-              options:
-                description: You can add FreeRADIUS options in the realm definition
-                type: string
-              portal_strip_username:
-                description: Should the usernames matching this realm be stripped
-                  when used on the captive portal
-                type: string
-              radius_strip_username:
-                description: Should the usernames matching this realm be stripped
-                  when used in the authorization phase of 802.1x. Note that this doesn't
-                  control the stripping in FreeRADIUS, use the options above for that.
-                type: string
-            required:
-            - id
-            type: object
+            $ref: '#/components/schemas/config/Realm'
     responses:
       '400':
         $ref: '#/components/responses/BadRequest'
@@ -65,32 +43,7 @@
       content:
         application/json:
           schema:
-            properties:
-              admin_strip_username:
-                description: Should the usernames matching this realm be stripped
-                  when used on the administration interface
-                type: string
-              domain:
-                description: The domain to use for the authentication in that realm
-                type: string
-              id:
-                description: Realm
-                type: string
-              options:
-                description: You can add FreeRADIUS options in the realm definition
-                type: string
-              portal_strip_username:
-                description: Should the usernames matching this realm be stripped
-                  when used on the captive portal
-                type: string
-              radius_strip_username:
-                description: Should the usernames matching this realm be stripped
-                  when used in the authorization phase of 802.1x. Note that this doesn't
-                  control the stripping in FreeRADIUS, use the options above for that.
-                type: string
-            required:
-            - id
-            type: object
+            $ref: '#/components/schemas/config/Realm'
     responses:
       '201':
         $ref: '#/components/responses/Created'
