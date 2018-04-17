@@ -208,11 +208,14 @@ func Shuffle(addresses string) (r []byte) {
 	return slice
 }
 
-func ShuffleNetIP(array []net.IP) (r []byte) {
+func ShuffleNetIP(array []net.IP, randSrc int64) (r []byte) {
 
 	slice := make([]byte, 0, len(array))
 
-	random := rand.New(rand.NewSource(time.Now().UnixNano()))
+	if randSrc == 0 {
+		randSrc = time.Now().UnixNano()
+	}
+	random := rand.New(rand.NewSource(randSrc))
 	for i := len(array) - 1; i > 0; i-- {
 		j := random.Intn(i + 1)
 		array[i], array[j] = array[j], array[i]
@@ -224,12 +227,12 @@ func ShuffleNetIP(array []net.IP) (r []byte) {
 	return slice
 }
 
-func ShuffleIP(a []byte) (r []byte) {
+func ShuffleIP(a []byte, randSrc int64) (r []byte) {
 
 	var array []net.IP
 	for len(a) != 0 {
 		array = append(array, net.IPv4(a[0], a[1], a[2], a[3]).To4())
 		_, a = a[0], a[4:]
 	}
-	return ShuffleNetIP(array)
+	return ShuffleNetIP(array, randSrc)
 }

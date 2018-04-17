@@ -449,7 +449,7 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 			var options = make(map[dhcp.OptionCode][]byte)
 			for key, value := range handler.options {
 				if key == dhcp.OptionDomainNameServer || key == dhcp.OptionRouter {
-					options[key] = ShuffleIP(value)
+					options[key] = ShuffleIP(value, int64(p.CHAddr()[5]))
 				} else {
 					options[key] = value
 				}
@@ -532,7 +532,7 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 					var options = make(map[dhcp.OptionCode][]byte)
 					for key, value := range handler.options {
 						if key == dhcp.OptionDomainNameServer || key == dhcp.OptionRouter {
-							options[key] = ShuffleIP(value)
+							options[key] = ShuffleIP(value, int64(p.CHAddr()[5]))
 						} else {
 							options[key] = value
 						}
