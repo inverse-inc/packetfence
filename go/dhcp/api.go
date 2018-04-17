@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/inverse-inc/packetfence/go/api-frontend/unifiedapierrors"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 	dhcp "github.com/krolaw/dhcp4"
@@ -59,17 +60,17 @@ func handleIP2Mac(res http.ResponseWriter, req *http.Request) {
 			"result": &Node{Mac: index.(string), IP: vars["ip"]},
 		}
 
-		outgoingJSON, error := json.Marshal(node)
+		outgoingJSON, err := json.Marshal(node)
 
-		if error != nil {
-			http.Error(res, error.Error(), http.StatusInternalServerError)
+		if err != nil {
+			unifiedapierrors.Error(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		fmt.Fprint(res, string(outgoingJSON))
 		return
 	}
-	http.Error(res, "Not found", http.StatusInternalServerError)
+	unifiedapierrors.Error(res, "Cannot find match for this IP address", http.StatusNotFound)
 	return
 }
 
@@ -81,17 +82,17 @@ func handleMac2Ip(res http.ResponseWriter, req *http.Request) {
 			"result": &Node{Mac: vars["mac"], IP: index.(string)},
 		}
 
-		outgoingJSON, error := json.Marshal(node)
+		outgoingJSON, err := json.Marshal(node)
 
-		if error != nil {
-			http.Error(res, error.Error(), http.StatusInternalServerError)
+		if err != nil {
+			unifiedapierrors.Error(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		fmt.Fprint(res, string(outgoingJSON))
 		return
 	}
-	http.Error(res, "Not found", http.StatusInternalServerError)
+	unifiedapierrors.Error(res, "Cannot find match for this MAC address", http.StatusNotFound)
 	return
 }
 
@@ -115,7 +116,7 @@ func handleAllStats(res http.ResponseWriter, req *http.Request) {
 	outgoingJSON, error := json.Marshal(stats)
 
 	if error != nil {
-		http.Error(res, error.Error(), http.StatusInternalServerError)
+		unifiedapierrors.Error(res, error.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -132,10 +133,10 @@ func handleStats(res http.ResponseWriter, req *http.Request) {
 
 		stat := <-ControlOut[vars["int"]]
 
-		outgoingJSON, error := json.Marshal(stat)
+		outgoingJSON, err := json.Marshal(stat)
 
-		if error != nil {
-			http.Error(res, error.Error(), http.StatusInternalServerError)
+		if err != nil {
+			unifiedapierrors.Error(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -143,7 +144,7 @@ func handleStats(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	http.Error(res, `{"message": "Interface not found"}`, http.StatusNotFound)
+	unifiedapierrors.Error(res, "Interface not found", http.StatusNotFound)
 	return
 }
 
@@ -156,17 +157,17 @@ func handleInitiaLease(res http.ResponseWriter, req *http.Request) {
 
 		stat := <-ControlOut[vars["int"]]
 
-		outgoingJSON, error := json.Marshal(stat)
+		outgoingJSON, err := json.Marshal(stat)
 
-		if error != nil {
-			http.Error(res, error.Error(), http.StatusInternalServerError)
+		if err != nil {
+			unifiedapierrors.Error(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		fmt.Fprint(res, string(outgoingJSON))
 		return
 	}
-	http.Error(res, `{"message": Interface not found"}`, http.StatusNotFound)
+	unifiedapierrors.Error(res, "Interface not found", http.StatusNotFound)
 	return
 }
 
@@ -179,17 +180,17 @@ func handleDebug(res http.ResponseWriter, req *http.Request) {
 
 		stat := <-ControlOut[vars["int"]]
 
-		outgoingJSON, error := json.Marshal(stat)
+		outgoingJSON, err := json.Marshal(stat)
 
-		if error != nil {
-			http.Error(res, error.Error(), http.StatusInternalServerError)
+		if err != nil {
+			unifiedapierrors.Error(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		fmt.Fprint(res, string(outgoingJSON))
 		return
 	}
-	http.Error(res, `{"message": Interface not found"}`, http.StatusNotFound)
+	unifiedapierrors.Error(res, "Interface not found", http.StatusNotFound)
 	return
 }
 
