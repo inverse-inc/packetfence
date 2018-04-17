@@ -27,7 +27,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 7;
+use Test::More tests => 8;
 #This test will running last
 use Test::NoWarnings;
 
@@ -466,6 +466,149 @@ my @actions = (
             },
         },
         "Crud collection POST/GET"
+    );
+}
+
+{
+    is_deeply(
+        $generator->generate_schemas(
+            $controller,
+            [
+                {
+                    'operationId' => 'api.v1.DhcpOption82s.create',
+                    'name'        => 'api.v1.DhcpOption82s.create',
+                    'path'        => '/dhcp_option82s',
+                    'children'    => [],
+                    'depth'       => 2,
+                    'paths'       => [ '/dhcp_option82s' ],
+                    'controller'  => 'DhcpOption82s',
+                    'path_type'   => 'collection',
+                    'action'      => 'create',
+                    'path_part'   => '',
+                    'methods'     => [ 'POST' ],
+                    'full_path'   => '/api/v1/dhcp_option82s'
+                },
+                {
+                    'operationId' => 'api.v1.DhcpOption82s.list',
+                    'name'        => 'api.v1.DhcpOption82s.list',
+                    'path'        => '/dhcp_option82s',
+                    'children'    => [],
+                    'depth'       => 2,
+                    'paths'       => [ '/dhcp_option82s' ],
+                    'controller'  => 'DhcpOption82s',
+                    'path_type'   => 'collection',
+                    'action'      => 'list',
+                    'path_part'   => '',
+                    'methods'     => [ 'GET' ],
+                    'full_path'   => '/api/v1/dhcp_option82s'
+                },
+                {
+                    'operationId' => 'api.v1.DhcpOption82s.search',
+                    'name'        => 'api.v1.DhcpOption82s.search',
+                    'path'        => '/dhcp_option82s/search',
+                    'children'    => [],
+                    'depth'       => 3,
+                    'paths'       => [ '/dhcp_option82s', '/search' ],
+                    'controller'  => 'DhcpOption82s',
+                    'path_type'   => 'collection',
+                    'action'      => 'search',
+                    'path_part'   => '',
+                    'methods'     => [ 'POST' ],
+                    'full_path'   => '/api/v1/dhcp_option82s/search'
+                },
+                {
+                    'operationId' => 'api.v1.DhcpOption82s.update',
+                    'name'        => 'api.v1.DhcpOption82s.update',
+                    'path'        => '/dhcp_option82/{dhcp_option82_id}',
+                    'children'    => [],
+                    'depth'       => 2,
+                    'paths'       => [ '/dhcp_option82/{dhcp_option82_id}' ],
+                    'controller'  => 'DhcpOption82s',
+                    'path_type'   => 'resource',
+                    'action'      => 'update',
+                    'path_part'   => '',
+                    'methods'     => [ 'PATCH' ],
+                    'full_path'   => '/api/v1/dhcp_option82/{dhcp_option82_id}'
+                },
+                {
+                    'operationId' => 'api.v1.DhcpOption82s.remove',
+                    'name'        => 'api.v1.DhcpOption82s.remove',
+                    'path'        => '/dhcp_option82/{dhcp_option82_id}',
+                    'children'    => [],
+                    'depth'       => 2,
+                    'paths'       => [ '/dhcp_option82/{dhcp_option82_id}' ],
+                    'controller'  => 'DhcpOption82s',
+                    'path_type'   => 'resource',
+                    'action'      => 'remove',
+                    'path_part'   => '',
+                    'methods'     => [ 'DELETE' ],
+                    'full_path'   => '/api/v1/dhcp_option82/{dhcp_option82_id}'
+                },
+                {
+                    'operationId' => 'api.v1.DhcpOption82s.replace',
+                    'name'        => 'api.v1.DhcpOption82s.replace',
+                    'path'        => '/dhcp_option82/{dhcp_option82_id}',
+                    'children'    => [],
+                    'depth'       => 2,
+                    'paths'       => [ '/dhcp_option82/{dhcp_option82_id}' ],
+                    'controller'  => 'DhcpOption82s',
+                    'path_type'   => 'resource',
+                    'action'      => 'replace',
+                    'path_part'   => '',
+                    'methods'     => [ 'PUT' ],
+                    'full_path'   => '/api/v1/dhcp_option82/{dhcp_option82_id}'
+                },
+                {
+                    'operationId' => 'api.v1.DhcpOption82s.get',
+                    'name'        => 'api.v1.DhcpOption82s.get',
+                    'path'        => '/dhcp_option82/{dhcp_option82_id}',
+                    'children'    => [],
+                    'depth'       => 2,
+                    'paths'       => [ '/dhcp_option82/{dhcp_option82_id}' ],
+                    'controller'  => 'DhcpOption82s',
+                    'path_type'   => 'resource',
+                    'action'      => 'get',
+                    'path_part'   => '',
+                    'methods'     => [ 'GET' ],
+                    'full_path'   => '/api/v1/dhcp_option82/{dhcp_option82_id}'
+                }
+            ],
+        ),
+        {
+            '/components/schemas/DhcpOption82sList' => {
+                allOf => [
+                    { '$ref' => "#/components/schemas/Iterable" },
+                    {
+                        "properties" => {
+                            "items" => {
+                                "items" => {
+                                    "\$ref" =>
+                                      "#/components/schemas/DhcpOption82"
+                                },
+                                "type" => "array"
+                            }
+                        },
+                        "type" => "object"
+                    }
+                ]
+            },
+            '/components/schemas/DhcpOption82' => {
+                properties => {
+                    mac               => { type => 'string' },
+                    created_at        => { type => 'string' },
+                    option82_switch   => { type => 'string' },
+                    switch_id         => { type => 'string' },
+                    port              => { type => 'string' },
+                    vlan              => { type => 'string' },
+                    circuit_id_string => { type => 'string' },
+                    module            => { type => 'string' },
+                    host              => { type => 'string' },
+                },
+                type     => 'object',
+                required => [],
+            },
+        },
+        "Schemas For DhcpOption82s",
     );
 }
 

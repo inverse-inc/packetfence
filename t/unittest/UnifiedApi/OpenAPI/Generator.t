@@ -47,11 +47,7 @@ is_deeply(
     "Simple generation"
 );
 
-my %getContent = standardGetContent();
-my %putContent = standardGetContent();
-
 sub standardGetContent {
-
     return (
         "content" => {
             "application/json" => {
@@ -292,13 +288,14 @@ sub standardSchema {
 
     my $generator = pf::UnifiedApi::OpenAPI::Generator::Config->new;
     is_deeply(
-        [
+        {
             $generator->operations(
                 $controller,
                 [
                     {
-                        'name'        => 'api.v1.Config::FloatingDevices.replace',
-                        'children'    => [],
+                        'name'     => 'api.v1.Config::FloatingDevices.replace',
+                        'operationId' => 'api.v1.Config::FloatingDevices.replace',
+                        'children' => [],
                         'path' =>
                           '/config/floating_device/{floating_device_id}',
                         'depth' => 2,
@@ -314,13 +311,22 @@ sub standardSchema {
                     }
                 ]
             )
-        ],
-        [
+        },
+        {
             put => {
+                operationId => 'api.v1.Config::FloatingDevices.replace',
                 description => 'Replace an item',
                 parameters  => [],
-                requestBody => \%putContent,
-                responses   => {
+                requestBody => {
+                    "content" => {
+                        "application/json" => {
+                            schema => {
+                                "\$ref" => "#/components/schemas/config/FloatingDevice"
+                            }
+                        }
+                    },
+                },
+                responses => {
                     "201" => {
                         "\$ref" => "#/components/responses/Created"
                     },
@@ -332,7 +338,7 @@ sub standardSchema {
                     }
                 },
             },
-        ],
+        },
         "Config PUT"
     );
 }
