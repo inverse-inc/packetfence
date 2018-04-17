@@ -652,6 +652,9 @@ fi
 
 
 %post -n %{real_name}
+if [ "$1" = "2" ]; then
+    /usr/local/pf/bin/pfcmd service pf updatesystemd
+fi
 
 /usr/bin/mkdir -p /var/log/journal/
 echo "Restarting journald to enable persistent logging"
