@@ -31,7 +31,11 @@ generate_path
 
 sub generate_path {
     my ($self, $controller, $actions) = @_;
-    my %path;
+    my %path = $self->operations($controller, $actions);
+    if (!keys %path) {
+        return undef;
+    }
+
     if (defined (my $summary = $self->summary($controller, $actions))) {
         $path{summary} = $summary
     }
@@ -42,11 +46,6 @@ sub generate_path {
 
     if (defined (my $path_ref = $self->path_ref($controller, $actions))) {
         $path{'$ref'} = $self->path_ref($controller, $actions);
-    }
-
-    my %ops = $self->operations($controller, $actions);
-    if (keys %ops) {
-        %path = (%path, %ops);
     }
 
     if (defined (my $servers = $self->servers($controller, $actions))) {
@@ -224,13 +223,14 @@ operation
 
 sub operation {
     my ( $self, $c, $m, $action ) = @_;
-    my %op;
     my $responses = $self->operation_generation('responses', $c, $m, $action);
     if (!defined $responses) {
         return undef;
     }
 
-    $op{responses} = $responses;
+    my %op = (
+        responses => $responses
+    );
     for my $scope (qw(tags summary description externalDocs operationId parameters requestBody callbacks deprecated security servers)) {
         if (defined(my $value = $self->operation_generation($scope, $c, $m, $action))) {
             $op{$scope} = $value;
