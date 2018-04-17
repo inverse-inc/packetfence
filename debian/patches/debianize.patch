@@ -12,10 +12,10 @@ index 2ef5c25..7409c2a 100644
  key_buffer_size = [% key_buffer_size %]M
  max_allowed_packet = [% max_allowed_packet %]M
 diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
-index 5878420..7fbcbd3 100644
+index 462daa6..f24f6f2 100644
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
-@@ -376,7 +376,7 @@ radiusd=enabled
+@@ -392,7 +392,7 @@ radiusd=enabled
  # services.radiusd_binary
  # 
  # Location of the named binary. Only necessary to change if you are not running the RPMed version.
@@ -24,16 +24,16 @@ index 5878420..7fbcbd3 100644
  #
  # services.iptables
  #
-@@ -441,7 +441,7 @@ httpd_proxy=enabled
+@@ -457,7 +457,7 @@ httpd_proxy=enabled
  # services.httpd_binary
  #
  # Location of the apache binary. Only necessary to change if you are not running the RPMed version.
 -httpd_binary=/usr/sbin/httpd
 +httpd_binary=/usr/sbin/apache2
  #
- # services.pfsetvlan
+ # services.snmptrapd
  #
-@@ -544,7 +544,7 @@ openssl_binary=/usr/bin/openssl
+@@ -555,7 +555,7 @@ openssl_binary=/usr/bin/openssl
  # services.arp_binary
  # 
  # location of the arp binary. only necessary to change if you are not running the rpmed version.
@@ -238,4 +238,3 @@ index e0e0c2c..880121b 100644
  Slice=packetfence-base.slice
  
  [Install]
-- 
