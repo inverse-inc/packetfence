@@ -225,13 +225,19 @@ operation
 sub operation {
     my ( $self, $c, $m, $action ) = @_;
     my %op;
-    for my $scope (qw(tags summary description externalDocs operationId parameters requestBody responses callbacks deprecated security servers)) {
+    my $responses = $self->operation_generation('responses', $c, $m, $action);
+    if (!defined $responses) {
+        return undef;
+    }
+
+    $op{responses} = $responses;
+    for my $scope (qw(tags summary description externalDocs operationId parameters requestBody callbacks deprecated security servers)) {
         if (defined(my $value = $self->operation_generation($scope, $c, $m, $action))) {
             $op{$scope} = $value;
         }
     }
 
-    return keys %op == 0 ? undef : \%op;
+    return \%op;
 }
 
 sub operation_generators {
