@@ -194,11 +194,6 @@ sub removeResponses {
     };
 }
 
-sub configCollectionPostJsonSchema {
-    my ( $method, $child, $forms ) = @_;
-    return "schema" => pf::UnifiedApi::GenerateSpec::formsToSchema($forms);
-}
-
 sub buildForms {
     my ($controller, $child) = @_;
     my @form_classes;
@@ -236,13 +231,14 @@ sub updateRequestBody {
 
 sub requestBody {
     my ( $self, $scope, $c, $m, $a ) = @_;
-    my @forms = buildForms( $c, $a, $m );
     return {
-        "content" => {
-            "application/json" => { 
-                configCollectionPostJsonSchema( $m, $a, \@forms )
-            },
-        }
+        content => {
+            "application/json" => {
+                schema => {
+                    "\$ref" => "#" . $self->schema_item_path($c),
+                }
+            }
+        },
     };
 }
 
