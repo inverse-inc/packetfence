@@ -65,29 +65,31 @@ sub generateOpenAPIPaths {
     my ($app, $paths) = @_;
     my %openapi_paths;
     while ( my ( $path, $actions ) = each %$paths ) {
-        my $sub_class        = $actions->[0]->{controller};
-        my $controller_class = "pf::UnifiedApi::Controller::${sub_class}";
-        load $controller_class;
-        my $controller = $controller_class->new(app => $app);
+        my $controller = createController($actions->[0]->{controller}, $app);
         my $generator = $controller->openapi_generator;
         next if !defined $generator;
-        my $data = $generator->generate_path($controller, $actions);
-        next if !defined $data;
-        $openapi_paths{$path} = $data;
+        if (my $data = $generator->generate_path($controller, $actions)) {
+            $openapi_paths{$path} = $data;
+        }
     }
     return \%openapi_paths;
+}
+
+sub createController {
+    my ($sub_class, $app) = @_;
+    my $controller_class = "pf::UnifiedApi::Controller::${sub_class}";
+    load $controller_class;
+    return $controller_class->new(app => $app);
 }
 
 sub generateOpenAPISchemas {
     my ($app, $sub_classes) = @_;
     my %openapi_schemas;
     while (my ($sub_class, $actions) = each %$sub_classes) {
-        my $controller_class = "pf::UnifiedApi::Controller::${sub_class}";
-        load $controller_class;
-        my $controller = $controller_class->new(app => $app);
+        my $controller = createController($sub_class, $app);
         my $generator = $controller->openapi_generator;
-        my $schemas = $generator->generate_schemas($controller, $actions);
-        if ($schemas) {
+        next if !defined $generator;
+        if (my $schemas = $generator->generate_schemas($controller, $actions)) {
             %openapi_schemas = (%openapi_schemas, %$schemas);
         }
     }
