@@ -49,7 +49,7 @@ sub saveToYaml {
     while (my ($p, $d) = each %$yamls) {
         next if !defined $d;
         my $file_path = $p;
-        $file_path =~ s#/\{[^\}]+\}##;
+        $file_path =~ s#/\{[^\}]+\}##g;
         $file_path = "${base_path}${file_path}.yaml";
         unlink ($file_path);
         my $dump = Dump({$p => $d});
