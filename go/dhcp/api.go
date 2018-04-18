@@ -57,7 +57,7 @@ type Info struct {
 func handleIP2Mac(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
-	if index, expiresAt, found := GlobalIpCache.Get(vars["ip"]); found {
+	if index, expiresAt, found := GlobalIpCache.GetWithExpiration(vars["ip"]); found {
 		var node = &Node{Mac: index.(string), IP: vars["ip"], EndsAt: expiresAt}
 
 		outgoingJSON, err := json.Marshal(node)
