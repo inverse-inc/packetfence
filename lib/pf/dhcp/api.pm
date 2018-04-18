@@ -28,6 +28,7 @@ use pf::cluster;
 use POSIX::AtFork;
 use pf::api::unifiedapiclient;
 use pf::config qw(%Config);
+use pf::StatsD::Timer;
 
 our $VERSION = '0.01';
 my $default_client;
@@ -76,7 +77,7 @@ sub ip2mac {
     my $mac;
     eval {
         my $res = $self->unified_api_client->call("GET", "/api/v1/dhcp/ip/$ip");
-        $mac = $res->{result}->{mac};
+        $mac = $res->{mac};
     };
     if($@) {
         $logger->warn("Cannot get IP address for $ip through the pfdhcp API: $@");
@@ -99,7 +100,7 @@ sub mac2ip {
     my $ip;
     eval {
         my $res = $self->unified_api_client->call("GET", "/api/v1/dhcp/mac/$mac");
-        $ip = $res->{result}->{ip};
+        $ip = $res->{ip};
     };
     if($@) {
         $logger->warn("Cannot get IP address for $mac through the pfdhcp API: $@");

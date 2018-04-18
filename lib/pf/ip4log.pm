@@ -121,13 +121,12 @@ sub mac2ip {
 
     my $ip;
 
-    # TODO: replace by pfdhcp api call
-    # We first query OMAPI since it is the fastest way and more reliable source of info in most cases
-    #if ( isenabled($Config{omapi}{mac2ip_lookup}) ) {
-    #    $logger->debug("Trying to match IP address to MAC '$mac' using OMAPI");
-    #    $ip = _mac2ip_omapi($mac);
-    #    $logger->debug("Matched MAC '$mac' to IP address '$ip' using OMAPI") if $ip;
-    #}
+    # We first query the pfdhcp API since it is the fastest way and more reliable source of info in most cases
+    if ( isenabled($Config{pfdhcp}{mac2ip_lookup}) ) {
+        $logger->debug("Trying to match IP address to MAC '$mac' using the pfdhcp API");
+        $ip = _mac2ip_pfdhcp_api($mac);
+        $logger->debug("Matched MAC '$mac' to IP address '$ip' using the pfdhcp API") if $ip;
+    }
 
     # If we don't have a result from OMAPI, we use the SQL 'ip4log' table
     unless ($ip) {

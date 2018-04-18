@@ -7,7 +7,9 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
+	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/gorilla/mux"
 	"github.com/inverse-inc/packetfence/go/api-frontend/unifiedapierrors"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -17,8 +19,9 @@ import (
 
 // Node struct
 type Node struct {
-	Mac string `json:"mac"`
-	IP  string `json:"ip"`
+	Mac    string    `json:"mac"`
+	IP     string    `json:"ip"`
+	EndsAt time.Time `json:"ends_at"`
 }
 
 // Stats struct
@@ -55,10 +58,8 @@ type Info struct {
 func handleIP2Mac(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
-	if index, found := GlobalIpCache.Get(vars["ip"]); found {
-		var node = map[string]*Node{
-			"result": &Node{Mac: index.(string), IP: vars["ip"]},
-		}
+	if index, expiresAt, found := GlobalIpCache.Get(vars["ip"]); found {
+		var node = &Node{Mac: index.(string), IP: vars["ip"], EndsAt: expiresAt}
 
 		outgoingJSON, err := json.Marshal(node)
 
@@ -77,10 +78,9 @@ func handleIP2Mac(res http.ResponseWriter, req *http.Request) {
 func handleMac2Ip(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
-	if index, found := GlobalMacCache.Get(vars["mac"]); found {
-		var node = map[string]*Node{
-			"result": &Node{Mac: vars["mac"], IP: index.(string)},
-		}
+	if index, expiresAt, found := GlobalMacCache.GetWithExpiration(vars["mac"]); found {
+		spew.Dump(expiresAt)
+		var node = &Node{Mac: vars["mac"], IP: index.(string), EndsAt: expiresAt}
 
 		outgoingJSON, err := json.Marshal(node)
 
