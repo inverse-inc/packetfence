@@ -196,9 +196,9 @@ func handleReleaseIP(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	_ = InterfaceScopeFromMac(vars["mac"])
 
-	var result = &Info{Mac: vars["mac"], Status: "ACK"},
+	var result = &Info{Mac: vars["mac"], Status: "ACK"}
 
-		res.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	res.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(res).Encode(result); err != nil {
 		panic(err)
@@ -220,9 +220,9 @@ func handleOverrideOptions(res http.ResponseWriter, req *http.Request) {
 	// Insert information in etcd
 	_ = etcdInsert(vars["mac"], sharedutils.ConvertToString(body))
 
-	var result = &Info{Mac: vars["mac"], Status: "ACK"},
+	var result = &Info{Mac: vars["mac"], Status: "ACK"}
 
-		res.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	res.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(res).Encode(result); err != nil {
 		panic(err)
@@ -244,9 +244,9 @@ func handleOverrideNetworkOptions(res http.ResponseWriter, req *http.Request) {
 	// Insert information in etcd
 	_ = etcdInsert(vars["network"], sharedutils.ConvertToString(body))
 
-	var result = &Info{Network: vars["network"], Status: "ACK"},
+	var result = &Info{Network: vars["network"], Status: "ACK"}
 
-		res.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	res.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(res).Encode(result); err != nil {
 		panic(err)
