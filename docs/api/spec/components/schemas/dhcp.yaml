@@ -2,16 +2,13 @@ DhcpMacIp:
     type: object
     description: The schema used when returning a DHCP MAC address and IPv4 address pair
     properties:
-        result:
-            type: object
-            description: A MAC address and IPv4 address pair
-            properties:
-                mac:
-                    type: string
-                    description: The MAC address
-                ip:
-                    type: string
-                    description: The IPv4 address
+      description: A MAC address and IPv4 address pair
+      mac:
+          type: string
+          description: The MAC address
+      ip:
+          type: string
+          description: The IPv4 address
 
 DhcpInterfaceStats:
     type: array
@@ -73,28 +70,22 @@ DhcpMacResponse:
     type: object
     description: The schema used when options are added or deleted from a MAC address
     properties:
-        result:
-            type: object
-            properties:
-                mac:
-                    type: string
-                    description: The MAC address
-                status:
-                    type: string
-                    description: Whether the request succeeded "ACK", or failed "NAK"
-                    enum: [ACK, NAK]
+      mac:
+          type: string
+          description: The MAC address
+      status:
+          type: string
+          description: Whether the request succeeded "ACK", or failed "NAK"
+          enum: [ACK, NAK]
 
 DhcpNetworkResponse:
     type: object
     description: The schema used when options are added or deleted from a Network
     properties:
-        result:
-            type: object
-            properties:
-                network:
-                    type: string
-                    description: The networks IPv4 address
-                status:
-                    type: string
-                    description: Whether the request succeeded "ACK", or failed "NAK"
-                    enum: [ACK, NAK]
+        network:
+            type: string
+            description: The networks IPv4 address
+        status:
+            type: string
+            description: Whether the request succeeded "ACK", or failed "NAK"
+            enum: [ACK, NAK]
