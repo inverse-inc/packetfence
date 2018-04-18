@@ -1,0 +1,13 @@
+/// _grid.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2 -*-
+
+.row-flex {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  @for $i from 1 through $gridColumns {
+    .col#{$i} {
+      flex: 0 0 ($i/$gridColumns) * 100%;
+      overflow: hidden;
+    }
+  }
+}

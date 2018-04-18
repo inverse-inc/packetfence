@@ -100,14 +100,14 @@ END
     </script>
 
     <!-- alarms templates -->
-    <div class="span4 hide" data-alarm="warning">
+    <div class="col3 hide" data-alarm="warning">
         <div class="alert text-center">
             <div><h6 data-block="hostname"></h6></div>
             <div><span data-block="label"></span></div>
             <div><strong data-block="value"></strong></div>
         </div>
     </div>
-    <div class="span4 hide" data-alarm="critical">
+    <div class="col3 hide" data-alarm="critical">
         <div class="alert alert-error text-center">
             <div><h6 data-block="hostname"></h6></div>
             <div><span data-block="label"></span></div>
@@ -116,20 +116,10 @@ END
     </div>
     <!-- end of alarms templates -->
 
-    <!-- systemuptime template -->
-    <div class="span4 hide" data-counter="uptime">
-        <div class="card">
-            <div class="card-block text-center">
-                <h6><span data-block="hostname"></span> Uptime</h6>
-                <div><span data-block="value" class="no-wrap">--:--:--</span></div>
-            </div>
-        </div>
-    </div>
-    <!-- end of counters templates -->
-
-    <div class="row-fluid" id="alarms">
+    <div class="row-flex" id="alarms">
         <!-- alarms -->
     </div>
+
     <div class="text-center">
         <ul class="nav nav-pills" id="status-tabs">
             <li [% IF tab == "system" %]class="active"[% END %]><a data-toggle="pill" href="#system">[% l('System') %]</a></li>

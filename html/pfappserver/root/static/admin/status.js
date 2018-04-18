@@ -328,11 +328,14 @@ function initDashboard() {
                 method: 'GET'
             }).done(function (response) {
                 var alarms = response.alarms;
+                var ids = [];
+                var index = 0;
                 $.each(alarms, function (name, alarm) {
                     var el = $('#_' + alarm.id);
                     var status = alarm.status.toLowerCase();
                     var label = alarm.chart.split('.')[0].replace(/_/g, ' ') + ' - ' + alarm.family;
                     var isInitialized = true;
+                    ids['_' + alarm.id] = 1;
                     if (!el.get(0)) {
                         el = $('[data-alarm="' + status + '"]').clone();
                         isInitialized = false;
@@ -360,6 +363,13 @@ function initDashboard() {
                         fitty(labelEl[0], { minSize: 8, maxSize: 14 });
                         fitty(valueEl[0], { maxSize: 24 });
                         el.removeClass('hide');
+                    }
+                    index++;
+                });
+                // Remove unset alarms
+                $.each($('#alarms > div'), function (index, el) {
+                    if (!ids[el.id]) {
+                        $(el).remove();
                     }
                 });
                 window.NETDATA.parseDom();
