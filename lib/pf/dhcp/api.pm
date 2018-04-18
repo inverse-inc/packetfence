@@ -29,6 +29,7 @@ use POSIX::AtFork;
 use pf::api::unifiedapiclient;
 use pf::config qw(%Config);
 use pf::StatsD::Timer;
+use DateTime::Format::RFC3339;
 
 our $VERSION = '0.01';
 my $default_client;
@@ -62,50 +63,29 @@ The Unified API client
 
 has unified_api_client => (is => 'rw');
 
-=head2 ip2mac
+=head2 get_lease
 
-Perform a IP to MAC translation using the DHCP API
-
-=cut
-
-sub ip2mac {
-    my $timer = pf::StatsD::Timer->new();
-
-    my ($self, $ip) = @_;
-    my $logger = get_logger;
-
-    my $mac;
-    eval {
-        my $res = $self->unified_api_client->call("GET", "/api/v1/dhcp/ip/$ip");
-        $mac = $res->{mac};
-    };
-    if($@) {
-        $logger->warn("Cannot get IP address for $ip through the pfdhcp API: $@");
-    }
-    return $mac;
-}
-
-=head2 mac2ip
-
-Perform a MAC to IP translation using the DHCP API
+Get a lease on the pfdhcp API
 
 =cut
 
-sub mac2ip {
+sub get_lease {
     my $timer = pf::StatsD::Timer->new();
 
-    my ($self, $mac) = @_;
+    my ($self, $type, $value) = @_;
     my $logger = get_logger;
 
-    my $ip;
+    my $res;
     eval {
-        my $res = $self->unified_api_client->call("GET", "/api/v1/dhcp/mac/$mac");
-        $ip = $res->{ip};
+        $res = $self->unified_api_client->call("GET", "/api/v1/dhcp/$type/$value");
+        my $f = DateTime::Format::RFC3339->new();
+        $res->{ends_at} = $f->parse_datetime( $res->{ends_at} )->epoch;
     };
     if($@) {
-        $logger->warn("Cannot get IP address for $mac through the pfdhcp API: $@");
+        $logger->warn("Cannot get lease for $value through the pfdhcp API: $@");
+        return undef;
     }
-    return $ip;
+    return $res;
 }
 
 =head2 default_client
