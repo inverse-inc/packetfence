@@ -225,7 +225,7 @@ sub manageTrafficShaping {
 
             my $gateway = (defined $NetworkConfig{$network}{'next_hop'} ? $NetworkConfig{$network}{'next_hop'} : $NetworkConfig{$network}{'gateway'});
 
-            my $interface = find_outgoing_interface($gateway);
+            my $interface = find_outgoing_interface($gateway, $dev);
 
             foreach my $role ( @roles ) {
                 my $upload;

@@ -269,7 +269,7 @@ sub generate_mangle_postrouting_rules {
 
         my $gateway = (defined $NetworkConfig{$network}{'next_hop'} ? $NetworkConfig{$network}{'next_hop'} : $NetworkConfig{$network}{'gateway'});
 
-        my $interface = find_outgoing_interface($gateway);
+        my $interface = find_outgoing_interface($gateway, $dev);
 
         foreach my $role ( @roles ) {
             if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
