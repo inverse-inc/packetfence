@@ -71,9 +71,6 @@ sub _search :AdminRole('REPORTS') {
     $infos{start_date} = $form->{start}->{date} . " " . $form->{start}->{time} if($form->{start});
     $infos{end_date} = $form->{end}->{date} . " " . $form->{end}->{time} if($form->{end});
 
-    use Data::Dumper;
-    $c->log->info(Dumper(\%infos));
-
     my @items = $report->query(%infos);
 
     $c->stash->{searches} = $report->searches;
