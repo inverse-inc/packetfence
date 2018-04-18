@@ -182,7 +182,7 @@ EOT
     parse_template( \%tags, "$conf_dir/monitoring/python.d/postfix.conf", "$generated_conf_dir/monitoring/python.d/postfix.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/python.d/redis.conf", "$generated_conf_dir/monitoring/python.d/redis.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/python.d/web_log.conf", "$generated_conf_dir/monitoring/python.d/web_log.conf" );
-    parse_template( \%tags, "$conf_dir/monitoring/statsd.d/example.conf", "$generated_conf_dir/monitoring/statsd.d/example.conf" );
+    parse_template( \%tags, "$conf_dir/monitoring/statsd.d/packetfence.conf", "$generated_conf_dir/monitoring/statsd.d/packetfence.conf" );
     parse_template( \%tags, "$conf_dir/monitoring/stream.conf", "$generated_conf_dir/monitoring/stream.conf" );
     return 1;
 }

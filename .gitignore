@@ -177,7 +177,7 @@ conf/monitoring/health_email_recipients.conf
 conf/monitoring/netdata.conf
 conf/monitoring/python.d.conf
 conf/monitoring/python.d/
-conf/monitoring/statsd.d/example.conf
+conf/monitoring/statsd.d/packetfence.conf
 conf/monitoring/stream.conf
 conf/stats.conf
 conf/monitoring/node.d.conf
