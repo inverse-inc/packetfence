@@ -27,6 +27,7 @@ use pf::log;
 use pf::cluster;
 use POSIX::AtFork;
 use pf::api::unifiedapiclient;
+use pf::config qw(%Config);
 
 our $VERSION = '0.01';
 my $default_client;
@@ -67,6 +68,8 @@ Perform a IP to MAC translation using the DHCP API
 =cut
 
 sub ip2mac {
+    my $timer = pf::StatsD::Timer->new();
+
     my ($self, $ip) = @_;
     my $logger = get_logger;
 
@@ -88,6 +91,8 @@ Perform a MAC to IP translation using the DHCP API
 =cut
 
 sub mac2ip {
+    my $timer = pf::StatsD::Timer->new();
+
     my ($self, $mac) = @_;
     my $logger = get_logger;
 
@@ -119,8 +124,8 @@ sub CLONE {
     $default_client->host($api_host);
 
     # Setting agressive timeouts
-    $default_client->unified_api_client->timeout_ms(500);
-    $default_client->unified_api_client->connect_timeout_ms(500);
+    $default_client->unified_api_client->timeout_ms($Config{pfdhcp}{timeout_ms});
+    $default_client->unified_api_client->connect_timeout_ms($Config{pfdhcp}{connect_timeout_ms});
 }
 POSIX::AtFork->add_to_child(\&CLONE);
 CLONE();
