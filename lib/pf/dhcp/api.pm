@@ -1,4 +1,5 @@
 package pf::dhcp::api;
+
 =head1 NAME
 
 pf::dhcp::api
@@ -15,7 +16,7 @@ Allows to access the pfdhcp API through the Unified API
 
     my $dhcp_api = pf::dhcp::api->new(host => 'localhost');
 
-    my $data = $dhcp_api->lookup({'ip-address' => "10.229.25.247" });
+    my $data = $dhcp_api->get_lease("ip", "10.229.25.247");
 
 =cut
 
