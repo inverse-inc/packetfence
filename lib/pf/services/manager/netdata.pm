@@ -69,7 +69,7 @@ families: *
    every: 10s
     crit: \$gauge != 1
    units: ok/failed
-    info: states if source eduroam1 is available
+    info: Source eduroam1 unavailable
    delay: down 5m multiplier 1.5 max 1h
       to: sysadmin
 
@@ -79,7 +79,7 @@ families: *
    every: 10s
     crit: \$gauge != 1
    units: ok/failed
-    info: states if source eduroam2 is available
+    info: Source eduroam2 unavailable
    delay: down 5m multiplier 1.5 max 1h
       to: sysadmin
 
@@ -92,7 +92,7 @@ families: *
    every: 10s
     crit: \$gauge != 1
    units: ok/failed
-    info: states if source $source->{'id'} is available
+    info: Source $source->{'id'} unavailable
    delay: down 5m multiplier 1.5 max 1h
       to: sysadmin
 
