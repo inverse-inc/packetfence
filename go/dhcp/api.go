@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/gorilla/mux"
 	"github.com/inverse-inc/packetfence/go/api-frontend/unifiedapierrors"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -79,7 +78,6 @@ func handleMac2Ip(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
 	if index, expiresAt, found := GlobalMacCache.GetWithExpiration(vars["mac"]); found {
-		spew.Dump(expiresAt)
 		var node = &Node{Mac: vars["mac"], IP: index.(string), EndsAt: expiresAt}
 
 		outgoingJSON, err := json.Marshal(node)

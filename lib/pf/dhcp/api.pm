@@ -104,7 +104,6 @@ sub CLONE {
     $default_client->unified_api_client(pf::api::unifiedapiclient->new);
     $default_client->host($api_host);
 
-    # Setting agressive timeouts
     $default_client->unified_api_client->timeout_ms($Config{pfdhcp}{timeout_ms});
     $default_client->unified_api_client->connect_timeout_ms($Config{pfdhcp}{connect_timeout_ms});
 }
