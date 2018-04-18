@@ -12,9 +12,25 @@
   width: 100%;
 }
 
+.counter_over_chart {
+  position: absolute;
+  font-size: 4em;
+  line-height: 1em;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 75%; // 50% would be centered
+  margin: auto 10px;
+}
+
+.counter_chart_title,
 .dygraph-title,
-.gaugeChartTitle {
+.gaugeChartTitle,
+.netdata-d3pie-chart .p0_title {
   color: $grayLight;
+  fill: $grayLight;
+  font-size: 11px;
   line-height: 1em;
   text-transform: uppercase;
 }
@@ -24,8 +40,10 @@
 }
 
 #alarms {
+  padding-bottom: 10px;
   .alert {
     padding: 0;
+    margin: 2px;
   }
 }
 

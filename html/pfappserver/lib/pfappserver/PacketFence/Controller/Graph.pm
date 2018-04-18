@@ -365,6 +365,7 @@ sub dashboard :Local :AdminRole('REPORTS') {
     my $width = $c->request->param('width');
     my $tab = $c->request->param('tab') // 'system';
     tie my @authentication_sources_monitored, 'pfconfig::cached_array', "resource::authentication_sources_monitored";
+    my @categories = pf::nodecategory::nodecategory_view_all();
     $start //= '';
 
     $self->_saveRange($c, $DASHBOARD, $start, $end);
@@ -487,7 +488,7 @@ sub dashboard :Local :AdminRole('REPORTS') {
         graphs         => \@graphs,
         cluster        => pf::cluster::members_ips($management_network->tag('int')),
         sources        => \@authentication_sources_monitored,
-        roles          => pf::nodecategory::nodecategory_view_all(),
+        roles          => \@categories,
         current_view   => 'HTML',
         tab            => $tab,
         listen_ints    => \@listen_ints,
