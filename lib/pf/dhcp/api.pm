@@ -76,7 +76,7 @@ sub ip2mac {
         $mac = $res->{result}->{mac};
     };
     if($@) {
-        $logger->warn("Cannot get IP address for $mac through the pfdhcp API: $@");
+        $logger->warn("Cannot get IP address for $ip through the pfdhcp API: $@");
     }
     return $mac;
 }
@@ -117,6 +117,10 @@ sub CLONE {
     $default_client = pf::dhcp::api->new;
     $default_client->unified_api_client(pf::api::unifiedapiclient->new);
     $default_client->host($api_host);
+
+    # Setting agressive timeouts
+    $default_client->unified_api_client->timeout_ms(500);
+    $default_client->unified_api_client->connect_timeout_ms(500);
 }
 POSIX::AtFork->add_to_child(\&CLONE);
 CLONE();
