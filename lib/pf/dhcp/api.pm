@@ -25,10 +25,11 @@ use Moo;
 use MIME::Base64;
 use pf::log;
 use pf::cluster;
+use POSIX::AtFork;
 use pf::api::unifiedapiclient;
 
 our $VERSION = '0.01';
-
+my $default_client;
 
 =head1 ATTRIBUTES
 
@@ -40,6 +41,16 @@ host of dhcp server
 
 has host => (is => 'rw', default => sub  { 'localhost' });
 
+=head2 after host
+
+Set the host in the Unified API client after setting it here
+
+=cut
+
+after 'host' => sub {
+    my ($self) = @_;
+    $self->unified_api_client->host($self->{host});
+};
 
 =head2 unified_api_client
 
@@ -61,7 +72,7 @@ sub ip2mac {
 
     my $mac;
     eval {
-        my $res = pf::api::unifiedapiclient->default_client->call("GET", "/api/v1/dhcp/ip/$ip");
+        my $res = $self->unified_api_client->call("GET", "/api/v1/dhcp/ip/$ip");
         $mac = $res->{result}->{mac};
     };
     if($@) {
@@ -82,7 +93,7 @@ sub mac2ip {
 
     my $ip;
     eval {
-        my $res = pf::api::unifiedapiclient->default_client->call("GET", "/api/v1/dhcp/mac/$mac");
+        my $res = $self->unified_api_client->call("GET", "/api/v1/dhcp/mac/$mac");
         $ip = $res->{result}->{ip};
     };
     if($@) {
@@ -91,19 +102,24 @@ sub mac2ip {
     return $ip;
 }
 
-=head2 get_client
+=head2 default_client
 
 Get the default DHCP API client based on the configuration
 
 =cut
 
-sub get_client {
-    my ($class) = @_;
-    my $api_host = $cluster_enabled ? pf::cluster::management_cluster_ip : '127.0.0.1'; 
-    my $self = $class->new(host => $api_host);
-    $self->unified_api_client(pf::api::unifiedapiclient->default_client);
-    return $self;
+sub default_client {
+    return $default_client;
 }
+
+sub CLONE {
+    my $api_host = $cluster_enabled ? pf::cluster::management_cluster_ip : '127.0.0.1'; 
+    $default_client = pf::dhcp::api->new;
+    $default_client->unified_api_client(pf::api::unifiedapiclient->new);
+    $default_client->host($api_host);
+}
+POSIX::AtFork->add_to_child(\&CLONE);
+CLONE();
 
 =head1 AUTHOR
 
