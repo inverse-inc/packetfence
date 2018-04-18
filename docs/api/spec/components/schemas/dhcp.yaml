@@ -82,13 +82,10 @@ DhcpNetworkResponse:
     type: object
     description: The schema used when options are added or deleted from a Network
     properties:
-        result:
-            type: object
-            properties:
-                network:
-                    type: string
-                    description: The networks IPv4 address
-                status:
-                    type: string
-                    description: Whether the request succeeded "ACK", or failed "NAK"
-                    enum: [ACK, NAK]
+        network:
+            type: string
+            description: The networks IPv4 address
+        status:
+            type: string
+            description: Whether the request succeeded "ACK", or failed "NAK"
+            enum: [ACK, NAK]
