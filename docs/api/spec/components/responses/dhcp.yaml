@@ -3,7 +3,7 @@ DhcpMacIp:
   content:
     application/json:
       schema:
-        $ref: "#/components/schemas/DhcpMapIp"
+        $ref: "#/components/schemas/DhcpMacIp"
 
 DhcpInterfaceStats:
   description: A response that contains interface statistics

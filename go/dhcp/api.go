@@ -196,13 +196,9 @@ func handleReleaseIP(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	_ = InterfaceScopeFromMac(vars["mac"])
 
-	var result = map[string][]*Info{
-		"result": {
-			&Info{Mac: vars["mac"], Status: "ACK"},
-		},
-	}
+	var result = &Info{Mac: vars["mac"], Status: "ACK"},
 
-	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	res.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(res).Encode(result); err != nil {
 		panic(err)
@@ -224,13 +220,9 @@ func handleOverrideOptions(res http.ResponseWriter, req *http.Request) {
 	// Insert information in etcd
 	_ = etcdInsert(vars["mac"], sharedutils.ConvertToString(body))
 
-	var result = map[string][]*Info{
-		"result": {
-			&Info{Mac: vars["mac"], Status: "ACK"},
-		},
-	}
+	var result = &Info{Mac: vars["mac"], Status: "ACK"},
 
-	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	res.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(res).Encode(result); err != nil {
 		panic(err)
@@ -252,13 +244,9 @@ func handleOverrideNetworkOptions(res http.ResponseWriter, req *http.Request) {
 	// Insert information in etcd
 	_ = etcdInsert(vars["network"], sharedutils.ConvertToString(body))
 
-	var result = map[string][]*Info{
-		"result": {
-			&Info{Network: vars["network"], Status: "ACK"},
-		},
-	}
+	var result = &Info{Network: vars["network"], Status: "ACK"},
 
-	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	res.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(res).Encode(result); err != nil {
 		panic(err)
@@ -269,19 +257,11 @@ func handleRemoveOptions(res http.ResponseWriter, req *http.Request) {
 
 	vars := mux.Vars(req)
 
-	var result = map[string][]*Info{
-		"result": {
-			&Info{Mac: vars["mac"], Status: "ACK"},
-		},
-	}
+	var result = &Info{Mac: vars["mac"], Status: "ACK"}
 
 	err := etcdDel(vars["mac"])
 	if !err {
-		result = map[string][]*Info{
-			"result": {
-				&Info{Mac: vars["mac"], Status: "NAK"},
-			},
-		}
+		result = &Info{Mac: vars["mac"], Status: "NAK"}
 	}
 	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	res.WriteHeader(http.StatusOK)
@@ -294,19 +274,11 @@ func handleRemoveNetworkOptions(res http.ResponseWriter, req *http.Request) {
 
 	vars := mux.Vars(req)
 
-	var result = map[string][]*Info{
-		"result": {
-			&Info{Network: vars["network"], Status: "ACK"},
-		},
-	}
+	var result = &Info{Network: vars["network"], Status: "ACK"}
 
 	err := etcdDel(vars["network"])
 	if !err {
-		result = map[string][]*Info{
-			"result": {
-				&Info{Network: vars["network"], Status: "NAK"},
-			},
-		}
+		result = &Info{Network: vars["network"], Status: "NAK"}
 	}
 	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	res.WriteHeader(http.StatusOK)
