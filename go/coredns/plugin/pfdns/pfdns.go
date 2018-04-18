@@ -42,6 +42,7 @@ type pfdns struct {
 	Network           map[*net.IPNet]net.IP
 	NetworkType       map[*net.IPNet]string
 	DNSFilter         *cache.Cache
+	IpsetCache        *cache.Cache
 	apiClient         *unifiedapiclient.Client
 }
 
@@ -101,17 +102,12 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 		// Passthrough bypass
 		for k, v := range pf.FqdnIsolationPort {
 			if k.MatchString(state.QName()) {
-				// if pf.checkPassthrough(ctx, state.QName()) {
 				answer, _ := pf.LocalResolver(state)
 				for _, ans := range answer.Answer {
 					switch ansb := ans.(type) {
 					case *dns.A:
 						for _, valeur := range v {
-							err := pf.apiClient.CallWithBody(ctx, "POST", "/api/v1/ipset/passthrough_isolation?local=0", map[string]interface{}{
-								"ip":   ansb.A.String(),
-								"port": valeur,
-							}, &unifiedapiclient.DummyReply{})
-							if err != nil {
+							if err := pf.SetPassthrough(ctx, "passthrough_isolation", ansb.A.String(), valeur, false); err != nil {
 								fmt.Println("Not able to contact Unified API to adjust passthroughs", err)
 							}
 						}
@@ -126,17 +122,12 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 	// Passthrough bypass
 	for k, v := range pf.FqdnPort {
 		if k.MatchString(state.QName()) {
-			// if pf.checkPassthrough(ctx, state.QName()) {
 			answer, _ := pf.LocalResolver(state)
 			for _, ans := range answer.Answer {
 				switch ansb := ans.(type) {
 				case *dns.A:
 					for _, valeur := range v {
-						err := pf.apiClient.CallWithBody(ctx, "POST", "/api/v1/ipset/passthrough?local=0", map[string]interface{}{
-							"ip":   ansb.A.String(),
-							"port": valeur,
-						}, &unifiedapiclient.DummyReply{})
-						if err != nil {
+						if err := pf.SetPassthrough(ctx, "passthrough", ansb.A.String(), valeur, false); err != nil {
 							fmt.Println("Not able to contact Unified API to adjust passthroughs", err)
 						}
 					}
@@ -155,12 +146,8 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 				switch ansb := ans.(type) {
 				case *dns.A:
 					for _, valeur := range v {
-						err := pf.apiClient.CallWithBody(ctx, "POST", "/api/v1/ipset/passthrough?local=1", map[string]interface{}{
-							"ip":   ansb.A.String(),
-							"port": valeur,
-						}, &unifiedapiclient.DummyReply{})
-						if err != nil {
-							fmt.Println("Not able to contact localhost")
+						if err := pf.SetPassthrough(ctx, "passthrough", ansb.A.String(), valeur, true); err != nil {
+							fmt.Println("Not able to contact localhost", err)
 						}
 					}
 				}
@@ -202,7 +189,7 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 			Type = "dnsenforcement"
 		}
 
-		if k.Contains(net.ParseIP(state.IP())) {
+		if k.Contains(bIP) {
 			answer, found := pf.DNSFilter.Get(state.QName())
 			if found && answer != "null" {
 				fmt.Println("Get answer from the cache for " + state.QName())
@@ -242,7 +229,7 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 		rr = new(dns.A)
 		rr.(*dns.A).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeA, Class: state.QClass()}
 		for k, v := range pf.Network {
-			if k.Contains(net.ParseIP(state.IP())) {
+			if k.Contains(bIP) {
 				returnedIP := append([]byte(nil), v.To4()...)
 				rr.(*dns.A).A = returnedIP
 				break
@@ -254,7 +241,7 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 		rr = new(dns.AAAA)
 		rr.(*dns.AAAA).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeAAAA, Class: state.QClass()}
 		for k, v := range pf.Network {
-			if k.Contains(net.ParseIP(state.IP())) {
+			if k.Contains(bIP) {
 				returnedIP := append([]byte(nil), v.To16()...)
 				rr.(*dns.AAAA).AAAA = returnedIP
 				break
@@ -519,21 +506,44 @@ func (pf pfdns) LocalResolver(request request.Request) (*dns.Msg, error) {
 		// use.
 		DefaultTimeout time.Duration = 5 * time.Second
 	)
-	var (
-		localc *dns.Client
-	)
-	localm := request.Req
-
-	localc = &dns.Client{
+	localc := dns.Client{
 		ReadTimeout: DefaultTimeout,
 	}
 
-	r, _, err := localc.Exchange(localm, "127.0.0.1:54")
+	r, _, err := localc.Exchange(request.Req, "127.0.0.1:54")
 	if err != nil {
 		return nil, err
 	}
+
 	if r == nil || r.Rcode == dns.RcodeNameError || r.Rcode == dns.RcodeSuccess {
 		return r, err
 	}
+
 	return nil, errors.New("No name server to answer the question")
+}
+
+func (pf pfdns) SetPassthrough(ctx context.Context, passthrough, ip, port string, local bool) error {
+	query_local := "0"
+	if local {
+		query_local = "1"
+	}
+
+	cache_key := passthrough + ":" + ip + ":" + port + ":" + query_local
+	_, found := pf.IpsetCache.Get(cache_key)
+	if found {
+		return nil
+	}
+
+	err := pf.apiClient.CallWithBody(ctx, "POST", "/api/v1/ipset/"+passthrough+"?local="+query_local, map[string]interface{}{
+		"ip":   ip,
+		"port": port,
+	}, &unifiedapiclient.DummyReply{})
+
+	if err != nil {
+		fmt.Println("Not able to contact Unified API to adjust passthroughs", err)
+	} else {
+		pf.IpsetCache.Set(cache_key, 1, cache.DefaultExpiration)
+	}
+
+	return err
 }
