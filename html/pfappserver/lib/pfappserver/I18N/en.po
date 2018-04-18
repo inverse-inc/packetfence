@@ -10952,6 +10952,10 @@ msgid "set_access_level"
 msgstr "Access level"
 
 # pf::Authentication::constants (Actions)
+msgid "set_tenant_id"
+msgstr "Set tenant ID"
+
+# pf::Authentication::constants (Actions)
 msgid "set_bandwidth_balance"
 msgstr "Bandwidth balance"
 
