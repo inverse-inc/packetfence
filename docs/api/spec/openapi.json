@@ -153,7 +153,7 @@
             "content" : {
                "application/json" : {
                   "schema" : {
-                     "$ref" : "#/components/schemas/DhcpMapIp"
+                     "$ref" : "#/components/schemas/DhcpMacIp"
                   }
                }
             },
@@ -507,19 +507,14 @@
          "DhcpMacIp" : {
             "description" : "The schema used when returning a DHCP MAC address and IPv4 address pair",
             "properties" : {
-               "result" : {
-                  "description" : "A MAC address and IPv4 address pair",
-                  "properties" : {
-                     "ip" : {
-                        "description" : "The IPv4 address",
-                        "type" : "string"
-                     },
-                     "mac" : {
-                        "description" : "The MAC address",
-                        "type" : "string"
-                     }
-                  },
-                  "type" : "object"
+               "description" : "A MAC address and IPv4 address pair",
+               "ip" : {
+                  "description" : "The IPv4 address",
+                  "type" : "string"
+               },
+               "mac" : {
+                  "description" : "The MAC address",
+                  "type" : "string"
                }
             },
             "type" : "object"
@@ -527,22 +522,17 @@
          "DhcpMacResponse" : {
             "description" : "The schema used when options are added or deleted from a MAC address",
             "properties" : {
-               "result" : {
-                  "properties" : {
-                     "mac" : {
-                        "description" : "The MAC address",
-                        "type" : "string"
-                     },
-                     "status" : {
-                        "description" : "Whether the request succeeded \"ACK\", or failed \"NAK\"",
-                        "enum" : [
-                           "ACK",
-                           "NAK"
-                        ],
-                        "type" : "string"
-                     }
-                  },
-                  "type" : "object"
+               "mac" : {
+                  "description" : "The MAC address",
+                  "type" : "string"
+               },
+               "status" : {
+                  "description" : "Whether the request succeeded \"ACK\", or failed \"NAK\"",
+                  "enum" : [
+                     "ACK",
+                     "NAK"
+                  ],
+                  "type" : "string"
                }
             },
             "type" : "object"
@@ -550,22 +540,17 @@
          "DhcpNetworkResponse" : {
             "description" : "The schema used when options are added or deleted from a Network",
             "properties" : {
-               "result" : {
-                  "properties" : {
-                     "network" : {
-                        "description" : "The networks IPv4 address",
-                        "type" : "string"
-                     },
-                     "status" : {
-                        "description" : "Whether the request succeeded \"ACK\", or failed \"NAK\"",
-                        "enum" : [
-                           "ACK",
-                           "NAK"
-                        ],
-                        "type" : "string"
-                     }
-                  },
-                  "type" : "object"
+               "network" : {
+                  "description" : "The networks IPv4 address",
+                  "type" : "string"
+               },
+               "status" : {
+                  "description" : "Whether the request succeeded \"ACK\", or failed \"NAK\"",
+                  "enum" : [
+                     "ACK",
+                     "NAK"
+                  ],
+                  "type" : "string"
                }
             },
             "type" : "object"
