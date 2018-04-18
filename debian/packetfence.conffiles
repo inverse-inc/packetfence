@@ -43,7 +43,6 @@
 /usr/local/pf/conf/scan.conf
 /usr/local/pf/conf/switches.conf
 /usr/local/pf/conf/syslog.conf
-/usr/local/pf/conf/dhcpd.conf
 /usr/local/pf/conf/haproxy-db.conf
 /usr/local/pf/conf/haproxy-portal.conf
 /usr/local/pf/conf/cluster.conf
