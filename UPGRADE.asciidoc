@@ -1686,6 +1686,8 @@ NOTE: In order to request an API key, you can visit the following URL: https://a
 api_key=YOUR_API_KEY_GOES_HERE
 ```
 
+WARNING: Fingerbank v1 and v2 *do not* use the same infrastructure. The accounts (API keys) created on fingerbank.inverse.ca before the 8.0 release have been migrated to api.fingerbank.org. Still, you should make sure that you have the correct API key configured in fingerbank.conf by looking at your profile on https://api.fingerbank.org/users/register. If you have a corporate account, then you can safely assume its been migrated, you can email fingerbank@inverse.ca for a confirmation. If you use a Github account and you have tried Fingerbank v2 prior to the PacketFence 8.0 release, *then your API key will be different*. Make sure you update fingerbank.conf in that case.
+
 If you manage a large scale environment, you'll want to make sure your account can perform an unlimited amount of API requests on Fingerbank so that device profiling works correctly in a consistent way. In order to obtain this, contact fingerbank@inverse.ca. Note that most Inverse customers are entitled to free unlimited usage of the Fingerbank Cloud API.
 
 Changes to the default switch roles
