@@ -1394,7 +1394,7 @@ Find the outgoing interface from a specific incoming interface
 
 sub find_outgoing_interface {
     my ($gateway, $dev) = @_;
-    my @interfaces_src;
+    my @interface_src;
 
     if (defined $dev) {
         @interface_src = split(" ", pf_run("sudo ip route get 8.8.8.8 from $gateway iif $dev"));
