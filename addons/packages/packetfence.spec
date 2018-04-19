@@ -668,7 +668,7 @@ else
 fi
 
 #Check if log files exist and create them with the correct owner
-for fic_log in packetfence.log redis_cache.log
+for fic_log in packetfence.log redis_cache.log violation.log
 do
 if [ ! -e /usr/local/pf/logs/$fic_log ]; then
   touch /usr/local/pf/logs/$fic_log
