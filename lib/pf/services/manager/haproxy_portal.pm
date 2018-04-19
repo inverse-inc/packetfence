@@ -225,7 +225,7 @@ EOT
     # Escape special chars for lua matches
     @portal_hosts = map { $_ =~ s/([.-])/%$1/g ; $_ } @portal_hosts;
     # Allow wildcards (the string starts with a '*')
-    @portal_hosts = map { $_ =~ s/^\*/.*$1/g ; $_ } @portal_hosts;
+    @portal_hosts = map { $_ =~ s/^\*(.*)/.*$1/g ; $_ } @portal_hosts;
 
     my $vars = {
         portal_host => sub { return @portal_hosts },
