@@ -270,7 +270,7 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
  *
  *     Can be either:
  *         a single Xpath (eg: $.items[0].somevalue)
- *         or 2x Xpaths separated with a comma (eg: $.items[0].somekey, $.item[0].somevalue
+ *         or 2x Xpaths separated with a comma (eg: $.items[0].somekey, $.item[0].somevalue)
  */
 func CompileJson(json interface{}, compile string) (interface{}, error) {
 	c := strings.Split(compile, ",")
