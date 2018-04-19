@@ -25,12 +25,12 @@ our @SyslogInfo = (
         'conditions' => [ '$syslogtag contains "fingerbank"' ]
     },
     {
-        'name'       => 'httpd.aaa.access',
-        'conditions' => [ '$programname contains "httpd_aaa"' ]
-    },
-    {
         'name'       => 'httpd.aaa.error',
         'conditions' => [ '$programname contains "httpd_aaa_err"' ]
+    },
+    {
+        'name'       => 'httpd.aaa.access',
+        'conditions' => [ '$programname contains "httpd_aaa"' ]
     },
     {
         'name'       => 'httpd.admin.access',
@@ -57,20 +57,24 @@ our @SyslogInfo = (
         'conditions' => [ '$syslogtag contains "httpd_collector"' ]
     },
     {
+        'name'       => 'httpd.graphite.error',
+        'conditions' => [ '$syslogtag contains "httpd_graphite_err"' ]
+    },
+    {
         'name'       => 'httpd.graphite.access',
         'conditions' => [ '$syslogtag contains "httpd_graphite"' ]
     },
     {
-        'name'       => 'httpd.graphite.error',
-        'conditions' => [ '$syslogtag contains "httpd_graphite_err"' ]
+        'name'       => 'httpd.parking.error',
+        'conditions' => [ '$syslogtag contains "httpd_parking_err"' ]
     },
     {
         'name'       => 'httpd.parking.access',
         'conditions' => [ '$syslogtag contains "httpd_parking"' ]
     },
     {
-        'name'       => 'httpd.parking.error',
-        'conditions' => [ '$syslogtag contains "httpd_parking_err"' ]
+        'name'       => 'httpd.portal.error',
+        'conditions' => [ '$syslogtag contains "httpd_portal_err"' ]
     },
     {
         'name'       => 'httpd.portal.access',
@@ -81,24 +85,20 @@ our @SyslogInfo = (
         'conditions' => [ '$syslogtag contains "portal_catalyst"' ]
     },
     {
-        'name'       => 'httpd.portal.error',
-        'conditions' => [ '$syslogtag contains "httpd_portal_err"' ]
+        'name'       => 'httpd.proxy.error',
+        'conditions' => [ '$syslogtag contains "httpd_proxy_err"' ]
     },
     {
         'name'       => 'httpd.proxy.access',
         'conditions' => [ '$syslogtag contains "httpd_proxy"' ]
     },
     {
-        'name'       => 'httpd.proxy.error',
-        'conditions' => [ '$syslogtag contains "httpd_proxy_err"' ]
+        'name'       => 'httpd.webservices.error',
+        'conditions' => [ '$programname contains "httpd_webservices_err"' ]
     },
     {
         'name'       => 'httpd.webservices.access',
         'conditions' => [ '$programname contains "httpd_webservices"' ]
-    },
-    {
-        'name'       => 'httpd.webservices.error',
-        'conditions' => [ '$programname contains "httpd_webservices_err"' ]
     },
     {
         'name'       => 'packetfence.log',
