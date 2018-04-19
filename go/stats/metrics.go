@@ -69,7 +69,7 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 						namespace = conf.StatsdNS + ";NULL"
 
 					default:
-						namespace = conf.StatsdNS + ";" + field.String
+						namespace = conf.StatsdNS + ";" + strings.Replace(field.String, ":", ".", -1)
 					}
 
 				default:
@@ -208,22 +208,23 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 				//double column
 				namespace := conf.StatsdNS
 				for _, row := range res.([][2]interface{}) {
-					namespace = conf.StatsdNS + ";" + row[1].(string)
+					namespace = conf.StatsdNS + ";" + strings.Replace(row[0].(string), ":", ".", -1)
+					f64Result, _ := strconv.ParseFloat(row[1].(string), 64)
 					switch conf.StatsdType {
 					case "count":
-						StatsdClient.Count(namespace, res.(float64))
+						StatsdClient.Count(namespace, f64Result)
 
 					case "gauge":
-						StatsdClient.Gauge(namespace, res.(float64))
+						StatsdClient.Gauge(namespace, f64Result)
 
 					case "histogram":
-						StatsdClient.Histogram(namespace, res.(float64))
+						StatsdClient.Histogram(namespace, f64Result)
 
 					case "increment":
 						StatsdClient.Increment(namespace)
 
 					case "unique":
-						StatsdClient.Unique(namespace, res.(string))
+						StatsdClient.Unique(namespace, row[1].(string))
 
 					default:
 						log.LoggerWContext(ctx).Warn("Unhandled statsd_type " + conf.StatsdType + " for " + conf.Type)
@@ -295,7 +296,10 @@ func CompileJson(json interface{}, compile string) (interface{}, error) {
 		var ret []interface{}
 		for _, r := range res.([]interface{}) {
 			switch r.(type) {
-			case string, float64, bool, nil:
+			case float64:
+				ret = append(ret, strconv.FormatFloat(r.(float64), 'f', 2, 64))
+
+			case string, bool, nil:
 				ret = append(ret, r)
 
 			case []interface{}:
