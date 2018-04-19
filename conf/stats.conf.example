@@ -6,6 +6,20 @@ mysql_query=select name, count(distinct node.mac) from node_category left join n
 interval=60s
 randomize=true
 
+[metric 'total number of connected devices per connection type']
+type=mysql_query
+statsd_type=gauge
+statsd_ns=source.packetfence.devices.connected_per_connection_type
+mysql_query=select connection_type, count(distinct mac) from locationlog where end_time is null group by connection_type
+interval=720s
+
+[metric 'total number of connected devices per ssid']
+type=mysql_query
+statsd_type=gauge
+statsd_ns=source.packetfence.devices.connected_per_ssid
+mysql_query= select ssid, count(distinct mac) from locationlog where ssid != '' and end_time is null group by ssid
+interval=720s
+
 [metric 'total number of unregistered devices']
 type=mysql_query
 statsd_type=gauge
@@ -14,19 +28,13 @@ mysql_query=select count(distinct mac) from node where status='unreg'
 interval=60s
 randomize=true
 
-[metric 'total online devices for the past month']
+[metric 'number of devices currently registered']
 type=mysql_query
 statsd_type=gauge
-statsd_ns=source.packetfence.devices.online_last_month
-mysql_query=select count(distinct callingstationid) from radacct where acctstoptime is null
-interval=720s
-
-[metric 'total offline devices for the past month']
-type=mysql_query
-statsd_type=gauge
-statsd_ns=source.packetfence.devices.offline_last_month
-mysql_query=select count(distinct callingstationid) from radacct where acctstoptime <= NOW()
-interval=720s
+statsd_ns=source.packetfence.devices.registered
+mysql_query=select count(distinct mac) from node where status='reg' and (unregdate >= NOW() or unregdate = '0000-00-00 00:00:00')
+interval=60s
+randomize=true
 
 [metric 'number of new registered devices during the past hour']
 type=mysql_query
@@ -63,20 +71,20 @@ statsd_ns=source.packetfence.devices.registered_last_year
 mysql_query=select count(distinct mac) from node where status='reg' and regdate >= NOW() - INTERVAL 1 YEAR
 interval=8760s
 
-[metric 'number of devices currently online and in the registration network']
+[metric 'number of devices currently online and registered']
 type=mysql_query
 statsd_type=gauge
 statsd_ns=source.packetfence.devices.online_registered
 mysql_query=select count(distinct n.mac) from node n join radacct r on r.callingstationid=n.mac where n.status='reg' and (n.unregdate >= NOW() or n.unregdate = '0000-00-00 00:00:00') and r.acctstoptime is null
-interval=60s
+interval=720s
 randomize=true
 
-[metric 'number of devices currently registered']
+[metric 'number of devices currently online and unregistered']
 type=mysql_query
 statsd_type=gauge
-statsd_ns=source.packetfence.devices.registered
-mysql_query=select count(distinct mac) from node where status='reg' and (unregdate >= NOW() or unregdate = '0000-00-00 00:00:00')
-interval=60s
+statsd_ns=source.packetfence.devices.online_unregistered
+mysql_query=select count(distinct n.mac) from node n join radacct r on r.callingstationid=n.mac where n.status!='reg' and (n.unregdate >= NOW() or n.unregdate = '0000-00-00 00:00:00') and r.acctstoptime is null
+interval=720s
 randomize=true
 
 [metric 'number of currently open violations']

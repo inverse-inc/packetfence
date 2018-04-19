@@ -157,11 +157,35 @@ END
                     data-hide-missing="true"
                     data-chart-library="d3pie"
                     data-colors="[% palette(0) %]"
-                    data-height="200px"
+                    data-height="300px"
                     data-after="-3600"
                     data-decimal-digits="0"></div>
                 </div>
                 <div class="span6 card">
+                    <div data-netdata="packetfence.devices.connected_per_connection_type"
+                    data-host="/netdata/127.0.0.1"
+                    data-title="Connected devices per connection type"
+                    data-hide-missing="true"
+                    data-chart-library="d3pie"
+                    data-colors="[% palette(1) %]"
+                    data-height="300px"
+                    data-after="-3600"
+                    data-decimal-digits="0"></div>
+                </div>
+                <div class="span6 card">
+                    <div data-netdata="packetfence.devices.connected_per_ssid"
+                    data-host="/netdata/127.0.0.1"
+                    data-title="Connected devices per SSID"
+                    data-hide-missing="true"
+                    data-chart-library="d3pie"
+                    data-colors="[% palette(2) %]"
+                    data-height="300px"
+                    data-after="-3600"
+                    data-decimal-digits="0"></div>
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="offset6 span3 card">
                     <div class="counter_over_chart">
                         <div id="packetfence_devices_registered"></div>
                         <div class="counter_chart_title">[% l('Registered Devices') %]</div>
@@ -175,12 +199,12 @@ END
                     data-dygraph-type="area"
                     data-dimensions="gauge"
                     data-colors="[% palette(0) %]"
-                    data-height="200px"
+                    data-height="100px"
                     data-after="-3600"
                     data-decimal-digits="0"
                     data-show-value-of-gauge-at="packetfence_devices_registered"></div>
                 </div>
-                <div class="span6 card">
+                <div class="span3 card">
                     <div class="counter_over_chart">
                         <div id="packetfence_violations"></div>
                         <div class="counter_chart_title">[% l('Open Violations') %]</div>
@@ -193,8 +217,8 @@ END
                     data-dygraph-theme="sparkline"
                     data-dygraph-type="area"
                     data-dimensions="gauge"
-                    data-colors="[% palette(0) %]"
-                    data-height="200px"
+                    data-colors="[% palette(1) %]"
+                    data-height="100px"
                     data-after="-3600"
                     data-decimal-digits="0"
                     data-show-value-of-gauge-at="packetfence_violations"></div>
@@ -370,9 +394,10 @@ END
                             data-host="/netdata/[% member.value %]"
                             data-title="[% member.key %] - Auth Rest"
                             data-chart-library="dygraph"
+                            data-hide-missing="true"
                             data-colors="[% palette(loop.index) %]"
                             data-height="200px"
-                            data-after="-300"></div>
+                            data-after="-86400"></div>
                         </div>
                         [% newRow(spanSize, loop.index, loop.size) | none %]
                         [% END %]
@@ -386,9 +411,10 @@ END
                             data-host="/netdata/[% member.value %]"
                             data-title="[% member.key %] - Acct Rest"
                             data-chart-library="dygraph"
+                            data-hide-missing="true"
                             data-colors="[% palette(loop.index) %]"
                             data-height="200px"
-                            data-after="-300"></div>
+                            data-after="-86400"></div>
                         </div>
                         [% newRow(spanSize, loop.index, loop.size) | none %]
                         [% END %]
@@ -408,9 +434,10 @@ END
                             data-host="/netdata/[% member.value %]"
                             data-title="[% member.key %] - LoadBalancer Auth"
                             data-chart-library="dygraph"
+                            data-hide-missing="true"
                             data-colors="[% palette(loop.index) %]"
                             data-height="200px"
-                            data-after="-300"></div>
+                            data-after="-86400"></div>
                         </div>
                         [% newRow(spanSize, loop.index) | none %]
                         [% END %]
@@ -420,9 +447,10 @@ END
                             data-host="/netdata/[% member.value %]"
                             data-title="[% member.key %] - LoadBalancer Acct"
                             data-chart-library="dygraph"
+                            data-hide-missing="true"
                             data-colors="[% palette(loop.index) %]"
                             data-height="200px"
-                            data-after="-300"></div>
+                            data-after="-86400"></div>
                         </div>
                         [% newRow(spanSize, loop.index) | none %]
                         [% END %]
@@ -435,9 +463,10 @@ END
                             data-host="/netdata/[% member.value %]"
                             data-title="[% member.key %] - Radius Auth"
                             data-chart-library="dygraph"
+                            data-hide-missing="true"
                             data-colors="[% palette(loop.index) %]"
                             data-height="200px"
-                            data-after="-300"></div>
+                            data-after="-86400"></div>
                         </div>
                         [% newRow(spanSize, loop.index) | none %]
                         [% END %]
@@ -447,9 +476,10 @@ END
                             data-host="/netdata/[% member.value %]"
                             data-title="[% member.key %] - Radius Acct"
                             data-chart-library="dygraph"
+                            data-hide-missing="true"
                             data-colors="[% palette(loop.index) %]"
                             data-height="200px"
-                            data-after="-300"></div>
+                            data-after="-86400"></div>
                         </div>
                         [% newRow(spanSize, loop.index) | none %]
                         [% END %]
@@ -468,6 +498,7 @@ END
                             data-host="/netdata/[% member.value %]"
                             data-title="[% member.key %] - NTLM Latency"
                             data-chart-library="dygraph"
+                            data-hide-missing="true"
                             data-colors="[% palette(loop.index) %]"
                             data-height="200px"
                             data-after="-300"></div>
@@ -484,6 +515,7 @@ END
                             data-host="/netdata/[% member.value %]"
                             data-title="[% member.key %] - NTLM Failure"
                             data-chart-library="dygraph"
+                            data-hide-missing="true"
                             data-colors="[% palette(loop.index) %]"
                             data-height="200px"
                             data-after="-300"></div>
@@ -643,55 +675,15 @@ END
         <div class="tab-pane[% IF tab == "endpoints" %] active[% END %]" id="endpoints">
             <div class="card">
                 <div class="card-title">
-                    <h2>[% l('Online & Offline Devices') %]</h2>
-                </div>
-                <div class="card-block">
-                    <div class="row-fluid">
-                        <div class="span9">
-                            <div data-netdata="statsd_gauge_source.packetfence.devices.online_last_month"
-                            data-host="/netdata/127.0.0.1"
-                            data-hide-missing="true"
-                            data-common-max="devices"
-                            data-common-min="devices"
-                            data-title="Online devices for the past month"
-                            data-chart-library="dygraph"
-                            data-dimensions="gauge"
-                            data-dygraph-valuerange="[0,null]"
-                            data-colors="[% palette(0) %]"
-                            data-height="200px"
-                            data-after="-2592000"
-                            data-decimal-digits="0"></div>
-                        </div>
-                        <div class="span9">
-                            <div data-netdata="statsd_gauge_source.packetfence.devices.offline_last_month"
-                            data-host="/netdata/127.0.0.1"
-                            data-hide-missing="true"
-                            data-common-max="devices"
-                            data-common-min="devices"
-                            data-title="Offline devices for the past month"
-                            data-chart-library="dygraph"
-                            data-dimensions="gauge"
-                            data-dygraph-valuerange="[0,null]"
-                            data-colors="[% palette(0) %]"
-                            data-height="200px"
-                            data-after="-2592000"
-                            data-decimal-digits="0"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-title">
                     <h2>[% l('Registered & Unregistered Devices') %]</h2>
                 </div>
                 <div class="card-block">
                     <div class="row-fluid">
                         <div class="span9">
-                            <div data-netdata="statsd_gauge_source.packetfence.devices.registered"
+                            <div data-netdata="packetfence.devices.registered_unregistered"
                             data-host="/netdata/127.0.0.1"
-                            data-title="Devices currently registered"
+                            data-title="Registration status of online devices"
                             data-chart-library="dygraph"
-                            data-dimensions="gauge"
                             data-dygraph-valuerange="[0,null]"
                             data-colors="[% palette(0) %]"
                             data-height="200px"
@@ -699,23 +691,9 @@ END
                             data-decimal-digits="0"></div>
                         </div>
                         <div class="span9">
-                            <div data-netdata="statsd_gauge_source.packetfence.devices.unregistered"
+                            <div data-netdata="statsd_gauge_source.packetfence.devices.registered"
                             data-host="/netdata/127.0.0.1"
-                            data-title="Unregistered devices"
-                            data-chart-library="dygraph"
-                            data-dimensions="gauge"
-                            data-dygraph-valuerange="[0,null]"
-                            data-colors="[% palette(0) %]"
-                            data-height="200px"
-                            data-after="-3600"
-                            data-decimal-digits="0"></div>
-                        </div>
-                    </div>
-                    <div class="row-fluid">
-                        <div class="span18">
-                            <div data-netdata="statsd_gauge_source.packetfence.devices.online_registered"
-                            data-host="/netdata/127.0.0.1"
-                            data-title="Devices currently online and in the registration network"
+                            data-title="Devices currently registered"
                             data-chart-library="dygraph"
                             data-dimensions="gauge"
                             data-dygraph-valuerange="[0,null]"
@@ -732,34 +710,18 @@ END
                     <h2>[% l('Registered Devices Per Role') %]</h2>
                 </div>
                 <div class="card-block">
-                    <div class="row-fluid">
-                    [%
-                        SET sourcesSize = roles.size;
-                        IF sourcesSize == 1;
-                            SET spanSize = gridSize;
-                        ELSIF sourcesSize MOD 3 == 0;
-                            SET spanSize = gridSize / 3;
-                        ELSE;
-                            SET spanSize = gridSize / 2;
-                        END
-                    %]
-                    [% FOREACH role IN roles %]
-                        <div class="span[% spanSize %] text-center">
-                            <div data-netdata="statsd_gauge_source.packetfence.devices.registered_per_role_[% role.name FILTER lower %]"
-                            data-host="/netdata/127.0.0.1"
-                            data-common-max="role"
-                            data-common-min="role"
-                            data-title="Registered devices in role [% role.name %]"
-                            data-chart-library="dygraph"
-                            data-dimensions="gauge"
-                            data-dygraph-valuerange="[0,null]"
-                            data-colors="[% palette(loop.index) %]"
-                            data-height="200px"
-                            data-after="-3600"
-                            data-decimal-digits="0"></div>
-                        </div>
-                        [% newRow(spanSize, loop.index) | none %]
-                    [% END %]
+                    <div class="span[% spanSize %] text-center">
+                        <div data-netdata="packetfence.devices.registered_per_role"
+                        data-host="/netdata/127.0.0.1"
+                        data-common-max="role"
+                        data-common-min="role"
+                        data-title="Registered devices per role"
+                        data-chart-library="dygraph"
+                        data-dygraph-valuerange="[0,null]"
+                        data-colors="[% palette(0) %]"
+                        data-height="200px"
+                        data-after="-3600"
+                        data-decimal-digits="0"></div>
                     </div>
                 </div>
             </div>
@@ -786,6 +748,7 @@ END
                             data-host="/netdata/127.0.0.1"
                             data-title="New registered devices during the past day"
                             data-chart-library="dygraph"
+                            data-hide-missing="true"
                             data-dimensions="gauge"
                             data-dygraph-valuerange="[0,null]"
                             data-colors="[% palette(0) %]"
@@ -800,6 +763,7 @@ END
                             data-host="/netdata/127.0.0.1"
                             data-title="New registered devices during the past week"
                             data-chart-library="dygraph"
+                            data-hide-missing="true"
                             data-dimensions="gauge"
                             data-dygraph-valuerange="[0,null]"
                             data-colors="[% palette(0) %]"
@@ -812,6 +776,7 @@ END
                             data-host="/netdata/127.0.0.1"
                             data-title="New registered devices during the past month"
                             data-chart-library="dygraph"
+                            data-hide-missing="true"
                             data-dimensions="gauge"
                             data-dygraph-valuerange="[0,null]"
                             data-colors="[% palette(0) %]"
@@ -826,6 +791,7 @@ END
                             data-host="/netdata/127.0.0.1"
                             data-title="New registered devices during the past year"
                             data-chart-library="dygraph"
+                            data-hide-missing="true"
                             data-dimensions="gauge"
                             data-dygraph-valuerange="[0,null]"
                             data-colors="[% palette(0) %]"

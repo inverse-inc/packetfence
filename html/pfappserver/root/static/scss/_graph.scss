@@ -27,7 +27,7 @@
 .counter_chart_title,
 .dygraph-title,
 .gaugeChartTitle,
-.netdata-d3pie-chart .p0_title {
+.netdata-d3pie-chart [class$=title] {
   color: $grayLight;
   fill: $grayLight;
   font-size: 11px;

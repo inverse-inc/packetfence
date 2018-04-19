@@ -14,25 +14,14 @@
 
 [devices.registered_unregistered]
     name = devices.registered_unregistered
-    title = registered/unregistered devices
+    title = registered/unregistered online devices
     family = packetfence
     context = chart.context
     units = devices
     priority = 91000
     type = line
-    dimension = source.packetfence.devices.registered 'registered' last 1 1
-    dimension = source.packetfence.devices.unregistered 'unregistered' last 1 1
-
-[devices.online_offline]
-    name = devices.online_offline
-    title = online/offline devices
-    family = packetfence
-    context = chart.context
-    units = devices
-    priority = 91000
-    type = line
-    dimension = source.packetfence.devices.online 'online' last 1 1
-    dimension = source.packetfence.devices.offline 'offline' last 1 1
+    dimension = source.packetfence.devices.online_registered 'registered' last 1 1
+    dimension = source.packetfence.devices.online_unregistered 'unregistered' last 1 1
 
 [devices.registered_per_role]
     name = devices.registered_per_role
@@ -41,5 +30,25 @@
     context = chart.context
     units = devices
     priority = 91000
-    type = stacked
+    type = line
     dimension = pattern 'source.packetfence.devices.registered_per_role;*' '' last 1 1
+
+[devices.connected_per_connection_type]
+    name = devices.connected_per_connection_type
+    title = connection types
+    family = packetfence
+    context = chart.context
+    units = devices
+    priority = 91000
+    type = line
+    dimension = pattern 'source.packetfence.devices.connected_per_connection_type;*' '' last 1 1
+
+[devices.connected_per_ssid]
+    name = devices.connected_per_ssid
+    title = ssid
+    family = packetfence
+    context = chart.context
+    units = devices
+    priority = 91000
+    type = line
+    dimension = pattern 'source.packetfence.devices.connected_per_ssid;*' '' last 1 1
