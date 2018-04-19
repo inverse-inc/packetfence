@@ -249,7 +249,7 @@ sub parse_forms {
             if ($line =~ m/(?:label|required|help|'data-placeholder')\s+=>\s+"(.+?[^\\])["]/ ||
                 $line =~ m/(?:label|required|help|'data-placeholder')\s+=>\s+'(.+?[^\\])[']/) {
                 my $string = $1;
-                add_string($string, $form);
+                add_string($string, $form) unless $string =~ m/^["']/;
             }
             if ($line =~ m/->(loc|_localize)\(['"]([^\$].+?[^'"\\])["'] *[\),]/) {
                 my $string = $2;

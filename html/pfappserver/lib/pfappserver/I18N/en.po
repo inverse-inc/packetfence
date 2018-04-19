@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 7.3.9\n"
+"Project-Id-Version: 7.4.9\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2018-01-22 15:38-0400\n"
+"PO-Revision-Date: 2018-04-18 22:27-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -204,9 +204,10 @@ msgid "API key"
 msgstr ""
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.api_key)
-msgid "API key to interact with upstream Fingerbank project"
+msgid "API key to interact with upstream Fingerbank project. Changing this value requires to restart the Fingerbank collector."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/jamf.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/sentinelone.pm
 msgid "API password"
 msgstr ""
@@ -215,6 +216,7 @@ msgstr ""
 msgid "API password (basic auth)"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/jamf.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/sentinelone.pm
 msgid "API username"
 msgstr ""
@@ -318,10 +320,6 @@ msgstr ""
 msgid "Actions"
 msgstr ""
 
-# html/pfappserver/root/configurator/fingerbank.tt
-msgid "Activate MySQL"
-msgstr ""
-
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
 msgid "Activate preregistration"
 msgstr ""
@@ -411,6 +409,10 @@ msgstr ""
 
 # html/pfappserver/root/config/scan/index.tt
 msgid "Add Scan"
+msgstr ""
+
+# html/pfappserver/root/config/syslog/index.tt
+msgid "Add Syslog entry"
 msgstr ""
 
 # html/pfappserver/root/config/pfdetect/index.tt
@@ -585,6 +587,8 @@ msgstr ""
 msgid "Administration Rules"
 msgstr ""
 
+# html/pfappserver/root/admin/index.tt
+# html/pfappserver/root/admin/v-index.tt
 # html/pfappserver/root/admin/wrapper.tt
 # html/pfappserver/root/configurator/admin.tt
 msgid "Administrator"
@@ -603,6 +607,10 @@ msgstr ""
 
 # html/pfappserver/root/configurator/admin.tt
 msgid "After completing all the steps of the configuration wizard, you will be redirected to the administrative interface of PacketFence. To access it, you will need to enter the credentials you defined on this page."
+msgstr ""
+
+# html/pfappserver/root/config/syslog/index.tt
+msgid "After configuring restart the rsyslog service"
 msgstr ""
 
 # html/pfappserver/root/config/domain/index.tt
@@ -627,6 +635,10 @@ msgstr ""
 
 # html/pfappserver/root/node/create.tt
 msgid "All imported nodes will be registered. If a MAC matches an existing node, it will also be registered."
+msgstr ""
+
+# html/pfappserver/root/config/trafficshaping/list.tt
+msgid "All roles have traffic shaping policy applied to them"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Source/Email.pm
@@ -674,6 +686,14 @@ msgstr ""
 msgid "Allowed user roles"
 msgstr ""
 
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (collector.inactive_endpoints_expiration)
+msgid "Amount of hours after which the information inactive endpoints should be removed from the collector."
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (collector.query_cache_time)
+msgid "Amount of minutes for which the collector API query results are cached."
+msgstr ""
+
 # conf/documentation.conf (advanced.pfdns_processes)
 msgid "Amount of pfdns processes to start"
 msgstr ""
@@ -683,7 +703,7 @@ msgid "Amount of pffilter processes to start"
 msgstr ""
 
 # conf/documentation.conf (captive_portal.rate_limiting_threshold)
-msgid "Amount of requests on invalid URLs after which the rate limiting will kick in for this device.Requires to restart haproxy in order to apply the change."
+msgid "Amount of requests on invalid URLs after which the rate limiting will kick in for this device.Requires to restart haproxy-portal in order to apply the change."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
@@ -832,6 +852,7 @@ msgid "Auth Token"
 msgstr ""
 
 # html/pfappserver/root/admin/reports.tt
+# html/pfappserver/root/graph/dashboard.tt
 msgid "Authentication"
 msgstr ""
 
@@ -850,6 +871,7 @@ msgstr ""
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/source/index.tt
 # html/pfappserver/root/config/source/view.tt
+# html/pfappserver/root/graph/dashboard.tt
 msgid "Authentication Sources"
 msgstr ""
 
@@ -890,6 +912,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Auto Enable"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/jamf.pm
+msgid "Automatic device detection"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
@@ -1118,9 +1144,12 @@ msgstr ""
 # html/pfappserver/root/config/source/index.tt
 # html/pfappserver/root/config/source/view.tt
 # html/pfappserver/root/config/switch/index.tt
+# html/pfappserver/root/config/syslog/index.tt
+# html/pfappserver/root/config/trafficshaping/index.tt
 # html/pfappserver/root/config/wmi/index.tt
 # html/pfappserver/root/config/wrix/index.tt
 # html/pfappserver/root/interface/create.tt
+# html/pfappserver/root/interface/list.tt
 # html/pfappserver/root/service/status.tt
 # html/pfappserver/root/user/list.tt
 # html/pfappserver/root/violation/list.tt
@@ -1237,6 +1266,10 @@ msgstr ""
 msgid "Click to add a duration"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Syslog.pm
+msgid "Click to add a log"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Source/Eduroam.pm
 msgid "Click to add a realm"
 msgstr ""
@@ -1247,13 +1280,6 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Iboss.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/JSONRPC.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/WatchGuard.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/FixedRole.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/SelectRole.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
@@ -1346,6 +1372,7 @@ msgstr ""
 # html/pfappserver/root/config/scan/list.tt
 # html/pfappserver/root/config/source/list.tt
 # html/pfappserver/root/config/switch/list.tt
+# html/pfappserver/root/config/syslog/list.tt
 # html/pfappserver/root/config/wmi/list.tt
 # html/pfappserver/root/config/wrix/list.tt
 # html/pfappserver/root/violation/list.tt
@@ -1380,6 +1407,8 @@ msgstr ""
 # html/pfappserver/root/config/scan/view.tt
 # html/pfappserver/root/config/switch/index.tt
 # html/pfappserver/root/config/switch/view.tt
+# html/pfappserver/root/config/syslog/view.tt
+# html/pfappserver/root/config/trafficshaping/view.tt
 # html/pfappserver/root/config/wmi/view.tt
 # html/pfappserver/root/config/wrix/view.tt
 # html/pfappserver/root/dhcpoption82/view.tt
@@ -1502,11 +1531,11 @@ msgid "Comma-delimited list of URLs known to be used by devices to detect the pr
 msgstr ""
 
 # conf/documentation.conf (fencing.isolation_passthroughs)
-msgid "Comma-delimited list of domains to allow access from the isolation VLAN.If no port is specified for the domain (ex: example.com), it opens TCP 80 and 443.You can specify a specific port to open (ex: example.com:tcp:25) which opens port 25 in TCP. When no protocol is specified (ex: example.com:25), this opens the port for both the UDP and TCP protocol.You can specify the same domain with a different port multiple times and they will be combined.The configuration parameter <i>isolation_passthrough</i> must be enabled for passthroughs to be effective."
+msgid "Comma-delimited list of domains to allow access from the isolation VLAN.If no port is specified for the domain (ex: example.com), it opens TCP 80 and 443.You can specify a specific port to open (ex: example.com:tcp:25) which opens port 25 in TCP. When no protocol is specified (ex: example.com:25), this opens the port for both the UDP and TCP protocol.You can specify the same domain with a different port multiple times and they will be combined.The configuration parameter <i>isolation_passthrough</i> must be enabled for passthroughs to be effective.Modifying this parameter requires to restart pfdns to be effective."
 msgstr ""
 
 # conf/documentation.conf (fencing.passthroughs)
-msgid "Comma-delimited list of domains to allow access from the registration VLAN.If no port is specified for the domain (ex: example.com), it opens TCP 80 and 443.You can specify a specific port to open (ex: example.com:tcp:25) which opens port 25 in TCP. When no protocol is specified (ex: example.com:25), this opens the port for both the UDP and TCP protocol.You can specify the same domain with a different port multiple times and they will be combined.The configuration parameter <i>passthrough</i> must be enabled for passthroughs to be effective.These passthroughs are only effective in registration networks, for passthroughs in isolation, use fencing.isolation_passthroughs"
+msgid "Comma-delimited list of domains to allow access from the registration VLAN.If no port is specified for the domain (ex: example.com), it opens TCP 80 and 443.You can specify a specific port to open (ex: example.com:tcp:25) which opens port 25 in TCP. When no protocol is specified (ex: example.com:25), this opens the port for both the UDP and TCP protocol.You can specify the same domain with a different port multiple times and they will be combined.The configuration parameter <i>passthrough</i> must be enabled for passthroughs to be effective.These passthroughs are only effective in registration networks, for passthroughs in isolation, use fencing.isolation_passthroughs.Modifying this parameter requires to restart pfdns to be effective."
 msgstr ""
 
 # conf/documentation.conf (fencing.proxy_passthroughs)
@@ -1592,10 +1621,6 @@ msgstr ""
 msgid "Configure MySQL"
 msgstr ""
 
-# html/pfappserver/root/configurator/fingerbank.tt
-msgid "Configure MySQL as the Fingerbank backend. This will improve the performance of Fingerbank related components."
-msgstr ""
-
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
 msgid "Configure access to the admin interface"
 msgstr ""
@@ -1606,10 +1631,6 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Configurator.pm
 msgid "Configure various options"
-msgstr ""
-
-# html/pfappserver/root/configurator/fingerbank.tt
-msgid "Configuring your Fingerbank API key will allow for more accurate fingerprinting while using MySQL for the storage improves performance greatly in large scale deployments."
 msgstr ""
 
 # html/pfappserver/root/configurator/services.tt
@@ -1667,6 +1688,10 @@ msgstr ""
 # html/pfappserver/root/configurator/fingerbank.tt
 # html/pfappserver/root/configurator/networks.tt
 msgid "Continue"
+msgstr ""
+
+# html/pfappserver/root/configurator/fingerbank.tt
+msgid "Continue without Fingerbank"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
@@ -1831,6 +1856,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 msgid "DHCP fingerprint"
+msgstr ""
+
+# html/pfappserver/root/graph/dashboard.tt
+msgid "DHCP on"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
@@ -2136,6 +2165,10 @@ msgstr ""
 # html/pfappserver/root/config/source/list.tt
 # html/pfappserver/root/config/switch/index.tt
 # html/pfappserver/root/config/switch/list.tt
+# html/pfappserver/root/config/syslog/index.tt
+# html/pfappserver/root/config/syslog/list.tt
+# html/pfappserver/root/config/trafficshaping/index.tt
+# html/pfappserver/root/config/trafficshaping/list.tt
 # html/pfappserver/root/config/wmi/index.tt
 # html/pfappserver/root/config/wmi/list.tt
 # html/pfappserver/root/config/wrix/index.tt
@@ -2231,6 +2264,10 @@ msgstr ""
 msgid "Delete Source"
 msgstr ""
 
+# html/pfappserver/root/config/syslog/index.tt
+msgid "Delete Syslog entry"
+msgstr ""
+
 # html/pfappserver/root/config/fingerbank/user_agent/index.tt
 msgid "Delete User Agent"
 msgstr ""
@@ -2249,6 +2286,10 @@ msgstr ""
 
 # html/pfappserver/root/config/pfdetect/index.tt
 msgid "Delete syslog parser"
+msgstr ""
+
+# html/pfappserver/root/config/trafficshaping/index.tt
+msgid "Delete traffic shaping policy entry"
 msgstr ""
 
 # html/pfappserver/root/config/networks/view.tt
@@ -2286,9 +2327,11 @@ msgstr ""
 # html/pfappserver/root/config/portal_module/list_view.tt
 # html/pfappserver/root/config/profile/index.tt
 # html/pfappserver/root/config/provisioning/list.tt
-# html/pfappserver/root/config/roles/index.tt
+# html/pfappserver/root/config/roles/list.tt
 # html/pfappserver/root/config/source/list.tt
 # html/pfappserver/root/config/switch/list.tt
+# html/pfappserver/root/config/syslog/list.tt
+# html/pfappserver/root/config/trafficshaping/list.tt
 # html/pfappserver/root/node/violations.tt
 # html/pfappserver/root/user/violations.tt
 # html/pfappserver/root/violation/list.tt
@@ -2366,6 +2409,10 @@ msgstr ""
 msgid "Device Type"
 msgstr ""
 
+# html/pfappserver/root/graph/dashboard.tt
+msgid "Device Violations"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/root/node/search.tt
 # html/pfappserver/root/user/nodes.tt
@@ -2410,14 +2457,16 @@ msgstr ""
 msgid "Dismiss Changes for "
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/PacketFence/Controller/Config/Fingerbank/DB.pm
-msgid "Dispatched the import job to PID $pid. An e-mail will follow up for status."
-msgstr ""
-
 # html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/dhcpoption82/index.tt
 # html/pfappserver/root/per_page_select.tt
 msgid "Display %1 entries per page"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Source/Eduroam.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Source/LDAP.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Source/RADIUS.pm
+msgid "Do you want to monitor this source?"
 msgstr ""
 
 # html/pfappserver/root/violation/list.tt
@@ -2439,7 +2488,7 @@ msgid "Domain"
 msgstr ""
 
 # conf/documentation.conf (general.domain)
-msgid "Domain name of PacketFence system. Changing this requires to restart haproxy."
+msgid "Domain name of PacketFence system. Changing this requires to restart haproxy-portal."
 msgstr ""
 
 # html/pfappserver/root/configurator/configuration.tt
@@ -2664,6 +2713,10 @@ msgstr ""
 msgid "Ending IP Address"
 msgstr ""
 
+# html/pfappserver/root/graph/dashboard.tt
+msgid "Endpoints"
+msgstr ""
+
 # html/pfappserver/root/configurator/enforcement.tt
 msgid "Enforcement"
 msgstr ""
@@ -2854,10 +2907,6 @@ msgstr ""
 msgid "Files"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/Profile.pm
-msgid "Filter"
-msgstr ""
-
 # html/pfappserver/root/admin/configuration.tt
 msgid "Filter Engines"
 msgstr ""
@@ -2866,6 +2915,7 @@ msgstr ""
 msgid "Filter Engines:"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Profile.pm
 # html/pfappserver/root/config/profile/tab-content.tt
 msgid "Filters"
 msgstr ""
@@ -2885,10 +2935,6 @@ msgstr ""
 
 # html/pfappserver/root/configuration/profiling.tt
 msgid "Fingerbank Profiling"
-msgstr ""
-
-# html/pfappserver/root/config/fingerbank/settings/index.tt
-msgid "Fingerbank Settings"
 msgstr ""
 
 # html/pfappserver/root/configurator/fingerbank.tt
@@ -3045,16 +3091,12 @@ msgstr ""
 msgid "Host the proxy is listening on"
 msgstr ""
 
-# conf/documentation.conf (graphite.graphite_host)
-msgid "Host to which graphite metrics are sent."
-msgstr "Host to which graphite metrics are sent."
-
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 msgid "Host which hosts the PacketFence PKI"
 msgstr ""
 
 # conf/documentation.conf (general.hostname)
-msgid "Hostname of PacketFence system. This is concatenated with the domain in Apache rewriting rules and therefore must be resolvable by clients. Changing this requires to restart haproxy."
+msgid "Hostname of PacketFence system. This is concatenated with the domain in Apache rewriting rules and therefore must be resolvable by clients. Changing this requires to restart haproxy-portal."
 msgstr ""
 
 # html/pfappserver/root/configurator/configuration.tt
@@ -3066,21 +3108,10 @@ msgid "Hostname or IP"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Iboss.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/JSONRPC.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/WatchGuard.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/Nessus.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/Nessus6.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
 msgid "Hostname or IP Address"
-msgstr ""
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc (redis.host)
-msgid "Hostname or IP address of the Redis server"
 msgstr ""
 
 # html/pfappserver/root/config/wrix/view.tt
@@ -3197,6 +3228,10 @@ msgstr ""
 msgid "IPv4 Netmask"
 msgstr ""
 
+# html/pfappserver/root/graph/dashboard.tt
+msgid "IPv4 Networking"
+msgstr ""
+
 # conf/documentation.conf (interface.ip)
 msgid "IPv4 address of the named interface - note that this should mirror the OS-level configuration but it does not make any OS-level changes."
 msgstr ""
@@ -3278,17 +3313,16 @@ msgstr ""
 msgid "If using the HTTP transport, specify the password for the Palo Alto API"
 msgstr ""
 
+# html/pfappserver/root/configurator/fingerbank.tt
+msgid "If you do not configure a Fingerbank API key, you will not have access to any device profiling capabilities in PacketFence"
+msgstr ""
+
 # html/pfappserver/root/configurator/database.tt
 msgid "If you don't know what's the current password of your MySQL installation, it is probably because you haven't set one. In this case, just enter the root username, which will mostly be <em>root</em> without any password and click the <em>Test</em> button. For security reasons, you'll be prompted to set one."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Iboss.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/JSONRPC.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/WatchGuard.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/Nessus.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/Nessus6.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
@@ -3334,16 +3368,16 @@ msgstr ""
 msgid "Info"
 msgstr ""
 
-# html/pfappserver/root/config/fingerbank/header.tt
-msgid "Initialize MySQL database"
-msgstr ""
-
 # html/pfappserver/root/config/switch/view.tt
 msgid "Inline"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
 msgid "Inline Layer 3"
+msgstr ""
+
+# html/pfappserver/root/config/trafficshaping/index.tt
+msgid "Inline Traffic Shaping Policy"
 msgstr ""
 
 # html/pfappserver/root/configurator/enforcement.tt
@@ -3365,10 +3399,6 @@ msgstr ""
 msgid "Integration"
 msgstr ""
 
-# html/pfappserver/root/admin/help.tt
-msgid "Integration Guides"
-msgstr ""
-
 # html/pfappserver/root/interface/index.tt
 msgid "Interfaces & Networks"
 msgstr ""
@@ -3387,6 +3417,14 @@ msgstr ""
 
 # conf/documentation.conf (inline.layer3_accounting_sync_interval)
 msgid "Interval at which pfbandwidthd should dump collected information into the database. This should be lower than the interval at which pfmon runs. Defaults to 41 seconds"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (collector.cluster_resync_interval)
+msgid "Interval in seconds at which the collector will fully resynchronize with its peers when in cluster mode. The collector synchronizes in real-time, so this only acts as a safety net when there is a communication error between the collectors. "
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (collector.db_persistence_interval)
+msgid "Interval in seconds at which the collector will persist its databases."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Admin.pm
@@ -3563,7 +3601,6 @@ msgstr ""
 # html/pfappserver/root/config/fingerbank/dhcp_fingerprint/list.tt
 # html/pfappserver/root/config/fingerbank/dhcp_vendor/list.tt
 # html/pfappserver/root/config/fingerbank/mac_vendor/list.tt
-# html/pfappserver/root/config/fingerbank/user_agent/list.tt
 msgid "Local"
 msgstr ""
 
@@ -3638,24 +3675,24 @@ msgstr ""
 msgid "Location of the arp binary. Only necessary to change if you are not running the RPMed version."
 msgstr ""
 
-# conf/documentation.conf (services.carbon-cache_binary)
-msgid "Location of the carbon-cache binary."
-msgstr "Path of the carbon-cache binary."
-
-# conf/documentation.conf (services.carbon-relay_binary)
-msgid "Location of the carbon-relay binary."
-msgstr "Path of the carbon-relay binary."
-
-# conf/documentation.conf (services.collectd_binary)
-msgid "Location of the collectd binary."
-msgstr "Path of the collectd binary."
-
 # conf/documentation.conf (services.dhcpd_binary)
 msgid "Location of the dhcpd binary. Only necessary to change if you are not running the RPMed version."
 msgstr ""
 
-# conf/documentation.conf (services.haproxy_binary)
-msgid "Location of the haproxy binary. Only necessary to change if you arenot running the RPMed version."
+# conf/documentation.conf (services.etcd_binary)
+msgid "Location of the etcd binary."
+msgstr ""
+
+# conf/documentation.conf (services.fingerbank-collector_binary)
+msgid "Location of the fingerbank-collector binary."
+msgstr ""
+
+# conf/documentation.conf (services.haproxy-db_binary)
+msgid "Location of the haproxy-db binary. Only necessary to change if you arenot running the RPMed version."
+msgstr ""
+
+# conf/documentation.conf (services.haproxy-portal_binary)
+msgid "Location of the haproxy-portal binary. Only necessary to change if you arenot running the RPMed version."
 msgstr ""
 
 # conf/documentation.conf (services.routes_binary)
@@ -3670,8 +3707,28 @@ msgstr ""
 msgid "Location of the keepalived binary. Only necessary to change if you arenot running the RPMed version."
 msgstr ""
 
+# conf/documentation.conf (services.netdata_binary)
+msgid "Location of the netdata binary."
+msgstr ""
+
 # conf/documentation.conf (services.openssl_binary)
 msgid "Location of the openssl binary. Only necessary to change if you are not running the RPMed version."
+msgstr ""
+
+# conf/documentation.conf (services.pfdhcp_binary)
+msgid "Location of the pfdhcp binary."
+msgstr ""
+
+# conf/documentation.conf (services.pfdns_binary)
+msgid "Location of the pfdns binary."
+msgstr ""
+
+# conf/documentation.conf (services.pfipset_binary)
+msgid "Location of the pfipset binary."
+msgstr ""
+
+# conf/documentation.conf (services.pfstats_binary)
+msgid "Location of the pfstats binary."
 msgstr ""
 
 # conf/documentation.conf (services.radsniff_binary)
@@ -3686,9 +3743,9 @@ msgstr ""
 msgid "Location of the snmptrapd binary. Only necessary to change if you are not running the RPMed version. "
 msgstr ""
 
-# conf/documentation.conf (services.statsd_binary)
-msgid "Location of the statsd (node) binary."
-msgstr "Path of the node.js binary running statsd"
+# conf/documentation.conf (services.tc_binary)
+msgid "Location of the tc binary. Only necessary to change if you are notrunning the RPMed version."
+msgstr ""
 
 # conf/documentation.conf (services.winbindd_binary)
 msgid "Location of the winbindd binary. Only necessary to change if you arenot running the RPMed version."
@@ -3726,6 +3783,7 @@ msgstr ""
 msgid "Logo"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Syslog.pm
 # html/pfappserver/root/admin/status.tt
 msgid "Logs"
 msgstr ""
@@ -3876,7 +3934,7 @@ msgid "Max Lease Time"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Roles.pm
-# html/pfappserver/root/config/roles/index.tt
+# html/pfappserver/root/config/roles/list.tt
 msgid "Max nodes per user"
 msgstr ""
 
@@ -3943,6 +4001,12 @@ msgstr ""
 
 # html/pfappserver/root/configuration/section.tt
 msgid "Modifying any of theses values requires to restart 'pfmon' service to be effective."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Source/Eduroam.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Source/LDAP.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Source/RADIUS.pm
+msgid "Monitor"
 msgstr ""
 
 # html/pfappserver/root/user/create.tt
@@ -4023,7 +4087,7 @@ msgstr ""
 # html/pfappserver/root/config/fingerbank/mac_vendor/list.tt
 # html/pfappserver/root/config/pki_provider/list.tt
 # html/pfappserver/root/config/profile/index.tt
-# html/pfappserver/root/config/roles/index.tt
+# html/pfappserver/root/config/roles/list.tt
 # html/pfappserver/root/config/scan/list.tt
 # html/pfappserver/root/config/source/list.tt
 # html/pfappserver/root/configurator/database.tt
@@ -4209,6 +4273,14 @@ msgstr ""
 msgid "New Source"
 msgstr ""
 
+# html/pfappserver/root/config/syslog/view.tt
+msgid "New Syslog Entry"
+msgstr ""
+
+# html/pfappserver/root/config/trafficshaping/view.tt
+msgid "New TrafficShaping Entry"
+msgstr ""
+
 # html/pfappserver/root/config/fingerbank/user_agent/view.tt
 msgid "New User Agent"
 msgstr ""
@@ -4271,6 +4343,10 @@ msgstr ""
 
 # html/pfappserver/root/pfqueue/stats.inc
 msgid "No Task Counters."
+msgstr ""
+
+# html/pfappserver/root/config/trafficshaping/list.tt
+msgid "No Traffic Shaping Policy defined"
 msgstr ""
 
 # html/pfappserver/root/dynamicreport/search.tt
@@ -4367,13 +4443,6 @@ msgid "Nodes with the selected OS will be affected"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Iboss.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/JSONRPC.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/WatchGuard.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/FixedRole.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
@@ -4406,10 +4475,6 @@ msgstr ""
 
 # html/pfappserver/root/config/networks/view.tt
 msgid "Note that adding / modifying a network requires a restart of the dhcpd and pfdns services for the changes to take place"
-msgstr ""
-
-# html/pfappserver/root/configurator/fingerbank.tt
-msgid "Note that these actions are optional and can be skipped."
 msgstr ""
 
 # html/pfappserver/root/configuration/section.tt
@@ -4513,6 +4578,10 @@ msgstr ""
 msgid "Online"
 msgstr ""
 
+# html/pfappserver/root/graph/dashboard.tt
+msgid "Online & Offline Devices"
+msgstr ""
+
 # html/pfappserver/root/admin/nodes.tt
 msgid "Online Between:"
 msgstr ""
@@ -4538,6 +4607,7 @@ msgid "Open"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/graph/dashboard.tt
 msgid "Open Violations"
 msgstr ""
 
@@ -4612,6 +4682,10 @@ msgstr ""
 msgid "Organizational unit for the certificate"
 msgstr ""
 
+# conf/documentation.conf (captive_portal.other_domain_names)
+msgid "Other domain names under which the captive portal responds.Requires to restart haproxy-portal to be fully effective."
+msgstr ""
+
 # html/pfappserver/root/admin/reports.tt
 msgid "Other reports"
 msgstr ""
@@ -4632,6 +4706,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
+# html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/node/search.tt
 msgid "Owner"
 msgstr ""
@@ -4846,7 +4921,6 @@ msgid "Parent device"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/JSONRPC.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
@@ -4882,37 +4956,31 @@ msgstr ""
 msgid "Password for the username filled in above"
 msgstr ""
 
-# html/pfappserver/root/graph/dashboard.tt
 # html/pfappserver/root/graph/logstate.tt
 # html/pfappserver/root/graph/systemstate.tt
 msgid "Past 12 Hours"
 msgstr ""
 
-# html/pfappserver/root/graph/dashboard.tt
 # html/pfappserver/root/graph/logstate.tt
 # html/pfappserver/root/graph/systemstate.tt
 msgid "Past 2 Weeks"
 msgstr ""
 
-# html/pfappserver/root/graph/dashboard.tt
 # html/pfappserver/root/graph/logstate.tt
 # html/pfappserver/root/graph/systemstate.tt
 msgid "Past 3 Hours"
 msgstr ""
 
-# html/pfappserver/root/graph/dashboard.tt
 # html/pfappserver/root/graph/logstate.tt
 # html/pfappserver/root/graph/systemstate.tt
 msgid "Past Day"
 msgstr ""
 
-# html/pfappserver/root/graph/dashboard.tt
 # html/pfappserver/root/graph/logstate.tt
 # html/pfappserver/root/graph/systemstate.tt
 msgid "Past Hour"
 msgstr ""
 
-# html/pfappserver/root/graph/dashboard.tt
 # html/pfappserver/root/graph/logstate.tt
 # html/pfappserver/root/graph/systemstate.tt
 msgid "Past Week"
@@ -4968,6 +5036,10 @@ msgstr ""
 msgid "Path to Service Provider key (x509)"
 msgstr ""
 
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.db_path)
+msgid "Path used to fetch the database on the Fingerbank API"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Field/PfdetectRegexRule.pm
 msgid "Perform automatic translation of IPs to MACs and the other way around"
 msgstr ""
@@ -4978,10 +5050,6 @@ msgstr ""
 
 # html/pfappserver/root/admin/wrapper.tt
 msgid "Perform tasks"
-msgstr ""
-
-# html/pfappserver/root/admin/nodes.tt
-msgid "Person Name"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Pfmon.pm
@@ -5088,7 +5156,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Please specify an identifier for the violation."
-msgstr "Please specify an identifier for the violation."
+msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "Please specify the Active Directory server"
@@ -5150,27 +5218,8 @@ msgstr ""
 msgid "Please specify the gateway."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
-msgid "Please specify the hostname or IP of the Check point firewall"
-msgstr ""
-
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
 msgid "Please specify the hostname or IP of the Firewall"
-msgstr ""
-
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Iboss.pm
-msgid "Please specify the hostname or IP of the Iboss"
-msgstr ""
-
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/JSONRPC.pm
-msgid "Please specify the hostname or IP of the JSON-RPC server"
-msgstr ""
-
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/WatchGuard.pm
-msgid "Please specify the hostname or IP of the firewall"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/Nessus.pm
@@ -5187,6 +5236,10 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/scep.pm
 msgid "Please specify the name of the PKI provider"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Syslog.pm
+msgid "Please specify the name of the Syslog entry"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
@@ -5278,22 +5331,12 @@ msgstr ""
 msgid "Port"
 msgstr ""
 
-# /usr/local/fingerbank/conf/fingerbank.conf.doc (redis.port)
-msgid "Port of the Redis server"
-msgstr ""
-
 # conf/documentation.conf (ports.collector)
 msgid "Port of the collector webservice."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Iboss.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/JSONRPC.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/WatchGuard.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/Nessus.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/Nessus6.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan/OpenVAS.pm
@@ -5303,10 +5346,6 @@ msgstr ""
 # conf/documentation.conf (ports.soap)
 msgid "Port of the soap webservice."
 msgstr ""
-
-# conf/documentation.conf (graphite.graphite_port)
-msgid "Port on the graphite host to which metrics are sent."
-msgstr "Port on the graphite host to which metrics are sent."
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 msgid "Port on which to contact the PacketFence PKI API"
@@ -5520,6 +5559,14 @@ msgstr ""
 msgid "Quantity"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/jamf.pm
+msgid "Query JAMF computers inventory"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/jamf.pm
+msgid "Query JAMF mobile devices inventory"
+msgstr ""
+
 # html/pfappserver/root/admin/status.tt
 # html/pfappserver/root/pfqueue/cluster.tt
 # html/pfappserver/root/pfqueue/index.tt
@@ -5584,7 +5631,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
 msgid "RADIUS server certificate path"
-msgstr "RADIUS server certificate path"
+msgstr ""
 
 # pf::admin_roles (Actions groups)
 msgid "RADIUS_LOG"
@@ -5692,6 +5739,10 @@ msgstr ""
 msgid "Really delete this Scan Engine ?"
 msgstr ""
 
+# html/pfappserver/root/config/syslog/index.tt
+msgid "Really delete this Syslog entry?"
+msgstr ""
+
 # html/pfappserver/root/config/fingerbank/user_agent/index.tt
 msgid "Really delete this User Agent?"
 msgstr ""
@@ -5712,6 +5763,10 @@ msgstr ""
 msgid "Really delete this floating device?"
 msgstr ""
 
+# html/pfappserver/root/interface/list.tt
+msgid "Really delete this interface?"
+msgstr ""
+
 # html/pfappserver/root/config/profile/index.tt
 msgid "Really delete this profile?"
 msgstr ""
@@ -5722,6 +5777,10 @@ msgstr ""
 
 # html/pfappserver/root/config/pfdetect/index.tt
 msgid "Really delete this syslog parser?"
+msgstr ""
+
+# html/pfappserver/root/config/trafficshaping/index.tt
+msgid "Really delete this traffic shaping policy entry?"
 msgstr ""
 
 # html/pfappserver/root/config/source/index.tt
@@ -5797,12 +5856,32 @@ msgstr ""
 msgid "Reevaluate access"
 msgstr ""
 
+# html/pfappserver/root/node/view.tt
+msgid "Refresh device profiling"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Field/PfdetectRegexRule.pm
 msgid "Regex"
 msgstr ""
 
 # html/pfappserver/root/admin/bulk_actions.inc
 msgid "Register"
+msgstr ""
+
+# html/pfappserver/root/graph/dashboard.tt
+msgid "Registered & Unregistered Devices"
+msgstr ""
+
+# html/pfappserver/root/graph/dashboard.tt
+msgid "Registered Devices"
+msgstr ""
+
+# html/pfappserver/root/graph/dashboard.tt
+msgid "Registered Devices Per Role"
+msgstr ""
+
+# html/pfappserver/root/graph/dashboard.tt
+msgid "Registered Devices Per Timeframe"
 msgstr ""
 
 # pfappserver::PacketFence::Controller::Graph (graph type)
@@ -5816,6 +5895,10 @@ msgstr ""
 
 # html/pfappserver/root/node/search.tt
 msgid "Registration Date"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Interface.pm
+msgid "Registration IP Address CIDR format"
 msgstr ""
 
 # html/pfappserver/root/user/create.tt
@@ -5984,6 +6067,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/BillingTiers.pm
 # html/pfappserver/lib/pfappserver/Form/Config/DeviceRegistration.pm
+# html/pfappserver/lib/pfappserver/Form/Config/TrafficShaping.pm
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
@@ -6034,13 +6118,6 @@ msgid "Role mapping by switch role"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Checkpoint.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Iboss.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/JSONRPC.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/WatchGuard.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PortalModule/FixedRole.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
@@ -6208,6 +6285,46 @@ msgstr "Switches CLI - Read"
 msgid "SWITCH_LOGIN_WRITE"
 msgstr "Switches CLI - Write"
 
+# pf::admin_roles (Actions groups)
+msgid "SYSLOG"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "SYSLOG_CREATE"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "SYSLOG_DELETE"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "SYSLOG_READ"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "SYSLOG_UPDATE"
+msgstr ""
+
+# pf::admin_roles (Actions groups)
+msgid "SYSTEM"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "SYSTEM_CREATE"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "SYSTEM_DELETE"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "SYSTEM_READ"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "SYSTEM_UPDATE"
+msgstr ""
+
 # html/pfappserver/root/admin/saved_search.inc
 # html/pfappserver/root/config/adminroles/view.tt
 # html/pfappserver/root/config/billingtiers/view.tt
@@ -6240,6 +6357,8 @@ msgstr "Switches CLI - Write"
 # html/pfappserver/root/config/scan/view.tt
 # html/pfappserver/root/config/source/view.tt
 # html/pfappserver/root/config/switch/view.tt
+# html/pfappserver/root/config/syslog/view.tt
+# html/pfappserver/root/config/trafficshaping/view.tt
 # html/pfappserver/root/config/wmi/view.tt
 # html/pfappserver/root/config/wrix/view.tt
 # html/pfappserver/root/configuration/section.tt
@@ -6312,6 +6431,8 @@ msgstr ""
 # html/pfappserver/root/config/scan/view.tt
 # html/pfappserver/root/config/source/view.tt
 # html/pfappserver/root/config/switch/view.tt
+# html/pfappserver/root/config/syslog/view.tt
+# html/pfappserver/root/config/trafficshaping/view.tt
 # html/pfappserver/root/config/wmi/view.tt
 # html/pfappserver/root/config/wrix/view.tt
 # html/pfappserver/root/configuration/section.tt
@@ -6409,10 +6530,7 @@ msgid "Secret Passphrase"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/Iboss.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/PaloAlto.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/WatchGuard.pm
 msgid "Secret or Key"
 msgstr ""
 
@@ -6566,36 +6684,24 @@ msgstr ""
 msgid "Shared Secret Direct"
 msgstr ""
 
-# conf/documentation.conf (services.dhcpd)
-msgid "Should DHCPd be managed by PacketFence?"
-msgstr ""
-
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (proxy.use_proxy)
 msgid "Should Fingerbank interact with WWW using a proxy ?"
 msgstr ""
 
-# /usr/local/fingerbank/conf/fingerbank.conf.doc (mysql.state)
-msgid "Should Fingerbank use MySQL instead of the SQLite3 database ?"
+# conf/documentation.conf (services.api-frontend)
+msgid "Should api-frontend be managed by PacketFence?"
 msgstr ""
 
-# /usr/local/fingerbank/conf/fingerbank.conf.doc (query.use_redis)
-msgid "Should Redis be used to match combinations ? Requires to have the Attribute map imported into the Redis instance"
+# conf/documentation.conf (services.etcd)
+msgid "Should etcd be managed by PacketFence?"
 msgstr ""
 
-# conf/documentation.conf (services.carbon-cache)
-msgid "Should carbon-cache be managed by PacketFence?"
-msgstr "Should carbon-cache be managed by PacketFence?"
+# conf/documentation.conf (services.haproxy-db)
+msgid "Should haproxy-db be started? Keep enabled unless you know what you're doing."
+msgstr ""
 
-# conf/documentation.conf (services.carbon-relay)
-msgid "Should carbon-relay be managed by PacketFence?"
-msgstr "Should carbon-relay be managed by PacketFence?"
-
-# conf/documentation.conf (services.collectd)
-msgid "Should collectd be managed by PacketFence?"
-msgstr "Should collectd be managed by PacketFence?"
-
-# conf/documentation.conf (services.haproxy)
-msgid "Should haproxy be started? Keep enabled unless you know what you're doing."
+# conf/documentation.conf (services.haproxy-portal)
+msgid "Should haproxy-portal be started? Keep enabled unless you know what you're doing."
 msgstr ""
 
 # conf/documentation.conf (inline.should_reauth_on_vlan_change)
@@ -6616,10 +6722,6 @@ msgstr ""
 
 # conf/documentation.conf (services.httpd_dispatcher)
 msgid "Should httpd.dispatcher be started? Keep enabled unless you know what you're doing."
-msgstr ""
-
-# conf/documentation.conf (services.httpd_graphite)
-msgid "Should httpd.graphite be started? This is required for some of the dashboard functionality."
 msgstr ""
 
 # conf/documentation.conf (services.httpd_parking)
@@ -6654,12 +6756,16 @@ msgstr ""
 msgid "Should match the NAC name from the Iboss configuration"
 msgstr ""
 
-# conf/documentation.conf (snmp_traps.closelocationlogonstop)
-msgid "Should open locationlog entries be closed when pfsetvlan is stopped"
+# conf/documentation.conf (services.netdata)
+msgid "Should netdata be managed by PacketFence?"
 msgstr ""
 
 # conf/documentation.conf (services.pfbandwidthd)
 msgid "Should pfbandwidthd be managed by PacketFence?"
+msgstr ""
+
+# conf/documentation.conf (services.pfdhcp)
+msgid "Should pfdhcp be managed by PacketFence?"
 msgstr ""
 
 # conf/documentation.conf (services.pfdhcplistener)
@@ -6674,8 +6780,16 @@ msgstr ""
 msgid "Should pffilter be managed by PacketFence?"
 msgstr ""
 
+# conf/documentation.conf (services.pfipset)
+msgid "Should pfipset be managed by PacketFence?"
+msgstr ""
+
 # conf/documentation.conf (services.pfmon)
 msgid "Should pfmon be started? Keep enabled unless you know what you're doing."
+msgstr ""
+
+# conf/documentation.conf (services.pfperl-api)
+msgid "Should pfperl-api be started? Keep enabled unless you know what you're doing."
 msgstr ""
 
 # conf/documentation.conf (services.pfqueue)
@@ -6684,6 +6798,10 @@ msgstr ""
 
 # conf/documentation.conf (services.pfsso)
 msgid "Should pfsso be managed by PacketFence?"
+msgstr ""
+
+# conf/documentation.conf (services.pfstats)
+msgid "Should pfstats be managed by PacketFence?"
 msgstr ""
 
 # conf/documentation.conf (services.radiusd)
@@ -6710,20 +6828,12 @@ msgstr ""
 msgid "Should snmptrapd be started? Keep enabled unless you know what you're doing."
 msgstr ""
 
-# conf/documentation.conf (services.statsd)
-msgid "Should statsd be managed by PacketFence?"
-msgstr "Should statsd be managed by PacketFence?"
-
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "Should the NTLM cache be enabled for this domain?"
 msgstr ""
 
-# /usr/local/fingerbank/conf/fingerbank.conf.doc (query.use_tcp_fingerprinting)
-msgid "Should the TCP fingerprinting be part of the discovery process to match a device ?"
-msgstr ""
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.interrogate)
-msgid "Should the local instance of Fingerbank interrogate the upstream Fingerbank project when unable to fullfil a match"
+# conf/documentation.conf (services.fingerbank-collector)
+msgid "Should the fingerbank-collector be managed by PacketFence?"
 msgstr ""
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (query.record_unmatched)
@@ -6732,6 +6842,22 @@ msgstr ""
 
 # conf/documentation.conf (services.redis_ntlm_cache)
 msgid "Should the redis NTLM cache be started? Use this if you are enabling an Active Directory NTLM cache."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
+msgid "Should the usernames matching this realm be stripped when used in the authorization phase of 802.1x. Note that this doesn't control the stripping in FreeRADIUS, use the options above for that."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
+msgid "Should the usernames matching this realm be stripped when used on the administration interface"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
+msgid "Should the usernames matching this realm be stripped when used on the captive portal"
+msgstr ""
+
+# conf/documentation.conf (services.tc)
+msgid "Should traffic shaping be managed by PacketFence?"
 msgstr ""
 
 # conf/documentation.conf (inline.accounting)
@@ -6838,6 +6964,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Specify the access duration for the new registered node."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Interface.pm
+msgid "Split network by role"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/User.pm
@@ -6972,11 +7102,24 @@ msgstr ""
 # html/pfappserver/root/auditing/radiuslog/index.tt
 # html/pfappserver/root/config/fingerbank/search.tt
 # html/pfappserver/root/config/profile/tab-content.tt
+# html/pfappserver/root/config/roles/list.tt
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
 # html/pfappserver/root/dhcpoption82/index.tt
 # html/pfappserver/root/dynamicreport/index.tt
 msgid "String..."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
+msgid "Strip in RADIUS authorization"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
+msgid "Strip on the admin"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
+msgid "Strip on the portal"
 msgstr ""
 
 # html/pfappserver/root/config/wrix/search_form.tt
@@ -6985,10 +7128,6 @@ msgstr ""
 
 # conf/documentation.conf (alerting.subjectprefix)
 msgid "Subject prefix for email notifications of rogue DHCP servers, violations with an action of <i>email</i>, or any other PacketFence-related message."
-msgstr ""
-
-# html/pfappserver/root/config/fingerbank/header.tt
-msgid "Submit Unknown/Unmatched Fingerprints"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Source/LDAP.pm
@@ -7006,16 +7145,12 @@ msgstr ""
 msgid "Success!"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/PacketFence/Controller/Config/Fingerbank/DB.pm
-msgid "Successfully dispatched submit request for unknown/unmatched fingerprints to Fingerbank. An email will follow for status"
+# html/pfappserver/root/graph/dashboard.tt
+msgid "Successful & Unsuccessful RADIUS Authentications"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Config/Fingerbank/DB.pm
 msgid "Successfully dispatched update request for Fingerbank upstream DB. An email will follow for status"
-msgstr ""
-
-# html/pfappserver/lib/pfappserver/PacketFence/Controller/Config/Fingerbank/DB.pm
-msgid "Successfully dispatched update request for the redis DB. An email will follow for status"
 msgstr ""
 
 # html/pfappserver/root/admin/help.tt
@@ -7094,6 +7229,23 @@ msgstr ""
 msgid "Syslog"
 msgstr ""
 
+# html/pfappserver/root/config/syslog/index.tt
+msgid "Syslog Entries"
+msgstr ""
+
+# html/pfappserver/root/config/syslog/view.tt
+msgid "Syslog Entry"
+msgstr ""
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "Syslog Forwarding"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Syslog.pm
+# html/pfappserver/root/config/syslog/list.tt
+msgid "Syslog Name"
+msgstr ""
+
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/pfdetect/index.tt
 # html/pfappserver/root/config/pfdetect/view.tt
@@ -7109,6 +7261,7 @@ msgid "Syslog parser"
 msgstr ""
 
 # html/pfappserver/root/admin/status.tt
+# html/pfappserver/root/graph/dashboard.tt
 msgid "System"
 msgstr ""
 
@@ -7126,7 +7279,7 @@ msgid "System state"
 msgstr ""
 
 # conf/documentation.conf (general.timezone)
-msgid "System's timezone in string format. List generated from Perl library DataTime::TimeZone"
+msgid "System's timezone in string format. List generated from Perl library DataTime::TimeZoneWhen left empty, it will use the timezone of the server"
 msgstr ""
 
 # conf/documentation.conf (radius_authentication_methods.eap_authentication_types options)
@@ -7185,6 +7338,26 @@ msgstr ""
 msgid "TLS-Client-Cert-X509v3-Extended-Key-Usage"
 msgstr ""
 
+# pf::admin_roles (Actions groups)
+msgid "TRAFFIC_SHAPING"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "TRAFFIC_SHAPING_CREATE"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "TRAFFIC_SHAPING_DELETE"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "TRAFFIC_SHAPING_READ"
+msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "TRAFFIC_SHAPING_UPDATE"
+msgstr ""
+
 # conf/documentation.conf (radius_authentication_methods.eap_authentication_types options)
 msgid "TTLS"
 msgstr ""
@@ -7226,7 +7399,11 @@ msgid "Template"
 msgstr ""
 
 # conf/documentation.conf (captive_portal.rate_limiting)
-msgid "Temporarily deny access to a user that performs too many requests on the captive portal on invalid URLsRequires to restart haproxy in order to apply the change."
+msgid "Temporarily deny access to a user that performs too many requests on the captive portal on invalid URLsRequires to restart haproxy-portal in order to apply the change."
+msgstr ""
+
+# html/pfappserver/root/node/search.tt
+msgid "Tenant"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Source/Mirapay.pm
@@ -7314,14 +7491,6 @@ msgstr ""
 msgid "The URL on which the user should be redirected."
 msgstr ""
 
-# /usr/local/fingerbank/conf/fingerbank.conf.doc (mysql.incrementals_url)
-msgid "The URL to download the SQL incremental scripts"
-msgstr ""
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc (redis.attribute_map_url)
-msgid "The URL to download the attribute map."
-msgstr ""
-
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/mobileconfig.pm
 msgid "The WiFi key to join the SSID"
 msgstr ""
@@ -7378,10 +7547,6 @@ msgstr ""
 msgid "The database is in readonly mode. Not all functionality is available."
 msgstr ""
 
-# /usr/local/fingerbank/conf/fingerbank.conf.doc (mysql.database)
-msgid "The database name in MySQL"
-msgstr ""
-
 # html/pfappserver/root/configuration/system_config.tt
 msgid "The default parameters to be used when importing nodes"
 msgstr ""
@@ -7418,8 +7583,12 @@ msgstr ""
 msgid "The hidden SSID where the user should connect to after registration"
 msgstr ""
 
-# /usr/local/fingerbank/conf/fingerbank.conf.doc (mysql.host)
-msgid "The host to connect to the MySQL database"
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.host)
+msgid "The host on which the Fingerbank API should be reached"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (collector.host)
+msgid "The host on which the Fingerbank collector should be reached"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Source/Facebook.pm
@@ -7435,10 +7604,6 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Source/OpenID.pm
 msgid "The hostname must match your hostname and domain parameters set in System Configuration > Main Configuration > General Configuration."
-msgstr ""
-
-# conf/documentation.conf (graphite.db_host)
-msgid "The hostname of the the database storing the Graphite dashboard settings. Will default to database.host if none is provided."
 msgstr ""
 
 # conf/documentation.conf (database_advanced.innodb_additional_mem_pool_size)
@@ -7493,14 +7658,6 @@ msgstr ""
 msgid "The password of a Domain Admin to use to join the server to the domain. Will not be stored permanently and is only used while joining the domain."
 msgstr ""
 
-# conf/documentation.conf (graphite.db_pass)
-msgid "The password to access the database storing the Graphite dashboard settings. Will default to database.pass if none is provided."
-msgstr ""
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc (mysql.password)
-msgid "The password to connect to the MySQL database"
-msgstr ""
-
 # conf/documentation.conf (alerting.smtp_password)
 msgid "The password used to connect to the SMTP server"
 msgstr ""
@@ -7539,12 +7696,12 @@ msgstr ""
 msgid "The port of the SMTP server. If the port is set to 0 then port is calculated by the encryption type. none: 25, ssl: 465, starttls: 587"
 msgstr ""
 
-# /usr/local/fingerbank/conf/fingerbank.conf.doc (mysql.port)
-msgid "The port to connect to the MySQL database"
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.port)
+msgid "The port on which the Fingerbank API should be reached"
 msgstr ""
 
-# conf/documentation.conf (graphite.db_port)
-msgid "The port to connect to the database storing the Graphite dashboard settings. Will default to database.port if none is provided."
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (collector.port)
+msgid "The port on which the Fingerbank collector should be reached"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/BillingTiers.pm
@@ -7561,6 +7718,10 @@ msgstr ""
 
 # conf/documentation.conf (database_advanced.query_cache_size)
 msgid "The query_cache_size MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/TrafficShaping.pm
+msgid "The role to apply traffic shaping"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/DeviceRegistration.pm
@@ -7641,6 +7802,10 @@ msgstr ""
 msgid "The type of transactions this source will do (donations or sales)."
 msgstr ""
 
+# conf/documentation.conf (webservices.unifiedapi_port)
+msgid "The unifiedapi port"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_local.pm
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
 msgid "The unique ID of the PKI provider"
@@ -7656,14 +7821,6 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "The username of a Domain Admin to use to join the server to the domain"
-msgstr ""
-
-# conf/documentation.conf (graphite.db_user)
-msgid "The username to access the database storing the Graphite dashboard settings. Will default to database.user if none is provided."
-msgstr ""
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc (mysql.username)
-msgid "The username to connect to the MySQL database"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
@@ -7871,12 +8028,24 @@ msgstr ""
 msgid "This step covers some basic configuration parameters required to have a functional PacketFence installation."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Interface.pm
+msgid "This will create a small network for each roles."
+msgstr ""
+
 # conf/documentation.conf (network.force_listener_update_on_ack)
 msgid "This will only do the iplog update and other DHCP related task on a DHCPACK.You need to make sure the UDP reflector is in place so this works on the production network.This is implicitly activated on registration interfaces on which dhcpd runs."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Source/RADIUS.pm
 msgid "Timeout"
+msgstr ""
+
+# conf/documentation.conf (pfdhcp.connect_timeout_ms)
+msgid "Timeout (in milliseconds) to connect to the Unified API when performing queries"
+msgstr ""
+
+# conf/documentation.conf (pfdhcp.timeout_ms)
+msgid "Timeout (in milliseconds) when performing queries to the Unified API"
 msgstr ""
 
 # html/pfappserver/root/config/switch/index.tt
@@ -7931,6 +8100,22 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 msgid "Top Bandwidth Consumers"
+msgstr ""
+
+# html/pfappserver/root/config/roles/list.tt
+msgid "Traffic Shaping"
+msgstr ""
+
+# html/pfappserver/root/config/trafficshaping/list.tt
+msgid "Traffic Shaping Policy Name"
+msgstr ""
+
+# html/pfappserver/root/config/trafficshaping/list.tt
+msgid "Traffic Shaping Policy for Role"
+msgstr ""
+
+# html/pfappserver/root/config/trafficshaping/view.tt
+msgid "TrafficShaping Entry"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
@@ -8011,18 +8196,6 @@ msgstr ""
 msgid "URL of MSE service"
 msgstr ""
 
-# /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.db_url)
-msgid "URL to fetch the upstream Fingerbank project database"
-msgstr ""
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.interrogate_url)
-msgid "URL to interrogate the upstream Fingerbank project to fullfil a match"
-msgstr ""
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.submit_url)
-msgid "URL to submit unmatched parameter to upstream Fingerbank project"
-msgstr ""
-
 # pf::admin_roles (Actions groups)
 msgid "USERS"
 msgstr "Users"
@@ -8035,6 +8208,11 @@ msgstr "Users - Create"
 # pf::admin_roles (Actions)
 msgid "USERS_CREATE_MULTIPLE"
 msgstr "Users - Create Multiple"
+
+# pf::admin_roles (Actions groups)
+# pf::admin_roles (Actions)
+msgid "USERS_CREATE_OVERWRITE"
+msgstr ""
 
 # pf::admin_roles (Actions)
 msgid "USERS_DELETE"
@@ -8093,6 +8271,11 @@ msgstr "Users - Set Bandwidth Balance"
 # pf::admin_roles (Actions)
 msgid "USERS_SET_ROLE"
 msgstr "Users - Set Role"
+
+# pf::admin_roles (Actions groups)
+# pf::admin_roles (Actions)
+msgid "USERS_SET_TENANT_ID"
+msgstr ""
 
 # pf::admin_roles (Actions groups)
 # pf::admin_roles (Actions)
@@ -8162,6 +8345,10 @@ msgstr ""
 msgid "Unlimited logins when empty."
 msgstr ""
 
+# conf/documentation.conf (advanced.unreg_on_accounting_stop)
+msgid "Unregister the device on accounting stop"
+msgstr ""
+
 # pfappserver::PacketFence::Controller::Graph (graph type)
 msgid "Unregistered Nodes"
 msgstr ""
@@ -8183,10 +8370,6 @@ msgstr ""
 msgid "Update Fingerprints"
 msgstr ""
 
-# html/pfappserver/root/config/fingerbank/header.tt
-msgid "Update Redis DB"
-msgstr ""
-
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Uplinks"
 msgstr ""
@@ -8206,7 +8389,6 @@ msgstr ""
 # html/pfappserver/root/config/fingerbank/dhcp_fingerprint/list.tt
 # html/pfappserver/root/config/fingerbank/dhcp_vendor/list.tt
 # html/pfappserver/root/config/fingerbank/mac_vendor/list.tt
-# html/pfappserver/root/config/fingerbank/user_agent/list.tt
 msgid "Upstream"
 msgstr ""
 
@@ -8228,6 +8410,14 @@ msgstr ""
 
 # conf/documentation.conf (advanced.normalize_radius_machine_auth_username)
 msgid "Use the RADIUS username instead of the TLS certificate common name when doing machine authentication."
+msgstr ""
+
+# conf/documentation.conf (pfdhcp.mac2ip_lookup)
+msgid "Use the Unified API to query pfdhcp for the IP address of a given MAC address"
+msgstr ""
+
+# conf/documentation.conf (pfdhcp.ip2mac_lookup)
+msgid "Use the Unified API to query pfdhcp for the MAC address of a given IP address"
 msgstr ""
 
 # conf/documentation.conf (advanced.update_iplog_with_accounting)
@@ -8616,11 +8806,11 @@ msgid "When enabled the /status page will only be available on theproduction net
 msgstr ""
 
 # conf/documentation.conf (fencing.isolation_passthrough)
-msgid "When enabled, PacketFence uses pfdns if you defined <i>Isolation Passthroughs</i> to allow trapped devices in isolation state to reach web sites."
+msgid "When enabled, PacketFence uses pfdns if you defined <i>Isolation Passthroughs</i> to allow trapped devices in isolation state to reach web sites.Modifying this parameter requires to restart pfdns and iptables to be fully effective."
 msgstr ""
 
 # conf/documentation.conf (fencing.passthrough)
-msgid "When enabled, PacketFence uses pfdns if you defined <i>Passthroughs</i> or Apache mod-proxy if you defined <i>Proxy passthroughs</i> to allow trapped devices to reach web sites."
+msgid "When enabled, PacketFence uses pfdns if you defined <i>Passthroughs</i> or Apache mod-proxy if you defined <i>Proxy passthroughs</i> to allow trapped devices to reach web sites.Modifying this parameter requires to restart pfdns and iptables to be fully effective."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/ProfileCommon.pm
@@ -8643,6 +8833,10 @@ msgstr ""
 msgid "When selecting the <strong>role</strong> action, triggering the violation will change the node to this role."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Interface.pm
+msgid "When split network by role is enabled then this network will be used as the registration network (example: 192.168.0.1/24)."
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Domain.pm
 msgid "When this is enabled, all users matching the LDAP filter will be inserted in the cache via a background job (maintenance.populate_ntlm_redis_cache_interval controls the interval)."
 msgstr ""
@@ -8651,8 +8845,20 @@ msgstr ""
 msgid "When this is enabled, an async job will cache the NTLM credentials of the user every time he connects."
 msgstr ""
 
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.use_https)
+msgid "Whether or not HTTPS should be used to communicate with the Fingerbank API"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (collector.use_https)
+msgid "Whether or not HTTPS should be used to communicate with the collector"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Pfmon/switch_cache_lldpLocalPort_description.pm
 msgid "Whether or not a switch range should be expanded to process each of its IPs"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (collector.arp_lookup)
+msgid "Whether or not the collector should perform ARP lookups for devices it doesn't have DHCP information."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Pfmon.pm
@@ -8792,7 +8998,7 @@ msgid "Wrong username or password."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
-msgid "You can add options in the realm definition"
+msgid "You can add FreeRADIUS options in the realm definition"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Admin.pm
@@ -8823,15 +9029,12 @@ msgstr ""
 msgid "You must specifiy a gateway address."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/BarracudaNG.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/JSONRPC.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Scan.pm
 msgid "You must specify the password"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/FortiGate.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Firewall_SSO/WatchGuard.pm
 msgid "You must specify the password or the key"
 msgstr ""
 
@@ -9017,6 +9220,10 @@ msgid "advanced.timing_stats_level"
 msgstr "Stats timing level"
 
 # conf/documentation.conf
+msgid "advanced.unreg_on_accounting_stop"
+msgstr ""
+
+# conf/documentation.conf
 msgid "advanced.update_iplog_with_accounting"
 msgstr "Update the iplog using the accounting"
 
@@ -9083,7 +9290,7 @@ msgstr "Always"
 
 # html/pfappserver/lib/pfappserver/Form/Field/ExtendedDuration.pm
 msgid "and"
-msgstr "And"
+msgstr ""
 
 # pf::provisioner (Provisioners)
 msgid "android"
@@ -9205,6 +9412,10 @@ msgid "captive_portal.network_redirect_delay"
 msgstr "Redirection delay"
 
 # conf/documentation.conf
+msgid "captive_portal.other_domain_names"
+msgstr ""
+
+# conf/documentation.conf
 msgid "captive_portal.rate_limiting"
 msgstr "Rate limiting"
 
@@ -9245,6 +9456,42 @@ msgstr "Close violation"
 # pf::Authentication::Source::LDAPSource (available_attributes)
 msgid "cn"
 msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "collector"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "collector.arp_lookup"
+msgstr "ARP lookups by the collector"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "collector.cluster_resync_interval"
+msgstr ""
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "collector.db_persistence_interval"
+msgstr "Database persistence interval"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "collector.host"
+msgstr "Collector host"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "collector.inactive_endpoints_expiration"
+msgstr "Inactive endpoints expiration"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "collector.port"
+msgstr "Collector port"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "collector.query_cache_time"
+msgstr "Query cache time in the collector"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "collector.use_https"
+msgstr "Collector HTTPS"
 
 # pf::Authentication::Source (common_attributes)
 # pf::radius_audit_log (RADIUS Audit Log)
@@ -9443,13 +9690,12 @@ msgstr "DHCP Fingerprint"
 msgid "dhcplistener"
 msgstr ""
 
-# /usr/local/fingerbank/conf/fingerbank.conf.doc (mysql.state options)
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (collector.arp_lookup options)
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (collector.use_https options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (proxy.use_proxy options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (proxy.verify_ssl options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (query.record_unmatched options)
-# /usr/local/fingerbank/conf/fingerbank.conf.doc (query.use_redis options)
-# /usr/local/fingerbank/conf/fingerbank.conf.doc (query.use_tcp_fingerprinting options)
-# /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.interrogate options)
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.use_https options)
 # conf/documentation.conf (active_active.auth_on_management options)
 # conf/documentation.conf (active_active.centralized_deauth options)
 # conf/documentation.conf (active_active.dns_on_vip_only options)
@@ -9466,6 +9712,7 @@ msgstr ""
 # conf/documentation.conf (advanced.sso_on_access_reevaluation options)
 # conf/documentation.conf (advanced.sso_on_accounting options)
 # conf/documentation.conf (advanced.sso_on_dhcp options)
+# conf/documentation.conf (advanced.unreg_on_accounting_stop options)
 # conf/documentation.conf (advanced.update_iplog_with_accounting options)
 # conf/documentation.conf (alerting.smtp_verifyssl options)
 # conf/documentation.conf (captive_portal.detection_mecanism_bypass options)
@@ -9487,30 +9734,36 @@ msgstr ""
 # conf/documentation.conf (network.rogue_dhcp_detection options)
 # conf/documentation.conf (parking.place_in_dhcp_parking_group options)
 # conf/documentation.conf (parking.show_parking_portal options)
+# conf/documentation.conf (pfdhcp.ip2mac_lookup options)
+# conf/documentation.conf (pfdhcp.mac2ip_lookup options)
 # conf/documentation.conf (provisioning.autoconfig options)
-# conf/documentation.conf (services.carbon-cache options)
-# conf/documentation.conf (services.carbon-relay options)
-# conf/documentation.conf (services.collectd options)
-# conf/documentation.conf (services.dhcpd options)
-# conf/documentation.conf (services.haproxy options)
+# conf/documentation.conf (services.api-frontend options)
+# conf/documentation.conf (services.etcd options)
+# conf/documentation.conf (services.fingerbank-collector options)
+# conf/documentation.conf (services.haproxy-db options)
+# conf/documentation.conf (services.haproxy-portal options)
 # conf/documentation.conf (services.httpd_aaa options)
 # conf/documentation.conf (services.httpd_admin options)
 # conf/documentation.conf (services.httpd_collector options)
 # conf/documentation.conf (services.httpd_dispatcher options)
-# conf/documentation.conf (services.httpd_graphite options)
 # conf/documentation.conf (services.httpd_parking options)
 # conf/documentation.conf (services.httpd_portal options)
 # conf/documentation.conf (services.httpd_proxy options)
 # conf/documentation.conf (services.httpd_webservices options)
 # conf/documentation.conf (services.iptables options)
 # conf/documentation.conf (services.keepalived options)
+# conf/documentation.conf (services.netdata options)
 # conf/documentation.conf (services.pfbandwidthd options)
+# conf/documentation.conf (services.pfdhcp options)
 # conf/documentation.conf (services.pfdhcplistener options)
 # conf/documentation.conf (services.pfdns options)
 # conf/documentation.conf (services.pffilter options)
+# conf/documentation.conf (services.pfipset options)
 # conf/documentation.conf (services.pfmon options)
+# conf/documentation.conf (services.pfperl-api options)
 # conf/documentation.conf (services.pfqueue options)
 # conf/documentation.conf (services.pfsso options)
+# conf/documentation.conf (services.pfstats options)
 # conf/documentation.conf (services.radiusd options)
 # conf/documentation.conf (services.radsniff options)
 # conf/documentation.conf (services.redis_cache options)
@@ -9518,9 +9771,8 @@ msgstr ""
 # conf/documentation.conf (services.redis_queue options)
 # conf/documentation.conf (services.routes options)
 # conf/documentation.conf (services.snmptrapd options)
-# conf/documentation.conf (services.statsd options)
+# conf/documentation.conf (services.tc options)
 # conf/documentation.conf (services.winbindd options)
-# conf/documentation.conf (snmp_traps.closelocationlogonstop options)
 # conf/documentation.conf (snmp_traps.trap_limit options)
 msgid "disabled"
 msgstr ""
@@ -9569,13 +9821,12 @@ msgstr "Email violation to user"
 msgid "en_US"
 msgstr ""
 
-# /usr/local/fingerbank/conf/fingerbank.conf.doc (mysql.state options)
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (collector.arp_lookup options)
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (collector.use_https options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (proxy.use_proxy options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (proxy.verify_ssl options)
 # /usr/local/fingerbank/conf/fingerbank.conf.doc (query.record_unmatched options)
-# /usr/local/fingerbank/conf/fingerbank.conf.doc (query.use_redis options)
-# /usr/local/fingerbank/conf/fingerbank.conf.doc (query.use_tcp_fingerprinting options)
-# /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.interrogate options)
+# /usr/local/fingerbank/conf/fingerbank.conf.doc (upstream.use_https options)
 # conf/documentation.conf (active_active.auth_on_management options)
 # conf/documentation.conf (active_active.centralized_deauth options)
 # conf/documentation.conf (active_active.dns_on_vip_only options)
@@ -9592,6 +9843,7 @@ msgstr ""
 # conf/documentation.conf (advanced.sso_on_access_reevaluation options)
 # conf/documentation.conf (advanced.sso_on_accounting options)
 # conf/documentation.conf (advanced.sso_on_dhcp options)
+# conf/documentation.conf (advanced.unreg_on_accounting_stop options)
 # conf/documentation.conf (advanced.update_iplog_with_accounting options)
 # conf/documentation.conf (alerting.smtp_verifyssl options)
 # conf/documentation.conf (captive_portal.detection_mecanism_bypass options)
@@ -9613,30 +9865,36 @@ msgstr ""
 # conf/documentation.conf (network.rogue_dhcp_detection options)
 # conf/documentation.conf (parking.place_in_dhcp_parking_group options)
 # conf/documentation.conf (parking.show_parking_portal options)
+# conf/documentation.conf (pfdhcp.ip2mac_lookup options)
+# conf/documentation.conf (pfdhcp.mac2ip_lookup options)
 # conf/documentation.conf (provisioning.autoconfig options)
-# conf/documentation.conf (services.carbon-cache options)
-# conf/documentation.conf (services.carbon-relay options)
-# conf/documentation.conf (services.collectd options)
-# conf/documentation.conf (services.dhcpd options)
-# conf/documentation.conf (services.haproxy options)
+# conf/documentation.conf (services.api-frontend options)
+# conf/documentation.conf (services.etcd options)
+# conf/documentation.conf (services.fingerbank-collector options)
+# conf/documentation.conf (services.haproxy-db options)
+# conf/documentation.conf (services.haproxy-portal options)
 # conf/documentation.conf (services.httpd_aaa options)
 # conf/documentation.conf (services.httpd_admin options)
 # conf/documentation.conf (services.httpd_collector options)
 # conf/documentation.conf (services.httpd_dispatcher options)
-# conf/documentation.conf (services.httpd_graphite options)
 # conf/documentation.conf (services.httpd_parking options)
 # conf/documentation.conf (services.httpd_portal options)
 # conf/documentation.conf (services.httpd_proxy options)
 # conf/documentation.conf (services.httpd_webservices options)
 # conf/documentation.conf (services.iptables options)
 # conf/documentation.conf (services.keepalived options)
+# conf/documentation.conf (services.netdata options)
 # conf/documentation.conf (services.pfbandwidthd options)
+# conf/documentation.conf (services.pfdhcp options)
 # conf/documentation.conf (services.pfdhcplistener options)
 # conf/documentation.conf (services.pfdns options)
 # conf/documentation.conf (services.pffilter options)
+# conf/documentation.conf (services.pfipset options)
 # conf/documentation.conf (services.pfmon options)
+# conf/documentation.conf (services.pfperl-api options)
 # conf/documentation.conf (services.pfqueue options)
 # conf/documentation.conf (services.pfsso options)
+# conf/documentation.conf (services.pfstats options)
 # conf/documentation.conf (services.radiusd options)
 # conf/documentation.conf (services.radsniff options)
 # conf/documentation.conf (services.redis_cache options)
@@ -9644,9 +9902,8 @@ msgstr ""
 # conf/documentation.conf (services.redis_queue options)
 # conf/documentation.conf (services.routes options)
 # conf/documentation.conf (services.snmptrapd options)
-# conf/documentation.conf (services.statsd options)
+# conf/documentation.conf (services.tc options)
 # conf/documentation.conf (services.winbindd options)
-# conf/documentation.conf (snmp_traps.closelocationlogonstop options)
 # conf/documentation.conf (snmp_traps.trap_limit options)
 msgid "enabled"
 msgstr ""
@@ -9658,6 +9915,7 @@ msgstr ""
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/auditing/radiuslog/index.tt
+# html/pfappserver/root/config/roles/list.tt
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
 # html/pfappserver/root/dhcpoption82/index.tt
@@ -9774,34 +10032,6 @@ msgstr "Timezone"
 msgid "givenName"
 msgstr ""
 
-# conf/documentation.conf
-msgid "graphite"
-msgstr ""
-
-# conf/documentation.conf
-msgid "graphite.db_host"
-msgstr ""
-
-# conf/documentation.conf
-msgid "graphite.db_pass"
-msgstr ""
-
-# conf/documentation.conf
-msgid "graphite.db_port"
-msgstr ""
-
-# conf/documentation.conf
-msgid "graphite.db_user"
-msgstr ""
-
-# conf/documentation.conf
-msgid "graphite.graphite_host"
-msgstr ""
-
-# conf/documentation.conf
-msgid "graphite.graphite_port"
-msgstr ""
-
 # pf::Authentication::Source::ADSource (available_attributes)
 # pf::Authentication::Source::LDAPSource (available_attributes)
 msgid "groupMembership"
@@ -9857,10 +10087,6 @@ msgstr ""
 
 # conf/documentation.conf (ports.aaa)
 msgid "httpd listening port for AAA webservice"
-msgstr ""
-
-# conf/documentation.conf (ports.pf_status)
-msgid "httpd listening port for PacketFence Status webservice"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/PKI_Provider/packetfence_pki.pm
@@ -9964,6 +10190,7 @@ msgstr "IP address"
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/auditing/radiuslog/index.tt
+# html/pfappserver/root/config/roles/list.tt
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
 # html/pfappserver/root/dhcpoption82/index.tt
@@ -9987,6 +10214,7 @@ msgstr ""
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/auditing/radiuslog/index.tt
+# html/pfappserver/root/config/roles/list.tt
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
 # html/pfappserver/root/dhcpoption82/index.tt
@@ -10006,6 +10234,10 @@ msgstr "Is a Phone"
 # conf/documentation.conf (advanced.language options)
 msgid "it_IT"
 msgstr ""
+
+# pf::provisioner (Provisioners)
+msgid "jamf"
+msgstr "Jamf"
 
 # html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
@@ -10079,6 +10311,7 @@ msgstr "Mark as Sponsor"
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/auditing/radiuslog/index.tt
+# html/pfappserver/root/config/roles/list.tt
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
 # html/pfappserver/root/dhcpoption82/index.tt
@@ -10123,10 +10356,6 @@ msgstr "Apple Devices"
 msgid "mobileiron"
 msgstr "MobileIron"
 
-# pf::provisioner (Provisioners)
-msgid "jamf"
-msgstr "Jamf"
-
 # pf::api (Allowed actions)
 msgid "modify_node"
 msgstr "Modify node by MAC"
@@ -10145,7 +10374,7 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "months"
-msgstr "Months"
+msgstr ""
 
 # conf/documentation.conf
 msgid "mse_tab"
@@ -10166,38 +10395,6 @@ msgstr "URL of MSE service"
 # conf/documentation.conf
 msgid "mse_tab.user"
 msgstr "Username"
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "mysql"
-msgstr ""
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "mysql.database"
-msgstr "MySQL database name"
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "mysql.host"
-msgstr "MySQL host"
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "mysql.incrementals_url"
-msgstr "MySQL incrementals URL"
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "mysql.password"
-msgstr "MySQL password"
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "mysql.port"
-msgstr "MySQL port"
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "mysql.state"
-msgstr "MySQL state"
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "mysql.username"
-msgstr "MySQL username"
 
 # html/pfappserver/root/admin/users.tt
 msgid "name"
@@ -10396,6 +10593,26 @@ msgstr "Suricata"
 msgid "pfdetect_type_suricata_md5"
 msgstr "Suricata MD5"
 
+# conf/documentation.conf
+msgid "pfdhcp"
+msgstr ""
+
+# conf/documentation.conf
+msgid "pfdhcp.connect_timeout_ms"
+msgstr ""
+
+# conf/documentation.conf
+msgid "pfdhcp.ip2mac_lookup"
+msgstr ""
+
+# conf/documentation.conf
+msgid "pfdhcp.mac2ip_lookup"
+msgstr ""
+
+# conf/documentation.conf
+msgid "pfdhcp.timeout_ms"
+msgstr ""
+
 # pf::Authentication::Source::SMSSource (available_attributes)
 # pf::Authentication::Source::TwilioSource (available_attributes)
 msgid "phonenumber"
@@ -10415,6 +10632,10 @@ msgstr ""
 # pf::dhcp_option82 (DHCP Option 82)
 msgid "port"
 msgstr "Port"
+
+# conf/documentation.conf (ports.unifiedapi)
+msgid "port to use for accessing the Unified API"
+msgstr ""
 
 # conf/documentation.conf (interface.type options)
 msgid "portal"
@@ -10441,12 +10662,12 @@ msgid "ports.httpd_portal_modstatus"
 msgstr "httpd.portal modstatus"
 
 # conf/documentation.conf
-msgid "ports.pf_status"
-msgstr "PacketFence Status"
-
-# conf/documentation.conf
 msgid "ports.soap"
 msgstr "Soap"
+
+# conf/documentation.conf
+msgid "ports.unifiedapi"
+msgstr ""
 
 # pf::Authentication::Source::ADSource (available_attributes)
 # pf::Authentication::Source::LDAPSource (available_attributes)
@@ -10581,14 +10802,6 @@ msgstr "Query"
 msgid "query.record_unmatched"
 msgstr "Record Unmatched Parameters"
 
-# /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "query.use_redis"
-msgstr "Use Redis"
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "query.use_tcp_fingerprinting"
-msgstr "Use TCP fingerprinting"
-
 # conf/documentation.conf (interface.type options)
 msgid "radius"
 msgstr ""
@@ -10629,22 +10842,6 @@ msgstr "Realm"
 # pf::radius_audit_log (RADIUS Audit Log)
 msgid "reason"
 msgstr "Reason"
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "redis"
-msgstr "Redis"
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "redis.attribute_map_url"
-msgstr "Attribute Map Url"
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "redis.host"
-msgstr "Redis Host"
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "redis.port"
-msgstr "Redis Port"
 
 # pf::api (Allowed actions)
 msgid "reevaluate_access"
@@ -10687,6 +10884,10 @@ msgstr "Role"
 # pf::action (VIOLATION_ACTIONS)
 msgid "role_action"
 msgstr "Assign role on violation"
+
+# pf::api (Allowed actions)
+msgid "role_detail"
+msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/root/admin/users.tt
@@ -10744,48 +10945,48 @@ msgid "services"
 msgstr "Services"
 
 # conf/documentation.conf
+msgid "services.api-frontend"
+msgstr ""
+
+# conf/documentation.conf
 msgid "services.arp_binary"
 msgstr "arp path"
-
-# conf/documentation.conf
-msgid "services.carbon-cache"
-msgstr "carbon-cache"
-
-# conf/documentation.conf
-msgid "services.carbon-cache_binary"
-msgstr "carbon-cache path"
-
-# conf/documentation.conf
-msgid "services.carbon-relay"
-msgstr "carbon-relay"
-
-# conf/documentation.conf
-msgid "services.carbon-relay_binary"
-msgstr "carbon-relay path"
-
-# conf/documentation.conf
-msgid "services.collectd"
-msgstr "collectd"
-
-# conf/documentation.conf
-msgid "services.collectd_binary"
-msgstr "collectd path"
-
-# conf/documentation.conf
-msgid "services.dhcpd"
-msgstr "dhcpd"
 
 # conf/documentation.conf
 msgid "services.dhcpd_binary"
 msgstr "dhcpd path"
 
 # conf/documentation.conf
-msgid "services.haproxy"
-msgstr "HAProxy"
+msgid "services.etcd"
+msgstr ""
 
 # conf/documentation.conf
-msgid "services.haproxy_binary"
-msgstr "HAProxy path"
+msgid "services.etcd_binary"
+msgstr ""
+
+# conf/documentation.conf
+msgid "services.fingerbank-collector"
+msgstr ""
+
+# conf/documentation.conf
+msgid "services.fingerbank-collector_binary"
+msgstr ""
+
+# conf/documentation.conf
+msgid "services.haproxy-db"
+msgstr ""
+
+# conf/documentation.conf
+msgid "services.haproxy-db_binary"
+msgstr ""
+
+# conf/documentation.conf
+msgid "services.haproxy-portal"
+msgstr ""
+
+# conf/documentation.conf
+msgid "services.haproxy-portal_binary"
+msgstr ""
 
 # conf/documentation.conf
 msgid "services.httpd_aaa"
@@ -10806,10 +11007,6 @@ msgstr "httpd.collector"
 # conf/documentation.conf
 msgid "services.httpd_dispatcher"
 msgstr "httpd.dispatcher"
-
-# conf/documentation.conf
-msgid "services.httpd_graphite"
-msgstr "httpd.graphite"
 
 # conf/documentation.conf
 msgid "services.httpd_parking"
@@ -10844,12 +11041,28 @@ msgid "services.keepalived_binary"
 msgstr "Keepalived path"
 
 # conf/documentation.conf
+msgid "services.netdata"
+msgstr ""
+
+# conf/documentation.conf
+msgid "services.netdata_binary"
+msgstr ""
+
+# conf/documentation.conf
 msgid "services.openssl_binary"
 msgstr "openssl path"
 
 # conf/documentation.conf
 msgid "services.pfbandwidthd"
 msgstr "pfbandwidthd"
+
+# conf/documentation.conf
+msgid "services.pfdhcp"
+msgstr ""
+
+# conf/documentation.conf
+msgid "services.pfdhcp_binary"
+msgstr ""
 
 # conf/documentation.conf
 msgid "services.pfdhcplistener"
@@ -10864,12 +11077,28 @@ msgid "services.pfdns"
 msgstr "pfdns"
 
 # conf/documentation.conf
+msgid "services.pfdns_binary"
+msgstr ""
+
+# conf/documentation.conf
 msgid "services.pffilter"
 msgstr "pffilter"
 
 # conf/documentation.conf
+msgid "services.pfipset"
+msgstr ""
+
+# conf/documentation.conf
+msgid "services.pfipset_binary"
+msgstr ""
+
+# conf/documentation.conf
 msgid "services.pfmon"
 msgstr "pfmon"
+
+# conf/documentation.conf
+msgid "services.pfperl-api"
+msgstr ""
 
 # conf/documentation.conf
 msgid "services.pfqueue"
@@ -10878,6 +11107,14 @@ msgstr "pfqueue"
 # conf/documentation.conf
 msgid "services.pfsso"
 msgstr "pfsso"
+
+# conf/documentation.conf
+msgid "services.pfstats"
+msgstr ""
+
+# conf/documentation.conf
+msgid "services.pfstats_binary"
+msgstr ""
 
 # conf/documentation.conf
 msgid "services.radiusd"
@@ -10928,12 +11165,12 @@ msgid "services.snmptrapd_binary"
 msgstr "snmptrapd path"
 
 # conf/documentation.conf
-msgid "services.statsd"
-msgstr "statsd"
+msgid "services.tc"
+msgstr ""
 
 # conf/documentation.conf
-msgid "services.statsd_binary"
-msgstr "nodejs path"
+msgid "services.tc_binary"
+msgstr ""
 
 # conf/documentation.conf
 msgid "services.winbindd"
@@ -10952,16 +11189,16 @@ msgid "set_access_level"
 msgstr "Access level"
 
 # pf::Authentication::constants (Actions)
-msgid "set_tenant_id"
-msgstr "Set tenant ID"
-
-# pf::Authentication::constants (Actions)
 msgid "set_bandwidth_balance"
 msgstr "Bandwidth balance"
 
 # pf::Authentication::constants (Actions)
 msgid "set_role"
 msgstr "Role"
+
+# pf::Authentication::constants (Actions)
+msgid "set_tenant_id"
+msgstr "Set tenant ID"
 
 # pf::Authentication::constants (Actions)
 msgid "set_time_balance"
@@ -10996,18 +11233,6 @@ msgstr "SNMP"
 # conf/documentation.conf
 msgid "snmp_traps.bounce_duration"
 msgstr "Bounce duration"
-
-# conf/documentation.conf
-msgid "snmp_traps.closelocationlogonstop"
-msgstr "Close on stop"
-
-# conf/documentation.conf
-msgid "snmp_traps.nbtraphandlerthreads"
-msgstr "Handler threads count"
-
-# conf/documentation.conf
-msgid "snmp_traps.nbtrapparserthreads"
-msgstr "Parser threads count"
 
 # conf/documentation.conf
 msgid "snmp_traps.trap_limit"
@@ -11050,6 +11275,7 @@ msgstr ""
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/auditing/radiuslog/index.tt
+# html/pfappserver/root/config/roles/list.tt
 # html/pfappserver/root/config/switch/list.tt
 # html/pfappserver/root/config/wrix/search_form.tt
 # html/pfappserver/root/dhcpoption82/index.tt
@@ -11086,10 +11312,6 @@ msgstr "Switch MAC"
 msgid "symantec"
 msgstr "Symantec App Center"
 
-# /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "tcp_fingerprinting"
-msgstr ""
-
 # html/pfappserver/root/admin/users.tt
 msgid "telephone"
 msgstr ""
@@ -11110,6 +11332,10 @@ msgstr "Launch a scan for the device"
 # pf::api (Allowed actions)
 msgid "trigger_violation"
 msgstr "Trigger a violation"
+
+# html/pfappserver/lib/pfappserver/Form/Config/Syslog/server.pm
+msgid "udp"
+msgstr ""
 
 # pf::Authentication::Source::ADSource (available_attributes)
 # pf::Authentication::Source::LDAPSource (available_attributes)
@@ -11137,6 +11363,10 @@ msgstr "Update ip4log by IP and MAC"
 msgid "update_ip6log"
 msgstr "Update ip6log by IP and MAC"
 
+# pf::api (Allowed actions)
+msgid "update_role_configuration"
+msgstr ""
+
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "upstream"
 msgstr ""
@@ -11146,52 +11376,24 @@ msgid "upstream.api_key"
 msgstr "API Key"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "upstream.host"
-msgstr "Upstream API host"
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "upstream.db_path"
 msgstr "Database API path"
+
+# /usr/local/fingerbank/conf/fingerbank.conf.doc
+msgid "upstream.host"
+msgstr "Upstream API host"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "upstream.port"
 msgstr "Upstream API port"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "upstream.use_https"
-msgstr "Upstream API HTTPS"
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "upstream.sqlite_db_retention"
 msgstr "Retention of the upstream sqlite DB"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "collector.inactive_endpoints_expiration"
-msgstr "Inactive endpoints expiration"
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "collector.arp_lookup"
-msgstr "ARP lookups by the collector"
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "collector.query_cache_time"
-msgstr "Query cache time in the collector"
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "collector.use_https"
-msgstr "Collector HTTPS"
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "collector.host"
-msgstr "Collector host"
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "collector.port"
-msgstr "Collector port"
-
-# /usr/local/fingerbank/conf/fingerbank.conf.doc
-msgid "collector.db_persistence_interval"
-msgstr "Database persistence interval"
+msgid "upstream.use_https"
+msgstr "Upstream API HTTPS"
 
 # pf::Authentication::Source::ADSource (available_attributes)
 msgid "userAccountControl"
@@ -11280,6 +11482,10 @@ msgid "webservices.proto"
 msgstr "Protocol"
 
 # conf/documentation.conf
+msgid "webservices.unifiedapi_port"
+msgstr ""
+
+# conf/documentation.conf
 msgid "webservices.user"
 msgstr "Username"
 
@@ -11308,14 +11514,4 @@ msgstr ""
 # html/pfappserver/root/config/profile/files.tt
 msgid "{percent}% of {total_size}"
 msgstr ""
-
-msgid "multi_source_ids"
-msgstr "Sources"
-
-msgid "actions"
-msgstr "Actions"
-
-msgid "modules"
-msgstr "Modules"
-
 
