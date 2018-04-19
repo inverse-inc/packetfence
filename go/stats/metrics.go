@@ -69,7 +69,7 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 						namespace = conf.StatsdNS + ";NULL"
 
 					default:
-						namespace = conf.StatsdNS + ";" + strings.Replace(field.String, ":", ".", -1)
+						namespace = conf.StatsdNS + ";" + strings.Replace(field.String, ":", "_", -1)
 					}
 
 				default:
@@ -208,7 +208,7 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 				//double column
 				namespace := conf.StatsdNS
 				for _, row := range res.([][2]interface{}) {
-					namespace = conf.StatsdNS + ";" + strings.Replace(row[0].(string), ":", ".", -1)
+					namespace = conf.StatsdNS + ";" + strings.Replace(row[0].(string), ":", "_", -1)
 					f64Result, _ := strconv.ParseFloat(row[1].(string), 64)
 					switch conf.StatsdType {
 					case "count":
