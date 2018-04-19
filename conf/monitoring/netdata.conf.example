@@ -13,3 +13,30 @@
         # Netdata is not designed to be exposed to potentially hostile networks
         # See https://github.com/firehol/netdata/issues/164
 	bind to = %%management_ip%%,127.0.0.1
+
+[statsd]
+	# enabled = yes
+	# update every (flushInterval) = 1
+	# udp messages to process at once = 10
+	# create private charts for metrics matching = *
+	max private charts allowed = 400
+	# max private charts hard limit = 1000
+	# private charts memory mode = save
+	# private charts history = 3996
+	# decimal detail = 1000
+	# disconnect idle tcp clients after seconds = 600
+	# private charts hidden = no
+	# histograms and timers percentile (percentThreshold) = 95.00000
+	# add dimension for number of events received = yes
+	# gaps on gauges (deleteGauges) = no
+	# gaps on counters (deleteCounters) = no
+	# gaps on meters (deleteMeters) = no
+	# gaps on sets (deleteSets) = no
+	# gaps on histograms (deleteHistograms) = no
+	# gaps on timers (deleteTimers) = no
+	# statsd server max TCP sockets = 256
+	# listen backlog = 4096
+	# default port = 8125
+	# bind to = udp:localhost tcp:localhost
+
+
