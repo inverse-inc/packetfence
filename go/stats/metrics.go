@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"math"
 	"net"
 	"strconv"
@@ -49,6 +50,7 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 			for rows.Next() {
 				switch len(cols) {
 				case 1:
+					//single column
 					err := rows.Scan(&result)
 					if err != nil {
 						log.LoggerWContext(ctx).Error("Error while reading data from query result: " + err.Error())
@@ -56,6 +58,7 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 					}
 
 				case 2:
+					//double column
 					err := rows.Scan(&field, &result)
 					if err != nil {
 						log.LoggerWContext(ctx).Error("Error while reading data from query result: " + err.Error())
@@ -170,38 +173,66 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 			}
 			var json_data interface{}
 			json.Unmarshal([]byte(raw), &json_data)
-			prs, err := jsonpath.Parse(conf.ApiCompile)
+
+			res, err := CompileJson(json_data, conf.ApiCompile)
 			if err != nil {
-				log.LoggerWContext(ctx).Warn("api_compile '" + conf.ApiCompile + "' parse error from " + conf.ApiMethod + " " + conf.ApiPath + ": " + err.Error())
-				return
+				log.LoggerWContext(ctx).Warn("Compile error '" + conf.ApiCompile + "' parse error from " + conf.ApiMethod + " " + conf.ApiPath + ": " + err.Error())
 			}
-			res, err := prs.Apply(json_data)
-			if err != nil {
-				log.LoggerWContext(ctx).Warn("api_compile '" + conf.ApiCompile + "' apply error from " + conf.ApiMethod + " " + conf.ApiPath + ": " + err.Error())
-				return
-			}
-			if res == nil {
-				log.LoggerWContext(ctx).Warn("api_compile '" + conf.ApiCompile + "' returns nil from " + conf.ApiMethod + " " + conf.ApiPath)
-				return
-			}
-			switch conf.StatsdType {
-			case "count":
-				StatsdClient.Count(conf.StatsdNS, res.(float64))
 
-			case "gauge":
-				StatsdClient.Gauge(conf.StatsdNS, res.(float64))
+			switch res.(type) {
+			case []interface{}:
+				//single column
+				for _, row := range res.([]interface{}) {
+					switch conf.StatsdType {
+					case "count":
+						StatsdClient.Count(conf.StatsdNS, row.(float64))
 
-			case "histogram":
-				StatsdClient.Histogram(conf.StatsdNS, res.(float64))
+					case "gauge":
+						StatsdClient.Gauge(conf.StatsdNS, row.(float64))
 
-			case "increment":
-				StatsdClient.Increment(conf.StatsdNS)
+					case "histogram":
+						StatsdClient.Histogram(conf.StatsdNS, row.(float64))
 
-			case "unique":
-				StatsdClient.Unique(conf.StatsdNS, res.(string))
+					case "increment":
+						StatsdClient.Increment(conf.StatsdNS)
+
+					case "unique":
+						StatsdClient.Unique(conf.StatsdNS, row.(string))
+
+					default:
+						log.LoggerWContext(ctx).Warn("Unhandled statsd_type " + conf.StatsdType + " for " + conf.Type)
+					}
+				}
+
+			case [][2]interface{}:
+				//double column
+				namespace := conf.StatsdNS
+				for _, row := range res.([][2]interface{}) {
+					namespace = conf.StatsdNS + ";" + row[1].(string)
+					switch conf.StatsdType {
+					case "count":
+						StatsdClient.Count(namespace, res.(float64))
+
+					case "gauge":
+						StatsdClient.Gauge(namespace, res.(float64))
+
+					case "histogram":
+						StatsdClient.Histogram(namespace, res.(float64))
+
+					case "increment":
+						StatsdClient.Increment(namespace)
+
+					case "unique":
+						StatsdClient.Unique(namespace, res.(string))
+
+					default:
+						log.LoggerWContext(ctx).Warn("Unhandled statsd_type " + conf.StatsdType + " for " + conf.Type)
+					}
+
+				}
 
 			default:
-				log.LoggerWContext(ctx).Warn("Unhandled statsd_type " + conf.StatsdType + " for " + conf.Type)
+				log.LoggerWContext(ctx).Warn("Unhandled response type from " + conf.ApiMethod + " " + conf.ApiPath)
 			}
 		}
 
@@ -224,4 +255,76 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 	}
 
 	return nil
+}
+
+func CompileJson(json interface{}, compile string) (interface{}, error) {
+	c := strings.Split(compile, ",")
+	if len(c) > 1 {
+		r1, err := CompileJson(json, strings.Trim(c[0], " "))
+		if err != nil {
+			return nil, err
+		}
+
+		r2, err := CompileJson(json, strings.Trim(c[1], " "))
+		if err != nil {
+			return nil, err
+		}
+
+		zipped, err := Zip(r1.([]interface{}), r2.([]interface{}))
+		if err != nil {
+			return nil, err
+		}
+
+		return zipped, nil
+	}
+	p, err := jsonpath.Parse(compile)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := p.Apply(json)
+	if err != nil {
+		return nil, err
+	}
+
+	switch res.(type) {
+	case string, float64, bool, nil:
+		return []interface{}{res}, nil
+
+	case []interface{}:
+		var ret []interface{}
+		for _, r := range res.([]interface{}) {
+			switch r.(type) {
+			case string, float64, bool, nil:
+				ret = append(ret, r)
+
+			case []interface{}:
+				for _, _r := range r.([]interface{}) {
+					ret = append(ret, _r)
+				}
+
+			default:
+				return nil, errors.New("Unhandled response type")
+
+			}
+		}
+		return ret, nil
+
+	default:
+		return nil, errors.New("Unhandled response type")
+	}
+
+	return nil, nil
+}
+
+func Zip(a, b []interface{}) ([][2]interface{}, error) {
+	if len(a) != len(b) {
+		return nil, errors.New("Zip arguments must be of same length")
+	}
+	r := make([][2]interface{}, len(a), len(a))
+	for i, e := range a {
+		r[i] = [2]interface{}{e, b[i]}
+	}
+
+	return r, nil
 }
