@@ -258,9 +258,24 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 	return nil
 }
 
+/*
+ * Compiles JSON Xpath and returns a slice of either:
+ *     a slice of one-to-many value(s) - if Xpath is singular
+ *     a slice of one-to-many double value(s) - if Xpath is plural
+ *
+ * `json` is the JSON body
+ *
+ * `compile` is the Xpath string
+ *     Examples: http://goessner.net/articles/JsonPath/
+ *
+ *     Can be either:
+ *         a single Xpath (eg: $.items[0].somevalue)
+ *         or 2x Xpaths separated with a comma (eg: $.items[0].somekey, $.item[0].somevalue
+ */
 func CompileJson(json interface{}, compile string) (interface{}, error) {
 	c := strings.Split(compile, ",")
 	if len(c) > 1 {
+		// multiple XPaths,
 		r1, err := CompileJson(json, strings.Trim(c[0], " "))
 		if err != nil {
 			return nil, err
@@ -292,6 +307,10 @@ func CompileJson(json interface{}, compile string) (interface{}, error) {
 	case string, float64, bool, nil:
 		return []interface{}{res}, nil
 
+		/*
+		 * Xpath parser may return nested slices (eg: [[1], [2, 3] [4, 5, 6]]),
+		 *     thus we check the type and glue them back together (eg: [1, 2, 3, 4, 5, 6])
+		 */
 	case []interface{}:
 		var ret []interface{}
 		for _, r := range res.([]interface{}) {
@@ -321,6 +340,11 @@ func CompileJson(json interface{}, compile string) (interface{}, error) {
 	return nil, nil
 }
 
+/*
+ * Glues 2 []interface{} together into a single slice with 2 elements,
+ *     example: Zip([santa tooth], [clause, fairy]) = [[santa clause] [tooth fairy]]
+ * Used to match name(s) with value(s) from 2 separate JSON Xpaths
+ */
 func Zip(a, b []interface{}) ([][2]interface{}, error) {
 	if len(a) != len(b) {
 		return nil, errors.New("Zip arguments must be of same length")
