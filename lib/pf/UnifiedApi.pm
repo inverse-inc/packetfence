@@ -242,6 +242,16 @@ our @API_V1_ROUTES = (
             subroutes => undef,
         },
     },
+    {
+        controller => 'Redis',
+        collection => {
+            subroutes    => {
+                'queue' => {
+                    get => 'queue'
+                },
+            },
+        },
+    }
 );
 
 sub startup {
