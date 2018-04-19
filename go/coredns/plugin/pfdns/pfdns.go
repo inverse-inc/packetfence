@@ -92,10 +92,13 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 		}
 	}
 
-	var violation bool
-	err := pf.Violation.QueryRow(mac).Scan(&violation)
+	violation := false
+	var violationCount int
+	err := pf.Violation.QueryRow(mac).Scan(&violationCount)
 	if err != nil {
 		fmt.Printf("ERROR pfdns database query returned %s\n", err)
+	} else if violationCount != 0 {
+		violation = true
 	}
 
 	if violation {
@@ -157,18 +160,6 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 		}
 	}
 
-	var status = "unreg"
-	err = pf.Nodedb.QueryRow(mac).Scan(&status)
-	if err != nil {
-		fmt.Printf("ERROR pfdns database query returned %s\n", err)
-	}
-
-	// Defer to the proxy middleware if the device is registered
-	if status == "reg" && !violation {
-		fmt.Println(srcIP + " : " + mac + " serve dns " + state.QName())
-		return pf.Next.ServeDNS(ctx, w, r)
-	}
-
 	// DNS Filter code
 	var Type string
 
@@ -187,6 +178,23 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 			Type = "registration"
 		case "dnsenforcement":
 			Type = "dnsenforcement"
+		}
+
+		switch Type {
+		case "dnsenforcement":
+		case "inline":
+			fmt.Println("Performing inline or DNS enforcement for this device")
+			var status = "unreg"
+			err = pf.Nodedb.QueryRow(mac).Scan(&status)
+			if err != nil {
+				fmt.Printf("ERROR pfdns database query returned %s\n", err)
+			}
+
+			// Defer to the proxy middleware if the device is registered
+			if status == "reg" && !violation {
+				fmt.Println(srcIP + " : " + mac + " serve dns " + state.QName())
+				return pf.Next.ServeDNS(ctx, w, r)
+			}
 		}
 
 		if k.Contains(bIP) {
@@ -465,22 +473,19 @@ func (pf *pfdns) DbInit() error {
 		return err
 	}
 
-	pf.Db.SetMaxIdleConns(0)
-	pf.Db.SetMaxOpenConns(500)
-
-	pf.IP4log, err = pf.Db.Prepare("Select MAC from ip4log where IP = ? ")
+	pf.IP4log, err = pf.Db.Prepare("select mac from ip4log where ip = ? ")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "pfdns: database ip4log prepared statement error: %s", err)
 		return err
 	}
 
-	pf.IP6log, err = pf.Db.Prepare("Select MAC from ip6log where IP = ? ")
+	pf.IP6log, err = pf.Db.Prepare("select mac from ip6log where ip = ? ")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "pfdns: database ip6log prepared statement error: %s", err)
 		return err
 	}
 
-	pf.Nodedb, err = pf.Db.Prepare("Select STATUS from node where MAC = ? ")
+	pf.Nodedb, err = pf.Db.Prepare("select status from node where mac = ? ")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "pfdns: database nodedb prepared statement error: %s", err)
 		return err
