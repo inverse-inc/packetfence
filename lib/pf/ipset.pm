@@ -266,10 +266,15 @@ sub generate_mangle_postrouting_rules {
 
         next if ( !pf::config::is_network_type_inline($network) );
         my $dev = $NetworkConfig{$network}{'interface'}{'int'};
+        my $source_interface = $dev;
 
         my $gateway = (defined $NetworkConfig{$network}{'next_hop'} ? $NetworkConfig{$network}{'next_hop'} : $NetworkConfig{$network}{'gateway'});
 
-        my $interface = find_outgoing_interface($gateway, $dev);
+        if (!defined $NetworkConfig{$network}{'next_hop'}) {
+            undef $source_interface;
+        }
+
+        my $interface = find_outgoing_interface($gateway, $source_interface);
 
         foreach my $role ( @roles ) {
             if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {
