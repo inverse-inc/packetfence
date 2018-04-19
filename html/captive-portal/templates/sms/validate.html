@@ -2,8 +2,8 @@
     <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
         <form action="/activate/sms" method="post">
             <div class="input-container">
-                <label for="pin">[% i18n("PIN") %][% telephone %]</label>
-                <input id="pin" name="pin" title="PIN" type="tel" inputmode="numeric" pattern="[0-9]*" minlength="4" maxlength="4" required autocorrect="off" autocapitalize="off" class="text-center letter-expand" />
+                <label for="pin">[% i18n("PIN") %]</label>
+                <input id="pin" name="pin" title="PIN" type="tel" inputmode="numeric" pattern="[0-9]*" minlength="4" maxlength="6" required autocorrect="off" autocapitalize="off" class="text-center letter-expand" />
             </div>
             <button type="submit" name="submit" class="c-btn c-btn--primary u-1/1 u-margin-top" disabled>
                 [% i18n("Continue") %]
