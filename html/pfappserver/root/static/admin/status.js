@@ -334,8 +334,14 @@ function initDashboard() {
                     var el = $('#_' + alarm.id);
                     var status = alarm.status.toLowerCase();
                     var label = alarm.chart.split('.')[0].replace(/_/g, ' ') + ' - ' + alarm.family;
+                    var value = alarm.value_string;
                     var isInitialized = true;
                     ids['_' + alarm.id] = 1;
+                    if (alarm.family == 'gauges') {
+                        var info = alarm.info.split(' ');
+                        value = info.pop();
+                        label = info.join(' ');
+                    }
                     if (!el.get(0)) {
                         el = $('[data-alarm="' + status + '"]').clone();
                         isInitialized = false;
@@ -349,13 +355,14 @@ function initDashboard() {
                     }
                     var hostnameEl = el.find('[data-block="hostname"]'); hostnameEl.html(hostname);
                     var labelEl = el.find('[data-block="label"]'); labelEl.html(label);
-                    var valueEl = el.find('[data-block="value"]'); valueEl.html(alarm.value_string);
+                    var valueEl = el.find('[data-block="value"]'); valueEl.html(value);
                     if (!isInitialized) {
                         // Append sparkline
                         var sparkline = $(['<div data-netdata="' + alarm.chart + '"',
                         '     data-chart-library="sparkline"',
                         '     data-sparkline-linecolor="' + colors[status].color + '"',
                         '     data-sparkline-fillcolor="' + colors[status].background + '"',
+                        alarm.family == 'gauges'? 'data-dimensions="gauge"' : '',
                         '     data-height="30"',
                         '     data-after="-300"></div>'].join(''));
                         el.find('.alert').append(sparkline);
