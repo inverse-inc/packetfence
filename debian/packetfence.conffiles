@@ -103,6 +103,7 @@
 /usr/local/pf/html/common/scss/_elements.input.scss
 /usr/local/pf/html/common/scss/_elements.links.scss
 /usr/local/pf/html/common/scss/_elements.page.scss
+/usr/local/pf/html/common/scss/_objects.aup.scss
 /usr/local/pf/html/common/scss/_objects.box.scss
 /usr/local/pf/html/common/scss/_objects.flag.scss
 /usr/local/pf/html/common/scss/_objects.layout.scss
