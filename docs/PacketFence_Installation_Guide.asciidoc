@@ -221,7 +221,7 @@ Now that PacketFence is installed, it needs to be configured. The PacketFence we
 
 This section will guide you through configuring PacketFence as a simple RADIUS server. PacketFence will provide 802.1X support through Microsoft Active Directory and a Cisco 2960 access switch will be configured to integrate with PacketFence. The 802.1X client will be a Microsoft Windows 7 computer, connected of course on the wired network in the Cisco 2960 access switch. The following architecture diagram shows the interconnection of all components for our example:
 
-image::docs/images/getting-started.png[scaledwidth="65%",alt="Getting Started"]
+image::docs/images/getting-started.png["Getting Started",width="50%",scaledwidth="65%"]
 
 Going Through the Configurator
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -705,16 +705,16 @@ On wireless networks, the usual PacketFence setup dictate that you configure two
 
 The following diagram demonstrates the flow between a mobile endpoint, a WiFi access point, a WiFi controller and PacketFence:
 
-image::docs/images/radius_workflow.png[scaledwidth="100%",alt="WiFi RADIUS workflow"]
+image::docs/images/radius-workflow.png["WiFi RADIUS workflow",width="75%",scaledwidth="100%"]
 
-1. User initiates association to WLAN AP and transmits MAC address.  If user accesses network via a registered device in PacketFence go to 8
-2. The WLAN controller transmits MAC address via RADIUS to the PacketFence server to authenticate/authorize that MAC address on the AP
-3. PacketFence server conducts address audit in its database.  If it does not recognize the MAC address go to 4. If it does go to 8.
-4. PacketFence server directs WLAN controller via RADIUS (RFC2868 attributes) to put the device in an "unauthenticated role“ (set of ACLs that would limit/redirect the user to the PacketFence captive portal for registration, or we can also use a registration VLAN in which PacketFence does DNS blackholing and is the DHCP server)
-5. The user's device issues a DHCP/DNS request to PacketFence (which is a DHCP/DNS server on this VLAN or for this role) which sends the IP and DNS information.  At this point, ACLs are limiting/redirecting the user to the PacketFence's captive portal for authentication.  PacketFence fingerprints the device (user-agent attributes, DHCP information & MAC address patterns) to which it can take various actions including:  keep device on registration portal, direct to alternate captive portal, auto-register the device, auto-block the device, etc.    If the device remains on the registration portal the user registers by providing the information (username/password, cell phone number, etc.).  At this time PacketFence could also require the device to go through a posture assessment (using Nessus, OpenVAS, etc.)
+1. User initiates association to WLAN AP and transmits MAC address.  If user accesses network via a registered device in PacketFence, go to step 8.
+2. The WLAN controller transmits MAC address via RADIUS to the PacketFence server to authenticate/authorize that MAC address on the AP.
+3. PacketFence server conducts address audit in its database.  If it does not recognize the MAC address, go to step 4. If it does, go to step 8.
+4. PacketFence server directs WLAN controller via RADIUS (RFC2868 attributes) to put the device in an "unauthenticated role“ (set of ACLs that would limit/redirect the user to the PacketFence captive portal for registration, or we can also use a registration VLAN in which PacketFence does DNS blackholing and is the DHCP server).
+5. The user's device issues a DHCP/DNS request to PacketFence (which is a DHCP/DNS server on this VLAN or for this role) which sends the IP and DNS information.  At this point, ACLs are limiting/redirecting the user to the PacketFence's captive portal for authentication.  PacketFence fingerprints the device (user-agent attributes, DHCP information & MAC address patterns) to which it can take various actions including:  keep device on registration portal, direct to alternate captive portal, auto-register the device, auto-block the device, etc.    If the device remains on the registration portal the user registers by providing the information (username/password, cell phone number, etc.).  At this time PacketFence could also require the device to go through a posture assessment (using Nessus, OpenVAS, etc.).
 6. If authentication is required (username/password) through a login form, those credentials are validated via the Directory server (or any other authentication sources - like LDAP, SQL, RADIUS, SMS, Facebook, Google+, etc.) which provides user attributes to PacketFence which creates user+device policy profile in its database.
-7. PacketFence performs a Change of Authorization (RFC3576) on the controller and the user must be re-authenticated/reauthorized, so we go back to 1
-8. PacketFence server directs WLAN controller via RADIUS to put the device in an "authenticated role“, or in the "normal" VLAN
+7. PacketFence performs a Change of Authorization (RFC3576) on the controller and the user must be re-authenticated/reauthorized, so we go back to step 1.
+8. PacketFence server directs WLAN controller via RADIUS to put the device in an "authenticated role“, or in the "normal" VLAN.
 
 
 Web Authentication Mode

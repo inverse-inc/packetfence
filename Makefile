@@ -37,6 +37,7 @@ docs/docbook/xsl/import-fo.xsl:
 		-a docinfo2 \
 		-b docbook \
 		-d book \
+		-f docs/docbook/docbook45.conf \
 		-o docs/docbook/$(notdir $<).docbook \
 		$<
 	xsltproc \
