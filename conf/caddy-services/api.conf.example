@@ -1,6 +1,8 @@
 0.0.0.0:9999 {
   tls /usr/local/pf/conf/ssl/server.crt /usr/local/pf/conf/ssl/server.key
 
+  log stdout
+
   errors
 
   pfconfigpool
@@ -39,19 +41,19 @@
   }
 }
 
-###
-# The configuration below allows to use this server as a proxy
-0.0.0.0:9990 {
-  pfconfigpool
-  logger {
-    level INFO
-  }
-  statsd {
-    proto udp
-    prefix api-proxy
-  }
-
-  api-aaa
-  forwardproxy
-}
+####
+## The configuration below allows to use this server as a proxy
+#0.0.0.0:9990 {
+#  pfconfigpool
+#  logger {
+#    level INFO
+#  }
+#  statsd {
+#    proto udp
+#    prefix api-proxy
+#  }
+#
+#  api-aaa
+#  forwardproxy
+#}
 
