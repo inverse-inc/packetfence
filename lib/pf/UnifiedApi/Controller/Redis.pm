@@ -37,11 +37,7 @@ sub queue {
     while( my( $key, $value ) = each %queue ){
         # rebuild hash,
         #   replace empty []'s w/ undef
-        push $json, { queue => $key, stats => {
-            count => $value->{count},
-            expired => ( $value->{expired}->[0] ? $value->{expired} : undef ),
-            outstanding => ( $value->{outstanding}->[0] ? $value->{outstanding} : undef )
-        } };
+        push $json, { queue => $key, stats => $value };
     }
     
     return $self->render(status => 200, json => { items => $json });
