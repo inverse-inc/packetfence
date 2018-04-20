@@ -33,6 +33,7 @@ use Moo;
 extends 'pf::services::manager';
 
 has '+name' => (default => sub { 'netdata' } );
+has '+optional' => ( default => sub {'1'} );
 
 tie our @authentication_sources_monitored, 'pfconfig::cached_array', "resource::authentication_sources_monitored";
 

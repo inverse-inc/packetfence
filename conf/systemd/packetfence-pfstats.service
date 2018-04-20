@@ -1,5 +1,6 @@
 [Unit]
 Description=PacketFence Stats daemon
+Requires=packetfence-netdata.service
 Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
 After=packetfence-base.target packetfence-config.service packetfence-iptables.service
 
