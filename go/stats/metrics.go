@@ -206,7 +206,7 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 
 			case [][2]interface{}:
 				//double column
-                var namespace string
+				var namespace string
 				for _, row := range res.([][2]interface{}) {
 					namespace = CleanNameSpace(conf.StatsdNS + ";" + row[0].(string))
 					f64Result, _ := strconv.ParseFloat(row[1].(string), 64)
