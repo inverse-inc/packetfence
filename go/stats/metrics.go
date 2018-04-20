@@ -206,6 +206,7 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 
 			case [][2]interface{}:
 				//double column
+                var namespace string
 				for _, row := range res.([][2]interface{}) {
 					namespace = CleanNameSpace(conf.StatsdNS + ";" + row[0].(string))
 					f64Result, _ := strconv.ParseFloat(row[1].(string), 64)
@@ -272,7 +273,7 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
  *         or 2x Xpaths separated with a comma (eg: $.items[0].somekey, $.item[0].somevalue)
  */
 func CompileJson(json interface{}, compile string) (interface{}, error) {
-	c := strings.Split(strings.Trim(compile), ",")
+	c := strings.Split(strings.Trim(compile, " "), ",")
 	if len(c) > 1 {
 		// multiple XPath(s)
 		r1, err := CompileJson(json, c[0])
