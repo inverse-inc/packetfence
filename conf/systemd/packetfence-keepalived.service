@@ -9,7 +9,7 @@ StartLimitInterval=10
 Type=forking
 KillMode=process
 PIDFile=/usr/local/pf/var/run/keepalived.pid
-ExecStartPre=/usr/local/pf/bin/pfcmd service keepalived generateconfig
+ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::keepalived' -e 'pf::services::manager::keepalived->new()->generateConfig()'
 ExecStart=/usr/sbin/keepalived -f /usr/local/pf/var/conf/keepalived.conf --pid=/usr/local/pf/var/run/keepalived.pid
 ExecReload=/bin/kill -HUP $MAINPID
 Restart=on-failure
