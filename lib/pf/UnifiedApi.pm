@@ -203,7 +203,7 @@ our @API_V1_ROUTES = (
             },
             subroutes => undef,
         },
-    }
+    },
 );
 
 sub startup {
@@ -214,6 +214,12 @@ sub startup {
     $self->plugin('pf::UnifiedApi::Plugin::RestCrud');
     $self->setup_api_v1_routes();
     $self->custom_startup_hook();
+    $self->routes->any( '/*', sub {
+        my ($c) = @_;
+        return $c->unknown_action;
+    });
+
+    return;
 }
 
 sub setup_api_v1_routes {
@@ -223,11 +229,6 @@ sub setup_api_v1_routes {
     foreach my $route ($self->api_v1_routes) {
         $api_v1_route->rest_routes($route);
     }
-
-    $r->any('/*', sub {
-        my ($c) = @_;
-        return $c->unknown_action;
-    });
 }
 
 sub api_v1_routes {
