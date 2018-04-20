@@ -225,7 +225,7 @@ sub manageTrafficShaping {
 
             my $source_interface = $dev;
 
-            my $gateway = (defined $NetworkConfig{$network}{'next_hop'} ? $NetworkConfig{$network}{'next_hop'} : $NetworkConfig{$network}{'gateway'});
+            my $gateway = (defined $NetworkConfig{$network}{'next_hop'} ? $NetworkConfig{$network}{'next_hop'} : $Config{"interface $dev"}{'ip'});
 
             if (!defined $NetworkConfig{$network}{'next_hop'}) {
                 undef $source_interface;
