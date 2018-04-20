@@ -46,7 +46,7 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 				field  sql.NullString
 				result string
 			)
-			namespace := conf.StatsdNS
+			namespace := CleanNameSpace(conf.StatsdNS)
 			for rows.Next() {
 				switch len(cols) {
 				case 1:
@@ -66,10 +66,10 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 					}
 					switch field.String {
 					case "":
-						namespace = conf.StatsdNS + ";NULL"
+						namespace = CleanNameSpace(conf.StatsdNS + ";NULL")
 
 					default:
-						namespace = conf.StatsdNS + ";" + strings.Replace(field.String, ":", "_", -1)
+						namespace = CleanNameSpace(conf.StatsdNS + ";" + field.String)
 					}
 
 				default:
@@ -206,9 +206,8 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 
 			case [][2]interface{}:
 				//double column
-				namespace := conf.StatsdNS
 				for _, row := range res.([][2]interface{}) {
-					namespace = conf.StatsdNS + ";" + strings.Replace(row[0].(string), ":", "_", -1)
+					namespace = CleanNameSpace(conf.StatsdNS + ";" + row[0].(string))
 					f64Result, _ := strconv.ParseFloat(row[1].(string), 64)
 					switch conf.StatsdType {
 					case "count":
@@ -273,15 +272,15 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
  *         or 2x Xpaths separated with a comma (eg: $.items[0].somekey, $.item[0].somevalue)
  */
 func CompileJson(json interface{}, compile string) (interface{}, error) {
-	c := strings.Split(compile, ",")
+	c := strings.Split(strings.Trim(compile), ",")
 	if len(c) > 1 {
-		// multiple XPaths,
-		r1, err := CompileJson(json, strings.Trim(c[0], " "))
+		// multiple XPath(s)
+		r1, err := CompileJson(json, c[0])
 		if err != nil {
 			return nil, err
 		}
 
-		r2, err := CompileJson(json, strings.Trim(c[1], " "))
+		r2, err := CompileJson(json, c[1])
 		if err != nil {
 			return nil, err
 		}
@@ -293,6 +292,7 @@ func CompileJson(json interface{}, compile string) (interface{}, error) {
 
 		return zipped, nil
 	}
+	//single Xpath
 	p, err := jsonpath.Parse(compile)
 	if err != nil {
 		return nil, err
@@ -355,4 +355,9 @@ func Zip(a, b []interface{}) ([][2]interface{}, error) {
 	}
 
 	return r, nil
+}
+
+func CleanNameSpace(namespace string) string {
+	// ":" is a reserved statsd separator between namespace and metric
+	return strings.Replace(namespace, ":", "_", -1)
 }
