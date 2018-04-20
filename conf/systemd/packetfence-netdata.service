@@ -11,13 +11,13 @@ Group=netdata
 RuntimeDirectory=netdata
 RuntimeDirectoryMode=0775
 ExecStart=/usr/sbin/netdata -P /run/netdata/netdata.pid -D -c /usr/local/pf/var/conf/monitoring/netdata.conf 
-ExecStartPre=/bin/sleep 60
+ExecStartPre=/bin/sleep 30
 ExecStartPre=/bin/mkdir -p /var/cache/netdata
 ExecStartPre=/bin/chown -R netdata:netdata /var/cache/netdata
 ExecStartPre=/usr/local/pf/bin/pfcmd service netdata generateconfig
 PermissionsStartOnly=true
 
-TimeoutSec=90
+TimeoutSec=60
 
 # saving a big db on slow disks may need some time
 TimeoutStopSec=60

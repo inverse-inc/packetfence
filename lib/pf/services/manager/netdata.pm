@@ -22,6 +22,7 @@ use pf::file_paths qw(
 use pf::log;
 use pf::util;
 use pf::cluster;
+use pf::constants;
 
 use pf::config qw(
     $management_network
@@ -36,6 +37,23 @@ has '+name' => (default => sub { 'netdata' } );
 has '+optional' => ( default => sub {'1'} );
 
 tie our @authentication_sources_monitored, 'pfconfig::cached_array', "resource::authentication_sources_monitored";
+
+=head2 postStartCleanup
+
+Stub method to be implemented in services if needed.
+
+=cut
+
+sub postStartCleanup {
+    my ($self,$quick) = @_;
+    my $logger = get_logger();
+    sleep 40;
+    unless ($self->pid) {
+        $logger->error("$self->name died or has failed to start");
+        return $FALSE;
+    }
+    return $TRUE;
+}
 
 sub generateConfig {
     my ($self,$quick) = @_;

@@ -3,7 +3,7 @@ Description=PacketFence Captive Portal Apache HTTP Server
 Documentation=man:httpd(8)
 Documentation=man:apachectl(8)
 Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
-After=packetfence-base.target packetfence-config.service packetfence-iptables.service packetfence-haproxy.service packetfence-pfdns.service packetfence-pfdhcp.service
+After=packetfence-base.target packetfence-config.service packetfence-iptables.service packetfence-haproxy-db.service packetfence-pfdns.service packetfence-pfdhcp.service
 
 [Service]
 StartLimitBurst=3
