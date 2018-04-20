@@ -273,7 +273,7 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
  *         or 2x Xpaths separated with a comma (eg: $.items[0].somekey, $.item[0].somevalue)
  */
 func CompileJson(json interface{}, compile string) (interface{}, error) {
-	c := strings.Split(strings.Trim(compile, " "), ",")
+	c := strings.Split(compile, ",")
 	if len(c) > 1 {
 		// multiple XPath(s)
 		r1, err := CompileJson(json, c[0])
@@ -294,6 +294,7 @@ func CompileJson(json interface{}, compile string) (interface{}, error) {
 		return zipped, nil
 	}
 	//single Xpath
+	compile = strings.Trim(compile, " ")
 	p, err := jsonpath.Parse(compile)
 	if err != nil {
 		return nil, err
