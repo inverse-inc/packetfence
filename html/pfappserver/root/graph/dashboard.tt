@@ -384,7 +384,7 @@ END
              %]
              <div class="card">
                 <div class="card-title">
-                    <h2>[% l('Radius Latency') %]</h2>
+                    <h2>[% l('RADIUS Latency') %]</h2>
                 </div>
                 <div class="card-block">
                     <div class="row-fluid">
