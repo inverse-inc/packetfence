@@ -32,7 +32,6 @@ CHECK PROCESS packetfence-haproxy-portal MATCHING "haproxy-portal"
     start program = "/usr/local/pf/bin/pfcmd service haproxy-portal restart" with timeout 60 seconds
     stop program  = "/usr/local/pf/bin/pfcmd service haproxy-portal stop"
     if 3 restarts within 10 cycles then alert
-    if failed host 127.0.0.1 port 1080 protocol http status 404 for 5 cycles then alert
 
 [% IF ACTIVE_ACTIVE %]
 CHECK PROCESS packetfence-haproxy-db MATCHING "haproxy-db"
