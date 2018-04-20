@@ -1,6 +1,6 @@
 [Unit]
 Description=Real time performance monitoring 
-Requires=packetfence-radiusd-auth.service
+Requires=packetfence-radiusd-auth.service packetfence-radiusd-acct.service
 Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
 After=packetfence-base.target packetfence-config.service packetfence-iptables.service
 
