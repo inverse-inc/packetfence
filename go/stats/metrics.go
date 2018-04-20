@@ -21,6 +21,7 @@ import (
 )
 
 var MySQLdatabase *sql.DB
+var apiClient = unifiedapiclient.NewFromConfig(ctx)
 
 func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error {
 
@@ -143,17 +144,16 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 	case "api":
 		job = func() {
 			var raw json.RawMessage
-			apiclient := unifiedapiclient.NewFromConfig(ctx)
 			switch conf.ApiMethod {
 			case "GET":
-				err := apiclient.Call(ctx, "GET", conf.ApiPath, &raw)
+				err := apiClient.Call(ctx, "GET", conf.ApiPath, &raw)
 				if err != nil {
 					log.LoggerWContext(ctx).Error("API error: " + err.Error())
 					return
 				}
 
 			case "DELETE", "PATCH", "POST", "PUT":
-				err := apiclient.CallWithStringBody(ctx, conf.ApiMethod, conf.ApiPath, conf.ApiPayload, &raw)
+				err := apiClient.CallWithStringBody(ctx, conf.ApiMethod, conf.ApiPath, conf.ApiPayload, &raw)
 				if err != nil {
 					log.LoggerWContext(ctx).Error("API error: " + err.Error())
 					return
