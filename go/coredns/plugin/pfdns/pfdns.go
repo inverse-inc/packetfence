@@ -59,8 +59,39 @@ type dbConf struct {
 	DB         string `json:"db"`
 }
 
+func (pf *pfdns) Ip2Mac(ip string, ipVersion int) (string, error) {
+	var (
+		mac string
+		err error
+	)
+	if ipVersion == 4 {
+		err = pf.IP4log.QueryRow(ip).Scan(&mac)
+	} else {
+		err = pf.IP6log.QueryRow(ip).Scan(&mac)
+	}
+
+	if err != nil {
+		fmt.Printf("ERROR pfdns Ip2Mac (ipv%d) mac for %s not found %s\n", ipVersion, ip, err)
+	}
+
+	return mac, err
+}
+
+func (pf *pfdns) HasViolations(mac string) bool {
+	violation := false
+	var violationCount int
+	err := pf.Violation.QueryRow(mac).Scan(&violationCount)
+	if err != nil {
+		fmt.Printf("ERROR pfdns HasViolation %s %s\n", mac, err)
+	} else if violationCount != 0 {
+		violation = true
+	}
+
+	return violation
+}
+
 // ServeDNS implements the middleware.Handler interface.
-func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) (int, error) {
+func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) (int, error) {
 	state := request.Request{W: w, Req: r}
 	a := new(dns.Msg)
 	a.SetReply(r)
@@ -79,28 +110,12 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 		ipVersion = 4
 	}
 
-	var mac string
-	if ipVersion == 4 {
-		err := pf.IP4log.QueryRow(srcIP).Scan(&mac)
-		if err != nil {
-			fmt.Printf("ERROR pfdns database query returned %s\n", err)
-		}
-	} else {
-		err := pf.IP6log.QueryRow(srcIP).Scan(&mac)
-		if err != nil {
-			fmt.Printf("ERROR pfdns database query returned %s\n", err)
-		}
-	}
-
-	violation := false
-	var violationCount int
-	err := pf.Violation.QueryRow(mac).Scan(&violationCount)
+	mac, err := pf.Ip2Mac(srcIP, ipVersion)
 	if err != nil {
-		fmt.Printf("ERROR pfdns database query returned %s\n", err)
-	} else if violationCount != 0 {
-		violation = true
+		fmt.Printf("ERROR cannot find mac for ip %s\n", srcIP)
 	}
 
+	violation := pf.HasViolations(mac)
 	if violation {
 		// Passthrough bypass
 		for k, v := range pf.FqdnIsolationPort {
@@ -187,7 +202,7 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 			var status = "unreg"
 			err = pf.Nodedb.QueryRow(mac).Scan(&status)
 			if err != nil {
-				fmt.Printf("ERROR pfdns database query returned %s\n", err)
+				fmt.Printf("ERROR pfdns error getting node status %s %s\n", mac, err)
 			}
 
 			// Defer to the proxy middleware if the device is registered
@@ -268,7 +283,7 @@ func (pf pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) 
 }
 
 // Name implements the Handler interface.
-func (pf pfdns) Name() string { return "pfdns" }
+func (pf *pfdns) Name() string { return "pfdns" }
 
 func readConfig(ctx context.Context) pfconfigdriver.PfConfDatabase {
 	var sections pfconfigdriver.PfConfDatabase
@@ -505,7 +520,7 @@ func (pf *pfdns) DbInit() error {
 	return nil
 }
 
-func (pf pfdns) LocalResolver(request request.Request) (*dns.Msg, error) {
+func (pf *pfdns) LocalResolver(request request.Request) (*dns.Msg, error) {
 	const (
 		// DefaultTimeout is default timeout many operation in this program will
 		// use.
@@ -527,7 +542,7 @@ func (pf pfdns) LocalResolver(request request.Request) (*dns.Msg, error) {
 	return nil, errors.New("No name server to answer the question")
 }
 
-func (pf pfdns) SetPassthrough(ctx context.Context, passthrough, ip, port string, local bool) error {
+func (pf *pfdns) SetPassthrough(ctx context.Context, passthrough, ip, port string, local bool) error {
 	query_local := "0"
 	if local {
 		query_local = "1"
