@@ -37,7 +37,7 @@ $t->get_ok('/api/v1/reports/os' => json => { })
   ->json_has('/items/0/percent')
   ->status_is(200);
 
-$t->post_ok('/api/v1/reports/os' => json => { })
+$t->get_ok('/api/v1/reports/os/1000-01-01/9999-01-01' => json => { })
   ->json_has('/items/0/count')
   ->json_has('/items/0/description')
   ->json_has('/items/0/percent')
@@ -113,7 +113,7 @@ $t->get_ok('/api/v1/reports/connectiontype' => json => {  })
   ->json_has('/items/0/percent')
   ->status_is(200);
 
-$t->post_ok('/api/v1/reports/connectiontype' => json => {  })
+$t->get_ok('/api/v1/reports/connectiontype/1000-01-01/9999-01-01' => json => {  })
   ->json_has('/items/0/connection_type')
   ->json_has('/items/0/connections')
   ->json_has('/items/0/percent')
@@ -143,7 +143,7 @@ $t->get_ok('/api/v1/reports/ssid' => json => {  })
   ->json_has('/items/0/ssid')
   ->status_is(200);
 
-$t->post_ok('/api/v1/reports/ssid' => json => {  })
+$t->get_ok('/api/v1/reports/ssid/1000-01-01/9999-01-01' => json => {  })
   ->json_has('/items/0/nodes')
   ->json_has('/items/0/percent')
   ->json_has('/items/0/ssid')
@@ -162,7 +162,7 @@ $t->get_ok('/api/v1/reports/osclassbandwidth' => json => {  })
   ->json_has('/items/0/percent')
   ->status_is(200);
 
-$t->post_ok('/api/v1/reports/osclassbandwidth' => json => {  })
+$t->get_ok('/api/v1/reports/osclassbandwidth/1000-01-01/9999-01-01' => json => {  })
   ->json_has('/items/0/accttotal')
   ->json_has('/items/0/accttotaloctets')
   ->json_has('/items/0/dhcp_fingerprint')
@@ -212,49 +212,49 @@ $t->get_ok('api/v1/reports/topsponsor' => json => {  })
   ->json_has('/items')
   ->status_is(200);
 
-$t->post_ok('/api/v1/reports/topauthenticationfailures/mac' => json => {  })
+$t->get_ok('/api/v1/reports/topauthenticationfailures/mac/1000-01-01/9999-01-01' => json => {  })
   ->json_has('/items/0/mac')
   ->json_has('/items/0/count')
   ->json_has('/items/0/percent')
   ->json_has('/items/0/total')
   ->status_is(200);
 
-$t->post_ok('/api/v1/reports/topauthenticationfailures/ssid' => json => {  })
+$t->get_ok('/api/v1/reports/topauthenticationfailures/ssid/1000-01-01/9999-01-01' => json => {  })
   ->json_has('/items/0/ssid')
   ->json_has('/items/0/count')
   ->json_has('/items/0/percent')
   ->json_has('/items/0/total')
   ->status_is(200);
 
-$t->post_ok('/api/v1/reports/topauthenticationfailures/username' => json => {  })
+$t->get_ok('/api/v1/reports/topauthenticationfailures/username/1000-01-01/9999-01-01' => json => {  })
   ->json_has('/items/0/user_name')
   ->json_has('/items/0/count')
   ->json_has('/items/0/percent')
   ->json_has('/items/0/total')
   ->status_is(200);
 
-$t->post_ok('/api/v1/reports/topauthenticationsuccesses/mac' => json => {  })
+$t->get_ok('/api/v1/reports/topauthenticationsuccesses/mac/1000-01-01/9999-01-01' => json => {  })
   ->json_has('/items/0/mac')
   ->json_has('/items/0/count')
   ->json_has('/items/0/percent')
   ->json_has('/items/0/total')
   ->status_is(200);
 
-$t->post_ok('/api/v1/reports/topauthenticationsuccesses/ssid' => json => {  })
+$t->get_ok('/api/v1/reports/topauthenticationsuccesses/ssid/1000-01-01/9999-01-01' => json => {  })
   ->json_has('/items/0/ssid')
   ->json_has('/items/0/count')
   ->json_has('/items/0/percent')
   ->json_has('/items/0/total')
   ->status_is(200);
 
-$t->post_ok('/api/v1/reports/topauthenticationsuccesses/username' => json => {  })
+$t->get_ok('/api/v1/reports/topauthenticationsuccesses/username/1000-01-01/9999-01-01' => json => {  })
   ->json_has('/items/0/user_name')
   ->json_has('/items/0/count')
   ->json_has('/items/0/percent')
   ->json_has('/items/0/total')
   ->status_is(200);
 
-$t->post_ok('/api/v1/reports/topauthenticationsuccesses/computername' => json => {  })
+$t->get_ok('/api/v1/reports/topauthenticationsuccesses/computername/1000-01-01/9999-01-01' => json => {  })
   ->json_has('/items/0/computer_name')
   ->json_has('/items/0/count')
   ->json_has('/items/0/percent')
