@@ -367,6 +367,52 @@ END
                     </div>
                 </div>
             </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <h2>[% l('Database') %]</h2>
+                </div>
+                <div class="card-block">
+                    <div class="row-fluid">
+                        <div class="spangridSize text-center">
+                            <div data-netdata="mysql_PacketFence_Database.queries"
+                            data-host="/netdata/127.0.0.1"
+                            data-title="Database queries"
+                            data-chart-library="dygraph"
+                            data-colors="[% palette(loop.index) %]"
+                            data-height="200px"
+                            data-after="-300"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-block">
+                    <div class="row-fluid">
+                        <div class="spangridSize text-center">
+                            <div data-netdata="mysql_PacketFence_Database.handlers"
+                            data-host="/netdata/127.0.0.1"
+                            data-title="Database handlers"
+                            data-chart-library="dygraph"
+                            data-colors="[% palette(loop.index) %]"
+                            data-height="200px"
+                            data-after="-300"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-block">
+                    <div class="row-fluid">
+                        <div class="spangridSize text-center">
+                            <div data-netdata="mysql_PacketFence_Database.threads"
+                            data-host="/netdata/127.0.0.1"
+                            data-title="Database threads"
+                            data-chart-library="dygraph"
+                            data-colors="[% palette(loop.index) %]"
+                            data-height="200px"
+                            data-after="-300"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
         <div class="tab-pane[% IF tab == "radius" %] active[% END %]" id="radius">
             [%
