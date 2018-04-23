@@ -28,7 +28,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 6;
+use Test::More tests => 5;
 #This test will running last
 use Test::NoWarnings;
 
@@ -38,14 +38,6 @@ my $app = pf::UnifiedApi->new;
 my $controller = pf::UnifiedApi::Controller::Config::FloatingDevices->new(app => $app);
 
 my $generator = pf::UnifiedApi::OpenAPI::Generator->new;
-
-is_deeply(
-    $generator->generate_path($controller),
-    {
-        description => 'Configure floating devices',
-    },
-    "Simple generation"
-);
 
 sub standardGetContent {
     return (
@@ -149,7 +141,7 @@ sub standardSchema {
     my $generator = pf::UnifiedApi::OpenAPI::Generator::Config->new;
 
     is_deeply(
-        $generator->generate_schemas(
+        $generator->generateSchemas(
             $controller,
             [
                 {

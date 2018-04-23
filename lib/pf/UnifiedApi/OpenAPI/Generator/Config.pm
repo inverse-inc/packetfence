@@ -78,6 +78,12 @@ sub operationDescriptionsLookup {
     return \%OPERATION_DESCRIPTIONS;
 }
 
+=head2 createResponses
+
+The OpenAPI Operation Repsonses for the create action
+
+=cut
+
 sub createResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
@@ -90,6 +96,12 @@ sub createResponses {
     };
 }
 
+=head2 listResponses
+
+The OpenAPI Operation Repsonses for the list action
+
+=cut
+
 sub listResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
@@ -97,7 +109,7 @@ sub listResponses {
             content => {
                 "application/json" => {
                     schema => {
-                        "\$ref" => "#" . $self->schema_list_path($c),
+                        "\$ref" => "#" . $self->schemaListPath($c),
                     }
                 }
             },
@@ -110,6 +122,12 @@ sub listResponses {
         }
     };
 }
+
+=head2 getresponses
+
+the openapi operation repsonses for the get action
+
+=cut
 
 sub getResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
@@ -118,7 +136,7 @@ sub getResponses {
             content => {
                 "application/json" => {
                     schema => {
-                        "\$ref" => "#" . $self->schema_item_path($c),
+                        "\$ref" => "#" . $self->schemaItemPath($c),
                     }
                 }
             },
@@ -132,10 +150,16 @@ sub getResponses {
     };
 }
 
-sub generate_schemas {
+=head2 generateSchemas
+
+generate schemas for controller
+
+=cut
+
+sub generateSchemas {
     my ($self, $controller, $actions) = @_;
-    my $list_path = $self->schema_list_path($controller);
-    my $item_path = $self->schema_item_path($controller);
+    my $list_path = $self->schemaListPath($controller);
+    my $item_path = $self->schemaItemPath($controller);
     my @forms = buildForms($controller);
     return {
         $list_path => {
@@ -158,6 +182,12 @@ sub generate_schemas {
     };
 }
 
+=head2 replaceResponses
+
+The OpenAPI Operation Repsonses for the replace action
+
+=cut
+
 sub replaceResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
@@ -173,6 +203,12 @@ sub replaceResponses {
     };
 }
 
+=head2 updateResponses
+
+The OpenAPI Operation Repsonses for the update action
+
+=cut
+
 sub updateResponses {
     my ($self, $scope, $c, $m, $a) = @_;
     return {
@@ -185,6 +221,12 @@ sub updateResponses {
     };
 }
 
+=head2 removeResponses
+
+The OpenAPI Operation Repsonses for the remove action
+
+=cut
+
 sub removeResponses {
     my ($self, $scope, $c, $m, $a) = @_;
     return {
@@ -193,6 +235,12 @@ sub removeResponses {
         }
     };
 }
+
+=head2 buildForms
+
+Build the forms for the forms
+
+=cut
 
 sub buildForms {
     my ($controller, $child) = @_;
@@ -209,25 +257,44 @@ sub buildForms {
     return map { $_->new() } @form_classes;
 }
 
-sub operationId {
-    my ( $self, $scope, $c, $m, $a ) = @_;
-    return $a->{operationId};
-}
+=head2 createRequestBody
+
+The OpenAPI Operation RequestBody for the create action
+
+=cut
 
 sub createRequestBody {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return $self->requestBody( $scope, $c, $m, $a );
 }
 
+=head2 replaceRequestBody
+
+The OpenAPI Operation RequestBody for the replace action
+
+=cut
+
 sub replaceRequestBody {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return $self->requestBody( $scope, $c, $m, $a );
 }
 
+=head2 updateRequestBody
+
+The OpenAPI Operation RequestBody for the update action
+
+=cut
+
 sub updateRequestBody {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return $self->requestBody( $scope, $c, $m, $a );
 }
+
+=head2 RequestBody
+
+The generic OpenAPI Operation RequestBody for a config controller
+
+=cut
 
 sub requestBody {
     my ( $self, $scope, $c, $m, $a ) = @_;
@@ -235,26 +302,26 @@ sub requestBody {
         content => {
             "application/json" => {
                 schema => {
-                    "\$ref" => "#" . $self->schema_item_path($c),
+                    "\$ref" => "#" . $self->schemaItemPath($c),
                 }
             }
         },
     };
 }
 
-=head2 generate_path
+=head2 generatePath
 
-generate_path
+generate Path excluding search
 
 =cut
 
-sub generate_path {
+sub generatePath {
     my ($self, $controller, $actions) = @_;
     if (@$actions == 1 && $actions->[0]{action} eq 'search') {
         return undef;
     }
 
-    return $self->SUPER::generate_path($controller, $actions);
+    return $self->SUPER::generatePath($controller, $actions);
 }
 
 =head1 AUTHOR

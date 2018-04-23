@@ -82,7 +82,7 @@ my %SQLTYPES_TO_OPENAPI = (
     ENUM      => 'string',
 );
 
-sub sqlTypeToOpenAPI {
+sub sqlTypeToOpenAPIType {
     my ($type) = @_;
     if (exists $SQLTYPES_TO_OPENAPI{$type}) {
         return $SQLTYPES_TO_OPENAPI{$type};
@@ -91,13 +91,19 @@ sub sqlTypeToOpenAPI {
     return "string";
 }
 
-sub propertiesFromDal {
+=head2 dalToOpenAPISchemaProperties
+
+Creatte OpenAPI Schema Properties from the dal object
+
+=cut
+
+sub dalToOpenAPISchemaProperties {
     my ($self, $dal) = @_;
     my $meta = $dal->get_meta;
     my %properties;
     while (my ($k, $v) = each %$meta) {
         $properties{$k} = {
-            type => sqlTypeToOpenAPI($v->{type}),
+            type => sqlTypeToOpenAPIType($v->{type}),
         };
     }
     return \%properties;
@@ -118,7 +124,7 @@ sub operationParametersLookup {
 
 =head2 getResponses
 
-getResponses
+The OpenAPI Operation Repsonses for the get action
 
 =cut
 
@@ -132,7 +138,7 @@ sub getResponses {
                     schema => {
                         properties => {
                             item => {
-                                "\$ref" => "#" . $self->schema_item_path($c),
+                                "\$ref" => "#" . $self->schemaItemPath($c),
                             }
                         },
                         type => 'object',
@@ -151,7 +157,7 @@ sub getResponses {
 
 =head2 removeResponses
 
-removeResponses
+The OpenAPI Operation Repsonses for the remove action
 
 =cut
 
@@ -164,18 +170,30 @@ sub removeResponses {
     };
 }
 
+=head2 createRequestBody
+
+The OpenAPI Operation RequestBody for the create action
+
+=cut
+
 sub createRequestBody {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
         "content" => {
             "application/json" => {
                 "schema" => {
-                    "\$ref" => "#" . $self->schema_item_path($c)
+                    "\$ref" => "#" . $self->schemaItemPath($c)
                 }
             }
         }
     };
 }
+
+=head2 createResponses
+
+The OpenAPI Operation Repsonses for the create action
+
+=cut
 
 sub createResponses {
     my ($self, $scope, $c, $m, $a) = @_;
@@ -195,10 +213,22 @@ sub createResponses {
     };
 }
 
+=head2 listRequestBody
+
+The OpenAPI Operation RequestBody for the list action
+
+=cut
+
 sub listRequestBody {
     my ($self, $scope, $c, $m, $a) = @_;
     return undef;
 }
+
+=head2 searchRequestBody
+
+The OpenAPI Operation RequestBody for the search action
+
+=cut
 
 sub searchRequestBody {
     my ( $self, $scope, $c, $m, $a ) = @_;
@@ -208,6 +238,11 @@ sub searchRequestBody {
         }
     };
 }
+=head2 listResponses
+
+The OpenAPI Operation Repsonses for the list action
+
+=cut
 
 sub listResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
@@ -216,7 +251,7 @@ sub listResponses {
             content => {
                 "application/json" => {
                     schema => {
-                        "\$ref" => "#" . $self->schema_list_path($c),
+                        "\$ref" => "#" . $self->schemaListPath($c),
                     }
                 }
             },
@@ -230,20 +265,44 @@ sub listResponses {
     };
 }
 
+=head2 searchResponses
+
+The OpenAPI Operation Repsonses for the search action
+
+=cut
+
 sub searchResponses {
     my ($self, $scope, $c, $m, $a) = @_;
     return $self->listResponses($scope, $c, $m, $a);
 }
+
+=head2 replaceRequestBody
+
+The OpenAPI Operation RequestBody for the replace action
+
+=cut
 
 sub replaceRequestBody {
     my ($self, $scope, $c, $m, $a) = @_;
     return $self->updateRequestBody($scope, $c, $m, $a);;
 }
 
+=head2 replaceResponses
+
+The OpenAPI Operation Repsonses for the replace action
+
+=cut
+
 sub replaceResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return $self->updateResponses($scope, $c, $m, $a);;
 }
+
+=head2 updateRequestBody
+
+The OpenAPI Operation RequestBody for the update action
+
+=cut
 
 sub updateRequestBody {
     my ( $self, $scope, $c, $m, $a ) = @_;
@@ -251,13 +310,19 @@ sub updateRequestBody {
         "content" => {
             "application/json" => {
                 "schema" => {
-                    "\$ref" => "#" . $self->schema_item_path($c),
+                    "\$ref" => "#" . $self->schemaItemPath($c),
                 }
             }
         },
         "required" => "1"
     };
 }
+
+=head2 updateResponses
+
+The OpenAPI Operation Repsonses for the update action
+
+=cut
 
 sub updateResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
@@ -274,31 +339,59 @@ sub updateResponses {
     };
 }
 
-sub generate_schemas {
+=head2 generateSchemas
+
+generate schemas for controller
+
+=cut
+
+sub generateSchemas {
     my ($self, $controller, $actions) = @_;
-    my $list_path = $self->schema_list_path($controller);
-    my $item_path = $self->schema_item_path($controller);
-    return {
-        $list_path => $self->generate_list_schema($controller, $actions),
-        $item_path => $self->generate_item_schema($controller, $actions)
-    };
+    my (%schemas, $schema);
+    if (defined ($schema = $self->generateListSchema($controller, $actions))) {
+        $schemas{$self->schemaListPath($controller)} = $schema;
+    }
+
+    if (defined ($schema = $self->generateItemSchema($controller, $actions))) {
+        $schemas{$self->schemaItemPath($controller)} = $schema;
+    }
+
+    return \%schemas;
 }
 
-sub generate_item_schema {
+=head2 generateItemSchema
+
+generate Item Schema
+
+=cut
+
+sub generateItemSchema {
     my ($self, $controller, $actions) = @_;
     return {
-        properties => $self->item_properies($controller, $actions),
-        required => $self->item_required($controller, $actions),
+        properties => $self->itemProperies($controller, $actions),
+        required => $self->itemRequired($controller, $actions),
         type => 'object'
     };
 }
 
-sub item_properies {
+=head2 itemProperies
+
+item Properies
+
+=cut
+
+sub itemProperies {
     my ($self, $controller, $actions) = @_;
-    return  $self->propertiesFromDal($controller->dal);
+    return  $self->dalToOpenAPISchemaProperties($controller->dal);
 }
 
-sub item_required {
+=head2 itemRequired
+
+item Required
+
+=cut
+
+sub itemRequired {
     my ($self, $controller, $actions) = @_;
     my $meta = $controller->dal->get_meta;
     my @required;
@@ -310,12 +403,24 @@ sub item_required {
     return \@required;
 }
 
+=head2 isFieldRequired
+
+is field required
+
+=cut
+
 sub isFieldRequired {
     my ($self, $field, $meta) = @_;
     return 0;
 }
 
-sub generate_list_schema {
+=head2 generateListSchema
+
+generate list schema
+
+=cut
+
+sub generateListSchema {
     my ($self, $controller, $actions) = @_;
     return {
         allOf => [
@@ -324,7 +429,7 @@ sub generate_list_schema {
                 "properties" => {
                     "items" => {
                         "items" => {
-                            "\$ref" => "#" . $self->schema_item_path($controller),
+                            "\$ref" => "#" . $self->schemaItemPath($controller),
                         },
                         "type" => "array"
                     }

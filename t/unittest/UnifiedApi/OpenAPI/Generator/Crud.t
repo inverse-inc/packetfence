@@ -471,7 +471,7 @@ my @actions = (
 
 {
     is_deeply(
-        $generator->generate_schemas(
+        $generator->generateSchemas(
             $controller,
             [
                 {

@@ -23,13 +23,13 @@ use Pod::Markdown;
 use Pod::Text;
 use Lingua::EN::Inflexion qw(noun);
 
-=head2 generate_path
+=head2 generatePath
 
-generate_path
+generate the OpenAPI Path
 
 =cut
 
-sub generate_path {
+sub generatePath {
     my ($self, $controller, $actions) = @_;
     my %path = $self->operations($controller, $actions);
     if (!keys %path) {
@@ -60,31 +60,20 @@ sub generate_path {
 }
 
 
-=head2 generate_schemas
+=head2 generateSchemas
 
-generate_schemas
+generate for Schemas
 
 =cut
 
-sub generate_schemas {
+sub generateSchemas {
     my ($self) = @_;
     return undef;
 }
 
-=head2 setup
-
-setup
-
-=cut
-
-sub setup {
-    my ($self, $c, $actions) = @_;
-    return;
-}
-
 =head2 path_ref
 
-path_ref
+ref for path
 
 =cut
 
@@ -94,7 +83,7 @@ sub path_ref {
 
 =head2 servers
 
-servers
+servers for path
 
 =cut
 
@@ -105,7 +94,7 @@ sub servers {
 
 =head2 parameters
 
-parameters
+parameters for path
 
 =cut
 
@@ -135,7 +124,7 @@ sub summary {
 
 =head2 description
 
-description
+description from controller for path
 
 =cut
 
@@ -158,10 +147,11 @@ sub description {
     return $text;
 }
 
-sub summary_classes {
-    my ($self, $c) = @_;
-    return (ref $c || $c);
-}
+=head2 extract_text_from_pod
+
+extract text from pod
+
+=cut
 
 sub extract_text_from_pod {
     my ($self, $class, $sections) = @_;
@@ -181,15 +171,33 @@ sub extract_text_from_pod {
     return $pod;
 }
 
+=head2 pod_to_markdown
+
+pod to markdown
+
+=cut
+
 sub pod_to_markdown {
     my ($self, $pod) = @_;
     return $self->pod_to_something($pod, "Pod::Markdown");
 }
 
+=head2 pod_to_text
+
+pod to text
+
+=cut
+
 sub pod_to_text {
     my ($self, $pod) = @_;
     return $self->pod_to_something($pod, "Pod::Text");
 }
+
+=head2 pod_to_something
+
+pod to some class
+
+=cut
 
 sub pod_to_something {
     my ($self, $pod, $class) = @_;
@@ -199,6 +207,12 @@ sub pod_to_something {
     $parser->parse_string_document($pod);
     return $out;
 }
+
+=head2 operations
+
+operations for a path
+
+=cut
 
 sub operations {
     my ($self, $c, $actions) = @_;
@@ -240,9 +254,21 @@ sub operation {
     return \%op;
 }
 
+=head2 operation_generators
+
+the lookup for operation generators
+
+=cut
+
 sub operation_generators {
     return {};
 }
+
+=head2 operation_generation
+
+Calls to the generators for operation parameters
+
+=cut
 
 sub operation_generation {
     my ( $self, $scope, $c, $m, $action ) = @_;
@@ -259,6 +285,12 @@ sub operation_generation {
     return $self->$method($scope, $c, $m, $action);
 }
 
+=head2 performLookup
+
+perform Lookup for generations
+
+=cut
+
 sub performLookup {
     my ($self, $lookup, $key, $default) = @_;
 
@@ -273,30 +305,66 @@ sub performLookup {
     return $lookup->{$key};
 }
 
+=head2 operationDescriptionsLookup
+
+operation Descriptions Lookup
+
+=cut
+
 sub operationDescriptionsLookup {
     undef
 }
 
+=head2 operationParametersLookup
+
+operation Parameters Lookup
+
+=cut
+
 sub operationParametersLookup {
     undef
 }
+
+=head2 operationParameters
+
+operation Parameters
+
+=cut
 
 sub operationParameters {
     my ($self, $scope, $c, $m, $a) = @_;
     return $self->performLookup($self->operationParametersLookup, $a->{action}, []);
 }
 
+=head2 operationDescription
+
+operationDescription
+
+=cut
+
 sub operationDescription {
     my ($self, $scope, $c, $m, $a) = @_;
     return $self->performLookup($self->operationDescriptionsLookup, $a->{action}, undef);
 }
+
+=head2 operationId
+
+operation Id
+
+=cut
 
 sub operationId {
     my ($self, $scope, $c, $m, $a) = @_;
     return $a->{operationId};
 }
 
-sub schema_item_path {
+=head2 schemaItemPath
+
+schema Item Path
+
+=cut
+
+sub schemaItemPath {
     my ($self, $controller) = @_;
     my $class = ref ($controller) || $controller;
     $class =~ s/pf::UnifiedApi::Controller:://;
@@ -309,7 +377,13 @@ sub schema_item_path {
     return join('/', $prefix, @paths, $singular);
 }
 
-sub schema_list_path {
+=head2 schemaListPath
+
+schema List Path
+
+=cut
+
+sub schemaListPath {
     my ($self, $controller) = @_;
     my $class = ref ($controller) || $controller;
     $class =~ s/pf::UnifiedApi::Controller:://;

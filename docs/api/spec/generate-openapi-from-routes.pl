@@ -79,7 +79,7 @@ sub generateOpenAPIPaths {
         my $controller = createController($actions->[0]->{controller}, $app);
         my $generator = $controller->openapi_generator;
         next if !defined $generator;
-        if (my $data = $generator->generate_path($controller, $actions)) {
+        if (my $data = $generator->generatePath($controller, $actions)) {
             $openapi_paths{$path} = $data;
         }
     }
@@ -112,7 +112,7 @@ sub generateOpenAPISchemas {
         my $controller = createController($sub_class, $app);
         my $generator = $controller->openapi_generator;
         next if !defined $generator;
-        if (my $schemas = $generator->generate_schemas($controller, $actions)) {
+        if (my $schemas = $generator->generateSchemas($controller, $actions)) {
             %openapi_schemas = (%openapi_schemas, %$schemas);
         }
     }
