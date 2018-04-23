@@ -79,7 +79,7 @@ ReportsActive:
         description: Deprecated parameter.
         type: string
     status:
-        description: The node status (eg: reg|unreg|pending).
+        description: "The node status (eg: reg|unreg|pending)."
         type: string
     user_agent:
         description: The HTTP user agent of the device as seen by Fingerbank.
@@ -169,7 +169,7 @@ ReportsNodeCommon:
         description: Deprecated parameter.
         type: string
     status:
-        description: The node status (eg: reg|unreg|pending).
+        description: "The node status (eg: reg|unreg|pending)."
         type: string
     user_agent:
         description: The HTTP user agent of the device as seen by Fingerbank.
@@ -277,7 +277,7 @@ ReportsStaticsCommon:
         description: The amount of bandwidth the device has left on the network. This is used only for bandwidth balance access that relies on the accounting data.
         type: string
     status:
-        description: The node status (eg: reg|unreg|pending).
+        description: "The node status (eg: reg|unreg|pending)."
         type: string
     user_agent: 
         description: The HTTP user agent of the device as seen by Fingerbank.

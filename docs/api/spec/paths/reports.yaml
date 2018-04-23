@@ -16,13 +16,13 @@
       - name: start
         in: path
         required: true
-        description: URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range
+        description: "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range"
         schema:
           type: string
       - name: end
         in: path
         required: true
-        description: URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range
+        description: "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range"
         schema:
           type: string
     responses:
@@ -216,13 +216,13 @@
       - name: start
         in: path
         required: true
-        description: URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range
+        description: "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range"
         schema:
           type: string
       - name: end
         in: path
         required: true
-        description: URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range
+        description: "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range"
         schema:
           type: string
     responses:
@@ -306,13 +306,13 @@
       - name: start
         in: path
         required: true
-        description: URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range
+        description: "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range"
         schema:
           type: string
       - name: end
         in: path
         required: true
-        description: URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range
+        description: "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range"
         schema:
           type: string
     responses:
@@ -352,13 +352,13 @@
       - name: start
         in: path
         required: true
-        description: URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range
+        description: "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range"
         schema:
           type: string
       - name: end
         in: path
         required: true
-        description: URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range
+        description: "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range"
         schema:
           type: string
     responses:
@@ -431,13 +431,13 @@
       - name: start
         in: path
         required: true
-        description: URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range
+        description: "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range"
         schema:
           type: string
       - name: end
         in: path
         required: true
-        description: URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range
+        description: "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range"
         schema:
           type: string
     responses:
@@ -466,13 +466,13 @@
       - name: start
         in: path
         required: true
-        description: URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range
+        description: "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range"
         schema:
           type: string
       - name: end
         in: path
         required: true
-        description: URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range
+        description: "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range"
         schema:
           type: string
     responses:
@@ -490,13 +490,13 @@
       - name: start
         in: path
         required: true
-        description: URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range
+        description: "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range"
         schema:
           type: string
       - name: end
         in: path
         required: true
-        description: URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range
+        description: "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range"
         schema:
           type: string
     responses:
@@ -514,13 +514,13 @@
       - name: start
         in: path
         required: true
-        description: URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range
+        description: "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range"
         schema:
           type: string
       - name: end
         in: path
         required: true
-        description: URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range
+        description: "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range"
         schema:
           type: string
     responses:
@@ -538,13 +538,13 @@
       - name: start
         in: path
         required: true
-        description: URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range
+        description: "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range"
         schema:
           type: string
       - name: end
         in: path
         required: true
-        description: URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range
+        description: "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range"
         schema:
           type: string
     responses:
@@ -562,13 +562,13 @@
       - name: start
         in: path
         required: true
-        description: URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range
+        description: "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range"
         schema:
           type: string
       - name: end
         in: path
         required: true
-        description: URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range
+        description: "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range"
         schema:
           type: string
     responses:
@@ -586,13 +586,13 @@
       - name: start
         in: path
         required: true
-        description: URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range
+        description: "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range"
         schema:
           type: string
       - name: end
         in: path
         required: true
-        description: URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range
+        description: "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range"
         schema:
           type: string
     responses:
@@ -610,13 +610,13 @@
       - name: start
         in: path
         required: true
-        description: URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range
+        description: "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range"
         schema:
           type: string
       - name: end
         in: path
         required: true
-        description: URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range
+        description: "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range"
         schema:
           type: string
     responses:
