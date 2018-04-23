@@ -1,16 +1,21 @@
 package main
 
 import (
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"net"
 	"net/http"
+	"strconv"
 	"time"
 
+	"github.com/RoaringBitmap/roaring"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/gorilla/mux"
 	"github.com/inverse-inc/packetfence/go/api-frontend/unifiedapierrors"
+	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 	dhcp "github.com/krolaw/dhcp4"
@@ -100,12 +105,8 @@ func handleAllStats(res http.ResponseWriter, req *http.Request) {
 	pfconfigdriver.FetchDecodeSocket(ctx, &interfaces)
 
 	for _, i := range interfaces.Element {
-		if _, ok := ControlIn[i]; ok {
-			Request := ApiReq{Req: "stats", NetInterface: i, NetWork: ""}
-			ControlIn[i] <- Request
-
-			stat := <-ControlOut[i]
-
+		if h, ok := intNametoInterface[i]; ok {
+			stat := h.handleApiReq(ApiReq{Req: "stats", NetInterface: i, NetWork: ""})
 			for _, s := range stat.([]Stats) {
 				stats = append(stats, s)
 			}
@@ -125,11 +126,8 @@ func handleAllStats(res http.ResponseWriter, req *http.Request) {
 func handleStats(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
-	if _, ok := ControlIn[vars["int"]]; ok {
-		Request := ApiReq{Req: "stats", NetInterface: vars["int"], NetWork: ""}
-		ControlIn[vars["int"]] <- Request
-
-		stat := <-ControlOut[vars["int"]]
+	if h, ok := intNametoInterface[vars["int"]]; ok {
+		stat := h.handleApiReq(ApiReq{Req: "stats", NetInterface: vars["int"], NetWork: ""})
 
 		outgoingJSON, err := json.Marshal(stat)
 
@@ -149,11 +147,8 @@ func handleStats(res http.ResponseWriter, req *http.Request) {
 func handleInitiaLease(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
-	if _, ok := ControlIn[vars["int"]]; ok {
-		Request := ApiReq{Req: "initialease", NetInterface: vars["int"], NetWork: ""}
-		ControlIn[vars["int"]] <- Request
-
-		stat := <-ControlOut[vars["int"]]
+	if h, ok := intNametoInterface[vars["int"]]; ok {
+		stat := h.handleApiReq(ApiReq{Req: "initialease", NetInterface: vars["int"], NetWork: ""})
 
 		outgoingJSON, err := json.Marshal(stat)
 
@@ -172,11 +167,8 @@ func handleInitiaLease(res http.ResponseWriter, req *http.Request) {
 func handleDebug(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
-	if _, ok := ControlIn[vars["int"]]; ok {
-		Request := ApiReq{Req: "debug", NetInterface: vars["int"], Role: vars["role"]}
-		ControlIn[vars["int"]] <- Request
-
-		stat := <-ControlOut[vars["int"]]
+	if h, ok := intNametoInterface[vars["int"]]; ok {
+		stat := h.handleApiReq(ApiReq{Req: "debug", NetInterface: vars["int"], Role: vars["role"]})
 
 		outgoingJSON, err := json.Marshal(stat)
 
@@ -310,4 +302,78 @@ func decodeOptions(b string) (map[dhcp.OptionCode][]byte, bool) {
 		}
 	}
 	return dhcpOptions, true
+}
+
+func (h *Interface) handleApiReq(Request ApiReq) interface{} {
+	var stats []Stats
+
+	// Send back stats
+	if Request.Req == "stats" {
+		for _, v := range h.network {
+			var statistics roaring.Statistics
+			statistics = v.dhcpHandler.available.Stats()
+			var Options map[string]string
+			Options = make(map[string]string)
+			Options["optionIPAddressLeaseTime"] = v.dhcpHandler.leaseDuration.String()
+			for option, value := range v.dhcpHandler.options {
+				key := []byte(option.String())
+				key[0] = key[0] | ('a' - 'A')
+				Options[string(key)] = Tlv.Tlvlist[int(option)].Decode.String(value)
+			}
+
+			// Add network options on the fly
+			x, err := decodeOptions(v.network.IP.String())
+			if err {
+				for key, value := range x {
+					Options[key.String()] = Tlv.Tlvlist[int(key)].Decode.String(value)
+				}
+			}
+
+			var Members []Node
+			members := v.dhcpHandler.hwcache.Items()
+			var Status string
+			var Count int
+			Count = 0
+			for i, item := range members {
+				Count++
+				result := make(net.IP, 4)
+				binary.BigEndian.PutUint32(result, binary.BigEndian.Uint32(v.dhcpHandler.start.To4())+uint32(item.Object.(int)))
+				Members = append(Members, Node{IP: result.String(), Mac: i})
+			}
+
+			if Count == (v.dhcpHandler.leaseRange - (int(statistics.RunContainerValues) + int(statistics.ArrayContainerValues))) {
+				Status = "Normal"
+			} else {
+				Status = "Calculated available IP " + strconv.Itoa(v.dhcpHandler.leaseRange-Count) + " is different than what we have available in the pool " + strconv.Itoa(int(statistics.RunContainerValues))
+			}
+
+			stats = append(stats, Stats{EthernetName: Request.NetInterface, Net: v.network.String(), Free: int(statistics.RunContainerValues) + int(statistics.ArrayContainerValues), Category: v.dhcpHandler.role, Options: Options, Members: Members, Status: Status})
+		}
+		return stats
+	}
+	// Update the lease
+	if Request.Req == "initialease" {
+
+		for _, v := range h.network {
+			initiaLease(&v.dhcpHandler)
+			stats = append(stats, Stats{EthernetName: Request.NetInterface, Net: v.network.String(), Category: v.dhcpHandler.role, Status: "Init Lease success"})
+		}
+		return stats
+	}
+
+	// Debug
+	if Request.Req == "debug" {
+		for _, v := range h.network {
+			if Request.Role == v.dhcpHandler.role {
+				var statistiques roaring.Statistics
+				statistiques = v.dhcpHandler.available.Stats()
+				spew.Dump(v.dhcpHandler.available.Stats())
+				log.LoggerWContext(ctx).Info(v.dhcpHandler.available.String())
+				stats = append(stats, Stats{EthernetName: Request.NetInterface, Net: v.network.String(), Free: int(statistiques.RunContainerValues) + int(statistiques.ArrayContainerValues), Category: v.dhcpHandler.role, Status: "Debug finished"})
+			}
+		}
+		return stats
+	}
+
+	return nil
 }

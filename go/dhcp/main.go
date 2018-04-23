@@ -15,10 +15,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/RoaringBitmap/roaring"
 	"github.com/coreos/etcd/client"
 	"github.com/coreos/go-systemd/daemon"
-	"github.com/davecgh/go-spew/spew"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/goji/httpauth"
 	"github.com/gorilla/mux"
@@ -39,10 +37,6 @@ var GlobalMacCache *cache.Cache
 var GlobalTransactionCache *cache.Cache
 var GlobalTransactionLock *sync.Mutex
 
-// Control
-var ControlOut map[string]chan interface{}
-var ControlIn map[string]chan interface{}
-
 var VIP map[string]bool
 var VIPIp map[string]net.IP
 
@@ -51,6 +45,8 @@ var ctx = context.Background()
 var Capi *client.Config
 
 var webservices pfconfigdriver.PfConfWebservices
+
+var intNametoInterface map[string]*Interface
 
 func main() {
 	ctx = log.LoggerNewContext(ctx)
@@ -104,9 +100,6 @@ func main() {
 		maxWorkers   = 100
 	)
 
-	ControlIn = make(map[string]chan interface{})
-	ControlOut = make(map[string]chan interface{})
-
 	// create job channel
 	jobs := make(chan job, maxQueueSize)
 
@@ -119,14 +112,13 @@ func main() {
 		}(i)
 	}
 
+	intNametoInterface = make(map[string]*Interface)
+
 	// Unicast listener
 	for _, v := range DHCPConfig.intsNet {
 		v := v
 		// Create a channel for each interfaces
-		channelIn := make(chan interface{})
-		channelOut := make(chan interface{})
-		ControlIn[v.Name] = channelIn
-		ControlOut[v.Name] = channelOut
+		intNametoInterface[v.Name] = &v
 		for net := range v.network {
 			net := net
 			go func() {
@@ -199,86 +191,7 @@ func main() {
 // Broadcast Listener
 func (h *Interface) run(jobs chan job) {
 
-	// Communicate with the server that run on an interface
-	go func() {
-		inchannel := ControlIn[h.Name]
-		outchannel := ControlOut[h.Name]
-		for {
-
-			Request := <-inchannel
-			var stats []Stats
-
-			// Send back stats
-			if Request.(ApiReq).Req == "stats" {
-				for _, v := range h.network {
-					var statistics roaring.Statistics
-					statistics = v.dhcpHandler.available.Stats()
-					var Options map[string]string
-					Options = make(map[string]string)
-					Options["optionIPAddressLeaseTime"] = v.dhcpHandler.leaseDuration.String()
-					for option, value := range v.dhcpHandler.options {
-						key := []byte(option.String())
-						key[0] = key[0] | ('a' - 'A')
-						Options[string(key)] = Tlv.Tlvlist[int(option)].Decode.String(value)
-					}
-
-					// Add network options on the fly
-					x, err := decodeOptions(v.network.IP.String())
-					if err {
-						for key, value := range x {
-							Options[key.String()] = Tlv.Tlvlist[int(key)].Decode.String(value)
-						}
-					}
-
-					var Members []Node
-					members := v.dhcpHandler.hwcache.Items()
-					var Status string
-					var Count int
-					Count = 0
-					for i, item := range members {
-						Count++
-						result := make(net.IP, 4)
-						binary.BigEndian.PutUint32(result, binary.BigEndian.Uint32(v.dhcpHandler.start.To4())+uint32(item.Object.(int)))
-						Members = append(Members, Node{IP: result.String(), Mac: i})
-					}
-
-					if Count == (v.dhcpHandler.leaseRange - (int(statistics.RunContainerValues) + int(statistics.ArrayContainerValues))) {
-						Status = "Normal"
-					} else {
-						Status = "Calculated available IP " + strconv.Itoa(v.dhcpHandler.leaseRange-Count) + " is different than what we have available in the pool " + strconv.Itoa(int(statistics.RunContainerValues))
-					}
-
-					stats = append(stats, Stats{EthernetName: Request.(ApiReq).NetInterface, Net: v.network.String(), Free: int(statistics.RunContainerValues) + int(statistics.ArrayContainerValues), Category: v.dhcpHandler.role, Options: Options, Members: Members, Status: Status})
-				}
-				outchannel <- stats
-			}
-			// Update the lease
-			if Request.(ApiReq).Req == "initialease" {
-
-				for _, v := range h.network {
-					initiaLease(&v.dhcpHandler)
-					stats = append(stats, Stats{EthernetName: Request.(ApiReq).NetInterface, Net: v.network.String(), Category: v.dhcpHandler.role, Status: "Init Lease success"})
-				}
-				outchannel <- stats
-			}
-
-			// Debug
-			if Request.(ApiReq).Req == "debug" {
-				for _, v := range h.network {
-					if Request.(ApiReq).Role == v.dhcpHandler.role {
-						var statistiques roaring.Statistics
-						statistiques = v.dhcpHandler.available.Stats()
-						spew.Dump(v.dhcpHandler.available.Stats())
-						log.LoggerWContext(ctx).Info(v.dhcpHandler.available.String())
-						stats = append(stats, Stats{EthernetName: Request.(ApiReq).NetInterface, Net: v.network.String(), Free: int(statistiques.RunContainerValues) + int(statistiques.ArrayContainerValues), Category: v.dhcpHandler.role, Status: "Debug finished"})
-					}
-				}
-				outchannel <- stats
-			}
-		}
-	}()
 	ListenAndServeIf(h.Name, h, jobs)
-
 }
 
 // Unicast ilistener
