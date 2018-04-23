@@ -83,9 +83,14 @@
 
 #via_socket:
 
-haproxy:
- name : haproxy
+haproxy-portal:
+ name : haproxy-portal
  url : 'http://%%management_ip%%:1025/stats;csv;norefresh'
  user : 'admin'
  pass : 'packetfence'
 
+haproxy-db:
+ name : haproxy-db
+ url : 'http://%%management_ip%%:1026/stats;csv;norefresh'
+ user : 'admin'
+ pass : 'packetfence'
