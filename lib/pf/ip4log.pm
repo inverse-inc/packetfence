@@ -655,9 +655,8 @@ Will retrieve the lease from the cache or from the DHCP server using the pfdhcp 
 sub _lookup_cached_pfdhcp_api {
     my ($type, $id) = @_;
     my $cache = pfdhcp_cache();
-    return $cache->compute(
+    return $cache->compute_with_undef(
         "$type:$id",
-        {expire_if => \&_expire_lease, expires_in => IP4LOG_CACHE_EXPIRE},
         sub {
             get_logger->debug("Getting lease from the pfdhcp API");
             my $data = _get_lease_from_pfdhcp_api($type, $id);
@@ -665,7 +664,8 @@ sub _lookup_cached_pfdhcp_api {
             #Do not return if the lease is expired
             return if $data->{ends_at} < time;
             return $data;
-        }
+        },
+        {expire_if => \&_expire_lease, expires_in => IP4LOG_CACHE_EXPIRE},
     );
 }
 
@@ -698,7 +698,7 @@ Check if the lease has expired
 sub _expire_lease {
     my ($cache_object) = @_;
     my $lease = $cache_object->value;
-    return 1 unless defined $lease && defined $lease->{ends_at};
+    return 0 unless defined $lease && defined $lease->{ends_at};
     return $lease->{ends_at} < time;
 }
 
