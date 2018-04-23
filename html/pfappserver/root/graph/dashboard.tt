@@ -127,6 +127,7 @@ END
             <li [% IF tab == "authentication" %]class="active"[% END %]><a data-toggle="pill" href="#authentication">[% l('Authentication') %]</a></li>
             <li [% IF tab == "dhcp" %]class="active"[% END %]><a data-toggle="pill" href="#dhcp">DHCP</a></li>
             <li [% IF tab == "endpoints" %]class="active"[% END %]><a data-toggle="pill" href="#endpoints">[% l('Endpoints') %]</a></li>
+            <li [% IF tab == "portal" %]class="active"[% END %]><a data-toggle="pill" href="#portal">[% l('Portal') %]</a></li>
         </ul>
     </div>
     <div class="tab-content">
@@ -161,7 +162,7 @@ END
                     data-after="-3600"
                     data-decimal-digits="0"></div>
                 </div>
-                <div class="span6 card">
+                <div class="span7 card">
                     <div data-netdata="packetfence.devices.connected_per_connection_type"
                     data-host="/netdata/127.0.0.1"
                     data-title="Connected devices per connection type"
@@ -238,7 +239,9 @@ END
                             data-chart-library="dygraph"
                             data-colors="[% palette(loop.index) %]"
                             data-height="200px"
-                            data-after="-300"
+                            data-before="0"
+                            data-after="-86400"
+                            data-hide-missing="true"
                             data-dygraph-valuerange="[0, 100]"></div>
                         </div>
                         [% newRow(spanSize, loop.index) | none %]
@@ -257,7 +260,9 @@ END
                             data-chart-library="dygraph"
                             data-colors="[% palette(loop.index) %]"
                             data-height="200px"
-                            data-after="-300"></div>
+                            data-hide-missing="true"
+                            data-before="0"
+                            data-after="-86400"></div>
                         </div>
                         [% newRow(spanSize, loop.index, loop.size) | none %]
                         [% END %]
@@ -273,7 +278,9 @@ END
                             data-chart-library="dygraph"
                             data-colors="[% palette(loop.index) %]"
                             data-height="200px"
-                            data-after="-300"></div>
+                            data-hide-missing="true"
+                            data-before="0"
+                            data-after="-86400"></div>
                         </div>
                         [% newRow(spanSize, loop.index) | none %]
                         [% END %]
@@ -289,7 +296,9 @@ END
                             data-chart-library="dygraph"
                             data-colors="[% palette(loop.index) %]"
                             data-height="200px"
-                            data-after="-300"></div>
+                            data-hide-missing="true"
+                            data-before="0"
+                            data-after="-86400"></div>
                         </div>
                         [% newRow(spanSize, loop.index) | none %]
                         [% END %]
@@ -305,7 +314,9 @@ END
                             data-chart-library="dygraph"
                             data-colors="[% palette(loop.index) %]"
                             data-height="200px"
-                            data-after="-300"></div>
+                            data-hide-missing="true"
+                            data-before="0"
+                            data-after="-86400"></div>
                         </div>
                         [% newRow(spanSize, loop.index) | none %]
                         [% END %]
@@ -323,7 +334,9 @@ END
                             data-chart-library="dygraph"
                             data-colors="[% palette(loop.index) %]"
                             data-height="200px"
-                            data-after="-300"></div>
+                            data-hide-missing="true"
+                            data-before="0"
+                            data-after="-86400"></div>
                         </div>
                         [% newRow(spanSize, loop.index) | none %]
                         [% END %]
@@ -346,7 +359,9 @@ END
                             data-chart-library="dygraph"
                             data-colors="[% palette(loop.index) %]"
                             data-height="200px"
-                            data-after="-300"></div>
+                            data-hide-missing="true"
+                            data-before="0"
+                            data-after="-86400"></div>
                         </div>
                         [% newRow(spanSize, loop.index) | none %]
                         [% END %]
@@ -360,7 +375,9 @@ END
                             data-chart-library="dygraph"
                             data-colors="[% palette(loop.index) %]"
                             data-height="200px"
-                            data-after="-300"></div>
+                            data-hide-missing="true"
+                            data-before="0"
+                            data-after="-86400"></div>
                         </div>
                         [% newRow(spanSize, loop.index) | none %]
                         [% END %]
@@ -381,7 +398,9 @@ END
                             data-chart-library="dygraph"
                             data-colors="[% palette(loop.index) %]"
                             data-height="200px"
-                            data-after="-300"></div>
+                            data-hide-missing="true"
+                            data-before="0"
+                            data-after="-86400"></div>
                         </div>
                     </div>
                 </div>
@@ -394,7 +413,9 @@ END
                             data-chart-library="dygraph"
                             data-colors="[% palette(loop.index) %]"
                             data-height="200px"
-                            data-after="-300"></div>
+                            data-hide-missing="true"
+                            data-before="0"
+                            data-after="-86400"></div>
                         </div>
                     </div>
                 </div>
@@ -407,7 +428,9 @@ END
                             data-chart-library="dygraph"
                             data-colors="[% palette(loop.index) %]"
                             data-height="200px"
-                            data-after="-300"></div>
+                            data-hide-missing="true"
+                            data-before="0"
+                            data-after="-86400"></div>
                         </div>
                     </div>
                 </div>
@@ -443,6 +466,7 @@ END
                             data-hide-missing="true"
                             data-colors="[% palette(loop.index) %]"
                             data-height="200px"
+                            data-before="0"
                             data-after="-86400"></div>
                         </div>
                         [% newRow(spanSize, loop.index, loop.size) | none %]
@@ -460,6 +484,7 @@ END
                             data-hide-missing="true"
                             data-colors="[% palette(loop.index) %]"
                             data-height="200px"
+                            data-before="0"
                             data-after="-86400"></div>
                         </div>
                         [% newRow(spanSize, loop.index, loop.size) | none %]
@@ -483,6 +508,7 @@ END
                             data-hide-missing="true"
                             data-colors="[% palette(loop.index) %]"
                             data-height="200px"
+                            data-before="0"
                             data-after="-86400"></div>
                         </div>
                         [% newRow(spanSize, loop.index) | none %]
@@ -496,6 +522,7 @@ END
                             data-hide-missing="true"
                             data-colors="[% palette(loop.index) %]"
                             data-height="200px"
+                            data-before="0"
                             data-after="-86400"></div>
                         </div>
                         [% newRow(spanSize, loop.index) | none %]
@@ -512,6 +539,7 @@ END
                             data-hide-missing="true"
                             data-colors="[% palette(loop.index) %]"
                             data-height="200px"
+                            data-before="0"
                             data-after="-86400"></div>
                         </div>
                         [% newRow(spanSize, loop.index) | none %]
@@ -525,6 +553,7 @@ END
                             data-hide-missing="true"
                             data-colors="[% palette(loop.index) %]"
                             data-height="200px"
+                            data-before="0"
                             data-after="-86400"></div>
                         </div>
                         [% newRow(spanSize, loop.index) | none %]
@@ -547,7 +576,8 @@ END
                             data-hide-missing="true"
                             data-colors="[% palette(loop.index) %]"
                             data-height="200px"
-                            data-after="-300"></div>
+                            data-before="0"
+                            data-after="-86400"></div>
                         </div>
                         [% newRow(spanSize, loop.index) | none %]
                         [% END %]
@@ -564,7 +594,8 @@ END
                             data-hide-missing="true"
                             data-colors="[% palette(loop.index) %]"
                             data-height="200px"
-                            data-after="-300"></div>
+                            data-before="0"
+                            data-after="-86400"></div>
                         </div>
                         [% newRow(spanSize, loop.index, loop.size) | none %]
                         [% END %]
@@ -599,7 +630,9 @@ END
                             data-chart-library="dygraph"
                             data-colors="[% palette(loop.index) %]"
                             data-height="200px"
-                            data-after="-300"></div>
+                            data-hide-missing="true"
+                            data-before="0"
+                            data-after="-86400"></div>
                         </div>
                         [% END %]
                     </div>
@@ -622,7 +655,9 @@ END
                             data-chart-library="dygraph"
                             data-colors="[% palette(0) %]"
                             data-height="200px"
+                            data-before="0"
                             data-after="-86400"
+                            data-hide-missing="true"
                             data-decimal-digits="0"></div>
                         </div>
                         <div class="span9">
@@ -636,7 +671,9 @@ END
                             data-chart-library="dygraph"
                             data-colors="[% palette(0) %]"
                             data-height="200px"
+                            data-before="0"
                             data-after="-86400"
+                            data-hide-missing="true"
                             data-decimal-digits="0"></div>
                         </div>
                     </div>
@@ -663,6 +700,7 @@ END
                             data-dygraph-valuerange="[0,null]"
                             data-colors="[% palette(loop.index) %]"
                             data-height="200px"
+                            data-before="0"
                             data-after="-86400"
                             data-decimal-digits="0"></div>
                         </div>
@@ -678,6 +716,7 @@ END
                             data-dygraph-valuerange="[0,null]"
                             data-colors="[% palette(loop.index) %]"
                             data-height="200px"
+                            data-before="0"
                             data-after="-604800"
                             data-decimal-digits="0"></div>
                         </div>
@@ -694,6 +733,7 @@ END
                             data-dimensions="gauge"
                             data-dygraph-valuerange="[0,null]"
                             data-colors="[% palette(loop.index) %]"
+                            data-before="0"
                             data-height="200px"
                             data-after="-2592000"
                             data-decimal-digits="0"></div>
@@ -710,6 +750,7 @@ END
                             data-dygraph-valuerange="[0,null]"
                             data-colors="[% palette(loop.index) %]"
                             data-height="200px"
+                            data-before="0"
                             data-after="-31536000"
                             data-decimal-digits="0"></div>
                         </div>
@@ -733,7 +774,9 @@ END
                             data-dygraph-valuerange="[0,null]"
                             data-colors="[% palette(0) %]"
                             data-height="200px"
-                            data-after="-3600"
+                            data-before="0"
+                            data-after="-86400"
+                            data-hide-missing="true"
                             data-decimal-digits="0"></div>
                         </div>
                         <div class="span9">
@@ -745,7 +788,9 @@ END
                             data-dygraph-valuerange="[0,null]"
                             data-colors="[% palette(0) %]"
                             data-height="200px"
-                            data-after="-3600"
+                            data-before="0"
+                            data-after="-86400"
+                            data-hide-missing="true"
                             data-decimal-digits="0"></div>
                         </div>
                     </div>
@@ -766,12 +811,14 @@ END
                         data-dygraph-valuerange="[0,null]"
                         data-colors="[% palette(0) %]"
                         data-height="200px"
-                        data-after="-3600"
+                        data-before="0"
+                        data-after="-86400"
+                        data-hide-missing="true"
                         data-decimal-digits="0"></div>
                     </div>
                 </div>
             </div>
-             <div class="card">
+            <div class="card">
                 <div class="card-title">
                     <h2>[% l('Registered Devices Per Timeframe') %]</h2>
                 </div>
@@ -786,7 +833,9 @@ END
                             data-dygraph-valuerange="[0,null]"
                             data-colors="[% palette(0) %]"
                             data-height="200px"
-                            data-after="-3600"
+                            data-before="0"
+                            data-after="-86400"
+                            data-hide-missing="true"
                             data-decimal-digits="0"></div>
                         </div>
                         <div class="span9">
@@ -799,6 +848,7 @@ END
                             data-dygraph-valuerange="[0,null]"
                             data-colors="[% palette(0) %]"
                             data-height="200px"
+                            data-before="0"
                             data-after="-86400"
                             data-decimal-digits="0"></div>
                         </div>
@@ -814,6 +864,7 @@ END
                             data-dygraph-valuerange="[0,null]"
                             data-colors="[% palette(0) %]"
                             data-height="200px"
+                            data-before="0"
                             data-after="-604800"
                             data-decimal-digits="0"></div>
                         </div>
@@ -827,6 +878,7 @@ END
                             data-dygraph-valuerange="[0,null]"
                             data-colors="[% palette(0) %]"
                             data-height="200px"
+                            data-before="0"
                             data-after="-2592000"
                             data-decimal-digits="0"></div>
                         </div>
@@ -842,6 +894,7 @@ END
                             data-dygraph-valuerange="[0,null]"
                             data-colors="[% palette(0) %]"
                             data-height="200px"
+                            data-before="0"
                             data-after="-31536000"
                             data-decimal-digits="0"></div>
                         </div>
@@ -861,14 +914,88 @@ END
                             data-chart-library="dygraph"
                             data-colors="[% palette(0) %]"
                             data-height="200px"
-                            data-after="-3600"
+                            data-before="0"
+                            data-after="-86400"
                             data-dimensions="gauge"
                             data-dygraph-valuerange="[0,null]"
+                            data-hide-missing="true"
                             data-decimal-digits="0"></div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        <div class="tab-pane[% IF tab == "portal" %] active[% END %]" id="portal">
+            [%
+                #
+                # Determine the number of colums from the number of members in the cluster
+                # Note: the grid has 18 columns.
+                #
+                IF cluster.keys.size == 1;
+                  SET spanSize = gridSize / 2;
+                ELSIF cluster.keys.size MOD 2 == 0;
+                  SET spanSize = gridSize / 2;
+                ELSE;
+                  SET spanSize = gridSize / 3;
+                END
+             %]
+             <div class="card">
+                <div class="card-title">
+                    <h2>[% l('Captive Portal') %]</h2>
+                </div>
+                <div class="card-block">
+                    <div class="row-fluid">
+                        [% FOREACH member IN cluster %]
+                        <div class="span[% spanSize %]">
+                            <div data-netdata="web_log_apache_portal_log.response_codes"
+                            data-host="/netdata/[% member.value %]"
+                            data-title="[% member.key %] - Response codes"
+                            data-chart-library="dygraph"
+                            data-hide-missing="true"
+                            data-colors="[% palette(loop.index) %]"
+                            data-height="200px"
+                            data-before="0"
+                            data-after="-86400"></div>
+                        </div>
+                        [% newRow(spanSize, loop.index, loop.size) | none %]
+                        [% END %]
+                    [% IF cluster.size > 1 %]
+                    </div>
+                    <div class="row-fluid">
+                    [% END %]
+                        [% FOREACH member IN cluster %]
+                        <div class="span[% spanSize %]">
+                            <div data-netdata="web_log_apache_portal_log.bandwidth"
+                            data-host="/netdata/[% member.value %]"
+                            data-title="[% member.key %] - Bandwidth"
+                            data-chart-library="dygraph"
+                            data-hide-missing="true"
+                            data-colors="[% palette(loop.index) %]"
+                            data-height="200px"
+                            data-before="0"
+                            data-after="-86400"></div>
+                        </div>
+                        [% newRow(spanSize, loop.index, loop.size) | none %]
+                        [% END %]
+                    </div>
+                  <div class="row-fluid">
+                        [% FOREACH member IN cluster %]
+                        <div class="span[% spanSize %]">
+                            <div data-netdata="web_log_apache_portal_log.response_time"
+                            data-host="/netdata/[% member.value %]"
+                            data-title="[% member.key %] - Response Time"
+                            data-chart-library="dygraph"
+                            data-hide-missing="true"
+                            data-colors="[% palette(loop.index) %]"
+                            data-height="200px"
+                            data-before="0"
+                            data-after="-86400"></div>
+                        </div>
+                        [% newRow(spanSize, loop.index, loop.size) | none %]
+                        [% END %]
+                    </div>
+                </div>
+            </div>
+         </div>
     </div>
 </div>
