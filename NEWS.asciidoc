@@ -16,13 +16,13 @@ Version X.Y.Z released on xxxx-xx-xx
 
 New Features
 ++++++++++++
-* Replace the ISC DHCP server with a new Golang based DHCP server (PR #2911)
-* Now supporting the Inline mode in active/active clusters (PR #2911)
-* Replaced pfdns with a new Golang based DNS server (PR #2911)
+* Replace the ISC DHCP server with a new Golang-based DHCP server (PR #2911)
+* Now supporting inline enforcement in active/active clusters (PR #2911)
+* Replaced pfdns with a new Golang-based DNS server (PR #2911)
 * Allow an inline network to be split by the roles in PacketFence allowing to put specific devices in a distinct broadcast network (PR #2911)
 * DNS routing (PR #2911)
 * Dashboard metrics are now based on Netdata (PR #2935)
-* Traffic shaping support for inline setup (PR #2803)
+* Traffic shaping support for inline enforcement (PR #2803)
 * Added a configuration parameter to allow to unregister a device on an accounting stop (PR #2685)
 * Adding CLI support on Aruba 5400 switches (PR #2965)
 * Username stripping (removing the realm) is now configurable via the realms instead of the sources
@@ -30,14 +30,14 @@ New Features
 
 Enhancements
 ++++++++++++
-* Distribute pfdhcplistener task among the cluster members (PR #2887) (#2858)Remove pfsetvlan
+* Distribute pfdhcplistener tasks among the cluster members (PR #2887) (#2858)
 * Remove pfsetvlan
 * Now allowing to use the RADIUS accounting cache when in cluster mode
 
 Bug Fixes
 +++++++++
-* Fixes "Guest Portal validate_phone_number check not work" (#2783)
-* fixes #2883
+* Guest Portal validate_phone_number check not work (#2783)
+* A management user can override an account that was not created by him (#2883)
 
 Version 7.4.0 released on 2018-01-25
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
