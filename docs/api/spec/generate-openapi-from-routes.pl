@@ -44,6 +44,12 @@ saveToYaml($openapi_paths, "$install_dir/docs/api/spec/paths");
 my $openapi_schemas = generateOpenAPISchemas($app, $routes{controllers});
 saveToYaml($openapi_schemas, "$install_dir/docs/api/spec");
 
+=head2 saveToYaml
+
+save has to YAML
+
+=cut
+
 sub saveToYaml {
     my ($yamls, $base_path) = @_;
     while (my ($p, $d) = each %$yamls) {
@@ -60,7 +66,12 @@ sub saveToYaml {
     }
 }
 
-#print Dumper(\%paths, \@route_infos);
+=head2 generateOpenAPIPaths
+
+generate OpenAPI paths
+
+=cut
+
 sub generateOpenAPIPaths {
     my ($app, $paths) = @_;
     my %openapi_paths;
@@ -75,12 +86,24 @@ sub generateOpenAPIPaths {
     return \%openapi_paths;
 }
 
+=head2 createController
+
+create controller
+
+=cut
+
 sub createController {
     my ($sub_class, $app) = @_;
     my $controller_class = "pf::UnifiedApi::Controller::${sub_class}";
     load $controller_class;
     return $controller_class->new(app => $app);
 }
+
+=head2 generateOpenAPISchemas
+
+generate OpenAPI schemas
+
+=cut
 
 sub generateOpenAPISchemas {
     my ($app, $sub_classes) = @_;
@@ -96,6 +119,12 @@ sub generateOpenAPISchemas {
     return \%openapi_schemas;
 }
 
+=head2 walkRootRoutes
+
+walk the root routes
+
+=cut
+
 sub walkRootRoutes {
     my ($route) = @_;
     my ($root, @children) = walk( $route, 0, '', [] );
@@ -105,6 +134,12 @@ sub walkRootRoutes {
     $root->{children} = \@children;
     return $root;
 }
+
+=head2 walk
+
+walk the routes
+
+=cut
 
 sub walk {
     my ( $route, $depth, $parent, $parent_paths ) = @_;
@@ -126,19 +161,14 @@ sub walk {
         path_part => $path_part,
         paths     => \@paths,
         depth     => $depth,
-        path_type => $path_type, 
+        path_type => $path_type,
     );
 
-    if ( $depth ) {
-        if ($path_part) {
-            @paths = ( @$parent_paths, $path_part );
-        }
-        else {
-            @paths = @$parent_paths;
-        }
+    if ($depth) {
+        @paths = ( @$parent_paths, ( $path_part ? ($path_part) : () ) );
     }
 
-     $info{path} = join('', @paths);
+    $info{path} = join( '', @paths );
 
     # Pattern
     my $prefix = '';
