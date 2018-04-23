@@ -297,6 +297,7 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 		switch msgType {
 
 		case dhcp.Discover:
+			firstTry := true
 			log.LoggerWContext(ctx).Info("DHCPDISCOVER from " + clientMac + " (" + clientHostname + ")")
 			var free int
 			i := handler.available.Iterator()
@@ -317,7 +318,7 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 			if i.HasNext() {
 				var element uint32
 				// Check if the device request a specific ip
-				if p.ParseOptions()[50] != nil {
+				if p.ParseOptions()[50] != nil && firstTry {
 					element := uint32(binary.BigEndian.Uint32(p.ParseOptions()[50])) - uint32(binary.BigEndian.Uint32(handler.start.To4()))
 					if handler.available.Contains(element) {
 						// Ip is available, return OFFER with this ip address
@@ -341,6 +342,8 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 					log.LoggerWContext(ctx).Info(p.CHAddr().String() + " Ip " + dhcp.IPAdd(handler.start, free).String() + " already in use, trying next")
 					// Added back in the pool since it's not the dhcp server who gave it
 					handler.hwcache.Delete(p.CHAddr().String())
+					firstTry = false
+					handler.available.Remove(uint32(free))
 					goto retry
 				}
 				handler.available.Remove(element)
