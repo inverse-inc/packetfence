@@ -20,7 +20,7 @@ import (
 // Queue value
 const (
 	maxQueueSize = 1000
-	maxWorkers   = 10
+	maxWorkers   = 1
 )
 
 // Register the plugin in caddy
