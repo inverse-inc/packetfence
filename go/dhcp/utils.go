@@ -179,7 +179,7 @@ func ShuffleDNS(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
 
 func ShuffleGateway(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
 	if ConfNet.NextHop != "" {
-		return []byte(net.ParseIP(ConfNet.NextHop).To4())
+		return []byte(net.ParseIP(ConfNet.Gateway).To4())
 	} else if ConfNet.ClusterIPs != "" {
 		return Shuffle(ConfNet.ClusterIPs)
 	} else {
