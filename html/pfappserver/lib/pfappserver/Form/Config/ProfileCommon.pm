@@ -40,7 +40,7 @@ The main definition block
 
 has_block 'definition' =>
   (
-    render_list => [qw(id description root_module preregistration autoregister reuse_dot1x_credentials dot1x_recompute_role_from_portal dpsk default_psk_key)],
+    render_list => [qw(id description root_module status preregistration autoregister reuse_dot1x_credentials dot1x_recompute_role_from_portal dpsk default_psk_key)],
   );
 
 =head2 captive_portal
@@ -459,6 +459,22 @@ has_field 'access_registration_when_registered' =>
              help => 'This allows already registered users to be able to re-register their device by first accessing the status page and then accessing the portal. This is useful to allow users to extend their access even though they are already registered.' },
   );
 
+=head2 status
+
+The status of the profile if it is enabled or disabled
+
+=cut
+
+has_field 'status' =>
+  (
+   type => 'Toggle',
+   label => 'Profile is enable/disabled',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   tags => { after_element => \&help,
+             help => 'If profile is disabled it will not be presented to the user' },
+   default => 'enabled'
+  );
 
 =head1 METHODS
 
