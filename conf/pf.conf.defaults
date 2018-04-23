@@ -1126,12 +1126,12 @@ eap_fast_authority_identity=1234
 # pfdhcp.ip2mac_lookup
 #
 # Use the Unified API to query pfdhcp for the MAC address of a given IP address
-ip2mac_lookup=enabled
+ip2mac_lookup=disabled
 #
 # pfdhcp.mac2ip_lookup
 #
 # Use the Unified API to query pfdhcp for the IP address of a given MAC address
-mac2ip_lookup=enabled
+mac2ip_lookup=disabled
 #
 # pfdhcp.connect_timeout_ms
 #
