@@ -18,7 +18,7 @@ SET palettes = [
 # Make sure the cluster is defined on the stash
 #
 IF cluster.keys.size == 0;
-  SET cluster = { localhost => '127.0.0.1' };
+  SET cluster = { $hostname => '127.0.0.1' };
 END
 %]
 

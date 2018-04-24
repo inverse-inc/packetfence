@@ -486,6 +486,7 @@ sub dashboard :Local :AdminRole('REPORTS') {
 
     $c->stash(
         graphs         => \@graphs,
+        hostname       => $pf::cluster::host_id,
         cluster        => pf::cluster::members_ips($management_network->tag('int')),
         sources        => \@authentication_sources_monitored,
         roles          => \@categories,
