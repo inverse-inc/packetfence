@@ -82,6 +82,8 @@ Readonly my $FW_POSTROUTING_INT_INLINE => 'postrouting-int-inline-if';
 Readonly my $FW_POSTROUTING_INT_INLINE_ROUTED => 'postrouting-inline-routed';
 Readonly my $FW_PREROUTING_INT_VLAN => 'prerouting-int-vlan-if';
 
+tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config";
+
 =head1 SUBROUTINES
 
 TODO: This list is incomplete
@@ -335,16 +337,8 @@ sub generate_inline_rules {
         # We skip non-inline networks/interfaces
         next if ( !pf::config::is_network_type_inline($network) );
         # Set the correct gateway if it is an inline Layer 3 network
-        my $gateway = $ConfigNetworks{$network}{'gateway'};
-        if ( $ConfigNetworks{$network}{'type'} eq $pf::config::NET_TYPE_INLINE_L3 ) {
-            foreach my $test_network ( keys %ConfigNetworks ) {
-                my $net_addr = NetAddr::IP->new($test_network,$ConfigNetworks{$test_network}{'netmask'});
-                my $ip = new NetAddr::IP::Lite clean_ip($ConfigNetworks{$network}{'next_hop'});
-                if ($net_addr->contains($ip)) {
-                    $gateway = $ConfigNetworks{$test_network}{'gateway'};
-                }
-            }
-        }
+        my $dev = $NetworkConfig{$network}{'interface'}{'int'};
+        my $gateway = $Config{"interface $dev"}{'ip'};
 
         my $rule = "--protocol udp --destination-port 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
         $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_UNREG "
@@ -566,16 +560,8 @@ sub generate_nat_redirect_rules {
             # We skip non-inline networks/interfaces
             next if ( !pf::config::is_network_type_inline($network) );
             # Set the correct gateway if it is an inline Layer 3 network
-            my $gateway = $ConfigNetworks{$network}{'gateway'};
-            if ( $ConfigNetworks{$network}{'type'} eq $pf::config::NET_TYPE_INLINE_L3 ) {
-                foreach my $test_network ( keys %ConfigNetworks ) {
-                    my $net_addr = NetAddr::IP->new($test_network,$ConfigNetworks{$test_network}{'netmask'});
-                    my $ip = new NetAddr::IP::Lite clean_ip($ConfigNetworks{$network}{'next_hop'});
-                    if ($net_addr->contains($ip)) {
-                        $gateway = $ConfigNetworks{$test_network}{'gateway'};
-                    }
-                }
-            }
+            my $dev = $NetworkConfig{$network}{'interface'}{'int'};
+            my $gateway = $Config{"interface $dev"}{'ip'};
 
             # Destination NAT to the portal on the ISOLATION mark
             $rules .=
