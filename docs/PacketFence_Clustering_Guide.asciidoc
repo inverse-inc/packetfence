@@ -839,7 +839,7 @@ Disabling the auto-correction of configuration
 
 The PacketFence clustering stack has a mechanism that allows configuration conflicts to be handled accross the servers. This will come in conflict with your upgrade, so you should disable it.
 
-In order to do, so go in 'Configuration->Maintenance' and set 'Cluster Check Interval' to `0`.
+In order to do, so go in 'Configuration->System Configuration->Maintenance' and disable the 'Cluster Check' task.
 
 Once this is done, restart pfmon on all nodes using:
 
@@ -1041,7 +1041,7 @@ Reactivate the configuration conflict handling
 
 Now that your cluster is back to a healthy state, you should reactivate the configuration conflict resolution.
 
-In order to do, so go in 'Configuration->Maintenance' and set 'Cluster Check Interval' to `1 minute` (or the value you prefer).
+In order to do, so go in 'Configuration->System Configuration->Maintenance' and re-enable the 'Cluster Check' task.
 
 Once this is done, restart pfmon on all nodes using:
 
