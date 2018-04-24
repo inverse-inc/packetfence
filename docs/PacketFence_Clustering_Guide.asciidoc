@@ -884,13 +884,9 @@ Then, we should tell C to ignore A and B in their cluster configuration. In orde
   # /usr/local/pf/bin/cluster/node node-A-hostname disable
   # /usr/local/pf/bin/cluster/node node-B-hostname disable
 
-Now on packetfence-mariadb on all nodes
+Now restart packetfence-mariadb on node C:
 
-  # systemctl stop packetfence-mariadb
-
-Then start them in the following order: A then B then C
-
-  # systemctl start packetfence-mariadb
+  # systemctl restart packetfence-mariadb
 
 NOTE: From this moment on, you will lose the configuration changes and data changes that occur on nodes A and B.
 
