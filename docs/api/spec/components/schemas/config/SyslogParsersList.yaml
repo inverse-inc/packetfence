@@ -1,0 +1,9 @@
+/components/schemas/config/SyslogParsersList:
+  allOf:
+  - $ref: '#/components/schemas/Iterable'
+  - properties:
+      items:
+        items:
+          $ref: '#/components/schemas/config/SyslogParser'
+        type: array
+    type: object

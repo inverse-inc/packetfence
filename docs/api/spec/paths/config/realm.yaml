@@ -1,115 +1,49 @@
 /config/realm/{realm_id}:
   delete:
+    description: Remove an item
+    operationId: api.v1.Config::Realms.remove
     parameters: []
     responses:
       '204':
         description: Deleted a config item
-    summary: Delete a config item
+  description: pf::UnifiedApi::Controller::Config::Realms
   get:
+    description: Get an item
+    operationId: api.v1.Config::Realms.get
     parameters: []
-    requestBody:
-      content:
-        application/json:
-          schema:
-            properties:
-              admin_strip_username:
-                description: Should the usernames matching this realm be stripped
-                  when used on the administration interface
-                type: string
-              domain:
-                description: The domain to use for the authentication in that realm
-                type: string
-              id:
-                description: Realm
-                type: string
-              options:
-                description: You can add FreeRADIUS options in the realm definition
-                type: string
-              portal_strip_username:
-                description: Should the usernames matching this realm be stripped
-                  when used on the captive portal
-                type: string
-              radius_strip_username:
-                description: Should the usernames matching this realm be stripped
-                  when used in the authorization phase of 802.1x. Note that this doesn't
-                  control the stripping in FreeRADIUS, use the options above for that.
-                type: string
-            required:
-            - id
-            type: object
-      required: true
     responses:
-      '201':
-        $ref: '#/components/responses/Created'
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/config/Realm'
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
   patch:
+    description: Update an item
+    operationId: api.v1.Config::Realms.update
     parameters: []
     requestBody:
       content:
         application/json:
           schema:
-            properties:
-              admin_strip_username:
-                description: Should the usernames matching this realm be stripped
-                  when used on the administration interface
-                type: string
-              domain:
-                description: The domain to use for the authentication in that realm
-                type: string
-              options:
-                description: You can add FreeRADIUS options in the realm definition
-                type: string
-              portal_strip_username:
-                description: Should the usernames matching this realm be stripped
-                  when used on the captive portal
-                type: string
-              radius_strip_username:
-                description: Should the usernames matching this realm be stripped
-                  when used in the authorization phase of 802.1x. Note that this doesn't
-                  control the stripping in FreeRADIUS, use the options above for that.
-                type: string
-            required: []
-            type: object
-      required: true
+            $ref: '#/components/schemas/config/Realm'
     responses:
-      '201':
-        $ref: '#/components/responses/Created'
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
   put:
+    description: Replace an item
+    operationId: api.v1.Config::Realms.replace
     parameters: []
     requestBody:
       content:
         application/json:
           schema:
-            properties:
-              admin_strip_username:
-                description: Should the usernames matching this realm be stripped
-                  when used on the administration interface
-                type: string
-              domain:
-                description: The domain to use for the authentication in that realm
-                type: string
-              options:
-                description: You can add FreeRADIUS options in the realm definition
-                type: string
-              portal_strip_username:
-                description: Should the usernames matching this realm be stripped
-                  when used on the captive portal
-                type: string
-              radius_strip_username:
-                description: Should the usernames matching this realm be stripped
-                  when used in the authorization phase of 802.1x. Note that this doesn't
-                  control the stripping in FreeRADIUS, use the options above for that.
-                type: string
-            required: []
-            type: object
-      required: true
+            $ref: '#/components/schemas/config/Realm'
     responses:
       '201':
         $ref: '#/components/responses/Created'

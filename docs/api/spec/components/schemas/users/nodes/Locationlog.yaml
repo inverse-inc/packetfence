@@ -1,0 +1,42 @@
+/components/schemas/users/nodes/Locationlog:
+  properties:
+    connection_sub_type:
+      type: string
+    connection_type:
+      type: string
+    dot1x_username:
+      type: string
+    end_time:
+      type: string
+    id:
+      type: integer
+    ifDesc:
+      type: string
+    mac:
+      type: string
+    port:
+      type: string
+    realm:
+      type: string
+    role:
+      type: string
+    session_id:
+      type: string
+    ssid:
+      type: string
+    start_time:
+      type: string
+    stripped_user_name:
+      type: string
+    switch:
+      type: string
+    switch_ip:
+      type: string
+    switch_mac:
+      type: string
+    tenant_id:
+      type: integer
+    vlan:
+      type: string
+  required: []
+  type: object

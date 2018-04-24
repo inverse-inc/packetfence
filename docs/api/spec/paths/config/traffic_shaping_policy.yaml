@@ -1,82 +1,49 @@
 /config/traffic_shaping_policy/{traffic_shaping_policy_id}:
   delete:
+    description: Remove an item
+    operationId: api.v1.Config::TrafficShapingPolicies.remove
     parameters: []
     responses:
       '204':
         description: Deleted a config item
-    summary: Delete a config item
+  description: pf::UnifiedApi::Controller::Config::TrafficShapingPolicies
   get:
+    description: Get an item
+    operationId: api.v1.Config::TrafficShapingPolicies.get
     parameters: []
-    requestBody:
-      content:
-        application/json:
-          schema:
-            properties:
-              download:
-                description: Bandwidth must be in the following format 'nXY' where
-                  XY is one of the following KB,MB,GB,TB,PB
-                type: string
-              id:
-                description: Role
-                type: string
-              upload:
-                description: Bandwidth must be in the following format 'nXY' where
-                  XY is one of the following KB,MB,GB,TB,PB
-                type: string
-            required:
-            - id
-            type: object
-      required: true
     responses:
-      '201':
-        $ref: '#/components/responses/Created'
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/config/TrafficShapingPolicy'
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
   patch:
+    description: Update an item
+    operationId: api.v1.Config::TrafficShapingPolicies.update
     parameters: []
     requestBody:
       content:
         application/json:
           schema:
-            properties:
-              download:
-                description: Bandwidth must be in the following format 'nXY' where
-                  XY is one of the following KB,MB,GB,TB,PB
-                type: string
-              upload:
-                description: Bandwidth must be in the following format 'nXY' where
-                  XY is one of the following KB,MB,GB,TB,PB
-                type: string
-            required: []
-            type: object
-      required: true
+            $ref: '#/components/schemas/config/TrafficShapingPolicy'
     responses:
-      '201':
-        $ref: '#/components/responses/Created'
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
   put:
+    description: Replace an item
+    operationId: api.v1.Config::TrafficShapingPolicies.replace
     parameters: []
     requestBody:
       content:
         application/json:
           schema:
-            properties:
-              download:
-                description: Bandwidth must be in the following format 'nXY' where
-                  XY is one of the following KB,MB,GB,TB,PB
-                type: string
-              upload:
-                description: Bandwidth must be in the following format 'nXY' where
-                  XY is one of the following KB,MB,GB,TB,PB
-                type: string
-            required: []
-            type: object
-      required: true
+            $ref: '#/components/schemas/config/TrafficShapingPolicy'
     responses:
       '201':
         $ref: '#/components/responses/Created'

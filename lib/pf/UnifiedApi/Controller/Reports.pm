@@ -14,7 +14,7 @@ pf::UnifiedApi::Controller::Reports
 
 use strict;
 use warnings;
-use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
+use Mojo::Base 'pf::UnifiedApi::Controller';
 use pf::pfcmd::report;
 
 sub os {

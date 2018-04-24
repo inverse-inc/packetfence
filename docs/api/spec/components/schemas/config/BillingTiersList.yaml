@@ -1,0 +1,9 @@
+/components/schemas/config/BillingTiersList:
+  allOf:
+  - $ref: '#/components/schemas/Iterable'
+  - properties:
+      items:
+        items:
+          $ref: '#/components/schemas/config/BillingTier'
+        type: array
+    type: object

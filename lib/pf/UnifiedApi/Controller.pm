@@ -18,6 +18,7 @@ use Mojo::Base 'Mojolicious::Controller';
 use pf::error qw(is_error);
 use JSON::MaybeXS qw();
 has activity_timeout => 300;
+has 'openapi_generator_class' => undef;
 
 our $ERROR_400_MSG = "Bad Request. One of the submitted parameters has an invalid format";
 our $ERROR_404_MSG = "Not Found. The requested resource could not be found";
@@ -87,6 +88,12 @@ sub get_json {
 sub unknown_action {
     my ($self) = @_;
     return $self->render_error(404, "Unknown path");
+}
+
+sub openapi_generator {
+    my ($self) = @_;
+    my $class = $self->openapi_generator_class;
+    return $class ? $class->new : undef;
 }
 
 =head1 AUTHOR

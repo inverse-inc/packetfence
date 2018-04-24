@@ -1,0 +1,60 @@
+/tenant/{tenant_id}:
+  delete:
+    description: Remove an item
+    operationId: api.v1.Tenants.remove
+    parameters: []
+    responses:
+      '204':
+        description: Item deleted
+  description: pf::UnifiedApi::Controller::Tenants
+  get:
+    description: Get an item
+    operationId: api.v1.Tenants.get
+    parameters: []
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              properties:
+                item:
+                  $ref: '#/components/schemas/Tenant'
+              type: object
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  patch:
+    description: Update an item
+    operationId: api.v1.Tenants.update
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Tenant'
+      required: '1'
+    responses:
+      '200':
+        $ref: '#/components/responses/Message'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+  put:
+    description: Replace an item
+    operationId: api.v1.Tenants.replace
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Tenant'
+      required: '1'
+    responses:
+      '200':
+        $ref: '#/components/responses/Message'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

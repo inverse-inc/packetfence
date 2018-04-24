@@ -1,0 +1,9 @@
+/components/schemas/users/NodesList:
+  allOf:
+  - $ref: '#/components/schemas/Iterable'
+  - properties:
+      items:
+        items:
+          $ref: '#/components/schemas/users/Node'
+        type: array
+    type: object

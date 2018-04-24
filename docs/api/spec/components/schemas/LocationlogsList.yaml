@@ -1,0 +1,9 @@
+/components/schemas/LocationlogsList:
+  allOf:
+  - $ref: '#/components/schemas/Iterable'
+  - properties:
+      items:
+        items:
+          $ref: '#/components/schemas/Locationlog'
+        type: array
+    type: object

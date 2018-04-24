@@ -1,0 +1,9 @@
+/components/schemas/Ip4logsList:
+  allOf:
+  - $ref: '#/components/schemas/Iterable'
+  - properties:
+      items:
+        items:
+          $ref: '#/components/schemas/Ip4log'
+        type: array
+    type: object

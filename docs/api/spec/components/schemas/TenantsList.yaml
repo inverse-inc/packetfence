@@ -1,0 +1,9 @@
+/components/schemas/TenantsList:
+  allOf:
+  - $ref: '#/components/schemas/Iterable'
+  - properties:
+      items:
+        items:
+          $ref: '#/components/schemas/Tenant'
+        type: array
+    type: object

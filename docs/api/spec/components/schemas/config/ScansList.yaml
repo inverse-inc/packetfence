@@ -1,0 +1,9 @@
+/components/schemas/config/ScansList:
+  allOf:
+  - $ref: '#/components/schemas/Iterable'
+  - properties:
+      items:
+        items:
+          $ref: '#/components/schemas/config/Scan'
+        type: array
+    type: object

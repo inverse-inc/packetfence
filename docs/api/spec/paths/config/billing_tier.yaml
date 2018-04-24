@@ -1,151 +1,49 @@
 /config/billing_tier/{billing_tier_id}:
   delete:
+    description: Remove an item
+    operationId: api.v1.Config::BillingTiers.remove
     parameters: []
     responses:
       '204':
         description: Deleted a config item
-    summary: Delete a config item
+  description: pf::UnifiedApi::Controller::Config::BillingTiers
   get:
+    description: Get an item
+    operationId: api.v1.Config::BillingTiers.get
     parameters: []
-    requestBody:
-      content:
-        application/json:
-          schema:
-            properties:
-              access_duration:
-                description: The access duration of the devices that use this tier.
-                properties:
-                  interval:
-                    description: Interval
-                    type: integer
-                  unit:
-                    description: Unit
-                    type: string
-                type: object
-              description:
-                description: A description of the billing tier
-                type: string
-              id:
-                description: Billing Tier
-                type: string
-              name:
-                description: The short name of the billing tier
-                type: string
-              price:
-                description: The price that will be charged to the customer
-                type: string
-              role:
-                description: The target role of the devices that use this tier.
-                type: string
-              use_time_balance:
-                description: Check this box to have the access duration be a real
-                  time usage.<br/>This requires a working accounting configuration.
-                type: string
-            required:
-            - id
-            - name
-            - description
-            - price
-            - role
-            - access_duration
-            type: object
-      required: true
     responses:
-      '201':
-        $ref: '#/components/responses/Created'
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/config/BillingTier'
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
   patch:
+    description: Update an item
+    operationId: api.v1.Config::BillingTiers.update
     parameters: []
     requestBody:
       content:
         application/json:
           schema:
-            properties:
-              access_duration:
-                description: The access duration of the devices that use this tier.
-                properties:
-                  interval:
-                    description: Interval
-                    type: integer
-                  unit:
-                    description: Unit
-                    type: string
-                type: object
-              description:
-                description: A description of the billing tier
-                type: string
-              name:
-                description: The short name of the billing tier
-                type: string
-              price:
-                description: The price that will be charged to the customer
-                type: string
-              role:
-                description: The target role of the devices that use this tier.
-                type: string
-              use_time_balance:
-                description: Check this box to have the access duration be a real
-                  time usage.<br/>This requires a working accounting configuration.
-                type: string
-            required:
-            - name
-            - description
-            - price
-            - role
-            - access_duration
-            type: object
-      required: true
+            $ref: '#/components/schemas/config/BillingTier'
     responses:
-      '201':
-        $ref: '#/components/responses/Created'
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
   put:
+    description: Replace an item
+    operationId: api.v1.Config::BillingTiers.replace
     parameters: []
     requestBody:
       content:
         application/json:
           schema:
-            properties:
-              access_duration:
-                description: The access duration of the devices that use this tier.
-                properties:
-                  interval:
-                    description: Interval
-                    type: integer
-                  unit:
-                    description: Unit
-                    type: string
-                type: object
-              description:
-                description: A description of the billing tier
-                type: string
-              name:
-                description: The short name of the billing tier
-                type: string
-              price:
-                description: The price that will be charged to the customer
-                type: string
-              role:
-                description: The target role of the devices that use this tier.
-                type: string
-              use_time_balance:
-                description: Check this box to have the access duration be a real
-                  time usage.<br/>This requires a working accounting configuration.
-                type: string
-            required:
-            - name
-            - description
-            - price
-            - role
-            - access_duration
-            type: object
-      required: true
+            $ref: '#/components/schemas/config/BillingTier'
     responses:
       '201':
         $ref: '#/components/responses/Created'

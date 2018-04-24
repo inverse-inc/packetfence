@@ -1,0 +1,18 @@
+/ip4logs/search:
+  description: pf::UnifiedApi::Controller::Ip4logs
+  post:
+    operationId: api.v1.Ip4logs.search
+    parameters: []
+    requestBody:
+      application/json:
+        $ref: '#/components/schemas/Search'
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Ip4logsList'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

@@ -1,0 +1,15 @@
+/components/schemas/config/Role:
+  properties:
+    id:
+      description: Name
+      type: string
+    max_nodes_per_pid:
+      description: The maximum number of nodes a user having this role can register.
+      type: integer
+    notes:
+      description: Description
+      type: string
+  required:
+  - id
+  - max_nodes_per_pid
+  type: object
