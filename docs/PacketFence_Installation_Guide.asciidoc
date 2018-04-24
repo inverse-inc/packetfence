@@ -1125,7 +1125,7 @@ _____________________
 
 PacketFence supports Eduroam and allows participating institutions to authenticate both locally visiting users from other institutions as well as allowing other institutions to authenticate local users.
 
-In order for PacketFence to allow Eduroam authentication, you need to configure an exclusive Eduroam source in Configuration->Authentication Sources and restart the RADIUS services.
+In order for PacketFence to allow Eduroam authentication, you need to configure an exclusive Eduroam source in Configuration->Authentication Sources and restart the RADIUS and IPTables services.
 
 SAML Authentication
 ~~~~~~~~~~~~~~~~~~~
