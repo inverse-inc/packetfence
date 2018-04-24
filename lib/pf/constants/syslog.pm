@@ -101,6 +101,10 @@ our @SyslogInfo = (
         'conditions' => [ '$programname contains "httpd_webservices"' ]
     },
     {
+        'name'      => 'api-frontend.access',
+        'conditions' => [ '$msg contains "api-frontend-access"' ],
+    },
+    {
         'name'       => 'packetfence.log',
         'conditions' => [
             '$syslogtag contains "packetfence"',
