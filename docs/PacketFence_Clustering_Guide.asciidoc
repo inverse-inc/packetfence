@@ -931,7 +931,7 @@ If your migration to node C goes wrong, you can fail back to nodes A and B by st
 **On nodes A and B**
 
   # systemctl start packetfence-mariadb
-  # systemctl isolate packetfence-cluster
+  # /usr/local/pf/bin/pfcmd service pf start
 
 Once you are feeling confident to try your failover to node C again, you can do the exact opposite of the commands above to try your upgrade again.
 
@@ -1021,7 +1021,7 @@ Start nodes A and B
 
 You can now safely start PacketFence on nodes A and B using:
 
-  # systemctl isolate packetfence-cluster
+  # /usr/local/pf/bin/pfcmd service pf start
 
 Restart node C
 ^^^^^^^^^^^^^^
