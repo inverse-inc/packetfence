@@ -43,6 +43,9 @@ type PfipsetHandler struct {
 func setup(c *caddy.Controller) error {
 	ctx := log.LoggerNewContext(context.Background())
 
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Database)
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.Cluster.HostsIp)
+
 	pfipset, err := buildPfipsetHandler(ctx)
 
 	if err != nil {
@@ -53,9 +56,6 @@ func setup(c *caddy.Controller) error {
 		pfipset.Next = next
 		return pfipset
 	})
-
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Database)
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.Cluster.HostsIp)
 
 	return nil
 }
