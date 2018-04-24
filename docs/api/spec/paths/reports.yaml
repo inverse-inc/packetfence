@@ -448,17 +448,6 @@
             schema:
               $ref: "#/components/schemas/ReportsNodeBandwidthList"
 
-/reports/topsponsor:
-  get:
-    summary: Returns a list of the top sponsors
-    responses:
-      '200':
-        description: List of top sponsors
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/ReportsTopSponsorList"
-
 /reports/topauthenticationfailures/mac/{start}/{end}:
   get:
     summary: Returns a list of top authentication failures by MAC addresses within a specified date/time range

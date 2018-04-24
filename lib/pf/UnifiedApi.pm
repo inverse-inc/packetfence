@@ -119,7 +119,6 @@ our @API_V1_ROUTES = (
                 'osclassbandwidth/year'                               => { get => 'osclassbandwidth_year' },
                 'nodebandwidth'                                       => { get => 'nodebandwidth_all' },
                 'nodebandwidth/:start/:end'                           => { get => 'nodebandwidth_range' },
-                'topsponsor'                                          => { get => 'topsponsor_all' },
                 'topauthenticationfailures/mac/:start/:end'           => { get => 'topauthenticationfailures_by_mac' },
                 'topauthenticationfailures/ssid/:start/:end'          => { get => 'topauthenticationfailures_by_ssid' },
                 'topauthenticationfailures/username/:start/:end'      => { get => 'topauthenticationfailures_by_username' },

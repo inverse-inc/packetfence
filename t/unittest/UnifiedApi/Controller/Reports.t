@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 191;
+use Test::More tests => 188;
 use Test::Mojo;
 
 #This test will running last
@@ -206,10 +206,6 @@ $t->get_ok('/api/v1/reports/nodebandwidth' => json => {  })
   ->json_has('/items/0/accttotaloctets')
   ->json_has('/items/0/callingstationid')
   ->json_has('/items/0/percent')
-  ->status_is(200);
-
-$t->get_ok('api/v1/reports/topsponsor' => json => {  })
-  ->json_has('/items')
   ->status_is(200);
 
 $t->get_ok('/api/v1/reports/topauthenticationfailures/mac/1000-01-01/9999-01-01' => json => {  })

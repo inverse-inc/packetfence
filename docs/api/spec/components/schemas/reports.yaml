@@ -535,26 +535,6 @@ ReportsNodeBandwidth:
         description: The sum of input and output octets.
         type: integer
 
-ReportsTopSponsorList:
-  allOf:
-  - $ref: '#/components/schemas/Iterable'
-  - properties:
-      items:
-        items:
-          $ref: '#/components/schemas/ReportsTopSponsor'
-        type: array
-    type: object
-
-ReportsTopSponsor:
-  type: object
-  properties:
-    email:
-        description: Sponsor emai address.
-        type: string
-    sponsor:
-        description: The number of times this email address was used for activation.
-        type: integer
-
 ReportsAuthenticationMacList:
   allOf:
   - $ref: '#/components/schemas/Iterable'

@@ -192,11 +192,6 @@ sub nodebandwidth_range {
     $self->render(json => { items => [report_nodebandwidth($start, $end)]});
 }
 
-sub topsponsor_all {
-    my ($self) = @_;
-    $self->render(json => { items => [report_topsponsor_all()]});
-}
-
 sub topauthenticationfailures_by_mac {
     my ($self) = @_;
     my $start = $self->_get_datetime($self->param('start'));
