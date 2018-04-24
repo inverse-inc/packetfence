@@ -10,7 +10,6 @@ import (
 	"os"
 	"regexp"
 	"time"
-
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
 	"github.com/inverse-inc/packetfence/go/coredns/request"
 	"github.com/inverse-inc/packetfence/go/database"
@@ -529,10 +528,14 @@ func (pf *pfdns) LocalResolver(request request.Request) (*dns.Msg, error) {
 	localc := dns.Client{
 		ReadTimeout: DefaultTimeout,
 	}
-
+	request.Req.RecursionDesired = true
 	r, _, err := localc.Exchange(request.Req, "127.0.0.1:54")
 	if err != nil {
-		return nil, err
+		localc.Net = "tcp"
+		r, _, err = localc.Exchange(request.Req, "127.0.0.1:54")
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	if r == nil || r.Rcode == dns.RcodeNameError || r.Rcode == dns.RcodeSuccess {
