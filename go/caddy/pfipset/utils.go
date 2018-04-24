@@ -74,7 +74,7 @@ func updateClusterRequest(ctx context.Context, origReq *http.Request) {
 	req, err := sharedutils.CopyHttpRequest(origReq)
 	sharedutils.CheckError(err)
 
-	log.LoggerWContext(ctx).Info("Syncing to peers")
+	logger.Info("Syncing to peers")
 
 	apiClient := unifiedapiclient.NewFromConfig(context.Background())
 	body, err := ioutil.ReadAll(req.Body)
