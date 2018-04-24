@@ -341,12 +341,23 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 				// Ping the ip address
 				pingreply := sharedutils.Ping(dhcp.IPAdd(handler.start, free).String(), 1)
 				if pingreply {
-					log.LoggerWContext(ctx).Info(p.CHAddr().String() + " Ip " + dhcp.IPAdd(handler.start, free).String() + " already in use, trying next")
+					ipaddr := dhcp.IPAdd(handler.start, free)
+					log.LoggerWContext(ctx).Info(p.CHAddr().String() + " Ip " + ipaddr.String() + " already in use, trying next")
 					// Added back in the pool since it's not the dhcp server who gave it
 					handler.hwcache.Delete(p.CHAddr().String())
 					free = 0
 					firstTry = false
+
+					log.LoggerWContext(ctx).Info("Temporarily declaring " + ipaddr.String() + " as unusable")
 					handler.available.Remove(uint32(free))
+
+					// Put it back into the available IPs in 1 minute
+					go func(ctx context.Context, free int, ipaddr net.IP) {
+						time.Sleep(1 * time.Minute)
+						log.LoggerWContext(ctx).Info("Releasing previously pingable IP " + ipaddr.String() + " back into the pool")
+						handler.available.Add(uint32(free))
+					}(ctx, free, ipaddr)
+
 					goto retry
 				}
 				handler.available.Remove(element)
