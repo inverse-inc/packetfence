@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 7.4.9\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2018-04-18 22:27-0400\n"
+"PO-Revision-Date: 2018-04-24 16:44-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -587,7 +587,6 @@ msgstr ""
 msgid "Administration Rules"
 msgstr ""
 
-# html/pfappserver/root/admin/index.tt
 # html/pfappserver/root/admin/v-index.tt
 # html/pfappserver/root/admin/wrapper.tt
 # html/pfappserver/root/configurator/admin.tt
@@ -852,6 +851,7 @@ msgid "Auth Token"
 msgstr ""
 
 # html/pfappserver/root/admin/reports.tt
+# html/pfappserver/root/admin/status.tt
 # html/pfappserver/root/graph/dashboard.tt
 msgid "Authentication"
 msgstr ""
@@ -1169,6 +1169,7 @@ msgstr "An error occured while contacting the server. Please try again later."
 # html/pfappserver/root/config/profile/create.tt
 # html/pfappserver/root/config/profile/files.tt
 # html/pfappserver/root/config/profile/view.tt
+# html/pfappserver/root/graph/dashboard.tt
 msgid "Captive Portal"
 msgstr ""
 
@@ -1988,6 +1989,10 @@ msgstr ""
 msgid "Dashboard"
 msgstr ""
 
+# html/pfappserver/root/graph/dashboard.tt
+msgid "Database"
+msgstr ""
+
 # html/pfappserver/root/configurator/database.tt
 msgid "Database Configuration"
 msgstr ""
@@ -2713,6 +2718,7 @@ msgstr ""
 msgid "Ending IP Address"
 msgstr ""
 
+# html/pfappserver/root/admin/status.tt
 # html/pfappserver/root/graph/dashboard.tt
 msgid "Endpoints"
 msgstr ""
@@ -3509,10 +3515,6 @@ msgstr ""
 msgid "Last Seen"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/PacketFence/Controller/Pfqueue.pm
-msgid "Last hour queue counts"
-msgstr ""
-
 # html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Multiple.pm
@@ -4045,6 +4047,10 @@ msgstr "Nodes - Read"
 msgid "NODES_UPDATE"
 msgstr "Nodes - Update"
 
+# html/pfappserver/root/graph/dashboard.tt
+msgid "NTLM"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 msgid "NTLM authentication failures"
 msgstr ""
@@ -4576,10 +4582,6 @@ msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
 msgid "Online"
-msgstr ""
-
-# html/pfappserver/root/graph/dashboard.tt
-msgid "Online & Offline Devices"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
@@ -5367,6 +5369,11 @@ msgstr ""
 msgid "Port the proxy is listening on"
 msgstr ""
 
+# html/pfappserver/root/admin/status.tt
+# html/pfappserver/root/graph/dashboard.tt
+msgid "Portal"
+msgstr ""
+
 # html/pfappserver/root/admin/configuration.tt
 # html/pfappserver/root/config/portal_module/view.tt
 msgid "Portal Modules"
@@ -5578,6 +5585,10 @@ msgstr ""
 msgid "Queue Counts"
 msgstr ""
 
+# html/pfappserver/root/pfqueue/stats.inc
+msgid "Queue stats"
+msgstr ""
+
 # html/pfappserver/root/admin/auditing.tt
 # html/pfappserver/root/auditing/radiuslog/view.tt
 # html/pfappserver/root/config/switch/view.tt
@@ -5611,6 +5622,14 @@ msgstr "RADIUS Audit Log"
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
 msgid "RADIUS Average Access-Request Latency"
+msgstr ""
+
+# html/pfappserver/root/graph/dashboard.tt
+msgid "RADIUS Latency"
+msgstr ""
+
+# html/pfappserver/root/graph/dashboard.tt
+msgid "RADIUS Requests"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/PacketFence/Controller/Graph.pm
@@ -10946,7 +10965,7 @@ msgstr "Services"
 
 # conf/documentation.conf
 msgid "services.api-frontend"
-msgstr ""
+msgstr "api-frontend"
 
 # conf/documentation.conf
 msgid "services.arp_binary"
@@ -10958,7 +10977,7 @@ msgstr "dhcpd path"
 
 # conf/documentation.conf
 msgid "services.etcd"
-msgstr ""
+msgstr "etcd"
 
 # conf/documentation.conf
 msgid "services.etcd_binary"
@@ -10966,7 +10985,7 @@ msgstr ""
 
 # conf/documentation.conf
 msgid "services.fingerbank-collector"
-msgstr ""
+msgstr "fingerbank-collector"
 
 # conf/documentation.conf
 msgid "services.fingerbank-collector_binary"
@@ -10974,7 +10993,7 @@ msgstr ""
 
 # conf/documentation.conf
 msgid "services.haproxy-db"
-msgstr ""
+msgstr "haproxy-db"
 
 # conf/documentation.conf
 msgid "services.haproxy-db_binary"
@@ -10982,7 +11001,7 @@ msgstr ""
 
 # conf/documentation.conf
 msgid "services.haproxy-portal"
-msgstr ""
+msgstr "haproxy-portal"
 
 # conf/documentation.conf
 msgid "services.haproxy-portal_binary"
@@ -11042,7 +11061,7 @@ msgstr "Keepalived path"
 
 # conf/documentation.conf
 msgid "services.netdata"
-msgstr ""
+msgstr "netdata"
 
 # conf/documentation.conf
 msgid "services.netdata_binary"
@@ -11058,7 +11077,7 @@ msgstr "pfbandwidthd"
 
 # conf/documentation.conf
 msgid "services.pfdhcp"
-msgstr ""
+msgstr "pfdhcp"
 
 # conf/documentation.conf
 msgid "services.pfdhcp_binary"
@@ -11086,7 +11105,7 @@ msgstr "pffilter"
 
 # conf/documentation.conf
 msgid "services.pfipset"
-msgstr ""
+msgstr "pfipset"
 
 # conf/documentation.conf
 msgid "services.pfipset_binary"
@@ -11098,7 +11117,7 @@ msgstr "pfmon"
 
 # conf/documentation.conf
 msgid "services.pfperl-api"
-msgstr ""
+msgstr "pfperl-api"
 
 # conf/documentation.conf
 msgid "services.pfqueue"
@@ -11110,7 +11129,7 @@ msgstr "pfsso"
 
 # conf/documentation.conf
 msgid "services.pfstats"
-msgstr ""
+msgstr "pfstats"
 
 # conf/documentation.conf
 msgid "services.pfstats_binary"
@@ -11166,7 +11185,7 @@ msgstr "snmptrapd path"
 
 # conf/documentation.conf
 msgid "services.tc"
-msgstr ""
+msgstr "tc"
 
 # conf/documentation.conf
 msgid "services.tc_binary"
