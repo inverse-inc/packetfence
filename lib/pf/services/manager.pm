@@ -259,7 +259,11 @@ sub pid {
     my $pid = `sudo systemctl show -p MainPID packetfence-$name`;
     chomp $pid;
     $pid = (split(/=/, $pid))[1];
-    $logger->debug("sudo systemctl packetfence-$name returned $pid");
+    if (defined $pid) {
+        $logger->debug("sudo systemctl packetfence-$name returned $pid");
+    } else {
+        $logger->error("Error getting pid for $name");
+    }
     return $pid;
 }
 
