@@ -1023,7 +1023,7 @@ Start nodes A and B
 
 You can now safely start PacketFence on nodes A and B using:
 
-  # /usr/local/pf/bin/pfcmd service pf start
+  # /usr/local/pf/bin/pfcmd service pf restart
 
 Restart node C
 ^^^^^^^^^^^^^^
