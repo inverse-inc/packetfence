@@ -26,7 +26,10 @@ use pf::file_paths qw($install_dir);
 use YAML::XS qw(Dump);;
 use File::Slurp qw(write_file);
 use File::Path qw(make_path);
+use Getopt::Long;
 $YAML::XS::Boolean = 'boolean';
+my $delete = 0;
+GetOptions ("delete" => \$delete);
 
 my $app = pf::UnifiedApi->new;
 
@@ -40,9 +43,9 @@ for my $route_info (map { walkRootRoutes($_) } @{ $app->routes->children }) {
 }
 
 my $openapi_paths = generateOpenAPIPaths($app, $routes{paths} // {});
-saveToYaml($openapi_paths, "$install_dir/docs/api/spec/paths");
+saveToYaml($openapi_paths, "$install_dir/docs/api/spec/paths", $delete);
 my $openapi_schemas = generateOpenAPISchemas($app, $routes{controllers});
-saveToYaml($openapi_schemas, "$install_dir/docs/api/spec");
+saveToYaml($openapi_schemas, "$install_dir/docs/api/spec", $delete);
 
 =head2 saveToYaml
 
@@ -51,13 +54,15 @@ save has to YAML
 =cut
 
 sub saveToYaml {
-    my ($yamls, $base_path) = @_;
+    my ($yamls, $base_path, $just_delete) = @_;
     while (my ($p, $d) = each %$yamls) {
         next if !defined $d;
         my $file_path = $p;
         $file_path =~ s#/\{[^\}]+\}##g;
         $file_path = "${base_path}${file_path}.yaml";
+        $file_path = lc($file_path);
         unlink ($file_path);
+        next if $just_delete;
         my $dump = Dump({$p => $d});
         $dump =~ s/---\n//;
         my (undef, $dir, undef ) = File::Spec->splitpath( $file_path );
