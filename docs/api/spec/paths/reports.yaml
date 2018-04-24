@@ -1,4 +1,4 @@
-/reports/os/:
+/reports/os:
   get:
     summary: Returns a list of node operating systems
     responses:
@@ -33,7 +33,7 @@
             schema:
               $ref: "#/components/schemas/ReportsOsList"
 
-/reports/os/active/:
+/reports/os/active:
   get:
     summary: Returns a list of active node operating systems
     responses:
@@ -44,7 +44,7 @@
             schema:
               $ref: "#/components/schemas/ReportsOsList"
 
-/reports/osclass/:
+/reports/osclass:
   get:
     summary: Returns a list of node operating system classes
     responses:
@@ -55,7 +55,7 @@
             schema:
               $ref: "#/components/schemas/ReportsOsClassList"
 
-/reports/osclass/active/:
+/reports/osclass/active:
   get:
     summary: Returns a list of active node operating system classes
     responses:
