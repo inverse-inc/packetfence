@@ -42,30 +42,30 @@ END
             [%- END %]
         }
     </script>
-
     <script>
-        // this section has to appear before loading dashboard.js
+      // this section has to appear before loading dashboard.js
 
-        // Disable bootstrap
-        var netdataNoBootstrap = true;
+      // Disable bootstrap
+      var netdataNoBootstrap = true;
 
-        // Select a theme.
-        // uncomment on of the two themes:
-        var netdataTheme = 'default'; // this is white
-        // var netdataTheme = 'slate'; // this is dark
+      // Select a theme.
+      // uncomment on of the two themes:
+      var netdataTheme = 'default'; // this is white
+      // var netdataTheme = 'slate'; // this is dark
 
-        // Set the default netdata server.
-        // on charts without a 'data-host', this one will be used.
-        // the default is the server that dashboard.js is downloaded from.
-        var netdataServer = '/netdata/127.0.0.1';
+      // Set the default netdata server.
+      // on charts without a 'data-host', this one will be used.
+      // the default is the server that dashboard.js is downloaded from.
+      var netdataServer = '/netdata/127.0.0.1';
     </script>
 
     <!--
-        Load dashboard.js
-        to host this HTML file on your web server,
-        you have to load dashboard.js from the netdata server.
+      Load dashboard.js
+      to host this HTML file on your web server,
+      you have to load dashboard.js from the netdata server.
     -->
     <script type="text/javascript" src="/netdata/127.0.0.1/dashboard.js?v20170724-7"></script>
+
 
     <script>
         // Set options for TV operation

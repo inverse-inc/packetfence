@@ -1,4 +1,30 @@
-[%- MACRO show_stats(stats, show_graphs) BLOCK -%]
+[%- MACRO show_graphs_stats(stats, host) BLOCK -%]
+<div class="card">
+  <div class="card-title">
+      <h2>[% l('Queue stats') %]</h2>
+  </div>
+[% FOREACH counter IN stats.queue_counts %]
+  <div class="card-block">
+      <div class="row-fluid">
+          <div class="spangridSize text-center">
+              <div data-netdata="statsd_gauge_[% host.replace('\.|-','_') %].pfqueue.stats.queue_counts.[% counter.name %]"
+              data-host="/netdata/[% host %]"
+              data-title="[% counter.name %] queue count"
+              data-chart-library="dygraph"
+              data-colors="[% palette(loop.index) %]"
+              data-height="200px"
+              data-hide-missing="true"
+              data-dimensions="gauge"
+              data-before="0"
+              data-after="-86400"></div>
+          </div>
+      </div>
+  </div>
+    [% END %]
+</div>
+[% END %]
+
+[%- MACRO show_stats(stats, show_graphs, host) BLOCK -%]
 <div class="card-block">
   <table class="table table-condensed table-striped">
     <thead>
@@ -17,15 +43,6 @@
     [% END %]
     
   </table>
-
-  [% IF show_graphs %]
-  <div>
-    <h5>[% queue_counts_graph.description %]</h5>
-    <span class="graph graph-2c">
-      <img src="[% queue_counts_graph.url %]" height="[% queue_counts_graph.height %]" width="[% queue_counts_graph.width %]">
-    </span>
-  </div>
-  [% END %]
 
   [% IF stats.counters.size > 0 %]
   <table class="table table-condensed table-striped">
@@ -82,4 +99,9 @@
     </tr>
   [% END %]
 </div>
+
+[% IF show_graphs %]
+[% show_graphs_stats(stats, host) | none %]
+[% END %]
+
 [% END %]
