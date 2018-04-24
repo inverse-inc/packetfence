@@ -1863,7 +1863,7 @@ _____________________
 Since the version 6.4.0 PacketFence supports integration with eduroam and allows participating institutions to authenticate both locally visiting users from other institutions as well as allowing other institutions to authenticate local users.
 
 
-In order for PacketFence to allow eduroam authentication, you need to configure an exclusive Eduroam source in Configuration->Authentication Sources and restart FreeRADIUS.
+In order for PacketFence to allow eduroam authentication, you need to configure an exclusive Eduroam source in Configuration->Authentication Sources and restart FreeRADIUS and IPTables.
 
 Fingerbank Integration
 ~~~~~~~~~~~~~~~~~~~~~~
