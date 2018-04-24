@@ -19,8 +19,8 @@
 	# update every (flushInterval) = 1
 	# udp messages to process at once = 10
 	# create private charts for metrics matching = *
-	max private charts allowed = 400
-	# max private charts hard limit = 1000
+	max private charts allowed = 1000
+	max private charts hard limit = 2500
 	# private charts memory mode = save
 	# private charts history = 3996
 	# decimal detail = 1000
