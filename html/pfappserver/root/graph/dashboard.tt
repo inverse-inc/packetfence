@@ -162,7 +162,7 @@ END
                     data-after="-3600"
                     data-decimal-digits="0"></div>
                 </div>
-                <div class="span7 card">
+                <div class="span6 card">
                     <div data-netdata="packetfence.devices.connected_per_connection_type"
                     data-host="/netdata/127.0.0.1"
                     data-title="Connected devices per connection type"
