@@ -911,7 +911,7 @@ Start service on node C
 
 Now, start the application service on node C
 
-  # systemctl isolate packetfence-cluster
+  # /usr/local/pf/bin/pfcmd service pf start
 
 Validate migration
 ^^^^^^^^^^^^^^^^^^
