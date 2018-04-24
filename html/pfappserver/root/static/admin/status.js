@@ -15,7 +15,7 @@ var refresh = {
 */
 function drawGraphs(options) {
     var default_href, pos,
-    links = $('.sidenav .nav-list a[href*="graph"]'),
+    links = $('.sidenav .nav-list a[href*="graph"]:not([href*="dashboard"])'),
     width = $('#section').width() - 40;
 
     links.each(function() {
@@ -33,8 +33,9 @@ function drawGraphs(options) {
     if (location.hash.length > 0) {
         default_href = location.hash;
         pos = default_href.indexOf('?');
-        if (pos >= 0)
-        default_href = default_href.substring(0, pos);
+        if (pos >= 0) {
+            default_href = default_href.substring(0, pos);
+        }
         default_href = default_href.replace(/^.*#/,"/") + '?width=' + width;
         $(window).unbind('hashchange');
     }
@@ -277,6 +278,16 @@ function init() {
         return false;
     });
 
+    /* Dashboard tabs navigation from the sidenav */
+    $('.sidenav a[data-tab]').click(function (event) {
+        var path = $(this).data('tab').split('/');
+        var el = $('#' + path[0] + ' [href="#' + path[1] + '"]');
+        if (el.get(0) && !el.get(0).parentNode.classList.contains('active')) {
+            el.tab('show');
+            event.preventDefault(); // don't follow link
+        }
+    });
+
     /* Hash change handler */
     var href =  $('.sidebar-nav .nav-list a').first().attr('href');
     if (href) {
@@ -305,6 +316,12 @@ function initDashboard() {
             // No error, show the graph
             $chartEl.show();
         });
+    });
+
+    /* Update sidenav when changing tab */
+    $('#dashboard-tabs a[data-toggle]').on('shown', function (e) {
+        var tab = $(e.target).attr('href').substr(1);
+        $('.sidenav [data-tab="dashboard-tabs/' + tab + '"]').trigger('click');
     });
 
     /* Fetch alarms */

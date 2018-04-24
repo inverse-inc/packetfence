@@ -92,7 +92,7 @@ END
         // This will reload the page every RELOAD_EVERY minutes
         var RELOAD_EVERY = 5;
         setTimeout(function(){
-            var tab = $('#status-tabs').find('.active a').attr('href') // 'system';
+            var tab = $('#dashboard-tabs').find('.active a').attr('href');
             tab = tab.replace('#', '');
             location.hash = '#graph/dashboard?tab=' + tab;
             location.reload();
@@ -121,7 +121,7 @@ END
     </div>
 
     <div class="text-center">
-        <ul class="nav nav-pills" id="status-tabs">
+        <ul class="nav nav-pills" id="dashboard-tabs">
             <li [% IF tab == "system" %]class="active"[% END %]><a data-toggle="pill" href="#system">[% l('System') %]</a></li>
             <li [% IF tab == "radius" %]class="active"[% END %]><a data-toggle="pill" href="#radius">RADIUS</a></li>
             <li [% IF tab == "authentication" %]class="active"[% END %]><a data-toggle="pill" href="#authentication">[% l('Authentication') %]</a></li>
