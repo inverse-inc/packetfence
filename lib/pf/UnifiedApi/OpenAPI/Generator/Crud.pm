@@ -233,11 +233,16 @@ The OpenAPI Operation RequestBody for the search action
 sub searchRequestBody {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
-        "application/json" => {
-            "\$ref" => "#/components/schemas/Search",
+        content => {
+            "application/json" => {
+                schema => {
+                    "\$ref" => "#/components/schemas/Search",
+                }
+            }
         }
     };
 }
+
 =head2 listResponses
 
 The OpenAPI Operation Repsonses for the list action
