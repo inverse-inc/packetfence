@@ -611,6 +611,7 @@ END
             </div>
         </div>
         <div class="tab-pane[% IF tab == "authentication" %] active[% END %]" id="authentication">
+            [% IF sources.size > 0 %]
             <div class="card">
                 <div class="card-title">
                     <h2>[% l('Authentication Sources') %]</h2>
@@ -645,6 +646,7 @@ END
                     </div>
                 </div>
             </div>
+            [% END %]
             <div class="card">
                 <div class="card-title">
                     <h2>[% l('Successful & Unsuccessful RADIUS Authentications') %]</h2>
