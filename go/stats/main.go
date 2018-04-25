@@ -47,12 +47,7 @@ var GAUGE gauge
 type gauge struct{}
 
 func (s gauge) Send(name string, a interface{}) {
-	c, err := statsd.New()
-	if err != nil {
-		log.LoggerWContext(ctx).Error("Error while sending metric to statsd: " + err.Error())
-	}
-	defer c.Close()
-	c.Gauge(name, a)
+	StatsdClient.Gauge(name, a)
 }
 
 var ABSOLUTE absolute
