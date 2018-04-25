@@ -49,7 +49,7 @@ type gauge struct{}
 func (s gauge) Send(name string, a interface{}) {
 	c, err := statsd.New()
 	if err != nil {
-		log.LoggerWContext(ctx).Error(err.Error())
+		log.LoggerWContext(ctx).Error("Error while sending metric to statsd: " + err.Error())
 	}
 	defer c.Close()
 	c.Gauge(name, a)
@@ -121,21 +121,21 @@ func (s ldaptype) Test(source interface{}, ctx context.Context) {
 
 	if err != nil {
 		StatsdClient.Gauge("source."+source.(pfconfigdriver.AuthenticationSourceLdap).Type+"."+source.(pfconfigdriver.AuthenticationSourceLdap).PfconfigHashNS, 0)
-		log.LoggerWContext(ctx).Error(err.Error())
+		log.LoggerWContext(ctx).Error("Error connecting to LDAP source: " + err.Error())
 	} else {
 		defer l.Close()
 		// Reconnect with TLS
 		if source.(pfconfigdriver.AuthenticationSourceLdap).Encryption != "none" {
 			err = l.StartTLS(&tls.Config{InsecureSkipVerify: true})
 			if err != nil {
-				log.LoggerWContext(ctx).Crit(err.Error())
+				log.LoggerWContext(ctx).Crit("Error connecting to LDAP source using TLS: " + err.Error())
 			}
 		}
 
 		// First bind with a read only user
 		timeout, err := strconv.Atoi(source.(pfconfigdriver.AuthenticationSourceLdap).ReadTimeout)
 		if err != nil {
-			log.LoggerWContext(ctx).Crit(err.Error())
+			log.LoggerWContext(ctx).Crit("Error parsing read timeout of LDAP source" + err.Error())
 		}
 
 		l.SetTimeout(time.Duration(timeout) * time.Second)
@@ -241,7 +241,7 @@ func main() {
 
 	StatsdClient, err = statsd.New()
 	if err != nil {
-		log.LoggerWContext(ctx).Error(err.Error())
+		log.LoggerWContext(ctx).Error("Error while creating statsd client: " + err.Error())
 	}
 
 	log.LoggerWContext(ctx).Info("Starting stats server")
@@ -343,7 +343,7 @@ func main() {
 		if RegExpMetric.MatchString(key) {
 			err = ProcessMetricConfig(ctx, ConfStat)
 			if err != nil {
-				log.LoggerWContext(ctx).Error(err.Error())
+				log.LoggerWContext(ctx).Error("Error while processing metric config: " + err.Error())
 			}
 		}
 	}

@@ -32,13 +32,13 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 		job = func() {
 			rows, err := MySQLdatabase.Query(conf.MySQLQuery)
 			if err != nil {
-				log.LoggerWContext(ctx).Error(err.Error())
+				log.LoggerWContext(ctx).Error("Error while performing SQL query: " + err.Error())
 				return
 			}
 			defer rows.Close()
 			cols, err := rows.Columns()
 			if err != nil {
-				log.LoggerWContext(ctx).Error(err.Error())
+				log.LoggerWContext(ctx).Error("Error while reading columns from query result: " + err.Error())
 				return
 			}
 			var (
@@ -51,14 +51,14 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 				case 1:
 					err := rows.Scan(&result)
 					if err != nil {
-						log.LoggerWContext(ctx).Error(err.Error())
+						log.LoggerWContext(ctx).Error("Error while reading data from query result: " + err.Error())
 						return
 					}
 
 				case 2:
 					err := rows.Scan(&field, &result)
 					if err != nil {
-						log.LoggerWContext(ctx).Error(err.Error())
+						log.LoggerWContext(ctx).Error("Error while reading data from query result: " + err.Error())
 						return
 					}
 					switch field.String {
@@ -114,7 +114,7 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 					c := StatsdClient.NewTiming()
 					err = util.Pinger(ipv4.String(), timeout)
 					if err != nil {
-						log.LoggerWContext(ctx).Error(err.Error())
+						log.LoggerWContext(ctx).Error("Error while pinging address: " + err.Error())
 						return
 					}
 					duration := c.Duration()
