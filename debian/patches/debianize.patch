@@ -12,7 +12,7 @@ index 2ef5c25..7409c2a 100644
  key_buffer_size = [% key_buffer_size %]M
  max_allowed_packet = [% max_allowed_packet %]M
 diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
-index b7840af..fbae06f 100644
+index b7840af..5d69d6c 100644
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
 @@ -392,7 +392,7 @@ radiusd=enabled
@@ -42,11 +42,13 @@ index b7840af..fbae06f 100644
  
  #
  # services.routes
-@@ -585,7 +585,7 @@ tc=enabled
+@@ -584,8 +584,8 @@ tc=enabled
+ #
  # services.tc_binary
  #
- # location of the yc binary. only necessary to change if you are not running the rpmed version.
+-# location of the yc binary. only necessary to change if you are not running the rpmed version.
 -tc_binary=/usr/sbin/tc
++# location of the tc binary. only necessary to change if you are not running the rpmed version.
 +tc_binary=/sbin/tc
  # services.pfdns
  #
@@ -247,3 +249,16 @@ index e0e0c2c..880121b 100644
  Slice=packetfence-base.slice
  
  [Install]
+diff --git a/go/database/connection.go b/go/database/connection.go
+index fa180c3..87d169a 100644
+--- a/go/database/connection.go
++++ b/go/database/connection.go
+@@ -9,7 +9,7 @@ import (
+ func Connect(user, pass, host, port, dbname string) *sql.DB {
+ 	var where string
+ 	if host == "localhost" {
+-		where = "unix(/var/lib/mysql/mysql.sock)"
++		where = "unix(/var/run/mysqld/mysqld.sock)"
+ 	} else {
+ 		where = "tcp(" + host + ":" + port + ")"
+ 	}
