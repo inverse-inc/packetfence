@@ -13,7 +13,7 @@ template: disk_space_usage
       on: disk.space
       os: linux
    hosts: *
-families: !/chroots/ *
+families: /
     calc: $used * 100 / ($avail + $used)
    units: %
    every: 1m
@@ -27,7 +27,7 @@ template: disk_inode_usage
       on: disk.inodes
       os: linux
    hosts: *
-families: !/chroots/ *
+families: *
     calc: $used * 100 / ($avail + $used)
    units: %
    every: 1m
@@ -53,7 +53,7 @@ template: disk_fill_rate
       on: disk.space
       os: linux
    hosts: *
-families: !/chroots/ *
+families: /
   lookup: min -10m at -50m unaligned of avail
     calc: ($this - $avail) / (($now - $after) / 3600)
    every: 1m
@@ -69,7 +69,7 @@ template: out_of_disk_space_time
       on: disk.space
       os: linux
    hosts: *
-families: !/chroots/ *
+families: /
     calc: ($disk_fill_rate > 0) ? ($avail / $disk_fill_rate) : (inf)
    units: hours
    every: 10s
@@ -91,7 +91,7 @@ template: 10min_disk_utilization
       on: disk.util
       os: linux
    hosts: *
-families: !/chroots/ *
+families: /
   lookup: average -10m unaligned
    units: %
    every: 1m
@@ -113,7 +113,7 @@ template: 10min_disk_backlog
       on: disk.backlog
       os: linux
    hosts: *
-families: !/chroots/ *
+families: /
   lookup: average -10m unaligned
    units: ms
    every: 1m
