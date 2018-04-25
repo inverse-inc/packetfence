@@ -15,7 +15,8 @@ Pre-Depends:  ca-certificates,
  ca-certificates, winbind,
  packetfence-pfcmd-suid (>= ${source:Version}), packetfence-config (>= ${source:Version}), packetfence-ntlm-wrapper (>= ${source:Version}), packetfence-doc (>= ${source:Version}),
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
- fingerbank (>= 3.1.1), fingerbank (<< 4.0.0),
+ fingerbank (>= 4.0.0), fingerbank (<< 5.0.0),
+ fingerbank-collector (>= 1.0.0),
  packetfence-redis-cache (>= ${source:Version}), packetfence-golang-daemon (>= ${source:Version}),
 # wmi
  libnet-wmiclient-perl, libwmiclient1, wmi-client,
