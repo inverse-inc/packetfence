@@ -232,12 +232,20 @@ func main() {
 	ctx = log.LoggerNewContext(ctx)
 	defer cancel()
 
-	var err error
+	go func() {
+		var err error
+		var connected bool
 
-	StatsdClient, err = statsd.New()
-	if err != nil {
-		log.LoggerWContext(ctx).Error("Error while creating statsd client: " + err.Error())
-	}
+		for !connected {
+			StatsdClient, err = statsd.New()
+			if err != nil {
+				log.LoggerWContext(ctx).Error("Error while creating statsd client: " + err.Error())
+				time.Sleep(1 * time.Second)
+			} else {
+				connected = true
+			}
+		}
+	}()
 
 	log.LoggerWContext(ctx).Info("Starting stats server")
 	// Systemd
