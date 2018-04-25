@@ -231,6 +231,7 @@ endif
 	dh_installinit --name=packetfence-pfipset
 	dh_installinit --name=packetfence-pfunified-api
 	dh_installinit --name=packetfence-pfstats
+	dh_installinit --name=packetfence-api-frontend
 
 	dh_installcron
 #	dh_installinfo
