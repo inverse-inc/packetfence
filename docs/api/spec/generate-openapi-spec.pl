@@ -15,8 +15,6 @@ $YAML::XS::Boolean = "JSON::PP";
 my $base_path = "$install_dir/docs/api/spec";
 
 my $spec = LoadFile("$base_path/openapi-base.yaml");
-use Data::Dumper;
-print Dumper($spec);
 
 merge_yaml_into_component($spec->{paths}, "paths/");
 
@@ -44,7 +42,6 @@ YAML::XS::DumpFile("$base_path/openapi.yaml", $spec);
 
 write_file("$base_path/openapi.json", JSON::MaybeXS->new->pretty(1)->canonical(1)->encode($spec));
 
-
 sub dir_yaml_files {
     my ($dir) = @_;
     my @files;
@@ -52,10 +49,15 @@ sub dir_yaml_files {
     return sort @files;
 }
 
+my %HTTP_METHODS = (
+    map { $_ => 1 } qw(get post head patch delete options put patch)
+);
+
 sub common_parameters {
     my ($yaml_spec, @parameters) = @_;
     for my $path (values %{$yaml_spec->{paths}}) {
-        for my $method (values %$path) {
+        while ( my ($k, $method) = each %$path) {
+            next if !exists $HTTP_METHODS{lc($k)};
             push @{$method->{parameters}}, @parameters;
         }
     }
@@ -65,7 +67,8 @@ sub insert_search_parameters {
     my ($yaml_spec) = @_;
     while ( my ( $name, $path ) = each %{ $yaml_spec->{paths} } ) {
         next if $name !~ m#/search#;
-        for my $method ( values( %{$path} ) ) {
+        while ( my ($k, $method) = each %$path) {
+            next if !exists $HTTP_METHODS{lc($k)};
             push @{ $method->{parameters} },
               { '$ref' => "#/components/parameters/cursor" },
               { '$ref' => "#/components/parameters/limit" },
