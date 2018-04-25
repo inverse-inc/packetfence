@@ -361,6 +361,7 @@ function initDashboard() {
                 method: 'GET'
             }).done(function (response) {
                 var alarms = response.alarms;
+                var newAlarms = false;
                 var ids = [];
                 var index = 0;
                 $.each(alarms, function (name, alarm) {
@@ -403,6 +404,7 @@ function initDashboard() {
                         fitty(labelEl[0], { minSize: 8, maxSize: 14 });
                         fitty(valueEl[0], { maxSize: 24 });
                         el.removeClass('hide');
+                        newAlarms = true;
                     }
                     index++;
                 });
@@ -412,7 +414,9 @@ function initDashboard() {
                         $(el).remove();
                     }
                 });
-                window.NETDATA.parseDom();
+                if (newAlarms) {
+                    window.NETDATA.parseDom();
+                }
             });
         });
     }
