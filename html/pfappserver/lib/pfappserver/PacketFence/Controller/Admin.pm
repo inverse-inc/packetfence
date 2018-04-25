@@ -25,7 +25,10 @@ use pf::cluster;
 use pf::authentication;
 use pf::Authentication::constants qw($LOGIN_CHALLENGE);
 use pf::util;
-use pf::config qw(%Config);
+use pf::config qw(
+    %Config
+    @listen_ints
+);
 use DateTime;
 use fingerbank::Constant;
 use fingerbank::Model::Device;
@@ -281,7 +284,10 @@ sub alt :Local :Args(0) {
 
 sub status :Chained('object') :PathPart('status') :Args(0) {
     my ( $self, $c ) = @_;
-    $c->stash->{cluster_enabled} = $cluster_enabled;
+    $c->stash(
+        cluster_enabled => $cluster_enabled,
+        listen_ints    => \@listen_ints,
+    )
 }
 
 =head2 reports
