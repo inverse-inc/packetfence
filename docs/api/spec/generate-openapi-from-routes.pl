@@ -63,7 +63,7 @@ sub saveToYaml {
         $file_path = lc($file_path);
         unlink ($file_path);
         next if $just_delete;
-        my $dump = Dump({$p => $d});
+        my $dump = Dump($d);
         $dump =~ s/---\n//;
         my (undef, $dir, undef ) = File::Spec->splitpath( $file_path );
         make_path($dir);
@@ -85,7 +85,7 @@ sub generateOpenAPIPaths {
         my $generator = $controller->openapi_generator;
         next if !defined $generator;
         if (my $data = $generator->generatePath($controller, $actions)) {
-            $openapi_paths{$path} = $data;
+            $openapi_paths{$path} = { $path => $data };
         }
     }
     return \%openapi_paths;
@@ -112,15 +112,24 @@ generate OpenAPI schemas
 
 sub generateOpenAPISchemas {
     my ($app, $sub_classes) = @_;
-    my %openapi_schemas;
+    my %temp;
     while (my ($sub_class, $actions) = each %$sub_classes) {
         my $controller = createController($sub_class, $app);
         my $generator = $controller->openapi_generator;
         next if !defined $generator;
         if (my $schemas = $generator->generateSchemas($controller, $actions)) {
-            %openapi_schemas = (%openapi_schemas, %$schemas);
+            %temp = (%temp, %$schemas);
         }
     }
+
+    my %openapi_schemas;
+    while (my ($k, $d) = each %temp) {
+        my $c = (split ('/', $k))[-1];
+        $openapi_schemas{$k} = {
+            $c => $d
+        };
+    }
+
     return \%openapi_schemas;
 }
 
