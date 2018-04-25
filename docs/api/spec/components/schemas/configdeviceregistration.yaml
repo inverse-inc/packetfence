@@ -1,0 +1,23 @@
+ConfigDeviceRegistration:
+  properties:
+    allowed_devices:
+      description: List of OS which will be allowed to be register via the self service
+        portal.
+      items:
+        description: List of OS which will be allowed to be register via the self
+          service portal.
+        type: string
+      type: array
+    category:
+      description: The role to assign to devices registered from the specific portal.
+        If none is specified, the role of the registrant is used.
+      type: string
+    description:
+      description: Description
+      type: string
+    id:
+      description: Profile Name
+      type: string
+  required:
+  - id
+  type: object

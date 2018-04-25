@@ -16,7 +16,7 @@
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/config/FloatingDevice'
+              $ref: '#/components/schemas/ConfigFloatingDevice'
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':
@@ -29,7 +29,7 @@
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/config/FloatingDevice'
+            $ref: '#/components/schemas/ConfigFloatingDevice'
     responses:
       '400':
         $ref: '#/components/responses/BadRequest'
@@ -43,7 +43,7 @@
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/config/FloatingDevice'
+            $ref: '#/components/schemas/ConfigFloatingDevice'
     responses:
       '201':
         $ref: '#/components/responses/Created'

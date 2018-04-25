@@ -13,7 +13,7 @@
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/users/NodesList'
+              $ref: '#/components/schemas/UsersNodesList'
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':
@@ -26,7 +26,7 @@
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/users/Node'
+            $ref: '#/components/schemas/UsersNode'
     responses:
       '201':
         $ref: '#/components/responses/Created'

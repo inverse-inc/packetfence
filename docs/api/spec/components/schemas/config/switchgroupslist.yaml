@@ -1,9 +1,0 @@
-SwitchGroupsList:
-  allOf:
-  - $ref: '#/components/schemas/Iterable'
-  - properties:
-      items:
-        items:
-          $ref: '#/components/schemas/config/SwitchGroup'
-        type: array
-    type: object

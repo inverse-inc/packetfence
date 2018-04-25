@@ -9,7 +9,7 @@
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/config/ViolationsList'
+              $ref: '#/components/schemas/ConfigViolationsList'
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':

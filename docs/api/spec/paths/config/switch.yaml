@@ -16,7 +16,7 @@
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/config/Switch'
+              $ref: '#/components/schemas/ConfigSwitch'
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':
@@ -29,7 +29,7 @@
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/config/Switch'
+            $ref: '#/components/schemas/ConfigSwitch'
     responses:
       '400':
         $ref: '#/components/responses/BadRequest'
@@ -43,7 +43,7 @@
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/config/Switch'
+            $ref: '#/components/schemas/ConfigSwitch'
     responses:
       '201':
         $ref: '#/components/responses/Created'

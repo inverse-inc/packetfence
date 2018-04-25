@@ -9,7 +9,7 @@
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/config/SyslogParsersList'
+              $ref: '#/components/schemas/ConfigSyslogParsersList'
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':

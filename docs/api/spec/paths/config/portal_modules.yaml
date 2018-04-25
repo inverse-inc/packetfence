@@ -9,7 +9,7 @@
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/config/PortalModulesList'
+              $ref: '#/components/schemas/ConfigPortalModulesList'
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':

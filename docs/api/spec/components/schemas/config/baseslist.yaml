@@ -1,9 +1,0 @@
-BasesList:
-  allOf:
-  - $ref: '#/components/schemas/Iterable'
-  - properties:
-      items:
-        items:
-          $ref: '#/components/schemas/config/Base'
-        type: array
-    type: object

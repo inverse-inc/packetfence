@@ -1,4 +1,0 @@
-Base:
-  discriminator:
-    propertyName: type
-  oneOf: []

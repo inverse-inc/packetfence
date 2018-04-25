@@ -11,7 +11,7 @@
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/users/nodes/LocationlogsList'
+              $ref: '#/components/schemas/UsersNodesLocationlogsList'
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':

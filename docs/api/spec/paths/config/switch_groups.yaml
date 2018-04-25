@@ -9,7 +9,7 @@
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/config/SwitchGroupsList'
+              $ref: '#/components/schemas/ConfigSwitchGroupsList'
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':

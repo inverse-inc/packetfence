@@ -9,7 +9,7 @@
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/config/FloatingDevicesList'
+              $ref: '#/components/schemas/ConfigFloatingDevicesList'
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':

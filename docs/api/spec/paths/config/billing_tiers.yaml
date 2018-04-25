@@ -9,7 +9,7 @@
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/config/BillingTiersList'
+              $ref: '#/components/schemas/ConfigBillingTiersList'
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':
