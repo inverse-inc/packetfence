@@ -370,11 +370,10 @@ sub schemaItemPath {
     $class =~ s/pf::UnifiedApi::Controller:://;
     my @paths = split('::', $class);
     my $name = pop @paths;
-    @paths = map { lc($_) } @paths;
     my $noun = noun($name);
     my $singular = $noun->singular;
     my $prefix = "/components/schemas";
-    return join('/', $prefix, @paths, $singular);
+    return join('/', $prefix, join("", @paths, $singular));
 }
 
 =head2 schemaListPath
@@ -389,9 +388,8 @@ sub schemaListPath {
     $class =~ s/pf::UnifiedApi::Controller:://;
     my @paths = split('::', $class);
     my $name = pop @paths;
-    @paths = map { lc($_) } @paths;
     my $prefix = "/components/schemas";
-    return join('/', $prefix, @paths, "${name}List");
+    return join('/', $prefix, join("", @paths, "${name}List"));
 }
 
 =head1 AUTHOR
