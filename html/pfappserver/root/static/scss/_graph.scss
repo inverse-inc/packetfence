@@ -1,5 +1,9 @@
 /// _graph.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2 -*-
 
+/*
+ * For raphael graphs
+ */
+
 .graph {
   float: left;
 }
@@ -12,6 +16,10 @@
   width: 100%;
 }
 
+/*
+ * For netdata graphs
+ */
+
 .counter_over_chart {
   position: absolute;
   font-size: 4em;
@@ -22,6 +30,14 @@
   bottom: 0;
   height: 75%; // 50% would be centered
   margin: auto 10px;
+}
+
+.over_chart {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
 .counter_chart_title,
