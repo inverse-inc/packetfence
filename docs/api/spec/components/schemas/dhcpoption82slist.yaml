@@ -1,4 +1,4 @@
-/components/schemas/DhcpOption82sList:
+DhcpOption82sList:
   allOf:
   - $ref: '#/components/schemas/Iterable'
   - properties:

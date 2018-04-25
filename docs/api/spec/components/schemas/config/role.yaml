@@ -1,4 +1,4 @@
-/components/schemas/config/Role:
+Role:
   properties:
     id:
       description: Name

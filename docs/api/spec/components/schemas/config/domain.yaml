@@ -1,4 +1,4 @@
-/components/schemas/config/Domain:
+Domain:
   properties:
     ad_server:
       description: The IP address or DNS name of your Active Directory server

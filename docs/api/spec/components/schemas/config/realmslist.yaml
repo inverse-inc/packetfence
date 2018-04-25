@@ -1,4 +1,4 @@
-/components/schemas/config/RealmsList:
+RealmsList:
   allOf:
   - $ref: '#/components/schemas/Iterable'
   - properties:

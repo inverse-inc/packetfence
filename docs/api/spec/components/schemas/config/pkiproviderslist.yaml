@@ -1,4 +1,4 @@
-/components/schemas/config/PkiProvidersList:
+PkiProvidersList:
   allOf:
   - $ref: '#/components/schemas/Iterable'
   - properties:

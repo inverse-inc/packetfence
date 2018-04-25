@@ -1,4 +1,4 @@
-/components/schemas/User:
+User:
   properties:
     address:
       type: string

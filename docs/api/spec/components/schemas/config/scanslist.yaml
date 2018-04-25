@@ -1,4 +1,4 @@
-/components/schemas/config/ScansList:
+ScansList:
   allOf:
   - $ref: '#/components/schemas/Iterable'
   - properties:

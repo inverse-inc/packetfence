@@ -1,4 +1,4 @@
-/components/schemas/config/Base:
+Base:
   discriminator:
     propertyName: type
   oneOf: []

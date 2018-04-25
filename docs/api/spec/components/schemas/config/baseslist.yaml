@@ -1,4 +1,4 @@
-/components/schemas/config/BasesList:
+BasesList:
   allOf:
   - $ref: '#/components/schemas/Iterable'
   - properties:

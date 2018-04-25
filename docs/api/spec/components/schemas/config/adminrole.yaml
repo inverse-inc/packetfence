@@ -1,4 +1,4 @@
-/components/schemas/config/AdminRole:
+AdminRole:
   properties:
     actions:
       description: Actions

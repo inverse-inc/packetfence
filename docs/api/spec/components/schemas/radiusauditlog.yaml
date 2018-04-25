@@ -1,4 +1,4 @@
-/components/schemas/RadiusAuditLog:
+RadiusAuditLog:
   properties:
     auth_status:
       type: string

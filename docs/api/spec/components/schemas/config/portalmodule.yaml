@@ -1,4 +1,4 @@
-/components/schemas/config/PortalModule:
+PortalModule:
   discriminator:
     propertyName: type
   oneOf:

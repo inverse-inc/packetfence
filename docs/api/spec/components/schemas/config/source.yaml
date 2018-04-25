@@ -1,4 +1,4 @@
-/components/schemas/config/Source:
+Source:
   discriminator:
     propertyName: type
   oneOf:

@@ -1,4 +1,4 @@
-/components/schemas/config/MaintenanceTask:
+MaintenanceTask:
   discriminator:
     propertyName: type
   oneOf:

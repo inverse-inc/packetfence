@@ -1,4 +1,4 @@
-/components/schemas/config/Firewall:
+Firewall:
   discriminator:
     propertyName: type
   oneOf:

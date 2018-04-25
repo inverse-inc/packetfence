@@ -1,4 +1,4 @@
-/components/schemas/LocationlogsList:
+LocationlogsList:
   allOf:
   - $ref: '#/components/schemas/Iterable'
   - properties:

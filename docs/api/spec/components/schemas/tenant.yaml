@@ -1,4 +1,4 @@
-/components/schemas/Tenant:
+Tenant:
   properties:
     domain_name:
       type: string

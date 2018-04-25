@@ -1,4 +1,4 @@
-/components/schemas/config/TrafficShapingPolicy:
+TrafficShapingPolicy:
   properties:
     download:
       description: Bandwidth must be in the following format 'nXY' where XY is one

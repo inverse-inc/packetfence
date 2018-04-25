@@ -1,4 +1,4 @@
-/components/schemas/config/FirewallsList:
+FirewallsList:
   allOf:
   - $ref: '#/components/schemas/Iterable'
   - properties:

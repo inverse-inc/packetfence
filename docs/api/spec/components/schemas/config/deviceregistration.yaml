@@ -1,4 +1,4 @@
-/components/schemas/config/DeviceRegistration:
+DeviceRegistration:
   properties:
     allowed_devices:
       description: List of OS which will be allowed to be register via the self service

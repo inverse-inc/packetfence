@@ -1,4 +1,4 @@
-/components/schemas/ApiUser:
+ApiUser:
   properties:
     access_level:
       type: string

@@ -1,4 +1,4 @@
-/components/schemas/config/FloatingDevice:
+FloatingDevice:
   properties:
     id:
       description: MAC Address

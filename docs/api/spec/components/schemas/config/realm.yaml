@@ -1,4 +1,4 @@
-/components/schemas/config/Realm:
+Realm:
   properties:
     admin_strip_username:
       description: Should the usernames matching this realm be stripped when used

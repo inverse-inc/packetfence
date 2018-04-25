@@ -1,4 +1,4 @@
-/components/schemas/Violation:
+Violation:
   properties:
     id:
       type: integer

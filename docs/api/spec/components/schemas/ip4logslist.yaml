@@ -1,4 +1,4 @@
-/components/schemas/Ip4logsList:
+Ip4logsList:
   allOf:
   - $ref: '#/components/schemas/Iterable'
   - properties:

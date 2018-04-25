@@ -1,4 +1,4 @@
-/components/schemas/config/DomainsList:
+DomainsList:
   allOf:
   - $ref: '#/components/schemas/Iterable'
   - properties:

@@ -1,4 +1,4 @@
-/components/schemas/UsersList:
+UsersList:
   allOf:
   - $ref: '#/components/schemas/Iterable'
   - properties:

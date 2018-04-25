@@ -1,4 +1,4 @@
-/components/schemas/config/ConnectionProfile:
+ConnectionProfile:
   properties:
     access_registration_when_registered:
       description: This allows already registered users to be able to re-register

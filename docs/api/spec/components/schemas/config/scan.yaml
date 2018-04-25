@@ -1,4 +1,4 @@
-/components/schemas/config/Scan:
+Scan:
   discriminator:
     propertyName: type
   oneOf:

@@ -1,4 +1,4 @@
-/components/schemas/config/BillingTier:
+BillingTier:
   properties:
     access_duration:
       description: The access duration of the devices that use this tier.

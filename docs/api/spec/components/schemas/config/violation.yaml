@@ -1,4 +1,4 @@
-/components/schemas/config/Violation:
+Violation:
   properties:
     access_duration:
       description: Specify the access duration for the new registered node.

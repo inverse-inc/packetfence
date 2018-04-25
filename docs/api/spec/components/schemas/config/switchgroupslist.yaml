@@ -1,4 +1,4 @@
-/components/schemas/config/SwitchGroupsList:
+SwitchGroupsList:
   allOf:
   - $ref: '#/components/schemas/Iterable'
   - properties:

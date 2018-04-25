@@ -1,4 +1,4 @@
-/components/schemas/users/Node:
+Node:
   properties:
     autoreg:
       type: string

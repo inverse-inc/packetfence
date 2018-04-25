@@ -1,4 +1,4 @@
-/components/schemas/ViolationsList:
+ViolationsList:
   allOf:
   - $ref: '#/components/schemas/Iterable'
   - properties:

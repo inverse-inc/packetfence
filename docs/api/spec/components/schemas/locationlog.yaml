@@ -1,4 +1,4 @@
-/components/schemas/Locationlog:
+Locationlog:
   properties:
     connection_sub_type:
       type: string

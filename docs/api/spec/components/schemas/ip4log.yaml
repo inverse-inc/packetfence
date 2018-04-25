@@ -1,4 +1,4 @@
-/components/schemas/Ip4log:
+Ip4log:
   properties:
     end_time:
       type: string

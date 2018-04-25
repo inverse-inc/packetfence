@@ -1,4 +1,4 @@
-/components/schemas/config/Switch:
+Switch:
   properties:
     AccessListMap:
       description: Role by access list

@@ -1,4 +1,4 @@
-/components/schemas/TenantsList:
+TenantsList:
   allOf:
   - $ref: '#/components/schemas/Iterable'
   - properties:

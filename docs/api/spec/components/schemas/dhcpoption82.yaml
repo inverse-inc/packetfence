@@ -1,4 +1,4 @@
-/components/schemas/DhcpOption82:
+DhcpOption82:
   properties:
     circuit_id_string:
       type: string

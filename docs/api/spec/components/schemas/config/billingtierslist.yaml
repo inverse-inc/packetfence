@@ -1,4 +1,4 @@
-/components/schemas/config/BillingTiersList:
+BillingTiersList:
   allOf:
   - $ref: '#/components/schemas/Iterable'
   - properties:
