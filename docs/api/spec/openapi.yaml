@@ -9702,8 +9702,10 @@ paths:
       operationId: api.v1.ApiUsers.search
       parameters: []
       requestBody:
-        application/json:
-          $ref: '#/components/schemas/Search'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Search'
       responses:
         '200':
           content:
@@ -11317,8 +11319,10 @@ paths:
       operationId: api.v1.DhcpOption82s.search
       parameters: []
       requestBody:
-        application/json:
-          $ref: '#/components/schemas/Search'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Search'
       responses:
         '200':
           content:
@@ -11433,8 +11437,10 @@ paths:
       operationId: api.v1.Ip4logs.search
       parameters: []
       requestBody:
-        application/json:
-          $ref: '#/components/schemas/Search'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Search'
       responses:
         '200':
           content:
@@ -11721,8 +11727,10 @@ paths:
       operationId: api.v1.Locationlogs.search
       parameters: []
       requestBody:
-        application/json:
-          $ref: '#/components/schemas/Search'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Search'
       responses:
         '200':
           content:
@@ -11856,8 +11864,10 @@ paths:
       operationId: api.v1.Nodes.search
       parameters: []
       requestBody:
-        application/json:
-          $ref: '#/components/schemas/Search'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Search'
       responses:
         '200':
           content:
@@ -11972,8 +11982,10 @@ paths:
       operationId: api.v1.RadiusAuditLogs.search
       parameters: []
       requestBody:
-        application/json:
-          $ref: '#/components/schemas/Search'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Search'
       responses:
         '200':
           content:
@@ -12219,8 +12231,10 @@ paths:
       operationId: api.v1.Tenants.search
       parameters: []
       requestBody:
-        application/json:
-          $ref: '#/components/schemas/Search'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Search'
       responses:
         '200':
           content:
@@ -12479,8 +12493,10 @@ paths:
       operationId: api.v1.Users.Nodes.Locationlogs.search
       parameters: []
       requestBody:
-        application/json:
-          $ref: '#/components/schemas/Search'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Search'
       responses:
         '200':
           content:
@@ -12535,8 +12551,10 @@ paths:
       operationId: api.v1.Users.Nodes.search
       parameters: []
       requestBody:
-        application/json:
-          $ref: '#/components/schemas/Search'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Search'
       responses:
         '200':
           content:
@@ -12628,8 +12646,10 @@ paths:
       operationId: api.v1.Users.Password.search
       parameters: []
       requestBody:
-        application/json:
-          $ref: '#/components/schemas/Search'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Search'
       responses:
         '200':
           content:
@@ -12684,8 +12704,10 @@ paths:
       operationId: api.v1.Users.search
       parameters: []
       requestBody:
-        application/json:
-          $ref: '#/components/schemas/Search'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Search'
       responses:
         '200':
           content:
@@ -12800,8 +12822,10 @@ paths:
       operationId: api.v1.Violations.search
       parameters: []
       requestBody:
-        application/json:
-          $ref: '#/components/schemas/Search'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Search'
       responses:
         '200':
           content:
