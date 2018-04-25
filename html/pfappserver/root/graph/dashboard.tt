@@ -154,7 +154,7 @@ END
              %]
             <div class="row-fluid text-center">
                 [% FOREACH member IN cluster %]
-                <embed src="/netdata/[% member.value %]/api/v1/badge.svg?chart=system.uptime&label=[% member.key %]%20-%20uptime&scale=120&refresh=1&value_color=blue" type="image/svg+xml" height="25" />
+                <embed src="/netdata/[% member.value %]/api/v1/badge.svg?chart=system.uptime&label=[% member.key %]%20-%20uptime&scale=120&refresh=10&value_color=blue" type="image/svg+xml" height="25" />
                 [% END %]
             </div>
             <div class="row-fluid">
