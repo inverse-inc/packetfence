@@ -117,7 +117,7 @@ END
     <!-- end of alarms templates -->
 
     <!-- missing chart template -->
-    <div class="alert over_chart hide" data-template="missing-chart">
+    <div class="alert hide" data-template="missing-chart">
         <h4 class="alert-heading">[% l("What's going on?") %]</h4>
         <p>[% l("There's not enough data to generate this graph. Is PacketFence in production?") %]</p>
         <p><small class="muted">chart: <span data-block="chart"></span></small></p>

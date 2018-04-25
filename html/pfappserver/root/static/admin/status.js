@@ -309,27 +309,18 @@ function initDashboard() {
     function validateCharts() {
         $('[data-hide-missing]').each(function (index) {
             var $chartEl = $(this);
-            var chart = $chartEl.data('netdata') || $chartEl.data('netdata-disabled');
+            var chart = $chartEl.data('netdata');
             $.ajax({
                 url: $chartEl.data('host') + '/api/v1/chart?chart=' + chart,
                 method: 'GET',
             }).fail(function (data) {
                 // Unknown or missing chart; show warning
-                if ($chartEl.data('netdata')) {
-                    $chartEl.data('netdata-disabled', $chartEl.data('netdata'));
-                    $chartEl.removeAttr('data-netdata');
-                    var alert = $('[data-template="missing-chart"]').clone();
-                    $chartEl.append(alert);
-                    alert.find('[data-block="chart"]').html(chart);
-                    alert.removeClass('hide');
-                }
-            }).done(function (response) {
-                // No error; show the graph
-                if ($chartEl.data('netdata-disabled')) {
-                    $chartEl.data('netdata', $chartEl.data('netdata-disabled'));
-                    $chartEl.removeAttr('data-netdata-disabled');
-                    $chartEl.find('.alert').remove();
-                }
+                var alert = $('[data-template="missing-chart"]').first().clone();
+                alert.removeAttr('data-template');
+                $chartEl.parent().append(alert);
+                alert.find('[data-block="chart"]').html(chart);
+                alert.removeClass('hide');
+                $chartEl.remove();
             });
         });
     }
