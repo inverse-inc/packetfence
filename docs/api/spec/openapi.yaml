@@ -9706,10 +9706,11 @@ components:
       scheme: bearer
       type: http
 info:
-  description: An API to access the PacketFence resources. Lets make the PacketFence
-    API great again!
+  description: A JSON HTTP API to access and manipulate the PacketFence resources.
+    Backward compatibility is currently not 100% guaranteed although we will do our
+    best effort to keep them as described here.
   title: PacketFence API
-  version: 0.0.1
+  version: 1.0.0
 openapi: 3.0.0
 paths:
   /api_user/{api_user_id}:
