@@ -1102,9 +1102,7 @@ Moreover, don't forget to add Twitter as a *Source* from your connection profile
 Windows Live
 ^^^^^^^^^^^^
 To use Windows live, you also need an API code and a secret key.  To get one, you need to create an App here: https://account.live.com/developers/applications.  When you create your App, make sure you specify the following as the Callback URL
-https://YOUR_PORTAL_HOSTNAME/oauth2/callback
-
-Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
+https://YOUR_PORTAL_HOSTNAME/oauth2/callback replacing the hostname with the values from `general.hostname` and `general.domain`, and check *Live SDK support*.
 
 Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a WindowsLive OAuth2 authentication source from *Configuration -> Policies and Access Control -> Authentication Sources*.
 Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
