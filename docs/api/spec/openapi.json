@@ -5,7 +5,7 @@
             "description" : "The cursor pointer to fetch the data (value should be taken from previousCursor and nextCursor)",
             "in" : "query",
             "name" : "cursor",
-            "required" : false,
+            "required" : "",
             "schema" : {
                "type" : "string"
             }
@@ -14,7 +14,7 @@
             "description" : "Comma delimited fields that should be added to the resource by performing joins. For example, in order to get the IP address of a node when calling the nodes endpoints, setting 'ip4log.ip' into this field will provide the latest IP address of the device in the 'ip4log.ip' field of every node that is returned.",
             "in" : "body",
             "name" : "fields",
-            "required" : false,
+            "required" : "",
             "schema" : {
                "example" : [
                   "mac",
@@ -31,7 +31,7 @@
             "description" : "The name of the ipset to manipulate",
             "in" : "path",
             "name" : "set_name",
-            "required" : true,
+            "required" : "1",
             "schema" : {
                "type" : "string"
             }
@@ -40,7 +40,7 @@
             "description" : "The maximum amount of entries to get.",
             "in" : "query|body",
             "name" : "limit",
-            "required" : false,
+            "required" : "",
             "schema" : {
                "type" : "int"
             }
@@ -49,9 +49,9 @@
             "description" : "The local is used to determine if the request should be forwarded to the rest of the cluster. A value of '0' forwards the request and either a missing or alternate value does not forward the request to the rest of the cluster.",
             "in" : "query",
             "name" : "local",
-            "required" : false,
+            "required" : "",
             "schema" : {
-               "default" : 0,
+               "default" : "0",
                "type" : "integer"
             }
          },
@@ -76,7 +76,7 @@
             "description" : "The JSON encoded search query following the Search schema defined in this spec",
             "in" : "body",
             "name" : "query",
-            "required" : true,
+            "required" : "1",
             "schema" : {
                "$ref" : "#/components/schemas/Search"
             }
@@ -85,7 +85,7 @@
             "description" : "A list of fields to sort on along with the ordering way (ASC or DESC).",
             "in" : "body",
             "name" : "sort",
-            "required" : false,
+            "required" : "",
             "schema" : {
                "example" : [
                   "iplog.ip DESC",
@@ -101,7 +101,7 @@
             "description" : "The user ID",
             "in" : "path",
             "name" : "user_id",
-            "required" : true,
+            "required" : "1",
             "schema" : {
                "type" : "string"
             }
@@ -15485,7 +15485,7 @@
                   "description" : "The MAC address to fetch.",
                   "in" : "path",
                   "name" : "mac",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -15519,7 +15519,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -15543,7 +15543,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -15590,7 +15590,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "201" : {
@@ -15852,7 +15852,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -15881,7 +15881,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -15910,7 +15910,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -15939,7 +15939,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -15968,7 +15968,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -15997,7 +15997,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -16026,7 +16026,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -16058,7 +16058,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -16087,7 +16087,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -16116,7 +16116,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -16338,7 +16338,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -16386,7 +16386,7 @@
                   "description" : "The node ID to fetch",
                   "in" : "path",
                   "name" : "node_id",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -16420,7 +16420,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -16444,7 +16444,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -16491,7 +16491,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "201" : {
@@ -16741,14 +16741,14 @@
                   "description" : "The service name to fetch",
                   "in" : "path",
                   "name" : "service",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
                }
             ],
             "requestBody" : {
-               "required" : false
+               "required" : ""
             },
             "responses" : {
                "200" : {
@@ -16768,14 +16768,14 @@
                   "description" : "The service name to fetch",
                   "in" : "path",
                   "name" : "service",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
                }
             ],
             "requestBody" : {
-               "required" : false
+               "required" : ""
             },
             "responses" : {
                "200" : {
@@ -16795,14 +16795,14 @@
                   "description" : "The service name to fetch",
                   "in" : "path",
                   "name" : "service",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
                }
             ],
             "requestBody" : {
-               "required" : false
+               "required" : ""
             },
             "responses" : {
                "200" : {
@@ -16822,14 +16822,14 @@
                   "description" : "The service name to fetch",
                   "in" : "path",
                   "name" : "service",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
                }
             ],
             "requestBody" : {
-               "required" : false
+               "required" : ""
             },
             "responses" : {
                "200" : {
@@ -16874,14 +16874,14 @@
                   "description" : "The service name to fetch",
                   "in" : "path",
                   "name" : "service",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
                }
             ],
             "requestBody" : {
-               "required" : false
+               "required" : ""
             },
             "responses" : {
                "200" : {
@@ -17696,7 +17696,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -17725,7 +17725,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "201" : {
@@ -17757,7 +17757,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
