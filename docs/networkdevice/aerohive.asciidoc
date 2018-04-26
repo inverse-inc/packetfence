@@ -158,7 +158,7 @@ From _RADIUS_:
 This ends the PacketFence configuration.
 
 Web Auth (External Captive Portal) Configuration
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In this section we will describe the WebAuth configuration using PacketFence as an external captive poral.
 
@@ -170,7 +170,7 @@ In this part, it is recommended that the default VLAN must be the native VLAN. T
 You already have a Network Policy and at least one Access Point configured.
 
 Configure the external captive portal
-++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++++++++
 
 Create a new Captive Portal Profile:
 [options="compact"]
