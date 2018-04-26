@@ -25,8 +25,6 @@
                   <li class="sidenav-subsection"><a href="#graph/dashboard?tab=portal" data-tab="dashboard-tabs/portal">[% l('Portal') %]</a></li>
                 </ul>
               </li>
-              <li><a href="#graph/systemstate">[% l('System state') %]</a></li>
-              <li><a href="#graph/logstate">[% l('Logs state') %]</a></li>
               [%- END %]
               [%- IF can_access("SERVICES") %]
               <li><a href="#service">[% l('Services') %]</a></li>
