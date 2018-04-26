@@ -12946,7 +12946,15 @@
          "delete" : {
             "description" : "Remove an item",
             "operationId" : "api.v1.ApiUsers.remove",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "user_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "204" : {
                   "description" : "Item deleted"
@@ -12957,7 +12965,15 @@
          "get" : {
             "description" : "Get an item",
             "operationId" : "api.v1.ApiUsers.get",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "user_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "200" : {
                   "content" : {
@@ -12984,7 +13000,15 @@
          "patch" : {
             "description" : "Update an item",
             "operationId" : "api.v1.ApiUsers.update",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "user_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -13010,7 +13034,15 @@
          "put" : {
             "description" : "Replace an item",
             "operationId" : "api.v1.ApiUsers.replace",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "user_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -13137,7 +13169,15 @@
          "delete" : {
             "description" : "Remove an item",
             "operationId" : "api.v1.Config::AdminRoles.remove",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "admin_role_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "204" : {
                   "description" : "Deleted a config item"
@@ -13148,7 +13188,15 @@
          "get" : {
             "description" : "Get an item",
             "operationId" : "api.v1.Config::AdminRoles.get",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "admin_role_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "200" : {
                   "content" : {
@@ -13170,7 +13218,15 @@
          "patch" : {
             "description" : "Update an item",
             "operationId" : "api.v1.Config::AdminRoles.update",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "admin_role_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -13192,7 +13248,15 @@
          "put" : {
             "description" : "Replace an item",
             "operationId" : "api.v1.Config::AdminRoles.replace",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "admin_role_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -13244,7 +13308,15 @@
          "delete" : {
             "description" : "Remove an item",
             "operationId" : "api.v1.Config::Bases.remove",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "base_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "204" : {
                   "description" : "Deleted a config item"
@@ -13255,7 +13327,15 @@
          "get" : {
             "description" : "Get an item",
             "operationId" : "api.v1.Config::Bases.get",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "base_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "200" : {
                   "content" : {
@@ -13277,7 +13357,15 @@
          "patch" : {
             "description" : "Update an item",
             "operationId" : "api.v1.Config::Bases.update",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "base_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -13299,7 +13387,15 @@
          "put" : {
             "description" : "Replace an item",
             "operationId" : "api.v1.Config::Bases.replace",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "base_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -13351,7 +13447,15 @@
          "delete" : {
             "description" : "Remove an item",
             "operationId" : "api.v1.Config::BillingTiers.remove",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "billing_tier_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "204" : {
                   "description" : "Deleted a config item"
@@ -13362,7 +13466,15 @@
          "get" : {
             "description" : "Get an item",
             "operationId" : "api.v1.Config::BillingTiers.get",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "billing_tier_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "200" : {
                   "content" : {
@@ -13384,7 +13496,15 @@
          "patch" : {
             "description" : "Update an item",
             "operationId" : "api.v1.Config::BillingTiers.update",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "billing_tier_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -13406,7 +13526,15 @@
          "put" : {
             "description" : "Replace an item",
             "operationId" : "api.v1.Config::BillingTiers.replace",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "billing_tier_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -13458,7 +13586,15 @@
          "delete" : {
             "description" : "Remove an item",
             "operationId" : "api.v1.Config::ConnectionProfiles.remove",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "connection_profile_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "204" : {
                   "description" : "Deleted a config item"
@@ -13469,7 +13605,15 @@
          "get" : {
             "description" : "Get an item",
             "operationId" : "api.v1.Config::ConnectionProfiles.get",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "connection_profile_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "200" : {
                   "content" : {
@@ -13491,7 +13635,15 @@
          "patch" : {
             "description" : "Update an item",
             "operationId" : "api.v1.Config::ConnectionProfiles.update",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "connection_profile_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -13513,7 +13665,15 @@
          "put" : {
             "description" : "Replace an item",
             "operationId" : "api.v1.Config::ConnectionProfiles.replace",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "connection_profile_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -13565,7 +13725,15 @@
          "delete" : {
             "description" : "Remove an item",
             "operationId" : "api.v1.Config::DeviceRegistrations.remove",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "device_registration_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "204" : {
                   "description" : "Deleted a config item"
@@ -13576,7 +13744,15 @@
          "get" : {
             "description" : "Get an item",
             "operationId" : "api.v1.Config::DeviceRegistrations.get",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "device_registration_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "200" : {
                   "content" : {
@@ -13598,7 +13774,15 @@
          "patch" : {
             "description" : "Update an item",
             "operationId" : "api.v1.Config::DeviceRegistrations.update",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "device_registration_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -13620,7 +13804,15 @@
          "put" : {
             "description" : "Replace an item",
             "operationId" : "api.v1.Config::DeviceRegistrations.replace",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "device_registration_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -13672,7 +13864,15 @@
          "delete" : {
             "description" : "Remove an item",
             "operationId" : "api.v1.Config::Domains.remove",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "domain_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "204" : {
                   "description" : "Deleted a config item"
@@ -13683,7 +13883,15 @@
          "get" : {
             "description" : "Get an item",
             "operationId" : "api.v1.Config::Domains.get",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "domain_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "200" : {
                   "content" : {
@@ -13705,7 +13913,15 @@
          "patch" : {
             "description" : "Update an item",
             "operationId" : "api.v1.Config::Domains.update",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "domain_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -13727,7 +13943,15 @@
          "put" : {
             "description" : "Replace an item",
             "operationId" : "api.v1.Config::Domains.replace",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "domain_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -13779,7 +14003,15 @@
          "delete" : {
             "description" : "Remove an item",
             "operationId" : "api.v1.Config::Firewalls.remove",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "firewall_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "204" : {
                   "description" : "Deleted a config item"
@@ -13790,7 +14022,15 @@
          "get" : {
             "description" : "Get an item",
             "operationId" : "api.v1.Config::Firewalls.get",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "firewall_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "200" : {
                   "content" : {
@@ -13812,7 +14052,15 @@
          "patch" : {
             "description" : "Update an item",
             "operationId" : "api.v1.Config::Firewalls.update",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "firewall_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -13834,7 +14082,15 @@
          "put" : {
             "description" : "Replace an item",
             "operationId" : "api.v1.Config::Firewalls.replace",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "firewall_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -13886,7 +14142,15 @@
          "delete" : {
             "description" : "Remove an item",
             "operationId" : "api.v1.Config::FloatingDevices.remove",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "floating_device_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "204" : {
                   "description" : "Deleted a config item"
@@ -13897,7 +14161,15 @@
          "get" : {
             "description" : "Get an item",
             "operationId" : "api.v1.Config::FloatingDevices.get",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "floating_device_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "200" : {
                   "content" : {
@@ -13919,7 +14191,15 @@
          "patch" : {
             "description" : "Update an item",
             "operationId" : "api.v1.Config::FloatingDevices.update",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "floating_device_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -13941,7 +14221,15 @@
          "put" : {
             "description" : "Replace an item",
             "operationId" : "api.v1.Config::FloatingDevices.replace",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "floating_device_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -13993,7 +14281,15 @@
          "delete" : {
             "description" : "Remove an item",
             "operationId" : "api.v1.Config::MaintenanceTasks.remove",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "maintenance_task_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "204" : {
                   "description" : "Deleted a config item"
@@ -14004,7 +14300,15 @@
          "get" : {
             "description" : "Get an item",
             "operationId" : "api.v1.Config::MaintenanceTasks.get",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "maintenance_task_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "200" : {
                   "content" : {
@@ -14026,7 +14330,15 @@
          "patch" : {
             "description" : "Update an item",
             "operationId" : "api.v1.Config::MaintenanceTasks.update",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "maintenance_task_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -14048,7 +14360,15 @@
          "put" : {
             "description" : "Replace an item",
             "operationId" : "api.v1.Config::MaintenanceTasks.replace",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "maintenance_task_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -14100,7 +14420,15 @@
          "delete" : {
             "description" : "Remove an item",
             "operationId" : "api.v1.Config::PkiProviders.remove",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "pki_provider_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "204" : {
                   "description" : "Deleted a config item"
@@ -14111,7 +14439,15 @@
          "get" : {
             "description" : "Get an item",
             "operationId" : "api.v1.Config::PkiProviders.get",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "pki_provider_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "200" : {
                   "content" : {
@@ -14133,7 +14469,15 @@
          "patch" : {
             "description" : "Update an item",
             "operationId" : "api.v1.Config::PkiProviders.update",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "pki_provider_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -14155,7 +14499,15 @@
          "put" : {
             "description" : "Replace an item",
             "operationId" : "api.v1.Config::PkiProviders.replace",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "pki_provider_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -14207,7 +14559,15 @@
          "delete" : {
             "description" : "Remove an item",
             "operationId" : "api.v1.Config::PortalModules.remove",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "portal_module_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "204" : {
                   "description" : "Deleted a config item"
@@ -14218,7 +14578,15 @@
          "get" : {
             "description" : "Get an item",
             "operationId" : "api.v1.Config::PortalModules.get",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "portal_module_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "200" : {
                   "content" : {
@@ -14240,7 +14608,15 @@
          "patch" : {
             "description" : "Update an item",
             "operationId" : "api.v1.Config::PortalModules.update",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "portal_module_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -14262,7 +14638,15 @@
          "put" : {
             "description" : "Replace an item",
             "operationId" : "api.v1.Config::PortalModules.replace",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "portal_module_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -14314,7 +14698,15 @@
          "delete" : {
             "description" : "Remove an item",
             "operationId" : "api.v1.Config::Realms.remove",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "realm_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "204" : {
                   "description" : "Deleted a config item"
@@ -14325,7 +14717,15 @@
          "get" : {
             "description" : "Get an item",
             "operationId" : "api.v1.Config::Realms.get",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "realm_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "200" : {
                   "content" : {
@@ -14347,7 +14747,15 @@
          "patch" : {
             "description" : "Update an item",
             "operationId" : "api.v1.Config::Realms.update",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "realm_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -14369,7 +14777,15 @@
          "put" : {
             "description" : "Replace an item",
             "operationId" : "api.v1.Config::Realms.replace",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "realm_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -14421,7 +14837,15 @@
          "delete" : {
             "description" : "Remove an item",
             "operationId" : "api.v1.Config::Roles.remove",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "role_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "204" : {
                   "description" : "Deleted a config item"
@@ -14432,7 +14856,15 @@
          "get" : {
             "description" : "Get an item",
             "operationId" : "api.v1.Config::Roles.get",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "role_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "200" : {
                   "content" : {
@@ -14454,7 +14886,15 @@
          "patch" : {
             "description" : "Update an item",
             "operationId" : "api.v1.Config::Roles.update",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "role_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -14476,7 +14916,15 @@
          "put" : {
             "description" : "Replace an item",
             "operationId" : "api.v1.Config::Roles.replace",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "role_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -14528,7 +14976,15 @@
          "delete" : {
             "description" : "Remove an item",
             "operationId" : "api.v1.Config::Scans.remove",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "scan_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "204" : {
                   "description" : "Deleted a config item"
@@ -14539,7 +14995,15 @@
          "get" : {
             "description" : "Get an item",
             "operationId" : "api.v1.Config::Scans.get",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "scan_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "200" : {
                   "content" : {
@@ -14561,7 +15025,15 @@
          "patch" : {
             "description" : "Update an item",
             "operationId" : "api.v1.Config::Scans.update",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "scan_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -14583,7 +15055,15 @@
          "put" : {
             "description" : "Replace an item",
             "operationId" : "api.v1.Config::Scans.replace",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "scan_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -14635,7 +15115,15 @@
          "delete" : {
             "description" : "Remove an item",
             "operationId" : "api.v1.Config::Sources.remove",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "source_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "204" : {
                   "description" : "Deleted a config item"
@@ -14646,7 +15134,15 @@
          "get" : {
             "description" : "Get an item",
             "operationId" : "api.v1.Config::Sources.get",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "source_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "200" : {
                   "content" : {
@@ -14668,7 +15164,15 @@
          "patch" : {
             "description" : "Update an item",
             "operationId" : "api.v1.Config::Sources.update",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "source_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -14690,7 +15194,15 @@
          "put" : {
             "description" : "Replace an item",
             "operationId" : "api.v1.Config::Sources.replace",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "source_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -14742,7 +15254,15 @@
          "delete" : {
             "description" : "Remove an item",
             "operationId" : "api.v1.Config::Switches.remove",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "switch_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "204" : {
                   "description" : "Deleted a config item"
@@ -14753,7 +15273,15 @@
          "get" : {
             "description" : "Get an item",
             "operationId" : "api.v1.Config::Switches.get",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "switch_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "200" : {
                   "content" : {
@@ -14775,7 +15303,15 @@
          "patch" : {
             "description" : "Update an item",
             "operationId" : "api.v1.Config::Switches.update",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "switch_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -14797,7 +15333,15 @@
          "put" : {
             "description" : "Replace an item",
             "operationId" : "api.v1.Config::Switches.replace",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "switch_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -14824,7 +15368,15 @@
          "delete" : {
             "description" : "Remove an item",
             "operationId" : "api.v1.Config::SwitchGroups.remove",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "switch_group_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "204" : {
                   "description" : "Deleted a config item"
@@ -14835,7 +15387,15 @@
          "get" : {
             "description" : "Get an item",
             "operationId" : "api.v1.Config::SwitchGroups.get",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "switch_group_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "200" : {
                   "content" : {
@@ -14857,7 +15417,15 @@
          "patch" : {
             "description" : "Update an item",
             "operationId" : "api.v1.Config::SwitchGroups.update",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "switch_group_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -14879,7 +15447,15 @@
          "put" : {
             "description" : "Replace an item",
             "operationId" : "api.v1.Config::SwitchGroups.replace",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "switch_group_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -14956,7 +15532,15 @@
          "delete" : {
             "description" : "Remove an item",
             "operationId" : "api.v1.Config::SyslogParsers.remove",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "syslog_parser_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "204" : {
                   "description" : "Deleted a config item"
@@ -14967,7 +15551,15 @@
          "get" : {
             "description" : "Get an item",
             "operationId" : "api.v1.Config::SyslogParsers.get",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "syslog_parser_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "200" : {
                   "content" : {
@@ -14989,7 +15581,15 @@
          "patch" : {
             "description" : "Update an item",
             "operationId" : "api.v1.Config::SyslogParsers.update",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "syslog_parser_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -15011,7 +15611,15 @@
          "put" : {
             "description" : "Replace an item",
             "operationId" : "api.v1.Config::SyslogParsers.replace",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "syslog_parser_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -15088,7 +15696,15 @@
          "delete" : {
             "description" : "Remove an item",
             "operationId" : "api.v1.Config::TrafficShapingPolicies.remove",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "traffic_shaping_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "204" : {
                   "description" : "Deleted a config item"
@@ -15099,7 +15715,15 @@
          "get" : {
             "description" : "Get an item",
             "operationId" : "api.v1.Config::TrafficShapingPolicies.get",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "traffic_shaping_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "200" : {
                   "content" : {
@@ -15121,7 +15745,15 @@
          "patch" : {
             "description" : "Update an item",
             "operationId" : "api.v1.Config::TrafficShapingPolicies.update",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "traffic_shaping_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -15143,7 +15775,15 @@
          "put" : {
             "description" : "Replace an item",
             "operationId" : "api.v1.Config::TrafficShapingPolicies.replace",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "traffic_shaping_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -15170,7 +15810,15 @@
          "delete" : {
             "description" : "Remove an item",
             "operationId" : "api.v1.Config::Violations.remove",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "violation_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "204" : {
                   "description" : "Deleted a config item"
@@ -15181,7 +15829,15 @@
          "get" : {
             "description" : "Get an item",
             "operationId" : "api.v1.Config::Violations.get",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "violation_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "200" : {
                   "content" : {
@@ -15203,7 +15859,15 @@
          "patch" : {
             "description" : "Update an item",
             "operationId" : "api.v1.Config::Violations.update",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "violation_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -15225,7 +15889,15 @@
          "put" : {
             "description" : "Replace an item",
             "operationId" : "api.v1.Config::Violations.replace",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "violation_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -15382,7 +16054,15 @@
          "delete" : {
             "description" : "Remove an item",
             "operationId" : "api.v1.DhcpOption82s.remove",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "dhcp_option82_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "204" : {
                   "description" : "Item deleted"
@@ -15393,7 +16073,15 @@
          "get" : {
             "description" : "Get an item",
             "operationId" : "api.v1.DhcpOption82s.get",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "dhcp_option82_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "200" : {
                   "content" : {
@@ -15420,7 +16108,15 @@
          "patch" : {
             "description" : "Update an item",
             "operationId" : "api.v1.DhcpOption82s.update",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "dhcp_option82_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -15446,7 +16142,15 @@
          "put" : {
             "description" : "Replace an item",
             "operationId" : "api.v1.DhcpOption82s.replace",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "dhcp_option82_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -15646,7 +16350,15 @@
          "delete" : {
             "description" : "Remove an item",
             "operationId" : "api.v1.Ip4logs.remove",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "ip4log_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "204" : {
                   "description" : "Item deleted"
@@ -15657,7 +16369,15 @@
          "get" : {
             "description" : "Get an item",
             "operationId" : "api.v1.Ip4logs.get",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "ip4log_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "200" : {
                   "content" : {
@@ -15684,7 +16404,15 @@
          "patch" : {
             "description" : "Update an item",
             "operationId" : "api.v1.Ip4logs.update",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "ip4log_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -15710,7 +16438,15 @@
          "put" : {
             "description" : "Replace an item",
             "operationId" : "api.v1.Ip4logs.replace",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "ip4log_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -16133,7 +16869,15 @@
          "delete" : {
             "description" : "Remove an item",
             "operationId" : "api.v1.Locationlogs.remove",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "locationlog_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "204" : {
                   "description" : "Item deleted"
@@ -16144,7 +16888,15 @@
          "get" : {
             "description" : "Get an item",
             "operationId" : "api.v1.Locationlogs.get",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "locationlog_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "200" : {
                   "content" : {
@@ -16171,7 +16923,15 @@
          "patch" : {
             "description" : "Update an item",
             "operationId" : "api.v1.Locationlogs.update",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "locationlog_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -16197,7 +16957,15 @@
          "put" : {
             "description" : "Replace an item",
             "operationId" : "api.v1.Locationlogs.replace",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "locationlog_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -16547,7 +17315,15 @@
          "delete" : {
             "description" : "Remove an item",
             "operationId" : "api.v1.RadiusAuditLogs.remove",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "radius_audit_log_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "204" : {
                   "description" : "Item deleted"
@@ -16558,7 +17334,15 @@
          "get" : {
             "description" : "Get an item",
             "operationId" : "api.v1.RadiusAuditLogs.get",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "radius_audit_log_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "200" : {
                   "content" : {
@@ -16585,7 +17369,15 @@
          "patch" : {
             "description" : "Update an item",
             "operationId" : "api.v1.RadiusAuditLogs.update",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "radius_audit_log_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -16611,7 +17403,15 @@
          "put" : {
             "description" : "Replace an item",
             "operationId" : "api.v1.RadiusAuditLogs.replace",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "radius_audit_log_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -16949,7 +17749,15 @@
          "delete" : {
             "description" : "Remove an item",
             "operationId" : "api.v1.Tenants.remove",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "tenant_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "204" : {
                   "description" : "Item deleted"
@@ -16960,7 +17768,15 @@
          "get" : {
             "description" : "Get an item",
             "operationId" : "api.v1.Tenants.get",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "tenant_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "200" : {
                   "content" : {
@@ -16987,7 +17803,15 @@
          "patch" : {
             "description" : "Update an item",
             "operationId" : "api.v1.Tenants.update",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "tenant_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -17013,7 +17837,15 @@
          "put" : {
             "description" : "Replace an item",
             "operationId" : "api.v1.Tenants.replace",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "tenant_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -17173,7 +18005,15 @@
          "delete" : {
             "description" : "Remove an item",
             "operationId" : "api.v1.Users.remove",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "user_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "204" : {
                   "description" : "Item deleted"
@@ -17184,7 +18024,15 @@
          "get" : {
             "description" : "Get an item",
             "operationId" : "api.v1.Users.get",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "user_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "200" : {
                   "content" : {
@@ -17211,7 +18059,15 @@
          "patch" : {
             "description" : "Update an item",
             "operationId" : "api.v1.Users.update",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "user_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -17237,7 +18093,15 @@
          "put" : {
             "description" : "Replace an item",
             "operationId" : "api.v1.Users.replace",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "user_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -17265,7 +18129,22 @@
          "delete" : {
             "description" : "Remove an item",
             "operationId" : "api.v1.Users.Nodes.remove",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "node_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               },
+               {
+                  "in" : "path",
+                  "name" : "user_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "204" : {
                   "description" : "Item deleted"
@@ -17276,7 +18155,22 @@
          "get" : {
             "description" : "Get an item",
             "operationId" : "api.v1.Users.Nodes.get",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "node_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               },
+               {
+                  "in" : "path",
+                  "name" : "user_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "200" : {
                   "content" : {
@@ -17303,7 +18197,22 @@
          "patch" : {
             "description" : "Update an item",
             "operationId" : "api.v1.Users.Nodes.update",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "node_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               },
+               {
+                  "in" : "path",
+                  "name" : "user_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -17329,7 +18238,22 @@
          "put" : {
             "description" : "Replace an item",
             "operationId" : "api.v1.Users.Nodes.replace",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "node_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               },
+               {
+                  "in" : "path",
+                  "name" : "user_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -17357,7 +18281,22 @@
          "delete" : {
             "description" : "Remove an item",
             "operationId" : "api.v1.Users.Nodes.Locationlogs.remove",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "locationlog_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               },
+               {
+                  "in" : "path",
+                  "name" : "node_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "204" : {
                   "description" : "Item deleted"
@@ -17368,7 +18307,22 @@
          "get" : {
             "description" : "Get an item",
             "operationId" : "api.v1.Users.Nodes.Locationlogs.get",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "locationlog_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               },
+               {
+                  "in" : "path",
+                  "name" : "node_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "200" : {
                   "content" : {
@@ -17395,7 +18349,22 @@
          "patch" : {
             "description" : "Update an item",
             "operationId" : "api.v1.Users.Nodes.Locationlogs.update",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "locationlog_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               },
+               {
+                  "in" : "path",
+                  "name" : "node_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -17421,7 +18390,22 @@
          "put" : {
             "description" : "Replace an item",
             "operationId" : "api.v1.Users.Nodes.Locationlogs.replace",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "locationlog_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               },
+               {
+                  "in" : "path",
+                  "name" : "node_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -17909,7 +18893,15 @@
          "delete" : {
             "description" : "Remove an item",
             "operationId" : "api.v1.Violations.remove",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "violation_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "204" : {
                   "description" : "Item deleted"
@@ -17920,7 +18912,15 @@
          "get" : {
             "description" : "Get an item",
             "operationId" : "api.v1.Violations.get",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "violation_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "responses" : {
                "200" : {
                   "content" : {
@@ -17947,7 +18947,15 @@
          "patch" : {
             "description" : "Update an item",
             "operationId" : "api.v1.Violations.update",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "violation_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -17973,7 +18981,15 @@
          "put" : {
             "description" : "Replace an item",
             "operationId" : "api.v1.Violations.replace",
-            "parameters" : [],
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "violation_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
             "requestBody" : {
                "content" : {
                   "application/json" : {
