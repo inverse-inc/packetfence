@@ -20,7 +20,7 @@ Pre-Depends:  ca-certificates,
  packetfence-redis-cache (>= ${source:Version}), packetfence-golang-daemon (>= ${source:Version}),
 # wmi
  libnet-wmiclient-perl, libwmiclient1, wmi-client,
- netdata,
+ netdata (>= 1.10),
 Breaks: libdata-alias-perl
 Depends: ${misc:Depends}, vlan,
  openssl, openssl-blacklist, openssl-blacklist-extra,
