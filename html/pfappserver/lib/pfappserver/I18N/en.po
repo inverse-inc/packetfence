@@ -9240,7 +9240,7 @@ msgstr "Stats timing level"
 
 # conf/documentation.conf
 msgid "advanced.unreg_on_accounting_stop"
-msgstr ""
+msgstr "Unregister the device on accounting stop"
 
 # conf/documentation.conf
 msgid "advanced.update_iplog_with_accounting"
@@ -9432,7 +9432,7 @@ msgstr "Redirection delay"
 
 # conf/documentation.conf
 msgid "captive_portal.other_domain_names"
-msgstr ""
+msgstr "Other domain names"
 
 # conf/documentation.conf
 msgid "captive_portal.rate_limiting"
@@ -9486,7 +9486,7 @@ msgstr "ARP lookups by the collector"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "collector.cluster_resync_interval"
-msgstr ""
+msgstr "Cluster resync interval"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "collector.db_persistence_interval"
@@ -10618,19 +10618,19 @@ msgstr ""
 
 # conf/documentation.conf
 msgid "pfdhcp.connect_timeout_ms"
-msgstr ""
+msgstr "Connect timeout (ms)"
 
 # conf/documentation.conf
 msgid "pfdhcp.ip2mac_lookup"
-msgstr ""
+msgstr "MAC lookup"
 
 # conf/documentation.conf
 msgid "pfdhcp.mac2ip_lookup"
-msgstr ""
+msgstr "IP lookup"
 
 # conf/documentation.conf
 msgid "pfdhcp.timeout_ms"
-msgstr ""
+msgstr "Query timeout (ms)"
 
 # pf::Authentication::Source::SMSSource (available_attributes)
 # pf::Authentication::Source::TwilioSource (available_attributes)
@@ -10686,7 +10686,7 @@ msgstr "Soap"
 
 # conf/documentation.conf
 msgid "ports.unifiedapi"
-msgstr ""
+msgstr "Unified API"
 
 # pf::Authentication::Source::ADSource (available_attributes)
 # pf::Authentication::Source::LDAPSource (available_attributes)
@@ -10981,7 +10981,7 @@ msgstr "etcd"
 
 # conf/documentation.conf
 msgid "services.etcd_binary"
-msgstr ""
+msgstr "etcd path"
 
 # conf/documentation.conf
 msgid "services.fingerbank-collector"
@@ -10989,7 +10989,7 @@ msgstr "fingerbank-collector"
 
 # conf/documentation.conf
 msgid "services.fingerbank-collector_binary"
-msgstr ""
+msgstr "fingerbank-collector path"
 
 # conf/documentation.conf
 msgid "services.haproxy-db"
@@ -10997,7 +10997,7 @@ msgstr "haproxy-db"
 
 # conf/documentation.conf
 msgid "services.haproxy-db_binary"
-msgstr ""
+msgstr "haproxy-db path"
 
 # conf/documentation.conf
 msgid "services.haproxy-portal"
@@ -11005,7 +11005,7 @@ msgstr "haproxy-portal"
 
 # conf/documentation.conf
 msgid "services.haproxy-portal_binary"
-msgstr ""
+msgstr "haproxy-portal path"
 
 # conf/documentation.conf
 msgid "services.httpd_aaa"
@@ -11065,7 +11065,7 @@ msgstr "netdata"
 
 # conf/documentation.conf
 msgid "services.netdata_binary"
-msgstr ""
+msgstr "netdata path"
 
 # conf/documentation.conf
 msgid "services.openssl_binary"
@@ -11081,7 +11081,7 @@ msgstr "pfdhcp"
 
 # conf/documentation.conf
 msgid "services.pfdhcp_binary"
-msgstr ""
+msgstr "pfdhcp path"
 
 # conf/documentation.conf
 msgid "services.pfdhcplistener"
@@ -11097,7 +11097,7 @@ msgstr "pfdns"
 
 # conf/documentation.conf
 msgid "services.pfdns_binary"
-msgstr ""
+msgstr "pfdns path"
 
 # conf/documentation.conf
 msgid "services.pffilter"
@@ -11109,7 +11109,7 @@ msgstr "pfipset"
 
 # conf/documentation.conf
 msgid "services.pfipset_binary"
-msgstr ""
+msgstr "pfipset path"
 
 # conf/documentation.conf
 msgid "services.pfmon"
@@ -11133,7 +11133,7 @@ msgstr "pfstats"
 
 # conf/documentation.conf
 msgid "services.pfstats_binary"
-msgstr ""
+msgstr "pfstats path"
 
 # conf/documentation.conf
 msgid "services.radiusd"
@@ -11189,7 +11189,7 @@ msgstr "tc"
 
 # conf/documentation.conf
 msgid "services.tc_binary"
-msgstr ""
+msgstr "tc path"
 
 # conf/documentation.conf
 msgid "services.winbindd"
@@ -11384,7 +11384,7 @@ msgstr "Update ip6log by IP and MAC"
 
 # pf::api (Allowed actions)
 msgid "update_role_configuration"
-msgstr ""
+msgstr "Update role configuration"
 
 # /usr/local/fingerbank/conf/fingerbank.conf.doc
 msgid "upstream"
@@ -11502,7 +11502,7 @@ msgstr "Protocol"
 
 # conf/documentation.conf
 msgid "webservices.unifiedapi_port"
-msgstr ""
+msgstr "Unified API port"
 
 # conf/documentation.conf
 msgid "webservices.user"
