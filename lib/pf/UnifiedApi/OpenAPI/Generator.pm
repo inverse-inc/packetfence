@@ -393,11 +393,12 @@ sub schemaListPath {
 }
 
 sub path_parameter {
-    my ($self, $name) = @_;
+    my ($self, $name, $description) = @_;
     return {
         in     => 'path',
         schema => { type => 'string' },
-        name   => $name
+        name   => $name,
+        (defined $description ? (description => $description) : ()),
     };
 }
 

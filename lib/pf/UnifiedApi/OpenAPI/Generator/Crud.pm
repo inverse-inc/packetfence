@@ -175,6 +175,7 @@ sub getResponses {
     my @paths = split('/', $a->{path});
     return {
         "200" => {
+            description => "Get item",
             content => {
                 "application/json" => {
                     schema => {
@@ -221,6 +222,7 @@ The OpenAPI Operation RequestBody for the create action
 sub createRequestBody {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
+        description => "Create item",
         "content" => {
             "application/json" => {
                 "schema" => {
@@ -275,6 +277,7 @@ The OpenAPI Operation RequestBody for the search action
 sub searchRequestBody {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
+        description => "Search for items",
         content => {
             "application/json" => {
                 schema => {
