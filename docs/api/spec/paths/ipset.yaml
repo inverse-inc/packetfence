@@ -79,8 +79,8 @@
 
 /ipset/mark_ip_layer2:
   post:
-    summary: ...
-    description: ...
+    summary: Mark IP layer2
+    description: Mark IP layer2
     parameters:
       - $ref: '#/components/parameters/local'
     requestBody:
@@ -99,8 +99,8 @@
 
 /ipset/mark_ip_layer3:
   post:
-    summary: ...
-    description: ...
+    summary: Mark IP layer3
+    description: Mark IP layer3
     parameters:
       - $ref: '#/components/parameters/local'
     requestBody:
@@ -119,8 +119,8 @@
 
 /ipset/passthrough:
   post:
-    summary: ...
-    description: ...
+    summary: Passthrough
+    description: Passthrough
     parameters:
       - $ref: '#/components/parameters/local'
     requestBody:
@@ -138,8 +138,8 @@
 
 /ipset/passthrough_isolation:
   post:
-    summary: ...
-    description: ...
+    summary: Passthrough Isolation
+    description: Passthrough Isolation
     parameters:
       - $ref: '#/components/parameters/local'
     requestBody:
