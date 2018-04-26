@@ -36,6 +36,7 @@
                 item:
                   $ref: '#/components/schemas/UsersNodesLocationlog'
               type: object
+        description: Get item
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':

@@ -9628,6 +9628,7 @@ paths:
                   item:
                     $ref: '#/components/schemas/ApiUser'
                 type: object
+          description: Get item
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -9703,6 +9704,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/ApiUser'
+        description: Create item
       responses:
         '201':
           $ref: '#/components/responses/Created'
@@ -9722,6 +9724,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Search'
+        description: Search for items
       responses:
         '200':
           content:
@@ -11532,6 +11535,7 @@ paths:
                   item:
                     $ref: '#/components/schemas/DhcpOption82'
                 type: object
+          description: Get item
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -11675,6 +11679,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Search'
+        description: Search for items
       responses:
         '200':
           content:
@@ -11715,6 +11720,7 @@ paths:
                   item:
                     $ref: '#/components/schemas/Ip4log'
                 type: object
+          description: Get item
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -11790,6 +11796,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Ip4log'
+        description: Create item
       responses:
         '201':
           $ref: '#/components/responses/Created'
@@ -11809,6 +11816,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Search'
+        description: Search for items
       responses:
         '200':
           content:
@@ -12021,6 +12029,7 @@ paths:
                   item:
                     $ref: '#/components/schemas/Locationlog'
                 type: object
+          description: Get item
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -12096,6 +12105,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Locationlog'
+        description: Create item
       responses:
         '201':
           $ref: '#/components/responses/Created'
@@ -12115,6 +12125,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Search'
+        description: Search for items
       responses:
         '200':
           content:
@@ -12252,6 +12263,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Search'
+        description: Search for items
       responses:
         '200':
           content:
@@ -12292,6 +12304,7 @@ paths:
                   item:
                     $ref: '#/components/schemas/RadiusAuditLog'
                 type: object
+          description: Get item
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -12367,6 +12380,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/RadiusAuditLog'
+        description: Create item
       responses:
         '201':
           $ref: '#/components/responses/Created'
@@ -12386,6 +12400,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Search'
+        description: Search for items
       responses:
         '200':
           content:
@@ -12557,6 +12572,7 @@ paths:
                   item:
                     $ref: '#/components/schemas/Tenant'
                 type: object
+          description: Get item
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -12632,6 +12648,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Tenant'
+        description: Create item
       responses:
         '201':
           $ref: '#/components/responses/Created'
@@ -12651,6 +12668,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Search'
+        description: Search for items
       responses:
         '200':
           content:
@@ -12715,6 +12733,7 @@ paths:
                   item:
                     $ref: '#/components/schemas/User'
                 type: object
+          description: Get item
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -12799,6 +12818,7 @@ paths:
                   item:
                     $ref: '#/components/schemas/UsersNode'
                 type: object
+          description: Get item
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -12891,6 +12911,7 @@ paths:
                   item:
                     $ref: '#/components/schemas/UsersNodesLocationlog'
                 type: object
+          description: Get item
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -12974,6 +12995,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/UsersNodesLocationlog'
+        description: Create item
       responses:
         '201':
           $ref: '#/components/responses/Created'
@@ -12993,6 +13015,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Search'
+        description: Search for items
       responses:
         '200':
           content:
@@ -13032,6 +13055,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/UsersNode'
+        description: Create item
       responses:
         '201':
           $ref: '#/components/responses/Created'
@@ -13051,6 +13075,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Search'
+        description: Search for items
       responses:
         '200':
           content:
@@ -13146,6 +13171,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Search'
+        description: Search for items
       responses:
         '200':
           content:
@@ -13185,6 +13211,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/User'
+        description: Create item
       responses:
         '201':
           $ref: '#/components/responses/Created'
@@ -13204,6 +13231,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Search'
+        description: Search for items
       responses:
         '200':
           content:
@@ -13244,6 +13272,7 @@ paths:
                   item:
                     $ref: '#/components/schemas/Violation'
                 type: object
+          description: Get item
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -13319,6 +13348,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Violation'
+        description: Create item
       responses:
         '201':
           $ref: '#/components/responses/Created'
@@ -13338,6 +13368,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Search'
+        description: Search for items
       responses:
         '200':
           content:

@@ -27,6 +27,7 @@
         application/json:
           schema:
             $ref: '#/components/schemas/UsersNode'
+      description: Create item
     responses:
       '201':
         $ref: '#/components/responses/Created'

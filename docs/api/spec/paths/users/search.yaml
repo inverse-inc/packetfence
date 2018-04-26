@@ -8,6 +8,7 @@
         application/json:
           schema:
             $ref: '#/components/schemas/Search'
+      description: Search for items
     responses:
       '200':
         content:

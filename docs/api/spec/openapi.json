@@ -5,7 +5,7 @@
             "description" : "The cursor pointer to fetch the data (value should be taken from previousCursor and nextCursor)",
             "in" : "query",
             "name" : "cursor",
-            "required" : "",
+            "required" : false,
             "schema" : {
                "type" : "string"
             }
@@ -14,7 +14,7 @@
             "description" : "Comma delimited fields that should be added to the resource by performing joins. For example, in order to get the IP address of a node when calling the nodes endpoints, setting 'ip4log.ip' into this field will provide the latest IP address of the device in the 'ip4log.ip' field of every node that is returned.",
             "in" : "body",
             "name" : "fields",
-            "required" : "",
+            "required" : false,
             "schema" : {
                "example" : [
                   "mac",
@@ -31,7 +31,7 @@
             "description" : "The name of the ipset to manipulate",
             "in" : "path",
             "name" : "set_name",
-            "required" : "1",
+            "required" : true,
             "schema" : {
                "type" : "string"
             }
@@ -40,7 +40,7 @@
             "description" : "The maximum amount of entries to get.",
             "in" : "query|body",
             "name" : "limit",
-            "required" : "",
+            "required" : false,
             "schema" : {
                "type" : "int"
             }
@@ -49,9 +49,9 @@
             "description" : "The local is used to determine if the request should be forwarded to the rest of the cluster. A value of '0' forwards the request and either a missing or alternate value does not forward the request to the rest of the cluster.",
             "in" : "query",
             "name" : "local",
-            "required" : "",
+            "required" : false,
             "schema" : {
-               "default" : "0",
+               "default" : 0,
                "type" : "integer"
             }
          },
@@ -76,7 +76,7 @@
             "description" : "The JSON encoded search query following the Search schema defined in this spec",
             "in" : "body",
             "name" : "query",
-            "required" : "1",
+            "required" : true,
             "schema" : {
                "$ref" : "#/components/schemas/Search"
             }
@@ -85,7 +85,7 @@
             "description" : "A list of fields to sort on along with the ordering way (ASC or DESC).",
             "in" : "body",
             "name" : "sort",
-            "required" : "",
+            "required" : false,
             "schema" : {
                "example" : [
                   "iplog.ip DESC",
@@ -101,7 +101,7 @@
             "description" : "The user ID",
             "in" : "path",
             "name" : "user_id",
-            "required" : "1",
+            "required" : true,
             "schema" : {
                "type" : "string"
             }
@@ -12987,7 +12987,8 @@
                            "type" : "object"
                         }
                      }
-                  }
+                  },
+                  "description" : "Get item"
                },
                "400" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -13114,7 +13115,8 @@
                         "$ref" : "#/components/schemas/ApiUser"
                      }
                   }
-               }
+               },
+               "description" : "Create item"
             },
             "responses" : {
                "201" : {
@@ -13144,7 +13146,8 @@
                         "$ref" : "#/components/schemas/Search"
                      }
                   }
-               }
+               },
+               "description" : "Search for items"
             },
             "responses" : {
                "200" : {
@@ -16095,7 +16098,8 @@
                            "type" : "object"
                         }
                      }
-                  }
+                  },
+                  "description" : "Get item"
                },
                "400" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -16189,7 +16193,7 @@
                   "description" : "The MAC address to fetch.",
                   "in" : "path",
                   "name" : "mac",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -16223,7 +16227,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -16247,7 +16251,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -16294,7 +16298,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -16325,7 +16329,8 @@
                         "$ref" : "#/components/schemas/Search"
                      }
                   }
-               }
+               },
+               "description" : "Search for items"
             },
             "responses" : {
                "200" : {
@@ -16391,7 +16396,8 @@
                            "type" : "object"
                         }
                      }
-                  }
+                  },
+                  "description" : "Get item"
                },
                "400" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -16518,7 +16524,8 @@
                         "$ref" : "#/components/schemas/Ip4log"
                      }
                   }
-               }
+               },
+               "description" : "Create item"
             },
             "responses" : {
                "201" : {
@@ -16548,7 +16555,8 @@
                         "$ref" : "#/components/schemas/Search"
                      }
                   }
-               }
+               },
+               "description" : "Search for items"
             },
             "responses" : {
                "200" : {
@@ -16588,7 +16596,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -16617,7 +16625,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -16646,7 +16654,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -16675,7 +16683,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -16704,7 +16712,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -16733,7 +16741,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -16762,7 +16770,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -16794,7 +16802,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -16823,7 +16831,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -16852,7 +16860,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -16910,7 +16918,8 @@
                            "type" : "object"
                         }
                      }
-                  }
+                  },
+                  "description" : "Get item"
                },
                "400" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -17037,7 +17046,8 @@
                         "$ref" : "#/components/schemas/Locationlog"
                      }
                   }
-               }
+               },
+               "description" : "Create item"
             },
             "responses" : {
                "201" : {
@@ -17067,7 +17077,8 @@
                         "$ref" : "#/components/schemas/Search"
                      }
                   }
-               }
+               },
+               "description" : "Search for items"
             },
             "responses" : {
                "200" : {
@@ -17106,7 +17117,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -17154,7 +17165,7 @@
                   "description" : "The node ID to fetch",
                   "in" : "path",
                   "name" : "node_id",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -17188,7 +17199,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -17212,7 +17223,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -17259,7 +17270,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -17290,7 +17301,8 @@
                         "$ref" : "#/components/schemas/Search"
                      }
                   }
-               }
+               },
+               "description" : "Search for items"
             },
             "responses" : {
                "200" : {
@@ -17356,7 +17368,8 @@
                            "type" : "object"
                         }
                      }
-                  }
+                  },
+                  "description" : "Get item"
                },
                "400" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -17483,7 +17496,8 @@
                         "$ref" : "#/components/schemas/RadiusAuditLog"
                      }
                   }
-               }
+               },
+               "description" : "Create item"
             },
             "responses" : {
                "201" : {
@@ -17513,7 +17527,8 @@
                         "$ref" : "#/components/schemas/Search"
                      }
                   }
-               }
+               },
+               "description" : "Search for items"
             },
             "responses" : {
                "200" : {
@@ -17541,14 +17556,14 @@
                   "description" : "The service name to fetch",
                   "in" : "path",
                   "name" : "service",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
                }
             ],
             "requestBody" : {
-               "required" : ""
+               "required" : false
             },
             "responses" : {
                "200" : {
@@ -17568,14 +17583,14 @@
                   "description" : "The service name to fetch",
                   "in" : "path",
                   "name" : "service",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
                }
             ],
             "requestBody" : {
-               "required" : ""
+               "required" : false
             },
             "responses" : {
                "200" : {
@@ -17595,14 +17610,14 @@
                   "description" : "The service name to fetch",
                   "in" : "path",
                   "name" : "service",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
                }
             ],
             "requestBody" : {
-               "required" : ""
+               "required" : false
             },
             "responses" : {
                "200" : {
@@ -17622,14 +17637,14 @@
                   "description" : "The service name to fetch",
                   "in" : "path",
                   "name" : "service",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
                }
             ],
             "requestBody" : {
-               "required" : ""
+               "required" : false
             },
             "responses" : {
                "200" : {
@@ -17674,14 +17689,14 @@
                   "description" : "The service name to fetch",
                   "in" : "path",
                   "name" : "service",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
                }
             ],
             "requestBody" : {
-               "required" : ""
+               "required" : false
             },
             "responses" : {
                "200" : {
@@ -17790,7 +17805,8 @@
                            "type" : "object"
                         }
                      }
-                  }
+                  },
+                  "description" : "Get item"
                },
                "400" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -17917,7 +17933,8 @@
                         "$ref" : "#/components/schemas/Tenant"
                      }
                   }
-               }
+               },
+               "description" : "Create item"
             },
             "responses" : {
                "201" : {
@@ -17947,7 +17964,8 @@
                         "$ref" : "#/components/schemas/Search"
                      }
                   }
-               }
+               },
+               "description" : "Search for items"
             },
             "responses" : {
                "200" : {
@@ -18046,7 +18064,8 @@
                            "type" : "object"
                         }
                      }
-                  }
+                  },
+                  "description" : "Get item"
                },
                "400" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -18184,7 +18203,8 @@
                            "type" : "object"
                         }
                      }
-                  }
+                  },
+                  "description" : "Get item"
                },
                "400" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -18336,7 +18356,8 @@
                            "type" : "object"
                         }
                      }
-                  }
+                  },
+                  "description" : "Get item"
                },
                "400" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -18477,7 +18498,8 @@
                         "$ref" : "#/components/schemas/UsersNodesLocationlog"
                      }
                   }
-               }
+               },
+               "description" : "Create item"
             },
             "responses" : {
                "201" : {
@@ -18507,7 +18529,8 @@
                         "$ref" : "#/components/schemas/Search"
                      }
                   }
-               }
+               },
+               "description" : "Search for items"
             },
             "responses" : {
                "200" : {
@@ -18576,7 +18599,8 @@
                         "$ref" : "#/components/schemas/UsersNode"
                      }
                   }
-               }
+               },
+               "description" : "Create item"
             },
             "responses" : {
                "201" : {
@@ -18606,7 +18630,8 @@
                         "$ref" : "#/components/schemas/Search"
                      }
                   }
-               }
+               },
+               "description" : "Search for items"
             },
             "responses" : {
                "200" : {
@@ -18680,7 +18705,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -18709,7 +18734,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -18741,7 +18766,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -18769,7 +18794,8 @@
                         "$ref" : "#/components/schemas/Search"
                      }
                   }
-               }
+               },
+               "description" : "Search for items"
             },
             "responses" : {
                "200" : {
@@ -18838,7 +18864,8 @@
                         "$ref" : "#/components/schemas/User"
                      }
                   }
-               }
+               },
+               "description" : "Create item"
             },
             "responses" : {
                "201" : {
@@ -18868,7 +18895,8 @@
                         "$ref" : "#/components/schemas/Search"
                      }
                   }
-               }
+               },
+               "description" : "Search for items"
             },
             "responses" : {
                "200" : {
@@ -18934,7 +18962,8 @@
                            "type" : "object"
                         }
                      }
-                  }
+                  },
+                  "description" : "Get item"
                },
                "400" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -19061,7 +19090,8 @@
                         "$ref" : "#/components/schemas/Violation"
                      }
                   }
-               }
+               },
+               "description" : "Create item"
             },
             "responses" : {
                "201" : {
@@ -19091,7 +19121,8 @@
                         "$ref" : "#/components/schemas/Search"
                      }
                   }
-               }
+               },
+               "description" : "Search for items"
             },
             "responses" : {
                "200" : {
