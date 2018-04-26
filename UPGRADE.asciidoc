@@ -178,26 +178,6 @@ Finally, the `pf` must be sudoer access to the `/sbin/ip` (and others) binary. A
 
 
 
-Removal of the graphite database
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-PacketFence doesn't use graphite anymore for its dashboard. It is recommended to delete the graphite database although this is purely optional.
-
-In order to do so, execute the following:
-
-  mysql -u root -p -e "drop database pf_graphite"
-
-Changes to DNS filters
-^^^^^^^^^^^^^^^^^^^^^^
-
-The $qname parameter need to be removed from dns_filters.conf 
-
-In order to do so, execute the following command:
-
-  sed -i -e 's/\$qname//g' /usr/local/pf/conf/dns_filters.conf
-
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
-
 Upgrading from a version prior to 4.0.1
 ---------------------------------------
 
@@ -1705,6 +1685,24 @@ The previous values were:
 
 This is should only be necessary if you are using ACL assignment on your switches and using the default names that were there in PacketFence before.
 
+Removal of the graphite database
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+PacketFence doesn't use graphite anymore for its dashboard. It is recommended to delete the graphite database although this is purely optional.
+
+In order to do so, execute the following:
+
+  mysql -u root -p -e "drop database pf_graphite"
+
+Changes to DNS filters
+^^^^^^^^^^^^^^^^^^^^^^
+
+The $qname parameter need to be removed from dns_filters.conf 
+
+In order to do so, execute the following command:
+
+  sed -i -e 's/\$qname//g' /usr/local/pf/conf/dns_filters.conf
+
 Database schema update (All linux distributions)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -1715,5 +1713,5 @@ To upgrade the database schema, run the following command:
 
   mysql -u root -p pf -v < /usr/local/pf/db/upgrade-7.4.0-8.0.0.sql
 
-Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
+Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 8.0.0).
 
