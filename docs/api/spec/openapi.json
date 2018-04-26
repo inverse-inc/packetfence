@@ -17137,7 +17137,7 @@
          }
       },
       "/token_info" : {
-         "post" : {
+         "get" : {
             "responses" : {
                "200" : {
                   "content" : {

@@ -12246,7 +12246,7 @@ paths:
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
   /token_info:
-    post:
+    get:
       responses:
         '200':
           content:
