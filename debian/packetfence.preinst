@@ -52,7 +52,9 @@ case "$1" in
         else
                 echo "pf user already exist"
         fi
-        usermod pf -a -G fingerbank,winbindd_priv,netdata
+        usermod pf -a -G fingerbank,winbindd_priv
+        usermod -aG pf mysql
+        usermod -aG pf netdata
 
         # prevent conflicting mariadb service from starting 
         /bin/systemctl mask mariadb
@@ -138,7 +140,10 @@ case "$1" in
         /bin/systemctl mask mariadb
         /bin/systemctl stop mariadb
 
-        usermod pf -a -G fingerbank,winbindd_priv,netdata
+        usermod pf -a -G fingerbank,winbindd_priv
+        usermod -aG pf mysql
+        usermod -aG pf netdata
+
         systemctl disable packetfence-redis-cache
         systemctl disable packetfence-config
         systemctl disable packetfence.service
