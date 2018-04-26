@@ -25,7 +25,15 @@ var parseTests = []struct {
 		calls: []ApiCall{
 			&JsonRpcApiCall{
 				Method: "event_add",
-				Params: []interface{}{"date", "07/28/2015-09:09:59.431113"},
+				Params: []interface{}{
+					"date", "07/28/2015-09:09:59.431113  [**] ",
+					"dstip", "199.167.22.51",
+					"srcip", "10.220.10.186",
+					"events", map[string]interface{}{
+						"suricata_event": "SURICATA HTTP request field missing colon",
+						"detect":         "2221002",
+					},
+				},
 			},
 		},
 	},
@@ -40,7 +48,7 @@ func TestSnortParse(t *testing.T) {
 		}
 
 		if !cmp.Equal(calls, test.calls) {
-			t.Errorf("Expected ApiCall Failed for %d) %s", i, test.line)
+			t.Errorf("Expected ApiCall Failed for %d %v) %s", i, test.line, calls)
 		}
 	}
 }
