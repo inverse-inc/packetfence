@@ -127,7 +127,7 @@ END
         <!-- alarms -->
     </div>
 
-    <div class="text-center">
+    <div class="card card-block text-center">
         <ul class="nav nav-pills" id="dashboard-tabs">
             <li [% IF tab == "system" %]class="active"[% END %]><a data-toggle="pill" href="#system">[% l('System') %]</a></li>
             <li [% IF tab == "radius" %]class="active"[% END %]><a data-toggle="pill" href="#radius">RADIUS</a></li>
