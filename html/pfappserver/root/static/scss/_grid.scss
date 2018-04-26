@@ -1,13 +1,42 @@
 /// _grid.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2 -*-
 
+@import "mq";
+
 .row-flex {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: space-between;
+
+  &.row-flex--center {
+    justify-content: center;
+  }
+
   @for $i from 1 through $gridColumns {
     .col#{$i} {
-      flex: 0 0 ($i/$gridColumns) * 100%;
+      $columns: $gridColumns/$i; // 3
+      flex: 0 0 (100% - ($fluidGridGutterWidth * ($columns - 1))) / $columns;
       overflow: hidden;
     }
   }
+
+  // mobile + tablet
+  @include mq($until: desktop) {
+    .col3 {
+      flex: 0 0 1/3 * 100%;
+    }
+    .col6 {
+      flex: 0 0 100%;
+    }
+  }
+
+  // mobile only
+  @include mq($until: tablet) {
+    .col3 {
+      flex: 0 0 1/2 * 100%;
+    }
+    .col9 {
+      flex: 0 0 100%;
+    }
+  }
+
 }

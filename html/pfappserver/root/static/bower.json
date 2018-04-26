@@ -4,6 +4,7 @@
   "devDependencies": {
     "ace-builds": "1.3.x",
     "bootstrap-sass": "v2.3.2.2",
+    "sass-mq": "4.x",
     "font-awesome": "4.x",
     "flowtype": "latest",
     "clipboard": "latest",

@@ -65,7 +65,8 @@ module.exports = function(grunt) {
   var sass_include_paths = [
     'scss/',
     'bower_components/bootstrap-sass/vendor/assets/stylesheets/',
-    'bower_components/font-awesome/scss/'
+    'bower_components/font-awesome/scss/',
+    'bower_components/sass-mq/'
   ];
   var css_vendor = [
     'app/bootstrap-timepicker.css'
