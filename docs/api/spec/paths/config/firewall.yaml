@@ -2,7 +2,11 @@
   delete:
     description: Remove an item
     operationId: api.v1.Config::Firewalls.remove
-    parameters: []
+    parameters:
+    - in: path
+      name: firewall_id
+      schema:
+        type: string
     responses:
       '204':
         description: Deleted a config item
@@ -10,7 +14,11 @@
   get:
     description: Get an item
     operationId: api.v1.Config::Firewalls.get
-    parameters: []
+    parameters:
+    - in: path
+      name: firewall_id
+      schema:
+        type: string
     responses:
       '200':
         content:
@@ -24,7 +32,11 @@
   patch:
     description: Update an item
     operationId: api.v1.Config::Firewalls.update
-    parameters: []
+    parameters:
+    - in: path
+      name: firewall_id
+      schema:
+        type: string
     requestBody:
       content:
         application/json:
@@ -38,7 +50,11 @@
   put:
     description: Replace an item
     operationId: api.v1.Config::Firewalls.replace
-    parameters: []
+    parameters:
+    - in: path
+      name: firewall_id
+      schema:
+        type: string
     requestBody:
       content:
         application/json:
