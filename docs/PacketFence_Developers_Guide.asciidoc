@@ -111,9 +111,9 @@ slowly disappear.
 HTTP JSON API
 -------------
 
-PacketFence exposes an HTTP JSON API which exposes most of its functionality. 
+PacketFence provides an HTTP JSON API which exposes most of its functionality. 
 
-The full API spec documentation for the latest stable release is available here: http://petstore.swagger.io/?url=https://raw.githubusercontent.com/inverse-inc/packetfence/stable/docs/api/spec/openapi.yaml 
+The full API spec documentation for the latest stable release is available from: http://petstore.swagger.io/?url=https://raw.githubusercontent.com/inverse-inc/packetfence/stable/docs/api/spec/openapi.yaml 
 
 The API is exposed on 127.0.0.1 (localhost) as well as the management interface of the server for remote calls.
 
