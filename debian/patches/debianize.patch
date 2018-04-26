@@ -11,6 +11,19 @@ index 2ef5c25..7409c2a 100644
  skip-external-locking
  key_buffer_size = [% key_buffer_size %]M
  max_allowed_packet = [% max_allowed_packet %]M
+diff --git a/conf/monitoring/netdata.conf.example b/conf/monitoring/netdata.conf.example
+index d3a3cd9..fe284fc 100644
+--- a/conf/monitoring/netdata.conf.example
++++ b/conf/monitoring/netdata.conf.example
+@@ -8,7 +8,7 @@
+ [global]
+ 	run as user = netdata
+ 	web files owner = root
+-	web files group = netdata
++	web files group = root
+         config directory = /usr/local/pf/var/conf/monitoring
+         # Netdata is not designed to be exposed to potentially hostile networks
+         # See https://github.com/firehol/netdata/issues/164
 diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
 index b7840af..5d69d6c 100644
 --- a/conf/pf.conf.defaults
