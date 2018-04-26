@@ -113,13 +113,21 @@ sub standardSchema {
             get => {
                 description => 'Get an item',
                 operationId => 'api.v1.Config::FloatingDevices.get',
-                parameters => [],
+                parameters => [
+                    {
+                        name   => 'floating_device_id',
+                        in     => 'path',
+                        schema => {
+                            type => 'string'
+                        },
+                    }
+                ],
                 responses  => {
                     "200" =>  {
                         content => {
                             "application/json" => {
                                 schema => {
-                                    "\$ref" => "#/components/schemas/config/FloatingDevice",
+                                    "\$ref" => "#/components/schemas/ConfigFloatingDevice",
                                 }
                             }
                         },
@@ -253,7 +261,7 @@ sub standardSchema {
             ],
         ),
         {
-            '/components/schemas/config/FloatingDevicesList' => {
+            '/components/schemas/ConfigFloatingDevicesList' => {
                 allOf => [
                     { '$ref' => "#/components/schemas/Iterable" },
                     {
@@ -261,7 +269,7 @@ sub standardSchema {
                             "items" => {
                                 "items" => {
                                     "\$ref" =>
-                                      "#/components/schemas/config/FloatingDevice"
+                                      "#/components/schemas/ConfigFloatingDevice"
                                 },
                                 "type" => "array"
                             }
@@ -270,7 +278,7 @@ sub standardSchema {
                     }
                 ]
             },
-            '/components/schemas/config/FloatingDevice' => standardSchema(),
+            '/components/schemas/ConfigFloatingDevice' => standardSchema(),
         },
         "Schemas For Config::FloatingDevices"
     );
@@ -308,12 +316,20 @@ sub standardSchema {
             put => {
                 operationId => 'api.v1.Config::FloatingDevices.replace',
                 description => 'Replace an item',
-                parameters  => [],
+                parameters => [
+                    {
+                        name   => 'floating_device_id',
+                        in     => 'path',
+                        schema => {
+                            type => 'string'
+                        },
+                    }
+                ],
                 requestBody => {
                     "content" => {
                         "application/json" => {
                             schema => {
-                                "\$ref" => "#/components/schemas/config/FloatingDevice"
+                                "\$ref" => "#/components/schemas/ConfigFloatingDevice"
                             }
                         }
                     },
@@ -367,7 +383,15 @@ sub standardSchema {
             delete => {
                 description => 'Remove an item',
                 operationId => 'api.v1.Config::FloatingDevices.remove',
-                parameters => [],
+                parameters => [
+                    {
+                        name   => 'floating_device_id',
+                        in     => 'path',
+                        schema => {
+                            type => 'string'
+                        },
+                    }
+                ],
                 responses  => {
                     "204" => {
                         description => 'Deleted a config item',

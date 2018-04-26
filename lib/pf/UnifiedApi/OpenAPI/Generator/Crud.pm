@@ -32,7 +32,7 @@ our %OPERATION_GENERATORS = (
     },
     parameters => {
         (
-            map { $_ => "operationParameters" }
+            map { $_ => "${_}OperationParameters" }
               qw(create search list get replace update remove)
         )
     },
@@ -63,6 +63,48 @@ my %OPERATION_DESCRIPTIONS = (
     update  => 'Update an item',
     remove  => 'Remove an item',
 );
+
+sub resoureParameters {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    my $parameters = $self->operationParameters( $scope, $c, $m, $a );
+    push @$parameters, $self->path_parameter($c->url_param_name), (map { $self->path_parameter($_) } sort keys %{$c->parent_primary_key_map});
+    return $parameters;
+}
+
+sub createOperationParameters {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return $self->operationParameters( $scope, $c, $m, $a );
+}
+
+sub searchOperationParameters {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return $self->operationParameters( $scope, $c, $m, $a );
+}
+
+sub listOperationParameters {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return $self->operationParameters( $scope, $c, $m, $a );
+}
+
+sub getOperationParameters {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return $self->resoureParameters( $scope, $c, $m, $a );
+}
+
+sub replaceOperationParameters {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return $self->resoureParameters( $scope, $c, $m, $a );
+}
+
+sub updateOperationParameters {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return $self->resoureParameters( $scope, $c, $m, $a );
+}
+
+sub removeOperationParameters {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return $self->resoureParameters( $scope, $c, $m, $a );
+}
 
 sub operationDescriptionsLookup {
     return \%OPERATION_DESCRIPTIONS;
