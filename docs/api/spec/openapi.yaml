@@ -11847,7 +11847,7 @@ paths:
       summary: Add an IP to a specific ipset
   /ipset/mark_ip_layer2:
     post:
-      description: '...'
+      description: Mark IP layer2
       parameters:
       - $ref: '#/components/parameters/local'
       requestBody:
@@ -11861,10 +11861,10 @@ paths:
           $ref: '#/components/responses/IpsetIp'
         '400':
           $ref: '#/components/responses/BadRequest'
-      summary: '...'
+      summary: Mark IP layer2
   /ipset/mark_ip_layer3:
     post:
-      description: '...'
+      description: Mark IP layer3
       parameters:
       - $ref: '#/components/parameters/local'
       requestBody:
@@ -11878,7 +11878,7 @@ paths:
           $ref: '#/components/responses/IpsetIp'
         '400':
           $ref: '#/components/responses/BadRequest'
-      summary: '...'
+      summary: Mark IP layer3
   /ipset/mark_layer2:
     post:
       description: '...'
@@ -11915,7 +11915,7 @@ paths:
       summary: '...'
   /ipset/passthrough:
     post:
-      description: '...'
+      description: Passthrough
       parameters:
       - $ref: '#/components/parameters/local'
       requestBody:
@@ -11929,10 +11929,10 @@ paths:
           $ref: '#/components/responses/IpsetIp'
         '400':
           $ref: '#/components/responses/BadRequest'
-      summary: '...'
+      summary: Passthrough
   /ipset/passthrough_isolation:
     post:
-      description: '...'
+      description: Passthrough Isolation
       parameters:
       - $ref: '#/components/parameters/local'
       requestBody:
@@ -11946,7 +11946,7 @@ paths:
           $ref: '#/components/responses/IpsetIp'
         '400':
           $ref: '#/components/responses/BadRequest'
-      summary: '...'
+      summary: Passthrough Isolation
   /ipset/remove_ip/{set_name}:
     post:
       description: Removes an IP from a specific ipset

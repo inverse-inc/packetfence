@@ -16611,7 +16611,7 @@
       },
       "/ipset/mark_ip_layer2" : {
          "post" : {
-            "description" : "...",
+            "description" : "Mark IP layer2",
             "parameters" : [
                {
                   "$ref" : "#/components/parameters/local"
@@ -16635,12 +16635,12 @@
                   "$ref" : "#/components/responses/BadRequest"
                }
             },
-            "summary" : "..."
+            "summary" : "Mark IP layer2"
          }
       },
       "/ipset/mark_ip_layer3" : {
          "post" : {
-            "description" : "...",
+            "description" : "Mark IP layer3",
             "parameters" : [
                {
                   "$ref" : "#/components/parameters/local"
@@ -16664,7 +16664,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                }
             },
-            "summary" : "..."
+            "summary" : "Mark IP layer3"
          }
       },
       "/ipset/mark_layer2" : {
@@ -16727,7 +16727,7 @@
       },
       "/ipset/passthrough" : {
          "post" : {
-            "description" : "...",
+            "description" : "Passthrough",
             "parameters" : [
                {
                   "$ref" : "#/components/parameters/local"
@@ -16751,12 +16751,12 @@
                   "$ref" : "#/components/responses/BadRequest"
                }
             },
-            "summary" : "..."
+            "summary" : "Passthrough"
          }
       },
       "/ipset/passthrough_isolation" : {
          "post" : {
-            "description" : "...",
+            "description" : "Passthrough Isolation",
             "parameters" : [
                {
                   "$ref" : "#/components/parameters/local"
@@ -16780,7 +16780,7 @@
                   "$ref" : "#/components/responses/BadRequest"
                }
             },
-            "summary" : "..."
+            "summary" : "Passthrough Isolation"
          }
       },
       "/ipset/remove_ip/{set_name}" : {
