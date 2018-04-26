@@ -341,8 +341,12 @@ my @actions = (
                 'parameters'  => [],
                 'operationId' => 'api.v1.DhcpOption82s.search',
                 'requestBody' => {
-                    "application/json" => {
-                        "\$ref" => "#/components/schemas/Search",
+                    content => {
+                        "application/json" => {
+                            schema => {
+                                "\$ref" => "#/components/schemas/Search",
+                            }
+                        }
                     }
                 },
                 'responses'  => {
