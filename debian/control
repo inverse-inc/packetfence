@@ -124,7 +124,7 @@ Depends: ${misc:Depends}, vlan,
 # cluster
  haproxy (>= 1.6), keepalived (>= 1.3.6), arping,
 # monitoring
- netdata, fping,
+ netdata, fping, python-mysqldb,
 # EAP TLS
  libcrypt-smime-perl, libnumber-range-perl,
 # Captive Portal Dynamic Routing
