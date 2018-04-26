@@ -108,6 +108,19 @@ slowly disappear.
     SQL
 
 
+HTTP JSON API
+-------------
+
+PacketFence exposes an HTTP JSON API which exposes most of its functionality. 
+
+The full API spec documentation for the latest stable release is available here: http://petstore.swagger.io/?url=https://raw.githubusercontent.com/inverse-inc/packetfence/stable/docs/api/spec/openapi.yaml 
+
+The API is exposed on 127.0.0.1 (localhost) as well as the management interface of the server for remote calls.
+
+Authentication can be done using either the webservices credentials or any credentials that are valid on the web admin interface.
+
+Although the API should mostly stay the same, backward compatibility is not 100% guaranteed for the moment until the v1 API reaches full maturity.
+
 Customizing PacketFence
 -----------------------
 
