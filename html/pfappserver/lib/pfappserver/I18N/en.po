@@ -1802,23 +1802,23 @@ msgstr ""
 
 # pf::admin_roles (Actions groups)
 msgid "DEVICE_REGISTRATION"
-msgstr ""
+msgstr "Device Registration"
 
 # pf::admin_roles (Actions)
 msgid "DEVICE_REGISTRATION_CREATE"
-msgstr ""
+msgstr "Device Registration - Create"
 
 # pf::admin_roles (Actions)
 msgid "DEVICE_REGISTRATION_DELETE"
-msgstr ""
+msgstr "Device Registration - Delete"
 
 # pf::admin_roles (Actions)
 msgid "DEVICE_REGISTRATION_READ"
-msgstr ""
+msgstr "Device Registration - Read"
 
 # pf::admin_roles (Actions)
 msgid "DEVICE_REGISTRATION_UPDATE"
-msgstr ""
+msgstr "Device Registration - Update"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Fingerbank/Combination.pm
 # html/pfappserver/root/config/fingerbank/dhcp_fingerprint/view.tt
@@ -6306,43 +6306,43 @@ msgstr "Switches CLI - Write"
 
 # pf::admin_roles (Actions groups)
 msgid "SYSLOG"
-msgstr ""
+msgstr "Syslog"
 
 # pf::admin_roles (Actions)
 msgid "SYSLOG_CREATE"
-msgstr ""
+msgstr "Syslog - Create"
 
 # pf::admin_roles (Actions)
 msgid "SYSLOG_DELETE"
-msgstr ""
+msgstr "Syslog - Delete"
 
 # pf::admin_roles (Actions)
 msgid "SYSLOG_READ"
-msgstr ""
+msgstr "Syslog - Read"
 
 # pf::admin_roles (Actions)
 msgid "SYSLOG_UPDATE"
-msgstr ""
+msgstr "Syslog - Update"
 
 # pf::admin_roles (Actions groups)
 msgid "SYSTEM"
-msgstr ""
+msgstr "System"
 
 # pf::admin_roles (Actions)
 msgid "SYSTEM_CREATE"
-msgstr ""
+msgstr "System - Create"
 
 # pf::admin_roles (Actions)
 msgid "SYSTEM_DELETE"
-msgstr ""
+msgstr "System - Delete"
 
 # pf::admin_roles (Actions)
 msgid "SYSTEM_READ"
-msgstr ""
+msgstr "System - Read"
 
 # pf::admin_roles (Actions)
 msgid "SYSTEM_UPDATE"
-msgstr ""
+msgstr "System - Update"
 
 # html/pfappserver/root/admin/saved_search.inc
 # html/pfappserver/root/config/adminroles/view.tt
@@ -7359,23 +7359,23 @@ msgstr ""
 
 # pf::admin_roles (Actions groups)
 msgid "TRAFFIC_SHAPING"
-msgstr ""
+msgstr "Traffic Shaping"
 
 # pf::admin_roles (Actions)
 msgid "TRAFFIC_SHAPING_CREATE"
-msgstr ""
+msgstr "Traffic Shaping - Create"
 
 # pf::admin_roles (Actions)
 msgid "TRAFFIC_SHAPING_DELETE"
-msgstr ""
+msgstr "Traffic Shaping - Delete"
 
 # pf::admin_roles (Actions)
 msgid "TRAFFIC_SHAPING_READ"
-msgstr ""
+msgstr "Traffic Shaping - Read"
 
 # pf::admin_roles (Actions)
 msgid "TRAFFIC_SHAPING_UPDATE"
-msgstr ""
+msgstr "Traffic Shaping - Update"
 
 # conf/documentation.conf (radius_authentication_methods.eap_authentication_types options)
 msgid "TTLS"
@@ -8231,7 +8231,7 @@ msgstr "Users - Create Multiple"
 # pf::admin_roles (Actions groups)
 # pf::admin_roles (Actions)
 msgid "USERS_CREATE_OVERWRITE"
-msgstr ""
+msgstr "Users - Create Overwrite"
 
 # pf::admin_roles (Actions)
 msgid "USERS_DELETE"
@@ -8294,7 +8294,7 @@ msgstr "Users - Set Role"
 # pf::admin_roles (Actions groups)
 # pf::admin_roles (Actions)
 msgid "USERS_SET_TENANT_ID"
-msgstr ""
+msgstr "Users - Set Tenant ID"
 
 # pf::admin_roles (Actions groups)
 # pf::admin_roles (Actions)
