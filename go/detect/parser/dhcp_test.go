@@ -1,4 +1,4 @@
-package detect
+package parser
 
 import (
 	"github.com/google/go-cmp/cmp"

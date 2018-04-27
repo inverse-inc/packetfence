@@ -1,4 +1,4 @@
-package detect
+package parser
 
 type Parser interface {
 	Parse(string) ([]ApiCall, error)
