@@ -248,6 +248,9 @@ func (IPSET *pfIPSET) IPSEThandleLayer2(ctx context.Context, Ip string, Mac stri
 
 	for _, v := range IPSET.ListALL {
 		// Delete all entries with the new ip address
+		if v.Type == "hash:ip,port" {
+			continue
+		}
 		r := ipset.Test(v.Name, Ip)
 		if r == nil {
 			IPSET.jobs <- job{"Del", v.Name, Ip}
@@ -432,6 +435,9 @@ func (IPSET *pfIPSET) IPSEThandleLayer3(ctx context.Context, Ip string, Network 
 
 	// Delete all entries with the new ip address
 	for _, v := range IPSET.ListALL {
+		if v.Type == "hash:ip,port" {
+			continue
+		}
 		r := ipset.Test(v.Name, Ip)
 		if r == nil {
 			IPSET.jobs <- job{"Del", v.Name, Ip}
@@ -513,6 +519,9 @@ func (IPSET *pfIPSET) handleUnmarkIp(res http.ResponseWriter, req *http.Request)
 	}
 
 	for _, v := range IPSET.ListALL {
+		if v.Type == "hash:ip,port" {
+			continue
+		}
 		r := ipset.Test(v.Name, Ip.String())
 		if r == nil {
 			IPSET.jobs <- job{"Del", v.Name, Ip.String()}
