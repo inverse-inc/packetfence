@@ -25,6 +25,7 @@ conf/nessus/
 conf/currently-at
 conf/caddy-services/*.conf
 conf/pfdns.conf
+conf/pfdhcp.conf
 conf/etcd.conf.yml
 bin/pfcmd
 bin/ntlm_auth_wrapper
