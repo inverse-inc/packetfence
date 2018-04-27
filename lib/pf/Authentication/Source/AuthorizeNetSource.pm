@@ -98,7 +98,7 @@ sub verify {
     $logger->debug("Authorize.Net response: ".Dumper($response));
 
     unless ( $response->{'transactionResponse'}->{'responseCode'} == 1 ) {
-        my $msg = "Unable to process payment: ".$response->{transactionResponse}->{errors}->{error}->{errorTest};
+        my $msg = "Unable to process payment: ".$response->{transactionResponse}->{errors}->{error}->{errorText};
         $logger->error($msg);
         die $msg ;
     }
