@@ -86,13 +86,14 @@ func buildApiAAAHandler(ctx context.Context) (ApiAAAHandler, error) {
 	}
 
 	// Backend for the pf.conf webservices user
+	apiAAA.webservicesBackend = aaa.NewMemAuthenticationBackend(
+		map[string]string{},
+		pfconfigdriver.Config.AdminRoles.Element["ALL"].Actions,
+	)
+	apiAAA.authentication.AddAuthenticationBackend(apiAAA.webservicesBackend)
+
 	if pfconfigdriver.Config.PfConf.Webservices.User != "" {
-		apiAAA.webservicesBackend = aaa.NewMemAuthenticationBackend(
-			map[string]string{},
-			pfconfigdriver.Config.AdminRoles.Element["ALL"].Actions,
-		)
 		apiAAA.webservicesBackend.SetUser(pfconfigdriver.Config.PfConf.Webservices.User, pfconfigdriver.Config.PfConf.Webservices.Pass)
-		apiAAA.authentication.AddAuthenticationBackend(apiAAA.webservicesBackend)
 	}
 
 	db, err := db.DbFromConfig(ctx)
