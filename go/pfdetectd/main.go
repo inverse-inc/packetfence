@@ -1,59 +1,61 @@
 package main
 
 import (
-    "syscall"
-    "os"
-    "bytes"
-    "bufio"
-    "fmt"
-    "io"
+	"bufio"
+	"bytes"
+	"fmt"
+	"github.com/inverse-inc/packetfence/go/detect/parser"
 	_ "github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"github.com/inverse-inc/packetfence/go/detect"
+	"io"
+	"os"
+	"syscall"
 )
 
-
 func main() {
-    err := ParsePipe("/usr/local/pf/logs/pfdetect.log", detect.NewSnortParser())
-    fmt.Print(err)
+	err := ParsePipe("/usr/local/pf/logs/pfdetect.log", parser.NewSnortParser())
+	fmt.Print(err)
 
 }
 
-func ParsePipe( pipe string, parser detect.Parser) error {
-    file, err := os.OpenFile(pipe, syscall.O_RDONLY | syscall.O_NONBLOCK, 0600)
-    if err != nil {
-        return err
-    }
+func ParsePipe(pipe string, detectParser parser.Parser) error {
+	file, err := os.OpenFile(pipe, syscall.O_RDONLY|syscall.O_NONBLOCK, 0600)
+	if err != nil {
+		return err
+	}
 
-    reader := bufio.NewReader(file)
-    buff := bytes.Buffer{}
-    for {
-        line, isPrefix, err := reader.ReadLine()
-        if err != nil {
-            if err == io.EOF {
-                break
-            }
-            return err
-        }
+	return WatchLog(file, detectParser)
+}
 
-        buff.Write(line)
-        if isPrefix == false {
-            data := buff.String()
-            buff.Reset()
-            fmt.Println(data)
-            var calls []detect.ApiCall
-            var perr error
-            calls , perr = parser.Parse(data)
-            if perr != nil {
-                // Log
-                continue
-            }
+func WatchLog(file *os.File, detectParser parser.Parser) error {
+	reader := bufio.NewReader(file)
+	buff := bytes.Buffer{}
+	for {
+		line, isPrefix, err := reader.ReadLine()
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			return err
+		}
 
-            for _, call := range calls {
-                go func(c detect.ApiCall) {
-                    c.Call()
-                }(call)
-            }
-        }
-    }
-    return err
+		buff.Write(line)
+		if isPrefix == false {
+			data := buff.String()
+			fmt.Println(data)
+			buff.Reset()
+			calls, perr := detectParser.Parse(data)
+			if perr != nil {
+				// Log
+				continue
+			}
+
+			for _, call := range calls {
+				go func(c parser.ApiCall) {
+					c.Call()
+				}(call)
+			}
+		}
+	}
+
+	return nil
 }
