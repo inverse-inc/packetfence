@@ -77,6 +77,9 @@ cd "$GOPATHPF"
 
 cd go
 
+# Ensure current binaries are available through path
+export PATH="$GOBIN:$PATH"
+
 # Install the dependencies
 go get -u github.com/kardianos/govendor
 $GOPATH/bin/govendor sync
