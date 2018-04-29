@@ -43,9 +43,9 @@ func (s *FortiAnalyserParser) Parse(line string) ([]ApiCall, error) {
 	return nil, fmt.Errorf("Error parsing")
 }
 
-func NewFortiAnalyserParser(interface{}) Parser {
+func NewFortiAnalyserParser(interface{}) (Parser, error) {
 	return &FortiAnalyserParser{
 		Pattern1: fortiAnalyserRegexPattern1.Copy(),
 		Pattern2: fortiAnalyserRegexPattern2.Copy(),
-	}
+	}, nil
 }

@@ -5,7 +5,7 @@ import (
 )
 
 func TestDhcpParse(t *testing.T) {
-	parser := NewDhcpParser(nil)
+	parser, _ := NewDhcpParser(nil)
 	var parseTests = []ParseTest{
 		{
 			Line: "Sep  1 03:27:04 172.22.0.3 dhcpd[20512]: DHCPACK to 172.19.16.171 (00:11:22:33:44:55) via eth1",

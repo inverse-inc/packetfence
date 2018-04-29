@@ -48,6 +48,6 @@ func TestSuricataMD5Parse(t *testing.T) {
 		},
 	}
 
-	parser := NewSuricataMD5Parser(nil)
+	parser, _ := NewSuricataMD5Parser(nil)
 	RunParseTests(parser, parseTests, t)
 }

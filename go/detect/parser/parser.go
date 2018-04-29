@@ -1,5 +1,9 @@
 package parser
 
+import (
+	"fmt"
+)
+
 type Parser interface {
 	Parse(string) ([]ApiCall, error)
 }
@@ -27,7 +31,7 @@ func (*RestApiCall) Call() error {
 	return nil
 }
 
-type ParserCreater func(interface{}) (Parser)
+type ParserCreater func(interface{}) (Parser, error)
 
 var parserLookup = map[string]ParserCreater{
 
@@ -41,5 +45,8 @@ var parserLookup = map[string]ParserCreater{
 }
 
 func CreateParser(parserType string, parserConfig interface{}) (Parser, error) {
-	return nil, nil
+	if creater, found := parserLookup[parserType]; found {
+		return creater(parserConfig)
+	}
+	return nil, fmt.Errorf("Parser of %s not found", parserType)
 }
