@@ -40,8 +40,8 @@ var parserLookup = map[string]ParserCreater{
 	//"regex" : NewRegexParser,
 	"security_onion": NewSecurityOnionParser,
 	"snort":          NewSnortParser,
-	"suricata_md5":   NewSuricataMD5Parser,
 	"suricata":       NewSnortParser,
+	"suricata_md5":   NewSuricataMD5Parser,
 }
 
 func CreateParser(parserType string, parserConfig interface{}) (Parser, error) {
