@@ -41,7 +41,7 @@ func TestSuricataMD5Parse(t *testing.T) {
 					},
 				},
 				&JsonRpcApiCall{
-					Method: "event_add",
+					Method: "metadefender_process",
 					Params: []interface{}{testData},
 				},
 			},
