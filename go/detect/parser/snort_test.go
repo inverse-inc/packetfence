@@ -36,6 +36,6 @@ func TestSnortParse(t *testing.T) {
 		},
 	}
 
-	parser := NewSnortParser()
+	parser := NewSnortParser(nil)
 	RunParseTests(parser, parseTests, t)
 }

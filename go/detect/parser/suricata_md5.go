@@ -48,7 +48,7 @@ func (s *SuricataMD5Parser) Parse(line string) ([]ApiCall, error) {
 	return nil, fmt.Errorf("Parse Error")
 }
 
-func NewSuricataMD5Parser() Parser {
+func NewSuricataMD5Parser(interface{}) Parser {
 	return &SuricataMD5Parser{
 		Pattern1: suricataMD5RegexPattern1.Copy(),
 	}

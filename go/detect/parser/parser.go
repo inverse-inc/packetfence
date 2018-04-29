@@ -26,3 +26,20 @@ type RestApiCall struct {
 func (*RestApiCall) Call() error {
 	return nil
 }
+
+type ParserCreater func(interface{}) (Parser)
+
+var parserLookup = map[string]ParserCreater{
+
+	"dhcp":          NewDhcpParser,
+	"fortianalyser": NewFortiAnalyserParser,
+	//"regex" : NewRegexParser,
+	"security_onion": NewSecurityOnionParser,
+	"snort":          NewSnortParser,
+	"suricata_md5":   NewSuricataMD5Parser,
+	"suricata":       NewSnortParser,
+}
+
+func CreateParser(parserType string, parserConfig interface{}) (Parser, error) {
+	return nil, nil
+}

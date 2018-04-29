@@ -41,7 +41,7 @@ func (s *SecurityOnionParser) Parse(line string) ([]ApiCall, error) {
 	}, nil
 }
 
-func NewSecurityOnionParser() Parser {
+func NewSecurityOnionParser(interface{}) Parser {
 	return &SecurityOnionParser{
 		Pattern1: securityOnionRegexPattern1.Copy(),
 		Pattern2: securityOnionRegexPattern2.Copy(),

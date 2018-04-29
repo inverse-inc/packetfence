@@ -40,6 +40,6 @@ func TestSecurityOnionParse(t *testing.T) {
 		},
 	}
 
-	parser := NewSecurityOnionParser()
+	parser := NewSecurityOnionParser(nil)
 	RunParseTests(parser, parseTests, t)
 }
