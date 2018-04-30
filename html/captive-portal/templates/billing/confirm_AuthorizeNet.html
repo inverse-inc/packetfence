@@ -1,16 +1,16 @@
 [% INCLUDE 'billing/tier.html' %]
 
 <form>
-  <div class="payment-errors media media--error u-p u-m" style="display: none">
-    <div class="media__img">[% flashIcon(level='error') %]</div>
-    <p class="media__body"></p>
+  <div class="payment-errors o-media o-media--error u-padding u-margin hide">
+    <div class="o-media__img">[% flashIcon(level='error') %]</div>
+    <p class="o-media__body"></p>
   </div>
 
-  <div class="layout layout--center u-mt">
-    <div class="layout__item u-2/3 u-1/1-palm">
+  <div class="o-layout o-layout--center u-margin-top">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
 
       <div class="input-container">
-        <label for="name">Name on Card</label>
+        <label for="name">[% i18n("Name on Card") %]</label>
         [% IF request_fields.defined(firstname) && request_fields.defined(lastname) %]
         <input id="name" type="text" size="20" />
         [% ELSE %]
@@ -19,23 +19,23 @@
       </div>
 
       <div class="input-container">
-        <label for="cardNumberID">Card Number</label>
+        <label for="cardNumberID">[% i18n("Card Number") %]</label>
         <input type="tel" id="cardNumberID" placeholder="5424000000000015" />
       </div>
 
       <div class="input-container">
-        <label>Expiration (MM/YYYY)</label>
+        <label>[% i18n("Expiration (MM/YYYY)") %]</label>
         <input class="u-1/4" type="number" min="1" max="12" placeholder="MM" id="monthID" />
         /
         <input class="u-1/2" type="number" placeholder="YYYY" id="yearID" />
       </div>
 
       <div class="input-container">
-        <label for="cardCodeID">CVC</label>
+        <label for="cardCodeID">[% i18n("CVC") %]</label>
         <input type="text" size="4" placeholder="123" id="cardCodeID" />
       </div>
 
-      <div class="u-mt">
+      <div class="u-padding-vertical">
         <button type="button" id="submitButton" onclick="sendPaymentDataToAnet()" name="submit-btn" class="btn btn--full">
           <div class="flag">
             <div class="flag__img">[% svgIcon(id='ic_credit_card_black_24px',size='small') %]</div>
