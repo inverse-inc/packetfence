@@ -18,6 +18,13 @@ is($result->{md5}, "0806b949be8f93127a9fbf909221a121", "checking that md5 is pro
 $apiclient->notify('trigger_violation', ( 'mac' => $data->{mac}, 'tid' => $data->{md5}, 'type' => 'suricata_md5' ));   # Process Suricata MD5 based violations
 
 */
+
+type IPToMacTestFunc func(string) (string, error)
+
+func (f IPToMacTestFunc) IpToMac(ip string) (string, error) {
+	return f(ip)
+}
+
 func TestSuricataMD5Parse(t *testing.T) {
 	testLine := `{ "timestamp": "07\/07\/2016-15:48:01.623845", "ipver": 4, "srcip": "104.28.13.103", "dstip": "172.20.20.211", "protocol": 6, "sp": 80, "dp": 59131, "http_uri": "\/billing\/includes\/jscript\/db\/3july2.exe", "http_host": "snthostings.com", "http_referer": "<unknown>", "http_user_agent": "Wget\/1.15 (linux-gnu)", "filename": "\/billing\/includes\/jscript\/db\/3july2.exe", "magic": "PE32 executable (GUI) Intel 80386, for MS Windows", "state": "CLOSED", "md5": "0806b949be8f93127a9fbf909221a121", "stored": false, "size": 1145856 }`
 	var testData map[string]interface{}
@@ -47,7 +54,11 @@ func TestSuricataMD5Parse(t *testing.T) {
 			},
 		},
 	}
-
 	parser, _ := NewSuricataMD5Parser(nil)
+	parser.(*SuricataMD5Parser).ResolverIp2Mac = IPToMacTestFunc(
+		func(string) (string, error) {
+			return "00:11:22:33:44:55", nil
+		},
+	)
 	RunParseTests(parser, parseTests, t)
 }
