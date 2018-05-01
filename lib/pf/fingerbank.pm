@@ -92,6 +92,7 @@ sub process {
     my $cache_key = "pf::fingerbank::process($mac)";
 
     my $process_timestamp = $cache->compute($cache_key, sub {
+        $force = $TRUE;
         return DateTime->now(); 
     });
 
