@@ -37,7 +37,7 @@ defaults
         errorfile 504 %%os_path%%504.http
 
 frontend  main
-    bind localhost:3306
+    bind 127.0.0.1:3306
     mode tcp
     option tcplog
     default_backend             mysql
