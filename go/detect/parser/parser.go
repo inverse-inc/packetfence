@@ -35,9 +35,9 @@ type ParserCreater func(interface{}) (Parser, error)
 
 var parserLookup = map[string]ParserCreater{
 
-	"dhcp":          NewDhcpParser,
-	"fortianalyser": NewFortiAnalyserParser,
-	//"regex" : NewRegexParser,
+	"dhcp":           NewDhcpParser,
+	"fortianalyser":  NewFortiAnalyserParser,
+	"regex":          NewGenericParser,
 	"security_onion": NewSecurityOnionParser,
 	"snort":          NewSnortParser,
 	"suricata":       NewSnortParser,
