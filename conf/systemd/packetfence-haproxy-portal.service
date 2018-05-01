@@ -4,6 +4,7 @@ Before=packetfence-httpd.portal.service packetfence-httpd.admin.service
 Wants=packetfence-config.service 
 
 [Service]
+Type=notify
 StartLimitBurst=3
 StartLimitInterval=10
 PIDFile=/usr/local/pf/var/run/haproxy-portal.pid
