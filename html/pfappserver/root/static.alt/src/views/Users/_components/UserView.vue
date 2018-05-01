@@ -1,10 +1,16 @@
 
 <template>
-  <b-card no-body>
-    <b-card-header>
-      <h4 class="mb-0">User {{ pid }}</h4>
-    </b-card-header>
-  </b-card>
+  <b-form>
+    <b-card no-body>
+      <b-card-header>
+        <b-button-close @click="close"><icon name="close"></icon></b-button-close>
+        <h4 class="mb-0">{{ $t('User') }} {{ pid }}</h4>
+      </b-card-header>
+      <b-card-body>
+       {{ user.notes }}
+      </b-card-body>
+    </b-card>
+  </b-form>
 </template>
 
 <script>
@@ -20,14 +26,20 @@ export default {
   },
   data () {
     return {
+      user: {}
     }
   },
   computed: {
   },
   methods: {
+    close () {
+      this.$router.push({ name: 'users' })
+    }
   },
   mounted () {
-
+    this.$store.dispatch('$_users/getUser', this.pid).then(data => {
+      this.user = data
+    })
   }
 }
 </script>
