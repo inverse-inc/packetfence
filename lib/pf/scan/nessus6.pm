@@ -166,7 +166,7 @@ sub startScan {
     $nessus->delete_scan(scan_id => $scan_id->{id});
     $nessus->DESTROY;
 
-    pf::scan::parse_scan_report($self);
+    pf::scan::parse_scan_report($self,$scan_vid);
 }
 
 =back
