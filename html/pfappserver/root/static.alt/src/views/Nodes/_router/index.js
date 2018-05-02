@@ -8,6 +8,7 @@ const route = {
   name: 'nodes',
   redirect: '/nodes/search',
   component: NodesView,
+  meta: { transitionDelay: 300 * 2 }, // See _transitions.scss => $slide-bottom-duration
   children: [
     {
       path: 'search',

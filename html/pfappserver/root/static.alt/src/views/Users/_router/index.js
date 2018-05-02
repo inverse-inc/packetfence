@@ -7,6 +7,7 @@ const route = {
   name: 'users',
   redirect: '/users/search',
   component: UsersView,
+  meta: { transitionDelay: 300 * 2 }, // See _transitions.scss => $slide-bottom-duration
   children: [
     {
       path: 'search',
