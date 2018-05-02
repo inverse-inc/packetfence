@@ -8,15 +8,32 @@
       :fields="fields" :store="$store" :advanced-mode="advancedMode"
       @submit-search="onSearch" @reset-search="onReset"></pf-search>
     <div class="card-body">
-      <b-row align-h="end">
-        <b-form inline>
-          <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[10,25,50,100]" :disabled="isLoading"
-            @input="onPageSizeChange" />
-        </b-form>
-        <b-pagination align="right" :per-page="pageSizeLimit" :total-rows="totalRows" v-model="requestPage" :disabled="isLoading"
-          @input="onPageChange" />
+      <b-row align-h="between" align-v="center">
+        <b-col cols="auto" class="mr-auto">
+          <b-dropdown size="sm" variant="link" :disabled="isLoading" no-caret>
+            <template slot="button-content">
+              <icon name="columns" v-b-tooltip.hover.right :title="$t('Visible Columns')"></icon>
+            </template>
+            <b-dropdown-item v-for="column in columns" :key="column.key" @click="toggleColumn(column)">
+              <icon class="position-absolute mt-1" name="check" v-show="column.visible"></icon>
+              <span class="ml-4">{{column.label}}</span>
+            </b-dropdown-item>
+          </b-dropdown>
+        </b-col>
+        <b-col cols="auto">
+          <b-container fluid>
+            <b-row align-v="center">
+              <b-form inline class="mb-0">
+                <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[10,25,50,100]" :disabled="isLoading"
+                  @input="onPageSizeChange" />
+              </b-form>
+              <b-pagination align="right" :per-page="pageSizeLimit" :total-rows="totalRows" v-model="requestPage" :disabled="isLoading"
+                @input="onPageChange" />
+            </b-row>
+          </b-container>
+        </b-col>
       </b-row>
-      <b-table hover :items="items" :fields="columns" :sort-by="sortBy" :sort-desc="sortDesc"
+      <b-table hover :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc"
         @sort-changed="onSortingChanged" @row-clicked="onRowClick" no-local-sorting></b-table>
     </div>
   </b-card>
@@ -53,22 +70,26 @@ export default {
         {
           key: 'pid',
           label: this.$i18n.t('Username'),
-          sortable: true
+          sortable: true,
+          visible: true
         },
         {
           key: 'firstname',
           label: this.$i18n.t('firstname'),
-          sortable: true
+          sortable: true,
+          visible: true
         },
         {
           key: 'lastname',
           label: this.$i18n.t('lastname'),
-          sortable: true
+          sortable: true,
+          visible: true
         },
         {
           key: 'email',
           label: this.$i18n.t('email'),
-          sortable: true
+          sortable: true,
+          visible: true
         }
       ],
       condition: null,
@@ -86,6 +107,9 @@ export default {
     },
     sortDesc () {
       return this.$store.state.$_users.searchSortDesc
+    },
+    visibleColumns () {
+      return this.columns.filter(column => column.visible)
     },
     items () {
       return this.$store.state.$_users.items
@@ -139,6 +163,9 @@ export default {
       this.requestPage = 1 // reset to the first page
       this.$store.dispatch('$_users/setSearchSorting', params)
       this.$store.dispatch('$_users/search', this.requestPage)
+    },
+    toggleColumn (column) {
+      column.visible = !column.visible
     },
     onRowClick (item, index) {
       this.$router.push({ name: 'user', params: { pid: item.pid } })
