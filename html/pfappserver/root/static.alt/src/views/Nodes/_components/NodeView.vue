@@ -3,7 +3,7 @@
   <b-form>
     <b-card no-body>
       <b-card-header>
-        <b-button-close @click="close"><icon name="close"></icon></b-button-close>
+        <b-button-close @click="close"><icon name="times"></icon></b-button-close>
         <h4 class="mb-0">MAC {{ mac }}</h4>
       </b-card-header>
       <b-tabs card>
