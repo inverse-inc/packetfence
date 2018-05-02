@@ -17,6 +17,8 @@ npm run build
 
 CSP must be disabled.
 
+Since this is a SPA (Single-Page Application), it is currently accessible from `https://<hostname>:1443/admin/alt`.
+
 ## Vue.js libraries
 
 * [Vuex](https://vuex.vuejs.org/)
