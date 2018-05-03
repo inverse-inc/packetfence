@@ -14,12 +14,12 @@ func RunParseTests(p Parser, tests []ParseTest, t *testing.T) {
 	for i, test := range tests {
 		calls, err := p.Parse(test.Line)
 		if err != nil {
-			t.Errorf("Error Parsing %d) %s: %v", i, test.Line)
+			t.Errorf("Error Parsing %d) %s", i, test.Line)
 			continue
 		}
 
 		if !cmp.Equal(calls, test.Calls) {
-			t.Errorf("Expected ApiCall Failed for %d %v) %s", i, test.Line, calls)
+			t.Errorf("Expected ApiCall Failed for %d) \"%s\"\n%s\n", i, test.Line, cmp.Diff(calls, test.Calls))
 		}
 	}
 }
