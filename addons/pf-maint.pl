@@ -109,7 +109,7 @@ our $BASE_GITHUB_URL =
 
 our $BASE_BINARIES_URL;
 if(-f "/etc/debian_version") {
-    print "WARNING: Patching of the Golang binaries is currently not supported on Debian\nYou can still apply the Perl patches\n";
+    $BASE_BINARIES_URL = "https://inverse.ca/downloads/PacketFence/debian";
 }
 else {
     $BASE_BINARIES_URL = "https://inverse.ca/downloads/PacketFence/CentOS7/binaries";
