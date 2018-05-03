@@ -270,6 +270,9 @@ sub download_and_install_binaries {
         rename("$binary_path-maintenance-decrypted", $binary_path) or die "Cannot install binary: $!\n";
         unlink("$binary_path-maintenance-encrypted") or warn "Couldn't delete temporary download file, everything will keep working but the stale file will still be there ($!)\n";
         chmod 0755, "$binary_path";
+        my ($login,$pass,$uid,$gid) = getpwnam('pf')
+            or die "pf not in passwd file";
+        chown $uid, $gid, $binary_path;
     }
 
     print "=" x 110 . "\n";
