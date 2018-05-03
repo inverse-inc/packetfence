@@ -67,6 +67,12 @@ our @excludes = (
     "t/*",
 );
 
+our @patchable_binaries = (
+    "pfhttpd",
+    "pfdns",
+    "pfdhcp",
+);
+
 GetOptions(
     "github-user|u=s" => \$GITHUB_USER,
     "github-repo|r=s" => \$GITHUB_REPO,
@@ -100,6 +106,16 @@ our $PF_RELEASE = $PF_RELEASE_REV;
 our $BASE_GITHUB_URL =
   "https://api.github.com/repos/$GITHUB_USER/$GITHUB_REPO";
 
+our $BASE_BINARIES_URL;
+if(-f "/etc/debian_version") {
+    $BASE_BINARIES_URL = "https://somewhere-on-the-internet.com";
+}
+else {
+    $BASE_BINARIES_URL = "https://inverse.ca/downloads/PacketFence/CentOS7/binaries";
+}
+
+our $BINARIES_DIRECTORY = "/usr/local/pf/bin";
+
 my $base = $BASE_COMMIT || get_base();
 
 die "Cannot base commit\n" unless $base;
@@ -122,6 +138,10 @@ print "Downloading the patch........\n";
 save_patch( $patch_data, $base, $head );
 print "Applying the patch........\n";
 apply_patch( $patch_data, $base, $head );
+
+accept_binary_patching() unless $NO_ASK;
+print "Downloading and replacing the binaries........\n";
+download_and_install_binaries();
 
 sub get_release_full {
     chomp( my $release = read_file( catfile( $PF_DIR, 'conf/pf-release' ) ) );
@@ -222,6 +242,25 @@ sub accept_patch {
 
 sub print_dot {
     print ".";
+}
+
+sub accept_binary_patching {
+    print "=" x 110 . "\n";
+    print "Should we patch the Golang binaries? ".join(",", @patchable_binaries)." Any custom code in them will be overwritten y/n [y]: ";
+    chomp(my $yes_no = <STDIN>);
+    if ($yes_no =~ /n/) {
+        exit;
+    }
+}
+
+sub download_and_install_binaries {
+    foreach my $binary (@patchable_binaries) {
+        print "Performing patching of $binary.......\n";
+        my $data = get_url("$BASE_BINARIES_URL/maintenance/$PF_RELEASE/$binary");
+        rename("$BINARIES_DIRECTORY/$binary", "$BINARIES_DIRECTORY/$binary-pre-maintenance") or die "Cannot backup binary: $!\n";
+        write_file("/usr/local/pf/bin/$binary", $data);
+        chmod 0755, "$BINARIES_DIRECTORY/$binary";
+    }
 }
 
 =head1 AUTHOR
