@@ -98,6 +98,10 @@ sub startScan {
     my $nessus = Net::Nessus::REST->new(url => 'https://'.$host.':'.$port, ssl_opts => { verify_hostname => $verify_hostname });
     $nessus->create_session(username => $user, password => $pass);
 
+    my $scan_vid = $POST_SCAN_VID;
+    $scan_vid = $SCAN_VID if ($self->{'_registration'});
+    $scan_vid = $PRE_SCAN_VID if ($self->{'_pre_registration'});
+
     # Verify nessus policy ID on the server, nessus remote scanner id, set scan name and launch the scan
 
     my $policy_id = $nessus->get_policy_id(name => $nessus_clientpolicy);
