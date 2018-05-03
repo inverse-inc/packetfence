@@ -117,6 +117,8 @@ else {
 
 our $BINARIES_DIRECTORY = "/usr/local/pf/bin";
 
+our $BINARIES_SIGN_KEY_ID = "A0030E2C";
+
 my $base = $BASE_COMMIT || get_base();
 
 die "Cannot base commit\n" unless $base;
@@ -142,6 +144,7 @@ apply_patch( $patch_data, $base, $head );
 
 if($BASE_BINARIES_URL) {
     accept_binary_patching() unless $NO_ASK;
+    install_binary_sign_key_if_needed();
     print "Downloading and replacing the binaries........\n";
     download_and_install_binaries();
 }
@@ -253,6 +256,14 @@ sub accept_binary_patching {
     chomp(my $yes_no = <STDIN>);
     if ($yes_no =~ /n/) {
         exit;
+    }
+}
+
+sub install_binary_sign_key_if_needed {
+    my $rc = system("gpg --list-keys | grep $BINARIES_SIGN_KEY_ID");
+    if($rc != 0) {
+        $rc = system("gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys $BINARIES_SIGN_KEY_ID");
+        die "Cannot install signing key\n" if $rc != 0;
     }
 }
 
