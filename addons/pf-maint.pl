@@ -109,7 +109,7 @@ our $BASE_GITHUB_URL =
 
 our $BASE_BINARIES_URL;
 if(-f "/etc/debian_version") {
-    $BASE_BINARIES_URL = "https://somewhere-on-the-internet.com";
+    print "WARNING: Patching of the Golang binaries is currently not supported on Debian\nYou can still apply the Perl patches\n";
 }
 else {
     $BASE_BINARIES_URL = "https://inverse.ca/downloads/PacketFence/CentOS7/binaries";
@@ -140,9 +140,11 @@ save_patch( $patch_data, $base, $head );
 print "Applying the patch........\n";
 apply_patch( $patch_data, $base, $head );
 
-accept_binary_patching() unless $NO_ASK;
-print "Downloading and replacing the binaries........\n";
-download_and_install_binaries();
+if($BASE_BINARIES_URL) {
+    accept_binary_patching() unless $NO_ASK;
+    print "Downloading and replacing the binaries........\n";
+    download_and_install_binaries();
+}
 
 sub get_release_full {
     chomp( my $release = read_file( catfile( $PF_DIR, 'conf/pf-release' ) ) );
