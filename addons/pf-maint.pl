@@ -256,11 +256,20 @@ sub accept_binary_patching {
 sub download_and_install_binaries {
     foreach my $binary (@patchable_binaries) {
         print "Performing patching of $binary.......\n";
-        my $data = get_url("$BASE_BINARIES_URL/maintenance/$PF_RELEASE/$binary");
-        rename("$BINARIES_DIRECTORY/$binary", "$BINARIES_DIRECTORY/$binary-pre-maintenance") or die "Cannot backup binary: $!\n";
-        write_file("/usr/local/pf/bin/$binary", $data);
-        chmod 0755, "$BINARIES_DIRECTORY/$binary";
+        my $binary_path = "$BINARIES_DIRECTORY/$binary";
+        my $data = get_url("$BASE_BINARIES_URL/maintenance/$PF_RELEASE/$binary.sig");
+        write_file("$binary_path-maintenance-encrypted", $data);
+        
+        my $result = system("gpg --batch --yes --output $binary_path-maintenance-decrypted --decrypt $binary_path-maintenance-encrypted");
+        die "Cannot validate the binary signature\n" if $result != 0;
+
+        rename($binary_path, "$binary_path-pre-maintenance") or die "Cannot backup binary: $!\n";
+        rename("$binary_path-maintenance-decrypted", $binary_path) or die "Cannot install binary: $!\n";
+        chmod 0755, "$binary_path";
     }
+
+    print "=" x 110 . "\n";
+    print "Patching of the binaries was successful\n";
 }
 
 =head1 AUTHOR
