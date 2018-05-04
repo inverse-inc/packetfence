@@ -1158,6 +1158,7 @@ fi
                         /usr/local/pf/html/common/Gruntfile.js
                         /usr/local/pf/html/captive-portal/content/captiveportal.js
                         /usr/local/pf/html/common/package.json
+                        /usr/local/pf/html/captive-portal/content/autosubmit.js
                         /usr/local/pf/html/captive-portal/content/timerbar.js
                         /usr/local/pf/html/captive-portal/content/ChilliLibrary.js
                         /usr/local/pf/html/captive-portal/content/shared_mdm_profile.mobileconfig
