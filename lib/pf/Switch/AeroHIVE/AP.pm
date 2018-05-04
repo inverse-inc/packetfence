@@ -143,7 +143,7 @@ sub getAcceptForm {
     my $last_ssid = $node->{last_ssid};
     $mac =~ s/:/-/g;
     my $html_form = qq[
-        <form name="weblogin_form" method="POST" action="http://1.1.1.1/reg.php">
+        <form name="weblogin_form" data-autosubmit="1000" method="POST" action="http://1.1.1.1/reg.php">
             <input type="hidden" name="Submit2" value="Submit">
             <input type="hidden" name="autherr" value="0">
             <input type="hidden" name="username" value="$mac">
@@ -151,9 +151,7 @@ sub getAcceptForm {
             <input type="hidden" name="ssid" value="$last_ssid">
             <input type="hidden" name="url" value="$destination_url">
         </form>
-        <script language="JavaScript" type="text/javascript">
-        window.setTimeout('document.weblogin_form.submit();', 1000);
-        </script>
+        <script src="/content/autosubmit.js" type="text/javascript"></script>
     ];
 
     $logger->debug("Generated the following html form : ".$html_form);

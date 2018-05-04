@@ -118,6 +118,7 @@
 /usr/local/pf/html/common/scss/_utilities.text.scss
 /usr/local/pf/html/common/scss/styles.scss
 /usr/local/pf/html/captive-portal/content/PacketFenceAgent.apk
+/usr/local/pf/html/captive-portal/content/autosubmit.js
 /usr/local/pf/html/captive-portal/content/captiveportal.js
 /usr/local/pf/html/captive-portal/content/countdown.min.js
 /usr/local/pf/html/captive-portal/content/guest-management.js
