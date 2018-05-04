@@ -1258,6 +1258,7 @@ fi
 %ghost                  %logdir/packetfence.log
 %ghost                  %logdir/snmptrapd.log
 %ghost                  %logdir/violation.log
+%ghost                  %logdir/httpd.admin.audit.log
 %ghost                  %logdir/pfdetect
 %ghost                  %logdir/pfmon
 %doc                    /usr/local/pf/NEWS.asciidoc
