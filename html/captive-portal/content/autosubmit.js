@@ -11,6 +11,6 @@ $(function() {
     // Submit the first form after the specified delay (ms)
     name = $form.attr('name');
     delay = parseInt($form.data('autosubmit'));
-    setTimeout($form.submit, delay);
+    setTimeout($.proxy($form.submit, $form), delay);
   }
 });
