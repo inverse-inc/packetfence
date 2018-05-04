@@ -6,6 +6,7 @@ mac-addr-regexp = '([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^
 # If this fails, the mschap module will try to authenticate using ntlm_auth.
 
 packetfence-local-auth { 
+    packetfence-set-tenant-id
     # Disable ntlm_auth
     update control {
         &MS-CHAP-Use-NTLM-Auth := No
