@@ -10,6 +10,7 @@ import (
 	"os"
 	"regexp"
 	"time"
+
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
 	"github.com/inverse-inc/packetfence/go/coredns/request"
 	"github.com/inverse-inc/packetfence/go/database"
@@ -396,7 +397,7 @@ func (pf *pfdns) PassthrouthsInit() error {
 	}
 
 	for k, v := range pfconfigdriver.Config.Passthroughs.Registration.Normal {
-		rgx, _ := regexp.Compile(k)
+		rgx, _ := regexp.Compile("^" + k + ".$")
 		pf.FqdnPort[rgx] = v
 	}
 	return nil
@@ -415,7 +416,7 @@ func (pf *pfdns) PassthrouthsIsolationInit() error {
 	}
 
 	for k, v := range pfconfigdriver.Config.Passthroughs.Isolation.Normal {
-		rgx, _ := regexp.Compile(k)
+		rgx, _ := regexp.Compile("^" + k + ".$")
 		pf.FqdnIsolationPort[rgx] = v
 	}
 	return nil
