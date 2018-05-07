@@ -275,6 +275,11 @@ sub generate_mangle_postrouting_rules {
         }
 
         my $interface = find_outgoing_interface($gateway, $source_interface);
+        if (!(defined($index->{$interface}))) {
+            $logger->warn($interface." is not defined in the configuration, check your routing table");
+            $index->{$interface} = $indice;
+            $indice --;
+        }
 
         foreach my $role ( @roles ) {
             if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {

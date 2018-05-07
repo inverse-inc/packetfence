@@ -233,6 +233,11 @@ sub manageTrafficShaping {
 
             my $interface = find_outgoing_interface($gateway, $source_interface);
 
+	    if (!(defined($index->{$interface}))) {
+                $logger->warn($interface." is not defined in the configuration, check your routing table");
+                $index->{$interface} = $indice;
+                $indice --;
+            }
 
             foreach my $role ( @roles ) {
                 my $upload;
