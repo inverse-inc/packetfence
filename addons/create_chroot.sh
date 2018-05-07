@@ -14,6 +14,9 @@ for dir in "${DIRS[@]}"; do
   [ -d $BASE/$NS/$dir ]                || mkdir -p $BASE/$NS/$dir
 done
 
+# Change permissions on var/run/samba/winbindd
+chmod 0755 $BASE/$NS/var/run/samba/winbindd
+
 DIRS=(proc lib lib64 bin usr sbin sys dev var/log/samba $ETC_DIRS)
 
 MOUNTS=(`mount | awk '{print $3}'`)
