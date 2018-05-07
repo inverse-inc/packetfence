@@ -2,6 +2,9 @@ import apiCall from '@/utils/api'
 
 export default {
   all: params => {
+    if (params.sort) {
+      params.sort = params.sort.join(',')
+    }
     return apiCall.get('nodes', { params }).then(response => {
       return response.data
     })
