@@ -122,7 +122,7 @@ sub build_list_search_info {
         (
             map {
                 exists $params->{$_}
-                  ? ( $_ => expand_csv($params->{$_}) )
+                  ? ( $_ => [expand_csv($params->{$_})] )
                   : ()
             } qw(fields sort)
         )
@@ -161,20 +161,6 @@ sub where_for_list {
 sub search_builder {
     my ($self) = @_;
     return $self->search_builder_class->new();
-}
-
-sub list_cursor {
-    my ($self) = @_;
-    my $cursor = $self->req->param('cursor') // 0;
-    $cursor += 0;
-    if ($cursor < 0) {
-        $cursor = 0;
-    }
-    return $cursor;
-}
-
-sub list_number_of_results {
-    return 100;
 }
 
 sub resource {
