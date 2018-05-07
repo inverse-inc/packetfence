@@ -1,5 +1,5 @@
 JS_FILES = js/pfappserver.* js/reports.* js/auditing.* js/configuration.*
-JS_LIB_FILES = js/vendor/bootstrap.min.js* js/vendor/jquery.min.* js/vendor/jquery-ui.min.js* js/vendor/jquery-extra.min.js* js/vendor/raphael.min.js* js/vendor/ace/*.js
+JS_LIB_FILES = js/vendor/bootstrap.min.js* js/vendor/jquery.min.* js/vendor/jquery-ui.min.js* js/vendor/jquery-extra.min.js* js/vendor/raphael.min.js* js/vendor/ace/*.js js/vendor/fitty.min.js*
 CSS_FILES = css/styles.css css/styles.css.map
 
 all:
