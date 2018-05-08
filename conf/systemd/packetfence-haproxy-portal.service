@@ -11,6 +11,7 @@ ExecStartPre=/usr/local/pf/bin/pfcmd service haproxy-portal generateconfig
 ExecStart=/usr/sbin/haproxy-systemd-wrapper -f /usr/local/pf/var/conf/haproxy-portal.conf -p /usr/local/pf/var/run/haproxy-portal.pid
 ExecReload=/bin/kill -USR2 $MAINPID
 Restart=on-failure
+Slice=packetfence.slice
 
 [Install]
-WantedBy=packetfence-base.target
+WantedBy=packetfence.target
