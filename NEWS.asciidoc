@@ -20,8 +20,14 @@ New Features
 Enhancements
 ++++++++++++
 
+* Update the computername (hostname) of a node using the Fingerbank Collector data
+
 Bug Fixes
 +++++++++
+
+* Fix issue with device profiling not being performed when an endpoint connects for the first time
+* Fix missing timeout when performing RADIUS SSO (FortiGate, CheckPoint, WatchGuard)
+* Fix issue with API frontend when initially configuring the webservices username and password
 
 Version 8.0.0 released on 2018-04-26
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
