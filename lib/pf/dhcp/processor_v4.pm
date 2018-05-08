@@ -326,6 +326,15 @@ sub parse_dhcp_request {
     }
     # We call the parking on all DHCPREQUEST since the actions have to be done on all servers and all servers receive the DHCPREQUEST
     else {
+        my $apiclient = pf::client::getClient;
+
+        my %violation_data = (
+            'mac'   => $client_mac,
+            'tid'   => 'new_dhcp_info_from_managed_network',
+            'type'  => 'internal',
+        );
+        $apiclient->notify('trigger_violation', %violation_data);
+
         $self->checkForParking($client_mac, $client_ip);
     }
 
@@ -386,6 +395,7 @@ sub parse_dhcp_ack {
     # Packet also has to be valid
     if( $self->pf_is_dhcp($client_ip) || 
         isenabled $Config{network}{force_listener_update_on_ack} ){
+
         $self->processIPTasks( (client_mac => $client_mac, client_ip => $client_ip, lease_length => $lease_length) );
         if ($self->{is_inline_vlan}) {
             $self->apiClient->notify('synchronize_locationlog',$self->{interface_ip},$self->{interface_ip},undef, $NO_PORT, $self->{interface_vlan}, $dhcp->{'chaddr'}, $NO_VOIP, $INLINE, $self->{inline_sub_connection_type});
