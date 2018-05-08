@@ -67,6 +67,13 @@ our @excludes = (
     "t/*",
 );
 
+our @patchable_binaries = (
+    "pfhttpd",
+    "pfdns",
+    "pfdhcp",
+    "pfstats",
+);
+
 GetOptions(
     "github-user|u=s" => \$GITHUB_USER,
     "github-repo|r=s" => \$GITHUB_REPO,
@@ -100,6 +107,18 @@ our $PF_RELEASE = $PF_RELEASE_REV;
 our $BASE_GITHUB_URL =
   "https://api.github.com/repos/$GITHUB_USER/$GITHUB_REPO";
 
+our $BASE_BINARIES_URL;
+if(-f "/etc/debian_version") {
+    $BASE_BINARIES_URL = "https://inverse.ca/downloads/PacketFence/debian";
+}
+else {
+    $BASE_BINARIES_URL = "https://inverse.ca/downloads/PacketFence/CentOS7/binaries";
+}
+
+our $BINARIES_DIRECTORY = "/usr/local/pf/bin";
+
+our $BINARIES_SIGN_KEY_ID = "A0030E2C";
+
 my $base = $BASE_COMMIT || get_base();
 
 die "Cannot base commit\n" unless $base;
@@ -122,6 +141,13 @@ print "Downloading the patch........\n";
 save_patch( $patch_data, $base, $head );
 print "Applying the patch........\n";
 apply_patch( $patch_data, $base, $head );
+
+if($BASE_BINARIES_URL) {
+    accept_binary_patching() unless $NO_ASK;
+    install_binary_sign_key_if_needed();
+    print "Downloading and replacing the binaries........\n";
+    download_and_install_binaries();
+}
 
 sub get_release_full {
     chomp( my $release = read_file( catfile( $PF_DIR, 'conf/pf-release' ) ) );
@@ -222,6 +248,46 @@ sub accept_patch {
 
 sub print_dot {
     print ".";
+}
+
+sub accept_binary_patching {
+    print "=" x 110 . "\n";
+    print "Should we patch the Golang binaries? ".join(",", @patchable_binaries)." Any custom code in them will be overwritten y/n [y]: ";
+    chomp(my $yes_no = <STDIN>);
+    if ($yes_no =~ /n/) {
+        exit;
+    }
+}
+
+sub install_binary_sign_key_if_needed {
+    my $rc = system("gpg --list-keys $BINARIES_SIGN_KEY_ID");
+    if($rc != 0) {
+        $rc = system("gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys $BINARIES_SIGN_KEY_ID");
+        die "Cannot install signing key\n" if $rc != 0;
+    }
+}
+
+sub download_and_install_binaries {
+    foreach my $binary (@patchable_binaries) {
+        print "Performing patching of $binary.......\n";
+        my $binary_path = "$BINARIES_DIRECTORY/$binary";
+        my $data = get_url("$BASE_BINARIES_URL/maintenance/$PF_RELEASE/$binary.sig");
+        write_file("$binary_path-maintenance-encrypted", $data);
+        
+        my $result = system("gpg --batch --yes --output $binary_path-maintenance-decrypted --decrypt $binary_path-maintenance-encrypted");
+        die "Cannot validate the binary signature\n" if $result != 0;
+
+        rename($binary_path, "$binary_path-pre-maintenance") or die "Cannot backup binary: $!\n";
+        rename("$binary_path-maintenance-decrypted", $binary_path) or die "Cannot install binary: $!\n";
+        unlink("$binary_path-maintenance-encrypted") or warn "Couldn't delete temporary download file, everything will keep working but the stale file will still be there ($!)\n";
+        chmod 0755, "$binary_path";
+        my ($login,$pass,$uid,$gid) = getpwnam('pf')
+            or die "pf not in passwd file";
+        chown $uid, $gid, $binary_path;
+    }
+
+    print "=" x 110 . "\n";
+    print "Patching of the binaries was successful\n";
 }
 
 =head1 AUTHOR
