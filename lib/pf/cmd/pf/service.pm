@@ -91,9 +91,8 @@ sub parseArgs {
     return 0 unless $service eq 'pf' || any { $_ eq $service} @pf::services::ALL_SERVICES;
 
     my ( @services, @managers );
-
-    if ($action eq 'status' && $service eq 'pf') {
-        @services = @pf::services::ALL_SERVICES;
+    if (($action eq 'status' || $action eq 'updatesystemd') && $service eq 'pf') {
+        @services = grep {$_ ne 'pf'} @pf::services::ALL_SERVICES;
     } else {
         if($cluster_enabled && $service eq 'pf') {
             @services = ('haproxy-db','pf');
@@ -126,6 +125,9 @@ sub _run {
     $actionHandler = $ACTION_MAP{$action};
     $service =~ /^(.*)$/;
     $service = $1;
+    if ($service eq 'pf' && ($action ne 'status' && $action ne 'updatesystemd')) {
+        updateSystemd->($service, grep {$_ ne 'pf'} @pf::services::ALL_SERVICES);
+    }
     return $actionHandler->($service,@$services);
 }
 
