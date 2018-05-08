@@ -31,7 +31,7 @@ var macPairHexRegex = regexp.MustCompile(`[a-fA-F0-9]{2}`)
 
 func cleanMac(mac string) string {
 	mac = macGarbageRegex.ReplaceAllString(strings.ToLower(mac), "")
-	if !macHexRegex.MatchString(mac) {
+	if !validSimpleMacHexRegex.MatchString(mac) {
 		return ""
 	}
 
