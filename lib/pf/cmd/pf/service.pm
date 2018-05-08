@@ -91,11 +91,16 @@ sub parseArgs {
     return 0 unless $service eq 'pf' || any { $_ eq $service} @pf::services::ALL_SERVICES;
 
     my ( @services, @managers );
-    if ($service eq 'pf' ) {
+
+    if ($action eq 'status' && $service eq 'pf') {
         @services = @pf::services::ALL_SERVICES;
-    }
-    else {
-        @services = ($service);
+    } else {
+        if($cluster_enabled && $service eq 'pf') {
+            @services = ('haproxy-db','pf');
+        }
+        else {
+            @services = ($service);
+        }
     }
     $self->{service}  = $service;
     $self->{services} = \@services;
