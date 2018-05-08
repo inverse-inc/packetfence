@@ -125,6 +125,8 @@ sub _run {
     $actionHandler = $ACTION_MAP{$action};
     $service =~ /^(.*)$/;
     $service = $1;
+    # On pfcmd pf status we don't want to run updatesystemd
+    # On pfcmd pf updatesystemd we don't want to run it twice
     if ($service eq 'pf' && ($action ne 'status' && $action ne 'updatesystemd')) {
         updateSystemd->($service, grep {$_ ne 'pf'} @pf::services::ALL_SERVICES);
     }
