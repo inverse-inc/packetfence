@@ -16,7 +16,9 @@ Version X.Y.Z released on xxxx-xx-xx
 
 New Features
 ++++++++++++
+
 * Added support for Cisco WLC Wired authentication
+* Can now patch the Golang binaries through the maintenance script (addons/pf-maint.pl)
 
 Enhancements
 ++++++++++++
