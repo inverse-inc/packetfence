@@ -136,8 +136,6 @@ Depends: ${misc:Depends}, vlan,
  libnet-syslog-perl,
 # for packaging
  dpkg-distribution,
-# golang build
- golang-1.7-go,
  etcd-server,
  etcd-client,
 # Distribution specific
