@@ -12,9 +12,9 @@
       <div class="input-container">
         <label for="name">[% i18n("Name on Card") %]</label>
         [% IF request_fields.defined(firstname) && request_fields.defined(lastname) %]
-        <input id="name" type="text" size="20" />
-        [% ELSE %]
         <input id="name" type="text" size="20" value="[% request_fields.firstname %] [% request_fields.lastname %]"/>
+        [% ELSE %]
+        <input id="name" type="text" size="20" />
         [% END %]
       </div>
 
