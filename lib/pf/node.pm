@@ -833,11 +833,11 @@ sub node_cleanup {
     if($delete_time ne "0") {
         foreach my $row ( node_expire_lastseen($delete_time) ) {
             my $mac = $row->{'mac'};
+            $logger->info("mac $mac not seen for $delete_time seconds, deleting");
+
             require pf::locationlog;
-            if (pf::locationlog::locationlog_update_end_mac($mac)) {
-                $logger->info("mac $mac not seen for $delete_time seconds, deleting");
-               node_delete($mac);
-            }
+            pf::locationlog::locationlog_update_end_mac($mac);
+            node_delete($mac);
         }
     }
     else {
