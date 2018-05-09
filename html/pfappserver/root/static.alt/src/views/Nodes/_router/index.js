@@ -1,7 +1,7 @@
 import NodesView from '../'
 import NodesSearch from '../_components/NodesSearch'
-import NodesCreate from '../_components/NodesCreate'
-import NodeView from '../_components/NodeView'
+const NodesCreate = () => import(/* webpackChunkName: "Nodes" */ '../_components/NodesCreate')
+const NodeView = () => import(/* webpackChunkName: "Nodes" */ '../_components/NodeView')
 
 const route = {
   path: '/nodes',

@@ -1,5 +1,5 @@
 STATIC_FILES = ../admin/v-index.tt
-DYNAMIC_FILES = dist/css/app.* dist/js/app.* dist/js/vendor.*
+DYNAMIC_FILES = dist/css/app.* dist/js/app.* dist/js/vendor.* dist/js/[0-9]*
 MANIFEST_FILES = dist/js/manifest.*
 
 .PHONY: all dev dist
