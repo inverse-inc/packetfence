@@ -17,7 +17,7 @@ Version X.Y.Z released on xxxx-xx-xx
 New Features
 ++++++++++++
 
-* Added support for Cisco WLC Wired authentication
+* Added support for Cisco WLC wired authentication
 * Can now patch the Golang binaries through the maintenance script (addons/pf-maint.pl)
 
 Enhancements
@@ -29,13 +29,13 @@ Enhancements
 Bug Fixes
 +++++++++
 
-* packetfence-haproxy-portal and packetfence-tc systemd service in a wrong target.
-* Custom routing w/ Inline - Fails Silently (#3215)
-* Nessus6 scanner
-* haproxy-db only listen on ipv6 (debian) (#3208)
+* packetfence-haproxy-portal and packetfence-tc systemd service in a wrong target
+* Custom routing with inline enforcement fails silently (#3215)
+* Nessus 6 scanner
+* haproxy-db only listens on IPv6 interface (Debian) (#3208)
 * Fixed packetfence-local-auth
-* Fixed dns passthrough for normal domain (was considered as a wildcard)
-* Winbind fail to start because of a permissions on /var/run/samba/winbindd in the chroots
+* Fixed DNS passthrough for normal domain (was considered as a wildcard)
+* Winbind fails to start because of a permission issues on /var/run/samba/winbindd in the chroots
 * Update from 7.4 to 8.0 audit log file not there (#3216)
 
 Version 8.0.0 released on 2018-04-26
