@@ -114,6 +114,7 @@ sub login :Local :Args(0) {
 
                     # Save the updated roles data
                     $c->persist_user();
+                    $c->change_session_id();
 
                     # Don't send a standard 302 redirect code; return the redirection URL in the JSON payload
                     # and perform the redirection on the client side
