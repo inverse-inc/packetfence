@@ -91,6 +91,7 @@ __PACKAGE__->config(
     },
 
     'Plugin::Session' => {
+        cookie_secure => use_secure_cookie(),
         #chi will set the expire time
         chi_class => 'pf::CHI',
         chi_args => {
@@ -162,6 +163,17 @@ __PACKAGE__->config(
        }
      },
 );
+
+
+=head2 use_secure_cookie
+
+use secure cookie
+
+=cut
+
+sub use_secure_cookie {
+    return $ENV{CATALYST_DEBUG} ? 0 : 1;
+}
 
 sub pf_hash_for {
     my ($self,@args) = @_;
