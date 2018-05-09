@@ -13,6 +13,7 @@ console.log(vars);
       cardData.month = document.getElementById("monthID").value;
       cardData.year = document.getElementById("yearID").value;
       cardData.cardCode = document.getElementById("cardCodeID").value;
+      cardData.fullName = document.getElementById("name").value;
       secureData.cardData = cardData;
 
       // The Authorize.Net Client Key is used in place of the traditional Transaction Key. The Transaction Key
