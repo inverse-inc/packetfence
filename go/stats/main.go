@@ -156,6 +156,7 @@ func (s eduroamtype) Test(source interface{}, ctx context.Context) {
 	UserName_SetString(packet, "tim")
 	UserPassword_SetString(packet, "12345")
 	client := radius.DefaultClient
+	ctx = context.WithTimeout(ctx, 5*time.Second)
 	response, err := client.Exchange(ctx, packet, source.(pfconfigdriver.AuthenticationSourceEduroam).Server1Address+":1812")
 
 	if err != nil {
