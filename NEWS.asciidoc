@@ -37,6 +37,7 @@ Bug Fixes
 * Fixed DNS passthrough for normal domain (was considered as a wildcard)
 * Winbind fails to start because of a permission issues on /var/run/samba/winbindd in the chroots
 * Update from 7.4 to 8.0 audit log file not there (#3216)
+* Fixed unreg on accounting stop (#3220)
 
 Version 8.0.0 released on 2018-04-26
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
