@@ -24,7 +24,7 @@ Enhancements
 ++++++++++++
 
 * Detect uplinks based on CDP flag instead of a string
-* Put etcd in his own directory
+* Put etcd in its own directory
 
 Bug Fixes
 +++++++++
@@ -34,12 +34,12 @@ Bug Fixes
 * Nessus 6 scanner
 * haproxy-db only listens on IPv6 interface (Debian) (#3208)
 * Fixed packetfence-local-auth
-* Fixed DNS passthrough for normal domain (was considered as a wildcard)
+* Fixed DNS passthrough for normal domains (was considered as a wildcard)
 * Winbind fails to start because of a permission issues on /var/run/samba/winbindd in the chroots
 * Update from 7.4 to 8.0 audit log file not there (#3216)
 * Fixed unreg on accounting stop (#3220)
 * Allow nodes without roles to be modified when restricting allowed role (#3217)
-* Fix speed issues with node search in the admin
+* Fixed speed issues with node search in the admin
 
 Version 8.0.0 released on 2018-04-26
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
