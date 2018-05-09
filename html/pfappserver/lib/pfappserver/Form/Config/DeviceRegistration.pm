@@ -15,8 +15,6 @@ with qw (
     pfappserver::Role::Form::RolesAttribute
 );
 
-has roles => ( is => 'rw' );
-
 ## Definition
 has_field 'id' =>
   (
