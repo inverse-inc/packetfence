@@ -24,7 +24,8 @@ around 'execute_child' => sub {
 
     if($self->app->request->method eq "POST" && $self->app->request->path eq "signup"){
         if($self->handle_posted_fields()){
-            return $self->$orig(@_);  
+           $self->merge_request_saved_fields();
+           return $self->$orig(@_);
         }
         else {
             return;
@@ -32,6 +33,21 @@ around 'execute_child' => sub {
     }
     $self->$orig(@_);
 };
+
+
+=head2 merge_request_saved_fields
+
+Merge the content of $self->request_fields and $self->app->session->{saved_fields}
+
+=cut
+
+sub merge_request_saved_fields {
+    my ($self) = @_;
+
+    foreach my $key (keys %{$self->app->session->{saved_fields}}) {
+        $self->request_fields->{$key} = $self->app->session->{saved_fields}->{$key};
+    }
+}
 
 =head2 validate_required_fields
 
@@ -43,7 +59,8 @@ sub validate_required_fields {
     my ($self) = @_;
     my @errors;
     foreach my $field (@{$self->required_fields}){
-        unless(defined($self->request_fields->{$field}) && $self->request_fields->{$field}){
+        $self->app->session->{saving_field}->{$field} = $self->request_fields->{$field} if (defined($self->request_fields->{$field}) && $self->request_fields->{$field});
+        unless( (defined($self->request_fields->{$field}) && $self->request_fields->{$field}) || (defined($self->app->session->{saved_fields}->{$field}) && $self->app->session->{saved_fields}->{$field}) ){
             push @errors, $self->app->i18n(["%s is required", $self->app->i18n($field)]);
         }
     }

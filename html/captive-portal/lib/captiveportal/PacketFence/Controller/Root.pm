@@ -106,7 +106,7 @@ sub setupDynamicRouting : Private {
         session => $c->session,
         profile => $profile,
         request => $request,
-        root_module_id => ( defined($node->{status}) && $node->{status} eq $pf::node::STATUS_PENDING ) ? $PENDING_POLICY : $profile->getRootModuleId(),
+        root_module_id => ( defined($node->{status}) && $node->{status} eq $pf::node::STATUS_PENDING ) ? $PENDING_POLICY : ( ( defined($c->session->{'sub_root_module_id'}) ) ? $c->session->{'sub_root_module_id'} : $profile->getRootModuleId() ),
     );
     $application->session->{client_mac} = $c->portalSession->clientMac;
     $application->session->{client_ip} = $c->portalSession->clientIP->normalizedIP;

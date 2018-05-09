@@ -41,9 +41,11 @@ has 'with_aup' => ('is' => 'rw', default => sub {1});
 
 has 'aup_template' => (is => 'rw', default => sub {'aup_text.html'});
 
-has '+actions' => (default => sub {{"role_from_source" => [], "unregdate_from_source" => [], "time_balance_from_source" => [], "bandwidth_balance_from_source" => []}});
+has '+actions' => (default => sub {{"on_success" => [], "on_failure" => [], "destination_url" => [], "role_from_source" => [], "unregdate_from_source" => [], "time_balance_from_source" => [], "bandwidth_balance_from_source" => []}});
 
 has 'signup_template' => ('is' => 'rw', default => sub {'signin.html'});
+
+has 'fields_to_save'  => (is => 'rw', isa => 'ArrayRef[Str]', default => sub {[]});
 
 use pf::authentication;
 use pf::Authentication::constants qw($LOCAL_ACCOUNT_UNLIMITED_LOGINS);
@@ -63,6 +65,8 @@ sub available_actions {
         'role_from_source',
         'time_balance_from_source',
         'bandwidth_balance_from_source',
+        'on_failure',
+        'on_success',
     ];
 }
 
@@ -178,6 +182,10 @@ sub _build_required_fields {
         @fields = grep { $_ ne "password" } @fields;
     }
 
+    foreach my $key (keys %{$self->app->session->{saved_fields}}) {
+        @fields = grep { $_ ne $key } @fields;
+    }
+
     return [@fields];
 }
 
@@ -202,6 +210,23 @@ sub merged_fields {
         $merged{$field} = $self->request_fields->{$field};
     }
     return \%merged;
+}
+
+=head2 transfert_saving_fields
+
+Transfert $self->app->session->{saving_fields} in $self->app->session->{saved_fields}
+
+=cut
+
+sub transfert_saving_fields {
+    my ($self) = @_;
+
+    foreach my $key (keys %{$self->app->session->{saving_fields}}) {
+        if (grep { $_ eq $key } @{$self->fields_to_save}) {
+            $self->app->session->{saved_fields}->{$key} = $self->app->session->{saving_fields}->{$key};
+        }
+    }
+    delete $self->app->session->{saving_fields};
 }
 
 =head2 auth_source_params
