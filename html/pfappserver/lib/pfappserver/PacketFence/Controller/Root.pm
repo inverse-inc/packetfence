@@ -85,24 +85,25 @@ Attempt to render a view, if needed.
 
 sub end : ActionClass('RenderView') {
     my ( $self, $c ) = @_;
-     
-    if (isenabled($Config{'advanced'}{'admin_csp_security_headers'})) {
+    $c->response->header('Cache-Control' => 'no-cache, no-store');
+    if (isenabled($Config{'advanced'}{'admin_csp_security_headers'})){
         $c->csp_server_headers();
     }
-  
-    if (defined($c->req->header('accept')) && $c->req->header('accept') eq 'application/json'){
+
+    if (defined($c->req->header('accept')) && $c->req->header('accept') eq 'application/json') {
         $c->stash->{current_view} = 'JSON';
     }
+
     if (scalar @{$c->error}) {
-        for my $error ( @{ $c->error } ) {
+        for my $error (@{$c->error}) {
             $c->log->error($error);
         }
         $c->stash->{status_msg} = $c->pf_localize('An error condition has occured. See server side logs for details.');
         $c->response->status(500);
         $c->clear_errors;
     }
-    elsif (exists $c->stash->{status_msg} && defined $c->stash->{status_msg} ) {
-        $c->stash->{status_msg} = $c->pf_localize($c->stash->{status_msg});
+    elsif (defined (my $status_msg = $c->stash->{status_msg})) {
+        $c->stash->{status_msg} = $c->pf_localize($status_msg);
     }
 }
 
