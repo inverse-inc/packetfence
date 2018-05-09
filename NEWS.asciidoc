@@ -38,6 +38,8 @@ Bug Fixes
 * Winbind fails to start because of a permission issues on /var/run/samba/winbindd in the chroots
 * Update from 7.4 to 8.0 audit log file not there (#3216)
 * Fixed unreg on accounting stop (#3220)
+* Allow nodes without roles to be modified when restricting allowed role (#3217)
+* Fix speed issues with node search in the admin
 
 Version 8.0.0 released on 2018-04-26
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
