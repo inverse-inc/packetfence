@@ -92,7 +92,7 @@ func (s radiustype) Test(source interface{}, ctx context.Context) {
 	UserName_SetString(packet, "tim")
 	UserPassword_SetString(packet, "12345")
 	client := radius.DefaultClient
-	ctx = context.WithTimeout(ctx, 5*time.Second)
+	ctx, _ = context.WithTimeout(ctx, 5*time.Second)
 	response, err := client.Exchange(ctx, packet, source.(pfconfigdriver.AuthenticationSourceRadius).Host+":"+source.(pfconfigdriver.AuthenticationSourceRadius).Port)
 	if err != nil {
 		StatsdClient.Gauge("source."+source.(pfconfigdriver.AuthenticationSourceRadius).Type+"."+source.(pfconfigdriver.AuthenticationSourceRadius).PfconfigHashNS, 0)
@@ -156,7 +156,7 @@ func (s eduroamtype) Test(source interface{}, ctx context.Context) {
 	UserName_SetString(packet, "tim")
 	UserPassword_SetString(packet, "12345")
 	client := radius.DefaultClient
-	ctx = context.WithTimeout(ctx, 5*time.Second)
+	ctx, _ = context.WithTimeout(ctx, 5*time.Second)
 	response, err := client.Exchange(ctx, packet, source.(pfconfigdriver.AuthenticationSourceEduroam).Server1Address+":1812")
 
 	if err != nil {
@@ -229,7 +229,6 @@ var StatsdClient *statsd.Client
 var ctx context.Context
 
 func main() {
-	d := time.Now().Add(500 * time.Millisecond)
 	ctx := context.Background()
 	ctx = log.LoggerNewContext(ctx)
 
