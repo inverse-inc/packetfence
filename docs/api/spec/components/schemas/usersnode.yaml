@@ -1,0 +1,66 @@
+UsersNode:
+  properties:
+    autoreg:
+      type: string
+    bandwidth_balance:
+      type: integer
+    bypass_role_id:
+      type: integer
+    bypass_vlan:
+      type: string
+    category_id:
+      type: integer
+    computername:
+      type: string
+    detect_date:
+      type: string
+    device_class:
+      type: string
+    device_score:
+      type: string
+    device_type:
+      type: string
+    device_version:
+      type: string
+    dhcp6_enterprise:
+      type: string
+    dhcp6_fingerprint:
+      type: string
+    dhcp_fingerprint:
+      type: string
+    dhcp_vendor:
+      type: string
+    last_arp:
+      type: string
+    last_dhcp:
+      type: string
+    last_seen:
+      type: string
+    lastskip:
+      type: string
+    mac:
+      type: string
+    machine_account:
+      type: string
+    notes:
+      type: string
+    pid:
+      type: string
+    regdate:
+      type: string
+    sessionid:
+      type: string
+    status:
+      type: string
+    tenant_id:
+      type: integer
+    time_balance:
+      type: integer
+    unregdate:
+      type: string
+    user_agent:
+      type: string
+    voip:
+      type: string
+  required: []
+  type: object

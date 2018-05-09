@@ -124,6 +124,7 @@ sub db_execute {
                         $logger->trace("Ignoring error $errstr (errno: $err)");
                     } else {
                         $logger->error("Database query failed with non retryable error: $errstr (errno: $err) [$sql]{". join(", ", map { defined $_ ?  $_ : "NULL" } @bind)  . "}");
+                        db_disconnect();
                     }
                 }
                 last;
@@ -192,7 +193,7 @@ Search for pf::dal using SQL::Abstract::More syntax
 sub search {
     my ($proto, %args) = @_;
     my $class = ref($proto) || $proto;
-    if ( exists $args{-with_class}) {
+    if ( CORE::exists $args{-with_class}) {
         $class = delete $args{-with_class};
     }
     my $no_default_join = delete $args{-no_default_join};
@@ -237,26 +238,7 @@ sub save {
         return $status;
     }
 
-    my $dbh  = $self->get_dbh;
-    unless ($dbh->begin_work) {
-        my $err = $dbh->err;
-        pf::db::db_handle_error($err);
-        return mysql_error_to_status_code($err);
-    }
-    eval {
-        $status = $self->create_or_update();
-    };
-
-    if ($@) {
-        $self->logger->info("Error saving : $@");
-    }
-
-    $status =  $self->commit_or_rollback($status, $dbh);
-    if ($status == $STATUS::CREATED) {
-        $self->_save_old_data();
-        $self->after_create_hook();
-    }
-    return $status;
+    return $self->upsert;
 }
 
 sub create_or_update {
@@ -273,6 +255,7 @@ sub commit_or_rollback {
     my ($self, $status, $dbh) = @_;
     if (is_error($status)) {
         if(!$dbh->rollback()) {
+            $self->logger->error("Error rolling back");
             my $err = $dbh->err;
             pf::db::db_handle_error($err);
             $status = mysql_error_to_status_code($err);
@@ -280,6 +263,7 @@ sub commit_or_rollback {
     } else {
         if (!$dbh->commit) {
             my $err = $dbh->err;
+            $self->logger->error("Error commiting");
             pf::db::db_handle_error($err);
             $status = mysql_error_to_status_code($err);
         }
@@ -303,7 +287,7 @@ Update the pf::dal object
 
 sub update {
     my ($self, $from_table) = @_;
-    return $STATUS::PRECONDITION_FAILED unless $self->__from_table || $from_table;
+    return $STATUS::UNPROCESSABLE_ENTITY unless $self->__from_table || $from_table;
     my $where         = $self->primary_keys_where_clause;
     my ($status, $update_data) = $self->_update_data;
     return $status if is_error($status);
@@ -323,6 +307,16 @@ sub update {
         $self->_save_old_data();
         return $STATUS::OK;
     }
+
+    my $info = $sth->{Database}{mysql_info};
+    if ($info =~ /^.*: (\d+).*: (\d+).*: (\d+)/) {
+        my ($matched, $row, $warning) = ($1, $2, $3);
+        if ($matched) {
+            $self->_save_old_data();
+            return $STATUS::OK;
+        }
+    }
+
     return $STATUS::NOT_FOUND;
 }
 
@@ -340,8 +334,13 @@ sub update_items {
     );
     return $status, undef if is_error($status);
 
-    my $rows = $sth->rows;
-    return $STATUS::OK, $rows;
+    my $info = $sth->{Database}{mysql_info};
+    if ($info =~ /^.*: (\d+).*: (\d+).*: (\d+)/) {
+        my ($matched, $row, $warning) = ($1, $2, $3);
+        return $STATUS::OK, $matched;
+    }
+
+    return $STATUS::OK, $sth->rows;
 }
 
 =head2 insert
@@ -452,6 +451,7 @@ sub upsert {
         -on_conflict => $on_conflict,
     );
     return $status if is_error($status);
+
     my $rows = $sth->rows;
     $self->_save_old_data();
     if ($rows == 1) {
@@ -459,6 +459,7 @@ sub upsert {
         $self->update_auto_increment_field($sth);
         $self->after_create_hook();
     }
+
     return $status;
 }
 
@@ -513,6 +514,7 @@ sub _update_data {
     my $updateable_fields = $self->_updateable_fields;
     my $old_data = $self->__old_data;
     my %data;
+    my $logger = $self->logger;
     foreach my $field (@$updateable_fields) {
         my $new_value = $self->{$field};
         my $old_value = $old_data->{$field};
@@ -520,7 +522,7 @@ sub _update_data {
         next if (defined $new_value && defined $old_value && $new_value eq $old_value);
         if (is_error($self->validate_field($field, $new_value))) {
             my $table = $self->table;
-            $self->logger->error("Skipping invalid value (" . ($new_value // "NULL" ) . ") in when updating field ${table}.${field}");
+            $logger->error("Skipping invalid value (" . ($new_value // "NULL" ) . ") in when updating field ${table}.${field}");
             next;
         }
         $data{$field} = $new_value;
@@ -537,19 +539,24 @@ Validate a field value
 sub validate_field {
     my ($self, $field, $value) = @_;
     my $logger = $self->logger;
+    my $meta = $self->get_meta;
+
+    if (!CORE::exists $meta->{$field}) {
+        return $STATUS::UNPROCESSABLE_ENTITY
+    }
+
     if (!$self->is_nullable($field)) {
         if (!defined $value) {
             my $table = $self->table;
             $logger->error("Trying to save a NULL value in a non nullable field ${table}.${field}");
-            return $STATUS::PRECONDITION_FAILED;
+            return $STATUS::UNPROCESSABLE_ENTITY;
         }
     }
     if ($self->is_enum($field) && defined $value) {
-        my $meta = $self->get_meta;
         unless (CORE::exists $meta->{$field} && CORE::exists $meta->{$field}{enums_values}{$value}) {
             my $table = $self->table;
             $logger->error("Trying to save a invalid value ($value) in a non nullable field ${table}.${field}");
-            return $STATUS::PRECONDITION_FAILED;
+            return $STATUS::UNPROCESSABLE_ENTITY;
         }
     }
     return $self->_validate_field($field, $value);
@@ -657,7 +664,7 @@ Remove row from the database
 
 sub remove {
     my ($self) = @_;
-    return $STATUS::PRECONDITION_FAILED unless $self->__from_table;
+    return $STATUS::UNPROCESSABLE_ENTITY unless $self->__from_table;
     my ($status, $count) = $self->remove_items(
         -where => $self->primary_keys_where_clause
     );
@@ -815,6 +822,18 @@ sub to_hash {
     @hash{@$fields} = @{$self}{@$fields};
     return \%hash;
 }
+
+=head2 field_names
+
+field_names
+
+=cut
+
+sub field_names {
+    my ($self) = @_;
+    return $self->table_field_names;
+}
+
 
 =head2 now
 

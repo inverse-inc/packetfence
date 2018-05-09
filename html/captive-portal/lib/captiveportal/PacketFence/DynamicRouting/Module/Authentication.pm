@@ -321,7 +321,7 @@ sub prompt_fields {
         previous_request => $self->app->request->parameters(),
         fields => $self->merged_fields,
         form => $self->form,
-        title => defined($self->source) ? $self->source->description : "Authentication",
+        title => defined($self->source) ? $self->source->description : $self->description,
         %{$args},
     });
 }
@@ -348,7 +348,7 @@ sub update_person_from_fields {
     }
 
     # not sure we should set the portal + source here...
-    person_modify($options{pid}, %{ $self->request_fields }, portal => $self->app->profile->getName, source => $self->source->id, lang => $lang);
+    person_modify($options{pid}, %{ $self->request_fields }, portal => $self->app->profile->getName, source => $self->source->id, lang => $lang, %{$options{additionnal_fields}});
 }
 
 =head1 AUTHOR

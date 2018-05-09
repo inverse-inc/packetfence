@@ -1,17 +1,12 @@
-<form name="network" class="form--single_submit" action="/violation/release" method="post" target="_top">
-  <input type="hidden" name="violation_id" value="[% violation_id %]" />
-
-  <div class="layout layout--center u-palm-p">
-    <div class="layout__item u-2/3 u-1/1-palm">
-      <div class="u-m">
-        <button type="submit" name="submit" class="btn btn--full">
-          <div class="flag flag--light">
-            <div class="flag__img">[% svgIcon(id='ic_done_black_24px',size='small') %]</div>
-            <p class="flag__body">[% i18n(enable_text) %]</p>
-          </div>
+<div class="u-padding">
+  <form name="network" class="form--single_submit" action="/violation/release" method="post" target="_top">
+    <input type="hidden" name="violation_id" value="[% violation_id %]" />
+    <div class="o-layout o-layout--center">
+      <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+        <button type="submit" name="submit" class="c-btn c-btn--primary u-1/1">
+          [% i18n(enable_text) %]
         </button>
       </div>
     </div>
-  </div>
-
-</form>
+  </form>
+</div>

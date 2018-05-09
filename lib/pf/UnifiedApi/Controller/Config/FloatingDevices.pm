@@ -8,15 +8,12 @@ pf::UnifiedApi::Controller::Config::FloatingDevices -
 
 =head1 DESCRIPTION
 
-pf::UnifiedApi::Controller::Config::FloatingDevices
-
-
+Configure floating devices
 
 =cut
 
 use strict;
 use warnings;
-
 
 use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
 
@@ -26,7 +23,6 @@ has 'primary_key' => 'floating_device_id';
 
 use pf::ConfigStore::FloatingDevice;
 use pfappserver::Form::Config::FloatingDevice;
-
  
 =head1 AUTHOR
 
@@ -56,4 +52,3 @@ USA.
 =cut
 
 1;
-

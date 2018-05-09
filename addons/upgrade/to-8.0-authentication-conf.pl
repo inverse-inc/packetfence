@@ -60,6 +60,11 @@ for my $authsection ( $iniauth->Sections() ) {
     }
 }
 
+unless(keys(%all_realms)) {
+    print "There are no realms to adjust which means no changes are necessary. \n";
+    exit 0;
+}
+
 print "==================================================\n";
 print "Found the following stripped realms: ".join(",", keys(%stripped_realms)) . "\n";
 print "Found the following non-stripped realms: ".join(",", keys(%non_stripped_realms)) . "\n";

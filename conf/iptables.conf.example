@@ -23,12 +23,15 @@
 -A input-management-if --protocol tcp --match tcp --dport %%webservices_port%% --jump ACCEPT
 # AAA 
 -A input-management-if --protocol tcp --match tcp --dport %%aaa_port%% --jump ACCEPT
+# Unified API
+-A input-management-if --protocol tcp --match tcp --dport %%unifiedapi_port%% --jump ACCEPT
 # httpd.portal modstatus
 -A input-management-if --protocol tcp --match tcp --dport %%httpd_portal_modstatus%% --jump ACCEPT
 # httpd.collector
 -A input-management-if --protocol tcp --match tcp --dport %%httpd_collector_port%% --jump ACCEPT
-# haproxy stats (uncomment if activating the haproxy dashboard)
+# haproxy stats (uncomment if activating the haproxy dashboard) - 1025 for haproxy-portal, 1026 for haproxy-db
 #-A input-management-if --protocol tcp --match tcp --dport 1025 --jump ACCEPT
+#-A input-management-if --protocol tcp --match tcp --dport 1026 --jump ACCEPT
 # Netdata
 -A input-management-if --protocol tcp --match tcp --dport 19999 --jump ACCEPT
 
@@ -58,9 +61,6 @@
 # Fingerbank collector (replication + API)
 -A input-management-if --protocol udp --match udp --dport 1192 --jump ACCEPT
 -A input-management-if --protocol tcp --match tcp --dport 4723 --jump ACCEPT
-
-# GO IPSET API
--A input-management-if --protocol tcp --match tcp --dport 22223 --jump ACCEPT
 
 # VRRP
 -A input-management-if -d 224.0.0.0/8 -j ACCEPT

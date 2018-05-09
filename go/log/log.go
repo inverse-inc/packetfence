@@ -104,6 +104,12 @@ func initContextLogger(ctx context.Context) context.Context {
 
 	ctx = context.WithValue(ctx, LoggerKey, logger)
 
+	level := sharedutils.EnvOrDefault("LOG_LEVEL", "")
+	if level != "" {
+		logger.logger.Info("Setting log level to " + level)
+		ctx = LoggerSetLevel(ctx, level)
+	}
+
 	return ctx
 }
 

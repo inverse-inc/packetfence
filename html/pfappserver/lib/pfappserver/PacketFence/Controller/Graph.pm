@@ -24,8 +24,11 @@ use pf::config qw(
     $management_network
     %Config
     %ConfigReport
+    @listen_ints
 );
+use pfconfig::cached_array;
 use pf::cluster;
+use pf::nodecategory;
 use Sys::Hostname;
 DateTime::Locale->add_aliases({
     'i_default' => 'en',
@@ -359,113 +362,138 @@ sub _buildGraphiteURL :Private {
 
 sub dashboard :Local :AdminRole('REPORTS') {
     my ($self, $c, $start, $end) = @_;
-    my $graphs = [];
     my $width = $c->request->param('width');
+    my $tab = $c->request->param('tab') // 'system';
+    tie my @authentication_sources_monitored, 'pfconfig::cached_array', "resource::authentication_sources_monitored";
+    my @categories = pf::nodecategory::nodecategory_view_all();
     $start //= '';
 
     $self->_saveRange($c, $DASHBOARD, $start, $end);
 
-    $graphs = [
-               {
-                'description' => $c->loc('Registrations/min'),
-                'target' => [ 'alias(groupByNode(summarize(stats.counters.*.pf__node__node_register.called.count,"1min"),5,"sum"),"End-Points registered")',
-                    'alias(groupByNode(summarize(stats.counters.*.pf__node__node_deregister.called.count,"1min"),5,"sum"), "End-Points deregistered")' ],
-                'lineMode' => "staircase",
-                'columns' => 2,
-               },
-               {
-                'description' => $c->loc('RADIUS Total Access-Requests/s'),
-                'vtitle' => 'requests',
-                'target' =>'alias(sum(*.radsniff-exchanged.radius_count-access_request.received),"Access-Requests")',
-                'columns' => 1
-               },
-               {
-                'description' => $c->loc('RADIUS Access-Requests/s per server'),
-                'vtitle' => 'requests',
-                'target' => 'aliasByNode(*.radsniff-exchanged.radius_count-access_request.received,0)',
-                'columns' => 1
-               },
-               {
-                'description' => $c->loc('RADIUS Access-Accepts/s per server'),
-                'vtitle' => 'replies',
-                'target' => 'aliasByNode(*.radsniff-exchanged.radius_count-access_accept.received,0)',
-                'columns' => 2
-               },
-               {
-                'description' => $c->loc('RADIUS Access-Rejects/s per server'),
-                'vtitle' => 'replies',
-                'target' => 'aliasByNode(*.radsniff-exchanged.radius_count-access_reject.received,0)',
-                'columns' => 2
-               },
-               {
-                'description' => $c->loc('Apache AAA call timing'),
-                'vtitle' => 'ms',
-                'target' => 'aliasByNode(stats.timers.*.pf__api__radius_rest_authorize.timing.mean_90,2)',
-                'columns' => 1
-               },
-               {
-                'description' => $c->loc('Apache AAA Open Connections per server'),
-                'vtitle' => 'connections',
-                'target' => 'aliasByNode(*.apache-aaa.apache_connections,0)',
-                'columns' => 1
-               },
-               {
-                'description' => $c->loc('NTLM call timing'),
-                'vtitle' => 'ms',
-                'target' => 'aliasByNode(stats.timers.*.ntlm_auth.time.mean_90,2)',
-                'columns' => 1
-               },
-               {
-                'description' => $c->loc('NTLM authentication failures'),
-                'vtitle' => 'failures/s',
-                'target' => [ 'aliasSub(stats.counters.*.ntlm_auth.failures.count,"^stats.counters.([^.]+).ntlm_auth.failures.count$", "\1 failures")',
-                            _generate_timeout_group() ],
-                'columns' => 1,
-                'drawNullAsZero' => 'true'
-               },
-               {
-                'description' => $c->loc('Portal Open Connections per server'),
-                'vtitle' => 'connections',
-                'target' => 'aliasByNode(*.apache-portal.apache_connections,0)',
-                'columns' => 1
-               },
-               {
-                'description' => $c->loc('Apache Webservices Open Connections per server'),
-                'vtitle' => 'connections',
-                'target' => 'aliasByNode(*.apache-webservices.apache_connections,0)',
-                'columns' => 1
-               },
-               {
-                'description' => $c->loc('RADIUS Average Access-Request Latency'),
-                'vtitle' => 'ms',
-                'target' => 'aliasByNode(*.radsniff-exchanged.radius_latency-access_request.smoothed,0)',
-                'columns' => 1
-               },
-               {
-                'description' => $c->loc('PF Database Threads'),
-                'vtitle' => 'threads',
-                'target' => 'aliasByNode(*.mysql-pf.threads-*,2)',
-                'columns' => 1
-               },
-               {
-                'description' => $c->loc('RADIUS Accounting requests received/s'),
-                'vtitle' => 'requests',
-                'target' => 'aliasByNode(*.radsniff-exchanged.radius_count-accounting_request.received,0)',
-                'columns' => 1
-               },
-               {
-                'description' => $c->loc('RADIUS Accounting Latency'),
-                'vtitle' => 'ms',
-                'target' => 'aliasByNode(*.radsniff-exchanged.radius_latency-accounting_request.smoothed,0)',
-                'columns' => 1
-               },
-              ];
+    my @graphs = (
+        {
+            'description' => $c->loc('Registrations/min'),
+            'target'      => [
+'alias(groupByNode(summarize(stats.counters.*.pf__node__node_register.called.count,"1min"),5,"sum"),"End-Points registered")',
+'alias(groupByNode(summarize(stats.counters.*.pf__node__node_deregister.called.count,"1min"),5,"sum"), "End-Points deregistered")'
+            ],
+            'lineMode' => "staircase",
+            'columns'  => 2,
+        },
+        {
+            'description' => $c->loc('RADIUS Total Access-Requests/s'),
+            'vtitle'      => 'requests',
+            'target' =>
+'alias(sum(*.radsniff-exchanged.radius_count-access_request.received),"Access-Requests")',
+            'columns' => 1
+        },
+        {
+            'description' => $c->loc('RADIUS Access-Requests/s per server'),
+            'vtitle'      => 'requests',
+            'target' =>
+'aliasByNode(*.radsniff-exchanged.radius_count-access_request.received,0)',
+            'columns' => 1
+        },
+        {
+            'description' => $c->loc('RADIUS Access-Accepts/s per server'),
+            'vtitle'      => 'replies',
+            'target' =>
+'aliasByNode(*.radsniff-exchanged.radius_count-access_accept.received,0)',
+            'columns' => 2
+        },
+        {
+            'description' => $c->loc('RADIUS Access-Rejects/s per server'),
+            'vtitle'      => 'replies',
+            'target' =>
+'aliasByNode(*.radsniff-exchanged.radius_count-access_reject.received,0)',
+            'columns' => 2
+        },
+        {
+            'description' => $c->loc('Apache AAA call timing'),
+            'vtitle'      => 'ms',
+            'target' =>
+'aliasByNode(stats.timers.*.pf__api__radius_rest_authorize.timing.mean_90,2)',
+            'columns' => 1
+        },
+        {
+            'description' => $c->loc('Apache AAA Open Connections per server'),
+            'vtitle'      => 'connections',
+            'target'      => 'aliasByNode(*.apache-aaa.apache_connections,0)',
+            'columns'     => 1
+        },
+        {
+            'description' => $c->loc('NTLM call timing'),
+            'vtitle'      => 'ms',
+            'target'  => 'aliasByNode(stats.timers.*.ntlm_auth.time.mean_90,2)',
+            'columns' => 1
+        },
+        {
+            'description' => $c->loc('NTLM authentication failures'),
+            'vtitle'      => 'failures/s',
+            'target'      => [
+'aliasSub(stats.counters.*.ntlm_auth.failures.count,"^stats.counters.([^.]+).ntlm_auth.failures.count$", "\1 failures")',
+                _generate_timeout_group()
+            ],
+            'columns'        => 1,
+            'drawNullAsZero' => 'true'
+        },
+        {
+            'description' => $c->loc('Portal Open Connections per server'),
+            'vtitle'      => 'connections',
+            'target'  => 'aliasByNode(*.apache-portal.apache_connections,0)',
+            'columns' => 1
+        },
+        {
+            'description' =>
+              $c->loc('Apache Webservices Open Connections per server'),
+            'vtitle' => 'connections',
+            'target' =>
+              'aliasByNode(*.apache-webservices.apache_connections,0)',
+            'columns' => 1
+        },
+        {
+            'description' => $c->loc('RADIUS Average Access-Request Latency'),
+            'vtitle'      => 'ms',
+            'target' =>
+'aliasByNode(*.radsniff-exchanged.radius_latency-access_request.smoothed,0)',
+            'columns' => 1
+        },
+        {
+            'description' => $c->loc('PF Database Threads'),
+            'vtitle'      => 'threads',
+            'target'      => 'aliasByNode(*.mysql-pf.threads-*,2)',
+            'columns'     => 1
+        },
+        {
+            'description' => $c->loc('RADIUS Accounting requests received/s'),
+            'vtitle'      => 'requests',
+            'target' =>
+'aliasByNode(*.radsniff-exchanged.radius_count-accounting_request.received,0)',
+            'columns' => 1
+        },
+        {
+            'description' => $c->loc('RADIUS Accounting Latency'),
+            'vtitle'      => 'ms',
+            'target' =>
+'aliasByNode(*.radsniff-exchanged.radius_latency-accounting_request.smoothed,0)',
+            'columns' => 1
+        },
+    );
 
-    foreach my $graph (@$graphs) {
-        $graph->{url} = $self->_buildGraphiteURL($c, $start, $width, $graph);
+    foreach my $graph (@graphs) {
+#        $graph->{url} = $self->_buildGraphiteURL($c, $start, $width, $graph);
     }
-    $c->stash->{graphs} = $graphs;
-    $c->stash->{current_view} = 'HTML';
+
+    $c->stash(
+        graphs         => \@graphs,
+        hostname       => $pf::cluster::host_id,
+        cluster        => pf::cluster::members_ips($management_network->tag('int')),
+        sources        => \@authentication_sources_monitored,
+        roles          => \@categories,
+        current_view   => 'HTML',
+        tab            => $tab,
+        listen_ints    => \@listen_ints,
+    );
 }
 
 =head2 systemstate

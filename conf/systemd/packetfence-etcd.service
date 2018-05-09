@@ -5,7 +5,8 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
 Before=packetfence-httpd.portal.service
 
 [Service]
-Type=notify
+#TODO: See if we can enable this. Since etcd wants to connect to a quorum to declare itself healthy, when starting a single cluster node, this will hang
+#Type=notify
 Restart=always
 RestartSec=5s
 LimitNOFILE=40000

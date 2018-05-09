@@ -68,6 +68,7 @@ use Crypt::OpenSSL::X509;
 use Date::Parse;
 use pf::factory::condition::profile;
 use pf::condition_parser qw(parse_condition_string);
+use pf::cluster;
 
 use lib $conf_dir;
 
@@ -462,7 +463,8 @@ sub network_inline {
             next;
         }
     }
-    if ( !$found ) {
+    # That check is useless in a cluster because the gateway is returned automagically by pfdhcp
+    if ( !$cluster_enabled && !$found ) {
         add_problem( $WARN,
             "networks.conf $network gateway ($net{'gateway'}) is not bound to an internal interface. " .
             "Assume your configuration is wrong unless you know what you are doing."

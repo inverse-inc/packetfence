@@ -10,7 +10,7 @@ pf::UnifiedApi::custom -
 
 pf::UnifiedApi::custom
 
-Allow to add custom routes and setup to pfunified_api perl service
+Allow to add custom routes and setup to pfperl-api perl service
 
 =cut
 

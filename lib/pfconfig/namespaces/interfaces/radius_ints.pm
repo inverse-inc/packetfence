@@ -24,8 +24,10 @@ sub init {
 
 sub build {
     my ($self) = @_;
-    push @{$self->{_interfaces}->{radius_ints}},$self->{_interfaces}->{management_network};
-    return $self->{_interfaces}->{radius_ints};
+    my $interfaces = $self->{_interfaces};
+    my $mn = $interfaces->{management_network};
+    push @{ $interfaces->{radius_ints} }, $mn if $mn;
+    return $interfaces->{radius_ints} // [];
 }
 
 

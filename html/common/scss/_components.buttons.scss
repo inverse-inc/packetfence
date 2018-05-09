@@ -1,0 +1,176 @@
+/// _components.buttons.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
+
+$btn-line-height: 1.5;
+
+ .c-btn {
+  display: inline-block;
+  vertical-align: middle;
+  font: inherit;
+  text-align: center;
+  margin: 0;
+  cursor: pointer;
+  line-height: $btn-line-height;
+  padding: $inuit-global-spacing-unit-small $inuit-global-spacing-unit;
+  transition: $global-transition;
+  border: none;
+  border-radius: $global-radius;
+}
+
+.c-btn [type=checkbox] {
+  // We hide the checkbox, but the label will act as the button
+  display: none;
+}
+
+.c-btn label {
+  cursor: pointer;
+  display: block;
+  width: 100%;
+}
+
+
+/* Style variants
+   ========================================================================== */
+
+.c-btn--primary, a.c-btn--primary {
+  background-color: $pf-color-primary;
+
+  &,
+  &:hover,
+  &:active,
+  &:focus {
+    text-decoration: none;
+    color: #fff;
+  }
+
+  &:hover,
+  &:focus {
+    background-color: $pf-color-primary-touch;
+  }
+
+  &[disabled] {
+    background-color: $pf-color-primary-disabled;    
+  }
+}
+
+
+.c-btn--secondary, a.c-btn--secondary {
+  background-color: $pf-color-secondary;
+
+  &,
+  &:hover,
+  &:active,
+  &:focus {
+    text-decoration: none;
+    color: #fff;
+  }
+
+  &:hover,
+  &:focus {
+    background-color: $pf-color-secondary-touch;
+  }
+
+}
+
+
+.c-btn--tertiary, a.c-btn--tertiary {
+  background-color: #fff;
+  color: $pf-color-tertiary;
+
+  &,
+  &:hover,
+  &:active,
+  &:focus {
+    text-decoration: none;
+    color: $pf-color-tertiary;
+  }
+
+  &:hover,
+  &:focus {
+    color: $pf-color-tertiary-touch;
+  }
+
+}
+
+
+
+
+
+/* Size variants
+   ========================================================================== */
+
+.c-btn--tiny {
+  font-size: $inuit-global-spacing-unit-tiny * 3/2;
+  padding: $inuit-global-spacing-unit-tiny;
+}
+
+.c-btn--small {
+  padding: $inuit-global-spacing-unit-tiny $inuit-global-spacing-unit-small;
+}
+
+.c-btn--large {
+  padding: $inuit-global-spacing-unit $inuit-global-spacing-unit-large;
+}
+
+
+
+
+
+/* Ghost buttons
+   ========================================================================== */
+
+/**
+ * Ghost buttons have see-through backgrounds and are bordered.
+ */
+
+$btn-ghost-border-width: 2px;
+
+.c-btn--ghost {
+  border: $btn-ghost-border-width solid currentColor;
+  padding: ($inuit-global-spacing-unit-small - $btn-ghost-border-width) ($inuit-global-spacing-unit - $btn-ghost-border-width);
+
+  &,
+  &:hover,
+  &:active,
+  &:focus {
+    background: none !important;
+  }
+
+  &.c-btn--small {
+    padding: ($inuit-global-spacing-unit-tiny - $btn-ghost-border-width) ($inuit-global-spacing-unit-small - $btn-ghost-border-width);
+  }
+
+  &.c-btn--large {
+    padding: ($inuit-global-spacing-unit - $btn-ghost-border-width) ($inuit-global-spacing-unit-large - $btn-ghost-border-width);
+  }
+
+  &.c-btn--primary {
+    color: $pf-color-primary;
+
+    &:hover,
+    &:focus {
+      color: $pf-color-primary-touch;
+    }
+
+  }
+
+  &.c-btn--secondary {
+    color: $pf-color-secondary;
+
+    &:hover,
+    &:focus {
+      color: $pf-color-secondary-touch;
+    }
+
+  }
+
+  &.c-btn--tertiary {
+    color: #fff;
+
+    &:hover,
+    &:focus {
+      color: #fff;
+    }
+
+  }
+
+}

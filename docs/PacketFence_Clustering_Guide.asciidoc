@@ -17,7 +17,9 @@ Assumptions
 * The servers are running one of RHEL / CentOS 7 / Debian Jessie
 * The servers have identical identifiers for network interfaces (e.g. eth0)
 * The servers network interfaces are on the same layer 2 network
-* The servers hostnames must be resolvable via DNS resolution or be in the hostfile (`/etc/hosts`) of each server.
+* The servers must have IPv6 disabled.
+
+NOTE: Appended to this guide are instructions around disabling IPv6 and reconfiguring CentOS 7 to have identical predictable interface names on all the servers.
 
 NOTE: Appended to this guide is a glossary on specialized terms used in this document.
 
@@ -98,15 +100,12 @@ Then, disable the default MariaDB systemd service unit as PacketFence already pr
 
   # systemctl disable mariadb
 
-Now, on *the first server*, create the PEM that combines the key and certificate for the http services. Adapt to your own paths if you are using different certificates. What matters is that the path to the PEM file should be /usr/local/pf/conf/ssl/server.pem since HAProxy will expect it to be there.
-
-  # cd /usr/local/pf/conf/ssl
-  # cat server.key server.crt > server.pem
-
 Basic PacketFence configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Now, on *the first server* of your cluster, you should go through the configurator, until *step 6* (Fingerbank configuration). You should leave the services stopped at the end of the configurator.
+Now, on *the first server* of your cluster, you should go through the configurator, until *step 7* (Services). You should leave the services stopped at the end of the configurator.
+
+NOTE: When configuring the network interfaces, ensure that you mark the management interface as high availability. Otherwise, you will not be able to perform the database synchronization.
 
 Then restart PacketFence's mariadb on *the first server*:
 
@@ -143,9 +142,6 @@ In `/usr/local/pf/conf/pf.conf` :
 [database]
 host=127.0.0.1
 
-[graphite]
-db_host=127.0.0.1
-
 [active_active]
 # Change these 2 values by the credentials you've set when configuring MariaDB above
 galera_replication_username=pfcluster
@@ -159,18 +155,11 @@ Then, in `/usr/local/pf/conf/pfconfig.conf` :
 host=127.0.0.1
 ----
 
-Then, in `/usr/local/fingerbank/conf/fingerbank.conf`
-
-----
-[mysql]
-host=127.0.0.1
-----
-
 Now, reload the configuration and restart packetfence-config. You will see errors related to a cache write issue but you can safely ignore it for now. These appear because packetfence-config cannot connect to the database yet.
 
   # systemctl restart packetfence-config
   # /usr/local/pf/bin/pfcmd configreload hard
-  # systemctl restart packetfence-haproxy
+  # systemctl restart packetfence-haproxy-db
 
 Configure cluster.conf
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -194,75 +183,48 @@ management_ip=192.168.1.10
 
 [CLUSTER interface eth0]
 ip=192.168.1.10
-type=management,high-availability
 
 [CLUSTER interface eth1.2]
 ip=192.168.2.10
-type=internal
 
 [CLUSTER interface eth1.3]
 ip=192.168.3.10
-type=internal
 
 [pf1.example.com]
 management_ip=192.168.1.5
 
 [pf1.example.com interface eth0]
 ip=192.168.1.5
-type=management,high-availability
-mask=255.255.255.0
 
 [pf1.example.com interface eth1.2]
-enforcement=vlan
 ip=192.168.2.5
-type=internal
-mask=255.255.255.0
 
 [pf1.example.com interface eth1.3]
-enforcement=vlan
 ip=192.168.3.5
-type=internal
-mask=255.255.255.0
 
 [pf2.example.com]
 management_ip=192.168.1.6
 
 [pf2.example.com interface eth0]
 ip=192.168.1.6
-type=management,high-availability
-mask=255.255.255.0
 
 [pf2.example.com interface eth1.2]
-enforcement=vlan
 ip=192.168.2.6
-type=internal
-mask=255.255.255.0
 
 [pf2.example.com interface eth1.3]
-enforcement=vlan
 ip=192.168.3.6
-type=internal
-mask=255.255.255.0
 
 [pf3.example.com]
 management_ip=192.168.1.7
 
 [pf3.example.com interface eth0]
 ip=192.168.1.7
-type=management,high-availability
-mask=255.255.255.0
 
 [pf3.example.com interface eth1.2]
-enforcement=vlan
 ip=192.168.2.7
-type=internal
-mask=255.255.255.0
 
 [pf3.example.com interface eth1.3]
-enforcement=vlan
 ip=192.168.3.7
-type=internal
-mask=255.255.255.0
 
 ----
 
@@ -293,7 +255,7 @@ Then, restart PacketFence to apply all your changes
 
 If no error is found in the previous configuration, the previous restart of packetfence should have started keepalived and radiusd-loadbalancer along with the other services.
 
-NOTE: You can check at any time with '/usr/local/pf/bin/pfcmd service pf status'
+NOTE: You can check the status of the services using '/usr/local/pf/bin/pfcmd service pf status'
 
 You should now have service using the first server on the IP addresses defined in the 'CLUSTER' sections.
 
@@ -351,7 +313,7 @@ Reload the configuration and start the webservices on the new server
 
   # systemctl restart packetfence-config
   # /usr/local/pf/bin/pfcmd configreload
-  # /usr/local/pf/bin/pfcmd service haproxy restart
+  # /usr/local/pf/bin/pfcmd service haproxy-db restart
   # /usr/local/pf/bin/pfcmd service httpd.webservices restart
 
 Make sure that this server is binding to it's own management address. If it's not, verify the `/usr/local/pf/conf/cluster.conf` management interface configuration.
@@ -460,8 +422,8 @@ If at least one node is still alive, other nodes will be able to connect to it a
 
 When all nodes are ungracefuly shutdown, they will be able to recover when the last 2 running nodes will be able to talk to each other. If all nodes were shutdown at the same time, all of them must rejoin the cluster for it to form again. Until the cluster reaches a healthy state, you will not have any database service.
 
-Trouble shooting a cluster
---------------------------
+Troubleshooting a cluster
+-------------------------
 
 Recovering when a node is missing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -587,10 +549,10 @@ PacketFence-Config, type the command: ::
 
 HA-Proxy, type the command: ::
 ----
- systemctl status packetfence-haproxy
+ systemctl status packetfence-haproxy-db
 ----
 ----
- Loaded: loaded (/usr/lib/systemd/system/packetfence-haproxy.service; enabled; vendor preset: disabled)
+ Loaded: loaded (/usr/lib/systemd/system/packetfence-haproxy-db.service; enabled; vendor preset: disabled)
   Active: active (running) since ...
 ----
 
@@ -737,7 +699,7 @@ haproxy dashboard
 
 You have the possibility to configure the haproxy dashboard which will give you statistics about the current state of your cluster.
 
-In order to active it uncomment the following lines from /usr/local/pf/conf/haproxy.conf
+In order to active it uncomment the following lines from /usr/local/pf/conf/haproxy-portal.conf
 
 ----
 listen stats %%active_active_ip%%:1025
@@ -764,11 +726,13 @@ CAUTION: If you're upgrading from a version prior to 5.0, the line may not be th
 Now restart haproxy and iptables in order to complete the configuration
 
 ----
-# /usr/local/pf/bin/pfcmd service haproxy restart
+# /usr/local/pf/bin/pfcmd service haproxy-portal restart
 # /usr/local/pf/bin/pfcmd service iptables restart
 ----
 
 You should now be able to connect to the dashboard on the following URL : http://pf.local:1025/stats
+
+NOTE: The same principle can be applied to haproxy-db with port 1026 in haproxy-db.conf
 
 Configuration conflict handling
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -801,15 +765,6 @@ Then, should there be more than one version identifier across the alive servers,
 After that, the algorithm looks at which version is on the most servers. In the event that the dead servers are in higher number than the alive ones, the most recent version is taken. Otherwise, the version that is present on the most servers will be selected.
 
 When pushing a version to the other servers, if the current server has the most recent version or is part of the quorum (depending on which push strategy was defined above), then it will be the one pushing the new configuration to the other servers. Otherwise, a webservice call is made to one of the servers running the selected version so that it pushes its configuration to its peers.
-
-Unsupported features in active/active
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The following features are not supported when using active/active clustering.
-
-* Switches using SNMP based enforcement (port-security, link up/down, ...)
-* SNMP roaming with the Aerohive controller. (4.7+ includes support for accounting roaming)
-* Inline enforcement
 
 Appendix
 --------
@@ -850,6 +805,20 @@ Apply the last two steps for any other interface you have on your server. Keep i
 
 Now, reboot your server and when it finishes starting, your interfaces name should now be using the format `ethX`
 
+Disabling IPv6 on CentOS 7
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In order to disable IPv6 on CentOS, you must disable it in the Linux kernel.
+
+Simply add the following line in `/etc/sysctl.conf`
+
+  net.ipv6.conf.all.disable_ipv6 = 1
+
+Then reload the file and reboot the server:
+
+  # sysctl -p
+  # reboot
+
 Performing an upgrade on a cluster
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -870,7 +839,7 @@ Disabling the auto-correction of configuration
 
 The PacketFence clustering stack has a mechanism that allows configuration conflicts to be handled accross the servers. This will come in conflict with your upgrade, so you should disable it.
 
-In order to do, so go in 'Configuration->Maintenance' and set 'Cluster Check Interval' to `0`.
+In order to do, so go in 'Configuration->System Configuration->Maintenance' and disable the 'Cluster Check' task.
 
 Once this is done, restart pfmon on all nodes using:
 
@@ -915,13 +884,9 @@ Then, we should tell C to ignore A and B in their cluster configuration. In orde
   # /usr/local/pf/bin/cluster/node node-A-hostname disable
   # /usr/local/pf/bin/cluster/node node-B-hostname disable
 
-Now on packetfence-mariadb on all nodes
+Now restart packetfence-mariadb on node C:
 
-  # systemctl stop packetfence-mariadb
-
-Then start them in the following order: A then B then C
-
-  # systemctl start packetfence-mariadb
+  # systemctl restart packetfence-mariadb
 
 NOTE: From this moment on, you will lose the configuration changes and data changes that occur on nodes A and B.
 
@@ -946,7 +911,7 @@ Start service on node C
 
 Now, start the application service on node C
 
-  # systemctl isolate packetfence-cluster
+  # /usr/local/pf/bin/pfcmd service pf start
 
 Validate migration
 ^^^^^^^^^^^^^^^^^^
@@ -966,7 +931,7 @@ If your migration to node C goes wrong, you can fail back to nodes A and B by st
 **On nodes A and B**
 
   # systemctl start packetfence-mariadb
-  # systemctl isolate packetfence-cluster
+  # /usr/local/pf/bin/pfcmd service pf start
 
 Once you are feeling confident to try your failover to node C again, you can do the exact opposite of the commands above to try your upgrade again.
 
@@ -986,7 +951,9 @@ NOTE: If you reboot your server during this procedure, make sure you set the sys
 
 You do not need to follow the upgrade procedure when upgrading these nodes. You should instead do a sync from node C on nodes A and B
 
+  # systemctl restart packetfence-config
   # /usr/local/pf/bin/cluster/sync --from=192.168.1.5 --api-user=packet --api-password=fence
+  # /usr/local/pf/bin/pfcmd configreload hard
 
 Where :
 
@@ -1056,7 +1023,7 @@ Start nodes A and B
 
 You can now safely start PacketFence on nodes A and B using:
 
-  # systemctl isolate packetfence-cluster
+  # /usr/local/pf/bin/pfcmd service pf restart
 
 Restart node C
 ^^^^^^^^^^^^^^
@@ -1072,7 +1039,7 @@ Reactivate the configuration conflict handling
 
 Now that your cluster is back to a healthy state, you should reactivate the configuration conflict resolution.
 
-In order to do, so go in 'Configuration->Maintenance' and set 'Cluster Check Interval' to `1 minute` (or the value you prefer).
+In order to do, so go in 'Configuration->System Configuration->Maintenance' and re-enable the 'Cluster Check' task.
 
 Once this is done, restart pfmon on all nodes using:
 

@@ -1,6 +1,6 @@
 /// _components.dot.scss -*- Mode: scss; indent-tabs-mode: nil; basic-offset: 2; fill-column: 80 -*-
 
-.#{$pf-namespace}dot {
+.dot {
   cursor: pointer;
   display: inline-block;
   user-select: none;
@@ -9,18 +9,18 @@
     width: 10px;
     height: 10px;
     margin: 5px 7px;
-    border: 2px solid $pf-base-accent-color;
+    border: 2px solid $pf-color-secondary;
     transition: opacity 200ms ease;
     border-radius: 30px;
   }
 }
 
-.#{$pf-namespace}dot--active div,
-.#{$pf-namespace}dot:hover div {
-  background-color: $pf-base-accent-color;
+.dot--active div,
+.dot:hover div {
+  background-color: $pf-color-secondary-touch;
 }
 
-.#{$pf-namespace}dot--disabled {
+.dot--disabled {
   cursor: not-allowed;
 
   div {
@@ -30,6 +30,6 @@
   }
 }
 
-.#{$pf-namespace}dot--disabled:hover div {
+.dot--disabled:hover div {
   background-color: transparent;
 }

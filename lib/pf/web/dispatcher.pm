@@ -42,6 +42,7 @@ use pf::proxypassthrough::constants;
 use pf::Portal::Session;
 use pf::web::externalportal;
 use pf::inline;
+use pf::db;
 
 # Only call pf::web::util::is_certificate_self_signed once
 my $IS_SELF_SIGNED = pf::web::util::is_certificate_self_signed();
@@ -77,7 +78,7 @@ sub handler {
 sub _handler {
     my $r = Apache::SSLLookup->new(shift);
     my $logger = get_logger();
-
+            
     my $hostname = $r->hostname || $r->connection->local_ip();
     my $uri = $r->uri;
     my $url = $r->construct_url;
@@ -140,10 +141,13 @@ sub _handler {
         return Apache2::Const::DECLINED;
     }
 
-    #Keep backward compatibilities for external portal
+    if(db_readonly_mode) {
+        get_logger->info("Server is in read-only mode, redirecting to the captive portal");
+        redirect_to_portal($r);
+        return Apache2::Const::HTTP_MOVED_TEMPORARILY;
+    }
 
-    my $proto;
-    $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
+    #Keep backward compatibilities for external portal
 
     my $captive_portal_domain = $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'};
     my $ip = defined($r->headers_in->{'X-Forwarded-For'}) ? $r->headers_in->{'X-Forwarded-For'} : $r->connection->remote_ip;
@@ -175,37 +179,53 @@ sub _handler {
             $logger->debug("We are dealing with an external captive-portal / webauth request. Adjusting the redirect URL accordingly");
             $r->err_headers_out->add('Set-Cookie' => "CGISESSION_PF=".  $cgi_session_id . "; path=/");
             $destination_url = $external_portal_destination_url if ( defined($external_portal_destination_url) );
-
-            # Re-Configuring redirect URLs for both the portal and the WISPr(need to be part of the header in case of a WISPr client)
-            my $portal_url = APR::URI->parse($r->pool,"$proto://".$r->hostname."/captive-portal");
-            $portal_url->query("destination_url=$destination_url&".$r->args);
-            my $wispr_url = APR::URI->parse($r->pool,"$proto://".$r->hostname."/wispr");
-            $wispr_url->query($r->args);
-        
-            my $stash = {
-                'portal_url'    => $portal_url->unparse(),
-                'wispr_url'     => $wispr_url->unparse(),
-                'is_wispr_redirection_enabled'  => isenabled($Config{'captive_portal'}{'wispr_redirection'}) ? $TRUE : $FALSE,
-            };
-
-            my $response = '';
-            my $template = Template->new({
-                INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],
-            });
-            $template->process("redirect.tt", $stash, \$response) || $logger->error($template->error());
-
-            $r->headers_out->set('Location' => $stash->{portal_url});
-            $r->content_type('text/html');
-            $r->err_headers_out->add('Cache-Control' => "no-cache, no-store, must-revalidate");
-            $r->err_headers_out->add('Pragma' => "no-cache");
-            $r->err_headers_out->add('Expire' => '10');
-            $r->custom_response(Apache2::Const::HTTP_MOVED_TEMPORARILY, $response);
-
+            
+            redirect_to_portal($r, $destination_url);
             return Apache2::Const::HTTP_MOVED_TEMPORARILY;
         }
         return  Apache2::Const::HTTP_NOT_IMPLEMENTED;
     }
     return Apache2::Const::HTTP_NOT_IMPLEMENTED;
+}
+
+=head2 redirect_to_portal
+
+Redirect a user to the captive portal
+
+=cut
+
+sub redirect_to_portal {
+    my ($r, $destination_url) = @_;
+    $destination_url //= "";
+    my $logger = get_logger();
+
+    my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
+
+    # Re-Configuring redirect URLs for both the portal and the WISPr(need to be part of the header in case of a WISPr client)
+    my $portal_url = APR::URI->parse($r->pool,"$proto://".$r->hostname."/captive-portal");
+    $portal_url->query("destination_url=$destination_url&".$r->args);
+    my $wispr_url = APR::URI->parse($r->pool,"$proto://".$r->hostname."/wispr");
+    $wispr_url->query($r->args);
+
+    my $stash = {
+        'portal_url'    => $portal_url->unparse(),
+        'wispr_url'     => $wispr_url->unparse(),
+        'is_wispr_redirection_enabled'  => isenabled($Config{'captive_portal'}{'wispr_redirection'}) ? $TRUE : $FALSE,
+    };
+
+    my $response = '';
+    my $template = Template->new({
+        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],
+    });
+    $template->process("redirect.tt", $stash, \$response) || $logger->error($template->error());
+
+    $r->headers_out->set('Location' => $stash->{portal_url});
+    $r->content_type('text/html');
+    $r->err_headers_out->add('Cache-Control' => "no-cache, no-store, must-revalidate");
+    $r->err_headers_out->add('Pragma' => "no-cache");
+    $r->err_headers_out->add('Expire' => '10');
+    $r->custom_response(Apache2::Const::HTTP_MOVED_TEMPORARILY, $response);
+
 }
 
 =back

@@ -24,7 +24,7 @@ has_field 'realms' => (
     multiple       => 1,
     label          => 'Associated Realms',
     options_method => \&options_realm,
-    element_class  => ['chzn-deselect'],
+    element_class  => ['chzn-deselect', 'input-xxlarge'],
     element_attr   => { 'data-placeholder' => 'Click to add a realm' },
     tags           => {
         after_element => \&help,

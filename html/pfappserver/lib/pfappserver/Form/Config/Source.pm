@@ -263,10 +263,12 @@ sub options_connection {
        {
         group => 'Types',
         options => \@types,
+        value => '',
        },
        {
         group => 'Groups',
         options => \@groups,
+        value => '',
        },
       ];
 }

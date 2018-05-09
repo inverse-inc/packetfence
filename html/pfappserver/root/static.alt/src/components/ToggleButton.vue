@@ -197,6 +197,7 @@ $margin: 3px;
   position: relative;
   overflow: hidden;
   vertical-align: middle;
+  margin: 0;
   user-select: none;
   font-size: 10px;
   font-weight: 600;

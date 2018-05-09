@@ -1,0 +1,68 @@
+User:
+  properties:
+    address:
+      type: string
+    anniversary:
+      type: string
+    apartment_number:
+      type: string
+    birthday:
+      type: string
+    building_number:
+      type: string
+    cell_phone:
+      type: string
+    company:
+      type: string
+    custom_field_1:
+      type: string
+    custom_field_2:
+      type: string
+    custom_field_3:
+      type: string
+    custom_field_4:
+      type: string
+    custom_field_5:
+      type: string
+    custom_field_6:
+      type: string
+    custom_field_7:
+      type: string
+    custom_field_8:
+      type: string
+    custom_field_9:
+      type: string
+    email:
+      type: string
+    firstname:
+      type: string
+    gender:
+      type: string
+    lang:
+      type: string
+    lastname:
+      type: string
+    nickname:
+      type: string
+    notes:
+      type: string
+    pid:
+      type: string
+    portal:
+      type: string
+    room_number:
+      type: string
+    source:
+      type: string
+    sponsor:
+      type: string
+    telephone:
+      type: string
+    tenant_id:
+      type: integer
+    title:
+      type: string
+    work_phone:
+      type: string
+  required: []
+  type: object

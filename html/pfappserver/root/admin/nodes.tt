@@ -12,7 +12,7 @@
     <option value="category">[% l('Node Role') %]</option>
     <option value="notes">[% l('Notes') %]</option>
     <option value="online">[% l('Online Status') %]</option>
-    <option value="person_name">[% l('Person Name') %]</option>
+    <option value="person_name">[% l('Owner') %]</option>
     <option value="status">[% l('Status') %]</option>
     <option value="switch_id">[% l('Source Switch Identifier') %]</option>
     <option value="switch_ip">[% l('Source Switch IP') %]</option>

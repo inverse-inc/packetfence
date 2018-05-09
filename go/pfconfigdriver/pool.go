@@ -2,6 +2,7 @@ package pfconfigdriver
 
 import (
 	"context"
+	"fmt"
 	"reflect"
 	"sync"
 	"time"
@@ -17,7 +18,7 @@ var PfconfigPool Pool
 // All the refreshables will have their Refresh() function called on every tick
 type Pool struct {
 	refreshables []Refreshable
-	structs      []interface{}
+	structs      map[string]interface{}
 	lock         *sync.RWMutex
 	// The time to wait for the lock for the refresh in ms
 	// Defaults to 1 seconds
@@ -39,6 +40,7 @@ func NewPool() Pool {
 	p := Pool{}
 	p.lock = &sync.RWMutex{}
 	p.RefreshLockTimeout = time.Duration(100 * time.Millisecond)
+	p.structs = make(map[string]interface{})
 	return p
 }
 
@@ -71,7 +73,10 @@ func (p *Pool) AddStruct(ctx context.Context, s interface{}) {
 	p.lock.Lock()
 	defer p.lock.Unlock()
 
-	p.structs = append(p.structs, s)
+	addr := fmt.Sprintf("%p", s)
+	log.LoggerWContext(ctx).Debug("Adding struct with address " + addr + " to the pool")
+
+	p.structs[addr] = s
 	p.refreshStruct(ctx, s)
 }
 

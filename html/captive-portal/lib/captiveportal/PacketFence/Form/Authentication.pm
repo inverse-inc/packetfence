@@ -119,7 +119,7 @@ Check telephone form
 sub check_telephone_form {
     my ($self, $field) = @_;
     if($self->app->request->method eq "POST"){
-        if (pf::web::util::validate_phone_number($field->value)) {
+        if (!pf::web::util::validate_phone_number($field->value)) {
             $field->add_error($self->app->i18n("Enter a valid telephone number"));
             $self->app->flash->{error} = $self->app->i18n("Telephone number is not valid");
         }

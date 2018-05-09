@@ -140,7 +140,7 @@ sub violation_modify {
     return (0) if ( !$id );
     my ($status, $existing) = pf::dal::violation->find_or_create({
         %data,
-        vid => $id,
+        id => $id,
     });
 
     if (is_error($status)) {
@@ -329,7 +329,7 @@ sub violation_view_open_desc {
             status => "open",
             mac => $mac,
         },
-        -columns => [qw(id start_date c.description violation.vid status)],
+        -columns => [qw(id start_date class.description violation.vid status)],
         -from => [-join => qw(violation <=>{violation.vid=class.vid} class)],
         -order_by => { -desc => 'start_date' },
     });

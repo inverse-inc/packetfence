@@ -53,7 +53,6 @@ use threads;
 use pf::factory::task;
 use pf::services::manager::pfdetect;
 use pf::services::manager::snmptrapd;
-use pf::services::manager::pfsetvlan;
 
 
 
@@ -517,11 +516,6 @@ our %QUEUE_TO_SERVICE = (
     pfsnmp_parsing => 'pf::services::manager::snmptrapd',
 );
 
-our %QUEUE_OFF_TO_SERVICE = (
-    pfsnmp => 'pf::services::manager::pfsetvlan',
-    pfsnmp_parsing => 'pf::services::manager::pfsetvlan',
-);
-
 =head2 skip_queue
 
 Checks to see if a queue should be worked on
@@ -530,13 +524,6 @@ Checks to see if a queue should be worked on
 
 sub skip_queue {
     my ($name) = @_;
-    if (exists $QUEUE_OFF_TO_SERVICE{$name}) {
-        # If the service is enable then skip queue
-        my $manger = $QUEUE_OFF_TO_SERVICE{$name}->new;
-        if ($manger->isManaged) {
-            return $TRUE;
-        }
-    }
     if (exists $QUEUE_TO_SERVICE{$name}) {
         my $manger = $QUEUE_TO_SERVICE{$name}->new;
         # If the service is disabled then skip queue

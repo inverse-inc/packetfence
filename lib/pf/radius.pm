@@ -396,11 +396,8 @@ sub accounting {
     my $isStop   = $radius_request->{'Acct-Status-Type'}  == $ACCOUNTING::STOP;
     my $isUpdate = $radius_request->{'Acct-Status-Type'}  == $ACCOUNTING::INTERIM_UPDATE;
 
-    # Only populate the accounting cache when not in a cluster since the storage isn't distributed yet.
-    if (!$cluster_enabled) {
-        if($isStart || $isUpdate){
-            pf::accounting->cache->set($mac, $radius_request);
-        }
+    if($isStart || $isUpdate){
+        pf::accounting->cache->set($mac, $radius_request);
     }
 
     if ($isStop || $isUpdate) {

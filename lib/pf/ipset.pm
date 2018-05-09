@@ -266,10 +266,20 @@ sub generate_mangle_postrouting_rules {
 
         next if ( !pf::config::is_network_type_inline($network) );
         my $dev = $NetworkConfig{$network}{'interface'}{'int'};
+        my $source_interface = $dev;
 
-        my $gateway = (defined $NetworkConfig{$network}{'next_hop'} ? $NetworkConfig{$network}{'next_hop'} : $NetworkConfig{$network}{'gateway'});
+        my $gateway = (defined $NetworkConfig{$network}{'next_hop'} ? $NetworkConfig{$network}{'next_hop'} : $Config{"interface $dev"}{'ip'});
 
-        my $interface = find_outgoing_interface($gateway);
+        if (!defined $NetworkConfig{$network}{'next_hop'}) {
+            undef $source_interface;
+        }
+
+        my $interface = find_outgoing_interface($gateway, $source_interface);
+        if (!(defined($index->{$interface}))) {
+            $logger->warn($interface." is not defined in the configuration, check your routing table");
+            $index->{$interface} = $indice;
+            $indice --;
+        }
 
         foreach my $role ( @roles ) {
             if ($ConfigNetworks{$network}{'type'} =~ /^$NET_TYPE_INLINE_L3$/i) {

@@ -364,8 +364,8 @@ sub report_db_prepare {
     ]);
 
     $report_statements->{'report_topsponsor_sql'} = get_db_handle()->prepare(qq [
-        SELECT email,count(*) as sponsor
-        FROM email_activation limit 25;
+        SELECT contact_info, count(contact_info) as sponsor
+        FROM activation WHERE type = 'sponsor' group by contact_info limit 25;
     ]);
 
     $report_statements->{'report_topauthenticationfailures_by_mac_sql'} = get_db_handle()->prepare(qq[

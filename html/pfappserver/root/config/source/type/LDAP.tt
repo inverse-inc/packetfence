@@ -12,8 +12,6 @@
 [% form.field('usernameattribute').render | none %]
 [% form.field('email_attribute').render | none %]
 [% form.field('binddn').render | none %]
-[% form.field('cache_match').render | none %]
-[% form.field('monitor').render | none %]
 <div class="control-group">
   <label class="control-label">[% l('Password') %] <i class="icon-required"></i></label>
   <div class="controls">
@@ -24,3 +22,5 @@
     </div>
   </div>
 </div>
+[% form.field('cache_match').render | none %]
+[% form.field('monitor').render | none %]

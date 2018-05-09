@@ -8,7 +8,7 @@ import UsersRoute from '@/views/Users/_router'
 
 Vue.use(Router)
 
-export default new Router({
+let router = new Router({
   routes: [
     LoginRoute,
     StatusRoute,
@@ -16,3 +16,34 @@ export default new Router({
     UsersRoute
   ]
 })
+
+router.beforeEach((to, from, next) => {
+  /**
+    * 1. Check if a matching route defines a transition delay
+    * 2. Hide the document scrollbar during the transition
+    */
+  let transitionRoute = from.matched.find(route => {
+    return route.meta.transitionDelay // [1]
+  })
+  if (transitionRoute) {
+    document.body.classList.add('modal-open') // [2]
+  }
+  next()
+})
+
+router.afterEach((to, from) => {
+  /**
+    * 1. Check if a matching route defines a transition delay
+    * 2. Restore the document scrollbar after the transition delay
+    */
+  let transitionRoute = from.matched.find(route => {
+    return route.meta.transitionDelay // [1]
+  })
+  if (transitionRoute) {
+    setTimeout(() => {
+      document.body.classList.remove('modal-open') // [2]
+    }, transitionRoute.meta.transitionDelay)
+  }
+})
+
+export default router

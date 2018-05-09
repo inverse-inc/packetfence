@@ -249,7 +249,7 @@ sub getViolationRole {
 
     # Scan violation that must be done in the production vlan
     if ($vid == $POST_SCAN_VID) {
-        return $FALSE;
+        return ({ role => 0});
     }
 
     # find violation class based on violation id

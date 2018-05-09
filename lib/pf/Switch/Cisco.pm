@@ -1054,24 +1054,24 @@ sub getUpLinks {
     }
 
     # CDP is enabled
-    my $oid_cdpCachePlateform = '1.3.6.1.4.1.9.9.23.1.2.1.1.8';
+    my $oid_cdpCacheCapabilities = '1.3.6.1.4.1.9.9.23.1.2.1.1.9';
 
-    # fetch the upLinks. MIB: cdpCachePlateform
-    $logger->trace("SNMP get_table for cdpCachePlateform: $oid_cdpCachePlateform");
+    # fetch the upLinks. MIB: cdpCacheCapabilities
+    $logger->trace("SNMP get_next_request for $oid_cdpCacheCapabilities");
     # we could have chosen another oid since many of them return uplinks.
-    $result = $self->{_sessionRead}->get_table(-baseoid => $oid_cdpCachePlateform);
+    $result = $self->{_sessionRead}->get_table(-baseoid => $oid_cdpCacheCapabilities);
     if (!defined($result)) {
         $logger->warn(
             "Problem while determining dynamic uplinks for switch "
-            . "$self->{_ip}: can not read cdpCachePlateform."
+            . "$self->{_ip}: can not read cdpCacheCapabilities."
         );
         return -1;
     }
 
     my @upLinks;
     foreach my $key ( keys %{$result} ) {
-        if ( !( $result->{$key} =~ /^Cisco IP Phone/ ) ) {
-            $key =~ /^$oid_cdpCachePlateform\.(\d+)\.\d+$/;
+        if ( !(hex($result->{$key}) & 0x00000080 )) {
+            $key =~ /^$oid_cdpCacheCapabilities\.(\d+)\.\d+$/;
             push @upLinks, $1;
             $logger->debug("upLink: $1");
         }

@@ -116,6 +116,7 @@ sub fieldType {
     if (exists $FIELDS_TYPES_TO_SCHEMA_TYPES{$type}) {
         return $FIELDS_TYPES_TO_SCHEMA_TYPES{$type};
     }
+
     return "string";
 }
 

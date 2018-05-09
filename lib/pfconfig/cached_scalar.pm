@@ -88,6 +88,18 @@ sub FETCH {
     return $result;
 }
 
+=head2 STORE
+
+Log attempts to store something in a pfconfig::cached_scalar
+
+=cut
+
+sub STORE {
+    my ($self) = @_;
+    $self->logger->logcroak("Trying to store a value in $self->{_namespace}");
+    return ;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

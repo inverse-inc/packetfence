@@ -170,7 +170,10 @@ sub default_query {
                     condition => {
                         'ip4log.ip' => {
                             "=" => \"( SELECT `ip` FROM `ip4log` WHERE `mac` = `node`.`mac` AND `tenant_id` = `node`.`tenant_id`  ORDER BY `start_time` DESC LIMIT 1 )",
-                        }
+                        },
+                        'ip4log.tenant_id' => {
+                            -ident => 'node.tenant_id'
+                        },
                     }
                 },
                 'ip4log',
@@ -200,9 +203,11 @@ sub default_query {
                         'node.tenant_id' => { '=' => { -ident => '%2$s.tenant_id' } },
                         -or => [
                             '%1$s.acctstarttime' => { '<' => { -ident => '%2$s.acctstarttime' } },
-                            '%1$s.acctstarttime' => undef,
                             -and => [
-                                '%1$s.acctstarttime' => { '=' => { -ident => '%2$s.acctstarttime' } },
+                                -or => [
+                                    '%1$s.acctstarttime' => { '=' => { -ident => '%2$s.acctstarttime' } },
+                                    -and => ['%1$s.acctstarttime' => undef, '%2$s.acctstarttime' => undef],
+                                ],
                                 '%1$s.radacctid' => { '<' => { -ident => '%2$s.radacctid' } },
                             ],
                         ],

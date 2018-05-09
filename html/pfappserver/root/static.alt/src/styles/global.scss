@@ -14,7 +14,7 @@
 @import "../../node_modules/bootstrap/scss/tables";
 @import "../../node_modules/bootstrap/scss/forms";
 @import "buttons";
-@import "../../node_modules/bootstrap/scss/transitions";
+@import "transitions";
 @import "../../node_modules/bootstrap/scss/dropdown";
 @import "../../node_modules/bootstrap/scss/button-group";
 @import "../../node_modules/bootstrap/scss/input-group";
@@ -46,4 +46,5 @@
  * Custom components
  */
 @import "draggable";
+@import "icon";
 @import "netdata";

@@ -1,0 +1,82 @@
+RadiusAuditLog:
+  properties:
+    auth_status:
+      type: string
+    auth_type:
+      type: string
+    auto_reg:
+      type: string
+    called_station_id:
+      type: string
+    calling_station_id:
+      type: string
+    computer_name:
+      type: string
+    connection_type:
+      type: string
+    created_at:
+      type: string
+    eap_type:
+      type: string
+    event_type:
+      type: string
+    id:
+      type: integer
+    ifindex:
+      type: string
+    ip:
+      type: string
+    is_phone:
+      type: string
+    mac:
+      type: string
+    nas_identifier:
+      type: string
+    nas_ip_address:
+      type: string
+    nas_port:
+      type: string
+    nas_port_id:
+      type: string
+    nas_port_type:
+      type: string
+    node_status:
+      type: string
+    pf_domain:
+      type: string
+    profile:
+      type: string
+    radius_reply:
+      type: string
+    radius_request:
+      type: string
+    radius_source_ip_address:
+      type: string
+    realm:
+      type: string
+    reason:
+      type: string
+    request_time:
+      type: integer
+    role:
+      type: string
+    source:
+      type: string
+    ssid:
+      type: string
+    stripped_user_name:
+      type: string
+    switch_id:
+      type: string
+    switch_ip_address:
+      type: string
+    switch_mac:
+      type: string
+    tenant_id:
+      type: integer
+    user_name:
+      type: string
+    uuid:
+      type: string
+  required: []
+  type: object

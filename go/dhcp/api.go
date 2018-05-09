@@ -1,22 +1,31 @@
 package main
 
 import (
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"net"
 	"net/http"
+	"strconv"
+	"time"
 
+	"github.com/RoaringBitmap/roaring"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/gorilla/mux"
+	"github.com/inverse-inc/packetfence/go/api-frontend/unifiedapierrors"
+	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 	dhcp "github.com/krolaw/dhcp4"
 )
 
 // Node struct
 type Node struct {
-	Mac string `json:"mac"`
-	IP  string `json:"ip"`
+	Mac    string    `json:"mac"`
+	IP     string    `json:"ip"`
+	EndsAt time.Time `json:"ends_at"`
 }
 
 // Stats struct
@@ -26,7 +35,7 @@ type Stats struct {
 	Free         int               `json:"free"`
 	Category     string            `json:"category"`
 	Options      map[string]string `json:"options"`
-	Members      map[string]string `json:"members"`
+	Members      []Node            `json:"members"`
 	Status       string            `json:"status"`
 }
 
@@ -53,113 +62,125 @@ type Info struct {
 func handleIP2Mac(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
-	if index, found := GlobalIpCache.Get(vars["ip"]); found {
-		var node = map[string]*Node{
-			"result": &Node{Mac: index.(string), IP: vars["ip"]},
-		}
+	if index, expiresAt, found := GlobalIpCache.GetWithExpiration(vars["ip"]); found {
+		var node = &Node{Mac: index.(string), IP: vars["ip"], EndsAt: expiresAt}
 
-		outgoingJSON, error := json.Marshal(node)
+		outgoingJSON, err := json.Marshal(node)
 
-		if error != nil {
-			http.Error(res, error.Error(), http.StatusInternalServerError)
+		if err != nil {
+			unifiedapierrors.Error(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		fmt.Fprint(res, string(outgoingJSON))
 		return
 	}
-	http.Error(res, "Not found", http.StatusInternalServerError)
+	unifiedapierrors.Error(res, "Cannot find match for this IP address", http.StatusNotFound)
 	return
 }
 
 func handleMac2Ip(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
-	if index, found := GlobalMacCache.Get(vars["mac"]); found {
-		var node = map[string]*Node{
-			"result": &Node{Mac: vars["mac"], IP: index.(string)},
-		}
+	if index, expiresAt, found := GlobalMacCache.GetWithExpiration(vars["mac"]); found {
+		var node = &Node{Mac: vars["mac"], IP: index.(string), EndsAt: expiresAt}
 
-		outgoingJSON, error := json.Marshal(node)
+		outgoingJSON, err := json.Marshal(node)
 
-		if error != nil {
-			http.Error(res, error.Error(), http.StatusInternalServerError)
+		if err != nil {
+			unifiedapierrors.Error(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		fmt.Fprint(res, string(outgoingJSON))
 		return
 	}
-	http.Error(res, "Not found", http.StatusInternalServerError)
+	unifiedapierrors.Error(res, "Cannot find match for this MAC address", http.StatusNotFound)
+	return
+}
+
+func handleAllStats(res http.ResponseWriter, req *http.Request) {
+	var stats []Stats
+	var interfaces pfconfigdriver.ListenInts
+	pfconfigdriver.FetchDecodeSocket(ctx, &interfaces)
+
+	for _, i := range interfaces.Element {
+		if h, ok := intNametoInterface[i]; ok {
+			stat := h.handleApiReq(ApiReq{Req: "stats", NetInterface: i, NetWork: ""})
+			for _, s := range stat.([]Stats) {
+				stats = append(stats, s)
+			}
+		}
+	}
+	outgoingJSON, error := json.Marshal(stats)
+
+	if error != nil {
+		unifiedapierrors.Error(res, error.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Fprint(res, string(outgoingJSON))
 	return
 }
 
 func handleStats(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
-	if _, ok := ControlIn[vars["int"]]; ok {
-		Request := ApiReq{Req: "stats", NetInterface: vars["int"], NetWork: ""}
-		ControlIn[vars["int"]] <- Request
+	if h, ok := intNametoInterface[vars["int"]]; ok {
+		stat := h.handleApiReq(ApiReq{Req: "stats", NetInterface: vars["int"], NetWork: ""})
 
-		stat := <-ControlOut[vars["int"]]
+		outgoingJSON, err := json.Marshal(stat)
 
-		outgoingJSON, error := json.Marshal(stat)
-
-		if error != nil {
-			http.Error(res, error.Error(), http.StatusInternalServerError)
+		if err != nil {
+			unifiedapierrors.Error(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		fmt.Fprint(res, string(outgoingJSON))
 		return
 	}
-	http.Error(res, "Not found", http.StatusInternalServerError)
+
+	unifiedapierrors.Error(res, "Interface not found", http.StatusNotFound)
 	return
 }
 
 func handleInitiaLease(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
-	if _, ok := ControlIn[vars["int"]]; ok {
-		Request := ApiReq{Req: "initialease", NetInterface: vars["int"], NetWork: ""}
-		ControlIn[vars["int"]] <- Request
+	if h, ok := intNametoInterface[vars["int"]]; ok {
+		stat := h.handleApiReq(ApiReq{Req: "initialease", NetInterface: vars["int"], NetWork: ""})
 
-		stat := <-ControlOut[vars["int"]]
+		outgoingJSON, err := json.Marshal(stat)
 
-		outgoingJSON, error := json.Marshal(stat)
-
-		if error != nil {
-			http.Error(res, error.Error(), http.StatusInternalServerError)
+		if err != nil {
+			unifiedapierrors.Error(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		fmt.Fprint(res, string(outgoingJSON))
 		return
 	}
-	http.Error(res, "Not found", http.StatusInternalServerError)
+	unifiedapierrors.Error(res, "Interface not found", http.StatusNotFound)
 	return
 }
 
 func handleDebug(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
-	if _, ok := ControlIn[vars["int"]]; ok {
-		Request := ApiReq{Req: "debug", NetInterface: vars["int"], Role: vars["role"]}
-		ControlIn[vars["int"]] <- Request
+	if h, ok := intNametoInterface[vars["int"]]; ok {
+		stat := h.handleApiReq(ApiReq{Req: "debug", NetInterface: vars["int"], Role: vars["role"]})
 
-		stat := <-ControlOut[vars["int"]]
+		outgoingJSON, err := json.Marshal(stat)
 
-		outgoingJSON, error := json.Marshal(stat)
-
-		if error != nil {
-			http.Error(res, error.Error(), http.StatusInternalServerError)
+		if err != nil {
+			unifiedapierrors.Error(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		fmt.Fprint(res, string(outgoingJSON))
 		return
 	}
-	http.Error(res, "Not found", http.StatusInternalServerError)
+	unifiedapierrors.Error(res, "Interface not found", http.StatusNotFound)
 	return
 }
 
@@ -167,11 +188,7 @@ func handleReleaseIP(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	_ = InterfaceScopeFromMac(vars["mac"])
 
-	var result = map[string][]*Info{
-		"result": {
-			&Info{Mac: vars["mac"], Status: "ACK"},
-		},
-	}
+	var result = &Info{Mac: vars["mac"], Status: "ACK"}
 
 	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	res.WriteHeader(http.StatusOK)
@@ -195,11 +212,7 @@ func handleOverrideOptions(res http.ResponseWriter, req *http.Request) {
 	// Insert information in etcd
 	_ = etcdInsert(vars["mac"], sharedutils.ConvertToString(body))
 
-	var result = map[string][]*Info{
-		"result": {
-			&Info{Mac: vars["mac"], Status: "ACK"},
-		},
-	}
+	var result = &Info{Mac: vars["mac"], Status: "ACK"}
 
 	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	res.WriteHeader(http.StatusOK)
@@ -223,11 +236,7 @@ func handleOverrideNetworkOptions(res http.ResponseWriter, req *http.Request) {
 	// Insert information in etcd
 	_ = etcdInsert(vars["network"], sharedutils.ConvertToString(body))
 
-	var result = map[string][]*Info{
-		"result": {
-			&Info{Network: vars["network"], Status: "ACK"},
-		},
-	}
+	var result = &Info{Network: vars["network"], Status: "ACK"}
 
 	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	res.WriteHeader(http.StatusOK)
@@ -240,19 +249,11 @@ func handleRemoveOptions(res http.ResponseWriter, req *http.Request) {
 
 	vars := mux.Vars(req)
 
-	var result = map[string][]*Info{
-		"result": {
-			&Info{Mac: vars["mac"], Status: "ACK"},
-		},
-	}
+	var result = &Info{Mac: vars["mac"], Status: "ACK"}
 
 	err := etcdDel(vars["mac"])
 	if !err {
-		result = map[string][]*Info{
-			"result": {
-				&Info{Mac: vars["mac"], Status: "NAK"},
-			},
-		}
+		result = &Info{Mac: vars["mac"], Status: "NAK"}
 	}
 	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	res.WriteHeader(http.StatusOK)
@@ -265,19 +266,11 @@ func handleRemoveNetworkOptions(res http.ResponseWriter, req *http.Request) {
 
 	vars := mux.Vars(req)
 
-	var result = map[string][]*Info{
-		"result": {
-			&Info{Network: vars["network"], Status: "ACK"},
-		},
-	}
+	var result = &Info{Network: vars["network"], Status: "ACK"}
 
 	err := etcdDel(vars["network"])
 	if !err {
-		result = map[string][]*Info{
-			"result": {
-				&Info{Network: vars["network"], Status: "NAK"},
-			},
-		}
+		result = &Info{Network: vars["network"], Status: "NAK"}
 	}
 	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	res.WriteHeader(http.StatusOK)
@@ -309,4 +302,78 @@ func decodeOptions(b string) (map[dhcp.OptionCode][]byte, bool) {
 		}
 	}
 	return dhcpOptions, true
+}
+
+func (h *Interface) handleApiReq(Request ApiReq) interface{} {
+	var stats []Stats
+
+	// Send back stats
+	if Request.Req == "stats" {
+		for _, v := range h.network {
+			var statistics roaring.Statistics
+			statistics = v.dhcpHandler.available.Stats()
+			var Options map[string]string
+			Options = make(map[string]string)
+			Options["optionIPAddressLeaseTime"] = v.dhcpHandler.leaseDuration.String()
+			for option, value := range v.dhcpHandler.options {
+				key := []byte(option.String())
+				key[0] = key[0] | ('a' - 'A')
+				Options[string(key)] = Tlv.Tlvlist[int(option)].Decode.String(value)
+			}
+
+			// Add network options on the fly
+			x, err := decodeOptions(v.network.IP.String())
+			if err {
+				for key, value := range x {
+					Options[key.String()] = Tlv.Tlvlist[int(key)].Decode.String(value)
+				}
+			}
+
+			var Members []Node
+			members := v.dhcpHandler.hwcache.Items()
+			var Status string
+			var Count int
+			Count = 0
+			for i, item := range members {
+				Count++
+				result := make(net.IP, 4)
+				binary.BigEndian.PutUint32(result, binary.BigEndian.Uint32(v.dhcpHandler.start.To4())+uint32(item.Object.(int)))
+				Members = append(Members, Node{IP: result.String(), Mac: i, EndsAt: time.Unix(0, item.Expiration)})
+			}
+
+			if Count == (v.dhcpHandler.leaseRange - (int(statistics.RunContainerValues) + int(statistics.ArrayContainerValues))) {
+				Status = "Normal"
+			} else {
+				Status = "Calculated available IP " + strconv.Itoa(v.dhcpHandler.leaseRange-Count) + " is different than what we have available in the pool " + strconv.Itoa(int(statistics.RunContainerValues))
+			}
+
+			stats = append(stats, Stats{EthernetName: Request.NetInterface, Net: v.network.String(), Free: int(statistics.RunContainerValues) + int(statistics.ArrayContainerValues), Category: v.dhcpHandler.role, Options: Options, Members: Members, Status: Status})
+		}
+		return stats
+	}
+	// Update the lease
+	if Request.Req == "initialease" {
+
+		for _, v := range h.network {
+			initiaLease(&v.dhcpHandler)
+			stats = append(stats, Stats{EthernetName: Request.NetInterface, Net: v.network.String(), Category: v.dhcpHandler.role, Status: "Init Lease success"})
+		}
+		return stats
+	}
+
+	// Debug
+	if Request.Req == "debug" {
+		for _, v := range h.network {
+			if Request.Role == v.dhcpHandler.role {
+				var statistiques roaring.Statistics
+				statistiques = v.dhcpHandler.available.Stats()
+				spew.Dump(v.dhcpHandler.available.Stats())
+				log.LoggerWContext(ctx).Info(v.dhcpHandler.available.String())
+				stats = append(stats, Stats{EthernetName: Request.NetInterface, Net: v.network.String(), Free: int(statistiques.RunContainerValues) + int(statistiques.ArrayContainerValues), Category: v.dhcpHandler.role, Status: "Debug finished"})
+			}
+		}
+		return stats
+	}
+
+	return nil
 }

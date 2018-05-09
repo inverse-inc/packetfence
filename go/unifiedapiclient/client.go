@@ -8,8 +8,10 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -22,11 +24,19 @@ const (
 
 var httpClient *http.Client
 
+func dialTimeout(network, addr string) (net.Conn, error) {
+	return net.DialTimeout(network, addr, 1*time.Second)
+}
+
 func init() {
 	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
+		TLSHandshakeTimeout: 1 * time.Second,
+		Dial:                dialTimeout,
 	}
-	httpClient = &http.Client{Transport: tr}
+	httpClient = &http.Client{
+		Transport: tr,
+	}
 }
 
 type Client struct {
@@ -60,18 +70,23 @@ func NewFromConfig(ctx context.Context) *Client {
 	var webservices pfconfigdriver.PfConfWebservices
 	pfconfigdriver.FetchDecodeSocket(ctx, &webservices)
 
-	return New(ctx, webservices.User, webservices.Pass, webservices.Proto, webservices.Host, webservices.UnifiedAPIPort)
+	var apiUser pfconfigdriver.UnifiedApiSystemUser
+	pfconfigdriver.FetchDecodeSocket(ctx, &apiUser)
+
+	return New(ctx, apiUser.User, apiUser.Pass, webservices.Proto, webservices.Host, webservices.UnifiedAPIPort)
 }
 
 func (c *Client) Call(ctx context.Context, method, path string, decodeResponseIn interface{}) error {
-	return c.call(ctx, method, path, "", decodeResponseIn)
+	return c.CallWithStringBody(ctx, method, path, "", decodeResponseIn)
 }
 
 func (c *Client) CallWithBody(ctx context.Context, method, path string, payload interface{}, decodeResponseIn interface{}) error {
-	return nil
+	data, err := json.Marshal(payload)
+	sharedutils.CheckError(err)
+	return c.CallWithStringBody(ctx, method, path, string(data), decodeResponseIn)
 }
 
-func (c *Client) call(ctx context.Context, method, path, body string, decodeResponseIn interface{}) error {
+func (c *Client) CallWithStringBody(ctx context.Context, method, path, body string, decodeResponseIn interface{}) error {
 	r := c.buildRequest(ctx, method, path, body)
 	resp, err := httpClient.Do(r)
 	defer c.ensureRequestComplete(ctx, resp)
@@ -95,14 +110,14 @@ func (c *Client) call(ctx context.Context, method, path, body string, decodeResp
 			return err
 		}
 
-		return c.call(ctx, method, path, body, decodeResponseIn)
+		return c.CallWithStringBody(ctx, method, path, body, decodeResponseIn)
 	} else {
 		errRep := ErrorReply{}
 		dec := json.NewDecoder(resp.Body)
 		err := dec.Decode(&errRep)
 
 		if err != nil {
-			return errors.New("Error body doesn't follow the Unified API, couldn't extract the error message from it.")
+			return errors.New("Error body doesn't follow the Unified API standard, couldn't extract the error message from it.")
 		}
 
 		return errors.New(errRep.Message)
@@ -130,7 +145,7 @@ func (c *Client) login(ctx context.Context) error {
 
 	reply := LoginReply{}
 
-	err = c.call(ctx, "POST", API_LOGIN_PATH, string(loginBodyBytes), &reply)
+	err = c.CallWithStringBody(ctx, "POST", API_LOGIN_PATH, string(loginBodyBytes), &reply)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error while performing a login on the UnifiedAPI: %s", err))
 		return err

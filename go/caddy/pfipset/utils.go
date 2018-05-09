@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"database/sql"
 	"io"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"regexp"
@@ -12,6 +13,8 @@ import (
 	ipset "github.com/digineo/go-ipset"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
+	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 )
 
 var body io.Reader
@@ -33,12 +36,8 @@ func (IPSET *pfIPSET) AddToContext(ctx context.Context) context.Context {
 // Detect the vip on each interfaces
 func getClusterMembersIps(ctx context.Context) []net.IP {
 
-	var keyConfCluster pfconfigdriver.PfconfigKeys
-	keyConfCluster.PfconfigNS = "resource::cluster_hosts_ip"
-
-	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfCluster)
 	var members []net.IP
-	for _, key := range keyConfCluster.Keys {
+	for _, key := range pfconfigdriver.Config.Cluster.HostsIp.Keys {
 		var ConfNet pfconfigdriver.PfClusterIp
 		ConfNet.PfconfigHashNS = key
 
@@ -64,102 +63,27 @@ func getClusterMembersIps(ctx context.Context) []net.IP {
 	return members
 }
 
-func updateClusterL2(ctx context.Context, body io.Reader) {
+func updateClusterRequest(ctx context.Context, origReq *http.Request) {
 	logger := log.LoggerWContext(ctx)
 
-	for _, member := range getClusterMembersIps(ctx) {
-		err := post(ctx, "https://"+member.String()+":22223/ipset/mark_layer2?local=1", body)
-		if err != nil {
-			logger.Error("Not able to contact " + member.String() + err.Error())
-		} else {
-			logger.Info("Updated " + member.String())
-		}
+	Local := origReq.URL.Query().Get("local")
+	if Local != "0" {
+		return
 	}
-}
 
-func updateClusterL3(ctx context.Context, body io.Reader) {
-	logger := log.LoggerWContext(ctx)
+	req, err := sharedutils.CopyHttpRequest(origReq)
+	sharedutils.CheckError(err)
 
-	for _, member := range getClusterMembersIps(ctx) {
-		err := post(ctx, "https://"+member.String()+":22223/ipset/mark_layer3?local=1", body)
-		if err != nil {
-			logger.Error("Not able to contact " + member.String() + err.Error())
-		} else {
-			logger.Info("Updated " + member.String())
-		}
-	}
-}
+	logger.Info("Syncing to peers")
 
-func updateClusterUnmarkMac(ctx context.Context, body io.Reader) {
-	logger := log.LoggerWContext(ctx)
+	apiClient := unifiedapiclient.NewFromConfig(context.Background())
+	body, err := ioutil.ReadAll(req.Body)
+	sharedutils.CheckError(err)
 
 	for _, member := range getClusterMembersIps(ctx) {
-		err := post(ctx, "https://"+member.String()+":22223/ipset/unmark_mac?local=1", body)
-		if err != nil {
-			logger.Error("Not able to contact " + member.String() + err.Error())
-		} else {
-			logger.Info("Updated " + member.String())
-		}
-	}
-}
+		apiClient.Host = member.String()
 
-func updateClusterUnmarkIp(ctx context.Context, body io.Reader) {
-	logger := log.LoggerWContext(ctx)
-
-	for _, member := range getClusterMembersIps(ctx) {
-
-		err := post(ctx, "https://"+member.String()+":22223/ipset/unmark_ip?local=1", body)
-		if err != nil {
-			logger.Error("Not able to contact " + member.String() + err.Error())
-		} else {
-			logger.Info("Updated " + member.String())
-		}
-	}
-}
-
-func updateClusterMarkIpL3(ctx context.Context, body io.Reader) {
-	logger := log.LoggerWContext(ctx)
-
-	for _, member := range getClusterMembersIps(ctx) {
-		err := post(ctx, "https://"+member.String()+":22223/ipset/mark_ip_layer3?local=1", body)
-		if err != nil {
-			logger.Error("Not able to contact " + member.String() + err.Error())
-		} else {
-			logger.Info("Updated " + member.String())
-		}
-	}
-}
-func updateClusterMarkIpL2(ctx context.Context, body io.Reader) {
-	logger := log.LoggerWContext(ctx)
-
-	for _, member := range getClusterMembersIps(ctx) {
-		err := post(ctx, "https://"+member.String()+":22223/ipset/mark_ip_layer2?local=1", body)
-		if err != nil {
-			logger.Error("Not able to contact " + member.String() + err.Error())
-		} else {
-			logger.Info("Updated " + member.String())
-		}
-	}
-}
-
-func updateClusterPassthrough(ctx context.Context, body io.Reader) {
-	logger := log.LoggerWContext(ctx)
-
-	for _, member := range getClusterMembersIps(ctx) {
-		err := post(ctx, "https://"+member.String()+":22223/ipset/passthrough?local=1", body)
-		if err != nil {
-			logger.Error("Not able to contact " + member.String() + err.Error())
-		} else {
-			logger.Info("Updated " + member.String())
-		}
-	}
-}
-
-func updateClusterPassthroughIsol(ctx context.Context, body io.Reader) {
-	logger := log.LoggerWContext(ctx)
-
-	for _, member := range getClusterMembersIps(ctx) {
-		err := post(ctx, "https://"+member.String()+":22223/ipset/passthrough_isolation?local=1", body)
+		err := apiClient.CallWithStringBody(ctx, req.Method, req.URL.Path+"?local=1", string(body), &unifiedapiclient.DummyReply{})
 		if err != nil {
 			logger.Error("Not able to contact " + member.String() + err.Error())
 		} else {
@@ -204,13 +128,13 @@ func (IPSET *pfIPSET) initIPSet(ctx context.Context, db *sql.DB) {
 	rows, err := db.Query("select distinct n.mac, i.ip, n.category_id as node_id from node as n left join locationlog as l on n.mac=l.mac left join ip4log as i on n.mac=i.mac where l.connection_type = \"inline\" and n.status=\"reg\" and n.mac=i.mac and i.end_time > NOW()")
 	if err != nil {
 		// Log here
-		logger.Error(err.Error())
+		logger.Error("Error while fetching the inline nodes in the database: " + err.Error())
 		return
 	}
 	defer rows.Close()
 	var (
-		IpStr string
-		Mac   string
+		IpStr  string
+		Mac    string
 		NodeId string
 	)
 	for rows.Next() {
@@ -289,7 +213,7 @@ func (IPSET *pfIPSET) detectType(ctx context.Context) error {
 	return nil
 }
 
-func validate_mac (mac string) (string, bool) {
+func validateMac(mac string) (string, bool) {
 	re := regexp.MustCompile("(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}")
 	if re.Match([]byte(mac)) {
 		return mac, true
@@ -297,7 +221,7 @@ func validate_mac (mac string) (string, bool) {
 	return "", false
 }
 
-func validate_type (_type string) (string, bool) {
+func validateType(_type string) (string, bool) {
 	re := regexp.MustCompile("[a-zA-Z]+")
 	if re.Match([]byte(_type)) {
 		return _type, true
@@ -305,7 +229,7 @@ func validate_type (_type string) (string, bool) {
 	return "", false
 }
 
-func validate_roleid (roleid string) (string, bool) {
+func validateRoleId(roleid string) (string, bool) {
 	re := regexp.MustCompile("[0-9]+")
 	if re.Match([]byte(roleid)) {
 		return roleid, true
@@ -313,7 +237,7 @@ func validate_roleid (roleid string) (string, bool) {
 	return "", false
 }
 
-func validate_port (port string) (string, bool) {
+func validatePort(port string) (string, bool) {
 	re := regexp.MustCompile("(?:udp|tcp):[0-9]+")
 	if re.Match([]byte(port)) {
 		return port, true

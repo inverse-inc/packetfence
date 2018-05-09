@@ -10,4 +10,5 @@ CHECK PROCESS packetfence-radiusd-load_balancer MATCHING "pf/raddb -n load_balan
     group PacketFence
     start program = "[% SERVICE_BIN %] packetfence-radiusd-load_balancer restart"
     stop program  = "[% SERVICE_BIN %] packetfence-radiusd-load_balancer stop"
+    if failed host 127.0.0.1 port 18123 type udp protocol radius secret adminsecret for 5 cycles then alert
     if 3 restarts within 10 cycles then alert

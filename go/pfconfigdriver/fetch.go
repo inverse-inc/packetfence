@@ -11,6 +11,7 @@ import (
 	"net"
 	"os"
 	"reflect"
+	"regexp"
 	"time"
 
 	"github.com/inverse-inc/packetfence/go/log"
@@ -25,6 +26,16 @@ const pfconfigTestSocketPath string = "/usr/local/pf/var/run/pfconfig-test.sock"
 var pfconfigSocketPathCache string
 
 var SocketTimeout time.Duration = 60 * time.Second
+
+var myHostname string
+
+var nsHasOverlayRe = regexp.MustCompile(`.*\(.*\)$`)
+
+func init() {
+	var err error
+	myHostname, err = os.Hostname()
+	sharedutils.CheckError(err)
+}
 
 // Get the pfconfig socket path depending on whether or not we're in testing
 // Since the environment is not bound to change at runtime, the socket path is computed once and cached in pfconfigSocketPathCache
@@ -51,7 +62,17 @@ type Query struct {
 // Get the payload to send to pfconfig based on the Query attributes
 // Also sets the payload attribute at the same time
 func (q *Query) GetPayload() string {
-	return fmt.Sprintf(`{"method":"%s", "key":"%s","encoding":"%s"}`+"\n", q.method, q.ns, q.encoding)
+	j, err := json.Marshal(struct {
+		Encoding string `json:"encoding"`
+		Method   string `json:"method"`
+		NS       string `json:"key"`
+	}{
+		Encoding: q.encoding,
+		Method:   q.method,
+		NS:       q.ns,
+	})
+	sharedutils.CheckError(err)
+	return string(j) + "\n"
 }
 
 // Get a string identifier of the query
@@ -184,7 +205,13 @@ func decodeJsonInterface(ctx context.Context, b []byte, o interface{}) {
 //		PfconfigHashNS - the hash element key when using the hash_element method, this attribute has no effect when using any other method
 func createQuery(ctx context.Context, o PfconfigObject) Query {
 	query := Query{}
+
 	query.ns = metadataFromField(ctx, o, "PfconfigNS")
+
+	if metadataFromField(ctx, o, "PfconfigHostnameOverlay") == "yes" && !nsHasOverlayRe.MatchString(query.ns) {
+		query.ns = query.ns + "(" + myHostname + ")"
+	}
+
 	query.method = metadataFromField(ctx, o, "PfconfigMethod")
 	if query.method == "hash_element" {
 		query.ns = query.ns + ";" + metadataFromField(ctx, o, "PfconfigHashNS")
@@ -239,10 +266,10 @@ func FetchDecodeSocket(ctx context.Context, o PfconfigObject) error {
 	jsonResponse := FetchSocket(ctx, query.GetPayload())
 
 	if query.method == "keys" {
-		if cs, ok := o.(*PfconfigKeys); ok {
-			decodeInterface(ctx, query.encoding, jsonResponse, &cs.Keys)
+		if cs, ok := o.(PfconfigKeysInt); ok {
+			decodeInterface(ctx, query.encoding, jsonResponse, cs.GetKeys())
 		} else {
-			panic("Wrong struct type for keys. Required PfconfigKeys")
+			panic("Wrong struct type for keys. Required PfconfigKeysInt")
 		}
 	} else if metadataFromField(ctx, o, "PfconfigArray") == "yes" || metadataFromField(ctx, o, "PfconfigDecodeInElement") == "yes" {
 		decodeInterface(ctx, query.encoding, jsonResponse, &o)

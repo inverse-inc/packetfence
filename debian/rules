@@ -114,7 +114,7 @@ install: build
 	install -m0644 $(CURDIR)/debian/packetfence-base.slice $(CURDIR)/debian/packetfence/etc/systemd/system
 	install -m0644 $(CURDIR)/debian/ifup@.service $(CURDIR)/debian/packetfence/etc/systemd/system
 #endif
-	install -m0644 $(CURDIR)/debian/packetfence-pfunified_api.service $(CURDIR)/debian/packetfence/etc/systemd/system
+	install -m0644 $(CURDIR)/debian/packetfence-pfperl-api.service $(CURDIR)/debian/packetfence/etc/systemd/system
 	install -d -m0700 $(CURDIR)/debian/packetfence/etc/default
 	# copy the rsyslog systemd drop in
 	install -d -m0755 $(CURDIR)/debian/packetfence/etc/systemd/system/syslog.service.d/
@@ -192,7 +192,8 @@ ifeq ($(jessie),yes)
 	dh_systemd_enable
 endif
 	dh_installinit --no-restart-on-upgrade
-	dh_installinit --name=packetfence-haproxy
+	dh_installinit --name=packetfence-haproxy-portal
+	dh_installinit --name=packetfence-haproxy-db
 	dh_installinit --name=packetfence-httpd.aaa
 	dh_installinit --name=packetfence-httpd.admin
 	dh_installinit --name=packetfence-httpd.collector
@@ -212,7 +213,6 @@ endif
 	dh_installinit --name=packetfence-pffilter
 	dh_installinit --name=packetfence-pfmon
 	dh_installinit --name=packetfence-pfqueue
-	dh_installinit --name=packetfence-pfsetvlan
 	dh_installinit --name=packetfence-pfsso
 	dh_installinit --name=packetfence-radiusd-acct
 	dh_installinit --name=packetfence-radiusd-auth
@@ -231,6 +231,7 @@ endif
 	dh_installinit --name=packetfence-pfipset
 	dh_installinit --name=packetfence-pfunified-api
 	dh_installinit --name=packetfence-pfstats
+	dh_installinit --name=packetfence-api-frontend
 
 	dh_installcron
 #	dh_installinfo
@@ -238,7 +239,9 @@ endif
 	dh_link \
 			/usr/local/pf/raddb/sites-available/dynamic-clients /usr/local/pf/raddb/sites-enabled/dynamic-clients \
 			/usr/local/pf/raddb/sites-available/status /usr/local/pf/raddb/sites-enabled/status \
-			/usr/local/fingerbank/lib/fingerbank /usr/local/pf/lib/fingerbank
+			/usr/local/fingerbank/lib/fingerbank /usr/local/pf/lib/fingerbank \
+			/usr/local/pf/html/pfappserver/lib/pfappserver /usr/local/pf/lib/pfappserver \
+			/usr/local/pf/html/captive-portal/lib/captiveportal /usr/local/pf/lib/captiveportal
 	dh_strip
 	dh_compress
 	# PERMISSIONS

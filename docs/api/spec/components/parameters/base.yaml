@@ -64,3 +64,11 @@ local:
     type: integer
     default: 0
   description: The local is used to determine if the request should be forwarded to the rest of the cluster. A value of '0' forwards the request and either a missing or alternate value does not forward the request to the rest of the cluster.
+
+ipset_name:
+  name: set_name
+  in: path
+  required: true
+  description: The name of the ipset to manipulate
+  schema:
+    type: string

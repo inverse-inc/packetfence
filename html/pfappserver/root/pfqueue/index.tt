@@ -1,6 +1,29 @@
 [% PROCESS pfqueue/stats.inc %]
 <div class="card">
-<h2 class="card-title">[% l('Queue') %]</h2>
+    <script>
+      // this section has to appear before loading dashboard.js
 
-[% show_stats(stats, 1) | none %]
+      // Disable bootstrap
+      var netdataNoBootstrap = true;
+
+      // Select a theme.
+      // uncomment on of the two themes:
+      var netdataTheme = 'default'; // this is white
+      // var netdataTheme = 'slate'; // this is dark
+
+      // Set the default netdata server.
+      // on charts without a 'data-host', this one will be used.
+      // the default is the server that dashboard.js is downloaded from.
+      var netdataServer = '/netdata/127.0.0.1';
+    </script>
+
+    <!--
+      Load dashboard.js
+      to host this HTML file on your web server,
+      you have to load dashboard.js from the netdata server.
+    -->
+    <script type="text/javascript" src="/netdata/127.0.0.1/dashboard.js?v20170724-7"></script>
+
+<h2 class="card-title">[% l('Queue') %]</h2>
+[% show_stats(stats, 1, hostname) | none %]
 </div>

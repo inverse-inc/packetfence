@@ -187,6 +187,39 @@ func TestDecodeInElement(t *testing.T) {
 
 }
 
+func TestCreateQuery(t *testing.T) {
+	general := PfConfGeneral{}
+
+	query := createQuery(ctx, &general)
+
+	// Test namespace that doesn't have the hostname overlay
+	if query.ns != "config::Pf;general" {
+		t.Error("Wrong namespace name out of createQuery", query.ns)
+	}
+
+	// Test enabling the overlay on non-enabled struct
+	general.PfconfigHostnameOverlay = "yes"
+	query = createQuery(ctx, &general)
+	if query.ns != "config::Pf("+myHostname+");general" {
+		t.Error("Wrong namespace name out of createQuery", query.ns)
+	}
+
+	// Test a struct that overrides the field
+	mgmt := ManagementNetwork{}
+	query = createQuery(ctx, &mgmt)
+	if query.ns != "interfaces::management_network("+myHostname+")" {
+		t.Error("Wrong namespace name out of createQuery", query.ns)
+	}
+
+	// Test requesting a hostname overlay manually
+	general.PfconfigNS = "config::Pf(testing)"
+	general.PfconfigHostnameOverlay = "yes"
+	query = createQuery(ctx, &general)
+	if query.ns != "config::Pf(testing);general" {
+		t.Error("Wrong namespace name out of createQuery", query.ns)
+	}
+}
+
 // fetches resource::fqdn requesting Sereal encoding for the reply
 func BenchmarkFetchSocketSerealSimple(b *testing.B) {
 	for i := 0; i < b.N; i++ {

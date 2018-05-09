@@ -1,5 +1,5 @@
 /token_info:
-  post:
+  get:
     summary: Get information on the current token
     responses:
       '200':

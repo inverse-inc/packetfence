@@ -22,6 +22,7 @@ pf::cmd::pf::locationhistorymac
 use strict;
 use warnings;
 use base qw(pf::cmd::display);
+use Date::Parse;
 
 sub parseArgs {
     my ($self) = @_;

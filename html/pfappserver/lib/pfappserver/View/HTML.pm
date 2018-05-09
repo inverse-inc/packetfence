@@ -13,6 +13,7 @@ __PACKAGE__->config(
     PRE_PROCESS => 'macros.inc',
     FILTERS => {
         css => \&css_filter,
+        css_escape => \&css_escape_filter,
         js => \&js_filter,
         none => sub { $_[0] },
     },
@@ -43,6 +44,19 @@ sub css_filter {
     my $string = shift;
     $string =~ s/[^_a-zA-Z0-9]/_/g;
 
+    return $string;
+}
+
+=head2 css_escape_filter
+
+css_escape_filter
+
+=cut
+
+sub css_escape_filter {
+    my ($string) = @_;
+    $string =~ s/\\/\\\\/g;
+    $string =~ s/([!"#\$\%\&'\(\)\*\+,\.\/:;<=>?@\[\]^`\{\|\}\\~-])/\\$1/g;
     return $string;
 }
 

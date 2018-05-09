@@ -53,7 +53,7 @@ Source: http://www.packetfence.org/downloads/PacketFence/src/%{real_name}-%{vers
 %endif
 
 # Log related globals
-%global logfiles packetfence.log snmptrapd.log pfdetect pfmon
+%global logfiles packetfence.log snmptrapd.log pfdetect pfmon violation.log httpd.admin.audit.log
 %global logdir /usr/local/pf/logs
 
 BuildRequires: gettext, httpd, ipset-devel, pkgconfig
@@ -286,6 +286,7 @@ Requires: perl(Class::XSAccessor)
 Requires: iproute >= 3.0.0, krb5-workstation
 Requires: samba >= 4
 Requires: perl(Linux::Distribution)
+Requires: perl(Pod::Markdown)
 # configuration-wizard
 Requires: vconfig
 # wmi
@@ -299,7 +300,7 @@ Requires: perl(DateTime::TimeZone)
 
 Requires: samba-winbind-clients, samba-winbind
 Requires: libdrm >= 2.4.74
-Requires: netdata, fping
+Requires: netdata, fping, MySQL-python
 
 # pki
 Requires: perl(Crypt::SMIME)
@@ -456,7 +457,8 @@ done
 # systemd services
 %{__install} -D -m0644 conf/systemd/packetfence-api-frontend.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-api-frontend.service
 %{__install} -D -m0644 conf/systemd/packetfence-config.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-config.service
-%{__install} -D -m0644 conf/systemd/packetfence-haproxy.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-haproxy.service
+%{__install} -D -m0644 conf/systemd/packetfence-haproxy-portal.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-haproxy-portal.service
+%{__install} -D -m0644 conf/systemd/packetfence-haproxy-db.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-haproxy-db.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.aaa.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.aaa.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.admin.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.admin.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.collector.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.collector.service
@@ -465,7 +467,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.proxy.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.proxy.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.webservices.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.webservices.service
 %{__install} -D -m0644 conf/systemd/packetfence-iptables.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-iptables.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfunified_api.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfunified_api.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfperl-api.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfperl-api.service
 %{__install} -D -m0644 conf/systemd/packetfence-keepalived.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-keepalived.service
 %{__install} -D -m0644 conf/systemd/packetfence-mariadb.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-mariadb.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfbandwidthd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfbandwidthd.service
@@ -475,7 +477,6 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-pffilter.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pffilter.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfmon.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfmon.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfqueue.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfqueue.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfsetvlan.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfsetvlan.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfsso.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfsso.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.dispatcher.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-httpd.dispatcher.service
 %{__install} -D -m0644 conf/systemd/packetfence-radiusd-acct.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-radiusd-acct.service
@@ -652,6 +653,9 @@ fi
 
 
 %post -n %{real_name}
+if [ "$1" = "2" ]; then
+    /usr/local/pf/bin/pfcmd service pf updatesystemd
+fi
 
 /usr/bin/mkdir -p /var/log/journal/
 echo "Restarting journald to enable persistent logging"
@@ -665,7 +669,7 @@ else
 fi
 
 #Check if log files exist and create them with the correct owner
-for fic_log in packetfence.log redis_cache.log
+for fic_log in packetfence.log redis_cache.log violation.log httpd.admin.audit.log
 do
 if [ ! -e /usr/local/pf/logs/$fic_log ]; then
   touch /usr/local/pf/logs/$fic_log
@@ -686,7 +690,12 @@ if [ ! -f /usr/local/pf/conf/local_secret ]; then
     date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/local_secret
 fi
 
-for service in httpd snmptrapd portreserve redis
+# Create server API system user password
+if [ ! -f /usr/local/pf/conf/unified_api_system_pass ]; then
+    date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/unified_api_system_pass
+fi
+
+for service in httpd snmptrapd portreserve redis netdata
 do
   if /bin/systemctl -a | grep $service > /dev/null 2>&1; then
     echo "Disabling $service startup script"
@@ -881,6 +890,7 @@ fi
 %config(noreplace)      /usr/local/pf/conf/chi.conf
 %config                 /usr/local/pf/conf/chi.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/pfdns.conf
+%config(noreplace)      /usr/local/pf/conf/pfdhcp.conf
 %config(noreplace)      /usr/local/pf/conf/portal_modules.conf
 %config                 /usr/local/pf/conf/portal_modules.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/device_registration.conf
@@ -1039,8 +1049,10 @@ fi
 %config(noreplace)      /usr/local/pf/conf/vlan_filters.conf
                         /usr/local/pf/conf/vlan_filters.conf.example
 %config                 /usr/local/pf/conf/vlan_filters.conf.defaults
-%config(noreplace)      /usr/local/pf/conf/haproxy.conf
-                        /usr/local/pf/conf/haproxy.conf.example
+%config(noreplace)      /usr/local/pf/conf/haproxy-db.conf
+                        /usr/local/pf/conf/haproxy-db.conf.example
+%config(noreplace)      /usr/local/pf/conf/haproxy-portal.conf
+                        /usr/local/pf/conf/haproxy-portal.conf.example
 %dir                    /usr/local/pf/conf/httpd.conf.d
 %config                 /usr/local/pf/conf/httpd.conf.d/captive-portal-common.tt
                         /usr/local/pf/conf/httpd.conf.d/captive-portal-common.tt.example
@@ -1146,6 +1158,7 @@ fi
                         /usr/local/pf/html/common/Gruntfile.js
                         /usr/local/pf/html/captive-portal/content/captiveportal.js
                         /usr/local/pf/html/common/package.json
+                        /usr/local/pf/html/captive-portal/content/autosubmit.js
                         /usr/local/pf/html/captive-portal/content/timerbar.js
                         /usr/local/pf/html/captive-portal/content/ChilliLibrary.js
                         /usr/local/pf/html/captive-portal/content/shared_mdm_profile.mobileconfig
@@ -1240,10 +1253,12 @@ fi
 %dir                    /usr/local/pf/go
                         /usr/local/pf/go/*
 
-%dir                    /usr/local/pf/logs
+%dir %attr(02755, pf, pf)     /usr/local/pf/logs
 # logfiles
 %ghost                  %logdir/packetfence.log
 %ghost                  %logdir/snmptrapd.log
+%ghost                  %logdir/violation.log
+%ghost                  %logdir/httpd.admin.audit.log
 %ghost                  %logdir/pfdetect
 %ghost                  %logdir/pfmon
 %doc                    /usr/local/pf/NEWS.asciidoc
@@ -1254,11 +1269,10 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfbandwidthd
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcplistener
-%attr(0755, pf, pf)     /usr/local/pf/sbin/pfunified_api
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfperl-api
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pf-mariadb
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfmon
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfqueue
-%attr(0755, pf, pf)     /usr/local/pf/sbin/pfsetvlan
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pffilter
 %attr(0755, pf, pf)     /usr/local/pf/sbin/winbindd-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/radsniff-wrapper
@@ -1333,6 +1347,9 @@ fi
 %exclude                /usr/local/pf/addons/pfconfig/pfconfig.init
 
 %changelog
+* Thu Apr 26 2018 Inverse <info@inverse.ca> - 8.0.0-1
+- New release 8.0.0
+
 * Mon Jan 25 2018 Inverse <info@inverse.ca> - 7.4.0-1
 - New release 7.4.0
 

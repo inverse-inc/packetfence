@@ -54,14 +54,6 @@ func newDHCPConfig() *Interfaces {
 	return &p
 }
 
-// readDBConfig read pfconfig database configuration
-func readDBConfig() pfconfigdriver.PfConfDatabase {
-	var sections pfconfigdriver.PfConfDatabase
-
-	pfconfigdriver.FetchDecodeSocket(ctx, &sections)
-	return sections
-}
-
 func (d *Interfaces) readConfig() {
 
 	var interfaces pfconfigdriver.ListenInts
@@ -77,6 +69,10 @@ func (d *Interfaces) readConfig() {
 		eth, err := net.InterfaceByName(v)
 
 		if err != nil {
+			log.LoggerWContext(ctx).Error("Cannot find interface " + v + " on the system due to an error: " + err.Error())
+			continue
+		} else if eth == nil {
+			log.LoggerWContext(ctx).Error("Cannot find interface " + v + " on the system")
 			continue
 		}
 

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -13,6 +14,7 @@ import (
 
 var apiPrefix = "/api/v1"
 var configApiPrefix = apiPrefix + "/config"
+var configNamespaceRe = regexp.MustCompile("^" + regexp.QuoteMeta(configApiPrefix))
 
 var pathAdminRolesMap = map[string]string{
 	configApiPrefix + "/admin_role":  "ADMIN_ROLES",
@@ -99,8 +101,8 @@ var pathAdminRolesMap = map[string]string{
 	configApiPrefix + "/violations": "VIOLATIONS",
 	configApiPrefix + "/violation":  "VIOLATIONS",
 
-	apiPrefix + "/endpoints": "NODES",
-	apiPrefix + "/users":     "USERS",
+	apiPrefix + "/nodes": "NODES",
+	apiPrefix + "/users": "USERS",
 }
 
 var methodSuffixMap = map[string]string{
@@ -177,6 +179,11 @@ func (tam *TokenAuthorizationMiddleware) IsAuthorized(ctx context.Context, metho
 		return authTenant, err
 	}
 
+	authConfig, err := tam.isAuthorizedConfigNamespace(ctx, path, tokenInfo.TenantId)
+	if !authConfig || err != nil {
+		return authConfig, err
+	}
+
 	// If we're here, then we passed all the tests above and we're good to go
 	return true, nil
 }
@@ -225,6 +232,19 @@ func (tam *TokenAuthorizationMiddleware) isAuthorizedAdminRoles(ctx context.Cont
 		msg := fmt.Sprintf("Unauthorized access, lacking the %s administrative role", adminRole)
 		log.LoggerWContext(ctx).Debug(msg)
 		return false, errors.New(msg)
+	}
+}
+
+func (tam *TokenAuthorizationMiddleware) isAuthorizedConfigNamespace(ctx context.Context, path string, tokenTenantId int) (bool, error) {
+	// If we're not hitting the config namespace, then there is no need to enforce anything below
+	if !configNamespaceRe.MatchString(path) {
+		return true, nil
+	}
+
+	if tokenTenantId != AccessAllTenants {
+		return false, errors.New(fmt.Sprintf("Token is not allowed to access the configuration namespace because it is scoped to a single tenant."))
+	} else {
+		return true, nil
 	}
 }
 

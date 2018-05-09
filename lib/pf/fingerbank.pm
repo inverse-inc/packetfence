@@ -35,6 +35,7 @@ use pf::error qw(is_error);
 use pf::CHI;
 use pf::log;
 use pf::node qw(node_modify);
+use pf::dal::node;
 use pf::StatsD::Timer;
 use fingerbank::Config;
 use fingerbank::Collector;
@@ -62,6 +63,12 @@ our %ACTION_MAP_CONDITION = (
     },
 );
 
+our %RECORD_RESULT_ATTR_MAP = (
+    most_accurate_user_agent => "user_agent",
+    hostname => "computername",
+    map { $_ => $_ } qw(dhcp_fingerprint dhcp_vendor dhcp6_fingerprint dhcp6_enterprise),
+);
+
 use fingerbank::Config;
 $fingerbank::Config::CACHE = cache();
 
@@ -85,6 +92,7 @@ sub process {
     my $cache_key = "pf::fingerbank::process($mac)";
 
     my $process_timestamp = $cache->compute($cache_key, sub {
+        $force = $TRUE;
         return DateTime->now(); 
     });
 
@@ -99,28 +107,37 @@ sub process {
     $query_args->{mac} = $mac;
 
     if(!$force && $query_args->{last_updated}->compare($process_timestamp) <= 0) {
-        $logger->info("No recent data found for $mac, will not trigger device profiling");
+        $logger->debug("No recent data found for $mac, will not trigger device profiling");
         return $TRUE;
     }
     else {
         $cache->set($cache_key, DateTime->now());
+        my $query_success = $TRUE;
 
         my $query_result = _query($query_args);
 
         unless(defined($query_result)) {
             $logger->warn("Unable to perform a Fingerbank lookup for device with MAC address '$mac'");
-            return $FALSE;
+            $query_success = $FALSE;
         }
 
         # Processing the device class based on it's parents
         my ( $top_level_parent, $parents ) = _parse_parents($query_result);
         $query_result->{device_class} = find_device_class($top_level_parent, $query_result->{'device'}{'name'});
+
+        if(!defined($query_result->{device_class})) {
+            $logger->error("Issue figuring out device class.");
+            $query_success = $FALSE;
+        }
+
         $query_result->{parents} = $parents;
 
-        record_result($mac, $query_args, $query_result);
+        if($query_success) {
+            record_result($mac, $query_args, $query_result);
+        }
 
-        _trigger_violations($query_args, $query_result, $parents);
-        return $TRUE;
+        _trigger_violations($mac);
+        return $query_success;
     }
 }
 
@@ -166,20 +183,19 @@ Given a MAC address, the endpoint attributes (from the collector) and the Finger
 sub record_result {
     my ($mac, $attributes, $query_result) = @_;
     my $timer = pf::StatsD::Timer->new({level => 7});
-
-    my %attr_map = (
-        most_accurate_user_agent => "user_agent",
-        map { $_ => $_ } qw(dhcp_fingerprint dhcp_vendor dhcp6_fingerprint dhcp6_enterprise),
+    pf::dal::node->update_items(
+        -set => {
+            'device_type'   => $query_result->{'device'}{'name'},
+            'device_class'  => $query_result->{device_class},
+            'device_version' => $query_result->{'version'},
+            'device_score' => $query_result->{'score'},
+            map { $RECORD_RESULT_ATTR_MAP{$_} => $attributes->{$_} } keys(%RECORD_RESULT_ATTR_MAP),
+        },
+        -where => {
+            mac => $mac,
+        },
+        -no_auto_tenant_id => 1,
     );
-
-    node_modify( $mac, (
-        'device_type'   => $query_result->{'device'}{'name'},
-        'device_class'  => $query_result->{device_class},
-        'device_version' => $query_result->{'version'},
-        'device_score' => $query_result->{'score'},
-        map { $attr_map{$_} => $attributes->{$_} } keys(%attr_map),
-    ) );
-
 }
 
 =head2 update_collector_endpoint_data
@@ -229,10 +245,8 @@ sub _query {
 
 sub _trigger_violations {
     my $timer = pf::StatsD::Timer->new({level => 7});
-    my ( $query_args, $query_result, $parents ) = @_;
+    my ( $mac ) = @_;
     my $logger = pf::log::get_logger;
-
-    my $mac = $query_args->{'mac'};
 
     my $apiclient = pf::client::getClient;
 
@@ -298,7 +312,12 @@ sub find_device_class {
         my $timer = pf::StatsD::Timer->new({level => 7, stat => "pf::fingerbank::find_device_class::cache-compute"});
         while (my ($k, $other_device_id) = each(%fingerbank::Constant::DEVICE_CLASS_IDS)) {
             $logger->debug("Checking if device $device_name is a $other_device_id");
-            if(fingerbank::Model::Device->is_a($device_name, $other_device_id)) {
+            my $is_a = fingerbank::Model::Device->is_a($device_name, $other_device_id);
+            if(!defined($is_a)) {
+                $logger->error("Didn't get a valid result when checking if $device_name is a $other_device_id");
+                return undef;
+            }
+            elsif($is_a) {
                 my $other_device_name = fingerbank::Model::Device->read($other_device_id)->name; 
                 $logger->info("Device $device_name is a $other_device_name");
                 return $other_device_name;

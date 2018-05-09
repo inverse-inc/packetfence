@@ -161,6 +161,11 @@ func (fw *FirewallSSO) Stop(ctx context.Context, info map[string]string) (bool, 
 	return true, nil
 }
 
+func (fw *FirewallSSO) RadiusContextWithTimeout() context.Context {
+	ctx, _ := context.WithDeadline(context.Background(), time.Now().Add(5*time.Second))
+	return ctx
+}
+
 // Get the source IP address for the SSO packets
 // Will return either the management VIP if there is one of the IP of the management network
 func (fw *FirewallSSO) getSourceIp(ctx context.Context) net.IP {

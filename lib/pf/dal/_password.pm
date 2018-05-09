@@ -81,7 +81,7 @@ BEGIN {
         tenant_id => {
             type => 'INT',
             is_auto_increment => 0,
-            is_primary_key => 0,
+            is_primary_key => 1,
             is_nullable => 0,
         },
         pid => {
@@ -147,6 +147,7 @@ BEGIN {
     );
 
     @PRIMARY_KEYS = qw(
+        tenant_id
         pid
     );
 
@@ -180,13 +181,13 @@ sub _defaults {
     return {%DEFAULTS};
 }
 
-=head2 field_names
+=head2 table_field_names
 
 Field names of password
 
 =cut
 
-sub field_names {
+sub table_field_names {
     return [@FIELD_NAMES];
 }
 

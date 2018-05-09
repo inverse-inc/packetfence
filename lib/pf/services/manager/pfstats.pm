@@ -18,6 +18,7 @@ use Moo;
 extends 'pf::services::manager';
 
 has '+name' => ( default => sub { 'pfstats' } );
+has '+optional' => ( default => sub {'1'} );
 
 =head1 AUTHOR
 

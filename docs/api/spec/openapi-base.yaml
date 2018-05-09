@@ -2,8 +2,8 @@ openapi: "3.0.0"
   
 info:
   title: PacketFence API
-  description: An API to access the PacketFence resources. Lets make the PacketFence API great again!
-  version: 0.0.1
+  description: A JSON HTTP API to access and manipulate the PacketFence resources. Backward compatibility is currently not 100% guaranteed although we will do our best effort to keep API calls as described here.
+  version: 1.0.0
 
 paths: {}
 

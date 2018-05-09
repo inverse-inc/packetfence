@@ -58,6 +58,7 @@ use NetPacket::IPv6;
 use NetPacket::UDP;
 use pf::CHI::Request;
 use pf::api::queue_cluster;
+use pf::cluster;
 
 # initialization
 # --------------
@@ -169,7 +170,7 @@ sub setup_global {
     my ($int) = @_;
     $interface = $int;
     $net_type = $Config{"interface $interface"}{'type'};
-    $interface_ip = $Config{"interface $interface"}{'ip'};
+    $interface_ip = $cluster_enabled ? pf::cluster::cluster_ip($interface) : $Config{"interface $interface"}{'ip'};
     $interface_vlan = get_vlan_from_int($interface) || $NO_VLAN;
     $send_queue = queue_for_net_type($net_type);
     $net_addr = NetAddr::IP->new($Config{"interface $interface"}{'ip'},$Config{"interface $interface"}{'mask'});

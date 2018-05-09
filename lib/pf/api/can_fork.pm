@@ -62,7 +62,7 @@ sub notify {
     pf::util::webapi::add_mac_to_log_context(\@args);
     eval {pf::api->$method(@args);};
     if ($@) {
-        $logger->error($@);
+        $logger->error("Error handling $method : $@");
     }
     if (defined $pid && $pid == 0 ) {
         POSIX::_exit(0);

@@ -100,6 +100,7 @@ our @NODE_FIELDS = qw(
     stripped_user_name
     user_name
     uuid
+    created_at
 );
 
 our @RADIUS_FIELDS = qw(request_time radius_request radius_reply);
@@ -220,6 +221,7 @@ sub radius_audit_log_cleanup {
             },
         },
         -limit => $batch,
+        -no_auto_tenant_id => 1,
     );
     pf::dal::radius_audit_log->batch_remove(\%search, $time_limit);
     return;

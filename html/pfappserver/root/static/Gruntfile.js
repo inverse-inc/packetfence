@@ -57,12 +57,16 @@ module.exports = function(grunt) {
       'app/raphael/g.dot-min.js',
       'app/raphael/g.line-min.js',
       'app/raphael/g.pie-min.js'
+    ],
+    'js/vendor/fitty.min.js': [
+      'node_modules/fitty/dist/fitty.min.js'
     ]
   };
   var sass_include_paths = [
     'scss/',
     'bower_components/bootstrap-sass/vendor/assets/stylesheets/',
-    'bower_components/font-awesome/scss/'
+    'bower_components/font-awesome/scss/',
+    'bower_components/sass-mq/'
   ];
   var css_vendor = [
     'app/bootstrap-timepicker.css'

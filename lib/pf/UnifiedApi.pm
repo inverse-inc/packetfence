@@ -18,6 +18,7 @@ use Mojo::Base 'Mojolicious';
 use pf::dal;
 use pf::file_paths qw($log_conf_dir);
 use MojoX::Log::Log4perl;
+use pf::UnifiedApi::Controller;
 
 has commands => sub {
   my $commands = Mojolicious::Commands->new(app => shift);
@@ -27,7 +28,7 @@ has commands => sub {
 };
 
 has log => sub {
-    return MojoX::Log::Log4perl->new("$log_conf_dir/pfunified_api.conf",5 * 60);
+    return MojoX::Log::Log4perl->new("$log_conf_dir/pfperl-api.conf",5 * 60);
 };
 
 =head2 startup
@@ -49,9 +50,9 @@ our @API_V1_ROUTES = (
                 },
                 {
                     controller => 'Users::Password',
-                    collection => undef,
+                    resource => undef,
                     allow_singular => 1,
-                    resource => {
+                    collection => {
                         http_methods => {
                             'get'    => 'get',
                             'delete' => 'remove',
@@ -73,6 +74,9 @@ our @API_V1_ROUTES = (
         collection => {
             subroutes    => {
                 'by_mac/:search' => { get => 'by_mac' },                
+                'search' => {
+                    'post' => 'search'
+                },
             },
         },      
     },
@@ -126,6 +130,9 @@ our @API_V1_ROUTES = (
                 'history/:search' => { get => 'history' },
                 'archive/:search' => { get => 'archive' },
                 'open/:search' => { get => 'open' }, 
+                'search' => {
+                    'post' => 'search'
+                },
             },
         },
     },    
@@ -144,7 +151,10 @@ our @API_V1_ROUTES = (
         collection => {
             http_methods => {
                 get => 'list',
-            }
+            },
+            subroutes => {
+                'cluster_status' => { get => 'cluster_status' },
+            },
         },
     },
     { controller => 'RadiusAuditLogs' },
@@ -179,15 +189,37 @@ our @API_V1_ROUTES = (
         Config::TrafficShapingPolicies
         Config::Violations
     ),
+    {
+        controller => 'Translations',
+        collection => {
+            http_methods => {
+                get => "list",
+            },
+            subroutes => undef,
+        },
+        resource => {
+            http_methods => {
+                get => "get",
+            },
+            subroutes => undef,
+        },
+    },
 );
 
 sub startup {
     my ($self) = @_;
+    $self->controller_class('pf::UnifiedApi::Controller');
     $self->routes->namespaces(['pf::UnifiedApi::Controller', 'pf::UnifiedApi']);
     $self->hook(before_dispatch => \&set_tenant_id);
     $self->plugin('pf::UnifiedApi::Plugin::RestCrud');
     $self->setup_api_v1_routes();
     $self->custom_startup_hook();
+    $self->routes->any( '/*', sub {
+        my ($c) = @_;
+        return $c->unknown_action;
+    });
+
+    return;
 }
 
 sub setup_api_v1_routes {
@@ -197,11 +229,6 @@ sub setup_api_v1_routes {
     foreach my $route ($self->api_v1_routes) {
         $api_v1_route->rest_routes($route);
     }
-
-    $r->any(sub {
-        my ($c) = @_;
-        return $c->render(json => { message => "Unknown path", errors => [] }, status => 404);
-    });
 }
 
 sub api_v1_routes {

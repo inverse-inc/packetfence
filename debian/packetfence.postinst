@@ -78,6 +78,10 @@ case "$1" in
             date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/local_secret
         fi
 
+        # Create server API system user password
+        if [ ! -f /usr/local/pf/conf/unified_api_system_pass ]; then
+            date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/unified_api_system_pass
+        fi
 
 	    if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
 	        echo "Building default RADIUS certificates..."
@@ -100,7 +104,7 @@ case "$1" in
 
         # managing services
         set +e
-        for service in apache2 snmptrapfmt freeradius apparmor haproxy keepalived redis-server smbd samba winbind nmbd mysql; do
+        for service in apache2 snmptrapfmt freeradius apparmor haproxy keepalived redis-server smbd samba winbind nmbd mysql snmpd netdata; do
 
             if [ -e "/etc/init.d/"$service ] ; then
                 invoke-rc.d $service stop  > /dev/null 2>&1
@@ -155,6 +159,7 @@ case "$1" in
         set -e
         /bin/systemctl start packetfence-httpd.admin
         systemctl enable packetfence-iptables
+        /usr/local/pf/bin/pfcmd service pf updatesystemd
         echo Installation complete
         echo "* Please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."
         echo "* Please stop your iptables service if you don't have access to configurator."

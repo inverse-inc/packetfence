@@ -19,7 +19,6 @@ use Log::Log4perl::Catalyst;
 #                 directory
 
 use Catalyst qw/
-    -Debug
     ConfigLoader
     Static::Simple
     I18N
@@ -63,6 +62,7 @@ $VERSION = eval $VERSION;
 __PACKAGE__->config(
     name => 'pfappserver',
     default_view =>  'HTML',
+    use_request_uri_for_path => 1,
     setup_components => {
         search_extra => [ qw(::Form ::F) ],
     },

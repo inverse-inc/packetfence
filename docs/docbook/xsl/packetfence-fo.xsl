@@ -134,8 +134,8 @@
   <!-- grey boxes around code (screen, programlisting) -->
   <xsl:param name="shade.verbatim" select="1"/>
   <xsl:attribute-set name="shade.verbatim.style">
-    <xsl:attribute name="background-color">#E0E0E0</xsl:attribute>
-    <xsl:attribute name="border">thin #9F9F9F solid</xsl:attribute>
+    <xsl:attribute name="background-color">#F7F8F9</xsl:attribute>
+    <xsl:attribute name="color">#333</xsl:attribute>
     <xsl:attribute name="margin">0pt</xsl:attribute>
     <xsl:attribute name="padding">0.5em</xsl:attribute>
     <!-- prevent page breaks in screen and programlisting tags -->

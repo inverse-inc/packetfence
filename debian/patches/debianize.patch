@@ -11,29 +11,42 @@ index 2ef5c25..7409c2a 100644
  skip-external-locking
  key_buffer_size = [% key_buffer_size %]M
  max_allowed_packet = [% max_allowed_packet %]M
+diff --git a/conf/monitoring/netdata.conf.example b/conf/monitoring/netdata.conf.example
+index d3a3cd9..fe284fc 100644
+--- a/conf/monitoring/netdata.conf.example
++++ b/conf/monitoring/netdata.conf.example
+@@ -8,7 +8,7 @@
+ [global]
+ 	run as user = netdata
+ 	web files owner = root
+-	web files group = netdata
++	web files group = root
+         config directory = /usr/local/pf/var/conf/monitoring
+         # Netdata is not designed to be exposed to potentially hostile networks
+         # See https://github.com/firehol/netdata/issues/164
 diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
-index 5878420..7fbcbd3 100644
+index b7840af..5d69d6c 100644
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
-@@ -376,7 +376,7 @@ radiusd=enabled
+@@ -392,7 +392,7 @@ radiusd=enabled
  # services.radiusd_binary
  # 
  # Location of the named binary. Only necessary to change if you are not running the RPMed version.
 -radiusd_binary=/usr/sbin/radiusd
-+radiusd_binary=/usr/sbin/freeradiusd
++radiusd_binary=/usr/sbin/freeradius
  #
  # services.iptables
  #
-@@ -441,7 +441,7 @@ httpd_proxy=enabled
+@@ -457,7 +457,7 @@ httpd_proxy=enabled
  # services.httpd_binary
  #
  # Location of the apache binary. Only necessary to change if you are not running the RPMed version.
 -httpd_binary=/usr/sbin/httpd
 +httpd_binary=/usr/sbin/apache2
  #
- # services.pfsetvlan
+ # services.snmptrapd
  #
-@@ -544,7 +544,7 @@ openssl_binary=/usr/bin/openssl
+@@ -555,7 +555,7 @@ openssl_binary=/usr/bin/openssl
  # services.arp_binary
  # 
  # location of the arp binary. only necessary to change if you are not running the rpmed version.
@@ -42,6 +55,17 @@ index 5878420..7fbcbd3 100644
  
  #
  # services.routes
+@@ -584,8 +584,8 @@ tc=enabled
+ #
+ # services.tc_binary
+ #
+-# location of the yc binary. only necessary to change if you are not running the rpmed version.
+-tc_binary=/usr/sbin/tc
++# location of the tc binary. only necessary to change if you are not running the rpmed version.
++tc_binary=/sbin/tc
+ # services.pfdns
+ #
+ # Should pfdns be managed by PacketFence?
 diff --git a/conf/systemd/packetfence-httpd.aaa.service b/conf/systemd/packetfence-httpd.aaa.service
 index 9b6a3ef..3eafbd4 100644
 --- a/conf/systemd/packetfence-httpd.aaa.service
@@ -56,7 +80,7 @@ index 9b6a3ef..3eafbd4 100644
  PrivateTmp=true
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-httpd.admin.service b/conf/systemd/packetfence-httpd.admin.service
-index 370aba4..51bdcf4 100644
+index cb5f0e4..1fe9ac8 100644
 --- a/conf/systemd/packetfence-httpd.admin.service
 +++ b/conf/systemd/packetfence-httpd.admin.service
 @@ -13,7 +13,7 @@ PIDFile=/usr/local/pf/var/run/httpd.admin.pid
@@ -82,7 +106,7 @@ index 11a8f73..bbb263b 100644
  ExecStop=/bin/kill -WINCH ${MAINPID}
  # We want systemd to give httpd some time to finish gracefully, but still want
 diff --git a/conf/systemd/packetfence-httpd.parking.service b/conf/systemd/packetfence-httpd.parking.service
-index aea0a01..2c09a51 100644
+index 6265027..5e483a5 100644
 --- a/conf/systemd/packetfence-httpd.parking.service
 +++ b/conf/systemd/packetfence-httpd.parking.service
 @@ -10,7 +10,7 @@ StartLimitBurst=3
@@ -95,7 +119,7 @@ index aea0a01..2c09a51 100644
  ExecStop=/bin/kill -WINCH ${MAINPID}
  # We want systemd to give httpd some time to finish gracefully, but still want
 diff --git a/conf/systemd/packetfence-httpd.portal.service b/conf/systemd/packetfence-httpd.portal.service
-index e9ad6b2..bcd65e6 100644
+index abfa583..2de5f74 100644
 --- a/conf/systemd/packetfence-httpd.portal.service
 +++ b/conf/systemd/packetfence-httpd.portal.service
 @@ -11,7 +11,7 @@ StartLimitInterval=10
@@ -238,4 +262,31 @@ index e0e0c2c..880121b 100644
  Slice=packetfence-base.slice
  
  [Install]
-- 
+diff --git a/conf/systemd/packetfence-tc.service b/conf/systemd/packetfence-tc.service
+index 88093fb..99dd13b 100644
+--- a/conf/systemd/packetfence-tc.service
++++ b/conf/systemd/packetfence-tc.service
+@@ -8,8 +8,8 @@ StartLimitBurst=3
+ StartLimitInterval=10
+ Type=oneshot
+ RemainAfterExit=yes
+-ExecStart=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::tc' -e 'pf::services::manager::tc->new()->_start()'
+-ExecStop=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::tc' -e 'pf::services::manager::tc->new()->_stop()'
++ExecStart=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::tc' -e 'pf::services::manager::tc->new()->_start()'
++ExecStop=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::tc' -e 'pf::services::manager::tc->new()->_stop()'
+ Slice=packetfence.slice
+ 
+ [Install]
+diff --git a/go/database/connection.go b/go/database/connection.go
+index fa180c3..87d169a 100644
+--- a/go/database/connection.go
++++ b/go/database/connection.go
+@@ -9,7 +9,7 @@ import (
+ func Connect(user, pass, host, port, dbname string) *sql.DB {
+ 	var where string
+ 	if host == "localhost" {
+-		where = "unix(/var/lib/mysql/mysql.sock)"
++		where = "unix(/var/run/mysqld/mysqld.sock)"
+ 	} else {
+ 		where = "tcp(" + host + ":" + port + ")"
+ 	}

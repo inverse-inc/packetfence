@@ -14,7 +14,8 @@ pfcmd service <service> [start|stop|restart|status|generateconfig|updatesystemd]
 
 Services managed by PacketFence:
 
-  haproxy          | haproxy daemon
+  haproxy-portal   | haproxy portal daemon
+  haproxy-db       | haproxy database daemon
   httpd.aaa        | Apache AAA webservice
   httpd.admin      | Apache Web admin
   httpd.collector  | Apache Collector daemon
@@ -36,7 +37,6 @@ Services managed by PacketFence:
   pffilter         | PF conditions filtering daemon
   pfmon            | PF monitoring daemon
   pfqueue          | PF queueing service
-  pfsetvlan        | PF VLAN isolation daemon
   pfstats          | PF statistics daemon
   radiusd          | FreeRADIUS daemon
   radsniff         | radsniff daemon

@@ -14,7 +14,7 @@ func Connect(user, pass, host, port, dbname string) *sql.DB {
 		where = "tcp(" + host + ":" + port + ")"
 	}
 
-	db, _ := sql.Open("mysql", user+":"+pass+"@"+where+"/"+dbname+"?parseTime=true")
+	db, _ := sql.Open("mysql", user+":"+pass+"@"+where+"/"+dbname+"?parseTime=true&loc=Local")
 	db.SetMaxIdleConns(0)
 	db.SetMaxOpenConns(500)
 	return db

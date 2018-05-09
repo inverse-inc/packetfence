@@ -69,7 +69,6 @@ sub generateConfig {
     foreach my $interface ( @ints ) {
         my $cfg = $Config{"interface $interface"};
         next unless $cfg;
-        next if ($cfg->{type} =~ qr/(?:dhcplistener|dhcp-listener)/);
         my $priority = 100 - pf::cluster::cluster_index();
         my $cluster_ip = pf::cluster::cluster_ip($interface);
         $tags{'vrrp'} .= <<"EOT";

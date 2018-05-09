@@ -25,6 +25,7 @@ conf/nessus/
 conf/currently-at
 conf/caddy-services/*.conf
 conf/pfdns.conf
+conf/pfdhcp.conf
 conf/etcd.conf.yml
 bin/pfcmd
 bin/ntlm_auth_wrapper
@@ -66,6 +67,7 @@ conf/nessus/remotescan.nessus
 conf/traffic_shaping.conf
 conf/syslog.conf
 conf/networks.conf
+conf/rsyslog.conf.tt
 conf/radiusd/acct.conf
 conf/radiusd/auth.conf
 conf/radiusd/cli.conf
@@ -135,7 +137,8 @@ conf/pfconfig.conf
 conf/allowed-gaming-oui.txt
 conf/cluster.conf
 conf/domain.conf
-conf/haproxy.conf
+conf/haproxy-portal.conf
+conf/haproxy-db.conf
 conf/keepalived.conf
 conf/report.conf
 conf/device_registration.conf
@@ -175,7 +178,7 @@ conf/monitoring/health_email_recipients.conf
 conf/monitoring/netdata.conf
 conf/monitoring/python.d.conf
 conf/monitoring/python.d/
-conf/monitoring/statsd.d/example.conf
+conf/monitoring/statsd.d/packetfence.conf
 conf/monitoring/stream.conf
 conf/stats.conf
 conf/monitoring/node.d.conf
@@ -209,6 +212,9 @@ var/
 raddb/sites-enabled/
 html/captive-portal/content/node_modules/
 html/common/node_modules/
+
+# dynamic template for admin
+html/pfappserver/root/admin/v-index.tt
 
 # ignore python config files
 *.pyc

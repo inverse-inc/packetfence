@@ -55,10 +55,10 @@ sub park {
         }]);
     }
     if(isenabled($Config{parking}{show_parking_portal})){
-        my $cmd = "sudo ipset add $PARKING_IPSET_NAME $ip 2>&1";
-        get_logger->debug("Adding device to parking ipset using $cmd");
-        my $_EXIT_CODE_EXISTS = "1";
-        my @lines = pf_run($cmd, accepted_exit_status => [$_EXIT_CODE_EXISTS]);
+        get_logger->debug("Adding $ip to parking ipset");
+        pf::api::unifiedapiclient->default_client->call("POST", "/api/v1/ipset/add_ip/parking", {
+            "ip" => $ip,
+        });
     }
 }
 
@@ -90,8 +90,11 @@ sub remove_parking_actions {
     my ($mac, $ip) = @_;
     get_logger->info("Removing parking actions for $mac - $ip");
     pf::api::unifiedapiclient->default_client->call("DELETE", "/api/v1/dhcp/options/mac/$mac",{});
-    #TODO: use pfipset
-    pf_run("sudo ipset del $PARKING_IPSET_NAME $ip -exist 2>&1");
+
+    get_logger->debug("Removing $ip from parking ipset");
+    pf::api::unifiedapiclient->default_client->call("POST", "/api/v1/ipset/remove_ip/parking", {
+        "ip" => $ip,
+    });
 }
 
 =head1 AUTHOR

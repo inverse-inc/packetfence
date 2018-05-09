@@ -1,6 +1,6 @@
 [Unit]
 Description=PacketFence LVS and VRRP High Availability Monitor
-After=packetfence.target packetfence-haproxy.service
+After=packetfence.target packetfence-haproxy-db.service
 Wants=packetfence.target packetfence-iptables.service
 
 [Service]

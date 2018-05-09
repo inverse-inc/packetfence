@@ -58,7 +58,7 @@ use pf::fingerbank;
 use fingerbank::Config;
 use fingerbank::DB;
 use pf::cluster;
-use Time::HiRes qw(time sleep);
+use Time::HiRes qw(time sleep alarm);
 use pf::option82 qw(search_switch);
 use pf::CHI::Request;
 
@@ -79,41 +79,15 @@ our $DEFAULT_TASK_JITTER = 10;
 my $logger = get_logger( $PROGRAM_NAME );
 my $old_child_sigaction = POSIX::SigAction->new;
 
-POSIX::sigaction(
-    &POSIX::SIGALRM,
-    POSIX::SigAction->new(
-        'alarm_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
-    )
-) or die("pfmon could not set SIGALRM handler: $!");
+$SIG{ALRM} = \&alarm_sighandler;
 
-POSIX::sigaction(
-    &POSIX::SIGHUP,
-    POSIX::SigAction->new(
-        'reload_config' , POSIX::SigSet->new(), &POSIX::SA_NODEFER
-    )
-) or die("pfmon could not set SIGHUP handler: $!");
+$SIG{HUP} = \&reload_config;
 
-POSIX::sigaction(
-    &POSIX::SIGINT,
-    POSIX::SigAction->new(
-        'normal_sighandler' , POSIX::SigSet->new(), &POSIX::SA_NODEFER
-    )
-) or die("pfmon could not set SIGINT handler: $!");
+$SIG{INT} = \&normal_sighandler;
 
-POSIX::sigaction(
-    &POSIX::SIGTERM,
-    POSIX::SigAction->new(
-        'normal_sighandler' , POSIX::SigSet->new(), &POSIX::SA_NODEFER
-    )
-) or die("pfmon could not set SIGTERM handler: $!");
+$SIG{TERM} = \&normal_sighandler;
 
-POSIX::sigaction(
-    &POSIX::SIGCHLD,
-    POSIX::SigAction->new(
-        'child_sighandler' , POSIX::SigSet->new(), &POSIX::SA_NODEFER
-    ),
-    $old_child_sigaction
-) or die("pfmon could not set SIGCHLD handler: $!");
+$SIG{CHLD} = \&child_sighandler;
 
 POSIX::sigaction(
     &POSIX::SIGUSR1,
@@ -151,7 +125,6 @@ sub start {
     reload_config();
     registertasks();
     Systemd::Daemon::notify( READY => 1, STATUS => "Ready", unset => 1 );
-    runtasks();
     waitforit();
 }
 
@@ -262,7 +235,7 @@ run all runtasks
 sub runtasks {
     my $mask = POSIX::SigSet->new(POSIX::SIGCHLD());
     sigprocmask(SIG_BLOCK,$mask);
-    while(@REGISTERED_TASKS && $process) {
+    while(@REGISTERED_TASKS) {
         my $task = shift @REGISTERED_TASKS;
         runtask($task);
     }
@@ -282,10 +255,7 @@ sub runtask {
     if($pid) {
         $CHILDREN{$pid} = $task;
     } elsif ($pid == 0) {
-        POSIX::sigaction(
-            &POSIX::SIGCHLD,
-            $old_child_sigaction,
-        ) or die("pfmon could not set SIGCHLD handler: $!");
+        $SIG{CHLD} = "DEFAULT";
         $IS_CHILD = 1;
         Log::Log4perl::MDC->put('tid', $$);
         _runtask($task);
@@ -310,7 +280,7 @@ sub _runtask {
         my $task = pf::factory::pfmon::task->new($task_id);
         my $interval = $task->interval;
         unless ($interval) {
-            $logger->trace("task $task_id is disabled");
+            $logger->warn("task $task_id is disabled");
             $time_taken = 0;
             alarm 60;
             pause;
@@ -319,7 +289,7 @@ sub _runtask {
         my $final_interval = $interval - $time_taken;
         $logger->trace("$task_id is sleeping for $final_interval ($interval from configuration - $time_taken)");
         # Only wait if the interval is positive
-        if($final_interval > 0) {
+        if ($final_interval > 0) {
             alarm $final_interval;
             pause;
             last unless $running;
@@ -328,7 +298,7 @@ sub _runtask {
         $logger->trace("$task_id is running");
         my $start = time();
         if (db_check_readonly()) {
-            $logger->trace(sub { "The database is in readonly mode skipping task $task_id" });
+            $logger->warn(sub { "The database is in readonly mode skipping task $task_id" });
             $time_taken = 0;
             next;
         }
@@ -345,14 +315,14 @@ sub _runtask {
             $logger->error("Parent is no longer running shutting down");
             $running = 0;
         }
-        reload_config();
     } continue {
+        reload_config();
         if ($TASKS > 0) {
             $TASKS--;
         }
     }
-    $logger->trace("$$ shutting down");
-    exit;
+    $logger->info("$$ $task_id shutting down");
+    POSIX::_exit(0);
 }
 
 sub is_worker_runnable {
@@ -406,12 +376,14 @@ waits for signals
 
 sub waitforit {
     while($running) {
-        alarm(1) if !$process;
-        #  Only pause if their are no registered tasks
-        pause unless(@REGISTERED_TASKS && $process);
+        if ($process) {
+            runtasks();
+        }
+
+        alarm(1);
+        pause;
         $logger->debug("Awake from pause");
         reload_config();
-        runtasks();
     }
 }
 

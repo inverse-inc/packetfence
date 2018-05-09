@@ -15,10 +15,12 @@ Pre-Depends:  ca-certificates,
  ca-certificates, winbind,
  packetfence-pfcmd-suid (>= ${source:Version}), packetfence-config (>= ${source:Version}), packetfence-ntlm-wrapper (>= ${source:Version}), packetfence-doc (>= ${source:Version}),
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
- fingerbank (>= 3.1.1), fingerbank (<< 4.0.0),
+ fingerbank (>= 4.0.0), fingerbank (<< 5.0.0),
+ fingerbank-collector (>= 1.0.0),
  packetfence-redis-cache (>= ${source:Version}), packetfence-golang-daemon (>= ${source:Version}),
 # wmi
  libnet-wmiclient-perl, libwmiclient1, wmi-client,
+ netdata (>= 1.10),
 Breaks: libdata-alias-perl
 Depends: ${misc:Depends}, vlan,
  openssl, openssl-blacklist, openssl-blacklist-extra,
@@ -75,6 +77,7 @@ Depends: ${misc:Depends}, vlan,
  libtime-period-perl (>= 1.25), libtime-piece-perl, libsereal-encoder-perl, libsereal-decoder-perl, libdata-serializer-sereal-perl (>= 1.04), libphp-serialization-perl,
  libnet-ip-perl, libdigest-hmac-perl, libcrypt-openssl-pkcs10-perl, libcrypt-openssl-rsa-perl, libfile-tempdir-perl,
  liburi-escape-xs-perl, libsql-abstract-more-perl (>= 1.28), libsql-abstract-plugin-insertmulti-perl, libio-socket-timeout-perl, liblinux-distribution-perl, libwww-twilio-api-perl,
+ libpod-markdown-perl, libmojolicious-perl (>= 7.74), libmojox-log-log4perl-perl, liblingua-en-inflexion-perl,
 # hard-coded to specific version because v3 broke the API and we haven't ported to it yet
 # see #1313: Port our Net-Appliance-Session to the version 3 API
 # http://packetfence.org/bugs/view.php?id=1313
@@ -122,7 +125,7 @@ Depends: ${misc:Depends}, vlan,
 # cluster
  haproxy (>= 1.6), keepalived (>= 1.3.6), arping,
 # monitoring
- netdata, fping,
+ fping, python-mysqldb,
 # EAP TLS
  libcrypt-smime-perl, libnumber-range-perl,
 # Captive Portal Dynamic Routing

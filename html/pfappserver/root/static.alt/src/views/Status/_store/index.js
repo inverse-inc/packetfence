@@ -1,3 +1,4 @@
+import Vue from 'vue'
 import api from '../_api'
 
 const STORAGE_CHARTS_KEY = 'dashboard-charts'
@@ -46,9 +47,15 @@ const actions = {
     commit('CHARTS_UPDATED', chart)
     localStorage.setItem(STORAGE_CHARTS_KEY, JSON.stringify(state.charts))
   },
-  getServices: ({commit}) => {
+  getServices: ({state, commit}) => {
     api.services().then(services => {
       commit('SERVICES_UPDATED', services)
+      for (let [index, service] of state.services.entries()) {
+        commit('SERVICE_REQUEST', index)
+        api.service(service.name, 'status').then(status => {
+          commit('SERVICE_UPDATED', { index, status })
+        })
+      }
     }).catch(err => {
       commit('session/API_ERROR', err.response, { root: true })
     })
@@ -62,11 +69,23 @@ const mutations = {
   CHARTS_UPDATED: (state, chart) => {
     if (state.charts.filter(c => c.id === chart.id).length) {
       console.warn('chart ' + chart.id + ' already on dashboard')
+    } else {
       state.charts.push(chart)
     }
   },
   SERVICES_UPDATED: (state, services) => {
-    state.services = services
+    state.services = services.map(name => {
+      return { name }
+    })
+  },
+  SERVICE_REQUEST: (state, index) => {
+    Vue.set(state.services, index, Object.assign(state.services[index], { loading: true }))
+  },
+  SERVICE_UPDATED: (state, data) => {
+    data.status.enabled = data.status.enabled === 1
+    data.status.alive = data.status.alive === 1
+    data.status.loading = false
+    Vue.set(state.services, data.index, Object.assign(state.services[data.index], data.status))
   }
 }
 

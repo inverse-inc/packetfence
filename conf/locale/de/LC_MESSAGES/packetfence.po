@@ -11,13 +11,14 @@
 # Hendrik, 2016
 # Hendrik, 2016-2017
 # inverse <info@inverse.ca>, 2013,2016
+# Karl Koch <florianjanus@hotmail.com>, 2018
 # Tino Matysiak <tmatysiak@meetyoo.de>, 2011
-# Tombi, 2016
+# Tombi, 2016,2018
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2018-01-24 14:22+0000\n"
+"PO-Revision-Date: 2018-04-19 16:11+0000\n"
 "Last-Translator: inverse <info@inverse.ca>\n"
 "Language-Team: German (http://www.transifex.com/inverse/packetfence/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -29,32 +30,32 @@ msgstr ""
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Root.pm
 msgid " with bandwidth balance : %s,"
-msgstr ""
+msgstr "mit Datenguthaben: %s,"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Root.pm
 msgid " with time balance : %s,"
-msgstr ""
+msgstr "mit Zeitguthaben: %s,"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Root.pm
 msgid " with unregistration date : %s,"
-msgstr ""
+msgstr "mit Deregistrierungsdatum: %s,"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Email.pm
 msgid "%s: Email activation required"
-msgstr ""
+msgstr "%s: E-Mail-Aktivierung erforderlich"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Sponsor.pm
 msgid "%s: Guest access request"
-msgstr ""
+msgstr "%s: Gastzugangsanfrage"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
 msgid "%s: Guest access request accepted"
-msgstr ""
+msgstr "%s: Gastzugangsanfrage angenommen"
 
 # html/captive-portal/templates/pki_provider/packetfence_local.html
 # html/captive-portal/templates/pki_provider/packetfence_pki.html
@@ -63,6 +64,10 @@ msgid ""
 "A random certificate password has been generated for you. Please note it as "
 "it will be necessary to complete the process."
 msgstr "Es wurde ein zufälliges Zertifikatspasswort für Sie generiert. Bitte notieren Sie es sich, da es notwendig ist, um den Prozess zu beenden."
+
+# html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
+msgid "AUP is required and it"
+msgstr ""
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_confirmed.html
 msgid "Access Authorized"
@@ -102,9 +107,9 @@ msgstr "Adresse"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
 msgid ""
-"After registering, you will be given temporary network access. In order to "
-"complete your registration, you will need to click on the link emailed to "
-"you."
+"After registering, you will be given temporary network access for %s "
+"minutes. In order to complete your registration, you will need to click on "
+"the link emailed to you."
 msgstr ""
 
 # html/captive-portal/templates/provisioner/sepm.html
@@ -119,6 +124,12 @@ msgstr "Es wurde ein Konto, angelegt, damit Sie auf unser Netzwerk zugreifen kö
 msgid "An e-mail with the login informations will follow in the next minutes"
 msgstr "Eine E-Mail mit den Anmeldeinformationen wird in den nächsten Minuten folgen."
 
+# html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+msgid ""
+"An error has occured while trying to save your certificate, please contact "
+"your local support staff"
+msgstr ""
+
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Root.pm
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Application.pm
@@ -128,7 +139,7 @@ msgstr "Ein Fehler ist aufgetreten"
 # html/captive-portal/templates/lost_stolen.html
 msgid ""
 "An error occured while trying to declare the device %s as lost or stolen."
-msgstr ""
+msgstr "Beim Versuch das Gerät %s als verloren oder gestohlen zu kennzeichnen, ist ein Fehler aufgetreten."
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
@@ -145,7 +156,7 @@ msgstr "Wohnungsnummer"
 
 # html/captive-portal/templates/status.html
 msgid "Bandwidth balance "
-msgstr ""
+msgstr "Datenguthaben"
 
 # html/captive-portal/templates/activation/sponsor_login.html
 msgid "Before we proceed with guest activation, we need you to authenticate."
@@ -169,9 +180,8 @@ msgid "Building_number"
 msgstr "Gebäudenummer"
 
 # html/captive-portal/templates/status.html
-# html/captive-portal/templates/status/menu.html
 msgid "Cancel"
-msgstr ""
+msgstr "Abbrechen"
 
 # pf::person::FIELDS
 msgid "Cell_phone"
@@ -187,11 +197,11 @@ msgstr "Zertifikatsgenerierung für EAP TLS Verbindungen"
 
 # html/captive-portal/templates/status.html
 msgid "Change my password"
-msgstr ""
+msgstr "Mein Passwort ändern"
 
 # html/captive-portal/templates/status/reset_password.html
 msgid "Change your password"
-msgstr ""
+msgstr "Ihr Passwort ändern"
 
 # html/captive-portal/templates/saml.html
 msgid "Click here to login on %s"
@@ -203,7 +213,7 @@ msgstr "Firma"
 
 # html/captive-portal/templates/status.html
 msgid "Computer name "
-msgstr ""
+msgstr "Computername"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/SMS.pm
@@ -212,7 +222,7 @@ msgstr "Handynummer bestätigen"
 
 # html/captive-portal/templates/status/reset_password.html
 msgid "Confirm your password"
-msgstr ""
+msgstr "Dein Passwort bestätigen"
 
 # html/captive-portal/templates/billing/confirm_Stripe.html
 # html/captive-portal/templates/challenge.html
@@ -220,16 +230,18 @@ msgstr ""
 # html/captive-portal/templates/provisioner/accept.html
 # html/captive-portal/templates/provisioner/android.html
 # html/captive-portal/templates/provisioner/ibm.html
+# html/captive-portal/templates/provisioner/jamf.html
 # html/captive-portal/templates/provisioner/mobileconfig.html
 # html/captive-portal/templates/provisioner/mobileiron.html
 # html/captive-portal/templates/provisioner/opswat.html
 # html/captive-portal/templates/provisioner/sentinelone.html
 # html/captive-portal/templates/provisioner/sepm.html
-# html/captive-portal/templates/provisioner/servicenow.html
 # html/captive-portal/templates/provisioner/symantec.html
 # html/captive-portal/templates/provisioner/windows.html
+# html/captive-portal/templates/select-role.html
 # html/captive-portal/templates/signin.html
 # html/captive-portal/templates/sms/validate.html
+# html/captive-portal/templates/survey.html
 msgid "Continue"
 msgstr "Fortsetzen"
 
@@ -284,11 +296,11 @@ msgstr "Benutzerdefiniertes Feld 9"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
 msgid "Date Of Birth"
-msgstr ""
+msgstr "Geburtsdatum"
 
 # html/captive-portal/templates/status.html
 msgid "Declare as lost or stolen"
-msgstr ""
+msgstr "Als verloren oder gestohlen kennzeichnen"
 
 # html/captive-portal/templates/billing/tier.html
 msgid "Description"
@@ -344,7 +356,11 @@ msgstr "E-Mail"
 # portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
 msgid ""
 "Email activation code has been verified. Access granted until : $unregdate"
-msgstr "E-Mail-Aktivierungscode wurde überprüft. Zugang gewährt bis zum: $unregdate"
+msgstr "E-Mail-Aktivierungscode wurde überprüft. Zugang gewährt bis: $unregdate"
+
+# html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
+msgid "Enter a valid telephone number"
+msgstr ""
 
 # html/captive-portal/templates/violations/bandwidth_expiration.html
 msgid "Expiration"
@@ -352,7 +368,7 @@ msgstr "Ablauf"
 
 # html/captive-portal/templates/emails/emails-billing_confirmation.html
 msgid "Extend access duration"
-msgstr "hghf"
+msgstr "Erweitere Zugriffsdauer"
 
 # html/captive-portal/templates/status.html
 msgid "Extend your access"
@@ -418,8 +434,8 @@ msgid "Here are the info."
 msgstr "Hier sind die Informationen."
 
 # html/captive-portal/templates/emails/emails-violation-triggered.html
-msgid "Here are the informations of the infringing device"
-msgstr "Hier sind die Informationen über das verstoßende Gerät"
+msgid "Here is the information of the infringing device"
+msgstr ""
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
 msgid "Here is the information the guest provided with registration form"
@@ -439,7 +455,7 @@ msgstr "Ich habe keine PIN"
 
 # lib/pf/web.pm
 msgid "IP"
-msgstr ""
+msgstr "IP"
 
 # html/captive-portal/templates/provisioner/mobileiron.html
 msgid "If you are using a Windows phone"
@@ -477,7 +493,7 @@ msgid ""
 "If you have scripting turned off, you will not be automatically redirected. "
 "Please enable scripting or open a new browser window from time to time to "
 "see if your access was enabled."
-msgstr "Wenn sie Scripting deaktiviert haben, werden sie nicht automatisch weitergeleitet. Bitte aktivieren sie Scripting oder öffnen sie immer mal ein neues Browserfenster um zu sehen ob ihr Zugriff aktiviert wurde."
+msgstr "Wenn Sie Scripting deaktiviert haben, werden Sie nicht automatisch weitergeleitet. Bitte aktivieren Sie Scripting oder öffnen Sie bei Bedarf ein neues Browserfenster, um zu sehen ob Ihr Zugriff aktiviert wurde."
 
 # html/captive-portal/templates/pki_provider/packetfence_local.html
 # html/captive-portal/templates/pki_provider/packetfence_pki.html
@@ -590,7 +606,7 @@ msgstr "BS"
 
 # html/captive-portal/templates/status.html
 msgid "OS Type "
-msgstr ""
+msgstr "Betriebssystemtyp"
 
 # html/captive-portal/templates/emails/emails-
 # guest_email_preregistration_confirmed.html
@@ -600,6 +616,7 @@ msgid ""
 msgstr "Um sich anzumelden, wählen Sie \"Gastzugang\" im Anmeldeportal und nutzen Sie folgende Daten"
 
 # html/captive-portal/templates/provisioner/ibm.html
+# html/captive-portal/templates/provisioner/jamf.html
 # html/captive-portal/templates/provisioner/opswat.html
 # html/captive-portal/templates/provisioner/sentinelone.html
 # html/captive-portal/templates/provisioner/symantec.html
@@ -619,12 +636,6 @@ msgid ""
 "Once the application is installed, click next to activate your network "
 "connection"
 msgstr "Sobald die Anwendung installiert ist, klicken Sie weiter, um Ihre Netzwerkverbindung zu aktivieren."
-
-# html/captive-portal/templates/provisioner/servicenow.html
-msgid ""
-"Once the verification is done, click 'Continue' to activate your network "
-"connection"
-msgstr ""
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
 msgid ""
@@ -647,7 +658,7 @@ msgstr "Melden Sie sich mit folgenden Zugangsdaten an unserem Anmeldeportal an"
 
 # html/captive-portal/templates/status/reset_password.html
 msgid "One of the password fields hasn't been filled"
-msgstr ""
+msgstr "Ein Passwortfeld wurde nicht ausgefüllt"
 
 # html/captive-portal/templates/sms/validate.html
 msgid "PIN"
@@ -715,7 +726,7 @@ msgstr "Preis"
 msgid ""
 "Really unregister %s? The device will be immediately disconnected from the "
 "network."
-msgstr ""
+msgstr "Registrierung von %s aufheben? Das Gerät wird dann sofort vom Netzwerk getrennt."
 
 # html/captive-portal/templates/device-registration/registration.html
 msgid "Register"
@@ -727,7 +738,7 @@ msgstr "Ein weiteres Gerät registrieren"
 
 # html/captive-portal/templates/status.html
 msgid "Registered on"
-msgstr ""
+msgstr "Registriert am"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/Controller/DeviceRegistration.pm
@@ -738,18 +749,14 @@ msgstr "Registrierung"
 msgid "Registration pending"
 msgstr "Registrierung steht noch aus"
 
-# html/captive-portal/templates/layout.html
-msgid "Restart from the beginning"
-msgstr "Neustarten von Anfang an"
-
-# html/captive-portal/templates/layout.html
-msgid "Restart registration process"
-msgstr "Registrierungsprozess neustarten"
+# html/captive-portal/templates/status/menu.html
+msgid "Return to device list"
+msgstr ""
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Root.pm
 msgid "Role %s has been assigned to your device"
-msgstr ""
+msgstr "Ihrem Gerät wurde die Rolle %s zugewiesen"
 
 # pf::person::FIELDS
 msgid "Room_number"
@@ -791,20 +798,28 @@ msgstr "Status"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Status.pm
 msgid "Status - Login"
-msgstr ""
+msgstr "Status - Login"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Status.pm
 msgid "Status - Manage Account"
-msgstr ""
+msgstr "Status - Kontoverwaltung"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Status.pm
 msgid "Status - Network Access"
-msgstr ""
+msgstr "Status - Netzwerkzugriff"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
 # pf::person::FIELDS
 msgid "Telephone"
 msgstr "Telefon"
+
+# html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
+msgid "Telephone number is not valid"
+msgstr ""
+
+# pf::person::FIELDS
+msgid "Tenant_id"
+msgstr ""
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
 msgid "Thank you for your cooperation."
@@ -829,7 +844,7 @@ msgstr "Der angegebene Aktivierungscode ist ungültig. Es existierte vielleicht 
 # html/captive-portal/templates/status.html
 msgid ""
 "The device %s will be disconnected and won't be able to be registered again."
-msgstr ""
+msgstr "Das Gerät %s wird getrennt und kann sich nicht wieder registrieren."
 
 # html/captive-portal/templates/emails/emails-
 # billing_stripe_customer.subscription.deleted.html
@@ -842,7 +857,7 @@ msgstr "Das System befindet sich im Wartungsmodus"
 
 # html/captive-portal/templates/status/reset_password.html
 msgid "The two entered passwords did not match"
-msgstr ""
+msgstr "Die eingegebenen Passwörter stimmen nicht überein"
 
 # html/captive-portal/templates/account.html
 msgid "This account can only be used once."
@@ -850,7 +865,7 @@ msgstr "Dieses Konto kann nur einmal benutzt werden."
 
 # html/captive-portal/templates/status.html
 msgid "This device is declared as lost or stolen."
-msgstr ""
+msgstr "Dieses Gerät ist als verloren oder gestohlen gekennzeichnet."
 
 # html/captive-portal/templates/emails/emails-billing_confirmation.html
 # html/captive-portal/templates/emails/emails-guest_email_preregistration.html
@@ -864,7 +879,7 @@ msgstr "fgsg"
 
 # html/captive-portal/templates/status.html
 msgid "This is your current device."
-msgstr ""
+msgstr "Dies ist Ihr aktuelles Gerät."
 
 # html/captive-portal/templates/emails/emails-guest_admin_pregistration.html
 msgid "This username and password will be valid starting"
@@ -881,17 +896,11 @@ msgstr "Rangbestätigung"
 
 # html/captive-portal/templates/status.html
 msgid "Time balance "
-msgstr ""
+msgstr "Zeitguthaben"
 
 # pf::person::FIELDS
 msgid "Title"
 msgstr "Titel"
-
-# html/captive-portal/templates/provisioner/servicenow.html
-msgid ""
-"To complete your network activation we need to verify this is a corporate "
-"computer."
-msgstr ""
 
 # html/captive-portal/templates/provisioner/mobileiron.html
 msgid "To complete your network activation you need to install MobileIron"
@@ -901,6 +910,11 @@ msgstr "Um Ihre Netzwerkaktivierung abzuschließen, müssen Sie MobileIron insta
 msgid ""
 "To complete your network activation you need to install the IBM client."
 msgstr "Um Ihre Netzwerkaktivierung abzuschließen, müssen Sie den IBM-Klienten installieren."
+
+# html/captive-portal/templates/provisioner/jamf.html
+msgid ""
+"To complete your network activation you need to install the JAMF client."
+msgstr ""
 
 # html/captive-portal/templates/provisioner/opswat.html
 msgid ""
@@ -1011,7 +1025,7 @@ msgstr "Sie können auch das Passwort unten ändern"
 msgid ""
 "You do not own this device %s, therefor you can not declare it as lost or "
 "stolen."
-msgstr ""
+msgstr "Sie sind nicht Besitzer dieses Gerätes, deshalb können Sie es nicht als verloren oder gestohlen kennzeichnen."
 
 # html/captive-portal/templates/emails/emails-violation-triggered.html
 msgid "You have been detected doing malicious activity on the network."
@@ -1020,6 +1034,10 @@ msgstr "Es wurde festgestellt, dass Sie bösartige Aktivitäten im Netzwerk unte
 # html/captive-portal/templates/status.html
 msgid "You have no registered devices."
 msgstr "Sie haben keine registrierten Geräte."
+
+# html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
+msgid "You must accept the terms and conditions"
+msgstr ""
 
 # html/captive-portal/templates/provisioner/accept.html
 msgid "You should not seeing this page, something went wrong."
@@ -1038,9 +1056,15 @@ msgid ""
 "Follow the link below in order to get access to the secure SSID."
 msgstr "Ihre XML-Konfiguration wurde generiert und steht nun zum Download bereit.\nFolgen Sie dem Link unten um Zugriff auf die sichere SSID zu bekommen."
 
+# html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
+msgid ""
+"Your certificate could not be aquired from the certificate server. Try again"
+" later or contact your network administrator."
+msgstr ""
+
 # html/captive-portal/templates/lost_stolen.html
 msgid "Your device %s has been declared as lost or stolen."
-msgstr ""
+msgstr "Ihr Gerät %s wurde als verloren oder gestohlen gekennzeichnet."
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_confirmed.html
 # html/captive-portal/templates/emails/emails-
@@ -1073,7 +1097,7 @@ msgstr "Ihr Netzwerkzugang wird gerade aktiviert. Sobald die Netzwerkverbindung 
 
 # html/captive-portal/templates/status/reset_password.html
 msgid "Your password has been updated"
-msgstr ""
+msgstr "Ihr Passwort wurde aktualisiert"
 
 # html/captive-portal/templates/status.html
 msgid "Your registered devices"
@@ -1092,11 +1116,11 @@ msgstr "Ihr Abonnement wurde beendet."
 
 # lib/pf/web.pm
 msgid "automatically refresh"
-msgstr ""
+msgstr "automatisch aktualisieren"
 
 # pf::web::constants (Locales)
 msgid "de_DE"
-msgstr ""
+msgstr "Deutsch"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
@@ -1105,28 +1129,28 @@ msgstr "Hat keine Berechtigung, den Nutzer zu sponsern"
 
 # pf::web::constants (Locales)
 msgid "en_US"
-msgstr ""
+msgstr "Englisch"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Violation.pm
 # lib/pf/web/release.pm
 msgid "error: max re-enables reached"
-msgstr ""
+msgstr "Maximale Anzahl an Reaktivierungen erreicht!"
 
 # lib/pf/web/release.pm
 msgid "error: not found in the database"
-msgstr ""
+msgstr "Ihr Computer wurde nicht in der PacketFence Datenbank gefunden. Bitte starten Sie ihr System neu, um dieses Problem zu lösen."
 
 # pf::web::constants (Locales)
 msgid "es_ES"
-msgstr ""
+msgstr "Spanisch"
 
 # pf::web::constants (Locales)
 msgid "fr_CA"
-msgstr ""
+msgstr "Französisch (Kanada)"
 
 # pf::web::constants (Locales)
 msgid "fr_FR"
-msgstr ""
+msgstr "Französisch"
 
 # pf::web::constants (Locales)
 msgid "he_IL"
@@ -1134,36 +1158,36 @@ msgstr "he_IL"
 
 # html/captive-portal/templates/layout.html
 msgid "help: provide info"
-msgstr ""
+msgstr "Wenn Sie Fragen zu dieser Seite haben, wenden Sie sich für Unterstützung an Ihren Systemadministrator. Bitte stellen Sie folgende Informationen zur Verfügung:"
 
 # pf::web::constants (Locales)
 msgid "it_IT"
-msgstr ""
+msgstr "Italienisch"
 
 # pf::web::constants (Locales)
 msgid "nl_NL"
-msgstr ""
+msgstr "Niederländisch"
 
 # pf::web::constants (Locales)
 msgid "pl_PL"
-msgstr ""
+msgstr "Polnisch"
 
 # pf::web::constants (Locales)
 msgid "pt_BR"
-msgstr ""
+msgstr "Portugiesisch"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Blackhole.pm
 msgid "register: not allowed to register"
-msgstr ""
+msgstr "Sie haben keine Berechtigung sich in diesem Netzwerk zu registrieren."
 
 # html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module.pm
 msgid "release: enabling network"
-msgstr ""
+msgstr "Zugriff auf das Netzwerk wird aktiviert."
 
 # lib/pf/web/release.pm
 msgid "release: reopen browser"
-msgstr ""
+msgstr "Sie müssen möglicherweise Ihren Browser schließen und erneut öffnen. Falls Sie mit einem Telefon verbunden sind, müssen Sie Ihren Computer neustarten um Internetzugang zu erlangen."
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
 msgid "requested guest access to your network."
@@ -1171,15 +1195,20 @@ msgstr "fragte Gastzugriff auf Ihr Netzwerk an."
 
 # lib/pf/web.pm
 msgid "scan in progress contact support if too long"
-msgstr ""
+msgstr "Die Überprüfung läuft. Bitte kontaktieren Sie das Support Team, wenn es zu lange dauert."
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Remediation.pm
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Violation.pm
 # html/captive-portal/templates/scan-in-progress.html
 msgid "scan: scan in progress"
-msgstr ""
+msgstr "Ihr System wird gerade gescannt"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Violation.pm
 # lib/pf/web.pm
 msgid "system scan in progress"
+msgstr "Ihr System wird gerade gescannt - dieser Vorgang wird voraussichtlich %s Sekunden dauern."
+
+# html/captive-portal/lib/captiveportal/PacketFence/Controller/Remediation.pm
+# html/captive-portal/lib/captiveportal/PacketFence/Controller/Violation.pm
+msgid "violation: quarantine established"
 msgstr ""

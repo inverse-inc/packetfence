@@ -37,6 +37,7 @@ sub init {
         'resource::authentication_config_hash',
         'resource::authentication_lookup',
         'resource::authentication_sources',
+        'resource::authentication_sources_monitored',
         'resource::guest_self_registration',
     ];
 }

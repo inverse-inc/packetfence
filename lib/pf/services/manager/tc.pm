@@ -223,9 +223,21 @@ sub manageTrafficShaping {
             next if ( !pf::config::is_network_type_inline($network) );
             my $dev = $NetworkConfig{$network}{'interface'}{'int'};
 
-            my $gateway = (defined $NetworkConfig{$network}{'next_hop'} ? $NetworkConfig{$network}{'next_hop'} : $NetworkConfig{$network}{'gateway'});
+            my $source_interface = $dev;
 
-            my $interface = find_outgoing_interface($gateway);
+            my $gateway = (defined $NetworkConfig{$network}{'next_hop'} ? $NetworkConfig{$network}{'next_hop'} : $Config{"interface $dev"}{'ip'});
+
+            if (!defined $NetworkConfig{$network}{'next_hop'}) {
+                undef $source_interface;
+            }
+
+            my $interface = find_outgoing_interface($gateway, $source_interface);
+
+            if (!(defined($index->{$interface}))) {
+                $logger->warn($interface." is not defined in the configuration, check your routing table");
+                $index->{$interface} = $indice;
+                $indice --;
+            }
 
             foreach my $role ( @roles ) {
                 my $upload;

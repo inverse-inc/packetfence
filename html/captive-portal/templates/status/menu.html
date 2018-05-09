@@ -1,16 +1,10 @@
-<div class="layout layout--center">
-  <div class="layout__item u-mt u-2/3 u-1/1-palm">
-    <a href="/status" class="btn btn--full btn--light">
-      <div class="flag">
-        <div class="flag__img">[% svgIcon(id='ic_cancel_black_24px',size='small') %]</div>
-        <p class="flag__body">[% i18n("Return to device list") %]</p>
-      </div>
+<div class="o-layout o-layout--center u-padding u-padding-top-none">
+  <div class="o-layout__item o-layout--left u-1/1 u-2/3@tablet u-3/5@desktop">
+    <a href="/status" class="c-btn c-btn--secondary c-btn--ghost u-1/1">
+      [% i18n("Return to device list") %]
     </a>
-    <a href="/status/logout" class="btn btn--full btn--light">
-      <div class="flag">
-        <div class="flag__img">[% svgIcon(id='ic_close_black_24px',size='small') %]</div>
-        <p class="flag__body">[% i18n("Logout") %]</p>
-      </div>
+    <a href="/status/logout" class="c-btn c-btn--tertiary u-margin-top-small u-1/1">
+        [% i18n("Logout") %]
     </a>
   </div>
 </div>

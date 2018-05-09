@@ -9,6 +9,7 @@
         <b-navbar-nav>
           <b-nav-item to="/status" v-can:access.some="[['reports', 'services']]">{{ $t('Status') }}</b-nav-item>
           <b-nav-item href="#" v-can:access="'reports'">{{ $t('Reports') }}</b-nav-item>
+          <b-nav-item to="/auditing" v-can:read="'auditing'">{{ $t('Auditing') }}</b-nav-item>
           <b-nav-item to="/nodes" v-can:read="'nodes'">{{ $t('Nodes') }}</b-nav-item>
           <b-nav-item to="/users" v-can:read="'users'">{{ $t('Users') }}</b-nav-item>
           <b-nav-item href="#" v-can:read="'configuration_main'">{{ $t('Configuration') }}</b-nav-item>
@@ -18,6 +19,9 @@
       <b-badge class="mr-1" :variant="chartsOK? 'success' : 'danger'">dashboard</b-badge>
       <b-navbar-nav right v-if="isAuthenticated">        
         <b-nav-item-dropdown right :text="username">
+          <b-dropdown-item-button v-if="$i18n.locale == 'en'" @click="setLanguage('fr')">Français</b-dropdown-item-button>
+          <b-dropdown-item-button v-else @click="setLanguage('en')">English</b-dropdown-item-button>
+          <b-dropdown-divider></b-dropdown-divider>
           <b-dropdown-item to="/logout">{{ $t('Log out') }}</b-dropdown-item>
         </b-nav-item-dropdown>
       </b-navbar-nav>
@@ -45,6 +49,11 @@ export default {
       return this.$store.state.session.charts
     }
   },
+  methods: {
+    setLanguage (lang) {
+      this.$store.dispatch('session/setLanguage', { i18n: this.$i18n, lang })
+    }
+  },
   created () {
     let token = this.$store.state.session.token
     if (token) {
@@ -54,6 +63,7 @@ export default {
       // No token -- go back to login
       this.$router.push('/')
     }
+    this.$store.dispatch('session/setLanguage', { i18n: this.$i18n, lang: 'en' })
   }
 }
 </script>

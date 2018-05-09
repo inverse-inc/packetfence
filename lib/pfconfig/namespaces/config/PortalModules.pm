@@ -41,7 +41,7 @@ sub build_child {
     my %tmp_cfg = %{$self->{cfg}};
     my %reverseLookup;
     while ( my ($key, $module) = each %tmp_cfg) {
-        $self->expand_list($module, qw(modules custom_fields actions multi_source_types multi_source_auth_classes multi_source_object_classes));
+        $self->expand_list($module, qw(modules custom_fields multi_source_types multi_source_auth_classes multi_source_object_classes));
         foreach my $field (qw(modules source_id)) {
             my $values = $module->{$field};
             if (ref ($values) eq '') {
@@ -57,7 +57,8 @@ sub build_child {
         my $actions = $module->{actions};
         if (defined $actions) {
             if ($actions) {
-                $module->{actions} = inflate_actions($actions);
+                $self->expand_list($module, qw(actions));
+                $module->{actions} = inflate_actions($module->{actions});
             }
             else {
                 delete $module->{actions};

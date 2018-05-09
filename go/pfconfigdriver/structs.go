@@ -16,7 +16,8 @@ type PfconfigObject interface {
 // A basic StructConfig that contains the loaded at time which ensures FetchDecodeSocketCache will refresh the struct when needed
 // FetchDecodeSocket can be used by structs that don't include this one, but the pool uses FetchDecodeSocketCache so this struct should always be included in the pfconfig based structs
 type StructConfig struct {
-	PfconfigLoadedAt time.Time
+	PfconfigLoadedAt        time.Time
+	PfconfigHostnameOverlay string `val:"no"`
 }
 
 // Set the loaded at of the struct
@@ -40,6 +41,34 @@ type PfconfigElementResponse struct {
 type TypedConfig struct {
 	Type string `json:"type"`
 }
+
+type configStruct struct {
+	Passthroughs struct {
+		Registration PassthroughsConf
+		Isolation    PassthroughsIsolationConf
+	}
+	Interfaces struct {
+		ListenInts        ListenInts
+		ManagementNetwork ManagementNetwork
+	}
+	PfConf struct {
+		General       PfConfGeneral
+		Fencing       PfConfFencing
+		CaptivePortal PfConfCaptivePortal
+		Webservices   PfConfWebservices
+		Database      PfConfDatabase
+	}
+	AdminRoles AdminRoles
+	Cluster    struct {
+		HostsIp struct {
+			PfconfigKeys
+			PfconfigNS string `val:"resource::cluster_hosts_ip"`
+		}
+	}
+	UnifiedApiSystemUser UnifiedApiSystemUser
+}
+
+var Config configStruct
 
 // Represents the pf.conf general section
 type PfConfGeneral struct {
@@ -107,6 +136,14 @@ type PfConfWebservices struct {
 	Host           string `json:"host"`
 }
 
+type UnifiedApiSystemUser struct {
+	StructConfig
+	PfconfigMethod string `val:"hash_element"`
+	PfconfigNS     string `val:"resource::unified_api_system_user"`
+	User           string `json:"user"`
+	Pass           string `json:"pass"`
+}
+
 type PfConfDatabase struct {
 	StructConfig
 	PfconfigMethod string `val:"hash_element"`
@@ -121,12 +158,13 @@ type PfConfDatabase struct {
 
 type ManagementNetwork struct {
 	StructConfig
-	PfconfigMethod string `val:"element"`
-	PfconfigNS     string `val:"interfaces::management_network"`
-	Ip             string `json:"ip"`
-	Vip            string `json:"vip"`
-	Mask           string `json:"mask"`
-	Int            string `json:"int"`
+	PfconfigHostnameOverlay string `val:"yes"`
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"interfaces::management_network"`
+	Ip                      string `json:"ip"`
+	Vip                     string `json:"vip"`
+	Mask                    string `json:"mask"`
+	Int                     string `json:"int"`
 }
 
 func (mn *ManagementNetwork) GetNetIP(ctx context.Context) (net.IP, *net.IPNet, error) {
@@ -157,6 +195,14 @@ type PfconfigKeys struct {
 	Keys           []string
 }
 
+type PfconfigKeysInt interface {
+	GetKeys() *[]string
+}
+
+func (pk *PfconfigKeys) GetKeys() *[]string {
+	return &(pk.Keys)
+}
+
 type ListenInts struct {
 	StructConfig
 	PfconfigMethod string `val:"element"`
@@ -172,23 +218,6 @@ type PfClusterIp struct {
 	PfconfigHashNS string `val:"-"`
 	Ip             string `json:"ip"`
 }
-
-type configStruct struct {
-	Interfaces struct {
-		ListenInts        ListenInts
-		ManagementNetwork ManagementNetwork
-	}
-	PfConf struct {
-		General       PfConfGeneral
-		Fencing       PfConfFencing
-		CaptivePortal PfConfCaptivePortal
-		Webservices   PfConfWebservices
-		Database      PfConfDatabase
-	}
-	AdminRoles AdminRoles
-}
-
-var Config configStruct
 
 type PfNetwork struct {
 	StructConfig
@@ -271,38 +300,33 @@ type RolesConf struct {
 
 type NetInterface struct {
 	StructConfig
-	PfconfigMethod string `val:"hash_element"`
-	PfconfigNS     string `val:"-"`
-	PfconfigHashNS string `val:"-"`
-	Ip             string `json:"ip"`
-	Type           string `json:"type"`
-	Enforcement    string `json:"enforcement"`
-	Mask           string `json:"mask"`
+	PfconfigHostnameOverlay string `val:"yes"`
+	PfconfigMethod          string `val:"hash_element"`
+	PfconfigNS              string `val:"-"`
+	PfconfigHashNS          string `val:"-"`
+	Ip                      string `json:"ip"`
+	Type                    string `json:"type"`
+	Enforcement             string `json:"enforcement"`
+	Mask                    string `json:"mask"`
 }
 
 type PassthroughsConf struct {
 	StructConfig
 	PfconfigMethod string `val:"hash_element"`
 	PfconfigNS     string `val:"resource::passthroughs"`
-	PfconfigArray  string `val:"_"`
 	Wildcard       map[string][]string
 	Normal         map[string][]string
 }
 
 type PassthroughsIsolationConf struct {
-	StructConfig
-	PfconfigMethod string `val:"hash_element"`
-	PfconfigNS     string `val:"resource::isolation_passthroughs"`
-	PfconfigArray  string `val:"_"`
-	Wildcard       map[string][]string
-	Normal         map[string][]string
+	PassthroughsConf
+	PfconfigNS string `val:"resource::isolation_passthroughs"`
 }
 
 type AuthenticationSourceEduroam struct {
 	StructConfig
 	PfconfigMethod string `val:"hash_element"`
 	PfconfigNS     string `val:"resource::authentication_sources_eduroam"`
-	PfconfigArray  string `val:"_"`
 	PfconfigHashNS string `val:"-"`
 	Description    string `json:"description"`
 	RadiusSecret   string `json:"radius_secret"`
@@ -316,7 +340,6 @@ type AuthenticationSourceRadius struct {
 	StructConfig
 	PfconfigMethod string `val:"hash_element"`
 	PfconfigNS     string `val:"resource::authentication_sources_radius"`
-	PfconfigArray  string `val:"_"`
 	PfconfigHashNS string `val:"-"`
 	Description    string `json:"description"`
 	Secret         string `json:"secret"`
@@ -331,7 +354,6 @@ type AuthenticationSourceLdap struct {
 	StructConfig
 	PfconfigMethod    string `val:"hash_element"`
 	PfconfigNS        string `val:"resource::authentication_sources_ldap"`
-	PfconfigArray     string `val:"_"`
 	PfconfigHashNS    string `val:"-"`
 	Description       string `json:"description"`
 	Password          string `json:"password"`
@@ -356,4 +378,15 @@ type PfStats struct {
 	PfconfigNS     string `val:"config::Stats"`
 	File           string `json:"file"`
 	Match          string `json:"match"`
+	Type           string `json:"type"`
+	StatsdType     string `json:"statsd_type"`
+	StatsdNS       string `json:"statsd_ns"`
+	MySQLQuery     string `json:"mysql_query"`
+	Interval       string `json:"interval"`
+	Randomize      string `json:"randomize"`
+	Host           string `json:"host"`
+	ApiMethod      string `json:"api_method"`
+	ApiPayload     string `json:"api_payload"`
+	ApiPath        string `json:"api_path"`
+	ApiCompile     string `json:"api_compile"`
 }

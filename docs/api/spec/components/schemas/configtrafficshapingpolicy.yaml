@@ -1,0 +1,16 @@
+ConfigTrafficShapingPolicy:
+  properties:
+    download:
+      description: Bandwidth must be in the following format 'nXY' where XY is one
+        of the following KB,MB,GB,TB,PB
+      type: string
+    id:
+      description: Role
+      type: string
+    upload:
+      description: Bandwidth must be in the following format 'nXY' where XY is one
+        of the following KB,MB,GB,TB,PB
+      type: string
+  required:
+  - id
+  type: object

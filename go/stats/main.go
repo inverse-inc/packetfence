@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/coreos/go-systemd/daemon"
-	"github.com/hpcloud/tail"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 
 	"github.com/inverse-inc/packetfence/go/log"
@@ -48,12 +47,7 @@ var GAUGE gauge
 type gauge struct{}
 
 func (s gauge) Send(name string, a interface{}) {
-	c, err := statsd.New()
-	if err != nil {
-		log.LoggerWContext(ctx).Error(err.Error())
-	}
-	defer c.Close()
-	c.Gauge(name, a)
+	StatsdClient.Gauge(name, a)
 }
 
 var ABSOLUTE absolute
@@ -98,6 +92,7 @@ func (s radiustype) Test(source interface{}, ctx context.Context) {
 	UserName_SetString(packet, "tim")
 	UserPassword_SetString(packet, "12345")
 	client := radius.DefaultClient
+	ctx, _ = context.WithTimeout(ctx, 5*time.Second)
 	response, err := client.Exchange(ctx, packet, source.(pfconfigdriver.AuthenticationSourceRadius).Host+":"+source.(pfconfigdriver.AuthenticationSourceRadius).Port)
 	if err != nil {
 		StatsdClient.Gauge("source."+source.(pfconfigdriver.AuthenticationSourceRadius).Type+"."+source.(pfconfigdriver.AuthenticationSourceRadius).PfconfigHashNS, 0)
@@ -122,21 +117,21 @@ func (s ldaptype) Test(source interface{}, ctx context.Context) {
 
 	if err != nil {
 		StatsdClient.Gauge("source."+source.(pfconfigdriver.AuthenticationSourceLdap).Type+"."+source.(pfconfigdriver.AuthenticationSourceLdap).PfconfigHashNS, 0)
-		log.LoggerWContext(ctx).Error(err.Error())
+		log.LoggerWContext(ctx).Error("Error connecting to LDAP source: " + err.Error())
 	} else {
 		defer l.Close()
 		// Reconnect with TLS
 		if source.(pfconfigdriver.AuthenticationSourceLdap).Encryption != "none" {
 			err = l.StartTLS(&tls.Config{InsecureSkipVerify: true})
 			if err != nil {
-				log.LoggerWContext(ctx).Crit(err.Error())
+				log.LoggerWContext(ctx).Crit("Error connecting to LDAP source using TLS: " + err.Error())
 			}
 		}
 
 		// First bind with a read only user
 		timeout, err := strconv.Atoi(source.(pfconfigdriver.AuthenticationSourceLdap).ReadTimeout)
 		if err != nil {
-			log.LoggerWContext(ctx).Crit(err.Error())
+			log.LoggerWContext(ctx).Crit("Error parsing read timeout of LDAP source" + err.Error())
 		}
 
 		l.SetTimeout(time.Duration(timeout) * time.Second)
@@ -161,6 +156,7 @@ func (s eduroamtype) Test(source interface{}, ctx context.Context) {
 	UserName_SetString(packet, "tim")
 	UserPassword_SetString(packet, "12345")
 	client := radius.DefaultClient
+	ctx, _ = context.WithTimeout(ctx, 5*time.Second)
 	response, err := client.Exchange(ctx, packet, source.(pfconfigdriver.AuthenticationSourceEduroam).Server1Address+":1812")
 
 	if err != nil {
@@ -233,17 +229,23 @@ var StatsdClient *statsd.Client
 var ctx context.Context
 
 func main() {
-	d := time.Now().Add(500 * time.Millisecond)
-	ctx, cancel := context.WithDeadline(context.Background(), d)
+	ctx := context.Background()
 	ctx = log.LoggerNewContext(ctx)
-	defer cancel()
 
-	var err error
+	go func() {
+		var err error
+		var connected bool
 
-	StatsdClient, err = statsd.New()
-	if err != nil {
-		log.LoggerWContext(ctx).Error(err.Error())
-	}
+		for !connected {
+			StatsdClient, err = statsd.New()
+			if err != nil {
+				log.LoggerWContext(ctx).Error("Error while creating statsd client: " + err.Error())
+				time.Sleep(1 * time.Second)
+			} else {
+				connected = true
+			}
+		}
+	}()
 
 	log.LoggerWContext(ctx).Info("Starting stats server")
 	// Systemd
@@ -325,28 +327,28 @@ func main() {
 		}
 	}()
 
-	var files []string
-
-	config := tail.Config{Follow: true, ReOpen: true, Location: &tail.SeekInfo{-10, os.SEEK_END}}
-
-	done := make(chan bool)
-
 	var keyConfStats pfconfigdriver.PfconfigKeys
 	keyConfStats.PfconfigNS = "config::Stats"
 	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfStats)
+	RegExpMetric := regexp.MustCompile("^metric .*")
+
+	// Read DB config
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Database)
+	configDatabase := pfconfigdriver.Config.PfConf.Database
+	connectDB(configDatabase)
 
 	for _, key := range keyConfStats.Keys {
 		var ConfStat pfconfigdriver.PfStats
 		ConfStat.PfconfigHashNS = key
 
 		pfconfigdriver.FetchDecodeSocket(ctx, &ConfStat)
-		files = append(files, ConfStat.File)
 
-		go tailFile(ConfStat, config, done)
-	}
-
-	for _ = range files {
-		<-done
+		if RegExpMetric.MatchString(key) {
+			err = ProcessMetricConfig(ctx, ConfStat)
+			if err != nil {
+				log.LoggerWContext(ctx).Error("Error while processing metric config: " + err.Error())
+			}
+		}
 	}
 
 	for {
@@ -356,27 +358,6 @@ func main() {
 		}
 
 		go forward(fd)
-	}
-}
-
-func tailFile(stats pfconfigdriver.PfStats, config tail.Config, done chan bool) {
-	defer func() { done <- true }()
-	t, err := tail.TailFile(stats.File, config)
-	if err != nil {
-		log.LoggerWContext(ctx).Error(err.Error())
-		return
-	}
-
-	rgx := regexp.MustCompile(stats.Match)
-
-	for line := range t.Lines {
-		if rgx.Match([]byte(line.Text)) {
-			StatsdClient.Gauge(stats.PfconfigHashNS, 1)
-		}
-	}
-	err = t.Wait()
-	if err != nil {
-		log.LoggerWContext(ctx).Error(err.Error())
 	}
 }
 

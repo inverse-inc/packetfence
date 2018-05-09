@@ -15,6 +15,7 @@ use Moo;
 use namespace::autoclean;
 use pf::ConfigStore::Pf;
 use pf::ConfigStore::Group;
+use pf::file_paths qw($pf_config_file);
 
 extends 'pf::ConfigStore';
 with 'pf::ConfigStore::Group';
@@ -22,6 +23,8 @@ with 'pf::ConfigStore::Group';
 sub group { 'interface' };
 
 sub pfconfigNamespace {'config::Pf'};
+
+sub configFile {$pf_config_file};
 
 =head2 Methods
 

@@ -1,16 +1,18 @@
 <script type="text/javascript" src="/content/waiting.js"></script>
 
-<div class="layout--center">
-  <h2>[% i18n("Registration pending") %]</h2>
-</div>
-
-<div class="media media--notice u-p u-mb">
-  <div class="media__img">[% flashIcon(level='notice') %]</div>
-  <p class="media__body">[% i18n("Your registration is pending approval. Once approved you will be automatically redirected.") %]</p>
-</div>
-
-<noscript>
-  <div class="box box--accent">
-    <p>[% i18n("If you have scripting turned off, you will not be automatically redirected. Please enable scripting or open a new browser window from time to time to see if your access was enabled.") %]</p>
+<div class="u-padding">
+  <div class="o-layout--center">
+    <h2>[% i18n("Registration pending") %]</h2>
   </div>
-</noscript>
+
+  <div class="o-media o-media--notice u-padding u-margin-bottom">
+    <div class="o-media__img">[% flashIcon(level='notice', size='tiny') %]</div>
+    <p class="o-media__body">[% i18n("Your registration is pending approval. Once approved you will be automatically redirected.") %]</p>
+  </div>
+
+  <noscript>
+    <div class="o-box">
+      <p>[% i18n("If you have scripting turned off, you will not be automatically redirected. Please enable scripting or open a new browser window from time to time to see if your access was enabled.") %]</p>
+    </div>
+  </noscript>
+</div>

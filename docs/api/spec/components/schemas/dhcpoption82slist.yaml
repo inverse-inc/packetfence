@@ -1,0 +1,9 @@
+DhcpOption82sList:
+  allOf:
+  - $ref: '#/components/schemas/Iterable'
+  - properties:
+      items:
+        items:
+          $ref: '#/components/schemas/DhcpOption82'
+        type: array
+    type: object

@@ -17,8 +17,9 @@ dhcpservers=127.0.0.1
 #
 # general.timezone
 #
-#System's timezone in string format. List generated from Perl library DataTime::TimeZone
-timezone=America/Montreal
+# System's timezone in string format. List generated from Perl library DateTime::TimeZone
+# When left empty, it will use the timezone of the server
+timezone=
 
 [network]
 #
@@ -247,6 +248,11 @@ aaa=7070
 #
 # Port the mod_status for httpd.portal listens on.
 httpd_portal_modstatus=1444
+#
+# ports.unified_api
+#
+# port to use for accessing the Unified API
+unifiedapi=9999
 
 [database]
 #
@@ -348,15 +354,25 @@ etcd=enabled
 # Location of the etcd binary. Only necessary to change if you are not running the RPMed version.
 etcd_binary=/usr/bin/etcd
 #
-# services.haproxy
+# services.haproxy-portal
 #
-# Should haproxy be started?
-haproxy=enabled
+# Should haproxy-portal be started?
+haproxy-portal=enabled
 #
-# services.haproxy_binary
+# services.haproxy-portal_binary
 #
-# Location of the haproxy binary. Only necessary to change if you are not running the RPMed version.
-haproxy_binary=/usr/sbin/haproxy-systemd-wrapper
+# Location of the haproxy-portal binary. Only necessary to change if you are not running the RPMed version.
+haproxy-portal_binary=/usr/sbin/haproxy-systemd-wrapper
+#
+# services.haproxy-db
+#
+# Should haproxy-db be started?
+haproxy-db=enabled
+#
+# services.haproxy-db_binary
+#
+# Location of the haproxy-db binary. Only necessary to change if you are not running the RPMed version.
+haproxy-db_binary=/usr/sbin/haproxy-systemd-wrapper
 #
 # services.pffilter
 #
@@ -408,10 +424,10 @@ httpd_portal=enabled
 # Should httpd.parking be started?
 httpd_parking=enabled
 #
-# services.pfunified_api
+# services.pfperl-api
 #
-# Should pfunified_api be started?
-pfunified_api=enabled
+# Should pfperl-api be started?
+pfperl-api=enabled
 #
 # services.httpd_webservices
 #
@@ -442,11 +458,6 @@ httpd_proxy=enabled
 #
 # Location of the apache binary. Only necessary to change if you are not running the RPMed version.
 httpd_binary=/usr/sbin/httpd
-#
-# services.pfsetvlan
-#
-# Should pfsetvlan be managed by PacketFence?
-pfsetvlan=disabled
 #
 # services.snmptrapd
 #
@@ -601,22 +612,6 @@ pfstats=enabled
 pfstats_binary=/usr/local/pf/bin/pfstats
 
 [snmp_traps]
-#
-# snmp_traps.nbtraphandlerthreads
-#
-# Number of trap handler threads pfsetvlan should start
-nbtraphandlerthreads = 5
-#
-# snmp_traps.nbtrapparserthreads
-#
-# Number of trap parser threads pfsetvlan should start
-nbtrapparserthreads = 3
-#
-# snmp_traps.closelocationlogonstop
-#
-# Should open locationlog entries be closed when pfsetvlan is 
-# stopped
-closelocationlogonstop=disabled
 #
 # snmp_traps.bounce_duration
 #
@@ -783,7 +778,7 @@ rate_limiting = enabled
 # captive_portal.rate_limiting_threshold
 #
 # Amount of requests on invalid URLs after which the rate limiting will kick in for this device
-rate_limiting_threshold = 24
+rate_limiting_threshold = 48
 #
 # captive_portal.other_domain_names
 #
@@ -1125,3 +1120,26 @@ eap_fast_opaque_key=0123456789abcdef0123456789ABCDEF
 #
 # EAP-FAST authority ID (Considered only if EAP-FAST is enabled)
 eap_fast_authority_identity=1234
+
+[pfdhcp]
+#
+# pfdhcp.ip2mac_lookup
+#
+# Use the Unified API to query pfdhcp for the MAC address of a given IP address
+ip2mac_lookup=disabled
+#
+# pfdhcp.mac2ip_lookup
+#
+# Use the Unified API to query pfdhcp for the IP address of a given MAC address
+mac2ip_lookup=disabled
+#
+# pfdhcp.connect_timeout_ms
+#
+# Timeout (in milliseconds) to connect to the Unified API when performing queries
+connect_timeout_ms=200
+#
+# pfdhcp.timeout_ms
+#
+# Timeout (in milliseconds) when performing queries to the Unified API
+timeout_ms=200
+

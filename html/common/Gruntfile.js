@@ -8,7 +8,7 @@ module.exports = function(grunt) {
         sourceMap: true,
         outFile: 'styles.css',
         noCache: true,
-        includePaths: ['scss/']
+        includePaths: ['node_modules/inuitcss', 'scss/']
       },
       dist: {
         files: {

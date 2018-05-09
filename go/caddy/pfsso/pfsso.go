@@ -162,7 +162,7 @@ func (h PfssoHandler) handleUpdate(w http.ResponseWriter, r *http.Request, p htt
 
 	var shouldStart bool
 	for _, firewall := range firewallsso.Firewalls.Structs {
-		cacheKey := firewall.GetFirewallSSO(ctx).PfconfigHashNS + ":" + info["ip"]
+		cacheKey := firewall.GetFirewallSSO(ctx).PfconfigHashNS + "|ip|" + info["ip"] + "|username|" + info["username"] + "|role|" + info["role"]
 		// Check whether or not this firewall has cache updates
 		// Then check if an entry in the cache exists
 		//  If it does exist, we don't send a Start

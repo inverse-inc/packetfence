@@ -1,10 +1,14 @@
 package sharedutils
 
 import (
+	"bufio"
+	"bytes"
 	"crypto/rand"
 	"errors"
 	"fmt"
 	"net"
+	"net/http"
+	"net/http/httputil"
 	"os"
 	"strconv"
 	"strings"
@@ -194,4 +198,20 @@ func ByteToString(a []byte) string {
 		buf = append(buf, hexDigit[b&0xF])
 	}
 	return string(buf)
+}
+
+func CopyHttpRequest(req *http.Request) (*http.Request, error) {
+	newReqData, err := httputil.DumpRequest(req, true)
+
+	if err != nil {
+		return nil, err
+	}
+
+	newReq, err := http.ReadRequest(bufio.NewReader(bytes.NewBuffer(newReqData)))
+
+	if err != nil {
+		return nil, err
+	}
+
+	return newReq, nil
 }

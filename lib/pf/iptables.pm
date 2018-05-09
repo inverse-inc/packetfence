@@ -82,6 +82,8 @@ Readonly my $FW_POSTROUTING_INT_INLINE => 'postrouting-int-inline-if';
 Readonly my $FW_POSTROUTING_INT_INLINE_ROUTED => 'postrouting-inline-routed';
 Readonly my $FW_PREROUTING_INT_VLAN => 'prerouting-int-vlan-if';
 
+tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config";
+
 =head1 SUBROUTINES
 
 TODO: This list is incomplete
@@ -124,6 +126,7 @@ sub iptables_generate {
     $tags{'web_admin_port'} = $Config{'ports'}{'admin'};
     $tags{'webservices_port'} = $Config{'ports'}{'soap'};
     $tags{'aaa_port'} = $Config{'ports'}{'aaa'};
+    $tags{'unifiedapi_port'} = $Config{'ports'}{'unifiedapi'};
     $tags{'httpd_portal_modstatus'} = $Config{'ports'}{'httpd_portal_modstatus'};
     $tags{'httpd_collector_port'} = $Config{'ports'}{'collector'};
     # FILTER
@@ -334,16 +337,8 @@ sub generate_inline_rules {
         # We skip non-inline networks/interfaces
         next if ( !pf::config::is_network_type_inline($network) );
         # Set the correct gateway if it is an inline Layer 3 network
-        my $gateway = $ConfigNetworks{$network}{'gateway'};
-        if ( $ConfigNetworks{$network}{'type'} eq $pf::config::NET_TYPE_INLINE_L3 ) {
-            foreach my $test_network ( keys %ConfigNetworks ) {
-                my $net_addr = NetAddr::IP->new($test_network,$ConfigNetworks{$test_network}{'netmask'});
-                my $ip = new NetAddr::IP::Lite clean_ip($ConfigNetworks{$network}{'next_hop'});
-                if ($net_addr->contains($ip)) {
-                    $gateway = $ConfigNetworks{$test_network}{'gateway'};
-                }
-            }
-        }
+        my $dev = $NetworkConfig{$network}{'interface'}{'int'};
+        my $gateway = $Config{"interface $dev"}{'ip'};
 
         my $rule = "--protocol udp --destination-port 53 -s $network/$ConfigNetworks{$network}{'netmask'}";
         $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_UNREG "
@@ -427,25 +422,29 @@ sub generate_passthrough_rules {
     generate_provisioning_passthroughs();
 
     $logger->info("Adding NAT Masquerade statement.");
-    my $mgmt_int = $management_network->tag("int");
-    my $SNAT_ip;
-    if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
-        if (defined($management_network->{'Tvip'}) && $management_network->{'Tvip'} ne '') {
-            $SNAT_ip = $management_network->{'Tvip'};
-        } else {
-            $SNAT_ip = $management_network->{'Tip'};
-       }
+    my ($SNAT_ip, $mgmt_int);
+    if ($management_network) {
+        $mgmt_int = $management_network->tag("int");
+        if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
+            if (defined($management_network->{'Tvip'}) && $management_network->{'Tvip'} ne '') {
+                $SNAT_ip = $management_network->{'Tvip'};
+            } else {
+                $SNAT_ip = $management_network->{'Tip'};
+           }
+        }
     }
 
-    foreach my $network ( keys %ConfigNetworks ) {
-        my $network_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
-        if ( pf::config::is_network_type_inline($network) ) {
-            my $nat = $ConfigNetworks{$network}{'nat_enabled'};
-            if (defined ($nat) && (isenabled($nat))) {
+    if ($SNAT_ip) {
+        foreach my $network ( keys %ConfigNetworks ) {
+            my $network_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
+            if ( pf::config::is_network_type_inline($network) ) {
+                my $nat = $ConfigNetworks{$network}{'nat_enabled'};
+                if (defined ($nat) && (isenabled($nat))) {
+                    $$nat_rules_ref .= "-A POSTROUTING -s $network/$network_obj->{BITS} -o $mgmt_int -j SNAT --to $SNAT_ip\n";
+                }
+            } else {
                 $$nat_rules_ref .= "-A POSTROUTING -s $network/$network_obj->{BITS} -o $mgmt_int -j SNAT --to $SNAT_ip\n";
             }
-        } else {
-            $$nat_rules_ref .= "-A POSTROUTING -s $network/$network_obj->{BITS} -o $mgmt_int -j SNAT --to $SNAT_ip\n";
         }
     }
 
@@ -561,16 +560,8 @@ sub generate_nat_redirect_rules {
             # We skip non-inline networks/interfaces
             next if ( !pf::config::is_network_type_inline($network) );
             # Set the correct gateway if it is an inline Layer 3 network
-            my $gateway = $ConfigNetworks{$network}{'gateway'};
-            if ( $ConfigNetworks{$network}{'type'} eq $pf::config::NET_TYPE_INLINE_L3 ) {
-                foreach my $test_network ( keys %ConfigNetworks ) {
-                    my $net_addr = NetAddr::IP->new($test_network,$ConfigNetworks{$test_network}{'netmask'});
-                    my $ip = new NetAddr::IP::Lite clean_ip($ConfigNetworks{$network}{'next_hop'});
-                    if ($net_addr->contains($ip)) {
-                        $gateway = $ConfigNetworks{$test_network}{'gateway'};
-                    }
-                }
-            }
+            my $dev = $NetworkConfig{$network}{'interface'}{'int'};
+            my $gateway = $Config{"interface $dev"}{'ip'};
 
             # Destination NAT to the portal on the ISOLATION mark
             $rules .=
@@ -779,6 +770,8 @@ sub generate_domain_rules {
         $$filter_forward_domain .= "-A FORWARD -o $name-b -j ACCEPT\n";
         $$filter_forward_domain .= "-A FORWARD -i $name-b -j ACCEPT\n";
     }
+
+    return if !$management_network;
 
     # MOVE ME TO SOMEWHERE - BUT WHERE ????? - ANYWHERE IS BETTER THAN THIS !
     my $domain_network = "169.254.0.0/16";

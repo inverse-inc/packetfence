@@ -37,6 +37,7 @@ docs/docbook/xsl/import-fo.xsl:
 		-a docinfo2 \
 		-b docbook \
 		-d book \
+		-f docs/docbook/docbook45.conf \
 		-o docs/docbook/$(notdir $<).docbook \
 		$<
 	xsltproc \
@@ -88,6 +89,9 @@ conf/ssl/server.key: | conf/ssl/server.key
 
 conf/local_secret:
 	date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/local_secret
+
+conf/unified_api_system_pass:
+	date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/unified_api_system_pass
 
 bin/pfcmd: src/pfcmd.c
 	$(CC) -O2 -g -std=c99  -Wall $< -o $@
@@ -143,6 +147,12 @@ chown_pf:
 fingerbank:
 	rm -f /usr/local/pf/lib/fingerbank
 	ln -s /usr/local/fingerbank/lib/fingerbank /usr/local/pf/lib/fingerbank \
+
+.PHONY: systemd
+
+systemd:
+	cp /usr/local/pf/conf/systemd/packetfence* /usr/lib/systemd/system/
+	systemctl daemon-reload
 
 .PHONY: pf-dal
 

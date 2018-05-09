@@ -36,10 +36,12 @@ type PrettyTokenInfo struct {
 }
 
 type ApiAAAHandler struct {
-	Next           httpserver.Handler
-	router         *httprouter.Router
-	authentication *aaa.TokenAuthenticationMiddleware
-	authorization  *aaa.TokenAuthorizationMiddleware
+	Next               httpserver.Handler
+	router             *httprouter.Router
+	systemBackend      *aaa.MemAuthenticationBackend
+	webservicesBackend *aaa.MemAuthenticationBackend
+	authentication     *aaa.TokenAuthenticationMiddleware
+	authorization      *aaa.TokenAuthorizationMiddleware
 }
 
 // Setup the api-aaa middleware
@@ -67,19 +69,31 @@ func buildApiAAAHandler(ctx context.Context) (ApiAAAHandler, error) {
 	apiAAA := ApiAAAHandler{}
 
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Webservices)
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.UnifiedApiSystemUser)
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.AdminRoles)
 
 	tokenBackend := aaa.NewMemTokenBackend(1 * time.Hour)
 	apiAAA.authentication = aaa.NewTokenAuthenticationMiddleware(tokenBackend)
 
-	// Backend for the pf.conf webservices user
-	if pfconfigdriver.Config.PfConf.Webservices.User != "" {
-		apiAAA.authentication.AddAuthenticationBackend(aaa.NewMemAuthenticationBackend(
-			map[string]string{
-				pfconfigdriver.Config.PfConf.Webservices.User: pfconfigdriver.Config.PfConf.Webservices.Pass,
-			},
+	// Backend for the system Unified API user
+	if pfconfigdriver.Config.UnifiedApiSystemUser.User != "" {
+		apiAAA.systemBackend = aaa.NewMemAuthenticationBackend(
+			map[string]string{},
 			pfconfigdriver.Config.AdminRoles.Element["ALL"].Actions,
-		))
+		)
+		apiAAA.systemBackend.SetUser(pfconfigdriver.Config.UnifiedApiSystemUser.User, pfconfigdriver.Config.UnifiedApiSystemUser.Pass)
+		apiAAA.authentication.AddAuthenticationBackend(apiAAA.systemBackend)
+	}
+
+	// Backend for the pf.conf webservices user
+	apiAAA.webservicesBackend = aaa.NewMemAuthenticationBackend(
+		map[string]string{},
+		pfconfigdriver.Config.AdminRoles.Element["ALL"].Actions,
+	)
+	apiAAA.authentication.AddAuthenticationBackend(apiAAA.webservicesBackend)
+
+	if pfconfigdriver.Config.PfConf.Webservices.User != "" {
+		apiAAA.webservicesBackend.SetUser(pfconfigdriver.Config.PfConf.Webservices.User, pfconfigdriver.Config.PfConf.Webservices.Pass)
 	}
 
 	db, err := db.DbFromConfig(ctx)
@@ -207,6 +221,11 @@ func (h ApiAAAHandler) HandleAAA(w http.ResponseWriter, r *http.Request) bool {
 
 func (h ApiAAAHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 	ctx := r.Context()
+
+	// Reload the webservices user info
+	if pfconfigdriver.Config.PfConf.Webservices.User != "" {
+		h.webservicesBackend.SetUser(pfconfigdriver.Config.PfConf.Webservices.User, pfconfigdriver.Config.PfConf.Webservices.Pass)
+	}
 
 	defer panichandler.Http(ctx, w)
 

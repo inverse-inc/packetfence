@@ -67,9 +67,9 @@ func setuppfdns(c *caddy.Controller) error {
 	}
 
 	// Initialize dns filter cache
-	hwcache := cache.New(300*time.Second, 10*time.Second)
+	pf.DNSFilter = cache.New(300*time.Second, 10*time.Second)
 
-	pf.DNSFilter = hwcache
+	pf.IpsetCache = cache.New(1*time.Hour, 10*time.Second)
 
 	pf.apiClient = unifiedapiclient.NewFromConfig(context.Background())
 

@@ -14,16 +14,11 @@
   <input type="hidden" name="x_receipt_link_text" value="Click here to get access" >
   <input type="hidden" name="x_receipt_link_url" value="[% billing.verify_url %]" >
   <!-- Display the payment button. -->
-  <div class="layout layout--center">
-    <div class="layout__item u-2/3 u-1/1-palm">
-      <div class="u-mt">
-        <button type="submit" name="submit" class="btn btn--full">
-          <div class="flag flag--light">
-            <div class="flag__img">[% svgIcon(id='ic_credit_card_black_24px',size='small') %]</div>
-            <p class="flag__body">Checkout on Authorize.net</p>
-          </div>
-        </button>
-      </div>
+  <div class="o-layout o-layout--center u-padding-bottom">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+      <button type="submit" name="submit" class="c-btn c-btn--primary u-1/1">
+        Checkout on Authorize.net
+      </button>
     </div>
   </div>
 </form>

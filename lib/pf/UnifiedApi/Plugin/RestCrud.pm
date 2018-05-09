@@ -18,7 +18,7 @@ use Mojo::Util qw(decamelize camelize);
 use Clone qw(clone);
 
 our %DEFAULT_RESOURCE_OPTIONS = (
-    subroutes    => {},
+    subroutes    => { },
     http_methods => {
         GET => {
             action => 'get',
@@ -36,7 +36,13 @@ our %DEFAULT_RESOURCE_OPTIONS = (
 );
 
 our %DEFAULT_COLLECTION_OPTIONS = (
-    subroutes    => {},
+    subroutes    => {
+        search => {
+            POST => {
+                action => 'search',
+            }
+        },
+    },
     http_methods => {
         GET => {
             action => 'list',

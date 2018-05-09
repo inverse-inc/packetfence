@@ -253,6 +253,7 @@ session {
 #  the ONLY safe way is to set "use_tunneled_reply = yes", and
 #  then update the inner-tunnel reply.
 post-auth {
+	packetfence-set-tenant-id
 	rest
 	update {
 		&request:User-Password := "******"
@@ -594,6 +595,7 @@ session {
 #  the ONLY safe way is to set "use_tunneled_reply = yes", and
 #  then update the inner-tunnel reply.
 post-auth {
+	packetfence-set-tenant-id
 	rest
 	update {
 		&request:User-Password := "******"

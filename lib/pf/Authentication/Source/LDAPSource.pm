@@ -249,7 +249,7 @@ match_rule
 sub match_rule {
     my ($self, $rule, $params, $extra) = @_;
     if ($self->is_rule_cacheable($rule)) {
-        return $self->cache->compute_with_undef($self->rule_cache_key, sub {
+        return $self->cache->compute_with_undef($self->rule_cache_key($rule, $params, $extra), sub {
             $pf::StatsD::statsd->increment("pf::Authentication::Source::LDAPSource::match_rule.$self->{id}.cache_miss.count" );
             return $self->SUPER::match_rule($rule, $params, $extra);
         });
@@ -288,11 +288,9 @@ rule_cache_key
 sub rule_cache_key {
     my ($self, $rule, $params, $extra) = @_;
     my %temp = %{$params // {}};
-    delete @temp{qw(current_date current_time current_time_period)};
-    return [$self->{id}, $rule->{id}, \%temp, $extra];
+    delete @temp{qw(current_date current_time current_time_period radius_request)};
+    return [$self->{id}, $rule->{id}, \%temp ];
 }
-
-
 
 =head2 match_in_subclass
 
@@ -427,6 +425,12 @@ sub _match_in_subclass {
             push @{ $matching_conditions }, @{ $own_conditions };
             return $params->{'username'} || $params->{'email'};
         }
+    }
+    elsif($result->count > 1) {
+        $logger->warn("[$self->{'id'} $rule->{'id'}] Found more than 1 match. Ignoring all of them. Make sure your filtering rules (on username and on email) can only return a single result");
+    }
+    else {
+        $logger->debug("[$self->{'id'} $rule->{'id'}] No match found for this LDAP filter");
     }
 
     return undef;

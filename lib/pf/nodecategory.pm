@@ -110,7 +110,7 @@ sub nodecategory_upsert {
             notes => $data{notes},
 
         });
-        my ($status) = $obj->save;
+        my ($status) = $obj->upsert;
         if (is_error($status)) {
             $logger->error("Cannot save nodecategory (role) in the database.");
         }
@@ -126,7 +126,7 @@ sub nodecategory_upsert {
 =cut
 
 sub nodecategory_view_all {
-    my ($status, $iter) = pf::dal::node_category->search();
+    my ($status, $iter) = pf::dal::node_category->search(-with_class => undef);
     if (is_error($status)) {
         return;
     }

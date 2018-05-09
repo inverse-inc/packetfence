@@ -28,7 +28,7 @@ use pf::UnifiedApi::Plugin::RestCrud;
 use Mojolicious;
 use Lingua::EN::Inflexion qw(noun);
 
-use Test::More tests => 72;
+use Test::More tests => 77;
 
 #This test will running last
 use Test::NoWarnings;
@@ -49,7 +49,7 @@ routes_created($routes, "Users.", qw(list create get remove update replace resou
     my $r = $routes->any("/api")->name("api");
 
     $r->rest_routes({controller => 'Users'});
-    routes_created($r, "api.Users.", qw(list create get remove update replace resource));
+    routes_created($r, "api.Users.", qw(list create get remove update replace resource search));
 }
 
 {
@@ -85,7 +85,7 @@ routes_created($routes, "Users.", qw(list create get remove update replace resou
         },
     });
     routes_created($r, 'hello.Universes.', qw(find change modify annihilate find_leader));
-    routes_not_created($r, "hello.Universes.", qw(list create get remove update replace ));
+    routes_not_created($r, "hello.Universes.", qw(list create get remove update replace search));
 }
 
 
@@ -104,7 +104,7 @@ routes_created($routes, "Users.", qw(list create get remove update replace resou
         }
     );
     routes_created($routes, "Quackers.", qw(list create scrooge_mcduck));
-    routes_not_created($routes, "Quackers.", qw( get remove update replace resource));
+    routes_not_created($routes, "Quackers.", qw( get remove update replace resource search));
 }
 
 {
@@ -121,8 +121,8 @@ routes_created($routes, "Users.", qw(list create get remove update replace resou
             },
         }
     );
-    routes_created($routes, "ApiChildTest.Users.", qw(list create get remove update replace resource));
-    routes_created($routes, "ApiChildTest.Users.Nodes.", qw(list create get remove update replace resource));
+    routes_created($routes, "ApiChildTest.Users.", qw(list create get remove update replace resource search));
+    routes_created($routes, "ApiChildTest.Users.Nodes.", qw(list create get remove update replace resource search));
 }
 
 is (
@@ -212,7 +212,7 @@ is_deeply(
     ),
     {
         url_param_key => 'user_id',
-        subroutes     => {},
+        subroutes    => { },
         http_methods  => default_resource_http_methods(),
         base_path => '/user',
         path      => '/user/:user_id',
@@ -233,7 +233,7 @@ is_deeply(
     ),
     {
         url_param_key => 'connection_profile_id',
-        subroutes     => {},
+        subroutes     => { },
         http_methods  => default_resource_http_methods(),
         base_path => '/config/connection_profile',
         path      => '/config/connection_profile/:connection_profile_id',
@@ -255,14 +255,20 @@ is_deeply(
         parent_path => '',
         resource    => {
             url_param_key => 'user_id',
-            subroutes     => {},
+            subroutes     => { },
             http_methods  => default_resource_http_methods(),
             path      => '/user/:user_id',
             base_path => '/user',
             children  => []
         },
         collection => {
-            subroutes    => {},
+            subroutes     => {
+                search => {
+                    POST => {
+                        action => 'search',
+                    }
+                },
+            },
             http_methods => default_collection_http_methods('/user'),
             path => '/users',
         },
@@ -283,14 +289,20 @@ is_deeply (
         name_prefix => 'Config::ConnectionProfiles',
         resource => {
             url_param_key => 'connection_profile_id',
-            subroutes => { },
+            subroutes     => { },
             http_methods  => default_resource_http_methods(),
             path => '/config/connection_profile/:connection_profile_id',
             base_path => '/config/connection_profile',
             children => [],
         },
         collection => {
-            subroutes => {},
+            subroutes     => {
+                search => {
+                    POST => {
+                        action => 'search',
+                    }
+                },
+            },
             http_methods => default_collection_http_methods(),
             path => '/config/connection_profiles',
         },
@@ -312,7 +324,13 @@ is_deeply (
         parent_path => '',
         resource => undef,
         collection => {
-            subroutes => {},
+            subroutes     => {
+                search => {
+                    POST => {
+                        action => 'search',
+                    }
+                },
+            },
             http_methods => default_collection_http_methods(),
             path => '/no_resources',
         },
@@ -388,7 +406,7 @@ is_deeply(
         parent_path => '',
         resource    => {
             url_param_key => 'user_id',
-            subroutes     => {},
+            subroutes     => { },
             http_methods  => default_resource_http_methods(),
             path   => '/user/:user_id',
             base_path   => '/user',
@@ -402,7 +420,13 @@ is_deeply(
             ]
         },
         collection => {
-            subroutes    => {},
+            subroutes     => {
+                search => {
+                    POST => {
+                        action => 'search',
+                    }
+                },
+            },
             http_methods => default_collection_http_methods(),
             path => '/users',
         },

@@ -112,7 +112,7 @@ sub sendLocalDesAssociateTrap {
 
 =head2 sendLocalFirewallRequestTrap
 
-Sends a local trap meant to trigger firewall changes in pfsetvlan
+Sends a local trap meant to trigger firewall changes for pf::snmptrapd
 
 =cut
 
