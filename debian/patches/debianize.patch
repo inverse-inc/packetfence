@@ -274,7 +274,7 @@ index 88093fb..99dd13b 100644
 -ExecStop=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::tc' -e 'pf::services::manager::tc->new()->_stop()'
 +ExecStart=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::tc' -e 'pf::services::manager::tc->new()->_start()'
 +ExecStop=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::tc' -e 'pf::services::manager::tc->new()->_stop()'
- Slice=packetfence-base.slice
+ Slice=packetfence.slice
  
  [Install]
 diff --git a/go/database/connection.go b/go/database/connection.go
