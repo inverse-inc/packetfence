@@ -2,8 +2,6 @@
 
   var varsEl = $('#variables');
   var vars = JSON.parse(varsEl.html());
-console.log(vars);
-
 
   function sendPaymentDataToAnet() {
       var secureData = {}; authData = {}; cardData = {};
@@ -23,8 +21,6 @@ console.log(vars);
       authData.apiLoginID = vars.api_login_id;
       secureData.authData = authData;
 
-console.log(secureData);
-
       // Pass the card number and expiration date to Accept.js for submission to Authorize.Net.
       Accept.dispatchData(secureData, responseHandler);
 
@@ -35,10 +31,10 @@ console.log(secureData);
               for (var i = 0; i < response.messages.message.length; i++) {
                   console.log(response.messages.message[i].code + ": " + response.messages.message[i].text);
               }
-              alert("acceptJS library error!")
+              var $form = $('#payment-form');
+              $form.find('.payment-errors p').text('Unable to proceed with payment please contact your service provider');
+              $form.find('.payment-errors').removeClass('hide');
           } else {
-              console.log(response.opaqueData.dataDescriptor);
-              console.log(response.opaqueData.dataValue);
               processTransaction(response.opaqueData);
           }
       }
