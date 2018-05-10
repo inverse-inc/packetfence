@@ -318,6 +318,7 @@ Prompt for the necessary fields
 sub prompt_fields {
     my ($self, $args) = @_;
     $args //= {};
+    my %saved_fields = %{$self->app->session->{saved_fields}} if (defined ($self->app->session->{saved_fields}) );
     $self->render($self->signup_template, {
         previous_request => $self->app->request->parameters(),
         fields => $self->merged_fields,
