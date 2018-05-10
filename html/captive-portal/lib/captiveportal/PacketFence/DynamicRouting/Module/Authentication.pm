@@ -324,6 +324,7 @@ sub prompt_fields {
         form => $self->form,
         title => defined($self->source) ? $self->source->description : $self->description,
         %{$args},
+        %saved_fields,
     });
 }
 
