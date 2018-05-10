@@ -181,6 +181,7 @@ sub validate_info {
         timeout     => normalize_time($self->source->{sms_activation_timeout}),
         source      => $self->source,
         message     => $self->app->i18n($self->source->message),
+        style       => 'digits',
     );
     my ( $status, $message ) = pf::activation::sms_activation_create_send( %args );
     unless ( $status ) {

@@ -649,8 +649,7 @@ sub sms_activation_create_send {
     my ( $success, $err ) = ( $TRUE, 0 );
     my $activation_code = create(\%args);
     if (defined($activation_code)) {
-        my @pin = split(':', $activation_code);
-        $args{'message'} =~ s/\$pin/$pin[1]/;
+        $args{'message'} =~ s/\$pin/$activation/;
         unless ($args{'source'}->sendActivationSMS($activation_code, $args{'mac'}, $args{'message'})) {
             ($success, $err) = ($FALSE, $GUEST::ERRORS{$GUEST::ERROR_CONFIRMATION_SMS});
             invalidate_codes($args{'mac'}, $args{'pid'}, $args{'pending'});
