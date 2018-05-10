@@ -47,7 +47,15 @@ has_field 'message' =>
     label => 'SMS text message ($pin will be replace by the pin number)',
     default => 'PIN: $pin',
 );
-
+has_field 'pin_code_length' =>
+  (
+   type => 'PosInteger',
+   label => 'PIN length',
+   required => 1,
+   default  => 6,
+   tags => { after_element => \&help,
+             help => 'The number of digits of the PIN number.' },
+  );
 =head1 METHODS
 
 =head2 options_sms_carriers

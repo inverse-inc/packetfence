@@ -182,6 +182,7 @@ sub validate_info {
         source      => $self->source,
         message     => $self->app->i18n($self->source->message),
         style       => 'digits',
+        code_length => $self->source->pin_code_length,
     );
     my ( $status, $message ) = pf::activation::sms_activation_create_send( %args );
     unless ( $status ) {
