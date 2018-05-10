@@ -45,6 +45,7 @@ has_field 'message' =>
 (
     type => 'TextArea',
     label => 'SMS text message ($pin will be replace by the pin number)',
+    default => 'PIN: $pin',
 );
 
 =head1 METHODS
