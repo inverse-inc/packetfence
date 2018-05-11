@@ -7,7 +7,7 @@
                   <div class="input-group-text"><icon name="search"></icon></div>
                 </div>
                 <b-form-input v-model="quickValue" type="text" :placeholder="quickPlaceholder"></b-form-input>
-                <b-button type="submit" variant="outline-primary">{{ $t('Search') }}</b-button>
+                <b-button class="ml-1" type="submit" variant="outline-primary">{{ $t('Search') }}</b-button>
               </div>
             </b-form>
             <b-form inline @submit.prevent="onSubmit" @reset.prevent="onReset" v-else>
