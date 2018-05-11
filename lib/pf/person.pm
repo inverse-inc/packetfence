@@ -68,7 +68,7 @@ our $PID_RE = qr{ [a-zA-Z0-9\-\_\.\@\/\\]+ }x;
 
 our @FIELDS = @pf::dal::_person::FIELD_NAMES;
 
-our @NON_PROMPTABLE_FIELDS = qw(pid sponsor portal source);
+our @NON_PROMPTABLE_FIELDS = qw(pid sponsor portal source tenant_id);
 
 our @PROMPTABLE_FIELDS;
 foreach my $field (@FIELDS){
