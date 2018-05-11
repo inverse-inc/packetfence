@@ -5,23 +5,30 @@
     <p class="o-media__body">We have detected that you aren't using the Safari browser. Please make sure you use Safari to complete this step.</p>
   </div>
 
+  [% is_safari = application.request.user_agent.lower().match('safari') %]
+
   [% problematic_ios = (fingerbank_info.device_fq.match('Apple mobile device') AND fingerbank_info.version.match('^11\.')) %]
 
-  [% IF problematic_ios %]
+  [% show_safari_workaround = (problematic_ios AND !is_safari) %]
+
+  [% IF show_safari_workaround %]
   <p>We have detected that you aren't using the Safari browser. On this version of Apple iOS, you need to use Safari to complete this process.</p>
   <p>In order to do so, close this window while making sure you select "Use Without Internet", and complete this process by visiting http://neverssl.com/ in your Safari browser</p>
   <img width="280" height="450" src="/content/images/exit-ios-popup.png">
+  <p>You can still attempt to install the wireless profile by clicking on the button below</p>
   [% ELSE %]
   <p>[% i18n("Your XML configuration have been generated and is now ready to download.  Follow the link below in order to get access to the secure SSID.") %]</p>
   [% END %]
 
   <div class="o-layout">
     <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
-      [% UNLESS problematic_ios %]
       <a href="/wireless-profile.mobileconfig" class="c-btn c-btn--primary u-1/1">
-        [% i18n("Install wireless profile") %]
+        [% IF show_safari_workaround %]
+          [% i18n("Install wireless profile anyway") %]
+        [% ELSE %]
+          [% i18n("Install wireless profile") %]
+        [% END %]
       </a>
-      [% END %]
 
       [% IF skipable %]
       <a href="/captive-portal?next=next" class="c-btn c-btn--tertiary u-margin-top">

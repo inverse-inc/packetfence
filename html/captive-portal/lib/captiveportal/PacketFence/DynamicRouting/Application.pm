@@ -383,6 +383,9 @@ sub _render {
     # Expose the preregistration flag in all templates
     $args->{preregistration} = $self->preregistration;
 
+    # Expose the application
+    $args->{application} = $self;
+
     my $processor = Template::AutoFilter->new($self->_template_toolkit_options($args));
 
     my $output = '';
