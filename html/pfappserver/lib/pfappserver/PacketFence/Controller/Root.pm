@@ -85,11 +85,7 @@ Attempt to render a view, if needed.
 
 sub end : ActionClass('RenderView') {
     my ( $self, $c ) = @_;
-    $c->response->header('Cache-Control' => 'no-cache, no-store');
-    if (isenabled($Config{'advanced'}{'admin_csp_security_headers'})){
-        $c->csp_server_headers();
-    }
-
+    $self->updateResponseHeaders($c);
     if (defined($c->req->header('accept')) && $c->req->header('accept') eq 'application/json') {
         $c->stash->{current_view} = 'JSON';
     }
@@ -104,6 +100,22 @@ sub end : ActionClass('RenderView') {
     }
     elsif (defined (my $status_msg = $c->stash->{status_msg})) {
         $c->stash->{status_msg} = $c->pf_localize($status_msg);
+    }
+}
+
+=head2 updateResponseHeaders
+
+updateResponseHeaders
+
+=cut
+
+sub updateResponseHeaders {
+    my ($self, $c) = @_;
+    my $response = $c->response;
+    $response->header('Cache-Control' => 'no-cache, no-store');
+    $response->header('X-Frame-Options' => 'SAMEORIGIN');
+    if (isenabled($Config{'advanced'}{'admin_csp_security_headers'})){
+        $c->csp_server_headers();
     }
 }
 
