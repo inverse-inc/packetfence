@@ -325,7 +325,7 @@ sub _build_readonly {
     my $init_object = $self->init_object;
     return undef unless defined $init_object;
     my $role = $self->init_object->{category};
-    return undef unless defined $role;
+    return undef unless defined $role && length($role) > 0;
     my %allowed_node_roles = map {$_ => undef} $self->_get_allowed_options('allowed_node_roles');
     return
         keys %allowed_node_roles == 0     ? undef
