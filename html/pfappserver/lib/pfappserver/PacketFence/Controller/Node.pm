@@ -672,7 +672,7 @@ sub _is_role_allowed {
     my %allowed_node_roles = map { $_ => undef } $self->get_allowed_options( $c, 'allowed_node_roles' );
     return
         keys %allowed_node_roles == 0     ? $TRUE
-      : !defined $role                    ? $TRUE
+      : (!defined $role || length($role) == 0) ? $TRUE
       : exists $allowed_node_roles{$role} ? $TRUE
       :                                     $FALSE;
 }
