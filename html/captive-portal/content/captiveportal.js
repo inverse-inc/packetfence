@@ -127,7 +127,7 @@ $(function() {
       var $parent = $input.parent();
       var $tmp = $('[data-template="password-button"]').first();
       if ($tmp.length === 0) return; // template not found
-      var $btn = $tmp.find('button').first();
+      var $btn = $tmp.find('.c-btn').first();
       $input.after($tmp);
       $btn.before($input);
 
