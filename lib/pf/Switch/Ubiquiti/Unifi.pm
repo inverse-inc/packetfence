@@ -135,7 +135,7 @@ sub _deauthenticateMacWithHTTP {
 
     my $command = ($node_info->{status} eq $STATUS_UNREGISTERED || violation_count_reevaluate_access($mac)) ? "unauthorize-guest" : "authorize-guest";
 
-    $command = "kick-sta" if ($node_info->{last_connection_type} ne "Web-Auth");
+    #$command = "kick-sta" if ($node_info->{last_connection_type} ne "Web-Auth");
 
     my $ua = LWP::UserAgent->new();
     $ua->cookie_jar({ file => "$var_dir/run/.ubiquiti.cookies.txt" });
@@ -162,14 +162,12 @@ sub _deauthenticateMacWithHTTP {
     my $json_data = decode_json($response->decoded_content());
 
     foreach my $entry (@{$json_data->{'data'}}) {
-        $response = $ua->get("$base_url/api/s/$entry->{'name'}/stat/sta/$mac");
+        $response = $ua->post("$base_url/api/s/$entry->{'name'}/cmd/stamgr", Content => '{"cmd":"'.$command.'", "mac":"'.$mac.'"}');
         if ($response->is_success) {
-            $site = $entry->{'name'};
+            $logger->info("Deauth on site: $entry->{'desc'}");
         }
     }
 
-    $response = $ua->post("$base_url/api/s/$site/cmd/stamgr", Content => '{"cmd":"'.$command.'", "mac":"'.$mac.'"}');
-    
     unless($response->is_success) {
         $logger->error("Can't send request on the Unifi controller: ".$response->status_line);
         return;
