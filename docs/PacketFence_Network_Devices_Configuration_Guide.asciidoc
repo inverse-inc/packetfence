@@ -3395,7 +3395,7 @@ This command configures web-based authentication on the switch and activates thi
 
 For example, if you want the users that are in the registration VLAN to only use HTTP, HTTPS, DNS and DHCP you can configure this ACL in the registration role.
 
-image::"docs/images/aruba registration ACL.png"[scaledwidth="100%",alt="Registration ACL"]
+image::docs/images/"aruba registration ACL.png"[scaledwidth="100%",alt="Registration ACL"]
 
 Now, your normal users are placed in the 'default' role and your guests in the 'guest' role.
 
