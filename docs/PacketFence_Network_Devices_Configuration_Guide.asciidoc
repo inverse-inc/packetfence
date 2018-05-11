@@ -3395,7 +3395,7 @@ This command configures web-based authentication on the switch and activates thi
 
 For example, if you want the users that are in the registration VLAN to only use HTTP, HTTPS, DNS and DHCP you can configure this ACL in the registration role.
 
-image::docs/images/cisco-downloadable-acl-reg.png[scaledwidth="100%",alt="Registration ACL"]
+image::"docs/images/aruba registration ACL.png"[scaledwidth="100%",alt="Registration ACL"]
 
 Now, your normal users are placed in the 'default' role and your guests in the 'guest' role.
 
@@ -3403,15 +3403,15 @@ The 'default' role uses the network 192.168.5.0/24 and 'guest' uses the network 
 
 You can prevent communications between both networks using these access lists
 
-image::docs/images/cisco-downloadable-acl-cross-network.png[scaledwidth="100%",alt="Cross network deny ACL"]
+image::docs/images/"Aruba acl default-guest.png"[scaledwidth="100%",alt="Cross network deny ACL"]
 
 You could also only prevent your guest users from using shared directories
 
-image::docs/images/cisco-downloadable-acl-deny-shares.png[scaledwidth="100%",alt="Deny shares ACL"]
+image::docs/images/"aruba acl guest.png"[scaledwidth="100%",alt="Deny shares ACL"]
 
 You could also restrict your users to use only your DNS server where 192.168.5.2 is your DNS server
 
-image::docs/images/cisco-downloadable-acl-force-dns.png[scaledwidth="100%",alt="Force DNS ACL"]
+image::docs/images/"aruba acl default dns.png"[scaledwidth="100%",alt="Force DNS ACL"]
 
 
 Huawei
