@@ -142,6 +142,7 @@ after view => sub {
     my ($self, $c) = @_;
     $c->stash->{node_roles} = $c->model('Config::Roles')->listFromDB();
     $c->stash->{access_durations} = [split(/\s*,\s*/, $Config{'guests_admin_registration'}{'access_duration_choices'})];
+    $c->stash->{root_modules} = [map { $_->{id} } $self->getModel($c)->configStore->search("type", "Root", "id")];
 };
 
 sub _module_as_hashref : Private {
