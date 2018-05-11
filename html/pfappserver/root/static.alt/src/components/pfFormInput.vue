@@ -1,6 +1,6 @@
 <template>
-  <b-form-group horizontal label-cols="3" :label="label"
-    :state="isValid()" :invalid-feedback="invalidFeedback">
+  <b-form-group horizontal label-cols="3" :label="$t(label)"
+    :state="isValid()" :invalid-feedback="$t(invalidFeedback)">
     <b-form-input :type="type" v-model="inputValue" @input.native="validate()"
       :state="isValid()"></b-form-input>
   </b-form-group>
