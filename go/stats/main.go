@@ -88,20 +88,23 @@ type radiustype struct{}
 
 func (s radiustype) Test(source interface{}, ctx context.Context) {
 	t := StatsdClient.NewTiming()
-	packet := radius.New(radius.CodeAccessRequest, []byte(source.(pfconfigdriver.AuthenticationSourceRadius).Secret))
+	radiusSource := source.(pfconfigdriver.AuthenticationSourceRadius)
+	sourceId := radiusSource.PfconfigHashNS
+	log.LoggerWContext(ctx).Info("Testing RADIUS source " + sourceId)
+	packet := radius.New(radius.CodeAccessRequest, []byte(radiusSource.Secret))
 	UserName_SetString(packet, "tim")
 	UserPassword_SetString(packet, "12345")
 	client := radius.DefaultClient
 	ctx, _ = context.WithTimeout(ctx, 5*time.Second)
-	response, err := client.Exchange(ctx, packet, source.(pfconfigdriver.AuthenticationSourceRadius).Host+":"+source.(pfconfigdriver.AuthenticationSourceRadius).Port)
+	response, err := client.Exchange(ctx, packet, radiusSource.Host+":"+radiusSource.Port)
 	if err != nil {
-		StatsdClient.Gauge("source."+source.(pfconfigdriver.AuthenticationSourceRadius).Type+"."+source.(pfconfigdriver.AuthenticationSourceRadius).PfconfigHashNS, 0)
+		StatsdClient.Gauge("source."+radiusSource.Type+"."+radiusSource.PfconfigHashNS, 0)
 	} else {
-		StatsdClient.Gauge("source."+source.(pfconfigdriver.AuthenticationSourceRadius).Type+"."+source.(pfconfigdriver.AuthenticationSourceRadius).PfconfigHashNS, 1)
+		StatsdClient.Gauge("source."+radiusSource.Type+"."+sourceId, 1)
 		if response.Code == radius.CodeAccessAccept {
-			fmt.Println("Accepted")
+			log.LoggerWContext(ctx).Debug(fmt.Sprintf("RADIUS test for source %s did returned an Access-Accept", sourceId))
 		} else {
-			fmt.Println("Denied")
+			log.LoggerWContext(ctx).Debug(fmt.Sprintf("RADIUS test for source %s returned a response other than an Access-Accept", sourceId))
 		}
 	}
 	t.Send("source." + source.(pfconfigdriver.AuthenticationSourceRadius).Type + "." + source.(pfconfigdriver.AuthenticationSourceRadius).PfconfigHashNS)
