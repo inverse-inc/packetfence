@@ -18,5 +18,10 @@ export default {
     return apiCall.get(`user/${userId}`).then(response => {
       return response.data.item
     })
+  },
+  updateUser: body => {
+    return apiCall.patch(`user/${body.pid}`, body).then(response => {
+      return response.data
+    })
   }
 }

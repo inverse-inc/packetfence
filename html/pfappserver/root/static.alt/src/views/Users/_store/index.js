@@ -1,6 +1,7 @@
 /**
  * "$_users" store module
  */
+import Vue from 'vue'
 import api from '../_api'
 
 const STORAGE_SEARCH_LIMIT_KEY = 'users-search-limit'
@@ -8,7 +9,8 @@ const STORAGE_SEARCH_LIMIT_KEY = 'users-search-limit'
 // Default values
 const state = {
   status: '',
-  items: [],
+  items: [], // search results
+  users: {}, // users details
   searchQuery: null,
   searchSortBy: 'pid',
   searchSortDesc: false,
@@ -54,8 +56,19 @@ const actions = {
       })
     })
   },
-  getUser: ({dispatch}, pid) => {
-    return api.user(pid)
+  getUser: ({commit, state}, pid) => {
+    return api.user(pid).then(data => {
+      commit('USER_REPLACED', data)
+      return state.users[pid]
+    })
+  },
+  updateUser: ({commit}, data) => {
+    delete data.access_duration
+    delete data.access_level
+    return api.updateUser(data).then(response => {
+      commit('USER_REPLACED', data)
+      return response
+    })
   }
 }
 
@@ -91,6 +104,10 @@ const mutations = {
     if (response && response.data) {
       state.message = response.data.message
     }
+  },
+  USER_REPLACED: (state, data) => {
+    Vue.set(state.users, data.pid, data)
+    // TODO: update items if found in it
   }
 }
 
