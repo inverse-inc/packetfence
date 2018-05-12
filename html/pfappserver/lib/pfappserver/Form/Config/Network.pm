@@ -50,6 +50,15 @@ has_field 'dhcp_max_lease_time' =>
    required_when => { 'fake_mac_enabled' => sub { $_[0] ne '1' } },
    messages => { required => 'Please specify the maximum DHCP lease time.' },
   );
+has_field 'ip_reserved' =>
+  (
+   type => 'Text',
+   label => 'IP Addresses reserved',
+   required_when => { 'fake_mac_enabled' => sub { $_[0] ne '1' } },
+   messages => { required => "Please specify the DNS server's IP address(es)." },
+   tags => { after_element => \&help,
+             help => 'Comma delimited range or IP Addresses' },
+  );
 has_field 'dns' =>
   (
    type => 'IPAddresses',
@@ -57,7 +66,19 @@ has_field 'dns' =>
    required_when => { 'fake_mac_enabled' => sub { $_[0] ne '1' } },
    messages => { required => "Please specify the DNS server's IP address(es)." },
    tags => { after_element => \&help,
-             help => 'Should match the IP of a registration interface or the production DNS server if the network is Inline L3' },
+             help => 'Should match the IP of a registration interface or the production DNS server(s) if the network is Inline L2/L3 (space delimited list of IP addresses)' },
+  );
+has_field 'force_dns' =>
+  (
+   type => 'Toggle',
+   checkbox_value => 1,
+   unchecked_value => 0,
+   default => 0,
+   required_when => { 'fake_mac_enabled' => sub { $_[0] ne '1' } },
+   label => 'Force DNS Server',
+   messages => { required => "Force the dns server above in the dhcp." },
+   tags => { after_element => \&help,
+             help => 'If enabled then the dhcp server will use the DNS server(s) defined above.If disabled then the DHCP server will calculate the correct DNS server(s) based on the configuration.' },
   );
 
 =head2 validate

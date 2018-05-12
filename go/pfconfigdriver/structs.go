@@ -279,6 +279,8 @@ type RessourseNetworkConf struct {
 	RegNetwork           string    `json:"reg_network"`
 	Dnsvip               string    `json:"dns_vip"`
 	ClusterIPs           string    `json:"cluster_ips"`
+	ForceDns             string    `json:"force_dns"`
+	IpReserved           string    `json:"ip_reserved"`
 	Interface            Interface `json:"interface"`
 }
 

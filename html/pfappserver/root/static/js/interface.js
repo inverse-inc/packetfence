@@ -96,7 +96,7 @@ InterfaceView.prototype.readInterface = function(e) {
             modal.find('.switch').bootstrapSwitch();
             modal.find('.chzn-select').chosen({width: ''});
             modal.find('.chzn-deselect').chosen({allow_single_deselect: true, width: ''});
-            modal.find('[name="dns"]').closest('.control-group').hide();
+            modal.find('[name="dns"]').closest('.control-group').show();
             modal.find('[name="dhcpd_enabled"]').closest('.control-group').hide();
             modal.find('[name="high_availability"]').closest('.control-group').hide();
             modal.find('[name="vip"]').closest('.control-group').hide();
@@ -109,6 +109,19 @@ InterfaceView.prototype.readInterface = function(e) {
                 modal.find(':input:visible').first().focus();
                 that.typeChanged();
                 that.fakeMacChanged();
+            });
+            var dns = modal.find('[name="dns"]').closest('.control-group');
+            if (modal.find('[name="force_dns"]').is(":checked")) {
+                dns.show('fast');
+            } else {
+                dns.hide('fast');
+            }
+            modal.find('[name="force_dns"]').change(function(){
+                if (this.checked) {
+                    dns.show('fast');
+                } else {
+                    dns.hide('fast');
+                }
             });
         },
         errorSibling: section.find('h2').first()
@@ -255,7 +268,6 @@ InterfaceView.prototype.typeChanged = function(e) {
         if (type.length) {
             var fake_mac = modal.find('[name="fake_mac_enabled"]').closest('.control-group');
             var nat = modal.find('[name="nat_enabled"]').closest('.control-group');
-
             switch ( type.val() ) {
                 case 'inlinel3':
                     fake_mac.show('fast');
