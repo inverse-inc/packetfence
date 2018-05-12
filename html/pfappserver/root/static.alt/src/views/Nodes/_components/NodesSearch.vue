@@ -9,12 +9,58 @@
     <div class="card-body">
       <b-row align-h="between" align-v="center">
         <b-col cols="auto" class="mr-auto">
+
+          <b-dropdown size="sm" variant="link" :disabled="isLoading || checkedRows.length === 0" no-caret>
+            <template slot="button-content">
+              <icon name="cogs" v-b-tooltip.hover.right :title="$t('Actions')"></icon>
+            </template>
+            
+  
+            <b-dropdown-item>
+              <icon class="position-absolute mt-1" name="ban"></icon>
+              <span class="ml-4">{{ $t('Clear Violation') }}</span>
+            </b-dropdown-item>
+            <b-dropdown-item>
+              <icon class="position-absolute mt-1" name="plus-circle"></icon>
+              <span class="ml-4">{{ $t('Register') }}</span>
+            </b-dropdown-item>
+            <b-dropdown-item>
+              <icon class="position-absolute mt-1" name="minus-circle"></icon>
+              <span class="ml-4">{{ $t('Deregister') }}</span>
+            </b-dropdown-item>
+            <b-dropdown-item>
+              <icon class="position-absolute mt-1" name="sync"></icon>
+              <span class="ml-4">{{ $t('Revaluate Access') }}</span>
+            </b-dropdown-item>
+            <b-dropdown-item>
+              <icon class="position-absolute mt-1" name="retweet"></icon>
+              <span class="ml-4">{{ $t('Restart Switchport') }}</span>
+            </b-dropdown-item>
+            <b-dropdown-divider></b-dropdown-divider>
+            <b-dropdown-header id="header1">{{ $t('Apply Role') }}</b-dropdown-header>
+            <b-dropdown-item-button aria-describedby="header1">Add</b-dropdown-item-button>
+            <b-dropdown-item-button aria-describedby="header1">Delete</b-dropdown-item-button>
+            <b-dropdown-divider></b-dropdown-divider>
+            <b-dropdown-header id="header2">{{ $t('Apply Bypass Role') }}</b-dropdown-header>
+            <b-dropdown-item-button aria-describedby="header2">Add</b-dropdown-item-button>
+            <b-dropdown-item-button aria-describedby="header2">Delete</b-dropdown-item-button>
+            <b-dropdown-divider></b-dropdown-divider>
+            <b-dropdown-header id="header2">{{ $t('Apply Violation') }}</b-dropdown-header>
+            <b-dropdown-item-button aria-describedby="header2">Add</b-dropdown-item-button>
+            <b-dropdown-item-button aria-describedby="header2">Delete</b-dropdown-item-button>
+
+  
+            
+            
+          </b-dropdown>
+
           <b-dropdown size="sm" variant="link" :disabled="isLoading" no-caret>
             <template slot="button-content">
               <icon name="columns" v-b-tooltip.hover.right :title="$t('Visible Columns')"></icon>
             </template>
-            <b-dropdown-item v-for="column in columns" :key="column.key" @click="toggleColumn(column)">
-              <icon class="position-absolute mt-1" name="check" v-show="column.visible"></icon>
+            <b-dropdown-item v-for="column in columns" :key="column.key" @click="toggleColumn(column)" :disabled="column.locked">
+              <icon class="position-absolute mt-1" name="thumbtack" v-show="column.visible" v-if="column.locked"></icon>
+              <icon class="position-absolute mt-1" name="check" v-show="column.visible" v-else></icon>
               <span class="ml-4">{{column.label}}</span>
             </b-dropdown-item>
           </b-dropdown>
@@ -33,7 +79,7 @@
         </b-col>
       </b-row>
       <b-table stacked="sm" :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc"
-        @sort-changed="onSortingChanged" @row-clicked="onRowClick" hover no-local-sorting v-model="tableValues" @head-clicked="clearChecked">
+        @sort-changed="onSortingChanged" @row-clicked="onRowClick" @head-clicked="clearChecked" hover no-local-sorting v-model="tableValues">
         <template slot="HEAD_actions" slot-scope="head">
           <input type="checkbox" v-model="checkedAll" @change="onCheckedAllChange" @click.stop>
         </template>
@@ -117,9 +163,10 @@ export default {
       columns: [
         {
           key: 'actions',
-          label: '',
+          label: this.$i18n.t('Actions'),
           sortable: false,
           visible: true,
+          locked: true,
           formatter: (value, key, item) => {
             return item.mac
           }
