@@ -218,6 +218,16 @@ func (d *Interfaces) readConfig() {
 							DHCPScope.xid = xid
 
 							initiaLease(&DHCPScope)
+
+							// To-Do: send the excluded ip addresses in initialease
+							excludeIPs := IPsFromRange(ConfNet.IpReserved)
+							for _, excludeIP := range excludeIPs {
+								// Calculate the position for the roaring bitmap
+								position := uint32(binary.BigEndian.Uint32(excludeIP.To4())) - uint32(binary.BigEndian.Uint32(DHCPScope.start.To4()))
+
+								// Remove the position in the roaming bitmap
+								DHCPScope.available.Remove(position)
+							}
 							var options = make(map[dhcp.OptionCode][]byte)
 
 							options[dhcp.OptionSubnetMask] = []byte(DHCPNet.network.Mask)

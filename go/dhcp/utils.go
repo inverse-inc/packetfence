@@ -11,6 +11,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/database"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
 
 type NodeInfo struct {
@@ -238,4 +239,29 @@ func ShuffleIP(a []byte, randSrc int64) (r []byte) {
 		_, a = a[0], a[4:]
 	}
 	return ShuffleNetIP(array, randSrc)
+}
+
+func IPsFromRange(ip_range string) (r []net.IP) {
+	var iplist []net.IP
+	iprange := strings.Split(ip_range, ",")
+	if len(iprange) >= 1 {
+		for _, rangeip := range iprange {
+			ips := strings.Split(rangeip, "-")
+			if len(ips) == 1 {
+				iplist = append(iplist, net.ParseIP(ips[0]))
+			} else {
+				start := net.ParseIP(ips[0])
+				end := net.ParseIP(ips[1])
+
+				for {
+					iplist = append(iplist, net.ParseIP(start.String()))
+					if start.Equal(end) {
+						break
+					}
+					sharedutils.Inc(start)
+				}
+			}
+		}
+	}
+	return iplist
 }
