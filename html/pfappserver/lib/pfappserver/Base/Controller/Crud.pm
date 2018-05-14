@@ -69,6 +69,12 @@ sub _processCreatePost {
         );
         ($status, $status_msg) = $model->create($id, $item);
         $self->audit_current_action($c, status => $status);
+        if (is_error($status)) {
+            $c->log->error($status_msg);
+            $status_msg = 'Invalid Input';
+        } else {
+            $status_msg = 'Success';
+        }
     }
     $c->response->status($status);
     $c->stash->{status_msg} = $status_msg;
@@ -84,7 +90,8 @@ sub _setup_object {
     my ($status, $item) = $model->read($id);
     if ( is_error($status) ) {
         $c->response->status($status);
-        $c->stash->{status_msg} = $item;
+        $c->stash->{status_msg} = "Invalid Input";
+        $c->log->error($item);
         $c->stash->{current_view} = 'JSON';
         $c->detach();
     }
@@ -142,6 +149,13 @@ sub update :Chained('object') :PathPart :Args(0) {
             );
             $status_msg .= " and $rename_status_msg";
         }
+
+        if (is_error($status)) {
+            $c->log->error($status_msg);
+            $status_msg = 'Invalid Input';
+        } else {
+            $status_msg = 'Success';
+        }
     }
 
     $c->response->status($status);
@@ -166,6 +180,14 @@ sub rename_item :Chained('object') :PathPart :Args(1) {
         $status = HTTP_BAD_REQUEST;
         $status_msg = "cannot renamed $current_id to itself";
     }
+
+    if (is_error($status)) {
+        $c->log->error($status_msg);
+        $status_msg = 'invalid input';
+    } else {
+        $status_msg = 'success';
+    }
+
     $c->response->status($status);
     $c->stash(
         status_msg => $status_msg,
@@ -183,9 +205,16 @@ sub remove :Chained('object') :PathPart('delete'): Args(0) {
     my $model = $self->getModel($c);
     my $idKey = $model->idKey;
     my $itemKey = $model->itemKey;
-    my ($status,$result) = $self->getModel($c)->remove($c->stash->{$idKey},$c->stash->{$itemKey});
+    my ($status, $status_msg) = $self->getModel($c)->remove($c->stash->{$idKey},$c->stash->{$itemKey});
+    if (is_error($status)) {
+        $c->log->error($status_msg);
+        $status_msg = 'Invalid Input';
+    } else {
+        $status_msg = 'Success';
+    }
+
     $c->stash(
-        status_msg   => $result,
+        status_msg   => $status_msg,
         current_view => 'JSON',
     );
     $self->audit_current_action($c, status => $status);

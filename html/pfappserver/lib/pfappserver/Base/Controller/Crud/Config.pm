@@ -35,6 +35,12 @@ sub sort_items : Local: Args(0) {
     my $items = $params_handler->expand_hash($c->request->params);
     my $itemsKey = $model->itemsKey;
     my ($status,$status_msg) = $model->sortItems($items->{$itemsKey});
+    if (is_error($status)) {
+        $c->log->error($status_msg);
+        $status_msg = 'Invalid Input';
+    } else {
+        $status_msg = 'Success';
+    }
     $self->audit_current_action($c, status => $status);
     $c->stash(
         current_view => 'JSON',
@@ -63,13 +69,17 @@ sub _commitChanges {
     my $logger = get_logger();
     my $model = $self->getModel($c);
     my ($status,$status_msg) = $model->commit();
-    if(is_error($status)) {
+    if (is_error($status)) {
+        $c->log->error($status_msg);
+        $status_msg = 'Invalid Input';
         $c->stash(
             current_view => 'JSON',
             status_msg => $status_msg,
         );
+    } else {
+        $status_msg = 'Success';
     }
-    $logger->info($status_msg);
+
     $c->response->status($status);
 }
 
