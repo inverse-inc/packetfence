@@ -17,10 +17,6 @@ use warnings;
 
 our @SyslogInfo = (
     {
-        'name'       => 'collectd.log',
-        'conditions' => [ '$programname == "collectd"' ]
-    },
-    {
         'name'       => 'fingerbank.log',
         'conditions' => [ '$syslogtag contains "fingerbank"' ]
     },
@@ -55,14 +51,6 @@ our @SyslogInfo = (
     {
         'name'       => 'httpd.collector.log',
         'conditions' => [ '$syslogtag contains "httpd_collector"' ]
-    },
-    {
-        'name'       => 'httpd.graphite.error',
-        'conditions' => [ '$syslogtag contains "httpd_graphite_err"' ]
-    },
-    {
-        'name'       => 'httpd.graphite.access',
-        'conditions' => [ '$syslogtag contains "httpd_graphite"' ]
     },
     {
         'name'       => 'httpd.parking.error',
@@ -103,6 +91,10 @@ our @SyslogInfo = (
     {
         'name'      => 'api-frontend.access',
         'conditions' => [ '$msg contains "api-frontend-access"' ],
+    },
+    {
+        'name'       => 'pfstats.log',
+        'conditions' => [ '$programname == "pfstats"' ]
     },
     {
         'name'       => 'packetfence.log',

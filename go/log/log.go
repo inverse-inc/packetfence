@@ -29,6 +29,11 @@ type LoggerStruct struct {
 	processPid string
 }
 
+// Set the ProcessName
+func SetProcessName(Name string) {
+	ProcessName = Name
+}
+
 // Create a new logger from an existing one with the same confiuration
 func (l LoggerStruct) NewLogger() LoggerStruct {
 	new := LoggerStruct{}
