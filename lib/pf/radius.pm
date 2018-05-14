@@ -258,6 +258,7 @@ sub authorize {
         if (is_error($status)) {
             $logger->error("auto-registration of node failed $status_msg");
             $do_auto_reg = 0;
+	    $args->{'node_info'}->{'category'} = 'REJECT';
         }
     }
 

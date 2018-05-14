@@ -29,3 +29,4 @@ access_registration_when_registered=disabled
 device_registration=
 dpsk=disabled
 status=enabled
+unreg_on_acct_stop=disabled
