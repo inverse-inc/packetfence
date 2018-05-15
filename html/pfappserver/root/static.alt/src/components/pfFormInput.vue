@@ -3,6 +3,7 @@
     :state="isValid()" :invalid-feedback="$t(invalidFeedback)">
     <b-form-input :type="type" v-model="inputValue" @input.native="validate()"
       :state="isValid()"></b-form-input>
+    <b-form-text v-if="text" v-t="text"></b-form-text>
   </b-form-group>
 </template>
 
@@ -24,6 +25,10 @@ export default {
     },
     validation: {
       type: Object,
+      default: null
+    },
+    text: {
+      type: String,
       default: null
     },
     invalidFeedback: {
