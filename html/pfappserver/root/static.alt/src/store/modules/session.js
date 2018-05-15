@@ -69,7 +69,7 @@ const actions = {
           let target = ''
           for (const currentAction of ADMIN_ROLES_ACTIONS) {
             if (role.toLowerCase().endsWith(currentAction)) {
-              action = currentAction
+              action = currentAction.replace(/_/g, '-')
               target = role.substring(0, role.length - action.length - 1).toLowerCase()
               break
             }
