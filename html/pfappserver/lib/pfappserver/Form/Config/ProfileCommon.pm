@@ -40,7 +40,7 @@ The main definition block
 
 has_block 'definition' =>
   (
-    render_list => [qw(id description root_module preregistration autoregister reuse_dot1x_credentials dot1x_recompute_role_from_portal)],
+    render_list => [qw(id description root_module preregistration autoregister reuse_dot1x_credentials dot1x_recompute_role_from_portal ipsk)],
   );
 
 =head2 captive_portal
@@ -197,6 +197,23 @@ has_field 'autoregister' =>
    unchecked_value => 'disabled',
    tags => { after_element => \&help,
              help => 'This activates automatic registation of devices for the profile. Devices will not be shown a captive portal and RADIUS authentication credentials will be used to register the device. This option only makes sense in the context of an 802.1x authentication.' },
+  );
+
+=head2 ipsk
+
+Controls whether or not this connection profile to enabled ipsk
+
+=cut
+
+has_field 'ipsk' =>
+  (
+   type => 'Toggle',
+   label => 'Enable or not ipsk',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   default => 'disabled',
+   tags => { after_element => \&help,
+             help => 'This activates ipsk feature on this connection profile. It mean that radius will answer specific attributes like the psk key to use to connect on the SSID.' },
   );
 
 =head2 sources

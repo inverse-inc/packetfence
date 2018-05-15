@@ -609,6 +609,17 @@ sub canAccessRegistrationWhenRegistered {
     return isenabled($self->{_access_registration_when_registered});
 }
 
+=item ipskEnabled
+
+Is ipsk is enable or not on this connection profile
+
+=cut
+
+sub ipskEnabled {
+    my ($self) = @_;
+    return $self->{'_ipsk'};
+}
+
 =back
 
 =head1 AUTHOR
