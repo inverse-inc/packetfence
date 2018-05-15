@@ -9,34 +9,9 @@ import (
 	_ "github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"os"
 	"os/signal"
-	"strings"
 	"sync"
 	"syscall"
 )
-
-var ISENABLED = map[string]bool{
-	"enabled": true,
-	"enable":  true,
-	"yes":     true,
-	"y":       true,
-	"true":    true,
-	"1":       true,
-
-	"disabled": false,
-	"disable":  false,
-	"false":    false,
-	"no":       false,
-	"n":        false,
-	"0":        false,
-}
-
-func IsEnabled(enabled string) bool {
-	if e, found := ISENABLED[strings.TrimSpace(enabled)]; found {
-		return e
-	}
-
-	return false
-}
 
 type RunnerConfig struct {
 	DetectType string

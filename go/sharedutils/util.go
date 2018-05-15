@@ -19,6 +19,30 @@ import (
 	"github.com/kr/pretty"
 )
 
+var ISENABLED = map[string]bool{
+	"enabled": true,
+	"enable":  true,
+	"yes":     true,
+	"y":       true,
+	"true":    true,
+	"1":       true,
+
+	"disabled": false,
+	"disable":  false,
+	"false":    false,
+	"no":       false,
+	"n":        false,
+	"0":        false,
+}
+
+func IsEnabled(enabled string) bool {
+	if e, found := ISENABLED[strings.TrimSpace(enabled)]; found {
+		return e
+	}
+
+	return false
+}
+
 func UcFirst(str string) string {
 	for i, v := range str {
 		return string(unicode.ToUpper(v)) + str[i+1:]
