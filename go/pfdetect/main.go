@@ -4,14 +4,13 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"sync"
-	//"github.com/davecgh/go-spew/spew"
 	"github.com/inverse-inc/packetfence/go/detect/parser"
+	"github.com/inverse-inc/packetfence/go/log"
 	_ "github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	//"log"
 	"os"
 	"os/signal"
 	"strings"
+	"sync"
 	"syscall"
 )
 
@@ -170,6 +169,7 @@ func (s *Server) Run() int {
 }
 
 func main() {
+	log.SetProcessName("pfdetect")
 	server := NewServer()
 	runner, err := NewParseRunner("snort", "/usr/local/pf/logs/pfdetect.log", nil)
 	if err != err {
