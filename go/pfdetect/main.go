@@ -51,7 +51,10 @@ type ParseRunner struct {
 }
 
 func (r *ParseRunner) Run() {
-	r.WatchLog()
+	err := r.WatchLog()
+	if err != nil {
+		fmt.Printf("%s\n", err)
+	}
 }
 
 func NewParseRunner(parserType, path string, config interface{}) (*ParseRunner, error) {
@@ -74,52 +77,116 @@ func NewParseRunner(parserType, path string, config interface{}) (*ParseRunner, 
 }
 
 func (r *ParseRunner) Stop() {
+	fmt.Printf("Stopping runner %s\n", r.PipePath)
 	r.File.Close()
 	r.StopChan <- struct{}{}
 }
 
-var runners []*ParseRunner
+type Server struct {
+	Runners         []*ParseRunner
+	SignalChan      chan os.Signal
+	WaitGroup       *sync.WaitGroup
+	OnceSignalSetup *sync.Once
+	Count           int
+}
 
-var wg = &sync.WaitGroup{}
+func (s *Server) AddWait(n int) {
+	s.Count += n
+	s.WaitGroup.Add(n)
+}
 
-func setupSignals() {
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, syscall.SIGTERM, syscall.SIGINT)
-	wg.Add(1)
-	go func() {
-		<-c
-		wg.Done()
-	}()
-	for _, runner := range runners {
-		runner.Stop()
+func (s *Server) Wait() {
+	s.WaitGroup.Wait()
+}
+
+func (s *Server) Done() {
+	s.Count--
+	s.WaitGroup.Done()
+}
+
+func NewServer() *Server {
+	return &Server{
+		SignalChan:      make(chan os.Signal, 1),
+		WaitGroup:       &sync.WaitGroup{},
+		OnceSignalSetup: &sync.Once{},
 	}
 }
 
-func main() {
-	p, err := NewParseRunner("snort", "/usr/local/pf/logs/pfdetect.log", nil)
-	if err != err {
-		fmt.Print(err)
-	} else {
-		runners = append(runners, p)
-	}
+func (s *Server) AddRunner(runner *ParseRunner) {
+	s.Runners = append(s.Runners, runner)
+}
 
-	for _, runner := range runners {
+func (s *Server) StopRunners() {
+	fmt.Printf("Stopping runners\n")
+	for _, runner := range s.Runners {
+		runner.Stop()
+	}
+	s.Runners = s.Runners[0:0]
+}
+
+func (s *Server) ReloadConfig() {
+}
+
+func (s *Server) SetupSignals() {
+	s.OnceSignalSetup.Do(func() {
+		signal.Notify(s.SignalChan, syscall.SIGTERM, syscall.SIGINT, syscall.SIGHUP)
+		wg := &sync.WaitGroup{}
 		wg.Add(1)
+		s.AddWait(1)
 		go func() {
-			defer wg.Done()
+			wg.Done()
+			for {
+				sig := <-s.SignalChan
+				if sig != syscall.SIGHUP {
+					s.Done()
+					fmt.Printf("Got signal %d\n", sig)
+					break
+				}
+				s.ReloadConfig()
+			}
+			s.StopRunners()
+		}()
+		wg.Wait()
+		fmt.Printf("Done signal setup\n")
+	})
+}
+
+func (s *Server) RunRunners() {
+	for _, runner := range s.Runners {
+		s.AddWait(1)
+		go func() {
+			defer s.Done()
 			runner.Run()
 		}()
 	}
-	setupSignals()
+	fmt.Printf("Ran runners %d\n", s.Count-1)
+}
 
-	wg.Wait()
+func (s *Server) Run() int {
+	s.SetupSignals()
+	s.RunRunners()
+	s.Wait()
+	return 0
+}
+
+func main() {
+	server := NewServer()
+	runner, err := NewParseRunner("snort", "/usr/local/pf/logs/pfdetect.log", nil)
+	if err != err {
+		fmt.Print(err)
+	} else {
+		server.AddRunner(runner)
+	}
+
+	os.Exit(server.Run())
 }
 
 func (r *ParseRunner) WatchLog() error {
 	detectParser := r.Parser
 	reader := bufio.NewReader(r.File)
 	buff := bytes.Buffer{}
-	var err error = nil
+	var err error
+
 LOOP:
 	for {
 		select {
@@ -130,12 +197,13 @@ LOOP:
 			var isPrefix bool
 			line, isPrefix, err = reader.ReadLine()
 			if err != nil {
-				break
+				break LOOP
 			}
 
 			buff.Write(line)
 			if isPrefix == false {
 				data := buff.String()
+				fmt.Printf("%s\n", data)
 				buff.Reset()
 				calls, perr := detectParser.Parse(data)
 				if perr != nil {
@@ -151,6 +219,7 @@ LOOP:
 			}
 		}
 	}
+	fmt.Printf("Stopping reading %s\n", r.PipePath)
 
 	return err
 }
