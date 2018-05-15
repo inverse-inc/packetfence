@@ -4,14 +4,40 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
-	"github.com/inverse-inc/packetfence/go/caddy/caddy"
+	"sync"
+	//"github.com/davecgh/go-spew/spew"
 	"github.com/inverse-inc/packetfence/go/detect/parser"
 	_ "github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"log"
+	//"log"
 	"os"
+	"os/signal"
+	"strings"
 	"syscall"
 )
+
+var ISENABLED = map[string]bool{
+	"enabled": true,
+	"enable":  true,
+	"yes":     true,
+	"y":       true,
+	"true":    true,
+	"1":       true,
+
+	"disabled": false,
+	"disable":  false,
+	"false":    false,
+	"no":       false,
+	"n":        false,
+	"0":        false,
+}
+
+func IsEnabled(enabled string) bool {
+	if e, found := ISENABLED[strings.TrimSpace(enabled)]; found {
+		return e
+	}
+
+	return false
+}
 
 type RunnerConfig struct {
 	DetectType string
@@ -26,7 +52,6 @@ type ParseRunner struct {
 
 func (r *ParseRunner) Run() {
 	r.WatchLog()
-	r.File.Close()
 }
 
 func NewParseRunner(parserType, path string, config interface{}) (*ParseRunner, error) {
@@ -49,35 +74,45 @@ func NewParseRunner(parserType, path string, config interface{}) (*ParseRunner, 
 }
 
 func (r *ParseRunner) Stop() {
+	r.File.Close()
 	r.StopChan <- struct{}{}
 }
 
-func old_main() {
-	p, err := NewParseRunner("snort", "/usr/local/pf/logs/pfdetect.log", nil)
-	if err != err {
-		fmt.Print(err)
-	} else {
-		p.Run()
+var runners []*ParseRunner
+
+var wg = &sync.WaitGroup{}
+
+func setupSignals() {
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, syscall.SIGTERM, syscall.SIGINT)
+	wg.Add(1)
+	go func() {
+		<-c
+		wg.Done()
+	}()
+	for _, runner := range runners {
+		runner.Stop()
 	}
 }
 
 func main() {
-	caddy.AppName = "Sprocketplus"
-	caddy.AppVersion = "1.2.3"
-
-	// load caddyfile
-	caddyfile, err := caddy.LoadCaddyfile("pfdetect")
-	if err != nil {
-		log.Fatal(err)
+	p, err := NewParseRunner("snort", "/usr/local/pf/logs/pfdetect.log", nil)
+	if err != err {
+		fmt.Print(err)
+	} else {
+		runners = append(runners, p)
 	}
-	// start caddy server
-	instance, err := caddy.Start(caddyfile)
-	if err != nil {
-		log.Fatal(err)
-	}
-	spew.Printf("%#v\n", instance)
 
-	instance.Wait()
+	for _, runner := range runners {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			runner.Run()
+		}()
+	}
+	setupSignals()
+
+	wg.Wait()
 }
 
 func (r *ParseRunner) WatchLog() error {
@@ -85,10 +120,11 @@ func (r *ParseRunner) WatchLog() error {
 	reader := bufio.NewReader(r.File)
 	buff := bytes.Buffer{}
 	var err error = nil
+LOOP:
 	for {
 		select {
 		case <-r.StopChan:
-			break
+			break LOOP
 		default:
 			var line []byte
 			var isPrefix bool
@@ -100,7 +136,6 @@ func (r *ParseRunner) WatchLog() error {
 			buff.Write(line)
 			if isPrefix == false {
 				data := buff.String()
-				fmt.Println(data)
 				buff.Reset()
 				calls, perr := detectParser.Parse(data)
 				if perr != nil {
@@ -116,5 +151,6 @@ func (r *ParseRunner) WatchLog() error {
 			}
 		}
 	}
+
 	return err
 }
