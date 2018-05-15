@@ -68,6 +68,7 @@ BEGIN {
         custom_field_9
         portal
         source
+        ipsk
     );
 
     %DEFAULTS = (
@@ -103,6 +104,7 @@ BEGIN {
         custom_field_9 => undef,
         portal => undef,
         source => undef,
+        ipsk => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -138,6 +140,7 @@ BEGIN {
         custom_field_9
         portal
         source
+        ipsk
     );
 
     %FIELDS_META = (
@@ -333,6 +336,12 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        ipsk => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 1,
+            is_nullable => 0,
+        },
     );
 
     @PRIMARY_KEYS = qw(
@@ -373,6 +382,7 @@ BEGIN {
         person.custom_field_9
         person.portal
         person.source
+        person.ipsk
     );
 
 }

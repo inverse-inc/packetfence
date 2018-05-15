@@ -272,6 +272,12 @@ has_field 'custom_field_9' =>
    label => 'custom_field_9',
   );
 
+has_field 'ipsk' =>
+  (
+   type => 'Text',
+   Label => 'IPSK key',
+  );
+
 =head2 Blocks
 
 =over
@@ -289,7 +295,7 @@ has_block 'user' =>
 
 has_block 'miscellaneous' =>
   (
-   render_list => [qw(anniversary birthday gender lang nickname organization cell_phone work_phone title building_number apartment_number room_number)]
+   render_list => [qw(anniversary birthday gender lang nickname organization cell_phone work_phone title building_number apartment_number room_number ipsk)]
   );
 
 has_block 'custom_fields' =>
