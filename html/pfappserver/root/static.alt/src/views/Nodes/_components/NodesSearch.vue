@@ -14,46 +14,42 @@
             <template slot="button-content">
               <icon name="cogs" v-b-tooltip.hover.right :title="$t('Actions')"></icon>
             </template>
-            
-  
-            <b-dropdown-item>
+            <b-dropdown-item @click="applyClearViolation()">
               <icon class="position-absolute mt-1" name="ban"></icon>
               <span class="ml-4">{{ $t('Clear Violation') }}</span>
             </b-dropdown-item>
-            <b-dropdown-item>
+            <b-dropdown-item @click="applyRegister()">
               <icon class="position-absolute mt-1" name="plus-circle"></icon>
               <span class="ml-4">{{ $t('Register') }}</span>
             </b-dropdown-item>
-            <b-dropdown-item>
+            <b-dropdown-item @click="applyDeregister()">
               <icon class="position-absolute mt-1" name="minus-circle"></icon>
               <span class="ml-4">{{ $t('Deregister') }}</span>
             </b-dropdown-item>
-            <b-dropdown-item>
+            <b-dropdown-item @click="applyReevaluateAccess()">
               <icon class="position-absolute mt-1" name="sync"></icon>
               <span class="ml-4">{{ $t('Revaluate Access') }}</span>
             </b-dropdown-item>
-            <b-dropdown-item>
+            <b-dropdown-item @click="applyRestartSwitchport()">
               <icon class="position-absolute mt-1" name="retweet"></icon>
               <span class="ml-4">{{ $t('Restart Switchport') }}</span>
             </b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-header id="header1">{{ $t('Apply Role') }}</b-dropdown-header>
-            <b-dropdown-item-button aria-describedby="header1">Add</b-dropdown-item-button>
-            <b-dropdown-item-button aria-describedby="header1">Delete</b-dropdown-item-button>
+            <b-dropdown-item v-for="role in roles" :key="role.id" @click="applyRole(role)">
+              <span>{{role.id}}</span>
+            </b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-header id="header2">{{ $t('Apply Bypass Role') }}</b-dropdown-header>
-            <b-dropdown-item-button aria-describedby="header2">Add</b-dropdown-item-button>
-            <b-dropdown-item-button aria-describedby="header2">Delete</b-dropdown-item-button>
+            <b-dropdown-item v-for="role in roles" :key="role.id" @click="applyBypassRole(role)">
+              <span>{{role.id}}</span>
+            </b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-header id="header2">{{ $t('Apply Violation') }}</b-dropdown-header>
-            <b-dropdown-item-button aria-describedby="header2">Add</b-dropdown-item-button>
-            <b-dropdown-item-button aria-describedby="header2">Delete</b-dropdown-item-button>
-
-  
-            
-            
+            <b-dropdown-item v-for="violation in violations" v-if="violation.enabled ==='Y'" :key="violation.id" @click="applyViolation(violation)">
+              <span :title="violation.id">{{violation.desc}}</span>
+            </b-dropdown-item>
           </b-dropdown>
-
           <b-dropdown size="sm" variant="link" :disabled="isLoading" no-caret>
             <template slot="button-content">
               <icon name="columns" v-b-tooltip.hover.right :title="$t('Visible Columns')"></icon>
@@ -412,6 +408,12 @@ export default {
     },
     totalRows () {
       return this.$store.state.$_nodes.searchMaxPageNumber * this.pageSizeLimit
+    },
+    roles () {
+      return this.$store.state.config.roles
+    },
+    violations () {
+      return this.$store.getters['config/sortedViolations']
     }
   },
   methods: {
@@ -466,6 +468,30 @@ export default {
     clearChecked () {
       this.checkedAll = false
       this.checkedRows = []
+    },
+    applyClearViolation () {
+      console.log(['applyClearViolation', this.checkedRows])
+    },
+    applyRegister () {
+      console.log(['applyRegister', this.checkedRows])
+    },
+    applyDeregister () {
+      console.log(['applyDeregister', this.checkedRows])
+    },
+    applyReevaluateAccess () {
+      console.log(['applyReevaluateAccess', this.checkedRows])
+    },
+    applyRestartSwitchport () {
+      console.log(['applyRestartSwitchport', this.checkedRows])
+    },
+    applyRole (role) {
+      console.log(['applyRole', role, this.checkedRows])
+    },
+    applyBypassRole (role) {
+      console.log(['applyBypassRole', role, this.checkedRows])
+    },
+    applyViolation (violation) {
+      console.log(['applyViolation', violation, this.checkedRows])
     }
   },
   watch: {
@@ -489,6 +515,7 @@ export default {
     this.$store.dispatch('$_nodes/search', this.requestPage)
     if (this.$store.state.config.roles.length === 0) {
       this.$store.dispatch('config/getRoles')
+      this.$store.dispatch('config/getViolations')
       this.pageSizeLimit = this.$store.state.$_nodes.searchPageSize
       // Restore search parameters
       this.condition = this.$store.state.$_nodes.searchQuery
