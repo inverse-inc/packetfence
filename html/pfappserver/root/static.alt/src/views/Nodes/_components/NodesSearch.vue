@@ -47,7 +47,8 @@
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-header id="header2">{{ $t('Apply Violation') }}</b-dropdown-header>
             <b-dropdown-item v-for="violation in violations" v-if="violation.enabled ==='Y'" :key="violation.id" @click="applyViolation(violation)">
-              <span :title="violation.id">{{violation.desc}}</span>
+              <span :id="violation.id" :title="violation.id">{{violation.desc}}</span>
+              <b-tooltip :target="violation.id" placement="left">{{violation.id}}</b-tooltip>
             </b-dropdown-item>
           </b-dropdown>
           <b-dropdown size="sm" variant="link" :disabled="isLoading" no-caret>
