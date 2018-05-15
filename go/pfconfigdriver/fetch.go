@@ -230,7 +230,7 @@ func IsValid(ctx context.Context, o PfconfigObject) bool {
 	stat, err := os.Stat(controlFile)
 
 	if err != nil {
-		log.LoggerWContext(ctx).Error(fmt.Sprintf("Cannot stat %s. Will consider resource as invalid"))
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("Cannot stat %s. Will consider resource as invalid", controlFile))
 		return false
 	} else {
 		controlTime := stat.ModTime()

@@ -32,7 +32,7 @@ func TestHttp(t *testing.T) {
 	}
 
 	if w.Code != http.StatusInternalServerError {
-		t.Error("Response code is invalid when Http recovers a panic. Should give %d but gave %d", http.StatusInternalServerError, w.Code)
+		t.Errorf("Response code is invalid when Http recovers a panic. Should give %d but gave %d", http.StatusInternalServerError, w.Code)
 	}
 
 }

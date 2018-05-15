@@ -218,7 +218,7 @@ func (tam *TokenAuthorizationMiddleware) isAuthorizedAdminRoles(ctx context.Cont
 	suffix := methodSuffixMap[method]
 
 	if suffix == "" {
-		msg := fmt.Sprintf("Impossible to find admin role suffix for unknown method %s")
+		msg := fmt.Sprintf("Impossible to find admin role suffix for unknown method %s", method)
 		log.LoggerWContext(ctx).Warn(msg)
 		return false, errors.New(msg)
 	}
