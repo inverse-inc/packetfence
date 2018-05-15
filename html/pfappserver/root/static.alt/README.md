@@ -17,6 +17,13 @@ npm run build
 
 CSP must be disabled.
 
+Make sure the following services are running:
+
+* packetfence-netdata
+* packetfence-pfperl-api
+* packetfence-api-frontend
+* packetfence-httpd.admin
+
 Since this is a SPA (Single-Page Application), it is currently accessible from `https://<hostname>:1443/admin/alt`.
 
 ## Vue.js libraries
@@ -55,4 +62,40 @@ Since this is a SPA (Single-Page Application), it is currently accessible from `
 │   └── ...
 └── styles               # imports and modifications of the official Bootstrap Sass
 │   └── ...
+```
+
+## Cheatsheet
+
+### Localization
+
+To set the content of a component to a localized string:
+
+```html
+<b-button v-t="'Save'"></b-button>
+```
+
+To localize a property:
+
+```html
+<b-tab :title="$t('Profile')"></b-tab>
+```
+
+### User Access Control
+
+Test a rule on a component:
+
+```html
+v-can:read="'auditing'"
+```
+
+Test on collection of subjects:
+
+```html
+v-can:access.some="[['reports', 'services']]"
+```
+
+The actions use dashes, the subjects use underscores:
+
+```html
+v-can:create-overwrite="'connection_profiles'"
 ```
