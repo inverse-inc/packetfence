@@ -128,10 +128,10 @@ func (s *Server) SetupSignals() {
 func (s *Server) RunRunners() {
 	for _, runner := range s.Runners {
 		s.AddWait(1)
-		go func() {
+		go func(runner *ParseRunner) {
 			defer s.Done()
 			runner.Run()
-		}()
+		}(runner)
 	}
 	fmt.Printf("Ran runners %d\n", s.Count-1)
 }
@@ -147,7 +147,7 @@ func main() {
 	log.SetProcessName("pfdetect")
 	server := NewServer()
 	runner, err := NewParseRunner("snort", "/usr/local/pf/logs/pfdetect.log", nil)
-	if err != err {
+	if err != nil {
 		fmt.Print(err)
 	} else {
 		server.AddRunner(runner)
