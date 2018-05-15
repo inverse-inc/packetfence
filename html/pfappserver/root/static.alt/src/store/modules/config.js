@@ -19,6 +19,26 @@ const state = {
 }
 
 const getters = {
+  sortedViolations: state => {
+    let sortedIds = Object.keys(state.violations).sort((a, b) => {
+      if (a === 'default') {
+        return a
+      } else if (!state.violations[a].desc && !state.violations[b].desc) {
+        return a.localeCompare(b)
+      } else if (!state.violations[b].desc) {
+        return a
+      } else if (!state.violations[a].desc) {
+        return b
+      } else {
+        return state.violations[a].desc.localeCompare(state.violations[b].desc)
+      }
+    })
+    let sortedViolations = []
+    for (let id of sortedIds) {
+      sortedViolations.push(state.violations[id])
+    }
+    return sortedViolations
+  }
 }
 
 const actions = {
