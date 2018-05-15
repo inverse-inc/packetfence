@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/binary"
 	"math"
 	"net"
 	"strconv"
@@ -108,7 +109,10 @@ func (d *Interfaces) readConfig() {
 				pfconfigdriver.FetchDecodeSocket(ctx, &ConfNet)
 
 				if (NetIP.Contains(net.ParseIP(ConfNet.DhcpStart)) && NetIP.Contains(net.ParseIP(ConfNet.DhcpEnd))) || NetIP.Contains(net.ParseIP(ConfNet.NextHop)) {
-
+					if int(binary.BigEndian.Uint32(net.ParseIP(ConfNet.DhcpStart).To4())) > int(binary.BigEndian.Uint32(net.ParseIP(ConfNet.DhcpEnd).To4())) {
+						log.LoggerWContext(ctx).Error("Wrong configuration, check your network " + key)
+						continue
+					}
 					// IP per role
 					if ConfNet.SplitNetwork == "enabled" {
 						var keyConfRoles pfconfigdriver.PfconfigKeys
