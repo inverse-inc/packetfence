@@ -317,7 +317,14 @@ sub update {
 
 sub update_data {
     my ($self) = @_;
-    return $self->req->json;
+    my $data = $self->req->json;
+    my %update;
+    for my $field (@{$self->dal->table_field_names}) {
+        next if !exists $data->{$field};
+        $update{$field} = $data->{$field};
+    }
+
+    return \%update;
 }
 
 sub replace {
