@@ -31,7 +31,6 @@ func (fw *JuniperSRX) Start(ctx context.Context, info map[string]string, timeout
 func (fw *JuniperSRX) startHttp(ctx context.Context, info map[string]string, timeout int) (bool, error) {
 
 	req, err := http.NewRequest("POST", "https://"+fw.PfconfigHashNS+":"+fw.Port+"/api/userfw/v1/post-entry", bytes.NewBuffer([]byte(fw.startHttpPayload(ctx, info))))
-	// req, err := http.NewRequest("GET", "https://"+fw.PfconfigHashNS+":"+fw.Port+"/rpc/request-userfw-local-auth-table-add?user-name="+info["username"]+"&ip-address="+info["ip"]+"&roles="+info["role"], nil)
 	req.SetBasicAuth(fw.Username, fw.Password)
 	client := fw.getHttpClient(ctx)
 	resp, err := client.Do(req)
@@ -84,7 +83,6 @@ func (fw *JuniperSRX) startHttpPayload(ctx context.Context, info map[string]stri
 }
 
 func (fw *JuniperSRX) stopHttpPayload(ctx context.Context, info map[string]string) string {
-	// PaloAlto XML API expects the timeout in minutes
 	info["time"] = time.Now().UTC().Format(time.RFC3339)
 	t := template.New("JuniperSRX.startHttp")
 	t.Parse(`
@@ -114,7 +112,6 @@ func (fw *JuniperSRX) Stop(ctx context.Context, info map[string]string) (bool, e
 func (fw *JuniperSRX) stopHttp(ctx context.Context, info map[string]string) (bool, error) {
 
 	req, err := http.NewRequest("POST", "https://"+fw.PfconfigHashNS+":"+fw.Port+"/api/userfw/v1/post-entry", bytes.NewBuffer([]byte(fw.startHttpPayload(ctx, info))))
-	// req, err := http.NewRequest("GET", "https://"+fw.PfconfigHashNS+":"+fw.Port+"/rpc/request-userfw-local-auth-table-add?user-name="+info["username"]+"&ip-address="+info["ip"]+"&roles="+info["role"], nil)
 	req.SetBasicAuth(fw.Username, fw.Password)
 	client := fw.getHttpClient(ctx)
 	resp, err := client.Do(req)
