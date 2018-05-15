@@ -1,5 +1,6 @@
 import UsersView from '../'
 import UsersSearch from '../_components/UsersSearch'
+import UsersCreate from '../_components/UsersCreate'
 import UserView from '../_components/UserView'
 
 const route = {
@@ -12,6 +13,10 @@ const route = {
     {
       path: 'search',
       component: UsersSearch
+    },
+    {
+      path: 'create',
+      component: UsersCreate
     },
     {
       path: '/user/:pid',
