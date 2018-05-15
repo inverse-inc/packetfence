@@ -64,6 +64,10 @@ sub do_sso {
         stripped_username => $stripped_username,
         realm             => $realm,
         status            => $node->{status},
+        device_version    => $node->{device_version},
+        device_class      => $node->{device_class},
+        device_type       => $node->{device_type},
+        computername      => $node->{computername},
     });
 
     return $TRUE;
