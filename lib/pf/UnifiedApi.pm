@@ -71,6 +71,11 @@ our @API_V1_ROUTES = (
             subroutes => {
                 map { $_ => { post => $_ } } qw(register deregister)
             }
+        },
+        collection => {
+            subroutes => {
+                map { $_ => { post => $_ } } qw(bulk_register search)
+            }
         }
     },
     { controller => 'Tenants' },

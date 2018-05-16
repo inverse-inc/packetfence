@@ -76,6 +76,35 @@ sub deregister {
     return $self->render_empty;
 }
 
+sub bulk_register {
+    my ($self) = @_;
+    my ($status, $data) = $self->parse_json;
+    if (is_error($status)) {
+        return $self->render(json => $data, status => $status);
+    }
+
+    my $items = $data->{items} // [];
+    ($status, my $iter) = $self->dal->search(
+        -columns => [qw(mac pid)],
+        -where => {
+            mac => { -in => $items},
+            status => { "!=" => $pf::node::STATUS_REGISTERED }
+        },
+        -with_class => undef,
+    );
+    if (is_error($status)) {
+        return $self->render_error(status => $status, "Error finding nodes");
+    }
+
+    my $nodes = $iter->all;
+    my $count = 0;
+    for my $node (@$nodes) {
+        node_register($node->{mac}, $node->{pid});
+    }
+
+    return $self->render(status => 200, json => { count => $count });
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
