@@ -65,7 +65,14 @@ our @API_V1_ROUTES = (
             ]
         },
     },
-    { controller => 'Nodes' },
+    {
+        controller => 'Nodes',
+        resource   => {
+            subroutes => {
+                map { $_ => { post => $_ } } qw(register deregister)
+            }
+        }
+    },
     { controller => 'Tenants' },
     { controller => 'ApiUsers' },
     { controller => 'Locationlogs' },
