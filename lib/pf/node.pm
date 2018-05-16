@@ -648,7 +648,7 @@ sub node_register {
             return (0);
         }
            $logger->info("autoregister a node that is already registered, do nothing.");
-           return 1;
+           return (1);
        }
     }
     else {
