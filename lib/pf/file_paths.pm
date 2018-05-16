@@ -214,7 +214,6 @@ $pfcmd_binary = catfile( $bin_dir, "pfcmd" );
 $oui_file           = catfile($conf_dir, "oui.txt");
 $suricata_categories_file = catfile($conf_dir, "suricata_categories.txt");
 $nexpose_categories_file = catfile($conf_dir, "nexpose-responses.txt");
-$pf_omapi_key_file  = catfile($conf_dir, "pf_omapi_key");
 $local_secret_file  = catfile($conf_dir, "local_secret");
 $unified_api_system_pass_file  = catfile($conf_dir, "unified_api_system_pass");
 $pf_doc_file        = catfile($conf_dir, "documentation.conf");
