@@ -51,20 +51,16 @@ sub new {
             '_id'       => undef,
             '_username' => undef,
             '_password' => undef,
-            '_scanIp'   => undef,
-            '_report'   => undef,
-            '_file'     => undef,
-            '_policy'   => undef,
             '_type'     => undef,
-            '_status'   => undef,
             '_domain'   => undef,
             '_oses'     => undef,
             '_categories' => undef,
-            '_templateId' => undef,
+            '_template_id' => undef,
             '_engineId' => undef,
-            '_siteId' => undef,
+            '_site_id' => undef,
             '_host' => undef,
             '_port' => undef,
+            '_verify_hostname' => undef,
     }, $class;
 
     foreach my $value ( keys %data ) {
@@ -91,13 +87,16 @@ sub startScan {
         engineId => $self->{_engineId} . "",
         hosts => [ $self->{_scanIp} ],
         name => "Automatic scan started from PacketFence",
-        templateId => $self->{_templateId},
+        templateId => $self->{_template_id},
     };
 
     my $ua = LWP::UserAgent->new;
-    $ua->ssl_opts(verify_hostname => 0, SSL_verify_mode => 0x00);
+    if(isdisabled($self->{_verify_hostname})) {
+        $ua->ssl_opts(verify_hostname => 0, SSL_verify_mode => 0x00);
+    }
+
     my $req = HTTP::Request->new(
-        POST => $self->buildApiUri("sites/".$self->{_siteId}."/scans"), 
+        POST => $self->buildApiUri("sites/".$self->{_site_id}."/scans"), 
         ["Content-Type" => "application/json"],
         encode_json($payload),
     );
