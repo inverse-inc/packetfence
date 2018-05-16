@@ -100,7 +100,6 @@ sub startScan {
         ["Content-Type" => "application/json"],
         encode_json($payload),
     );
-    use Data::Dumper ; print Dumper($req);
     $req->authorization_basic($self->{_username}, $self->{_password});
     my $response = $ua->request($req);
 
