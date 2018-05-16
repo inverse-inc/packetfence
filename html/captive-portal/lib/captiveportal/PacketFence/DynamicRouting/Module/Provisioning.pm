@@ -102,10 +102,11 @@ Show the provisioner template
 
 sub show_provisioning {
     my ($self, $arg) = @_;
+    $arg = $arg // {},
     my $args = {
         fingerbank_info => pf::node::fingerbank_info($self->current_mac, $self->node_info),
-        provisioner => $self->get_provisioner, 
-        skipable => isenabled($self->skipable), 
+        provisioner => $self->get_provisioner,
+        skipable => isenabled($self->skipable),
         title => ["Provisioning : %s",$self->get_provisioner->id],
         %{$arg},
     };

@@ -20,6 +20,10 @@ use pf::log;
 use pf::constants;
 use fingerbank::Constant;
 
+use pf::person;
+
+use Crypt::GeneratePassword qw(word);
+
 use Moo;
 extends 'pf::provisioner';
 
@@ -65,6 +69,14 @@ Passphrase if no eap/not open network
 =cut
 
 has passcode => (is => 'rw');
+
+=head2 ipsk
+
+Does ipsk need to be activated
+
+=cut
+
+has ipsk => (is => 'rw');
 
 =head2 security_type
 
@@ -243,6 +255,19 @@ sub _build_profile_template {
         }
     } 
     return "wireless-profile-noeap.xml";
+}
+
+sub generate_ipsk {
+    my ($self,$username) = @_;
+    my $person = person_view($username);
+    if (defined $person->{ipsk}) {
+        return $person->{ipsk};
+    }
+    else {
+        my $ipsk = word(4,6);
+        person_modify($username,ipsk => $ipsk);
+        return $ipsk;
+    }
 }
 
 =head1 AUTHOR

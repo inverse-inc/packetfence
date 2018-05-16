@@ -18,7 +18,7 @@ use Crypt::GeneratePassword qw(word);
 use pf::person;
 
 use Moo;
-extends 'pf::provisioner';
+extends 'pf::provisioner::mobileconfig';
 
 
 =head1 METHODS
@@ -38,20 +38,6 @@ The ssid broadcast name
 =cut
 
 has ssid => (is => 'rw');
-
-sub generate_ipsk {
-    my ($self,$username) = @_;
-    my $person = person_view($username);
-    if (defined $person->{ipsk}) {
-        return $person->{ipsk};
-    }
-    else {
-        my $ipsk = word(4,6);
-        person_modify($username,ipsk => $ipsk);
-        return $ipsk;
-    }
-}
-
 
 =head1 AUTHOR
 
