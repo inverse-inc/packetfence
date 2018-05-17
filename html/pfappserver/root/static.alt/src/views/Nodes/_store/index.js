@@ -9,8 +9,8 @@ const STORAGE_SEARCH_LIMIT_KEY = 'nodes-search-limit'
 // Default values
 const state = {
   status: '',
-  items: [],
-  nodes: {},
+  items: [], // search results
+  nodes: {}, // nodes details
   searchQuery: null,
   searchSortBy: 'mac',
   searchSortDesc: false,
@@ -61,6 +61,9 @@ const actions = {
 
     return api.node(mac).then(item => {
       Object.assign(node, item)
+      if (node.category_id === null) {
+        node.category_id = 'unreg'
+      }
       commit('NODE_REPLACED', node)
 
       // Fetch ip4log history

@@ -19,6 +19,12 @@ const state = {
 }
 
 const getters = {
+  rolesList: state => {
+    // Remap for b-form-select component
+    return state.roles.map((item) => {
+      return { value: item.id, text: `${item.id} - ${item.notes}` }
+    })
+  },
   sortedViolations: state => {
     let sortedIds = Object.keys(state.violations).sort((a, b) => {
       if (a === 'default') {
@@ -42,16 +48,18 @@ const getters = {
 }
 
 const actions = {
-  getRoles: ({commit, dispatch}) => {
-    return api.getRoles().then(response => {
-      commit('ROLES_UPDATED', response.data.items)
-      return response.data.items
-    })
+  getRoles: ({state, commit}) => {
+    if (state.roles.length === 0) {
+      return api.getRoles().then(response => {
+        commit('ROLES_UPDATED', response.data.items)
+        return state.roles
+      })
+    }
   },
-  getViolations: ({commit, dispatch}) => {
+  getViolations: ({commit, state}) => {
     return api.getViolations().then(response => {
       commit('VIOLATIONS_UPDATED', response.data.items)
-      return response.data.items
+      return state.violations
     })
   }
 }

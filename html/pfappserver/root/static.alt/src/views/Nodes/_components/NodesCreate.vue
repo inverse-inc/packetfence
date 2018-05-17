@@ -9,6 +9,13 @@
         <b-form>
           <pf-form-input v-model="single.mac" label="MAC"
             :validation="$v.single.mac" invalid-feedback="Enter a valid MAC address"/>
+          <pf-form-input v-model="single.pid" label="Owner" validation="$v.single.pid"/>
+          <b-form-group horizontal label-cols="3" :label="$t('Status')">
+            <b-form-select v-model="single.status" :options="statuses"></b-form-select>
+          </b-form-group>
+          <b-form-group horizontal label-cols="3" :label="$t('Role')">
+            <b-form-select v-model="single.category" :options="roles"></b-form-select>
+          </b-form-group>
         </b-form>
       </b-tab>
 
@@ -93,6 +100,9 @@ export default {
     }
   },
   computed: {
+    roles () {
+      return this.$store.getters['config/rolesList']
+    },
     invalidForm () {
       if (this.modeIndex === 0) {
         return this.$v.single.$invalid
@@ -102,22 +112,9 @@ export default {
     }
   },
   methods: {
-    macFormat (value, event) {
-      var re = /[a-fA-F0-9]{2}/g
-      var validMac = []
-      var match
-      while ((match = re.exec(value))) {
-        validMac.push(match[0].toUpperCase())
-      }
-      match = /^(?:[a-fA-F0-9]{2}:?)*([a-fA-F0-9])$/g.exec(value)
-      if (match) {
-        validMac.push(match[1].toUpperCase())
-      }
-      // this.$nextTick(function () {
-      //   this.mac = validMac.slice(0, 6).join(':')
-      // })
-      return validMac.slice(0, 6).join(':')
-    }
+  },
+  created () {
+    this.$store.dispatch('config/getRoles')
   }
 }
 </script>

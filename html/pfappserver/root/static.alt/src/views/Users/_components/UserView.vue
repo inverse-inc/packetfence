@@ -13,13 +13,13 @@
           <b-row>
             <b-col>
               <pf-form-input v-model="user.email" label="Email"
-              :validation="$v.user.email" invalid-feedback="Must be a valid email address"/>
+                :validation="$v.user.email" invalid-feedback="Must be a valid email address"/>
               <pf-form-input v-model="user.firstname" label="Firstname"/>
               <pf-form-input v-model="user.lastname" label="Lastname"/>
               <pf-form-input v-model="user.company" label="Company"/>
               <pf-form-input v-model="user.telephone" label="Telephone"/>
               <b-form-group horizontal label-cols="3" :label="$t('Notes')">
-                <b-form-textarea v-model="user.notes" :rows="4" :max-rows="6"></b-form-textarea>
+                <b-form-textarea v-model="user.notes" rows="4" max-rows="6"></b-form-textarea>
               </b-form-group>
             </b-col>
             <b-col>
@@ -71,7 +71,8 @@
       return {
         user: {
           // Must at least define all fields that require validation
-          email: ''
+          email: '',
+          notes: ''
         }
       }
     },

@@ -8,37 +8,27 @@
         <b-form>
           <b-form-row align-v="center">
             <b-col sm="8">
-              <pf-form-input v-model="single.pid" label="Username"
+              <pf-form-input v-model.trim="single.pid" label="Username"
                 :validation="$v.single.pid"
                 invalid-feedback="This username already exists."
                 text="The username to use for login to the captive portal."/>
               <pf-form-input type="password" v-model="single.password" label="Password"
                 :validation="$v.single.password"
                 invalid-feedback="The password must be at least 6 characters."
-                text="Leave it empty if you want to generate a random password." />
-
-              <b-form-group horizontal label-cols="3" :label="$t('Email')">
-                <b-form-input v-model.trim="email" @blur="emailVisited = true" :state="emailState" required></b-form-input>
-                <b-form-invalid-feedback v-t="'Specify a valid email address.'"></b-form-invalid-feedback>
-              </b-form-group>
-              <b-form-group horizontal label-cols="3" :label="$t('Firstname')">
-                <b-form-input v-model.trim="firstname"></b-form-input>
-              </b-form-group>
-              <b-form-group horizontal label-cols="3" :label="$t('Lastname')">
-                <b-form-input v-model.trim="lastname"></b-form-input>
-              </b-form-group>
-              <b-form-group horizontal label-cols="3" :label="$t('Company')">
-                <b-form-input v-model.trim="company"></b-form-input>
-              </b-form-group>
-              <b-form-group horizontal label-cols="3" :label="$t('Telephone')">
-                <b-form-input v-model.trim="telephone"></b-form-input>
-              </b-form-group>
+                text="Leave it empty if you want to generate a random password."/>
+              <pf-form-input v-model.trim="single.email" label="Email"
+                :validation="$v.single.email"
+                invalid-feedback="Specify a valid email address."/>
+              <pf-form-input v-model="single.firstname" label="Firstname"/>
+              <pf-form-input v-model="single.lastname" label="Lastname"/>
+              <pf-form-input v-model="single.company" label="Company"/>
+              <pf-form-input v-model="single.telephone" label="Telephone"/>
               <b-form-group horizontal label-cols="3" :label="$t('Address')">
-                <b-form-textarea v-model="address" :rows="4" :max-rows="6"></b-form-textarea>
+                <b-form-textarea v-model="single.address" rows="4" max-rows="6"></b-form-textarea>
               </b-form-group>
             </b-col>
             <b-col sm="4">
-              <b-form-textarea :placeholder="$t('Notes')" v-model="notes" :rows="8" :max-rows="12"></b-form-textarea>
+              <b-form-textarea :placeholder="$t('Notes')" v-model="single.notes" rows="8" max-rows="12"></b-form-textarea>
             </b-col>
           </b-form-row>
         </b-form>
@@ -71,7 +61,7 @@
       </b-tab>
     </b-tabs>
 
-    <b-container fluid>
+    <b-container class="card-body" fluid>
       <b-form-row>
         <b-col sm="8">
           <b-form-group horizontal label-cols="3" :label="$t('Registration Window')">
@@ -86,6 +76,7 @@
             </b-form-row>
           </b-form-group>
         </b-col>
+        <b-col sm="4"></b-col>
       </b-form-row>
     </b-container>
 

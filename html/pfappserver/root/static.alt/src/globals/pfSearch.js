@@ -5,6 +5,7 @@ export const pfSearchConditionType = {
   LIST:                    'list', // is only
   LISTEXTEND:              'list', // is or is not
   SUBSTRING:               'substring',
+  NODE_STATUS:             'node_status',
   ROLE:                    'role',
   CONNECTION_TYPE:         'connection_type'
 }
@@ -30,6 +31,10 @@ pfConditionOperators[pfSearchConditionType.BOOL] = {
   'is_true':               null,
   'is_false':              null
 }
+pfConditionOperators[pfSearchConditionType.NODE_STATUS] = {
+  'equals':                pfSearchConditionValue.SELECT,
+  'not_equals':            pfSearchConditionValue.SELECT
+}
 pfConditionOperators[pfSearchConditionType.ROLE] = {
   'equals':                pfSearchConditionValue.SELECT,
   'not_equals':            pfSearchConditionValue.SELECT
@@ -43,11 +48,22 @@ pfConditionOperators[pfSearchConditionType.CONNECTION_TYPE] = {
  * Values of some condition types
  */
 export const pfSearchConditionValues = {}
+pfSearchConditionValues[pfSearchConditionType.NODE_STATUS] = [
+  {
+    value: 'reg',
+    text: 'Registered'
+  },
+  {
+    value: 'unreg',
+    text: 'Unregistered'
+  },
+  {
+    value: 'pending',
+    text: 'Pending'
+  }
+]
 pfSearchConditionValues[pfSearchConditionType.ROLE] = (store) => {
-  return store.state.config.roles.map((item) => {
-    // Remap for b-form-select component
-    return { value: item.id, text: `${item.id} - ${item.notes}` }
-  })
+  return store.getters['config/rolesList']
 }
 // See lib/pf/config.pm#L318
 pfSearchConditionValues[pfSearchConditionType.CONNECTION_TYPE] = [
@@ -66,7 +82,7 @@ export const pfSearchConditionFormatter = {
 }
 
 /**
- * Helper that concatenates all operaorts for the specified types.
+ * Helper that concatenates all operators for the specified types.
  *
  * @param {string[]} types - the types
  * @return {string[]} all operators
