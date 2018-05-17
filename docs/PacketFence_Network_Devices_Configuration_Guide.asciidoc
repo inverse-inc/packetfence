@@ -4972,9 +4972,6 @@ PacketFence configuration:
 image::docs/images/ipsk_provisioner.png[scaledwidth="100%",alt="Provisioner IPKS"]
 
 
- 
-Since the PSK key is associate to a user then we need to have a way to associate the device to the user.
-
 Troubleshooting ignored RADIUS replies
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
