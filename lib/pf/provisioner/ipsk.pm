@@ -31,6 +31,14 @@ never authorize user
 
 sub authorize { 0 };
 
+=head2 oses
+
+The set the default OS to IOS
+
+=cut
+
+has oses => (is => 'rw');
+
 =head2 ssid
 
 The ssid broadcast name
