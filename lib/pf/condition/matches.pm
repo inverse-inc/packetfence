@@ -40,7 +40,7 @@ sub match {
     my ($self,$arg) = @_;
     my $match = $self->value;
     return 0 if(!defined($arg));
-    return $arg =~ /\Q$match\E/i;
+    return $arg =~ /\Q$match\E/;
 }
 
 =head1 AUTHOR
