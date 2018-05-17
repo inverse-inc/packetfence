@@ -40,7 +40,7 @@ The main definition block
 
 has_block 'definition' =>
   (
-    render_list => [qw(id description root_module preregistration autoregister reuse_dot1x_credentials dot1x_recompute_role_from_portal ipsk)],
+    render_list => [qw(id description root_module preregistration autoregister reuse_dot1x_credentials dot1x_recompute_role_from_portal ipsk default_psk_key)],
   );
 
 =head2 captive_portal
@@ -214,6 +214,20 @@ has_field 'ipsk' =>
    default => 'disabled',
    tags => { after_element => \&help,
              help => 'This activates ipsk feature on this connection profile. It mean that radius will answer specific attributes like the psk key to use to connect on the SSID.' },
+  );
+
+=head2 default_psk_key
+
+Define the default psk key to connect on this connection profile
+
+=cut
+
+has_field 'default_psk_key' =>
+  (
+   type => 'Text',
+   label => 'Default psk key',
+   tags => { after_element => \&help,
+             help => 'This is the default psk key when you enable ipsk on this connection profile.length of 8 minimum' },
   );
 
 =head2 sources

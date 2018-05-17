@@ -435,6 +435,14 @@ sub returnRadiusAccessAccept {
             push @av_pairs, "url-redirect=".$redirect_url;
         }
     }
+    if (isenabled($args->{profile}->{_ipsk})) {
+        if (defined($args->{owner}->{ipsk})) {
+            push @av_pairs, "psk=$args->{owner}->{ipsk}";
+        } else {
+            push @av_pairs, "psk=$args->{profile}->{_default_psk_key}";
+        }
+        push @av_pairs, "psk-mode=ascii";
+    }
 
     $radius_reply_ref->{'Cisco-AVPair'} = \@av_pairs;
 

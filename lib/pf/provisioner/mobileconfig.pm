@@ -264,7 +264,7 @@ sub generate_ipsk {
         return $person->{ipsk};
     }
     else {
-        my $ipsk = word(4,6);
+        my $ipsk = word(8,10);
         person_modify($username,ipsk => $ipsk);
         return $ipsk;
     }
