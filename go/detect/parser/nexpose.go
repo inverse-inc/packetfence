@@ -4,11 +4,11 @@ import (
 	"regexp"
 )
 
-type Rapid7Parser struct {
+type NexposeParser struct {
 	Pattern1 *regexp.Regexp
 }
 
-func (s *Rapid7Parser) Parse(line string) ([]ApiCall, error) {
+func (s *NexposeParser) Parse(line string) ([]ApiCall, error) {
 	if matches := s.Pattern1.FindStringSubmatch(line); matches != nil && matches[4] == "VULNERABILITY" {
 		return []ApiCall{
 			&JsonRpcApiCall{
@@ -27,10 +27,10 @@ func (s *Rapid7Parser) Parse(line string) ([]ApiCall, error) {
 	return []ApiCall{}, nil
 }
 
-var rapid7RegexPattern1 = regexp.MustCompile(`^(\w+\s*\d+ \d+:\d+:\d+) ([0-9.]+) \w+: ([0-9.]+) (\w+): (.*)`)
+var nexposeRegexPattern1 = regexp.MustCompile(`^(\w+\s*\d+ \d+:\d+:\d+) ([0-9.]+) \w+: ([0-9.]+) (\w+): (.*)`)
 
-func NewRapid7Parser(interface{}) (Parser, error) {
-	return &Rapid7Parser{
-		Pattern1: rapid7RegexPattern1.Copy(),
+func NewNexposeParser(interface{}) (Parser, error) {
+	return &NexposeParser{
+		Pattern1: nexposeRegexPattern1.Copy(),
 	}, nil
 }

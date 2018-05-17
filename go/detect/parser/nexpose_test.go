@@ -15,7 +15,7 @@ import (
 'date' => '07/28/2015-09:09:59.431113  [**] '
 
 */
-func TestRapid7Parse(t *testing.T) {
+func TestNexposeParse(t *testing.T) {
 	var parseTests = []ParseTest{
 		{
 			Line: `Nov 13 11:38:09 172.20.120.70 Nexpose: 10.0.0.20 VULNERABILITY: OpenSSL SSL/TLS MITM vulnerability (CVE-2014-0224) (http-openssl-cve-2014-0224)`,
@@ -35,6 +35,6 @@ func TestRapid7Parse(t *testing.T) {
 		},
 	}
 
-	parser, _ := NewRapid7Parser(nil)
+	parser, _ := NewNexposeParser(nil)
 	RunParseTests(parser, parseTests, t)
 }

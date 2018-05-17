@@ -41,7 +41,7 @@ var parserLookup = map[string]ParserCreater{
 	"security_onion": NewSecurityOnionParser,
 	"snort":          NewSnortParser,
 	"suricata":       NewSnortParser,
-	"rapid7":         NewRapid7Parser,
+	"nexpose":        NewNexposeParser,
 	"suricata_md5":   NewSuricataMD5Parser,
 }
 
