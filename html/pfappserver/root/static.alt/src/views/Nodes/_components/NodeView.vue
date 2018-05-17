@@ -180,11 +180,21 @@ export default {
     },
     violationDescription (id) {
       return this.$store.state.config.violations[id].desc
+    },
+    onKeyup (event) {
+      switch (event.keyCode) {
+        case 27: // escape
+          this.close()
+      }
     }
   },
   mounted () {
     this.$store.dispatch('$_nodes/getNode', this.mac)
     this.$store.dispatch('config/getViolations')
+    document.addEventListener('keyup', this.onKeyup)
+  },
+  beforeDestroy () {
+    document.removeEventListener('keyup', this.onKeyup)
   }
 }
 </script>

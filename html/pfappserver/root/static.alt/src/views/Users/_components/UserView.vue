@@ -86,13 +86,22 @@
       },
       save () {
         this.$store.dispatch('$_users/updateUser', this.user)
+      },
+      onKeyup (event) {
+        switch (event.keyCode) {
+          case 27: // escape
+            this.close()
+        }
       }
     },
     mounted () {
       this.$store.dispatch('$_users/getUser', this.pid).then(data => {
         Object.assign(this.user, data)
       })
+      document.addEventListener('keyup', this.onKeyup)
+    },
+    beforeDestroy () {
+      document.removeEventListener('keyup', this.onKeyup)
     }
   }
-  </script>
-
+</script>
