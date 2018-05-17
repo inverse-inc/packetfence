@@ -2,9 +2,14 @@
 
 ## Introduction
 
+* [Vue.js official guide](https://vuejs.org/v2/guide/)
 * [Bootstrap + Vue](https://bootstrap-vue.js.org/) 
 * [ECMAScript 2015 (ES6) syntax](https://babeljs.io/learn-es2015/)
-* [JavaScript Standard Style](https://github.com/standard/standard/blob/master/docs/RULES-en.md)
+* [npm](https://www.npmjs.com/) -- package manager
+* [webpack](https://webpack.js.org/) -- task runner
+* [ESLint](https://eslint.org/) -- code linter and style checker
+* [JavaScript Standard Style](https://github.com/standard/standard/blob/master/docs/RULES-en.md) -- code style
+* `.editorconfig` -- code editor formatting/style
 
 ## Getting started
 
@@ -28,12 +33,13 @@ Since this is a SPA (Single-Page Application), it is currently accessible from `
 
 ## Vue.js libraries
 
-* [Vuex](https://vuex.vuejs.org/)
-* [vue-router](https://router.vuejs.org/)
-* [vue-i18n](https://kazupon.github.io/vue-i18n/)
-* [vue-browser-acl](https://github.com/mblarsen/vue-browser-acl)
-* [axios](https://github.com/axios/axios)
-* [vue-awesome](https://justineo.github.io/vue-awesome/demo/)
+* [Vuex](https://vuex.vuejs.org/) -- state management
+* [vue-router](https://router.vuejs.org/) -- official router
+* [vue-i18n](https://kazupon.github.io/vue-i18n/) -- internationalization
+* [vue-browser-acl](https://github.com/mblarsen/vue-browser-acl) -- ACLs
+* [axios](https://github.com/axios/axios) -- http client
+* [vuelidate](https://monterail.github.io/vuelidate/) -- form validation
+* [vue-awesome](https://justineo.github.io/vue-awesome/demo/) -- font awesome component (svg)
 
 ## Files Structure
 
@@ -92,6 +98,7 @@ Test on collection of subjects:
 
 ```html
 v-can:access.some="[['reports', 'services']]"
+v-can:access.every="[['reports', 'services']]"
 ```
 
 The actions use dashes, the subjects use underscores:
