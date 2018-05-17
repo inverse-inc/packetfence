@@ -26,6 +26,7 @@ use pf::util;
 use pf::node;
 use pf::violation qw(violation_close);
 use LWP::UserAgent;
+use HTTP::Request;
 use pf::api::jsonrpcclient;
 use JSON::MaybeXS;
 
@@ -83,6 +84,8 @@ sub startScan {
     my ( $self ) = @_;
     my $logger = get_logger();
 
+    $logger->info("Starting Rapid7 scan");
+
     my $payload = {
         engineId => $self->{_engineId} . "",
         hosts => [ $self->{_scanIp} ],
@@ -94,6 +97,7 @@ sub startScan {
     if(isdisabled($self->{_verify_hostname})) {
         $ua->ssl_opts(verify_hostname => 0, SSL_verify_mode => 0x00);
     }
+    $ua->timeout(10);
 
     my $req = HTTP::Request->new(
         POST => $self->buildApiUri("sites/".$self->{_site_id}."/scans"), 
