@@ -201,7 +201,7 @@ has_field 'autoregister' =>
 
 =head2 ipsk
 
-Controls whether or not this connection profile to enabled ipsk
+Controls whether or not this connection profile to enabled IPSK
 
 =cut
 
