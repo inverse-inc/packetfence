@@ -611,7 +611,7 @@ sub canAccessRegistrationWhenRegistered {
 
 =item ipskEnabled
 
-Is ipsk is enable or not on this connection profile
+Is IPSK is enable or not on this connection profile
 
 =cut
 

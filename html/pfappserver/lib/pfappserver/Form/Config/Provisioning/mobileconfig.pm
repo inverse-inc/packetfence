@@ -69,7 +69,7 @@ has_field 'ipsk' =>
    type => 'Checkbox',
    label => 'Enable IPSK',
    tags => { after_element => \&help,
-             help => 'Define if the psk need to be generated' },
+             help => 'Define if the PSK needs to be generated' },
   );
 
 has_field 'server_certificate_path' =>

@@ -436,8 +436,8 @@ sub returnRadiusAccessAccept {
         }
     }
     if (isenabled($args->{profile}->{_ipsk})) {
-        if (defined($args->{owner}->{ipsk})) {
-            push @av_pairs, "psk=$args->{owner}->{ipsk}";
+        if (defined($args->{owner}->{psk})) {
+            push @av_pairs, "psk=$args->{owner}->{psk}";
         } else {
             push @av_pairs, "psk=$args->{profile}->{_default_psk_key}";
         }

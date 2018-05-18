@@ -2,7 +2,7 @@ package pfappserver::Form::Config::Provisioning::ipsk;
 
 =head1 NAME
 
-pfappserver::Form::Config::Provisioning::ipsk - Web form for ipsk provisioner
+pfappserver::Form::Config::Provisioning::ipsk - Web form for IPKS provisioner
 
 =head1 DESCRIPTION
 

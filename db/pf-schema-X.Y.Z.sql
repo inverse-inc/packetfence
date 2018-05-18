@@ -91,8 +91,8 @@ CREATE TABLE person (
   `custom_field_9` varchar(255) default NULL,
   `portal` varchar(255) default NULL,
   `source` varchar(255) default NULL,
-  `ipsk` varchar(255) NULL DEFAULT NULL,
-PRIMARY KEY (`tenant_id`, `pid`),
+  `psk` varchar(255) NULL DEFAULT NULL,
+  PRIMARY KEY (`tenant_id`, `pid`),
   CONSTRAINT `person_tenant_id` FOREIGN KEY(`tenant_id`) REFERENCES `tenant` (`id`)
 ) ENGINE=InnoDB;
 

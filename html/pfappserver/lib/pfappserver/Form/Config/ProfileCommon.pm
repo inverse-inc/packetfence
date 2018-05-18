@@ -208,26 +208,26 @@ Controls whether or not this connection profile to enabled ipsk
 has_field 'ipsk' =>
   (
    type => 'Toggle',
-   label => 'Enable or not ipsk',
+   label => 'Enable IPSK',
    checkbox_value => 'enabled',
    unchecked_value => 'disabled',
    default => 'disabled',
    tags => { after_element => \&help,
-             help => 'This activates ipsk feature on this connection profile. It mean that radius will answer specific attributes like the psk key to use to connect on the SSID.' },
+             help => 'This enables the IPSK feature on this connection profile. It means that the RADIUS server will answer requests with specific attributes like the PSK key to use to connect on the SSID.'},
   );
 
 =head2 default_psk_key
 
-Define the default psk key to connect on this connection profile
+Define the default PSK key to connect on this connection profile
 
 =cut
 
 has_field 'default_psk_key' =>
   (
    type => 'Text',
-   label => 'Default psk key',
+   label => 'Default PSK key',
    tags => { after_element => \&help,
-             help => 'This is the default psk key when you enable ipsk on this connection profile.length of 8 minimum' },
+             help => 'This is the default PSK key when you enable IPSK on this connection profile. The minimum length is eight characters.' },
   );
 
 =head2 sources

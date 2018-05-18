@@ -72,7 +72,7 @@ has passcode => (is => 'rw');
 
 =head2 ipsk
 
-Does ipsk need to be activated
+Does IPSK need to be activated
 
 =cut
 
@@ -260,13 +260,13 @@ sub _build_profile_template {
 sub generate_ipsk {
     my ($self,$username) = @_;
     my $person = person_view($username);
-    if (defined $person->{ipsk}) {
-        return $person->{ipsk};
+    if (defined $person->{psk}) {
+        return $person->{psk};
     }
     else {
-        my $ipsk = word(8,10);
-        person_modify($username,ipsk => $ipsk);
-        return $ipsk;
+        my $psk = word(8,10);
+        person_modify($username,psk => $psk);
+        return $psk;
     }
 }
 
