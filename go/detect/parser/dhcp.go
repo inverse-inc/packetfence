@@ -41,7 +41,7 @@ func (s *DhcpParser) Parse(line string) ([]ApiCall, error) {
 	return nil, fmt.Errorf("Error parsing")
 }
 
-func NewDhcpParser(interface{}) (Parser, error) {
+func NewDhcpParser(*PfdetectConfig) (Parser, error) {
 	return &DhcpParser{
 		Pattern1: dhcpRegexPattern1.Copy(),
 		Pattern2: dhcpRegexPattern2.Copy(),

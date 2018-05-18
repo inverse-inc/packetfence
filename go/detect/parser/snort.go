@@ -66,7 +66,7 @@ func (s *SnortParser) Parse(line string) ([]ApiCall, error) {
 	return nil, fmt.Errorf("Error parsing")
 }
 
-func NewSnortParser(interface{}) (Parser, error) {
+func NewSnortParser(*PfdetectConfig) (Parser, error) {
 	return &SnortParser{
 		Pattern1: snortRegexPattern1.Copy(),
 		Pattern2: snortRegexPattern2.Copy(),

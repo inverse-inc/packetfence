@@ -2,7 +2,29 @@ package parser
 
 import (
 	"fmt"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
+
+type PfdetectRegexRule struct {
+    Actions []string `json:"actions"`
+    IpMacTranslation string `json:"ip_mac_translation"`
+    LastIfMatch string `json:"last_if_match"`
+    Name string `json:"name"`
+    Regex string `json:"regex"`
+}
+                
+type PfdetectConfig struct {
+	pfconfigdriver.StructConfig
+	pfconfigdriver.TypedConfig
+	PfconfigMethod string `val:"hash_element"`
+	PfconfigNS     string `val:"config::Pfdetect"`
+	PfconfigHashNS string `val:"-"`
+    Name string `json:"name,omitempty"`
+    Path string `json:"path"`
+    Status string `json:"status"`
+    Rules []PfdetectRegexRule `json:"rules"`
+}
+
 
 type Parser interface {
 	Parse(string) ([]ApiCall, error)
@@ -31,7 +53,7 @@ func (*RestApiCall) Call() error {
 	return nil
 }
 
-type ParserCreater func(interface{}) (Parser, error)
+type ParserCreater func(*PfdetectConfig) (Parser, error)
 
 var parserLookup = map[string]ParserCreater{
 
@@ -45,7 +67,7 @@ var parserLookup = map[string]ParserCreater{
 	"suricata_md5":   NewSuricataMD5Parser,
 }
 
-func CreateParser(parserType string, parserConfig interface{}) (Parser, error) {
+func CreateParser(parserType string, parserConfig *PfdetectConfig) (Parser, error) {
 	if creater, found := parserLookup[parserType]; found {
 		return creater(parserConfig)
 	}

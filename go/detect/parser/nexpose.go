@@ -29,7 +29,7 @@ func (s *NexposeParser) Parse(line string) ([]ApiCall, error) {
 
 var nexposeRegexPattern1 = regexp.MustCompile(`^(\w+\s*\d+ \d+:\d+:\d+) ([0-9.]+) \w+: ([0-9.]+) (\w+): (.*)`)
 
-func NewNexposeParser(interface{}) (Parser, error) {
+func NewNexposeParser(*PfdetectConfig) (Parser, error) {
 	return &NexposeParser{
 		Pattern1: nexposeRegexPattern1.Copy(),
 	}, nil

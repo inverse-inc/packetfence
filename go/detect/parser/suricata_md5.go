@@ -86,7 +86,7 @@ func (*SuricataMD5Parser) IpToMac(ip string) (string, error) {
 	return "", nil
 }
 
-func NewSuricataMD5Parser(interface{}) (Parser, error) {
+func NewSuricataMD5Parser(*PfdetectConfig) (Parser, error) {
 	p := &SuricataMD5Parser{
 		RemovePrefix: suricataMD5RegexRemovePrefix.Copy(),
 	}

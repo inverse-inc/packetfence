@@ -184,7 +184,7 @@ func (rule *GenericParserRule) ExpandStringFunc(dst []byte, template string, src
 	return append(dst, template...)
 }
 
-func NewGenericParser(interface{}) (Parser, error) {
+func NewGenericParser(*PfdetectConfig) (Parser, error) {
 	return &GenericParser{
 		Pattern: genericPatternRegex.Copy(),
 	}, nil
