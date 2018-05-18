@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"github.com/coreos/go-systemd/daemon"
 	"github.com/inverse-inc/packetfence/go/detect/parser"
 	"github.com/inverse-inc/packetfence/go/log"
 	_ "github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -99,6 +100,7 @@ func (s *Server) StopRunners() {
 }
 
 func (s *Server) ReloadConfig() {
+	s.StopRunners()
 }
 
 func (s *Server) SetupSignals() {
@@ -113,11 +115,11 @@ func (s *Server) SetupSignals() {
 				sig := <-s.SignalChan
 				if sig != syscall.SIGHUP {
 					s.Done()
-					fmt.Printf("Got signal %d\n", sig)
 					break
 				}
 				s.ReloadConfig()
 			}
+			s.NotifySystemd(daemon.SdNotifyStopping)
 			s.StopRunners()
 		}()
 		wg.Wait()
@@ -136,8 +138,16 @@ func (s *Server) RunRunners() {
 	fmt.Printf("Ran runners %d\n", s.Count-1)
 }
 
+func (s *Server) NotifySystemd(msg string) {
+	_, err := daemon.SdNotify(false, msg)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Error sending systemd ready notification %s", err.Error())
+	}
+}
+
 func (s *Server) Run() int {
 	s.SetupSignals()
+	s.NotifySystemd(daemon.SdNotifyReady)
 	s.RunRunners()
 	s.Wait()
 	return 0
