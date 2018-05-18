@@ -59,9 +59,17 @@ export default {
       return response.data.items
     })
   },
+  createNode: body => {
+    return apiCall.post('nodes', body).then(response => {
+      return response.data
+    })
+  },
   updateNode: body => {
     return apiCall.patch(`node/${body.mac}`, body).then(response => {
       return response.data
     })
+  },
+  deleteNode: mac => {
+    return apiCall.delete(`node/${mac}`)
   }
 }

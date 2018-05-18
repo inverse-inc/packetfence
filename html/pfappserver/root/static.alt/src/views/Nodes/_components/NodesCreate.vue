@@ -6,16 +6,33 @@
     <b-tabs v-model="modeIndex" card>
 
       <b-tab :title="$t('Single')">
-        <b-form>
-          <pf-form-input v-model="single.mac" label="MAC"
-            :validation="$v.single.mac" invalid-feedback="Enter a valid MAC address"/>
-          <pf-form-input v-model="single.pid" label="Owner" validation="$v.single.pid"/>
-          <b-form-group horizontal label-cols="3" :label="$t('Status')">
-            <b-form-select v-model="single.status" :options="statuses"></b-form-select>
-          </b-form-group>
-          <b-form-group horizontal label-cols="3" :label="$t('Role')">
-            <b-form-select v-model="single.category" :options="roles"></b-form-select>
-          </b-form-group>
+        <b-form @submit.prevent="create()">
+          <b-form-row align-v="center">
+            <b-col sm="8">
+              <pf-form-input v-model="single.mac" label="MAC"
+                :validation="$v.single.mac" invalid-feedback="Enter a valid MAC address"/>
+              <pf-form-input v-model="single.pid" label="Owner" placeholder="default" validation="$v.single.pid"/>
+              <b-form-group horizontal label-cols="3" :label="$t('Status')">
+                <b-form-select v-model="single.status" :options="statuses"></b-form-select>
+              </b-form-group>
+              <b-form-group horizontal label-cols="3" :label="$t('Role')">
+                <b-form-select v-model="single.category" :options="roles"></b-form-select>
+              </b-form-group>
+              <b-form-group horizontal label-cols="3" :label="$t('Unregistration')">
+                <b-form-row>
+                  <b-col>
+                    <b-form-input type="date" v-model="single.unreg_date"/>
+                  </b-col>
+                  <b-col>
+                    <b-form-input type="time" v-model="single.unreg_time"/>
+                  </b-col>
+                </b-form-row>
+              </b-form-group>
+            </b-col>
+            <b-col sm="4">
+              <b-form-textarea :placeholder="$t('Notes')" v-model="single.notes" rows="8" max-rows="12"></b-form-textarea>
+            </b-col>
+          </b-form-row>
         </b-form>
       </b-tab>
 
@@ -45,8 +62,10 @@
       </b-tab>
     </b-tabs>
 
-    <b-card-footer align="right">
-      <b-button variant="outline-primary" :disabled="invalidForm" v-t="'Create'"></b-button>
+    <b-card-footer align="right" @mouseenter="$v.$touch()">
+      <b-button variant="outline-primary" :disabled="invalidForm" @click="create()">
+        <icon name="circle-notch" spin v-show="isLoading"></icon> {{ $t('Create') }}
+      </b-button>
     </b-card-footer>
 
   </b-card>
@@ -55,6 +74,10 @@
 <script>
 import pfFormInput from '@/components/pfFormInput'
 import draggable from 'vuedraggable'
+import {
+  pfSearchConditionType as conditionType,
+  pfSearchConditionValues as conditionValues
+} from '@/globals/pfSearch'
 const { validationMixin } = require('vuelidate')
 const { macAddress, required } = require('vuelidate/lib/validators')
 
@@ -71,7 +94,9 @@ export default {
     return {
       modeIndex: 0,
       single: {
-        mac: ''
+        mac: '',
+        status: 'reg',
+        unreg_time: '00:00:00'
       },
       csv: {
         file: null,
@@ -100,18 +125,34 @@ export default {
     }
   },
   computed: {
+    statuses () {
+      return conditionValues[conditionType.NODE_STATUS]
+    },
     roles () {
       return this.$store.getters['config/rolesList']
     },
+    isLoading () {
+      return this.$store.getters['$_nodes/isLoading']
+    },
     invalidForm () {
       if (this.modeIndex === 0) {
-        return this.$v.single.$invalid
+        return this.$v.single.$invalid || this.isLoading
       } else {
         return false
       }
     }
   },
   methods: {
+    create () {
+      if (this.modeIndex === 0) {
+        this.$store.dispatch('$_nodes/createNode', this.single).then(response => {
+          console.debug('node created')
+        }).catch(err => {
+          console.debug(err)
+          console.debug(this.$store.state.$_nodes.message)
+        })
+      }
+    }
   },
   created () {
     this.$store.dispatch('config/getRoles')

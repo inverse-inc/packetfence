@@ -10,6 +10,7 @@ const STORAGE_SEARCH_LIMIT_KEY = 'nodes-search-limit'
 const state = {
   items: [], // search results
   nodes: {}, // nodes details
+  message: '',
   nodeStatus: '',
   searchStatus: '',
   searchQuery: null,
@@ -125,6 +126,21 @@ const actions = {
       return node
     })
   },
+  createNode: ({commit}, data) => {
+    commit('NODE_REQUEST')
+    if (data.unreg_date && data.unreg_time) {
+      data.unregdate = `${data.unreg_date} ${data.unreg_time}`
+    }
+    return new Promise((resolve, reject) => {
+      api.createNode(data).then(response => {
+        commit('NODE_REPLACED', data)
+        resolve(response)
+      }).catch(err => {
+        commit('NODE_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
   updateNode: ({commit}, data) => {
     commit('NODE_REQUEST')
     return new Promise((resolve, reject) => {
@@ -186,6 +202,7 @@ const mutations = {
   },
   NODE_REQUEST: (state) => {
     state.nodeStatus = 'loading'
+    state.message = ''
   },
   NODE_REPLACED: (state, data) => {
     state.nodeStatus = 'success'
