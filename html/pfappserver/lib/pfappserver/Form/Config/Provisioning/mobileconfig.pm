@@ -72,6 +72,15 @@ has_field 'ipsk' =>
              help => 'Define if the PSK needs to be generated' },
   );
 
+has_field 'psk_size' =>
+  (
+   type => 'PosInteger',
+   default => 8,
+   label => 'PSK length',
+   tags => { after_element => \&help,
+             help => 'This is the length of the PSK key you want to generate. The minimum length is eight characters.' },
+  );
+
 has_field 'server_certificate_path' =>
  (
   type => 'Path',

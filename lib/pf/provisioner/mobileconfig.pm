@@ -78,6 +78,14 @@ Does IPSK need to be activated
 
 has ipsk => (is => 'rw');
 
+=head2 psk_size
+
+psk key length
+
+=cut
+
+has psk_size => (is => 'rw');
+
 =head2 security_type
 
 Security encryption used
@@ -260,11 +268,17 @@ sub _build_profile_template {
 sub generate_ipsk {
     my ($self,$username) = @_;
     my $person = person_view($username);
-    if (defined $person->{psk}) {
+    if (defined $person->{psk} && $person->{ipsk} ne '') {
         return $person->{psk};
     }
     else {
-        my $psk = word(8,10);
+        my $psk_size;
+        if ($self->psk_size >= 8) {
+            $psk_size = $self->psk_size;
+        } else {
+            $psk_size = 8;
+        }
+        my $psk = word(8,$psk_size);
         person_modify($username,psk => $psk);
         return $psk;
     }

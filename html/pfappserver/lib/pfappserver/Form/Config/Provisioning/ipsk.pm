@@ -17,9 +17,18 @@ has_field 'ssid' =>
    label => 'SSID',
   );
 
+has_field 'psk_size' =>
+  (
+   type => 'PosInteger',
+   default => 8,
+   label => 'PSK length',
+   tags => { after_element => \&help,
+             help => 'This is the length of the PSK key you want to generate. The minimum length is eight characters.' },
+  );
+
 has_block definition =>
   (
-   render_list => [ qw(id description type category ssid oses) ],
+   render_list => [ qw(id description type category ssid oses psk_size) ],
   );
 
 

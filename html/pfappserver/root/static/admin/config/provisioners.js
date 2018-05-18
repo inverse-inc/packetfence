@@ -63,12 +63,15 @@ ProvisionerView.prototype.toggleWifiKey = function(e) {
     var passcode_input = $('#passcode').closest('.control-group');
     var ipsk_input = $('#ipsk').closest('.control-group');
     var ipsk = $('input[name="ipsk"]').prop('checked');
+    var psk_size = $('#psk_size').closest('.control-group');
     if (security_type != "Open" && eap_type == "No EAP") {
         ipsk_input.show();
         if (ipsk) {
+            psk_size.show();
             passcode_input.hide();
         }
         else {
+            psk_size.hide();
             passcode_input.show();
         }
     }
