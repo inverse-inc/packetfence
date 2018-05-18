@@ -5,7 +5,7 @@
     </b-card-header>
     <b-tabs v-model="modeIndex" card>
       <b-tab title="Single">
-        <b-form>
+        <b-form @submit.prevent="create()">
           <b-form-row align-v="center">
             <b-col sm="8">
               <pf-form-input v-model.trim="single.pid" label="Username"
@@ -80,8 +80,10 @@
       </b-form-row>
     </b-container>
 
-    <b-card-footer align="right">
-      <b-button variant="outline-primary" :disabled="invalidForm" v-t="'Create'"></b-button>
+    <b-card-footer align="right" @mouseenter="$v.$touch()">
+      <b-button variant="outline-primary" :disabled="invalidForm" @click="create()">
+        <icon name="circle-notch" spin v-show="isLoading"></icon> {{ $t('Create') }}
+      </b-button>
     </b-card-footer>
 
   </b-card>
@@ -137,15 +139,28 @@
       }
     },
     computed: {
+      isLoading () {
+        return this.$store.getters['$_users/isLoading']
+      },
       invalidForm () {
         if (this.modeIndex === 0) {
-          return this.$v.single.$invalid
+          return this.$v.single.$invalid || this.isLoading
         } else {
           return false
         }
       }
     },
     methods: {
+      create () {
+        if (this.modeIndex === 0) {
+          this.$store.dispatch('$_users/createUser', this.single).then(response => {
+            console.debug('user created')
+          }).catch(err => {
+            console.debug(err)
+            console.debug(this.$store.state.$_users.message)
+          })
+        }
+      }
     }
   }
   </script>

@@ -100,7 +100,7 @@ export default {
   },
   computed: {
     isLoading () {
-      return this.$store.getters['$_users/isLoading']
+      return this.$store.getters['$_users/isLoadingResults']
     },
     sortBy () {
       return this.$store.state.$_users.searchSortBy

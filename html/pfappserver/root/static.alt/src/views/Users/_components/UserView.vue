@@ -4,7 +4,7 @@
     <b-card no-body>
       <b-card-header>
         <b-button-close @click="close"><icon name="times"></icon></b-button-close>
-        <h4 class="mb-0">{{ $t('User') }} {{ pid }}</h4>
+        <h4 class="mb-0">{{ $t('User') }} <strong v-text="pid"></strong></h4>
       </b-card-header>
 
       <b-tabs card>
@@ -41,8 +41,8 @@
       </b-tabs>
 
       <b-card-footer align="right" @mouseenter="$v.user.$touch()">
-        <b-button variant="outline-danger" class="mr-1" v-t="'Delete'"></b-button>
-        <b-button type="submit" variant="primary" :disabled="$v.user.$invalid" v-t="'Save'"></b-button>
+        <b-button variant="outline-danger" class="mr-1" :disabled="isLoading" @click="deleteUser()" v-t="'Delete'"></b-button>
+        <b-button type="submit" variant="primary" :disabled="invalidForm"><icon name="circle-notch" spin v-show="isLoading"></icon> {{ $t('Save') }}</b-button>
       </b-card-footer>
 
     </b-card>
@@ -81,12 +81,26 @@
         email: { email, required }
       }
     },
+    computed: {
+      invalidForm () {
+        if (this.modeIndex === 0) {
+          return this.$v.user.$invalid
+        } else {
+          return false
+        }
+      }
+    },
     methods: {
       close () {
         this.$router.push({ name: 'users' })
       },
       save () {
         this.$store.dispatch('$_users/updateUser', this.user)
+      },
+      deleteUser () {
+        this.$store.dispatch('$_users/deleteUser', this.pid).then(response => {
+          this.close()
+        })
       },
       onKeyup (event) {
         switch (event.keyCode) {
@@ -97,7 +111,7 @@
     },
     mounted () {
       this.$store.dispatch('$_users/getUser', this.pid).then(data => {
-        Object.assign(this.user, data)
+        this.user = Object.assign({}, data)
       })
       document.addEventListener('keyup', this.onKeyup)
     },
