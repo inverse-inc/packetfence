@@ -1,17 +1,17 @@
 
 <template>
-  <b-form>
+  <b-form @submit.prevent="save()">
     <b-card no-body>
       <b-card-header>
         <b-button-close @click="close"><icon name="times"></icon></b-button-close>
-        <h4 class="mb-0">MAC {{ mac }}</h4>
+        <h4 class="mb-0">MAC <strong v-text="mac"></strong></h4>
       </b-card-header>
       <b-tabs card>
 
         <b-tab title="Info" active>
           <b-row>
             <b-col>
-              <pf-form-input v-model="node.pid" label="Owner" validation="$v.node.pid"/>
+              <pf-form-input v-model="node.pid" label="Owner" :validation="$v.node.pid"/>
               <b-form-group horizontal label-cols="3" :label="$t('Status')">
                 <b-form-select v-model="node.status" :options="statuses"></b-form-select>
              </b-form-group>
@@ -32,10 +32,10 @@
               <pf-form-row label="IPv4 Address" v-if="node.ip4">
                 {{ node.ip4.ip }}
                   <b-badge variant="success" v-if="node.ip4.active">Since {{node.ip4.start_time}}</b-badge>
-                  <b-badge variant="warning" v-else>Inactive since {{node.ip4.end_time}}</b-badge>
+                  <div v-else><icon class="text-warning" name="exclamation-triangle"></icon> Inactive since {{node.ip4.end_time}}</div>
               </pf-form-row>
-              <pf-form-row label="IPv6 Address" v-if="node.ip6">
-                {{ node.ip6 }}
+              <pf-form-row label="IPv6 Address" v-if="node.ip6 && node.ip6.active">
+                {{ node.ip6.ip }}
               </pf-form-row>
             </b-col>
           </b-row>
@@ -81,8 +81,9 @@
         </b-tab>
 
       </b-tabs>
-      <b-card-footer align="right">
-        <b-button variant="outline-primary" type="submit" v-t="'Save'"></b-button>
+      <b-card-footer align="right" @mouseenter="$v.node.$touch()">
+        <b-button variant="outline-danger" class="mr-1" :disabled="isLoading" @click="deleteNode()" v-t="'Delete'"></b-button>
+        <b-button variant="outline-primary" type="submit" :disabled="invalidForm" v-t="'Save'"></b-button>
       </b-card-footer>
     </b-card>
   </b-form>
@@ -115,6 +116,9 @@ export default {
   },
   data () {
     return {
+      node: {
+        pid: ''
+      },
       iplogFields: [
         {
           key: 'ip',
@@ -176,14 +180,17 @@ export default {
     }
   },
   computed: {
-    node () {
-      return this.$store.state.$_nodes.nodes[this.mac] || {}
-    },
     roles () {
       return this.$store.getters['config/rolesList']
     },
     statuses () {
       return conditionValues[conditionType.NODE_STATUS]
+    },
+    isLoading () {
+      return this.$store.getters['$_nodes/isLoading']
+    },
+    invalidForm () {
+      return this.$v.node.$invalid || this.$store.getters['$_nodes/isLoading']
     }
   },
   validations: {
@@ -203,6 +210,16 @@ export default {
     violationDescription (id) {
       return this.$store.state.config.violations[id].desc
     },
+    save () {
+      this.$store.dispatch('$_nodes/updateNode', this.node).then(response => {
+        this.close()
+      })
+    },
+    deleteNode () {
+      this.$store.dispatch('$_nodes/deleteNode', this.mac).then(response => {
+        this.close()
+      })
+    },
     onKeyup (event) {
       switch (event.keyCode) {
         case 27: // escape
@@ -211,7 +228,9 @@ export default {
     }
   },
   mounted () {
-    this.$store.dispatch('$_nodes/getNode', this.mac)
+    this.$store.dispatch('$_nodes/getNode', this.mac).then(data => {
+      this.node = Object.assign({}, data)
+    })
     this.$store.dispatch('config/getRoles')
     this.$store.dispatch('config/getViolations')
     document.addEventListener('keyup', this.onKeyup)
@@ -221,4 +240,3 @@ export default {
   }
 }
 </script>
-

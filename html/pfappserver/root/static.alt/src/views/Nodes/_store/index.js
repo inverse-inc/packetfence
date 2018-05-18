@@ -8,9 +8,10 @@ const STORAGE_SEARCH_LIMIT_KEY = 'nodes-search-limit'
 
 // Default values
 const state = {
-  status: '',
   items: [], // search results
   nodes: {}, // nodes details
+  nodeStatus: '',
+  searchStatus: '',
   searchQuery: null,
   searchSortBy: 'mac',
   searchSortDesc: false,
@@ -19,7 +20,8 @@ const state = {
 }
 
 const getters = {
-  isLoading: state => state.status === 'loading'
+  isLoading: state => state.nodeStatus === 'loading',
+  isLoadingResults: state => state.searchStatus === 'loading'
 }
 
 const actions = {
@@ -122,6 +124,30 @@ const actions = {
 
       return node
     })
+  },
+  updateNode: ({commit}, data) => {
+    commit('NODE_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.updateNode(data).then(response => {
+        commit('NODE_REPLACED', data)
+        resolve(response)
+      }).catch(err => {
+        commit('NODE_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  deleteNode: ({commit}, mac) => {
+    commit('NODE_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.deleteNode(mac).then(response => {
+        commit('NODE_DESTROYED', mac)
+        resolve(response)
+      }).catch(err => {
+        commit('NODE_ERROR', err.response)
+        reject(err)
+      })
+    })
   }
 }
 
@@ -142,10 +168,10 @@ const mutations = {
     state.searchPageSize = limit
   },
   SEARCH_REQUEST: (state) => {
-    state.status = 'loading'
+    state.searchStatus = 'loading'
   },
   SEARCH_SUCCESS: (state, response) => {
-    state.status = 'success'
+    state.searchStatus = 'success'
     state.items = response.items
     let nextPage = Math.floor(response.nextCursor / state.searchPageSize) + 1
     if (nextPage > state.searchMaxPageNumber) {
@@ -153,16 +179,31 @@ const mutations = {
     }
   },
   SEARCH_ERROR: (state, response) => {
-    state.status = 'error'
+    state.searchStatus = 'error'
     if (response && response.data) {
       state.message = response.data.message
     }
   },
+  NODE_REQUEST: (state) => {
+    state.nodeStatus = 'loading'
+  },
   NODE_REPLACED: (state, data) => {
+    state.nodeStatus = 'success'
     Vue.set(state.nodes, data.mac, data)
   },
   NODE_UPDATED: (state, params) => {
+    state.nodeStatus = 'success'
     Vue.set(state.nodes[params.mac], params.prop, params.data)
+  },
+  NODE_DESTROYED: (state, mac) => {
+    state.nodeStatus = 'success'
+    Vue.set(state.nodes, mac, null)
+  },
+  NODE_ERROR: (state, response) => {
+    state.nodeStatus = 'error'
+    if (response && response.data) {
+      state.message = response.data.message
+    }
   }
 }
 

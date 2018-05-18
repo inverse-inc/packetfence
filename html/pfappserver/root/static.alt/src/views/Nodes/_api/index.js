@@ -58,5 +58,10 @@ export default {
     return apiCall.post('violations/search', search).then(response => {
       return response.data.items
     })
+  },
+  updateNode: body => {
+    return apiCall.patch(`node/${body.mac}`, body).then(response => {
+      return response.data
+    })
   }
 }

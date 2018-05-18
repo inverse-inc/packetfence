@@ -129,7 +129,7 @@ export default {
   },
   computed: {
     isLoading () {
-      return this.$store.getters['$_nodes/isLoading']
+      return this.$store.getters['$_nodes/isLoadingResults']
     },
     sortBy () {
       return this.$store.state.$_nodes.searchSortBy
