@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 7;
+use Test::More tests => 8;
 
 #This test will running last
 use Test::NoWarnings;
@@ -51,7 +51,7 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
 
     is_deeply(
         [ $sb->make_columns( \%search_info ) ],
-        [ 200, [ 'node.mac', 'ip4log.ip', 'locationlog.ssid', 'locationlog.port'] ],
+        [ 200, [ 'node.mac', 'ip4log.ip|ip4log_ip', 'locationlog.ssid|locationlog_ssid', 'locationlog.port|locationlog_port'] ],
         'Return the columns'
     );
 
@@ -72,7 +72,7 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
 }
 
 {
-    my @f = qw(mac locationlog.ssid locationlog.port); 
+    my @f = qw(mac locationlog.ssid locationlog.port radacct.acctsessionid);
 
     my %search_info = (
         dal => $dal, 
@@ -86,7 +86,7 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
 
     is_deeply(
         [ $sb->make_columns( \%search_info ) ],
-        [ 200, [ 'node.mac', 'locationlog.ssid', 'locationlog.port'] ],
+        [ 200, [ 'node.mac', 'locationlog.ssid|locationlog_ssid', 'locationlog.port|locationlog_port', 'radacct.acctsessionid|radacct_acctsessionid'] ],
         'Return the columns'
     );
     is_deeply(
@@ -97,6 +97,8 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
             200,
             {
                 'ip4log.ip' => { "=" => "1.1.1.1"},
+                'locationlog2.id' => undef,
+                'r2.radacctid' => undef,
             },
         ],
         'Return the joined tables'
@@ -104,20 +106,42 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
 
     $sb->make_where(\%search_info);
 
+    my @a = $sb->make_from(\%search_info);
     is_deeply(
-        [ 
-            $sb->make_from(\%search_info)
-        ],
+        \@a,
         [
             200,
             [
                 -join => 'node',
                 @pf::UnifiedApi::SearchBuilder::Nodes::LOCATION_LOG_JOIN,
+                @pf::UnifiedApi::SearchBuilder::Nodes::RADACCT_JOIN,
                 @pf::UnifiedApi::SearchBuilder::Nodes::IP4LOG_JOIN,
             ]
         ],
         'Return the joined tables'
     );
+}
+
+{
+    my @f = qw(mac radacct.online);
+
+    my %search_info = (
+        dal    => $dal,
+        fields => \@f,
+    );
+
+    is_deeply(
+        [ $sb->make_columns( \%search_info ) ],
+        [
+            200,
+            [
+                'node.mac',
+                "IF(radacct.acctstarttime IS NULL,'unknown',IF(radacct.acctstoptime IS NULL, 'on', 'off'))|radacct_online"
+            ]
+        ],
+        'Return the columns with column spec'
+    );
+
 }
 
 =head1 AUTHOR

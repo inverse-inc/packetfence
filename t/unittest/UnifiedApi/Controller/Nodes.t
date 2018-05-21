@@ -38,7 +38,7 @@ my $t = Test::Mojo->new('pf::UnifiedApi');
 $t->get_ok('/api/v1/nodes')
   ->status_is(200);
 
-$t->post_ok('/api/v1/nodes/search' => json => { fields => [qw(mac ip4log.ip)]  })
+$t->post_ok('/api/v1/nodes/search' => json => { fields => [qw(mac ip4log.ip)], query => { op=> 'equals', field => 'ip4log.ip', value => '1.2.2.3'  }  })
   ->status_is(200);
 
 $t->delete_ok('/api/v1/node/00:02:34:23:22:11');

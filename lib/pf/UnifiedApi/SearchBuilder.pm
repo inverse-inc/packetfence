@@ -224,13 +224,29 @@ sub make_columns {
 
     if (@$cols) {
         push @{$s->{found_fields}}, @$cols;
-        my $t = $s->{dal}->table;
-        @$cols = map { $self->is_table_field($s, $_) ? "${t}.$_" : $_ } @$cols;
+        @$cols = map { $self->format_column($s, $_) } @$cols
     } else {
         $cols = $s->{dal}->table_field_names;
     }
 
     return 200, $cols;
+}
+
+=head2 format_column
+
+format_column
+
+=cut
+
+sub format_column {
+    my ($self, $s, $c) = @_;
+    if ($self->is_table_field($s, $c)) {
+        my $t = $s->{dal}->table;
+        return "${t}.${c}";
+    }
+    my $allowed_join_fields = $self->allowed_join_fields;
+    my $specs = $allowed_join_fields->{$c};
+    return exists $specs->{column_spec} ? $specs->{column_spec} : $c;
 }
 
 =head2 $self->allowed_join_fields()
@@ -376,7 +392,28 @@ sub make_where {
     }
 
     my $where = pf::UnifiedApi::Search::searchQueryToSqlAbstract($query);
+    my $sqla = pf::dal->get_sql_abstract;
+    $where = $sqla->merge_conditions($where, $self->additional_where_clause($s));
     return 200, $where;
+}
+
+=head2 additional_where_clause
+
+additional_where_clause
+
+=cut
+
+sub additional_where_clause {
+    my ($self, $s) = @_;
+    my $allowed_join_fields = $self->allowed_join_fields;
+    my @clauses;
+    foreach my $f (@{$s->{found_fields} // []}) {
+        next if !exists $allowed_join_fields->{$f};
+        my $jf = $allowed_join_fields->{$f};
+        next if !exists $jf->{where_spec};
+        push @clauses, $jf->{where_spec};
+    }
+    return @clauses;
 }
 
 =head2 $self->make_order_by($search_info)
