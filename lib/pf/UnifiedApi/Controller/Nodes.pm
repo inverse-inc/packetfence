@@ -134,6 +134,18 @@ sub bulk_deregister {
     return $self->render(status => 200, json => { count => $count });
 }
 
+=head2 fingerbank_info
+
+fingerbank_info
+
+=cut
+
+sub fingerbank_info {
+    my ($self) = @_;
+    my $mac = $self->stash->{node_id};
+    return $self->render(status => 200, json => { item => pf::node::fingerbank_info($mac) });
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
