@@ -97,7 +97,7 @@ our %LOCATION_LOG_WHERE = (
 our %ALLOWED_JOIN_FIELDS = (
     'ip4log.ip' => {
         join_spec => \@IP4LOG_JOIN,
-        'column_spec' => "ip4log.ip|ip4log_ip",
+        'column_spec' => make_join_column_spec('ip4log', 'ip'),
         namespace => 'ip4log',
     },
     'online' => {
@@ -139,8 +139,13 @@ sub map_dal_field_to_join_spec {
     return "${table}.${field}" => {
         join_spec => $join_spec,
         (defined $where_spec ? (where_spec => $where_spec) : () ),
-        column_spec => "${table}.${field}|${table}_${field}",
+        column_spec => make_join_column_spec($table, $field),
    } 
+}
+
+sub make_join_column_spec {
+    my ($t, $f) = @_;
+    return \"`${t}`.`${f}` AS `${t}.${f}`";
 }
 
 sub allowed_join_fields {

@@ -41,31 +41,32 @@ $t->get_ok('/api/v1/nodes')
 $t->post_ok('/api/v1/nodes/search' => json => { fields => [qw(mac ip4log.ip)], query => { op=> 'equals', field => 'ip4log.ip', value => '1.2.2.3'  }  })
   ->status_is(200);
 
-$t->delete_ok('/api/v1/node/00:02:34:23:22:11');
+my $mac = "00:02:34:23:22:11";
 
-$t->post_ok('/api/v1/nodes' => json => { mac => '00:02:34:23:22:11'  })
+$t->delete_ok("/api/v1/node/$mac");
+
+$t->post_ok('/api/v1/nodes' => json => { mac => $mac })
   ->status_is(201);
 
-$t->post_ok('/api/v1/node/00:02:34:23:22:11/register' => json => {   })
+$t->post_ok("/api/v1/node/$mac/register" => json => {   })
   ->status_is(422);
 
-$t->post_ok('/api/v1/node/00:02:34:23:22:11/register' => json => { pid => 'default'  })
+$t->post_ok("/api/v1/node/$mac/register" => json => { pid => 'default'  })
   ->status_is(204);
 
-$t->post_ok('/api/v1/node/00:02:34:23:22:11/deregister' => json => { })
+$t->post_ok("/api/v1/node/$mac/deregister" => json => { })
   ->status_is(204);
 
-$t->post_ok('/api/v1/node/00:02:34:23:22:11/fingerbank_info' => json => {})
+$t->get_ok("/api/v1/node/$mac/fingerbank_info" => json => {})
   ->status_is(200);
 
-$t->post_ok('/api/v1/nodes/bulk_register' => json => { items => [qw(00:02:34:23:22:11)] })
+$t->post_ok("/api/v1/nodes/bulk_register" => json => { items => [$mac] })
   ->status_is(200)
   ->json_is('/count', 0);
 
-$t->post_ok('/api/v1/nodes/bulk_deregister' => json => { items => [qw(00:02:34:23:22:11)] })
+$t->post_ok('/api/v1/nodes/bulk_deregister' => json => { items => [$mac] })
   ->status_is(200)
   ->json_is('/count', 0);
-
 
 =head1 AUTHOR
 

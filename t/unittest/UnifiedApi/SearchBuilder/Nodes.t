@@ -51,7 +51,7 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
 
     is_deeply(
         [ $sb->make_columns( \%search_info ) ],
-        [ 200, [ 'node.mac', 'ip4log.ip|ip4log_ip', 'locationlog.ssid|locationlog_ssid', 'locationlog.port|locationlog_port'] ],
+        [ 200, [ 'node.mac', \'`ip4log`.`ip` AS `ip4log.ip`', \'`locationlog`.`ssid` AS `locationlog.ssid`', \'`locationlog`.`port` AS `locationlog.port`'] ],
         'Return the columns'
     );
 
@@ -86,7 +86,7 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
 
     is_deeply(
         [ $sb->make_columns( \%search_info ) ],
-        [ 200, [ 'node.mac', 'locationlog.ssid|locationlog_ssid', 'locationlog.port|locationlog_port', 'radacct.acctsessionid|radacct_acctsessionid'] ],
+        [ 200, [ 'node.mac', \'`locationlog`.`ssid` AS `locationlog.ssid`', \'`locationlog`.`port` AS `locationlog.port`', \'`radacct`.`acctsessionid` AS `radacct.acctsessionid`'] ],
         'Return the columns'
     );
     is_deeply(
