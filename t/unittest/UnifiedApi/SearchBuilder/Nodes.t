@@ -173,9 +173,25 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
         "Is online rewriteable"
     );
 
-    is_deeply($sb->rewrite_query($s, $q), { op => 'equals', value => undef, field => 'radacct.acctstarttime' }, "Rewrite online query");
-    is_deeply($sb->rewrite_query($s, {op => 'equals', value => 'on', field => 'online'}), { op => 'equals', value => undef, field => 'radacct.acctstoptime' }, "Rewrite online query");
-    is_deeply($sb->rewrite_query($s, {op => 'equals', value => 'off', field => 'online'}), { op => 'not_equals', value => undef, field => 'radacct.acctstoptime' }, "Rewrite online query");
+    is_deeply(
+        $sb->rewrite_query( $s, $q ),
+        { op => 'equals', value => undef, field => 'radacct.acctstarttime' },
+        "Rewrite online unknown query radacct.acctstarttime"
+    );
+    is_deeply(
+        $sb->rewrite_query(
+            $s, { op => 'equals', value => 'on', field => 'online' }
+        ),
+        { op => 'equals', value => undef, field => 'radacct.acctstoptime' },
+        "Rewrite online on query radacct.acctstoptime"
+    );
+    is_deeply(
+        $sb->rewrite_query(
+            $s, { op => 'equals', value => 'off', field => 'online' }
+        ),
+        { op => 'not_equals', value => undef, field => 'radacct.acctstoptime' },
+        "Rewrite online on query radacct.acctstoptime"
+    );
 }
 
 

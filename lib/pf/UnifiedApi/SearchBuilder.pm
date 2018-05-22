@@ -354,13 +354,15 @@ rewrite_query
 
 sub rewrite_query {
     my ($self, $s, $query) = @_;
-    my $field = $query->{field};
-    if ($self->is_table_field($s, $field)) {
-        $query->{field} = $s->{dal}->table . "." . $field;
-    } elsif ($self->is_field_rewritable($s, $field)) {
+    my $f = $query->{field};
+    if ($self->is_table_field($s, $f)) {
+        $query->{field} = $s->{dal}->table . "." . $f;
+    } elsif ($self->is_field_rewritable($s, $f)) {
         my $allowed = $self->allowed_join_fields;
-        $query = $allowed->{$field}{rewrite_query}->($self, $s, $query);
+        my $cb = $allowed->{$f}{rewrite_query};
+        $query = $self->$cb($s, $query);
     }
+
     return $query;
 }
 
