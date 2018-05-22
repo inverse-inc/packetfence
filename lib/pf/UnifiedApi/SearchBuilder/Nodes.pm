@@ -97,41 +97,51 @@ our %LOCATION_LOG_WHERE = (
 our %ALLOWED_JOIN_FIELDS = (
     'ip4log.ip' => {
         join_spec => \@IP4LOG_JOIN,
-        'column_spec' => 'ip4log.ip|ip4log_ip',
+        'column_spec' => "ip4log.ip|ip4log_ip",
         namespace => 'ip4log',
     },
-    'radacct.online' => {
+    'online' => {
         join_spec  => \@RADACCT_JOIN,
         where_spec => \%RADACCT_WHERE,
         namespace => 'radacct',
-        column_spec => "IF(radacct.acctstarttime IS NULL,'unknown',IF(radacct.acctstoptime IS NULL, 'on', 'off'))|radacct_online",
+        rewrite_query => \&rewrite_online_query,
+        column_spec => "IF(radacct.acctstarttime IS NULL,'unknown',IF(radacct.acctstoptime IS NULL, 'on', 'off'))|online",
     },
-    (
-        map {
-            (
-                "radacct.$_" => {
-                    join_spec  => \@RADACCT_JOIN,
-                    where_spec => \%RADACCT_WHERE,
-                    namespace => 'radacct',
-                    column_spec => "radacct.$_|radacct_$_"
-                }
-            )
-          } 
-          @{pf::dal::radacct->table_field_names}
-    ),
-    (
-        map {
-            (
-                "locationlog.$_" => {
-                    join_spec  => \@LOCATION_LOG_JOIN,
-                    where_spec => \%LOCATION_LOG_WHERE,
-                    column_spec => "locationlog.$_|locationlog_$_"
-                }
-            )
-          } @{pf::dal::locationlog->table_field_names}
-    ),
+    map_dal_fields_to_join_spec("pf::dal::radacct", \@RADACCT_JOIN, \%RADACCT_WHERE),
+    map_dal_fields_to_join_spec("pf::dal::locationlog", \@LOCATION_LOG_JOIN, \%LOCATION_LOG_WHERE),
 
 );
+
+sub rewrite_online_query {
+    my ($self, $s, $q) = @_;
+    if ($q->{op} eq 'equals') {
+        my $value = $q->{value};
+        $q->{value} = undef;
+        if ($value eq 'unknown') {
+            $q->{field} = 'radacct.acctstarttime';
+        } else {
+            $q->{field} = 'radacct.acctstoptime';
+            $q->{op} = $value eq 'on' ? 'equals' : 'not_equals';
+        }
+    }
+    return $q;
+}
+
+sub map_dal_fields_to_join_spec {
+    my ($dal, $join_spec, $where_spec, $exclude) = @_;
+    $exclude //= {};
+    my $table = $dal->table;
+    return map { map_dal_field_to_join_spec($table, $_,$join_spec, $where_spec) } grep {!exists $exclude->{$_}} @{$dal->table_field_names}; 
+}
+
+sub map_dal_field_to_join_spec {
+    my ($table, $field, $join_spec, $where_spec) = @_;
+    return "${table}.${field}" => {
+        join_spec => $join_spec,
+        (defined $where_spec ? (where_spec => $where_spec) : () ),
+        column_spec => "${table}.${field}|${table}_${field}",
+   } 
+}
 
 sub allowed_join_fields {
     \%ALLOWED_JOIN_FIELDS

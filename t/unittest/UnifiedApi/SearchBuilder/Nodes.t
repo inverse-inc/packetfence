@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 8;
+use Test::More tests => 14;
 
 #This test will running last
 use Test::NoWarnings;
@@ -123,7 +123,7 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
 }
 
 {
-    my @f = qw(mac radacct.online);
+    my @f = qw(mac online);
 
     my %search_info = (
         dal    => $dal,
@@ -136,12 +136,63 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
             200,
             [
                 'node.mac',
-                "IF(radacct.acctstarttime IS NULL,'unknown',IF(radacct.acctstoptime IS NULL, 'on', 'off'))|radacct_online"
+                "IF(radacct.acctstarttime IS NULL,'unknown',IF(radacct.acctstoptime IS NULL, 'on', 'off'))|online"
             ]
         ],
         'Return the columns with column spec'
     );
 
+}
+
+{
+    my @f = qw(mac online);
+    my %search_info = (
+        dal    => $dal,
+        fields => \@f,
+        sort => ['online'],
+    );
+    my ($status, $results) = $sb->search(\%search_info);
+    is($status, 200, "Including online");
+}
+
+{
+    my $q = {
+        op    => 'equals',
+        field => 'online',
+        value => "unknown",
+    };
+
+    my $s = {
+        dal    => $dal,
+        fields => [qw(mac online)],
+        query  => $q,
+    };
+
+    ok(
+        $sb->is_field_rewritable($s, 'online'),
+        "Is online rewriteable"
+    );
+
+    is_deeply($sb->rewrite_query($s, $q), { op => 'equals', value => undef, field => 'radacct.acctstarttime' }, "Rewrite online query");
+    is_deeply($sb->rewrite_query($s, {op => 'equals', value => 'on', field => 'online'}), { op => 'equals', value => undef, field => 'radacct.acctstoptime' }, "Rewrite online query");
+    is_deeply($sb->rewrite_query($s, {op => 'equals', value => 'off', field => 'online'}), { op => 'not_equals', value => undef, field => 'radacct.acctstoptime' }, "Rewrite online query");
+}
+
+
+
+{
+    my @f = qw(mac online);
+    my %search_info = (
+        dal    => $dal,
+        fields => \@f,
+        query => {
+            op => 'equals',
+            field => 'online',
+            value => "unknown",
+        },
+    );
+    my ($status, $results) = $sb->search(\%search_info);
+    is($status, 200, "Query remap for online");
 }
 
 =head1 AUTHOR
