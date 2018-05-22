@@ -10,6 +10,7 @@
 
 # this is only for the mysqld standalone daemon
 [mysqld]
+datadir=/var/lib/mysql
 
 [% IF server_ip.length %]
 bind-address=[% server_ip %]

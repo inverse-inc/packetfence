@@ -24,7 +24,7 @@ Pre-Depends:  ca-certificates,
 Breaks: libdata-alias-perl
 Depends: ${misc:Depends}, vlan,
  openssl, openssl-blacklist, openssl-blacklist-extra,
- mariadb-server (>= 10.1),
+ mariadb-server (>= 10.1.33), mariadb-backup (>= 10.1.33),
  snmp, snmptrapfmt, snmptrapd, snmp-mibs-downloader, conntrack,
 # apache related
  apache2, apache2-utils, libapache2-mod-proxy-html,
