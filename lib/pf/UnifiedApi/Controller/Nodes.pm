@@ -17,9 +17,11 @@ use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
 use pf::dal::node;
 use pf::node;
+use pf::dal::violation;
 use pf::error qw(is_error);
 use pf::locationlog qw(locationlog_history_mac locationlog_view_open_mac);
 use pf::UnifiedApi::SearchBuilder::Nodes;
+use pf::violation;
 
 has 'search_builder_class' => 'pf::UnifiedApi::SearchBuilder::Nodes';
 
@@ -144,6 +146,40 @@ sub fingerbank_info {
     my ($self) = @_;
     my $mac = $self->stash->{node_id};
     return $self->render(status => 200, json => { item => pf::node::fingerbank_info($mac) });
+}
+
+sub bulk_close_violations {
+    my ($self) = @_;
+    my ($status, $data) = $self->parse_json;
+    if (is_error($status)) {
+        return $self->render(json => $data, status => $status);
+    }
+
+    my $items = $data->{items} // [];
+    ($status, my $iter) = pf::dal::violation->search(
+        -where => {
+            mac => { -in => $items},
+            status => "open",
+        },
+        -columns => [qw(violation.vid mac)],
+        -from => [-join => qw(violation <=>{violation.vid=class.vid} class)],
+        -order_by => { -desc => 'start_date' },
+        -with_class => undef,
+    );
+
+    if (is_error($status)) {
+        return $self->render_error(status => $status, "Error finding nodes");
+    }
+
+    my $violations = $iter->all;
+    my $count = 0;
+    for my $violation (@$violations) {
+        if (violation_force_close($violation->{mac}, $violation->{vid})) {
+            pf::enforcement::reevaluate_access($violation->{mac}, "admin_modify");
+            $count++;
+        }
+    }
+    return $self->render(status => 200, json => { count => $count });
 }
 
 =head1 AUTHOR

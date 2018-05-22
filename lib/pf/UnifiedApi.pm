@@ -77,7 +77,8 @@ our @API_V1_ROUTES = (
         },
         collection => {
             subroutes => {
-                map { $_ => { post => $_ } } qw(bulk_register bulk_deregister search)
+                map { $_ => { post => $_ } }
+                  qw(bulk_register bulk_deregister search bulk_close_violations)
             }
         }
     },
