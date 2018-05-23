@@ -77,9 +77,9 @@ sub pid {
     my ($self) = @_;
     my @status;
     if($cluster_enabled) {
-        @status = `sudo systemctl status packetfence.target`;
-    } else {
         @status = `sudo systemctl status packetfence-cluster.target`;
+    } else {
+        @status = `sudo systemctl status packetfence.target`;
     }
     my $pid = grep {/Active: active/} @status;
     return $pid;
