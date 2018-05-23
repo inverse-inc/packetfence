@@ -3,13 +3,15 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"fmt"
 	"github.com/coreos/go-systemd/daemon"
 	"github.com/inverse-inc/packetfence/go/detect/parser"
 	"github.com/inverse-inc/packetfence/go/log"
-	_ "github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"os"
 	"os/signal"
+	"runtime"
 	"sync"
 	"syscall"
 )
@@ -25,48 +27,53 @@ type ParseRunner struct {
 	StopChan chan struct{}
 }
 
-func (r *ParseRunner) Run() {
-	err := r.WatchLog()
+func (r *ParseRunner) Run() error {
+	fmt.Printf("Start reading from %s\n", r.PipePath)
+	var err error
+	r.File, err = os.OpenFile(r.PipePath, syscall.O_RDWR, 0600)
 	if err != nil {
-		fmt.Printf("%s\n", err)
+		return err
 	}
+
+	select {
+	case <-r.StopChan:
+		r.File.Close()
+		return fmt.Errorf("Runner was stopped before reading from pipe started")
+	default:
+	}
+
+	fmt.Printf("File %s opened ready for reading\n", r.PipePath)
+	return r.WatchLog()
 }
 
-func NewParseRunner(parserType, path string, config interface{}) (*ParseRunner, error) {
+func NewParseRunner(parserType string, config *parser.PfdetectConfig) (*ParseRunner, error) {
 	p, err := parser.CreateParser(parserType, config)
 	if err != nil {
 		return nil, err
 	}
 
-	file, err := os.OpenFile(path, syscall.O_RDONLY|syscall.O_NONBLOCK, 0600)
-	if err != nil {
-		return nil, err
-	}
-
 	return &ParseRunner{
-		PipePath: path,
-		File:     file,
+		PipePath: config.Path,
 		Parser:   p,
-		StopChan: make(chan struct{}),
+		StopChan: make(chan struct{}, 1),
 	}, nil
 }
 
 func (r *ParseRunner) Stop() {
 	fmt.Printf("Stopping runner %s\n", r.PipePath)
-	r.File.Close()
 	r.StopChan <- struct{}{}
+	r.File.Close()
 }
 
 type Server struct {
-	Runners         []*ParseRunner
+	Runners         Runners
 	SignalChan      chan os.Signal
 	WaitGroup       *sync.WaitGroup
 	OnceSignalSetup *sync.Once
-	Count           int
+	CPUCount        int
 }
 
 func (s *Server) AddWait(n int) {
-	s.Count += n
 	s.WaitGroup.Add(n)
 }
 
@@ -74,8 +81,8 @@ func (s *Server) Wait() {
 	s.WaitGroup.Wait()
 }
 
-func (s *Server) Done() {
-	s.Count--
+func (s *Server) Done(msg string) {
+	fmt.Printf("Done for %s\n", msg)
 	s.WaitGroup.Done()
 }
 
@@ -84,17 +91,26 @@ func NewServer() *Server {
 		SignalChan:      make(chan os.Signal, 1),
 		WaitGroup:       &sync.WaitGroup{},
 		OnceSignalSetup: &sync.Once{},
+		CPUCount:        runtime.NumCPU(),
 	}
 }
 
+type Runners []*ParseRunner
+
+func (array *Runners) Append(r ...*ParseRunner) {
+	*array = append(*array, r...)
+}
+
 func (s *Server) AddRunner(runner *ParseRunner) {
-	s.Runners = append(s.Runners, runner)
+	s.Runners.Append(runner)
 }
 
 func (s *Server) StopRunners() {
 	fmt.Printf("Stopping runners\n")
 	for _, runner := range s.Runners {
+		fmt.Printf("Stopped %s\n", runner.PipePath)
 		runner.Stop()
+		s.Done(runner.PipePath)
 	}
 	s.Runners = s.Runners[0:0]
 }
@@ -114,7 +130,7 @@ func (s *Server) SetupSignals() {
 			for {
 				sig := <-s.SignalChan
 				if sig != syscall.SIGHUP {
-					s.Done()
+					s.Done("Signal")
 					break
 				}
 				s.ReloadConfig()
@@ -127,15 +143,26 @@ func (s *Server) SetupSignals() {
 	})
 }
 
+func GetPfDetectConfig() []parser.PfdetectConfig {
+	ctx := context.TODO()
+	keys, _ := pfconfigdriver.FetchKeys(ctx, "config::Pfdetect")
+	configs := make([]parser.PfdetectConfig, 0, len(keys))
+	for _, n := range keys {
+		config := parser.PfdetectConfig{Name: n, PfconfigHashNS: n}
+		_, _ = pfconfigdriver.FetchDecodeSocketCache(ctx, &config)
+		configs = append(configs, config)
+	}
+	return configs
+}
+
 func (s *Server) RunRunners() {
 	for _, runner := range s.Runners {
 		s.AddWait(1)
 		go func(runner *ParseRunner) {
-			defer s.Done()
 			runner.Run()
 		}(runner)
 	}
-	fmt.Printf("Ran runners %d\n", s.Count-1)
+	fmt.Printf("Ran runners %d\n", len(s.Runners))
 }
 
 func (s *Server) NotifySystemd(msg string) {
@@ -156,11 +183,19 @@ func (s *Server) Run() int {
 func main() {
 	log.SetProcessName("pfdetect")
 	server := NewServer()
-	runner, err := NewParseRunner("snort", "/usr/local/pf/logs/pfdetect.log", nil)
-	if err != nil {
-		fmt.Print(err)
-	} else {
-		server.AddRunner(runner)
+	configs := GetPfDetectConfig()
+	number_of_procs := runtime.GOMAXPROCS(0)
+	number_of_procs += len(configs)
+	fmt.Printf("Increasing GOMAXPROCS to %d\n", number_of_procs)
+	runtime.GOMAXPROCS(number_of_procs)
+	for _, config := range configs {
+		runner, err := NewParseRunner(config.Type, &config)
+		if err != nil {
+			fmt.Print(err)
+		} else {
+			fmt.Printf("Adding %s\n", runner.PipePath)
+			server.AddRunner(runner)
+		}
 	}
 
 	os.Exit(server.Run())
@@ -176,6 +211,7 @@ LOOP:
 	for {
 		select {
 		case <-r.StopChan:
+			fmt.Printf("Recieved stop on a channel")
 			break LOOP
 		default:
 			var line []byte
