@@ -64,10 +64,10 @@ has_field 'passcode' =>
              help => 'The WiFi key to join the SSID' },
   );
 
-has_field 'ipsk' =>
+has_field 'dpsk' =>
   (
    type => 'Checkbox',
-   label => 'Enable IPSK',
+   label => 'Enable DPSK',
    tags => { after_element => \&help,
              help => 'Define if the PSK needs to be generated' },
   );
@@ -149,7 +149,7 @@ sub filter_deflate {
 
 has_block definition =>
   (
-   render_list => [ qw(id description type category ssid broadcast eap_type security_type ipsk passcode pki_provider server_certificate_path) ],
+   render_list => [ qw(id description type category ssid broadcast eap_type security_type dpsk passcode pki_provider server_certificate_path) ],
   );
 
 has_block signing =>

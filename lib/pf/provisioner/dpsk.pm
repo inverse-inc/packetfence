@@ -1,14 +1,14 @@
-package pf::provisioner::ipsk;
+package pf::provisioner::dpsk;
 =head1 NAME
 
-pf::provisioner::ipsk allow to have a html page that present the psk and the ssid to use
+pf::provisioner::dpsk allow to have a html page that present the psk and the ssid to use
 
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::provisioner::ipsk
+pf::provisioner::dpsk
 
 =cut
 

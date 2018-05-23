@@ -41,8 +41,8 @@ sub index : Path : Args(0) {
     $provisioner->authorize($mac) if (defined($provisioner));
     my $profile_template = $provisioner->profile_template;
     my $psk;
-    if (isenabled($provisioner->ipsk)) {
-        $psk = $provisioner->generate_ipsk($c->session->{username});
+    if (isenabled($provisioner->dpsk)) {
+        $psk = $provisioner->generate_dpsk($c->session->{username});
     } else {
         $psk = $provisioner->passcode;
     }

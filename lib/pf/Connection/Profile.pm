@@ -609,15 +609,15 @@ sub canAccessRegistrationWhenRegistered {
     return isenabled($self->{_access_registration_when_registered});
 }
 
-=item ipskEnabled
+=item dpskEnabled
 
-Is IPSK is enable or not on this connection profile
+Is DPSK is enable or not on this connection profile
 
 =cut
 
-sub ipskEnabled {
+sub dpskEnabled {
     my ($self) = @_;
-    return isenabled($self->{'_ipsk'});
+    return isenabled($self->{'_dpsk'});
 }
 
 =back

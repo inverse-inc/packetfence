@@ -70,13 +70,13 @@ Passphrase if no eap/not open network
 
 has passcode => (is => 'rw');
 
-=head2 ipsk
+=head2 dpsk
 
-Does IPSK need to be activated
+Does DPSK need to be activated
 
 =cut
 
-has ipsk => (is => 'rw');
+has dpsk => (is => 'rw');
 
 =head2 psk_size
 
@@ -265,7 +265,7 @@ sub _build_profile_template {
     return "wireless-profile-noeap.xml";
 }
 
-sub generate_ipsk {
+sub generate_dpsk {
     my ($self,$username) = @_;
     my $person = person_view($username);
     if (defined $person->{psk} && $person->{psk} ne '') {

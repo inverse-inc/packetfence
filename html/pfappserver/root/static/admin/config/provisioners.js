@@ -36,8 +36,8 @@ var ProvisionerView = function(options) {
     options.parent.on('change', 'form[name="modalProvisioner"] select[name="security_type"]', toggleInputs);
     // Hide the ca_cert_path, cert_type and company fields when 'PEAP' is selected
     options.parent.on('change', 'form[name="modalProvisioner"] select[name="eap_type"]', toggleInputs);
-    // Hide passwork if ipsk is selected
-    options.parent.on('change', 'form[name="modalProvisioner"] input[name="ipsk"]', toggleInputs);
+    // Hide passwork if dpsk is selected
+    options.parent.on('change', 'form[name="modalProvisioner"] input[name="dpsk"]', toggleInputs);
     // Hide fileds on opening the provisioner
     options.parent.on('show', '#modalProvisioner', toggleInputs);
 };
@@ -61,12 +61,12 @@ ProvisionerView.prototype.toggleWifiKey = function(e) {
     var security_type = $('#security_type option:selected').text();
     var eap_type = $('#eap_type option:selected').text();
     var passcode_input = $('#passcode').closest('.control-group');
-    var ipsk_input = $('#ipsk').closest('.control-group');
-    var ipsk = $('input[name="ipsk"]').prop('checked');
+    var dpsk_input = $('#dpsk').closest('.control-group');
+    var dpsk = $('input[name="dpsk"]').prop('checked');
     var psk_size = $('#psk_size').closest('.control-group');
     if (security_type != "Open" && eap_type == "No EAP") {
-        ipsk_input.show();
-        if (ipsk) {
+        dpsk_input.show();
+        if (dpsk) {
             psk_size.show();
             passcode_input.hide();
         }
@@ -77,7 +77,7 @@ ProvisionerView.prototype.toggleWifiKey = function(e) {
     }
     else {
         passcode_input.hide();
-        ipsk_input.hide();
+        dpsk_input.hide();
     }
 };
 

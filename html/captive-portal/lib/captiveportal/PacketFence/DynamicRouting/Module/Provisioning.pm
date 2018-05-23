@@ -79,16 +79,16 @@ sub is_eap_tls {
     return $FALSE;
 }
 
-=head2 is_ipsk
+=head2 is_dpsk
 
-Check if we are doing ipsk enrollment
+Check if we are doing dpsk enrollment
 
 =cut
 
-sub is_ipsk {
+sub is_dpsk {
     my ($self) = @_;
     my $provisioner = $self->get_provisioner();
-    if(ref($provisioner) =~ /ipsk/) {
+    if(ref($provisioner) =~ /dpsk/) {
         return $TRUE;
     }
     return $FALSE;
@@ -135,8 +135,8 @@ sub execute_child {
         my $tls_module = captiveportal::DynamicRouting::Module::TLSEnrollment->new(id => $self->id."_pki_module", parent => $self, app => $self->app, pki_provider_id => $provisioner->getPkiProvider()->id);
         $tls_module->execute();
     }
-    elsif ($self->is_ipsk) {
-        $self->show_provisioning({ipsk => $provisioner->generate_ipsk($self->username), ssid => $provisioner->ssid});
+    elsif ($self->is_dpsk) {
+        $self->show_provisioning({psk => $provisioner->generate_dpsk($self->username), ssid => $provisioner->ssid});
     }
     elsif ($self->app->request->parameters->{next} && isenabled($self->skipable)){
         $self->done();

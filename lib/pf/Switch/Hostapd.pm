@@ -195,7 +195,7 @@ sub returnRadiusAccessAccept {
     my $radius_reply_ref = \%radius_reply;
     return [$status, %$radius_reply_ref] if($status == $RADIUS::RLM_MODULE_USERLOCK);
 
-    if ($args->{profile}->ipskEnabled()) {
+    if ($args->{profile}->dpskEnabled()) {
         if (defined($args->{owner}->{psk})) {
             $radius_reply_ref = {
                 %$radius_reply_ref,

@@ -4969,7 +4969,7 @@ PacketFence Configuration:
   The second way to associate the device is to use a provisioner. There are also 2 ways to do it, use the "IPSK" provisioner (it will show you a page on the portal with the PSK key to use and the 
   SSID to connect to, or use the "Windows/Apple Devices/Android" provisioner and configure it to do IPSK.
 
-image::docs/images/ipsk_provisioner.png[scaledwidth="100%",alt="Provisioner IPKS"]
+image::docs/images/dpsk_provisioner.png[scaledwidth="100%",alt="Provisioner IPKS"]
 
 
 Troubleshooting ignored RADIUS replies

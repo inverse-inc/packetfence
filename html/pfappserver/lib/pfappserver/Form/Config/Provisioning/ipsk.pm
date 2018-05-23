@@ -1,8 +1,8 @@
-package pfappserver::Form::Config::Provisioning::ipsk;
+package pfappserver::Form::Config::Provisioning::dpsk;
 
 =head1 NAME
 
-pfappserver::Form::Config::Provisioning::ipsk - Web form for IPKS provisioner
+pfappserver::Form::Config::Provisioning::dpsk - Web form for Dynamic PKS provisioner
 
 =head1 DESCRIPTION
 
