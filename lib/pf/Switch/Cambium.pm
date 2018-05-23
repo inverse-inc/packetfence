@@ -36,6 +36,7 @@ use pf::node;
 use pf::Switch::constants;
 use pf::util;
 use pf::util::radius qw(perform_disconnect);
+use pf::accounting qw(node_accounting_dynauth_attr);
 
 =head1 SUBROUTINES
 
