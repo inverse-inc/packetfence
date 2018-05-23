@@ -5,6 +5,7 @@ import Vue from 'vue'
 import api from '../_api'
 
 const STORAGE_SEARCH_LIMIT_KEY = 'nodes-search-limit'
+const STORAGE_VISIBLE_COLUMNS_KEY = 'nodes-visible-columns'
 
 // Default values
 const state = {
@@ -17,7 +18,8 @@ const state = {
   searchSortBy: 'mac',
   searchSortDesc: false,
   searchMaxPageNumber: 1,
-  searchPageSize: localStorage.getItem(STORAGE_SEARCH_LIMIT_KEY) || 10
+  searchPageSize: localStorage.getItem(STORAGE_SEARCH_LIMIT_KEY) || 10,
+  visibleColumns: JSON.parse(localStorage.getItem(STORAGE_VISIBLE_COLUMNS_KEY)) || false
 }
 
 const getters = {
@@ -39,6 +41,10 @@ const actions = {
     commit('SEARCH_SORT_BY_UPDATED', params.sortBy)
     commit('SEARCH_SORT_DESC_UPDATED', params.sortDesc)
     commit('SEARCH_MAX_PAGE_NUMBER_UPDATED', 1) // reset page count
+  },
+  setVisibleColumns: ({commit}, columns) => {
+    localStorage.setItem(STORAGE_VISIBLE_COLUMNS_KEY, JSON.stringify(columns))
+    commit('VISIBLE_COLUMNS_UPDATED', columns)
   },
   search: ({state, getters, commit, dispatch}, page) => {
     let sort = [state.searchSortDesc ? `${state.searchSortBy} DESC` : state.searchSortBy]
@@ -123,6 +129,16 @@ const actions = {
         commit('NODE_UPDATED', { mac, prop: 'violations', data: items })
       })
 
+      // Fetch fingerbank
+      let fingerbank = {}
+      api.fingerbankInfo(mac).then(item => {
+        Object.assign(fingerbank, item)
+      }).catch(() => {
+        // noop
+      }).finally(() => {
+        commit('NODE_UPDATED', { mac, prop: 'fingerbank', data: fingerbank })
+      })
+
       return node
     })
   },
@@ -199,6 +215,9 @@ const mutations = {
     if (response && response.data) {
       state.message = response.data.message
     }
+  },
+  VISIBLE_COLUMNS_UPDATED: (state, columns) => {
+    state.visibleColumns = columns
   },
   NODE_REQUEST: (state) => {
     state.nodeStatus = 'loading'
