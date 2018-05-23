@@ -74,7 +74,7 @@ has_field 'ipsk' =>
 
 has_field 'psk_size' =>
   (
-   type => 'PosInteger',
+   type => 'PSK',
    default => 8,
    label => 'PSK length',
    tags => { after_element => \&help,

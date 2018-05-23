@@ -1,36 +1,44 @@
-package pfappserver::Form::Config::Provisioning::ipsk;
+package pfappserver::Form::Field::PSK;
 
 =head1 NAME
 
-pfappserver::Form::Config::Provisioning::ipsk - Web form for IPKS provisioner
+pfappserver::Form::Field::PSK - PSK field
 
 =head1 DESCRIPTION
+
+This field extends the default Text field and checks if the input
+value is geater or equal to 8.
 
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::Config::Provisioning';
+extends 'HTML::FormHandler::Field::Integer';
 
-has_field 'ssid' =>
-  (
-   type => 'Text',
-   label => 'SSID',
-  );
+use pf::util;
+use namespace::autoclean;
 
-has_field 'psk_size' =>
-  (
-   type => 'PSK',
-   default => 8,
-   label => 'PSK length',
-   tags => { after_element => \&help,
-             help => 'This is the length of the PSK key you want to generate. The minimum length is eight characters.' },
-  );
+our $class_messages = {
+    'psk_length' => 'Value must be greater or equal to 8',
+};
 
-has_block definition =>
-  (
-   render_list => [ qw(id description type category ssid oses psk_size) ],
-  );
+sub get_class_messages {
+    my $self = shift;
+    return {
+       %{ $self->next::method },
+       %$class_messages,
+    }
+}
 
+apply
+[
+    {
+        check   => sub { $_[0] >= 8 },
+        message => sub {
+            my ( $value, $field ) = @_;
+            return $field->get_message('psk_length');
+        },
+    },
+];
 
 =head1 COPYRIGHT
 
