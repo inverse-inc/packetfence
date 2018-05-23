@@ -5975,7 +5975,7 @@ Where :
 VLAN Enforcement
 ^^^^^^^^^^^^^^^^
 
-In order to configure VLAN enforcement on the Unifi controller, you need first to configure a RADIUS profile, then next an open and a secure Wireless network
+In order to configure VLAN enforcement on the Unifi controller, you need first to configure a RADIUS profile, then next a secure Wireless network
 
 Important : You cannot re-use a VLAN ID for dynamic VLAN if it is set as a static value for another SSID on the same AP. So, if I have a SSID set to use VLAN 10, I cannot use VLAN ID 10 for RADIUS controlled VLAN users as those users will not get an IP.
 
@@ -5983,11 +5983,6 @@ AAA Configuration
 +++++++++++++++++
 
 image::docs/images/unifi-radius.png[scaledwidth="100%",alt="Unifi Radius Profile"]
-
-Open SSID
-+++++++++
-
-image::docs/images/unifi-open.png[scaledwidth="100%",alt="Unifi Open SSID"]
 
 Secure SSID
 +++++++++++
