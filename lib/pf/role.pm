@@ -404,10 +404,10 @@ sub getRegisteredRole {
 
     # Try MAC_AUTH, then other EAP methods and finally anything else.
     if ( $args->{'connection_type'} && ($args->{'connection_type'} & $WIRED_MAC_AUTH) == $WIRED_MAC_AUTH ) {
-        $logger->info("Connection type is WIRED_MAC_AUTH. Getting role from node_info" );
+        $logger->info("Connection type is Ethernet-NoEAP. Getting role from node_info" );
         $role = $args->{'node_info'}->{'category'};
     } elsif ( $args->{'connection_type'} && ($args->{'connection_type'} & $WIRELESS_MAC_AUTH) == $WIRELESS_MAC_AUTH ) {
-        $logger->info("Connection type is WIRELESS_MAC_AUTH. Getting role from node_info" );
+        $logger->info("Connection type is Wireless-802.11-NoEAP. Getting role from node_info" );
         $role = $args->{'node_info'}->{'category'};
     }
 

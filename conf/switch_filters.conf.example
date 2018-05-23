@@ -128,7 +128,7 @@
 #     Ethernet-NoEAP
 #     SNMP-Traps
 #     Inline
-#     WIRED_MAC_AUTH
+#     Ethernet-NoEAP
 # - for the radius_request
 #     All the attributes you can have in the RADIUS request (run FreeRADIUS in debug mode to see these attributes)
 #
