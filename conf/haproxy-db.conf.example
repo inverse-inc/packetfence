@@ -28,13 +28,7 @@ defaults
         timeout connect 5000
         timeout client 50000
         timeout server 50000
-        errorfile 400 %%os_path%%400.http
         errorfile 403 %%captiveportal_templates_path%%/rate-limiting.http
-        errorfile 408 %%os_path%%408.http
-        errorfile 500 %%os_path%%500.http
-        errorfile 502 %%os_path%%502.http
-        errorfile 503 %%os_path%%503.http
-        errorfile 504 %%os_path%%504.http
 
 frontend  main
     bind 127.0.0.1:3306
