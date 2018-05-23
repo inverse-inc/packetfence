@@ -179,7 +179,7 @@ sub radiusDisconnect {
 
 =item returnRadiusAccessAccept
 
-Prepares the RADIUS Access-Accept reponse for the network device.
+Prepares the RADIUS Access-Accept response for the network device.
 
 =cut
 
@@ -195,7 +195,7 @@ sub returnRadiusAccessAccept {
     my $radius_reply_ref = \%radius_reply;
     return [$status, %$radius_reply_ref] if($status == $RADIUS::RLM_MODULE_USERLOCK);
 
-    if (isenabled($args->{profile}->{_ipsk})) {
+    if ($args->{profile}->ipskEnabled()) {
         if (defined($args->{owner}->{psk})) {
             $radius_reply_ref = {
                 %$radius_reply_ref,

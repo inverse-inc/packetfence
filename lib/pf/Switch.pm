@@ -2792,7 +2792,7 @@ sub radiusDisconnect {
 
 =item returnRadiusAccessAccept
 
-Prepares the RADIUS Access-Accept reponse for the network device.
+Prepares the RADIUS Access-Accept response for the network device.
 
 Default implementation.
 

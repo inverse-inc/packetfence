@@ -617,7 +617,7 @@ Is IPSK is enable or not on this connection profile
 
 sub ipskEnabled {
     my ($self) = @_;
-    return $self->{'_ipsk'};
+    return isenabled($self->{'_ipsk'});
 }
 
 =back

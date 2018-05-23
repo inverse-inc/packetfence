@@ -435,7 +435,7 @@ sub returnRadiusAccessAccept {
             push @av_pairs, "url-redirect=".$redirect_url;
         }
     }
-    if (isenabled($args->{profile}->{_ipsk})) {
+    if ($args->{profile}->ipskEnabled()) {
         if (defined($args->{owner}->{psk})) {
             push @av_pairs, "psk=$args->{owner}->{psk}";
         } else {

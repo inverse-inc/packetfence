@@ -268,7 +268,8 @@ sub _build_profile_template {
 sub generate_ipsk {
     my ($self,$username) = @_;
     my $person = person_view($username);
-    if (defined $person->{psk} && $person->{ipsk} ne '') {
+    if (defined $person->{psk} && $person->{psk} ne '') {
+        get_logger->debug("Returning psk key $person->{psk} for user $username");
         return $person->{psk};
     }
     else {
@@ -277,9 +278,12 @@ sub generate_ipsk {
             $psk_size = $self->psk_size;
         } else {
             $psk_size = 8;
+            get_logger->info("PSK key redefined to 8");
         }
         my $psk = word(8,$psk_size);
         person_modify($username,psk => $psk);
+        get_logger->info("PSK key has been generated for user ".$username);
+	get_logger->debug("Returning psk key $psk for user $username");
         return $psk;
     }
 }

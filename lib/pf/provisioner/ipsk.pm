@@ -1,7 +1,8 @@
 package pf::provisioner::ipsk;
 =head1 NAME
 
-pf::provisioner::ipsk add documentation
+pf::provisioner::ipsk allow to have a html page that present the psk and the ssid to use
+
 
 =cut
 
@@ -33,7 +34,7 @@ sub authorize { 0 };
 
 =head2 oses
 
-The set the default OS to IOS
+The oses
 
 =cut
 
