@@ -48,12 +48,6 @@ sub build_child {
             for my $rule_id (@rule_ids) {
                 $rule_id =~ /^$id rule (.*)/;
                 my $rule = {%{$tmp_cfg{$rule_id}}, name => $1};
-                my $regex = eval {qr/$rule->{regex}/};
-                if ($@) {
-                    print STDERR "Invalid regex '$rule->{regex}'\n";
-                    next;
-                }
-                $rule->{regex}  = $regex;
                 my @action_keys = nsort grep { /^action\d+$/ } keys %$rule;
                 $rule->{actions} = [delete @$rule{@action_keys}];
                 push @rules, $rule;
