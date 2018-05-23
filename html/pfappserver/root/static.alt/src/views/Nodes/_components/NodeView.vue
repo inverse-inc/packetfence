@@ -11,15 +11,15 @@
         <b-tab title="Info" active>
           <b-row>
             <b-col>
-              <pf-form-input v-model="node.pid" label="Owner" :validation="$v.node.pid"/>
+              <pf-form-input v-model="nodeContent.pid" label="Owner" :validation="$v.nodeContent.pid"/>
               <b-form-group horizontal label-cols="3" :label="$t('Status')">
-                <b-form-select v-model="node.status" :options="statuses"></b-form-select>
+                <b-form-select v-model="nodeContent.status" :options="statuses"></b-form-select>
              </b-form-group>
               <b-form-group horizontal label-cols="3" :label="$t('Role')">
-                <b-form-select v-model="node.category" :options="roles"></b-form-select>
+                <b-form-select v-model="nodeContent.category" :options="roles"></b-form-select>
              </b-form-group>
               <b-form-group horizontal label-cols="3" :label="$t('Notes')">
-                <b-form-textarea v-model="node.notes" rows="4" max-rows="6"></b-form-textarea>
+                <b-form-textarea v-model="nodeContent.notes" rows="4" max-rows="6"></b-form-textarea>
               </b-form-group>
             </b-col>
             <b-col>
@@ -81,7 +81,7 @@
         </b-tab>
 
       </b-tabs>
-      <b-card-footer align="right" @mouseenter="$v.node.$touch()">
+      <b-card-footer align="right" @mouseenter="$v.nodeContent.$touch()">
         <b-button variant="outline-danger" class="mr-1" :disabled="isLoading" @click="deleteNode()" v-t="'Delete'"></b-button>
         <b-button variant="outline-primary" type="submit" :disabled="invalidForm" v-t="'Save'"></b-button>
       </b-card-footer>
@@ -116,7 +116,7 @@ export default {
   },
   data () {
     return {
-      node: {
+      nodeContent: {
         pid: ''
       },
       iplogFields: [
@@ -180,6 +180,9 @@ export default {
     }
   },
   computed: {
+    node () {
+      return this.$store.state.$_nodes.nodes[this.mac]
+    },
     roles () {
       return this.$store.getters['config/rolesList']
     },
@@ -190,11 +193,11 @@ export default {
       return this.$store.getters['$_nodes/isLoading']
     },
     invalidForm () {
-      return this.$v.node.$invalid || this.$store.getters['$_nodes/isLoading']
+      return this.$v.nodeContent.$invalid || this.$store.getters['$_nodes/isLoading']
     }
   },
   validations: {
-    node: {
+    nodeContent: {
       pid: { required }
     }
   },
@@ -211,7 +214,7 @@ export default {
       return this.$store.state.config.violations[id].desc
     },
     save () {
-      this.$store.dispatch('$_nodes/updateNode', this.node).then(response => {
+      this.$store.dispatch('$_nodes/updateNode', this.nodeContent).then(response => {
         this.close()
       })
     },
@@ -229,7 +232,7 @@ export default {
   },
   mounted () {
     this.$store.dispatch('$_nodes/getNode', this.mac).then(data => {
-      this.node = Object.assign({}, data)
+      this.nodeContent = Object.assign({}, data)
     })
     this.$store.dispatch('config/getRoles')
     this.$store.dispatch('config/getViolations')
