@@ -5979,6 +5979,8 @@ In order to configure VLAN enforcement on the Unifi controller, you need first t
 
 Important : You cannot re-use a VLAN ID for dynamic VLAN if it is set as a static value for another SSID on the same AP. So, if I have a SSID set to use VLAN 10, I cannot use VLAN ID 10 for RADIUS controlled VLAN users as those users will not get an IP.
 
+Note that vlan enforcement for an open ssid is not supported yet by the controller and access-point.
+
 AAA Configuration
 +++++++++++++++++
 
