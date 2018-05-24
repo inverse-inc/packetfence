@@ -83,7 +83,7 @@
           <b-tooltip target="checkallnone" placement="right" v-else>{{$t('Select All [ALT+A]')}}</b-tooltip>
         </template>
         <template slot="actions" slot-scope="data">
-          <input type="checkbox" :id="data.value" :value="data.item" v-model="checkedRows" @click.stop>
+          <input type="checkbox" :id="data.value" :value="data.item" v-model="checkedRows" @click.stop="toggleCheckbox($event, data.index)">
         </template>
         <template slot="status" slot-scope="data">
           <b-badge pill variant="success" v-if="data.value === 'reg'">{{ $t('registered') }}</b-badge>
@@ -124,6 +124,10 @@ export default {
     checkedAll: {
       type: Boolean,
       default: false
+    },
+    lastIndex: {
+      type: Number,
+      default: null
     }
   },
   data () {
@@ -477,6 +481,24 @@ export default {
     clearChecked () {
       this.checkedAll = false
       this.checkedRows = []
+      this.lastIndex = null
+    },
+    toggleCheckbox (event, index) {
+      // support SHIFT+CLICK
+      const lastIndex = this.lastIndex
+      this.lastIndex = index
+      if (lastIndex === null || index === lastIndex || !event.shiftKey) return
+      const subset = this.items.slice(
+        Math.min(index, lastIndex),
+        Math.max(index, lastIndex) + 1
+      )
+      if (event.currentTarget.checked) {
+        this.checkedRows.push(...subset)
+        // remove duplicates
+        this.checkedRows = this.checkedRows.reduce((x, y) => x.includes(y) ? x : [...x, y], [])
+      } else {
+        this.checkedRows = this.checkedRows.reduce((x, y) => subset.includes(y) ? x : [...x, y], [])
+      }
     },
     applyClearViolation () {
       console.log(['applyClearViolation', this.checkedRows])
