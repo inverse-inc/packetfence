@@ -9040,6 +9040,27 @@ components:
           type: string
       required: []
       type: object
+    NodeCategoriesList:
+      allOf:
+      - $ref: '#/components/schemas/Iterable'
+      - properties:
+          items:
+            items:
+              $ref: '#/components/schemas/NodeCategory'
+            type: array
+        type: object
+    NodeCategory:
+      properties:
+        category_id:
+          type: integer
+        max_nodes_per_pid:
+          type: integer
+        name:
+          type: string
+        notes:
+          type: string
+      required: []
+      type: object
     NodesList:
       allOf:
       - $ref: '#/components/schemas/Iterable'
@@ -11582,83 +11603,36 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
-  /dhcp_option82/{mac}:
-    delete:
-      responses:
-        '204':
-          description: Deleted dhcp option 82 log entry
-      summary: Allows to delete a dhcp option 82 log entry
-    get:
-      parameters:
-      - description: The MAC address to fetch.
-        in: path
-        name: mac
-        required: true
-        schema:
-          type: string
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                properties:
-                  item:
-                    $ref: '#/components/schemas/DhcpOption82'
-                type: object
-          description: A specific dhcp option82 log.
-      summary: Returns a specific dhcp option 82 log by a MAC address.
-    patch:
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DhcpOption82'
-        required: true
-      responses:
-        '200':
-          $ref: '#/components/responses/Message'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-      summary: Allows to update parts of a dhcp option 82 log entry.
-    put:
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DhcpOption82'
-        required: true
-      responses:
-        '200':
-          $ref: '#/components/responses/Message'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-      summary: Allows to update a whole dhcp option 82 log entry.
   /dhcp_option82s:
+    description: pf::UnifiedApi::Controller::DhcpOption82s
     get:
-      description: The list of logs will be limited to 100 and a cursor will be returned
-        for iterating on other logs. Iteration is only needed if the nextCursor is
-        not an empty value.
+      description: List items
+      operationId: api.v1.DhcpOption82s.list
       parameters:
       - $ref: '#/components/parameters/cursor'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/fields'
+      - $ref: '#/components/parameters/sort'
       responses:
         '200':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DhcpOption82List'
-          description: List of dhcp option 82 logs.
-      summary: Returns a list of dhcp option 82 logs.
+                $ref: '#/components/schemas/DhcpOption82sList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
     post:
+      description: Create an item
+      operationId: api.v1.DhcpOption82s.create
+      parameters: []
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/DhcpOption82'
-        required: true
+        description: Create item
       responses:
         '201':
           $ref: '#/components/responses/Created'
@@ -11668,7 +11642,6 @@ paths:
           $ref: '#/components/responses/Duplicate'
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
-      summary: Creates a dhcp option 82 log entry.
   /dhcp_option82s/search:
     description: pf::UnifiedApi::Controller::DhcpOption82s
     post:
@@ -12221,6 +12194,71 @@ paths:
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
       summary: Allows to update a whole node
+  /node_categories:
+    description: pf::UnifiedApi::Controller::NodeCategories
+    get:
+      description: List items
+      operationId: api.v1.NodeCategories.list
+      parameters:
+      - $ref: '#/components/parameters/cursor'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/fields'
+      - $ref: '#/components/parameters/sort'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NodeCategoriesList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+  /node_categories/search:
+    description: pf::UnifiedApi::Controller::NodeCategories
+    post:
+      operationId: api.v1.NodeCategories.search
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Search'
+        description: Search for items
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NodeCategoriesList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+  /node_category/{node_category_id}:
+    description: pf::UnifiedApi::Controller::NodeCategories
+    get:
+      description: Get an item
+      operationId: api.v1.NodeCategories.get
+      parameters:
+      - in: path
+        name: node_category_id
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  item:
+                    $ref: '#/components/schemas/NodeCategory'
+                type: object
+          description: Get item
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
   /nodes:
     get:
       description: The list of node will be limited to 100 and a cursor will be returned

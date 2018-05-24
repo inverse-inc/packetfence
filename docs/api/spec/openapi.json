@@ -5,7 +5,7 @@
             "description" : "The cursor pointer to fetch the data (value should be taken from previousCursor and nextCursor)",
             "in" : "query",
             "name" : "cursor",
-            "required" : "",
+            "required" : false,
             "schema" : {
                "type" : "string"
             }
@@ -14,7 +14,7 @@
             "description" : "Comma delimited fields that should be added to the resource by performing joins. For example, in order to get the IP address of a node when calling the nodes endpoints, setting 'ip4log.ip' into this field will provide the latest IP address of the device in the 'ip4log.ip' field of every node that is returned.",
             "in" : "body",
             "name" : "fields",
-            "required" : "",
+            "required" : false,
             "schema" : {
                "example" : [
                   "mac",
@@ -31,7 +31,7 @@
             "description" : "The name of the ipset to manipulate",
             "in" : "path",
             "name" : "set_name",
-            "required" : "1",
+            "required" : true,
             "schema" : {
                "type" : "string"
             }
@@ -40,7 +40,7 @@
             "description" : "The maximum amount of entries to get.",
             "in" : "query|body",
             "name" : "limit",
-            "required" : "",
+            "required" : false,
             "schema" : {
                "type" : "int"
             }
@@ -49,9 +49,9 @@
             "description" : "The local is used to determine if the request should be forwarded to the rest of the cluster. A value of '0' forwards the request and either a missing or alternate value does not forward the request to the rest of the cluster.",
             "in" : "query",
             "name" : "local",
-            "required" : "",
+            "required" : false,
             "schema" : {
-               "default" : "0",
+               "default" : 0,
                "type" : "integer"
             }
          },
@@ -76,7 +76,7 @@
             "description" : "The JSON encoded search query following the Search schema defined in this spec",
             "in" : "body",
             "name" : "query",
-            "required" : "1",
+            "required" : true,
             "schema" : {
                "$ref" : "#/components/schemas/Search"
             }
@@ -85,7 +85,7 @@
             "description" : "A list of fields to sort on along with the ordering way (ASC or DESC).",
             "in" : "body",
             "name" : "sort",
-            "required" : "",
+            "required" : false,
             "schema" : {
                "example" : [
                   "iplog.ip DESC",
@@ -101,7 +101,7 @@
             "description" : "The user ID",
             "in" : "path",
             "name" : "user_id",
-            "required" : "1",
+            "required" : true,
             "schema" : {
                "type" : "string"
             }
@@ -12093,6 +12093,42 @@
             "required" : [],
             "type" : "object"
          },
+         "NodeCategoriesList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "items" : {
+                           "$ref" : "#/components/schemas/NodeCategory"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
+         },
+         "NodeCategory" : {
+            "properties" : {
+               "category_id" : {
+                  "type" : "integer"
+               },
+               "max_nodes_per_pid" : {
+                  "type" : "integer"
+               },
+               "name" : {
+                  "type" : "string"
+               },
+               "notes" : {
+                  "type" : "string"
+               }
+            },
+            "required" : [],
+            "type" : "object"
+         },
          "NodesList" : {
             "allOf" : [
                {
@@ -16178,101 +16214,23 @@
             }
          }
       },
-      "/dhcp_option82/{mac}" : {
-         "delete" : {
-            "responses" : {
-               "204" : {
-                  "description" : "Deleted dhcp option 82 log entry"
-               }
-            },
-            "summary" : "Allows to delete a dhcp option 82 log entry"
-         },
-         "get" : {
-            "parameters" : [
-               {
-                  "description" : "The MAC address to fetch.",
-                  "in" : "path",
-                  "name" : "mac",
-                  "required" : "1",
-                  "schema" : {
-                     "type" : "string"
-                  }
-               }
-            ],
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "properties" : {
-                              "item" : {
-                                 "$ref" : "#/components/schemas/DhcpOption82"
-                              }
-                           },
-                           "type" : "object"
-                        }
-                     }
-                  },
-                  "description" : "A specific dhcp option82 log."
-               }
-            },
-            "summary" : "Returns a specific dhcp option 82 log by a MAC address."
-         },
-         "patch" : {
-            "requestBody" : {
-               "content" : {
-                  "application/json" : {
-                     "schema" : {
-                        "$ref" : "#/components/schemas/DhcpOption82"
-                     }
-                  }
-               },
-               "required" : "1"
-            },
-            "responses" : {
-               "200" : {
-                  "$ref" : "#/components/responses/Message"
-               },
-               "400" : {
-                  "$ref" : "#/components/responses/BadRequest"
-               },
-               "422" : {
-                  "$ref" : "#/components/responses/UnprocessableEntity"
-               }
-            },
-            "summary" : "Allows to update parts of a dhcp option 82 log entry."
-         },
-         "put" : {
-            "requestBody" : {
-               "content" : {
-                  "application/json" : {
-                     "schema" : {
-                        "$ref" : "#/components/schemas/DhcpOption82"
-                     }
-                  }
-               },
-               "required" : "1"
-            },
-            "responses" : {
-               "200" : {
-                  "$ref" : "#/components/responses/Message"
-               },
-               "400" : {
-                  "$ref" : "#/components/responses/BadRequest"
-               },
-               "422" : {
-                  "$ref" : "#/components/responses/UnprocessableEntity"
-               }
-            },
-            "summary" : "Allows to update a whole dhcp option 82 log entry."
-         }
-      },
       "/dhcp_option82s" : {
+         "description" : "pf::UnifiedApi::Controller::DhcpOption82s",
          "get" : {
-            "description" : "The list of logs will be limited to 100 and a cursor will be returned for iterating on other logs. Iteration is only needed if the nextCursor is not an empty value.",
+            "description" : "List items",
+            "operationId" : "api.v1.DhcpOption82s.list",
             "parameters" : [
                {
                   "$ref" : "#/components/parameters/cursor"
+               },
+               {
+                  "$ref" : "#/components/parameters/limit"
+               },
+               {
+                  "$ref" : "#/components/parameters/fields"
+               },
+               {
+                  "$ref" : "#/components/parameters/sort"
                }
             ],
             "responses" : {
@@ -16280,16 +16238,23 @@
                   "content" : {
                      "application/json" : {
                         "schema" : {
-                           "$ref" : "#/components/schemas/DhcpOption82List"
+                           "$ref" : "#/components/schemas/DhcpOption82sList"
                         }
                      }
-                  },
-                  "description" : "List of dhcp option 82 logs."
+                  }
+               },
+               "400" : {
+                  "$ref" : "#/components/responses/BadRequest"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
                }
-            },
-            "summary" : "Returns a list of dhcp option 82 logs."
+            }
          },
          "post" : {
+            "description" : "Create an item",
+            "operationId" : "api.v1.DhcpOption82s.create",
+            "parameters" : [],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -16298,7 +16263,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "description" : "Create item"
             },
             "responses" : {
                "201" : {
@@ -16313,8 +16278,7 @@
                "422" : {
                   "$ref" : "#/components/responses/UnprocessableEntity"
                }
-            },
-            "summary" : "Creates a dhcp option 82 log entry."
+            }
          }
       },
       "/dhcp_option82s/search" : {
@@ -16596,7 +16560,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -16625,7 +16589,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -16654,7 +16618,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -16683,7 +16647,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -16712,7 +16676,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -16741,7 +16705,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -16770,7 +16734,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -16802,7 +16766,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -16831,7 +16795,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -16860,7 +16824,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -17117,7 +17081,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -17165,7 +17129,7 @@
                   "description" : "The node ID to fetch",
                   "in" : "path",
                   "name" : "node_id",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -17199,7 +17163,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -17223,7 +17187,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -17237,6 +17201,117 @@
                }
             },
             "summary" : "Allows to update a whole node"
+         }
+      },
+      "/node_categories" : {
+         "description" : "pf::UnifiedApi::Controller::NodeCategories",
+         "get" : {
+            "description" : "List items",
+            "operationId" : "api.v1.NodeCategories.list",
+            "parameters" : [
+               {
+                  "$ref" : "#/components/parameters/cursor"
+               },
+               {
+                  "$ref" : "#/components/parameters/limit"
+               },
+               {
+                  "$ref" : "#/components/parameters/fields"
+               },
+               {
+                  "$ref" : "#/components/parameters/sort"
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/NodeCategoriesList"
+                        }
+                     }
+                  }
+               },
+               "400" : {
+                  "$ref" : "#/components/responses/BadRequest"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            }
+         }
+      },
+      "/node_categories/search" : {
+         "description" : "pf::UnifiedApi::Controller::NodeCategories",
+         "post" : {
+            "operationId" : "api.v1.NodeCategories.search",
+            "parameters" : [],
+            "requestBody" : {
+               "content" : {
+                  "application/json" : {
+                     "schema" : {
+                        "$ref" : "#/components/schemas/Search"
+                     }
+                  }
+               },
+               "description" : "Search for items"
+            },
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/NodeCategoriesList"
+                        }
+                     }
+                  }
+               },
+               "400" : {
+                  "$ref" : "#/components/responses/BadRequest"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            }
+         }
+      },
+      "/node_category/{node_category_id}" : {
+         "description" : "pf::UnifiedApi::Controller::NodeCategories",
+         "get" : {
+            "description" : "Get an item",
+            "operationId" : "api.v1.NodeCategories.get",
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "node_category_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "properties" : {
+                              "item" : {
+                                 "$ref" : "#/components/schemas/NodeCategory"
+                              }
+                           },
+                           "type" : "object"
+                        }
+                     }
+                  },
+                  "description" : "Get item"
+               },
+               "400" : {
+                  "$ref" : "#/components/responses/BadRequest"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            }
          }
       },
       "/nodes" : {
@@ -17270,7 +17345,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -17556,14 +17631,14 @@
                   "description" : "The service name to fetch",
                   "in" : "path",
                   "name" : "service",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
                }
             ],
             "requestBody" : {
-               "required" : ""
+               "required" : false
             },
             "responses" : {
                "200" : {
@@ -17583,14 +17658,14 @@
                   "description" : "The service name to fetch",
                   "in" : "path",
                   "name" : "service",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
                }
             ],
             "requestBody" : {
-               "required" : ""
+               "required" : false
             },
             "responses" : {
                "200" : {
@@ -17610,14 +17685,14 @@
                   "description" : "The service name to fetch",
                   "in" : "path",
                   "name" : "service",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
                }
             ],
             "requestBody" : {
-               "required" : ""
+               "required" : false
             },
             "responses" : {
                "200" : {
@@ -17637,14 +17712,14 @@
                   "description" : "The service name to fetch",
                   "in" : "path",
                   "name" : "service",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
                }
             ],
             "requestBody" : {
-               "required" : ""
+               "required" : false
             },
             "responses" : {
                "200" : {
@@ -17689,14 +17764,14 @@
                   "description" : "The service name to fetch",
                   "in" : "path",
                   "name" : "service",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
                }
             ],
             "requestBody" : {
-               "required" : ""
+               "required" : false
             },
             "responses" : {
                "200" : {
@@ -18705,7 +18780,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -18734,7 +18809,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -18766,7 +18841,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {

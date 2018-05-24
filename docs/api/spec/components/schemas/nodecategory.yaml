@@ -1,0 +1,12 @@
+NodeCategory:
+  properties:
+    category_id:
+      type: integer
+    max_nodes_per_pid:
+      type: integer
+    name:
+      type: string
+    notes:
+      type: string
+  required: []
+  type: object
