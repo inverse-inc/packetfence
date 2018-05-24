@@ -78,7 +78,9 @@
       <b-table stacked="sm" :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc"
         @sort-changed="onSortingChanged" @row-clicked="onRowClick" @head-clicked="clearChecked" hover no-local-sorting v-model="tableValues">
         <template slot="HEAD_actions" slot-scope="head">
-          <input type="checkbox" v-model="checkedAll" @change="onCheckedAllChange" @click.stop>
+          <input type="checkbox" id="checkallnone" v-model="checkedAll" @change="onCheckedAllChange" @click.stop>
+          <b-tooltip target="checkallnone" placement="right" v-if="checkedRows.length === tableValues.length">{{$t('Select None [ALT+N]')}}</b-tooltip>
+          <b-tooltip target="checkallnone" placement="right" v-else>{{$t('Select All [ALT+A]')}}</b-tooltip>
         </template>
         <template slot="actions" slot-scope="data">
           <input type="checkbox" :id="data.value" :value="data.item" v-model="checkedRows" @click.stop>
@@ -499,6 +501,18 @@ export default {
     },
     applyViolation (violation) {
       console.log(['applyViolation', violation, this.checkedRows])
+    },
+    onKeydown (event) {
+      switch (true) {
+        case (event.altKey && event.keyCode === 65): // ALT+A
+          event.preventDefault()
+          this.checkedRows = this.tableValues
+          break
+        case (event.altKey && event.keyCode === 78): // ALT+N
+          event.preventDefault()
+          this.checkedRows = []
+          break
+      }
     }
   },
   watch: {
@@ -538,6 +552,12 @@ export default {
         columns[index].visible = visibleColumns.includes(column.key)
       })
     }
+  },
+  mounted () {
+    document.addEventListener('keydown', this.onKeydown)
+  },
+  beforeDestroy () {
+    document.removeEventListener('keydown', this.onKeydown)
   }
 }
 </script>
