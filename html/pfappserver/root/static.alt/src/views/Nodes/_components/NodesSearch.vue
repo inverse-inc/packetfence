@@ -81,7 +81,7 @@
           <input type="checkbox" v-model="checkedAll" @change="onCheckedAllChange" @click.stop>
         </template>
         <template slot="actions" slot-scope="data">
-          <input type="checkbox" :id="data.value" :value="data.item" v-model="checkedRows" @change="onCheckedRowsChange" @click.stop>
+          <input type="checkbox" :id="data.value" :value="data.item" v-model="checkedRows" @click.stop>
         </template>
         <template slot="status" slot-scope="data">
           <b-badge pill variant="success" v-if="data.value === 'reg'">{{ $t('registered') }}</b-badge>
@@ -469,13 +469,8 @@ export default {
     onRowClick (item, index) {
       this.$router.push({ name: 'node', params: { mac: item.mac } })
     },
-    onCheckedRowsChange (item, index) {
-      console.log(this.checkedRows)
-    },
     onCheckedAllChange (item) {
       this.checkedRows = this.checkedAll ? this.tableValues : []
-      console.log(this.checkedAll)
-      console.log(this.tableValues)
     },
     clearChecked () {
       this.checkedAll = false
@@ -509,6 +504,10 @@ export default {
   watch: {
     checkedRows (a, b) {
       this.checkedAll = (this.tableValues.length === a.length && a.length > 0)
+      let checkedRows = this.checkedRows
+      this.items.forEach(function (item, index, items) {
+        items[index]._rowVariant = checkedRows.includes(item) ? 'info' : ''
+      })
     },
     condition (a, b) {
       if (a !== b) this.clearChecked()
