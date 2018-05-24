@@ -11534,3 +11534,29 @@ msgstr ""
 msgid "{percent}% of {total_size}"
 msgstr ""
 
+msgid "default_actions"
+msgstr "Execute module default actions"
+
+msgid "set_unregdate"
+msgstr "Set unregistration date"
+
+msgid "no_action"
+msgstr "Don't do any action"
+
+msgid "unregdate_from_source"
+msgstr "Set unregistration date from the auth source"
+
+msgid "role_from_source"
+msgstr "Set role from the auth source"
+
+msgid "time_balance_from_source"
+msgstr "Set the time balance from the auth source"
+
+msgid "bandwidth_balance_from_source"
+msgstr "Set the bandwidth balance from the auth source"
+
+msgid "actions"
+msgstr "Actions"
+
+msgid "multi_source_ids"
+msgstr "Sources"
