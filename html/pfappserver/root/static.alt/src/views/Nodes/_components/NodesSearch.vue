@@ -532,9 +532,9 @@ export default {
       // Restore search parameters
       this.condition = this.$store.state.$_nodes.searchQuery
     }
-    // Restore visibleColumns, overwrite defaults 
-    if (localStorage.getItem('nodes.visibleColumns')) {
-      let visibleColumns = localStorage.getItem('nodes.visibleColumns')
+    // Restore visibleColumns, overwrite defaults
+    if (this.$store.state.$_nodes.visibleColumns) {
+      let visibleColumns = this.$store.state.$_nodes.visibleColumns
       this.columns.forEach(function (column, index, columns) {
         columns[index].visible = visibleColumns.includes(column.key)
       })
