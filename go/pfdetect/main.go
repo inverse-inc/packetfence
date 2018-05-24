@@ -117,6 +117,8 @@ func (s *Server) StopRunners() {
 
 func (s *Server) ReloadConfig() {
 	s.StopRunners()
+	s.LoadParsersFromConfig()
+	s.RunRunners()
 }
 
 func (s *Server) SetupSignals() {
@@ -175,29 +177,28 @@ func (s *Server) NotifySystemd(msg string) {
 func (s *Server) Run() int {
 	s.SetupSignals()
 	s.NotifySystemd(daemon.SdNotifyReady)
+	s.LoadParsersFromConfig()
 	s.RunRunners()
 	s.Wait()
 	return 0
 }
 
-func main() {
-	log.SetProcessName("pfdetect")
-	server := NewServer()
+func (s *Server) LoadParsersFromConfig() {
 	configs := GetPfDetectConfig()
-	number_of_procs := runtime.GOMAXPROCS(0)
-	number_of_procs += len(configs)
-	fmt.Printf("Increasing GOMAXPROCS to %d\n", number_of_procs)
-	runtime.GOMAXPROCS(number_of_procs)
 	for _, config := range configs {
 		runner, err := NewParseRunner(config.Type, &config)
 		if err != nil {
 			fmt.Print(err)
 		} else {
 			fmt.Printf("Adding %s\n", runner.PipePath)
-			server.AddRunner(runner)
+			s.AddRunner(runner)
 		}
 	}
+}
 
+func main() {
+	log.SetProcessName("pfdetect")
+	server := NewServer()
 	os.Exit(server.Run())
 }
 
