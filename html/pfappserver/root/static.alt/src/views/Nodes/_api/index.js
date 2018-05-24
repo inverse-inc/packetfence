@@ -19,6 +19,11 @@ export default {
       return response.data.item
     })
   },
+  fingerbankInfo: mac => {
+    return apiCall.get(`node/${mac}/fingerbank_info`).then(response => {
+      return response.data.item
+    })
+  },
   ip4logOpen: mac => {
     return apiCall.get(`ip4logs/open/${mac}`).then(response => {
       return response.data.item

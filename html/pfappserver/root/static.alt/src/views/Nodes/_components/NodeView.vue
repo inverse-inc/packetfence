@@ -23,25 +23,68 @@
               </b-form-group>
             </b-col>
             <b-col>
-              <pf-form-row label="Name">
+              <pf-form-row :label="$t('Name')">
                 {{ node.computername }}
               </pf-form-row>
-              <pf-form-row label="Last Seen">
+              <pf-form-row :label="$t('Last Seen')">
                 {{ node.last_seen }}
               </pf-form-row>
-              <pf-form-row label="IPv4 Address" v-if="node.ip4">
+              <pf-form-row :label="$t('IPv4 Address')" v-if="node.ip4">
                 {{ node.ip4.ip }}
-                  <b-badge variant="success" v-if="node.ip4.active">Since {{node.ip4.start_time}}</b-badge>
-                  <div v-else><icon class="text-warning" name="exclamation-triangle"></icon> Inactive since {{node.ip4.end_time}}</div>
+                  <b-badge variant="success" v-if="node.ip4.active">{{ $t('Since') }} {{ node.ip4.start_time }}</b-badge>
+                  <b-badge variant="warning" v-else-if="node.ip4.end_time">{{ $t('Inactive since') }} {{ node.ip4.end_time }}</b-badge>
+                  <b-badge variant="danger" v-else>{{ $t('Inactive') }}</b-badge>
               </pf-form-row>
-              <pf-form-row label="IPv6 Address" v-if="node.ip6 && node.ip6.active">
+              <pf-form-row :label="$t('IPv6 Address')" v-if="node.ip6">
                 {{ node.ip6.ip }}
+                  <b-badge variant="success" v-if="node.ip6.active">{{ $t('Since') }} {{ node.ip6.start_time }}</b-badge>
+                  <b-badge variant="warning" v-else-if="node.ip6.end_time">{{ $t('Inactive since') }} {{ node.ip6.end_time }}</b-badge>
+                  <b-badge variant="danger" v-else>{{ $t('Inactive') }}</b-badge>
               </pf-form-row>
             </b-col>
           </b-row>
         </b-tab>
 
         <b-tab title="Fingerbank">
+          <b-row>
+            <b-col>
+              <pf-form-row :label="$t('Device Class')">
+                {{ node.device_class }}
+              </pf-form-row>
+              <pf-form-row :label="$t('Device Type')">
+                {{ node.device_type }}
+              </pf-form-row>
+              <pf-form-row :label="$t('Fully Qualified Device Name')">
+                {{ node.fingerbank.device_fq }}
+              </pf-form-row>
+              <pf-form-row :label="$t('Version')">
+                {{ node.fingerbank.version }}
+              </pf-form-row>
+              <pf-form-row :label="$t('Score')">
+                <b-progress class="mt-1" :max="100">
+                  <b-progress-bar :value="parseFloat(node.fingerbank.score)" :precision="2" variant="success" show-value></b-progress-bar>
+                  <b-progress-bar :value="100 - parseFloat(node.fingerbank.score)" :precision="2" variant="danger"></b-progress-bar>
+                </b-progress>
+              </pf-form-row>
+              <pf-form-row :label="$t('Mobile')">
+                <b-badge variant="success" v-if="node.fingerbank.mobile === 1">{{ $t('Yes') }}</b-badge>
+                <b-badge variant="danger" v-else-if="node.fingerbank.mobile === 0">{{ $t('No') }}</b-badge>
+                <b-badge variant="light" v-else>{{ $t('Unknown') }}</b-badge>
+              </pf-form-row>
+              <pf-form-row :label="$t('DHCP Fingerprint')">
+                {{ node.dhcp_fingerprint }}
+              </pf-form-row>
+              <pf-form-row :label="$t('DHCP Vendor')">
+                {{ node.device_vendor }}
+              </pf-form-row>
+              <pf-form-row :label="$t('DHCPv6 Fingerprint')">
+                {{ node.dhcp6_fingerprint }}
+              </pf-form-row>
+              <pf-form-row :label="$t('DHCPv6 Enterprise')">
+                {{ node.dhcp6_enterprise }}
+              </pf-form-row>
+            </b-col>
+          </b-row>
         </b-tab>
 
         <b-tab title="IPv4 Addresses">
