@@ -51,7 +51,6 @@ sub authentication_match_wrapper {
 
 sub execute_default_actions {
     my ($self) = @_;
-    #my $default_actions = $self->meta->get_attribute("actions")->default;
     my $default_actions = ref($self)->new(id => "dummy", app => $self->app, parent => $self)->actions;
     use pf::log ; use Data::Dumper; get_logger->info(Dumper($default_actions));
     while(my ($action, $params) = each(%$default_actions)) {
