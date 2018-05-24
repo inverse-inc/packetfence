@@ -233,13 +233,13 @@ export default {
           visible: true
         },
         {
-          key: 'last_ip',
+          key: 'ip4log.ip',
           label: this.$i18n.t('IP Address'),
           sortable: true,
           visible: true
         },
         {
-          key: 'tenant_name',
+          key: 'tenant_id',
           label: this.$i18n.t('Tenant'),
           sortable: true,
           visible: true
@@ -287,56 +287,38 @@ export default {
           visible: false
         },
         {
-          key: 'dhcp_vendor',
-          label: this.$i18n.t('DHCP Vendor'),
-          sortable: true,
-          visible: false
-        },
-        {
           key: 'category_id',
           label: this.$i18n.t('Role'),
           sortable: true,
           visible: true
         },
         {
-          key: 'switch_id',
+          key: 'locationlog.switch',
           label: this.$i18n.t('Switch Identifier'),
           sortable: true,
           visible: false
         },
         {
-          key: 'switch_ip',
+          key: 'locationlog.switch_ip',
           label: this.$i18n.t('Switch IP Address'),
           sortable: true,
           visible: false
         },
         {
-          key: 'switch_mac',
+          key: 'locationlog.switch_mac',
           label: this.$i18n.t('Switch MAC Address'),
           sortable: true,
           visible: false
         },
         {
-          key: 'switch_port',
-          label: this.$i18n.t('Switch Port'),
-          sortable: true,
-          visible: false
-        },
-        {
-          key: 'switch_port_desc',
-          label: this.$i18n.t('Switch Port Description'),
-          sortable: true,
-          visible: false
-        },
-        {
-          key: 'switch_description',
-          label: this.$i18n.t('Switch Description'),
-          sortable: true,
-          visible: false
-        },
-        {
-          key: 'last_ssid',
+          key: 'locationlog.ssid',
           label: this.$i18n.t('SSID'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'locationlog.vlan',
+          label: this.$i18n.t('VLAN'),
           sortable: true,
           visible: false
         },
@@ -377,7 +359,7 @@ export default {
           visible: false
         },
         {
-          key: 'sessionid',
+          key: 'locationlog.sessionid',
           label: this.$i18n.t('Session ID'),
           sortable: true,
           visible: false
