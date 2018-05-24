@@ -51,8 +51,8 @@ sub description { return "Cambium" }
 # access technology supported
 sub supportsWirelessDot1x { return $TRUE; }
 sub supportsWirelessMacAuth { return $TRUE; }
-sub supportsWiredDot1x { return $TRUE; }
-sub supportsWiredMacAuth { return $TRUE; }
+sub supportsExternalPortal { return $TRUE; }
+sub supportsWebFormRegistration { return $TRUE }
 
 =item deauthenticateMacDefault
 
@@ -99,6 +99,63 @@ sub deauthTechniques {
     }
     return $method,$tech{$method};
 }
+
+=item parseUrl
+
+Parse the URL when an external captive portal HTTP request is detected.
+
+Parsed attributes:
+
+- client mac address
+
+- SSID
+
+- client ip address
+
+- redirect url
+
+- grant url
+
+- status code
+
+=cut
+
+sub parseUrl {
+    my ( $self, $req ) = @_;
+    return ( clean_mac($$req->param('mac')), $$req->param('ssid'), $$req->param('ip'), $$req->param('userurl'), undef, $$req->param('res') );
+}
+
+=item getAcceptForm
+
+Generates the HTML form embedded to web release captive-portal process to trigger a reauthentication.
+
+=cut
+
+sub getAcceptForm {
+    my ( $self, $mac, $destination_url ) = @_;
+    my $logger = $self->logger;
+
+    $logger->debug("Generating web release HTML form");
+
+    my $uamip = $self->{_controllerIp};
+    my $html_form = qq[
+        <script type="text/javascript" src="/content/ChilliLibrary.js"></script>
+        <script type="text/javascript">
+            chilliController.host = "$uamip";
+            chilliController.port = "3990";
+            function logon() {
+                chilliController.logon("$mac", "$mac");
+            }
+        </script>
+        <script type="text/javascript">
+            window.setTimeout('logon();', 1000);
+        </script>
+    ];
+
+    $logger->debug("Generated the following web release HTML form: " . $html_form);
+    return $html_form;
+}
+
 
 =back
 
