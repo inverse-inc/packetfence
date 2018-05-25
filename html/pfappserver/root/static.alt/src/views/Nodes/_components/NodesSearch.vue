@@ -359,7 +359,7 @@ export default {
           visible: false
         },
         {
-          key: 'locationlog.sessionid',
+          key: 'locationlog.session_id',
           label: this.$i18n.t('Session ID'),
           sortable: true,
           visible: false
@@ -401,6 +401,9 @@ export default {
     },
     visibleColumns () {
       return this.columns.filter(column => column.visible)
+    },
+    searchFields () {
+      return this.columns.filter(column => !column.locked).map(column => column.key)
     },
     items () {
       return this.$store.state.$_nodes.items
@@ -541,8 +544,8 @@ export default {
     }
   },
   created () {
-    this.$store.dispatch('$_nodes/search', this.requestPage)
     if (this.$store.state.config.roles.length === 0) {
+      this.$store.dispatch('$_nodes/setSearchFields', this.searchFields)
       this.$store.dispatch('config/getRoles')
       this.$store.dispatch('config/getViolations')
       this.pageSizeLimit = this.$store.state.$_nodes.searchPageSize
@@ -556,6 +559,7 @@ export default {
         columns[index].visible = visibleColumns.includes(column.key)
       })
     }
+    this.$store.dispatch('$_nodes/search', this.requestPage)
   },
   mounted () {
     document.addEventListener('keydown', this.onKeydown)
