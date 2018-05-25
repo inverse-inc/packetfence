@@ -65,8 +65,12 @@ const actions = {
       })
     })
   },
-  getNode: ({commit}, mac) => {
-    let node = {} // ip4: { history: [] }, ip6: { history: [] } }
+  getNode: ({state, commit}, mac) => {
+    let node = { fingerbank: {} } // ip4: { history: [] }, ip6: { history: [] } }
+
+    if (state.nodes[mac]) {
+      return Promise.resolve(state.nodes[mac])
+    }
 
     return api.node(mac).then(item => {
       Object.assign(node, item)

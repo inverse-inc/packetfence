@@ -1,5 +1,6 @@
 import NodesView from '../'
 import NodesSearch from '../_components/NodesSearch'
+import store from '@/store'
 const NodesCreate = () => import(/* webpackChunkName: "Nodes" */ '../_components/NodesCreate')
 const NodeView = () => import(/* webpackChunkName: "Nodes" */ '../_components/NodeView')
 
@@ -22,7 +23,12 @@ const route = {
       path: '/node/:mac',
       name: 'node',
       component: NodeView,
-      props: true
+      props: true,
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_nodes/getNode', to.params.mac).then(node => {
+          next()
+        })
+      }
     }
   ]
 }
