@@ -1,8 +1,8 @@
-package pfappserver::Form::Field::PSK;
+package pfappserver::Form::Field::PSKLength;
 
 =head1 NAME
 
-pfappserver::Form::Field::PSK - PSK field
+pfappserver::Form::Field::PSKLength - PSKLength field
 
 =head1 DESCRIPTION
 

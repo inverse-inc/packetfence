@@ -2,7 +2,7 @@ package pfappserver::Form::Config::Provisioning::dpsk;
 
 =head1 NAME
 
-pfappserver::Form::Config::Provisioning::dpsk - Web form for Dynamic PKS provisioner
+pfappserver::Form::Config::Provisioning::dpsk - Web form for Dynamic PSK provisioner
 
 =head1 DESCRIPTION
 
@@ -19,7 +19,7 @@ has_field 'ssid' =>
 
 has_field 'psk_size' =>
   (
-   type => 'PSK',
+   type => 'PSKLength',
    default => 8,
    label => 'PSK length',
    tags => { after_element => \&help,

@@ -74,7 +74,7 @@ has_field 'dpsk' =>
 
 has_field 'psk_size' =>
   (
-   type => 'PSK',
+   type => 'PSKLength',
    default => 8,
    label => 'PSK length',
    tags => { after_element => \&help,

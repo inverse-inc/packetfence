@@ -283,7 +283,7 @@ sub generate_dpsk {
         my $psk = word(8,$psk_size);
         person_modify($username,psk => $psk);
         get_logger->info("PSK key has been generated for user ".$username);
-	get_logger->debug("Returning psk key $psk for user $username");
+        get_logger->debug("Returning psk key $psk for user $username");
         return $psk;
     }
 }
