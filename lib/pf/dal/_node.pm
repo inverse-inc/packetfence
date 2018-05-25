@@ -277,7 +277,7 @@ BEGIN {
             is_nullable => 1,
         },
         device_score => {
-            type => 'VARCHAR',
+            type => 'INT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
