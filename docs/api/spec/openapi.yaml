@@ -9251,7 +9251,7 @@ components:
         limit:
           type: string
         query:
-          ref: '#/components/schemas/Query'
+          $ref: '#/components/schemas/Query'
         sort:
           type: string
       type: object
