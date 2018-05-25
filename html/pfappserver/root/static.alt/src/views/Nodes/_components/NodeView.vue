@@ -62,8 +62,7 @@
               </pf-form-row>
               <pf-form-row :label="$t('Score')">
                 <b-progress class="mt-1" :max="100">
-                  <b-progress-bar :value="parseFloat(node.fingerbank.score)" :precision="2" variant="success" show-value></b-progress-bar>
-                  <b-progress-bar :value="100 - parseFloat(node.fingerbank.score)" :precision="2" variant="danger"></b-progress-bar>
+                  <b-progress-bar :value="parseFloat(node.fingerbank.score)" :precision="2" :variant="fbScoreLevel" show-value></b-progress-bar>
                 </b-progress>
               </pf-form-row>
               <pf-form-row :label="$t('Mobile')">
@@ -231,6 +230,16 @@ export default {
     },
     statuses () {
       return conditionValues[conditionType.NODE_STATUS]
+    },
+    fbScoreLevel () {
+      // See fingerbank-cloud-api.git/app/views/combinations/row.html.erb
+      if (this.node.fingerbank.score < 33) {
+        return 'danger'
+      } else if (this.node.fingerbank.score < 66) {
+        return 'warning'
+      } else {
+        return 'success'
+      }
     },
     isLoading () {
       return this.$store.getters['$_nodes/isLoading']
