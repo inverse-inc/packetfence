@@ -188,6 +188,11 @@ has_field 'device_class' =>
    type => 'Uneditable',
    label => 'Device class',
  );
+has_field 'device_manufacturer' =>
+ (
+   type => 'Uneditable',
+   label => 'Device manufacturer',
+ );
 has_field 'fingerbank_info' =>
   (
    type => 'Compound', # virtual field to access the 'fingerbank_info' hash
