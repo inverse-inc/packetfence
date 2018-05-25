@@ -144,6 +144,10 @@ sub authorize {
         $logger->debug("SSID resolved to: $ssid") if (defined($ssid));
     }
 
+    if (isenabled($Config{network}{connection_type_change_detection})) {
+        $self->checkConnectionTypeChange($mac, $connection);
+    }
+
     {
         my $timer = pf::StatsD::Timer->new({ 'stat' => called() . ".getIfIndex", level => 7});
         $port = $switch->getIfIndexByNasPortId($nas_port_id) || $self->_translateNasPortToIfIndex($connection_type, $switch, $port);
@@ -896,6 +900,33 @@ sub handleNtlmCaching {
     if($domain && isenabled($ConfigDomain{$domain}{ntlm_cache}) && isenabled($ConfigDomain{$domain}{ntlm_cache_on_connection})) {
         my $client = pf::api::queue->new(queue => "general");
         $client->notify("cache_user_ntlm", $domain, $radius_request->{"Stripped-User-Name"});
+    }
+}
+
+=head2 checkConnectionTypeChange
+
+Detect if a device has changed its transport type (wired vs wireless) since a MAC shouldn't switch from one to another
+
+=cut
+
+sub checkConnectionTypeChange {
+    my ($self, $mac, $current_connection) = @_;
+    my $locationlog = locationlog_view_open_mac($mac);
+    if($locationlog) {
+        my $old_connection = pf::Connection->new;
+        $old_connection->backwardCompatibleToAttributes($locationlog->{connection_type});
+        my $old_transport = $old_connection->transport;
+        my $current_transport = $current_connection->transport;
+        if($old_transport ne $current_transport) {
+            get_logger->info("Device transport has changed from $old_transport to $current_transport.");
+            violation_trigger( { 'mac' => $mac, 'tid' => "connection_type_change", 'type' => "internal" } );
+        }
+        else {
+            get_logger->debug("Device transport hasn't changed ($old_transport)");
+        }
+    } 
+    else {
+        get_logger->debug("Not performing connection type change detection for this device since there is no previously opened locationlog entry");
     }
 }
 
