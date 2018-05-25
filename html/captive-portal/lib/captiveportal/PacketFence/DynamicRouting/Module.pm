@@ -67,6 +67,7 @@ Lists the actions that can be applied to this module
 
 sub available_actions {
     return [
+        'default_actions',
         'set_role',
         'set_unregdate',
         'set_access_duration',
@@ -291,7 +292,13 @@ Actions to be executed when the module has been completed.
 
 sub execute_actions {
     my ($self) = @_;
+    # Execute the default actions before anything else
+    if(my $params = $self->actions->{default_actions}) {
+        $AUTHENTICATION_ACTIONS{default_actions}->($self, @{$params});
+    }
+
     while(my ($action, $params) = each %{$self->actions}){
+        next if $action eq "default_actions";
         get_logger->debug("Executing action $action with params : ".join(',', @{$params}));
         $AUTHENTICATION_ACTIONS{$action}->($self, @{$params});
     }
