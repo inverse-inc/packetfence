@@ -13,6 +13,18 @@ apiCall.interceptors.response.use((response) => response,
           (error.response.status === 404 && /token_info/.test(error.config.url))) {
         router.push('/expire')
       }
+      if (error.response.data) {
+        console.group('API error')
+        console.log(error.response.data.message)
+        if (error.response.data.errors) {
+          error.response.data.errors.forEach(err => {
+            Object.keys(err).forEach(attr => {
+              console.log(`${attr}: ${err[attr]}`)
+            })
+          })
+        }
+        console.groupEnd()
+      }
     } else if (error.request) {
       store.commit('session/API_ERROR')
     }
