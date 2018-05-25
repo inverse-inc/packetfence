@@ -1,5 +1,5 @@
 diff --git a/conf/mariadb/mariadb.conf.tt.example b/conf/mariadb/mariadb.conf.tt.example
-index 2ef5c25..7409c2a 100644
+index 2ef5c25a8..7409c2adc 100644
 --- a/conf/mariadb/mariadb.conf.tt.example
 +++ b/conf/mariadb/mariadb.conf.tt.example
 @@ -18,7 +18,7 @@ skip-networking
@@ -12,7 +12,7 @@ index 2ef5c25..7409c2a 100644
  key_buffer_size = [% key_buffer_size %]M
  max_allowed_packet = [% max_allowed_packet %]M
 diff --git a/conf/monitoring/netdata.conf.example b/conf/monitoring/netdata.conf.example
-index d3a3cd9..fe284fc 100644
+index d3a3cd9b6..fe284fcaa 100644
 --- a/conf/monitoring/netdata.conf.example
 +++ b/conf/monitoring/netdata.conf.example
 @@ -8,7 +8,7 @@
@@ -25,7 +25,7 @@ index d3a3cd9..fe284fc 100644
          # Netdata is not designed to be exposed to potentially hostile networks
          # See https://github.com/firehol/netdata/issues/164
 diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
-index b7840af..5d69d6c 100644
+index b7840af45..5d69d6c26 100644
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
 @@ -392,7 +392,7 @@ radiusd=enabled
@@ -67,7 +67,7 @@ index b7840af..5d69d6c 100644
  #
  # Should pfdns be managed by PacketFence?
 diff --git a/conf/systemd/packetfence-httpd.aaa.service b/conf/systemd/packetfence-httpd.aaa.service
-index 9b6a3ef..3eafbd4 100644
+index 9b6a3ef79..3eafbd448 100644
 --- a/conf/systemd/packetfence-httpd.aaa.service
 +++ b/conf/systemd/packetfence-httpd.aaa.service
 @@ -12,7 +12,7 @@ StartLimitInterval=10
@@ -80,7 +80,7 @@ index 9b6a3ef..3eafbd4 100644
  PrivateTmp=true
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-httpd.admin.service b/conf/systemd/packetfence-httpd.admin.service
-index cb5f0e4..1fe9ac8 100644
+index cb5f0e47d..1fe9ac89b 100644
 --- a/conf/systemd/packetfence-httpd.admin.service
 +++ b/conf/systemd/packetfence-httpd.admin.service
 @@ -13,7 +13,7 @@ PIDFile=/usr/local/pf/var/run/httpd.admin.pid
@@ -93,7 +93,7 @@ index cb5f0e4..1fe9ac8 100644
  ExecStop=/bin/kill -WINCH ${MAINPID}
  # We want systemd to give httpd some time to finish gracefully, but still want
 diff --git a/conf/systemd/packetfence-httpd.collector.service b/conf/systemd/packetfence-httpd.collector.service
-index 11a8f73..bbb263b 100644
+index 11a8f73e2..bbb263beb 100644
 --- a/conf/systemd/packetfence-httpd.collector.service
 +++ b/conf/systemd/packetfence-httpd.collector.service
 @@ -11,7 +11,7 @@ StartLimitInterval=10
@@ -106,7 +106,7 @@ index 11a8f73..bbb263b 100644
  ExecStop=/bin/kill -WINCH ${MAINPID}
  # We want systemd to give httpd some time to finish gracefully, but still want
 diff --git a/conf/systemd/packetfence-httpd.parking.service b/conf/systemd/packetfence-httpd.parking.service
-index 6265027..5e483a5 100644
+index 626502719..5e483a509 100644
 --- a/conf/systemd/packetfence-httpd.parking.service
 +++ b/conf/systemd/packetfence-httpd.parking.service
 @@ -10,7 +10,7 @@ StartLimitBurst=3
@@ -119,7 +119,7 @@ index 6265027..5e483a5 100644
  ExecStop=/bin/kill -WINCH ${MAINPID}
  # We want systemd to give httpd some time to finish gracefully, but still want
 diff --git a/conf/systemd/packetfence-httpd.portal.service b/conf/systemd/packetfence-httpd.portal.service
-index abfa583..2de5f74 100644
+index abfa583c7..2de5f7458 100644
 --- a/conf/systemd/packetfence-httpd.portal.service
 +++ b/conf/systemd/packetfence-httpd.portal.service
 @@ -11,7 +11,7 @@ StartLimitInterval=10
@@ -132,7 +132,7 @@ index abfa583..2de5f74 100644
  ExecStop=/bin/kill -WINCH ${MAINPID}
  # We want systemd to give httpd some time to finish gracefully, but still want
 diff --git a/conf/systemd/packetfence-httpd.proxy.service b/conf/systemd/packetfence-httpd.proxy.service
-index 9181847..e8a259b 100644
+index 918184713..e8a259b8e 100644
 --- a/conf/systemd/packetfence-httpd.proxy.service
 +++ b/conf/systemd/packetfence-httpd.proxy.service
 @@ -11,7 +11,7 @@ StartLimitInterval=10
@@ -145,7 +145,7 @@ index 9181847..e8a259b 100644
  PrivateTmp=true
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-httpd.webservices.service b/conf/systemd/packetfence-httpd.webservices.service
-index 96b244a..ae553d7 100644
+index 96b244a7c..ae553d7e3 100644
 --- a/conf/systemd/packetfence-httpd.webservices.service
 +++ b/conf/systemd/packetfence-httpd.webservices.service
 @@ -11,7 +11,7 @@ StartLimitInterval=10
@@ -158,7 +158,7 @@ index 96b244a..ae553d7 100644
  ExecStop=/bin/kill -WINCH ${MAINPID}
  # We want systemd to give httpd some time to finish gracefully, but still want
 diff --git a/conf/systemd/packetfence-iptables.service b/conf/systemd/packetfence-iptables.service
-index f6953da..26df3dc 100644
+index f6953da95..26df3dc49 100644
 --- a/conf/systemd/packetfence-iptables.service
 +++ b/conf/systemd/packetfence-iptables.service
 @@ -7,8 +7,8 @@ StartLimitBurst=3
@@ -173,7 +173,7 @@ index f6953da..26df3dc 100644
  
  [Install]
 diff --git a/conf/systemd/packetfence-radiusd-acct.service b/conf/systemd/packetfence-radiusd-acct.service
-index e303fbd..4ee4b58 100644
+index e303fbd3d..4ee4b5888 100644
 --- a/conf/systemd/packetfence-radiusd-acct.service
 +++ b/conf/systemd/packetfence-radiusd-acct.service
 @@ -14,8 +14,8 @@ StartLimitBurst=3
@@ -188,7 +188,7 @@ index e303fbd..4ee4b58 100644
  Slice=packetfence.slice
  
 diff --git a/conf/systemd/packetfence-radiusd-auth.service b/conf/systemd/packetfence-radiusd-auth.service
-index 8a684cb..873d3b1 100644
+index 8a684cbfd..873d3b179 100644
 --- a/conf/systemd/packetfence-radiusd-auth.service
 +++ b/conf/systemd/packetfence-radiusd-auth.service
 @@ -13,8 +13,8 @@ StartLimitBurst=3
@@ -203,7 +203,7 @@ index 8a684cb..873d3b1 100644
  Slice=packetfence.slice
  
 diff --git a/conf/systemd/packetfence-radiusd-cli.service b/conf/systemd/packetfence-radiusd-cli.service
-index 2f0e798..0978ac3 100644
+index 2f0e798cd..0978ac370 100644
 --- a/conf/systemd/packetfence-radiusd-cli.service
 +++ b/conf/systemd/packetfence-radiusd-cli.service
 @@ -14,8 +14,8 @@ StartLimitBurst=3
@@ -218,7 +218,7 @@ index 2f0e798..0978ac3 100644
  Slice=packetfence.slice
  
 diff --git a/conf/systemd/packetfence-radiusd-eduroam.service b/conf/systemd/packetfence-radiusd-eduroam.service
-index 4cd67a4..5fd2310 100644
+index 4cd67a45e..5fd2310a7 100644
 --- a/conf/systemd/packetfence-radiusd-eduroam.service
 +++ b/conf/systemd/packetfence-radiusd-eduroam.service
 @@ -13,8 +13,8 @@ StartLimitBurst=3
@@ -233,7 +233,7 @@ index 4cd67a4..5fd2310 100644
  Slice=packetfence.slice
  
 diff --git a/conf/systemd/packetfence-radiusd-load_balancer.service b/conf/systemd/packetfence-radiusd-load_balancer.service
-index 1a58e0b..5db0526 100644
+index 1a58e0b15..5db05260f 100644
 --- a/conf/systemd/packetfence-radiusd-load_balancer.service
 +++ b/conf/systemd/packetfence-radiusd-load_balancer.service
 @@ -13,8 +13,8 @@ StartLimitBurst=3
@@ -248,7 +248,7 @@ index 1a58e0b..5db0526 100644
  Slice=packetfence.slice
  
 diff --git a/conf/systemd/packetfence-routes.service b/conf/systemd/packetfence-routes.service
-index e0e0c2c..880121b 100644
+index 517551b73..29ddbe5fd 100644
 --- a/conf/systemd/packetfence-routes.service
 +++ b/conf/systemd/packetfence-routes.service
 @@ -8,8 +8,8 @@ StartLimitBurst=3
@@ -259,11 +259,11 @@ index e0e0c2c..880121b 100644
 -ExecStop=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::routes' -e 'pf::services::manager::routes->new()->_stop()'
 +ExecStart=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::routes' -e 'pf::services::manager::routes->new()->_start()'
 +ExecStop=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::routes' -e 'pf::services::manager::routes->new()->_stop()'
- Slice=packetfence-base.slice
+ Slice=packetfence.slice
  
  [Install]
 diff --git a/conf/systemd/packetfence-tc.service b/conf/systemd/packetfence-tc.service
-index 88093fb..99dd13b 100644
+index 1406b18c2..deb989c29 100644
 --- a/conf/systemd/packetfence-tc.service
 +++ b/conf/systemd/packetfence-tc.service
 @@ -8,8 +8,8 @@ StartLimitBurst=3
@@ -278,7 +278,7 @@ index 88093fb..99dd13b 100644
  
  [Install]
 diff --git a/go/database/connection.go b/go/database/connection.go
-index fa180c3..87d169a 100644
+index fa180c358..87d169a26 100644
 --- a/go/database/connection.go
 +++ b/go/database/connection.go
 @@ -9,7 +9,7 @@ import (
