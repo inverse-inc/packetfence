@@ -39,6 +39,9 @@ export default {
     'pf-search-condition': pfSearchCondition
   },
   props: {
+    condition: {
+      type: Object
+    },
     advancedMode: {
       type: Boolean
     },
@@ -59,8 +62,7 @@ export default {
   },
   data () {
     return {
-      quickValue: '',
-      condition: { op: 'and', values: [{ field: this.fields[0].value, op: null, value: null }] }
+      quickValue: ''
     }
   },
   computed: {

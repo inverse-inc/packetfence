@@ -51,7 +51,7 @@
               <b-tooltip :target="violation.id" placement="left">{{violation.id}}</b-tooltip>
             </b-dropdown-item>
           </b-dropdown>
-          <b-dropdown size="sm" variant="link" :disabled="isLoading" no-caret>
+          <b-dropdown size="sm" variant="link" boundary="viewport" :disabled="isLoading" no-caret>
             <template slot="button-content">
               <icon name="columns" v-b-tooltip.hover.right :title="$t('Visible Columns')"></icon>
             </template>
@@ -544,13 +544,15 @@ export default {
     }
   },
   created () {
-    if (this.$store.state.config.roles.length === 0) {
-      this.$store.dispatch('$_nodes/setSearchFields', this.searchFields)
-      this.$store.dispatch('config/getRoles')
-      this.$store.dispatch('config/getViolations')
-      this.pageSizeLimit = this.$store.state.$_nodes.searchPageSize
-      // Restore search parameters
-      this.condition = this.$store.state.$_nodes.searchQuery
+    this.$store.dispatch('$_nodes/setSearchFields', this.searchFields)
+    this.$store.dispatch('config/getRoles')
+    this.$store.dispatch('config/getViolations')
+    this.pageSizeLimit = this.$store.state.$_nodes.searchPageSize
+    // Restore search parameters
+    this.condition = this.$store.state.$_nodes.searchQuery
+    if (!this.condition) {
+      // Select first field
+      this.condition = { op: 'and', values: [{ field: this.fields[0].value, op: null, value: null }] }
     }
     // Restore visibleColumns, overwrite defaults
     if (this.$store.state.$_nodes.visibleColumns) {
