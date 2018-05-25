@@ -19,6 +19,7 @@ New Features
 
 Enhancements
 ++++++++++++
+* Add new portal module action that wraps the default actions a module would normally execute (fixes #3231)
 
 Bug Fixes
 +++++++++
