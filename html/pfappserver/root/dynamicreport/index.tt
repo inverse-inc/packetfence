@@ -24,14 +24,26 @@
     <div class="container">
       <div class="nav-collapse collapse navbar-responsive-collapse">
         <form id="search" name="search" class="form-inline datetimepicker" action="[%c.uri_for(c.controller.action_for('search'))%]" method="POST">
-          <input type="hidden" name="report_id" value="[% report.id %]">
-          <div class="">
-            <input type="text" class="input-date input-small" id="start_date"  name="start.date" value="[% start.date %]" data-date-format="yyyy-mm-dd" />
+          <div class="controls" data-date-format="yyyy-mm-dd">
+            <input type="text" class="input-small input-date" id="start_date"  name="start.date" value="[% start.date %]" data-date-format="yyyy-mm-dd" />
             <input type="text" name="start.time" id="start_time" value="[% start.time %]" class="timepicker-default input-small" placeholder="HH:MM"/>
             <i class="icon-arrow-right"></i>
-            <input type="text" class="input-date input-small" id="end_date" name="end.date" value="[% end.date %]" data-date-format="yyyy-mm-dd" date-datestart="[% end_date %]" />
+            <input type="text" class="input-small input-date" id="end_date" name="end.date" value="[% end.date %]" data-date-format="yyyy-mm-dd" date-datestart="[% end_date %]" />
             <input type="text" name="end.time" id="end_time" value="[% end.time %]" class="timepicker-default input-small" placeholder="HH:MM"/>
+            [% l('Last') %]
+            <a data-toggle="date-picker" data-start-date="#start_date" data-start-time="#start_time" data-end-date="#end_date" data-end-time="#end_time"
+               href="[% c.uri_for(c.controller('Admin').action_for('time_offset'),'30m') %]">[% l('30 minutes') %]</a> |
+            <a data-toggle="date-picker" data-start-date="#start_date" data-start-time="#start_time" data-end-date="#end_date" data-end-time="#end_time"
+              href="[% c.uri_for(c.controller('Admin').action_for('time_offset'),'1h') %]">[% l('1 hour') %]</a> |
+            <a data-toggle="date-picker" data-start-date="#start_date" data-start-time="#start_time" data-end-date="#end_date" data-end-time="#end_time"
+               href="[% c.uri_for(c.controller('Admin').action_for('time_offset'),'6h') %]">[% l('6 hours') %]</a> |
+            <a data-toggle="date-picker" data-start-date="#start_date" data-start-time="#start_time" data-end-date="#end_date" data-end-time="#end_time"
+               href="[% c.uri_for(c.controller('Admin').action_for('time_offset'),'12h') %]">[% l('12 hours') %]</a> |
+            <a data-toggle="date-picker" data-start-date="#start_date" data-start-time="#start_time" data-end-date="#end_date" data-end-time="#end_time"
+               href="[% c.uri_for(c.controller('Admin').action_for('time_offset'),'24h') %]">[% l('24 hours') %]</a>
           </div>
+
+          <input type="hidden" name="report_id" value="[% report.id %]">
           <div>
             <table id="searchConditions" class="table-dynamic">
                <thead>
