@@ -66,10 +66,10 @@ has_field 'validate_sponsor' =>
    type => 'Toggle',
    checkbox_value => 'yes',
    unchecked_value => 'no',
-   label => 'Sponsor validation',
+   label => 'Sponsor Validation',
    default => pf::Authentication::Source::SponsorEmailSource->meta->get_attribute('validate_sponsor')->default,
    tags => { after_element => \&help,
-             help => 'Do you want to authenticate the sponsor when he click on the link ?' },
+             help => 'Force sponsor to authenticate when validating a guest request.' },
   );
 
 =head1 COPYRIGHT
