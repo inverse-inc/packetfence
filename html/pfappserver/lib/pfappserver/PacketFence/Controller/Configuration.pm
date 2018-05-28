@@ -49,6 +49,7 @@ our %ALLOWED_SECTIONS = (
     captive_portal    => undef,
     database          => undef,
     database_advanced => undef,
+    database_encryption => undef,
     fencing           => undef,
     general           => undef,
     inline            => undef,
@@ -382,6 +383,12 @@ sub all_subsections : Private {
                     action => 'section',
                     action_args => ['database_advanced'],
                     name => 'Advanced', 
+                },
+                database_encryption => {
+                    controller => 'Controller::Configuration',
+                    action => 'section',
+                    action_args => ['database_encryption'],
+                    name => 'Encryption',
                 },
             );
             return \%map;
