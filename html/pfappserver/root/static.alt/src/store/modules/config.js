@@ -54,13 +54,19 @@ const actions = {
         commit('ROLES_UPDATED', response.data.items)
         return state.roles
       })
+    } else {
+      return Promise.resolve(state.roles)
     }
   },
   getViolations: ({commit, state}) => {
-    return api.getViolations().then(response => {
-      commit('VIOLATIONS_UPDATED', response.data.items)
-      return state.violations
-    })
+    if (state.violations.length === 0) {
+      return api.getViolations().then(response => {
+        commit('VIOLATIONS_UPDATED', response.data.items)
+        return state.violations
+      })
+    } else {
+      return Promise.resolve(state.violations)
+    }
   }
 }
 
