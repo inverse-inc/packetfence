@@ -39,7 +39,7 @@ func dial(network, addr string) (*redis.Client, error) {
 var poolOnce sync.Once
 var clientPool *pool.Pool
 
-func PfQueueClient(ctx context.Context) (*redis.Client, error) {
+func GetPfQueueRedisClient(ctx context.Context) (*redis.Client, error) {
 	poolOnce.Do(func() {
 		pfconfigdriver.PfconfigPool.AddStruct(ctx, &Config)
 		var network string = "tcp"
@@ -50,4 +50,8 @@ func PfQueueClient(ctx context.Context) (*redis.Client, error) {
 	})
 
 	return clientPool.Get()
+}
+
+func PutPfQueueRedisClient(c *redis.Client) {
+    clientPool.Put(c)
 }
