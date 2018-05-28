@@ -32,7 +32,7 @@ use Module::Pluggable
     'require'     => 1,
     'inner'       => 0,
     'except' =>
-    qr/^pf::services::manager::roles|^pf::services::manager::(pf|systemd|httpd|submanager|radiusd_child|redis|haproxy)$/,
+    qr/^pf::services::manager::roles|^pf::services::manager::(systemd|httpd|submanager|radiusd_child|redis|haproxy)$/,
     ;
 
 
@@ -108,7 +108,6 @@ sub service_list {
 
 sub getManagers {
     my ($services,$flags) = @_;
-    $services = (any { $_ eq 'pf'} @$services) ? [@pf::services::ALL_SERVICES] : $services;
     $flags = 0 unless defined $flags;
     my %seen;
     my $justManaged      = $flags & JUST_MANAGED;

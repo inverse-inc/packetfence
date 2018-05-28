@@ -11,7 +11,7 @@ Restart=always
 RestartSec=5s
 LimitNOFILE=40000
 TimeoutStartSec=0
-ExecStartPre=/usr/local/pf/bin/pfcmd service etcd generateconfig
+ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::etcd' -e 'pf::services::manager::etcd->new()->generateConfig()'
 ExecStart=/usr/bin/etcd --config-file /usr/local/pf/var/conf/etcd.conf.yml
 Slice=packetfence.slice
 
