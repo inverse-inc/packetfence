@@ -5,6 +5,9 @@ export default {
     if (params.sort) {
       params.sort = params.sort.join(',')
     }
+    if (params.fields) {
+      params.fields = params.fields.join(',')
+    }
     return apiCall.get('users', { params }).then(response => {
       return response.data
     })

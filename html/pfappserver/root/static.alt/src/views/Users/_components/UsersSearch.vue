@@ -5,7 +5,7 @@
       <h4 class="mb-0" v-t="'Search Users'"></h4>
     </b-card-header>
     <pf-search :quick-with-fields="false" quick-placeholder="Search by name or email"
-      :fields="fields" :store="$store" :advanced-mode="advancedMode"
+      :fields="fields" :store="$store" :advanced-mode="advancedMode" :condition="condition"
       @submit-search="onSearch" @reset-search="onReset"></pf-search>
     <div class="card-body">
       <b-row align-h="between" align-v="center">
@@ -75,19 +75,19 @@ export default {
         },
         {
           key: 'firstname',
-          label: this.$i18n.t('firstname'),
+          label: this.$i18n.t('Firstname'),
           sortable: true,
           visible: true
         },
         {
           key: 'lastname',
-          label: this.$i18n.t('lastname'),
+          label: this.$i18n.t('Lastname'),
           sortable: true,
           visible: true
         },
         {
           key: 'email',
-          label: this.$i18n.t('email'),
+          label: this.$i18n.t('Email'),
           sortable: true,
           visible: true
         }
@@ -110,6 +110,9 @@ export default {
     },
     visibleColumns () {
       return this.columns.filter(column => column.visible)
+    },
+    searchFields () {
+      return this.visibleColumns.filter(column => !column.locked).map(column => column.key)
     },
     items () {
       return this.$store.state.$_users.items
@@ -142,9 +145,11 @@ export default {
       })
     },
     onReset () {
-      this.requestPage = 1 // reset to the first page
-      this.$store.dispatch('$_users/setSearchQuery', undefined) // reset search
+      this.$store.dispatch('$_users/setSearchQuery', null) // reset search
       this.$store.dispatch('$_users/search', this.requestPage)
+      this.requestPage = 1 // reset to the first page
+      // Select first field
+      this.condition = { op: 'and', values: [{ field: this.fields[0].value, op: null, value: null }] }
     },
     onPageSizeChange () {
       this.requestPage = 1 // reset to the first page
@@ -166,14 +171,41 @@ export default {
     },
     toggleColumn (column) {
       column.visible = !column.visible
+      this.$store.dispatch('$_users/setVisibleColumns', this.columns.filter(column => column.visible).map(column => column.key))
+      this.$store.dispatch('$_users/setSearchFields', this.searchFields)
+      if (column.visible) {
+        this.$store.dispatch('$_users/search', this.requestPage)
+      }
     },
     onRowClick (item, index) {
       this.$router.push({ name: 'user', params: { pid: item.pid } })
     }
   },
   created () {
-    this.$store.dispatch('$_users/search', this.requestPage)
     this.pageSizeLimit = this.$store.state.$_users.searchPageSize
+    // Restore search parameters
+    this.condition = this.$store.state.$_users.searchQuery
+    if (!this.condition) {
+      // Select first field
+      this.condition = { op: 'and', values: [{ field: this.fields[0].value, op: null, value: null }] }
+    } else {
+      // Restore selection of advanced mode; check if condition matches a quick search
+      this.advancedMode = !(this.condition.op === 'or' &&
+        this.condition.values.length === 2 &&
+        this.condition.values[0].field === 'pid' &&
+        this.condition.values[0].op === 'contains' &&
+        this.condition.values[1].field === 'email' &&
+        this.condition.values[1].op === 'contains')
+    }
+    // Restore visibleColumns, overwrite defaults
+    if (this.$store.state.$_users.visibleColumns) {
+      let visibleColumns = this.$store.state.$_users.visibleColumns
+      this.columns.forEach(function (column, index, columns) {
+        columns[index].visible = visibleColumns.includes(column.key)
+      })
+    }
+    this.$store.dispatch('$_users/setSearchFields', this.searchFields)
+    this.$store.dispatch('$_users/search', this.requestPage)
   }
 }
 </script>
