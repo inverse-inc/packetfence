@@ -83,6 +83,11 @@ export default {
       this.condition = { op: 'and', values: [{ field: this.fields[0].value, op: null, value: null }] }
       this.$emit('reset-search')
     }
+  },
+  mounted () {
+    if (!this.advancedMode && !this.quickWithFields) {
+      this.quickValue = this.condition.values[0].value
+    }
   }
 }
 </script>

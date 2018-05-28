@@ -2,7 +2,7 @@
   <b-list-group-item>
     <b-form-row align-v="center" align-h="between" class="align-self-center justify-content-between" v-if="!isQuick">
       <b-form-radio-group v-model="model.op">
-        <b-form-radio value="any">{{ $t('any') }}</b-form-radio>
+        <b-form-radio value="or">{{ $t('any') }}</b-form-radio>
         <b-form-radio value="and">{{ $t('and') }}</b-form-radio>
       </b-form-radio-group>
       <b-button variant="link-secondary" v-if="!isRoot" @click="removeCondition()"><icon name="minus-circle"></icon></b-button>
