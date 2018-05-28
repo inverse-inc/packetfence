@@ -20,6 +20,7 @@ New Features
 Enhancements
 ++++++++++++
 * Add new portal module action that wraps the default actions a module would normally execute (fixes #3231)
+* Improved startup time of PacketFence (PR #3213)
 
 Bug Fixes
 +++++++++
