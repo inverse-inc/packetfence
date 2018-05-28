@@ -1,3 +1,4 @@
+import store from '@/store'
 import UsersView from '../'
 import UsersSearch from '../_components/UsersSearch'
 import UsersCreate from '../_components/UsersCreate'
@@ -22,7 +23,12 @@ const route = {
       path: '/user/:pid',
       name: 'user',
       component: UserView,
-      props: true
+      props: true,
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_users/getUser', to.params.pid).then(user => {
+          next()
+        })
+      }
     }
   ]
 }
