@@ -403,7 +403,7 @@ export default {
       return this.columns.filter(column => column.visible)
     },
     searchFields () {
-      return this.columns.filter(column => !column.locked).map(column => column.key)
+      return this.visibleColumns.filter(column => !column.locked).map(column => column.key)
     },
     items () {
       return this.$store.state.$_nodes.items
@@ -456,6 +456,10 @@ export default {
     toggleColumn (column) {
       column.visible = !column.visible
       this.$store.dispatch('$_nodes/setVisibleColumns', this.columns.filter(column => column.visible).map(column => column.key))
+      this.$store.dispatch('$_nodes/setSearchFields', this.searchFields)
+      if (column.visible) {
+        this.$store.dispatch('$_nodes/search', this.requestPage)
+      }
     },
     onRowClick (item, index) {
       this.$router.push({ name: 'node', params: { mac: item.mac } })
@@ -544,7 +548,6 @@ export default {
     }
   },
   created () {
-    this.$store.dispatch('$_nodes/setSearchFields', this.searchFields)
     this.$store.dispatch('config/getRoles')
     this.$store.dispatch('config/getViolations')
     this.pageSizeLimit = this.$store.state.$_nodes.searchPageSize
@@ -561,6 +564,7 @@ export default {
         columns[index].visible = visibleColumns.includes(column.key)
       })
     }
+    this.$store.dispatch('$_nodes/setSearchFields', this.searchFields)
     this.$store.dispatch('$_nodes/search', this.requestPage)
   },
   mounted () {

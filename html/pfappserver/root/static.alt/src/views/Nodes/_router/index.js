@@ -1,6 +1,6 @@
+import store from '@/store'
 import NodesView from '../'
 import NodesSearch from '../_components/NodesSearch'
-import store from '@/store'
 const NodesCreate = () => import(/* webpackChunkName: "Nodes" */ '../_components/NodesCreate')
 const NodeView = () => import(/* webpackChunkName: "Nodes" */ '../_components/NodeView')
 

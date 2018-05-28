@@ -14,6 +14,7 @@ const state = {
   message: '',
   nodeStatus: '',
   searchStatus: '',
+  searchFields: [],
   searchQuery: null,
   searchSortBy: 'mac',
   searchSortDesc: false,
@@ -28,6 +29,9 @@ const getters = {
 }
 
 const actions = {
+  setSearchFields: ({commit}, fields) => {
+    commit('SEARCH_FIELDS_UPDATED', fields)
+  },
   setSearchQuery: ({commit}, query) => {
     commit('SEARCH_QUERY_UPDATED', query)
     commit('SEARCH_MAX_PAGE_NUMBER_UPDATED', 1) // reset page count
@@ -51,6 +55,7 @@ const actions = {
     let body = {
       cursor: state.searchPageSize * (page - 1),
       limit: state.searchPageSize,
+      fields: state.searchFields,
       sort
     }
     let apiPromise = state.searchQuery ? api.search(Object.assign(body, {query: state.searchQuery})) : api.all(body)
@@ -72,6 +77,7 @@ const actions = {
       return Promise.resolve(state.nodes[mac])
     }
 
+    commit('NODE_REQUEST')
     return api.node(mac).then(item => {
       Object.assign(node, item)
       if (node.category_id === null) {
@@ -188,6 +194,9 @@ const actions = {
 }
 
 const mutations = {
+  SEARCH_FIELDS_UPDATED: (state, fields) => {
+    state.searchFields = fields
+  },
   SEARCH_QUERY_UPDATED: (state, query) => {
     state.searchQuery = query
   },
