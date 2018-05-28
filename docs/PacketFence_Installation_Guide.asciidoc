@@ -4605,6 +4605,22 @@ The Content-Security-Policy HTTP response header tells modern browsers what can 
 
 If, for some reason the portal is modified with content that needs to be accessed from PacketFence generated web pages, CSP can be deactivated through *Configuration -> System Configuration -> Main Configuration -> Advanced -> CSP Security Headers*.
 
+Database Encryption
+~~~~~~~~~~~~~~~~~~~
+
+For security reasons you may need to encrypt a part or the whole database. Starting from PacketFence 8.1 you can encrypt the database.
+
+First you need to choose between two Key Manager, the first one is the File Key Manager ( https://mariadb.com/kb/en/library/encryption-key-management/#file-key-management-plugin ) and the other one is
+the AWS Key Management ( https://mariadb.com/kb/en/library/aws-key-management-encryption-plugin-setup-guide/ ).
+
+Follow the previous link and after that go in Configuration -> System Configuration -> Database -> Encryption and fill the appropriates fields.
+
+Once done restart your database ( systemctl restart packetfence-mariadb ) and connect to it.
+
+If you want to encrypt a table then do :
+
+ ALTER TABLE person ENCRYPTED=YES encryption_key_id=1;
+
 
 include::includes/additional-info.asciidoc[]
 
