@@ -8,6 +8,24 @@
 # this is read by the standalone daemon and embedded servers
 [server]
 
+
+[mariadb]
+[% IF aws == "enabled" %]
+#aws key management
+aws-key-management-master-key-id = [% aws_master_key_id %]
+aws-key-management-region = [% aws_region %]
+!include /etc/my.cnf.d/enable_encryption.preset
+plugin_load_add=aws_key_management
+[% END %]
+
+[% IF file_key_management == "enabled" %]
+# File Key Management
+plugin_load_add = file_key_management.so
+file_key_management_filename = [% file_key_management_filename %]
+file_key_management_filekey = [% file_management_filekey %]
+file_key_management_encryption_algorithm = [% file_key_management_encryption_algorithm %]
+[% END %]
+
 # this is only for the mysqld standalone daemon
 [mysqld]
 datadir=/var/lib/mysql
