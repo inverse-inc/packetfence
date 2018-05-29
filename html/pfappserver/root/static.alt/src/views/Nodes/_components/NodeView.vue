@@ -123,7 +123,7 @@
       </b-tabs>
       <b-card-footer align="right" @mouseenter="$v.nodeContent.$touch()">
         <b-button variant="outline-danger" class="mr-1" :disabled="isLoading" @click="deleteNode()" v-t="'Delete'"></b-button>
-        <b-button variant="outline-primary" type="submit" :disabled="invalidForm" v-t="'Save'"></b-button>
+        <b-button variant="outline-primary" type="submit" :disabled="invalidForm"><icon name="circle-notch" spin v-show="isLoading"></icon> {{ $t('Save') }}</b-button>
       </b-card-footer>
     </b-card>
   </b-form>
@@ -221,6 +221,11 @@ export default {
       ]
     }
   },
+  validations: {
+    nodeContent: {
+      pid: { required }
+    }
+  },
   computed: {
     node () {
       return this.$store.state.$_nodes.nodes[this.mac]
@@ -236,11 +241,6 @@ export default {
     },
     invalidForm () {
       return this.$v.nodeContent.$invalid || this.$store.getters['$_nodes/isLoading']
-    }
-  },
-  validations: {
-    nodeContent: {
-      pid: { required }
     }
   },
   methods: {
