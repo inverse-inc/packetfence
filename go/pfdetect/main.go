@@ -202,7 +202,6 @@ func main() {
 }
 
 func (r *ParseRunner) WatchLog() error {
-	detectParser := r.Parser
 	reader := bufio.NewReader(r.File)
 	buff := bytes.Buffer{}
 	var err error
@@ -225,21 +224,9 @@ LOOP:
 			if isPrefix == false {
 				data := buff.String()
 				buff.Reset()
-				calls, perr := detectParser.Parse(data)
-				if perr != nil {
-					fmt.Printf("Error: %s\n", perr)
-					continue
-				}
-
-				fmt.Printf("Sending %#v\n", calls)
-				for _, call := range calls {
-					fmt.Printf("Sending %#v\n", call)
-					go func(c parser.ApiCall) {
-						err := c.Call()
-						if err != nil {
-							fmt.Printf("Error: %s\n", err)
-						}
-					}(call)
+				err = r.ParseLine(data)
+				if err != nil {
+					fmt.Printf("Error: %s\n", err)
 				}
 			}
 		}
@@ -247,4 +234,28 @@ LOOP:
 	fmt.Printf("Stopping reading %s\n", r.PipePath)
 
 	return err
+}
+
+func (r *ParseRunner) ParseLine(data string) (err error) {
+	defer func() {
+		if rv := recover(); rv != nil {
+			err = fmt.Errorf("Panic while processing %s: %v ", r.PipePath, rv)
+		}
+	}()
+
+	calls, err := r.Parser.Parse(data)
+	if err != nil {
+		return err
+	}
+
+	for _, call := range calls {
+		go func(c parser.ApiCall) {
+			err := c.Call()
+			if err != nil {
+				fmt.Printf("Error: %s\n", err)
+			}
+		}(call)
+	}
+
+	return nil
 }
