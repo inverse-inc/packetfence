@@ -166,6 +166,17 @@ has_field 'monitor',
    default => $META->get_attribute('monitor')->default,
 );
 
+has_field 'shuffle',
+  (
+   type => 'Toggle',
+   label => 'Shuffle',
+   checkbox_value => '1',
+   unchecked_value => '0',
+   tags => { after_element => \&help,
+             help => 'Allow ldap servers to random queried' },
+   default => $META->get_attribute('shuffle')->default,
+);
+
 =head2 validate
 
 Make sure a password is specified when a bind DN is specified.

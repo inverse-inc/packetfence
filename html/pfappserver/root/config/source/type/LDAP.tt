@@ -24,3 +24,4 @@
 </div>
 [% form.field('cache_match').render | none %]
 [% form.field('monitor').render | none %]
+[% form.field('shuffle').render | none %]
