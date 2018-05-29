@@ -1,6 +1,6 @@
 /**
- * "$_users" store module
- */
+* "$_users" store module
+*/
 import Vue from 'vue'
 import api from '../_api'
 
@@ -59,16 +59,18 @@ const actions = {
       sort
     }
     let apiPromise = state.searchQuery ? api.search(Object.assign(body, {query: state.searchQuery})) : api.all(body)
-    return new Promise((resolve, reject) => {
-      commit('SEARCH_REQUEST')
-      apiPromise.then(response => {
-        commit('SEARCH_SUCCESS', response)
-        resolve(response)
-      }).catch(err => {
-        commit('SEARCH_ERROR', err.response)
-        reject(err)
+    if (state.searchStatus !== 'loading') {
+      return new Promise((resolve, reject) => {
+        commit('SEARCH_REQUEST')
+        apiPromise.then(response => {
+          commit('SEARCH_SUCCESS', response)
+          resolve(response)
+        }).catch(err => {
+          commit('SEARCH_ERROR', err.response)
+          reject(err)
+        })
       })
-    })
+    }
   },
   getUser: ({commit, state}, pid) => {
     if (state.users[pid]) {
