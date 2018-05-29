@@ -1,6 +1,10 @@
 package parser
 
 import (
+	"context"
+	"fmt"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
+	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 	"regexp"
 	"strings"
 	"unicode"
@@ -19,10 +23,11 @@ type GenericParserAction struct {
 }
 
 type GenericParserRule struct {
-	Match       *regexp.Regexp
-	Name        string
-	LastIfMatch bool
-	Actions     []GenericParserAction
+	Match            *regexp.Regexp
+	Name             string
+	LastIfMatch      bool
+	IpMacTranslation bool
+	Actions          []GenericParserAction
 }
 
 var macGarbageRegex = regexp.MustCompile(`[\s\-\.:]`)
@@ -48,6 +53,7 @@ func stringExpander(name string, num int, value string) string {
 	if name == "mac" {
 		return cleanMac(value)
 	}
+
 	return value
 }
 
@@ -59,13 +65,13 @@ func (s *GenericParser) Parse(line string) ([]ApiCall, error) {
 		if submatches == nil {
 			continue
 		}
-
+		replacements := rule.GetReplacementMap(context.TODO(), line, submatches)
 		for _, action := range rule.Actions {
 			results = results[:0]
-			results = rule.ExpandStringFunc(results, action.ArgsTemplate, line, submatches, stringExpander)
+			results = rule.ExpandString(results, action.ArgsTemplate, line, submatches, replacements)
 			calls = append(
 				calls,
-				&JsonRpcApiCall{
+				&PfqueueApiCall{
 					Method: action.MethodName,
 					Params: s.Pattern.Split(string(results), -1),
 				},
@@ -133,16 +139,28 @@ func extract(str string) (name string, num int, rest string, ok bool) {
 	return
 }
 
+type FoundIp struct {
+	Ip string `json"ip"`
+}
+
+type Mac2IpResponse struct {
+	Ip string `json:"ip"`
+}
+
+type Ip2MacResponse struct {
+	Mac string `json:"mac"`
+}
+
+func (rule *GenericParserRule) StringExpander() func(name string, num int, value string) string {
+	return stringExpander
+}
+
 func genericStringExpander(name string, num int, value string) string {
 	return value
 }
 
-func (rule *GenericParserRule) ExpandString(dst []byte, template string, src string, match []int) []byte {
-	return rule.ExpandStringFunc(dst, template, src, match, genericStringExpander)
-}
-
-func (rule *GenericParserRule) ExpandStringFunc(dst []byte, template string, src string, match []int, replacements func(name string, num int, value string) string) []byte {
-	subexpNames := rule.Match.SubexpNames()
+func (rule *GenericParserRule) ExpandString(dst []byte, template string, src string, match []int, replacements map[string]string) []byte {
+	//subexpNames := rule.Match.SubexpNames()
 	for len(template) > 0 {
 		i := strings.Index(template, "$")
 		if i < 0 {
@@ -170,22 +188,78 @@ func (rule *GenericParserRule) ExpandStringFunc(dst []byte, template string, src
 				replace_string = src[match[2*num]:match[2*num+1]]
 			}
 		} else {
-			for i, namei := range subexpNames {
-				if name == namei && 2*i+1 < len(match) && match[2*i] >= 0 {
-					replace_string = src[match[2*i]:match[2*i+1]]
-					break
-				}
+			if tmp, found := replacements[name]; found {
+				replace_string = tmp
 			}
 		}
-		replace_string = replacements(name, num, replace_string)
 
 		dst = append(dst, replace_string...)
 	}
 	return append(dst, template...)
 }
 
-func NewGenericParser(*PfdetectConfig) (Parser, error) {
+func (rule *GenericParserRule) GetReplacementMap(ctx context.Context, src string, match []int) map[string]string {
+	replacementStrings := make(map[string]string)
+	subexpNames := rule.Match.SubexpNames()
+	for i, name := range subexpNames {
+		if name != "" {
+			replacementStrings[name] = src[match[2*i]:match[2*i+1]]
+		}
+	}
+
+	mac, macFound := replacementStrings["mac"]
+	ip, ipFound := replacementStrings["ip"]
+	if !rule.IpMacTranslation || (macFound == ipFound) {
+		return replacementStrings
+	}
+
+	var apiClient = unifiedapiclient.NewFromConfig(ctx)
+	if macFound {
+		foundIp := Mac2IpResponse{}
+		err := apiClient.Call(ctx, "GET", "/api/v1/ip4logs/mac2ip/"+mac, &foundIp)
+		if err == nil {
+			replacementStrings["ip"] = foundIp.Ip
+		}
+	} else {
+		foundMac := Ip2MacResponse{}
+		err := apiClient.Call(ctx, "GET", "/api/v1/ip4logs/ip2mac/"+ip, &foundMac)
+		if err != nil {
+			fmt.Printf("err %s\n", err)
+		} else {
+			fmt.Printf("Replacing mac %s\n", foundMac.Mac)
+			replacementStrings["mac"] = foundMac.Mac
+		}
+	}
+
+	return replacementStrings
+}
+
+var splitActionRegex = regexp.MustCompile(`\s*:\s*`)
+
+func MakeActions(array []string) []GenericParserAction {
+	actions := []GenericParserAction{}
+	for _, i := range array {
+		args := splitActionRegex.Split(i, 2)
+		actions = append(actions, GenericParserAction{MethodName: args[0], ArgsTemplate: args[1]})
+	}
+	return actions
+}
+
+func NewGenericParser(config *PfdetectConfig) (Parser, error) {
+	rules := []GenericParserRule{}
+	for _, rule := range config.Rules {
+		rules = append(rules, GenericParserRule{
+			Name:             rule.Name,
+			LastIfMatch:      sharedutils.IsEnabled(rule.LastIfMatch),
+			IpMacTranslation: sharedutils.IsEnabled(rule.IpMacTranslation),
+			Match:            regexp.MustCompile(rule.Regex),
+			Actions:          MakeActions(rule.Actions),
+		},
+		)
+	}
+
 	return &GenericParser{
 		Pattern: genericPatternRegex.Copy(),
+		Rules:   rules,
 	}, nil
 }

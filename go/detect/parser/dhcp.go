@@ -16,7 +16,7 @@ type DhcpParser struct {
 func (s *DhcpParser) Parse(line string) ([]ApiCall, error) {
 	if matches := s.Pattern1.FindStringSubmatch(line); matches != nil && matches[1] == "DHCPACK" {
 		return []ApiCall{
-			&JsonRpcApiCall{
+			&PfqueueApiCall{
 				Method: "update_ip4log",
 				Params: []interface{}{
 					"mac", matches[3],
@@ -28,7 +28,7 @@ func (s *DhcpParser) Parse(line string) ([]ApiCall, error) {
 
 	if matches := s.Pattern2.FindStringSubmatch(line); matches != nil && matches[1] == "DHCPACK" {
 		return []ApiCall{
-			&JsonRpcApiCall{
+			&PfqueueApiCall{
 				Method: "update_ip4log",
 				Params: []interface{}{
 					"mac", matches[3],

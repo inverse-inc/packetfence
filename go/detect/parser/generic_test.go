@@ -33,11 +33,11 @@ func TestGenericParse(t *testing.T) {
 		{
 			Line: "from: 1.2.3.4, to: 1.2.3.5, mac: aabbccddeeff",
 			Calls: []ApiCall{
-				&JsonRpcApiCall{
+				&PfqueueApiCall{
 					Method: "modify_node",
 					Params: []string{"1.2.3.4", "1.2.3.5", "aa:bb:cc:dd:ee:ff"},
 				},
-				&JsonRpcApiCall{
+				&PfqueueApiCall{
 					Method: "violation_log",
 					Params: []string{"bob", "bob"},
 				},

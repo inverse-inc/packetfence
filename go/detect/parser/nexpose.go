@@ -11,7 +11,7 @@ type NexposeParser struct {
 func (s *NexposeParser) Parse(line string) ([]ApiCall, error) {
 	if matches := s.Pattern1.FindStringSubmatch(line); matches != nil && matches[4] == "VULNERABILITY" {
 		return []ApiCall{
-			&JsonRpcApiCall{
+			&PfqueueApiCall{
 				Method: "event_add",
 				Params: []interface{}{
 					"date", matches[1],

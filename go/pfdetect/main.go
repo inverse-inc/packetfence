@@ -108,7 +108,6 @@ func (s *Server) AddRunner(runner *ParseRunner) {
 func (s *Server) StopRunners() {
 	fmt.Printf("Stopping runners\n")
 	for _, runner := range s.Runners {
-		fmt.Printf("Stopped %s\n", runner.PipePath)
 		runner.Stop()
 		s.Done(runner.PipePath)
 	}
@@ -164,7 +163,7 @@ func (s *Server) RunRunners() {
 			runner.Run()
 		}(runner)
 	}
-	fmt.Printf("Ran runners %d\n", len(s.Runners))
+	fmt.Printf("%d parse runners are running\n", len(s.Runners))
 }
 
 func (s *Server) NotifySystemd(msg string) {
@@ -225,17 +224,21 @@ LOOP:
 			buff.Write(line)
 			if isPrefix == false {
 				data := buff.String()
-				fmt.Printf("%s\n", data)
 				buff.Reset()
 				calls, perr := detectParser.Parse(data)
 				if perr != nil {
-					// Log
+					fmt.Printf("Error: %s\n", perr)
 					continue
 				}
 
+				fmt.Printf("Sending %#v\n", calls)
 				for _, call := range calls {
+					fmt.Printf("Sending %#v\n", call)
 					go func(c parser.ApiCall) {
-						c.Call()
+						err := c.Call()
+						if err != nil {
+							fmt.Printf("Error: %s\n", err)
+						}
 					}(call)
 				}
 			}

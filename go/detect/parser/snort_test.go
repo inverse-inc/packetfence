@@ -20,7 +20,7 @@ func TestSnortParse(t *testing.T) {
 		{
 			Line: "07/28/2015-09:09:59.431113  [**] [1:2221002:1] SURICATA HTTP request field missing colon [**] [Classification: Generic Protocol Command Decode] [Priority: 3] {TCP} 10.220.10.186:44196 -> 199.167.22.51:8000",
 			Calls: []ApiCall{
-				&JsonRpcApiCall{
+				&PfqueueApiCall{
 					Method: "event_add",
 					Params: []interface{}{
 						"date", "07/28/2015-09:09:59.431113  [**] ",

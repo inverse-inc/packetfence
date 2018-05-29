@@ -18,7 +18,7 @@ type SnortParser struct {
 func (s *SnortParser) Parse(line string) ([]ApiCall, error) {
 	if matches := s.Pattern1.FindStringSubmatch(line); matches != nil {
 		return []ApiCall{
-			&JsonRpcApiCall{
+			&PfqueueApiCall{
 				Method: "event_add",
 				Params: []interface{}{
 					"date", matches[1],
@@ -35,7 +35,7 @@ func (s *SnortParser) Parse(line string) ([]ApiCall, error) {
 
 	if matches := s.Pattern2.FindStringSubmatch(line); matches != nil {
 		return []ApiCall{
-			&JsonRpcApiCall{
+			&PfqueueApiCall{
 				Method: "event_add",
 				Params: []interface{}{
 					"date", matches[1],
@@ -50,7 +50,7 @@ func (s *SnortParser) Parse(line string) ([]ApiCall, error) {
 
 	if matches := s.Pattern3.FindStringSubmatch(line); matches != nil {
 		return []ApiCall{
-			&JsonRpcApiCall{
+			&PfqueueApiCall{
 				Method: "event_add",
 				Params: []interface{}{
 					"date", matches[1],

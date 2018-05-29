@@ -26,7 +26,7 @@ func (s *SecurityOnionParser) Parse(line string) ([]ApiCall, error) {
 	}
 
 	return []ApiCall{
-		&JsonRpcApiCall{
+		&PfqueueApiCall{
 			Method: "event_add",
 			Params: []interface{}{
 				"date", matches1[1],

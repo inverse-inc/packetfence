@@ -24,7 +24,7 @@ func TestSecurityOnionParse(t *testing.T) {
 		{
 			Line: `Oct  7 14:23:40 idsman01 securityonion_ids: 14:23:40 pid(24921)  Alert Received: 0 1 policy-violation idshalls01-eth0-7 {2016-10-07 14:23:39} 21 173773 {ET P2P Vuze BT UDP Connection} 10.6.198.173 24.122.228.33 17 10600 65344 1 2010140 6 92 92`,
 			Calls: []ApiCall{
-				&JsonRpcApiCall{
+				&PfqueueApiCall{
 					Method: "event_add",
 					Params: []interface{}{
 						"date", "2016-10-07 14:23:39",

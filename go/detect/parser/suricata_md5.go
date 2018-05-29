@@ -67,7 +67,7 @@ func (s *SuricataMD5Parser) Parse(line string) ([]ApiCall, error) {
 
 	data["mac"] = mac
 	return []ApiCall{
-		&JsonRpcApiCall{
+		&PfqueueApiCall{
 			Method: "trigger_violation",
 			Params: []interface{}{
 				"mac", mac,
@@ -75,7 +75,7 @@ func (s *SuricataMD5Parser) Parse(line string) ([]ApiCall, error) {
 				"type", "suricata_md5",
 			},
 		},
-		&JsonRpcApiCall{
+		&PfqueueApiCall{
 			Method: "metadefender_process",
 			Params: []interface{}{data},
 		},

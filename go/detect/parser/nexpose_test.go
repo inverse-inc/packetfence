@@ -20,7 +20,7 @@ func TestNexposeParse(t *testing.T) {
 		{
 			Line: `Nov 13 11:38:09 172.20.120.70 Nexpose: 10.0.0.20 VULNERABILITY: OpenSSL SSL/TLS MITM vulnerability (CVE-2014-0224) (http-openssl-cve-2014-0224)`,
 			Calls: []ApiCall{
-				&JsonRpcApiCall{
+				&PfqueueApiCall{
 					Method: "event_add",
 					Params: []interface{}{
 						"date", "Nov 13 11:38:09",

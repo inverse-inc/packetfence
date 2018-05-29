@@ -39,7 +39,7 @@ func TestSuricataMD5Parse(t *testing.T) {
 		{
 			Line: `Jul  7 15:48:02 Thierry-SecurityOnion suricata_files: ` + testLine,
 			Calls: []ApiCall{
-				&JsonRpcApiCall{
+				&PfqueueApiCall{
 					Method: "trigger_violation",
 					Params: []interface{}{
 						"mac", "00:11:22:33:44:55",
@@ -47,7 +47,7 @@ func TestSuricataMD5Parse(t *testing.T) {
 						"type", "suricata_md5",
 					},
 				},
-				&JsonRpcApiCall{
+				&PfqueueApiCall{
 					Method: "metadefender_process",
 					Params: []interface{}{testData},
 				},
