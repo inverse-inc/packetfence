@@ -1,5 +1,6 @@
 import store from '@/store'
 import NodesView from '../'
+import NodesStore from '../_store'
 import NodesSearch from '../_components/NodesSearch'
 const NodesCreate = () => import(/* webpackChunkName: "Nodes" */ '../_components/NodesCreate')
 const NodeView = () => import(/* webpackChunkName: "Nodes" */ '../_components/NodeView')
@@ -10,6 +11,13 @@ const route = {
   redirect: '/nodes/search',
   component: NodesView,
   meta: { transitionDelay: 300 * 2 }, // See _transitions.scss => $slide-bottom-duration
+  beforeEnter: (to, from, next) => {
+    if (!store.state.$_nodes) {
+      // Register store module only once
+      store.registerModule('$_nodes', NodesStore)
+    }
+    next()
+  },
   children: [
     {
       path: 'search',

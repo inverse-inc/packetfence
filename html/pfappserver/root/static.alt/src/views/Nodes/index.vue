@@ -28,23 +28,7 @@
 </template>
 
 <script>
-import store from './_store'
-
 export default {
-  name: 'Nodes',
-  props: {
-  },
-  data () {
-    return {
-    }
-  },
-  computed: {
-  },
-  created () {
-    // Register store module only once
-    if (!this.$store.state.$_nodes) {
-      this.$store.registerModule('$_nodes', store)
-    }
-  }
+  name: 'Nodes'
 }
 </script>

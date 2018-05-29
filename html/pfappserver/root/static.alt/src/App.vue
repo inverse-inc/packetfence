@@ -55,14 +55,6 @@ export default {
     }
   },
   created () {
-    let token = this.$store.state.session.token
-    if (token) {
-      // Validate token by fetching token info
-      this.$store.dispatch('session/update', token)
-    } else {
-      // No token -- go back to login
-      this.$router.push('/')
-    }
     this.$store.dispatch('session/setLanguage', { i18n: this.$i18n, lang: 'en' })
   }
 }
