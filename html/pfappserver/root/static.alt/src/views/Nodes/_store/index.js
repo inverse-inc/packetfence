@@ -218,6 +218,42 @@ const actions = {
         reject(err)
       })
     })
+  },
+  registerNode: ({commit}, mac) => {
+    commit('NODE_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.registerNode(mac).then(response => {
+        commit('NODE_REPLACED', mac)
+        resolve(response)
+      }).catch(err => {
+        commit('NODE_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  deregisterNode: ({commit}, mac) => {
+    commit('NODE_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.deregisterNode(mac).then(response => {
+        commit('NODE_REPLACED', mac)
+        resolve(response)
+      }).catch(err => {
+        commit('NODE_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  clearViolationNode: ({commit}, mac) => {
+    commit('NODE_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.clearViolationNode(mac).then(response => {
+        commit('NODE_REPLACED', mac)
+        resolve(response)
+      }).catch(err => {
+        commit('NODE_ERROR', err.response)
+        reject(err)
+      })
+    })
   }
 }
 
@@ -283,6 +319,11 @@ const mutations = {
     if (response && response.data) {
       state.message = response.data.message
     }
+  },
+  NODE_VARIANT: (state, params) => {
+    state.nodeStatus = 'success'
+    let index = state.items.findIndex(item => item.mac === params.mac)
+    Vue.set(state.items[index], '_rowVariant', params.variant)
   }
 }
 

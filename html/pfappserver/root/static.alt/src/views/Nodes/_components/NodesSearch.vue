@@ -468,6 +468,10 @@ export default {
     },
     clearChecked () {
       this.checkedAll = false
+      const _this = this
+      this.checkedRows.forEach(function (item, index, items) {
+        _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: ''})
+      })
       this.checkedRows = []
       this.lastIndex = null
     },
@@ -489,13 +493,34 @@ export default {
       }
     },
     applyClearViolation () {
-      console.log(['applyClearViolation', this.checkedRows])
+      const _this = this
+      this.checkedRows.forEach(function (item, index, items) {
+        _this.$store.dispatch('$_nodes/clearViolationNode', item.mac).then(response => {
+          _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'success'})
+        }).catch(() => {
+          _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'danger'})
+        })
+      })
     },
     applyRegister () {
-      console.log(['applyRegister', this.checkedRows])
+      const _this = this
+      this.checkedRows.forEach(function (item, index, items) {
+        _this.$store.dispatch('$_nodes/registerNode', item.mac).then(response => {
+          _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'success'})
+        }).catch(() => {
+          _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'danger'})
+        })
+      })
     },
     applyDeregister () {
-      console.log(['applyDeregister', this.checkedRows])
+      const _this = this
+      this.checkedRows.forEach(function (item, index, items) {
+        _this.$store.dispatch('$_nodes/deregisterNode', item.mac).then(response => {
+          _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'success'})
+        }).catch(() => {
+          _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'danger'})
+        })
+      })
     },
     applyReevaluateAccess () {
       console.log(['applyReevaluateAccess', this.checkedRows])
@@ -528,9 +553,11 @@ export default {
   watch: {
     checkedRows (a, b) {
       this.checkedAll = (this.tableValues.length === a.length && a.length > 0)
+      let _this = this
       let checkedRows = this.checkedRows
       this.items.forEach(function (item, index, items) {
-        items[index]._rowVariant = checkedRows.includes(item) ? 'info' : ''
+        // items[index]._rowVariant = checkedRows.includes(item) ? 'info' : ''
+        _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: checkedRows.includes(item) ? 'info' : ''})
       })
     },
     condition (a, b) {

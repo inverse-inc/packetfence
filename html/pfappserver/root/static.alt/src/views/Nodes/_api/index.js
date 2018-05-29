@@ -79,5 +79,20 @@ export default {
   },
   deleteNode: mac => {
     return apiCall.delete(`node/${mac}`)
+  },
+  registerNode: mac => {
+    return apiCall.post(`node/${mac}/register`).then(response => {
+      return response.data
+    })
+  },
+  deregisterNode: mac => {
+    return apiCall.post(`node/${mac}/deregister`).then(response => {
+      return response.data
+    })
+  },
+  clearViolationNode: mac => {
+    return apiCall.post(`node/${mac}/closeviolations`).then(response => {
+      return response.data
+    })
   }
 }
