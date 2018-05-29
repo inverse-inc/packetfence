@@ -14,29 +14,19 @@ type DhcpParser struct {
 }
 
 func (s *DhcpParser) Parse(line string) ([]ApiCall, error) {
-	if matches := s.Pattern1.FindStringSubmatch(line); matches != nil && matches[1] == "DHCPACK" {
-		return []ApiCall{
-			&PfqueueApiCall{
-				Method: "update_ip4log",
-				Params: []interface{}{
-					"mac", matches[3],
-					"ip", matches[2],
-				},
-			},
-		}, nil
-	}
-
-	if matches := s.Pattern2.FindStringSubmatch(line); matches != nil && matches[1] == "DHCPACK" {
-		return []ApiCall{
-			&PfqueueApiCall{
-				Method: "update_ip4log",
-				Params: []interface{}{
-					"mac", matches[3],
-					"ip", matches[2],
-				},
-			},
-		}, nil
-	}
+    for _,r := range []*regexp.Regexp{s.Pattern1, s.Pattern2} {
+        if matches := r.FindStringSubmatch(line); matches != nil && matches[1] == "DHCPACK" {
+            return []ApiCall{
+                &PfqueueApiCall{
+                    Method: "update_ip4log",
+                    Params: []interface{}{
+                        "mac", matches[3],
+                        "ip", matches[2],
+                    },
+                },
+            }, nil
+        }
+    }
 
 	return nil, fmt.Errorf("Error parsing")
 }

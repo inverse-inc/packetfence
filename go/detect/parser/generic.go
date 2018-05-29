@@ -66,6 +66,10 @@ func (s *GenericParser) Parse(line string) ([]ApiCall, error) {
 			continue
 		}
 		replacements := rule.GetReplacementMap(context.TODO(), line, submatches)
+        if mac, found := replacements["mac"];found {
+            replacements["mac"] = cleanMac(mac)
+        }
+
 		for _, action := range rule.Actions {
 			results = results[:0]
 			results = rule.ExpandString(results, action.ArgsTemplate, line, submatches, replacements)
@@ -160,7 +164,6 @@ func genericStringExpander(name string, num int, value string) string {
 }
 
 func (rule *GenericParserRule) ExpandString(dst []byte, template string, src string, match []int, replacements map[string]string) []byte {
-	//subexpNames := rule.Match.SubexpNames()
 	for len(template) > 0 {
 		i := strings.Index(template, "$")
 		if i < 0 {
@@ -217,7 +220,9 @@ func (rule *GenericParserRule) GetReplacementMap(ctx context.Context, src string
 	if macFound {
 		foundIp := Mac2IpResponse{}
 		err := apiClient.Call(ctx, "GET", "/api/v1/ip4logs/mac2ip/"+mac, &foundIp)
-		if err == nil {
+		if err != nil {
+			fmt.Printf("err %s\n", err)
+        } else {
 			replacementStrings["ip"] = foundIp.Ip
 		}
 	} else {
@@ -226,7 +231,6 @@ func (rule *GenericParserRule) GetReplacementMap(ctx context.Context, src string
 		if err != nil {
 			fmt.Printf("err %s\n", err)
 		} else {
-			fmt.Printf("Replacing mac %s\n", foundMac.Mac)
 			replacementStrings["mac"] = foundMac.Mac
 		}
 	}
