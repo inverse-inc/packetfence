@@ -1,8 +1,11 @@
 <template>
-  <b-progress :max="100">
-    <b-progress-bar :value="value" :precision="2" :variant="level" :show-value="!hideValue"></b-progress-bar>
-    <b-progress-bar :value="otherValue" :precision="2" :variant="level" :show-value="false" style="opacity: 0.2"></b-progress-bar>
-  </b-progress>
+  <div>
+    {{ value }}%
+    <b-progress :max="100" height="4px">
+      <b-progress-bar :value="value" :precision="2" :variant="level" :show-value="false"></b-progress-bar>
+      <b-progress-bar :value="otherValue" :precision="2" :variant="level" :show-value="false" style="opacity: 0.2"></b-progress-bar>
+    </b-progress>
+  </div>
 </template>
 
 <script>
