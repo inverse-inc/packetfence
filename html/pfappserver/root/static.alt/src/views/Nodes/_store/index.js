@@ -72,6 +72,32 @@ const actions = {
       })
     }
   },
+  exists: ({commit}, mac) => {
+    let body = {
+      fields: ['mac'],
+      limit: 1,
+      query: {
+        op: 'and',
+        values: [{
+          field: 'mac', op: 'equals', value: mac
+        }]
+      }
+    }
+    return new Promise((resolve, reject) => {
+      commit('SEARCH_REQUEST')
+      api.search(body).then(response => {
+        commit('SEARCH_SUCCESS')
+        if (response.items.length > 0) {
+          resolve(true)
+        } else {
+          reject(new Error('Unknown MAC'))
+        }
+      }).catch(err => {
+        commit('SEARCH_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
   getNode: ({state, commit}, mac) => {
     let node = { fingerbank: {} } // ip4: { history: [] }, ip6: { history: [] } }
 
@@ -219,10 +245,12 @@ const mutations = {
   },
   SEARCH_SUCCESS: (state, response) => {
     state.searchStatus = 'success'
-    state.items = response.items
-    let nextPage = Math.floor(response.nextCursor / state.searchPageSize) + 1
-    if (nextPage > state.searchMaxPageNumber) {
-      state.searchMaxPageNumber = nextPage
+    if (response) {
+      state.items = response.items
+      let nextPage = Math.floor(response.nextCursor / state.searchPageSize) + 1
+      if (nextPage > state.searchMaxPageNumber) {
+        state.searchMaxPageNumber = nextPage
+      }
     }
   },
   SEARCH_ERROR: (state, response) => {

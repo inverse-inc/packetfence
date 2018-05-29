@@ -10,7 +10,7 @@
           <b-form-row align-v="center">
             <b-col sm="8">
               <pf-form-input v-model="single.mac" label="MAC"
-                :validation="$v.single.mac" invalid-feedback="Enter a valid MAC address"/>
+                :validation="$v.single.mac" :invalid-feedback="invalidMacFeedback"/>
               <pf-form-input v-model="single.pid" label="Owner" placeholder="default" validation="$v.single.pid"/>
               <b-form-group horizontal label-cols="3" :label="$t('Status')">
                 <b-form-select v-model="single.status" :options="statuses"></b-form-select>
@@ -118,7 +118,18 @@ export default {
   },
   validations: {
     single: {
-      mac: { macAddress: macAddress(), required }
+      mac: {
+        macAddress: macAddress(),
+        required,
+        isUnique (mac) {
+          if (!this.$v.single.mac.macAddress) return true
+          return this.$store.dispatch('$_nodes/exists', mac).then(results => {
+            return false
+          }).catch(() => {
+            return true
+          })
+        }
+      }
     },
     csv: {
       file: { required }
@@ -133,6 +144,12 @@ export default {
     },
     isLoading () {
       return this.$store.getters['$_nodes/isLoading']
+    },
+    invalidMacFeedback () {
+      if (!this.$v.single.mac.isUnique) {
+        return 'MAC address already exists'
+      }
+      return 'Enter a valid MAC address'
     },
     invalidForm () {
       if (this.modeIndex === 0) {
