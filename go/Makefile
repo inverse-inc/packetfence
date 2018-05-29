@@ -36,6 +36,12 @@ pfstats:
         cd - && \
         mv stats/stats pfstats
 
+pfdetect:
+	cd detect && \
+        go build && \
+        cd - && \
+        mv detect/detect pfdetect
+
 .PHONY: clean-caddy-src
 
 clean-caddy-src:

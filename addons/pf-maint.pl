@@ -72,6 +72,7 @@ our @patchable_binaries = (
     "pfdns",
     "pfdhcp",
     "pfstats",
+    "pfdetect",
 );
 
 GetOptions(

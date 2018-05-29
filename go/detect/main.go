@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/coreos/go-systemd/daemon"
-	"github.com/inverse-inc/packetfence/go/detect/parser"
+	"github.com/inverse-inc/packetfence/go/detectparser"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"os"
@@ -23,7 +23,7 @@ type RunnerConfig struct {
 type ParseRunner struct {
 	PipePath string
 	File     *os.File
-	Parser   parser.Parser
+	Parser   detectparser.Parser
 	StopChan chan struct{}
 }
 
@@ -46,8 +46,8 @@ func (r *ParseRunner) Run() error {
 	return r.WatchLog()
 }
 
-func NewParseRunner(parserType string, config *parser.PfdetectConfig) (*ParseRunner, error) {
-	p, err := parser.CreateParser(parserType, config)
+func NewParseRunner(parserType string, config *detectparser.PfdetectConfig) (*ParseRunner, error) {
+	p, err := detectparser.CreateParser(parserType, config)
 	if err != nil {
 		return nil, err
 	}
@@ -144,12 +144,12 @@ func (s *Server) SetupSignals() {
 	})
 }
 
-func GetPfDetectConfig() []parser.PfdetectConfig {
+func GetPfDetectConfig() []detectparser.PfdetectConfig {
 	ctx := context.TODO()
 	keys, _ := pfconfigdriver.FetchKeys(ctx, "config::Pfdetect")
-	configs := make([]parser.PfdetectConfig, 0, len(keys))
+	configs := make([]detectparser.PfdetectConfig, 0, len(keys))
 	for _, n := range keys {
-		config := parser.PfdetectConfig{Name: n, PfconfigHashNS: n}
+		config := detectparser.PfdetectConfig{Name: n, PfconfigHashNS: n}
 		_, _ = pfconfigdriver.FetchDecodeSocketCache(ctx, &config)
 		configs = append(configs, config)
 	}
@@ -249,7 +249,7 @@ func (r *ParseRunner) ParseLine(data string) (err error) {
 	}
 
 	for _, call := range calls {
-		go func(c parser.ApiCall) {
+		go func(c detectparser.ApiCall) {
 			err := c.Call()
 			if err != nil {
 				fmt.Printf("Error: %s\n", err)
