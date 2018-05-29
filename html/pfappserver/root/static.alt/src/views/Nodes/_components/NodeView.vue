@@ -60,10 +60,8 @@
               <pf-form-row :label="$t('Version')">
                 {{ node.fingerbank.version }}
               </pf-form-row>
-              <pf-form-row :label="$t('Score')">
-                <b-progress class="mt-1" :max="100">
-                  <b-progress-bar :value="parseFloat(node.fingerbank.score)" :precision="2" :variant="fbScoreLevel" show-value></b-progress-bar>
-                </b-progress>
+              <pf-form-row :label="$t('Score')" v-if="node.fingerbank.score">
+                <pf-fingerbank-score :score="node.fingerbank.score"></pf-fingerbank-score>
               </pf-form-row>
               <pf-form-row :label="$t('Mobile')">
                 <b-badge variant="success" v-if="node.fingerbank.mobile === 1">{{ $t('Yes') }}</b-badge>
@@ -133,6 +131,7 @@
 
 <script>
 import ToggleButton from '@/components/ToggleButton'
+import pfFingerbankScore from '@/components/pfFingerbankScore'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRow from '@/components/pfFormRow'
 import { pfEapType as eapType } from '@/globals/pfEapType'
@@ -147,6 +146,7 @@ export default {
   name: 'NodeView',
   components: {
     'toggle-button': ToggleButton,
+    'pf-fingerbank-score': pfFingerbankScore,
     'pf-form-row': pfFormRow,
     'pf-form-input': pfFormInput
   },
@@ -230,16 +230,6 @@ export default {
     },
     statuses () {
       return conditionValues[conditionType.NODE_STATUS]
-    },
-    fbScoreLevel () {
-      // See fingerbank-cloud-api.git/app/views/combinations/row.html.erb
-      if (this.node.fingerbank.score < 33) {
-        return 'danger'
-      } else if (this.node.fingerbank.score < 66) {
-        return 'warning'
-      } else {
-        return 'success'
-      }
     },
     isLoading () {
       return this.$store.getters['$_nodes/isLoading']

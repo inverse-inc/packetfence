@@ -90,10 +90,7 @@
           <b-badge pill variant="light" v-else>{{ $t('unregistered') }}</b-badge>
         </template>
         <template slot="device_score" slot-scope="data">
-          <b-progress :max="100">
-            <b-progress-bar :value="data.value - 0" :precision="2" variant="success" show-value></b-progress-bar>
-            <b-progress-bar :value="100 - data.value" :precision="2" variant="danger"></b-progress-bar>
-          </b-progress>
+          <pf-fingerbank-score :score="data.value"></pf-fingerbank-score>
         </template>
       </b-table>
     </div>
@@ -102,12 +99,14 @@
 
 <script>
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import pfFingerbankScore from '@/components/pfFingerbankScore'
 import pfSearch from '@/components/pfSearch'
 import ToggleButton from '@/components/ToggleButton'
 
 export default {
   name: 'NodesSearch',
   components: {
+    'pf-fingerbank-score': pfFingerbankScore,
     'pf-search': pfSearch,
     'toggle-button': ToggleButton
   },
