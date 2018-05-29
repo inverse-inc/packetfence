@@ -64,6 +64,7 @@ has '_cached_connection' => (is => 'rw');
 has 'cache_match' => ( isa => 'Bool', is => 'rw', default => 0 );
 has 'email_attribute' => (isa => 'Maybe[Str]', is => 'rw', default => 'mail');
 has 'monitor' => ( isa => 'Bool', is => 'rw', default => 1 );
+has 'shuffle' => ( isa => 'Bool', is => 'rw', default => 0 );
 
 our $logger = get_logger();
 
@@ -185,9 +186,9 @@ sub _connect {
   my $logger = Log::Log4perl::get_logger(__PACKAGE__);
   my ($LDAPServer, $LDAPServerPort);
   my @LDAPServers = split(/\s*,\s*/, $self->{'host'});
-  # uncomment the next line if you want the servers to be tried in random order
-  # to spread out the connections amongst a set of servers
-  #@LDAPServers = List::Util::shuffle @LDAPServers;
+  if ($self->shuffle) {
+      @LDAPServers = List::Util::shuffle @LDAPServers;
+  }
   my @credentials;
   if ($self->{'binddn'} && $self->{'password'}) {
     @credentials = ($self->{'binddn'}, password => $self->{'password'})

@@ -39,7 +39,7 @@ has_field 'port' =>
   );
 has_field 'connection_timeout' =>
   (
-    type         => 'PosInteger',
+    type         => 'Float',
     label        => 'Connection timeout',
     element_attr => {
         'placeholder' => $META->get_attribute('connection_timeout')->default
@@ -50,7 +50,7 @@ has_field 'connection_timeout' =>
   );
 has_field 'write_timeout' =>
   (
-    type         => 'PosInteger',
+    type         => 'Float',
     label        => 'Request timeout',
     element_attr => {
         'placeholder' => $META->get_attribute('write_timeout')->default
@@ -61,7 +61,7 @@ has_field 'write_timeout' =>
   );
 has_field 'read_timeout' =>
   (
-    type         => 'PosInteger',
+    type         => 'Float',
     label        => 'Response timeout',
     element_attr => {
         'placeholder' => $META->get_attribute('read_timeout')->default
