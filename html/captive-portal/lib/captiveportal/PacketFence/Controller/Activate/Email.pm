@@ -165,7 +165,7 @@ sub doSponsorRegistration : Private {
             }
             # Verify if the user has the role mark as sponsor
             my $source_match = $c->user_session->{source_match} || $c->user_session->{source_id};
-            my $value = pf::authentication::match($source_match, {username => $c->user_session->{"username"}, rule_class => $Rules::ADMIN}, $Actions::MARK_AS_SPONSOR);
+            my $value = pf::authentication::match($source_match, {username => $c->user_session->{"username"}, rule_class => $Rules::ADMIN}, 'context' => $pf::constants::realm::PORTAL_CONTEXT}, $Actions::MARK_AS_SPONSOR);
             unless (defined $value) {
                 $c->log->error( $c->user_session->{"username"} . " does not have permission to sponsor a user"  );
                 $c->user_session->{username} = undef;
