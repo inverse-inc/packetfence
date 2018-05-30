@@ -144,33 +144,35 @@ sub doSponsorRegistration : Private {
     my $profile = $c->profile;
     my $source = getAuthenticationSource($sponsor_source_id);
     if ($source) {
-        # if we have a username in session it means user has already authenticated
-        # so we go ahead and allow the guest in
-        if ( !defined( $c->user_session->{"username"} ) ) {
-            # User is not logged and didn't provide username or password: show login form
-            if (!(  $request->param("username") && $request->param("password")
-                )
-              ) {
-                $logger->info(
-                    "Sponsor needs to authenticate in order to activate guest. Guest token: $code"
-                );
+        if (isenabled($source->{validate_sponsor})) {
+            # if we have a username in session it means user has already authenticated
+            # so we go ahead and allow the guest in
+            if ( !defined( $c->user_session->{"username"} ) ) {
+
+                # User is not logged and didn't provide username or password: show login form
+                if (!(  $request->param("username") && $request->param("password")
+                    )
+                  ) {
+                    $logger->info(
+                        "Sponsor needs to authenticate in order to activate guest. Guest token: $code"
+                    );
+                    $c->detach('login');
+                }
+
+                # User provided username and password: authenticate
+                $c->forward(Authenticate => 'authenticationLogin');
+                $c->detach('login') if $c->has_errors;
+            }
+            # Verify if the user has the role mark as sponsor
+            my $source_match = $c->user_session->{source_match} || $c->user_session->{source_id};
+            my $value = pf::authentication::match($source_match, {username => $c->user_session->{"username"}, rule_class => $Rules::ADMIN, 'context' => $pf::constants::realm::PORTAL_CONTEXT}, $Actions::MARK_AS_SPONSOR);
+            unless (defined $value) {
+                $c->log->error( $c->user_session->{"username"} . " does not have permission to sponsor a user"  );
+                $c->user_session->{username} = undef;
+                $self->showError($c,"does not have permission to sponsor a user");
                 $c->detach('login');
             }
-            # User provided username and password: authenticate
-            $c->forward(Authenticate => 'authenticationLogin');
-            $c->detach('login') if $c->has_errors;
         }
-        # Verify if the user has the role mark as sponsor
-        my $source_match = $c->user_session->{source_match} || $c->user_session->{source_id};
-        my $value = pf::authentication::match($source_match, {username => $c->user_session->{"username"}, rule_class => $Rules::ADMIN, 'context' => $pf::constants::realm::PORTAL_CONTEXT}, $Actions::MARK_AS_SPONSOR);
-        unless (defined $value) {
-            $c->log->error( $c->user_session->{"username"} . " does not have permission to sponsor a user"  );
-            $c->user_session->{username} = undef;
-            $self->showError($c,"does not have permission to sponsor a user");
-            $c->detach('login');
-        }
-
-
 
         # handling log out (not exposed to the UI at this point)
         # TODO: if we ever expose it, we'll need to alter the form action to make sure to trim it

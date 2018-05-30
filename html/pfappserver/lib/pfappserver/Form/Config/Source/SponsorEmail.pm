@@ -61,6 +61,17 @@ has_field 'sponsorship_bcc' => (
     },
 );
 
+has_field 'validate_sponsor' =>
+  (
+   type => 'Toggle',
+   checkbox_value => 'yes',
+   unchecked_value => 'no',
+   label => 'Sponsor Validation',
+   default => pf::Authentication::Source::SponsorEmailSource->meta->get_attribute('validate_sponsor')->default,
+   tags => { after_element => \&help,
+             help => 'Force sponsor to authenticate when validating a guest request.' },
+  );
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2018 Inverse inc.
