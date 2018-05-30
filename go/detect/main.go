@@ -82,7 +82,7 @@ func (s *Server) Wait() {
 }
 
 func (s *Server) Done(msg string) {
-	log.Logger().Info(fmt.Sprintf("Done for:  %s", msg))
+	log.Logger().Info(fmt.Sprintf("Done for: %s", msg))
 	s.WaitGroup.Done()
 }
 
