@@ -94,9 +94,10 @@ sub process_next_job {
     }
     my $task_counter_id = _get_task_counter_id_from_task_id($task_id);
     my $data;
+    my %task_data;
     $redis->multi(\&_empty);
     $redis->hincrby($PFQUEUE_COUNTER, $task_counter_id, -1, \&_empty);
-    $redis->hget($task_id, 'data', \&_empty);
+    $redis->hgetall($task_id, \&_empty);
     $redis->del($task_id, \&_empty);
     $redis->exec(sub {
         my ($replies, $error) = @_;
@@ -104,9 +105,10 @@ sub process_next_job {
         # Get the second reply which gets the data from the task hash
         my ($hget_reply, $hget_error) = @{$replies->[1]};
         return if defined $hget_error;
-        $data = $hget_reply;
+        %task_data = map { $_->[0] } @{$hget_reply};
     });
     $redis->wait_all_responses();
+    $data = $task_data{data};
     if ($data) {
         local $@;
         eval {
