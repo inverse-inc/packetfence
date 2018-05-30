@@ -40,7 +40,7 @@ func (c *PfQueueClient) SubmitWithExpiration(ctx context.Context, queue, task_ty
 		return "", nil
 	}
 
-	redisClient, err := redisclient.GetPfQueueRedisClient(context.TODO())
+	redisClient, err := redisclient.GetPfQueueRedisClient(context.Background())
 	if err != nil {
 		return "", nil
 	}

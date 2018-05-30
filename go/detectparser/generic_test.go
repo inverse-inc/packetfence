@@ -45,13 +45,13 @@ func TestGenericParse(t *testing.T) {
 	}
 
 	parser, _ := NewGenericParser(&PfdetectConfig{
-        Rules: []PfdetectRegexRule{
-            PfdetectRegexRule{
-                Regex: `from: (?P<scrip>\d{1,3}(\.\d{1,3}){3}), to: (?P<dstip>\d{1,3}(\.\d{1,3}){3}), mac: (?P<mac>[a-fA-F0-9]{12})`,
-                Name: "from to",
-                Actions:[]string{"modify_node: $scrip, $dstip, $mac", "violation_log: bob, bob"},
-            },
-        },
-    })
+		Rules: []PfdetectRegexRule{
+			PfdetectRegexRule{
+				Regex:   `from: (?P<scrip>\d{1,3}(\.\d{1,3}){3}), to: (?P<dstip>\d{1,3}(\.\d{1,3}){3}), mac: (?P<mac>[a-fA-F0-9]{12})`,
+				Name:    "from to",
+				Actions: []string{"modify_node: $scrip, $dstip, $mac", "violation_log: bob, bob"},
+			},
+		},
+	})
 	RunParseTests(parser, parseTests, t)
 }

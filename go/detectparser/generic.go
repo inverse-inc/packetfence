@@ -3,6 +3,7 @@ package detectparser
 import (
 	"context"
 	"fmt"
+	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 	"regexp"
@@ -65,10 +66,10 @@ func (s *GenericParser) Parse(line string) ([]ApiCall, error) {
 		if submatches == nil {
 			continue
 		}
-		replacements := rule.GetReplacementMap(context.TODO(), line, submatches)
-        if mac, found := replacements["mac"];found {
-            replacements["mac"] = cleanMac(mac)
-        }
+		replacements := rule.GetReplacementMap(context.Background(), line, submatches)
+		if mac, found := replacements["mac"]; found {
+			replacements["mac"] = cleanMac(mac)
+		}
 
 		for _, action := range rule.Actions {
 			results = results[:0]
@@ -221,15 +222,15 @@ func (rule *GenericParserRule) GetReplacementMap(ctx context.Context, src string
 		foundIp := Mac2IpResponse{}
 		err := apiClient.Call(ctx, "GET", "/api/v1/ip4logs/mac2ip/"+mac, &foundIp)
 		if err != nil {
-			fmt.Printf("err %s\n", err)
-        } else {
+			log.Logger().Error(fmt.Sprintf("Problem getting the ip for mac '%s': %s", mac, err))
+		} else {
 			replacementStrings["ip"] = foundIp.Ip
 		}
 	} else {
 		foundMac := Ip2MacResponse{}
 		err := apiClient.Call(ctx, "GET", "/api/v1/ip4logs/ip2mac/"+ip, &foundMac)
 		if err != nil {
-			fmt.Printf("err %s\n", err)
+			log.Logger().Error(fmt.Sprintf("Problem getting the mac for ip '%s': %s", ip, err))
 		} else {
 			replacementStrings["mac"] = foundMac.Mac
 		}

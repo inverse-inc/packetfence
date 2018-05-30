@@ -63,11 +63,11 @@ func (c *PfqueueApiCall) Call() error {
 	}
 
 	pfqueueclient := pfqueueclient.NewPfQueueClient()
-	id, err := pfqueueclient.Submit(context.TODO(), "pfdetect", "api", args)
+	_, err := pfqueueclient.Submit(context.Background(), "pfdetect", "api", args)
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Submitted job %s to pfdetect queue\n", id)
+
 	return nil
 }
 

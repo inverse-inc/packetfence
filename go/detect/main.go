@@ -106,7 +106,7 @@ func (s *Server) AddRunner(runner *ParseRunner) {
 }
 
 func (s *Server) StopRunners() {
-    log.Logger().Info("Stopping runners")
+	log.Logger().Info("Stopping runners")
 	for _, runner := range s.Runners {
 		runner.Stop()
 		s.Done(runner.PipePath)
@@ -140,12 +140,12 @@ func (s *Server) SetupSignals() {
 			s.StopRunners()
 		}()
 		wg.Wait()
-        log.Logger().Info("Done signal setup")
+		log.Logger().Info("Done signal setup")
 	})
 }
 
 func GetPfDetectConfig() []detectparser.PfdetectConfig {
-	ctx := context.TODO()
+	ctx := context.Background()
 	keys, _ := pfconfigdriver.FetchKeys(ctx, "config::Pfdetect")
 	configs := make([]detectparser.PfdetectConfig, 0, len(keys))
 	for _, n := range keys {
@@ -163,13 +163,13 @@ func (s *Server) RunRunners() {
 			runner.Run()
 		}(runner)
 	}
-    log.Logger().Info(fmt.Sprintf("%d parse runners are running", len(s.Runners)))
+	log.Logger().Info(fmt.Sprintf("%d parse runners are running", len(s.Runners)))
 }
 
 func (s *Server) NotifySystemd(msg string) {
 	_, err := daemon.SdNotify(false, msg)
 	if err != nil {
-        log.Logger().Error(fmt.Sprintf("Error sending systemd ready notification: %s", err.Error()))
+		log.Logger().Error(fmt.Sprintf("Error sending systemd ready notification: %s", err.Error()))
 	}
 }
 
@@ -187,7 +187,7 @@ func (s *Server) LoadParsersFromConfig() {
 	for _, config := range configs {
 		runner, err := NewParseRunner(config.Type, &config)
 		if err != nil {
-            log.Logger().Error(fmt.Sprintf("Error setting up %s: %s", config.Path , err.Error()))
+			log.Logger().Error(fmt.Sprintf("Error setting up %s: %s", config.Path, err.Error()))
 		} else {
 			s.AddRunner(runner)
 			log.Logger().Info(fmt.Sprintf("Added %s", runner.PipePath))
@@ -231,7 +231,7 @@ LOOP:
 		}
 	}
 
-    log.Logger().Info(fmt.Sprintf("Stopping reading %s", r.PipePath))
+	log.Logger().Info(fmt.Sprintf("Stopping reading %s", r.PipePath))
 	return err
 }
 
@@ -251,7 +251,7 @@ func (r *ParseRunner) ParseLine(data string) (err error) {
 		go func(c detectparser.ApiCall) {
 			err := c.Call()
 			if err != nil {
-                log.Logger().Error(fmt.Sprintf("Error handling API call for %s: %s\n", r.PipePath, err))
+				log.Logger().Error(fmt.Sprintf("Error handling API call for %s: %s\n", r.PipePath, err))
 			}
 		}(call)
 	}
