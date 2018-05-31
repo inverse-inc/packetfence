@@ -22,6 +22,7 @@ Enhancements
 ++++++++++++
 * Add new portal module action that wraps the default actions a module would normally execute (fixes #3231)
 * Improved startup time of PacketFence (PR #3213)
+* Fix local/reject realm for eduroam in standalone configuration (PR #3264)
 
 Bug Fixes
 +++++++++
