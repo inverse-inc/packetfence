@@ -106,7 +106,7 @@ func (s *Server) AddRunner(runner *ParseRunner) {
 }
 
 func (s *Server) StopRunners() {
-	log.Logger().Info("Stopping runners")
+	log.Logger().Info("Stopping Detect Parsers")
 	for _, runner := range s.Runners {
 		runner.Stop()
 		s.Done(runner.PipePath)
@@ -140,7 +140,7 @@ func (s *Server) SetupSignals() {
 			s.StopRunners()
 		}()
 		wg.Wait()
-		log.Logger().Info("Done signal setup")
+		log.Logger().Debug("Done signal setup")
 	})
 }
 

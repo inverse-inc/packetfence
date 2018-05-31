@@ -14,7 +14,7 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
 use pf::detect::parser::regex;
-use pf::factory::detect::parser;
+use pf::constants::pfdetect;
 use pf::api;
 
 pf::api::attributes::updateAllowedAsActions();
@@ -73,7 +73,7 @@ Usage: /config/pfdetect/
 
 sub index :Path :Args(0) {
     my ($self, $c) = @_;
-    $c->stash->{types} = [ sort grep {$_} map { /^pf::detect::parser::(.*)/;$1  } @pf::factory::detect::parser::MODULES];
+    $c->stash->{types} = [ @pf::constants::pfdetect::TYPES ],
     $c->forward('list');
 }
 

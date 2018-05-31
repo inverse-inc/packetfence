@@ -257,7 +257,7 @@ func FetchDecodeSocketCache(ctx context.Context, o PfconfigObject) (bool, error)
 	return true, err
 }
 
-// Fetch the keys of a resource
+// Fetch the keys of a namespace
 func FetchKeys(ctx context.Context, name string) ([]string , error) {
     keys := PfconfigKeys{PfconfigNS : name}
     err := FetchDecodeSocket(ctx, &keys)

@@ -15,16 +15,10 @@ pf::constants::pfdetect
 use strict;
 use warnings;
 
-use Module::Pluggable
-  search_path => 'pf::detect::parser',
-  sub_name    => '_modules',
-  inner       => 0,
-  require     => 1;
-
-sub modules {
-  my ($class) = @_;
-  return map { (split('::', $_))[-1] } $class->_modules;
-}
+our @TYPES = (
+    "dhcp",  "fortianalyser", "regex",   "security_onion",
+    "snort", "suricata",      "nexpose", "suricata_md5",
+);
 
 =head1 AUTHOR
 

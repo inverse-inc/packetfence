@@ -31,33 +31,6 @@ type GenericParserRule struct {
 	Actions          []GenericParserAction
 }
 
-var macGarbageRegex = regexp.MustCompile(`[\s\-\.:]`)
-var validSimpleMacHexRegex = regexp.MustCompile(`^[a-fA-F0-9]{12}$`)
-var macPairHexRegex = regexp.MustCompile(`[a-fA-F0-9]{2}`)
-
-func cleanMac(mac string) string {
-	mac = macGarbageRegex.ReplaceAllString(strings.ToLower(mac), "")
-	if !validSimpleMacHexRegex.MatchString(mac) {
-		return ""
-	}
-
-	return strings.TrimRight(
-		macPairHexRegex.ReplaceAllStringFunc(
-			mac,
-			func(s string) string { return s + ":" },
-		),
-		":",
-	)
-}
-
-func stringExpander(name string, num int, value string) string {
-	if name == "mac" {
-		return cleanMac(value)
-	}
-
-	return value
-}
-
 func (s *GenericParser) Parse(line string) ([]ApiCall, error) {
 	var calls []ApiCall
 	var results []byte
@@ -68,7 +41,7 @@ func (s *GenericParser) Parse(line string) ([]ApiCall, error) {
 		}
 		replacements := rule.GetReplacementMap(context.Background(), line, submatches)
 		if mac, found := replacements["mac"]; found {
-			replacements["mac"] = cleanMac(mac)
+			replacements["mac"] = sharedutils.CleanMac(mac)
 		}
 
 		for _, action := range rule.Actions {
@@ -154,14 +127,6 @@ type Mac2IpResponse struct {
 
 type Ip2MacResponse struct {
 	Mac string `json:"mac"`
-}
-
-func (rule *GenericParserRule) StringExpander() func(name string, num int, value string) string {
-	return stringExpander
-}
-
-func genericStringExpander(name string, num int, value string) string {
-	return value
 }
 
 func (rule *GenericParserRule) ExpandString(dst []byte, template string, src string, match []int, replacements map[string]string) []byte {

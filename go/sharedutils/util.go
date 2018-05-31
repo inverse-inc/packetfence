@@ -14,6 +14,7 @@ import (
 	"strings"
 	"testing"
 	"unicode"
+	"regexp"
 
 	"github.com/cevaris/ordered_map"
 	"github.com/kr/pretty"
@@ -34,6 +35,10 @@ var ISENABLED = map[string]bool{
 	"n":        false,
 	"0":        false,
 }
+
+var macGarbageRegex = regexp.MustCompile(`[\s\-\.:]`)
+var validSimpleMacHexRegex = regexp.MustCompile(`^[a-fA-F0-9]{12}$`)
+var macPairHexRegex = regexp.MustCompile(`[a-fA-F0-9]{2}`)
 
 func IsEnabled(enabled string) bool {
 	if e, found := ISENABLED[strings.TrimSpace(enabled)]; found {
@@ -238,4 +243,19 @@ func CopyHttpRequest(req *http.Request) (*http.Request, error) {
 	}
 
 	return newReq, nil
+}
+
+func CleanMac(mac string) string {
+	mac = macGarbageRegex.ReplaceAllString(strings.ToLower(mac), "")
+	if !validSimpleMacHexRegex.MatchString(mac) {
+		return ""
+	}
+
+	return strings.TrimRight(
+		macPairHexRegex.ReplaceAllStringFunc(
+			mac,
+			func(s string) string { return s + ":" },
+		),
+		":",
+	)
 }
