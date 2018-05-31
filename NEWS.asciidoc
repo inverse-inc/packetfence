@@ -16,6 +16,7 @@ Version X.Y.Z released on xxxx-xx-xx
 
 New Features
 ++++++++++++
+* Added support for dynamic PSK (Cisco IPSK) for the Cisco WLC and hostapd (PR #3244)
 
 Enhancements
 ++++++++++++
