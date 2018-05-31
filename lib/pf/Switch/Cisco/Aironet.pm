@@ -115,7 +115,7 @@ sub deauthenticateMacDefault {
     if ($@) {
         $logger->error(
             "ERROR: Can not connect to access point $self->{'_ip'} using "
-                . $self->{_cliTransport} );
+                . $self->{_cliTransport} . ": '$@'" );
         return 1;
     }
 
