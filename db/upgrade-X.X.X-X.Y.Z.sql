@@ -50,8 +50,9 @@ call ValidateVersion;
 ALTER TABLE node
     MODIFY device_score int DEFAULT NULL;
 
-INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION)); 
-
 ALTER TABLE person
     ADD `psk` varchar(255) NULL DEFAULT NULL
 ;
+
+INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION)); 
+
