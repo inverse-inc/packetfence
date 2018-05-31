@@ -15,9 +15,15 @@ pf::constants::pfdetect
 use strict;
 use warnings;
 
-our @TYPES = (
-    "dhcp",  "fortianalyser", "regex",   "security_onion",
-    "snort", "suricata",      "nexpose", "suricata_md5",
+our @TYPES = qw(
+  dhcp
+  fortianalyser
+  nexpose
+  regex
+  security_onion
+  snort
+  suricata
+  suricata_md5
 );
 
 =head1 AUTHOR
