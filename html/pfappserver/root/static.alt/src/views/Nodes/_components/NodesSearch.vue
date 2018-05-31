@@ -581,7 +581,7 @@ export default {
     this.condition = this.$store.state.$_nodes.searchQuery
     if (!this.condition) {
       // Select first field
-      this.condition = { op: 'and', values: [{ field: this.fields[0].value, op: null, value: null }] }
+      this.condition = { op: 'and', values: [{ op: 'or', values: [{ field: this.fields[0].value, op: null, value: null }] }] }
     }
     // Restore visibleColumns, overwrite defaults
     if (this.$store.state.$_nodes.visibleColumns) {

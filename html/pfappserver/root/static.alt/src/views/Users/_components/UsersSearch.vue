@@ -149,7 +149,7 @@ export default {
       this.$store.dispatch('$_users/search', this.requestPage)
       this.requestPage = 1 // reset to the first page
       // Select first field
-      this.condition = { op: 'and', values: [{ field: this.fields[0].value, op: null, value: null }] }
+      this.condition = { op: 'and', values: [{ op: 'or', values: [{ field: this.fields[0].value, op: null, value: null }] }] }
     },
     onPageSizeChange () {
       this.requestPage = 1 // reset to the first page
@@ -187,7 +187,7 @@ export default {
     this.condition = this.$store.state.$_users.searchQuery
     if (!this.condition) {
       // Select first field
-      this.condition = { op: 'and', values: [{ field: this.fields[0].value, op: null, value: null }] }
+      this.condition = { op: 'and', values: [{ op: 'or', values: [{ field: this.fields[0].value, op: null, value: null }] }] }
     } else {
       // Restore selection of advanced mode; check if condition matches a quick search
       this.advancedMode = !(this.condition.op === 'or' &&
