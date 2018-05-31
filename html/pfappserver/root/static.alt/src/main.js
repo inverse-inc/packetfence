@@ -17,6 +17,7 @@ import 'vue-awesome/icons/ban'
 import 'vue-awesome/icons/sync'
 import 'vue-awesome/icons/retweet'
 import 'vue-awesome/icons/user-plus'
+import 'vue-awesome/icons/trash-alt'
 
 import store from './store'
 import router from './router'
