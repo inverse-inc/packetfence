@@ -43,15 +43,16 @@ sub locationlog_by_mac {
 
 sub register {
     my ($self) = @_;
-    my $mac = $self->stash->{node_id};
     my ($status, $data) = $self->parse_json;
     if (is_error($status)) {
         return $self->render(json => $data, status => $status);
     }
+    my $node = $self->item;
+    my $mac = $node->{mac};
 
     my $pid = delete $data->{pid};
     if (!defined $pid || length($pid) == 0) {
-        return $self->render_error(422, "pid field is required");
+        $pid = $node->{pid}
     }
 
     my ($success, $msg) = node_register($mac, $pid, %$data);

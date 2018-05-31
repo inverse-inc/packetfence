@@ -49,7 +49,7 @@ $t->post_ok('/api/v1/nodes' => json => { mac => $mac })
   ->status_is(201);
 
 $t->post_ok("/api/v1/node/$mac/register" => json => {   })
-  ->status_is(422);
+  ->status_is(204);
 
 $t->post_ok("/api/v1/node/$mac/register" => json => { pid => 'default'  })
   ->status_is(204);
