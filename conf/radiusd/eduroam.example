@@ -67,15 +67,13 @@ authorize {
 	# Eduroam needs a "full" username with a domain part (username@domain)
 	# If request does not contain username with @domain part, reject it
 	# rather than sending it to Eduroam
-	if (User-Name =~ /@/) {
-		update control {
-			Proxy-To-Realm := "eduroam"
-		}
-	}
-	else {
-		reject
-	}
-
+        if (User-Name =~ /@/) {
+%%reject_realm%%
+%%local_realm%%
+        }
+        else {
+                reject
+        }
 	#
 	#  This module takes care of EAP-MD5, EAP-TLS, and EAP-LEAP
 	#  authentication.
