@@ -472,7 +472,7 @@ has_field 'status' =>
    checkbox_value => 'enabled',
    unchecked_value => 'disabled',
    tags => { after_element => \&help,
-             help => 'If profile is disabled it will not be presented to the user' },
+             help => 'If profile is disabled it will not used' },
    default => 'enabled'
   );
 
