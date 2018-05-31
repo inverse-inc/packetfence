@@ -609,6 +609,17 @@ sub canAccessRegistrationWhenRegistered {
     return isenabled($self->{_access_registration_when_registered});
 }
 
+=item dpskEnabled
+
+Is DPSK is enable or not on this connection profile
+
+=cut
+
+sub dpskEnabled {
+    my ($self) = @_;
+    return isenabled($self->{'_dpsk'});
+}
+
 =back
 
 =head1 AUTHOR

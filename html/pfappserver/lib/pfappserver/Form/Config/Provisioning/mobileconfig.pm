@@ -64,6 +64,23 @@ has_field 'passcode' =>
              help => 'The WiFi key to join the SSID' },
   );
 
+has_field 'dpsk' =>
+  (
+   type => 'Checkbox',
+   label => 'Enable DPSK',
+   tags => { after_element => \&help,
+             help => 'Define if the PSK needs to be generated' },
+  );
+
+has_field 'psk_size' =>
+  (
+   type => 'PSKLength',
+   default => 8,
+   label => 'PSK length',
+   tags => { after_element => \&help,
+             help => 'This is the length of the PSK key you want to generate. The minimum length is eight characters.' },
+  );
+
 has_field 'server_certificate_path' =>
  (
   type => 'Path',
@@ -132,7 +149,7 @@ sub filter_deflate {
 
 has_block definition =>
   (
-   render_list => [ qw(id description type category ssid broadcast eap_type security_type passcode pki_provider server_certificate_path) ],
+   render_list => [ qw(id description type category ssid broadcast eap_type security_type dpsk passcode pki_provider server_certificate_path) ],
   );
 
 has_block signing =>

@@ -79,6 +79,21 @@ sub is_eap_tls {
     return $FALSE;
 }
 
+=head2 is_dpsk
+
+Check if we are doing dpsk enrollment
+
+=cut
+
+sub is_dpsk {
+    my ($self) = @_;
+    my $provisioner = $self->get_provisioner();
+    if(ref($provisioner) =~ /dpsk/) {
+        return $TRUE;
+    }
+    return $FALSE;
+}
+
 =head2 show_provisioning
 
 Show the provisioner template
@@ -86,12 +101,14 @@ Show the provisioner template
 =cut
 
 sub show_provisioning {
-    my ($self) = @_;
+    my ($self, $arg) = @_;
+    $arg = $arg // {},
     my $args = {
         fingerbank_info => pf::node::fingerbank_info($self->current_mac, $self->node_info),
-        provisioner => $self->get_provisioner, 
-        skipable => isenabled($self->skipable), 
+        provisioner => $self->get_provisioner,
+        skipable => isenabled($self->skipable),
         title => ["Provisioning : %s",$self->get_provisioner->id],
+        %{$arg},
     };
     $self->render($self->get_provisioner->template, $args);
 }
@@ -117,6 +134,9 @@ sub execute_child {
     if( $self->is_eap_tls && !$self->session->{tls_enrollment_completed} ) {
         my $tls_module = captiveportal::DynamicRouting::Module::TLSEnrollment->new(id => $self->id."_pki_module", parent => $self, app => $self->app, pki_provider_id => $provisioner->getPkiProvider()->id);
         $tls_module->execute();
+    }
+    elsif ($self->is_dpsk) {
+        $self->show_provisioning({psk => $provisioner->generate_dpsk($self->username), ssid => $provisioner->ssid});
     }
     elsif ($self->app->request->parameters->{next} && isenabled($self->skipable)){
         $self->done();

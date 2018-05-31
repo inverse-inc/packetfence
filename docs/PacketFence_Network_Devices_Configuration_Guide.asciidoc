@@ -4935,6 +4935,43 @@ Role definition
 
 image::docs/images/WLC_PACKETFENCE2.png[scaledwidth="100%",alt="ACL"]
 
+Wireless LAN Controller (WLC) IPSK
+++++++++++++++++++++++++++++++++++
+
+In this section, we cover the basic configuration of the WLC IPSK feature.
+Starting from WLC 8.5 release, Cisco introduces the IPSK feature.
+Identity PSKs are unique pre-shared keys created for individuals or groups of users on the same SSID.
+
+In this section we will cover the WLC configuration and the PacketFence configuration.
+
+WLC Configuration:
+
+
+* First, globally define the RADIUS server running on PacketFence
+  (PacketFence's IP) and make sure _Support for RFC 3576_ (also called _Support for CoA_) is enabled. When the option is missing from your WLC, it is enabled by default.
+
+* Next, configure a new SSID like in the following screenshots
+
+image::docs/images/ipsk1.png[scaledwidth="100%",alt="SSID step 1"]
+
+image::docs/images/ipsk2.png[scaledwidth="100%",alt="SSID step 2"]
+
+image::docs/images/ipsk_radius.png[scaledwidth="100%",alt="SSID step 3"]
+
+PacketFence Configuration:
+
+* First because there is no way to detect in the RADIUS request that the request is for an SSID configured for IPSK, you need to configure PacketFence to trigger IPSK on a connection profile.
+  To do that, create a new connection profile, set a Filter based on the SSID (Example SSID PSK_SSID), enable IPSK and set a default PSK key.
+  So each time a device will connect on this specific SSID PacketFence will know that it has to answer with specific VSA attributes.
+
+* Second step is to associate the device to a user, you have two ways to do it, the first one is to manually edit an user and in Miscellaneous tab fill the PSK entry (8 characters minimum) then edit
+  a node and change the owner with the one you just edit before.
+  The second way to associate the device is to use a provisioner. There are also 2 ways to do it, use the "IPSK" provisioner (it will show you a page on the portal with the PSK key to use and the 
+  SSID to connect to, or use the "Windows/Apple Devices/Android" provisioner and configure it to do IPSK.
+
+image::docs/images/dpsk_provisioner.png[scaledwidth="100%",alt="Provisioner IPKS"]
+
+
 Troubleshooting ignored RADIUS replies
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

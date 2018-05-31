@@ -40,7 +40,7 @@ The main definition block
 
 has_block 'definition' =>
   (
-    render_list => [qw(id description root_module preregistration autoregister reuse_dot1x_credentials dot1x_recompute_role_from_portal)],
+    render_list => [qw(id description root_module preregistration autoregister reuse_dot1x_credentials dot1x_recompute_role_from_portal dpsk default_psk_key)],
   );
 
 =head2 captive_portal
@@ -197,6 +197,37 @@ has_field 'autoregister' =>
    unchecked_value => 'disabled',
    tags => { after_element => \&help,
              help => 'This activates automatic registation of devices for the profile. Devices will not be shown a captive portal and RADIUS authentication credentials will be used to register the device. This option only makes sense in the context of an 802.1x authentication.' },
+  );
+
+=head2 dpsk
+
+Controls whether or not this connection profile to enabled Dynamic PSK
+
+=cut
+
+has_field 'dpsk' =>
+  (
+   type => 'Toggle',
+   label => 'Enable DPSK',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   default => 'disabled',
+   tags => { after_element => \&help,
+             help => 'This enables the Dynamic PSK feature on this connection profile. It means that the RADIUS server will answer requests with specific attributes like the PSK key to use to connect on the SSID.'},
+  );
+
+=head2 default_psk_key
+
+Define the default PSK key to connect on this connection profile
+
+=cut
+
+has_field 'default_psk_key' =>
+  (
+   type => 'Text',
+   label => 'Default PSK key',
+   tags => { after_element => \&help,
+             help => 'This is the default PSK key when you enable DPSK on this connection profile. The minimum length is eight characters.' },
   );
 
 =head2 sources

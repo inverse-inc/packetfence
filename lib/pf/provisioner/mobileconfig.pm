@@ -20,6 +20,10 @@ use pf::log;
 use pf::constants;
 use fingerbank::Constant;
 
+use pf::person;
+
+use Crypt::GeneratePassword qw(word);
+
 use Moo;
 extends 'pf::provisioner';
 
@@ -65,6 +69,22 @@ Passphrase if no eap/not open network
 =cut
 
 has passcode => (is => 'rw');
+
+=head2 dpsk
+
+Does DPSK need to be activated
+
+=cut
+
+has dpsk => (is => 'rw');
+
+=head2 psk_size
+
+psk key length
+
+=cut
+
+has psk_size => (is => 'rw');
 
 =head2 security_type
 
@@ -243,6 +263,29 @@ sub _build_profile_template {
         }
     } 
     return "wireless-profile-noeap.xml";
+}
+
+sub generate_dpsk {
+    my ($self,$username) = @_;
+    my $person = person_view($username);
+    if (defined $person->{psk} && $person->{psk} ne '') {
+        get_logger->debug("Returning psk key $person->{psk} for user $username");
+        return $person->{psk};
+    }
+    else {
+        my $psk_size;
+        if ($self->psk_size >= 8) {
+            $psk_size = $self->psk_size;
+        } else {
+            $psk_size = 8;
+            get_logger->info("PSK key redefined to 8");
+        }
+        my $psk = word(8,$psk_size);
+        person_modify($username,psk => $psk);
+        get_logger->info("PSK key has been generated for user ".$username);
+        get_logger->debug("Returning psk key $psk for user $username");
+        return $psk;
+    }
 }
 
 =head1 AUTHOR
