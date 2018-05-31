@@ -2,6 +2,7 @@
         <thead>
           <tr>
             <th>[% l('Detector') %]</th>
+            <th>[% l('Type') %]</th>
             <th>[% l('Status') %]</th>
             <th></th>
           </tr>
@@ -9,7 +10,8 @@
         <tbody>
           [% FOREACH item IN items %]
           <tr>
-            <td ><a href="[% c.pf_hash_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id | html %]</a></td>
+            <td ><a href="[% c.pf_hash_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id %]</a></td>
+            <td >[% item.type %]</td>
             <td >[% item.status | html %]</td>
             <td>
               [%- IF can_access("PFDETECT_CREATE") %]
