@@ -8,7 +8,7 @@ all:
 	@echo "Use 'make vendor' to update external libraries, 'make dev' to generate the static JS/CSS files and 'make dist' to commit the distribution version."
 
 vendor:
-	npm install --production
+	npm install
 	@if [ -d bower_components ]; then \
 	  bower update --allow-root; \
 	else \
