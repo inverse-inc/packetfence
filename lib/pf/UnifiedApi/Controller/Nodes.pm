@@ -95,17 +95,27 @@ sub bulk_register {
         },
         -with_class => undef,
     );
+    my $i = 0;
+    my %indexes = map { $_ => $i++ } @$items;
+    my @results = map { { mac => $_, status => 'skipped'} } @$items;
     if (is_error($status)) {
         return $self->render_error(status => $status, "Error finding nodes");
     }
 
     my $nodes = $iter->all;
-    my $count = 0;
     for my $node (@$nodes) {
-        node_register($node->{mac}, $node->{pid});
+        my $mac = $node->{mac};
+        my ($result, $msg) = node_register($mac, $node->{pid});
+        my $index = $indexes{$mac};
+        if ($result) {
+            $results[$index]{status} = "success";
+        } else {
+            $results[$index]{status} = "failed";
+            $results[$index]{message} = $msg;
+        }
     }
 
-    return $self->render(status => 200, json => { count => $count });
+    return $self->render(status => 200, json => { items => \@results });
 }
 
 sub bulk_deregister {
@@ -124,17 +134,20 @@ sub bulk_deregister {
         },
         -with_class => undef,
     );
+    my $i = 0;
+    my %index = map { $_ => $i++ } @$items;
+    my @results = map { { mac => $_, status => 'skipped'} } @$items;
     if (is_error($status)) {
         return $self->render_error(status => $status, "Error finding nodes");
     }
 
     my $nodes = $iter->all;
-    my $count = 0;
     for my $node (@$nodes) {
-        node_deregister($node->{mac});
+        my $result = node_deregister($node->{mac});
+        $results[$index{$node->{mac}}]{status} = $result ? "success" : "failed";
     }
 
-    return $self->render(status => 200, json => { count => $count });
+    return $self->render(status => 200, json => { items => \@results });
 }
 
 =head2 fingerbank_info
