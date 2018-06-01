@@ -576,7 +576,6 @@ Test if the code expired
 =cut
 
 sub is_expired {
-
     my ($activation_code) = @_;
     my $logger = get_logger();
 

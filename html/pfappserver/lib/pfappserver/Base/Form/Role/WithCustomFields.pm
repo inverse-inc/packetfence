@@ -35,9 +35,9 @@ has_field 'fields_to_save' =>
    label => 'Fields to save',
    options_method => \&options_custom_fields,
    element_class => ['chzn-select'],
-   element_attr => {'data-placeholder' => 'Click to add a required field'},
+   element_attr => {'data-placeholder' => 'Click to add a field'},
    tags => { after_element => \&help,
-             help => 'This fields that will be saved for the whole registration process' },
+             help => 'These fields will be saved through the registration process' },
   );
 
 sub options_custom_fields {

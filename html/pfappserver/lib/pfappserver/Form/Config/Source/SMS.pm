@@ -44,7 +44,7 @@ has_field 'sms_activation_timeout' =>
 has_field 'message' =>
 (
     type => 'TextArea',
-    label => 'SMS text message ($pin will be replace by the pin number)',
+    label => 'SMS text message ($pin will be replaced by the PIN number)',
     default => 'PIN: $pin',
 );
 has_field 'pin_code_length' =>
@@ -54,7 +54,7 @@ has_field 'pin_code_length' =>
    required => 1,
    default  => 6,
    tags => { after_element => \&help,
-             help => 'The number of digits of the PIN number.' },
+             help => 'The amount of digits of the PIN number.' },
   );
 =head1 METHODS
 
