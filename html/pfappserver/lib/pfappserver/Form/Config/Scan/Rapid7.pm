@@ -67,6 +67,14 @@ has_field 'site_id' =>
              help => 'The identifier of the site to scan (the site where the hosts are located)' },
   );
 
+has_field 'engine_id' =>
+  (
+   type => 'Text',
+   label => 'Engine ID',
+   tags => { after_element => \&help,
+             help => 'The identifier of the scan engine to use when scanning the devices' },
+  );
+
   has_field 'verify_hostname' =>
   (
    type => 'Toggle',

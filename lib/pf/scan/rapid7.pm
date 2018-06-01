@@ -57,7 +57,7 @@ sub new {
             '_oses'     => undef,
             '_categories' => undef,
             '_template_id' => undef,
-            '_engineId' => undef,
+            '_engine_id' => undef,
             '_site_id' => undef,
             '_host' => undef,
             '_port' => undef,
@@ -87,7 +87,7 @@ sub startScan {
     $logger->info("Starting Rapid7 scan");
 
     my $payload = {
-        engineId => $self->{_engineId} . "",
+        engineId => $self->{_engine_id} . "",
         hosts => [ $self->{_scanIp} ],
         name => "Automatic scan started from PacketFence",
         templateId => $self->{_template_id},
