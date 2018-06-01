@@ -30,32 +30,35 @@
       </nav>
       END NAVBAR -->
       <b-container fluid class="rc px-0 py-1 bg-secondary">
-        <b-container fluid class="px-1" v-for="(rule, innerindex) in model.values[outerindex].values" :key="innerindex">
-          <b-row class="mx-auto">
-            <b-col cols="12" class="bg-white rc">
-              <b-container fluid class="mx-0 px-0 py-1">
-                <b-form-select v-model="rule.field" :options="fields"></b-form-select>
-                <b-form-select v-model="rule.op" :options="operators(rule)"></b-form-select>
-                <b-form-input v-model="rule.value" type="text" v-if="isFieldType(substringValueType, rule)"></b-form-input>
-                <b-form-select v-model.lazy="rule.value" :options="values(rule)" v-else-if="isFieldType(selectValueType, rule)"></b-form-select>
-                <b-button v-if="model.values.length > 1 || model.values[outerindex].values.length > 1" variant="link" class="float-right mt-1 mr-1" v-b-tooltip.hover.left :title="$t('Delete statement')" @click="removeStatement(outerindex, innerindex)"><icon name="trash-alt"></icon></b-button>
-              </b-container>
-            </b-col>
-          </b-row>
-          <b-row>
-            <b-col cols="1"></b-col>
-            <b-col cols="1" class="py-0 bg-white" style="min-width:60px;">
-              <div class="mx-auto text-center text-nowrap font-weight-bold">{{ $t('or') }}</div>
-            </b-col>
-          </b-row>
-          <b-row class="mx-auto" v-if="innerindex === model.values[outerindex].values.length - 1">
-            <b-col cols="12" class="bg-white rc">
-              <b-container class="mx-0 px-1 py-1">
-                <a href="#" class="text-nowrap" @click="addInnerStatement(outerindex)">{{ $t('Add "or" statement') }}</a>
-              </b-container>  
-            </b-col>
-          </b-row>
-        </b-container>
+        <draggable v-model="model.values[outerindex].values" :options="{group: 'or', handle: '.draghandle', filter: '.nodrag', dragClass: 'sortable-drag'}" @start="onDragStart" @end="onDragEnd"> 
+          <b-container fluid class="px-1" v-for="(rule, innerindex) in model.values[outerindex].values" :key="innerindex">
+            <b-row class="mx-auto isdrag">
+              <b-col cols="12" class="bg-white rc pl-0">
+                <b-container fluid class="mx-0 px-0 py-1">
+                  <span v-if="model.values.length > 1 || model.values[outerindex].values.length > 1" class="draghandle mt-1 ml-1 px-1"><icon name="ellipsis-v"></icon></span>
+                  <b-form-select v-model="rule.field" :options="fields"></b-form-select>
+                  <b-form-select v-model="rule.op" :options="operators(rule)"></b-form-select>
+                  <b-form-input v-model="rule.value" type="text" v-if="isFieldType(substringValueType, rule)"></b-form-input>
+                  <b-form-select v-model.lazy="rule.value" :options="values(rule)" v-else-if="isFieldType(selectValueType, rule)"></b-form-select>
+                  <b-button v-if="model.values.length > 1 || model.values[outerindex].values.length > 1 && drag === false" variant="link" class="nodrag float-right mt-1 mr-1" v-b-tooltip.hover.left :title="$t('Delete statement')" @click="removeStatement(outerindex, innerindex)"><icon name="trash-alt"></icon></b-button>
+                </b-container>
+              </b-col>
+            </b-row>
+            <b-row class="mx-auto isdrag">
+              <b-col cols="1"></b-col>
+              <b-col cols="1" class="py-0 bg-white" style="min-width:60px;">
+                <div class="mx-auto text-center text-nowrap font-weight-bold">{{ $t('or') }}</div>
+              </b-col>
+            </b-row>
+            <b-row class="mx-auto nodrag" v-if="innerindex === model.values[outerindex].values.length - 1 && drag === false">
+              <b-col cols="12" class="bg-white rc">
+                <b-container class="mx-0 px-1 py-1">
+                  <a href="#" class="text-nowrap" @click="addInnerStatement(outerindex)">{{ $t('Add "or" statement') }}</a>
+                </b-container>  
+              </b-col>
+            </b-row>
+          </b-container>
+        </draggable>
       </b-container>
       <b-row class="mx-auto">
         <b-col cols="1"></b-col>
@@ -77,6 +80,7 @@
 
 <script>
 import Vue from 'vue'
+import draggable from 'vuedraggable'
 import {
   pfSearchOperatorsForTypes as operatorsForTypes,
   pfSearchValuesForOperator as valuesForOperator,
@@ -87,6 +91,7 @@ import {
 export default {
   name: 'pf-search-boolean',
   components: {
+    draggable
   },
   props: {
     model: {
@@ -99,6 +104,10 @@ export default {
       type: Object
     },
     advancedMode: {
+      type: Boolean,
+      default: false
+    },
+    drag: {
       type: Boolean,
       default: false
     }
@@ -184,6 +193,17 @@ export default {
       } else {
         this.model.values[outerindex].values.splice(innerindex, 1)
       }
+    },
+    onDragStart (event) {
+      this.drag = true
+    },
+    onDragEnd (event) {
+      this.drag = false
+      for (var i = this.model.values.length - 1; i >= 0; i--) {
+        if (this.model.values[i].values.length === 0) {
+          this.model.values.splice(i, 1)
+        }
+      }
     }
   },
   mounted () {
@@ -215,5 +235,8 @@ export default {
 .rc-l,
 .rc-bl {
   border-bottom-left-radius: 0.5em;
+}
+.sortable-drag .nodrag {
+  display: none;
 }
 </style>
