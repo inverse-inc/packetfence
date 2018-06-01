@@ -56,6 +56,12 @@ rogueinterval=10
 # This can help detect MAC spoofing.
 hostname_change_detection=disabled
 #
+# network.connection_type_change_detection
+#
+# Will identify if a device switches from wired to wireless (or the opposite) and send an e-mail with these changes.
+# This can help detect MAC spoofing.
+connection_type_change_detection=disabled
+#
 # network.dhcpoption82logger
 #
 # If enabled PacketFence will monitor DHCP option82 location-based information.

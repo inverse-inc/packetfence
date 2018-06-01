@@ -1170,6 +1170,36 @@ sub detect_computername_change : Public {
     return 0;
 }
 
+=head2 detect_computername_change
+
+Will determine if a connection type transport has changed between requests
+Will try to trigger a violation with the trigger internal::connection_type_change
+
+=cut
+
+sub detect_connection_type_transport_change : Public {
+    my ($class, $mac, $current_connection) = @_;
+    my $logger = pf::log::get_logger;
+
+    my $locationlog = pf::locationlog::locationlog_view_open_mac($mac);
+    if($locationlog) {
+        my $old_connection = pf::Connection->new;
+        $old_connection->backwardCompatibleToAttributes($locationlog->{connection_type});
+        my $old_transport = $old_connection->transport;
+        my $current_transport = $current_connection->transport;
+        if($old_transport ne $current_transport) {
+            $logger->info("Device transport has changed from $old_transport to $current_transport.");
+            pf::violation::violation_trigger( { 'mac' => $mac, 'tid' => "connection_type_change", 'type' => "internal" } );
+        }
+        else {
+            $logger->debug("Device transport hasn't changed ($old_transport)");
+        }
+    } 
+    else {
+        $logger->debug("Not performing connection type change detection for this device since there is no previously opened locationlog entry");
+    }
+}
+
 =head2 reevaluate_access
 
 Reevaluate the access of the mac address.

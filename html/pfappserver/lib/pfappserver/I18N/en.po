@@ -11560,3 +11560,6 @@ msgstr "Actions"
 
 msgid "multi_source_ids"
 msgstr "Sources"
+
+msgid "network.connection_type_change_detection"
+msgstr "Detect changes in connection type"
