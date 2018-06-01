@@ -33,9 +33,9 @@
         <draggable v-model="model.values[outerindex].values" :options="{group: 'or', handle: '.draghandle', filter: '.nodrag', dragClass: 'sortable-drag'}" @start="onDragStart" @end="onDragEnd"> 
           <b-container fluid class="px-1" v-for="(rule, innerindex) in model.values[outerindex].values" :key="innerindex">
             <b-row class="mx-auto isdrag">
-              <b-col cols="12" class="bg-white rc pl-0">
+              <b-col cols="12" class="bg-white rc">
                 <b-container fluid class="mx-0 px-0 py-1">
-                  <span v-if="model.values.length > 1 || model.values[outerindex].values.length > 1" class="draghandle mt-1 ml-1 px-1"><icon name="ellipsis-v"></icon></span>
+                  <span v-if="model.values.length > 1 || model.values[outerindex].values.length > 1" class="draghandle mr-2" v-b-tooltip.hover.right :title="$t('Click &amp; Drag statement to reorder')"><icon name="ellipsis-v"></icon></span>
                   <b-form-select v-model="rule.field" :options="fields"></b-form-select>
                   <b-form-select v-model="rule.op" :options="operators(rule)"></b-form-select>
                   <b-form-input v-model="rule.value" type="text" v-if="isFieldType(substringValueType, rule)"></b-form-input>
