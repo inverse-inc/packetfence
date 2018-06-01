@@ -1574,6 +1574,9 @@ image::docs/images/portal-modules/chained_oauth_sms.png[scaledwidth="100%",alt="
 
 Next, add the `chained_oauth_sms` module in `my_first_root_module` (removing any previous modules) and save it. Now when visiting the portal, you should have to authentication using an OAuth source and then using SMS based registration.
 
+Note that if you add want to keep some fields the user previously filled you can add 'Saved fields' in the portal module. Per example the first module ask for the telephone number and the second too, then you can add
+'telephone' as a 'Saved fields' and the second module will not ask for it.
+
 Mixing login and Secure SSID on-boarding on the portal
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
