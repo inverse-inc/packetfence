@@ -265,3 +265,18 @@ func IPsFromRange(ip_range string) (r []net.IP) {
 	}
 	return iplist
 }
+
+// ExcludeIP remove IP from the pool
+func ExcludeIP(dhcpHandler *DHCPHandler, ip_range string) {
+	excludeIPs := IPsFromRange(ip_range)
+
+	for _, excludeIP := range excludeIPs {
+		if excludeIP != nil {
+			// Calculate the position for the roaring bitmap
+			position := uint32(binary.BigEndian.Uint32(excludeIP.To4())) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
+
+			// Remove the position in the roaming bitmap
+			dhcpHandler.available.Remove(position)
+		}
+	}
+}
