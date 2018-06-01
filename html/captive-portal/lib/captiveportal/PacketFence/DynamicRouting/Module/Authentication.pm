@@ -212,13 +212,13 @@ sub merged_fields {
     return \%merged;
 }
 
-=head2 transfert_saving_fields
+=head2 transfer_saving_fields
 
-Transfert $self->app->session->{saving_fields} in $self->app->session->{saved_fields}
+Transfer $self->app->session->{saving_fields} in $self->app->session->{saved_fields}
 
 =cut
 
-sub transfert_saving_fields {
+sub transfer_saving_fields {
     my ($self) = @_;
 
     foreach my $key (keys %{$self->app->session->{saving_fields}}) {
