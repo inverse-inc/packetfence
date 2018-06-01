@@ -76,10 +76,10 @@ foreach my $service (@$services) {
     } else {
       #enable then disable
       $t->post_ok("/api/v1/service/$service/enable" => json => { })
-        ->json_is('/enable', 1)
+        ->json_is('/enable', 1, "Check $service is enable")
         ->status_is(200);
       $t->post_ok("/api/v1/service/$service/disable" => json => { })
-        ->json_is('/disable', 1)
+        ->json_is('/disable', 1, "Check $service is disabled")
         ->status_is(200);
     }
     $t->get_ok("/api/v1/service/$service/status" => json => { })    

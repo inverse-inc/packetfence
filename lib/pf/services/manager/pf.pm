@@ -114,6 +114,16 @@ sub stopService {
     }
 }
 
+=head2 systemdTarget
+
+systemdTarget
+
+=cut
+
+sub systemdTarget {
+    my ($self) = @_;
+    return "packetfence.target";
+}
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
