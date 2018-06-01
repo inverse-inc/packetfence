@@ -1657,6 +1657,13 @@ The configuration is simple, you have a role which is the 'Admin role' the one a
 
 For instance; techs are in the AD group tech support and get the role 'tech support' while registering, let's put 'tech support' as the 'Admin role'. They are allowed to register new devices with the roles 'default', 'voice' and 'guest'. Every time someone with the role 'tech support' will try to register a device on a connection profile where this portal module is active, then the crew memeber will be asked to choose which role to assign to this device.
 
+Onfailure Onsuccess
+^^^^^^^^^^^^^^^^^^^
+
+The on_failure and on_success actions allow you to create a more complex workflow and will permit to change the root portal module based on the result of the authentication.
+Let's say you have a root portal module linked to a Authentication::Login module associated to a connection profile and you want to present a Guest authentication if the login failed.
+Then you need to configure another root portal module "Guest" linked with a Authentication::SMS module and in the previous Authentication::Login add and action on_failure => Guest.
+
 Portal Surveys
 ~~~~~~~~~~~~~~
 
