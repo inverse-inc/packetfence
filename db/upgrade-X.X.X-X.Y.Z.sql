@@ -47,8 +47,7 @@ END
 DELIMITER ;                                                                                                            
 call ValidateVersion;                                                                                                  
 
-ALTER TABLE node
-    MODIFY device_score int DEFAULT NULL;
+ALTER TABLE node MODIFY device_score int DEFAULT NULL, ADD COLUMN device_manufacturer VARCHAR(255) AFTER device_score;
 
 ALTER TABLE person
     ADD `psk` varchar(255) NULL DEFAULT NULL
