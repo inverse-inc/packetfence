@@ -194,7 +194,7 @@ module.exports = function(grunt) {
     };
     grunt.log.subhead('Copying JavaScript files');
     var js = [
-      ['<%= bower %>/jquery/jquery.min.{js,map}'],
+      ['<%= bower %>/jquery/dist/jquery.min.{js,map}'],
       ['<%= bower %>/ace-builds/src-min-noconflict/*.js', 'ace']
     ];
     for (var j = 0; j < js.length; j++) {
