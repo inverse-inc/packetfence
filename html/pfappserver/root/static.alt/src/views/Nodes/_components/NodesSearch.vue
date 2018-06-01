@@ -9,7 +9,6 @@
     <div class="card-body">
       <b-row align-h="between" align-v="center">
         <b-col cols="auto" class="mr-auto">
-
           <b-dropdown size="sm" variant="link" :disabled="isLoading || checkedRows.length === 0" no-caret>
             <template slot="button-content">
               <icon name="cogs" v-b-tooltip.hover.right :title="$t('Actions')"></icon>
@@ -428,11 +427,13 @@ export default {
       }).catch(() => {
         _this.requestPage = _this.currentPage
       })
+      this.clearChecked()
     },
     onReset () {
       this.requestPage = 1 // reset to the first page
       this.$store.dispatch('$_nodes/setSearchQuery', undefined) // reset search
       this.$store.dispatch('$_nodes/search', this.requestPage)
+      this.clearChecked()
     },
     onPageSizeChange () {
       this.requestPage = 1 // reset to the first page
