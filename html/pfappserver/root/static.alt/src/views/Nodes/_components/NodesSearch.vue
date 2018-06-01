@@ -557,7 +557,6 @@ export default {
       let _this = this
       let checkedRows = this.checkedRows
       this.items.forEach(function (item, index, items) {
-        // items[index]._rowVariant = checkedRows.includes(item) ? 'info' : ''
         _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: checkedRows.includes(item) ? 'info' : ''})
       })
     },
