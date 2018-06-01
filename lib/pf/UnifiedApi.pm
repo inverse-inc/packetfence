@@ -118,39 +118,46 @@ our @API_V1_ROUTES = (
         collection => {
             http_methods => undef,
             subroutes => {
-                map { $_ => { get => $_ } }
-                  qw (
-                  os
-                  os_active
-                  os_all
-                  osclass_all
-                  osclass_active
-                  inactive_all
-                  active_all
-                  unregistered_all
-                  unregistered_active
-                  registered_all
-                  registered_active
-                  unknownprints_all
-                  unknownprints_active
-                  statics_all
-                  statics_active
-                  openviolations_all
-                  openviolations_active
-                  connectiontype
-                  connectiontype_all
-                  connectiontype_active
-                  connectiontypereg_all
-                  connectiontypereg_active
-                  ssid
-                  ssid_all
-                  ssid_active
-                  osclassbandwidth
-                  osclassbandwidth_all
-                  nodebandwidth
-                  nodebandwidth_all
-                  topsponsor_all
-                  )
+                'os'                                                  => { get => 'os_all' },
+                'os/#start/#end'                                      => { get => 'os_range' },
+                'os/active'                                           => { get => 'os_active' },
+                'osclass'                                             => { get => 'osclass_all' },
+                'osclass/active'                                      => { get => 'osclass_active' },
+                'inactive'                                            => { get => 'inactive_all' },
+                'active'                                              => { get => 'active_all' },
+                'unregistered'                                        => { get => 'unregistered_all' },
+                'unregistered/active'                                 => { get => 'unregistered_active' },
+                'registered'                                          => { get => 'registered_all' },
+                'registered/active'                                   => { get => 'registered_active' },
+                'unknownprints'                                       => { get => 'unknownprints_all' },
+                'unknownprints/active'                                => { get => 'unknownprints_active' },
+                'statics'                                             => { get => 'statics_all' },
+                'statics/active'                                      => { get => 'statics_active' },
+                'openviolations'                                      => { get => 'openviolations_all' },
+                'openviolations/active'                               => { get => 'openviolations_active' },
+                'connectiontype'                                      => { get => 'connectiontype_all' },
+                'connectiontype/#start/#end'                          => { get => 'connectiontype_range' },
+                'connectiontype/active'                               => { get => 'connectiontype_active' },
+                'connectiontypereg'                                   => { get => 'connectiontypereg_all' },
+                'connectiontypereg/active'                            => { get => 'connectiontypereg_active' },
+                'ssid'                                                => { get => 'ssid_all' },
+                'ssid/#start/#end'                                    => { get => 'ssid_range' },
+                'ssid/active'                                         => { get => 'ssid_active' },
+                'osclassbandwidth'                                    => { get => 'osclassbandwidth_all' },
+                'osclassbandwidth/#start/#end'                        => { get => 'osclassbandwidth_range' },
+                'osclassbandwidth/day'                                => { get => 'osclassbandwidth_day' },
+                'osclassbandwidth/week'                               => { get => 'osclassbandwidth_week' },
+                'osclassbandwidth/month'                              => { get => 'osclassbandwidth_month' },
+                'osclassbandwidth/year'                               => { get => 'osclassbandwidth_year' },
+                'nodebandwidth'                                       => { get => 'nodebandwidth_all' },
+                'nodebandwidth/#start/#end'                           => { get => 'nodebandwidth_range' },
+                'topauthenticationfailures/mac/#start/#end'           => { get => 'topauthenticationfailures_by_mac' },
+                'topauthenticationfailures/ssid/#start/#end'          => { get => 'topauthenticationfailures_by_ssid' },
+                'topauthenticationfailures/username/#start/#end'      => { get => 'topauthenticationfailures_by_username' },
+                'topauthenticationsuccesses/mac/#start/#end'          => { get => 'topauthenticationsuccesses_by_mac' },
+                'topauthenticationsuccesses/ssid/#start/#end'         => { get => 'topauthenticationsuccesses_by_ssid' },
+                'topauthenticationsuccesses/username/#start/#end'     => { get => 'topauthenticationsuccesses_by_username' },
+                'topauthenticationsuccesses/computername/#start/#end' => { get => 'topauthenticationsuccesses_by_computername' },
             },
         },
     },
