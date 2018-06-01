@@ -201,12 +201,10 @@ sub authenticate {
               }, @{$sources} );
         if (!defined $return || $return == $LOGIN_FAILURE) {
             pf::auth_log::record_auth(join(',',map { $_->id } @{$sources}), $self->current_mac, $username, $pf::auth_log::FAILED, $self->app->profile->name);
-            while(my ($action, $params) = each %{$self->actions}){
-                if ($action eq 'on_failure' && @{$params} > 0) {
-                     $self->app->session->{'sub_root_module_id'} = @{$params}[0];
-                     $self->redirect_root();
-                     return;
-                }
+            if ($self->actions->{'on_failure'} && @{$self->actions->{'on_failure'}} > 0) {
+                 $self->app->session->{'sub_root_module_id'} = @{$params}[0];
+                 $self->redirect_root();
+                 return;
             }
             $self->app->flash->{error} = $message;
             $self->prompt_fields();
@@ -229,12 +227,10 @@ sub authenticate {
             pf::auth_log::record_auth($source_id, $self->current_mac, $username, $pf::auth_log::COMPLETED, $self->app->profile->name);
             # Logging USER/IP/MAC of the just-authenticated user
             get_logger->info("Successfully authenticated ".$username);
-            while(my ($action, $params) = each %{$self->actions}){
-                if ($action eq 'on_success' && @{$params} > 0) {
-                     $self->app->session->{'sub_root_module_id'} = @{$params}[0];
-                     $self->redirect_root();
-                     return;
-                }
+            if ($self->actions->{'on_success'} && @{$self->actions->{'on_success'}} > 0) {
+                 $self->app->session->{'sub_root_module_id'} = @{$params}[0];
+                 $self->redirect_root();
+                 return;
             }
         } elsif ($return == $LOGIN_CHALLENGE) {
             $self->challenge_data($message);
