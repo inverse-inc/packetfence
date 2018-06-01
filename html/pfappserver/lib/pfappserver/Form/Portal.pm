@@ -49,6 +49,16 @@ has_field 'items.description' =>
    do_label => 0,
   );
 
+=item items.status
+
+=cut
+
+has_field 'items.status' =>
+  (
+   type => 'Text',
+   do_label => 0,
+  );
+
 =back
 
 =head1 COPYRIGHT
