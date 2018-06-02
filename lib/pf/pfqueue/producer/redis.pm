@@ -17,6 +17,7 @@ use warnings;
 use Moo;
 extends qw(pf::pfqueue::producer);
 use pf::Redis;
+use pf::dal;
 use List::MoreUtils qw(all);
 use Sereal::Encoder qw(sereal_encode_with_object);
 use pf::Sereal qw($ENCODER);
@@ -86,7 +87,7 @@ sub submit {
     my $redis = $self->redis;
     # Batch the creation of the task and it's ttl and placing it on the queue to improve performance
     $redis->multi(sub {});
-    $redis->hmset($id, data => sereal_encode_with_object($ENCODER, [$task_type, $task_data]), expire => $expire_in, sub {});
+    $redis->hmset($id, data => sereal_encode_with_object($ENCODER, [$task_type, $task_data]), expire => $expire_in, tenant_id => pf::dal->get_tenant(), sub {});
     $redis->expire($id, $expire_in, sub {});
     $redis->hincrby($PFQUEUE_COUNTER, $task_counter_id, 1, sub {});
     $redis->lpush($queue_name, $id, sub {});
@@ -108,7 +109,7 @@ sub submit_delayed {
     $time_milli += $delay;
     # Batch the creation of the task and it's ttl and placing it on the queue to improve performance
     $redis->multi(sub {});
-    $redis->hmset($id, data => sereal_encode_with_object($ENCODER, [$task_type, $task_data]), expire => $expire_in, sub {});
+    $redis->hmset($id, data => sereal_encode_with_object($ENCODER, [$task_type, $task_data]), expire => $expire_in, tenant_id => pf::dal->get_tenant(), sub {});
     $redis->expire($id, $expire_in + int($delay / 1000), sub {});
     $redis->hincrby($PFQUEUE_COUNTER, $task_counter_id, 1, sub {});
     $redis->zadd("Delayed:$queue", $time_milli, $id, sub {});
