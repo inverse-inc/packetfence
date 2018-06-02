@@ -17,6 +17,7 @@ use warnings;
 use pf::Redis;
 use Time::HiRes qw(usleep);
 use Sereal::Decoder qw(sereal_decode_with_object);
+use pf::dal;
 use pf::log;
 use pf::Sereal qw($DECODER);
 use Moo;
@@ -111,6 +112,7 @@ sub process_next_job {
     $data = $task_data{data};
     if ($data) {
         local $@;
+        $self->set_tenant_id(\%task_data);
         eval {
             sereal_decode_with_object($DECODER, $data, my $item);
             if (ref($item) eq 'ARRAY') {
@@ -130,6 +132,21 @@ sub process_next_job {
     } else {
         $redis->hincrby($PFQUEUE_EXPIRED_COUNTER, $task_counter_id, 1);
         $logger->error("Invalid task id $task_id provided");
+    }
+}
+
+=head2 set_tenant_id
+
+set_tenant_id
+
+=cut
+
+sub set_tenant_id {
+    my ($self, $task_data) = @_;
+    pf::dal->reset_tenant();
+    my $tenant_id = $task_data->{tenant_id};
+    if (defined $tenant_id) {
+        pf::dal->set_tenant($tenant_id);
     }
 }
 
