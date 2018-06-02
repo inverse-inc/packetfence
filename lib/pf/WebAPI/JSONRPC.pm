@@ -17,6 +17,7 @@ use warnings;
 use JSON::MaybeXS;
 use pf::log;
 use pf::util::webapi;
+use pf::dal;
 use Apache2::RequestIO;
 use Apache2::RequestRec;
 use Apache2::Response;
@@ -58,6 +59,7 @@ sub handler {
             $content_type,
         );
     }
+    pf::dal->reset_tenant();
     my $ref_type = ref $data;
     unless ($ref_type && $ref_type eq 'HASH') {
         get_logger->error("Invalid request");
@@ -69,7 +71,7 @@ sub handler {
         );
     }
 
-    my ($method, $id, $jsonrpc) = @{$data}{qw(method id jsonrpc)};
+    my ($method, $id, $jsonrpc, $tenant_id) = @{$data}{qw(method id jsonrpc tenant_id)};
     unless (defined $method) {
         get_logger->error("Invalid request, no method defined");
         return $self->send_response(
@@ -79,6 +81,10 @@ sub handler {
             $content_type,
         );
     }
+    if (defined $tenant_id) {
+        pf::dal->set_tenant($tenant_id);
+    }
+
     my $dispatch_to = $self->dispatch_to;
     my $response_content = '';
     my $method_sub;
