@@ -131,7 +131,7 @@ sub handle {
         grant_url               => undef,   # Grant URL
         status_code             => undef,   # Status code
         synchronize_locationlog => undef,   # Should we synchronize locationlog
-	connection_type         => undef,   # Set the connection_type
+        connection_type         => undef,   # Set the connection_type
     );
 
     my $switch_params = $switch_type->parseExternalPortalRequest($r, $req);

@@ -6004,7 +6004,7 @@ Next connect on the controller via ssh and go in /usr/lib/unifi/data/sites/4j4ee
  config.system_cfg.1=aaa.1.auth_cache=disabled
  config.system_cfg.2=aaa.4.auth_cache=disabled
 
-1 and 4 are the profil id configured on the access point, to be sure to have the correct id, you can connect on the access point via ssh or via the debug terminal and do:
+1 and 4 are the profile id configured on the access point, to be sure to have the correct id, you can connect on the access point via ssh or via the debug terminal and do:
 
   BZ.v3.9.3# cat /tmp/system.cfg | grep ssid
   aaa.1.ssid=PacketFence-Secure
