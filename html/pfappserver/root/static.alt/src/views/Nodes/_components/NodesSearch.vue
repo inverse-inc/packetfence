@@ -9,7 +9,6 @@
     <div class="card-body">
       <b-row align-h="between" align-v="center">
         <b-col cols="auto" class="mr-auto">
-
           <b-dropdown size="sm" variant="link" :disabled="isLoading || checkedRows.length === 0" no-caret>
             <template slot="button-content">
               <icon name="cogs" v-b-tooltip.hover.right :title="$t('Actions')"></icon>
@@ -126,6 +125,10 @@ export default {
     },
     lastIndex: {
       type: Number,
+      default: null
+    },
+    query: {
+      type: String,
       default: null
     }
   },
@@ -428,11 +431,27 @@ export default {
       }).catch(() => {
         _this.requestPage = _this.currentPage
       })
+      this.clearChecked()
     },
     onReset () {
       this.requestPage = 1 // reset to the first page
       this.$store.dispatch('$_nodes/setSearchQuery', undefined) // reset search
       this.$store.dispatch('$_nodes/search', this.requestPage)
+      this.clearChecked()
+      this.initSearch()
+    },
+    initSearch () {
+      if (this.query) {
+        try {
+          this.condition = JSON.parse(this.query)
+          this.$store.dispatch('$_nodes/setSearchQuery', this.condition)
+          this.advancedMode = true
+          return
+        } catch (e) {
+          // noop
+        }
+      }
+      this.condition = { op: 'and', values: [{ op: 'or', values: [{ field: null, op: null, value: null }] }] }
     },
     onPageSizeChange () {
       this.requestPage = 1 // reset to the first page
@@ -468,6 +487,10 @@ export default {
     },
     clearChecked () {
       this.checkedAll = false
+      const _this = this
+      this.checkedRows.forEach(function (item, index, items) {
+        _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: ''})
+      })
       this.checkedRows = []
       this.lastIndex = null
     },
@@ -489,13 +512,40 @@ export default {
       }
     },
     applyClearViolation () {
-      console.log(['applyClearViolation', this.checkedRows])
+      const _this = this
+      this.checkedRows.forEach(function (item, index, items) {
+        _this.$store.dispatch('$_nodes/clearViolationNode', item.mac).then(response => {
+          _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'success'})
+        }).catch(() => {
+          _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'danger'})
+        })
+      })
     },
     applyRegister () {
-      console.log(['applyRegister', this.checkedRows])
+      const _this = this
+      this.checkedRows.forEach(function (item, index, items) {
+        _this.$store.dispatch('$_nodes/registerNode', item.mac).then(response => {
+          _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'success'})
+        }).catch(() => {
+          _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'danger'})
+        })
+      })
     },
     applyDeregister () {
-      console.log(['applyDeregister', this.checkedRows])
+      const _this = this
+      const macs = []
+      this.checkedRows.forEach(function (item, index, items) {
+        macs.push(item.mac)
+      })
+      if (macs.length > 0) {
+        _this.$store.dispatch('$_nodes/deregisterBulkNodes', macs).then(response => {
+          console.log(['$_nodes/deregisterBulkNodes', macs, response])
+          // _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'success'})
+        }).catch(() => {
+          console.log(['$_nodes/deregisterBulkNodes', 'catch()'])
+          // _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'danger'})
+        })
+      }
     },
     applyReevaluateAccess () {
       console.log(['applyReevaluateAccess', this.checkedRows])
@@ -528,9 +578,10 @@ export default {
   watch: {
     checkedRows (a, b) {
       this.checkedAll = (this.tableValues.length === a.length && a.length > 0)
+      let _this = this
       let checkedRows = this.checkedRows
       this.items.forEach(function (item, index, items) {
-        items[index]._rowVariant = checkedRows.includes(item) ? 'info' : ''
+        _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: checkedRows.includes(item) ? 'info' : ''})
       })
     },
     condition (a, b) {
@@ -553,8 +604,7 @@ export default {
     // Restore search parameters
     this.condition = this.$store.state.$_nodes.searchQuery
     if (!this.condition) {
-      // Select first field
-      this.condition = { op: 'and', values: [{ field: this.fields[0].value, op: null, value: null }] }
+      this.initSearch()
     }
     // Restore visibleColumns, overwrite defaults
     if (this.$store.state.$_nodes.visibleColumns) {
