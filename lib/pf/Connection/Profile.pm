@@ -628,7 +628,7 @@ Deregister device on accounting stop
 
 sub unregOnAcctStop {
     my ($self) = @_;
-    return $self->{'_unreg_on_acct_stop'};
+    return isenabled($self->{'_unreg_on_acct_stop'});
 }
 
 =back
