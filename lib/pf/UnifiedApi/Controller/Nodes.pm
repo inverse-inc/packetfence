@@ -209,6 +209,23 @@ sub bulk_close_violations {
     return $self->render(status => 200, json => { items => $results });
 }
 
+sub bulk_reevaluate_access {
+    my ($self) = @_;
+    my ($status, $data) = $self->parse_json;
+    if (is_error($status)) {
+        return $self->render(json => $data, status => $status);
+    }
+
+    my $items = $data->{items} // [];
+    my ($indexes, $results) = bulk_init_results($items);
+    for my $mac (@$items) {
+        my $result = pf::enforcement::reevaluate_access($mac, "admin_modify");
+        $results->[$indexes->{$mac}]{status} = $result ? "success" : "failed";
+    }
+
+    return $self->render(status => 200, json => { items => $results });
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
