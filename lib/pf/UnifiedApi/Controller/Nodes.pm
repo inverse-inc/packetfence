@@ -99,23 +99,30 @@ sub bulk_register {
         return $self->render_error(status => $status, "Error finding nodes");
     }
 
-    my $i = 0;
-    my %indexes = map { $_ => $i++ } @$items;
-    my @results = map { { mac => $_, status => 'skipped'} } @$items;
+    my ($indexes, $results) = bulk_init_results($items);
     my $nodes = $iter->all;
     for my $node (@$nodes) {
         my $mac = $node->{mac};
         my ($result, $msg) = node_register($mac, $node->{pid});
-        my $index = $indexes{$mac};
+        my $index = $indexes->{$mac};
         if ($result) {
-            $results[$index]{status} = "success";
+            $results->[$index]{status} = "success";
+            pf::enforcement::reevaluate_access($mac, "admin_modify");
         } else {
-            $results[$index]{status} = "failed";
-            $results[$index]{message} = $msg;
+            $results->[$index]{status} = "failed";
+            $results->[$index]{message} = $msg;
         }
     }
 
-    return $self->render(status => 200, json => { items => \@results });
+    return $self->render(status => 200, json => { items => $results });
+}
+
+sub bulk_init_results {
+    my ($items) = @_;
+    my $i = 0;
+    my %index = map { $_ => $i++ } @$items;
+    my @results = map { { mac => $_, status => 'skipped'} } @$items;
+    return (\%index, \@results);
 }
 
 sub bulk_deregister {
@@ -137,17 +144,18 @@ sub bulk_deregister {
     if (is_error($status)) {
         return $self->render_error(status => $status, "Error finding nodes");
     }
-    my $i = 0;
-    my %index = map { $_ => $i++ } @$items;
-    my @results = map { { mac => $_, status => 'skipped'} } @$items;
-
+    my ($index, $results) = bulk_init_results($items);
     my $nodes = $iter->all;
     for my $node (@$nodes) {
-        my $result = node_deregister($node->{mac});
-        $results[$index{$node->{mac}}]{status} = $result ? "success" : "failed";
+        my $mac = $node->{mac};
+        my $result = node_deregister($mac);
+        if ($result) {
+            pf::enforcement::reevaluate_access($mac, "admin_modify");
+        }
+        $results->[$index->{$mac}]{status} = $result ? "success" : "failed";
     }
 
-    return $self->render(status => 200, json => { items => \@results });
+    return $self->render(status => 200, json => { items => $results });
 }
 
 =head2 fingerbank_info
@@ -185,15 +193,20 @@ sub bulk_close_violations {
         return $self->render_error(status => $status, "Error finding nodes");
     }
 
+    my ($indexes, $results) = bulk_init_results($items);
     my $violations = $iter->all;
-    my $count = 0;
     for my $violation (@$violations) {
-        if (violation_force_close($violation->{mac}, $violation->{vid})) {
-            pf::enforcement::reevaluate_access($violation->{mac}, "admin_modify");
-            $count++;
+        my $mac = $violation->{mac};
+        my $index = $indexes->{$mac};
+        if (violation_force_close($mac, $violation->{vid})) {
+            pf::enforcement::reevaluate_access($mac, "admin_modify");
+            $results->[$index]{status} = "success";
+        } else {
+            $results->[$index]{status} = "failed";
         }
     }
-    return $self->render(status => 200, json => { count => $count });
+
+    return $self->render(status => 200, json => { items => $results });
 }
 
 =head1 AUTHOR
