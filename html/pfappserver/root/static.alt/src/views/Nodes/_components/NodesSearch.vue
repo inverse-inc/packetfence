@@ -451,7 +451,7 @@ export default {
           // noop
         }
       }
-      this.condition = { op: 'and', values: [{ op: 'or', values: [{ field: null, op: null, value: null }] }] }
+      this.condition = { op: 'and', values: [{ op: 'or', values: [{ field: this.fields[0].value, op: null, value: null }] }] }
     },
     onPageSizeChange () {
       this.requestPage = 1 // reset to the first page
