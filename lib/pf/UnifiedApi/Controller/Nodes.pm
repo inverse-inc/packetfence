@@ -95,13 +95,13 @@ sub bulk_register {
         },
         -with_class => undef,
     );
-    my $i = 0;
-    my %indexes = map { $_ => $i++ } @$items;
-    my @results = map { { mac => $_, status => 'skipped'} } @$items;
     if (is_error($status)) {
         return $self->render_error(status => $status, "Error finding nodes");
     }
 
+    my $i = 0;
+    my %indexes = map { $_ => $i++ } @$items;
+    my @results = map { { mac => $_, status => 'skipped'} } @$items;
     my $nodes = $iter->all;
     for my $node (@$nodes) {
         my $mac = $node->{mac};
@@ -134,12 +134,12 @@ sub bulk_deregister {
         },
         -with_class => undef,
     );
-    my $i = 0;
-    my %index = map { $_ => $i++ } @$items;
-    my @results = map { { mac => $_, status => 'skipped'} } @$items;
     if (is_error($status)) {
         return $self->render_error(status => $status, "Error finding nodes");
     }
+    my $i = 0;
+    my %index = map { $_ => $i++ } @$items;
+    my @results = map { { mac => $_, status => 'skipped'} } @$items;
 
     my $nodes = $iter->all;
     for my $node (@$nodes) {
