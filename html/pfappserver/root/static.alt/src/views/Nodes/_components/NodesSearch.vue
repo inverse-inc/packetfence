@@ -523,10 +523,7 @@ export default {
     },
     applyBulkRegister () {
       const _this = this
-      const macs = []
-      this.checkedRows.forEach(function (item, index, items) {
-        macs.push(item.mac)
-      })
+      const macs = this.checkedRows.map(item => item.mac)
       if (macs.length > 0) {
         _this.$store.dispatch('$_nodes/registerBulkNodes', macs).then(response => {
           response.items.forEach(function (item, index, items) {
@@ -552,10 +549,7 @@ export default {
     },
     applyBulkDeregister () {
       const _this = this
-      const macs = []
-      this.checkedRows.forEach(function (item, index, items) {
-        macs.push(item.mac)
-      })
+      const macs = this.checkedRows.map(item => item.mac)
       if (macs.length > 0) {
         _this.$store.dispatch('$_nodes/deregisterBulkNodes', macs).then(response => {
           response.items.forEach(function (item, index, items) {
