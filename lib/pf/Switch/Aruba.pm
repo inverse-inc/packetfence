@@ -65,6 +65,7 @@ use pf::constants;
 use pf::config qw(
     $MAC
     $SSID
+    $WEBAUTH_WIRELESS
 );
 use pf::Switch::constants;
 use pf::util;
@@ -558,7 +559,8 @@ sub parseExternalPortalRequest {
         client_ip               => $req->param('ip'),
         ssid                    => $req->param('essid'),
         redirect_url            => $req->param('url'),
-        synchronize_locationlog =>  $FALSE,
+        synchronize_locationlog => $FALSE,
+        connection_type         => $WEBAUTH_WIRELESS,
     );
 
     return \%params;

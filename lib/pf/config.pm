@@ -327,22 +327,22 @@ Readonly our $IF_INTERNAL => 'internal';
 # 4 : Inline
 # 5 : SNMP
 # 6 : WebAuth
-# 7 : Available
-# 8 : Available
-# 9 : Available
-Readonly our $WIRELESS_802_1X     => 0b110000000;
-Readonly our $WIRELESS_MAC_AUTH   => 0b100000001;
-Readonly our $WIRED_802_1X        => 0b011000010;
-Readonly our $WIRED_MAC_AUTH      => 0b001000011;
-Readonly our $WIRED_SNMP_TRAPS    => 0b001010100;
-Readonly our $INLINE              => 0b000100101;
-Readonly our $UNKNOWN             => 0b000000000;
-Readonly our $WEBAUTH             => 0b000001111;
+
+Readonly our $WIRELESS_802_1X     => 0b1100000000;
+Readonly our $WIRELESS_MAC_AUTH   => 0b1000000001;
+Readonly our $WIRED_802_1X        => 0b0110000010;
+Readonly our $WIRED_MAC_AUTH      => 0b0010000011;
+Readonly our $WIRED_SNMP_TRAPS    => 0b0010100100;
+Readonly our $INLINE              => 0b0001000101;
+Readonly our $UNKNOWN             => 0b0000000000;
+Readonly our $WEBAUTH_WIRELESS    => 0b1000010111;
+Readonly our $WEBAUTH_WIRED       => 0b0010011000;
 
 # masks to be used on connection types
-Readonly our $WIRELESS   => 0b100000000;
-Readonly our $WIRED      => 0b001000000;
-Readonly our $EAP        => 0b010000000;
+Readonly our $WIRELESS   => 0b1000000000;
+Readonly our $WIRED      => 0b0010000000;
+Readonly our $EAP        => 0b0100000000;
+Readonly our $WEBAUTH    => 0b0000010000;
 
 # Catalyst-based access level constants
 Readonly::Scalar our $ADMIN_USERNAME => 'admin';
@@ -359,13 +359,14 @@ Readonly our $WEB_ADMIN_ALL => 4294967295;
     'SNMP-Traps'            => $WIRED_SNMP_TRAPS,
     'Inline'                => $INLINE,
     'WIRED_MAC_AUTH'        => $WIRED_MAC_AUTH,
-    'Web-Auth'              => $WEBAUTH,
+    'Ethernet-Web-Auth'     => $WEBAUTH_WIRED,
+    'Wireless-Web-Auth'     => $WEBAUTH_WIRELESS,
 );
 %connection_group = (
     'Wireless'              => $WIRELESS,
     'Ethernet'              => $WIRED,
     'EAP'                   => $EAP,
-    'Web-Auth'               => $WEBAUTH,
+    'Web-Auth'              => $WEBAUTH,
 );
 # Their string equivalent for database storage
 %connection_type_to_str = (
@@ -376,7 +377,8 @@ Readonly our $WEB_ADMIN_ALL => 4294967295;
     $WIRED_SNMP_TRAPS => 'SNMP-Traps',
     $INLINE => 'Inline',
     $UNKNOWN => '',
-    $WEBAUTH => 'Web-Auth',
+    $WEBAUTH_WIRELESS => 'Wireless-Web-Auth',
+    $WEBAUTH_WIRED  => 'Ethernet-Web-Auth',
 );
 %connection_group_to_str = (
     $WIRELESS => 'Wireless',
@@ -396,7 +398,8 @@ Readonly our $WEB_ADMIN_ALL => 4294967295;
     $WIRED_SNMP_TRAPS => 'Wired SNMP',
     $INLINE => 'Inline',
     $UNKNOWN => 'Unknown',
-    $WEBAUTH => 'Web Auth',
+    $WEBAUTH_WIRELESS => 'Wifi Web Auth',
+    $WEBAUTH_WIRED => 'Wired Web Auth',
 );
 
 %connection_type_explained_to_str = map { $connection_type_explained{$_} => $connection_type_to_str{$_} } keys %connection_type_explained;

@@ -23,6 +23,7 @@ use base ('pf::Switch');
 
 use pf::config qw(
     $WIRELESS_MAC_AUTH
+    $WEBAUTH_WIRELESS
 );
 use pf::constants;
 use pf::node;
@@ -64,6 +65,7 @@ sub parseExternalPortalRequest {
         redirect_url            => $req->param('userurl'),
         status_code             => $req->param('res'),
         synchronize_locationlog => $TRUE,
+        connection_type         => $WEBAUTH_WIRELESS,
     );
 
     return \%params;

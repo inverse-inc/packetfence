@@ -28,6 +28,7 @@ use pf::config qw(
     $MAC
     $SSID
     $WIRELESS_MAC_AUTH
+    $WEBAUTH_WIRELESS
 );
 sub description { 'Mikrotik' }
 
@@ -72,6 +73,7 @@ sub parseExternalPortalRequest {
         client_ip               => $req->param('ip'),
         status_code             => '200',
         synchronize_locationlog => $TRUE,
+        connection_type         => $WEBAUTH_WIRELESS,
     );
 
     return \%params;

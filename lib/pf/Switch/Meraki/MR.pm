@@ -32,7 +32,7 @@ use warnings;
 use base ('pf::Switch');
 
 use pf::constants;
-use pf::config qw($WIRELESS_MAC_AUTH);
+use pf::config qw($WIRELESS_MAC_AUTH $WEBAUTH_WIRELESS);
 use pf::util;
 use pf::node;
 
@@ -82,6 +82,7 @@ sub parseExternalPortalRequest {
         redirect_url            => $req->param('continue_url'),
         status_code             => '200',
         synchronize_locationlog => $TRUE,
+        connection_type         => $WEBAUTH_WIRELESS,
     );
 
     return \%params;

@@ -32,7 +32,7 @@ use pf::config qw(
     %connection_type_to_str
     $MAC
     $SSID
-    $WEBAUTH
+    $WEBAUTH_WIRELESS
 );
 use JSON::MaybeXS;
 
@@ -91,6 +91,7 @@ sub parseExternalPortalRequest {
         redirect_url            => $req->param('url'),
         status_code             => '200',
         synchronize_locationlog => $TRUE,
+        connection_type         => $WEBAUTH_WIRELESS,
     );
 
     return \%params;
@@ -137,7 +138,7 @@ sub _deauthenticateMacWithHTTP {
 
     my $command = ($node_info->{status} eq $STATUS_UNREGISTERED || violation_count_reevaluate_access($mac)) ? "unauthorize-guest" : "authorize-guest";
 
-    $command = "kick-sta" if ($node_info->{last_connection_type} ne $connection_type_to_str{$WEBAUTH});
+    $command = "kick-sta" if ($node_info->{last_connection_type} ne $connection_type_to_str{$WEBAUTH_WIRELESS});
 
     my $ua = LWP::UserAgent->new();
     $ua->cookie_jar({ file => "$var_dir/run/.ubiquiti.cookies.txt" });
