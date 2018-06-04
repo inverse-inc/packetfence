@@ -126,6 +126,10 @@ export default {
     lastIndex: {
       type: Number,
       default: null
+    },
+    query: {
+      type: String,
+      default: null
     }
   },
   data () {
@@ -437,18 +441,17 @@ export default {
       this.initSearch()
     },
     initSearch () {
-      if (this.$route.query.query) {
+      if (this.query) {
         try {
-          this.condition = JSON.parse(this.$route.query.query)
+          this.condition = JSON.parse(this.query)
+          this.$store.dispatch('$_nodes/setSearchQuery', this.condition)
           this.advancedMode = true
-          this.onSearch(this.condition)
           return
         } catch (e) {
           // noop
-          console.log(['Error: ', e])
         }
       }
-      this.condition = { op: 'and', values: [{ op: 'or', values: [{ field: this.fields[0].value, op: null, value: null }] }] }
+      this.condition = { op: 'and', values: [{ op: 'or', values: [{ field: null, op: null, value: null }] }] }
     },
     onPageSizeChange () {
       this.requestPage = 1 // reset to the first page
@@ -533,11 +536,6 @@ export default {
       const macs = []
       this.checkedRows.forEach(function (item, index, items) {
         macs.push(item.mac)
-        // _this.$store.dispatch('$_nodes/deregisterNode', item.mac).then(response => {
-        //   _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'success'})
-        // }).catch(() => {
-        //   _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'danger'})
-        // })
       })
       if (macs.length > 0) {
         _this.$store.dispatch('$_nodes/deregisterBulkNodes', macs).then(response => {
