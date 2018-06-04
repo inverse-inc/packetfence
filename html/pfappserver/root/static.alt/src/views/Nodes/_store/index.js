@@ -280,6 +280,16 @@ const actions = {
         reject(err)
       })
     })
+  },
+  clearViolationBulkNodes: ({commit}, macs) => {
+    return new Promise((resolve, reject) => {
+      api.clearViolationBulkNodes(macs).then(response => {
+        resolve(response)
+      }).catch(err => {
+        commit('NODE_ERROR', err.response)
+        reject(err)
+      })
+    })
   }
 }
 
@@ -347,12 +357,10 @@ const mutations = {
     }
   },
   ITEM_VARIANT: (state, params) => {
-    state.nodeStatus = 'success'
     let index = state.items.findIndex(item => item.mac === params.mac)
     Vue.set(state.items[index], '_rowVariant', params.variant)
   },
   ITEM_UPDATED: (state, params) => {
-    state.itemStatus = 'success'
     let index = state.items.findIndex(item => item.mac === params.mac)
     Vue.set(state.items[index], params.prop, params.data)
   }

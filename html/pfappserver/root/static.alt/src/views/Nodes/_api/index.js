@@ -96,5 +96,11 @@ export default {
     return apiCall.post(`node/${mac}/closeviolations`).then(response => {
       return response.data
     })
+  },
+  clearViolationBulkNodes: macs => {
+    const body = { items: macs }
+    return apiCall.post('nodes/bulk_close_violations', body).then(response => {
+      return response.data
+    })
   }
 }

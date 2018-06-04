@@ -13,7 +13,7 @@
             <template slot="button-content">
               <icon name="cogs" v-b-tooltip.hover.right :title="$t('Actions')"></icon>
             </template>
-            <b-dropdown-item @click="applyClearViolation()">
+            <b-dropdown-item @click="applyBulkClearViolation()">
               <icon class="position-absolute mt-1" name="ban"></icon>
               <span class="ml-4">{{ $t('Clear Violation') }}</span>
             </b-dropdown-item>
@@ -511,15 +511,31 @@ export default {
         this.checkedRows = this.checkedRows.reduce((x, y) => subset.includes(y) ? x : [...x, y], [])
       }
     },
-    applyClearViolation () {
+    applyBulkClearViolation () {
       const _this = this
-      this.checkedRows.forEach(function (item, index, items) {
-        _this.$store.dispatch('$_nodes/clearViolationNode', item.mac).then(response => {
-          _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: 'success'})
+      const macs = this.checkedRows.map(item => item.mac)
+      if (macs.length > 0) {
+        _this.$store.dispatch('$_nodes/clearViolationBulkNodes', macs).then(response => {
+          response.items.forEach(function (item, index, items) {
+            switch (item.status) {
+              case 'success':
+                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: 'success'})
+                break
+              case 'skipped':
+                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: 'warning'})
+                break
+              case 'failed':
+              default:
+                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: 'danger'})
+                break
+            }
+          })
         }).catch(() => {
-          _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: 'danger'})
+          macs.forEach(function (mac, index) {
+            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'danger'})
+          })
         })
-      })
+      }
     },
     applyBulkRegister () {
       const _this = this
