@@ -29,8 +29,10 @@ use pf::constants;
 use pf::util;
 use pf::node;
 use pf::config qw(
+    %connection_type_to_str
     $MAC
     $SSID
+    $WEBAUTH
 );
 use JSON::MaybeXS;
 
@@ -135,7 +137,7 @@ sub _deauthenticateMacWithHTTP {
 
     my $command = ($node_info->{status} eq $STATUS_UNREGISTERED || violation_count_reevaluate_access($mac)) ? "unauthorize-guest" : "authorize-guest";
 
-    $command = "kick-sta" if ($node_info->{last_connection_type} ne "Web-Auth");
+    $command = "kick-sta" if ($node_info->{last_connection_type} ne $connection_type_to_str{$WEBAUTH});
 
     my $ua = LWP::UserAgent->new();
     $ua->cookie_jar({ file => "$var_dir/run/.ubiquiti.cookies.txt" });
