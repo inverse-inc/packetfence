@@ -11,7 +11,7 @@ pf::Authentication::Source::LDAPSource
 use pf::log;
 use pf::constants qw($TRUE $FALSE);
 use pf::constants::authentication::messages;
-use pf::Authentication::constants qw($DEFAULT_LDAP_READ_TIMEOUT $DEFAULT_LDAP_WRITE_TIMEOUT);
+use pf::Authentication::constants qw($DEFAULT_LDAP_READ_TIMEOUT $DEFAULT_LDAP_WRITE_TIMEOUT $DEFAULT_LDAP_CONNECTION_TIMEOUT);
 use pf::Authentication::Condition;
 use pf::CHI;
 use pf::util;
@@ -51,7 +51,7 @@ Readonly our %ATTRIBUTES_MAP => (
 has '+type' => (default => 'LDAP');
 has 'host' => (isa => 'Maybe[Str]', is => 'rw', default => '127.0.0.1');
 has 'port' => (isa => 'Maybe[Int]', is => 'rw', default => 389);
-has 'connection_timeout' => ( isa     => 'Num', is => 'rw', default => 5 );
+has 'connection_timeout' => ( isa => 'Num', is => 'rw', default => $DEFAULT_LDAP_CONNECTION_TIMEOUT );
 has 'write_timeout' => (isa => 'Num', is => 'rw', default => $DEFAULT_LDAP_WRITE_TIMEOUT);
 has 'read_timeout' => (isa => 'Num', is => 'rw', default => $DEFAULT_LDAP_READ_TIMEOUT);
 has 'basedn' => (isa => 'Str', is => 'rw', required => 1);
