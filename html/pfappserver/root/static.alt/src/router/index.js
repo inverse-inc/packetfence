@@ -6,6 +6,7 @@ import LoginRoute from '@/views/Login/_router'
 import StatusRoute from '@/views/Status/_router'
 import NodesRoute from '@/views/Nodes/_router'
 import UsersRoute from '@/views/Users/_router'
+import AuditingRoute from '@/views/Auditing/_router'
 
 Vue.use(Router)
 
@@ -14,7 +15,8 @@ let router = new Router({
     LoginRoute,
     StatusRoute,
     NodesRoute,
-    UsersRoute
+    UsersRoute,
+    AuditingRoute
   ]
 })
 
