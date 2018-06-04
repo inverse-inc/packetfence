@@ -437,7 +437,17 @@ export default {
       this.initSearch()
     },
     initSearch () {
-      // Select first field
+      if (this.$route.query.query) {
+        try {
+          this.condition = JSON.parse(this.$route.query.query)
+          this.advancedMode = true
+          this.onSearch(this.condition)
+          return
+        } catch (e) {
+          // noop
+          console.log(['Error: ', e])
+        }
+      }
       this.condition = { op: 'and', values: [{ op: 'or', values: [{ field: this.fields[0].value, op: null, value: null }] }] }
     },
     onPageSizeChange () {
@@ -520,13 +530,24 @@ export default {
     },
     applyDeregister () {
       const _this = this
+      const macs = []
       this.checkedRows.forEach(function (item, index, items) {
-        _this.$store.dispatch('$_nodes/deregisterNode', item.mac).then(response => {
-          _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'success'})
-        }).catch(() => {
-          _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'danger'})
-        })
+        macs.push(item.mac)
+        // _this.$store.dispatch('$_nodes/deregisterNode', item.mac).then(response => {
+        //   _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'success'})
+        // }).catch(() => {
+        //   _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'danger'})
+        // })
       })
+      if (macs.length > 0) {
+        _this.$store.dispatch('$_nodes/deregisterBulkNodes', macs).then(response => {
+          console.log(['$_nodes/deregisterBulkNodes', macs, response])
+          // _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'success'})
+        }).catch(() => {
+          console.log(['$_nodes/deregisterBulkNodes', 'catch()'])
+          // _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'danger'})
+        })
+      }
     },
     applyReevaluateAccess () {
       console.log(['applyReevaluateAccess', this.checkedRows])
