@@ -489,7 +489,7 @@ export default {
       this.checkedAll = false
       const _this = this
       this.checkedRows.forEach(function (item, index, items) {
-        _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: ''})
+        _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: ''})
       })
       this.checkedRows = []
       this.lastIndex = null
@@ -515,9 +515,9 @@ export default {
       const _this = this
       this.checkedRows.forEach(function (item, index, items) {
         _this.$store.dispatch('$_nodes/clearViolationNode', item.mac).then(response => {
-          _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'success'})
+          _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: 'success'})
         }).catch(() => {
-          _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'danger'})
+          _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: 'danger'})
         })
       })
     },
@@ -529,20 +529,20 @@ export default {
           response.items.forEach(function (item, index, items) {
             switch (item.status) {
               case 'success':
-                _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'success'})
+                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: 'success'})
                 break
               case 'skipped':
-                _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'warning'})
+                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: 'warning'})
                 break
               case 'failed':
               default:
-                _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'danger'})
+                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: 'danger'})
                 break
             }
           })
         }).catch(() => {
           macs.forEach(function (mac, index) {
-            _this.$store.commit('$_nodes/NODE_VARIANT', {mac: mac, variant: 'danger'})
+            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'danger'})
           })
         })
       }
@@ -555,20 +555,20 @@ export default {
           response.items.forEach(function (item, index, items) {
             switch (item.status) {
               case 'success':
-                _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'success'})
+                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: 'success'})
                 break
               case 'skipped':
-                _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'warning'})
+                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: 'warning'})
                 break
               case 'failed':
               default:
-                _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'danger'})
+                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: 'danger'})
                 break
             }
           })
         }).catch(() => {
           macs.forEach(function (mac, index) {
-            _this.$store.commit('$_nodes/NODE_VARIANT', {mac: mac, variant: 'danger'})
+            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'danger'})
           })
         })
       }
@@ -607,7 +607,7 @@ export default {
       let _this = this
       let checkedRows = this.checkedRows
       this.items.forEach(function (item, index, items) {
-        _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: checkedRows.includes(item) ? 'info' : ''})
+        _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: checkedRows.includes(item) ? 'info' : ''})
       })
     },
     condition (a, b) {
