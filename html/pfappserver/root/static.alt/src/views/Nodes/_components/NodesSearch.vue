@@ -17,11 +17,11 @@
               <icon class="position-absolute mt-1" name="ban"></icon>
               <span class="ml-4">{{ $t('Clear Violation') }}</span>
             </b-dropdown-item>
-            <b-dropdown-item @click="applyRegister()">
+            <b-dropdown-item @click="applyBulkRegister()">
               <icon class="position-absolute mt-1" name="plus-circle"></icon>
               <span class="ml-4">{{ $t('Register') }}</span>
             </b-dropdown-item>
-            <b-dropdown-item @click="applyDeregister()">
+            <b-dropdown-item @click="applyBulkDeregister()">
               <icon class="position-absolute mt-1" name="minus-circle"></icon>
               <span class="ml-4">{{ $t('Deregister') }}</span>
             </b-dropdown-item>
@@ -521,17 +521,36 @@ export default {
         })
       })
     },
-    applyRegister () {
+    applyBulkRegister () {
       const _this = this
+      const macs = []
       this.checkedRows.forEach(function (item, index, items) {
-        _this.$store.dispatch('$_nodes/registerNode', item.mac).then(response => {
-          _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'success'})
-        }).catch(() => {
-          _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'danger'})
-        })
+        macs.push(item.mac)
       })
+      if (macs.length > 0) {
+        _this.$store.dispatch('$_nodes/registerBulkNodes', macs).then(response => {
+          response.items.forEach(function (item, index, items) {
+            switch (item.status) {
+              case 'success':
+                _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'success'})
+                break
+              case 'skipped':
+                _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'warning'})
+                break
+              case 'failed':
+              default:
+                _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'danger'})
+                break
+            }
+          })
+        }).catch(() => {
+          macs.forEach(function (mac, index) {
+            _this.$store.commit('$_nodes/NODE_VARIANT', {mac: mac, variant: 'danger'})
+          })
+        })
+      }
     },
-    applyDeregister () {
+    applyBulkDeregister () {
       const _this = this
       const macs = []
       this.checkedRows.forEach(function (item, index, items) {
@@ -539,11 +558,24 @@ export default {
       })
       if (macs.length > 0) {
         _this.$store.dispatch('$_nodes/deregisterBulkNodes', macs).then(response => {
-          console.log(['$_nodes/deregisterBulkNodes', macs, response])
-          // _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'success'})
+          response.items.forEach(function (item, index, items) {
+            switch (item.status) {
+              case 'success':
+                _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'success'})
+                break
+              case 'skipped':
+                _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'warning'})
+                break
+              case 'failed':
+              default:
+                _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'danger'})
+                break
+            }
+          })
         }).catch(() => {
-          console.log(['$_nodes/deregisterBulkNodes', 'catch()'])
-          // _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'danger'})
+          macs.forEach(function (mac, index) {
+            _this.$store.commit('$_nodes/NODE_VARIANT', {mac: mac, variant: 'danger'})
+          })
         })
       }
     },

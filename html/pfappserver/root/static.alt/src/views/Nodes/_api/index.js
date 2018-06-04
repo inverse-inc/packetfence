@@ -80,8 +80,9 @@ export default {
   deleteNode: mac => {
     return apiCall.delete(`node/${mac}`)
   },
-  registerNode: mac => {
-    return apiCall.post(`node/${mac}/register`).then(response => {
+  registerBulkNodes: macs => {
+    const body = { items: macs }
+    return apiCall.post('nodes/bulk_register', body).then(response => {
       return response.data
     })
   },

@@ -231,6 +231,20 @@ const actions = {
       })
     })
   },
+  registerBulkNodes: ({commit}, macs) => {
+    commit('NODE_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.registerBulkNodes(macs).then(response => {
+        response.items.filter(item => item.status === 'success').forEach(function (item, index, items) {
+          commit('NODE_REPLACED', item.mac)
+        })
+        resolve(response)
+      }).catch(err => {
+        commit('NODE_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
   deregisterNode: ({commit}, mac) => {
     commit('NODE_REQUEST')
     return new Promise((resolve, reject) => {
@@ -247,8 +261,9 @@ const actions = {
     commit('NODE_REQUEST')
     return new Promise((resolve, reject) => {
       api.deregisterBulkNodes(macs).then(response => {
-        // commit('NODE_REPLACED', mac)
-        console.log(['api.deregisterBulkNodes(macs).then', response])
+        response.items.filter(item => item.status === 'success').forEach(function (item, index, items) {
+          commit('NODE_REPLACED', item.mac)
+        })
         resolve(response)
       }).catch(err => {
         commit('NODE_ERROR', err.response)
