@@ -85,8 +85,9 @@ export default {
       return response.data
     })
   },
-  deregisterNode: mac => {
-    return apiCall.post(`node/${mac}/deregister`).then(response => {
+  deregisterBulkNodes: macs => {
+    const body = { items: macs }
+    return apiCall.post('nodes/bulk_deregister', body).then(response => {
       return response.data
     })
   },

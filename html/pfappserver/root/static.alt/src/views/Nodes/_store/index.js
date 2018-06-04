@@ -243,6 +243,19 @@ const actions = {
       })
     })
   },
+  deregisterBulkNodes: ({commit}, macs) => {
+    commit('NODE_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.deregisterBulkNodes(macs).then(response => {
+        // commit('NODE_REPLACED', mac)
+        console.log(['api.deregisterBulkNodes(macs).then', response])
+        resolve(response)
+      }).catch(err => {
+        commit('NODE_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
   clearViolationNode: ({commit}, mac) => {
     commit('NODE_REQUEST')
     return new Promise((resolve, reject) => {
