@@ -291,7 +291,10 @@ export default {
           key: 'category_id',
           label: this.$i18n.t('Role'),
           sortable: true,
-          visible: true
+          visible: true,
+          formatter: (value, key, item) => {
+            return this.$store.state.config.roles.filter(role => role.category_id === item.category_id).map(role => role.name)
+          }
         },
         {
           key: 'locationlog.switch',
@@ -333,7 +336,10 @@ export default {
           key: 'bypass_role_id',
           label: this.$i18n.t('Bypass Role'),
           sortable: true,
-          visible: false
+          visible: false,
+          formatter: (value, key, item) => {
+            return this.$store.state.config.roles.filter(role => role.category_id === item.bypass_role_id).map(role => role.name)
+          }
         },
         {
           key: 'notes',
