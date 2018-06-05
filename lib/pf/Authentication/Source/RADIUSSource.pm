@@ -31,6 +31,7 @@ has 'port' => (isa => 'Maybe[Int]', is => 'rw', default => 1812);
 has 'timeout' => (isa => 'Maybe[Int]', is => 'rw', default => 1);
 has 'secret' => (isa => 'Str', is => 'rw', required => 1);
 has 'monitor' => ( isa => 'Bool', is => 'rw', default => 1 );
+has 'options' => (isa => 'Str', is => 'rw',required => 1);
 
 =head2 dynamic_routing_module
 

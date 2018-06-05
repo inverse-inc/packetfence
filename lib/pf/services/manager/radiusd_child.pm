@@ -568,13 +568,80 @@ sub generate_radiusd_proxy {
     $tags{'template'} = "$conf_dir/radiusd/proxy.conf.inc";
     $tags{'install_dir'} = $install_dir;
     $tags{'config'} = '';
+    $tags{'radius_sources'} = '';
+    my @radius_auth_sources;
+    my @radius_acct_sources;
 
     foreach my $realm ( sort keys %pf::config::ConfigRealm ) {
         my $options = $pf::config::ConfigRealm{$realm}->{'options'} || '';
         $tags{'config'} .= <<"EOT";
 realm $realm {
 $options
+EOT
+        if ($pf::config::ConfigRealm{$realm}->{'radius_auth'} ) {
+            $tags{'config'} .= <<"EOT";
+auth_pool = auth_pool_$realm
 }
+home_server_pool auth_pool_$realm {
+type = $pf::config::ConfigRealm{$realm}->{'radius_auth_proxy_type'}
+EOT
+            push(@radius_auth_sources, split(',',$pf::config::ConfigRealm{$realm}->{'radius_auth'}));
+            foreach my $radius (split(',',$pf::config::ConfigRealm{$realm}->{'radius_auth'})) {
+
+                $tags{'config'} .= <<"EOT";
+home_server = auth_$radius
+EOT
+            }
+            $tags{'config'} .= <<"EOT";
+}
+EOT
+        } elsif ($pf::config::ConfigRealm{$realm}->{'radius_acct'}) {
+            $tags{'config'} .= <<"EOT";
+acct_pool = acct_pool_$realm
+}
+home_server_pool acct_pool_$realm {
+type = $pf::config::ConfigRealm{$realm}->{'radius_acct_proxy_type'}
+EOT
+            push(@radius_acct_sources,split(',',$pf::config::ConfigRealm{$realm}->{'radius_acct'}));
+            foreach my $radius (split(',',$pf::config::ConfigRealm{$realm}->{'radius_acct'})) {
+
+                $tags{'config'} .= <<"EOT";
+home_server = acct_$radius
+EOT
+            }
+            $tags{'config'} .= <<"EOT";
+}
+EOT
+        }
+         else {
+            $tags{'config'} .= <<"EOT";
+}
+EOT
+        }
+    }
+    foreach my $radius (uniq @radius_auth_sources) {
+                my $source = pf::authentication::getAuthenticationSource($radius);
+                $tags{'radius_sources'} .= <<"EOT";
+
+home_server auth_$radius {
+ipaddr = $source->{'host'}
+port = $source->{'port'}
+secret = $source->{'secret'}
+$source->{'options'}
+}
+EOT
+    }
+    foreach my $radius (uniq @radius_acct_sources) {
+                my $source = pf::authentication::getAuthenticationSource($radius);
+                $tags{'radius_sources'} .= <<"EOT";
+
+home_server acct_$radius {
+ipaddr = $source->{'host'}
+port = $source->{'port'}
+secret = $source->{'secret'}
+$source->{'options'}
+}
+
 EOT
     }
 

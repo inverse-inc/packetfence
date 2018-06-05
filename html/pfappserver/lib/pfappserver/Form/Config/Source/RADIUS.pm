@@ -60,7 +60,14 @@ has_field 'monitor',
              help => 'Do you want to monitor this source?' },
    default => pf::Authentication::Source::RADIUSSource->meta->get_attribute('monitor')->default,
 );
-
+has_field 'options',
+  (
+   type => 'TextArea',
+   label => 'Options',
+   tags => { after_element => \&help,
+             help => 'Define options for FreeRADIUS home_server definition (if you use the source in the realm configuration)' },
+   default => 'type = auth+acct',
+);
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2018 Inverse inc.

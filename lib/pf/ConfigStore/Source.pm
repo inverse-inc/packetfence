@@ -147,6 +147,12 @@ sub cleanupAfterRead {
     }
     $self->expand_list($item, qw(realms));
 
+    if ($item->{type} eq 'RADIUS') {
+        if(ref($item->{options}) eq 'ARRAY'){
+            $item->{options} = $self->join_options($item->{options});
+        }
+    }
+    $self->expand_list($item, qw(realms));
 }
 
 
@@ -181,6 +187,16 @@ before rewriteConfig => sub {
     $config->ReorderByGroup();
 };
 
+=head2 join_options
+
+Join options in array with a newline
+
+=cut
+
+sub join_options {
+    my ($self,$options) = @_;
+    return join("\n",@$options);
+}
 
 sub join_options {
     my ($self, $options) = @_;

@@ -21,6 +21,7 @@ use pf::ConfigStore::Domain;
 
 has domains => ( is => 'rw', builder => '_build_domains');
 tie our %ConfigAuthenticationLdap, 'pfconfig::cached_hash', 'resource::authentication_sources_ldap';
+tie %ConfigAuthenticationRadius, 'pfconfig::cached_hash', 'resource::authentication_sources_radius';
 
 ## Definition
 has_field 'id' =>
@@ -51,6 +52,62 @@ has_field 'domain' =>
    element_attr => {'data-placeholder' => 'Click to select a domain'},
    tags => { after_element => \&help,
              help => 'The domain to use for the authentication in that realm' },
+  );
+
+has_field 'radius_auth' =>
+  (
+   type => 'Select',
+   multiple => 1,
+   label => 'RADIUS AUTH',
+   options_method => \&options_radius,
+   element_class => ['chzn-select'],
+   element_attr => {'data-placeholder' => 'Click to select a RADIUS Server'},
+a   tags => { after_element => \&help,
+             help => 'The RADIUS Server to proxy the authentication for this realm' },
+  );
+
+has_field 'radius_auth_proxy_type' =>
+  (
+   type => 'Select',
+   label => 'type',
+   required => 1,
+   options =>
+   [
+    { value => 'keyed-balance', label => 'Keyed Balance' },
+    { value => 'fail-over', label => 'Fail Over' },
+    { value => 'load-balance', label => 'Load Balance' },
+    { value => 'client-balance', label => 'Client Balance' },
+    { value => 'client-port-balance', label => 'Client Port Balance' },
+   ],
+   default => 'keyed-balance',
+  );
+
+has_field 'radius_acct' =>
+  (
+   type => 'Select',
+   multiple => 1,
+   label => 'RADIUS ACCT',
+   options_method => \&options_radius,
+   element_class => ['chzn-select'],
+   element_attr => {'data-placeholder' => 'Click to select a RADIUS Server'},
+   tags => { after_element => \&help,
+             help => 'The RADIUS Server to proxy the accounting for this realm' },
+  );
+
+has_field 'radius_acct_proxy_type' =>
+  (
+   type => 'Select',
+   label => 'type',
+   required => 1,
+   options =>
+   [
+    { value => 'keyed-balance', label => 'Keyed Balance' },
+    { value => 'fail-over', label => 'Fail Over' },
+    { value => 'load-balance', label => 'Load Balance' },
+    { value => 'client-balance', label => 'Client Balance' },
+    { value => 'client-port-balance', label => 'Client Port Balance' },
+   ],
+   default => 'load-balance',
   );
 
 has_field 'radius_strip_username' =>
@@ -135,6 +192,17 @@ sub options_ldap {
     my @ldap = map { $_ => $_ } keys %ConfigAuthenticationLdap;
     unshift @ldap, ("" => "");
     return @ldap;
+}
+
+=head2 options_radius
+
+=cut
+
+sub options_radius {
+    my $self = shift;
+    my @radius = map { $_ => $_ } keys %ConfigAuthenticationRadius;
+    unshift @radius, ("" => "");
+    return @radius;
 }
 
 =over
