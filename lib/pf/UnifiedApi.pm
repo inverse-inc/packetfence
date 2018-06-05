@@ -85,38 +85,8 @@ our @API_V1_ROUTES = (
     { controller => 'Tenants' },
     { controller => 'ApiUsers' },
     { controller => 'Locationlogs' },
-    {
-        controller => 'NodeCategories',
-        collection => {
-            http_methods => {
-                'get'    => 'list',
-            },
-            subroutes => {
-                map { $_ => { post => $_ } } qw(search)
-            }
-        },
-        resource => {
-            http_methods => {
-                'get'    => 'get',
-            },
-        },
-    },
-    {
-        controller => 'Classes',
-        collection => {
-            http_methods => {
-                'get'    => 'list',
-            },
-            subroutes => {
-                map { $_ => { post => $_ } } qw(search)
-            }
-        },
-        resource => {
-            http_methods => {
-                'get'    => 'get',
-            },
-        },
-    },
+    ReadonlyEndpoint('NodeCategories'),
+    ReadonlyEndpoint('Classes'),
     { 
         controller => 'Violations',
         collection => {
@@ -319,6 +289,32 @@ sub set_tenant_id {
     } else {
         pf::dal->reset_tenant();
     }
+}
+
+=head2 ReadonlyEndpoint
+
+ReadonlyEndpoint
+
+=cut
+
+sub ReadonlyEndpoint {
+    my ($model) = @_;
+    return {
+        controller => $model,
+        collection => {
+            http_methods => {
+                'get'    => 'list',
+            },
+            subroutes => {
+                map { $_ => { post => $_ } } qw(search)
+            }
+        },
+        resource => {
+            http_methods => {
+                'get'    => 'get',
+            },
+        },
+    },
 }
 
 =head1 AUTHOR
