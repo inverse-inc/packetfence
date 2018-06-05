@@ -69,7 +69,7 @@ our @API_V1_ROUTES = (
         controller => 'Nodes',
         resource   => {
             subroutes => {
-                (map { $_ => { post => $_ } } qw(register deregister)),
+                (map { $_ => { post => $_ } } qw(register deregister restart_switchport)),
                 fingerbank_info => {
                     get => 'fingerbank_info',
                 }

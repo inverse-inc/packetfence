@@ -254,6 +254,17 @@ sub bulk_restart_switchport {
     return $self->render(status => 200, json => { items => $results });
 }
 
+sub restart_switchport {
+    my ($self) = @_;
+    my $mac = $self->param('node_id');
+    my ($status, $msg) = $self->_restart_switchport($mac);
+    if (is_error($status)) {
+        return $self->render_error($status, $msg);
+    }
+
+    return $self->render_empty();
+}
+
 sub _restart_switchport {
     my ($self, $mac) = @_;
     my $ll = locationlog_view_open_mac($mac);
