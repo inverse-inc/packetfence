@@ -16,6 +16,7 @@
 
   cors /api/v1 {
     allowed_headers Authorization,Content-Type
+    methods GET, OPTIONS, POST, DELETE, PUT, PATCH
   }
 
   api-aaa
