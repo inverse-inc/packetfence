@@ -35,19 +35,18 @@
             </b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-header>{{ $t('Apply Role') }}</b-dropdown-header>
-            <b-dropdown-item v-for="role in roles" :key="role.id" @click="applyRole(role)">
-              <span>{{role.id}}</span>
+            <b-dropdown-item v-for="role in roles" :key="role.category_id" @click="applyRole(role)">
+              <span v-b-tooltip.hover.left :title="role.notes">{{role.name}}</span>
             </b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-header>{{ $t('Apply Bypass Role') }}</b-dropdown-header>
-            <b-dropdown-item v-for="role in roles" :key="role.id" @click="applyBypassRole(role)">
-              <span>{{role.id}}</span>
+            <b-dropdown-item v-for="role in roles" :key="role.category_id" @click="applyBypassRole(role)">
+              <span v-b-tooltip.hover.left :title="role.notes">{{role.name}}</span>
             </b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-header>{{ $t('Apply Violation') }}</b-dropdown-header>
             <b-dropdown-item v-for="violation in violations" v-if="violation.enabled ==='Y'" :key="violation.id" @click="applyViolation(violation)">
-              <span :id="violation.id" :title="violation.id">{{violation.desc}}</span>
-              <b-tooltip :target="violation.id" placement="left">{{violation.id}}</b-tooltip>
+              <span v-b-tooltip.hover.left :title="violation.id">{{violation.desc}}</span>
             </b-dropdown-item>
           </b-dropdown>
           <b-dropdown size="sm" variant="link" boundary="viewport" :disabled="isLoading" no-caret>
