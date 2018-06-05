@@ -647,7 +647,28 @@ export default {
       }
     },
     applyRole (role) {
-      console.log(['applyRole', role, this.checkedRows])
+      const _this = this
+      const macs = this.checkedRows.map(item => item.mac)
+      if (macs.length > 0) {
+        macs.forEach(function (mac, index) {
+          _this.$store.dispatch('$_nodes/roleNode', {mac: mac, category_id: role.category_id}).then(response => {
+            switch (response.status) {
+              case 'success':
+                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'success'})
+                break
+              case 'skipped':
+                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'warning'})
+                break
+              case 'failed':
+              default:
+                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'danger'})
+                break
+            }
+          }).catch(() => {
+            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'danger'})
+          })
+        })
+      }
     },
     applyBypassRole (role) {
       console.log(['applyBypassRole', role, this.checkedRows])

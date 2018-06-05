@@ -310,6 +310,20 @@ const actions = {
         reject(err)
       })
     })
+  },
+  roleNode: ({commit}, data) => {
+    commit('NODE_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.updateNode(data).then(response => {
+        if (response.status === 'success') {
+          commit('ITEM_UPDATED', { mac: data.mac, prop: 'category_id', data: data.category_id })
+        }
+        resolve(response)
+      }).catch(err => {
+        commit('ITEM_ERROR', err.response)
+        reject(err)
+      })
+    })
   }
 }
 
