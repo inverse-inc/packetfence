@@ -59,7 +59,7 @@ const actions = {
     }
   },
   getViolations: ({commit, state}) => {
-    if (state.violations.length === 0) {
+    if (Object.keys(state.violations).length === 0) {
       return api.getViolations().then(response => {
         commit('VIOLATIONS_UPDATED', response.data.items)
         return state.violations
