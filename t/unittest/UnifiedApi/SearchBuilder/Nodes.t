@@ -72,7 +72,7 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
 }
 
 {
-    my @f = qw(mac locationlog.ssid locationlog.port radacct.acctsessionid);
+    my @f = qw(mac locationlog.ssid locationlog.port radacct.acctsessionid online);
 
     my %search_info = (
         dal => $dal, 
@@ -86,7 +86,16 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
 
     is_deeply(
         [ $sb->make_columns( \%search_info ) ],
-        [ 200, [ 'node.mac', \'`locationlog`.`ssid` AS `locationlog.ssid`', \'`locationlog`.`port` AS `locationlog.port`', \'`radacct`.`acctsessionid` AS `radacct.acctsessionid`'] ],
+        [
+            200,
+            [
+                'node.mac',
+                \'`locationlog`.`ssid` AS `locationlog.ssid`',
+                \'`locationlog`.`port` AS `locationlog.port`',
+                \'`radacct`.`acctsessionid` AS `radacct.acctsessionid`',
+                "IF(radacct.acctstarttime IS NULL,'unknown',IF(radacct.acctstoptime IS NULL, 'on', 'off'))|online"
+            ],
+        ],
         'Return the columns'
     );
     is_deeply(
@@ -123,7 +132,7 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
 }
 
 {
-    my @f = qw(mac online);
+    my @f = qw(mac online radacct.acctsessionid);
 
     my %search_info = (
         dal    => $dal,
@@ -136,7 +145,8 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
             200,
             [
                 'node.mac',
-                "IF(radacct.acctstarttime IS NULL,'unknown',IF(radacct.acctstoptime IS NULL, 'on', 'off'))|online"
+                "IF(radacct.acctstarttime IS NULL,'unknown',IF(radacct.acctstoptime IS NULL, 'on', 'off'))|online",
+                \'`radacct`.`acctsessionid` AS `radacct.acctsessionid`'
             ]
         ],
         'Return the columns with column spec'
