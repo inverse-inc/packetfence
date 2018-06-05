@@ -4649,6 +4649,8 @@ Next, install qpress (available from the percona repository) and process any qp 
 CentOS:
 
   # yum install qpress --enablerepo=percona-release-`uname -m`
+  # for i in $(find -name "*.qp"); do qpress -vd $i $(dirname ${i}) && rm -f $i; done
+
 
 Debian:
 
@@ -4657,7 +4659,6 @@ Debian:
   # echo 'deb-src http://repo.percona.com/apt VERSION main' >> /etc/apt/sources.list
   # apt-get update
   # apt-get install qpress
-
   # for i in $(find -name "*.qp"); do qpress -vd $i $(dirname ${i}) && rm -f $i; done
 
 Next, apply the innodb log:
