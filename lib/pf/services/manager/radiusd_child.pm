@@ -581,7 +581,18 @@ EOT
         if ($pf::config::ConfigRealm{$realm}->{'radius_auth'} ) {
             $tags{'config'} .= <<"EOT";
 auth_pool = auth_pool_$realm
+EOT
+        }
+        if ($pf::config::ConfigRealm{$realm}->{'radius_acct'}) {
+            $tags{'config'} .= <<"EOT";
+acct_pool = acct_pool_$realm
+EOT
+        }
+        $tags{'config'} .= <<"EOT";
 }
+EOT
+        if ($pf::config::ConfigRealm{$realm}->{'radius_auth'} ) {
+            $tags{'config'} .= <<"EOT";
 home_server_pool auth_pool_$realm {
 type = $pf::config::ConfigRealm{$realm}->{'radius_auth_proxy_type'}
 EOT
@@ -595,10 +606,9 @@ EOT
             $tags{'config'} .= <<"EOT";
 }
 EOT
-        } elsif ($pf::config::ConfigRealm{$realm}->{'radius_acct'}) {
+        }
+        if ($pf::config::ConfigRealm{$realm}->{'radius_acct'}) {
             $tags{'config'} .= <<"EOT";
-acct_pool = acct_pool_$realm
-}
 home_server_pool acct_pool_$realm {
 type = $pf::config::ConfigRealm{$realm}->{'radius_acct_proxy_type'}
 EOT
@@ -613,7 +623,7 @@ EOT
 }
 EOT
         }
-         else {
+         if(!$pf::config::ConfigRealm{$realm}->{'radius_auth'} && !$pf::config::ConfigRealm{$realm}->{'radius_acct'}) {
             $tags{'config'} .= <<"EOT";
 }
 EOT
@@ -644,7 +654,6 @@ $source->{'options'}
 
 EOT
     }
-
     # Eduroam configuration
     if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
         my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
