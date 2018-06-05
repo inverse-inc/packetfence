@@ -290,6 +290,26 @@ const actions = {
         reject(err)
       })
     })
+  },
+  reevaluateAccessBulkNodes: ({commit}, macs) => {
+    return new Promise((resolve, reject) => {
+      api.reevaluateAccessBulkNodes(macs).then(response => {
+        resolve(response)
+      }).catch(err => {
+        commit('NODE_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  restartSwitchportBulkNodes: ({commit}, macs) => {
+    return new Promise((resolve, reject) => {
+      api.restartSwitchportBulkNodes(macs).then(response => {
+        resolve(response)
+      }).catch(err => {
+        commit('NODE_ERROR', err.response)
+        reject(err)
+      })
+    })
   }
 }
 

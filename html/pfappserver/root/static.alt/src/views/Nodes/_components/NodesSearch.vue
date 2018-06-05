@@ -25,11 +25,11 @@
               <icon class="position-absolute mt-1" name="minus-circle"></icon>
               <span class="ml-4">{{ $t('Deregister') }}</span>
             </b-dropdown-item>
-            <b-dropdown-item @click="applyReevaluateAccess()">
+            <b-dropdown-item @click="applyBulkReevaluateAccess()">
               <icon class="position-absolute mt-1" name="sync"></icon>
               <span class="ml-4">{{ $t('Revaluate Access') }}</span>
             </b-dropdown-item>
-            <b-dropdown-item @click="applyRestartSwitchport()">
+            <b-dropdown-item @click="applyBulkRestartSwitchport()">
               <icon class="position-absolute mt-1" name="retweet"></icon>
               <span class="ml-4">{{ $t('Restart Switchport') }}</span>
             </b-dropdown-item>
@@ -594,11 +594,57 @@ export default {
         })
       }
     },
-    applyReevaluateAccess () {
-      console.log(['applyReevaluateAccess', this.checkedRows])
+    applyBulkReevaluateAccess () {
+      const _this = this
+      const macs = this.checkedRows.map(item => item.mac)
+      if (macs.length > 0) {
+        _this.$store.dispatch('$_nodes/reevaluateAccessBulkNodes', macs).then(response => {
+          response.items.forEach(function (item, index, items) {
+            switch (item.status) {
+              case 'success':
+                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: 'success'})
+                break
+              case 'skipped':
+                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: 'warning'})
+                break
+              case 'failed':
+              default:
+                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: 'danger'})
+                break
+            }
+          })
+        }).catch(() => {
+          macs.forEach(function (mac, index) {
+            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'danger'})
+          })
+        })
+      }
     },
-    applyRestartSwitchport () {
-      console.log(['applyRestartSwitchport', this.checkedRows])
+    applyBulkRestartSwitchport () {
+      const _this = this
+      const macs = this.checkedRows.map(item => item.mac)
+      if (macs.length > 0) {
+        _this.$store.dispatch('$_nodes/restartSwitchportBulkNodes', macs).then(response => {
+          response.items.forEach(function (item, index, items) {
+            switch (item.status) {
+              case 'success':
+                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: 'success'})
+                break
+              case 'skipped':
+                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: 'warning'})
+                break
+              case 'failed':
+              default:
+                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: 'danger'})
+                break
+            }
+          })
+        }).catch(() => {
+          macs.forEach(function (mac, index) {
+            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'danger'})
+          })
+        })
+      }
     },
     applyRole (role) {
       console.log(['applyRole', role, this.checkedRows])
