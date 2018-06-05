@@ -324,6 +324,20 @@ const actions = {
         reject(err)
       })
     })
+  },
+  bypassRoleNode: ({commit}, data) => {
+    commit('NODE_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.updateNode(data).then(response => {
+        if (response.status === 'success') {
+          commit('ITEM_UPDATED', { mac: data.mac, prop: 'bypass_role_id', data: data.bypass_role_id })
+        }
+        resolve(response)
+      }).catch(err => {
+        commit('ITEM_ERROR', err.response)
+        reject(err)
+      })
+    })
   }
 }
 
