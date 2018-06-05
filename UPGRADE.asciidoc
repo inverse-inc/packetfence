@@ -1570,6 +1570,7 @@ Device Registration
 ^^^^^^^^^^^^^^^^^^^
 
 You will need to remove anything related to [device_registration] in the conf/pf.conf file.
+Once done, you will need to reconfigure any device registration policy using the following instructions: https://packetfence.org/doc/PacketFence_Installation_Guide.html#_devices_registration
 
 Changes to `authentication.conf` and `domain.conf` regarding realms and source matching
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
