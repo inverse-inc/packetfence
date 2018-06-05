@@ -30,7 +30,7 @@ BEGIN {
 
 #insert known data
 #run tests
-use Test::More tests => 32;
+use Test::More tests => 36;
 use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
@@ -76,6 +76,11 @@ $t->post_ok('/api/v1/nodes/bulk_deregister' => json => { items => [$mac] })
   ->json_is('/items/0/status', 'success');
 
 $t->post_ok('/api/v1/nodes/bulk_deregister' => json => { items => [$mac] })
+  ->status_is(200)
+  ->json_is('/items/0/mac', $mac)
+  ->json_is('/items/0/status', 'skipped');
+
+$t->post_ok('/api/v1/nodes/bulk_restart_switchport' => json => { items => [$mac] })
   ->status_is(200)
   ->json_is('/items/0/mac', $mac)
   ->json_is('/items/0/status', 'skipped');

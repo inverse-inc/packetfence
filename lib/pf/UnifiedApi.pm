@@ -78,7 +78,10 @@ our @API_V1_ROUTES = (
         collection => {
             subroutes => {
                 map { $_ => { post => $_ } }
-                  qw(bulk_register bulk_deregister search bulk_close_violations bulk_reevaluate_access)
+                  qw(
+                    search bulk_register bulk_deregister
+                    bulk_close_violations bulk_reevaluate_access bulk_restart_switchport
+                  )
             }
         }
     },

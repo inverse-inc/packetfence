@@ -22,6 +22,8 @@ use pf::error qw(is_error);
 use pf::locationlog qw(locationlog_history_mac locationlog_view_open_mac);
 use pf::UnifiedApi::SearchBuilder::Nodes;
 use pf::violation;
+use pf::Connection;
+use pf::SwitchFactory;
 
 has 'search_builder_class' => 'pf::UnifiedApi::SearchBuilder::Nodes';
 
@@ -110,7 +112,7 @@ sub bulk_register {
             pf::enforcement::reevaluate_access($mac, "admin_modify");
         } else {
             $results->[$index]{status} = "failed";
-            $results->[$index]{message} = $msg;
+            $results->[$index]{message} = $msg // '';
         }
     }
 
@@ -144,6 +146,7 @@ sub bulk_deregister {
     if (is_error($status)) {
         return $self->render_error(status => $status, "Error finding nodes");
     }
+
     my ($index, $results) = bulk_init_results($items);
     my $nodes = $iter->all;
     for my $node (@$nodes) {
@@ -224,6 +227,56 @@ sub bulk_reevaluate_access {
     }
 
     return $self->render(status => 200, json => { items => $results });
+}
+
+sub bulk_restart_switchport {
+    my ($self) = @_;
+    my ($status, $data) = $self->parse_json;
+    if (is_error($status)) {
+        return $self->render(json => $data, status => $status);
+    }
+
+    my $items = $data->{items} // [];
+    my ($indexes, $results) = bulk_init_results($items);
+    for my $mac (@$items) {
+        my ($status, $msg) = $self->_restart_switchport($mac);
+        if (is_error($status)) {
+            if ($STATUS::INTERNAL_SERVER_ERROR == $status) {
+                $results->[$indexes->{$mac}]{status} = "failed";
+            }
+
+            $results->[$indexes->{$mac}]{message} = $msg;
+        } else {
+            $results->[$indexes->{$mac}]{status} = "success";
+        }
+    }
+
+    return $self->render(status => 200, json => { items => $results });
+}
+
+sub _restart_switchport {
+    my ($self, $mac) = @_;
+    my $ll = locationlog_view_open_mac($mac);
+    unless (my $ll) {
+        return ($STATUS::NOT_FOUND, "Unable to find node location.");
+    }
+
+    my $connection = pf::Connection->new;
+    $connection->backwardCompatibleToAttributes($ll->{connection_type});
+    unless ($connection->transport eq "Wired") {
+        return ($STATUS::UNPROCESSABLE_ENTITY, "Trying to restart the port of a non-wired connection");
+    }
+
+    my $switch = pf::SwitchFactory->instantiate($ll->{switch});
+    unless ($switch) {
+        return ($STATUS::NOT_FOUND, "Unable to instantiate switch $ll->{switch}");
+    }
+
+    unless ($switch->bouncePort($ll->{port})) {
+        return ($STATUS::INTERNAL_SERVER_ERROR, "Couldn't restart port.");
+    }
+
+    return ($STATUS::OK, "");
 }
 
 =head1 AUTHOR
