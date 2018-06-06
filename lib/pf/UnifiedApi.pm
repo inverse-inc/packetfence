@@ -69,7 +69,7 @@ our @API_V1_ROUTES = (
         controller => 'Nodes',
         resource   => {
             subroutes => {
-                (map { $_ => { post => $_ } } qw(register deregister restart_switchport)),
+                (map { $_ => { post => $_ } } qw(register deregister restart_switchport reevaluate_access)),
                 fingerbank_info => {
                     get => 'fingerbank_info',
                 }
@@ -79,8 +79,9 @@ our @API_V1_ROUTES = (
             subroutes => {
                 map { $_ => { post => $_ } }
                   qw(
-                    search bulk_register bulk_deregister
-                    bulk_close_violations bulk_reevaluate_access bulk_restart_switchport
+                    search bulk_register bulk_deregister bulk_close_violations
+                    bulk_reevaluate_access bulk_restart_switchport bulk_apply_violation
+                    bulk_apply_role bulk_apply_bypass_role
                   )
             }
         }

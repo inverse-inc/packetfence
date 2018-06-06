@@ -17,6 +17,7 @@ use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
 use pf::dal::node;
 use pf::node;
+use pf::constants qw($TRUE);
 use pf::dal::violation;
 use pf::error qw(is_error);
 use pf::locationlog qw(locationlog_history_mac locationlog_view_open_mac);
@@ -31,17 +32,11 @@ has dal => 'pf::dal::node';
 has url_param_name => 'node_id';
 has primary_key => 'mac';
 
-sub latest_locationlog_by_mac {
-    my ($self) = @_;
-    my $mac = $self->param('mac');
-    $self->render(json => locationlog_view_open_mac($mac));
-}
+=head2 register
 
-sub locationlog_by_mac {
-    my ($self) = @_;
-    my $mac = $self->param('mac');
-    $self->render(json => { items => [locationlog_history_mac($mac)]});
-}
+register
+
+=cut
 
 sub register {
     my ($self) = @_;
@@ -65,6 +60,12 @@ sub register {
     return $self->render_empty;
 }
 
+=head2 deregister
+
+deregister
+
+=cut
+
 sub deregister {
     my ($self) = @_;
     my $mac = $self->stash->{node_id};
@@ -80,6 +81,12 @@ sub deregister {
 
     return $self->render_empty;
 }
+
+=head2 bulk_register
+
+bulk_register
+
+=cut
 
 sub bulk_register {
     my ($self) = @_;
@@ -119,6 +126,12 @@ sub bulk_register {
     return $self->render(status => 200, json => { items => $results });
 }
 
+=head2 bulk_init_results
+
+bulk_init_results
+
+=cut
+
 sub bulk_init_results {
     my ($items) = @_;
     my $i = 0;
@@ -126,6 +139,12 @@ sub bulk_init_results {
     my @results = map { { mac => $_, status => 'skipped'} } @$items;
     return (\%index, \@results);
 }
+
+=head2 bulk_deregister
+
+bulk_deregister
+
+=cut
 
 sub bulk_deregister {
     my ($self) = @_;
@@ -173,6 +192,12 @@ sub fingerbank_info {
     return $self->render(status => 200, json => { item => pf::node::fingerbank_info($mac) });
 }
 
+=head2 bulk_close_violations
+
+bulk_close_violations
+
+=cut
+
 sub bulk_close_violations {
     my ($self) = @_;
     my ($status, $data) = $self->parse_json;
@@ -212,6 +237,12 @@ sub bulk_close_violations {
     return $self->render(status => 200, json => { items => $results });
 }
 
+=head2 bulk_reevaluate_access
+
+bulk_reevaluate_access
+
+=cut
+
 sub bulk_reevaluate_access {
     my ($self) = @_;
     my ($status, $data) = $self->parse_json;
@@ -229,6 +260,12 @@ sub bulk_reevaluate_access {
     return $self->render(status => 200, json => { items => $results });
 }
 
+=head2 bulk_restart_switchport
+
+bulk_restart_switchport
+
+=cut
+
 sub bulk_restart_switchport {
     my ($self) = @_;
     my ($status, $data) = $self->parse_json;
@@ -239,7 +276,7 @@ sub bulk_restart_switchport {
     my $items = $data->{items} // [];
     my ($indexes, $results) = bulk_init_results($items);
     for my $mac (@$items) {
-        my ($status, $msg) = $self->_restart_switchport($mac);
+        my ($status, $msg) = $self->do_restart_switchport($mac);
         if (is_error($status)) {
             if ($STATUS::INTERNAL_SERVER_ERROR == $status) {
                 $results->[$indexes->{$mac}]{status} = "failed";
@@ -254,10 +291,113 @@ sub bulk_restart_switchport {
     return $self->render(status => 200, json => { items => $results });
 }
 
+=head2 bulk_apply_violation
+
+bulk_apply_violation
+
+=cut
+
+sub bulk_apply_violation {
+    my ($self) = @_;
+    my ($status, $data) = $self->parse_json;
+    if (is_error($status)) {
+        return $self->render(json => $data, status => $status);
+    }
+
+    my $items = $data->{items} // [];
+    my $vid = $data->{vid};
+    my ($indexes, $results) = bulk_init_results($items);
+    for my $mac (@$items) {
+        my ($last_id) = violation_add($mac, $vid, ( 'force' => $TRUE ));
+        $results->[$indexes->{$mac}]{status} = $last_id > 0 ? "success" : "failed";
+    }
+
+    return $self->render( status => 200, json => { items => $results } );
+}
+
+=head2 bulk_apply_role
+
+bulk_apply_role
+
+=cut
+
+sub bulk_apply_role {
+    my ($self) = @_;
+    my ($status, $data) = $self->parse_json;
+    if (is_error($status)) {
+        return $self->render(json => $data, status => $status);
+    }
+
+    my $items = $data->{items} // [];
+    my $role_id = $data->{role_id};
+    return $self->do_bulk_update_field($items, 'category_id', $role_id);
+}
+
+=head2 bulk_apply_bypass_role
+
+bulk_apply_bypass_role
+
+=cut
+
+sub bulk_apply_bypass_role {
+    my ($self) = @_;
+    my ($status, $data) = $self->parse_json;
+    if (is_error($status)) {
+        return $self->render(json => $data, status => $status);
+    }
+
+    my $items = $data->{items} // [];
+    my $role_id = $data->{role_id};
+    return $self->do_bulk_update_field($items, 'bypass_role_id', $role_id);
+}
+
+=head2 do_bulk_update_field
+
+do_bulk_update_field
+
+=cut
+
+sub do_bulk_update_field {
+    my ($self, $items, $field, $value) = @_;
+    my ($status, $iter) = $self->dal->search(
+        -columns => [qw(mac)],
+        -where => {
+            mac => { -in => $items },
+            $field => [ {"!=" => $value}, defined $value ? ({"=" => undef} ) : () ],
+        },
+        -from => $self->dal->table,
+        -with_class => undef,
+    );
+    if (is_error($status)) {
+        return $self->render_error(status => $status, "Error finding nodes");
+    }
+
+    my ($indexes, $results) = bulk_init_results($items);
+    my $nodes = $iter->all;
+    for my $node (@$nodes) {
+        my $mac = $node->{mac};
+        my $result = node_modify($mac, $field => $value);
+        if ($result) {
+            $results->[$indexes->{$mac}]{status} = "success";
+            pf::enforcement::reevaluate_access($mac, "admin_modify");
+        } else {
+            $results->[$indexes->{$mac}]{status} = "failed";
+        }
+    }
+
+    return $self->render( status => 200, json => { items => $results } );
+}
+
+=head2 restart_switchport
+
+restart_switchport
+
+=cut
+
 sub restart_switchport {
     my ($self) = @_;
     my $mac = $self->param('node_id');
-    my ($status, $msg) = $self->_restart_switchport($mac);
+    my ($status, $msg) = $self->do_restart_switchport($mac);
     if (is_error($status)) {
         return $self->render_error($status, $msg);
     }
@@ -265,7 +405,13 @@ sub restart_switchport {
     return $self->render_empty();
 }
 
-sub _restart_switchport {
+=head2 do_restart_switchport
+
+do_restart_switchport
+
+=cut
+
+sub do_restart_switchport {
     my ($self, $mac) = @_;
     my $ll = locationlog_view_open_mac($mac);
     unless (my $ll) {
@@ -288,6 +434,23 @@ sub _restart_switchport {
     }
 
     return ($STATUS::OK, "");
+}
+
+=head2 reevaluate_access
+
+reevaluate_access
+
+=cut
+
+sub reevaluate_access {
+    my ($self) = @_;
+    my $mac = $self->param('node_id');
+    my $result = pf::enforcement::reevaluate_access($mac, "admin_modify");
+    unless ($result) {
+        return $self->render_error($STATUS::UNPROCESSABLE_ENTITY, "unable reevaluate access for $mac");
+    }
+
+    return $self->render_empty();
 }
 
 =head1 AUTHOR
@@ -318,4 +481,3 @@ USA.
 =cut
 
 1;
-
