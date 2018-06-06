@@ -90,6 +90,7 @@
         </template>
         <template slot="actions" slot-scope="data">
           <input type="checkbox" :id="data.value" :value="data.item" v-model="checkedRows" @click.stop="toggleCheckbox($event, data.index)">
+          <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[data.index]._message" v-b-tooltip.hover.right :title="tableValues[data.index]._message"></icon>
         </template>
         <template slot="status" slot-scope="data">
           <b-badge pill variant="success" v-if="data.value === 'reg'">{{ $t('registered') }}</b-badge>
@@ -503,6 +504,7 @@ export default {
       const _this = this
       this.checkedRows.forEach(function (item, index, items) {
         _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: ''})
+        _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: item.mac, message: ''})
       })
       this.checkedRows = []
       this.lastIndex = null
@@ -531,6 +533,7 @@ export default {
         _this.$store.dispatch('$_nodes/clearViolationBulkNodes', macs).then(response => {
           response.items.forEach(function (item, index, items) {
             _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, status: item.status})
+            _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: item.mac, message: item.message})
           })
         }).catch(() => {
           macs.forEach(function (mac, index) {
@@ -546,6 +549,7 @@ export default {
         _this.$store.dispatch('$_nodes/registerBulkNodes', macs).then(response => {
           response.items.forEach(function (item, index, items) {
             _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, status: item.status})
+            _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: item.mac, message: item.message})
           })
         }).catch(() => {
           macs.forEach(function (mac, index) {
@@ -561,6 +565,7 @@ export default {
         _this.$store.dispatch('$_nodes/deregisterBulkNodes', macs).then(response => {
           response.items.forEach(function (item, index, items) {
             _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, status: item.status})
+            _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: item.mac, message: item.message})
           })
         }).catch(() => {
           macs.forEach(function (mac, index) {
@@ -576,6 +581,7 @@ export default {
         _this.$store.dispatch('$_nodes/reevaluateAccessBulkNodes', macs).then(response => {
           response.items.forEach(function (item, index, items) {
             _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, status: item.status})
+            _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: item.mac, message: item.message})
           })
         }).catch(() => {
           macs.forEach(function (mac, index) {
@@ -591,6 +597,7 @@ export default {
         _this.$store.dispatch('$_nodes/restartSwitchportBulkNodes', macs).then(response => {
           response.items.forEach(function (item, index, items) {
             _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, status: item.status})
+            _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: item.mac, message: item.message})
           })
         }).catch(() => {
           macs.forEach(function (mac, index) {
@@ -606,6 +613,7 @@ export default {
         macs.forEach(function (mac, index) {
           _this.$store.dispatch('$_nodes/roleNode', {mac: mac, category_id: role.category_id}).then(response => {
             _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, status: response.status})
+            _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: mac, message: response.message})
           }).catch(() => {
             _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'danger'})
           })
@@ -619,6 +627,7 @@ export default {
         macs.forEach(function (mac, index) {
           _this.$store.dispatch('$_nodes/bypassRoleNode', {mac: mac, bypass_role_id: role.category_id}).then(response => {
             _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, status: response.status})
+            _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: mac, message: response.message})
           }).catch(() => {
             _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'danger'})
           })
@@ -647,7 +656,12 @@ export default {
       let _this = this
       let checkedRows = this.checkedRows
       this.items.forEach(function (item, index, items) {
-        _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: checkedRows.includes(item) ? 'info' : ''})
+        if (checkedRows.includes(item)) {
+          _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: 'info'})
+        } else {
+          _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: ''})
+          _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: item.mac, message: ''})
+        }
       })
     },
     condition (a, b) {

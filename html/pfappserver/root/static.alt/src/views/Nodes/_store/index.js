@@ -420,6 +420,10 @@ const mutations = {
     }
     Vue.set(state.items[index], '_rowVariant', variant)
   },
+  ITEM_MESSAGE: (state, params) => {
+    let index = state.items.findIndex(item => item.mac === params.mac)
+    Vue.set(state.items[index], '_message', params.message)
+  },
   ITEM_UPDATED: (state, params) => {
     let index = state.items.findIndex(item => item.mac === params.mac)
     Vue.set(state.items[index], params.prop, params.data)

@@ -18,6 +18,7 @@ import 'vue-awesome/icons/retweet'
 import 'vue-awesome/icons/user-plus'
 import 'vue-awesome/icons/trash-alt'
 import 'vue-awesome/icons/ellipsis-v'
+import 'vue-awesome/icons/exclamation-triangle'
 
 import store from './store'
 import router from './router'
