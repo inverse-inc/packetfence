@@ -315,6 +315,25 @@ sub bulk_apply_violation {
     return $self->render( status => 200, json => { items => $results } );
 }
 
+=head2 apply_violation
+
+apply_violation
+
+=cut
+
+sub apply_violation {
+    my ($self) = @_;
+    my ($status, $data) = $self->parse_json;
+    if (is_error($status)) {
+        return $self->render(json => $data, status => $status);
+    }
+    my $mac = $self->param('node_id');
+    my $vid = $data->{vid};
+    my ($last_id) = violation_add($mac, $vid, ( 'force' => $TRUE ));
+
+    return $self->render(status => 200, json => { violation_id => $last_id });
+}
+
 =head2 bulk_apply_role
 
 bulk_apply_role
