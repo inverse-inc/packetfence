@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 14;
+use Test::More tests => 17;
 
 #This test will running last
 use Test::NoWarnings;
@@ -45,7 +45,7 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
     my @f = qw(mac ip4log.ip locationlog.ssid locationlog.port); 
 
     my %search_info = (
-        dal => $dal, 
+        dal => $dal,
         fields => \@f,
     );
 
@@ -75,7 +75,7 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
     my @f = qw(mac locationlog.ssid locationlog.port radacct.acctsessionid online);
 
     my %search_info = (
-        dal => $dal, 
+        dal => $dal,
         fields => \@f,
         query => {
             op => 'equals',
@@ -220,6 +220,60 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
     my ($status, $results) = $sb->search(\%search_info);
     is($status, 200, "Query remap for online");
 }
+
+{
+    my @f = qw(status online mac pid ip4log.ip bypass_role_id);
+
+    my %search_info = (
+        dal => $dal, 
+        fields => \@f,
+    );
+
+    is_deeply(
+        [ $sb->make_columns( \%search_info ) ],
+        [
+            200,
+            [
+                'node.status',
+                "IF(radacct.acctstarttime IS NULL,'unknown',IF(radacct.acctstoptime IS NULL, 'on', 'off'))|online",
+                'node.mac',
+                'node.pid',
+                \'`ip4log`.`ip` AS `ip4log.ip`',
+                'node.bypass_role_id',
+            ],
+        ],
+        'Return the columns'
+    );
+    is_deeply(
+        [ 
+            $sb->make_where(\%search_info)
+        ],
+        [
+            200,
+            {
+                'r2.radacctid' => undef,
+            },
+        ],
+        'Return the joined tables'
+    );
+
+    $sb->make_where(\%search_info);
+
+    my @a = $sb->make_from(\%search_info);
+    is_deeply(
+        \@a,
+        [
+            200,
+            [
+                -join => 'node',
+                @pf::UnifiedApi::SearchBuilder::Nodes::RADACCT_JOIN,
+                @pf::UnifiedApi::SearchBuilder::Nodes::IP4LOG_JOIN,
+            ]
+        ],
+        'Return the joined tables'
+    );
+}
+
 
 =head1 AUTHOR
 
