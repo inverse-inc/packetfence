@@ -63,7 +63,7 @@ has_field 'radius_auth' =>
    element_class => ['chzn-select'],
    element_attr => {'data-placeholder' => 'Click to select a RADIUS Server'},
 a   tags => { after_element => \&help,
-             help => 'The RADIUS Server to proxy the authentication for this realm' },
+             help => 'The RADIUS Server(s) to proxy authentication' },
   );
 
 has_field 'radius_auth_proxy_type' =>
@@ -80,6 +80,8 @@ has_field 'radius_auth_proxy_type' =>
     { value => 'client-port-balance', label => 'Client Port Balance' },
    ],
    default => 'keyed-balance',
+   tags => { after_element => \&help,
+             help => 'Home server pool type' },
   );
 
 has_field 'radius_acct' =>
@@ -91,7 +93,7 @@ has_field 'radius_acct' =>
    element_class => ['chzn-select'],
    element_attr => {'data-placeholder' => 'Click to select a RADIUS Server'},
    tags => { after_element => \&help,
-             help => 'The RADIUS Server to proxy the accounting for this realm' },
+             help => 'The RADIUS Server(s) to proxy accounting' },
   );
 
 has_field 'radius_acct_proxy_type' =>
@@ -108,6 +110,8 @@ has_field 'radius_acct_proxy_type' =>
     { value => 'client-port-balance', label => 'Client Port Balance' },
    ],
    default => 'load-balance',
+   tags => { after_element => \&help,
+             help => 'Home server pool type' },
   );
 
 has_field 'radius_strip_username' =>
