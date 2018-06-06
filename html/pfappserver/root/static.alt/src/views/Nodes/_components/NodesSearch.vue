@@ -530,18 +530,7 @@ export default {
       if (macs.length > 0) {
         _this.$store.dispatch('$_nodes/clearViolationBulkNodes', macs).then(response => {
           response.items.forEach(function (item, index, items) {
-            switch (item.status) {
-              case 'success':
-                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: 'success'})
-                break
-              case 'skipped':
-                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: 'warning'})
-                break
-              case 'failed':
-              default:
-                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: 'danger'})
-                break
-            }
+            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, status: item.status})
           })
         }).catch(() => {
           macs.forEach(function (mac, index) {
@@ -556,18 +545,7 @@ export default {
       if (macs.length > 0) {
         _this.$store.dispatch('$_nodes/registerBulkNodes', macs).then(response => {
           response.items.forEach(function (item, index, items) {
-            switch (item.status) {
-              case 'success':
-                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: 'success'})
-                break
-              case 'skipped':
-                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: 'warning'})
-                break
-              case 'failed':
-              default:
-                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: 'danger'})
-                break
-            }
+            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, status: item.status})
           })
         }).catch(() => {
           macs.forEach(function (mac, index) {
@@ -582,18 +560,7 @@ export default {
       if (macs.length > 0) {
         _this.$store.dispatch('$_nodes/deregisterBulkNodes', macs).then(response => {
           response.items.forEach(function (item, index, items) {
-            switch (item.status) {
-              case 'success':
-                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: 'success'})
-                break
-              case 'skipped':
-                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: 'warning'})
-                break
-              case 'failed':
-              default:
-                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: 'danger'})
-                break
-            }
+            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, status: item.status})
           })
         }).catch(() => {
           macs.forEach(function (mac, index) {
@@ -608,18 +575,7 @@ export default {
       if (macs.length > 0) {
         _this.$store.dispatch('$_nodes/reevaluateAccessBulkNodes', macs).then(response => {
           response.items.forEach(function (item, index, items) {
-            switch (item.status) {
-              case 'success':
-                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: 'success'})
-                break
-              case 'skipped':
-                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: 'warning'})
-                break
-              case 'failed':
-              default:
-                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: 'danger'})
-                break
-            }
+            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, status: item.status})
           })
         }).catch(() => {
           macs.forEach(function (mac, index) {
@@ -634,18 +590,7 @@ export default {
       if (macs.length > 0) {
         _this.$store.dispatch('$_nodes/restartSwitchportBulkNodes', macs).then(response => {
           response.items.forEach(function (item, index, items) {
-            switch (item.status) {
-              case 'success':
-                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: 'success'})
-                break
-              case 'skipped':
-                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: 'warning'})
-                break
-              case 'failed':
-              default:
-                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: 'danger'})
-                break
-            }
+            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, status: item.status})
           })
         }).catch(() => {
           macs.forEach(function (mac, index) {
@@ -660,18 +605,7 @@ export default {
       if (macs.length > 0) {
         macs.forEach(function (mac, index) {
           _this.$store.dispatch('$_nodes/roleNode', {mac: mac, category_id: role.category_id}).then(response => {
-            switch (response.status) {
-              case 'success':
-                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'success'})
-                break
-              case 'skipped':
-                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'warning'})
-                break
-              case 'failed':
-              default:
-                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'danger'})
-                break
-            }
+            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, status: response.status})
           }).catch(() => {
             _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'danger'})
           })
@@ -684,18 +618,7 @@ export default {
       if (macs.length > 0) {
         macs.forEach(function (mac, index) {
           _this.$store.dispatch('$_nodes/bypassRoleNode', {mac: mac, bypass_role_id: role.category_id}).then(response => {
-            switch (response.status) {
-              case 'success':
-                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'success'})
-                break
-              case 'skipped':
-                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'warning'})
-                break
-              case 'failed':
-              default:
-                _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'danger'})
-                break
-            }
+            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, status: response.status})
           }).catch(() => {
             _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'danger'})
           })

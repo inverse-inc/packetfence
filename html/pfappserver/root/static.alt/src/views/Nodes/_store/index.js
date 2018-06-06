@@ -406,7 +406,19 @@ const mutations = {
   },
   ITEM_VARIANT: (state, params) => {
     let index = state.items.findIndex(item => item.mac === params.mac)
-    Vue.set(state.items[index], '_rowVariant', params.variant)
+    let variant = params.variant || ''
+    switch (params.status) {
+      case 'success':
+        variant = 'success'
+        break
+      case 'skipped':
+        variant = 'warning'
+        break
+      case 'failed':
+        variant = 'danger'
+        break
+    }
+    Vue.set(state.items[index], '_rowVariant', variant)
   },
   ITEM_UPDATED: (state, params) => {
     let index = state.items.findIndex(item => item.mac === params.mac)
