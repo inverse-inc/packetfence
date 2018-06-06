@@ -2628,6 +2628,41 @@ Grace Period
 When using such violation feature, setting the grace period is really important.  You don't want to put it too low (ie. A user re-enable his network, and get caught after 1 bytes is transmitted!) or too high.  We recommend that you set the grace period to one interval window.
 
 
+RADIUS Proxy
+~~~~~~~~~~~~
+
+RADIUS Proxy is a way to proxy authentication and accounting requests to another radius server based on the realm.
+Let's say you want to authenticate users on an Active Directory where the is a NPS server running and you don't want to join the PacketFence's server to this domain or in the case you want to integrate
+PacketFence in a Passpoint setup then this section is for you.
+
+To do that in PacketFence you need first to define the target RADIUS server(s) in Configuration -> Policies and Access Control -> Authentication Sources, and create the RADIUS source(s) (ACME1 ACME2).
+In the Source configuration, fill the mandatory fields and add the options to define the home_server in FreeRADIUS. (https://github.com/FreeRADIUS/freeradius-server/blob/v3.0.x/raddb/proxy.conf)
+Per example:
+
+ type = auth+acct
+ response_window = 6
+ status_check = status-server
+ revive_interval = 120
+ check_interval = 30
+ num_answers_to_alive = 3
+
+Next go in Configuration ->  Policies and Access Control -> REALMS, and add a new realm.
+
+ Realm: acme.com
+ Realm Options: nostrip
+ Domain:
+ RADIUS AUTH: ACME1,ACME2
+ type: Keyed Balance
+ RADIUS ACCT: ACME1,ACME2
+ type: Load Balance
+
+(type definition can be found here https://wiki.freeradius.org/features/Proxy)
+
+Click on save and restart radius (pfcmd service radiusd restart).
+
+Now when a device connect with the username bob@acme.com then the authentication and accounting requests will be forwarded to one of the ACME RADIUS servers.
+
+
 Fingerbank Integration
 ----------------------
 
