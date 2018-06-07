@@ -237,6 +237,38 @@ sub bulk_close_violations {
     return $self->render(status => 200, json => { items => $results });
 }
 
+=head2 close_violation
+
+close_violation
+
+=cut
+
+sub close_violation {
+    my ($self) = @_;
+    my ($status, $data) = $self->parse_json;
+    if (is_error($status)) {
+        return $self->render(json => $data, status => $status);
+    }
+    my $mac = $self->param('node_id');
+    my $violation_id = $data->{violation_id};
+    my $violation = violation_exist_id($violation_id);
+    if (!$violation || $violation->{mac} ne $mac ) {
+        return $self->render_error(status => 404, "Error finding violation");
+    }
+
+    my $result = 0;
+    if (violation_force_close($mac, $violation->{vid})) {
+        pf::enforcement::reevaluate_access($mac, "admin_modify");
+        $result = 1;
+    }
+
+    unless ($result) {
+        return $self->render_error(500, "Unable to close violation");
+    }
+
+    return $self->render_empty();
+}
+
 =head2 bulk_reevaluate_access
 
 bulk_reevaluate_access

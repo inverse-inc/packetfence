@@ -74,6 +74,7 @@ our @API_V1_ROUTES = (
                     qw(
                         register deregister restart_switchport
                         reevaluate_access apply_violation
+                        close_violation
                     )
                 ),
                 fingerbank_info => {
