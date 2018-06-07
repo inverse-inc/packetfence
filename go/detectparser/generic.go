@@ -39,9 +39,22 @@ func (s *GenericParser) Parse(line string) ([]ApiCall, error) {
 		if submatches == nil {
 			continue
 		}
+
 		replacements := rule.GetReplacementMap(context.Background(), line, submatches)
 		if mac, found := replacements["mac"]; found {
-			replacements["mac"] = sharedutils.CleanMac(mac)
+			mac = sharedutils.CleanMac(mac)
+			if mac == "" {
+				continue
+			}
+			replacements["mac"] = mac
+		}
+
+		if ip, found := replacements["ip"]; found {
+			if tmp, err := sharedutils.CleanIP(ip); err != nil {
+				continue
+			} else {
+				replacements["ip"] = tmp
+			}
 		}
 
 		for _, action := range rule.Actions {

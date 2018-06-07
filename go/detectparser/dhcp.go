@@ -1,7 +1,7 @@
 package detectparser
 
 import (
-	"fmt"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"regexp"
 )
 
@@ -16,19 +16,29 @@ type DhcpParser struct {
 func (s *DhcpParser) Parse(line string) ([]ApiCall, error) {
 	for _, r := range []*regexp.Regexp{s.Pattern1, s.Pattern2} {
 		if matches := r.FindStringSubmatch(line); matches != nil && matches[1] == "DHCPACK" {
+			ip, err := sharedutils.CleanIP(matches[2])
+			if err != nil {
+				continue
+			}
+
+			mac := sharedutils.CleanMac(matches[3])
+			if mac == "" {
+				continue
+			}
+
 			return []ApiCall{
 				&PfqueueApiCall{
 					Method: "update_ip4log",
 					Params: []interface{}{
-						"mac", matches[3],
-						"ip", matches[2],
+						"mac", mac,
+						"ip", ip,
 					},
 				},
 			}, nil
 		}
 	}
 
-	return nil, fmt.Errorf("Error parsing")
+	return nil, nil
 }
 
 func NewDhcpParser(*PfdetectConfig) (Parser, error) {

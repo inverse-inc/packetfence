@@ -1,7 +1,7 @@
 package detectparser
 
 import (
-	"fmt"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"regexp"
 )
 
@@ -15,6 +15,7 @@ type FortiAnalyserParser struct {
 func (s *FortiAnalyserParser) Parse(line string) ([]ApiCall, error) {
 	matches := s.Pattern1.Split(line, -1)
 	var srcip, logid string
+	var err error
 	for _, str := range matches {
 		args := s.Pattern2.Split(str, 2)
 		if len(args) <= 1 {
@@ -26,6 +27,14 @@ func (s *FortiAnalyserParser) Parse(line string) ([]ApiCall, error) {
 		} else if args[0] == "logid" {
 			logid = args[1]
 		}
+	}
+
+	if srcip == "" || logid == "" {
+		return nil, nil
+	}
+
+	if srcip, err = sharedutils.CleanIP(srcip); err != nil {
+		return nil, nil
 	}
 
 	return []ApiCall{
@@ -40,7 +49,7 @@ func (s *FortiAnalyserParser) Parse(line string) ([]ApiCall, error) {
 		},
 	}, nil
 
-	return nil, fmt.Errorf("Error parsing")
+	return nil, nil
 }
 
 func NewFortiAnalyserParser(*PfdetectConfig) (Parser, error) {

@@ -1,7 +1,7 @@
 package detectparser
 
 import (
-	"fmt"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"regexp"
 )
 
@@ -16,54 +16,66 @@ type SnortParser struct {
 }
 
 func (s *SnortParser) Parse(line string) ([]ApiCall, error) {
+	var dstip, srcip string
 	if matches := s.Pattern1.FindStringSubmatch(line); matches != nil {
-		return []ApiCall{
-			&PfqueueApiCall{
-				Method: "event_add",
-				Params: []interface{}{
-					"date", matches[1],
-					"dstip", matches[6],
-					"srcip", matches[4],
-					"events", map[string]interface{}{
-						"suricata_event": matches[3],
-						"detect":         matches[2],
+		dstip, _ = sharedutils.CleanIP(matches[6])
+		srcip, _ = sharedutils.CleanIP(matches[4])
+
+		if dstip != "" && srcip != "" {
+			return []ApiCall{
+				&PfqueueApiCall{
+					Method: "event_add",
+					Params: []interface{}{
+						"date", matches[1],
+						"dstip", dstip,
+						"srcip", srcip,
+						"events", map[string]interface{}{
+							"suricata_event": matches[3],
+							"detect":         matches[2],
+						},
 					},
 				},
-			},
-		}, nil
+			}, nil
+		}
 	}
 
 	if matches := s.Pattern2.FindStringSubmatch(line); matches != nil {
-		return []ApiCall{
-			&PfqueueApiCall{
-				Method: "event_add",
-				Params: []interface{}{
-					"date", matches[1],
-					"srcip", matches[3],
-					"events", map[string]interface{}{
-						"detect": "PORTSCAN",
+		srcip, _ = sharedutils.CleanIP(matches[3])
+		if srcip != "" {
+			return []ApiCall{
+				&PfqueueApiCall{
+					Method: "event_add",
+					Params: []interface{}{
+						"date", matches[1],
+						"srcip", srcip,
+						"events", map[string]interface{}{
+							"detect": "PORTSCAN",
+						},
 					},
 				},
-			},
-		}, nil
+			}, nil
+		}
 	}
 
 	if matches := s.Pattern3.FindStringSubmatch(line); matches != nil {
-		return []ApiCall{
-			&PfqueueApiCall{
-				Method: "event_add",
-				Params: []interface{}{
-					"date", matches[1],
-					"srcip", matches[3],
-					"events", map[string]interface{}{
-						"detect": "PORTSCAN",
+		srcip, _ = sharedutils.CleanIP(matches[3])
+		if srcip != "" {
+			return []ApiCall{
+				&PfqueueApiCall{
+					Method: "event_add",
+					Params: []interface{}{
+						"date", matches[1],
+						"srcip", srcip,
+						"events", map[string]interface{}{
+							"detect": "PORTSCAN",
+						},
 					},
 				},
-			},
-		}, nil
+			}, nil
+		}
 	}
 
-	return nil, fmt.Errorf("Error parsing")
+	return nil, nil
 }
 
 func NewSnortParser(*PfdetectConfig) (Parser, error) {

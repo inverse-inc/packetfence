@@ -259,3 +259,11 @@ func CleanMac(mac string) string {
 		":",
 	)
 }
+
+func CleanIP(s string) (string, error) {
+	if ip := net.ParseIP(s); ip == nil {
+		return "", fmt.Errorf("%s is an invalid ip", s)
+	} else {
+		return ip.String(), nil
+	}
+}
