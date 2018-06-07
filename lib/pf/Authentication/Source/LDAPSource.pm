@@ -11,7 +11,7 @@ pf::Authentication::Source::LDAPSource
 use pf::log;
 use pf::constants qw($TRUE $FALSE);
 use pf::constants::authentication::messages;
-use pf::Authentication::constants qw($DEFAULT_LDAP_READ_TIMEOUT $DEFAULT_LDAP_WRITE_TIMEOUT);
+use pf::Authentication::constants qw($DEFAULT_LDAP_READ_TIMEOUT $DEFAULT_LDAP_WRITE_TIMEOUT $DEFAULT_LDAP_CONNECTION_TIMEOUT);
 use pf::Authentication::Condition;
 use pf::CHI;
 use pf::util;
@@ -51,9 +51,9 @@ Readonly our %ATTRIBUTES_MAP => (
 has '+type' => (default => 'LDAP');
 has 'host' => (isa => 'Maybe[Str]', is => 'rw', default => '127.0.0.1');
 has 'port' => (isa => 'Maybe[Int]', is => 'rw', default => 389);
-has 'connection_timeout' => ( isa     => 'Int', is => 'rw', default => 5 );
-has 'write_timeout' => (isa => 'Int', is => 'rw', default => $DEFAULT_LDAP_WRITE_TIMEOUT);
-has 'read_timeout' => (isa => 'Int', is => 'rw', default => $DEFAULT_LDAP_READ_TIMEOUT);
+has 'connection_timeout' => ( isa => 'Num', is => 'rw', default => $DEFAULT_LDAP_CONNECTION_TIMEOUT );
+has 'write_timeout' => (isa => 'Num', is => 'rw', default => $DEFAULT_LDAP_WRITE_TIMEOUT);
+has 'read_timeout' => (isa => 'Num', is => 'rw', default => $DEFAULT_LDAP_READ_TIMEOUT);
 has 'basedn' => (isa => 'Str', is => 'rw', required => 1);
 has 'binddn' => (isa => 'Maybe[Str]', is => 'rw');
 has 'password' => (isa => 'Maybe[Str]', is => 'rw');
@@ -64,6 +64,7 @@ has '_cached_connection' => (is => 'rw');
 has 'cache_match' => ( isa => 'Bool', is => 'rw', default => 0 );
 has 'email_attribute' => (isa => 'Maybe[Str]', is => 'rw', default => 'mail');
 has 'monitor' => ( isa => 'Bool', is => 'rw', default => 1 );
+has 'shuffle' => ( isa => 'Bool', is => 'rw', default => 0 );
 
 our $logger = get_logger();
 
@@ -185,9 +186,9 @@ sub _connect {
   my $logger = Log::Log4perl::get_logger(__PACKAGE__);
   my ($LDAPServer, $LDAPServerPort);
   my @LDAPServers = split(/\s*,\s*/, $self->{'host'});
-  # uncomment the next line if you want the servers to be tried in random order
-  # to spread out the connections amongst a set of servers
-  #@LDAPServers = List::Util::shuffle @LDAPServers;
+  if ($self->shuffle) {
+      @LDAPServers = List::Util::shuffle @LDAPServers;
+  }
   my @credentials;
   if ($self->{'binddn'} && $self->{'password'}) {
     @credentials = ($self->{'binddn'}, password => $self->{'password'})
