@@ -1,8 +1,11 @@
 package detectparser
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 	"regexp"
 )
 
@@ -83,7 +86,16 @@ func (s *SuricataMD5Parser) Parse(line string) ([]ApiCall, error) {
 }
 
 func (*SuricataMD5Parser) IpToMac(ip string) (string, error) {
-	return "", nil
+	var apiClient = unifiedapiclient.NewFromConfig(context.Background())
+	foundMac := unifiedapiclient.Ip2MacResponse{}
+	err := apiClient.Call(context.Background(), "GET", "/api/v1/ip4logs/ip2mac/"+ip, &foundMac)
+	if err != nil {
+		msg := fmt.Sprintf("Problem getting the mac for ip '%s': %s", ip, err)
+		log.Logger().Error(msg)
+		return "", fmt.Errorf("%s", msg)
+	}
+
+	return foundMac.Mac, nil
 }
 
 func NewSuricataMD5Parser(*PfdetectConfig) (Parser, error) {

@@ -130,18 +130,6 @@ func extract(str string) (name string, num int, rest string, ok bool) {
 	return
 }
 
-type FoundIp struct {
-	Ip string `json"ip"`
-}
-
-type Mac2IpResponse struct {
-	Ip string `json:"ip"`
-}
-
-type Ip2MacResponse struct {
-	Mac string `json:"mac"`
-}
-
 func (rule *GenericParserRule) ExpandString(dst []byte, template string, src string, match []int, replacements map[string]string) []byte {
 	for len(template) > 0 {
 		i := strings.Index(template, "$")
@@ -197,7 +185,7 @@ func (rule *GenericParserRule) GetReplacementMap(ctx context.Context, src string
 
 	var apiClient = unifiedapiclient.NewFromConfig(ctx)
 	if macFound {
-		foundIp := Mac2IpResponse{}
+		foundIp := unifiedapiclient.Mac2IpResponse{}
 		err := apiClient.Call(ctx, "GET", "/api/v1/ip4logs/mac2ip/"+mac, &foundIp)
 		if err != nil {
 			log.Logger().Error(fmt.Sprintf("Problem getting the ip for mac '%s': %s", mac, err))
@@ -205,7 +193,7 @@ func (rule *GenericParserRule) GetReplacementMap(ctx context.Context, src string
 			replacementStrings["ip"] = foundIp.Ip
 		}
 	} else {
-		foundMac := Ip2MacResponse{}
+		foundMac := unifiedapiclient.Ip2MacResponse{}
 		err := apiClient.Call(ctx, "GET", "/api/v1/ip4logs/ip2mac/"+ip, &foundMac)
 		if err != nil {
 			log.Logger().Error(fmt.Sprintf("Problem getting the mac for ip '%s': %s", ip, err))
