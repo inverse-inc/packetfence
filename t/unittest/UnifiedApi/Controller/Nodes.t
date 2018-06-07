@@ -30,7 +30,7 @@ BEGIN {
 
 #insert known data
 #run tests
-use Test::More tests => 48;
+use Test::More tests => 51;
 use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
@@ -47,6 +47,10 @@ $t->delete_ok("/api/v1/node/$mac");
 
 $t->post_ok('/api/v1/nodes' => json => { mac => $mac })
   ->status_is(201);
+
+$t->post_ok('/api/v1/nodes' => json => { mac => $mac })
+  ->status_is(409)
+  ->json_like("/message", qr/\QThere's already a node with this MAC address\E/);
 
 $t->patch_ok("/api/v1/node/$mac" => json => { notes => "$mac" })
   ->status_is(200);

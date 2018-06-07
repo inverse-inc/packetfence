@@ -269,6 +269,17 @@ sub close_violation {
     return $self->render_empty();
 }
 
+=head2 create_error_msg
+
+create_error_msg
+
+=cut
+
+sub create_error_msg {
+    my ($self, $obj) = @_;
+    return "There's already a node with this MAC address"
+}
+
 =head2 bulk_reevaluate_access
 
 bulk_reevaluate_access
