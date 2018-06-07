@@ -3015,7 +3015,7 @@ sub parseRequest {
                            ? clean_mac($radius_request->{'Calling-Station-Id'}[0])
                            : clean_mac($radius_request->{'Calling-Station-Id'});
     my $user_name       = $radius_request->{'TLS-Client-Cert-Common-Name'} || $radius_request->{'User-Name'};
-    my $nas_port_type   = $radius_request->{'NAS-Port-Type'};
+    my $nas_port_type   = ( defined($radius_request->{'NAS-Port-Type'}) ? $radius_request->{'NAS-Port-Type'} : ( defined($radius_request->{'Called-Station-SSID'}) ? "Wireless-802.11" : undef ) );
     my $port            = $radius_request->{'NAS-Port'};
     my $eap_type        = ( exists($radius_request->{'EAP-Type'}) ? $radius_request->{'EAP-Type'} : 0 );
     my $nas_port_id     = ( defined($radius_request->{'NAS-Port-Id'}) ? $radius_request->{'NAS-Port-Id'} : undef );
