@@ -168,17 +168,13 @@ func NodeInformation(target net.HardwareAddr, ctx context.Context) (r NodeInfo) 
 }
 
 func ShuffleDNS(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
-	if ConfNet.ForceDns == "1" {
-		return Shuffle(ConfNet.Dns)
+	if ConfNet.ClusterIPs != "" {
+		return Shuffle(ConfNet.ClusterIPs)
+	}
+	if ConfNet.Dnsvip != "" {
+		return []byte(net.ParseIP(ConfNet.Dnsvip).To4())
 	} else {
-		if ConfNet.ClusterIPs != "" {
-			return Shuffle(ConfNet.ClusterIPs)
-		}
-		if ConfNet.Dnsvip != "" {
-			return []byte(net.ParseIP(ConfNet.Dnsvip).To4())
-		} else {
-			return []byte(net.ParseIP(ConfNet.Dns).To4())
-		}
+		return []byte(net.ParseIP(ConfNet.Dns).To4())
 	}
 }
 
