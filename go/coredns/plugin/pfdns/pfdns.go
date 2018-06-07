@@ -44,6 +44,7 @@ type pfdns struct {
 	DNSFilter         *cache.Cache
 	IpsetCache        *cache.Cache
 	apiClient         *unifiedapiclient.Client
+	PortalFQDN        string
 }
 
 // Ports array
@@ -250,7 +251,11 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 	switch state.Family() {
 	case 1:
 		rr = new(dns.A)
-		rr.(*dns.A).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeA, Class: state.QClass()}
+		if state.QName() == pf.PortalFQDN {
+			rr.(*dns.A).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeA, Class: state.QClass(), Ttl: 60}
+		} else {
+			rr.(*dns.A).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeA, Class: state.QClass()}
+		}
 		for k, v := range pf.Network {
 			if k.Contains(bIP) {
 				returnedIP := append([]byte(nil), v.To4()...)
@@ -262,7 +267,11 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 		}
 	case 2:
 		rr = new(dns.AAAA)
-		rr.(*dns.AAAA).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeAAAA, Class: state.QClass()}
+		if state.QName() == pf.PortalFQDN {
+			rr.(*dns.AAAA).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeAAAA, Class: state.QClass(), Ttl: 60}
+		} else {
+			rr.(*dns.AAAA).Hdr = dns.RR_Header{Name: state.QName(), Rrtype: dns.TypeAAAA, Class: state.QClass()}
+		}
 		for k, v := range pf.Network {
 			if k.Contains(bIP) {
 				returnedIP := append([]byte(nil), v.To16()...)
@@ -570,4 +579,10 @@ func (pf *pfdns) SetPassthrough(ctx context.Context, passthrough, ip, port strin
 	}
 
 	return err
+}
+
+func (pf *pfdns) PortalFQDNInit() error {
+	general := pfconfigdriver.Config.PfConf.General
+	pf.PortalFQDN = general.Hostname + "." + general.Domain + "."
+	return nil
 }
