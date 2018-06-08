@@ -600,3 +600,26 @@ delay=30D
 #
 # SSL certificate(s) to be monitored
 certificates=/usr/local/pf/conf/ssl/server.pem,/usr/local/pf/raddb/certs/server.crt
+
+[password_of_the_day]
+#
+# type
+#
+# The type of task to perform
+type=password_of_the_day
+#
+# description
+#
+# The description of task to perform
+description=Task to generate password of the day.
+#
+# status
+#
+# If the task potd is enabled
+status=enabled
+#
+# interval
+#
+# At which interval to run the password of the day pfmon task
+interval=60s
+
