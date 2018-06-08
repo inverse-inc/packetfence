@@ -13,21 +13,19 @@ use strict;
 use warnings;
 
 
-our $jobs;
-
-BEGIN {
-    $jobs = $ENV{'PF_SMOKE_TEST_JOBS'} || 6;
-}
 
 use Test::More;
-use Test::ParallelSubtest max_parallel => $jobs;
+use Test::ParallelSubtest;
 use Test::NoWarnings;
 
 BEGIN {
     use lib qw(/usr/local/pf/t);
     use setup_test_config;
 }
+
 use TestUtils qw(get_all_perl_binaries get_all_perl_cgi);
+my $jobs = $ENV{'PF_SMOKE_TEST_JOBS'} || @{TestUtils::cpuinfo()};
+Test::ParallelSubtest::max_parallel($jobs);
 
 my @binaries = (
     get_all_perl_binaries(),

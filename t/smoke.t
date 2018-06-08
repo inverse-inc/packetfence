@@ -27,7 +27,9 @@ use TestUtils;
 `/usr/local/pf/t/pfconfig-test`;
 `/usr/local/pf/t/pfconfig-test-serial`;
 
-my $JOBS = $ENV{'PF_SMOKE_TEST_JOBS'} ||  4;
+my $cpuinfo = TestUtils::cpuinfo();
+
+my $JOBS = $ENV{'PF_SMOKE_TEST_JOBS'} || @$cpuinfo;
 my $SLOW_TESTS = $ENV{'PF_SMOKE_SLOW_TESTS'};
 our $db_setup_script = "/usr/local/pf/t/db/setup_test_db.pl";
 
@@ -55,6 +57,7 @@ my @ser_tests = qw(
 # These tests just need to read pfconfig data so they can run in parallel
 #
 my @par_tests = (
+    'provisioner.t',
     @TestUtils::unit_tests,
     TestUtils::get_all_unittests(),
     @TestUtils::cli_tests,

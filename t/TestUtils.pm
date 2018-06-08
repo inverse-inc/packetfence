@@ -26,7 +26,7 @@ BEGIN {
         @cli_tests @compile_tests @dao_tests @integration_tests @quality_tests @quality_failing_tests @unit_tests
         use_test_db
         get_all_perl_binaries get_all_perl_cgi get_all_perl_modules
-        get_networkdevices_modules get_networkdevices_classes
+        get_networkdevices_modules get_networkdevices_classes cpuinfo
     );
 }
 use pf::config qw(%Config);
@@ -268,6 +268,23 @@ sub get_networkdevices_classes {
         push(@classes, $module);
     }
     return @classes;
+}
+
+sub cpuinfo {
+    my @cpuinfos;
+    if (open(my $fh, "/proc/cpuinfo")) {
+        while (my $l = <$fh>) {
+            chomp($l);
+            if ($l =~ /(.*?)\s*: (.*)/) {
+                my $n = $1;
+                if ($n eq 'processor') {
+                    push @cpuinfos, {};
+                }
+                $cpuinfos[-1]{$n} = $2;
+            }
+        }
+    }
+    return \@cpuinfos;
 }
 
 =head1 AUTHOR
