@@ -34,6 +34,7 @@ use IO::Socket::UNIX qw( SOCK_STREAM );
 use JSON::MaybeXS;
 use pf::log;
 use pfconfig::util qw($undef_element);
+use pf::config::tenant;
 use pfconfig::constants;
 use Sereal::Decoder qw(sereal_decode_with_object);
 use Time::HiRes qw(stat time);
@@ -173,7 +174,7 @@ sub _get_from_socket {
 
     my %info;
     my $payload;
-    %info = ( ( method => $method, key => $what ), %additionnal_info );
+    %info = ( ( method => $method, key => $what, tenant_id => pf::config::tenant::get_tenant() ), %additionnal_info );
     $payload = encode_json( \%info );
 
     my $socket;
