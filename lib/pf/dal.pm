@@ -903,7 +903,7 @@ sub set_tenant {
     }
 
     get_logger->debug("Setting current tenant ID to $tenant_id");
-    $pf::config::tenant::CURRENT_TENANT = $tenant_id;
+    pf::config::tenant::set_tenant($tenant_id);
     return $TRUE;
 }
 
@@ -914,7 +914,7 @@ reset_tenant
 =cut
 
 sub reset_tenant {
-    $pf::config::tenant::CURRENT_TENANT = $DEFAULT_TENANT_ID;
+    return pf::config::tenant::reset_tenant();
 }
 
 =head2 table
@@ -930,7 +930,7 @@ sub table {
 
 
 sub get_tenant {
-    return $pf::config::tenant::CURRENT_TENANT;
+    return pf::config::tenant::get_tenant();
 }
 
 =head2 select
