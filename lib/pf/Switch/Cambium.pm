@@ -6,7 +6,7 @@ pf::Switch::Cambium
 
 =head1 SYNOPSIS
 
-Implements a Cambium AP which supports 802.1x in wireless
+Implements a Cambium AP which supports 802.1x, MAC Auth, Web Auth in wireless
 
 =head1 STATUS
 
@@ -100,30 +100,32 @@ sub deauthTechniques {
     return $method,$tech{$method};
 }
 
-=item parseUrl
+=item parseExternalPortalRequest
 
-Parse the URL when an external captive portal HTTP request is detected.
+Parse external portal request using URI and its parameters then return a hash reference with the appropriate parameters
 
-Parsed attributes:
-
-- client mac address
-
-- SSID
-
-- client ip address
-
-- redirect url
-
-- grant url
-
-- status code
+See L<pf::web::externalportal::handle>
 
 =cut
 
-sub parseUrl {
-    my ( $self, $req ) = @_;
-    return ( clean_mac($$req->param('mac')), $$req->param('ssid'), $$req->param('ip'), $$req->param('userurl'), undef, $$req->param('res') );
+sub parseExternalPortalRequest {
+    my ( $self, $r, $req ) = @_;
+    my $logger = $self->logger;
+
+    # Using a hash to contain external portal parameters
+    my %params = ();
+
+    %params = (
+        switch_id               => $req->param('ga_srvr'),
+        client_mac              => clean_mac($req->param('ga_cmac')),
+        client_ip               => defined($req->param('ga_cip')) ? $req->param('ga_cip') : undef,
+        ssid                    => $req->param('ga_ssid'),
+        synchronize_locationlog => $TRUE,
+    );
+
+    return \%params;
 }
+
 
 =item getAcceptForm
 
@@ -132,27 +134,36 @@ Generates the HTML form embedded to web release captive-portal process to trigge
 =cut
 
 sub getAcceptForm {
-    my ( $self, $mac, $destination_url ) = @_;
+    my ( $self, $mac, $destination_url, $portalSession ) = @_;
     my $logger = $self->logger;
+    $logger->debug("Creating web release form");
 
-    $logger->debug("Generating web release HTML form");
+    my $ssid = $portalSession->param("ecwp-original-param-ga_ssid");
+    my $ap_mac = $portalSession->param("ecwp-original-param-ga_ap_mac");
+    my $nas_id = $portalSession->param("ecwp-original-param-ga_nas_id");
+    my $srvr = $portalSession->param("ecwp-original-param-ga_srvr");
+    my $client_mac = $portalSession->param("ecwp-original-param-ga_cmac");
+    my $client_ip = $portalSession->param("ecwp-original-param-ga_cip");
+    my $qv = $portalSession->param("ecwp-original-param-ga_Qv");
 
-    my $uamip = $self->{_controllerIp};
     my $html_form = qq[
-        <script type="text/javascript" src="/content/ChilliLibrary.js"></script>
-        <script type="text/javascript">
-            chilliController.host = "$uamip";
-            chilliController.port = "3990";
-            function logon() {
-                chilliController.logon("$mac", "$mac");
-            }
-        </script>
-        <script type="text/javascript">
-            window.setTimeout('logon();', 1000);
-        </script>
+        <form name="weblogin_form" data-autosubmit="1000" method="POST" action="http://$srvr:880/cgi-bin/hotspot_login.cgi">
+            <input type="hidden" name="Submit2" value="Submit">
+            <input type="hidden" name="autherr" value="0">
+            <input type="hidden" name="ga_user" value="$mac">
+            <input type="hidden" name="ga_pass" value="$mac">
+            <input type="hidden" name="ga_ssid" value="$ssid">
+            <input type="hidden" name="ga_ap_mac" value="$ap_mac">
+            <input type="hidden" name="ga_nas_id" value="$nas_id">
+            <input type="hidden" name="ga_srvr" value="$srvr">
+            <input type="hidden" name="ga_cmac" value="$client_mac">
+            <input type="hidden" name="ga_cip" value="$client_ip">
+            <input type="hidden" name="ga_Qv" value="$qv">
+        </form>
+        <script src="/content/autosubmit.js" type="text/javascript"></script>
     ];
 
-    $logger->debug("Generated the following web release HTML form: " . $html_form);
+    $logger->debug("Generated the following html form : ".$html_form);
     return $html_form;
 }
 
