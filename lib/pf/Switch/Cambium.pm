@@ -6,7 +6,7 @@ pf::Switch::Cambium
 
 =head1 SYNOPSIS
 
-Implements a Cambium AP which supports 802.1x, MAC Auth, Web Auth in wireless
+Implements a Cambium AP which supports 802.1x in wireless
 
 =head1 STATUS
 
@@ -114,7 +114,7 @@ sub parseExternalPortalRequest {
 
     # Using a hash to contain external portal parameters
     my %params = ();
-
+    
     %params = (
         switch_id               => $req->param('ga_srvr'),
         client_mac              => clean_mac($req->param('ga_cmac')),
@@ -122,10 +122,11 @@ sub parseExternalPortalRequest {
         ssid                    => $req->param('ga_ssid'),
         synchronize_locationlog => $TRUE,
     );
-
+    use Data::Dumper;
+    $logger->info(Dumper(\%params));
     return \%params;
 }
-
+                                                                     
 
 =item getAcceptForm
 
@@ -138,13 +139,14 @@ sub getAcceptForm {
     my $logger = $self->logger;
     $logger->debug("Creating web release form");
 
-    my $ssid = $portalSession->param("ecwp-original-param-ga_ssid");
+    my $ssid = $portalSession->param("ecwp-original-param-ga_ssid");    
     my $ap_mac = $portalSession->param("ecwp-original-param-ga_ap_mac");
     my $nas_id = $portalSession->param("ecwp-original-param-ga_nas_id");
     my $srvr = $portalSession->param("ecwp-original-param-ga_srvr");
     my $client_mac = $portalSession->param("ecwp-original-param-ga_cmac");
     my $client_ip = $portalSession->param("ecwp-original-param-ga_cip");
     my $qv = $portalSession->param("ecwp-original-param-ga_Qv");
+    my $orig_url = $portalSession->param("ecwp-original-param-ga_orig_url");
 
     my $html_form = qq[
         <form name="weblogin_form" data-autosubmit="1000" method="POST" action="http://$srvr:880/cgi-bin/hotspot_login.cgi">
@@ -159,6 +161,7 @@ sub getAcceptForm {
             <input type="hidden" name="ga_cmac" value="$client_mac">
             <input type="hidden" name="ga_cip" value="$client_ip">
             <input type="hidden" name="ga_Qv" value="$qv">
+            <input type="hidden" name="ga_orig_url" value="$orig_url">
         </form>
         <script src="/content/autosubmit.js" type="text/javascript"></script>
     ];
