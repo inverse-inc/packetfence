@@ -15,7 +15,40 @@ pf::config::tenant
 use strict;
 use warnings;
 use pf::constants qw($DEFAULT_TENANT_ID);
+
 our $CURRENT_TENANT = $DEFAULT_TENANT_ID;
+
+=head2 reset_tenant
+
+reset_tenant
+
+=cut
+
+sub reset_tenant {
+    $pf::config::tenant::CURRENT_TENANT = $DEFAULT_TENANT_ID;
+}
+
+=head2 get_tenant
+
+get_tenant
+
+=cut
+
+sub get_tenant {
+    return $CURRENT_TENANT;
+}
+
+=head2 set_tenant
+
+set_tenant
+
+=cut
+
+sub set_tenant {
+    my ($tenant_id) = @_;
+    $CURRENT_TENANT = $tenant_id || $DEFAULT_TENANT_ID;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
