@@ -43,18 +43,21 @@
 
 <script>
 import { pfSearchConditionType as attributeType } from '@/globals/pfSearch'
+import pfBaseSearchable from '@/components/pfBaseSearchable'
 import pfSearch from '@/components/pfSearch'
 import ToggleButton from '@/components/ToggleButton'
 
 export default {
   name: 'RadiusLogsSearch',
+  extends: pfBaseSearchable,
+  searchApiEndpoint: 'radius_audit_logs',
+  defaultSortKeys: ['created_at', 'mac'],
   components: {
     'pf-search': pfSearch,
     'toggle-button': ToggleButton
   },
   data () {
     return {
-      advancedMode: false,
       // Fields must match the database schema
       fields: [ // keys match with b-form-select
         {
@@ -112,103 +115,30 @@ export default {
           sortable: true,
           visible: true
         }
-      ],
-      condition: null,
-      requestPage: 1,
-      currentPage: 1,
-      pageSizeLimit: 10
-    }
-  },
-  computed: {
-    isLoading () {
-      return this.$store.getters['$_radiuslogs/isLoadingResults']
-    },
-    sortBy () {
-      return this.$store.state.$_radiuslogs.searchSortBy
-    },
-    sortDesc () {
-      return this.$store.state.$_radiuslogs.searchSortDesc
-    },
-    visibleColumns () {
-      return this.columns.filter(column => column.visible)
-    },
-    searchFields () {
-      return this.visibleColumns.filter(column => column.visible).map(column => column.key)
-    },
-    items () {
-      return this.$store.state.$_radiuslogs.results
-    },
-    totalRows () {
-      return this.$store.state.$_radiuslogs.searchMaxPageNumber * this.pageSizeLimit
+      ]
     }
   },
   methods: {
-    onSearch (newCondition) {
-      let _this = this
-      let condition = newCondition
-      if (!this.advancedMode) {
-        // Build quick search query
-        condition = {
-          op: 'or',
-          values: [
-            { field: 'mac', op: 'contains', value: newCondition },
-            { field: 'user_name', op: 'contains', value: newCondition }
-          ]
-        }
-      }
-      this.requestPage = 1 // reset to the first page
-      this.$store.dispatch('$_radiuslogs/setSearchQuery', condition)
-      this.$store.dispatch('$_radiuslogs/search', this.requestPage).then(() => {
-        _this.currentPage = _this.requestPage
-        _this.condition = condition
-      }).catch(() => {
-        _this.requestPage = _this.currentPage
-      })
-    },
-    onReset () {
-      this.$store.dispatch('$_radiuslogs/setSearchQuery', null) // reset search
-      this.$store.dispatch('$_radiuslogs/search', this.requestPage)
-      this.requestPage = 1 // reset to the first page
-      // Select first field
-      this.condition = { op: 'and', values: [{ field: this.fields[0].value, op: null, value: null }] }
-    },
-    onPageSizeChange () {
-      this.requestPage = 1 // reset to the first page
-      this.$store.dispatch('$_radiuslogs/setSearchPageSize', this.pageSizeLimit)
-      this.$store.dispatch('$_radiuslogs/search', this.requestPage)
-    },
-    onPageChange () {
-      let _this = this
-      this.$store.dispatch('$_radiuslogs/search', this.requestPage).then(() => {
-        _this.currentPage = _this.requestPage
-      }).catch(() => {
-        _this.requestPage = _this.currentPage
-      })
-    },
-    onSortingChanged (params) {
-      this.requestPage = 1 // reset to the first page
-      this.$store.dispatch('$_radiuslogs/setSearchSorting', params)
-      this.$store.dispatch('$_radiuslogs/search', this.requestPage)
-    },
-    toggleColumn (column) {
-      column.visible = !column.visible
-      this.$store.dispatch('$_radiuslogs/setVisibleColumns', this.columns.filter(column => column.visible).map(column => column.key))
-      this.$store.dispatch('$_radiuslogs/setSearchFields', this.searchFields)
-      if (column.visible) {
-        this.$store.dispatch('$_radiuslogs/search', this.requestPage)
+    quickCondition (newCondition) {
+      // Build full condition from quick value;
+      // Called from pfBaseSearchable.onSearch().
+      return {
+        op: 'or',
+        values: [
+          { field: 'mac', op: 'contains', value: newCondition },
+          { field: 'user_name', op: 'contains', value: newCondition }
+        ]
       }
     },
     onRowClick (item, index) {
-      // this.$router.push({ name: 'view', params: { id: item.id } })
+      this.$router.push({ name: 'view', params: { id: item.id } })
     }
   },
   created () {
-    this.pageSizeLimit = this.$store.state.$_radiuslogs.searchPageSize
-    // Restore search parameters
-    this.condition = this.$store.state.$_radiuslogs.searchQuery
+    // pfBaseSearchable.created() has been called
     if (!this.condition) {
       // Select first field
-      this.condition = { op: 'and', values: [{ field: this.fields[0].value, op: null, value: null }] }
+      this.initCondition()
     } else {
       // Restore selection of advanced mode; check if condition matches a quick search
       this.advancedMode = !(this.condition.op === 'or' &&
@@ -218,15 +148,6 @@ export default {
         this.condition.values[1].field === 'user_name' &&
         this.condition.values[1].op === 'contains')
     }
-    // Restore visibleColumns, overwrite defaults
-    if (this.$store.state.$_radiuslogs.visibleColumns) {
-      let visibleColumns = this.$store.state.$_radiuslogs.visibleColumns
-      this.columns.forEach(function (column, index, columns) {
-        columns[index].visible = visibleColumns.includes(column.key)
-      })
-    }
-    this.$store.dispatch('$_radiuslogs/setSearchFields', this.searchFields)
-    this.$store.dispatch('$_radiuslogs/search', this.requestPage)
   }
 }
 </script>

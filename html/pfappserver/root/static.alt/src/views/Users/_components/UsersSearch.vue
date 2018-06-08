@@ -41,18 +41,21 @@
 
 <script>
 import { pfSearchConditionType as attributeType } from '@/globals/pfSearch'
+import pfBaseSearchable from '@/components/pfBaseSearchable'
 import pfSearch from '@/components/pfSearch'
 import ToggleButton from '@/components/ToggleButton'
 
 export default {
   name: 'UsersSearch',
+  extends: pfBaseSearchable,
+  searchApiEndpoint: 'users',
+  defaultSortKeys: ['pid'],
   components: {
     'pf-search': pfSearch,
     'toggle-button': ToggleButton
   },
   data () {
     return {
-      advancedMode: false,
       // Fields must match the database schema
       fields: [ // keys match with b-form-select
         {
@@ -91,90 +94,17 @@ export default {
           sortable: true,
           visible: true
         }
-      ],
-      condition: null,
-      requestPage: 1,
-      currentPage: 1,
-      pageSizeLimit: 10
-    }
-  },
-  computed: {
-    isLoading () {
-      return this.$store.getters['$_users/isLoadingResults']
-    },
-    sortBy () {
-      return this.$store.state.$_users.searchSortBy
-    },
-    sortDesc () {
-      return this.$store.state.$_users.searchSortDesc
-    },
-    visibleColumns () {
-      return this.columns.filter(column => column.visible)
-    },
-    searchFields () {
-      return this.visibleColumns.filter(column => !column.locked).map(column => column.key)
-    },
-    items () {
-      return this.$store.state.$_users.items
-    },
-    totalRows () {
-      return this.$store.state.$_users.searchMaxPageNumber * this.pageSizeLimit
+      ]
     }
   },
   methods: {
-    onSearch (newCondition) {
-      let _this = this
-      let condition = newCondition
-      if (!this.advancedMode) {
-        // Build quick search query
-        condition = {
-          op: 'or',
-          values: [
-            { field: 'pid', op: 'contains', value: newCondition },
-            { field: 'email', op: 'contains', value: newCondition }
-          ]
-        }
-      }
-      this.requestPage = 1 // reset to the first page
-      this.$store.dispatch('$_users/setSearchQuery', condition)
-      this.$store.dispatch('$_users/search', this.requestPage).then(() => {
-        _this.currentPage = _this.requestPage
-        _this.condition = condition
-      }).catch(() => {
-        _this.requestPage = _this.currentPage
-      })
-    },
-    onReset () {
-      this.$store.dispatch('$_users/setSearchQuery', null) // reset search
-      this.$store.dispatch('$_users/search', this.requestPage)
-      this.requestPage = 1 // reset to the first page
-      // Select first field
-      this.condition = { op: 'and', values: [{ op: 'or', values: [{ field: this.fields[0].value, op: null, value: null }] }] }
-    },
-    onPageSizeChange () {
-      this.requestPage = 1 // reset to the first page
-      this.$store.dispatch('$_users/setSearchPageSize', this.pageSizeLimit)
-      this.$store.dispatch('$_users/search', this.requestPage)
-    },
-    onPageChange () {
-      let _this = this
-      this.$store.dispatch('$_users/search', this.requestPage).then(() => {
-        _this.currentPage = _this.requestPage
-      }).catch(() => {
-        _this.requestPage = _this.currentPage
-      })
-    },
-    onSortingChanged (params) {
-      this.requestPage = 1 // reset to the first page
-      this.$store.dispatch('$_users/setSearchSorting', params)
-      this.$store.dispatch('$_users/search', this.requestPage)
-    },
-    toggleColumn (column) {
-      column.visible = !column.visible
-      this.$store.dispatch('$_users/setVisibleColumns', this.columns.filter(column => column.visible).map(column => column.key))
-      this.$store.dispatch('$_users/setSearchFields', this.searchFields)
-      if (column.visible) {
-        this.$store.dispatch('$_users/search', this.requestPage)
+    quickCondition (newCondition) {
+      return {
+        op: 'or',
+        values: [
+          { field: 'pid', op: 'contains', value: newCondition },
+          { field: 'email', op: 'contains', value: newCondition }
+        ]
       }
     },
     onRowClick (item, index) {
@@ -182,12 +112,10 @@ export default {
     }
   },
   created () {
-    this.pageSizeLimit = this.$store.state.$_users.searchPageSize
-    // Restore search parameters
-    this.condition = this.$store.state.$_users.searchQuery
+    // pfBaseSearchable.created() has been called
     if (!this.condition) {
       // Select first field
-      this.condition = { op: 'and', values: [{ op: 'or', values: [{ field: this.fields[0].value, op: null, value: null }] }] }
+      this.initCondition()
     } else {
       // Restore selection of advanced mode; check if condition matches a quick search
       this.advancedMode = !(this.condition.op === 'or' &&
@@ -197,15 +125,6 @@ export default {
         this.condition.values[1].field === 'email' &&
         this.condition.values[1].op === 'contains')
     }
-    // Restore visibleColumns, overwrite defaults
-    if (this.$store.state.$_users.visibleColumns) {
-      let visibleColumns = this.$store.state.$_users.visibleColumns
-      this.columns.forEach(function (column, index, columns) {
-        columns[index].visible = visibleColumns.includes(column.key)
-      })
-    }
-    this.$store.dispatch('$_users/setSearchFields', this.searchFields)
-    this.$store.dispatch('$_users/search', this.requestPage)
   }
 }
 </script>
