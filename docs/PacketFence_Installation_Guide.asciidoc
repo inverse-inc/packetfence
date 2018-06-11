@@ -1921,6 +1921,7 @@ Example with the most common ones:
 * *SSID:* Guest-SSID
 * *VLAN:* 100
 * *Time period:* wd {Mon Tue} hr {1pm-3pm} -- See http://search.cpan.org/~pryan/Period-1.20/Period.pm
+ * When specifying multiple periods that are comma delimited, you will need to double up the commas. Example: `wd {1 3 5 7} min {0-29}, wd {2 4 6} min {30-59}` becomes `wd {1 3 5 7} min {0-29},, wd {2 4 6} min {30-59}`
 * *Switch Port:* <SwitchId>-<Port>
 * *Network:* Network in CIDR format or an IP address
 
