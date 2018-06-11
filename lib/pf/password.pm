@@ -140,11 +140,16 @@ Generates the password
 =cut
 
 sub _generate_password {
+    my ($size) = @_;
+    my $min = 8;
+    my $max = 12;
 
-    my $password = word(8, 12);
+    $min = $max = $size if (defined $size);
+
+    my $password = word($min, $max);
     # if password is nasty generate another one (until we get a clean one)
     while(Crypt::GeneratePassword::restrict($password, undef)) {
-        $password = word(8, 12);
+        $password = word($min, $max);
     }
     return $password;
 }
@@ -182,12 +187,12 @@ Defaults to 0 (no per user limit)
 =cut
 
 sub generate {
-    my ( $pid, $actions, $password, $login_amount ) = @_;
+    my ( $pid, $actions, $password, $login_amount, $options ) = @_;
     my $logger = get_logger();
 
     my %data;
     $data{'pid'} = $pid;
-    $password ||= _generate_password();
+    $password ||= _generate_password($options->{'password_length'});
 
     # hash password
     $data{'password'} = _hash_password( $password, algorithm => $Config{'advanced'}{'hash_passwords'}, );
