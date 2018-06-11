@@ -12,14 +12,33 @@ use pf::Authentication::constants;
 use pf::constants::authentication::messages;
 use pf::Authentication::Source::SQLSource;
 use pf::constants;
+use pf::password;
+use pf::constants qw($TRUE $FALSE);
 
 use Moose;
 extends 'pf::Authentication::Source::SQLSource';
 
 has '+type' => ( default => 'Potd' );
 has 'user' => (isa => 'Str', is => 'rw', required => 1);
-has 'password_rotation' => (isa => 'Str', is => 'rw', default => '1W');
+has 'password_rotation' => (isa => 'Str', is => 'rw', default => '1D');
 has 'password_email_update' => (isa => 'Maybe[Str]', is => 'rw');
+
+=head2 authenticate
+
+=cut
+
+sub authenticate {
+   my ( $self, $username, $password ) = @_;
+
+   my $result = pf::password::validate_password($username, $password);
+
+   if ($result == $pf::password::AUTH_SUCCESS) {
+     return ($TRUE, $AUTH_SUCCESS_MSG);
+   }
+
+   return ($FALSE, $AUTH_FAIL_MSG);
+}
+
 
 =head1 AUTHOR
 
