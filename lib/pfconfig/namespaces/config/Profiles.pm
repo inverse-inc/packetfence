@@ -52,8 +52,11 @@ sub build_child {
     my %reverseLookup;
 
     while ( my ( $key, $profile ) = each %Profiles_Config ) {
-        foreach my $field (qw(locale sources filter provisioners billing_tiers scans)) {
+        foreach my $field (qw(locale sources provisioners billing_tiers scans)) {
             $profile->{$field} = [ split( /\s*,\s*/, $profile->{$field} || '' ) ];
+        }
+        foreach my $field (qw(filter)) {
+            $profile->{$field} = [ map {s/,,/,/g;$_} split( /\s*(?<!,),(?!,)\s*/ , $profile->{$field} || '' ) ];
         }
         foreach my $field (qw(sources provisioners billing_tiers scans device_registration root_module)) {
             my $values = $profile->{$field};
