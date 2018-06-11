@@ -51,8 +51,11 @@ sub build_child {
     $self->cleanup_whitespaces( \%Profiles_Config );
 
     while ( my ( $key, $profile ) = each %Profiles_Config ) {
-        foreach my $field (qw(locale sources filter provisioners)) {
+        foreach my $field (qw(locale sources provisioners)) {
             $profile->{$field} = [ split( /\s*,\s*/, $profile->{$field} || '' ) ];
+        }
+        foreach my $field (qw(filter)) {
+            $profile->{$field} = [ map {s/,,/,/g;$_} split( /\s*(?<!,),(?!,)\s*/ , $profile->{$field} || '' ) ];
         }
         my @template_paths = ($captiveportal_default_profile_templates_path, $captiveportal_templates_path);
         if ($key eq 'default') {
