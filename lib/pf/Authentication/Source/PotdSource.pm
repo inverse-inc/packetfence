@@ -10,17 +10,18 @@ pf::Authentication::Source::PotdSource
 
 use pf::Authentication::constants;
 use pf::constants::authentication::messages;
-use pf::Authentication::Source::SQLSource;
+use pf::Authentication::Source;
 use pf::constants;
 use pf::password;
 use pf::constants qw($TRUE $FALSE);
 
 use Moose;
-extends 'pf::Authentication::Source::SQLSource';
+extends 'pf::Authentication::Source';
+with qw(pf::Authentication::InternalRole);
 
 has '+type' => ( default => 'Potd' );
 has 'user' => (isa => 'Str', is => 'rw', required => 1);
-has 'password_rotation' => (isa => 'Str', is => 'rw', default => '1D');
+has 'password_rotation' => (isa => 'Str', is => 'rw', default => '10m');
 has 'password_email_update' => (isa => 'Maybe[Str]', is => 'rw');
 
 =head2 authenticate
@@ -39,6 +40,32 @@ sub authenticate {
    return ($FALSE, $AUTH_FAIL_MSG);
 }
 
+=head2 match_in_subclass
+
+=cut
+
+sub match_in_subclass {
+    my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
+    foreach my $condition (@{ $own_conditions }) {
+        if ($condition->{'attribute'} eq $params->{'username'}) {
+            if ( $condition->matches("username", $params->{'username'}) ) {
+                push(@{ $matching_conditions }, $condition);
+            }
+        }
+    }
+    return $params->{'username'};
+}
+
+
+=head2 available_actions
+
+Only the authentication actions should be available
+
+=cut
+
+sub available_actions {
+    return [@{$Actions::ACTIONS{$Rules::AUTH}}];
+}
 
 =head1 AUTHOR
 
