@@ -65,15 +65,31 @@ pfSearchConditionValues[pfSearchConditionType.NODE_STATUS] = [
 pfSearchConditionValues[pfSearchConditionType.ROLE] = (store) => {
   return store.getters['config/rolesList']
 }
-// See lib/pf/config.pm#L318
+// See lib/pf/config.pm#L344-L350
 pfSearchConditionValues[pfSearchConditionType.CONNECTION_TYPE] = [
   {
-    value: 'WIRELESS_802_1X',
-    text: 'Wireless 802.1x'
+    value: 'Wireless-802.11-EAP',
+    text: 'WiFi 802.1X'
   },
   {
-    value: 'WIRELESS_MAC_AUTH',
-    text: 'Wireless MAC Auth'
+    value: 'Wireless-802.11-NoEAP',
+    text: 'WiFi MAC Auth'
+  },
+  {
+    value: 'Ethernet-EAP',
+    text: 'Wired 802.1x'
+  },
+  {
+    value: 'WIRED_MAC_AUTH',
+    text: 'Wired MAC Auth'
+  },
+  {
+    value: 'SNMP-Traps',
+    text: 'Wired SNMP'
+  },
+  {
+    value: 'Inline',
+    text: 'Inline'
   }
 ]
 
