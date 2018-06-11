@@ -976,7 +976,7 @@ sub connection_profiles {
         allowed_devices|allow_android_devices|
         reuse_dot1x_credentials|provisioners|filter_match_style|sms_pin_retry_limit|
         sms_request_limit|login_attempt_limit|block_interval|dot1x_recompute_role_from_portal|scan|root_module|preregistration|autoregister|access_registration_when_registered|device_registration|
-        dpks|default_psk_key|status)/x;
+        dpsk|default_psk_key|status)/x;
     my $validator = pf::validation::profile_filters->new;
 
     foreach my $connection_profile ( keys %Profiles_Config ) {
