@@ -23,6 +23,7 @@ has '+type' => ( default => 'Potd' );
 has 'user' => (isa => 'Str', is => 'rw', required => 1);
 has 'password_rotation' => (isa => 'Str', is => 'rw', default => '10m');
 has 'password_email_update' => (isa => 'Maybe[Str]', is => 'rw');
+has 'password_length' => (isa => 'Maybe[Int]', is => 'rw', default => 8);
 
 =head2 authenticate
 
