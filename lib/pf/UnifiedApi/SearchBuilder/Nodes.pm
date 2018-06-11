@@ -57,6 +57,19 @@ our @IP4LOG_JOIN = (
     'ip4log',
 );
 
+our @IP6LOG_JOIN = (
+    {
+        operator  => '=>',
+        condition => {
+            'ip6log.ip' => {
+                "=" => \
+"( SELECT `ip` FROM `ip6log` WHERE `mac` = `node`.`mac` AND `tenant_id` = `node`.`tenant_id`  ORDER BY `start_time` DESC LIMIT 1 )",
+            }
+        }
+    },
+    'ip6log',
+);
+
 our @RADACCT_JOIN = (
     '=>{node.mac=radacct.callingstationid,node.tenant_id=radacct.tenant_id}',
     'radacct|radacct',
@@ -107,6 +120,11 @@ our %ALLOWED_JOIN_FIELDS = (
         join_spec     => \@IP4LOG_JOIN,
         column_spec   => make_join_column_spec( 'ip4log', 'ip' ),
         namespace     => 'ip4log',
+    },
+    'ip6log.ip' => {
+        join_spec     => \@IP6LOG_JOIN,
+        column_spec   => make_join_column_spec( 'ip6log', 'ip' ),
+        namespace     => 'ip6log',
     },
     'online' => {
         join_spec     => \@RADACCT_JOIN,
