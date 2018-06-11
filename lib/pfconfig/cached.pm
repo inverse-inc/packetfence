@@ -122,8 +122,7 @@ Sets an element in the subcache so it can be reused accross accesses
 sub set_in_subcache {
     my ( $self, $key, $result ) = @_;
 
-    $self->{memorized_at} = time unless $self->{memorized_at};
-    $self->{_subcache}    = {}   unless $self->{_subcache};
+    $self->{memorized_at} //= time;
     $self->{_subcache}{$key} = $result;
 
 }
