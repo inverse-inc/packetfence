@@ -43,6 +43,14 @@ pfConditionOperators[pfSearchConditionType.CONNECTION_TYPE] = {
   'equals':                    pfSearchConditionValue.SELECT,
   'not_equals':                pfSearchConditionValue.SELECT
 }
+pfConditionOperators[pfSearchConditionType.ONLINE] = {
+  'equals':                    pfSearchConditionValue.SELECT,
+  'not_equals':                pfSearchConditionValue.SELECT
+}
+pfConditionOperators[pfSearchConditionType.VOIP] = {
+  'equals':                    pfSearchConditionValue.SELECT,
+  'not_equals':                pfSearchConditionValue.SELECT
+}
 
 /**
  * Values of some condition types
@@ -90,6 +98,26 @@ pfSearchConditionValues[pfSearchConditionType.CONNECTION_TYPE] = [
   {
     value: 'Inline',
     text: 'Inline'
+  }
+]
+pfSearchConditionValues[pfSearchConditionType.ONLINE] = [
+  {
+    value: 'on',
+    text: 'Online'
+  },
+  {
+    value: 'off',
+    text: 'Offline'
+  }
+]
+pfSearchConditionValues[pfSearchConditionType.VOIP] = [
+  {
+    value: 'yes',
+    text: 'Yes'
+  },
+  {
+    value: 'no',
+    text: 'No'
   }
 ]
 
