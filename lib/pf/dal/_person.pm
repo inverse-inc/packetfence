@@ -339,7 +339,7 @@ BEGIN {
         psk => {
             type => 'VARCHAR',
             is_auto_increment => 0,
-            is_primary_key => 1,
+            is_primary_key => 0,
             is_nullable => 1,
         },
     );
