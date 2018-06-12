@@ -1,10 +1,16 @@
 /**
-* "$_radiuslogs" store module
+* Base searchable store module. Used by pfBaseSearchable.
 */
 import Vue from 'vue'
 import apiCall from '@/utils/api'
 
-export class SearchableApi {
+const types = {
+  LOADING: 'loading',
+  SUCCESS: 'success',
+  ERROR: 'error'
+}
+
+class SearchableApi {
   constructor (endpoint, defaultSortKeys) {
     this.endpoint = endpoint
     this.defaultSortKeys = defaultSortKeys
@@ -47,7 +53,7 @@ export default class SearchableStore {
     const state = () => {
       return {
         results: [], // search results
-        cache: {}, // radius log details
+        cache: {}, // items details
         message: '',
         itemStatus: '',
         searchStatus: '',
@@ -62,8 +68,8 @@ export default class SearchableStore {
     }
 
     const getters = {
-      isLoading: state => state.itemStatus === 'loading',
-      isLoadingResults: state => state.searchStatus === 'loading'
+      isLoading: state => state.itemStatus === types.LOADING,
+      isLoadingResults: state => state.searchStatus === types.LOADING
     }
 
     const actions = {
@@ -97,7 +103,7 @@ export default class SearchableStore {
           sort
         }
         let apiPromise = state.searchQuery ? _this.api.search(Object.assign(body, {query: state.searchQuery})) : _this.api.all(body)
-        if (state.searchStatus !== 'loading') {
+        if (state.searchStatus !== types.LOADING) {
           return new Promise((resolve, reject) => {
             commit('SEARCH_REQUEST')
             apiPromise.then(response => {
@@ -145,10 +151,10 @@ export default class SearchableStore {
         state.searchPageSize = limit
       },
       SEARCH_REQUEST: (state) => {
-        state.searchStatus = 'loading'
+        state.searchStatus = types.LOADING
       },
       SEARCH_SUCCESS: (state, response) => {
-        state.searchStatus = 'success'
+        state.searchStatus = types.SUCCESS
         if (response) {
           state.results = response.items
           let nextPage = Math.floor(response.nextCursor / state.searchPageSize) + 1
@@ -158,7 +164,7 @@ export default class SearchableStore {
         }
       },
       SEARCH_ERROR: (state, response) => {
-        state.searchStatus = 'error'
+        state.searchStatus = types.ERROR
         if (response && response.data) {
           state.message = response.data.message
         }
@@ -167,15 +173,15 @@ export default class SearchableStore {
         state.visibleColumns = columns
       },
       ITEM_REQUEST: (state) => {
-        state.itemStatus = 'loading'
+        state.itemStatus = types.LOADING
         state.message = ''
       },
       ITEM_REPLACED: (state, data) => {
-        state.itemStatus = 'success'
+        state.itemStatus = types.SUCCESS
         Vue.set(state.cache, data.id, data)
       },
       ITEM_ERROR: (state, response) => {
-        state.itemStatus = 'error'
+        state.itemStatus = types.ERROR
         if (response && response.data) {
           state.message = response.data.message
         }
