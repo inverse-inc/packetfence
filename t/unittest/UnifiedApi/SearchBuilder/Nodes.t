@@ -192,7 +192,13 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
         $sb->rewrite_query(
             $s, { op => 'equals', value => 'on', field => 'online' }
         ),
-        { op => 'equals', value => undef, field => 'radacct.acctstoptime' },
+        {
+            'op' => 'and',
+            'values' => [
+                { op => 'not_equals', value => undef, field => 'radacct.acctstarttime' },
+                { op => 'equals', value => undef, field => 'radacct.acctstoptime' },
+            ],
+        },
         "Rewrite online on query radacct.acctstoptime"
     );
     is_deeply(

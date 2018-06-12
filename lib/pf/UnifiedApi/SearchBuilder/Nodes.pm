@@ -155,8 +155,17 @@ sub rewrite_online_query {
         if ($value eq 'unknown') {
             $q->{field} = 'radacct.acctstarttime';
         } else {
-            $q->{field} = 'radacct.acctstoptime';
-            $q->{op} = $value eq 'on' ? 'equals' : 'not_equals';
+            if ($value eq 'on') {
+                delete @{$q}{'field' ,'value'};
+                $q->{op} = 'and';
+                $q->{'values'} = [
+                    { op => 'not_equals', value => undef, field => 'radacct.acctstarttime' },
+                    { op => 'equals', value => undef, field => 'radacct.acctstoptime' },
+                ];
+            } else {
+                $q->{field} = 'radacct.acctstoptime';
+                $q->{op} = 'not_equals';
+            }
         }
     }
     return $q;
