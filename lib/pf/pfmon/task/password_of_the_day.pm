@@ -40,21 +40,21 @@ sub run {
     my $sources = pf::authentication::getAuthenticationSourcesByType("Potd");
     my $new_password;
     foreach my $source (@{$sources}) {
-        unless (person_exist($source->{user})) {
-            $logger->info("Create Person $source->{user}");
-            person_add($source->{user});
-            $new_password = pf::password::generate($source->{user},[{type => 'valid_from', value => $now},{type => 'expiration', value => pf::config::access_duration($source->{password_rotation})}],undef,'0');
-            $self->send_email((pid => $source->{user}, password => $new_password, email => $source->{password_email_update}));
+        unless (person_exist($source->{id})) {
+            $logger->info("Create Person $source->{id}");
+            person_add($source->{id}, (potd => 'yes'));
+            $new_password = pf::password::generate($source->{id},[{type => 'valid_from', value => $now},{type => 'expiration', value => pf::config::access_duration($source->{password_rotation})}],undef,'0');
+            $self->send_email((pid => $source->{id}, password => $new_password, email => $source->{password_email_update}));
             next;
         }
-        my $password = pf::password::view($source->{user});
+        my $password = pf::password::view($source->{id});
         if(defined($password)){
             my $valid_from = $password->{valid_from};
             $valid_from = DateTime::Format::MySQL->parse_datetime($valid_from);
             $valid_from->set_time_zone("local");
             if ( ($now->epoch - $valid_from->epoch) > pf::util::normalize_time($source->{password_rotation})) {
-                $new_password = pf::password::generate($source->{user},[{type => 'valid_from', value => $now},{type => 'expiration', value => pf::config::access_duration($source->{password_rotation})}],undef,'0');
-                $self->send_email((pid => $source->{user},password => $new_password, email => $source->{password_email_update}));
+                $new_password = pf::password::generate($source->{id},[{type => 'valid_from', value => $now},{type => 'expiration', value => pf::config::access_duration($source->{password_rotation})}],undef,'0');
+                $self->send_email((pid => $source->{id},password => $new_password, email => $source->{password_email_update}));
             }
         }
     }

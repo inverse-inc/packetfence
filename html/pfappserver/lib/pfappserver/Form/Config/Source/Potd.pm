@@ -10,19 +10,32 @@ Form definition to create or update a potd user source.
 
 =cut
 
+use pf::person;
 use HTML::FormHandler::Moose;
 use pf::Authentication::Source::PotdSource;
 extends 'pfappserver::Form::Config::Source';
 with 'pfappserver::Base::Form::Role::Help', 'pfappserver::Base::Form::Role::InternalSource';
 
 # Form fields
-has_field 'user' =>
+has_field 'id' =>
   (
    type => 'Text',
-   label => 'Username',
+   label => 'Name',
    required => 1,
-   element_class => ['input-xxlarge'],
-   default => '',
+   messages => { required => 'Please specify the name of the source entry' },
+   apply => [ pfappserver::Base::Form::id_validator('source name') ],
+   validate_method => sub {
+       my ($field) = @_;
+       my $name = $field->value;
+       if ( !pf::person::person_exist($name) ) {
+           return;
+       } else {
+           my $person = pf::person::person_view($name);
+           if ($person->{potd} eq 'no') {
+               $field->add_error("User is not allowed to be use for Password Of the Day");
+           }
+       }
+   },
   );
 
 has_field 'password_rotation' =>
