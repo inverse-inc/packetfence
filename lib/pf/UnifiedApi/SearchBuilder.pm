@@ -338,9 +338,6 @@ sub verify_query {
 
         push @{$s->{found_fields}}, $field;
         $query = $self->rewrite_query($s, $query);
-        if ($self->is_table_field($s, $field)) {
-            $query->{field} = $s->{dal}->table . "." . $field;
-        }
     }
 
     return (200, $query);
