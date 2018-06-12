@@ -195,7 +195,8 @@ sub generate {
     $password ||= _generate_password($options->{'password_length'});
 
     # hash password
-    $data{'password'} = _hash_password( $password, algorithm => $Config{'advanced'}{'hash_passwords'}, );
+    my $hash = $options->{'hash_passwords'} || $Config{'advanced'}{'hash_passwords'};
+    $data{'password'} = _hash_password( $password, algorithm => $hash, );
 
     $data{'login_remaining'} = $login_amount;
 
