@@ -43,7 +43,7 @@ sub run {
         unless (person_exist($source->{id})) {
             $logger->info("Create Person $source->{id}");
             person_add($source->{id}, (potd => 'yes'));
-            $new_password = pf::password::generate($source->{id},[{type => 'valid_from', value => $now},{type => 'expiration', value => pf::config::access_duration($source->{password_rotation})}],undef,'0');
+            $new_password = pf::password::generate($source->{id},[{type => 'valid_from', value => $now},{type => 'expiration', value => pf::config::access_duration($source->{password_rotation})}],undef,'0',$source);
             $self->send_email((pid => $source->{id}, password => $new_password, email => $source->{password_email_update}));
             next;
         }
@@ -53,7 +53,7 @@ sub run {
             $valid_from = DateTime::Format::MySQL->parse_datetime($valid_from);
             $valid_from->set_time_zone("local");
             if ( ($now->epoch - $valid_from->epoch) > pf::util::normalize_time($source->{password_rotation})) {
-                $new_password = pf::password::generate($source->{id},[{type => 'valid_from', value => $now},{type => 'expiration', value => pf::config::access_duration($source->{password_rotation})}],undef,'0');
+                $new_password = pf::password::generate($source->{id},[{type => 'valid_from', value => $now},{type => 'expiration', value => pf::config::access_duration($source->{password_rotation})}],undef,'0',$source);
                 $self->send_email((pid => $source->{id},password => $new_password, email => $source->{password_email_update}));
             }
         }
