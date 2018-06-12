@@ -13,41 +13,48 @@
             <template slot="button-content">
               <icon name="cogs" v-b-tooltip.hover.right :title="$t('Actions')"></icon>
             </template>
-            <b-dropdown-item @click="applyClearViolation()">
+            <b-dropdown-item @click="applyBulkClearViolation()">
               <icon class="position-absolute mt-1" name="ban"></icon>
               <span class="ml-4">{{ $t('Clear Violation') }}</span>
             </b-dropdown-item>
-            <b-dropdown-item @click="applyRegister()">
+            <b-dropdown-item @click="applyBulkRegister()">
               <icon class="position-absolute mt-1" name="plus-circle"></icon>
               <span class="ml-4">{{ $t('Register') }}</span>
             </b-dropdown-item>
-            <b-dropdown-item @click="applyDeregister()">
+            <b-dropdown-item @click="applyBulkDeregister()">
               <icon class="position-absolute mt-1" name="minus-circle"></icon>
               <span class="ml-4">{{ $t('Deregister') }}</span>
             </b-dropdown-item>
-            <b-dropdown-item @click="applyReevaluateAccess()">
+            <b-dropdown-item @click="applyBulkReevaluateAccess()">
               <icon class="position-absolute mt-1" name="sync"></icon>
               <span class="ml-4">{{ $t('Revaluate Access') }}</span>
             </b-dropdown-item>
-            <b-dropdown-item @click="applyRestartSwitchport()">
+            <b-dropdown-item @click="applyBulkRestartSwitchport()">
               <icon class="position-absolute mt-1" name="retweet"></icon>
               <span class="ml-4">{{ $t('Restart Switchport') }}</span>
             </b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-header>{{ $t('Apply Role') }}</b-dropdown-header>
-            <b-dropdown-item v-for="role in roles" :key="role.id" @click="applyRole(role)">
-              <span>{{role.id}}</span>
+            <b-dropdown-item v-for="role in roles" :key="role.category_id" @click="applyRole(role)" v-b-tooltip.hover.left :title="role.notes">
+              <span>{{role.name}}</span>
+            </b-dropdown-item>
+            <b-dropdown-item @click="applyRole({category_id: null})" v-b-tooltip.hover.left :title="$t('Clear Role')">
+              <icon class="position-absolute mt-1" name="trash-alt"></icon>
+              <span class="ml-4"><em>{{ $t('None') }}</em></span>
             </b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-header>{{ $t('Apply Bypass Role') }}</b-dropdown-header>
-            <b-dropdown-item v-for="role in roles" :key="role.id" @click="applyBypassRole(role)">
-              <span>{{role.id}}</span>
+            <b-dropdown-item v-for="role in roles" :key="role.category_id" @click="applyBypassRole(role)" v-b-tooltip.hover.left :title="role.notes">
+              <span>{{role.name}}</span>
+            </b-dropdown-item>
+            <b-dropdown-item @click="applyBypassRole({category_id: null})" v-b-tooltip.hover.left :title="$t('Clear Bypass Role')">
+              <icon class="position-absolute mt-1" name="trash-alt"></icon>
+              <span class="ml-4"><em>{{ $t('None') }}</em></span>
             </b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-header>{{ $t('Apply Violation') }}</b-dropdown-header>
-            <b-dropdown-item v-for="violation in violations" v-if="violation.enabled ==='Y'" :key="violation.id" @click="applyViolation(violation)">
-              <span :id="violation.id" :title="violation.id">{{violation.desc}}</span>
-              <b-tooltip :target="violation.id" placement="left">{{violation.id}}</b-tooltip>
+            <b-dropdown-item v-for="violation in violations" v-if="violation.enabled ==='Y'" :key="violation.id" @click="applyViolation(violation)" v-b-tooltip.hover.left :title="violation.id">
+              <span>{{violation.desc}}</span>
             </b-dropdown-item>
           </b-dropdown>
           <b-dropdown size="sm" variant="link" boundary="viewport" :disabled="isLoading" no-caret>
@@ -83,6 +90,7 @@
         </template>
         <template slot="actions" slot-scope="data">
           <input type="checkbox" :id="data.value" :value="data.item" v-model="checkedRows" @click.stop="toggleCheckbox($event, data.index)">
+          <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[data.index]._message" v-b-tooltip.hover.right :title="tableValues[data.index]._message"></icon>
         </template>
         <template slot="status" slot-scope="data">
           <b-badge pill variant="success" v-if="data.value === 'reg'">{{ $t('registered') }}</b-badge>
@@ -143,33 +151,118 @@ export default {
       fields: [ // keys match with b-form-select
         {
           value: 'mac',
-          text: 'MAC Address',
-          types: [conditionType.SUBSTRING]
-        },
-        {
-          value: 'computername',
-          text: 'Computer Name',
+          text: this.$i18n.t('MAC Address [✓]'),
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'bypass_role_id',
-          text: 'Bypass Role',
+          text: this.$i18n.t('Bypass Role [✓]'),
           types: [conditionType.ROLE, conditionType.SUBSTRING]
+        },
+        {
+          value: 'bypass_vlan',
+          text: this.$i18n.t('Bypass VLAN [?]'),
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'computername',
+          text: this.$i18n.t('Computer Name [✓]'),
+          types: [conditionType.SUBSTRING]
         },
         {
           value: 'locationlog.connection_type',
-          text: 'Connection Type',
+          text: this.$i18n.t('Connection Type [?]'),
           types: [conditionType.CONNECTION_TYPE]
         },
         {
+          value: 'device_class',
+          text: this.$i18n.t('Device Class [✓]'),
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'device_manufacturer',
+          text: this.$i18n.t('Device Manufacturer [?]'),
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'device_type',
+          text: this.$i18n.t('Device Type [✓]'),
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'ip4log.ip',
+          text: this.$i18n.t('IPv4 Address [✓]'),
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'ip6log.ip',
+          text: this.$i18n.t('IPv6 Address [✓]'),
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'machine_account',
+          text: this.$i18n.t('Machine Account [✓]'),
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'notes',
+          text: this.$i18n.t('Notes [✓]'),
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'online',
+          text: this.$i18n.t('Online Status [x]'),
+          types: [conditionType.ONLINE]
+        },
+        {
+          value: 'pid',
+          text: this.$i18n.t('Owner [✓]'),
+          types: [conditionType.SUBSTRING]
+        },
+        {
           value: 'category_id',
-          text: 'Node Role',
+          text: this.$i18n.t('Role [✓]'),
           types: [conditionType.ROLE, conditionType.SUBSTRING]
         },
         {
+          value: 'locationlog.switch',
+          text: this.$i18n.t('Source Switch Identifier [✓]'),
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'locationlog.switch_ip',
+          text: this.$i18n.t('Source Switch IP [✓]'),
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'locationlog.switch_mac',
+          text: this.$i18n.t('Source Switch MAC [✓]'),
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'locationlog.ssid',
+          text: this.$i18n.t('SSID [✓]'),
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'user_agent',
+          text: this.$i18n.t('User Agent [✓]'),
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'violation',
+          text: this.$i18n.t('Violation Name [?]'),
+          types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'violation_status',
+          text: this.$i18n.t('Violation Status [?]'),
+          types: [conditionType.SUBSTRING]
+        },
+        {
           value: 'voip',
-          text: 'VoIP',
-          types: [conditionType.BOOL]
+          text: this.$i18n.t('VoIP [✓]'),
+          types: [conditionType.VOIP]
         }
       ],
       /**
@@ -236,7 +329,13 @@ export default {
         },
         {
           key: 'ip4log.ip',
-          label: this.$i18n.t('IP Address'),
+          label: this.$i18n.t('IPv4 Address'),
+          sortable: true,
+          visible: true
+        },
+        {
+          key: 'ip6log.ip',
+          label: this.$i18n.t('IPv6 Address'),
           sortable: true,
           visible: true
         },
@@ -251,6 +350,12 @@ export default {
           label: this.$i18n.t('Device Class'),
           sortable: true,
           visible: true
+        },
+        {
+          key: 'device_manufacturer',
+          label: this.$i18n.t('Device Manufacturer'),
+          sortable: true,
+          visible: false
         },
         {
           key: 'device_score',
@@ -292,7 +397,22 @@ export default {
           key: 'category_id',
           label: this.$i18n.t('Role'),
           sortable: true,
-          visible: true
+          visible: true,
+          formatter: (value, key, item) => {
+            return this.$store.state.config.roles.filter(role => role.category_id === item.category_id).map(role => role.name)
+          }
+        },
+        {
+          key: 'locationlog.connection_type',
+          label: this.$i18n.t('Connection Type'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'locationlog.session_id',
+          label: this.$i18n.t('Session ID'),
+          sortable: true,
+          visible: false
         },
         {
           key: 'locationlog.switch',
@@ -334,7 +454,10 @@ export default {
           key: 'bypass_role_id',
           label: this.$i18n.t('Bypass Role'),
           sortable: true,
-          visible: false
+          visible: false,
+          formatter: (value, key, item) => {
+            return this.$store.state.config.roles.filter(role => role.category_id === item.bypass_role_id).map(role => role.name)
+          }
         },
         {
           key: 'notes',
@@ -357,12 +480,6 @@ export default {
         {
           key: 'last_dhcp',
           label: this.$i18n.t('Last DHCP'),
-          sortable: true,
-          visible: false
-        },
-        {
-          key: 'locationlog.session_id',
-          label: this.$i18n.t('Session ID'),
           sortable: true,
           visible: false
         },
@@ -451,7 +568,7 @@ export default {
           // noop
         }
       }
-      this.condition = { op: 'and', values: [{ op: 'or', values: [{ field: null, op: null, value: null }] }] }
+      this.condition = { op: 'and', values: [{ op: 'or', values: [{ field: this.fields[0].value, op: null, value: null }] }] }
     },
     onPageSizeChange () {
       this.requestPage = 1 // reset to the first page
@@ -489,7 +606,8 @@ export default {
       this.checkedAll = false
       const _this = this
       this.checkedRows.forEach(function (item, index, items) {
-        _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: ''})
+        _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: ''})
+        _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: item.mac, message: ''})
       })
       this.checkedRows = []
       this.lastIndex = null
@@ -511,53 +629,113 @@ export default {
         this.checkedRows = this.checkedRows.reduce((x, y) => subset.includes(y) ? x : [...x, y], [])
       }
     },
-    applyClearViolation () {
+    applyBulkClearViolation () {
       const _this = this
-      this.checkedRows.forEach(function (item, index, items) {
-        _this.$store.dispatch('$_nodes/clearViolationNode', item.mac).then(response => {
-          _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'success'})
-        }).catch(() => {
-          _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'danger'})
-        })
-      })
-    },
-    applyRegister () {
-      const _this = this
-      this.checkedRows.forEach(function (item, index, items) {
-        _this.$store.dispatch('$_nodes/registerNode', item.mac).then(response => {
-          _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'success'})
-        }).catch(() => {
-          _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'danger'})
-        })
-      })
-    },
-    applyDeregister () {
-      const _this = this
-      const macs = []
-      this.checkedRows.forEach(function (item, index, items) {
-        macs.push(item.mac)
-      })
+      const macs = this.checkedRows.map(item => item.mac)
       if (macs.length > 0) {
-        _this.$store.dispatch('$_nodes/deregisterBulkNodes', macs).then(response => {
-          console.log(['$_nodes/deregisterBulkNodes', macs, response])
-          // _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'success'})
+        _this.$store.dispatch('$_nodes/clearViolationBulkNodes', macs).then(response => {
+          response.items.forEach(function (item, index, items) {
+            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, status: item.status})
+            _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: item.mac, message: item.message})
+          })
         }).catch(() => {
-          console.log(['$_nodes/deregisterBulkNodes', 'catch()'])
-          // _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: 'danger'})
+          macs.forEach(function (mac, index) {
+            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'danger'})
+          })
         })
       }
     },
-    applyReevaluateAccess () {
-      console.log(['applyReevaluateAccess', this.checkedRows])
+    applyBulkRegister () {
+      const _this = this
+      const macs = this.checkedRows.map(item => item.mac)
+      if (macs.length > 0) {
+        _this.$store.dispatch('$_nodes/registerBulkNodes', macs).then(response => {
+          response.items.forEach(function (item, index, items) {
+            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, status: item.status})
+            _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: item.mac, message: item.message})
+          })
+        }).catch(() => {
+          macs.forEach(function (mac, index) {
+            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'danger'})
+          })
+        })
+      }
     },
-    applyRestartSwitchport () {
-      console.log(['applyRestartSwitchport', this.checkedRows])
+    applyBulkDeregister () {
+      const _this = this
+      const macs = this.checkedRows.map(item => item.mac)
+      if (macs.length > 0) {
+        _this.$store.dispatch('$_nodes/deregisterBulkNodes', macs).then(response => {
+          response.items.forEach(function (item, index, items) {
+            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, status: item.status})
+            _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: item.mac, message: item.message})
+          })
+        }).catch(() => {
+          macs.forEach(function (mac, index) {
+            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'danger'})
+          })
+        })
+      }
+    },
+    applyBulkReevaluateAccess () {
+      const _this = this
+      const macs = this.checkedRows.map(item => item.mac)
+      if (macs.length > 0) {
+        _this.$store.dispatch('$_nodes/reevaluateAccessBulkNodes', macs).then(response => {
+          response.items.forEach(function (item, index, items) {
+            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, status: item.status})
+            _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: item.mac, message: item.message})
+          })
+        }).catch(() => {
+          macs.forEach(function (mac, index) {
+            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'danger'})
+          })
+        })
+      }
+    },
+    applyBulkRestartSwitchport () {
+      const _this = this
+      const macs = this.checkedRows.map(item => item.mac)
+      if (macs.length > 0) {
+        _this.$store.dispatch('$_nodes/restartSwitchportBulkNodes', macs).then(response => {
+          response.items.forEach(function (item, index, items) {
+            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, status: item.status})
+            _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: item.mac, message: item.message})
+          })
+        }).catch(() => {
+          macs.forEach(function (mac, index) {
+            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'danger'})
+          })
+        })
+      }
     },
     applyRole (role) {
-      console.log(['applyRole', role, this.checkedRows])
+      const _this = this
+      const macs = this.checkedRows.map(item => item.mac)
+      if (macs.length > 0) {
+        macs.forEach(function (mac, index) {
+          _this.$store.dispatch('$_nodes/roleNode', {mac: mac, category_id: role.category_id}).then(response => {
+            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, status: response.status})
+            _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: mac, message: response.message})
+          }).catch(() => {
+            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'danger'})
+          })
+        })
+      }
     },
     applyBypassRole (role) {
-      console.log(['applyBypassRole', role, this.checkedRows])
+      const _this = this
+      const macs = this.checkedRows.map(item => item.mac)
+      if (macs.length > 0) {
+        macs.forEach(function (mac, index) {
+          _this.$store.dispatch('$_nodes/bypassRoleNode', {mac: mac, bypass_role_id: role.category_id}).then(response => {
+            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, status: response.status})
+            _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: mac, message: response.message})
+          }).catch(() => {
+            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'danger'})
+          })
+        })
+      }
     },
     applyViolation (violation) {
       console.log(['applyViolation', violation, this.checkedRows])
@@ -581,7 +759,12 @@ export default {
       let _this = this
       let checkedRows = this.checkedRows
       this.items.forEach(function (item, index, items) {
-        _this.$store.commit('$_nodes/NODE_VARIANT', {mac: item.mac, variant: checkedRows.includes(item) ? 'info' : ''})
+        if (checkedRows.includes(item)) {
+          _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: 'info'})
+        } else {
+          _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: ''})
+          _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: item.mac, message: ''})
+        }
       })
     },
     condition (a, b) {
@@ -594,6 +777,9 @@ export default {
       if (a !== b) this.clearChecked()
     },
     pageSizeLimit (a, b) {
+      if (a !== b) this.clearChecked()
+    },
+    visibleColumns (a, b) {
       if (a !== b) this.clearChecked()
     }
   },

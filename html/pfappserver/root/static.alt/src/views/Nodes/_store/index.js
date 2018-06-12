@@ -231,6 +231,20 @@ const actions = {
       })
     })
   },
+  registerBulkNodes: ({commit}, macs) => {
+    commit('ITEM_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.registerBulkNodes(macs).then(response => {
+        response.items.filter(item => item.status === 'success').forEach(function (item, index, items) {
+          commit('ITEM_UPDATED', { mac: item.mac, prop: 'status', data: 'reg' })
+        })
+        resolve(response)
+      }).catch(err => {
+        commit('ITEM_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
   deregisterNode: ({commit}, mac) => {
     commit('NODE_REQUEST')
     return new Promise((resolve, reject) => {
@@ -244,14 +258,15 @@ const actions = {
     })
   },
   deregisterBulkNodes: ({commit}, macs) => {
-    commit('NODE_REQUEST')
+    commit('ITEM_REQUEST')
     return new Promise((resolve, reject) => {
       api.deregisterBulkNodes(macs).then(response => {
-        // commit('NODE_REPLACED', mac)
-        console.log(['api.deregisterBulkNodes(macs).then', response])
+        response.items.filter(item => item.status === 'success').forEach(function (item, index, items) {
+          commit('ITEM_UPDATED', { mac: item.mac, prop: 'status', data: 'unreg' })
+        })
         resolve(response)
       }).catch(err => {
-        commit('NODE_ERROR', err.response)
+        commit('ITEM_ERROR', err.response)
         reject(err)
       })
     })
@@ -264,6 +279,64 @@ const actions = {
         resolve(response)
       }).catch(err => {
         commit('NODE_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  clearViolationBulkNodes: ({commit}, macs) => {
+    return new Promise((resolve, reject) => {
+      api.clearViolationBulkNodes(macs).then(response => {
+        resolve(response)
+      }).catch(err => {
+        commit('NODE_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  reevaluateAccessBulkNodes: ({commit}, macs) => {
+    return new Promise((resolve, reject) => {
+      api.reevaluateAccessBulkNodes(macs).then(response => {
+        resolve(response)
+      }).catch(err => {
+        commit('NODE_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  restartSwitchportBulkNodes: ({commit}, macs) => {
+    return new Promise((resolve, reject) => {
+      api.restartSwitchportBulkNodes(macs).then(response => {
+        resolve(response)
+      }).catch(err => {
+        commit('NODE_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  roleNode: ({commit}, data) => {
+    commit('ITEM_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.updateNode(data).then(response => {
+        if (response.status === 'success') {
+          commit('ITEM_UPDATED', { mac: data.mac, prop: 'category_id', data: data.category_id })
+        }
+        resolve(response)
+      }).catch(err => {
+        commit('ITEM_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  bypassRoleNode: ({commit}, data) => {
+    commit('ITEM_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.updateNode(data).then(response => {
+        if (response.status === 'success') {
+          commit('ITEM_UPDATED', { mac: data.mac, prop: 'bypass_role_id', data: data.bypass_role_id })
+        }
+        resolve(response)
+      }).catch(err => {
+        commit('ITEM_ERROR', err.response)
         reject(err)
       })
     })
@@ -333,10 +406,29 @@ const mutations = {
       state.message = response.data.message
     }
   },
-  NODE_VARIANT: (state, params) => {
-    state.nodeStatus = 'success'
+  ITEM_VARIANT: (state, params) => {
     let index = state.items.findIndex(item => item.mac === params.mac)
-    Vue.set(state.items[index], '_rowVariant', params.variant)
+    let variant = params.variant || ''
+    switch (params.status) {
+      case 'success':
+        variant = 'success'
+        break
+      case 'skipped':
+        variant = 'warning'
+        break
+      case 'failed':
+        variant = 'danger'
+        break
+    }
+    Vue.set(state.items[index], '_rowVariant', variant)
+  },
+  ITEM_MESSAGE: (state, params) => {
+    let index = state.items.findIndex(item => item.mac === params.mac)
+    Vue.set(state.items[index], '_message', params.message)
+  },
+  ITEM_UPDATED: (state, params) => {
+    let index = state.items.findIndex(item => item.mac === params.mac)
+    Vue.set(state.items[index], params.prop, params.data)
   }
 }
 

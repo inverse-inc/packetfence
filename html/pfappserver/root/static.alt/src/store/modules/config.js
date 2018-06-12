@@ -6,7 +6,7 @@ import apiCall from '@/utils/api'
 
 const api = {
   getRoles () {
-    return apiCall({url: 'config/roles', method: 'get'})
+    return apiCall({url: 'node_categories', method: 'get'})
   },
   getViolations () {
     return apiCall({url: 'config/violations', method: 'get'})
@@ -22,7 +22,7 @@ const getters = {
   rolesList: state => {
     // Remap for b-form-select component
     return state.roles.map((item) => {
-      return { value: item.id, text: `${item.id} - ${item.notes}` }
+      return { value: item.category_id, text: `${item.name} - ${item.notes}` }
     })
   },
   sortedViolations: state => {
@@ -59,7 +59,7 @@ const actions = {
     }
   },
   getViolations: ({commit, state}) => {
-    if (state.violations.length === 0) {
+    if (Object.keys(state.violations).length === 0) {
       return api.getViolations().then(response => {
         commit('VIOLATIONS_UPDATED', response.data.items)
         return state.violations
