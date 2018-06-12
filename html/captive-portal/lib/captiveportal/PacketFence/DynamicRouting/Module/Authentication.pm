@@ -290,7 +290,7 @@ sub create_local_account {
     $actions = $actions // pf::authentication::match( $self->source->id, $auth_params, undef, $self->session->{extra} );
 
     my $login_amount = ($self->source->local_account_logins eq $LOCAL_ACCOUNT_UNLIMITED_LOGINS) ? undef : $self->source->local_account_logins;
-    $password = pf::password::generate($self->app->session->{username}, $actions, $password, $login_amount);
+    $password = pf::password::generate($self->app->session->{username}, $actions, $password, $login_amount, $self->source);
 
     # We send the guest and email with the info of the local account
     my %info = (

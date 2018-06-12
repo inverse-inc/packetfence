@@ -15,6 +15,8 @@ use pf::Authentication::constants qw($LOCAL_ACCOUNT_UNLIMITED_LOGINS);
 
 has 'create_local_account' => (isa => 'Str', is => 'rw', default => 'no');
 has 'local_account_logins' => (isa => 'Str', is => 'rw', default => $LOCAL_ACCOUNT_UNLIMITED_LOGINS);
+has 'hash_passwords'       => (isa => 'Maybe[Str]', is => 'rw', default => 'ntlm');
+has 'password_length'      => (isa => 'Maybe[Int]', is => 'rw', default => 8);
 
 =head1 COPYRIGHT
 
