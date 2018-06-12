@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 17;
+use Test::More tests => 20;
 
 #This test will running last
 use Test::NoWarnings;
@@ -186,8 +186,9 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
     is_deeply(
         $sb->rewrite_query( $s, $q ),
         { op => 'equals', value => undef, field => 'radacct.acctstarttime' },
-        "Rewrite online unknown query radacct.acctstarttime"
+        "Rewrite online='unknown'",
     );
+
     is_deeply(
         $sb->rewrite_query(
             $s, { op => 'equals', value => 'on', field => 'online' }
@@ -199,18 +200,55 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
                 { op => 'equals', value => undef, field => 'radacct.acctstoptime' },
             ],
         },
-        "Rewrite online on query radacct.acctstoptime"
+        "Rewrite online='on'",
     );
+
     is_deeply(
         $sb->rewrite_query(
             $s, { op => 'equals', value => 'off', field => 'online' }
         ),
         { op => 'not_equals', value => undef, field => 'radacct.acctstoptime' },
-        "Rewrite online on query radacct.acctstoptime"
+        "Rewrite online='off'",
+    );
+
+    is_deeply(
+        $sb->rewrite_query(
+            $s, { op => 'not_equals', value => 'off', field => 'online' }
+        ),
+        {
+            op => 'or',
+            values => [
+                { op => 'equals', value => undef, field => 'radacct.acctstarttime' },
+                { op => 'equals', value => undef, field => 'radacct.acctstoptime' },
+            ],
+        },
+        "Rewrite online!='off'",
+    );
+
+    is_deeply(
+        $sb->rewrite_query(
+            $s, { op => 'not_equals', value => 'on', field => 'online' }
+        ),
+        {
+            op => 'or',
+            values => [
+                { op => 'equals', value => undef, field => 'radacct.acctstarttime' },
+                { op => 'not_equals', value => undef, field => 'radacct.acctstoptime' },
+            ],
+        },
+        "Rewrite online!='on'",
+    );
+
+    is_deeply(
+        $sb->rewrite_query(
+            $s, { op => 'not_equals', value => 'unknown', field => 'online' }
+        ),
+        {
+            op => 'not_equals', value => undef, field => 'radacct.acctstarttime',
+        },
+        "Rewrite online!='unknown'",
     );
 }
-
-
 
 {
     my @f = qw(mac online);
