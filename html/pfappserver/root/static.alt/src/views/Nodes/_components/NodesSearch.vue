@@ -99,6 +99,9 @@
         <template slot="device_score" slot-scope="data">
           <pf-fingerbank-score :score="data.value"></pf-fingerbank-score>
         </template>
+        <template slot="mac" slot-scope="node">
+          <mac v-text="node.item.mac"></mac>
+        </template>
       </b-table>
     </div>
   </b-card>
