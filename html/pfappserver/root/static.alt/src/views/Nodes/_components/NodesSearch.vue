@@ -190,24 +190,19 @@ export default {
           types: [conditionType.SUBSTRING]
         },
         {
-          value: 'machine_account',
-          text: this.$i18n.t('Machine Account [✓]'),
-          types: [conditionType.SUBSTRING]
-        },
-        {
           value: 'ip4log.ip',
-          text: this.$i18n.t('Node IPv4 [✓]'),
+          text: this.$i18n.t('IPv4 Address [✓]'),
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'ip6log.ip',
-          text: this.$i18n.t('Node IPv6 [✓]'),
+          text: this.$i18n.t('IPv6 Address [✓]'),
           types: [conditionType.SUBSTRING]
         },
         {
-          value: 'category_id',
-          text: this.$i18n.t('Node Role [✓]'),
-          types: [conditionType.ROLE, conditionType.SUBSTRING]
+          value: 'machine_account',
+          text: this.$i18n.t('Machine Account [✓]'),
+          types: [conditionType.SUBSTRING]
         },
         {
           value: 'notes',
@@ -223,6 +218,11 @@ export default {
           value: 'pid',
           text: this.$i18n.t('Owner [✓]'),
           types: [conditionType.SUBSTRING]
+        },
+        {
+          value: 'category_id',
+          text: this.$i18n.t('Role [✓]'),
+          types: [conditionType.ROLE, conditionType.SUBSTRING]
         },
         {
           value: 'locationlog.switch',
