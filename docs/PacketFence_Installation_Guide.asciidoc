@@ -496,6 +496,7 @@ PacketFence can authenticate users that register devices via the captive portal 
 * Sponsored Email
 * Twitter (OAuth 2)
 * Windows Live (OAuth 2)
+* Password Of the Day
 
 and many others. Moreover, PacketFence can also authenticate users defined in its own internal SQL database. Authentication sources can be created from PacketFence administrative GUI - from the *Configuration -> Policies and Access Control -> Authentication Sources* section. Authentication sources, rules, conditions and actions are stored in the `conf/authentication.conf` configuration file.
 
