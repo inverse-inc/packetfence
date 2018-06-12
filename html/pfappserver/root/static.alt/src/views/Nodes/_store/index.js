@@ -232,6 +232,7 @@ const actions = {
     })
   },
   registerBulkNodes: ({commit}, macs) => {
+    commit('ITEM_REQUEST')
     return new Promise((resolve, reject) => {
       api.registerBulkNodes(macs).then(response => {
         response.items.filter(item => item.status === 'success').forEach(function (item, index, items) {
@@ -257,6 +258,7 @@ const actions = {
     })
   },
   deregisterBulkNodes: ({commit}, macs) => {
+    commit('ITEM_REQUEST')
     return new Promise((resolve, reject) => {
       api.deregisterBulkNodes(macs).then(response => {
         response.items.filter(item => item.status === 'success').forEach(function (item, index, items) {
@@ -312,7 +314,7 @@ const actions = {
     })
   },
   roleNode: ({commit}, data) => {
-    commit('NODE_REQUEST')
+    commit('ITEM_REQUEST')
     return new Promise((resolve, reject) => {
       api.updateNode(data).then(response => {
         if (response.status === 'success') {
@@ -326,7 +328,7 @@ const actions = {
     })
   },
   bypassRoleNode: ({commit}, data) => {
-    commit('NODE_REQUEST')
+    commit('ITEM_REQUEST')
     return new Promise((resolve, reject) => {
       api.updateNode(data).then(response => {
         if (response.status === 'success') {

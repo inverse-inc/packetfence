@@ -201,7 +201,7 @@ export default {
         },
         {
           value: 'ip6log.ip',
-          text: this.$i18n.t('Node IPv6 [x]'),
+          text: this.$i18n.t('Node IPv6 [✓]'),
           types: [conditionType.SUBSTRING]
         },
         {
