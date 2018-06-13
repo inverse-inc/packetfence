@@ -77,15 +77,20 @@ sub print_status {
     print "Service\tStatus\n";
     for my $output (@output) {
         if ($output =~ /(packetfence.+\.service)\s+loaded\s+active/) {
-            print $1,"\t${SUCCESS_COLOR}started${RESET_COLOR}\n";
+            my $service = $1;
+            $service .= (" " x (50 - length($service)));
+            print $service,"\t${SUCCESS_COLOR}started${RESET_COLOR}\n";
+
         } elsif ($output =~ /(packetfence-(.+)\.service)\s+loaded\s+inactive/) {
             my @service = grep {$_ =~ /$2/} @pf::services::ALL_SERVICES;
             my $manager = pf::services::get_service_manager($service[0]);
             my $isManaged = $manager->isManaged;
+            my $service = $1;
+            $service .= (" " x (50 - length($service)));
             if ($isManaged && !$manager->optional) {
-                print $1,"\t${ERROR_COLOR}stopped${RESET_COLOR}\n";
+                print $service,"\t${ERROR_COLOR}stopped${RESET_COLOR}\n";
             } else {
-                print $1,"\t${WARNING_COLOR}stopped${RESET_COLOR}\n";
+                print $service,"\t${WARNING_COLOR}stopped${RESET_COLOR}\n";
             }
         }
     }
