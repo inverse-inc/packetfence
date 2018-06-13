@@ -30,6 +30,8 @@ Enhancements
 
 Bug Fixes
 +++++++++
+* Netdata never ending restarts after a reboot (#3287)
+
 
 Version 8.0.1 released on 2018-05-09
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
