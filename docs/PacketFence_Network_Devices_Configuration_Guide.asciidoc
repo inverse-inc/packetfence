@@ -5936,10 +5936,10 @@ Finally, we need to tie the service profiles with the proper AAA configuration.
 Ubiquiti
 ~~~~~~~~
 
-Web authentication
+Web Authentication
 ^^^^^^^^^^^^^^^^^^
 
-In order to configure web-authentication (external captive-portal) on Ubiquiti access points, you must have access to a Unifi controller and your APs must be connected to it.
+In order to configure web authentication (external captive-portal) on Ubiquiti access points, you must have access to a Unifi controller and your APs must be connected to it.
 
 First, you must configure the guest policy. Go in 'Settings->Guest Control' and configure it as shown below:
 
@@ -5975,11 +5975,11 @@ Where :
 VLAN Enforcement
 ^^^^^^^^^^^^^^^^
 
-In order to configure VLAN enforcement on the Unifi controller, you need first to configure a RADIUS profile, then next a secure Wireless network
+In order to configure VLAN enforcement on the Unifi controller, you need first to configure a RADIUS profile, then a secure wireless network.
 
-Important : You cannot re-use a VLAN ID for dynamic VLAN if it is set as a static value for another SSID on the same AP. So, if you have an SSID set to use VLAN 10, you cannot use VLAN ID 10 for RADIUS controlled VLAN users as those users will not get an IP.
+Important : You cannot reuse a VLAN ID for dynamic VLAN if it is set as a static value for another SSID on the same AP. So, if you have a SSID set to use VLAN 10, you cannot use VLAN ID 10 for RADIUS controlled VLAN users as those users will not get an IP address.
 
-Note that VLAN enforcement for an open SSID is not supported yet by the controller and access-point.
+Note that VLAN enforcement for an open SSID is not supported yet by the controller and access point.
 
 AAA Configuration
 +++++++++++++++++
@@ -5989,22 +5989,20 @@ image::docs/images/unifi-radius.png[scaledwidth="100%",alt="Unifi Radius Profile
 Secure SSID
 +++++++++++
 
-There is a particularity when you want to be able to deauthenticate a device when it is connected on the secure SSID.
+There is a special case when you want to be able to deauthenticate a device when it is connected on the secure SSID.
 
-By default pmksa caching is enabled and applies even when a deauthentication request is sent to the controller, meaning you will not get a new RADIUS request afterwards
+By default pmksa caching is enabled and applies even when a deauthentication request is sent to the controller, meaning you will not get a new RADIUS request afterwards. To disable this cache you will need to create a file on the controller.
 
-To disable this cache you will need to create a file on the controller.
+First verify the site where your access point is managed. To do this, under the administration interface of the controller, select the appropriate "Current Site" then in the URI check the value just after site.
 
-First verify the site where your access point is managed, to do that, under the administration interface of the controller, select the appropriate "Current Site" then in the URI check the value just after site.
+In this case the URL is https://192.168.1.6:8443/manage/site/4j4ee7x4/ so the site id is 4j4ee7x4.
 
-In this case the uri is https://192.168.1.6:8443/manage/site/4j4ee7x4/ so the site id is 4j4ee7x4
-
-Next connect on the controller via ssh and go in /usr/lib/unifi/data/sites/4j4ee7x4 (replace 4j4ee7x4 by your site id) and create a file config.properties that contain:
+Next connect on the controller via SSH and go in /usr/lib/unifi/data/sites/4j4ee7x4 (replace 4j4ee7x4 with your site id) and create a file named config.properties with the following content:
 
  config.system_cfg.1=aaa.1.auth_cache=disabled
  config.system_cfg.2=aaa.4.auth_cache=disabled
 
-1 and 4 are the profile id configured on the access point, to be sure to have the correct id, you can connect on the access point via ssh or via the debug terminal and do:
+The numbers 1 and 4 are the profile id configured on the access point. To be sure you have the correct id, you can connect on the access point via SSH or via the debug terminal and do:
 
   BZ.v3.9.3# cat /tmp/system.cfg | grep ssid
   aaa.1.ssid=PacketFence-Secure
@@ -6025,9 +6023,9 @@ Next connect on the controller via ssh and go in /usr/lib/unifi/data/sites/4j4ee
 
 You can see that PacketFence-Secure appears in 1 and 4 (2 radios).
 
-Complicated isn't it !, feel free to ask the support directly in the administration interface there: https://community.ubnt.com/t5/UniFi-Wireless/Feature-request-disable-pmksa-caching/m-p/2112479#M257628
+Fore additional details, feel free to ask for support directly in the Ubiquiti forum: https://community.ubnt.com/t5/UniFi-Wireless/Feature-request-disable-pmksa-caching/m-p/2112479#M257628
 
-Next you will need to create a secure profile:
+Next you will need to create a secured profile:
 
 image::docs/images/unifi-secure.png[scaledwidth="100%",alt="Unifi Secure SSID"]
 
