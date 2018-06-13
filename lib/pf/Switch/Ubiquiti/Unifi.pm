@@ -28,6 +28,13 @@ use pf::file_paths qw($var_dir);
 use pf::constants;
 use pf::util;
 use pf::node;
+use pf::config qw(
+    %connection_type_to_str
+    $MAC
+    $SSID
+    $WEBAUTH_WIRELESS
+);
+use JSON::MaybeXS;
 
 # The port to reach the Unifi controller API
 our $UNIFI_API_PORT = "8443";
@@ -41,6 +48,10 @@ sub description { 'Unifi Controller' }
 # CAPABILITIES
 # access technology supported
 sub supportsExternalPortal { return $TRUE; }
+sub supportsWirelessDot1x { return $TRUE; }
+sub supportsWirelessMacAuth { return $TRUE; }
+# inline capabilities
+sub inlineCapabilities { return ($MAC,$SSID); }
 
 =head2 synchronize_locationlog
 
@@ -80,6 +91,7 @@ sub parseExternalPortalRequest {
         redirect_url            => $req->param('url'),
         status_code             => '200',
         synchronize_locationlog => $TRUE,
+        connection_type         => $WEBAUTH_WIRELESS,
     );
 
     return \%params;
@@ -122,7 +134,11 @@ sub _deauthenticateMacWithHTTP {
     my $username = $self->{_wsUser};
     my $password = $self->{_wsPwd};
 
+    my $site = 'default';
+
     my $command = ($node_info->{status} eq $STATUS_UNREGISTERED || violation_count_reevaluate_access($mac)) ? "unauthorize-guest" : "authorize-guest";
+
+    $command = "kick-sta" if ($node_info->{last_connection_type} ne $connection_type_to_str{$WEBAUTH_WIRELESS});
 
     my $ua = LWP::UserAgent->new();
     $ua->cookie_jar({ file => "$var_dir/run/.ubiquiti.cookies.txt" });
@@ -139,8 +155,22 @@ sub _deauthenticateMacWithHTTP {
         return;
     }
 
-    $response = $ua->post("$base_url/api/s/default/cmd/stamgr", Content => '{"cmd":"'.$command.'", "mac":"'.$mac.'"}');
-    
+    $response = $ua->get("$base_url/api/self/sites");
+
+    unless($response->is_success) {
+                $logger->error("Can't have the site list from the Unifi controller: ".$response->status_line);
+        return;
+    }
+
+    my $json_data = decode_json($response->decoded_content());
+
+    foreach my $entry (@{$json_data->{'data'}}) {
+        $response = $ua->post("$base_url/api/s/$entry->{'name'}/cmd/stamgr", Content => '{"cmd":"'.$command.'", "mac":"'.$mac.'"}');
+        if ($response->is_success) {
+            $logger->info("Deauth on site: $entry->{'desc'}");
+        }
+    }
+
     unless($response->is_success) {
         $logger->error("Can't send request on the Unifi controller: ".$response->status_line);
         return;
