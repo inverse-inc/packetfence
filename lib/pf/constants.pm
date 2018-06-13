@@ -16,7 +16,7 @@ use warnings;
 use Readonly;
 use base qw(Exporter);
 our @EXPORT = qw(
-    $FALSE $TRUE $YES $NO $default_pid $admin_pid $YELLOW_COLOR $RED_COLOR $GREEN_COLOR
+    $FALSE $TRUE $YES $NO $default_pid $admin_pid $BLUE_COLOR $YELLOW_COLOR $RED_COLOR $GREEN_COLOR
     $HTTP $HTTPS $HTTP_PORT $HTTPS_PORT $ZERO_DATE $DEFAULT_TENANT_ID
 );
 
@@ -30,6 +30,7 @@ Readonly::Scalar our $admin_pid => 'admin';
 Readonly::Scalar our $YELLOW_COLOR => 'yellow';
 Readonly::Scalar our $RED_COLOR => 'red';
 Readonly::Scalar our $GREEN_COLOR => 'green';
+Readonly::Scalar our $BLUE_COLOR => 'blue';
 Readonly::Scalar our $ZERO_DATE => '0000-00-00 00:00:00';
 
 Readonly::Hash our %BUILTIN_USERS => (

@@ -18,7 +18,7 @@ use strict;
 use warnings;
 use Term::ANSIColor;
 use Moo;
-use pf::constants qw($TRUE $YELLOW_COLOR $RED_COLOR $GREEN_COLOR);
+use pf::constants qw($TRUE $BLUE_COLOR $YELLOW_COLOR $RED_COLOR $GREEN_COLOR);
 use pf::log;
 use pf::cluster;
 extends 'pf::services::manager';
@@ -73,8 +73,11 @@ sub print_status {
     my $WARNING_COLOR = color $YELLOW_COLOR;
     my $ERROR_COLOR = color $RED_COLOR;
     my $SUCCESS_COLOR = color $GREEN_COLOR;
+    my $STATUS_COLOR = color $BLUE_COLOR;
+    my $output = "Service";
+    $output .= (" " x 49);
+    print "${STATUS_COLOR}".$output."Status${RESET_COLOR}\n";
 
-    print "Service\tStatus\n";
     for my $output (@output) {
         if ($output =~ /(packetfence.+\.service)\s+loaded\s+active/) {
             my $service = $1;
