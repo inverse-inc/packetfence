@@ -35,19 +35,19 @@
             </b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-header>{{ $t('Apply Role') }}</b-dropdown-header>
-            <b-dropdown-item v-for="role in roles" :key="role.category_id" @click="applyRole(role)" v-b-tooltip.hover.left :title="role.notes">
+            <b-dropdown-item v-for="role in roles" :key="role.category_id" @click="applyBulkRole(role)" v-b-tooltip.hover.left :title="role.notes">
               <span>{{role.name}}</span>
             </b-dropdown-item>
-            <b-dropdown-item @click="applyRole({category_id: null})" v-b-tooltip.hover.left :title="$t('Clear Role')">
+            <b-dropdown-item @click="applyBulkRole({category_id: null})" v-b-tooltip.hover.left :title="$t('Clear Role')">
               <icon class="position-absolute mt-1" name="trash-alt"></icon>
               <span class="ml-4"><em>{{ $t('None') }}</em></span>
             </b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-header>{{ $t('Apply Bypass Role') }}</b-dropdown-header>
-            <b-dropdown-item v-for="role in roles" :key="role.category_id" @click="applyBypassRole(role)" v-b-tooltip.hover.left :title="role.notes">
+            <b-dropdown-item v-for="role in roles" :key="role.category_id" @click="applyBulkBypassRole(role)" v-b-tooltip.hover.left :title="role.notes">
               <span>{{role.name}}</span>
             </b-dropdown-item>
-            <b-dropdown-item @click="applyBypassRole({category_id: null})" v-b-tooltip.hover.left :title="$t('Clear Bypass Role')">
+            <b-dropdown-item @click="applyBulkBypassRole({category_id: null})" v-b-tooltip.hover.left :title="$t('Clear Bypass Role')">
               <icon class="position-absolute mt-1" name="trash-alt"></icon>
               <span class="ml-4"><em>{{ $t('None') }}</em></span>
             </b-dropdown-item>
@@ -629,22 +629,6 @@ export default {
         this.checkedRows = this.checkedRows.reduce((x, y) => subset.includes(y) ? x : [...x, y], [])
       }
     },
-    applyBulkViolation (violation) {
-      const _this = this
-      const macs = this.checkedRows.map(item => item.mac)
-      if (macs.length > 0) {
-        _this.$store.dispatch('$_nodes/applyViolationBulkNodes', {items: macs, vid: violation.id}).then(response => {
-          response.items.forEach(function (item, index, items) {
-            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, status: item.status})
-            _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: item.mac, message: item.message})
-          })
-        }).catch(() => {
-          macs.forEach(function (mac, index) {
-            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'danger'})
-          })
-        })
-      }
-    },
     applyBulkClearViolation () {
       const _this = this
       const macs = this.checkedRows.map(item => item.mac)
@@ -725,7 +709,7 @@ export default {
         })
       }
     },
-    applyRole (role) {
+    applyBulkRole (role) {
       const _this = this
       const macs = this.checkedRows.map(item => item.mac)
       if (macs.length > 0) {
@@ -739,7 +723,7 @@ export default {
         })
       }
     },
-    applyBypassRole (role) {
+    applyBulkBypassRole (role) {
       const _this = this
       const macs = this.checkedRows.map(item => item.mac)
       if (macs.length > 0) {
@@ -753,8 +737,21 @@ export default {
         })
       }
     },
-    applyViolation (violation) {
-      console.log(['applyViolation', violation, this.checkedRows])
+    applyBulkViolation (violation) {
+      const _this = this
+      const macs = this.checkedRows.map(item => item.mac)
+      if (macs.length > 0) {
+        _this.$store.dispatch('$_nodes/applyViolationBulkNodes', {items: macs, vid: violation.id}).then(response => {
+          response.items.forEach(function (item, index, items) {
+            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, status: item.status})
+            _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: item.mac, message: item.message})
+          })
+        }).catch(() => {
+          macs.forEach(function (mac, index) {
+            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'danger'})
+          })
+        })
+      }
     },
     onKeydown (event) {
       switch (true) {
