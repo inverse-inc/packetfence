@@ -16,6 +16,7 @@ pf::services::manager::pf
 
 use strict;
 use warnings;
+use Term::ANSIColor;
 use Moo;
 use pf::constants qw($TRUE);
 use pf::log;
@@ -63,15 +64,32 @@ sub _build_launcher {
     }
 }
 
+
 sub print_status {
     my ($self) = @_;
     my @output = `systemctl --all --no-pager`;
     my $header = shift @output;
-    for (@output) {
-        print if /packetfence.+\.service/;
+    my $RESET_COLOR =  color 'reset';
+    my $WARNING_COLOR = color $YELLOW_COLOR;
+    my $ERROR_COLOR = color $RED_COLOR;
+    my $SUCCESS_COLOR = color $GREEN_COLOR;
+
+    print "Service\tStatus\n";
+    for my $output (@output) {
+        if ($output =~ /(packetfence.+\.service)\s+loaded\s+active/) {
+            print $1,"\t${SUCCESS_COLOR}started${RESET_COLOR}\n";
+        } elsif ($output =~ /(packetfence-(.+)\.service)\s+loaded\s+inactive/) {
+            my @service = grep {$_ =~ /$2/} @pf::services::ALL_SERVICES;
+            my $manager = pf::services::get_service_manager($service[0]);
+            my $isManaged = $manager->isManaged;
+            if ($isManaged && !$manager->optional) {
+                print $1,"\t${ERROR_COLOR}stopped${RESET_COLOR}\n";
+            } else {
+                print $1,"\t${WARNING_COLOR}stopped${RESET_COLOR}\n";
+            }
+        }
     }
 }
-
 
 sub pid {
     my ($self) = @_;
