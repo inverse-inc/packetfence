@@ -2,5 +2,9 @@ bower_components/
 css/styles.css*
 doc/
 font/FontAwesome.otf
+js/auditing.js*
+js/configuration.js*
+js/pfappserver.js*
+js/reports.js*
 js/vendor/
 node_modules/
