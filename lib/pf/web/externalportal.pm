@@ -42,6 +42,7 @@ use pf::dal;
 Readonly our $SWITCH_REWRITE_MAP => {
     'RuckusSmartZone' => 'Ruckus::SmartZone',
     'guest' => 'Ubiquiti::Unifi',
+    'AeroHIVE' => 'AeroHIVE::AP',
 };
 
 =head1 SUBROUTINES
