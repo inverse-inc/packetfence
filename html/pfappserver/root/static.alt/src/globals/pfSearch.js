@@ -7,7 +7,8 @@ export const pfSearchConditionType = {
   SUBSTRING:               'substring',
   NODE_STATUS:             'node_status',
   ROLE:                    'role',
-  CONNECTION_TYPE:         'connection_type'
+  CONNECTION_TYPE:         'connection_type',
+  ONLINE:                  'online'
 }
 
 export const pfSearchConditionValue = {
