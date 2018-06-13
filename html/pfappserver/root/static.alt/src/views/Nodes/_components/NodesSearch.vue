@@ -5,7 +5,7 @@
       <h4 class="mb-0" v-t="'Search Nodes'"></h4>
     </b-card-header>
     <pf-search :fields="fields" :store="$store" :advanced-mode="advancedMode" :condition="condition"
-      @submit-search="onSearch" @reset-search="onReset"></pf-search>
+      @submit-search="onSearch" @reset-search="onReset" @import-search="onImport"></pf-search>
     <div class="card-body">
       <b-row align-h="between" align-v="center">
         <b-col cols="auto" class="mr-auto">
@@ -556,6 +556,10 @@ export default {
       this.$store.dispatch('$_nodes/search', this.requestPage)
       this.clearChecked()
       this.initSearch()
+    },
+    onImport (condition) {
+      if (condition.values.length > 1 || condition.values[0].values.length > 1) this.advancedMode = true
+      this.onSearch(condition)
     },
     initSearch () {
       if (this.query) {
