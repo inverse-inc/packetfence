@@ -337,7 +337,10 @@ sub verify_query {
         }
 
         push @{$s->{found_fields}}, $field;
-        $query = $self->rewrite_query($s, $query);
+        (my $status, $query) = $self->rewrite_query($s, $query);
+        if (is_error($status)) {
+            return $status, $query;
+        }
     }
 
     return (200, $query);
@@ -352,15 +355,16 @@ rewrite_query
 sub rewrite_query {
     my ($self, $s, $query) = @_;
     my $f = $query->{field};
+    my $status = 200;
     if ($self->is_table_field($s, $f)) {
         $query->{field} = $s->{dal}->table . "." . $f;
     } elsif ($self->is_field_rewritable($s, $f)) {
         my $allowed = $self->allowed_join_fields;
         my $cb = $allowed->{$f}{rewrite_query};
-        $query = $self->$cb($s, $query);
+        ($status, $query) = $self->$cb($s, $query);
     }
 
-    return $query;
+    return ($status, $query);
 }
 
 

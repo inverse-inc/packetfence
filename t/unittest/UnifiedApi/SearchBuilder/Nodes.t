@@ -184,51 +184,71 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
     );
 
     is_deeply(
-        $sb->rewrite_query( $s, $q ),
-        { op => 'equals', value => undef, field => 'radacct.acctstarttime' },
+        [$sb->rewrite_query( $s, $q )],
+        [200, { op => 'equals', value => undef, field => 'radacct.acctstarttime' }],
         "Rewrite online='unknown'",
     );
 
     is_deeply(
+        [
         $sb->rewrite_query(
             $s, { op => 'equals', value => 'on', field => 'online' }
-        ),
-        {
-            'op' => 'and',
-            'values' => [
-                { op => 'not_equals', value => undef, field => 'radacct.acctstarttime' },
-                { op => 'equals', value => undef, field => 'radacct.acctstoptime' },
-            ],
-        },
+        )
+        ]
+        ,
+        [
+            200,
+            {
+                'op' => 'and',
+                'values' => [
+                    { op => 'not_equals', value => undef, field => 'radacct.acctstarttime' },
+                    { op => 'equals', value => undef, field => 'radacct.acctstoptime' },
+                ],
+            },
+        ],
         "Rewrite online='on'",
     );
 
     is_deeply(
+        [
         $sb->rewrite_query(
             $s, { op => 'equals', value => 'off', field => 'online' }
-        ),
-        { op => 'not_equals', value => undef, field => 'radacct.acctstoptime' },
+        )
+        ],
+        [
+            200,
+            { op => 'not_equals', value => undef, field => 'radacct.acctstoptime' },
+        ],
         "Rewrite online='off'",
     );
 
     is_deeply(
-        $sb->rewrite_query(
-            $s, { op => 'not_equals', value => 'off', field => 'online' }
-        ),
-        {
-            op => 'or',
-            values => [
-                { op => 'equals', value => undef, field => 'radacct.acctstarttime' },
-                { op => 'equals', value => undef, field => 'radacct.acctstoptime' },
-            ],
-        },
+        [
+            $sb->rewrite_query(
+                $s, { op => 'not_equals', value => 'off', field => 'online' }
+            ),
+        ],
+        [
+            200,
+            {
+                op => 'or',
+                values => [
+                    { op => 'equals', value => undef, field => 'radacct.acctstarttime' },
+                    { op => 'equals', value => undef, field => 'radacct.acctstoptime' },
+                ],
+            },
+        ],
         "Rewrite online!='off'",
     );
 
     is_deeply(
+        [
         $sb->rewrite_query(
             $s, { op => 'not_equals', value => 'on', field => 'online' }
         ),
+        ],
+        [
+        200,
         {
             op => 'or',
             values => [
@@ -236,16 +256,22 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
                 { op => 'not_equals', value => undef, field => 'radacct.acctstoptime' },
             ],
         },
+        ],
         "Rewrite online!='on'",
     );
 
     is_deeply(
+        [
         $sb->rewrite_query(
             $s, { op => 'not_equals', value => 'unknown', field => 'online' }
-        ),
+        )
+        ],
+        [
+        200,
         {
             op => 'not_equals', value => undef, field => 'radacct.acctstarttime',
         },
+        ],
         "Rewrite online!='unknown'",
     );
 }

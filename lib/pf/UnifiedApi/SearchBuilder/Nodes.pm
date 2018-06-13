@@ -184,7 +184,7 @@ sub rewrite_online_query {
             }
         }
     }
-    return $q;
+    return (200, $q);
 }
 
 sub map_dal_fields_to_join_spec {
