@@ -11,7 +11,7 @@ enabled: yes
 
 # ----------------------------------------------------------------------
 # Enable / Disable python.d.plugin modules
-#default_run: yes
+default_run: no
 #
 # If "default_run" = "yes" the default for all modules is enabled (yes).
 # Setting any of these to "no" will disable it.
@@ -20,55 +20,55 @@ enabled: yes
 # Setting any of these to "yes" will enable it.
 
 # apache_cache has been replaced by web_log
-apache_cache: no
-# apache: yes
+# apache_cache: no
+apache: yes
 # beanstalk: yes
 # bind_rndc: yes
-chrony: no
+# chrony: no
 # couchdb: yes
-# cpufreq: yes
-# cpuidle: yes
+cpufreq: yes
+cpuidle: yes
 # dns_query_time: yes
 # dnsdist: yes
 # dovecot: yes
 # elasticsearch: yes
 
 # this is just an example
-example: no
+# example: no
 
 # exim: yes
 # fail2ban: yes
 freeradius: yes
 
 # gunicorn_log has been replaced by web_log
-gunicorn_log: no
-go_expvar: no
-# haproxy: yes
-# hddtemp: yes
+# gunicorn_log: no
+# go_expvar: no
+haproxy: yes
+hddtemp: yes
 # ipfs: yes
 # isc_dhcpd: yes
 # mdstat: yes
 # memcached: yes
 # mongodb: yes
-# mysql: yes
+mysql: yes
 # nginx: yes
 # nsd: yes
 
 # nginx_log has been replaced by web_log
-nginx_log: no
+# nginx_log: no
 
 # ovpn_status_log: yes
 # phpfpm: yes
-# postfix: yes
+postfix: yes
 # postgres: yes
 # powerdns: yes
 # rabbitmq: yes
-# redis: yes
+redis: yes
 # retroshare: yes
-# sensors: yes
+sensors: yes
 # samba: yes
 # smartd_log: yes
 # squid: yes
 # tomcat: yes
 # varnish: yes
-# web_log: yes
+web_log: yes
