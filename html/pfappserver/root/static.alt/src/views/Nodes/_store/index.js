@@ -207,11 +207,11 @@ const actions = {
       })
     })
   },
-  deleteNode: ({commit}, mac) => {
+  deleteNode: ({commit}, data) => {
     commit('NODE_REQUEST')
     return new Promise((resolve, reject) => {
-      api.deleteNode(mac).then(response => {
-        commit('NODE_DESTROYED', mac)
+      api.deleteNode(data).then(response => {
+        commit('NODE_DESTROYED', data)
         resolve(response)
       }).catch(err => {
         commit('NODE_ERROR', err.response)
@@ -219,11 +219,11 @@ const actions = {
       })
     })
   },
-  registerNode: ({commit}, mac) => {
+  registerNode: ({commit}, data) => {
     commit('NODE_REQUEST')
     return new Promise((resolve, reject) => {
-      api.registerNode(mac).then(response => {
-        commit('NODE_REPLACED', mac)
+      api.registerNode(data).then(response => {
+        commit('NODE_REPLACED', data)
         resolve(response)
       }).catch(err => {
         commit('NODE_ERROR', err.response)
@@ -231,10 +231,10 @@ const actions = {
       })
     })
   },
-  registerBulkNodes: ({commit}, macs) => {
+  registerBulkNodes: ({commit}, data) => {
     commit('ITEM_REQUEST')
     return new Promise((resolve, reject) => {
-      api.registerBulkNodes(macs).then(response => {
+      api.registerBulkNodes(data).then(response => {
         response.items.filter(item => item.status === 'success').forEach(function (item, index, items) {
           commit('ITEM_UPDATED', { mac: item.mac, prop: 'status', data: 'reg' })
         })
@@ -245,11 +245,11 @@ const actions = {
       })
     })
   },
-  deregisterNode: ({commit}, mac) => {
+  deregisterNode: ({commit}, data) => {
     commit('NODE_REQUEST')
     return new Promise((resolve, reject) => {
-      api.deregisterNode(mac).then(response => {
-        commit('NODE_REPLACED', mac)
+      api.deregisterNode(data).then(response => {
+        commit('NODE_REPLACED', data)
         resolve(response)
       }).catch(err => {
         commit('NODE_ERROR', err.response)
@@ -257,10 +257,10 @@ const actions = {
       })
     })
   },
-  deregisterBulkNodes: ({commit}, macs) => {
+  deregisterBulkNodes: ({commit}, data) => {
     commit('ITEM_REQUEST')
     return new Promise((resolve, reject) => {
-      api.deregisterBulkNodes(macs).then(response => {
+      api.deregisterBulkNodes(data).then(response => {
         response.items.filter(item => item.status === 'success').forEach(function (item, index, items) {
           commit('ITEM_UPDATED', { mac: item.mac, prop: 'status', data: 'unreg' })
         })
@@ -271,11 +271,11 @@ const actions = {
       })
     })
   },
-  clearViolationNode: ({commit}, mac) => {
+  clearViolationNode: ({commit}, data) => {
     commit('NODE_REQUEST')
     return new Promise((resolve, reject) => {
-      api.clearViolationNode(mac).then(response => {
-        commit('NODE_REPLACED', mac)
+      api.clearViolationNode(data).then(response => {
+        commit('NODE_REPLACED', data)
         resolve(response)
       }).catch(err => {
         commit('NODE_ERROR', err.response)
@@ -283,9 +283,9 @@ const actions = {
       })
     })
   },
-  clearViolationBulkNodes: ({commit}, macs) => {
+  applyViolationBulkNodes: ({commit}, data) => {
     return new Promise((resolve, reject) => {
-      api.clearViolationBulkNodes(macs).then(response => {
+      api.applyViolationBulkNodes(data).then(response => {
         resolve(response)
       }).catch(err => {
         commit('NODE_ERROR', err.response)
@@ -293,9 +293,9 @@ const actions = {
       })
     })
   },
-  reevaluateAccessBulkNodes: ({commit}, macs) => {
+  clearViolationBulkNodes: ({commit}, data) => {
     return new Promise((resolve, reject) => {
-      api.reevaluateAccessBulkNodes(macs).then(response => {
+      api.clearViolationBulkNodes(data).then(response => {
         resolve(response)
       }).catch(err => {
         commit('NODE_ERROR', err.response)
@@ -303,9 +303,19 @@ const actions = {
       })
     })
   },
-  restartSwitchportBulkNodes: ({commit}, macs) => {
+  reevaluateAccessBulkNodes: ({commit}, data) => {
     return new Promise((resolve, reject) => {
-      api.restartSwitchportBulkNodes(macs).then(response => {
+      api.reevaluateAccessBulkNodes(data).then(response => {
+        resolve(response)
+      }).catch(err => {
+        commit('NODE_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  restartSwitchportBulkNodes: ({commit}, data) => {
+    return new Promise((resolve, reject) => {
+      api.restartSwitchportBulkNodes(data).then(response => {
         resolve(response)
       }).catch(err => {
         commit('NODE_ERROR', err.response)

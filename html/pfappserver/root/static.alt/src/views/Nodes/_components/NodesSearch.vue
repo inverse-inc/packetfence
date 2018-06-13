@@ -53,7 +53,7 @@
             </b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-header>{{ $t('Apply Violation') }}</b-dropdown-header>
-            <b-dropdown-item v-for="violation in violations" v-if="violation.enabled ==='Y'" :key="violation.id" @click="applyViolation(violation)" v-b-tooltip.hover.left :title="violation.id">
+            <b-dropdown-item v-for="violation in violations" v-if="violation.enabled ==='Y'" :key="violation.id" @click="applyBulkViolation(violation)" v-b-tooltip.hover.left :title="violation.id">
               <span>{{violation.desc}}</span>
             </b-dropdown-item>
           </b-dropdown>
@@ -98,9 +98,6 @@
         </template>
         <template slot="device_score" slot-scope="data">
           <pf-fingerbank-score :score="data.value"></pf-fingerbank-score>
-        </template>
-        <template slot="mac" slot-scope="node">
-          <mac v-text="node.item.mac"></mac>
         </template>
       </b-table>
     </div>
@@ -632,11 +629,27 @@ export default {
         this.checkedRows = this.checkedRows.reduce((x, y) => subset.includes(y) ? x : [...x, y], [])
       }
     },
+    applyBulkViolation (violation) {
+      const _this = this
+      const macs = this.checkedRows.map(item => item.mac)
+      if (macs.length > 0) {
+        _this.$store.dispatch('$_nodes/applyViolationBulkNodes', {items: macs, vid: violation.id}).then(response => {
+          response.items.forEach(function (item, index, items) {
+            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, status: item.status})
+            _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: item.mac, message: item.message})
+          })
+        }).catch(() => {
+          macs.forEach(function (mac, index) {
+            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'danger'})
+          })
+        })
+      }
+    },
     applyBulkClearViolation () {
       const _this = this
       const macs = this.checkedRows.map(item => item.mac)
       if (macs.length > 0) {
-        _this.$store.dispatch('$_nodes/clearViolationBulkNodes', macs).then(response => {
+        _this.$store.dispatch('$_nodes/clearViolationBulkNodes', {items: macs}).then(response => {
           response.items.forEach(function (item, index, items) {
             _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, status: item.status})
             _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: item.mac, message: item.message})
@@ -652,7 +665,7 @@ export default {
       const _this = this
       const macs = this.checkedRows.map(item => item.mac)
       if (macs.length > 0) {
-        _this.$store.dispatch('$_nodes/registerBulkNodes', macs).then(response => {
+        _this.$store.dispatch('$_nodes/registerBulkNodes', {items: macs}).then(response => {
           response.items.forEach(function (item, index, items) {
             _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, status: item.status})
             _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: item.mac, message: item.message})
@@ -668,7 +681,7 @@ export default {
       const _this = this
       const macs = this.checkedRows.map(item => item.mac)
       if (macs.length > 0) {
-        _this.$store.dispatch('$_nodes/deregisterBulkNodes', macs).then(response => {
+        _this.$store.dispatch('$_nodes/deregisterBulkNodes', {items: macs}).then(response => {
           response.items.forEach(function (item, index, items) {
             _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, status: item.status})
             _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: item.mac, message: item.message})
@@ -684,7 +697,7 @@ export default {
       const _this = this
       const macs = this.checkedRows.map(item => item.mac)
       if (macs.length > 0) {
-        _this.$store.dispatch('$_nodes/reevaluateAccessBulkNodes', macs).then(response => {
+        _this.$store.dispatch('$_nodes/reevaluateAccessBulkNodes', {items: macs}).then(response => {
           response.items.forEach(function (item, index, items) {
             _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, status: item.status})
             _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: item.mac, message: item.message})
@@ -700,7 +713,7 @@ export default {
       const _this = this
       const macs = this.checkedRows.map(item => item.mac)
       if (macs.length > 0) {
-        _this.$store.dispatch('$_nodes/restartSwitchportBulkNodes', macs).then(response => {
+        _this.$store.dispatch('$_nodes/restartSwitchportBulkNodes', {items: macs}).then(response => {
           response.items.forEach(function (item, index, items) {
             _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, status: item.status})
             _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: item.mac, message: item.message})
