@@ -45,6 +45,18 @@ sub archive {
     return $self->render(json => { items => [] });
 }
 
+sub mac2ip {
+    my ($self) = @_;
+    my $mac = $self->param('mac');
+    return $self->render(json => { ip => pf::ip4log::mac2ip($mac) });
+}
+
+sub ip2mac {
+    my ($self) = @_;
+    my $ip = $self->param('ip');
+    return $self->render(json => { mac => pf::ip4log::ip2mac($ip) });
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

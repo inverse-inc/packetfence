@@ -14,10 +14,39 @@ import (
 	"strings"
 	"testing"
 	"unicode"
+	"regexp"
 
 	"github.com/cevaris/ordered_map"
 	"github.com/kr/pretty"
 )
+
+var ISENABLED = map[string]bool{
+	"enabled": true,
+	"enable":  true,
+	"yes":     true,
+	"y":       true,
+	"true":    true,
+	"1":       true,
+
+	"disabled": false,
+	"disable":  false,
+	"false":    false,
+	"no":       false,
+	"n":        false,
+	"0":        false,
+}
+
+var macGarbageRegex = regexp.MustCompile(`[\s\-\.:]`)
+var validSimpleMacHexRegex = regexp.MustCompile(`^[a-fA-F0-9]{12}$`)
+var macPairHexRegex = regexp.MustCompile(`[a-fA-F0-9]{2}`)
+
+func IsEnabled(enabled string) bool {
+	if e, found := ISENABLED[strings.TrimSpace(enabled)]; found {
+		return e
+	}
+
+	return false
+}
 
 func UcFirst(str string) string {
 	for i, v := range str {
@@ -214,4 +243,27 @@ func CopyHttpRequest(req *http.Request) (*http.Request, error) {
 	}
 
 	return newReq, nil
+}
+
+func CleanMac(mac string) string {
+	mac = macGarbageRegex.ReplaceAllString(strings.ToLower(mac), "")
+	if !validSimpleMacHexRegex.MatchString(mac) {
+		return ""
+	}
+
+	return strings.TrimRight(
+		macPairHexRegex.ReplaceAllStringFunc(
+			mac,
+			func(s string) string { return s + ":" },
+		),
+		":",
+	)
+}
+
+func CleanIP(s string) (string, error) {
+	if ip := net.ParseIP(s); ip == nil {
+		return "", fmt.Errorf("%s is an invalid ip", s)
+	} else {
+		return ip.String(), nil
+	}
 }

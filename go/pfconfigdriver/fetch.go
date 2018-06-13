@@ -257,6 +257,17 @@ func FetchDecodeSocketCache(ctx context.Context, o PfconfigObject) (bool, error)
 	return true, err
 }
 
+// Fetch the keys of a namespace
+func FetchKeys(ctx context.Context, name string) ([]string , error) {
+    keys := PfconfigKeys{PfconfigNS : name}
+    err := FetchDecodeSocket(ctx, &keys)
+    if err != nil {
+        return nil, err
+    }
+
+    return keys.Keys, nil
+}
+
 // Fetch and decode a namespace from pfconfig given a pfconfig compatible struct
 // This will fetch the json representation from pfconfig and decode it into o
 // o must be a pointer to the struct as this should be used by reference

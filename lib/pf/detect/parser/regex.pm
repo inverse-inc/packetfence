@@ -19,28 +19,16 @@ use pf::util qw(isenabled clean_mac);
 use Clone qw(clone);
 use Moo;
 use pf::ip4log;
-extends qw(pf::detect::parser);
+
+has id => (is => 'rw', required => 1);
+
+has path => (is => 'rw', required => 1);
+
+has type => (is => 'rw', required => 1);
+ 
+has status => (is => 'rw', default =>  sub { "enabled" });
 
 has rules => (is => 'rw', default => sub {[]});
-
-=head2 parse
-
-Parse and send the actions defined
-
-=cut
-
-sub parse {
-    my ($self, $line) = @_;
-    my $matches = $self->matchLine($line);
-    return undef if @$matches == 0;
-    my $logger = get_logger();
-    my $id = $self->id;
-    foreach my $match (@$matches) {
-        $logger->trace( sub {"Parser id $id : Sending matched actions for $match->{rule}->{name}"} );
-        $self->sendActions($match->{actions});
-    }
-    return 0;
-}
 
 =head2 parseLineFromRule
 
@@ -58,7 +46,6 @@ sub parseLineFromRule {
     }
     return $success, \%data;
 }
-
 
 =head2 ipMacTranslation
 
@@ -94,20 +81,6 @@ sub ipMacTranslation {
         }
     }
     return $success;
-}
-
-=head2 sendActions
-
-send actions using an api client
-
-=cut
-
-sub sendActions {
-    my ($self, $actions) = @_;
-    my $client = $self->getApiClient();
-    foreach my $action (@$actions) {
-        $client->notify($action->[0], @{$action->[1]});
-    }
 }
 
 =head2 prepAction
@@ -247,4 +220,3 @@ USA.
 =cut
 
 1;
-

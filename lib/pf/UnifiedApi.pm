@@ -102,7 +102,7 @@ our @API_V1_ROUTES = (
         controller => 'Violations',
         collection => {
             subroutes    => {
-                'by_mac/:search' => { get => 'by_mac' },                
+                'by_mac/#search' => { get => 'by_mac' },
                 'search' => {
                     'post' => 'search'
                 },
@@ -160,18 +160,20 @@ our @API_V1_ROUTES = (
     },
     { controller => 'DhcpOption82s' },
     {
-        controller  => 'Ip4logs',
+        controller => 'Ip4logs',
         collection => {
-            subroutes    => {
-                'history/:search' => { get => 'history' },
-                'archive/:search' => { get => 'archive' },
-                'open/:search' => { get => 'open' }, 
-                'search' => {
+            subroutes => {
+                'history/#search' => { get => 'history' },
+                'archive/#search' => { get => 'archive' },
+                'open/#search'    => { get => 'open' },
+                'mac2ip/#mac' => { get => 'mac2ip' },
+                'ip2mac/#ip'  => { get => 'ip2mac' },
+                'search'          => {
                     'post' => 'search'
                 },
             },
         },
-    },    
+    },
     { 
         controller => 'Services',
         resource   => {
