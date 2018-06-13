@@ -6,7 +6,7 @@ pf::Switch::Cambium
 
 =head1 SYNOPSIS
 
-Implements a Cambium AP which supports 802.1x in wireless
+Implements a Cambium AP which supports 802.1X, MAC Authentication and Web Authentication in wireless
 
 =head1 STATUS
 
@@ -21,18 +21,10 @@ Nothing documented at this point.
 use strict;
 use warnings;
 
-use POSIX;
-use Try::Tiny;
-
 use base ('pf::Switch');
 
-use pf::config qw(
-    $MAC
-    $SSID
-    $WIRELESS_MAC_AUTH
-);
+use pf::config 
 use pf::constants;
-use pf::node;
 use pf::Switch::constants;
 use pf::util;
 use pf::util::radius qw(perform_disconnect);
@@ -53,10 +45,11 @@ sub supportsWirelessDot1x { return $TRUE; }
 sub supportsWirelessMacAuth { return $TRUE; }
 sub supportsExternalPortal { return $TRUE; }
 sub supportsWebFormRegistration { return $TRUE }
+sub inlineCapabilities { return ($MAC,$PORT); }
 
 =item deauthenticateMacDefault
 
-De-authenticate a MAC address from wireless network (including 802.1x).
+De-authenticate a MAC address from wireless network (including 802.1X).
 
 New implementation using RADIUS Disconnect-Request.
 
@@ -110,7 +103,6 @@ See L<pf::web::externalportal::handle>
 
 sub parseExternalPortalRequest {
     my ( $self, $r, $req ) = @_;
-    my $logger = $self->logger;
 
     # Using a hash to contain external portal parameters
     my %params = ();
@@ -122,8 +114,6 @@ sub parseExternalPortalRequest {
         ssid                    => $req->param('ga_ssid'),
         synchronize_locationlog => $TRUE,
     );
-    use Data::Dumper;
-    $logger->info(Dumper(\%params));
     return \%params;
 }
                                                                      

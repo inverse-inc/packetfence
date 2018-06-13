@@ -4707,7 +4707,7 @@ Cambium
 cnPilot E410
 ^^^^^^^^^^^^
 
-802.1x
+802.1X
 ++++++
 
 To setup the Cambium cnPilot E410 AP to use 802.1x, first, you need to already have configured the VLANs that will be used in the AP under *Configure -> Network*. Make sure that in *Configure -> Network -> Ethernet Ports*, the port is configured to *Trunk Multiple VLANs*, and the list of VLANs are allowed.
@@ -4716,7 +4716,7 @@ Next, go to *Configure -> WLAN*, and click on *Add WLAN*. Give it the desired ID
 
 image::docs/images/cambium-dot1x-basic.png[scaledwidth="100%",alt="Cambium WLAN Basic"]
 
-In the *Radius Server* tab, enter the management IP address of PacketFence (VIP in case of a cluster) and the Radius secret for Authentication and Accounting servers.
+In the *RADIUS Server* tab, enter the management IP address of PacketFence (VIP in case of a cluster) and the Radius secret for Authentication and Accounting servers.
 
 Check the *Dynamic Authorization* and *Dynamic VLAN* boxes and save.
 
