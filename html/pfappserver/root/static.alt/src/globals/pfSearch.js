@@ -108,6 +108,10 @@ pfSearchConditionValues[pfSearchConditionType.ONLINE] = [
   {
     value: 'off',
     text: 'Offline'
+  },
+  {
+    value: 'unknown',
+    text: 'Unknown'
   }
 ]
 pfSearchConditionValues[pfSearchConditionType.VOIP] = [
