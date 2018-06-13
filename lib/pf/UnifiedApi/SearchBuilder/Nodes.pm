@@ -149,8 +149,17 @@ our %ALLOWED_JOIN_FIELDS = (
 
 sub rewrite_online_query {
     my ($self, $s, $q) = @_;
-    if ($q->{op} eq 'equals') {
-        my $value = $q->{value};
+    my $op =$q->{op};
+    if ($op ne 'equals' && $op ne 'not_equals') {
+        return (422, { msg => "$op is not valid for the online field" });
+    }
+
+    my $value = $q->{value};
+    if (!defined $value || ($value ne 'on' && $value ne 'off' && $value ne 'unknown')) {
+        return (422, { msg => "value of " . ($value // "(null)"). " is not valid for the online field" });
+    }
+
+    if ($op eq 'equals') {
         $q->{value} = undef;
         if ($value eq 'unknown') {
             $q->{field} = 'radacct.acctstarttime';
@@ -167,8 +176,7 @@ sub rewrite_online_query {
                 $q->{op} = 'not_equals';
             }
         }
-    } elsif ($q->{op} eq 'not_equals') {
-        my $value = $q->{value};
+    } elsif ($op eq 'not_equals') {
         $q->{value} = undef;
         if ($value eq 'unknown') {
             $q->{field} = 'radacct.acctstarttime';
