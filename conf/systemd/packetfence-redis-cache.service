@@ -6,7 +6,6 @@ Before=packetfence-config.service
 [Service]
 StartLimitBurst=3
 StartLimitInterval=10
-PIDFile=/usr/local/pf/var/run/redis_cache.pid
 ExecStart=/usr/bin/redis-server /usr/local/pf/conf/redis_cache.conf --daemonize no
 ExecStop=/bin/kill $MAINPID
 Slice=packetfence-base.slice

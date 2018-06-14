@@ -38,6 +38,9 @@ use pf::file_paths qw($var_dir $install_dir $systemd_unit_dir);
 use pf::log;
 use pf::util;
 
+use Term::ANSIColor;
+use pf::constants qw($PURPLE_COLOR $TRUE $RED_COLOR $GREEN_COLOR $YELLOW_COLOR);
+
 use File::Slurp qw(read_file);
 use Proc::ProcessTable;
 use List::Util qw(first);
@@ -224,27 +227,44 @@ sub status {
 
 
 sub print_status {
-    my ($self)        = @_;
-    my $name          = $self->name;
-    my @output        = `systemctl --all --no-pager`;
-    my $header        = shift @output;
-    my $service_regex = qr/ 
-        packetfence- 
-        $name 
-        \.service 
-        /ox;
-
-    my $rc;
-    for (@output) {
-        if (/$service_regex/) {
-            print;
-            my ( $unit, $load, $active, $sub, $desc ) = split;
-            $rc = $active eq "active" ? 1 : 0;
+    my ($self) = @_;
+    my @output = `systemctl --all --no-pager`;
+    my $header = shift @output;
+    my $name   = $self->name;
+    my $RESET_COLOR =  color 'reset';
+    my $WARNING_COLOR = color $YELLOW_COLOR;
+    my $ERROR_COLOR = color $RED_COLOR;
+    my $SUCCESS_COLOR = color $GREEN_COLOR;
+    my $STATUS_COLOR = color $PURPLE_COLOR;
+    my $output = "Service";
+    $output .= (" " x 49);
+    print "${STATUS_COLOR}".$output."Status    PID${RESET_COLOR}\n";
+    my $loop = $TRUE;
+    for my $output (@output) {
+        if ($output =~ /(packetfence-$name\.service)\s+loaded\s+active/) {
+            my $service = $1;
+            $service .= (" " x (50 - length($service)));
+            print $service,"\t${SUCCESS_COLOR}started   ".$self->pid."${RESET_COLOR}\n";
+            $loop = $FALSE;
+        } elsif ($output =~ /(packetfence-$name\.service)\s+loaded.*/) {
+            my $manager = pf::services::get_service_manager($name);
+            my $isManaged = $manager->isManaged;
+            my $service = $1;
+            $service .= (" " x (50 - length($service)));
+            if ($isManaged && !$manager->optional) {
+                print $service,"\t${ERROR_COLOR}stopped   ".$self->pid."${RESET_COLOR}\n";
+            } else {
+                print $service,"\t${WARNING_COLOR}stopped   ".$self->pid."${RESET_COLOR}\n";
+            }
+            $loop = $FALSE;
         }
     }
-    return $rc;
+    if ($loop) {
+       my $service = "packetfence-$name.service";
+       $service .= (" " x (50 - length($service)));
+       print $service,"\t${WARNING_COLOR}disabled  ".$self->pid."${RESET_COLOR}\n";
+    }
 }
-
 
 =head2 pid
 

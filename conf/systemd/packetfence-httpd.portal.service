@@ -9,7 +9,6 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
 StartLimitBurst=3
 StartLimitInterval=10
 Type=notify
-PIDFile=/usr/local/pf/var/run/httpd.portal.pid
 ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_portal' -e 'pf::services::manager::httpd_portal->new()->generateConfig()'
 ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.portal -DFOREGROUND  -Drhel
 ExecReload=/bin/kill -USR1 ${MAINPID}
