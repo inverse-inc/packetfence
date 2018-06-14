@@ -66,9 +66,9 @@ func (pf *pfdns) Ip2Mac(ip string, ipVersion int) (string, error) {
 		err error
 	)
 	if ipVersion == 4 {
-		err = pf.IP4log.QueryRow(ip).Scan(&mac)
+		err = pf.IP4log.QueryRow(ip, 1).Scan(&mac)
 	} else {
-		err = pf.IP6log.QueryRow(ip).Scan(&mac)
+		err = pf.IP6log.QueryRow(ip, 1).Scan(&mac)
 	}
 
 	if err != nil {
@@ -81,7 +81,7 @@ func (pf *pfdns) Ip2Mac(ip string, ipVersion int) (string, error) {
 func (pf *pfdns) HasViolations(mac string) bool {
 	violation := false
 	var violationCount int
-	err := pf.Violation.QueryRow(mac).Scan(&violationCount)
+	err := pf.Violation.QueryRow(mac, 1).Scan(&violationCount)
 	if err != nil {
 		fmt.Printf("ERROR pfdns HasViolation %s %s\n", mac, err)
 	} else if violationCount != 0 {
@@ -201,7 +201,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 		case "inline":
 			fmt.Println("Performing inline or DNS enforcement for this device")
 			var status = "unreg"
-			err = pf.Nodedb.QueryRow(mac).Scan(&status)
+			err = pf.Nodedb.QueryRow(mac, 1).Scan(&status)
 			if err != nil {
 				fmt.Printf("ERROR pfdns error getting node status %s %s\n", mac, err)
 			}
@@ -497,25 +497,25 @@ func (pf *pfdns) DbInit() error {
 		return err
 	}
 
-	pf.IP4log, err = pf.Db.Prepare("select mac from ip4log where ip = ? ")
+	pf.IP4log, err = pf.Db.Prepare("select mac from ip4log where ip = ? AND tenant_id = ?")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "pfdns: database ip4log prepared statement error: %s", err)
 		return err
 	}
 
-	pf.IP6log, err = pf.Db.Prepare("select mac from ip6log where ip = ? ")
+	pf.IP6log, err = pf.Db.Prepare("select mac from ip6log where ip = ? AND tenant_id = ?")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "pfdns: database ip6log prepared statement error: %s", err)
 		return err
 	}
 
-	pf.Nodedb, err = pf.Db.Prepare("select status from node where mac = ? ")
+	pf.Nodedb, err = pf.Db.Prepare("select status from node where mac = ? AND tenant_id = ?")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "pfdns: database nodedb prepared statement error: %s", err)
 		return err
 	}
 
-	pf.Violation, err = pf.Db.Prepare("Select count(*) from violation, action where violation.vid=action.vid and action.action='reevaluate_access' and mac=? and status='open'")
+	pf.Violation, err = pf.Db.Prepare("Select count(*) from violation, action where violation.vid=action.vid and action.action='reevaluate_access' and mac=? and status='open' AND tenant_id = ?")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "pfdns: database violation prepared statement error: %s", err)
 		return err
