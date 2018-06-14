@@ -9,7 +9,7 @@ StartLimitBurst=3
 StartLimitInterval=10
 Type=notify
 ExecStartPre=/bin/rm -fr /usr/local/pf/var/run/collectd-unixsock
-ExecStart=/usr/local/pf/bin/pfstats
+ExecStart=/usr/local/pf/sbin/pfstats
 Restart=on-failure
 Slice=packetfence.slice
 

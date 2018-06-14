@@ -116,7 +116,7 @@ else {
     $BASE_BINARIES_URL = "https://inverse.ca/downloads/PacketFence/CentOS7/binaries";
 }
 
-our $BINARIES_DIRECTORY = "/usr/local/pf/bin";
+our $BINARIES_DIRECTORY = "/usr/local/pf/sbin";
 
 our $BINARIES_SIGN_KEY_ID = "A0030E2C";
 

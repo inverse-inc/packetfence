@@ -7,7 +7,7 @@ Before=packetfence-httpd.portal.service
 [Service]
 Type=notify
 LimitNOFILE=8192
-ExecStart=/usr/local/pf/bin/pfhttpd -conf /usr/local/pf/conf/caddy-services/pfsso.conf -log-name pfsso
+ExecStart=/usr/local/pf/sbin/pfhttpd -conf /usr/local/pf/conf/caddy-services/pfsso.conf -log-name pfsso
 Restart=on-failure
 Slice=packetfence.slice
 

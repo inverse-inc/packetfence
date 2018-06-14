@@ -10,7 +10,7 @@ StartLimitInterval=60
 Type=notify
 WatchdogSec=30s
 EnvironmentFile=-/usr/local/pf/conf/pfdhcp.conf
-ExecStart=/usr/local/pf/bin/pfdhcp
+ExecStart=/usr/local/pf/sbin/pfdhcp
 Restart=on-failure
 Slice=packetfence.slice
 

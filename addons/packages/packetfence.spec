@@ -434,7 +434,7 @@ make bin/ntlm_auth_wrapper
 echo %{git_commit} > conf/git_commit_id
 
 # build golang binaries
-addons/packages/build-go.sh build `pwd` `pwd`/bin
+addons/packages/build-go.sh build `pwd` `pwd`/sbin
 
 find -name '*.example' -print0 | while read -d $'\0' file
 do
@@ -862,7 +862,7 @@ fi
 %dir                    /usr/local/pf/addons/watchdog
 %attr(0755, pf, pf)     /usr/local/pf/addons/watchdog/*.sh
 %dir                    /usr/local/pf/bin
-%attr(0755, pf, pf)     /usr/local/pf/bin/pfhttpd
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfhttpd
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd.pl
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd_vlan
 %attr(0755, pf, pf)     /usr/local/pf/bin/pftest
@@ -874,9 +874,9 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/pfupdate
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/maintenance
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/node
-%attr(0755, pf, pf)     /usr/local/pf/bin/pfdhcp
-%attr(0755, pf, pf)     /usr/local/pf/bin/pfdns
-%attr(0755, pf, pf)     /usr/local/pf/bin/pfstats
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcp
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfdns
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfstats
 %doc                    /usr/local/pf/ChangeLog
                         /usr/local/pf/conf/*.example
 %config(noreplace)      /usr/local/pf/conf/adminroles.conf

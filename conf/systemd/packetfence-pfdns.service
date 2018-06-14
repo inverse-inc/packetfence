@@ -9,7 +9,7 @@ StartLimitBurst=3
 StartLimitInterval=60
 Type=notify
 ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::pfdns' -e 'pf::services::manager::pfdns->new()->generateConfig()'
-ExecStart=/usr/local/pf/bin/pfdns -conf=/usr/local/pf/var/conf/pfdns.conf 
+ExecStart=/usr/local/pf/sbin/pfdns -conf=/usr/local/pf/var/conf/pfdns.conf
 Restart=on-failure
 Slice=packetfence.slice
 
