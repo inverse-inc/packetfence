@@ -3320,7 +3320,7 @@ msgid "If using the HTTP transport, specify the password for the Palo Alto API"
 msgstr ""
 
 # html/pfappserver/root/configurator/fingerbank.tt
-msgid "If you do not configure a Fingerbank API key, you will not have access to any device profiling capabilities in PacketFence"
+msgid "If you do not configure a Fingerbank API key, you will not have access to any device profiling capabilities in PacketFence."
 msgstr ""
 
 # html/pfappserver/root/configurator/database.tt
