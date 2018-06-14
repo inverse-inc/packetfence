@@ -9,8 +9,14 @@
           <b-button-group>
             <b-button type="submit" variant="outline-primary">{{ $t('Search') }}</b-button>
             <b-dropdown variant="outline-primary" right>
-              <b-dropdown-item @click="showExportJsonModal=true">{{ $t('Export to JSON') }}</b-dropdown-item>
-              <b-dropdown-item @click="showImportJsonModal=true">{{ $t('Import from JSON') }}</b-dropdown-item>
+              <b-dropdown-item @click="showExportJsonModal=true">
+                <icon class="position-absolute mt-1" name="sign-out-alt"></icon>
+                <span class="ml-4">{{ $t('Export to JSON') }}</span>
+              </b-dropdown-item>
+              <b-dropdown-item @click="showImportJsonModal=true">
+                <icon class="position-absolute mt-1" name="sign-in-alt"></icon>
+                <span class="ml-4">{{ $t('Import from JSON') }}</span>
+              </b-dropdown-item>
               <b-dropdown-divider></b-dropdown-divider>
               <b-dropdown-item>...</b-dropdown-item>
             </b-dropdown>
@@ -27,7 +33,8 @@
         </div>
       </b-modal>
       <b-modal v-model="showImportJsonModal" size="lg" id="nodeImportJsonModal" :title="$t('Import from JSON')">
-        <b-form-textarea ref="nodeImportJsonTextarea" v-model="json" :rows="3" :max-rows="3" :placeholder="$t('Enter JSON')"></b-form-textarea>
+        <b-card v-if="importJsonError" class="mb-3" bg-variant="danger" text-variant="white"><icon name="exclamation-triangle" class="mr-1"></icon>{{ importJsonError }}</b-card>
+        <b-form-textarea ref="nodeImportJsonTextarea" v-model="importJsonString" :rows="3" :max-rows="3" :placeholder="$t('Enter JSON')"></b-form-textarea>
         <div slot="modal-footer">
           <b-button-group class="float-right">
             <b-button variant="outline-secondary" @click="showImportJsonModal=false">{{ $t('Cancel') }}</b-button>
@@ -86,7 +93,10 @@ export default {
       type: Boolean,
       default: false
     },
-    json: {
+    importJsonError: {
+      type: String
+    },
+    importJsonString: {
       type: String
     }
   },
@@ -123,13 +133,18 @@ export default {
       this.showExportJsonModal = false
     },
     importNodeImportJsonTextarea () {
+      this.importJsonError = ''
       try {
-        const json = JSON.parse(this.json)
+        const json = JSON.parse(this.importJsonString)
         this.$emit('import-search', json)
-        this.json = ''
+        this.importJsonString = ''
         this.showImportJsonModal = false
       } catch (e) {
-        // noop
+        if (e instanceof SyntaxError) {
+          this.importJsonError = this.$i18n.t('Invalid JSON') + ': ' + e.message
+        } else {
+          this.importJsonError = this.$i18n.t('Unhandled error') + ': ' + e.message
+        }
       }
     }
   },
