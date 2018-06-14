@@ -193,6 +193,9 @@ sub record_result {
         },
         -where => {
             mac => $mac,
+            tenant_id => {
+                -in => \['SELECT id FROM tenant'],
+            },
         },
         -no_auto_tenant_id => 1,
     );
