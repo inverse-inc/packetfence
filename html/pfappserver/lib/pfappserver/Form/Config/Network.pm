@@ -55,9 +55,9 @@ has_field 'ip_reserved' =>
    type => 'Text',
    label => 'IP Addresses reserved',
    required_when => { 'fake_mac_enabled' => sub { $_[0] ne '1' } },
-   messages => { required => "Range or ip addresses to exclude." },
+   messages => { required => "Range or IP addresses to exclude from the DHCP pool." },
    tags => { after_element => \&help,
-             help => 'Range like 192.168.0.1-192.168.0.20 and or ip like 192.168.0.22,192.168.0.24' },
+             help => 'Range like 192.168.0.1-192.168.0.20 and or IP like 192.168.0.22,192.168.0.24 will be excluded from the DHCP pool' },
   );
 has_field 'dns' =>
   (
