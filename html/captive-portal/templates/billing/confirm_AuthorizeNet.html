@@ -12,9 +12,9 @@
       <div class="input-container">
         <label for="name">[% i18n("Name on Card") %]</label>
         [% IF request_fields.defined(firstname) && request_fields.defined(lastname) %]
-        <input id="name" type="text" size="20" value="[% request_fields.firstname %] [% request_fields.lastname %]"/>
+        <input id="name" type="text" value="[% request_fields.firstname %] [% request_fields.lastname %]"/>
         [% ELSE %]
-        <input id="name" type="text" size="20" />
+        <input id="name" type="text"/>
         [% END %]
       </div>
 
@@ -32,14 +32,14 @@
 
       <div class="input-container">
         <label for="cardCodeID">[% i18n("CVC") %]</label>
-        <input type="text" size="4" placeholder="123" id="cardCodeID" />
+        <input type="text" size="4" placeholder="---" id="cardCodeID" />
       </div>
 
       <div class="u-padding-vertical">
-        <button type="button" id="submitButton" onclick="sendPaymentDataToAnet()" name="submit-btn" class="btn btn--full">
+        <button type="button" id="submitButton" onclick="sendPaymentDataToAnet()" name="submit-btn" class="c-btn c-btn--primary u-1/1">
           <div class="flag">
             <div class="flag__img">[% svgIcon(id='ic_credit_card_black_24px',size='small') %]</div>
-            <p class="flag__body">[% i18n("Pay with Authorize.Net") %]</p>
+            [% i18n("Pay with Authorize.Net") %]
           </div>
         </button>
       </div>
