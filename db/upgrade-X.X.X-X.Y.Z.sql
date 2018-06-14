@@ -52,6 +52,12 @@ ALTER TABLE node MODIFY device_score int DEFAULT NULL, ADD COLUMN device_manufac
 ALTER TABLE person
     ADD `psk` varchar(255) NULL DEFAULT NULL
 ;
+                                                                                                  
+--
+-- Set the last_seen date to NOW() for all devices that have an empty value for environments that are older than 7.0.0
+--
+UPDATE node SET last_seen=NOW() WHERE last_seen="0000-00-00 00:00:00";
+
 
 INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION)); 
 
