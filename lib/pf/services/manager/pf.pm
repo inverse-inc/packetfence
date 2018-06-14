@@ -16,8 +16,9 @@ pf::services::manager::pf
 
 use strict;
 use warnings;
+use Term::ANSIColor;
 use Moo;
-use pf::constants qw($TRUE);
+use pf::constants qw($TRUE $BLUE_COLOR $YELLOW_COLOR $RED_COLOR $GREEN_COLOR);
 use pf::log;
 use pf::cluster;
 extends 'pf::services::manager';
@@ -63,15 +64,40 @@ sub _build_launcher {
     }
 }
 
+
 sub print_status {
     my ($self) = @_;
     my @output = `systemctl --all --no-pager`;
     my $header = shift @output;
-    for (@output) {
-        print if /packetfence.+\.service/;
+    my $RESET_COLOR =  color 'reset';
+    my $WARNING_COLOR = color $YELLOW_COLOR;
+    my $ERROR_COLOR = color $RED_COLOR;
+    my $SUCCESS_COLOR = color $GREEN_COLOR;
+    my $STATUS_COLOR = color $BLUE_COLOR;
+    my $output = "Service";
+    $output .= (" " x 49);
+    print "${STATUS_COLOR}".$output."Status${RESET_COLOR}\n";
+
+    for my $output (@output) {
+        if ($output =~ /(packetfence.+\.service)\s+loaded\s+active/) {
+            my $service = $1;
+            $service .= (" " x (50 - length($service)));
+            print $service,"\t${SUCCESS_COLOR}started${RESET_COLOR}\n";
+
+        } elsif ($output =~ /(packetfence-(.+)\.service)\s+loaded\s+inactive/) {
+            my @service = grep {$_ =~ /$2/} @pf::services::ALL_SERVICES;
+            my $manager = pf::services::get_service_manager($service[0]);
+            my $isManaged = $manager->isManaged;
+            my $service = $1;
+            $service .= (" " x (50 - length($service)));
+            if ($isManaged && !$manager->optional) {
+                print $service,"\t${ERROR_COLOR}stopped${RESET_COLOR}\n";
+            } else {
+                print $service,"\t${WARNING_COLOR}stopped${RESET_COLOR}\n";
+            }
+        }
     }
 }
-
 
 sub pid {
     my ($self) = @_;

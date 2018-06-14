@@ -91,11 +91,15 @@ sub parseArgs {
     return 0 unless $service eq 'pf' || any { $_ eq $service} @pf::services::ALL_SERVICES;
 
     my ( @services, @managers );
-    if (($action eq 'status' || $action eq 'updatesystemd' || $action eq 'generateconfig') && $service eq 'pf') {
+    if (($action eq 'updatesystemd' || $action eq 'generateconfig') && $service eq 'pf') {
         @services = grep {$_ ne 'pf'} @pf::services::ALL_SERVICES;
     } else {
         if($cluster_enabled && $service eq 'pf') {
-            @services = ('haproxy-db','pf');
+            if ($action eq 'status') {
+                @services = ($service);
+            } else {
+                @services = ('haproxy-db','pf');
+            }
         }
         else {
             @services = ($service);
@@ -172,6 +176,9 @@ sub startService {
         checkup( map {$_->name} @$checkupManagers);
         foreach my $manager (@$checkupManagers) {
             _doStart($manager);
+            if ($service eq 'pf') {
+                $manager->print_status;
+            }
         }
     }
     return $EXIT_SUCCESS;
@@ -191,9 +198,13 @@ sub generateConfig {
 sub updateSystemd {
     my ( $service, @services ) = @_;
     my @managers = pf::services::getManagers( \@services );
-    print $SERVICE_HEADER;
+    my $show = $FALSE;
+    if ($service ne 'pf') {
+        print $SERVICE_HEADER;
+        $show = $TRUE;
+    }
     for my $manager (@managers) {
-        _doUpdateSystemd($manager);
+        _doUpdateSystemd($manager, $show);
     }
     system("sudo systemctl daemon-reload");
     return $EXIT_SUCCESS;
@@ -265,7 +276,7 @@ sub _doGenerateConfig {
 }
 
 sub _doUpdateSystemd {
-    my ($manager) = @_;
+    my ($manager, $show) = @_;
     my $command;
     my $color = '';
     if ( $manager->isManaged ) {
@@ -289,7 +300,7 @@ sub _doUpdateSystemd {
         }
     }
 
-    print $manager->name, "|${color}${command}${RESET_COLOR}\n";
+    print $manager->name, "|${color}${command}${RESET_COLOR}\n" if $show;
 }
 
 sub getIptablesTechnique {
@@ -347,23 +358,28 @@ sub restartService {
 sub statusOfService {
     my ($service,@services) = @_;
     my @managers = pf::services::getManagers(\@services);
-    print "service|shouldBeStarted|pid\n";
+    print "service|shouldBeStarted|pid\n"  if ($service ne 'pf');
     my $notStarted = 0;
     foreach my $manager (@managers) {
         my $color = '';
         my $isManaged = $manager->isManaged;
-        my $status = $manager->status;
-        if($status eq '0' ) {
-            if ($isManaged && !$manager->optional) {
-                $color =  $ERROR_COLOR;
-                $notStarted++;
-            } else {
-                $color =  $WARNING_COLOR;
-            }
-        } else {
-            $color =  $SUCCESS_COLOR;
+        if ($manager->name eq 'pf') {
+            $manager->print_status;
         }
-        print $manager->name,"|${color}$isManaged|$status${RESET_COLOR}\n";
+        else {
+            my $status = $manager->status;
+            if($status eq '0' ) {
+                if ($isManaged && !$manager->optional) {
+                    $color =  $ERROR_COLOR;
+                    $notStarted++;
+                } else {
+                    $color =  $WARNING_COLOR;
+                }
+            } else {
+                $color =  $SUCCESS_COLOR;
+            }
+            print $manager->name,"|${color}$isManaged|$status${RESET_COLOR}\n";
+        }
     }
     return ( $notStarted ? $EXIT_SERVICES_NOT_STARTED : $EXIT_SUCCESS)
 }
