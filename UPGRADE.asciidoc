@@ -1718,6 +1718,13 @@ Once completed, update the file /usr/local/pf/conf/currently-at to match the new
 Upgrading from a version prior to X.Y.Z
 ---------------------------------------
 
+Changes on unreg_on_accounting_stop parameter
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The global configuration parameter unreg_on_accounting_stop has been moved in the connection profile.
+So if you enabled it then make sure to enable it now in the connection profile.
+
+
 Database schema update (All linux distributions)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
