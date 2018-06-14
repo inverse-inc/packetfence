@@ -21,6 +21,7 @@ import 'vue-awesome/icons/ellipsis-v'
 import 'vue-awesome/icons/exclamation-triangle'
 import 'vue-awesome/icons/sign-in-alt'
 import 'vue-awesome/icons/sign-out-alt'
+import 'vue-awesome/icons/save'
 
 import store from './store'
 import router from './router'

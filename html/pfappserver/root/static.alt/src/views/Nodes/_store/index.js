@@ -6,6 +6,7 @@ import api from '../_api'
 
 const STORAGE_SEARCH_LIMIT_KEY = 'nodes-search-limit'
 const STORAGE_VISIBLE_COLUMNS_KEY = 'nodes-visible-columns'
+const STORAGE_SAVED_SEARCH = 'nodes-saved-search'
 
 // Default values
 const state = {
@@ -20,7 +21,8 @@ const state = {
   searchSortDesc: false,
   searchMaxPageNumber: 1,
   searchPageSize: localStorage.getItem(STORAGE_SEARCH_LIMIT_KEY) || 10,
-  visibleColumns: JSON.parse(localStorage.getItem(STORAGE_VISIBLE_COLUMNS_KEY)) || false
+  visibleColumns: JSON.parse(localStorage.getItem(STORAGE_VISIBLE_COLUMNS_KEY)) || false,
+  savedSearches: JSON.parse(localStorage.getItem(STORAGE_SAVED_SEARCH)) || []
 }
 
 const getters = {
@@ -49,6 +51,21 @@ const actions = {
   setVisibleColumns: ({commit}, columns) => {
     localStorage.setItem(STORAGE_VISIBLE_COLUMNS_KEY, JSON.stringify(columns))
     commit('VISIBLE_COLUMNS_UPDATED', columns)
+  },
+  addSavedSearch: ({commit}, search) => {
+    let savedSearches = state.savedSearches
+    savedSearches = state.savedSearches.filter(searches => searches.name !== search.name)
+    savedSearches.push(search)
+    savedSearches.sort((a, b) => {
+      return a.name.localeCompare(b.name)
+    })
+    commit('SAVED_SEARCHES_UPDATED', savedSearches)
+    localStorage.setItem(STORAGE_SAVED_SEARCH, JSON.stringify(savedSearches))
+  },
+  deleteSavedSearch: ({commit}, search) => {
+    let savedSearches = state.savedSearches.filter(searches => searches.name !== search.name)
+    commit('SAVED_SEARCHES_UPDATED', savedSearches)
+    localStorage.setItem(STORAGE_SAVED_SEARCH, JSON.stringify(savedSearches))
   },
   search: ({state, getters, commit, dispatch}, page) => {
     let sort = [state.searchSortDesc ? `${state.searchSortBy} DESC` : state.searchSortBy]
@@ -439,6 +456,9 @@ const mutations = {
   ITEM_UPDATED: (state, params) => {
     let index = state.items.findIndex(item => item.mac === params.mac)
     Vue.set(state.items[index], params.prop, params.data)
+  },
+  SAVED_SEARCHES_UPDATED: (state, searches) => {
+    state.savedSearches = searches
   }
 }
 
