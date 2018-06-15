@@ -29,6 +29,9 @@ Enhancements
 * Allow Subsecond timeouts for LDAP connections
 * Allow Randomization of the search order for a list of servers
 * IP exclusion is now possible in the DHCP server
+* Allow max node per role when doing autoregistration
+* Moved unregister on accounting stop parameter on the connection profile
+* VLAN filters can be set to ${node_info.category} and it will return the current category of the device
 
 Bug Fixes
 +++++++++
