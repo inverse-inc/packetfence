@@ -7,7 +7,6 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
 Type=notify
 StartLimitBurst=3
 StartLimitInterval=10
-PIDFile=/usr/local/pf/var/run/pffilter.pid
 ExecStart=/usr/local/pf/sbin/pffilter
 User=pf
 Restart=on-failure

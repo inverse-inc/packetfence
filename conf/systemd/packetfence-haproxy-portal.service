@@ -7,7 +7,6 @@ Wants=packetfence-config.service
 Type=notify
 StartLimitBurst=3
 StartLimitInterval=10
-PIDFile=/usr/local/pf/var/run/haproxy-portal.pid
 ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::haproxy_portal' -e 'pf::services::manager::haproxy_portal->new()->generateConfig()'
 ExecStart=/usr/sbin/haproxy -Ws -f /usr/local/pf/var/conf/haproxy-portal.conf -p /usr/local/pf/var/run/haproxy-portal.pid
 ExecReload=/bin/kill -USR2 $MAINPID

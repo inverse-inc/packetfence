@@ -9,7 +9,6 @@ After=packetfence-base.target packetfence-config.service packetfence-haproxy-db.
 StartLimitBurst=3
 StartLimitInterval=10
 Type=notify
-PIDFile=/usr/local/pf/var/run/httpd.admin.pid
 Environment=X_PORTAL=default
 Environment=PF_SKIP_MAKE_IMMUTABLE=1
 ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_admin' -e 'pf::services::manager::httpd_admin->new()->generateConfig()'

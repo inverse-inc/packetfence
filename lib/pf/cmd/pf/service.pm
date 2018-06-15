@@ -154,8 +154,6 @@ sub startService {
         return $EXIT_SUCCESS;
     }
 
-    print $SERVICE_HEADER;
-
     my $count = 0;
     postPfStartService(\@managers) if $service eq 'pf';
 
@@ -244,21 +242,12 @@ sub checkup {
 
 sub _doStart {
     my ($manager) = @_;
-    my $command;
-    my $color = '';
     if($manager->status ne '0') {
-        $color =  $WARNING_COLOR;
-        $command = 'already started';
+        $manager->print_status;
     } else {
-        if($manager->start) {
-            $command = 'start';
-            $color =  $SUCCESS_COLOR;
-        } else {
-            $command = 'not started';
-            $color =  $ERROR_COLOR;
-        }
+        $manager->start;
+        $manager->print_status;
     }
-    print $manager->name,"|${color}${command}${RESET_COLOR}\n";
 }
 
 sub _doGenerateConfig {
@@ -313,23 +302,13 @@ sub stopService {
     my ($service,@services) = @_;
     my @managers = pf::services::getManagers(\@services);
 
-    print $SERVICE_HEADER;
     foreach my $manager (@managers) {
-        my $command;
-        my $color = '';
         if($manager->status eq '0') {
-            $command = 'already stopped';
-            $color =  $WARNING_COLOR;
+            $manager->print_status;
         } else {
-            if($manager->stop) {
-                $color =  $SUCCESS_COLOR;
-                $command = 'stop';
-            } else {
-                $color =  $ERROR_COLOR;
-                $command = 'not stopped';
-            }
+            $manager->stop;
+            $manager->print_status;
         }
-        print $manager->name,"|${color}${command}${RESET_COLOR}\n";
     }
     if(isIptablesManaged($service)) {
         my $count = true { $_->status eq '0'  } @managers;
@@ -358,30 +337,9 @@ sub restartService {
 sub statusOfService {
     my ($service,@services) = @_;
     my @managers = pf::services::getManagers(\@services);
-    print "service|shouldBeStarted|pid\n"  if ($service ne 'pf');
-    my $notStarted = 0;
     foreach my $manager (@managers) {
-        my $color = '';
-        my $isManaged = $manager->isManaged;
-        if ($manager->name eq 'pf') {
-            $manager->print_status;
-        }
-        else {
-            my $status = $manager->status;
-            if($status eq '0' ) {
-                if ($isManaged && !$manager->optional) {
-                    $color =  $ERROR_COLOR;
-                    $notStarted++;
-                } else {
-                    $color =  $WARNING_COLOR;
-                }
-            } else {
-                $color =  $SUCCESS_COLOR;
-            }
-            print $manager->name,"|${color}$isManaged|$status${RESET_COLOR}\n";
-        }
+        $manager->print_status;
     }
-    return ( $notStarted ? $EXIT_SERVICES_NOT_STARTED : $EXIT_SUCCESS)
 }
 
 =head1 AUTHOR

@@ -6,7 +6,6 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
 [Service]
 StartLimitBurst=3
 StartLimitInterval=10
-PIDFile=/usr/local/pf/var/run/redis_queue.pid
 ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::redis_queue' -e 'pf::services::manager::redis_queue->new()->generateConfig()'
 ExecStart=/usr/bin/redis-server /usr/local/pf/var/conf/redis_queue.conf --daemonize no
 ExecStop=/bin/kill $MAINPID

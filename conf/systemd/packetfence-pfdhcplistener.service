@@ -9,7 +9,6 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
 Type=notify
 StartLimitBurst=3
 StartLimitInterval=10
-PIDFile=/usr/local/pf/var/run/pfdhcplistener
 ExecStart=/usr/local/pf/sbin/pfdhcplistener
 Restart=on-failure
 Slice=packetfence.slice

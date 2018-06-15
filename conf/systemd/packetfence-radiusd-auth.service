@@ -11,7 +11,6 @@ Type=notify
 WatchdogSec=10
 StartLimitBurst=3
 StartLimitInterval=10
-PIDFile=/usr/local/pf/var/run/radiusd-auth.pid
 ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::radiusd' -e 'pf::services::manager::radiusd->new()->generateConfig()'
 ExecStartPre=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n auth -Cxm -lstdout 
 ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n auth -fm 

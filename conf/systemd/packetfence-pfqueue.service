@@ -9,7 +9,6 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
 Type=notify
 StartLimitBurst=3
 StartLimitInterval=10
-PIDFile=/usr/local/pf/var/run/pfqueue.pid
 ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::pfqueue' -e 'pf::services::manager::pfqueue->new()->generateConfig()'
 ExecStart=/usr/local/pf/sbin/pfqueue
 User=pf
