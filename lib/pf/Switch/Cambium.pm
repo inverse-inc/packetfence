@@ -23,7 +23,7 @@ use warnings;
 
 use base ('pf::Switch');
 
-use pf::config 
+use pf::config;
 use pf::constants;
 use pf::Switch::constants;
 use pf::util;
