@@ -1165,6 +1165,7 @@ fi
                         /usr/local/pf/html/captive-portal/content/shared_mdm_profile.mobileconfig
                         /usr/local/pf/html/captive-portal/content/packetfence-windows-agent.exe
                         /usr/local/pf/html/captive-portal/content/billing/stripe.js
+                        /usr/local/pf/html/captive-portal/content/billing/authorizenet.js
                         /usr/local/pf/html/captive-portal/content/provisioner/mobileconfig.js
                         /usr/local/pf/html/captive-portal/content/provisioner/sepm.js
                         /usr/local/pf/html/captive-portal/content/release.js
