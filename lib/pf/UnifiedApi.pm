@@ -243,11 +243,11 @@ our @API_V1_ROUTES = (
         },
     },
     {
-        controller => 'Redis',
+        controller => 'Queues',
         collection => {
             subroutes    => {
-                'queue/stats' => {
-                    get => 'queue'
+                'stats' => {
+                    get => 'stats'
                 },
             },
         },

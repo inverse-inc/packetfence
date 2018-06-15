@@ -1,6 +1,6 @@
-RedisQueueStats:
+QueueStats:
   description: A response that contains the pfqueue stats
   content:
     application/json:
       schema:
-        $ref: "#/components/schemas/RedisQueueStats"
+        $ref: "#/components/schemas/QueueStats"

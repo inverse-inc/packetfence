@@ -1,14 +1,14 @@
-package pf::UnifiedApi::Controller::Redis;
+package pf::UnifiedApi::Controller::Queues;
 
 =head1 NAME
 
-pf::UnifiedApi::Controller::Redis -
+pf::UnifiedApi::Controller::Queues -
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::UnifiedApi::Controller::Redis
+pf::UnifiedApi::Controller::Queues
 
 =cut
 
@@ -18,7 +18,7 @@ use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use pf::pfqueue::stats;
 
 
-sub queue {
+sub stats {
     my ($self) = @_;
     my $stats = pf::pfqueue::stats->new;
     # build hashref

@@ -1,9 +1,9 @@
-RedisQueueStats:
+QueueStats:
     type: array
-    description: The schema used for a collection of Redis queue stats
+    description: The schema used for a collection of queue stats
     items:
         type: object
-        description: Statistics of the Redis queue
+        description: Statistics of the queue
         properties:
             queue:
                 type: string
