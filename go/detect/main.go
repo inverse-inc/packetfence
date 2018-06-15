@@ -5,15 +5,16 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/coreos/go-systemd/daemon"
-	"github.com/inverse-inc/packetfence/go/detectparser"
-	"github.com/inverse-inc/packetfence/go/log"
-	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"os"
 	"os/signal"
 	"runtime"
 	"sync"
 	"syscall"
+
+	"github.com/coreos/go-systemd/daemon"
+	"github.com/inverse-inc/packetfence/go/detectparser"
+	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
 type RunnerConfig struct {
@@ -136,7 +137,7 @@ func (s *Server) SetupSignals() {
 				}
 				s.ReloadConfig()
 			}
-			s.NotifySystemd(daemon.SdNotifyStopping)
+			//s.NotifySystemd(daemon.SdNotifyStopping)
 			s.StopRunners()
 		}()
 		wg.Wait()
@@ -175,7 +176,7 @@ func (s *Server) NotifySystemd(msg string) {
 
 func (s *Server) Run() int {
 	s.SetupSignals()
-	s.NotifySystemd(daemon.SdNotifyReady)
+	//s.NotifySystemd(daemon.SdNotifyReady)
 	s.LoadParsersFromConfig()
 	s.RunRunners()
 	s.Wait()
