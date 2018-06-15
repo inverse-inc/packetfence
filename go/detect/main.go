@@ -137,7 +137,7 @@ func (s *Server) SetupSignals() {
 				}
 				s.ReloadConfig()
 			}
-			//s.NotifySystemd(daemon.SdNotifyStopping)
+			s.NotifySystemd("STOPPING=1")
 			s.StopRunners()
 		}()
 		wg.Wait()
@@ -176,7 +176,7 @@ func (s *Server) NotifySystemd(msg string) {
 
 func (s *Server) Run() int {
 	s.SetupSignals()
-	//s.NotifySystemd(daemon.SdNotifyReady)
+	s.NotifySystemd("READY=1")
 	s.LoadParsersFromConfig()
 	s.RunRunners()
 	s.Wait()
