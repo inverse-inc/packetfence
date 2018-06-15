@@ -60,7 +60,7 @@ sub generateConfig {
     $tags{'etcd_name'} = "Miguel";
 
     my $i = 0;
-    foreach my $member (@cluster_servers) {
+    foreach my $member (pf::cluster::enabled_servers) {
         $tags{'initial_cluster'} .= "infra$i=http://$member->{management_ip}:2380,";
         if ($member->{management_ip} eq $management_network->{'Tip'}) {
             $tags{'etcd_name'} = "infra$i";
