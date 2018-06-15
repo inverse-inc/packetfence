@@ -11,6 +11,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/database"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
 
 type NodeInfo struct {
@@ -234,4 +235,44 @@ func ShuffleIP(a []byte, randSrc int64) (r []byte) {
 		_, a = a[0], a[4:]
 	}
 	return ShuffleNetIP(array, randSrc)
+}
+
+func IPsFromRange(ip_range string) (r []net.IP) {
+	var iplist []net.IP
+	iprange := strings.Split(ip_range, ",")
+	if len(iprange) >= 1 {
+		for _, rangeip := range iprange {
+			ips := strings.Split(rangeip, "-")
+			if len(ips) == 1 {
+				iplist = append(iplist, net.ParseIP(ips[0]))
+			} else {
+				start := net.ParseIP(ips[0])
+				end := net.ParseIP(ips[1])
+
+				for {
+					iplist = append(iplist, net.ParseIP(start.String()))
+					if start.Equal(end) {
+						break
+					}
+					sharedutils.Inc(start)
+				}
+			}
+		}
+	}
+	return iplist
+}
+
+// ExcludeIP remove IP from the pool
+func ExcludeIP(dhcpHandler *DHCPHandler, ip_range string) {
+	excludeIPs := IPsFromRange(ip_range)
+
+	for _, excludeIP := range excludeIPs {
+		if excludeIP != nil {
+			// Calculate the position for the roaring bitmap
+			position := uint32(binary.BigEndian.Uint32(excludeIP.To4())) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
+
+			// Remove the position in the roaming bitmap
+			dhcpHandler.available.Remove(position)
+		}
+	}
 }

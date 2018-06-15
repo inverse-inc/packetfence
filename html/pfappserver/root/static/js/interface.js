@@ -255,7 +255,6 @@ InterfaceView.prototype.typeChanged = function(e) {
         if (type.length) {
             var fake_mac = modal.find('[name="fake_mac_enabled"]').closest('.control-group');
             var nat = modal.find('[name="nat_enabled"]').closest('.control-group');
-
             switch ( type.val() ) {
                 case 'inlinel3':
                     fake_mac.show('fast');
