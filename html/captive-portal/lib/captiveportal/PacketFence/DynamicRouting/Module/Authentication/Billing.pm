@@ -343,6 +343,7 @@ sub confirm {
         billing => $billing,
         tier => $self->session->{tier},
         title => "Tier confirmation",
+        request_fields => $self->session->{request_fields},
     });
 }
 

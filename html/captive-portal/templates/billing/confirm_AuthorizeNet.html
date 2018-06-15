@@ -1,25 +1,57 @@
-[% INCLUDE billing/tier.html %]
+[% INCLUDE 'billing/tier.html' %]
 
-<form method="POST" action="https://test.authorize.net/gateway/transact.dll">
-  <input type="hidden" name="x_fp_hash" value="[% fp_hash %]">
-  <input type="hidden" name="x_fp_sequence" value="[% fp_sequence %]">
-  <input type="hidden" name="x_fp_timestamp" value="[% fp_timestamp %]">
-  <input type="hidden" name="x_version" value="3.1">
-  <input type="hidden" name="x_login" value="[% billing.api_login_id %]">
-  <input type="hidden" name="x_show_form" value="PAYMENT_FORM">
-  <input type="hidden" name="x_method" value="CC">
-  <input type="hidden" name="x_amount" value="[% tier.price %]">
-  <input type="hidden" name="x_test_request" value="Y" >
-  <input type="hidden" name="x_receipt_link_method" value="POST" >
-  <input type="hidden" name="x_receipt_link_text" value="Click here to get access" >
-  <input type="hidden" name="x_receipt_link_url" value="[% billing.verify_url %]" >
-  <!-- Display the payment button. -->
-  <div class="o-layout o-layout--center u-padding-bottom">
+<form id="payment-form">
+  <div class="payment-errors o-media o-media--error u-padding u-margin hide">
+    <div class="o-media__img">[% flashIcon(level='error') %]</div>
+    <p class="o-media__body"></p>
+  </div>
+
+  <div class="o-layout o-layout--center u-margin-top">
     <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
-      <button type="submit" name="submit" class="c-btn c-btn--primary u-1/1">
-        Checkout on Authorize.net
-      </button>
+
+      <div class="input-container">
+        <label for="name">[% i18n("Name on Card") %]</label>
+        [% IF request_fields.defined(firstname) && request_fields.defined(lastname) %]
+        <input id="name" type="text" value="[% request_fields.firstname %] [% request_fields.lastname %]"/>
+        [% ELSE %]
+        <input id="name" type="text"/>
+        [% END %]
+      </div>
+
+      <div class="input-container">
+        <label for="cardNumberID">[% i18n("Card Number") %]</label>
+        <input type="tel" id="cardNumberID" />
+      </div>
+
+      <div class="input-container">
+        <label>[% i18n("Expiration (MM/YYYY)") %]</label>
+        <input class="u-1/4" type="number" min="1" max="12" placeholder="MM" id="monthID" />
+        /
+        <input class="u-1/2" type="number" placeholder="YYYY" id="yearID" />
+      </div>
+
+      <div class="input-container">
+        <label for="cardCodeID">[% i18n("CVC") %]</label>
+        <input type="text" size="4" placeholder="---" id="cardCodeID" />
+      </div>
+
+      <div class="u-padding-vertical">
+        <button type="button" id="submitButton" onclick="sendPaymentDataToAnet()" name="submit-btn" class="c-btn c-btn--primary u-1/1">
+            [% i18n("Pay with Authorize.Net") %]
+        </button>
+      </div>
     </div>
   </div>
+
 </form>
 
+<script type="text/javascript" src="[% billing.acceptjs_uri %]" charset="utf-8"></script>
+
+<script id="variables" type="text/json">
+{
+  "public_client_key": "[% billing.public_client_key %]",
+  "api_login_id": "[% billing.api_login_id %]",
+  "id": "[% billing.id %]"
+}
+</script>
+<script type="text/javascript" src="/content/billing/authorizenet.js"></script>
