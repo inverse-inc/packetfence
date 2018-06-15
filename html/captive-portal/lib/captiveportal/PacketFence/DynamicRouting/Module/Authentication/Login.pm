@@ -201,11 +201,7 @@ sub authenticate {
               }, @{$sources} );
         if (!defined $return || $return == $LOGIN_FAILURE) {
             pf::auth_log::record_auth(join(',',map { $_->id } @{$sources}), $self->current_mac, $username, $pf::auth_log::FAILED, $self->app->profile->name);
-            if ($self->actions->{'on_failure'} && @{$self->actions->{'on_failure'}} > 0) {
-                 $self->app->session->{'sub_root_module_id'} = @{$params}[0];
-                 $self->redirect_root();
-                 return;
-            }
+            $self->on_action('on_failure');
             $self->app->flash->{error} = $message;
             $self->prompt_fields();
             return;
@@ -227,11 +223,7 @@ sub authenticate {
             pf::auth_log::record_auth($source_id, $self->current_mac, $username, $pf::auth_log::COMPLETED, $self->app->profile->name);
             # Logging USER/IP/MAC of the just-authenticated user
             get_logger->info("Successfully authenticated ".$username);
-            if ($self->actions->{'on_success'} && @{$self->actions->{'on_success'}} > 0) {
-                 $self->app->session->{'sub_root_module_id'} = @{$params}[0];
-                 $self->redirect_root();
-                 return;
-            }
+            $self->on_action('on_success');
         } elsif ($return == $LOGIN_CHALLENGE) {
             $self->challenge_data($message);
             $self->display_challenge();
@@ -302,6 +294,21 @@ sub clean_username {
 =cut
 
 sub allowed_urls_auth_module { ['/challenge'] }
+
+=head2 on_action
+
+change the root portal module if an action is define
+
+=cut
+
+sub on_action {
+    my ($self, $action) = @_;
+    if ($self->actions->{$action} && @{$self->actions->{$action}} > 0) {
+        $self->app->session->{'sub_root_module_id'} = @{$self->actions->{$action}}[0];
+        $self->redirect_root();
+        $self->detach;
+    }
+}
 
 =head1 AUTHOR
 
