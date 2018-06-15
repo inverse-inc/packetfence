@@ -874,6 +874,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/pfupdate
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/maintenance
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/node
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcp
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdns
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfstats
