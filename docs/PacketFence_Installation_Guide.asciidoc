@@ -1574,6 +1574,9 @@ image::docs/images/portal-modules/chained_oauth_sms.png[scaledwidth="100%",alt="
 
 Next, add the `chained_oauth_sms` module in `my_first_root_module` (removing any previous modules) and save it. Now when visiting the portal, you should have to authentication using an OAuth source and then using SMS based registration.
 
+Note that if you add want to keep some fields the user previously filled you can add 'Saved fields' in the portal module. Per example the first module ask for the telephone number and the second too, then you can add
+'telephone' as a 'Saved fields' and the second module will not ask for it.
+
 Mixing login and Secure SSID on-boarding on the portal
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -1656,6 +1659,13 @@ The SelectRole module allows to define specific roles manually when registering 
 The configuration is simple, you have a role which is the 'Admin role' the one allowed to select the role while registering a new device and the 'Role List' which is the list of roles that can be chosen from while registering a device.
 
 For instance; techs are in the AD group tech support and get the role 'tech support' while registering, let's put 'tech support' as the 'Admin role'. They are allowed to register new devices with the roles 'default', 'voice' and 'guest'. Every time someone with the role 'tech support' will try to register a device on a connection profile where this portal module is active, then the crew memeber will be asked to choose which role to assign to this device.
+
+Onfailure Onsuccess
+^^^^^^^^^^^^^^^^^^^
+
+The on_failure and on_success actions allow you to create a more complex workflow and will permit to change the root portal module based on the result of the authentication.
+Let's say you have a root portal module linked to a Authentication::Login module associated to a connection profile and you want to present a Guest authentication if the login failed.
+Then you need to configure another root portal module "Guest" linked with a Authentication::SMS module and in the previous Authentication::Login add and action on_failure => Guest.
 
 Portal Surveys
 ~~~~~~~~~~~~~~
