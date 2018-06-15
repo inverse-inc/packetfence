@@ -618,6 +618,17 @@ Is DPSK is enable or not on this connection profile
 sub dpskEnabled {
     my ($self) = @_;
     return isenabled($self->{'_dpsk'});
+};
+
+=item unregOnAcctStop
+
+Deregister device on accounting stop
+
+=cut
+
+sub unregOnAcctStop {
+    my ($self) = @_;
+    return isenabled($self->{'_unreg_on_acct_stop'});
 }
 
 =back

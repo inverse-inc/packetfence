@@ -40,7 +40,7 @@ The main definition block
 
 has_block 'definition' =>
   (
-    render_list => [qw(id description root_module status preregistration autoregister reuse_dot1x_credentials dot1x_recompute_role_from_portal dpsk default_psk_key)],
+    render_list => [qw(id description root_module status preregistration autoregister reuse_dot1x_credentials dot1x_recompute_role_from_portal dpsk default_psk_key unreg_on_acct_stop)],
   );
 
 =head2 captive_portal
@@ -228,6 +228,23 @@ has_field 'default_psk_key' =>
    label => 'Default PSK key',
    tags => { after_element => \&help,
              help => 'This is the default PSK key when you enable DPSK on this connection profile. The minimum length is eight characters.' },
+  );
+
+=head2 unreg_on_acct_stop
+
+Controls whether or not this connection profile will unregister a devices on accounting stop
+
+=cut
+
+has_field 'unreg_on_acct_stop' =>
+  (
+   type => 'Toggle',
+   label => 'Automatically deregister devices on accounting stop',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   default => 'disabled',
+   tags => { after_element => \&help,
+             help => 'This activates automatic deregistation of devices for the profile if PacketFence receives a RADIUS accounting stop.' },
   );
 
 =head2 sources

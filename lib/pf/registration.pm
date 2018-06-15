@@ -43,25 +43,14 @@ sub setup_node_for_registration {
     my ($node, $info) = @_;
     my $logger = get_logger();
     my $mac = $node->mac;
-    my $auto_registered = 0;
 
     my $status_msg = "";
     my $pid = $node->pid;
 
-    # if it's for auto-registration and mac is already registered, we are done
-    if ($info->{'autoreg'}) {
-        $node->autoreg('yes');
-        if ($node->status eq 'reg' ) {
-            return ($STATUS::OK, '');
-        }
-    }
-    else {
-    # do not check for max_node if it's for auto-register
-        if ( is_max_reg_nodes_reached($mac, $pid, $node->category, $node->category_id) ) {
-            $status_msg = "max nodes per pid met or exceeded";
-            $logger->error( "$status_msg - registration of $mac to $pid failed" );
-            return ($STATUS::PRECONDITION_FAILED, $status_msg);
-        }
+    if ( pf::node::is_max_reg_nodes_reached($mac, $pid, $node->category, $node->category_id) ) {
+        $status_msg = "max nodes per pid met or exceeded";
+        $logger->error( "$status_msg - registration of $mac to $pid failed" );
+        return ($STATUS::PRECONDITION_FAILED, $status_msg);
     }
     $node->status($STATUS_REGISTERED);
     $node->regdate(mysql_date());
