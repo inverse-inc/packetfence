@@ -23,7 +23,10 @@ use warnings;
 
 use base ('pf::Switch');
 
-use pf::config;
+use pf::config qw(
+    $MAC
+    $PORT
+);
 use pf::constants;
 use pf::Switch::constants;
 use pf::util;
