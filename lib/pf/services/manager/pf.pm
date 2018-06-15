@@ -75,33 +75,43 @@ sub print_status {
     my $SUCCESS_COLOR = color $GREEN_COLOR;
     my $STATUS_COLOR = color $BLUE_COLOR;
     my $pid;
-    my $manager;
+    my @manager;
     my $isManaged;
     for my $output (@output) {
         if ($output =~ /(packetfence-(.+)\.service)\s+loaded\s+active/) {
             my $service = $1;
-            my @service = grep {$_ =~ /$2/} @pf::services::ALL_SERVICES;
+            my $main_service = $2;
+            my $sub_service = $main_service;
+            if ($sub_service =~ /(radiusd).*/) {
+                $sub_service = $1;
+            }
+            my @service = grep {$_ =~ /$sub_service/} @pf::services::ALL_SERVICES;
             if (@service == 0) {
                 $pid = $self->sub_pid($service);
             } else {
-                $manager = pf::services::get_service_manager($service[0]);
-                $pid = $manager->pid;
+                @manager = grep { $_->name eq $main_service } pf::services::getManagers(\@service);
+                $pid = $manager[0]->pid;
             }
             $service .= (" " x (50 - length($service)));
             print $service,"\t${SUCCESS_COLOR}started   ".$pid."${RESET_COLOR}\n";
         } elsif ($output =~ /(packetfence-(.+)\.service)\s+loaded\s+inactive/) {
             my $service = $1;
-            my @service = grep {$_ =~ /$2/} @pf::services::ALL_SERVICES;
+            my $main_service = $2;
+            my $sub_service = $main_service;
+            if ($sub_service =~ /(radiusd).*/) {
+                $sub_service = $1;
+            }
+            my @service = grep {$_ =~ /$sub_service/} @pf::services::ALL_SERVICES;
             if (@service == 0) {
                 $pid = $self->sub_pid($service);
                 $isManaged = $FALSE;
             } else {
-                $manager = pf::services::get_service_manager($service[0]);
-                $pid = $manager->pid;
-                $isManaged = $manager->isManaged;
+                @manager = grep { $_->name eq $main_service } pf::services::getManagers(\@service);
+                $pid = $manager[0]->pid;
+                $isManaged = $manager[0]->isManaged;
             }
             $service .= (" " x (50 - length($service)));
-            if ($isManaged && !$manager->optional) {
+            if ($isManaged && !$manager[0]->optional) {
                 print $service,"\t${ERROR_COLOR}stopped   ".$pid."${RESET_COLOR}\n";
             } else {
                 print $service,"\t${WARNING_COLOR}stopped   ".$pid."${RESET_COLOR}\n";
@@ -109,6 +119,7 @@ sub print_status {
         }
     }
 }
+
 
 sub sub_pid {
     my ($self, $service) = @_;
