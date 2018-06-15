@@ -348,7 +348,7 @@ pfdhcp=enabled
 # services.pfdhcp_binary
 #
 # Location of the pfdhcp binary.
-pfdhcp_binary=/usr/local/pf/bin/pfdhcp
+pfdhcp_binary=/usr/local/pf/sbin/pfdhcp
 #
 # services.etcd
 #
@@ -600,7 +600,7 @@ pfdns=enabled
 # services.pfdns_binary
 #
 # Location of the pfdns binary.
-pfdns_binary=/usr/local/pf/bin/pfdns
+pfdns_binary=/usr/local/pf/sbin/pfdns
 #
 # services.api-frontend
 #
@@ -615,7 +615,7 @@ pfstats=enabled
 # services.pfstats_binary
 #
 # Location of the pfstats binary.
-pfstats_binary=/usr/local/pf/bin/pfstats
+pfstats_binary=/usr/local/pf/sbin/pfstats
 
 [snmp_traps]
 #
