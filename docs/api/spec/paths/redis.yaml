@@ -1,0 +1,6 @@
+/redis/queue/stats:
+    get:
+        description: Show stats of pfqueue
+        responses:
+            '200':
+                $ref: "#/components/responses/RedisQueueStats"

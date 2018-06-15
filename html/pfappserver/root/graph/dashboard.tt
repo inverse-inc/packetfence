@@ -126,6 +126,7 @@ END
                 [% IF listen_ints.size > 0 %]<li [% IF tab == "dhcp" %]class="active"[% END %]><a data-toggle="pill" href="#dhcp">DHCP</a></li>[% END %]
                 <li [% IF tab == "endpoints" %]class="active"[% END %]><a data-toggle="pill" href="#endpoints">[% l('Endpoints') %]</a></li>
                 <li [% IF tab == "portal" %]class="active"[% END %]><a data-toggle="pill" href="#portal">[% l('Portal') %]</a></li>
+                <li [% IF tab == "queue" %]class="active"[% END %]><a data-toggle="pill" href="#queue">[% l('Queue') %]</a></li>
             </ul>
         </div>
     </div>
@@ -975,5 +976,53 @@ END
                 </div>
             </div>
          </div>
+        <div class="tab-pane[% IF tab == "queue" %] active[% END %]" id="queue">
+            <div class="card">
+                <div class="card-title">
+                    <h2>[% l('Queue Counters') %]</h2>
+                </div>
+                <div class="card-block">
+                    <div class="row-fluid">
+                        <div class="span18 card">
+                            <div data-netdata="packetfence.redis.queue_stats_count"
+                            data-host="/netdata/127.0.0.1"
+                            data-title="PFQueue Stats Counters"
+                            data-hide-missing="true"
+                            data-chart-library="dygraph"
+                            data-colors="[% palette(0) %]"
+                            data-height="200px"
+                            data-after="-3600"
+                            data-decimal-digits="0"></div>
+                        </div>
+                    </div>
+                    <div class="row-fluid">
+                        <div class="span18 card">
+                            <div data-netdata="packetfence.redis.queue_stats_expired"
+                            data-host="/netdata/127.0.0.1"
+                            data-title="PFQueue Stats Expired"
+                            data-hide-missing="true"
+                            data-chart-library="dygraph"
+                            data-colors="[% palette(0) %]"
+                            data-height="200px"
+                            data-after="-3600"
+                            data-decimal-digits="0"></div>
+                        </div>
+                    </div>
+                    <div class="row-fluid">
+                        <div class="span18 card">
+                            <div data-netdata="packetfence.redis.queue_stats_outstanding"
+                            data-host="/netdata/127.0.0.1"
+                            data-title="PFQueue Stats Outstanding"
+                            data-hide-missing="true"
+                            data-chart-library="dygraph"
+                            data-colors="[% palette(0) %]"
+                            data-height="200px"
+                            data-after="-3600"
+                            data-decimal-digits="0"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
