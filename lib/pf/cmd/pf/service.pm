@@ -58,7 +58,7 @@ use base qw(pf::cmd);
 use IO::Interactive qw(is_interactive);
 use Term::ANSIColor;
 our ($SERVICE_HEADER, $IS_INTERACTIVE);
-our ($RESET_COLOR, $WARNING_COLOR, $ERROR_COLOR, $SUCCESS_COLOR);
+our ($RESET_COLOR, $WARNING_COLOR, $ERROR_COLOR, $SUCCESS_COLOR, $STATUS_COLOR);
 use pf::log;
 use pf::file_paths qw($install_dir);
 use pf::config qw(%Config);
@@ -123,6 +123,7 @@ sub _run {
     $WARNING_COLOR = $IS_INTERACTIVE ? color $YELLOW_COLOR : '';
     $ERROR_COLOR = $IS_INTERACTIVE ? color $RED_COLOR : '';
     $SUCCESS_COLOR = $IS_INTERACTIVE ? color $GREEN_COLOR : '';
+    $STATUS_COLOR = $IS_INTERACTIVE ? color $BLUE_COLOR : '';
     my $actionHandler;
     $action =~ /^(.*)$/;
     $action = $1;
@@ -134,6 +135,9 @@ sub _run {
     if ($service eq 'pf' && ($action ne 'status' && $action ne 'updatesystemd')) {
         updateSystemd->($service, grep {$_ ne 'pf'} @pf::services::ALL_SERVICES);
     }
+    my $output = "Service";
+    $output .= (" " x 49);
+    print "${STATUS_COLOR}".$output."Status    PID${RESET_COLOR}\n" if  ($action ne 'updatesystemd' && $action ne 'generateconfig');
     return $actionHandler->($service,@$services);
 }
 

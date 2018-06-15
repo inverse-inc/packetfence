@@ -74,29 +74,54 @@ sub print_status {
     my $ERROR_COLOR = color $RED_COLOR;
     my $SUCCESS_COLOR = color $GREEN_COLOR;
     my $STATUS_COLOR = color $BLUE_COLOR;
-    my $output = "Service";
-    $output .= (" " x 49);
-    print "${STATUS_COLOR}".$output."Status${RESET_COLOR}\n";
-
+    my $pid;
+    my $manager;
+    my $isManaged;
     for my $output (@output) {
-        if ($output =~ /(packetfence.+\.service)\s+loaded\s+active/) {
+        if ($output =~ /(packetfence-(.+)\.service)\s+loaded\s+active/) {
             my $service = $1;
-            $service .= (" " x (50 - length($service)));
-            print $service,"\t${SUCCESS_COLOR}started${RESET_COLOR}\n";
-
-        } elsif ($output =~ /(packetfence-(.+)\.service)\s+loaded\s+inactive/) {
             my @service = grep {$_ =~ /$2/} @pf::services::ALL_SERVICES;
-            my $manager = pf::services::get_service_manager($service[0]);
-            my $isManaged = $manager->isManaged;
+            if (@service == 0) {
+                $pid = $self->sub_pid($service);
+            } else {
+                $manager = pf::services::get_service_manager($service[0]);
+                $pid = $manager->pid;
+            }
+            $service .= (" " x (50 - length($service)));
+            print $service,"\t${SUCCESS_COLOR}started   ".$pid."${RESET_COLOR}\n";
+        } elsif ($output =~ /(packetfence-(.+)\.service)\s+loaded\s+inactive/) {
             my $service = $1;
+            my @service = grep {$_ =~ /$2/} @pf::services::ALL_SERVICES;
+            if (@service == 0) {
+                $pid = $self->sub_pid($service);
+                $isManaged = $FALSE;
+            } else {
+                $manager = pf::services::get_service_manager($service[0]);
+                $pid = $manager->pid;
+                $isManaged = $manager->isManaged;
+            }
             $service .= (" " x (50 - length($service)));
             if ($isManaged && !$manager->optional) {
-                print $service,"\t${ERROR_COLOR}stopped${RESET_COLOR}\n";
+                print $service,"\t${ERROR_COLOR}stopped   ".$pid."${RESET_COLOR}\n";
             } else {
-                print $service,"\t${WARNING_COLOR}stopped${RESET_COLOR}\n";
+                print $service,"\t${WARNING_COLOR}stopped   ".$pid."${RESET_COLOR}\n";
             }
         }
     }
+}
+
+sub sub_pid {
+    my ($self, $service) = @_;
+    my $logger = get_logger();
+    my $pid = `sudo systemctl show -p MainPID $service`;
+    chomp $pid;
+    $pid = (split(/=/, $pid))[1];
+    if (defined $pid) {
+        $logger->debug("sudo systemctl $service returned $pid");
+    } else {
+        $logger->error("Error getting pid for $service");
+    }
+    return $pid;
 }
 
 sub pid {
