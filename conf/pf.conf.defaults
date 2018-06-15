@@ -368,7 +368,7 @@ haproxy-portal=enabled
 # services.haproxy-portal_binary
 #
 # Location of the haproxy-portal binary. Only necessary to change if you are not running the RPMed version.
-haproxy-portal_binary=/usr/sbin/haproxy-systemd-wrapper
+haproxy-portal_binary=/usr/sbin/haproxy
 #
 # services.haproxy-db
 #
@@ -378,7 +378,7 @@ haproxy-db=enabled
 # services.haproxy-db_binary
 #
 # Location of the haproxy-db binary. Only necessary to change if you are not running the RPMed version.
-haproxy-db_binary=/usr/sbin/haproxy-systemd-wrapper
+haproxy-db_binary=/usr/sbin/haproxy
 #
 # services.pffilter
 #
