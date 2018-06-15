@@ -59,7 +59,6 @@ use fingerbank::Config;
 use fingerbank::DB;
 use pf::cluster;
 use Time::HiRes qw(time sleep);
-use pf::option82 qw(search_switch);
 use pf::CHI::Request;
 
 pf::SwitchFactory->preloadConfiguredModules();
