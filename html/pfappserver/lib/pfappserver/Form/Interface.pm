@@ -84,12 +84,6 @@ has_field 'high_availability' =>
     default => 0,
    );
 
-has_field 'vip' =>
-  (
-   type => 'IPAddress',
-   label => 'Virtual IP Address',
-  );
-
 has_field 'nat_enabled' => (
     type => 'Toggle',
     checkbox_value => 1,
