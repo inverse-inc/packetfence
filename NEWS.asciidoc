@@ -37,6 +37,7 @@ Enhancements
 * Allow max node per role when doing autoregistration
 * Moved unregister on accounting stop parameter on the connection profile
 * VLAN filters can be set to ${node_info.category} and it will return the current category of the device
+* The database load-balancer now listens on the cluster management IP address
 
 Bug Fixes
 +++++++++
