@@ -53,6 +53,31 @@ sub supportsWirelessMacAuth { return $TRUE; }
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
 
+=head2 getVersion
+
+Obtain image version information from switch
+
+=cut
+
+sub getVersion {
+    my ($self)       = @_;
+    my $oid_sysDescr = '1.3.6.1.2.1.1.1.0';
+    my $logger       = $self->logger;
+    if ( !$self->connectRead() ) {
+        return '';
+    }
+    $logger->trace("SNMP get_request for sysDescr: $oid_sysDescr");
+    my $result = $self->{_sessionRead}->get_request( -varbindlist => [$oid_sysDescr] );
+    my $sysDescr = ( $result->{$oid_sysDescr} || '' );
+    if ( $sysDescr =~ m/V(\d{1}\.\d{2}\.\d{2})/ ) {
+        return $1;
+    } elsif ( $sysDescr =~ m/Version (\d+\.\d+\([^)]+\)[^,\s]*)(,|\s)+/ ) {
+        return $1;
+    } else {
+        return $sysDescr;
+    }
+}
+
 =head2 synchronize_locationlog
 
 Override the Switch method so that the controller IP is inserted as the switch_ip in the locationlog
