@@ -19,6 +19,11 @@ New Features
 * Added support for dynamic PSK (Cisco IPSK) for the Cisco WLC and hostapd (PR #3244)
 * Added Ubiquiti Unifi web authentication and 802.1x support
 * Added support for Cambium AP module for 802.1x, MAC Auth and Web auth (PR #3282)
+* Change root portal module on failure/success.
+* Save already entered field on the portal (chain auth)
+* Custom message for sms registration
+* Expire SMS pin code
+* Define the length of the pin code
 
 Enhancements
 ++++++++++++
