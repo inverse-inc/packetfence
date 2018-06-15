@@ -166,7 +166,17 @@ On a Debian system, do:
   apt-get update
   apt-get upgrade
 
-Regarding SELinux or AppArmor, even if they may be wanted by some organizations, PacketFence will not work properly if SELinux or AppArmor are enabled. You will need to explicitly disable SELinux from the `/etc/selinux/config` file and reboot the machine. For AppArmor, you need to execute the following commands: *update-rc.d -f apparmor stop*, *update-rc.d -f apparmor teardown* and *update-rc.d -f apparmor remove*. Regarding resolvconf, you can remove the symlink to that file and simply create the `/etc/resolv.conf` file with the content you want.
+Regarding SELinux or AppArmor, even if they may be wanted by some
+organizations, PacketFence will not work properly if SELinux or AppArmor are
+enabled. You will need to explicitly disable SELinux from the
+`/etc/selinux/config` file and reboot the machine. For AppArmor, you need to
+execute the following commands:
+
+  update-rc.d -f apparmor stop
+  update-rc.d -f apparmor teardown
+  update-rc.d -f apparmor remove
+
+Regarding resolvconf, you can remove the symlink to that file and simply create the `/etc/resolv.conf` file with the content you want.
 
 Red Hat-based Systems
 ^^^^^^^^^^^^^^^^^^^^^
@@ -239,7 +249,7 @@ First open PacketFence's configurator - you can access it from https://@ip_of_pa
  * Step 4 - PacketFence - provide your domain name, DHCP servers list and other required information
  * Step 5 - Administration - provide the PacketFence's admin username and password to be used
  * Step 6 - Fingerbank - provide your Fingerbank API key. Fingerbank is used to accurately identify Internet of Things (IoT) devices, medical devices, industrial and robotics equipment and more on your network. It is recommended to have a key for your PacketFence deployment. Without a Fingerbank API key, device profiling will not be available in PacketFence
- * Step 7 - Configuration - start all services.
+ * Step 7 - Confirmation - start all services.
 
 Once all services are started, you will automatically be redirected to the PacketFence's web admin interface. It is located at https://@ip_of_packetfence:1443/admin
 
@@ -248,7 +258,7 @@ Open that link and log in using the username/password specified in Step 5.
 Connecting PacketFence to Microsoft Active Directory
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Next we join the PacketFence server to your existing Microsoft Active Directory domain controller. From PacketFence's web admin interface, go in 'Configuration->Policies and Access Control->Domains->Active Directory Domain' and click on the 'Add domain' button. Provide the required fields. You will need an Active Directory administrative username and password (member of the domain admins) to join the PacketFence server to your domain. Once all the information has been provided, click on the 'Save and join" button'.
+Next we join the PacketFence server to your existing Microsoft Active Directory domain controller. From PacketFence's web admin interface, go in 'Configuration->Policies and Access Control->Domains->Active Directory Domain' and click on the 'Add domain' button. Provide the required fields. You will need an Active Directory administrative username and password (member of the domain admins) to join the PacketFence server to your domain. Once all the information has been provided, click on the 'Save and join button'.
 
 Once the domain join succeeds, click on the 'Realms' tab. Click on the 'Default' realm and set the domain to the Active Directory domain you have just created. That will instruct PacketFence to use that newly created Active Directory for the default authentication realm. Next, do the same thing for the NULL realm.
 
@@ -330,7 +340,7 @@ From 'Configuration->Policies and Access Control->Connection Profiles', click on
  * Profile Name: 8021x
  * Automatically register devices: checked
  * Filters: If any of the following conditions are met:
-  * Connection Type: Ethernet-EAP
+   - Connection Type: Ethernet-EAP
  * Sources: your newly created Active Directory authentication source
 
 Click on 'Save' to save all configuration changes.
