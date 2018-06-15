@@ -178,9 +178,6 @@ sub startService {
         checkup( map {$_->name} @$checkupManagers);
         foreach my $manager (@$checkupManagers) {
             _doStart($manager);
-            if ($service eq 'pf') {
-                $manager->print_status;
-            }
         }
     }
     return $EXIT_SUCCESS;
