@@ -28,6 +28,7 @@ Enhancements
 * Fix local/reject realm for eduroam in standalone configuration (PR #3264)
 * Allow Subsecond timeouts for LDAP connections
 * Allow Randomization of the search order for a list of servers
+* IP exclusion is now possible in the DHCP server
 
 Bug Fixes
 +++++++++
