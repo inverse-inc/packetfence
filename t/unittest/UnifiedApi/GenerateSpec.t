@@ -308,6 +308,10 @@ cmp_deeply(
                     type => 'string',
                     description => 'If profile is disabled it will not used',
                 },
+                'unreg_on_acct_stop' => {
+                    type => 'string',
+                    description => 'This activates automatic deregistation of devices for the profile if PacketFence receives a RADIUS accounting stop.',
+                },
             },
             required => [
                 qw(
