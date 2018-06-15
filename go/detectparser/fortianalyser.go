@@ -48,8 +48,6 @@ func (s *FortiAnalyserParser) Parse(line string) ([]ApiCall, error) {
 			},
 		},
 	}, nil
-
-	return nil, nil
 }
 
 func NewFortiAnalyserParser(*PfdetectConfig) (Parser, error) {
