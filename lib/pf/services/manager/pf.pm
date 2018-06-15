@@ -18,7 +18,7 @@ use strict;
 use warnings;
 use Term::ANSIColor;
 use Moo;
-use pf::constants qw($TRUE $BLUE_COLOR $YELLOW_COLOR $RED_COLOR $GREEN_COLOR);
+use pf::constants qw($TRUE $FALSE $BLUE_COLOR $YELLOW_COLOR $RED_COLOR $GREEN_COLOR);
 use pf::log;
 use pf::cluster;
 extends 'pf::services::manager';
