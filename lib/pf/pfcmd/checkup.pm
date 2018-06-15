@@ -60,6 +60,7 @@ use pf::file_paths qw(
     $install_dir
     $network_config_file
     $bin_dir
+    $sbin_dir
     $log_dir
     @log_files
     $generated_conf_dir
@@ -176,7 +177,7 @@ sub service_exists {
         next if ($service eq 'pf');
         my $exe = ( $Config{'services'}{"${service}_binary"} || "$install_dir/sbin/$service" );
         if ($service =~ /^(pfipset|pfsso|httpd\.dispatcher|api-frontend)$/) {
-            $exe = "$bin_dir/pfhttpd";
+            $exe = "$sbin_dir/pfhttpd";
         } elsif ($service =~ /httpd\.(.*)/) {
             $exe = ( $Config{'services'}{"httpd_binary"} || "$install_dir/sbin/$service" );
         } elsif ($service =~ /redis_(.*)/) {
