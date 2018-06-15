@@ -189,8 +189,9 @@ sub _deauthenticateMacWithHTTP {
 
     my $json_data = decode_json($response->decoded_content());
 
+    my $switch_id = $self->{_id};
     foreach my $entry (@{$json_data->{'data'}}) {
-        $response = $ua->post("$base_url/api/s/$entry->{'name'}/cmd/stamgr", Content => '{"cmd":"'.$command.'", "mac":"'.$mac.'"}');
+        $response = $ua->post("$base_url/api/s/$entry->{'name'}/cmd/stamgr", Content => '{"cmd":"'.$command.'", "mac":"'.$mac.'", "ap_mac":"'.$switch_id.'"}');
         if ($response->is_success) {
             $logger->info("Deauth on site: $entry->{'desc'}");
         }
