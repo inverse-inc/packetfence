@@ -40,7 +40,7 @@
         </div>
         <div class="span14">
           <div class="page-header">
-            <h1>[% l('Database Configuration') %]
+            <h1>[% l('Database') %]
             <small>[% l('Create a user in your MySQL server') %]</small></h1>
           </div>
         </div>
