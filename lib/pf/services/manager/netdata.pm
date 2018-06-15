@@ -104,18 +104,21 @@ families: *
 
 EOT
         } else {
-            $tags{'alerts'} .= <<"EOT";
+            my @number = split(',',$source->{'host'});
+            for my $source_id (@number) {
+              $tags{'alerts'} .= <<"EOT";
 template: $source->{'id'}_source_available
 families: *
-      on: statsd_gauge.source.$type.$source->{'id'}
+      on: statsd_gauge.source.$type.$source->{'id'}.$source_id
    every: 10s
     crit: \$gauge != 1
    units: ok/failed
-    info: Source $source->{'id'} unavailable
+    info: Source $source->{'id'}.$source_id unavailable
    delay: down 5m multiplier 1.5 max 1h
       to: sysadmin
 
 EOT
+            }
         }
     }
 

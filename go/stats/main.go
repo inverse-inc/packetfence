@@ -96,15 +96,18 @@ func (s radiustype) Test(source interface{}, ctx context.Context) {
 	UserPassword_SetString(packet, "12345")
 	client := radius.DefaultClient
 	ctx, _ = context.WithTimeout(ctx, 5*time.Second)
-	response, err := client.Exchange(ctx, packet, radiusSource.Host+":"+radiusSource.Port)
-	if err != nil {
-		StatsdClient.Gauge("source."+radiusSource.Type+"."+radiusSource.PfconfigHashNS, 0)
-	} else {
-		StatsdClient.Gauge("source."+radiusSource.Type+"."+sourceId, 1)
-		if response.Code == radius.CodeAccessAccept {
-			log.LoggerWContext(ctx).Debug(fmt.Sprintf("RADIUS test for source %s did returned an Access-Accept", sourceId))
+	sources := strings.Split(radiusSource.Host, ",")
+	for num, src := range sources {
+		response, err := client.Exchange(ctx, packet, src+":"+radiusSource.Port)
+		if err != nil {
+			StatsdClient.Gauge("source."+radiusSource.Type+"."+radiusSource.PfconfigHashNS+strconv.Itoa(num), 0)
 		} else {
-			log.LoggerWContext(ctx).Debug(fmt.Sprintf("RADIUS test for source %s returned a response other than an Access-Accept", sourceId))
+			StatsdClient.Gauge("source."+radiusSource.Type+"."+sourceId+strconv.Itoa(num), 1)
+			if response.Code == radius.CodeAccessAccept {
+				log.LoggerWContext(ctx).Debug(fmt.Sprintf("RADIUS test for source %s did returned an Access-Accept", sourceId))
+			} else {
+				log.LoggerWContext(ctx).Debug(fmt.Sprintf("RADIUS test for source %s returned a response other than an Access-Accept", sourceId))
+			}
 		}
 	}
 	t.Send("source." + source.(pfconfigdriver.AuthenticationSourceRadius).Type + "." + source.(pfconfigdriver.AuthenticationSourceRadius).PfconfigHashNS)
@@ -116,35 +119,38 @@ type ldaptype struct{}
 
 func (s ldaptype) Test(source interface{}, ctx context.Context) {
 	t := StatsdClient.NewTiming()
-	l, err := ldap.Dial("tcp", fmt.Sprintf("%s:%s", source.(pfconfigdriver.AuthenticationSourceLdap).Host, source.(pfconfigdriver.AuthenticationSourceLdap).Port))
+	sources := strings.Split(source.(pfconfigdriver.AuthenticationSourceLdap).Host, ",")
+	for num, src := range sources {
+		l, err := ldap.Dial("tcp", fmt.Sprintf("%s:%s", src, source.(pfconfigdriver.AuthenticationSourceLdap).Port))
 
-	if err != nil {
-		StatsdClient.Gauge("source."+source.(pfconfigdriver.AuthenticationSourceLdap).Type+"."+source.(pfconfigdriver.AuthenticationSourceLdap).PfconfigHashNS, 0)
-		log.LoggerWContext(ctx).Error("Error connecting to LDAP source: " + err.Error())
-	} else {
-		defer l.Close()
-		// Reconnect with TLS
-		if source.(pfconfigdriver.AuthenticationSourceLdap).Encryption != "none" {
-			err = l.StartTLS(&tls.Config{InsecureSkipVerify: true})
-			if err != nil {
-				log.LoggerWContext(ctx).Crit("Error connecting to LDAP source using TLS: " + err.Error())
-			}
-		}
-
-		// First bind with a read only user
-		timeout, err := strconv.Atoi(source.(pfconfigdriver.AuthenticationSourceLdap).ReadTimeout)
 		if err != nil {
-			log.LoggerWContext(ctx).Crit("Error parsing read timeout of LDAP source" + err.Error())
-		}
-
-		l.SetTimeout(time.Duration(timeout) * time.Second)
-		err = l.Bind(source.(pfconfigdriver.AuthenticationSourceLdap).BindDN, source.(pfconfigdriver.AuthenticationSourceLdap).Password)
-		if err != nil {
-			StatsdClient.Gauge("source."+source.(pfconfigdriver.AuthenticationSourceLdap).Type+"."+source.(pfconfigdriver.AuthenticationSourceLdap).PfconfigHashNS, 0)
+			StatsdClient.Gauge("source."+source.(pfconfigdriver.AuthenticationSourceLdap).Type+"."+source.(pfconfigdriver.AuthenticationSourceLdap).PfconfigHashNS+strconv.Itoa(num), 0)
+			log.LoggerWContext(ctx).Error("Error connecting to LDAP source: " + err.Error())
 		} else {
-			StatsdClient.Gauge("source."+source.(pfconfigdriver.AuthenticationSourceLdap).Type+"."+source.(pfconfigdriver.AuthenticationSourceLdap).PfconfigHashNS, 1)
+			defer l.Close()
+			// Reconnect with TLS
+			if source.(pfconfigdriver.AuthenticationSourceLdap).Encryption != "none" {
+				err = l.StartTLS(&tls.Config{InsecureSkipVerify: true})
+				if err != nil {
+					log.LoggerWContext(ctx).Crit("Error connecting to LDAP source using TLS: " + err.Error())
+				}
+			}
+
+			// First bind with a read only user
+			timeout, err := strconv.Atoi(source.(pfconfigdriver.AuthenticationSourceLdap).ReadTimeout)
+			if err != nil {
+				log.LoggerWContext(ctx).Crit("Error parsing read timeout of LDAP source" + err.Error())
+			}
+
+			l.SetTimeout(time.Duration(timeout) * time.Second)
+			err = l.Bind(source.(pfconfigdriver.AuthenticationSourceLdap).BindDN, source.(pfconfigdriver.AuthenticationSourceLdap).Password)
+			if err != nil {
+				StatsdClient.Gauge("source."+source.(pfconfigdriver.AuthenticationSourceLdap).Type+"."+source.(pfconfigdriver.AuthenticationSourceLdap).PfconfigHashNS+strconv.Itoa(num), 0)
+			} else {
+				StatsdClient.Gauge("source."+source.(pfconfigdriver.AuthenticationSourceLdap).Type+"."+source.(pfconfigdriver.AuthenticationSourceLdap).PfconfigHashNS+strconv.Itoa(num), 1)
+			}
+			t.Send("source." + source.(pfconfigdriver.AuthenticationSourceLdap).Type + "." + source.(pfconfigdriver.AuthenticationSourceLdap).PfconfigHashNS + strconv.Itoa(num))
 		}
-		t.Send("source." + source.(pfconfigdriver.AuthenticationSourceLdap).Type + "." + source.(pfconfigdriver.AuthenticationSourceLdap).PfconfigHashNS)
 	}
 }
 
