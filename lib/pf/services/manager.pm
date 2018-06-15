@@ -39,7 +39,7 @@ use pf::log;
 use pf::util;
 
 use Term::ANSIColor;
-use pf::constants qw($PURPLE_COLOR $TRUE $RED_COLOR $GREEN_COLOR $YELLOW_COLOR);
+use pf::constants qw($BLUE_COLOR $TRUE $RED_COLOR $GREEN_COLOR $YELLOW_COLOR);
 
 use File::Slurp qw(read_file);
 use Proc::ProcessTable;
@@ -235,7 +235,7 @@ sub print_status {
     my $WARNING_COLOR = color $YELLOW_COLOR;
     my $ERROR_COLOR = color $RED_COLOR;
     my $SUCCESS_COLOR = color $GREEN_COLOR;
-    my $STATUS_COLOR = color $PURPLE_COLOR;
+    my $STATUS_COLOR = color $BLUE_COLOR;
     my $output = "Service";
     $output .= (" " x 49);
     print "${STATUS_COLOR}".$output."Status    PID${RESET_COLOR}\n";
