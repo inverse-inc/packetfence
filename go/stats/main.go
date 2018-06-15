@@ -95,10 +95,11 @@ func (s radiustype) Test(source interface{}, ctx context.Context) {
 	UserName_SetString(packet, "tim")
 	UserPassword_SetString(packet, "12345")
 	client := radius.DefaultClient
-	ctx, _ = context.WithTimeout(ctx, 5*time.Second)
 	sources := strings.Split(radiusSource.Host, ",")
 	for num, src := range sources {
-		response, err := client.Exchange(ctx, packet, src+":"+radiusSource.Port)
+		ctx2, cancel := context.WithTimeout(ctx, 5*time.Second)
+		defer cancel()
+		response, err := client.Exchange(ctx2, packet, src+":"+radiusSource.Port)
 		if err != nil {
 			StatsdClient.Gauge("source."+radiusSource.Type+"."+radiusSource.PfconfigHashNS+strconv.Itoa(num), 0)
 		} else {
@@ -165,8 +166,9 @@ func (s eduroamtype) Test(source interface{}, ctx context.Context) {
 	UserName_SetString(packet, "tim")
 	UserPassword_SetString(packet, "12345")
 	client := radius.DefaultClient
-	ctx, _ = context.WithTimeout(ctx, 5*time.Second)
-	response, err := client.Exchange(ctx, packet, source.(pfconfigdriver.AuthenticationSourceEduroam).Server1Address+":1812")
+	ctx2, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	response, err := client.Exchange(ctx2, packet, source.(pfconfigdriver.AuthenticationSourceEduroam).Server1Address+":1812")
 
 	if err != nil {
 		StatsdClient.Gauge("source."+source.(pfconfigdriver.AuthenticationSourceEduroam).Type+"."+source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"1", 0)

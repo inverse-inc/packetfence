@@ -338,8 +338,6 @@ func CompileJson(json interface{}, compile string) (interface{}, error) {
 	default:
 		return nil, errors.New("Unhandled response type")
 	}
-
-	return nil, nil
 }
 
 /*

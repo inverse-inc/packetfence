@@ -23,7 +23,9 @@ func (fw *Checkpoint) Start(ctx context.Context, info map[string]string, timeout
 	p := fw.startRadiusPacket(ctx, info, timeout)
 	client := fw.getRadiusClient(ctx)
 	// Use the background context since we don't want the lib to use our context
-	_, err := client.Exchange(fw.RadiusContextWithTimeout(), p, fw.PfconfigHashNS+":"+fw.Port)
+	ctx2, cancel := fw.RadiusContextWithTimeout()
+	defer cancel()
+	_, err := client.Exchange(ctx2, p, fw.PfconfigHashNS+":"+fw.Port)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Couldn't SSO to the Checkpoint, got the following error: %s", err))
 		return false, err
