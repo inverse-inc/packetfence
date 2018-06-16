@@ -176,11 +176,11 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorsWithMessage'
       description: Request cannot be processed because the resource could not be found.
-    RedisQueueStats:
+    QueueStats:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/RedisQueueStats'
+            $ref: '#/components/schemas/QueueStats'
       description: A response that contains the pfqueue stats
     Unauthorized:
       content:
@@ -9157,6 +9157,49 @@ components:
             type: object
           type: array
       type: object
+    QueueStats:
+      description: The schema used for a collection of queue stats
+      items:
+        description: Statistics of the queue
+        properties:
+          queue:
+            description: The name of the queue
+            type: string
+          stats:
+            description: The statistics for the queue
+            properties:
+              count:
+                description: The queue count
+                type: integer
+              expired:
+                description: The collection of expired task counters
+                items:
+                  description: An expired task
+                  properties:
+                    count:
+                      description: The expired task counter
+                      type: integer
+                    name:
+                      description: The name of the expired task
+                      type: string
+                  type: object
+                type: array
+              outstanding:
+                description: The collection of outstanding task counters
+                items:
+                  description: An outstanding task
+                  properties:
+                    count:
+                      description: The outstanding task counter
+                      type: integer
+                    name:
+                      description: The name of the outstanding task
+                      type: string
+                  type: object
+                type: array
+            type: object
+        type: object
+      type: array
     RadiusAuditLog:
       properties:
         auth_status:
@@ -9248,49 +9291,6 @@ components:
               $ref: '#/components/schemas/RadiusAuditLog'
             type: array
         type: object
-    RedisQueueStats:
-      description: The schema used for a collection of Redis queue stats
-      items:
-        description: Statistics of the Redis queue
-        properties:
-          queue:
-            description: The name of the queue
-            type: string
-          stats:
-            description: The statistics for the queue
-            properties:
-              count:
-                description: The queue count
-                type: integer
-              expired:
-                description: The collection of expired task counters
-                items:
-                  description: An expired task
-                  properties:
-                    count:
-                      description: The expired task counter
-                      type: integer
-                    name:
-                      description: The name of the expired task
-                      type: string
-                  type: object
-                type: array
-              outstanding:
-                description: The collection of outstanding task counters
-                items:
-                  description: An outstanding task
-                  properties:
-                    count:
-                      description: The outstanding task counter
-                      type: integer
-                    name:
-                      description: The name of the outstanding task
-                      type: string
-                  type: object
-                type: array
-            type: object
-        type: object
-      type: array
     ReportsActive:
       properties:
         computername:
@@ -12988,6 +12988,12 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
+  /queues/stats:
+    get:
+      description: Show stats of pfqueue
+      responses:
+        '200':
+          $ref: '#/components/responses/QueueStats'
   /radius_audit_log/{radius_audit_log_id}:
     delete:
       description: Remove an item
@@ -13125,12 +13131,6 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
-  /redis/queue/stats:
-    get:
-      description: Show stats of pfqueue
-      responses:
-        '200':
-          $ref: '#/components/responses/RedisQueueStats'
   /reports/active:
     get:
       responses:
