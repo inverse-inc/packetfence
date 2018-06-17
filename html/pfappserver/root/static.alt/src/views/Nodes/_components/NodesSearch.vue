@@ -771,6 +771,14 @@ export default {
     }
   },
   watch: {
+    '$route': {
+      deep: true,
+      handler: function (a, b) {
+        if (a.fullPath !== b.fullPath) {
+          this.initSearch()
+        }
+      }
+    },
     checkedRows (a, b) {
       this.checkedAll = (this.tableValues.length === a.length && a.length > 0)
       let _this = this
