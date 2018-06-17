@@ -776,7 +776,11 @@ export default {
       handler: function (a, b) {
         if (a.fullPath !== b.fullPath) {
           this.initSearch()
-          this.onSearch(this.condition)
+          if (a.query.query) {
+            this.onSearch(this.condition)
+          } else {
+            this.onReset()
+          }
         }
       }
     },
