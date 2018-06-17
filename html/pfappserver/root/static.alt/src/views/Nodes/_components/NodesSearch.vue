@@ -776,6 +776,7 @@ export default {
       handler: function (a, b) {
         if (a.fullPath !== b.fullPath) {
           this.initSearch()
+          this.onSearch(this.condition)
         }
       }
     },
