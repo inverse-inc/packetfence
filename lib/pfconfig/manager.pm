@@ -47,6 +47,7 @@ use List::MoreUtils qw(first_index);
 use Tie::IxHash;
 use pfconfig::config;
 use pf::constants::user;
+use pf::config::tenant;
 
 =head2 config_builder
 
@@ -234,6 +235,9 @@ sub get_cache {
 
     # we look in raw memory and make sure that it's not expired
     my $memory = $self->{memory}->{$what};
+    if ($self->is_tenant_scoped($what)) {
+        $memory =  $memory->{pf::config::tenant::get_tenant()};
+    }
     if ( defined($memory) && $self->is_valid($what) ) {
         $logger->debug("Getting $what from memory");
         return $memory;
@@ -258,6 +262,17 @@ sub get_cache {
 
 }
 
+=head2 is_tenant_scoped
+
+is_tenant_scoped
+
+=cut
+
+sub is_tenant_scoped {
+    my ($self, $key) = @_;
+    return $self->{scoped_by_tenant_id}{$key};
+}
+
 =head2 post_process_element
 
 Post processes an element fetched from the cache backend
@@ -266,7 +281,7 @@ For now, it is used only to transform non-ordered hashes into ordered ones so fo
 =cut
 
 sub post_process_element {
-    my ($self, $element) = @_;
+    my ($self, $what, $element) = @_;
     if(ref($element) eq 'HASH'){
         tie my %copy, 'Tie::IxHash';
         my @keys = keys(%$element);
@@ -292,7 +307,7 @@ sub cache_resource {
     $logger->debug("loading $what from outside");
     my $result = $self->config_builder($what);
     # inflates the element if necessary
-    $result = $self->post_process_element($result);
+    $result = $self->post_process_element($what, $result);
     my $cache_w = $self->{cache}->set( $what, $result, 864000 );
     $logger->trace("Cache write gave : $cache_w");
     unless ($cache_w) {
