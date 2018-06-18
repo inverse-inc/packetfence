@@ -34,9 +34,6 @@
 <script>
 export default {
   name: 'Nodes',
-  data () {
-    return {}
-  },
   computed: {
     savedSearches () {
       return this.$store.state.$_nodes.savedSearches
