@@ -5,7 +5,7 @@
         <pf-search-boolean :model="condition" :fields="fields" :store="store" :advancedMode="advancedMode"/>
         <br/>
         <b-container fluid class="mt-3 px-0 text-right">
-          <b-button type="reset" variant="outline-secondary">{{ $t('Reset') }}</b-button>
+          <b-button type="reset" variant="outline-secondary">{{ $t('Clear') }}</b-button>
           <b-button-group>
             <b-button type="submit" variant="outline-primary">{{ $t('Search') }}</b-button>
             <b-dropdown variant="outline-primary" right>
