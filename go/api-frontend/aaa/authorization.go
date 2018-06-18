@@ -102,7 +102,10 @@ var pathAdminRolesMap = map[string]string{
 	configApiPrefix + "/violation":  "VIOLATIONS",
 
 	apiPrefix + "/nodes": "NODES",
+	apiPrefix + "/node":  "NODES",
+
 	apiPrefix + "/users": "USERS",
+	apiPrefix + "/user": "USERS",
 }
 
 var methodSuffixMap = map[string]string{
