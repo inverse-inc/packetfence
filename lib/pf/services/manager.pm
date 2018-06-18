@@ -236,9 +236,6 @@ sub print_status {
     my $ERROR_COLOR = color $RED_COLOR;
     my $SUCCESS_COLOR = color $GREEN_COLOR;
     my $STATUS_COLOR = color $BLUE_COLOR;
-    my $output = "Service";
-    $output .= (" " x 49);
-    print "${STATUS_COLOR}".$output."Status    PID${RESET_COLOR}\n";
     my $loop = $TRUE;
     for my $output (@output) {
         if ($output =~ /(packetfence-$name\.service)\s+loaded\s+active/) {
@@ -247,9 +244,12 @@ sub print_status {
             print $service,"\t${SUCCESS_COLOR}started   ".$self->pid."${RESET_COLOR}\n";
             $loop = $FALSE;
         } elsif ($output =~ /(packetfence-$name\.service)\s+loaded.*/) {
+            my $service = $1;
+            if ($name =~ /(radiusd).*/) {
+                $name = $1;
+            }
             my $manager = pf::services::get_service_manager($name);
             my $isManaged = $manager->isManaged;
-            my $service = $1;
             $service .= (" " x (50 - length($service)));
             if ($isManaged && !$manager->optional) {
                 print $service,"\t${ERROR_COLOR}stopped   ".$self->pid."${RESET_COLOR}\n";
