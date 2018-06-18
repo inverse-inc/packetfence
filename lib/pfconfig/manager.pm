@@ -31,7 +31,6 @@ In order to access the configuration namespaces :
 use strict;
 use warnings;
 
-use JSON::MaybeXS;
 use Config::IniFiles;
 use List::MoreUtils qw(any firstval uniq);
 use Scalar::Util qw(refaddr reftype tainted blessed);
@@ -59,10 +58,9 @@ See it as a mini-factory
 sub config_builder {
     my ( $self, $namespace ) = @_;
     my $logger = get_logger;
-
     my $elem = $self->get_namespace($namespace);
     my $tmp  = $elem->build();
-
+    $self->{scoped_by_tenant_id}{$namespace} = $elem->{_scoped_by_tenant_id};
     return $tmp;
 }
 
