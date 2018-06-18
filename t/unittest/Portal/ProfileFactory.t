@@ -1,3 +1,5 @@
+#!/usr/bin/perl
+
 =head1 NAME
 
 Test for the pf::Connection::ProfileFactory

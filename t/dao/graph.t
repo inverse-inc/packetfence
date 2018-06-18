@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+
 =head1 NAME
 
 dao/graph.t
