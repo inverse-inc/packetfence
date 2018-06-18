@@ -56,13 +56,13 @@ func NewParseRunner(parserType string, config *detectparser.PfdetectConfig) (*Pa
 	return &ParseRunner{
 		PipePath: config.Path,
 		Parser:   p,
-		StopChan: make(chan struct{}, 1),
+		StopChan: make(chan struct{}),
 	}, nil
 }
 
 func (r *ParseRunner) Stop() {
 	log.Logger().Info(fmt.Sprintf("Stopping runner %s", r.PipePath))
-	r.StopChan <- struct{}{}
+	close(r.StopChan)
 	r.File.Close()
 }
 
