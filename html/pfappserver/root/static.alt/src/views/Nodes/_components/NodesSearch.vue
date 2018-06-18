@@ -541,6 +541,7 @@ export default {
     onSearch (condition) {
       let _this = this
       this.requestPage = 1 // reset to the first page
+      this.clearChecked()
       this.$store.dispatch('$_nodes/setSearchQuery', condition)
       this.$store.dispatch('$_nodes/search', this.requestPage).then(() => {
         _this.currentPage = _this.requestPage
@@ -548,31 +549,12 @@ export default {
       }).catch(() => {
         _this.requestPage = _this.currentPage
       })
-      this.clearChecked()
     },
     onReset () {
-      this.requestPage = 1 // reset to the first page
-      this.$store.dispatch('$_nodes/setSearchQuery', undefined) // reset search
-      this.$store.dispatch('$_nodes/search', this.requestPage)
-      this.clearChecked()
-      this.initSearch()
+      this.$router.push({ name: 'nodes' })
     },
     onImport (condition) {
-      if (condition.values.length > 1 || condition.values[0].values.length > 1) this.advancedMode = true
-      this.onSearch(condition)
-    },
-    initSearch () {
-      if (this.query) {
-        try {
-          this.condition = JSON.parse(this.query)
-          this.$store.dispatch('$_nodes/setSearchQuery', this.condition)
-          this.advancedMode = true
-          return
-        } catch (e) {
-          // noop
-        }
-      }
-      this.condition = { op: 'and', values: [{ op: 'or', values: [{ field: this.fields[0].value, op: null, value: null }] }] }
+      this.$router.push({ name: 'nodes', query: { query: JSON.stringify(condition) } })
     },
     onPageSizeChange () {
       this.requestPage = 1 // reset to the first page
@@ -771,19 +753,6 @@ export default {
     }
   },
   watch: {
-    '$route': {
-      deep: true,
-      handler: function (a, b) {
-        if (a.fullPath !== b.fullPath) {
-          this.initSearch()
-          if (a.query.query) {
-            this.onSearch(this.condition)
-          } else {
-            this.onReset()
-          }
-        }
-      }
-    },
     checkedRows (a, b) {
       this.checkedAll = (this.tableValues.length === a.length && a.length > 0)
       let _this = this
@@ -799,6 +768,11 @@ export default {
     },
     condition (a, b) {
       if (a !== b) this.clearChecked()
+      try {
+        if (a.values.length > 1 || a.values[0].values.length > 1) this.advancedMode = true
+      } catch (e) {
+        // noop
+      }
     },
     requestPage (a, b) {
       if (a !== b) this.clearChecked()
@@ -811,16 +785,39 @@ export default {
     },
     visibleColumns (a, b) {
       if (a !== b) this.clearChecked()
+    },
+    query (a, b) {
+      if (a !== b) {
+        if (a) {
+          let condition = JSON.parse(a)
+          this.onSearch(condition)
+        } else {
+          // reset
+          this.onSearch(undefined)
+          this.condition = { op: 'and', values: [{ op: 'or', values: [{ field: this.fields[0].value, op: null, value: null }] }] }
+        }
+      }
     }
   },
   created () {
     this.$store.dispatch('config/getRoles')
     this.$store.dispatch('config/getViolations')
     this.pageSizeLimit = this.$store.state.$_nodes.searchPageSize
-    // Restore search parameters
-    this.condition = this.$store.state.$_nodes.searchQuery
-    if (!this.condition) {
-      this.initSearch()
+    while (true) {
+      try {
+        if (this.query) {
+          this.condition = JSON.parse(this.query)
+          break
+        } else if (this.$store.state.$_nodes.searchQuery) {
+          // Restore search parameters
+          this.condition = this.$store.state.$_nodes.searchQuery
+          break
+        }
+      } catch (e) {
+        // noop
+      }
+      this.condition = { op: 'and', values: [{ op: 'or', values: [{ field: this.fields[0].value, op: null, value: null }] }] }
+      break
     }
     // Restore visibleColumns, overwrite defaults
     if (this.$store.state.$_nodes.visibleColumns) {
@@ -840,3 +837,4 @@ export default {
   }
 }
 </script>
+   
