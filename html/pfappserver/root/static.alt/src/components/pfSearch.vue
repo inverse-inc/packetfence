@@ -148,9 +148,11 @@ export default {
       this.$emit('reset-search')
     },
     copyNodeExportJsonTextarea () {
-      this.$refs.nodeExportJsonTextarea.$el.select()
-      document.execCommand('copy')
-      this.showExportJsonModal = false
+      if (document.queryCommandSupported('copy')) {
+        this.$refs.nodeExportJsonTextarea.$el.select()
+        document.execCommand('copy')
+        this.showExportJsonModal = false
+      }
     },
     importNodeImportJsonTextarea () {
       this.importJsonError = ''
