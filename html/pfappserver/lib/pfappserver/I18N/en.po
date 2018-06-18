@@ -1990,11 +1990,8 @@ msgid "Dashboard"
 msgstr ""
 
 # html/pfappserver/root/graph/dashboard.tt
-msgid "Database"
-msgstr ""
-
 # html/pfappserver/root/configurator/database.tt
-msgid "Database Configuration"
+msgid "Database"
 msgstr ""
 
 # html/pfappserver/root/configuration/system_config.tt
@@ -4849,10 +4846,6 @@ msgstr "Provisioning - Read"
 # pf::admin_roles (Actions)
 msgid "PROVISIONING_UPDATE"
 msgstr "Provisioning - Update"
-
-# html/pfappserver/root/configurator/configuration.tt
-msgid "PacketFence Configuration"
-msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Source/Eduroam.pm
 msgid "PacketFence Eduroam RADIUS virtual server authentication listening port"

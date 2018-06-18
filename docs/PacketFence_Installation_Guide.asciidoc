@@ -230,8 +230,8 @@ First open PacketFence's configurator - you can access it from https://@ip_of_pa
 
  * Step 1 - Enforcement, choose 'RADIUS enforcement' - this will make PacketFence act as simple RADIUS server
  * Step 2 - Networks, make sure you define only one interface with the Management type. That network interface will be the one for which the Cisco 2960 access switch will talk to. The management interface of PacketFence and the Cisco 2960 should normally be in the same network. To set the interface to the Management type, click on the logical name to edit it
- * Step 3 - Database Configuration - provide the required information to properly create the PacketFence database
- * Step 4 - PacketFence Configuration - provide your domain name, DHCP servers list and other required information
+ * Step 3 - Database - provide the required information to properly create the PacketFence database
+ * Step 4 - PacketFence - provide your domain name, DHCP servers list and other required information
  * Step 5 - Administration - provide the PacketFence's admin username and password to be used
  * Step 6 - Fingerbank - provide your Fingerbank API key. Fingerbank is used to accurately identify Internet of Things (IoT) devices, medical devices, industrial and robotics equipment and more on your network. It is recommended to have a key for your PacketFence deployment. Without a Fingerbank API key, device profiling will not be available in PacketFence
  * Step 7 - Configuration - start all services.
