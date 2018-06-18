@@ -24,6 +24,7 @@ New Features
 * Custom message for sms registration
 * Expire SMS pin code
 * Define the length of the pin code
+* Support for database encryption (aws and file key) (PR #3257)
 
 Enhancements
 ++++++++++++
