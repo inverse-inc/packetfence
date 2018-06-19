@@ -80,14 +80,12 @@ export default {
   deleteNode: mac => {
     return apiCall.delete(`node/${mac}`)
   },
-  registerBulkNodes: macs => {
-    const body = { items: macs }
+  registerBulkNodes: body => {
     return apiCall.post('nodes/bulk_register', body).then(response => {
       return response.data
     })
   },
-  deregisterBulkNodes: macs => {
-    const body = { items: macs }
+  deregisterBulkNodes: body => {
     return apiCall.post('nodes/bulk_deregister', body).then(response => {
       return response.data
     })
@@ -97,20 +95,22 @@ export default {
       return response.data
     })
   },
-  clearViolationBulkNodes: macs => {
-    const body = { items: macs }
+  applyViolationBulkNodes: body => {
+    return apiCall.post('nodes/bulk_apply_violation', body).then(response => {
+      return response.data
+    })
+  },
+  clearViolationBulkNodes: body => {
     return apiCall.post('nodes/bulk_close_violations', body).then(response => {
       return response.data
     })
   },
-  reevaluateAccessBulkNodes: macs => {
-    const body = { items: macs }
+  reevaluateAccessBulkNodes: body => {
     return apiCall.post('nodes/bulk_reevaluate_access', body).then(response => {
       return response.data
     })
   },
-  restartSwitchportBulkNodes: macs => {
-    const body = { items: macs }
+  restartSwitchportBulkNodes: body => {
     return apiCall.post('nodes/bulk_restart_switchport', body).then(response => {
       return response.data
     })

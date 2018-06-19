@@ -7,7 +7,8 @@ export const pfSearchConditionType = {
   SUBSTRING:               'substring',
   NODE_STATUS:             'node_status',
   ROLE:                    'role',
-  CONNECTION_TYPE:         'connection_type'
+  CONNECTION_TYPE:         'connection_type',
+  ONLINE:                  'online'
 }
 
 export const pfSearchConditionValue = {
@@ -108,6 +109,10 @@ pfSearchConditionValues[pfSearchConditionType.ONLINE] = [
   {
     value: 'off',
     text: 'Offline'
+  },
+  {
+    value: 'unknown',
+    text: 'Unknown'
   }
 ]
 pfSearchConditionValues[pfSearchConditionType.VOIP] = [

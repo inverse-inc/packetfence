@@ -5,7 +5,7 @@
       <h4 class="mb-0" v-t="'Search Nodes'"></h4>
     </b-card-header>
     <pf-search :fields="fields" :store="$store" :advanced-mode="advancedMode" :condition="condition"
-      @submit-search="onSearch" @reset-search="onReset"></pf-search>
+      @submit-search="onSearch" @reset-search="onReset" @import-search="onImport"></pf-search>
     <div class="card-body">
       <b-row align-h="between" align-v="center">
         <b-col cols="auto" class="mr-auto">
@@ -35,25 +35,25 @@
             </b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-header>{{ $t('Apply Role') }}</b-dropdown-header>
-            <b-dropdown-item v-for="role in roles" :key="role.category_id" @click="applyRole(role)" v-b-tooltip.hover.left :title="role.notes">
+            <b-dropdown-item v-for="role in roles" :key="role.category_id" @click="applyBulkRole(role)" v-b-tooltip.hover.left :title="role.notes">
               <span>{{role.name}}</span>
             </b-dropdown-item>
-            <b-dropdown-item @click="applyRole({category_id: null})" v-b-tooltip.hover.left :title="$t('Clear Role')">
+            <b-dropdown-item @click="applyBulkRole({category_id: null})" v-b-tooltip.hover.left :title="$t('Clear Role')">
               <icon class="position-absolute mt-1" name="trash-alt"></icon>
               <span class="ml-4"><em>{{ $t('None') }}</em></span>
             </b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-header>{{ $t('Apply Bypass Role') }}</b-dropdown-header>
-            <b-dropdown-item v-for="role in roles" :key="role.category_id" @click="applyBypassRole(role)" v-b-tooltip.hover.left :title="role.notes">
+            <b-dropdown-item v-for="role in roles" :key="role.category_id" @click="applyBulkBypassRole(role)" v-b-tooltip.hover.left :title="role.notes">
               <span>{{role.name}}</span>
             </b-dropdown-item>
-            <b-dropdown-item @click="applyBypassRole({category_id: null})" v-b-tooltip.hover.left :title="$t('Clear Bypass Role')">
+            <b-dropdown-item @click="applyBulkBypassRole({category_id: null})" v-b-tooltip.hover.left :title="$t('Clear Bypass Role')">
               <icon class="position-absolute mt-1" name="trash-alt"></icon>
               <span class="ml-4"><em>{{ $t('None') }}</em></span>
             </b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-header>{{ $t('Apply Violation') }}</b-dropdown-header>
-            <b-dropdown-item v-for="violation in violations" v-if="violation.enabled ==='Y'" :key="violation.id" @click="applyViolation(violation)" v-b-tooltip.hover.left :title="violation.id">
+            <b-dropdown-item v-for="violation in violations" v-if="violation.enabled ==='Y'" :key="violation.id" @click="applyBulkViolation(violation)" v-b-tooltip.hover.left :title="violation.id">
               <span>{{violation.desc}}</span>
             </b-dropdown-item>
           </b-dropdown>
@@ -98,9 +98,6 @@
         </template>
         <template slot="device_score" slot-scope="data">
           <pf-fingerbank-score :score="data.value"></pf-fingerbank-score>
-        </template>
-        <template slot="mac" slot-scope="node">
-          <mac v-text="node.item.mac"></mac>
         </template>
       </b-table>
     </div>
@@ -544,6 +541,7 @@ export default {
     onSearch (condition) {
       let _this = this
       this.requestPage = 1 // reset to the first page
+      this.clearChecked()
       this.$store.dispatch('$_nodes/setSearchQuery', condition)
       this.$store.dispatch('$_nodes/search', this.requestPage).then(() => {
         _this.currentPage = _this.requestPage
@@ -551,27 +549,12 @@ export default {
       }).catch(() => {
         _this.requestPage = _this.currentPage
       })
-      this.clearChecked()
     },
     onReset () {
-      this.requestPage = 1 // reset to the first page
-      this.$store.dispatch('$_nodes/setSearchQuery', undefined) // reset search
-      this.$store.dispatch('$_nodes/search', this.requestPage)
-      this.clearChecked()
-      this.initSearch()
+      this.$router.push({ name: 'nodes' })
     },
-    initSearch () {
-      if (this.query) {
-        try {
-          this.condition = JSON.parse(this.query)
-          this.$store.dispatch('$_nodes/setSearchQuery', this.condition)
-          this.advancedMode = true
-          return
-        } catch (e) {
-          // noop
-        }
-      }
-      this.condition = { op: 'and', values: [{ op: 'or', values: [{ field: this.fields[0].value, op: null, value: null }] }] }
+    onImport (condition) {
+      this.$router.push({ name: 'nodes', query: { query: JSON.stringify(condition) } })
     },
     onPageSizeChange () {
       this.requestPage = 1 // reset to the first page
@@ -636,7 +619,7 @@ export default {
       const _this = this
       const macs = this.checkedRows.map(item => item.mac)
       if (macs.length > 0) {
-        _this.$store.dispatch('$_nodes/clearViolationBulkNodes', macs).then(response => {
+        _this.$store.dispatch('$_nodes/clearViolationBulkNodes', {items: macs}).then(response => {
           response.items.forEach(function (item, index, items) {
             _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, status: item.status})
             _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: item.mac, message: item.message})
@@ -652,7 +635,7 @@ export default {
       const _this = this
       const macs = this.checkedRows.map(item => item.mac)
       if (macs.length > 0) {
-        _this.$store.dispatch('$_nodes/registerBulkNodes', macs).then(response => {
+        _this.$store.dispatch('$_nodes/registerBulkNodes', {items: macs}).then(response => {
           response.items.forEach(function (item, index, items) {
             _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, status: item.status})
             _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: item.mac, message: item.message})
@@ -668,7 +651,7 @@ export default {
       const _this = this
       const macs = this.checkedRows.map(item => item.mac)
       if (macs.length > 0) {
-        _this.$store.dispatch('$_nodes/deregisterBulkNodes', macs).then(response => {
+        _this.$store.dispatch('$_nodes/deregisterBulkNodes', {items: macs}).then(response => {
           response.items.forEach(function (item, index, items) {
             _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, status: item.status})
             _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: item.mac, message: item.message})
@@ -684,7 +667,7 @@ export default {
       const _this = this
       const macs = this.checkedRows.map(item => item.mac)
       if (macs.length > 0) {
-        _this.$store.dispatch('$_nodes/reevaluateAccessBulkNodes', macs).then(response => {
+        _this.$store.dispatch('$_nodes/reevaluateAccessBulkNodes', {items: macs}).then(response => {
           response.items.forEach(function (item, index, items) {
             _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, status: item.status})
             _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: item.mac, message: item.message})
@@ -700,7 +683,7 @@ export default {
       const _this = this
       const macs = this.checkedRows.map(item => item.mac)
       if (macs.length > 0) {
-        _this.$store.dispatch('$_nodes/restartSwitchportBulkNodes', macs).then(response => {
+        _this.$store.dispatch('$_nodes/restartSwitchportBulkNodes', {items: macs}).then(response => {
           response.items.forEach(function (item, index, items) {
             _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, status: item.status})
             _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: item.mac, message: item.message})
@@ -712,7 +695,7 @@ export default {
         })
       }
     },
-    applyRole (role) {
+    applyBulkRole (role) {
       const _this = this
       const macs = this.checkedRows.map(item => item.mac)
       if (macs.length > 0) {
@@ -726,7 +709,7 @@ export default {
         })
       }
     },
-    applyBypassRole (role) {
+    applyBulkBypassRole (role) {
       const _this = this
       const macs = this.checkedRows.map(item => item.mac)
       if (macs.length > 0) {
@@ -740,8 +723,21 @@ export default {
         })
       }
     },
-    applyViolation (violation) {
-      console.log(['applyViolation', violation, this.checkedRows])
+    applyBulkViolation (violation) {
+      const _this = this
+      const macs = this.checkedRows.map(item => item.mac)
+      if (macs.length > 0) {
+        _this.$store.dispatch('$_nodes/applyViolationBulkNodes', {items: macs, vid: violation.id}).then(response => {
+          response.items.forEach(function (item, index, items) {
+            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, status: item.status})
+            _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: item.mac, message: item.message})
+          })
+        }).catch(() => {
+          macs.forEach(function (mac, index) {
+            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'danger'})
+          })
+        })
+      }
     },
     onKeydown (event) {
       switch (true) {
@@ -772,6 +768,11 @@ export default {
     },
     condition (a, b) {
       if (a !== b) this.clearChecked()
+      try {
+        if (a.values.length > 1 || a.values[0].values.length > 1) this.advancedMode = true
+      } catch (e) {
+        // noop
+      }
     },
     requestPage (a, b) {
       if (a !== b) this.clearChecked()
@@ -784,16 +785,39 @@ export default {
     },
     visibleColumns (a, b) {
       if (a !== b) this.clearChecked()
+    },
+    query (a, b) {
+      if (a !== b) {
+        if (a) {
+          let condition = JSON.parse(a)
+          this.onSearch(condition)
+        } else {
+          // reset
+          this.onSearch(undefined)
+          this.condition = { op: 'and', values: [{ op: 'or', values: [{ field: this.fields[0].value, op: null, value: null }] }] }
+        }
+      }
     }
   },
   created () {
     this.$store.dispatch('config/getRoles')
     this.$store.dispatch('config/getViolations')
     this.pageSizeLimit = this.$store.state.$_nodes.searchPageSize
-    // Restore search parameters
-    this.condition = this.$store.state.$_nodes.searchQuery
-    if (!this.condition) {
-      this.initSearch()
+    while (true) {
+      try {
+        if (this.query) {
+          this.condition = JSON.parse(this.query)
+          break
+        } else if (this.$store.state.$_nodes.searchQuery) {
+          // Restore search parameters
+          this.condition = this.$store.state.$_nodes.searchQuery
+          break
+        }
+      } catch (e) {
+        // noop
+      }
+      this.condition = { op: 'and', values: [{ op: 'or', values: [{ field: this.fields[0].value, op: null, value: null }] }] }
+      break
     }
     // Restore visibleColumns, overwrite defaults
     if (this.$store.state.$_nodes.visibleColumns) {
@@ -813,3 +837,4 @@ export default {
   }
 }
 </script>
+   
