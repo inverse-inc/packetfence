@@ -238,6 +238,8 @@ This section will guide you through configuring PacketFence as a simple RADIUS s
 
 image::getting-started.png["Getting Started",width="50%",scaledwidth="65%"]
 
+NOTE: If you use another access switch, you must refer to PacketFence Network Devices Configuration Guide to adapt your configuration.
+
 Going Through the Configurator
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -260,9 +262,9 @@ Connecting PacketFence to Microsoft Active Directory
 
 Next we join the PacketFence server to your existing Microsoft Active Directory domain controller. From PacketFence's web admin interface, go in 'Configuration->Policies and Access Control->Domains->Active Directory Domain' and click on the 'Add domain' button. Provide the required fields. You will need an Active Directory administrative username and password (member of the domain admins) to join the PacketFence server to your domain. Once all the information has been provided, click on the 'Save and join button'.
 
-Once the domain join succeeds, click on the 'Realms' tab. Click on the 'Default' realm and set the domain to the Active Directory domain you have just created. That will instruct PacketFence to use that newly created Active Directory for the default authentication realm. Next, do the same thing for the NULL realm.
+Once the domain join succeeds, click on the 'REALMS' tab. Click on the 'Default' realm and set the domain to the Active Directory domain you have just created. That will instruct PacketFence to use that newly created Active Directory for the default authentication realm. Next, do the same thing for the NULL realm.
 
-Next we add the Microsoft Active Directory domain controller as an authentication source in PacketFence. To do so, from 'Configuration->Policies and Access Control->Authentication Sources', click on 'Add source->Internal->AD'. Specify all the required fields. If you need help identifying fields relevant to your Active Directory environment, please use the Active Directory Explorer (AD Explorer) tool from your Active Directory server.
+Next we add the Microsoft Active Directory domain controller as an authentication source in PacketFence. To do so, from 'Configuration->Policies and Access Control->Authentication Sources', click on 'Add source->Internal->AD'. Specify all the required fields. If you need help identifying fields relevant to your Active Directory environment, please use the Active Directory Explorer (AD Explorer) or AdsiEdit.mmc tools from your Active Directory server.
 
 Next, add an 'Authentication Rules' with name 'catchall' with no condition and with the following actions:
 
@@ -395,7 +397,7 @@ First, we need to enable Change-of-Authorization (CoA) in our Cisco Catalyst 296
 
   aaa server radius dynamic-author
    client 172.20.100.2 server-key useStrongerSecret
-  port 3799
+   port 3799
 
 Then, we must enable Web Authentication on switch port no. 10. Add the following configuration to the global section:
 
@@ -403,7 +405,7 @@ Then, we must enable Web Authentication on switch port no. 10. Add the following
   ip http server
   ip http secure-server
 
-Then add the required access lists:
+Then add the required access list:
 
   ip access-list extended registration
    deny ip any host 172.20.100.2
@@ -431,7 +433,7 @@ By default the PacketFence's captive portal does not listen on the management in
 You must then restart the following services from 'Status->Services':
 
 [options="compact"]
- * haproxy
+ * haproxy-portal
  * httpd.portal
  * iptables
 
@@ -443,7 +445,7 @@ For Web Authentication, we will create a new connection profile in PacketFence. 
 [options="compact"]
  * Profile Name: guest
  * Filters: If any of the following conditions are met:
-  * Connection Type: WIRED_MAC_AUTH
+  - Connection Type: WIRED_MAC_AUTH
  * Sources: null-source
 
 Click on 'Save' to save all configuration changes.

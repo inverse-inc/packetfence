@@ -1248,7 +1248,7 @@ CoA configuration
 
   aaa server radius dynamic-author
    client 192.168.1.5 server-key useStrongerSecret
-  port 3799
+   port 3799
 
 Activate SNMP v1 on the switch:
 
