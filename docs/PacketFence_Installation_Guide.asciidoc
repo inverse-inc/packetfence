@@ -538,7 +538,7 @@ Click on 'Save' to save the new authentication source.
 Configuring the Connection Profile
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Now let's add our new SMS-based authentication source to our guests captive portal. From 'Configuration->Policies and Access Control->Connection Profiles', click on the 'guest' profile that we previously created. In the 'Sources', cick on the '(+)' button and add the newly created SMS source, 'sms-source'. Save the changes by clicking on the 'Save' button.
+Now let's add our new SMS-based authentication source to our guests captive portal. From 'Configuration->Policies and Access Control->Connection Profiles', click on the 'guest' profile that we previously created. In the 'Sources', click on the '(+)' button and add the newly created SMS source, 'sms-source'. Save the changes by clicking on the 'Save' button.
 
 NOTE: You can preview at any time the portal associated with connection profile by clicking on the 'Preview' button.
 
@@ -582,12 +582,14 @@ Redo the operation of the other role:
  * Description: Corporate owned machines
  * Max nodes per user: 1
 
+Let's say we have two roles: consultant and corporate_machine (defined above).
+
+Now, we want to authenticate consultants and corporate machines using Active Directory (over LDAP), both using PacketFence's captive portal.
+
 Using the Consultant Role
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Let's say we have two roles: guest and employee. First, we define them *Configuration -> Policies and Access Control -> Roles*.
-
-Now, we want to authenticate employees using Active Directory (over LDAP), and guests using PacketFence's internal database - both using PacketFence's captive portal. From the *Configuration -> Policies and Access Control -> Authentication Sources*, we select *Add source -> AD*. We provide the following information:
+From the *Configuration -> Policies and Access Control -> Authentication Sources*, we select *Add source -> AD*. We provide the following information:
 
 [options="compact"]
 * *Name:* ad1
@@ -609,13 +611,11 @@ Then, we add a rule by clicking on the *Add rule* button and provide the followi
   - Set role consultant
   - Set unregistration date January 1st, 2020
 
-Test the connection and save everything. Using the newly defined source, any username that actually matches in the source (using the sAMAccountName) will have the employee role and an unregistration date set to January 1st, 2020.
-
-Now, since we want to authenticate guests from PacketFence's internal SQL database, accounts must be provisioned manually. You can do so from the *Users -> Create* section. When creating guests, specify "guest" for the *Set role* action, and set an access duration for 1 day.
+Test the connection and save everything. Using the newly defined source, any username that actually matches in the source (using the sAMAccountName) will have the consultant role and an unregistration date set to January 1st, 2020.
 
 
-Using the Machine Role
-~~~~~~~~~~~~~~~~~~~~~~
+Using the Corporate_Machine Role
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you would like to differentiate user authentication and machine authentication using Active Directory, one way to do it is by creating a second authentication sources, for machines:
 
@@ -636,7 +636,7 @@ Then, we add a rule:
 * *Description:* Rule for all machines
 * Don't set any condition (as it's a catch-all rule)
 * Set the following *actions:*
-  - Set role machineauth
+  - Set role corporate_machine
   - Set unregistration date January 1st, 2020
 
 NOTE: When a rule is defined as a catch-all, it will always match if the username attribute matches the queried one. This applies for Active Directory, LDAP and Apache htpasswd file sources. Kerberos and RADIUS will act as true catch-all, and accept everything.
