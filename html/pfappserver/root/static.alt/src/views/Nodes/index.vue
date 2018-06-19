@@ -15,7 +15,7 @@
                             <b-nav-item to="search/openviolations">Open Violations</b-nav-item>
                             <b-nav-item to="search/closedviolations">Closed Violations</b-nav-item>
                             <div class="bd-toc-link" v-t="'Saved Searches'"></div>
-                            <b-nav-item v-for="search in savedSearches" :key="search.name" :to="urlSavedSearch(search)" replace>
+                            <b-nav-item v-for="search in savedSearches" :key="search.name" :to="routeSavedSearch(search)" replace>
                               {{search.name}}
                               <icon class="float-right mt-1" name="trash-alt" @click.native.stop="deleteSavedSearch(search)"></icon>
                             </b-nav-item>
@@ -43,8 +43,8 @@ export default {
     deleteSavedSearch (search) {
       this.$store.dispatch('$_nodes/deleteSavedSearch', search)
     },
-    urlSavedSearch (search) {
-      return '/nodes/search?query=' + JSON.stringify(search.query)
+    routeSavedSearch (search) {
+      return { name: 'nodes', query: { query: JSON.stringify(search.query) } }
     }
   }
 }
