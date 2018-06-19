@@ -205,4 +205,5 @@ Package: packetfence-golang-daemon
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Description: PacketFence Golang binary.
+Pre-Depends: packetfence (>= ${source:Version})
 Conflicts: packetfence (<= 8.0.1)
