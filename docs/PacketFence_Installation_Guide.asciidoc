@@ -601,7 +601,7 @@ From the *Configuration -> Policies and Access Control -> Authentication Sources
 * *Bind DN:* CN=Administrator,CN=Users,DC=acme,DC=local
 * *Password:* acme123
 
-Then, we add a rule by clicking on the *Add rule* button and provide the following information:
+Then, we add an 'Authentication rules' by clicking on the *Add rule* button and provide the following information:
 
 [options="compact"]
 * *Name:* employees
@@ -620,7 +620,7 @@ Using the Corporate_Machine Role
 If you would like to differentiate user authentication and machine authentication using Active Directory, one way to do it is by creating a second authentication sources, for machines:
 
 [options="compact"]
-* *Name:* ad1
+* *Name:* ad2
 * *Description:* Active Directory for Machines
 * *Host:* 192.168.1.2:389 without SSL/TLS
 * *Base DN:* CN=Computers,DC=acme,DC=local
@@ -629,7 +629,7 @@ If you would like to differentiate user authentication and machine authenticatio
 * *Bind DN:* CN=Administrator,CN=Users,DC=acme,DC=local
 * *Password:* acme123
 
-Then, we add a rule:
+Then, we add an 'Authentication rules':
 
 [options="compact"]
 * *Name:* machines
