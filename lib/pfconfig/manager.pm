@@ -232,34 +232,27 @@ It should not have to build the L3 since that's the slowest. The L3 should be bu
 sub get_cache {
     my ( $self, $what ) = @_;
     my $logger = get_logger;
-
     # we look in raw memory and make sure that it's not expired
-    my $memory = $self->{memory}->{$what};
-    if ($self->is_tenant_scoped($what)) {
-        $memory =  $memory->{pf::config::tenant::get_tenant()};
-    }
-    if ( defined($memory) && $self->is_valid($what) ) {
-        $logger->debug("Getting $what from memory");
-        return $memory;
-    }
-    else {
+    my $memory = $self->{memory}{$what};
+    unless (defined($memory) && $self->is_valid($what)) {
         my $cached = $self->{cache}->get($what);
-
         # raw memory is expired but cache is not
         if ($cached) {
             $logger->debug("Getting $what from cache backend");
-            $self->{memory}->{$what}       = $cached;
-            $self->{memorized_at}->{$what} = time;
-            return $cached;
-        }
-
-        # everything is expired. need to rebuild completely
-        else {
-            my $result = $self->cache_resource($what);
-            return $result;
+            $memory = $cached;
+            $self->{memory}{$what} = $cached;
+            $self->{memorized_at}{$what} = time;
+        } else {
+            # everything is expired. need to rebuild completely
+            $memory = $self->cache_resource($what);
         }
     }
 
+    if (defined $memory && $self->is_tenant_scoped($what)) {
+        $memory = $memory->{pf::config::tenant::get_tenant()};
+    }
+
+    return $memory;
 }
 
 =head2 is_tenant_scoped
@@ -282,16 +275,39 @@ For now, it is used only to transform non-ordered hashes into ordered ones so fo
 
 sub post_process_element {
     my ($self, $what, $element) = @_;
-    if(ref($element) eq 'HASH'){
-        tie my %copy, 'Tie::IxHash';
-        my @keys = keys(%$element);
-        @keys = sort(@keys);
-        foreach my $key (@keys){
-            $copy{$key} = $element->{$key};
+    if (!$self->is_tenant_scoped($what)) {
+        if (ref($element) eq 'HASH') {
+            return $self->tie_ixhash_copied($element);
         }
-        return \%copy;
+
+        return $element;
     }
-    return $element;
+
+    if (ref($element) ne 'HASH' ) {
+        return $element;
+    }
+
+    my %copy;
+    while (my ($k, $v) = each %$element) {
+        $copy{$k} = ref($v) eq 'HASH' ? $self->tie_ixhash_copied($v) : $v;
+    }
+
+    return \%copy;
+}
+
+=head2 tie_ixhash_copied
+
+tie_ixhash_copied
+
+=cut
+
+sub tie_ixhash_copied {
+    my ($self, $hash) = @_;
+    tie my %copy, 'Tie::IxHash';
+    my @keys = keys(%$hash);
+    @keys = sort(@keys);
+    @copy{@keys} = @{$hash}{@keys};
+    return \%copy;
 }
 
 =head2 cache_resource
