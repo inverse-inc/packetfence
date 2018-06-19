@@ -1551,7 +1551,7 @@ sub isPhoneAtIfIndex {
     }
 
     if (!defined($self->{_VoIPDHCPDetect}) || isenabled($self->{_VoIPDHCPDetect}) ) {
-        if (defined($node_info->{dhcp_fingerprint}) && $node_info->{dhcp_fingerprint} =~ /VoIP Phone/) {
+        if (defined($node_info->{dhcp_fingerprint}) && $node_info->{dhcp_fingerprint} =~ /VoIP Device/) {
             $logger->debug("DHCP fingerprint for $mac indicates VoIP phone");
             return 1;
         }
