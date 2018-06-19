@@ -37,9 +37,9 @@ use pf::constants;
 use pf::file_paths qw($var_dir $install_dir $systemd_unit_dir);
 use pf::log;
 use pf::util;
+use pf::util::console;
 
 use Term::ANSIColor;
-use pf::constants qw($BLUE_COLOR $TRUE $RED_COLOR $GREEN_COLOR $YELLOW_COLOR);
 
 use File::Slurp qw(read_file);
 use Proc::ProcessTable;
@@ -231,17 +231,13 @@ sub print_status {
     my @output = `systemctl --all --no-pager`;
     my $header = shift @output;
     my $name   = $self->name;
-    my $RESET_COLOR =  color 'reset';
-    my $WARNING_COLOR = color $YELLOW_COLOR;
-    my $ERROR_COLOR = color $RED_COLOR;
-    my $SUCCESS_COLOR = color $GREEN_COLOR;
-    my $STATUS_COLOR = color $BLUE_COLOR;
+    my $colors = pf::util::console::colors();
     my $loop = $TRUE;
     for my $output (@output) {
         if ($output =~ /(packetfence-$name\.service)\s+loaded\s+active/) {
             my $service = $1;
             $service .= (" " x (50 - length($service)));
-            print $service,"\t${SUCCESS_COLOR}started   ".$self->pid."${RESET_COLOR}\n";
+            print "$service\t$colors->{success}started   ".$self->pid."$colors->{reset}\n";
             $loop = $FALSE;
         } elsif ($output =~ /(packetfence-$name\.service)\s+loaded.*/) {
             my $service = $1;
@@ -252,9 +248,9 @@ sub print_status {
             my $isManaged = $manager->isManaged;
             $service .= (" " x (50 - length($service)));
             if ($isManaged && !$manager->optional) {
-                print $service,"\t${ERROR_COLOR}stopped   ".$self->pid."${RESET_COLOR}\n";
+                print "$service\t$colors->{error}stopped   ".$self->pid."$colors->{reset}\n";
             } else {
-                print $service,"\t${WARNING_COLOR}stopped   ".$self->pid."${RESET_COLOR}\n";
+                print "$service\t$colors->{warning}stopped   ".$self->pid."$colors->{reset}\n";
             }
             $loop = $FALSE;
         }
@@ -262,7 +258,7 @@ sub print_status {
     if ($loop) {
        my $service = "packetfence-$name.service";
        $service .= (" " x (50 - length($service)));
-       print $service,"\t${WARNING_COLOR}disabled  ".$self->pid."${RESET_COLOR}\n";
+       print "$service\t$colors->{warning}disabled  ".$self->pid."$colors->{reset}\n";
     }
 }
 
@@ -529,4 +525,3 @@ USA.
 =cut
 
 1;
-

@@ -57,13 +57,14 @@ use warnings;
 use base qw(pf::cmd);
 use IO::Interactive qw(is_interactive);
 use Term::ANSIColor;
-our ($SERVICE_HEADER, $IS_INTERACTIVE);
-our ($RESET_COLOR, $WARNING_COLOR, $ERROR_COLOR, $SUCCESS_COLOR, $STATUS_COLOR);
+our ($SERVICE_HEADER);
+our $COLORS;
 use pf::log;
 use pf::file_paths qw($install_dir);
 use pf::config qw(%Config);
 use pf::config::util;
 use pf::util;
+use pf::util::console;
 use pf::constants;
 use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE $EXIT_SERVICES_NOT_STARTED $EXIT_FATAL);
 use pf::services;
@@ -118,12 +119,7 @@ sub _run {
     my $services = $self->{services};
     my $action = $self->{action};
     $SERVICE_HEADER ="service|command\n";
-    $IS_INTERACTIVE = is_interactive();
-    $RESET_COLOR =  $IS_INTERACTIVE ? color 'reset' : '';
-    $WARNING_COLOR = $IS_INTERACTIVE ? color $YELLOW_COLOR : '';
-    $ERROR_COLOR = $IS_INTERACTIVE ? color $RED_COLOR : '';
-    $SUCCESS_COLOR = $IS_INTERACTIVE ? color $GREEN_COLOR : '';
-    $STATUS_COLOR = $IS_INTERACTIVE ? color $BLUE_COLOR : '';
+    $COLORS = pf::util::console::colors();
     my $actionHandler;
     $action =~ /^(.*)$/;
     $action = $1;
@@ -137,7 +133,7 @@ sub _run {
     }
     my $output = "Service";
     $output .= (" " x 49);
-    print "${STATUS_COLOR}".$output."Status    PID${RESET_COLOR}\n" if  ($action ne 'updatesystemd' && $action ne 'generateconfig');
+    print "$COLORS->{status}${output}Status    PID$COLORS->{reset}\n" if  ($action ne 'updatesystemd' && $action ne 'generateconfig');
     return $actionHandler->($service,@$services);
 }
 
@@ -257,12 +253,12 @@ sub _doGenerateConfig {
     my $color = '';
     if($manager->generateConfig()) {
         $command = 'config generated';
-        $color =  $SUCCESS_COLOR;
+        $color =  $COLORS->{success};
     } else {
         $command = 'config not generated';
-        $color =  $ERROR_COLOR;
+        $color =  $COLORS->{error};
     }
-    print $manager->name,"|${color}${command}${RESET_COLOR}\n";
+    print $manager->name,"|${color}${command}$COLORS->{reset}\n";
 }
 
 sub _doUpdateSystemd {
@@ -272,25 +268,25 @@ sub _doUpdateSystemd {
     if ( $manager->isManaged ) {
         if ( $manager->sysdEnable() ) {
             $command = 'Service enabled';
-            $color   = $SUCCESS_COLOR;
+            $color =  $COLORS->{success};
         }
         else {
             $command = 'Service not enabled';
-            $color   = $ERROR_COLOR;
+            $color =  $COLORS->{error};
         }
     }
     else {
         if ( $manager->sysdDisable() ) {
             $command = 'Service disabled';
-            $color   = $SUCCESS_COLOR;
+            $color =  $COLORS->{success};
         }
         else {
             $command = 'Service not disabled';
-            $color   = $ERROR_COLOR;
+            $color =  $COLORS->{error};
         }
     }
 
-    print $manager->name, "|${color}${command}${RESET_COLOR}\n" if $show;
+    print $manager->name, "|${color}${command}$COLORS->{reset}\n" if $show;
 }
 
 sub getIptablesTechnique {
