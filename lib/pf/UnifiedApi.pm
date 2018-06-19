@@ -102,7 +102,7 @@ our @API_V1_ROUTES = (
         controller => 'Violations',
         collection => {
             subroutes    => {
-                'by_mac/:search' => { get => 'by_mac' },                
+                'by_mac/#search' => { get => 'by_mac' },                
                 'search' => {
                     'post' => 'search'
                 },
@@ -163,9 +163,9 @@ our @API_V1_ROUTES = (
         controller  => 'Ip4logs',
         collection => {
             subroutes    => {
-                'history/:search' => { get => 'history' },
-                'archive/:search' => { get => 'archive' },
-                'open/:search' => { get => 'open' }, 
+                'history/#search' => { get => 'history' },
+                'archive/#search' => { get => 'archive' },
+                'open/#search' => { get => 'open' }, 
                 'search' => {
                     'post' => 'search'
                 },
@@ -176,9 +176,9 @@ our @API_V1_ROUTES = (
         controller  => 'Ip6logs',
         collection => {
             subroutes    => {
-                'history/:search' => { get => 'history' },
-                'archive/:search' => { get => 'archive' },
-                'open/:search' => { get => 'open' }, 
+                'history/#search' => { get => 'history' },
+                'archive/#search' => { get => 'archive' },
+                'open/#search' => { get => 'open' }, 
                 'search' => {
                     'post' => 'search'
                 },
