@@ -173,7 +173,7 @@ has_field 'shuffle',
    checkbox_value => '1',
    unchecked_value => '0',
    tags => { after_element => \&help,
-             help => 'Allow ldap servers to random queried' },
+             help => 'Randomly choose LDAP server to query' },
    default => $META->get_attribute('shuffle')->default,
 );
 
