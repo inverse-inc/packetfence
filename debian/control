@@ -204,3 +204,4 @@ Package: packetfence-golang-daemon
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Description: PacketFence Golang binary.
+Replaces: /usr/local/pf/sbin/pfdetect
