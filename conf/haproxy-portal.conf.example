@@ -4,7 +4,7 @@ global
 	group haproxy
 	daemon
 	pidfile %%var_dir%%/run/haproxy-portal.pid
-	log %%active_active_ip%% local0
+	log /dev/log local0
 	stats socket /tmp/proxystats level admin process 1
 	maxconn 4000
 	#Followup of https://github.com/inverse-inc/packetfence/pull/893
