@@ -95,6 +95,7 @@ sub print_status {
             $service .= (" " x (50 - length($service)));
             print $service,"\t${SUCCESS_COLOR}started   ".$pid."${RESET_COLOR}\n";
         } elsif ($output =~ /(packetfence-(.+)\.service)\s+loaded\s+inactive/) {
+            $pid = 0;
             my $service = $1;
             my $main_service = $2;
             my $sub_service = $main_service;
@@ -107,11 +108,13 @@ sub print_status {
                 $isManaged = $FALSE;
             } else {
                 @manager = grep { $_->name eq $main_service } pf::services::getManagers(\@service);
-                $pid = $manager[0]->pid;
-                $isManaged = $manager[0]->isManaged;
+                if (@manager) {
+                    $pid = $manager[0]->pid;
+                    $isManaged = $manager[0]->isManaged;
+                }
             }
             $service .= (" " x (50 - length($service)));
-            if ($isManaged && !$manager[0]->optional) {
+            if (@manager && $isManaged && !$manager[0]->optional) {
                 print $service,"\t${ERROR_COLOR}stopped   ".$pid."${RESET_COLOR}\n";
             } else {
                 print $service,"\t${WARNING_COLOR}stopped   ".$pid."${RESET_COLOR}\n";
