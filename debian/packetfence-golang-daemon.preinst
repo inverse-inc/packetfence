@@ -18,7 +18,10 @@ case "$1" in
     ;;
     
     upgrade)
-        dpkg-divert --package packetfence-golang-daemon --add --rename --divert /usr/local/sbin/pfdetect.real /usr/local/sbin/pfdetect
+        echo "Upgrading from $2"
+        if dpkg --compare-versions "$2" lt "8.1.0"; then
+            dpkg-divert --package packetfence-golang-daemon --add --rename --divert /usr/local/pf/sbin/pfdetect.real /usr/local/pf/sbin/pfdetect
+        fi
         exit 0
     ;;
     abort-upgrade)
