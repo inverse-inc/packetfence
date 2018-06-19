@@ -26,7 +26,7 @@ has_field 'host' =>
    type => 'Text',
    label => 'Host',
    element_class => ['input-small'],
-   element_attr => {'placeholder' => '127.0.0.1'},
+   element_attr => {'placeholder' => ''},
    default => $META->get_attribute('host')->default,
   );
 has_field 'port' =>
@@ -105,7 +105,7 @@ has_field 'scope' =>
     { value => 'sub', label => 'Subtree' },
     { value => 'children', label => 'Children' },
    ],
-   default => 'base',
+   default => 'sub',
   );
 has_field 'usernameattribute' =>
   (

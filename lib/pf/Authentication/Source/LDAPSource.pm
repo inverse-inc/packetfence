@@ -49,7 +49,7 @@ Readonly our %ATTRIBUTES_MAP => (
 );
 
 has '+type' => (default => 'LDAP');
-has 'host' => (isa => 'Maybe[Str]', is => 'rw', default => '127.0.0.1');
+has 'host' => (isa => 'Maybe[Str]', is => 'rw', default => '');
 has 'port' => (isa => 'Maybe[Int]', is => 'rw', default => 389);
 has 'connection_timeout' => ( isa => 'Num', is => 'rw', default => $DEFAULT_LDAP_CONNECTION_TIMEOUT );
 has 'write_timeout' => (isa => 'Num', is => 'rw', default => $DEFAULT_LDAP_WRITE_TIMEOUT);
