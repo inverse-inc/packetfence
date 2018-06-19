@@ -111,6 +111,11 @@
                 <template slot="description" slot-scope="violation">
                     {{ violationDescription(violation.item.vid) }}
                 </template>
+                <template slot="status" slot-scope="violation">
+                  <b-badge pill variant="success" v-if="violation.item.status === 'open'">{{ $t('open') }}</b-badge>
+                  <b-badge pill variant="danger" v-else-if="violation.item.status === 'closed'">{{ $t('closed') }}</b-badge>
+                  <b-badge pill variant="secondary" v-else>{{ $t('unknown') }}</b-badge>
+                </template>
             </b-table>
         </b-tab>
 
@@ -216,6 +221,11 @@ export default {
         {
           key: 'release_date',
           label: this.$i18n.t('Release Date'),
+          'class': 'text-nowrap'
+        },
+        {
+          key: 'status',
+          label: this.$i18n.t('Status'),
           'class': 'text-nowrap'
         }
       ]
