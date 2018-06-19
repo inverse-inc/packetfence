@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 9;
+use Test::More tests => 12;
 use Test::NoWarnings;
 use pfconfig::cached_hash;
 use pf::config::tenant;
@@ -37,10 +37,11 @@ is_deeply(
         admin_strip_username  => 'disabled',
         portal_strip_username => 'enabled'
     },
-    ""
+    "Scoped 'inverse.ca' is_deeply",
 );
 
 ok(!exists $ConfigRealm{'bob.com'}, "Bob.com does not exists");
+ok(!exists $ConfigRealm{'7623'}, "7623 does not exists");
 ok(exists $ConfigRealm{'inverse.ca'}, "inverse.ca exists");
 
 {
@@ -52,14 +53,13 @@ ok(exists $ConfigRealm{'inverse.ca'}, "inverse.ca exists");
             admin_strip_username  => 'enabled',
             portal_strip_username => 'disabled'
         },
-        ""
+        "Scoped 'bob.com' is_deeply",
     );
     ok(exists $ConfigRealm{'bob.com'}, "Bob does exists");
+    ok(!exists $ConfigRealm{'bob.com'}{unknown}, "bob.com=>unknown does exists");
+    ok(!exists $ConfigRealm{'7623'}, "7623 does not exists");
     ok(!exists $ConfigRealm{'inverse.ca'}, "inverse.ca does not exists");
 }
-
-use Data::Dumper;
-#print Dumper(tied(%ConfigRealm));
 
 =head1 AUTHOR
 
@@ -89,4 +89,3 @@ USA.
 =cut
 
 1;
-

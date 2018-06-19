@@ -32,7 +32,7 @@ ok(@array_test eq 3, "test array test is valid");
 
 my @array_test_result = ("first", "second", "third");
 
-ok(@array_test ~~ @array_test_result, "test arrays are the same");
+is_deeply(\@array_test, \@array_test_result, "test arrays are the same");
 
 ##
 # Test FETCH
