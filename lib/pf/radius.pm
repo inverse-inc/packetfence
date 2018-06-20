@@ -243,17 +243,17 @@ sub authorize {
     my $profile = pf::Connection::ProfileFactory->instantiate($args->{'mac'},$options);
     $args->{'profile'} = $profile; 
     
-    $args->{'autoreg'} = 'no';
+    $args->{'autoreg'} = 0;
     # should we auto-register? let's ask the VLAN object
     my ( $status, $status_msg );
     $do_auto_reg = $role_obj->shouldAutoRegister($args);
     if ($do_auto_reg) {
-        $args->{'autoreg'} = 'yes';
+        $args->{'autoreg'} = 1;
         %autoreg_node_defaults = $role_obj->getNodeInfoForAutoReg($args);
         $node_obj->merge(\%autoreg_node_defaults);
         $logger->debug("[$mac] auto-registering node");
         # automatic registration
-        $info{autoreg} = 'yes';
+        $info{autoreg} = 1;
         ($status, $status_msg) = pf::registration::setup_node_for_registration($node_obj, \%info);
         if (is_error($status)) {
             $logger->error("auto-registration of node failed $status_msg");
