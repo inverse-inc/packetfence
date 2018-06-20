@@ -25,7 +25,7 @@
 
 <div class="card">
   <div class="card-title">
-    <h2>[% l('Authentication Sources') %] [% doc('_authentication') | none %]</h2>
+    <h2>[% l('Authentication Sources') %] [% doc('_authentication_sources') | none %]</h2>
     <p>[% l('Define the authentication sources to let users access the captive portal or the admin Web interface.') %]</p>
     <p>[% l('Each connection profile must be associated with one or multiple authentication sources while 802.1X connections use the ordered internal sources to determine which role to use. External sources are never used with 802.1X connections.') %]</p>
   </div>
