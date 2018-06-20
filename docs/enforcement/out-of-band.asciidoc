@@ -68,7 +68,7 @@ Isolation
     IP Address: 192.168.103.1
     Netmask: 255.255.255.0
 
-NOTE: Ignore the High-Availability options for now. If you are interested in a PacketFence cluster, please refer to the clustering section of this document.
+NOTE: Ignore the High-Availability options for now. If you are interested in a PacketFence cluster, please refer to the PacketFence Clustering Guide.
 
 According to our example, we'll associate the correct type the each interfaces.
 

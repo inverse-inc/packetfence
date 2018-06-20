@@ -62,7 +62,7 @@ Please refer to the following table for IP and subnet information :
 |ens192          |Inline        |192.168.2.0/24    |192.168.2.1    |192.168.2.1  
 |===================================================================================
 
-Finally, from *Status->Services*, restart the `haproxy`, `httpd.portal`, `dhcpd`, `iptables`, `pfdhcplistener`, `pfdns` services.
+Finally, from *Status->Services*, restart the `haproxy-portal`, `httpd.portal`, `pfdhcp`, `iptables`, `pfdhcplistener`, `pfdns` services.
 
 
 Network Devices
@@ -97,7 +97,7 @@ From *Configuration->Policies and Access Control->Connection Profiles*, click on
  * Filters: If *any* Network 192.168.2.0/24
  * Sources: null-source
 
-Then click on Save.
+Then click on 'Save'.
 
 Testing the Inline Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
