@@ -66,7 +66,7 @@ sub parseArgs {
 
     my $namespace = shift @args;
     my $action = shift @args;
-    if ( ($namespace eq 'all' && $action ne 'clear') || !any { $namespace eq $_ } @pf::CHI::CACHE_NAMESPACES ) {
+    if ( ($namespace eq 'all' && $action ne 'clear') && !any { $namespace eq $_ } @pf::CHI::CACHE_NAMESPACES ) {
         print STDERR "the namespace '$namespace' does not exist\n";
         return 0;
     }
