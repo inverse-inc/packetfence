@@ -15,6 +15,7 @@ extends 'captiveportal::DynamicRouting::Module::Authentication';
 with 'captiveportal::Role::FieldValidation';
 
 use pf::activation qw($SMS_ACTIVATION);
+use pf::util qw(normalize_time);
 use pf::log;
 use pf::constants;
 use pf::sms_carrier;
