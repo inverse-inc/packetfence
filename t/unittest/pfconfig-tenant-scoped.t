@@ -29,10 +29,10 @@ use Test::NoWarnings;
 use pfconfig::cached_hash;
 use pf::config::tenant;
 
-tie our %ConfigRealm, 'pfconfig::cached_hash', 'config::Realm', tenant_id_scoped => 1;
-is($ConfigRealm{'inverse.ca'}{admin_strip_username}, "disabled", "Found inverse.ca=>admin_strip_username");
+tie our %ConfigTest, 'pfconfig::cached_hash', 'resource::tenant_aware_hash_test', tenant_id_scoped => 1;
+is($ConfigTest{'inverse.ca'}{admin_strip_username}, "disabled", "Found inverse.ca=>admin_strip_username");
 is_deeply(
-    $ConfigRealm{'inverse.ca'},
+    $ConfigTest{'inverse.ca'},
     {
         admin_strip_username  => 'disabled',
         portal_strip_username => 'enabled'
@@ -40,25 +40,25 @@ is_deeply(
     "Scoped 'inverse.ca' is_deeply",
 );
 
-ok(!exists $ConfigRealm{'bob.com'}, "Bob.com does not exists");
-ok(!exists $ConfigRealm{'7623'}, "7623 does not exists");
-ok(exists $ConfigRealm{'inverse.ca'}, "inverse.ca exists");
+ok(!exists $ConfigTest{'bob.com'}, "Bob.com does not exists");
+ok(!exists $ConfigTest{'7623'}, "7623 does not exists");
+ok(exists $ConfigTest{'inverse.ca'}, "inverse.ca exists");
 
 {
     local $pf::config::tenant::CURRENT_TENANT = 2;
-    is($ConfigRealm{'bob.com'}{admin_strip_username}, "enabled", "Found bob.com=>admin_strip_username");
+    is($ConfigTest{'bob.com'}{admin_strip_username}, "enabled", "Found bob.com=>admin_strip_username");
     is_deeply(
-        $ConfigRealm{'bob.com'},
+        $ConfigTest{'bob.com'},
         {
             admin_strip_username  => 'enabled',
             portal_strip_username => 'disabled'
         },
         "Scoped 'bob.com' is_deeply",
     );
-    ok(exists $ConfigRealm{'bob.com'}, "Bob does exists");
-    ok(!exists $ConfigRealm{'bob.com'}{unknown}, "bob.com=>unknown does exists");
-    ok(!exists $ConfigRealm{'7623'}, "7623 does not exists");
-    ok(!exists $ConfigRealm{'inverse.ca'}, "inverse.ca does not exists");
+    ok(exists $ConfigTest{'bob.com'}, "Bob does exists");
+    ok(!exists $ConfigTest{'bob.com'}{unknown}, "bob.com=>unknown does exists");
+    ok(!exists $ConfigTest{'7623'}, "7623 does not exists");
+    ok(!exists $ConfigTest{'inverse.ca'}, "inverse.ca does not exists");
 }
 
 =head1 AUTHOR
