@@ -90,8 +90,9 @@ sub available_attributes {
   my @ldap_attributes = $self->ldap_attributes;
 
   # We check if our username attribute is present, if not we add it.
-  if (not grep {$_->{value} eq $self->{'usernameattribute'} } @ldap_attributes ) {
-    push (@ldap_attributes, { value => $self->{'usernameattribute'}, type => $Conditions::LDAP_ATTRIBUTE });
+  my $usernameattribute = $self->{'usernameattribute'};
+  if ( length ($usernameattribute) && !grep {$_->{value} eq $usernameattribute } @ldap_attributes ) {
+    push (@ldap_attributes, { value => $usernameattribute, type => $Conditions::LDAP_ATTRIBUTE });
   }
 
   return [@$super_attributes, sort { $a->{value} cmp $b->{value} } @ldap_attributes];
