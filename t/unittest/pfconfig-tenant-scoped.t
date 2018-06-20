@@ -24,12 +24,13 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 12;
+use Test::More tests => 15;
 use Test::NoWarnings;
 use pfconfig::cached_hash;
 use pf::config::tenant;
 
 tie our %ConfigTest, 'pfconfig::cached_hash', 'resource::tenant_aware_hash_test', tenant_id_scoped => 1;
+tie our @ConfigTest, 'pfconfig::cached_array', 'resource::tenant_aware_array_test', tenant_id_scoped => 1;
 is($ConfigTest{'inverse.ca'}{admin_strip_username}, "disabled", "Found inverse.ca=>admin_strip_username");
 is_deeply(
     $ConfigTest{'inverse.ca'},
@@ -59,6 +60,19 @@ ok(exists $ConfigTest{'inverse.ca'}, "inverse.ca exists");
     ok(!exists $ConfigTest{'bob.com'}{unknown}, "bob.com=>unknown does exists");
     ok(!exists $ConfigTest{'7623'}, "7623 does not exists");
     ok(!exists $ConfigTest{'inverse.ca'}, "inverse.ca does not exists");
+}
+
+{
+    is_deeply(\@ConfigTest, ['a'...'f'], "ConfigTest => ['a'...'f']");
+}
+
+{
+    local $pf::config::tenant::CURRENT_TENANT = 2;
+    is_deeply(\@ConfigTest, ['g'...'z'], "ConfigTest => ['g'...'z']");
+}
+
+{
+    is_deeply(\@ConfigTest, ['a'...'f'], "ConfigTest => ['a'...'f']");
 }
 
 =head1 AUTHOR
