@@ -262,7 +262,7 @@ tie %ConfigFloatingDevices, 'pfconfig::cached_hash', 'config::FloatingDevices';
 
 tie %ConfigFirewallSSO, 'pfconfig::cached_hash', 'config::Firewall_SSO';
 
-tie %ConfigRealm, 'pfconfig::cached_hash', 'config::Realm', tenant_id_scoped => 1;
+tie %ConfigRealm, 'pfconfig::cached_hash', 'config::Realm';
 
 tie %ConfigProvisioning, 'pfconfig::cached_hash', 'config::Provisioning';
 

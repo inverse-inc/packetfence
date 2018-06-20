@@ -27,50 +27,32 @@ use base 'pfconfig::namespaces::config';
 
 sub init {
     my ($self) = @_;
-    $self->{_scoped_by_tenant_id} = 1;
+    $self->{file}              = $realm_config_file;
+    $self->{expandable_params} = qw(categories);
+
+    my $defaults = Config::IniFiles->new( -file => $realm_default_config_file );
+    $self->{added_params}->{'-import'} = $defaults;
 }
 
-sub build {
-    my %c;
-    my $ini = pf::IniFiles->new(
-        -file => $realm_config_file,
-        -import => pf::IniFiles->new(-file => $realm_default_config_file),
-        -allowempty => 1,
-    );
-    for my $g ($ini->Groups()) {
-        $c{$g} = get_group_sections($ini, $g);
+sub build_child {
+    my ($self) = @_;
+
+    my %tmp_cfg = %{ $self->{cfg} };
+
+    foreach my $key ( keys %tmp_cfg ) {
+        $self->cleanup_after_read( $key, $tmp_cfg{$key} );
     }
 
-    return \%c;
+    # Lower casing all realms to find them consistently
+    my $cfg = { map{lc($_) => $tmp_cfg{$_}} keys(%tmp_cfg) };
+
+    return $cfg;
+
 }
 
-sub get_group_sections {
-    my ($ini, $g) = @_;
-    my %data;
-    for my $section ($ini->GroupMembers($g)) {
-        my $name = $section;
-        $name =~ s/^\Q$g \E//;
-        $name = lc($name);
-        $data{$name} = get_params($ini, $section);
-    }
-
-    return \%data;
-}
-
-=head2 get_params
-
-get_params
-
-=cut
-
-sub get_params {
-    my ($ini, $section) = @_;
-    my %data;
-    for my $param ($ini->Parameters($section)) {
-        $data{$param} = $ini->val($section, $param);
-    }
-
-    return \%data;
+sub cleanup_after_read {
+    my ( $self, $id, $item ) = @_;
+    $self->expand_list( $item, $self->{expandable_params} );
 }
 
 
