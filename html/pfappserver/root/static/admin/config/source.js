@@ -91,11 +91,11 @@ SourceView.prototype.changeCondition = function(e) {
 
 SourceView.prototype.testSource = function(e) {
     e.preventDefault();
+    resetAlert($('#section'));
     var btn = $(e.target);
     var form = btn.closest('form');
     var valid = isFormValid(form);
 
-    resetAlert($('#section'));
     if (valid) {
         this.items.post({
             url: btn.attr('href'),
@@ -108,6 +108,9 @@ SourceView.prototype.testSource = function(e) {
             },
             errorSibling: form
         });
+    } else {
+        showError(form, "Required field missing");
+        $("body,html").animate({scrollTop:0}, 'fast');
     }
 };
 
