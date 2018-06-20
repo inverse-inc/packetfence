@@ -44,7 +44,7 @@ func etcdGet(key string) (string, string) {
 	kapi := client.NewKeysAPI(c)
 	resp, err := kapi.Get(context.Background(), "/dhcpd/"+key, nil)
 	if err != nil {
-		log.Logger().Error("Error while getting etcd key '" + key + "': " + err.Error())
+		log.Logger().Debug("Error while getting etcd key '" + key + "': " + err.Error())
 		return "", ""
 	}
 	return resp.Node.Key, resp.Node.Value
