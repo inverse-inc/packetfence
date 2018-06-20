@@ -685,9 +685,9 @@ Inline enforcement because of it's nature has several limitations that one must 
 * Everyone behind an inline interface is on the same Layer 2 LAN
 * Every packet of authorized users goes through the PacketFence server increasing the server's load considerably: Plan ahead for capacity
 * Every packet of authorized users goes through the PacketFence server: it is a single point of failure for Internet access
-* Ipset can store up to 65536 entries, so it is not possible to have a inline network class upper than B
+* Ipset can store up to 65536 entries, so it is not possible to have an inline network class upper than B
 
-This is why it is considered a poor man's way of doing access control. We have avoided it for a long time because of the above mentioned limitations. That said, being able to perform both inline and VLAN enforcement on the same server at the same time is a real advantage: it allows users to maintain maximum security while they deploy new and more capable network hardware providing a clean migration path to VLAN enforcement.
+This is why it is considered a poor man's way of doing access control. We have avoided it for a long time because of the above mentioned limitations. That said, being able to perform both inline and VLAN enforcement on the same server at the same time is a real advantage: it allows admins to maintain maximum security while they deploy new and more capable network hardware providing a clean migration path to VLAN enforcement.
 
 Technical Introduction to Out-of-band Enforcement
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -751,7 +751,7 @@ Aside from the VoIP isolation dilemma, it is the technique that has proven to be
 More on SNMP traps VLAN isolation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-When the VLAN isolation is working through SNMP traps all switch ports (on which VLAN isolation should be done) must be configured to send SNMP traps to the PacketFence host. On PacketFence, we use snmptrapd as the SNMP trap receiver. As it receives traps, it reformats and writes them into a flat file: `/usr/local/pf/logs/snmptrapd.log`. The multithreaded `pfsetvlan` daemon reads these traps from the flat file and responds to them by setting the switch port to the correct VLAN. Currently, we support switches from Cisco, Edge-core, HP, Intel, Linksys and Nortel (adding support for switches from another vendor implies extending the `pf::Switch` class). Depending on your switches capabilities, `pfsetvlan` will act on different types of SNMP traps.
+When the VLAN isolation is working through SNMP traps all switch ports (on which VLAN isolation should be done) must be configured to send SNMP traps to the PacketFence host. On PacketFence, we use `snmptrapd` as the SNMP trap receiver. As it receives traps, it reformats and writes them into a flat file: `/usr/local/pf/logs/snmptrapd.log`. The multithreaded `pfsetvlan` daemon reads these traps from the flat file and responds to them by setting the switch port to the correct VLAN. Currently, we support switches from Cisco, Edge-core, HP, Intel, Linksys and Nortel (adding support for switches from another vendor implies extending the `pf::Switch` class). Depending on your switches capabilities, `pfsetvlan` will act on different types of SNMP traps.
 
 image::diagram-trap-interaction.png[pfsetvlan SNMP interactions diagram, 400]
 
@@ -760,7 +760,7 @@ You need to create a registration VLAN (with a DHCP server, but no routing to ot
 Link Changes (deprecated)
 +++++++++++++++++++++++++
 
-This is the most basic setup and it needs a third VLAN: the MAC detection VLAN. There should be nothing in this VLAN (no DHCP server) and it should not be routed anywhere; it is just an void VLAN.
+This is the most basic setup and it needs a third VLAN: the MAC detection VLAN. There should be nothing in this VLAN (no DHCP server) and it should not be routed anywhere; it is just a void VLAN.
 
 When a host connects to a switch port, the switch sends a linkUp trap to PacketFence. Since it takes some time before the switch learns the MAC address of the newly connected device, PacketFence immediately puts the port in the MAC detection VLAN in which the device will send DHCP requests (with no answer) in order for the switch to learn its MAC address. Then pfsetvlan will send periodical SNMP queries to the switch until the switch learns the MAC of the device. When the MAC address is known, pfsetvlan checks its status (existing ? registered ? any violations ?) in the database and puts the port in the appropriate VLAN. When a device is unplugged, the switch sends a 'linkDown' trap to PacketFence which puts the port into the MAC detection VLAN.
 
@@ -825,10 +825,11 @@ Introduction
 DNS enforcement allows you to control the network access of the device by using the pfdns service on PacketFence.
 
 The architecture of DNS enforcement is as following :
-- DHCP and DNS are provided by the PacketFence server
+
+* DHCP and DNS are provided by the PacketFence server
   - The PacketFence DHCP server will provide the IP of your network equipment as the gateway and the IP address of the PacketFence DNS server to resolve names.
-- Routing is provided by another equipment on your network (Core switch, Firewall, Router,...)
-- If a user should be shown the portal, the pfdns service will return a pointer to the IP address of the captive portal, otherwise pfdns will resolve the name externally and use it in the reply.
+* Routing is provided by another equipment on your network (Core switch, Firewall, Router,...)
+* If a user should be shown the portal, the pfdns service will return a pointer to the IP address of the captive portal, otherwise pfdns will resolve the name externally and use it in the reply.
 
 This enforcement mode used by itself can be bypassed by the device by using a different DNS server or by using its own DNS cache.
 
@@ -840,7 +841,7 @@ After, you need to configure a routed network for this interface by clicking 'Ad
 
 NOTE: If you are not using a routed network, you need to use Inline enforcement as DNS enforcement can only be used for routed networks.
 
-Once this is done, you need to restart the dhcpd and pfdns services.
+Once this is done, you need to restart the `pfdhcp` and `pfdns` services.
 
 Adding Inline Enforcement to Existing Installation
 --------------------------------------------------

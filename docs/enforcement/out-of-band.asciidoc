@@ -26,7 +26,7 @@ Please refer to the following table for IP and Subnet information :
 |VLAN ID  |VLAN Name     |Subnet           |Gateway         |PacketFence Address
 |20       |Management    |DHCP             |                |DHCP
 |102      |Registration  |192.168.102.0/24 |192.168.102.10  |192.168.2.10
-|103      |Isolation     |192.168.103.0/24 |192.168.1033.10 |192.168.3.10
+|103      |Isolation     |192.168.103.0/24 |192.168.103.10  |192.168.3.10
 |20       |Normal        |192.168.1.0/24   |192.168.1.1     |
 |===============================================================================
 
@@ -51,7 +51,7 @@ The required interface types for VLAN enforcement are:
 
 Note that you can only set *one* (1) management interface.
 
-In our example, we will create two new VLANs on the wired interface on our new trunk interface (ens224)
+In our example, we will create two new VLANs on the wired interface on our new trunk interface (`ens224`)
 To do so, click the 'Add VLAN' button besides the wired interface for each of the needed VLAN:
 
 Here's a sample configuration for both of them:
@@ -76,9 +76,9 @@ According to our example, we'll associate the correct type the each interfaces.
     ens224 VLAN 102: Registration
     ens224 VLAN 103: Isolation
 
-Make sure that those three (3) interfaces are in an Enabled state for the persistence to occur. We also need to set the Default Gateway which will generally be the gateway of the management network.
+Make sure that those three interfaces are in an *enabled* state for the persistence to occur. We also need to set the Default Gateway which will generally be the gateway of the management network.
 
-Finally, from *Status->Services*, restart the `haproxy` `httpd.portal`, `dhcpd`, `iptables`, `pfdhcplistener`, `pfdns` services.
+Finally, from *Status->Services*, restart the `haproxy-portal`, `httpd.portal`, `pfdhcp`, `iptables`, `pfdhcplistener`, `pfdns` services.
 
 
 Network Devices
@@ -96,7 +96,7 @@ From the Roles tab, make sure you specify the following information:
 
 Disable 'Role by Switch Role' and 'Role by Web Auth URL'.
 
-Click on the Save button once completed.
+Click on the 'Save' button once completed.
 
 Configure the Cisco Catalyst 2960
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -151,7 +151,7 @@ From *Configuration->Policies and Access Control->Connection Profiles*, click on
  * Filters: If *any* VLAN 102
  * Sources: null-source
 
-Then click on Save.
+Then click on 'Save'.
 
 Testing VLAN Based Enforcement
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -159,8 +159,8 @@ Testing VLAN Based Enforcement
 You can now test the registration process. In order to do so:
 
 * connect an unregistered device into the switch
-* make sure PacketFence receives the radius authentication request from the switch. Look into the PacketFence log file: /usr/local/pf/logs/packetfence.log
-* make sure PacketFence handle radius request and sets the switch port into the registration VLAN (VLAN 102). Look again into PacketFence log file: /usr/local/pf/logs/packetfence.log
+* make sure PacketFence receives the radius authentication request from the switch. Look into the PacketFence log file: `/usr/local/pf/logs/packetfence.log`
+* make sure PacketFence handle radius request and sets the switch port into the registration VLAN (VLAN 102). Look again into PacketFence log file: `/usr/local/pf/logs/packetfence.log`
 
 On the computer:
 
