@@ -143,6 +143,7 @@ export default {
   data () {
     return {
       advancedMode: false,
+      defaultCondition: { op: 'and', values: [{ op: 'or', values: [{ field: 'mac', op: null, value: null }] }] },
       /**
        *  Fields on which a search can be defined.
        *  The names must match the database schema.
@@ -551,6 +552,17 @@ export default {
       })
     },
     onReset () {
+      let _this = this
+      this.requestPage = 1 // reset to the first page
+      this.clearChecked()
+      this.$store.dispatch('$_nodes/setSearchQuery', undefined)
+      this.$store.dispatch('$_nodes/search', this.requestPage).then(() => {
+        _this.currentPage = _this.requestPage
+        // deep copy, remove refs
+        _this.condition = JSON.parse(JSON.stringify(this.defaultCondition))
+      }).catch(() => {
+        _this.requestPage = _this.currentPage
+      })
       this.$router.push({ name: 'nodes' })
     },
     onImport (condition) {
@@ -766,14 +778,6 @@ export default {
         }
       })
     },
-    condition (a, b) {
-      if (a !== b) this.clearChecked()
-      try {
-        if (a.values.length > 1 || a.values[0].values.length > 1) this.advancedMode = true
-      } catch (e) {
-        // noop
-      }
-    },
     requestPage (a, b) {
       if (a !== b) this.clearChecked()
     },
@@ -791,19 +795,33 @@ export default {
         if (a) {
           let condition = JSON.parse(a)
           this.onSearch(condition)
-        } else {
-          // reset
-          this.onSearch(undefined)
-          this.condition = { op: 'and', values: [{ op: 'or', values: [{ field: this.fields[0].value, op: null, value: null }] }] }
         }
       }
+    },
+    condition: {
+      handler: function (a, b) {
+        if (a !== b) {
+          this.clearChecked()
+          try {
+            if (a.values.length > 1 || a.values[0].values.length > 1) this.advancedMode = true
+          } catch (e) {
+            // noop
+          }
+          if (a === undefined || a === null) {
+            // deep copy, remove refs
+            this.condition = JSON.parse(JSON.stringify(this.defaultCondition))
+          }
+        }
+      },
+      immediate: true,
+      deep: true
     }
   },
   created () {
     this.$store.dispatch('config/getRoles')
     this.$store.dispatch('config/getViolations')
     this.pageSizeLimit = this.$store.state.$_nodes.searchPageSize
-    while (true) {
+    do {
       try {
         if (this.query) {
           this.condition = JSON.parse(this.query)
@@ -816,9 +834,9 @@ export default {
       } catch (e) {
         // noop
       }
-      this.condition = { op: 'and', values: [{ op: 'or', values: [{ field: this.fields[0].value, op: null, value: null }] }] }
-      break
-    }
+      // deep copy, remove refs
+      this.condition = JSON.parse(JSON.stringify(this.defaultCondition))
+    } while (false)
     // Restore visibleColumns, overwrite defaults
     if (this.$store.state.$_nodes.visibleColumns) {
       let visibleColumns = this.$store.state.$_nodes.visibleColumns
@@ -837,4 +855,3 @@ export default {
   }
 }
 </script>
-   

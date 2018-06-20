@@ -205,8 +205,6 @@ export default {
         }
       }
     }
-  },
-  mounted () {
   }
 }
 </script>
