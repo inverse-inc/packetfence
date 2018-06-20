@@ -95,7 +95,7 @@ SourceView.prototype.testSource = function(e) {
     var btn = $(e.target);
     var form = btn.closest('form');
     var valid = isFormValid(form);
-
+    var alertSibling = btn.closest('.input-append');
     if (valid) {
         this.items.post({
             url: btn.attr('href'),
@@ -104,13 +104,12 @@ SourceView.prototype.testSource = function(e) {
                 btn.button('reset');
             },
             success: function(data, textStatus, jqXHR) {
-                showSuccess(form, data.status_msg);
+                showSuccess(alertSibling, data.status_msg);
             },
-            errorSibling: form
+            errorSibling: btn.closest(alertSibling)
         });
     } else {
-        showError(form, "Required field missing");
-        $("body,html").animate({scrollTop:0}, 'fast');
+        showError(alertSibling, "Required field missing");
     }
 };
 
