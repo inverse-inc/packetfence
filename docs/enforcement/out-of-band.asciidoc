@@ -9,7 +9,7 @@ Introduction
 In order to build a VLAN isolation setup you need :
 
 * a supported switch (please consult the list of supported switch vendors and types in the _Network Devices Configuration Guide_ including information on uplinks
-* a regular, registration and isolation VLAN (VLAN numbers and subnets)
+* a normal, registration and isolation VLAN (VLAN numbers and subnets)
 * a switch port for the PacketFence (PacketFence) server which needs to be configured as a dot1q trunk (several VLANs on the port)
 
 Throughout this configuration example we use the following assumptions for our network infrastructure:
@@ -17,41 +17,42 @@ Throughout this configuration example we use the following assumptions for our n
 * VLAN 20 is the management VLAN
 * VLAN 102 is the registration VLAN (unregistered devices will be put in this VLAN)
 * VLAN 103 is the isolation VLAN (isolated devices will be put in this VLAN)
-* VLAN 20 is the "regular" VLAN
+* VLAN 104 is the normal VLAN (registered devices will be put in this VLAN)
 
 Please refer to the following table for IP and Subnet information :
 
 [options="header",cols="1,2,2,2,3",grid="rows"]
 |===============================================================================
 |VLAN ID  |VLAN Name     |Subnet           |Gateway         |PacketFence Address
-|20       |Management    |DHCP             |                |DHCP
-|102      |Registration  |192.168.102.0/24 |192.168.102.10  |192.168.2.10
-|103      |Isolation     |192.168.103.0/24 |192.168.103.10  |192.168.3.10
-|20       |Normal        |192.168.1.0/24   |192.168.1.1     |
+|20       |Management    |172.20.100.0/16  |172.20.0.1      |172.20.100.2
+|102      |Registration  |192.168.102.0/24 |192.168.102.1   |192.168.102.1
+|103      |Isolation     |192.168.103.0/24 |192.168.103.1   |192.168.103.1
+|104      |Normal        |192.168.104.0/24 |192.168.104.1   |192.168.104.2
 |===============================================================================
 
 Note that PacketFence will provide these services on its registration and isolation VLANs:
 
-* PacketFence provides its own DHCP services. It will take care of IP address distribution in VLANs 102 and 103. PacketFence will not provide DHCP services on VLAN 20 - this is the responsibility of your own infrastructure
-* PacketFence provides its own DNS service. It will take care of naming resolution in VLANs 102 and 103. PacketFence will not provide DNS services on VLAN 20 - this is the responsibility of your own infrastructure
+* PacketFence provides its own DHCP services. It will take care of IP address distribution in VLANs 102 and 103. PacketFence will not provide DHCP services on VLAN 104 - this is the responsibility of your own infrastructure
+* PacketFence provides its own DNS service. It will take care of naming resolution in VLANs 102 and 103. PacketFence will not provide DNS services on VLAN 104 - this is the responsibility of your own infrastructure
 
 
-Adding the Registration and Isolation Interface
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Adding the Registration, Isolation and Normal Interface
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 First of all, make sure you add a new NIC to your PacketFence server and you set the switch port where that NIC is connected in `trunk`. If you prefer, you can also set your management interface as trunk and set the PVID to your management VLAN on the switch port where that management is connected.
 
-We will create two interface VLAN for registration and isolation using the management interface.
+We will create three interfaces VLAN for registration, isolation and normal using the management interface.
 
 The required interface types for VLAN enforcement are:
 
     Management
     Registration
     Isolation
+    Normal 
 
 Note that you can only set *one* (1) management interface.
 
-In our example, we will create two new VLANs on the wired interface on our new trunk interface (`ens224`)
+In our example, we will create three new VLANs on the wired interface on our new trunk interface (`ens224`)
 To do so, click the 'Add VLAN' button besides the wired interface for each of the needed VLAN:
 
 Here's a sample configuration for both of them:
@@ -67,14 +68,21 @@ Isolation
     Virtual LAN ID: 103
     IP Address: 192.168.103.1
     Netmask: 255.255.255.0
+    
+Normal
 
+     Virtual LAN ID: 104
+     IP Address: 192.168.104.2
+     Netmask: 255.255.255.0
+    
 NOTE: Ignore the High-Availability options for now. If you are interested in a PacketFence cluster, please refer to the PacketFence Clustering Guide.
 
 According to our example, we'll associate the correct type the each interfaces.
 
     ens160: Management
     ens224 VLAN 102: Registration
-    ens224 VLAN 103: Isolation
+    ens224 VLAN 103: Isolation 
+    ens224 VLAN 104: Normal
 
 Make sure that those three interfaces are in an *enabled* state for the persistence to occur. We also need to set the Default Gateway which will generally be the gateway of the management network.
 
@@ -91,8 +99,8 @@ From the Roles tab, make sure you specify the following information:
    Role by VLAN ID: checked
    registration VLAN: 102
    isolation VLAN: 103
-   default: 20
-   guest: 20
+   default: 104
+   guest: 104
 
 Disable 'Role by Switch Role' and 'Role by Web Auth URL'.
 
@@ -172,5 +180,5 @@ Register the computer using the Null authentication source.
 
 Once a computer has been registered, make sure:
 
-* PacketFence puts the switch port into the regular VLAN (VLAN 20)
+* PacketFence puts the switch port into the normal VLAN (VLAN 104)
 * The computer has access to the network and the Internet.
