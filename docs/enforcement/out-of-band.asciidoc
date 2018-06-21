@@ -21,14 +21,14 @@ Throughout this configuration example we use the following assumptions for our n
 
 Please refer to the following table for IP and Subnet information :
 
-[options="header",cols="1,2,2,2,3",grid="rows"]
-|===============================================================================
-|VLAN ID  |VLAN Name     |Subnet           |Gateway         |PacketFence Address
-|20       |Management    |172.20.100.0/16  |172.20.0.1      |172.20.100.2
-|102      |Registration  |192.168.102.0/24 |192.168.102.1   |192.168.102.1
-|103      |Isolation     |192.168.103.0/24 |192.168.103.1   |192.168.103.1
-|104      |Normal        |192.168.104.0/24 |192.168.104.1   |192.168.104.2
-|===============================================================================
+[options="header",cols="1,2,2,2,2,2,2",grid="rows"]
+|===
+|VLAN ID  |VLAN Name     |Subnet           |Gateway         |PacketFence Address|DHCP                       |DNS
+|20       |Management    |172.20.100.0/16  |172.20.0.1      |172.20.100.2       |infrastructure DHCP server |infrastructure DNS server
+|102      |Registration  |192.168.102.0/24 |192.168.102.1   |192.168.102.1      |PF                         |PF
+|103      |Isolation     |192.168.103.0/24 |192.168.103.1   |192.168.103.1      |PF                         |PF
+|104      |Normal        |10.0.104.0/24    |10.0.104.1      |                   |infrastructure DHCP server |infrastructure DNS server
+|===
 
 Note that PacketFence will provide these services on its registration and isolation VLANs:
 
@@ -36,8 +36,8 @@ Note that PacketFence will provide these services on its registration and isolat
 * PacketFence provides its own DNS service. It will take care of naming resolution in VLANs 102 and 103. PacketFence will not provide DNS services on VLAN 104 - this is the responsibility of your own infrastructure
 
 
-Adding the Registration, Isolation and Normal Interface
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Adding the Registration, Isolation and Other Interface
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 First of all, make sure you add a new NIC to your PacketFence server and you set the switch port where that NIC is connected in `trunk`. If you prefer, you can also set your management interface as trunk and set the PVID to your management VLAN on the switch port where that management is connected.
 
@@ -45,10 +45,10 @@ We will create three interfaces VLAN for registration, isolation and normal usin
 
 The required interface types for VLAN enforcement are:
 
-    Management
-    Registration
-    Isolation
-    Normal 
+ Management
+ Registration
+ Isolation
+ Other
 
 Note that you can only set *one* (1) management interface.
 
@@ -59,30 +59,28 @@ Here's a sample configuration for both of them:
 
 Registration
 
-    Virtual LAN ID: 102
-    IP Address: 192.168.102.1
-    Netmask: 255.255.255.0
+ Virtual LAN ID: 102
+ IP Address: 192.168.102.1
+ Netmask: 255.255.255.0
 
 Isolation
 
-    Virtual LAN ID: 103
-    IP Address: 192.168.103.1
-    Netmask: 255.255.255.0
+ Virtual LAN ID: 103
+ IP Address: 192.168.103.1
+ Netmask: 255.255.255.0
     
 Normal
 
-     Virtual LAN ID: 104
-     IP Address: 192.168.104.2
-     Netmask: 255.255.255.0
+ Virtual LAN ID: 104
     
 NOTE: Ignore the High-Availability options for now. If you are interested in a PacketFence cluster, please refer to the PacketFence Clustering Guide.
 
 According to our example, we'll associate the correct type the each interfaces.
 
-    ens160: Management
-    ens224 VLAN 102: Registration
-    ens224 VLAN 103: Isolation 
-    ens224 VLAN 104: Other
+ ens160: Management
+ ens224 VLAN 102: Registration
+ ens224 VLAN 103: Isolation
+ ens224 VLAN 104: Other
 
 Make sure that those three interfaces are in an *enabled* state for the persistence to occur. We also need to set the Default Gateway which will generally be the gateway of the management network.
 
@@ -96,11 +94,11 @@ Now let's modify our switch configuration to enable our new registration and iso
           
 From the Roles tab, make sure you specify the following information:
 
-   Role by VLAN ID: checked
-   registration VLAN: 102
-   isolation VLAN: 103
-   default: 104
-   guest: 104
+ Role by VLAN ID: checked
+ registration VLAN: 102
+ isolation VLAN: 103
+ default: 104
+ guest: 104
 
 Disable 'Role by Switch Role' and 'Role by Web Auth URL'.
 
@@ -115,31 +113,31 @@ Configure Switchport for MAB
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Once AAA is ready, we can configure some or all switchports to perform MAB (MAC Authentication Bypass) and 802.1X. In our example, we will only configure port no. 11 without VoIP support:
    
-   switchport mode access
-   authentication host-mode single-host
-   authentication order mab dot1x
-   authentication priority mab dot1x
-   authentication port-control auto
-   authentication periodic
-   authentication timer restart 10800
-   authentication timer reauthenticate 10800
-   mab
-   no snmp trap link-status
-   dot1x pae authenticator
-   dot1x timeout quiet-period 2
-   dot1x timeout tx-period 3
+ switchport mode access
+ authentication host-mode single-host
+ authentication order mab dot1x
+ authentication priority mab dot1x
+ authentication port-control auto
+ authentication periodic
+ authentication timer restart 10800
+ authentication timer reauthenticate 10800
+ mab
+ no snmp trap link-status
+ dot1x pae authenticator
+ dot1x timeout quiet-period 2
+ dot1x timeout tx-period 3
 
 If you want to test some ports with a VoIP phone (ex: Voice VLAN 200), add the following lines to your interface configuration:
 
-   switchport voice vlan 200
-   authentication host-mode multi-domain
+ switchport voice vlan 200
+ authentication host-mode multi-domain
 
 Configure SNMP
 ^^^^^^^^^^^^^^
 Finally, for some operations (like VoIP), PacketFence still need to have SNMP access to the switch.  Make sure you configure the two SNMP communities like:
 
-   snmp-server community ciscoRead ro
-   snmp-server community ciscoWrite rw
+ snmp-server community ciscoRead ro
+ snmp-server community ciscoWrite rw
 
 NOTE: You can refer to the Cisco Catalyst documentation for more options.  The latest documentation is available here: http://www.cisco.com/en/US/docs/switches/lan/catalyst2960/software/release/15.0_1_se/configuration/guide/sw8021x.html
 
