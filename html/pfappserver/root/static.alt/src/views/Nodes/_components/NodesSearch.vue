@@ -106,19 +106,26 @@
 
 <script>
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import pfBaseSearchable from '@/components/pfBaseSearchable'
 import pfFingerbankScore from '@/components/pfFingerbankScore'
 import pfSearch from '@/components/pfSearch'
 import ToggleButton from '@/components/ToggleButton'
 
 export default {
   name: 'NodesSearch',
+  extends: pfBaseSearchable,
+  pfBaseSearchableOptions: {
+    searchApiEndpoint: 'nodes',
+    defaultSortKeys: ['mac'],
+    defaultSearchCondition: { op: 'and', values: [{ op: 'or', values: [{ field: 'mac', op: 'equals', value: null }] }] },
+    defaultRoute: { name: 'nodes' }
+  },
   components: {
     'pf-fingerbank-score': pfFingerbankScore,
     'pf-search': pfSearch,
     'toggle-button': ToggleButton
   },
   props: {
-    namedSearch: String,
     tableValues: {
       type: Array,
       default: []
@@ -134,16 +141,10 @@ export default {
     lastIndex: {
       type: Number,
       default: null
-    },
-    query: {
-      type: String,
-      default: null
     }
   },
   data () {
     return {
-      advancedMode: false,
-      defaultCondition: { op: 'and', values: [{ op: 'or', values: [{ field: 'mac', op: null, value: null }] }] },
       /**
        *  Fields on which a search can be defined.
        *  The names must match the database schema.
@@ -510,27 +511,6 @@ export default {
     }
   },
   computed: {
-    isLoading () {
-      return this.$store.getters['$_nodes/isLoadingResults']
-    },
-    sortBy () {
-      return this.$store.state.$_nodes.searchSortBy
-    },
-    sortDesc () {
-      return this.$store.state.$_nodes.searchSortDesc
-    },
-    visibleColumns () {
-      return this.columns.filter(column => column.visible)
-    },
-    searchFields () {
-      return this.visibleColumns.filter(column => !column.locked).map(column => column.key)
-    },
-    items () {
-      return this.$store.state.$_nodes.items
-    },
-    totalRows () {
-      return this.$store.state.$_nodes.searchMaxPageNumber * this.pageSizeLimit
-    },
     roles () {
       return this.$store.state.config.roles
     },
@@ -539,61 +519,6 @@ export default {
     }
   },
   methods: {
-    onSearch (condition) {
-      let _this = this
-      this.requestPage = 1 // reset to the first page
-      this.clearChecked()
-      this.$store.dispatch('$_nodes/setSearchQuery', condition)
-      this.$store.dispatch('$_nodes/search', this.requestPage).then(() => {
-        _this.currentPage = _this.requestPage
-        _this.condition = condition
-      }).catch(() => {
-        _this.requestPage = _this.currentPage
-      })
-    },
-    onReset () {
-      let _this = this
-      this.requestPage = 1 // reset to the first page
-      this.clearChecked()
-      this.$store.dispatch('$_nodes/setSearchQuery', undefined)
-      this.$store.dispatch('$_nodes/search', this.requestPage).then(() => {
-        _this.currentPage = _this.requestPage
-        // deep copy, remove refs
-        _this.condition = JSON.parse(JSON.stringify(this.defaultCondition))
-      }).catch(() => {
-        _this.requestPage = _this.currentPage
-      })
-      this.$router.push({ name: 'nodes' })
-    },
-    onImport (condition) {
-      this.$router.push({ name: 'nodes', query: { query: JSON.stringify(condition) } })
-    },
-    onPageSizeChange () {
-      this.requestPage = 1 // reset to the first page
-      this.$store.dispatch('$_nodes/setSearchPageSize', this.pageSizeLimit)
-      this.$store.dispatch('$_nodes/search', this.requestPage)
-    },
-    onPageChange () {
-      let _this = this
-      this.$store.dispatch('$_nodes/search', this.requestPage).then(() => {
-        _this.currentPage = _this.requestPage
-      }).catch(() => {
-        _this.requestPage = _this.currentPage
-      })
-    },
-    onSortingChanged (params) {
-      this.requestPage = 1 // reset to the first page
-      this.$store.dispatch('$_nodes/setSearchSorting', params)
-      this.$store.dispatch('$_nodes/search', this.requestPage)
-    },
-    toggleColumn (column) {
-      column.visible = !column.visible
-      this.$store.dispatch('$_nodes/setVisibleColumns', this.columns.filter(column => column.visible).map(column => column.key))
-      this.$store.dispatch('$_nodes/setSearchFields', this.searchFields)
-      if (column.visible) {
-        this.$store.dispatch('$_nodes/search', this.requestPage)
-      }
-    },
     onRowClick (item, index) {
       this.$router.push({ name: 'node', params: { mac: item.mac } })
     },
@@ -604,8 +529,8 @@ export default {
       this.checkedAll = false
       const _this = this
       this.checkedRows.forEach(function (item, index, items) {
-        _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: ''})
-        _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: item.mac, message: ''})
+        _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: item.mac, variant: ''})
+        _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {mac: item.mac, message: ''})
       })
       this.checkedRows = []
       this.lastIndex = null
@@ -633,12 +558,12 @@ export default {
       if (macs.length > 0) {
         _this.$store.dispatch('$_nodes/clearViolationBulkNodes', {items: macs}).then(response => {
           response.items.forEach(function (item, index, items) {
-            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, status: item.status})
-            _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: item.mac, message: item.message})
+            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: item.mac, status: item.status})
+            _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {mac: item.mac, message: item.message})
           })
         }).catch(() => {
           macs.forEach(function (mac, index) {
-            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'danger'})
+            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: mac, variant: 'danger'})
           })
         })
       }
@@ -649,12 +574,12 @@ export default {
       if (macs.length > 0) {
         _this.$store.dispatch('$_nodes/registerBulkNodes', {items: macs}).then(response => {
           response.items.forEach(function (item, index, items) {
-            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, status: item.status})
-            _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: item.mac, message: item.message})
+            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: item.mac, status: item.status})
+            _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {mac: item.mac, message: item.message})
           })
         }).catch(() => {
           macs.forEach(function (mac, index) {
-            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'danger'})
+            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: mac, variant: 'danger'})
           })
         })
       }
@@ -665,12 +590,12 @@ export default {
       if (macs.length > 0) {
         _this.$store.dispatch('$_nodes/deregisterBulkNodes', {items: macs}).then(response => {
           response.items.forEach(function (item, index, items) {
-            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, status: item.status})
-            _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: item.mac, message: item.message})
+            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: item.mac, status: item.status})
+            _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {mac: item.mac, message: item.message})
           })
         }).catch(() => {
           macs.forEach(function (mac, index) {
-            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'danger'})
+            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: mac, variant: 'danger'})
           })
         })
       }
@@ -681,12 +606,12 @@ export default {
       if (macs.length > 0) {
         _this.$store.dispatch('$_nodes/reevaluateAccessBulkNodes', {items: macs}).then(response => {
           response.items.forEach(function (item, index, items) {
-            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, status: item.status})
-            _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: item.mac, message: item.message})
+            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: item.mac, status: item.status})
+            _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {mac: item.mac, message: item.message})
           })
         }).catch(() => {
           macs.forEach(function (mac, index) {
-            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'danger'})
+            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: mac, variant: 'danger'})
           })
         })
       }
@@ -697,12 +622,12 @@ export default {
       if (macs.length > 0) {
         _this.$store.dispatch('$_nodes/restartSwitchportBulkNodes', {items: macs}).then(response => {
           response.items.forEach(function (item, index, items) {
-            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, status: item.status})
-            _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: item.mac, message: item.message})
+            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: item.mac, status: item.status})
+            _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {mac: item.mac, message: item.message})
           })
         }).catch(() => {
           macs.forEach(function (mac, index) {
-            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'danger'})
+            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: mac, variant: 'danger'})
           })
         })
       }
@@ -712,11 +637,11 @@ export default {
       const macs = this.checkedRows.map(item => item.mac)
       if (macs.length > 0) {
         macs.forEach(function (mac, index) {
-          _this.$store.dispatch('$_nodes/roleNode', {mac: mac, category_id: role.category_id}).then(response => {
-            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, status: response.status})
-            _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: mac, message: response.message})
+          _this.$store.dispatch(`${_this._storeName}/roleNode`, {mac: mac, category_id: role.category_id}).then(response => {
+            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: mac, status: response.status})
+            _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {mac: mac, message: response.message})
           }).catch(() => {
-            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'danger'})
+            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: mac, variant: 'danger'})
           })
         })
       }
@@ -726,11 +651,11 @@ export default {
       const macs = this.checkedRows.map(item => item.mac)
       if (macs.length > 0) {
         macs.forEach(function (mac, index) {
-          _this.$store.dispatch('$_nodes/bypassRoleNode', {mac: mac, bypass_role_id: role.category_id}).then(response => {
-            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, status: response.status})
-            _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: mac, message: response.message})
+          _this.$store.dispatch(`${_this._storeName}/bypassRoleNode`, {mac: mac, bypass_role_id: role.category_id}).then(response => {
+            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: mac, status: response.status})
+            _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {mac: mac, message: response.message})
           }).catch(() => {
-            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'danger'})
+            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: mac, variant: 'danger'})
           })
         })
       }
@@ -741,12 +666,12 @@ export default {
       if (macs.length > 0) {
         _this.$store.dispatch('$_nodes/applyViolationBulkNodes', {items: macs, vid: violation.id}).then(response => {
           response.items.forEach(function (item, index, items) {
-            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, status: item.status})
-            _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: item.mac, message: item.message})
+            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: item.mac, status: item.status})
+            _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {mac: item.mac, message: item.message})
           })
         }).catch(() => {
           macs.forEach(function (mac, index) {
-            _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: mac, variant: 'danger'})
+            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: mac, variant: 'danger'})
           })
         })
       }
@@ -767,14 +692,14 @@ export default {
   watch: {
     checkedRows (a, b) {
       this.checkedAll = (this.tableValues.length === a.length && a.length > 0)
-      let _this = this
-      let checkedRows = this.checkedRows
+      const _this = this
+      const checkedRows = this.checkedRows
       this.items.forEach(function (item, index, items) {
         if (checkedRows.includes(item)) {
-          _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: 'info'})
+          _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: item.mac, variant: 'info'})
         } else {
-          _this.$store.commit('$_nodes/ITEM_VARIANT', {mac: item.mac, variant: ''})
-          _this.$store.commit('$_nodes/ITEM_MESSAGE', {mac: item.mac, message: ''})
+          _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: item.mac, variant: ''})
+          _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {mac: item.mac, message: ''})
         }
       })
     },
@@ -790,14 +715,6 @@ export default {
     visibleColumns (a, b) {
       if (a !== b) this.clearChecked()
     },
-    query (a, b) {
-      if (a !== b) {
-        if (a) {
-          let condition = JSON.parse(a)
-          this.onSearch(condition)
-        }
-      }
-    },
     condition: {
       handler: function (a, b) {
         if (a !== b) {
@@ -807,10 +724,6 @@ export default {
           } catch (e) {
             // noop
           }
-          if (a === undefined || a === null) {
-            // deep copy, remove refs
-            this.condition = JSON.parse(JSON.stringify(this.defaultCondition))
-          }
         }
       },
       immediate: true,
@@ -818,34 +731,27 @@ export default {
     }
   },
   created () {
+    this._storeName = '$_' + this.$options.name.toLowerCase()
     this.$store.dispatch('config/getRoles')
     this.$store.dispatch('config/getViolations')
-    this.pageSizeLimit = this.$store.state.$_nodes.searchPageSize
+    // fake loop to allow multiple breaks w/ fallback to default
     do {
       try {
         if (this.query) {
+          // Import search parameters from URL query
           this.condition = JSON.parse(this.query)
           break
-        } else if (this.$store.state.$_nodes.searchQuery) {
-          // Restore search parameters
-          this.condition = this.$store.state.$_nodes.searchQuery
+        } else if (this.$store.state[this._storeName].searchQuery) {
+          // Restore search parameters from store
+          this.condition = this.$store.state[this._storeName].searchQuery
           break
         }
       } catch (e) {
         // noop
       }
-      // deep copy, remove refs
-      this.condition = JSON.parse(JSON.stringify(this.defaultCondition))
+      // Import default condition
+      this.pfBaseSearchableInitCondition()
     } while (false)
-    // Restore visibleColumns, overwrite defaults
-    if (this.$store.state.$_nodes.visibleColumns) {
-      let visibleColumns = this.$store.state.$_nodes.visibleColumns
-      this.columns.forEach(function (column, index, columns) {
-        columns[index].visible = visibleColumns.includes(column.key)
-      })
-    }
-    this.$store.dispatch('$_nodes/setSearchFields', this.searchFields)
-    this.$store.dispatch('$_nodes/search', this.requestPage)
   },
   mounted () {
     document.addEventListener('keydown', this.onKeydown)

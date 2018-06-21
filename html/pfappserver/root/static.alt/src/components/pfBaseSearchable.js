@@ -1,17 +1,28 @@
 /**
  * Base component for search components.
  *
- * A component extending the pfBaseSearch component requires to:
+ * A component extending the pfBaseSearch component is required to:
  *
- *   - declare a property 'searchApiEndpoint';
- *   - declare a property 'defaultSearchKeys' (array);
+ *   - declare a proprty 'pfBaseSearchableOptions' with the following structure:
+ *     - declare a property 'searchApiEndpoint' (string);
+ *     - declare a property 'defaultSearchKeys' (array);
+ *     - declare a property 'defaultSearchCondition' (object);
+ *     - declare a property 'defaultRoute' (object);
+ *
+ *     pfBaseSearchableOptions: {
+ *       searchApiEndpoint: 'users',
+ *       defaultSortKeys: ['pid'],
+ *       defaultSearchCondition: { op: 'and', values: [{ op: 'or', values: [{ field: 'pid', op: null, value: null }] }] },
+  *      defaultRoute: { name: 'user' }
+ *     }
+ *
  *   - declare a data attribute named 'fields';
  *   - declare a data attribute named 'columns'.
  *
  * Optionally, it can:
  *
- *   - implement a method name 'initCondition';
- *   - implement a method name 'quickCondition' (used when predefining search fields in quick mode).
+ *   - implement a method name 'pfBaseSearchableInitCondition' (used when the search is reset or cleared).
+ *   - implement a method name 'pfBaseSearchableQuickCondition' (used when predefining search fields in quick mode).
  */
 import SearchableStore from '@/store/base/searchable'
 import pfSearch from '@/components/pfSearch'
@@ -19,14 +30,24 @@ import ToggleButton from '@/components/ToggleButton'
 
 export default {
   name: 'pfBaseSearchable',
+  pfBaseSearchableOptions: {
+    defaultSearchCondition: { op: 'and', values: [{ op: 'or', values: [{ field: null, op: null, value: null }] }] }
+  },
   components: {
     'pf-search': pfSearch,
     'toggle-button': ToggleButton
+  },
+  props: {
+    query: {
+      type: String,
+      default: null
+    }
   },
   data () {
     return {
       advancedMode: false,
       condition: null,
+      query: null,
       requestPage: 1,
       currentPage: 1,
       pageSizeLimit: 10
@@ -46,7 +67,7 @@ export default {
       return this.columns.filter(column => column.visible)
     },
     searchFields () {
-      return this.visibleColumns.filter(column => column.visible).map(column => column.key)
+      return this.visibleColumns.filter(column => !column.locked).map(column => column.key)
     },
     items () {
       return this.$store.state[this._storeName].results
@@ -56,12 +77,12 @@ export default {
     }
   },
   methods: {
-    onSearch (newCondition) {
-      let _this = this
-      let condition = newCondition
-      if (!this.advancedMode && typeof this.quickCondition === 'function') {
+    onSearch (searchCondition) {
+      const _this = this
+      let condition = searchCondition
+      if (!this.advancedMode && typeof this.pfBaseSearchableQuickCondition === 'function') {
         // Build quick search query
-        condition = this.quickCondition(newCondition)
+        condition = this.pfBaseSearchableQuickCondition(searchCondition)
       }
       this.requestPage = 1 // reset to the first page
       this.$store.dispatch(`${this._storeName}/setSearchQuery`, condition)
@@ -73,13 +94,22 @@ export default {
       })
     },
     onReset () {
-      this.$store.dispatch(`${this._storeName}/setSearchQuery`, null) // reset search
-      this.$store.dispatch(`${this._storeName}/search`, this.requestPage)
+      const _this = this
       this.requestPage = 1 // reset to the first page
-      this.initCondition()
+      this.$store.dispatch(`${this._storeName}/setSearchQuery`, null) // reset search
+      this.$store.dispatch(`${this._storeName}/search`, this.requestPage).then(() => {
+        _this.currentPage = _this.requestPage
+        this.pfBaseSearchableInitCondition()
+      }).catch(() => {
+        _this.requestPage = _this.currentPage
+      })
+      this.$router.push(this.$options.pfBaseSearchableOptions.defaultRoute)
     },
-    initCondition () {
-      this.condition = { op: 'and', values: [{ op: 'or', values: [{ field: this.fields[0].value, op: null, value: null }] }] }
+    onImport (condition) {
+      this.$router.push(Object.assign(this.$options.pfBaseSearchableOptions.defaultRoute, { query: { query: JSON.stringify(condition) } }))
+    },
+    pfBaseSearchableInitCondition () {
+      this.condition = JSON.parse(JSON.stringify(this.$options.pfBaseSearchableOptions.defaultSearchCondition))
     },
     onPageSizeChange () {
       this.requestPage = 1 // reset to the first page
@@ -87,7 +117,7 @@ export default {
       this.$store.dispatch(`${this._storeName}/search`, this.requestPage)
     },
     onPageChange () {
-      let _this = this
+      const _this = this
       this.$store.dispatch(`${this._storeName}/search`, this.requestPage).then(() => {
         _this.currentPage = _this.requestPage
       }).catch(() => {
@@ -108,13 +138,43 @@ export default {
       }
     }
   },
+  watch: {
+    query (a, b) {
+      if (a !== b) {
+        if (a) {
+          const condition = JSON.parse(a)
+          this.onSearch(condition)
+        }
+      }
+    },
+    condition: {
+      handler: function (a, b) {
+        if (a !== b) {
+          if (a === undefined || a === null) {
+            this.pfBaseSearchableInitCondition()
+          }
+        }
+      },
+      immediate: true,
+      deep: true
+    }
+  },
   created () {
     // Called before the component's created function.
-    if (!this.$options.searchApiEndpoint) {
-      throw new Error(`Missing 'searchApiEndpoint' in properties of component ${this.$options.name}`)
+    if (!this.$options.pfBaseSearchableOptions) {
+      throw new Error(`Missing 'pfBaseSearchableOptions' in properties of component ${this.$options.name}`)
     }
-    if (!this.$options.defaultSortKeys) {
-      throw new Error(`Missing 'defaultSortKeys' in properties of component ${this.$options.name}`)
+    if (!this.$options.pfBaseSearchableOptions.searchApiEndpoint) {
+      throw new Error(`Missing 'pfBaseSearchableOptions.searchApiEndpoint' in properties of component ${this.$options.name}`)
+    }
+    if (!this.$options.pfBaseSearchableOptions.defaultSortKeys) {
+      throw new Error(`Missing 'pfBaseSearchableOptions.defaultSortKeys' in properties of component ${this.$options.name}`)
+    }
+    if (!this.$options.pfBaseSearchableOptions.defaultSearchCondition) {
+      throw new Error(`Missing 'pfBaseSearchableOptions.defaultSearchCondition' in properties of component ${this.$options.name}`)
+    }
+    if (!this.$options.pfBaseSearchableOptions.defaultRoute) {
+      throw new Error(`Missing 'pfBaseSearchableOptions.defaultRoute' in properties of component ${this.$options.name}`)
     }
     if (!this.fields) {
       throw new Error(`Missing 'fields' in data of component ${this.$options.name}`)
@@ -126,7 +186,7 @@ export default {
     this._storeName = '$_' + this.$options.name.toLowerCase()
     if (!this.$store.state[this._storeName]) {
       // Register store module only once
-      let searchableStore = new SearchableStore(this.$options.searchApiEndpoint, this.$options.defaultSortKeys)
+      const searchableStore = new SearchableStore(this.$options.pfBaseSearchableOptions.searchApiEndpoint, this.$options.pfBaseSearchableOptions.defaultSortKeys)
       this.$store.registerModule(this._storeName, searchableStore.module())
       console.debug(`Registered store module ${this._storeName}`)
     }
@@ -135,12 +195,20 @@ export default {
     this.condition = this.$store.state[this._storeName].searchQuery
     // Restore visibleColumns, overwrite defaults
     if (this.$store.state[this._storeName].visibleColumns) {
-      let visibleColumns = this.$store.state[this._storeName].visibleColumns
+      const visibleColumns = this.$store.state[this._storeName].visibleColumns
       this.columns.forEach(function (column, index, columns) {
         columns[index].visible = visibleColumns.includes(column.key)
       })
     }
     this.$store.dispatch(`${this._storeName}/setSearchFields`, this.searchFields)
+  },
+  mounted () {
+    if (JSON.stringify(this.condition) === JSON.stringify(this.$options.pfBaseSearchableOptions.defaultSearchCondition)) {
+      // query all w/o criteria
+      this.$store.dispatch(`${this._storeName}/setSearchQuery`, null)
+    } else {
+      this.$store.dispatch(`${this._storeName}/setSearchQuery`, this.condition)
+    }
     this.$store.dispatch(`${this._storeName}/search`, this.requestPage)
   }
 }

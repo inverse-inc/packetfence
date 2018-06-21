@@ -48,8 +48,12 @@ import ToggleButton from '@/components/ToggleButton'
 export default {
   name: 'UsersSearch',
   extends: pfBaseSearchable,
-  searchApiEndpoint: 'users',
-  defaultSortKeys: ['pid'],
+  pfBaseSearchableOptions: {
+    searchApiEndpoint: 'users',
+    defaultSortKeys: ['pid'],
+    defaultSearchCondition: { op: 'and', values: [{ op: 'or', values: [{ field: 'pid', op: null, value: null }] }] },
+    defaultRoute: { name: 'user' }
+  },
   components: {
     'pf-search': pfSearch,
     'toggle-button': ToggleButton
@@ -98,7 +102,7 @@ export default {
     }
   },
   methods: {
-    quickCondition (newCondition) {
+    pfBaseSearchableQuickCondition (newCondition) {
       return {
         op: 'or',
         values: [
@@ -115,7 +119,7 @@ export default {
     // pfBaseSearchable.created() has been called
     if (!this.condition) {
       // Select first field
-      this.initCondition()
+      this.pfBaseSearchableInitCondition()
     } else {
       // Restore selection of advanced mode; check if condition matches a quick search
       this.advancedMode = !(this.condition.op === 'or' &&
