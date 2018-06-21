@@ -49,7 +49,7 @@ export default {
   pfBaseSearchableOptions: {
     searchApiEndpoint: 'users',
     defaultSortKeys: ['pid'],
-    defaultSearchCondition: { op: 'and', values: [{ op: 'or', values: [{ field: 'pid', op: null, value: null }] }] },
+    defaultSearchCondition: { op: 'and', values: [{ op: 'or', values: [{ field: 'pid', op: 'equals', value: null }] }] },
     defaultRoute: { name: 'users' }
   },
   components: {
