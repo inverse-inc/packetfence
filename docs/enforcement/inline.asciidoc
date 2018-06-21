@@ -15,8 +15,6 @@ It is also now possible to use multiple inline interfaces. A node registered on 
 
 By default the inline traffic is forwarded through the management network interface but it is possible to specify another one by adding in `pf.conf` the option `interfaceSNAT` in inline section of the `pf.conf` configuration file. Alternatively, you can change this from *Configuration->Network Configuration->Inline* in the 'SNAT Interface' section. It is a comma delimited list of network interfaces like eth0,eth1.2. It's also possible to specify a network that will be routed instead of using NAT by adding in `conf/networks.conf` an option `nat=no` under one or more network sections (take care of the routing table of the PacketFence server).
 
-Another important setting is the `gateway` statement. Since it is the only way to get the PacketFence server inline interface IP address, it is mandatory to set it to this IP (which is supposed to be the same as in the `ip` statement of the inline interface in `conf/pf.conf`).
-
 Preparating the Operating System
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
