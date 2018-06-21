@@ -2,13 +2,13 @@
 
 =head1 NAME
 
-add_status_to_pfdetect_conf - 
+to-7.1-authentication-conf
 
 =cut
 
 =head1 DESCRIPTION
 
-Add status to pfdetect.conf for section that do not have them
+Add default required fields for SQL Twilio and SMS sources
 
 =cut
 
@@ -35,7 +35,16 @@ sub make_source_update_data {
     return unless @fields;
     my $meta = "pf::Authentication::Source::${type}Source"->meta;
     return $type =>
-      { map { my $f = $_; $f => $meta->get_attribute($f)->default } @fields };
+      { map { updated_field($meta, $_) } @fields };
+}
+
+sub updated_field {
+    my ($meta, $f) = @_;
+    my $attr = $meta->get_attribute($f);
+    if (!defined $attr) {
+        return;
+    }
+    return $f => $attr->default;
 }
 
 exit 0 unless -e $authentication_config_file;
@@ -52,7 +61,7 @@ for my $section ( $ini->Sections() ) {
     print "Updating $section\n";
     while ( my ( $k, $v ) = each %{ $source_fields_to_update{$type} } ) {
         if ( !$ini->exists( $section, $k ) ) {
-            print "\tUpdating $k\n";
+            print "  $k updated\n";
             $ini->newval( $section, $k, $v );
         }
     }
