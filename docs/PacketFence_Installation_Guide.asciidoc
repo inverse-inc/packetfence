@@ -2487,7 +2487,7 @@ To benefit from all the advantages of the Fingerbank project, the onboarding ste
 Update Fingerbank Database
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Updating the Fingerbank data can't be easier. The only requirement is the onboarding process which allows you to interact with upstream project. Once done, an option to "Update Fingerbank DB" can be found on top of every menu item sections under "Fingerbank". Process may take a minute or two, depending on the size of the database and the internet connectivity, after which a success or error message will be show accordingly. "Local" records are NOT being modified during this process.
+Updating the Fingerbank data can't be easier. The only requirement is the onboarding process which allows you to interact with upstream project. Once done, an option to "Update Fingerbank DB" can be found on top of every menu item sections under "Fingerbank". Process may take a minute or two, depending on the size of the database and the Internet connectivity, after which a success or error message will be show accordingly. "Local" records are NOT being modified during this process.
 
 Submit Unknown Data
 ~~~~~~~~~~~~~~~~~~~

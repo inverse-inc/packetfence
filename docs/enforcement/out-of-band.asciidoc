@@ -168,4 +168,4 @@ Register the computer using the Null authentication source.
 Once a computer has been registered, make sure:
 
 * PacketFence puts the switch port into the regular VLAN (VLAN 20)
-* The computer has access to the network and the internet.
+* The computer has access to the network and the Internet.
