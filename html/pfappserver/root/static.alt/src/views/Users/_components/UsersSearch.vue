@@ -52,7 +52,7 @@ export default {
     searchApiEndpoint: 'users',
     defaultSortKeys: ['pid'],
     defaultSearchCondition: { op: 'and', values: [{ op: 'or', values: [{ field: 'pid', op: null, value: null }] }] },
-    defaultRoute: { name: 'user' }
+    defaultRoute: { name: 'users' }
   },
   components: {
     'pf-search': pfSearch,
