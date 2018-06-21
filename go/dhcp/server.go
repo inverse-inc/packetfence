@@ -40,7 +40,7 @@ type ServeConn interface {
 // Additionally, response packets may not return to the same
 // interface that the request was received from.  Writing a custom ServeConn,
 // or using ServeIf() can provide a workaround to this problem.
-func Serve(conn ServeConn, handler Handler, jobs chan job) error {
+func Serve(conn ServeConn, handler Handler, jobs chan job, ctx context.Context) error {
 
 	buffer := make([]byte, 1500)
 
@@ -73,7 +73,7 @@ func Serve(conn ServeConn, handler Handler, jobs chan job) error {
 		}
 		var dhcprequest dhcp.Packet
 		dhcprequest = append([]byte(nil), req...)
-		jobe := job{dhcprequest, reqType, handler, addr}
+		jobe := job{dhcprequest, reqType, handler, addr, ctx}
 		go func() {
 			jobs <- jobe
 		}()
@@ -83,12 +83,12 @@ func Serve(conn ServeConn, handler Handler, jobs chan job) error {
 
 // ListenAndServe listens on the UDP network address addr and then calls
 // Serve with handler to handle requests on incoming packets.
-func ListenAndServe(handler Handler, jobs chan job, dhcphandler DHCPHandler) error {
+func ListenAndServe(handler Handler, jobs chan job, dhcphandler DHCPHandler, ctx context.Context) error {
 	l, err := net.ListenPacket("udp4", dhcphandler.ip.String()+":67")
 
 	if err != nil {
 		return err
 	}
 	defer l.Close()
-	return Serve(l, handler, jobs)
+	return Serve(l, handler, jobs, ctx)
 }
