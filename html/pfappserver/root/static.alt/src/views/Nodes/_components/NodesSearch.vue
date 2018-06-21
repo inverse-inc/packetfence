@@ -108,8 +108,6 @@
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import pfBaseSearchable from '@/components/pfBaseSearchable'
 import pfFingerbankScore from '@/components/pfFingerbankScore'
-import pfSearch from '@/components/pfSearch'
-import ToggleButton from '@/components/ToggleButton'
 
 export default {
   name: 'NodesSearch',
@@ -121,9 +119,7 @@ export default {
     defaultRoute: { name: 'nodes' }
   },
   components: {
-    'pf-fingerbank-score': pfFingerbankScore,
-    'pf-search': pfSearch,
-    'toggle-button': ToggleButton
+    'pf-fingerbank-score': pfFingerbankScore
   },
   props: {
     tableValues: {

@@ -42,8 +42,6 @@
 <script>
 import { pfSearchConditionType as attributeType } from '@/globals/pfSearch'
 import pfBaseSearchable from '@/components/pfBaseSearchable'
-import pfSearch from '@/components/pfSearch'
-import ToggleButton from '@/components/ToggleButton'
 
 export default {
   name: 'UsersSearch',
@@ -55,8 +53,6 @@ export default {
     defaultRoute: { name: 'users' }
   },
   components: {
-    'pf-search': pfSearch,
-    'toggle-button': ToggleButton
   },
   data () {
     return {
