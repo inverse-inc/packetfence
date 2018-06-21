@@ -950,7 +950,7 @@ Where :
 NOTE: If you are using an Active/Active cluster, each member of the cluster must be joined separately. Please follow the instructions in the PacketFence Clustering Guide.
 
 Troubleshooting
-+++++++++++++++
+^^^^^^^^^^^^^^^
 
 * In order to troubleshoot unsuccessful binds, please refer to the following file : `/chroots/<mydomain>/var/log/samba<mydomain>/log.winbindd`. Replace `<mydomain>` with the identifier you set in the domain configuration.
 
@@ -961,7 +961,7 @@ Troubleshooting
 NOTE: Under certain conditions, the test join may show as unsuccessful in the Administration interface but the authentication process will still work properly. Try the test above before doing any additional troubleshooting. Also try reloading the page in the GUI since in some case the browser side of the ajax call may time out while the join actually succeeds.
 
 Default Domain Configuration
-++++++++++++++++++++++++++++
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 You should now define the domain you want to use as the default one by creating the following realm in *Configuration -> Policies and Access Control -> Domains -> REALMS*
 
@@ -970,7 +970,7 @@ image::domain-default-realm.png[scaledwidth="100%",alt="Adding the default realm
 Next, restart PacketFence in *Status -> Services*
 
 Multiple Domains Authentication
-+++++++++++++++++++++++++++++++
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 First configure your domains in *Configuration -> Policies and Access Control -> Domains -> Active Directory Domains*.
 
@@ -1901,7 +1901,7 @@ In that same section, you can define the lease length of the user when he is in 
 NOTE: Parking is detected when a device asks for DHCP, if PacketFence is not your DHCP server for the registration network, this feature will not work. Also, if the device goes into the parked state with a lease time of 1 hour and the user immediately releases himself from the parking state, it will take 1 hour before the next detection takes place even if you set `parking.threshold` to a lower value.
 
 Violation 1300003
-+++++++++++++++++
+^^^^^^^^^^^^^^^^^
 
 This violation controls what happens when a user is detected doing parking.
 
@@ -3339,7 +3339,7 @@ The bug arises because not all swap aliases are registered, which results in an 
 
 
 Workaround
-++++++++++
+^^^^^^^^^^
 
  * Obtain the list of swap items that should be considered by systemd for it to enforce a correct ordering:
 
@@ -3393,7 +3393,7 @@ To overcome this limitation, it is possible to use a Redis driven cache inside P
 NOTE: The NTLM cache doesn't cache clear text passwords, it caches the NT hash of the user password.
 
 Additional Packages
-+++++++++++++++++++
+^^^^^^^^^^^^^^^^^^^
 
 In order to use this cache, you will need to install additional packages available from the packetfence-extra repository. These packages will allow PacketFence to query your Active Directory for the NT hash of the users.
 
@@ -3408,7 +3408,7 @@ apt-get install python-impacket
 ```
 
 PacketFence Configuration
-+++++++++++++++++++++++++
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 First of all, you will need to enable the NTLM caching globally by enabling 'NTLM Redis cache' in 'Configuration->System Configuration->Main Configuration->Advanced'. You then need to restart radiusd.
 
@@ -3437,7 +3437,7 @@ Next, start the service via pfcmd:
 If you chose to enable 'NTLM cache background job' in one of your domains, you will need to enable the pfmon job that will periodically cache the credentials. This can be configured in 'Configuration->System Configuration->Main Configuration->Maintenance->populate_ntlm_redis_cache'. It is advised to set the interval of this task to half the expiration of the credentials you have set in the domain configuration. This will ensure you have an optimal cache hit. Once done, restart the `pfmon` service.
 
 Active Directory configuration
-++++++++++++++++++++++++++++++
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In order for PacketFence to be able to fetch the NTLM credentials from your Active Directory, it will need a user who has replication rights. The user to which you have to grant the rights, is the one that is configured in the authentication source that you associated in the 'NTLM cache' section of your domain.
 
@@ -4565,7 +4565,7 @@ The following attributes are available to define your report (the ones that have
 NOTE: You should always prefix the fields with the table name and a dot (ex: `node.mac`, `locationlog.role`, ...) so that they are not ambiguous. Although your query may work with a single table, it will not if you decide to add joins that contain column name(s) that are the same as the base table.
 
 Examples:
-+++++++++
+^^^^^^^^^
 
 View of the auth_log table:
 
