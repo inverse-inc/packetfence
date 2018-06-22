@@ -655,6 +655,7 @@ fi
 %post -n %{real_name}
 if [ "$1" = "2" ]; then
     /usr/local/pf/bin/pfcmd service pf updatesystemd
+    perl /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
 fi
 
 /usr/bin/mkdir -p /var/log/journal/
