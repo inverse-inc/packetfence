@@ -117,9 +117,9 @@ Follow the four step wizard to create your certification authority, your client 
 Certification Authority
 +++++++++++++++++++++++
 
-image::docs/images/packetfence-pki-myca.png[scaledwidth="100%",alt="Certification authority"]
+image::packetfence-pki-myca.png[scaledwidth="100%",alt="Certification authority"]
 
-image::docs/images/packetfence-pki-myca2.png[scaledwidth="100%",alt="Certification authority"]
+image::packetfence-pki-myca2.png[scaledwidth="100%",alt="Certification authority"]
 
 Fill out the following fields that will be used to generate the certification authority.
 
@@ -166,7 +166,7 @@ The following fields should be configured according to your preferences and will
 * Header: Text that will appear in all emails sent with the certificate
 * Footer: Optional, e.g. "This email has been generated automatically, please do not reply."
 
-image::docs/images/packetfence-pki-server-profile.png[scaledwidth="100%",alt="RADIUS server certificate"]
+image::packetfence-pki-server-profile.png[scaledwidth="100%",alt="RADIUS server certificate"]
 
 After the creation of your certificate you need to sign it, press the button 'Sign' in the list of certificate.
 
@@ -178,7 +178,7 @@ Client Authentication Profile
 This profile will be used to generate the RADIUS client certificate and key.
 The client certificate is used by the 802.1X supplicant to authenticate its end of the connection to the server.
 
-image::docs/images/packetfence-pki-client-profile.png[scaledwidth="100%",alt="Client Profile configuration"]
+image::packetfence-pki-client-profile.png[scaledwidth="100%",alt="Client Profile configuration"]
 
 ### Creating a profile:
 
@@ -208,7 +208,7 @@ The following fields should be configured according to your preferences and will
 REST API Configuration
 ++++++++++++++++++++++
 
-image::docs/images/packetfence-pki-rest-api.png[scaledwidth="100%",alt="REST API configuration"]
+image::packetfence-pki-rest-api.png[scaledwidth="100%",alt="REST API configuration"]
 
 The fields shown above are required to allow use of the REST API over which PacketFence and the PKI exchange authentication information.
 A username and password are mandatory.
@@ -316,9 +316,9 @@ Add a new PKI provider and select PacketFence PKI.
 Fill out the form for a PKI provider according to the PKI configuration profile you created earlier.
 Pay attention to the username and password which have to match an authorized user in the PKI configuration.
 
-image::docs/images/packetfence-pki-provider.png[scaledwidth="100%",alt="PacketFence PKI configuration"]
+image::packetfence-pki-provider.png[scaledwidth="100%",alt="PacketFence PKI configuration"]
 
-image::docs/images/packetfence-pki-provider2.png[scaledwidth="100%",alt="PacketFence PKI configuration"]
+image::packetfence-pki-provider2.png[scaledwidth="100%",alt="PacketFence PKI configuration"]
 
 The "server certificate path" and "CA cert path" both need to be absolute (e.g. /usr/local/pf/conf/ssl/tls_certs/MyCA.pem is an absolute path).
 
@@ -349,12 +349,12 @@ The fields affect the provisioning behavior in the following fashion:
 
 The following is an example on how to configure an EAP-TLS connection for Windows/Android/OS X/iOS
 
-image::docs/images/packetfence-pki-eaptls-example.png[scaledwidth="100%",alt="Provisioner EAP-TLS configuration"]
+image::packetfence-pki-eaptls-example.png[scaledwidth="100%",alt="Provisioner EAP-TLS configuration"]
 
 OS X/iOS require signing the provisioning profile with a Certification Authority already trusted by the device such as e.g. VeriSign.
 Configuring this has to be done in the 'Signing' tab in the "Apple devices". 
 
-image::docs/images/packetfence-pki-eaptls-sign-example.png[scaledwidth="100%",alt="Signing provisioner"]
+image::packetfence-pki-eaptls-sign-example.png[scaledwidth="100%",alt="Signing provisioner"]
 
 Fill out the fields with the contents of the Base64 encoded certificates.
 To extract this information from a pem formatted certificate, copy the file content included between the begin and end tag, not including the delimiters themselves.

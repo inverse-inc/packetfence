@@ -667,17 +667,17 @@ Global configuration
 
 First, ensure that the VLANs you want to assign are part of the VLAN database via the following page:
 
-image::docs/images/allied-telesis-gs950/vlan-config.png[scaledwidth="100%",alt="VLAN configuration"]
+image::allied-telesis-gs950/vlan-config.png[scaledwidth="100%",alt="VLAN configuration"]
 
 Note that they only need to be tagged on the trunk and don't need any specific configuration for the dynamic VLAN assignment here.
 
 Next, configure the RADIUS server (Security->RADIUS):
 
-image::docs/images/allied-telesis-gs950/radius-server.png[scaledwidth="100%",alt="RADIUS configuration"]
+image::allied-telesis-gs950/radius-server.png[scaledwidth="100%",alt="RADIUS configuration"]
 
 Next, configure an SNMP community (SNMP->Community Table)
 
-image::docs/images/allied-telesis-gs950/snmp-config.png[scaledwidth="100%",alt="SNMP configuration"]
+image::allied-telesis-gs950/snmp-config.png[scaledwidth="100%",alt="SNMP configuration"]
 
 MAC authentication
 ++++++++++++++++++
@@ -690,7 +690,7 @@ Go in Security->Port Access Control, select the port you want to enable MAB on, 
 * Supplicant Mode: Single
 * VLAN Assignment: Enabled
 
-image::docs/images/allied-telesis-gs950/port-control-MAB.png[scaledwidth="100%",alt="MAB config"]
+image::allied-telesis-gs950/port-control-MAB.png[scaledwidth="100%",alt="MAB config"]
 
 802.1x
 ++++++
@@ -703,7 +703,7 @@ Go in Security->Port Access Control, select the port you want to enable MAB on, 
 * Supplicant Mode: Multiple
 * VLAN Assignment: Enabled
 
-image::docs/images/allied-telesis-gs950/port-control-802.1x.png[scaledwidth="100%",alt="802.1x configuration"]
+image::allied-telesis-gs950/port-control-802.1x.png[scaledwidth="100%",alt="802.1x configuration"]
 
 PacketFence configuration
 +++++++++++++++++++++++++
@@ -1447,7 +1447,7 @@ Check 'Role by access list' and you should now be able to configure the access l
 
 For example if you want the users that are in the registration VLAN to only use HTTP, HTTPS, DNS and DHCP you can configure this ACL in the registration category.
 
-image::docs/images/cisco-downloadable-acl-reg.png[scaledwidth="100%",alt="Registration ACL"]
+image::cisco-downloadable-acl-reg.png[scaledwidth="100%",alt="Registration ACL"]
 
 Now if for example, your normal users are placed in the 'default' category and your guests in the 'guest' category.
 
@@ -1455,15 +1455,15 @@ If for example the 'default' category uses the network 192.168.5.0/24 and your g
 
 You can prevent communications between both networks using these access lists
 
-image::docs/images/cisco-downloadable-acl-cross-network.png[scaledwidth="100%",alt="Cross network deny ACL"]
+image::cisco-downloadable-acl-cross-network.png[scaledwidth="100%",alt="Cross network deny ACL"]
 
 You could also only prevent your guest users from using shared directories
 
-image::docs/images/cisco-downloadable-acl-deny-shares.png[scaledwidth="100%",alt="Deny shares ACL"]
+image::cisco-downloadable-acl-deny-shares.png[scaledwidth="100%",alt="Deny shares ACL"]
 
 Or also you could restrict your users to use only your DNS server where 192.168.5.2 is your DNS server
 
-image::docs/images/cisco-downloadable-acl-force-dns.png[scaledwidth="100%",alt="Force DNS ACL"]
+image::cisco-downloadable-acl-force-dns.png[scaledwidth="100%",alt="Force DNS ACL"]
 
 
 Web auth and Downloadable ACLs
@@ -3395,7 +3395,7 @@ This command configures web-based authentication on the switch and activates thi
 
 For example, if you want the users that are in the registration VLAN to only use HTTP, HTTPS, DNS and DHCP you can configure this ACL in the registration role.
 
-image::docs/images/aruba-registration-acl.png[scaledwidth="100%",alt="Registration ACL"]
+image::aruba-registration-acl.png[scaledwidth="100%",alt="Registration ACL"]
 
 Now, your normal users are placed in the 'default' role and your guests in the 'guest' role.
 
@@ -3403,15 +3403,15 @@ The 'default' role uses the network 192.168.5.0/24 and 'guest' uses the network 
 
 You can prevent communications between both networks using these access lists
 
-image::docs/images/aruba-acl-default-guest.png[scaledwidth="100%",alt="Cross network deny ACL"]
+image::aruba-acl-default-guest.png[scaledwidth="100%",alt="Cross network deny ACL"]
 
 You could also only prevent your guest users from using shared directories
 
-image::docs/images/aruba-acl-guest.png[scaledwidth="100%",alt="Deny shares ACL"]
+image::aruba-acl-guest.png[scaledwidth="100%",alt="Deny shares ACL"]
 
 You could also restrict your users to use only your DNS server where 192.168.5.2 is your DNS server
 
-image::docs/images/aruba-acl-default-dns.png[scaledwidth="100%",alt="Force DNS ACL"]
+image::aruba-acl-default-dns.png[scaledwidth="100%",alt="Force DNS ACL"]
 
 
 Huawei
@@ -4410,11 +4410,11 @@ WebAuth
 
 First of all you will need to configure a guest VLAN.
 
-image::docs/images/aruba-create-guest-vlan.png[scaledwidth="100%",alt="Guest VLAN"]
+image::aruba-create-guest-vlan.png[scaledwidth="100%",alt="Guest VLAN"]
 
 Next, you will need to configure a RADIUS server.
 
-image::docs/images/aruba-radius-server.png[scaledwidth="100%",alt="RADIUS server"]
+image::aruba-radius-server.png[scaledwidth="100%",alt="RADIUS server"]
 
   aaa authentication-server radius "packetfence"
   host 192.168.1.5
@@ -4427,15 +4427,15 @@ Add your RADIUS server to a AAA group, under `Security -> Authentication -> Serv
 
 Then define the `RFC 3576` server, which will allow you to do CoA.
 
-image::docs/images/aruba-config-coa.png[scaledwidth="100%",alt="RADIUS CoA server"]
+image::aruba-config-coa.png[scaledwidth="100%",alt="RADIUS CoA server"]
 
   aaa rfc-3576-server "192.168.1.5"
   key useStrongerSecret
 
 Next, you will need to create the policy that will redirect users to the PacketFence captive portal when they are not authenticated. Go to `Security -> Authentication -> L3 Authentication -> Captive Portal Authentication Profile`.
 
-image::docs/images/aruba-l3-auth1.png[scaledwidth="100%",alt="Layer 3 profile"]
-image::docs/images/aruba-l3-auth2.png[scaledwidth="100%",alt="Layer 3 profile 2"]
+image::aruba-l3-auth1.png[scaledwidth="100%",alt="Layer 3 profile"]
+image::aruba-l3-auth2.png[scaledwidth="100%",alt="Layer 3 profile 2"]
 
   aaa authentication captive-portal "packetfence-externalportal"
   default-role auth-guest
@@ -4453,12 +4453,12 @@ Add the authentication for the Captive Portal Profile via `Security -> Authentic
 
 Adjust the configuration of the AAA profile through `Security -> Authentication -> Profiles -> AAA Profiles`:
 
-image::docs/images/aruba-config-aaa-profile1.png[scaledwidth="30%",alt="AAA profile 1"]
-image::docs/images/aruba-config-aaa-profile2.png[scaledwidth="100%",alt="AAA profile 2"]
-image::docs/images/aruba-config-aaa-profile3.png[scaledwidth="100%",alt="AAA profile 3"]
-image::docs/images/aruba-config-aaa-profile4.png[scaledwidth="100%",alt="AAA profile 4"]
-image::docs/images/aruba-config-aaa-profile5.png[scaledwidth="100%",alt="AAA profile 5"]
-image::docs/images/aruba-config-aaa-profile6.png[scaledwidth="100%",alt="AAA profile 6"]
+image::aruba-config-aaa-profile1.png[scaledwidth="30%",alt="AAA profile 1"]
+image::aruba-config-aaa-profile2.png[scaledwidth="100%",alt="AAA profile 2"]
+image::aruba-config-aaa-profile3.png[scaledwidth="100%",alt="AAA profile 3"]
+image::aruba-config-aaa-profile4.png[scaledwidth="100%",alt="AAA profile 4"]
+image::aruba-config-aaa-profile5.png[scaledwidth="100%",alt="AAA profile 5"]
+image::aruba-config-aaa-profile6.png[scaledwidth="100%",alt="AAA profile 6"]
 
   aaa profile "packetfence-externalportal"
   initial-role packetfence-portal
@@ -4475,11 +4475,11 @@ First add a destination, `Advanced Services -> Stateful Firewall -> Destinations
 
 Create an ACL for the redirection, `Security -> Firewall Policies`:
 
-image::docs/images/aruba-config-policy1.png[scaledwidth="100%",alt="Policy 1"]
-image::docs/images/aruba-config-policy2.png[scaledwidth="100%",alt="Policy 2"]
-image::docs/images/aruba-config-policy3.png[scaledwidth="100%",alt="Policy 3"]
-image::docs/images/aruba-config-policy4.png[scaledwidth="100%",alt="Policy 4"]
-image::docs/images/aruba-config-policy5.png[scaledwidth="100%",alt="Policy 5"]
+image::aruba-config-policy1.png[scaledwidth="100%",alt="Policy 1"]
+image::aruba-config-policy2.png[scaledwidth="100%",alt="Policy 2"]
+image::aruba-config-policy3.png[scaledwidth="100%",alt="Policy 3"]
+image::aruba-config-policy4.png[scaledwidth="100%",alt="Policy 4"]
+image::aruba-config-policy5.png[scaledwidth="100%",alt="Policy 5"]
 
 Source NAT on VLAN
 
@@ -4495,8 +4495,8 @@ Source NAT per Application
 
 Now add the newly created policy to the Captive Portal Profile, `Security -> User Roles`:
 
-image::docs/images/aruba-config-user-role.png[scaledwidth="100%",alt="User Role"]
-image::docs/images/aruba-interface-redirection.png[scaledwidth="100%",alt="Interface de redirection"]
+image::aruba-config-user-role.png[scaledwidth="100%",alt="User Role"]
+image::aruba-interface-redirection.png[scaledwidth="100%",alt="Interface de redirection"]
 
   user-role "packetfence-portal"
   access-list session "packetfence-externalportal" position 1
@@ -4515,24 +4515,24 @@ Finaly create the SSID and associate the profile to it, `Virtual AP profile`:
 
 General AP settings and master-slave controller case.
 
-image::docs/images/aruba-ap-config1.png[scaledwidth="30%",alt="Config AP 1"]
-image::docs/images/aruba-ap-config2.png[scaledwidth="100%",alt="Config AP 2"]
-image::docs/images/aruba-ap-config3.png[scaledwidth="100%",alt="Config AP 3"]
-image::docs/images/aruba-ap-config4.png[scaledwidth="100%",alt="Config AP 4"]
-image::docs/images/aruba-ap-config5.png[scaledwidth="100%",alt="Config AP 5"]
-image::docs/images/aruba-ap-config6.png[scaledwidth="100%",alt="Config AP 6"]
-image::docs/images/aruba-ap-config7.png[scaledwidth="100%",alt="Config AP 7"]
-image::docs/images/aruba-ap-config8.png[scaledwidth="100%",alt="Config AP 8"]
-image::docs/images/aruba-ap-config9.png[scaledwidth="100%",alt="Config AP 9"]
-image::docs/images/aruba-ap-config10.png[scaledwidth="100%",alt="Config AP 10"]
-image::docs/images/aruba-ap-config11.png[scaledwidth="100%",alt="Config AP 11"]
+image::aruba-ap-config1.png[scaledwidth="30%",alt="Config AP 1"]
+image::aruba-ap-config2.png[scaledwidth="100%",alt="Config AP 2"]
+image::aruba-ap-config3.png[scaledwidth="100%",alt="Config AP 3"]
+image::aruba-ap-config4.png[scaledwidth="100%",alt="Config AP 4"]
+image::aruba-ap-config5.png[scaledwidth="100%",alt="Config AP 5"]
+image::aruba-ap-config6.png[scaledwidth="100%",alt="Config AP 6"]
+image::aruba-ap-config7.png[scaledwidth="100%",alt="Config AP 7"]
+image::aruba-ap-config8.png[scaledwidth="100%",alt="Config AP 8"]
+image::aruba-ap-config9.png[scaledwidth="100%",alt="Config AP 9"]
+image::aruba-ap-config10.png[scaledwidth="100%",alt="Config AP 10"]
+image::aruba-ap-config11.png[scaledwidth="100%",alt="Config AP 11"]
 
-image::docs/images/aruba-secondary-controller.png[scaledwidth="100%",alt="Secondary controller configuration"]
+image::aruba-secondary-controller.png[scaledwidth="100%",alt="Secondary controller configuration"]
 
 The next step will be to configure the Aruba WiFi controller for WebAuth in PacketFence, add the switch with the model choice `Aruba Network`, 
 
-image::docs/images/aruba-wlc1.png[scaledwidth="80%",alt="Add Aruba wireless controller"]
-image::docs/images/aruba-wlc-roles.png[scaledwidth="80%",alt="Aruba wireless controller roles configuration"]
+image::aruba-wlc1.png[scaledwidth="80%",alt="Add Aruba wireless controller"]
+image::aruba-wlc-roles.png[scaledwidth="80%",alt="Aruba wireless controller roles configuration"]
 
 Check the box `External Portal Enforcement`, in the Roles section, choose `Role by Switch Role`, as the registration role, enter your default role: `packetfence-portal` and choose the policy matching roles, for instance guest: `internet-only`.
 
@@ -4714,13 +4714,13 @@ To setup the Cambium cnPilot E410 AP to use 802.1x, first, you need to already h
 
 Next, go to *Configure -> WLAN*, and click on *Add WLAN*. Give it the desired ID, and enter your SSID, default VLAN, and select *WPA2 Enterprise* for Security.
 
-image::docs/images/cambium-dot1x-basic.png[scaledwidth="100%",alt="Cambium WLAN Basic"]
+image::cambium-dot1x-basic.png[scaledwidth="100%",alt="Cambium WLAN Basic"]
 
 In the *RADIUS Server* tab, enter the management IP address of PacketFence (VIP in case of a cluster) and the Radius secret for Authentication and Accounting servers.
 
 Check the *Dynamic Authorization* and *Dynamic VLAN* boxes and save.
 
-image::docs/images/cambium-dot1x-radius.png[scaledwidth="100%",alt="Cambium WLAN Radius"]
+image::cambium-dot1x-radius.png[scaledwidth="100%",alt="Cambium WLAN Radius"]
 
 MAC Authentication
 ++++++++++++++++++
@@ -4729,7 +4729,7 @@ To enable MAC authentication in the Cambium E410, go to *Configure -> WLAN*, sel
 
 In the *MAC Authentication* section, select Radius as the policy, and check the box for *Password* to use the MAC address as the password in the Radius request. Click on Save.
 
-image::docs/images/cambium-mac-auth.png[scaledwidth="100%",alt="Cambium MAC Authentication"]
+image::cambium-mac-auth.png[scaledwidth="100%",alt="Cambium MAC Authentication"]
 
 Web Authentication
 ++++++++++++++++++
@@ -4751,13 +4751,13 @@ Click Save.
 
 In the *Add Whitelist* section, add the IP address or domain name of your PacketFence server, then save.
 
-image::docs/images/cambium-web-auth.png[scaledwidth="100%",alt="Cambium Web Authentication"]
+image::cambium-web-auth.png[scaledwidth="100%",alt="Cambium Web Authentication"]
 
-image::docs/images/cambium-web-auth-whitelist.png[scaledwidth="100%",alt="Cambium Web Authentication Whitelist"]
+image::cambium-web-auth-whitelist.png[scaledwidth="100%",alt="Cambium Web Authentication Whitelist"]
 
 On PacketFence web admin, in the Switch configuration for your AP, Roles tab, check Role by Web Auth URL box, and enter http://_IP_ADDRESS_OF_PACKETFENCE/Cambium in the registration field.
 
-image::docs/images/cambium-role-web-auth.png[scaledwidth="100%",alt="Cambium Role for Web Authentication"]
+image::cambium-role-web-auth.png[scaledwidth="100%",alt="Cambium Role for Web Authentication"]
 
 
 Cisco
@@ -4897,50 +4897,50 @@ In this section, we cover the basic configuration of the WiSM for PacketFence us
 * First, globally define the FreeRADIUS server running on PacketFence
   (PacketFence's IP) and make sure _Support for RFC 3576_ (also called _Support for CoA_) is enabled. When the option is missing from your WLC, it is enabled by default.
 
-image::docs/images/cisco-wlc-radius-define.png[scaledwidth="100%",alt="Freeradius server"]
+image::cisco-wlc-radius-define.png[scaledwidth="100%",alt="Freeradius server"]
 
 * Then we create two SSIDs:
 [options="compact"]
 ** PacketFence-Public: non-secure with MAC authentication only
 ** PacketFence-Secure: secure with WPA2 Enterprise PEAP/MSCHAPv2
 
-image::docs/images/cisco-wlc-ssid-create.png[scaledwidth="100%",alt="SSID creation"]
+image::cisco-wlc-ssid-create.png[scaledwidth="100%",alt="SSID creation"]
 
 * In the secure SSID, make sure 802.1X is enabled and select the appropriate encryption for your needs (recommended: WPA + WPA2)
 
-image::docs/images/cisco-wlc-l2-secu.png[scaledwidth="100%",alt="SSID L2 secure"]
+image::cisco-wlc-l2-secu.png[scaledwidth="100%",alt="SSID L2 secure"]
 
 * No layer 3 security
 
-image::docs/images/cisco-wlc-l3-secu.png[scaledwidth="100%",alt="SSID L3 secure"]
+image::cisco-wlc-l3-secu.png[scaledwidth="100%",alt="SSID L3 secure"]
 
 * We set the IP of the FreeRADIUS server
 
-image::docs/images/cisco-wlc-secure-radius.png[scaledwidth="100%",alt="Radius secure"]
+image::cisco-wlc-secure-radius.png[scaledwidth="100%",alt="Radius secure"]
 
 * VERY IMPORTANT: Allow AAA override (this allows VLAN assignment from RADIUS)
 
-image::docs/images/cisco-wlc-secure-radius-advance.png[scaledwidth="100%",alt="Radius advanced secure"]
+image::cisco-wlc-secure-radius-advance.png[scaledwidth="100%",alt="Radius advanced secure"]
 
 * Edit the non-secure SSID: Enable MAC authentication at level 2
 
-image::docs/images/cisco-wlc-l2-non-secure.png[scaledwidth="100%",alt="SSID L2 non secure"]
+image::cisco-wlc-l2-non-secure.png[scaledwidth="100%",alt="SSID L2 non secure"]
 
 * Nothing at level 3
 
-image::docs/images/cisco-wlc-l3-non-secure.png[scaledwidth="100%",alt="SSID L3 non secure"]
+image::cisco-wlc-l3-non-secure.png[scaledwidth="100%",alt="SSID L3 non secure"]
 
 * We set the IP of the FreeRADIUS server
 
-image::docs/images/cisco-wlc-secure-radius.png[scaledwidth="100%",alt="Radius secure"]
+image::cisco-wlc-secure-radius.png[scaledwidth="100%",alt="Radius secure"]
 
 * VERY IMPORTANT: Allow AAA override (this allows VLAN assignment from RADIUS)
 
-image::docs/images/cisco-wlc-non-secure-radius-advance.png[scaledwidth="100%",alt="Radius advanced non secure"]
+image::cisco-wlc-non-secure-radius-advance.png[scaledwidth="100%",alt="Radius advanced non secure"]
 
 * Finally, in _Controller > Interfaces_ tab, create an interface per VLAN that could be assigned
 
-image::docs/images/cisco-wlc-interface-ssid.png[scaledwidth="100%",alt="SSID Interface"]
+image::cisco-wlc-interface-ssid.png[scaledwidth="100%",alt="SSID Interface"]
 
 You are good to go!
 
@@ -4963,35 +4963,35 @@ The DHCP and DNS servers are not managed by PacketFence (WLC DHCP Server, Produc
 [options="compact"]
 ** OPEN SSID: non-secure with MAC authentication only
 
-image::docs/images/SSID_1.png[scaledwidth="100%",alt="SSID step 1"]
+image::SSID_1.png[scaledwidth="100%",alt="SSID step 1"]
 
-image::docs/images/SSID_2.png[scaledwidth="100%",alt="SSID step 2"]
+image::SSID_2.png[scaledwidth="100%",alt="SSID step 2"]
 
-image::docs/images/SSID_3.png[scaledwidth="100%",alt="SSID step 3"]
+image::SSID_3.png[scaledwidth="100%",alt="SSID step 3"]
 
-image::docs/images/SSID_4.png[scaledwidth="100%",alt="SSID step 4"]
+image::SSID_4.png[scaledwidth="100%",alt="SSID step 4"]
 
-image::docs/images/SSID_5.png[scaledwidth="100%",alt="SSID step 5"]
+image::SSID_5.png[scaledwidth="100%",alt="SSID step 5"]
 
-image::docs/images/SSID_6.png[scaledwidth="100%",alt="SSID step 6"]
+image::SSID_6.png[scaledwidth="100%",alt="SSID step 6"]
 
 NOTE: On more recent controllers, the value 'Radius NAC' in the 'NAC State' setting will be called 'ISE NAC'.
 
-image::docs/images/SSID_7.png[scaledwidth="100%",alt="SSID step 7"]
+image::SSID_7.png[scaledwidth="100%",alt="SSID step 7"]
 
 * Then you have to create two ACLs - one to deny all traffic except the required one to hit the portal (Pre-Auth-For-WebRedirect ) and the other
 one to allow anything (Authorize_any) .
 
-image::docs/images/ACL.png[scaledwidth="100%",alt="ACL"]
+image::ACL.png[scaledwidth="100%",alt="ACL"]
 
 * Then the last step is to configure the WLC in PacketFence.
 Role by Web Auth URL
 
-image::docs/images/WLC_PACKETFENCE.png[scaledwidth="100%",alt="ACL"]
+image::WLC_PACKETFENCE.png[scaledwidth="100%",alt="ACL"]
 
 Role definition
 
-image::docs/images/WLC_PACKETFENCE2.png[scaledwidth="100%",alt="ACL"]
+image::WLC_PACKETFENCE2.png[scaledwidth="100%",alt="ACL"]
 
 Wireless LAN Controller (WLC) IPSK
 ++++++++++++++++++++++++++++++++++
@@ -5010,11 +5010,11 @@ WLC Configuration:
 
 * Next, configure a new SSID like in the following screenshots
 
-image::docs/images/ipsk1.png[scaledwidth="100%",alt="SSID step 1"]
+image::ipsk1.png[scaledwidth="100%",alt="SSID step 1"]
 
-image::docs/images/ipsk2.png[scaledwidth="100%",alt="SSID step 2"]
+image::ipsk2.png[scaledwidth="100%",alt="SSID step 2"]
 
-image::docs/images/ipsk_radius.png[scaledwidth="100%",alt="SSID step 3"]
+image::ipsk_radius.png[scaledwidth="100%",alt="SSID step 3"]
 
 PacketFence Configuration:
 
@@ -5027,7 +5027,7 @@ PacketFence Configuration:
   The second way to associate the device is to use a provisioner. There are also 2 ways to do it, use the "IPSK" provisioner (it will show you a page on the portal with the PSK key to use and the 
   SSID to connect to, or use the "Windows/Apple Devices/Android" provisioner and configure it to do IPSK.
 
-image::docs/images/dpsk_provisioner.png[scaledwidth="100%",alt="Provisioner IPKS"]
+image::dpsk_provisioner.png[scaledwidth="100%",alt="Provisioner IPKS"]
 
 
 Troubleshooting ignored RADIUS replies
@@ -5043,7 +5043,7 @@ Device Sensor
 
 When using a Cisco WLC, you can enable device sensor by making sure the configuration looks like the following screenshot:
 
-image::docs/images/wlc-device-sensor.png[scaledwidth="100%",alt="Device Sensor"]
+image::wlc-device-sensor.png[scaledwidth="100%",alt="Device Sensor"]
 
 NOTE: Please refer to the wired configuration of Cisco equipment to learn more about device sensor.
 
@@ -5150,9 +5150,9 @@ NOTE: While using the WebAuth mode on the Meraki controller, you need to use "Ro
 
 Configure your SSID as shown below:
 
-image::docs/images/Meraki-V2-1.png[scaledwidth="100%",alt="Security and RADIUS configuration"]
+image::Meraki-V2-1.png[scaledwidth="100%",alt="Security and RADIUS configuration"]
 
-image::docs/images/Meraki-V2-2.png[scaledwidth="100%",alt="Network configuration"]
+image::Meraki-V2-2.png[scaledwidth="100%",alt="Network configuration"]
 
 NOTE: It is mandatory that you use the Airespace-ACL-Name as "RADIUS attribute specifying group policy name".
 
@@ -5160,13 +5160,13 @@ The switch module to use for this configuration is "Meraki cloud controller V2".
 
 Next, configure the roles for the devices on your network. Go in 'Network-wide->Group policies', then you will be able to create policies that can be configured as roles in the switch configuration of PacketFence. Creation of the policy `Guest`:
 
-image::docs/images/Meraki-config-policy.png[scaledwidth="100%",alt="Group policies"]
+image::Meraki-config-policy.png[scaledwidth="100%",alt="Group policies"]
 
 Your configuration for the tab "Roles" in PacketFence will look like the following:
 
-image::docs/images/Meraki-config-pf-role.png[scaledwidth="100%",alt="PacketFence role configuration"]
+image::Meraki-config-pf-role.png[scaledwidth="100%",alt="PacketFence role configuration"]
 
-image::docs/images/Meraki-config-pf-url.png[scaledwidth="100%",alt="PacketFence URL configuration"]
+image::Meraki-config-pf-url.png[scaledwidth="100%",alt="PacketFence URL configuration"]
 
 VLAN enforcement
 ++++++++++++++++
@@ -5175,7 +5175,7 @@ This section will cover how to configure the Meraki WiFI controller to use with 
 
 In the configuration of PacketFence, use "Role by VLAN ID" and fill your VLANs matching roles.
 
-image::docs/images/Meraki-vlan-pf.png[scaledwidth="100%",alt="PacketFence role configuration"]
+image::Meraki-vlan-pf.png[scaledwidth="100%",alt="PacketFence role configuration"]
 
 Switch MS220-8
 ++++++++++++++
@@ -5188,11 +5188,11 @@ You will need to access the Meraki dashboard to configure your switch. When you 
 
 To access the policy creation go to 'Switch->Access policies' in the Meraki dashboard menu. From there create a new policy, use the example below to create your policy.
 
-image::docs/images/Meraki-switch-policies.png[scaledwidth="100%",alt="Access policies"]
+image::Meraki-switch-policies.png[scaledwidth="100%",alt="Access policies"]
 
 You now need to apply one of your policies to ports. To do so, go to 'Switch->Switch ports' and chose your options. To add a policy you created earlier, select it in the drop down list in `Access policy`. You need to configure the port in "mode access", the default access VLAN is not important if your VLANs are properly configured on PacketFence.
 
-image::docs/images/Meraki-switch-port.png[scaledwidth="100%",alt="Switch Ports"]
+image::Meraki-switch-port.png[scaledwidth="100%",alt="Switch Ports"]
 
 RADSEC
 ++++++
@@ -5875,7 +5875,7 @@ Hotspot configuration
 
 Configure the Hotspot service profile to redirect devices to your PacketFence portal. Go on the ZoneDirector administration web page to the section *Configure->Hotspot Services->Create New*
 
-image::docs/images/ruckus_hotspot_service.png[scaledwidth="100%",alt="Hotspot Service"]
+image::ruckus_hotspot_service.png[scaledwidth="100%",alt="Hotspot Service"]
 
  1 - Name of your Hotspot service
  2 - Login Page: Url of PacketFence portal interface (http://192.168.1.5/Ruckus)
@@ -5892,7 +5892,7 @@ WLAN configuration
 
 Go to *Configure->WLANs->WLANs->Create New*
 
-image::docs/images/ruckus_create_ssid.png[scaledwidth="100%",alt="Hotspot Service"]
+image::ruckus_create_ssid.png[scaledwidth="100%",alt="Hotspot Service"]
 
  1 - Name of your SSID
  2 - Type: Hotspot Service (WISPr)
@@ -5948,13 +5948,13 @@ Then, in 'Configuration->Service and Profiles->Accounting', create a server with
 
 After, create a Hotspot in 'Configuration->AP Zones->Your Zone->Hotspot WISPr->Create New'. Adjust 192.168.1.5 to the IP address of your portal.
 
-image::docs/images/ruckus-smartzone-webauth-hotspot.png[scaledwidth="100%",alt="Ruckus SmartZone Hotspot"]
+image::ruckus-smartzone-webauth-hotspot.png[scaledwidth="100%",alt="Ruckus SmartZone Hotspot"]
 
 Then, still on this page, in the 'Walled Gardens', make sure you add the portal IP address in this list.
 
 Next, you will need to configure your WLAN to use the Hotspot authentication and point it to PacketFence. Also ensure you set 'Use the controller as a proxy'.
 
-image::docs/images/ruckus-smartzone-webauth-ssid.png[scaledwidth="100%",alt="Ruckus SmartZone SSID"]
+image::ruckus-smartzone-webauth-ssid.png[scaledwidth="100%",alt="Ruckus SmartZone SSID"]
 
 Now, you should configure the Northbound API of the SmartZone so PacketFence can communicate with it. In order to do so, go in 'Configuration->System->Northbound Portal Interface' and set the 'Password' and save it. Keep the password closeby as it will be required for the PacketFence configuration. In this example, it will be `passwordForNorthboundAPI`.
 
@@ -6038,7 +6038,7 @@ In order to configure web authentication (external captive-portal) on Ubiquiti a
 
 First, you must configure the guest policy. Go in 'Settings->Guest Control' and configure it as shown below:
 
-image::docs/images/ubiquiti-unifi-guest-policy.png[scaledwidth="100%",alt="Unifi web-auth policy"]
+image::ubiquiti-unifi-guest-policy.png[scaledwidth="100%",alt="Unifi web-auth policy"]
 
 Make sure you enabled 'Enable Guest Portal', and that you've set 'External portal server'.
 
@@ -6046,7 +6046,7 @@ You also need to enter the IP address of a portal enabled interface on the Packe
 
 Then, still in the settings, create or edit a new SSID with the following settings:
 
-image::docs/images/ubiquiti-unifi-guest-ssid.png[scaledwidth="100%",alt="Unifi web-auth SSID"]
+image::ubiquiti-unifi-guest-ssid.png[scaledwidth="100%",alt="Unifi web-auth SSID"]
 
 Once this is done, you will need to define all your APs MAC addresses in the PacketFence switches with a configuration similar to this:
 
@@ -6079,7 +6079,7 @@ Note that VLAN enforcement for an open SSID is not supported yet by the controll
 AAA Configuration
 +++++++++++++++++
 
-image::docs/images/unifi-radius.png[scaledwidth="100%",alt="Unifi Radius Profile"]
+image::unifi-radius.png[scaledwidth="100%",alt="Unifi Radius Profile"]
 
 Secure SSID
 +++++++++++
@@ -6122,7 +6122,7 @@ Fore additional details, feel free to ask for support directly in the Ubiquiti f
 
 Next you will need to create a secured profile:
 
-image::docs/images/unifi-secure.png[scaledwidth="100%",alt="Unifi Secure SSID"]
+image::unifi-secure.png[scaledwidth="100%",alt="Unifi Secure SSID"]
 
 
 Xirrus
