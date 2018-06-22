@@ -58,7 +58,7 @@
   <xsl:template match="legalnotice" mode="book.titlepage.verso.mode">
     <xsl:apply-templates mode="titlepage.mode"/>
     <fo:block text-align="right">
-      <fo:external-graphic src="url('docs/images/inverse-logo.jpg')" width="3in" content-width="scale-to-fit"/>
+      <fo:external-graphic src="url('images/inverse-logo.jpg')" width="3in" content-width="scale-to-fit"/>
     </fo:block>
   </xsl:template>
 
@@ -124,7 +124,7 @@
 
   <!-- admonition -->
   <xsl:param name="admon.graphics" select="1"></xsl:param>
-  <xsl:param name="admon.graphics.path">docs/images/</xsl:param>
+  <xsl:param name="admon.graphics.path">images/</xsl:param>
   <xsl:param name="admon.graphics.extension">.png</xsl:param>
   <xsl:attribute-set name="graphical.admonition.properties">
     <xsl:attribute name="padding-top">0.5em</xsl:attribute>

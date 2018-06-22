@@ -19,6 +19,6 @@
     <phrase>PacketFence's spike logo</phrase>
   </textobject>
   <imageobject>
-    <imagedata align="left" width="4in" format="PNG" fileref="{imagesdir=}{imagesdir?/}pf-logo.png" />
+    <imagedata align="left" width="4in" format="PNG" fileref="images/pf-logo.png" />
   </imageobject>
 </mediaobject>
