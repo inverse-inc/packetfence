@@ -29,7 +29,7 @@ Adding Inline Interface
 
 PacketFence can be configured right from the start using the PacketFence configurator for inline enforcement. In this example, we will continue building on top of our initial deployment by adding a new inline interface to our PacketFence installation.
 
-The first step is to add a dedicated Network Interface Card (NIC) to your current PacketFence installation. In our example, our new NIC will be named `ens192`. The PacketFence web interface will list all currently installed network interfaces on the system. An IP and a netmask will be visible if the network interface is configured (either by DHCP or already manually configured). You can edit those ones, create/delete VLANs on physical interfaces and enable/disable interfaces. Note that theses changes are effective on the moment you make them. Persistence will be written only for *enabled* interfaces. Which means that if you change your management IP address, to pursue the configurator, you will need to go on this new IP address you setup. At all time, you'll need to set a Management interface. That means that the required interface types for inline enforcement are
+The first step is to add a dedicated Network Interface Card (NIC) to your current PacketFence installation. In our example, our new NIC will be named `ens192`. The PacketFence web interface will list all currently installed network interfaces on the system. An IP and a netmask will be visible if the network interface is configured (either by DHCP or already manually configured). You can edit those ones, create/delete VLANs on physical interfaces and enable/disable interfaces. Note that these changes are effective immediately. Persistence will be written only for *enabled* interfaces. Which means that if you change your management IP address, to pursue the configurator, you will need to go on this new IP address you just set. At all time, you will need to set a Management interface. That means that the required interface types for inline enforcement are:
 
     Management
     Inline layer 2
@@ -103,7 +103,7 @@ Testing the Inline Configuration
 You can now test the registration process. In order to do so:
 
 * connect an unregistered device into the switch
-* make sure PacketFence provides an IP address to the device. Look into the following log file: `/usr/local/pf/logs/packetfence.log` or verify on the computer you obtain an ip the right subnet range
+* make sure PacketFence provides an IP address to the device. Look into the following log file: `/usr/local/pf/logs/packetfence.log` or verify on the computer you obtain an IP in the right subnet range
 
 From the computer:
 

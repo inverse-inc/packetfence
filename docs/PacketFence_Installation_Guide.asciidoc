@@ -584,7 +584,7 @@ Redo the operation of the other role:
 
 Let's say we have two roles: employee and corporate_machine (defined above).
 
-Now, we want to authenticate employees and their corporate machines using Active Directory (over LDAP), both using PacketFence's captive portal.
+Now, we want to assign roles to employees and their corporate machines using Active Directory (over LDAP), both using PacketFence's captive portal.
 
 Using the Employee Role
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -639,7 +639,7 @@ Then, we add an 'Authentication rules':
   - Set role corporate_machine
   - Set unregistration date January 1st, 2020
 
-With this setup, employees can only connect corporate machines, not personal devices.
+Using this configuration, employees can only connect corporate machines, not personal devices.
 
 NOTE: When a rule is defined as a catch-all, it will always match if the username attribute matches the queried one. This applies for Active Directory, LDAP and Apache htpasswd file sources. Kerberos and RADIUS will act as true catch-all, and accept everything.
 
@@ -687,7 +687,7 @@ Inline enforcement because of it's nature has several limitations that one must 
 * Everyone behind an inline interface is on the same Layer 2 LAN
 * Every packet of authorized users goes through the PacketFence server increasing the server's load considerably: Plan ahead for capacity
 * Every packet of authorized users goes through the PacketFence server: it is a single point of failure for Internet access
-* Ipset can store up to 65536 entries, so it is not possible to have an inline network class upper than B
+* Ipset can store up to 65536 entries, so it is not possible to have an inline network class greater than a class B
 
 This is why it is considered a poor man's way of doing access control. We have avoided it for a long time because of the above mentioned limitations. That said, being able to perform both inline and VLAN enforcement on the same server at the same time is a real advantage: it allows admins to maintain maximum security while they deploy new and more capable network hardware providing a clean migration path to VLAN enforcement.
 
@@ -753,7 +753,7 @@ Aside from the VoIP isolation dilemma, it is the technique that has proven to be
 More on SNMP traps VLAN isolation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-When the VLAN isolation is working through SNMP traps all switch ports (on which VLAN isolation should be done) must be configured to send SNMP traps to the PacketFence host. On PacketFence, we use `snmptrapd` as the SNMP trap receiver. As it receives traps, it reformats and sends them into a redis queue, managed by `pfqueue` service. The multiprocessed `pfqueue` service reads these traps from the redis queue and takes a decision based on type of traps. For example, it can responds to them by setting the switch port to the correct VLAN. Currently, we support switches from Cisco, Edge-core, HP, Intel, Linksys and Nortel (adding support for switches from another vendor implies extending the `pf::Switch` class). Depending on your switches capabilities, `pfqueue` will act on different types of SNMP traps.
+When the VLAN isolation is working through SNMP traps all switch ports (on which VLAN isolation should be done) must be configured to send SNMP traps to the PacketFence host. On PacketFence, we use `snmptrapd` as the SNMP trap receiver. As it receives traps, it reformats and sends them into a redis queue, managed by `pfqueue` service. The multiprocessed `pfqueue` service reads these traps from the redis queue and takes a decision based on type of traps. For example, it can respond to them by setting the switch port to the correct VLAN. Currently, we support switches from Cisco, Edge-Core, HP, Intel, Linksys and Nortel (adding support for switches from another vendor implies extending the `pf::Switch` class). Depending on your switches capabilities, `pfqueue` will act on different types of SNMP traps.
 
 image::diagram-trap-interaction.png[pfqueue SNMP interactions diagram, 400]
 
@@ -771,7 +771,7 @@ When a computer boots, the initialization of the NIC generates several link stat
 MAC Notification Traps (deprecated)
 +++++++++++++++++++++++++++++++++++
 
-If your switches support MAC notification traps (MAC learnt, MAC removed), we suggest that you activate them in addition to the linkUp/linkDown traps. This way, `pfqueue` does not need, after a linkUp trap, to query the switch continuously until the MAC has finally been learned. When it receives a linkUp trap for a port on which MAC notification traps are also enabled, it only needs to put the port in the MAC detection VLAN and can then free the thread. When the switch learns the MAC address of the device it sends a MAC learnt trap (containing the MAC address) to PacketFence.
+If your switches support MAC notification traps (MAC learned, MAC removed), we suggest that you activate them in addition to the linkUp/linkDown traps. This way, `pfqueue` does not need, after a linkUp trap, to query the switch continuously until the MAC has finally been learned. When it receives a linkUp trap for a port on which MAC notification traps are also enabled, it only needs to put the port in the MAC detection VLAN and can then free the process. When the switch learns the MAC address of the device it sends a MAC learned trap (containing the MAC address) to PacketFence.
 
 Port Security Traps
 +++++++++++++++++++
@@ -824,14 +824,17 @@ Technical Introduction to DNS Enforcement
 Introduction
 ^^^^^^^^^^^^
 
-DNS enforcement allows you to control the network access of the device by using the pfdns service on PacketFence.
+DNS enforcement allows you to control the network access of the device by using the `pfdns` service on PacketFence.
 
 The architecture of DNS enforcement is as following :
 
 * DHCP and DNS are provided by the PacketFence server
   - The PacketFence DHCP server will provide the IP of your network equipment as the gateway and the IP address of the PacketFence DNS server to resolve names.
-* Routing is provided by another equipment on your network (Core switch, Firewall, Router,...)
-* If a user should be shown the portal, the pfdns service will return a pointer to the IP address of the captive portal, otherwise pfdns will resolve the name externally and use it in the reply.
+* Routing is provided by another equipment on your network (core switch, firewall, router,...)
+* `pfdns` will respond to DNS requests depending on your configuration :
+  - user registration on portal : it will return IP address of the captive portal
+  - access to another site : it will resolve name externally and use it in reply
+
 
 This enforcement mode used by itself can be bypassed by the device by using a different DNS server or by using its own DNS cache.
 
