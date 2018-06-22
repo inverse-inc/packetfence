@@ -1,4 +1,9 @@
 <fop version="1.0">
+  <!-- Base URL for resolving relative URLs : used for fonts and images -->
+  <!-- Relative URI for that property is evaluated relative to the base URI
+       *of the configuration file*, i.e., docs/fonts/ -->
+  <!-- ../../ means PacketFence root directory -->
+  <base>../../</base>
   <renderers>
     <renderer mime="application/pdf">
       <fonts>
