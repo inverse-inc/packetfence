@@ -147,6 +147,7 @@ case "$1" in
         systemctl disable packetfence-redis-cache
         systemctl disable packetfence-config
         systemctl disable packetfence.service
+        systemctl disable packetfence-haproxy.service
         exit 0
     ;;
     abort-upgrade)
