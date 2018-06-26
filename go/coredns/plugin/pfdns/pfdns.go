@@ -122,7 +122,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 		for k, v := range pf.FqdnIsolationPort {
 			if k.MatchString(state.QName()) {
 				answer, _ := pf.LocalResolver(state)
-				for _, ans := range answer.Answer {
+				for _, ans := range append(answer.Answer, answer.Extra...) {
 					switch ansb := ans.(type) {
 					case *dns.A:
 						for _, valeur := range v {
@@ -142,7 +142,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 	for k, v := range pf.FqdnPort {
 		if k.MatchString(state.QName()) {
 			answer, _ := pf.LocalResolver(state)
-			for _, ans := range answer.Answer {
+			for _, ans := range append(answer.Answer, answer.Extra...) {
 				switch ansb := ans.(type) {
 				case *dns.A:
 					for _, valeur := range v {
@@ -161,7 +161,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 	for k, v := range pf.FqdnDomainPort {
 		if k.MatchString(state.QName()) {
 			answer, _ := pf.LocalResolver(state)
-			for _, ans := range answer.Answer {
+			for _, ans := range append(answer.Answer, answer.Extra...) {
 				switch ansb := ans.(type) {
 				case *dns.A:
 					for _, valeur := range v {
@@ -370,7 +370,6 @@ func (pf *pfdns) DomainPassthroughInit() error {
 	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfDNS)
 
 	for _, v := range keyConfDNS.Keys {
-		// .*_msdcs.
 		rgx, _ := regexp.Compile(".*(_msdcs|_sites)." + v)
 		pf.FqdnDomainPort[rgx] = []string{"udp:88", "udp:123", "udp:135", "135", "udp:137", "udp:138", "139", "udp:389", "udp:445", "445", "udp:464", "464", "tcp:1025", "49155", "49156", "49172"}
 	}
