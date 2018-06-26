@@ -37,7 +37,7 @@ Configure the Aerohive APs and SSID
 Logon to your HiveManager interface:
 
 [options="compact"]
-* for this example, we assume that we are on the _Cloud_ https://myhive-auth.aerohive.com[MyHive.aerohove.com] solution
+* for this example, we assume that we are on the _Cloud_ https://myhive-auth.aerohive.com[MyHive.aerohive.com] solution
 * from _HiveManager_, click on your *HiveManagerOnline Instances* _VHM-XXXXXX_
 * from _Network Configuration / 1-Choose Network Policy_, click on *New*
 * give a name to your Policy, and click *Create*
