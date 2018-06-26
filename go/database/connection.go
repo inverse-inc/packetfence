@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"os"
 
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
@@ -9,7 +10,12 @@ import (
 func Connect(user, pass, host, port, dbname string) *sql.DB {
 	var where string
 	if host == "localhost" {
-		where = "unix(/var/lib/mysql/mysql.sock)"
+		if _, err := os.Stat("/etc/debian_version"); err == nil {
+			where = "unix(/var/run/mysqld/mysqld.sock)"
+
+		} else {
+			where = "unix(/var/lib/mysql/mysql.sock)"
+		}
 	} else {
 		where = "tcp(" + host + ":" + port + ")"
 	}

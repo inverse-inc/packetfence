@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"os"
 
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -22,7 +23,12 @@ func ConnectDb(ctx context.Context, user, pass, host, dbName string) (*sql.DB, e
 	proto := "tcp"
 	if host == "localhost" {
 		proto = "unix"
-		host = "/var/lib/mysql/mysql.sock"
+		if _, err := os.Stat("/etc/debian_version"); err == nil {
+			host = "/var/run/mysqld/mysqld.sock"
+
+		} else {
+			host = "/var/lib/mysql/mysql.sock"
+		}
 	}
 
 	uri := fmt.Sprintf("%s:%s@%s(%s)/%s?parseTime=true", user, pass, proto, host, dbName)
