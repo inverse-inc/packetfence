@@ -131,11 +131,11 @@ sub parseExternalPortalRequest {
 
     # Using a hash to contain external portal parameters
     my %params = ();
-    
+    my $client_ip = defined($r->headers_in->{'X-Forwarded-For'}) ? $r->headers_in->{'X-Forwarded-For'} : $r->connection->remote_ip;
     %params = (
         switch_id               => $req->param('ga_srvr'),
         client_mac              => clean_mac($req->param('ga_cmac')),
-        client_ip               => defined($req->param('ga_cip')) ? $req->param('ga_cip') : undef,
+        client_ip               => defined($req->param('ga_cip')) ? $req->param('ga_cip') : $client_ip,
         ssid                    => $req->param('ga_ssid'),
         synchronize_locationlog => $TRUE,
     );
