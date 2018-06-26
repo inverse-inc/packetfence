@@ -667,19 +667,19 @@ END
             </div>
         </div>
         <div class="tab-pane[% IF tab == "dhcp" %] active[% END %]" id="dhcp">
-        [% FOREACH interface IN listen_ints %]
+        [% FOREACH interface IN networks.keys %]
             <div class="card">
                 <div class="card-title">
-                    <h2>[% l('DHCP on') %] [% interface %]</h2>
+                    <h2>[% l('DHCP on') %] [% network %]</h2>
                 </div>
                 <div class="card-block">
                     <div class="row-flex">
                         <div class="col9">
-                            <div data-netdata="statsd_gauge_source.packetfence.dhcp_leases_[% interface %]_day"
+                            <div data-netdata="statsd_gauge_source.packetfence.dhcp_leases_[% network %]_day"
                             data-host="/netdata/127.0.0.1"
                             data-common-max="dhcp_day"
                             data-common-min="dhcp_day"
-                            data-title="DHCP leases free on [% interface %] for the past day"
+                            data-title="DHCP leases free on [% network %] for the past day"
                             data-chart-library="dygraph"
                             data-hide-missing="true"
                             data-dimensions="gauge"
@@ -691,11 +691,11 @@ END
                             data-decimal-digits="0"></div>
                         </div>
                         <div class="col9">
-                            <div data-netdata="statsd_gauge_source.packetfence.dhcp_leases_[% interface %]_week"
+                            <div data-netdata="statsd_gauge_source.packetfence.dhcp_leases_[% network %]_week"
                             data-host="/netdata/127.0.0.1"
                             data-common-max="dhcp_week"
                             data-common-min="dhcp_week"
-                            data-title="DHCP leases free on [% interface %] for the past week"
+                            data-title="DHCP leases free on [% network %] for the past week"
                             data-chart-library="dygraph"
                             data-hide-missing="true"
                             data-dimensions="gauge"
@@ -707,11 +707,11 @@ END
                             data-decimal-digits="0"></div>
                         </div>
                         <div class="col9">
-                            <div data-netdata="statsd_gauge_source.packetfence.dhcp_leases_[% interface %]_month"
+                            <div data-netdata="statsd_gauge_source.packetfence.dhcp_leases_[% network %]_month"
                             data-host="/netdata/127.0.0.1"
                             data-common-max="dhcp_month"
                             data-common-min="dhcp_month"
-                            data-title="DHCP leases free on [% interface %] for the past month"
+                            data-title="DHCP leases free on [% network %] for the past month"
                             data-chart-library="dygraph"
                             data-hide-missing="true"
                             data-dimensions="gauge"
@@ -723,11 +723,11 @@ END
                             data-decimal-digits="0"></div>
                         </div>
                         <div class="col9">
-                            <div data-netdata="statsd_gauge_source.packetfence.dhcp_leases_[% interface %]_year"
+                            <div data-netdata="statsd_gauge_source.packetfence.dhcp_leases_[% network %]_year"
                             data-host="/netdata/127.0.0.1"
                             data-common-max="dhcp_year"
                             data-common-min="dhcp_year"
-                            data-title="DHCP leases free on [% interface %] for the past year"
+                            data-title="DHCP leases free on [% network %] for the past year"
                             data-chart-library="dygraph"
                             data-hide-missing="true"
                             data-dimensions="gauge"

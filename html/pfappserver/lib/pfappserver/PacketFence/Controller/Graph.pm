@@ -55,6 +55,8 @@ Readonly::Array our @GRAPHS =>
    $GRAPH_WIRELESS_CONNECTIONS
   );
 
+tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config";
+
 =head1 METHODS
 
 =head2 begin
@@ -492,6 +494,7 @@ sub dashboard :Local :AdminRole('REPORTS') {
         roles          => \@categories,
         current_view   => 'HTML',
         tab            => $tab,
+        networks       => \%NetworkConfig,
         listen_ints    => \@listen_ints,
     );
 }
