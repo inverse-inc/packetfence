@@ -81,7 +81,7 @@ image::pfaerohive05.png[scaledwidth="100%",alt="AAA Radius config"]
 image::pfaerohive06.png[scaledwidth="100%",alt="AAA Radius config"]
 
 [options="compact"]
-* deploy the _Optionnal Setting(not supported by RADIUS Proxy)_ section and * [x] check the _Permit Dynamic Change of Authorization Message (RFC 3576)_
+* deploy the _Optionnal Setting(not supported by RADIUS Proxy)_ section and check the _Permit Dynamic Change of Authorization Message (RFC 3576)_
 * click on *Save*
 * next to your _SSID Name_ Click on the *<RADIUS Setting>*, Click *OK*
 
