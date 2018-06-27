@@ -14,7 +14,9 @@ import (
 	"time"
 
 	"github.com/coreos/go-systemd/daemon"
+	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 
 	"github.com/inverse-inc/packetfence/go/log"
 	statsd "gopkg.in/alexcesaro/statsd.v2"
@@ -332,10 +334,9 @@ func main() {
 	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfStats)
 	RegExpMetric := regexp.MustCompile("^metric .*")
 
-	// Read DB config
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Database)
-	configDatabase := pfconfigdriver.Config.PfConf.Database
-	connectDB(configDatabase)
+	db, err := db.DbFromConfig(ctx)
+	sharedutils.CheckError(err)
+	MySQLdatabase = db
 
 	for _, key := range keyConfStats.Keys {
 		var ConfStat pfconfigdriver.PfStats
