@@ -667,7 +667,7 @@ END
             </div>
         </div>
         <div class="tab-pane[% IF tab == "dhcp" %] active[% END %]" id="dhcp">
-        [% FOREACH interface IN networks.keys %]
+        [% FOREACH network IN networks.keys %]
             <div class="card">
                 <div class="card-title">
                     <h2>[% l('DHCP on') %] [% network %]</h2>
