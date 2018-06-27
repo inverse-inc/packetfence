@@ -3188,7 +3188,7 @@ The Windows agent will import and apply the provisioned profile so that the user
 
 Configure the feature
 ^^^^^^^^^^^^^^^^^^^^^
-NOTE: If EAP-TLS provisioning is desired, you have to configure a PKI before going any further. Two guides exists to assist you: 'PacketFence PKI Quick Install Guide', which covers PacketFence's implementation, or 'PacketFence MSPKI Quick Install Guide' which covers Microsoft's.
+NOTE: If EAP-TLS provisioning is desired, you have to configure a PKI before going any further. Two sections exists to assist you: <<pf-pki,PacketFence PKI>>, which covers PacketFence's implementation, or <<ms-pki,PacketFence MSPKI>> which covers Microsoft's.
 
 First of all, you need to configure the SSID that your devices will use after they go through the authentication process.
 
@@ -3210,6 +3210,7 @@ Android specifications
 ++++++++++++++++++++++
 
 For Android provisioning support, you must activate and adjust the passthroughs. You might need to adapt them depending on your geolocality.
+
 NOTE: Please refer to the 'Passthroughs' section of this guide if needed.
 
 In the administation inferface, go in 'Network Configuration -> Fencing'. Activate 'Passthrough' and make sure the following passthrough are present:
@@ -3218,9 +3219,9 @@ In the administation inferface, go in 'Network Configuration -> Fencing'. Activa
 
 Then run the following commands so that passthroughs become effective:
 
-  /usr/local/pf/bin/pfcmd configreload hard
-  /usr/local/pf/bin/pfcmd service iptables restart
-  /usr/local/pf/bin/pfcmd service pfdns restart
+ /usr/local/pf/bin/pfcmd configreload hard
+ /usr/local/pf/bin/pfcmd service iptables restart
+ /usr/local/pf/bin/pfcmd service pfdns restart
 
 iOS specifications
 ++++++++++++++++++
@@ -3320,11 +3321,13 @@ include::provisioner/sepm.asciidoc[]
 PKI Integration
 ---------------
 
+[#ms-pki]
 Microsoft PKI
 ~~~~~~~~~~~~~
 
 include::pki/microsoft.asciidoc[]
 
+[#pf-pki]
 PacketFence PKI
 ~~~~~~~~~~~~~~~
 
