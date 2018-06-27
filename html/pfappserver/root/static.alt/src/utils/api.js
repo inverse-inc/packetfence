@@ -32,4 +32,8 @@ apiCall.interceptors.response.use((response) => response,
   }
 )
 
+export const pfappserverCall = axios.create({
+  baseURL: 'https://' + window.location.hostname + ':1443/admin/'
+})
+
 export default apiCall

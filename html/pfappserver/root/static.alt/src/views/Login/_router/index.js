@@ -1,10 +1,19 @@
+import store from '@/store'
+import LoginStore from '../_store'
 import LoginView from '../'
 
 const route = {
   path: '/',
   alias: ['/login', '/logout', '/expire'],
   name: 'login',
-  component: LoginView
+  component: LoginView,
+  beforeEnter: (to, from, next) => {
+    // Register store module only once
+    if (!store.state.$_auth) {
+      store.registerModule('$_auth', LoginStore)
+    }
+    next()
+  }
 }
 
 export default route

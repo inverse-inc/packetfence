@@ -70,6 +70,7 @@
     "postcss-loader": "^2.0.8",
     "postcss-url": "^7.2.1",
     "promised-debounce": "^0.4.2",
+    "qs": "^6.5.2",
     "rimraf": "^2.6.0",
     "sass-loader": "^6.0.7",
     "selenium-server": "^3.0.1",

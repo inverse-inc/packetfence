@@ -29,8 +29,6 @@
 </template>
 
 <script>
-import store from './_store'
-
 export default {
   name: 'Login',
   data () {
@@ -44,12 +42,6 @@ export default {
   computed: {
     validForm () {
       return this.username.length > 0 && this.password.length > 0 && !this.$store.getters['$_auth/isLoading']
-    }
-  },
-  created () {
-    // Register store module only once
-    if (!this.$store.state.$_auth) {
-      this.$store.registerModule('$_auth', store)
     }
   },
   mounted () {
