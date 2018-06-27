@@ -13,8 +13,9 @@ import (
 
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
 	"github.com/inverse-inc/packetfence/go/coredns/request"
-	"github.com/inverse-inc/packetfence/go/database"
+	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/filter_client"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 	cache "github.com/patrickmn/go-cache"
 	//Import mysql driver
@@ -488,13 +489,10 @@ func (pf *pfdns) DbInit() error {
 	var ctx = context.Background()
 
 	var err error
-	configDatabase := readConfig(ctx)
-	pf.Db = database.ConnectFromConfig(configDatabase)
 
-	if err != nil {
-		// logging the error is handled in connectDB
-		return err
-	}
+	db, err := db.DbFromConfig(ctx)
+	sharedutils.CheckError(err)
+	pf.Db = db
 
 	pf.IP4log, err = pf.Db.Prepare("select mac from ip4log where ip = ? AND tenant_id = ?")
 	if err != nil {
