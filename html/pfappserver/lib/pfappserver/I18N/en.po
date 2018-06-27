@@ -1784,14 +1784,6 @@ msgstr ""
 msgid "Creating"
 msgstr ""
 
-# html/pfappserver/root/node/create.tt
-msgid "Creating Nodes .."
-msgstr ""
-
-# html/pfappserver/root/user/create.tt
-msgid "Creating Users .."
-msgstr ""
-
 # html/pfappserver/root/user/view.tt
 msgid "Custom Fields"
 msgstr ""
