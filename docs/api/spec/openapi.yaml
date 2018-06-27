@@ -182,6 +182,36 @@ components:
           schema:
             $ref: '#/components/schemas/QueueStats'
       description: A response that contains the pfqueue stats
+    ServiceDisable:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ServiceDisable'
+      description: A response that contains a simple message
+    ServiceEnable:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ServiceEnable'
+      description: A response that contains a simple message
+    ServiceRestart:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ServiceRestart'
+      description: A response that contains a simple message
+    ServiceStart:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ServiceStart'
+      description: A response that contains a simple message
+    ServiceStop:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ServiceStop'
+      description: A response that contains a simple message
     Unauthorized:
       content:
         application/json:
@@ -13761,10 +13791,13 @@ paths:
         schema:
           type: string
       requestBody:
-        required: false
+        content:
+          application/json:
+            schema:
+              type: object
       responses:
         '200':
-          $ref: '#/components/schemas/ServiceDisable'
+          $ref: '#/components/responses/ServiceDisable'
         '404':
           $ref: '#/components/responses/NotFound'
       summary: Disables a service so it doesn't start automatically after reboot
@@ -13778,10 +13811,13 @@ paths:
         schema:
           type: string
       requestBody:
-        required: false
+        content:
+          application/json:
+            schema:
+              type: object
       responses:
         '200':
-          $ref: '#/components/schemas/ServiceEnable'
+          $ref: '#/components/responses/ServiceEnable'
         '404':
           $ref: '#/components/responses/NotFound'
       summary: Enables a service so it starts automatically after reboot
@@ -13795,10 +13831,13 @@ paths:
         schema:
           type: string
       requestBody:
-        required: false
+        content:
+          application/json:
+            schema:
+              type: object
       responses:
         '200':
-          $ref: '#/components/schemas/ServiceRestart'
+          $ref: '#/components/responses/ServiceRestart'
         '404':
           $ref: '#/components/responses/NotFound'
       summary: Restarts a service and returns the PID
@@ -13812,10 +13851,13 @@ paths:
         schema:
           type: string
       requestBody:
-        required: false
+        content:
+          application/json:
+            schema:
+              type: object
       responses:
         '200':
-          $ref: '#/components/schemas/ServiceStart'
+          $ref: '#/components/responses/ServiceStart'
         '404':
           $ref: '#/components/responses/NotFound'
       summary: Starts a service and return the PID
@@ -13843,10 +13885,13 @@ paths:
         schema:
           type: string
       requestBody:
-        required: false
+        content:
+          application/json:
+            schema:
+              type: object
       responses:
         '200':
-          $ref: '#/components/schemas/ServiceStop'
+          $ref: '#/components/responses/ServiceStop'
         '404':
           $ref: '#/components/responses/NotFound'
       summary: Stops a service
