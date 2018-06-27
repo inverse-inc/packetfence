@@ -127,8 +127,6 @@ export default {
       }
     }
   },
-  computed: {
-  },
   methods: {
     operators (rule) {
       let _this = this

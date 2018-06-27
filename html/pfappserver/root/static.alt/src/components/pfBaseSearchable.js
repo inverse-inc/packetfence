@@ -3,7 +3,7 @@
  *
  * A component extending the pfBaseSearch component is required to:
  *
- *   - declare a proprty 'pfBaseSearchableOptions' with the following structure:
+ *   - declare a property 'pfBaseSearchableOptions' with the following structure:
  *     - declare a property 'searchApiEndpoint' (string);
  *     - declare a property 'defaultSearchKeys' (array);
  *     - declare a property 'defaultSearchCondition' (object);
@@ -92,6 +92,10 @@ export default {
       }).catch(() => {
         _this.requestPage = _this.currentPage
       })
+      // pfBaseSelectable
+      if (this.$options.methods.clearSelected) {
+        this.clearSelected()
+      }
     },
     onReset () {
       const _this = this
@@ -152,6 +156,8 @@ export default {
         if (a !== b) {
           if (a === undefined || a === null) {
             this.pfBaseSearchableInitCondition()
+          } else if (a.values.length > 1 || a.values[0].values.length > 1) {
+            this.advancedMode = true
           }
         }
       },
@@ -201,6 +207,24 @@ export default {
       })
     }
     this.$store.dispatch(`${this._storeName}/setSearchFields`, this.searchFields)
+    // fake loop to allow multiple breaks w/ fallback to default
+    do {
+      try {
+        if (this.query) {
+          // Import search parameters from URL query
+          this.condition = JSON.parse(this.query)
+          break
+        } else if (this.$store.state[this._storeName].searchQuery) {
+          // Restore search parameters from store
+          this.condition = this.$store.state[this._storeName].searchQuery
+          break
+        }
+      } catch (e) {
+        // noop
+      }
+      // Import default condition
+      this.pfBaseSearchableInitCondition()
+    } while (false)
   },
   mounted () {
     if (JSON.stringify(this.condition) === JSON.stringify(this.$options.pfBaseSearchableOptions.defaultSearchCondition)) {

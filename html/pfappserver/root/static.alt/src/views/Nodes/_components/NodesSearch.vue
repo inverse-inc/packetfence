@@ -9,7 +9,7 @@
     <div class="card-body">
       <b-row align-h="between" align-v="center">
         <b-col cols="auto" class="mr-auto">
-          <b-dropdown size="sm" variant="link" :disabled="isLoading || checkedRows.length === 0" no-caret>
+          <b-dropdown size="sm" variant="link" :disabled="isLoading || selectValues.length === 0" no-caret>
             <template slot="button-content">
               <icon name="cogs" v-b-tooltip.hover.right :title="$t('Actions')"></icon>
             </template>
@@ -82,14 +82,14 @@
         </b-col>
       </b-row>
       <b-table stacked="sm" :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc"
-        @sort-changed="onSortingChanged" @row-clicked="onRowClick" @head-clicked="clearChecked" hover no-local-sorting v-model="tableValues">
+        @sort-changed="onSortingChanged" @row-clicked="onRowClick" @head-clicked="clearSelected" hover no-local-sorting v-model="tableValues">
         <template slot="HEAD_actions" slot-scope="head">
-          <input type="checkbox" id="checkallnone" v-model="checkedAll" @change="onCheckedAllChange" @click.stop>
-          <b-tooltip target="checkallnone" placement="right" v-if="checkedRows.length === tableValues.length">{{$t('Select None [ALT+N]')}}</b-tooltip>
+          <input type="checkbox" id="checkallnone" v-model="selectAll" @change="onSelectAllChange" @click.stop>
+          <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{$t('Select None [ALT+N]')}}</b-tooltip>
           <b-tooltip target="checkallnone" placement="right" v-else>{{$t('Select All [ALT+A]')}}</b-tooltip>
         </template>
         <template slot="actions" slot-scope="data">
-          <input type="checkbox" :id="data.value" :value="data.item" v-model="checkedRows" @click.stop="toggleCheckbox($event, data.index)">
+          <input type="checkbox" :id="data.value" :value="data.item" v-model="selectValues" @click.stop="onToggleSelected($event, data.index)">
           <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[data.index]._message" v-b-tooltip.hover.right :title="tableValues[data.index]._message"></icon>
         </template>
         <template slot="status" slot-scope="data">
@@ -107,36 +107,32 @@
 <script>
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import pfBaseSearchable from '@/components/pfBaseSearchable'
+import pfBaseSelectable from '@/components/pfBaseSelectable'
 import pfFingerbankScore from '@/components/pfFingerbankScore'
 
 export default {
   name: 'NodesSearch',
-  extends: pfBaseSearchable,
+  mixins: [
+    pfBaseSelectable,
+    pfBaseSearchable
+  ],
   pfBaseSearchableOptions: {
     searchApiEndpoint: 'nodes',
     defaultSortKeys: ['mac'],
     defaultSearchCondition: { op: 'and', values: [{ op: 'or', values: [{ field: 'mac', op: 'equals', value: null }] }] },
     defaultRoute: { name: 'nodes' }
   },
+  pfBaseSelectableOptions: {
+    test: ['a', 'b', 'c']
+  },
   components: {
-    'pf-fingerbank-score': pfFingerbankScore
+    'pf-fingerbank-score': pfFingerbankScore,
+    'pf-base-selectable': pfBaseSelectable
   },
   props: {
     tableValues: {
       type: Array,
       default: []
-    },
-    checkedRows: {
-      type: Array,
-      default: []
-    },
-    checkedAll: {
-      type: Boolean,
-      default: false
-    },
-    lastIndex: {
-      type: Number,
-      default: null
     }
   },
   data () {
@@ -500,7 +496,6 @@ export default {
           visible: false
         }
       ],
-      condition: null,
       requestPage: 1,
       currentPage: 1,
       pageSizeLimit: 10
@@ -518,39 +513,9 @@ export default {
     onRowClick (item, index) {
       this.$router.push({ name: 'node', params: { mac: item.mac } })
     },
-    onCheckedAllChange (item) {
-      this.checkedRows = this.checkedAll ? this.tableValues : []
-    },
-    clearChecked () {
-      this.checkedAll = false
-      const _this = this
-      this.checkedRows.forEach(function (item, index, items) {
-        _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: item.mac, variant: ''})
-        _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {mac: item.mac, message: ''})
-      })
-      this.checkedRows = []
-      this.lastIndex = null
-    },
-    toggleCheckbox (event, index) {
-      // support SHIFT+CLICK
-      const lastIndex = this.lastIndex
-      this.lastIndex = index
-      if (lastIndex === null || index === lastIndex || !event.shiftKey) return
-      const subset = this.items.slice(
-        Math.min(index, lastIndex),
-        Math.max(index, lastIndex) + 1
-      )
-      if (event.currentTarget.checked) {
-        this.checkedRows.push(...subset)
-        // remove duplicates
-        this.checkedRows = this.checkedRows.reduce((x, y) => x.includes(y) ? x : [...x, y], [])
-      } else {
-        this.checkedRows = this.checkedRows.reduce((x, y) => subset.includes(y) ? x : [...x, y], [])
-      }
-    },
     applyBulkClearViolation () {
       const _this = this
-      const macs = this.checkedRows.map(item => item.mac)
+      const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
         _this.$store.dispatch('$_nodes/clearViolationBulkNodes', {items: macs}).then(response => {
           response.items.forEach(function (item, index, items) {
@@ -566,7 +531,7 @@ export default {
     },
     applyBulkRegister () {
       const _this = this
-      const macs = this.checkedRows.map(item => item.mac)
+      const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
         _this.$store.dispatch('$_nodes/registerBulkNodes', {items: macs}).then(response => {
           response.items.forEach(function (item, index, items) {
@@ -582,7 +547,7 @@ export default {
     },
     applyBulkDeregister () {
       const _this = this
-      const macs = this.checkedRows.map(item => item.mac)
+      const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
         _this.$store.dispatch('$_nodes/deregisterBulkNodes', {items: macs}).then(response => {
           response.items.forEach(function (item, index, items) {
@@ -598,7 +563,7 @@ export default {
     },
     applyBulkReevaluateAccess () {
       const _this = this
-      const macs = this.checkedRows.map(item => item.mac)
+      const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
         _this.$store.dispatch('$_nodes/reevaluateAccessBulkNodes', {items: macs}).then(response => {
           response.items.forEach(function (item, index, items) {
@@ -614,7 +579,7 @@ export default {
     },
     applyBulkRestartSwitchport () {
       const _this = this
-      const macs = this.checkedRows.map(item => item.mac)
+      const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
         _this.$store.dispatch('$_nodes/restartSwitchportBulkNodes', {items: macs}).then(response => {
           response.items.forEach(function (item, index, items) {
@@ -630,7 +595,7 @@ export default {
     },
     applyBulkRole (role) {
       const _this = this
-      const macs = this.checkedRows.map(item => item.mac)
+      const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
         macs.forEach(function (mac, index) {
           _this.$store.dispatch(`${_this._storeName}/roleNode`, {mac: mac, category_id: role.category_id}).then(response => {
@@ -644,7 +609,7 @@ export default {
     },
     applyBulkBypassRole (role) {
       const _this = this
-      const macs = this.checkedRows.map(item => item.mac)
+      const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
         macs.forEach(function (mac, index) {
           _this.$store.dispatch(`${_this._storeName}/bypassRoleNode`, {mac: mac, bypass_role_id: role.category_id}).then(response => {
@@ -658,7 +623,7 @@ export default {
     },
     applyBulkViolation (violation) {
       const _this = this
-      const macs = this.checkedRows.map(item => item.mac)
+      const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
         _this.$store.dispatch('$_nodes/applyViolationBulkNodes', {items: macs, vid: violation.id}).then(response => {
           response.items.forEach(function (item, index, items) {
@@ -671,89 +636,26 @@ export default {
           })
         })
       }
-    },
-    onKeydown (event) {
-      switch (true) {
-        case (event.altKey && event.keyCode === 65): // ALT+A
-          event.preventDefault()
-          this.checkedRows = this.tableValues
-          break
-        case (event.altKey && event.keyCode === 78): // ALT+N
-          event.preventDefault()
-          this.checkedRows = []
-          break
-      }
     }
   },
   watch: {
-    checkedRows (a, b) {
-      this.checkedAll = (this.tableValues.length === a.length && a.length > 0)
+    selectValues (a, b) {
       const _this = this
-      const checkedRows = this.checkedRows
-      this.items.forEach(function (item, index, items) {
-        if (checkedRows.includes(item)) {
+      const selectValues = this.selectValues
+      this.tableValues.forEach(function (item, index, items) {
+        if (selectValues.includes(item)) {
           _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: item.mac, variant: 'info'})
         } else {
           _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: item.mac, variant: ''})
           _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {mac: item.mac, message: ''})
         }
       })
-    },
-    requestPage (a, b) {
-      if (a !== b) this.clearChecked()
-    },
-    currentPage (a, b) {
-      if (a !== b) this.clearChecked()
-    },
-    pageSizeLimit (a, b) {
-      if (a !== b) this.clearChecked()
-    },
-    visibleColumns (a, b) {
-      if (a !== b) this.clearChecked()
-    },
-    condition: {
-      handler: function (a, b) {
-        if (a !== b) {
-          this.clearChecked()
-          try {
-            if (a.values.length > 1 || a.values[0].values.length > 1) this.advancedMode = true
-          } catch (e) {
-            // noop
-          }
-        }
-      },
-      immediate: true,
-      deep: true
     }
   },
   created () {
     this._storeName = '$_' + this.$options.name.toLowerCase()
     this.$store.dispatch('config/getRoles')
     this.$store.dispatch('config/getViolations')
-    // fake loop to allow multiple breaks w/ fallback to default
-    do {
-      try {
-        if (this.query) {
-          // Import search parameters from URL query
-          this.condition = JSON.parse(this.query)
-          break
-        } else if (this.$store.state[this._storeName].searchQuery) {
-          // Restore search parameters from store
-          this.condition = this.$store.state[this._storeName].searchQuery
-          break
-        }
-      } catch (e) {
-        // noop
-      }
-      // Import default condition
-      this.pfBaseSearchableInitCondition()
-    } while (false)
-  },
-  mounted () {
-    document.addEventListener('keydown', this.onKeydown)
-  },
-  beforeDestroy () {
-    document.removeEventListener('keydown', this.onKeydown)
   }
 }
 </script>
