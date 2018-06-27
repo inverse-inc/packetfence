@@ -333,7 +333,13 @@ post-auth {
 	#	&reply: += &session-state:
 	#}
 
-	rest
+	if (Realm == "eduroam") {
+		# Update the realm in the request so its consistent with the logic that will be performed in httpd.aaa
+		update request {
+			Realm = "eduroam"
+		}
+		rest
+	}
 	if (updated || ok || noop) {
 		request-timing
 		-sql
