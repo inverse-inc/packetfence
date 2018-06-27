@@ -20,11 +20,6 @@ $btn-line-height: 1.5;
   }
 }
 
-.c-btn [type=checkbox] {
-  // We hide the checkbox, but the label will act as the button
-  display: none;
-}
-
 .c-btn label {
   cursor: pointer;
   display: block;

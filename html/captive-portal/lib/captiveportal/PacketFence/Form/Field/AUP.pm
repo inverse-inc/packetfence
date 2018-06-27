@@ -17,6 +17,14 @@ use pf::log;
 
 has '+widget' => (default => 'AUP');
 
+=head2 build_element_class
+
+Hide the checkbox. Only the label will be visible and act as a button.
+
+=cut
+
+sub build_element_class { [qw(hide)] }
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
