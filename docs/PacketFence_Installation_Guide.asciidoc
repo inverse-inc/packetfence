@@ -3174,6 +3174,7 @@ If you are using the Nessus scanning engine:
 [options="compact"]
 * You just have to change the host value by the Nessus server IP.
 
+[#provision]
 Integrating Provisioning Agents
 -------------------------------
 
@@ -3192,9 +3193,11 @@ NOTE: If EAP-TLS provisioning is desired, you have to configure a PKI before goi
 
 First of all, you need to configure the SSID that your devices will use after they go through the authentication process.
 
-In the administration interface, go in 'Advanced Access Configuration -> Provisioners'. Then select 'android' / 'ios' / 'Windows' provisioner. Enter the SSID information and roles for which the provisioner applies. Repeat for all desired provisioners. Note that the default RADIUS certificate path is `/usr/local/pf/raddb/certs/server.crt`.
+In the administration interface, go in 'Configuration -> Advanced Access Configuration -> Provisioners'. Then select 'android' / 'ios' / 'Windows' provisioner. Enter the SSID information and roles for which the provisioner applies. Repeat for all desired provisioners. Note that the default RADIUS certificate path is `/usr/local/pf/raddb/certs/server.crt`.
 
-After, you simply need to add the 'Android', 'iOS' and 'Windows' provisioners to your 'Connection Profile' configuration.
+After, you simply need to add the 'Android', 'iOS' and 'Windows' provisioners to your 'Connection Profile' configuration. If no connection profile is defined, configure the 'default' connection profile to use the provisioners created.
+
+NOTE: If you use two different connection profiles for the open and secure networks, make sure you configure the provisioners on both profiles.
 
 To add a new provisioner for another class of devices to be supported, click on the 'Add Provisioner' button, and fill out the form, choosing a different Provisioning ID per provisioner.
 
