@@ -1,12 +1,17 @@
-[% MACRO header(column, title, class) BLOCK -%]
+[% MACRO header(column, title, no_sort) BLOCK -%]
 [% new_direction = 'asc';
     IF by == column && direction == 'asc';
       new_direction = 'desc';
     END;
     params = { by => column, direction => new_direction };
-    IF c.session.nodecolumns.$column %]
-      <th[% " class=\"$class\"" IF class %]><a href="[% c.uri_for(search_action, 1, params)  %]">[% title | html %][% IF by == column %] <i class="icon-sort-[% IF new_direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</a></th>
-      [%- END %]
+%]
+  <th>
+    [% IF no_sort %]
+      [% title | html %]
+    [% ELSE %]
+      <a href="[% c.uri_for(search_action, 1, params)  %]">[% title | html %][% IF by == column %] <i class="icon-sort-[% IF new_direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</a>
+    [% END %]
+  </th>
 [% END -%]
 
 [% MACRO column_checkbox(column, title) BLOCK -%]
@@ -94,7 +99,7 @@
         { name => 'switch_mac', label => l('Switch MAC Address') },
         { name => 'switch_port', label => l('Switch Port') },
         { name => 'switch_port_desc', label => l('Switch Port Description') },
-        { name => 'switch_description', label => l('Switch Description') },
+        { name => 'switch_description', label => l('Switch Description'), no_sort => 1 },
         { name => 'last_ssid', label => l('SSID') },
         { name => 'bypass_vlan', label => l('Bypass VLAN') },
         { name => 'bypass_role', label => l('Bypass Role') },
@@ -126,7 +131,9 @@
                   <tr>
                     <th><input type="checkbox" value="on" id="toggle_all_items"/></th>
                     [% FOREACH column IN columns_list %]
-                        [% header( column.name ,  l(column.label)) | none %]
+                        [% IF c.session.nodecolumns.${column.name} %]
+                            [% header( column.name ,  l(column.label), column.no_sort) | none %]
+                        [% END %]
                     [% END %]
                     [% IF items.size > 0 && items.0.violation_status %]
                     <th class="hidden-phone" >[% l('Violation Status') %]</th>
