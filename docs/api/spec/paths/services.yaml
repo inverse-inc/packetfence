@@ -65,10 +65,13 @@
         schema:
           type: string
     requestBody:
-      required: false
+      content:
+        application/json:
+          schema:
+            type: object
     responses:
       '200':
-        $ref: "#/components/schemas/ServiceStart"
+        $ref: "#/components/responses/ServiceStart"
       '404':
         $ref: "#/components/responses/NotFound"
         
@@ -83,10 +86,13 @@
         schema:
           type: string
     requestBody:
-      required: false
+      content:
+        application/json:
+          schema:
+            type: object
     responses:
       '200':
-        $ref: "#/components/schemas/ServiceStop"
+        $ref: "#/components/responses/ServiceStop"
       '404':
         $ref: "#/components/responses/NotFound"
 
@@ -101,10 +107,13 @@
         schema:
           type: string
     requestBody:
-      required: false
+      content:
+        application/json:
+          schema:
+            type: object
     responses:
       '200':
-        $ref: "#/components/schemas/ServiceRestart"
+        $ref: "#/components/responses/ServiceRestart"
       '404':
         $ref: "#/components/responses/NotFound"
 
@@ -119,10 +128,13 @@
         schema:
           type: string
     requestBody:
-      required: false
+      content:
+        application/json:
+          schema:
+            type: object
     responses:
       '200':
-        $ref: "#/components/schemas/ServiceEnable"
+        $ref: "#/components/responses/ServiceEnable"
       '404':
         $ref: "#/components/responses/NotFound"
 
@@ -137,10 +149,13 @@
         schema:
           type: string
     requestBody:
-      required: false
+      content:
+        application/json:
+          schema:
+            type: object
     responses:
       '200':
-        $ref: "#/components/schemas/ServiceDisable"
+        $ref: "#/components/responses/ServiceDisable"
       '404':
         $ref: "#/components/responses/NotFound"
 
