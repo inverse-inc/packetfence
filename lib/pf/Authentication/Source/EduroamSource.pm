@@ -14,6 +14,7 @@ use pf::log;
 
 use Moose;
 extends 'pf::Authentication::Source';
+with qw(pf::Authentication::InternalRole);
 
 has '+type'                 => (default => 'Eduroam');
 has '+class'                => (isa => 'Str', is => 'ro', default => 'exclusive');
@@ -25,6 +26,7 @@ has 'auth_listening_port'   => (isa => 'Maybe[Int]', is => 'rw', default => '118
 has 'local_realm'           => (isa => 'ArrayRef[Str]', is => 'rw');
 has 'reject_realm'          => (isa => 'ArrayRef[Str]', is => 'rw');
 has 'monitor' => ( isa => 'Bool', is => 'rw', default => 1 );
+has '+realms' => (default => sub { ["eduroam"] });
 
 =head2 available_rule_classes
 
