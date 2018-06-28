@@ -111,25 +111,24 @@
 
 <script>
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
-import pfBaseSearchable from '@/components/pfBaseSearchable'
-import pfBaseSelectable from '@/components/pfBaseSelectable'
+import pfMixinSearchable from '@/components/pfMixinSearchable'
+import pfMixinSelectable from '@/components/pfMixinSelectable'
 import pfFingerbankScore from '@/components/pfFingerbankScore'
 
 export default {
   name: 'NodesSearch',
   mixins: [
-    pfBaseSelectable,
-    pfBaseSearchable
+    pfMixinSelectable,
+    pfMixinSearchable
   ],
-  pfBaseSearchableOptions: {
+  pfMixinSearchableOptions: {
     searchApiEndpoint: 'nodes',
     defaultSortKeys: ['mac'],
     defaultSearchCondition: { op: 'and', values: [{ op: 'or', values: [{ field: 'mac', op: 'equals', value: null }] }] },
     defaultRoute: { name: 'nodes' }
   },
   components: {
-    'pf-fingerbank-score': pfFingerbankScore,
-    'pf-base-selectable': pfBaseSelectable
+    'pf-fingerbank-score': pfFingerbankScore
   },
   props: {
     tableValues: {
