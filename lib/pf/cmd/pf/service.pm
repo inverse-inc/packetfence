@@ -239,7 +239,7 @@ sub checkup {
 
 sub _doStart {
     my ($manager) = @_;
-    if($manager->status ne '0') {
+    if($manager->status ne '0' && $manager->name ne 'pf') {
         $manager->print_status;
     } else {
         $manager->start;
