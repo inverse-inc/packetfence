@@ -432,16 +432,3 @@ index 1406b18c2..deb989c29 100644
  Slice=packetfence.slice
  
  [Install]
-diff --git a/go/database/connection.go b/go/database/connection.go
-index fa180c358..87d169a26 100644
---- a/go/database/connection.go
-+++ b/go/database/connection.go
-@@ -9,7 +9,7 @@ import (
- func Connect(user, pass, host, port, dbname string) *sql.DB {
- 	var where string
- 	if host == "localhost" {
--		where = "unix(/var/lib/mysql/mysql.sock)"
-+		where = "unix(/var/run/mysqld/mysqld.sock)"
- 	} else {
- 		where = "tcp(" + host + ":" + port + ")"
- 	}
