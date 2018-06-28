@@ -32,8 +32,8 @@ use pf::util::freeradius qw(clean_mac);
 use pfconfig::cached_hash;
 use pf::util::statsd qw(called);
 use pf::StatsD::Timer;
-our %ConfigRealm;
-tie %ConfigRealm, 'pfconfig::cached_hash', 'config::Realm';
+use pf::config::tenant;
+tie our %ConfigRealm, 'pfconfig::cached_hash', 'config::Realm', tenant_id_scoped => 1;
 
 require 5.8.8;
 
@@ -52,6 +52,7 @@ RADIUS calls this method to authorize clients.
 
 sub authorize {
     my $timer = pf::StatsD::Timer->new({ sample_rate => 0.05, 'stat' => "freeradius::" . called() });
+    pf::config::tenant::set_tenant($RAD_REQUEST{'PacketFence-Tenant-Id'});
     # For debugging purposes only
     #&log_request_attributes;
 
