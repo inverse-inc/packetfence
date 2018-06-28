@@ -245,14 +245,9 @@ export default {
           types: [conditionType.SUBSTRING]
         },
         {
-          value: 'violation',
-          text: this.$i18n.t('Violation Name [?]'),
-          types: [conditionType.SUBSTRING]
-        },
-        {
-          value: 'violation_status',
-          text: this.$i18n.t('Violation Status [?]'),
-          types: [conditionType.SUBSTRING]
+          value: 'violation.open_vid',
+          text: this.$i18n.t('Violation'),
+          types: [conditionType.VIOLATION]
         },
         {
           value: 'voip',

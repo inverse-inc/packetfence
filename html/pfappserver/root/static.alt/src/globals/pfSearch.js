@@ -52,6 +52,10 @@ pfConditionOperators[pfSearchConditionType.VOIP] = {
   'equals':                    pfSearchConditionValue.SELECT,
   'not_equals':                pfSearchConditionValue.SELECT
 }
+pfConditionOperators[pfSearchConditionType.VIOLATION] = {
+  'equals':                    pfSearchConditionValue.SELECT,
+  'not_equals':                pfSearchConditionValue.SELECT
+}
 
 /**
  * Values of some condition types
@@ -125,6 +129,9 @@ pfSearchConditionValues[pfSearchConditionType.VOIP] = [
     text: 'No'
   }
 ]
+pfSearchConditionValues[pfSearchConditionType.VIOLATION] = (store) => {
+  return store.getters['config/violationsList']
+}
 
 export const pfSearchConditionFormatter = {
   MAC: 'mac'
