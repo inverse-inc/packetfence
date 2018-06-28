@@ -34,7 +34,18 @@
         </b-col>
       </b-row>
       <b-table hover :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc"
-        @sort-changed="onSortingChanged" @row-clicked="onRowClick" no-local-sorting></b-table>
+        @sort-changed="onSortingChanged" @row-clicked="onRowClick" @head-clicked="clearSelected" no-local-sorting v-model="tableValues">
+        <template slot="HEAD_actions" slot-scope="head">
+          <input type="checkbox" id="checkallnone" v-model="selectAll" @change="onSelectAllChange" @click.stop>
+          <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{$t('Select None [ALT+N]')}}</b-tooltip>
+          <b-tooltip target="checkallnone" placement="right" v-else>{{$t('Select All [ALT+A]')}}</b-tooltip>
+        </template>
+        <template slot="actions" slot-scope="data">
+          <input type="checkbox" :id="data.value" :value="data.item" v-model="selectValues" @click.stop="onToggleSelected($event, data.index)">
+          <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[data.index]._message" v-b-tooltip.hover.right :title="tableValues[data.index]._message"></icon>
+        </template>
+
+      </b-table>
     </div>
   </b-card>
 </template>
@@ -42,10 +53,14 @@
 <script>
 import { pfSearchConditionType as attributeType } from '@/globals/pfSearch'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
+import pfMixinSelectable from '@/components/pfMixinSelectable'
 
 export default {
   name: 'UsersSearch',
-  extends: pfMixinSearchable,
+  mixins: [
+    pfMixinSelectable,
+    pfMixinSearchable
+  ],
   pfMixinSearchableOptions: {
     searchApiEndpoint: 'users',
     defaultSortKeys: ['pid'],
@@ -53,6 +68,12 @@ export default {
     defaultRoute: { name: 'users' }
   },
   components: {
+  },
+  props: {
+    tableValues: {
+      type: Array,
+      default: []
+    }
   },
   data () {
     return {
@@ -70,6 +91,16 @@ export default {
         }
       ],
       columns: [
+        {
+          key: 'actions',
+          label: this.$i18n.t('Actions'),
+          sortable: false,
+          visible: true,
+          locked: true,
+          formatter: (value, key, item) => {
+            return item.mac
+          }
+        },
         {
           key: 'pid',
           label: this.$i18n.t('Username'),
@@ -111,7 +142,22 @@ export default {
       this.$router.push({ name: 'user', params: { pid: item.pid } })
     }
   },
+  watch: {
+    selectValues (a, b) {
+      const _this = this
+      const selectValues = this.selectValues
+      this.tableValues.forEach(function (item, index, items) {
+        if (selectValues.includes(item)) {
+          _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {pid: item.pid, variant: 'info'})
+        } else {
+          _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {pid: item.pid, variant: ''})
+          _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {pid: item.pid, message: ''})
+        }
+      })
+    }
+  },
   created () {
+    this._storeName = '$_' + this.$options.name.toLowerCase()
     // pfMixinSearchable.created() has been called
     if (!this.condition) {
       // Select first field
