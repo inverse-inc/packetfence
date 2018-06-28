@@ -127,9 +127,6 @@ export default {
     defaultSearchCondition: { op: 'and', values: [{ op: 'or', values: [{ field: 'mac', op: 'equals', value: null }] }] },
     defaultRoute: { name: 'nodes' }
   },
-  pfBaseSelectableOptions: {
-    test: ['a', 'b', 'c']
-  },
   components: {
     'pf-fingerbank-score': pfFingerbankScore,
     'pf-base-selectable': pfBaseSelectable

@@ -17,9 +17,6 @@
 <script>
 export default {
   name: 'pfBaseSelectable',
-  pfBaseSelectableOptions: {
-    test: ['1', '2', '3']
-  },
   props: {
     selectValues: {
       type: Array,
@@ -104,11 +101,11 @@ export default {
   },
   created () {
     // Called before the component's created function.
-    if (!this.$options.pfBaseSelectableOptions) {
-      throw new Error(`Missing 'pfBaseSelectableOptions' in properties of component ${this.$options.name}`)
-    }
     if (!this.$options.props.tableValues) {
       throw new Error(`Missing 'props.tableValues' in properties of component ${this.$options.name}`)
+    }
+    if (this.columns.filter(column => column.key === 'actions').length === 0) {
+      throw new Error(`Missing column 'actions' in properties of component ${this.$options.name}`)
     }
   },
   mounted () {
