@@ -15,7 +15,7 @@
                             <b-nav-item to="search/openviolations">Open Violations</b-nav-item>
                             <b-nav-item to="search/closedviolations">Closed Violations</b-nav-item>
                         </b-nav>
-                        <pf-saved-search />
+                        <pf-saved-search :storeName="this.$options.name.toLowerCase()" :routeName="this.$options.name.toLowerCase()"/>
                     </div>
                 </b-collapse>
             </b-col>
@@ -32,7 +32,7 @@ import pfMixinSavedSearch from '@/components/pfMixinSavedSearch'
 
 export default {
   name: 'Nodes',
-  mixin: [
+  mixins: [
     pfMixinSavedSearch
   ],
   components: {

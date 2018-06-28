@@ -1,5 +1,5 @@
 <template>
-  <b-nav vertical class="bd-sidenav">
+  <b-nav vertical class="bd-sidenav" v-if="savedSearches && savedSearches.length > 0">
     <div class="bd-toc-link" v-t="'Saved Searches'"></div>
     <b-nav-item v-for="search in savedSearches" :key="search.name" :to="routeSavedSearch(search)" replace>
       {{search.name}}
@@ -11,17 +11,27 @@
 <script>
 export default {
   name: 'pfMixinSavedSearch',
+  props: {
+    storeName: {
+      type: String,
+      default: null
+    },
+    routeName: {
+      type: String,
+      default: null
+    }
+  },
   computed: {
     savedSearches () {
-      return this.$store.state.$_nodes.savedSearches
+      return this.$store.state['$_' + this.storeName].savedSearches
     }
   },
   methods: {
     deleteSavedSearch (search) {
-      this.$store.dispatch('$_nodes/deleteSavedSearch', search)
+      this.$store.dispatch(`$_${this.storeName}/deleteSavedSearch`, search)
     },
     routeSavedSearch (search) {
-      return { name: 'nodes', query: { query: JSON.stringify(search.query) } }
+      return { name: this.routeName, query: { query: JSON.stringify(search.query) } }
     }
   }
 }
