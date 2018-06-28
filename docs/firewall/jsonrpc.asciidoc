@@ -1,3 +1,8 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:imagesdir: ../images
+endif::[]
+
 JSON-RPC interface
 ^^^^^^^^^^^^^^^^^^
 The JSONRPC module shipped with PacketFence is meant as a generic firewall SSO module to be used with Linux or BSD firewalls that do not by default ship with a vendor-specific interface to do SSO with.

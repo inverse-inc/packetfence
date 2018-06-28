@@ -1,3 +1,8 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:imagesdir: ../images
+endif::[]
+
 This section has been created to give a quick start to install the PacketFence PKI in PacketFence. This guide does not include advanced troubleshooting of EAP-TLS connections. Refer to the relevant documentation of EAP-TLS, RADIUS and OpenSSL for advanced features.
 
 Assumptions

@@ -1,3 +1,8 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:imagesdir: ../images
+endif::[]
+
 Anyfi Networks
 ~~~~~~~~~~~~~~
 This section will discuss about the configuration of your Anyfi Gateway and Controller in order to use it with our configured PacketFence environment.

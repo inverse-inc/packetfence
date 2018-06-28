@@ -1,3 +1,8 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:imagesdir: ../images
+endif::[]
+
 Configure MobileIron
 ^^^^^^^^^^^^^^^^^^^^
 First of all you will need to configure the basic functionality of MobileIron using their documentation.

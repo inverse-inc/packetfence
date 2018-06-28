@@ -4,6 +4,8 @@ Installation Guide
 :lang: en
 :doctype: book
 :toc: left
+
+// to display images directly on GitHub
 ifdef::env-github[]
 :imagesdir: images
 endif::[]
