@@ -4,6 +4,9 @@ Installation Guide
 :lang: en
 :doctype: book
 :toc: left
+ifdef::env-github[]
+:imagesdir: images
+endif::[]
 
 ////
 
