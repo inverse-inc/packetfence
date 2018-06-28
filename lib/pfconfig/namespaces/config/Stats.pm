@@ -33,15 +33,14 @@ sub init {
 
 sub build_child {
     my ($self) = @_;
-
     my %tmp_cfg = %{$self->{cfg}};
-
     foreach my $key ( keys %tmp_cfg){
-        $self->cleanup_whitespaces( \%tmp_cfg );
+        $self->cleanup_whitespaces(\%tmp_cfg);
     }
 
     foreach my $network (keys $self->{network_config}) {
         my $dev = $self->{network_config}{$network}{'interface'}{'int'};
+        next if !defined $dev;
         $tmp_cfg{"metric 'total dhcp leases remaining on $network' past day"} = {
             'type' => 'api',
             'statsd_type' => 'gauge',
@@ -81,7 +80,6 @@ sub build_child {
     }
 
     return \%tmp_cfg;
-
 }
 
 =head1 AUTHOR
