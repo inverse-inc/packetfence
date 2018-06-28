@@ -45,6 +45,7 @@ Bug Fixes
 * Netdata never ending restarts after a reboot (#3287)
 * Systemd PID file causes issues when there is a stale PID file (#3291)
 * Fixes when an authentication contain multiples ip addresses (#3234)
+* Added missing DHCP Statistics for routed networks on the dashboard (#3128)
 
 Version 8.0.1 released on 2018-05-09
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
