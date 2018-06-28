@@ -1195,7 +1195,7 @@ In order for your users to be able to access the Identity Provider login page, y
 
 To do so, go in 'Configuration -> Network Configuration -> Networks -> Fencing', then check 'Passthrough' and add the Identity Provider domain name to the 'Passhtroughs' list.
 
-Next, restart iptables and pfdns to apply your new passthroughs.
+Next, restart `iptables` and `pfdns` to apply your new passthroughs.
 
 
 Billing Engine
@@ -3216,7 +3216,7 @@ For Android provisioning support, you must activate and adjust the passthroughs.
 
 NOTE: Please refer to the 'Passthroughs' section of this guide if needed.
 
-In the administation inferface, go in 'Network Configuration -> Fencing'. Activate 'Passthrough' and make sure the following passthrough are present:
+In the administation inferface, go in 'Configuration -> Network Configuration -> Networks -> Fencing'. Activate 'Passthrough' and make sure the following passthroughs domains are present:
 
   *.ggpht.com,*.googleusercontent.com,android.clients.google.com,*.googleapis.com,*.android.clients.google.com,*.gvt1.com,*.l.google.com,play.google.com,*.gstatic.com
 
@@ -3252,8 +3252,8 @@ If you have an `OCSP` capable PKI you can configure it in the section `OSCP` in 
 
 Lastely you will need to restart RADIUS to ensure the use of the new configuration and certificates. Please do the following:
 
- * bin/pfcmd configreload hard
- * bin/pfcmd service radiusd restart
+ /usr/local/pf/bin/pfcmd configreload hard
+ /usr/local/pf/bin/pfcmd service radiusd restart
 
 Make sure everything happens without errors.
 
