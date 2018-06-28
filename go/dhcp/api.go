@@ -127,7 +127,7 @@ func handleStats(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
 	if h, ok := intNametoInterface[vars["int"]]; ok {
-		stat := h.handleApiReq(ApiReq{Req: "stats", NetInterface: vars["int"], NetWork: ""})
+		stat := h.handleApiReq(ApiReq{Req: "stats", NetInterface: vars["int"], NetWork: vars["network"]})
 
 		outgoingJSON, err := json.Marshal(stat)
 
@@ -310,6 +310,12 @@ func (h *Interface) handleApiReq(Request ApiReq) interface{} {
 	// Send back stats
 	if Request.Req == "stats" {
 		for _, v := range h.network {
+			ipv4Addr, _, erro := net.ParseCIDR(Request.NetWork + "/32")
+			if erro == nil {
+				if !(v.network.Contains(ipv4Addr)) {
+					continue
+				}
+			}
 			var statistics roaring.Statistics
 			statistics = v.dhcpHandler.available.Stats()
 			var Options map[string]string
