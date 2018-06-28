@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 21;
+use Test::More tests => 25;
 
 #This test will running last
 use Test::NoWarnings;
@@ -42,7 +42,7 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
 }
 
 {
-    my @f = qw(mac ip4log.ip locationlog.ssid locationlog.port); 
+    my @f = qw(mac ip4log.ip locationlog.ssid locationlog.port);
 
     my %search_info = (
         dal => $dal,
@@ -56,7 +56,7 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
     );
 
     is_deeply(
-        [ 
+        [
             $sb->make_from(\%search_info)
         ],
         [
@@ -99,7 +99,7 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
         'Return the columns'
     );
     is_deeply(
-        [ 
+        [
             $sb->make_where(\%search_info)
         ],
         [
@@ -338,7 +338,7 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
     my @f = qw(status online mac pid ip4log.ip bypass_role_id);
 
     my %search_info = (
-        dal => $dal, 
+        dal => $dal,
         fields => \@f,
     );
 
@@ -358,7 +358,7 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
         'Return the columns'
     );
     is_deeply(
-        [ 
+        [
             $sb->make_where(\%search_info)
         ],
         [
@@ -369,8 +369,6 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
         ],
         'Return the joined tables'
     );
-
-    $sb->make_where(\%search_info);
 
     my @a = $sb->make_from(\%search_info);
     is_deeply(
@@ -387,6 +385,59 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
     );
 }
 
+{
+    my @f = qw(mac violation.open_count);
+
+    my %search_info = (
+        dal => $dal,
+        fields => \@f,
+    );
+
+    is_deeply(
+        [ $sb->make_columns( \%search_info ) ],
+        [
+            200,
+            [
+                'node.mac',
+                \"count(violation.id) as `violation.open_count`",
+            ],
+        ],
+        'Return the columns'
+    );
+
+    is_deeply(
+        [ $sb->make_where(\%search_info) ],
+        [
+            200,
+            {
+            },
+        ],
+        'Return the joined tables'
+    );
+
+    is_deeply(
+        [ $sb->make_from(\%search_info) ],
+        [
+            200,
+            [
+                -join => 'node',
+                @pf::UnifiedApi::SearchBuilder::Nodes::VIOLATION_JOIN,
+            ]
+        ],
+        'Return the joined tables'
+    );
+
+    is_deeply(
+        [
+            $sb->make_group_by(\%search_info)
+        ],
+        [
+            200,
+            [qw(node.tenant_id node.mac)],
+        ],
+        "violation.open_count Group by",
+    )
+}
 
 =head1 AUTHOR
 
