@@ -123,15 +123,10 @@ export default {
   data () {
     return {
       quickValue: '',
-      condition: this.defaultCondition()
+      condition: null
     }
   },
-  computed: {
-  },
   methods: {
-    defaultCondition () {
-      return { op: 'and', values: [{ op: 'or', values: [{ field: this.fields[0].value, op: null, value: null }] }] }
-    },
     onSubmit (event) {
       let query = this.condition
       if (!this.advancedMode) {
@@ -144,7 +139,6 @@ export default {
       this.$emit('submit-search', query)
     },
     onReset (event) {
-      this.condition = this.defaultCondition()
       this.$emit('reset-search')
     },
     copyNodeExportJsonTextarea () {

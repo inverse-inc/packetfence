@@ -160,20 +160,35 @@ our @API_V1_ROUTES = (
     },
     { controller => 'DhcpOption82s' },
     {
-        controller => 'Ip4logs',
+        controller  => 'Ip4logs',
         collection => {
             subroutes => {
                 'history/#search' => { get => 'history' },
                 'archive/#search' => { get => 'archive' },
-                'open/#search'    => { get => 'open' },
+                'open/#search' => { get => 'open' },
                 'mac2ip/#mac' => { get => 'mac2ip' },
                 'ip2mac/#ip'  => { get => 'ip2mac' },
-                'search'          => {
+                'search' => {
                     'post' => 'search'
                 },
             },
         },
     },
+    {
+        controller  => 'Ip6logs',
+        collection => {
+            subroutes => {
+                'history/#search' => { get => 'history' },
+                'archive/#search' => { get => 'archive' },
+                'open/#search' => { get => 'open' }, 
+                'mac2ip/#mac' => { get => 'mac2ip' },
+                'ip2mac/#ip'  => { get => 'ip2mac' },
+                'search' => {
+                    'post' => 'search'
+                },
+            },
+        },
+    },    
     { 
         controller => 'Services',
         resource   => {
@@ -252,7 +267,7 @@ our @API_V1_ROUTES = (
             },
         },
         resource => undef,
-    }
+    },
 );
 
 sub startup {

@@ -4,24 +4,13 @@
 import Vue from 'vue'
 import api from '../_api'
 
-const STORAGE_SEARCH_LIMIT_KEY = 'nodes-search-limit'
-const STORAGE_VISIBLE_COLUMNS_KEY = 'nodes-visible-columns'
 const STORAGE_SAVED_SEARCH = 'nodes-saved-search'
 
 // Default values
 const state = {
-  items: [], // search results
   nodes: {}, // nodes details
   message: '',
   nodeStatus: '',
-  searchStatus: '',
-  searchFields: [],
-  searchQuery: null,
-  searchSortBy: 'mac',
-  searchSortDesc: false,
-  searchMaxPageNumber: 1,
-  searchPageSize: localStorage.getItem(STORAGE_SEARCH_LIMIT_KEY) || 10,
-  visibleColumns: JSON.parse(localStorage.getItem(STORAGE_VISIBLE_COLUMNS_KEY)) || false,
   savedSearches: JSON.parse(localStorage.getItem(STORAGE_SAVED_SEARCH)) || []
 }
 
@@ -31,27 +20,6 @@ const getters = {
 }
 
 const actions = {
-  setSearchFields: ({commit}, fields) => {
-    commit('SEARCH_FIELDS_UPDATED', fields)
-  },
-  setSearchQuery: ({commit}, query) => {
-    commit('SEARCH_QUERY_UPDATED', query)
-    commit('SEARCH_MAX_PAGE_NUMBER_UPDATED', 1) // reset page count
-  },
-  setSearchPageSize: ({commit}, limit) => {
-    localStorage.setItem(STORAGE_SEARCH_LIMIT_KEY, limit)
-    commit('SEARCH_LIMIT_UPDATED', limit)
-    commit('SEARCH_MAX_PAGE_NUMBER_UPDATED', 1) // reset page count
-  },
-  setSearchSorting: ({commit}, params) => {
-    commit('SEARCH_SORT_BY_UPDATED', params.sortBy)
-    commit('SEARCH_SORT_DESC_UPDATED', params.sortDesc)
-    commit('SEARCH_MAX_PAGE_NUMBER_UPDATED', 1) // reset page count
-  },
-  setVisibleColumns: ({commit}, columns) => {
-    localStorage.setItem(STORAGE_VISIBLE_COLUMNS_KEY, JSON.stringify(columns))
-    commit('VISIBLE_COLUMNS_UPDATED', columns)
-  },
   addSavedSearch: ({commit}, search) => {
     let savedSearches = state.savedSearches
     savedSearches = state.savedSearches.filter(searches => searches.name !== search.name)
@@ -253,7 +221,7 @@ const actions = {
     return new Promise((resolve, reject) => {
       api.registerBulkNodes(data).then(response => {
         response.items.filter(item => item.status === 'success').forEach(function (item, index, items) {
-          commit('ITEM_UPDATED', { mac: item.mac, prop: 'status', data: 'reg' })
+          commit('$_nodessearch/ITEM_UPDATED', { mac: item.mac, prop: 'status', data: 'reg' }, { root: true })
         })
         resolve(response)
       }).catch(err => {
@@ -279,7 +247,7 @@ const actions = {
     return new Promise((resolve, reject) => {
       api.deregisterBulkNodes(data).then(response => {
         response.items.filter(item => item.status === 'success').forEach(function (item, index, items) {
-          commit('ITEM_UPDATED', { mac: item.mac, prop: 'status', data: 'unreg' })
+          commit('$_nodessearch/ITEM_UPDATED', { mac: item.mac, prop: 'status', data: 'unreg' }, { root: true })
         })
         resolve(response)
       }).catch(err => {
@@ -359,7 +327,7 @@ const actions = {
     return new Promise((resolve, reject) => {
       api.updateNode(data).then(response => {
         if (response.status === 'success') {
-          commit('ITEM_UPDATED', { mac: data.mac, prop: 'bypass_role_id', data: data.bypass_role_id })
+          commit('/ITEM_UPDATED', { mac: data.mac, prop: 'bypass_role_id', data: data.bypass_role_id })
         }
         resolve(response)
       }).catch(err => {
@@ -371,46 +339,6 @@ const actions = {
 }
 
 const mutations = {
-  SEARCH_FIELDS_UPDATED: (state, fields) => {
-    state.searchFields = fields
-  },
-  SEARCH_QUERY_UPDATED: (state, query) => {
-    state.searchQuery = query
-  },
-  SEARCH_SORT_BY_UPDATED: (state, field) => {
-    state.searchSortBy = field
-  },
-  SEARCH_SORT_DESC_UPDATED: (state, desc) => {
-    state.searchSortDesc = desc
-  },
-  SEARCH_MAX_PAGE_NUMBER_UPDATED: (state, page) => {
-    state.searchMaxPageNumber = page
-  },
-  SEARCH_LIMIT_UPDATED: (state, limit) => {
-    state.searchPageSize = limit
-  },
-  SEARCH_REQUEST: (state) => {
-    state.searchStatus = 'loading'
-  },
-  SEARCH_SUCCESS: (state, response) => {
-    state.searchStatus = 'success'
-    if (response) {
-      state.items = response.items
-      let nextPage = Math.floor(response.nextCursor / state.searchPageSize) + 1
-      if (nextPage > state.searchMaxPageNumber) {
-        state.searchMaxPageNumber = nextPage
-      }
-    }
-  },
-  SEARCH_ERROR: (state, response) => {
-    state.searchStatus = 'error'
-    if (response && response.data) {
-      state.message = response.data.message
-    }
-  },
-  VISIBLE_COLUMNS_UPDATED: (state, columns) => {
-    state.visibleColumns = columns
-  },
   NODE_REQUEST: (state) => {
     state.nodeStatus = 'loading'
     state.message = ''
@@ -432,30 +360,6 @@ const mutations = {
     if (response && response.data) {
       state.message = response.data.message
     }
-  },
-  ITEM_VARIANT: (state, params) => {
-    let index = state.items.findIndex(item => item.mac === params.mac)
-    let variant = params.variant || ''
-    switch (params.status) {
-      case 'success':
-        variant = 'success'
-        break
-      case 'skipped':
-        variant = 'warning'
-        break
-      case 'failed':
-        variant = 'danger'
-        break
-    }
-    Vue.set(state.items[index], '_rowVariant', variant)
-  },
-  ITEM_MESSAGE: (state, params) => {
-    let index = state.items.findIndex(item => item.mac === params.mac)
-    Vue.set(state.items[index], '_message', params.message)
-  },
-  ITEM_UPDATED: (state, params) => {
-    let index = state.items.findIndex(item => item.mac === params.mac)
-    Vue.set(state.items[index], params.prop, params.data)
   },
   SAVED_SEARCHES_UPDATED: (state, searches) => {
     state.savedSearches = searches

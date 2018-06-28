@@ -47,13 +47,13 @@
 
 <script>
 import { pfSearchConditionType as attributeType } from '@/globals/pfSearch'
-import pfBaseSearchable from '@/components/pfBaseSearchable'
+import pfMixinSearchable from '@/components/pfMixinSearchable'
 import pfSearch from '@/components/pfSearch'
 import ToggleButton from '@/components/ToggleButton'
 
 export default {
   name: 'RadiusLogsSearch',
-  extends: pfBaseSearchable,
+  extends: pfMixinSearchable,
   searchApiEndpoint: 'radius_audit_logs',
   defaultSortKeys: ['created_at', 'mac'],
   components: {
@@ -125,7 +125,7 @@ export default {
   methods: {
     quickCondition (newCondition) {
       // Build full condition from quick value;
-      // Called from pfBaseSearchable.onSearch().
+      // Called from pfMixinSearchable.onSearch().
       return {
         op: 'or',
         values: [
@@ -139,7 +139,7 @@ export default {
     }
   },
   created () {
-    // pfBaseSearchable.created() has been called
+    // pfMixinSearchable.created() has been called
     if (!this.condition) {
       // Select first field
       this.initCondition()

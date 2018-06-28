@@ -41,18 +41,18 @@
 
 <script>
 import { pfSearchConditionType as attributeType } from '@/globals/pfSearch'
-import pfBaseSearchable from '@/components/pfBaseSearchable'
-import pfSearch from '@/components/pfSearch'
-import ToggleButton from '@/components/ToggleButton'
+import pfMixinSearchable from '@/components/pfMixinSearchable'
 
 export default {
   name: 'UsersSearch',
-  extends: pfBaseSearchable,
-  searchApiEndpoint: 'users',
-  defaultSortKeys: ['pid'],
+  extends: pfMixinSearchable,
+  pfMixinSearchableOptions: {
+    searchApiEndpoint: 'users',
+    defaultSortKeys: ['pid'],
+    defaultSearchCondition: { op: 'and', values: [{ op: 'or', values: [{ field: 'pid', op: 'equals', value: null }] }] },
+    defaultRoute: { name: 'users' }
+  },
   components: {
-    'pf-search': pfSearch,
-    'toggle-button': ToggleButton
   },
   data () {
     return {
@@ -98,7 +98,7 @@ export default {
     }
   },
   methods: {
-    quickCondition (newCondition) {
+    pfMixinSearchableQuickCondition (newCondition) {
       return {
         op: 'or',
         values: [
@@ -112,10 +112,10 @@ export default {
     }
   },
   created () {
-    // pfBaseSearchable.created() has been called
+    // pfMixinSearchable.created() has been called
     if (!this.condition) {
       // Select first field
-      this.initCondition()
+      this.pfMixinSearchableInitCondition()
     } else {
       // Restore selection of advanced mode; check if condition matches a quick search
       this.advancedMode = !(this.condition.op === 'or' &&
