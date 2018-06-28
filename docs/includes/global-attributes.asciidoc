@@ -16,9 +16,5 @@
 :release_version: 8.0.0
 // set imagesdir for all asciidoc files
 :imagesdir: images
-// for Github rendering
-ifdef::env-github[]
-:imagesdir: images
-endif::[]
 
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:
