@@ -146,12 +146,12 @@ export default {
       fields: [ // keys match with b-form-select
         {
           value: 'mac',
-          text: this.$i18n.t('MAC Address [✓]'),
+          text: this.$i18n.t('MAC Address'),
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'bypass_role_id',
-          text: this.$i18n.t('Bypass Role [✓]'),
+          text: this.$i18n.t('Bypass Role'),
           types: [conditionType.ROLE, conditionType.SUBSTRING]
         },
         {
@@ -161,7 +161,7 @@ export default {
         },
         {
           value: 'computername',
-          text: this.$i18n.t('Computer Name [✓]'),
+          text: this.$i18n.t('Computer Name'),
           types: [conditionType.SUBSTRING]
         },
         {
@@ -171,7 +171,7 @@ export default {
         },
         {
           value: 'device_class',
-          text: this.$i18n.t('Device Class [✓]'),
+          text: this.$i18n.t('Device Class'),
           types: [conditionType.SUBSTRING]
         },
         {
@@ -181,67 +181,67 @@ export default {
         },
         {
           value: 'device_type',
-          text: this.$i18n.t('Device Type [✓]'),
+          text: this.$i18n.t('Device Type'),
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'ip4log.ip',
-          text: this.$i18n.t('IPv4 Address [✓]'),
+          text: this.$i18n.t('IPv4 Address'),
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'ip6log.ip',
-          text: this.$i18n.t('IPv6 Address [✓]'),
+          text: this.$i18n.t('IPv6 Address'),
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'machine_account',
-          text: this.$i18n.t('Machine Account [✓]'),
+          text: this.$i18n.t('Machine Account'),
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'notes',
-          text: this.$i18n.t('Notes [✓]'),
+          text: this.$i18n.t('Notes'),
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'online',
-          text: this.$i18n.t('Online Status [x]'),
+          text: this.$i18n.t('Online Status'),
           types: [conditionType.ONLINE]
         },
         {
           value: 'pid',
-          text: this.$i18n.t('Owner [✓]'),
+          text: this.$i18n.t('Owner'),
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'category_id',
-          text: this.$i18n.t('Role [✓]'),
+          text: this.$i18n.t('Role'),
           types: [conditionType.ROLE, conditionType.SUBSTRING]
         },
         {
           value: 'locationlog.switch',
-          text: this.$i18n.t('Source Switch Identifier [✓]'),
+          text: this.$i18n.t('Source Switch Identifier'),
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'locationlog.switch_ip',
-          text: this.$i18n.t('Source Switch IP [✓]'),
+          text: this.$i18n.t('Source Switch IP'),
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'locationlog.switch_mac',
-          text: this.$i18n.t('Source Switch MAC [✓]'),
+          text: this.$i18n.t('Source Switch MAC'),
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'locationlog.ssid',
-          text: this.$i18n.t('SSID [✓]'),
+          text: this.$i18n.t('SSID'),
           types: [conditionType.SUBSTRING]
         },
         {
           value: 'user_agent',
-          text: this.$i18n.t('User Agent [✓]'),
+          text: this.$i18n.t('User Agent'),
           types: [conditionType.SUBSTRING]
         },
         {
@@ -256,7 +256,7 @@ export default {
         },
         {
           value: 'voip',
-          text: this.$i18n.t('VoIP [✓]'),
+          text: this.$i18n.t('VoIP'),
           types: [conditionType.VOIP]
         }
       ],
