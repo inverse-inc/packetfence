@@ -74,10 +74,10 @@
  *         const selectValues = this.selectValues
  *         this.tableValues.forEach(function (item, index, items) {
  *           if (selectValues.includes(item)) {
- *             _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: item.mac, variant: 'info'})
+ *             _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {index: index, variant: 'info'})
  *           } else {
- *             _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: item.mac, variant: ''})
- *             _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {mac: item.mac, message: ''})
+ *             _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {index: index, variant: ''})
+ *             _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {index: index, message: ''})
  *           }
  *         })
  *       }
@@ -113,8 +113,8 @@ export default {
       this.lastIndex = null
       const _this = this
       this.selectValues.forEach(function (item, index, items) {
-        _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: item.mac, variant: ''})
-        _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {mac: item.mac, message: ''})
+        _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {index: index, variant: ''})
+        _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {index: index, message: ''})
       })
     },
     onToggleSelected (event, index) {

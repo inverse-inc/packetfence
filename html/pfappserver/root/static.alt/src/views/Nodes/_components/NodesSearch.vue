@@ -520,12 +520,13 @@ export default {
       if (macs.length > 0) {
         _this.$store.dispatch('$_nodes/clearViolationBulkNodes', {items: macs}).then(response => {
           response.items.forEach(function (item, index, items) {
-            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: item.mac, status: item.status})
-            _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {mac: item.mac, message: item.message})
+            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {index: index, status: item.status})
+            _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {index: index, message: item.message})
           })
         }).catch(() => {
-          macs.forEach(function (mac, index) {
-            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: mac, variant: 'danger'})
+          macs.forEach(function (mac, i) {
+            let index = this.tableValues.findIndex(node => node.mac === mac)
+            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {index: index, variant: 'danger'})
           })
         })
       }
@@ -536,12 +537,13 @@ export default {
       if (macs.length > 0) {
         _this.$store.dispatch('$_nodes/registerBulkNodes', {items: macs}).then(response => {
           response.items.forEach(function (item, index, items) {
-            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: item.mac, status: item.status})
-            _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {mac: item.mac, message: item.message})
+            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {index: index, status: item.status})
+            _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {index: index, message: item.message})
           })
         }).catch(() => {
-          macs.forEach(function (mac, index) {
-            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: mac, variant: 'danger'})
+          macs.forEach(function (mac, i) {
+            let index = this.tableValues.findIndex(node => node.mac === mac)
+            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {index: index, variant: 'danger'})
           })
         })
       }
@@ -552,12 +554,13 @@ export default {
       if (macs.length > 0) {
         _this.$store.dispatch('$_nodes/deregisterBulkNodes', {items: macs}).then(response => {
           response.items.forEach(function (item, index, items) {
-            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: item.mac, status: item.status})
-            _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {mac: item.mac, message: item.message})
+            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {index: index, status: item.status})
+            _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {index: index, message: item.message})
           })
         }).catch(() => {
-          macs.forEach(function (mac, index) {
-            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: mac, variant: 'danger'})
+          macs.forEach(function (mac, i) {
+            let index = this.tableValues.findIndex(node => node.mac === mac)
+            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {index: index, variant: 'danger'})
           })
         })
       }
@@ -568,12 +571,13 @@ export default {
       if (macs.length > 0) {
         _this.$store.dispatch('$_nodes/reevaluateAccessBulkNodes', {items: macs}).then(response => {
           response.items.forEach(function (item, index, items) {
-            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: item.mac, status: item.status})
-            _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {mac: item.mac, message: item.message})
+            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {index: index, status: item.status})
+            _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {index: index, message: item.message})
           })
         }).catch(() => {
-          macs.forEach(function (mac, index) {
-            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: mac, variant: 'danger'})
+          macs.forEach(function (mac, i) {
+            let index = this.tableValues.findIndex(node => node.mac === mac)
+            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {index: index, variant: 'danger'})
           })
         })
       }
@@ -584,12 +588,13 @@ export default {
       if (macs.length > 0) {
         _this.$store.dispatch('$_nodes/restartSwitchportBulkNodes', {items: macs}).then(response => {
           response.items.forEach(function (item, index, items) {
-            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: item.mac, status: item.status})
-            _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {mac: item.mac, message: item.message})
+            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {index: index, status: item.status})
+            _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {index: index, message: item.message})
           })
         }).catch(() => {
-          macs.forEach(function (mac, index) {
-            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: mac, variant: 'danger'})
+          macs.forEach(function (mac, i) {
+            let index = this.tableValues.findIndex(node => node.mac === mac)
+            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {index: index, variant: 'danger'})
           })
         })
       }
@@ -598,12 +603,13 @@ export default {
       const _this = this
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
-        macs.forEach(function (mac, index) {
-          _this.$store.dispatch(`${_this._storeName}/roleNode`, {mac: mac, category_id: role.category_id}).then(response => {
-            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: mac, status: response.status})
-            _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {mac: mac, message: response.message})
+        macs.forEach(function (mac, i) {
+          let index = this.tableValues.findIndex(node => node.mac === mac)
+          _this.$store.dispatch(`${_this._storeName}/roleNode`, {index: index, category_id: role.category_id}).then(response => {
+            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {index: index, status: response.status})
+            _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {index: index, message: response.message})
           }).catch(() => {
-            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: mac, variant: 'danger'})
+            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {index: index, variant: 'danger'})
           })
         })
       }
@@ -612,12 +618,13 @@ export default {
       const _this = this
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
-        macs.forEach(function (mac, index) {
-          _this.$store.dispatch(`${_this._storeName}/bypassRoleNode`, {mac: mac, bypass_role_id: role.category_id}).then(response => {
-            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: mac, status: response.status})
-            _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {mac: mac, message: response.message})
+        macs.forEach(function (mac, i) {
+          let index = this.tableValues.findIndex(node => node.mac === mac)
+          _this.$store.dispatch(`${_this._storeName}/bypassRoleNode`, {index: index, bypass_role_id: role.category_id}).then(response => {
+            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {index: index, status: response.status})
+            _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {index: index, message: response.message})
           }).catch(() => {
-            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: mac, variant: 'danger'})
+            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {index: index, variant: 'danger'})
           })
         })
       }
@@ -628,12 +635,13 @@ export default {
       if (macs.length > 0) {
         _this.$store.dispatch('$_nodes/applyViolationBulkNodes', {items: macs, vid: violation.id}).then(response => {
           response.items.forEach(function (item, index, items) {
-            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: item.mac, status: item.status})
-            _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {mac: item.mac, message: item.message})
+            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {index: index, status: item.status})
+            _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {index: index, message: item.message})
           })
         }).catch(() => {
-          macs.forEach(function (mac, index) {
-            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: mac, variant: 'danger'})
+          macs.forEach(function (mac, i) {
+            let index = this.tableValues.findIndex(node => node.mac === mac)
+            _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {index: index, variant: 'danger'})
           })
         })
       }
@@ -645,10 +653,10 @@ export default {
       const selectValues = this.selectValues
       this.tableValues.forEach(function (item, index, items) {
         if (selectValues.includes(item)) {
-          _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: item.mac, variant: 'info'})
+          _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {index: index, variant: 'info'})
         } else {
-          _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {mac: item.mac, variant: ''})
-          _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {mac: item.mac, message: ''})
+          _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {index: index, variant: ''})
+          _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {index: index, message: ''})
         }
       })
     }
