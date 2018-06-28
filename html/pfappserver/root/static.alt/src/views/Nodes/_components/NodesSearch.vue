@@ -394,7 +394,7 @@ export default {
           sortable: true,
           visible: true,
           formatter: (value, key, item) => {
-            return this.$store.state.config.roles.filter(role => role.category_id === item.category_id).map(role => role.name)
+            return this.roles.filter(role => role.category_id === item.category_id).map(role => role.name)
           }
         },
         {
@@ -451,7 +451,7 @@ export default {
           sortable: true,
           visible: false,
           formatter: (value, key, item) => {
-            return this.$store.state.config.roles.filter(role => role.category_id === item.bypass_role_id).map(role => role.name)
+            return this.roles.filter(role => role.category_id === item.bypass_role_id).map(role => role.name)
           }
         },
         {
@@ -494,6 +494,21 @@ export default {
           key: 'user_agent',
           label: this.$i18n.t('User Agent'),
           sortable: true,
+          visible: false
+        },
+        {
+          key: 'violation.open_vid',
+          label: this.$i18n.t('Violation Open'),
+          sortable: false,
+          visible: false,
+          formatter: (value, key, item) => {
+            return this.violations.filter(violation => violation.id === item['violation.open_vid']).map(violation => violation.desc)
+          }
+        },
+        {
+          key: 'violation.open_count',
+          label: this.$i18n.t('Violation Count'),
+          sortable: false,
           visible: false
         }
       ],
