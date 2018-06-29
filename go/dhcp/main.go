@@ -17,6 +17,7 @@ import (
 
 	"github.com/coreos/etcd/client"
 	"github.com/coreos/go-systemd/daemon"
+	cache "github.com/fdurand/go-cache"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/goji/httpauth"
 	"github.com/gorilla/mux"
@@ -24,7 +25,6 @@ import (
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 	dhcp "github.com/krolaw/dhcp4"
-	cache "github.com/patrickmn/go-cache"
 )
 
 var DHCPConfig *Interfaces
