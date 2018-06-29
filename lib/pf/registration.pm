@@ -87,11 +87,11 @@ sub do_person_create {
     my $pid = $node->pid;
     my ($status, $person) = pf::dal::person->find_or_create({"pid" => $pid});
     if ($status == $STATUS::CREATED ) {
-        pf::lookup::person::async_lookup_person($pid, $info->{'source'});
+        pf::lookup::person::async_lookup_person($pid, $node->{'source'});
     }
     if ($person) {
-        $person->source($info->{source});
-        $person->portal($info->{portal});
+        $person->source($node->{source});
+        $person->portal($node->{portal});
         $person->save;
     }
 }
