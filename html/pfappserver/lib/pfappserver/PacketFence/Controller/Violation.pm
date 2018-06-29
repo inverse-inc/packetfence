@@ -124,6 +124,10 @@ sub toggle : Chained('object') :PathPart('toggle') :Args(1) {
         $item_id,
         {enabled => $enabled},
     );
+    if (is_success($status)) {
+        $self->_commitChanges($c);
+    }
+
     $self->audit_current_action($c, status => $status);
     $c->response->status($status);
     $c->stash(
