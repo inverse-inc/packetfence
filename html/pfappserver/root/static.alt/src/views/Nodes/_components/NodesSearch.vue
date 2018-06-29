@@ -125,13 +125,7 @@ export default {
     searchApiEndpoint: 'nodes',
     defaultSortKeys: ['mac'],
     defaultSearchCondition: { op: 'and', values: [{ op: 'or', values: [{ field: 'mac', op: 'equals', value: null }] }] },
-    defaultRoute: { name: 'nodes' },
-    advancedModeCallback: (condition) => {
-      if (condition.values.length > 1 || condition.values[0].values.length > 1) {
-        return true
-      }
-      return false
-    }
+    defaultRoute: { name: 'nodes' }
   },
   components: {
     'pf-fingerbank-score': pfFingerbankScore
@@ -527,6 +521,9 @@ export default {
     }
   },
   methods: {
+    pfMixinSearchableAdvancedMode (condition) {
+      return (condition.values.length > 1 || condition.values[0].values.length > 1)
+    },
     onRowClick (item, index) {
       this.$router.push({ name: 'node', params: { mac: item.mac } })
     },

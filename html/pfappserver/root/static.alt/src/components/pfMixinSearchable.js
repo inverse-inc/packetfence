@@ -8,7 +8,6 @@
  *     - declare a property 'defaultSearchKeys' (array);
  *     - declare a property 'defaultSearchCondition' (object);
  *     - declare a property 'defaultRoute' (object);
- *     - declare a property 'advancedModeCallback' (function);
  *
  *      export default {
  *        // ...
@@ -16,14 +15,7 @@
  *          searchApiEndpoint: 'users',
  *          defaultSortKeys: ['pid'],
  *          defaultSearchCondition: { op: 'and', values: [{ op: 'or', values: [{ field: 'pid', op: null, value: null }] }] },
- *          defaultRoute: { name: 'user' },
- *          advancedModeCallback: (condition) => {
- *            // either return true or false to enable or disable (respectively) advancedMode, depending on our condition
- *            if (condition.values.length > 1 || condition.values[0].values.length > 1) {
- *              return true
- *            }
- *            return false
- *          }
+ *          defaultRoute: { name: 'user' }
  *        }
  *        // ...
  *      }
@@ -35,6 +27,8 @@
  *
  *   - implement a method name 'pfMixinSearchableInitCondition' (used when the search is reset or cleared).
  *   - implement a method name 'pfMixinSearchableQuickCondition' (used when predefining search fields in quick mode).
+ *   - implement a method name 'pfMixinSearchableAdvancedMode' (used when determining if advanced mode is enabled).
+ *
  */
 import SearchableStore from '@/store/base/searchable'
 import pfSearch from '@/components/pfSearch'
@@ -169,9 +163,9 @@ export default {
           if (a === undefined || a === null) {
             // empty query, re-initialize
             this.pfMixinSearchableInitCondition()
-          } else if (this.$options.pfMixinSearchableOptions.advancedModeCallback) {
+          } else if (typeof this.pfMixinSearchableAdvancedMode === 'function') {
             // enable advancedMode (if not already)
-            this.advancedMode = (this.$options.pfMixinSearchableOptions.advancedModeCallback(a)) ? true : this.advancedMode
+            this.advancedMode = (this.pfMixinSearchableAdvancedMode(a)) ? true : this.advancedMode
           }
         }
       },
