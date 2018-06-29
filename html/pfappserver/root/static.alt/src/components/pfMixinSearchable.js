@@ -18,7 +18,8 @@
  *          defaultSearchCondition: { op: 'and', values: [{ op: 'or', values: [{ field: 'pid', op: null, value: null }] }] },
  *          defaultRoute: { name: 'user' },
  *          advancedModeCallback: (condition) => {
- *            if (a.values.length > 1 || a.values[0].values.length > 1) {
+ *            // either return true or false to enable or disable (respectively) advancedMode, depending on our condition
+ *            if (condition.values.length > 1 || condition.values[0].values.length > 1) {
  *              return true
  *            }
  *            return false
