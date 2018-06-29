@@ -21,7 +21,8 @@ const route = {
   children: [
     {
       path: 'search',
-      component: UsersSearch
+      component: UsersSearch,
+      props: (route) => ({ query: route.query.query })
     },
     {
       path: 'create',

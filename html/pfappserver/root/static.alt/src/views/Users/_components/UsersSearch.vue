@@ -4,9 +4,9 @@
       <div class="float-right"><toggle-button v-model="advancedMode">{{ $t('Advanced') }}</toggle-button></div>
       <h4 class="mb-0" v-t="'Search Users'"></h4>
     </b-card-header>
-    <pf-search :quick-with-fields="false" quick-placeholder="Search by name or email"
+    <pf-search :quick-with-fields="false" :quick-placeholder="$t('Search by name or email')"
       :fields="fields" :store="$store" storeName="users" :advanced-mode="advancedMode" :condition="condition"
-      @submit-search="onSearch" @reset-search="onReset"></pf-search>
+      @submit-search="onSearch" @reset-search="onReset" @import-search="onImport"></pf-search>
     <div class="card-body">
       <b-row align-h="between" align-v="center">
         <b-col cols="auto" class="mr-auto">
@@ -159,6 +159,7 @@ export default {
   },
   created () {
     this._storeName = '$_' + this.$options.name.toLowerCase()
+    /*
     // pfMixinSearchable.created() has been called
     if (!this.condition) {
       // Select first field
@@ -172,6 +173,7 @@ export default {
         this.condition.values[1].field === 'email' &&
         this.condition.values[1].op === 'contains')
     }
+    */
   }
 }
 </script>
