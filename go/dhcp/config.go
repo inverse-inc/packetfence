@@ -29,6 +29,7 @@ type DHCPHandler struct {
 	available     *roaring.Bitmap // RoaringBitmap to keep track of available IP addresses
 	layer2        bool
 	role          string
+	ipReserved    string
 }
 
 type Interfaces struct {
@@ -219,7 +220,7 @@ func (d *Interfaces) readConfig() {
 
 							initiaLease(&DHCPScope)
 							ExcludeIP(&DHCPScope, ConfNet.IpReserved)
-
+							DHCPScope.ipReserved = ConfNet.IpReserved
 							var options = make(map[dhcp.OptionCode][]byte)
 
 							options[dhcp.OptionSubnetMask] = []byte(DHCPNet.network.Mask)
@@ -277,6 +278,7 @@ func (d *Interfaces) readConfig() {
 
 						initiaLease(&DHCPScope)
 						ExcludeIP(&DHCPScope, ConfNet.IpReserved)
+						DHCPScope.ipReserved = ConfNet.IpReserved
 
 						var options = make(map[dhcp.OptionCode][]byte)
 

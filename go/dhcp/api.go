@@ -346,6 +346,10 @@ func (h *Interface) handleApiReq(Request ApiReq) interface{} {
 				binary.BigEndian.PutUint32(result, binary.BigEndian.Uint32(v.dhcpHandler.start.To4())+uint32(item.Object.(int)))
 				Members = append(Members, Node{IP: result.String(), Mac: i, EndsAt: time.Unix(0, item.Expiration)})
 			}
+			_, reserved := IPsFromRange(v.dhcpHandler.ipReserved)
+			if reserved != 1 {
+				Count = Count + reserved
+			}
 
 			availableCount := (int(statistics.RunContainerValues) + int(statistics.ArrayContainerValues))
 			if Count == (v.dhcpHandler.leaseRange - availableCount) {

@@ -243,7 +243,7 @@ func ShuffleIP(a []byte, randSrc int64) (r []byte) {
 	return ShuffleNetIP(array, randSrc)
 }
 
-func IPsFromRange(ip_range string) (r []net.IP) {
+func IPsFromRange(ip_range string) (r []net.IP, i int) {
 	var iplist []net.IP
 	iprange := strings.Split(ip_range, ",")
 	if len(iprange) >= 1 {
@@ -265,12 +265,12 @@ func IPsFromRange(ip_range string) (r []net.IP) {
 			}
 		}
 	}
-	return iplist
+	return iplist, len(iplist)
 }
 
 // ExcludeIP remove IP from the pool
 func ExcludeIP(dhcpHandler *DHCPHandler, ip_range string) {
-	excludeIPs := IPsFromRange(ip_range)
+	excludeIPs, _ := IPsFromRange(ip_range)
 
 	for _, excludeIP := range excludeIPs {
 		if excludeIP != nil {
