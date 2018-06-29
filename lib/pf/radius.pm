@@ -329,12 +329,12 @@ sub authorize {
     $RAD_REPLY_REF = $switch->returnRadiusAccessAccept($args);
 
 CLEANUP:
+    if ($do_auto_reg) {
+        pf::registration::finalize_node_registration($node_obj);
+    }
     $status = $node_obj->save;
     if (is_error($status)) {
         $logger->error("Cannot save $mac error ($status)");
-    }
-    if ($do_auto_reg) {
-        pf::registration::finalize_node_registration($node_obj);
     }
 
     # cleanup
