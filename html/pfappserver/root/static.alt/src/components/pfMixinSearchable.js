@@ -92,7 +92,7 @@ export default {
     onSearch (searchCondition) {
       const _this = this
       let condition = searchCondition
-      if (!this.advancedMode && typeof this.pfMixinSearchableQuickCondition === 'function') {
+      if (!this.advancedMode && typeof searchCondition === 'string' && typeof this.pfMixinSearchableQuickCondition === 'function') {
         // Build quick search query
         condition = this.pfMixinSearchableQuickCondition(searchCondition)
       }

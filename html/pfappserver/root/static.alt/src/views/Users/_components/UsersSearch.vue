@@ -68,12 +68,15 @@ export default {
     defaultSearchCondition: { op: 'and', values: [{ op: 'or', values: [{ field: 'pid', op: 'equals', value: null }] }] },
     defaultRoute: { name: 'users' },
     advancedModeCallback: (condition) => {
-      return !(condition.op === 'or' &&
-        condition.values.length === 2 &&
-        condition.values[0].field === 'pid' &&
-        condition.values[0].op === 'contains' &&
-        condition.values[1].field === 'email' &&
-        condition.values[1].op === 'contains')
+      let mode = condition.values.length > 1 || !(
+        condition.values[0].values.length === 2 &&
+        condition.values[0].values[0].field === 'pid' &&
+        condition.values[0].values[0].op === 'contains' &&
+        condition.values[0].values[1].field === 'email' &&
+        condition.values[0].values[1].op === 'contains' &&
+        condition.values[0].values[0].value === condition.values[0].values[1].value
+      )
+      return mode
     }
   },
   components: {
@@ -138,12 +141,17 @@ export default {
     }
   },
   methods: {
-    pfMixinSearchableQuickCondition (newCondition) {
+    pfMixinSearchableQuickCondition (quickCondition) {
       return {
-        op: 'or',
+        op: 'and',
         values: [
-          { field: 'pid', op: 'contains', value: newCondition },
-          { field: 'email', op: 'contains', value: newCondition }
+          {
+            op: 'or',
+            values: [
+              { field: 'pid', op: 'contains', value: quickCondition },
+              { field: 'email', op: 'contains', value: quickCondition }
+            ]
+          }
         ]
       }
     },
@@ -167,21 +175,6 @@ export default {
   },
   created () {
     this._storeName = '$_' + this.$options.name.toLowerCase()
-    /*
-    // pfMixinSearchable.created() has been called
-    if (!this.condition) {
-      // Select first field
-      this.pfMixinSearchableInitCondition()
-    } else {
-      // Restore selection of advanced mode; check if condition matches a quick search
-      this.advancedMode = !(this.condition.op === 'or' &&
-        this.condition.values.length === 2 &&
-        this.condition.values[0].field === 'pid' &&
-        this.condition.values[0].op === 'contains' &&
-        this.condition.values[1].field === 'email' &&
-        this.condition.values[1].op === 'contains')
-    }
-    */
   }
 }
 </script>

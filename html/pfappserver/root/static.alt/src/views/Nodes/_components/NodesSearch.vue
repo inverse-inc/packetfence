@@ -500,7 +500,7 @@ export default {
         {
           key: 'violation.open_vid',
           label: this.$i18n.t('Violation Open'),
-          sortable: false,
+          sortable: true,
           visible: false,
           formatter: (value, key, item) => {
             return this.violations.filter(violation => violation.id === item['violation.open_vid']).map(violation => violation.desc)
@@ -509,7 +509,7 @@ export default {
         {
           key: 'violation.open_count',
           label: this.$i18n.t('Violation Count'),
-          sortable: false,
+          sortable: true,
           visible: false
         }
       ],
