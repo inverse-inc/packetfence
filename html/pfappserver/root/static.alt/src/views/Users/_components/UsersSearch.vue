@@ -1,7 +1,7 @@
 <template>
   <b-card no-body>
     <b-card-header>
-      <div class="float-right"><toggle-button v-model="advancedMode">{{ $t('Advanced') }}</toggle-button></div>
+      <div class="float-right"><toggle-button v-model="advancedMode" :sync="true">{{ $t('Advanced') }}</toggle-button></div>
       <h4 class="mb-0" v-t="'Search Users'"></h4>
     </b-card-header>
     <pf-search :quick-with-fields="false" :quick-placeholder="$t('Search by name or email')"

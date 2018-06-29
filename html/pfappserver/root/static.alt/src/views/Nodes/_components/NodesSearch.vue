@@ -1,7 +1,7 @@
 <template>
   <b-card no-body>
     <b-card-header>
-      <div class="float-right"><toggle-button v-model="advancedMode">{{ $t('Advanced') }}</toggle-button></div>
+      <div class="float-right"><toggle-button v-model="advancedMode" :sync="true">{{ $t('Advanced') }}</toggle-button></div>
       <h4 class="mb-0" v-t="'Search Nodes'"></h4>
     </b-card-header>
     <pf-search :fields="fields" :store="$store" storeName="nodes" :advanced-mode="advancedMode" :condition="condition"
