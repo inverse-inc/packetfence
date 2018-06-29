@@ -26,22 +26,22 @@
           </b-button-group>
         </b-container>
       </b-form>
-      <b-modal v-model="showExportJsonModal" size="lg" centered id="nodeExportJsonModal" :title="$t('Export to JSON')">
-        <b-form-textarea ref="nodeExportJsonTextarea" v-model="JSON.stringify(condition)" :rows="3" :max-rows="3" readonly></b-form-textarea>
+      <b-modal v-model="showExportJsonModal" size="lg" centered id="exportJsonModal" :title="$t('Export to JSON')">
+        <b-form-textarea ref="exportJsonTextarea" v-model="JSON.stringify(condition)" :rows="3" :max-rows="3" readonly></b-form-textarea>
         <div slot="modal-footer">
           <b-button-group class="float-right">
             <b-button variant="outline-secondary" @click="showExportJsonModal=false">{{ $t('Cancel') }}</b-button>
-            <b-button variant="primary" @click="copyNodeExportJsonTextarea">{{ $t('Copy to Clipboard') }}</b-button>
+            <b-button variant="primary" @click="copyJsonTextarea">{{ $t('Copy to Clipboard') }}</b-button>
           </b-button-group>
         </div>
       </b-modal>
-      <b-modal v-model="showImportJsonModal" size="lg" centered id="nodeImportJsonModal" :title="$t('Import from JSON')" @shown="focusImportJsonTextarea">
+      <b-modal v-model="showImportJsonModal" size="lg" centered id="importJsonModal" :title="$t('Import from JSON')" @shown="focusImportJsonTextarea">
         <b-card v-if="importJsonError" class="mb-3" bg-variant="danger" text-variant="white"><icon name="exclamation-triangle" class="mr-1"></icon>{{ importJsonError }}</b-card>
         <b-form-textarea ref="importJsonTextarea" v-model="importJsonString" :rows="3" :max-rows="3" :placeholder="$t('Enter JSON')"></b-form-textarea>
         <div slot="modal-footer">
           <b-button-group class="float-right">
             <b-button variant="outline-secondary" @click="showImportJsonModal=false">{{ $t('Cancel') }}</b-button>
-            <b-button variant="primary" @click="importNodeImportJsonTextarea">{{ $t('Import JSON') }}</b-button>
+            <b-button variant="primary" @click="importJsonTextarea">{{ $t('Import JSON') }}</b-button>
           </b-button-group>
         </div>
       </b-modal>
@@ -118,6 +118,10 @@ export default {
     },
     saveSearchString: {
       type: String
+    },
+    storeName: {
+      type: String,
+      default: null
     }
   },
   data () {
@@ -141,14 +145,14 @@ export default {
     onReset (event) {
       this.$emit('reset-search')
     },
-    copyNodeExportJsonTextarea () {
+    copyJsonTextarea () {
       if (document.queryCommandSupported('copy')) {
-        this.$refs.nodeExportJsonTextarea.$el.select()
+        this.$refs.exportJsonTextarea.$el.select()
         document.execCommand('copy')
         this.showExportJsonModal = false
       }
     },
-    importNodeImportJsonTextarea () {
+    importJsonTextarea () {
       this.importJsonError = ''
       try {
         const json = JSON.parse(this.importJsonString)
@@ -171,10 +175,16 @@ export default {
     },
     saveSearch () {
       const _this = this
-      this.$store.dispatch('$_nodes/addSavedSearch', {name: this.saveSearchString, query: this.condition}).then(response => {
+      this.$store.dispatch(`$_${this.storeName}/addSavedSearch`, {name: this.saveSearchString, query: this.condition}).then(response => {
         _this.saveSearchString = ''
         _this.showSaveSearchModal = false
       })
+    }
+  },
+  created () {
+    // Called before the component's created function.
+    if (!this.$options.props.storeName) {
+      throw new Error(`Missing 'props.storeName' in properties of component ${this.$options.name}`)
     }
   },
   mounted () {

@@ -4,7 +4,7 @@
       <div class="float-right"><toggle-button v-model="advancedMode">{{ $t('Advanced') }}</toggle-button></div>
       <h4 class="mb-0" v-t="'Search Nodes'"></h4>
     </b-card-header>
-    <pf-search :fields="fields" :store="$store" :advanced-mode="advancedMode" :condition="condition"
+    <pf-search :fields="fields" :store="$store" storeName="nodes" :advanced-mode="advancedMode" :condition="condition"
       @submit-search="onSearch" @reset-search="onReset" @import-search="onImport"></pf-search>
     <div class="card-body">
       <b-row align-h="between" align-v="center">
