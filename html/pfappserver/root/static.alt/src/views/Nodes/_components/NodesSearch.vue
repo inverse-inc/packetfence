@@ -125,7 +125,13 @@ export default {
     searchApiEndpoint: 'nodes',
     defaultSortKeys: ['mac'],
     defaultSearchCondition: { op: 'and', values: [{ op: 'or', values: [{ field: 'mac', op: 'equals', value: null }] }] },
-    defaultRoute: { name: 'nodes' }
+    defaultRoute: { name: 'nodes' },
+    advancedModeCallback: (condition) => {
+      if (condition.values.length > 1 || condition.values[0].values.length > 1) {
+        return true
+      }
+      return false
+    }
   },
   components: {
     'pf-fingerbank-score': pfFingerbankScore

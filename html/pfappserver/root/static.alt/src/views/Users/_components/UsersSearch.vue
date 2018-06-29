@@ -66,7 +66,15 @@ export default {
     searchApiEndpoint: 'users',
     defaultSortKeys: ['pid'],
     defaultSearchCondition: { op: 'and', values: [{ op: 'or', values: [{ field: 'pid', op: 'equals', value: null }] }] },
-    defaultRoute: { name: 'users' }
+    defaultRoute: { name: 'users' },
+    advancedModeCallback: (condition) => {
+      return !(condition.op === 'or' &&
+        condition.values.length === 2 &&
+        condition.values[0].field === 'pid' &&
+        condition.values[0].op === 'contains' &&
+        condition.values[1].field === 'email' &&
+        condition.values[1].op === 'contains')
+    }
   },
   components: {
   },

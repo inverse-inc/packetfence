@@ -8,6 +8,7 @@
  *     - declare a property 'defaultSearchKeys' (array);
  *     - declare a property 'defaultSearchCondition' (object);
  *     - declare a property 'defaultRoute' (object);
+ *     - declare a property 'advancedModeCallback' (function);
  *
  *      export default {
  *        // ...
@@ -15,7 +16,13 @@
  *          searchApiEndpoint: 'users',
  *          defaultSortKeys: ['pid'],
  *          defaultSearchCondition: { op: 'and', values: [{ op: 'or', values: [{ field: 'pid', op: null, value: null }] }] },
- *          defaultRoute: { name: 'user' }
+ *          defaultRoute: { name: 'user' },
+ *          advancedModeCallback: (condition) => {
+ *            if (a.values.length > 1 || a.values[0].values.length > 1) {
+ *              return true
+ *            }
+ *            return false
+ *          }
  *        }
  *        // ...
  *      }
@@ -159,9 +166,11 @@ export default {
       handler: function (a, b) {
         if (a !== b) {
           if (a === undefined || a === null) {
+            // empty query, re-initialize
             this.pfMixinSearchableInitCondition()
-          } else if (a.values.length > 1 || a.values[0].values.length > 1) {
-            this.advancedMode = true
+          } else if (this.$options.pfMixinSearchableOptions.advancedModeCallback) {
+            // enable advancedMode (if not already)
+            this.advancedMode = (this.$options.pfMixinSearchableOptions.advancedModeCallback(a)) ? true : this.advancedMode
           }
         }
       },
