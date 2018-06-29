@@ -1077,3 +1077,6 @@ msgstr "Your system is being scanned - this process will take approximately %s s
 msgid "violation: quarantine established"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Source/Twilio.pm
+msgid "PIN: $pin"
+msgstr ""
