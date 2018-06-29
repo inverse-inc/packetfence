@@ -9,11 +9,11 @@ import (
 
 	"github.com/RoaringBitmap/roaring"
 
+	cache "github.com/fdurand/go-cache"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 	dhcp "github.com/krolaw/dhcp4"
-	cache "github.com/patrickmn/go-cache"
 	netadv "github.com/simon/go-netadv"
 )
 
