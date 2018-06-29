@@ -631,6 +631,7 @@ sub _db_item {
     my ($status, $iter) = pf::dal::radacct->search(
         @args,
         -with_class => undef,
+        -no_auto_tenant_id => 1,
     );
     if (is_error($status)) {
         return undef;
@@ -647,6 +648,7 @@ sub _db_items {
     my ($status, $iter) = pf::dal::radacct->search(
         @args,
         -with_class => undef,
+        -no_auto_tenant_id => 1,
     );
     if (is_error($status)) {
         return;
