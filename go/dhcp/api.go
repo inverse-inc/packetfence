@@ -375,6 +375,7 @@ func (h *Interface) handleApiReq(Request ApiReq) interface{} {
 				var statistiques roaring.Statistics
 				statistiques = v.dhcpHandler.available.Stats()
 				spew.Dump(v.dhcpHandler.available.Stats())
+				spew.Dump(v.dhcpHandler.hwcache)
 				log.LoggerWContext(ctx).Info(v.dhcpHandler.available.String())
 				stats = append(stats, Stats{EthernetName: Request.NetInterface, Net: v.network.String(), Free: int(statistiques.RunContainerValues) + int(statistiques.ArrayContainerValues), Category: v.dhcpHandler.role, Status: "Debug finished"})
 			}
