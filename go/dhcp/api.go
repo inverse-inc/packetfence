@@ -341,10 +341,11 @@ func (h *Interface) handleApiReq(Request ApiReq) interface{} {
 				Members = append(Members, Node{IP: result.String(), Mac: i, EndsAt: time.Unix(0, item.Expiration)})
 			}
 
-			if Count == (v.dhcpHandler.leaseRange - (int(statistics.RunContainerValues) + int(statistics.ArrayContainerValues))) {
+			availableCount := (int(statistics.RunContainerValues) + int(statistics.ArrayContainerValues))
+			if Count == (v.dhcpHandler.leaseRange - availableCount) {
 				Status = "Normal"
 			} else {
-				Status = "Calculated available IP " + strconv.Itoa(v.dhcpHandler.leaseRange-Count) + " is different than what we have available in the pool " + strconv.Itoa(int(statistics.RunContainerValues))
+				Status = "Calculated available IP " + strconv.Itoa(v.dhcpHandler.leaseRange-Count) + " is different than what we have available in the pool " + strconv.Itoa(availableCount)
 			}
 
 			stats = append(stats, Stats{EthernetName: Request.NetInterface, Net: v.network.String(), Free: int(statistics.RunContainerValues) + int(statistics.ArrayContainerValues), Category: v.dhcpHandler.role, Options: Options, Members: Members, Status: Status})
