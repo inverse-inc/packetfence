@@ -97,15 +97,13 @@ sub getAcceptForm {
     $mac =~ s/:/-/g;
     my $pass = md5_hex($cgi_session->param("ecwp-original-param-chap-id").$mac.$cgi_session->param("ecwp-original-param-chap-challenge"));
     my $html_form = qq[
-        <form name="sendin" method="POST" action="$linkLoginOnly">
+        <form name="weblogin_form" data-autosubmit="1000" method="POST" action="$linkLoginOnly">
             <input type="hidden" name="dst" value="$linkOrig" />
             <input type="hidden" name="popup" value="true" />
             <input type="hidden" name="username" value="$mac">
             <input type="hidden" name="password" value="$pass">
         </form>
-        <script language="JavaScript" type="text/javascript">
-        window.setTimeout('document.weblogin_form.submit();', 1000);
-        </script>
+        <script src="/content/autosubmit.js" type="text/javascript"></script>
     ];
 
     $logger->debug("Generated the following html form : ".$html_form);

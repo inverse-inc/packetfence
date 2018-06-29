@@ -142,15 +142,13 @@ sub getAcceptForm {
 
     my $login_url = $portalSession->param("ecwp-original-param-login_url");
     my $html_form = qq[
-        <form name="weblogin_form" method="POST" action="$login_url">
+        <form name="weblogin_form" data-autosubmit="1000" method="POST" action="$login_url">
             <input type="hidden" name="Submit2" value="Submit">
             <input type="hidden" name="username" value="$mac">
             <input type="hidden" name="password" value="$mac">
             <input type="hidden" name="success_url" value="$destination_url">
         </form>
-        <script language="JavaScript" type="text/javascript">
-        window.setTimeout('document.weblogin_form.submit();', 1000);
-        </script>
+        <script src="/content/autosubmit.js" type="text/javascript"></script>
     ];
 
     $logger->debug("Generated the following html form : ".$html_form);
