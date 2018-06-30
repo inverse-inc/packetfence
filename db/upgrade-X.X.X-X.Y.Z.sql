@@ -58,12 +58,6 @@ ALTER TABLE person
 --
 UPDATE node SET last_seen=NOW() WHERE last_seen="0000-00-00 00:00:00";
 
---
--- Add some indexes on tenant in radacct and radacct_log
---
-CREATE INDEX radacct_log_tenant_id ON radacct_log(tenant_id);
-CREATE INDEX radacct_tenant_id ON radacct(tenant_id);
-
 
 INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION)); 
 
