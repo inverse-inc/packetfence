@@ -1150,6 +1150,7 @@ fi
 %dir                    /usr/local/pf/html/pfappserver/root/static/doc
 %doc                    /usr/local/pf/html/pfappserver/root/static/doc/*
 %doc                    /usr/local/pf/docs/*.asciidoc
+%doc                    /usr/local/pf/docs/html/*
 %if %{builddoc} == 1
 %doc                    /usr/local/pf/docs/*.pdf 
 %endif
