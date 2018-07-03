@@ -509,6 +509,10 @@ sub normalize_order_by {
         return undef;
     }
 
+    if ($order_by =~ /\./) {
+        $order_by = \"`$order_by`";
+    }
+
     return { $direction => $order_by }
 }
 
