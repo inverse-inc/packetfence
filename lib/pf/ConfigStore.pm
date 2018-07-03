@@ -91,10 +91,19 @@ sub _buildCachedConfig {
             expire_if => sub { $self->expire_if(@_) }
         },
         sub {
-            my $config = pf::IniFiles->new(@args);
-            if ($config) {
-                $config->SetLastModTimestamp;
+            my $config = eval {
+                my $config = pf::IniFiles->new(@args);
+                if ($config) {
+                    $config->SetLastModTimestamp;
+                }
+
+                $config
+            };
+
+            if ($@) {
+                get_logger->error("Error opening $file_path : $@");
             }
+
             return $config;
         });
 }
