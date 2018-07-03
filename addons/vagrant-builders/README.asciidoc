@@ -1,0 +1,18 @@
+Vagrant builders
+================
+
+Debian usage
+------------
+
+ cd debian/
+ export GIT_BRANCH='feature/whatever'
+ vagrant up
+
+
+CentOS usage
+------------
+
+ cd centos/
+ export GIT_BRANCH='feature/whatever'
+ export PFREPO='whatever'
+ vagrant up
