@@ -28,8 +28,8 @@ type ParseRunner struct {
 	StopChan chan struct{}
 }
 
-func (r *ParseRunner) Run() error {
-	log.Logger().Info(fmt.Sprintf("Start reading from %s", r.PipePath))
+func (r *ParseRunner) Run(s *Server) error {
+	s.Logger().Info(fmt.Sprintf("Start reading from %s", r.PipePath))
 	var err error
 	r.File, err = os.OpenFile(r.PipePath, syscall.O_RDWR, 0600)
 	if err != nil {
@@ -43,8 +43,8 @@ func (r *ParseRunner) Run() error {
 	default:
 	}
 
-	log.Logger().Info(fmt.Sprintf("File %s opened ready for reading", r.PipePath))
-	return r.WatchLog()
+	s.Logger().Info(fmt.Sprintf("File %s opened ready for reading", r.PipePath))
+	return r.WatchLog(s)
 }
 
 func NewParseRunner(parserType string, config *detectparser.PfdetectConfig) (*ParseRunner, error) {
@@ -61,7 +61,6 @@ func NewParseRunner(parserType string, config *detectparser.PfdetectConfig) (*Pa
 }
 
 func (r *ParseRunner) Stop() {
-	log.Logger().Info(fmt.Sprintf("Stopping runner %s", r.PipePath))
 	close(r.StopChan)
 	r.File.Close()
 }
@@ -72,6 +71,7 @@ type Server struct {
 	WaitGroup       *sync.WaitGroup
 	OnceSignalSetup *sync.Once
 	CPUCount        int
+	Context         context.Context
 }
 
 func (s *Server) AddWait(n int) {
@@ -83,16 +83,17 @@ func (s *Server) Wait() {
 }
 
 func (s *Server) Done(msg string) {
-	log.Logger().Info(fmt.Sprintf("Done for: %s", msg))
+	s.Logger().Info(fmt.Sprintf("Done for: %s", msg))
 	s.WaitGroup.Done()
 }
 
-func NewServer() *Server {
+func NewServer(ctx context.Context) *Server {
 	return &Server{
 		SignalChan:      make(chan os.Signal, 1),
 		WaitGroup:       &sync.WaitGroup{},
 		OnceSignalSetup: &sync.Once{},
 		CPUCount:        runtime.NumCPU(),
+		Context:         ctx,
 	}
 }
 
@@ -107,11 +108,13 @@ func (s *Server) AddRunner(runner *ParseRunner) {
 }
 
 func (s *Server) StopRunners() {
-	log.Logger().Info("Stopping Detect Parsers")
+	s.Logger().Info("Stopping Detect Parsers")
 	for _, runner := range s.Runners {
+		s.Logger().Info(fmt.Sprintf("Stopping runner %s", runner.PipePath))
 		runner.Stop()
 		s.Done(runner.PipePath)
 	}
+
 	s.Runners = s.Runners[0:0]
 }
 
@@ -141,12 +144,11 @@ func (s *Server) SetupSignals() {
 			s.StopRunners()
 		}()
 		wg.Wait()
-		log.Logger().Debug("Done signal setup")
+		s.Logger().Debug("Done signal setup")
 	})
 }
 
-func GetPfDetectConfig() []detectparser.PfdetectConfig {
-	ctx := context.Background()
+func GetPfDetectConfig(ctx context.Context) []detectparser.PfdetectConfig {
 	keys, _ := pfconfigdriver.FetchKeys(ctx, "config::Pfdetect")
 	configs := make([]detectparser.PfdetectConfig, 0, len(keys))
 	for _, n := range keys {
@@ -157,20 +159,24 @@ func GetPfDetectConfig() []detectparser.PfdetectConfig {
 	return configs
 }
 
+func (s *Server) Logger() log.PfLogger {
+	return log.LoggerWContext(s.Context)
+}
+
 func (s *Server) RunRunners() {
 	for _, runner := range s.Runners {
 		s.AddWait(1)
 		go func(runner *ParseRunner) {
-			runner.Run()
+			runner.Run(s)
 		}(runner)
 	}
-	log.Logger().Info(fmt.Sprintf("%d parse runners are running", len(s.Runners)))
+	s.Logger().Info(fmt.Sprintf("%d parse runners are running", len(s.Runners)))
 }
 
 func (s *Server) NotifySystemd(msg string) {
 	_, err := daemon.SdNotify(false, msg)
 	if err != nil {
-		log.Logger().Error(fmt.Sprintf("Error sending systemd ready notification: %s", err.Error()))
+		s.Logger().Error(fmt.Sprintf("Error sending systemd ready notification: %s", err.Error()))
 	}
 }
 
@@ -184,25 +190,26 @@ func (s *Server) Run() int {
 }
 
 func (s *Server) LoadParsersFromConfig() {
-	configs := GetPfDetectConfig()
+	configs := GetPfDetectConfig(s.Context)
 	for _, config := range configs {
 		runner, err := NewParseRunner(config.Type, &config)
 		if err != nil {
-			log.Logger().Error(fmt.Sprintf("Error setting up %s: %s", config.Path, err.Error()))
+			s.Logger().Error(fmt.Sprintf("Error setting up %s: %s", config.Path, err.Error()))
 		} else {
 			s.AddRunner(runner)
-			log.Logger().Info(fmt.Sprintf("Added %s", runner.PipePath))
+			s.Logger().Info(fmt.Sprintf("Added %s", runner.PipePath))
 		}
 	}
 }
 
 func main() {
 	log.SetProcessName("pfdetect")
-	server := NewServer()
+	var ctx = log.LoggerNewContext(context.Background())
+	server := NewServer(ctx)
 	os.Exit(server.Run())
 }
 
-func (r *ParseRunner) WatchLog() error {
+func (r *ParseRunner) WatchLog(s *Server) error {
 	reader := bufio.NewReader(r.File)
 	buff := bytes.Buffer{}
 	var err error
@@ -224,19 +231,19 @@ LOOP:
 			if isPrefix == false {
 				data := buff.String()
 				buff.Reset()
-				err = r.ParseLine(data)
+				err = r.ParseLine(s, data)
 				if err != nil {
-					log.Logger().Error(fmt.Sprintf("When processing line '%s' for pipe %s : %s", data, r.PipePath, err))
+					s.Logger().Error(fmt.Sprintf("When processing line '%s' for pipe %s : %s", data, r.PipePath, err))
 				}
 			}
 		}
 	}
 
-	log.Logger().Info(fmt.Sprintf("Stopping reading %s", r.PipePath))
+	s.Logger().Info(fmt.Sprintf("Stopping reading %s", r.PipePath))
 	return err
 }
 
-func (r *ParseRunner) ParseLine(data string) (err error) {
+func (r *ParseRunner) ParseLine(s *Server, data string) (err error) {
 	defer func() {
 		if rv := recover(); rv != nil {
 			err = fmt.Errorf("Panic while processing %s: %v ", r.PipePath, rv)
@@ -252,7 +259,7 @@ func (r *ParseRunner) ParseLine(data string) (err error) {
 		go func(c detectparser.ApiCall) {
 			err := c.Call()
 			if err != nil {
-				log.Logger().Error(fmt.Sprintf("Error handling API call for %s: %s\n", r.PipePath, err))
+				s.Logger().Error(fmt.Sprintf("Error handling API call for %s: %s\n", r.PipePath, err))
 			}
 		}(call)
 	}

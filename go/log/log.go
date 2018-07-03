@@ -17,6 +17,8 @@ const RequestUuidKey = "request-uuid"
 const ProcessPidKey = "pid"
 const LoggerKey = "logger"
 
+type PfLogger = log.Logger
+
 const AdditionnalLogElementsKey = "additionnal-log-elements"
 
 var ProcessName = os.Args[0]
