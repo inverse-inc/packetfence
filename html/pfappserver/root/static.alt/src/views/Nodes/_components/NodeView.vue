@@ -6,7 +6,7 @@
         <b-button-close @click="close" v-b-tooltip.hover.left :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
         <h4 class="mb-0">MAC <strong v-text="mac"></strong></h4>
       </b-card-header>
-      <b-tabs card>
+      <b-tabs ref="tabs" v-model="tabIndex" card>
 
         <b-tab title="Info" active>
           <b-row>
@@ -23,7 +23,7 @@
               </b-form-group>
             </b-col>
             <b-col>
-              <pf-form-row :label="$t('Name')">
+              <pf-form-row :label="$t('Computer Name')">
                 {{ node.computername }}
               </pf-form-row>
               <pf-form-row :label="$t('Last Seen')">
@@ -127,8 +127,9 @@
 
       </b-tabs>
       <b-card-footer align="right" @mouseenter="$v.nodeContent.$touch()">
-        <b-button variant="outline-danger" class="mr-1" :disabled="isLoading" @click="deleteNode()" v-t="$t('Delete')"></b-button>
-        <b-button variant="outline-primary" type="submit" :disabled="invalidForm"><icon name="circle-notch" spin v-show="isLoading"></icon> {{ $t('Save') }}</b-button>
+        <b-button v-if="tabIndex === 0" variant="outline-danger" class="mr-1" :disabled="isLoading" @click="deleteNode()" v-t="$t('Delete')"></b-button>
+        <b-button v-if="tabIndex === 0" variant="outline-primary" class="mr-1" type="submit" :disabled="invalidForm"><icon name="circle-notch" spin v-show="isLoading"></icon> {{ $t('Save') }}</b-button>
+        <b-button variant="outline-secondary" type="cancel" @click="close">{{ $t('Cancel') }}</b-button>
       </b-card-footer>
     </b-card>
   </b-form>
@@ -163,6 +164,8 @@ export default {
   },
   data () {
     return {
+      tabIndex: 0,
+      tabTitle: '',
       nodeContent: {
         pid: ''
       },
