@@ -3,7 +3,7 @@
   <b-form @submit.prevent="save()">
     <b-card no-body>
       <b-card-header>
-        <b-button-close @click="close"><icon name="times"></icon></b-button-close>
+        <b-button-close @click="close" v-b-tooltip.hover.left :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
         <h4 class="mb-0">MAC <strong v-text="mac"></strong></h4>
       </b-card-header>
       <b-tabs card>
@@ -127,7 +127,7 @@
 
       </b-tabs>
       <b-card-footer align="right" @mouseenter="$v.nodeContent.$touch()">
-        <b-button variant="outline-danger" class="mr-1" :disabled="isLoading" @click="deleteNode()" v-t="'Delete'"></b-button>
+        <b-button variant="outline-danger" class="mr-1" :disabled="isLoading" @click="deleteNode()" v-t="$t('Delete')"></b-button>
         <b-button variant="outline-primary" type="submit" :disabled="invalidForm"><icon name="circle-notch" spin v-show="isLoading"></icon> {{ $t('Save') }}</b-button>
       </b-card-footer>
     </b-card>

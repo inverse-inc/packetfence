@@ -99,7 +99,7 @@
         <template slot="online" slot-scope="data">
           <b-badge pill variant="success" v-if="data.value === 'on'">{{ $t('online') }}</b-badge>
           <b-badge pill variant="danger" v-else-if="data.value === 'off'">{{ $t('offline') }}</b-badge>
-          <b-badge pill variant="light" v-else>{{ $t('unknown') }}</b-badge>
+          <b-badge pill variant="info" v-else>{{ $t('unknown') }}</b-badge>
         </template>
         <template slot="device_score" slot-scope="data">
           <pf-fingerbank-score :score="data.value"></pf-fingerbank-score>
