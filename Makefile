@@ -60,8 +60,8 @@ html: $(patsubst %.asciidoc,%.html,$(notdir $(wildcard docs/PacketFence_*.asciid
 
 html/pfappserver/root/static/doc:
 	make html
-	mv docs/html html/pfappserver/root/static/doc
-	mv docs/images html/pfappserver/root/static
+	cp -a docs/html/* html/pfappserver/root/static/doc
+	cp -a docs/images/* html/pfappserver/root/static/images
 
 pfcmd.help:
 	/usr/local/pf/bin/pfcmd help > docs/pfcmd.help
