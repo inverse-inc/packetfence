@@ -424,7 +424,7 @@ done
 %endif
 
 # Build the HTML doc for pfappserver
-make html/pfappserver/root/static/doc
+make html
 
 # build pfcmd C wrapper
 gcc -g0 src/pfcmd.c -o bin/pfcmd
@@ -560,6 +560,17 @@ rm -rf $RPM_BUILD_ROOT/usr/local/pf/docs/fonts
 rm -rf $RPM_BUILD_ROOT/usr/local/pf/docs/images
 rm -rf $RPM_BUILD_ROOT/usr/local/pf/docs/api
 cp -r html $RPM_BUILD_ROOT/usr/local/pf/
+
+# install html and images dirs in pfappserver for embedded doc
+%{__install} -d -m0744 $RPM_BUILD_ROOT/usr/local/pf/html/pfappserver/root/static/doc
+for i in `find * -name "*.html" -path 'docs/html/*' -type f`; do \
+	%{__install} -m0444 $i $RPM_BUILD_ROOT/usr/local/pf/html/pfappserver/root/static/doc/; \
+done
+%{__install} -d -m0744 $RPM_BUILD_ROOT/usr/local/pf/html/pfappserver/root/static/images
+for i in `find * -path 'docs/images/*' -type f`; do \
+	%{__install} -m0444 $i $RPM_BUILD_ROOT/usr/local/pf/html/pfappserver/root/static/images/; \
+done
+
 cp -r lib $RPM_BUILD_ROOT/usr/local/pf/
 cp -r go $RPM_BUILD_ROOT/usr/local/pf/
 cp -r NEWS.asciidoc $RPM_BUILD_ROOT/usr/local/pf/
