@@ -9,6 +9,9 @@
       <b-tabs ref="tabs" v-model="tabIndex" card>
 
         <b-tab title="Info" active>
+          <template slot="title">
+            {{ $t('Info') }}
+          </template>
           <b-row>
             <b-col>
               <pf-form-input v-model="nodeContent.pid" label="Owner" :validation="$v.nodeContent.pid"/>
@@ -46,6 +49,9 @@
         </b-tab>
 
         <b-tab title="Fingerbank">
+          <template slot="title">
+            {{ $t('Fingerbank') }}
+          </template>
           <b-row>
             <b-col>
               <pf-form-row :label="$t('Device Class')">
@@ -85,15 +91,24 @@
         </b-tab>
 
         <b-tab title="IPv4 Addresses">
-            <b-table stacked="sm" :items="node.ip4.history" :fields="iplogFields" v-if="node.ip4"></b-table>
+            <template slot="title">
+              {{ $t('IPv4 Addresses') }} <b-badge pill v-if="node.ip4.history.length > 0" variant="light" class="ml-1">{{ node.ip4.history.length }}</b-badge>
+            </template>
+            <b-table stacked="sm" :items="node.ip4.history" :fields="iplogFields" v-if="node.ip4" striped></b-table>
         </b-tab>
 
         <b-tab title="IPv6 Addresses">
-            <b-table stacked="sm" :items="node.ip6.history" :fields="iplogFields" v-if="node.ip6"></b-table>
+            <template slot="title">
+              {{ $t('IPv6 Addresses') }} <b-badge pill v-if="node.ip6.history.length > 0" variant="light" class="ml-1">{{ node.ip6.history.length }}</b-badge>
+            </template>
+            <b-table stacked="sm" :items="node.ip6.history" :fields="iplogFields" v-if="node.ip6" striped></b-table>
         </b-tab>
 
         <b-tab title="Location">
-            <b-table stacked="sm" :items="node.locations" :fields="locationFields">
+            <template slot="title">
+              {{ $t('Location') }} <b-badge pill v-if="node.locations.length > 0" variant="light" class="ml-1">{{ node.locations.length }}</b-badge>
+            </template>
+            <b-table stacked="sm" :items="node.locations" :fields="locationFields" striped>
                 <template slot="switch" slot-scope="location">
                     {{ location.item.switch_ip }} / {{ location.item.switch_mac }}<br/>
                     <b-badge><icon name="wifi" size="sm"></icon> {{ location.item.ssid }}</b-badge>
@@ -107,7 +122,10 @@
         </b-tab>
 
         <b-tab title="Violations">
-            <b-table stacked="sm" :items="node.violations" :fields="violationFields">
+            <template slot="title">
+              {{ $t('Violations') }} <b-badge pill v-if="node.violations.length > 0" variant="light" class="ml-1">{{ node.violations.length }}</b-badge>
+            </template>
+            <b-table stacked="sm" :items="node.violations" :fields="violationFields" striped>
                 <template slot="description" slot-scope="violation">
                     {{ violationDescription(violation.item.vid) }}
                 </template>
