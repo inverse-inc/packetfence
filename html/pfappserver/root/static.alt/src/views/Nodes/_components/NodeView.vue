@@ -110,7 +110,7 @@
             </template>
             <b-table stacked="sm" :items="node.locations" :fields="locationFields" striped>
                 <template slot="switch" slot-scope="location">
-                    {{ location.item.switch_ip }} / {{ location.item.switch_mac }}<br/>
+                    {{ location.item.switch_ip }} / <mac>{{ location.item.switch_mac }}</mac><br/>
                     <b-badge><icon name="wifi" size="sm"></icon> {{ location.item.ssid }}</b-badge>
                     <b-badge>{{ $t('Role') }}: {{ location.item.role }}</b-badge>
                     <b-badge>{{ $t('VLAN') }}: {{ location.item.vlan }}</b-badge>
@@ -138,9 +138,15 @@
         </b-tab>
 
         <b-tab title="WMI Rules">
+          <template slot="title">
+            {{ $t('WMI Rules') }}
+          </template>
         </b-tab>
 
         <b-tab title="Option82">
+          <template slot="title">
+            {{ $t('Option82') }}
+          </template>
         </b-tab>
 
       </b-tabs>
@@ -202,6 +208,10 @@ export default {
           label: this.$i18n.t('End Time'),
           formatter: this.$options.filters.pfDate,
           'class': 'text-nowrap'
+        },
+        {
+          key: 'type',
+          label: this.$i18n.t('Type')
         }
       ],
       locationFields: [
