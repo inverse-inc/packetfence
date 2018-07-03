@@ -1,0 +1,3 @@
+## Update Log level for pfdetect
+##
+LOG_LEVEL=INFO
