@@ -284,9 +284,6 @@ export default {
     }
   },
   methods: {
-    onDelete (event) {
-      console.log(['onDelete', event])
-    },
     close () {
       this.$router.push({ name: 'nodes' })
     },
