@@ -27,7 +27,7 @@
         </b-container>
       </b-form>
       <b-modal v-model="showExportJsonModal" size="lg" centered id="exportJsonModal" :title="$t('Export to JSON')">
-        <b-form-textarea ref="exportJsonTextarea" v-model="JSON.stringify(condition)" :rows="3" :max-rows="3" readonly></b-form-textarea>
+        <b-form-textarea ref="exportJsonTextarea" v-model="jsonCondition" :rows="3" :max-rows="3" readonly></b-form-textarea>
         <div slot="modal-footer">
           <b-button-group class="float-right">
             <b-button variant="outline-secondary" @click="showExportJsonModal=false">{{ $t('Cancel') }}</b-button>
@@ -128,6 +128,11 @@ export default {
     return {
       quickValue: '',
       condition: null
+    }
+  },
+  computed: {
+    jsonCondition () {
+      return JSON.stringify(this.condition)
     }
   },
   methods: {
