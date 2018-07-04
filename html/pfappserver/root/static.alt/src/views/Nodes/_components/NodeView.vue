@@ -151,15 +151,16 @@
 
       </b-tabs>
       <b-card-footer align="right" @mouseenter="$v.nodeContent.$touch()">
-        <b-button v-if="tabIndex === 0" variant="outline-danger" class="mr-1" :disabled="isLoading" @click="deleteNode()" v-t="$t('Delete')"></b-button>
+        <delete-button v-if="tabIndex === 0" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Node?')" @on-delete="deleteNode()">{{ $t('Delete') }}</delete-button>
         <b-button v-if="tabIndex === 0" variant="outline-primary" class="mr-1" type="submit" :disabled="invalidForm"><icon name="circle-notch" spin v-show="isLoading"></icon> {{ $t('Save') }}</b-button>
-        <b-button variant="outline-secondary" type="cancel" @click="close">{{ $t('Cancel') }}</b-button>
+        <b-button variant="outline-secondary" type="cancel" @click="close">{{ $t('Close') }}</b-button>
       </b-card-footer>
     </b-card>
   </b-form>
 </template>
 
 <script>
+import DeleteButton from '@/components/DeleteButton'
 import ToggleButton from '@/components/ToggleButton'
 import pfFingerbankScore from '@/components/pfFingerbankScore'
 import pfFormInput from '@/components/pfFormInput'
@@ -175,6 +176,7 @@ const { required } = require('vuelidate/lib/validators')
 export default {
   name: 'NodeView',
   components: {
+    'delete-button': DeleteButton,
     'toggle-button': ToggleButton,
     'pf-fingerbank-score': pfFingerbankScore,
     'pf-form-row': pfFormRow,
@@ -285,6 +287,9 @@ export default {
     }
   },
   methods: {
+    onDelete (event) {
+      console.log(['onDelete', event])
+    },
     close () {
       this.$router.push({ name: 'nodes' })
     },
