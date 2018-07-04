@@ -5,6 +5,11 @@ Installation Guide
 :doctype: book
 :toc: left
 
+// to display images directly on GitHub
+ifdef::env-github[]
+:imagesdir: images
+endif::[]
+
 ////
 
     This file is part of the PacketFence project.
@@ -221,7 +226,7 @@ Now that PacketFence is installed, it needs to be configured. The PacketFence we
 
 This section will guide you through configuring PacketFence as a simple RADIUS server. PacketFence will provide 802.1X support through Microsoft Active Directory and a Cisco 2960 access switch will be configured to integrate with PacketFence. The 802.1X client will be a Microsoft Windows 7 computer, connected of course on the wired network in the Cisco 2960 access switch. The following architecture diagram shows the interconnection of all components for our example:
 
-image::docs/images/getting-started.png["Getting Started",width="50%",scaledwidth="65%"]
+image::getting-started.png["Getting Started",width="50%",scaledwidth="65%"]
 
 Going Through the Configurator
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -705,7 +710,7 @@ On wireless networks, the usual PacketFence setup dictate that you configure two
 
 The following diagram demonstrates the flow between a mobile endpoint, a WiFi access point, a WiFi controller and PacketFence:
 
-image::docs/images/radius-workflow.png["WiFi RADIUS workflow",width="75%",scaledwidth="100%"]
+image::radius-workflow.png["WiFi RADIUS workflow",width="75%",scaledwidth="100%"]
 
 1. User initiates association to WLAN AP and transmits MAC address.  If user accesses network via a registered device in PacketFence, go to step 8.
 2. The WLAN controller transmits MAC address via RADIUS to the PacketFence server to authenticate/authorize that MAC address on the AP.
@@ -736,7 +741,7 @@ More on SNMP traps VLAN isolation
 
 When the VLAN isolation is working through SNMP traps all switch ports (on which VLAN isolation should be done) must be configured to send SNMP traps to the PacketFence host. On PacketFence, we use snmptrapd as the SNMP trap receiver. As it receives traps, it reformats and writes them into a flat file: `/usr/local/pf/logs/snmptrapd.log`. The multithreaded `pfsetvlan` daemon reads these traps from the flat file and responds to them by setting the switch port to the correct VLAN. Currently, we support switches from Cisco, Edge-core, HP, Intel, Linksys and Nortel (adding support for switches from another vendor implies extending the `pf::Switch` class). Depending on your switches capabilities, `pfsetvlan` will act on different types of SNMP traps.
 
-image::docs/images/diagram-trap-interaction.png[pfsetvlan SNMP interactions diagram, 400]
+image::diagram-trap-interaction.png[pfsetvlan SNMP interactions diagram, 400]
 
 You need to create a registration VLAN (with a DHCP server, but no routing to other VLANs) in which PacketFence will put unregistered devices. If you want to isolate computers which have open violations in a separate VLAN, an isolation VLAN needs also to be created.
 
@@ -915,7 +920,7 @@ NOTE: If you can't access this section and you have previously configured your s
 
 Click *Add Domain* and fill in the information about your domain.
 
-image::docs/images/domain-add.png[scaledwidth="100%",alt="Adding a new domain"]
+image::domain-add.png[scaledwidth="100%",alt="Adding a new domain"]
 
 Where :
 
@@ -945,7 +950,7 @@ Default Domain Configuration
 
 You should now define the domain you want to use as the default one by creating the following realm in *Configuration -> Policies and Access Control -> Domains -> REALMS*
 
-image::docs/images/domain-default-realm.png[scaledwidth="100%",alt="Adding the default realm"]
+image::domain-default-realm.png[scaledwidth="100%",alt="Adding the default realm"]
 
 Next, restart PacketFence in *Status -> Services*
 
@@ -958,7 +963,7 @@ Once they are configured, go in *Configuration -> Policies and Access Control ->
 
 Create a new realm that matches the DNS name of your domain *AND* one that matches your workgroup. In the case of this example, it will be DOMAIN.NET and DOMAIN.
 
-image::docs/images/domain-add-realm.png[scaledwidth="100%",alt="Adding a new realm"]
+image::domain-add-realm.png[scaledwidth="100%",alt="Adding a new realm"]
 
 Where :
 
@@ -970,7 +975,7 @@ Where :
 
 You should now have the following realm configuration
 
-image::docs/images/domain-realms-index.png[scaledwidth="100%",alt="Realms"]
+image::domain-realms-index.png[scaledwidth="100%",alt="Realms"]
 
 
 OAuth2 Authentication
@@ -1137,7 +1142,7 @@ Then, transfer the certificate and CA certificate of the Identity provider on th
 
 Then, to configure SAML in PacketFence, go in 'Configuration -> Policies and Access Control -> Sources' and then create a new Internal source of the type SAML and configure it.
 
-image::docs/images/saml-packetfence-config.png[scaledwidth="100%",alt="SAML PacketFence configuration"]
+image::saml-packetfence-config.png[scaledwidth="100%",alt="SAML PacketFence configuration"]
 
 Where :
 
@@ -1209,11 +1214,11 @@ Create an account that has the type 'Personal' and one that has the type 'Busine
 
 Afterwards, go back into accounts, and expand the business account, then click 'Profile'
 
-image::docs/images/billing/paypal-access-sandbox-profile.png[scaledwidth="100%",alt="Paypal access sandbox accounts"]
+image::billing/paypal-access-sandbox-profile.png[scaledwidth="100%",alt="Paypal access sandbox accounts"]
 
 Now click the 'Change password' link and change the password and note it.
 
-image::docs/images/billing/paypal-change-password.png[scaledwidth="100%",alt="Paypal change sandbox password"]
+image::billing/paypal-change-password.png[scaledwidth="100%",alt="Paypal change sandbox password"]
 
 Do the same thing with the personal account you created
 
@@ -1231,7 +1236,7 @@ You should turn on 'Auto Return', set the return URL to https://YOUR_PORTAL_HOST
 
 You should also take note of the 'Identity Token' as it will be required in the PacketFence configuration.
 
-image::docs/images/billing/paypal-website-payment.png[scaledwidth="100%",alt="Paypal website payment settings"]
+image::billing/paypal-website-payment.png[scaledwidth="100%",alt="Paypal website payment settings"]
 
 Next go back in your profile configuration 'My account -> Profile' and select 'Encrypted Payment Settings'
 
@@ -1241,7 +1246,7 @@ Once you have submitted it, note it's associated 'Cert ID' as you will need to c
 
 Still on that page, click the 'Download' link to download the Paypal public certificate and put it on the PacketFence server under path : /usr/local/pf/conf/ssl/paypal.pem
 
-image::docs/images/billing/paypal-encrypted-payment.png[scaledwidth="100%",alt="Paypal encrypted payment settings"]
+image::billing/paypal-encrypted-payment.png[scaledwidth="100%",alt="Paypal encrypted payment settings"]
 
 CAUTION: The certificate will *NOT* be the same if you use a sandbox account or a real account.
 
@@ -1249,7 +1254,7 @@ CAUTION: The certificate will *NOT* be the same if you use a sandbox account or 
 
 Now, in the PacketFence administration interface, go in 'Configuration->Policies and Access Control->Sources' and create a new source of type 'Billing -> Paypal'.
 
-image::docs/images/billing/paypal-packetfence-configuration.png[scaledwidth="100%",alt="Paypal PacketFence configuration"]
+image::billing/paypal-packetfence-configuration.png[scaledwidth="100%",alt="Paypal PacketFence configuration"]
 
 Where :
 [options="compact"]
@@ -1276,13 +1281,13 @@ Next on the top right click 'Your account' then 'Account settings'.
 
 Navigate to the 'API keys' tab and note your key and secret. The test key should be used when testing the configuration and the live key when putting the source in production.
 
-image::docs/images/billing/stripe-api-keys.png[scaledwidth="100%",alt="Stripe API keys"]
+image::billing/stripe-api-keys.png[scaledwidth="100%",alt="Stripe API keys"]
 
 *Configuring PacketFence*
 
 Now, in the PacketFence administration interface, go in 'Configuration->Policies and Access Control->Sources' and create a new source of type 'Billing -> Stripe'
 
-image::docs/images/billing/stripe-packetfence-configuration.png[scaledwidth="100%",alt="Stripe PacketFence configuration"]
+image::billing/stripe-packetfence-configuration.png[scaledwidth="100%",alt="Stripe PacketFence configuration"]
 
 Where :
 [options="compact"]
@@ -1311,13 +1316,13 @@ On the settings page in the section 'Security settings', click 'MD5-Hash'
 
 Now enter a secret that will be shared between authorize.net and PacketFence.
 
-image::docs/images/billing/authorize-md5-hash.png[scaledwidth="100%",alt="Stripe PacketFence configuration"]
+image::billing/authorize-md5-hash.png[scaledwidth="100%",alt="Stripe PacketFence configuration"]
 
 *PacketFence configuration*
 
 Next in the PacketFence administration interface, go in 'Configuration->Policies and Access Control->Sources' and create a new source of type 'Billing->AuthorizeNet'.
 
-image::docs/images/billing/authorize-packetfence-config.png[scaledwidth="100%",alt="Stripe PacketFence configuration"]
+image::billing/authorize-packetfence-config.png[scaledwidth="100%",alt="Stripe PacketFence configuration"]
 
 Where :
 [options="compact"]
@@ -1343,7 +1348,7 @@ In the PacketFence administration interface, go in 'Configuration->Advanced Acce
 
 Then click 'Add billing tier' and configure it.
 
-image::docs/images/billing/billing-tier.png[scaledwidth="100%",alt="Stripe PacketFence configuration"]
+image::billing/billing-tier.png[scaledwidth="100%",alt="Stripe PacketFence configuration"]
 
 Where :
 [options="compact"]
@@ -1392,7 +1397,7 @@ Then in your Stripe dashboard, you should go in 'Subscriptions -> Plans'.
 
 Then create a new plan.
 
-image::docs/images/billing/stripe-plan.png[scaledwidth="100%",alt="Stripe plan configuration"]
+image::billing/stripe-plan.png[scaledwidth="100%",alt="Stripe plan configuration"]
 
 Where :
 [options="compact"]
@@ -1416,7 +1421,7 @@ Then, in Stripe, configure a 'Webhook' so Stripe informs PacketFence of any even
 
 In order to do so go in 'Your Account -> Account Settings -> Webhooks' and click 'Add endpoint'.
 
-image::docs/images/billing/stripe-webhook.png[scaledwidth="100%",alt="Stripe Webhook"]
+image::billing/stripe-webhook.png[scaledwidth="100%",alt="Stripe Webhook"]
 
 Where :
 [options="compact"]
@@ -1532,7 +1537,7 @@ PacketFence already comes with a Null source pre-configured. If you haven't modi
 
 Then go in 'Configuration -> Advanced Access Configuration -> Portal Modules' and click 'Add Portal Module' and select 'Authentication -> Null'. Set the 'Identifier' to `prompt_fields` and configure the module with the 'Mandatory fields' you want and uncheck 'Require AUP' so that the user doesn't have to accept the AUP before submitting these fields.
 
-image::docs/images/portal-modules/prompt_fields.png[scaledwidth="100%",alt="Prompt fields module"]
+image::portal-modules/prompt_fields.png[scaledwidth="100%",alt="Prompt fields module"]
 
 Next, add the `prompt_fields` module in `my_first_root_module` (removing any previous modules) and save it. Now when visiting the portal, it should prompt you for the fields you define in the module. Then, submitting these information will assign you the role and access duration that you defined in the `null` source.
 
@@ -1566,11 +1571,11 @@ Go in 'Configuration -> Advanced Access Configuration -> Portal Modules' then cl
 
 Configure the portal module so that it uses the `sms` source and uncheck the 'Require AUP' option since the user will have already accepted the AUP when registering using OAuth.
 
-image::docs/images/portal-modules/sms.png[scaledwidth="100%",alt="SMS module"]
+image::portal-modules/sms.png[scaledwidth="100%",alt="SMS module"]
 
 Then, add another Portal Module of type 'Chained'. Name it `chained_oauth_sms`, assign a relevant description and then add `default_oauth_policy` and `sms` to the 'Modules' fields
 
-image::docs/images/portal-modules/chained_oauth_sms.png[scaledwidth="100%",alt="Chained OAuth + SMS module"]
+image::portal-modules/chained_oauth_sms.png[scaledwidth="100%",alt="Chained OAuth + SMS module"]
 
 Next, add the `chained_oauth_sms` module in `my_first_root_module` (removing any previous modules) and save it. Now when visiting the portal, you should have to authentication using an OAuth source and then using SMS based registration.
 
@@ -1592,7 +1597,7 @@ Next, create a 'Provisioning' portal module by going in 'Configuration -> Advanc
 
 Then, still in the Portal Modules, create a 'Choice' module. Set the 'Identifier' to `login_or_boarding` and description to 'Login or Boarding'. Add `secure_boarding` and `default_login_policy` to the 'Modules' field and save.
 
-image::docs/images/portal-modules/login_or_boarding.png[scaledwidth="100%",alt="Login or Boarding Secure SSID"]
+image::portal-modules/login_or_boarding.png[scaledwidth="100%",alt="Login or Boarding Secure SSID"]
 
 Next, add the `login_or_boarding` module in `my_first_root_module` (removing any previous modules) and save it. Now when visiting the portal, you will have the choice between login to the LDAP source and gain access to the network or directly use provisioning in order to configure your device for a Secure SSID.
 
@@ -1608,11 +1613,11 @@ Then put the following in the 'Message' field
   Hello World !
   <a href="www.packetfence.org">Click here to access the PacketFence website!</a>
 
-image::docs/images/portal-modules/hello_world.png[scaledwidth="100%",alt="Hello World"]
+image::portal-modules/hello_world.png[scaledwidth="100%",alt="Hello World"]
 
 Next, add `default_registration_policy` and `hello_world` in the 'Modules' of `my_first_root_module` (removing any previous modules) and save it. Now when visiting the portal, you should have to authenticate using the sources defined in your connection profile and you will then see the hello world message.
 
-image::docs/images/portal-modules/hello_world-my_first_root_module.png[scaledwidth="100%",alt="Hello World in my_first_root_module"]
+image::portal-modules/hello_world-my_first_root_module.png[scaledwidth="100%",alt="Hello World in my_first_root_module"]
 
 Calling an external website
 +++++++++++++++++++++++++++
@@ -1627,7 +1632,7 @@ Once you have the script installed and working on URL: `http://YOUR_PORTAL_HOSTN
 
 Go in 'Configuration -> Advanced Access Configuration -> Portal Modules', then click 'Add Portal Module' and select 'URL'. Set the 'Identifier' to `token_system`, the 'Description' to `Token system` and the 'URL' to `http://YOUR_PORTAL_HOSTNAME:10000/token.php`.
 
-image::docs/images/portal-modules/token_system.png[scaledwidth="100%",alt="Token system"]
+image::portal-modules/token_system.png[scaledwidth="100%",alt="Token system"]
 
 Next, add `default_registration_policy` and `token_system` in the 'Modules' of `my_first_root_module` (removing any previous modules) and save it. Now when visiting the portal, you should have to authenticate using the sources defined in your connection profile and then you will be redirected to example token system. Clicking the continue link on that system will bring you back to the portal and complete the registration process.
 
@@ -1769,11 +1774,11 @@ Putting the survey on the portal
 
 In order for your survey to be available on the portal, you will have to configure a portal module for it. In order to do so, go in 'Configuration->Advanced Access Configuration->Portal Modules' and create a new Survey portal module with the following settings:
 
-image::docs/images/survey-portal-module.png[scaledwidth="100%",alt="Survey portal module configuration"]
+image::survey-portal-module.png[scaledwidth="100%",alt="Survey portal module configuration"]
 
 Then either add your survey to another portal module (Choice, Chained or Root) or create a Root portal module dedicated to the survey:
 
-image::docs/images/survey-root-portal-module.png[scaledwidth="100%",alt="Survey root portal module configuration"]
+image::survey-root-portal-module.png[scaledwidth="100%",alt="Survey root portal module configuration"]
 
 Once that is configured, make sure you have the right Root portal module on the applicable connection profile in 'Policies and Access Control->Connection Profiles->Name of the profile->Root Portal Module'.
 
@@ -2966,7 +2971,7 @@ First go in Configuration and Scanner Definition: 'Configuration->Compliance->Sc
 
 Then add a scan:
 
-image::docs/images/scan_type.png[alt="Scanner add"]
+image::scan_type.png[alt="Scanner add"]
 
 There are common parameters for each scan engines:
 
@@ -3240,12 +3245,12 @@ You now have a full flow working for your corporate devices.
 
 The following is an example on how to configure an EAP-TLS connection for Windows/Android/Mac OS X/iOS
 
-image::docs/images/scep-ms-pki-eaptls-example.png[scaledwidth="100%",alt="Provisioner EAP-TLS configuration"]
+image::scep-ms-pki-eaptls-example.png[scaledwidth="100%",alt="Provisioner EAP-TLS configuration"]
 
 Mac OS X/iOS require the provisioning profile to be signed if you want to remove the `untrusted` warning when installing the profile. You need to sign it with a Certification Authority already trusted by the device such as e.g. VeriSign.
 Configuring this has to be done in the 'Signing' tab in the "Apple devices". 
 
-image::docs/images/packetfence-pki-eaptls-sign-example.png[scaledwidth="100%",alt="Signing provisioner"]
+image::packetfence-pki-eaptls-sign-example.png[scaledwidth="100%",alt="Signing provisioner"]
 
 Fill out the fields with the contents of the Base64 encoded certificates.
 To extract this information from a pem formatted certificate, copy the file content included between the begin and end tag, not including the delimiters themselves.
@@ -3402,9 +3407,9 @@ Next, go in the 'NTLM cache' tab and:
  * Adjust the 'Expiration'
  * Enable 'NTLM cache background job' and/or 'NTLM cache on connection'. In the case of this example, both will be enabled.
 
-image::docs/images/domain-ntlm-cache-1.png[scaledwidth="100%",alt="Domain NTLM cache"]
+image::domain-ntlm-cache-1.png[scaledwidth="100%",alt="Domain NTLM cache"]
 
-image::docs/images/domain-ntlm-cache-2.png[scaledwidth="100%",alt="Domain NTLM cache"]
+image::domain-ntlm-cache-2.png[scaledwidth="100%",alt="Domain NTLM cache"]
 
 Once done, click 'Save' to commit your changes.
 
@@ -3804,7 +3809,7 @@ Routed Networks
 
 If your isolation and registration networks are not locally-reachable (at layer 2) on the network, but routed to the PacketFence server, you'll have to let the PacketFence server know this. PacketFence can even provide DHCP and DNS in these routed networks and provides an easy to use configuration interface.
 
-image::docs/images/diagram-routed-net.png[scaledwidth="100%",alt="Routed network example diagram"]
+image::diagram-routed-net.png[scaledwidth="100%",alt="Routed network example diagram"]
 
 For dhcpd, make sure that the clients DHCP requests are correctly forwarded (IP Helpers in the remote routers) to the PacketFence server. Then make sure you followed the instructions in the <<_dhcp_and_dns_server_configuration_networks_conf,DHCP and DNS Server Configuration (networks.conf)>> for your locally accessible network.
 
@@ -4456,7 +4461,7 @@ Enable httpd.collector service on PacketFence
 This service is mandatory and will receive the mse notifications in json format.
 To enable this service go in `Configuration -> services` and tick services.httpd_collector and leave the default order.
 
-image::docs/images/httpd_collector.png[scaledwidth="100%",alt="Enable httpd_collector"]
+image::httpd_collector.png[scaledwidth="100%",alt="Enable httpd_collector"]
 
 Create a Notification
 +++++++++++++++++++++
@@ -4477,7 +4482,7 @@ In *Configuration Policies and Access Control -> Connection Profiles -> Add prof
 
  extended.mse_inout.locationMapHierarchy == "Campus>Building>Level>Zone"
 
-image::docs/images/Connection_filter.png[scaledwidth="100%",alt="Connection Filter"]
+image::Connection_filter.png[scaledwidth="100%",alt="Connection Filter"]
 
 And fill the other configuration needed to configure a connection profile then save it.
 
@@ -4494,11 +4499,11 @@ So in our example:
  Username: mseread
  Password: password
 
-image::docs/images/MSE_Tab.png[scaledwidth="100%",alt="MSE Tab"]
+image::MSE_Tab.png[scaledwidth="100%",alt="MSE Tab"]
 
 Now go in `Nodes` and click on a MAC address and you will see that a new tab appears, then if you click on it you will be able to retrieve the map and the localization of the device.
 
-image::docs/images/TAB.png[scaledwidth="100%",alt="Node TAB"]
+image::TAB.png[scaledwidth="100%",alt="Node TAB"]
 
 
 Advanced Topics
@@ -4803,7 +4808,7 @@ Violation Definition
 
 First you need to configure the violation definition
 
-image::docs/images/violation-definition.png[scaledwidth="100%",alt="Violation definition"]
+image::violation-definition.png[scaledwidth="100%",alt="Violation definition"]
 
 Where :
 [options="compact"]
@@ -4840,14 +4845,14 @@ Next hit the `<` button, then the `+` to add another trigger.
 
 Select the type `Internal`, then in the menu that appears below it, select `Rogue DHCP detection` and click `Add`.
 
-image::docs/images/violation-triggers.png[scaledwidth="100%",alt="Violation triggers"]
+image::violation-triggers.png[scaledwidth="100%",alt="Violation triggers"]
 
 Remediation
 +++++++++++
 
 Next, in the `Remediation` tab, you can configure the behavior when a client gets isolated.
 
-image::docs/images/violation-remediation.png[scaledwidth="100%",alt="Violation remediation"]
+image::violation-remediation.png[scaledwidth="100%",alt="Violation remediation"]
 
 Where :
 [options="compact"]
@@ -4887,7 +4892,7 @@ Guest self-registration
 
 Self-registration is enabled by default. It is part of the connection profile and can be accessed on the registration page by clicking the *Sign up* link.
 
-image::docs/images/screenshot-captive-portal.png[alt="Captive portal screenshot"]
+image::screenshot-captive-portal.png[alt="Captive portal screenshot"]
 
 Managed guests
 ++++++++++++++

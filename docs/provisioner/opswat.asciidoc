@@ -1,3 +1,8 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:imagesdir: ../images
+endif::[]
+
 Configure OPSWAT Metadefender Endpoint
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 You will first need to create an OPSWAT Metadefender Endpoint account at https://www.opswat.com/products/metadefender/endpoint/management/ and configure your account according to OPSWAT's documentation.
@@ -18,11 +23,11 @@ From your OPSWAT Metadefender Endpoint console, click '+Devices' at the top. The
 
 Then click 'Download or send link for guest Metadefender Endpoint clients'
 
-image::docs/images/opswat-add-devices.png[scaledwidth="100%",alt="OPSWAT Add device"]
+image::opswat-add-devices.png[scaledwidth="100%",alt="OPSWAT Add device"]
 
 Then note the URL at the bottom of the screen.
 
-image::docs/images/opswat-add-guest-devices.png[scaledwidth="100%",alt="OPSWAT Add guest device"]
+image::opswat-add-guest-devices.png[scaledwidth="100%",alt="OPSWAT Add guest device"]
 
 API access
 ^^^^^^^^^^
@@ -58,7 +63,7 @@ Create a new provisioner
 Login in the PacketFence administration interface, then go in the 'Configuration' tab, then in 'Provisioners'.
 Click 'Add provisioner' then select opswat.
 
-image::docs/images/opswat-pf-config.png[scaledwidth="100%",alt="OPSWAT PacketFence configuration"]
+image::opswat-pf-config.png[scaledwidth="100%",alt="OPSWAT PacketFence configuration"]
 
 Now configure this new provisioner with the information you got above.
 
@@ -75,7 +80,7 @@ Add the provisioner to the profile
 Now that you have created the provisioner, go in the 'Connection Profiles' menu on the left and select the default portal.
 Click 'Add Provisioner' and select the new OPSWAT Metadefender Endpoint provisioner that was created earlier.
 
-image::docs/images/opswat-portal.png[scaledwidth="100%",alt="OPSWAT portal configuration"]
+image::opswat-portal.png[scaledwidth="100%",alt="OPSWAT portal configuration"]
 
 Add the necessary passthroughs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -86,7 +91,7 @@ Check the 'Passthrough' box above the field and add the following domains to the
 * software.opswat.com
 * opswat-gears-cloud-clients.s3.amazonaws.com
 
-image::docs/images/opswat-passthroughs.png[scaledwidth="100%",alt="OPSWAT passthroughs"]
+image::opswat-passthroughs.png[scaledwidth="100%",alt="OPSWAT passthroughs"]
 
 Testing
 ^^^^^^^
@@ -108,7 +113,7 @@ First you need to configure what you consider as a critical issue in your OPSWAT
 
 You will do that through the 'Configure' menu. Then you'll see a column that allows you to flag what is considered as a critical issue.
 
-image::docs/images/opswat-critical-config.png[scaledwidth="100%",alt="OPSWAT critical issues"]
+image::opswat-critical-config.png[scaledwidth="100%",alt="OPSWAT critical issues"]
 
 Configure PacketFence
 +++++++++++++++++++++
@@ -123,7 +128,7 @@ Then configure the 'Critical issues threshold' and put it at the minimum critica
 
 Putting 1 into that field will isolate the device whenever there is at least one critical issue with the device.
 
-image::docs/images/opswat-compliance-config.png[scaledwidth="100%",alt="OPSWAT critical issues"]
+image::opswat-compliance-config.png[scaledwidth="100%",alt="OPSWAT critical issues"]
 
 You can then hit 'Save' and now the device will get isolated whenever it's found as noncompliant.
 

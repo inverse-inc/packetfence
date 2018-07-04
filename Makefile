@@ -55,13 +55,13 @@ html: $(patsubst %.asciidoc,%.html,$(notdir $(wildcard docs/PacketFence_*.asciid
 	asciidoctor \
 		-D docs/html \
 		-n \
+		-a imagesdir=../images \
 		$<
 
 html/pfappserver/root/static/doc:
 	make html
-	mkdir -p docs/html/docs/images/
-	cp -a docs/images/* docs/html/docs/images/
-	mv docs/html html/pfappserver/root/static/doc
+	cp -a docs/html/* html/pfappserver/root/static/doc
+	cp -a docs/images/* html/pfappserver/root/static/images
 
 pfcmd.help:
 	/usr/local/pf/bin/pfcmd help > docs/pfcmd.help

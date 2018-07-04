@@ -1,3 +1,8 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:imagesdir: ../images
+endif::[]
+
 JSON-RPC interface
 ^^^^^^^^^^^^^^^^^^
 The JSONRPC module shipped with PacketFence is meant as a generic firewall SSO module to be used with Linux or BSD firewalls that do not by default ship with a vendor-specific interface to do SSO with.
@@ -29,4 +34,4 @@ Go to *'Configuration' -> 'Integration' -> 'Firewall SSO' -> 'Add Firewall' -> '
 * *Port of the service*: 9090
 * *Roles*: Add the roles that you want to do SSO with
 
-image::docs/images/doc-jsonrpc-cfg_SSO_pf.png[scaledwidth="100%",alt="Configure the JSON-RPC SSO in PacketFence"]
+image::doc-jsonrpc-cfg_SSO_pf.png[scaledwidth="100%",alt="Configure the JSON-RPC SSO in PacketFence"]

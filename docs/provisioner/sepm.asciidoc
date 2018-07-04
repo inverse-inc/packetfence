@@ -1,3 +1,8 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:imagesdir: ../images
+endif::[]
+
 Configure the SEPM
 ^^^^^^^^^^^^^^^^^^
 Configure the necessary policies in your SEPM before the creation of the install package. This document does not cover the policy and group configuration. Please refer to Symantec's documentation for more information. This document will use the default policies and the default group for the package creation.
@@ -6,19 +11,19 @@ Create the install package
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 Login in your SEPM console and then go in the 'Clients' tab on the left. Select the group your clients should belong and then click 'Add a client'.
 
-image::docs/images/sepm-add-client.png[scaledwidth="100%",alt="SEPM - Creating a package"]
+image::sepm-add-client.png[scaledwidth="100%",alt="SEPM - Creating a package"]
 
 The wizard for the package creation will open. On the first page, make sure 'New Package Deployment' is selected and click 'Next'.
 
 Now on this page, make sure you are creating the package for Windows. Then select the content options you prefer and click 'Next'.
 
-image::docs/images/sepm-content-config.png[scaledwidth="100%",alt="SEPM content config"]
+image::sepm-content-config.png[scaledwidth="100%",alt="SEPM content config"]
 
 Now on this page, select 'Save Package' and click 'Next'.
 
 Now you will need to select the export location of your new packages. Select any location you prefer. This guide will use `C:\temp\`. Once you are done, click 'Next'.
 
-image::docs/images/sepm-export-location.png[scaledwidth="100%",alt="SEPM - Exporting the package"]
+image::sepm-export-location.png[scaledwidth="100%",alt="SEPM - Exporting the package"]
 
 On the next page, confirm the settings and click 'Next'.
 
@@ -43,7 +48,7 @@ You should now see your application in the list on the right.
 
 Take note of the 'Client ID' and 'Client Secret' of your application
 
-image::docs/images/sepm-app-config.png[scaledwidth="100%",alt="SEPM application configuration"]
+image::sepm-app-config.png[scaledwidth="100%",alt="SEPM application configuration"]
 
 Generate the authorization code
 +++++++++++++++++++++++++++++++
@@ -74,7 +79,7 @@ Create a new provisioner
 Login in the PacketFence administration interface, then go in the 'Configuration' tab, then in 'Provisioners'.
 Click 'Add provisioner' then select sepm.
 
-image::docs/images/sepm-pf-config.png[scaledwidth="100%",alt="SEPM PacketFence configuration"]
+image::sepm-pf-config.png[scaledwidth="100%",alt="SEPM PacketFence configuration"]
 
 Now configure this new provisioner with the information you got above.
 
@@ -92,7 +97,7 @@ Add the provisioner to the profile
 Now that you have created the provisioner, go in the 'Connection Profiles' menu on the left and select the default portal.
 Click 'Add Provisioner' and select the new SEPM provisioner that was created earlier.
 
-image::docs/images/sepm-portal.png[scaledwidth="100%",alt="SEPM portal configuration"]
+image::sepm-portal.png[scaledwidth="100%",alt="SEPM portal configuration"]
 
 Restart PacketFence
 +++++++++++++++++++
