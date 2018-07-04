@@ -98,6 +98,10 @@ export default {
     store: {
       type: Object
     },
+    storeName: {
+      type: String,
+      default: null
+    },
     showExportJsonModal: {
       type: Boolean,
       default: false
@@ -118,10 +122,6 @@ export default {
     },
     saveSearchString: {
       type: String
-    },
-    storeName: {
-      type: String,
-      default: null
     }
   },
   data () {
@@ -175,7 +175,7 @@ export default {
     },
     saveSearch () {
       const _this = this
-      this.$store.dispatch(`$_${this.storeName}/addSavedSearch`, {name: this.saveSearchString, query: this.condition}).then(response => {
+      this.$store.dispatch(`${this.storeName}/addSavedSearch`, {name: this.saveSearchString, query: this.condition}).then(response => {
         _this.saveSearchString = ''
         _this.showSaveSearchModal = false
       })

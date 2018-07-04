@@ -3,7 +3,14 @@
  *
  * A component using the pfMixinSelectable mixin component is required to:
  *
- *   1. Declare a property 'tableValues':
+ *   1. Declare an option 'storeName':
+ *
+ *   export default {
+ *    storeName: '$_nodes'
+ *    // ...
+ *   }
+ *
+ *   2. Declare a property 'tableValues':
  *
  *     props: {
  *       tableValues: {
@@ -12,11 +19,11 @@
  *       }
  *     }
  *
- *   2. declare an attribute 'v-model' in <b-table/>:
+ *   3. declare an attribute 'v-model' in <b-table/>:
  *
  *      <b-table ... v-model="tableValues" ... />
  *
- *   3. declare a property 'actions' in the columns data attribute:
+ *   4. declare a property 'actions' in the columns data attribute:
  *
  *     columns: [
  *       {
@@ -32,11 +39,11 @@
  *       // ...
  *    ]
  *
- *   4. declare an attribute 'head-clicked' in <b-table/>:
+ *   5. declare an attribute 'head-clicked' in <b-table/>:
  *
  *     <b-table ... @head-clicked="clearSelected" ... />
  *
- *   5. declare a 'HEAD_actions' slot in <b-table/>:
+ *   6. declare a 'HEAD_actions' slot in <b-table/>:
  *
  *     <b-table ... >
  *       <template slot="HEAD_actions" slot-scope="head">
@@ -46,7 +53,7 @@
  *       </template>
  *     </b-table>
  *
- *   6. declare a 'actions' slot in <b-table/>:
+ *   7. declare a 'actions' slot in <b-table/>:
  *
  *     <b-table ... >
  *       <template slot="actions" slot-scope="data">
@@ -74,16 +81,13 @@
  *         const selectValues = this.selectValues
  *         this.tableValues.forEach(function (item, index, items) {
  *           if (selectValues.includes(item)) {
- *             _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {index: index, variant: 'info'})
+ *             _this.$store.commit(`${this.$options.storeName}_searchable/ROW_VARIANT`, {index: index, variant: 'info'})
  *           } else {
- *             _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {index: index, variant: ''})
- *             _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {index: index, message: ''})
+ *             _this.$store.commit(`${this.$options.storeName}_searchable/ROW_VARIANT`, {index: index, variant: ''})
+ *             _this.$store.commit(`${this.$options.storeName}_searchable/ROW_MESSAGE`, {index: index, message: ''})
  *           }
  *         })
  *       }
- *     },
- *     created () {
- *       this._storeName = '$_' + this.$options.name.toLowerCase()
  *     }
  *
 **/
@@ -113,8 +117,8 @@ export default {
       this.lastIndex = null
       const _this = this
       this.selectValues.forEach(function (item, index, items) {
-        _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {index: index, variant: ''})
-        _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {index: index, message: ''})
+        _this.$store.commit(`${this.$options.storeName}_searchable/ROW_VARIANT`, {index: index, variant: ''})
+        _this.$store.commit(`${this.$options.storeName}_searchable/ROW_MESSAGE`, {index: index, message: ''})
       })
     },
     onToggleSelected (event, index) {
@@ -173,6 +177,9 @@ export default {
   },
   created () {
     // Called before the component's created function.
+    if (!this.$options.storeName) {
+      throw new Error(`Missing 'storeName' in options of component ${this.$options.name}`)
+    }
     if (!this.$options.props.tableValues) {
       throw new Error(`Missing 'props.tableValues' in properties of component ${this.$options.name}`)
     }

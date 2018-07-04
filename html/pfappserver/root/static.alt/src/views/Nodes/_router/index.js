@@ -2,6 +2,7 @@ import store from '@/store'
 import NodesView from '../'
 import NodesStore from '../_store'
 import NodesSearch from '../_components/NodesSearch'
+import SearchableStore from '@/store/base/searchable'
 const NodesCreate = () => import(/* webpackChunkName: "Nodes" */ '../_components/NodesCreate')
 const NodeView = () => import(/* webpackChunkName: "Nodes" */ '../_components/NodeView')
 
@@ -15,6 +16,14 @@ const route = {
     if (!store.state.$_nodes) {
       // Register store module only once
       store.registerModule('$_nodes', NodesStore)
+    }
+    if (!store.state.$_nodes_searchable) {
+      // Register store module only once
+      const searchableStore = new SearchableStore(
+        NodesSearch.pfMixinSearchableOptions.searchApiEndpoint,
+        NodesSearch.pfMixinSearchableOptions.defaultSortKeys
+      )
+      store.registerModule('$_nodes_searchable', searchableStore.module())
     }
     next()
   },

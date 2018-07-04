@@ -5,7 +5,7 @@
       <h4 class="mb-0" v-t="'Search Users'"></h4>
     </b-card-header>
     <pf-search :quick-with-fields="false" :quick-placeholder="$t('Search by name or email')"
-      :fields="fields" :store="$store" storeName="users" :advanced-mode="advancedMode" :condition="condition"
+      :fields="fields" :store="$store" storeName="$_users" :advanced-mode="advancedMode" :condition="condition"
       @submit-search="onSearch" @reset-search="onReset" @import-search="onImport"></pf-search>
     <div class="card-body">
       <b-row align-h="between" align-v="center">
@@ -58,6 +58,7 @@ import pfMixinSelectable from '@/components/pfMixinSelectable'
 
 export default {
   name: 'UsersSearch',
+  storeName: '$_users',
   mixins: [
     pfMixinSelectable,
     pfMixinSearchable
