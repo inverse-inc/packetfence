@@ -966,7 +966,7 @@ sub trigger_scan :Public :Fork :AllowedAsAction($ip, mac, $mac, net_type, TYPE) 
         my $vid = $top_violation->{'vid'};
         return if not defined $vid;
         sleep $pf::config::Config{'fencing'}{'wait_for_redirect'};
-        pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($vid eq $pf::constants::scan::POST_SCAN_VID);
+        pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($vid ne $pf::constants::scan::POST_SCAN_VID);
     }
     else {
         my $profile = pf::Connection::ProfileFactory->instantiate($postdata{'mac'});
@@ -979,7 +979,7 @@ sub trigger_scan :Public :Fork :AllowedAsAction($ip, mac, $mac, net_type, TYPE) 
         my $vid = $top_violation->{'vid'};
         return if not defined $vid;
         sleep $pf::config::Config{'fencing'}{'wait_for_redirect'};
-        pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($vid eq $pf::constants::scan::PRE_SCAN_VID || $vid eq $pf::constants::scan::SCAN_VID);
+        pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($vid ne $pf::constants::scan::PRE_SCAN_VID && $vid ne $pf::constants::scan::SCAN_VID);
     }
     return;
 }
