@@ -14,11 +14,13 @@ export default {
   props: {
     storeName: {
       type: String,
-      default: null
+      default: null,
+      required: true
     },
     routeName: {
       type: String,
-      default: null
+      default: null,
+      required: true
     }
   },
   computed: {
@@ -32,15 +34,6 @@ export default {
     },
     routeSavedSearch (search) {
       return { name: this.routeName, query: { query: JSON.stringify(search.query) } }
-    }
-  },
-  created () {
-    // Called before the component's created function.
-    if (!this.$options.props.storeName) {
-      throw new Error(`Missing 'props.storeName' in properties of component ${this.$options.name}`)
-    }
-    if (!this.$options.props.routeName) {
-      throw new Error(`Missing 'props.routeName' in properties of component ${this.$options.name}`)
     }
   }
 }
