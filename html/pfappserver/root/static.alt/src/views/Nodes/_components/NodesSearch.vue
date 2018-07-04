@@ -538,7 +538,7 @@ export default {
           })
         }).catch(() => {
           macs.forEach(function (mac, i) {
-            let index = this.tableValues.findIndex(node => node.mac === mac)
+            let index = _this.tableValues.findIndex(node => node.mac === mac)
             _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {index: index, variant: 'danger'})
           })
         })
@@ -555,7 +555,7 @@ export default {
           })
         }).catch(() => {
           macs.forEach(function (mac, i) {
-            let index = this.tableValues.findIndex(node => node.mac === mac)
+            let index = _this.tableValues.findIndex(node => node.mac === mac)
             _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {index: index, variant: 'danger'})
           })
         })
@@ -572,7 +572,7 @@ export default {
           })
         }).catch(() => {
           macs.forEach(function (mac, i) {
-            let index = this.tableValues.findIndex(node => node.mac === mac)
+            let index = _this.tableValues.findIndex(node => node.mac === mac)
             _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {index: index, variant: 'danger'})
           })
         })
@@ -589,7 +589,7 @@ export default {
           })
         }).catch(() => {
           macs.forEach(function (mac, i) {
-            let index = this.tableValues.findIndex(node => node.mac === mac)
+            let index = _this.tableValues.findIndex(node => node.mac === mac)
             _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {index: index, variant: 'danger'})
           })
         })
@@ -606,7 +606,7 @@ export default {
           })
         }).catch(() => {
           macs.forEach(function (mac, i) {
-            let index = this.tableValues.findIndex(node => node.mac === mac)
+            let index = _this.tableValues.findIndex(node => node.mac === mac)
             _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {index: index, variant: 'danger'})
           })
         })
@@ -617,7 +617,7 @@ export default {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
         macs.forEach(function (mac, i) {
-          let index = this.tableValues.findIndex(node => node.mac === mac)
+          let index = _this.tableValues.findIndex(node => node.mac === mac)
           _this.$store.dispatch(`${_this._storeName}/roleNode`, {index: index, category_id: role.category_id}).then(response => {
             _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {index: index, status: response.status})
             _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {index: index, message: response.message})
@@ -632,7 +632,7 @@ export default {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
         macs.forEach(function (mac, i) {
-          let index = this.tableValues.findIndex(node => node.mac === mac)
+          let index = _this.tableValues.findIndex(node => node.mac === mac)
           _this.$store.dispatch(`${_this._storeName}/bypassRoleNode`, {index: index, bypass_role_id: role.category_id}).then(response => {
             _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {index: index, status: response.status})
             _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {index: index, message: response.message})
@@ -653,7 +653,7 @@ export default {
           })
         }).catch(() => {
           macs.forEach(function (mac, i) {
-            let index = this.tableValues.findIndex(node => node.mac === mac)
+            let index = _this.tableValues.findIndex(node => node.mac === mac)
             _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {index: index, variant: 'danger'})
           })
         })
