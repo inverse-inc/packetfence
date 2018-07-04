@@ -100,7 +100,8 @@ export default {
     },
     storeName: {
       type: String,
-      default: null
+      default: null,
+      required: true
     },
     showExportJsonModal: {
       type: Boolean,
@@ -184,12 +185,6 @@ export default {
         _this.saveSearchString = ''
         _this.showSaveSearchModal = false
       })
-    }
-  },
-  created () {
-    // Called before the component's created function.
-    if (!this.$options.props.storeName) {
-      throw new Error(`Missing 'props.storeName' in properties of component ${this.$options.name}`)
     }
   },
   mounted () {
