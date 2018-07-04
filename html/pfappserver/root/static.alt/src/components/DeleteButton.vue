@@ -3,21 +3,20 @@
     <b-button 
       v-if="interrupt" 
       type="button" 
-      variant="success"
+      variant="danger"
       @click.stop="onDelete($event)"
-      @mousemove="startInterrupt($event)" 
       @mouseover="startInterrupt($event)" 
       @mouseleave="stopInterrupt($event)"
-      >{{ $t('Yes') }}</b-button>
+      >{{ $t('Delete') }}</b-button>
     <b-button 
       v-if="interrupt" 
       type="button" 
-      variant="danger" 
+      variant="warning" 
       @click.stop="stopInterrupt($event)" 
       @mousemove="startInterrupt($event)" 
       @mouseover="startInterrupt($event)" 
       @mouseleave="stopInterrupt($event)"
-      >{{ $t('No') }}</b-button>
+      >{{ $t('Cancel') }}</b-button>
     <b-button 
       v-if="interrupt" 
       type="button" 
