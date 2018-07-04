@@ -156,6 +156,10 @@ NodeView.prototype.readNode = function(e) {
                 $(this, $(this).parents("form")).removeAttr("clicked");
                 $(this).attr("clicked", "true");
             });
+            modal.on('hidden', function () {
+                modal.remove();
+                $("#modalNode").remove();
+            });
             modal.modal({ show: true });
         },
         errorSibling: section.find('h2').first()
