@@ -188,6 +188,10 @@ func (h ApiAAAHandler) handleTokenInfo(w http.ResponseWriter, r *http.Request, p
 }
 
 func (h ApiAAAHandler) HandleAAA(w http.ResponseWriter, r *http.Request) bool {
+    if aaa.IsPathPublic(r.URL.Path) {
+        return true
+    }
+
 	ctx := r.Context()
 	auth, err := h.authentication.BearerRequestIsAuthorized(ctx, r)
 
