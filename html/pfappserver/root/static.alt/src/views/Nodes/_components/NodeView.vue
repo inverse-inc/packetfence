@@ -49,9 +49,6 @@
         </b-tab>
 
         <b-tab title="Fingerbank">
-          <template slot="title">
-            {{ $t('Fingerbank') }}
-          </template>
           <b-row>
             <b-col>
               <pf-form-row :label="$t('Device Class')">
