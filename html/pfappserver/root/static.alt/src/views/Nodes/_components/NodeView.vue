@@ -92,21 +92,21 @@
 
         <b-tab title="IPv4 Addresses">
             <template slot="title">
-              {{ $t('IPv4 Addresses') }} <b-badge pill v-if="node.ip4.history.length > 0" variant="light" class="ml-1">{{ node.ip4.history.length }}</b-badge>
+              {{ $t('IPv4 Addresses') }} <b-badge pill v-if="node.ip4.history && node.ip4.history.length > 0" variant="light" class="ml-1">{{ node.ip4.history.length }}</b-badge>
             </template>
             <b-table stacked="sm" :items="node.ip4.history" :fields="iplogFields" v-if="node.ip4" striped></b-table>
         </b-tab>
 
         <b-tab title="IPv6 Addresses">
             <template slot="title">
-              {{ $t('IPv6 Addresses') }} <b-badge pill v-if="node.ip6.history.length > 0" variant="light" class="ml-1">{{ node.ip6.history.length }}</b-badge>
+              {{ $t('IPv6 Addresses') }} <b-badge pill v-if="node.ip6.history && node.ip6.history.length > 0" variant="light" class="ml-1">{{ node.ip6.history.length }}</b-badge>
             </template>
             <b-table stacked="sm" :items="node.ip6.history" :fields="iplogFields" v-if="node.ip6" striped></b-table>
         </b-tab>
 
         <b-tab title="Location">
             <template slot="title">
-              {{ $t('Location') }} <b-badge pill v-if="node.locations.length > 0" variant="light" class="ml-1">{{ node.locations.length }}</b-badge>
+              {{ $t('Location') }} <b-badge pill v-if="node.locations && node.locations.length > 0" variant="light" class="ml-1">{{ node.locations.length }}</b-badge>
             </template>
             <b-table stacked="sm" :items="node.locations" :fields="locationFields" striped>
                 <template slot="switch" slot-scope="location">
@@ -123,7 +123,7 @@
 
         <b-tab title="Violations">
             <template slot="title">
-              {{ $t('Violations') }} <b-badge pill v-if="node.violations.length > 0" variant="light" class="ml-1">{{ node.violations.length }}</b-badge>
+              {{ $t('Violations') }} <b-badge pill v-if="node.violations && node.violations.length > 0" variant="light" class="ml-1">{{ node.violations.length }}</b-badge>
             </template>
             <b-table stacked="sm" :items="node.violations" :fields="violationFields" striped>
                 <template slot="description" slot-scope="violation">
