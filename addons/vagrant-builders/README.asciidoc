@@ -5,9 +5,10 @@ Debian usage
 ------------
 
  cd debian/
- export GIT_BRANCH='feature/whatever'
+ export GIT_BRANCH='feature-whatever'
  vagrant up
 
+CAUTION: GIT_BRANCH should be 'feature-whatever', not 'feature/whatever'
 
 CentOS usage
 ------------
