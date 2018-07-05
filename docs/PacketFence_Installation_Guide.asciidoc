@@ -166,7 +166,17 @@ On a Debian system, do:
   apt-get update
   apt-get upgrade
 
-Regarding SELinux or AppArmor, even if they may be wanted by some organizations, PacketFence will not work properly if SELinux or AppArmor are enabled. You will need to explicitly disable SELinux from the `/etc/selinux/config` file and reboot the machine. For AppArmor, you need to execute the following commands: *update-rc.d -f apparmor stop*, *update-rc.d -f apparmor teardown* and *update-rc.d -f apparmor remove*. Regarding resolvconf, you can remove the symlink to that file and simply create the `/etc/resolv.conf` file with the content you want.
+Regarding SELinux or AppArmor, even if they may be wanted by some
+organizations, PacketFence will not work properly if SELinux or AppArmor are
+enabled. You will need to explicitly disable SELinux from the
+`/etc/selinux/config` file and reboot the machine. For AppArmor, you need to
+execute the following commands:
+
+  update-rc.d -f apparmor stop
+  update-rc.d -f apparmor teardown
+  update-rc.d -f apparmor remove
+
+Regarding resolvconf, you can remove the symlink to that file and simply create the `/etc/resolv.conf` file with the content you want.
 
 Red Hat-based Systems
 ^^^^^^^^^^^^^^^^^^^^^
@@ -228,6 +238,8 @@ This section will guide you through configuring PacketFence as a simple RADIUS s
 
 image::getting-started.png["Getting Started",width="50%",scaledwidth="65%"]
 
+NOTE: If you use another access switch, you must refer to PacketFence Network Devices Configuration Guide to adapt your configuration.
+
 Going Through the Configurator
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -239,7 +251,7 @@ First open PacketFence's configurator - you can access it from https://@ip_of_pa
  * Step 4 - PacketFence - provide your domain name, DHCP servers list and other required information
  * Step 5 - Administration - provide the PacketFence's admin username and password to be used
  * Step 6 - Fingerbank - provide your Fingerbank API key. Fingerbank is used to accurately identify Internet of Things (IoT) devices, medical devices, industrial and robotics equipment and more on your network. It is recommended to have a key for your PacketFence deployment. Without a Fingerbank API key, device profiling will not be available in PacketFence
- * Step 7 - Configuration - start all services.
+ * Step 7 - Confirmation - start all services.
 
 Once all services are started, you will automatically be redirected to the PacketFence's web admin interface. It is located at https://@ip_of_packetfence:1443/admin
 
@@ -248,11 +260,11 @@ Open that link and log in using the username/password specified in Step 5.
 Connecting PacketFence to Microsoft Active Directory
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Next we join the PacketFence server to your existing Microsoft Active Directory domain controller. From PacketFence's web admin interface, go in 'Configuration->Policies and Access Control->Domains->Active Directory Domain' and click on the 'Add domain' button. Provide the required fields. You will need an Active Directory administrative username and password (member of the domain admins) to join the PacketFence server to your domain. Once all the information has been provided, click on the 'Save and join" button'.
+Next we join the PacketFence server to your existing Microsoft Active Directory domain controller. From PacketFence's web admin interface, go in 'Configuration->Policies and Access Control->Domains->Active Directory Domain' and click on the 'Add domain' button. Provide the required fields. You will need an Active Directory administrative username and password (member of the domain admins) to join the PacketFence server to your domain. Once all the information has been provided, click on the 'Save and join button'.
 
-Once the domain join succeeds, click on the 'Realms' tab. Click on the 'Default' realm and set the domain to the Active Directory domain you have just created. That will instruct PacketFence to use that newly created Active Directory for the default authentication realm. Next, do the same thing for the NULL realm.
+Once the domain join succeeds, click on the 'REALMS' tab. Click on the 'Default' realm and set the domain to the Active Directory domain you have just created. That will instruct PacketFence to use that newly created Active Directory for the default authentication realm. Next, do the same thing for the NULL realm.
 
-Next we add the Microsoft Active Directory domain controller as an authentication source in PacketFence. To do so, from 'Configuration->Policies and Access Control->Authentication Sources', click on 'Add source->Internal->AD'. Specify all the required fields. If you need help identifying fields relevant to your Active Directory environment, please use the Active Directory Explorer (AD Explorer) tool from your Active Directory server.
+Next we add the Microsoft Active Directory domain controller as an authentication source in PacketFence. To do so, from 'Configuration->Policies and Access Control->Authentication Sources', click on 'Add source->Internal->AD'. Specify all the required fields. If you need help identifying fields relevant to your Active Directory environment, please use the Active Directory Explorer (AD Explorer) or AdsiEdit.mmc tools from your Active Directory server.
 
 Next, add an 'Authentication Rules' with name 'catchall' with no condition and with the following actions:
 
@@ -330,7 +342,7 @@ From 'Configuration->Policies and Access Control->Connection Profiles', click on
  * Profile Name: 8021x
  * Automatically register devices: checked
  * Filters: If any of the following conditions are met:
-  * Connection Type: Ethernet-EAP
+   - Connection Type: Ethernet-EAP
  * Sources: your newly created Active Directory authentication source
 
 Click on 'Save' to save all configuration changes.
@@ -385,7 +397,7 @@ First, we need to enable Change-of-Authorization (CoA) in our Cisco Catalyst 296
 
   aaa server radius dynamic-author
    client 172.20.100.2 server-key useStrongerSecret
-  port 3799
+   port 3799
 
 Then, we must enable Web Authentication on switch port no. 10. Add the following configuration to the global section:
 
@@ -393,7 +405,7 @@ Then, we must enable Web Authentication on switch port no. 10. Add the following
   ip http server
   ip http secure-server
 
-Then add the required access lists:
+Then add the required access list:
 
   ip access-list extended registration
    deny ip any host 172.20.100.2
@@ -421,7 +433,7 @@ By default the PacketFence's captive portal does not listen on the management in
 You must then restart the following services from 'Status->Services':
 
 [options="compact"]
- * haproxy
+ * haproxy-portal
  * httpd.portal
  * iptables
 
@@ -433,7 +445,7 @@ For Web Authentication, we will create a new connection profile in PacketFence. 
 [options="compact"]
  * Profile Name: guest
  * Filters: If any of the following conditions are met:
-  * Connection Type: WIRED_MAC_AUTH
+  - Connection Type: WIRED_MAC_AUTH
  * Sources: null-source
 
 Click on 'Save' to save all configuration changes.
@@ -526,7 +538,7 @@ Click on 'Save' to save the new authentication source.
 Configuring the Connection Profile
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Now let's add our new SMS-based authentication source to our guests captive portal. From 'Configuration->Policies and Access Control->Connection Profiles', click on the 'guest' profile that we previously created. In the 'Sources', cick on the '(+)' button and add the newly created SMS source, 'sms-source'. Save the changes by clicking on the 'Save' button.
+Now let's add our new SMS-based authentication source to our guests captive portal. From 'Configuration->Policies and Access Control->Connection Profiles', click on the 'guest' profile that we previously created. In the 'Sources', click on the '(+)' button and add the newly created SMS source, 'sms-source'. Save the changes by clicking on the 'Save' button.
 
 NOTE: You can preview at any time the portal associated with connection profile by clicking on the 'Preview' button.
 
@@ -559,8 +571,8 @@ Roles are dynamically computed by PacketFence, based on the rules (ie., a set of
 *Configuration -> Policies and Access Control -> Roles*, click on 'Add role'. Provide the following information:
 
 [options="compact"]
- * Name: consultant
- * Description: Role used for consultants visiting our network
+ * Name: employee
+ * Description: Role used for employees
  * Max nodes per user: 2
 
 Redo the operation of the other role:
@@ -570,12 +582,14 @@ Redo the operation of the other role:
  * Description: Corporate owned machines
  * Max nodes per user: 1
 
-Using the Consultant Role
-~~~~~~~~~~~~~~~~~~~~~~~~~
+Let's say we have two roles: employee and corporate_machine (defined above).
 
-Let's say we have two roles: guest and employee. First, we define them *Configuration -> Policies and Access Control -> Roles*.
+Now, we want to assign roles to employees and their corporate machines using Active Directory (over LDAP), both using PacketFence's captive portal.
 
-Now, we want to authenticate employees using Active Directory (over LDAP), and guests using PacketFence's internal database - both using PacketFence's captive portal. From the *Configuration -> Policies and Access Control -> Authentication Sources*, we select *Add source -> AD*. We provide the following information:
+Using the Employee Role
+~~~~~~~~~~~~~~~~~~~~~~~
+
+From the *Configuration -> Policies and Access Control -> Authentication Sources*, we select *Add source -> AD*. We provide the following information:
 
 [options="compact"]
 * *Name:* ad1
@@ -587,29 +601,27 @@ Now, we want to authenticate employees using Active Directory (over LDAP), and g
 * *Bind DN:* CN=Administrator,CN=Users,DC=acme,DC=local
 * *Password:* acme123
 
-Then, we add a rule by clicking on the *Add rule* button and provide the following information:
+Then, we add an 'Authentication rules' by clicking on the *Add rule* button and provide the following information:
 
 [options="compact"]
 * *Name:* employees
-* *Description:* Rule for all consultants
+* *Description:* Rule for all employees
 * Don't set any condition (as it's a catch-all rule)
 * Set the following *actions:*
-  - Set role consultant
+  - Set role employee
   - Set unregistration date January 1st, 2020
 
 Test the connection and save everything. Using the newly defined source, any username that actually matches in the source (using the sAMAccountName) will have the employee role and an unregistration date set to January 1st, 2020.
 
-Now, since we want to authenticate guests from PacketFence's internal SQL database, accounts must be provisioned manually. You can do so from the *Users -> Create* section. When creating guests, specify "guest" for the *Set role* action, and set an access duration for 1 day.
 
-
-Using the Machine Role
-~~~~~~~~~~~~~~~~~~~~~~
+Using the Corporate_Machine Role
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you would like to differentiate user authentication and machine authentication using Active Directory, one way to do it is by creating a second authentication sources, for machines:
 
 [options="compact"]
-* *Name:* ad1
-* *Description:* Active Directory for Machines
+* *Name:* ad2
+* *Description:* Active Directory for Corporate Machines 
 * *Host:* 192.168.1.2:389 without SSL/TLS
 * *Base DN:* CN=Computers,DC=acme,DC=local
 * *Scope:* One-level
@@ -617,15 +629,17 @@ If you would like to differentiate user authentication and machine authenticatio
 * *Bind DN:* CN=Administrator,CN=Users,DC=acme,DC=local
 * *Password:* acme123
 
-Then, we add a rule:
+Then, we add an 'Authentication rules':
 
 [options="compact"]
 * *Name:* machines
-* *Description:* Rule for all machines
+* *Description:* Rule for corporate machines
 * Don't set any condition (as it's a catch-all rule)
 * Set the following *actions:*
-  - Set role machineauth
+  - Set role corporate_machine
   - Set unregistration date January 1st, 2020
+
+Using this configuration, employees can only connect corporate machines, not personal devices.
 
 NOTE: When a rule is defined as a catch-all, it will always match if the username attribute matches the queried one. This applies for Active Directory, LDAP and Apache htpasswd file sources. Kerberos and RADIUS will act as true catch-all, and accept everything.
 
@@ -673,9 +687,9 @@ Inline enforcement because of it's nature has several limitations that one must 
 * Everyone behind an inline interface is on the same Layer 2 LAN
 * Every packet of authorized users goes through the PacketFence server increasing the server's load considerably: Plan ahead for capacity
 * Every packet of authorized users goes through the PacketFence server: it is a single point of failure for Internet access
-* Ipset can store up to 65536 entries, so it is not possible to have a inline network class upper than B
+* Ipset can store up to 65536 entries, so it is not possible to have an inline network class greater than a class B
 
-This is why it is considered a poor man's way of doing access control. We have avoided it for a long time because of the above mentioned limitations. That said, being able to perform both inline and VLAN enforcement on the same server at the same time is a real advantage: it allows users to maintain maximum security while they deploy new and more capable network hardware providing a clean migration path to VLAN enforcement.
+This is why it is considered a poor man's way of doing access control. We have avoided it for a long time because of the above mentioned limitations. That said, being able to perform both inline and VLAN enforcement on the same server at the same time is a real advantage: it allows admins to maintain maximum security while they deploy new and more capable network hardware providing a clean migration path to VLAN enforcement.
 
 Technical Introduction to Out-of-band Enforcement
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -739,25 +753,25 @@ Aside from the VoIP isolation dilemma, it is the technique that has proven to be
 More on SNMP traps VLAN isolation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-When the VLAN isolation is working through SNMP traps all switch ports (on which VLAN isolation should be done) must be configured to send SNMP traps to the PacketFence host. On PacketFence, we use snmptrapd as the SNMP trap receiver. As it receives traps, it reformats and writes them into a flat file: `/usr/local/pf/logs/snmptrapd.log`. The multithreaded `pfsetvlan` daemon reads these traps from the flat file and responds to them by setting the switch port to the correct VLAN. Currently, we support switches from Cisco, Edge-core, HP, Intel, Linksys and Nortel (adding support for switches from another vendor implies extending the `pf::Switch` class). Depending on your switches capabilities, `pfsetvlan` will act on different types of SNMP traps.
+When the VLAN isolation is working through SNMP traps all switch ports (on which VLAN isolation should be done) must be configured to send SNMP traps to the PacketFence host. On PacketFence, we use `snmptrapd` as the SNMP trap receiver. As it receives traps, it reformats and sends them into a redis queue, managed by `pfqueue` service. The multiprocessed `pfqueue` service reads these traps from the redis queue and takes a decision based on type of traps. For example, it can respond to them by setting the switch port to the correct VLAN. Currently, we support switches from Cisco, Edge-Core, HP, Intel, Linksys and Nortel (adding support for switches from another vendor implies extending the `pf::Switch` class). Depending on your switches capabilities, `pfqueue` will act on different types of SNMP traps.
 
-image::diagram-trap-interaction.png[pfsetvlan SNMP interactions diagram, 400]
+image::diagram-trap-interaction.png[pfqueue SNMP interactions diagram, 400]
 
 You need to create a registration VLAN (with a DHCP server, but no routing to other VLANs) in which PacketFence will put unregistered devices. If you want to isolate computers which have open violations in a separate VLAN, an isolation VLAN needs also to be created.
 
 Link Changes (deprecated)
 +++++++++++++++++++++++++
 
-This is the most basic setup and it needs a third VLAN: the MAC detection VLAN. There should be nothing in this VLAN (no DHCP server) and it should not be routed anywhere; it is just an void VLAN.
+This is the most basic setup and it needs a third VLAN: the MAC detection VLAN. There should be nothing in this VLAN (no DHCP server) and it should not be routed anywhere; it is just a void VLAN.
 
-When a host connects to a switch port, the switch sends a linkUp trap to PacketFence. Since it takes some time before the switch learns the MAC address of the newly connected device, PacketFence immediately puts the port in the MAC detection VLAN in which the device will send DHCP requests (with no answer) in order for the switch to learn its MAC address. Then pfsetvlan will send periodical SNMP queries to the switch until the switch learns the MAC of the device. When the MAC address is known, pfsetvlan checks its status (existing ? registered ? any violations ?) in the database and puts the port in the appropriate VLAN. When a device is unplugged, the switch sends a 'linkDown' trap to PacketFence which puts the port into the MAC detection VLAN.
+When a host connects to a switch port, the switch sends a linkUp trap to PacketFence. Since it takes some time before the switch learns the MAC address of the newly connected device, PacketFence immediately puts the port in the MAC detection VLAN in which the device will send DHCP requests (with no answer) in order for the switch to learn its MAC address. Then `pfqueue` will send periodical SNMP queries to the switch until the switch learns the MAC of the device. When the MAC address is known, `pfqueue` checks its status (existing ? registered ? any violations ?) in the database and puts the port in the appropriate VLAN. When a device is unplugged, the switch sends a 'linkDown' trap to PacketFence which puts the port into the MAC detection VLAN.
 
-When a computer boots, the initialization of the NIC generates several link status changes. And every time the switch sends a linkUp and a linkDown trap to PacketFence. Since PacketFence has to act on each of these traps, this generates unfortunately some unnecessary load on pfsetvlan. In order to optimize the trap treatment, PacketFence stops every thread for a 'linkUp trap' when it receives a 'linkDown' trap on the same port. But using only linkUp/linkDown traps is not the most scalable option. For example in case of power failure, if hundreds of computers boot at the same time, PacketFence would receive a lot of traps almost instantly and this could result in network connection latency.
+When a computer boots, the initialization of the NIC generates several link status changes. And every time the switch sends a linkUp and a linkDown trap to PacketFence. Since PacketFence has to act on each of these traps, this generates unfortunately some unnecessary load on `pfqueue`. In order to optimize the trap treatment, PacketFence stops every thread for a 'linkUp trap' when it receives a 'linkDown' trap on the same port. But using only linkUp/linkDown traps is not the most scalable option. For example in case of power failure, if hundreds of computers boot at the same time, PacketFence would receive a lot of traps almost instantly and this could result in network connection latency.
 
 MAC Notification Traps (deprecated)
 +++++++++++++++++++++++++++++++++++
 
-If your switches support MAC notification traps (MAC learnt, MAC removed), we suggest that you activate them in addition to the linkUp/linkDown traps. This way, pfsetvlan does not need, after a linkUp trap, to query the switch continuously until the MAC has finally been learned. When it receives a linkUp trap for a port on which MAC notification traps are also enabled, it only needs to put the port in the MAC detection VLAN and can then free the thread. When the switch learns the MAC address of the device it sends a MAC learnt trap (containing the MAC address) to PacketFence.
+If your switches support MAC notification traps (MAC learned, MAC removed), we suggest that you activate them in addition to the linkUp/linkDown traps. This way, `pfqueue` does not need, after a linkUp trap, to query the switch continuously until the MAC has finally been learned. When it receives a linkUp trap for a port on which MAC notification traps are also enabled, it only needs to put the port in the MAC detection VLAN and can then free the process. When the switch learns the MAC address of the device it sends a MAC learned trap (containing the MAC address) to PacketFence.
 
 Port Security Traps
 +++++++++++++++++++
@@ -810,13 +824,17 @@ Technical Introduction to DNS Enforcement
 Introduction
 ^^^^^^^^^^^^
 
-DNS enforcement allows you to control the network access of the device by using the pfdns service on PacketFence.
+DNS enforcement allows you to control the network access of the device by using the `pfdns` service on PacketFence.
 
 The architecture of DNS enforcement is as following :
-- DHCP and DNS are provided by the PacketFence server
+
+* DHCP and DNS are provided by the PacketFence server
   - The PacketFence DHCP server will provide the IP of your network equipment as the gateway and the IP address of the PacketFence DNS server to resolve names.
-- Routing is provided by another equipment on your network (Core switch, Firewall, Router,...)
-- If a user should be shown the portal, the pfdns service will return a pointer to the IP address of the captive portal, otherwise pfdns will resolve the name externally and use it in the reply.
+* Routing is provided by another equipment on your network (core switch, firewall, router,...)
+* `pfdns` will respond to DNS requests depending on your configuration :
+  - user registration on portal : it will return IP address of the captive portal
+  - access to another site : it will resolve name externally and use it in reply
+
 
 This enforcement mode used by itself can be bypassed by the device by using a different DNS server or by using its own DNS cache.
 
@@ -828,7 +846,7 @@ After, you need to configure a routed network for this interface by clicking 'Ad
 
 NOTE: If you are not using a routed network, you need to use Inline enforcement as DNS enforcement can only be used for routed networks.
 
-Once this is done, you need to restart the dhcpd and pfdns services.
+Once this is done, you need to restart the `pfdhcp` and `pfdns` services.
 
 Adding Inline Enforcement to Existing Installation
 --------------------------------------------------
@@ -935,7 +953,7 @@ Where :
 NOTE: If you are using an Active/Active cluster, each member of the cluster must be joined separately. Please follow the instructions in the PacketFence Clustering Guide.
 
 Troubleshooting
-+++++++++++++++
+^^^^^^^^^^^^^^^
 
 * In order to troubleshoot unsuccessful binds, please refer to the following file : `/chroots/<mydomain>/var/log/samba<mydomain>/log.winbindd`. Replace `<mydomain>` with the identifier you set in the domain configuration.
 
@@ -946,7 +964,7 @@ Troubleshooting
 NOTE: Under certain conditions, the test join may show as unsuccessful in the Administration interface but the authentication process will still work properly. Try the test above before doing any additional troubleshooting. Also try reloading the page in the GUI since in some case the browser side of the ajax call may time out while the join actually succeeds.
 
 Default Domain Configuration
-++++++++++++++++++++++++++++
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 You should now define the domain you want to use as the default one by creating the following realm in *Configuration -> Policies and Access Control -> Domains -> REALMS*
 
@@ -955,7 +973,7 @@ image::domain-default-realm.png[scaledwidth="100%",alt="Adding the default realm
 Next, restart PacketFence in *Status -> Services*
 
 Multiple Domains Authentication
-+++++++++++++++++++++++++++++++
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 First configure your domains in *Configuration -> Policies and Access Control -> Domains -> Active Directory Domains*.
 
@@ -1177,7 +1195,7 @@ In order for your users to be able to access the Identity Provider login page, y
 
 To do so, go in 'Configuration -> Network Configuration -> Networks -> Fencing', then check 'Passthrough' and add the Identity Provider domain name to the 'Passhtroughs' list.
 
-Next, restart iptables and pfdns to apply your new passthroughs.
+Next, restart `iptables` and `pfdns` to apply your new passthroughs.
 
 
 Billing Engine
@@ -1535,7 +1553,7 @@ In order to prompt fields without authentication, you can use the Null source wi
 
 PacketFence already comes with a Null source pre-configured. If you haven't modified it or deleted it, you can use it for this example. Otherwise, go in 'Configuration -> Policies and Access Control -> Sources' and create a new Null source with a catchall rule that assigns a role and access duration.
 
-Then go in 'Configuration -> Advanced Access Configuration -> Portal Modules' and click 'Add Portal Module' and select 'Authentication -> Null'. Set the 'Identifier' to `prompt_fields` and configure the module with the 'Mandatory fields' you want and uncheck 'Require AUP' so that the user doesn't have to accept the AUP before submitting these fields.
+Then go in 'Configuration -> Advanced Access Configuration -> Portal Modules' and click 'Add Portal Module' and select 'Authentication -> Authentication::Null'. Set the 'Identifier' to `prompt_fields` and configure the module with the 'Mandatory fields' you want and uncheck 'Require AUP' so that the user doesn't have to accept the AUP before submitting these fields.
 
 image::portal-modules/prompt_fields.png[scaledwidth="100%",alt="Prompt fields module"]
 
@@ -1552,7 +1570,7 @@ This example will make the `default_guest_policy` require the user to enter a fi
 
 Go in 'Configuration -> Advanced Access Configuration -> Portal Modules' and click the `default_guest_policy`. Add `firstname`, `lastname` and `address` to the 'Mandatory fields' and save.
 
-Next, add the `default_guest_policy` to `my_first_root_module` (removing any previous modules). Now when visiting the portal, selecting any of the guest sources will require you to enter both the mandatory fields of the source (ex: phone + mobile provider)  and the mandatory fields you defined in the `default_guest_policy`.
+Next, add the `default_guest_policy` to `my_first_root_module` (removing any previous modules). Now when visiting the portal, any of the guest sources configured in your connection profile will require you to enter both the mandatory fields of the source (ex: phone + mobile provider)  and the mandatory fields you defined in the `default_guest_policy`.
 
 NOTE: Not all sources support additional mandatory fields (ex: OAuth sources like Google, Facebook, ...).
 
@@ -1567,7 +1585,7 @@ For the OAuth login we will use the `default_oauth_policy`, so just make sure yo
 
 Then, we will create a module that will contain the definition of our SMS registration.
 
-Go in 'Configuration -> Advanced Access Configuration -> Portal Modules' then click 'Add Portal Module' and select 'Authentication -> SMS'.
+Go in 'Configuration -> Advanced Access Configuration -> Portal Modules' then click 'Add Portal Module' and select 'Authentication -> Authentication::SMS'.
 
 Configure the portal module so that it uses the `sms` source and uncheck the 'Require AUP' option since the user will have already accepted the AUP when registering using OAuth.
 
@@ -1886,7 +1904,7 @@ In that same section, you can define the lease length of the user when he is in 
 NOTE: Parking is detected when a device asks for DHCP, if PacketFence is not your DHCP server for the registration network, this feature will not work. Also, if the device goes into the parked state with a lease time of 1 hour and the user immediately releases himself from the parking state, it will take 1 hour before the next detection takes place even if you set `parking.threshold` to a lower value.
 
 Violation 1300003
-+++++++++++++++++
+^^^^^^^^^^^^^^^^^
 
 This violation controls what happens when a user is detected doing parking.
 
@@ -3156,6 +3174,7 @@ If you are using the Nessus scanning engine:
 [options="compact"]
 * You just have to change the host value by the Nessus server IP.
 
+[[provision]]
 Integrating Provisioning Agents
 -------------------------------
 
@@ -3170,13 +3189,15 @@ The Windows agent will import and apply the provisioned profile so that the user
 
 Configure the feature
 ^^^^^^^^^^^^^^^^^^^^^
-NOTE: If EAP-TLS provisioning is desired, you have to configure a PKI before going any further. Two guides exists to assist you: 'PacketFence PKI Quick Install Guide', which covers PacketFence's implementation, or 'PacketFence MSPKI Quick Install Guide' which covers Microsoft's.
+NOTE: If EAP-TLS provisioning is desired, you have to configure a PKI before going any further. Two sections exists to assist you: <<pf-pki,PacketFence PKI>>, which covers PacketFence's implementation, or <<ms-pki,PacketFence MSPKI>> which covers Microsoft's.
 
 First of all, you need to configure the SSID that your devices will use after they go through the authentication process.
 
-In the administration interface, go in 'Advanced Access Configuration -> Provisioners'. Then select 'android' / 'ios' / 'Windows' provisioner. Enter the SSID information and roles for which the provisioner applies. Repeat for all desired provisioners. Note that the default RADIUS certificate path is `/usr/local/pf/raddb/certs/server.crt`.
+In the administration interface, go in 'Configuration -> Advanced Access Configuration -> Provisioners'. Then select 'android' / 'ios' / 'Windows' provisioner. Enter the SSID information and roles for which the provisioner applies. Repeat for all desired provisioners. Note that the default RADIUS certificate path is `/usr/local/pf/raddb/certs/server.crt`.
 
-After, you simply need to add the 'Android', 'iOS' and 'Windows' provisioners to your 'Connection Profile' configuration.
+After, you simply need to add the 'Android', 'iOS' and 'Windows' provisioners to your 'Connection Profile' configuration. If no connection profile is defined, configure the 'default' connection profile to use the provisioners created.
+
+NOTE: If you use two different connection profiles for the open and secure networks, make sure you configure the provisioners on both profiles.
 
 To add a new provisioner for another class of devices to be supported, click on the 'Add Provisioner' button, and fill out the form, choosing a different Provisioning ID per provisioner.
 
@@ -3192,17 +3213,18 @@ Android specifications
 ++++++++++++++++++++++
 
 For Android provisioning support, you must activate and adjust the passthroughs. You might need to adapt them depending on your geolocality.
+
 NOTE: Please refer to the 'Passthroughs' section of this guide if needed.
 
-In the administation inferface, go in 'Network Configuration -> Fencing'. Activate 'Passthrough' and make sure the following passthrough are present:
+In the administation inferface, go in 'Configuration -> Network Configuration -> Networks -> Fencing'. Activate 'Passthrough' and make sure the following passthroughs domains are present:
 
   *.ggpht.com,*.googleusercontent.com,android.clients.google.com,*.googleapis.com,*.android.clients.google.com,*.gvt1.com,*.l.google.com,play.google.com,*.gstatic.com
 
 Then run the following commands so that passthroughs become effective:
 
-  /usr/local/pf/bin/pfcmd configreload hard
-  /usr/local/pf/bin/pfcmd service iptables restart
-  /usr/local/pf/bin/pfcmd service pfdns restart
+ /usr/local/pf/bin/pfcmd configreload hard
+ /usr/local/pf/bin/pfcmd service iptables restart
+ /usr/local/pf/bin/pfcmd service pfdns restart
 
 iOS specifications
 ++++++++++++++++++
@@ -3230,8 +3252,8 @@ If you have an `OCSP` capable PKI you can configure it in the section `OSCP` in 
 
 Lastely you will need to restart RADIUS to ensure the use of the new configuration and certificates. Please do the following:
 
- * bin/pfcmd configreload hard
- * bin/pfcmd service radiusd restart
+ /usr/local/pf/bin/pfcmd configreload hard
+ /usr/local/pf/bin/pfcmd service radiusd restart
 
 Make sure everything happens without errors.
 
@@ -3302,11 +3324,13 @@ include::provisioner/sepm.asciidoc[]
 PKI Integration
 ---------------
 
+[[ms-pki]]
 Microsoft PKI
 ~~~~~~~~~~~~~
 
 include::pki/microsoft.asciidoc[]
 
+[[pf-pki]]
 PacketFence PKI
 ~~~~~~~~~~~~~~~
 
@@ -3324,7 +3348,7 @@ The bug arises because not all swap aliases are registered, which results in an 
 
 
 Workaround
-++++++++++
+^^^^^^^^^^
 
  * Obtain the list of swap items that should be considered by systemd for it to enforce a correct ordering:
 
@@ -3334,22 +3358,22 @@ Workaround
 
 In our example, that gave the following output:
 
-```
-[    1.995413] systemd[1]: dev-dm\x2d1.swap changed dead -> active
-[    1.995495] systemd[1]: dev-cl-swap.swap changed dead -> active
-[    1.995550] systemd[1]: dev-disk-by\x2did-dm\x2dname\x2dcl\x2dswap.swap changed dead -> active
-[    1.995616] systemd[1]: dev-disk-by\x2did-dm\x2duuid\x2dLVM\x2dXOAK7DHxMdmQCrNdwWE3Pt836Q9pHYSGyrO9ycCGeIYavzbamVWNKMaVUMLf1NWZ.swap changed dead -> active
-[    1.995678] systemd[1]: dev-disk-by\x2duuid-6509e6e1\x2daf2d\x2d4d23\x2d9ebd\x2da9aa8801e658.swap changed dead -> active
-```
+
+ [    1.995413] systemd[1]: dev-dm\x2d1.swap changed dead -> active
+ [    1.995495] systemd[1]: dev-cl-swap.swap changed dead -> active
+ [    1.995550] systemd[1]: dev-disk-by\x2did-dm\x2dname\x2dcl\x2dswap.swap changed dead -> active
+ [    1.995616] systemd[1]: dev-disk-by\x2did-dm\x2duuid\x2dLVM\x2dXOAK7DHxMdmQCrNdwWE3Pt836Q9pHYSGyrO9ycCGeIYavzbamVWNKMaVUMLf1NWZ.swap changed dead -> active
+ [    1.995678] systemd[1]: dev-disk-by\x2duuid-6509e6e1\x2daf2d\x2d4d23\x2d9ebd\x2da9aa8801e658.swap changed dead -> active
+
 
  * Create /etc/systemd/system/swap.target and fill it with all swap aliases obtained from the previous command:
 
-```
-[Unit]
-Description=Swap
-Documentation=man:systemd.special(7)
-After=dev-disk-by\x2duuid-6509e6e1\x2daf2d\x2d4d23\x2d9ebd\x2da9aa8801e658.swap dev-dm1.swap dev-disk-by\x2did-dm\x2duuid\x2dLVM\x2dXOAK7DHxMdmQCrNdwWE3Pt836Q9pHYSGyrO9ycCGeIYavzbamVWNKMaVUMLf1NWZ.swap dev-disk-by\x2did-dm\x2dname\x2dcl\x2dswap.swap dev-cl-swap.swap dev-dm\x2d1.swap
-```
+
+ [Unit]
+ Description=Swap
+ Documentation=man:systemd.special(7)
+ After=dev-disk-by\x2duuid-6509e6e1\x2daf2d\x2d4d23\x2d9ebd\x2da9aa8801e658.swap dev-dm1.swap dev-disk-by\x2did-dm\x2duuid\x2dLVM\x2dXOAK7DHxMdmQCrNdwWE3Pt836Q9pHYSGyrO9ycCGeIYavzbamVWNKMaVUMLf1NWZ.swap dev-disk-by\x2did-dm\x2dname\x2dcl\x2dswap.swap dev-cl-swap.swap dev-dm\x2d1.swap
+
 
 IPTables
 ~~~~~~~~
@@ -3378,7 +3402,7 @@ To overcome this limitation, it is possible to use a Redis driven cache inside P
 NOTE: The NTLM cache doesn't cache clear text passwords, it caches the NT hash of the user password.
 
 Additional Packages
-+++++++++++++++++++
+^^^^^^^^^^^^^^^^^^^
 
 In order to use this cache, you will need to install additional packages available from the packetfence-extra repository. These packages will allow PacketFence to query your Active Directory for the NT hash of the users.
 
@@ -3393,7 +3417,7 @@ apt-get install python-impacket
 ```
 
 PacketFence Configuration
-+++++++++++++++++++++++++
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 First of all, you will need to enable the NTLM caching globally by enabling 'NTLM Redis cache' in 'Configuration->System Configuration->Main Configuration->Advanced'. You then need to restart radiusd.
 
@@ -3422,7 +3446,7 @@ Next, start the service via pfcmd:
 If you chose to enable 'NTLM cache background job' in one of your domains, you will need to enable the pfmon job that will periodically cache the credentials. This can be configured in 'Configuration->System Configuration->Main Configuration->Maintenance->populate_ntlm_redis_cache'. It is advised to set the interval of this task to half the expiration of the credentials you have set in the domain configuration. This will ensure you have an optimal cache hit. Once done, restart the `pfmon` service.
 
 Active Directory configuration
-++++++++++++++++++++++++++++++
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In order for PacketFence to be able to fetch the NTLM credentials from your Active Directory, it will need a user who has replication rights. The user to which you have to grant the rights, is the one that is configured in the authentication source that you associated in the 'NTLM cache' section of your domain.
 
@@ -3811,7 +3835,7 @@ If your isolation and registration networks are not locally-reachable (at layer 
 
 image::diagram-routed-net.png[scaledwidth="100%",alt="Routed network example diagram"]
 
-For dhcpd, make sure that the clients DHCP requests are correctly forwarded (IP Helpers in the remote routers) to the PacketFence server. Then make sure you followed the instructions in the <<_dhcp_and_dns_server_configuration_networks_conf,DHCP and DNS Server Configuration (networks.conf)>> for your locally accessible network.
+For dhcpd, make sure that the clients DHCP requests are correctly forwarded (IP Helpers in the remote routers) to the PacketFence server.
 
 If we consider the network architecture illustrated in the above schema, `conf/pf.conf` will include the local registration and isolation interfaces only.
 
@@ -4550,7 +4574,7 @@ The following attributes are available to define your report (the ones that have
 NOTE: You should always prefix the fields with the table name and a dot (ex: `node.mac`, `locationlog.role`, ...) so that they are not ambiguous. Although your query may work with a single table, it will not if you decide to add joins that contain column name(s) that are the same as the base table.
 
 Examples:
-+++++++++
+^^^^^^^^^
 
 View of the auth_log table:
 

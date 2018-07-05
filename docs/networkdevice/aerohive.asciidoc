@@ -37,7 +37,7 @@ Configure the Aerohive APs and SSID
 Logon to your HiveManager interface:
 
 [options="compact"]
-* for this example, we assume that we are on the _Cloud_ https://myhive-auth.aerohive.com[MyHive.aerohove.com] solution
+* for this example, we assume that we are on the _Cloud_ https://myhive-auth.aerohive.com[MyHive.aerohive.com] solution
 * from _HiveManager_, click on your *HiveManagerOnline Instances* _VHM-XXXXXX_
 * from _Network Configuration / 1-Choose Network Policy_, click on *New*
 * give a name to your Policy, and click *Create*
@@ -81,7 +81,7 @@ image::pfaerohive05.png[scaledwidth="100%",alt="AAA Radius config"]
 image::pfaerohive06.png[scaledwidth="100%",alt="AAA Radius config"]
 
 [options="compact"]
-* deploy the _Optionnal Setting(not supported by RADIUS Proxy)_ section and * [x] check the _Permit Dynamic Change of Authorization Message (RFC 3576)_
+* deploy the _Optionnal Setting(not supported by RADIUS Proxy)_ section and check the _Permit Dynamic Change of Authorization Message (RFC 3576)_
 * click on *Save*
 * next to your _SSID Name_ Click on the *<RADIUS Setting>*, Click *OK*
 

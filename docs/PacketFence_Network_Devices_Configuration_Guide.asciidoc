@@ -764,7 +764,7 @@ Avaya bought Nortel's wired networks assets. So Avaya switches are, in effect, r
 Nortels. See <<_nortel,Nortel section>> of this document for configuration instructions. 
 
 802.1X with MAC Authentication Bypass and VoIP
-++++++++++++++++++++++++++++++++++++++++++++++
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 NOTE: The configuration below requires an ntp server. We use the PacketFence server as the NTP server but any other one will do. If you want to use the PacketFence server for NTP, make sure you install the appropriate service and open port 123 in `/usr/local/pf/conf/iptables.conf`
 
@@ -1248,7 +1248,7 @@ CoA configuration
 
   aaa server radius dynamic-author
    client 192.168.1.5 server-key useStrongerSecret
-  port 3799
+   port 3799
 
 Activate SNMP v1 on the switch:
 
@@ -2138,7 +2138,7 @@ The Cisco Small Business switches support MAC based authentication (MAB) as well
 Nothing is required to activate VoIP on the switch, you must simply configure the voice VLAN you want PacketFence to assign in the PacketFence switch configuration as well as enabling VoIP there. Note that your phones must *not* tag their packets on the network and should send their traffic untagged when connected into a PacketFence enabled port. This means you should not have the voice VLAN capabilities enabled on the switch itself as they might conflict with the authorization attributes returned by PacketFence.
 
 Global configuration
-++++++++++++++++++++
+^^^^^^^^^^^^^^^^^^^^
 
 CAUTION: Before executing these steps, make sure you have a local account configured to login on the switch or are pointing to a RADIUS server for management. Otherwise, you will not be able to login into the switch anymore.
 
@@ -2159,7 +2159,7 @@ SNMP configuration for the Cisco SG300:
   snmp-server community private rw view DefaultSuper
 
 MAC Authentication
-++++++++++++++++++
+^^^^^^^^^^^^^^^^^^
 
 In order to configure MAC authentication, you must enable it on each interface
 
@@ -2177,7 +2177,7 @@ In order to configure MAC authentication, you must enable it on each interface
    switchport general pvid 2 
 
 802.1X with MAB
-+++++++++++++++
+^^^^^^^^^^^^^^^
 
 In order to configure 802.1X with a fall-back to MAC authentication, you must enable it on each interface
 
@@ -3425,7 +3425,7 @@ Huawei
 PacketFence supports the S5710 switch from Huawei.
 
 Basic configuration
-+++++++++++++++++++
+^^^^^^^^^^^^^^^^^^^
 
 ----
 
@@ -3460,7 +3460,7 @@ snmp-agent sys-info version v2c v3
 ----
 
 MAC authentication
-++++++++++++++++++
+^^^^^^^^^^^^^^^^^^
 
 ----
 
@@ -3474,7 +3474,7 @@ interface GigabitEthernet0/0/8
 ----
 
 802.1X
-++++++
+^^^^^^
 
 ----
 
@@ -3670,7 +3670,7 @@ Ctrl-D
 Change the `interface-range` statement to reflect the ports you want to secure with PacketFence.
 
 VoIP configuration
-++++++++++++++++++
+^^^^^^^^^^^^^^^^^^
 
 ----
 # load replace terminal
@@ -3714,7 +3714,7 @@ Ctrl-D
 ----
 
 802.1X configuration
-++++++++++++++++++++
+^^^^^^^^^^^^^^^^^^^^
 
 ----
 protocols {
@@ -3735,7 +3735,7 @@ Ctrl-D
 ----
 
 Configuration for MAC authentication floating devices
-+++++++++++++++++++++++++++++++++++++++++++++++++++++
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To support floating devices on a Juniper switch you need to configure the 'flap-on-disconnect' option on each interface individually and remove it from the access-ports group.
 
@@ -5147,7 +5147,7 @@ Meraki
 To add the AP on PacketFence use the internal IP of the AP.
 
 WebAuth
-+++++++
+^^^^^^^
 
 In this section, we will cover the configuration of the Meraki controller to use Web authentication.
 
@@ -5174,7 +5174,7 @@ image::Meraki-config-pf-role.png[scaledwidth="100%",alt="PacketFence role config
 image::Meraki-config-pf-url.png[scaledwidth="100%",alt="PacketFence URL configuration"]
 
 VLAN enforcement
-++++++++++++++++
+^^^^^^^^^^^^^^^^
 
 This section will cover how to configure the Meraki WiFI controller to use with VLAN enforcement, use the configuration in the section `WebAuth` for the SSID.
 
@@ -5225,7 +5225,7 @@ Also don't forget to use the pf account to ssh on the Access Point to receive th
 
 [float]
 Open SSID
-+++++++++
+^^^^^^^^^
 
 In this setup we use the interface ether5 for the bridge (Trunk interface) and ether1 as the management interface.
 
@@ -5271,7 +5271,7 @@ Configure your access point with the following configuration:
   set accept=yes
 
 Webauth
-+++++++
+^^^^^^^
 
 You can use webauth (external captive portal) on Mikrotik APs. In order to do so, you will have to activate the hotspot feature in the AP configuration as well as modify the redirection template so that it points to PacketFence.
 
@@ -5542,7 +5542,8 @@ Mojo Networks
 PacketFence supports only SSIDs configured with 802.1X.
 
 Configure the 802.1X Secure SSID:
-+++++++++++++++++++++++++++++++++
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 * Login to the https://dashboard.mojonetworks.com
 * Create the 802.1X SSID:
 * Go to *Services -> Mojo Wireless Manager*
@@ -5575,7 +5576,8 @@ RADIUS Accounting Server Details
 Click the 'Save' button to save the PF-Secure SSID configuration.
 
 Broadcast the SSID on the Access Point:
-+++++++++++++++++++++++++++++++++++++++
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 * Go to *Configuration -> Device Template -> System Template* 
 * Then *Radio Settings -> Define settings for model -> Chose your AP model*
 * Finally *Radio 1 - 2x2 b/g/n Configuration -> Add SSID Profile -> Select your SSID profile previously created -> Ok*
@@ -5583,7 +5585,7 @@ Broadcast the SSID on the Access Point:
 Click the 'Save' button to broadcast the PF-Secure SSID.
 
 Configure the Mojo Networks AP in PacketFence:
-++++++++++++++++++++++++++++++++++++++++++++++
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Add a Switch with the IP address of the Access Point (AP) with the following configuration:
 
@@ -5932,7 +5934,7 @@ Ruckus SmartZone
 ~~~~~~~~~~~~~~~~
 
 Webauth
-+++++++
+^^^^^^^
 
 SmartZone configuration
 ^^^^^^^^^^^^^^^^^^^^^^^
