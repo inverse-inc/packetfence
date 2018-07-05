@@ -4,6 +4,8 @@ export default {
   all: params => {
     if (params.sort) {
       params.sort = params.sort.join(',')
+    } else {
+      params.sort = 'mac'
     }
     if (params.fields) {
       params.fields = params.fields.join(',')
