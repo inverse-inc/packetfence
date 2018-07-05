@@ -56,16 +56,13 @@ sub begin :Private {
 
     $model = $c->model("Config::Switch");
     ($status, $switch_default) = $model->read('default');
-    ($status, $roles) = $c->model('Config::Roles')->listFromDB;
-    $roles = undef unless(is_success($status));
-    $c->stash->{roles} = $roles;
-
     $c->stash->{current_model_instance} = $model;
     $c->stash->{switch_default} = $switch_default;
-
     $c->stash->{model_name} = "Switch";
     $c->stash->{controller_namespace} = "Config::Switch";
-    $c->stash->{current_form_instance} = $c->form("Config::Switch", roles => $c->stash->{roles});
+    my $form = $c->form("Config::Switch");
+    $c->stash->{current_form_instance} = $form;
+    $c->stash->{roles} = $form->roles;
 }
 
 after qw(list search) => sub {

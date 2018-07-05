@@ -17,9 +17,6 @@ use pf::config qw(%Config);
 
 has '+enctype' => ( default => 'multipart/form-data');
 
-# Form select options
-has 'roles' => ( is => 'ro' );
-
 =head2 FIELDS
 
 =cut

@@ -14,8 +14,10 @@ Authentication::Rule).
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
-with 'pfappserver::Base::Form::Role::AllowedOptions',
-     'pfappserver::Role::Form::RolesAttribute';
+with qw(
+    pfappserver::Base::Form::Role::AllowedOptions
+    pfappserver::Role::Form::RolesAttribute
+);
 
 use HTTP::Status qw(:constants is_success);
 use List::MoreUtils qw(uniq);
