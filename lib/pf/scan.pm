@@ -43,6 +43,7 @@ use pf::Connection::ProfileFactory;
 use pf::api::jsonrpcclient;
 use Text::CSV_XS;
 use List::MoreUtils qw(any);
+use XML::Simple;
 
 =head1 SUBROUTINES
 
@@ -96,6 +97,9 @@ sub parse_scan_report {
     my $csv = Text::CSV_XS->new ({ binary => 1, sep_char => ',' });
     open my $io, "<", \$scan_report;
     my $row = $csv->getline($io);
+    my $parser = XML::Simple->new( KeepRoot => 1 );
+    my $doc = $parser->XMLin(\$scan_report);
+
     if ($row->[0] eq 'Plugin ID') {
         while (my $row = $csv->getline($io)) {
             $logger->info("Calling violation_trigger for ip: $ip, mac: $mac, type: $type, trigger: ".$row->[0]);
@@ -104,6 +108,18 @@ sub parse_scan_report {
             # If a violation has been added, consider the scan failed
             if ( $violation_added ) {
                 $failed_scan = 1;
+            }
+        }
+    } elsif (defined($doc->{NessusClientData_v2})) {
+        foreach my $violation (@{ $doc->{NessusClientData_v2}->{Report}->{ReportHost}->{ReportItem}}) {
+            if (defined($violation->{pluginID})) {
+                $logger->info("Calling violation_trigger for ip: $ip, mac: $mac, type: $type, trigger: $violation->{pluginID}");
+                my $violation_added = violation_trigger( { 'mac' => $mac, 'tid' => $violation->{pluginID}, 'type' => $type } );
+
+                # If a violation has been added, consider the scan failed
+                if ( $violation_added ) {
+                    $failed_scan = 1;
+                }
             }
         }
     } else {
