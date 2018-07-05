@@ -962,7 +962,7 @@ sub trigger_scan :Public :Fork :AllowedAsAction($ip, mac, $mac, net_type, TYPE) 
         if (defined($scanner) && pf::util::isenabled($scanner->{'_post_registration'})) {
             $added = pf::violation::violation_add( $postdata{'mac'}, $pf::constants::scan::POST_SCAN_VID );
         }
-        return if ($added == 0);
+        return if ($added == 0 || $added == -1);
         sleep $pf::config::Config{'fencing'}{'wait_for_redirect'};
         pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if ($added ne $pf::constants::scan::POST_SCAN_VID);
     }
@@ -973,7 +973,7 @@ sub trigger_scan :Public :Fork :AllowedAsAction($ip, mac, $mac, net_type, TYPE) 
         if (defined($scanner) && pf::util::isenabled($scanner->{'_pre_registration'})) {
             $added = pf::violation::violation_add( $postdata{'mac'}, $pf::constants::scan::PRE_SCAN_VID );
         }
-        return if ($added == 0);
+        return if ($added == 0 || $added == -1);
         sleep $pf::config::Config{'fencing'}{'wait_for_redirect'};
         pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($added ne $pf::constants::scan::PRE_SCAN_VID && $added ne $pf::constants::scan::SCAN_VID);
     }
