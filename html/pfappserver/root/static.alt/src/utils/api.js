@@ -3,7 +3,7 @@ import router from '@/router'
 import store from '@/store'
 
 const apiCall = axios.create({
-  baseURL: 'https://' + window.location.hostname + ':9999/api/v1/'
+  baseURL: '/api/v1/'
 })
 
 apiCall.interceptors.response.use((response) => response,
@@ -33,7 +33,7 @@ apiCall.interceptors.response.use((response) => response,
 )
 
 export const pfappserverCall = axios.create({
-  baseURL: 'https://' + window.location.hostname + ':1443/admin/'
+  baseURL: '/admin/'
 })
 
 export default apiCall
