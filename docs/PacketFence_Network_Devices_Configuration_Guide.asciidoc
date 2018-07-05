@@ -3460,7 +3460,7 @@ snmp-agent sys-info version v2c v3
 ----
 
 MAC authentication
-++++++++++++++++++
+^^^^^^^^^^^^^^^^^^
 
 ----
 
@@ -3474,7 +3474,7 @@ interface GigabitEthernet0/0/8
 ----
 
 802.1X
-++++++
+^^^^^^
 
 ----
 
