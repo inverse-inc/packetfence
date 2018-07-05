@@ -221,6 +221,7 @@ const actions = {
     return new Promise((resolve, reject) => {
       api.registerBulkNodes(data).then(response => {
         response.items.filter(item => item.status === 'success').forEach(function (item, index, items) {
+          commit('NODE_UPDATED', { mac: item.mac, prop: 'status', data: 'reg' }, { root: true })
           commit('$_nodes_searchable/ITEM_UPDATED', { mac: item.mac, prop: 'status', data: 'reg' }, { root: true })
         })
         resolve(response)
@@ -247,6 +248,7 @@ const actions = {
     return new Promise((resolve, reject) => {
       api.deregisterBulkNodes(data).then(response => {
         response.items.filter(item => item.status === 'success').forEach(function (item, index, items) {
+          commit('NODE_UPDATED', { mac: item.mac, prop: 'status', data: 'unreg' }, { root: true })
           commit('$_nodes_searchable/ITEM_UPDATED', { mac: item.mac, prop: 'status', data: 'unreg' }, { root: true })
         })
         resolve(response)
@@ -313,7 +315,8 @@ const actions = {
     return new Promise((resolve, reject) => {
       api.updateNode(data).then(response => {
         if (response.status === 'success') {
-          commit('$_nodes_searchable/ITEM_UPDATED', { mac: data.mac, prop: 'category_id', data: data.category_id })
+          commit('NODE_UPDATED', { mac: data.mac, prop: 'category_id', data: data.category_id }, { root: true })
+          commit('$_nodes_searchable/ITEM_UPDATED', { mac: data.mac, prop: 'category_id', data: data.category_id }, { root: true })
         }
         resolve(response)
       }).catch(err => {
@@ -327,7 +330,8 @@ const actions = {
     return new Promise((resolve, reject) => {
       api.updateNode(data).then(response => {
         if (response.status === 'success') {
-          commit('$_nodes_searchable/ITEM_UPDATED', { mac: data.mac, prop: 'bypass_role_id', data: data.bypass_role_id })
+          commit('NODE_UPDATED', { mac: data.mac, prop: 'bypass_role_id', data: data.bypass_role_id }, { root: true })
+          commit('$_nodes_searchable/ITEM_UPDATED', { mac: data.mac, prop: 'bypass_role_id', data: data.bypass_role_id }, { root: true })
         }
         resolve(response)
       }).catch(err => {
