@@ -188,7 +188,9 @@ export default class SearchableStore {
       },
       ITEM_UPDATED: (state, params) => {
         let index = state.results.findIndex(result => result.mac === params.mac)
-        Vue.set(state.results[index], params.prop, params.data)
+        if (index in state.results) {
+          Vue.set(state.results[index], params.prop, params.data)
+        }
       },
       ROW_VARIANT: (state, params) => {
         let variant = params.variant || ''

@@ -352,9 +352,10 @@ const mutations = {
     Vue.set(state.nodes, data.mac, data)
   },
   NODE_UPDATED: (state, params) => {
-    console.log(['NODE_UPDATED', params])
     state.nodeStatus = 'success'
-    Vue.set(state.nodes[params.mac], params.prop, params.data)
+    if (params.mac in state.nodes) {
+      Vue.set(state.nodes[params.mac], params.prop, params.data)
+    }
   },
   NODE_DESTROYED: (state, mac) => {
     state.nodeStatus = 'success'
