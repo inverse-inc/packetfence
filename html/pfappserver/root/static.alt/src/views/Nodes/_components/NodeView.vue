@@ -3,12 +3,15 @@
   <b-form @submit.prevent="save()">
     <b-card no-body>
       <b-card-header>
-        <b-button-close @click="close"><icon name="times"></icon></b-button-close>
+        <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
         <h4 class="mb-0">MAC <strong v-text="mac"></strong></h4>
       </b-card-header>
-      <b-tabs card>
+      <b-tabs ref="tabs" v-model="tabIndex" card>
 
         <b-tab title="Info" active>
+          <template slot="title">
+            {{ $t('Info') }}
+          </template>
           <b-row>
             <b-col>
               <pf-form-input v-model="nodeContent.pid" label="Owner" :validation="$v.nodeContent.pid"/>
@@ -23,7 +26,7 @@
               </b-form-group>
             </b-col>
             <b-col>
-              <pf-form-row :label="$t('Name')">
+              <pf-form-row :label="$t('Computer Name')">
                 {{ node.computername }}
               </pf-form-row>
               <pf-form-row :label="$t('Last Seen')">
@@ -85,17 +88,26 @@
         </b-tab>
 
         <b-tab title="IPv4 Addresses">
-            <b-table stacked="sm" :items="node.ip4.history" :fields="iplogFields" v-if="node.ip4"></b-table>
+            <template slot="title">
+              {{ $t('IPv4 Addresses') }} <b-badge pill v-if="node.ip4.history && node.ip4.history.length > 0" variant="light" class="ml-1">{{ node.ip4.history.length }}</b-badge>
+            </template>
+            <b-table stacked="sm" :items="node.ip4.history" :fields="iplogFields" v-if="node.ip4" striped></b-table>
         </b-tab>
 
         <b-tab title="IPv6 Addresses">
-            <b-table stacked="sm" :items="node.ip6.history" :fields="iplogFields" v-if="node.ip6"></b-table>
+            <template slot="title">
+              {{ $t('IPv6 Addresses') }} <b-badge pill v-if="node.ip6.history && node.ip6.history.length > 0" variant="light" class="ml-1">{{ node.ip6.history.length }}</b-badge>
+            </template>
+            <b-table stacked="sm" :items="node.ip6.history" :fields="iplogFields" v-if="node.ip6" striped></b-table>
         </b-tab>
 
         <b-tab title="Location">
-            <b-table stacked="sm" :items="node.locations" :fields="locationFields">
+            <template slot="title">
+              {{ $t('Location') }} <b-badge pill v-if="node.locations && node.locations.length > 0" variant="light" class="ml-1">{{ node.locations.length }}</b-badge>
+            </template>
+            <b-table stacked="sm" :items="node.locations" :fields="locationFields" striped>
                 <template slot="switch" slot-scope="location">
-                    {{ location.item.switch_ip }} / {{ location.item.switch_mac }}<br/>
+                    {{ location.item.switch_ip }} / <mac>{{ location.item.switch_mac }}</mac><br/>
                     <b-badge><icon name="wifi" size="sm"></icon> {{ location.item.ssid }}</b-badge>
                     <b-badge>{{ $t('Role') }}: {{ location.item.role }}</b-badge>
                     <b-badge>{{ $t('VLAN') }}: {{ location.item.vlan }}</b-badge>
@@ -107,7 +119,10 @@
         </b-tab>
 
         <b-tab title="Violations">
-            <b-table stacked="sm" :items="node.violations" :fields="violationFields">
+            <template slot="title">
+              {{ $t('Violations') }} <b-badge pill v-if="node.violations && node.violations.length > 0" variant="light" class="ml-1">{{ node.violations.length }}</b-badge>
+            </template>
+            <b-table stacked="sm" :items="node.violations" :fields="violationFields" striped>
                 <template slot="description" slot-scope="violation">
                     {{ violationDescription(violation.item.vid) }}
                 </template>
@@ -120,21 +135,29 @@
         </b-tab>
 
         <b-tab title="WMI Rules">
+          <template slot="title">
+            {{ $t('WMI Rules') }}
+          </template>
         </b-tab>
 
         <b-tab title="Option82">
+          <template slot="title">
+            {{ $t('Option82') }}
+          </template>
         </b-tab>
 
       </b-tabs>
       <b-card-footer align="right" @mouseenter="$v.nodeContent.$touch()">
-        <b-button variant="outline-danger" class="mr-1" :disabled="isLoading" @click="deleteNode()" v-t="'Delete'"></b-button>
-        <b-button variant="outline-primary" type="submit" :disabled="invalidForm"><icon name="circle-notch" spin v-show="isLoading"></icon> {{ $t('Save') }}</b-button>
+        <delete-button v-if="tabIndex === 0" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Node?')" @on-delete="deleteNode()">{{ $t('Delete') }}</delete-button>
+        <b-button v-if="tabIndex === 0" variant="outline-primary" class="mr-1" type="submit" :disabled="invalidForm"><icon name="circle-notch" spin v-show="isLoading"></icon> {{ $t('Save') }}</b-button>
+        <b-button variant="outline-secondary" type="cancel" @click="close">{{ $t('Close') }}</b-button>
       </b-card-footer>
     </b-card>
   </b-form>
 </template>
 
 <script>
+import DeleteButton from '@/components/DeleteButton'
 import ToggleButton from '@/components/ToggleButton'
 import pfFingerbankScore from '@/components/pfFingerbankScore'
 import pfFormInput from '@/components/pfFormInput'
@@ -150,6 +173,7 @@ const { required } = require('vuelidate/lib/validators')
 export default {
   name: 'NodeView',
   components: {
+    'delete-button': DeleteButton,
     'toggle-button': ToggleButton,
     'pf-fingerbank-score': pfFingerbankScore,
     'pf-form-row': pfFormRow,
@@ -163,6 +187,8 @@ export default {
   },
   data () {
     return {
+      tabIndex: 0,
+      tabTitle: '',
       nodeContent: {
         pid: ''
       },
@@ -181,6 +207,10 @@ export default {
           label: this.$i18n.t('End Time'),
           formatter: this.$options.filters.pfDate,
           'class': 'text-nowrap'
+        },
+        {
+          key: 'type',
+          label: this.$i18n.t('Type')
         }
       ],
       locationFields: [

@@ -188,10 +188,11 @@ export default class SearchableStore {
       },
       ITEM_UPDATED: (state, params) => {
         let index = state.results.findIndex(result => result.mac === params.mac)
-        Vue.set(state.results[index], params.prop, params.data)
+        if (index in state.results) {
+          Vue.set(state.results[index], params.prop, params.data)
+        }
       },
       ROW_VARIANT: (state, params) => {
-        let index = state.results.findIndex(result => result.mac === params.mac)
         let variant = params.variant || ''
         switch (params.status) {
           case 'success':
@@ -204,11 +205,10 @@ export default class SearchableStore {
             variant = 'danger'
             break
         }
-        Vue.set(state.results[index], '_rowVariant', variant)
+        Vue.set(state.results[params.index], '_rowVariant', variant)
       },
       ROW_MESSAGE: (state, params) => {
-        let index = state.results.findIndex(result => result.mac === params.mac)
-        Vue.set(state.results[index], '_message', params.message)
+        Vue.set(state.results[params.index], '_message', params.message)
       }
     }
 
