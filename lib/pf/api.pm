@@ -953,33 +953,29 @@ sub trigger_scan :Public :Fork :AllowedAsAction($ip, mac, $mac, net_type, TYPE) 
 
     return unless scalar keys %pf::config::ConfigScan;
     my $logger = pf::log::get_logger();
+    my $added;
     # post_registration (production vlan)
     # We sleep until (we hope) the device has had time issue an ACK.
     if (pf::util::is_prod_interface($postdata{'net_type'})) {
         my $profile = pf::Connection::ProfileFactory->instantiate($postdata{'mac'});
         my $scanner = $profile->findScan($postdata{'mac'});
         if (defined($scanner) && pf::util::isenabled($scanner->{'_post_registration'})) {
-            pf::violation::violation_add( $postdata{'mac'}, $pf::constants::scan::POST_SCAN_VID );
+            $added = pf::violation::violation_add( $postdata{'mac'}, $pf::constants::scan::POST_SCAN_VID );
         }
-        my $top_violation = pf::violation::violation_view_top($postdata{'mac'});
-        # get violation id
-        my $vid = $top_violation->{'vid'};
-        return if not defined $vid;
+        return if ($added == 0);
         sleep $pf::config::Config{'fencing'}{'wait_for_redirect'};
-        pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($vid ne $pf::constants::scan::POST_SCAN_VID);
+        pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if ($added ne $pf::constants::scan::POST_SCAN_VID);
     }
     else {
         my $profile = pf::Connection::ProfileFactory->instantiate($postdata{'mac'});
         my $scanner = $profile->findScan($postdata{'mac'});
         # pre_registration
         if (defined($scanner) && pf::util::isenabled($scanner->{'_pre_registration'})) {
-            pf::violation::violation_add( $postdata{'mac'}, $pf::constants::scan::PRE_SCAN_VID );
+            $added = pf::violation::violation_add( $postdata{'mac'}, $pf::constants::scan::PRE_SCAN_VID );
         }
-        my $top_violation = pf::violation::violation_view_top($postdata{'mac'});
-        my $vid = $top_violation->{'vid'};
-        return if not defined $vid;
+        return if ($added == 0);
         sleep $pf::config::Config{'fencing'}{'wait_for_redirect'};
-        pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($vid ne $pf::constants::scan::PRE_SCAN_VID && $vid ne $pf::constants::scan::SCAN_VID);
+        pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($added ne $pf::constants::scan::PRE_SCAN_VID && $added ne $pf::constants::scan::SCAN_VID);
     }
     return;
 }
