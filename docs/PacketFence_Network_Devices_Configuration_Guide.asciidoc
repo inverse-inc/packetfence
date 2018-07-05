@@ -5225,7 +5225,7 @@ Also don't forget to use the pf account to ssh on the Access Point to receive th
 
 [float]
 Open SSID
-+++++++++
+^^^^^^^^^
 
 In this setup we use the interface ether5 for the bridge (Trunk interface) and ether1 as the management interface.
 
@@ -5271,7 +5271,7 @@ Configure your access point with the following configuration:
   set accept=yes
 
 Webauth
-+++++++
+^^^^^^^
 
 You can use webauth (external captive portal) on Mikrotik APs. In order to do so, you will have to activate the hotspot feature in the AP configuration as well as modify the redirection template so that it points to PacketFence.
 
