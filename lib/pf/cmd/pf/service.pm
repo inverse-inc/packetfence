@@ -14,37 +14,43 @@ pfcmd service <service> [start|stop|restart|status|generateconfig|updatesystemd]
 
 Services managed by PacketFence:
 
-  haproxy-portal   | haproxy portal daemon
-  haproxy-db       | haproxy database daemon
-  httpd.aaa        | Apache AAA webservice
-  httpd.admin      | Apache Web admin
-  httpd.collector  | Apache Collector daemon
-  httpd.dispatcher | Captive portal dispatcher
-  httpd.parking    | Apache Parking Portal
-  httpd.portal     | Apache Captive Portal
-  httpd.proxy      | Apache Proxy Interception
-  httpd.webservices| Apache Webservices
-  iptables         | PacketFence firewall rules
-  keepalived       | Virtual IP management
-  netdata          | Monitoring service
-  pf               | all services that should be running based on your config
-  pfbandwidthd     | A pf service to monitor bandwidth usages
-  pfdetect         | PF snort alert parser
-  pfdhcp           | dhcpd daemon
-  pfdhcplistener   | PF DHCP monitoring daemon
-  pfdns            | DNS daemon
-  pfipset          | IPSET daemon
-  pffilter         | PF conditions filtering daemon
-  pfmon            | PF monitoring daemon
-  pfqueue          | PF queueing service
-  pfstats          | PF statistics daemon
-  radiusd          | FreeRADIUS daemon
-  radsniff         | radsniff daemon
-  redis_ntlm_cache | Redis for the NTLM cache
-  redis_queue      | Redis for pfqueue
-  routes           | manage static routes
-  snmptrapd        | SNMP trap receiver daemon
-  winbindd         | Winbind daemon
+  api-frontend         | Golang daemon providing API
+  etcd                 | Distributed cache to store DHCP options
+  fingerbank-collector | Fingerprinting data collection daemon
+  haproxy-portal       | haproxy portal daemon
+  haproxy-db           | haproxy database daemon
+  httpd.aaa            | Apache AAA webservice
+  httpd.admin          | Apache Web admin
+  httpd.collector      | Apache Collector daemon
+  httpd.dispatcher     | Captive portal dispatcher
+  httpd.parking        | Apache Parking Portal
+  httpd.portal         | Apache Captive Portal
+  httpd.proxy          | Apache Proxy Interception
+  httpd.webservices    | Apache Webservices
+  iptables             | PacketFence firewall rules
+  keepalived           | Virtual IP management
+  netdata              | Monitoring service
+  pf                   | all services that should be running based on your config
+  pfbandwidthd         | A pf service to monitor bandwidth usages
+  pfdetect             | PF snort alert parser
+  pfdhcp               | dhcpd daemon
+  pfdhcplistener       | PF DHCP monitoring daemon
+  pfdns                | DNS daemon
+  pfipset              | IPSET daemon
+  pffilter             | PF conditions filtering daemon
+  pfmon                | PF monitoring daemon
+  pfperl-api           | Perl daemon providing API
+  pfqueue              | PF queueing service
+  pfsso                | Firewall SSO daemon
+  pfstats              | PF statistics daemon
+  radiusd              | FreeRADIUS daemon
+  radsniff             | radsniff daemon
+  redis_ntlm_cache     | Redis for the NTLM cache
+  redis_queue          | Redis for pfqueue
+  routes               | manage static routes
+  snmptrapd            | SNMP trap receiver daemon
+  tc                   | Traffic shaping service
+  winbindd             | Winbind daemon
 
 =head1 DESCRIPTION
 
