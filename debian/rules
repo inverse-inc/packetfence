@@ -114,7 +114,6 @@ install: build
 	install -m0644 $(CURDIR)/debian/packetfence-base.slice $(CURDIR)/debian/packetfence/etc/systemd/system
 	install -m0644 $(CURDIR)/debian/ifup@.service $(CURDIR)/debian/packetfence/etc/systemd/system
 #endif
-	install -m0644 $(CURDIR)/debian/packetfence-pfperl-api.service $(CURDIR)/debian/packetfence/etc/systemd/system
 	install -d -m0700 $(CURDIR)/debian/packetfence/etc/default
 	# copy the rsyslog systemd drop in
 	install -d -m0755 $(CURDIR)/debian/packetfence/etc/systemd/system/syslog.service.d/
@@ -122,6 +121,7 @@ install: build
 	#Sudoer
 	install -oroot -groot -d -m0750 $(CURDIR)/debian/packetfence/etc/sudoers.d
 	install -oroot -groot -m0440 $(CURDIR)/debian/packetfence.sudoers $(CURDIR)/debian/packetfence/etc/sudoers.d/packetfence
+	rm -fr $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/pfappserver/root/static/alt
 	#PacketFence remote ARP sensor
 	install -d -m0700 $(CURDIR)/debian/packetfence-remote-arp-sensor$(PREFIX)/$(NAME)/conf
 	install -d $(CURDIR)/debian/packetfence-remote-arp-sensor$(PREFIX)/$(NAME)/var
@@ -215,6 +215,7 @@ endif
 	dh_installinit --name=packetfence-pfdns
 	dh_installinit --name=packetfence-pffilter
 	dh_installinit --name=packetfence-pfmon
+	dh_installinit --name=packetfence-pfperl-api.service
 	dh_installinit --name=packetfence-pfqueue
 	dh_installinit --name=packetfence-pfsso
 	dh_installinit --name=packetfence-radiusd-acct
