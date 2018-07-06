@@ -213,7 +213,7 @@ export default {
         },
         orientation: {
           axis: 'both',
-          item: 'top'
+          item: 'bottom'
         },
         selectable: false,
         stack: false
@@ -553,6 +553,7 @@ export default {
   padding: 2px 3px 1px;
   text-align: center;
 }
+/* bottom arrow on box */
 .vis-item.vis-box:after {
   content:'';
   position: absolute;
@@ -565,8 +566,23 @@ export default {
   border-left: solid 10px transparent;
   border-right: solid 10px transparent;
 }
+/* left and right border on range */
 .vis-item.vis-range {
   border-left: 1px dotted #d72b3f;
   border-right: 1px dotted #d72b3f;
+}
+/* alternating column backgrounds */
+.vis-time-axis .vis-grid.vis-odd {
+  background: #f5f5f5;
+}
+
+/* gray background in weekends, white text color */
+.vis-time-axis .vis-grid.vis-saturday,
+.vis-time-axis .vis-grid.vis-sunday {
+  background: gray;
+}
+.vis-time-axis .vis-text.vis-saturday,
+.vis-time-axis .vis-text.vis-sunday {
+  color: white;
 }
 </style>
