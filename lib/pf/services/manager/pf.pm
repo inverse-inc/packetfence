@@ -91,7 +91,7 @@ sub print_status {
             }
             $service .= (" " x (50 - length($service)));
             print "$service\t$colors->{success}started   ${pid}$colors->{reset}\n";
-        } elsif ($output =~ /(packetfence-(.+)\.service)\s+loaded\s+inactive/) {
+        } elsif ($output =~ /(packetfence-(.+)\.service)\s+loaded\s+(inactive|failed)/) {
             $pid = 0;
             my $service = $1;
             my $main_service = $2;
