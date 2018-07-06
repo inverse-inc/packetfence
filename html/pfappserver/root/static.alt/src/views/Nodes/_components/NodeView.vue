@@ -48,6 +48,22 @@
           </b-row>
         </b-tab>
 
+        <b-tab title="Timeline">
+          <template slot="title">
+            {{ $t('Timeline') }}
+          </template>
+          <b-row>
+            <b-col>
+              <timeline
+                ref="timeline"
+                :items="visItems"
+                :groups="visGroups"
+                :options="visOptions"
+              ></timeline>
+            </b-col>
+          </b-row>
+        </b-tab>
+
         <b-tab title="Fingerbank">
           <b-row>
             <b-col>
@@ -89,14 +105,14 @@
 
         <b-tab title="IPv4 Addresses">
             <template slot="title">
-              {{ $t('IPv4 Addresses') }} <b-badge pill v-if="node.ip4.history && node.ip4.history.length > 0" variant="light" class="ml-1">{{ node.ip4.history.length }}</b-badge>
+              {{ $t('IPv4 Addresses') }} <b-badge pill v-if="node.ip4 && node.ip4.history && node.ip4.history.length > 0" variant="light" class="ml-1">{{ node.ip4.history.length }}</b-badge>
             </template>
             <b-table stacked="sm" :items="node.ip4.history" :fields="iplogFields" v-if="node.ip4" striped></b-table>
         </b-tab>
 
         <b-tab title="IPv6 Addresses">
             <template slot="title">
-              {{ $t('IPv6 Addresses') }} <b-badge pill v-if="node.ip6.history && node.ip6.history.length > 0" variant="light" class="ml-1">{{ node.ip6.history.length }}</b-badge>
+              {{ $t('IPv6 Addresses') }} <b-badge pill v-if="node.ip6 && node.ip6.history && node.ip6.history.length > 0" variant="light" class="ml-1">{{ node.ip6.history.length }}</b-badge>
             </template>
             <b-table stacked="sm" :items="node.ip6.history" :fields="iplogFields" v-if="node.ip6" striped></b-table>
         </b-tab>
@@ -167,6 +183,7 @@ import {
   pfSearchConditionType as conditionType,
   pfSearchConditionValues as conditionValues
 } from '@/globals/pfSearch'
+import { DataSet } from 'vue2vis'
 const { validationMixin } = require('vuelidate')
 const { required } = require('vuelidate/lib/validators')
 
@@ -187,6 +204,20 @@ export default {
   },
   data () {
     return {
+      visGroups: new DataSet(),
+      visItems: new DataSet(),
+      visOptions: {
+        editable: false,
+        margin: {
+          item: 20
+        },
+        orientation: {
+          axis: 'both',
+          item: 'top'
+        },
+        selectable: false,
+        stack: false
+      },
       tabIndex: 0,
       tabTitle: '',
       nodeContent: {
@@ -273,6 +304,9 @@ export default {
     roles () {
       return this.$store.getters['config/rolesList']
     },
+    violations () {
+      return this.$store.getters['config/sortedViolations']
+    },
     statuses () {
       return conditionValues[conditionType.NODE_STATUS]
     },
@@ -310,14 +344,186 @@ export default {
         case 27: // escape
           this.close()
       }
+    },
+    setupVis () {
+      const node = this.$store.state.$_nodes.nodes[this.mac]
+      const _this = this
+      if (node.detect_date && node.detect_date !== '0000-00-00 00:00:00') {
+        _this.addVisGroup({
+          id: this.mac + '-general',
+          content: this.$i18n.t('General')
+        })
+        _this.addVisItem({
+          id: 'detect',
+          group: this.mac + '-general',
+          start: new Date(node.detect_date),
+          content: this.$i18n.t('Detected')
+        })
+      }
+      if (node.last_arp && node.last_arp !== '0000-00-00 00:00:00') {
+        _this.addVisGroup({
+          id: this.mac + '-general',
+          content: this.$i18n.t('General')
+        })
+        _this.addVisItem({
+          id: 'last_arp',
+          group: this.mac + '-general',
+          start: new Date(node.last_arp),
+          content: this.$i18n.t('Last ARP')
+        })
+      }
+      if (node.last_dhcp && node.detect_dhcp !== '0000-00-00 00:00:00') {
+        _this.addVisGroup({
+          id: this.mac + '-general',
+          content: this.$i18n.t('General')
+        })
+        _this.addVisItem({
+          id: 'last_dhcp',
+          group: this.mac + '-general',
+          start: new Date(node.last_dhcp),
+          content: this.$i18n.t('Last DHCP')
+        })
+      }
+      if (node.last_seen && node.last_seen !== '0000-00-00 00:00:00') {
+        _this.addVisGroup({
+          id: this.mac + '-general',
+          content: this.$i18n.t('General')
+        })
+        this.addVisItem({
+          id: 'last_seen',
+          group: this.mac + '-general',
+          start: new Date(node.last_seen),
+          content: this.$i18n.t('Last Seen')
+        })
+      }
+      if (node.lastskip && node.lastskip !== '0000-00-00 00:00:00') {
+        _this.addVisGroup({
+          id: this.mac + '-general',
+          content: this.$i18n.t('General')
+        })
+        _this.addVisItem({
+          id: 'lastskip',
+          group: this.mac + '-general',
+          start: new Date(node.lastskip),
+          content: this.$i18n.t('Last Skip')
+        })
+      }
+      if (node.regdate && node.regdate !== '0000-00-00 00:00:00') {
+        _this.addVisGroup({
+          id: this.mac + '-general',
+          content: this.$i18n.t('General')
+        })
+        _this.addVisItem({
+          id: 'regdate',
+          group: this.mac + '-general',
+          start: new Date(node.regdate),
+          end: (node.unregdate && node.unregdate !== '0000-00-00 00:00:00') ? new Date(node.unregdate) : null,
+          content: this.$i18n.t('Registered')
+        })
+      }
+      try {
+        node.ip4.history.forEach(function (ip4, index, ip4s) {
+          _this.addVisGroup({
+            id: _this.mac + '-ipv4',
+            content: _this.$i18n.t('IPv4 Addresses')
+          })
+          _this.addVisItem({
+            id: 'ipv4-' + ip4.ip,
+            group: _this.mac + '-ipv4',
+            start: new Date(ip4.start_time),
+            end: (ip4.end_time !== '0000-00-00 00:00:00') ? new Date(ip4.end_time) : null,
+            content: ip4.ip
+          })
+        })
+      } catch (e) {
+        // noop
+      }
+      try {
+        node.ip6.history.forEach(function (ip6, index, ip6s) {
+          _this.addVisGroup({
+            id: _this.mac + '-ipv6',
+            content: _this.$i18n.t('IPv6 Addresses')
+          })
+          _this.addVisItem({
+            id: 'ipv6-' + ip6.ip,
+            group: _this.mac + '-ipv6',
+            start: new Date(ip6.start_time),
+            end: (ip6.end_time !== '0000-00-00 00:00:00') ? new Date(ip6.end_time) : null,
+            content: ip6.ip
+          })
+        })
+      } catch (e) {
+        // noop
+      }
+      try {
+        node.locations.forEach(function (location, index, locations) {
+          _this.addVisGroup({
+            id: _this.mac + '-location',
+            content: _this.$i18n.t('Locations')
+          })
+          _this.addVisItem({
+            id: 'location-' + location.id,
+            group: _this.mac + '-location',
+            start: new Date(location.start_time),
+            end: (location.end_time && location.end_time !== '0000-00-00 00:00:00') ? new Date(location.end_time) : null,
+            content: location.ssid + '/' + _this.$i18n.t('Role') + ':' + location.role + '/VLAN:' + location.vlan
+          })
+        })
+      } catch (e) {
+        // noop
+      }
+      try {
+        node.violations.forEach(function (violation, index, violations) {
+          _this.addVisGroup({
+            id: _this.mac + '-violation',
+            content: _this.$i18n.t('Violations')
+          })
+          _this.addVisItem({
+            id: 'violation' + violation.vid,
+            group: _this.mac + '-violation',
+            start: new Date(violation.start_date),
+            end: (violation.release_date !== '0000-00-00 00:00:00') ? new Date(violation.release_date) : null,
+            content: _this.violationDescription(violation.vid)
+          })
+        })
+      } catch (e) {
+        // noop
+      }
+    },
+    addVisGroup (group) {
+      if (!this.visGroups.getIds().includes(group.id)) {
+        this.visGroups.add([group])
+      }
+    },
+    addVisItem (item) {
+      if (!this.visItems.getIds().includes(item.id)) {
+        this.visItems.add([item])
+      }
     }
   },
-  mounted () {
+  watch: {
+    node: {
+      handler: function (a, b) {
+        if (a !== b) {
+          this.setupVis()
+        }
+      },
+      immediate: true,
+      deep: true
+    },
+    violations (a, b) {
+      if (a !== b) this.setupVis()
+    }
+  },
+  created () {
     this.$store.dispatch('$_nodes/getNode', this.mac).then(data => {
       this.nodeContent = Object.assign({}, data)
     })
     this.$store.dispatch('config/getRoles')
     this.$store.dispatch('config/getViolations')
+  },
+  mounted () {
+    this.setupVis()
     document.addEventListener('keyup', this.onKeyup)
   },
   beforeDestroy () {
@@ -325,3 +531,42 @@ export default {
   }
 }
 </script>
+
+<style>
+.vis-text,
+.vis-label,
+.vis-item {
+  font-family: Monaco, Menlo, Consolas, "Courier New", monospace !important;
+  font-size: .75rem;
+  line-height: .75rem;
+  white-space: normal;
+}
+.vis-label {
+  color: #d72b3f;
+  font-weight: bold;
+}
+.vis-item {
+  background-color: #f7f7f9;
+  border: 1px solid #e1e1e8;
+  border-radius: 3px;
+  color: #d72b3f;
+  padding: 2px 3px 1px;
+  text-align: center;
+}
+.vis-item.vis-box:after {
+  content:'';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -10px;
+  width: 0;
+  height: 0;
+  border-top: solid 10px #d72b3f;
+  border-left: solid 10px transparent;
+  border-right: solid 10px transparent;
+}
+.vis-item.vis-range {
+  border-left: 1px dotted #d72b3f;
+  border-right: 1px dotted #d72b3f;
+}
+</style>
