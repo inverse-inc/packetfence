@@ -84,11 +84,6 @@ WARNING: *aMuchMoreSecurePassword* is only for example purpose, you need to defi
 
     mysql> FLUSH PRIVILEGES;
 
-Next, you need to remove the empty users from your MySQL database:
-
-  # mysql -u root -p
-    mysql> delete from mysql.user where user = '' ;
-    mysql> flush privileges;
 
 The others Servers configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -160,7 +155,7 @@ Then, in `/usr/local/pf/conf/pfconfig.conf` :
 host=127.0.0.1
 ----
 
-Now, reload the configuration and restart `packetfence-config`. You will see errors related to a cache write issue but you can safely ignore it for now. These appear because `packetfence-config` cannot connect to the database yet.
+Now, restart `packetfence-config` and reload the configuration. You will see errors related to a cache write issue but you can safely ignore it for now. These appear because `packetfence-config` cannot connect to the database yet.
 
   # systemctl restart packetfence-config
   # /usr/local/pf/bin/pfcmd configreload hard
