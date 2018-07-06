@@ -4,7 +4,7 @@ export default {
   all: params => {
     if (params.sort) {
       params.sort = params.sort.join(',')
-    } else
+    } else {
       params.sort = 'pid'
     }
     if (params.fields) {
