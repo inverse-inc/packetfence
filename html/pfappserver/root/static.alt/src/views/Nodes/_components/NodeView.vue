@@ -357,7 +357,19 @@ export default {
           id: 'detect',
           group: this.mac + '-general',
           start: new Date(node.detect_date),
+          end: (node.last_seen && node.seen !== '0000-00-00 00:00:00') ? new Date(node.last_seen) : null,
           content: this.$i18n.t('Detected')
+        })
+      } else if (node.last_seen && node.last_seen !== '0000-00-00 00:00:00') {
+        _this.addVisGroup({
+          id: this.mac + '-general',
+          content: this.$i18n.t('General')
+        })
+        this.addVisItem({
+          id: 'last_seen',
+          group: this.mac + '-general',
+          start: new Date(node.last_seen),
+          content: this.$i18n.t('Last Seen')
         })
       }
       if (node.last_arp && node.last_arp !== '0000-00-00 00:00:00') {
@@ -382,18 +394,6 @@ export default {
           group: this.mac + '-general',
           start: new Date(node.last_dhcp),
           content: this.$i18n.t('Last DHCP')
-        })
-      }
-      if (node.last_seen && node.last_seen !== '0000-00-00 00:00:00') {
-        _this.addVisGroup({
-          id: this.mac + '-general',
-          content: this.$i18n.t('General')
-        })
-        this.addVisItem({
-          id: 'last_seen',
-          group: this.mac + '-general',
-          start: new Date(node.last_seen),
-          content: this.$i18n.t('Last Seen')
         })
       }
       if (node.lastskip && node.lastskip !== '0000-00-00 00:00:00') {
