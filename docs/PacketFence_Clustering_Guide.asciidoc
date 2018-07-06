@@ -62,7 +62,7 @@ For the next steps, you want to make sure that you didn't configure anything in 
 Setup on the first server of your cluster
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-First, *on the first server*, start packetfence-mariadb and make sure it was able to start in 'standalone' mode.
+First, *on the first server*, start `packetfence-mariadb` and make sure it was able to start in 'standalone' mode.
 
   # systemctl start packetfence-mariadb
 
@@ -101,7 +101,7 @@ On *all your servers*, add the following line in `/etc/sysctl.conf` and then rel
 
   net.ipv4.ip_nonlocal_bind = 1
 
-Then, disable the default MariaDB systemd service unit as PacketFence already provides one (packetfence-mariadb)
+Then, disable the default MariaDB systemd service unit as PacketFence already provides one (`packetfence-mariadb`)
 
   # systemctl disable mariadb
 
@@ -160,7 +160,7 @@ Then, in `/usr/local/pf/conf/pfconfig.conf` :
 host=127.0.0.1
 ----
 
-Now, reload the configuration and restart packetfence-config. You will see errors related to a cache write issue but you can safely ignore it for now. These appear because packetfence-config cannot connect to the database yet.
+Now, reload the configuration and restart `packetfence-config`. You will see errors related to a cache write issue but you can safely ignore it for now. These appear because `packetfence-config` cannot connect to the database yet.
 
   # systemctl restart packetfence-config
   # /usr/local/pf/bin/pfcmd configreload hard
@@ -257,7 +257,7 @@ Then, restart PacketFence to apply all your changes
 
  # /usr/local/pf/bin/pfcmd service pf restart
 
-If no error is found in the previous configuration, the previous restart of packetfence should have started keepalived and radiusd-loadbalancer along with the other services.
+If no error is found in the previous configuration, the previous restart of packetfence should have started `keepalived` and `radiusd-loadbalancer` along with the other services.
 
 NOTE: You can check the status of the services using '/usr/local/pf/bin/pfcmd service pf status'
 
