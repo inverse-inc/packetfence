@@ -48,22 +48,6 @@
           </b-row>
         </b-tab>
 
-        <b-tab title="Timeline">
-          <template slot="title">
-            {{ $t('Timeline') }}
-          </template>
-          <b-row>
-            <b-col>
-              <timeline
-                ref="timeline"
-                :items="visItems"
-                :groups="visGroups"
-                :options="visOptions"
-              ></timeline>
-            </b-col>
-          </b-row>
-        </b-tab>
-
         <b-tab title="Fingerbank">
           <b-row>
             <b-col>
@@ -103,16 +87,32 @@
           </b-row>
         </b-tab>
 
+        <b-tab title="Timeline">
+          <template slot="title">
+            {{ $t('Timeline') }}
+          </template>
+          <b-row>
+            <b-col>
+              <timeline
+                ref="timeline"
+                :items="visItems"
+                :groups="visGroups"
+                :options="visOptions"
+              ></timeline>
+            </b-col>
+          </b-row>
+        </b-tab>
+
         <b-tab title="IPv4 Addresses">
             <template slot="title">
-              {{ $t('IPv4 Addresses') }} <b-badge pill v-if="node.ip4 && node.ip4.history && node.ip4.history.length > 0" variant="light" class="ml-1">{{ node.ip4.history.length }}</b-badge>
+              {{ $t('IPv4') }} <b-badge pill v-if="node.ip4 && node.ip4.history && node.ip4.history.length > 0" variant="light" class="ml-1">{{ node.ip4.history.length }}</b-badge>
             </template>
             <b-table stacked="sm" :items="node.ip4.history" :fields="iplogFields" v-if="node.ip4" striped></b-table>
         </b-tab>
 
         <b-tab title="IPv6 Addresses">
             <template slot="title">
-              {{ $t('IPv6 Addresses') }} <b-badge pill v-if="node.ip6 && node.ip6.history && node.ip6.history.length > 0" variant="light" class="ml-1">{{ node.ip6.history.length }}</b-badge>
+              {{ $t('IPv6') }} <b-badge pill v-if="node.ip6 && node.ip6.history && node.ip6.history.length > 0" variant="light" class="ml-1">{{ node.ip6.history.length }}</b-badge>
             </template>
             <b-table stacked="sm" :items="node.ip6.history" :fields="iplogFields" v-if="node.ip6" striped></b-table>
         </b-tab>
@@ -345,31 +345,49 @@ export default {
           this.close()
       }
     },
+    redrawVis () {
+      // buffer async calls to redraw
+      if (this.timeoutVis) clearTimeout(this.timeoutVis)
+      this.timeoutVis = setTimeout(this.setupVis, 100)
+    },
     setupVis () {
       const node = this.$store.state.$_nodes.nodes[this.mac]
       const _this = this
       if (node.detect_date && node.detect_date !== '0000-00-00 00:00:00') {
         _this.addVisGroup({
-          id: this.mac + '-general',
-          content: this.$i18n.t('General')
+          id: this.mac + '-seen',
+          content: this.$i18n.t('Seen')
         })
         _this.addVisItem({
           id: 'detect',
-          group: this.mac + '-general',
+          group: this.mac + '-seen',
           start: new Date(node.detect_date),
           end: (node.last_seen && node.seen !== '0000-00-00 00:00:00') ? new Date(node.last_seen) : null,
           content: this.$i18n.t('Detected')
         })
       } else if (node.last_seen && node.last_seen !== '0000-00-00 00:00:00') {
         _this.addVisGroup({
-          id: this.mac + '-general',
-          content: this.$i18n.t('General')
+          id: this.mac + '-seen',
+          content: this.$i18n.t('Seen')
         })
         this.addVisItem({
           id: 'last_seen',
-          group: this.mac + '-general',
+          group: this.mac + '-seen',
           start: new Date(node.last_seen),
           content: this.$i18n.t('Last Seen')
+        })
+      }
+      if (node.regdate && node.regdate !== '0000-00-00 00:00:00') {
+        _this.addVisGroup({
+          id: this.mac + '-registered',
+          content: this.$i18n.t('Registered')
+        })
+        _this.addVisItem({
+          id: 'regdate',
+          group: this.mac + '-registered',
+          start: new Date(node.regdate),
+          end: (node.unregdate && node.unregdate !== '0000-00-00 00:00:00') ? new Date(node.unregdate) : null,
+          content: this.$i18n.t('Registered')
         })
       }
       if (node.last_arp && node.last_arp !== '0000-00-00 00:00:00') {
@@ -406,19 +424,6 @@ export default {
           group: this.mac + '-general',
           start: new Date(node.lastskip),
           content: this.$i18n.t('Last Skip')
-        })
-      }
-      if (node.regdate && node.regdate !== '0000-00-00 00:00:00') {
-        _this.addVisGroup({
-          id: this.mac + '-general',
-          content: this.$i18n.t('General')
-        })
-        _this.addVisItem({
-          id: 'regdate',
-          group: this.mac + '-general',
-          start: new Date(node.regdate),
-          end: (node.unregdate && node.unregdate !== '0000-00-00 00:00:00') ? new Date(node.unregdate) : null,
-          content: this.$i18n.t('Registered')
         })
       }
       try {
@@ -504,15 +509,36 @@ export default {
   watch: {
     node: {
       handler: function (a, b) {
-        if (a !== b) {
-          this.setupVis()
-        }
+        this.redrawVis()
       },
-      immediate: true,
+      deep: true
+    },
+    'node.ip4': {
+      handler: function (a, b) {
+        this.redrawVis()
+      },
+      deep: true
+    },
+    'node.ip6': {
+      handler: function (a, b) {
+        this.redrawVis()
+      },
+      deep: true
+    },
+    'node.locations': {
+      handler: function (a, b) {
+        this.redrawVis()
+      },
+      deep: true
+    },
+    'node.violations': {
+      handler: function (a, b) {
+        this.redrawVis()
+      },
       deep: true
     },
     violations (a, b) {
-      if (a !== b) this.setupVis()
+      if (a !== b) this.redrawVis()
     }
   },
   created () {
@@ -568,8 +594,10 @@ export default {
 }
 /* left and right border on range */
 .vis-item.vis-range {
-  border-left: 1px dotted #d72b3f;
-  border-right: 1px dotted #d72b3f;
+  border-left: 5px solid #d72b3f;
+  border-right: 5px solid #d72b3f;
+  border-radius:50px;
+  
 }
 /* alternating column backgrounds */
 .vis-time-axis .vis-grid.vis-odd {
