@@ -55,7 +55,7 @@ sub register {
 
     my ($success, $msg) = node_register($mac, $pid, %$data);
     if (!$success) {
-        return $self->render_error(status => 422, "Cannot register $mac" . ($msg ? " $msg" : ""));
+        return $self->render_error(422, "Cannot register $mac" . ($msg ? " $msg" : ""));
     }
 
     return $self->render_empty;
@@ -77,7 +77,7 @@ sub deregister {
 
     my ($success) = node_deregister($mac, %$data);
     if (!$success) {
-        return $self->render_error(status => 422, "Cannot deregister $mac");
+        return $self->render_error(422, "Cannot deregister $mac");
     }
 
     return $self->render_empty;
@@ -106,7 +106,7 @@ sub bulk_register {
         -with_class => undef,
     );
     if (is_error($status)) {
-        return $self->render_error(status => $status, "Error finding nodes");
+        return $self->render_error($status, "Error finding nodes");
     }
 
     my ($indexes, $results) = bulk_init_results($items);
@@ -164,7 +164,7 @@ sub bulk_deregister {
         -with_class => undef,
     );
     if (is_error($status)) {
-        return $self->render_error(status => $status, "Error finding nodes");
+        return $self->render_error($status, "Error finding nodes");
     }
 
     my ($index, $results) = bulk_init_results($items);
@@ -203,7 +203,7 @@ sub fingerbank_refresh {
     my ($self) = @_;
     my $mac = $self->stash->{node_id};
     unless (pf::fingerbank::process($mac, $TRUE)) {
-        return $self->render_error(status => 500, "Couldn't refresh device profiling through Fingerbank");
+        return $self->render_error(500, "Couldn't refresh device profiling through Fingerbank");
     }
 
     return $self->render_empty();
@@ -235,7 +235,7 @@ sub bulk_close_violations {
     );
 
     if (is_error($status)) {
-        return $self->render_error(status => $status, "Error finding nodes");
+        return $self->render_error($status, "Error finding nodes");
     }
 
     my ($indexes, $results) = bulk_init_results($items);
@@ -270,7 +270,7 @@ sub close_violation {
     my $violation_id = $data->{violation_id};
     my $violation = violation_exist_id($violation_id);
     if (!$violation || $violation->{mac} ne $mac ) {
-        return $self->render_error(status => 404, "Error finding violation");
+        return $self->render_error(404, "Error finding violation");
     }
 
     my $result = 0;
@@ -471,7 +471,7 @@ sub do_bulk_update_field {
         -with_class => undef,
     );
     if (is_error($status)) {
-        return $self->render_error(status => $status, "Error finding nodes");
+        return $self->render_error($status, "Error finding nodes");
     }
 
     my ($indexes, $results) = bulk_init_results($items);
