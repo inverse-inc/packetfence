@@ -61,6 +61,7 @@ use pf::person qw(person_nodes);
 use pf::util;
 use pf::violation qw(violation_count);
 use pf::web::constants;
+use pf::constants::realm;
 use utf8;
 
 =head1 SUBROUTINES
@@ -256,7 +257,7 @@ sub web_user_authenticate {
     }
 
     # validate login and password
-    my ($return, $message, $source_id, $extra) = pf::authentication::authenticate( { 'username' => $username, 'password' => $password, 'rule_class' => $Rules::AUTH }, @sources);
+    my ($return, $message, $source_id, $extra) = pf::authentication::authenticate( { 'username' => $username, 'password' => $password, 'rule_class' => $Rules::AUTH, context => $pf::constants::realm::PORTAL_CONTEXT }, @sources);
 
     if (defined($return) && $return == 1) {
         # save login into session
