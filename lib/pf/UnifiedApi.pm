@@ -74,7 +74,7 @@ our @API_V1_ROUTES = (
                     qw(
                         register deregister restart_switchport
                         reevaluate_access apply_violation
-                        close_violation
+                        close_violation fingerbank_refresh
                     )
                 ),
                 fingerbank_info => {
@@ -88,7 +88,7 @@ our @API_V1_ROUTES = (
                   qw(
                     search bulk_register bulk_deregister bulk_close_violations
                     bulk_reevaluate_access bulk_restart_switchport bulk_apply_violation
-                    bulk_apply_role bulk_apply_bypass_role
+                    bulk_apply_role bulk_apply_bypass_role bulk_fingerbank_refresh
                   )
             }
         }

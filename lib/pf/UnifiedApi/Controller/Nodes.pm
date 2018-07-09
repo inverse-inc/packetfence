@@ -16,6 +16,7 @@ use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
 use pf::dal::node;
+use pf::fingerbank;
 use pf::node;
 use pf::constants qw($TRUE);
 use pf::dal::violation;
@@ -192,6 +193,22 @@ sub fingerbank_info {
     return $self->render(status => 200, json => { item => pf::node::fingerbank_info($mac) });
 }
 
+=head2 fingerbank_refresh
+
+fingerbank_refresh
+
+=cut
+
+sub fingerbank_refresh {
+    my ($self) = @_;
+    my $mac = $self->stash->{node_id};
+    unless (pf::fingerbank::process($mac, $TRUE)) {
+        return $self->render_error(status => 500, "Couldn't refresh device profiling through Fingerbank");
+    }
+
+    return $self->render_empty();
+}
+
 =head2 bulk_close_violations
 
 bulk_close_violations
@@ -297,6 +314,29 @@ sub bulk_reevaluate_access {
     my ($indexes, $results) = bulk_init_results($items);
     for my $mac (@$items) {
         my $result = pf::enforcement::reevaluate_access($mac, "admin_modify");
+        $results->[$indexes->{$mac}]{status} = $result ? "success" : "failed";
+    }
+
+    return $self->render(status => 200, json => { items => $results });
+}
+
+=head2 bulk_fingerbank_refresh
+
+bulk_fingerbank_refresh
+
+=cut
+
+sub bulk_fingerbank_refresh {
+    my ($self) = @_;
+    my ($status, $data) = $self->parse_json;
+    if (is_error($status)) {
+        return $self->render(json => $data, status => $status);
+    }
+
+    my $items = $data->{items} // [];
+    my ($indexes, $results) = bulk_init_results($items);
+    for my $mac (@$items) {
+        my $result = pf::fingerbank::process($mac, $TRUE);
         $results->[$indexes->{$mac}]{status} = $result ? "success" : "failed";
     }
 
