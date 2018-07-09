@@ -164,6 +164,11 @@
 
       </b-tabs>
       <b-card-footer align="right" @mouseenter="$v.nodeContent.$touch()">
+        <div class="float-left">
+          <b-button variant="outline-warning" @click="applyReevaluateAccess">{{ $t('Reevaulate Access') }}</b-button>
+          <b-button variant="outline-warning" @click="applyRefreshFingerbank">{{ $t('Refresh Fingerbank') }}</b-button>
+          <b-button variant="outline-danger" @click="applyRestartSwitchport">{{ $t('Restart Switch Port') }}</b-button>
+        </div>
         <delete-button v-if="tabIndex === 0" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Node?')" @on-delete="deleteNode()">{{ $t('Delete') }}</delete-button>
         <b-button v-if="tabIndex === 0" variant="outline-primary" class="mr-1" type="submit" :disabled="invalidForm"><icon name="circle-notch" spin v-show="isLoading"></icon> {{ $t('Save') }}</b-button>
         <b-button variant="outline-secondary" type="cancel" @click="close">{{ $t('Close') }}</b-button>
@@ -189,6 +194,7 @@ const { required } = require('vuelidate/lib/validators')
 
 export default {
   name: 'NodeView',
+  storeName: '$_nodes',
   components: {
     'delete-button': DeleteButton,
     'toggle-button': ToggleButton,
@@ -321,6 +327,27 @@ export default {
     }
   },
   methods: {
+    applyReevaluateAccess () {
+      this.$store.dispatch(`${this.$options.storeName}/reevaluateAccessNode`, this.mac).then(response => {
+        // noop
+      }).catch(() => {
+        // noop
+      })
+    },
+    applyRefreshFingerbank () {
+      this.$store.dispatch(`${this.$options.storeName}/refreshFingerbankNode`, this.mac).then(response => {
+        // noop
+      }).catch(() => {
+        // noop
+      })
+    },
+    applyRestartSwitchport () {
+      this.$store.dispatch(`${this.$options.storeName}/restartSwitchportNode`, this.mac).then(response => {
+        // noop
+      }).catch(() => {
+        // noop
+      })
+    },
     close () {
       this.$router.push({ name: 'nodes' })
     },

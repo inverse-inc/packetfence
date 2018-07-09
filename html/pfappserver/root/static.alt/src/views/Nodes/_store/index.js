@@ -349,6 +349,48 @@ const actions = {
         reject(err)
       })
     })
+  },
+  reevaluateAccessNode: ({commit}, data) => {
+    commit('ITEM_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.reevaluateAccessNode(data).then(response => {
+        if (response.status === 'success') {
+          // noop
+        }
+        resolve(response)
+      }).catch(err => {
+        commit('ITEM_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  refreshFingerbankNode: ({commit}, data) => {
+    commit('ITEM_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.refreshFingerbankNode(data).then(response => {
+        if (response.status === 'success') {
+          // noop
+        }
+        resolve(response)
+      }).catch(err => {
+        commit('ITEM_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  restartSwitchportNode: ({commit}, data) => {
+    commit('ITEM_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.restartSwitchportNode(data).then(response => {
+        if (response.status === 'success') {
+          // noop
+        }
+        resolve(response)
+      }).catch(err => {
+        commit('ITEM_ERROR', err.response)
+        reject(err)
+      })
+    })
   }
 }
 

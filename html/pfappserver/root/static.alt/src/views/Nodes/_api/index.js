@@ -121,5 +121,20 @@ export default {
     return apiCall.post('nodes/bulk_fingerbank_refresh', body).then(response => {
       return response.data
     })
+  },
+  reevaluateAccessNode: mac => {
+    return apiCall.post(`node/${mac}/reevaluate_access`).then(response => {
+      return response.data
+    })
+  },
+  refreshFingerbankNode: mac => {
+    return apiCall.post(`node/${mac}/fingerbank_refresh`).then(response => {
+      return response.data
+    })
+  },
+  restartSwitchportNode: mac => {
+    return apiCall.post(`node/${mac}/restart_switchport`).then(response => {
+      return response.data
+    })
   }
 }
