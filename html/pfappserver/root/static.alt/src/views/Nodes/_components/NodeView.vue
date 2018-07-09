@@ -165,9 +165,9 @@
       </b-tabs>
       <b-card-footer align="right" @mouseenter="$v.nodeContent.$touch()">
         <div class="float-left">
-          <b-button variant="outline-warning" @click="applyReevaluateAccess">{{ $t('Reevaulate Access') }}</b-button>
-          <b-button variant="outline-warning" @click="applyRefreshFingerbank">{{ $t('Refresh Fingerbank') }}</b-button>
-          <b-button variant="outline-danger" @click="applyRestartSwitchport">{{ $t('Restart Switch Port') }}</b-button>
+          <b-button v-if="tabIndex === 0" variant="outline-warning" @click="applyReevaluateAccess">{{ $t('Reevaulate Access') }}</b-button>
+          <b-button v-if="tabIndex === 0 || tabIndex === 1" variant="outline-warning" @click="applyRefreshFingerbank">{{ $t('Refresh Fingerbank') }}</b-button>
+          <b-button v-if="tabIndex === 0 || tabIndex === 5" variant="outline-danger" @click="applyRestartSwitchport" :disabled="!canRestartSwitchport(node)">{{ $t('Restart Switch Port') }}</b-button>
         </div>
         <delete-button v-if="tabIndex === 0" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Node?')" @on-delete="deleteNode()">{{ $t('Delete') }}</delete-button>
         <b-button v-if="tabIndex === 0" variant="outline-primary" class="mr-1" type="submit" :disabled="invalidForm"><icon name="circle-notch" spin v-show="isLoading"></icon> {{ $t('Save') }}</b-button>
@@ -347,6 +347,14 @@ export default {
       }).catch(() => {
         // noop
       })
+    },
+    canRestartSwitchport (node) {
+      if (!node.locations || node.locations.filter(node =>
+        node.end_time === '0000-00-00 00:00:00' && // require zero end_time
+        node.search(new RegExp(/inline/i)) === -1 && // not contain 'inline'
+        node.search(new RegExp(/^wireless-802\.11/i)) === -1 // not start with' Wireless-802.11' (ie 'Wired')
+      ).length === 0) return false
+      return true
     },
     close () {
       this.$router.push({ name: 'nodes' })
