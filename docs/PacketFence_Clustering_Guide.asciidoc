@@ -252,7 +252,7 @@ Then, restart PacketFence to apply all your changes
 
  # /usr/local/pf/bin/pfcmd service pf restart
 
-If no error is found in the previous configuration, the previous restart of packetfence should have started `keepalived` and `radiusd-loadbalancer` along with the other services.
+If no error is found in the previous configuration, the previous restart of packetfence should have started `keepalived` and `radiusd-loadbalancer` along with the other services. If you have set up a mail server on your first server, you should have receive a mail from `keepalived` to inform you that your first server got Virtual IP (VIP) adresses.
 
 NOTE: You can check the status of the services using '/usr/local/pf/bin/pfcmd service pf status'
 
@@ -282,7 +282,7 @@ WARNING: *packet* and *fence* are only for example purpose, you need to define y
 
 While you can set the username and password to any value, make sure to keep it safe as you will need it while initializing the cluster below.
 
-And reload the config, then restart httpd.webservices on the first server:
+And reload the config, then restart `httpd.webservices` on the first server:
 
   # /usr/local/pf/bin/pfcmd configreload hard
   # /usr/local/pf/bin/pfcmd service httpd.webservices restart
@@ -290,7 +290,7 @@ And reload the config, then restart httpd.webservices on the first server:
 Sync the nodes
 ^^^^^^^^^^^^^^
 
-The following instructions have to be done on each server that will be joined in the cluster.
+The following instructions have to be done on each server (second and third servers) that will be joined in the cluster.
 
 Do (and make sure it completes without any errors):
 
@@ -298,22 +298,22 @@ Do (and make sure it completes without any errors):
 
 Where :
 
-* '192.168.1.5' is the management IP of the other PacketFence node
-* 'packet' is the webservices username you have configured on the master node
-* 'fence' is the webservices password you have configured on the master node
+* '192.168.1.5' is the management IP of the *first server* node
+* 'packet' is the webservices username you have configured on the *first server* node
+* 'fence' is the webservices password you have configured on the *first server* node
 
-Make sure that 'iptables' is stopped
+On second and third servers, make sure that 'iptables' is stopped:
 
   # systemctl stop packetfence-iptables
 
-Reload the configuration and start the webservices on the new server
+Then, reload the configuration and start the webservices on these servers:
 
   # systemctl restart packetfence-config
   # /usr/local/pf/bin/pfcmd configreload
   # /usr/local/pf/bin/pfcmd service haproxy-db restart
   # /usr/local/pf/bin/pfcmd service httpd.webservices restart
 
-Make sure that this server is binding to it's own management address. If it's not, verify the `/usr/local/pf/conf/cluster.conf` management interface configuration.
+Make sure that each server is binding to it's own management address. If it's not, verify the `/usr/local/pf/conf/cluster.conf` management interface configuration.
 
   # netstat -nlp | grep 9090
 
