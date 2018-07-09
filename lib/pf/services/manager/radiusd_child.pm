@@ -246,10 +246,9 @@ sub generate_radiusd_acctconf {
 
 sub generate_radiusd_eduroamconf {
     my ($self) = @_;
-
+    my %tags;
     if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
         my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
-        my %tags;
         $tags{'template'}    = "$conf_dir/radiusd/eduroam.conf";
         if ($cluster_enabled) {
             my $ip = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
@@ -325,11 +324,37 @@ EOT
         }
         parse_template( \%tags, "$conf_dir/radiusd/eduroam", "$install_dir/raddb/sites-available/eduroam" );
         symlink("$install_dir/raddb/sites-available/eduroam", "$install_dir/raddb/sites-enabled/eduroam");
+
+        %tags = ();
+        my $server1_address = $eduroam_authentication_source[0]{'server1_address'};
+        my $server2_address = $eduroam_authentication_source[0]{'server2_address'};
+        my $radius_secret = $eduroam_authentication_source[0]{'radius_secret'};
+
+            $tags{'config'} .= <<"EOT";
+client eduroam_tlsr_server_1 {
+        ipaddr = $server1_address
+        secret = $radius_secret
+        shortname = eduroam_tlrs1
+        virtual_server = eduroam
+}
+
+client eduroam_tlsr_server_2 {
+        ipaddr = $server2_address
+        secret = $radius_secret
+        shortname = eduroam_tlrs2
+        virtual_server = eduroam
+}
+
+EOT
     } else {
+        $tags{'config'} = "# Eduroam integration is not configured";
         unlink("$install_dir/raddb/sites-enabled/eduroam");
         unlink("$install_dir/raddb/sites-available/eduroam");
         unlink("$install_dir/raddb/eduroam.conf");
     }
+    # Ensure raddb/clients.eduroam.conf.inc exists. radiusd won't start otherwise.
+    $tags{'template'} = "$conf_dir/radiusd/clients.eduroam.conf.inc";
+    parse_template( \%tags, "$conf_dir/radiusd/clients.eduroam.conf.inc", "$install_dir/raddb/clients.eduroam.conf.inc" );
 }
 
 sub generate_radiusd_cliconf {
@@ -674,26 +699,6 @@ listen {
 }
 EOT
             }
-            my $server1_address = $eduroam_authentication_source[0]{'server1_address'};
-            my $server2_address = $eduroam_authentication_source[0]{'server2_address'};
-            my $radius_secret = $eduroam_authentication_source[0]{'radius_secret'};
-
-	    $tags{'config'} .= <<"EOT";
-client eduroam_tlsr_server_1 {
-        ipaddr = $server1_address
-        secret = $radius_secret
-        shortname = eduroam_tlrs1
-        virtual_server = eduroam
-}
-
-client eduroam_tlsr_server_2 {
-        ipaddr = $server2_address
-        secret = $radius_secret
-        shortname = eduroam_tlrs2
-        virtual_server = eduroam
-}
-
-EOT
         } else {
             $tags{'eduroam'} = "# Eduroam integration is not configured";
         }
