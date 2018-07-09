@@ -40,6 +40,8 @@ Since this is a SPA (Single-Page Application), it is currently accessible from `
 * [axios](https://github.com/axios/axios) -- http client
 * [vuelidate](https://monterail.github.io/vuelidate/) -- form validation
 * [vue-awesome](https://justineo.github.io/vue-awesome/demo/) -- font awesome component (svg)
+* [vue2vis](https://github.com/alexcode/vue2vis/) -- VueJS to Vis
+ * [vis](http://visjs.org/) -- Vis
 
 ## Files Structure
 
