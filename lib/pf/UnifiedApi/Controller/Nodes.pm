@@ -516,7 +516,7 @@ do_restart_switchport
 sub do_restart_switchport {
     my ($self, $mac) = @_;
     my $ll = locationlog_view_open_mac($mac);
-    unless (my $ll) {
+    unless ($ll) {
         return ($STATUS::NOT_FOUND, "Unable to find node location.");
     }
 
