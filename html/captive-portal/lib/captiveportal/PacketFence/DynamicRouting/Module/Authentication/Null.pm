@@ -19,6 +19,7 @@ use pf::config qw($default_pid);
 use pf::log;
 use pf::auth_log;
 use pf::Authentication::constants;
+use pf::constants::realm;
 
 has '+source' => (isa => 'pf::Authentication::Source::NullSource');
 
@@ -65,7 +66,7 @@ sub authenticate {
         $pid = $self->request_fields->{$self->pid_field};
 
         get_logger->info("Validating e-mail for user $pid");
-        my ($return, $message, $source_id, $extra) = pf::authentication::authenticate({username => $pid, password => '', rule_class => $Rules::AUTH}, $self->source);
+        my ($return, $message, $source_id, $extra) = pf::authentication::authenticate({username => $pid, password => '', rule_class => $Rules::AUTH, context => $pf::constants::realm::PORTAL_CONTEXT}, $self->source);
         if(defined($return) && $return == 1){
             pf::auth_log::record_auth($source_id, $self->current_mac, $pid, $pf::auth_log::COMPLETED, $self->app->profile->name);
         }
