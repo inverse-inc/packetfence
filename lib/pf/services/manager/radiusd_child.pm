@@ -674,6 +674,27 @@ listen {
 }
 EOT
             }
+            my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
+            my $server1_address = $eduroam_authentication_source[0]{'server1_address'};
+            my $server2_address = $eduroam_authentication_source[0]{'server2_address'};
+            my $radius_secret = $eduroam_authentication_source[0]{'radius_secret'};
+
+	    $tags{'config'} .= <<"EOT";
+client eduroam_tlsr_server_1 {
+        ipaddr = $server1_address
+        secret = $radius_secret
+        shortname = eduroam_tlrs1
+        virtual_server = eduroam
+}
+
+client eduroam_tlsr_server_2 {
+        ipaddr = $server2_address
+        secret = $radius_secret
+        shortname = eduroam_tlrs2
+        virtual_server = eduroam
+}
+
+EOT
         } else {
             $tags{'eduroam'} = "# Eduroam integration is not configured";
         }

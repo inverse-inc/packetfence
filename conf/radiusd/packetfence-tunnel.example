@@ -596,7 +596,10 @@ session {
 #  then update the inner-tunnel reply.
 post-auth {
 	packetfence-set-tenant-id
-	rest
+
+	if ( "%{client:shortname}" !~ /eduroam_tlrs/ ) {
+		rest
+	}
 	update {
 		&request:User-Password := "******"
 	}
