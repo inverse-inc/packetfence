@@ -674,7 +674,6 @@ listen {
 }
 EOT
             }
-            my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
             my $server1_address = $eduroam_authentication_source[0]{'server1_address'};
             my $server2_address = $eduroam_authentication_source[0]{'server2_address'};
             my $radius_secret = $eduroam_authentication_source[0]{'radius_secret'};
