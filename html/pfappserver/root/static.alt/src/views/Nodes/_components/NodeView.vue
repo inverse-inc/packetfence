@@ -209,7 +209,7 @@ export default {
       visOptions: {
         editable: false,
         margin: {
-          item: 20
+          item: 25
         },
         orientation: {
           axis: 'both',
@@ -365,7 +365,7 @@ export default {
           id: 'detect',
           group: this.mac + '-seen',
           start: new Date(node.detect_date),
-          end: (node.last_seen && node.seen !== '0000-00-00 00:00:00') ? new Date(node.last_seen) : null,
+          end: (node.last_seen && node.last_seen !== '0000-00-00 00:00:00') ? new Date(node.last_seen) : null,
           content: this.$i18n.t('Detected')
         })
       } else if (node.last_seen && node.last_seen !== '0000-00-00 00:00:00') {
