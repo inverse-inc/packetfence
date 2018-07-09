@@ -322,13 +322,13 @@ MariaDB sync
 
 First, ensure your MariaDB instance running with `--force-new-cluster` is still running on the first node, if its not, start it again.
 
-Then, ensure packetfence-mariadb is stopped on the two servers that will be joined
+Then, ensure `packetfence-mariadb` is stopped on the two servers that will be joined:
 
   # systemctl stop packetfence-mariadb
 
-Now, flush any MySQL data you have on the new node and restart packetfence-mariadb so that the servers join the cluster.
+Now, flush any MySQL data you have on the two servers and restart `packetfence-mariadb` so that the servers join the cluster.
 
-WARNING: If you have any data in MySQL on this node, this will destroy it.
+WARNING: If you have any data in MySQL on these nodes, this will destroy it.
 
   # rm -fr /var/lib/mysql/*
 
@@ -337,7 +337,7 @@ WARNING: If you have any data in MySQL on this node, this will destroy it.
 Checking the MariaDB sync
 +++++++++++++++++++++++++
 
-In order to check the MariaDB sync, you can look at the status of the wsrep status values inside MySQL.
+In order to check the MariaDB sync, you can look at the status of the `wsrep` status values inside MySQL.
 
   mysql> show status like 'wsrep%';
 
@@ -356,7 +356,7 @@ Once all servers are synced, go *on the first server* that should still be runni
 
 NOTE: You can check if the service is down with 'ps -edf | grep mysql', this service can be a little long to stop and it is not recommended to do the nexts step before it fully stops.
 
-Now, start packetfence-mariadb normally:
+Now, start `packetfence-mariadb` normally:
 
   # systemctl start packetfence-mariadb
 
@@ -367,7 +367,7 @@ Now start PacketFence on servers 2 and 3, as it should already be started on the
 
   # /usr/local/pf/bin/pfcmd service pf start
 
-Disable the access to the configurator by setting the currently-at on each server:
+Disable the access to the configurator by setting the `currently-at` file on each server:
 
   # /usr/local/pf/bin/pfcmd version > /usr/local/pf/conf/currently-at
 
@@ -378,7 +378,7 @@ Securing the cluster: Keepalived secret
 
 NOTE: It is highly recommended to modify the keepalived shared secret in your cluster to prevent attacks.
 
-From the PacketFence web administration interface, go in 'Configuration/System Configuration/Cluster' and change the 'Shared KEY'. Make sure you restart keepalived on *all your servers* using `/usr/local/pf/bin/pfcmd service keepalived restart`
+From the PacketFence web administration interface, go in 'Configuration/System Configuration/Cluster' and change the 'Shared KEY'. Make sure you restart `keepalived` on *all your servers* using `/usr/local/pf/bin/pfcmd service keepalived restart`
 
 Understanding the Galera cluster synchronization
 ------------------------------------------------
