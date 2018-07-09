@@ -310,6 +310,16 @@ const actions = {
       })
     })
   },
+  refreshFingerbankBulkNodes: ({commit}, data) => {
+    return new Promise((resolve, reject) => {
+      api.refreshFingerbankBulkNodes(data).then(response => {
+        resolve(response)
+      }).catch(err => {
+        commit('NODE_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
   roleNode: ({commit}, data) => {
     commit('ITEM_REQUEST')
     return new Promise((resolve, reject) => {

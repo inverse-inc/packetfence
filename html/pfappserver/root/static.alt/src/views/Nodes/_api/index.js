@@ -116,5 +116,10 @@ export default {
     return apiCall.post('nodes/bulk_restart_switchport', body).then(response => {
       return response.data
     })
+  },
+  refreshFingerbankBulkNodes: body => {
+    return apiCall.post('nodes/bulk_fingerbank_refresh', body).then(response => {
+      return response.data
+    })
   }
 }
