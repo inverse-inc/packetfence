@@ -216,7 +216,10 @@ export default {
           item: 'bottom'
         },
         selectable: false,
-        stack: false
+        stack: false,
+        tooltip: {
+          followMouse: true
+        }
       },
       tabIndex: 0,
       tabTitle: '',
@@ -502,6 +505,9 @@ export default {
     },
     addVisItem (item) {
       if (!this.visItems.getIds().includes(item.id)) {
+        if (!item.title) {
+          item.title = item.content
+        }
         this.visItems.add([item])
       }
     }
@@ -579,6 +585,9 @@ export default {
   padding: 2px 3px 1px;
   text-align: center;
 }
+.vis-label, .vis-group {
+  /* min-height: 35px;  */
+}
 /* bottom arrow on box */
 .vis-item.vis-box:after {
   content:'';
@@ -597,13 +606,11 @@ export default {
   border-left: 5px solid #d72b3f;
   border-right: 5px solid #d72b3f;
   border-radius:50px;
-  
 }
 /* alternating column backgrounds */
 .vis-time-axis .vis-grid.vis-odd {
   background: #f5f5f5;
 }
-
 /* gray background in weekends, white text color */
 .vis-time-axis .vis-grid.vis-saturday,
 .vis-time-axis .vis-grid.vis-sunday {
