@@ -57,8 +57,7 @@ go-env:
 
 test:
 	/usr/local/pf/t/pfconfig-test ;\
-	PFCONFIG_TESTING=y govendor test ./... ;\
-	pkill pfconfig-test
+	PFCONFIG_TESTING=y govendor test ./...
 
 .PHONY: clean-coredns-src
 
