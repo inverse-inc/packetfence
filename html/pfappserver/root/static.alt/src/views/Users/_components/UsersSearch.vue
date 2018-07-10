@@ -104,10 +104,10 @@ export default {
           }
         },
         {
-          key: 'pid',
-          label: this.$i18n.t('Username'),
+          key: 'title',
+          label: this.$i18n.t('Title'),
           sortable: true,
-          visible: true
+          visible: false
         },
         {
           key: 'firstname',
@@ -122,10 +122,193 @@ export default {
           visible: true
         },
         {
+          key: 'nickname',
+          label: this.$i18n.t('Nickname'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'pid',
+          label: this.$i18n.t('Username'),
+          sortable: true,
+          visible: true
+        },
+        {
           key: 'email',
           label: this.$i18n.t('Email'),
           sortable: true,
           visible: true
+        },
+        {
+          key: 'sponsor',
+          label: this.$i18n.t('Sponsor'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'anniversary',
+          label: this.$i18n.t('Anniversary'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'birthday',
+          label: this.$i18n.t('Birthday'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'address',
+          label: this.$i18n.t('Address'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'apartment_number',
+          label: this.$i18n.t('Apartment Number'),
+          sortable: true,
+          visible: false,
+          'class': 'text-nowrap'
+        },
+        {
+          key: 'building_number',
+          label: this.$i18n.t('Building Number'),
+          sortable: true,
+          visible: false,
+          'class': 'text-nowrap'
+        },
+        {
+          key: 'room_number',
+          label: this.$i18n.t('Room Number'),
+          sortable: true,
+          visible: false,
+          'class': 'text-nowrap'
+        },
+        {
+          key: 'company',
+          label: this.$i18n.t('Company'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'gender',
+          label: this.$i18n.t('Gender'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'lang',
+          label: this.$i18n.t('Language'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'notes',
+          label: this.$i18n.t('Notes'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'portal',
+          label: this.$i18n.t('Portal'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'psk',
+          label: this.$i18n.t('PSK'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'source',
+          label: this.$i18n.t('Source'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'cell_phone',
+          label: this.$i18n.t('Cellular Telephone Number'),
+          sortable: true,
+          visible: false,
+          'class': 'text-nowrap'
+        },
+        {
+          key: 'telephone',
+          label: this.$i18n.t('Home Telephone Number'),
+          sortable: true,
+          visible: false,
+          'class': 'text-nowrap'
+        },
+        {
+          key: 'work_phone',
+          label: this.$i18n.t('Work Telephone Number'),
+          sortable: true,
+          visible: false,
+          'class': 'text-nowrap'
+        },
+        {
+          key: 'custom_field_1',
+          label: this.$i18n.t('Custom Field #1'),
+          sortable: true,
+          visible: false,
+          'class': 'text-nowrap'
+        },
+        {
+          key: 'custom_field_2',
+          label: this.$i18n.t('Custom Field #2'),
+          sortable: true,
+          visible: false,
+          'class': 'text-nowrap'
+        },
+        {
+          key: 'custom_field_3',
+          label: this.$i18n.t('Custom Field #3'),
+          sortable: true,
+          visible: false,
+          'class': 'text-nowrap'
+        },
+        {
+          key: 'custom_field_4',
+          label: this.$i18n.t('Custom Field #4'),
+          sortable: true,
+          visible: false,
+          'class': 'text-nowrap'
+        },
+        {
+          key: 'custom_field_5',
+          label: this.$i18n.t('Custom Field #5'),
+          sortable: true,
+          visible: false,
+          'class': 'text-nowrap'
+        },
+        {
+          key: 'custom_field_6',
+          label: this.$i18n.t('Custom Field #6'),
+          sortable: true,
+          visible: false,
+          'class': 'text-nowrap'
+        },
+        {
+          key: 'custom_field_7',
+          label: this.$i18n.t('Custom Field #7'),
+          sortable: true,
+          visible: false,
+          'class': 'text-nowrap'
+        },
+        {
+          key: 'custom_field_8',
+          label: this.$i18n.t('Custom Field #8'),
+          sortable: true,
+          visible: false,
+          'class': 'text-nowrap'
+        },
+        {
+          key: 'custom_field_9',
+          label: this.$i18n.t('Custom Field #9'),
+          sortable: true,
+          visible: false,
+          'class': 'text-nowrap'
         }
       ]
     }
