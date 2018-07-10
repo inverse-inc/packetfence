@@ -21,13 +21,22 @@ Throughout this configuration example we use the following assumptions for our n
 
 Please refer to the following table for IP and Subnet information :
 
-[options="header",cols="1,2,2,2,2,2,2",grid="rows"]
+[options="header",cols="4*",grid="rows"]
 |===
-|VLAN ID  |VLAN Name     |Subnet           |Gateway         |PacketFence Address|DHCP                       |DNS
-|20       |Management    |172.20.100.0/16  |172.20.0.1      |172.20.100.2       |infrastructure DHCP server |infrastructure DNS server
-|102      |Registration  |192.168.102.0/24 |192.168.102.1   |192.168.102.1      |PF                         |PF
-|103      |Isolation     |192.168.103.0/24 |192.168.103.1   |192.168.103.1      |PF                         |PF
-|104      |Normal        |10.0.104.0/24    |10.0.104.1      |                   |infrastructure DHCP server |infrastructure DNS server
+|VLAN ID  |VLAN Name     |Subnet           |Gateway
+|20       |Management    |172.20.100.0/16  |172.20.0.1
+|102      |Registration  |192.168.102.0/24 |192.168.102.1
+|103      |Isolation     |192.168.103.0/24 |192.168.103.1
+|104      |Normal        |10.0.104.0/24    |10.0.104.1
+|===
+
+[options="header",cols="5*",grid="rows"]
+|=== 
+|VLAN ID  |VLAN Name     |PacketFence Address|DHCP                       |DNS
+|20       |Management    |172.20.100.2       |infrastructure DHCP server |infrastructure DNS server
+|102      |Registration  |192.168.102.1      |PF                         |PF
+|103      |Isolation     |192.168.103.1      |PF                         |PF
+|104      |Normal        |                   |infrastructure DHCP server |infrastructure DNS server
 |===
 
 Note that PacketFence will provide these services on its registration and isolation VLANs:
