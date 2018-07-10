@@ -351,8 +351,8 @@ export default {
     canRestartSwitchport (node) {
       if (!node.locations || node.locations.filter(node =>
         node.end_time === '0000-00-00 00:00:00' && // require zero end_time
-        node.search(new RegExp(/inline/i)) === -1 && // not contain 'inline'
-        node.search(new RegExp(/^wireless-802\.11/i)) === -1 // not start with' Wireless-802.11' (ie 'Wired')
+        node.connection_type.search(new RegExp(/inline/i)) === -1 && // not contain 'inline'
+        node.connection_type.search(new RegExp(/^wireless-802\.11/i)) === -1 // not start with 'Wireless-802.11' (ie 'Wired')
       ).length === 0) return false
       return true
     },
