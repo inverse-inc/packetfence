@@ -402,7 +402,7 @@ export default {
           id: 'detect',
           group: this.mac + '-seen',
           start: new Date(node.detect_date),
-          end: (node.last_seen && node.last_seen !== '0000-00-00 00:00:00') ? new Date(node.last_seen) : null,
+          end: (node.last_seen && node.last_seen !== '0000-00-00 00:00:00' && node.last_seen !== node.detect_date) ? new Date(node.last_seen) : null,
           content: this.$i18n.t('Detected')
         })
       } else if (node.last_seen && node.last_seen !== '0000-00-00 00:00:00') {
@@ -426,7 +426,7 @@ export default {
           id: 'regdate',
           group: this.mac + '-registered',
           start: new Date(node.regdate),
-          end: (node.unregdate && node.unregdate !== '0000-00-00 00:00:00') ? new Date(node.unregdate) : null,
+          end: (node.unregdate && node.unregdate !== '0000-00-00 00:00:00' && node.unregdate !== node.regdate) ? new Date(node.unregdate) : null,
           content: this.$i18n.t('Registered')
         })
       }
@@ -476,7 +476,7 @@ export default {
             id: 'ipv4-' + ip4.ip,
             group: _this.mac + '-ipv4',
             start: new Date(ip4.start_time),
-            end: (ip4.end_time !== '0000-00-00 00:00:00') ? new Date(ip4.end_time) : null,
+            end: (ip4.end_time !== '0000-00-00 00:00:00' && ip4.end_time !== ip4.start_time) ? new Date(ip4.end_time) : null,
             content: ip4.ip
           })
         })
@@ -493,7 +493,7 @@ export default {
             id: 'ipv6-' + ip6.ip,
             group: _this.mac + '-ipv6',
             start: new Date(ip6.start_time),
-            end: (ip6.end_time !== '0000-00-00 00:00:00') ? new Date(ip6.end_time) : null,
+            end: (ip6.end_time !== '0000-00-00 00:00:00' && ip6.end_time !== ip6.start_time) ? new Date(ip6.end_time) : null,
             content: ip6.ip
           })
         })
@@ -510,7 +510,7 @@ export default {
             id: 'location-' + location.id,
             group: _this.mac + '-location',
             start: new Date(location.start_time),
-            end: (location.end_time && location.end_time !== '0000-00-00 00:00:00') ? new Date(location.end_time) : null,
+            end: (location.end_time && location.end_time !== '0000-00-00 00:00:00' && location.end_time !== location.start_time) ? new Date(location.end_time) : null,
             content: location.ssid + '/' + _this.$i18n.t('Role') + ':' + location.role + '/VLAN:' + location.vlan
           })
         })
@@ -527,7 +527,7 @@ export default {
             id: 'violation' + violation.vid,
             group: _this.mac + '-violation',
             start: new Date(violation.start_date),
-            end: (violation.release_date !== '0000-00-00 00:00:00') ? new Date(violation.release_date) : null,
+            end: (violation.release_date !== '0000-00-00 00:00:00' && violation.release_date !== violation.start_date) ? new Date(violation.release_date) : null,
             content: _this.violationDescription(violation.vid)
           })
         })
