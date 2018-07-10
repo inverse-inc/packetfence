@@ -39,6 +39,8 @@ New Features
 * Expire SMS pin code
 * Define the length of the pin code
 * Enable or disable sponsor authentication when he validates access (PR #2995) 
+* Rewrite of the pfdetect service in Golang (PR #3260)
+* Added support for OpenWRT/LEDE 17.01.4 (PR #3008)
 
 Enhancements
 ++++++++++++
