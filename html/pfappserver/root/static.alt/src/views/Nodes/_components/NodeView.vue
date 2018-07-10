@@ -350,15 +350,13 @@ export default {
       })
     },
     canReevaluateAccess (node) {
-      if (!node.locations || ((!node.ip4 || !node.ip4.ip) && (!node.ip6 || !node.ip6.ip))) return false
-      return true
+      return (node.locations && node.locations.length > 0 && ((node.ip4 && node.ip4.ip) || (node.ip6 && node.ip6.ip)))
     },
     canRestartSwitchport (node) {
-      if (!node.locations || node.locations.filter(node =>
+      return (node.locations && node.locations.filter(node =>
         node.end_time === '0000-00-00 00:00:00' && // require zero end_time
         network.connectionTypeToAttributes(node.connection_type).isWired // require 'Wired'
-      ).length === 0) return false
-      return true
+      ).length > 0)
     },
     close () {
       this.$router.push({ name: 'nodes' })
