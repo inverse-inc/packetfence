@@ -189,6 +189,7 @@ import {
   pfSearchConditionValues as conditionValues
 } from '@/globals/pfSearch'
 import { DataSet } from 'vue2vis'
+import network from '@/utils/network'
 const { validationMixin } = require('vuelidate')
 const { required } = require('vuelidate/lib/validators')
 
@@ -351,8 +352,7 @@ export default {
     canRestartSwitchport (node) {
       if (!node.locations || node.locations.filter(node =>
         node.end_time === '0000-00-00 00:00:00' && // require zero end_time
-        node.connection_type.search(new RegExp(/inline/i)) === -1 && // not contain 'inline'
-        node.connection_type.search(new RegExp(/^wireless-802\.11/i)) === -1 // not start with 'Wireless-802.11' (ie 'Wired')
+        network.connectionTypeToAttributes(node.connection_type).isWired // require 'Wired'
       ).length === 0) return false
       return true
     },
