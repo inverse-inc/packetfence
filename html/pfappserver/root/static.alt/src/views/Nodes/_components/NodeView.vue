@@ -165,7 +165,7 @@
       </b-tabs>
       <b-card-footer align="right" @mouseenter="$v.nodeContent.$touch()">
         <div class="float-left">
-          <b-button v-if="tabIndex === 0" variant="outline-warning" @click="applyReevaluateAccess">{{ $t('Reevaulate Access') }}</b-button>
+          <b-button v-if="tabIndex === 0 || tabIndex === 5" variant="outline-warning" @click="applyReevaluateAccess" :disabled="!canReevaluateAccess(node)">{{ $t('Reevaulate Access') }}</b-button>
           <b-button v-if="tabIndex === 0 || tabIndex === 1" variant="outline-warning" @click="applyRefreshFingerbank">{{ $t('Refresh Fingerbank') }}</b-button>
           <b-button v-if="tabIndex === 0 || tabIndex === 5" variant="outline-danger" @click="applyRestartSwitchport" :disabled="!canRestartSwitchport(node)">{{ $t('Restart Switch Port') }}</b-button>
         </div>
@@ -348,6 +348,10 @@ export default {
       }).catch(() => {
         // noop
       })
+    },
+    canReevaluateAccess (node) {
+      if (!node.locations || ((!node.ip4 || !node.ip4.ip) && (!node.ip6 || !node.ip6.ip))) return false
+      return true
     },
     canRestartSwitchport (node) {
       if (!node.locations || node.locations.filter(node =>
