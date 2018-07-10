@@ -87,8 +87,158 @@ export default {
           types: [attributeType.SUBSTRING]
         },
         {
+          value: 'title',
+          text: 'Title',
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'firstname',
+          text: 'Firstname',
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'lastname',
+          text: 'Lastname',
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'nickname',
+          text: 'Nickname',
+          types: [attributeType.SUBSTRING]
+        },
+        {
           value: 'email',
           text: 'Email',
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'sponsor',
+          text: 'Sponsor',
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'anniversary',
+          text: 'Anniversary',
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'birthday',
+          text: 'Birthday',
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'address',
+          text: 'Address',
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'apartment_number',
+          text: 'Apartment Number',
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'building_number',
+          text: 'Building Number',
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'room_number',
+          text: 'Room Number',
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'company',
+          text: 'Company',
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'gender',
+          text: 'Gender',
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'lang',
+          text: 'Language',
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'notes',
+          text: 'Notes',
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'portal',
+          text: 'Portal',
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'psk',
+          text: 'PSK',
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'source',
+          text: 'Source',
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'cell_phone',
+          text: 'Cellular Phone Number',
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'telephone',
+          text: 'Home Telephone Number',
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'work_phone',
+          text: 'Work Telephone Number',
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'custom_field_1',
+          text: 'Custom Field #1',
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'custom_field_2',
+          text: 'Custom Field #2',
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'custom_field_3',
+          text: 'Custom Field #3',
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'custom_field_4',
+          text: 'Custom Field #4',
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'custom_field_5',
+          text: 'Custom Field #5',
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'custom_field_6',
+          text: 'Custom Field #6',
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'custom_field_7',
+          text: 'Custom Field #7',
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'custom_field_8',
+          text: 'Custom Field #8',
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'custom_field_9',
+          text: 'Custom Field #9',
           types: [attributeType.SUBSTRING]
         }
       ],
@@ -102,6 +252,12 @@ export default {
           formatter: (value, key, item) => {
             return item.mac
           }
+        },
+        {
+          key: 'pid',
+          label: this.$i18n.t('Username'),
+          sortable: true,
+          visible: true
         },
         {
           key: 'title',
@@ -126,12 +282,6 @@ export default {
           label: this.$i18n.t('Nickname'),
           sortable: true,
           visible: false
-        },
-        {
-          key: 'pid',
-          label: this.$i18n.t('Username'),
-          sortable: true,
-          visible: true
         },
         {
           key: 'email',
@@ -228,7 +378,7 @@ export default {
         },
         {
           key: 'cell_phone',
-          label: this.$i18n.t('Cellular Telephone Number'),
+          label: this.$i18n.t('Cellular Phone Number'),
           sortable: true,
           visible: false,
           'class': 'text-nowrap'
