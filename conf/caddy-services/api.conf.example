@@ -22,22 +22,22 @@
   api-aaa
 
   # pfipset API access
-  proxy /api/v1/ipset 127.0.0.1:22223 {
+  proxy /api/v1/ipset/ 127.0.0.1:22223 {
     transparent
   }
   
   # pfdhcp API access
-  proxy /api/v1/dhcp 127.0.0.1:22222 {
+  proxy /api/v1/dhcp/ 127.0.0.1:22222 {
     transparent
   }
   
   # pfsso API access
-  proxy /api/v1/firewall_sso 127.0.0.1:8777 {
+  proxy /api/v1/firewall_sso/ 127.0.0.1:8777 {
     transparent
   }
   
   # Everything else goes to the Perl API
-  proxy /api/v1 127.0.0.1:8080 {
+  proxy /api/v1/ 127.0.0.1:8080 {
     transparent
   }
 }
