@@ -162,6 +162,11 @@ const actions = {
         commit('NODE_UPDATED', { mac, prop: 'fingerbank', data: fingerbank })
       })
 
+      // Fetch dhcpoption82
+      api.dhcpoption82(mac).then(items => {
+        commit('NODE_UPDATED', { mac, prop: 'dhcpoption82', data: items })
+      })
+
       return node
     })
   },

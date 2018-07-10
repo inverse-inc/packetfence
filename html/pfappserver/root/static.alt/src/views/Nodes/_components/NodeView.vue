@@ -158,8 +158,9 @@
 
         <b-tab title="Option82">
           <template slot="title">
-            {{ $t('Option82') }}
+            {{ $t('Option82') }} <b-badge pill v-if="node.dhcpoption82 && node.dhcpoption82.length > 0" variant="light" class="ml-1">{{ node.dhcpoption82.length }}</b-badge>
           </template>
+          <b-table stacked="sm" :items="node.dhcpoption82" :fields="dhcpOption82Fields" v-if="node.dhcpoption82" striped></b-table>
         </b-tab>
 
       </b-tabs>
@@ -298,6 +299,40 @@ export default {
           key: 'status',
           label: this.$i18n.t('Status'),
           'class': 'text-nowrap'
+        }
+      ],
+      dhcpOption82Fields: [
+        {
+          key: 'created_at',
+          label: this.$i18n.t('Created At'),
+          formatter: this.$options.filters.pfDate,
+          'class': 'text-nowrap'
+        },
+        {
+          key: 'vlan',
+          label: this.$i18n.t('VLAN')
+        },
+        {
+          key: 'switch_id',
+          label: this.$i18n.t('Switch IP'),
+          'class': 'text-nowrap'
+        },
+        {
+          key: 'option82_switch',
+          label: this.$i18n.t('Switch MAC'),
+          'class': 'text-nowrap'
+        },
+        {
+          key: 'port',
+          label: this.$i18n.t('Port')
+        },
+        {
+          key: 'module',
+          label: this.$i18n.t('Module')
+        },
+        {
+          key: 'host',
+          label: this.$i18n.t('Host')
         }
       ]
     }
@@ -534,6 +569,22 @@ export default {
       } catch (e) {
         // noop
       }
+      try {
+        node.dhcpoption82.forEach(function (dhcpoption82, index, dhcpoption82s) {
+          _this.addVisGroup({
+            id: _this.mac + '-dhcpoption82',
+            content: _this.$i18n.t('DHCP Option 82')
+          })
+          _this.addVisItem({
+            id: 'dhcpoption82' + dhcpoption82.created_at,
+            group: _this.mac + '-dhcpoption82',
+            start: new Date(dhcpoption82.created_at),
+            content: ((dhcpoption82.switch_id) ? (dhcpoption82.switch_id + '/') : '') + ((dhcpoption82.port) ? _this.$i18n.t('Port') + ':' + dhcpoption82.port + '/' : '') + 'VLAN:' + dhcpoption82.vlan
+          })
+        })
+      } catch (e) {
+        // noop
+      }
     },
     addVisGroup (group) {
       if (!this.visGroups.getIds().includes(group.id)) {
@@ -575,6 +626,12 @@ export default {
       deep: true
     },
     'node.violations': {
+      handler: function (a, b) {
+        this.redrawVis()
+      },
+      deep: true
+    },
+    'node.dhcpoption82': {
       handler: function (a, b) {
         this.redrawVis()
       },

@@ -69,6 +69,16 @@ export default {
       return response.data.items
     })
   },
+  dhcpoption82: mac => {
+    const search = {
+      query: { op: 'and', values: [ { field: 'mac', op: 'equals', value: mac } ] },
+      limit: 100,
+      cursor: '0'
+    }
+    return apiCall.post('dhcp_option82s/search', search).then(response => {
+      return response.data.items
+    })
+  },
   createNode: body => {
     return apiCall.post('nodes', body).then(response => {
       return response.data
