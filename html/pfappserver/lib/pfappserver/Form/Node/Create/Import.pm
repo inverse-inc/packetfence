@@ -12,6 +12,7 @@ Form to import multiple nodes from a CSV file.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
+with qw(pfappserver::Role::Form::RolesAttribute);
 
 use pf::config qw(%Config);
 
