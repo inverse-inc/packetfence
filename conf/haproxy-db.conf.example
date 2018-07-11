@@ -5,7 +5,7 @@ global
 	daemon
 	pidfile %%var_dir%%/run/haproxy-db.pid
 	log /dev/log local0
-	stats socket /tmp/proxystats level admin process 1
+	stats socket /tmp/proxydbstats level admin process 1
 	maxconn 4000
 
 listen stats
