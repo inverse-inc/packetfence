@@ -238,12 +238,12 @@
       </b-tabs>
       <b-card-footer align="right" @mouseenter="$v.nodeContent.$touch()">
         <div class="float-left">
-          <b-button v-if="tabIndex === 0 || tabIndex === 6" variant="outline-warning" class="mr-1" @click="applyReevaluateAccess" :disabled="!canReevaluateAccess(node)">{{ $t('Reevaulate Access') }}</b-button>
-          <b-button v-if="tabIndex === 0 || tabIndex === 2" variant="outline-warning" class="mr-1" @click="applyRefreshFingerbank">{{ $t('Refresh Fingerbank') }}</b-button>
-          <b-button v-if="tabIndex === 0 || tabIndex === 6" variant="outline-danger" class="mr-1" @click="applyRestartSwitchport" :disabled="!canRestartSwitchport(node)">{{ $t('Restart Switch Port') }}</b-button>
+          <b-button v-if="ifTab(['Edit', 'Location'])" variant="outline-warning" class="mr-1" @click="applyReevaluateAccess" :disabled="!canReevaluateAccess(node)">{{ $t('Reevaulate Access') }}</b-button>
+          <b-button v-if="ifTab(['Edit', 'Fingerbank'])" variant="outline-warning" class="mr-1" @click="applyRefreshFingerbank">{{ $t('Refresh Fingerbank') }}</b-button>
+          <b-button v-if="ifTab(['Edit', 'Location'])" variant="outline-danger" class="mr-1" @click="applyRestartSwitchport" :disabled="!canRestartSwitchport(node)">{{ $t('Restart Switch Port') }}</b-button>
         </div>
-        <delete-button v-if="tabIndex === 0" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Node?')" @on-delete="deleteNode()">{{ $t('Delete') }}</delete-button>
-        <b-button v-if="tabIndex === 0" variant="outline-primary" class="mr-1" type="submit" :disabled="invalidForm"><icon name="circle-notch" spin v-show="isLoading"></icon> {{ $t('Save') }}</b-button>
+        <delete-button v-if="ifTab(['Edit'])" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Node?')" @on-delete="deleteNode()">{{ $t('Delete') }}</delete-button>
+        <b-button v-if="ifTab(['Edit'])" variant="outline-primary" class="mr-1" type="submit" :disabled="invalidForm"><icon name="circle-notch" spin v-show="isLoading"></icon> {{ $t('Save') }}</b-button>
         <b-button variant="outline-secondary" type="cancel" @click="close">{{ $t('Close') }}</b-button>
       </b-card-footer>
     </b-card>
@@ -416,7 +416,6 @@ export default {
   },
   computed: {
     node () {
-      console.log(this.$store.state.$_nodes.nodes[this.mac])
       return this.$store.state.$_nodes.nodes[this.mac]
     },
     roles () {
@@ -440,6 +439,9 @@ export default {
     }
   },
   methods: {
+    ifTab (set) {
+      return this.$refs.tabs && set.includes(this.$refs.tabs.tabs[this.tabIndex].title)
+    },
     applyReevaluateAccess () {
       this.$store.dispatch(`${this.$options.storeName}/reevaluateAccessNode`, this.mac).then(response => {
         // noop
