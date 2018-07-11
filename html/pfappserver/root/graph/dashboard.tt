@@ -606,12 +606,13 @@ END
                         END
                     %]
                         [% FOREACH source IN sources %]
+                        [% FOREACH host IN source.host.split(',') %]
                         <div class="col[% spanSize %] text-center">
-                            <div data-netdata="fping.[% source.host.replace('\.', '_') %]_latency"
+                            <div data-netdata="fping.[% host.replace('\.', '_') %]_latency"
                             data-host="/netdata/127.0.0.1"
                             data-common-max="ping"
                             data-common-min="ping"
-                            data-title="[% source.description %] - ping [% source.host %]"
+                            data-title="[% source.description %] - ping [% host %]"
                             data-chart-library="dygraph"
                             data-colors="[% palette(loop.index) %]"
                             data-height="200px"
@@ -619,6 +620,7 @@ END
                             data-before="0"
                             data-after="-86400"></div>
                         </div>
+                        [% END %]
                         [% END %]
                     </div>
                 </div>
