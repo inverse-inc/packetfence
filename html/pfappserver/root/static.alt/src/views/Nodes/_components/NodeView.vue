@@ -19,7 +19,7 @@
                 <b-form-select v-model="nodeContent.status" :options="statuses"></b-form-select>
              </b-form-group>
               <b-form-group horizontal label-cols="3" :label="$t('Role')">
-                <b-form-select v-model="nodeContent.category_id" :options="roles"></b-form-select>
+                <b-form-select v-model="nodeContent.category_id" :options="rolesWithNull"></b-form-select>
              </b-form-group>
               <b-form-group horizontal label-cols="3" :label="$t('Notes')">
                 <b-form-textarea v-model="nodeContent.notes" rows="4" max-rows="6"></b-form-textarea>
@@ -348,6 +348,10 @@ export default {
     },
     roles () {
       return this.$store.getters['config/rolesList']
+    },
+    rolesWithNull () {
+      // prepend a null value to roles
+      return [{value: null, text: this.$i18n.t('No Role')}, ...this.$store.getters['config/rolesList']]
     },
     violations () {
       return this.$store.getters['config/sortedViolations']

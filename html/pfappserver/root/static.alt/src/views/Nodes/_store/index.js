@@ -93,8 +93,8 @@ const actions = {
     commit('NODE_REQUEST')
     return api.node(mac).then(item => {
       Object.assign(node, item)
-      if (node.category_id === null) {
-        node.category_id = 'unreg'
+      if (node.status === null) {
+        node.status = 'unreg'
       }
       commit('NODE_REPLACED', node)
 
