@@ -108,7 +108,9 @@ func (d *Interfaces) readConfig() {
 				ConfNet.PfconfigHashNS = key
 
 				pfconfigdriver.FetchDecodeSocket(ctx, &ConfNet)
-
+				if ConfNet.Dhcpd == "disabled" {
+					continue
+				}
 				if (NetIP.Contains(net.ParseIP(ConfNet.DhcpStart)) && NetIP.Contains(net.ParseIP(ConfNet.DhcpEnd))) || NetIP.Contains(net.ParseIP(ConfNet.NextHop)) {
 					if int(binary.BigEndian.Uint32(net.ParseIP(ConfNet.DhcpStart).To4())) > int(binary.BigEndian.Uint32(net.ParseIP(ConfNet.DhcpEnd).To4())) {
 						log.LoggerWContext(ctx).Error("Wrong configuration, check your network " + key)
