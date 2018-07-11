@@ -32,13 +32,13 @@ const api = {
     apiCall.defaults.headers.common['Authorization'] = `Bearer ${token}`
   },
   getTokenInfo: () => {
-    return apiCall({url: 'token_info', method: 'get'})
+    return apiCall.get('token_info')
   },
   getTenants: () => {
-    return apiCall({url: 'tenants', method: 'get'})
+    return apiCall.get('tenants')
   },
   getLanguage: (locale) => {
-    return apiCall({url: `translation/${locale}`, method: 'get'})
+    return apiCall.get(`translation/${locale}`)
   }
 }
 

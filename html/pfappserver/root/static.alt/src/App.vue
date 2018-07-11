@@ -17,8 +17,9 @@
       </b-collapse>
       <b-badge class="mr-1" :variant="apiOK? 'success' : 'danger'">API</b-badge>
       <b-badge class="mr-1" :variant="chartsOK? 'success' : 'danger'">dashboard</b-badge>
-      <b-navbar-nav right v-if="isAuthenticated">        
-        <b-nav-item-dropdown right :text="username">
+      <b-navbar-nav right v-if="isAuthenticated">
+        <pf-notification-center/>
+        <b-nav-item-dropdown class="pf-label" right :text="username">
           <b-dropdown-item-button v-if="$i18n.locale == 'en'" @click="setLanguage('fr')">Français</b-dropdown-item-button>
           <b-dropdown-item-button v-else @click="setLanguage('en')">English</b-dropdown-item-button>
           <b-dropdown-divider></b-dropdown-divider>
@@ -33,8 +34,13 @@
 </template>
 
 <script>
+import pfNotificationCenter from '@/components/pfNotificationCenter'
+
 export default {
   name: 'App',
+  components: {
+    'pf-notification-center': pfNotificationCenter
+  },
   computed: {
     isAuthenticated () {
       return this.$store.getters['session/isAuthenticated']

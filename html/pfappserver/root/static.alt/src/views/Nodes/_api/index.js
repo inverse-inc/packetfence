@@ -25,27 +25,27 @@ export default {
     })
   },
   fingerbankInfo: mac => {
-    return apiCall.get(`node/${mac}/fingerbank_info`).then(response => {
+    return apiCall.getQuiet(`node/${mac}/fingerbank_info`).then(response => {
       return response.data.item
     })
   },
   ip4logOpen: mac => {
-    return apiCall.get(`ip4logs/open/${mac}`).then(response => {
+    return apiCall.getQuiet(`ip4logs/open/${mac}`).then(response => {
       return response.data.item
     })
   },
   ip4logHistory: mac => {
-    return apiCall.get(`ip4logs/history/${mac}`).then(response => {
+    return apiCall.getQuiet(`ip4logs/history/${mac}`).then(response => {
       return response.data.items
     })
   },
   ip6logOpen: mac => {
-    return apiCall.get(`ip6logs/open/${mac}`).then(response => {
+    return apiCall.getQuiet(`ip6logs/open/${mac}`).then(response => {
       return response.data.item
     })
   },
   ip6logHistory: mac => {
-    return apiCall.get(`ip6logs/history/${mac}`).then(response => {
+    return apiCall.getQuiet(`ip6logs/history/${mac}`).then(response => {
       return response.data.items
     })
   },
