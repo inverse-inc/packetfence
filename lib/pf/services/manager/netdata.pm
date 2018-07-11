@@ -69,7 +69,10 @@ sub generateConfig {
 
     foreach my $source  (@authentication_sources_monitored) {
         if ($source->{'host'}) {
-            $tags{'members'} .= " $source->{'host'}";
+            my @members = split(",", $source->{'host'});
+            foreach my $member (@members) {
+                $tags{'members'} .= " $member";
+            }
         }
         if ($source->{'server1_address'}) {
             $tags{'members'} .= " $source->{'server1_address'}";
