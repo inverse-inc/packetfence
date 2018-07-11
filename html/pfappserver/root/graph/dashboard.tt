@@ -160,7 +160,9 @@ END
                     data-colors="[% palette(0) %]"
                     data-height="250px"
                     data-after="-3600"
-                    data-decimal-digits="0"></div>
+                    data-decimal-digits="0"
+                    data-d3pie-smallsegmentgrouping-value="0.5"
+                    data-d3pie-smallsegmentgrouping-enabled="true"></div>
                 </div>
                 <div class="col6 card">
                     <div data-netdata="packetfence.devices.connected_per_connection_type"
@@ -171,7 +173,9 @@ END
                     data-colors="[% palette(1) %]"
                     data-height="250px"
                     data-after="-3600"
-                    data-decimal-digits="0"></div>
+                    data-decimal-digits="0"
+                    data-d3pie-smallsegmentgrouping-value="0.5"
+                    data-d3pie-smallsegmentgrouping-enabled="true"></div>
                 </div>
                 <div class="col6 card">
                     <div data-netdata="packetfence.devices.connected_per_ssid"
@@ -182,7 +186,9 @@ END
                     data-colors="[% palette(2) %]"
                     data-height="250px"
                     data-after="-3600"
-                    data-decimal-digits="0"></div>
+                    data-decimal-digits="0"
+                    data-d3pie-smallsegmentgrouping-value="0.5"
+                    data-d3pie-smallsegmentgrouping-enabled="true"></div>
                 </div>
             </div>
             <div class="row-fluid">
