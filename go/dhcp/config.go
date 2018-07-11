@@ -106,7 +106,9 @@ func (d *Interfaces) readConfig() {
 				ConfNet.PfconfigHashNS = key
 
 				pfconfigdriver.FetchDecodeSocket(ctx, &ConfNet)
-
+				if ConfNet.Dhcpd == "disabled" {
+					continue
+				}
 				if (NetIP.Contains(net.ParseIP(ConfNet.DhcpStart)) && NetIP.Contains(net.ParseIP(ConfNet.DhcpEnd))) || NetIP.Contains(net.ParseIP(ConfNet.NextHop)) {
 
 					// IP per role
