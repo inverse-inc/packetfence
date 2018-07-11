@@ -8,9 +8,9 @@
       </b-card-header>
       <b-tabs ref="tabs" v-model="tabIndex" card>
 
-        <b-tab title="Info" active>
+        <b-tab title="Edit" active>
           <template slot="title">
-            {{ $t('Info') }}
+            {{ $t('Edit') }}
           </template>
           <b-row>
             <b-col>
@@ -25,62 +25,134 @@
                 <b-form-textarea v-model="nodeContent.notes" rows="4" max-rows="6"></b-form-textarea>
               </b-form-group>
             </b-col>
+          </b-row>
+        </b-tab>
+
+        <b-tab title="Info">
+          <template slot="title">
+            {{ $t('Info') }}
+          </template>
+          <!--
+          <p class="h3 border border-left-0 border-top-0 border-right-0 pb-3 mb-3">{{ $t('Edit Node') }}</p>
+          -->
+          <b-row>
             <b-col>
-              <pf-form-row :label="$t('Computer Name')">
+              <pf-form-row class="text-nowrap" :label="$t('Computer Name')">
                 {{ node.computername }}
               </pf-form-row>
-              <pf-form-row :label="$t('Last Seen')">
-                {{ node.last_seen }}
+              <pf-form-row class="text-nowrap" :label="$t('Machine Account')">
+                {{ node.machine_account }}
               </pf-form-row>
-              <pf-form-row :label="$t('IPv4 Address')" v-if="node.ip4">
+              <pf-form-row class="text-nowrap" :label="$t('Realm')">
+                {{ node.realm }}
+              </pf-form-row>
+              <pf-form-row class="text-nowrap" :label="$t('Stripped Username')">
+                {{ node.stripped_user_name }}
+              </pf-form-row>
+              <pf-form-row class="text-nowrap" :label="$t('Session ID')">
+                {{ node.sessionid }}
+              </pf-form-row>
+              <pf-form-row class="text-nowrap" :label="$t('User Agent')">
+                {{ node.user_agent }}
+              </pf-form-row>
+              <pf-form-row class="text-nowrap" :label="$t('IPv4 Address')" v-if="node.ip4">
                 {{ node.ip4.ip }}
                   <b-badge variant="success" v-if="node.ip4.active">{{ $t('Since') }} {{ node.ip4.start_time }}</b-badge>
                   <b-badge variant="warning" v-else-if="node.ip4.end_time">{{ $t('Inactive since') }} {{ node.ip4.end_time }}</b-badge>
                   <b-badge variant="danger" v-else>{{ $t('Inactive') }}</b-badge>
               </pf-form-row>
-              <pf-form-row :label="$t('IPv6 Address')" v-if="node.ip6">
+              <pf-form-row class="text-nowrap" :label="$t('IPv6 Address')" v-if="node.ip6">
                 {{ node.ip6.ip }}
                   <b-badge variant="success" v-if="node.ip6.active">{{ $t('Since') }} {{ node.ip6.start_time }}</b-badge>
                   <b-badge variant="warning" v-else-if="node.ip6.end_time">{{ $t('Inactive since') }} {{ node.ip6.end_time }}</b-badge>
                   <b-badge variant="danger" v-else>{{ $t('Inactive') }}</b-badge>
               </pf-form-row>
+              <pf-form-row class="text-nowrap" :label="$t('Detect Date')">
+                {{ node.detect_date }}
+              </pf-form-row>
+              <pf-form-row class="text-nowrap" :label="$t('Registration Date')">
+                {{ node.regdate }}
+              </pf-form-row>
+              <pf-form-row class="text-nowrap" :label="$t('Unregistration Date')">
+                {{ node.unregdate }}
+              </pf-form-row>
+              <pf-form-row class="text-nowrap" :label="$t('Last ARP')">
+                {{ node.last_arp }}
+              </pf-form-row>
+              <pf-form-row class="text-nowrap" :label="$t('Last DHCP')">
+                {{ node.last_dhcp }}
+              </pf-form-row>
+              <pf-form-row class="text-nowrap" :label="$t('Last Seen')">
+                {{ node.last_seen }}
+              </pf-form-row>
+              <pf-form-row class="text-nowrap" :label="$t('Last Skip')">
+                {{ node.lastskip }}
+              </pf-form-row>
+              <pf-form-row class="text-nowrap" :label="$t('Last Connection Type')">
+                {{ node.last_connection_type }}
+              </pf-form-row>
+              <pf-form-row class="text-nowrap" :label="$t('Last Connection Sub Type')">
+                {{ node.last_connection_sub_type }}
+              </pf-form-row>
+              <pf-form-row class="text-nowrap" :label="$t('Last .1X Username')">
+                {{ node.last_dot1x_username }}
+              </pf-form-row>
+              <pf-form-row class="text-nowrap" :label="$t('Last Port')">
+                {{ node.last_port }}
+              </pf-form-row>
+              <pf-form-row class="text-nowrap" :label="$t('Last SSID')">
+                {{ node.last_ssid }}
+              </pf-form-row>
+              <pf-form-row class="text-nowrap" :label="$t('Last Start Time')">
+                {{ node.last_start_time }}
+              </pf-form-row>
+              <pf-form-row class="text-nowrap" :label="$t('Last Start Timestamp')">
+                {{ node.last_start_timestamp }}
+              </pf-form-row>
+              <pf-form-row class="text-nowrap" :label="$t('Last Switch')">
+                {{ node.last_switch }}
+              </pf-form-row>
+              <pf-form-row class="text-nowrap" :label="$t('Last Switch MAC')">
+                {{ node.last_switch_mac }}
+              </pf-form-row>
             </b-col>
           </b-row>
+
         </b-tab>
 
         <b-tab title="Fingerbank">
           <b-row>
             <b-col>
-              <pf-form-row :label="$t('Device Class')">
+              <pf-form-row class="text-nowrap" :label="$t('Device Class')">
                 {{ node.device_class }}
               </pf-form-row>
-              <pf-form-row :label="$t('Device Type')">
+              <pf-form-row class="text-nowrap" :label="$t('Device Type')">
                 {{ node.device_type }}
               </pf-form-row>
-              <pf-form-row :label="$t('Fully Qualified Device Name')">
+              <pf-form-row class="text-nowrap" :label="$t('Fully Qualified Device Name')">
                 {{ node.fingerbank.device_fq }}
               </pf-form-row>
-              <pf-form-row :label="$t('Version')">
+              <pf-form-row class="text-nowrap" :label="$t('Version')">
                 {{ node.fingerbank.version }}
               </pf-form-row>
-              <pf-form-row :label="$t('Score')" v-if="node.fingerbank.score">
+              <pf-form-row class="text-nowrap" :label="$t('Score')" v-if="node.fingerbank.score">
                 <pf-fingerbank-score :score="node.fingerbank.score"></pf-fingerbank-score>
               </pf-form-row>
-              <pf-form-row :label="$t('Mobile')">
+              <pf-form-row class="text-nowrap" :label="$t('Mobile')">
                 <b-badge variant="success" v-if="node.fingerbank.mobile === 1">{{ $t('Yes') }}</b-badge>
                 <b-badge variant="danger" v-else-if="node.fingerbank.mobile === 0">{{ $t('No') }}</b-badge>
                 <b-badge variant="light" v-else>{{ $t('Unknown') }}</b-badge>
               </pf-form-row>
-              <pf-form-row :label="$t('DHCP Fingerprint')">
+              <pf-form-row class="text-nowrap" :label="$t('DHCP Fingerprint')">
                 {{ node.dhcp_fingerprint }}
               </pf-form-row>
-              <pf-form-row :label="$t('DHCP Vendor')">
+              <pf-form-row class="text-nowrap" :label="$t('DHCP Vendor')">
                 {{ node.device_vendor }}
               </pf-form-row>
-              <pf-form-row :label="$t('DHCPv6 Fingerprint')">
+              <pf-form-row class="text-nowrap" :label="$t('DHCPv6 Fingerprint')">
                 {{ node.dhcp6_fingerprint }}
               </pf-form-row>
-              <pf-form-row :label="$t('DHCPv6 Enterprise')">
+              <pf-form-row class="text-nowrap" :label="$t('DHCPv6 Enterprise')">
                 {{ node.dhcp6_enterprise }}
               </pf-form-row>
             </b-col>
@@ -166,9 +238,9 @@
       </b-tabs>
       <b-card-footer align="right" @mouseenter="$v.nodeContent.$touch()">
         <div class="float-left">
-          <b-button v-if="tabIndex === 0 || tabIndex === 5" variant="outline-warning" @click="applyReevaluateAccess" :disabled="!canReevaluateAccess(node)">{{ $t('Reevaulate Access') }}</b-button>
-          <b-button v-if="tabIndex === 0 || tabIndex === 1" variant="outline-warning" @click="applyRefreshFingerbank">{{ $t('Refresh Fingerbank') }}</b-button>
-          <b-button v-if="tabIndex === 0 || tabIndex === 5" variant="outline-danger" @click="applyRestartSwitchport" :disabled="!canRestartSwitchport(node)">{{ $t('Restart Switch Port') }}</b-button>
+          <b-button v-if="tabIndex === 0 || tabIndex === 6" variant="outline-warning" class="mr-1" @click="applyReevaluateAccess" :disabled="!canReevaluateAccess(node)">{{ $t('Reevaulate Access') }}</b-button>
+          <b-button v-if="tabIndex === 0 || tabIndex === 2" variant="outline-warning" class="mr-1" @click="applyRefreshFingerbank">{{ $t('Refresh Fingerbank') }}</b-button>
+          <b-button v-if="tabIndex === 0 || tabIndex === 6" variant="outline-danger" class="mr-1" @click="applyRestartSwitchport" :disabled="!canRestartSwitchport(node)">{{ $t('Restart Switch Port') }}</b-button>
         </div>
         <delete-button v-if="tabIndex === 0" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Node?')" @on-delete="deleteNode()">{{ $t('Delete') }}</delete-button>
         <b-button v-if="tabIndex === 0" variant="outline-primary" class="mr-1" type="submit" :disabled="invalidForm"><icon name="circle-notch" spin v-show="isLoading"></icon> {{ $t('Save') }}</b-button>
@@ -344,6 +416,7 @@ export default {
   },
   computed: {
     node () {
+      console.log(this.$store.state.$_nodes.nodes[this.mac])
       return this.$store.state.$_nodes.nodes[this.mac]
     },
     roles () {
