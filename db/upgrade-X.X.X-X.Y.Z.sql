@@ -47,5 +47,9 @@ END
 DELIMITER ;                                                                                                            
 call ValidateVersion;                                                                                                  
 
+--
+-- Adjust the pf_version engine so its synchronized in a cluster
+--
+ALTER TABLE pf_version engine = InnoDB;
 
 INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION)); 
