@@ -36,7 +36,7 @@ my $app = pf::UnifiedApi->new;
 my %routes;
 for my $route_info (map { walkRootRoutes($_) } @{ $app->routes->children }) {
    for my $child (@{$route_info->{children}}) {
-        next if !defined $child->{methods};
+        next if !defined $child->{methods} || $child->{path} eq '/*';
         push @{$routes{paths}{$child->{path}}}, $child;
         push @{$routes{controllers}{$child->{controller}}}, $child;
    } 
@@ -165,7 +165,7 @@ sub walk {
     my $verbose   = 1;
     my $rows      = [];
     my $path_part = $route->pattern->unparsed || '';
-    $path_part =~ s#/:([^/]+)#/\{$1\}#;
+    $path_part =~ s#/[\#:]([^/]+)#/\{$1\}#;
     my @paths;    #     = ( @$parent_paths, $path_part );
     my $full_path = "${parent}$path_part";
     my $path_type = $full_path =~ /\}$/ ? 'resource' : 'collection';
