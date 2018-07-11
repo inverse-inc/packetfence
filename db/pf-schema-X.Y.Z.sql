@@ -1088,7 +1088,7 @@ CREATE TABLE keyed (
 -- Table structure for table 'pf_version'
 --
 
-CREATE TABLE pf_version ( `id` INT NOT NULL PRIMARY KEY, `version` VARCHAR(11) NOT NULL UNIQUE KEY);
+CREATE TABLE pf_version ( `id` INT NOT NULL PRIMARY KEY, `version` VARCHAR(11) NOT NULL UNIQUE KEY) ENGINE=InnoDB;
 
 --
 -- Table structure for table 'radius_audit_log'
