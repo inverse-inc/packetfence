@@ -477,7 +477,7 @@ export default {
           content: this.$i18n.t('Last ARP')
         })
       }
-      if (node.last_dhcp && node.detect_dhcp !== '0000-00-00 00:00:00') {
+      if (node.last_dhcp && node.last_dhcp !== '0000-00-00 00:00:00') {
         _this.addVisGroup({
           id: this.mac + '-general',
           content: this.$i18n.t('General')
