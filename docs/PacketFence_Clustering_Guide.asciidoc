@@ -263,9 +263,9 @@ NOTE: You can check with 'ip a', on the first server, you need to find the *VIP*
 Integrating the two other nodes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-WARNING: If you reboot any of the nodes you're joining, you will need to stop all the PacketFence services (/usr/local/pf/bin/pfcmd service pf stop) and restart the steps from here.
+WARNING: If you reboot any of the nodes you're joining, you will need to stop all the PacketFence services (`/usr/local/pf/bin/pfcmd service pf stop`) and restart the steps from here.
 
-WARNING: If you reboot the management node, you will need to stop packetfence-mariadb (systemctl stop packetfence-mariadb) and start it with the new cluster option so the servers can join (/usr/local/pf/sbin/pf-mariadb --force-new-cluster)
+WARNING: If you reboot the management node (first server), you will need to stop `packetfence-mariadb` (`systemctl stop packetfence-mariadb`) and start it with the new cluster option so the servers can join (`/usr/local/pf/sbin/pf-mariadb --force-new-cluster`)
 
 Now, you will need to integrate your *two other nodes* in your cluster.
 
@@ -708,12 +708,13 @@ Example :
 HAProxy dashboard
 ~~~~~~~~~~~~~~~~~
 
-You have the possibility to configure the HAProxy dashboard which will give you statistics about the current state of your cluster.
+You have the possibility to configure the HAProxy dashboard on each node which will give you statistics about the current state of your cluster.
 
-In order to active it uncomment the following lines from `/usr/local/pf/conf/haproxy-portal.conf`:
+Configuration is done in `/usr/local/pf/conf/haproxy-portal.conf`:
 
 ----
-listen stats %%active_active_ip%%:1025
+listen stats
+  bind %%management_ip%%:1025
   mode http
   timeout connect 10s
   timeout client 1m
@@ -734,16 +735,16 @@ CAUTION: If you're upgrading from a version prior to 5.0, the line may not be th
 -A input-management-if --protocol tcp --match tcp --dport 1025 --jump ACCEPT
 ----
 
-Now restart `haproxy` and `iptables` in order to complete the configuration
+Now restart `haproxy-portal` and `iptables` in all nodes in order to complete the configuration: 
 
 ----
 # /usr/local/pf/bin/pfcmd service haproxy-portal restart
 # /usr/local/pf/bin/pfcmd service iptables restart
 ----
 
-You should now be able to connect to the dashboard on the following URL : http://pf.local:1025/stats
+You should now be able to connect to the dashboard on each node using following URL : http://NODE_MANAGEMENT_IP:1025/stats
 
-NOTE: The same principle can be applied to haproxy-db with port 1026 in haproxy-db.conf
+NOTE: The same principle can be applied to `haproxy-db` with port 1026 in `haproxy-db.conf`
 
 Configuration conflict handling
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -852,7 +853,7 @@ The PacketFence clustering stack has a mechanism that allows configuration confl
 
 In order to do, so go in 'Configuration->System Configuration->Maintenance' and disable the 'Cluster Check' task.
 
-Once this is done, restart pfmon on all nodes using:
+Once this is done, restart `pfmon` on all nodes using:
 
   # /usr/local/pf/bin/pfcmd service pfmon restart
 
@@ -869,12 +870,12 @@ Next, upgrade your operating system and PacketFence on node C:
 
 NOTE: If you reboot your server during this procedure, make sure you set the systemd target to multi-user (`systemctl set-default multi-user.target`) before rebooting and back to packetfence-cluster (`systemctl set-default packetfence-cluster.target`) after it boots up. This will make sure your services don't start up after the reboot.
 
-Now, make sure you follow the directives in the upgrade guide (UPGRADE.asciidoc) as you would on a standalone server with the exception of the database schema updates.
+Now, make sure you follow the directives in the upgrade guide (`UPGRADE.asciidoc`) as you would on a standalone server with the exception of the database schema updates.
 
 Migrating service on node C
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Node C should currently be running the latest version of PacketFence while A and B should still be running the older version and still be offering service. The database is also still being synced to node C via the packetfence-mariadb service.
+Node C should currently be running the latest version of PacketFence while A and B should still be running the older version and still be offering service. The database is also still being synced to node C via the `packetfence-mariadb` service.
 
 NOTE: The steps below will cause a temporary loss of service.
 
@@ -895,7 +896,7 @@ Then, we should tell C to ignore A and B in their cluster configuration. In orde
   # /usr/local/pf/bin/cluster/node node-A-hostname disable
   # /usr/local/pf/bin/cluster/node node-B-hostname disable
 
-Now restart packetfence-mariadb on node C:
+Now restart `packetfence-mariadb` on node C:
 
   # systemctl restart packetfence-mariadb
 
@@ -907,7 +908,7 @@ Complete upgrade of node C
 ++++++++++++++++++++++++++
 
 From that moment node C is in standalone for its database. We can proceed to update the database schema so it matches the one of the latest version.
-In order to do so, upgrade the database schema using the instructions provided in UPGRADE.asciidoc.
+In order to do so, upgrade the database schema using the instructions provided in `UPGRADE.asciidoc`.
 
 Stop service on nodes A and B
 +++++++++++++++++++++++++++++
@@ -969,8 +970,8 @@ You do not need to follow the upgrade procedure when upgrading these nodes. You 
 Where :
 
 * '192.168.1.5' is the management IP of node C
-* 'packet' is the webservices username (Configuration->Webservices)
-* 'fence' is the webservices password (Configuration->Webservices)
+* 'packet' is the webservices username ('Configuration->Webservices')
+* 'fence' is the webservices password ('Configuration->Webservices')
 
 Reintegrating nodes A and B
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -984,10 +985,10 @@ This can take from a few minutes to an hour depending on your database size.
 
 We highly suggest you delete data from the following tables if you don't need it:
 
-* radius_audit_log: contains the data in Auditing->RADIUS Audit Log
-* ip4log_history: Archiving data for the IPv4 history
-* ip4log_archive: Archiving data for the IPv4 history
-* locationlog_archive: Archiving data for the node location history
+* `radius_audit_log`: contains the data in 'Auditing->RADIUS Audit Log'
+* `ip4log_history`: Archiving data for the IPv4 history
+* `ip4log_archive`: Archiving data for the IPv4 history
+* `locationlog_archive`: Archiving data for the node location history
 
 You can safely delete the data from all of these tables without affecting the functionnalities as they are used for reporting and archiving purposes. Deleting the data from these tables can make the sync process considerably faster.
 
