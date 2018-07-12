@@ -43,10 +43,6 @@ sub form {
     $self->form_class->new(@$parameters);
 }
 
-sub create_form {
-    my ($self, $form_class, $parameters) = @_;
-}
-
 sub resource {
     my ($self) = @_;
     my $id = $self->id;
