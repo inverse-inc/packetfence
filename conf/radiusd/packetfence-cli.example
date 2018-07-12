@@ -299,7 +299,7 @@ session {
 #  Once we KNOW that the user has been authenticated, there are
 #  additional steps we can take.
 post-auth {
-
+	packetfence-set-tenant-id
 	# Add in PacketFence configuration
 	update {
 		&request:FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"
@@ -338,6 +338,7 @@ post-auth {
 	#  The "session-state" attributes are not available here.
 	#
 	Post-Auth-Type REJECT {
+		packetfence-set-tenant-id
 		update {
 			&request:User-Password := "******"
 		}
