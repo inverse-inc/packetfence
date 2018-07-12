@@ -83,162 +83,162 @@ export default {
       fields: [ // keys match with b-form-select
         {
           value: 'pid',
-          text: 'Username',
+          text: this.$i18n.t('Username'),
           types: [attributeType.SUBSTRING]
         },
         {
           value: 'title',
-          text: 'Title',
+          text: this.$i18n.t('Title'),
           types: [attributeType.SUBSTRING]
         },
         {
           value: 'firstname',
-          text: 'Firstname',
+          text: this.$i18n.t('Firstname'),
           types: [attributeType.SUBSTRING]
         },
         {
           value: 'lastname',
-          text: 'Lastname',
+          text: this.$i18n.t('Lastname'),
           types: [attributeType.SUBSTRING]
         },
         {
           value: 'nickname',
-          text: 'Nickname',
+          text: this.$i18n.t('Nickname'),
           types: [attributeType.SUBSTRING]
         },
         {
           value: 'email',
-          text: 'Email',
+          text: this.$i18n.t('Email'),
           types: [attributeType.SUBSTRING]
         },
         {
           value: 'sponsor',
-          text: 'Sponsor',
+          text: this.$i18n.t('Sponsor'),
           types: [attributeType.SUBSTRING]
         },
         {
           value: 'anniversary',
-          text: 'Anniversary',
+          text: this.$i18n.t('Anniversary'),
           types: [attributeType.SUBSTRING]
         },
         {
           value: 'birthday',
-          text: 'Birthday',
+          text: this.$i18n.t('Birthday'),
           types: [attributeType.SUBSTRING]
         },
         {
           value: 'address',
-          text: 'Address',
+          text: this.$i18n.t('Address'),
           types: [attributeType.SUBSTRING]
         },
         {
           value: 'apartment_number',
-          text: 'Apartment Number',
+          text: this.$i18n.t('Apartment Number'),
           types: [attributeType.SUBSTRING]
         },
         {
           value: 'building_number',
-          text: 'Building Number',
+          text: this.$i18n.t('Building Number'),
           types: [attributeType.SUBSTRING]
         },
         {
           value: 'room_number',
-          text: 'Room Number',
+          text: this.$i18n.t('Room Number'),
           types: [attributeType.SUBSTRING]
         },
         {
           value: 'company',
-          text: 'Company',
+          text: this.$i18n.t('Company'),
           types: [attributeType.SUBSTRING]
         },
         {
           value: 'gender',
-          text: 'Gender',
+          text: this.$i18n.t('Gender'),
           types: [attributeType.SUBSTRING]
         },
         {
           value: 'lang',
-          text: 'Language',
+          text: this.$i18n.t('Language'),
           types: [attributeType.SUBSTRING]
         },
         {
           value: 'notes',
-          text: 'Notes',
+          text: this.$i18n.t('Notes'),
           types: [attributeType.SUBSTRING]
         },
         {
           value: 'portal',
-          text: 'Portal',
+          text: this.$i18n.t('Portal'),
           types: [attributeType.SUBSTRING]
         },
         {
           value: 'psk',
-          text: 'PSK',
+          text: this.$i18n.t('PSK'),
           types: [attributeType.SUBSTRING]
         },
         {
           value: 'source',
-          text: 'Source',
+          text: this.$i18n.t('Source'),
           types: [attributeType.SUBSTRING]
         },
         {
           value: 'cell_phone',
-          text: 'Cellular Phone Number',
+          text: this.$i18n.t('Cellular Phone Number'),
           types: [attributeType.SUBSTRING]
         },
         {
           value: 'telephone',
-          text: 'Home Telephone Number',
+          text: this.$i18n.t('Home Telephone Number'),
           types: [attributeType.SUBSTRING]
         },
         {
           value: 'work_phone',
-          text: 'Work Telephone Number',
+          text: this.$i18n.t('Work Telephone Number'),
           types: [attributeType.SUBSTRING]
         },
         {
           value: 'custom_field_1',
-          text: 'Custom Field #1',
+          text: this.$i18n.t('Custom Field #1'),
           types: [attributeType.SUBSTRING]
         },
         {
           value: 'custom_field_2',
-          text: 'Custom Field #2',
+          text: this.$i18n.t('Custom Field #2'),
           types: [attributeType.SUBSTRING]
         },
         {
           value: 'custom_field_3',
-          text: 'Custom Field #3',
+          text: this.$i18n.t('Custom Field #3'),
           types: [attributeType.SUBSTRING]
         },
         {
           value: 'custom_field_4',
-          text: 'Custom Field #4',
+          text: this.$i18n.t('Custom Field #4'),
           types: [attributeType.SUBSTRING]
         },
         {
           value: 'custom_field_5',
-          text: 'Custom Field #5',
+          text: this.$i18n.t('Custom Field #5'),
           types: [attributeType.SUBSTRING]
         },
         {
           value: 'custom_field_6',
-          text: 'Custom Field #6',
+          text: this.$i18n.t('Custom Field #6'),
           types: [attributeType.SUBSTRING]
         },
         {
           value: 'custom_field_7',
-          text: 'Custom Field #7',
+          text: this.$i18n.t('Custom Field #7'),
           types: [attributeType.SUBSTRING]
         },
         {
           value: 'custom_field_8',
-          text: 'Custom Field #8',
+          text: this.$i18n.t('Custom Field #8'),
           types: [attributeType.SUBSTRING]
         },
         {
           value: 'custom_field_9',
-          text: 'Custom Field #9',
+          text: this.$i18n.t('Custom Field #9'),
           types: [attributeType.SUBSTRING]
         }
       ],
