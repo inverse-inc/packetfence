@@ -1,3 +1,5 @@
+#!/usr/bin/perl
+
 =head1 NAME
 
 provisioner
@@ -30,7 +32,7 @@ our $ANDROID_OS = 'Android OS';
 our $TEST_OS = 'iOS';
 our $TEST_OS_FINGERBANK_ID = '33450';
 
-our $TEST_NODE_ATTRIBUTE = { category => $TEST_CATEGORY };
+our %TEST_NODE_ATTRIBUTE = ( category => $TEST_CATEGORY, device_type => $TEST_OS, device_name => $TEST_OS );
 
 use_ok("pf::provisioner");
 
@@ -44,35 +46,38 @@ my $provisioner = new_ok(
     }]
 );
 
-ok($provisioner->match($TEST_OS,$TEST_NODE_ATTRIBUTE),"Match both os and category");
+=head2 test_node_attributes
 
-ok(!$provisioner->match($ANDROID_OS,$TEST_NODE_ATTRIBUTE),"Don't Match os but Matching category");
+test_node_attributes
 
-ok(!$provisioner->match(undef,$TEST_NODE_ATTRIBUTE),"Don't match undef os");
+=cut
 
-ok(!$provisioner->match($ANDROID_OS,{category => 'not_matching'}),"Don't Match os and category");
+sub test_node_attributes {
+    return {%TEST_NODE_ATTRIBUTE};
+}
+
+ok($provisioner->match($TEST_OS, test_node_attributes()),"Match both os and category");
+
+ok(!$provisioner->match($ANDROID_OS, test_node_attributes()),"Don't Match os but Matching category");
+
+ok($provisioner->match(undef, test_node_attributes()),"Use device_name as the device_type");
+
+ok(!$provisioner->match($ANDROID_OS, {category => 'not_matching', device_type => $ANDROID_OS, 'device_name' => $ANDROID_OS}),"Don't Match os and category");
 
 $provisioner->category(['not_matching']);
 
-ok(!$provisioner->match($TEST_OS,$TEST_NODE_ATTRIBUTE),"Match os but not category");
+ok(!$provisioner->match($TEST_OS, test_node_attributes()),"Match os but not category");
 
 $provisioner->category([]);
 
-ok($provisioner->match($TEST_OS,$TEST_NODE_ATTRIBUTE),"Match os with the any category");
+ok($provisioner->match($TEST_OS, test_node_attributes()),"Match os with the any category");
 
-ok(!$provisioner->match($ANDROID_OS,$TEST_NODE_ATTRIBUTE),"Don't match os with the any category");
+ok(!$provisioner->match($ANDROID_OS, test_node_attributes()),"Don't match os with the any category");
 
 $provisioner->category([$TEST_CATEGORY]);
 $provisioner->oses([]);
 
-ok($provisioner->match($TEST_OS,$TEST_NODE_ATTRIBUTE),"Match both os and category");
-
-
-1;
-
-
-
-
+ok($provisioner->match($TEST_OS, test_node_attributes()),"Match both os and category");
 
 =head1 AUTHOR
 
@@ -102,5 +107,3 @@ USA.
 =cut
 
 1;
-
-

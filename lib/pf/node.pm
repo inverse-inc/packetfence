@@ -27,6 +27,7 @@ use pf::error qw(is_success is_error);
 use pf::constants::parking qw($PARKING_VID);
 use CHI::Memoize qw(memoized);
 use pf::dal::node;
+use pf::config::tenant;
 use pf::dal::locationlog;
 use pf::constants::node qw(
     $STATUS_REGISTERED
@@ -740,7 +741,7 @@ called by pfmon daemon for the configured interval
 sub nodes_maintenance {
     my $timer = pf::StatsD::Timer->new;
     my $logger = get_logger();
-    local $pf::dal::CURRENT_TENANT = $pf::dal::CURRENT_TENANT;
+    local $pf::config::tenant::CURRENT_TENANT = $pf::config::tenant::CURRENT_TENANT;
 
     $logger->debug("nodes_maintenance called");
     my ( $status, $iter ) = pf::dal::node->search(
