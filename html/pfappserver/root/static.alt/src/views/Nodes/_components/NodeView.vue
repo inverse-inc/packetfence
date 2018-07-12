@@ -89,10 +89,7 @@
                 {{ node.lastskip }}
               </pf-form-row>
               <pf-form-row class="text-nowrap" :label="$t('Last Connection Type')">
-                {{ node.last_connection_type }}
-              </pf-form-row>
-              <pf-form-row class="text-nowrap" :label="$t('Last Connection Sub Type')">
-                {{ node.last_connection_sub_type }}
+                {{ node.last_connection_type }} <span v-if="node.last_connection_sub_type">/</span> {{ node.last_connection_sub_type }}
               </pf-form-row>
               <pf-form-row class="text-nowrap" :label="$t('Last .1X Username')">
                 {{ node.last_dot1x_username }}
