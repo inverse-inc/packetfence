@@ -33,7 +33,7 @@ sub form_parameters {
     if (!defined $name) {
         return undef;
     }
-    return [name => $name];
+    return [section => $name];
 }
 
  
