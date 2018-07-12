@@ -11,6 +11,7 @@ all:
 	@echo ""
 	@echo " 'pdf' will build all guides using the PDF format"
 	@echo " 'PacketFence_Installation_Guide.pdf' will build the Installation guide in PDF"
+	@echo " 'PacketFence_Clustering_Guide.pdf' will build the Clustering guide in PDF"
 	@echo " 'PacketFence_Developers_Guide.pdf' will build the Develoeprs guide in PDF"
 	@echo " 'PacketFence_Network_Devices_Configuration_Guide.pdf' will build the Network Devices Configuration guide in PDF"
 
