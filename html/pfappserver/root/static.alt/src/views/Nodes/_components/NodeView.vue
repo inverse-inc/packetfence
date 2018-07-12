@@ -94,9 +94,6 @@
               <pf-form-row class="text-nowrap" :label="$t('Last .1X Username')">
                 {{ node.last_dot1x_username }}
               </pf-form-row>
-              <pf-form-row class="text-nowrap" :label="$t('Last Port')">
-                {{ node.last_port }}
-              </pf-form-row>
               <pf-form-row class="text-nowrap" :label="$t('Last SSID')">
                 {{ node.last_ssid }}
               </pf-form-row>
@@ -107,10 +104,7 @@
                 {{ node.last_start_timestamp }}
               </pf-form-row>
               <pf-form-row class="text-nowrap" :label="$t('Last Switch')">
-                {{ node.last_switch }}
-              </pf-form-row>
-              <pf-form-row class="text-nowrap" :label="$t('Last Switch MAC')">
-                {{ node.last_switch_mac }}
+                {{ node.last_switch }} <span v-if="node.last_switch_mac">/</span> {{ node.last_switch_mac }} <span v-if="node.last_port">/</span> {{ node.last_port }}
               </pf-form-row>
             </b-col>
           </b-row>
