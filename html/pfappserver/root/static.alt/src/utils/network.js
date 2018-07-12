@@ -9,22 +9,22 @@ const network = {
       is8021X: false,
       isMacAuth: false
     }
-    if (cType.search(new RegExp(/inline/i)) !== -1) {
+    if (/inline/i.test(cType)) {
       return attributes
     }
-    if (cType.search(new RegExp(/^wireless-802\.11/i)) !== -1) {
+    if (/^wireless-802\.11/i.test(cType)) {
       attributes.isWireless = true
     } else {
       attributes.isWired = true
     }
-    if (cType.search(new RegExp(/^snmp/i)) !== -1) {
+    if (/^snmp/i.test(cType)) {
       attributes.isSNMP = true
       return attributes
     }
     if (cType.toLowerCase() === 'wired_mac_auth' || cType.toLowerCase() === 'ethernet-noeap') {
       attributes.isMacAuth = true
     }
-    if (cType.search(new RegExp(/eap$/i)) !== -1 && cType.search(new RegExp(/noeap$/i)) === -1) {
+    if (/eap$/i.test(cType) && /noeap$/i.test(cType)) {
       attributes.isEAP = true
       attributes.is8021X = true
     } else {
