@@ -29,7 +29,11 @@ conf/pfdhcp.conf
 conf/etcd.conf.yml
 bin/pfcmd
 bin/ntlm_auth_wrapper
-bin/pfhttpd
+sbin/pfhttpd
+sbin/pfdetect
+sbin/pfdhcp
+sbin/pfdns
+sbin/pfstats
 src/pfcmd
 !conf/nessus/remotescan.nessus
 conf/snort/emerging*.rules
