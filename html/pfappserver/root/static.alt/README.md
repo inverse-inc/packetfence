@@ -3,7 +3,7 @@
 ## Introduction
 
 * [Vue.js official guide](https://vuejs.org/v2/guide/)
-* [Bootstrap + Vue](https://bootstrap-vue.js.org/) 
+* [Bootstrap + Vue](https://bootstrap-vue.js.org/)
 * [ECMAScript 2015 (ES6) syntax](https://babeljs.io/learn-es2015/)
 * [npm](https://www.npmjs.com/) -- package manager
 * [webpack](https://webpack.js.org/) -- task runner
@@ -42,6 +42,7 @@ Since this is a SPA (Single-Page Application), it is currently accessible from `
 * [vue-awesome](https://justineo.github.io/vue-awesome/demo/) -- font awesome component (svg)
 * [vue2vis](https://github.com/alexcode/vue2vis/) -- VueJS to Vis
  * [vis](http://visjs.org/) -- Vis
+* [vue-timeago](https://github.com/egoist/vue-timeago) -- show relative time
 
 ## Files Structure
 
@@ -66,7 +67,7 @@ Since this is a SPA (Single-Page Application), it is currently accessible from `
 │   └── ...
 ├── utils
 |   ├── api.js           # axios instance for unified API
-│   ├── charts.js        # axios instance for netdata API   
+│   ├── charts.js        # axios instance for netdata API
 │   └── ...
 └── styles               # imports and modifications of the official Bootstrap Sass
 │   └── ...
