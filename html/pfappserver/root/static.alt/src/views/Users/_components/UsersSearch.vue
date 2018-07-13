@@ -83,12 +83,162 @@ export default {
       fields: [ // keys match with b-form-select
         {
           value: 'pid',
-          text: 'Username',
+          text: this.$i18n.t('Username'),
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'title',
+          text: this.$i18n.t('Title'),
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'firstname',
+          text: this.$i18n.t('Firstname'),
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'lastname',
+          text: this.$i18n.t('Lastname'),
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'nickname',
+          text: this.$i18n.t('Nickname'),
           types: [attributeType.SUBSTRING]
         },
         {
           value: 'email',
-          text: 'Email',
+          text: this.$i18n.t('Email'),
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'sponsor',
+          text: this.$i18n.t('Sponsor'),
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'anniversary',
+          text: this.$i18n.t('Anniversary'),
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'birthday',
+          text: this.$i18n.t('Birthday'),
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'address',
+          text: this.$i18n.t('Address'),
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'apartment_number',
+          text: this.$i18n.t('Apartment Number'),
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'building_number',
+          text: this.$i18n.t('Building Number'),
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'room_number',
+          text: this.$i18n.t('Room Number'),
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'company',
+          text: this.$i18n.t('Company'),
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'gender',
+          text: this.$i18n.t('Gender'),
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'lang',
+          text: this.$i18n.t('Language'),
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'notes',
+          text: this.$i18n.t('Notes'),
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'portal',
+          text: this.$i18n.t('Portal'),
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'psk',
+          text: this.$i18n.t('PSK'),
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'source',
+          text: this.$i18n.t('Source'),
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'cell_phone',
+          text: this.$i18n.t('Cellular Phone Number'),
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'telephone',
+          text: this.$i18n.t('Home Telephone Number'),
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'work_phone',
+          text: this.$i18n.t('Work Telephone Number'),
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'custom_field_1',
+          text: this.$i18n.t('Custom Field #1'),
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'custom_field_2',
+          text: this.$i18n.t('Custom Field #2'),
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'custom_field_3',
+          text: this.$i18n.t('Custom Field #3'),
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'custom_field_4',
+          text: this.$i18n.t('Custom Field #4'),
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'custom_field_5',
+          text: this.$i18n.t('Custom Field #5'),
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'custom_field_6',
+          text: this.$i18n.t('Custom Field #6'),
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'custom_field_7',
+          text: this.$i18n.t('Custom Field #7'),
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'custom_field_8',
+          text: this.$i18n.t('Custom Field #8'),
+          types: [attributeType.SUBSTRING]
+        },
+        {
+          value: 'custom_field_9',
+          text: this.$i18n.t('Custom Field #9'),
           types: [attributeType.SUBSTRING]
         }
       ],
@@ -110,6 +260,12 @@ export default {
           visible: true
         },
         {
+          key: 'title',
+          label: this.$i18n.t('Title'),
+          sortable: true,
+          visible: false
+        },
+        {
           key: 'firstname',
           label: this.$i18n.t('Firstname'),
           sortable: true,
@@ -122,10 +278,187 @@ export default {
           visible: true
         },
         {
+          key: 'nickname',
+          label: this.$i18n.t('Nickname'),
+          sortable: true,
+          visible: false
+        },
+        {
           key: 'email',
           label: this.$i18n.t('Email'),
           sortable: true,
           visible: true
+        },
+        {
+          key: 'sponsor',
+          label: this.$i18n.t('Sponsor'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'anniversary',
+          label: this.$i18n.t('Anniversary'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'birthday',
+          label: this.$i18n.t('Birthday'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'address',
+          label: this.$i18n.t('Address'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'apartment_number',
+          label: this.$i18n.t('Apartment Number'),
+          sortable: true,
+          visible: false,
+          'class': 'text-nowrap'
+        },
+        {
+          key: 'building_number',
+          label: this.$i18n.t('Building Number'),
+          sortable: true,
+          visible: false,
+          'class': 'text-nowrap'
+        },
+        {
+          key: 'room_number',
+          label: this.$i18n.t('Room Number'),
+          sortable: true,
+          visible: false,
+          'class': 'text-nowrap'
+        },
+        {
+          key: 'company',
+          label: this.$i18n.t('Company'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'gender',
+          label: this.$i18n.t('Gender'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'lang',
+          label: this.$i18n.t('Language'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'notes',
+          label: this.$i18n.t('Notes'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'portal',
+          label: this.$i18n.t('Portal'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'psk',
+          label: this.$i18n.t('PSK'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'source',
+          label: this.$i18n.t('Source'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'cell_phone',
+          label: this.$i18n.t('Cellular Phone Number'),
+          sortable: true,
+          visible: false,
+          'class': 'text-nowrap'
+        },
+        {
+          key: 'telephone',
+          label: this.$i18n.t('Home Telephone Number'),
+          sortable: true,
+          visible: false,
+          'class': 'text-nowrap'
+        },
+        {
+          key: 'work_phone',
+          label: this.$i18n.t('Work Telephone Number'),
+          sortable: true,
+          visible: false,
+          'class': 'text-nowrap'
+        },
+        {
+          key: 'custom_field_1',
+          label: this.$i18n.t('Custom Field #1'),
+          sortable: true,
+          visible: false,
+          'class': 'text-nowrap'
+        },
+        {
+          key: 'custom_field_2',
+          label: this.$i18n.t('Custom Field #2'),
+          sortable: true,
+          visible: false,
+          'class': 'text-nowrap'
+        },
+        {
+          key: 'custom_field_3',
+          label: this.$i18n.t('Custom Field #3'),
+          sortable: true,
+          visible: false,
+          'class': 'text-nowrap'
+        },
+        {
+          key: 'custom_field_4',
+          label: this.$i18n.t('Custom Field #4'),
+          sortable: true,
+          visible: false,
+          'class': 'text-nowrap'
+        },
+        {
+          key: 'custom_field_5',
+          label: this.$i18n.t('Custom Field #5'),
+          sortable: true,
+          visible: false,
+          'class': 'text-nowrap'
+        },
+        {
+          key: 'custom_field_6',
+          label: this.$i18n.t('Custom Field #6'),
+          sortable: true,
+          visible: false,
+          'class': 'text-nowrap'
+        },
+        {
+          key: 'custom_field_7',
+          label: this.$i18n.t('Custom Field #7'),
+          sortable: true,
+          visible: false,
+          'class': 'text-nowrap'
+        },
+        {
+          key: 'custom_field_8',
+          label: this.$i18n.t('Custom Field #8'),
+          sortable: true,
+          visible: false,
+          'class': 'text-nowrap'
+        },
+        {
+          key: 'custom_field_9',
+          label: this.$i18n.t('Custom Field #9'),
+          sortable: true,
+          visible: false,
+          'class': 'text-nowrap'
         }
       ]
     }
@@ -165,10 +498,10 @@ export default {
       const selectValues = this.selectValues
       this.tableValues.forEach(function (item, index, items) {
         if (selectValues.includes(item)) {
-          _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {index: index, variant: 'info'})
+          _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_VARIANT`, {index: index, variant: 'info'})
         } else {
-          _this.$store.commit(`${_this._storeName}/ROW_VARIANT`, {index: index, variant: ''})
-          _this.$store.commit(`${_this._storeName}/ROW_MESSAGE`, {index: index, message: ''})
+          _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_VARIANT`, {index: index, variant: ''})
+          _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_MESSAGE`, {index: index, message: ''})
         }
       })
     }

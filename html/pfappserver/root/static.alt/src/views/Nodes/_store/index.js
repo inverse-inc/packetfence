@@ -93,8 +93,8 @@ const actions = {
     commit('NODE_REQUEST')
     return api.node(mac).then(item => {
       Object.assign(node, item)
-      if (node.category_id === null) {
-        node.category_id = 'unreg'
+      if (node.status === null) {
+        node.status = 'unreg'
       }
       commit('NODE_REPLACED', node)
 
@@ -160,6 +160,11 @@ const actions = {
         // noop
       }).finally(() => {
         commit('NODE_UPDATED', { mac, prop: 'fingerbank', data: fingerbank })
+      })
+
+      // Fetch dhcpoption82
+      api.dhcpoption82(mac).then(items => {
+        commit('NODE_UPDATED', { mac, prop: 'dhcpoption82', data: items })
       })
 
       return node
@@ -310,6 +315,16 @@ const actions = {
       })
     })
   },
+  refreshFingerbankBulkNodes: ({commit}, data) => {
+    return new Promise((resolve, reject) => {
+      api.refreshFingerbankBulkNodes(data).then(response => {
+        resolve(response)
+      }).catch(err => {
+        commit('NODE_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
   roleNode: ({commit}, data) => {
     commit('ITEM_REQUEST')
     return new Promise((resolve, reject) => {
@@ -332,6 +347,48 @@ const actions = {
         if (response.status === 'success') {
           commit('NODE_UPDATED', { mac: data.mac, prop: 'bypass_role_id', data: data.bypass_role_id })
           commit('$_nodes_searchable/ITEM_UPDATED', { mac: data.mac, prop: 'bypass_role_id', data: data.bypass_role_id }, { root: true })
+        }
+        resolve(response)
+      }).catch(err => {
+        commit('ITEM_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  reevaluateAccessNode: ({commit}, data) => {
+    commit('ITEM_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.reevaluateAccessNode(data).then(response => {
+        if (response.status === 'success') {
+          // noop
+        }
+        resolve(response)
+      }).catch(err => {
+        commit('ITEM_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  refreshFingerbankNode: ({commit}, data) => {
+    commit('ITEM_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.refreshFingerbankNode(data).then(response => {
+        if (response.status === 'success') {
+          // noop
+        }
+        resolve(response)
+      }).catch(err => {
+        commit('ITEM_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  restartSwitchportNode: ({commit}, data) => {
+    commit('ITEM_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.restartSwitchportNode(data).then(response => {
+        if (response.status === 'success') {
+          // noop
         }
         resolve(response)
       }).catch(err => {

@@ -26,6 +26,7 @@ import 'vue-awesome/icons/exclamation-triangle'
 import 'vue-awesome/icons/sign-in-alt'
 import 'vue-awesome/icons/sign-out-alt'
 import 'vue-awesome/icons/save'
+import { Timeline } from 'vue2vis'
 
 import store from './store'
 import router from './router'
@@ -33,6 +34,7 @@ import filters from './utils/filters'
 import App from './App'
 
 import 'bootstrap-vue/dist/bootstrap-vue.css'
+import 'vue2vis/dist/vue2vis.css'
 
 Vue.use(VueTimeago, {
   name: 'Timeago',
@@ -44,6 +46,7 @@ Vue.use(VueTimeago, {
 Vue.config.productionTip = process.env.NODE_ENV === 'production'
 
 Vue.component('icon', Icon)
+Vue.component('timeline', Timeline)
 
 Vue.use(BootstrapVue)
 

@@ -27,11 +27,15 @@
             </b-dropdown-item>
             <b-dropdown-item @click="applyBulkReevaluateAccess()">
               <icon class="position-absolute mt-1" name="sync"></icon>
-              <span class="ml-4">{{ $t('Revaluate Access') }}</span>
+              <span class="ml-4">{{ $t('Reevaluate Access') }}</span>
             </b-dropdown-item>
             <b-dropdown-item @click="applyBulkRestartSwitchport()">
               <icon class="position-absolute mt-1" name="retweet"></icon>
               <span class="ml-4">{{ $t('Restart Switchport') }}</span>
+            </b-dropdown-item>
+            <b-dropdown-item @click="applyBulkRefreshFingerbank()">
+              <icon class="position-absolute mt-1" name="retweet"></icon>
+              <span class="ml-4">{{ $t('Refresh Fingerbank') }}</span>
             </b-dropdown-item>
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-header>{{ $t('Apply Role') }}</b-dropdown-header>
@@ -601,6 +605,23 @@ export default {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
         this.$store.dispatch(`${this.$options.storeName}/restartSwitchportBulkNodes`, {items: macs}).then(response => {
+          response.items.forEach(function (item, index, items) {
+            _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_VARIANT`, {index: index, status: item.status})
+            _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_MESSAGE`, {index: index, message: item.message})
+          })
+        }).catch(() => {
+          macs.forEach(function (mac, i) {
+            let index = _this.tableValues.findIndex(node => node.mac === mac)
+            _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_VARIANT`, {index: index, variant: 'danger'})
+          })
+        })
+      }
+    },
+    applyBulkRefreshFingerbank () {
+      const _this = this
+      const macs = this.selectValues.map(item => item.mac)
+      if (macs.length > 0) {
+        this.$store.dispatch(`${this.$options.storeName}/refreshFingerbankBulkNodes`, {items: macs}).then(response => {
           response.items.forEach(function (item, index, items) {
             _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_VARIANT`, {index: index, status: item.status})
             _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_MESSAGE`, {index: index, message: item.message})

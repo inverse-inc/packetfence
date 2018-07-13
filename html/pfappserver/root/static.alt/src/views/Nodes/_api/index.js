@@ -69,6 +69,16 @@ export default {
       return response.data.items
     })
   },
+  dhcpoption82: mac => {
+    const search = {
+      query: { op: 'and', values: [ { field: 'mac', op: 'equals', value: mac } ] },
+      limit: 100,
+      cursor: '0'
+    }
+    return apiCall.post('dhcp_option82s/search', search).then(response => {
+      return response.data.items
+    })
+  },
   createNode: body => {
     return apiCall.post('nodes', body).then(response => {
       return response.data
@@ -114,6 +124,26 @@ export default {
   },
   restartSwitchportBulkNodes: body => {
     return apiCall.post('nodes/bulk_restart_switchport', body).then(response => {
+      return response.data
+    })
+  },
+  refreshFingerbankBulkNodes: body => {
+    return apiCall.post('nodes/bulk_fingerbank_refresh', body).then(response => {
+      return response.data
+    })
+  },
+  reevaluateAccessNode: mac => {
+    return apiCall.post(`node/${mac}/reevaluate_access`).then(response => {
+      return response.data
+    })
+  },
+  refreshFingerbankNode: mac => {
+    return apiCall.post(`node/${mac}/fingerbank_refresh`).then(response => {
+      return response.data
+    })
+  },
+  restartSwitchportNode: mac => {
+    return apiCall.post(`node/${mac}/restart_switchport`).then(response => {
       return response.data
     })
   }
