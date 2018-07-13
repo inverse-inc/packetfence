@@ -23,6 +23,7 @@ use pfconfig::objects::Net::Netmask;
 use Net::Interface;
 use Socket;
 use pf::util;
+use List::MoreUtils qw(uniq);
 
 use base 'pfconfig::namespaces::resource';
 
@@ -120,7 +121,10 @@ sub build {
                 # adding management to dhcp listeners by default (if it's not already there)
                 push @{ $self->{_interfaces}->{dhcplistener_ints} }, $int
                     if ( not scalar grep( { $_ eq $int } @{ $self->{_interfaces}->{dhcplistener_ints} } ) );
-
+                if ($self->{cluster_enabled}) {
+                    push @{ $self->{_interfaces}->{ha_ints} }, $int_obj;
+                    @{ $self->{_interfaces}->{ha_ints} }= uniq @{ $self->{_interfaces}->{ha_ints} };
+                }
             }
             elsif ( $type eq 'monitor' ) {
                 $self->{_interfaces}->{monitor_int} = $int;
@@ -130,6 +134,7 @@ sub build {
             }
             elsif ( $type eq 'high-availability' ) {
                 push @{ $self->{_interfaces}->{ha_ints} }, $int_obj;
+                @{ $self->{_interfaces}->{ha_ints} }= uniq @{ $self->{_interfaces}->{ha_ints} };
             }
             elsif ( $type eq 'portal' ) {
                 $int_obj->tag( "vip", $self->_fetch_virtual_ip( $int, $interface ) );
