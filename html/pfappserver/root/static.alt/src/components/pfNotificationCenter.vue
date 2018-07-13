@@ -5,30 +5,33 @@
         <icon-counter name="bell" v-model="count" :variant="variant"></icon-counter>
       </template>
       <!-- menu items -->
-      <b-dropdown-item class="border-right" v-for="(notification, index) in notifications" :key="index" :class="'border-'+notification.variant">
-        <small>
-          <timeago class="float-right" :class="{'text-secondary': !notification.unread}" :since="notification.timestamp" :auto-update="60" :locale="$i18n.locale"></timeago>
-          <div class="notification-message" :class="{'text-secondary': !notification.unread}">
-            <icon :name="notification.icon" :class="'text-'+notification.variant"></icon> <span :class="{ 'font-weight-bold': notification.unread }">{{notification.message}}</span>
-          </div>
-          <small class="notification-url text-secondary">{{notification.url}}</small>
-        </small>
-      </b-dropdown-item>
+      <div v-for="(notification, index) in notifications" :key="index">
+        <b-dropdown-item class="border-right" :class="'border-'+notification.variant">
+          <small>
+            <timeago class="float-right" :class="{'text-secondary': !notification.unread}" :since="notification.timestamp" :auto-update="60" :locale="$i18n.locale"></timeago>
+            <div class="notification-message" :class="{'text-secondary': !notification.unread}">
+              <icon :name="notification.icon" :class="'text-'+notification.variant"></icon> <span :class="{ 'font-weight-bold': notification.unread }">{{notification.message}}</span>
+            </div>
+            <small class="notification-url text-secondary">{{notification.url}}</small>
+          </small>
+        </b-dropdown-item>
+        <b-dropdown-divider></b-dropdown-divider>
+      </div>
       <b-dropdown-item class="text-right">
-        <b-button variant="outline-secondary" size="sm" v-t="'Clear All'" @click="clear()"></b-button>
+        <b-button size="sm" variant="outline-secondary" v-t="'Clear All'" @click="clear()"></b-button>
       </b-dropdown-item>
     </b-nav-item-dropdown>
     <!-- toasts -->
     <div class="notifications-toasts">
       <b-alert v-for="(notification, index) in notifications_new" :key="index" :variant="notification.variant" @dismissed="dismiss(notification)"
-        show dismissible fade>
-        <div class="notification-message">
-          <icon :name="notification.icon" :class="'text-'+notification.variant"></icon> {{notification.message}}
-        </div>
-        <small class="notification-url text-secondary">{{notification.url}}</small>
-      </b-alert>
-    </div>
+      show dismissible fade>
+      <div class="notification-message">
+        <icon :name="notification.icon" :class="'text-'+notification.variant"></icon> {{notification.message}}
+      </div>
+      <small class="notification-url text-secondary">{{notification.url}}</small>
+    </b-alert>
   </div>
+</div>
 </template>
 
 <script>
@@ -91,10 +94,15 @@ export default {
 .notifications .dropdown-menu {
     width: 30vw;
 }
+.notifications .dropdown-item{
+    &:hover, &:focus {
+        background-color: inherit;
+    }
+}
 .dropdown-item {
-  outline: none;
-  .notification-message {
-    white-space: normal;
-  }
+    outline: none;
+    .notification-message {
+        white-space: normal;
+    }
 }
 </style>
