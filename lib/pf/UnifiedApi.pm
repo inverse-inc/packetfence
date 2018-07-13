@@ -274,7 +274,7 @@ sub startup {
     my ($self) = @_;
     $self->controller_class('pf::UnifiedApi::Controller');
     $self->routes->namespaces(['pf::UnifiedApi::Controller', 'pf::UnifiedApi']);
-    $self->hook(before_dispatch => \&set_tenant_id);
+    $self->hook(before_dispatch => \&before_dispatch_cb);
     $self->plugin('pf::UnifiedApi::Plugin::RestCrud');
     $self->setup_api_v1_routes();
     $self->custom_startup_hook();
@@ -284,6 +284,19 @@ sub startup {
     });
 
     return;
+}
+
+=head2 before_dispatch_cb
+
+before_dispatch_cb
+
+=cut
+
+sub before_dispatch_cb {
+    my ($c) = @_;
+    # To allow dispatching with encoded slashes
+    $c->stash->{path} = $c->req->url->path;
+    set_tenant_id($c)
 }
 
 sub setup_api_v1_routes {

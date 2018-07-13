@@ -16,6 +16,7 @@ use strict;
 use warnings;
 use Mojo::Base qw(pf::UnifiedApi::Controller::RestRoute);
 use pf::UnifiedApi::OpenAPI::Generator::Config;
+use Mojo::Util qw(url_unescape);
 
 has 'config_store_class';
 has 'form_class';
@@ -70,7 +71,7 @@ sub item {
 
 sub id {
     my ($self) = @_;
-    $self->stash->{$self->primary_key};
+    url_unescape($self->stash->{$self->primary_key});
 }
 
 sub item_from_store {
