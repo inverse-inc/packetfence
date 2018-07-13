@@ -13,15 +13,33 @@ const getters = {
 const actions = {
   // data is expected to be either a string or an object with a 'message' property
   info: ({commit}, data) => {
-    let notification = { variant: 'info', icon: 'info-circle', new: true, timestamp: new Date() }
+    let notification = {
+      variant: 'info',
+      icon: 'info-circle',
+      new: true,
+      unread: true,
+      timestamp: new Date()
+    }
     commit('NOTIFICATION', { base: notification, data })
   },
   warning: ({commit}, data) => {
-    let notification = { variant: 'warning', icon: 'exclamation-triangle', new: true, timestamp: new Date() }
+    let notification = {
+      variant: 'warning',
+      icon: 'exclamation-triangle',
+      new: true,
+      unread: true,
+      timestamp: new Date()
+    }
     commit('NOTIFICATION', { base: notification, data })
   },
   danger: ({commit}, data) => {
-    let notification = { variant: 'danger', icon: 'ban', new: true, timestamp: new Date() }
+    let notification = {
+      variant: 'danger',
+      icon: 'ban',
+      new: true,
+      unread: true,
+      timestamp: new Date()
+    }
     commit('NOTIFICATION', { base: notification, data })
   }
 }
@@ -35,11 +53,14 @@ const mutations = {
       notification = Object.assign(params.base, params.data)
     }
     if (notification) {
-      state.all.push(notification)
+      state.all.splice(0, 0, notification)
       setTimeout(() => {
         notification.new = false
       }, state.hideDelay * 1000)
     }
+  },
+  CLEAR: (state) => {
+    state.all = []
   }
 }
 

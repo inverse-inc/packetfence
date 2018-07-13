@@ -1,0 +1,23 @@
+$icon-counter-width: 2em;
+
+.icon-counter {
+    position: absolute;
+    top: 0;
+    right: 0;
+    border-radius: 50%;
+    background-color: red;
+    text-align: center;
+    color: #fff;
+    font-size: $font-size-base/4;
+    width: $icon-counter-width;
+    height: $icon-counter-width;
+    line-height: $icon-counter-width;
+
+    &.secondary {
+        background-color: $secondary;
+    }
+
+    &.danger {
+        background-color: $danger;
+    }
+}

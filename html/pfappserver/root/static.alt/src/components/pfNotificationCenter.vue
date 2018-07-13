@@ -1,20 +1,26 @@
 <template>
   <div class="notifications">
-    <b-nav-item-dropdown @click.native.stop.prevent right :disabled="isEmpty">
+    <b-nav-item-dropdown @click.native.stop.prevent @hidden="markAsRead()" :disabled="isEmpty" right no-caret>
       <template slot="button-content">
-        <icon name="bell"></icon>
+        <icon-counter name="bell" v-model="count" :variant="variant"></icon-counter>
       </template>
+      <!-- menu items -->
       <b-dropdown-item class="border-right" v-for="(notification, index) in notifications" :key="index" :class="'border-'+notification.variant">
         <small>
-          <timeago class="float-right" :class="{'text-secondary': !notification.new}" :since="notification.timestamp" :auto-update="60" :locale="$i18n.locale"></timeago>
-          <div class="notification-message" :class="{'text-secondary': !notification.new}">
-            <icon :name="notification.icon" :class="'text-'+notification.variant"></icon> {{notification.message}}
+          <timeago class="float-right" :class="{'text-secondary': !notification.unread}" :since="notification.timestamp" :auto-update="60" :locale="$i18n.locale"></timeago>
+          <div class="notification-message" :class="{'text-secondary': !notification.unread}">
+            <icon :name="notification.icon" :class="'text-'+notification.variant"></icon> <span :class="{ 'font-weight-bold': notification.unread }">{{notification.message}}</span>
           </div>
           <small class="notification-url text-secondary">{{notification.url}}</small>
+        </small>
+      </b-dropdown-item>
+      <b-dropdown-item class="text-right">
+        <b-button variant="outline-secondary" size="sm" v-t="'Clear All'" @click="clear()"></b-button>
       </b-dropdown-item>
     </b-nav-item-dropdown>
+    <!-- toasts -->
     <div class="notifications-toasts">
-      <b-alert v-for="(notification, index) in notifications_new" :key="index" :variant="notification.variant" @dismissed="notification.new=false"
+      <b-alert v-for="(notification, index) in notifications_new" :key="index" :variant="notification.variant" @dismissed="dismiss(notification)"
         show dismissible fade>
         <div class="notification-message">
           <icon :name="notification.icon" :class="'text-'+notification.variant"></icon> {{notification.message}}
@@ -26,8 +32,13 @@
 </template>
 
 <script>
+import IconCounter from '@/components/IconCounter'
+
 export default {
   name: 'pfNotificationCenter',
+  components: {
+    'icon-counter': IconCounter
+  },
   computed: {
     notifications () {
       return this.$store.state.notification.all
@@ -35,8 +46,30 @@ export default {
     notifications_new () {
       return this.$store.state.notification.all.filter(n => n.new)
     },
+    count () {
+      return this.unread.length || this.notifications.length
+    },
     isEmpty () {
-      return this.$store.state.notification.all.length === 0
+      return this.notifications.length === 0
+    },
+    unread () {
+      return this.$store.state.notification.all.filter(n => n.unread)
+    },
+    variant () {
+      return (this.unread.length > 0) ? 'danger' : 'secondary'
+    }
+  },
+  methods: {
+    markAsRead () {
+      this.$store.state.notification.all.forEach((notification) => {
+        notification.unread = false
+      })
+    },
+    dismiss (notification) {
+      notification.new = notification.unread = false
+    },
+    clear () {
+      this.$store.commit('notification/CLEAR')
     }
   }
 }
