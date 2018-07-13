@@ -12,7 +12,6 @@ use pf::constants qw($TRUE $FALSE);
 use pf::Authentication::constants;
 use pf::sms_carrier;
 use pf::log;
-use pf::constants qw($TRUE $FALSE);
 
 use Moose;
 extends 'pf::Authentication::Source';
