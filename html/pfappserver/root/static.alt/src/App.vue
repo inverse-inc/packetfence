@@ -8,7 +8,7 @@
       <b-collapse is-nav id="navbar" v-if="isAuthenticated">
         <b-navbar-nav>
           <b-nav-item to="/status" v-can:access.some="[['reports', 'services']]">{{ $t('Status') }}</b-nav-item>
-          <b-nav-item href="admin/reports" v-can:access="'reports'">{{ $t('Reports') }}</b-nav-item>
+          <b-nav-item href="/admin/reports" v-can:access="'reports'">{{ $t('Reports') }}</b-nav-item>
           <b-nav-item to="/auditing" v-can:read="'auditing'">{{ $t('Auditing') }}</b-nav-item>
           <b-nav-item to="/nodes" v-can:read="'nodes'">{{ $t('Nodes') }}</b-nav-item>
           <b-nav-item to="/users" v-can:read="'users'">{{ $t('Users') }}</b-nav-item>
