@@ -111,7 +111,6 @@ sub startScan {
         return 1;
     }
     my $repository = $nessus->get_repository_id(name => $nessus_repository);
-    $logger->warn($repository); 
     if ($repository eq ""){
         $logger->warn("Nessus repository name doesn't exist ".$repository);
         return 1;
@@ -159,7 +158,6 @@ sub startScan {
 
     my $scan_result_id = $nessus->get_scan_id(scan_id => $id);
 
-    $logger->warn($scan_result_id);
 
     my $download = $nessus->download_report(
         downloadType => "v2",
