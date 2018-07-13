@@ -161,8 +161,8 @@
   background-color: transparent;
 }
 
-.bd-sidebar .nav > .active > a,
-.bd-sidebar .nav > .active:hover > a {
+.bd-sidebar .nav .active,
+.bd-sidebar .nav .active:hover {
   font-weight: 500;
   color: rgba(0,0,0,.85);
   background-color: transparent;
