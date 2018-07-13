@@ -26,11 +26,33 @@ END
 
 [% MACRO graph(metric, title, options) BLOCK %]
     [% IF options.width; width = options.width; ELSE; width = "18"; END %]
+
+    [% IF options.graph_per_host;
+    hosts = cluster;
+    width = width / hosts.size();
+    ELSE;
+    hosts = [ "127.0.0.1" ];
+    END %]
+
+    [% FOREACH host IN hosts%]
     <div class="col[% width %]">
         <div data-netdata="[% metric %]"
+        
+        [% IF options.graph_per_host %]
+        data-host="/netdata/[% host.value %]"
+        [% ELSIF !options.nocluster %]
         data-host="[% FOREACH member IN cluster %]/netdata/[% member.value %][% IF !loop.last() %],[% END %][% END %]"
         data-friendly-host-names="[% FOREACH member IN cluster %]/netdata/[% member.value %]=[% member.key %],[% END %]"
-        data-title="[% title%]"
+        [% ELSE %]
+        data-host="/netdata/127.0.0.1"
+        [% END %]
+
+        [% IF options.graph_per_host %]
+        data-title="[% title %] on [% host.key %]"
+        [% ELSE %]
+        data-title="[% title %]"
+        [% END %]
+
         data-chart-library="dygraph"
         data-colors="[% palette(0) %]"
         data-height="200px"
@@ -41,6 +63,7 @@ END
         [% END %]
         ></div>
     </div>
+    [% END %]
 [% END %]
 
 <div id="dashboard">
@@ -243,10 +266,39 @@ END
                   <div class="row-flex">
                     [% graph("system.cpu", "CPU usage", {"width" => "9", "valuerange" => "[0, 100]"}) | none %]
                     [% graph("system.load", "System Load Average", {"width" => "9"}) | none %]
+                    [% graph("system.io", "Disk I/O", {"width" => "9"}) | none %]
+                    [% graph("disk_space._", "Disk Space Usage for /", {"width" => "9"}) | none %]
+                    [% graph("system.ram", "System RAM", {"width" => "9"}) | none %]
+                    [% graph("system.swap", "System Swap", {"width" => "9"}) | none %]
                   </div>
                 </div>
               </div>
             </div>
+            <div class="card">
+              <div class="card-title">
+                <h2>[% l('IPv4 Networking') %]</h2>
+                <div class="card-block">
+                  <div class="row-flex">
+                    [% graph("system.ipv4", "IPv4 Bandwidth", {"width" => "9"}) | none %]
+                    [% graph("system.sockstat_sockets", "IPv4 Sockets", {"width" => "9"}) | none %]
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">
+                <h2>[% l('Database') %]</h2>
+                <div class="card-block">
+                  <div class="row-flex">
+                    [% graph("mysql_PacketFence_Database.queries", "Database queries", {"nocluster" => 1}) | none %]
+                    [% graph("mysql_PacketFence_Database.handlers", "Database handlers", {"nocluster" => 1}) | none %]
+                    [% graph("mysql_PacketFence_Database.threads", "Database threads", {"graph_per_host" => 1}) | none %]
+                  </div>
+                </div>
+              </div>
+            </div>
+
         </div>
     </div>
 
