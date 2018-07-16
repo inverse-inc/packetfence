@@ -89,12 +89,22 @@ Remove the parking actions that were taken against an IP + MAC
 sub remove_parking_actions {
     my ($mac, $ip) = @_;
     get_logger->info("Removing parking actions for $mac - $ip");
-    pf::api::unifiedapiclient->default_client->call("DELETE", "/api/v1/dhcp/options/mac/$mac",{});
+    eval {
+        pf::api::unifiedapiclient->default_client->call("DELETE", "/api/v1/dhcp/options/mac/$mac",{});
+    };
+    if($@) {
+        get_logger->error("Error while removing options from DHCP server: " . $@);
+    }
 
     get_logger->debug("Removing $ip from parking ipset");
-    pf::api::unifiedapiclient->default_client->call("POST", "/api/v1/ipset/remove_ip/parking", {
-        "ip" => $ip,
-    });
+    eval {
+        pf::api::unifiedapiclient->default_client->call("POST", "/api/v1/ipset/remove_ip/parking", {
+            "ip" => $ip,
+        });
+    };
+    if($@) {
+        get_logger->error("Error while removing device from parking: " . $@);
+    }
 }
 
 =head1 AUTHOR
