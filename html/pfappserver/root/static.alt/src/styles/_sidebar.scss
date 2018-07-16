@@ -148,14 +148,14 @@
 }
 
 // All levels of nav
-.bd-sidebar .nav > li > a {
+.bd-sidebar .nav li > a {
   display: block;
   padding: .25rem 1.5rem;
   font-size: 90%;
   color: rgba(0,0,0,.65);
 }
 
-.bd-sidebar .nav > li > a:hover {
+.bd-sidebar .nav li > a:hover {
   color: rgba(0,0,0,.85);
   text-decoration: none;
   background-color: transparent;

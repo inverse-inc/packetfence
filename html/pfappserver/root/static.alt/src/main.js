@@ -26,6 +26,8 @@ import 'vue-awesome/icons/exclamation-triangle'
 import 'vue-awesome/icons/sign-in-alt'
 import 'vue-awesome/icons/sign-out-alt'
 import 'vue-awesome/icons/save'
+import 'vue-awesome/icons/caret-right'
+import 'vue-awesome/icons/caret-down'
 import { Timeline } from 'vue2vis'
 
 import store from './store'

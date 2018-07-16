@@ -45,7 +45,7 @@ const getters = {
   rolesList: state => {
     // Remap for b-form-select component
     return state.roles.map((item) => {
-      return { value: item.category_id, text: `${item.name} - ${item.notes}` }
+      return { value: item.category_id, name: item.name, text: `${item.name} - ${item.notes}` }
     })
   },
   violationsList: state => {
