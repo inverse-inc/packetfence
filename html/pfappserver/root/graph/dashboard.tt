@@ -64,6 +64,10 @@ END;
           [% IF options.valuerange %]
           data-dygraph-valuerange="[% options.valuerange %]"
           [% END %]
+
+          [% IF options.filter_graph %]
+          data-filter-graph="[% options.filter_graph %]"
+          [% END %]
           ></div>
       </div>
     [% END %]
@@ -311,7 +315,8 @@ END;
               </div>
               <div class="card-block">
                 <div class="row-flex">
-                  [% graph("statsd_timer_pf__api__radius_rest_authorize.timing", "Auth Rest") | none %]
+                  [% graph("statsd_timer_pf__api__radius_rest_authorize.timing", "Auth Rest", {"filter_graph" => "average"}) | none %]
+                  [% graph("statsd_timer_pf__api__radius_rest_accounting.timing", "Acct Rest", {"filter_graph" => "average"}) | none %]
                 </div>
               </div>
             </div>
