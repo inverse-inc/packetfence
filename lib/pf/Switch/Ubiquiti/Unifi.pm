@@ -194,6 +194,7 @@ sub _deauthenticateMacWithHTTP {
         $response = $ua->post("$base_url/api/s/$entry->{'name'}/cmd/stamgr", Content => '{"cmd":"'.$command.'", "mac":"'.$mac.'", "ap_mac":"'.$switch_id.'"}');
         if ($response->is_success) {
             $logger->info("Deauth on site: $entry->{'desc'}");
+            last;
         }
     }
 
