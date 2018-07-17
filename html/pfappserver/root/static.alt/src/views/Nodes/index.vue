@@ -16,6 +16,30 @@
                             <b-nav-item to="/nodes/search/openviolations" replace>{{ $t('Open Violations') }}</b-nav-item>
                             <b-nav-item to="/nodes/search/closedviolations" replace>{{ $t('Closed Violations') }}</b-nav-item>
 
+                            <!-- Standard Searches > Switch Groups -->
+                            <div class="bd-toc-link" v-b-toggle="'accordionSwitchGroups'">
+                              {{ $t('Switch Groups') }}
+                              <icon class="when-closed float-right mt-1" name="caret-right"></icon>
+                              <icon class="when-opened float-right mt-1" name="caret-down"></icon>
+                            </div>
+                            <b-collapse id="accordionSwitchGroups" ref="accordionSwitchGroups" is-nav>
+                              <div v-for="switchGroup in switchGroups" :key="switchGroup.id">
+                                <div class="bd-toc-link" v-b-toggle="`accordionSwitchGroup${switchGroup.group}`">
+                                  {{ switchGroup.group }}
+                                  <icon class="when-closed float-right mt-1" name="caret-right"></icon>
+                                  <icon class="when-opened float-right mt-1" name="caret-down"></icon>
+                                </div>
+                                <b-collapse :id="`accordionSwitchGroup${switchGroup.group}`" :ref="`accordionSwitchGroup${switchGroup.group}`" is-nav>
+                                  <b-nav-item v-for="sw in switchGroup.switches" :key="sw.id" v-if="sw.id !== 'default'" :to='{"path":"search", "query":{"query":JSON.stringify({"op":"and","values":[{"op":"or","values":[{"field":"locationlog.switch","op":"equals","value":getIpFromCIDR(sw.id)}]}]})}}' replace>
+                                    <blockquote class="mb-0">
+                                      {{ sw.id }}<br/>
+                                      {{ sw.description }}
+                                    </blockquote>
+                                  </b-nav-item>
+                                </b-collapse>
+                              </div>
+                            </b-collapse>
+
                             <!-- Standard Searches > Switch Roles -->
                             <div class="bd-toc-link" v-b-toggle="'accordionRoles'">
                               {{ $t('Roles') }}
@@ -114,5 +138,8 @@ export default {
 .collapsed > svg.when-opened,
 :not(.collapsed) > svg.when-closed {
   display: none;
+}
+.bd-sidenav .navbar-collapse {
+  background-color: rgba(0, 0, 0, 0.125);
 }
 </style>
