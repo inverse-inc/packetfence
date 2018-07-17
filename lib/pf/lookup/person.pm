@@ -61,14 +61,16 @@ sub lookup_person {
         $logger->info("Person $pid is not a registered user!");
         return;
     }
-    my $person = $CHI_CACHE->get("$source_id.$pid");
+
+    my $cache_key = "$source_id.$pid.$context";
+    my $person = $CHI_CACHE->get($cache_key);
     unless($person){
         $person = $source->search_attributes($stripped);
         if (!$person) {
            $logger->debug("Cannot search attributes for user '$stripped'");
            return;
         } else {
-            $CHI_CACHE->set("$source_id.$pid", $person);
+            $CHI_CACHE->set($cache_key, $person);
             $logger->info("Successfully did a person lookup for $pid");
             person_modify($pid, %$person);
             return;
