@@ -400,6 +400,54 @@ END;
           </div>
           [% END %]
         </div>
+        
+        <div class="tab-pane[% IF tab == "endpoints" %] active[% END %]" id="endpoints">
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('Registered & Unregistered Devices') %]</h2>
+            </div>
+            <div class="card-block">
+              <div class="row-flex">
+                [% graph("packetfence.devices.registered_unregistered", "Registration status of online devices", {"nocluster" => 1, "width" => 9}) %]
+                [% graph("statsd_gauge_source.packetfence.devices.registered", "Devices currently registered", {"nocluster" => 1, "width" => 9, "filter_graph" => "gauge"}) %]
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('Registered Devices Per Role') %]</h2>
+            </div>
+            <div class="card-block">
+              <div class="row-flex">
+                [% graph("packetfence.devices.registered_per_role", "Registered devices per role", {"nocluster" => 1}) %]
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('Registered Devices Per Timeframe') %]</h2>
+            </div>
+            <div class="card-block">
+              <div class="row-flex">
+                [% FOREACH scope IN ["hour", "day", "week", "month", "year"] %]
+                  [% width = scope == "year" ? 18 : 9 %]
+                  [% graph("statsd_gauge_source.packetfence.devices.registered_last_" _ scope, "New registered devices during the past " _ scope, {"width" => width, "filter_graph" => "gauge"}) %]
+                [% END %]
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('Device Violations') %]</h2>
+            </div>
+            <div class="card-block">
+              <div class="row-flex">
+                [% graph("statsd_gauge_source.packetfence.violations", "Currently open violations", {"nocluster" => 1, "filter_graph" => "gauge"}) %]
+              </div>
+            </div>
+          </div>
+
+        </div>
     </div>
 
 <!--
