@@ -28,6 +28,8 @@ import 'vue-awesome/icons/sign-out-alt'
 import 'vue-awesome/icons/save'
 import 'vue-awesome/icons/caret-right'
 import 'vue-awesome/icons/caret-down'
+import 'vue-awesome/icons/circle'
+import 'vue-awesome/icons/dot-circle'
 import { Timeline } from 'vue2vis'
 
 import store from './store'
