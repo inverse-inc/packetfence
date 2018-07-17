@@ -19,15 +19,13 @@
                             <!-- Standard Searches > Switch Groups -->
                             <div class="bd-toc-link" v-b-toggle="'accordionSwitchGroups'">
                               {{ $t('Switch Groups') }}
-                              <icon class="when-closed float-right mt-1" name="caret-right"></icon>
-                              <icon class="when-opened float-right mt-1" name="caret-down"></icon>
+                              <icon class="float-right mt-1" name="chevron-down"></icon>
                             </div>
                             <b-collapse id="accordionSwitchGroups" ref="accordionSwitchGroups" is-nav>
                               <div v-for="switchGroup in switchGroups" :key="switchGroup.id">
                                 <div class="bd-toc-link" v-b-toggle="`accordionSwitchGroup${switchGroup.group}`">
                                   {{ switchGroup.group }}
-                                  <icon class="when-closed float-right mt-1" name="caret-right"></icon>
-                                  <icon class="when-opened float-right mt-1" name="caret-down"></icon>
+                                  <icon class="float-right mt-1" name="chevron-down"></icon>
                                 </div>
                                 <b-collapse :id="`accordionSwitchGroup${switchGroup.group}`" :ref="`accordionSwitchGroup${switchGroup.group}`" is-nav>
                                   <b-nav-item @click.stop v-for="sw in switchGroup.switches" :key="sw.id" v-if="sw.id !== 'default'" :to='{"path":"search", "query":{"query":JSON.stringify({"op":"and","values":[{"op":"or","values":[{"field":"locationlog.switch","op":"equals","value":getIpFromCIDR(sw.id)}]}]})}}' replace>
@@ -43,8 +41,7 @@
                             <!-- Standard Searches > Switch Roles -->
                             <div class="bd-toc-link" v-b-toggle="'accordionRoles'">
                               {{ $t('Roles') }}
-                              <icon class="when-opened float-right mt-1" name="caret-down"></icon>
-                              <icon class="when-closed float-right mt-1" name="caret-right"></icon>
+                              <icon class="float-right mt-1" name="chevron-down"></icon>
                             </div>
                             <b-collapse id="accordionRoles" ref="accordionRoles" is-nav>
                                 <b-nav-item @click.stop v-for="role in roles" :key="role.name" :to='{"path":"search", "query":{"query":JSON.stringify({"op":"and","values":[{"op":"or","values":[{"field":"category_id","op":"equals","value":role.category_id}]}]})}}' replace>{{role.name}}</b-nav-item>
@@ -53,8 +50,7 @@
                             <!-- Standard Searches > OS -->
                             <div class="bd-toc-link" v-b-toggle="'accordionOs'">
                               {{ $t('OS') }}
-                              <icon class="when-opened float-right mt-1" name="caret-down"></icon>
-                              <icon class="when-closed float-right mt-1" name="caret-right"></icon>
+                              <icon class="float-right mt-1" name="chevron-down"></icon>
                             </div>
                             <b-collapse id="accordionOs" ref="accordionOs" is-nav>
                                 <b-nav-item @click.stop :to='{"path":"search", "query":{"query":JSON.stringify({"op":"and","values":[{"op":"or","values":[{"field":"device_class","op":"equals","value":"Windows OS"}]}]})}}' replace>{{ $t('Windows') }}</b-nav-item>
@@ -135,11 +131,14 @@ export default {
 </script>
 
 <style>
-.collapsed > svg.when-opened,
-:not(.collapsed) > svg.when-closed {
-  display: none;
-}
 .bd-sidenav .navbar-collapse {
   background-color: rgba(0, 0, 0, 0.125);
+}
+.bd-sidenav :not(.collapsed) > svg {
+    transition: transform 300ms ease;
+}
+.bd-sidenav .collapsed > svg {
+    transform: rotate( -180deg );
+    transition: transform 300ms ease;
 }
 </style>
