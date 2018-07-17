@@ -131,10 +131,18 @@ END;
         // become offline for some time, the charts will break.
         // This will reload the page every RELOAD_EVERY minutes
         var RELOAD_EVERY = 5;
-        setTimeout(function(){
+        setInterval(function(){
             var tab = $('#dashboard-tabs').find('.active a').attr('href');
             tab = tab.replace('#', '');
-            location.hash = '#graph/dashboard?tab=' + tab;
+            var change_to = '#graph/dashboard?tab=' + tab;
+            if(history.pushState) {
+              history.pushState(null, null, change_to);
+            }
+            else {
+              location.hash = change_to;
+            }
+        }, 100);
+        setTimeout(function(){
             location.reload();
         }, RELOAD_EVERY * 60 * 1000);
     </script>
