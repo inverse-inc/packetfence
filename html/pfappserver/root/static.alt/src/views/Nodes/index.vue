@@ -54,7 +54,12 @@
                                   {{ switchGroup.group }}
                                 </div>
                                 <b-collapse :id="`accordionSwitchGroup${switchGroup.group}`" :ref="`accordionSwitchGroup${switchGroup.group}`" is-nav>
-                                  <b-nav-item v-for="sw in switchGroup.switches" :key="sw.id" v-if="sw.id !== 'default'" :to='{"path":"search", "query":{"query":JSON.stringify({"op":"and","values":[{"op":"or","values":[{"field":"locationlog.switch","op":"equals","value":getIpFromCIDR(sw.id)}]}]})}}' replace>{{ sw.id }}</b-nav-item>
+                                  <b-nav-item v-for="sw in switchGroup.switches" :key="sw.id" v-if="sw.id !== 'default'" :to='{"path":"search", "query":{"query":JSON.stringify({"op":"and","values":[{"op":"or","values":[{"field":"locationlog.switch","op":"equals","value":getIpFromCIDR(sw.id)}]}]})}}' replace>
+                                    <blockquote class="mb-0">
+                                      {{ sw.id }}<br/>
+                                      {{ sw.description }}
+                                    </blockquote>
+                                  </b-nav-item>
                                 </b-collapse>
                               </div>
                             </b-collapse>
