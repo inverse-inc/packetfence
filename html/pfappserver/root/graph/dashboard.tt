@@ -363,7 +363,7 @@ END;
                 <div class="row-flex">
                   [% FOREACH source IN sources %]
                     [% FOREACH host IN source.host.split(',') %]
-                    [% graph("fping." _ host.replace('\.', '_') _ "_latency", source.description _ "- ping " _ host, {"nocluster" => 1}) %]
+                    [% graph("fping." _ host.replace('\.', '_') _ "_latency", source.description _ "- ping " _ host, {"nocluster" => 1}) | none %]
                     [% END %]
                   [% END %]
                 </div>
@@ -377,8 +377,8 @@ END;
               </div>
               <div class="card-block">
                 <div class="row-flex">
-                  [% graph("statsd_gauge_source.packetfence.authentication.success_last_day", "Successful RADIUS authentications in the last day", {"nocluster" => 1, "width" => 9}) %]
-                  [% graph("statsd_gauge_source.packetfence.authentication.failed_last_day", "Failed RADIUS authentications in the last day", {"nocluster" => 1, "width" => 9}) %]
+                  [% graph("statsd_gauge_source.packetfence.authentication.success_last_day", "Successful RADIUS authentications in the last day", {"nocluster" => 1, "width" => 9}) | none %]
+                  [% graph("statsd_gauge_source.packetfence.authentication.failed_last_day", "Failed RADIUS authentications in the last day", {"nocluster" => 1, "width" => 9}) | none %]
                 </div>
               </div>
             </div>
@@ -393,7 +393,7 @@ END;
             <div class="card-block">
               <div class="row-flex">
                 [% FOREACH scope IN ["day", "week", "month", "year"] %]
-                  [% graph("statsd_gauge_source.packetfence.dhcp_leases_" _ network _ "_" _ scope, "DHCP leases free on " _ network _ " for the past " _ scope, {"width" => 9, "filter_graph" => "gauge"}) %]
+                  [% graph("statsd_gauge_source.packetfence.dhcp_leases_" _ network _ "_" _ scope, "DHCP leases free on " _ network _ " for the past " _ scope, {"width" => 9, "filter_graph" => "gauge"}) | none %]
                 [% END %]
               </div>
             </div>
@@ -408,8 +408,8 @@ END;
             </div>
             <div class="card-block">
               <div class="row-flex">
-                [% graph("packetfence.devices.registered_unregistered", "Registration status of online devices", {"nocluster" => 1, "width" => 9}) %]
-                [% graph("statsd_gauge_source.packetfence.devices.registered", "Devices currently registered", {"nocluster" => 1, "width" => 9, "filter_graph" => "gauge"}) %]
+                [% graph("packetfence.devices.registered_unregistered", "Registration status of online devices", {"nocluster" => 1, "width" => 9}) | none %]
+                [% graph("statsd_gauge_source.packetfence.devices.registered", "Devices currently registered", {"nocluster" => 1, "width" => 9, "filter_graph" => "gauge"}) | none %]
               </div>
             </div>
           </div>
@@ -419,7 +419,7 @@ END;
             </div>
             <div class="card-block">
               <div class="row-flex">
-                [% graph("packetfence.devices.registered_per_role", "Registered devices per role", {"nocluster" => 1}) %]
+                [% graph("packetfence.devices.registered_per_role", "Registered devices per role", {"nocluster" => 1}) | none %]
               </div>
             </div>
           </div>
@@ -431,7 +431,7 @@ END;
               <div class="row-flex">
                 [% FOREACH scope IN ["hour", "day", "week", "month", "year"] %]
                   [% width = scope == "year" ? 18 : 9 %]
-                  [% graph("statsd_gauge_source.packetfence.devices.registered_last_" _ scope, "New registered devices during the past " _ scope, {"width" => width, "filter_graph" => "gauge"}) %]
+                  [% graph("statsd_gauge_source.packetfence.devices.registered_last_" _ scope, "New registered devices during the past " _ scope, {"width" => width, "filter_graph" => "gauge"}) | none %]
                 [% END %]
               </div>
             </div>
@@ -442,12 +442,48 @@ END;
             </div>
             <div class="card-block">
               <div class="row-flex">
-                [% graph("statsd_gauge_source.packetfence.violations", "Currently open violations", {"nocluster" => 1, "filter_graph" => "gauge"}) %]
+                [% graph("statsd_gauge_source.packetfence.violations", "Currently open violations", {"nocluster" => 1, "filter_graph" => "gauge"}) | none %]
               </div>
             </div>
           </div>
 
         </div>
+        
+        <div class="tab-pane[% IF tab == "portal" %] active[% END %]" id="portal">
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('Captive Portal Responses') %]</h2>
+            </div>
+            <div class="card-block">
+              <div class="row-flex">
+                [% FOREACH code IN ["1xx", "2xx", "3xx", "4xx", "5xx", "other"] %]
+                  [% graph("web_log_apache_portal_log.response_codes", code _ " responses", {"width" => 9, "filter_graph" => code}) | none %]
+                [% END %]
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('Captive Portal Bandwidth') %]</h2>
+            </div>
+            <div class="card-block">
+              <div class="row-flex">
+                [% graph("web_log_apache_portal_log.bandwidth", "Bandwidth used") | none %]
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('Captive Portal Response Time') %]</h2>
+            </div>
+            <div class="card-block">
+              <div class="row-flex">
+                [% graph("web_log_apache_portal_log.response_time", "Response time", {"filter_graph" => "avg"}) | none %]
+              </div>
+            </div>
+          </div>
+        </div>
+        
     </div>
 
 <!--
