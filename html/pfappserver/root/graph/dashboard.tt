@@ -352,8 +352,57 @@ END;
               </div>
             </div>
         </div>
+
+        <div class="tab-pane[% IF tab == "authentication" %] active[% END %]" id="authentication">
+            [% IF sources.size > 0 %]
+            <div class="card">
+              <div class="card-title">
+                <h2>[% l('Authentication Sources') %]</h2>
+              </div>
+              <div class="card-block">
+                <div class="row-flex">
+                  [% FOREACH source IN sources %]
+                    [% FOREACH host IN source.host.split(',') %]
+                    [% graph("fping." _ host.replace('\.', '_') _ "_latency", source.description _ "- ping " _ host, {"nocluster" => 1}) %]
+                    [% END %]
+                  [% END %]
+                </div>
+              </div>
+            </div>
+            [% END %]
+          
+            <div class="card">
+              <div class="card-title">
+                <h2>[% l('Successful & Unsuccessful RADIUS Authentications') %]</h2>
+              </div>
+              <div class="card-block">
+                <div class="row-flex">
+                  [% graph("statsd_gauge_source.packetfence.authentication.success_last_day", "Successful RADIUS authentications in the last day", {"nocluster" => 1, "width" => 9}) %]
+                  [% graph("statsd_gauge_source.packetfence.authentication.failed_last_day", "Failed RADIUS authentications in the last day", {"nocluster" => 1, "width" => 9}) %]
+                </div>
+              </div>
+            </div>
+        </div>
+
+        <div class="tab-pane[% IF tab == "dhcp" %] active[% END %]" id="dhcp">
+          [% FOREACH network IN networks.keys %]
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('DHCP on') %] [% network %]</h2>
+            </div>
+            <div class="card-block">
+              <div class="row-flex">
+                [% FOREACH scope IN ["day", "week", "month", "year"] %]
+                  [% graph("statsd_gauge_source.packetfence.dhcp_leases_" _ network _ "_" _ scope, "DHCP leases free on " _ network _ " for the past " _ scope, {"width" => 9, "filter_graph" => "gauge"}) %]
+                [% END %]
+              </div>
+            </div>
+          </div>
+          [% END %]
+        </div>
     </div>
 
+<!--
     <div class="card">
       <div data-netdata="system.active_processes,system.idlejitter"
       data-host="/netdata/127.0.0.1"
@@ -379,4 +428,5 @@ END;
       data-height="200px"
       data-decimal-digits="0"></div>
     </div>
+-->
 </div>
