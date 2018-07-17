@@ -526,31 +526,4 @@ END;
         
     </div>
 
-<!--
-    <div class="card">
-      <div data-netdata="system.active_processes,system.idlejitter"
-      data-host="/netdata/127.0.0.1"
-      data-title="Multiple metrics, single host"
-      data-chart-library="dygraph"
-      data-height="200px"
-      data-decimal-digits="0"></div>
-
-      <div data-netdata="system.active_processes"
-      data-host="/netdata/127.0.0.1,/netdata/127.0.0.1"
-      data-friendly-host-names="http://netdata1:19999=test-fresh,http://netdata2:19999=pf-julien"
-      data-title="Multiple hosts, single metric"
-      data-chart-library="dygraph"
-      data-height="200px"
-      data-decimal-digits="0"></div>
-
-      <div data-netdata="system.active_processes,system.forks"
-      data-host="/netdata/127.0.0.1,/netdata/127.0.0.1"
-      data-friendly-host-names="http://netdata1:19999=test-fresh,http://netdata2:19999=pf-julien"
-      data-friendly-labels="system.forks=forks,system.active_processes="
-      data-title="Multiple metrics, multiple hosts"
-      data-chart-library="dygraph"
-      data-height="200px"
-      data-decimal-digits="0"></div>
-    </div>
--->
 </div>
