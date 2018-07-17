@@ -60,7 +60,7 @@ END;
           data-colors="[% palette(0) %]"
           data-height="200px"
           data-before="0"
-          data-after="-86400"
+          data-after="-7200"
           [% IF options.valuerange %]
           data-dygraph-valuerange="[% options.valuerange %]"
           [% END %]
@@ -333,6 +333,22 @@ END;
                   [% graph("freeradius_Freeradius_LoadBalancer.proxy_acct", "Load balancer acct") | none %]
                 </div>
                 [% END %]
+                <div class="row-flex">
+                  [% graph("freeradius_Freeradius_Auth.authentication", "RADIUS auth") | none %]
+                  [% graph("freeradius_Freeradius_Acct.accounting", "RADIUS acct") | none %]
+                </div>
+              </div>
+            </div>
+            
+            <div class="card">
+              <div class="card-title">
+                <h2>[% l('NTLM') %]</h2>
+              </div>
+              <div class="card-block">
+                <div class="row-flex">
+                  [% graph("statsd_timer_ntlm_auth.time", "NTLM latency", {"filter_graph" => "average"}) | none %]
+                  [% graph("statsd_counter_ntlm_auth.failures", "NTLM failures", {"filter_graph" => "counter"}) | none %]
+                </div>
               </div>
             </div>
         </div>
