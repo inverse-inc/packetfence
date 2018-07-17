@@ -69,12 +69,17 @@ request-timing {
 
 packetfence-eap-mac-policy {
     if ( &EAP-Type ) {
+        if (&User-Name && (&User-Name =~ /^${policy.mac-addr-regexp}$/i)) {
+            update {
+                &request:Tmp-String-2 := "%{tolower:%{1}%{2}%{3}%{4}%{5}%{6}}"
+            }
+        }
 
         if (&Calling-Station-Id && (&Calling-Station-Id =~ /^${policy.mac-addr-regexp}$/i)) {
             update {
                 &request:Tmp-String-1 := "%{tolower:%{1}%{2}%{3}%{4}%{5}%{6}}"
             }
-            if  ( &Tmp-String-1 == "%{tolower:%{User-Name}}" ) {
+            if  ( &Tmp-String-1 == &Tmp-String-2 ) {
                 update {
                     &control:Cleartext-Password := &request:User-Name
                 }
