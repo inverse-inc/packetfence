@@ -56,9 +56,9 @@ END;
           data-title="[% title %]"
           [% END %]
 
-          data-chart-library="dygraph"
-          data-colors="[% palette(0) %]"
-          data-height="200px"
+          data-chart-library="[% options.chart_library ? options.chart_library : "dygraph" %]"
+          data-colors="[% options.colors ? options.colors : palette(0) %]"
+          data-height="[% options.height ? options.height : "200px" %]"
           data-before="0"
           data-after="-7200"
           [% IF options.valuerange %]
@@ -69,6 +69,7 @@ END;
           data-filter-graph="[% options.filter_graph %]"
           [% END %]
           data-hide-missing="true"
+          [% options.additional_html_tags.join(" ") | none %]
           ></div>
       </div>
     [% END %]
@@ -198,41 +199,49 @@ END;
             </div>
             <div class="row-flex">
                 <div class="col6 card">
-                    <div data-netdata="packetfence.devices.registered_per_role"
-                    data-host="/netdata/127.0.0.1"
-                    data-title="Registered devices per role"
-                    data-hide-missing="true"
-                    data-chart-library="d3pie"
-                    data-colors="[% palette(0) %]"
-                    data-height="250px"
-                    data-after="-3600"
-                    data-decimal-digits="0"
-                    data-d3pie-smallsegmentgrouping-value="0.5"
-                    data-d3pie-smallsegmentgrouping-enabled="true"></div>
+                    [% 
+                    graph(
+                      "packetfence.devices.registered_per_role", 
+                      "Registered devices per role", 
+                      {
+                        "nocluster" => 1, 
+                        "chart_library" => "d3pie", 
+                        "colors" => palette(0), 
+                        "height" => "250px"
+                        "additional_html_tags" => ['data-d3pie-smallsegmentgrouping-value="0.5"', 'data-d3pie-smallsegmentgrouping-enabled="true"', 'data-decimal-digits="0"'],
+                      }
+                    ) 
+                    | none %]
                 </div>
                 <div class="col6 card">
-                    <div data-netdata="packetfence.devices.connected_per_connection_type"
-                    data-host="/netdata/127.0.0.1"
-                    data-title="Connected devices per connection type"
-                    data-hide-missing="true"
-                    data-chart-library="d3pie"
-                    data-colors="[% palette(1) %]"
-                    data-height="250px"
-                    data-after="-3600"
-                    data-decimal-digits="0"></div>
+                    [% 
+                    graph(
+                      "packetfence.devices.connected_per_connection_type", 
+                      "Connected devices per connection type", 
+                      {
+                        "nocluster" => 1, 
+                        "chart_library" => "d3pie", 
+                        "colors" => palette(1), 
+                        "height" => "250px"
+                        "additional_html_tags" => ['data-decimal-digits="0"'],
+                      }
+                    ) 
+                    | none %]
                 </div>
                 <div class="col6 card">
-                    <div data-netdata="packetfence.devices.connected_per_ssid"
-                    data-host="/netdata/127.0.0.1"
-                    data-title="Connected devices per SSID"
-                    data-hide-missing="true"
-                    data-chart-library="d3pie"
-                    data-colors="[% palette(2) %]"
-                    data-height="250px"
-                    data-after="-3600"
-                    data-decimal-digits="0"
-                    data-d3pie-smallsegmentgrouping-value="0.5"
-                    data-d3pie-smallsegmentgrouping-enabled="true"></div>
+                    [% 
+                    graph(
+                      "packetfence.devices.connected_per_ssid", 
+                      "Connected devices per SSID", 
+                      {
+                        "nocluster" => 1, 
+                        "chart_library" => "d3pie", 
+                        "colors" => palette(2), 
+                        "height" => "250px"
+                        "additional_html_tags" => ['data-d3pie-smallsegmentgrouping-value="0.5"', 'data-d3pie-smallsegmentgrouping-enabled="true"', 'data-decimal-digits="0"'],
+                      }
+                    ) 
+                    | none %]
                 </div>
             </div>
             <div class="row-fluid">
@@ -241,38 +250,50 @@ END;
                         <div id="packetfence_devices_registered"></div>
                         <div class="counter_chart_title">[% l('Registered Devices') %]</div>
                     </div>
-                    <div data-netdata="statsd_gauge_source.packetfence.devices.registered"
-                    data-host="/netdata/127.0.0.1"
-                    data-title="Devices currently registered"
-                    data-hide-missing="true"
-                    data-chart-library="dygraph"
-                    data-dygraph-theme="sparkline"
-                    data-dygraph-type="area"
-                    data-dimensions="gauge"
-                    data-colors="[% palette(0) %]"
-                    data-height="100px"
-                    data-after="-3600"
-                    data-decimal-digits="0"
-                    data-show-value-of-gauge-at="packetfence_devices_registered"></div>
+                    [% 
+                    graph(
+                      "statsd_gauge_source.packetfence.devices.registered", 
+                      "Devices currently registered", 
+                      {
+                        "nocluster" => 1, 
+                        "chart_library" => "dygraph", 
+                        "colors" => palette(0), 
+                        "height" => "100px"
+                        "additional_html_tags" => [
+                          'data-decimal-digits="0"', 
+                          'data-show-value-of-gauge-at="packetfence_devices_registered"', 
+                          'data-dygraph-theme="sparkline"', 
+                          'data-dygraph-type="area"',
+                          'data-dimensions="gauge"',
+                        ],
+                      }
+                    ) 
+                    | none %]
                 </div>
                 <div class="span3 card">
                     <div class="counter_over_chart">
                         <div id="packetfence_violations"></div>
                         <div class="counter_chart_title">[% l('Open Violations') %]</div>
                     </div>
-                    <div data-netdata="statsd_gauge_source.packetfence.violations"
-                    data-host="/netdata/127.0.0.1"
-                    data-title="Open violations"
-                    data-hide-missing="true"
-                    data-chart-library="dygraph"
-                    data-dygraph-theme="sparkline"
-                    data-dygraph-type="area"
-                    data-dimensions="gauge"
-                    data-colors="[% palette(1) %]"
-                    data-height="100px"
-                    data-after="-3600"
-                    data-decimal-digits="0"
-                    data-show-value-of-gauge-at="packetfence_violations"></div>
+                    [%
+                    graph(
+                      "statsd_gauge_source.packetfence.violations", 
+                      "Open violations", 
+                      {
+                        "nocluster" => 1, 
+                        "chart_library" => "dygraph", 
+                        "colors" => palette(1), 
+                        "height" => "100px"
+                        "additional_html_tags" => [
+                          'data-decimal-digits="0"', 
+                          'data-show-value-of-gauge-at="packetfence_violations"', 
+                          'data-dygraph-theme="sparkline"', 
+                          'data-dygraph-type="area"',
+                          'data-dimensions="gauge"',
+                        ],
+                      }
+                    ) 
+                    | none %]
                 </div>
             </div>
             <div class="card">
