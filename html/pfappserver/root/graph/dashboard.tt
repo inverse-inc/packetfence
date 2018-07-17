@@ -68,6 +68,7 @@ END;
           [% IF options.filter_graph %]
           data-filter-graph="[% options.filter_graph %]"
           [% END %]
+          data-hide-missing="true"
           ></div>
       </div>
     [% END %]
