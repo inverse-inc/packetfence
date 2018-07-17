@@ -484,6 +484,46 @@ END;
           </div>
         </div>
         
+        <div class="tab-pane[% IF tab == "queue" %] active[% END %]" id="queue">
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('Queue counts') %]</h2>
+            </div>
+            <div class="card-block">
+              <div class="row-flex">
+                [% FOREACH queue IN queue_stats.stats_data.queue_counts %]
+                  [% graph("packetfence.redis.queue_stats_count", queue.name _ " queue count", {"filter_graph" => queue.name, "width" => 9}) | none %]
+                [% END %]
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('Queue tasks outstanding counts') %]</h2>
+            </div>
+            <div class="card-block">
+              <div class="row-flex">
+                [% FOREACH task IN queue_stats.stats_data.miss_counters %]
+                  [% graph("packetfence.redis.queue_stats_outstanding", task.name _ " outstanding", {"filter_graph" => task.name.replace(":", "_"), "width" => 9}) | none %]
+                [% END %]
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <h2>[% l('Queue tasks expired counts') %]</h2>
+            </div>
+            <div class="card-block">
+              <div class="row-flex">
+                [% FOREACH task IN queue_stats.stats_data.miss_counters %]
+                  [% graph("packetfence.redis.queue_stats_expired", task.name _ " expired", {"filter_graph" => task.name.replace(":", "_"), "width" => 9}) | none %]
+                [% END %]
+              </div>
+            </div>
+          </div>
+
+        </div>
+        
     </div>
 
 <!--

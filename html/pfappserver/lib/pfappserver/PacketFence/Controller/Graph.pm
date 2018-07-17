@@ -496,7 +496,10 @@ sub dashboard :Local :AdminRole('REPORTS') {
         tab            => $tab,
         networks       => \%NetworkConfig,
         listen_ints    => \@listen_ints,
+        queue_stats    => $c->model('Pfqueue')->stats,
     );
+
+    use Data::Dumper; $c->log->info(Dumper($c->stash->{queue_stats}->stats_data));
 }
 
 =head2 systemstate
