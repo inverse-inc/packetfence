@@ -320,6 +320,7 @@ post-auth {
 		&control:PacketFence-RPC-Pass = ${rpc_pass}
 		&control:PacketFence-RPC-Proto = ${rpc_proto}
 	}
+	packetfence-set-tenant-id
 	#
 	#  For EAP-TTLS and PEAP, add the cached attributes to the reply.
 	#  The "session-state" attributes are automatically cached when
@@ -360,6 +361,7 @@ post-auth {
 	#  The "session-state" attributes are not available here.
 	#
 	Post-Auth-Type REJECT {
+		packetfence-set-tenant-id
 		request-timing
 		# log failed authentications in SQL, too.
 		-sql_reject
