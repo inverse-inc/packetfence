@@ -133,7 +133,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 						}
 					}
 				}
-				fmt.Println(srcIP + " : " + mac + " isolation passthrough")
+				fmt.Println(srcIP + " : " + mac + " isolation passthrough  for fqdn " + state.QName())
 				return pf.Next.ServeDNS(ctx, w, r)
 			}
 		}
@@ -153,7 +153,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 					}
 				}
 			}
-			fmt.Println(srcIP + " : " + mac + " passthrough")
+			fmt.Println(srcIP + " : " + mac + " passthrough for fqdn " + state.QName())
 			return pf.Next.ServeDNS(ctx, w, r)
 		}
 	}
@@ -172,7 +172,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 					}
 				}
 			}
-			fmt.Println(srcIP + ":" + mac + " Domain bypass")
+			fmt.Println(srcIP + ":" + mac + " Domain bypass for fqdn " + state.QName())
 			return pf.Next.ServeDNS(ctx, w, r)
 		}
 	}
@@ -283,7 +283,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 	}
 
 	a.Answer = []dns.RR{rr}
-	fmt.Println("Returned portal for MAC " + mac + " with IP " + srcIP)
+	fmt.Println("Returned portal for MAC " + mac + " with IP " + srcIP + "for fqdn " + state.QName())
 	state.SizeAndDo(a)
 	w.WriteMsg(a)
 
