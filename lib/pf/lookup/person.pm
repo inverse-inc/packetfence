@@ -36,7 +36,6 @@ Lookup informations on a person
 
 sub lookup_person {
     my ($pid, $source_id, $context) = @_;
-    use Data::Dumper; get_logger->info(Dumper(\@_));
     my $logger = get_logger();
     unless (defined $source_id) {
         $logger->info("undefined source id provided");
