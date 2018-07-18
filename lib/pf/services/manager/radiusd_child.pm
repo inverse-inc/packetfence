@@ -329,20 +329,23 @@ EOT
         my $server1_address = $eduroam_authentication_source[0]{'server1_address'};
         my $server2_address = $eduroam_authentication_source[0]{'server2_address'};
         my $radius_secret = $eduroam_authentication_source[0]{'radius_secret'};
-
+        my $virtual_server = "packetfence";
+	if ($cluster_enabled) {
+            $virtual_server = "pf.cluster";
+        }
             $tags{'config'} .= <<"EOT";
-client eduroam_tlsr_server_1 {
+client eduroam_tlrs_server_1 {
         ipaddr = $server1_address
         secret = $radius_secret
         shortname = eduroam_tlrs1
-        virtual_server = eduroam
+        virtual_server = $virtual_server
 }
 
-client eduroam_tlsr_server_2 {
+client eduroam_tlrs_server_2 {
         ipaddr = $server2_address
         secret = $radius_secret
         shortname = eduroam_tlrs2
-        virtual_server = eduroam
+        virtual_server = $virtual_server
 }
 
 EOT

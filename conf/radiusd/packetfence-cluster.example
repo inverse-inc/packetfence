@@ -53,6 +53,11 @@ server pf.cluster {
                                 NAS-IP-Address := "%{Packet-Src-IP-Address}"
                         }
                 }
+                if ( "%{client:shortname}" =~ /eduroam_tlrs/ ) {
+                        update request {
+                                PacketFence-ShortName := "%{client:shortname}"
+                        }
+                }
         }
 
 
