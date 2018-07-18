@@ -118,11 +118,43 @@ HTTP JSON API
 
 PacketFence provides an HTTP JSON API which exposes most of its functionality. 
 
-The full API spec documentation for the latest stable release is available from: http://petstore.swagger.io/?url=https://raw.githubusercontent.com/inverse-inc/packetfence/stable/docs/api/spec/openapi.yaml 
+The full API spec documentation for :
+
+* the latest stable release is available from: https://packetfence.org/doc/api/
+* the latest devel release is available from: https://packetfence.org/doc/api-devel/
 
 The API is exposed on 127.0.0.1 (localhost) as well as the management interface of the server for remote calls.
+You should use 9999 TCP port and a secure connection (HTTPS) to ask it.
 
 Authentication can be done using either the webservices credentials or any credentials that are valid on the web admin interface.
+
+How to use API
+~~~~~~~~~~~~~~
+
+NOTE: You can use API spec documentation mentionned above to have ready to use curl commands with "Try it out" button.
+
+First, get an authentication token with webservices credentials or an admin account:
+
+ curl -X POST "https://PF_MANAGEMENT_IP:9999/api/v1/login" \
+ -H  "accept: application/json" \
+ -H  "Content-Type: application/json" \
+ -d "{\"password\":\"admin\",\"username\":\"admin\"}" \
+ --insecure |
+ python -m json.tool
+
+You will get following response :
+
+ {
+    "token": "MY_TOKEN"
+ }
+
+Then use this token to ask API (here get domains config) :
+
+ curl -X GET "https://PF_MANAGEMENT_IP:9999/api/v1/config/domains" \
+ -H  "accept: application/json" \
+ -H  "Authorization: MY_TOKEN" \
+ --insecure |
+ python -m json.tool
 
 Although the API should mostly stay the same, backward compatibility is not 100% guaranteed for the moment until the v1 API reaches full maturity.
 
