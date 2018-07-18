@@ -337,9 +337,7 @@ post-auth {
 		update request {
 			Realm = "eduroam"
 		}
-		if ( "%{client:shortname}" !~ /eduroam_tlrs/ ) {
-			rest
-		}
+		rest
 	}
 	if (updated || ok || noop) {
 		request-timing
