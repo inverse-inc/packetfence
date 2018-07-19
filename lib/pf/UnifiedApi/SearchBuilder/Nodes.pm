@@ -115,16 +115,28 @@ our @NODE_CATEGORY_ROLE_JOIN = (
     '=>{node.bypass_role_id=node_category_bypass_role.category_id}', 'node_category|node_category_bypass_role',
 );
 
-our @VIOLATION_JOIN = (
+our @VIOLATION_OPEN_JOIN = (
     {
         operator  => '=>',
         condition => {
             'node.mac' => { '=' => { -ident => '%2$s.mac' } },
             'node.tenant_id' => { '=' => { -ident => '%2$s.tenant_id' } },
-            'violation.status' => { '=' => "open" },
+            'violation_open.status' => { '=' => "open" },
         },
     },
-    'violation',
+    'violation|violation_open',
+);
+
+our @VIOLATION_CLOSED_JOIN = (
+    {
+        operator  => '=>',
+        condition => {
+            'node.mac' => { '=' => { -ident => '%2$s.mac' } },
+            'node.tenant_id' => { '=' => { -ident => '%2$s.tenant_id' } },
+            'violation_close.status' => { '=' => "closed" },
+        },
+    },
+    'violation|violation_close',
 );
 
 our @VIOLATION_GROUP_BY = qw(node.tenant_id node.mac);
@@ -160,20 +172,35 @@ our %ALLOWED_JOIN_FIELDS = (
     map_dal_fields_to_join_spec("pf::dal::radacct", \@RADACCT_JOIN, \%RADACCT_WHERE),
     map_dal_fields_to_join_spec("pf::dal::locationlog", \@LOCATION_LOG_JOIN, \%LOCATION_LOG_WHERE),
     'violation.open_count' => {
-        namespace => 'violation',
-        join_spec => \@VIOLATION_JOIN,
-        rewrite_query => \&non_searchable,
+        namespace => 'violation_open',
+        join_spec => \@VIOLATION_OPEN_JOIN,
+        rewrite_query => \&rewrite_violation_open_count,
         group_by => \@VIOLATION_GROUP_BY,
-        column_spec => \"count(violation.id) as `violation.open_count`",
+        column_spec => \"COUNT(violation_open.id) AS `violation.open_count`",
     },
     'violation.open_vid' => {
-        namespace => 'violation',
-        join_spec => \@VIOLATION_JOIN,
+        namespace => 'violation_open',
+        join_spec => \@VIOLATION_OPEN_JOIN,
         rewrite_query => \&rewrite_violation_open_vid,
         group_by => \@VIOLATION_GROUP_BY,
-        column_spec => \"group_concat(violation.vid) as `violation.open_vid`"
+        column_spec => \"GROUP_CONCAT(violation_open.vid) AS `violation.open_vid`"
+    },
+    'violation.close_count' => {
+        namespace => 'violation_close',
+        join_spec => \@VIOLATION_CLOSED_JOIN,
+        rewrite_query => \&rewrite_violation_close_count,
+        group_by => \@VIOLATION_GROUP_BY,
+        column_spec => \"COUNT(violation_close.id) AS `violation.close_count`",
+    },
+    'violation.close_vid' => {
+        namespace => 'violation_close',
+        join_spec => \@VIOLATION_CLOSED_JOIN,
+        rewrite_query => \&rewrite_violation_close_vid,
+        group_by => \@VIOLATION_GROUP_BY,
+        column_spec => \"GROUP_CONCAT(violation_close.vid) AS `violation.close_vid`"
     },
 );
+
 
 sub non_searchable {
     my ($self, $s, $q) = @_;
@@ -182,7 +209,25 @@ sub non_searchable {
 
 sub rewrite_violation_open_vid {
     my ($self, $s, $q) = @_;
-    $q->{field} = 'violation.vid';
+    $q->{field} = 'violation_open.vid';
+    return (200, $q);
+}
+
+sub rewrite_violation_open_count {
+    my ($self, $s, $q) = @_;
+    $q->{field} = 'COUNT(violation_open.id)';
+    return (200, $q);
+}
+
+sub rewrite_violation_close_vid {
+    my ($self, $s, $q) = @_;
+    $q->{field} = 'violation_close.vid';
+    return (200, $q);
+}
+
+sub rewrite_violation_close_count {
+    my ($self, $s, $q) = @_;
+    $q->{field} = 'COUNT(violation_close.id)';
     return (200, $q);
 }
 

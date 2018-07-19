@@ -254,8 +254,23 @@ export default {
         },
         {
           value: 'violation.open_vid',
-          text: this.$i18n.t('Violation'),
+          text: this.$i18n.t('Violation Open'),
           types: [conditionType.VIOLATION]
+        },
+        {
+          value: 'violation.open_count',
+          text: this.$i18n.t('Violation Open Count [Issue #3400]'),
+          types: [conditionType.INTEGER]
+        },
+        {
+          value: 'violation.close_vid',
+          text: this.$i18n.t('Violation Closed'),
+          types: [conditionType.VIOLATION]
+        },
+        {
+          value: 'violation.close_count',
+          text: this.$i18n.t('Violation Close Count [Issue #3400]'),
+          types: [conditionType.INTEGER]
         },
         {
           value: 'voip',
@@ -504,15 +519,38 @@ export default {
           label: this.$i18n.t('Violation Open'),
           sortable: true,
           visible: false,
+          'class': 'text-nowrap',
           formatter: (value, key, item) => {
-            return this.violations.filter(violation => violation.id === item['violation.open_vid']).map(violation => violation.desc)
+            if (!item['violation.open_vid']) return null
+            const uVids = [...new Set(item['violation.open_vid'].split(',').filter(item => item))]
+            return this.violations.filter(violation => uVids.includes(violation.id)).map(violation => violation.desc).join(', ')
           }
         },
         {
           key: 'violation.open_count',
-          label: this.$i18n.t('Violation Count'),
+          label: this.$i18n.t('Violation Open Count'),
           sortable: true,
-          visible: false
+          visible: false,
+          'class': 'text-nowrap'
+        },
+        {
+          key: 'violation.close_vid',
+          label: this.$i18n.t('Violation Closed'),
+          sortable: true,
+          visible: false,
+          'class': 'text-nowrap',
+          formatter: (value, key, item) => {
+            if (!item['violation.close_vid']) return null
+            const uVids = [...new Set(item['violation.close_vid'].split(',').filter(item => item))]
+            return this.violations.filter(violation => uVids.includes(violation.id)).map(violation => violation.desc).join(', ')
+          }
+        },
+        {
+          key: 'violation.close_count',
+          label: this.$i18n.t('Violation Closed Count'),
+          sortable: true,
+          visible: false,
+          'class': 'text-nowrap'
         }
       ],
       requestPage: 1,
