@@ -21,7 +21,7 @@ use pf::ConfigStore::Domain;
 
 has domains => ( is => 'rw', builder => '_build_domains');
 tie our %ConfigAuthenticationLdap, 'pfconfig::cached_hash', 'resource::authentication_sources_ldap';
-tie %ConfigAuthenticationRadius, 'pfconfig::cached_hash', 'resource::authentication_sources_radius';
+tie our %ConfigAuthenticationRadius, 'pfconfig::cached_hash', 'resource::authentication_sources_radius';
 
 ## Definition
 has_field 'id' =>
@@ -62,7 +62,7 @@ has_field 'radius_auth' =>
    options_method => \&options_radius,
    element_class => ['chzn-select'],
    element_attr => {'data-placeholder' => 'Click to select a RADIUS Server'},
-a   tags => { after_element => \&help,
+   tags => { after_element => \&help,
              help => 'The RADIUS Server(s) to proxy authentication' },
   );
 
