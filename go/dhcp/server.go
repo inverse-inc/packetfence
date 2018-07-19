@@ -5,6 +5,7 @@ import (
 	"net"
 
 	dhcp "github.com/krolaw/dhcp4"
+	"golang.org/x/net/ipv4"
 )
 
 type Answer struct {
@@ -16,7 +17,7 @@ type Answer struct {
 }
 
 type Handler interface {
-	ServeDHCP(ctx context.Context, req dhcp.Packet, msgType dhcp.MessageType) Answer
+	ServeDHCP(ctx context.Context, req dhcp.Packet, msgType dhcp.MessageType, dst net.IP) Answer
 }
 
 // ServeConn is the bare minimum connection functions required by Serve()
@@ -25,6 +26,7 @@ type Handler interface {
 type ServeConn interface {
 	ReadFrom(b []byte) (n int, addr net.Addr, err error)
 	WriteTo(b []byte, addr net.Addr) (n int, err error)
+	ReadFromRaw(b []byte) (n int, cm *ipv4.ControlMessage, addr net.Addr, err error)
 }
 
 // Serve takes a ServeConn (such as a net.PacketConn) that it uses for both
@@ -46,7 +48,7 @@ func Serve(conn ServeConn, handler Handler, jobs chan job, ctx context.Context) 
 
 	for {
 
-		n, addr, err := conn.ReadFrom(buffer)
+		n, cm, addr, err := conn.ReadFromRaw(buffer)
 
 		if err != nil {
 			return err
@@ -73,22 +75,10 @@ func Serve(conn ServeConn, handler Handler, jobs chan job, ctx context.Context) 
 		}
 		var dhcprequest dhcp.Packet
 		dhcprequest = append([]byte(nil), req...)
-		jobe := job{dhcprequest, reqType, handler, addr, ctx}
+		jobe := job{dhcprequest, reqType, handler, addr, cm.Dst, ctx}
 		go func() {
 			jobs <- jobe
 		}()
 
 	}
-}
-
-// ListenAndServe listens on the UDP network address addr and then calls
-// Serve with handler to handle requests on incoming packets.
-func ListenAndServe(handler Handler, jobs chan job, dhcphandler DHCPHandler, ctx context.Context) error {
-	l, err := net.ListenPacket("udp4", dhcphandler.ip.String()+":67")
-
-	if err != nil {
-		return err
-	}
-	defer l.Close()
-	return Serve(l, handler, jobs, ctx)
 }
