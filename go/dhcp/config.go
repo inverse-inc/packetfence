@@ -207,7 +207,8 @@ func (d *Interfaces) readConfig() {
 							DHCPScope.available = available
 
 							// Initialize hardware cache
-							hwcache := cache.New(time.Duration(seconds)*time.Second, 10*time.Second)
+							// Add 10 minutes to the expiration as a buffer so the IP addresses don't get reused too fast
+							hwcache := cache.New((time.Duration(seconds)*time.Second)+(600*time.Second), 10*time.Second)
 
 							hwcache.OnEvicted(func(nic string, pool interface{}) {
 								log.LoggerWContext(ctx).Info(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Added back in the pool " + DHCPScope.role + " on index " + strconv.Itoa(pool.(int)))
