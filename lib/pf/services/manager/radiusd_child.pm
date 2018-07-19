@@ -432,7 +432,9 @@ EOT
     if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
         my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
         my $server1_address = $eduroam_authentication_source[0]{'server1_address'};   # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
+        my $server1_port = $eduroam_authentication_source[0]{'server1_port'};   # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
         my $server2_address = $eduroam_authentication_source[0]{'server2_address'};   # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
+        my $server2_port = $eduroam_authentication_source[0]{'server2_port'};   # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
         my $radius_secret = $eduroam_authentication_source[0]{'radius_secret'};   # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
 
         $tags{'eduroam'} = <<"EOT";
@@ -449,13 +451,13 @@ home_server_pool eduroam_auth_pool {
 home_server eduroam_server1 {
     type = auth
     ipaddr = $server1_address
-    port = 1812
+    port = $server1_port
     secret = '$radius_secret'
 }
 home_server eduroam_server2 {
     type = auth
     ipaddr = $server2_address
-    port = 1812
+    port = $server2_port
     secret = '$radius_secret'
 }
 EOT

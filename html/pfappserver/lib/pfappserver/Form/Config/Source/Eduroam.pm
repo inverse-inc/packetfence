@@ -34,6 +34,15 @@ has_field 'server1_address' => (
     },
 );
 
+has_field 'server1_port' => (
+    type            => 'PosInteger',
+    label           => 'Eduroam server 1 port',
+    element_attr    => {
+        placeholder     => pf::Authentication::Source::EduroamSource->meta->get_attribute('server1_port')->default,
+    },
+    default         => pf::Authentication::Source::EduroamSource->meta->get_attribute('server1_port')->default,
+);
+
 has_field 'server2_address' => (
     type        => 'Text',
     label       => 'Server 2 address',
@@ -44,6 +53,15 @@ has_field 'server2_address' => (
         after_element   => \&help,
         help            => 'Eduroam server 2 address',
     },
+);
+
+has_field 'server2_port' => (
+    type            => 'PosInteger',
+    label           => 'Eduroam server 2 port',
+    element_attr    => {
+        placeholder     => pf::Authentication::Source::EduroamSource->meta->get_attribute('server2_port')->default,
+    },
+    default         => pf::Authentication::Source::EduroamSource->meta->get_attribute('server2_port')->default,
 );
 
 has_field 'radius_secret' => (
