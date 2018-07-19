@@ -76,9 +76,9 @@ do the node registration after saving
 =cut
 
 sub finalize_node_registration {
-    my ($node, $info) = @_;
+    my ($node, $info, $context) = @_;
 
-    do_person_create($node, $info);
+    do_person_create($node, $info, $context);
     # Closing any parking violations
     pf::violation::violation_force_close($node->mac, $PARKING_VID);
 
@@ -94,11 +94,11 @@ do the person create step of node registration
 =cut
 
 sub do_person_create {
-    my ($node, $info) = @_;
+    my ($node, $info, $context) = @_;
     my $pid = $node->pid;
     my ($status, $person) = pf::dal::person->find_or_create({"pid" => $pid});
     if ($status == $STATUS::CREATED ) {
-        pf::lookup::person::async_lookup_person($pid, $node->{'source'});
+        pf::lookup::person::async_lookup_person($pid, $node->{'source'}, $context);
     }
     if ($person) {
         $person->source($node->{source});

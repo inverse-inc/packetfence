@@ -25,7 +25,7 @@ Log to pfqueue.log
 
 sub doTask {
     my ($self, $args) = @_;
-    pf::lookup::person::lookup_person($args->{pid}, $args->{source_id});
+    pf::lookup::person::lookup_person($args->{pid}, $args->{source_id}, $args->{context});
 }
 
 =head1 AUTHOR
