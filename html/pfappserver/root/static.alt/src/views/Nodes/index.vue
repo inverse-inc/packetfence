@@ -11,10 +11,15 @@
                             <div class="bd-toc-link" v-t="'Nodes'"></div>
                             <b-nav-item to="/nodes/search" replace>{{ $t('Search') }}</b-nav-item>
                             <b-nav-item to="/nodes/create" replace>{{ $t('Create') }}</b-nav-item>
+
                             <hr/>
                             <div class="bd-toc-link" v-t="'Standard Searches'"></div>
-                            <b-nav-item to="/nodes/search/openviolations" replace>{{ $t('Open Violations') }}</b-nav-item>
-                            <b-nav-item to="/nodes/search/closedviolations" replace>{{ $t('Closed Violations') }}</b-nav-item>
+                            <b-nav-item @click.stop :to='{"path":"search", "query":{"query":JSON.stringify({"op":"and","values":[{"op":"or","values":[{"field":"violation.open_count","op":"greater_than_equals","value":"1"}]}]})}}' replace>{{ $t('Open Violations') }}</b-nav-item>
+                            <b-nav-item @click.stop :to='{"path":"search", "query":{"query":JSON.stringify({"op":"and","values":[{"op":"or","values":[{"field":"violation.close_count","op":"greater_than_equals","value":"1"}]}]})}}' replace>{{ $t('Closed Violations') }}</b-nav-item>
+
+                            <hr/>
+                            <b-nav-item @click.stop :to='{"path":"search", "query":{"query":JSON.stringify({"op":"and","values":[{"op":"or","values":[{"field":"online","op":"not_equals","value":"on"}]}]})}}' replace>{{ $t('Offline Nodes') }}</b-nav-item>
+                            <b-nav-item @click.stop :to='{"path":"search", "query":{"query":JSON.stringify({"op":"and","values":[{"op":"or","values":[{"field":"online","op":"equals","value":"on"}]}]})}}' replace>{{ $t('Online Nodes') }}</b-nav-item>
 
                             <!-- Standard Searches > Switch Groups -->
                             <div class="bd-toc-link" v-b-toggle="'accordionSwitchGroups'">
@@ -135,10 +140,13 @@ export default {
   background-color: rgba(0, 0, 0, 0.125);
 }
 .bd-sidenav :not(.collapsed) > svg {
-    transition: transform 300ms ease;
+  transition: transform 300ms ease;
 }
 .bd-sidenav .collapsed > svg {
-    transform: rotate( -180deg );
-    transition: transform 300ms ease;
+  transform: rotate( -180deg );
+  transition: transform 300ms ease;
+}
+.bd-sidenav .bd-toc-link[role=button] {
+  cursor: pointer;
 }
 </style>
