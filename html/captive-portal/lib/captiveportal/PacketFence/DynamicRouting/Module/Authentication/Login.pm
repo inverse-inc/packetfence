@@ -231,7 +231,7 @@ sub authenticate {
         }
     }
 
-    pf::lookup::person::async_lookup_person($username,$self->source->id);
+    pf::lookup::person::async_lookup_person($username,$self->source->id,$pf::constants::realm::PORTAL_CONTEXT);
     $self->update_person_from_fields();
     $self->done();
 }

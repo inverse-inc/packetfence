@@ -330,7 +330,7 @@ sub authorize {
 
 CLEANUP:
     if ($do_auto_reg) {
-        pf::registration::finalize_node_registration($node_obj);
+        pf::registration::finalize_node_registration($node_obj, $pf::constants::realm::RADIUS_CONTEXT);
     }
     $status = $node_obj->save;
     if (is_error($status)) {
