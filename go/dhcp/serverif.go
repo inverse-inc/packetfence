@@ -21,6 +21,11 @@ func (s *serveIfConn) ReadFrom(b []byte) (n int, addr net.Addr, err error) {
 	return
 }
 
+func (s *serveIfConn) ReadFromRaw(b []byte) (n int, cm *ipv4.ControlMessage, addr net.Addr, err error) {
+	n, cm, addr, err = s.conn.ReadFrom(b)
+	return
+}
+
 func (s *serveIfConn) WriteTo(b []byte, addr net.Addr) (n int, err error) {
 
 	// ipv4 docs state that Src is "specify only", however testing by tfheen

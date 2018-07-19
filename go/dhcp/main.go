@@ -202,7 +202,7 @@ func (h *Interface) runUnicast(jobs chan job, ip net.IP, ctx context.Context) {
 	ListenAndServeIfUnicast(h.Name, h, jobs, ip, ctx)
 }
 
-func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.MessageType) (answer Answer) {
+func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.MessageType, dst net.IP) (answer Answer) {
 
 	var handler DHCPHandler
 	var NetScope net.IPNet
@@ -537,4 +537,5 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 		return answer
 	}
 	return answer
+
 }
