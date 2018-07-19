@@ -16,6 +16,12 @@ ALTER TABLE `locationlog_archive`
     ADD `connection_sub_type` varchar(50) default NULL AFTER connection_type;
 
 --
+-- Table structure for table 'pf_version'
+--
+
+CREATE TABLE pf_version ( `id` INT NOT NULL PRIMARY KEY, `version` VARCHAR(11) NOT NULL UNIQUE KEY);
+
+--
 -- Setting the major/minor/sub-minor version of the DB
 --
 
