@@ -107,6 +107,10 @@ sub cleanupAfterRead {
     if ($item->{type} eq 'SMS') {
         $self->expand_list($item, 'sms_carriers');
     }
+    if ($item->{type} eq 'Eduroam') {
+        $self->expand_list($item, 'local_realm');
+        $self->expand_list($item, 'reject_realm');
+    }
     $self->expand_list($item, qw(realms));
 }
 
