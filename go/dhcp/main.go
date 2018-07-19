@@ -353,9 +353,9 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 					log.LoggerWContext(ctx).Info("Temporarily declaring " + ipaddr.String() + " as unusable")
 					handler.available.Remove(uint32(free))
 
-					// Put it back into the available IPs in 1 minute
+					// Put it back into the available IPs in 10 minutes
 					go func(ctx context.Context, free int, ipaddr net.IP) {
-						time.Sleep(1 * time.Minute)
+						time.Sleep(10 * time.Minute)
 						log.LoggerWContext(ctx).Info("Releasing previously pingable IP " + ipaddr.String() + " back into the pool")
 						handler.available.Add(uint32(free))
 					}(ctx, free, ipaddr)
