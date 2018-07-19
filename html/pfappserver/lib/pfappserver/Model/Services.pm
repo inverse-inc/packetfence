@@ -136,7 +136,7 @@ sub server_status {
     my ($self, $cluster_id) = @_;
     my $server_status;
     eval {
-        ($server_status) = pf::cluster::call_server($cluster_id, 'services_status', ['pf']);
+        ($server_status) = pf::cluster::call_server($cluster_id, 'services_status', [keys(%pf::services::ALL_MANAGERS)]);
     };
     unless($@) {
         my %services_ref = map { $_ => $server_status->{$_} ne '0' } keys %$server_status;
