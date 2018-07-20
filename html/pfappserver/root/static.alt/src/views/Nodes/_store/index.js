@@ -96,6 +96,9 @@ const actions = {
       if (node.status === null) {
         node.status = 'unreg'
       }
+      if (/^[12][0-9]{3}-[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9]$/.test(node.unregdate)) {
+        [node.unreg_date, node.unreg_time] = node.unregdate.split(' ', 2)
+      }
       commit('NODE_REPLACED', node)
 
       // Fetch ip4log history
