@@ -118,22 +118,22 @@ HTTP JSON API
 
 PacketFence provides an HTTP JSON API which exposes most of its functionality. 
 
-The full API spec documentation for :
+The full API spec documentation for:
 
 * the latest stable release is available from: https://packetfence.org/doc/api/
 * the latest devel release is available from: https://packetfence.org/doc/api-devel/
 
 The API is exposed on 127.0.0.1 (localhost) as well as the management interface of the server for remote calls.
-You should use 9999 TCP port and a secure connection (HTTPS) to ask it.
+Users access the API on TCP port 9999 over a secure connection (HTTPS).
 
 Authentication can be done using either the webservices credentials or any credentials that are valid on the web admin interface.
 
-How to use API
+How to use the API
 ~~~~~~~~~~~~~~
 
-NOTE: You can use API spec documentation mentionned above to have ready to use curl commands with "Try it out" button.
+NOTE: The API spec documentation mentionned above provides ready-to-use curl commands through the "Try it out" button.
 
-First, get an authentication token with webservices credentials or an admin account:
+First, get an authentication token with the webservices credentials or an admin account:
 
  curl -X POST "https://PF_MANAGEMENT_IP:9999/api/v1/login" \
  -H  "accept: application/json" \
@@ -148,7 +148,7 @@ You will get following response :
     "token": "MY_TOKEN"
  }
 
-Then use this token to ask API (here get domains config) :
+Then use this token to query the API. The following example fetches the domains configuration:
 
  curl -X GET "https://PF_MANAGEMENT_IP:9999/api/v1/config/domains" \
  -H  "accept: application/json" \
