@@ -16,8 +16,6 @@
                             <div class="bd-toc-link" v-t="'Standard Searches'"></div>
                             <b-nav-item @click.stop :to='{"path":"search", "query":{"query":JSON.stringify({"op":"and","values":[{"op":"or","values":[{"field":"violation.open_count","op":"greater_than_equals","value":"1"}]}]})}}' replace>{{ $t('Open Violations') }}</b-nav-item>
                             <b-nav-item @click.stop :to='{"path":"search", "query":{"query":JSON.stringify({"op":"and","values":[{"op":"or","values":[{"field":"violation.close_count","op":"greater_than_equals","value":"1"}]}]})}}' replace>{{ $t('Closed Violations') }}</b-nav-item>
-
-                            <hr/>
                             <b-nav-item @click.stop :to='{"path":"search", "query":{"query":JSON.stringify({"op":"and","values":[{"op":"or","values":[{"field":"online","op":"not_equals","value":"on"}]}]})}}' replace>{{ $t('Offline Nodes') }}</b-nav-item>
                             <b-nav-item @click.stop :to='{"path":"search", "query":{"query":JSON.stringify({"op":"and","values":[{"op":"or","values":[{"field":"online","op":"equals","value":"on"}]}]})}}' replace>{{ $t('Online Nodes') }}</b-nav-item>
 
@@ -89,6 +87,7 @@
                               </div>
                             </b-collapse>
                           </b-nav>
+                        <hr/>
                         <pf-saved-search :storeName="'$_' + this.$options.name.toLowerCase()" :routeName="this.$options.name.toLowerCase()"/>
                     </div>
                 </b-collapse>
