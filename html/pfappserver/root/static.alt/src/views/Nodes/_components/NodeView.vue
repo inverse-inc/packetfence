@@ -434,21 +434,21 @@ export default {
     applyReevaluateAccess () {
       this.$store.dispatch(`${this.$options.storeName}/reevaluateAccessNode`, this.mac).then(response => {
         this.$store.dispatch('notification/info', {message: this.$i18n.t('Node access reevaluation initialized')})
-      }).catch(() => {
+      }).catch((response) => {
         this.$store.dispatch('notification/danger', {message: this.$i18n.t('Node access reevaluation failed')})
       })
     },
     applyRefreshFingerbank () {
       this.$store.dispatch(`${this.$options.storeName}/refreshFingerbankNode`, this.mac).then(response => {
         this.$store.dispatch('notification/info', {message: this.$i18n.t('Node device profiling initialized')})
-      }).catch(() => {
+      }).catch((response) => {
         this.$store.dispatch('notification/danger', {message: this.$i18n.t('Node device profiling failed')})
       })
     },
     applyRestartSwitchport () {
       this.$store.dispatch(`${this.$options.storeName}/restartSwitchportNode`, this.mac).then(response => {
         this.$store.dispatch('notification/info', {message: this.$i18n.t('Node switchport restarted')})
-      }).catch(() => {
+      }).catch((response) => {
         this.$store.dispatch('notification/danger', {message: this.$i18n.t('Node switchport restart failed')})
       })
     },

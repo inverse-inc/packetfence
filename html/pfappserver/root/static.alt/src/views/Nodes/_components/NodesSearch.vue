@@ -9,7 +9,7 @@
     <div class="card-body">
       <b-row align-h="between" align-v="center">
         <b-col cols="auto" class="mr-auto">
-          <b-dropdown size="sm" variant="link" :disabled="isLoading || selectValues.length === 0" no-caret>
+          <b-dropdown size="sm" variant="link" :disabled="isLoading || selectValues.length === 0" no-caret no-flip>
             <template slot="button-content">
               <icon name="cogs" v-b-tooltip.hover.right :title="$t('Actions')"></icon>
             </template>
@@ -61,7 +61,7 @@
               <span>{{violation.desc}}</span>
             </b-dropdown-item>
           </b-dropdown>
-          <b-dropdown size="sm" variant="link" boundary="viewport" :disabled="isLoading" no-caret>
+          <b-dropdown size="sm" variant="link" :disabled="isLoading" no-caret no-flip>
             <template slot="button-content">
               <icon name="columns" v-b-tooltip.hover.right.d1000 :title="$t('Visible Columns')"></icon>
             </template>
