@@ -166,6 +166,9 @@ sub extractSsid {
         # Colubris-AVPair = ssid=Inv_Controller
         # Colubris-AVPair = group=Default Group
         # Colubris-AVPair = phytype=IEEE802dot11g
+        if(ref($radius_request->{'Colubris-AVPair'}) ne "ARRAY") {
+            $radius_request->{'Colubris-AVPair'} = [$radius_request->{'Colubris-AVPair'}];
+        }
         foreach (@$pairs) {
             if (/^ssid=(.*)$/) { return $1; }
         }
