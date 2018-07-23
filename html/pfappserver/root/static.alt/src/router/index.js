@@ -4,6 +4,7 @@ import store from '@/store'
 
 import LoginRoute from '@/views/Login/_router'
 import StatusRoute from '@/views/Status/_router'
+import ReportsRoute from '@/views/Reports/_router'
 import NodesRoute from '@/views/Nodes/_router'
 import UsersRoute from '@/views/Users/_router'
 import AuditingRoute from '@/views/Auditing/_router'
@@ -14,6 +15,7 @@ let router = new Router({
   routes: [
     LoginRoute,
     StatusRoute,
+    ReportsRoute,
     NodesRoute,
     UsersRoute,
     AuditingRoute
