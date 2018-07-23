@@ -63,7 +63,7 @@
           </b-dropdown>
           <b-dropdown size="sm" variant="link" boundary="viewport" :disabled="isLoading" no-caret>
             <template slot="button-content">
-              <icon name="columns" v-b-tooltip.hover.right :title="$t('Visible Columns')"></icon>
+              <icon name="columns" v-b-tooltip.hover.right.d1000 :title="$t('Visible Columns')"></icon>
             </template>
             <b-dropdown-item v-for="column in columns" :key="column.key" @click="toggleColumn(column)" :disabled="column.locked">
               <icon class="position-absolute mt-1" name="thumbtack" v-show="column.visible" v-if="column.locked"></icon>
