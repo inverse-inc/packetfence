@@ -63,15 +63,18 @@ export default {
     pfMixinSelectable,
     pfMixinSearchable
   ],
-  pfMixinSearchableOptions: {
-    searchApiEndpoint: 'users',
-    defaultSortKeys: ['pid'],
-    defaultSearchCondition: { op: 'and', values: [{ op: 'or', values: [{ field: 'pid', op: 'equals', value: null }] }] },
-    defaultRoute: { name: 'users' }
-  },
   components: {
   },
   props: {
+    pfMixinSearchableOptions: {
+      type: Object,
+      default: {
+        searchApiEndpoint: 'users',
+        defaultSortKeys: ['pid'],
+        defaultSearchCondition: { op: 'and', values: [{ op: 'or', values: [{ field: 'pid', op: 'equals', value: null }] }] },
+        defaultRoute: { name: 'users' }
+      }
+    },
     tableValues: {
       type: Array,
       default: []
@@ -498,16 +501,13 @@ export default {
       const selectValues = this.selectValues
       this.tableValues.forEach(function (item, index, items) {
         if (selectValues.includes(item)) {
-          _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_VARIANT`, {index: index, variant: 'info'})
+          _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, variant: 'info'})
         } else {
-          _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_VARIANT`, {index: index, variant: ''})
-          _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_MESSAGE`, {index: index, message: ''})
+          _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, variant: ''})
+          _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: ''})
         }
       })
     }
-  },
-  created () {
-    this._storeName = '$_' + this.$options.name.toLowerCase()
   }
 }
 </script>

@@ -4,7 +4,6 @@ import UsersStore from '../_store'
 import UsersSearch from '../_components/UsersSearch'
 import UsersCreate from '../_components/UsersCreate'
 import UserView from '../_components/UserView'
-import SearchableStore from '@/store/base/searchable'
 
 const route = {
   path: '/users',
@@ -16,14 +15,6 @@ const route = {
     if (!store.state.$_users) {
       // Register store module only once
       store.registerModule('$_users', UsersStore)
-      if (!store.state.$_users_searchable) {
-        // Register store module only once
-        const searchableStore = new SearchableStore(
-          UsersSearch.pfMixinSearchableOptions.searchApiEndpoint,
-          UsersSearch.pfMixinSearchableOptions.defaultSortKeys
-        )
-        store.registerModule('$_users_searchable', searchableStore.module())
-      }
     }
     next()
   },

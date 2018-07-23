@@ -126,16 +126,19 @@ export default {
     pfMixinSelectable,
     pfMixinSearchable
   ],
-  pfMixinSearchableOptions: {
-    searchApiEndpoint: 'nodes',
-    defaultSortKeys: ['mac'],
-    defaultSearchCondition: { op: 'and', values: [{ op: 'or', values: [{ field: 'mac', op: 'equals', value: null }] }] },
-    defaultRoute: { name: 'nodes' }
-  },
   components: {
     'pf-fingerbank-score': pfFingerbankScore
   },
   props: {
+    pfMixinSearchableOptions: {
+      type: Object,
+      default: {
+        searchApiEndpoint: 'nodes',
+        defaultSortKeys: ['mac'],
+        defaultSearchCondition: { op: 'and', values: [{ op: 'or', values: [{ field: 'mac', op: 'equals', value: null }] }] },
+        defaultRoute: { name: 'nodes' }
+      }
+    },
     tableValues: {
       type: Array,
       default: []
@@ -538,13 +541,13 @@ export default {
       if (macs.length > 0) {
         this.$store.dispatch(`${this.$options.storeName}/clearViolationBulkNodes`, {items: macs}).then(response => {
           response.items.forEach(function (item, index, items) {
-            _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_VARIANT`, {index: index, status: item.status})
-            _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_MESSAGE`, {index: index, message: item.message})
+            _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, status: item.status})
+            _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: item.message})
           })
         }).catch(() => {
           macs.forEach(function (mac, i) {
             let index = _this.tableValues.findIndex(node => node.mac === mac)
-            _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_VARIANT`, {index: index, variant: 'danger'})
+            _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, variant: 'danger'})
           })
         })
       }
@@ -555,13 +558,13 @@ export default {
       if (macs.length > 0) {
         this.$store.dispatch(`${this.$options.storeName}/registerBulkNodes`, {items: macs}).then(response => {
           response.items.forEach(function (item, index, items) {
-            _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_VARIANT`, {index: index, status: item.status})
-            _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_MESSAGE`, {index: index, message: item.message})
+            _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, status: item.status})
+            _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: item.message})
           })
         }).catch(() => {
           macs.forEach(function (mac, i) {
             let index = _this.tableValues.findIndex(node => node.mac === mac)
-            _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_VARIANT`, {index: index, variant: 'danger'})
+            _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, variant: 'danger'})
           })
         })
       }
@@ -572,13 +575,13 @@ export default {
       if (macs.length > 0) {
         this.$store.dispatch(`${this.$options.storeName}/deregisterBulkNodes`, {items: macs}).then(response => {
           response.items.forEach(function (item, index, items) {
-            _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_VARIANT`, {index: index, status: item.status})
-            _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_MESSAGE`, {index: index, message: item.message})
+            _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, status: item.status})
+            _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: item.message})
           })
         }).catch(() => {
           macs.forEach(function (mac, i) {
             let index = _this.tableValues.findIndex(node => node.mac === mac)
-            _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_VARIANT`, {index: index, variant: 'danger'})
+            _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, variant: 'danger'})
           })
         })
       }
@@ -589,13 +592,13 @@ export default {
       if (macs.length > 0) {
         this.$store.dispatch(`${this.$options.storeName}/reevaluateAccessBulkNodes`, {items: macs}).then(response => {
           response.items.forEach(function (item, index, items) {
-            _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_VARIANT`, {index: index, status: item.status})
-            _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_MESSAGE`, {index: index, message: item.message})
+            _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, status: item.status})
+            _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: item.message})
           })
         }).catch(() => {
           macs.forEach(function (mac, i) {
             let index = _this.tableValues.findIndex(node => node.mac === mac)
-            _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_VARIANT`, {index: index, variant: 'danger'})
+            _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, variant: 'danger'})
           })
         })
       }
@@ -606,13 +609,13 @@ export default {
       if (macs.length > 0) {
         this.$store.dispatch(`${this.$options.storeName}/restartSwitchportBulkNodes`, {items: macs}).then(response => {
           response.items.forEach(function (item, index, items) {
-            _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_VARIANT`, {index: index, status: item.status})
-            _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_MESSAGE`, {index: index, message: item.message})
+            _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, status: item.status})
+            _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: item.message})
           })
         }).catch(() => {
           macs.forEach(function (mac, i) {
             let index = _this.tableValues.findIndex(node => node.mac === mac)
-            _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_VARIANT`, {index: index, variant: 'danger'})
+            _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, variant: 'danger'})
           })
         })
       }
@@ -623,13 +626,13 @@ export default {
       if (macs.length > 0) {
         this.$store.dispatch(`${this.$options.storeName}/refreshFingerbankBulkNodes`, {items: macs}).then(response => {
           response.items.forEach(function (item, index, items) {
-            _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_VARIANT`, {index: index, status: item.status})
-            _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_MESSAGE`, {index: index, message: item.message})
+            _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, status: item.status})
+            _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: item.message})
           })
         }).catch(() => {
           macs.forEach(function (mac, i) {
             let index = _this.tableValues.findIndex(node => node.mac === mac)
-            _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_VARIANT`, {index: index, variant: 'danger'})
+            _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, variant: 'danger'})
           })
         })
       }
@@ -641,10 +644,10 @@ export default {
         macs.forEach(function (mac, i) {
           let index = _this.tableValues.findIndex(node => node.mac === mac)
           _this.$store.dispatch(`${_this.$options.storeName}/roleNode`, {mac: mac, category_id: role.category_id}).then(response => {
-            _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_VARIANT`, {index: index, status: response.status})
-            _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_MESSAGE`, {index: index, message: response.message})
+            _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, status: response.status})
+            _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: response.message})
           }).catch(() => {
-            _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_VARIANT`, {index: index, variant: 'danger'})
+            _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, variant: 'danger'})
           })
         })
       }
@@ -656,10 +659,10 @@ export default {
         macs.forEach(function (mac, i) {
           let index = _this.tableValues.findIndex(node => node.mac === mac)
           _this.$store.dispatch(`${_this.$options.storeName}/bypassRoleNode`, {mac: mac, bypass_role_id: role.category_id}).then(response => {
-            _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_VARIANT`, {index: index, status: response.status})
-            _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_MESSAGE`, {index: index, message: response.message})
+            _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, status: response.status})
+            _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: response.message})
           }).catch(() => {
-            _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_VARIANT`, {index: index, variant: 'danger'})
+            _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, variant: 'danger'})
           })
         })
       }
@@ -670,13 +673,13 @@ export default {
       if (macs.length > 0) {
         this.$store.dispatch(`${this.$options.storeName}/applyViolationBulkNodes`, {items: macs, vid: violation.id}).then(response => {
           response.items.forEach(function (item, index, items) {
-            _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_VARIANT`, {index: index, status: item.status})
-            _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_MESSAGE`, {index: index, message: item.message})
+            _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, status: item.status})
+            _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: item.message})
           })
         }).catch(() => {
           macs.forEach(function (mac, i) {
             let index = _this.tableValues.findIndex(node => node.mac === mac)
-            _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_VARIANT`, {index: index, variant: 'danger'})
+            _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, variant: 'danger'})
           })
         })
       }
@@ -688,10 +691,10 @@ export default {
       const selectValues = this.selectValues
       this.tableValues.forEach(function (item, index, items) {
         if (selectValues.includes(item)) {
-          _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_VARIANT`, {index: index, variant: 'info'})
+          _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, variant: 'info'})
         } else {
-          _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_VARIANT`, {index: index, variant: ''})
-          _this.$store.commit(`${_this.$options.storeName}_searchable/ROW_MESSAGE`, {index: index, message: ''})
+          _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, variant: ''})
+          _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: ''})
         }
       })
     }
