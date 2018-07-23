@@ -25,12 +25,12 @@ export default {
   },
   computed: {
     savedSearches () {
-      return this.$store.state['$_' + this.storeName].savedSearches
+      return this.$store.state[this.storeName].savedSearches
     }
   },
   methods: {
     deleteSavedSearch (search) {
-      this.$store.dispatch(`$_${this.storeName}/deleteSavedSearch`, search)
+      this.$store.dispatch(`${this.storeName}/deleteSavedSearch`, search)
     },
     routeSavedSearch (search) {
       return { name: this.routeName, query: { query: JSON.stringify(search.query) } }

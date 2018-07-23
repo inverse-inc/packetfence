@@ -15,7 +15,7 @@
                             <b-nav-item to="search/openviolations">Open Violations</b-nav-item>
                             <b-nav-item to="search/closedviolations">Closed Violations</b-nav-item>
                         </b-nav>
-                        <pf-saved-search :storeName="this.$options.name.toLowerCase()" :routeName="this.$options.name.toLowerCase()"/>
+                        <pf-saved-search :storeName="'$_' + this.$options.name.toLowerCase()" :routeName="this.$options.name.toLowerCase()"/>
                       </div>
                 </b-collapse>
             </b-col>
