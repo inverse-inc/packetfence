@@ -70,10 +70,11 @@ export default {
       return null
     },
     validate () {
+      const _this = this
       if (this.validation) {
         this.$debouncer({
           handler: () => {
-            this.validation.$touch()
+            _this.validation.$touch()
           },
           time: this.debounce
         })
