@@ -200,7 +200,7 @@ func (h *Interface) runUnicast(jobs chan job, ip net.IP, ctx context.Context) {
 	ListenAndServeIfUnicast(h.Name, h, jobs, ip, ctx)
 }
 
-func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.MessageType, dst net.IP) (answer Answer) {
+func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.MessageType) (answer Answer) {
 
 	var handler DHCPHandler
 	var NetScope net.IPNet
@@ -520,8 +520,11 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 			}
 
 			if x, found := handler.hwcache.Get(p.CHAddr().String()); found {
-				handler.available.Add(uint32(x.(int)))
-				handler.hwcache.Delete(p.CHAddr().String())
+				go func(ctx context.Context, x int, reqIP net.IP) {
+					handler.hwcache.Delete(p.CHAddr().String())
+					time.Sleep(10 * time.Minute)
+					handler.available.Add(uint32(x))
+				}(ctx, x.(int), reqIP)
 			}
 
 			log.LoggerWContext(ctx).Info(prettyType + " of " + reqIP.String() + " from " + clientMac)
