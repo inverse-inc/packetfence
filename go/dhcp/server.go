@@ -17,7 +17,7 @@ type Answer struct {
 }
 
 type Handler interface {
-	ServeDHCP(ctx context.Context, req dhcp.Packet, msgType dhcp.MessageType, dst net.IP) Answer
+	ServeDHCP(ctx context.Context, req dhcp.Packet, msgType dhcp.MessageType) Answer
 }
 
 // ServeConn is the bare minimum connection functions required by Serve()
@@ -49,7 +49,6 @@ func Serve(conn ServeConn, handler Handler, jobs chan job, ctx context.Context) 
 	for {
 
 		n, cm, addr, err := conn.ReadFromRaw(buffer)
-
 		if err != nil {
 			return err
 		}
