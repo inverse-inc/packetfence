@@ -4,11 +4,10 @@
       <b-form inline @submit.prevent="onSubmit" @reset.prevent="onReset">
         <pf-search-boolean :model="condition" :fields="fields" :store="store" :advancedMode="advancedMode"/>
         <br/>
-        <b-container fluid class="mt-3 px-0 text-right">
-          <b-button type="reset" variant="outline-secondary">{{ $t('Clear') }}</b-button>
+        <b-container fluid class="mt-3 px-0">
           <b-button-group>
-            <b-button type="submit" variant="outline-primary">{{ $t('Search') }}</b-button>
-            <b-dropdown variant="outline-primary" right>
+            <b-button type="submit" variant="primary">{{ $t('Search') }}</b-button>
+            <b-dropdown variant="primary" right>
               <b-dropdown-item @click="showSaveSearchModal=true">
                 <icon class="position-absolute mt-1" name="save"></icon>
                 <span class="ml-4">{{ $t('Save Search') }}</span>
@@ -24,6 +23,7 @@
               </b-dropdown-item>
             </b-dropdown>
           </b-button-group>
+          <b-button type="reset" variant="secondary">{{ $t('Clear') }}</b-button>
         </b-container>
       </b-form>
       <b-modal v-model="showExportJsonModal" size="lg" centered id="exportJsonModal" :title="$t('Export to JSON')">
@@ -62,7 +62,7 @@
           <div class="input-group-text"><icon name="search"></icon></div>
         </div>
         <b-form-input v-model="quickValue" type="text" :placeholder="quickPlaceholder"></b-form-input>
-        <b-button class="ml-1" type="submit" variant="outline-primary">{{ $t('Search') }}</b-button>
+        <b-button class="ml-1" type="submit" variant="primary">{{ $t('Search') }}</b-button>
       </div>
     </b-form>
   </div>

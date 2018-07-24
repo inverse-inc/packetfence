@@ -3,7 +3,9 @@
         <b-col md="8" lg="6" xl="4">
             <b-form v-on:submit.prevent="login">
                 <b-card no-body>
-                    <b-card-header v-t="'Login to PacketFence Administration'"></b-card-header>
+                    <b-card-header>
+                      <h4 class="mb-0" v-t="'Login to PacketFence Administration'"></h4>
+                    </b-card-header>
                     <b-card-body>
                         <b-alert :variant="message.level" :show="message.text">
                             {{ $t(message.text) }}
@@ -16,11 +18,7 @@
                         </b-form-group>
                     </b-card-body>
                     <b-card-footer>
-                        <b-row align-h="end">
-                            <b-col cols="9">
-                                <b-button type="submit" variant="outline-primary" :disabled="!validForm">{{ $t('Login') }}</b-button>
-                            </b-col>
-                       </b-row>
+                        <b-button type="submit" variant="primary" :disabled="!validForm">{{ $t('Login') }}</b-button>
                     </b-card-footer>
                 </b-card>
             </b-form>

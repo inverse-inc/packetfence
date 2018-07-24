@@ -227,15 +227,13 @@
         </b-tab>
 
       </b-tabs>
-      <b-card-footer align="right" @mouseenter="$v.nodeContent.$touch()">
-        <div class="float-left">
-          <b-button v-if="ifTab(['Edit', 'Location'])" variant="outline-warning" class="mr-1" @click="applyReevaluateAccess" :disabled="!canReevaluateAccess(node)">{{ $t('Reevaulate Access') }}</b-button>
-          <b-button v-if="ifTab(['Edit', 'Fingerbank'])" variant="outline-warning" class="mr-1" @click="applyRefreshFingerbank">{{ $t('Refresh Fingerbank') }}</b-button>
-          <b-button v-if="ifTab(['Edit', 'Location'])" variant="outline-danger" class="mr-1" @click="applyRestartSwitchport" :disabled="!canRestartSwitchport(node)">{{ $t('Restart Switch Port') }}</b-button>
-        </div>
-        <delete-button v-if="ifTab(['Edit'])" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Node?')" @on-delete="deleteNode()">{{ $t('Delete') }}</delete-button>
-        <b-button v-if="ifTab(['Edit'])" variant="outline-primary" class="mr-1" type="submit" :disabled="invalidForm"><icon name="circle-notch" spin v-show="isLoading"></icon> {{ $t('Save') }}</b-button>
-        <b-button variant="outline-secondary" type="cancel" @click="close">{{ $t('Close') }}</b-button>
+      <b-card-footer @mouseenter="$v.nodeContent.$touch()">
+        <b-button v-if="ifTab(['Edit'])" variant="primary" type="submit" :disabled="invalidForm"><icon name="circle-notch" spin v-show="isLoading"></icon> {{ $t('Save') }}</b-button>
+        <delete-button v-if="ifTab(['Edit'])" variant="danger" class="mr-3" :disabled="isLoading" :confirm="$t('Delete Node?')" @on-delete="deleteNode()">{{ $t('Delete') }}</delete-button>
+        <!-- <b-button variant="outline-secondary" type="cancel" @click="close">{{ $t('Close') }}</b-button> -->
+        <b-button v-if="ifTab(['Edit', 'Location'])" variant="outline-secondary" size="sm" @click="applyReevaluateAccess" :disabled="!canReevaluateAccess(node)">{{ $t('Reevaulate Access') }}</b-button>
+        <b-button v-if="ifTab(['Edit', 'Fingerbank'])" variant="outline-secondary" size="sm" @click="applyRefreshFingerbank">{{ $t('Refresh Fingerbank') }}</b-button>
+        <b-button v-if="ifTab(['Edit', 'Location'])" variant="outline-secondary" size="sm" @click="applyRestartSwitchport" :disabled="!canRestartSwitchport(node)">{{ $t('Restart Switch Port') }}</b-button>
       </b-card-footer>
     </b-card>
   </b-form>
