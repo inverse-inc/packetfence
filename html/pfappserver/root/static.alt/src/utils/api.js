@@ -28,6 +28,7 @@ apiCall.interceptors.response.use((response) => {
   if (response.data.message) {
     store.dispatch('notification/info', response.data.message)
   }
+  store.commit('session/API_OK')
   return response
 }, (error) => {
   let icon

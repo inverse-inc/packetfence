@@ -151,8 +151,14 @@ const mutations = {
   TENANTS_UPDATED: (state, data) => {
     state.tenants = data.items
   },
+  API_OK: (state) => {
+    state.api = true
+  },
   API_ERROR: (state) => {
     state.api = false
+  },
+  CHARTS_OK: (state) => {
+    state.charts = true
   },
   CHARTS_ERROR: (state) => {
     state.charts = false
