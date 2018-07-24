@@ -118,7 +118,7 @@ HTTP JSON API
 
 PacketFence provides an HTTP JSON API which exposes most of its functionality. 
 
-The full API spec documentation for:
+The full API specification for:
 
 * the latest stable release is available from: https://packetfence.org/doc/api/
 * the latest devel release is available from: https://packetfence.org/doc/api-devel/
@@ -129,9 +129,9 @@ Users access the API on TCP port 9999 over a secure connection (HTTPS).
 Authentication can be done using either the webservices credentials or any credentials that are valid on the web admin interface.
 
 How to use the API
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
 
-NOTE: The API spec documentation mentionned above provides ready-to-use curl commands through the "Try it out" button.
+NOTE: The API specification mentionned above provides ready-to-use curl commands through the "Try it out" button.
 
 First, get an authentication token with the webservices credentials or an admin account:
 
