@@ -3,5 +3,6 @@ $font-size-base:         0.9rem; // Assumes the browser default, typically `16px
 $card-cap-bg:            #ffffff; // Card -- header background color
 $headings-font-weight:   200;
 $body-color:             #495057; // $gray-700
+$input-btn-focus-width:  0;
 
 @import "../../node_modules/bootstrap/scss/variables";

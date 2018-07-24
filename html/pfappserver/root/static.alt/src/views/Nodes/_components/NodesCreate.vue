@@ -10,8 +10,10 @@
           <b-form-row align-v="center">
             <b-col sm="8">
               <pf-form-input v-model="single.mac" label="MAC"
-                :validation="$v.single.mac" :invalid-feedback="invalidMacFeedback"/>
-              <pf-form-input v-model="single.pid" label="Owner" placeholder="default" validation="$v.single.pid"/>
+                :validation="$v.single.mac" :invalid-feedback="invalidMarcFeedback"/>
+              <b-form-group horizontal label-cols="3" :label="$t('Owner')">
+                <pf-autocomplete v-model="single.pid" placeholder="default" @search="searchUsers" :suggestions="matchingUsers"></pf-autocomplete>
+              </b-form-group>
               <b-form-group horizontal label-cols="3" :label="$t('Status')">
                 <b-form-select v-model="single.status" :options="statuses"></b-form-select>
               </b-form-group>
@@ -73,7 +75,9 @@
 
 <script>
 import pfFormInput from '@/components/pfFormInput'
+import pfAutocomplete from '@/components/pfAutocomplete'
 import draggable from 'vuedraggable'
+import usersApi from '@/views/Users/_api'
 import {
   pfSearchConditionType as conditionType,
   pfSearchConditionValues as conditionValues
@@ -85,7 +89,8 @@ export default {
   name: 'NodesCreate',
   components: {
     draggable,
-    'pf-form-input': pfFormInput
+    'pf-form-input': pfFormInput,
+    'pf-autocomplete': pfAutocomplete
   },
   mixins: [
     validationMixin
@@ -113,7 +118,8 @@ export default {
           { value: '0', name: 'role', text: 'Role' },
           { value: '0', name: 'unregdate', text: 'Unregistration Date' }
         ]
-      }
+      },
+      matchingUsers: []
     }
   },
   validations: {
@@ -160,6 +166,29 @@ export default {
     }
   },
   methods: {
+    searchUsers () {
+      const _this = this
+      let body = {
+        limit: 10,
+        fields: ['pid', 'firstname', 'lastname', 'email'],
+        sort: ['pid'],
+        query: {
+          op: 'and',
+          values: [{
+            op: 'or',
+            values: [
+              {field: 'pid', op: 'contains', value: this.single.pid},
+              {field: 'firstname', op: 'contains', value: this.single.pid},
+              {field: 'lastname', op: 'contains', value: this.single.pid},
+              {field: 'email', op: 'contains', value: this.single.pid}
+            ]
+          }]
+        }
+      }
+      usersApi.search(body).then((data) => {
+        _this.matchingUsers = data.items.map(item => item.pid)
+      })
+    },
     create () {
       if (this.modeIndex === 0) {
         this.$store.dispatch('$_nodes/createNode', this.single).then(response => {
