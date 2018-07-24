@@ -8,7 +8,7 @@
       <div v-for="(notification, index) in notifications" :key="index">
         <b-dropdown-item class="border-right" :class="'border-'+notification.variant">
           <small>
-            <timeago class="float-right" :class="{'text-secondary': !notification.unread}" :since="notification.timestamp" :auto-update="60" :locale="$i18n.locale"></timeago>
+            <timeago class="float-right" :class="{'text-secondary': !notification.unread}" :datetime="notification.timestamp" :auto-update="60" :locale="$i18n.locale"></timeago>
             <div class="notification-message" :class="{'text-secondary': !notification.unread}">
               <icon :name="notification.icon" :class="'text-'+notification.variant"></icon> <span :class="{ 'font-weight-bold': notification.unread }">{{notification.message}}</span>
             </div>
