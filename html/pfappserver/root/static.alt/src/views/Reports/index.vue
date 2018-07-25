@@ -7,12 +7,10 @@
                 </div>
                 <b-collapse is-nav class="bd-links" id="bd-docs-nav">
                     <div class="bd-toc-item active">
-                        <b-nav vertical class="bd-sidenav">
-                            <div class="bd-toc-link" v-t="'Nodes'"></div>
-                            <b-nav-item to="/reports/table/registered" replace>{{ $t('Registered Nodes') }}</b-nav-item>
-                            <b-nav-item to="/reports/table/statics" replace>{{ $t('Static IP Addresses') }}</b-nav-item>
-                            <div class="bd-toc-link" v-t="'Connections'"></div>
-                            <div class="bd-toc-link" v-t="'Accounting'"></div>
+                        <b-nav vertical class="bd-sidenav" v-for="(reportCategory, reportCategoryIndex) in reportCategories" :key="reportCategory.name">
+                            <hr v-if="reportCategoryIndex >= 1" />
+                            <div class="bd-toc-link" v-t="reportCategory.name"></div>
+                            <b-nav-item v-for="report in reportCategory.reports" :key="report.name" :to="'/reports/table/'+report.path" replace>{{ $t(report.name) }}</b-nav-item>
                         </b-nav>
                     </div>
                 </b-collapse>
@@ -26,7 +24,14 @@
 </template>
 
 <script>
+import { pfReportCategories as reportCategories } from '@/globals/pfReports'
+
 export default {
-  name: 'Reports'
+  name: 'Reports',
+  computed: {
+    reportCategories () {
+      return reportCategories
+    }
+  }
 }
 </script>
