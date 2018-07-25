@@ -1,0 +1,96 @@
+#!/usr/bin/perl
+
+use lib '/usr/local/pf/lib';
+
+use strict;
+use warnings;
+
+BEGIN {
+    # log4perl init
+    use constant INSTALL_DIR => '/usr/local/pf';
+    use lib INSTALL_DIR . "/lib";
+    use pf::log;
+}
+
+use Readonly;
+use Switch;
+
+use IO::Socket::INET;
+
+use Net::PcapUtils;
+use NetPacket::Ethernet qw(:strip);
+use NetPacket::IP;
+use NetPacket::UDP;
+use Net::DNS::Packet;
+
+use pf::util;
+use pf::config::util;
+use pf::node;
+use pf::person;
+
+#my $cache = CHI->new( driver => 'Memory', global => 0 );
+# use the accounting namespace which is distributed accross servers
+my $cache = pf::CHI->new(namespace => 'accounting');
+
+sub process_pkt {
+  my($user, $hdr, $pkt) = @_;
+
+  my $eth = NetPacket::Ethernet->decode($pkt);
+  my $ip_packet = NetPacket::IP->decode($eth->{data});
+  my $udp_packet = NetPacket::UDP->decode($ip_packet->{data});
+  my $data = $udp_packet->{data};
+  my $dns_packet = Net::DNS::Packet->decode(\$data) || print $@;
+
+  my $ip = $ip_packet->{src_ip};
+  my $mac = pf::ip4log::ip2mac($ip);
+  unless($mac) {
+    print "Can't perform IP to MAC for $ip\n";
+    return;
+  }
+
+  my $domain = join('.', @{$dns_packet->{question}->[0]->{owner}->{label}});
+  print "$ip/$mac queried for $domain \n";
+
+  if($domain eq "mail.google.com") {
+    print "$ip/$mac accessed Google Mail.\n";
+    $cache->compute("dns-checker-$ip/$mac/Google Mail", "24 hours", sub {
+      email_owner($mac, $ip);
+    });
+  }
+}
+
+sub email_owner {
+    my ($mac, $ip) = @_;
+    my $node = node_view($mac);
+    my $person = person_view($node->{pid});
+    my $to = $person->{email};
+    print "$ip/$mac sending email notification to $to\n";
+
+    my $device_name = $node->{computername} // "(unknown device name)";
+    my $os = $node->{device_name} // "(unknown operating system)";
+    my $role = $node->{category} // "(no previous role)";
+
+    my $subject = "Device $device_name Unregistered - please visit portal.example.com";
+    my $message = <<EOT;
+Your device $device_name is currently unregistered and cannot access basic network services. 
+
+Device Name: $device_name
+OS: $os
+User Name: $node->{pid}
+Role: $role
+
+Please open a browser and visit https://portal.example.com to register your device for the District Network.
+EOT
+    my $msg = MIME::Lite->new(
+        To      => $to,
+        Subject => $subject,
+        Data    => $message . "\n",
+    );
+    return send_mime_lite($msg);
+}
+
+sub pcap_listen {
+    Net::PcapUtils::loop(\&process_pkt, DEV => 'eth1', SNAPLEN => 1500, FILTER => 'udp dst port 53');
+}
+
+pcap_listen();
