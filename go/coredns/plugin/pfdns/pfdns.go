@@ -117,6 +117,25 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 		fmt.Printf("ERROR cannot find mac for ip %s\n", srcIP)
 	}
 
+	// Domain bypass
+	for k, v := range pf.FqdnDomainPort {
+		if k.MatchString(state.QName()) {
+			answer, _ := pf.LocalResolver(state)
+			for _, ans := range append(answer.Answer, answer.Extra...) {
+				switch ansb := ans.(type) {
+				case *dns.A:
+					for _, valeur := range v {
+						if err := pf.SetPassthrough(ctx, "passthrough", ansb.A.String(), valeur, true); err != nil {
+							fmt.Println("Not able to contact localhost", err)
+						}
+					}
+				}
+			}
+			fmt.Println(srcIP + ":" + mac + " Domain bypass")
+			return pf.Next.ServeDNS(ctx, w, r)
+		}
+	}
+
 	violation := pf.HasViolations(mac)
 	if violation {
 		// Passthrough bypass
@@ -154,25 +173,6 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 				}
 			}
 			fmt.Println(srcIP + " : " + mac + " passthrough")
-			return pf.Next.ServeDNS(ctx, w, r)
-		}
-	}
-
-	// Domain bypass
-	for k, v := range pf.FqdnDomainPort {
-		if k.MatchString(state.QName()) {
-			answer, _ := pf.LocalResolver(state)
-			for _, ans := range append(answer.Answer, answer.Extra...) {
-				switch ansb := ans.(type) {
-				case *dns.A:
-					for _, valeur := range v {
-						if err := pf.SetPassthrough(ctx, "passthrough", ansb.A.String(), valeur, true); err != nil {
-							fmt.Println("Not able to contact localhost", err)
-						}
-					}
-				}
-			}
-			fmt.Println(srcIP + ":" + mac + " Domain bypass")
 			return pf.Next.ServeDNS(ctx, w, r)
 		}
 	}
