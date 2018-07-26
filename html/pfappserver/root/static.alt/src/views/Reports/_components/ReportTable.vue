@@ -33,14 +33,17 @@
           </b-container>
         </b-col>
       </b-row>
-      <b-table stacked="sm" :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc"
-        @sort-changed="onSortingChanged" responsive="true" hover no-local-sorting v-model="tableValues"></b-table>
+      <b-table stacked="sm" :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc" :sort-compare="sortCompare"
+        @sort-changed="onSortingChanged" responsive="true" hover v-model="tableValues"></b-table>
     </div>
   </b-card>
 </template>
 
 <script>
-import { pfReportCategories as reportCategories } from '@/globals/pfReports'
+import {
+  pfReportColumns as reportColumns,
+  pfReportCategories as reportCategories
+} from '@/globals/pfReports'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
 
 export default {
@@ -97,6 +100,17 @@ export default {
       return reportCategories.map(category => category.reports.map(report => Object.assign({ category: category.name }, report))).reduce((l, n) => l.concat(n), []).filter(report => report.path === this.path)[0]
     }
   },
+  methods: {
+    sortCompare (a, b, key) {
+      if (reportColumns[key].sort) {
+        // custom sort
+        return reportColumns[key].sort(a[key], b[key])
+      } else {
+        // default sort
+        return null
+      }
+    }
+  },
   beforeRouteUpdate (to, from, next) {
     // trigger on every page leave only within same route '/reports'
     let range = ''
@@ -118,6 +132,9 @@ export default {
       }
       vm.pfMixinSearchableOptions.searchApiEndpoint = `reports/${to.params.path}${range}`
     })
+  },
+  created () {
+    this.$store.dispatch('config/getRoles')
   }
 }
 </script>

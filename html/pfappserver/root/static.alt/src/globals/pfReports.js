@@ -1,4 +1,5 @@
 import i18n from '@/utils/locale'
+import store from '@/store'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 
 export const pfReportFields = {
@@ -6,6 +7,20 @@ export const pfReportFields = {
     value: 'mac',
     text: i18n.t('MAC Address'),
     types: [conditionType.SUBSTRING]
+  }
+}
+
+export const pfReportSort = {
+  role: (a, b) => {
+    switch (true) {
+      case a === b: return 0
+      case !a: return -1
+      case !b: return 1
+      default:
+        const aName = store.state.config.roles.filter(role => role.category_id === a).map(role => role.name)[0]
+        const bName = store.state.config.roles.filter(role => role.category_id === b).map(role => role.name)[0]
+        return toString(aName).localeCompare(toString(bName), undefined, { numeric: true })
+    }
   }
 }
 
@@ -62,7 +77,11 @@ export const pfReportColumns = {
     key: 'bypass_role_id',
     label: i18n.t('Bypass Role'),
     sortable: true,
-    visible: true
+    visible: true,
+    formatter: (value, key, item) => {
+      return store.state.config.roles.filter(role => role.category_id === item.bypass_role_id).map(role => role.name)
+    },
+    sort: pfReportSort.role
   },
   bypass_vlan: {
     key: 'bypass_vlan',
@@ -80,7 +99,11 @@ export const pfReportColumns = {
     key: 'category_id',
     label: i18n.t('Role'),
     sortable: true,
-    visible: true
+    visible: true,
+    formatter: (value, key, item) => {
+      return store.state.config.roles.filter(role => role.category_id === item.category_id).map(role => role.name)
+    },
+    sort: pfReportSort.role
   },
   computer_name: {
     key: 'computer_name',
