@@ -20,6 +20,7 @@ use pf::util;
 use pf::ConfigStore::Domain;
 
 has domains => ( is => 'rw', builder => '_build_domains');
+tie our %ConfigAuthenticationLdap, 'pfconfig::cached_hash', 'resource::authentication_sources_ldap';
 
 ## Definition
 has_field 'id' =>
@@ -85,6 +86,29 @@ has_field 'admin_strip_username' =>
              help => 'Should the usernames matching this realm be stripped when used on the administration interface' },
   );
 
+has_field 'permit_userPrincipalName' =>
+  (
+   type => 'Toggle',
+   checkbox_value => "enabled",
+   unchecked_value => "disabled",
+   default => "enabled",
+   label => 'userPrincipalName',
+   tags => { after_element => \&help,
+             help => 'Allow userPrincipalName attribute to authenticate 802.1x users' },
+  );
+
+has_field 'ldap_source' =>
+  (
+   type => 'Select',
+   multiple => 0,
+   label => 'LDAP Source',
+   options_method => \&options_ldap,
+   element_class => ['chzn-select'],
+   element_attr => {'data-placeholder' => 'Click to select a LDAP Server'},
+   tags => { after_element => \&help,
+             help => 'The LDAP Server to query the userPrincipalName' },
+  );
+
 =head2 options_roles
 
 =cut
@@ -100,6 +124,17 @@ sub _build_domains {
     my ($self) = @_;
     my $cs = pf::ConfigStore::Domain->new;
     return $cs->readAll("id");
+}
+
+=head2 options_ldap
+
+=cut
+
+sub options_ldap {
+    my $self = shift;
+    my @ldap = map { $_ => $_ } keys %ConfigAuthenticationLdap;
+    unshift @ldap, ("" => "");
+    return @ldap;
 }
 
 =over

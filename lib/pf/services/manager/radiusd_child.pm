@@ -24,6 +24,8 @@ use NetAddr::IP;
 use Template;
 
 use pfconfig::cached_array;
+use pfconfig::cached_hash;
+
 use pf::authentication;
 use pf::cluster;
 use pf::util;
@@ -43,6 +45,7 @@ use pf::config qw(
 );
 
 tie my @cli_switches, 'pfconfig::cached_array', 'resource::cli_switches';
+tie my %ConfigAuthenticationLdap, 'pfconfig::cached_hash', 'resource::authentication_sources_ldap';
 
 extends 'pf::services::manager';
 
@@ -107,6 +110,7 @@ sub _generateConfig {
     $self->generate_radiusd_cluster($tt);
     $self->generate_radiusd_cliconf($tt);
     $self->generate_radiusd_eduroamconf($tt);
+    $self->generate_radiusd_ldap($tt);
 }
 
 
@@ -156,6 +160,18 @@ EOT
     }
     else {
         $tags{'redis_ntlm_cache_fetch'} = "# redis-ntlm-cache disabled in configuration"
+    }
+
+    $tags{'userPrincipalName'} = "# sAMAccountName lookup disabled in configuration";
+    my @realms;
+    foreach my $realm ( sort keys %pf::config::ConfigRealm ) {
+        if(isenabled($pf::config::ConfigRealm{$realm}->{'permit_userPrincipalName'})) {
+            $tags{'userPrincipalName'} .= <<"EOT";
+        if (Realm == \"$realm\" ) {
+            $pf::config::ConfigRealm{$realm}->{ldap_source}
+        }
+EOT
+        }
     }
 
     $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence-tunnel";
@@ -451,6 +467,47 @@ sub escape_freeradius_string {
     my ($s) = @_;
     $s =~ s/"/\\"/g;
     return $s;
+}
+
+=head2 generate_radiusd_ldap
+
+Generates the ldap_packetfence configuration file
+
+=cut
+
+sub generate_radiusd_ldap {
+   my ($self, $tt) = @_;
+
+   my %tags;
+   $tags{'template'}    = "$conf_dir/radiusd/ldap_packetfence.conf";
+   $tags{'install_dir'} = $install_dir;
+   foreach my $ldap (keys %ConfigAuthenticationLdap) {
+      $tags{'servers'} .= <<"EOT";
+
+ldap $ldap {
+    server          = "$ConfigAuthenticationLdap{$ldap}->{host}"
+    port            = "$ConfigAuthenticationLdap{$ldap}->{port}"
+    identity        = "$ConfigAuthenticationLdap{$ldap}->{binddn}"
+    password        = "$ConfigAuthenticationLdap{$ldap}->{password}"
+    basedn          = "$ConfigAuthenticationLdap{$ldap}->{basedn}"
+    filter          = "(userPrincipalName=%{User-Name})"
+    scope           = $ConfigAuthenticationLdap{$ldap}->{scope}
+    base_filter     = "(objectclass=user)"
+    rebind          = yes
+    chase_referrals = yes
+    update {
+            control:AD-Samaccountname := 'sAMAccountName'
+    }
+    user {
+            filter = "(|(userPrincipalName=%{User-Name})(sAMAccountName=%{%{Stripped-User-Name}:-%{User-Name}}))"
+    }
+}
+
+EOT
+
+   }
+
+   parse_template( \%tags, "$conf_dir/radiusd/ldap_packetfence.conf", "$install_dir/raddb/mods-enabled/ldap_packetfence" );
 }
 
 =head2 generate_radiusd_proxy

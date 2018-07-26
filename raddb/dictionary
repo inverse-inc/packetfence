@@ -48,3 +48,4 @@ $INCLUDE    /usr/local/pf/raddb/dictionary.inverse
 #ATTRIBUTE	My-Local-String		3000	string
 #ATTRIBUTE	My-Local-IPAddr		3001	ipaddr
 #ATTRIBUTE	My-Local-Integer	3002	integer
+ATTRIBUTE       AD-Samaccountname       3003    string
