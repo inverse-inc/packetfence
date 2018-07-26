@@ -63,29 +63,6 @@
                                 <b-nav-item @click.stop :to='{"path":"search", "query":{"query":JSON.stringify({"op":"and","values":[{"op":"or","values":[{"field":"device_class","op":"equals","value":"Gaming Console"}]}]})}}' replace>{{ $t('Gaming Console') }}</b-nav-item>
                                 <b-nav-item @click.stop :to='{"path":"search", "query":{"query":JSON.stringify({"op":"and","values":[{"op":"or","values":[{"field":"device_class","op":"equals","value":"VoIP Device"}]}]})}}' replace>{{ $t('VoIP Device') }}</b-nav-item>
                             </b-collapse>
-                            <!-- Standard Searches > Switch Groups -->
-                            <div class="bd-toc-link" v-b-toggle="'accordionSwitchGroups'">
-                              {{ $t('Switch Groups') }}
-                              <icon class="when-closed float-right mt-1" name="caret-right"></icon>
-                              <icon class="when-opened float-right mt-1" name="caret-down"></icon>
-                            </div>
-                            <b-collapse id="accordionSwitchGroups" ref="accordionSwitchGroups" is-nav>
-                              <div v-for="switchGroup in switchGroups" :key="switchGroup.id">
-                                <div class="bd-toc-link" v-b-toggle="`accordionSwitchGroup${switchGroup.group}`">
-                                  <icon class="when-closed mt-1" name="circle"></icon>
-                                  <icon class="when-opened mt-1" name="dot-circle"></icon>
-                                  {{ switchGroup.group }}
-                                </div>
-                                <b-collapse :id="`accordionSwitchGroup${switchGroup.group}`" :ref="`accordionSwitchGroup${switchGroup.group}`" is-nav>
-                                  <b-nav-item v-for="sw in switchGroup.switches" :key="sw.id" v-if="sw.id !== 'default'" :to='{"path":"search", "query":{"query":JSON.stringify({"op":"and","values":[{"op":"or","values":[{"field":"locationlog.switch","op":"equals","value":getIpFromCIDR(sw.id)}]}]})}}' replace>
-                                    <blockquote class="mb-0">
-                                      {{ sw.id }}<br/>
-                                      {{ sw.description }}
-                                    </blockquote>
-                                  </b-nav-item>
-                                </b-collapse>
-                              </div>
-                            </b-collapse>
                           </b-nav>
                         <hr/>
                         <pf-saved-search :storeName="'$_' + this.$options.name.toLowerCase()" :routeName="this.$options.name.toLowerCase()"/>
