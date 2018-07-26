@@ -89,11 +89,16 @@ export default {
       return this.report.columns
     },
     report () {
-      // build report from path
+      /**
+       * build report using routers' path,,
+       * flatten reportCategories into single array,
+       * search array and return single report mathing path
+        */
       return reportCategories.map(category => category.reports.map(report => Object.assign({ category: category.name }, report))).reduce((l, n) => l.concat(n), []).filter(report => report.path === this.path)[0]
     }
   },
   beforeRouteUpdate (to, from, next) {
+    // trigger on every page leave only within same route '/reports'
     let range = ''
     const report = reportCategories.map(category => category.reports).reduce((l, n) => l.concat(n), []).filter(report => report.path === to.params.path)[0]
     if (report.range.required || report.range.optional) {
@@ -104,6 +109,7 @@ export default {
     next()
   },
   beforeRouteEnter (to, from, next) {
+    // triggered only once on page load to this route '/reports'
     next(vm => {
       let range = ''
       if (vm.report.range.required || vm.report.range.optional) {
