@@ -519,7 +519,7 @@ export default {
           label: this.$i18n.t('Violation Open'),
           sortable: true,
           visible: false,
-          'class': 'text-nowrap',
+          class: 'text-nowrap',
           formatter: (value, key, item) => {
             if (!item['violation.open_vid']) return null
             const uVids = [...new Set(item['violation.open_vid'].split(',').filter(item => item))]
@@ -531,14 +531,14 @@ export default {
           label: this.$i18n.t('Violation Open Count'),
           sortable: true,
           visible: false,
-          'class': 'text-nowrap'
+          class: 'text-nowrap'
         },
         {
           key: 'violation.close_vid',
           label: this.$i18n.t('Violation Closed'),
           sortable: true,
           visible: false,
-          'class': 'text-nowrap',
+          class: 'text-nowrap',
           formatter: (value, key, item) => {
             if (!item['violation.close_vid']) return null
             const uVids = [...new Set(item['violation.close_vid'].split(',').filter(item => item))]
@@ -550,7 +550,7 @@ export default {
           label: this.$i18n.t('Violation Closed Count'),
           sortable: true,
           visible: false,
-          'class': 'text-nowrap'
+          class: 'text-nowrap'
         }
       ],
       requestPage: 1,

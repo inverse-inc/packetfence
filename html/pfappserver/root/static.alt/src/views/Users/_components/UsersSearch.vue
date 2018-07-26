@@ -330,21 +330,21 @@ export default {
           label: this.$i18n.t('Apartment Number'),
           sortable: true,
           visible: false,
-          'class': 'text-nowrap'
+          class: 'text-nowrap'
         },
         {
           key: 'building_number',
           label: this.$i18n.t('Building Number'),
           sortable: true,
           visible: false,
-          'class': 'text-nowrap'
+          class: 'text-nowrap'
         },
         {
           key: 'room_number',
           label: this.$i18n.t('Room Number'),
           sortable: true,
           visible: false,
-          'class': 'text-nowrap'
+          class: 'text-nowrap'
         },
         {
           key: 'company',
@@ -393,84 +393,84 @@ export default {
           label: this.$i18n.t('Cellular Phone Number'),
           sortable: true,
           visible: false,
-          'class': 'text-nowrap'
+          class: 'text-nowrap'
         },
         {
           key: 'telephone',
           label: this.$i18n.t('Home Telephone Number'),
           sortable: true,
           visible: false,
-          'class': 'text-nowrap'
+          class: 'text-nowrap'
         },
         {
           key: 'work_phone',
           label: this.$i18n.t('Work Telephone Number'),
           sortable: true,
           visible: false,
-          'class': 'text-nowrap'
+          class: 'text-nowrap'
         },
         {
           key: 'custom_field_1',
           label: this.$i18n.t('Custom Field #1'),
           sortable: true,
           visible: false,
-          'class': 'text-nowrap'
+          class: 'text-nowrap'
         },
         {
           key: 'custom_field_2',
           label: this.$i18n.t('Custom Field #2'),
           sortable: true,
           visible: false,
-          'class': 'text-nowrap'
+          class: 'text-nowrap'
         },
         {
           key: 'custom_field_3',
           label: this.$i18n.t('Custom Field #3'),
           sortable: true,
           visible: false,
-          'class': 'text-nowrap'
+          class: 'text-nowrap'
         },
         {
           key: 'custom_field_4',
           label: this.$i18n.t('Custom Field #4'),
           sortable: true,
           visible: false,
-          'class': 'text-nowrap'
+          class: 'text-nowrap'
         },
         {
           key: 'custom_field_5',
           label: this.$i18n.t('Custom Field #5'),
           sortable: true,
           visible: false,
-          'class': 'text-nowrap'
+          class: 'text-nowrap'
         },
         {
           key: 'custom_field_6',
           label: this.$i18n.t('Custom Field #6'),
           sortable: true,
           visible: false,
-          'class': 'text-nowrap'
+          class: 'text-nowrap'
         },
         {
           key: 'custom_field_7',
           label: this.$i18n.t('Custom Field #7'),
           sortable: true,
           visible: false,
-          'class': 'text-nowrap'
+          class: 'text-nowrap'
         },
         {
           key: 'custom_field_8',
           label: this.$i18n.t('Custom Field #8'),
           sortable: true,
           visible: false,
-          'class': 'text-nowrap'
+          class: 'text-nowrap'
         },
         {
           key: 'custom_field_9',
           label: this.$i18n.t('Custom Field #9'),
           sortable: true,
           visible: false,
-          'class': 'text-nowrap'
+          class: 'text-nowrap'
         }
       ]
     }
