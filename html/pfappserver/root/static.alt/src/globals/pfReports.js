@@ -164,7 +164,10 @@ export const pfReportColumns = {
     label: i18n.t('Detect Date'),
     class: 'text-nowrap',
     sortable: true,
-    visible: true
+    visible: true,
+    formatter: (value, key, item) => {
+      return (value === '0000-00-00 00:00:00') ? '' : value
+    }
   },
   device_class: {
     key: 'device_class',
@@ -248,28 +251,40 @@ export const pfReportColumns = {
     label: i18n.t('Last ARP'),
     class: 'text-nowrap',
     sortable: true,
-    visible: true
+    visible: true,
+    formatter: (value, key, item) => {
+      return (value === '0000-00-00 00:00:00') ? '' : value
+    }
   },
   last_dhcp: {
     key: 'last_dhcp',
     label: i18n.t('Last DHCP'),
     class: 'text-nowrap',
     sortable: true,
-    visible: true
+    visible: true,
+    formatter: (value, key, item) => {
+      return (value === '0000-00-00 00:00:00') ? '' : value
+    }
   },
   last_seen: {
     key: 'last_seen',
     label: i18n.t('Last Seen'),
     class: 'text-nowrap',
     sortable: true,
-    visible: true
+    visible: true,
+    formatter: (value, key, item) => {
+      return (value === '0000-00-00 00:00:00') ? '' : value
+    }
   },
   lastskip: {
     key: 'lastskip',
     label: i18n.t('Last Skip'),
     class: 'text-nowrap',
     sortable: true,
-    visible: true
+    visible: true,
+    formatter: (value, key, item) => {
+      return (value === '0000-00-00 00:00:00') ? '' : value
+    }
   },
   mac: {
     key: 'mac',
@@ -332,7 +347,10 @@ export const pfReportColumns = {
     label: i18n.t('Registration Date'),
     class: 'text-nowrap',
     sortable: true,
-    visible: true
+    visible: true,
+    formatter: (value, key, item) => {
+      return (value === '0000-00-00 00:00:00') ? '' : value
+    }
   },
   sessionid: {
     key: 'sessionid',
@@ -353,7 +371,10 @@ export const pfReportColumns = {
     label: i18n.t('Start Date'),
     class: 'text-nowrap',
     sortable: true,
-    visible: true
+    visible: true,
+    formatter: (value, key, item) => {
+      return (value === '0000-00-00 00:00:00') ? '' : value
+    }
   },
   start_time: {
     key: 'start_time',
@@ -388,7 +409,10 @@ export const pfReportColumns = {
     label: i18n.t('Unregistration Date'),
     class: 'text-nowrap',
     sortable: true,
-    visible: true
+    visible: true,
+    formatter: (value, key, item) => {
+      return (value === '0000-00-00 00:00:00') ? '' : value
+    }
   },
   user_agent: {
     key: 'user_agent',
@@ -501,12 +525,12 @@ export const pfReportCategories = [
         name: i18n.t('Inactive'),
         path: 'inactive',
         columns: [
+          pfReportColumns.mac,
           pfReportColumns.computername,
           pfReportColumns.detect_date,
           pfReportColumns.last_arp,
           pfReportColumns.last_dhcp,
           pfReportColumns.lastskip,
-          pfReportColumns.mac,
           pfReportColumns.notes,
           pfReportColumns.os,
           pfReportColumns.pid,
@@ -526,13 +550,13 @@ export const pfReportCategories = [
         name: i18n.t('Active'),
         path: 'active',
         columns: [
+          pfReportColumns.mac,
           pfReportColumns.computername,
           pfReportColumns.detect_date,
           pfReportColumns.ip,
           pfReportColumns.last_arp,
           pfReportColumns.last_dhcp,
           pfReportColumns.lastskip,
-          pfReportColumns.mac,
           pfReportColumns.notes,
           pfReportColumns.os,
           pfReportColumns.pid,
@@ -553,12 +577,12 @@ export const pfReportCategories = [
         name: i18n.t('Unregistered'),
         path: 'unregistered',
         columns: [
+          pfReportColumns.mac,
           pfReportColumns.computername,
           pfReportColumns.detect_date,
           pfReportColumns.last_arp,
           pfReportColumns.last_dhcp,
           pfReportColumns.lastskip,
-          pfReportColumns.mac,
           pfReportColumns.notes,
           pfReportColumns.os,
           pfReportColumns.pid,
@@ -578,12 +602,12 @@ export const pfReportCategories = [
         name: i18n.t('Unregistered (Active)'),
         path: 'unregistered/active',
         columns: [
+          pfReportColumns.mac,
           pfReportColumns.computername,
           pfReportColumns.detect_date,
           pfReportColumns.last_arp,
           pfReportColumns.last_dhcp,
           pfReportColumns.lastskip,
-          pfReportColumns.mac,
           pfReportColumns.notes,
           pfReportColumns.os,
           pfReportColumns.pid,
@@ -603,12 +627,12 @@ export const pfReportCategories = [
         name: i18n.t('Registered'),
         path: 'registered',
         columns: [
+          pfReportColumns.mac,
           pfReportColumns.computername,
           pfReportColumns.detect_date,
           pfReportColumns.last_arp,
           pfReportColumns.last_dhcp,
           pfReportColumns.lastskip,
-          pfReportColumns.mac,
           pfReportColumns.notes,
           pfReportColumns.os,
           pfReportColumns.pid,
@@ -628,12 +652,12 @@ export const pfReportCategories = [
         name: i18n.t('Registered (Active)'),
         path: 'registered/active',
         columns: [
+          pfReportColumns.mac,
           pfReportColumns.computername,
           pfReportColumns.detect_date,
           pfReportColumns.last_arp,
           pfReportColumns.last_dhcp,
           pfReportColumns.lastskip,
-          pfReportColumns.mac,
           pfReportColumns.notes,
           pfReportColumns.os,
           pfReportColumns.pid,
@@ -658,9 +682,9 @@ export const pfReportCategories = [
         name: i18n.t('Unknown Fingerprints'),
         path: 'unknownprints',
         columns: [
+          pfReportColumns.mac,
           pfReportColumns.computername,
           pfReportColumns.dhcp_fingerprint,
-          pfReportColumns.mac,
           pfReportColumns.user_agent,
           pfReportColumns.vendor
         ],
@@ -676,9 +700,9 @@ export const pfReportCategories = [
         name: i18n.t('Unknown Fingerprints (Active)'),
         path: 'unknownprints/active',
         columns: [
+          pfReportColumns.mac,
           pfReportColumns.computername,
           pfReportColumns.dhcp_fingerprint,
-          pfReportColumns.mac,
           pfReportColumns.user_agent,
           pfReportColumns.vendor
         ],
@@ -694,6 +718,7 @@ export const pfReportCategories = [
         name: i18n.t('Statics'),
         path: 'statics',
         columns: [
+          pfReportColumns.mac,
           pfReportColumns.autoreg,
           pfReportColumns.bandwidth_balance,
           pfReportColumns.bypass_role_id,
@@ -714,7 +739,6 @@ export const pfReportCategories = [
           pfReportColumns.last_dhcp,
           pfReportColumns.last_seen,
           pfReportColumns.lastskip,
-          pfReportColumns.mac,
           pfReportColumns.machine_account,
           pfReportColumns.notes,
           pfReportColumns.pid,
@@ -738,6 +762,7 @@ export const pfReportCategories = [
         name: i18n.t('Statics (Active)'),
         path: 'statics/active',
         columns: [
+          pfReportColumns.mac,
           pfReportColumns.autoreg,
           pfReportColumns.bandwidth_balance,
           pfReportColumns.bypass_role_id,
@@ -760,7 +785,6 @@ export const pfReportCategories = [
           pfReportColumns.last_dhcp,
           pfReportColumns.last_seen,
           pfReportColumns.lastskip,
-          pfReportColumns.mac,
           pfReportColumns.machine_account,
           pfReportColumns.notes,
           pfReportColumns.pid,
