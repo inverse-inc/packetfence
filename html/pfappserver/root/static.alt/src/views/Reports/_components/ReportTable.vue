@@ -93,9 +93,9 @@ export default {
     },
     report () {
       /**
-       * build report using routers' path,,
+       * build report using routers' path,
        * flatten reportCategories into single array,
-       * search array and return single report mathing path
+       * search array and return single report matching path
         */
       return reportCategories.map(category => category.reports.map(report => Object.assign({ category: category.name }, report))).reduce((l, n) => l.concat(n), []).filter(report => report.path === this.path)[0]
     }
