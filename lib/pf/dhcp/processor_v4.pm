@@ -458,7 +458,18 @@ sub checkForParking {
             $locationlog = $entry;
         }
         else {
-            if($entry->{role} eq $locationlog->{role}){
+            # If both are undefined then the role is equal
+            if(!defined($entry->{role}) && !defined($locationlog->{role})) {
+                $locationlog = $entry;
+            }
+            # If one of them is defined, the other isn't, then its not the same role
+            elsif(
+                defined($entry->{role}) && !defined($locationlog->{role})
+                || !defined($entry->{role}) && defined($locationlog->{role})
+            ) {
+                last;
+            }
+            elsif($entry->{role} eq $locationlog->{role}){
                  $locationlog = $entry;
             }
             else {
