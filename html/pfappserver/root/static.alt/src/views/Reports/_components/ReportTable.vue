@@ -2,7 +2,7 @@
   <b-card no-body>
     <b-card-header>
       <div class="float-right"><toggle-button v-model="advancedMode" :sync="true">{{ $t('Advanced') }}</toggle-button></div>
-      <h4 class="mb-0">{{ $t('Report') }} <strong v-text="report"></strong></h4>
+      <h4 class="mb-0">{{ $t('Report') }} / {{ $t(report.category) }} / {{ $t(report.name) }}</h4>
     </b-card-header>
     <pf-search :fields="fields" :store="$store" storeName="$_reports" :advanced-mode="advancedMode" :condition="condition"
       @submit-search="onSearch" @reset-search="onReset" @import-search="onImport"></pf-search>
@@ -33,14 +33,17 @@
           </b-container>
         </b-col>
       </b-row>
-      <b-table stacked="sm" :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc"
-        @sort-changed="onSortingChanged" responsive="true" hover no-local-sorting v-model="tableValues"></b-table>
+      <b-table stacked="sm" :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc" :sort-compare="sortCompare"
+        @sort-changed="onSortingChanged" responsive="true" hover v-model="tableValues"></b-table>
     </div>
   </b-card>
 </template>
 
 <script>
-import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import {
+  pfReportColumns as reportColumns,
+  pfReportCategories as reportCategories
+} from '@/globals/pfReports'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
 
 export default {
@@ -58,7 +61,9 @@ export default {
         defaultRoute: { name: 'table' }
       }
     },
-    report: String, // from router
+    path: String, // from router
+    start_datetime: String, // from router
+    end_datetime: String, // from router
     tableValues: {
       type: Array,
       default: []
@@ -66,42 +71,70 @@ export default {
   },
   data () {
     return {
-      /**
-       *  Fields on which a search can be defined.
-       *  The names must match the database schema.
-       *  The keys must conform to the format of the b-form-select's options property.
-       */
-      fields: [ // keys match with b-form-select
-        {
-          value: 'mac',
-          text: this.$i18n.t('MAC Address'),
-          types: [conditionType.SUBSTRING]
-        }
-      ],
-      /**
-       * The columns that can be displayed in the results table.
-       */
-      columns: [
-        {
-          key: 'mac',
-          label: this.$i18n.t('MAC Address'),
-          sortable: true,
-          visible: true
-        }
-      ],
       requestPage: 1,
       currentPage: 1,
       pageSizeLimit: 10
     }
   },
+  computed: {
+    /**
+     *  Fields on which a search can be defined.
+     *  The names must match the database schema.
+     *  The keys must conform to the format of the b-form-select's options property.
+     */
+    fields () {
+      return this.report.fields
+    },
+    /**
+     * The columns that can be displayed in the results table.
+     */
+    columns () {
+      return this.report.columns
+    },
+    report () {
+      /**
+       * build report using routers' path,
+       * flatten reportCategories into single array,
+       * search array and return single report matching path
+        */
+      return reportCategories.map(category => category.reports.map(report => Object.assign({ category: category.name }, report))).reduce((l, n) => l.concat(n), []).filter(report => report.path === this.path)[0]
+    }
+  },
+  methods: {
+    sortCompare (a, b, key) {
+      if (reportColumns[key].sort) {
+        // custom sort
+        return reportColumns[key].sort(a[key], b[key])
+      } else {
+        // default sort
+        return null
+      }
+    }
+  },
   beforeRouteUpdate (to, from, next) {
-    this.pfMixinSearchableOptions.searchApiEndpoint = `reports/${to.params.report}`
+    // trigger on every page leave only within same route '/reports'
+    let range = ''
+    const report = reportCategories.map(category => category.reports).reduce((l, n) => l.concat(n), []).filter(report => report.path === to.params.path)[0]
+    if (report.range.required || report.range.optional) {
+      range += (to.params.start_datetime !== undefined) ? '/' + to.params.start_datetime : '/0000-00-00 00:00:00'
+      range += (to.params.end_datetime !== undefined) ? '/' + to.params.end_datetime : '/9999-12-12 23:59:59'
+    }
+    this.pfMixinSearchableOptions.searchApiEndpoint = `reports/${to.params.path}${range}`
     next()
   },
   beforeRouteEnter (to, from, next) {
+    // triggered only once on page load to this route '/reports'
     next(vm => {
-      vm.pfMixinSearchableOptions.searchApiEndpoint = `reports/${to.params.report}`
+      let range = ''
+      if (vm.report.range.required || vm.report.range.optional) {
+        range += (to.params.start_datetime !== undefined) ? '/' + to.params.start_datetime : '/0000-00-00 00:00:00'
+        range += (to.params.end_datetime !== undefined) ? '/' + to.params.end_datetime : '/9999-12-12 23:59:59'
+      }
+      vm.pfMixinSearchableOptions.searchApiEndpoint = `reports/${to.params.path}${range}`
     })
+  },
+  created () {
+    this.$store.dispatch('config/getRoles')
   }
 }
 </script>

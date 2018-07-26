@@ -21,6 +21,16 @@
               <b-form-group horizontal label-cols="3" :label="$t('Role')">
                 <b-form-select v-model="nodeContent.category_id" :options="rolesWithNull"></b-form-select>
              </b-form-group>
+              <b-form-group horizontal label-cols="3" :label="$t('Unregistration')">
+                <b-form-row>
+                  <b-col>
+                    <b-form-input type="date" v-model="node.unreg_date"/>
+                  </b-col>
+                  <b-col>
+                    <b-form-input type="time" v-model="node.unreg_time"/>
+                  </b-col>
+                </b-form-row>
+              </b-form-group>
               <b-form-group horizontal label-cols="3" :label="$t('Notes')">
                 <b-form-textarea v-model="nodeContent.notes" rows="4" max-rows="6"></b-form-textarea>
               </b-form-group>
@@ -433,23 +443,23 @@ export default {
     },
     applyReevaluateAccess () {
       this.$store.dispatch(`${this.$options.storeName}/reevaluateAccessNode`, this.mac).then(response => {
-        // noop
-      }).catch(() => {
-        // noop
+        this.$store.dispatch('notification/info', {message: this.$i18n.t('Node access reevaluation initialized')})
+      }).catch((response) => {
+        this.$store.dispatch('notification/danger', {message: this.$i18n.t('Node access reevaluation failed')})
       })
     },
     applyRefreshFingerbank () {
       this.$store.dispatch(`${this.$options.storeName}/refreshFingerbankNode`, this.mac).then(response => {
-        // noop
-      }).catch(() => {
-        // noop
+        this.$store.dispatch('notification/info', {message: this.$i18n.t('Node device profiling initialized')})
+      }).catch((response) => {
+        this.$store.dispatch('notification/danger', {message: this.$i18n.t('Node device profiling failed')})
       })
     },
     applyRestartSwitchport () {
       this.$store.dispatch(`${this.$options.storeName}/restartSwitchportNode`, this.mac).then(response => {
-        // noop
-      }).catch(() => {
-        // noop
+        this.$store.dispatch('notification/info', {message: this.$i18n.t('Node switchport restarted')})
+      }).catch((response) => {
+        this.$store.dispatch('notification/danger', {message: this.$i18n.t('Node switchport restart failed')})
       })
     },
     canReevaluateAccess (node) {

@@ -8,7 +8,8 @@ export const pfSearchConditionType = {
   NODE_STATUS:             'node_status',
   ROLE:                    'role',
   CONNECTION_TYPE:         'connection_type',
-  ONLINE:                  'online'
+  ONLINE:                  'online',
+  INTEGER:                 'integer'
 }
 
 export const pfSearchConditionValue = {
@@ -31,6 +32,14 @@ pfConditionOperators[pfSearchConditionType.SUBSTRING] = {
 pfConditionOperators[pfSearchConditionType.BOOL] = {
   'is_true':               null,
   'is_false':              null
+}
+pfConditionOperators[pfSearchConditionType.INTEGER] = {
+  'equals':                pfSearchConditionValue.TEXT,
+  'not_equals':            pfSearchConditionValue.TEXT,
+  'greater_than':          pfSearchConditionValue.TEXT,
+  'less_than':             pfSearchConditionValue.TEXT,
+  'greater_than_equals':   pfSearchConditionValue.TEXT,
+  'less_than_equals':      pfSearchConditionValue.TEXT
 }
 pfConditionOperators[pfSearchConditionType.NODE_STATUS] = {
   'equals':                pfSearchConditionValue.SELECT,

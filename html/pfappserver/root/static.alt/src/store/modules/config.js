@@ -8,6 +8,9 @@ const api = {
   getRoles () {
     return apiCall({url: 'node_categories', method: 'get'})
   },
+  getSwitches () {
+    return apiCall({url: 'config/switches', method: 'get'})
+  },
   getViolations () {
     return apiCall({url: 'config/violations', method: 'get'})
   }
@@ -15,6 +18,7 @@ const api = {
 
 const state = {
   roles: [],
+  switches: [],
   violations: {}
 }
 
@@ -38,6 +42,14 @@ const helpers = {
       sortedViolations.push(violations[id])
     }
     return sortedViolations
+  },
+  groupSwitches: (switches) => {
+    let ret = []
+    let groups = [...new Set(switches.map(sw => sw.group))]
+    groups.forEach(function (group, index, groups) {
+      ret.push({group: group, switches: switches.filter(sw => sw.group === group)})
+    })
+    return ret
   }
 }
 
@@ -45,7 +57,7 @@ const getters = {
   rolesList: state => {
     // Remap for b-form-select component
     return state.roles.map((item) => {
-      return { value: item.category_id, text: `${item.name} - ${item.notes}` }
+      return { value: item.category_id, name: item.name, text: `${item.name} - ${item.notes}` }
     })
   },
   violationsList: state => {
@@ -56,6 +68,9 @@ const getters = {
   },
   sortedViolations: state => {
     return helpers.sortViolations(state.violations)
+  },
+  groupedSwitches: state => {
+    return helpers.groupSwitches(state.switches)
   }
 }
 
@@ -68,6 +83,20 @@ const actions = {
       })
     } else {
       return Promise.resolve(state.roles)
+    }
+  },
+  getSwitches: ({state, commit}) => {
+    if (state.switches.length === 0) {
+      return api.getSwitches().then(response => {
+        // group can be undefined
+        response.data.items.forEach(function (item, index, items) {
+          response.data.items[index] = Object.assign({group: item.group || 'Default'}, item)
+        })
+        commit('SWICTHES_UPDATED', response.data.items)
+        return state.switches
+      })
+    } else {
+      return Promise.resolve(state.switches)
     }
   },
   getViolations: ({commit, state}) => {
@@ -85,6 +114,9 @@ const actions = {
 const mutations = {
   ROLES_UPDATED: (state, roles) => {
     state.roles = roles
+  },
+  SWICTHES_UPDATED: (state, switches) => {
+    state.switches = switches
   },
   VIOLATIONS_UPDATED: (state, violations) => {
     let ref = {}

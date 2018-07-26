@@ -16,7 +16,7 @@ const route = {
     //   props: true
     // },
     {
-      path: 'table/:report',
+      path: 'table/:path([a-zA-Z0-9/]+)/:start_datetime?/:end_datetime?',
       name: 'table',
       component: ReportTable,
       props: true

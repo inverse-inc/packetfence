@@ -9,7 +9,7 @@
     <div class="card-body">
       <b-row align-h="between" align-v="center">
         <b-col cols="auto" class="mr-auto">
-          <b-dropdown size="sm" variant="link" :disabled="isLoading || selectValues.length === 0" no-caret>
+          <b-dropdown size="sm" variant="link" :disabled="isLoading || selectValues.length === 0" no-caret no-flip>
             <template slot="button-content">
               <icon name="cogs" v-b-tooltip.hover.right :title="$t('Actions')"></icon>
             </template>
@@ -61,7 +61,7 @@
               <span>{{violation.desc}}</span>
             </b-dropdown-item>
           </b-dropdown>
-          <b-dropdown size="sm" variant="link" boundary="viewport" :disabled="isLoading" no-caret>
+          <b-dropdown size="sm" variant="link" :disabled="isLoading" no-caret no-flip>
             <template slot="button-content">
               <icon name="columns" v-b-tooltip.hover.right.d1000 :title="$t('Visible Columns')"></icon>
             </template>
@@ -254,8 +254,23 @@ export default {
         },
         {
           value: 'violation.open_vid',
-          text: this.$i18n.t('Violation'),
+          text: this.$i18n.t('Violation Open'),
           types: [conditionType.VIOLATION]
+        },
+        {
+          value: 'violation.open_count',
+          text: this.$i18n.t('Violation Open Count [Issue #3400]'),
+          types: [conditionType.INTEGER]
+        },
+        {
+          value: 'violation.close_vid',
+          text: this.$i18n.t('Violation Closed'),
+          types: [conditionType.VIOLATION]
+        },
+        {
+          value: 'violation.close_count',
+          text: this.$i18n.t('Violation Close Count [Issue #3400]'),
+          types: [conditionType.INTEGER]
         },
         {
           value: 'voip',
@@ -504,15 +519,38 @@ export default {
           label: this.$i18n.t('Violation Open'),
           sortable: true,
           visible: false,
+          'class': 'text-nowrap',
           formatter: (value, key, item) => {
-            return this.violations.filter(violation => violation.id === item['violation.open_vid']).map(violation => violation.desc)
+            if (!item['violation.open_vid']) return null
+            const uVids = [...new Set(item['violation.open_vid'].split(',').filter(item => item))]
+            return this.violations.filter(violation => uVids.includes(violation.id)).map(violation => violation.desc).join(', ')
           }
         },
         {
           key: 'violation.open_count',
-          label: this.$i18n.t('Violation Count'),
+          label: this.$i18n.t('Violation Open Count'),
           sortable: true,
-          visible: false
+          visible: false,
+          'class': 'text-nowrap'
+        },
+        {
+          key: 'violation.close_vid',
+          label: this.$i18n.t('Violation Closed'),
+          sortable: true,
+          visible: false,
+          'class': 'text-nowrap',
+          formatter: (value, key, item) => {
+            if (!item['violation.close_vid']) return null
+            const uVids = [...new Set(item['violation.close_vid'].split(',').filter(item => item))]
+            return this.violations.filter(violation => uVids.includes(violation.id)).map(violation => violation.desc).join(', ')
+          }
+        },
+        {
+          key: 'violation.close_count',
+          label: this.$i18n.t('Violation Closed Count'),
+          sortable: true,
+          visible: false,
+          'class': 'text-nowrap'
         }
       ],
       requestPage: 1,
@@ -544,6 +582,7 @@ export default {
             _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, status: item.status})
             _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: item.message})
           })
+          _this.$store.dispatch('notification/info', {message: response.items.length + ' ' + _this.$i18n.t('nodes cleared')})
         }).catch(() => {
           macs.forEach(function (mac, i) {
             let index = _this.tableValues.findIndex(node => node.mac === mac)
@@ -561,6 +600,7 @@ export default {
             _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, status: item.status})
             _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: item.message})
           })
+          _this.$store.dispatch('notification/info', {message: response.items.length + ' ' + _this.$i18n.t('nodes registered')})
         }).catch(() => {
           macs.forEach(function (mac, i) {
             let index = _this.tableValues.findIndex(node => node.mac === mac)
@@ -578,6 +618,7 @@ export default {
             _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, status: item.status})
             _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: item.message})
           })
+          _this.$store.dispatch('notification/info', {message: response.items.length + ' ' + _this.$i18n.t('nodes unregistered')})
         }).catch(() => {
           macs.forEach(function (mac, i) {
             let index = _this.tableValues.findIndex(node => node.mac === mac)
@@ -595,6 +636,7 @@ export default {
             _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, status: item.status})
             _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: item.message})
           })
+          _this.$store.dispatch('notification/info', {message: response.items.length + ' ' + _this.$i18n.t('nodes reevaluated')})
         }).catch(() => {
           macs.forEach(function (mac, i) {
             let index = _this.tableValues.findIndex(node => node.mac === mac)
@@ -612,6 +654,7 @@ export default {
             _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, status: item.status})
             _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: item.message})
           })
+          _this.$store.dispatch('notification/info', {message: response.items.length + ' ' + _this.$i18n.t('node switch ports restarted')})
         }).catch(() => {
           macs.forEach(function (mac, i) {
             let index = _this.tableValues.findIndex(node => node.mac === mac)
@@ -629,6 +672,7 @@ export default {
             _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, status: item.status})
             _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: item.message})
           })
+          _this.$store.dispatch('notification/info', {message: response.items.length + ' ' + _this.$i18n.t('node profiling refreshed')})
         }).catch(() => {
           macs.forEach(function (mac, i) {
             let index = _this.tableValues.findIndex(node => node.mac === mac)
@@ -650,6 +694,11 @@ export default {
             _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, variant: 'danger'})
           })
         })
+        if (role.category_id) {
+          this.$store.dispatch('notification/info', {message: macs.length + ' ' + this.$i18n.t('nodes assigned role') + ' ' + this.roles.filter(r => r.category_id === role.category_id).map(r => r.name)})
+        } else {
+          this.$store.dispatch('notification/info', {message: macs.length + ' ' + this.$i18n.t('nodes unassigned role')})
+        }
       }
     },
     applyBulkBypassRole (role) {
@@ -665,6 +714,11 @@ export default {
             _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, variant: 'danger'})
           })
         })
+        if (role.category_id) {
+          this.$store.dispatch('notification/info', {message: macs.length + ' ' + this.$i18n.t('nodes assigned bypass role') + ' ' + this.roles.filter(r => r.category_id === role.category_id).map(r => r.name)})
+        } else {
+          this.$store.dispatch('notification/info', {message: macs.length + ' ' + this.$i18n.t('nodes unassigned bypass role')})
+        }
       }
     },
     applyBulkViolation (violation) {
@@ -676,6 +730,7 @@ export default {
             _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, status: item.status})
             _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: item.message})
           })
+          _this.$store.dispatch('notification/info', {message: response.items.length + ' ' + _this.$i18n.t('node violations created')})
         }).catch(() => {
           macs.forEach(function (mac, i) {
             let index = _this.tableValues.findIndex(node => node.mac === mac)

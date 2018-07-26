@@ -9,7 +9,7 @@
         <b-form @submit.prevent="create()">
           <b-form-row align-v="center">
             <b-col sm="8">
-              <pf-form-input v-model="single.mac" label="MAC"
+              <pf-form-input v-model="single.mac" label="$t('MAC')"
                 :validation="$v.single.mac" :invalid-feedback="invalidMarcFeedback"/>
               <b-form-group horizontal label-cols="3" :label="$t('Owner')">
                 <pf-autocomplete v-model="single.pid" placeholder="default" @search="searchUsers" :suggestions="matchingUsers"></pf-autocomplete>
@@ -30,9 +30,9 @@
                   </b-col>
                 </b-form-row>
               </b-form-group>
-            </b-col>
-            <b-col sm="4">
-              <b-form-textarea :placeholder="$t('Notes')" v-model="single.notes" rows="8" max-rows="12"></b-form-textarea>
+              <b-form-group horizontal label-cols="3" :label="$t('Notes')">
+                <b-form-textarea v-model="single.notes" rows="8" max-rows="12"></b-form-textarea>
+              </b-form-group>
             </b-col>
           </b-form-row>
         </b-form>
@@ -40,13 +40,13 @@
 
       <b-tab :title="$t('Import')">
         <b-form>
-          <b-form-group horizontal label-cols="3" label="CSV File">
-            <b-form-file v-model="csv.file" accept="text/*" choose-label="Choose a file"></b-form-file>
+          <b-form-group horizontal label-cols="3" :label="$t('CSV File')">
+            <b-form-file v-model="csv.file" accept="text/*" :choose-label="$t('Choose a file')"></b-form-file>
           </b-form-group>
-          <b-form-group horizontal label-cols="3" label="Column Delimiter">
+          <b-form-group horizontal label-cols="3" :label="$t('Column Delimiter')">
             <b-form-select v-model="csv.delimiter" :options="csv.delimiters"></b-form-select>
           </b-form-group>
-          <b-form-group horizontal label-cols="3" label="Default Voice Over IP">
+          <b-form-group horizontal label-cols="3" :label="$t('Default Voice Over IP')">
             <b-form-checkbox v-model="csv.voip" value="yes"></b-form-checkbox>
           </b-form-group>
           <b-row>

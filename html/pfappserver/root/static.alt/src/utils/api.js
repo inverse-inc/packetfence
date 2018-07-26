@@ -21,6 +21,22 @@ Object.assign(apiCall, {
         return Object.assign({ quiet: true }, jsonData)
       }]
     })
+  },
+  postQuiet (url, body) {
+    return this.request({
+      method: 'post',
+      url,
+      body,
+      transformResponse: [data => {
+        let jsonData
+        try {
+          jsonData = JSON.parse(data)
+        } catch (e) {
+          jsonData = {}
+        }
+        return Object.assign({ quiet: true }, jsonData)
+      }]
+    })
   }
 })
 
