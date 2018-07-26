@@ -28,54 +28,63 @@ export const pfReportColumns = {
   acctinput: {
     key: 'acctinput',
     label: i18n.t('Bytes In'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   acctinputoctets: {
     key: 'acctinputoctets',
     label: i18n.t('Octets In'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   acctoutput: {
     key: 'acctoutput',
     label: i18n.t('Bytes Out'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   acctoutputoctets: {
     key: 'acctoutputoctets',
     label: i18n.t('Octets Out'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   accttotal: {
     key: 'accttotal',
     label: i18n.t('Bytes Total'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   accttotaloctets: {
     key: 'accttotaloctets',
     label: i18n.t('Octets Total'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   autoreg: {
     key: 'autoreg',
     label: i18n.t('Auto Registration'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   bandwidth_balance: {
     key: 'bandwidth_balance',
     label: i18n.t('Bandwidth Balance'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   bypass_role_id: {
     key: 'bypass_role_id',
     label: i18n.t('Bypass Role'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true,
     formatter: (value, key, item) => {
@@ -86,18 +95,21 @@ export const pfReportColumns = {
   bypass_vlan: {
     key: 'bypass_vlan',
     label: i18n.t('Bypass VLAN'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   callingstationid: {
     key: 'callingstationid',
     label: i18n.t('Calling Station ID'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   category_id: {
     key: 'category_id',
     label: i18n.t('Role'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true,
     formatter: (value, key, item) => {
@@ -108,264 +120,308 @@ export const pfReportColumns = {
   computer_name: {
     key: 'computer_name',
     label: i18n.t('Computername'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   connection_type: {
     key: 'connection_type',
     label: i18n.t('Connection Type'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   connections: {
     key: 'connections',
     label: i18n.t('Connections'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   computername: {
     key: 'computername',
     label: i18n.t('Computername'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   count: {
     key: 'count',
     label: i18n.t('Count'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   description: {
     key: 'description',
     label: i18n.t('Description'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   detect_date: {
     key: 'detect_date',
     label: i18n.t('Detect Date'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   device_class: {
     key: 'device_class',
     label: i18n.t('Device Class'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   device_manufacturer: {
     key: 'device_manufacturer',
     label: i18n.t('Device Manufacturer'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   device_score: {
     key: 'device_score',
     label: i18n.t('Device Score'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   device_type: {
     key: 'device_type',
     label: i18n.t('Device Type'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   device_version: {
     key: 'device_version',
     label: i18n.t('Device Version'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   dhcp6_enterprise: {
     key: 'dhcp6_enterprise',
     label: i18n.t('Device Enterprise'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   dhcp6_fingerprint: {
     key: 'dhcp6_fingerprint',
     label: i18n.t('DHCPv6 Fingerprint'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   dhcp_fingerprint: {
     key: 'dhcp_fingerprint',
     label: i18n.t('DHCP Fingerprint'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   dhcp_vendor: {
     key: 'dhcp_vendor',
     label: i18n.t('DHCP Vendor'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   end_time: {
     key: 'end_time',
     label: i18n.t('End Time'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   ip: {
     key: 'ip',
     label: i18n.t('IP Address'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   last_arp: {
     key: 'last_arp',
     label: i18n.t('Last ARP'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   last_dhcp: {
     key: 'last_dhcp',
     label: i18n.t('Last DHCP'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   last_seen: {
     key: 'last_seen',
     label: i18n.t('Last Seen'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   lastskip: {
     key: 'lastskip',
     label: i18n.t('Last Skip'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   mac: {
     key: 'mac',
     label: i18n.t('MAC Address'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   machine_account: {
     key: 'machine_account',
     label: i18n.t('Machine Account'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   nodes: {
     key: 'nodes',
     label: i18n.t('Nodes'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   notes: {
     key: 'notes',
     label: i18n.t('Notes'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   os: {
     key: 'os',
     label: i18n.t('Operating System'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   owner: {
     key: 'owner',
     label: i18n.t('Owner'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   percent: {
     key: 'percent',
     label: i18n.t('Percent'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   pid: {
     key: 'pid',
     label: i18n.t('PID'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   regdate: {
     key: 'reg_date',
     label: i18n.t('Registration Date'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   sessionid: {
     key: 'sessionid',
     label: i18n.t('Session ID'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   ssid: {
     key: 'ssid',
     label: i18n.t('SSID'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   start_date: {
     key: 'start_date',
     label: i18n.t('Start Date'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   start_time: {
     key: 'start_time',
     label: i18n.t('Start Time'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   status: {
     key: 'status',
     label: i18n.t('Status'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   time_balance: {
     key: 'time_balance',
     label: i18n.t('Time Balance'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   total: {
     key: 'total',
     label: i18n.t('Total'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   unregdate: {
     key: 'unregdate',
     label: i18n.t('Unregistration Date'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   user_agent: {
     key: 'user_agent',
     label: i18n.t('User Agent'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   user_name: {
     key: 'user_name',
     label: i18n.t('Username'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   vendor: {
     key: 'vendor',
     label: i18n.t('Vendor'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   violation: {
     key: 'violation',
     label: i18n.t('Violation'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   },
   voip: {
     key: 'voip',
     label: i18n.t('VOIP'),
+    class: 'text-nowrap',
     sortable: true,
     visible: true
   }
