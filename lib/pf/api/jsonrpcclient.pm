@@ -25,6 +25,7 @@ use warnings;
 use JSON::MaybeXS;
 use pf::config qw(%Config);
 use pf::log;
+use pf::dal;
 use WWW::Curl::Easy;
 use Moo;
 use HTTP::Status qw(:constants);
@@ -249,12 +250,19 @@ sub url {
 =cut
 
 sub build_jsonrpc_request {
-    my ($self,$function,$args) = @_;
-    my $id = $self->id;
-    my $request = {method => $function, jsonrpc => '2.0', id => $id , params => $args };
-    $id++;
-    $self->id($id);
-    return encode_json $request;
+    my ($self, $function, $args) = @_;
+    return $self->_build_jsonrpc_data($function, $args, $self->next_id)
+}
+
+=head2 next_id
+
+next_id
+
+=cut
+
+sub next_id {
+    my ($self) = @_;
+    return $self->{id}++;
 }
 
 =head2 build_jsonrpc_notification
@@ -264,9 +272,13 @@ sub build_jsonrpc_request {
 =cut
 
 sub build_jsonrpc_notification {
-    my ($self,$function,$args) = @_;
-    my $request = {method => $function, jsonrpc => '2.0', params => $args };
-    return encode_json $request;
+    my ($self, $function, $args) = @_;
+    return $self->_build_jsonrpc_data($function, $args)
+}
+
+sub _build_jsonrpc_data {
+    my ($self, $function, $args, $id) = @_;
+    return encode_json {method => $function, jsonrpc => '2.0', params => $args, tenant_id => pf::dal->get_tenant(), (defined $id ? (id => $id) : ()) };
 }
 
 
@@ -299,4 +311,3 @@ USA.
 =cut
 
 1;
-
