@@ -1,11 +1,11 @@
 <template>
   <b-card no-body>
     <b-card-header>
-      <div class="float-right"><toggle-button v-model="advancedMode" :sync="true">{{ $t('Advanced') }}</toggle-button></div>
       <h4 class="mb-0">{{ $t('Report') }} / {{ $t(report.category) }} / {{ $t(report.name) }}</h4>
     </b-card-header>
-    <pf-search :fields="fields" :store="$store" storeName="$_reports" :advanced-mode="advancedMode" :condition="condition"
-      @submit-search="onSearch" @reset-search="onReset" @import-search="onImport"></pf-search>
+    <pf-report-chart v-if="report.chart" :report="report" :items="items"></pf-report-chart>
+    <!--<pf-search :fields="fields" :store="$store" storeName="$_reports" :advanced-mode="advancedMode" :condition="condition"
+      @submit-search="onSearch" @reset-search="onReset" @import-search="onImport"></pf-search>-->
     <div class="card-body">
       <b-row align-h="between" align-v="center">
         <b-col cols="auto" class="mr-auto">
@@ -44,10 +44,14 @@ import {
   pfReportColumns as reportColumns,
   pfReportCategories as reportCategories
 } from '@/globals/pfReports'
+import pfReportChart from '@/components/pfReportChart'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
 
 export default {
   name: 'ReportTable',
+  components: {
+    'pf-report-chart': pfReportChart
+  },
   mixins: [
     pfMixinSearchable
   ],

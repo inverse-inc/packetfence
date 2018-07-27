@@ -122,6 +122,10 @@ export default {
   transform: rotate( -180deg );
   transition: transform 300ms ease;
 }
+.bd-sidenav .bd-toc-link:hover > svg {
+  color: #dc3545;
+  transition: all 300ms ease;
+}
 .bd-sidenav .bd-toc-link[role=button] {
   cursor: pointer;
 }

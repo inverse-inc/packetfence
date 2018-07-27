@@ -27,6 +27,7 @@ import 'vue-awesome/icons/sign-in-alt'
 import 'vue-awesome/icons/sign-out-alt'
 import 'vue-awesome/icons/save'
 import 'vue-awesome/icons/chevron-down'
+import 'vue-awesome/icons/chart-pie'
 import { Timeline } from 'vue2vis'
 
 import store from './store'

@@ -1,12 +1,17 @@
 import i18n from '@/utils/locale'
 import store from '@/store'
-import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 
-export const pfReportFields = {
-  mac: {
-    value: 'mac',
-    text: i18n.t('MAC Address'),
-    types: [conditionType.SUBSTRING]
+export const pfReportChartColorsFull = ['#0d3d54', '#105b78', '#117899', '#1395b9', '#5ca793', '#a2b86d', '#eac843', '#ecaa39', '#ef8b2d', '#f16c21', '#d84e1f', '#c02f1e']
+export const pfReportChartColorsNull = ['#eeeeee']
+
+export const pfReportChartOptions = {
+  pie: {
+    domain: {
+      x: [0, 0.48]
+    },
+    hoverinfo: 'label+percent',
+    hole: 0.4,
+    type: 'pie'
   }
 }
 
@@ -464,12 +469,20 @@ export const pfReportCategories = [
           pfReportColumns.count,
           pfReportColumns.percent
         ],
-        fields: [
-          pfReportFields.mac
-        ],
         range: {
           required: false,
           optional: true
+        },
+        chart: {
+          labels: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.description)
+          },
+          values: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.count)
+          },
+          options: pfReportChartOptions.pie
         }
       },
       {
@@ -481,12 +494,20 @@ export const pfReportCategories = [
           pfReportColumns.count,
           pfReportColumns.percent
         ],
-        fields: [
-          pfReportFields.mac
-        ],
         range: {
           required: false,
           optional: false
+        },
+        chart: {
+          labels: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.description)
+          },
+          values: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.count)
+          },
+          options: pfReportChartOptions.pie
         }
       },
       {
@@ -497,12 +518,20 @@ export const pfReportCategories = [
           pfReportColumns.count,
           pfReportColumns.percent
         ],
-        fields: [
-          pfReportFields.mac
-        ],
         range: {
           required: false,
           optional: false
+        },
+        chart: {
+          labels: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.description)
+          },
+          values: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.count)
+          },
+          options: pfReportChartOptions.pie
         }
       },
       {
@@ -513,12 +542,18 @@ export const pfReportCategories = [
           pfReportColumns.count,
           pfReportColumns.percent
         ],
-        fields: [
-          pfReportFields.mac
-        ],
         range: {
           required: false,
           optional: false
+        },
+        chart: {
+          labels: (items) => {
+            return items.map(item => item.description)
+          },
+          values: (items) => {
+            return items.map(item => item.count)
+          },
+          options: pfReportChartOptions.pie
         }
       },
       {
@@ -537,9 +572,6 @@ export const pfReportCategories = [
           pfReportColumns.regdate,
           pfReportColumns.status,
           pfReportColumns.user_agent
-        ],
-        fields: [
-          pfReportFields.mac
         ],
         range: {
           required: false,
@@ -565,9 +597,6 @@ export const pfReportCategories = [
           pfReportColumns.status,
           pfReportColumns.user_agent
         ],
-        fields: [
-          pfReportFields.mac
-        ],
         range: {
           required: false,
           optional: false
@@ -589,9 +618,6 @@ export const pfReportCategories = [
           pfReportColumns.regdate,
           pfReportColumns.status,
           pfReportColumns.user_agent
-        ],
-        fields: [
-          pfReportFields.mac
         ],
         range: {
           required: false,
@@ -615,9 +641,6 @@ export const pfReportCategories = [
           pfReportColumns.status,
           pfReportColumns.user_agent
         ],
-        fields: [
-          pfReportFields.mac
-        ],
         range: {
           required: false,
           optional: false
@@ -639,9 +662,6 @@ export const pfReportCategories = [
           pfReportColumns.regdate,
           pfReportColumns.status,
           pfReportColumns.user_agent
-        ],
-        fields: [
-          pfReportFields.mac
         ],
         range: {
           required: false,
@@ -665,9 +685,6 @@ export const pfReportCategories = [
           pfReportColumns.status,
           pfReportColumns.user_agent
         ],
-        fields: [
-          pfReportFields.mac
-        ],
         range: {
           required: false,
           optional: false
@@ -688,9 +705,6 @@ export const pfReportCategories = [
           pfReportColumns.user_agent,
           pfReportColumns.vendor
         ],
-        fields: [
-          pfReportFields.mac
-        ],
         range: {
           required: false,
           optional: false
@@ -705,9 +719,6 @@ export const pfReportCategories = [
           pfReportColumns.dhcp_fingerprint,
           pfReportColumns.user_agent,
           pfReportColumns.vendor
-        ],
-        fields: [
-          pfReportFields.mac
         ],
         range: {
           required: false,
@@ -749,9 +760,6 @@ export const pfReportCategories = [
           pfReportColumns.unregdate,
           pfReportColumns.user_agent,
           pfReportColumns.voip
-        ],
-        fields: [
-          pfReportFields.mac
         ],
         range: {
           required: false,
@@ -797,9 +805,6 @@ export const pfReportCategories = [
           pfReportColumns.user_agent,
           pfReportColumns.voip
         ],
-        fields: [
-          pfReportFields.mac
-        ],
         range: {
           required: false,
           optional: false
@@ -820,9 +825,6 @@ export const pfReportCategories = [
           pfReportColumns.status,
           pfReportColumns.violation
         ],
-        fields: [
-          pfReportFields.mac
-        ],
         range: {
           required: false,
           optional: false
@@ -837,9 +839,6 @@ export const pfReportCategories = [
           pfReportColumns.start_date,
           pfReportColumns.status,
           pfReportColumns.violation
-        ],
-        fields: [
-          pfReportFields.mac
         ],
         range: {
           required: false,
@@ -859,12 +858,20 @@ export const pfReportCategories = [
           pfReportColumns.connections,
           pfReportColumns.percent
         ],
-        fields: [
-          pfReportFields.mac
-        ],
         range: {
           required: false,
           optional: true
+        },
+        chart: {
+          labels: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.connection_type)
+          },
+          values: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.connections)
+          },
+          options: pfReportChartOptions.pie
         }
       },
       {
@@ -875,12 +882,20 @@ export const pfReportCategories = [
           pfReportColumns.connections,
           pfReportColumns.percent
         ],
-        fields: [
-          pfReportFields.mac
-        ],
         range: {
           required: false,
           optional: false
+        },
+        chart: {
+          labels: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.connection_type)
+          },
+          values: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.connections)
+          },
+          options: pfReportChartOptions.pie
         }
       },
       {
@@ -891,12 +906,20 @@ export const pfReportCategories = [
           pfReportColumns.connections,
           pfReportColumns.percent
         ],
-        fields: [
-          pfReportFields.mac
-        ],
         range: {
           required: false,
           optional: false
+        },
+        chart: {
+          labels: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.connection_type)
+          },
+          values: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.connections)
+          },
+          options: pfReportChartOptions.pie
         }
       },
       {
@@ -907,44 +930,68 @@ export const pfReportCategories = [
           pfReportColumns.connections,
           pfReportColumns.percent
         ],
-        fields: [
-          pfReportFields.mac
-        ],
         range: {
           required: false,
           optional: false
+        },
+        chart: {
+          labels: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.connection_type)
+          },
+          values: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.connections)
+          },
+          options: pfReportChartOptions.pie
         }
       },
       {
         name: i18n.t('SSID (All)'),
         path: 'ssid',
         columns: [
-          pfReportColumns.nodes,
           pfReportColumns.ssid,
+          pfReportColumns.nodes,
           pfReportColumns.percent
-        ],
-        fields: [
-          pfReportFields.mac
         ],
         range: {
           required: false,
           optional: true
+        },
+        chart: {
+          labels: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.ssid)
+          },
+          values: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.nodes)
+          },
+          options: pfReportChartOptions.pie
         }
       },
       {
         name: i18n.t('SSID (Active)'),
         path: 'ssid/active',
         columns: [
-          pfReportColumns.nodes,
           pfReportColumns.ssid,
+          pfReportColumns.nodes,
           pfReportColumns.percent
-        ],
-        fields: [
-          pfReportFields.mac
         ],
         range: {
           required: false,
           optional: false
+        },
+        chart: {
+          labels: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.ssid)
+          },
+          values: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.nodes)
+          },
+          options: pfReportChartOptions.pie
         }
       }
     ]
@@ -961,12 +1008,20 @@ export const pfReportCategories = [
           pfReportColumns.accttotaloctets,
           pfReportColumns.percent
         ],
-        fields: [
-          pfReportFields.mac
-        ],
         range: {
           required: false,
           optional: true
+        },
+        chart: {
+          labels: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.dhcp_fingerprint)
+          },
+          values: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.accttotaloctets)
+          },
+          options: pfReportChartOptions.pie
         }
       },
       {
@@ -978,12 +1033,20 @@ export const pfReportCategories = [
           pfReportColumns.accttotaloctets,
           pfReportColumns.percent
         ],
-        fields: [
-          pfReportFields.mac
-        ],
         range: {
           required: false,
           optional: false
+        },
+        chart: {
+          labels: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.dhcp_fingerprint)
+          },
+          values: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.accttotaloctets)
+          },
+          options: pfReportChartOptions.pie
         }
       },
       {
@@ -995,12 +1058,20 @@ export const pfReportCategories = [
           pfReportColumns.accttotaloctets,
           pfReportColumns.percent
         ],
-        fields: [
-          pfReportFields.mac
-        ],
         range: {
           required: false,
           optional: false
+        },
+        chart: {
+          labels: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.dhcp_fingerprint)
+          },
+          values: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.accttotaloctets)
+          },
+          options: pfReportChartOptions.pie
         }
       },
       {
@@ -1012,12 +1083,20 @@ export const pfReportCategories = [
           pfReportColumns.accttotaloctets,
           pfReportColumns.percent
         ],
-        fields: [
-          pfReportFields.mac
-        ],
         range: {
           required: false,
           optional: false
+        },
+        chart: {
+          labels: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.dhcp_fingerprint)
+          },
+          values: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.accttotaloctets)
+          },
+          options: pfReportChartOptions.pie
         }
       },
       {
@@ -1029,12 +1108,20 @@ export const pfReportCategories = [
           pfReportColumns.accttotaloctets,
           pfReportColumns.percent
         ],
-        fields: [
-          pfReportFields.mac
-        ],
         range: {
           required: false,
           optional: false
+        },
+        chart: {
+          labels: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.dhcp_fingerprint)
+          },
+          values: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.accttotaloctets)
+          },
+          options: pfReportChartOptions.pie
         }
       },
       {
@@ -1050,12 +1137,20 @@ export const pfReportCategories = [
           pfReportColumns.accttotaloctets,
           pfReportColumns.percent
         ],
-        fields: [
-          pfReportFields.mac
-        ],
         range: {
           required: false,
           optional: true
+        },
+        chart: {
+          labels: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.callingstationid)
+          },
+          values: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.accttotaloctets)
+          },
+          options: pfReportChartOptions.pie
         }
       }
     ]
@@ -1072,12 +1167,20 @@ export const pfReportCategories = [
           pfReportColumns.count,
           pfReportColumns.percent
         ],
-        fields: [
-          pfReportFields.mac
-        ],
         range: {
           required: true,
           optional: false
+        },
+        chart: {
+          labels: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.mac)
+          },
+          values: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.count)
+          },
+          options: pfReportChartOptions.pie
         }
       },
       {
@@ -1089,12 +1192,20 @@ export const pfReportCategories = [
           pfReportColumns.count,
           pfReportColumns.percent
         ],
-        fields: [
-          pfReportFields.mac
-        ],
         range: {
           required: true,
           optional: false
+        },
+        chart: {
+          labels: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.ssid)
+          },
+          values: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.count)
+          },
+          options: pfReportChartOptions.pie
         }
       },
       {
@@ -1106,12 +1217,20 @@ export const pfReportCategories = [
           pfReportColumns.count,
           pfReportColumns.percent
         ],
-        fields: [
-          pfReportFields.mac
-        ],
         range: {
           required: true,
           optional: false
+        },
+        chart: {
+          labels: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.user_name)
+          },
+          values: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.count)
+          },
+          options: pfReportChartOptions.pie
         }
       },
       {
@@ -1123,12 +1242,20 @@ export const pfReportCategories = [
           pfReportColumns.count,
           pfReportColumns.percent
         ],
-        fields: [
-          pfReportFields.mac
-        ],
         range: {
           required: true,
           optional: false
+        },
+        chart: {
+          labels: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.mac)
+          },
+          values: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.count)
+          },
+          options: pfReportChartOptions.pie
         }
       },
       {
@@ -1140,12 +1267,20 @@ export const pfReportCategories = [
           pfReportColumns.count,
           pfReportColumns.percent
         ],
-        fields: [
-          pfReportFields.mac
-        ],
         range: {
           required: true,
           optional: false
+        },
+        chart: {
+          labels: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.ssid)
+          },
+          values: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.count)
+          },
+          options: pfReportChartOptions.pie
         }
       },
       {
@@ -1157,12 +1292,20 @@ export const pfReportCategories = [
           pfReportColumns.count,
           pfReportColumns.percent
         ],
-        fields: [
-          pfReportFields.mac
-        ],
         range: {
           required: true,
           optional: false
+        },
+        chart: {
+          labels: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.user_name)
+          },
+          values: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.count)
+          },
+          options: pfReportChartOptions.pie
         }
       },
       {
@@ -1174,12 +1317,20 @@ export const pfReportCategories = [
           pfReportColumns.count,
           pfReportColumns.percent
         ],
-        fields: [
-          pfReportFields.mac
-        ],
         range: {
           required: true,
           optional: false
+        },
+        chart: {
+          labels: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.computer_name)
+          },
+          values: (items) => {
+            items.pop() // pop Total
+            return items.map(item => item.count)
+          },
+          options: pfReportChartOptions.pie
         }
       }
     ]
