@@ -489,17 +489,18 @@ ldap $ldap {
     port            = "$ConfigAuthenticationLdap{$ldap}->{port}"
     identity        = "$ConfigAuthenticationLdap{$ldap}->{binddn}"
     password        = "$ConfigAuthenticationLdap{$ldap}->{password}"
-    basedn          = "$ConfigAuthenticationLdap{$ldap}->{basedn}"
+    base_dn         = "$ConfigAuthenticationLdap{$ldap}->{basedn}"
     filter          = "(userPrincipalName=%{User-Name})"
     scope           = $ConfigAuthenticationLdap{$ldap}->{scope}
     base_filter     = "(objectclass=user)"
     rebind          = yes
     chase_referrals = yes
     update {
-            control:AD-Samaccountname := 'sAMAccountName'
+        control:AD-Samaccountname := 'sAMAccountName'
     }
     user {
-            filter = "(|(userPrincipalName=%{User-Name})(sAMAccountName=%{%{Stripped-User-Name}:-%{User-Name}}))"
+        base_dn = "\${..base_dn}"
+        filter = "(|(userPrincipalName=%{User-Name})(sAMAccountName=%{%{Stripped-User-Name}:-%{User-Name}}))"
     }
     options {
         chase_referrals = yes
