@@ -56,6 +56,7 @@ Enhancements
 * VLAN filters can be set to ${node_info.category} and it will return the current category of the device
 * The database load-balancer now listens on the cluster management IP address
 * Allow to update switches while importing them via CSV
+* Take the tenant id in consideration in the queue (#3269)
 
 Bug Fixes
 +++++++++
