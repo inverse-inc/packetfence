@@ -162,7 +162,7 @@ EOT
         $tags{'redis_ntlm_cache_fetch'} = "# redis-ntlm-cache disabled in configuration"
     }
 
-    $tags{'userPrincipalName'} = "# sAMAccountName lookup disabled in configuration";
+    $tags{'userPrincipalName'} = '';
     my @realms;
     foreach my $realm ( sort keys %pf::config::ConfigRealm ) {
         if(isenabled($pf::config::ConfigRealm{$realm}->{'permit_userPrincipalName'})) {
