@@ -164,14 +164,31 @@ EOT
 
     $tags{'userPrincipalName'} = '';
     my @realms;
+    my $flag = $TRUE;
     foreach my $realm ( sort keys %pf::config::ConfigRealm ) {
         if(isenabled($pf::config::ConfigRealm{$realm}->{'permit_userPrincipalName'})) {
-            $tags{'userPrincipalName'} .= <<"EOT";
+            if ($flag) {
+                $tags{'userPrincipalName'} .= <<"EOT";
+        update control {
+            Cache-Status-Only = 'yes'
+        }
+        userprincipalname
+        if (notfound) {
+EOT
+            }
+            $flag = $FALSE;
+	    $tags{'userPrincipalName'} .= <<"EOT";
         if (Realm == \"$realm\" ) {
             $pf::config::ConfigRealm{$realm}->{ldap_source}
         }
 EOT
         }
+    }
+    if ($flag == $FALSE) {
+        $tags{'userPrincipalName'} .= <<"EOT";
+        }
+        userprincipalname
+EOT
     }
 
     $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence-tunnel";
