@@ -48,8 +48,6 @@ authorize {
 	# Uncomment if you need to reject user who already failed ntlm_auth (see packetfence-cache-ntlm-hit too)
 	# packetfence-control-ntlm-failure
 
-%%userPrincipalName%%
-
 	mschap
 
 	#
@@ -70,6 +68,8 @@ authorize {
 	#
 	suffix
 	ntdomain
+
+%%userPrincipalName%%
 
 	%%multi_domain%%
 
