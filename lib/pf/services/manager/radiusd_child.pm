@@ -30,6 +30,8 @@ use pf::authentication;
 use pf::cluster;
 use pf::util;
 
+use pf::constants qw($TRUE $FALSE);
+
 use pf::file_paths qw(
     $conf_dir
     $install_dir
