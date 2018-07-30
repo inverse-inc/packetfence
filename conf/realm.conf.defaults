@@ -1,5 +1,14 @@
 [DEFAULT]
+admin_strip_username=disabled
+radius_strip_username=disabled
+portal_strip_username=disabled
 
 [LOCAL]
+admin_strip_username=disabled
+radius_strip_username=disabled
+portal_strip_username=disabled
 
 [NULL]
+admin_strip_username=disabled
+radius_strip_username=disabled
+portal_strip_username=disabled

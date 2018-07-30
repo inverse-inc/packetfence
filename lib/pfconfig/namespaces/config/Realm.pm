@@ -52,10 +52,6 @@ sub build_child {
 
 sub cleanup_after_read {
     my ( $self, $id, $item ) = @_;
-
-    # Define default values for the context stripping
-    map { !defined($item->{$_}) ? $item->{$_} = "enabled" : () } qw(admin_strip_username radius_strip_username portal_strip_username);
-
     $self->expand_list( $item, $self->{expandable_params} );
 }
 
