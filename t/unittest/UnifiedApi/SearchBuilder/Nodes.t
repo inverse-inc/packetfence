@@ -399,7 +399,7 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
             200,
             [
                 'node.mac',
-                \"count(violation.id) as `violation.open_count`",
+                \"COUNT(violation_open.id) AS `violation.open_count`",
             ],
         ],
         'Return the columns'
@@ -421,7 +421,7 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
             200,
             [
                 -join => 'node',
-                @pf::UnifiedApi::SearchBuilder::Nodes::VIOLATION_JOIN,
+                @pf::UnifiedApi::SearchBuilder::Nodes::VIOLATION_OPEN_JOIN,
             ]
         ],
         'Return the joined tables'
