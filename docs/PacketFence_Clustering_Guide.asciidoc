@@ -302,7 +302,7 @@ Where :
 * 'packet' is the webservices username you have configured on the *first server* node
 * 'fence' is the webservices password you have configured on the *first server* node
 
-On second and third servers, make sure that 'iptables' is stopped:
+On *all your servers*, make sure that 'iptables' is stopped:
 
   # systemctl stop packetfence-iptables
 
