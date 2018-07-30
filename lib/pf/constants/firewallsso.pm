@@ -27,7 +27,7 @@ Readonly::Scalar our $FIREWALL_TYPES => [
     "Checkpoint",
     "FortiGate",
     "Iboss",
-    "Juniper SRX",
+    "JuniperSRX",
     "PaloAlto",
     "WatchGuard",
     "JSONRPC",
