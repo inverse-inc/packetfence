@@ -5,7 +5,24 @@
  * https://plot.ly/javascript/plotlyjs-function-reference/
  */
 <template>
-  <div ref="plotly"></div>
+  <b-container fluid>
+    <div ref="plotly"></div>
+    <b-row align-h="between" align-v="center">
+      <b-col cols="auto" class="mr-auto">
+        ...
+      </b-col>
+      <b-col cols="auto">
+        <b-container fluid>
+          <b-row align-v="center">
+            <b-form inline class="mb-0">
+              <b-form-select class="mb-3 mr-3" size="sm" v-model="chartSizeLimit" :options="[5,10,25,50,100]" :disabled="isLoading"
+                @input="onChartSizeChange" />
+            </b-form>
+          </b-row>
+        </b-container>
+      </b-col>
+    </b-row>
+  </b-container>
 </template>
 
 <script>
@@ -34,54 +51,118 @@ export default {
       type: Object
     }
   },
+  data () {
+    return {
+      chartSizeLimit: 25
+    }
+  },
   computed: {
   },
   methods: {
+    queueRender () {
+      // buffer async calls to render
+      if (this.timeoutRender) clearTimeout(this.timeoutRender)
+      this.timeoutRender = setTimeout(this.render, 100)
+    },
     render () {
       if (!this.$refs.plotly) return
-      // dereference items, permit modification
-      let itemsString = JSON.stringify(this.items)
+      // dereference items
+      const itemsString = JSON.stringify(this.items)
       let values = this.report.chart.values(JSON.parse(itemsString))
       let labels = this.report.chart.labels(JSON.parse(itemsString))
-      let colors = colorsFull
+      // dereference colors
+      let colors = JSON.parse(JSON.stringify(colorsFull))
       if (values.length === 0) {
+        colors = colorsNull
         values = [100]
         labels = [this.$i18n.t('No Data')]
-        colors = colorsNull
+      } else {
+        // zip together then sort
+        let zip = values.map(function (e, i) { return [e, labels[i]] }).sort(function (a, b) { return (a[0] === b[0]) ? 0 : (a[0] > b[0]) ? -1 : 1 })
+        // truncate
+        if (zip.length > this.chartSizeLimit) {
+          let other = zip.slice(this.chartSizeLimit).map(zip => zip[0])
+          zip = zip.slice(0, this.chartSizeLimit)
+          // push 'Other'
+          zip.push([other.reduce((sum, val) => sum + val), this.$i18n.t('Other')])
+          // unzip
+          values = zip.map(zip => zip[0])
+          labels = zip.map(zip => zip[1])
+          colors[this.chartSizeLimit] = '#000000'
+        }
       }
+      let options = this.report.chart.options
+      if (!options.marker) options.marker = {}
+      options.marker = Object.assign(options.marker, { colors: colors })
       this.data = [Object.assign({
         values: values,
         labels: labels
-      }, Object.assign({marker: { colors: colors }}, this.report.chart.options))]
-      this.layout = {}
-      this.options = {}
-      Plotly.react(this.$refs.plotly, this.data, this.layout, this.options)
+      }, options)]
+      Plotly.react(this.$refs.plotly, this.data, this.report.chart.layout)
+    },
+    getWindowWidth (event) {
+      const width = document.documentElement.clientWidth
+      if (event && width !== this.windowWidth) {
+        this.queueRender()
+      }
+      this.windowWidth = width
+    },
+    getWindowHeight (event) {
+      const height = document.documentElement.clientHeight
+      if (event && height !== this.windowHeight) {
+        this.queueRender()
+      }
+      this.windowHeight = height
+    },
+    onChartSizeChange (chartSizeLimit) {
+      this.chartSizeLimit = chartSizeLimit
+      this.render()
     }
   },
   mounted () {
+    this.$nextTick(function () {
+      window.addEventListener('resize', this.getWindowWidth)
+      window.addEventListener('resize', this.getWindowHeight)
+      this.getWindowWidth()
+      this.getWindowHeight()
+    })
   },
   created () {
   },
   watch: {
     items: {
       handler: function (a, b) {
-        // buffer async calls to render
-        if (this.timeoutRender) clearTimeout(this.timeoutRender)
-        this.timeoutRender = setTimeout(this.render, 100)
+        this.queueRender()
       },
       immediate: true,
       deep: true
     },
     report: {
       handler: function (a, b) {
-        // buffer async calls to render
-        if (this.timeoutRender) clearTimeout(this.timeoutRender)
-        this.timeoutRender = setTimeout(this.render, 100)
+        this.queueRender()
       },
       immediate: true,
       deep: true
     }
+  },
+  beforeDestroy () {
+    window.removeEventListener('resize', this.getWindowWidth)
+    window.removeEventListener('resize', this.getWindowHeight)
   }
 }
 </script>
+
+<style lang="scss">
+/**
+ * double-clicking legend causes user selection, disable
+ */
+.plotly * {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+</style>
 

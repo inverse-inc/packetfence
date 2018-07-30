@@ -4,8 +4,6 @@
       <h4 class="mb-0">{{ $t('Report') }} / {{ $t(report.category) }} / {{ $t(report.name) }}</h4>
     </b-card-header>
     <pf-report-chart v-if="report.chart" :report="report" :items="items"></pf-report-chart>
-    <!--<pf-search :fields="fields" :store="$store" storeName="$_reports" :advanced-mode="advancedMode" :condition="condition"
-      @submit-search="onSearch" @reset-search="onReset" @import-search="onImport"></pf-search>-->
     <div class="card-body">
       <b-row align-h="between" align-v="center">
         <b-col cols="auto" class="mr-auto">
