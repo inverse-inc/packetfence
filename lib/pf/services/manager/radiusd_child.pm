@@ -632,6 +632,8 @@ EOT
     }
     foreach my $radius (uniq @radius_sources) {
                 my $source = pf::authentication::getAuthenticationSource($radius);
+                my $src_ip = pf::util::find_outgoing_srcip($source->{'host'});
+                $source->{'options'} =~ s/\$src_ip/$src_ip/;
                 $tags{'radius_sources'} .= <<"EOT";
 
 home_server $radius {
