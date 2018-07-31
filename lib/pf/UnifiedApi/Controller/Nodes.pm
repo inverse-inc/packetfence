@@ -22,12 +22,12 @@ use pf::constants qw($TRUE);
 use pf::dal::violation;
 use pf::error qw(is_error);
 use pf::locationlog qw(locationlog_history_mac locationlog_view_open_mac);
-use pf::UnifiedApi::SearchBuilder::Nodes;
+use pf::UnifiedApi::Search::Builder::Nodes;
 use pf::violation;
 use pf::Connection;
 use pf::SwitchFactory;
 
-has 'search_builder_class' => 'pf::UnifiedApi::SearchBuilder::Nodes';
+has 'search_builder_class' => 'pf::UnifiedApi::Search::Builder::Nodes';
 
 has dal => 'pf::dal::node';
 has url_param_name => 'node_id';

@@ -19,7 +19,7 @@ use Mojo::JSON qw(decode_json);
 use pf::error qw(is_error);
 use pf::log;
 use pf::util qw(expand_csv);
-use pf::UnifiedApi::SearchBuilder;
+use pf::UnifiedApi::Search::Builder;
 use pf::UnifiedApi::OpenAPI::Generator::Crud;
 
 our %OP_HAS_SUBQUERIES = (
@@ -69,7 +69,7 @@ search_builder_class
 
 =cut
 
-has 'search_builder_class' => "pf::UnifiedApi::SearchBuilder";
+has 'search_builder_class' => "pf::UnifiedApi::Search::Builder";
 
 =head2 openapi_generator_class
 

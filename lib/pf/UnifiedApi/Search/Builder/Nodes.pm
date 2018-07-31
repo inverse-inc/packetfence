@@ -1,21 +1,21 @@
-package pf::UnifiedApi::SearchBuilder::Nodes;
+package pf::UnifiedApi::Search::Builder::Nodes;
 
 =head1 NAME
 
-pf::UnifiedApi::SearchBuilder::Nodes -
+pf::UnifiedApi::Search::Builder::Nodes -
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::UnifiedApi::SearchBuilder::Nodes
+pf::UnifiedApi::Search::Builder::Nodes
 
 =cut
 
 use strict;
 use warnings;
 use Moo;
-extends qw(pf::UnifiedApi::SearchBuilder);
+extends qw(pf::UnifiedApi::Search::Builder);
 use pf::dal::node;
 use pf::dal::locationlog;
 use pf::dal::radacct;

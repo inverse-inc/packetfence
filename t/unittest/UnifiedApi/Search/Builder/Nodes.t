@@ -28,13 +28,13 @@ use Test::More tests => 25;
 
 #This test will running last
 use Test::NoWarnings;
-use pf::UnifiedApi::SearchBuilder::Nodes;
+use pf::UnifiedApi::Search::Builder::Nodes;
 use pf::error qw(is_error);
 use pf::constants qw($ZERO_DATE);
 use pf::dal::node;
 my $dal = "pf::dal::node";
 
-my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
+my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
 
 {
     my ($status, $col) = $sb->make_columns({ dal => $dal,  fields => [qw(mac $garbage ip4log.ip)] });
@@ -63,8 +63,8 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
             200,
             [
                 -join => 'node',
-                @pf::UnifiedApi::SearchBuilder::Nodes::IP4LOG_JOIN,
-                @pf::UnifiedApi::SearchBuilder::Nodes::LOCATION_LOG_JOIN,
+                @pf::UnifiedApi::Search::Builder::Nodes::IP4LOG_JOIN,
+                @pf::UnifiedApi::Search::Builder::Nodes::LOCATION_LOG_JOIN,
             ]
         ],
         'Return the joined tables'
@@ -122,9 +122,9 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
             200,
             [
                 -join => 'node',
-                @pf::UnifiedApi::SearchBuilder::Nodes::LOCATION_LOG_JOIN,
-                @pf::UnifiedApi::SearchBuilder::Nodes::RADACCT_JOIN,
-                @pf::UnifiedApi::SearchBuilder::Nodes::IP4LOG_JOIN,
+                @pf::UnifiedApi::Search::Builder::Nodes::LOCATION_LOG_JOIN,
+                @pf::UnifiedApi::Search::Builder::Nodes::RADACCT_JOIN,
+                @pf::UnifiedApi::Search::Builder::Nodes::IP4LOG_JOIN,
             ]
         ],
         'Return the joined tables'
@@ -377,8 +377,8 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
             200,
             [
                 -join => 'node',
-                @pf::UnifiedApi::SearchBuilder::Nodes::RADACCT_JOIN,
-                @pf::UnifiedApi::SearchBuilder::Nodes::IP4LOG_JOIN,
+                @pf::UnifiedApi::Search::Builder::Nodes::RADACCT_JOIN,
+                @pf::UnifiedApi::Search::Builder::Nodes::IP4LOG_JOIN,
             ]
         ],
         'Return the joined tables'
@@ -421,7 +421,7 @@ my $sb = pf::UnifiedApi::SearchBuilder::Nodes->new();
             200,
             [
                 -join => 'node',
-                @pf::UnifiedApi::SearchBuilder::Nodes::VIOLATION_OPEN_JOIN,
+                @pf::UnifiedApi::Search::Builder::Nodes::VIOLATION_OPEN_JOIN,
             ]
         ],
         'Return the joined tables'

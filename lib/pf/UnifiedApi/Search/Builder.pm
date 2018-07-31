@@ -1,14 +1,14 @@
-package pf::UnifiedApi::SearchBuilder;
+package pf::UnifiedApi::Search::Builder;
 
 =head1 NAME
 
-pf::UnifiedApi::SearchBuilder -
+pf::UnifiedApi::Search::Builder -
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::UnifiedApi::SearchBuilder
+pf::UnifiedApi::Search::Builder
 
 =cut
 
