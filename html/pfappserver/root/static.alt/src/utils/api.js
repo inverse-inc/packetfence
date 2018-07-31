@@ -47,7 +47,7 @@ apiCall.interceptors.response.use((response) => {
   store.commit('session/API_OK')
   return response
 }, (error) => {
-  let icon
+  let icon = 'exclamation-triangle'
   if (error.response) {
     if (error.response.status === 401 || // unauthorized
       (error.response.status === 404 && /token_info/.test(error.config.url))) {
@@ -60,8 +60,9 @@ apiCall.interceptors.response.use((response) => {
         case 404:
           icon = 'unlink'
           break
-        default:
-          icon = 'exclamation-triangle'
+        case 503:
+          store.commit('session/API_ERROR')
+          break
       }
       console.group('API error')
       console.log(error.response.data)

@@ -1,6 +1,6 @@
 <template>
-  <div class="notifications">
-    <b-nav-item-dropdown @click.native.stop.prevent @hidden="markAsRead()" :disabled="isEmpty" right no-caret>
+  <b-navbar-nav class="notifications">
+    <b-nav-item-dropdown v-if="isAuthenticated" @click.native.stop.prevent @hidden="markAsRead()" :disabled="isEmpty" right no-caret>
       <template slot="button-content">
         <icon-counter name="bell" v-model="count" :variant="variant"></icon-counter>
       </template>
@@ -31,7 +31,7 @@
       <small class="notification-url text-secondary">{{notification.url}}</small>
     </b-alert>
   </div>
-</div>
+</b-navbar-nav>
 </template>
 
 <script>
@@ -41,6 +41,11 @@ export default {
   name: 'pfNotificationCenter',
   components: {
     'icon-counter': IconCounter
+  },
+  props: {
+    isAuthenticated: {
+      default: false
+    }
   },
   computed: {
     notifications () {
@@ -87,7 +92,7 @@ export default {
     z-index: 9999;
 }
 
-.navbar .navbar-nav>.nav-item.notifications {
+.navbar .navbar-nav.notifications>.nav-item {
     font-weight: inherit;
     text-transform: none;
 }
