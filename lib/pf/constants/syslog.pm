@@ -89,7 +89,7 @@ our @SyslogInfo = (
         'conditions' => [ '$programname contains "httpd_webservices"' ]
     },
     {
-        'name'      => 'api-frontend.access',
+        'name'      => 'httpd.api-frontend.access',
         'conditions' => [ '$msg contains "api-frontend-access"' ],
     },
     {
