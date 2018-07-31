@@ -178,6 +178,31 @@ export default {
           types: [conditionType.CONNECTION_TYPE]
         },
         {
+          value: 'detect_date',
+          text: this.$i18n.t('Datetime Detected'),
+          types: [conditionType.DATETIME]
+        },
+        {
+          value: 'regdate',
+          text: this.$i18n.t('Datetime Registered'),
+          types: [conditionType.DATETIME]
+        },
+        {
+          value: 'unregdate',
+          text: this.$i18n.t('Datetime Unregistered'),
+          types: [conditionType.DATETIME]
+        },
+        {
+          value: 'last_arp',
+          text: this.$i18n.t('Datetime Last ARP'),
+          types: [conditionType.DATETIME]
+        },
+        {
+          value: 'last_dhcp',
+          text: this.$i18n.t('Datetime Last DHCP'),
+          types: [conditionType.DATETIME]
+        },
+        {
           value: 'device_class',
           text: this.$i18n.t('Device Class'),
           types: [conditionType.SUBSTRING]

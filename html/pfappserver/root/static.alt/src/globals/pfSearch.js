@@ -9,12 +9,14 @@ export const pfSearchConditionType = {
   ROLE:                    'role',
   CONNECTION_TYPE:         'connection_type',
   ONLINE:                  'online',
-  INTEGER:                 'integer'
+  INTEGER:                 'integer',
+  DATETIME:                'datetime'
 }
 
 export const pfSearchConditionValue = {
   TEXT:                    'text',
-  SELECT:                  'select'
+  SELECT:                  'select',
+  DATETIME:                'datetime'
 }
 
 /**
@@ -50,20 +52,26 @@ pfConditionOperators[pfSearchConditionType.ROLE] = {
   'not_equals':            pfSearchConditionValue.SELECT
 }
 pfConditionOperators[pfSearchConditionType.CONNECTION_TYPE] = {
-  'equals':                    pfSearchConditionValue.SELECT,
-  'not_equals':                pfSearchConditionValue.SELECT
+  'equals':                pfSearchConditionValue.SELECT,
+  'not_equals':            pfSearchConditionValue.SELECT
 }
 pfConditionOperators[pfSearchConditionType.ONLINE] = {
-  'equals':                    pfSearchConditionValue.SELECT,
-  'not_equals':                pfSearchConditionValue.SELECT
+  'equals':                pfSearchConditionValue.SELECT,
+  'not_equals':            pfSearchConditionValue.SELECT
 }
 pfConditionOperators[pfSearchConditionType.VOIP] = {
-  'equals':                    pfSearchConditionValue.SELECT,
-  'not_equals':                pfSearchConditionValue.SELECT
+  'equals':                pfSearchConditionValue.SELECT,
+  'not_equals':            pfSearchConditionValue.SELECT
 }
 pfConditionOperators[pfSearchConditionType.VIOLATION] = {
-  'equals':                    pfSearchConditionValue.SELECT,
-  'not_equals':                pfSearchConditionValue.SELECT
+  'equals':                pfSearchConditionValue.SELECT,
+  'not_equals':            pfSearchConditionValue.SELECT
+}
+pfConditionOperators[pfSearchConditionType.DATETIME] = {
+  'greater_than':          pfSearchConditionValue.DATETIME,
+  'greater_than_equals':   pfSearchConditionValue.DATETIME,
+  'less_than':             pfSearchConditionValue.DATETIME,
+  'less_than_equals':      pfSearchConditionValue.DATETIME
 }
 
 /**
