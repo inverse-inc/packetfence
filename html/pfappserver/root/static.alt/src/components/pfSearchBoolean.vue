@@ -40,7 +40,7 @@
                   <b-form-select v-model="rule.field" :options="fields"></b-form-select>
                   <b-form-select v-model="rule.op" :options="operators(rule)"></b-form-select>
                   <b-form-input v-model="rule.value" type="text" v-if="isFieldType(substringValueType, rule)"></b-form-input>
-                  <date-picker v-model="model.values[0].values[0].value" v-else-if="isFieldType(datetimeValueType, model.values[0].values[0])" :config="datetimeConfig"></date-picker>
+                  <date-picker v-model="rule.value" v-else-if="isFieldType(datetimeValueType, rule)" :config="datetimeConfig"></date-picker>
                   <b-form-select v-model.lazy="rule.value" :options="values(rule)" v-else-if="isFieldType(selectValueType, rule)"></b-form-select>
                   <b-button v-if="model.values.length > 1 || model.values[outerindex].values.length > 1 && drag === false" variant="link" class="nodrag float-right mt-1 mr-1" v-b-tooltip.hover.left :title="$t('Delete statement')" @click="removeStatement(outerindex, innerindex)"><icon name="trash-alt"></icon></b-button>
                 </b-container>
