@@ -51,7 +51,7 @@ export const pfReportChartOptions = {
       color: '#444'
     },
     pull: 0,
-    sort: false,
+    sort: true,
     textinfo: 'label',
     textfont: {
       family: '"Open Sans", verdana, arial, sans-serif',

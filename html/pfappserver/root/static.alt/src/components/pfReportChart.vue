@@ -66,29 +66,31 @@ export default {
     },
     render () {
       if (!this.$refs.plotly) return
-      // dereference items
+      // dereference items, deep copy
       const itemsString = JSON.stringify(this.items)
       let values = this.report.chart.values(JSON.parse(itemsString))
       let labels = this.report.chart.labels(JSON.parse(itemsString))
-      // dereference colors
+      // dereference colors, deep copy
       let colors = JSON.parse(JSON.stringify(colorsFull))
       if (values.length === 0) {
+        // no data
         colors = colorsNull
         values = [100]
         labels = [this.$i18n.t('No Data')]
       } else {
         // zip together then sort
         let zip = values.map(function (e, i) { return [e, labels[i]] }).sort(function (a, b) { return (a[0] === b[0]) ? 0 : (a[0] > b[0]) ? -1 : 1 })
-        // truncate
+        // truncate chart size limit
         if (zip.length > this.chartSizeLimit) {
           let other = zip.slice(this.chartSizeLimit).map(zip => zip[0])
           zip = zip.slice(0, this.chartSizeLimit)
-          // push 'Other'
+          // push [sum(val), 'Other']
           zip.push([other.reduce((sum, val) => sum + val), this.$i18n.t('Other')])
+          // "Paint It, Black" - Rolling Stones
+          colors[this.chartSizeLimit] = '#000000'
           // unzip
           values = zip.map(zip => zip[0])
           labels = zip.map(zip => zip[1])
-          colors[this.chartSizeLimit] = '#000000'
         }
       }
       let options = this.report.chart.options
@@ -98,7 +100,7 @@ export default {
         values: values,
         labels: labels
       }, options)]
-      Plotly.react(this.$refs.plotly, this.data, this.report.chart.layout)
+      Plotly.react(this.$refs.plotly, this.data, this.report.chart.layout, {displayModeBar: true, scrollZoom: true, displaylogo: false})
     },
     getWindowWidth (event) {
       const width = document.documentElement.clientWidth
@@ -116,7 +118,7 @@ export default {
     },
     onChartSizeChange (chartSizeLimit) {
       this.chartSizeLimit = chartSizeLimit
-      this.render()
+      this.queueRender()
     }
   },
   mounted () {
@@ -139,7 +141,9 @@ export default {
     },
     report: {
       handler: function (a, b) {
-        this.queueRender()
+        if (JSON.stringify(a) !== JSON.stringify(b)) {
+          this.queueRender()
+        }
       },
       immediate: true,
       deep: true
