@@ -71,7 +71,16 @@ export default {
       default: {
         searchApiEndpoint: 'users',
         defaultSortKeys: ['pid'],
-        defaultSearchCondition: { op: 'and', values: [{ op: 'or', values: [{ field: 'pid', op: 'equals', value: null }] }] },
+        defaultSearchCondition: {
+          op: 'and',
+          values: [{
+            op: 'or',
+            values: [
+              { field: 'pid', op: 'contains', value: null },
+              { field: 'email', op: 'contains', value: null }
+            ]
+          }]
+        },
         defaultRoute: { name: 'users' }
       }
     },
@@ -482,14 +491,12 @@ export default {
       }
     },
     pfMixinSearchableAdvancedMode (condition) {
-      return condition.values.length > 1 || !(
-        condition.values[0].values.length === 2 &&
-        condition.values[0].values[0].field === 'pid' &&
-        condition.values[0].values[0].op === 'contains' &&
-        condition.values[0].values[1].field === 'email' &&
-        condition.values[0].values[1].op === 'contains' &&
-        condition.values[0].values[0].value === condition.values[0].values[1].value
-      )
+      return condition.values.length > 1 ||
+        condition.values[0].values.filter(v => {
+          return this.pfMixinSearchableOptions.defaultSearchCondition.values[0].values.findIndex(d => {
+            return d.field === v.field && d.op === v.op
+          }) >= 0
+        }).length !== condition.values[0].values.length
     },
     onRowClick (item, index) {
       this.$router.push({ name: 'user', params: { pid: item.pid } })
