@@ -161,11 +161,17 @@
   background-color: transparent;
 }
 
-.bd-sidebar .nav .active,
-.bd-sidebar .nav .active:hover {
+.bd-sidebar .nav .active:not(.secondary),
+.bd-sidebar .nav .active:not(.secondary):hover {
+  color: $component-active-color;
+  background-color: $component-active-bg;
+}
+
+.bd-sidebar .nav .active.secondary,
+.bd-sidebar .nav .active.secondary:hover {
   font-weight: 500;
   color: rgba(0,0,0,.85);
   background-color: transparent;
-  border-left: .2rem solid $link-color;
+  border-left: .2rem solid $component-active-bg;
   padding-left: 1.3rem;
 }
