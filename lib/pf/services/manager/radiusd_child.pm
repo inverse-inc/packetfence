@@ -22,6 +22,7 @@ use List::MoreUtils qw(any uniq);
 use Moo;
 use NetAddr::IP;
 use Template;
+use Socket;
 
 use pfconfig::cached_array;
 use pfconfig::cached_hash;
@@ -631,10 +632,12 @@ EOT
         }
     }
     foreach my $radius (uniq @radius_sources) {
-                my $source = pf::authentication::getAuthenticationSource($radius);
-                my $src_ip = pf::util::find_outgoing_srcip($source->{'host'});
-                $source->{'options'} =~ s/\$src_ip/$src_ip/;
-                $tags{'radius_sources'} .= <<"EOT";
+        my $source = pf::authentication::getAuthenticationSource($radius);
+        my @addresses = gethostbyname($source->{'host'});
+        my @ips = map { inet_ntoa($_) } @addresses[4 .. $#addresses];
+        my $src_ip = pf::util::find_outgoing_srcip($ips[0]);
+        $source->{'options'} =~ s/\$src_ip/$src_ip/;
+        $tags{'radius_sources'} .= <<"EOT";
 
 home_server $radius {
 ipaddr = $source->{'host'}
@@ -642,6 +645,7 @@ port = $source->{'port'}
 secret = $source->{'secret'}
 $source->{'options'}
 }
+
 EOT
     }
     # Eduroam configuration

@@ -1462,7 +1462,7 @@ sub find_outgoing_srcip {
 
     @src_ip = split(" ", pf_run("sudo ip route get $target"));
 
-    if ($src_ip[3] eq 'via') {
+    if ($src_ip[1] eq 'via') {
         return $src_ip[6];
     } elsif($src_ip[0] eq 'local') {
         return $src_ip[5];
