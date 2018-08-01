@@ -81,7 +81,7 @@
     </b-container>
 
     <b-card-footer align="right" @mouseenter="$v.$touch()">
-      <b-button variant="outline-primary" :disabled="invalidForm" @click="create()">
+      <b-button variant="primary" :disabled="invalidForm" @click="create()">
         <icon name="circle-notch" spin v-show="isLoading"></icon> {{ $t('Create') }}
       </b-button>
     </b-card-footer>

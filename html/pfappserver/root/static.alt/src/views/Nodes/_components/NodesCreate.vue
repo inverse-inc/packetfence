@@ -9,7 +9,7 @@
         <b-form @submit.prevent="create()">
           <b-form-row align-v="center">
             <b-col sm="8">
-              <pf-form-input v-model="single.mac" label="$t('MAC')"
+              <pf-form-input v-model="single.mac" :label="$t('MAC')"
                 :validation="$v.single.mac" :invalid-feedback="invalidMarcFeedback"/>
               <b-form-group horizontal label-cols="3" :label="$t('Owner')">
                 <pf-autocomplete v-model="single.pid" placeholder="default" @search="searchUsers" :suggestions="matchingUsers"></pf-autocomplete>
@@ -65,7 +65,7 @@
     </b-tabs>
 
     <b-card-footer align="right" @mouseenter="$v.$touch()">
-      <b-button variant="outline-primary" :disabled="invalidForm" @click="create()">
+      <b-button variant="primary" :disabled="invalidForm" @click="create()">
         <icon name="circle-notch" spin v-show="isLoading"></icon> {{ $t('Create') }}
       </b-button>
     </b-card-footer>
