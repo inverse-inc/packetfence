@@ -1,18 +1,20 @@
 <template>
   <b-container fluid class="px-0" v-if="!advancedMode">
     <!-- BEGIN SIMPLE SEARCH -->
-    <b-container fluid class="rc px-1 py-1 bg-light">
-      <b-row class="mx-auto">
-        <b-col cols="12" class="bg-white rc">
-          <b-container fluid class="mx-0 px-0 py-1">
-            <b-form-select v-model="model.values[0].values[0].field" :options="fields"></b-form-select>
-            <b-form-select v-model="model.values[0].values[0].op" :options="operators(model.values[0].values[0])"></b-form-select>
-            <b-form-input v-model="model.values[0].values[0].value" type="text" v-if="isFieldType(substringValueType, model.values[0].values[0])"></b-form-input>
-            <b-form-select v-model.lazy="model.values[0].values[0].value" :options="values(model.values[0].values[0])" v-else-if="isFieldType(selectValueType, model.values[0].values[0])"></b-form-select>
-          </b-container>
-        </b-col>
-      </b-row>
-    </b-container>
+    <b-form-row class="mx-auto">
+      <b-col class="my-1" md>
+        <b-form-select v-model="model.values[0].values[0].field" :options="fields"></b-form-select>
+      </b-col>
+      <b-col class="my-1" md>
+        <b-form-select v-model="model.values[0].values[0].op" :options="operators(model.values[0].values[0])"></b-form-select>
+      </b-col>
+      <b-col class="my-1" md v-if="isFieldType(substringValueType, model.values[0].values[0])">
+        <b-form-input v-model="model.values[0].values[0].value" type="text"></b-form-input>
+      </b-col>
+      <b-col class="my-1" md v-else-if="isFieldType(selectValueType, model.values[0].values[0])">
+        <b-form-select v-model.lazy="model.values[0].values[0].value" :options="values(model.values[0].values[0])"></b-form-select>
+      </b-col>
+    </b-form-row>
     <!-- END SIMPLE SEARCH -->
   </b-container>
   <b-container fluid class="px-0" v-else>
@@ -30,7 +32,7 @@
       </nav>
       END NAVBAR -->
       <b-container fluid class="rc px-0 py-1 bg-secondary">
-        <draggable v-model="model.values[outerindex].values" :options="{group: 'or', handle: '.draghandle', filter: '.nodrag', dragClass: 'sortable-drag'}" @start="onDragStart" @end="onDragEnd"> 
+        <draggable v-model="model.values[outerindex].values" :options="{group: 'or', handle: '.draghandle', filter: '.nodrag', dragClass: 'sortable-drag'}" @start="onDragStart" @end="onDragEnd">
           <b-container fluid class="px-1" v-for="(rule, innerindex) in model.values[outerindex].values" :key="innerindex">
             <b-row class="mx-auto isdrag">
               <b-col cols="12" class="bg-white rc">
@@ -54,7 +56,7 @@
               <b-col cols="12" class="bg-white rc">
                 <b-container class="mx-0 px-1 py-1">
                   <a href="#" class="text-nowrap" @click="addInnerStatement(outerindex)">{{ $t('Add "or" statement') }}</a>
-                </b-container>  
+                </b-container>
               </b-col>
             </b-row>
           </b-container>
@@ -71,7 +73,7 @@
       <b-col cols="12" class="bg-secondary rc">
         <b-container class="mx-0 px-1 py-1">
           <a href="#" class="text-nowrap text-white" @click="addOuterStatement()">{{ $t('Add "and" statement') }}</a>
-        </b-container>  
+        </b-container>
       </b-col>
     </b-row>
     <!-- END ADVANCED SEARCH -->
@@ -208,29 +210,32 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import "../../node_modules/bootstrap/scss/functions";
+@import "../styles/variables";
+
 .rc,
 .rc-t,
 .rc-l,
 .rc-tl {
-  border-top-left-radius: 0.5em;
+  border-top-left-radius: $input-border-radius;
 }
 .rc,
 .rc-t,
 .rc-r,
 .rc-tr {
-  border-top-right-radius: 0.5em;
+  border-top-right-radius: $input-border-radius;
 }
 .rc,
 .rc-b,
 .rc-r,
 .rc-br {
-  border-bottom-right-radius: 0.5em;
+  border-bottom-right-radius: $input-border-radius;
 }
 .rc,
 .rc-b
 .rc-l,
 .rc-bl {
-  border-bottom-left-radius: 0.5em;
+  border-bottom-left-radius: $input-border-radius;
 }
 .sortable-drag .nodrag {
   display: none;
