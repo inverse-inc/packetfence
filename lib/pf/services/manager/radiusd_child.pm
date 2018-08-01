@@ -611,6 +611,7 @@ EOT
         }
         if ($pf::config::ConfigRealm{$realm}->{'radius_acct'}) {
             $tags{'config'} .= <<"EOT";
+
 home_server_pool acct_pool_$realm {
 type = $pf::config::ConfigRealm{$realm}->{'radius_acct_proxy_type'}
 EOT
