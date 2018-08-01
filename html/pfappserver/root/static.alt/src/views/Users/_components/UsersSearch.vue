@@ -34,8 +34,8 @@
           </b-container>
         </b-col>
       </b-row>
-      <b-table hover :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc"
-        @sort-changed="onSortingChanged" @row-clicked="onRowClick" @head-clicked="clearSelected" no-local-sorting v-model="tableValues">
+      <b-table :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc" v-model="tableValues"
+        @sort-changed="onSortingChanged" @row-clicked="onRowClick" @head-clicked="clearSelected" responsive hover no-local-sorting>
         <template slot="HEAD_actions" slot-scope="head">
           <input type="checkbox" id="checkallnone" v-model="selectAll" @change="onSelectAllChange" @click.stop>
           <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{$t('Select None [ALT+N]')}}</b-tooltip>

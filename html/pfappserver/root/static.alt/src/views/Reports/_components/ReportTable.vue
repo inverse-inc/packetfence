@@ -33,8 +33,8 @@
           </b-container>
         </b-col>
       </b-row>
-      <b-table stacked="sm" :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc" :sort-compare="sortCompare"
-        @sort-changed="onSortingChanged" responsive="true" hover v-model="tableValues"></b-table>
+      <b-table :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc" :sort-compare="sortCompare" v-model="tableValues"
+        @sort-changed="onSortingChanged" responsive hover></b-table>
     </div>
   </b-card>
 </template>
