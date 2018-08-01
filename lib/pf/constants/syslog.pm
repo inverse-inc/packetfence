@@ -89,8 +89,12 @@ our @SyslogInfo = (
         'conditions' => [ '$programname contains "httpd_webservices"' ]
     },
     {
-        'name'      => 'api-frontend.access',
+        'name'      => 'httpd.api-frontend.access',
         'conditions' => [ '$msg contains "api-frontend-access"' ],
+    },
+    {
+        'name'      => 'api-frontend.log',
+        'conditions' => [ '$programname == "api-frontend"' ],
     },
     {
         'name'       => 'pfstats.log',
@@ -124,7 +128,7 @@ our @SyslogInfo = (
     },
     {
         'name'       => 'pfdns.log',
-        'conditions' => [ '$programname == "pfdns"' ]
+        'conditions' => [ '$programname contains "pfdns"' ]
     },
     {
         'name'       => 'pffilter.log',
@@ -176,8 +180,16 @@ our @SyslogInfo = (
         'conditions' => [ '$syslogtag contains "redis-queue"' ]
     },
     {
+        'name'       => 'redis_server.log',
+        'conditions' => [ '$programname == "redis-server"' ]
+    },
+    {
         'name'      => 'mariadb_error.log',
         'conditions' => [ '$syslogtag contains "mysqld"' ],
+    },
+    {
+        'name'      => 'haproxy_portal.log',
+        'conditions' => [ '$programname == "haproxy" and $msg contains "portal-http"' ],
     },
 );
 
