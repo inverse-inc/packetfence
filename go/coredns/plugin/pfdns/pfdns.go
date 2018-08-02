@@ -122,21 +122,22 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 		if k.MatchString(state.QName()) {
 			answer, err := pf.LocalResolver(state)
 			if err != nil {
-				fmt.Println("Local resolver error with the following error" + err.Error())
+				fmt.Println("Local resolver error for fqdn" + state.QName() + " with the following error" + err.Error())
 			} else {
 				for _, ans := range append(answer.Answer, answer.Extra...) {
 					switch ansb := ans.(type) {
 					case *dns.A:
 						for _, valeur := range v {
 							if err := pf.SetPassthrough(ctx, "passthrough", ansb.A.String(), valeur, true); err != nil {
-								fmt.Println("Not able to contact localhost", err)
+								fmt.Println("Not able to contact localhost for setPassthrough", err)
 							}
 						}
 					}
 				}
+				fmt.Println(srcIP + " : " + mac + " Domain bypass for fqdn " + state.QName())
+				w.WriteMsg(answer)
 			}
-			fmt.Println(srcIP + ":" + mac + " Domain bypass")
-			return pf.Next.ServeDNS(ctx, w, r)
+			return 0, nil
 		}
 	}
 
@@ -147,7 +148,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 			if k.MatchString(state.QName()) {
 				answer, err := pf.LocalResolver(state)
 				if err != nil {
-					fmt.Println("Local resolver error with the following error" + err.Error())
+					fmt.Println("Local resolver error for fqdn" + state.QName() + " with the following error" + err.Error())
 				} else {
 					for _, ans := range append(answer.Answer, answer.Extra...) {
 						switch ansb := ans.(type) {
@@ -159,9 +160,10 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 							}
 						}
 					}
+					fmt.Println(srcIP + " : " + mac + " isolation passthrough  for fqdn " + state.QName())
+					w.WriteMsg(answer)
 				}
-				fmt.Println(srcIP + " : " + mac + " isolation passthrough")
-				return pf.Next.ServeDNS(ctx, w, r)
+				return 0, nil
 			}
 		}
 	}
@@ -171,8 +173,8 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 		if k.MatchString(state.QName()) {
 			answer, err := pf.LocalResolver(state)
 			if err != nil {
-				fmt.Println("Local resolver error with the following error" + err.Error())
-			} else {
+				fmt.Println("Local resolver error for fqdn" + state.QName() + " with the following error" + err.Error())
+				} else {
 				for _, ans := range append(answer.Answer, answer.Extra...) {
 					switch ansb := ans.(type) {
 					case *dns.A:
@@ -182,10 +184,12 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 							}
 						}
 					}
+					
 				}
+				w.WriteMsg(answer)
+				fmt.Println(srcIP + " : " + mac + " passthrough for fqdn " + state.QName())
 			}
-			fmt.Println(srcIP + " : " + mac + " passthrough")
-			return pf.Next.ServeDNS(ctx, w, r)
+			return 0, nil
 		}
 	}
 
