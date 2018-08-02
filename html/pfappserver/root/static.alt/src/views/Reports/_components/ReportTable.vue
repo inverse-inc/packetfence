@@ -3,7 +3,18 @@
     <b-card-header>
       <h4 class="mb-0">{{ $t('Report') }} / {{ $t(report.category) }} / {{ $t(report.name) }}</h4>
     </b-card-header>
+
+    <b-tabs ref="tabs" v-model="tabIndex" card>
+      <b-tab v-for="tab in tabs" :key="report.category + report.name + tab.name" :title="tab.name">
+        <template slot="title">
+          {{ $t(tab.name) }}
+        </template>
+        <!-- TABS ARE ONLY VISUAL, NOTHING NEEDED HERE... -->
+      </b-tab>
+    </b-tabs>
+
     <pf-report-chart v-if="report.chart" :report="report" :items="items"></pf-report-chart>
+
     <div class="card-body">
       <b-row align-h="between" align-v="center">
         <b-col cols="auto" class="mr-auto">
@@ -31,51 +42,41 @@
           </b-container>
         </b-col>
       </b-row>
-      <b-table :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc" :sort-compare="sortCompare" v-model="tableValues"
-        @sort-changed="onSortingChanged" responsive hover></b-table>
+      <b-table stacked="sm" :items="items" :fields="visibleColumns" :per-page="pageSizeLimit" :current-page="requestPage" :sort-by="sortBy" :sort-desc="sortDesc" :sort-compare="sortCompare"
+        @sort-changed="onSortingChanged" responsive="true" hover v-model="tableValues"></b-table>
     </div>
   </b-card>
 </template>
 
 <script>
+import apiCall from '@/utils/api'
 import {
   pfReportColumns as reportColumns,
   pfReportCategories as reportCategories
 } from '@/globals/pfReports'
 import pfReportChart from '@/components/pfReportChart'
-import pfMixinSearchable from '@/components/pfMixinSearchable'
 
 export default {
   name: 'ReportTable',
   components: {
     'pf-report-chart': pfReportChart
   },
-  mixins: [
-    pfMixinSearchable
-  ],
   props: {
-    pfMixinSearchableOptions: {
-      type: Object,
-      default: {
-        searchApiEndpoint: undefined, // overwritten by router
-        defaultSortKeys: ['mac'],
-        defaultSearchCondition: { op: 'and', values: [{ op: 'or', values: [{ field: 'mac', op: 'equals', value: null }] }] },
-        defaultRoute: { name: 'table' }
-      }
-    },
     path: String, // from router
     start_datetime: String, // from router
-    end_datetime: String, // from router
-    tableValues: {
-      type: Array,
-      default: []
-    }
+    end_datetime: String // from router
   },
   data () {
     return {
+      items: [],
+      tableValues: [],
       requestPage: 1,
-      currentPage: 1,
-      pageSizeLimit: 10
+      pageSizeLimit: 100,
+      isLoading: false,
+      sortBy: undefined,
+      sortDesc: false,
+      apiEndpoint: '',
+      tabIndex: 0
     }
   },
   computed: {
@@ -93,16 +94,33 @@ export default {
     columns () {
       return this.report.columns
     },
+    visibleColumns () {
+      return this.report.columns
+    },
+    /**
+     * The tabs displayed above the results table.
+     */
+    tabs () {
+      return this.report.tabs
+    },
+    /**
+     * build report using routers' path,
+     * flatten reportCategories into single array,
+     * search array and return single report matching path.
+     */
     report () {
-      /**
-       * build report using routers' path,
-       * flatten reportCategories into single array,
-       * search array and return single report matching path
-        */
-      return reportCategories.map(category => category.reports.map(report => Object.assign({ category: category.name }, report))).reduce((l, n) => l.concat(n), []).filter(report => report.path === this.path)[0]
+      return reportCategories.map(category => category.reports.map(report => Object.assign({ category: category.name }, report))).reduce((l, n) => l.concat(n), []).filter(report => report.tabs.map(tab => tab.path).includes(this.path))[0]
+    },
+    totalRows () {
+      return this.items.length
     }
   },
   methods: {
+    /**
+     * b-table sorts columns on pre-formatted values,
+     * if exists, use a custom column sort,
+     * otherwise use the default sort.
+     */
     sortCompare (a, b, key) {
       if (reportColumns[key].sort) {
         // custom sort
@@ -111,29 +129,64 @@ export default {
         // default sort
         return null
       }
+    },
+    apiCall () {
+      if (!this.apiEndpoint) return
+      this.isLoading = true
+      let _this = this
+      apiCall.get(this.apiEndpoint, {}).then(response => {
+        _this.items = response.data.items
+        _this.requestPage = 1
+        _this.isLoading = false
+      }).catch(err => {
+        _this.isLoading = false
+        return err
+      })
+    },
+    getReportByName (name) {
+      return reportCategories.map(category => category.reports.map(report => Object.assign({ category: category.name }, report))).reduce((l, n) => l.concat(n), []).filter(report => report.name === name)[0]
+    },
+    getReportByPath (path) {
+      return reportCategories.map(category => category.reports.map(report => Object.assign({ category: category.name }, report))).reduce((l, n) => l.concat(n), []).filter(report => report.tabs.map(tab => tab.path).includes(path))[0]
     }
   },
   beforeRouteUpdate (to, from, next) {
-    // trigger on every page leave only within same route '/reports'
+    // trigger on every page-leave and only within same route '/reports'
     let range = ''
-    const report = reportCategories.map(category => category.reports).reduce((l, n) => l.concat(n), []).filter(report => report.path === to.params.path)[0]
+    const report = reportCategories.map(category => category.reports).reduce((l, n) => l.concat(n), []).filter(report => report.tabs.map(tab => tab.path).includes(to.params.path))[0]
     if (report.range.required || report.range.optional) {
       range += (to.params.start_datetime !== undefined) ? '/' + to.params.start_datetime : '/0000-00-00 00:00:00'
       range += (to.params.end_datetime !== undefined) ? '/' + to.params.end_datetime : '/9999-12-12 23:59:59'
     }
-    this.pfMixinSearchableOptions.searchApiEndpoint = `reports/${to.params.path}${range}`
+    if (this.getReportByPath(to.params.path).name !== this.getReportByPath(from.params.path).name) {
+      this.tabIndex = 0
+    }
+    this.apiEndpoint = `reports/${to.params.path}${range}`
     next()
   },
   beforeRouteEnter (to, from, next) {
-    // triggered only once on page load to this route '/reports'
+    // triggered only once on page-load to this route '/reports'
     next(vm => {
       let range = ''
       if (vm.report.range.required || vm.report.range.optional) {
         range += (to.params.start_datetime !== undefined) ? '/' + to.params.start_datetime : '/0000-00-00 00:00:00'
         range += (to.params.end_datetime !== undefined) ? '/' + to.params.end_datetime : '/9999-12-12 23:59:59'
       }
-      vm.pfMixinSearchableOptions.searchApiEndpoint = `reports/${to.params.path}${range}`
+      vm.tabIndex = vm.report.tabs.findIndex(tab => tab.path === to.params.path)
+      vm.apiEndpoint = `reports/${to.params.path}${range}`
     })
+  },
+  watch: {
+    apiEndpoint (a, b) {
+      if (a && a !== b) {
+        this.apiCall()
+      }
+    },
+    tabIndex (a, b) {
+      if (a !== b) {
+        this.$router.push(`/reports/table/${this.report.tabs[a].path}`)
+      }
+    }
   },
   created () {
     this.$store.dispatch('config/getRoles')

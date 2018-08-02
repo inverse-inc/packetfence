@@ -508,8 +508,17 @@ export const pfReportCategories = [
     name: i18n.t('Node'),
     reports: [
       {
-        name: i18n.t('Operating System (All)'),
-        path: 'os',
+        name: i18n.t('Operating System'),
+        tabs: [
+          {
+            name: i18n.t('All'),
+            path: 'os'
+          },
+          {
+            name: i18n.t('Active'),
+            path: 'os/active'
+          }
+        ],
         columns: [
           pfReportColumns.description,
           pfReportColumns.dhcp_fingerprint,
@@ -534,34 +543,17 @@ export const pfReportCategories = [
         }
       },
       {
-        name: i18n.t('Operating System (Active)'),
-        path: 'os/active',
-        columns: [
-          pfReportColumns.description,
-          pfReportColumns.dhcp_fingerprint,
-          pfReportColumns.count,
-          pfReportColumns.percent
+        name: i18n.t('Operating System Class'),
+        tabs: [
+          {
+            name: i18n.t('All'),
+            path: 'osclass'
+          },
+          {
+            name: i18n.t('Active'),
+            path: 'osclass/active'
+          }
         ],
-        range: {
-          required: false,
-          optional: false
-        },
-        chart: {
-          labels: (items) => {
-            items.pop() // pop Total
-            return items.map(item => item.description)
-          },
-          values: (items) => {
-            items.pop() // pop Total
-            return items.map(item => item.count)
-          },
-          options: pfReportChartOptions.pie,
-          layout: pfReportChartLayout.pie
-        }
-      },
-      {
-        name: i18n.t('Operating System Class (All)'),
-        path: 'osclass',
         columns: [
           pfReportColumns.description,
           pfReportColumns.count,
@@ -578,29 +570,6 @@ export const pfReportCategories = [
           },
           values: (items) => {
             items.pop() // pop Total
-            return items.map(item => item.count)
-          },
-          options: pfReportChartOptions.pie,
-          layout: pfReportChartLayout.pie
-        }
-      },
-      {
-        name: i18n.t('Operating System Class (Active)'),
-        path: 'osclass/active',
-        columns: [
-          pfReportColumns.description,
-          pfReportColumns.count,
-          pfReportColumns.percent
-        ],
-        range: {
-          required: false,
-          optional: false
-        },
-        chart: {
-          labels: (items) => {
-            return items.map(item => item.description)
-          },
-          values: (items) => {
             return items.map(item => item.count)
           },
           options: pfReportChartOptions.pie,
@@ -609,7 +578,12 @@ export const pfReportCategories = [
       },
       {
         name: i18n.t('Inactive'),
-        path: 'inactive',
+        tabs: [
+          {
+            name: i18n.t('All'),
+            path: 'inactive'
+          }
+        ],
         columns: [
           pfReportColumns.mac,
           pfReportColumns.computername,
@@ -631,7 +605,12 @@ export const pfReportCategories = [
       },
       {
         name: i18n.t('Active'),
-        path: 'active',
+        tabs: [
+          {
+            name: i18n.t('All'),
+            path: 'active'
+          }
+        ],
         columns: [
           pfReportColumns.mac,
           pfReportColumns.computername,
@@ -655,29 +634,16 @@ export const pfReportCategories = [
       },
       {
         name: i18n.t('Unregistered'),
-        path: 'unregistered',
-        columns: [
-          pfReportColumns.mac,
-          pfReportColumns.computername,
-          pfReportColumns.detect_date,
-          pfReportColumns.last_arp,
-          pfReportColumns.last_dhcp,
-          pfReportColumns.lastskip,
-          pfReportColumns.notes,
-          pfReportColumns.os,
-          pfReportColumns.pid,
-          pfReportColumns.regdate,
-          pfReportColumns.status,
-          pfReportColumns.user_agent
+        tabs: [
+          {
+            name: i18n.t('All'),
+            path: 'unregistered'
+          },
+          {
+            name: i18n.t('Active'),
+            path: 'unregistered/active'
+          }
         ],
-        range: {
-          required: false,
-          optional: false
-        }
-      },
-      {
-        name: i18n.t('Unregistered (Active)'),
-        path: 'unregistered/active',
         columns: [
           pfReportColumns.mac,
           pfReportColumns.computername,
@@ -699,29 +665,16 @@ export const pfReportCategories = [
       },
       {
         name: i18n.t('Registered'),
-        path: 'registered',
-        columns: [
-          pfReportColumns.mac,
-          pfReportColumns.computername,
-          pfReportColumns.detect_date,
-          pfReportColumns.last_arp,
-          pfReportColumns.last_dhcp,
-          pfReportColumns.lastskip,
-          pfReportColumns.notes,
-          pfReportColumns.os,
-          pfReportColumns.pid,
-          pfReportColumns.regdate,
-          pfReportColumns.status,
-          pfReportColumns.user_agent
+        tabs: [
+          {
+            name: i18n.t('All'),
+            path: 'registered'
+          },
+          {
+            name: i18n.t('Active'),
+            path: 'registered/active'
+          }
         ],
-        range: {
-          required: false,
-          optional: false
-        }
-      },
-      {
-        name: i18n.t('Registered (Active)'),
-        path: 'registered/active',
         columns: [
           pfReportColumns.mac,
           pfReportColumns.computername,
@@ -748,22 +701,16 @@ export const pfReportCategories = [
     reports: [
       {
         name: i18n.t('Unknown Fingerprints'),
-        path: 'unknownprints',
-        columns: [
-          pfReportColumns.mac,
-          pfReportColumns.computername,
-          pfReportColumns.dhcp_fingerprint,
-          pfReportColumns.user_agent,
-          pfReportColumns.vendor
+        tabs: [
+          {
+            name: i18n.t('All'),
+            path: 'unknownprints'
+          },
+          {
+            name: i18n.t('Active'),
+            path: 'unknownprints/active'
+          }
         ],
-        range: {
-          required: false,
-          optional: false
-        }
-      },
-      {
-        name: i18n.t('Unknown Fingerprints (Active)'),
-        path: 'unknownprints/active',
         columns: [
           pfReportColumns.mac,
           pfReportColumns.computername,
@@ -778,48 +725,16 @@ export const pfReportCategories = [
       },
       {
         name: i18n.t('Statics'),
-        path: 'statics',
-        columns: [
-          pfReportColumns.mac,
-          pfReportColumns.autoreg,
-          pfReportColumns.bandwidth_balance,
-          pfReportColumns.bypass_role_id,
-          pfReportColumns.bypass_vlan,
-          pfReportColumns.category_id,
-          pfReportColumns.computername,
-          pfReportColumns.detect_date,
-          pfReportColumns.device_class,
-          pfReportColumns.device_manufacturer,
-          pfReportColumns.device_score,
-          pfReportColumns.device_type,
-          pfReportColumns.device_version,
-          pfReportColumns.dhcp6_enterprise,
-          pfReportColumns.dhcp6_fingerprint,
-          pfReportColumns.dhcp_fingerprint,
-          pfReportColumns.dhcp_vendor,
-          pfReportColumns.last_arp,
-          pfReportColumns.last_dhcp,
-          pfReportColumns.last_seen,
-          pfReportColumns.lastskip,
-          pfReportColumns.machine_account,
-          pfReportColumns.notes,
-          pfReportColumns.pid,
-          pfReportColumns.regdate,
-          pfReportColumns.sessionid,
-          pfReportColumns.status,
-          pfReportColumns.time_balance,
-          pfReportColumns.unregdate,
-          pfReportColumns.user_agent,
-          pfReportColumns.voip
+        tabs: [
+          {
+            name: i18n.t('All'),
+            path: 'statics'
+          },
+          {
+            name: i18n.t('Active'),
+            path: 'statics/active'
+          }
         ],
-        range: {
-          required: false,
-          optional: false
-        }
-      },
-      {
-        name: i18n.t('Statics (Active)'),
-        path: 'statics/active',
         columns: [
           pfReportColumns.mac,
           pfReportColumns.autoreg,
@@ -838,8 +753,6 @@ export const pfReportCategories = [
           pfReportColumns.dhcp6_fingerprint,
           pfReportColumns.dhcp_fingerprint,
           pfReportColumns.dhcp_vendor,
-          pfReportColumns.end_time,
-          pfReportColumns.ip,
           pfReportColumns.last_arp,
           pfReportColumns.last_dhcp,
           pfReportColumns.last_seen,
@@ -849,7 +762,6 @@ export const pfReportCategories = [
           pfReportColumns.pid,
           pfReportColumns.regdate,
           pfReportColumns.sessionid,
-          pfReportColumns.start_time,
           pfReportColumns.status,
           pfReportColumns.time_balance,
           pfReportColumns.unregdate,
@@ -868,22 +780,16 @@ export const pfReportCategories = [
     reports: [
       {
         name: i18n.t('Open'),
-        path: 'openviolations',
-        columns: [
-          pfReportColumns.mac,
-          pfReportColumns.owner,
-          pfReportColumns.start_date,
-          pfReportColumns.status,
-          pfReportColumns.violation
+        tabs: [
+          {
+            name: i18n.t('All'),
+            path: 'openviolations'
+          },
+          {
+            name: i18n.t('Active'),
+            path: 'openviolations/active'
+          }
         ],
-        range: {
-          required: false,
-          optional: false
-        }
-      },
-      {
-        name: i18n.t('Open (Active)'),
-        path: 'openviolations/active',
         columns: [
           pfReportColumns.mac,
           pfReportColumns.owner,
@@ -902,8 +808,17 @@ export const pfReportCategories = [
     name: i18n.t('Connections'),
     reports: [
       {
-        name: i18n.t('Type (All)'),
-        path: 'connectiontype',
+        name: i18n.t('Type'),
+        tabs: [
+          {
+            name: i18n.t('All'),
+            path: 'connectiontype'
+          },
+          {
+            name: i18n.t('Active'),
+            path: 'connectiontype/active'
+          }
+        ],
         columns: [
           pfReportColumns.connection_type,
           pfReportColumns.connections,
@@ -927,58 +842,17 @@ export const pfReportCategories = [
         }
       },
       {
-        name: i18n.t('Type (Active)'),
-        path: 'connectiontype/active',
-        columns: [
-          pfReportColumns.connection_type,
-          pfReportColumns.connections,
-          pfReportColumns.percent
+        name: i18n.t('Type Registered'),
+        tabs: [
+          {
+            name: i18n.t('All'),
+            path: 'connectiontypereg'
+          },
+          {
+            name: i18n.t('Active'),
+            path: 'connectiontypereg/active'
+          }
         ],
-        range: {
-          required: false,
-          optional: false
-        },
-        chart: {
-          labels: (items) => {
-            items.pop() // pop Total
-            return items.map(item => item.connection_type)
-          },
-          values: (items) => {
-            items.pop() // pop Total
-            return items.map(item => item.connections)
-          },
-          options: pfReportChartOptions.pie,
-          layout: pfReportChartLayout.pie
-        }
-      },
-      {
-        name: i18n.t('Type Registered (All)'),
-        path: 'connectiontypereg',
-        columns: [
-          pfReportColumns.connection_type,
-          pfReportColumns.connections,
-          pfReportColumns.percent
-        ],
-        range: {
-          required: false,
-          optional: false
-        },
-        chart: {
-          labels: (items) => {
-            items.pop() // pop Total
-            return items.map(item => item.connection_type)
-          },
-          values: (items) => {
-            items.pop() // pop Total
-            return items.map(item => item.connections)
-          },
-          options: pfReportChartOptions.pie,
-          layout: pfReportChartLayout.pie
-        }
-      },
-      {
-        name: i18n.t('Type Registered (Active)'),
-        path: 'connectiontypereg/active',
         columns: [
           pfReportColumns.connection_type,
           pfReportColumns.connections,
@@ -1003,7 +877,16 @@ export const pfReportCategories = [
       },
       {
         name: i18n.t('SSID (All)'),
-        path: 'ssid',
+        tabs: [
+          {
+            name: i18n.t('All'),
+            path: 'ssid'
+          },
+          {
+            name: i18n.t('Active'),
+            path: 'ssid/active'
+          }
+        ],
         columns: [
           pfReportColumns.ssid,
           pfReportColumns.nodes,
@@ -1012,31 +895,6 @@ export const pfReportCategories = [
         range: {
           required: false,
           optional: true
-        },
-        chart: {
-          labels: (items) => {
-            items.pop() // pop Total
-            return items.map(item => item.ssid)
-          },
-          values: (items) => {
-            items.pop() // pop Total
-            return items.map(item => item.nodes)
-          },
-          options: pfReportChartOptions.pie,
-          layout: pfReportChartLayout.pie
-        }
-      },
-      {
-        name: i18n.t('SSID (Active)'),
-        path: 'ssid/active',
-        columns: [
-          pfReportColumns.ssid,
-          pfReportColumns.nodes,
-          pfReportColumns.percent
-        ],
-        range: {
-          required: false,
-          optional: false
         },
         chart: {
           labels: (items) => {
@@ -1057,8 +915,33 @@ export const pfReportCategories = [
     name: i18n.t('Accounting'),
     reports: [
       {
-        name: i18n.t('Operating System Bandwidth (All)'),
-        path: 'osclassbandwidth',
+        name: i18n.t('Operating System Bandwidth'),
+        tabs: [
+          {
+            name: i18n.t('All'),
+            path: 'osclassbandwidth'
+          },
+          {
+            name: i18n.t('Active'),
+            path: 'osclassbandwidth/active'
+          },
+          {
+            name: i18n.t('Day'),
+            path: 'osclassbandwidth/day'
+          },
+          {
+            name: i18n.t('Week'),
+            path: 'osclassbandwidth/week'
+          },
+          {
+            name: i18n.t('Month'),
+            path: 'osclassbandwidth/month'
+          },
+          {
+            name: i18n.t('Year'),
+            path: 'osclassbandwidth/year'
+          }
+        ],
         columns: [
           pfReportColumns.dhcp_fingerprint,
           pfReportColumns.accttotal,
@@ -1083,112 +966,13 @@ export const pfReportCategories = [
         }
       },
       {
-        name: i18n.t('Operating System Bandwidth (Day)'),
-        path: 'osclassbandwidth/day',
-        columns: [
-          pfReportColumns.dhcp_fingerprint,
-          pfReportColumns.accttotal,
-          pfReportColumns.accttotaloctets,
-          pfReportColumns.percent
+        name: i18n.t('Node Bandwidth'),
+        tabs: [
+          {
+            name: i18n.t('All'),
+            path: 'nodebandwidth'
+          }
         ],
-        range: {
-          required: false,
-          optional: false
-        },
-        chart: {
-          labels: (items) => {
-            items.pop() // pop Total
-            return items.map(item => item.dhcp_fingerprint)
-          },
-          values: (items) => {
-            items.pop() // pop Total
-            return items.map(item => item.accttotaloctets)
-          },
-          options: pfReportChartOptions.pie,
-          layout: pfReportChartLayout.pie
-        }
-      },
-      {
-        name: i18n.t('Operating System Bandwidth (Week)'),
-        path: 'osclassbandwidth/week',
-        columns: [
-          pfReportColumns.dhcp_fingerprint,
-          pfReportColumns.accttotal,
-          pfReportColumns.accttotaloctets,
-          pfReportColumns.percent
-        ],
-        range: {
-          required: false,
-          optional: false
-        },
-        chart: {
-          labels: (items) => {
-            items.pop() // pop Total
-            return items.map(item => item.dhcp_fingerprint)
-          },
-          values: (items) => {
-            items.pop() // pop Total
-            return items.map(item => item.accttotaloctets)
-          },
-          options: pfReportChartOptions.pie,
-          layout: pfReportChartLayout.pie
-        }
-      },
-      {
-        name: i18n.t('Operating System Bandwidth (Month)'),
-        path: 'osclassbandwidth/month',
-        columns: [
-          pfReportColumns.dhcp_fingerprint,
-          pfReportColumns.accttotal,
-          pfReportColumns.accttotaloctets,
-          pfReportColumns.percent
-        ],
-        range: {
-          required: false,
-          optional: false
-        },
-        chart: {
-          labels: (items) => {
-            items.pop() // pop Total
-            return items.map(item => item.dhcp_fingerprint)
-          },
-          values: (items) => {
-            items.pop() // pop Total
-            return items.map(item => item.accttotaloctets)
-          },
-          options: pfReportChartOptions.pie,
-          layout: pfReportChartLayout.pie
-        }
-      },
-      {
-        name: i18n.t('Operating System Bandwidth (Year)'),
-        path: 'osclassbandwidth/year',
-        columns: [
-          pfReportColumns.dhcp_fingerprint,
-          pfReportColumns.accttotal,
-          pfReportColumns.accttotaloctets,
-          pfReportColumns.percent
-        ],
-        range: {
-          required: false,
-          optional: false
-        },
-        chart: {
-          labels: (items) => {
-            items.pop() // pop Total
-            return items.map(item => item.dhcp_fingerprint)
-          },
-          values: (items) => {
-            items.pop() // pop Total
-            return items.map(item => item.accttotaloctets)
-          },
-          options: pfReportChartOptions.pie,
-          layout: pfReportChartLayout.pie
-        }
-      },
-      {
-        name: i18n.t('Node Bandwidth (All)'),
-        path: 'nodebandwidth',
         columns: [
           pfReportColumns.callingstationid,
           pfReportColumns.acctinput,
@@ -1222,8 +1006,21 @@ export const pfReportCategories = [
     name: i18n.t('Authentication'),
     reports: [
       {
-        name: i18n.t('Failures by MAC'),
-        path: 'topauthenticationfailures/mac',
+        name: i18n.t('Failures'),
+        tabs: [
+          {
+            name: 'by MAC',
+            path: 'topauthenticationfailures/mac'
+          },
+          {
+            name: 'by SSID',
+            path: 'topauthenticationfailures/ssid'
+          },
+          {
+            name: 'by Username',
+            path: 'topauthenticationfailures/username'
+          }
+        ],
         columns: [
           pfReportColumns.mac,
           pfReportColumns.total,
@@ -1248,60 +1045,25 @@ export const pfReportCategories = [
         }
       },
       {
-        name: i18n.t('Failures by SSID'),
-        path: 'topauthenticationfailures/ssid',
-        columns: [
-          pfReportColumns.ssid,
-          pfReportColumns.total,
-          pfReportColumns.count,
-          pfReportColumns.percent
+        name: i18n.t('Successes'),
+        tabs: [
+          {
+            name: 'by MAC',
+            path: 'topauthenticationsuccesses/mac'
+          },
+          {
+            name: 'by SSID',
+            path: 'topauthenticationsuccesses/ssid'
+          },
+          {
+            name: 'by Username',
+            path: 'topauthenticationsuccesses/username'
+          },
+          {
+            name: 'by Computername',
+            path: 'topauthenticationsuccesses/computername'
+          }
         ],
-        range: {
-          required: true,
-          optional: false
-        },
-        chart: {
-          labels: (items) => {
-            items.pop() // pop Total
-            return items.map(item => item.ssid)
-          },
-          values: (items) => {
-            items.pop() // pop Total
-            return items.map(item => item.count)
-          },
-          options: pfReportChartOptions.pie,
-          layout: pfReportChartLayout.pie
-        }
-      },
-      {
-        name: i18n.t('Failures by Username'),
-        path: 'topauthenticationfailures/username',
-        columns: [
-          pfReportColumns.user_name,
-          pfReportColumns.total,
-          pfReportColumns.count,
-          pfReportColumns.percent
-        ],
-        range: {
-          required: true,
-          optional: false
-        },
-        chart: {
-          labels: (items) => {
-            items.pop() // pop Total
-            return items.map(item => item.user_name)
-          },
-          values: (items) => {
-            items.pop() // pop Total
-            return items.map(item => item.count)
-          },
-          options: pfReportChartOptions.pie,
-          layout: pfReportChartLayout.pie
-        }
-      },
-      {
-        name: i18n.t('Successes by MAC'),
-        path: 'topauthenticationsuccesses/mac',
         columns: [
           pfReportColumns.mac,
           pfReportColumns.total,
@@ -1316,84 +1078,6 @@ export const pfReportCategories = [
           labels: (items) => {
             items.pop() // pop Total
             return items.map(item => item.mac)
-          },
-          values: (items) => {
-            items.pop() // pop Total
-            return items.map(item => item.count)
-          },
-          options: pfReportChartOptions.pie,
-          layout: pfReportChartLayout.pie
-        }
-      },
-      {
-        name: i18n.t('Successes by SSID'),
-        path: 'topauthenticationsuccesses/ssid',
-        columns: [
-          pfReportColumns.ssid,
-          pfReportColumns.total,
-          pfReportColumns.count,
-          pfReportColumns.percent
-        ],
-        range: {
-          required: true,
-          optional: false
-        },
-        chart: {
-          labels: (items) => {
-            items.pop() // pop Total
-            return items.map(item => item.ssid)
-          },
-          values: (items) => {
-            items.pop() // pop Total
-            return items.map(item => item.count)
-          },
-          options: pfReportChartOptions.pie,
-          layout: pfReportChartLayout.pie
-        }
-      },
-      {
-        name: i18n.t('Successes by Username'),
-        path: 'topauthenticationsuccesses/username',
-        columns: [
-          pfReportColumns.user_name,
-          pfReportColumns.total,
-          pfReportColumns.count,
-          pfReportColumns.percent
-        ],
-        range: {
-          required: true,
-          optional: false
-        },
-        chart: {
-          labels: (items) => {
-            items.pop() // pop Total
-            return items.map(item => item.user_name)
-          },
-          values: (items) => {
-            items.pop() // pop Total
-            return items.map(item => item.count)
-          },
-          options: pfReportChartOptions.pie,
-          layout: pfReportChartLayout.pie
-        }
-      },
-      {
-        name: i18n.t('Successes by Computername'),
-        path: 'topauthenticationsuccesses/computername',
-        columns: [
-          pfReportColumns.computer_name,
-          pfReportColumns.total,
-          pfReportColumns.count,
-          pfReportColumns.percent
-        ],
-        range: {
-          required: true,
-          optional: false
-        },
-        chart: {
-          labels: (items) => {
-            items.pop() // pop Total
-            return items.map(item => item.computer_name)
           },
           values: (items) => {
             items.pop() // pop Total
