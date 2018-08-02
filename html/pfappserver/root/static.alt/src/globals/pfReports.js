@@ -512,7 +512,10 @@ export const pfReportCategories = [
         tabs: [
           {
             name: i18n.t('All'),
-            path: 'os'
+            path: 'os',
+            range: {
+              optional: true
+            }
           },
           {
             name: i18n.t('Active'),
@@ -525,10 +528,6 @@ export const pfReportCategories = [
           pfReportColumns.count,
           pfReportColumns.percent
         ],
-        range: {
-          required: false,
-          optional: true
-        },
         chart: {
           labels: (items) => {
             items.pop() // pop Total
@@ -559,10 +558,6 @@ export const pfReportCategories = [
           pfReportColumns.count,
           pfReportColumns.percent
         ],
-        range: {
-          required: false,
-          optional: false
-        },
         chart: {
           labels: (items) => {
             items.pop() // pop Total
@@ -597,11 +592,7 @@ export const pfReportCategories = [
           pfReportColumns.regdate,
           pfReportColumns.status,
           pfReportColumns.user_agent
-        ],
-        range: {
-          required: false,
-          optional: false
-        }
+        ]
       },
       {
         name: i18n.t('Active'),
@@ -626,11 +617,7 @@ export const pfReportCategories = [
           pfReportColumns.start_time,
           pfReportColumns.status,
           pfReportColumns.user_agent
-        ],
-        range: {
-          required: false,
-          optional: false
-        }
+        ]
       },
       {
         name: i18n.t('Unregistered'),
@@ -657,11 +644,7 @@ export const pfReportCategories = [
           pfReportColumns.regdate,
           pfReportColumns.status,
           pfReportColumns.user_agent
-        ],
-        range: {
-          required: false,
-          optional: false
-        }
+        ]
       },
       {
         name: i18n.t('Registered'),
@@ -688,11 +671,7 @@ export const pfReportCategories = [
           pfReportColumns.regdate,
           pfReportColumns.status,
           pfReportColumns.user_agent
-        ],
-        range: {
-          required: false,
-          optional: false
-        }
+        ]
       }
     ]
   },
@@ -717,11 +696,7 @@ export const pfReportCategories = [
           pfReportColumns.dhcp_fingerprint,
           pfReportColumns.user_agent,
           pfReportColumns.vendor
-        ],
-        range: {
-          required: false,
-          optional: false
-        }
+        ]
       },
       {
         name: i18n.t('Statics'),
@@ -767,11 +742,7 @@ export const pfReportCategories = [
           pfReportColumns.unregdate,
           pfReportColumns.user_agent,
           pfReportColumns.voip
-        ],
-        range: {
-          required: false,
-          optional: false
-        }
+        ]
       }
     ]
   },
@@ -796,11 +767,7 @@ export const pfReportCategories = [
           pfReportColumns.start_date,
           pfReportColumns.status,
           pfReportColumns.violation
-        ],
-        range: {
-          required: false,
-          optional: false
-        }
+        ]
       }
     ]
   },
@@ -812,7 +779,10 @@ export const pfReportCategories = [
         tabs: [
           {
             name: i18n.t('All'),
-            path: 'connectiontype'
+            path: 'connectiontype',
+            range: {
+              optional: true
+            }
           },
           {
             name: i18n.t('Active'),
@@ -824,10 +794,6 @@ export const pfReportCategories = [
           pfReportColumns.connections,
           pfReportColumns.percent
         ],
-        range: {
-          required: false,
-          optional: true
-        },
         chart: {
           labels: (items) => {
             items.pop() // pop Total
@@ -858,10 +824,6 @@ export const pfReportCategories = [
           pfReportColumns.connections,
           pfReportColumns.percent
         ],
-        range: {
-          required: false,
-          optional: false
-        },
         chart: {
           labels: (items) => {
             items.pop() // pop Total
@@ -880,7 +842,10 @@ export const pfReportCategories = [
         tabs: [
           {
             name: i18n.t('All'),
-            path: 'ssid'
+            path: 'ssid',
+            range: {
+              optional: true
+            }
           },
           {
             name: i18n.t('Active'),
@@ -892,10 +857,6 @@ export const pfReportCategories = [
           pfReportColumns.nodes,
           pfReportColumns.percent
         ],
-        range: {
-          required: false,
-          optional: true
-        },
         chart: {
           labels: (items) => {
             items.pop() // pop Total
@@ -919,11 +880,10 @@ export const pfReportCategories = [
         tabs: [
           {
             name: i18n.t('All'),
-            path: 'osclassbandwidth'
-          },
-          {
-            name: i18n.t('Active'),
-            path: 'osclassbandwidth/active'
+            path: 'osclassbandwidth',
+            range: {
+              optional: true
+            }
           },
           {
             name: i18n.t('Day'),
@@ -948,10 +908,6 @@ export const pfReportCategories = [
           pfReportColumns.accttotaloctets,
           pfReportColumns.percent
         ],
-        range: {
-          required: false,
-          optional: true
-        },
         chart: {
           labels: (items) => {
             items.pop() // pop Total
@@ -970,7 +926,10 @@ export const pfReportCategories = [
         tabs: [
           {
             name: i18n.t('All'),
-            path: 'nodebandwidth'
+            path: 'nodebandwidth',
+            range: {
+              optional: true
+            }
           }
         ],
         columns: [
@@ -983,10 +942,6 @@ export const pfReportCategories = [
           pfReportColumns.accttotaloctets,
           pfReportColumns.percent
         ],
-        range: {
-          required: false,
-          optional: true
-        },
         chart: {
           labels: (items) => {
             items.pop() // pop Total
@@ -1010,15 +965,24 @@ export const pfReportCategories = [
         tabs: [
           {
             name: 'by MAC',
-            path: 'topauthenticationfailures/mac'
+            path: 'topauthenticationfailures/mac',
+            range: {
+              required: true
+            }
           },
           {
             name: 'by SSID',
-            path: 'topauthenticationfailures/ssid'
+            path: 'topauthenticationfailures/ssid',
+            range: {
+              required: true
+            }
           },
           {
             name: 'by Username',
-            path: 'topauthenticationfailures/username'
+            path: 'topauthenticationfailures/username',
+            range: {
+              required: true
+            }
           }
         ],
         columns: [
@@ -1027,10 +991,6 @@ export const pfReportCategories = [
           pfReportColumns.count,
           pfReportColumns.percent
         ],
-        range: {
-          required: true,
-          optional: false
-        },
         chart: {
           labels: (items) => {
             items.pop() // pop Total
@@ -1049,19 +1009,31 @@ export const pfReportCategories = [
         tabs: [
           {
             name: 'by MAC',
-            path: 'topauthenticationsuccesses/mac'
+            path: 'topauthenticationsuccesses/mac',
+            range: {
+              required: true
+            }
           },
           {
             name: 'by SSID',
-            path: 'topauthenticationsuccesses/ssid'
+            path: 'topauthenticationsuccesses/ssid',
+            range: {
+              required: true
+            }
           },
           {
             name: 'by Username',
-            path: 'topauthenticationsuccesses/username'
+            path: 'topauthenticationsuccesses/username',
+            range: {
+              required: true
+            }
           },
           {
             name: 'by Computername',
-            path: 'topauthenticationsuccesses/computername'
+            path: 'topauthenticationsuccesses/computername',
+            range: {
+              required: true
+            }
           }
         ],
         columns: [
@@ -1070,10 +1042,6 @@ export const pfReportCategories = [
           pfReportColumns.count,
           pfReportColumns.percent
         ],
-        range: {
-          required: true,
-          optional: false
-        },
         chart: {
           labels: (items) => {
             items.pop() // pop Total

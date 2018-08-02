@@ -152,28 +152,30 @@ export default {
   },
   beforeRouteUpdate (to, from, next) {
     // trigger on every page-leave and only within same route '/reports'
-    let range = ''
-    const report = reportCategories.map(category => category.reports).reduce((l, n) => l.concat(n), []).filter(report => report.tabs.map(tab => tab.path).includes(to.params.path))[0]
-    if (report.range.required || report.range.optional) {
-      range += (to.params.start_datetime !== undefined) ? '/' + to.params.start_datetime : '/0000-00-00 00:00:00'
-      range += (to.params.end_datetime !== undefined) ? '/' + to.params.end_datetime : '/9999-12-12 23:59:59'
-    }
     if (this.getReportByPath(to.params.path).name !== this.getReportByPath(from.params.path).name) {
       this.tabIndex = 0
     }
-    this.apiEndpoint = `reports/${to.params.path}${range}`
+    let rpath = ''
+    const report = reportCategories.map(category => category.reports).reduce((l, n) => l.concat(n), []).filter(report => report.tabs.map(tab => tab.path).includes(to.params.path))[0]
+    const range = report.tabs[this.tabIndex].range
+    if (range && (range.required || range.optional)) {
+      rpath += (to.params.start_datetime !== undefined) ? '/' + to.params.start_datetime : '/0000-00-00 00:00:00'
+      rpath += (to.params.end_datetime !== undefined) ? '/' + to.params.end_datetime : '/9999-12-12 23:59:59'
+    }
+    this.apiEndpoint = `reports/${to.params.path}${rpath}`
     next()
   },
   beforeRouteEnter (to, from, next) {
     // triggered only once on page-load to this route '/reports'
     next(vm => {
-      let range = ''
-      if (vm.report.range.required || vm.report.range.optional) {
-        range += (to.params.start_datetime !== undefined) ? '/' + to.params.start_datetime : '/0000-00-00 00:00:00'
-        range += (to.params.end_datetime !== undefined) ? '/' + to.params.end_datetime : '/9999-12-12 23:59:59'
-      }
       vm.tabIndex = vm.report.tabs.findIndex(tab => tab.path === to.params.path)
-      vm.apiEndpoint = `reports/${to.params.path}${range}`
+      const range = vm.report.tabs[vm.tabIndex].range
+      let rpath = ''
+      if (range && (range.required || range.optional)) {
+        rpath += (to.params.start_datetime !== undefined) ? '/' + to.params.start_datetime : '/0000-00-00 00:00:00'
+        rpath += (to.params.end_datetime !== undefined) ? '/' + to.params.end_datetime : '/9999-12-12 23:59:59'
+      }
+      vm.apiEndpoint = `reports/${to.params.path}${rpath}`
     })
   },
   watch: {
