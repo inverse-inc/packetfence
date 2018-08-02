@@ -100,7 +100,7 @@ export default {
     },
     searchableStoreName () {
       if (this.pfMixinSearchableOptions.searchApiEndpoint) {
-        return '$_' + this.pfMixinSearchableOptions.searchApiEndpoint.replace('/', '_') + '_searchable'
+        return '$_' + this.pfMixinSearchableOptions.searchApiEndpoint.replace(/[/]/g, '_').replace(/[-: ]/g, '') + '_searchable'
       } else {
         return undefined
       }
@@ -246,20 +246,20 @@ export default {
     }
   },
   created () {
-    // Called before the component's created function.
+    // called before the component's created function.
     if (!this.pfMixinSearchableOptions) {
       throw new Error(`Missing 'pfMixinSearchableOptions' in properties of component ${this.$options.name}`)
     }
     if (!this.pfMixinSearchableOptions.hasOwnProperty('searchApiEndpoint')) {
       throw new Error(`Missing 'pfMixinSearchableOptions.searchApiEndpoint' in properties of component ${this.$options.name}`)
     }
-    if (!this.pfMixinSearchableOptions.defaultSortKeys) {
+    if (!this.pfMixinSearchableOptions.hasOwnProperty('defaultSortKeys')) {
       throw new Error(`Missing 'pfMixinSearchableOptions.defaultSortKeys' in properties of component ${this.$options.name}`)
     }
-    if (!this.pfMixinSearchableOptions.defaultSearchCondition) {
+    if (!this.pfMixinSearchableOptions.hasOwnProperty('defaultSearchCondition')) {
       throw new Error(`Missing 'pfMixinSearchableOptions.defaultSearchCondition' in properties of component ${this.$options.name}`)
     }
-    if (!this.pfMixinSearchableOptions.defaultRoute) {
+    if (!this.pfMixinSearchableOptions.hasOwnProperty('defaultRoute')) {
       throw new Error(`Missing 'pfMixinSearchableOptions.defaultRoute' in properties of component ${this.$options.name}`)
     }
     if (!this.fields) {
@@ -273,6 +273,7 @@ export default {
     }
   },
   mounted () {
+    // called after the component's mounted function.
     if (JSON.stringify(this.condition) === JSON.stringify(this.pfMixinSearchableOptions.defaultSearchCondition)) {
       // query all w/o criteria
       this.$store.dispatch(`${this.searchableStoreName}/setSearchQuery`, null)
