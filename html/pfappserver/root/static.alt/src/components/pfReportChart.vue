@@ -6,20 +6,20 @@
  */
 <template>
   <b-container fluid>
-    <div ref="plotly"></div>
-    <b-row align-h="between" align-v="center">
+    <b-row class="mb-3" align-h="between" align-v="center">
       <b-col cols="auto" class="mr-auto">
-        ...
+        <date-picker v-model="startDatetime" :config="datetimeConfig"></date-picker>
+        <date-picker v-model="endDatetime" :config="datetimeConfig"></date-picker>
       </b-col>
       <b-col cols="auto">
-        <b-container fluid>
-          <b-row align-v="center">
-            <b-form inline class="mb-0">
-              <b-form-select class="mb-3 mr-3" size="sm" v-model="chartSizeLimit" :options="[5,10,25,50,100]" :disabled="isLoading"
-                @input="onChartSizeChange" />
-            </b-form>
-          </b-row>
-        </b-container>
+        <b-input-group :prepend="$t('Limit chart')" size="sm" class="mr-3">
+          <b-form-select class="pr-4" v-model="chartSizeLimit" :options="[5,10,25,50,100]" :disabled="isLoading" @input="onChartSizeChange" />
+        </b-input-group>
+      </b-col>
+    </b-row>
+    <b-row class="pl-3 pr-3">
+      <b-col cols="12">
+        <div ref="plotly"></div>
       </b-col>
     </b-row>
   </b-container>
@@ -31,9 +31,13 @@ import {
   pfReportChartColorsFull as colorsFull,
   pfReportChartColorsNull as colorsNull
 } from '@/globals/pfReports'
+import pfFormDatetime from '@/components/pfFormDatetime'
 
 export default {
   name: 'pf-report-chart',
+  components: {
+    'pf-form-datetime': pfFormDatetime
+  },
   props: {
     items: {
       type: Array

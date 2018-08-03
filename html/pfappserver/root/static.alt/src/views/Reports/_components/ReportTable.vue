@@ -5,15 +5,15 @@
     </b-card-header>
 
     <b-tabs ref="tabs" v-model="tabIndex" card>
-      <b-tab v-for="tab in tabs" :key="report.category + report.name + tab.name" :title="tab.name">
+      <b-tab v-for="tab in tabs" :key="report.category + report.name + tab.name" :title="tab.name" no-body>
         <template slot="title">
           {{ $t(tab.name) }}
         </template>
-        <!-- TABS ARE ONLY VISUAL, NOTHING NEEDED HERE... -->
+        <!-- TABS ARE ONLY VISUAL, NOTHING HERE... -->
       </b-tab>
     </b-tabs>
 
-    <pf-report-chart v-if="report.chart" :report="report" :items="items"></pf-report-chart>
+    <pf-report-chart v-if="report.chart" :report="report" :items="items" class="mt-3"></pf-report-chart>
 
     <div class="card-body">
       <b-row align-h="between" align-v="center">
