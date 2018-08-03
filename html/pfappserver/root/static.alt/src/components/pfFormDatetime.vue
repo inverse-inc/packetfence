@@ -3,7 +3,7 @@
     :state="isValid()" :invalid-feedback="$t(invalidFeedback)">
     <b-input-group>
       <b-input-group-prepend v-if="prependText" is-text>
-        {{ $t(prependText) }}
+        {{ prependText }}
       </b-input-group-prepend>
       <date-picker ref="datetime" v-model="inputValue" :config="datetimeConfig" :placeholder="placeholder" @input.native="validate()"
         :state="isValid()" :size="datetimeConfig.format.length"></date-picker>

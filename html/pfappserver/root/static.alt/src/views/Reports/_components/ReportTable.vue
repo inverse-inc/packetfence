@@ -13,7 +13,7 @@
       </b-tab>
     </b-tabs>
 
-    <pf-report-chart v-if="report.chart" :report="report" :items="items" class="mt-3"></pf-report-chart>
+    <pf-report-chart v-if="report.chart" :report="report" :range="range && (range.optional || range.mandatory)" :items="items" :datetime-start="datetimeStart" :datetime-end="datetimeEnd" @changeDatetimeStart="onChangeDatetimeStart" @changeDatetimeEnd="onChangeDatetimeEnd" class="mt-3"></pf-report-chart>
 
     <div class="card-body">
       <b-row align-h="between" align-v="center">
@@ -76,7 +76,9 @@ export default {
       sortBy: undefined,
       sortDesc: false,
       apiEndpoint: '',
-      tabIndex: 0
+      tabIndex: 0,
+      datetimeStart: '',
+      datetimeEnd: ''
     }
   },
   computed: {
@@ -102,6 +104,9 @@ export default {
      */
     tabs () {
       return this.report.tabs
+    },
+    range () {
+      return this.tabs[this.tabIndex].range
     },
     /**
      * build report using routers' path,
@@ -148,6 +153,24 @@ export default {
     },
     getReportByPath (path) {
       return reportCategories.map(category => category.reports.map(report => Object.assign({ category: category.name }, report))).reduce((l, n) => l.concat(n), []).filter(report => report.tabs.map(tab => tab.path).includes(path))[0]
+    },
+    onChangeDatetimeStart (datetime) {
+      this.datetimeStart = datetime
+      const rpath = this.getApiEndpointRangePath(this.range)
+      this.apiEndpoint = `reports/${this.path}${rpath}`
+    },
+    onChangeDatetimeEnd (datetime) {
+      this.datetimeEnd = datetime
+      const rpath = this.getApiEndpointRangePath(this.range)
+      this.apiEndpoint = `reports/${this.path}${rpath}`
+    },
+    getApiEndpointRangePath (range) {
+      let rpath = ''
+      if (range && (range.required || range.optional)) {
+        rpath += (this.datetimeStart) ? '/' + this.datetimeStart : '/0000-00-00 00:00:00'
+        rpath += (this.datetimeEnd) ? '/' + this.datetimeEnd : '/9999-12-12 23:59:59'
+      }
+      return rpath
     }
   },
   beforeRouteUpdate (to, from, next) {
@@ -155,13 +178,9 @@ export default {
     if (this.getReportByPath(to.params.path).name !== this.getReportByPath(from.params.path).name) {
       this.tabIndex = 0
     }
-    let rpath = ''
     const report = reportCategories.map(category => category.reports).reduce((l, n) => l.concat(n), []).filter(report => report.tabs.map(tab => tab.path).includes(to.params.path))[0]
     const range = report.tabs[this.tabIndex].range
-    if (range && (range.required || range.optional)) {
-      rpath += (to.params.start_datetime !== undefined) ? '/' + to.params.start_datetime : '/0000-00-00 00:00:00'
-      rpath += (to.params.end_datetime !== undefined) ? '/' + to.params.end_datetime : '/9999-12-12 23:59:59'
-    }
+    const rpath = this.getApiEndpointRangePath(range)
     this.apiEndpoint = `reports/${to.params.path}${rpath}`
     next()
   },
@@ -170,11 +189,7 @@ export default {
     next(vm => {
       vm.tabIndex = vm.report.tabs.findIndex(tab => tab.path === to.params.path)
       const range = vm.report.tabs[vm.tabIndex].range
-      let rpath = ''
-      if (range && (range.required || range.optional)) {
-        rpath += (to.params.start_datetime !== undefined) ? '/' + to.params.start_datetime : '/0000-00-00 00:00:00'
-        rpath += (to.params.end_datetime !== undefined) ? '/' + to.params.end_datetime : '/9999-12-12 23:59:59'
-      }
+      const rpath = vm.getApiEndpointRangePath(range)
       vm.apiEndpoint = `reports/${to.params.path}${rpath}`
     })
   },
@@ -186,12 +201,19 @@ export default {
     },
     tabIndex (a, b) {
       if (a !== b) {
-        this.$router.push(`/reports/table/${this.report.tabs[a].path}`)
+        /**
+         * mandatory `replace`,
+         * `push` confuses beforeRouteEnter, beforeRouteUpdate w/ history.go(-1)
+         */
+        this.$router.replace(`/reports/table/${this.report.tabs[a].path}`)
       }
     }
   },
   created () {
     this.$store.dispatch('config/getRoles')
+    // if range defined in route, prepopulate datetime fields
+    this.datetimeStart = (this.start_datetime) ? this.start_datetime : ''
+    this.datetimeEnd = (this.end_datetime) ? this.end_datetime : ''
   }
 }
 </script>

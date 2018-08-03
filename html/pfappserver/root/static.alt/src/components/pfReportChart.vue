@@ -7,17 +7,20 @@
 <template>
   <b-container fluid>
     <b-row class="mb-3" align-h="between" align-v="center">
-      <b-col cols="auto" class="mr-auto">
-        <date-picker v-model="startDatetime" :config="datetimeConfig"></date-picker>
-        <date-picker v-model="endDatetime" :config="datetimeConfig"></date-picker>
+      <b-col cols="auto" class="text-left" v-if="range">
+        <b-form inline>
+          <pf-form-datetime v-model="datetimeStart" :prepend-text="$t('Start')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
+          <pf-form-datetime v-model="datetimeEnd" :prepend-text="$t('End')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
+        </b-form>
       </b-col>
+      <b-col cols="auto" class="mr-auto"></b-col>
       <b-col cols="auto">
-        <b-input-group :prepend="$t('Limit chart')" size="sm" class="mr-3">
+        <b-input-group :prepend="$t('Limit chart')" class="mr-3">
           <b-form-select class="pr-4" v-model="chartSizeLimit" :options="[5,10,25,50,100]" :disabled="isLoading" @input="onChartSizeChange" />
         </b-input-group>
       </b-col>
     </b-row>
-    <b-row class="pl-3 pr-3">
+    <b-row>
       <b-col cols="12">
         <div ref="plotly"></div>
       </b-col>
@@ -53,6 +56,20 @@ export default {
     },
     options: {
       type: Object
+    },
+    range: {
+      type: Boolean,
+      default: false
+    },
+    isLoading: {
+      type: Boolean,
+      default: false
+    },
+    datetimeStart: {
+      type: String
+    },
+    datetimeEnd: {
+      type: String
     }
   },
   data () {
@@ -151,6 +168,16 @@ export default {
       },
       immediate: true,
       deep: true
+    },
+    datetimeStart (a, b) {
+      if (a !== b) {
+        this.$emit('changeDatetimeStart', a)
+      }
+    },
+    datetimeEnd (a, b) {
+      if (a !== b) {
+        this.$emit('changeDatetimeEnd', a)
+      }
     }
   },
   beforeDestroy () {
