@@ -174,7 +174,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 			answer, err := pf.LocalResolver(state)
 			if err != nil {
 				fmt.Println("Local resolver error for fqdn" + state.QName() + " with the following error" + err.Error())
-				} else {
+			} else {
 				for _, ans := range append(answer.Answer, answer.Extra...) {
 					switch ansb := ans.(type) {
 					case *dns.A:
