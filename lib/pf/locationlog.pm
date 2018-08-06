@@ -371,6 +371,8 @@ sub locationlog_synchronize {
         if (defined($locationlog_mac) && ref($locationlog_mac) eq 'HASH') {
             $logger->trace("existing open locationlog entry");
 
+            handle_switchport_movement($locationlog_mac, $mac, $ifIndex, $switch_ip, $connection_type);
+
             # did something changed?
             if (!_is_locationlog_accurate($locationlog_mac, $switch, $ifIndex, $vlan,
                 $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $role)) {
@@ -607,6 +609,36 @@ sub locationlog_unique_ssids {
         },
         -order_by => 'ssid',
     });
+}
+
+sub handle_switchport_movement {
+    my ($previous_locationlog, $ifIndex, $switch_ip, $connection_type) = @_;
+    my $logger = get_logger;
+
+    my $mac = $previous_locationlog->{mac};
+    my $check = 1;
+
+    # TODO: control via config
+
+    if($check) {
+        my $previous_switch_ip = $previous_locationlog->{switch_ip};
+        my $previous_ifIndex = $previous_locationlog->{port};
+        if($switch_ip ne $previous_switch_ip) {
+            $logger->info("Device $mac has moved from switch $previous_switch_ip to $switch_ip");
+            email_switchport_changed();
+        }
+        elsif($ifIndex ne $previous_ifIndex) {
+            $logger->info("Device $mac has moved from switchport $previous_ifIndex to $ifIndex");
+            email_switchport_changed();
+        }
+        else {
+            $logger->debug("Device $mac is at the same switch IP and same switchport.")
+        }
+    }
+}
+
+sub email_switchport_changed {
+    print "changeide\n";
 }
 
 =back
