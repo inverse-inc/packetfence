@@ -73,6 +73,7 @@ use pf::node;
 use pf::util;
 use pf::config::util;
 use pf::constants;
+use pf::lookup::node;
 
 =head1 DATA FORMAT
 
@@ -372,7 +373,9 @@ sub locationlog_synchronize {
         if (defined($locationlog_mac) && ref($locationlog_mac) eq 'HASH') {
             $logger->trace("existing open locationlog entry");
 
-            handle_switchport_movement($locationlog_mac, $mac, $ifIndex, $switch_ip, $connection_type);
+            if(isdisabled($Config{network}{wired_switchport_change_detection})) {
+                pf::api::queue->new->notify('handle_switchport_movement', ($locationlog_mac, $mac, $ifIndex, $switch_ip, $connection_type));
+            }
 
             # did something changed?
             if (!_is_locationlog_accurate($locationlog_mac, $switch, $ifIndex, $vlan,
@@ -617,41 +620,50 @@ sub handle_switchport_movement {
     my $logger = get_logger;
 
     my $mac = $previous_locationlog->{mac};
-    my $check = 1;
-
-    if(isdisabled($Config{network}{wired_switchport_change_detection})) {
-        $logger->debug("Not checking switchport movement because we're not configured to do so (network.wired_switchport_change_detection)");
-        return;
-    }
 
     if(!$connection_type) {
         $logger->debug("Not checking switchport movement because the connection type is undefined.");
-        return;
     }
     elsif(($connection_type & $WIRED) != $WIRED) {
         $logger->debug("Not checking switchport movement because this connection is not wired.");
-        return;
     }
-
-    if($check) {
+    else {
         my $previous_switch_ip = $previous_locationlog->{switch_ip};
         my $previous_ifIndex = $previous_locationlog->{port};
         if($switch_ip ne $previous_switch_ip) {
             $logger->info("Device $mac has moved from switch $previous_switch_ip to $switch_ip");
-            email_switchport_changed();
+            email_switchport_changed($mac, $previous_switch_ip, $previous_ifIndex, $switch_ip, $ifIndex);
+            return $TRUE;
         }
         elsif($ifIndex ne $previous_ifIndex) {
             $logger->info("Device $mac has moved from switchport $previous_ifIndex to $ifIndex");
-            email_switchport_changed();
+            email_switchport_changed($mac, $previous_switch_ip, $previous_ifIndex, $switch_ip, $ifIndex);
+            return $TRUE;
         }
         else {
-            $logger->debug("Device $mac is at the same switch IP and same switchport.")
+            $logger->debug("Device $mac is at the same switch IP and same switchport.");
+            return $FALSE;
         }
     }
 }
 
 sub email_switchport_changed {
-    print "changeide\n";
+    my ($mac, $old_switch_ip, $old_switchport, $new_switch_ip, $new_switchport) = @_;
+    
+    my %message;
+
+    $message{'subject'} = "Device $mac has moved";
+    if($old_switch_ip ne $new_switch_ip) {
+        $message{'message'} = "The device has moved from switch $old_switch_ip to $new_switch_ip and is now connected in port $new_switchport.\n";
+    }
+    elsif($old_switchport ne $new_switchport) {
+        $message{'message'} = "The device has moved from switchport $old_switchport to $new_switchport on switch $old_switch_ip.\n";
+    }
+
+    $message{'message'} .= "\nDevice information\n==================\n";
+    $message{'message'} .= pf::lookup::node::lookup_node($mac);
+
+    pfmailer(%message);
 }
 
 =back

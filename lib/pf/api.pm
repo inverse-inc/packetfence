@@ -1140,6 +1140,17 @@ sub throw : Public {
     die "This will always die\n";
 }
 
+=head2 detect_switchport_change
+
+Will determine if a device has changed from a switchport to another and email if necessary
+
+=cut
+
+sub detect_switchport_change : Public {
+    my ( $class, @args ) = @_;
+    return pf::locationlog::handle_switchport_movement(@args);
+}
+
 =head2 detect_computername_change
 
 Will determine if a hostname has changed from what is currently stored in the DB
