@@ -615,6 +615,12 @@ sub locationlog_unique_ssids {
     });
 }
 
+=head2 handle_switchport_movement
+
+Check if a wired device has moved based on the previous locationlog information
+
+=cut
+
 sub handle_switchport_movement {
     my ($previous_locationlog, $ifIndex, $switch_ip, $connection_type) = @_;
     my $logger = get_logger;
@@ -646,6 +652,12 @@ sub handle_switchport_movement {
         }
     }
 }
+
+=head2 email_switchport_changed
+
+Send an email containing the details on a switchport movement
+
+=cut
 
 sub email_switchport_changed {
     my ($mac, $old_switch_ip, $old_switchport, $new_switch_ip, $new_switchport) = @_;
