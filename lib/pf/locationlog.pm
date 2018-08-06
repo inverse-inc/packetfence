@@ -63,6 +63,7 @@ use pf::config qw(
     $WIRED
     $NO_VOIP
     $VOIP
+    %Config
 );
 use pf::db;
 use pf::dal;
@@ -618,7 +619,11 @@ sub handle_switchport_movement {
     my $mac = $previous_locationlog->{mac};
     my $check = 1;
 
-    # TODO: control via config
+    if(isdisabled($Config{network}{wired_switchport_change_detection})) {
+        $logger->debug("Not checking switchport movement because we're not configured to do so (network.wired_switchport_change_detection)");
+        return;
+    }
+
     if(!$connection_type) {
         $logger->debug("Not checking switchport movement because the connection type is undefined.");
         return;
