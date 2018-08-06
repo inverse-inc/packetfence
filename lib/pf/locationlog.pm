@@ -373,7 +373,7 @@ sub locationlog_synchronize {
         if (defined($locationlog_mac) && ref($locationlog_mac) eq 'HASH') {
             $logger->trace("existing open locationlog entry");
 
-            if(isdisabled($Config{network}{wired_switchport_change_detection})) {
+            if(isenabled($Config{network}{wired_switchport_change_detection})) {
                 pf::api::queue->new->notify('handle_switchport_movement', ($locationlog_mac, $mac, $ifIndex, $switch_ip, $connection_type));
             }
 
