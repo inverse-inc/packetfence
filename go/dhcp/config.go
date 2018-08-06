@@ -211,8 +211,12 @@ func (d *Interfaces) readConfig() {
 							hwcache := cache.New((time.Duration(seconds)*time.Second)+(600*time.Second), 10*time.Second)
 
 							hwcache.OnEvicted(func(nic string, pool interface{}) {
-								log.LoggerWContext(ctx).Info(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Added back in the pool " + DHCPScope.role + " on index " + strconv.Itoa(pool.(int)))
-								DHCPScope.available.Add(uint32(pool.(int)))
+								go func() {
+									// Always wait 10 minutes before releasing the IP again
+									time.Sleep(10 * time.Minute)
+									log.LoggerWContext(ctx).Info(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Added back in the pool " + DHCPScope.role + " on index " + strconv.Itoa(pool.(int)))
+									DHCPScope.available.Add(uint32(pool.(int)))
+								}()
 							})
 
 							DHCPScope.hwcache = hwcache
