@@ -522,11 +522,6 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 			if x, found := handler.hwcache.Get(p.CHAddr().String()); found {
 				go func(ctx context.Context, x int, reqIP net.IP) {
 					handler.hwcache.Delete(p.CHAddr().String())
-					// We remove it again from the available keys because the hwcache OnEvicted will have released it back
-					handler.available.Remove(uint32(x))
-					time.Sleep(10 * time.Minute)
-					log.LoggerWContext(ctx).Info(p.CHAddr().String() + " " + dhcp.IPAdd(handler.start, x).String() + " Added back in the pool " + handler.role + " on index " + strconv.Itoa(x))
-					handler.available.Add(uint32(x))
 				}(ctx, x.(int), reqIP)
 			}
 
