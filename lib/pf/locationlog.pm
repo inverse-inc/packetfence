@@ -619,6 +619,14 @@ sub handle_switchport_movement {
     my $check = 1;
 
     # TODO: control via config
+    if(!$connection_type) {
+        $logger->debug("Not checking switchport movement because the connection type is undefined.");
+        return;
+    }
+    elsif(($connection_type & $WIRED) != $WIRED) {
+        $logger->debug("Not checking switchport movement because this connection is not wired.");
+        return;
+    }
 
     if($check) {
         my $previous_switch_ip = $previous_locationlog->{switch_ip};
