@@ -184,7 +184,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 							}
 						}
 					}
-					
+
 				}
 				w.WriteMsg(answer)
 				fmt.Println(srcIP + " : " + mac + " passthrough for fqdn " + state.QName())
@@ -209,15 +209,14 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 
 		case "vlan-registration":
 			Type = "registration"
-		case "dnsenforcement":
+		case "dns-enforcement":
 			Type = "dnsenforcement"
 		}
 
 		if k.Contains(bIP) {
 			// Register and inline or dns enforcement then resolv
 			switch Type {
-			case "dnsenforcement":
-			case "inline":
+			case "dnsenforcement", "inline":
 				var status = "unreg"
 				err = pf.Nodedb.QueryRow(mac, 1).Scan(&status)
 				if err != nil {
