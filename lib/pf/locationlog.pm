@@ -74,6 +74,7 @@ use pf::util;
 use pf::config::util;
 use pf::constants;
 use pf::lookup::node;
+use pf::api::queue;
 
 =head1 DATA FORMAT
 
