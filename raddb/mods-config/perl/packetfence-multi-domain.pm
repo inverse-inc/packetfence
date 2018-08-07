@@ -64,7 +64,7 @@ sub authorize {
         $realm_config = $ConfigRealm{$RAD_REQUEST{"Realm"}};
     }
 
-    if ( (!defined($realm_config) || !defined($realm_config->{domain})) && defined($ConfigRealm{"default"}) ) {
+    if ( !defined($realm_config) && defined($ConfigRealm{"default"}) ) {
         $realm_config = $ConfigRealm{"default"};
     }
 
