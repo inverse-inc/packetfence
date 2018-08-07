@@ -16,6 +16,9 @@ use base qw(Exporter);
 our @EXPORT_OK = qw(
     $SENTINEL_ONE_TOKEN_EXPIRY
     $NOT_COMPLIANT_FLAG
+    $WIRELESS
+    $WIRED
+    $WIRELESS_WIRED
 );
 
 use Readonly;
@@ -35,6 +38,30 @@ The flag that defines a non-compliant device as returned by the MDM filters
 =cut
 
 Readonly our $NOT_COMPLIANT_FLAG => "non-compliant";
+
+=item $WIRELESS
+
+Wireless connection type for when creating mobileconfig provisioning profile
+
+=cut
+
+Readonly our $WIRELESS => "wireless";
+
+=item $WIRED
+
+Wired connection type for when creating mobileconfig provisioning profile
+
+=cut
+
+Readonly our $WIRED => "wired";
+
+=item $WIRELESS_WIRED
+
+Wireless and wired connection type for when creating mobileconfig provisioning profile
+
+=cut
+
+Readonly our $WIRELESS_WIRED => "wireless-wired";
 
 =head1 AUTHOR
 

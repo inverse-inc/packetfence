@@ -19,7 +19,7 @@ use MIME::Base64 qw(decode_base64);
 use pf::log;
 use pf::constants;
 use fingerbank::Constant;
-
+use pf::constants::provisioning qw($WIRELESS);
 use pf::person;
 
 use Crypt::GeneratePassword qw(word);
@@ -36,7 +36,7 @@ If the provisioner has to be enforced on each connection
 =cut
 
 has 'enforce' => (is => 'rw', default => sub { 0 });
-has 'connection_type' => (is => 'rw', default => sub { 'wireless' });
+has 'connection_type' => (is => 'rw', default => sub { $WIRELESS });
 
 =head2 oses
 
