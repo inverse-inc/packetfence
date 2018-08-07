@@ -26,7 +26,7 @@
               <b-button variant="light" class="border-top border-bottom" @click="setRangeByPeriod(60 * 60 * 24 * 28)">1M</b-button>
               <b-button variant="light" class="border-top border-bottom" @click="setRangeByPeriod(60 * 60 * 24 * 28 * 2)">2M</b-button>
               <b-button variant="light" class="border-top border-bottom" @click="setRangeByPeriod(60 * 60 * 24 * 28 * 6)">6M</b-button>
-              <b-button variant="light" class="border-top border-right order-bottom" @click="setRangeByPeriod(60 * 60 * 24 * 365)">1Y</b-button>
+              <b-button variant="light" class="border-top border-right border-bottom" @click="setRangeByPeriod(60 * 60 * 24 * 365)">1Y</b-button>
             </b-button-group>
           </b-input-group>
         </b-form>
