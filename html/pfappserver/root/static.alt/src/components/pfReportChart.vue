@@ -9,8 +9,26 @@
     <b-row class="mb-3" align-h="between" align-v="center">
       <b-col cols="auto" class="text-left" v-if="range">
         <b-form inline>
-          <pf-form-datetime v-model="datetimeStart" :prepend-text="$t('Start')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
-          <pf-form-datetime v-model="datetimeEnd" :prepend-text="$t('End')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
+          <pf-form-datetime ref="datetimeStart" v-model="datetimeStart" :prepend-text="$t('Start')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
+          <pf-form-datetime ref="datetimeEnd" v-model="datetimeEnd" :prepend-text="$t('End')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
+          <b-input-group>
+            <b-input-group-prepend is-text>
+              {{ $t('Previous') }}
+            </b-input-group-prepend>
+            <b-button-group>
+              <b-button variant="light" @click="setRangeByPeriod(60 * 30)">30m</b-button>
+              <b-button variant="light" @click="setRangeByPeriod(60 * 60)">1h</b-button>
+              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 6)">6h</b-button>
+              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 12)">12h</b-button>
+              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24)">1D</b-button>
+              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 7)">1W</b-button>
+              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 14)">2W</b-button>
+              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 28)">1M</b-button>
+              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 28 * 2)">2M</b-button>
+              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 28 * 6)">6M</b-button>
+              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 365)">1Y</b-button>
+            </b-button-group>
+          </b-input-group>
         </b-form>
       </b-col>
       <b-col cols="auto" class="mr-auto"></b-col>
@@ -30,6 +48,7 @@
 
 <script>
 import Plotly from 'plotly.js'
+import moment from 'moment'
 import {
   pfReportChartColorsFull as colorsFull,
   pfReportChartColorsNull as colorsNull
@@ -74,7 +93,8 @@ export default {
   },
   data () {
     return {
-      chartSizeLimit: 25
+      chartSizeLimit: 25,
+      emit: true
     }
   },
   computed: {
@@ -100,7 +120,7 @@ export default {
         labels = [this.$i18n.t('No Data')]
       } else {
         // zip together then sort
-        let zip = values.map(function (e, i) { return [e, labels[i]] }).sort(function (a, b) { return (a[0] === b[0]) ? 0 : (a[0] > b[0]) ? -1 : 1 })
+        let zip = values.map((e, i) => [e, labels[i]]).sort((a, b) => (a[0] === b[0]) ? 0 : (a[0] > b[0]) ? -1 : 1)
         // truncate chart size limit
         if (zip.length > this.chartSizeLimit) {
           let other = zip.slice(this.chartSizeLimit).map(zip => zip[0])
@@ -140,10 +160,22 @@ export default {
     onChartSizeChange (chartSizeLimit) {
       this.chartSizeLimit = chartSizeLimit
       this.queueRender()
+    },
+    setRangeByPeriod (period) {
+      const tsEnd = moment()
+      const tsStart = tsEnd.subtract(period, 'seconds')
+      // prevent emit, causes race condition when both start/end changed simultaneously
+      this.emit = false
+      this.datetimeEnd = tsEnd.format('YYYY-MM-DD HH:mm:ss')
+      this.datetimeStart = tsStart.format('YYYY-MM-DD HH:mm:ss')
+      this.emit = true
+      // now send delayed emit(s) previosuly skipped
+      this.$emit('changeDatetimeEnd', this.datetimeEnd)
+      this.$emit('changeDatetimeStart', this.datetimeStart)
     }
   },
   mounted () {
-    this.$nextTick(function () {
+    this.$nextTick(() => {
       window.addEventListener('resize', this.getWindowWidth)
       window.addEventListener('resize', this.getWindowHeight)
       this.getWindowWidth()
@@ -171,12 +203,12 @@ export default {
     },
     datetimeStart (a, b) {
       if (a !== b) {
-        this.$emit('changeDatetimeStart', a)
+        if (this.emit) this.$emit('changeDatetimeStart', a)
       }
     },
     datetimeEnd (a, b) {
       if (a !== b) {
-        this.$emit('changeDatetimeEnd', a)
+        if (this.emit) this.$emit('changeDatetimeEnd', a)
       }
     }
   },

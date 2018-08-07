@@ -64,7 +64,7 @@ export default {
       datetimeConfig: {
         debug: false,
         format: 'YYYY-MM-DD HH:mm:ss',
-        stepping: 5,
+        stepping: 0,
         collapse: true,
         icons: {
           time: 'icon-datetime icon-datetime-time',
