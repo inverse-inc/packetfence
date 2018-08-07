@@ -16,17 +16,17 @@
               {{ $t('Previous') }}
             </b-input-group-prepend>
             <b-button-group>
-              <b-button variant="light" @click="setRangeByPeriod(60 * 30)">30m</b-button>
-              <b-button variant="light" @click="setRangeByPeriod(60 * 60)">1h</b-button>
-              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 6)">6h</b-button>
-              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 12)">12h</b-button>
-              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24)">1D</b-button>
-              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 7)">1W</b-button>
-              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 14)">2W</b-button>
-              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 28)">1M</b-button>
-              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 28 * 2)">2M</b-button>
-              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 28 * 6)">6M</b-button>
-              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 365)">1Y</b-button>
+              <b-button variant="light" class="border-top border-bottom" @click="setRangeByPeriod(60 * 30)">30m</b-button>
+              <b-button variant="light" class="border-top border-bottom" @click="setRangeByPeriod(60 * 60)">1h</b-button>
+              <b-button variant="light" class="border-top border-bottom" @click="setRangeByPeriod(60 * 60 * 6)">6h</b-button>
+              <b-button variant="light" class="border-top border-bottom" @click="setRangeByPeriod(60 * 60 * 12)">12h</b-button>
+              <b-button variant="light" class="border-top border-bottom" @click="setRangeByPeriod(60 * 60 * 24)">1D</b-button>
+              <b-button variant="light" class="border-top border-bottom" @click="setRangeByPeriod(60 * 60 * 24 * 7)">1W</b-button>
+              <b-button variant="light" class="border-top border-bottom" @click="setRangeByPeriod(60 * 60 * 24 * 14)">2W</b-button>
+              <b-button variant="light" class="border-top border-bottom" @click="setRangeByPeriod(60 * 60 * 24 * 28)">1M</b-button>
+              <b-button variant="light" class="border-top border-bottom" @click="setRangeByPeriod(60 * 60 * 24 * 28 * 2)">2M</b-button>
+              <b-button variant="light" class="border-top border-bottom" @click="setRangeByPeriod(60 * 60 * 24 * 28 * 6)">6M</b-button>
+              <b-button variant="light" class="border-top border-right order-bottom" @click="setRangeByPeriod(60 * 60 * 24 * 365)">1Y</b-button>
             </b-button-group>
           </b-input-group>
         </b-form>
