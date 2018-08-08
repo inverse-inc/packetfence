@@ -293,7 +293,7 @@ sub accept_binary_patching {
 }
 
 sub install_binary_sign_key_if_needed {
-    my $rc = system("gpg --list-keys $BINARIES_SIGN_KEY_ID");
+    my $rc = system("gpg --list-keys $BINARIES_SIGN_KEY_ID > /dev/null");
     if($rc != 0) {
         $rc = system("gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys $BINARIES_SIGN_KEY_ID");
         die "Cannot install signing key\n" if $rc != 0;
