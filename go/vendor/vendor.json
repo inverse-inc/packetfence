@@ -190,6 +190,12 @@
 			"revisionTime": "2018-01-24T17:44:29Z"
 		},
 		{
+			"checksumSHA1": "1Igmmh7o8T7iuRCnuncPdTSildU=",
+			"path": "github.com/fdurand/arp",
+			"revision": "27b38d3af1be7174c7036f97a238fa8ea9d943b6",
+			"revisionTime": "2018-08-07T17:46:48Z"
+		},
+		{
 			"checksumSHA1": "ifZgOFAUHdF/J00KbM+b0GOtz2w=",
 			"path": "github.com/fdurand/go-cache",
 			"revision": "cf0198ac7d92634998b3f3f2b616553fda07d7b0"
