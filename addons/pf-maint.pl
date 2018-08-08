@@ -48,6 +48,7 @@ our $PATCH_BIN = '/usr/bin/patch';
 our $GIT_BIN = '/usr/bin/git';
 our $COMMIT_ID_FILE = catfile($PF_DIR,'conf','git_commit_id');
 our $test;
+our $LINE_WIDTH = 110;
 
 # Files that should be excluded from patching
 # Will only work when using git to patch a server
@@ -127,7 +128,7 @@ my $base = $BASE_COMMIT || get_base();
 die "Cannot base commit\n" unless $base;
 
 $step++;
-print "=" x 110 . "\n";
+print "=" x $LINE_WIDTH . "\n";
 print "Step $step: Patching of text based codefiles\n";
 
 print "Currently at $base\n";
@@ -153,7 +154,7 @@ else {
 
 if($BASE_BINARIES_URL) {
     $step++;
-    print "=" x 110 . "\n";
+    print "=" x $LINE_WIDTH . "\n";
     print "Step $step: Patching of the Golang binaries\n";
 
     my $should_patch = 0;
@@ -172,12 +173,12 @@ if($BASE_BINARIES_URL) {
 }
 
 $step++;
-print "=" x 110 . "\n";
+print "=" x $LINE_WIDTH . "\n";
 print "Step $step: Regenerating rsyslog configuration and restarting rsyslog\n";
 system("/usr/local/pf/bin/pfcmd generatesyslogconfig");
 system("systemctl restart rsyslog");
 
-print "=" x 110 . "\n";
+print "=" x $LINE_WIDTH . "\n";
 print "All done...\n";
 
 sub get_release_full {
@@ -314,7 +315,7 @@ sub download_and_install_binaries {
         chown $uid, $gid, $binary_path;
     }
 
-    print "." x 110 . "\n";
+    print "." x $LINE_WIDTH . "\n";
     print "Patching of the binaries was successful\n";
 }
 
