@@ -136,6 +136,7 @@ print "Currently at $base\n";
 my $head = $COMMIT || get_head();
 if ($base eq $head) {
     print "Already up to date for text based patches\n";
+    exit 0 if defined($test);
 } 
 else {
     print "Text based patche(s) available\n";
