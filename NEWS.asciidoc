@@ -22,6 +22,7 @@ Enhancements
 ++++++++++++
 * jsonrpc requests send the current tenant_id (#3271)
 * Take the tenant id in consideration in the queue (#3269)
+* Performed various improvements to the maintenance script (PR #3445)
 
 Bug Fixes
 +++++++++
