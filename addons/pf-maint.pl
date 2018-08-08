@@ -120,35 +120,64 @@ our $BINARIES_DIRECTORY = "/usr/local/pf/sbin";
 
 our $BINARIES_SIGN_KEY_ID = "A0030E2C";
 
+our $step = 0;
+
 my $base = $BASE_COMMIT || get_base();
 
 die "Cannot base commit\n" unless $base;
+
+$step++;
+print "=" x 110 . "\n";
+print "Step $step: Patching of text based codefiles\n";
 
 print "Currently at $base\n";
 
 my $head = $COMMIT || get_head();
 if ($base eq $head) {
-    print "Already up to date\n";
-    exit 0;
+    print "Already up to date for text based patches\n";
+} 
+else {
+    exit 1 if defined($test);
+
+    print "Latest maintenance version is $head\n";
+
+    my $patch_data = get_patch_data( $base, $head );
+    show_patch($patch_data);
+    accept_patch() unless $NO_ASK;
+    print "Downloading the patch........\n";
+    save_patch( $patch_data, $base, $head );
+    print "Applying the patch........\n";
+    apply_patch( $patch_data, $base, $head );
 }
-exit 1 if defined($test);
-
-print "Latest maintenance version is $head\n";
-
-my $patch_data = get_patch_data( $base, $head );
-show_patch($patch_data);
-accept_patch() unless $NO_ASK;
-print "Downloading the patch........\n";
-save_patch( $patch_data, $base, $head );
-print "Applying the patch........\n";
-apply_patch( $patch_data, $base, $head );
 
 if($BASE_BINARIES_URL) {
-    accept_binary_patching() unless $NO_ASK;
-    install_binary_sign_key_if_needed();
-    print "Downloading and replacing the binaries........\n";
-    download_and_install_binaries();
+    $step++;
+    print "=" x 110 . "\n";
+    print "Step $step: Patching of the Golang binaries\n";
+
+    my $should_patch = 0;
+    if($NO_ASK) {
+        $should_patch = 1;
+    }
+    elsif(accept_binary_patching()) {
+        $should_patch = 1;
+    }
+
+    if($should_patch) {
+        install_binary_sign_key_if_needed();
+        print "Downloading and replacing the binaries........\n";
+        download_and_install_binaries();
+    }
 }
+
+$step++;
+print "=" x 110 . "\n";
+print "Step $step: Regenerating rsyslog configuration and restarting rsyslog\n";
+system("/usr/local/pf/bin/pfcmd generatesyslogconfig");
+system("systemctl restart rsyslog");
+
+print "=" x 110 . "\n";
+print "All done...\n";
 
 sub get_release_full {
     chomp( my $release = read_file( catfile( $PF_DIR, 'conf/pf-release' ) ) );
@@ -252,12 +281,9 @@ sub print_dot {
 }
 
 sub accept_binary_patching {
-    print "=" x 110 . "\n";
     print "Should we patch the Golang binaries? ".join(",", @patchable_binaries)." Any custom code in them will be overwritten y/n [y]: ";
     chomp(my $yes_no = <STDIN>);
-    if ($yes_no =~ /n/) {
-        exit;
-    }
+    return !($yes_no =~ /n/);
 }
 
 sub install_binary_sign_key_if_needed {
@@ -278,7 +304,7 @@ sub download_and_install_binaries {
         my $result = system("gpg --batch --yes --output $binary_path-maintenance-decrypted --decrypt $binary_path-maintenance-encrypted");
         die "Cannot validate the binary signature\n" if $result != 0;
 
-        rename($binary_path, "$binary_path-pre-maintenance") or die "Cannot backup binary: $!\n";
+        rename($binary_path, "$binary_path-pre-maintenance") or die "Cannot backup binary $binary_path: $!\n";
         rename("$binary_path-maintenance-decrypted", $binary_path) or die "Cannot install binary: $!\n";
         unlink("$binary_path-maintenance-encrypted") or warn "Couldn't delete temporary download file, everything will keep working but the stale file will still be there ($!)\n";
         chmod 0755, "$binary_path";
@@ -287,7 +313,7 @@ sub download_and_install_binaries {
         chown $uid, $gid, $binary_path;
     }
 
-    print "=" x 110 . "\n";
+    print "." x 110 . "\n";
     print "Patching of the binaries was successful\n";
 }
 
