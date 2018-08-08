@@ -4642,10 +4642,12 @@ Run the monitoring scripts
 /usr/local/pf/addons/monit/monitoring-scripts/run-all.sh
 ----
 
-Ensure this script outputs 'No error to report'
+Ensure this script outputs `No error to report`
 
 Error: Syslog is not in asynchronous mode
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This step is only required if a `Syslog is not in asynchronous mode` error is received above.
 
 In `/etc/rsyslog.conf`, replace:
 ----
@@ -4686,7 +4688,7 @@ This updates only once a week. It is normal to see status `Waiting`.
 packetfence-etcd
 ^^^^^^^^^^^^^^^^
 
-Do the following on all nodes in the cluster:
+If stuck waiting on `packetfence-etcd`, perform the following on all nodes in the cluster:
 ----
 systemctl stop packetfence-etcd
 ----
