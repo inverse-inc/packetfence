@@ -4672,7 +4672,7 @@ yum install mailx -y
 Monit Summary
 ^^^^^^^^^^^^^
 
-View the monit summary to ensure all services are status 'Running', 'Accessible', or 'Status ok`. Address any services that display any other failed status. Monit will display the services in the same order that they are processed. If the summary appears stuck, troubleshoot the next service in the list.
+View the monit summary to ensure all services are status `Running`, `Accessible`, or `Status ok`. Address any services that display any other failed status. Monit will display the services in the same order that they are processed. If the summary appears stuck, troubleshoot the next service in the list.
 
 ----
 monit summary
@@ -4680,7 +4680,7 @@ monit summary
 
 patch
 ^^^^^
-This updates only once a week. It is normal to see status 'Waiting'.
+This updates only once a week. It is normal to see status `Waiting`.
 
 
 packetfence-etcd
@@ -4696,7 +4696,7 @@ Once packetfence-etcd is stopped on all nodes:
 rm -Rf /usr/local/pf/var/etcd/*
 ----
 
-Now restart etcd
+Restart etcd
 ----
 systemctl stop packetfence-etcd
 ----
