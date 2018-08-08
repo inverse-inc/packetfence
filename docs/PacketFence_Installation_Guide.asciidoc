@@ -4652,7 +4652,7 @@ In `/etc/rsyslog.conf`, replace:
 *.info;mail.none;authpriv.none;cron.none                /var/log/messages
 ----
 
-with:
+with (a hyphen):
 ----
 *.info;mail.none;authpriv.none;cron.none                -/var/log/messages
 ----
