@@ -137,6 +137,7 @@ if ($base eq $head) {
     print "Already up to date for text based patches\n";
 } 
 else {
+    print "Text based patche(s) available\n";
     exit 1 if defined($test);
 
     print "Latest maintenance version is $head\n";
