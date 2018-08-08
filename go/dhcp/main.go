@@ -360,7 +360,7 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 					log.LoggerWContext(ctx).Info(p.CHAddr().String() + " Ip " + ipaddr.String() + " already in use, trying next")
 					// Added back in the pool since it's not the dhcp server who gave it
 					handler.hwcache.Delete(p.CHAddr().String())
-					free = 0
+
 					firstTry = false
 
 					log.LoggerWContext(ctx).Info("Temporarily declaring " + ipaddr.String() + " as unusable")
@@ -372,7 +372,7 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 						log.LoggerWContext(ctx).Info("Releasing previously pingable IP " + ipaddr.String() + " back into the pool")
 						handler.available.Add(uint32(free))
 					}(ctx, free, ipaddr)
-
+					free = 0
 					goto retry
 				}
 				handler.available.Remove(element)
@@ -529,7 +529,7 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 				return answer
 			}
 
-		case dhcp.Release, dhcp.Decline:
+		case dhcp.Release:
 			reqIP := net.IP(options[dhcp.OptionRequestedIPAddress])
 			if reqIP == nil {
 				reqIP = net.IP(p.CIAddr())
@@ -540,10 +540,41 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 					handler.hwcache.Delete(p.CHAddr().String())
 				}(ctx, x.(int), reqIP)
 			}
+			log.LoggerWContext(ctx).Info(prettyType + " of " + reqIP.String() + " from " + clientMac)
+
+			return answer
+
+		case dhcp.Decline:
+			reqIP := net.IP(options[dhcp.OptionRequestedIPAddress])
+			if reqIP == nil {
+				reqIP = net.IP(p.CIAddr())
+			}
+
+			// Remove the mac from the cache
+			if x, found := handler.hwcache.Get(p.CHAddr().String()); found {
+				go func(ctx context.Context, x int, reqIP net.IP) {
+					handler.hwcache.Delete(p.CHAddr().String())
+				}(ctx, x.(int), reqIP)
+			}
+			// Make the ip unavailable for 10 minutes
+			if leaseNum := dhcp.IPRange(handler.start, reqIP) - 1; leaseNum >= 0 && leaseNum < handler.leaseRange {
+
+				log.LoggerWContext(ctx).Info("Temporarily declaring " + reqIP.String() + " as unusable")
+				handler.available.Remove(uint32(leaseNum))
+
+				// Put it back into the available IPs in 10 minutes
+				go func(ctx context.Context, leaseNum int, reqIP net.IP) {
+					time.Sleep(10 * time.Minute)
+					log.LoggerWContext(ctx).Info("Releasing previously declined IP " + reqIP.String() + " back into the pool")
+					handler.available.Add(uint32(leaseNum))
+				}(ctx, leaseNum, reqIP)
+
+			}
 
 			log.LoggerWContext(ctx).Info(prettyType + " of " + reqIP.String() + " from " + clientMac)
 
 			return answer
+
 		}
 
 		answer.Iface = h.intNet

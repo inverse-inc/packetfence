@@ -219,13 +219,14 @@ func sendUnicastDHCP(dhcp []byte, dstIP net.Addr, srcIP net.IP, giAddr net.IP) e
 	port, _ := strconv.Atoi(portStr)
 
 	// Keep as is for futur test
-	// if !(net.ParseIP(ipStr).Equal(giAddr)) {
-	// 	if !(giAddr.Equal(net.IPv4zero)) {
-	// 		ipStr = giAddr.String()
-	// 	}
-	// }
+	if !(net.ParseIP(ipStr).Equal(giAddr)) {
+		if !(giAddr.Equal(net.IPv4zero)) {
+			ipStr = giAddr.String()
+		}
+	}
 
 	udpsrc := uint(67)
+	// Maybe need to set to 67
 	udpdst := port
 
 	udp := udphdr{
