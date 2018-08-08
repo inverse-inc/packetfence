@@ -228,15 +228,6 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 					return pf.Next.ServeDNS(ctx, w, r)
 				}
 			}
-
-			// Defer to the proxy middleware if the device is registered
-			if status == "reg" && !violation {
-				fmt.Println(srcIP + " : " + mac + " serve dns " + state.QName())
-				return pf.Next.ServeDNS(ctx, w, r)
-			}
-		}
-
-		if k.Contains(bIP) {
 			answer, found := pf.DNSFilter.Get(state.QName())
 			if found && answer != "null" {
 				fmt.Println("Get answer from the cache for " + state.QName())
