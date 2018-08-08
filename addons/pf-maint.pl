@@ -283,7 +283,10 @@ sub print_dot {
 }
 
 sub accept_binary_patching {
-    print "Should we patch the Golang binaries? ".join(",", @patchable_binaries)." Any custom code in them will be overwritten y/n [y]: ";
+    print "." x $LINE_WIDTH . "\n";
+    print "Should we patch the Golang binaries?\n";
+    print "Any custom code in them will be overwritten!!\n";
+    print "y/n [y]: ";
     chomp(my $yes_no = <STDIN>);
     return !($yes_no =~ /n/);
 }
