@@ -1,4 +1,17 @@
-<template>
+/**
+ * Component to pick datetime.
+ * 
+ * Optional Properties:
+ *    v-model: reactive property getter/setter
+ *    value: default value
+ *    label: form-group label
+ *    placeholder: input placeholder
+ *    prependText: input-group prepend slot
+ *    config: extend/overload pc-bootstrap4-datetimepicker options
+ *      See: http://eonasdan.github.io/bootstrap-datetimepicker/Options/
+ *    disabled: boolean true/false to disable/enable input
+ */
+ <template>
   <b-form-group :label-cols="labelCols" :label="$t(label)" :state="isValid()" :invalid-feedback="$t(invalidFeedback)" horizontal>
     <b-input-group>
       <b-input-group-prepend v-if="prependText" is-text>
@@ -60,6 +73,10 @@ export default {
     },
     config: {
       type: Object
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
