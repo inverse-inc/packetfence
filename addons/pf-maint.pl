@@ -306,7 +306,7 @@ sub download_and_install_binaries {
         my $data = get_url("$BASE_BINARIES_URL/maintenance/$PF_RELEASE/$binary.sig");
         write_file("$binary_path-maintenance-encrypted", $data);
         
-        my $result = system("gpg --batch --yes --output $binary_path-maintenance-decrypted --decrypt $binary_path-maintenance-encrypted");
+        my $result = system("gpg --always-trust --batch --yes --output $binary_path-maintenance-decrypted --decrypt $binary_path-maintenance-encrypted");
         die "Cannot validate the binary signature\n" if $result != 0;
 
         rename($binary_path, "$binary_path-pre-maintenance") or die "Cannot backup binary $binary_path: $!\n";
