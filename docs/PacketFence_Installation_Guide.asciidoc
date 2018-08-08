@@ -4538,22 +4538,19 @@ image::TAB.png[scaledwidth="100%",alt="Node TAB"]
 Monit Integration
 ~~~~~~~~~~~~~~~~~
 
-Must be done on each server of a cluster
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The following must be done on each server of a cluster
 
 
 Install/Update Monit
-~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^
 
 RHEL / CentOS
-^^^^^^^^^^^^^
 ----
 yum localinstall http://packetfence.org/downloads/PacketFence/RHEL6/`uname -i`/RPMS/packetfence-release-1.2-5.1.noarch.rpm -y
 yum install monit --enablerepo=packetfence-extra -y
 ----
 
 Debian
-^^^^^^
 ----
 apt-get update
 apt-get install monit
@@ -4561,33 +4558,33 @@ apt-get install monit
 
 
 Fetch the script signing key
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ----
 gpg --keyserver keyserver.ubuntu.com --recv E3A28334
 ----
-If this fails
-^^^^^^^^^^^^^
+
+If the above fails:
 ----
 gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E3A28334
 ----
 
 
 Download the new monitoring directory
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ----
 cd /tmp/ && wget http://inverse.ca/downloads/PacketFence/monitoring-scripts/v1/monit.tgz && tar xzvf monit.tgz
 ----
 
 
 Move the old monit directory and replace with the new one
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ----
 mv /usr/local/pf/addons/monit /usr/local/pf/addons/monit.old ; mv /tmp/monit /usr/local/pf/addons/
 ----
 
 
 Generate the monit configuration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ----
 /usr/local/pf/addons/monit/monit_build_configuration.pl 'email(s)' 'subject' 'configurations' 'mailserver'
 ----
@@ -4599,53 +4596,48 @@ Generate the monit configuration
 
 
 Include the generated configurations in the monit config
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 RHEL / CentOS
-^^^^^^^^^^^^^
 ----
 sed -i -e 's/^include.*//g' /etc/monit.conf && echo "include /etc/monit.d/*.conf" >> /etc/monit.conf
 ----
 
 Debian
-^^^^^^
 ----
 sed -i -e 's/include.*\*$//g' /etc/monit/monitrc && echo "include /etc/monit/conf.d/*.conf" >> /etc/monit/monitrc
 ----
 
 Remove the old monit script
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ----
 rm /etc/monit.d/packetfence.monit
 ----
 
 Run the monitoring script update to fetch the scripts and config
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Ensure the script outputs: 'Update completed successfully'
 
 RHEL / CentOS
-^^^^^^^^^^^^^
 ----
 yum install uuid -y
 /usr/local/pf/addons/monit/monitoring-scripts/update.sh
 ----
 
 Debian
-^^^^^^
 ----
 apt-get install uuid-runtime
 /usr/local/pf/addons/monit/monitoring-scripts/update.sh 
 ----
 
 Ensure the pf group can write the logs
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ----
 chmod g+w /usr/local/pf/logs/*
 ----
 
 Run the monitoring scripts
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 ----
 /usr/local/pf/addons/monit/monitoring-scripts/run-all.sh
 ----
@@ -4654,29 +4646,31 @@ Ensure this script outputs 'No error to report'
 
 Error: Syslog is not in asynchronous mode
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 In `/etc/rsyslog.conf`, replace:
 ----
 *.info;mail.none;authpriv.none;cron.none                /var/log/messages
 ----
-with
+
+with:
 ----
 *.info;mail.none;authpriv.none;cron.none                -/var/log/messages
 ----
 
 Restart monit
-~~~~~~~~~~~~~
+^^^^^^^^^^^^^
 ----
 systemctl restart monit
 ----
 
 Install MTA
-~~~~~~~~~~~
+^^^^^^^^^^^
 ----
 yum install mailx -y
 ----
 
 Monit Summary
-~~~~~~~~~~~~~
+^^^^^^^^^^^^^
 
 View the monit summary to ensure all services are status 'Running', 'Accessible', or 'Status ok`. Address any services that display any other failed status. Monit will display the services in the same order that they are processed. If the summary appears stuck, troubleshoot the next service in the list.
 
