@@ -189,7 +189,7 @@ our @SyslogInfo = (
     },
     {
         'name'      => 'haproxy_portal.log',
-        'conditions' => [ '$programname == "haproxy" and $msg contains "portal-http"' ],
+        'conditions' => [ '$programname == "haproxy" and ($msg contains "portal-http" or $msg contains "backend has no server available")' ],
     },
 );
 
