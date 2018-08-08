@@ -155,11 +155,13 @@ export default {
       return reportCategories.map(category => category.reports.map(report => Object.assign({ category: category.name }, report))).reduce((l, n) => l.concat(n), []).filter(report => report.tabs.map(tab => tab.path).includes(path))[0]
     },
     onChangeDatetimeStart (datetime) {
+      console.log(['onChangeDatetimeStart', this.datetimeStart, datetime])
       this.datetimeStart = datetime
       const rpath = this.getApiEndpointRangePath(this.range)
       this.apiEndpoint = `reports/${this.path}${rpath}`
     },
     onChangeDatetimeEnd (datetime) {
+      console.log(['onChangeDatetimeEnd', this.datetimeEnd, datetime])
       this.datetimeEnd = datetime
       const rpath = this.getApiEndpointRangePath(this.range)
       this.apiEndpoint = `reports/${this.path}${rpath}`

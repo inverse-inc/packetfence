@@ -9,24 +9,24 @@
     <b-row class="mb-3" align-h="between" align-v="center">
       <b-col cols="auto" class="text-left" v-if="range">
         <b-form inline>
-          <pf-form-datetime ref="datetimeStart" v-model="datetimeStart" :prepend-text="$t('Start')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
-          <pf-form-datetime ref="datetimeEnd" v-model="datetimeEnd" :prepend-text="$t('End')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
-          <b-input-group>
+          <pf-form-datetime v-model="datetimeStart" :prepend-text="$t('Start')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
+          <pf-form-datetime v-model="datetimeEnd" :prepend-text="$t('End')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
+          <b-input-group @mouseover="showPrevious = true" @mouseout="showPrevious = false">
             <b-input-group-prepend is-text>
               {{ $t('Previous') }}
             </b-input-group-prepend>
-            <b-button-group>
-              <b-button variant="light" class="border-top border-bottom" @click="setRangeByPeriod(60 * 30)">30m</b-button>
-              <b-button variant="light" class="border-top border-bottom" @click="setRangeByPeriod(60 * 60)">1h</b-button>
-              <b-button variant="light" class="border-top border-bottom" @click="setRangeByPeriod(60 * 60 * 6)">6h</b-button>
-              <b-button variant="light" class="border-top border-bottom" @click="setRangeByPeriod(60 * 60 * 12)">12h</b-button>
-              <b-button variant="light" class="border-top border-bottom" @click="setRangeByPeriod(60 * 60 * 24)">1D</b-button>
-              <b-button variant="light" class="border-top border-bottom" @click="setRangeByPeriod(60 * 60 * 24 * 7)">1W</b-button>
-              <b-button variant="light" class="border-top border-bottom" @click="setRangeByPeriod(60 * 60 * 24 * 14)">2W</b-button>
-              <b-button variant="light" class="border-top border-bottom" @click="setRangeByPeriod(60 * 60 * 24 * 28)">1M</b-button>
-              <b-button variant="light" class="border-top border-bottom" @click="setRangeByPeriod(60 * 60 * 24 * 28 * 2)">2M</b-button>
-              <b-button variant="light" class="border-top border-bottom" @click="setRangeByPeriod(60 * 60 * 24 * 28 * 6)">6M</b-button>
-              <b-button variant="light" class="border-top border-right border-bottom" @click="setRangeByPeriod(60 * 60 * 24 * 365)">1Y</b-button>
+            <b-button-group v-if="showPrevious">
+              <b-button variant="light" @click="setRangeByPeriod(60 * 30)">30m</b-button>
+              <b-button variant="light" @click="setRangeByPeriod(60 * 60)">1h</b-button>
+              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 6)">6h</b-button>
+              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 12)">12h</b-button>
+              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24)">1D</b-button>
+              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 7)">1W</b-button>
+              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 14)">2W</b-button>
+              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 28)">1M</b-button>
+              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 28 * 2)">2M</b-button>
+              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 28 * 6)">6M</b-button>
+              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 365)">1Y</b-button>
             </b-button-group>
           </b-input-group>
         </b-form>
@@ -94,7 +94,7 @@ export default {
   data () {
     return {
       chartSizeLimit: 25,
-      emit: true
+      showPrevious: false
     }
   },
   computed: {
@@ -162,16 +162,8 @@ export default {
       this.queueRender()
     },
     setRangeByPeriod (period) {
-      const tsEnd = moment()
-      const tsStart = tsEnd.subtract(period, 'seconds')
-      // prevent emit, causes race condition when both start/end changed simultaneously
-      this.emit = false
-      this.datetimeEnd = tsEnd.format('YYYY-MM-DD HH:mm:ss')
-      this.datetimeStart = tsStart.format('YYYY-MM-DD HH:mm:ss')
-      this.emit = true
-      // now send delayed emit(s) previosuly skipped
-      this.$emit('changeDatetimeEnd', this.datetimeEnd)
-      this.$emit('changeDatetimeStart', this.datetimeStart)
+      this.$emit('changeDatetimeEnd', moment().format('YYYY-MM-DD HH:mm:ss'))
+      this.$emit('changeDatetimeStart', moment().subtract(period, 'seconds').format('YYYY-MM-DD HH:mm:ss'))
     }
   },
   mounted () {
@@ -203,12 +195,12 @@ export default {
     },
     datetimeStart (a, b) {
       if (a !== b) {
-        if (this.emit) this.$emit('changeDatetimeStart', a)
+        this.$emit('changeDatetimeStart', a)
       }
     },
     datetimeEnd (a, b) {
       if (a !== b) {
-        if (this.emit) this.$emit('changeDatetimeEnd', a)
+        this.$emit('changeDatetimeEnd', a)
       }
     }
   },
