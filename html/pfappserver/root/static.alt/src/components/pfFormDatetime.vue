@@ -10,6 +10,8 @@
  *    config: extend/overload pc-bootstrap4-datetimepicker options
  *      See: http://eonasdan.github.io/bootstrap-datetimepicker/Options/
  *    disabled: boolean true/false to disable/enable input
+ *    min: minimum datetime string, Date or moment
+ *    max: maximum datetime String, Date or moment
  */
  <template>
   <b-form-group :label-cols="labelCols" :label="$t(label)" :state="isValid()" :invalid-feedback="$t(invalidFeedback)" horizontal>
@@ -77,6 +79,12 @@ export default {
     disabled: {
       type: Boolean,
       default: false
+    },
+    min: {
+      type: String
+    },
+    max: {
+      type: String
     }
   },
   data () {
@@ -174,6 +182,20 @@ export default {
       event.stopPropagation()
       let picker = this.$refs.datetime.dp
       picker.toggle()
+    }
+  },
+  watch: {
+    min (a, b) {
+      if (a !== b) {
+        let picker = this.$refs.datetime.dp
+        picker.minDate(a)
+      }
+    },
+    max (a, b) {
+      if (a !== b) {
+        let picker = this.$refs.datetime.dp
+        picker.maxDate(a)
+      }
     }
   },
   created () {

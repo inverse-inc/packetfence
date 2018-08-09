@@ -9,13 +9,11 @@
     <b-row class="mb-3" align-h="between" align-v="center">
       <b-col cols="auto" class="text-left" v-if="range">
         <b-form inline>
-          <pf-form-datetime v-model="datetimeStart" :prepend-text="$t('Start')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
-          <pf-form-datetime v-model="datetimeEnd" :prepend-text="$t('End')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
-          <b-input-group @mouseover="showPrevious = true" @mouseout="showPrevious = false">
+          <b-input-group @mouseover="showPeriod = true" @mouseout="showPeriod = false" class="mr-3">
             <b-input-group-prepend is-text>
               {{ $t('Previous') }}
             </b-input-group-prepend>
-            <b-button-group v-if="showPrevious">
+            <b-button-group v-if="showPeriod" rel="periodButtonGroup">
               <b-button variant="light" @click="setRangeByPeriod(60 * 30)">30m</b-button>
               <b-button variant="light" @click="setRangeByPeriod(60 * 60)">1h</b-button>
               <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 6)">6h</b-button>
@@ -28,7 +26,12 @@
               <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 28 * 6)">6M</b-button>
               <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 365)">1Y</b-button>
             </b-button-group>
+            <b-input-group-append is-text>
+              <icon name="stopwatch"></icon>
+            </b-input-group-append>
           </b-input-group>
+          <pf-form-datetime v-if="!showPeriod" v-model="datetimeStart" :max="maxStartDatetime" :prepend-text="$t('Start')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
+          <pf-form-datetime v-if="!showPeriod" v-model="datetimeEnd" :min="minEndDatetime" :prepend-text="$t('End')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
         </b-form>
       </b-col>
       <b-col cols="auto" class="mr-auto"></b-col>
@@ -94,7 +97,9 @@ export default {
   data () {
     return {
       chartSizeLimit: 25,
-      showPrevious: false
+      showPeriod: false,
+      maxStartDatetime: '9999-12-12 23:59:59',
+      minEndDatetime: '0000-00-00 00:00:00'
     }
   },
   computed: {
@@ -162,6 +167,7 @@ export default {
       this.queueRender()
     },
     setRangeByPeriod (period) {
+      this.showPeriod = false
       this.$emit('changeDatetimeEnd', moment().format('YYYY-MM-DD HH:mm:ss'))
       this.$emit('changeDatetimeStart', moment().subtract(period, 'seconds').format('YYYY-MM-DD HH:mm:ss'))
     }
@@ -196,11 +202,13 @@ export default {
     datetimeStart (a, b) {
       if (a !== b) {
         this.$emit('changeDatetimeStart', a)
+        this.minEndDatetime = a
       }
     },
     datetimeEnd (a, b) {
       if (a !== b) {
         this.$emit('changeDatetimeEnd', a)
+        this.maxStartDatetime = a
       }
     }
   },
@@ -222,6 +230,14 @@ export default {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+}
+/**
+ * Add btn-primary color(s) on hover
+ */
+.btn-group[rel=periodButtonGroup] button:hover {
+  color: #fff;
+  background-color: #007bff;
+  border-color: #007bff;
 }
 </style>
 
