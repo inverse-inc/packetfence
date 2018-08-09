@@ -4732,7 +4732,7 @@ rm -Rf /usr/local/pf/var/etcd/*
 
 Restart `etcd` on all nodes in the cluster.
 ----
-systemctl stop packetfence-etcd
+systemctl start packetfence-etcd
 ----
 
 
