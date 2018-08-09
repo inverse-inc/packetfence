@@ -139,8 +139,6 @@ our @VIOLATION_CLOSED_JOIN = (
     'violation|violation_close',
 );
 
-our @VIOLATION_GROUP_BY = qw(node.tenant_id node.mac);
-
 our %ALLOWED_JOIN_FIELDS = (
     'ip4log.ip' => {
         join_spec     => \@IP4LOG_JOIN,
