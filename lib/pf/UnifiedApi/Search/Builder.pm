@@ -223,9 +223,14 @@ sub make_columns {
     if (@errors) {
         return 422,
           {
-            msg => "Invalid column(s) defined",
+            msg    => "Invalid column(s) defined",
             errors => \@errors
           };
+    }
+
+    my ($status, $error) = $self->check_for_duplicated_fields($cols);
+    if (is_error($status)) {
+        return $status, $error;
     }
 
     if (@$cols) {
@@ -236,6 +241,33 @@ sub make_columns {
     }
 
     return 200, $cols;
+}
+
+=head2 check_for_duplicated_fields
+
+check_for_duplicated_fields
+
+=cut
+
+sub check_for_duplicated_fields {
+    my ($self, $cols) = @_;
+    my %found;
+    my @duplicated;
+    for my $col (@$cols) {
+        if (++$found{$col} > 1) {
+            push @duplicated, $col;
+        }
+    }
+
+    if (@duplicated) {
+        return 422,
+          {
+            msg    => "Duplicated column(s) found",
+            errors => [ map { { msg => "Column $_ duplicated" } } @duplicated ],
+          };
+    }
+
+    return 200, undef;
 }
 
 =head2 format_column

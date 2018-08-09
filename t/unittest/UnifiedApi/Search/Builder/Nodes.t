@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 25;
+use Test::More tests => 26;
 
 #This test will running last
 use Test::NoWarnings;
@@ -386,7 +386,7 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
 }
 
 {
-    my @f = qw(mac violation.open_count violation.open_count);
+    my @f = qw(mac violation.open_count violation.close_count);
 
     my %search_info = (
         dal => $dal,
@@ -400,7 +400,7 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
             [
                 'node.mac',
                 \"COUNT(violation_open.id) AS `violation.open_count`",
-                \"COUNT(violation_open.id) AS `violation.open_count`",
+                \"COUNT(violation_close.id) AS `violation.close_count`",
             ],
         ],
         'Return the columns'
@@ -423,6 +423,7 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
             [
                 -join => 'node',
                 @pf::UnifiedApi::Search::Builder::Nodes::VIOLATION_OPEN_JOIN,
+                @pf::UnifiedApi::Search::Builder::Nodes::VIOLATION_CLOSED_JOIN,
             ]
         ],
         'Return the joined tables'
@@ -438,6 +439,17 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
         ],
         "violation.open_count Group by",
     )
+}
+
+{
+    my @f = qw(mac mac);
+
+    my %search_info = (
+        dal => $dal,
+        fields => \@f,
+    );
+    my ($status, $error) = $sb->make_columns( \%search_info );
+    is($status, 422, "Duplicated fields error");
 }
 
 =head1 AUTHOR
