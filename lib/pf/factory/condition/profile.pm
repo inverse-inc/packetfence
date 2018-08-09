@@ -44,6 +44,11 @@ our %CMP_OPS = (
 
 our %OPS = (%LOGICAL_OPS, %CMP_OPS, %UNARY_OPS);
 
+our %NULLABLE_OPS = (
+    '==' => 'pf::condition::not_defined',
+    '!=' => 'pf::condition::is_defined',
+);
+
 our @MODULES;
 
 __PACKAGE__->modules;
@@ -169,6 +174,9 @@ sub build_conditions {
     if (exists $LOGICAL_OPS{$op}) {
         my $conditions = [map { build_conditions($self, $_) } @operands];
         return $class->new({conditions => $conditions});
+    }
+    if (exists $NULLABLE_OPS{$op} && $operands[-1] eq '__NULL__' ) {
+       $class = $NULLABLE_OPS{$op};
     }
     my ($first, @keys) = split /\./, $operands[0];
     my $sub_condition = $class->new({ value => $operands[1] });

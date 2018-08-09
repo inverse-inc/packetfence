@@ -17,7 +17,7 @@ use warnings;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 22;
+use Test::More tests => 24;
 
 BEGIN {
     #include test libs
@@ -33,7 +33,9 @@ BEGIN {
 #This test will running last
 use Test::NoWarnings;
 
-my $profile = pf::Connection::ProfileFactory->instantiate("00:00:00:00:00:00", {});
+my $profile;
+
+$profile = pf::Connection::ProfileFactory->instantiate("00:00:00:00:00:00", {});
 
 is($profile->getName, "default");
 
@@ -105,6 +107,12 @@ is($profile->getName, "switches");
 pf::ip4log::open("192.168.2.1", "00:11:22:33:44:55", 5);
 $profile = pf::Connection::ProfileFactory->instantiate("00:11:22:33:44:55");
 is($profile->getName, "network");
+
+$profile = pf::Connection::ProfileFactory->instantiate("00:00:00:00:00:00", { last_switch => undef });
+is($profile->getName, "last_switch_undefined");
+
+$profile = pf::Connection::ProfileFactory->instantiate("00:00:00:00:00:00", { last_switch => 2 });
+is($profile->getName, "last_switch_defined");
 
 =head1 AUTHOR
 
