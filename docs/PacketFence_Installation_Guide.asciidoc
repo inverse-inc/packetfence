@@ -4591,7 +4591,6 @@ Generate the monit configuration
 ----
 
 Where :
-
 [options="compact"]
 * `email(s)`: CSV (no spaces) of recipient email addresses.
 * `subject`: Email subject line (example: 'Packetfence Monit Alert').
@@ -4618,6 +4617,7 @@ sed -i -e 's/include.*\*$//g' /etc/monit/monitrc && echo "include /etc/monit/con
 
 Remove the old monit script
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+This step is only required during an upgrade.
 ----
 rm /etc/monit.d/packetfence.monit
 ----
