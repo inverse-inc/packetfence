@@ -37,6 +37,7 @@ use Getopt::Long;
 use LWP::UserAgent;
 use Pod::Usage;
 use IO::Handle;
+use Term::ReadKey;
 our $GITHUB_USER = 'inverse-inc';
 our $GITHUB_REPO = 'packetfence';
 our $PF_DIR      = $ENV{PF_DIR} || '/usr/local/pf';
@@ -48,7 +49,7 @@ our $PATCH_BIN = '/usr/bin/patch';
 our $GIT_BIN = '/usr/bin/git';
 our $COMMIT_ID_FILE = catfile($PF_DIR,'conf','git_commit_id');
 our $test;
-our $LINE_WIDTH = 110;
+our $TERMINAL_WIDTH;
 
 # Files that should be excluded from patching
 # Will only work when using git to patch a server
@@ -91,6 +92,8 @@ GetOptions(
 
 pod2usage(1) if $help;
 
+update_terminal_width();
+
 die "$PATCH_BIN does not exists or is not executable please install or make it executable" unless patch_bin_exists();
 
 unless(git_bin_exists()) {
@@ -128,7 +131,7 @@ my $base = $BASE_COMMIT || get_base();
 die "Cannot base commit\n" unless $base;
 
 $step++;
-print "=" x $LINE_WIDTH . "\n";
+print "=" x $TERMINAL_WIDTH . "\n";
 print "Step $step: Patching of text based codefiles\n";
 
 print "Currently at $base\n";
@@ -155,7 +158,7 @@ else {
 
 if($BASE_BINARIES_URL) {
     $step++;
-    print "=" x $LINE_WIDTH . "\n";
+    print "=" x $TERMINAL_WIDTH . "\n";
     print "Step $step: Patching of the Golang binaries\n";
 
     my $should_patch = 0;
@@ -174,12 +177,12 @@ if($BASE_BINARIES_URL) {
 }
 
 $step++;
-print "=" x $LINE_WIDTH . "\n";
+print "=" x $TERMINAL_WIDTH . "\n";
 print "Step $step: Regenerating rsyslog configuration and restarting rsyslog\n";
 system("/usr/local/pf/bin/pfcmd generatesyslogconfig");
 system("systemctl restart rsyslog");
 
-print "=" x $LINE_WIDTH . "\n";
+print "=" x $TERMINAL_WIDTH . "\n";
 print "All done...\n";
 
 sub get_release_full {
@@ -284,7 +287,7 @@ sub print_dot {
 }
 
 sub accept_binary_patching {
-    print "." x $LINE_WIDTH . "\n";
+    print "." x $TERMINAL_WIDTH . "\n";
     print "Should we patch the Golang binaries?\n";
     print "Any custom code in them will be overwritten!!\n";
     print "y/n [y]: ";
@@ -319,8 +322,12 @@ sub download_and_install_binaries {
         chown $uid, $gid, $binary_path;
     }
 
-    print "." x $LINE_WIDTH . "\n";
+    print "." x $TERMINAL_WIDTH . "\n";
     print "Patching of the binaries was successful\n";
+}
+
+sub update_terminal_width {
+    ($TERMINAL_WIDTH, undef, undef, undef) = GetTerminalSize();
 }
 
 =head1 AUTHOR
