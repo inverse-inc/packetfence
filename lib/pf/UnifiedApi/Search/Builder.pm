@@ -536,17 +536,22 @@ group_by_clause
 sub group_by_clause {
     my ($self, $s) = @_;
     my $allowed_join_fields = $self->allowed_join_fields;
-    my @clauses;
-    my %found;
+    my $found;
     foreach my $f (@{$s->{found_fields} // []}) {
         next if !exists $allowed_join_fields->{$f};
         my $jf = $allowed_join_fields->{$f};
         my $namespace = $jf->{namespace};
-        next if !exists $jf->{group_by};
-        $found{$namespace} = 1;
-        push @clauses, @{$jf->{group_by}};
+        if (exists $jf->{group_by} && $jf->{group_by}) {
+            $found = 1;
+            last;
+        }
     }
-    return @clauses;
+
+    return if !$found;
+
+    my $dal = $s->{dal};
+    my $table = $dal->table;
+    return map { "${table}.${_}" } @{$dal->primary_keys};
 }
 
 =head1 AUTHOR

@@ -386,7 +386,7 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
 }
 
 {
-    my @f = qw(mac violation.open_count);
+    my @f = qw(mac violation.open_count violation.open_count);
 
     my %search_info = (
         dal => $dal,
@@ -399,6 +399,7 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
             200,
             [
                 'node.mac',
+                \"COUNT(violation_open.id) AS `violation.open_count`",
                 \"COUNT(violation_open.id) AS `violation.open_count`",
             ],
         ],

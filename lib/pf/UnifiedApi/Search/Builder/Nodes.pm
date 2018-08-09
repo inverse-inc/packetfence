@@ -175,28 +175,28 @@ our %ALLOWED_JOIN_FIELDS = (
         namespace => 'violation_open',
         join_spec => \@VIOLATION_OPEN_JOIN,
         rewrite_query => \&rewrite_violation_open_count,
-        group_by => \@VIOLATION_GROUP_BY,
+        group_by => 1,
         column_spec => \"COUNT(violation_open.id) AS `violation.open_count`",
     },
     'violation.open_vid' => {
         namespace => 'violation_open',
         join_spec => \@VIOLATION_OPEN_JOIN,
         rewrite_query => \&rewrite_violation_open_vid,
-        group_by => \@VIOLATION_GROUP_BY,
+        group_by => 1,
         column_spec => \"GROUP_CONCAT(violation_open.vid) AS `violation.open_vid`"
     },
     'violation.close_count' => {
         namespace => 'violation_close',
         join_spec => \@VIOLATION_CLOSED_JOIN,
         rewrite_query => \&rewrite_violation_close_count,
-        group_by => \@VIOLATION_GROUP_BY,
+        group_by => 1,
         column_spec => \"COUNT(violation_close.id) AS `violation.close_count`",
     },
     'violation.close_vid' => {
         namespace => 'violation_close',
         join_spec => \@VIOLATION_CLOSED_JOIN,
         rewrite_query => \&rewrite_violation_close_vid,
-        group_by => \@VIOLATION_GROUP_BY,
+        group_by => 1,
         column_spec => \"GROUP_CONCAT(violation_close.vid) AS `violation.close_vid`"
     },
 );
