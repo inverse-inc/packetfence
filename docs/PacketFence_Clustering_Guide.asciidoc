@@ -313,9 +313,9 @@ Then, reload the configuration and start the webservices on these servers:
   # /usr/local/pf/bin/pfcmd service haproxy-db restart
   # /usr/local/pf/bin/pfcmd service httpd.webservices restart
 
-Make sure that each server is binding to it's own management address. If it's not, verify the `/usr/local/pf/conf/cluster.conf` management interface configuration.
+Make sure that each server is binding to it's own management address *and* the VIP address. If it's not, verify the `/usr/local/pf/conf/cluster.conf` management interface configuration.
 
-  # netstat -nlp | grep 9090
+  #  netstat -nlp | grep 9090
 
 MariaDB sync
 ^^^^^^^^^^^^
@@ -379,6 +379,8 @@ Securing the cluster: Keepalived secret
 NOTE: It is highly recommended to modify the keepalived shared secret in your cluster to prevent attacks.
 
 From the PacketFence web administration interface, go in 'Configuration/System Configuration/Cluster' and change the 'Shared KEY'. Make sure you restart `keepalived` on *all your servers* using `/usr/local/pf/bin/pfcmd service keepalived restart`
+
+If you already use VRRP protocol on your network, you can also change the default 'Virtual Router ID' and enable 'VRRP Unicast'.
 
 Understanding the Galera cluster synchronization
 ------------------------------------------------
