@@ -4717,7 +4717,9 @@ TIP: More information on the monit command line arguments is available at https:
 packetfence-etcd
 ^^^^^^^^^^^^^^^^
 
-This step is only needed if `monit summary` is stuck `Waiting` on `packetfence-etcd`. This error indicates that the cluster is currently in 'Split Brain'. Please follow the instructions in the PacketFence Clustering Guide on how to resolve this. 
+This step is only needed if `monit summary` is stuck `Waiting` on `packetfence-etcd`. This error indicates that the cluster is currently in 'Failure during bootstrapping'. Please follow the instructions in the PacketFence Clustering Guide on how to resolve this. 
+
+TIP: More information on `etcd` failures can be found at https://github.com/coreos/etcd/blob/master/Documentation/op-guide/failures.md
 
 
 Advanced Topics
