@@ -4599,7 +4599,7 @@ Where :
 
 CAUTION: A MTA is needed to correctly relay emails from monit. If _localhost_ is used as `smtpserver`, make sure that a MTA is installed and configured on the server. 
 
-NOTE: This command will create configuration scripts in `/etc/monit.d/`, but it will not remove old(er) scripts from an earlier installation. Unused `/etc/monit.d/*.conf` will need to be removed manually.
+NOTE: This command will create configuration scripts in `/etc/monit.d/`, but it will not remove old(er) scripts from an earlier installation. During an upgrade any unused `/etc/monit.d/*.conf` files will need to be removed manually.
 
 
 Include the generated configurations in the monit config
@@ -4617,14 +4617,14 @@ sed -i -e 's/include.*\*$//g' /etc/monit/monitrc && echo "include /etc/monit/con
 
 Remove the old monit script
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-This step is only required during an upgrade.
+This step is only required during an upgrade from earlier versions.
 ----
 rm /etc/monit.d/packetfence.monit
 ----
 
 Run the monitoring script update to fetch the scripts and config
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Ensure the script outputs: 'Update completed successfully'
+Ensure the script outputs: `Update completed successfully`
 
 RHEL / CentOS
 ----
@@ -4719,7 +4719,7 @@ First stop `etcd` on all nodes in the cluster:
 systemctl stop packetfence-etcd
 ----
 
-Once packetfence-etcd is stopped on all nodes, remove the contents on the `etcd` directory.
+Once packetfence-etcd is stopped on all nodes, remove the contents on the `etcd` directory on all nodes.
 ----
 rm -Rf /usr/local/pf/var/etcd/*
 ----
