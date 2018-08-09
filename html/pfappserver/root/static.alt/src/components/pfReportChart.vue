@@ -14,17 +14,17 @@
               {{ $t('Previous') }}
             </b-input-group-prepend>
             <b-button-group v-if="showPeriod" rel="periodButtonGroup">
-              <b-button variant="light" @click="setRangeByPeriod(60 * 30)">30m</b-button>
-              <b-button variant="light" @click="setRangeByPeriod(60 * 60)">1h</b-button>
-              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 6)">6h</b-button>
-              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 12)">12h</b-button>
-              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24)">1D</b-button>
-              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 7)">1W</b-button>
-              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 14)">2W</b-button>
-              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 28)">1M</b-button>
-              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 28 * 2)">2M</b-button>
-              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 28 * 6)">6M</b-button>
-              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 365)">1Y</b-button>
+              <b-button variant="light" @click="setRangeByPeriod(60 * 30)" v-b-tooltip.hover.bottom.d300 :title="$t('30 minutes')">30m</b-button>
+              <b-button variant="light" @click="setRangeByPeriod(60 * 60)" v-b-tooltip.hover.bottom.d300 :title="$t('1 hour')">1h</b-button>
+              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 6)" v-b-tooltip.hover.bottom.d300 :title="$t('6 hours')">6h</b-button>
+              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 12)" v-b-tooltip.hover.bottom.d300 :title="$t('12 hours')">12h</b-button>
+              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24)" v-b-tooltip.hover.bottom.d300 :title="$t('1 day')">1D</b-button>
+              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 7)" v-b-tooltip.hover.bottom.d300 :title="$t('1 week')">1W</b-button>
+              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 14)" v-b-tooltip.hover.bottom.d300 :title="$t('2 weeks')">2W</b-button>
+              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 28)" v-b-tooltip.hover.bottom.d300 :title="$t('1 month')">1M</b-button>
+              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 28 * 2)" v-b-tooltip.hover.bottom.d300 :title="$t('2 months')">2M</b-button>
+              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 28 * 6)" v-b-tooltip.hover.bottom.d300 :title="$t('6 months')">6M</b-button>
+              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 365)" v-b-tooltip.hover.bottom.d300 :title="$t('1 year')">1Y</b-button>
             </b-button-group>
             <b-input-group-append is-text>
               <icon name="stopwatch"></icon>

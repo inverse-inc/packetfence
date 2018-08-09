@@ -152,7 +152,11 @@ export default {
       return (this.label) ? 3 : 0
     },
     datetimeConfig () {
-      return Object.assign(this.defaultConfig, this.config)
+      const minMaxConfig = {
+        minDate: this.min,
+        maxDate: this.max
+      }
+      return Object.assign(this.defaultConfig, minMaxConfig, this.config)
     }
   },
   methods: {
@@ -186,16 +190,12 @@ export default {
   },
   watch: {
     min (a, b) {
-      if (a !== b) {
-        let picker = this.$refs.datetime.dp
-        picker.minDate(a)
-      }
+      let picker = this.$refs.datetime.dp
+      picker.minDate(a)
     },
     max (a, b) {
-      if (a !== b) {
-        let picker = this.$refs.datetime.dp
-        picker.maxDate(a)
-      }
+      let picker = this.$refs.datetime.dp
+      picker.maxDate(a)
     }
   },
   created () {
