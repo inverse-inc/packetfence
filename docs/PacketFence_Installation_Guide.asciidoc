@@ -4719,18 +4719,18 @@ packetfence-etcd
 
 This step is only needed if `monit summary` is stuck `Waiting` on `packetfence-etcd`.
 
-First stop `etcd` on all nodes in the cluster:
+First stop `packetfence-etcd` on all nodes in the cluster:
 
 ----
 systemctl stop packetfence-etcd
 ----
 
-Once packetfence-etcd is stopped on all nodes, remove the contents on the `etcd` directory on all nodes.
+Once `packetfence-etcd` is stopped on all nodes, remove the contents on the `etcd` directory on all nodes.
 ----
 rm -Rf /usr/local/pf/var/etcd/*
 ----
 
-Restart `etcd` on all nodes in the cluster.
+Restart `packetfence-etcd` on all nodes in the cluster.
 ----
 systemctl start packetfence-etcd
 ----
