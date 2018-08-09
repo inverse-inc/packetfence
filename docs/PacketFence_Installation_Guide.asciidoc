@@ -4535,14 +4535,15 @@ Now go in `Nodes` and click on a MAC address and you will see that a new tab app
 image::TAB.png[scaledwidth="100%",alt="Node TAB"]
 
 
-Monit Integration
-~~~~~~~~~~~~~~~~~
+Monit
+~~~~~
+
+`monit` is a utility for managing and monitoring processes, files, directories and filesystems on a Unix system. Monit conducts automatic maintenance and repair and can execute meaningful causal actions in error situations. E.g. Monit can start a process if it does not run, restart a process if it does not respond and stop a process if it uses too much resources.
+
+Install Monit
+^^^^^^^^^^^^^
 
 The following must be done on each server of a cluster
-
-
-Install/Update Monit
-^^^^^^^^^^^^^^^^^^^^
 
 RHEL / CentOS
 ----
@@ -4569,15 +4570,15 @@ gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E3A28334
 ----
 
 
-Download the new monitoring directory
+Download the Packetfence monit addons
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ----
 cd /tmp/ && wget http://inverse.ca/downloads/PacketFence/monitoring-scripts/v1/monit.tgz && tar xzvf monit.tgz
 ----
 
 
-Move the old monit directory and replace with the new one
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Replace the monit addon directory
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ----
 mv /usr/local/pf/addons/monit /usr/local/pf/addons/monit.old ; mv /tmp/monit /usr/local/pf/addons/
 ----
@@ -4588,11 +4589,18 @@ Generate the monit configuration
 ----
 /usr/local/pf/addons/monit/monit_build_configuration.pl 'email(s)' 'subject' 'configurations' 'mailserver'
 ----
+
+Where :
+
 [options="compact"]
-* `email(s)`: CSV of recipient email addresses (no spaces).
+* `email(s)`: CSV (no spaces) of recipient email addresses.
 * `subject`: Email subject line (example: 'Packetfence Monit Alert').
-* `configurations`: CSV of configurations (example: 'packetfence,active-active,os-checks').
-* `mailserver`: SMTP server, use 'localhost' is SMTP relay is not required.
+* `configuration(s)`: CSV (no spaces) of configurations (example: 'packetfence,active-active,os-checks').
+* `smtpserver`: SMTP server, use _localhost_ if a SMTP relay is not required.
+
+CAUTION: A MTA is needed to correctly relay emails from monit. If _localhost_ is used as `smtpserver`, make sure that a MTA is installed and configured on the server. 
+
+NOTE: This command will create configuration scripts in `/etc/monit.d/`, but it will not remove old(er) scripts from an earlier installation. Unused `/etc/monit.d/*.conf` will need to be removed manually.
 
 
 Include the generated configurations in the monit config
@@ -4665,11 +4673,28 @@ Restart monit
 systemctl restart monit
 ----
 
-Install MTA
-^^^^^^^^^^^
+Installing a MTA
+^^^^^^^^^^^^^^^^
+A MTA is needed to correctly relay emails from monit. If _localhost_ is used as smtpserver, make sure that a MTA is installed and configured on the server. 
+
+RHEL / CentOS
 ----
 yum install mailx -y
 ----
+
+Debian
+----
+apt-get install heirloom-mailx
+----
+
+Test the MTA
+^^^^^^^^^^^^
+----
+mail -s "This is a test" user@example.com
+
+[CTRL+D]
+----
+
 
 Monit Summary
 ^^^^^^^^^^^^^
@@ -4680,25 +4705,26 @@ View the monit summary to ensure all services are status `Running`, `Accessible`
 monit summary
 ----
 
-patch
-^^^^^
-This updates only once a week. It is normal to see status `Waiting`.
+NOTE: `patch` updates only once a week. It is normal to see status `Waiting`.
 
 
 packetfence-etcd
 ^^^^^^^^^^^^^^^^
 
-If stuck waiting on `packetfence-etcd`, perform the following on all nodes in the cluster:
+This step is only needed if `monit summary` is stuck `Waiting` on `packetfence-etcd`.
+
+First stop `etcd` on all nodes in the cluster:
+
 ----
 systemctl stop packetfence-etcd
 ----
 
-Once packetfence-etcd is stopped on all nodes:
+Once packetfence-etcd is stopped on all nodes, remove the contents on the `etcd` directory.
 ----
 rm -Rf /usr/local/pf/var/etcd/*
 ----
 
-Restart etcd
+Restart `etcd` on all nodes in the cluster.
 ----
 systemctl stop packetfence-etcd
 ----
