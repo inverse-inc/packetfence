@@ -4540,6 +4540,8 @@ Monit
 
 `monit` is a utility for managing and monitoring processes, files, directories and filesystems on a Unix system. Monit conducts automatic maintenance and repair and can execute meaningful causal actions in error situations. E.g. Monit can start a process if it does not run, restart a process if it does not respond and stop a process if it uses too much resources.
 
+For further reference the monit documentation is available at: https://mmonit.com/monit/documentation/monit.html
+
 Install Monit
 ^^^^^^^^^^^^^
 
@@ -4561,24 +4563,20 @@ apt-get install monit
 Fetch the script signing key
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ----
-gpg --keyserver keyserver.ubuntu.com --recv E3A28334
-----
-
-If the above fails:
-----
 gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E3A28334
 ----
 
 
 Download the Packetfence monit addons
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The monit addons are included with Packetfence at `/usr/local/pf/addons/monit`. This step is only needed if you want to upgrade the scripts to the latest version without having to upgrade Packetfence.
+
 ----
 cd /tmp/ && wget http://inverse.ca/downloads/PacketFence/monitoring-scripts/v1/monit.tgz && tar xzvf monit.tgz
 ----
 
-
 Replace the monit addon directory
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 ----
 mv /usr/local/pf/addons/monit /usr/local/pf/addons/monit.old ; mv /tmp/monit /usr/local/pf/addons/
 ----
@@ -4593,7 +4591,7 @@ Generate the monit configuration
 Where :
 [options="compact"]
 * `email(s)`: CSV (no spaces) of recipient email addresses to send alerts.
-* `subject`: Email subject line (example: 'Packetfence Monit Alert').
+* `subject`: Email subject line prefix (example: 'Server 1'). Using a host identifier is useful when running multiple instances (cluster).
 * `configuration(s)`: CSV (no spaces) of configurations (example: 'packetfence,active-active,os-checks').
 ** `packetfence`: Everything related to basic PacketFence
 ** `portsec`: Will add some checks for port-security related services
@@ -4713,27 +4711,13 @@ monit summary
 
 NOTE: `patch` updates only once a week. It is normal to see status `Waiting`.
 
+TIP: More information on the monit command line arguments is available at https://mmonit.com/monit/documentation/monit.html
+
 
 packetfence-etcd
 ^^^^^^^^^^^^^^^^
 
-This step is only needed if `monit summary` is stuck `Waiting` on `packetfence-etcd`.
-
-First stop `packetfence-etcd` on all nodes in the cluster:
-
-----
-systemctl stop packetfence-etcd
-----
-
-Once `packetfence-etcd` is stopped on all nodes, remove the contents on the `etcd` directory on all nodes.
-----
-rm -Rf /usr/local/pf/var/etcd/*
-----
-
-Restart `packetfence-etcd` on all nodes in the cluster.
-----
-systemctl start packetfence-etcd
-----
+This step is only needed if `monit summary` is stuck `Waiting` on `packetfence-etcd`. This error indicates that the cluster is currently in 'Split Brain'. Please follow the instructions in the PacketFence Clustering Guide on how to resolve this. 
 
 
 Advanced Topics
