@@ -1,18 +1,18 @@
-package pfappserver::Controller::Config::DeviceRegistration;
+package pfappserver::Controller::Config::SelfService;
 
 =head1 NAME
 
-pfappserver::Controller::Config::DeviceRegistration
+pfappserver::Controller::Config::SelfService
 
 =head1 DESCRIPTION
 
-Place all customization for Controller::Config::DeviceRegistration here
+Place all customization for Controller::Config::SelfService here
 
 =cut
 
 use Moose;
 
-BEGIN { extends 'pfappserver::PacketFence::Controller::Config::DeviceRegistration'; }
+BEGIN { extends 'pfappserver::PacketFence::Controller::Config::SelfService'; }
 
 =head1 AUTHOR
 

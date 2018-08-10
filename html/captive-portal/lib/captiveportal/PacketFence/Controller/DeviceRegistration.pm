@@ -2,7 +2,7 @@ package captiveportal::PacketFence::Controller::DeviceRegistration;;
 use Moose;
 use namespace::autoclean;
 use pf::Authentication::constants;
-use pf::config qw(%ConfigDeviceRegistration);
+use pf::config qw(%ConfigSelfService);
 use pf::constants;
 use pf::log;
 use pf::node;
@@ -47,7 +47,7 @@ Checks whether or not a device registration policy is enabled on the current con
 
 sub isDeviceRegEnabled {
     my ($self, $c) = @_;
-    if ($c->profile->{'_device_registration'}) {
+    if ($c->profile->{'_self_service'}) {
         return $TRUE
     } else {
         return $FALSE;
@@ -119,7 +119,7 @@ sub landing : Local : Args(0) {
 sub registerNode : Private {
     my ( $self, $c, $pid, $mac, $type ) = @_;
     my $logger = $c->log;
-    my $device_reg_profile = $c->profile->{'_device_registration'};
+    my $device_reg_profile = $c->profile->{'_self_service'};
     if ( is_allowed($mac, $device_reg_profile) && valid_mac($mac) ) {
         my ($node) = node_view($mac);
         if( $node && $node->{status} ne $pf::node::STATUS_UNREGISTERED ) {
@@ -133,7 +133,7 @@ sub registerNode : Private {
             $c->stash->{device_mac} = $mac;
             # Get role for device registration
             my $role =
-              $ConfigDeviceRegistration{$device_reg_profile}{'category'};
+              $ConfigSelfService{$device_reg_profile}{'category'};
             if ($role) {
                 $logger->debug("Device registration role is $role (from pf.conf)");
             } else {
@@ -206,7 +206,7 @@ sub is_allowed {
     my ($mac, $device_reg_profile) = @_;
     $mac =~ s/O/0/i;
     my $logger = get_logger();
-    my $oses = $ConfigDeviceRegistration{$device_reg_profile}{'allowed_devices'};
+    my $oses = $ConfigSelfService{$device_reg_profile}{'allowed_devices'};
 
     # If no oses are defined then it will allow every devices to be registered
     return $TRUE if @$oses == 0;

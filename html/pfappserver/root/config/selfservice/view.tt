@@ -6,7 +6,7 @@
 <form name="modalItem" class="form-horizontal form-condensed" action="[% action_uri %]" method="post">
   <div class="modal-header">
     <a class="close" data-dismiss="modal">&times;</a>
-    <h3>[% IF item.id.defined %]<i>[% l('Device Registration Entry') %]</i> [% item.id %][% ELSE %][% l('New Device Registration Entry') %][% END %]</h3>
+    <h3>[% IF item.id.defined %]<i>[% l('Self Service Entry') %]</i> [% item.id %][% ELSE %][% l('New Self Service Entry') %][% END %]</h3>
   </div>
 
   <div class="modal-body">
@@ -16,7 +16,7 @@
 
   <div class="modal-footer">
     <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
-    [% IF can_access("DEVICE_REGISTRATION_UPDATE") %]<button class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>[% END %]
+    [% IF can_access("SELF_SERVICE_UPDATE") %]<button class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>[% END %]
   </div>
 
 </form>

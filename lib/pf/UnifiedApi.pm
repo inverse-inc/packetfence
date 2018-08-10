@@ -242,7 +242,7 @@ sub setup_api_v1_config_routes {
     $self->setup_api_v1_config_billing_tiers_routes($root);
     $self->setup_api_v1_config_certificates_routes($root);
     $self->setup_api_v1_config_connection_profiles_routes($root);
-    $self->setup_api_v1_config_device_registrations_routes($root);
+    $self->setup_api_v1_config_self_services_routes($root);
     $self->setup_api_v1_config_domains_routes($root);
     $self->setup_api_v1_config_filters_routes($root);
     $self->setup_api_v1_config_fingerbank_settings_routes($root);
@@ -808,21 +808,21 @@ sub setup_api_v1_config_billing_tiers_routes {
 }
 
 
-=head2 setup_api_v1_config_device_registrations_routes
+=head2 setup_api_v1_config_self_services_routes
 
- setup_api_v1_config_device_registrations_routes
+ setup_api_v1_config_self_services_routes
 
 =cut
 
-sub setup_api_v1_config_device_registrations_routes {
+sub setup_api_v1_config_self_services_routes {
     my ($self, $root) = @_;
     my ($collection_route, $resource_route) =
       $self->setup_api_v1_std_config_routes(
         $root,
-        "Config::DeviceRegistrations",
-        "/device_registrations",
-        "/device_registration/#device_registration_id",
-        "api.v1.Config.DeviceRegistrations"
+        "Config::SelfServices",
+        "/self_services",
+        "/self_service/#self_service_id",
+        "api.v1.Config.SelfServices"
     );
 
     return ($collection_route, $resource_route);

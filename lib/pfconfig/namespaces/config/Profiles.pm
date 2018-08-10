@@ -58,7 +58,7 @@ sub build_child {
         foreach my $field (qw(filter)) {
             $profile->{$field} = [ map {s/,,/,/g;$_} split( /\s*(?<!,),(?!,)\s*/ , $profile->{$field} || '' ) ];
         }
-        foreach my $field (qw(sources provisioners billing_tiers scans device_registration root_module)) {
+        foreach my $field (qw(sources provisioners billing_tiers scans self_service root_module)) {
             my $values = $profile->{$field};
             if (ref ($values) eq '') {
                 next if !defined $values || $values eq '';

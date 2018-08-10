@@ -1,8 +1,8 @@
-package pfappserver::Form::Config::DeviceRegistration;
+package pfappserver::Form::Config::SelfService;
 
 =head1 NAME
 
-pfappserver::Form::Config::DeviceRegistration - Web form for the device registration
+pfappserver::Form::Config::SelfService - Web form for the self service portal 
 
 =head1 DESCRIPTION
 
@@ -21,8 +21,8 @@ has_field 'id' =>
    type => 'Text',
    label => 'Profile Name',
    required => 1,
-   messages => { required => 'Please specify a name of the Device Registration entry.' },
-   apply => [ pfappserver::Base::Form::id_validator('device registration ID') ],
+   messages => { required => 'Please specify a name of the Self Service Portal entry.' },
+   apply => [ pfappserver::Base::Form::id_validator('self service ID') ]
    tags => {
       option_pattern => \&pfappserver::Base::Form::id_pattern,
    }
@@ -31,19 +31,19 @@ has_field 'id' =>
 has_field 'description' =>
   (
    type => 'Text',
-   messages => { required => 'Please specify the description of the Device Registration entry.' },
+   messages => { required => 'Please specify the description of the Self Service Portal entry.' },
   );
 
-has_field 'category' =>
+has_field 'device_registration_role' =>
   (
    type => 'Select',
    label => 'Role',
    options_method => \&options_roles,
    tags => { after_element => \&help,
-             help => 'The role to assign to devices registered from the specific portal. If none is specified, the role of the registrant is used.' },
+             help => 'The role to assign to devices registered from the self-service portal. If none is specified, the role of the registrant is used.' },
   );
 
-has_field 'allowed_devices' =>
+has_field 'device_registration_allowed_devices' =>
   (
    type => 'FingerbankSelect',
    multiple => 1,

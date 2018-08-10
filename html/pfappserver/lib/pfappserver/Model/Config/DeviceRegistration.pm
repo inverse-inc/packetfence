@@ -1,22 +1,21 @@
-
-package pfappserver::Model::Config::DeviceRegistration;
+package pfappserver::Model::Config::SelfService;
 
 =head1 NAME
 
-pfappserver::Model::Config::DeviceRegistration add documentation
+pfappserver::Model::Config::SelfService add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pfappserver::Model::Config::DeviceRegistration
+pfappserver::Model::Config::SelfService
 
 =cut
 
 use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 use namespace::autoclean;
-use pf::ConfigStore::DeviceRegistration;
+use pf::ConfigStore::SelfService;
 
 extends 'pfappserver::Base::Model::Config';
 
@@ -30,7 +29,7 @@ buld the config store
 
 =cut
 
-sub _buildConfigStore { pf::ConfigStore::DeviceRegistration->new }
+sub _buildConfigStore { pf::ConfigStore::SelfService->new }
 
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};

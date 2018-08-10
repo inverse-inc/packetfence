@@ -175,8 +175,8 @@
               [%- IF can_access("CONFIGURATION_MAIN_READ") %]
               [% pf_section_entry( 'guests_admin_registration', 'Access Duration') | none %]
               [%- END %]
-              [%- IF can_access("DEVICE_REGISTRATION_READ") %]
-              [% list_entry('Config::DeviceRegistration', 'index', 'Device Registration') | none %]
+              [%- IF can_access("SELF_SERVICE_READ") %]
+              [% list_entry('Config::SelfService', 'index', 'Self Service Portal') | none %]
               [%- END %]
             </ul>
           </div>

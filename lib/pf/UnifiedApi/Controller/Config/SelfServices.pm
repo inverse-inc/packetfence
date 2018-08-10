@@ -1,14 +1,14 @@
-package pf::UnifiedApi::Controller::Config::DeviceRegistrations;
+package pf::UnifiedApi::Controller::Config::SelfServices;
 
 =head1 NAME
 
-pf::UnifiedApi::Controller::Config::DeviceRegistrations - 
+pf::UnifiedApi::Controller::Config::SelfServices - 
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::UnifiedApi::Controller::Config::DeviceRegistrations
+pf::UnifiedApi::Controller::Config::SelfServices
 
 
 
@@ -20,12 +20,12 @@ use warnings;
 
 use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
 
-has 'config_store_class' => 'pf::ConfigStore::DeviceRegistration';
-has 'form_class' => 'pfappserver::Form::Config::DeviceRegistration';
-has 'primary_key' => 'device_registration_id';
+has 'config_store_class' => 'pf::ConfigStore::SelfService';
+has 'form_class' => 'pfappserver::Form::Config::SelfService';
+has 'primary_key' => 'self_service_id';
 
-use pf::ConfigStore::DeviceRegistration;
-use pfappserver::Form::Config::DeviceRegistration;
+use pf::ConfigStore::SelfService;
+use pfappserver::Form::Config::SelfService;
 
  
 =head1 AUTHOR
