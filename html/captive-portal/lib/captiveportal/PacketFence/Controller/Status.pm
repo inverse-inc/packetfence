@@ -76,13 +76,16 @@ sub is_lost_stolen {
 sub userIsAuthenticated : Private {
     my ( $self, $c ) = @_;
     my $pid   = $c->user_session->{"username"};
-    my @nodes = person_nodes($pid);
-    foreach my $node (@nodes) {
+    my @person_nodes = person_nodes($pid);
+    my @nodes;
+    foreach my $person_node (@person_nodes) {
+        my $node = node_view($person_node->{mac});
         setExpiration($node);
         my $mac = $node->{'mac'};
         if (is_lost_stolen($mac)) {
             $node->{lostOrStolen} = $TRUE;
         }
+        push @nodes, $node;
     }
     $c->stash(
         nodes    => \@nodes,
