@@ -52,8 +52,6 @@
     priority = 91000
     type = line
     dimension = pattern 'source.packetfence.devices.connected_per_ssid;*' '' last 1 1
-    type = stacked
-    dimension = pattern 'source.packetfence.devices.registered_per_role;*' '' last 1 1
 
 [redis.queue_stats_count]
     name = redis.queue_stats_count
