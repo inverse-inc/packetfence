@@ -2015,6 +2015,17 @@ You have access to the following attributes:
      realm
      machine_account
 
+ Operator:
+     && and
+     || or
+     != is not equal
+     == equal
+     ()
+
+ Special value
+    __NULL__ the value is NULL in the database
+
+
 Examples (Match machine authentication on secure wireless ssid)
 
 * machine_account != "" && connection_type == Wireless-802.11-EAP
