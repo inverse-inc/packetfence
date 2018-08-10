@@ -45,7 +45,7 @@ sub build_child {
 
 sub cleanup_after_read {
     my ( $self, $id, $data ) = @_;
-    $self->expand_list( $data, qw(device_registration_allowed_devices) );
+    $self->expand_list( $data, qw(device_registration_allowed_devices roles_allowed_to_unregister) );
 }
 
 =head1 AUTHOR
