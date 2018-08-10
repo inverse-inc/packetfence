@@ -57,7 +57,7 @@ has_field 'device_registration_allowed_devices' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id description category allowed_devices) ],
+   render_list => [ qw(id description device_registration_role device_registration_allowed_devices) ],
   );
 
 =head2 options_roles
