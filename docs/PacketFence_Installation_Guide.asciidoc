@@ -2032,7 +2032,7 @@ Examples (Match machine authentication on secure wireless ssid)
 
 Examples (Match a device that did machine authentication in a previous connection and connect on ssid Secure)
 
-* node_info.machine != "" && ssid == Secure
+* node_info.machine_account != "" && ssid == Secure
 
 Examples (Match a device that never did a machine authentication (BYOD))
 
