@@ -3,9 +3,10 @@ package captiveportal::PacketFence::Controller::Node::Manager;
 use Moose;
 use namespace::autoclean;
 use pf::constants;
-use pf::config;
+use pf::config qw(%ConfigSelfService);
 use pf::node;
 use pf::enforcement qw(reevaluate_access);
+use List::MoreUtils qw(any);
 
 BEGIN {extends 'captiveportal::Base::Controller'; }
 
@@ -31,6 +32,17 @@ sub unreg :Local :Args(1) {
     my $node = node_view($mac);
     my $username = lc($c->user_session->{username});
     my $owner = lc($node->{pid});
+              
+    my $device_reg_profile = $c->profile->{'_self_service'};
+    my @allowed_roles = @{$ConfigSelfService{$device_reg_profile}{'roles_allowed_to_unregister'}};
+    # Only validate the roles if there are some in the list
+    if(scalar(@allowed_roles) > 0) {
+        unless(any { $_ eq $node->{category} } @allowed_roles) {
+            $c->stash( status_msg_error => "The role assigned to this device prevents it from being unregistered using this service.");
+            $c->detach(Status => 'index');
+        }
+    }
+
     if ($username && $node) {
         $c->log->info("'$username' attempting to unregister $mac owned by '$owner'");
         if (($username ne $default_pid && $username ne $admin_pid ) && $username eq $owner) {
