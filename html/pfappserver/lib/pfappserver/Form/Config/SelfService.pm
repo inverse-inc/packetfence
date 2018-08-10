@@ -34,10 +34,22 @@ has_field 'description' =>
    messages => { required => 'Please specify the description of the Self Service Portal entry.' },
   );
 
+has_field 'roles_allowed_to_unregister' =>
+  (
+   type => 'Select',
+   label => 'Allowed roles',
+   multiple => 1,
+   element_class => ['chzn-deselect'],
+   element_attr => {'data-placeholder' => 'Click to add a role'},
+   options_method => \&options_roles,
+   tags => { after_element => \&help,
+             help => 'The list of roles that are allowed to unregister devices using the self-service portal. Leaving this empty will allow all users to unregister their devices.' },
+  );
+
 has_field 'device_registration_role' =>
   (
    type => 'Select',
-   label => 'Role',
+   label => 'Role to assign',
    options_method => \&options_roles,
    tags => { after_element => \&help,
              help => 'The role to assign to devices registered from the self-service portal. If none is specified, the role of the registrant is used.' },
@@ -47,17 +59,27 @@ has_field 'device_registration_allowed_devices' =>
   (
    type => 'FingerbankSelect',
    multiple => 1,
-   label => 'OS',
+   label => 'Allowed OS',
    element_class => ['chzn-deselect'],
    element_attr => {'data-placeholder' => 'Click to add an OS'},
    tags => { after_element => \&help,
-             help => 'List of OS which will be allowed to be register via the self service portal.' },
+             help => 'List of OS which will be allowed to be registered via the self service portal.' },
    fingerbank_model => "fingerbank::Model::Device",
   );
 
-has_block definition =>
+has_block global_definition =>
   (
-   render_list => [ qw(id description device_registration_role device_registration_allowed_devices) ],
+   render_list => [ qw(id description) ],
+  );
+
+has_block status_definition =>
+  (
+   render_list => [ qw(roles_allowed_to_unregister) ],
+  );
+
+has_block device_registration_definition =>
+  (
+   render_list => [ qw(device_registration_role device_registration_allowed_devices) ],
   );
 
 =head2 options_roles
