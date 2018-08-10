@@ -6,7 +6,7 @@
 /usr/local/pf/conf/profiles.conf
 /usr/local/pf/conf/pfdns.conf
 /usr/local/pf/conf/pfdhcp.conf
-/usr/local/pf/conf/device_registration.conf
+/usr/local/pf/conf/self_service.conf
 /usr/local/pf/conf/dhcp_fingerprints.conf
 /usr/local/pf/conf/dhcp_filters.conf
 /usr/local/pf/conf/dns_filters.conf
