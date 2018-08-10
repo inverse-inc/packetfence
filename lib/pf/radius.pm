@@ -191,10 +191,16 @@ sub authorize {
     # update last_seen of MAC address as some activity from it has been seen
     $node_obj->update_last_seen();
 
+    #define the current connection value to instantiate the correct portal
+    my $options = {};
+
+    $options->{'machine_account'} = '';
+
     # Handling machine auth detection
     if ( defined($user_name) && $user_name =~ /^host\// ) {
         $logger->info("is doing machine auth with account '$user_name'.");
         $node_obj->machine_account($user_name);
+        $options->{'machine_account'} = $user_name;
     }
 
     if (defined($session_id)) {
@@ -228,17 +234,16 @@ sub authorize {
         $args->{'isPhone'} = $FALSE;
     }
 
-    #define the current connection value to instantiate the correct portal
-    my $options = {};
-
-    $options->{'last_connection_sub_type'} = $args->{'connection_sub_type'} if (defined( $args->{'connection_sub_type'}));
-    $options->{'last_connection_type'} = connection_type_to_str($args->{'connection_type'}) if (defined( $args->{'connection_type'}));
-    $options->{'last_switch'}          = $switch_id;
-    $options->{'last_port'}            = $args->{'switch'}->{switch_port} if (defined($args->{'switch'}->{switch_port}));
-    $options->{'last_vlan'}            = $args->{'vlan'} if (defined($args->{'vlan'}));
-    $options->{'last_ssid'}            = $args->{'ssid'} if (defined($args->{'ssid'}));
-    $options->{'last_dot1x_username'}  = $args->{'user_name'} if (defined($args->{'user_name'}));
-    $options->{'realm'}                = $args->{'realm'} if (defined($args->{'realm'}));
+    $options->{'connection_sub_type'} = $args->{'connection_sub_type'} if (defined( $args->{'connection_sub_type'}));
+    $options->{'connection_type'}     = connection_type_to_str($args->{'connection_type'}) if (defined( $args->{'connection_type'}));
+    $options->{'switch'}              = $switch_id;
+    $options->{'port'}                = $args->{'switch'}->{switch_port} if (defined($args->{'switch'}->{switch_port}));
+    $options->{'vlan'}                = $args->{'vlan'} if (defined($args->{'vlan'}));
+    $options->{'ssid'}                = $args->{'ssid'} if (defined($args->{'ssid'}));
+    $options->{'dot1x_username'}      = $args->{'user_name'} if (defined($args->{'user_name'}));
+    $options->{'realm'}               = $args->{'realm'} if (defined($args->{'realm'}));
+    $options->{'radius_request'}      = $args->{'radius_request'};
+    $options->{'fingerbank_info'}     = $args->{'fingerbank_info'};
 
     my $profile = pf::Connection::ProfileFactory->instantiate($args->{'mac'},$options);
     $args->{'profile'} = $profile; 
