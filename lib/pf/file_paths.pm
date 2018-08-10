@@ -55,7 +55,7 @@ our (
     $ui_config_file, $floating_devices_file, $log_config_file,
     @stored_config_files, @log_files,
     $provisioning_config_file,
-    $self_service_config_file,
+    $self_service_config_file, $self_service_default_config_file,
     $admin_roles_config_file,
     $wrix_config_file,
     $firewall_sso_config_file,
@@ -142,6 +142,7 @@ BEGIN {
         @stored_config_files @log_files
         $provisioning_config_file
         $self_service_config_file
+        $self_service_default_config_file
         $admin_roles_config_file
         $wrix_config_file
         @stored_config_files
@@ -246,6 +247,7 @@ $chi_defaults_config_file = catfile($conf_dir, "chi.conf.defaults");
 $log_config_file    = catfile($conf_dir, "log.conf");
 $provisioning_config_file = catfile($conf_dir, 'provisioning.conf');
 $self_service_config_file = catfile($conf_dir,"self_service.conf");
+$self_service_default_config_file = catfile($conf_dir,"self_service.conf.defaults");
 $pki_provider_config_file  = catfile($conf_dir,"pki_provider.conf");
 $traffic_shaping_config_file  = catfile($conf_dir,"traffic_shaping.conf");
 $syslog_config_file  = catfile($conf_dir, "syslog.conf");
