@@ -62,7 +62,7 @@ before [qw(remove)] => sub {
     my $count = 0;
     my $id = $c->stash->{'id'};
     while (my ($id, $config) = each %Profiles_Config) {
-        $count ++ if ( any { $_ eq $c->stash->{'id'} } @{$config->{self_service}});
+        $count ++ if ($c->stash->{'id'} eq $config->{self_service});
     }
 
     if ($count > 0) {
