@@ -923,9 +923,9 @@ fi
 %config(noreplace)      /usr/local/pf/conf/pfdhcp.conf
 %config(noreplace)      /usr/local/pf/conf/portal_modules.conf
 %config                 /usr/local/pf/conf/portal_modules.conf.defaults
-%config(noreplace)      /usr/local/pf/conf/device_registration.conf
-%config                 /usr/local/pf/conf/device_registration.conf.defaults
-                        /usr/local/pf/conf/device_registration.conf.example
+%config(noreplace)      /usr/local/pf/conf/self_service.conf
+%config                 /usr/local/pf/conf/self_service.conf.defaults
+                        /usr/local/pf/conf/self_service.conf.example
 %config                 /usr/local/pf/conf/dhcp_fingerprints.conf
 %config(noreplace)      /usr/local/pf/conf/dhcp_filters.conf
                         /usr/local/pf/conf/dhcp_filters.conf.example

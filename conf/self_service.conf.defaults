@@ -1,0 +1,4 @@
+[default]
+description=default
+device_registration_allowed_devices=
+device_registration_role=
