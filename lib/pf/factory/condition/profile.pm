@@ -191,7 +191,18 @@ sub build_conditions {
             })
         });
     }
+
+    $first = format_root_key($first);
     return _build_parent_condition($sub_condition, $first, @keys);
+}
+
+sub format_root_key {
+    my ($first) = @_;
+    return
+         exists $PROFILE_FILTER_TYPE_TO_CONDITION_TYPE{$first}
+      && exists $PROFILE_FILTER_TYPE_TO_CONDITION_TYPE{$first}{key}
+      ? $PROFILE_FILTER_TYPE_TO_CONDITION_TYPE{$first}{key}
+      : $first;
 }
 
 sub _build_parent_condition {
