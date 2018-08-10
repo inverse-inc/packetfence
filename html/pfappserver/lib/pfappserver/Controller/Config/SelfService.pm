@@ -1,40 +1,22 @@
-package pfappserver::Model::Config::SelfService;
+package pfappserver::Controller::Config::SelfService;
 
 =head1 NAME
 
-pfappserver::Model::Config::SelfService add documentation
-
-=cut
+pfappserver::Controller::Config::SelfService
 
 =head1 DESCRIPTION
 
-pfappserver::Model::Config::SelfService
+Place all customization for Controller::Config::SelfService here
 
 =cut
 
-use HTTP::Status qw(:constants is_error is_success);
 use Moose;
-use namespace::autoclean;
-use pf::ConfigStore::SelfService;
 
-extends 'pfappserver::Base::Model::Config';
+BEGIN { extends 'pfappserver::PacketFence::Controller::Config::SelfService'; }
 
-=head2 Methods
+=head1 AUTHOR
 
-=over
-
-=item _buildConfigStore
-
-buld the config store
-
-=cut
-
-sub _buildConfigStore { pf::ConfigStore::SelfService->new }
-
-
-__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
-
-=back
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
@@ -58,5 +40,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
+
+
+__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

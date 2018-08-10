@@ -13,10 +13,10 @@
             <td>[% item.description %]</td>
             <td>
               <div class="text-right">
-              [%- IF can_access("DEVICE_REGISTRATION_CREATE") %]
+              [%- IF can_access("SELF_SERVICE_CREATE") %]
               <a class="btn btn-mini" href="[% c.uri_for(c.controller.action_for('clone'), [ item.id ]) %]">[% l('Clone') %]</a>
               [%- END %]
-              [%- IF can_access("DEVICE_REGISTRATION_DELETE") %]
+              [%- IF can_access("SELF_SERVICE_DELETE") %]
               <a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller.action_for('remove'), [ item.id ]) %]">[% l('Delete') %]</a>
               [%- END %]
               </div>

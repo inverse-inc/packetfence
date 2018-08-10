@@ -1,0 +1,2 @@
+[% INCLUDE config/selfservice/view.tt %]
+

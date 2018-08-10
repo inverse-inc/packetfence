@@ -143,8 +143,8 @@ our (
     %ConfigSurvey,
 #Roles
     %ConfigRoles,
-#device_Registration.conf
-    %ConfigDeviceRegistration,
+#self_service.conf
+    %ConfigSelfService,
 );
 
 BEGIN {
@@ -205,7 +205,7 @@ BEGIN {
         %ConfigReport
         %ConfigSurvey
         %ConfigRoles
-        %ConfigDeviceRegistration
+        %ConfigSelfService
     );
 }
 
@@ -294,7 +294,7 @@ tie %ConfigSurvey, 'pfconfig::cached_hash', 'config::Survey';
 
 tie %ConfigRoles, 'pfconfig::cached_hash', 'config::Roles';
 
-tie %ConfigDeviceRegistration, 'pfconfig::cached_hash', 'config::DeviceRegistration';
+tie %ConfigSelfService, 'pfconfig::cached_hash', 'config::SelfService';
 
 $thread = 0;
 

@@ -225,7 +225,7 @@ our @API_V1_ROUTES = (
         Config::Bases
         Config::BillingTiers
         Config::ConnectionProfiles
-        Config::DeviceRegistrations
+        Config::SelfServices
         Config::Domains
         Config::Firewalls
         Config::FloatingDevices

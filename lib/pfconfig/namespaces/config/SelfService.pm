@@ -1,33 +1,50 @@
-package pf::UnifiedApi::Controller::Config::DeviceRegistrations;
+package pfconfig::namespaces::config::SelfService;
 
 =head1 NAME
 
-pf::UnifiedApi::Controller::Config::DeviceRegistrations - 
+pfconfig::namespaces::config::SelfService
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::UnifiedApi::Controller::Config::DeviceRegistrations
+pfconfig::namespaces::config::SelfService
 
-
+This module creates the configuration hash associated to self_service.conf
 
 =cut
 
 use strict;
 use warnings;
 
+use pfconfig::namespaces::config;
+use pf::file_paths qw($self_service_config_file);
 
-use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
+use base 'pfconfig::namespaces::config';
 
-has 'config_store_class' => 'pf::ConfigStore::DeviceRegistration';
-has 'form_class' => 'pfappserver::Form::Config::DeviceRegistration';
-has 'primary_key' => 'device_registration_id';
+sub init {
+    my ($self) = @_;
+    $self->{file} = $self_service_config_file;
+}
 
-use pf::ConfigStore::DeviceRegistration;
-use pfappserver::Form::Config::DeviceRegistration;
+sub build_child {
+    my ($self) = @_;
 
- 
+    my %tmp_cfg = %{ $self->{cfg} };
+
+    foreach my $key ( keys %tmp_cfg ) {
+        $self->cleanup_after_read( $key, $tmp_cfg{$key} );
+    }
+
+    return \%tmp_cfg;
+
+}
+
+sub cleanup_after_read {
+    my ( $self, $id, $data ) = @_;
+    $self->expand_list( $data, qw(allowed_devices) );
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -56,4 +73,8 @@ USA.
 =cut
 
 1;
+
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:
 

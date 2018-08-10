@@ -119,8 +119,8 @@
           </div>
           <div class="control-group">
             <div>
-              [% form.field('device_registration').render | none %]
-              <div id="device_registrationEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('device_registration').index > 1 %]">
+              [% form.field('self_service').render | none %]
+              <div id="self_serviceEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('self_service').index > 1 %]">
               </div>
             </div>
           </div>

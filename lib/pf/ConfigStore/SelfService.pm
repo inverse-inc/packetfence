@@ -1,27 +1,27 @@
-package pf::ConfigStore::DeviceRegistration;
+package pf::ConfigStore::SelfService;
 =head1 NAME
 
-pf::ConfigStore::DeviceRegistration add documentation
+pf::ConfigStore::SelfService add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::ConfigStore::DeviceRegistration
+pf::ConfigStore::SelfService
 
 =cut
 
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths qw($device_registration_config_file);
+use pf::file_paths qw($self_service_config_file);
 use pf::util;
 extends 'pf::ConfigStore';
 with 'pf::ConfigStore::Role::ReverseLookup';
 
-sub configFile { $device_registration_config_file };
+sub configFile { $self_service_config_file };
 
-sub pfconfigNamespace {'config::DeviceRegistration'}
+sub pfconfigNamespace {'config::SelfService'}
 
 =head2 canDelete
 
@@ -31,7 +31,7 @@ canDelete
 
 sub canDelete {
     my ($self, $id) = @_;
-    return !$self->isInProfile('device_registration', $id) && $self->SUPER::canDelete($id);
+    return !$self->isInProfile('self_service', $id) && $self->SUPER::canDelete($id);
 }
 
 =head2 cleanupAfterRead
@@ -65,7 +65,7 @@ sub cleanupBeforeCommit {
 =cut
 
 sub _fields_expanded {
-    return qw(allowed_devices);
+    return qw(device_registration_allowed_devices);
 }
 
 =head1 AUTHOR
