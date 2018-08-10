@@ -1,16 +1,16 @@
-package pfconfig::namespaces::config::DeviceRegistration;
+package pfconfig::namespaces::config::SelfService;
 
 =head1 NAME
 
-pfconfig::namespaces::config::DeviceRegistration
+pfconfig::namespaces::config::SelfService
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::config::DeviceRegistration
+pfconfig::namespaces::config::SelfService
 
-This module creates the configuration hash associated to device_registration.conf
+This module creates the configuration hash associated to self_service.conf
 
 =cut
 
@@ -18,13 +18,13 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use pf::file_paths qw($device_registration_config_file);
+use pf::file_paths qw($self_service_config_file);
 
 use base 'pfconfig::namespaces::config';
 
 sub init {
     my ($self) = @_;
-    $self->{file} = $device_registration_config_file;
+    $self->{file} = $self_service_config_file;
 }
 
 sub build_child {
