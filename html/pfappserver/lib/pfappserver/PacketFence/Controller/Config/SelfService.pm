@@ -61,7 +61,7 @@ before [qw(remove)] => sub {
     # We check that it's not used by any connection profile
     my $count = 0;
     while (my ($id, $config) = each %Profiles_Config) {
-        $count ++ if ( any { $_ eq $c->stash->{'id'} } @{$config->{self_service}});
+        $count ++ if ($c->stash->{'id'} eq $config->{self_service});
     }
 
     if ($count > 0) {
