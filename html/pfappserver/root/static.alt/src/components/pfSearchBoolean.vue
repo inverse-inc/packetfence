@@ -37,7 +37,12 @@
               <b-col cols="12" class="bg-white rc">
                 <b-container fluid class="mx-0 px-0 py-1">
                   <span v-if="model.values.length > 1 || model.values[outerindex].values.length > 1" class="draghandle mr-2" v-b-tooltip.hover.right :title="$t('Click &amp; Drag statement to reorder')"><icon name="ellipsis-v"></icon></span>
-                  <b-form-select v-model="rule.field" :options="fields"></b-form-select>
+                  <b-button-group>
+                    <b-input-group-prepend is-text v-if="icon(rule)">
+                      <icon :name="icon(rule)"></icon>
+                    </b-input-group-prepend>
+                    <b-form-select v-model="rule.field" :options="fields"></b-form-select>
+                  </b-button-group>
                   <b-form-select v-model="rule.op" :options="operators(rule)"></b-form-select>
                   <b-form-input v-model="rule.value" type="text" v-if="isFieldType(substringValueType, rule)"></b-form-input>
                   <pf-form-datetime v-model="rule.value" v-else-if="isFieldType(datetimeValueType, rule)"></pf-form-datetime>
@@ -159,6 +164,14 @@ export default {
         }
       }
       return values
+    },
+    icon (rule) {
+      let index = this.fields.findIndex(field => rule.field === field.value)
+      if (index >= 0) {
+        let field = this.fields[index]
+        return field.icon || undefined
+      }
+      return undefined
     },
     isFieldType (type, rule) {
       let isType = false

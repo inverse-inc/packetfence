@@ -10,7 +10,8 @@ export const pfSearchConditionType = {
   CONNECTION_TYPE:         'connection_type',
   ONLINE:                  'online',
   INTEGER:                 'integer',
-  DATETIME:                'datetime'
+  DATETIME:                'datetime',
+  VOIP:                    'voip'
 }
 
 export const pfSearchConditionValue = {

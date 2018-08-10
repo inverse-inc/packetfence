@@ -155,152 +155,182 @@ export default {
         {
           value: 'mac',
           text: this.$i18n.t('MAC Address'),
-          types: [conditionType.SUBSTRING]
+          types: [conditionType.SUBSTRING],
+          icon: 'id-card'
         },
         {
           value: 'bypass_role_id',
           text: this.$i18n.t('Bypass Role'),
-          types: [conditionType.ROLE, conditionType.SUBSTRING]
+          types: [conditionType.ROLE, conditionType.SUBSTRING],
+          icon: 'project-diagram'
         },
         {
           value: 'bypass_vlan',
           text: this.$i18n.t('Bypass VLAN [?]'),
-          types: [conditionType.SUBSTRING]
+          types: [conditionType.SUBSTRING],
+          icon: 'project-diagram'
         },
         {
           value: 'computername',
           text: this.$i18n.t('Computer Name'),
-          types: [conditionType.SUBSTRING]
+          types: [conditionType.SUBSTRING],
+          icon: 'desktop'
         },
         {
           value: 'locationlog.connection_type',
           text: this.$i18n.t('Connection Type [?]'),
-          types: [conditionType.CONNECTION_TYPE]
+          types: [conditionType.CONNECTION_TYPE],
+          icon: 'plug'
         },
         {
           value: 'detect_date',
           text: this.$i18n.t('Datetime Detected'),
-          types: [conditionType.DATETIME]
+          types: [conditionType.DATETIME],
+          icon: 'calendar-alt'
         },
         {
           value: 'regdate',
           text: this.$i18n.t('Datetime Registered'),
-          types: [conditionType.DATETIME]
+          types: [conditionType.DATETIME],
+          icon: 'calendar-alt'
         },
         {
           value: 'unregdate',
           text: this.$i18n.t('Datetime Unregistered'),
-          types: [conditionType.DATETIME]
+          types: [conditionType.DATETIME],
+          icon: 'calendar-alt'
         },
         {
           value: 'last_arp',
           text: this.$i18n.t('Datetime Last ARP'),
-          types: [conditionType.DATETIME]
+          types: [conditionType.DATETIME],
+          icon: 'calendar-alt'
         },
         {
           value: 'last_dhcp',
           text: this.$i18n.t('Datetime Last DHCP'),
-          types: [conditionType.DATETIME]
+          types: [conditionType.DATETIME],
+          icon: 'calendar-alt'
         },
         {
           value: 'device_class',
           text: this.$i18n.t('Device Class'),
-          types: [conditionType.SUBSTRING]
+          types: [conditionType.SUBSTRING],
+          icon: 'barcode'
         },
         {
           value: 'device_manufacturer',
           text: this.$i18n.t('Device Manufacturer [?]'),
-          types: [conditionType.SUBSTRING]
+          types: [conditionType.SUBSTRING],
+          icon: 'barcode'
         },
         {
           value: 'device_type',
           text: this.$i18n.t('Device Type'),
-          types: [conditionType.SUBSTRING]
+          types: [conditionType.SUBSTRING],
+          icon: 'barcode'
         },
         {
           value: 'ip4log.ip',
           text: this.$i18n.t('IPv4 Address'),
-          types: [conditionType.SUBSTRING]
+          types: [conditionType.SUBSTRING],
+          icon: 'project-diagram'
         },
         {
           value: 'ip6log.ip',
           text: this.$i18n.t('IPv6 Address'),
-          types: [conditionType.SUBSTRING]
+          types: [conditionType.SUBSTRING],
+          icon: 'project-diagram'
         },
         {
           value: 'machine_account',
           text: this.$i18n.t('Machine Account'),
-          types: [conditionType.SUBSTRING]
+          types: [conditionType.SUBSTRING],
+          icon: 'desktop'
         },
         {
           value: 'notes',
           text: this.$i18n.t('Notes'),
-          types: [conditionType.SUBSTRING]
+          types: [conditionType.SUBSTRING],
+          icon: 'notes-medical'
         },
         {
           value: 'online',
           text: this.$i18n.t('Online Status'),
-          types: [conditionType.ONLINE]
+          types: [conditionType.ONLINE],
+          icon: 'power-off'
         },
         {
           value: 'pid',
           text: this.$i18n.t('Owner'),
-          types: [conditionType.SUBSTRING]
+          types: [conditionType.SUBSTRING],
+          icon: 'user'
         },
         {
           value: 'category_id',
           text: this.$i18n.t('Role'),
-          types: [conditionType.ROLE, conditionType.SUBSTRING]
+          types: [conditionType.ROLE, conditionType.SUBSTRING],
+          icon: 'project-diagram'
         },
         {
           value: 'locationlog.switch',
           text: this.$i18n.t('Source Switch Identifier'),
-          types: [conditionType.SUBSTRING]
+          types: [conditionType.SUBSTRING],
+          icon: 'sitemap'
         },
         {
           value: 'locationlog.switch_ip',
           text: this.$i18n.t('Source Switch IP'),
-          types: [conditionType.SUBSTRING]
+          types: [conditionType.SUBSTRING],
+          icon: 'sitemap'
         },
         {
           value: 'locationlog.switch_mac',
           text: this.$i18n.t('Source Switch MAC'),
-          types: [conditionType.SUBSTRING]
+          types: [conditionType.SUBSTRING],
+          icon: 'sitemap'
         },
         {
           value: 'locationlog.ssid',
           text: this.$i18n.t('SSID'),
-          types: [conditionType.SUBSTRING]
+          types: [conditionType.SUBSTRING],
+          icon: 'wifi'
         },
         {
           value: 'user_agent',
           text: this.$i18n.t('User Agent'),
-          types: [conditionType.SUBSTRING]
+          types: [conditionType.SUBSTRING],
+          icon: 'user-secret'
         },
         {
           value: 'violation.open_vid',
           text: this.$i18n.t('Violation Open'),
-          types: [conditionType.VIOLATION]
+          types: [conditionType.VIOLATION],
+          icon: 'exclamation-triangle'
         },
         {
           value: 'violation.open_count',
           text: this.$i18n.t('Violation Open Count [Issue #3400]'),
-          types: [conditionType.INTEGER]
+          types: [conditionType.INTEGER],
+          icon: 'exclamation-triangle'
         },
         {
           value: 'violation.close_vid',
           text: this.$i18n.t('Violation Closed'),
-          types: [conditionType.VIOLATION]
+          types: [conditionType.VIOLATION],
+          icon: 'exclamation-circle'
         },
         {
           value: 'violation.close_count',
           text: this.$i18n.t('Violation Close Count [Issue #3400]'),
-          types: [conditionType.INTEGER]
+          types: [conditionType.INTEGER],
+          icon: 'exclamation-circle'
         },
         {
           value: 'voip',
           text: this.$i18n.t('VoIP'),
-          types: [conditionType.VOIP]
+          types: [conditionType.VOIP],
+          icon: 'phone'
         }
       ],
       /**
@@ -420,13 +450,13 @@ export default {
           visible: false
         },
         {
-          key: 'dhcp6_fingerprint',
+          key: 'dhcp6_barcode',
           label: this.$i18n.t('DHCPv6 Fingerprint'),
           sortable: true,
           visible: false
         },
         {
-          key: 'dhcp_fingerprint',
+          key: 'dhcp_barcode',
           label: this.$i18n.t('DHCP Fingerprint'),
           sortable: true,
           visible: false
