@@ -133,7 +133,7 @@ sub registerNode : Private {
             $c->stash->{device_mac} = $mac;
             # Get role for device registration
             my $role =
-              $ConfigSelfService{$device_reg_profile}{'category'};
+              $ConfigSelfService{$device_reg_profile}{'device_registration_role'};
             if ($role) {
                 $logger->debug("Device registration role is $role (from pf.conf)");
             } else {
@@ -206,7 +206,7 @@ sub is_allowed {
     my ($mac, $device_reg_profile) = @_;
     $mac =~ s/O/0/i;
     my $logger = get_logger();
-    my $oses = $ConfigSelfService{$device_reg_profile}{'allowed_devices'};
+    my $oses = $ConfigSelfService{$device_reg_profile}{'device_registration_allowed_devices'};
 
     # If no oses are defined then it will allow every devices to be registered
     return $TRUE if @$oses == 0;
