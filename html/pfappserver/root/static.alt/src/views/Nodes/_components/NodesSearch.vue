@@ -450,13 +450,13 @@ export default {
           visible: false
         },
         {
-          key: 'dhcp6_barcode',
+          key: 'dhcp6_fingerprint',
           label: this.$i18n.t('DHCPv6 Fingerprint'),
           sortable: true,
           visible: false
         },
         {
-          key: 'dhcp_barcode',
+          key: 'dhcp_fingerprint',
           label: this.$i18n.t('DHCP Fingerprint'),
           sortable: true,
           visible: false
