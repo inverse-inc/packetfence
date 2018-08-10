@@ -14,12 +14,14 @@ pf::ConfigStore::SelfService
 use strict;
 use warnings;
 use Moo;
-use pf::file_paths qw($self_service_config_file);
+use pf::file_paths qw($self_service_config_file $self_service_default_config_file);
 use pf::util;
 extends 'pf::ConfigStore';
 with 'pf::ConfigStore::Role::ReverseLookup';
 
 sub configFile { $self_service_config_file };
+
+sub importConfigFile { $self_service_default_config_file }
 
 sub pfconfigNamespace {'config::SelfService'}
 
