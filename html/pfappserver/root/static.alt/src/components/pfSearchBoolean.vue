@@ -199,7 +199,15 @@ export default {
       this.model.values.push({ op: 'or', values: [{ field: this.fields[0].value, op: null, value: null }] })
     },
     addInnerStatement (outerindex) {
-      this.model.values[outerindex].values.push({ field: this.fields[0].value, op: null, value: null })
+      let field = this.fields[0].value
+      let op = null
+      // repeat last `field` and `op` - if exists
+      if (this.model.values[outerindex].values.length > 0) {
+        let lastindex = this.model.values[outerindex].values.length - 1
+        field = this.model.values[outerindex].values[lastindex].field
+        op = this.model.values[outerindex].values[lastindex].op
+      }
+      this.model.values[outerindex].values.push({ field: field, op: op, value: null })
     },
     removeStatement (outerindex, innerindex) {
       if (this.model.values[outerindex].values.length === 1) {
