@@ -153,8 +153,8 @@ export default {
     },
     datetimeConfig () {
       const minMaxConfig = {
-        minDate: this.min,
-        maxDate: this.max
+        minDate: (this.min === '0000-00-00 00:00:00') ? new Date(-8640000000000000) : this.min,
+        maxDate: (this.max === '0000-00-00 00:00:00') ? new Date(8640000000000000) : this.max
       }
       return Object.assign(this.defaultConfig, minMaxConfig, this.config)
     }
