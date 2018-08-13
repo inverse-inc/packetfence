@@ -134,7 +134,8 @@ export default {
           incrementSecond: this.$i18n.t('Increment Second'),
           pickSecond: this.$i18n.t('Pick Second'),
           decrementSecond: this.$i18n.t('Decrement Second')
-        }
+        },
+        useCurrent: false
       }
     }
   },
