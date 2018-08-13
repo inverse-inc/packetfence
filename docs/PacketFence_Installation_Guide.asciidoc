@@ -1901,15 +1901,36 @@ Devices Registration
 
 Users have the possibility to register their devices right from a special portal page. When accessing this page, users will be prompted to login as if they were registering themselves. Once logged in, the portal will ask them to enter the device MAC address that will then be matched against the Fingerbank database to match authorized devices list. The device will be registered with the user's id and can be assigned into a specific category for easier management.
 
-The section *Configuration -> -> Advanced Access Configuration -> Device Registration* is where to configure it.
+In order to configure this, you can configure a self service portal policy in *Configuration->Advanced Access Configuration->Self Service Portal*. Either by modifying the default policy or creating a new one, you'll be able to define the behavior of the device registration page.
 The portal page can be accessed by the following URL: https://YOUR_PORTAL_HOSTNAME/device-registration
 This URL is accessible from within the network, in any VLAN that can reach the PacketFence server on a 'portal' interface (see note below). 
 
-As from PacketFence 7.3 and onwards you need to create a device registration profile and associate it with the connection profile.
+First, you can decide which role to assign to the devices registered through this self service portal. If left empty, the role of the user who is registering the device will be used.
 
-This will allow you to configure who is able to register which type of device. For instance a person connecting from the public WiFi can only register an Android device but a person from the internal network can register Windows and MacOS computers.
+You can also select which operating systems can be registered through this portal. This is useful for example, if you wish to only allow gaming devices to be registered through this portal.
 
-NOTE: A 'portal' interface type is required to use this feature. A 'portal' interface type can be added to any network interface using the web admin GUI.
+Once you have configured your self service portal policy, you need to assign it to the appropriate connection profile in *Configuration->Policies and Access Control->Connection Profiles*.
+
+After this, the page will be accessible at https://YOUR_PORTAL_HOSTNAME/device-registration.
+
+WARNING: You may also have to add the 'portal' listening daemon on your management interface in order for this self service portal to be accessible to your users.
+
+Status page
+~~~~~~~~~~~
+
+Users can have access to a self service portal that allows them to manage their devices. Using this portal, they can unregister devices they own and report them as stolen (triggering the *Lost or Stolen* violation).
+
+Users of the local PacketFence database can also change their password through this portal.
+
+By default all users can manage their devices through this self service portal. You can specify which roles can manage their devices on this page by configuring a self service portal policy in *Configuration->Advanced Access Configuration->Self Service Portal*. Then, make sure you assign this policy to the appropriate connection profile in *Configuration->Policies and Access Control->Connection Profiles*.
+
+You can also prevent this page from being served in the PacketFence managed networks (registration, isolation, inline) by enabling the parameter *Status URI only on production network* in *Configuration->Advanced Access Configuration->Captive Portal*
+
+After this, the page will be accessible at https://YOUR_PORTAL_HOSTNAME/status.
+
+Once you have configured your self service portal policy, you need to assign it to the appropriate connection profile in *Configuration->Policies and Access Control->Connection Profiles*.
+
+WARNING: You may also have to add the 'portal' listening daemon on your management interface in order for this self service portal to be accessible to your users.
 
 Passthroughs
 ~~~~~~~~~~~~
