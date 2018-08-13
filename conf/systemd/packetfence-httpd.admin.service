@@ -22,7 +22,7 @@ ExecStop=/bin/kill -WINCH ${MAINPID}
 # ExecStop, which would kill httpd. We are sending useless SIGCONT here to give
 # httpd time to finish.
 TimeoutStopSec=60
-KillMode=mixed
+KillMode=process
 KillSignal=SIGCONT
 PrivateTmp=true
 Restart=on-failure
