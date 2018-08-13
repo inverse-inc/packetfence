@@ -34,12 +34,15 @@ sub unreg :Local :Args(1) {
     my $owner = lc($node->{pid});
               
     my $device_reg_profile = $c->profile->{'_self_service'};
-    my @allowed_roles = @{$ConfigSelfService{$device_reg_profile}{'roles_allowed_to_unregister'}};
-    # Only validate the roles if there are some in the list
-    if(scalar(@allowed_roles) > 0) {
-        unless(any { $_ eq $node->{category} } @allowed_roles) {
-            $c->stash( status_msg_error => "The role assigned to this device prevents it from being unregistered using this service.");
-            $c->detach(Status => 'index');
+    # Only validate the OSes if there is a specific policy on this profile
+    if($device_reg_profile) {
+        my @allowed_roles = @{$ConfigSelfService{$device_reg_profile}{'roles_allowed_to_unregister'}};
+        # Only validate the roles if there are some in the list
+        if(scalar(@allowed_roles) > 0) {
+            unless(any { $_ eq $node->{category} } @allowed_roles) {
+                $c->stash( status_msg_error => "The role assigned to this device prevents it from being unregistered using this service.");
+                $c->detach(Status => 'index');
+            }
         }
     }
 
