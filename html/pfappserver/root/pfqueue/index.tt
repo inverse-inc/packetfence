@@ -25,5 +25,5 @@
     <script type="text/javascript" src="/netdata/127.0.0.1/dashboard.js?v20170724-7"></script>
 
 <h2 class="card-title">[% l('Queue') %]</h2>
-[% show_stats(stats, 1, hostname) | none %]
+[% show_stats(stats, 1, hostname, "127.0.0.1") | none %]
 </div>

@@ -32,7 +32,7 @@
 
   [% FOREACH server IN servers %]
   <h2 class="card-title">[% server.management_ip %] [% l('Queue') %]</h2>
-  [% show_stats(server.stats, 1, server.host) | none %]
+  [% show_stats(server.stats, 1, server.host, server.management_ip) | none %]
   [% END %]
 
 [% ELSE %]

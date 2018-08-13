@@ -1,4 +1,4 @@
-[%- MACRO show_graphs_stats(stats, host) BLOCK -%]
+[%- MACRO show_graphs_stats(stats, host, ip) BLOCK -%]
 <div class="card">
   <div class="card-title">
       <h2>[% l('Queue stats') %]</h2>
@@ -8,7 +8,7 @@
       <div class="row-fluid">
           <div class="spangridSize text-center">
               <div data-netdata="statsd_gauge_[% host.replace('\.|-','_') %].pfqueue.stats.queue_counts.[% counter.name %]"
-              data-host="/netdata/[% host %]"
+              data-host="/netdata/[% ip %]"
               data-title="[% counter.name %] queue count"
               data-chart-library="dygraph"
               data-colors="[% palette(loop.index) %]"
@@ -24,7 +24,7 @@
 </div>
 [% END %]
 
-[%- MACRO show_stats(stats, show_graphs, host) BLOCK -%]
+[%- MACRO show_stats(stats, show_graphs, host, ip) BLOCK -%]
 <div class="card-block">
   <table class="table table-condensed table-striped">
     <thead>
@@ -101,7 +101,7 @@
 </div>
 
 [% IF show_graphs %]
-[% show_graphs_stats(stats, host) | none %]
+[% show_graphs_stats(stats, host, ip) | none %]
 [% END %]
 
 [% END %]
