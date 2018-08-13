@@ -7,7 +7,7 @@
   <div class="card-block">
       <div class="row-fluid">
           <div class="spangridSize text-center">
-              <div data-netdata="statsd_gauge_[% host.replace('\.|-','_') %].pfqueue.stats.queue_counts.[% counter.name %]"
+              <div data-netdata="statsd_gauge_source.packetfence.redis.queue_stats_count.[% counter.name %]"
               data-host="/netdata/[% ip %]"
               data-title="[% counter.name %] queue count"
               data-chart-library="dygraph"
