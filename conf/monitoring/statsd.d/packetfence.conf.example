@@ -31,7 +31,7 @@
     units = devices
     priority = 91000
     type = line
-    dimension = pattern 'source.packetfence.devices.registered_per_role;*' '' last 1 1
+    dimension = pattern 'source.packetfence.devices.registered_per_role.*' '' last 1 1
 
 [devices.connected_per_connection_type]
     name = devices.connected_per_connection_type
@@ -41,7 +41,7 @@
     units = devices
     priority = 91000
     type = line
-    dimension = pattern 'source.packetfence.devices.connected_per_connection_type;*' '' last 1 1
+    dimension = pattern 'source.packetfence.devices.connected_per_connection_type.*' '' last 1 1
 
 [devices.connected_per_ssid]
     name = devices.connected_per_ssid
@@ -51,7 +51,9 @@
     units = devices
     priority = 91000
     type = line
-    dimension = pattern 'source.packetfence.devices.connected_per_ssid;*' '' last 1 1
+    dimension = pattern 'source.packetfence.devices.connected_per_ssid.*' '' last 1 1
+    type = stacked
+    dimension = pattern 'source.packetfence.devices.registered_per_role.*' '' last 1 1
 
 [redis.queue_stats_count]
     name = redis.queue_stats_count
@@ -61,7 +63,7 @@
     units = count
     priority = 91000
     type = stacked
-    dimension = pattern 'source.packetfence.redis.queue_stats_count;*' '' last 1 1
+    dimension = pattern 'source.packetfence.redis.queue_stats_count.*' '' last 1 1
 
 [redis.queue_stats_expired]
     name = redis.queue_stats_expired
@@ -71,7 +73,7 @@
     units = expired
     priority = 91000
     type = stacked
-    dimension = pattern 'source.packetfence.redis.queue_stats_expired;*' '' last 1 1
+    dimension = pattern 'source.packetfence.redis.queue_stats_expired.*' '' last 1 1
 
 [redis.queue_stats_outstanding]
     name = redis.queue_stats_outstanding
@@ -81,4 +83,4 @@
     units = outstanding
     priority = 91000
     type = stacked
-    dimension = pattern 'source.packetfence.redis.queue_stats_outstanding;*' '' last 1 1
+    dimension = pattern 'source.packetfence.redis.queue_stats_outstanding.*' '' last 1 1
