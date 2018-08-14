@@ -179,8 +179,6 @@ export default {
       this.getWindowHeight()
     })
   },
-  created () {
-  },
   watch: {
     items: {
       handler: function (a, b) {
