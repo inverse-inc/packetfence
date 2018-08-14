@@ -378,19 +378,28 @@ export default {
           key: 'detect_date',
           label: this.$i18n.t('Detected Date'),
           sortable: true,
-          visible: false
+          visible: false,
+          formatter: (value, key, item) => {
+            return (value === '0000-00-00 00:00:00') ? '' : value
+          }
         },
         {
           key: 'regdate',
           label: this.$i18n.t('Registration Date'),
           sortable: true,
-          visible: false
+          visible: false,
+          formatter: (value, key, item) => {
+            return (value === '0000-00-00 00:00:00') ? '' : value
+          }
         },
         {
           key: 'unregdate',
           label: this.$i18n.t('Unregistration Date'),
           sortable: true,
-          visible: false
+          visible: false,
+          formatter: (value, key, item) => {
+            return (value === '0000-00-00 00:00:00') ? '' : value
+          }
         },
         {
           key: 'computername',
@@ -552,13 +561,19 @@ export default {
           key: 'last_arp',
           label: this.$i18n.t('Last ARP'),
           sortable: true,
-          visible: false
+          visible: false,
+          formatter: (value, key, item) => {
+            return (value === '0000-00-00 00:00:00') ? '' : value
+          }
         },
         {
           key: 'last_dhcp',
           label: this.$i18n.t('Last DHCP'),
           sortable: true,
-          visible: false
+          visible: false,
+          formatter: (value, key, item) => {
+            return (value === '0000-00-00 00:00:00') ? '' : value
+          }
         },
         {
           key: 'machine_account',
