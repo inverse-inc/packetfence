@@ -145,6 +145,7 @@ sub registerNode : Private {
             $info{'auto_registered'} = 1;
             $info{'mac'} = $mac;
             $info{'pid'} = $pid;
+            $info{'regdate'} = mysql_date();
             $info{'notes'} = $type if ( defined($type) );
             $c->portalSession->guestNodeMac($mac);
             node_modify($mac, status => "reg", %info);
