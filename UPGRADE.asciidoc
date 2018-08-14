@@ -34,6 +34,22 @@ You can take a backup of the pf directory with the following command:
 
   tar -C /usr/local -czf /root/packetfence.tar.gz pf --exclude='pf/logs' --exclude='pf/var'
 
+Shutdown monit
+^^^^^^^^^^^^^^
+
+Before starting the upgrade shut down monitoring to prevent alerts from generating false-positives. To see if monit is installed and running issue a monit summary.
+
+  monit summary
+
+If monit is installed and running, shut it down with
+
+  systemctl stop monit
+
+When the upgrade is complete restart monit back up with
+
+  systemctl start monit
+
+
 Upgrade procedure
 -----------------
 
