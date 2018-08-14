@@ -34,6 +34,7 @@ use pf::file_paths qw(
     $pfconfig_cache_dir
     $log_dir
     $conf_dir
+    $html_dir
     $lib_dir
     $config_version_file
 );
@@ -58,6 +59,7 @@ sub action_all {
     my $pfcmd = "${bin_dir}/pfcmd";
     my @extra_var_dirs = map { catfile($var_dir,$_) } qw(run cache conf sessions redis_cache redis_queue);
     _changeFilesToOwner('pf',@log_files, @stored_config_files, $install_dir, $bin_dir, $conf_dir, $var_dir, $lib_dir, $log_dir, $generated_conf_dir, $tt_compile_cache_dir, $pfconfig_cache_dir, @extra_var_dirs, $config_version_file);
+    _changePathToOwnerRecursive('pf', $html_dir);
     _changeFilesToOwner('root',$pfcmd);
     chmod(06755,$pfcmd);
     chmod(0664, @stored_config_files);
@@ -135,6 +137,24 @@ sub _changeFilesToOwner {
         get_logger->error($msg);
     }
 }
+
+sub _changePathToOwnerRecursive {
+    my ($user,@paths) = @_;
+    my ($login,$pass,$uid,$gid) = getpwnam($user);
+    if(defined $uid && defined $gid) {
+        my ($group, undef, undef, undef)= getgrgid($gid);
+        finddepth ({no_chdir=>1, untaint=>1, wanted=>sub {
+            chown ($uid, $gid, untaint_chain($File::Find::name))
+                or warn qq(Couldn't change ownership of "$File::Find::name\n");
+        }}, @paths);
+    }
+    else {
+        my $msg = "Problem getting group and user id for $user\n";
+        print STDERR $msg;
+        get_logger->error($msg);
+    }
+}
+
 
 sub _fingerbank {
     fingerbank::Util::fix_permissions();

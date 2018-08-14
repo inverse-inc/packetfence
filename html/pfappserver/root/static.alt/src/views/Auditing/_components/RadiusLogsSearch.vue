@@ -53,12 +53,36 @@ import ToggleButton from '@/components/ToggleButton'
 
 export default {
   name: 'RadiusLogsSearch',
-  extends: pfMixinSearchable,
-  searchApiEndpoint: 'radius_audit_logs',
-  defaultSortKeys: ['created_at', 'mac'],
+  mixins: [
+    pfMixinSearchable
+  ],
   components: {
     'pf-search': pfSearch,
     'toggle-button': ToggleButton
+  },
+  props: {
+    pfMixinSearchableOptions: {
+      type: Object,
+      default: {
+        searchApiEndpoint: 'radius_audit_logs',
+        defaultSortKeys: ['created_at', 'mac'],
+        defaultSearchCondition: {
+          op: 'and',
+          values: [{
+            op: 'or',
+            values: [
+              { field: 'mac', op: 'contains', value: null },
+              { field: 'user_name', op: 'contains', value: null }
+            ]
+          }]
+        },
+        defaultRoute: { name: 'auditing' }
+      }
+    },
+    tableValues: {
+      type: Array,
+      default: []
+    }
   },
   data () {
     return {
@@ -123,35 +147,33 @@ export default {
     }
   },
   methods: {
-    quickCondition (newCondition) {
-      // Build full condition from quick value;
-      // Called from pfMixinSearchable.onSearch().
+    pfMixinSearchableQuickCondition (quickCondition) {
       return {
-        op: 'or',
+        op: 'and',
         values: [
-          { field: 'mac', op: 'contains', value: newCondition },
-          { field: 'user_name', op: 'contains', value: newCondition }
+          {
+            op: 'or',
+            values: [
+              { field: 'mac', op: 'contains', value: quickCondition },
+              { field: 'user_name', op: 'contains', value: quickCondition }
+            ]
+          }
         ]
       }
+    },
+    pfMixinSearchableAdvancedMode (condition) {
+      return condition.values.length > 1 ||
+        condition.values[0].values.filter(v => {
+          return this.pfMixinSearchableOptions.defaultSearchCondition.values[0].values.findIndex(d => {
+            return d.field === v.field && d.op === v.op
+          }) >= 0
+        }).length !== condition.values[0].values.length
     },
     onRowClick (item, index) {
       this.$router.push({ name: 'view', params: { id: item.id } })
     }
   },
   created () {
-    // pfMixinSearchable.created() has been called
-    if (!this.condition) {
-      // Select first field
-      this.initCondition()
-    } else {
-      // Restore selection of advanced mode; check if condition matches a quick search
-      this.advancedMode = !(this.condition.op === 'or' &&
-        this.condition.values.length === 2 &&
-        this.condition.values[0].field === 'mac' &&
-        this.condition.values[0].op === 'contains' &&
-        this.condition.values[1].field === 'user_name' &&
-        this.condition.values[1].op === 'contains')
-    }
   }
 }
 </script>
