@@ -64,26 +64,17 @@ export default {
     'pf-form-datetime': pfFormDatetime
   },
   props: {
+    isLoading: {
+      type: Boolean,
+      default: false
+    },
     items: {
       type: Array
     },
     report: {
       type: Object
     },
-    data: {
-      type: Object
-    },
-    layout: {
-      type: Object
-    },
-    options: {
-      type: Object
-    },
     range: {
-      type: Boolean,
-      default: false
-    },
-    isLoading: {
       type: Boolean,
       default: false
     },
@@ -99,7 +90,15 @@ export default {
       chartSizeLimit: 25,
       showPeriod: false,
       maxStartDatetime: '9999-12-12 23:59:59',
-      minEndDatetime: '0000-00-00 00:00:00'
+      minEndDatetime: '0000-00-00 00:00:00',
+      data: {
+        type: Object,
+        default: {
+          values: [],
+          labels: [],
+          options: {}
+        }
+      }
     }
   },
   computed: {
