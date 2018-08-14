@@ -5,7 +5,7 @@ const ReportTable = () => import(/* webpackChunkName: "Reports" */ '../_componen
 const route = {
   path: '/reports',
   name: 'reports',
-  redirect: '/reports/table/registered',
+  redirect: '/reports/table/os',
   component: ReportsView,
   meta: { transitionDelay: 300 * 2 }, // See _transitions.scss => $slide-bottom-duration
   children: [

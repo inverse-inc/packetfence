@@ -1,5 +1,7 @@
 /**
-* Base searchable store module. Used by pfMixinSearchable.
+* Base searchable store module. Used by:
+*   pfMixinSearchable
+*   pfMixinReports
 */
 import Vue from 'vue'
 import apiCall from '@/utils/api'

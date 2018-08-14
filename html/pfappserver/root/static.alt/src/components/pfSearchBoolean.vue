@@ -1,20 +1,17 @@
 <template>
   <b-container fluid class="px-0" v-if="!advancedMode">
     <!-- BEGIN SIMPLE SEARCH -->
-    <b-form-row class="mx-auto">
-      <b-col class="my-1" md>
-        <b-form-select v-model="model.values[0].values[0].field" :options="fields"></b-form-select>
+    <b-row class="mx-auto">
+      <b-col cols="12" class="bg-white rc">
+        <b-container fluid class="mx-0 px-0 py-1">
+          <b-form-select v-model="model.values[0].values[0].field" :options="fields"></b-form-select>
+          <b-form-select v-model="model.values[0].values[0].op" :options="operators(model.values[0].values[0])"></b-form-select>
+          <b-form-input v-model="model.values[0].values[0].value" type="text" v-if="isFieldType(substringValueType, model.values[0].values[0])"></b-form-input>
+          <pf-form-datetime v-model="model.values[0].values[0].value" v-else-if="isFieldType(datetimeValueType, model.values[0].values[0])" :config="{useCurrent: true}"></pf-form-datetime>
+          <b-form-select v-model.lazy="model.values[0].values[0].value" :options="values(model.values[0].values[0])" v-else-if="isFieldType(selectValueType, model.values[0].values[0])"></b-form-select>
+        </b-container>
       </b-col>
-      <b-col class="my-1" md>
-        <b-form-select v-model="model.values[0].values[0].op" :options="operators(model.values[0].values[0])"></b-form-select>
-      </b-col>
-      <b-col class="my-1" md v-if="isFieldType(substringValueType, model.values[0].values[0])">
-        <b-form-input v-model="model.values[0].values[0].value" type="text"></b-form-input>
-      </b-col>
-      <b-col class="my-1" md v-else-if="isFieldType(selectValueType, model.values[0].values[0])">
-        <b-form-select v-model.lazy="model.values[0].values[0].value" :options="values(model.values[0].values[0])"></b-form-select>
-      </b-col>
-    </b-form-row>
+    </b-row>
     <!-- END SIMPLE SEARCH -->
   </b-container>
   <b-container fluid class="px-0" v-else>
@@ -32,15 +29,21 @@
       </nav>
       END NAVBAR -->
       <b-container fluid class="rc px-0 py-1 bg-secondary">
-        <draggable v-model="model.values[outerindex].values" :options="{group: 'or', handle: '.draghandle', filter: '.nodrag', dragClass: 'sortable-drag'}" @start="onDragStart" @end="onDragEnd">
+        <draggable v-model="model.values[outerindex].values" :options="{group: 'or', handle: '.draghandle', filter: '.nodrag', dragClass: 'sortable-drag'}" @start="onDragStart" @end="onDragEnd"> 
           <b-container fluid class="px-1" v-for="(rule, innerindex) in model.values[outerindex].values" :key="innerindex">
             <b-row class="mx-auto isdrag">
               <b-col cols="12" class="bg-white rc">
                 <b-container fluid class="mx-0 px-0 py-1">
                   <span v-if="model.values.length > 1 || model.values[outerindex].values.length > 1" class="draghandle mr-2" v-b-tooltip.hover.right :title="$t('Click &amp; Drag statement to reorder')"><icon name="ellipsis-v"></icon></span>
-                  <b-form-select v-model="rule.field" :options="fields"></b-form-select>
+                  <b-button-group>
+                    <b-input-group-prepend is-text v-if="icon(rule)">
+                      <icon :name="icon(rule)"></icon>
+                    </b-input-group-prepend>
+                    <b-form-select v-model="rule.field" :options="fields"></b-form-select>
+                  </b-button-group>
                   <b-form-select v-model="rule.op" :options="operators(rule)"></b-form-select>
                   <b-form-input v-model="rule.value" type="text" v-if="isFieldType(substringValueType, rule)"></b-form-input>
+                  <pf-form-datetime v-model="rule.value" v-else-if="isFieldType(datetimeValueType, rule)" :config="{useCurrent: true}"></pf-form-datetime>
                   <b-form-select v-model.lazy="rule.value" :options="values(rule)" v-else-if="isFieldType(selectValueType, rule)"></b-form-select>
                   <b-button v-if="model.values.length > 1 || model.values[outerindex].values.length > 1 && drag === false" variant="link" class="nodrag float-right mt-1 mr-1" v-b-tooltip.hover.left :title="$t('Delete statement')" @click="removeStatement(outerindex, innerindex)"><icon name="trash-alt"></icon></b-button>
                 </b-container>
@@ -56,7 +59,7 @@
               <b-col cols="12" class="bg-white rc">
                 <b-container class="mx-0 px-1 py-1">
                   <a href="#" class="text-nowrap" @click="addInnerStatement(outerindex)">{{ $t('Add "or" statement') }}</a>
-                </b-container>
+                </b-container>  
               </b-col>
             </b-row>
           </b-container>
@@ -73,7 +76,7 @@
       <b-col cols="12" class="bg-secondary rc">
         <b-container class="mx-0 px-1 py-1">
           <a href="#" class="text-nowrap text-white" @click="addOuterStatement()">{{ $t('Add "and" statement') }}</a>
-        </b-container>
+        </b-container>  
       </b-col>
     </b-row>
     <!-- END ADVANCED SEARCH -->
@@ -89,11 +92,13 @@ import {
   pfConditionOperators as conditionOperators,
   pfSearchConditionValue as conditionValue
 } from '@/globals/pfSearch'
+import pfFormDatetime from '@/components/pfFormDatetime'
 
 export default {
   name: 'pf-search-boolean',
   components: {
-    draggable
+    draggable,
+    'pf-form-datetime': pfFormDatetime
   },
   props: {
     model: {
@@ -117,7 +122,8 @@ export default {
   data () {
     return {
       substringValueType: conditionValue.TEXT,
-      selectValueType: conditionValue.SELECT
+      selectValueType: conditionValue.SELECT,
+      datetimeValueType: conditionValue.DATETIME
     }
   },
   watch: {
@@ -157,6 +163,14 @@ export default {
       }
       return values
     },
+    icon (rule) {
+      let index = this.fields.findIndex(field => rule.field === field.value)
+      if (index >= 0) {
+        let field = this.fields[index]
+        return field.icon || undefined
+      }
+      return undefined
+    },
     isFieldType (type, rule) {
       let isType = false
       let index = this.fields.findIndex(field => rule.field === field.value)
@@ -183,7 +197,15 @@ export default {
       this.model.values.push({ op: 'or', values: [{ field: this.fields[0].value, op: null, value: null }] })
     },
     addInnerStatement (outerindex) {
-      this.model.values[outerindex].values.push({ field: this.fields[0].value, op: null, value: null })
+      let field = this.fields[0].value
+      let op = null
+      // repeat last `field` and `op` - if exists
+      if (this.model.values[outerindex].values.length > 0) {
+        let lastindex = this.model.values[outerindex].values.length - 1
+        field = this.model.values[outerindex].values[lastindex].field
+        op = this.model.values[outerindex].values[lastindex].op
+      }
+      this.model.values[outerindex].values.push({ field: field, op: op, value: null })
     },
     removeStatement (outerindex, innerindex) {
       if (this.model.values[outerindex].values.length === 1) {
@@ -239,5 +261,16 @@ export default {
 }
 .sortable-drag .nodrag {
   display: none;
+}
+/**
+ * The element pfFormDatetime uses a form-group block
+ * that causes a line-break.
+ */
+.form-inline .form-control {
+  width:auto;
+}
+.form-inline .form-group {
+  display: inline-block;
+  vertical-align: middle;
 }
 </style>

@@ -111,7 +111,10 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss" scoped>
+@import "../../../node_modules/bootstrap/scss/functions";
+@import "../../styles/variables";
+
 .bd-sidenav .navbar-collapse {
   background-color: rgba(0, 0, 0, 0.125);
 }
@@ -121,6 +124,10 @@ export default {
 .bd-sidenav .collapsed > svg {
   transform: rotate( -180deg );
   transition: transform 300ms ease;
+}
+.bd-sidenav .bd-toc-link:hover > svg {
+  color: $input-btn-hover-bg-color;
+  transition: all 300ms ease;
 }
 .bd-sidenav .bd-toc-link[role=button] {
   cursor: pointer;

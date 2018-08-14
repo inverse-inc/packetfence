@@ -238,12 +238,12 @@
 
       </b-tabs>
       <b-card-footer @mouseenter="$v.nodeContent.$touch()">
-        <b-button v-if="ifTab(['Edit'])" variant="primary" type="submit" :disabled="invalidForm"><icon name="circle-notch" spin v-show="isLoading"></icon> {{ $t('Save') }}</b-button>
-        <delete-button v-if="ifTab(['Edit'])" variant="danger" class="mr-3" :disabled="isLoading" :confirm="$t('Delete Node?')" @on-delete="deleteNode()">{{ $t('Delete') }}</delete-button>
-        <!-- <b-button variant="outline-secondary" type="cancel" @click="close">{{ $t('Close') }}</b-button> -->
-        <b-button v-if="ifTab(['Edit', 'Location'])" variant="outline-secondary" size="sm" @click="applyReevaluateAccess" :disabled="!canReevaluateAccess(node)">{{ $t('Reevaulate Access') }}</b-button>
-        <b-button v-if="ifTab(['Edit', 'Fingerbank'])" variant="outline-secondary" size="sm" @click="applyRefreshFingerbank">{{ $t('Refresh Fingerbank') }}</b-button>
-        <b-button v-if="ifTab(['Edit', 'Location'])" variant="outline-secondary" size="sm" @click="applyRestartSwitchport" :disabled="!canRestartSwitchport(node)">{{ $t('Restart Switch Port') }}</b-button>
+        <delete-button v-if="ifTab(['Edit'])" variant="outline-danger" class="mr-1" :disabled="isLoading" :confirm="$t('Delete Node?')" @on-delete="deleteNode()">{{ $t('Delete') }}</delete-button>
+        <b-button v-if="ifTab(['Edit'])" variant="outline-primary" class="mr-1" type="submit" :disabled="invalidForm"><icon name="circle-notch" spin v-show="isLoading"></icon> {{ $t('Save') }}</b-button>
+        <b-button class="mr-3" variant="outline-secondary" type="cancel" @click="close">{{ $t('Close') }}</b-button>
+        <b-button size="sm" v-if="ifTab(['Edit', 'Location'])" variant="outline-warning" class="mr-1" @click="applyReevaluateAccess" :disabled="!canReevaluateAccess(node)">{{ $t('Reevaulate Access') }}</b-button>
+        <b-button size="sm" v-if="ifTab(['Edit', 'Fingerbank'])" variant="outline-warning" class="mr-1" @click="applyRefreshFingerbank">{{ $t('Refresh Fingerbank') }}</b-button>
+        <b-button size="sm" v-if="ifTab(['Edit', 'Location'])" variant="outline-danger" class="mr-1" @click="applyRestartSwitchport" :disabled="!canRestartSwitchport(node)">{{ $t('Restart Switch Port') }}</b-button>
       </b-card-footer>
     </b-card>
   </b-form>
@@ -313,13 +313,13 @@ export default {
         {
           key: 'start_time',
           label: this.$i18n.t('Start Time'),
-          'class': 'text-nowrap'
+          class: 'text-nowrap'
         },
         {
           key: 'end_time',
           label: this.$i18n.t('End Time'),
           formatter: this.$options.filters.pfDate,
-          'class': 'text-nowrap'
+          class: 'text-nowrap'
         },
         {
           key: 'type',
@@ -342,13 +342,13 @@ export default {
         {
           key: 'start_time',
           label: this.$i18n.t('Start Time'),
-          'class': 'text-nowrap'
+          class: 'text-nowrap'
         },
         {
           key: 'end_time',
           label: this.$i18n.t('End Time'),
           formatter: this.$options.filters.pfDate,
-          'class': 'text-nowrap'
+          class: 'text-nowrap'
         }
       ],
       violationFields: [
@@ -359,17 +359,17 @@ export default {
         {
           key: 'start_date',
           label: this.$i18n.t('Start Time'),
-          'class': 'text-nowrap'
+          class: 'text-nowrap'
         },
         {
           key: 'release_date',
           label: this.$i18n.t('Release Date'),
-          'class': 'text-nowrap'
+          class: 'text-nowrap'
         },
         {
           key: 'status',
           label: this.$i18n.t('Status'),
-          'class': 'text-nowrap'
+          class: 'text-nowrap'
         }
       ],
       dhcpOption82Fields: [
@@ -377,7 +377,7 @@ export default {
           key: 'created_at',
           label: this.$i18n.t('Created At'),
           formatter: this.$options.filters.pfDate,
-          'class': 'text-nowrap'
+          class: 'text-nowrap'
         },
         {
           key: 'vlan',
@@ -386,12 +386,12 @@ export default {
         {
           key: 'switch_id',
           label: this.$i18n.t('Switch IP'),
-          'class': 'text-nowrap'
+          class: 'text-nowrap'
         },
         {
           key: 'option82_switch',
           label: this.$i18n.t('Switch MAC'),
-          'class': 'text-nowrap'
+          class: 'text-nowrap'
         },
         {
           key: 'port',

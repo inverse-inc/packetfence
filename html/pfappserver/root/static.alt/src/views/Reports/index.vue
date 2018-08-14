@@ -10,7 +10,10 @@
                         <b-nav vertical class="bd-sidenav" v-for="(reportCategory, reportCategoryIndex) in reportCategories" :key="reportCategory.name">
                             <hr v-if="reportCategoryIndex >= 1" />
                             <div class="bd-toc-link" v-t="reportCategory.name"></div>
-                            <b-nav-item @click.stop v-for="report in reportCategory.reports" :key="report.name" :to="'/reports/table/'+report.path" exact>{{ $t(report.name) }}</b-nav-item>
+                            <b-nav-item v-for="report in reportCategory.reports" :key="report.name" :to="'/reports/table/'+report.tabs[0].path" @click.stop exact>
+                              {{ $t(report.name) }}
+                              <icon v-if="report.chart" class="float-right mt-1" name="chart-pie"></icon>
+                            </b-nav-item>
                         </b-nav>
                     </div>
                 </b-collapse>

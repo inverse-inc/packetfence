@@ -59,16 +59,14 @@
     </div>
     <!-- Simple Search Mode with Search Fields -->
     <b-form inline @submit.prevent="onSubmit" @reset.prevent="onReset" v-else-if="quickWithFields">
-      <b-container class="px-0">
-      <b-form-row class="align-items-center justify-content-end">
-        <b-col class="px-0" md="auto">
+      <b-form-row class="align-items-center">
+        <b-col cols="auto" class="px-0 mr-auto">
           <pf-search-boolean :model="condition" :fields="fields" :store="store" :advancedMode="false"/>
         </b-col>
         <b-col align="right" class="flex-grow-0">
           <b-button type="submit" variant="primary">{{ $t('Search') }}</b-button>
         </b-col>
       </b-form-row>
-      </b-container>
     </b-form>
     <!-- Quick Search Mode -->
     <b-form @submit.prevent="onSubmit" @reset.prevent="onReset" v-else>
