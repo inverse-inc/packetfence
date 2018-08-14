@@ -183,8 +183,6 @@ export default {
       }
     },
     toggle (event) {
-      event.preventDefault()
-      event.stopPropagation()
       let picker = this.$refs.datetime.dp
       picker.toggle()
     }
