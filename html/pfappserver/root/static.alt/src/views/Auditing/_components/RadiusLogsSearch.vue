@@ -141,7 +141,10 @@ export default {
           key: 'created_at',
           label: this.$i18n.t('Created At'),
           sortable: true,
-          visible: true
+          visible: true,
+          formatter: (value, key, item) => {
+            return (value === '0000-00-00 00:00:00') ? '' : value
+          }
         }
       ]
     }
