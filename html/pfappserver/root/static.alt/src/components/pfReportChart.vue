@@ -131,7 +131,7 @@ export default {
           zip = zip.slice(0, this.chartSizeLimit)
           // push [sum(val), 'Other']
           zip.push([other.reduce((sum, val) => sum + val), this.$i18n.t('Other')])
-          // "Paint It, Black" - Rolling Stones
+          // "Paint It Black" - Rolling Stones
           colors[this.chartSizeLimit] = '#000000'
           // unzip
           values = zip.map(zip => zip[0])
