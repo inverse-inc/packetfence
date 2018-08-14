@@ -1,5 +1,6 @@
 <template>
   <b-card no-body>
+    <pf-progress :active="isLoading"></pf-progress>
     <b-card-header>
       <div class="float-right"><toggle-button v-model="advancedMode" :sync="true">{{ $t('Advanced') }}</toggle-button></div>
       <h4 class="mb-0" v-t="'Search Nodes'"></h4>
@@ -115,6 +116,7 @@
 
 <script>
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import pfProgress from '@/components/pfProgress'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
 import pfMixinSelectable from '@/components/pfMixinSelectable'
 import pfFingerbankScore from '@/components/pfFingerbankScore'
@@ -127,6 +129,7 @@ export default {
     pfMixinSearchable
   ],
   components: {
+    'pf-progress': pfProgress,
     'pf-fingerbank-score': pfFingerbankScore
   },
   props: {

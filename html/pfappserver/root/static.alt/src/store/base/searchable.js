@@ -106,8 +106,8 @@ export default class SearchableStore {
         }
         let apiPromise = state.searchQuery ? _this.api.search(Object.assign(body, {query: state.searchQuery})) : _this.api.all(body)
         if (state.searchStatus !== types.LOADING) {
+          commit('SEARCH_REQUEST')
           return new Promise((resolve, reject) => {
-            commit('SEARCH_REQUEST')
             apiPromise.then(response => {
               commit('SEARCH_SUCCESS', response)
               resolve(response)
