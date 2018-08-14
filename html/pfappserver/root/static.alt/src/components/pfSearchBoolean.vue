@@ -1,19 +1,17 @@
 <template>
   <b-container fluid class="px-0" v-if="!advancedMode">
     <!-- BEGIN SIMPLE SEARCH -->
-    <b-container fluid class="rc px-1 py-1 bg-light">
-      <b-row class="mx-auto">
-        <b-col cols="12" class="bg-white rc">
-          <b-container fluid class="mx-0 px-0 py-1">
-            <b-form-select v-model="model.values[0].values[0].field" :options="fields"></b-form-select>
-            <b-form-select v-model="model.values[0].values[0].op" :options="operators(model.values[0].values[0])"></b-form-select>
-            <b-form-input v-model="model.values[0].values[0].value" type="text" v-if="isFieldType(substringValueType, model.values[0].values[0])"></b-form-input>
-            <pf-form-datetime v-model="model.values[0].values[0].value" v-else-if="isFieldType(datetimeValueType, model.values[0].values[0])" :config="{useCurrent: true}"></pf-form-datetime>
-            <b-form-select v-model.lazy="model.values[0].values[0].value" :options="values(model.values[0].values[0])" v-else-if="isFieldType(selectValueType, model.values[0].values[0])"></b-form-select>
-          </b-container>
-        </b-col>
-      </b-row>
-    </b-container>
+    <b-row class="mx-auto">
+      <b-col cols="12" class="bg-white rc">
+        <b-container fluid class="mx-0 px-0 py-1">
+          <b-form-select v-model="model.values[0].values[0].field" :options="fields"></b-form-select>
+          <b-form-select v-model="model.values[0].values[0].op" :options="operators(model.values[0].values[0])"></b-form-select>
+          <b-form-input v-model="model.values[0].values[0].value" type="text" v-if="isFieldType(substringValueType, model.values[0].values[0])"></b-form-input>
+          <pf-form-datetime v-model="model.values[0].values[0].value" v-else-if="isFieldType(datetimeValueType, model.values[0].values[0])" :config="{useCurrent: true}"></pf-form-datetime>
+          <b-form-select v-model.lazy="model.values[0].values[0].value" :options="values(model.values[0].values[0])" v-else-if="isFieldType(selectValueType, model.values[0].values[0])"></b-form-select>
+        </b-container>
+      </b-col>
+    </b-row>
     <!-- END SIMPLE SEARCH -->
   </b-container>
   <b-container fluid class="px-0" v-else>
@@ -233,30 +231,33 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+@import "../../node_modules/bootstrap/scss/functions";
+@import "../styles/variables";
+
 .rc,
 .rc-t,
 .rc-l,
 .rc-tl {
-  border-top-left-radius: 0.5em;
+  border-top-left-radius: $input-border-radius;
 }
 .rc,
 .rc-t,
 .rc-r,
 .rc-tr {
-  border-top-right-radius: 0.5em;
+  border-top-right-radius: $input-border-radius;
 }
 .rc,
 .rc-b,
 .rc-r,
 .rc-br {
-  border-bottom-right-radius: 0.5em;
+  border-bottom-right-radius: $input-border-radius;
 }
 .rc,
 .rc-b
 .rc-l,
 .rc-bl {
-  border-bottom-left-radius: 0.5em;
+  border-bottom-left-radius: $input-border-radius;
 }
 .sortable-drag .nodrag {
   display: none;
