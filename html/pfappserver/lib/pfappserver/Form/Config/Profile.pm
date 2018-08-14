@@ -18,6 +18,7 @@ extends 'pfappserver::Base::Form';
 with 'pfappserver::Form::Config::ProfileCommon';
 
 use pf::config;
+use pf::condition_parser;
 use List::MoreUtils qw(uniq);
 
 =head1 FIELDS
@@ -97,11 +98,18 @@ sub update_fields {
 sub validate {
     my ($self) = @_;
     my $value = $self->value;
-    if (@{$value->{filter}} == 0 && !exists $value->{advanced_filter} ) {
+    my $advanced_filter = $value->{advanced_filter};
+    if (@{$value->{filter}} == 0 && !defined $advanced_filter) {
         $self->field('filter')->add_error("A filter or an advanced filter must be specified");
         $self->field('advanced_filter')->add_error("A filter or an advanced filter must be specified");
     }
-    return 1;
+
+    if (defined $advanced_filter) {
+        my ($conditions, $err) = pf::condition_parser::parse_condition_string($advanced_filter);
+        if ($err) {
+            $self->field('advanced_filter')->add_error("Advanced filter is invalid");
+        }
+    }
 }
 
 
