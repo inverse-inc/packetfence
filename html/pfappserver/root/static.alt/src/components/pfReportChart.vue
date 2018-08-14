@@ -218,7 +218,10 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+@import "../../node_modules/bootstrap/scss/functions";
+@import "../styles/variables";
+
 /**
  * double-clicking legend causes user selection, disable
  */
@@ -229,9 +232,9 @@ export default {
  * Add btn-primary color(s) on hover
  */
 .btn-group[rel=periodButtonGroup] button:hover {
-  color: #fff;
-  background-color: #007bff;
-  border-color: #007bff;
+  color: $input-btn-hover-text-color;
+  background-color: $input-btn-hover-bg-color;
+  border-color: $input-btn-hover-bg-color;
 }
 </style>
 
