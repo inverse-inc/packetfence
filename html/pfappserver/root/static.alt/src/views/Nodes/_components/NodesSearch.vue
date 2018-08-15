@@ -117,6 +117,7 @@
 <script>
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import pfProgress from '@/components/pfProgress'
+import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
 import pfMixinSelectable from '@/components/pfMixinSelectable'
 import pfFingerbankScore from '@/components/pfFingerbankScore'
@@ -373,27 +374,21 @@ export default {
           label: this.$i18n.t('Detected Date'),
           sortable: true,
           visible: false,
-          formatter: (value, key, item) => {
-            return (value === '0000-00-00 00:00:00') ? '' : value
-          }
+          formatter: formatter.datetimeIgnoreZero
         },
         {
           key: 'regdate',
           label: this.$i18n.t('Registration Date'),
           sortable: true,
           visible: false,
-          formatter: (value, key, item) => {
-            return (value === '0000-00-00 00:00:00') ? '' : value
-          }
+          formatter: formatter.datetimeIgnoreZero
         },
         {
           key: 'unregdate',
           label: this.$i18n.t('Unregistration Date'),
           sortable: true,
           visible: false,
-          formatter: (value, key, item) => {
-            return (value === '0000-00-00 00:00:00') ? '' : value
-          }
+          formatter: formatter.datetimeIgnoreZero
         },
         {
           key: 'computername',
@@ -478,9 +473,7 @@ export default {
           label: this.$i18n.t('Role'),
           sortable: true,
           visible: true,
-          formatter: (value, key, item) => {
-            return this.roles.filter(role => role.category_id === item.category_id).map(role => role.name)
-          }
+          formatter: formatter.categoryId
         },
         {
           key: 'locationlog.connection_type',
@@ -535,9 +528,7 @@ export default {
           label: this.$i18n.t('Bypass Role'),
           sortable: true,
           visible: false,
-          formatter: (value, key, item) => {
-            return this.roles.filter(role => role.category_id === item.bypass_role_id).map(role => role.name)
-          }
+          formatter: formatter.bypassRoleId
         },
         {
           key: 'notes',
@@ -556,18 +547,14 @@ export default {
           label: this.$i18n.t('Last ARP'),
           sortable: true,
           visible: false,
-          formatter: (value, key, item) => {
-            return (value === '0000-00-00 00:00:00') ? '' : value
-          }
+          formatter: formatter.datetimeIgnoreZero
         },
         {
           key: 'last_dhcp',
           label: this.$i18n.t('Last DHCP'),
           sortable: true,
           visible: false,
-          formatter: (value, key, item) => {
-            return (value === '0000-00-00 00:00:00') ? '' : value
-          }
+          formatter: formatter.datetimeIgnoreZero
         },
         {
           key: 'machine_account',
@@ -593,11 +580,7 @@ export default {
           sortable: true,
           visible: false,
           class: 'text-nowrap',
-          formatter: (value, key, item) => {
-            if (!item['violation.open_vid']) return null
-            const uVids = [...new Set(item['violation.open_vid'].split(',').filter(item => item))]
-            return this.violations.filter(violation => uVids.includes(violation.id)).map(violation => violation.desc).join(', ')
-          }
+          formatter: formatter.violationIdsToDescCsv
         },
         {
           key: 'violation.open_count',
@@ -612,11 +595,7 @@ export default {
           sortable: true,
           visible: false,
           class: 'text-nowrap',
-          formatter: (value, key, item) => {
-            if (!item['violation.close_vid']) return null
-            const uVids = [...new Set(item['violation.close_vid'].split(',').filter(item => item))]
-            return this.violations.filter(violation => uVids.includes(violation.id)).map(violation => violation.desc).join(', ')
-          }
+          formatter: formatter.violationIdsToDescCsv
         },
         {
           key: 'violation.close_count',

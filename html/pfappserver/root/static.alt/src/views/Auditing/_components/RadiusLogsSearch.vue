@@ -46,7 +46,8 @@
 </template>
 
 <script>
-import { pfSearchConditionType as attributeType } from '@/globals/pfSearch'
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
 import pfSearch from '@/components/pfSearch'
 import ToggleButton from '@/components/ToggleButton'
@@ -91,12 +92,12 @@ export default {
         {
           value: 'user_name',
           text: 'Username',
-          types: [attributeType.SUBSTRING]
+          types: [conditionType.SUBSTRING]
         },
         {
           value: 'mac',
           text: 'MAC Address',
-          types: [attributeType.SUBSTRING]
+          types: [conditionType.SUBSTRING]
         }
       ],
       columns: [
@@ -142,9 +143,7 @@ export default {
           label: this.$i18n.t('Created At'),
           sortable: true,
           visible: true,
-          formatter: (value, key, item) => {
-            return (value === '0000-00-00 00:00:00') ? '' : value
-          }
+          formatter: formatter.datetimeIgnoreZero
         }
       ]
     }
