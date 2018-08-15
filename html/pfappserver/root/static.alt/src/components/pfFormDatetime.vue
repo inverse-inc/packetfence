@@ -12,6 +12,7 @@
  *    disabled: boolean true/false to disable/enable input
  *    min: minimum datetime string, Date or moment
  *    max: maximum datetime String, Date or moment
+ *    moments: button array of +/- seconds from now (see: https://momentjs.com/docs/#/manipulating/add/)
  */
  <template>
   <b-form-group :label-cols="labelCols" :label="$t(label)" :state="isValid()" :invalid-feedback="$t(invalidFeedback)" horizontal>
@@ -22,6 +23,9 @@
       <date-picker ref="datetime" v-model="inputValue" :config="datetimeConfig" :placeholder="placeholder" @input.native="validate()"
         :state="isValid()"></date-picker>
       <b-input-group-append>
+        <b-button-group rel="moments" v-b-tooltip.hover.top.d300 :title="$t('[CTRL] + [CLICK] to cumulate')">
+          <b-button v-if="moments.length > 0" v-for="(moment, index) in moments" :key="index" variant="light" @click="onClickMoment($event, index)" v-b-tooltip.hover.bottom.d300 :title="momentTooltip(index)">{{ momentLabel(index) }}</b-button>
+        </b-button-group>
         <div class="input-group-text" @click.stop="toggle($event)"><icon name="calendar-alt" variant="secondary"></icon></div>
       </b-input-group-append>
     </b-input-group>
@@ -33,6 +37,10 @@
 import {createDebouncer} from 'promised-debounce'
 import datePicker from 'vue-bootstrap-datetimepicker'
 import 'pc-bootstrap4-datetimepicker/build/css/bootstrap-datetimepicker.css'
+import moment from 'moment'
+
+// even indexes (0, 2, ...) must be full names, odd (1, 3, ...) indexes must be abbreviations
+const validMomentKeys = ['years', 'y', 'quarters', 'Q', 'months', 'M', 'weeks', 'w', 'days', 'd', 'hours', 'h', 'minutes', 'm', 'seconds', 's', 'milliseconds', 'ms']
 
 export default {
   name: 'pf-form-input',
@@ -85,6 +93,9 @@ export default {
     },
     max: {
       type: String
+    },
+    moments: {
+      type: Array
     }
   },
   data () {
@@ -185,6 +196,53 @@ export default {
     toggle (event) {
       let picker = this.$refs.datetime.dp
       picker.toggle()
+    },
+    momentTooltip (index) {
+      let [amount, key] = this.moments[index].split(' ', 2)
+      amount = parseInt(amount)
+      if (validMomentKeys.includes(key)) {
+        let i = validMomentKeys.indexOf(key)
+        if (i % 2) {
+          // is odd, shift index left, use full key name
+          i -= 1
+        }
+        let text = validMomentKeys[i]
+        if ([-1, 1].includes(amount)) {
+          // singular, drop trailing 's'
+          text = text.slice(0, -1)
+        }
+        if (amount < 0) {
+          // make absolute
+          amount = 0 - amount
+          text += ' ago'
+        } else {
+          text += ' from now'
+        }
+        return amount.toString() + ' ' + this.$i18n.t(text)
+      }
+      return null
+    },
+    momentLabel (index) {
+      let [amount, key] = this.moments[index].split(' ', 2)
+      if (validMomentKeys.includes(key)) {
+        let i = validMomentKeys.indexOf(key)
+        if (i % 2 === 0) {
+          // is even, shift index right, use abbreviated key name
+          i += 1
+        }
+        let abbr = validMomentKeys[i]
+        return ((amount > 0) ? '+' : '') + amount.toString() + abbr
+      }
+      return null
+    },
+    onClickMoment (event, index) {
+      let [amount, key] = this.moments[index].split(' ', 2)
+      amount = parseInt(amount)
+      // allow [CTRL]+[CLICK] for cumulative change
+      const base = (event.ctrlKey) ? this.inputValue || undefined : undefined
+      if (validMomentKeys.includes(key)) {
+        this.inputValue = moment(base).add(amount, key).format('YYYY-MM-DD HH:mm:ss')
+      }
     }
   },
   watch: {
@@ -204,6 +262,17 @@ export default {
 </script>
 
 <style lang="scss">
+@import "../../node_modules/bootstrap/scss/functions";
+@import "../styles/variables";
+
+/**
+ * Add btn-primary color(s) on hover
+ */
+btn-group[rel=moments] button:hover {
+  color: $input-btn-hover-text-color;
+  background-color: $input-btn-hover-bg-color;
+  border-color: $input-btn-hover-bg-color;
+}
 /**
  * vue-bootstrap-datetimepicker only supports fontawesome icons,
  * define base64 encoded icon content and style dirrectly.
