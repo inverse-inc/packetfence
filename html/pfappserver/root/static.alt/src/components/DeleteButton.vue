@@ -10,13 +10,13 @@
 
     <!-- LTR (Left To Right) BEGIN -->
     <b-button 
-      v-if="interrupt && mode === 'rtl'"
+      v-if="interrupt && mode === 'ltr'"
       type="button"
       variant="outline-secondary"
       disabled
       >{{ confirm }}</b-button>
     <b-button 
-      v-if="interrupt && mode === 'rtl'"
+      v-if="interrupt && mode === 'ltr'"
       type="button"
       variant="warning"
       @click.stop="stopInterrupt($event, 'a')"
@@ -24,7 +24,7 @@
       @mouseover="startInterrupt($event)"
       >{{ $t('Cancel') }}</b-button>
     <b-button 
-      v-if="interrupt && mode === 'rtl'"
+      v-if="interrupt && mode === 'ltr'"
       type="button"
       variant="danger"
       @click.stop="onDelete($event)"
@@ -35,7 +35,7 @@
 
     <!-- RTL (Right To Left) BEGIN -->
     <b-button 
-      v-if="interrupt && mode === 'ltr'"
+      v-if="interrupt && mode === 'rtl'"
       type="button"
       variant="danger"
       @click.stop="onDelete($event)"
@@ -43,7 +43,7 @@
       @mouseover="startInterrupt($event)"
       >{{ $t('Delete') }}</b-button>
     <b-button 
-      v-if="interrupt && mode === 'ltr'"
+      v-if="interrupt && mode === 'rtl'"
       type="button"
       variant="warning"
       @click.stop="stopInterrupt($event)"
@@ -51,7 +51,7 @@
       @mouseover="startInterrupt($event)"
       >{{ $t('Cancel') }}</b-button>
     <b-button 
-      v-if="interrupt && mode === 'ltr'"
+      v-if="interrupt && mode === 'rtl'"
       type="button"
       variant="outline-secondary"
       disabled
