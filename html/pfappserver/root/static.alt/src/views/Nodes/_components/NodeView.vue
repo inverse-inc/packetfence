@@ -21,15 +21,8 @@
               <b-form-group horizontal label-cols="3" :label="$t('Role')">
                 <b-form-select v-model="nodeContent.category_id" :options="rolesWithNull"></b-form-select>
              </b-form-group>
-              <b-form-group horizontal label-cols="3" :label="$t('Unregistration')">
-                <b-form-row>
-                  <b-col>
-                    <b-form-input type="date" v-model="node.unreg_date"/>
-                  </b-col>
-                  <b-col>
-                    <b-form-input type="time" v-model="node.unreg_time"/>
-                  </b-col>
-                </b-form-row>
+             <b-form-group horizontal label-cols="3" :label="$t('Unregistration')">
+                <pf-form-datetime v-model="node.unregdate" :moments="['1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"></pf-form-datetime>
               </b-form-group>
               <b-form-group horizontal label-cols="3" :label="$t('Notes')">
                 <b-form-textarea v-model="nodeContent.notes" rows="4" max-rows="6"></b-form-textarea>
@@ -252,6 +245,7 @@
 import DeleteButton from '@/components/DeleteButton'
 import ToggleButton from '@/components/ToggleButton'
 import pfFingerbankScore from '@/components/pfFingerbankScore'
+import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRow from '@/components/pfFormRow'
 import { pfEapType as eapType } from '@/globals/pfEapType'
@@ -271,6 +265,7 @@ export default {
     'delete-button': DeleteButton,
     'toggle-button': ToggleButton,
     'pf-fingerbank-score': pfFingerbankScore,
+    'pf-form-datetime': pfFormDatetime,
     'pf-form-row': pfFormRow,
     'pf-form-input': pfFormInput
   },
