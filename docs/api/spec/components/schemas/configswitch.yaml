@@ -6,6 +6,18 @@ ConfigSwitch:
     ExternalPortalEnforcement:
       description: Enable external portal enforcement when supported by network equipment
       type: string
+    REJECTAccessList:
+      description: REJECT
+      type: string
+    REJECTRole:
+      description: REJECT
+      type: string
+    REJECTUrl:
+      description: REJECT
+      type: string
+    REJECTVlan:
+      description: REJECT
+      type: string
     RoleMap:
       description: Role by Switch Role
       type: string
@@ -119,14 +131,50 @@ ConfigSwitch:
     deauthMethod:
       description: Deauthentication Method
       type: string
+    defaultAccessList:
+      description: default
+      type: string
+    defaultRole:
+      description: default
+      type: string
+    defaultUrl:
+      description: default
+      type: string
+    defaultVlan:
+      description: default
+      type: string
     description:
       description: Description
       type: string
     disconnectPort:
       description: For Disconnect request, if we have to send to another port
       type: integer
+    gamingAccessList:
+      description: gaming
+      type: string
+    gamingRole:
+      description: gaming
+      type: string
+    gamingUrl:
+      description: gaming
+      type: string
+    gamingVlan:
+      description: gaming
+      type: string
     group:
       description: Changing the group requires to save to see the new default values
+      type: string
+    guestAccessList:
+      description: guest
+      type: string
+    guestRole:
+      description: guest
+      type: string
+    guestUrl:
+      description: guest
+      type: string
+    guestVlan:
+      description: guest
       type: string
     id:
       description: IP Address/MAC Address/Range (CIDR)
@@ -225,6 +273,18 @@ ConfigSwitch:
     useCoA:
       description: Use CoA when available to deauthenticate the user. When disabled,
         RADIUS Disconnect will be used instead if it is available.
+      type: string
+    voiceAccessList:
+      description: voice
+      type: string
+    voiceRole:
+      description: voice
+      type: string
+    voiceUrl:
+      description: voice
+      type: string
+    voiceVlan:
+      description: voice
       type: string
     wsPwd:
       description: Password

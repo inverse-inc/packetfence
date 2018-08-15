@@ -28,6 +28,12 @@ ConfigPortalModule:
       description:
         description: The description that will be displayed to users
         type: string
+      fields_to_save:
+        description: These fields will be saved through the registration process
+        items:
+          description: These fields will be saved through the registration process
+          type: string
+        type: array
       id:
         description: Identifier
         type: string
@@ -89,6 +95,12 @@ ConfigPortalModule:
       description:
         description: The description that will be displayed to users
         type: string
+      fields_to_save:
+        description: These fields will be saved through the registration process
+        items:
+          description: These fields will be saved through the registration process
+          type: string
+        type: array
       id:
         description: Identifier
         type: string
@@ -143,6 +155,12 @@ ConfigPortalModule:
       description:
         description: The description that will be displayed to users
         type: string
+      fields_to_save:
+        description: These fields will be saved through the registration process
+        items:
+          description: These fields will be saved through the registration process
+          type: string
+        type: array
       id:
         description: Identifier
         type: string
@@ -194,6 +212,12 @@ ConfigPortalModule:
       description:
         description: The description that will be displayed to users
         type: string
+      fields_to_save:
+        description: These fields will be saved through the registration process
+        items:
+          description: These fields will be saved through the registration process
+          type: string
+        type: array
       id:
         description: Identifier
         type: string
@@ -245,6 +269,12 @@ ConfigPortalModule:
       description:
         description: The description that will be displayed to users
         type: string
+      fields_to_save:
+        description: These fields will be saved through the registration process
+        items:
+          description: These fields will be saved through the registration process
+          type: string
+        type: array
       id:
         description: Identifier
         type: string
@@ -334,6 +364,12 @@ ConfigPortalModule:
       description:
         description: The description that will be displayed to users
         type: string
+      fields_to_save:
+        description: These fields will be saved through the registration process
+        items:
+          description: These fields will be saved through the registration process
+          type: string
+        type: array
       id:
         description: Identifier
         type: string
@@ -404,6 +440,12 @@ ConfigPortalModule:
       description:
         description: The description that will be displayed to users
         type: string
+      fields_to_save:
+        description: These fields will be saved through the registration process
+        items:
+          description: These fields will be saved through the registration process
+          type: string
+        type: array
       forced_sponsor:
         description: Defines the sponsor email used. Leave empty so that the user
           has to specify a sponsor.
@@ -459,6 +501,12 @@ ConfigPortalModule:
       description:
         description: The description that will be displayed to users
         type: string
+      fields_to_save:
+        description: These fields will be saved through the registration process
+        items:
+          description: These fields will be saved through the registration process
+          type: string
+        type: array
       id:
         description: Identifier
         type: string
@@ -513,6 +561,12 @@ ConfigPortalModule:
       description:
         description: The description that will be displayed to users
         type: string
+      fields_to_save:
+        description: These fields will be saved through the registration process
+        items:
+          description: These fields will be saved through the registration process
+          type: string
+        type: array
       id:
         description: Identifier
         type: string
@@ -567,6 +621,12 @@ ConfigPortalModule:
       description:
         description: The description that will be displayed to users
         type: string
+      fields_to_save:
+        description: These fields will be saved through the registration process
+        items:
+          description: These fields will be saved through the registration process
+          type: string
+        type: array
       id:
         description: Identifier
         type: string
@@ -738,6 +798,12 @@ ConfigPortalModule:
       description:
         description: The description that will be displayed to users
         type: string
+      fields_to_save:
+        description: These fields will be saved through the registration process
+        items:
+          description: These fields will be saved through the registration process
+          type: string
+        type: array
       id:
         description: Identifier
         type: string
@@ -786,6 +852,12 @@ ConfigPortalModule:
       description:
         description: The description that will be displayed to users
         type: string
+      fields_to_save:
+        description: These fields will be saved through the registration process
+        items:
+          description: These fields will be saved through the registration process
+          type: string
+        type: array
       id:
         description: Identifier
         type: string
@@ -837,6 +909,12 @@ ConfigPortalModule:
       description:
         description: The description that will be displayed to users
         type: string
+      fields_to_save:
+        description: These fields will be saved through the registration process
+        items:
+          description: These fields will be saved through the registration process
+          type: string
+        type: array
       id:
         description: Identifier
         type: string
@@ -891,6 +969,12 @@ ConfigPortalModule:
       description:
         description: The description that will be displayed to users
         type: string
+      fields_to_save:
+        description: These fields will be saved through the registration process
+        items:
+          description: These fields will be saved through the registration process
+          type: string
+        type: array
       id:
         description: Identifier
         type: string
@@ -932,6 +1016,12 @@ ConfigPortalModule:
       description:
         description: The description that will be displayed to users
         type: string
+      fields_to_save:
+        description: These fields will be saved through the registration process
+        items:
+          description: These fields will be saved through the registration process
+          type: string
+        type: array
       id:
         description: Identifier
         type: string
@@ -1031,6 +1121,12 @@ ConfigPortalModule:
       description:
         description: The description that will be displayed to users
         type: string
+      fields_to_save:
+        description: These fields will be saved through the registration process
+        items:
+          description: These fields will be saved through the registration process
+          type: string
+        type: array
       id:
         description: Identifier
         type: string
@@ -1085,6 +1181,12 @@ ConfigPortalModule:
       description:
         description: The description that will be displayed to users
         type: string
+      fields_to_save:
+        description: These fields will be saved through the registration process
+        items:
+          description: These fields will be saved through the registration process
+          type: string
+        type: array
       id:
         description: Identifier
         type: string
@@ -1212,6 +1314,12 @@ ConfigPortalModule:
       description:
         description: The description that will be displayed to users
         type: string
+      fields_to_save:
+        description: These fields will be saved through the registration process
+        items:
+          description: These fields will be saved through the registration process
+          type: string
+        type: array
       id:
         description: Identifier
         type: string
@@ -1263,6 +1371,12 @@ ConfigPortalModule:
       description:
         description: The description that will be displayed to users
         type: string
+      fields_to_save:
+        description: These fields will be saved through the registration process
+        items:
+          description: These fields will be saved through the registration process
+          type: string
+        type: array
       id:
         description: Identifier
         type: string
@@ -1292,19 +1406,6 @@ ConfigPortalModule:
     - landing_template
     type: object
   - properties:
-      actions:
-        description: Actions
-        items:
-          description: Action
-          properties:
-            arguments:
-              description: Arguments
-              type: string
-            type:
-              description: Type
-              type: string
-          type: object
-        type: array
       custom_fields:
         description: The additionnal fields that should be required for registration
         items:
@@ -1314,12 +1415,21 @@ ConfigPortalModule:
       description:
         description: The description that will be displayed to users
         type: string
+      fields_to_save:
+        description: These fields will be saved through the registration process
+        items:
+          description: These fields will be saved through the registration process
+          type: string
+        type: array
       id:
         description: Identifier
         type: string
       source_id:
         description: The sources to use in the module. If no sources are specified,
           all the sources on the Connection Profile will be used
+        type: string
+      template:
+        description: The template to use
         type: string
       type:
         description: Type
@@ -1387,6 +1497,12 @@ ConfigPortalModule:
       description:
         description: The description that will be displayed to users
         type: string
+      fields_to_save:
+        description: These fields will be saved through the registration process
+        items:
+          description: These fields will be saved through the registration process
+          type: string
+        type: array
       id:
         description: Identifier
         type: string

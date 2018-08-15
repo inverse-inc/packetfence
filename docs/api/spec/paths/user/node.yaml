@@ -32,6 +32,7 @@
         content:
           application/json:
             schema:
+              description: Item
               properties:
                 item:
                   $ref: '#/components/schemas/UsersNode'
@@ -58,7 +59,6 @@
         application/json:
           schema:
             $ref: '#/components/schemas/UsersNode'
-      required: '1'
     responses:
       '200':
         $ref: '#/components/responses/Message'
@@ -83,7 +83,6 @@
         application/json:
           schema:
             $ref: '#/components/schemas/UsersNode'
-      required: '1'
     responses:
       '200':
         $ref: '#/components/responses/Message'

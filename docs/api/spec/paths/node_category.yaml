@@ -13,6 +13,7 @@
         content:
           application/json:
             schema:
+              description: Item
               properties:
                 item:
                   $ref: '#/components/schemas/NodeCategory'

@@ -8,5 +8,4 @@ NodeCategory:
       type: string
     notes:
       type: string
-  required: []
   type: object

@@ -15,6 +15,7 @@
           application/json:
             schema:
               $ref: '#/components/schemas/RadiusAuditLogsList'
+        description: List
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':

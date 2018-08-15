@@ -172,13 +172,13 @@ The OpenAPI Operation Repsonses for the get action
 
 sub getResponses {
     my ($self, $scope, $c, $m, $a) = @_;
-    my @paths = split('/', $a->{path});
     return {
         "200" => {
             description => "Get item",
             content => {
                 "application/json" => {
                     schema => {
+                        description => "Item",
                         properties => {
                             item => {
                                 "\$ref" => "#" . $self->schemaItemPath($c),
@@ -298,6 +298,7 @@ sub listResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
         "200" => {
+            description => "List",
             content => {
                 "application/json" => {
                     schema => {
@@ -364,7 +365,6 @@ sub updateRequestBody {
                 }
             }
         },
-        "required" => "1"
     };
 }
 
@@ -417,9 +417,12 @@ generate Item Schema
 
 sub generateItemSchema {
     my ($self, $controller, $actions) = @_;
+    my $required = $self->itemRequired($controller, $actions);
     return {
         properties => $self->itemProperies($controller, $actions),
-        required => $self->itemRequired($controller, $actions),
+        (
+            @$required != 0 ? ( required => $required) : (),
+        ),
         type => 'object'
     };
 }
@@ -481,7 +484,8 @@ sub generateListSchema {
                         "items" => {
                             "\$ref" => "#" . $self->schemaItemPath($controller),
                         },
-                        "type" => "array"
+                        "type" => "array",
+                        "description" => "Items",
                     }
                 },
                 "type" => "object"

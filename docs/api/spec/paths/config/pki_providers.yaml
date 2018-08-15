@@ -10,6 +10,7 @@
           application/json:
             schema:
               $ref: '#/components/schemas/ConfigPkiProvidersList'
+        description: List
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':

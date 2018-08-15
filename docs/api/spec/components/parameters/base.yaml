@@ -49,13 +49,6 @@ sort:
       type: string
   description: A list of fields to sort on along with the ordering way (ASC or DESC).
 
-search_params:
-  - $ref: '#/components/parameters/cursor'
-  - $ref: '#/components/parameters/limit'
-  - $ref: '#/components/parameters/search_query'
-  - $ref: '#/components/parameters/fields'
-  - $ref: '#/components/parameters/sort'
-
 local:
   in: query
   name: local

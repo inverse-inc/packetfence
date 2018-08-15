@@ -2,7 +2,6 @@ DhcpMacIp:
     type: object
     description: The schema used when returning a DHCP MAC address and IPv4 address pair
     properties:
-      description: A MAC address and IPv4 address pair
       mac:
           type: string
           description: The MAC address

@@ -12,5 +12,4 @@ ApiUser:
       type: string
     valid_from:
       type: string
-  required: []
   type: object

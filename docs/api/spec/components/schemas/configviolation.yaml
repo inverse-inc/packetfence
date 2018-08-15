@@ -116,5 +116,4 @@ ConfigViolation:
         the violation will open and the release date will be set for the last day
         of the current month).
       type: string
-  required: []
   type: object

@@ -33,48 +33,17 @@ use pf::config qw(
 );
 use pf::admin_roles;
 use pfappserver::Form::Config::Pf;
+use pf::constants::pfconf;
 
 BEGIN {extends 'pfappserver::Base::Controller'; }
 
 =head1 METHODS
-
-=cut
-
-=head2 _process_section
-
-=cut
-
-our %ALLOWED_SECTIONS = (
-    active_active     => undef,
-    advanced          => undef,
-    alerting          => undef,
-    captive_portal    => undef,
-    database          => undef,
-    database_advanced => undef,
-    fencing           => undef,
-    general           => undef,
-    inline            => undef,
-    metadefender      => undef,
-    mse_tab           => undef,
-    network           => undef,
-    node_import       => undef,
-    parking           => undef,
-    ports             => undef,
-    provisioning      => undef,
-    proxies           => undef,
-    services          => undef,
-    snmp_traps        => undef,
-    webservices       => undef,
-    guests_admin_registration     => undef,
-    radius_authentication_methods => undef,
-);
 
 =head2 index
 
 =cut
 
 sub index :Path :Args(0) { }
-
 
 =head2 section
 
@@ -88,7 +57,7 @@ sub section :Path :Args(1) :AdminRole('CONFIGURATION_MAIN_READ') {
 
     $c->stash->{doc_anchor} = exists($Doc_Config{$section}) ? $Doc_Config{$section}{guide_anchor} : undef;
 
-    if (exists $ALLOWED_SECTIONS{$section} ) {
+    if (exists $pf::constants::pfconf::ALLOWED_SECTIONS{$section} ) {
         my ($params, $form);
         my ($status,$status_msg,$results);
 

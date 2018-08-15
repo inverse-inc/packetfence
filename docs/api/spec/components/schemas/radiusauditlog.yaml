@@ -78,5 +78,4 @@ RadiusAuditLog:
       type: string
     uuid:
       type: string
-  required: []
   type: object

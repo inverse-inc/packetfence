@@ -1,4 +1,10 @@
 /dhcp/mac/{mac}:
+    parameters:
+    - name: mac
+      in: path
+      required: true
+      schema :
+        type: string
     get:
         summary: Get an IPv4 address by MAC address
         description: Performs a dhcp lookup and returns the IP address leased for the given MAC address
@@ -13,6 +19,12 @@
                 $ref: "#/components/responses/DhcpMacResponse"
     
 /dhcp/ip/{ip}:
+    parameters:
+    - name: ip
+      in: path
+      required: true
+      schema :
+        type: string
     get:
         summary: Get a MAC address by IPv4 address
         description: Performs a dhcp lookup and returns the MAC address for the given IP address lease
@@ -21,6 +33,12 @@
                 $ref: "#/components/responses/DhcpMacIp"
     
 /dhcp/stats/{interface}:
+    parameters:
+    - name: interface
+      in: path
+      required: true
+      schema :
+        type: string
     get:
         summary: Get interface statistics
         description: Shows detailed dhcp statistics for the given interface
@@ -29,6 +47,12 @@
                 $ref: "#/components/responses/DhcpInterfaceStats"
     
 /dhcp/initialease/{interface}:
+    parameters:
+    - name: interface
+      in: path
+      required: true
+      schema :
+        type: string
     get:
         summary: Initialize an interface
         description: Initializes dhcp for a specific interface and returns statistics
@@ -37,6 +61,12 @@
                 $ref: "#/components/responses/DhcpInterfaceInit"
     
 /dhcp/options/network/{network}:
+    parameters:
+    - name: network
+      in: path
+      required: true
+      schema :
+        type: string
     post:
         summary: Add options by network
         description: Add dhcp options for a Network
@@ -55,9 +85,21 @@
                 $ref: "#/components/responses/BadRequest"
     
 /dhcp/options/mac/{mac}:
+    parameters:
+    - name: mac
+      in: path
+      required: true
+      schema :
+        type: string
     post:
         summary: Add options by MAC address
         description: Add dhcp options to a MAC address
+        parameters:
+        - name: mac
+          in: path
+          required: true
+          schema :
+            type: string
         responses:
             '200':
                 $ref: "#/components/responses/DhcpMacResponse"
@@ -66,6 +108,12 @@
     delete:
         summary: Delete options by MAC address
         description: Removes dhcp options for a MAC address
+        parameters:
+        - name: mac
+          in: path
+          required: true
+          schema :
+            type: string
         responses:
             '200':
                 $ref: "#/components/responses/DhcpMacResponse"

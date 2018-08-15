@@ -53,10 +53,13 @@ sub formsToSchema {
 
 sub objectSchema {
     my ($form) = @_;
+    my $required = formHandlerRequiredProperties($form);
     return {
         type       => 'object',
         properties => formHandlerProperties($form),
-        required   => formHandlerRequiredProperties($form),
+        (
+            @$required != 0 ? (required => $required) : ()
+        ),
     }
 }
 
@@ -147,7 +150,8 @@ sub listSchema {
                 type    => 'array',
                 'items' => {
                     '$ref' => "#/components/schemas/$name"
-                }
+                },
+                description => "List",
             }
         },
     };

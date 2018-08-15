@@ -3,7 +3,9 @@ ConfigRealmsList:
   - $ref: '#/components/schemas/Iterable'
   - properties:
       items:
+        description: List
         items:
           $ref: '#/components/schemas/ConfigRealm'
         type: array
     type: object
+  description: List

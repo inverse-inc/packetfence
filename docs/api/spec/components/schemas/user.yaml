@@ -50,6 +50,8 @@ User:
       type: string
     portal:
       type: string
+    psk:
+      type: string
     room_number:
       type: string
     source:
@@ -64,5 +66,4 @@ User:
       type: string
     work_phone:
       type: string
-  required: []
   type: object

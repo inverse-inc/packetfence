@@ -1,5 +1,69 @@
 /nodes:
-  description: pf::UnifiedApi::Controller::Nodes
+  description: |-
+    pf::UnifiedApi::Controller::Nodes
+
+      register
+        register
+
+      deregister
+        deregister
+
+      bulk_register
+        bulk_register
+
+      bulk_init_results
+        bulk_init_results
+
+      bulk_deregister
+        bulk_deregister
+
+      fingerbank_info
+        fingerbank_info
+
+      fingerbank_refresh
+        fingerbank_refresh
+
+      bulk_close_violations
+        bulk_close_violations
+
+      close_violation
+        close_violation
+
+      create_error_msg
+        create_error_msg
+
+      bulk_reevaluate_access
+        bulk_reevaluate_access
+
+      bulk_fingerbank_refresh
+        bulk_fingerbank_refresh
+
+      bulk_restart_switchport
+        bulk_restart_switchport
+
+      bulk_apply_violation
+        bulk_apply_violation
+
+      apply_violation
+        apply_violation
+
+      bulk_apply_role
+        bulk_apply_role
+
+      bulk_apply_bypass_role
+        bulk_apply_bypass_role
+
+      do_bulk_update_field
+        do_bulk_update_field
+
+      restart_switchport
+        restart_switchport
+
+      do_restart_switchport
+        do_restart_switchport
+
+      reevaluate_access
+        reevaluate_access
   get:
     description: List items
     operationId: api.v1.Nodes.list
@@ -14,6 +78,7 @@
           application/json:
             schema:
               $ref: '#/components/schemas/NodesList'
+        description: List
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':

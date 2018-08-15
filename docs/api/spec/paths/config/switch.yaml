@@ -25,6 +25,7 @@
           application/json:
             schema:
               $ref: '#/components/schemas/ConfigSwitch'
+        description: Item
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':

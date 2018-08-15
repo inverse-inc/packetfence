@@ -3,7 +3,9 @@ ConfigAdminRolesList:
   - $ref: '#/components/schemas/Iterable'
   - properties:
       items:
+        description: List
         items:
           $ref: '#/components/schemas/ConfigAdminRole'
         type: array
     type: object
+  description: List

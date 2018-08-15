@@ -3,7 +3,9 @@ ConfigViolationsList:
   - $ref: '#/components/schemas/Iterable'
   - properties:
       items:
+        description: List
         items:
           $ref: '#/components/schemas/ConfigViolation'
         type: array
     type: object
+  description: List

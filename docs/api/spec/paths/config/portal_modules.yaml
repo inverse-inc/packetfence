@@ -10,6 +10,7 @@
           application/json:
             schema:
               $ref: '#/components/schemas/ConfigPortalModulesList'
+        description: List
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':
