@@ -43,7 +43,7 @@
                   </b-button-group>
                   <b-form-select v-model="rule.op" :options="operators(rule)"></b-form-select>
                   <b-form-input v-model="rule.value" type="text" v-if="isFieldType(substringValueType, rule)"></b-form-input>
-                  <pf-form-datetime v-model="rule.value" v-else-if="isFieldType(datetimeValueType, rule)" :config="{useCurrent: true}"></pf-form-datetime>
+                  <pf-form-datetime v-model="rule.value" v-else-if="isFieldType(datetimeValueType, rule)" :config="{useCurrent: true}" :moments="['-1 hours', '-1 days', '-1 weeks', '-1 months', '-1 quarters', '-1 years']"></pf-form-datetime>
                   <b-form-select v-model.lazy="rule.value" :options="values(rule)" v-else-if="isFieldType(selectValueType, rule)"></b-form-select>
                   <b-button v-if="model.values.length > 1 || model.values[outerindex].values.length > 1 && drag === false" variant="link" class="nodrag float-right mt-1 mr-1" v-b-tooltip.hover.left :title="$t('Delete statement')" @click="removeStatement(outerindex, innerindex)"><icon name="trash-alt"></icon></b-button>
                 </b-container>
