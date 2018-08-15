@@ -306,7 +306,13 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 			firstTry := true
 			log.LoggerWContext(ctx).Info("DHCPDISCOVER from " + clientMac + " (" + clientHostname + ")")
 			var free int
-
+			// Static assign IP address ?
+			for macaddr, position := range handler.ipAssigned {
+				if macaddr == p.CHAddr().String() {
+					free = int(position)
+					goto reply
+				}
+			}
 			// Search in the cache if the mac address already get assigned
 			if x, found := handler.hwcache.Get(p.CHAddr().String()); found {
 				free = x.(int)
@@ -468,35 +474,56 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 
 			var Reply bool
 			var Index int
+			var Static bool
+
+			Static = false
 			// Valid IP
 			if len(reqIP) == 4 && !reqIP.Equal(net.IPv4zero) {
 				// Requested IP is in the pool ?
 				if leaseNum := dhcp.IPRange(handler.start, reqIP) - 1; leaseNum >= 0 && leaseNum < handler.leaseRange {
-					// Requested IP is in the cache ?
-					if index, found := handler.hwcache.Get(p.CHAddr().String()); found {
-						// Requested IP is equal to what we have in the cache ?
-
-						if dhcp.IPAdd(handler.start, index.(int)).Equal(reqIP) {
-							GlobalTransactionLock.Lock()
-							if _, found = RequestGlobalTransactionCache.Get(cacheKey); found {
-								log.LoggerWContext(ctx).Debug("Not answering to REQUEST. Already processed")
-								Reply = false
-								GlobalTransactionLock.Unlock()
-								return answer
-							} else {
+					// Static assigned ip ?
+					for macaddr, position := range handler.ipAssigned {
+						if macaddr == p.CHAddr().String() {
+							Static = true
+							if int(position) == leaseNum {
+								Index = int(position)
 								Reply = true
-								Index = index.(int)
-								RequestGlobalTransactionCache.Set(cacheKey, 1, time.Duration(1)*time.Second)
-								GlobalTransactionLock.Unlock()
+							} else {
+								Reply = false
 							}
-							// So remove the ip from the cache
-						} else {
-							Reply = false
-							log.LoggerWContext(ctx).Info(p.CHAddr().String() + " Asked for an IP " + reqIP.String() + " that hasnt been assigned by Offer " + dhcp.IPAdd(handler.start, index.(int)).String() + " xID " + sharedutils.ByteToString(p.XId()))
-							if index, found = handler.xid.Get(string(binary.BigEndian.Uint32(p.XId()))); found {
-								if index.(int) == 1 {
-									handler.hwcache.Delete(p.CHAddr().String())
+						}
+					}
+					if Static == false {
+						// Requested IP is in the cache ?
+						if index, found := handler.hwcache.Get(p.CHAddr().String()); found {
+							// Requested IP is equal to what we have in the cache ?
+
+							if dhcp.IPAdd(handler.start, index.(int)).Equal(reqIP) {
+								GlobalTransactionLock.Lock()
+								cacheKey := p.CHAddr().String() + " " + msgType.String() + " xID " + sharedutils.ByteToString(p.XId())
+								if _, found = RequestGlobalTransactionCache.Get(cacheKey); found {
+									log.LoggerWContext(ctx).Debug("Not answering to REQUEST. Already processed")
+									Reply = false
+									GlobalTransactionLock.Unlock()
+									return answer
+								} else {
+									Reply = true
+									Index = index.(int)
+									RequestGlobalTransactionCache.Set(cacheKey, 1, time.Duration(1)*time.Second)
+									GlobalTransactionLock.Unlock()
 								}
+								// So remove the ip from the cache
+							} else {
+								Reply = false
+								log.LoggerWContext(ctx).Info(p.CHAddr().String() + " Asked for an IP " + reqIP.String() + " that hasnt been assigned by Offer " + dhcp.IPAdd(handler.start, index.(int)).String() + " xID " + sharedutils.ByteToString(p.XId()))
+								if index, found = handler.xid.Get(string(binary.BigEndian.Uint32(p.XId()))); found {
+									if index.(int) == 1 {
+										handler.hwcache.Delete(p.CHAddr().String())
+									}
+								}
+							} else {
+								// Not in the cache so refuse
+								Reply = false
 							}
 						}
 					} else {
@@ -588,8 +615,17 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 					handler.hwcache.Delete(p.CHAddr().String())
 				}(ctx, x.(int), reqIP)
 			}
+
 			// Make the ip unavailable for 10 minutes
 			if leaseNum := dhcp.IPRange(handler.start, reqIP) - 1; leaseNum >= 0 && leaseNum < handler.leaseRange {
+				// Static ip address assigned ?
+				for macaddr, position := range handler.ipAssigned {
+					if macaddr == p.CHAddr().String() {
+						if int(position) == leaseNum {
+							return answer
+						}
+					}
+				}
 
 				log.LoggerWContext(ctx).Info("Temporarily declaring " + reqIP.String() + " as unusable")
 				handler.available.Remove(uint32(leaseNum))
