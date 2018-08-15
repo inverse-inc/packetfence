@@ -58,6 +58,14 @@ has_field 'ip_reserved' =>
    tags => { after_element => \&help,
              help => 'Range like 192.168.0.1-192.168.0.20 and or IP like 192.168.0.22,192.168.0.24 will be excluded from the DHCP pool' },
   );
+has_field 'ip_assigned' =>
+  (
+   type => 'Text',
+   label => 'IP Addresses assigned',
+   messages => { required => "List of MAC:IP statically assigned." },
+   tags => { after_element => \&help,
+             help => 'List like 00:11:22:33:44:55:192.168.0.12,11:22:33:44:55:66:192.168.0.13' },
+  );
 has_field 'dns' =>
   (
    type => 'IPAddresses',

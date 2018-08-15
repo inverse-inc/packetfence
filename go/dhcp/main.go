@@ -308,7 +308,13 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 			firstTry := true
 			log.LoggerWContext(ctx).Info("DHCPDISCOVER from " + clientMac + " (" + clientHostname + ")")
 			var free int
-
+			// Static assign IP address ?
+			for macaddr, position := range handler.ipAssigned {
+				if macaddr == p.CHAddr().String() {
+					free = int(position)
+					goto reply
+				}
+			}
 			// Search in the cache if the mac address already get assigned
 			if x, found := handler.hwcache.Get(p.CHAddr().String()); found {
 				log.LoggerWContext(ctx).Debug("Found in the cache that a IP has already been assigned")
@@ -502,12 +508,27 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 
 			var Reply bool
 			var Index int
+			var Static bool
 
+			Static = false
 			// Valid IP
 			if len(reqIP) == 4 && !reqIP.Equal(net.IPv4zero) {
 				// Requested IP is in the pool ?
 				if leaseNum := dhcp.IPRange(handler.start, reqIP) - 1; leaseNum >= 0 && leaseNum < handler.leaseRange {
-					// Requested IP is in the cache ?
+					// Static assigned ip ?
+					for macaddr, position := range handler.ipAssigned {
+						if macaddr == p.CHAddr().String() {
+							Static = true
+							if int(position) == leaseNum {
+								Index = int(position)
+								Reply = true
+							} else {
+								Reply = false
+							}
+						}
+					}
+					if Static == false {
+											// Requested IP is in the cache ?
 					if index, found := handler.hwcache.Get(p.CHAddr().String()); found {
 						// Requested IP is equal to what we have in the cache ?
 
@@ -643,6 +664,14 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 			}
 
 			if leaseNum := dhcp.IPRange(handler.start, reqIP) - 1; leaseNum >= 0 && leaseNum < handler.leaseRange {
+				// Static ip address assigned ?
+				for macaddr, position := range handler.ipAssigned {
+					if macaddr == p.CHAddr().String() {
+						if int(position) == leaseNum {
+							return answer
+						}
+					}
+				}
 				// Remove the mac from the cache
 				if x, found := handler.hwcache.Get(p.CHAddr().String()); found {
 					if leaseNum == x.(int) {
