@@ -56,9 +56,12 @@ BEGIN {
 
 sub CLONE {
     if($DBH) {
+        my $clone = $DBH->clone();
         $DBH->{InactiveDestroy} = 1;
         undef $DBH;
-        $LAST_CONNECT = 0;
+        $DBH = $clone;
+        $LAST_CONNECT = time();
+        on_connect($DBH);
     }
 }
 
