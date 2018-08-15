@@ -13,6 +13,7 @@
  *    min: minimum datetime string, Date or moment
  *    max: maximum datetime String, Date or moment
  *    moments: button array of +/- seconds from now (see: https://momentjs.com/docs/#/manipulating/add/)
+ *      example :moments="['-1 hours', '1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"
  */
  <template>
   <b-form-group :label-cols="labelCols" :label="$t(label)" :state="isValid()" :invalid-feedback="$t(invalidFeedback)" class="mb-0" horizontal>
@@ -23,10 +24,11 @@
       <date-picker ref="datetime" v-model="inputValue" :config="datetimeConfig" :placeholder="placeholder" @input.native="validate()"
         :state="isValid()"></date-picker>
       <b-input-group-append>
+        <b-button class="input-group-text" v-if="initialValue && initialValue !== inputValue" @click.stop="reset($event)" v-b-tooltip.hover.top.d300 :title="$t('Reset')"><icon name="undo-alt" variant="light"></icon></b-button>
         <b-button-group v-if="moments.length > 0" rel="moments" v-b-tooltip.hover.top.d300 :title="$t('[CTRL] + [CLICK] to cumulate')">
           <b-button v-for="(moment, index) in moments" :key="index" variant="light" @click="onClickMoment($event, index)" v-b-tooltip.hover.bottom.d300 :title="momentTooltip(index)">{{ momentLabel(index) }}</b-button>
         </b-button-group>
-        <div class="input-group-text" @click.stop="toggle($event)"><icon name="calendar-alt" variant="secondary"></icon></div>
+        <b-button class="input-group-text" @click.stop="toggle($event)"><icon name="calendar-alt" variant="light"></icon></b-button>
       </b-input-group-append>
     </b-input-group>
     <b-form-text v-if="text" v-t="text"></b-form-text>
@@ -148,7 +150,8 @@ export default {
           decrementSecond: this.$i18n.t('Decrement Second')
         },
         useCurrent: false
-      }
+      },
+      initialValue: undefined
     }
   },
   computed: {
@@ -197,6 +200,9 @@ export default {
     toggle (event) {
       let picker = this.$refs.datetime.dp
       picker.toggle()
+    },
+    reset (event) {
+      this.inputValue = JSON.parse(JSON.stringify(this.initialValue))
     },
     momentTooltip (index) {
       let [amount, key] = this.moments[index].split(' ', 2)
@@ -258,6 +264,10 @@ export default {
   },
   created () {
     this.$debouncer = createDebouncer()
+    // dereference inputValue and assign initialValue
+    if (this.inputValue && this.inputValue !== '0000-00-00 00:00:00') {
+      this.initialValue = JSON.parse(JSON.stringify(this.inputValue))
+    }
   }
 }
 </script>
@@ -269,7 +279,7 @@ export default {
 /**
  * Add btn-primary color(s) on hover
  */
-btn-group[rel=moments] button:hover {
+.btn-group[rel=moments] button:hover {
   color: $input-btn-hover-text-color;
   background-color: $input-btn-hover-bg-color;
   border-color: $input-btn-hover-bg-color;
