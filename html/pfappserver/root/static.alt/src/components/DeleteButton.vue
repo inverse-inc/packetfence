@@ -1,35 +1,63 @@
 <template>
-  <b-button-group :size="size">
+  <b-button-group :size="size" @mouseleave="stopInterrupt($event)">
     <b-button 
-      v-if="interrupt" 
-      type="button" 
-      variant="danger"
-      @click.stop="onDelete($event)"
-      @mouseover="startInterrupt($event)" 
-      @mouseleave="stopInterrupt($event)"
-      >{{ $t('Delete') }}</b-button>
-    <b-button 
-      v-if="interrupt" 
-      type="button" 
-      variant="warning" 
-      @click.stop="stopInterrupt($event)" 
-      @mousemove="startInterrupt($event)" 
-      @mouseover="startInterrupt($event)" 
-      @mouseleave="stopInterrupt($event)"
-      >{{ $t('Cancel') }}</b-button>
-    <b-button 
-      v-if="interrupt" 
-      type="button" 
-      variant="outline-secondary" 
-      disabled
-      >{{ confirm }}</b-button>
-    <b-button 
-      v-if="!interrupt" 
-      type="button" 
-      :variant="variant" 
+      v-if="!interrupt"
+      type="button"
+      :variant="variant"
       :disabled="disabled"
       @click="startInterrupt($event)"
       ><slot>{{ $t('Delete') }}</slot></b-button>
+
+    <!-- LTR (Left To Right) BEGIN -->
+    <b-button 
+      v-if="interrupt && mode === 'rtl'"
+      type="button"
+      variant="outline-secondary"
+      disabled
+      >{{ confirm }}</b-button>
+    <b-button 
+      v-if="interrupt && mode === 'rtl'"
+      type="button"
+      variant="warning"
+      @click.stop="stopInterrupt($event, 'a')"
+      @mousemove="startInterrupt($event)"
+      @mouseover="startInterrupt($event)"
+      >{{ $t('Cancel') }}</b-button>
+    <b-button 
+      v-if="interrupt && mode === 'rtl'"
+      type="button"
+      variant="danger"
+      @click.stop="onDelete($event)"
+      @mousemove="startInterrupt($event)"
+      @mouseover="startInterrupt($event)"
+      >{{ $t('Delete') }}</b-button>
+    <!-- LTR END -->
+
+    <!-- RTL (Right To Left) BEGIN -->
+    <b-button 
+      v-if="interrupt && mode === 'ltr'"
+      type="button"
+      variant="danger"
+      @click.stop="onDelete($event)"
+      @mousemove="startInterrupt($event)"
+      @mouseover="startInterrupt($event)"
+      >{{ $t('Delete') }}</b-button>
+    <b-button 
+      v-if="interrupt && mode === 'ltr'"
+      type="button"
+      variant="warning"
+      @click.stop="stopInterrupt($event)"
+      @mousemove="startInterrupt($event)"
+      @mouseover="startInterrupt($event)"
+      >{{ $t('Cancel') }}</b-button>
+    <b-button 
+      v-if="interrupt && mode === 'ltr'"
+      type="button"
+      variant="outline-secondary"
+      disabled
+      >{{ confirm }}</b-button>
+    <!-- RTL END -->
+
   </b-button-group>
 </template>
 
@@ -62,16 +90,20 @@ export default {
     disabled: {
       type: Boolean,
       default: false
+    },
+    mode: {
+      type: String,
+      default: 'ltr'
     }
   },
   methods: {
     startInterrupt (event) {
-      if (this.timer) clearTimeout(this.timer)
+      if (this.timerStop) clearTimeout(this.timerStop)
       this.interrupt = true
-      this.timer = setTimeout(this.stopInterrupt, this.timeout)
+      this.timerStop = setTimeout(this.stopInterrupt, this.timeout)
     },
-    stopInterrupt (event) {
-      if (this.timer) clearTimeout(this.timer)
+    stopInterrupt (event, debug) {
+      if (this.timerStop) clearTimeout(this.timerStop)
       this.interrupt = false
     },
     onDelete (event) {
