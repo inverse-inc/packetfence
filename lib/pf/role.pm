@@ -593,6 +593,11 @@ sub getNodeInfoForAutoReg {
         my $bandwidth_balance =  $values->{$Actions::SET_BANDWIDTH_BALANCE};        
         $node_info{'time_balance'} = pf::util::normalize_time($time_balance) if (defined($time_balance));
         $node_info{'bandwidth_balance'} = pf::util::unpretty_bandwidth($bandwidth_balance) if (defined($bandwidth_balance));
+
+        pf::person::person_modify($args->{'user_name'},
+            'source'  => $source,
+            'portal'  => $profile->getName,
+        );
         # Trigger a person lookup for 802.1x users
         pf::lookup::person::async_lookup_person($args->{'user_name'}, $source, $pf::constants::realm::RADIUS_CONTEXT);
 
