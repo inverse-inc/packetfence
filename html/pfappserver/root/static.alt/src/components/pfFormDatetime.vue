@@ -15,7 +15,7 @@
  *    moments: button array of +/- seconds from now (see: https://momentjs.com/docs/#/manipulating/add/)
  */
  <template>
-  <b-form-group :label-cols="labelCols" :label="$t(label)" :state="isValid()" :invalid-feedback="$t(invalidFeedback)" horizontal>
+  <b-form-group :label-cols="labelCols" :label="$t(label)" :state="isValid()" :invalid-feedback="$t(invalidFeedback)" class="mb-0" horizontal>
     <b-input-group>
       <b-input-group-prepend v-if="prependText" is-text>
         {{ prependText }}
@@ -23,8 +23,8 @@
       <date-picker ref="datetime" v-model="inputValue" :config="datetimeConfig" :placeholder="placeholder" @input.native="validate()"
         :state="isValid()"></date-picker>
       <b-input-group-append>
-        <b-button-group rel="moments" v-b-tooltip.hover.top.d300 :title="$t('[CTRL] + [CLICK] to cumulate')">
-          <b-button v-if="moments.length > 0" v-for="(moment, index) in moments" :key="index" variant="light" @click="onClickMoment($event, index)" v-b-tooltip.hover.bottom.d300 :title="momentTooltip(index)">{{ momentLabel(index) }}</b-button>
+        <b-button-group v-if="moments.length > 0" rel="moments" v-b-tooltip.hover.top.d300 :title="$t('[CTRL] + [CLICK] to cumulate')">
+          <b-button v-for="(moment, index) in moments" :key="index" variant="light" @click="onClickMoment($event, index)" v-b-tooltip.hover.bottom.d300 :title="momentTooltip(index)">{{ momentLabel(index) }}</b-button>
         </b-button-group>
         <div class="input-group-text" @click.stop="toggle($event)"><icon name="calendar-alt" variant="secondary"></icon></div>
       </b-input-group-append>
@@ -95,7 +95,8 @@ export default {
       type: String
     },
     moments: {
-      type: Array
+      type: Array,
+      default: []
     }
   },
   data () {
