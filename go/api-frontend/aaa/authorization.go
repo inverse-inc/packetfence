@@ -211,8 +211,18 @@ func (tam *TokenAuthorizationMiddleware) isAuthorizedAdminRoles(ctx context.Cont
 	baseAdminRole := pathAdminRolesMap[path]
 
 	if baseAdminRole == "" {
-		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Can't find admin role for path %s, using SYSTEM", path))
-		baseAdminRole = "SYSTEM"
+		for base, role := range pathAdminRolesMap {
+			if strings.HasPrefix(path, base) && role != "" {
+				baseAdminRole = role
+				break
+			}
+		}
+
+		// If its still empty, then we'll default to SYSTEM
+		if baseAdminRole == "" {
+			log.LoggerWContext(ctx).Debug(fmt.Sprintf("Can't find admin role for path %s, using SYSTEM", path))
+			baseAdminRole = "SYSTEM"
+		}
 	}
 
 	suffix := methodSuffixMap[method]
