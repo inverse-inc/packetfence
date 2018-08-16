@@ -29,6 +29,17 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 		t.Error("Request was unauthorized although it should have gone through, error:", err)
 	}
 
+	// Test a valid GET with a parameter
+	res, err = m.IsAuthorized(ctx, "GET", "/api/v1/node/00:11:22:33:44:55", 0, &TokenInfo{
+		AdminRoles: map[string]bool{
+			"NODES_READ": true,
+		},
+	})
+
+	if !res {
+		t.Error("Request was unauthorized although it should have gone through, error:", err)
+	}
+
 	// Test a valid POST
 	res, err = m.IsAuthorized(ctx, "POST", "/api/v1/nodes", 0, &TokenInfo{
 		AdminRoles: map[string]bool{
@@ -310,5 +321,23 @@ func addBearerTokenToTestRequest(r *http.Request, token string, tenantId int) {
 
 	if tenantId != 0 {
 		r.Header.Set("X-PacketFence-Tenant-Id", fmt.Sprintf("%d", tenantId))
+	}
+}
+
+func BenchmarkIsAuthorizedAdminRolesStatic(b *testing.B) {
+	ctx := log.LoggerNewContext(context.Background())
+
+	m := NewTokenAuthorizationMiddleware(NewMemTokenBackend(1 * time.Second))
+	for n := 0; n < b.N; n++ {
+		m.isAuthorizedAdminRoles(ctx, "GET", "/api/v1/nodes", map[string]bool{"NODES_READ": true})
+	}
+}
+
+func BenchmarkIsAuthorizedAdminRolesDynamic(b *testing.B) {
+	ctx := log.LoggerNewContext(context.Background())
+
+	m := NewTokenAuthorizationMiddleware(NewMemTokenBackend(1 * time.Second))
+	for n := 0; n < b.N; n++ {
+		m.isAuthorizedAdminRoles(ctx, "GET", "/api/v1/node/00:11:22:33:44:55", map[string]bool{"NODES_READ": true})
 	}
 }
