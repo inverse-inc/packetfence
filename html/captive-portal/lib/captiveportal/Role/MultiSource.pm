@@ -60,7 +60,9 @@ around 'source' => sub {
             return $source;
         }
         else {
-            die "Cannot find your current authentication source, please restart your registration process.";
+            get_logger->warn("Cannot find current authentication source, restarting registration process.");
+            $self->app->redirect("/logout");
+            $self->detach();
         }
     }
     else {
