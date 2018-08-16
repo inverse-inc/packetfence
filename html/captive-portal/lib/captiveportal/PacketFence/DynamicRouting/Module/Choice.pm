@@ -64,6 +64,13 @@ Render the template surrounded by choices to switch between the different availa
 
 sub render_choice {
     my ($self, $inner_content) = @_;
+
+    if($self->current_module && !exists($self->module_map->{$self->current_module})) {
+        get_logger->info("Cannot restore module ".$self->current_module." since its not part of the currently available module in ".$self->id.". Redirecting to logout.");
+        $self->app->redirect("/logout");
+        $self->detach();
+    }
+
     my $args = {content => $inner_content, modules => [$self->available_choices], mod_manager_current_module => $self->current_module};
 
     $self->SUPER::render($self->template, $args);
