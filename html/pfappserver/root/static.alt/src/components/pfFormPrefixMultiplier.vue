@@ -7,7 +7,7 @@
       <b-form-input type="number" :placeholder="placeholder" v-model="inputValue" @input.native="validate()" :state="isValid()"></b-form-input>
       <b-form-text v-if="text" v-t="text"></b-form-text>
       <b-input-group-append>
-        <b-button-group v-if="prefixes.length > 0" rel="prefixes">
+        <b-button-group v-if="prefixes.length > 0" rel="prefixButtonGroup">
           <b-button v-for="(prefix, index) in prefixes" :key="index" :variant="[prefix.selected ? 'primary' : 'light']" v-b-tooltip.hover.bottom.d300 :title="$t(prefix.name + units.name)" @click.stop="changeMultiplier($event, index)">{{ prefix.label + units.label }}</b-button>
         </b-button-group>
         <b-button class="input-group-text" :disabled="true" variant="secondary"><icon name="sort-amount-up"></icon></b-button>
@@ -217,3 +217,17 @@ export default {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+@import "../../node_modules/bootstrap/scss/functions";
+@import "../styles/variables";
+
+/**
+ * Add btn-primary color(s) on hover
+ */
+.btn-group[rel=prefixButtonGroup] button:hover {
+  color: $input-btn-hover-text-color;
+  background-color: $input-btn-hover-bg-color;
+  border-color: $input-btn-hover-bg-color;
+}
+</style>
