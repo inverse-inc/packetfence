@@ -63,8 +63,9 @@
         <b-col cols="auto" class="px-0 mr-auto">
           <pf-search-boolean :model="condition" :fields="fields" :store="store" :advancedMode="false"/>
         </b-col>
-        <b-col align="right" class="flex-grow-0">
+        <b-col cols="auto" align="right" class="flex-grow-0">
           <b-button type="submit" variant="primary">{{ $t('Search') }}</b-button>
+          <b-button type="reset" variant="secondary">{{ $t('Clear') }}</b-button>
         </b-col>
       </b-form-row>
     </b-form>
@@ -76,6 +77,7 @@
         </div>
         <b-form-input v-model="quickValue" type="text" :placeholder="quickPlaceholder"></b-form-input>
         <b-button class="ml-1" type="submit" variant="primary">{{ $t('Search') }}</b-button>
+        <b-button class="ml-1" type="reset" variant="secondary">{{ $t('Clear') }}</b-button>
       </div>
     </b-form>
   </div>
@@ -162,6 +164,7 @@ export default {
       this.$emit('submit-search', query)
     },
     onReset (event) {
+      this.quickValue = ''
       this.$emit('reset-search')
     },
     copyJsonTextarea () {
