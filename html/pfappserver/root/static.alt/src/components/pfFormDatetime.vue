@@ -25,7 +25,7 @@
         :state="isValid()"></date-picker>
       <b-input-group-append>
         <b-button class="input-group-text" v-if="initialValue && initialValue !== inputValue" @click.stop="reset($event)" v-b-tooltip.hover.top.d300 :title="$t('Reset')"><icon name="undo-alt" variant="light"></icon></b-button>
-        <b-button-group v-if="moments.length > 0" rel="moments" v-b-tooltip.hover.top.d300 :title="$t('[CTRL] + [CLICK] to cumulate')">
+        <b-button-group v-if="moments.length > 0" rel="moments" v-b-tooltip.hover.top.d300 :title="$t('Cumulate [CTRL] + [CLICK]')">
           <b-button v-for="(moment, index) in moments" :key="index" variant="light" @click="onClickMoment($event, index)" v-b-tooltip.hover.bottom.d300 :title="momentTooltip(index)">{{ momentLabel(index) }}</b-button>
         </b-button-group>
         <b-button class="input-group-text" @click.stop="toggle($event)"><icon name="calendar-alt" variant="light"></icon></b-button>
