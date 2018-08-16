@@ -4575,7 +4575,7 @@ The monit addons are included with Packetfence at `/usr/local/pf/addons/monit`. 
 cd /tmp/ && wget http://inverse.ca/downloads/PacketFence/monitoring-scripts/v1/monit.tgz && tar xzvf monit.tgz
 ----
 
-Replace the monit addon directory
+Replace the monit addons directory
 
 ----
 mv /usr/local/pf/addons/monit /usr/local/pf/addons/monit.old ; mv /tmp/monit /usr/local/pf/addons/
