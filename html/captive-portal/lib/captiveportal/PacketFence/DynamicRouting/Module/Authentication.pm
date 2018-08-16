@@ -111,7 +111,13 @@ Builder for the request fields
 
 sub _build_request_fields {
     my ($self) = @_;
-    return $self->app->hashed_params()->{fields} || {};
+    my $fields = [keys(%{$self->app->hashed_params()->{fields}})];
+    my %request_fields;
+    foreach my $field (@$fields) {
+        # grab the value from the form to apply any transformations that are done in it.
+        $request_fields{$field} = $self->form->field("fields[$field]")->value;
+    }
+    return \%request_fields;
 }
 
 =head2 _build_source

@@ -46,7 +46,13 @@ has_field 'fields[password]' => (type => 'Password', label => 'Password');
 
 has_field 'fields[email]' => (type => "Email", label => "Email");
 
-has_field 'fields[telephone]' => (type => "Text", label => "Telephone", html5_type_attr => "tel", validate_method => \&check_telephone);
+has_field 'fields[telephone]' => (
+    type => "Text", 
+    label => "Telephone", 
+    html5_type_attr => "tel", 
+    validate_method => \&check_telephone, 
+    apply => [{transform => sub{ $_[0] =~ s/(-|\s|\(|\))//g; return $_[0] }}],
+);
 
 has_field 'fields[sponsor]' => (type => "Email", label => "Sponsor Email");
 
