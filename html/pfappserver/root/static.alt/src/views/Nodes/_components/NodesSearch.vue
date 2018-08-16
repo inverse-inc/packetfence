@@ -341,6 +341,18 @@ export default {
           text: this.$i18n.t('VoIP'),
           types: [conditionType.VOIP],
           icon: 'phone'
+        },
+        {
+          value: 'autoreg',
+          text: this.$i18n.t('Auto Registration'),
+          types: [conditionType.AUTOREG],
+          icon: 'magic'
+        },
+        {
+          value: 'bandwidth_balance',
+          text: this.$i18n.t('Bandwidth Balance'),
+          types: [conditionType.INTEGER],
+          icon: 'balance-scale'
         }
       ],
       /**
@@ -565,6 +577,18 @@ export default {
         {
           key: 'machine_account',
           label: this.$i18n.t('Machine Account'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'autoreg',
+          label: this.$i18n.t('Auto Registration'),
+          sortable: true,
+          visible: false
+        },
+        {
+          key: 'bandwidth_balance',
+          label: this.$i18n.t('Bandwidth Balance'),
           sortable: true,
           visible: false
         },

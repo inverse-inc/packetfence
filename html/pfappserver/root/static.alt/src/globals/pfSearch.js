@@ -11,7 +11,8 @@ export const pfSearchConditionType = {
   ONLINE:                  'online',
   INTEGER:                 'integer',
   DATETIME:                'datetime',
-  VOIP:                    'voip'
+  VOIP:                    'voip',
+  AUTOREG:                 'autoreg'
 }
 
 export const pfSearchConditionValue = {
@@ -73,6 +74,10 @@ pfConditionOperators[pfSearchConditionType.DATETIME] = {
   'greater_than_equals':   pfSearchConditionValue.DATETIME,
   'less_than':             pfSearchConditionValue.DATETIME,
   'less_than_equals':      pfSearchConditionValue.DATETIME
+}
+pfConditionOperators[pfSearchConditionType.AUTOREG] = {
+  'equals':                pfSearchConditionValue.SELECT,
+  'not_equals':            pfSearchConditionValue.SELECT
 }
 
 /**
@@ -150,6 +155,16 @@ pfSearchConditionValues[pfSearchConditionType.VOIP] = [
 pfSearchConditionValues[pfSearchConditionType.VIOLATION] = (store) => {
   return store.getters['config/violationsList']
 }
+pfSearchConditionValues[pfSearchConditionType.AUTOREG] = [
+  {
+    value: 'yes',
+    text: 'Yes'
+  },
+  {
+    value: 'no',
+    text: 'No'
+  }
+]
 
 export const pfSearchConditionFormatter = {
   MAC: 'mac'
