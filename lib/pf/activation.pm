@@ -202,6 +202,31 @@ sub view_by_code {
     return ($item->to_hash);
 }
 
+=head2 is_code_in_use
+
+is_code_in_use
+
+=cut
+
+sub is_code_in_use {
+    my ($type, $code) = @_;
+    my ($status, $iter) = pf::dal::activation->search(
+        -columns => [ \"1" ],
+        -where   => {
+            type            => $type,
+            activation_code => $code,
+            status          => $UNVERIFIED,
+            expiration => { ">=" => \['NOW()']},
+        },
+    );
+
+    if (is_error($status)) {
+        return undef;
+    }
+
+    return $iter->rows;
+}
+
 =head2 view_by_code_mac
 
 view_by_code_mac
@@ -417,7 +442,7 @@ sub _generate_activation_code {
             $code = substr($code, 0, $code_length);
         }
         # make sure the generated code is unique
-        $code = undef if (!$no_unique && view_by_code($type, $code));
+        $code = undef if (!$no_unique && is_code_in_use($type, $code));
     } while (!defined($code));
 
     return $code;
