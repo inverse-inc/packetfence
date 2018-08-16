@@ -190,7 +190,6 @@ sub view_by_code {
             type => $type,
             activation_code => $activation_code,
         },
-        -no_auto_tenant_id => 1,
     );
     if (is_error($status)) {
         return undef;
@@ -427,17 +426,10 @@ sub _generate_activation_code {
     my $no_unique = $data{'no_unique'};
     my $type = $data{'type'};
     my $style = $data{'style'} // 'md5';
+    my $generator = $style eq 'digits' ? \&digits_generator : \&md5_generator;
     do {
         # generating something not so easy to guess (and hopefully not in rainbowtables)
-        if ($style eq 'digits') {
-            $code = int(rand(9999999999)) + 1;
-        } else {
-            $code = md5_hex(
-                join("|",
-                    time + int(rand(10)),
-                    grep {defined $_} @data{qw(expiration mac pid contact_info)})
-            );
-        }
+        $code = $generator->(\%data);
         if ($code_length > 0) {
             $code = substr($code, 0, $code_length);
         }
@@ -446,6 +438,31 @@ sub _generate_activation_code {
     } while (!defined($code));
 
     return $code;
+}
+
+=head2 digits_generator
+
+digits_generator
+
+=cut
+
+sub digits_generator {
+    return int(rand(9999999999)) + 1;;
+}
+
+=head2 md5_generator
+
+md5_generator
+
+=cut
+
+sub md5_generator {
+    my ($data) = @_;
+    return md5_hex(
+        join( "|",
+            time + int( rand(10) ),
+            grep { defined $_ } @{$data}{qw(expiration mac pid contact_info)} )
+    );
 }
 
 =head2 send_email
