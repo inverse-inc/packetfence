@@ -45,14 +45,14 @@ has_field 'message' =>
 (
     type => 'TextArea',
     label => 'SMS text message ($pin will be replaced by the PIN number)',
-    default => 'PIN: $pin',
+    default => pf::Authentication::Source::SMSSource->meta->get_attribute('message')->default,
 );
 has_field 'pin_code_length' =>
   (
    type => 'PosInteger',
    label => 'PIN length',
    required => 1,
-   default  => 6,
+   default  => pf::Authentication::Source::SMSSource->meta->get_attribute('pin_code_length')->default,
    tags => { after_element => \&help,
              help => 'The amount of digits of the PIN number.' },
   );
