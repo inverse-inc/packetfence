@@ -172,6 +172,7 @@ export default {
         this.$refs.exportJsonTextarea.$el.select()
         document.execCommand('copy')
         this.showExportJsonModal = false
+        this.$store.dispatch('notification/info', {message: this.$i18n.t('Search copied to clipboard')})
       }
     },
     importJsonTextarea () {
@@ -181,6 +182,7 @@ export default {
         this.$emit('import-search', json)
         this.importJsonString = ''
         this.showImportJsonModal = false
+        this.$store.dispatch('notification/info', {message: this.$i18n.t('Search imported')})
       } catch (e) {
         if (e instanceof SyntaxError) {
           this.importJsonError = this.$i18n.t('Invalid JSON') + ': ' + e.message
@@ -198,6 +200,7 @@ export default {
     saveSearch () {
       const _this = this
       this.$store.dispatch(`${this.storeName}/addSavedSearch`, {name: this.saveSearchString, query: this.condition}).then(response => {
+        _this.$store.dispatch('notification/info', {message: _this.$i18n.t('Search saved as ') + '\'' + _this.saveSearchString + '\''})
         _this.saveSearchString = ''
         _this.showSaveSearchModal = false
       })
