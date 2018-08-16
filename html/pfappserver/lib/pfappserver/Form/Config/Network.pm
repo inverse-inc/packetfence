@@ -52,7 +52,7 @@ has_field 'dhcp_max_lease_time' =>
   );
 has_field 'ip_reserved' =>
   (
-   type => 'Text',
+   type => 'TextArea',
    label => 'IP Addresses reserved',
    messages => { required => "Range or IP addresses to exclude from the DHCP pool." },
    tags => { after_element => \&help,
@@ -60,7 +60,7 @@ has_field 'ip_reserved' =>
   );
 has_field 'ip_assigned' =>
   (
-   type => 'Text',
+   type => 'TextArea',
    label => 'IP Addresses assigned',
    messages => { required => "List of MAC:IP statically assigned." },
    tags => { after_element => \&help,
