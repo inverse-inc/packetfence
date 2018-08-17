@@ -21,6 +21,7 @@ use pf::IniFiles;
 use pf::file_paths qw(
     $admin_roles_config_file
     $self_service_config_file
+    $profiles_config_file
 );
 use List::MoreUtils qw(any);
 use pf::util;
@@ -64,6 +65,22 @@ for my $section ($ss_ini->Sections()) {
 }
 
 $ss_ini->RewriteConfig();
+
+my $profile_ini = pf::IniFiles->new(-file => $profiles_config_file, -allowempty => 1);
+
+my %remap = (
+    device_registration => "self_service",
+);
+for my $section ($profile_ini->Sections()) {
+    while(my ($old, $new) = each(%remap)) {
+        print "Renaming parameter $old to $new in section $section in file $profiles_config_file \n";
+        my $val = $profile_ini->val($section, $old);
+        $profile_ini->newval($section, $new, $val);
+        $profile_ini->delval($section, $old);
+    }
+}
+
+$profile_ini->RewriteConfig();
 
 print "All done\n";
 
