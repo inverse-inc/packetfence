@@ -24,6 +24,9 @@
              <b-form-group horizontal label-cols="3" :label="$t('Unregistration')">
                 <pf-form-datetime v-model="node.unregdate" :moments="['1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"></pf-form-datetime>
               </b-form-group>
+              <b-form-group horizontal label-cols="3" :label="$t('Bandwidth Balance')">
+                <pf-form-prefix-multiplier v-model="node.bandwidth_balance"></pf-form-prefix-multiplier>
+              </b-form-group>
               <b-form-group horizontal label-cols="3" :label="$t('Notes')">
                 <b-form-textarea v-model="nodeContent.notes" rows="4" max-rows="6"></b-form-textarea>
               </b-form-group>
@@ -232,7 +235,7 @@
       </b-tabs>
       <b-card-footer @mouseenter="$v.nodeContent.$touch()" v-if="ifTab(['Edit', 'Location', 'Fingerbank'])">
         <b-button v-if="ifTab(['Edit'])" variant="primary" type="submit" :disabled="invalidForm"><icon name="circle-notch" spin v-show="isLoading"></icon> {{ $t('Save') }}</b-button>
-        <delete-button v-if="ifTab(['Edit'])" variant="danger" class="mr-3" :disabled="isLoading" :confirm="$t('Delete Node?')" @on-delete="deleteNode()">{{ $t('Delete') }}</delete-button>
+        <delete-button v-if="ifTab(['Edit'])" variant="danger" class="mr-3" :disabled="isLoading" :confirm="$t('Delete Node?')" @on-delete="deleteNode()" mode="ltr">{{ $t('Delete') }}</delete-button>
         <b-button size="sm" v-if="ifTab(['Edit', 'Location'])" variant="outline-secondary" @click="applyReevaluateAccess" :disabled="!canReevaluateAccess(node)">{{ $t('Reevaulate Access') }}</b-button>
         <b-button size="sm" v-if="ifTab(['Edit', 'Fingerbank'])" variant="outline-secondary" @click="applyRefreshFingerbank">{{ $t('Refresh Fingerbank') }}</b-button>
         <b-button size="sm" v-if="ifTab(['Edit', 'Location'])" variant="outline-secondary" @click="applyRestartSwitchport" :disabled="!canRestartSwitchport(node)">{{ $t('Restart Switch Port') }}</b-button>
@@ -247,6 +250,7 @@ import ToggleButton from '@/components/ToggleButton'
 import pfFingerbankScore from '@/components/pfFingerbankScore'
 import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormInput from '@/components/pfFormInput'
+import pfFormPrefixMultiplier from '@/components/pfFormPrefixMultiplier'
 import pfFormRow from '@/components/pfFormRow'
 import { pfEapType as eapType } from '@/globals/pfEapType'
 import {
@@ -267,6 +271,7 @@ export default {
     'pf-fingerbank-score': pfFingerbankScore,
     'pf-form-datetime': pfFormDatetime,
     'pf-form-row': pfFormRow,
+    'pf-form-prefix-multiplier': pfFormPrefixMultiplier,
     'pf-form-input': pfFormInput
   },
   mixins: [
@@ -467,6 +472,9 @@ export default {
     },
     close () {
       this.$router.push({ name: 'nodes' })
+    },
+    reset () {
+      // noop
     },
     connectionSubType (type) {
       if (type && eapType[type]) {
