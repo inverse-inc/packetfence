@@ -126,7 +126,7 @@
 /usr/local/pf/html/captive-portal/content/timerbar.js
 /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Activate/Email.pm
 /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Authenticate.pm
-/usr/local/pf/html/captive-portal/lib/captiveportal/Controller/DeviceRegistration.pm
+/usr/local/pf/html/captive-portal/lib/captiveportal/Controller/SelfService.pm
 /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Enabler.pm
 /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Node/Manager.pm
 /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Redirect.pm

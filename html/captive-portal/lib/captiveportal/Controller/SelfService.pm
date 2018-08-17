@@ -1,11 +1,11 @@
-package captiveportal::Controller::DeviceRegistration;
+package captiveportal::Controller::SelfService;
 use Moose;
 
-BEGIN { extends 'captiveportal::PacketFence::Controller::DeviceRegistration'; }
+BEGIN { extends 'captiveportal::PacketFence::Controller::SelfService'; }
 
 =head1 NAME
 
-captiveportal::Controller::DeviceRegistration - DeviceRegistration Controller for captiveportal
+captiveportal::Controller::SelfService - SelfService Controller for captiveportal
 
 =head1 DESCRIPTION
 
