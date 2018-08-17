@@ -1,49 +1,33 @@
-package pf::pfmon::task::queue_stats;
+#!/usr/bin/perl
 
 =head1 NAME
 
-pf::pfmon::task::queue_stats - class for pfmon task queue counts
+to-8.2-pfmon-conf.pl
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::pfmon::task::queue_stats
+Remove the queue_stats section from pfmon.conf if present
 
 =cut
 
 use strict;
 use warnings;
-use pf::log;
-use pf::StatsD;
-use pf::pfqueue::stats;
-use Moose;
-extends qw(pf::pfmon::task);
+use lib qw(/usr/local/pf/lib);
+use pf::IniFiles;
+use pf::file_paths qw($pfmon_config_file);
+use pf::util;
 
+run_as_pf();
 
-=head2 run
+my $ini = pf::IniFiles->new(-file => $pfmon_config_file, -allowempty => 1);
 
-Poll the queue counts and record them in statsd
+$ini->DeleteSection("queue_stats");
 
-=cut
-
-sub run {
-    my ($self) = @_;
-    my $logger = get_logger;
-    $logger->debug("Polling counters from queues to record them in statsd");
-    my $statsd = pf::StatsD->new;
-
-    my $queue_counts = pf::pfqueue::stats->new->queue_counts;
-    for my $info (@{$queue_counts}) {
-        my $queue_name = $info->{name};
-        my $count = $info->{count};
-        $logger->debug("Setting queue count of $queue_name to $count in statsd");
-        $statsd->gauge("pfqueue.stats.queue_counts.$queue_name", $count, 1);
-    }
-}
+$ini->RewriteConfig();
 
 =head1 AUTHOR
-
 
 Inverse inc. <info@inverse.ca>
 
@@ -70,4 +54,3 @@ USA.
 
 =cut
 
-1;

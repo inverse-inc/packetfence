@@ -38,7 +38,6 @@ use pfappserver::Form::Config::Pfmon::option82_query;
 use pfappserver::Form::Config::Pfmon::person_cleanup;
 use pfappserver::Form::Config::Pfmon::populate_ntlm_redis_cache;
 use pfappserver::Form::Config::Pfmon::provisioning_compliance_poll;
-use pfappserver::Form::Config::Pfmon::queue_stats;
 use pfappserver::Form::Config::Pfmon::radius_audit_log_cleanup;
 use pfappserver::Form::Config::Pfmon::switch_cache_lldpLocalPort_description;
 use pfappserver::Form::Config::Pfmon::violation_maintenance;
@@ -61,7 +60,6 @@ our %TYPES_TO_FORMS = (
       person_cleanup
       populate_ntlm_redis_cache
       provisioning_compliance_poll
-      queue_stats
       radius_audit_log_cleanup
       switch_cache_lldpLocalPort_description
       violation_maintenance
