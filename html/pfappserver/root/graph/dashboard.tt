@@ -3,6 +3,7 @@
 # CSS grid size as defined in scss/_variables.scss
 #
 SET gridSize = 18;
+SET halfGridSize = gridSize div 2;
 
 #
 # Charts color palettes
@@ -26,7 +27,7 @@ END;
 [% MACRO palette(n) BLOCK; SET i = n MOD palettes.size; GET palettes.$i; END %]
 
 [% MACRO graph(metric, title, options) BLOCK %]
-    [% IF options.width; width = options.width; ELSE; width = "18"; END %]
+    [% IF options.width; width = options.width; ELSE; width = gridSize; END %]
 
     [% IF options.graph_per_host;
     hosts = cluster;
@@ -132,15 +133,19 @@ END;
         // become offline for some time, the charts will break.
         // This will reload the page every RELOAD_EVERY minutes
         var RELOAD_EVERY = 5;
+        var current_tab;
         setInterval(function(){
             var tab = $('#dashboard-tabs').find('.active a').attr('href');
             tab = tab.replace('#', '');
-            var change_to = '#graph/dashboard?tab=' + tab;
-            if(history.pushState) {
-              history.pushState(null, null, change_to);
-            }
-            else {
-              location.hash = change_to;
+            if(tab != current_tab) {
+              current_tab = tab;
+              var change_to = '#graph/dashboard?tab=' + tab;
+              if(history.pushState) {
+                history.pushState(null, null, change_to);
+              }
+              else {
+                location.hash = change_to;
+              }
             }
         }, 100);
         setTimeout(function(){
@@ -302,12 +307,12 @@ END;
               </div>
               <div class="card-block">
                 <div class="row-flex">
-                  [% graph("system.cpu", "CPU usage", {"width" => "9", "valuerange" => "[0, 100]"}) | none %]
-                  [% graph("system.load", "System Load Average", {"width" => "9"}) | none %]
-                  [% graph("system.io", "Disk I/O", {"width" => "9"}) | none %]
-                  [% graph("disk_space._", "Disk Space Usage for /", {"width" => "9"}) | none %]
-                  [% graph("system.ram", "System RAM", {"width" => "9"}) | none %]
-                  [% graph("system.swap", "System Swap", {"width" => "9"}) | none %]
+                  [% graph("system.cpu", "CPU usage", {"width" => halfGridSize, "valuerange" => "[0, 100]"}) | none %]
+                  [% graph("system.load", "System Load Average", {"width" => halfGridSize}) | none %]
+                  [% graph("system.io", "Disk I/O", {"width" => halfGridSize}) | none %]
+                  [% graph("disk_space._", "Disk Space Usage for /", {"width" => halfGridSize}) | none %]
+                  [% graph("system.ram", "System RAM", {"width" => halfGridSize}) | none %]
+                  [% graph("system.swap", "System Swap", {"width" => halfGridSize}) | none %]
                 </div>
               </div>
             </div>
@@ -317,8 +322,8 @@ END;
               </div>
               <div class="card-block">
                 <div class="row-flex">
-                  [% graph("system.ipv4", "IPv4 Bandwidth", {"width" => "9"}) | none %]
-                  [% graph("system.sockstat_sockets", "IPv4 Sockets", {"width" => "9"}) | none %]
+                  [% graph("system.ipv4", "IPv4 Bandwidth", {"width" => halfGridSize}) | none %]
+                  [% graph("system.sockstat_sockets", "IPv4 Sockets", {"width" => halfGridSize}) | none %]
                 </div>
               </div>
             </div>
@@ -406,8 +411,8 @@ END;
               </div>
               <div class="card-block">
                 <div class="row-flex">
-                  [% graph("statsd_gauge_source.packetfence.authentication.success_last_day", "Successful RADIUS authentications in the last day", {"nocluster" => 1, "width" => 9}) | none %]
-                  [% graph("statsd_gauge_source.packetfence.authentication.failed_last_day", "Failed RADIUS authentications in the last day", {"nocluster" => 1, "width" => 9}) | none %]
+                  [% graph("statsd_gauge_source.packetfence.authentication.success_last_day", "Successful RADIUS authentications in the last day", {"nocluster" => 1, "width" => halfGridSize}) | none %]
+                  [% graph("statsd_gauge_source.packetfence.authentication.failed_last_day", "Failed RADIUS authentications in the last day", {"nocluster" => 1, "width" => halfGridSize}) | none %]
                 </div>
               </div>
             </div>
@@ -422,7 +427,7 @@ END;
             <div class="card-block">
               <div class="row-flex">
                 [% FOREACH scope IN ["day", "week", "month", "year"] %]
-                  [% graph("statsd_gauge_source.packetfence.dhcp_leases_" _ network _ "_" _ scope, "DHCP leases free on " _ network _ " for the past " _ scope, {"width" => 9, "filter_graph" => "gauge"}) | none %]
+                  [% graph("statsd_gauge_source.packetfence.dhcp_leases_" _ network _ "_" _ scope, "DHCP leases free on " _ network _ " for the past " _ scope, {"width" => halfGridSize, "filter_graph" => "gauge"}) | none %]
                 [% END %]
               </div>
             </div>
@@ -437,8 +442,8 @@ END;
             </div>
             <div class="card-block">
               <div class="row-flex">
-                [% graph("packetfence.devices.registered_unregistered", "Registration status of online devices", {"nocluster" => 1, "width" => 9}) | none %]
-                [% graph("statsd_gauge_source.packetfence.devices.registered", "Devices currently registered", {"nocluster" => 1, "width" => 9, "filter_graph" => "gauge"}) | none %]
+                [% graph("packetfence.devices.registered_unregistered", "Registration status of online devices", {"nocluster" => 1, "width" => halfGridSize}) | none %]
+                [% graph("statsd_gauge_source.packetfence.devices.registered", "Devices currently registered", {"nocluster" => 1, "width" => halfGridSize, "filter_graph" => "gauge"}) | none %]
               </div>
             </div>
           </div>
@@ -459,7 +464,7 @@ END;
             <div class="card-block">
               <div class="row-flex">
                 [% FOREACH scope IN ["hour", "day", "week", "month", "year"] %]
-                  [% width = scope == "year" ? 18 : 9 %]
+                  [% width = scope == "year" ? gridSize : halfGridSize %]
                   [% graph("statsd_gauge_source.packetfence.devices.registered_last_" _ scope, "New registered devices during the past " _ scope, {"width" => width, "filter_graph" => "gauge"}) | none %]
                 [% END %]
               </div>
@@ -486,7 +491,7 @@ END;
             <div class="card-block">
               <div class="row-flex">
                 [% FOREACH code IN ["1xx", "2xx", "3xx", "4xx", "5xx", "other"] %]
-                  [% graph("web_log_apache_portal_log.response_codes", code _ " responses", {"width" => 9, "filter_graph" => code}) | none %]
+                  [% graph("web_log_apache_portal_log.response_codes", code _ " responses", {"width" => halfGridSize, "filter_graph" => code}) | none %]
                 [% END %]
               </div>
             </div>
@@ -521,7 +526,7 @@ END;
             <div class="card-block">
               <div class="row-flex">
                 [% FOREACH queue IN queue_stats.stats_data.queue_counts %]
-                  [% graph("packetfence.redis.queue_stats_count", queue.name _ " queue count", {"filter_graph" => queue.name, "width" => 9}) | none %]
+                  [% graph("packetfence.redis.queue_stats_count", queue.name _ " queue count", {"filter_graph" => queue.name, "width" => halfGridSize}) | none %]
                 [% END %]
               </div>
             </div>
@@ -533,7 +538,7 @@ END;
             <div class="card-block">
               <div class="row-flex">
                 [% FOREACH task IN queue_stats.stats_data.miss_counters %]
-                  [% graph("packetfence.redis.queue_stats_outstanding", task.name _ " outstanding", {"filter_graph" => task.name.replace(":", "_"), "width" => 9}) | none %]
+                  [% graph("packetfence.redis.queue_stats_outstanding", task.name _ " outstanding", {"filter_graph" => task.name.replace(":", "_"), "width" => halfGridSize}) | none %]
                 [% END %]
               </div>
             </div>
@@ -545,7 +550,7 @@ END;
             <div class="card-block">
               <div class="row-flex">
                 [% FOREACH task IN queue_stats.stats_data.miss_counters %]
-                  [% graph("packetfence.redis.queue_stats_expired", task.name _ " expired", {"filter_graph" => task.name.replace(":", "_"), "width" => 9}) | none %]
+                  [% graph("packetfence.redis.queue_stats_expired", task.name _ " expired", {"filter_graph" => task.name.replace(":", "_"), "width" => halfGridSize}) | none %]
                 [% END %]
               </div>
             </div>
