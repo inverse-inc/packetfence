@@ -29,8 +29,8 @@ var pathAdminRolesMap = map[string]string{
 	configApiPrefix + "/connection_profiles": "CONNECTION_PROFILES",
 	configApiPrefix + "/connection_profile":  "CONNECTION_PROFILES",
 
-	configApiPrefix + "/device_registrations": "DEVICE_REGISTRATION",
-	configApiPrefix + "/device_registration":  "DEVICE_REGISTRATION",
+	configApiPrefix + "/self_services": "SELF_SERVICE",
+	configApiPrefix + "/self_service":  "SELF_SERVICE",
 
 	configApiPrefix + "/domains": "DOMAIN",
 	configApiPrefix + "/domain":  "DOMAIN",
@@ -52,9 +52,6 @@ var pathAdminRolesMap = map[string]string{
 
 	configApiPrefix + "/connection_profile":  "",
 	configApiPrefix + "/connection_profiles": "",
-
-	configApiPrefix + "/device_registration":  "",
-	configApiPrefix + "/device_registrations": "",
 
 	configApiPrefix + "/domain":  "",
 	configApiPrefix + "/domains": "",
@@ -105,7 +102,7 @@ var pathAdminRolesMap = map[string]string{
 	apiPrefix + "/node":  "NODES",
 
 	apiPrefix + "/users": "USERS",
-	apiPrefix + "/user": "USERS",
+	apiPrefix + "/user":  "USERS",
 }
 
 var methodSuffixMap = map[string]string{

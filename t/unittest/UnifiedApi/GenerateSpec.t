@@ -202,7 +202,7 @@ cmp_deeply(
                     type => 'string',
                     description => 'Profile Description',
                 },
-                'device_registration' => {
+                'self_service' => {
                     type => 'string',
                     description => 'Device registration',
                 },

@@ -1,17 +1,50 @@
-package captiveportal::Controller::DeviceRegistration;
-use Moose;
-
-BEGIN { extends 'captiveportal::PacketFence::Controller::DeviceRegistration'; }
+#!/usr/bin/perl
 
 =head1 NAME
 
-captiveportal::Controller::DeviceRegistration - DeviceRegistration Controller for captiveportal
+SelfServices
+
+=cut
 
 =head1 DESCRIPTION
 
-[enter your description here]
+unit test for SelfServices
 
 =cut
+
+use strict;
+use warnings;
+#
+use lib qw(
+    /usr/local/pf/lib
+);
+
+BEGIN {
+    #include test libs
+    use lib qw(/usr/local/pf/t);
+    #Module for overriding configuration paths
+    use setup_test_config;
+}
+
+use Test::More tests => 7;
+use Test::Mojo;
+
+#This test will running last
+use Test::NoWarnings;
+my $t = Test::Mojo->new('pf::UnifiedApi');
+
+my $collection_base_url = '/api/v1/config/self_services';
+
+my $base_url = '/api/v1/config/self_service';
+
+$t->get_ok($collection_base_url)
+  ->status_is(200);
+
+$t->post_ok($collection_base_url => json => {})
+  ->status_is(422);
+
+$t->post_ok($collection_base_url, {'Content-Type' => 'application/json'} => '{')
+  ->status_is(400);
 
 =head1 AUTHOR
 
@@ -40,6 +73,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
-
 1;
+
