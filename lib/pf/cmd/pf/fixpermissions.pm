@@ -144,8 +144,10 @@ sub _changePathToOwnerRecursive {
     if(defined $uid && defined $gid) {
         my ($group, undef, undef, undef)= getgrgid($gid);
         finddepth ({no_chdir=>1, untaint=>1, wanted=>sub {
-            chown ($uid, $gid, untaint_chain($File::Find::name))
-                or warn qq(Couldn't change ownership of "$File::Find::name\n");
+            if( ! -l $File::Find::name) {
+              chown ($uid, $gid, untaint_chain($File::Find::name))
+                  or warn qq(Couldn't change ownership of "$File::Find::name\n");
+            }
         }}, @paths);
     }
     else {
