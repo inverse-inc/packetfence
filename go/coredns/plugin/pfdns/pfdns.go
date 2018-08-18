@@ -9,6 +9,7 @@ import (
 	"net"
 	"os"
 	"regexp"
+	"strconv"
 	"time"
 
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
@@ -549,19 +550,48 @@ func (pf *pfdns) LocalResolver(request request.Request) (*dns.Msg, error) {
 		ReadTimeout: DefaultTimeout,
 	}
 	request.Req.RecursionDesired = true
-	r, _, err := localc.Exchange(request.Req, "127.0.0.1:54")
+	request.Req.RecursionAvailable = true
+	localc.Net = "udp"
+	conf, err := dns.ClientConfigFromFile("/etc/resolv.conf")
 	if err != nil {
-		localc.Net = "tcp"
-		r, _, err = localc.Exchange(request.Req, "127.0.0.1:54")
+		fmt.Println("Unable to load /etc/resolv.conf")
+		os.Exit(2)
+	}
+	nameserver := "@" + conf.Servers[0]
+
+	nameserver = string([]byte(nameserver)[1:])
+	port := int(53)
+	if nameserver[0] == '[' && nameserver[len(nameserver)-1] == ']' {
+		nameserver = nameserver[1 : len(nameserver)-1]
+	}
+	if i := net.ParseIP(nameserver); i != nil {
+		nameserver = net.JoinHostPort(nameserver, strconv.Itoa(port))
+	} else {
+		nameserver = dns.Fqdn(nameserver) + ":" + strconv.Itoa(port)
+	}
+
+	for i := 0; i < 3; i++ {
+		r, _, err := localc.Exchange(request.Req, nameserver)
+		if err == dns.ErrTruncated && i == 0 {
+			fmt.Println("UDP Local resolver failed with the following error: " + err.Error() + ". try TCP")
+			localc.Net = "tcp"
+		}
+		if err != nil && i == 1 {
+			fmt.Println("TCP Local resolver failed with the following error: " + err.Error() + ". try UDP with type A")
+			localc.Net = "udp"
+			request.Req.SetQuestion(dns.Fqdn(request.Name()), dns.TypeA)
+		}
 		if err != nil {
-			return nil, err
+			fmt.Println("Local resolver failed with the following message " + err.Error())
+			continue
+		} else {
+			if r == nil || r.Rcode == dns.RcodeNameError || r.Rcode == dns.RcodeSuccess {
+				return r, err
+			} else {
+				return nil, errors.New("No name server to answer the question")
+			}
 		}
 	}
-
-	if r == nil || r.Rcode == dns.RcodeNameError || r.Rcode == dns.RcodeSuccess {
-		return r, err
-	}
-
 	return nil, errors.New("No name server to answer the question")
 }
 
