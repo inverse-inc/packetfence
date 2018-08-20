@@ -71,10 +71,6 @@
 # Syslog
 -A input-management-if --protocol udp --match udp --dport 514 --jump ACCEPT
 
-# ETCD
--A input-management-if --protocol tcp --match tcp --dport 2380 --jump ACCEPT
--A input-management-if --protocol tcp --match tcp --dport 2379 --jump ACCEPT
-
 # GO DHCP API
 -A input-management-if --protocol tcp --match tcp --dport 22222 --jump ACCEPT
 
