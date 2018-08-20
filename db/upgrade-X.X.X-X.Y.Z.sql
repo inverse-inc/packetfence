@@ -107,6 +107,10 @@ CREATE TABLE key_value_storage (
 --
 DROP table api_user;
 
+--
+-- Add potd column in person table
+--
+
 ALTER TABLE person
     ADD `potd` enum('no','yes') NOT NULL DEFAULT 'no',
 ;
