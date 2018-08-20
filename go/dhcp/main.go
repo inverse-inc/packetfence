@@ -16,7 +16,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/coreos/etcd/client"
 	"github.com/coreos/go-systemd/daemon"
 	"github.com/fdurand/arp"
 	cache "github.com/fdurand/go-cache"
@@ -44,8 +43,6 @@ var VIPIp map[string]net.IP
 
 var ctx = context.Background()
 
-var Capi *client.Config
-
 var webservices pfconfigdriver.PfConfWebservices
 
 var intNametoInterface map[string]*Interface
@@ -56,9 +53,6 @@ func main() {
 	arp.AutoRefresh(30 * time.Second)
 	// Default http timeout
 	http.DefaultClient.Timeout = 10 * time.Second
-
-	// Initialize etcd config
-	Capi = etcdInit()
 
 	// Initialize IP cache
 	GlobalIpCache = cache.New(5*time.Minute, 10*time.Minute)

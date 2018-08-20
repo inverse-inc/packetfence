@@ -91,4 +91,14 @@ BEGIN
 END$$
 DELIMITER ;
 
+--
+-- Table structure for table `keyval`
+--
+
+CREATE TABLE keyval (
+  id VARCHAR(255),
+  value LONGBLOB,
+  PRIMARY KEY(id)
+) ENGINE=InnoDB;
+
 INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION)); 

@@ -66,19 +66,6 @@ index adcd37e3f..a1e5324c9 100644
  # services.pfdns
  #
  # Should pfdns be managed by PacketFence?
-diff --git a/conf/systemd/packetfence-etcd.service b/conf/systemd/packetfence-etcd.service
-index db0d674a5..0dc860177 100644
---- a/conf/systemd/packetfence-etcd.service
-+++ b/conf/systemd/packetfence-etcd.service
-@@ -11,7 +11,7 @@ Restart=always
- RestartSec=5s
- LimitNOFILE=40000
- TimeoutStartSec=0
--ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::etcd' -e 'pf::services::manager::etcd->new()->generateConfig()'
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::etcd' -e 'pf::services::manager::etcd->new()->generateConfig()'
- ExecStart=/usr/bin/etcd --config-file /usr/local/pf/var/conf/etcd.conf.yml
- Slice=packetfence.slice
- 
 diff --git a/conf/systemd/packetfence-haproxy-db.service b/conf/systemd/packetfence-haproxy-db.service
 index e5067dec2..cfda22305 100644
 --- a/conf/systemd/packetfence-haproxy-db.service

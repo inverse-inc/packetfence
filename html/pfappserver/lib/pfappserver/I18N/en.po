@@ -3670,10 +3670,6 @@ msgstr ""
 msgid "Location of the dhcpd binary. Only necessary to change if you are not running the RPMed version."
 msgstr ""
 
-# conf/documentation.conf (services.etcd_binary)
-msgid "Location of the etcd binary."
-msgstr ""
-
 # conf/documentation.conf (services.fingerbank-collector_binary)
 msgid "Location of the fingerbank-collector binary."
 msgstr ""
@@ -6694,10 +6690,6 @@ msgstr ""
 
 # conf/documentation.conf (services.api-frontend)
 msgid "Should api-frontend be managed by PacketFence?"
-msgstr ""
-
-# conf/documentation.conf (services.etcd)
-msgid "Should etcd be managed by PacketFence?"
 msgstr ""
 
 # conf/documentation.conf (services.haproxy-db)
@@ -9742,7 +9734,6 @@ msgstr ""
 # conf/documentation.conf (pfdhcp.mac2ip_lookup options)
 # conf/documentation.conf (provisioning.autoconfig options)
 # conf/documentation.conf (services.api-frontend options)
-# conf/documentation.conf (services.etcd options)
 # conf/documentation.conf (services.fingerbank-collector options)
 # conf/documentation.conf (services.haproxy-db options)
 # conf/documentation.conf (services.haproxy-portal options)
@@ -9873,7 +9864,6 @@ msgstr ""
 # conf/documentation.conf (pfdhcp.mac2ip_lookup options)
 # conf/documentation.conf (provisioning.autoconfig options)
 # conf/documentation.conf (services.api-frontend options)
-# conf/documentation.conf (services.etcd options)
 # conf/documentation.conf (services.fingerbank-collector options)
 # conf/documentation.conf (services.haproxy-db options)
 # conf/documentation.conf (services.haproxy-portal options)
@@ -10963,14 +10953,6 @@ msgstr "arp path"
 # conf/documentation.conf
 msgid "services.dhcpd_binary"
 msgstr "dhcpd path"
-
-# conf/documentation.conf
-msgid "services.etcd"
-msgstr "etcd"
-
-# conf/documentation.conf
-msgid "services.etcd_binary"
-msgstr "etcd path"
 
 # conf/documentation.conf
 msgid "services.fingerbank-collector"

@@ -350,16 +350,6 @@ pfdhcp=enabled
 # Location of the pfdhcp binary.
 pfdhcp_binary=/usr/local/pf/sbin/pfdhcp
 #
-# services.etcd
-#
-# Should etcd be managed by PacketFence?
-etcd=enabled
-#
-# services.etcd_binary
-#
-# Location of the etcd binary. Only necessary to change if you are not running the RPMed version.
-etcd_binary=/usr/bin/etcd
-#
 # services.haproxy-portal
 #
 # Should haproxy-portal be started?
