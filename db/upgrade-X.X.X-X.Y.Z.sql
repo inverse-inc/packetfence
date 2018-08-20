@@ -54,6 +54,11 @@ DROP PROCEDURE IF EXISTS ValidateVersion;
 ALTER TABLE `node` MODIFY `bandwidth_balance` bigint(20) unsigned DEFAULT NULL;
 
 --
+-- Updating locationlog
+--
+UPDATE locationlog set connection_type = "Ethernet-NoEAP" where connection_type = "WIRED_MAC_AUTH";
+
+--
 -- Adjust the pf_version engine so its synchronized in a cluster
 --
 ALTER TABLE pf_version engine = InnoDB;
