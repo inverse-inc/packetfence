@@ -216,7 +216,7 @@ sub getBitAtPosition {
    if ($bitStream =~ /^0x/) {
        $bitStream =~ s/^0x//i;
        my $bin = join('',map { unpack("B4",pack("H",$_)) } (split //, $bitStream));
-       return substr($bin, $position, 1);
+       return substr($bin, $position - 8, 1);
    } else {
        my $bin = substr(unpack('B*', $bitStream), -8);
        return substr($bin, $position, 1);
