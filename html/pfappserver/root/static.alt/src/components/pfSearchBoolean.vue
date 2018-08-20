@@ -8,6 +8,7 @@
           <b-form-select v-model="model.values[0].values[0].op" :options="operators(model.values[0].values[0])"></b-form-select>
           <b-form-input v-model="model.values[0].values[0].value" type="text" v-if="isFieldType(substringValueType, model.values[0].values[0])"></b-form-input>
           <pf-form-datetime v-model="model.values[0].values[0].value" v-else-if="isFieldType(datetimeValueType, model.values[0].values[0])" :config="{useCurrent: true}"></pf-form-datetime>
+          <pf-form-prefix-multiplier v-model="model.values[0].values[0].value" v-else-if="isFieldType(prefixmultipleValueType, model.values[0].values[0])"></pf-form-prefix-multiplier>
           <b-form-select v-model.lazy="model.values[0].values[0].value" :options="values(model.values[0].values[0])" v-else-if="isFieldType(selectValueType, model.values[0].values[0])"></b-form-select>
         </b-container>
       </b-col>
@@ -44,6 +45,7 @@
                   <b-form-select v-model="rule.op" :options="operators(rule)"></b-form-select>
                   <b-form-input v-model="rule.value" type="text" v-if="isFieldType(substringValueType, rule)"></b-form-input>
                   <pf-form-datetime v-model="rule.value" v-else-if="isFieldType(datetimeValueType, rule)" :config="{useCurrent: true}" :moments="['-1 hours', '-1 days', '-1 weeks', '-1 months', '-1 quarters', '-1 years']"></pf-form-datetime>
+                  <pf-form-prefix-multiplier v-model="rule.value" v-else-if="isFieldType(prefixmultipleValueType, rule)"></pf-form-prefix-multiplier>
                   <b-form-select v-model.lazy="rule.value" :options="values(rule)" v-else-if="isFieldType(selectValueType, rule)"></b-form-select>
                   <b-button v-if="model.values.length > 1 || model.values[outerindex].values.length > 1 && drag === false" variant="link" class="nodrag float-right mt-1 mr-1" v-b-tooltip.hover.left :title="$t('Delete statement')" @click="removeStatement(outerindex, innerindex)"><icon name="trash-alt"></icon></b-button>
                 </b-container>
@@ -93,12 +95,14 @@ import {
   pfSearchConditionValue as conditionValue
 } from '@/globals/pfSearch'
 import pfFormDatetime from '@/components/pfFormDatetime'
+import pfFormPrefixMultiplier from '@/components/pfFormPrefixMultiplier'
 
 export default {
   name: 'pf-search-boolean',
   components: {
     draggable,
-    'pf-form-datetime': pfFormDatetime
+    'pf-form-datetime': pfFormDatetime,
+    'pf-form-prefix-multiplier': pfFormPrefixMultiplier
   },
   props: {
     model: {
@@ -123,7 +127,8 @@ export default {
     return {
       substringValueType: conditionValue.TEXT,
       selectValueType: conditionValue.SELECT,
-      datetimeValueType: conditionValue.DATETIME
+      datetimeValueType: conditionValue.DATETIME,
+      prefixmultipleValueType: conditionValue.PREFIXMULTIPLE
     }
   },
   watch: {
@@ -172,6 +177,7 @@ export default {
       return undefined
     },
     isFieldType (type, rule) {
+      console.log([type, rule])
       let isType = false
       let index = this.fields.findIndex(field => rule.field === field.value)
       if (index >= 0) {
