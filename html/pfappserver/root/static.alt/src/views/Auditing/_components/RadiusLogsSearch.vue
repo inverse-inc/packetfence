@@ -1,5 +1,6 @@
 <template>
   <b-card no-body>
+    <pf-progress :active="isLoading"></pf-progress>
     <b-card-header>
       <div class="float-right"><toggle-button v-model="advancedMode">{{ $t('Advanced') }}</toggle-button></div>
       <h4 class="mb-0" v-t="'Search RADIUS Audit Logs'"></h4>
@@ -36,9 +37,13 @@
         </b-col>
       </b-row>
       <b-table :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc"
-        @sort-changed="onSortingChanged" @row-clicked="onRowClick" responsive hover no-local-sorting>
+        @sort-changed="onSortingChanged" @row-clicked="onRowClick"
+        show-empty responsive hover no-local-sorting>
         <template slot="mac" slot-scope="log">
           <mac v-text="log.item.mac"></mac>
+        </template>
+        <template slot="empty">
+          <pf-empty-table :isLoading="isLoading">{{ $t('No log found') }}</pf-empty-table>
         </template>
       </b-table>
     </div>
@@ -48,6 +53,8 @@
 <script>
 import { pfSearchConditionType as attributeType } from '@/globals/pfSearch'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
+import pfProgress from '@/components/pfProgress'
+import pfEmptyTable from '@/components/pfEmptyTable'
 import pfSearch from '@/components/pfSearch'
 import ToggleButton from '@/components/ToggleButton'
 
@@ -57,6 +64,8 @@ export default {
     pfMixinSearchable
   ],
   components: {
+    'pf-progress': pfProgress,
+    'pf-empty-table': pfEmptyTable,
     'pf-search': pfSearch,
     'toggle-button': ToggleButton
   },

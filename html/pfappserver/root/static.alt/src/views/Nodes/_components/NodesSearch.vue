@@ -87,7 +87,8 @@
         </b-col>
       </b-row>
       <b-table :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc" v-model="tableValues"
-        @sort-changed="onSortingChanged" @row-clicked="onRowClick" @head-clicked="clearSelected" responsive hover no-local-sorting>
+        @sort-changed="onSortingChanged" @row-clicked="onRowClick" @head-clicked="clearSelected"
+        show-empty responsive hover no-local-sorting>
         <template slot="HEAD_actions" slot-scope="head">
           <input type="checkbox" id="checkallnone" v-model="selectAll" @change="onSelectAllChange" @click.stop>
           <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{$t('Select None [ALT+N]')}}</b-tooltip>
@@ -109,6 +110,9 @@
         <template slot="device_score" slot-scope="data">
           <pf-fingerbank-score :score="data.value"></pf-fingerbank-score>
         </template>
+        <template slot="empty">
+          <pf-empty-table :isLoading="isLoading">{{ $t('No node found') }}</pf-empty-table>
+        </template>
       </b-table>
     </div>
   </b-card>
@@ -117,6 +121,7 @@
 <script>
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import pfProgress from '@/components/pfProgress'
+import pfEmptyTable from '@/components/pfEmptyTable'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
 import pfMixinSelectable from '@/components/pfMixinSelectable'
 import pfFingerbankScore from '@/components/pfFingerbankScore'
@@ -130,6 +135,7 @@ export default {
   ],
   components: {
     'pf-progress': pfProgress,
+    'pf-empty-table': pfEmptyTable,
     'pf-fingerbank-score': pfFingerbankScore
   },
   props: {

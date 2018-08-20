@@ -1,5 +1,6 @@
 <template>
   <b-card no-body>
+    <pf-progress :active="isLoading"></pf-progress>
     <b-card-header>
       <div class="float-right"><toggle-button v-model="advancedMode" :sync="true">{{ $t('Advanced') }}</toggle-button></div>
       <h4 class="mb-0" v-t="'Search Users'"></h4>
@@ -35,7 +36,8 @@
         </b-col>
       </b-row>
       <b-table :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc" v-model="tableValues"
-        @sort-changed="onSortingChanged" @row-clicked="onRowClick" @head-clicked="clearSelected" responsive hover no-local-sorting>
+        @sort-changed="onSortingChanged" @row-clicked="onRowClick" @head-clicked="clearSelected"
+        show-empty responsive hover no-local-sorting>
         <template slot="HEAD_actions" slot-scope="head">
           <input type="checkbox" id="checkallnone" v-model="selectAll" @change="onSelectAllChange" @click.stop>
           <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{$t('Select None [ALT+N]')}}</b-tooltip>
@@ -45,7 +47,9 @@
           <input type="checkbox" :id="data.value" :value="data.item" v-model="selectValues" @click.stop="onToggleSelected($event, data.index)">
           <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[data.index]._message" v-b-tooltip.hover.right :title="tableValues[data.index]._message"></icon>
         </template>
-
+        <template slot="empty">
+          <pf-empty-table :isLoading="isLoading">{{ $t('No user found') }}</pf-empty-table>
+        </template>
       </b-table>
     </div>
   </b-card>
@@ -53,6 +57,8 @@
 
 <script>
 import { pfSearchConditionType as attributeType } from '@/globals/pfSearch'
+import pfProgress from '@/components/pfProgress'
+import pfEmptyTable from '@/components/pfEmptyTable'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
 import pfMixinSelectable from '@/components/pfMixinSelectable'
 
@@ -64,6 +70,8 @@ export default {
     pfMixinSearchable
   ],
   components: {
+    'pf-progress': pfProgress,
+    'pf-empty-table': pfEmptyTable
   },
   props: {
     pfMixinSearchableOptions: {
