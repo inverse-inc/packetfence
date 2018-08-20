@@ -5,7 +5,11 @@ import (
 )
 
 func MysqlInsert(key string, value string) bool {
+<<<<<<< HEAD
 	_, err := MySQLdatabase.Query("replace into key_value_storage values(?,?)", "/dhcpd/"+key, value)
+=======
+	_, err := MySQLdatabase.Query("replace into keyval values(?,?)", "/dhcpd/"+key, value)
+>>>>>>> 099efb48fe... Use Mysql as backend (dhcp option) and removed etcd
 	if err != nil {
 		log.LoggerWContext(ctx).Error("Error while inserting into MySQL: " + err.Error())
 		return false
