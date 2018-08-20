@@ -28,7 +28,7 @@
                 <pf-form-prefix-multiplier v-model="node.bandwidth_balance"></pf-form-prefix-multiplier>
               </b-form-group>
               <b-form-group horizontal label-cols="3" :label="$t('VOIP')" class="my-1">
-                <pf-form-toggle v-model="node.voip" :sync="true" :color="{checked: '#28a745', unchecked: '#dc3545'}" :values="{checked: 'yes', unchecked: 'no'}">{{ (node.voip === 'yes') ? $t('Yes') : $t('No') }}</pf-form-toggle>
+                <pf-form-toggle v-model="node.voip" :color="{checked: '#28a745', unchecked: '#dc3545'}" :values="{checked: 'yes', unchecked: 'no'}">{{ (node.voip === 'yes') ? $t('Yes') : $t('No') }}</pf-form-toggle>
               </b-form-group>
               <b-form-group horizontal label-cols="3" :label="$t('Notes')">
                 <b-form-textarea v-model="nodeContent.notes" rows="4" max-rows="6"></b-form-textarea>

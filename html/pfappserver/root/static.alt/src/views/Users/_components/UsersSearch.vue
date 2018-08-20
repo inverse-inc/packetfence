@@ -2,7 +2,7 @@
   <b-card no-body>
     <pf-progress :active="isLoading"></pf-progress>
     <b-card-header>
-      <div class="float-right"><pf-form-toggle v-model="advancedMode" :sync="true">{{ $t('Advanced') }}</pf-form-toggle></div>
+      <div class="float-right"><pf-form-toggle v-model="advancedMode">{{ $t('Advanced') }}</pf-form-toggle></div>
       <h4 class="mb-0" v-t="'Search Users'"></h4>
     </b-card-header>
     <pf-search :quick-with-fields="false" :quick-placeholder="$t('Search by name or email')"
