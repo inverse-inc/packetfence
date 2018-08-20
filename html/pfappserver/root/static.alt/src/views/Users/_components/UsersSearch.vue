@@ -1,7 +1,7 @@
 <template>
   <b-card no-body>
     <b-card-header>
-      <div class="float-right"><toggle-button v-model="advancedMode" :sync="true">{{ $t('Advanced') }}</toggle-button></div>
+      <div class="float-right"><pf-form-toggle v-model="advancedMode" :sync="true">{{ $t('Advanced') }}</pf-form-toggle></div>
       <h4 class="mb-0" v-t="'Search Users'"></h4>
     </b-card-header>
     <pf-search :quick-with-fields="false" :quick-placeholder="$t('Search by name or email')"
@@ -55,6 +55,7 @@
 import { pfSearchConditionType as attributeType } from '@/globals/pfSearch'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
 import pfMixinSelectable from '@/components/pfMixinSelectable'
+import pfFormToggle from '@/components/pfFormToggle'
 
 export default {
   name: 'UsersSearch',
@@ -64,6 +65,7 @@ export default {
     pfMixinSearchable
   ],
   components: {
+    'pf-form-toggle': pfFormToggle
   },
   props: {
     pfMixinSearchableOptions: {

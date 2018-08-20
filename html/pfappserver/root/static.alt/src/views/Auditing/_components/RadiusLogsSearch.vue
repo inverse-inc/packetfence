@@ -1,7 +1,7 @@
 <template>
   <b-card no-body>
     <b-card-header>
-      <div class="float-right"><toggle-button v-model="advancedMode">{{ $t('Advanced') }}</toggle-button></div>
+      <div class="float-right"><pf-form-toggle v-model="advancedMode">{{ $t('Advanced') }}</pf-form-toggle></div>
       <h4 class="mb-0" v-t="'Search RADIUS Audit Logs'"></h4>
     </b-card-header>
     <pf-search :quick-with-fields="false" quick-placeholder="Search by MAC or username"
@@ -50,7 +50,7 @@ import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
 import pfSearch from '@/components/pfSearch'
-import ToggleButton from '@/components/ToggleButton'
+import pfFormToggle from '@/components/pfFormToggle'
 
 export default {
   name: 'RadiusLogsSearch',
@@ -59,7 +59,7 @@ export default {
   ],
   components: {
     'pf-search': pfSearch,
-    'toggle-button': ToggleButton
+    'pf-form-toggle': pfFormToggle
   },
   props: {
     pfMixinSearchableOptions: {
