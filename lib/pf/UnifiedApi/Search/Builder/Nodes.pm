@@ -51,7 +51,10 @@ our @IP4LOG_JOIN = (
             'ip4log.ip' => {
                 "=" => \
 "( SELECT `ip` FROM `ip4log` WHERE `mac` = `node`.`mac` AND `tenant_id` = `node`.`tenant_id`  ORDER BY `start_time` DESC LIMIT 1 )",
-            }
+            },
+            'ip4log.tenant_id' => {
+                -ident => 'node.tenant_id'
+            },
         }
     },
     'ip4log',
