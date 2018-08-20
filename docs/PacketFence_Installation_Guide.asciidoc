@@ -4671,6 +4671,12 @@ with (a hyphen):
 *.info;mail.none;authpriv.none;cron.none                -/var/log/messages
 ----
 
+Ignore some checks
+^^^^^^^^^^^^^^^^^^
+
+Put full paths of checks in `/etc/monit.d/local-ignores`
+
+
 Restart monit
 ^^^^^^^^^^^^^
 ----
