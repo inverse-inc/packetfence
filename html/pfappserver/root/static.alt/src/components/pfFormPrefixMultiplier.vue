@@ -1,5 +1,5 @@
 <template>
-  <b-form-group :label-cols="labelCols" :label="$t(label)" :state="isValid()" :invalid-feedback="$t(invalidFeedback)" horizontal>
+  <b-form-group :label-cols="labelCols" :label="$t(label)" :state="isValid()" :invalid-feedback="$t(invalidFeedback)" class="mb-0" horizontal>
     <b-input-group>
       <b-input-group-prepend v-if="prependText" is-text>
         {{ prependText }}
@@ -8,9 +8,8 @@
       <b-form-text v-if="text" v-t="text"></b-form-text>
       <b-input-group-append>
         <b-button-group v-if="prefixes.length > 0" rel="prefixButtonGroup">
-          <b-button v-for="(prefix, index) in prefixes" :key="index" :variant="[prefix.selected ? 'primary' : 'light']" v-b-tooltip.hover.bottom.d300 :title="$t(prefix.name + units.name)" @click.stop="changeMultiplier($event, index)">{{ prefix.label + units.label }}</b-button>
+          <b-button v-for="(prefix, index) in prefixes" v-if="inRange(index)" :key="index" :variant="[prefix.selected ? 'primary' : 'light']" v-b-tooltip.hover.bottom.d300 :title="$t(prefix.name + units.name)" @click.stop="changeMultiplier($event, index)">{{ prefix.label + units.label }}</b-button>
         </b-button-group>
-        <b-button class="input-group-text" :disabled="true" variant="secondary"><icon name="sort-amount-up"></icon></b-button>
       </b-input-group-append>
     </b-input-group>
   </b-form-group>
@@ -71,6 +70,10 @@ export default {
         label: 'B',
         name: 'bytes'
       }
+    },
+    max: {
+      type: Number,
+      default: 4294967295 // Number.MAX_SAFE_INTEGER
     }
   },
   data () {
@@ -192,6 +195,9 @@ export default {
           this.prefixes[index].selected = true
         }
       }
+    },
+    inRange (index) {
+      return this.prefixes[index].multiplier <= this.max
     }
   },
   watch: {

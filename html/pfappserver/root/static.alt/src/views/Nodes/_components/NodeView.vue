@@ -27,6 +27,9 @@
               <b-form-group horizontal label-cols="3" :label="$t('Bandwidth Balance')">
                 <pf-form-prefix-multiplier v-model="node.bandwidth_balance"></pf-form-prefix-multiplier>
               </b-form-group>
+              <b-form-group horizontal label-cols="3" :label="$t('VOIP')" class="my-1">
+                <pf-form-toggle v-model="node.voip" :sync="true" :color="{checked: '#28a745', unchecked: '#dc3545'}" :values="{checked: 'yes', unchecked: 'no'}">{{ (node.voip === 'yes') ? $t('Yes') : $t('No') }}</pf-form-toggle>
+              </b-form-group>
               <b-form-group horizontal label-cols="3" :label="$t('Notes')">
                 <b-form-textarea v-model="nodeContent.notes" rows="4" max-rows="6"></b-form-textarea>
               </b-form-group>
@@ -246,12 +249,12 @@
 
 <script>
 import DeleteButton from '@/components/DeleteButton'
-import ToggleButton from '@/components/ToggleButton'
 import pfFingerbankScore from '@/components/pfFingerbankScore'
 import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormPrefixMultiplier from '@/components/pfFormPrefixMultiplier'
 import pfFormRow from '@/components/pfFormRow'
+import pfFormToggle from '@/components/pfFormToggle'
 import { pfEapType as eapType } from '@/globals/pfEapType'
 import {
   pfSearchConditionType as conditionType,
@@ -267,12 +270,12 @@ export default {
   storeName: '$_nodes',
   components: {
     'delete-button': DeleteButton,
-    'toggle-button': ToggleButton,
     'pf-fingerbank-score': pfFingerbankScore,
     'pf-form-datetime': pfFormDatetime,
     'pf-form-row': pfFormRow,
     'pf-form-prefix-multiplier': pfFormPrefixMultiplier,
-    'pf-form-input': pfFormInput
+    'pf-form-input': pfFormInput,
+    'pf-form-toggle': pfFormToggle
   },
   mixins: [
     validationMixin
@@ -714,6 +717,12 @@ export default {
     'node.dhcpoption82': {
       handler: function (a, b) {
         this.redrawVis()
+      },
+      deep: true
+    },
+    'node.voip': {
+      handler: function (a, b) {
+        console.log(['voip', a])
       },
       deep: true
     },
