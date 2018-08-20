@@ -2,7 +2,7 @@
   <b-card no-body>
     <pf-progress :active="isLoading"></pf-progress>
     <b-card-header>
-      <div class="float-right"><toggle-button v-model="advancedMode">{{ $t('Advanced') }}</toggle-button></div>
+      <div class="float-right"><pf-form-toggle v-model="advancedMode">{{ $t('Advanced') }}</pf-form-toggle></div>
       <h4 class="mb-0" v-t="'Search RADIUS Audit Logs'"></h4>
     </b-card-header>
     <pf-search :quick-with-fields="false" quick-placeholder="Search by MAC or username"
@@ -57,7 +57,7 @@ import pfMixinSearchable from '@/components/pfMixinSearchable'
 import pfProgress from '@/components/pfProgress'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfSearch from '@/components/pfSearch'
-import ToggleButton from '@/components/ToggleButton'
+import pfFormToggle from '@/components/pfFormToggle'
 
 export default {
   name: 'RadiusLogsSearch',
@@ -68,7 +68,7 @@ export default {
     'pf-progress': pfProgress,
     'pf-empty-table': pfEmptyTable,
     'pf-search': pfSearch,
-    'toggle-button': ToggleButton
+    'pf-form-toggle': pfFormToggle
   },
   props: {
     pfMixinSearchableOptions: {

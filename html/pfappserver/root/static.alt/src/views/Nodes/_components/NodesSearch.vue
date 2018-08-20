@@ -2,7 +2,7 @@
   <b-card no-body>
     <pf-progress :active="isLoading"></pf-progress>
     <b-card-header>
-      <div class="float-right"><toggle-button v-model="advancedMode" :sync="true">{{ $t('Advanced') }}</toggle-button></div>
+      <div class="float-right"><pf-form-toggle v-model="advancedMode" :sync="true">{{ $t('Advanced') }}</pf-form-toggle></div>
       <h4 class="mb-0" v-t="'Search Nodes'"></h4>
     </b-card-header>
     <pf-search :fields="fields" :store="$store" storeName="$_nodes" :advanced-mode="advancedMode" :condition="condition"
@@ -126,6 +126,7 @@ import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
 import pfMixinSelectable from '@/components/pfMixinSelectable'
 import pfFingerbankScore from '@/components/pfFingerbankScore'
+import pfFormToggle from '@/components/pfFormToggle'
 
 export default {
   name: 'NodesSearch',
@@ -137,7 +138,8 @@ export default {
   components: {
     'pf-progress': pfProgress,
     'pf-empty-table': pfEmptyTable,
-    'pf-fingerbank-score': pfFingerbankScore
+    'pf-fingerbank-score': pfFingerbankScore,
+    'pf-form-toggle': pfFormToggle
   },
   props: {
     pfMixinSearchableOptions: {
@@ -339,19 +341,19 @@ export default {
         {
           value: 'voip',
           text: this.$i18n.t('VoIP'),
-          types: [conditionType.VOIP],
+          types: [conditionType.YESNO],
           icon: 'phone'
         },
         {
           value: 'autoreg',
           text: this.$i18n.t('Auto Registration'),
-          types: [conditionType.AUTOREG],
+          types: [conditionType.YESNO],
           icon: 'magic'
         },
         {
           value: 'bandwidth_balance',
           text: this.$i18n.t('Bandwidth Balance'),
-          types: [conditionType.INTEGER],
+          types: [conditionType.PREFIXMULTIPLE],
           icon: 'balance-scale'
         }
       ],

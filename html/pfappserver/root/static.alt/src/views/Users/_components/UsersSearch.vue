@@ -2,7 +2,7 @@
   <b-card no-body>
     <pf-progress :active="isLoading"></pf-progress>
     <b-card-header>
-      <div class="float-right"><toggle-button v-model="advancedMode" :sync="true">{{ $t('Advanced') }}</toggle-button></div>
+      <div class="float-right"><pf-form-toggle v-model="advancedMode" :sync="true">{{ $t('Advanced') }}</pf-form-toggle></div>
       <h4 class="mb-0" v-t="'Search Users'"></h4>
     </b-card-header>
     <pf-search :quick-with-fields="false" :quick-placeholder="$t('Search by name or email')"
@@ -61,6 +61,7 @@ import pfProgress from '@/components/pfProgress'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
 import pfMixinSelectable from '@/components/pfMixinSelectable'
+import pfFormToggle from '@/components/pfFormToggle'
 
 export default {
   name: 'UsersSearch',
@@ -71,7 +72,8 @@ export default {
   ],
   components: {
     'pf-progress': pfProgress,
-    'pf-empty-table': pfEmptyTable
+    'pf-empty-table': pfEmptyTable,
+    'pf-form-toggle': pfFormToggle
   },
   props: {
     pfMixinSearchableOptions: {
