@@ -8,13 +8,11 @@
       <template slot="state" slot-scope="service">
         <pf-form-toggle
          :value="service.item.enabled"
-         :sync="true"
          :disabled="service.item.loading"
          width="90" class="d-inline-block"
          :labels="{ checked: 'enabled', unchecked: 'disabled' }"></pf-form-toggle>
         <pf-form-toggle
          :value="service.item.alive"
-         :sync="true"
          :disabled="service.item.loading"
          width="90" class="d-inline-block"
          :labels="{ checked: 'running', unchecked: 'stopped' }"
