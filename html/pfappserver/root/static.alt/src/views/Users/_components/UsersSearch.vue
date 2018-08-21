@@ -506,16 +506,18 @@ export default {
   },
   watch: {
     selectValues (a, b) {
-      const _this = this
-      const selectValues = this.selectValues
-      this.tableValues.forEach(function (item, index, items) {
-        if (selectValues.includes(item)) {
-          _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, variant: 'info'})
-        } else {
-          _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, variant: ''})
-          _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: ''})
-        }
-      })
+      if (JSON.stringify(a) !== JSON.stringify(b)) {
+        const _this = this
+        const selectValues = this.selectValues
+        this.tableValues.forEach(function (item, index, items) {
+          if (selectValues.includes(item)) {
+            _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, variant: 'info'})
+          } else {
+            _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, variant: ''})
+            _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: ''})
+          }
+        })
+      }
     }
   }
 }

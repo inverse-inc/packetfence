@@ -177,7 +177,6 @@ export default {
       return undefined
     },
     isFieldType (type, rule) {
-      console.log([type, rule])
       let isType = false
       let index = this.fields.findIndex(field => rule.field === field.value)
       if (index >= 0) {
