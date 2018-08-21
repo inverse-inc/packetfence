@@ -662,7 +662,8 @@ export default {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
         this.$store.dispatch(`${this.$options.storeName}/clearViolationBulkNodes`, {items: macs}).then(response => {
-          response.items.forEach(function (item, index, items) {
+          response.items.forEach(function (item, _index, items) {
+            let index = _this.tableValues.findIndex(node => node.mac === item.mac)
             _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, status: item.status})
             _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: item.message})
           })
@@ -680,7 +681,8 @@ export default {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
         this.$store.dispatch(`${this.$options.storeName}/registerBulkNodes`, {items: macs}).then(response => {
-          response.items.forEach(function (item, index, items) {
+          response.items.forEach(function (item, _index, items) {
+            let index = _this.tableValues.findIndex(node => node.mac === item.mac)
             _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, status: item.status})
             _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: item.message})
           })
@@ -698,7 +700,8 @@ export default {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
         this.$store.dispatch(`${this.$options.storeName}/deregisterBulkNodes`, {items: macs}).then(response => {
-          response.items.forEach(function (item, index, items) {
+          response.items.forEach(function (item, _index, items) {
+            let index = _this.tableValues.findIndex(node => node.mac === item.mac)
             _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, status: item.status})
             _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: item.message})
           })
@@ -716,7 +719,8 @@ export default {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
         this.$store.dispatch(`${this.$options.storeName}/reevaluateAccessBulkNodes`, {items: macs}).then(response => {
-          response.items.forEach(function (item, index, items) {
+          response.items.forEach(function (item, _index, items) {
+            let index = _this.tableValues.findIndex(node => node.mac === item.mac)
             _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, status: item.status})
             _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: item.message})
           })
@@ -734,7 +738,8 @@ export default {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
         this.$store.dispatch(`${this.$options.storeName}/restartSwitchportBulkNodes`, {items: macs}).then(response => {
-          response.items.forEach(function (item, index, items) {
+          response.items.forEach(function (item, _index, items) {
+            let index = _this.tableValues.findIndex(node => node.mac === item.mac)
             _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, status: item.status})
             _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: item.message})
           })
@@ -752,7 +757,8 @@ export default {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
         this.$store.dispatch(`${this.$options.storeName}/refreshFingerbankBulkNodes`, {items: macs}).then(response => {
-          response.items.forEach(function (item, index, items) {
+          response.items.forEach(function (item, _index, items) {
+            let index = _this.tableValues.findIndex(node => node.mac === item.mac)
             _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, status: item.status})
             _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: item.message})
           })
@@ -810,7 +816,8 @@ export default {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
         this.$store.dispatch(`${this.$options.storeName}/applyViolationBulkNodes`, {items: macs, vid: violation.id}).then(response => {
-          response.items.forEach(function (item, index, items) {
+          response.items.forEach(function (item, _index, items) {
+            let index = _this.tableValues.findIndex(node => node.mac === item.mac)
             _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, status: item.status})
             _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: item.message})
           })
@@ -826,16 +833,18 @@ export default {
   },
   watch: {
     selectValues (a, b) {
-      const _this = this
-      const selectValues = this.selectValues
-      this.tableValues.forEach(function (item, index, items) {
-        if (selectValues.includes(item)) {
-          _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, variant: 'info'})
-        } else {
-          _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, variant: ''})
-          _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: ''})
-        }
-      })
+      if (JSON.stringify(a) !== JSON.stringify(b)) {
+        const _this = this
+        const selectValues = this.selectValues
+        this.tableValues.forEach(function (item, index, items) {
+          if (selectValues.includes(item)) {
+            _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, variant: 'info'})
+          } else {
+            _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, variant: ''})
+            _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: ''})
+          }
+        })
+      }
     }
   },
   created () {
