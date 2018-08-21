@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 2;
+use Test::More tests => 3;
 use pf::Switch::Dell::N1500;
 
 #This test will running last
@@ -32,6 +32,11 @@ my $switch = pf::Switch::Dell::N1500->new({});
 
 ok(
     $switch->getBitAtPosition("0x0024", $SNMP::LLDP::TELEPHONE),
+    "$SNMP::LLDP::TELEPHONE is found in bit table"
+);
+
+ok(
+    $switch->getBitAtPosition(pack("B*", "0000000000100100"), $SNMP::LLDP::TELEPHONE),
     "$SNMP::LLDP::TELEPHONE is found in bit table"
 );
 
