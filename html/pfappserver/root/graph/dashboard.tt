@@ -430,6 +430,21 @@ END
                         </div>
                     </div>
                 </div>
+                <div class="card-block">
+                    <div class="row-flex">
+                        <div class="col18 text-center">
+                            <div data-netdata="mysql_PacketFence_Database.connections"
+                            data-host="/netdata/127.0.0.1"
+                            data-title="Database connections"
+                            data-chart-library="dygraph"
+                            data-colors="[% palette(loop.index) %]"
+                            data-height="200px"
+                            data-hide-missing="true"
+                            data-before="0"
+                            data-after="-86400"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
         </div>
