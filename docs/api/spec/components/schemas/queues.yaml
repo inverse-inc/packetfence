@@ -1,0 +1,43 @@
+QueueStats:
+    type: array
+    description: The schema used for a collection of queue stats
+    items:
+        type: object
+        description: Statistics of the queue
+        properties:
+            queue:
+                type: string
+                description: The name of the queue
+            stats:
+                type: object
+                description: The statistics for the queue
+                properties:
+                    count:
+                        type: integer
+                        description: The queue count
+                    expired:
+                        type: array
+                        description: The collection of expired task counters
+                        items:
+                            type: object
+                            description: An expired task
+                            properties:
+                                count: 
+                                    type: integer
+                                    description: The expired task counter
+                                name: 
+                                    type: string
+                                    description: The name of the expired task
+                    outstanding:
+                        type: array
+                        description: The collection of outstanding task counters
+                        items:
+                            type: object
+                            description: An outstanding task
+                            properties:
+                                count: 
+                                    type: integer
+                                    description: The outstanding task counter
+                                name: 
+                                    type: string
+                                    description: The name of the outstanding task

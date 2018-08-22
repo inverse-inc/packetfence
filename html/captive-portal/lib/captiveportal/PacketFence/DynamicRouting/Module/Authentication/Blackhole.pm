@@ -14,6 +14,8 @@ use Moose;
 extends 'captiveportal::DynamicRouting::Module::Authentication';
 with 'captiveportal::Role::FieldValidation';
 
+has 'template' => (is => 'rw', default => sub {'message.html'});
+
 has '+source' => (isa => 'pf::Authentication::Source::BlackholeSource');
 
 =head2 execute_child
@@ -25,7 +27,7 @@ Execute the module
 sub execute_child {
     my ($self) = @_;
 
-    $self->render("message.html", {
+    $self->render($self->template, {
         message => "register: not allowed to register", 
         title => $self->description,
     });

@@ -2,7 +2,6 @@
 Description=PacketFence FreeRADIUS multi-protocol accounting server
 Documentation=man:radiusd(8) man:radiusd.conf(5) http://wiki.freeradius.org/ http://networkradius.com/doc/
 After=packetfence-httpd.aaa.service 
-After=packetfence-radiusd-auth.service
 Wants=packetfence-httpd.aaa.service
 Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
 After=packetfence-base.target packetfence-config.service packetfence-iptables.service 
@@ -12,7 +11,7 @@ Type=notify
 WatchdogSec=10
 StartLimitBurst=3
 StartLimitInterval=10
-PIDFile=/usr/local/pf/var/run/radiusd-acct.pid
+ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::radiusd' -e 'pf::services::manager::radiusd->new()->generateConfig()'
 ExecStartPre=/usr/local/pf/bin/pfcmd service radiusd generateconfig
 ExecStartPre=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n acct -Cxm -lstdout 
 ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n acct -fm 

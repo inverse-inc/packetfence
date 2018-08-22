@@ -953,33 +953,29 @@ sub trigger_scan :Public :Fork :AllowedAsAction($ip, mac, $mac, net_type, TYPE) 
 
     return unless scalar keys %pf::config::ConfigScan;
     my $logger = pf::log::get_logger();
+    my $added;
     # post_registration (production vlan)
     # We sleep until (we hope) the device has had time issue an ACK.
     if (pf::util::is_prod_interface($postdata{'net_type'})) {
         my $profile = pf::Connection::ProfileFactory->instantiate($postdata{'mac'});
         my $scanner = $profile->findScan($postdata{'mac'});
         if (defined($scanner) && pf::util::isenabled($scanner->{'_post_registration'})) {
-            pf::violation::violation_add( $postdata{'mac'}, $pf::constants::scan::POST_SCAN_VID );
+            $added = pf::violation::violation_add( $postdata{'mac'}, $pf::constants::scan::POST_SCAN_VID );
         }
-        my $top_violation = pf::violation::violation_view_top($postdata{'mac'});
-        # get violation id
-        my $vid = $top_violation->{'vid'};
-        return if not defined $vid;
+        return if ($added == 0 || $added == -1);
         sleep $pf::config::Config{'fencing'}{'wait_for_redirect'};
-        pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($vid eq $pf::constants::scan::POST_SCAN_VID);
+        pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if ($added ne $pf::constants::scan::POST_SCAN_VID);
     }
     else {
         my $profile = pf::Connection::ProfileFactory->instantiate($postdata{'mac'});
         my $scanner = $profile->findScan($postdata{'mac'});
         # pre_registration
         if (defined($scanner) && pf::util::isenabled($scanner->{'_pre_registration'})) {
-            pf::violation::violation_add( $postdata{'mac'}, $pf::constants::scan::PRE_SCAN_VID );
+            $added = pf::violation::violation_add( $postdata{'mac'}, $pf::constants::scan::PRE_SCAN_VID );
         }
-        my $top_violation = pf::violation::violation_view_top($postdata{'mac'});
-        my $vid = $top_violation->{'vid'};
-        return if not defined $vid;
+        return if ($added == 0 || $added == -1);
         sleep $pf::config::Config{'fencing'}{'wait_for_redirect'};
-        pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($vid eq $pf::constants::scan::PRE_SCAN_VID || $vid eq $pf::constants::scan::SCAN_VID);
+        pf::scan::run_scan($postdata{'ip'}, $postdata{'mac'}) if  ($added ne $pf::constants::scan::PRE_SCAN_VID && $added ne $pf::constants::scan::SCAN_VID);
     }
     return;
 }
@@ -1168,6 +1164,36 @@ sub detect_computername_change : Public {
         }
     }
     return 0;
+}
+
+=head2 detect_computername_change
+
+Will determine if a connection type transport has changed between requests
+Will try to trigger a violation with the trigger internal::connection_type_change
+
+=cut
+
+sub detect_connection_type_transport_change : Public {
+    my ($class, $mac, $current_connection) = @_;
+    my $logger = pf::log::get_logger;
+
+    my $locationlog = pf::locationlog::locationlog_view_open_mac($mac);
+    if($locationlog) {
+        my $old_connection = pf::Connection->new;
+        $old_connection->backwardCompatibleToAttributes($locationlog->{connection_type});
+        my $old_transport = $old_connection->transport;
+        my $current_transport = $current_connection->transport;
+        if($old_transport ne $current_transport) {
+            $logger->info("Device transport has changed from $old_transport to $current_transport.");
+            pf::violation::violation_trigger( { 'mac' => $mac, 'tid' => "connection_type_change", 'type' => "internal" } );
+        }
+        else {
+            $logger->debug("Device transport hasn't changed ($old_transport)");
+        }
+    } 
+    else {
+        $logger->debug("Not performing connection type change detection for this device since there is no previously opened locationlog entry");
+    }
 }
 
 =head2 reevaluate_access
@@ -1369,7 +1395,7 @@ sub handle_accounting_metadata : Public {
         }
     }
     if ($RAD_REQUEST{'Acct-Status-Type'} == $ACCOUNTING::STOP){
-        if (pf::util::isenabled($pf::config::Config{advanced}{unreg_on_accounting_stop})) {
+        if (pf::Connection::ProfileFactory->instantiate($mac)->unregOnAcctStop()) {
             $client->notify("deregister_node", mac => $mac);
         }
     }

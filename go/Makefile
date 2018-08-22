@@ -36,6 +36,12 @@ pfstats:
         cd - && \
         mv stats/stats pfstats
 
+pfdetect:
+	cd detect && \
+        go build && \
+        cd - && \
+        mv detect/detect pfdetect
+
 .PHONY: clean-caddy-src
 
 clean-caddy-src:
@@ -51,8 +57,7 @@ go-env:
 
 test:
 	/usr/local/pf/t/pfconfig-test ;\
-	PFCONFIG_TESTING=y govendor test ./... ;\
-	pkill pfconfig-test
+	PFCONFIG_TESTING=y govendor test ./...
 
 .PHONY: clean-coredns-src
 

@@ -19,7 +19,7 @@ use Mojo::JSON qw(decode_json);
 use pf::error qw(is_error);
 use pf::log;
 use pf::util qw(expand_csv);
-use pf::UnifiedApi::SearchBuilder;
+use pf::UnifiedApi::Search::Builder;
 use pf::UnifiedApi::OpenAPI::Generator::Crud;
 
 our %OP_HAS_SUBQUERIES = (
@@ -69,7 +69,7 @@ search_builder_class
 
 =cut
 
-has 'search_builder_class' => "pf::UnifiedApi::SearchBuilder";
+has 'search_builder_class' => "pf::UnifiedApi::Search::Builder";
 
 =head2 openapi_generator_class
 
@@ -187,7 +187,19 @@ sub get_lookup_info {
 sub render_get {
     my ($self) = @_;
     my $stash = $self->stash;
-    return $self->render(json => { item => ${$stash->{item}}[-1], status => $stash->{status}});
+    return $self->render(json => { item => $self->item, status => $stash->{status}});
+}
+
+=head2 item
+
+item
+
+=cut
+
+sub item {
+    my ($self) = @_;
+    my $stash = $self->stash;
+    return ${$stash->{item}}[-1];
 }
 
 sub do_get {
@@ -210,10 +222,14 @@ sub create {
     );
 }
 
+sub create_error_msg {
+    "Unable to create resource"
+}
+
 sub render_create {
     my ($self, $status, $obj) = @_;
     if (is_error($status)) {
-        return $self->render_error($status, "Unable to create resource");
+        return $self->render_error($status, $self->create_error_msg($obj));
     }
     $self->res->headers->location($self->make_location_url($obj));
     return $self->render(text => '', status => $status);
@@ -317,7 +333,14 @@ sub update {
 
 sub update_data {
     my ($self) = @_;
-    return $self->req->json;
+    my $data = $self->req->json;
+    my %update;
+    for my $field (@{$self->dal->table_field_names}) {
+        next if !exists $data->{$field};
+        $update{$field} = $data->{$field};
+    }
+
+    return \%update;
 }
 
 sub replace {

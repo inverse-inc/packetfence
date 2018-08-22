@@ -14,9 +14,11 @@ use strict;
 use warnings;
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
-with 'pfappserver::Base::Form::Role::Help',
-     'pfappserver::Base::Form::Role::AllowedOptions',
-     'pfappserver::Role::Form::RolesAttribute';
+with qw(
+    pfappserver::Base::Form::Role::Help
+    pfappserver::Base::Form::Role::AllowedOptions
+    pfappserver::Role::Form::RolesAttribute
+);
 
 use pfappserver::Form::Field::DynamicList;
 use pfappserver::Base::Form::Authentication::Action;

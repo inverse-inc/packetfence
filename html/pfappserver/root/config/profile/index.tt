@@ -34,12 +34,14 @@
     <thead>
       <tr class="disabled">
         <th class="hidden-phone"></th>
+        <th>[% l('Status') %]</th>
         <th>[% l('Name') %]</th>
         <th>[% l('Description') %]</th>
         <th></th>
       </tr>
       <tr>
         <td class="hidden-phone"></td>
+        <td><span class="badge badge-success"><i class="icon"></i></span></td>
         <td><a href="[% c.pf_hash_for(c.controller('Config::Profile').action_for('view'), ['default']) %]">[% l('default') %]</a></td>
         <td>[% l('Default Profile') %]</td>
         <td>
@@ -58,6 +60,7 @@
       [%IF profile_id != 'default' %]
       <tr>
         <td class="sort-handle hidden-phone">[% loop.index + 1 %]</td>
+        <td><span class="badge[% IF profile.field('status').value == 'enabled' %] badge-success[% END %]"><i class="icon"></i></span></td>
         <td>
            [% id_field.render_element | none %] 
             <a href="[% c.pf_hash_for(c.controller('Config::Profile').action_for('view'), [ profile_id ]) %]">[% profile_id | html %]</a>

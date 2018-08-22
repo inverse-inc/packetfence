@@ -1,3 +1,8 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:imagesdir: ../images
+endif::[]
+
 Configuration of the RSSO Agent
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Go to your FortiGate administration webpage in *User & Device -> User -> User Groups -> Create New*.
@@ -7,7 +12,7 @@ Go to your FortiGate administration webpage in *User & Device -> User -> User Gr
 * *Type*: RADIUS Single Sign-On (RSSO)
 * *RADIUS Attribute Value*: RSSO_Student (use the rolename of PacketFence, it's case sensitive)
 
-image::docs/images/doc-fortigate-SSO_Role.png[scaledwidth="100%",alt="Create the SSO agent in FortiGate"]
+image::doc-fortigate-SSO_Role.png[scaledwidth="100%",alt="Create the SSO agent in FortiGate"]
 
 You can also see that in the webpage at *User & Device -> Monitor -> Firewall*
 
@@ -29,7 +34,7 @@ Go to *System -> Network -> Interfaces*.
 
 Select the interface that will communicate with PacketFence and check 'Listen for RADIUS Accounting Messages' then confirm.
 
-image::docs/images/doc-fortigate-SSO_accounting.png[scaledwidth="100%",alt="Configure the accounting listening in the FortiGate"]
+image::doc-fortigate-SSO_accounting.png[scaledwidth="100%",alt="Configure the accounting listening in the FortiGate"]
 
 SSO Configuration in PacketFence
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -42,7 +47,7 @@ Go to *Configuration -> Integration -> Firewall SSO -> Add Firewall -> FortiGate
 * *Port*: 1813
 * *Roles*: add the roles that you want to do SSO
 
-image::docs/images/doc-fortigate-cfg_SSO_pf.png[scaledwidth="100%",alt="Configure the FortiGate SSO in PacketFence"]
+image::doc-fortigate-cfg_SSO_pf.png[scaledwidth="100%",alt="Configure the FortiGate SSO in PacketFence"]
 
 Verification
 ^^^^^^^^^^^^

@@ -123,6 +123,7 @@
             </div><!--tab-pane-->
 
             <div class="tab-pane fade in" id="nodeFingerprinting">
+              [% form.field('device_manufacturer').render | none %]
               [% form.field('device_class').render | none %]
               [% form.field('device_type').render | none %]
               [% form.field('fingerbank_info.device_fq').render | none %]

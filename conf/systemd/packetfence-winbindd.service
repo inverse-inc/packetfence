@@ -9,7 +9,6 @@ Type=notify
 StartLimitBurst=3
 StartLimitInterval=10
 ExecStartPre=/usr/local/pf/bin/pfcmd service winbindd generateconfig
-PIDFile=/usr/local/pf/var/run/winbindd-wrapper.pid
 ExecStart=/usr/local/pf/sbin/winbindd-wrapper
 Restart=on-failure
 Slice=packetfence.slice

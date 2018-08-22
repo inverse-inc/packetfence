@@ -44,6 +44,11 @@ our %CMP_OPS = (
 
 our %OPS = (%LOGICAL_OPS, %CMP_OPS, %UNARY_OPS);
 
+our %NULLABLE_OPS = (
+    '==' => 'pf::condition::not_defined',
+    '!=' => 'pf::condition::is_defined',
+);
+
 our @MODULES;
 
 __PACKAGE__->modules;
@@ -170,6 +175,9 @@ sub build_conditions {
         my $conditions = [map { build_conditions($self, $_) } @operands];
         return $class->new({conditions => $conditions});
     }
+    if (exists $NULLABLE_OPS{$op} && $operands[-1] eq '__NULL__' ) {
+       $class = $NULLABLE_OPS{$op};
+    }
     my ($first, @keys) = split /\./, $operands[0];
     my $sub_condition = $class->new({ value => $operands[1] });
     if ($first eq 'extended' ) {
@@ -183,7 +191,18 @@ sub build_conditions {
             })
         });
     }
+
+    $first = format_root_key($first);
     return _build_parent_condition($sub_condition, $first, @keys);
+}
+
+sub format_root_key {
+    my ($first) = @_;
+    return
+         exists $PROFILE_FILTER_TYPE_TO_CONDITION_TYPE{$first}
+      && exists $PROFILE_FILTER_TYPE_TO_CONDITION_TYPE{$first}{key}
+      ? $PROFILE_FILTER_TYPE_TO_CONDITION_TYPE{$first}{key}
+      : $first;
 }
 
 sub _build_parent_condition {

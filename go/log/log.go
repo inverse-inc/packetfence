@@ -17,6 +17,8 @@ const RequestUuidKey = "request-uuid"
 const ProcessPidKey = "pid"
 const LoggerKey = "logger"
 
+type PfLogger = log.Logger
+
 const AdditionnalLogElementsKey = "additionnal-log-elements"
 
 var ProcessName = os.Args[0]
@@ -27,6 +29,11 @@ type LoggerStruct struct {
 	handler    log.Handler
 	inDebug    bool
 	processPid string
+}
+
+// Set the ProcessName
+func SetProcessName(Name string) {
+	ProcessName = Name
 }
 
 // Create a new logger from an existing one with the same confiuration

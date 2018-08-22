@@ -21,6 +21,8 @@ has_field '+redirecturl' => ( required => 1 );
 
 has_field '+logo' => ( required => 1 );
 
+has_field '+status' => (is_inactive => 1, noupdate => 1, );
+
 
 =head1 COPYRIGHT
 

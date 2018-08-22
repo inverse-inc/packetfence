@@ -230,7 +230,7 @@ func IsValid(ctx context.Context, o PfconfigObject) bool {
 	stat, err := os.Stat(controlFile)
 
 	if err != nil {
-		log.LoggerWContext(ctx).Error(fmt.Sprintf("Cannot stat %s. Will consider resource as invalid"))
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("Cannot stat %s. Will consider resource as invalid", controlFile))
 		return false
 	} else {
 		controlTime := stat.ModTime()
@@ -255,6 +255,17 @@ func FetchDecodeSocketCache(ctx context.Context, o PfconfigObject) (bool, error)
 
 	err := FetchDecodeSocket(ctx, o)
 	return true, err
+}
+
+// Fetch the keys of a namespace
+func FetchKeys(ctx context.Context, name string) ([]string , error) {
+    keys := PfconfigKeys{PfconfigNS : name}
+    err := FetchDecodeSocket(ctx, &keys)
+    if err != nil {
+        return nil, err
+    }
+
+    return keys.Keys, nil
 }
 
 // Fetch and decode a namespace from pfconfig given a pfconfig compatible struct

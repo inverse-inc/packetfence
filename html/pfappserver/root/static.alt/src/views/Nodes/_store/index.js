@@ -1,66 +1,104 @@
 /**
- * "$_nodes" store module
- */
+* "$_nodes" store module
+*/
 import Vue from 'vue'
 import api from '../_api'
 
-const STORAGE_SEARCH_LIMIT_KEY = 'nodes-search-limit'
+const STORAGE_SAVED_SEARCH = 'nodes-saved-search'
 
 // Default values
 const state = {
-  status: '',
-  items: [],
-  nodes: {},
-  searchQuery: null,
-  searchSortBy: 'mac',
-  searchSortDesc: false,
-  searchMaxPageNumber: 1,
-  searchPageSize: localStorage.getItem(STORAGE_SEARCH_LIMIT_KEY) || 10
+  nodes: {}, // nodes details
+  message: '',
+  nodeStatus: '',
+  savedSearches: JSON.parse(localStorage.getItem(STORAGE_SAVED_SEARCH)) || []
 }
 
 const getters = {
-  isLoading: state => state.status === 'loading'
+  isLoading: state => state.nodeStatus === 'loading',
+  isLoadingResults: state => state.searchStatus === 'loading'
 }
 
 const actions = {
-  setSearchQuery: ({commit}, query) => {
-    commit('SEARCH_QUERY_UPDATED', query)
-    commit('SEARCH_MAX_PAGE_NUMBER_UPDATED', 1) // reset page count
+  addSavedSearch: ({commit}, search) => {
+    let savedSearches = state.savedSearches
+    savedSearches = state.savedSearches.filter(searches => searches.name !== search.name)
+    savedSearches.push(search)
+    savedSearches.sort((a, b) => {
+      return a.name.localeCompare(b.name)
+    })
+    commit('SAVED_SEARCHES_UPDATED', savedSearches)
+    localStorage.setItem(STORAGE_SAVED_SEARCH, JSON.stringify(savedSearches))
   },
-  setSearchPageSize: ({commit}, limit) => {
-    localStorage.setItem(STORAGE_SEARCH_LIMIT_KEY, limit)
-    commit('SEARCH_LIMIT_UPDATED', limit)
-    commit('SEARCH_MAX_PAGE_NUMBER_UPDATED', 1) // reset page count
-  },
-  setSearchSorting: ({commit}, params) => {
-    commit('SEARCH_SORT_BY_UPDATED', params.sortBy)
-    commit('SEARCH_SORT_DESC_UPDATED', params.sortDesc)
-    commit('SEARCH_MAX_PAGE_NUMBER_UPDATED', 1) // reset page count
+  deleteSavedSearch: ({commit}, search) => {
+    let savedSearches = state.savedSearches.filter(searches => searches.name !== search.name)
+    commit('SAVED_SEARCHES_UPDATED', savedSearches)
+    localStorage.setItem(STORAGE_SAVED_SEARCH, JSON.stringify(savedSearches))
   },
   search: ({state, getters, commit, dispatch}, page) => {
     let sort = [state.searchSortDesc ? `${state.searchSortBy} DESC` : state.searchSortBy]
     let body = {
       cursor: state.searchPageSize * (page - 1),
       limit: state.searchPageSize,
+      fields: state.searchFields,
       sort
     }
     let apiPromise = state.searchQuery ? api.search(Object.assign(body, {query: state.searchQuery})) : api.all(body)
+    if (state.searchStatus !== 'loading') {
+      return new Promise((resolve, reject) => {
+        commit('SEARCH_REQUEST')
+        apiPromise.then(response => {
+          commit('SEARCH_SUCCESS', response)
+          resolve(response)
+        }).catch(err => {
+          commit('SEARCH_ERROR', err.response)
+          reject(err)
+        })
+      })
+    }
+  },
+  exists: ({commit}, mac) => {
+    let body = {
+      fields: ['mac'],
+      limit: 1,
+      query: {
+        op: 'and',
+        values: [{
+          field: 'mac', op: 'equals', value: mac
+        }]
+      }
+    }
     return new Promise((resolve, reject) => {
       commit('SEARCH_REQUEST')
-      apiPromise.then(response => {
-        commit('SEARCH_SUCCESS', response)
-        resolve(response)
+      api.search(body).then(response => {
+        commit('SEARCH_SUCCESS')
+        if (response.items.length > 0) {
+          resolve(true)
+        } else {
+          reject(new Error('Unknown MAC'))
+        }
       }).catch(err => {
         commit('SEARCH_ERROR', err.response)
         reject(err)
       })
     })
   },
-  getNode: ({commit}, mac) => {
-    let node = {} // ip4: { history: [] }, ip6: { history: [] } }
+  getNode: ({state, commit}, mac) => {
+    let node = { fingerbank: {} } // ip4: { history: [] }, ip6: { history: [] } }
 
+    if (state.nodes[mac]) {
+      return Promise.resolve(state.nodes[mac])
+    }
+
+    commit('NODE_REQUEST')
     return api.node(mac).then(item => {
       Object.assign(node, item)
+      if (node.status === null) {
+        node.status = 'unreg'
+      }
+      if (/^[12][0-9]{3}-[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9]$/.test(node.unregdate)) {
+        [node.unreg_date, node.unreg_time] = node.unregdate.split(' ', 2)
+      }
       commit('NODE_REPLACED', node)
 
       // Fetch ip4log history
@@ -117,49 +155,280 @@ const actions = {
         commit('NODE_UPDATED', { mac, prop: 'violations', data: items })
       })
 
+      // Fetch fingerbank
+      let fingerbank = {}
+      api.fingerbankInfo(mac).then(item => {
+        Object.assign(fingerbank, item)
+      }).catch(() => {
+        // noop
+      }).finally(() => {
+        commit('NODE_UPDATED', { mac, prop: 'fingerbank', data: fingerbank })
+      })
+
+      // Fetch dhcpoption82
+      api.dhcpoption82(mac).then(items => {
+        commit('NODE_UPDATED', { mac, prop: 'dhcpoption82', data: items })
+      })
+
       return node
+    })
+  },
+  createNode: ({commit}, data) => {
+    commit('NODE_REQUEST')
+    if (data.unreg_date && data.unreg_time) {
+      data.unregdate = `${data.unreg_date} ${data.unreg_time}`
+    }
+    return new Promise((resolve, reject) => {
+      api.createNode(data).then(response => {
+        commit('NODE_REPLACED', data)
+        resolve(response)
+      }).catch(err => {
+        commit('NODE_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  updateNode: ({commit}, data) => {
+    commit('NODE_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.updateNode(data).then(response => {
+        commit('NODE_REPLACED', data)
+        resolve(response)
+      }).catch(err => {
+        commit('NODE_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  deleteNode: ({commit}, data) => {
+    commit('NODE_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.deleteNode(data).then(response => {
+        commit('NODE_DESTROYED', data)
+        resolve(response)
+      }).catch(err => {
+        commit('NODE_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  registerNode: ({commit}, data) => {
+    commit('NODE_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.registerNode(data).then(response => {
+        commit('NODE_REPLACED', data)
+        resolve(response)
+      }).catch(err => {
+        commit('NODE_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  registerBulkNodes: ({commit}, data) => {
+    commit('ITEM_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.registerBulkNodes(data).then(response => {
+        response.items.filter(item => item.status === 'success').forEach(function (item, index, items) {
+          commit('NODE_UPDATED', { mac: item.mac, prop: 'status', data: 'reg' })
+          commit('$_nodes_searchable/ITEM_UPDATED', { mac: item.mac, prop: 'status', data: 'reg' }, { root: true })
+        })
+        resolve(response)
+      }).catch(err => {
+        commit('ITEM_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  deregisterNode: ({commit}, data) => {
+    commit('NODE_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.deregisterNode(data).then(response => {
+        commit('NODE_REPLACED', data)
+        resolve(response)
+      }).catch(err => {
+        commit('NODE_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  deregisterBulkNodes: ({commit}, data) => {
+    commit('ITEM_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.deregisterBulkNodes(data).then(response => {
+        response.items.filter(item => item.status === 'success').forEach(function (item, index, items) {
+          commit('NODE_UPDATED', { mac: item.mac, prop: 'status', data: 'unreg' })
+          commit('$_nodes_searchable/ITEM_UPDATED', { mac: item.mac, prop: 'status', data: 'unreg' }, { root: true })
+        })
+        resolve(response)
+      }).catch(err => {
+        commit('ITEM_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  clearViolationNode: ({commit}, data) => {
+    commit('NODE_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.clearViolationNode(data).then(response => {
+        commit('NODE_REPLACED', data)
+        resolve(response)
+      }).catch(err => {
+        commit('NODE_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  applyViolationBulkNodes: ({commit}, data) => {
+    return new Promise((resolve, reject) => {
+      api.applyViolationBulkNodes(data).then(response => {
+        resolve(response)
+      }).catch(err => {
+        commit('NODE_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  clearViolationBulkNodes: ({commit}, data) => {
+    return new Promise((resolve, reject) => {
+      api.clearViolationBulkNodes(data).then(response => {
+        resolve(response)
+      }).catch(err => {
+        commit('NODE_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  reevaluateAccessBulkNodes: ({commit}, data) => {
+    return new Promise((resolve, reject) => {
+      api.reevaluateAccessBulkNodes(data).then(response => {
+        resolve(response)
+      }).catch(err => {
+        commit('NODE_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  restartSwitchportBulkNodes: ({commit}, data) => {
+    return new Promise((resolve, reject) => {
+      api.restartSwitchportBulkNodes(data).then(response => {
+        resolve(response)
+      }).catch(err => {
+        commit('NODE_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  refreshFingerbankBulkNodes: ({commit}, data) => {
+    return new Promise((resolve, reject) => {
+      api.refreshFingerbankBulkNodes(data).then(response => {
+        resolve(response)
+      }).catch(err => {
+        commit('NODE_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  roleNode: ({commit}, data) => {
+    commit('ITEM_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.updateNode(data).then(response => {
+        if (response.status === 'success') {
+          commit('NODE_UPDATED', { mac: data.mac, prop: 'category_id', data: data.category_id })
+          commit('$_nodes_searchable/ITEM_UPDATED', { mac: data.mac, prop: 'category_id', data: data.category_id }, { root: true })
+        }
+        resolve(response)
+      }).catch(err => {
+        commit('ITEM_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  bypassRoleNode: ({commit}, data) => {
+    commit('ITEM_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.updateNode(data).then(response => {
+        if (response.status === 'success') {
+          commit('NODE_UPDATED', { mac: data.mac, prop: 'bypass_role_id', data: data.bypass_role_id })
+          commit('$_nodes_searchable/ITEM_UPDATED', { mac: data.mac, prop: 'bypass_role_id', data: data.bypass_role_id }, { root: true })
+        }
+        resolve(response)
+      }).catch(err => {
+        commit('ITEM_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  reevaluateAccessNode: ({commit}, data) => {
+    commit('ITEM_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.reevaluateAccessNode(data).then(response => {
+        if (response.status === 'success') {
+          // noop
+        }
+        resolve(response)
+      }).catch(err => {
+        commit('ITEM_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  refreshFingerbankNode: ({commit}, data) => {
+    commit('ITEM_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.refreshFingerbankNode(data).then(response => {
+        if (response.status === 'success') {
+          // noop
+        }
+        resolve(response)
+      }).catch(err => {
+        commit('ITEM_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  restartSwitchportNode: ({commit}, data) => {
+    commit('ITEM_REQUEST')
+    return new Promise((resolve, reject) => {
+      api.restartSwitchportNode(data).then(response => {
+        if (response.status === 'success') {
+          // noop
+        }
+        resolve(response)
+      }).catch(err => {
+        commit('ITEM_ERROR', err.response)
+        reject(err)
+      })
     })
   }
 }
 
 const mutations = {
-  SEARCH_QUERY_UPDATED: (state, query) => {
-    state.searchQuery = query
+  NODE_REQUEST: (state) => {
+    state.nodeStatus = 'loading'
+    state.message = ''
   },
-  SEARCH_SORT_BY_UPDATED: (state, field) => {
-    state.searchSortBy = field
+  NODE_REPLACED: (state, data) => {
+    state.nodeStatus = 'success'
+    Vue.set(state.nodes, data.mac, data)
   },
-  SEARCH_SORT_DESC_UPDATED: (state, desc) => {
-    state.searchSortDesc = desc
-  },
-  SEARCH_MAX_PAGE_NUMBER_UPDATED: (state, page) => {
-    state.searchMaxPageNumber = page
-  },
-  SEARCH_LIMIT_UPDATED: (state, limit) => {
-    state.searchPageSize = limit
-  },
-  SEARCH_REQUEST: (state) => {
-    state.status = 'loading'
-  },
-  SEARCH_SUCCESS: (state, response) => {
-    state.status = 'success'
-    state.items = response.items
-    let nextPage = Math.floor(response.nextCursor / state.searchPageSize) + 1
-    if (nextPage > state.searchMaxPageNumber) {
-      state.searchMaxPageNumber = nextPage
+  NODE_UPDATED: (state, params) => {
+    state.nodeStatus = 'success'
+    if (params.mac in state.nodes) {
+      Vue.set(state.nodes[params.mac], params.prop, params.data)
     }
   },
-  SEARCH_ERROR: (state, response) => {
-    state.status = 'error'
+  NODE_DESTROYED: (state, mac) => {
+    state.nodeStatus = 'success'
+    Vue.set(state.nodes, mac, null)
+  },
+  NODE_ERROR: (state, response) => {
+    state.nodeStatus = 'error'
     if (response && response.data) {
       state.message = response.data.message
     }
   },
-  NODE_REPLACED: (state, data) => {
-    Vue.set(state.nodes, data.mac, data)
-  },
-  NODE_UPDATED: (state, params) => {
-    Vue.set(state.nodes[params.mac], params.prop, params.data)
+  SAVED_SEARCHES_UPDATED: (state, searches) => {
+    state.savedSearches = searches
   }
 }
 

@@ -1,0 +1,20 @@
+/node_categories:
+  description: pf::UnifiedApi::Controller::NodeCategories
+  get:
+    description: List items
+    operationId: api.v1.NodeCategories.list
+    parameters:
+    - $ref: '#/components/parameters/cursor'
+    - $ref: '#/components/parameters/limit'
+    - $ref: '#/components/parameters/fields'
+    - $ref: '#/components/parameters/sort'
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NodeCategoriesList'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

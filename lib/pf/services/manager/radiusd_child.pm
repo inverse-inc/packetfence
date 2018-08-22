@@ -158,17 +158,6 @@ EOT
     $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence-tunnel";
     parse_template( \%tags, "$conf_dir/radiusd/packetfence-tunnel", "$install_dir/raddb/sites-enabled/packetfence-tunnel" );
 
-    # Eduroam configuration
-    %tags = ();
-    if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
-        $tags{'template'} = "$conf_dir/raddb/sites-available/eduroam";
-        parse_template( \%tags, "$conf_dir/radiusd/eduroam", "$install_dir/raddb/sites-available/eduroam" );
-        symlink("$install_dir/raddb/sites-available/eduroam", "$install_dir/raddb/sites-enabled/eduroam")
-    } else {
-        unlink("$install_dir/raddb/sites-enabled/eduroam");
-        unlink("$install_dir/raddb/sites-available/eduroam");
-    }
-
     %tags = ();
     $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence-cli";
     parse_template( \%tags, "$conf_dir/radiusd/packetfence-cli", "$install_dir/raddb/sites-enabled/packetfence-cli" );
@@ -290,7 +279,55 @@ EOT
         $tags{'pid_file'} = "$var_dir/run/radiusd-eduroam.pid";
         $tags{'socket_file'} = "$var_dir/run/radiusd-eduroam.sock";
         parse_template( \%tags, $tags{template}, "$install_dir/raddb/eduroam.conf" );
+
+       # Eduroam configuration
+        %tags = ();
+        $tags{'template'} = "$conf_dir/raddb/sites-available/eduroam";
+        $tags{'local_realm'} = '';
+        my @realms;
+        foreach my $realm ( @{$eduroam_authentication_source[0]{'local_realm'}} ) {
+             push (@realms, "Realm == \"$realm\"");
+        }
+        if (@realms) {
+            $tags{'local_realm'} .= '            if ( ';
+            $tags{'local_realm'} .=  join(' || ', @realms);
+            $tags{'local_realm'} .= ' ) {'."\n";
+            $tags{'local_realm'} .= <<"EOT";
+                update control {
+                    Proxy-To-Realm := "packetfence"
+                }
+            } else {
+                update control {
+                    Proxy-To-Realm := "eduroam"
+                }
+            }
+EOT
+        } else {
+        $tags{'local_realm'} = << "EOT";
+                update control {
+                    Proxy-To-Realm := "eduroam"
+                }
+EOT
+        }
+        $tags{'reject_realm'} = '';
+        my @reject_realms;
+        foreach my $reject_realm ( @{$eduroam_authentication_source[0]{'reject_realm'}} ) {
+             push (@reject_realms, "Realm == \"$reject_realm\"");
+        }
+        if (@reject_realms) {
+            $tags{'reject_realm'} .= '            if ( ';
+            $tags{'reject_realm'} .=  join(' || ', @reject_realms);
+            $tags{'reject_realm'} .= ' ) {'."\n";
+            $tags{'reject_realm'} .= <<"EOT";
+                reject
+            }
+EOT
+        }
+        parse_template( \%tags, "$conf_dir/radiusd/eduroam", "$install_dir/raddb/sites-available/eduroam" );
+        symlink("$install_dir/raddb/sites-available/eduroam", "$install_dir/raddb/sites-enabled/eduroam");
     } else {
+        unlink("$install_dir/raddb/sites-enabled/eduroam");
+        unlink("$install_dir/raddb/sites-available/eduroam");
         unlink("$install_dir/raddb/eduroam.conf");
     }
 }
@@ -395,7 +432,9 @@ EOT
     if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
         my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
         my $server1_address = $eduroam_authentication_source[0]{'server1_address'};   # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
+        my $server1_port = $eduroam_authentication_source[0]{'server1_port'};   # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
         my $server2_address = $eduroam_authentication_source[0]{'server2_address'};   # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
+        my $server2_port = $eduroam_authentication_source[0]{'server2_port'};   # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
         my $radius_secret = $eduroam_authentication_source[0]{'radius_secret'};   # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
 
         $tags{'eduroam'} = <<"EOT";
@@ -412,13 +451,13 @@ home_server_pool eduroam_auth_pool {
 home_server eduroam_server1 {
     type = auth
     ipaddr = $server1_address
-    port = 1812
+    port = $server1_port
     secret = '$radius_secret'
 }
 home_server eduroam_server2 {
     type = auth
     ipaddr = $server2_address
-    port = 1812
+    port = $server2_port
     secret = '$radius_secret'
 }
 EOT

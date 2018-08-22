@@ -14,17 +14,21 @@ use pf::log;
 
 use Moose;
 extends 'pf::Authentication::Source';
+with qw(pf::Authentication::InternalRole);
 
 has '+type'                 => (default => 'Eduroam');
 has '+class'                => (isa => 'Str', is => 'ro', default => 'exclusive');
 has '+unique'               => (isa => 'Bool', is => 'ro', default => $TRUE);
 has 'server1_address'       => (isa => 'Str', is => 'rw');
+has 'server1_port'          => (isa => 'Str', is => 'rw', default => '1812');
 has 'server2_address'       => (isa => 'Str', is => 'rw');
+has 'server2_port'          => (isa => 'Str', is => 'rw', default => '1812');
 has 'radius_secret'         => (isa => 'Str', is => 'rw');
 has 'auth_listening_port'   => (isa => 'Maybe[Int]', is => 'rw', default => '11812');
 has 'local_realm'           => (isa => 'ArrayRef[Str]', is => 'rw');
 has 'reject_realm'          => (isa => 'ArrayRef[Str]', is => 'rw');
 has 'monitor' => ( isa => 'Bool', is => 'rw', default => 1 );
+has '+realms' => (default => sub { ["eduroam"] });
 
 =head2 available_rule_classes
 

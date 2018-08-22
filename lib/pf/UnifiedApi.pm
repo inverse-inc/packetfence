@@ -65,15 +65,44 @@ our @API_V1_ROUTES = (
             ]
         },
     },
-    { controller => 'Nodes' },
+    {
+        controller => 'Nodes',
+        resource   => {
+            subroutes => {
+                (
+                map { $_ => { post => $_ } }
+                    qw(
+                        register deregister restart_switchport
+                        reevaluate_access apply_violation
+                        close_violation fingerbank_refresh
+                    )
+                ),
+                fingerbank_info => {
+                    get => 'fingerbank_info',
+                }
+            }
+        },
+        collection => {
+            subroutes => {
+                map { $_ => { post => $_ } }
+                  qw(
+                    search bulk_register bulk_deregister bulk_close_violations
+                    bulk_reevaluate_access bulk_restart_switchport bulk_apply_violation
+                    bulk_apply_role bulk_apply_bypass_role bulk_fingerbank_refresh
+                  )
+            }
+        }
+    },
     { controller => 'Tenants' },
     { controller => 'ApiUsers' },
     { controller => 'Locationlogs' },
+    ReadonlyEndpoint('NodeCategories'),
+    ReadonlyEndpoint('Classes'),
     { 
         controller => 'Violations',
         collection => {
             subroutes    => {
-                'by_mac/:search' => { get => 'by_mac' },                
+                'by_mac/#search' => { get => 'by_mac' },
                 'search' => {
                     'post' => 'search'
                 },
@@ -86,39 +115,46 @@ our @API_V1_ROUTES = (
         collection => {
             http_methods => undef,
             subroutes => {
-                map { $_ => { get => $_ } }
-                  qw (
-                  os
-                  os_active
-                  os_all
-                  osclass_all
-                  osclass_active
-                  inactive_all
-                  active_all
-                  unregistered_all
-                  unregistered_active
-                  registered_all
-                  registered_active
-                  unknownprints_all
-                  unknownprints_active
-                  statics_all
-                  statics_active
-                  openviolations_all
-                  openviolations_active
-                  connectiontype
-                  connectiontype_all
-                  connectiontype_active
-                  connectiontypereg_all
-                  connectiontypereg_active
-                  ssid
-                  ssid_all
-                  ssid_active
-                  osclassbandwidth
-                  osclassbandwidth_all
-                  nodebandwidth
-                  nodebandwidth_all
-                  topsponsor_all
-                  )
+                'os'                                                  => { get => 'os_all' },
+                'os/#start/#end'                                      => { get => 'os_range' },
+                'os/active'                                           => { get => 'os_active' },
+                'osclass'                                             => { get => 'osclass_all' },
+                'osclass/active'                                      => { get => 'osclass_active' },
+                'inactive'                                            => { get => 'inactive_all' },
+                'active'                                              => { get => 'active_all' },
+                'unregistered'                                        => { get => 'unregistered_all' },
+                'unregistered/active'                                 => { get => 'unregistered_active' },
+                'registered'                                          => { get => 'registered_all' },
+                'registered/active'                                   => { get => 'registered_active' },
+                'unknownprints'                                       => { get => 'unknownprints_all' },
+                'unknownprints/active'                                => { get => 'unknownprints_active' },
+                'statics'                                             => { get => 'statics_all' },
+                'statics/active'                                      => { get => 'statics_active' },
+                'openviolations'                                      => { get => 'openviolations_all' },
+                'openviolations/active'                               => { get => 'openviolations_active' },
+                'connectiontype'                                      => { get => 'connectiontype_all' },
+                'connectiontype/#start/#end'                          => { get => 'connectiontype_range' },
+                'connectiontype/active'                               => { get => 'connectiontype_active' },
+                'connectiontypereg'                                   => { get => 'connectiontypereg_all' },
+                'connectiontypereg/active'                            => { get => 'connectiontypereg_active' },
+                'ssid'                                                => { get => 'ssid_all' },
+                'ssid/#start/#end'                                    => { get => 'ssid_range' },
+                'ssid/active'                                         => { get => 'ssid_active' },
+                'osclassbandwidth'                                    => { get => 'osclassbandwidth_all' },
+                'osclassbandwidth/#start/#end'                        => { get => 'osclassbandwidth_range' },
+                'osclassbandwidth/day'                                => { get => 'osclassbandwidth_day' },
+                'osclassbandwidth/week'                               => { get => 'osclassbandwidth_week' },
+                'osclassbandwidth/month'                              => { get => 'osclassbandwidth_month' },
+                'osclassbandwidth/year'                               => { get => 'osclassbandwidth_year' },
+                'nodebandwidth'                                       => { get => 'nodebandwidth_all' },
+                'nodebandwidth/#start/#end'                           => { get => 'nodebandwidth_range' },
+                'topauthenticationfailures/mac/#start/#end'           => { get => 'topauthenticationfailures_by_mac' },
+                'topauthenticationfailures/ssid/#start/#end'          => { get => 'topauthenticationfailures_by_ssid' },
+                'topauthenticationfailures/username/#start/#end'      => { get => 'topauthenticationfailures_by_username' },
+                'topauthenticationsuccesses/mac/#start/#end'          => { get => 'topauthenticationsuccesses_by_mac' },
+                'topauthenticationsuccesses/ssid/#start/#end'         => { get => 'topauthenticationsuccesses_by_ssid' },
+                'topauthenticationsuccesses/username/#start/#end'     => { get => 'topauthenticationsuccesses_by_username' },
+                'topauthenticationsuccesses/computername/#start/#end' => { get => 'topauthenticationsuccesses_by_computername' },
             },
         },
     },
@@ -126,10 +162,27 @@ our @API_V1_ROUTES = (
     {
         controller  => 'Ip4logs',
         collection => {
-            subroutes    => {
-                'history/:search' => { get => 'history' },
-                'archive/:search' => { get => 'archive' },
-                'open/:search' => { get => 'open' }, 
+            subroutes => {
+                'history/#search' => { get => 'history' },
+                'archive/#search' => { get => 'archive' },
+                'open/#search' => { get => 'open' },
+                'mac2ip/#mac' => { get => 'mac2ip' },
+                'ip2mac/#ip'  => { get => 'ip2mac' },
+                'search' => {
+                    'post' => 'search'
+                },
+            },
+        },
+    },
+    {
+        controller  => 'Ip6logs',
+        collection => {
+            subroutes => {
+                'history/#search' => { get => 'history' },
+                'archive/#search' => { get => 'archive' },
+                'open/#search' => { get => 'open' }, 
+                'mac2ip/#mac' => { get => 'mac2ip' },
+                'ip2mac/#ip'  => { get => 'ip2mac' },
                 'search' => {
                     'post' => 'search'
                 },
@@ -204,13 +257,24 @@ our @API_V1_ROUTES = (
             subroutes => undef,
         },
     },
+    {
+        controller => 'Queues',
+        collection => {
+            subroutes    => {
+                'stats' => {
+                    get => 'stats'
+                },
+            },
+        },
+        resource => undef,
+    },
 );
 
 sub startup {
     my ($self) = @_;
     $self->controller_class('pf::UnifiedApi::Controller');
     $self->routes->namespaces(['pf::UnifiedApi::Controller', 'pf::UnifiedApi']);
-    $self->hook(before_dispatch => \&set_tenant_id);
+    $self->hook(before_dispatch => \&before_dispatch_cb);
     $self->plugin('pf::UnifiedApi::Plugin::RestCrud');
     $self->setup_api_v1_routes();
     $self->custom_startup_hook();
@@ -222,10 +286,28 @@ sub startup {
     return;
 }
 
+=head2 before_dispatch_cb
+
+before_dispatch_cb
+
+=cut
+
+sub before_dispatch_cb {
+    my ($c) = @_;
+    # To allow dispatching with encoded slashes
+    $c->stash->{path} = $c->req->url->path;
+    set_tenant_id($c)
+}
+
 sub setup_api_v1_routes {
     my ($self) = @_;
     my $r = $self->routes;
     my $api_v1_route = $r->any("/api/v1")->name("api.v1");
+    $api_v1_route->options('/*', sub {
+        my ($c) = @_;
+        $c->res->headers->header('Access-Control-Allow-Methods' => 'GET, OPTIONS, POST, DELETE, PUT, PATCH');
+        $c->respond_to(any => { data => '', status => 200 });
+    });
     foreach my $route ($self->api_v1_routes) {
         $api_v1_route->rest_routes($route);
     }
@@ -264,6 +346,32 @@ sub set_tenant_id {
     } else {
         pf::dal->reset_tenant();
     }
+}
+
+=head2 ReadonlyEndpoint
+
+ReadonlyEndpoint
+
+=cut
+
+sub ReadonlyEndpoint {
+    my ($model) = @_;
+    return {
+        controller => $model,
+        collection => {
+            http_methods => {
+                'get'    => 'list',
+            },
+            subroutes => {
+                map { $_ => { post => $_ } } qw(search)
+            }
+        },
+        resource => {
+            http_methods => {
+                'get'    => 'get',
+            },
+        },
+    },
 }
 
 =head1 AUTHOR

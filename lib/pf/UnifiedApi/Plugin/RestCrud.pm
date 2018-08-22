@@ -216,7 +216,7 @@ sub munge_resource_options {
     $resource->{url_param_key} //= $url_param_key;
     my $base_path = "$options->{base_url}/$singular";
     $resource->{base_path} = $base_path;
-    $resource->{path} //= "$base_path/:$url_param_key";
+    $resource->{path} //= "$base_path/#$url_param_key";
     $resource->{children} = munge_children_options( $route, $options, $resource );
     return $resource;
 }

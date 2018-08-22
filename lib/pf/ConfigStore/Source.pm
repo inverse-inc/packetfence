@@ -107,6 +107,16 @@ sub cleanupAfterRead {
     if ($item->{type} eq 'SMS') {
         $self->expand_list($item, 'sms_carriers');
     }
+    if ($item->{type} eq 'Eduroam') {
+        $self->expand_list($item, 'local_realm');
+        $self->expand_list($item, 'reject_realm');
+    }
+    if ($item->{type} eq 'SMS' || $item->{type} eq "Twilio") {
+        # This can be an array if it's fresh out of the file. We make it separated by newlines so it works fine the frontend
+        if(ref($item->{message}) eq 'ARRAY'){
+            $item->{message} = $self->join_options($item->{message});
+        }
+    }
     $self->expand_list($item, qw(realms));
 }
 
@@ -127,6 +137,11 @@ before rewriteConfig => sub {
     $config->ReorderByGroup();
 };
 
+
+sub join_options {
+    my ($self,$options) = @_;
+    return join("\n",@$options);
+}
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 

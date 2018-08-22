@@ -32,6 +32,7 @@ our %OP_TO_SQL_OP = (
     greater_than_equals => '>=',
     less_than_equals    => '<=',
     between             => '-between',
+    not_between         => '-not_between',
     contains            => '-like',
     ends_with           => '-like',
     starts_with         => '-like',
@@ -52,6 +53,10 @@ our %OP_TO_HANDLER = (
     between => sub {
         my ($q) = @_;
         return { $q->{field} => { "-between" => $q->{values} } };
+    },
+    not_between => sub {
+        my ($q) = @_;
+        return { $q->{field} => { "-not_between" => $q->{values} } };
     },
 );
 

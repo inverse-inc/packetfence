@@ -5,7 +5,7 @@
 
 This is an initial draft on how to setup/use the PacketFence Golang libraries.
 
-In order to bootstrap your environment from the version of /usr/local/pf/bin/pfhttpd
+In order to bootstrap your environment from the version of /usr/local/pf/sbin/pfhttpd
 
 ```
 # cd /usr/local/pf/go
@@ -49,7 +49,7 @@ In order to build the caddy HTTP service:
 
 ```
 # make pfhttpd
-# mv pfhttpd /usr/local/pf/bin/
+# mv pfhttpd /usr/local/pf/sbin/
 ```
 
 ## Creating a service
@@ -79,7 +79,7 @@ If your middleware uses statsd, you don't have to configure statsd in your Caddy
 You can start pfhttpd with your Caddyfile using the following command:
 
 ```
-# /usr/local/pf/bin/pfhttpd -conf /usr/local/pf/conf/caddy-services/pfexample.conf
+# /usr/local/pf/sbin/pfhttpd -conf /usr/local/pf/conf/caddy-services/pfexample.conf
 ```
 
 Once you have ascertained that the service is working correctly, you need to create an instance of pf::services::manager for it. You will also need to create a unitfile for it in conf/systemd like the following:
@@ -93,7 +93,7 @@ Before=packetfence-pfexample.service
 
 [Service]
 PIDFile=/usr/local/pf/var/run/pfexample.pid
-ExecStart=/usr/local/pf/bin/pfcaddy -conf /usr/local/pf/conf/caddy-services/pfexample.conf
+ExecStart=/usr/local/pf/sbin/pfhttpd -conf /usr/local/pf/conf/caddy-services/pfexample.conf
 Restart=on-failure
 Slice=packetfence.slice
 

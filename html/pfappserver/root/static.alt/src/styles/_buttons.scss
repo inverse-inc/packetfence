@@ -1,6 +1,17 @@
+// Decrease the font size of buttons;
+// a hack is required since there's no variable specific to the font sizes of buttons.
+$font-size-base-orig: $font-size-base;
+$font-size-sm-orig: $font-size-sm;
+
+$font-size-base: $font-size-base * 0.9;
+$font-size-sm: $font-size-base * .775;
+
 @import "../../node_modules/bootstrap/scss/buttons";
 
 .btn {
-    font-size: ($font-size-base * 0.9);
     text-transform: uppercase;
 }
+
+// Restore font sizes
+$font-size-base: $font-size-base-orig;
+$font-size-sm: $font-size-sm-orig;

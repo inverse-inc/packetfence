@@ -302,6 +302,7 @@ post-auth {
 	Post-Auth-Type REJECT {
 		# Uncomment if you need to limit failed ntlm authentication (see packetfence-control-ntlm-failure too)
 		# packetfence-cache-ntlm-hit
+		packetfence-set-tenant-id
 		update {
 			&request:User-Password := "******"
 		}
@@ -642,6 +643,7 @@ post-auth {
 	#  'edir_account_policy_check = yes' in the ldap module configuration
 	#
 	Post-Auth-Type REJECT {
+		packetfence-set-tenant-id
 		update {
 			&request:User-Password := "******"
 		}

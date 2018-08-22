@@ -385,7 +385,7 @@ sub violation_add {
         my $msg = "violation $vid already exists for $mac, not adding again";
         $logger->info($msg);
         violation_add_warnings($msg);
-        return ($violation);
+        return ($violation->{vid});
     }
 
     my $latest_violation = ( violation_view_open($mac) )[0];

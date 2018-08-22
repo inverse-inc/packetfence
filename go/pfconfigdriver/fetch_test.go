@@ -159,7 +159,7 @@ func TestArrayElements(t *testing.T) {
 
 	expected := 2
 	if len(li.Element) != expected {
-		t.Errorf("Wrong number of interfaces detected (%s instead of %s)", len(li.Element), expected)
+		t.Errorf("Wrong number of interfaces detected (%d instead of %d)", len(li.Element), expected)
 	}
 
 	expectedInts := []string{"eth1.1", "eth1.2"}

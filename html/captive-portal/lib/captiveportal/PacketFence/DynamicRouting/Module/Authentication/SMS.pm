@@ -15,6 +15,7 @@ extends 'captiveportal::DynamicRouting::Module::Authentication';
 with 'captiveportal::Role::FieldValidation';
 
 use pf::activation qw($SMS_ACTIVATION);
+use pf::util qw(normalize_time);
 use pf::log;
 use pf::constants;
 use pf::sms_carrier;
@@ -170,7 +171,21 @@ sub validate_info {
     }
 
     $self->update_person_from_fields();
-    my ( $status, $message ) = pf::activation::sms_activation_create_send( $self->current_mac, $pid, $telephone, $self->app->profile->getName, $mobileprovider, $self->source );
+
+    my %args = (
+        mac         => $self->current_mac,
+        pid         => $pid,
+        pending     => $telephone,
+        type        => "sms",
+        portal      => $self->app->profile->getName,
+        provider_id => $mobileprovider,
+        timeout     => normalize_time($self->source->{sms_activation_timeout}),
+        source      => $self->source,
+        message     => $self->app->i18n($self->source->message),
+        style       => 'digits',
+        code_length => $self->source->pin_code_length,
+    );
+    my ( $status, $message ) = pf::activation::sms_activation_create_send( %args );
     unless ( $status ) {
         $self->app->flash->{error} = $message;
         $self->prompt_fields();
@@ -196,12 +211,17 @@ Validate the provided PIN
 sub validate_pin {
     my ($self, $pin) = @_;
     get_logger->debug("Mobile phone number validation attempt");
+    if (pf::activation::is_expired($pin)) {
+        pf::auth_log::change_record_status($self->source->id, $self->current_mac, $pf::auth_log::FAILED);
+        return ($FALSE, $self->app->i18n($GUEST::ERROR_EXPIRED_PIN));
+    }
     my $mac = $self->current_mac;
     if (my $record = pf::activation::validate_code_with_mac($SMS_ACTIVATION, $pin, $mac)) {
+        $self->transfer_saving_fields();
         return ($TRUE, 0, $record);
     }
     pf::auth_log::change_record_status($self->source->id, $mac, $pf::auth_log::FAILED, $self->app->profile->name);
-    return ($FALSE, $GUEST::ERROR_INVALID_PIN);
+    return ($FALSE, $self->app->i18n($GUEST::ERROR_INVALID_PIN));
 }
 
 =head2 validation

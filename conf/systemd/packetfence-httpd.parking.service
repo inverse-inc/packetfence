@@ -3,13 +3,13 @@ Description=PacketFence Parking  Apache HTTP Server
 Documentation=man:httpd(8)
 Documentation=man:apachectl(8)
 Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
-After=packetfence-base.target packetfence-config.service packetfence-iptables.service packetfence-haproxy-db.service
+After=packetfence-base.target packetfence-config.service packetfence-iptables.service
 
 [Service]
 StartLimitBurst=3
 StartLimitInterval=10
 Type=notify
-ExecStartPre=/usr/local/pf/bin/pfcmd service httpd.parking generateconfig
+ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_parking' -e 'pf::services::manager::httpd_parking->new()->generateConfig()'
 ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.parking -DFOREGROUND  -Drhel
 ExecReload=/bin/kill -USR1 ${MAINPID}
 ExecStop=/bin/kill -WINCH ${MAINPID}

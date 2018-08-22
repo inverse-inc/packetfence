@@ -55,13 +55,13 @@ html: $(patsubst %.asciidoc,%.html,$(notdir $(wildcard docs/PacketFence_*.asciid
 	asciidoctor \
 		-D docs/html \
 		-n \
+		-a imagesdir=../images \
 		$<
 
 html/pfappserver/root/static/doc:
 	make html
-	mkdir -p docs/html/docs/images/
-	cp -a docs/images/* docs/html/docs/images/
-	mv docs/html html/pfappserver/root/static/doc
+	cp -a docs/html/* html/pfappserver/root/static/doc
+	cp -a docs/images/* html/pfappserver/root/static/images
 
 pfcmd.help:
 	/usr/local/pf/bin/pfcmd help > docs/pfcmd.help
@@ -70,6 +70,12 @@ pfcmd.help:
 
 configurations:
 	find -type f -name '*.example' -print0 | while read -d $$'\0' file; do cp -n $$file "$$(dirname $$file)/$$(basename $$file .example)"; done
+	touch /usr/local/pf/conf/pf.conf
+
+.PHONY: configurations_force
+
+configurations_hard:
+	find -type f -name '*.example' -print0 | while read -d $$'\0' file; do cp $$file "$$(dirname $$file)/$$(basename $$file .example)"; done
 	touch /usr/local/pf/conf/pf.conf
 
 # server certs and keys

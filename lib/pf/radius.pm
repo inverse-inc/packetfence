@@ -144,6 +144,8 @@ sub authorize {
         $logger->debug("SSID resolved to: $ssid") if (defined($ssid));
     }
 
+    $self->handleConnectionTypeChange($mac, $connection);
+
     {
         my $timer = pf::StatsD::Timer->new({ 'stat' => called() . ".getIfIndex", level => 7});
         $port = $switch->getIfIndexByNasPortId($nas_port_id) || $self->_translateNasPortToIfIndex($connection_type, $switch, $port);
@@ -256,6 +258,8 @@ sub authorize {
         if (is_error($status)) {
             $logger->error("auto-registration of node failed $status_msg");
             $do_auto_reg = 0;
+            $RAD_REPLY_REF = [ $RADIUS::RLM_MODULE_USERLOCK, ('Reply-Message' => $status_msg) ];
+            goto CLEANUP;
         }
     }
 
@@ -325,12 +329,12 @@ sub authorize {
     $RAD_REPLY_REF = $switch->returnRadiusAccessAccept($args);
 
 CLEANUP:
+    if ($do_auto_reg) {
+        pf::registration::finalize_node_registration($node_obj, $pf::constants::realm::RADIUS_CONTEXT);
+    }
     $status = $node_obj->save;
     if (is_error($status)) {
         $logger->error("Cannot save $mac error ($status)");
-    }
-    if ($do_auto_reg) {
-        pf::registration::finalize_node_registration($node_obj);
     }
 
     # cleanup
@@ -896,6 +900,20 @@ sub handleNtlmCaching {
     if($domain && isenabled($ConfigDomain{$domain}{ntlm_cache}) && isenabled($ConfigDomain{$domain}{ntlm_cache_on_connection})) {
         my $client = pf::api::queue->new(queue => "general");
         $client->notify("cache_user_ntlm", $domain, $radius_request->{"Stripped-User-Name"});
+    }
+}
+
+=head2 checkConnectionTypeChange
+
+Detect if a device has changed its transport type (wired vs wireless) since a MAC shouldn't switch from one to another
+
+=cut
+
+sub handleConnectionTypeChange {
+    my ($self, $mac, $current_connection) = @_;
+    if (isenabled($Config{network}{connection_type_change_detection})) {
+        my $client = pf::api::queue->new(queue => "general");
+        $client->notify("detect_connection_type_transport_change", $mac, $current_connection);
     }
 }
 

@@ -1,107 +1,207 @@
 <template>
-  <b-card class="mt-3" header-tag="header" no-body>
-    <div slot="header">
-      <h4>Create Nodes</h4>
-    </div>
-    <div slot="actions">
-    </div>
-    <b-tabs card>
-      <b-tab title="Single">
-        <b-form :validated="validForm">
-          <b-form-group horizontal label-cols="3" label="MAC">
-            <b-form-input v-model.trim="mac" @blur="macVisited = true" :state="macState" :formatter="macFormat" required></b-form-input>
-            <b-form-feedback>Enter a valid MAC address</b-form-feedback>
-          </b-form-group>
-          <b-form-group horizontal label-cols="3" class="mt-3">
-            <b-button variant="outline-primary" :disabled="!validForm">Create Node</b-button>
-          </b-form-group>
+  <b-card no-body>
+    <b-card-header>
+      <h4 class="mb-0" v-t="'Create Nodes'"></h4>
+    </b-card-header>
+    <b-tabs v-model="modeIndex" card>
+
+      <b-tab :title="$t('Single')">
+        <b-form @submit.prevent="create()">
+          <b-form-row align-v="center">
+            <b-col sm="8">
+              <pf-form-input v-model="single.mac" :label="$t('MAC')"
+                :validation="$v.single.mac" :invalid-feedback="invalidMarcFeedback"/>
+              <b-form-group horizontal label-cols="3" :label="$t('Owner')">
+                <pf-autocomplete v-model="single.pid" placeholder="default" @search="searchUsers" :suggestions="matchingUsers"></pf-autocomplete>
+              </b-form-group>
+              <b-form-group horizontal label-cols="3" :label="$t('Status')">
+                <b-form-select v-model="single.status" :options="statuses"></b-form-select>
+              </b-form-group>
+              <b-form-group horizontal label-cols="3" :label="$t('Role')">
+                <b-form-select v-model="single.category" :options="roles"></b-form-select>
+              </b-form-group>
+              <b-form-group horizontal label-cols="3" :label="$t('Unregistration')">
+                <b-form-row>
+                  <b-col>
+                    <b-form-input type="date" v-model="single.unreg_date"/>
+                  </b-col>
+                  <b-col>
+                    <b-form-input type="time" v-model="single.unreg_time"/>
+                  </b-col>
+                </b-form-row>
+              </b-form-group>
+              <b-form-group horizontal label-cols="3" :label="$t('Notes')">
+                <b-form-textarea v-model="single.notes" rows="8" max-rows="12"></b-form-textarea>
+              </b-form-group>
+            </b-col>
+          </b-form-row>
         </b-form>
       </b-tab>
-      <b-tab title="Multiple">
+
+      <b-tab :title="$t('Import')">
         <b-form>
-          <b-form-group horizontal label-cols="3" label="CSV File">
-            <b-form-file v-model="file" accept="text/*" choose-label="Choose a file" required></b-form-file>
+          <b-form-group horizontal label-cols="3" :label="$t('CSV File')">
+            <b-form-file v-model="csv.file" accept="text/*" :choose-label="$t('Choose a file')"></b-form-file>
           </b-form-group>
-          <b-form-group horizontal label-cols="3" label="Column Delimiter">
-            <b-form-select v-model="delimiter" :options="delimiters"></b-form-select>
+          <b-form-group horizontal label-cols="3" :label="$t('Column Delimiter')">
+            <b-form-select v-model="csv.delimiter" :options="csv.delimiters"></b-form-select>
           </b-form-group>
-          <b-form-group horizontal label-cols="3" label="Default Voice Over IP">
-            <b-form-checkbox v-model="voip" value="yes"></b-form-checkbox>
+          <b-form-group horizontal label-cols="3" :label="$t('Default Voice Over IP')">
+            <b-form-checkbox v-model="csv.voip" value="yes"></b-form-checkbox>
           </b-form-group>
           <b-row>
-            <b-col sm="3">Columns Order</b-col>
+            <b-col sm="3">{{ $t('Columns Order') }}</b-col>
             <b-col>
-              <draggable v-model="columns" :options="{ handle: '.draggable-handle' }">
-                <div class="draggable-item" v-for="(column, index) in columns">
+              <draggable v-model="csv.olumns" :options="{ handle: '.draggable-handle' }">
+                <div class="draggable-item" v-for="(column, index) in csv.columns" :key="column.name">
                   <span class="draggable-handle">{{ index }}</span>
                   <b-form-checkbox v-model="column.value" value="1">{{column.text}}</b-form-checkbox>
                 </div>
               </draggable>
             </b-col>
           </b-row>
-          <b-form-group horizontal label-cols="3" class="mt-3">
-            <b-button variant="outline-primary">Create Nodes</b-button>
-          </b-form-group>
         </b-form>
       </b-tab>
     </b-tabs>
+
+    <b-card-footer align="right" @mouseenter="$v.$touch()">
+      <b-button variant="primary" :disabled="invalidForm" @click="create()">
+        <icon name="circle-notch" spin v-show="isLoading"></icon> {{ $t('Create') }}
+      </b-button>
+    </b-card-footer>
+
   </b-card>
 </template>
 
 <script>
+import pfFormInput from '@/components/pfFormInput'
+import pfAutocomplete from '@/components/pfAutocomplete'
 import draggable from 'vuedraggable'
+import usersApi from '@/views/Users/_api'
+import {
+  pfSearchConditionType as conditionType,
+  pfSearchConditionValues as conditionValues
+} from '@/globals/pfSearch'
+const { validationMixin } = require('vuelidate')
+const { macAddress, required } = require('vuelidate/lib/validators')
 
 export default {
   name: 'NodesCreate',
   components: {
-    draggable
+    draggable,
+    'pf-form-input': pfFormInput,
+    'pf-autocomplete': pfAutocomplete
   },
+  mixins: [
+    validationMixin
+  ],
   data () {
     return {
-      mac: '',
-      macVisited: false,
-      file: null,
-      delimiter: 'comma',
-      delimiters: [
-        { value: 'comma', text: 'Comma' },
-        { value: 'semicolon', text: 'Semicolon' },
-        { value: 'tab', text: 'Tab' }
-      ],
-      voip: null,
-      columns: [
-        { value: '1', name: 'mac', text: 'MAC Address' },
-        { value: '0', name: 'owner', text: 'Owner' },
-        { value: '0', name: 'role', text: 'Role' },
-        { value: '0', name: 'unregdate', text: 'Unregistration Date' }
-      ]
+      modeIndex: 0,
+      single: {
+        mac: '',
+        status: 'reg',
+        unreg_time: '00:00:00'
+      },
+      csv: {
+        file: null,
+        delimiter: 'comma',
+        delimiters: [
+          { value: 'comma', text: 'Comma' },
+          { value: 'semicolon', text: 'Semicolon' },
+          { value: 'tab', text: 'Tab' }
+        ],
+        voip: null,
+        columns: [
+          { value: '1', name: 'mac', text: 'MAC Address' },
+          { value: '0', name: 'owner', text: 'Owner' },
+          { value: '0', name: 'role', text: 'Role' },
+          { value: '0', name: 'unregdate', text: 'Unregistration Date' }
+        ]
+      },
+      matchingUsers: []
+    }
+  },
+  validations: {
+    single: {
+      mac: {
+        macAddress: macAddress(),
+        required,
+        isUnique (mac) {
+          if (!this.$v.single.mac.macAddress) return true
+          return this.$store.dispatch('$_nodes/exists', mac).then(results => {
+            return false
+          }).catch(() => {
+            return true
+          })
+        }
+      }
+    },
+    csv: {
+      file: { required }
     }
   },
   computed: {
-    macState () {
-      var macRE = /^([A-Fa-f0-9]{2}[:]){5}[A-Fa-f0-9]{2}$/
-      return macRE.test(this.mac) ? true : (this.macVisited ? false : null)
+    statuses () {
+      return conditionValues[conditionType.NODE_STATUS]
     },
-    validForm () {
-      return this.macState === true
+    roles () {
+      return this.$store.getters['config/rolesList']
+    },
+    isLoading () {
+      return this.$store.getters['$_nodes/isLoading']
+    },
+    invalidMacFeedback () {
+      if (!this.$v.single.mac.isUnique) {
+        return 'MAC address already exists'
+      }
+      return 'Enter a valid MAC address'
+    },
+    invalidForm () {
+      if (this.modeIndex === 0) {
+        return this.$v.single.$invalid || this.isLoading
+      } else {
+        return false
+      }
     }
   },
   methods: {
-    macFormat (value, event) {
-      var re = /[a-fA-F0-9]{2}/g
-      var validMac = []
-      var match
-      while ((match = re.exec(value))) {
-        validMac.push(match[0].toUpperCase())
+    searchUsers () {
+      const _this = this
+      let body = {
+        limit: 10,
+        fields: ['pid', 'firstname', 'lastname', 'email'],
+        sort: ['pid'],
+        query: {
+          op: 'and',
+          values: [{
+            op: 'or',
+            values: [
+              {field: 'pid', op: 'contains', value: this.single.pid},
+              {field: 'firstname', op: 'contains', value: this.single.pid},
+              {field: 'lastname', op: 'contains', value: this.single.pid},
+              {field: 'email', op: 'contains', value: this.single.pid}
+            ]
+          }]
+        }
       }
-      match = /^(?:[a-fA-F0-9]{2}:?)*([a-fA-F0-9])$/g.exec(value)
-      if (match) {
-        validMac.push(match[1].toUpperCase())
+      usersApi.search(body).then((data) => {
+        _this.matchingUsers = data.items.map(item => item.pid)
+      })
+    },
+    create () {
+      if (this.modeIndex === 0) {
+        this.$store.dispatch('$_nodes/createNode', this.single).then(response => {
+          console.debug('node created')
+        }).catch(err => {
+          console.debug(err)
+          console.debug(this.$store.state.$_nodes.message)
+        })
       }
-      // this.$nextTick(function () {
-      //   this.mac = validMac.slice(0, 6).join(':')
-      // })
-      return validMac.slice(0, 6).join(':')
     }
+  },
+  created () {
+    this.$store.dispatch('config/getRoles')
   }
 }
 </script>

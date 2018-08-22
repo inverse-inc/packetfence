@@ -1,8 +1,9 @@
 <template>
-  <b-form-group horizontal label-cols="3" :label="label"
-    :state="isValid()" :invalid-feedback="invalidFeedback">
-    <b-form-input :type="type" v-model="inputValue" @input.native="validate()"
+  <b-form-group horizontal label-cols="3" :label="$t(label)"
+    :state="isValid()" :invalid-feedback="$t(invalidFeedback)">
+    <b-form-input :type="type" :placeholder="placeholder" v-model="inputValue" @input.native="validate()"
       :state="isValid()"></b-form-input>
+    <b-form-text v-if="text" v-t="text"></b-form-text>
   </b-form-group>
 </template>
 
@@ -22,8 +23,16 @@ export default {
       type: String,
       default: 'text'
     },
+    placeholder: { // Warning: This prop is not automatically translated.
+      type: String,
+      default: null
+    },
     validation: {
       type: Object,
+      default: null
+    },
+    text: {
+      type: String,
       default: null
     },
     invalidFeedback: {
@@ -61,10 +70,11 @@ export default {
       return null
     },
     validate () {
+      const _this = this
       if (this.validation) {
         this.$debouncer({
           handler: () => {
-            this.validation.$touch()
+            _this.validation.$touch()
           },
           time: this.debounce
         })

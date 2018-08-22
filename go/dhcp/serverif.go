@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net"
 	"os"
@@ -17,6 +18,11 @@ type serveIfConn struct {
 
 func (s *serveIfConn) ReadFrom(b []byte) (n int, addr net.Addr, err error) {
 	n, s.cm, addr, err = s.conn.ReadFrom(b)
+	return
+}
+
+func (s *serveIfConn) ReadFromRaw(b []byte) (n int, cm *ipv4.ControlMessage, addr net.Addr, err error) {
+	n, cm, addr, err = s.conn.ReadFrom(b)
 	return
 }
 
@@ -37,17 +43,17 @@ func (s *serveIfConn) WriteTo(b []byte, addr net.Addr) (n int, err error) {
 // import outside the std library.  Serving DHCP over multiple interfaces will
 // require your own dhcp4.ServeConn, as listening to broadcasts utilises all
 // interfaces (so you cannot have more than on listener).
-func ServeIf(ifIndex int, p *ipv4.PacketConn, handler Handler, jobs chan job) error {
+func ServeIf(ifIndex int, p *ipv4.PacketConn, handler Handler, jobs chan job, ctx context.Context) error {
 	if err := p.SetControlMessage(ipv4.FlagInterface, true); err != nil {
 		return err
 	}
-	return Serve(&serveIfConn{ifIndex: ifIndex, conn: p}, handler, jobs)
+	return Serve(&serveIfConn{ifIndex: ifIndex, conn: p}, handler, jobs, ctx)
 }
 
 // ListenAndServeIf listens on the UDP network address addr and then calls
 // Serve with handler to handle requests on incoming packets.
 // i.e. ListenAndServeIf("eth0",handler)
-func ListenAndServeIf(interfaceName string, handler Handler, jobs chan job) error {
+func ListenAndServeIf(interfaceName string, handler Handler, jobs chan job, ctx context.Context) error {
 	iface, err := net.InterfaceByName(interfaceName)
 	if err != nil {
 		return err
@@ -59,7 +65,7 @@ func ListenAndServeIf(interfaceName string, handler Handler, jobs chan job) erro
 	}
 	defer p.Close()
 
-	return ServeIf(iface.Index, p, handler, jobs)
+	return ServeIf(iface.Index, p, handler, jobs, ctx)
 }
 
 func broadcastOpen(bindAddr net.IP, port int, ifname string) (*ipv4.PacketConn, error) {
@@ -100,7 +106,7 @@ func broadcastOpen(bindAddr net.IP, port int, ifname string) (*ipv4.PacketConn, 
 // ListenAndServeIf listens on the UDP network address addr and then calls
 // Serve with handler to handle requests on incoming packets.
 // i.e. ListenAndServeIf("eth0",handler)
-func ListenAndServeIfUnicast(interfaceName string, handler Handler, jobs chan job, ip net.IP) error {
+func ListenAndServeIfUnicast(interfaceName string, handler Handler, jobs chan job, ip net.IP, ctx context.Context) error {
 	iface, err := net.InterfaceByName(interfaceName)
 	if err != nil {
 		return err
@@ -112,7 +118,7 @@ func ListenAndServeIfUnicast(interfaceName string, handler Handler, jobs chan jo
 	}
 	defer p.Close()
 
-	return ServeIf(iface.Index, p, handler, jobs)
+	return ServeIf(iface.Index, p, handler, jobs, ctx)
 }
 
 func UnicastOpen(bindAddr net.IP, port int, ifname string) (*ipv4.PacketConn, error) {

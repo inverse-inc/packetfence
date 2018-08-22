@@ -415,7 +415,7 @@ sub getRegisteredRole {
     # the role based on the rules defined in the different authentication sources.
     # FIRST HIT MATCH
     elsif ( defined $args->{'user_name'} && $args->{'connection_type'} && ($args->{'connection_type'} & $EAP) == $EAP ) {
-        if ( isdisabled($profile->dot1xRecomputeRoleFromPortal) ) {
+        if ( isdisabled($profile->dot1xRecomputeRoleFromPortal)  || $args->{'autoreg'} == 1) {
             $logger->info("Role has already been computed and we don't want to recompute it. Getting role from node_info" );
             $role = $args->{'node_info'}->{'category'};
         } else {
@@ -444,7 +444,7 @@ sub getRegisteredRole {
                 'portal'  => $profile->getName,
             );
             # Don't do a person lookup if autoreg (already did it);
-            pf::lookup::person::async_lookup_person($args->{'user_name'}, $source) if !($args->{'autoreg'});
+            pf::lookup::person::async_lookup_person($args->{'user_name'}, $source, $pf::constants::realm::RADIUS_CONTEXT) if !($args->{'autoreg'});
             $portal = $profile->getName;
             my %info = (
                 'pid' => $args->{'user_name'},
@@ -593,8 +593,13 @@ sub getNodeInfoForAutoReg {
         my $bandwidth_balance =  $values->{$Actions::SET_BANDWIDTH_BALANCE};        
         $node_info{'time_balance'} = pf::util::normalize_time($time_balance) if (defined($time_balance));
         $node_info{'bandwidth_balance'} = pf::util::unpretty_bandwidth($bandwidth_balance) if (defined($bandwidth_balance));
+
+        pf::person::person_modify($args->{'user_name'},
+            'source'  => $source,
+            'portal'  => $profile->getName,
+        );
         # Trigger a person lookup for 802.1x users
-        pf::lookup::person::async_lookup_person($args->{'user_name'}, $source);
+        pf::lookup::person::async_lookup_person($args->{'user_name'}, $source, $pf::constants::realm::RADIUS_CONTEXT);
 
         if (defined $unregdate) {
             $node_info{'unregdate'} = $unregdate;

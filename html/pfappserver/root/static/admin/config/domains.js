@@ -64,6 +64,13 @@ DomainView.prototype.updateAndJoinDomain = function(e) {
   if (valid) {
       var modal_body = modal.find('.modal-body').first();
       resetAlert(modal_body);
+      id_input = modal_body.find('#id');
+      id_value = id_input.val();
+      if (!id_value.match(/^[a-zA-Z0-9]+$/)) {
+          showError(modal_body, "The id is invalid. The id can only contain alphanumeric characters.");
+          return;
+      }
+
       form.find('tr.hidden :input').attr('disabled', 'disabled');
       modal.modal('hide');
       that.showWait("The server is currently joining the domain");

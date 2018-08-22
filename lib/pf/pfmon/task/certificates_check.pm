@@ -4,8 +4,6 @@ package pf::pfmon::task::certificates_check;
 
 pf::pfmon::task::certificates_check
 
-=cut
-
 =head1 DESCRIPTION
 
 Check for SSL certificates expiration and alert
@@ -23,10 +21,8 @@ use pf::log;
 use pf::util qw(isenabled);
 extends qw(pf::pfmon::task);
 
-
 has 'delay'         => ( is => 'rw', default => "30D" );
 has 'certificates'  => ( isa => 'Maybe[Str]', is => 'rw', default => "/usr/local/pf/conf/ssl/server.pem,/usr/local/pf/raddb/certs/server.crt" );
-
 
 =head2 run
 
@@ -36,13 +32,9 @@ Check for SSL certificates expiration and alert
 
 sub run {
     my ( $self ) = @_;
-
-    my @certs = split(/\s*,\s*/, $self->{'certificates'});
     my %problematic_certs = ();
-    my ($expires_soon, $expired);
-
-    foreach my $cert ( @certs ) {
-        if ( pf::util::cert_expires_in($cert, $self->delay) ) {
+    foreach my $cert (split(/\s*,\s*/, $self->{'certificates'})) {
+        if (pf::util::cert_expires_in($cert, $self->delay)) {
             $problematic_certs{$cert}{'expires_soon'} = $TRUE;
             $problematic_certs{$cert}{'expired'} = ( pf::util::cert_expires_in($cert) ) ? $TRUE : $FALSE;
         }
@@ -51,7 +43,6 @@ sub run {
     # Send alerts for problematic certificates
     $self->alert(%problematic_certs) if %problematic_certs;
 }
-
 
 =head2 alert
 
@@ -78,9 +69,7 @@ sub alert {
     }
 }
 
-
 =head1 AUTHOR
-
 
 Inverse inc. <info@inverse.ca>
 

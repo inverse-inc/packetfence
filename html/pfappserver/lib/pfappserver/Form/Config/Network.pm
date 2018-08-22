@@ -50,6 +50,14 @@ has_field 'dhcp_max_lease_time' =>
    required_when => { 'fake_mac_enabled' => sub { $_[0] ne '1' } },
    messages => { required => 'Please specify the maximum DHCP lease time.' },
   );
+has_field 'ip_reserved' =>
+  (
+   type => 'Text',
+   label => 'IP Addresses reserved',
+   messages => { required => "Range or IP addresses to exclude from the DHCP pool." },
+   tags => { after_element => \&help,
+             help => 'Range like 192.168.0.1-192.168.0.20 and or IP like 192.168.0.22,192.168.0.24 will be excluded from the DHCP pool' },
+  );
 has_field 'dns' =>
   (
    type => 'IPAddresses',
@@ -57,7 +65,7 @@ has_field 'dns' =>
    required_when => { 'fake_mac_enabled' => sub { $_[0] ne '1' } },
    messages => { required => "Please specify the DNS server's IP address(es)." },
    tags => { after_element => \&help,
-             help => 'Should match the IP of a registration interface or the production DNS server if the network is Inline L3' },
+             help => 'Should match the IP of a registration interface or the production DNS server(s) if the network is Inline L2/L3 (space delimited list of IP addresses)' },
   );
 
 =head2 validate

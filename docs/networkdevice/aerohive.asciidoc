@@ -1,3 +1,8 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:imagesdir: ../images
+endif::[]
+
 Aerohive Networks
 ~~~~~~~~~~~~~~~~~
 
@@ -32,7 +37,7 @@ Configure the Aerohive APs and SSID
 Logon to your HiveManager interface:
 
 [options="compact"]
-* for this example, we assume that we are on the _Cloud_ https://myhive-auth.aerohive.com[MyHive.aerohove.com] solution
+* for this example, we assume that we are on the _Cloud_ https://myhive-auth.aerohive.com[MyHive.aerohive.com] solution
 * from _HiveManager_, click on your *HiveManagerOnline Instances* _VHM-XXXXXX_
 * from _Network Configuration / 1-Choose Network Policy_, click on *New*
 * give a name to your Policy, and click *Create*
@@ -46,7 +51,7 @@ For an open (no encryption) SSID using MAC-based authentication:
 ** check the box _Enable MAC authentication_
 * click on *Save*
 
-image::docs/images/pfaerohive02.png[scaledwidth="100%",alt="AerohiveOpenSSIDconfig"]
+image::pfaerohive02.png[scaledwidth="100%",alt="AerohiveOpenSSIDconfig"]
 
 For a secure SSID using 802.1X:
 [options="compact"]
@@ -55,7 +60,7 @@ For a secure SSID using 802.1X:
 ** Key Management; *WPA2-(WPA2 enterprise)-802.1X*
 ** Encryption method: *CCMP (AES)*
 
-image::docs/images/pfaerohive03.png[scaledwidth="100%",alt="AerohiveSecuredSSIDconfig"]
+image::pfaerohive03.png[scaledwidth="100%",alt="AerohiveSecuredSSIDconfig"]
 
 [options="compact"]
 * click on *Save*
@@ -66,17 +71,17 @@ Add the RADIUS parameters created before:
 * under _Authentication_ click on *<RADIUS Setting>*, and click on *New*
 * from _RADIUS Name_, give the name of the PaketFence server, for example
 
-image::docs/images/pfaerohive05.png[scaledwidth="100%",alt="AAA Radius config"]
+image::pfaerohive05.png[scaledwidth="100%",alt="AAA Radius config"]
 
 [options="compact"]
 * from _Add a New RADIUS Server_, in _IP Adresse/Domain Name_, put the PacketFence Server IP
 * hive the _Shared Secret_ (*useStrongerSecret*) and _Confirm_ it
 * and Click on *Apply*
 
-image::docs/images/pfaerohive06.png[scaledwidth="100%",alt="AAA Radius config"]
+image::pfaerohive06.png[scaledwidth="100%",alt="AAA Radius config"]
 
 [options="compact"]
-* deploy the _Optionnal Setting(not supported by RADIUS Proxy)_ section and * [x] check the _Permit Dynamic Change of Authorization Message (RFC 3576)_
+* deploy the _Optionnal Setting(not supported by RADIUS Proxy)_ section and check the _Permit Dynamic Change of Authorization Message (RFC 3576)_
 * click on *Save*
 * next to your _SSID Name_ Click on the *<RADIUS Setting>*, Click *OK*
 
@@ -91,7 +96,7 @@ We will create the default VLAN to be assign by the AP, when a new endpoint get 
 * as a VLAN ID, give the VLAN ID earlier Registration(2) , Isolation(3) or Production(10)
 * click on *Save* and click on *Save* again on the _Configure interfaces and User Access_
 
-image::docs/images/pfaerohive07.png[scaledwidth="100%",alt="User Profile creation"]
+image::pfaerohive07.png[scaledwidth="100%",alt="User Profile creation"]
 
 Create and add the other VLANs:
 [options="compact"]
@@ -105,7 +110,7 @@ Once done with the VLANs configuration:
 
 For our example, here is what it looks like, with two SSIDs
 
-image::docs/images/pfaerohive08.png[scaledwidth="100%",alt="User Profile creation"]
+image::pfaerohive08.png[scaledwidth="100%",alt="User Profile creation"]
 
 Then, click on _Continue_, on top right of the page.
 
@@ -130,7 +135,7 @@ Logon to your PacketFence interface:
 * from _Configuration / Policies and Access Control / Switches /_
 * on the line where there is the _default_, on the right, Click on _CLONE_
 
-image::docs/images/pfaerohive09.png[scaledwidth="100%",alt="New switch configuration"]
+image::pfaerohive09.png[scaledwidth="100%",alt="New switch configuration"]
 
 In _Definition_:
 [options="compact"]
@@ -142,13 +147,13 @@ In _Definition_:
 * _Deauthentication Method_ set to *RADIUS*
 * click *SAVE*
 
-image::docs/images/pfaerohive10.png[scaledwidth="100%",alt="New switch configuration"]
+image::pfaerohive10.png[scaledwidth="100%",alt="New switch configuration"]
 
 From _Role_:
 [options="compact"]
 * set all VLAN ID for each roles
 
-image::docs/images/pfaerohive11.png[scaledwidth="100%",alt="New switch configuration"]
+image::pfaerohive11.png[scaledwidth="100%",alt="New switch configuration"]
 
 From _RADIUS_:
 [options="compact"]
@@ -183,7 +188,7 @@ Create a new Captive Portal Profile:
 * _Password Encryption_ : *No Encryption (Plaintext Password)*
 * click on *Save*
 
-image::docs/images/pfaerohive14.png[scaledwidth="100%",alt="Captive Portal SSID configuration"]
+image::pfaerohive14.png[scaledwidth="100%",alt="Captive Portal SSID configuration"]
 
 Create a SSID to enable Captive Portal functionality:
 [options="compact"]
@@ -193,14 +198,14 @@ Create a SSID to enable Captive Portal functionality:
 * from _SSID Access Security_ , Check *Enable Captive Web Portal*
 * before clicking on the button *Save* you should have something like this:
 
-image::docs/images/pfaerohive16.png[scaledwidth="100%",alt="SSID configuration"]
+image::pfaerohive16.png[scaledwidth="100%",alt="SSID configuration"]
 
 Configure and broadcast your SSID:
 [options="compact"]
 * from the HiveManager, go to *CONFIGURATION -> NETWORK POLICIES* 
 * choose Network Policy and click OK, you should see this:
 
-image::docs/images/pfaerohive15.png[scaledwidth="100%",alt="External portal SSID configuration"]
+image::pfaerohive15.png[scaledwidth="100%",alt="External portal SSID configuration"]
 
 * under Authentication click on _<Captive Web Portal>_ and select the captive portal previously configured
 * once the _<RADIUS Settings>_ appears under the captive portal, click on it
@@ -208,27 +213,27 @@ image::docs/images/pfaerohive15.png[scaledwidth="100%",alt="External portal SSID
 * give it a description and a name
 * under _RADIUS Servers_ click New
 
-image::docs/images/pfaerohive17.png[scaledwidth="100%",alt="Radius configuration"]
+image::pfaerohive17.png[scaledwidth="100%",alt="Radius configuration"]
 
 * click on Apply
 * click on _Optional Settings (not supported by RADIUS Proxy)_ and check *Permit Dynamic Change of Authorization Messages (RFC 3576)*
 
-image::docs/images/pfaerohive18.png[scaledwidth="100%",alt="CoA configuration"]
+image::pfaerohive18.png[scaledwidth="100%",alt="CoA configuration"]
 
 * click on the Save button
 
 Configure the User profile:
 
-image::docs/images/pfaerohive19.png[scaledwidth="100%",alt="CoA configuration"]
+image::pfaerohive19.png[scaledwidth="100%",alt="CoA configuration"]
 
 * under _User Profile_ , click on *Add/Remove* and click on New
 
-image::docs/images/pfaerohive20.png[scaledwidth="100%",alt="User Profile configuration"]
+image::pfaerohive20.png[scaledwidth="100%",alt="User Profile configuration"]
 
 * enter the profile name, the VLAN ID and create the default VLAN as the same as the attribute number
 * create a new default VLAN, click on the *+* button
 
-image::docs/images/pfaerohive21.png[scaledwidth="100%",alt="vlan configuration"]
+image::pfaerohive21.png[scaledwidth="100%",alt="vlan configuration"]
 
 * click the Save button
 * make sure the new user profile name is selected and then Save
@@ -251,7 +256,7 @@ Configure the _Production_ interface to send the _Portal_:
 * _Additionnal listening daemon(s)_, Add *portal*
 * click on *SAVE*
 
-image::docs/images/pfaerohive13.png[scaledwidth="100%",alt="Captive Portal SSID configuration"]
+image::pfaerohive13.png[scaledwidth="100%",alt="Captive Portal SSID configuration"]
 
 MAC Authentication/802.1X and Web Auth Configuration 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

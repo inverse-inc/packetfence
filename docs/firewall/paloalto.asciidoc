@@ -1,3 +1,7 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:imagesdir: ../images
+endif::[]
 
 Installation using XMLAPI
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -10,7 +14,7 @@ Go to *Device -> Admin Roles -> Add*.
 
 Create the role name 'SSO_Role', under the 'XML API' tab, enable everything and validate it with 'OK'.
 
-image::docs/images/doc-paloalto-SSO_Role.png[scaledwidth="100%",alt="Create a SSO Role in the PanOS"]
+image::doc-paloalto-SSO_Role.png[scaledwidth="100%",alt="Create a SSO Role in the PanOS"]
 
 Create the account in PAN-OS
 ++++++++++++++++++++++++++++
@@ -26,7 +30,7 @@ Go to *Device -> Administrator -> Add*.
 * *Profile*: SSO_Role (Previously created)
 * *Password Profile*: None
 
-image::docs/images/doc-paloalto-create_xml_user.png[scaledwidth="100%",alt="Create a XML user in the PanOS"]
+image::doc-paloalto-create_xml_user.png[scaledwidth="100%",alt="Create a XML user in the PanOS"]
 
 Get the XML Key
 +++++++++++++++
@@ -58,7 +62,7 @@ Go to *Configuration -> Integration -> Firewall SSO -> Add Firewall -> PaloAlto*
 * *Port of the service*: 443
 * *Roles*: add the roles that you want to do SSO with
 
-image::docs/images/doc-paloalto-cfg_SSO_pf.png[scaledwidth="100%",alt="Add a PaloAlto Firewall in PacketFence"]
+image::doc-paloalto-cfg_SSO_pf.png[scaledwidth="100%",alt="Add a PaloAlto Firewall in PacketFence"]
 
 Verification
 ++++++++++++
@@ -85,14 +89,14 @@ Create a filter
 
 You will first need to create a filter to parse the SSO line that PacketFence will send. This can be done in 'User Identification->User Mapping'
 
-image::docs/images/doc-paloalto-syslog-parse.png[scaledwidth="100%",alt="Syslog filter for Palo Alto SSO"]
+image::doc-paloalto-syslog-parse.png[scaledwidth="100%",alt="Syslog filter for Palo Alto SSO"]
 
 Assign the filter to a 'Monitored Server'
 +++++++++++++++++++++++++++++++++++++++++
 
 Next, configure the filter to be used in a syslog receiver on the Palo Alto. In order to do so, go in 'User Identification->User Mapping' and configure a syslog sender.
 
-image::docs/images/doc-paloalto-syslog-user-identification.png[scaledwidth="100%",alt="Syslog sender configuration"]
+image::doc-paloalto-syslog-user-identification.png[scaledwidth="100%",alt="Syslog sender configuration"]
 
 SSO Configuration in PacketFence
 ++++++++++++++++++++++++++++++++

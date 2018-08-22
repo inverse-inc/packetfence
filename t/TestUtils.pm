@@ -26,7 +26,7 @@ BEGIN {
         @cli_tests @compile_tests @dao_tests @integration_tests @quality_tests @quality_failing_tests @unit_tests
         use_test_db
         get_all_perl_binaries get_all_perl_cgi get_all_perl_modules
-        get_networkdevices_modules get_networkdevices_classes
+        get_networkdevices_modules get_networkdevices_classes cpuinfo
     );
 }
 use pf::config qw(%Config);
@@ -118,14 +118,14 @@ and return all the normal files under
 
 my %exclusions = map { $_ => 1 } qw(
    /usr/local/pf/bin/pfcmd
-   /usr/local/pf/bin/pfhttpd
+   /usr/local/pf/sbin/pfhttpd
    /usr/local/pf/sbin/pfdns
+   /usr/local/pf/sbin/pfdhcp
+   /usr/local/pf/sbin/pfipset
+   /usr/local/pf/sbin/pfstats
+   /usr/local/pf/sbin/pfdetect
    /usr/local/pf/bin/ntlm_auth_wrapper
    /usr/local/pf/addons/sourcefire/pfdetect.pl
-   /usr/local/pf/bin/pfdns
-   /usr/local/pf/bin/pfdhcp
-   /usr/local/pf/bin/pfipset
-   /usr/local/pf/bin/pfstats
 );
 
 sub get_all_perl_binaries {
@@ -268,6 +268,23 @@ sub get_networkdevices_classes {
         push(@classes, $module);
     }
     return @classes;
+}
+
+sub cpuinfo {
+    my @cpuinfos;
+    if (open(my $fh, "/proc/cpuinfo")) {
+        while (my $l = <$fh>) {
+            chomp($l);
+            if ($l =~ /(.*?)\s*: (.*)/) {
+                my $n = $1;
+                if ($n eq 'processor') {
+                    push @cpuinfos, {};
+                }
+                $cpuinfos[-1]{$n} = $2;
+            }
+        }
+    }
+    return \@cpuinfos;
 }
 
 =head1 AUTHOR

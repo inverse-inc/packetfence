@@ -17,7 +17,7 @@ Script to synchronize cluster either as the master node or as a slave node
   To sync the configuration from a master server to this server :
    sync --from=<master-ip> --api-user=<master-api-user> --api-password=<master-api-password>
 
-Add files to /usr/local/pf/conf/cluster-files.txt (one per line) to sync additionnal files during the cluster synchronization.
+Add files to /usr/local/pf/conf/cluster-files.txt (one per line) to sync additional files during the cluster synchronization.
 
 
 =head1 DESCRIPTION

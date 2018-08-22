@@ -7,6 +7,7 @@
     <option value="computername">[% l('Computer Name') %]</option>
     <option value="connection_type">[% l('Connection Type') %]</option>
     <option value="device_class">[% l('Device Class') %]</option>
+    <option value="device_manufacturer">[% l('Device Manufacturer') %]</option>
     <option value="device_type">[% l('Device Type') %]</option>
     <option value="last_ip">[% l('Node IP') %]</option>
     <option value="category">[% l('Node Role') %]</option>

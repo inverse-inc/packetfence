@@ -1,6 +1,6 @@
 <!-- TODO have the build system take care of this  -->
-<releaseinfo>Version 8.0.0 - Apr 2018</releaseinfo>
-<subtitle>for PacketFence version 8.0.0</subtitle>
+<releaseinfo>Version 8.1.0 - Jul 2018</releaseinfo>
+<subtitle>for PacketFence version 8.1.0</subtitle>
 <date>2018-01-25</date>
 
 <legalnotice>
@@ -19,6 +19,6 @@
     <phrase>PacketFence's spike logo</phrase>
   </textobject>
   <imageobject>
-    <imagedata align="left" width="4in" format="PNG" fileref="docs/images/pf-logo.png" />
+    <imagedata align="left" width="4in" format="PNG" fileref="images/pf-logo.png" />
   </imageobject>
 </mediaobject>

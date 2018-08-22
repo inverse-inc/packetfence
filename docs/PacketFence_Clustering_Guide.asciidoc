@@ -5,6 +5,11 @@ Clustering Quick Installation Guide
 :doctype: book
 :toc: left
 
+// to display images directly on GitHub
+ifdef::env-github[]
+:imagesdir: images
+endif::[]
+
 include::includes/global-attributes.asciidoc[]
 
 About this Guide
@@ -159,7 +164,6 @@ Now, reload the configuration and restart packetfence-config. You will see error
 
   # systemctl restart packetfence-config
   # /usr/local/pf/bin/pfcmd configreload hard
-  # systemctl restart packetfence-haproxy-db
 
 Configure cluster.conf
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -279,7 +283,7 @@ On the *first server*, configure your webservices username and password by addin
   user=packet
   pass=fence
 
-WARNING: *fence* is only for example purpose, you need to define your own password.
+WARNING: *packet* and *fence* are only for example purpose, you need to define your own username and password.
 
 While you can set the username and password to any value, make sure to keep it safe as you will need it while initializing the cluster below.
 
@@ -287,8 +291,6 @@ And reload the config, then restart httpd.webservices on the first server:
 
   # /usr/local/pf/bin/pfcmd configreload hard
   # /usr/local/pf/bin/pfcmd service httpd.webservices restart
-
-NOTE: The reload will complain about the unavailability of the database, which you can safely ignore.
 
 Sync the nodes
 ^^^^^^^^^^^^^^
@@ -1049,7 +1051,7 @@ MariaDB Galera cluster troubleshooting
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Maximum connections reached
-+++++++++++++++++++++++++++
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In the event that one of the 3 servers reaches the maximum amount of connections (defaults to 1000), this will dead-lock the Galera cluster synchronization. In order to resolve this, you should first increase database_advanced.max_connections, then stop packetfence-mariadb on all 3 servers, and follow the steps in the section 'Recovering from a split brain' of this document. Note that you can use any of the database servers as your source of truth.
 

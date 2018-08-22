@@ -1,10 +1,12 @@
 CSS_FILES = styles.css styles.css.map
 
 all:
-	@echo "Use 'make dev' to generate the stylesheet and 'make dist' to commit the distribution version."
+	@echo "Use 'make vendor' to update external libraries, 'make dev' to generate the stylesheet and 'make dist' to commit the distribution version."
+
+vendor:
+	npm install
 
 dev:
-	npm install --production
 	grunt --stack dev
 
 dist:

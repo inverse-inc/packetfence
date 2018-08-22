@@ -6,7 +6,7 @@ else
   set -x
 
   echo "Setting up golang environment for PacketFence"
-  GOVERSION=`strings /usr/local/pf/bin/pfhttpd | egrep -o 'go[0-9]+\.[0-9]+\.[0-9]+'`
+  GOVERSION=`strings /usr/local/pf/sbin/pfhttpd | egrep -o 'go[0-9]+\.[0-9]+\.[0-9]+' | head -1`
   wget https://storage.googleapis.com/golang/$GOVERSION.linux-amd64.tar.gz -O /tmp/$GOVERSION.linux-amd64.tar.gz
   tar -C /usr/local -xzf /tmp/$GOVERSION.linux-amd64.tar.gz
   rm /tmp/$GOVERSION.linux-amd64.tar.gz
@@ -19,7 +19,7 @@ export PATH=~/gospace/bin:$PATH'
   eval "$SETUP"
 
   mkdir -p $GOPATH/src/github.com/inverse-inc/packetfence
-  
+
   if [ -d $GOPATH/src/github.com/inverse-inc/packetfence/go ]; then
     echo "Directory $GOPATH/src/github.com/inverse-inc/packetfence/go already exists, cannot symlink it to /usr/local/pf/go"
   else

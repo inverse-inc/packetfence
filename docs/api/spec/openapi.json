@@ -249,6 +249,66 @@
             },
             "description" : "Request cannot be processed because the resource could not be found."
          },
+         "QueueStats" : {
+            "content" : {
+               "application/json" : {
+                  "schema" : {
+                     "$ref" : "#/components/schemas/QueueStats"
+                  }
+               }
+            },
+            "description" : "A response that contains the pfqueue stats"
+         },
+         "ServiceDisable" : {
+            "content" : {
+               "application/json" : {
+                  "schema" : {
+                     "$ref" : "#/components/schemas/ServiceDisable"
+                  }
+               }
+            },
+            "description" : "A response that contains a simple message"
+         },
+         "ServiceEnable" : {
+            "content" : {
+               "application/json" : {
+                  "schema" : {
+                     "$ref" : "#/components/schemas/ServiceEnable"
+                  }
+               }
+            },
+            "description" : "A response that contains a simple message"
+         },
+         "ServiceRestart" : {
+            "content" : {
+               "application/json" : {
+                  "schema" : {
+                     "$ref" : "#/components/schemas/ServiceRestart"
+                  }
+               }
+            },
+            "description" : "A response that contains a simple message"
+         },
+         "ServiceStart" : {
+            "content" : {
+               "application/json" : {
+                  "schema" : {
+                     "$ref" : "#/components/schemas/ServiceStart"
+                  }
+               }
+            },
+            "description" : "A response that contains a simple message"
+         },
+         "ServiceStop" : {
+            "content" : {
+               "application/json" : {
+                  "schema" : {
+                     "$ref" : "#/components/schemas/ServiceStop"
+                  }
+               }
+            },
+            "description" : "A response that contains a simple message"
+         },
          "Unauthorized" : {
             "content" : {
                "application/json" : {
@@ -12093,6 +12153,42 @@
             "required" : [],
             "type" : "object"
          },
+         "NodeCategoriesList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "items" : {
+                           "$ref" : "#/components/schemas/NodeCategory"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
+         },
+         "NodeCategory" : {
+            "properties" : {
+               "category_id" : {
+                  "type" : "integer"
+               },
+               "max_nodes_per_pid" : {
+                  "type" : "integer"
+               },
+               "name" : {
+                  "type" : "string"
+               },
+               "notes" : {
+                  "type" : "string"
+               }
+            },
+            "required" : [],
+            "type" : "object"
+         },
          "NodesList" : {
             "allOf" : [
                {
@@ -12155,6 +12251,118 @@
                }
             },
             "type" : "object"
+         },
+         "Query" : {
+            "example" : {
+               "op" : "and",
+               "values" : [
+                  {
+                     "field" : "detect_date",
+                     "op" : "between",
+                     "values" : [
+                        "2017-01-01 ",
+                        "2017-01-02 "
+                     ]
+                  },
+                  {
+                     "op" : "or",
+                     "values" : [
+                        {
+                           "field" : "mac",
+                           "op" : "ends_with",
+                           "value" : "ab:cd"
+                        },
+                        {
+                           "field" : "pid",
+                           "op" : "equals",
+                           "value" : "lzammit"
+                        }
+                     ]
+                  }
+               ]
+            },
+            "properties" : {
+               "field" : {
+                  "description" : "The field to perform the search on. It is possible to specify fields from other API endpoints (ex: ip4log.ip)",
+                  "type" : "string"
+               },
+               "op" : {
+                  "description" : "The operator to use against the value of the field. Can be `and`, `or`, `is`, `is_not`, `match`, `not_match`, `contains`, `not_contains`, `between` and `not_between`",
+                  "type" : "string"
+               },
+               "value" : {
+                  "description" : "The search term to use when performing the search using on the specified field. This field must be used when the operator performs the condition against a single string value.",
+                  "type" : "string"
+               },
+               "values" : {
+                  "description" : "An array of simple/complex searches to use with the provided operator. To be used when the operator expects complex values as arguments. Refer to the examples for how to use this efficiently. This field must follow the same structure as this schema.",
+                  "items" : {
+                     "type" : "object"
+                  },
+                  "type" : "array"
+               }
+            },
+            "type" : "object"
+         },
+         "QueueStats" : {
+            "description" : "The schema used for a collection of queue stats",
+            "items" : {
+               "description" : "Statistics of the queue",
+               "properties" : {
+                  "queue" : {
+                     "description" : "The name of the queue",
+                     "type" : "string"
+                  },
+                  "stats" : {
+                     "description" : "The statistics for the queue",
+                     "properties" : {
+                        "count" : {
+                           "description" : "The queue count",
+                           "type" : "integer"
+                        },
+                        "expired" : {
+                           "description" : "The collection of expired task counters",
+                           "items" : {
+                              "description" : "An expired task",
+                              "properties" : {
+                                 "count" : {
+                                    "description" : "The expired task counter",
+                                    "type" : "integer"
+                                 },
+                                 "name" : {
+                                    "description" : "The name of the expired task",
+                                    "type" : "string"
+                                 }
+                              },
+                              "type" : "object"
+                           },
+                           "type" : "array"
+                        },
+                        "outstanding" : {
+                           "description" : "The collection of outstanding task counters",
+                           "items" : {
+                              "description" : "An outstanding task",
+                              "properties" : {
+                                 "count" : {
+                                    "description" : "The outstanding task counter",
+                                    "type" : "integer"
+                                 },
+                                 "name" : {
+                                    "description" : "The name of the outstanding task",
+                                    "type" : "string"
+                                 }
+                              },
+                              "type" : "object"
+                           },
+                           "type" : "array"
+                        }
+                     },
+                     "type" : "object"
+                  }
+               },
+               "type" : "object"
+            },
+            "type" : "array"
          },
          "RadiusAuditLog" : {
             "properties" : {
@@ -12297,54 +12505,989 @@
                }
             ]
          },
-         "Search" : {
-            "example" : {
-               "op" : "and",
-               "values" : [
-                  {
-                     "field" : "detect_date",
-                     "op" : "between",
-                     "values" : [
-                        "2017-01-01 ",
-                        "2017-01-02 "
-                     ]
-                  },
-                  {
-                     "op" : "or",
-                     "values" : [
-                        {
-                           "field" : "mac",
-                           "op" : "ends_with",
-                           "value" : "ab:cd"
-                        },
-                        {
-                           "field" : "pid",
-                           "op" : "equals",
-                           "value" : "lzammit"
-                        }
-                     ]
-                  }
-               ]
-            },
+         "ReportsActive" : {
             "properties" : {
-               "field" : {
-                  "description" : "The field to perform the search on. It is possible to specify fields from other API endpoints (ex: ip4log.ip)",
+               "computername" : {
+                  "description" : "The hostname of the machine.",
                   "type" : "string"
                },
-               "op" : {
-                  "description" : "The operator to use against the value of the field. Can be `and`, `or`, `is`, `is_not`, `match`, `not_match`, `contains`, `not_contains`, `between` and `not_between`",
+               "detect_date" : {
+                  "description" : "The date at which the node was discovered by PacketFence.",
+                  "type" : "date"
+               },
+               "last_arp" : {
+                  "description" : "The last time PacketFence saw an ARP request for this node.",
+                  "type" : "date"
+               },
+               "last_dhcp" : {
+                  "description" : "The last time PacketFence saw a DHCP request for this node.",
+                  "type" : "date"
+               },
+               "lastskip" : {
+                  "description" : "Deprecated parameter.",
                   "type" : "string"
                },
-               "value" : {
-                  "description" : "The search term to use when performing the search using on the specified field. This field must be used when the operator performs the condition against a single string value.",
+               "mac" : {
+                  "description" : "The MAC address.",
                   "type" : "string"
                },
-               "values" : {
-                  "description" : "An array of simple/complex searches to use with the provided operator. To be used when the operator expects complex values as arguments. Refer to the examples for how to use this efficiently. This field must follow the same structure as this schema.",
-                  "items" : {
-                     "type" : "object"
+               "notes" : {
+                  "description" : "Custom notes on the node.",
+                  "type" : "string"
+               },
+               "os" : {
+                  "description" : "The name of the device as detected by Fingerbank.",
+                  "type" : "string"
+               },
+               "pid" : {
+                  "description" : "The person ID (owner) of the node.",
+                  "type" : "string"
+               },
+               "regdate" : {
+                  "description" : "The date at which the node was registered.",
+                  "type" : "string"
+               },
+               "start_time" : {
+                  "description" : "The date/time the node was first seen.",
+                  "type" : "string"
+               },
+               "status" : {
+                  "description" : "The node status (eg: reg|unreg|pending).",
+                  "type" : "string"
+               },
+               "user_agent" : {
+                  "description" : "The HTTP user agent of the device as seen by Fingerbank.",
+                  "type" : "string"
+               }
+            },
+            "type" : "object"
+         },
+         "ReportsActiveList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "items" : {
+                           "$ref" : "#/components/schemas/ReportsActive"
+                        },
+                        "type" : "array"
+                     }
                   },
-                  "type" : "array"
+                  "type" : "object"
+               }
+            ]
+         },
+         "ReportsAuthenticationComputername" : {
+            "properties" : {
+               "computer_name" : {
+                  "description" : "The computer name from the radius request.",
+                  "type" : "string"
+               },
+               "count" : {
+                  "description" : "The individual count for this item.",
+                  "type" : "integer"
+               },
+               "percent" : {
+                  "description" : "The count weighted against the total of all items expressed in percent.",
+                  "type" : "float"
+               }
+            },
+            "type" : "object"
+         },
+         "ReportsAuthenticationComputernameList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "items" : {
+                           "$ref" : "#/components/schemas/ReportsAuthenticationComputername"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
+         },
+         "ReportsAuthenticationMac" : {
+            "properties" : {
+               "count" : {
+                  "description" : "The individual count for this item.",
+                  "type" : "integer"
+               },
+               "mac" : {
+                  "description" : "The MAC address.",
+                  "type" : "string"
+               },
+               "percent" : {
+                  "description" : "The count weighted against the total of all items expressed in percent.",
+                  "type" : "float"
+               }
+            },
+            "type" : "object"
+         },
+         "ReportsAuthenticationMacList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "items" : {
+                           "$ref" : "#/components/schemas/ReportsAuthenticationMac"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
+         },
+         "ReportsAuthenticationSsid" : {
+            "properties" : {
+               "count" : {
+                  "description" : "The individual count for this item.",
+                  "type" : "integer"
+               },
+               "percent" : {
+                  "description" : "The count weighted against the total of all items expressed in percent.",
+                  "type" : "float"
+               },
+               "ssid" : {
+                  "description" : "The SSID name.",
+                  "type" : "string"
+               }
+            },
+            "type" : "object"
+         },
+         "ReportsAuthenticationSsidList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "items" : {
+                           "$ref" : "#/components/schemas/ReportsAuthenticationSsid"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
+         },
+         "ReportsAuthenticationUsername" : {
+            "properties" : {
+               "count" : {
+                  "description" : "The individual count for this item.",
+                  "type" : "integer"
+               },
+               "percent" : {
+                  "description" : "The count weighted against the total of all items expressed in percent.",
+                  "type" : "float"
+               },
+               "user_name" : {
+                  "description" : "The user name from the radius request.",
+                  "type" : "string"
+               }
+            },
+            "type" : "object"
+         },
+         "ReportsAuthenticationUsernameList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "items" : {
+                           "$ref" : "#/components/schemas/ReportsAuthenticationUsername"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
+         },
+         "ReportsConnectionTypeActiveList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "items" : {
+                           "$ref" : "#/components/schemas/ReportsConnectionTypeCommon"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
+         },
+         "ReportsConnectionTypeCommon" : {
+            "properties" : {
+               "connection_type" : {
+                  "description" : "The client connection type.",
+                  "type" : "string"
+               },
+               "connections" : {
+                  "description" : "The number of client connections.",
+                  "type" : "integer"
+               },
+               "percent" : {
+                  "description" : "The number of client connections weighted against the total of all items expressed in percent.",
+                  "type" : "float"
+               }
+            },
+            "type" : "object"
+         },
+         "ReportsConnectionTypeList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "items" : {
+                           "$ref" : "#/components/schemas/ReportsConnectionTypeCommon"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
+         },
+         "ReportsConnectionTypeRegActiveList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "items" : {
+                           "$ref" : "#/components/schemas/ReportsConnectionTypeCommon"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
+         },
+         "ReportsConnectionTypeRegList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "items" : {
+                           "$ref" : "#/components/schemas/ReportsConnectionTypeCommon"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
+         },
+         "ReportsConnectionTypeUnregActiveList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "items" : {
+                           "$ref" : "#/components/schemas/ReportsConnectionTypeCommon"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
+         },
+         "ReportsConnectionTypeUnregList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "items" : {
+                           "$ref" : "#/components/schemas/ReportsConnectionTypeCommon"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
+         },
+         "ReportsInactiveList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "items" : {
+                           "$ref" : "#/components/schemas/ReportsNodeCommon"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
+         },
+         "ReportsNodeBandwidth" : {
+            "properties" : {
+               "acctinputoctets" : {
+                  "description" : "The number in input octets.",
+                  "type" : "integer"
+               },
+               "acctoutputoctets" : {
+                  "description" : "The number of output octets.",
+                  "type" : "integer"
+               },
+               "accttotaloctets" : {
+                  "description" : "The sum of input and output octets.",
+                  "type" : "integer"
+               },
+               "callingstationid" : {
+                  "description" : "The MAC address.",
+                  "type" : "string"
+               }
+            },
+            "type" : "object"
+         },
+         "ReportsNodeBandwidthList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "items" : {
+                           "$ref" : "#/components/schemas/ReportsNodeBandwidth"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
+         },
+         "ReportsNodeCommon" : {
+            "properties" : {
+               "computername" : {
+                  "description" : "The hostname of the machine.",
+                  "type" : "string"
+               },
+               "detect_date" : {
+                  "description" : "The date at which the node was discovered by PacketFence.",
+                  "type" : "date"
+               },
+               "last_arp" : {
+                  "description" : "The last time PacketFence saw an ARP request for this node.",
+                  "type" : "date"
+               },
+               "last_dhcp" : {
+                  "description" : "The last time PacketFence saw a DHCP request for this node.",
+                  "type" : "date"
+               },
+               "lastskip" : {
+                  "description" : "Deprecated parameter.",
+                  "type" : "string"
+               },
+               "mac" : {
+                  "description" : "The MAC address.",
+                  "type" : "string"
+               },
+               "notes" : {
+                  "description" : "Custom notes on the node.",
+                  "type" : "string"
+               },
+               "os" : {
+                  "description" : "The name of the device as detected by Fingerbank.",
+                  "type" : "string"
+               },
+               "pid" : {
+                  "description" : "The person ID (owner) of the node.",
+                  "type" : "string"
+               },
+               "regdate" : {
+                  "description" : "The date at which the node was registered.",
+                  "type" : "string"
+               },
+               "status" : {
+                  "description" : "The node status (eg: reg|unreg|pending).",
+                  "type" : "string"
+               },
+               "user_agent" : {
+                  "description" : "The HTTP user agent of the device as seen by Fingerbank.",
+                  "type" : "string"
+               }
+            },
+            "type" : "object"
+         },
+         "ReportsOpenViolationsActiveList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "items" : {
+                           "$ref" : "#/components/schemas/ReportsOpenViolationsCommon"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
+         },
+         "ReportsOpenViolationsCommon" : {
+            "properties" : {
+               "mac" : {
+                  "description" : "The MAC address.",
+                  "type" : "string"
+               },
+               "owner" : {
+                  "description" : "The person ID (owner) of the node.",
+                  "type" : "string"
+               },
+               "start_date" : {
+                  "description" : "The date/time when the violation was opened.",
+                  "type" : "date"
+               },
+               "status" : {
+                  "description" : "The status of the violation.",
+                  "type" : "string"
+               },
+               "violation" : {
+                  "description" : "The name of the violation class.",
+                  "type" : "string"
+               }
+            },
+            "type" : "object"
+         },
+         "ReportsOpenViolationsList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "items" : {
+                           "$ref" : "#/components/schemas/ReportsOpenViolationsCommon"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
+         },
+         "ReportsOs" : {
+            "properties" : {
+               "count" : {
+                  "description" : "The individual count for this item.",
+                  "type" : "integer"
+               },
+               "description" : {
+                  "description" : "The name of the device as detected by Fingerbank.",
+                  "type" : "string"
+               },
+               "dhcp_fingerprint" : {
+                  "description" : "The DHCP Option82 fingerprint as detected by Fingerbank.",
+                  "type" : "string"
+               },
+               "percent" : {
+                  "description" : "The count weighted against the total of all items expressed in percent.",
+                  "type" : "float"
+               }
+            },
+            "type" : "object"
+         },
+         "ReportsOsClass" : {
+            "properties" : {
+               "count" : {
+                  "description" : "The individual count for this item.",
+                  "type" : "integer"
+               },
+               "description" : {
+                  "description" : "The class of the device as detected by Fingerbank.",
+                  "type" : "string"
+               },
+               "percent" : {
+                  "description" : "The count weighted against the total of all items expressed in percent.",
+                  "type" : "float"
+               }
+            },
+            "type" : "object"
+         },
+         "ReportsOsClassBandwidth" : {
+            "properties" : {
+               "accttotaloctets" : {
+                  "description" : "The total number of octects transfered (in+out).",
+                  "type" : "string"
+               },
+               "dhcp_fingerprint" : {
+                  "description" : "The class of the device as detected by Fingerbank.",
+                  "type" : "string"
+               },
+               "percent" : {
+                  "description" : "The number of octects transfered weighted against the total of all items expressed in percent.",
+                  "type" : "float"
+               }
+            },
+            "type" : "object"
+         },
+         "ReportsOsClassBandwidthList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "items" : {
+                           "$ref" : "#/components/schemas/ReportsOsClassBandwidth"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
+         },
+         "ReportsOsClassList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "items" : {
+                           "$ref" : "#/components/schemas/ReportsOsClass"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
+         },
+         "ReportsOsList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "items" : {
+                           "$ref" : "#/components/schemas/ReportsOs"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
+         },
+         "ReportsRegisteredActiveList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "items" : {
+                           "$ref" : "#/components/schemas/ReportsNodeCommon"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
+         },
+         "ReportsRegisteredList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "items" : {
+                           "$ref" : "#/components/schemas/ReportsNodeCommon"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
+         },
+         "ReportsSsidActiveList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "items" : {
+                           "$ref" : "#/components/schemas/ReportsSsidCommon"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
+         },
+         "ReportsSsidCommon" : {
+            "properties" : {
+               "nodes" : {
+                  "description" : "The number of nodes connected.",
+                  "type" : "string"
+               },
+               "percent" : {
+                  "description" : "The number of nodes weighted against the total of all items expressed in percent.",
+                  "type" : "float"
+               },
+               "ssid" : {
+                  "description" : "The SSID name.",
+                  "type" : "string"
+               }
+            },
+            "type" : "object"
+         },
+         "ReportsSsidList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "items" : {
+                           "$ref" : "#/components/schemas/ReportsSsidCommon"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
+         },
+         "ReportsStaticsActiveList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "items" : {
+                           "$ref" : "#/components/schemas/ReportsStaticsCommon"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
+         },
+         "ReportsStaticsCommon" : {
+            "properties" : {
+               "autoreg" : {
+                  "description" : "Whether or not the node was autoregistered (i.e. didn't go through the captive-portal) (yes|no).",
+                  "type" : "string"
+               },
+               "bandwidth_balance" : {
+                  "description" : "The amount of bandwidth the device has left on the network. This is used only for bandwidth balance access that relies on the accounting data.",
+                  "type" : "string"
+               },
+               "bypass_role_id" : {
+                  "description" : "The category ID (role ID) that acts as an override to the defined role in the `category_id` field.",
+                  "type" : "string"
+               },
+               "bypass_vlan" : {
+                  "description" : "The VLAN to apply on the device to override the one that would be defined in the switch configuration for this role.",
+                  "type" : "string"
+               },
+               "category_id" : {
+                  "description" : "The category ID (role ID) of the node.",
+                  "type" : "string"
+               },
+               "computername" : {
+                  "description" : "The hostname of the machine.",
+                  "type" : "string"
+               },
+               "detect_date" : {
+                  "description" : "The date at which the node was discovered by PacketFence.",
+                  "type" : "date"
+               },
+               "device_class" : {
+                  "description" : "The class of the device as detected by Fingerbank.",
+                  "type" : "string"
+               },
+               "device_score" : {
+                  "description" : "The confidence level (0 to 100) that Fingerbank has on the profiling it did for this node.",
+                  "type" : "integer"
+               },
+               "device_type" : {
+                  "description" : "The name of the device as detected by Fingerbank.",
+                  "type" : "string"
+               },
+               "device_version" : {
+                  "description" : "The OS version of the device as detected by Fingerbank.",
+                  "type" : "string"
+               },
+               "dhcp6_enterprise" : {
+                  "description" : "The DHCPv6 enterprise ID as seen by Fingerbank (used for device profiling).",
+                  "type" : "string"
+               },
+               "dhcp6_fingerprint" : {
+                  "description" : "The DHCPv6 Option82 fingerprint as detected by Fingerbank.",
+                  "type" : "string"
+               },
+               "dhcp_fingerprint" : {
+                  "description" : "The DHCP Option82 fingerprint as detected by Fingerbank.",
+                  "type" : "string"
+               },
+               "dhcp_vendor" : {
+                  "description" : "The DHCP vendor as seen by Fingerbank (used for device profiling).",
+                  "type" : "string"
+               },
+               "last_arp" : {
+                  "description" : "The last time PacketFence saw an ARP request for this node.",
+                  "type" : "date"
+               },
+               "last_dhcp" : {
+                  "description" : "The last time PacketFence saw a DHCP request for this node.",
+                  "type" : "date"
+               },
+               "last_seen" : {
+                  "description" : "The last time PacketFence saw this node.",
+                  "type" : "date"
+               },
+               "lastskip" : {
+                  "description" : "Deprecated parameter.",
+                  "type" : "string"
+               },
+               "mac" : {
+                  "description" : "The MAC address.",
+                  "type" : "string"
+               },
+               "machine_account" : {
+                  "description" : "The machine username of this node if it ever did machine authentication (only works for Windows hosts or usernames that start with `host/`).",
+                  "type" : "string"
+               },
+               "notes" : {
+                  "description" : "Custom notes on the node.",
+                  "type" : "string"
+               },
+               "pid" : {
+                  "description" : "The person ID (owner) of the node.",
+                  "type" : "string"
+               },
+               "regdate" : {
+                  "description" : "The date at which the node was registered.",
+                  "type" : "string"
+               },
+               "sessionid" : {
+                  "description" : "The session ID of the device (used for certain switches).",
+                  "type" : "string"
+               },
+               "status" : {
+                  "description" : "The node status (eg: reg|unreg|pending).",
+                  "type" : "string"
+               },
+               "time_balance" : {
+                  "description" : "The amount of time the device has left on the network before being unregistered. This is used only for time balance access that relies on the accounting data.",
+                  "type" : "string"
+               },
+               "unregdate" : {
+                  "description" : "The date at which the node will be deregistered.",
+                  "type" : "string"
+               },
+               "user_agent" : {
+                  "description" : "The HTTP user agent of the device as seen by Fingerbank.",
+                  "type" : "string"
+               },
+               "voip" : {
+                  "description" : "Whether or not the node is a VoIP device for PacketFence (yes|no).",
+                  "type" : "string"
+               }
+            },
+            "type" : "object"
+         },
+         "ReportsStaticsList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "items" : {
+                           "$ref" : "#/components/schemas/ReportsStaticsCommon"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
+         },
+         "ReportsUnknownprintsActiveList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "items" : {
+                           "$ref" : "#/components/schemas/ReportsUnknownprintsCommon"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
+         },
+         "ReportsUnknownprintsCommon" : {
+            "properties" : {
+               "computername" : {
+                  "description" : "The hostname of the machine.",
+                  "type" : "string"
+               },
+               "dhcp_fingerprint" : {
+                  "description" : "The DHCP Option82 fingerprint as detected by Fingerbank.",
+                  "type" : "string"
+               },
+               "mac" : {
+                  "description" : "The MAC address.",
+                  "type" : "string"
+               },
+               "user_agent" : {
+                  "description" : "The HTTP user agent of the device as seen by Fingerbank.",
+                  "type" : "string"
+               }
+            },
+            "type" : "object"
+         },
+         "ReportsUnknownprintsList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "items" : {
+                           "$ref" : "#/components/schemas/ReportsUnknownprintsCommon"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
+         },
+         "ReportsUnregisteredActiveList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "items" : {
+                           "$ref" : "#/components/schemas/ReportsNodeCommon"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
+         },
+         "ReportsUnregisteredList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "items" : {
+                           "$ref" : "#/components/schemas/ReportsNodeCommon"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
+         },
+         "Search" : {
+            "properties" : {
+               "cursor" : {
+                  "description" : "The cursor pointer to fetch the data (value should be taken from previousCursor and nextCursor)",
+                  "type" : "string"
+               },
+               "fields" : {
+                  "description" : "Comma delimited fields that should be added to the resource by performing joins. For example, in order to get the IP address of a node when calling the nodes endpoints, setting 'ip4log.ip' into this field will provide the latest IP address of the device in the 'ip4log.ip' field of every node that is returned.",
+                  "type" : "string"
+               },
+               "limit" : {
+                  "description" : "The maximum amount of entries to get.",
+                  "type" : "string"
+               },
+               "query" : {
+                  "$ref" : "#/components/schemas/Query"
+               },
+               "sort" : {
+                  "description" : "A list of fields to sort on along with the ordering way (ASC or DESC).",
+                  "type" : "string"
                }
             },
             "type" : "object"
@@ -16178,101 +17321,23 @@
             }
          }
       },
-      "/dhcp_option82/{mac}" : {
-         "delete" : {
-            "responses" : {
-               "204" : {
-                  "description" : "Deleted dhcp option 82 log entry"
-               }
-            },
-            "summary" : "Allows to delete a dhcp option 82 log entry"
-         },
-         "get" : {
-            "parameters" : [
-               {
-                  "description" : "The MAC address to fetch.",
-                  "in" : "path",
-                  "name" : "mac",
-                  "required" : "1",
-                  "schema" : {
-                     "type" : "string"
-                  }
-               }
-            ],
-            "responses" : {
-               "200" : {
-                  "content" : {
-                     "application/json" : {
-                        "schema" : {
-                           "properties" : {
-                              "item" : {
-                                 "$ref" : "#/components/schemas/DhcpOption82"
-                              }
-                           },
-                           "type" : "object"
-                        }
-                     }
-                  },
-                  "description" : "A specific dhcp option82 log."
-               }
-            },
-            "summary" : "Returns a specific dhcp option 82 log by a MAC address."
-         },
-         "patch" : {
-            "requestBody" : {
-               "content" : {
-                  "application/json" : {
-                     "schema" : {
-                        "$ref" : "#/components/schemas/DhcpOption82"
-                     }
-                  }
-               },
-               "required" : "1"
-            },
-            "responses" : {
-               "200" : {
-                  "$ref" : "#/components/responses/Message"
-               },
-               "400" : {
-                  "$ref" : "#/components/responses/BadRequest"
-               },
-               "422" : {
-                  "$ref" : "#/components/responses/UnprocessableEntity"
-               }
-            },
-            "summary" : "Allows to update parts of a dhcp option 82 log entry."
-         },
-         "put" : {
-            "requestBody" : {
-               "content" : {
-                  "application/json" : {
-                     "schema" : {
-                        "$ref" : "#/components/schemas/DhcpOption82"
-                     }
-                  }
-               },
-               "required" : "1"
-            },
-            "responses" : {
-               "200" : {
-                  "$ref" : "#/components/responses/Message"
-               },
-               "400" : {
-                  "$ref" : "#/components/responses/BadRequest"
-               },
-               "422" : {
-                  "$ref" : "#/components/responses/UnprocessableEntity"
-               }
-            },
-            "summary" : "Allows to update a whole dhcp option 82 log entry."
-         }
-      },
       "/dhcp_option82s" : {
+         "description" : "pf::UnifiedApi::Controller::DhcpOption82s",
          "get" : {
-            "description" : "The list of logs will be limited to 100 and a cursor will be returned for iterating on other logs. Iteration is only needed if the nextCursor is not an empty value.",
+            "description" : "List items",
+            "operationId" : "api.v1.DhcpOption82s.list",
             "parameters" : [
                {
                   "$ref" : "#/components/parameters/cursor"
+               },
+               {
+                  "$ref" : "#/components/parameters/limit"
+               },
+               {
+                  "$ref" : "#/components/parameters/fields"
+               },
+               {
+                  "$ref" : "#/components/parameters/sort"
                }
             ],
             "responses" : {
@@ -16280,16 +17345,23 @@
                   "content" : {
                      "application/json" : {
                         "schema" : {
-                           "$ref" : "#/components/schemas/DhcpOption82List"
+                           "$ref" : "#/components/schemas/DhcpOption82sList"
                         }
                      }
-                  },
-                  "description" : "List of dhcp option 82 logs."
+                  }
+               },
+               "400" : {
+                  "$ref" : "#/components/responses/BadRequest"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
                }
-            },
-            "summary" : "Returns a list of dhcp option 82 logs."
+            }
          },
          "post" : {
+            "description" : "Create an item",
+            "operationId" : "api.v1.DhcpOption82s.create",
+            "parameters" : [],
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -16298,7 +17370,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "description" : "Create item"
             },
             "responses" : {
                "201" : {
@@ -16313,8 +17385,7 @@
                "422" : {
                   "$ref" : "#/components/responses/UnprocessableEntity"
                }
-            },
-            "summary" : "Creates a dhcp option 82 log entry."
+            }
          }
       },
       "/dhcp_option82s/search" : {
@@ -17101,6 +18172,7 @@
       },
       "/login" : {
          "post" : {
+            "description" : "This will perform a login against the PacketFence system user, the webservices credentials and any configured internal sources in PacketFence in this order. The order of priority for the PacketFence sources is the same as they are defined in authentication.conf (top to bottom). Token obtain via this API call are valid for 10 minutes. Upon expiration, a new token must be obtained by calling this API endpoint again.",
             "requestBody" : {
                "content" : {
                   "application/json" : {
@@ -17239,6 +18311,117 @@
             "summary" : "Allows to update a whole node"
          }
       },
+      "/node_categories" : {
+         "description" : "pf::UnifiedApi::Controller::NodeCategories",
+         "get" : {
+            "description" : "List items",
+            "operationId" : "api.v1.NodeCategories.list",
+            "parameters" : [
+               {
+                  "$ref" : "#/components/parameters/cursor"
+               },
+               {
+                  "$ref" : "#/components/parameters/limit"
+               },
+               {
+                  "$ref" : "#/components/parameters/fields"
+               },
+               {
+                  "$ref" : "#/components/parameters/sort"
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/NodeCategoriesList"
+                        }
+                     }
+                  }
+               },
+               "400" : {
+                  "$ref" : "#/components/responses/BadRequest"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            }
+         }
+      },
+      "/node_categories/search" : {
+         "description" : "pf::UnifiedApi::Controller::NodeCategories",
+         "post" : {
+            "operationId" : "api.v1.NodeCategories.search",
+            "parameters" : [],
+            "requestBody" : {
+               "content" : {
+                  "application/json" : {
+                     "schema" : {
+                        "$ref" : "#/components/schemas/Search"
+                     }
+                  }
+               },
+               "description" : "Search for items"
+            },
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/NodeCategoriesList"
+                        }
+                     }
+                  }
+               },
+               "400" : {
+                  "$ref" : "#/components/responses/BadRequest"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            }
+         }
+      },
+      "/node_category/{node_category_id}" : {
+         "description" : "pf::UnifiedApi::Controller::NodeCategories",
+         "get" : {
+            "description" : "Get an item",
+            "operationId" : "api.v1.NodeCategories.get",
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "node_category_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "properties" : {
+                              "item" : {
+                                 "$ref" : "#/components/schemas/NodeCategory"
+                              }
+                           },
+                           "type" : "object"
+                        }
+                     }
+                  },
+                  "description" : "Get item"
+               },
+               "400" : {
+                  "$ref" : "#/components/responses/BadRequest"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            }
+         }
+      },
       "/nodes" : {
          "get" : {
             "description" : "The list of node will be limited to 100 and a cursor will be returned for iterating on other nodes. Iteration is only needed if the nextCursor is not an empty value.",
@@ -17319,6 +18502,16 @@
                },
                "422" : {
                   "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            }
+         }
+      },
+      "/queues/stats" : {
+         "get" : {
+            "description" : "Show stats of pfqueue",
+            "responses" : {
+               "200" : {
+                  "$ref" : "#/components/responses/QueueStats"
                }
             }
          }
@@ -17549,6 +18742,960 @@
             }
          }
       },
+      "/reports/active" : {
+         "get" : {
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsActiveList"
+                        }
+                     }
+                  },
+                  "description" : "List of active nodes"
+               }
+            },
+            "summary" : "Returns a list of active nodes"
+         }
+      },
+      "/reports/connectiontype" : {
+         "get" : {
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsConnectionTypeList"
+                        }
+                     }
+                  },
+                  "description" : "List of connection types"
+               }
+            },
+            "summary" : "Returns a list of connection types"
+         }
+      },
+      "/reports/connectiontype/active" : {
+         "get" : {
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsConnectionTypeActiveList"
+                        }
+                     }
+                  },
+                  "description" : "List of active connection types"
+               }
+            },
+            "summary" : "Returns a list of active connection types"
+         }
+      },
+      "/reports/connectiontype/{start}/{end}" : {
+         "get" : {
+            "parameters" : [
+               {
+                  "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
+                  "in" : "path",
+                  "name" : "start",
+                  "required" : "1",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               },
+               {
+                  "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
+                  "in" : "path",
+                  "name" : "end",
+                  "required" : "1",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsConnectionTypeList"
+                        }
+                     }
+                  },
+                  "description" : "List of connection types within a specified date/time range"
+               }
+            },
+            "summary" : "Returns a list of connection types within a specified date/time range"
+         }
+      },
+      "/reports/connectiontypereg" : {
+         "get" : {
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsConnectionTypeRegList"
+                        }
+                     }
+                  },
+                  "description" : "List of connection types for registered nodes"
+               }
+            },
+            "summary" : "Returns a list of connection types for registered nodes"
+         }
+      },
+      "/reports/connectiontypereg/active" : {
+         "get" : {
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsConnectionTypeRegActiveList"
+                        }
+                     }
+                  },
+                  "description" : "List of connection types for active registered nodes"
+               }
+            },
+            "summary" : "Returns a list of connection types for active registered nodes"
+         }
+      },
+      "/reports/connectiontypeunreg" : {
+         "get" : {
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsConnectionTypeUnregList"
+                        }
+                     }
+                  },
+                  "description" : "List of connection types for unregistered nodes"
+               }
+            },
+            "summary" : "Returns a list of connection types for unregistered nodes"
+         }
+      },
+      "/reports/connectiontypeunreg/active" : {
+         "get" : {
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsConnectionTypeUnregActiveList"
+                        }
+                     }
+                  },
+                  "description" : "List of connection types for active unregistered nodes"
+               }
+            },
+            "summary" : "Returns a list of connection types for active unregistered nodes"
+         }
+      },
+      "/reports/inactive" : {
+         "get" : {
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsInactiveList"
+                        }
+                     }
+                  },
+                  "description" : "List of inactive nodes"
+               }
+            },
+            "summary" : "Returns a list of inactive nodes"
+         }
+      },
+      "/reports/nodebandwidth" : {
+         "get" : {
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsNodeBandwidthList"
+                        }
+                     }
+                  },
+                  "description" : "List of nodes with the most bandwidth"
+               }
+            },
+            "summary" : "Returns a list of nodes with the most bandwidth"
+         }
+      },
+      "/reports/nodebandwidth/{start}/{end}" : {
+         "get" : {
+            "parameters" : [
+               {
+                  "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
+                  "in" : "path",
+                  "name" : "start",
+                  "required" : "1",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               },
+               {
+                  "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
+                  "in" : "path",
+                  "name" : "end",
+                  "required" : "1",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsNodeBandwidthList"
+                        }
+                     }
+                  },
+                  "description" : "List of nodes with the most bandwidth within a specified date/time range"
+               }
+            },
+            "summary" : "Returns a list of nodes with the most bandwidth within a specified date/time range"
+         }
+      },
+      "/reports/openviolations" : {
+         "get" : {
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsOpenViolationsList"
+                        }
+                     }
+                  },
+                  "description" : "List of nodes with an open violation"
+               }
+            },
+            "summary" : "Returns a list of nodes with an open violation"
+         }
+      },
+      "/reports/openviolations/active" : {
+         "get" : {
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsOpenViolationsActiveList"
+                        }
+                     }
+                  },
+                  "description" : "List of active nodes with an open violation"
+               }
+            },
+            "summary" : "Returns a list of active nodes with an open violation"
+         }
+      },
+      "/reports/os" : {
+         "get" : {
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsOsList"
+                        }
+                     }
+                  },
+                  "description" : "List of node operating systems"
+               }
+            },
+            "summary" : "Returns a list of node operating systems"
+         }
+      },
+      "/reports/os/active" : {
+         "get" : {
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsOsList"
+                        }
+                     }
+                  },
+                  "description" : "List of active node operating systems"
+               }
+            },
+            "summary" : "Returns a list of active node operating systems"
+         }
+      },
+      "/reports/os/{start}/{end}" : {
+         "get" : {
+            "parameters" : [
+               {
+                  "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
+                  "in" : "path",
+                  "name" : "start",
+                  "required" : "1",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               },
+               {
+                  "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
+                  "in" : "path",
+                  "name" : "end",
+                  "required" : "1",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsOsList"
+                        }
+                     }
+                  },
+                  "description" : "List of node operating systems first seen within a specified date/time range"
+               }
+            },
+            "summary" : "Returns a list of node operating systems first seen within a specified date/time range"
+         }
+      },
+      "/reports/osclass" : {
+         "get" : {
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsOsClassList"
+                        }
+                     }
+                  },
+                  "description" : "List of node operating system classes"
+               }
+            },
+            "summary" : "Returns a list of node operating system classes"
+         }
+      },
+      "/reports/osclass/active" : {
+         "get" : {
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsOsClassList"
+                        }
+                     }
+                  },
+                  "description" : "List of active node operating system classes"
+               }
+            },
+            "summary" : "Returns a list of active node operating system classes"
+         }
+      },
+      "/reports/osclassbandwidth" : {
+         "get" : {
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsOsClassBandwidthList"
+                        }
+                     }
+                  },
+                  "description" : "List of operating system class bandwidths"
+               }
+            },
+            "summary" : "Returns a list of operating system class bandwidths"
+         }
+      },
+      "/reports/osclassbandwidth/day" : {
+         "get" : {
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsOsClassBandwidthList"
+                        }
+                     }
+                  },
+                  "description" : "List of operating system class bandwidths for the past day"
+               }
+            },
+            "summary" : "Returns a list of operating system class bandwidths for the past day"
+         }
+      },
+      "/reports/osclassbandwidth/month" : {
+         "get" : {
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsOsClassBandwidthList"
+                        }
+                     }
+                  },
+                  "description" : "List of operating system class bandwidths for the past month"
+               }
+            },
+            "summary" : "Returns a list of operating system class bandwidths for the past month"
+         }
+      },
+      "/reports/osclassbandwidth/week" : {
+         "get" : {
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsOsClassBandwidthList"
+                        }
+                     }
+                  },
+                  "description" : "List of operating system class bandwidths for the past week"
+               }
+            },
+            "summary" : "Returns a list of operating system class bandwidths for the past week"
+         }
+      },
+      "/reports/osclassbandwidth/year" : {
+         "get" : {
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsOsClassBandwidthList"
+                        }
+                     }
+                  },
+                  "description" : "List of operating system class bandwidths for the past year"
+               }
+            },
+            "summary" : "Returns a list of operating system class bandwidths for the past year"
+         }
+      },
+      "/reports/osclassbandwidth/{start}/{end}" : {
+         "get" : {
+            "parameters" : [
+               {
+                  "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
+                  "in" : "path",
+                  "name" : "start",
+                  "required" : "1",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               },
+               {
+                  "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
+                  "in" : "path",
+                  "name" : "end",
+                  "required" : "1",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsOsClassBandwidthList"
+                        }
+                     }
+                  },
+                  "description" : "List of operating system class bandwidths within a specified date/time range"
+               }
+            },
+            "summary" : "Returns a list of operating system class bandwidths within a specified date/time range"
+         }
+      },
+      "/reports/registered" : {
+         "get" : {
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsRegisteredList"
+                        }
+                     }
+                  },
+                  "description" : "List of registered nodes"
+               }
+            },
+            "summary" : "Returns a list of registered nodes"
+         }
+      },
+      "/reports/registered/active" : {
+         "get" : {
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsRegisteredActiveList"
+                        }
+                     }
+                  },
+                  "description" : "List of active registered nodes"
+               }
+            },
+            "summary" : "Returns a list of active registered nodes"
+         }
+      },
+      "/reports/ssid" : {
+         "get" : {
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsSsidList"
+                        }
+                     }
+                  },
+                  "description" : "List of wireless SSIDs"
+               }
+            },
+            "summary" : "Returns a list of wireless SSIDs"
+         }
+      },
+      "/reports/ssid/active" : {
+         "get" : {
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsSsidActiveList"
+                        }
+                     }
+                  },
+                  "description" : "List of active wireless SSIDs"
+               }
+            },
+            "summary" : "Returns a list of active wireless SSIDs"
+         }
+      },
+      "/reports/ssid/{start}/{end}" : {
+         "get" : {
+            "parameters" : [
+               {
+                  "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
+                  "in" : "path",
+                  "name" : "start",
+                  "required" : "1",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               },
+               {
+                  "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
+                  "in" : "path",
+                  "name" : "end",
+                  "required" : "1",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsSsidList"
+                        }
+                     }
+                  },
+                  "description" : "List of wireless SSIDs within a specified date/time range"
+               }
+            },
+            "summary" : "Returns a list of wireless SSIDs within a specified date/time range"
+         }
+      },
+      "/reports/statics" : {
+         "get" : {
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsStaticsList"
+                        }
+                     }
+                  },
+                  "description" : "List of nodes with a static IP address"
+               }
+            },
+            "summary" : "Returns a list of nodes with a static IP address"
+         }
+      },
+      "/reports/statics/active" : {
+         "get" : {
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsStaticsActiveList"
+                        }
+                     }
+                  },
+                  "description" : "List of active nodes with a static IP address"
+               }
+            },
+            "summary" : "Returns a list of active nodes with a static IP address"
+         }
+      },
+      "/reports/topauthenticationfailures/mac/{start}/{end}" : {
+         "get" : {
+            "parameters" : [
+               {
+                  "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
+                  "in" : "path",
+                  "name" : "start",
+                  "required" : "1",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               },
+               {
+                  "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
+                  "in" : "path",
+                  "name" : "end",
+                  "required" : "1",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsAuthenticationMacList"
+                        }
+                     }
+                  },
+                  "description" : "List of top authentication failures by MAC address within a specified date/time range"
+               }
+            },
+            "summary" : "Returns a list of top authentication failures by MAC addresses within a specified date/time range"
+         }
+      },
+      "/reports/topauthenticationfailures/ssid/{start}/{end}" : {
+         "get" : {
+            "parameters" : [
+               {
+                  "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
+                  "in" : "path",
+                  "name" : "start",
+                  "required" : "1",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               },
+               {
+                  "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
+                  "in" : "path",
+                  "name" : "end",
+                  "required" : "1",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsAuthenticationSsidList"
+                        }
+                     }
+                  },
+                  "description" : "List of top authentication failures by SSID within a specified date/time range"
+               }
+            },
+            "summary" : "Returns a list of top authentication failures by SSID within a specified date/time range"
+         }
+      },
+      "/reports/topauthenticationfailures/username/{start}/{end}" : {
+         "get" : {
+            "parameters" : [
+               {
+                  "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
+                  "in" : "path",
+                  "name" : "start",
+                  "required" : "1",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               },
+               {
+                  "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
+                  "in" : "path",
+                  "name" : "end",
+                  "required" : "1",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsAuthenticationUsernameList"
+                        }
+                     }
+                  },
+                  "description" : "List of top authentication failures by user name within a specified date/time range"
+               }
+            },
+            "summary" : "Returns a list of top authentication failures by user name within a specified date/time range"
+         }
+      },
+      "/reports/topauthenticationsuccesses/computername/{start}/{end}" : {
+         "get" : {
+            "parameters" : [
+               {
+                  "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
+                  "in" : "path",
+                  "name" : "start",
+                  "required" : "1",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               },
+               {
+                  "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
+                  "in" : "path",
+                  "name" : "end",
+                  "required" : "1",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsAuthenticationComputernameList"
+                        }
+                     }
+                  },
+                  "description" : "List of top authentication successes by computer name within a specified date/time range"
+               }
+            },
+            "summary" : "Returns a list of top authentication successes by computer name within a specified date/time range"
+         }
+      },
+      "/reports/topauthenticationsuccesses/mac/{start}/{end}" : {
+         "get" : {
+            "parameters" : [
+               {
+                  "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
+                  "in" : "path",
+                  "name" : "start",
+                  "required" : "1",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               },
+               {
+                  "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
+                  "in" : "path",
+                  "name" : "end",
+                  "required" : "1",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsAuthenticationMacList"
+                        }
+                     }
+                  },
+                  "description" : "List of top authentication successes by MAC address within a specified date/time range"
+               }
+            },
+            "summary" : "Returns a list of top authentication successes by MAC addresses within a specified date/time range"
+         }
+      },
+      "/reports/topauthenticationsuccesses/ssid/{start}/{end}" : {
+         "get" : {
+            "parameters" : [
+               {
+                  "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
+                  "in" : "path",
+                  "name" : "start",
+                  "required" : "1",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               },
+               {
+                  "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
+                  "in" : "path",
+                  "name" : "end",
+                  "required" : "1",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsAuthenticationSsidList"
+                        }
+                     }
+                  },
+                  "description" : "List of top authentication successes by SSID within a specified date/time range"
+               }
+            },
+            "summary" : "Returns a list of top authentication successes by SSID within a specified date/time range"
+         }
+      },
+      "/reports/topauthenticationsuccesses/username/{start}/{end}" : {
+         "get" : {
+            "parameters" : [
+               {
+                  "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
+                  "in" : "path",
+                  "name" : "start",
+                  "required" : "1",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               },
+               {
+                  "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
+                  "in" : "path",
+                  "name" : "end",
+                  "required" : "1",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsAuthenticationUsernameList"
+                        }
+                     }
+                  },
+                  "description" : "List of top authentication successes by user name within a specified date/time range"
+               }
+            },
+            "summary" : "Returns a list of top authentication successes by user name within a specified date/time range"
+         }
+      },
+      "/reports/unknownprints" : {
+         "get" : {
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsUnknownprintsList"
+                        }
+                     }
+                  },
+                  "description" : "List of nodes with an unknown DHCP fingerprint"
+               }
+            },
+            "summary" : "Returns a list of nodes with an unknown DHCP fingerprint"
+         }
+      },
+      "/reports/unknownprints/active" : {
+         "get" : {
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsUnknownprintsActiveList"
+                        }
+                     }
+                  },
+                  "description" : "List of active nodes with an unknown DHCP fingerprint"
+               }
+            },
+            "summary" : "Returns a list of active nodes with an unknown DHCP fingerprint"
+         }
+      },
+      "/reports/unregistered" : {
+         "get" : {
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsUnregisteredList"
+                        }
+                     }
+                  },
+                  "description" : "List of unregistered nodes"
+               }
+            },
+            "summary" : "Returns a list of unregistered nodes"
+         }
+      },
+      "/reports/unregistered/active" : {
+         "get" : {
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ReportsUnregisteredActiveList"
+                        }
+                     }
+                  },
+                  "description" : "List of active unregistered nodes"
+               }
+            },
+            "summary" : "Returns a list of active unregistered nodes"
+         }
+      },
       "/service/{service}/disable" : {
          "post" : {
             "parameters" : [
@@ -17563,11 +19710,17 @@
                }
             ],
             "requestBody" : {
-               "required" : ""
+               "content" : {
+                  "application/json" : {
+                     "schema" : {
+                        "type" : "object"
+                     }
+                  }
+               }
             },
             "responses" : {
                "200" : {
-                  "$ref" : "#/components/schemas/ServiceDisable"
+                  "$ref" : "#/components/responses/ServiceDisable"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -17590,11 +19743,17 @@
                }
             ],
             "requestBody" : {
-               "required" : ""
+               "content" : {
+                  "application/json" : {
+                     "schema" : {
+                        "type" : "object"
+                     }
+                  }
+               }
             },
             "responses" : {
                "200" : {
-                  "$ref" : "#/components/schemas/ServiceEnable"
+                  "$ref" : "#/components/responses/ServiceEnable"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -17617,11 +19776,17 @@
                }
             ],
             "requestBody" : {
-               "required" : ""
+               "content" : {
+                  "application/json" : {
+                     "schema" : {
+                        "type" : "object"
+                     }
+                  }
+               }
             },
             "responses" : {
                "200" : {
-                  "$ref" : "#/components/schemas/ServiceRestart"
+                  "$ref" : "#/components/responses/ServiceRestart"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -17644,11 +19809,17 @@
                }
             ],
             "requestBody" : {
-               "required" : ""
+               "content" : {
+                  "application/json" : {
+                     "schema" : {
+                        "type" : "object"
+                     }
+                  }
+               }
             },
             "responses" : {
                "200" : {
-                  "$ref" : "#/components/schemas/ServiceStart"
+                  "$ref" : "#/components/responses/ServiceStart"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"
@@ -17696,11 +19867,17 @@
                }
             ],
             "requestBody" : {
-               "required" : ""
+               "content" : {
+                  "application/json" : {
+                     "schema" : {
+                        "type" : "object"
+                     }
+                  }
+               }
             },
             "responses" : {
                "200" : {
-                  "$ref" : "#/components/schemas/ServiceStop"
+                  "$ref" : "#/components/responses/ServiceStop"
                },
                "404" : {
                   "$ref" : "#/components/responses/NotFound"

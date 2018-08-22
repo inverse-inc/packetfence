@@ -11408,6 +11408,10 @@ msgid "pfdetect_type_fortianalyser"
 msgstr "FortiAnalyzer"
 
 # pf::factory::detect::parser (Detect Parsers)
+msgid "pfdetect_type_nexpose"
+msgstr "Nexpose"
+
+# pf::factory::detect::parser (Detect Parsers)
 msgid "pfdetect_type_regex"
 msgstr "regex"
 

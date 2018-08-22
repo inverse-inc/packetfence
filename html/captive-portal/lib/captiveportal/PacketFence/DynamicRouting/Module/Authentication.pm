@@ -23,6 +23,7 @@ use pf::log;
 use captiveportal::Form::Authentication;
 use pf::locationlog;
 use captiveportal::Base::Actions;
+use pf::constants::realm;
 
 has 'source' => (is => 'rw', isa => 'pf::Authentication::Source|Undef');
 
@@ -40,9 +41,11 @@ has 'with_aup' => ('is' => 'rw', default => sub {1});
 
 has 'aup_template' => (is => 'rw', default => sub {'aup_text.html'});
 
-has '+actions' => (default => sub {{"role_from_source" => [], "unregdate_from_source" => [], "time_balance_from_source" => [], "bandwidth_balance_from_source" => []}});
+has '+actions' => (default => sub {{"on_success" => [], "on_failure" => [], "destination_url" => [], "role_from_source" => [], "unregdate_from_source" => [], "time_balance_from_source" => [], "bandwidth_balance_from_source" => []}});
 
 has 'signup_template' => ('is' => 'rw', default => sub {'signin.html'});
+
+has 'fields_to_save'  => (is => 'rw', isa => 'ArrayRef[Str]', default => sub {[]});
 
 use pf::authentication;
 use pf::Authentication::constants qw($LOCAL_ACCOUNT_UNLIMITED_LOGINS);
@@ -62,6 +65,8 @@ sub available_actions {
         'role_from_source',
         'time_balance_from_source',
         'bandwidth_balance_from_source',
+        'on_failure',
+        'on_success',
     ];
 }
 
@@ -110,7 +115,13 @@ Builder for the request fields
 
 sub _build_request_fields {
     my ($self) = @_;
-    return $self->app->hashed_params()->{fields} || {};
+    my $fields = [keys(%{$self->app->hashed_params()->{fields}})];
+    my %request_fields;
+    foreach my $field (@$fields) {
+        # grab the value from the form to apply any transformations that are done in it.
+        $request_fields{$field} = $self->form->field("fields[$field]")->value;
+    }
+    return \%request_fields;
 }
 
 =head2 _build_source
@@ -177,6 +188,10 @@ sub _build_required_fields {
         @fields = grep { $_ ne "password" } @fields;
     }
 
+    foreach my $key (keys %{$self->app->session->{saved_fields}}) {
+        @fields = grep { $_ ne $key } @fields;
+    }
+
     return [@fields];
 }
 
@@ -203,6 +218,23 @@ sub merged_fields {
     return \%merged;
 }
 
+=head2 transfer_saving_fields
+
+Transfer $self->app->session->{saving_fields} in $self->app->session->{saved_fields}
+
+=cut
+
+sub transfer_saving_fields {
+    my ($self) = @_;
+
+    foreach my $key (keys %{$self->app->session->{saving_fields}}) {
+        if (grep { $_ eq $key } @{$self->fields_to_save}) {
+            $self->app->session->{saved_fields}->{$key} = $self->app->session->{saving_fields}->{$key};
+        }
+    }
+    delete $self->app->session->{saving_fields};
+}
+
 =head2 auth_source_params
 
 The params for the authentication source
@@ -218,6 +250,7 @@ sub auth_source_params {
         connection_type => $locationlog_entry->{'connection_type'},
         SSID => $locationlog_entry->{'ssid'},
         realm => $locationlog_entry->{'realm'},
+        context => $pf::constants::realm::PORTAL_CONTEXT,
         %{$self->auth_source_params_child()},
     }
 }
@@ -291,12 +324,14 @@ Prompt for the necessary fields
 sub prompt_fields {
     my ($self, $args) = @_;
     $args //= {};
+    my %saved_fields = %{$self->app->session->{saved_fields}} if (defined ($self->app->session->{saved_fields}) );
     $self->render($self->signup_template, {
         previous_request => $self->app->request->parameters(),
         fields => $self->merged_fields,
         form => $self->form,
         title => defined($self->source) ? $self->source->description : $self->description,
         %{$args},
+        %saved_fields,
     });
 }
 

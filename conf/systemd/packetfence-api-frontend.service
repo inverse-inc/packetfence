@@ -7,7 +7,7 @@ Before=packetfence-httpd.portal.service
 [Service]
 Type=notify
 LimitNOFILE=infinity
-ExecStart=/usr/local/pf/bin/pfhttpd -conf /usr/local/pf/conf/caddy-services/api.conf -log-name api-frontend
+ExecStart=/usr/local/pf/sbin/pfhttpd -conf /usr/local/pf/conf/caddy-services/api.conf -log-name api-frontend
 Restart=on-failure
 Slice=packetfence.slice
 

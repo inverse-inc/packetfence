@@ -148,22 +148,30 @@
 }
 
 // All levels of nav
-.bd-sidebar .nav > li > a {
+.bd-sidebar .nav li > a {
   display: block;
   padding: .25rem 1.5rem;
   font-size: 90%;
   color: rgba(0,0,0,.65);
 }
 
-.bd-sidebar .nav > li > a:hover {
+.bd-sidebar .nav li > a:hover {
   color: rgba(0,0,0,.85);
   text-decoration: none;
   background-color: transparent;
 }
 
-.bd-sidebar .nav > .active > a,
-.bd-sidebar .nav > .active:hover > a {
+.bd-sidebar .nav .active:not(.secondary),
+.bd-sidebar .nav .active:not(.secondary):hover {
+  color: $component-active-color;
+  background-color: $component-active-bg;
+}
+
+.bd-sidebar .nav .active.secondary,
+.bd-sidebar .nav .active.secondary:hover {
   font-weight: 500;
   color: rgba(0,0,0,.85);
   background-color: transparent;
+  border-left: .2rem solid $component-active-bg;
+  padding-left: 1.3rem;
 }

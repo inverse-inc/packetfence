@@ -166,7 +166,7 @@ BEGIN {
         $ACCOUNTING_POLICY_TIME $ACCOUNTING_POLICY_BANDWIDTH
         $WIPS_VID $thread $fqdn $reverse_fqdn
         $IF_INTERNAL $IF_ENFORCEMENT_VLAN $IF_ENFORCEMENT_INLINE $IF_ENFORCEMENT_DNS
-        $WIRELESS_802_1X $WIRELESS_MAC_AUTH $WIRED_802_1X $WIRED_MAC_AUTH $WIRED_SNMP_TRAPS $UNKNOWN $INLINE
+        $WIRELESS_802_1X $WIRELESS_MAC_AUTH $WIRED_802_1X $WIRED_MAC_AUTH $WIRED_SNMP_TRAPS $UNKNOWN $INLINE $WEBAUTH $WEBAUTH_WIRED $WEBAUTH_WIRELESS
         $NET_TYPE_INLINE $NET_TYPE_INLINE_L2 $NET_TYPE_INLINE_L3
         $WIRELESS $WIRED $EAP
         $WEB_ADMIN_NONE $WEB_ADMIN_ALL
@@ -321,17 +321,28 @@ Readonly our $IF_INTERNAL => 'internal';
 
 # Interface enforcement techniques
 # connection type constants
-Readonly our $WIRELESS_802_1X   => 0b110000001;
-Readonly our $WIRELESS_MAC_AUTH => 0b100000010;
-Readonly our $WIRED_802_1X      => 0b011000100;
-Readonly our $WIRED_MAC_AUTH    => 0b001001000;
-Readonly our $WIRED_SNMP_TRAPS  => 0b001010000;
-Readonly our $INLINE            => 0b000100000;
-Readonly our $UNKNOWN           => 0b000000000;
+# 1 : Wireless
+# 2 : Eap
+# 3 : Wired
+# 4 : Inline
+# 5 : SNMP
+# 6 : WebAuth
+
+Readonly our $WIRELESS_802_1X     => 0b1100000000;
+Readonly our $WIRELESS_MAC_AUTH   => 0b1000000001;
+Readonly our $WIRED_802_1X        => 0b0110000010;
+Readonly our $WIRED_MAC_AUTH      => 0b0010000011;
+Readonly our $WIRED_SNMP_TRAPS    => 0b0010100100;
+Readonly our $INLINE              => 0b0001000101;
+Readonly our $UNKNOWN             => 0b0000000000;
+Readonly our $WEBAUTH_WIRELESS    => 0b1000010111;
+Readonly our $WEBAUTH_WIRED       => 0b0010011000;
+
 # masks to be used on connection types
-Readonly our $WIRELESS => 0b100000000;
-Readonly our $WIRED    => 0b001000000;
-Readonly our $EAP      => 0b010000000;
+Readonly our $WIRELESS   => 0b1000000000;
+Readonly our $WIRED      => 0b0010000000;
+Readonly our $EAP        => 0b0100000000;
+Readonly our $WEBAUTH    => 0b0000010000;
 
 # Catalyst-based access level constants
 Readonly::Scalar our $ADMIN_USERNAME => 'admin';
@@ -348,13 +359,15 @@ Readonly our $WEB_ADMIN_ALL => 4294967295;
     'SNMP-Traps'            => $WIRED_SNMP_TRAPS,
     'Inline'                => $INLINE,
     'WIRED_MAC_AUTH'        => $WIRED_MAC_AUTH,
+    'Ethernet-Web-Auth'     => $WEBAUTH_WIRED,
+    'Wireless-Web-Auth'     => $WEBAUTH_WIRELESS,
 );
 %connection_group = (
     'Wireless'              => $WIRELESS,
     'Ethernet'              => $WIRED,
     'EAP'                   => $EAP,
+    'Web-Auth'              => $WEBAUTH,
 );
-
 # Their string equivalent for database storage
 %connection_type_to_str = (
     $WIRELESS_802_1X => 'Wireless-802.11-EAP',
@@ -364,11 +377,14 @@ Readonly our $WEB_ADMIN_ALL => 4294967295;
     $WIRED_SNMP_TRAPS => 'SNMP-Traps',
     $INLINE => 'Inline',
     $UNKNOWN => '',
+    $WEBAUTH_WIRELESS => 'Wireless-Web-Auth',
+    $WEBAUTH_WIRED  => 'Ethernet-Web-Auth',
 );
 %connection_group_to_str = (
     $WIRELESS => 'Wireless',
     $WIRED => 'Ethernet',
     $EAP => 'EAP',
+    $WEBAUTH => 'Web-Auth',
 );
 
 # String to constant hash
@@ -382,6 +398,8 @@ Readonly our $WEB_ADMIN_ALL => 4294967295;
     $WIRED_SNMP_TRAPS => 'Wired SNMP',
     $INLINE => 'Inline',
     $UNKNOWN => 'Unknown',
+    $WEBAUTH_WIRELESS => 'Wifi Web Auth',
+    $WEBAUTH_WIRED => 'Wired Web Auth',
 );
 
 %connection_type_explained_to_str = map { $connection_type_explained{$_} => $connection_type_to_str{$_} } keys %connection_type_explained;

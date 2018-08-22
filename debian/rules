@@ -114,7 +114,6 @@ install: build
 	install -m0644 $(CURDIR)/debian/packetfence-base.slice $(CURDIR)/debian/packetfence/etc/systemd/system
 	install -m0644 $(CURDIR)/debian/ifup@.service $(CURDIR)/debian/packetfence/etc/systemd/system
 #endif
-	install -m0644 $(CURDIR)/debian/packetfence-pfperl-api.service $(CURDIR)/debian/packetfence/etc/systemd/system
 	install -d -m0700 $(CURDIR)/debian/packetfence/etc/default
 	# copy the rsyslog systemd drop in
 	install -d -m0755 $(CURDIR)/debian/packetfence/etc/systemd/system/syslog.service.d/
@@ -122,6 +121,7 @@ install: build
 	#Sudoer
 	install -oroot -groot -d -m0750 $(CURDIR)/debian/packetfence/etc/sudoers.d
 	install -oroot -groot -m0440 $(CURDIR)/debian/packetfence.sudoers $(CURDIR)/debian/packetfence/etc/sudoers.d/packetfence
+	rm -fr $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/pfappserver/root/static/alt
 	#PacketFence remote ARP sensor
 	install -d -m0700 $(CURDIR)/debian/packetfence-remote-arp-sensor$(PREFIX)/$(NAME)/conf
 	install -d $(CURDIR)/debian/packetfence-remote-arp-sensor$(PREFIX)/$(NAME)/var
@@ -159,16 +159,19 @@ install: build
 	install -m0600 conf/redis_cache.conf.example $(CURDIR)/debian/packetfence-redis-cache$(PREFIX)/$(NAME)/conf/redis_cache.conf
 	echo $(C_ID) > $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/git_commit_id
 	#Documentation
-	for i in `find * -name "*.asciidoc" -path 'docs/*' -type f`; do \
-		asciidoctor -D $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/doc -n $$i; \
+	# install html and images dirs in pfappserver for embedded doc
+	make html
+	install -d -m0755 $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/doc
+	for i in `find * -name "*.html" -path 'docs/html/*' -type f`; do \
+		install -m0644 $$i $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/doc/; \
 	done
-	install -d -m0744 $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/doc/docs/images
+	install -d -m0755 $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/images
 	for i in `find * -path 'docs/images/*' -type f`; do \
-		install -m0444 $$i $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/doc/docs/images/; \
+		install -m0644 $$i $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/html/pfappserver/root/static/images/; \
 	done
 	#Golang binary
-	install -d -m0744 $(CURDIR)/debian/packetfence-golang-daemon$(PREFIX)/$(NAME)/bin
-	PATH=$$PATH:/usr/lib/go-1.7/bin && addons/packages/build-go.sh build $(CURDIR)/ $(CURDIR)/debian/packetfence-golang-daemon$(PREFIX)/$(NAME)/bin $(CURDIR)/debian
+	install -d -m0744 $(CURDIR)/debian/packetfence-golang-daemon$(PREFIX)/$(NAME)/sbin
+	PATH=$$PATH:/usr/lib/go-1.7/bin && addons/packages/build-go.sh build $(CURDIR)/ $(CURDIR)/debian/packetfence-golang-daemon$(PREFIX)/$(NAME)/sbin $(CURDIR)/debian
 # Build architecture-independent files here.
 binary-indep: build install
 # We have nothing to do by default.
@@ -212,6 +215,7 @@ endif
 	dh_installinit --name=packetfence-pfdns
 	dh_installinit --name=packetfence-pffilter
 	dh_installinit --name=packetfence-pfmon
+	dh_installinit --name=packetfence-pfperl-api
 	dh_installinit --name=packetfence-pfqueue
 	dh_installinit --name=packetfence-pfsso
 	dh_installinit --name=packetfence-radiusd-acct
@@ -241,7 +245,8 @@ endif
 			/usr/local/pf/raddb/sites-available/status /usr/local/pf/raddb/sites-enabled/status \
 			/usr/local/fingerbank/lib/fingerbank /usr/local/pf/lib/fingerbank \
 			/usr/local/pf/html/pfappserver/lib/pfappserver /usr/local/pf/lib/pfappserver \
-			/usr/local/pf/html/captive-portal/lib/captiveportal /usr/local/pf/lib/captiveportal
+			/usr/local/pf/html/captive-portal/lib/captiveportal /usr/local/pf/lib/captiveportal \
+			/usr/local/pf/html/pfappserver/root/static.alt/dist /usr/local/pf/html/pfappserver/root/static/alt
 	dh_strip
 	dh_compress
 	# PERMISSIONS
@@ -256,6 +261,7 @@ endif
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/bin/*
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/bin/cluster/*
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/sbin/*
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/parking/cgi-bin/*.pl
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/pfappserver/script/*.pl
 	dh_fixperms -X$(NAME)/bin -X$(NAME)/sbin -X$(NAME)/addons \
                 -X$(NAME)/conf/pfdetect_remote.conf \

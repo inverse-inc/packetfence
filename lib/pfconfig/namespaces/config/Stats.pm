@@ -28,59 +28,58 @@ sub init {
     my ($self) = @_;
     $self->{file} = $stats_config_file;
     
-    $self->{listen_ints} = $self->{cache}->get_cache('interfaces::listen_ints');
+    $self->{network_config} = $self->{cache}->get_cache('resource::network_config');
 }
 
 sub build_child {
     my ($self) = @_;
-
     my %tmp_cfg = %{$self->{cfg}};
-
     foreach my $key ( keys %tmp_cfg){
-        $self->cleanup_whitespaces( \%tmp_cfg );
+        $self->cleanup_whitespaces(\%tmp_cfg);
     }
 
-    foreach my $int (@{$self->{listen_ints}}) {
-        $tmp_cfg{"metric 'total dhcp leases remaining on $int' past day"} = {
+    foreach my $network (keys $self->{network_config}) {
+        my $dev = $self->{network_config}{$network}{'interface'}{'int'};
+        next if !defined $dev;
+        $tmp_cfg{"metric 'total dhcp leases remaining on $network' past day"} = {
             'type' => 'api',
             'statsd_type' => 'gauge',
-            'statsd_ns' => 'source.packetfence.dhcp_leases_'.$int.'_day',
+            'statsd_ns' => 'source.packetfence.dhcp_leases_'.$network.'_day',
             'api_method' => 'GET',
-            'api_path' => "/api/v1/dhcp/stats/$int",
+            'api_path' => "/api/v1/dhcp/stats/$dev/$network",
             'api_compile' => '$[0].free',
             'interval' => '24s',
         };
-        $tmp_cfg{"metric 'total dhcp leases remaining on $int' past week"} = {
+        $tmp_cfg{"metric 'total dhcp leases remaining on $network' past week"} = {
             'type' => 'api',
             'statsd_type' => 'gauge',
-            'statsd_ns' => 'source.packetfence.dhcp_leases_'.$int.'_week',
+            'statsd_ns' => 'source.packetfence.dhcp_leases_'.$network.'_week',
             'api_method' => 'GET',
-            'api_path' => "/api/v1/dhcp/stats/$int",
+            'api_path' => "/api/v1/dhcp/stats/$dev/$network",
             'api_compile' => '$[0].free',
             'interval' => '168s',
         };
-        $tmp_cfg{"metric 'total dhcp leases remaining on $int' past month"} = {
+        $tmp_cfg{"metric 'total dhcp leases remaining on $network' past month"} = {
             'type' => 'api',
             'statsd_type' => 'gauge',
-            'statsd_ns' => 'source.packetfence.dhcp_leases_'.$int.'_month',
+            'statsd_ns' => 'source.packetfence.dhcp_leases_'.$network.'_month',
             'api_method' => 'GET',
-            'api_path' => "/api/v1/dhcp/stats/$int",
+            'api_path' => "/api/v1/dhcp/stats/$dev/$network",
             'api_compile' => '$[0].free',
             'interval' => '720s',
         };
-        $tmp_cfg{"metric 'total dhcp leases remaining on $int' past year"} = {
+        $tmp_cfg{"metric 'total dhcp leases remaining on $network' past year"} = {
             'type' => 'api',
             'statsd_type' => 'gauge',
-            'statsd_ns' => 'source.packetfence.dhcp_leases_'.$int.'_year',
+            'statsd_ns' => 'source.packetfence.dhcp_leases_'.$network.'_year',
             'api_method' => 'GET',
-            'api_path' => "/api/v1/dhcp/stats/$int",
+            'api_path' => "/api/v1/dhcp/stats/$dev/$network",
             'api_compile' => '$[0].free',
             'interval' => '8760s',
         };
     }
 
     return \%tmp_cfg;
-
 }
 
 =head1 AUTHOR

@@ -32,13 +32,13 @@ const api = {
     apiCall.defaults.headers.common['Authorization'] = `Bearer ${token}`
   },
   getTokenInfo: () => {
-    return apiCall({url: 'token_info', method: 'get'})
+    return apiCall.get('token_info')
   },
   getTenants: () => {
-    return apiCall({url: 'tenants', method: 'get'})
+    return apiCall.get('tenants')
   },
   getLanguage: (locale) => {
-    return apiCall({url: `translation/${locale}`, method: 'get'})
+    return apiCall.get(`translation/${locale}`)
   }
 }
 
@@ -58,6 +58,16 @@ const getters = {
 }
 
 const actions = {
+  load: ({state, dispatch}) => {
+    if (state.token) {
+      if (!state.username) {
+        return dispatch('update', state.token)
+      }
+      return Promise.resolve()
+    } else {
+      return Promise.reject(new Error('No token'))
+    }
+  },
   update: ({commit, dispatch}, token) => {
     localStorage.setItem(STORAGE_TOKEN_KEY, token)
     api.setToken(token)
@@ -69,7 +79,7 @@ const actions = {
           let target = ''
           for (const currentAction of ADMIN_ROLES_ACTIONS) {
             if (role.toLowerCase().endsWith(currentAction)) {
-              action = currentAction
+              action = currentAction.replace(/_/g, '-')
               target = role.substring(0, role.length - action.length - 1).toLowerCase()
               break
             }
@@ -141,8 +151,14 @@ const mutations = {
   TENANTS_UPDATED: (state, data) => {
     state.tenants = data.items
   },
+  API_OK: (state) => {
+    state.api = true
+  },
   API_ERROR: (state) => {
     state.api = false
+  },
+  CHARTS_OK: (state) => {
+    state.charts = true
   },
   CHARTS_ERROR: (state) => {
     state.charts = false

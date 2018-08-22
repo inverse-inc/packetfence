@@ -88,6 +88,15 @@ sub _start {
     return $result;
 }
 
+sub startAndCheck {
+    my ($self) = @_;
+
+    while(1) {
+        $self->_start() unless($self->isAlive());
+        sleep 60;
+    }
+}
+
 =head2 stop
 
 Wrapper around systemctl. systemctl should in turn call the actual _stop.
@@ -130,23 +139,6 @@ sub isAlive {
     my $_EXIT_CODE_EXISTS = "0";
     my $rules_applied = defined( pf_run( "sudo " . $Config{'services'}{"iptables_binary"} . " -S | grep " . $pf::iptables::FW_FILTER_INPUT_MGMT ,accepted_exit_status => [$_EXIT_CODE_EXISTS]) );
     return ($pid && $rules_applied);
-}
-
-=head2 pid
-
-Override the default method to check pid since there really is no such thing for iptables (it's not a process).
-
-=cut
-
-sub pid {
-    my $self   = shift;
-    my $result = `sudo systemctl show -p ActiveState packetfence-iptables`;
-    chomp $result;
-    my $state = ( split( '=', $result ) )[1];
-    if ( grep { $state eq $_ } qw( active activating deactivating ) ) {
-        return -1;
-    }
-    else { return 0; }
 }
 
 =head1 AUTHOR

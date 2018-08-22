@@ -1,0 +1,21 @@
+/node_categories/search:
+  description: pf::UnifiedApi::Controller::NodeCategories
+  post:
+    operationId: api.v1.NodeCategories.search
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Search'
+      description: Search for items
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NodeCategoriesList'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

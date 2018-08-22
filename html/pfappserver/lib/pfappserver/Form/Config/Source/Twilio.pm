@@ -60,6 +60,12 @@ has_field 'twilio_phone_number' => (
     },
 );
 
+has_field 'message' => (
+    type => 'TextArea',
+    label => 'SMS text message ($pin will be replaced by the PIN number)',
+    default => 'PIN: $pin',
+);
+
 has_field 'pin_code_length' => (
     type => 'PosInteger',
     label => 'PIN Code Length',

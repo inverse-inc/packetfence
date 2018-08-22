@@ -184,11 +184,13 @@ sub record_result {
     my ($mac, $attributes, $query_result) = @_;
     my $timer = pf::StatsD::Timer->new({level => 7});
     pf::dal::node->update_items(
+        -table => [-join => 'node', "<=>{node.tenant_id=tenant.id}", "tenant"],
         -set => {
             'device_type'   => $query_result->{'device'}{'name'},
             'device_class'  => $query_result->{device_class},
             'device_version' => $query_result->{'version'},
             'device_score' => $query_result->{'score'},
+            'device_manufacturer' => $query_result->{'manufacturer'}->{'name'} // "",
             map { $RECORD_RESULT_ATTR_MAP{$_} => $attributes->{$_} } keys(%RECORD_RESULT_ATTR_MAP),
         },
         -where => {

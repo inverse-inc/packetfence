@@ -60,6 +60,7 @@ use pf::file_paths qw(
     $install_dir
     $network_config_file
     $bin_dir
+    $sbin_dir
     $log_dir
     @log_files
     $generated_conf_dir
@@ -173,9 +174,10 @@ sub service_exists {
     my (@services) = @_;
 
     foreach my $service (@services) {
+        next if ($service eq 'pf');
         my $exe = ( $Config{'services'}{"${service}_binary"} || "$install_dir/sbin/$service" );
         if ($service =~ /^(pfipset|pfsso|httpd\.dispatcher|api-frontend)$/) {
-            $exe = "$bin_dir/pfhttpd";
+            $exe = "$sbin_dir/pfhttpd";
         } elsif ($service =~ /httpd\.(.*)/) {
             $exe = ( $Config{'services'}{"httpd_binary"} || "$install_dir/sbin/$service" );
         } elsif ($service =~ /redis_(.*)/) {
@@ -974,7 +976,8 @@ sub connection_profiles {
         billing_tiers|description|sources|redirecturl|always_use_redirecturl|
         allowed_devices|allow_android_devices|
         reuse_dot1x_credentials|provisioners|filter_match_style|sms_pin_retry_limit|
-        sms_request_limit|login_attempt_limit|block_interval|dot1x_recompute_role_from_portal|scan|root_module|preregistration|autoregister|access_registration_when_registered|device_registration)/x;
+        sms_request_limit|login_attempt_limit|block_interval|dot1x_recompute_role_from_portal|scan|root_module|preregistration|autoregister|access_registration_when_registered|device_registration|
+        dpsk|default_psk_key|status|unreg_on_acct_stop)/x;
     my $validator = pf::validation::profile_filters->new;
 
     foreach my $connection_profile ( keys %Profiles_Config ) {

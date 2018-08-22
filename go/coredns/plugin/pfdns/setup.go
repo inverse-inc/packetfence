@@ -8,6 +8,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/coredns/core/dnsserver"
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 	cache "github.com/patrickmn/go-cache"
 )
@@ -22,7 +23,8 @@ func init() {
 func setuppfdns(c *caddy.Controller) error {
 	var pf = &pfdns{}
 	var ip net.IP
-
+	ctx := context.Background()
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.General)
 	for c.Next() {
 		// block with extra parameters
 		for c.NextBlock() {
@@ -64,6 +66,10 @@ func setuppfdns(c *caddy.Controller) error {
 
 	if err := pf.detectType(); err != nil {
 		return c.Errf("pfdns: unable to initialize Network Type")
+	}
+
+	if err := pf.PortalFQDNInit(); err != nil {
+		return c.Errf("pfdns: unable to initialize Portal FQDN")
 	}
 
 	// Initialize dns filter cache

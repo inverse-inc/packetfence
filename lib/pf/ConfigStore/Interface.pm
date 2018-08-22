@@ -1,13 +1,12 @@
 package pf::ConfigStore::Interface;
+
 =head1 NAME
 
-pf::ConfigStore::Profile add documentation
-
-=cut
+pf::ConfigStore::Profile
 
 =head1 DESCRIPTION
 
-pf::ConfigStore::Switch;
+pf::ConfigStore::Switch
 
 =cut
 
@@ -26,19 +25,17 @@ sub pfconfigNamespace {'config::Pf'};
 
 sub configFile {$pf_config_file};
 
-=head2 Methods
+=head1 METHODS
 
-=over
+=head2 _buildCachedConfig
 
-=item _buildCachedConfig
+  Build the cached config
 
 =cut
 
 sub _buildCachedConfig { pf::ConfigStore::Pf->new->cachedConfig() }
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
-
-=back
 
 =head1 COPYRIGHT
 

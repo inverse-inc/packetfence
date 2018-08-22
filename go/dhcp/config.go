@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/binary"
 	"math"
 	"net"
 	"strconv"
@@ -8,11 +9,11 @@ import (
 
 	"github.com/RoaringBitmap/roaring"
 
+	cache "github.com/fdurand/go-cache"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 	dhcp "github.com/krolaw/dhcp4"
-	cache "github.com/patrickmn/go-cache"
 	netadv "github.com/simon/go-netadv"
 )
 
@@ -28,6 +29,7 @@ type DHCPHandler struct {
 	available     *roaring.Bitmap // RoaringBitmap to keep track of available IP addresses
 	layer2        bool
 	role          string
+	ipReserved    string
 }
 
 type Interfaces struct {
@@ -106,9 +108,14 @@ func (d *Interfaces) readConfig() {
 				ConfNet.PfconfigHashNS = key
 
 				pfconfigdriver.FetchDecodeSocket(ctx, &ConfNet)
-
+				if ConfNet.Dhcpd == "disabled" {
+					continue
+				}
 				if (NetIP.Contains(net.ParseIP(ConfNet.DhcpStart)) && NetIP.Contains(net.ParseIP(ConfNet.DhcpEnd))) || NetIP.Contains(net.ParseIP(ConfNet.NextHop)) {
-
+					if int(binary.BigEndian.Uint32(net.ParseIP(ConfNet.DhcpStart).To4())) > int(binary.BigEndian.Uint32(net.ParseIP(ConfNet.DhcpEnd).To4())) {
+						log.LoggerWContext(ctx).Error("Wrong configuration, check your network " + key)
+						continue
+					}
 					// IP per role
 					if ConfNet.SplitNetwork == "enabled" {
 						var keyConfRoles pfconfigdriver.PfconfigKeys
@@ -200,11 +207,16 @@ func (d *Interfaces) readConfig() {
 							DHCPScope.available = available
 
 							// Initialize hardware cache
-							hwcache := cache.New(time.Duration(seconds)*time.Second, 10*time.Second)
+							// Add 10 minutes to the expiration as a buffer so the IP addresses don't get reused too fast
+							hwcache := cache.New((time.Duration(seconds)*time.Second)+(600*time.Second), 10*time.Second)
 
 							hwcache.OnEvicted(func(nic string, pool interface{}) {
-								log.LoggerWContext(ctx).Info(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Added back in the pool " + DHCPScope.role + " on index " + strconv.Itoa(pool.(int)))
-								DHCPScope.available.Add(uint32(pool.(int)))
+								go func() {
+									// Always wait 10 minutes before releasing the IP again
+									time.Sleep(10 * time.Minute)
+									log.LoggerWContext(ctx).Info(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Added back in the pool " + DHCPScope.role + " on index " + strconv.Itoa(pool.(int)))
+									DHCPScope.available.Add(uint32(pool.(int)))
+								}()
 							})
 
 							DHCPScope.hwcache = hwcache
@@ -214,6 +226,8 @@ func (d *Interfaces) readConfig() {
 							DHCPScope.xid = xid
 
 							initiaLease(&DHCPScope)
+							ExcludeIP(&DHCPScope, ConfNet.IpReserved)
+							DHCPScope.ipReserved = ConfNet.IpReserved
 							var options = make(map[dhcp.OptionCode][]byte)
 
 							options[dhcp.OptionSubnetMask] = []byte(DHCPNet.network.Mask)
@@ -259,8 +273,12 @@ func (d *Interfaces) readConfig() {
 						hwcache := cache.New(time.Duration(seconds)*time.Second, 10*time.Second)
 
 						hwcache.OnEvicted(func(nic string, pool interface{}) {
-							log.LoggerWContext(ctx).Info(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Added back in the pool " + DHCPScope.role + " on index " + strconv.Itoa(pool.(int)))
-							DHCPScope.available.Add(uint32(pool.(int)))
+							go func() {
+								// Always wait 10 minutes before releasing the IP again
+								time.Sleep(10 * time.Minute)
+								log.LoggerWContext(ctx).Info(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Added back in the pool " + DHCPScope.role + " on index " + strconv.Itoa(pool.(int)))
+								DHCPScope.available.Add(uint32(pool.(int)))
+							}()
 						})
 
 						DHCPScope.hwcache = hwcache
@@ -270,6 +288,9 @@ func (d *Interfaces) readConfig() {
 						DHCPScope.xid = xid
 
 						initiaLease(&DHCPScope)
+						ExcludeIP(&DHCPScope, ConfNet.IpReserved)
+						DHCPScope.ipReserved = ConfNet.IpReserved
+
 						var options = make(map[dhcp.OptionCode][]byte)
 
 						options[dhcp.OptionSubnetMask] = []byte(net.ParseIP(ConfNet.Netmask).To4())

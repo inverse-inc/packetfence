@@ -126,6 +126,7 @@ END
                 [% IF listen_ints.size > 0 %]<li [% IF tab == "dhcp" %]class="active"[% END %]><a data-toggle="pill" href="#dhcp">DHCP</a></li>[% END %]
                 <li [% IF tab == "endpoints" %]class="active"[% END %]><a data-toggle="pill" href="#endpoints">[% l('Endpoints') %]</a></li>
                 <li [% IF tab == "portal" %]class="active"[% END %]><a data-toggle="pill" href="#portal">[% l('Portal') %]</a></li>
+                <li [% IF tab == "queue" %]class="active"[% END %]><a data-toggle="pill" href="#queue">[% l('Queue') %]</a></li>
             </ul>
         </div>
     </div>
@@ -159,7 +160,9 @@ END
                     data-colors="[% palette(0) %]"
                     data-height="250px"
                     data-after="-3600"
-                    data-decimal-digits="0"></div>
+                    data-decimal-digits="0"
+                    data-d3pie-smallsegmentgrouping-value="0.5"
+                    data-d3pie-smallsegmentgrouping-enabled="true"></div>
                 </div>
                 <div class="col6 card">
                     <div data-netdata="packetfence.devices.connected_per_connection_type"
@@ -181,7 +184,9 @@ END
                     data-colors="[% palette(2) %]"
                     data-height="250px"
                     data-after="-3600"
-                    data-decimal-digits="0"></div>
+                    data-decimal-digits="0"
+                    data-d3pie-smallsegmentgrouping-value="0.5"
+                    data-d3pie-smallsegmentgrouping-enabled="true"></div>
                 </div>
             </div>
             <div class="row-fluid">
@@ -425,6 +430,21 @@ END
                         </div>
                     </div>
                 </div>
+                <div class="card-block">
+                    <div class="row-flex">
+                        <div class="col18 text-center">
+                            <div data-netdata="mysql_PacketFence_Database.connections"
+                            data-host="/netdata/127.0.0.1"
+                            data-title="Database connections"
+                            data-chart-library="dygraph"
+                            data-colors="[% palette(loop.index) %]"
+                            data-height="200px"
+                            data-hide-missing="true"
+                            data-before="0"
+                            data-after="-86400"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
         </div>
@@ -605,12 +625,13 @@ END
                         END
                     %]
                         [% FOREACH source IN sources %]
+                        [% FOREACH host IN source.host.split(',') %]
                         <div class="col[% spanSize %] text-center">
-                            <div data-netdata="fping.[% source.host.replace('\.', '_') %]_latency"
+                            <div data-netdata="fping.[% host.replace('\.', '_') %]_latency"
                             data-host="/netdata/127.0.0.1"
                             data-common-max="ping"
                             data-common-min="ping"
-                            data-title="[% source.description %] - ping [% source.host %]"
+                            data-title="[% source.description %] - ping [% host %]"
                             data-chart-library="dygraph"
                             data-colors="[% palette(loop.index) %]"
                             data-height="200px"
@@ -618,6 +639,7 @@ END
                             data-before="0"
                             data-after="-86400"></div>
                         </div>
+                        [% END %]
                         [% END %]
                     </div>
                 </div>
@@ -666,19 +688,19 @@ END
             </div>
         </div>
         <div class="tab-pane[% IF tab == "dhcp" %] active[% END %]" id="dhcp">
-        [% FOREACH interface IN listen_ints %]
+        [% FOREACH network IN networks.keys %]
             <div class="card">
                 <div class="card-title">
-                    <h2>[% l('DHCP on') %] [% interface %]</h2>
+                    <h2>[% l('DHCP on') %] [% network %]</h2>
                 </div>
                 <div class="card-block">
                     <div class="row-flex">
                         <div class="col9">
-                            <div data-netdata="statsd_gauge_source.packetfence.dhcp_leases_[% interface %]_day"
+                            <div data-netdata="statsd_gauge_source.packetfence.dhcp_leases_[% network %]_day"
                             data-host="/netdata/127.0.0.1"
                             data-common-max="dhcp_day"
                             data-common-min="dhcp_day"
-                            data-title="DHCP leases free on [% interface %] for the past day"
+                            data-title="DHCP leases free on [% network %] for the past day"
                             data-chart-library="dygraph"
                             data-hide-missing="true"
                             data-dimensions="gauge"
@@ -690,11 +712,11 @@ END
                             data-decimal-digits="0"></div>
                         </div>
                         <div class="col9">
-                            <div data-netdata="statsd_gauge_source.packetfence.dhcp_leases_[% interface %]_week"
+                            <div data-netdata="statsd_gauge_source.packetfence.dhcp_leases_[% network %]_week"
                             data-host="/netdata/127.0.0.1"
                             data-common-max="dhcp_week"
                             data-common-min="dhcp_week"
-                            data-title="DHCP leases free on [% interface %] for the past week"
+                            data-title="DHCP leases free on [% network %] for the past week"
                             data-chart-library="dygraph"
                             data-hide-missing="true"
                             data-dimensions="gauge"
@@ -706,11 +728,11 @@ END
                             data-decimal-digits="0"></div>
                         </div>
                         <div class="col9">
-                            <div data-netdata="statsd_gauge_source.packetfence.dhcp_leases_[% interface %]_month"
+                            <div data-netdata="statsd_gauge_source.packetfence.dhcp_leases_[% network %]_month"
                             data-host="/netdata/127.0.0.1"
                             data-common-max="dhcp_month"
                             data-common-min="dhcp_month"
-                            data-title="DHCP leases free on [% interface %] for the past month"
+                            data-title="DHCP leases free on [% network %] for the past month"
                             data-chart-library="dygraph"
                             data-hide-missing="true"
                             data-dimensions="gauge"
@@ -722,11 +744,11 @@ END
                             data-decimal-digits="0"></div>
                         </div>
                         <div class="col9">
-                            <div data-netdata="statsd_gauge_source.packetfence.dhcp_leases_[% interface %]_year"
+                            <div data-netdata="statsd_gauge_source.packetfence.dhcp_leases_[% network %]_year"
                             data-host="/netdata/127.0.0.1"
                             data-common-max="dhcp_year"
                             data-common-min="dhcp_year"
-                            data-title="DHCP leases free on [% interface %] for the past year"
+                            data-title="DHCP leases free on [% network %] for the past year"
                             data-chart-library="dygraph"
                             data-hide-missing="true"
                             data-dimensions="gauge"
@@ -975,5 +997,53 @@ END
                 </div>
             </div>
          </div>
+        <div class="tab-pane[% IF tab == "queue" %] active[% END %]" id="queue">
+            <div class="card">
+                <div class="card-title">
+                    <h2>[% l('Queue Counters') %]</h2>
+                </div>
+                <div class="card-block">
+                    <div class="row-fluid">
+                        <div class="span18 card">
+                            <div data-netdata="packetfence.redis.queue_stats_count"
+                            data-host="/netdata/127.0.0.1"
+                            data-title="PFQueue Stats Counters"
+                            data-hide-missing="true"
+                            data-chart-library="dygraph"
+                            data-colors="[% palette(0) %]"
+                            data-height="200px"
+                            data-after="-3600"
+                            data-decimal-digits="0"></div>
+                        </div>
+                    </div>
+                    <div class="row-fluid">
+                        <div class="span18 card">
+                            <div data-netdata="packetfence.redis.queue_stats_expired"
+                            data-host="/netdata/127.0.0.1"
+                            data-title="PFQueue Stats Expired"
+                            data-hide-missing="true"
+                            data-chart-library="dygraph"
+                            data-colors="[% palette(0) %]"
+                            data-height="200px"
+                            data-after="-3600"
+                            data-decimal-digits="0"></div>
+                        </div>
+                    </div>
+                    <div class="row-fluid">
+                        <div class="span18 card">
+                            <div data-netdata="packetfence.redis.queue_stats_outstanding"
+                            data-host="/netdata/127.0.0.1"
+                            data-title="PFQueue Stats Outstanding"
+                            data-hide-missing="true"
+                            data-chart-library="dygraph"
+                            data-colors="[% palette(0) %]"
+                            data-height="200px"
+                            data-after="-3600"
+                            data-decimal-digits="0"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

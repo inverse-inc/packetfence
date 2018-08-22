@@ -28,6 +28,13 @@ use pf::file_paths qw($var_dir);
 use pf::constants;
 use pf::util;
 use pf::node;
+use pf::config qw(
+    %connection_type_to_str
+    $MAC
+    $SSID
+    $WEBAUTH_WIRELESS
+);
+use JSON::MaybeXS;
 
 # The port to reach the Unifi controller API
 our $UNIFI_API_PORT = "8443";
@@ -41,6 +48,35 @@ sub description { 'Unifi Controller' }
 # CAPABILITIES
 # access technology supported
 sub supportsExternalPortal { return $TRUE; }
+sub supportsWirelessDot1x { return $TRUE; }
+sub supportsWirelessMacAuth { return $TRUE; }
+# inline capabilities
+sub inlineCapabilities { return ($MAC,$SSID); }
+
+=head2 getVersion
+
+Obtain image version information from switch
+
+=cut
+
+sub getVersion {
+    my ($self)       = @_;
+    my $oid_sysDescr = '1.3.6.1.2.1.1.1.0';
+    my $logger       = $self->logger;
+    if ( !$self->connectRead() ) {
+        return '';
+    }
+    $logger->trace("SNMP get_request for sysDescr: $oid_sysDescr");
+    my $result = $self->{_sessionRead}->get_request( -varbindlist => [$oid_sysDescr] );
+    my $sysDescr = ( $result->{$oid_sysDescr} || '' );
+    if ( $sysDescr =~ m/V(\d{1}\.\d{2}\.\d{2})/ ) {
+        return $1;
+    } elsif ( $sysDescr =~ m/Version (\d+\.\d+\([^)]+\)[^,\s]*)(,|\s)+/ ) {
+        return $1;
+    } else {
+        return $sysDescr;
+    }
+}
 
 =head2 synchronize_locationlog
 
@@ -80,6 +116,7 @@ sub parseExternalPortalRequest {
         redirect_url            => $req->param('url'),
         status_code             => '200',
         synchronize_locationlog => $TRUE,
+        connection_type         => $WEBAUTH_WIRELESS,
     );
 
     return \%params;
@@ -122,7 +159,11 @@ sub _deauthenticateMacWithHTTP {
     my $username = $self->{_wsUser};
     my $password = $self->{_wsPwd};
 
+    my $site = 'default';
+
     my $command = ($node_info->{status} eq $STATUS_UNREGISTERED || violation_count_reevaluate_access($mac)) ? "unauthorize-guest" : "authorize-guest";
+
+    $command = "kick-sta" if ($node_info->{last_connection_type} ne $connection_type_to_str{$WEBAUTH_WIRELESS});
 
     my $ua = LWP::UserAgent->new();
     $ua->cookie_jar({ file => "$var_dir/run/.ubiquiti.cookies.txt" });
@@ -139,8 +180,24 @@ sub _deauthenticateMacWithHTTP {
         return;
     }
 
-    $response = $ua->post("$base_url/api/s/default/cmd/stamgr", Content => '{"cmd":"'.$command.'", "mac":"'.$mac.'"}');
-    
+    $response = $ua->get("$base_url/api/self/sites");
+
+    unless($response->is_success) {
+                $logger->error("Can't have the site list from the Unifi controller: ".$response->status_line);
+        return;
+    }
+
+    my $json_data = decode_json($response->decoded_content());
+
+    my $switch_id = $self->{_id};
+    foreach my $entry (@{$json_data->{'data'}}) {
+        $response = $ua->post("$base_url/api/s/$entry->{'name'}/cmd/stamgr", Content => '{"cmd":"'.$command.'", "mac":"'.$mac.'", "ap_mac":"'.$switch_id.'"}');
+        if ($response->is_success) {
+            $logger->info("Deauth on site: $entry->{'desc'}");
+            last;
+        }
+    }
+
     unless($response->is_success) {
         $logger->error("Can't send request on the Unifi controller: ".$response->status_line);
         return;

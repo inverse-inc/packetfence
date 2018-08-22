@@ -1,3 +1,5 @@
+#!/usr/bin/perl
+
 =head1 NAME
 
 util::dns test

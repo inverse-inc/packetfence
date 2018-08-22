@@ -87,7 +87,7 @@ sub get_json {
 
 sub unknown_action {
     my ($self) = @_;
-    return $self->render_error(404, "Unknown path");
+    return $self->render_error(404, "Unknown path " . $self->req->url->path);
 }
 
 sub openapi_generator {

@@ -56,6 +56,6 @@
   </div><!-- tab-content -->
 
   <div class="form-actions">
-    <button type="submit" class="btn btn-primary" data-loading-text="[% l('Creating Nodes ..') %]">[% l('Create Nodes') %]</button>
+    <button type="submit" class="btn btn-primary" data-loading-text="[% l('Processing...') %]">[% l('Create') %]</button>
   </div>
 </form>

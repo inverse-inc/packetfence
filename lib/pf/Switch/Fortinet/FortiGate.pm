@@ -31,6 +31,7 @@ use HTTP::Request::Common;
 use pf::log;
 use pf::constants;
 use pf::accounting qw(node_accounting_dynauth_attr);
+use pf::config qw ($WEBAUTH_WIRELESS);
 
 use base ('pf::Switch::Fortinet');
 
@@ -78,6 +79,7 @@ sub parseExternalPortalRequest {
         grant_url               => $req->param('post'),
         status_code             => '200',
         synchronize_locationlog => $TRUE,
+        connection_type         => $WEBAUTH_WIRELESS,
     );
 
     return \%params;
@@ -146,15 +148,13 @@ sub getAcceptForm {
     my $post = $cgi_session->param("ecwp-original-param-post");
 
     my $html_form = qq[
-        <form name="weblogin_form" method="POST" action="$post">
+        <form name="weblogin_form" data-autosubmit="1000" method="POST" action="$post">
             <input type="hidden" name="username" value="$mac">
             <input type="hidden" name="password" value="$mac">
             <input type="hidden" name="magic" value="$magic">
             <input type="submit" style="display:none;">
         </form>
-        <script language="JavaScript" type="text/javascript">
-        window.setTimeout('document.weblogin_form.submit();', 1000);
-        </script>
+        <script src="/content/autosubmit.js" type="text/javascript"></script>
     ];
 
     $logger->debug("Generated the following html form : ".$html_form);

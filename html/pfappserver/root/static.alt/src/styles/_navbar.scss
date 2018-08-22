@@ -3,3 +3,11 @@
 .navbar-brand img {
     height: $nav-link-height;
 }
+
+.navbar .navbar-nav > .nav-item,
+.bd-sidebar .bd-toc-link {
+    font-weight: 600;
+    font-size: $font-size-sm;
+    // font-size: ($font-size-base * .775);
+    text-transform: uppercase;
+}

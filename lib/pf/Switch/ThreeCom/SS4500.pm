@@ -647,7 +647,7 @@ sub getPhonesLLDPAtIfIndex {
         return @phones;
     }
 
-    my $index = $self->getLLDPIndex($ifIndex);
+    my $index = $self->_getLLDPIndex($ifIndex);
 
     my $oid_lldpRemPortId = '1.0.8802.1.1.2.1.4.1.1.7';
     my $oid_lldpRemSysDesc = '1.0.8802.1.1.2.1.4.1.1.10';

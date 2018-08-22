@@ -1,3 +1,8 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:imagesdir: ../images
+endif::[]
+
 hostapd (OpenWrt Chaos Calmer 15.05)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

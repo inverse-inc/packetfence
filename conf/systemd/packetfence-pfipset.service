@@ -8,7 +8,7 @@ Before=packetfence-httpd.portal.service
 StartLimitBurst=3
 StartLimitInterval=60
 Type=notify
-ExecStart=/usr/local/pf/bin/pfhttpd -conf /usr/local/pf/conf/caddy-services/pfipset.conf -log-name=pfipset
+ExecStart=/usr/local/pf/sbin/pfhttpd -conf /usr/local/pf/conf/caddy-services/pfipset.conf -log-name=pfipset
 Restart=on-failure
 Slice=packetfence.slice
 

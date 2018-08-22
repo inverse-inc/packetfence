@@ -6,8 +6,7 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
 [Service]
 StartLimitBurst=3
 StartLimitInterval=10
-PIDFile=/usr/local/pf/var/run/redis_ntlm_cache.pid
-ExecStartPre=/usr/local/pf/bin/pfcmd service redis_ntlm_cache generateconfig
+ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::redis_ntlm_cache' -e 'pf::services::manager::redis_ntlm_cache->new()->generateConfig()'
 ExecStart=/usr/bin/redis-server /usr/local/pf/var/conf/redis_ntlm_cache.conf --daemonize no
 ExecStop=/bin/kill $MAINPID
 Restart=on-failure

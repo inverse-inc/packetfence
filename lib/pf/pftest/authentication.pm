@@ -18,9 +18,8 @@ use warnings;
 use pf::cmd;
 use pf::constants;
 use base qw(pf::cmd);
-use Term::ANSIColor;
-use IO::Interactive qw(is_interactive);
 use pf::Authentication::constants qw($LOGIN_SUCCESS $LOGIN_FAILURE $LOGIN_CHALLENGE);
+use pf::util::console;
 
 sub parseArgs { $_[0]->args >= 2 }
 our $indent = "  ";
@@ -29,7 +28,7 @@ sub _run {
     my ($self) = @_;
     require pf::authentication;
     import pf::authentication;
-    my $show_color = colors_supported();;
+    my $colors = pf::util::console::colors();
     my ($user,$pass,@source_ids) = $self->args;
     my @sources;
     if (@source_ids) {
@@ -52,22 +51,17 @@ sub _run {
                 my ($result,$message) = pf::authentication::authenticate({username => $user, password => $pass, context => $context}, $source);
                 $message = '' unless defined $message;
                 if ($result == $LOGIN_SUCCESS) {
-                    print color $GREEN_COLOR if $show_color;
-                    print $indent,"Authentication SUCCEEDED against ",$source->id," ($message)\n";
+                    print $colors->{success}, $indent,"Authentication SUCCEEDED against ",$source->id," ($message)$colors->{reset}\n";
                 }
                 elsif ($result == $LOGIN_CHALLENGE) {
-                    print color $YELLOW_COLOR if $show_color;
-                    print $indent,"Authentication CHALLENGE return for ",$source->id," (Challenge message $message->{message})\n";
+                    print $colors->{warning}, $indent,"Authentication CHALLENGE return for ",$source->id," (Challenge message $message->{message})$colors->{reset}\n";
                 } else {
-                    print color $RED_COLOR if $show_color;
-                    print $indent,"Authentication FAILED against ",$source->id," ($message)\n";
+                    print $colors->{error}, $indent,"Authentication FAILED against ",$source->id," ($message)$colors->{reset}\n";
                 }
-                print color 'reset' if $show_color;
                 my $matched;
                 foreach my $class ( @Rules::CLASSES ) {
                     if( $matched = pf::authentication::match2([$source], {username => $user, rule_class => $class, context => $context})) {
-                        print color $GREEN_COLOR if $show_color;
-                        print $indent ,"Matched against ",$source->id," for '$class' rules\n";
+                        print $colors->{success},$indent ,"Matched against ",$source->id," for '$class' rules\n";
                         {
                             local $indent = $indent x 2;
                             foreach my $action (@{$matched->{actions}}) {
@@ -75,19 +69,15 @@ sub _run {
                             }
                         }
                     } else {
-                        print color $RED_COLOR if $show_color;
-                        print $indent,"Did not match against ",$source->id," for '$class' rules\n";
+                        print $colors->{error}, $indent,"Did not match against ",$source->id," for '$class' rules\n";
                     }
                 }
-                print color 'reset' if $show_color;
-                print "\n";
+                print "$colors->{reset}\n";
             }
         }
     };
-    print color 'reset' if $show_color;
+    print $colors->{reset};
 }
-
-sub colors_supported { return is_interactive() }
 
 =head1 AUTHOR
 
@@ -118,4 +108,3 @@ USA.
 =cut
 
 1;
-

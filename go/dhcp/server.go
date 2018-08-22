@@ -5,6 +5,7 @@ import (
 	"net"
 
 	dhcp "github.com/krolaw/dhcp4"
+	"golang.org/x/net/ipv4"
 )
 
 type Answer struct {
@@ -25,6 +26,7 @@ type Handler interface {
 type ServeConn interface {
 	ReadFrom(b []byte) (n int, addr net.Addr, err error)
 	WriteTo(b []byte, addr net.Addr) (n int, err error)
+	ReadFromRaw(b []byte) (n int, cm *ipv4.ControlMessage, addr net.Addr, err error)
 }
 
 // Serve takes a ServeConn (such as a net.PacketConn) that it uses for both
@@ -40,14 +42,13 @@ type ServeConn interface {
 // Additionally, response packets may not return to the same
 // interface that the request was received from.  Writing a custom ServeConn,
 // or using ServeIf() can provide a workaround to this problem.
-func Serve(conn ServeConn, handler Handler, jobs chan job) error {
+func Serve(conn ServeConn, handler Handler, jobs chan job, ctx context.Context) error {
 
 	buffer := make([]byte, 1500)
 
 	for {
 
-		n, addr, err := conn.ReadFrom(buffer)
-
+		n, cm, addr, err := conn.ReadFromRaw(buffer)
 		if err != nil {
 			return err
 		}
@@ -73,22 +74,10 @@ func Serve(conn ServeConn, handler Handler, jobs chan job) error {
 		}
 		var dhcprequest dhcp.Packet
 		dhcprequest = append([]byte(nil), req...)
-		jobe := job{dhcprequest, reqType, handler, addr}
+		jobe := job{dhcprequest, reqType, handler, addr, cm.Dst, ctx}
 		go func() {
 			jobs <- jobe
 		}()
 
 	}
-}
-
-// ListenAndServe listens on the UDP network address addr and then calls
-// Serve with handler to handle requests on incoming packets.
-func ListenAndServe(handler Handler, jobs chan job, dhcphandler DHCPHandler) error {
-	l, err := net.ListenPacket("udp4", dhcphandler.ip.String()+":67")
-
-	if err != nil {
-		return err
-	}
-	defer l.Close()
-	return Serve(l, handler, jobs)
 }

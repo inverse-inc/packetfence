@@ -40,7 +40,7 @@
                           </div>
                         </label>
                       </td>
-                      <td class="cell-centered cell-border-left">
+                      <td class="cell-centered cell-border-bottom">
                         <img src="[% c.uri_for('/static/configurator/enforcement-inline.png') %]">
                       </td>
                     </tr>
@@ -54,7 +54,7 @@
                           </div>
                         </label>
                       </td>
-                      <td class="cell-centered cell-border-left" rowspan="6">
+                      <td class="cell-centered" rowspan="6">
                         <img src="[% c.uri_for('/static/configurator/enforcement-vlan.png') %]">
                       </td>
                     </tr>

@@ -98,7 +98,7 @@ sub status {
     my ($self, $just_managed) = @_;
     my $logger = get_logger();
     my @services;
-    foreach my $manager (grep { defined($_) } map {  pf::services::get_service_manager($_)  } @pf::services::ALL_SERVICES) {
+    foreach my $manager (grep { defined($_) && $_->name ne 'pf'} map {  pf::services::get_service_manager($_)  } @pf::services::ALL_SERVICES) {
         my $is_managed = $manager->isManaged();
         if ($just_managed && !$is_managed) {
             next;
@@ -136,7 +136,7 @@ sub server_status {
     my ($self, $cluster_id) = @_;
     my $server_status;
     eval {
-        ($server_status) = pf::cluster::call_server($cluster_id, 'services_status', ['pf']);
+        ($server_status) = pf::cluster::call_server($cluster_id, 'services_status', [keys(%pf::services::ALL_MANAGERS)]);
     };
     unless($@) {
         my %services_ref = map { $_ => $server_status->{$_} ne '0' } keys %$server_status;

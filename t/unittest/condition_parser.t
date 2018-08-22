@@ -1,3 +1,4 @@
+#!/usr/bin/perl
 
 =head1 NAME
 
@@ -54,9 +55,15 @@ BEGIN {
         ['a == b && c == d', ['AND', ['==', 'a', 'b'], ['==', 'c', 'd']]],
         ['a == b && (c == d || c == e)', ['AND', ['==', 'a', 'b'], ['OR', ['==', 'c', 'd'],['==', 'c', 'e']]]],
         ['a =~ "^bob" && (c == d || c == e)', ['AND', ['=~', 'a', '^bob'], ['OR', ['==', 'c', 'd'],['==', 'c', 'e']]]],
+        ["a == __NULL__ ", ['==', 'a' , '__NULL__']],
+        ["a != __NULL__ ", ['!=', 'a' , '__NULL__']],
     );
 
-    @INVALID_STRINGS = ('(a', '(a) b', '(a;) && b', ' a == "');
+    @INVALID_STRINGS = (
+        '(a', '(a) b',
+        '(a;) && b',
+        ' a == "'
+    );
 
     $TEST_COUNT = 1 + (scalar @VALID_STRING_TESTS) + (scalar @INVALID_STRINGS);
 }

@@ -3,16 +3,15 @@ Description=PacketFence Administration  Apache HTTP Server
 Documentation=man:httpd(8)
 Documentation=man:apachectl(8)
 Wants=packetfence-base.target packetfence-config.service
-After=packetfence-base.target packetfence-config.service packetfence-haproxy-db.service
+After=packetfence-base.target packetfence-config.service
 
 [Service]
 StartLimitBurst=3
 StartLimitInterval=10
 Type=notify
-PIDFile=/usr/local/pf/var/run/httpd.admin.pid
 Environment=X_PORTAL=default
 Environment=PF_SKIP_MAKE_IMMUTABLE=1
-ExecStartPre=/usr/local/pf/bin/pfcmd service httpd.admin generateconfig
+ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_admin' -e 'pf::services::manager::httpd_admin->new()->generateConfig()'
 ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.admin -DFOREGROUND  -Drhel
 ExecReload=/bin/kill -USR1 ${MAINPID}
 ExecStop=/bin/kill -WINCH ${MAINPID}
@@ -22,7 +21,7 @@ ExecStop=/bin/kill -WINCH ${MAINPID}
 # ExecStop, which would kill httpd. We are sending useless SIGCONT here to give
 # httpd time to finish.
 TimeoutStopSec=60
-KillMode=mixed
+KillMode=process
 KillSignal=SIGCONT
 PrivateTmp=true
 Restart=on-failure

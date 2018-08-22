@@ -56,6 +56,7 @@ Clean up switch data
 sub cleanupAfterRead {
     my ($self, $id, $profile) = @_;
     $self->expand_list($profile, $self->_fields_expanded);
+    $profile->{filter} = [ map {s/,,/,/g;$_} split( /\s*(?<!,),(?!,)\s*/, $profile->{filter} || '' ) ];
 }
 
 =head2 cleanupBeforeCommit
@@ -67,6 +68,9 @@ Clean data before update or creating
 sub cleanupBeforeCommit {
     my ($self, $id, $profile) = @_;
     $self->flatten_list($profile, $self->_fields_expanded);
+    if (exists $profile->{filter}) {
+        $profile->{filter} = join(",", map { s/,/,,/g;$_ } @{$profile->{filter} // []});
+    }
 }
 
 =head2 _fields_expanded
@@ -74,7 +78,7 @@ sub cleanupBeforeCommit {
 =cut
 
 sub _fields_expanded {
-    return qw(sources filter locale allowed_devices provisioners billing_tiers scans);
+    return qw(sources locale allowed_devices provisioners billing_tiers scans);
 }
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};

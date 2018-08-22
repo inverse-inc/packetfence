@@ -33,7 +33,6 @@ use pf::class qw(class_next_vid);
 has 'violations' => ( is => 'ro' );
 has 'triggers' => ( is => 'ro' );
 has 'templates' => ( is => 'ro' );
-has 'roles' => (is => 'ro', default => sub {[]});
 has 'placeholders' => ( is => 'ro' );
 
 # Form fields

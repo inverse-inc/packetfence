@@ -1,3 +1,8 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:imagesdir: ../images
+endif::[]
+
 This section has been created to give a quick start to configure the Microsoft PKI with PacketFence. This guide does not include advanced troubleshooting of EAP-TLS connections. Refer to the relevant documentation of EAP-TLS, RADIUS and OpenSSL for advanced features.
 
 Assumptions
@@ -68,9 +73,9 @@ The goal is to deliver certificates for `user Authentication`, this means you wi
 
 First, the certificate template needs at least the following `Enhanced Key Usage` and `Key Usage`:
 
-image::docs/images/scep-ms-pki-en-key-usage.png[scaledwidth="100%",alt="Mandatory Enhanced Key Usage"]
+image::scep-ms-pki-en-key-usage.png[scaledwidth="100%",alt="Mandatory Enhanced Key Usage"]
 
-image::docs/images/scep-ms-pki-key-usage.png[scaledwidth="100%",alt="Mandatory Key Usage"]
+image::scep-ms-pki-key-usage.png[scaledwidth="100%",alt="Mandatory Key Usage"]
 
 The next step is to duplicate a template where those `Key Usage`, and `Enhanced Key Usage` are already configured. We advise to duplicate the template `User` and change the necessary settings.
 
@@ -224,13 +229,13 @@ Add a new PKI provider and select SCEP.
 
 Fill out the form for a PKI provider according to your Certificate of Authority configuration.
 
-image::docs/images/scep-ms-pki-provider.png[scaledwidth="100%",alt="MSPKI configuration"]
+image::scep-ms-pki-provider.png[scaledwidth="100%",alt="MSPKI configuration"]
 
 For the URL it will be `http://<ServerDNSName>/CertSrv/mscep/`.
 
 You do not need any Username/Password combination for this configuration.
 
-image::docs/images/scep-ms-pki-provider2.png[scaledwidth="100%",alt="MSPKI configuration"]
+image::scep-ms-pki-provider2.png[scaledwidth="100%",alt="MSPKI configuration"]
 
 The "Server cert path" and "CA cert path" both need to be absolute (e.g. `/usr/local/pf/conf/ssl/tls_certs/MyCA.pem` is an absolute path).
 
@@ -256,12 +261,12 @@ Fill out the form, choosing a different Provisioning Id per provisioner.
 
 The following is an example on how to configure an EAP-TLS connection for Windows/Android/Mac OS X/iOS
 
-image::docs/images/scep-ms-pki-eaptls-example.png[scaledwidth="100%",alt="Provisioner EAP-TLS configuration"]
+image::scep-ms-pki-eaptls-example.png[scaledwidth="100%",alt="Provisioner EAP-TLS configuration"]
 
 Mac OS X/iOS require the provisioning profile to be signed if you want to remove the `untrusted` warning when installing the profile. You need to sign it with a Certification Authority already trusted by the device such as e.g. VeriSign.
 Configuring this has to be done in the 'Signing' tab in the "Apple devices". 
 
-image::docs/images/packetfence-pki-eaptls-sign-example.png[scaledwidth="100%",alt="Signing provisioner"]
+image::packetfence-pki-eaptls-sign-example.png[scaledwidth="100%",alt="Signing provisioner"]
 
 Fill out the fields with the contents of the Base64 encoded certificates.
 To extract this information from a pem formatted certificate, copy the file content.

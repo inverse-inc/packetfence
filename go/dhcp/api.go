@@ -127,7 +127,7 @@ func handleStats(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
 	if h, ok := intNametoInterface[vars["int"]]; ok {
-		stat := h.handleApiReq(ApiReq{Req: "stats", NetInterface: vars["int"], NetWork: ""})
+		stat := h.handleApiReq(ApiReq{Req: "stats", NetInterface: vars["int"], NetWork: vars["network"]})
 
 		outgoingJSON, err := json.Marshal(stat)
 
@@ -310,6 +310,12 @@ func (h *Interface) handleApiReq(Request ApiReq) interface{} {
 	// Send back stats
 	if Request.Req == "stats" {
 		for _, v := range h.network {
+			ipv4Addr, _, erro := net.ParseCIDR(Request.NetWork + "/32")
+			if erro == nil {
+				if !(v.network.Contains(ipv4Addr)) {
+					continue
+				}
+			}
 			var statistics roaring.Statistics
 			statistics = v.dhcpHandler.available.Stats()
 			var Options map[string]string
@@ -340,11 +346,16 @@ func (h *Interface) handleApiReq(Request ApiReq) interface{} {
 				binary.BigEndian.PutUint32(result, binary.BigEndian.Uint32(v.dhcpHandler.start.To4())+uint32(item.Object.(int)))
 				Members = append(Members, Node{IP: result.String(), Mac: i, EndsAt: time.Unix(0, item.Expiration)})
 			}
+			_, reserved := IPsFromRange(v.dhcpHandler.ipReserved)
+			if reserved != 1 {
+				Count = Count + reserved
+			}
 
-			if Count == (v.dhcpHandler.leaseRange - (int(statistics.RunContainerValues) + int(statistics.ArrayContainerValues))) {
+			availableCount := (int(statistics.RunContainerValues) + int(statistics.ArrayContainerValues))
+			if Count == (v.dhcpHandler.leaseRange - availableCount) {
 				Status = "Normal"
 			} else {
-				Status = "Calculated available IP " + strconv.Itoa(v.dhcpHandler.leaseRange-Count) + " is different than what we have available in the pool " + strconv.Itoa(int(statistics.RunContainerValues))
+				Status = "Calculated available IP " + strconv.Itoa(v.dhcpHandler.leaseRange-Count) + " is different than what we have available in the pool " + strconv.Itoa(availableCount)
 			}
 
 			stats = append(stats, Stats{EthernetName: Request.NetInterface, Net: v.network.String(), Free: int(statistics.RunContainerValues) + int(statistics.ArrayContainerValues), Category: v.dhcpHandler.role, Options: Options, Members: Members, Status: Status})
@@ -368,6 +379,7 @@ func (h *Interface) handleApiReq(Request ApiReq) interface{} {
 				var statistiques roaring.Statistics
 				statistiques = v.dhcpHandler.available.Stats()
 				spew.Dump(v.dhcpHandler.available.Stats())
+				spew.Dump(v.dhcpHandler.hwcache)
 				log.LoggerWContext(ctx).Info(v.dhcpHandler.available.String())
 				stats = append(stats, Stats{EthernetName: Request.NetInterface, Net: v.network.String(), Free: int(statistiques.RunContainerValues) + int(statistiques.ArrayContainerValues), Category: v.dhcpHandler.role, Status: "Debug finished"})
 			}

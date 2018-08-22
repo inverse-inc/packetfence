@@ -43,7 +43,7 @@ has cachedConfig =>
 
 has configFile => ( is => 'ro');
 
-has pfconfigNamespace => ( is => 'ro', default => sub {undef});
+has pfconfigNamespace => ( is => 'ro', default => undef);
 
 has default_section => ( is => 'ro');
 
@@ -76,27 +76,49 @@ Build the pf::IniFiles object
 
 sub _buildCachedConfig {
     my ($self) = @_;
-    my $chi             = $self->cache;
-    my $file_path       = $self->configFile;
-    my @args            = (-file => $file_path, -allowempty => 1);
-    my $default_section = $self->default_section;
-    push @args, -default => $default_section if defined $default_section;
-    my $importConfigFile = $self->importConfigFile;
-    if (defined $importConfigFile) {
-        push @args, -import => pf::IniFiles->new(-file => $importConfigFile, -allowempty => 1);
-    }
-    return $chi->compute(
-        $file_path,
+    return $self->cache->compute(
+        $self->configFile,
         {
             expire_if => sub { $self->expire_if(@_) }
         },
         sub {
-            my $config = pf::IniFiles->new(@args);
-            if ($config) {
-                $config->SetLastModTimestamp;
+            my %args = $self->configIniFilesArgs();
+            my $file_path = $args{'-file'};
+            my $file_exists = -e $file_path;
+            if (!$file_exists) {
+                delete $args{'-file'};
             }
+
+            my $config = eval {pf::IniFiles->new(%args)};
+            if ($@) {
+                get_logger->error("Error opening $file_path : $@");
+                return undef;
+            }
+
+            if (!$file_exists) {
+                $config->SetFileName($file_path);
+            }
+
+            $config->SetLastModTimestamp;
             return $config;
-        });
+        }
+    );
+}
+
+sub configIniFilesArgs {
+    my ($self) = @_;
+    my %args = (-file => $self->configFile, -allowempty => 1);
+    my $default_section = $self->default_section;
+    if (defined $default_section) {
+        $args{'-default'} = $default_section;
+    }
+
+    my $importConfigFile = $self->importConfigFile;
+    if (defined $importConfigFile && -e $importConfigFile) {
+        $args{'-import'} = pf::IniFiles->new(-file => $importConfigFile, -allowempty => 1);
+    }
+
+    return %args;
 }
 
 sub cache { pf::CHI->new(namespace => 'configfiles'); }

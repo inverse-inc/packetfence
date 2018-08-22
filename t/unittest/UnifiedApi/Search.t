@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 15;
+use Test::More tests => 16;
 use Test::Mojo;
 use pf::UnifiedApi::Search;
 
@@ -192,6 +192,21 @@ is_deeply(
     "detect_date BETWEEN '2017-01-01' AND '2017-01-02'",
 );
 
+is_deeply(
+    pf::UnifiedApi::Search::searchQueryToSqlAbstract(
+                {
+                    "field"  => "detect_date",
+                    "op"     => "not_between",
+                    "values" => [ "2017-01-01 ", "2017-01-02 " ]
+                },
+    ),
+    {
+        detect_date => {
+            -not_between => ["2017-01-01 ", "2017-01-02 "]
+        },
+    },
+    "detect_date NOT BETWEEN '2017-01-01' AND '2017-01-02'",
+);
 
 is_deeply(
     pf::UnifiedApi::Search::searchQueryToSqlAbstract(

@@ -8,9 +8,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/inverse-inc/packetfence/go/database"
+	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
 
 type NodeInfo struct {
@@ -21,7 +22,9 @@ type NodeInfo struct {
 
 // connectDB connect to the database
 func connectDB(configDatabase pfconfigdriver.PfConfDatabase) {
-	MySQLdatabase = database.ConnectFromConfig(configDatabase)
+	db, err := db.DbFromConfig(ctx)
+	sharedutils.CheckError(err)
+	MySQLdatabase = db
 }
 
 // initiaLease fetch the database to remove already assigned ip addresses
@@ -168,7 +171,11 @@ func NodeInformation(target net.HardwareAddr, ctx context.Context) (r NodeInfo) 
 
 func ShuffleDNS(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
 	if ConfNet.ClusterIPs != "" {
-		return Shuffle(ConfNet.ClusterIPs)
+		if ConfNet.Dnsvip != "" {
+			return []byte(net.ParseIP(ConfNet.Dnsvip).To4())
+		} else {
+			return Shuffle(ConfNet.ClusterIPs)
+		}
 	}
 	if ConfNet.Dnsvip != "" {
 		return []byte(net.ParseIP(ConfNet.Dnsvip).To4())
@@ -181,7 +188,11 @@ func ShuffleGateway(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
 	if ConfNet.NextHop != "" {
 		return []byte(net.ParseIP(ConfNet.Gateway).To4())
 	} else if ConfNet.ClusterIPs != "" {
-		return Shuffle(ConfNet.ClusterIPs)
+		if ConfNet.Type == "inlinel2" && ConfNet.NatEnabled == "disabled" {
+			return []byte(net.ParseIP(ConfNet.Gateway).To4())
+		} else {
+			return Shuffle(ConfNet.ClusterIPs)
+		}
 	} else {
 		return []byte(net.ParseIP(ConfNet.Gateway).To4())
 	}
@@ -234,4 +245,44 @@ func ShuffleIP(a []byte, randSrc int64) (r []byte) {
 		_, a = a[0], a[4:]
 	}
 	return ShuffleNetIP(array, randSrc)
+}
+
+func IPsFromRange(ip_range string) (r []net.IP, i int) {
+	var iplist []net.IP
+	iprange := strings.Split(ip_range, ",")
+	if len(iprange) >= 1 {
+		for _, rangeip := range iprange {
+			ips := strings.Split(rangeip, "-")
+			if len(ips) == 1 {
+				iplist = append(iplist, net.ParseIP(ips[0]))
+			} else {
+				start := net.ParseIP(ips[0])
+				end := net.ParseIP(ips[1])
+
+				for {
+					iplist = append(iplist, net.ParseIP(start.String()))
+					if start.Equal(end) {
+						break
+					}
+					sharedutils.Inc(start)
+				}
+			}
+		}
+	}
+	return iplist, len(iplist)
+}
+
+// ExcludeIP remove IP from the pool
+func ExcludeIP(dhcpHandler *DHCPHandler, ip_range string) {
+	excludeIPs, _ := IPsFromRange(ip_range)
+
+	for _, excludeIP := range excludeIPs {
+		if excludeIP != nil {
+			// Calculate the position for the roaring bitmap
+			position := uint32(binary.BigEndian.Uint32(excludeIP.To4())) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
+
+			// Remove the position in the roaming bitmap
+			dhcpHandler.available.Remove(position)
+		}
+	}
 }

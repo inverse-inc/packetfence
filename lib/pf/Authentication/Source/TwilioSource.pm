@@ -25,6 +25,7 @@ has '+dynamic_routing_module'   => (is => 'rw', default => 'Authentication::SMS'
 has 'account_sid'               => (isa => 'Str', is => 'rw');
 has 'auth_token'                => (isa => 'Str', is => 'rw');
 has 'twilio_phone_number'       => (isa => 'Str', is => 'rw', default => '+15555551234');
+has 'message'                   => (isa => 'Maybe[Str]', is => 'rw', default => 'PIN: $pin');
 
 =head2 available_rule_classes
 

@@ -40,7 +40,7 @@ The main definition block
 
 has_block 'definition' =>
   (
-    render_list => [qw(id description root_module preregistration autoregister reuse_dot1x_credentials dot1x_recompute_role_from_portal)],
+    render_list => [qw(id description root_module status preregistration autoregister reuse_dot1x_credentials dot1x_recompute_role_from_portal dpsk default_psk_key unreg_on_acct_stop)],
   );
 
 =head2 captive_portal
@@ -197,6 +197,54 @@ has_field 'autoregister' =>
    unchecked_value => 'disabled',
    tags => { after_element => \&help,
              help => 'This activates automatic registation of devices for the profile. Devices will not be shown a captive portal and RADIUS authentication credentials will be used to register the device. This option only makes sense in the context of an 802.1x authentication.' },
+  );
+
+=head2 dpsk
+
+Controls whether or not this connection profile to enabled Dynamic PSK
+
+=cut
+
+has_field 'dpsk' =>
+  (
+   type => 'Toggle',
+   label => 'Enable DPSK',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   default => 'disabled',
+   tags => { after_element => \&help,
+             help => 'This enables the Dynamic PSK feature on this connection profile. It means that the RADIUS server will answer requests with specific attributes like the PSK key to use to connect on the SSID.'},
+  );
+
+=head2 default_psk_key
+
+Define the default PSK key to connect on this connection profile
+
+=cut
+
+has_field 'default_psk_key' =>
+  (
+   type => 'Text',
+   label => 'Default PSK key',
+   tags => { after_element => \&help,
+             help => 'This is the default PSK key when you enable DPSK on this connection profile. The minimum length is eight characters.' },
+  );
+
+=head2 unreg_on_acct_stop
+
+Controls whether or not this connection profile will unregister a devices on accounting stop
+
+=cut
+
+has_field 'unreg_on_acct_stop' =>
+  (
+   type => 'Toggle',
+   label => 'Automatically deregister devices on accounting stop',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   default => 'disabled',
+   tags => { after_element => \&help,
+             help => 'This activates automatic deregistation of devices for the profile if PacketFence receives a RADIUS accounting stop.' },
   );
 
 =head2 sources
@@ -428,6 +476,22 @@ has_field 'access_registration_when_registered' =>
              help => 'This allows already registered users to be able to re-register their device by first accessing the status page and then accessing the portal. This is useful to allow users to extend their access even though they are already registered.' },
   );
 
+=head2 status
+
+The status of the profile if it is enabled or disabled
+
+=cut
+
+has_field 'status' =>
+  (
+   type => 'Toggle',
+   label => 'Profile is enable/disabled',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   tags => { after_element => \&help,
+             help => 'If profile is disabled it will not used' },
+   default => 'enabled'
+  );
 
 =head1 METHODS
 

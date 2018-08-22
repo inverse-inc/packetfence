@@ -56,16 +56,13 @@ sub begin :Private {
 
     $model = $c->model("Config::Switch");
     ($status, $switch_default) = $model->read('default');
-    ($status, $roles) = $c->model('Config::Roles')->listFromDB;
-    $roles = undef unless(is_success($status));
-    $c->stash->{roles} = $roles;
-
     $c->stash->{current_model_instance} = $model;
     $c->stash->{switch_default} = $switch_default;
-
     $c->stash->{model_name} = "Switch";
     $c->stash->{controller_namespace} = "Config::Switch";
-    $c->stash->{current_form_instance} = $c->form("Config::Switch", roles => $c->stash->{roles});
+    my $form = $c->form("Config::Switch");
+    $c->stash->{current_form_instance} = $form;
+    $c->stash->{roles} = $form->roles;
 }
 
 after qw(list search) => sub {
@@ -329,16 +326,8 @@ sub import_csv :Local :Args(0) :AdminRole('SWITCHES_CREATE') {
         $hostname =~ tr/\r\n//d;
 
         my $switch_ip = @$fields[1];
-        # Don't want to process them twice...
-        my ( $status, $msg ) = $model->hasId($switch_ip);
-        if (is_success($status)) {
-            $skip++;
-            $logger->warn("This entry has been skipped because this IP: $switch_ip is existing in the switch configuration file.");
-            next;
-        }
-    
         my $switch_group = @$fields[2];
-        ( $status, $msg ) = $model_group->hasId($switch_group);
+        my ( $status, $msg ) = $model_group->hasId($switch_group);
         if (is_error($status)) {
             $skip++;
             $logger->warn("This entry has been skipped because the switch group: $switch_group does not exist in the switch configutaion.");
@@ -346,11 +335,13 @@ sub import_csv :Local :Args(0) :AdminRole('SWITCHES_CREATE') {
         }
 
         my $assignements = {
-            description => $hostname,
             group => $switch_group,
         };
 
-        $model->create($switch_ip, $assignements);
+        # Only update the description if its non-empty
+        $assignements->{description} = $hostname if(length($hostname) > 0);
+
+        $model->update_or_create($switch_ip, $assignements);
         $switches++;
     }
     unless ($csv->eof) {

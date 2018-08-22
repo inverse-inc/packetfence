@@ -111,6 +111,7 @@ use pf::constants;
 use pf::config qw(
     $MAC
     $SSID
+    $WEBAUTH_WIRELESS
 );
 use pf::web::util;
 use pf::util;
@@ -435,6 +436,14 @@ sub returnRadiusAccessAccept {
             push @av_pairs, "url-redirect=".$redirect_url;
         }
     }
+    if ($args->{profile}->dpskEnabled()) {
+        if (defined($args->{owner}->{psk})) {
+            push @av_pairs, "psk=$args->{owner}->{psk}";
+        } else {
+            push @av_pairs, "psk=$args->{profile}->{_default_psk_key}";
+        }
+        push @av_pairs, "psk-mode=ascii";
+    }
 
     $radius_reply_ref->{'Cisco-AVPair'} = \@av_pairs;
 
@@ -634,6 +643,7 @@ sub parseExternalPortalRequest {
         client_ip               => $client_ip,
         redirect_url            => $redirect_url,
         synchronize_locationlog => $FALSE,
+        connection_type         => $WEBAUTH_WIRELESS,
     );
 
     return \%params;

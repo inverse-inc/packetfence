@@ -1,3 +1,5 @@
+#!/usr/bin/perl
+
 =head1 NAME
 
 pf::filter_engine - test for pf::filter_engine

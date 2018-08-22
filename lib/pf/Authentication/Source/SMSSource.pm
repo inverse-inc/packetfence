@@ -12,7 +12,6 @@ use pf::constants qw($TRUE $FALSE);
 use pf::Authentication::constants;
 use pf::sms_carrier;
 use pf::log;
-use pf::constants qw($TRUE $FALSE);
 
 use Moose;
 extends 'pf::Authentication::Source';
@@ -21,6 +20,8 @@ with qw(pf::Authentication::CreateLocalAccountRole pf::Authentication::SMSRole);
 has '+class'          => (default => 'external');
 has '+type'           => (default => 'SMS');
 has 'sms_carriers'    => (isa => 'ArrayRef', is => 'rw', default => sub {[]});
+has 'sms_activation_timeout' => ( isa => 'Str', is => 'rw', default => '10m');
+has 'message'         => ( isa => 'Maybe[Str]', is => 'rw', default => 'PIN: $pin');
 
 =head1 METHODS
 

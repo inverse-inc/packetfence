@@ -1,5 +1,5 @@
 diff --git a/conf/mariadb/mariadb.conf.tt.example b/conf/mariadb/mariadb.conf.tt.example
-index 2ef5c25..7409c2a 100644
+index 2ef5c25a8..7409c2adc 100644
 --- a/conf/mariadb/mariadb.conf.tt.example
 +++ b/conf/mariadb/mariadb.conf.tt.example
 @@ -18,7 +18,7 @@ skip-networking
@@ -12,7 +12,7 @@ index 2ef5c25..7409c2a 100644
  key_buffer_size = [% key_buffer_size %]M
  max_allowed_packet = [% max_allowed_packet %]M
 diff --git a/conf/monitoring/netdata.conf.example b/conf/monitoring/netdata.conf.example
-index d3a3cd9..fe284fc 100644
+index d3a3cd9b6..fe284fcaa 100644
 --- a/conf/monitoring/netdata.conf.example
 +++ b/conf/monitoring/netdata.conf.example
 @@ -8,7 +8,7 @@
@@ -25,10 +25,10 @@ index d3a3cd9..fe284fc 100644
          # Netdata is not designed to be exposed to potentially hostile networks
          # See https://github.com/firehol/netdata/issues/164
 diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
-index b7840af..5d69d6c 100644
+index adcd37e3f..a1e5324c9 100644
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
-@@ -392,7 +392,7 @@ radiusd=enabled
+@@ -398,7 +398,7 @@ radiusd=enabled
  # services.radiusd_binary
  # 
  # Location of the named binary. Only necessary to change if you are not running the RPMed version.
@@ -37,7 +37,7 @@ index b7840af..5d69d6c 100644
  #
  # services.iptables
  #
-@@ -457,7 +457,7 @@ httpd_proxy=enabled
+@@ -463,7 +463,7 @@ httpd_proxy=enabled
  # services.httpd_binary
  #
  # Location of the apache binary. Only necessary to change if you are not running the RPMed version.
@@ -46,7 +46,7 @@ index b7840af..5d69d6c 100644
  #
  # services.snmptrapd
  #
-@@ -555,7 +555,7 @@ openssl_binary=/usr/bin/openssl
+@@ -561,7 +561,7 @@ openssl_binary=/usr/bin/openssl
  # services.arp_binary
  # 
  # location of the arp binary. only necessary to change if you are not running the rpmed version.
@@ -55,7 +55,7 @@ index b7840af..5d69d6c 100644
  
  #
  # services.routes
-@@ -584,8 +584,8 @@ tc=enabled
+@@ -590,8 +590,8 @@ tc=enabled
  #
  # services.tc_binary
  #
@@ -66,119 +66,227 @@ index b7840af..5d69d6c 100644
  # services.pfdns
  #
  # Should pfdns be managed by PacketFence?
+diff --git a/conf/systemd/packetfence-etcd.service b/conf/systemd/packetfence-etcd.service
+index db0d674a5..0dc860177 100644
+--- a/conf/systemd/packetfence-etcd.service
++++ b/conf/systemd/packetfence-etcd.service
+@@ -11,7 +11,7 @@ Restart=always
+ RestartSec=5s
+ LimitNOFILE=40000
+ TimeoutStartSec=0
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::etcd' -e 'pf::services::manager::etcd->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::etcd' -e 'pf::services::manager::etcd->new()->generateConfig()'
+ ExecStart=/usr/bin/etcd --config-file /usr/local/pf/var/conf/etcd.conf.yml
+ Slice=packetfence.slice
+ 
+diff --git a/conf/systemd/packetfence-haproxy-db.service b/conf/systemd/packetfence-haproxy-db.service
+index e5067dec2..cfda22305 100644
+--- a/conf/systemd/packetfence-haproxy-db.service
++++ b/conf/systemd/packetfence-haproxy-db.service
+@@ -7,7 +7,7 @@ Wants=packetfence-config.service
+ Type=notify
+ StartLimitBurst=3
+ StartLimitInterval=10
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::haproxy_db' -e 'pf::services::manager::haproxy_db->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::haproxy_db' -e 'pf::services::manager::haproxy_db->new()->generateConfig()'
+ ExecStart=/usr/sbin/haproxy -Ws -f /usr/local/pf/var/conf/haproxy-db.conf -p /usr/local/pf/var/run/haproxy-db.pid
+ ExecReload=/bin/kill -USR2 $MAINPID
+ Restart=on-failure
+diff --git a/conf/systemd/packetfence-haproxy-portal.service b/conf/systemd/packetfence-haproxy-portal.service
+index 28bb594f7..4cfff9dc0 100644
+--- a/conf/systemd/packetfence-haproxy-portal.service
++++ b/conf/systemd/packetfence-haproxy-portal.service
+@@ -7,7 +7,7 @@ Wants=packetfence-config.service
+ Type=notify
+ StartLimitBurst=3
+ StartLimitInterval=10
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::haproxy_portal' -e 'pf::services::manager::haproxy_portal->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::haproxy_portal' -e 'pf::services::manager::haproxy_portal->new()->generateConfig()'
+ ExecStart=/usr/sbin/haproxy -Ws -f /usr/local/pf/var/conf/haproxy-portal.conf -p /usr/local/pf/var/run/haproxy-portal.pid
+ ExecReload=/bin/kill -USR2 $MAINPID
+ Restart=on-failure
 diff --git a/conf/systemd/packetfence-httpd.aaa.service b/conf/systemd/packetfence-httpd.aaa.service
-index 9b6a3ef..3eafbd4 100644
+index 3ffc3abdd..74bc48aa3 100644
 --- a/conf/systemd/packetfence-httpd.aaa.service
 +++ b/conf/systemd/packetfence-httpd.aaa.service
-@@ -12,7 +12,7 @@ StartLimitInterval=10
+@@ -10,8 +10,8 @@ Before=packetfence-radiusd-auth.service packetfence-radiusd-acct.service packetf
+ StartLimitBurst=3
+ StartLimitInterval=10
  Type=notify
- PIDFile=/usr/local/pf/var/run/httpd.aaa.pid
- ExecStartPre=/usr/local/pf/bin/pfcmd service httpd.aaa generateconfig
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_aaa' -e 'pf::services::manager::httpd_aaa->new()->generateConfig()'
 -ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.aaa -DFOREGROUND  -Drhel
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_aaa' -e 'pf::services::manager::httpd_aaa->new()->generateConfig()'
 +ExecStart=/usr/sbin/apache2 -f /usr/local/pf/var/conf/httpd.conf.d/httpd.aaa -DFOREGROUND  -Ddebian
  ExecReload=/bin/kill -USR1 ${MAINPID}
  PrivateTmp=true
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-httpd.admin.service b/conf/systemd/packetfence-httpd.admin.service
-index cb5f0e4..1fe9ac8 100644
+index d350773aa..a71dfe5b6 100644
 --- a/conf/systemd/packetfence-httpd.admin.service
 +++ b/conf/systemd/packetfence-httpd.admin.service
-@@ -13,7 +13,7 @@ PIDFile=/usr/local/pf/var/run/httpd.admin.pid
+@@ -11,8 +11,8 @@ StartLimitInterval=10
+ Type=notify
  Environment=X_PORTAL=default
  Environment=PF_SKIP_MAKE_IMMUTABLE=1
- ExecStartPre=/usr/local/pf/bin/pfcmd service httpd.admin generateconfig
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_admin' -e 'pf::services::manager::httpd_admin->new()->generateConfig()'
 -ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.admin -DFOREGROUND  -Drhel
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_admin' -e 'pf::services::manager::httpd_admin->new()->generateConfig()'
 +ExecStart=/usr/sbin/apache2 -f /usr/local/pf/var/conf/httpd.conf.d/httpd.admin -DFOREGROUND  -Ddebian
  ExecReload=/bin/kill -USR1 ${MAINPID}
  ExecStop=/bin/kill -WINCH ${MAINPID}
  # We want systemd to give httpd some time to finish gracefully, but still want
 diff --git a/conf/systemd/packetfence-httpd.collector.service b/conf/systemd/packetfence-httpd.collector.service
-index 11a8f73..bbb263b 100644
+index 8972596b2..26157e204 100644
 --- a/conf/systemd/packetfence-httpd.collector.service
 +++ b/conf/systemd/packetfence-httpd.collector.service
-@@ -11,7 +11,7 @@ StartLimitInterval=10
+@@ -9,8 +9,8 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
+ StartLimitBurst=3
+ StartLimitInterval=10
  Type=notify
- PIDFile=/usr/local/pf/var/run/httpd.collector.pid
- ExecStartPre=/usr/local/pf/bin/pfcmd service httpd.collector generateconfig
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_collector' -e 'pf::services::manager::httpd_collector->new()->generateConfig()'
 -ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.collector -DFOREGROUND  -Drhel
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_collector' -e 'pf::services::manager::httpd_collector->new()->generateConfig()'
 +ExecStart=/usr/sbin/apache2 -f /usr/local/pf/var/conf/httpd.conf.d/httpd.collector -DFOREGROUND  -Ddebian
  ExecReload=/bin/kill -USR1 ${MAINPID}
  ExecStop=/bin/kill -WINCH ${MAINPID}
  # We want systemd to give httpd some time to finish gracefully, but still want
 diff --git a/conf/systemd/packetfence-httpd.parking.service b/conf/systemd/packetfence-httpd.parking.service
-index 6265027..5e483a5 100644
+index 7c7bf8c59..380ad92bc 100644
 --- a/conf/systemd/packetfence-httpd.parking.service
 +++ b/conf/systemd/packetfence-httpd.parking.service
-@@ -10,7 +10,7 @@ StartLimitBurst=3
+@@ -9,8 +9,8 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
+ StartLimitBurst=3
  StartLimitInterval=10
  Type=notify
- ExecStartPre=/usr/local/pf/bin/pfcmd service httpd.parking generateconfig
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_parking' -e 'pf::services::manager::httpd_parking->new()->generateConfig()'
 -ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.parking -DFOREGROUND  -Drhel
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_parking' -e 'pf::services::manager::httpd_parking->new()->generateConfig()'
 +ExecStart=/usr/sbin/apache2 -f /usr/local/pf/var/conf/httpd.conf.d/httpd.parking -DFOREGROUND  -Ddebian
  ExecReload=/bin/kill -USR1 ${MAINPID}
  ExecStop=/bin/kill -WINCH ${MAINPID}
  # We want systemd to give httpd some time to finish gracefully, but still want
 diff --git a/conf/systemd/packetfence-httpd.portal.service b/conf/systemd/packetfence-httpd.portal.service
-index abfa583..2de5f74 100644
+index 77b6c628b..be44bfc5c 100644
 --- a/conf/systemd/packetfence-httpd.portal.service
 +++ b/conf/systemd/packetfence-httpd.portal.service
-@@ -11,7 +11,7 @@ StartLimitInterval=10
+@@ -9,8 +9,8 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
+ StartLimitBurst=3
+ StartLimitInterval=10
  Type=notify
- PIDFile=/usr/local/pf/var/run/httpd.portal.pid
- ExecStartPre=/usr/local/pf/bin/pfcmd service httpd.portal generateconfig
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_portal' -e 'pf::services::manager::httpd_portal->new()->generateConfig()'
 -ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.portal -DFOREGROUND  -Drhel
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_portal' -e 'pf::services::manager::httpd_portal->new()->generateConfig()'
 +ExecStart=/usr/sbin/apache2 -f /usr/local/pf/var/conf/httpd.conf.d/httpd.portal -DFOREGROUND  -Ddebian
  ExecReload=/bin/kill -USR1 ${MAINPID}
  ExecStop=/bin/kill -WINCH ${MAINPID}
  # We want systemd to give httpd some time to finish gracefully, but still want
 diff --git a/conf/systemd/packetfence-httpd.proxy.service b/conf/systemd/packetfence-httpd.proxy.service
-index 9181847..e8a259b 100644
+index 2a03c81c9..dfa6ccdef 100644
 --- a/conf/systemd/packetfence-httpd.proxy.service
 +++ b/conf/systemd/packetfence-httpd.proxy.service
-@@ -11,7 +11,7 @@ StartLimitInterval=10
+@@ -9,8 +9,8 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
+ StartLimitBurst=3
+ StartLimitInterval=10
  Type=notify
- PIDFile=/usr/local/pf/var/run/httpd.proxy.pid
- ExecStartPre=/usr/local/pf/bin/pfcmd service httpd.proxy generateconfig
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_proxy' -e 'pf::services::manager::httpd_proxy->new()->generateConfig()'
 -ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.proxy -DFOREGROUND  -Drhel
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_proxy' -e 'pf::services::manager::httpd_proxy->new()->generateConfig()'
 +ExecStart=/usr/sbin/apache2 -f /usr/local/pf/var/conf/httpd.conf.d/httpd.proxy -DFOREGROUND  -Ddebian
  ExecReload=/bin/kill -USR1 ${MAINPID}
  PrivateTmp=true
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-httpd.webservices.service b/conf/systemd/packetfence-httpd.webservices.service
-index 96b244a..ae553d7 100644
+index 55264303a..8716edc20 100644
 --- a/conf/systemd/packetfence-httpd.webservices.service
 +++ b/conf/systemd/packetfence-httpd.webservices.service
-@@ -11,7 +11,7 @@ StartLimitInterval=10
+@@ -9,8 +9,8 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
+ StartLimitBurst=3
+ StartLimitInterval=10
  Type=notify
- PIDFile=/usr/local/pf/var/run/httpd.webservices.pid
- ExecStartPre=/usr/local/pf/bin/pfcmd service httpd.webservices generateconfig
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_webservices' -e 'pf::services::manager::httpd_webservices->new()->generateConfig()'
 -ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.webservices -DFOREGROUND  -Drhel
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_webservices' -e 'pf::services::manager::httpd_webservices->new()->generateConfig()'
 +ExecStart=/usr/sbin/apache2 -f /usr/local/pf/var/conf/httpd.conf.d/httpd.webservices -DFOREGROUND  -Ddebian
  ExecReload=/bin/kill -USR1 ${MAINPID}
  ExecStop=/bin/kill -WINCH ${MAINPID}
  # We want systemd to give httpd some time to finish gracefully, but still want
 diff --git a/conf/systemd/packetfence-iptables.service b/conf/systemd/packetfence-iptables.service
-index f6953da..26df3dc 100644
+index f049b9707..1b158b40f 100644
 --- a/conf/systemd/packetfence-iptables.service
 +++ b/conf/systemd/packetfence-iptables.service
-@@ -7,8 +7,8 @@ StartLimitBurst=3
+@@ -5,8 +5,8 @@ Wants=packetfence-config.service
+ [Service]
+ StartLimitBurst=3
  StartLimitInterval=10
- Type=oneshot
- RemainAfterExit=yes
--ExecStart=/bin/perl -I/usr/local/pf/lib -Mpf::db -Mpf::services::manager::iptables -e 'my $db ; while(!$db) { eval { $db = db_connect() } ; sleep 1 } ; pf::services::manager::iptables->new()->_start()'
+-ExecStart=/bin/perl -I/usr/local/pf/lib -Mpf::db -Mpf::services::manager::iptables -e 'my $db ; while(!$db) { eval { $db = db_connect() } ; sleep 1 } ; pf::services::manager::iptables->new()->startAndCheck()'
 -ExecStop=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::iptables' -e 'pf::services::manager::iptables->new()->_stop()'
-+ExecStart=/usr/bin/perl -I/usr/local/pf/lib -Mpf::db -Mpf::services::manager::iptables -e 'my $db ; while(!$db) { eval { $db = db_connect() } ; sleep 1 } ; pf::services::manager::iptables->new()->_start()'
++ExecStart=/usr/bin/perl -I/usr/local/pf/lib -Mpf::db -Mpf::services::manager::iptables -e 'my $db ; while(!$db) { eval { $db = db_connect() } ; sleep 1 } ; pf::services::manager::iptables->new()->startAndCheck()'
 +ExecStop=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::iptables' -e 'pf::services::manager::iptables->new()->_stop()'
  Slice=packetfence.slice
  
  [Install]
+diff --git a/conf/systemd/packetfence-keepalived.service b/conf/systemd/packetfence-keepalived.service
+index 18625cd87..aa9ce04b4 100644
+--- a/conf/systemd/packetfence-keepalived.service
++++ b/conf/systemd/packetfence-keepalived.service
+@@ -8,7 +8,7 @@ StartLimitBurst=3
+ StartLimitInterval=10
+ Type=forking
+ KillMode=process
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::keepalived' -e 'pf::services::manager::keepalived->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::keepalived' -e 'pf::services::manager::keepalived->new()->generateConfig()'
+ ExecStart=/usr/sbin/keepalived -f /usr/local/pf/var/conf/keepalived.conf --pid=/usr/local/pf/var/run/keepalived.pid
+ ExecReload=/bin/kill -HUP $MAINPID
+ Restart=on-failure
+diff --git a/conf/systemd/packetfence-netdata.service b/conf/systemd/packetfence-netdata.service
+index 1245a903e..f3aaa5685 100644
+--- a/conf/systemd/packetfence-netdata.service
++++ b/conf/systemd/packetfence-netdata.service
+@@ -12,7 +12,7 @@ RuntimeDirectoryMode=0775
+ ExecStart=/usr/sbin/netdata -P /run/netdata/netdata.pid -D -c /usr/local/pf/var/conf/monitoring/netdata.conf 
+ ExecStartPre=/bin/mkdir -p /var/cache/netdata
+ ExecStartPre=/bin/chown -R netdata:netdata /var/cache/netdata
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::netdata' -e 'pf::services::manager::netdata->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::netdata' -e 'pf::services::manager::netdata->new()->generateConfig()'
+ PermissionsStartOnly=true
+ 
+ TimeoutSec=60
+diff --git a/conf/systemd/packetfence-pfdns.service b/conf/systemd/packetfence-pfdns.service
+index 1467e7088..adb534223 100644
+--- a/conf/systemd/packetfence-pfdns.service
++++ b/conf/systemd/packetfence-pfdns.service
+@@ -8,7 +8,7 @@ Before=packetfence-httpd.portal.service
+ StartLimitBurst=3
+ StartLimitInterval=60
+ Type=notify
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::pfdns' -e 'pf::services::manager::pfdns->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::pfdns' -e 'pf::services::manager::pfdns->new()->generateConfig()'
+ ExecStart=/usr/local/pf/sbin/pfdns -conf=/usr/local/pf/var/conf/pfdns.conf
+ Restart=on-failure
+ Slice=packetfence.slice
+diff --git a/conf/systemd/packetfence-pfqueue.service b/conf/systemd/packetfence-pfqueue.service
+index f14e53bfe..4fc2f0eed 100644
+--- a/conf/systemd/packetfence-pfqueue.service
++++ b/conf/systemd/packetfence-pfqueue.service
+@@ -9,7 +9,7 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
+ Type=notify
+ StartLimitBurst=3
+ StartLimitInterval=10
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::pfqueue' -e 'pf::services::manager::pfqueue->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::pfqueue' -e 'pf::services::manager::pfqueue->new()->generateConfig()'
+ ExecStart=/usr/local/pf/sbin/pfqueue
+ User=pf
+ Restart=on-failure
 diff --git a/conf/systemd/packetfence-radiusd-acct.service b/conf/systemd/packetfence-radiusd-acct.service
-index e303fbd..4ee4b58 100644
+index e91764248..3a502cbb1 100644
 --- a/conf/systemd/packetfence-radiusd-acct.service
 +++ b/conf/systemd/packetfence-radiusd-acct.service
-@@ -14,8 +14,8 @@ StartLimitBurst=3
+@@ -11,10 +11,10 @@ Type=notify
+ WatchdogSec=10
+ StartLimitBurst=3
  StartLimitInterval=10
- PIDFile=/usr/local/pf/var/run/radiusd-acct.pid
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::radiusd' -e 'pf::services::manager::radiusd->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::radiusd' -e 'pf::services::manager::radiusd->new()->generateConfig()'
  ExecStartPre=/usr/local/pf/bin/pfcmd service radiusd generateconfig
 -ExecStartPre=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n acct -Cxm -lstdout 
 -ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n acct -fm 
@@ -188,67 +296,101 @@ index e303fbd..4ee4b58 100644
  Slice=packetfence.slice
  
 diff --git a/conf/systemd/packetfence-radiusd-auth.service b/conf/systemd/packetfence-radiusd-auth.service
-index 8a684cb..873d3b1 100644
+index ac97166f5..3f2702bbf 100644
 --- a/conf/systemd/packetfence-radiusd-auth.service
 +++ b/conf/systemd/packetfence-radiusd-auth.service
-@@ -13,8 +13,8 @@ StartLimitBurst=3
+@@ -11,9 +11,9 @@ Type=notify
+ WatchdogSec=10
+ StartLimitBurst=3
  StartLimitInterval=10
- PIDFile=/usr/local/pf/var/run/radiusd-auth.pid
- ExecStartPre=/usr/local/pf/bin/pfcmd service radiusd generateconfig
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::radiusd' -e 'pf::services::manager::radiusd->new()->generateConfig()'
 -ExecStartPre=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n auth -Cxm -lstdout 
 -ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n auth -fm 
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::radiusd' -e 'pf::services::manager::radiusd->new()->generateConfig()'
 +ExecStartPre=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n auth -Cxm -lstdout 
 +ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n auth -fm 
  Restart=on-failure
  Slice=packetfence.slice
  
 diff --git a/conf/systemd/packetfence-radiusd-cli.service b/conf/systemd/packetfence-radiusd-cli.service
-index 2f0e798..0978ac3 100644
+index 2c9dd046f..29c1b4e3d 100644
 --- a/conf/systemd/packetfence-radiusd-cli.service
 +++ b/conf/systemd/packetfence-radiusd-cli.service
-@@ -14,8 +14,8 @@ StartLimitBurst=3
+@@ -11,9 +11,9 @@ Type=notify
+ WatchdogSec=10
+ StartLimitBurst=3
  StartLimitInterval=10
- PIDFile=/usr/local/pf/var/run/radiusd-cli.pid
- ExecStartPre=/usr/local/pf/bin/pfcmd service radiusd generateconfig
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::radiusd' -e 'pf::services::manager::radiusd->new()->generateConfig()'
 -ExecStartPre=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n cli -Cxm -lstdout 
 -ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n cli -fm 
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::radiusd' -e 'pf::services::manager::radiusd->new()->generateConfig()'
 +ExecStartPre=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n cli -Cxm -lstdout 
 +ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n cli -fm 
  Restart=on-failure
  Slice=packetfence.slice
  
 diff --git a/conf/systemd/packetfence-radiusd-eduroam.service b/conf/systemd/packetfence-radiusd-eduroam.service
-index 4cd67a4..5fd2310 100644
+index 5873cc63d..031cd11ac 100644
 --- a/conf/systemd/packetfence-radiusd-eduroam.service
 +++ b/conf/systemd/packetfence-radiusd-eduroam.service
-@@ -13,8 +13,8 @@ StartLimitBurst=3
+@@ -10,9 +10,9 @@ Type=notify
+ WatchdogSec=10
+ StartLimitBurst=3
  StartLimitInterval=10
- PIDFile=/usr/local/pf/var/run/radiusd-eduroam.pid
- ExecStartPre=/usr/local/pf/bin/pfcmd service radiusd generateconfig
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::radiusd' -e 'pf::services::manager::radiusd->new()->generateConfig()'
 -ExecStartPre=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n eduroam -Cxm -lstdout
 -ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n eduroam -fm 
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::radiusd' -e 'pf::services::manager::radiusd->new()->generateConfig()'
 +ExecStartPre=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n eduroam -Cxm -lstdout
 +ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n eduroam -fm 
  Restart=on-failure
  Slice=packetfence.slice
  
 diff --git a/conf/systemd/packetfence-radiusd-load_balancer.service b/conf/systemd/packetfence-radiusd-load_balancer.service
-index 1a58e0b..5db0526 100644
+index 3ac9cf7e5..98aaf1636 100644
 --- a/conf/systemd/packetfence-radiusd-load_balancer.service
 +++ b/conf/systemd/packetfence-radiusd-load_balancer.service
-@@ -13,8 +13,8 @@ StartLimitBurst=3
+@@ -11,9 +11,9 @@ Type=notify
+ WatchdogSec=10
+ StartLimitBurst=3
  StartLimitInterval=10
- PIDFile=/usr/local/pf/var/run/radiusd-load_balancer.pid
- ExecStartPre=/usr/local/pf/bin/pfcmd service radiusd generateconfig
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::radiusd' -e 'pf::services::manager::radiusd->new()->generateConfig()'
 -ExecStartPre=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n load_balancer -Cxm -lstdout
 -ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n load_balancer -fm 
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::radiusd' -e 'pf::services::manager::radiusd->new()->generateConfig()'
 +ExecStartPre=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n load_balancer -Cxm -lstdout
 +ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n load_balancer -fm 
  Restart=on-failure
  Slice=packetfence.slice
  
+diff --git a/conf/systemd/packetfence-redis_ntlm_cache.service b/conf/systemd/packetfence-redis_ntlm_cache.service
+index 5c1237d27..3d44b6872 100644
+--- a/conf/systemd/packetfence-redis_ntlm_cache.service
++++ b/conf/systemd/packetfence-redis_ntlm_cache.service
+@@ -6,7 +6,7 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
+ [Service]
+ StartLimitBurst=3
+ StartLimitInterval=10
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::redis_ntlm_cache' -e 'pf::services::manager::redis_ntlm_cache->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::redis_ntlm_cache' -e 'pf::services::manager::redis_ntlm_cache->new()->generateConfig()'
+ ExecStart=/usr/bin/redis-server /usr/local/pf/var/conf/redis_ntlm_cache.conf --daemonize no
+ ExecStop=/bin/kill $MAINPID
+ Restart=on-failure
+diff --git a/conf/systemd/packetfence-redis_queue.service b/conf/systemd/packetfence-redis_queue.service
+index fa2350a94..8c23bc41f 100644
+--- a/conf/systemd/packetfence-redis_queue.service
++++ b/conf/systemd/packetfence-redis_queue.service
+@@ -6,7 +6,7 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
+ [Service]
+ StartLimitBurst=3
+ StartLimitInterval=10
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::redis_queue' -e 'pf::services::manager::redis_queue->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::redis_queue' -e 'pf::services::manager::redis_queue->new()->generateConfig()'
+ ExecStart=/usr/bin/redis-server /usr/local/pf/var/conf/redis_queue.conf --daemonize no
+ ExecStop=/bin/kill $MAINPID
+ Restart=on-failure
 diff --git a/conf/systemd/packetfence-routes.service b/conf/systemd/packetfence-routes.service
-index e0e0c2c..880121b 100644
+index 517551b73..29ddbe5fd 100644
 --- a/conf/systemd/packetfence-routes.service
 +++ b/conf/systemd/packetfence-routes.service
 @@ -8,8 +8,8 @@ StartLimitBurst=3
@@ -259,11 +401,24 @@ index e0e0c2c..880121b 100644
 -ExecStop=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::routes' -e 'pf::services::manager::routes->new()->_stop()'
 +ExecStart=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::routes' -e 'pf::services::manager::routes->new()->_start()'
 +ExecStop=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::routes' -e 'pf::services::manager::routes->new()->_stop()'
- Slice=packetfence-base.slice
+ Slice=packetfence.slice
  
  [Install]
+diff --git a/conf/systemd/packetfence-snmptrapd.service b/conf/systemd/packetfence-snmptrapd.service
+index d4dce4261..f7be83907 100644
+--- a/conf/systemd/packetfence-snmptrapd.service
++++ b/conf/systemd/packetfence-snmptrapd.service
+@@ -7,7 +7,7 @@ Wants=packetfence-base.target packetfence-config.service packetfence-iptables.se
+ StartLimitBurst=3
+ StartLimitInterval=10
+ Type=notify
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::snmptrapd' -e 'pf::services::manager::snmptrapd->new()->generateConfig()'
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::snmptrapd' -e 'pf::services::manager::snmptrapd->new()->generateConfig()'
+ ExecStart=/usr/sbin/snmptrapd -f -n -c /usr/local/pf/var/conf/snmptrapd.conf -C -A -Lf /usr/local/pf/logs/snmptrapd.log -p /usr/local/pf/var/run/snmptrapd.pid -On 
+ ExecReload=/bin/kill -HUP $MAINPID
+ Slice=packetfence.slice
 diff --git a/conf/systemd/packetfence-tc.service b/conf/systemd/packetfence-tc.service
-index 88093fb..99dd13b 100644
+index 1406b18c2..deb989c29 100644
 --- a/conf/systemd/packetfence-tc.service
 +++ b/conf/systemd/packetfence-tc.service
 @@ -8,8 +8,8 @@ StartLimitBurst=3
@@ -277,16 +432,3 @@ index 88093fb..99dd13b 100644
  Slice=packetfence.slice
  
  [Install]
-diff --git a/go/database/connection.go b/go/database/connection.go
-index fa180c3..87d169a 100644
---- a/go/database/connection.go
-+++ b/go/database/connection.go
-@@ -9,7 +9,7 @@ import (
- func Connect(user, pass, host, port, dbname string) *sql.DB {
- 	var where string
- 	if host == "localhost" {
--		where = "unix(/var/lib/mysql/mysql.sock)"
-+		where = "unix(/var/run/mysqld/mysqld.sock)"
- 	} else {
- 		where = "tcp(" + host + ":" + port + ")"
- 	}

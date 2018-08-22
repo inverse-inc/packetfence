@@ -152,7 +152,7 @@ sub nodes {
         }
         if (!defined($node) || (ref($node) eq 'HASH' && $node->{'status'} ne $pf::node::STATUS_REGISTERED)) {
             $logger->debug("Register MAC $mac ($pid)");
-            $result = node_register($mac, $pid, %data);
+            ($result, my $msg) = node_register($mac, $pid, %data);
         }
         else {
             $logger->debug("Modify already registered MAC $mac ($pid)");

@@ -12,7 +12,10 @@ Form definition to create or update a network switch.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
-with 'pfappserver::Base::Form::Role::Help';
+with qw(
+    pfappserver::Base::Form::Role::Help
+    pfappserver::Role::Form::RolesAttribute
+);
 
 use File::Find qw(find);
 use File::Spec::Functions;
@@ -29,8 +32,6 @@ use pf::SwitchFactory;
 use pf::util;
 use List::MoreUtils qw(any);
 use pf::ConfigStore::SwitchGroup;
-
-has 'roles' => ( is => 'rw' );
 
 ## Definition
 has_field 'id' =>

@@ -19,9 +19,6 @@ use pf::config;
 use pf::util;
 use File::Find qw(find);
 
-## Definition
-has 'roles' => (is => 'ro', default => sub {[]});
-
 has_field 'domain' =>
   (
    type => 'Text',

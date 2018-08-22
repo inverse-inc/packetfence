@@ -29,7 +29,9 @@ func (fw *WatchGuard) Start(ctx context.Context, info map[string]string, timeout
 	sharedutils.CheckError(err)
 
 	// Use the background context since we don't want the lib to use our context
-	_, err = client.Exchange(fw.RadiusContextWithTimeout(), p, fw.PfconfigHashNS+":"+fw.Port)
+	ctx2, cancel := fw.RadiusContextWithTimeout()
+	defer cancel()
+	_, err = client.Exchange(ctx2, p, fw.PfconfigHashNS+":"+fw.Port)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Couldn't SSO to the WatchGuard, got the following error: %s", err))
 		return false, err
@@ -62,7 +64,9 @@ func (fw *WatchGuard) Stop(ctx context.Context, info map[string]string) (bool, e
 	sharedutils.CheckError(err)
 
 	// Use the background context since we don't want the lib to use our context
-	_, err = client.Exchange(fw.RadiusContextWithTimeout(), p, fw.PfconfigHashNS+":"+fw.Port)
+	ctx2, cancel := fw.RadiusContextWithTimeout()
+	defer cancel()
+	_, err = client.Exchange(ctx2, p, fw.PfconfigHashNS+":"+fw.Port)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Couldn't SSO to the WatchGuard, got the following error: %s", err))
 		return false, err

@@ -117,6 +117,7 @@ use pf::constants;
 use pf::config qw(
     $WIRED_802_1X
     $WIRED_MAC_AUTH
+    $WEBAUTH_WIRED
 );
 use pf::Switch::constants;
 use pf::util;
@@ -657,7 +658,8 @@ sub parseExternalPortalRequest {
         client_ip               => $client_ip,
         redirect_url            => $redirect_url,
         synchronize_locationlog => $FALSE,
-    );
+        connection_type         => $WEBAUTH_WIRED,
+);
 
     return \%params;
 }

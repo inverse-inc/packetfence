@@ -161,7 +161,7 @@ has_field 'user_agent' =>
 has_field 'dhcp_fingerprint' =>
   (
    type => 'Uneditable',
-   label => 'DHCP fingerprint',
+   label => 'DHCP Fingerprint',
   );
 has_field 'dhcp_vendor' =>
   (
@@ -186,7 +186,12 @@ has_field 'device_type' =>
 has_field 'device_class' =>
  (
    type => 'Uneditable',
-   label => 'Device class',
+   label => 'Device Class',
+ );
+has_field 'device_manufacturer' =>
+ (
+   type => 'Uneditable',
+   label => 'Device Manufacturer',
  );
 has_field 'fingerbank_info' =>
   (
@@ -195,7 +200,7 @@ has_field 'fingerbank_info' =>
 has_field 'fingerbank_info.device_fq' =>
  (
    type => 'Uneditable',
-   label => 'Fully qualified device name',
+   label => 'Fully Qualified Device Name',
  );
 has_field 'fingerbank_info.version' =>
  (

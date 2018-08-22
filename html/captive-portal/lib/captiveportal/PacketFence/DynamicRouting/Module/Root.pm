@@ -86,7 +86,7 @@ sub release {
     # One last check for the violations
     return unless($self->handle_violations());
 
-    return $self->app->redirect("http://" . $self->app->request->header("host") . "/access") unless($self->app->request->path eq "access");
+    return $self->app->redirect("http://" . $self->app->request->header("host") . "/access?lang=".$self->app->session->{lang}) unless($self->app->request->path eq "access");
 
     get_logger->info("Releasing device");
 
@@ -94,7 +94,7 @@ sub release {
 
     unless($self->handle_web_form_release){
         reevaluate_access( $self->current_mac, 'manage_register', force => 1 );
-        return $self->render("release.html", $self->_release_args());
+        $self->render("release.html", $self->_release_args());
     }
 }
 

@@ -23,6 +23,7 @@ use pf::node;
 use pf::violation;
 use pf::ip4log;
 use JSON::MaybeXS qw(encode_json);
+use pf::config qw ($WEBAUTH_WIRELESS);
 
 sub description { 'Ruckus SmartZone Wireless Controllers' }
 sub supportsWebFormRegistration { return $FALSE; }
@@ -53,6 +54,7 @@ sub parseExternalPortalRequest {
         redirect_url            => $req->param('url'),
         switch_id               => $req->param('nbiIP'),
         synchronize_locationlog => $TRUE,
+        connection_type         => $WEBAUTH_WIRELESS,
     );
 
     return \%params;

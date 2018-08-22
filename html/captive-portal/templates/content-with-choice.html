@@ -11,7 +11,7 @@
       [% FOREACH module IN modules %]
       <div class="u-padding-vertical-small">
         <a href="/switchto/[% module.id %]" class="c-btn c-btn--secondary c-btn--ghost u-1/1">
-          [% module.description || module.id %]
+          [% i18n(module.description) || i18n(module.id) %]
         </a>
       </div>
       [% END %]

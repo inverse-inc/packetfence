@@ -5,13 +5,19 @@ export const pfSearchConditionType = {
   LIST:                    'list', // is only
   LISTEXTEND:              'list', // is or is not
   SUBSTRING:               'substring',
+  NODE_STATUS:             'node_status',
   ROLE:                    'role',
-  CONNECTION_TYPE:         'connection_type'
+  CONNECTION_TYPE:         'connection_type',
+  ONLINE:                  'online',
+  INTEGER:                 'integer',
+  DATETIME:                'datetime',
+  VOIP:                    'voip'
 }
 
 export const pfSearchConditionValue = {
   TEXT:                    'text',
-  SELECT:                  'select'
+  SELECT:                  'select',
+  DATETIME:                'datetime'
 }
 
 /**
@@ -30,43 +36,127 @@ pfConditionOperators[pfSearchConditionType.BOOL] = {
   'is_true':               null,
   'is_false':              null
 }
+pfConditionOperators[pfSearchConditionType.INTEGER] = {
+  'equals':                pfSearchConditionValue.TEXT,
+  'not_equals':            pfSearchConditionValue.TEXT,
+  'greater_than':          pfSearchConditionValue.TEXT,
+  'less_than':             pfSearchConditionValue.TEXT,
+  'greater_than_equals':   pfSearchConditionValue.TEXT,
+  'less_than_equals':      pfSearchConditionValue.TEXT
+}
+pfConditionOperators[pfSearchConditionType.NODE_STATUS] = {
+  'equals':                pfSearchConditionValue.SELECT,
+  'not_equals':            pfSearchConditionValue.SELECT
+}
 pfConditionOperators[pfSearchConditionType.ROLE] = {
   'equals':                pfSearchConditionValue.SELECT,
   'not_equals':            pfSearchConditionValue.SELECT
 }
 pfConditionOperators[pfSearchConditionType.CONNECTION_TYPE] = {
-  'equals':                    pfSearchConditionValue.SELECT,
-  'not_equals':                pfSearchConditionValue.SELECT
+  'equals':                pfSearchConditionValue.SELECT,
+  'not_equals':            pfSearchConditionValue.SELECT
+}
+pfConditionOperators[pfSearchConditionType.ONLINE] = {
+  'equals':                pfSearchConditionValue.SELECT,
+  'not_equals':            pfSearchConditionValue.SELECT
+}
+pfConditionOperators[pfSearchConditionType.VOIP] = {
+  'equals':                pfSearchConditionValue.SELECT,
+  'not_equals':            pfSearchConditionValue.SELECT
+}
+pfConditionOperators[pfSearchConditionType.VIOLATION] = {
+  'equals':                pfSearchConditionValue.SELECT,
+  'not_equals':            pfSearchConditionValue.SELECT
+}
+pfConditionOperators[pfSearchConditionType.DATETIME] = {
+  'greater_than':          pfSearchConditionValue.DATETIME,
+  'greater_than_equals':   pfSearchConditionValue.DATETIME,
+  'less_than':             pfSearchConditionValue.DATETIME,
+  'less_than_equals':      pfSearchConditionValue.DATETIME
 }
 
 /**
  * Values of some condition types
  */
 export const pfSearchConditionValues = {}
-pfSearchConditionValues[pfSearchConditionType.ROLE] = (store) => {
-  return store.state.config.roles.map((item) => {
-    // Remap for b-form-select component
-    return { value: item.id, text: `${item.id} - ${item.notes}` }
-  })
-}
-// See lib/pf/config.pm#L318
-pfSearchConditionValues[pfSearchConditionType.CONNECTION_TYPE] = [
+pfSearchConditionValues[pfSearchConditionType.NODE_STATUS] = [
   {
-    value: 'WIRELESS_802_1X',
-    text: 'Wireless 802.1x'
+    value: 'reg',
+    text: 'Registered'
   },
   {
-    value: 'WIRELESS_MAC_AUTH',
-    text: 'Wireless MAC Auth'
+    value: 'unreg',
+    text: 'Unregistered'
+  },
+  {
+    value: 'pending',
+    text: 'Pending'
   }
 ]
+pfSearchConditionValues[pfSearchConditionType.ROLE] = (store) => {
+  return store.getters['config/rolesList']
+}
+// See lib/pf/config.pm#L344-L350
+pfSearchConditionValues[pfSearchConditionType.CONNECTION_TYPE] = [
+  {
+    value: 'Wireless-802.11-EAP',
+    text: 'WiFi 802.1X'
+  },
+  {
+    value: 'Wireless-802.11-NoEAP',
+    text: 'WiFi MAC Auth'
+  },
+  {
+    value: 'Ethernet-EAP',
+    text: 'Wired 802.1x'
+  },
+  {
+    value: 'WIRED_MAC_AUTH',
+    text: 'Wired MAC Auth'
+  },
+  {
+    value: 'SNMP-Traps',
+    text: 'Wired SNMP'
+  },
+  {
+    value: 'Inline',
+    text: 'Inline'
+  }
+]
+pfSearchConditionValues[pfSearchConditionType.ONLINE] = [
+  {
+    value: 'on',
+    text: 'Online'
+  },
+  {
+    value: 'off',
+    text: 'Offline'
+  },
+  {
+    value: 'unknown',
+    text: 'Unknown'
+  }
+]
+pfSearchConditionValues[pfSearchConditionType.VOIP] = [
+  {
+    value: 'yes',
+    text: 'Yes'
+  },
+  {
+    value: 'no',
+    text: 'No'
+  }
+]
+pfSearchConditionValues[pfSearchConditionType.VIOLATION] = (store) => {
+  return store.getters['config/violationsList']
+}
 
 export const pfSearchConditionFormatter = {
   MAC: 'mac'
 }
 
 /**
- * Helper that concatenates all operaorts for the specified types.
+ * Helper that concatenates all operators for the specified types.
  *
  * @param {string[]} types - the types
  * @return {string[]} all operators

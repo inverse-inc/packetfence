@@ -4,7 +4,7 @@ global
 	group haproxy
 	daemon
 	pidfile %%var_dir%%/run/haproxy-portal.pid
-	log %%active_active_ip%% local0
+	log /dev/log local0
 	stats socket /tmp/proxystats level admin process 1
 	maxconn 4000
 	#Followup of https://github.com/inverse-inc/packetfence/pull/893
@@ -39,13 +39,7 @@ defaults
         timeout connect 5000
         timeout client 50000
         timeout server 50000
-        errorfile 400 %%os_path%%400.http
         errorfile 403 %%captiveportal_templates_path%%/rate-limiting.http
-        errorfile 408 %%os_path%%408.http
-        errorfile 500 %%os_path%%500.http
-        errorfile 502 %%os_path%%502.http
-        errorfile 503 %%os_path%%503.http
-        errorfile 504 %%os_path%%504.http
 
 backend proxy
     option httpclose

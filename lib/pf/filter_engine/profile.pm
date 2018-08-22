@@ -22,6 +22,7 @@ use pf::condition::any;
 use pf::condition::all;
 use pf::condition::true;
 use pf::constants::Connection::Profile qw($DEFAULT_PROFILE $MATCH_STYLE_ALL);
+use pf::util qw(isdisabled);
 
 sub BUILDARGS {
     my ($self,$args)      = @_;
@@ -33,6 +34,7 @@ sub BUILDARGS {
         #Skip the default profile since it will be last
         next if $id eq $DEFAULT_PROFILE;
         my $profile = $config->{$id};
+        next if isdisabled($profile->{status} // 'enabled');
         my @conditions = map {pf::factory::condition::profile->instantiate($_)} @{$profile->{'filter'}};
         if ($profile->{'advanced_filter'} ) {
             push @conditions, pf::factory::condition::profile->instantiate_advanced($profile->{'advanced_filter'});

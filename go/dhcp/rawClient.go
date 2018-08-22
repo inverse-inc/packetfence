@@ -206,7 +206,7 @@ func (h *iphdr) checksum() {
 // sendUnicastDHCP create a udp packet and stores it in an
 // Ethernet frame, and sends the frame over a raw socket to attempt to wake
 // a machine.
-func sendUnicastDHCP(dhcp []byte, dstIP net.Addr, srcIP net.IP) error {
+func sendUnicastDHCP(dhcp []byte, dstIP net.Addr, srcIP net.IP, giAddr net.IP) error {
 
 	s, err := syscall.Socket(syscall.AF_INET, syscall.SOCK_RAW, syscall.IPPROTO_RAW)
 	if err != nil {
@@ -218,7 +218,15 @@ func sendUnicastDHCP(dhcp []byte, dstIP net.Addr, srcIP net.IP) error {
 	ipStr, portStr, _ := net.SplitHostPort(dstIP.String())
 	port, _ := strconv.Atoi(portStr)
 
+	// Keep as is for futur test
+	if !(net.ParseIP(ipStr).Equal(giAddr)) {
+		if !(giAddr.Equal(net.IPv4zero)) {
+			ipStr = giAddr.String()
+		}
+	}
+
 	udpsrc := uint(67)
+	// Maybe need to set to 67
 	udpdst := port
 
 	udp := udphdr{

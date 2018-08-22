@@ -18,8 +18,8 @@ type Request struct {
 // Represents the json error received from the pffilter service
 type ClientError struct {
 	Code    int         `json:"code"`
-	Message string      `json:message`
-	Data    interface{} `json:data`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data"`
 }
 
 // Represents the json repsonse received from the pffilter service

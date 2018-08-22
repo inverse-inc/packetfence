@@ -66,27 +66,35 @@ request-timing {
     }
 }
 
-
 packetfence-eap-mac-policy {
     if ( &EAP-Type ) {
-
-        if (&Calling-Station-Id && (&Calling-Station-Id =~ /^${policy.mac-addr-regexp}$/i)) {
+        if (&User-Name && (&User-Name =~ /^${policy.mac-addr-regexp}$/i)) {
             update {
-                &request:Tmp-String-1 := "%{tolower:%{1}%{2}%{3}%{4}%{5}%{6}}"
+                &request:Tmp-String-2 := "%{tolower:%{1}%{2}%{3}%{4}%{5}%{6}}"
             }
-            if  ( &Tmp-String-1 == "%{tolower:%{User-Name}}" ) {
+            if (&Calling-Station-Id && (&Calling-Station-Id =~ /^${policy.mac-addr-regexp}$/i)) {
                 update {
-                    &control:Cleartext-Password := &request:User-Name
+                    &request:Tmp-String-1 := "%{tolower:%{1}%{2}%{3}%{4}%{5}%{6}}"
                 }
-                updated
+                if  ( &Tmp-String-1 == &Tmp-String-2 ) {
+                    update {
+                        &control:Cleartext-Password := &request:User-Name
+                    }
+                    updated
+                }
             }
         }
+
     }
     noop
 }
 
+
 packetfence-audit-log-accept {
-    if(&User-Name != "dummy") {
+    if (&User-Name && (&User-Name == "dummy")) {
+        noop
+    }
+    else {
         request-timing
         -sql {
             fail = 1
@@ -95,7 +103,10 @@ packetfence-audit-log-accept {
 }
 
 packetfence-audit-log-reject {
-    if(&User-Name != "dummy") {
+    if (&User-Name && (&User-Name == "dummy")) {
+            noop
+    }
+    else {
         request-timing
         -sql_reject {
             fail = 1

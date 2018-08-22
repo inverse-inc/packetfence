@@ -87,8 +87,8 @@ sub checkForParking :Private {
     if (isenabled($Config{parking}{show_parking_portal}) && violation_count_open_vid($c->portalSession->clientMac, $PARKING_VID)) {
         get_logger->warn("Client should not have reached the normal portal as it is in parking. Retriggering parking actions.");
         pf::parking::park($c->portalSession->clientMac, $c->portalSession->clientIP->normalizedIP);
-        # Redirecting to an invalid URL so it is caught by the parking portal
-        $c->res->redirect("http://$fqdn/back-to-parking");
+        # Redirecting back to the portal so it is caught by the parking portal
+        $c->res->redirect("http://$fqdn/captive-portal");
         $c->detach();
     }
 }
@@ -106,7 +106,7 @@ sub setupDynamicRouting : Private {
         session => $c->session,
         profile => $profile,
         request => $request,
-        root_module_id => ( defined($node->{status}) && $node->{status} eq $pf::node::STATUS_PENDING ) ? $PENDING_POLICY : $profile->getRootModuleId(),
+        root_module_id => ( defined($node->{status}) && $node->{status} eq $pf::node::STATUS_PENDING ) ? $PENDING_POLICY : ( ( defined($c->session->{'sub_root_module_id'}) ) ? $c->session->{'sub_root_module_id'} : $profile->getRootModuleId() ),
     );
     $application->session->{client_mac} = $c->portalSession->clientMac;
     $application->session->{client_ip} = $c->portalSession->clientIP->normalizedIP;

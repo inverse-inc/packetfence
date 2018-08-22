@@ -13,6 +13,12 @@
 			"revisionTime": "2018-01-24T21:16:33Z"
 		},
 		{
+			"checksumSHA1": "TFCZLa7falNwfCedc4wHtdu7P58=",
+			"path": "github.com/Sereal/Sereal/Go/sereal",
+			"revision": "36f2c9f6f40926fbc799c190676695b929d828e9",
+			"revisionTime": "2016-12-14T07:43:20Z"
+		},
+		{
 			"checksumSHA1": "kYPejJ2XzusS/bj2S1/pN0W6wVY=",
 			"path": "github.com/Shopify/sarama",
 			"revision": "0f4f8caef994ca7e4f9072c1858b7c6761ed498f",
@@ -106,6 +112,12 @@
 			"revisionTime": "2017-10-02T20:02:53Z"
 		},
 		{
+			"checksumSHA1": "XrC/bM/ugH4D5EgZHgneQSclQNQ=",
+			"path": "github.com/dgryski/go-csnappy",
+			"revision": "9d18391da19717aa4fdf14cb7ba6a55e51bff131",
+			"revisionTime": "2015-07-21T07:15:30Z"
+		},
+		{
 			"checksumSHA1": "e+GyxNE5hA8Q6usX+penCPjeeJo=",
 			"path": "github.com/diegoguarnieri/go-conntrack/conntrack",
 			"revision": "9abb0707ff3199f9ab5a44b5a5ea588c41979476",
@@ -188,6 +200,17 @@
 			"path": "github.com/farsightsec/golang-framestream",
 			"revision": "c06a5734334d9629b3db143d74b47eb94ea68612",
 			"revisionTime": "2018-01-24T17:44:29Z"
+		},
+		{
+			"checksumSHA1": "1Igmmh7o8T7iuRCnuncPdTSildU=",
+			"path": "github.com/fdurand/arp",
+			"revision": "27b38d3af1be7174c7036f97a238fa8ea9d943b6",
+			"revisionTime": "2018-08-07T17:46:48Z"
+		},
+		{
+			"checksumSHA1": "ifZgOFAUHdF/J00KbM+b0GOtz2w=",
+			"path": "github.com/fdurand/go-cache",
+			"revision": "cf0198ac7d92634998b3f3f2b616553fda07d7b0"
 		},
 		{
 			"checksumSHA1": "VdXZPcDRHK1T7XjBu2KW8Mb8S6w=",
@@ -278,6 +301,30 @@
 			"path": "github.com/golang/snappy",
 			"revision": "553a641470496b2327abcac10b36396bd98e45c9",
 			"revisionTime": "2017-02-15T23:32:05Z"
+		},
+		{
+			"checksumSHA1": "TAXd73uN0hLjwdGGGNgnmF6iC0k=",
+			"path": "github.com/google/go-cmp/cmp",
+			"revision": "5411ab924f9ffa6566244a9e504bc347edacffd3",
+			"revisionTime": "2018-03-28T20:15:12Z"
+		},
+		{
+			"checksumSHA1": "oLBV7th4sxzxzmf1b91NVVbdOfI=",
+			"path": "github.com/google/go-cmp/cmp/internal/diff",
+			"revision": "5411ab924f9ffa6566244a9e504bc347edacffd3",
+			"revisionTime": "2018-03-28T20:15:12Z"
+		},
+		{
+			"checksumSHA1": "kYtvRhMjM0X4bvEjR3pqEHLw1qo=",
+			"path": "github.com/google/go-cmp/cmp/internal/function",
+			"revision": "5411ab924f9ffa6566244a9e504bc347edacffd3",
+			"revisionTime": "2018-03-28T20:15:12Z"
+		},
+		{
+			"checksumSHA1": "OQQ56f38ikfmG2Zd3lUlk4LUBIw=",
+			"path": "github.com/google/go-cmp/cmp/internal/value",
+			"revision": "5411ab924f9ffa6566244a9e504bc347edacffd3",
+			"revisionTime": "2018-03-28T20:15:12Z"
 		},
 		{
 			"checksumSHA1": "uFNLkTxk8BkHTk0Jcub2lj2BX4M=",
@@ -452,7 +499,7 @@
 			"revisionTime": "2018-01-23T11:02:36Z"
 		},
 		{
-			"checksumSHA1": "9K/xMSUzOnr1QDWn+lNi9xwg1gA=",
+			"checksumSHA1": "9MFvItLQ+dk014PvARYw55Gp5DQ=",
 			"path": "github.com/lucas-clemente/quic-go/internal/crypto",
 			"revision": "db0a3d105e7af3bf8413ab90c43fcec8a7d96bfb",
 			"revisionTime": "2018-01-23T11:02:36Z"
@@ -522,6 +569,18 @@
 			"path": "github.com/mdlayher/raw",
 			"revision": "9df8b4265df2bcf01458b1759cf7ec4b81b50b65",
 			"revisionTime": "2017-12-14T19:52:53Z"
+		},
+		{
+			"checksumSHA1": "Mp9fBK3+7fAg2tQgeS0zZCoWb88=",
+			"path": "github.com/mediocregopher/radix.v2/pool",
+			"revision": "94360be262532d465b7e4760c7a67195d3319a87",
+			"revisionTime": "2018-05-29T12:51:07Z"
+		},
+		{
+			"checksumSHA1": "sRXINynmf6aakEe8RAqyggQEG/0=",
+			"path": "github.com/mediocregopher/radix.v2/redis",
+			"revision": "94360be262532d465b7e4760c7a67195d3319a87",
+			"revisionTime": "2018-05-29T12:51:07Z"
 		},
 		{
 			"checksumSHA1": "VqPwpjQKzPYZcTkqZOIk8b+gYqI=",
@@ -740,7 +799,7 @@
 			"revisionTime": "2018-01-09T16:55:01Z"
 		},
 		{
-			"checksumSHA1": "rn/rsBt+A3lAM8tV7trf1CFGrEw=",
+			"checksumSHA1": "9j7Og3QFvdTk/vuZOwYG+ZpwY6o=",
 			"origin": "github.com/coreos/etcd/vendor/github.com/ugorji/go/codec",
 			"path": "github.com/ugorji/go/codec",
 			"revision": "0c692fb898c887d028837a1fee6db601de6dcee6",
@@ -892,7 +951,7 @@
 			"revisionTime": "2018-01-24T06:08:02Z"
 		},
 		{
-			"checksumSHA1": "3L3n7qKMO9X8E1ibA5mExKvwbmI=",
+			"checksumSHA1": "QUvByKIVmIy9c+8+O1XGyh9ynoY=",
 			"origin": "github.com/miekg/dns/vendor/golang.org/x/net/ipv6",
 			"path": "golang.org/x/net/ipv6",
 			"revision": "5364553f1ee9cddc7ac8b62dce148309c386695b",

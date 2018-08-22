@@ -23,6 +23,7 @@
                   [% IF listen_ints.size > 0 %]<li class="sidenav-subsection"><a href="#graph/dashboard?tab=dhcp" data-tab="dashboard-tabs/dhcp">DHCP</a></li>[% END %]
                   <li class="sidenav-subsection"><a href="#graph/dashboard?tab=endpoints" data-tab="dashboard-tabs/endpoints">[% l('Endpoints') %]</a></li>
                   <li class="sidenav-subsection"><a href="#graph/dashboard?tab=portal" data-tab="dashboard-tabs/portal">[% l('Portal') %]</a></li>
+                  <li class="sidenav-subsection"><a href="#graph/dashboard?tab=queue" data-tab="dashboard-tabs/queue">[% l('Queue') %]</a></li>
                 </ul>
               </li>
               [%- END %]

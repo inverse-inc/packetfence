@@ -194,7 +194,7 @@ is_deeply(
             },
         },
         base_path => '/user',
-        path => '/user/:user_id',
+        path => '/user/#user_id',
         children => [],
     },
     "Munging resource options"
@@ -215,7 +215,7 @@ is_deeply(
         subroutes    => { },
         http_methods  => default_resource_http_methods(),
         base_path => '/user',
-        path      => '/user/:user_id',
+        path      => '/user/#user_id',
         children  => [],
     },
     "Munging resource options"
@@ -236,7 +236,7 @@ is_deeply(
         subroutes     => { },
         http_methods  => default_resource_http_methods(),
         base_path => '/config/connection_profile',
-        path      => '/config/connection_profile/:connection_profile_id',
+        path      => '/config/connection_profile/#connection_profile_id',
         children  => [],
     },
     "Munging resource options with a sub path"
@@ -257,7 +257,7 @@ is_deeply(
             url_param_key => 'user_id',
             subroutes     => { },
             http_methods  => default_resource_http_methods(),
-            path      => '/user/:user_id',
+            path      => '/user/#user_id',
             base_path => '/user',
             children  => []
         },
@@ -291,7 +291,7 @@ is_deeply (
             url_param_key => 'connection_profile_id',
             subroutes     => { },
             http_methods  => default_resource_http_methods(),
-            path => '/config/connection_profile/:connection_profile_id',
+            path => '/config/connection_profile/#connection_profile_id',
             base_path => '/config/connection_profile',
             children => [],
         },
@@ -408,13 +408,13 @@ is_deeply(
             url_param_key => 'user_id',
             subroutes     => { },
             http_methods  => default_resource_http_methods(),
-            path   => '/user/:user_id',
+            path   => '/user/#user_id',
             base_path   => '/user',
             children => [
                 {
                     controller  => 'Users::Nodes',
                     subcontroller => 'Nodes',
-                    parent_path => '/user/:user_id',
+                    parent_path => '/user/#user_id',
                     parent_name => 'Users',
                 },
             ]

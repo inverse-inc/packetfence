@@ -43,6 +43,8 @@ use pf::config qw(
     $WIRED_802_1X
     $WIRED_MAC_AUTH
 );
+use pf::accounting qw(node_accounting_current_sessionid);
+use pf::node qw(node_attributes);
 
 =head1 SUBROUTINES
 

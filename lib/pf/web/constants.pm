@@ -99,6 +99,7 @@ Readonly::Scalar our $URL_DEVICE_REG_LOGOUT     => '/device-registration/logout'
 
 # External Captive Portal URL detection constant
 Readonly::Scalar our $EXT_URL_AEROHIVE              => '^/AeroHIVE::AP';
+Readonly::Scalar our $EXT_URL_AEROHIVE_SHORT        => '^/AeroHIVE';
 Readonly::Scalar our $EXT_URL_ARUBA                 => '^/Aruba';
 Readonly::Scalar our $EXT_URL_CISCO_CATALYST_2960   => '^/Cisco::Catalyst_2960';
 Readonly::Scalar our $EXT_URL_CISCO_WLC             => '^/Cisco::WLC';
@@ -110,6 +111,7 @@ Readonly::Scalar our $EXT_URL_RUCKUS_SMARTZONE      => '^/RuckusSmartZone';
 Readonly::Scalar our $EXT_URL_XIRRUS                => '^/Xirrus';
 Readonly::Scalar our $EXT_URL_MIKROTIK              => '^/Mikrotik';
 Readonly::Scalar our $EXT_URL_FORTIGATE             => '^/Fortinet::FortiGate';
+Readonly::Scalar our $EXT_URL_CAMBIUM               => '^/Cambium';
 # Ubiquiti doesn't support setting the URL so we much detect it using this URL which will then map to the Ubiquiti module in pf::web::externalportal
 Readonly::Scalar our $EXT_URL_UBIQUITI              => '^/guest/s/[a-zA-Z0-9]+/';
 

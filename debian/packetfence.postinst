@@ -154,8 +154,10 @@ case "$1" in
         systemctl daemon-reload
         systemctl isolate packetfence-base.target
 
+        perl /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
         set +e
         /usr/local/pf/bin/pfcmd configreload
+        /usr/local/pf/bin/pfcmd fixpermissions
         set -e
         /bin/systemctl start packetfence-httpd.admin
         systemctl enable packetfence-iptables

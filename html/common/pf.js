@@ -184,4 +184,10 @@ $(function() {
       { destination_url: wanted_destination_url }
     );
   }
+
+  $(document).on('keyup', '.tabbable',function(e){
+    if(e.which==13 || e.which==32) {
+      this.click()
+    }
+  });
 });

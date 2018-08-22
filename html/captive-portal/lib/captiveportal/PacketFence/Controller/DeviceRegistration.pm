@@ -162,6 +162,7 @@ sub registerNode : Private {
             $info{'auto_registered'} = 1;
             $info{'mac'} = $mac;
             $info{'pid'} = $pid;
+            $info{'regdate'} = mysql_date();
             $info{'notes'} = $type if ( defined($type) );
             $c->portalSession->guestNodeMac($mac);
             node_modify($mac, status => "reg", %info);
@@ -175,25 +176,6 @@ sub registerNode : Private {
     }
 }
 
-=item mac_vendor_id
-
-Get the matching mac_vendor_id from Fingerbank
-
-=cut
-
-sub mac_vendor_id {
-    my ($mac) = @_; 
-    my $logger = get_logger();
-
-    my ($status, $result) = fingerbank::Model::MAC_Vendor->find([{ mac => $mac }, {columns => ['id']}]);
-
-    if(is_success($status)){
-        return $result->id;
-    }else {
-        $logger->debug("Cannot find mac vendor ".$mac." in the database");
-    }
-}
-
 =item device_from_mac_vendor
 
 Get the matching device infos by mac vendor from Fingerbank
@@ -201,23 +183,17 @@ Get the matching device infos by mac vendor from Fingerbank
 =cut
 
 sub device_from_mac_vendor {
-    my ($mac_vendor_id) = @_; 
+    my ($mac_vendor) = @_; 
     my $logger = get_logger();
 
-    for my $schema (("Local", "Upstream")) { 
-        my $db = fingerbank::DB_Factory->instantiate(schema => $schema);
-        my $view_class = "fingerbank::Schema::".$schema."::CombinationMacVendorByDevice";
-        my $bind_params = $view_class->view_bind_params([$mac_vendor_id]);
-        my $result = $db->handle->resultset('CombinationMacVendorByDevice')->search({}, { bind => $bind_params })->first;
-        if ($result) {
-            my $device_id = $result->device_id;
-            $logger->info("Found $device_id for MAC vendor $mac_vendor_id");
-            return $device_id;
-        }
-    } 
+    my ($status, $device_id) = fingerbank::API->new_from_config->device_id_from_oui($mac_vendor);
 
-    $logger->debug("Cannot find matching device id for this mac vendor id ".$mac_vendor_id." in the database");
-    return undef;
+    if(is_success($status)) {
+        return $device_id;
+    } 
+    else {
+        return undef;
+    }
 }
 
 =item is_allowed 
@@ -248,8 +224,7 @@ sub is_allowed {
 
     $mac =~ s/://g;
     my $mac_vendor = substr($mac, 0,6);
-    my $mac_vendor_id = mac_vendor_id($mac_vendor);
-    my $device_id = device_from_mac_vendor($mac_vendor_id);
+    my $device_id = device_from_mac_vendor($mac_vendor);
     my ($status, $result) = fingerbank::Model::Device->find([{ id => $device_id}, {columns => ['name']}]);
 
     # We are loading the fingerbank endpoint model to verify if the device id is matching as a parent or child

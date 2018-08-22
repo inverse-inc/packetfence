@@ -609,6 +609,28 @@ sub canAccessRegistrationWhenRegistered {
     return isenabled($self->{_access_registration_when_registered});
 }
 
+=item dpskEnabled
+
+Is DPSK is enable or not on this connection profile
+
+=cut
+
+sub dpskEnabled {
+    my ($self) = @_;
+    return isenabled($self->{'_dpsk'});
+};
+
+=item unregOnAcctStop
+
+Deregister device on accounting stop
+
+=cut
+
+sub unregOnAcctStop {
+    my ($self) = @_;
+    return isenabled($self->{'_unreg_on_acct_stop'});
+}
+
 =back
 
 =head1 AUTHOR

@@ -1,3 +1,8 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:imagesdir: ../images
+endif::[]
+
 Download the agents
 ^^^^^^^^^^^^^^^^^^^
 
@@ -5,7 +10,7 @@ You will first need to download the SentinelOne agents in order to host them on 
 
 In order to do so, in your SentinelOne management console, go in 'Settings->Updates', then download the Windows and Mac OSX agents on your computer. Once they have been download transfer them on your PacketFence server using SCP. This example will use `/usr/local/pf/html/common/SentinelOne.exe` as the Windows agent path and `/usr/local/pf/html/common/SentinelOne.pkg` as the Mac OSX agent path. 
 
-image::docs/images/sentinelone-agent-download.png[scaledwidth="100%",alt="SentinelOne agent download"]
+image::sentinelone-agent-download.png[scaledwidth="100%",alt="SentinelOne agent download"]
 
 NOTE: All files in `/usr/local/pf/html/common/` are accessible to users that are on the captive portal. Make sure you put the agents file there or in another user-accessible location.
 
@@ -14,7 +19,7 @@ Create an API user
 
 PacketFence will need a user on your SentinelOne instance in order to access the SentinelOne API. To create it, go in 'Settings->Users' and create a new user. Make sure, you note the password you put here for configuration in PacketFence.
 
-image::docs/images/sentinelone-user.png[scaledwidth="100%",alt="SentinelOne user creation"]
+image::sentinelone-user.png[scaledwidth="100%",alt="SentinelOne user creation"]
 
 Configure PacketFence
 ^^^^^^^^^^^^^^^^^^^^^
@@ -25,7 +30,7 @@ Create a new provisioner
 Login in the PacketFence administration interface, then go in the 'Configuration' tab, then in 'Provisioners'.
 Click 'Add provisioner' then select `SentinelOne`.
 
-image::docs/images/sentinelone-packetfence.png[scaledwidth="100%",alt="SentinelOne PacketFence configuration"]
+image::sentinelone-packetfence.png[scaledwidth="100%",alt="SentinelOne PacketFence configuration"]
 
 Where:
 

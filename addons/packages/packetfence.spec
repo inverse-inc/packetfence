@@ -326,9 +326,9 @@ Requires: %{real_name}-pfcmd-suid = %{version}
 Requires: %{real_name}-config = %{version}-%{rev}%{?dist}
 Requires: %{real_name}-pfcmd-suid = %{version}-%{rev}%{?dist}
 %endif
-Requires: haproxy >= 1.6, keepalived >= 1.3.6
+Requires: haproxy >= 1.8.9, keepalived >= 1.4.3
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
-Requires: fingerbank >= 4.0.0, fingerbank < 5.0.0
+Requires: fingerbank >= 4.1.0, fingerbank < 5.0.0
 Requires: perl(File::Tempdir)
 
 # etcd
@@ -424,7 +424,7 @@ done
 %endif
 
 # Build the HTML doc for pfappserver
-make html/pfappserver/root/static/doc
+make html
 
 # build pfcmd C wrapper
 gcc -g0 src/pfcmd.c -o bin/pfcmd
@@ -434,7 +434,7 @@ make bin/ntlm_auth_wrapper
 echo %{git_commit} > conf/git_commit_id
 
 # build golang binaries
-addons/packages/build-go.sh build `pwd` `pwd`/bin
+addons/packages/build-go.sh build `pwd` `pwd`/sbin
 
 find -name '*.example' -print0 | while read -d $'\0' file
 do
@@ -560,6 +560,17 @@ rm -rf $RPM_BUILD_ROOT/usr/local/pf/docs/fonts
 rm -rf $RPM_BUILD_ROOT/usr/local/pf/docs/images
 rm -rf $RPM_BUILD_ROOT/usr/local/pf/docs/api
 cp -r html $RPM_BUILD_ROOT/usr/local/pf/
+
+# install html and images dirs in pfappserver for embedded doc
+%{__install} -d -m0755 $RPM_BUILD_ROOT/usr/local/pf/html/pfappserver/root/static/doc
+for i in `find * -name "*.html" -path 'docs/html/*' -type f`; do \
+	%{__install} -m0644 $i $RPM_BUILD_ROOT/usr/local/pf/html/pfappserver/root/static/doc/; \
+done
+%{__install} -d -m0755 $RPM_BUILD_ROOT/usr/local/pf/html/pfappserver/root/static/images
+for i in `find * -path 'docs/images/*' -type f`; do \
+	%{__install} -m0644 $i $RPM_BUILD_ROOT/usr/local/pf/html/pfappserver/root/static/images/; \
+done
+
 cp -r lib $RPM_BUILD_ROOT/usr/local/pf/
 cp -r go $RPM_BUILD_ROOT/usr/local/pf/
 cp -r NEWS.asciidoc $RPM_BUILD_ROOT/usr/local/pf/
@@ -606,6 +617,8 @@ if [ "$1" = "2"   ]; then
     /usr/bin/systemctl disable packetfence-redis-cache
     /usr/bin/systemctl disable packetfence-config
     /usr/bin/systemctl disable packetfence.service
+    /usr/bin/systemctl disable packetfence-haproxy.service
+    /usr/bin/systemctl isolate packetfence-base.target
 fi
 
 if ! /usr/bin/id pf &>/dev/null; then
@@ -655,6 +668,7 @@ fi
 %post -n %{real_name}
 if [ "$1" = "2" ]; then
     /usr/local/pf/bin/pfcmd service pf updatesystemd
+    perl /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
 fi
 
 /usr/bin/mkdir -p /var/log/journal/
@@ -862,7 +876,7 @@ fi
 %dir                    /usr/local/pf/addons/watchdog
 %attr(0755, pf, pf)     /usr/local/pf/addons/watchdog/*.sh
 %dir                    /usr/local/pf/bin
-%attr(0755, pf, pf)     /usr/local/pf/bin/pfhttpd
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfhttpd
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd.pl
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd_vlan
 %attr(0755, pf, pf)     /usr/local/pf/bin/pftest
@@ -874,9 +888,10 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/pfupdate
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/maintenance
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/node
-%attr(0755, pf, pf)     /usr/local/pf/bin/pfdhcp
-%attr(0755, pf, pf)     /usr/local/pf/bin/pfdns
-%attr(0755, pf, pf)     /usr/local/pf/bin/pfstats
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcp
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfdns
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfstats
 %doc                    /usr/local/pf/ChangeLog
                         /usr/local/pf/conf/*.example
 %config(noreplace)      /usr/local/pf/conf/adminroles.conf
@@ -1135,6 +1150,7 @@ fi
 %dir                    /usr/local/pf/html/pfappserver/root/static/doc
 %doc                    /usr/local/pf/html/pfappserver/root/static/doc/*
 %doc                    /usr/local/pf/docs/*.asciidoc
+%doc                    /usr/local/pf/docs/html/*
 %if %{builddoc} == 1
 %doc                    /usr/local/pf/docs/*.pdf 
 %endif
@@ -1164,6 +1180,7 @@ fi
                         /usr/local/pf/html/captive-portal/content/shared_mdm_profile.mobileconfig
                         /usr/local/pf/html/captive-portal/content/packetfence-windows-agent.exe
                         /usr/local/pf/html/captive-portal/content/billing/stripe.js
+                        /usr/local/pf/html/captive-portal/content/billing/authorizenet.js
                         /usr/local/pf/html/captive-portal/content/provisioner/mobileconfig.js
                         /usr/local/pf/html/captive-portal/content/provisioner/sepm.js
                         /usr/local/pf/html/captive-portal/content/release.js
@@ -1267,7 +1284,6 @@ fi
 %doc                    /usr/local/pf/README.network-devices
 %dir                    /usr/local/pf/sbin
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfbandwidthd
-%attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcplistener
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfperl-api
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pf-mariadb
@@ -1347,6 +1363,9 @@ fi
 %exclude                /usr/local/pf/addons/pfconfig/pfconfig.init
 
 %changelog
+* Thu Jul 09 2018 Inverse <info@inverse.ca> - 8.1.0-1
+- New release 8.1.0
+
 * Thu Apr 26 2018 Inverse <info@inverse.ca> - 8.0.0-1
 - New release 8.0.0
 

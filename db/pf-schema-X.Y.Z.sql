@@ -3,7 +3,7 @@
 --
 
 SET @MAJOR_VERSION = 8;
-SET @MINOR_VERSION = 0;
+SET @MINOR_VERSION = 1;
 SET @SUBMINOR_VERSION = 9;
 
 --
@@ -91,6 +91,7 @@ CREATE TABLE person (
   `custom_field_9` varchar(255) default NULL,
   `portal` varchar(255) default NULL,
   `source` varchar(255) default NULL,
+  `psk` varchar(255) NULL DEFAULT NULL,
   PRIMARY KEY (`tenant_id`, `pid`),
   CONSTRAINT `person_tenant_id` FOREIGN KEY(`tenant_id`) REFERENCES `tenant` (`id`)
 ) ENGINE=InnoDB;
@@ -167,7 +168,8 @@ CREATE TABLE node (
   device_type varchar(255) default NULL,
   device_class varchar(255) default NULL,
   device_version varchar(255) DEFAULT NULL,
-  device_score varchar(255) DEFAULT NULL,
+  device_score int DEFAULT NULL,
+  device_manufacturer varchar(255) DEFAULT NULL,
   bypass_vlan varchar(50) default NULL,
   voip enum('no','yes') NOT NULL DEFAULT 'no',
   autoreg enum('no','yes') NOT NULL DEFAULT 'no',
@@ -546,7 +548,13 @@ VALUES
     (100118, 'Dialog Axiata', '%s@dialog.lk', now()),
     (100119, 'Swisscom', '%s@sms.bluewin.ch', now()),
     (100120, 'Orange (CH)', '%s@orange.net', now()),
-    (100121, 'Sunrise', '%s@gsm.sunrise.ch', now());
+    (100121, 'Sunrise', '%s@gsm.sunrise.ch', now()),
+    (100122, 'Koodo Mobile', '%s@msg.koodomobile.com', now()),
+    (100123, 'Chatr', '%s@pcs.rogers.com', now()),
+    (100124, 'Eastlink', '%s@txt.eastlink.ca', now()),
+    (100125, 'Freedom', 'txt.freedommobile.ca', now()),
+    (100126, 'PC Mobile', '%s@msg.telus.com', now()),
+    (100127, 'TBayTel', '%s@pcs.rogers.com', now());
 
 -- Adding RADIUS nas client table
 
@@ -1086,7 +1094,7 @@ CREATE TABLE keyed (
 -- Table structure for table 'pf_version'
 --
 
-CREATE TABLE pf_version ( `id` INT NOT NULL PRIMARY KEY, `version` VARCHAR(11) NOT NULL UNIQUE KEY);
+CREATE TABLE pf_version ( `id` INT NOT NULL PRIMARY KEY, `version` VARCHAR(11) NOT NULL UNIQUE KEY) ENGINE=InnoDB;
 
 --
 -- Table structure for table 'radius_audit_log'

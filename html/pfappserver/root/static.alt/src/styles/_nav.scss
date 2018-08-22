@@ -1,0 +1,11 @@
+@import "../../node_modules/bootstrap/scss/nav";
+
+.nav-tabs {
+    .nav-link {
+        &.active {
+            border-width: 0;
+            border-bottom-width: 3px;
+            font-weight: 500;
+        }
+    }
+}

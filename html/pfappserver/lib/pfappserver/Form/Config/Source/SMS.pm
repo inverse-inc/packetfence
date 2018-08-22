@@ -31,6 +31,31 @@ has_field 'sms_carriers' =>
              help => 'List of phone carriers available to the user' },
   );
 
+has_field 'sms_activation_timeout' =>
+  (
+   type => 'Duration',
+   label => 'SMS Activation Timeout',
+   required => 1,
+   default => pfappserver::Form::Field::Duration->duration_inflate(pf::Authentication::Source::SMSSource->meta->get_attribute('sms_activation_timeout')->default),
+   tags => { after_element => \&help,
+             help => 'This is the delay given to a guest who registered by sms confirmation to fill the pin code.' },
+  );
+
+has_field 'message' =>
+(
+    type => 'TextArea',
+    label => 'SMS text message ($pin will be replaced by the PIN number)',
+    default => pf::Authentication::Source::SMSSource->meta->get_attribute('message')->default,
+);
+has_field 'pin_code_length' =>
+  (
+   type => 'PosInteger',
+   label => 'PIN length',
+   required => 1,
+   default  => pf::Authentication::Source::SMSSource->meta->get_attribute('pin_code_length')->default,
+   tags => { after_element => \&help,
+             help => 'The amount of digits of the PIN number.' },
+  );
 =head1 METHODS
 
 =head2 options_sms_carriers

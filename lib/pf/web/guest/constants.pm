@@ -41,6 +41,7 @@ Readonly::Scalar our $ERROR_SPONSOR_NOT_ALLOWED => 11;
 Readonly::Scalar our $ERROR_PREREG_NOT_ALLOWED => 12;
 Readonly::Scalar our $ERROR_INVALID_PIN => 13;
 Readonly::Scalar our $ERROR_MAX_RETRIES => 14;
+Readonly::Scalar our $ERROR_EXPIRED_PIN => 15;
 
 =item errors
 
@@ -63,6 +64,7 @@ Readonly::Hash our %ERRORS => (
     $ERROR_PREREG_NOT_ALLOWED  => 'Guest pre-registration is not allowed by policy',
     $ERROR_INVALID_PIN => 'PIN is Invalid!',
     $ERROR_MAX_RETRIES => 'Maximum amount of retries attempted',
+    $ERROR_EXPIRED_PIN => "PIN has expired!",
 );
 
 =back
