@@ -4677,9 +4677,10 @@ Ignore some checks
 Put full paths of checks in `/etc/monit.d/local-ignores`
 
 
-Restart monit
+Enable and restart monit
 ^^^^^^^^^^^^^
 ----
+systemctl enable monit
 systemctl restart monit
 ----
 
