@@ -14,7 +14,7 @@
           </template>
           <b-row>
             <b-col>
-              <pf-form-input v-model="nodeContent.pid" label="Owner" :validation="$v.nodeContent.pid"/>
+              <pf-form-input v-model="nodeContent.pid" :label="$t('Owner')" :validation="$v.nodeContent.pid"/>
               <b-form-group horizontal label-cols="3" :label="$t('Status')">
                 <b-form-select v-model="nodeContent.status" :options="statuses"></b-form-select>
              </b-form-group>
@@ -24,6 +24,7 @@
              <b-form-group horizontal label-cols="3" :label="$t('Unregistration')">
                 <pf-form-datetime v-model="nodeContent.unregdate" :moments="['1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"></pf-form-datetime>
               </b-form-group>
+              <pf-form-input v-model="nodeContent.time_balance" type="number" :filter="filters.integerAbsolute" :label="$t('Access Time Balance')" :text="$t('seconds')"/>
               <b-form-group horizontal label-cols="3" :label="$t('Bandwidth Balance')">
                 <pf-form-prefix-multiplier v-model="nodeContent.bandwidth_balance"></pf-form-prefix-multiplier>
               </b-form-group>
@@ -256,6 +257,7 @@ import pfFormPrefixMultiplier from '@/components/pfFormPrefixMultiplier'
 import pfFormRow from '@/components/pfFormRow'
 import pfFormToggle from '@/components/pfFormToggle'
 import { pfEapType as eapType } from '@/globals/pfEapType'
+import { pfFilters as filters } from '@/globals/pfFilters'
 import {
   pfSearchConditionType as conditionType,
   pfSearchConditionValues as conditionValues
@@ -437,6 +439,9 @@ export default {
     },
     invalidForm () {
       return this.$v.nodeContent.$invalid || this.$store.getters['$_nodes/isLoading']
+    },
+    filters () {
+      return filters
     }
   },
   methods: {
