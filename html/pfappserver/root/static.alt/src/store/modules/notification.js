@@ -41,6 +41,36 @@ const actions = {
       timestamp: new Date()
     }
     commit('NOTIFICATION', { base: notification, data })
+  },
+  status_success: ({commit}, data) => {
+    let notification = {
+      variant: 'success',
+      icon: 'check',
+      new: true,
+      unread: true,
+      timestamp: new Date()
+    }
+    commit('NOTIFICATION', { base: notification, data })
+  },
+  status_skipped: ({commit}, data) => {
+    let notification = {
+      variant: 'warning',
+      icon: 'exclamation-circle',
+      new: true,
+      unread: true,
+      timestamp: new Date()
+    }
+    commit('NOTIFICATION', { base: notification, data })
+  },
+  status_failed: ({commit}, data) => {
+    let notification = {
+      variant: 'danger',
+      icon: 'ban',
+      new: true,
+      unread: true,
+      timestamp: new Date()
+    }
+    commit('NOTIFICATION', { base: notification, data })
   }
 }
 
