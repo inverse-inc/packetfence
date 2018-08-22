@@ -48,7 +48,7 @@ CHECK PROCESS packetfence-etcd MATCHING "etcd"
     stop program  = "/usr/local/pf/bin/pfcmd service etcd stop"
     if 3 restarts within 10 cycles then alert
 
-CHECK PROCESS packetfence-pfdhcp MATCHING "pfdhcp"
+CHECK PROCESS packetfence-pfdhcp MATCHING "sbin/pfdhcp"
     group PacketFence
     start program = "/usr/local/pf/bin/pfcmd service pfdhcp start" with timeout 60 seconds
     stop program  = "/usr/local/pf/bin/pfcmd service pfdhcp stop"
