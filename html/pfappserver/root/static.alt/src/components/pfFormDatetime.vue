@@ -160,7 +160,7 @@ export default {
         return this.value
       },
       set (newValue) {
-        this.$emit('input', newValue)
+        this.$emit('input', (newValue === null) ? '0000-00-00 00:00:00' : newValue)
       }
     },
     labelCols () {
