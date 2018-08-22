@@ -4608,6 +4608,9 @@ NOTE: This command will create configuration scripts in `/etc/monit.d/`, but it 
 Include the generated configurations in the monit config
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+At the bottom of `/etc/monit.conf` add the line `include /etc/monit.d/*` either manually, or using `sed`:
+
+
 RHEL / CentOS
 ----
 sed -i -e 's/^include.*//g' /etc/monit.conf && echo "include /etc/monit.d/*.conf" >> /etc/monit.conf
@@ -4670,8 +4673,17 @@ with (a hyphen):
 *.info;mail.none;authpriv.none;cron.none                -/var/log/messages
 ----
 
-Restart monit
-^^^^^^^^^^^^^
+Enable and start monit
+^^^^^^^^^^^^^^^^^^^^^^
+
+Enable monit on startup
+
+----
+systemctl enable monit
+----
+
+Start monit
+
 ----
 systemctl restart monit
 ----
