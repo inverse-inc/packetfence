@@ -26,7 +26,7 @@
               </b-form-group>
               <pf-form-input v-model="nodeContent.time_balance" type="number" :filter="regExp.integerAbsolute" :label="$t('Access Time Balance')" :text="$t('seconds')"/>
               <b-form-group horizontal label-cols="3" :label="$t('Bandwidth Balance')">
-                <pf-form-prefix-multiplier v-model="nodeContent.bandwidth_balance"></pf-form-prefix-multiplier>
+                <pf-form-prefix-multiplier v-model="nodeContent.bandwidth_balance" :max="Math.pow(2, 64) - 1"></pf-form-prefix-multiplier>
               </b-form-group>
               <b-form-group horizontal label-cols="3" :label="$t('VOIP')" class="my-1">
                 <pf-form-toggle v-model="nodeContent.voip" :color="{checked: '#28a745', unchecked: '#dc3545'}" :values="{checked: 'yes', unchecked: 'no'}">{{ (nodeContent.voip === 'yes') ? $t('Yes') : $t('No') }}</pf-form-toggle>
