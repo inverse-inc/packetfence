@@ -94,8 +94,10 @@
           <b-tooltip target="checkallnone" placement="right" v-else>{{$t('Select All [ALT+A]')}}</b-tooltip>
         </template>
         <template slot="actions" slot-scope="data">
-          <input type="checkbox" :id="data.value" :value="data.item" v-model="selectValues" @click.stop="onToggleSelected($event, data.index)">
-          <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[data.index]._message" v-b-tooltip.hover.right :title="tableValues[data.index]._message"></icon>
+          <div class="text-nowrap">
+            <input type="checkbox" :id="data.value" :value="data.item" v-model="selectValues" @click.stop="onToggleSelected($event, data.index)">
+            <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[data.index]._message" v-b-tooltip.hover.right :title="tableValues[data.index]._message"></icon>
+          </div>
         </template>
         <template slot="status" slot-scope="data">
           <b-badge pill variant="success" v-if="data.value === 'reg'">{{ $t('registered') }}</b-badge>
@@ -660,8 +662,16 @@ export default {
             let index = _this.tableValues.findIndex(node => node.mac === item.mac)
             _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, status: item.status})
             _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: item.message})
+            if (item.message) {
+              _this.$store.dispatch('notification/status_' + item.status, {message: _this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message})
+            }
           })
-          _this.$store.dispatch('notification/info', {message: response.items.length + ' ' + _this.$i18n.t('nodes cleared')})
+          _this.$store.dispatch('notification/info', {
+            message: response.items.length + ' ' + _this.$i18n.t('nodes cleared'),
+            success: response.items.filter(item => item.status === 'success').length,
+            skipped: response.items.filter(item => item.status === 'skipped').length,
+            failed: response.items.filter(item => item.status === 'failed').length
+          })
         }).catch(() => {
           macs.forEach(function (mac, i) {
             let index = _this.tableValues.findIndex(node => node.mac === mac)
@@ -679,8 +689,16 @@ export default {
             let index = _this.tableValues.findIndex(node => node.mac === item.mac)
             _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, status: item.status})
             _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: item.message})
+            if (item.message) {
+              _this.$store.dispatch('notification/status_' + item.status, {message: _this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message})
+            }
           })
-          _this.$store.dispatch('notification/info', {message: response.items.length + ' ' + _this.$i18n.t('nodes registered')})
+          _this.$store.dispatch('notification/info', {
+            message: response.items.length + ' ' + _this.$i18n.t('nodes registered'),
+            success: response.items.filter(item => item.status === 'success').length,
+            skipped: response.items.filter(item => item.status === 'skipped').length,
+            failed: response.items.filter(item => item.status === 'failed').length
+          })
         }).catch(() => {
           macs.forEach(function (mac, i) {
             let index = _this.tableValues.findIndex(node => node.mac === mac)
@@ -698,8 +716,16 @@ export default {
             let index = _this.tableValues.findIndex(node => node.mac === item.mac)
             _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, status: item.status})
             _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: item.message})
+            if (item.message) {
+              _this.$store.dispatch('notification/status_' + item.status, {message: _this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message})
+            }
           })
-          _this.$store.dispatch('notification/info', {message: response.items.length + ' ' + _this.$i18n.t('nodes unregistered')})
+          _this.$store.dispatch('notification/info', {
+            message: response.items.length + ' ' + _this.$i18n.t('nodes unregistered'),
+            success: response.items.filter(item => item.status === 'success').length,
+            skipped: response.items.filter(item => item.status === 'skipped').length,
+            failed: response.items.filter(item => item.status === 'failed').length
+          })
         }).catch(() => {
           macs.forEach(function (mac, i) {
             let index = _this.tableValues.findIndex(node => node.mac === mac)
@@ -717,8 +743,16 @@ export default {
             let index = _this.tableValues.findIndex(node => node.mac === item.mac)
             _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, status: item.status})
             _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: item.message})
+            if (item.message) {
+              _this.$store.dispatch('notification/status_' + item.status, {message: _this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message})
+            }
           })
-          _this.$store.dispatch('notification/info', {message: response.items.length + ' ' + _this.$i18n.t('nodes reevaluated')})
+          _this.$store.dispatch('notification/info', {
+            message: response.items.length + ' ' + _this.$i18n.t('nodes reevaluated'),
+            success: response.items.filter(item => item.status === 'success').length,
+            skipped: response.items.filter(item => item.status === 'skipped').length,
+            failed: response.items.filter(item => item.status === 'failed').length
+          })
         }).catch(() => {
           macs.forEach(function (mac, i) {
             let index = _this.tableValues.findIndex(node => node.mac === mac)
@@ -736,8 +770,16 @@ export default {
             let index = _this.tableValues.findIndex(node => node.mac === item.mac)
             _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, status: item.status})
             _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: item.message})
+            if (item.message) {
+              _this.$store.dispatch('notification/status_' + item.status, {message: _this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message})
+            }
           })
-          _this.$store.dispatch('notification/info', {message: response.items.length + ' ' + _this.$i18n.t('node switch ports restarted')})
+          _this.$store.dispatch('notification/info', {
+            message: response.items.length + ' ' + _this.$i18n.t('node switch ports restarted'),
+            success: response.items.filter(item => item.status === 'success').length,
+            skipped: response.items.filter(item => item.status === 'skipped').length,
+            failed: response.items.filter(item => item.status === 'failed').length
+          })
         }).catch(() => {
           macs.forEach(function (mac, i) {
             let index = _this.tableValues.findIndex(node => node.mac === mac)
@@ -755,8 +797,16 @@ export default {
             let index = _this.tableValues.findIndex(node => node.mac === item.mac)
             _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, status: item.status})
             _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: item.message})
+            if (item.message) {
+              _this.$store.dispatch('notification/status_' + item.status, {message: _this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message})
+            }
           })
-          _this.$store.dispatch('notification/info', {message: response.items.length + ' ' + _this.$i18n.t('node profiling refreshed')})
+          _this.$store.dispatch('notification/info', {
+            message: response.items.length + ' ' + _this.$i18n.t('node profiling refreshed'),
+            success: response.items.filter(item => item.status === 'success').length,
+            skipped: response.items.filter(item => item.status === 'skipped').length,
+            failed: response.items.filter(item => item.status === 'failed').length
+          })
         }).catch(() => {
           macs.forEach(function (mac, i) {
             let index = _this.tableValues.findIndex(node => node.mac === mac)
@@ -814,8 +864,16 @@ export default {
             let index = _this.tableValues.findIndex(node => node.mac === item.mac)
             _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, status: item.status})
             _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: item.message})
+            if (item.message) {
+              _this.$store.dispatch('notification/status_' + item.status, {message: _this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message})
+            }
           })
-          _this.$store.dispatch('notification/info', {message: response.items.length + ' ' + _this.$i18n.t('node violations created')})
+          _this.$store.dispatch('notification/info', {
+            message: response.items.length + ' ' + _this.$i18n.t('node violations created'),
+            success: response.items.filter(item => item.status === 'success').length,
+            skipped: response.items.filter(item => item.status === 'skipped').length,
+            failed: response.items.filter(item => item.status === 'failed').length
+          })
         }).catch(() => {
           macs.forEach(function (mac, i) {
             let index = _this.tableValues.findIndex(node => node.mac === mac)
