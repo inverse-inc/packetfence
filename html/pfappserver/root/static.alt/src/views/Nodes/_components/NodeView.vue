@@ -22,13 +22,13 @@
                 <b-form-select v-model="nodeContent.category_id" :options="rolesWithNull"></b-form-select>
              </b-form-group>
              <b-form-group horizontal label-cols="3" :label="$t('Unregistration')">
-                <pf-form-datetime v-model="node.unregdate" :moments="['1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"></pf-form-datetime>
+                <pf-form-datetime v-model="nodeContent.unregdate" :moments="['1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"></pf-form-datetime>
               </b-form-group>
               <b-form-group horizontal label-cols="3" :label="$t('Bandwidth Balance')">
-                <pf-form-prefix-multiplier v-model="node.bandwidth_balance"></pf-form-prefix-multiplier>
+                <pf-form-prefix-multiplier v-model="nodeContent.bandwidth_balance"></pf-form-prefix-multiplier>
               </b-form-group>
               <b-form-group horizontal label-cols="3" :label="$t('VOIP')" class="my-1">
-                <pf-form-toggle v-model="node.voip" :color="{checked: '#28a745', unchecked: '#dc3545'}" :values="{checked: 'yes', unchecked: 'no'}">{{ (node.voip === 'yes') ? $t('Yes') : $t('No') }}</pf-form-toggle>
+                <pf-form-toggle v-model="nodeContent.voip" :color="{checked: '#28a745', unchecked: '#dc3545'}" :values="{checked: 'yes', unchecked: 'no'}">{{ (node.voip === 'yes') ? $t('Yes') : $t('No') }}</pf-form-toggle>
               </b-form-group>
               <b-form-group horizontal label-cols="3" :label="$t('Notes')">
                 <b-form-textarea v-model="nodeContent.notes" rows="4" max-rows="6"></b-form-textarea>
