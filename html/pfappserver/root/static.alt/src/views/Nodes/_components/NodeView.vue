@@ -24,10 +24,11 @@
              <b-form-group horizontal label-cols="3" :label="$t('Unregistration')">
                 <pf-form-datetime v-model="nodeContent.unregdate" :moments="['1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"></pf-form-datetime>
               </b-form-group>
-              <pf-form-input v-model="nodeContent.time_balance" type="number" :filter="filters.integerAbsolute" :label="$t('Access Time Balance')" :text="$t('seconds')"/>
+              <pf-form-input v-model="nodeContent.time_balance" type="number" :filter="regExp.integerAbsolute" :label="$t('Access Time Balance')" :text="$t('seconds')"/>
               <b-form-group horizontal label-cols="3" :label="$t('Bandwidth Balance')">
                 <pf-form-prefix-multiplier v-model="nodeContent.bandwidth_balance"></pf-form-prefix-multiplier>
               </b-form-group>
+              <pf-form-input v-model="nodeContent.bypass_vlan" type="text" :filter="regExp.stringVlan" :label="$t('Bypass VLAN')"/>
               <b-form-group horizontal label-cols="3" :label="$t('VOIP')" class="my-1">
                 <pf-form-toggle v-model="nodeContent.voip" :color="{checked: '#28a745', unchecked: '#dc3545'}" :values="{checked: 'yes', unchecked: 'no'}">{{ (node.voip === 'yes') ? $t('Yes') : $t('No') }}</pf-form-toggle>
               </b-form-group>
@@ -257,7 +258,7 @@ import pfFormPrefixMultiplier from '@/components/pfFormPrefixMultiplier'
 import pfFormRow from '@/components/pfFormRow'
 import pfFormToggle from '@/components/pfFormToggle'
 import { pfEapType as eapType } from '@/globals/pfEapType'
-import { pfFilters as filters } from '@/globals/pfFilters'
+import { pfRegExp as regExp } from '@/globals/pfRegExp'
 import {
   pfSearchConditionType as conditionType,
   pfSearchConditionValues as conditionValues
@@ -440,8 +441,8 @@ export default {
     invalidForm () {
       return this.$v.nodeContent.$invalid || this.$store.getters['$_nodes/isLoading']
     },
-    filters () {
-      return filters
+    regExp () {
+      return regExp
     }
   },
   methods: {
