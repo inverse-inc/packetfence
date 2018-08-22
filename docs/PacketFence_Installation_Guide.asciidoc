@@ -4549,7 +4549,6 @@ The following must be done on each server of a cluster
 
 RHEL / CentOS
 ----
-yum localinstall http://packetfence.org/downloads/PacketFence/RHEL6/`uname -i`/RPMS/packetfence-release-1.2-5.1.noarch.rpm -y
 yum install monit --enablerepo=packetfence-extra -y
 ----
 
