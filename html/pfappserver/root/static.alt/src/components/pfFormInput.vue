@@ -1,7 +1,7 @@
 <template>
   <b-form-group horizontal label-cols="3" :label="$t(label)"
     :state="isValid()" :invalid-feedback="$t(invalidFeedback)">
-    <b-form-input :type="type" :placeholder="placeholder" v-model="inputValue" @input.native="validate()"
+    <b-form-input :type="type" :placeholder="placeholder" v-model="inputValue" @input.native="validate()" @keyup.native="onKeyup($event)"
       :state="isValid()"></b-form-input>
     <b-form-text v-if="text" v-t="text"></b-form-text>
   </b-form-group>
@@ -46,6 +46,10 @@ export default {
     debounce: {
       type: Number,
       default: 300
+    },
+    filter: {
+      type: String,
+      default: null
     }
   },
   computed: {
@@ -78,6 +82,12 @@ export default {
           },
           time: this.debounce
         })
+      }
+    },
+    onKeyup (event) {
+      if (this.filter) {
+        const filter = new RegExp(this.filter, 'g')
+        this.value = this.value.replace(filter, '')
       }
     }
   },
