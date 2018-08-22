@@ -29,7 +29,7 @@ func connectDB(configDatabase pfconfigdriver.PfConfDatabase) {
 }
 
 // initiaLease fetch the database to remove already assigned ip addresses
-func initiaLease(dhcpHandler *DHCPHandler) {
+func initiaLease(dhcpHandler *DHCPHandler, ConfNet pfconfigdriver.RessourseNetworkConf) {
 	// Need to calculate the end ip because of the ip per role feature
 	endip := binary.BigEndian.Uint32(dhcpHandler.start.To4()) + uint32(dhcpHandler.leaseRange) - uint32(1)
 	a := make([]byte, 4)
@@ -47,7 +47,13 @@ func initiaLease(dhcpHandler *DHCPHandler) {
 		mac        string
 		end_time   time.Time
 		start_time time.Time
+		reservedIP []net.IP
+		found      bool
 	)
+	found = false
+	excludeIP := ExcludeIP(dhcpHandler, ConfNet.IpReserved)
+	dhcpHandler.ipAssigned, reservedIP = AssignIP(dhcpHandler, ConfNet.IpAssigned)
+	dhcpHandler.ipReserved = ConfNet.IpReserved
 
 	for rows.Next() {
 		err := rows.Scan(&ipstr, &mac, &end_time, &start_time)
@@ -55,26 +61,33 @@ func initiaLease(dhcpHandler *DHCPHandler) {
 			log.LoggerWContext(ctx).Error(err.Error())
 			return
 		}
-
-		// Calculate the leasetime from the date in the database
-		now := time.Now()
-		var leaseDuration time.Duration
-		if end_time.IsZero() {
-			leaseDuration = dhcpHandler.leaseDuration
-		} else {
-			leaseDuration = end_time.Sub(now)
+		for _, ans := range append(excludeIP, reservedIP...) {
+			if net.ParseIP(ipstr).Equal(ans) {
+				found = true
+				break
+			}
 		}
-		ip := net.ParseIP(ipstr)
+		if found == false {
+			// Calculate the leasetime from the date in the database
+			now := time.Now()
+			var leaseDuration time.Duration
+			if end_time.IsZero() {
+				leaseDuration = dhcpHandler.leaseDuration
+			} else {
+				leaseDuration = end_time.Sub(now)
+			}
+			ip := net.ParseIP(ipstr)
 
-		// Calculate the position for the roaring bitmap
-		position := uint32(binary.BigEndian.Uint32(ip.To4())) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
+			// Calculate the position for the roaring bitmap
+			position := uint32(binary.BigEndian.Uint32(ip.To4())) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
 
-		// Remove the position in the roaming bitmap
-		dhcpHandler.available.Remove(position)
-		// Add the mac in the cache
-		dhcpHandler.hwcache.Set(mac, int(position), leaseDuration)
-		GlobalIpCache.Set(ipstr, mac, leaseDuration)
-		GlobalMacCache.Set(mac, ipstr, leaseDuration)
+			// Remove the position in the roaming bitmap
+			dhcpHandler.available.Remove(position)
+			// Add the mac in the cache
+			dhcpHandler.hwcache.Set(mac, int(position), leaseDuration)
+			GlobalIpCache.Set(ipstr, mac, leaseDuration)
+			GlobalMacCache.Set(mac, ipstr, leaseDuration)
+		}
 	}
 }
 
@@ -274,7 +287,7 @@ func IPsFromRange(ip_range string) (r []net.IP, i int) {
 }
 
 // ExcludeIP remove IP from the pool
-func ExcludeIP(dhcpHandler *DHCPHandler, ip_range string) {
+func ExcludeIP(dhcpHandler *DHCPHandler, ip_range string) []net.IP {
 	excludeIPs, _ := IPsFromRange(ip_range)
 
 	for _, excludeIP := range excludeIPs {
@@ -286,11 +299,13 @@ func ExcludeIP(dhcpHandler *DHCPHandler, ip_range string) {
 			dhcpHandler.available.Remove(position)
 		}
 	}
+	return excludeIPs
 }
 
 // Assign static IP address to a mac address and remove it from the pool
-func AssignIP(dhcpHandler *DHCPHandler, ip_range string) map[string]uint32 {
+func AssignIP(dhcpHandler *DHCPHandler, ip_range string) (map[string]uint32, []net.IP) {
 	couple := make(map[string]uint32)
+	var iplist []net.IP
 	if ip_range != "" {
 		rgx, _ := regexp.Compile("((?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}):((?:[0-9]{1,3}.){3}(?:[0-9]{1,3}))")
 		iprange := strings.Split(ip_range, ",")
@@ -301,8 +316,9 @@ func AssignIP(dhcpHandler *DHCPHandler, ip_range string) map[string]uint32 {
 				// Remove the position in the roaming bitmap
 				dhcpHandler.available.Remove(position)
 				couple[result[1]] = position
+				iplist = append(iplist, net.ParseIP(result[2]))
 			}
 		}
 	}
-	return couple
+	return couple, iplist
 }
