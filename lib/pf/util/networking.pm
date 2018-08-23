@@ -14,10 +14,10 @@ pf::util::networking
 use strict;
 use warnings;
 use Errno qw(EINTR EAGAIN);
+use Socket qw(SOL_SOCKET SO_RCVTIMEO SO_SNDTIMEO);
+use Exporter qw(import);
 
-use base qw(Exporter);
-
-our @EXPORT_OK = qw(syswrite_all sysread_all send_data_with_length read_data_with_length);
+our @EXPORT_OK = qw(syswrite_all sysread_all send_data_with_length read_data_with_length set_write_timeout set_read_timeout);
 
 =head2 syswrite_all
 
@@ -96,6 +96,42 @@ sub read_data_with_length {
     sysread_all($socket,my $length_buf, 4);
     my $length = unpack("V",$length_buf);
     return sysread_all($socket, $_[1], $length);
+}
+
+=head2 set_read_timeout
+
+set read timeout for a socket
+
+=cut
+
+sub set_read_timeout {
+    my ($socket, $timeout) = @_;
+    return set_socket_timeout($socket, SO_RCVTIMEO, $timeout);
+}
+
+=head2 set_write_timeout
+
+set write timeout for a socket
+
+=cut
+
+sub set_write_timeout {
+    my ($socket, $timeout) = @_;
+    return set_socket_timeout($socket, SO_SNDTIMEO, $timeout);
+}
+
+=head2 set_socket_timeout
+
+set a timeout for a socket
+
+=cut
+
+sub set_socket_timeout {
+    my ($socket, $type, $timeout) = @_;
+    my $seconds  = int($timeout);
+    my $useconds = int( 1_000_000 * ( $timeout - $seconds ) );
+    $timeout  = pack( 'l!l!', $seconds, $useconds );
+    $socket->setsockopt( SOL_SOCKET, $type, $timeout )
 }
 
 =head1 AUTHOR
