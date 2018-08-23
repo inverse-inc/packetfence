@@ -5,17 +5,19 @@
         <icon-counter name="bell" v-model="count" :variant="variant"></icon-counter>
       </template>
       <!-- menu items -->
-      <div v-for="(notification, index) in notifications" :key="index">
-        <b-dropdown-item class="border-right" :class="'border-'+notification.variant">
-          <small>
-            <timeago class="float-right" :class="{'text-secondary': !notification.unread}" :datetime="notification.timestamp" :auto-update="60" :locale="$i18n.locale"></timeago>
-            <div class="notification-message" :class="{'text-secondary': !notification.unread}">
-              <icon :name="notification.icon" :class="'text-'+notification.variant"></icon> <span :class="{ 'font-weight-bold': notification.unread }">{{notification.message}}</span>
-            </div>
-            <small class="notification-url text-secondary">{{notification.url}}</small>
-          </small>
-        </b-dropdown-item>
-        <b-dropdown-divider></b-dropdown-divider>
+      <div class="notifications-scroll">
+        <div v-for="(notification, index) in notifications" :key="index">
+          <b-dropdown-item class="border-right" :class="'border-'+notification.variant">
+            <small>
+              <timeago class="float-right" :class="{'text-secondary': !notification.unread}" :datetime="notification.timestamp" :auto-update="60" :locale="$i18n.locale"></timeago>
+              <div class="notification-message" :class="{'text-secondary': !notification.unread}">
+                <icon :name="notification.icon" :class="'text-'+notification.variant"></icon> <span :class="{ 'font-weight-bold': notification.unread }">{{notification.message}}</span>
+              </div>
+              <small class="notification-url text-secondary">{{notification.url}}</small>
+            </small>
+          </b-dropdown-item>
+          <b-dropdown-divider></b-dropdown-divider>
+        </div>
       </div>
       <b-dropdown-item class="text-right">
         <b-button size="sm" variant="outline-secondary" v-t="'Clear All'" @click="clear()"></b-button>
@@ -23,16 +25,17 @@
     </b-nav-item-dropdown>
     <!-- toasts -->
     <div class="notifications-toasts">
-      <b-alert v-for="(notification, index) in notifications_new" :key="index" :variant="notification.variant" @dismissed="dismiss(notification)"
-      show dismissible fade>
-      <div class="notification-message">
-        <icon :name="notification.icon" :class="'text-'+notification.variant"></icon> {{notification.message}}
-      </div>
-      <small class="notification-url text-secondary">{{notification.url}}</small>
-    </b-alert>
-  </div>
-</b-navbar-nav>
+      <b-alert v-for="(notification, index) in notifications_new" :key="index" :variant="notification.variant"
+        @dismissed="dismiss(notification)" show dismissible fade>
+        <div class="notification-message">
+          <icon :name="notification.icon" :class="'text-'+notification.variant"></icon> {{notification.message}}
+        </div>
+        <small class="notification-url text-secondary">{{notification.url}}</small>
+      </b-alert>
+    </div>
+  </b-navbar-nav>
 </template>
+
 
 <script>
 import IconCounter from '@/components/IconCounter'
@@ -99,7 +102,11 @@ export default {
 .notifications .dropdown-menu {
     width: 30vw;
 }
-.notifications .dropdown-item{
+.notifications-scroll {
+  overflow: auto;
+  max-height: 75vh;
+}
+.notifications .dropdown-item {
     &:hover, &:focus {
         background-color: inherit;
     }
