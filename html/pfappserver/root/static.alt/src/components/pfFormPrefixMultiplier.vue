@@ -203,6 +203,11 @@ export default {
   watch: {
     realValue (a, b) {
       if (a !== b) {
+        // inputValue initialized later
+        if (!this.initialized) {
+          this.initialized = true
+          this.setInputValueFromRealValue()
+        }
         this.$emit('input', a)
       }
     },
@@ -218,8 +223,6 @@ export default {
   },
   created () {
     this.$debouncer = createDebouncer()
-    // setup input(s)
-    this.setInputValueFromRealValue()
   }
 }
 </script>
