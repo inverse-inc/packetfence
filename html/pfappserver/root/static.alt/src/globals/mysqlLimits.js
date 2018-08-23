@@ -39,4 +39,4 @@ export const mysqlLimits = {
     min: 0,
     max: Math.pow(2, 64) - 1
   }
-} 
+}
