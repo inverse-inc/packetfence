@@ -9,8 +9,7 @@
         <b-form @submit.prevent="create()">
           <b-form-row align-v="center">
             <b-col sm="8">
-              <pf-form-input v-model="single.mac" :label="$t('MAC')"
-                :validation="$v.single.mac" :invalid-feedback="invalidMarcFeedback"/>
+              <pf-form-input v-model="single.mac" :filter="globals.regExp.stringMac" :label="$t('MAC')" :validation="$v.single.mac" :invalid-feedback="invalidMarcFeedback"/>
               <b-form-group horizontal label-cols="3" :label="$t('Owner')">
                 <pf-autocomplete v-model="single.pid" placeholder="default" @search="searchUsers" :suggestions="matchingUsers"></pf-autocomplete>
               </b-form-group>
@@ -20,15 +19,8 @@
               <b-form-group horizontal label-cols="3" :label="$t('Role')">
                 <b-form-select v-model="single.category" :options="roles"></b-form-select>
               </b-form-group>
-              <b-form-group horizontal label-cols="3" :label="$t('Unregistration')">
-                <b-form-row>
-                  <b-col>
-                    <b-form-input type="date" v-model="single.unreg_date"/>
-                  </b-col>
-                  <b-col>
-                    <b-form-input type="time" v-model="single.unreg_time"/>
-                  </b-col>
-                </b-form-row>
+             <b-form-group horizontal label-cols="3" :label="$t('Unregistration')">
+                <pf-form-datetime v-model="single.unregdate" :moments="['1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"></pf-form-datetime>
               </b-form-group>
               <b-form-group horizontal label-cols="3" :label="$t('Notes')">
                 <b-form-textarea v-model="single.notes" rows="8" max-rows="12"></b-form-textarea>
@@ -74,7 +66,9 @@
 </template>
 
 <script>
+import { pfRegExp as regExp } from '@/globals/pfRegExp'
 import pfFormInput from '@/components/pfFormInput'
+import pfFormDatetime from '@/components/pfFormDatetime'
 import pfAutocomplete from '@/components/pfAutocomplete'
 import draggable from 'vuedraggable'
 import usersApi from '@/views/Users/_api'
@@ -89,6 +83,7 @@ export default {
   name: 'NodesCreate',
   components: {
     draggable,
+    'pf-form-datetime': pfFormDatetime,
     'pf-form-input': pfFormInput,
     'pf-autocomplete': pfAutocomplete
   },
@@ -97,11 +92,13 @@ export default {
   ],
   data () {
     return {
+      globals: {
+        regExp: regExp
+      },
       modeIndex: 0,
       single: {
         mac: '',
-        status: 'reg',
-        unreg_time: '00:00:00'
+        status: 'reg'
       },
       csv: {
         file: null,

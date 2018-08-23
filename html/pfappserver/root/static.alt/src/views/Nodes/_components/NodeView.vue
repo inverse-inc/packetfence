@@ -24,14 +24,14 @@
              <b-form-group horizontal label-cols="3" :label="$t('Unregistration')">
                 <pf-form-datetime v-model="nodeContent.unregdate" :moments="['1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"></pf-form-datetime>
               </b-form-group>
-              <pf-form-input v-model="nodeContent.time_balance" type="number" :filter="regExp.integerAbsolute" :label="$t('Access Time Balance')" :text="$t('seconds')"/>
+              <pf-form-input v-model="nodeContent.time_balance" type="number" :filter="globals.regExp.integerAbsolute" :label="$t('Access Time Balance')" :text="$t('seconds')"/>
               <b-form-group horizontal label-cols="3" :label="$t('Bandwidth Balance')">
-                <pf-form-prefix-multiplier v-model="nodeContent.bandwidth_balance" :max="Math.pow(2, 64) - 1"></pf-form-prefix-multiplier>
+                <pf-form-prefix-multiplier v-model="nodeContent.bandwidth_balance" :max="globals.sqlLimits.ubigint.max"></pf-form-prefix-multiplier>
               </b-form-group>
               <b-form-group horizontal label-cols="3" :label="$t('VOIP')" class="my-1">
                 <pf-form-toggle v-model="nodeContent.voip" :color="{checked: '#28a745', unchecked: '#dc3545'}" :values="{checked: 'yes', unchecked: 'no'}">{{ (nodeContent.voip === 'yes') ? $t('Yes') : $t('No') }}</pf-form-toggle>
               </b-form-group>
-              <pf-form-input v-model="nodeContent.bypass_vlan" type="text" :filter="regExp.stringVlan" :label="$t('Bypass VLAN')"/>
+              <pf-form-input v-model="nodeContent.bypass_vlan" type="text" :filter="globals.regExp.stringVlan" :label="$t('Bypass VLAN')"/>
               <b-form-group horizontal label-cols="3" :label="$t('Bypass Role')">
                 <b-form-select v-model="nodeContent.bypass_role_id" :options="rolesWithNull"></b-form-select>
              </b-form-group>
@@ -260,6 +260,7 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormPrefixMultiplier from '@/components/pfFormPrefixMultiplier'
 import pfFormRow from '@/components/pfFormRow'
 import pfFormToggle from '@/components/pfFormToggle'
+import { mysqlLimits as sqlLimits } from '@/globals/mysqlLimits'
 import { pfEapType as eapType } from '@/globals/pfEapType'
 import { pfRegExp as regExp } from '@/globals/pfRegExp'
 import {
@@ -291,6 +292,10 @@ export default {
   },
   data () {
     return {
+      globals: {
+        regExp: regExp,
+        sqlLimits: sqlLimits
+      },
       visGroups: new DataSet(),
       visItems: new DataSet(),
       visOptions: {
@@ -443,9 +448,6 @@ export default {
     },
     invalidForm () {
       return this.$v.nodeContent.$invalid || this.$store.getters['$_nodes/isLoading']
-    },
-    regExp () {
-      return regExp
     }
   },
   methods: {
@@ -726,12 +728,6 @@ export default {
     'node.dhcpoption82': {
       handler: function (a, b) {
         this.redrawVis()
-      },
-      deep: true
-    },
-    'node.voip': {
-      handler: function (a, b) {
-        console.log(['voip', a])
       },
       deep: true
     },
