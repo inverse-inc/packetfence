@@ -23,7 +23,6 @@
 # Structure example of a rule/condition
 # [NAMEOFRULE]
 # filter = FILTER
-# attribute = ATTRIBUTE
 # operator = OPERATOR
 # value = VALUE
 #
@@ -113,11 +112,10 @@
 #     owner.can_sponsor
 #     owner.unregdate
 #     owner.category
-#     radius_request
+#     radius_request.RADIUS_request_attributes (see below)
 #
-# Attribute can be:
-# - for the radius_request
-#     All the attributes you can have in the RADIUS request (run FreeRADIUS in debug mode to see these attributes)
+# For the radius_request filter, you can use all the attributes you can have
+# in the RADIUS request (run FreeRADIUS in debug mode to see these attributes)
 # 
 # Operator can be:
 #     is
@@ -259,8 +257,7 @@
 #operator = defined
 #
 #[EAPTLS]
-#filter = radius_request
-#attribute = EAP-Type
+#filter = radius_request.EAP-Type
 #operator = is
 #value = EAP-TLS
 #
