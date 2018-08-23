@@ -189,8 +189,13 @@ export default {
     create () {
       if (this.modeIndex === 0) {
         this.$store.dispatch('$_nodes/createNode', this.single).then(response => {
-          console.debug('node created')
+          this.$store.dispatch('notification/info', {message: this.$i18n.t('Node') + ' ' + this.single.mac + ' ' + this.$i18n.t('created')})
+          this.single = {
+            mac: '',
+            status: 'reg'
+          }
         }).catch(err => {
+          this.$store.dispatch('notification/danger', {message: this.$store.state.$_nodes.message})
           console.debug(err)
           console.debug(this.$store.state.$_nodes.message)
         })
