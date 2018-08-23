@@ -11595,7 +11595,7 @@
                   "type" : "string"
                },
                "vlan" : {
-                  "description" : "Destination Role where PacketFence should put the client when a violation of this type is open.",
+                  "description" : "Destination Role where PacketFence should put the client when a violation of this type is open (only for <em>Change network access on violation</em> action).",
                   "type" : "string"
                },
                "whitelisted_roles" : {
