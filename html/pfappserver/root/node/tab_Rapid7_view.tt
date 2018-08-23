@@ -12,6 +12,7 @@
   <li class="active"><a href="#rapid7-summary" data-toggle="tab">Summary</a></li>
   <li><a href="#rapid7-device-profiling" data-toggle="tab">Device Profiling</a></li>
   <li><a href="#rapid7-top-vulnerabilities" data-toggle="tab">Top Vulnerabilities</a></li>
+  <li><a href="#rapid7-last-scan" data-toggle="tab">Last Scan</a></li>
 </ul>
 
 <div class="tab-content">
@@ -65,6 +66,24 @@
       [% END %]
     </tbody>
     </table>
+  </div>
+
+  <div class="tab-pane fade in" id="rapid7-last-scan">
+    [% IF last_scan.keys.size > 0 %]
+    [%
+      displayRapid7Info("scanStatus", "Status", last_scan.status) | none;
+      displayRapid7Info("scanEngine", "Engine", last_scan.engineName) | none;
+      displayRapid7Info("scanName", "Name", last_scan.scanName) | none;
+      displayRapid7Info("scanAssets", "Scanned Assets", last_scan.assets) | none;
+      displayRapid7Info("scanVulnerabilities", "Vulnerabilities Found", last_scan.vulnerabilities.total) | none;
+      displayRapid7Info("scanStart", "Started At", last_scan.startTime) | none;
+      displayRapid7Info("scanEnd", "Ended At", last_scan.endTime) | none;
+    %]
+    [% ELSE %]
+    <div id="noResult" class="unwell">
+      <i class="icon-legal icon-large"></i><p>[% l('No scan information available') %]</p>
+    </div>
+    [% END %]
   </div>
 
 </div>
