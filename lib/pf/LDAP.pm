@@ -57,6 +57,28 @@ sub new {
     );
 }
 
+=head2 log_error_msg
+
+log_error_msg
+
+=cut
+
+sub log_error_msg {
+    my ($msg) = @_;
+    my $logger = get_logger;
+    if ($msg) {
+        my $error_text = $msg->server_error;
+        if ($error_text) {
+            $logger->error( "Error binding: '$error_text'");
+        } else {
+            $logger->warn( "binding:'" . $msg->error() . "'" );
+        }
+    } else {
+        $logger->error("Error binding: 'Unknown error'");
+    }
+    return;
+}
+
 =head2 bind
 
 Perform a bind using the ldap credentials
@@ -66,17 +88,16 @@ On failure it closes the connection and return undef
 =cut
 
 sub bind {
-    my ($self, $ldap, $credentials) = @_;
-        my $msg = $ldap->bind(@$credentials);
-        my $logger = get_logger;
-        if (!defined $msg || $msg->is_error) {
-            $ldap->unbind;
-            $ldap->disconnect;
-            $logger->error("Error binding '" . ($msg ? $msg->error() : "Unknown error" ) . "'" );
-            return undef;
-        }
-        $logger->trace("Successful bind");
-        return $ldap;
+    my ( $self, $ldap, $credentials ) = @_;
+    my $msg = $ldap->bind(@$credentials);
+    if (!defined $msg || $msg->is_error) {
+        $ldap->unbind;
+        $ldap->disconnect;
+        log_error_msg($msg);
+        return undef;
+    }
+    get_logger->trace("Successful bind");;
+    return $ldap;
 }
 
 =head2 expire_if
@@ -103,8 +124,6 @@ Create the connection for connecting to LDAP
 sub compute_connection {
     my ($class, $server, $args, $credentials) = @_;
     my $encryption = delete $args->{encryption};
-    my $read_timeout = delete $args->{read_timeout} // $DEFAULT_LDAP_READ_TIMEOUT;
-    my $write_timeout = delete $args->{write_timeout} // $DEFAULT_LDAP_WRITE_TIMEOUT;
     my $logger = get_logger();
     my $ldap;
     if ( $encryption eq SSL ) {
@@ -113,7 +132,6 @@ sub compute_connection {
         $ldap = Net::LDAP->new($server, %$args);
     }
     unless ($ldap) {
-        $logger->error();
         $logger->error("Error connecting to $server:$args->{port} using encryption $encryption");
         return undef;
     }
@@ -122,11 +140,14 @@ sub compute_connection {
         my $msg = $ldap->start_tls;
         if ($msg->is_error) {
             $logger->error("Error starting tls for $server:$args->{port}");
+            log_error_msg($msg);
             $ldap->unbind;
             $ldap->disconnect;
             return undef;
         }
     }
+    my $read_timeout = delete $args->{read_timeout} // $DEFAULT_LDAP_READ_TIMEOUT;
+    my $write_timeout = delete $args->{write_timeout} // $DEFAULT_LDAP_WRITE_TIMEOUT;
     my $socket = $ldap->{net_ldap_socket};
     set_read_timeout($socket, $read_timeout);
     set_write_timeout($socket, $write_timeout);
