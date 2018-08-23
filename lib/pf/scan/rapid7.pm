@@ -76,6 +76,39 @@ sub buildApiUri {
     return "https://".$self->{_host}.":".$self->{_port}."/api/3/".$path;
 }
 
+sub buildUA {
+    my ($self) = @_;
+    my $ua = LWP::UserAgent->new;
+    if(isdisabled($self->{_verify_hostname})) {
+        $ua->ssl_opts(verify_hostname => 0, SSL_verify_mode => 0x00);
+    }
+    $ua->timeout(10);
+    return $ua;
+}
+
+sub wrapRequest {
+    my ($self, $req) = @_;
+    $req->authorization_basic($self->{_username}, $self->{_password});
+    return $req;
+}
+
+sub doRequest {
+    my ($self, $req) = @_;
+    my $logger = get_logger();
+
+    $self->wrapRequest($req);
+    my $ua = $self->buildUA();
+    my $response = $ua->request($req);
+    
+    if (!$response->is_success) {
+        $logger->warn("Rapid7 API request on ".$req->uri." failed: ".$response->status_line);
+        return $response;
+    }
+    else {
+        return $response
+    }
+}
+
 =item startScan
 
 =cut
@@ -93,19 +126,12 @@ sub startScan {
         templateId => $self->{_template_id},
     };
 
-    my $ua = LWP::UserAgent->new;
-    if(isdisabled($self->{_verify_hostname})) {
-        $ua->ssl_opts(verify_hostname => 0, SSL_verify_mode => 0x00);
-    }
-    $ua->timeout(10);
-
     my $req = HTTP::Request->new(
         POST => $self->buildApiUri("sites/".$self->{_site_id}."/scans"), 
         ["Content-Type" => "application/json"],
         encode_json($payload),
     );
-    $req->authorization_basic($self->{_username}, $self->{_password});
-    my $response = $ua->request($req);
+    my $response = $self->doRequest($req);
 
     my $result = $response->is_success;
  
@@ -131,6 +157,128 @@ sub startScan {
     $self->setStatus($pf::constants::scan::STATUS_CLOSED);
     $self->statusReportSyncToDb();
     return 0;
+}
+
+=head2 assetDetails
+
+curl -u 'username:password' -H 'Content-Type: application/json' https://172.20.20.230:3780/api/3/assets/search -d '{"match":"all", "filters":[{"field":"ip-address", "operator":"is", "value":"10.0.0.90"}]}' --insecure | less
+
+=cut
+
+sub assetDetails {
+    my ($self, $assetIp) = @_;
+
+    my $req = HTTP::Request->new(
+        POST => $self->buildApiUri("assets/search"), 
+        ["Content-Type" => "application/json"],
+        encode_json({
+            "match" => "all", 
+            "filters" => [{"field" => "ip-address", "operator" => "is", "value" => $assetIp}],
+        }),
+    );
+    my $response = $self->doRequest($req);
+
+    return $response->is_success ? decode_json($response->decoded_content)->{"resources"}->[0] : undef;
+}
+
+sub assetVulnerabilities {
+    my ($self, $assetIp) = @_;
+    
+    my $details = $self->assetDetails($assetIp);
+    return undef unless(defined $details);
+
+    my $asset_id = $details->{id};
+
+    my @vulnerabilities;
+    my ($page, $totalPages, $totalResources);
+    while(!defined($totalPages) || $page < $totalPages) {
+
+        my $uri = "assets/$asset_id/vulnerabilities";
+        $uri .= "?page=$page" if(defined($page));
+        my $req = HTTP::Request->new(
+            GET => $self->buildApiUri($uri), 
+        );
+        my $response = $self->doRequest($req);
+        my $decoded = decode_json($response->decoded_content);
+
+        if($response->is_success) {
+            push @vulnerabilities, @{$decoded->{resources}};
+        }
+        else {
+            return undef;
+        }
+
+        $totalPages = $decoded->{page}->{totalPages};
+        $page = $decoded->{page}->{number};
+        $page ++;
+
+        $totalResources = $decoded->{page}->{totalResources};
+    }
+
+    return \@vulnerabilities;
+}
+
+=head2 vulnerabilityDetails
+
+curl -u 'username:password' https://172.20.20.230:3780/api/3/vulnerabilities/apache-httpd-cve-2007-6388 --insecure | less
+
+=cut
+
+=head2 assetTopVulnerabilities
+
+vulnerabilityDetails.cvss.v2.score
+
+=cut
+
+=head2 lastScan
+
+scan_id = until scanId -> asset.history[-i].scanId
+curl -u 'username:password' -H 'Content-Type: application/json' https://172.20.20.230:3780/api/3/scans/{{scan_id}} --insecure | less
+
+=cut
+
+sub lastScan {
+    my ($self, $assetIp) = @_;
+    my $logger = get_logger;
+
+    my $details = $self->assetDetails($assetIp);
+    return undef unless(defined $details);
+
+    my $i = 1;
+    my $scan_id;
+    # Find the latest history entry that is a scan and fetch its ID
+    my $history = $details->{history};
+    while(!defined($scan_id) && $i < scalar(@{$history})) {
+        my $entry = $history->[-$i];
+        $scan_id = $entry->{type} eq "SCAN" ? $entry->{scanId} : undef;
+        $i++;
+    }
+
+    if(!defined($scan_id)) {
+        $logger->error("Failed to find scan entry in the asset's history for IP $assetIp");
+        return undef;
+    }
+
+
+    my $req = HTTP::Request->new(
+        GET => $self->buildApiUri("scans/$scan_id"), 
+    );
+    my $response = $self->doRequest($req);
+
+    return $response->is_success ? decode_json($response->decoded_content) : undef;
+}
+
+=head2 deviceProfiling
+
+asset.osFingerprint
+
+=cut
+
+sub deviceProfiling {
+    my ($self, $assetIp) = @_;
+    my $details = $self->assetDetails($assetIp);
+
+    return defined($details) ? $details->{osFingerprint} // {} : undef;
 }
 
 =back
