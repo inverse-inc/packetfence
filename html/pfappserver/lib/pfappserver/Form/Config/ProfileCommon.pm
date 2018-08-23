@@ -485,11 +485,9 @@ The status of the profile if it is enabled or disabled
 has_field 'status' =>
   (
    type => 'Toggle',
-   label => 'Profile is enable/disabled',
+   label => 'Enable profile',
    checkbox_value => 'enabled',
    unchecked_value => 'disabled',
-   tags => { after_element => \&help,
-             help => 'If profile is disabled it will not used' },
    default => 'enabled'
   );
 
