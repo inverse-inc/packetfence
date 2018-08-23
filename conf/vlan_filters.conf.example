@@ -126,7 +126,7 @@
 #     date_is_after
 #     time
 #
-# Attribute can be:
+# Value can be:
 # - for connection_type
 #     Wireless-802.11-EAP
 #     Wireless-802.11-NoEAP
