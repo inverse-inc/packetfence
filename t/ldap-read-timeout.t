@@ -109,8 +109,8 @@ unless ($pid) {
     my $listener = Listener->new(
         {   localport => 33389,
             logfile   => 'STDERR',
-            pidfile   => '/tmp/pf-ldap.pid',
-            mode      => 'single'
+            mode      => 'single',
+            pidfile   => '/dev/null',
         }
     );
     $writer->write("done\n");
@@ -152,7 +152,9 @@ is_deeply(\@action, [undef], "Timeout reading");
 
 END {
     local $?;
-    `kill \$(cat /tmp/pf-ldap.pid)`
+    if ($pid) {
+        kill 'TERM', $pid;
+    }
 }
 
 =head1 AUTHOR
