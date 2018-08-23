@@ -156,26 +156,6 @@ func handleStats(res http.ResponseWriter, req *http.Request) {
 	return
 }
 
-func handleInitiaLease(res http.ResponseWriter, req *http.Request) {
-	vars := mux.Vars(req)
-
-	if h, ok := intNametoInterface[vars["int"]]; ok {
-		stat := h.handleApiReq(ApiReq{Req: "initialease", NetInterface: vars["int"], NetWork: ""})
-
-		outgoingJSON, err := json.Marshal(stat)
-
-		if err != nil {
-			unifiedapierrors.Error(res, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		fmt.Fprint(res, string(outgoingJSON))
-		return
-	}
-	unifiedapierrors.Error(res, "Interface not found", http.StatusNotFound)
-	return
-}
-
 func handleDebug(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
@@ -375,15 +355,6 @@ func (h *Interface) handleApiReq(Request ApiReq) interface{} {
 			}
 
 			stats = append(stats, Stats{EthernetName: Request.NetInterface, Net: v.network.String(), Free: availableCount, Category: v.dhcpHandler.role, Options: Options, Members: Members, Status: Status, Size: v.dhcpHandler.leaseRange, Used: usedCount, PercentFree: percentfree, PercentUsed: percentused})
-		}
-		return stats
-	}
-	// Update the lease
-	if Request.Req == "initialease" {
-
-		for _, v := range h.network {
-			// initiaLease(&v.dhcpHandler)
-			stats = append(stats, Stats{EthernetName: Request.NetInterface, Net: v.network.String(), Category: v.dhcpHandler.role, Status: "Init Lease success"})
 		}
 		return stats
 	}
