@@ -115,7 +115,8 @@
 #     radius_request.RADIUS_request_attributes (see below)
 #
 # For the radius_request filter, you can use all the attributes you can have
-# in the RADIUS request (run FreeRADIUS in debug mode to see these attributes)
+# in the RADIUS request (run FreeRADIUS in debug mode or take a look at a RADIUS Audit
+# log entry to see these attributes)
 # 
 # Operator can be:
 #     is
