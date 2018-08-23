@@ -4549,7 +4549,6 @@ The following must be done on each server of a cluster
 
 RHEL / CentOS
 ----
-yum localinstall http://packetfence.org/downloads/PacketFence/RHEL6/`uname -i`/RPMS/packetfence-release-1.2-5.1.noarch.rpm -y
 yum install monit --enablerepo=packetfence-extra -y
 ----
 
@@ -4608,6 +4607,9 @@ NOTE: This command will create configuration scripts in `/etc/monit.d/`, but it 
 
 Include the generated configurations in the monit config
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+At the bottom of `/etc/monit.conf` add the line `include /etc/monit.d/*.conf` either manually, or using `sed`:
+
 
 RHEL / CentOS
 ----
@@ -4676,11 +4678,18 @@ Ignore some checks
 
 Put full paths of checks in `/etc/monit.d/local-ignores`
 
+Enable and start monit
+^^^^^^^^^^^^^^^^^^^^^^
 
-Enable and restart monit
-^^^^^^^^^^^^^
+Enable monit on startup
+
 ----
 systemctl enable monit
+----
+
+Start monit
+
+----
 systemctl restart monit
 ----
 
@@ -4701,9 +4710,8 @@ apt-get install heirloom-mailx
 Test the MTA
 ^^^^^^^^^^^^
 ----
-mail -s "This is a test" user@example.com
-
-[CTRL+D]
+echo `hostname` | mail -s "Monit test" user@example.com
+
 ----
 
 
