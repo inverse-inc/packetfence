@@ -9,7 +9,7 @@
         <b-form @submit.prevent="create()">
           <b-form-row align-v="center">
             <b-col sm="8">
-              <pf-form-input v-model="single.mac" :filter="globals.regExp.stringMac" :label="$t('MAC')" :validation="$v.single.mac" :invalid-feedback="invalidMarcFeedback"/>
+              <pf-form-input v-model="single.mac" :filter="globals.regExp.stringMac" :label="$t('MAC')" :validation="$v.single.mac" :invalid-feedback="$t(invalidMacFeedback)"/>
               <b-form-group horizontal label-cols="3" :label="$t('Owner')">
                 <pf-autocomplete v-model="single.pid" placeholder="default" @search="searchUsers" :suggestions="matchingUsers"></pf-autocomplete>
               </b-form-group>
