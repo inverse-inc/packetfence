@@ -108,10 +108,10 @@ Checks to see if the the LDAP connection is still alive by doing a bind
 
 sub expire_if {
     my ($class, $object, $driver, $credentials) = @_;
+    my $logger = get_logger;
     $logger->info("LDAP testing connection");
     my $ldap = $class->bind($object->value, $credentials);
     return 0 if $ldap;
-    my $logger = get_logger;
     $logger->warn("LDAP connection expired");
     return 1;
 }
