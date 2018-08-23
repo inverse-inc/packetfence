@@ -284,7 +284,7 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('NODES_READ') 
         push @tabs, 'MSE';
     }
 
-    push @tabs, 'WMI', 'Option82';
+    push @tabs, 'WMI', 'Option82', 'Rapid7';
 
     ($status, $result) = $c->model('Node')->view($c->stash->{mac});
     if (is_success($status)) {

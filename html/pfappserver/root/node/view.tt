@@ -1,4 +1,4 @@
-      <div class="modal modal-large fade hide" id="modalNode">
+      <div class="modal modal-x-large fade hide" id="modalNode">
 
         <form name="modalNode" action="[% c.uri_for(c.controller('Node').action_for('update'), [node.mac], {tenant_id => node.tenant_id}) %]" class="form-horizontal form-condensed" >
 
