@@ -336,12 +336,15 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 				// If we still haven't found an IP address to offer, we get the next one
 				if free == 0 {
 					log.LoggerWContext(ctx).Debug("Grabbing next available IP")
+					GlobalTransactionLock.Lock()
 					element = uint32(r.Intn(len(handler.available.ToArray())) - 1)
 					if handler.available.CheckedRemove(element) {
 						free = int(element)
+						GlobalTransactionLock.Unlock()
 					} else {
 						log.LoggerWContext(ctx).Debug("Error when remove from the pool, trying next")
 						free = 0
+						GlobalTransactionLock.Unlock()
 						goto retry
 					}
 				}
