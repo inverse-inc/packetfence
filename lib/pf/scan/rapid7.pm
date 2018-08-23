@@ -161,6 +161,9 @@ sub startScan {
 
 =head2 assetDetails
 
+Get the details of an asset given its IP address
+
+Sample curl:
 curl -u 'username:password' -H 'Content-Type: application/json' https://172.20.20.230:3780/api/3/assets/search -d '{"match":"all", "filters":[{"field":"ip-address", "operator":"is", "value":"10.0.0.90"}]}' --insecure | less
 
 =cut
@@ -180,6 +183,12 @@ sub assetDetails {
 
     return $response->is_success ? decode_json($response->decoded_content)->{"resources"}->[0] : undef;
 }
+
+=head2 assetVulnerabilities
+
+Get the vulnerabilities of an asset
+
+=cut
 
 sub assetVulnerabilities {
     my ($self, $assetIp) = @_;
@@ -220,19 +229,61 @@ sub assetVulnerabilities {
 
 =head2 vulnerabilityDetails
 
+Get the details of a specific vulnerability
+
+Sample curl:
 curl -u 'username:password' https://172.20.20.230:3780/api/3/vulnerabilities/apache-httpd-cve-2007-6388 --insecure | less
 
 =cut
 
+sub vulnerabilityDetails {
+    my ($self, $vulnerability_id) = @_;
+
+    my $req = HTTP::Request->new(
+        GET => $self->buildApiUri("vulnerabilities/$vulnerability_id"), 
+    );
+    my $response = $self->doRequest($req);
+    return $response->is_success ? decode_json($response->decoded_content) : undef;
+}
+
 =head2 assetTopVulnerabilities
 
-vulnerabilityDetails.cvss.v2.score
+Get an asset top 10 vulnerabilities sorted by the CVSS score
 
 =cut
 
+sub assetTopVulnerabilities {
+    my ($self, $assetIp, $amount) = @_;
+    $amount //= 10;
+    my $logger = get_logger;
+
+    my $vulnerabilities = $self->assetVulnerabilities($assetIp);
+
+    my @vulnerabilities_with_details;
+    
+    foreach my $vulnerability (@$vulnerabilities) {
+        my $vid = $vulnerability->{id};
+        if(my $details = $self->vulnerabilityDetails($vid)) {
+            push @vulnerabilities_with_details, $details;
+        }
+        else {
+            $logger->error("Failed to the details of vulnerability $vid");
+        }
+    }
+
+    my @sorted = sort { $b->{cvss}->{v2}->{score} <=> $a->{cvss}->{v2}->{score} } @vulnerabilities_with_details;
+
+    # Make the amount a maximum of the amount of vulnerabilities
+    $amount = scalar(@sorted) -1 if($amount > (scalar(@sorted) -1));
+
+    return [@sorted[0..$amount]];
+}
+
 =head2 lastScan
 
-scan_id = until scanId -> asset.history[-i].scanId
+Get the last scan of an asset
+
+Sample curl:
 curl -u 'username:password' -H 'Content-Type: application/json' https://172.20.20.230:3780/api/3/scans/{{scan_id}} --insecure | less
 
 =cut
@@ -270,7 +321,7 @@ sub lastScan {
 
 =head2 deviceProfiling
 
-asset.osFingerprint
+Get the device profiling information of an asset
 
 =cut
 
