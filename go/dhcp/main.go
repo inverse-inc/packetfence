@@ -337,8 +337,13 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 				if free == 0 {
 					log.LoggerWContext(ctx).Debug("Grabbing next available IP")
 					element = uint32(r.Intn(len(handler.available.ToArray())) - 1)
-					handler.available.Remove(element)
-					free = int(element)
+					if handler.available.CheckedRemove(element) {
+						free = int(element)
+					} else {
+						log.LoggerWContext(ctx).Debug("Error when remove from the pool, trying next")
+						free = 0
+						goto retry
+					}
 				}
 
 				// Lock it
