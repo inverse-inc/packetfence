@@ -109,7 +109,7 @@ sub db_execute {
             $logger->error("Cannot connect to database retrying connection");
             next;
         }
-        $logger->trace(sub{"preparing statement query $sql with bind (" . join(", ", map { defined $_ ? $_ : "(undef)"} @bind) . ")"});
+        pf::log::logstacktrace(sub{"preparing statement query $sql with bind (" . join(", ", map { defined $_ ? $_ : "(undef)"} @bind) . ")"});
         my $sth = $dbh->prepare_cached($sql);
         unless ($sth && $sth->execute(@bind)) {
             my $err = $dbh->err;
