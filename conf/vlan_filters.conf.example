@@ -167,7 +167,7 @@
 # Role can be:
 # - any existing configured PacketFence user role (Configuration tab, "Roles" menu item under the "Users" menu section)
 #
-# Action be be:
+# Action can be:
 #    deregister_node (require param => mac)
 #    register_node (require param => mac pid)
 #    modify_node (require param => mac)
