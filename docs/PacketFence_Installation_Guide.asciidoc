@@ -4548,11 +4548,13 @@ Install Monit
 The following must be done on each server of a cluster
 
 RHEL / CentOS
+
 ----
 yum install monit --enablerepo=packetfence-extra -y
 ----
 
 Debian
+
 ----
 apt-get update
 apt-get install monit
@@ -4612,11 +4614,13 @@ At the bottom of `/etc/monit.conf` add the line `include /etc/monit.d/*.conf` ei
 
 
 RHEL / CentOS
+
 ----
 sed -i -e 's/^include.*//g' /etc/monit.conf && echo "include /etc/monit.d/*.conf" >> /etc/monit.conf
 ----
 
 Debian
+
 ----
 sed -i -e 's/include.*\*$//g' /etc/monit/monitrc && echo "include /etc/monit/conf.d/*.conf" >> /etc/monit/monitrc
 ----
@@ -4633,12 +4637,14 @@ Run the monitoring script update to fetch the scripts and config
 Ensure the script outputs: `Update completed successfully`
 
 RHEL / CentOS
+
 ----
 yum install uuid -y
 /usr/local/pf/addons/monit/monitoring-scripts/update.sh
 ----
 
 Debian
+
 ----
 apt-get install uuid-runtime
 /usr/local/pf/addons/monit/monitoring-scripts/update.sh 
@@ -4698,11 +4704,13 @@ Installing a MTA
 A MTA is needed to correctly relay emails from monit. If _localhost_ is used as smtpserver, make sure that a MTA is installed and configured on the server. 
 
 RHEL / CentOS
+
 ----
 yum install mailx -y
 ----
 
 Debian
+
 ----
 apt-get install heirloom-mailx
 ----
@@ -4711,7 +4719,6 @@ Test the MTA
 ^^^^^^^^^^^^
 ----
 echo `hostname` | mail -s "Monit test" user@example.com
-
 ----
 
 
