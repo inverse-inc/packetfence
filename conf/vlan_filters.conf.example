@@ -23,6 +23,7 @@
 # Structure example of a rule/condition
 # [NAMEOFRULE]
 # filter = FILTER
+# attribute = ATTRIBUTE
 # operator = OPERATOR
 # value = VALUE
 #
@@ -113,6 +114,10 @@
 #     owner.unregdate
 #     owner.category
 #     radius_request
+#
+# Attribute can be:
+# - for the radius_request
+#     All the attributes you can have in the RADIUS request (run FreeRADIUS in debug mode to see these attributes)
 # 
 # Operator can be:
 #     is
@@ -126,7 +131,7 @@
 #     date_is_after
 #     time
 #
-# Attribute can be:
+# Value can be:
 # - for connection_type
 #     Wireless-802.11-EAP
 #     Wireless-802.11-NoEAP
@@ -135,8 +140,6 @@
 #     SNMP-Traps
 #     Inline
 #     WIRED_MAC_AUTH
-# - for the radius_request
-#     All the attributes you can have in the RADIUS request (run FreeRADIUS in debug mode to see these attributes)
 #
 # Note: Time / Date based rule(s)/condition(s) values follows the following logic:
 # http://search.cpan.org/~pryan/Period-1.20/Period.pm
