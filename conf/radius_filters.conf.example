@@ -16,7 +16,7 @@
 # RLM_MODULE_UPDATED
 # RLM_MODULE_NUMCODES
 #
-# you can use 3 scopes in the radius filter:
+# you can use 4 scopes in the radius filter:
 # returnRadiusAccessAccept is when you return the answer for a device access
 # returnAuthorizeRead is when you return the answer for the switch read login access
 # returnAuthorizeWrite is when you return the answer for the switch write login access
