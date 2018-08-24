@@ -27,6 +27,16 @@ has 'primary_key' => 'switch_id';
 use pf::ConfigStore::Switch;
 use pfappserver::Form::Config::Switch;
 
+sub invalidate_cache {
+    my ($self) = @_;
+    my $switch_id = $self->item;
+    my $switch = pf::SwitchFactory->instantiate($switch_id);
+    unless ( ref($switch) ) {
+        return $self->render_error(status => 422, "Cannot create switch $switch");
+    }
+    $switch->invalidate_distributed_cache();
+    return $self->render(status => 200, json => { status => "success" });
+}
  
 =head1 AUTHOR
 
