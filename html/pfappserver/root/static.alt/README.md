@@ -46,6 +46,7 @@ Since this is a SPA (Single-Page Application), it is currently accessible from `
 * [Plotly](https://plot.ly/javascript/reference/) -- svg charts
 * [moment](https://momentjs.com/docs/) -- datetime utils
 * [vue-bootstrap-datetimepicker](http://eonasdan.github.io/bootstrap-datetimepicker/) -- datetime input form element
+* [papaparse](https://www.papaparse.com/) -- parse CSV
 
 ## Files Structure
 
