@@ -243,6 +243,16 @@ our @API_V1_ROUTES = (
         Config::Violations
     ),
     {
+        controller => 'Config::Switches',
+        resource   => {
+            subroutes => {
+                invalidate_cache => {
+                    post => 'invalidate_cache',
+                }
+            }
+        },
+    },
+    {
         controller => 'Translations',
         collection => {
             http_methods => {
