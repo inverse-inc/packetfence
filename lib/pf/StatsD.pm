@@ -147,6 +147,12 @@ sub update {
     my ( $self, $stats, $delta, $sample_rate ) = @_;
     $delta = 1 unless defined $delta;
     my %data;
+    if ( ref($stats) eq 'ARRAY' ) {
+        %data = map { "$_" => "$delta|c" }, @$stats;
+    }
+    else {
+        %data = ( "$stats" => "$delta|c" );
+    }
     $self->send( \%data, $sample_rate );
 }
 
