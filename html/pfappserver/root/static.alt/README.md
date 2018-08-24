@@ -43,6 +43,9 @@ Since this is a SPA (Single-Page Application), it is currently accessible from `
 * [vue2vis](https://github.com/alexcode/vue2vis/) -- VueJS to Vis
  * [vis](http://visjs.org/) -- Vis
 * [vue-timeago](https://github.com/egoist/vue-timeago) -- show relative time
+* [Plotly](https://plot.ly/javascript/reference/) -- svg charts
+* [moment](https://momentjs.com/docs/) -- datetime utils
+* [vue-bootstrap-datetimepicker](http://eonasdan.github.io/bootstrap-datetimepicker/) -- datetime input form element
 
 ## Files Structure
 
