@@ -27,6 +27,10 @@
  *      ...
  *    ]
  *
+ *    `cumulative` (true|false) -- `files` accumulates with each upload (default: false)
+ *
+ *    `title` (string) -- optional title for mouseover hint (default: null)
+ *
  * Events:
  *
  *    @load: emitted w/ `files` after all uploads are processed, contains an array
@@ -46,9 +50,9 @@
     <label class="file-upload mb-0">
       <b-form ref="uploadform" @submit.prevent>
         <!-- MUTLIPLE UPLOAD -->
-        <input v-if="multiple" type="file" @change="uploadFiles" :accept="accept" :title="$t('Click to upload')" multiple/>
+        <input v-if="multiple" type="file" @change="uploadFiles" :accept="accept" :title="title" multiple/>
         <!-- SINGLE UPLOAD -->
-        <input v-else type="file" @change="uploadFiles" :accept="accept" :title="$t('Click to upload')"/>
+        <input v-else type="file" @change="uploadFiles" :accept="accept" :title="title"/>
       </b-form>
     </label>
     <slot>
@@ -72,11 +76,21 @@ export default {
     files: {
       type: Array,
       default: []
+    },
+    cumulative:  {
+      type: Boolean,
+      default: false
+    },
+    title: {
+      type: String,
+      default: null
     }
   },
   methods: {
     uploadFiles (event) {
-      this.files = []
+      if (!this.cumulative) {
+        this.files = []
+      }
       const files = event.target.files
       Array.from(files).forEach((file, index, files) => {
         let reader = new FileReader()
@@ -89,7 +103,7 @@ export default {
               size: localfile.size,
               type: localfile.type
             })
-            if (this.files.length === files.length) {
+            if (this.cumulative || this.files.length === files.length) {
               this.$emit('load', this.files)
             }
           }
@@ -114,10 +128,11 @@ export default {
   position: relative;
   display: inline-block;
 }
-.file-upload,
 .file-upload input[type="file"] {
   opacity: 0;
   position: absolute;
+  top: 0px;
+  left: 0px;
   width: 100%;
   height: 100%;
 }
