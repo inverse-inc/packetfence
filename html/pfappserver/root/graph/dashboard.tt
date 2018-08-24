@@ -337,6 +337,7 @@ END;
                   [% graph("mysql_PacketFence_Database.queries", "Database queries", {"nocluster" => 1}) | none %]
                   [% graph("mysql_PacketFence_Database.handlers", "Database handlers", {"nocluster" => 1}) | none %]
                   [% graph("mysql_PacketFence_Database.threads", "Database threads", {"graph_per_host" => 1}) | none %]
+                  [% graph("mysql_PacketFence_Database.connections", "Database connections", {"graph_per_host" => 1}) | none %]
                 </div>
               </div>
             </div>
