@@ -112,7 +112,11 @@
 #     owner.can_sponsor
 #     owner.unregdate
 #     owner.category
-#     radius_request
+#     radius_request.RADIUS_request_attributes (see below)
+#
+# For the radius_request filter, you can use all the attributes you can have
+# in the RADIUS request (run FreeRADIUS in debug mode or take a look at a RADIUS Audit
+# log entry to see these attributes)
 # 
 # Operator can be:
 #     is
@@ -126,7 +130,7 @@
 #     date_is_after
 #     time
 #
-# Attribute can be:
+# Value can be:
 # - for connection_type
 #     Wireless-802.11-EAP
 #     Wireless-802.11-NoEAP
@@ -135,8 +139,6 @@
 #     SNMP-Traps
 #     Inline
 #     WIRED_MAC_AUTH
-# - for the radius_request
-#     All the attributes you can have in the RADIUS request (run FreeRADIUS in debug mode to see these attributes)
 #
 # Note: Time / Date based rule(s)/condition(s) values follows the following logic:
 # http://search.cpan.org/~pryan/Period-1.20/Period.pm
@@ -164,7 +166,7 @@
 # Role can be:
 # - any existing configured PacketFence user role (Configuration tab, "Roles" menu item under the "Users" menu section)
 #
-# Action be be:
+# Action can be:
 #    deregister_node (require param => mac)
 #    register_node (require param => mac pid)
 #    modify_node (require param => mac)
@@ -256,8 +258,7 @@
 #operator = defined
 #
 #[EAPTLS]
-#filter = radius_request
-#attribute = EAP-Type
+#filter = radius_request.EAP-Type
 #operator = is
 #value = EAP-TLS
 #
