@@ -509,7 +509,7 @@ ldap $ldap {
     identity        = "$ConfigAuthenticationLdap{$ldap}->{binddn}"
     password        = "$ConfigAuthenticationLdap{$ldap}->{password}"
     base_dn         = "$ConfigAuthenticationLdap{$ldap}->{basedn}"
-    filter          = "(userPrincipalName=%{User-Name})"
+    filter          = "(userPrincipalName=%{ldapquote:&User-Name})"
     scope           = $ConfigAuthenticationLdap{$ldap}->{scope}
     base_filter     = "(objectclass=user)"
     rebind          = yes
@@ -519,7 +519,7 @@ ldap $ldap {
     }
     user {
         base_dn = "\${..base_dn}"
-        filter = "(|(userPrincipalName=%{User-Name})(sAMAccountName=%{%{Stripped-User-Name}:-%{User-Name}}))"
+        filter = "(|(userPrincipalName=%{ldapquote:&User-Name})(sAMAccountName=%{%{Stripped-User-Name}:-%{User-Name}}))"
     }
     options {
         chase_referrals = yes
