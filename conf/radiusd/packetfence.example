@@ -330,6 +330,9 @@ post-auth {
 	#update {
 	#	&reply: += &session-state:
 	#}
+	if (&control:PacketFence-Proxied-From == "True") {
+		packetfence-audit-log-accept
+	}
 
 	# If the request has not been handled inside the inner-tunnel
 	# send it to packetfence
@@ -363,6 +366,9 @@ post-auth {
 			&request:User-Password := "******"
 		}
 		if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
+			packetfence-audit-log-reject
+		}
+		if (&control:PacketFence-Proxied-From == "True") {
 			packetfence-audit-log-reject
 		}
 		attr_filter.access_reject
@@ -430,5 +436,10 @@ post-proxy {
 #	Post-Proxy-Type Fail-Accounting {
 #			detail
 #	}
+	update control {
+		PacketFence-Proxied-From := "True"
+	}
+
+
 }
 }
