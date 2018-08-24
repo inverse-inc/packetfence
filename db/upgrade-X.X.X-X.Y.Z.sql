@@ -95,9 +95,9 @@ DELIMITER ;
 -- Table structure for table `keyval`
 --
 
-CREATE TABLE keyval (
+CREATE TABLE key_value_storage (
   id VARCHAR(255),
-  value LONGBLOB,
+  value BLOB,
   PRIMARY KEY(id)
 ) ENGINE=InnoDB;
 
