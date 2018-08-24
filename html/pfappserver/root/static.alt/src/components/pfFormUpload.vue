@@ -1,3 +1,46 @@
+/**
+ * Component to pseudo-upload and access local files. Supports multiple files,
+ *  drag-and-drop and restrict by mime-type(s).
+ *
+ * Basic Usage:
+ *
+ *  <template>
+ *    <pf-form-upload @load="files = $event"></pf-form-upload>
+ *  </template>
+ *
+ * Properties:
+ *
+ *    `accept`: (string) -- comma separated list of allowed mime type(s) (default: */*)
+ *      eg: text/plain, application.json
+ *      eg: text/*, application/*
+ *
+ *    `multiple`: (true|false) -- allow multiple files (default: false)
+ *
+ *    `files`: (array) -- [
+ *      {
+ *        result: (string) -- the file contents,
+ *        lastModified: (int) -- timestamp-milliseconds of when the file was last modified,
+ *        name: (string) -- the original filename (no path),
+ *        size: (int) -- the file size in Bytes,
+ *        type: (string) -- the mime-type of the file (eg: 'text/plain').
+ *      },
+ *      ...
+ *    ]
+ *
+ * Events:
+ *
+ *    @load: emitted w/ `files` after all uploads are processed, contains an array
+ *      of liternal object, one-per-file (see: `files`  property).
+ *
+ * Styling:
+ *
+ *   The optional child elements (slot) can be used to restyle the upload button
+ *
+ *   <pf-form-upload @load="files = $event">
+ *     <b-button><icon variant="primary" name="upload"></icon> {{ $t('Custom Styled Button') }}</b-button>
+ *   </pf-form-upload>
+ *
+**/
 <template>
   <div class="file-upload-container">
     <label class="file-upload mb-0">
