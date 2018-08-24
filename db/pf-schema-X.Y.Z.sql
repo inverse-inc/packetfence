@@ -1288,7 +1288,7 @@ END ;;
 DELIMITER ;
 
 --
--- Table structure for table `keyval`
+-- Table structure for table `key_value_storage`
 --
 
 CREATE TABLE key_value_storage (
