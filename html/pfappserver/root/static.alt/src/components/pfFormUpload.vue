@@ -8,6 +8,12 @@
  *    <pf-form-upload @load="files = $event"></pf-form-upload>
  *  </template>
  *
+ * Extended Usage:
+ *
+ *  <template>
+ *    <pf-form-upload @load="files = $event" accept="text/*" :multiple="true" :cumulative="true" :title="$t('Uplaod File')"></pf-form-upload>
+ *  </template>
+ *
  * Properties:
  *
  *    `accept`: (string) -- comma separated list of allowed mime type(s) (default: */*)
@@ -34,7 +40,7 @@
  * Events:
  *
  *    @load: emitted w/ `files` after all uploads are processed, contains an array
- *      of liternal object, one-per-file (see: `files`  property).
+ *      of literal object, one-per-file (see: `files`  property).
  *
  * Styling:
  *
@@ -77,7 +83,7 @@ export default {
       type: Array,
       default: []
     },
-    cumulative:  {
+    cumulative: {
       type: Boolean,
       default: false
     },
