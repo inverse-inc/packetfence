@@ -239,6 +239,7 @@ our @API_V1_ROUTES = (
         Config::Sources
         Config::Switches
         Config::SwitchGroups
+        Config::SyslogForwarders
         Config::SyslogParsers
         Config::TrafficShapingPolicies
         Config::Violations
