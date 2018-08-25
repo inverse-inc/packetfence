@@ -306,7 +306,7 @@ cmp_deeply(
                 },
                 'status' => {
                     type => 'string',
-                    description => 'If profile is disabled it will not used',
+                    description => 'Enable profile',
                 },
                 'unreg_on_acct_stop' => {
                     type => 'string',
