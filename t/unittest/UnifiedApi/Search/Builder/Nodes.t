@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 26;
+use Test::More tests => 27;
 
 #This test will running last
 use Test::NoWarnings;
@@ -450,6 +450,26 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
     );
     my ($status, $error) = $sb->make_columns( \%search_info );
     is($status, 422, "Duplicated fields error");
+}
+
+{
+    my @f = qw(mac );
+
+    my %search_info = (
+        dal => $dal,
+        fields => \@f,
+        with_count => 1,
+    );
+    is_deeply(
+        [
+            $sb->make_columns(\%search_info)
+        ],
+        [
+            200,
+            [qw(-SQL_CALC_FOUND_ROWS node.mac)],
+        ],
+        "with count",
+    )
 }
 
 =head1 AUTHOR
