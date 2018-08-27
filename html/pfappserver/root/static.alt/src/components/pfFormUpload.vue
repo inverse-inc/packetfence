@@ -1,6 +1,10 @@
 /**
- * Component to pseudo-upload and access local files. Supports multiple files,
- *  drag-and-drop and restrict by mime-type(s).
+ * Component to pseudo-upload and access local files using FileReader.
+ *
+ * Supports 
+ *  multiple files
+ *  drag-and-drop
+ *  restrict by mime-type(s) or file extension(s)
  *
  * Basic Usage:
  *
@@ -16,9 +20,9 @@
  *
  * Properties:
  *
- *    `accept`: (string) -- comma separated list of allowed mime type(s) (default: */*)
- *      eg: text/plain, application.json
- *      eg: text/*, application/*
+ *    `accept`: (string) -- comma separated list of allowed mime type(s) or file extension(s) (default: */*)
+ *      eg: text/plain, application/json, .csv
+ *      eg: text/*, application/*, .csv
  *
  *    `multiple`: (true|false) -- allow multiple files (default: false)
  *
@@ -34,6 +38,8 @@
  *    ]
  *
  *    `cumulative` (true|false) -- `files` accumulates with each upload (default: false)
+ *      true: @load event emitted after every file is uploaded
+ *      false: @load event emitted once after all files are uploaded
  *
  *    `title` (string) -- optional title for mouseover hint (default: null)
  *
@@ -52,13 +58,13 @@
  *
 **/
 <template>
-  <div class="file-upload-container">
+  <div class="file-upload-container" :title="title">
     <label class="file-upload mb-0">
       <b-form ref="uploadform" @submit.prevent>
         <!-- MUTLIPLE UPLOAD -->
-        <input v-if="multiple" type="file" @change="uploadFiles" :accept="accept" :title="title" multiple/>
+        <input v-if="multiple" type="file" @change="uploadFiles" :accept="accept" title=" " multiple/>
         <!-- SINGLE UPLOAD -->
-        <input v-else type="file" @change="uploadFiles" :accept="accept" :title="title"/>
+        <input v-else type="file" @change="uploadFiles" :accept="accept" title=" "/>
       </b-form>
     </label>
     <slot>
@@ -89,7 +95,7 @@ export default {
     },
     title: {
       type: String,
-      default: null
+      default: ''
     }
   },
   methods: {
@@ -102,20 +108,22 @@ export default {
         let reader = new FileReader()
         reader.onload = ((localfile) => {
           return (e) => {
-            this.files.push({
+            let newfile = {
               result: e.target.result,
               lastModified: localfile.lastModified,
               name: localfile.name,
               size: localfile.size,
               type: localfile.type
-            })
+            }
+            // prevent duplicates
+            if (this.files.map(file => { return file.name + file.lastModified }).includes(newfile.name + newfile.lastModified)) return
+            this.files.push(newfile)
             if (this.cumulative || this.files.length === files.length) {
               this.$emit('load', this.files)
             }
           }
         })(file)
         reader.readAsText(file)
-        // reader.readAsDataURL(file)
       })
       // clear the input to allow re-upload
       this.$refs.uploadform.reset()
@@ -136,12 +144,14 @@ export default {
 }
 .file-upload input[type="file"] {
   opacity: 0;
+  color: transparent;
   position: absolute;
   top: 0px;
   left: 0px;
   width: 100%;
   height: 100%;
 }
+.file-upload-container:hover,
 .file-upload input[type="file"]:hover {
   cursor: pointer;
 }
