@@ -3,7 +3,7 @@
     <!-- Advanced Search Mode -->
     <div v-if="advancedMode">
       <b-form inline @submit.prevent="onSubmit" @reset.prevent="onReset">
-        <pf-search-boolean :model="condition" :fields="fields" :store="store" :advancedMode="advancedMode"/>
+        <pf-search-boolean :model="condition" :fields="fields" :store="store" :advancedMode="advancedMode" :defaultSearch="defaultSearch"/>
         <br/>
         <b-container fluid class="mt-3 px-0">
           <b-button-group>
@@ -99,6 +99,9 @@ export default {
       type: Boolean,
       default: false
     },
+    defaultSearch: {
+      type: Object
+    },
     fields: {
       type: Array
     },
@@ -153,6 +156,7 @@ export default {
   },
   methods: {
     onSubmit (event) {
+      console.log('pfSearch onSubmit ' + JSON.stringify(this.condition))
       let query = this.condition
       if (!this.advancedMode) {
         if (this.quickWithFields) {
@@ -206,10 +210,14 @@ export default {
       })
     }
   },
+  created () {
+    console.log('2. pfSearch created')
+  },
   mounted () {
     if (!this.advancedMode && !this.quickWithFields) {
       this.quickValue = this.condition.values[0].value
     }
+    console.log('5. pfSearch mounted')
   }
 }
 </script>
