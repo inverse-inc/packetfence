@@ -236,7 +236,6 @@ our @API_V1_ROUTES = (
         Config::Realms
         Config::Roles
         Config::Scans
-        Config::Sources
         Config::Switches
         Config::SwitchGroups
         Config::SyslogForwarders
@@ -244,6 +243,16 @@ our @API_V1_ROUTES = (
         Config::TrafficShapingPolicies
         Config::Violations
     ),
+    {
+        controller => 'Config::Sources',
+        collection   => {
+            subroutes => {
+                test => {
+                    post => 'test',
+                }
+            }
+        },
+    },
     {
         controller => 'Config::Switches',
         resource   => {
