@@ -63,4 +63,27 @@ INSERT INTO sms_carrier VALUES(100125, 'Freedom', 'txt.freedommobile.ca', now(),
 INSERT INTO sms_carrier VALUES(100126, 'PC Mobile', '%s@msg.telus.com', now(), now());
 INSERT INTO sms_carrier VALUES(100127, 'TBayTel', '%s@pcs.rogers.com', now(), now());
 
+--
+-- Add Freeradius decode procedure
+-- 
+DELIMITER $$
+DROP FUNCTION IF EXISTS FREERADIUS_DECODE $$
+CREATE FUNCTION FREERADIUS_DECODE (str text) 
+RETURNS text
+DETERMINISTIC
+BEGIN 
+    DECLARE result text;
+    DECLARE ind INT DEFAULT 0;
+
+    SET result = str;
+    WHILE ind <= 255 DO
+       SET result = REPLACE(result, CONCAT('=', LPAD(LOWER(HEX(ind)), 2, 0)), CHAR(ind));
+       SET result = REPLACE(result, CONCAT('=', LPAD(HEX(ind), 2, 0)), CHAR(ind));
+       SET ind = ind + 1;
+    END WHILE;
+
+    RETURN result;
+END$$
+DELIMITER ;
+
 INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION)); 
