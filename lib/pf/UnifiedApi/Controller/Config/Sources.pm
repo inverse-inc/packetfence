@@ -108,12 +108,7 @@ sub test {
 
     $form->process(params => $new_data, posted => 1);
     if ($form->has_errors) {
-        my $field_errors = $form->field_errors;
-        my @errors;
-        while (my ($k,$v) = each %$field_errors) {
-            push @errors, {message => $v, field => $k} ;
-        }
-        return $self->render_error(422, "Unable to validate", \@errors);
+        return $self->render_error(422, "Unable to validate", $self->format_form_errors($form));
     }
 
     my $success = eval {

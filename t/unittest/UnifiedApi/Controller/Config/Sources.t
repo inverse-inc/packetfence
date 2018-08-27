@@ -48,7 +48,7 @@ $t->post_ok($collection_base_url, {'Content-Type' => 'application/json'} => '{')
 
 $t->post_ok("$collection_base_url/test" => json => {type => 'Htpasswd', id => 'test'})
   ->status_is(422)
-  ->json_has('/errors');
+  ->json_has('/errors/0/field');
 
 $t->post_ok("$collection_base_url/test" =>
     json => {
