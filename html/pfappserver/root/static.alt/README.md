@@ -47,6 +47,7 @@ Since this is a SPA (Single-Page Application), it is currently accessible from `
 * [moment](https://momentjs.com/docs/) -- datetime utils
 * [vue-bootstrap-datetimepicker](http://eonasdan.github.io/bootstrap-datetimepicker/) -- datetime input form element
 * [papaparse](https://www.papaparse.com/) -- parse CSV
+* [uuid](https://www.npmjs.com/package/uuid) -- RFC4122 UUIDs
 
 ## Files Structure
 
