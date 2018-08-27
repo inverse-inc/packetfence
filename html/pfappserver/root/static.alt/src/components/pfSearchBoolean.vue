@@ -106,8 +106,7 @@ export default {
   },
   props: {
     model: {
-      type: Object,
-      default: null
+      type: Object
     },
     fields: {
       type: Array
@@ -118,9 +117,6 @@ export default {
     advancedMode: {
       type: Boolean,
       default: false
-    },
-    defaultSearch: {
-      type: Object
     },
     drag: {
       type: Boolean,
@@ -142,19 +138,6 @@ export default {
         this.model.values.length = 1
         this.model.values[0].values.length = 1
       }
-    },
-    model: {
-      handler: function (a, b) {
-        console.log('pfSearchBoolean watch model handler')
-        if (a === null && this.defaultSearch !== null) {
-          console.log(['pfSearchBoolean watch model handler', JSON.stringify(this.defaultSearch)])
-          console.log('pfSearchBoolean dS before ' + JSON.stringify(this.defaultSearch))
-          this.model = Object.assign({}, this.defaultSearch)
-          console.log('pfSearchBoolean dS after ' + JSON.stringify(this.defaultSearch))
-        }
-      },
-      immediate: true,
-      deep: true
     }
   },
   methods: {
