@@ -1,10 +1,10 @@
 /**
  * Component to pseudo-upload and access local files using FileReader.
  *
- * Supports 
+ * Supports
  *  multiple files
  *  drag-and-drop
- *  restrict by mime-type(s) or file extension(s)
+ *  restrict by mime-type(s) and/or file extension(s)
  *
  * Basic Usage:
  *
@@ -38,8 +38,8 @@
  *    ]
  *
  *    `cumulative` (true|false) -- `files` accumulates with each upload (default: false)
- *      true: @load event emitted after every file is uploaded
- *      false: @load event emitted once after all files are uploaded
+ *      true: @load event emitted after every file is uploaded, `files` is never reset.
+ *      false: @load event emitted once after all files are uploaded, `files` is reset on each upload.
  *
  *    `title` (string) -- optional title for mouseover hint (default: null)
  *
@@ -144,12 +144,13 @@ export default {
 }
 .file-upload input[type="file"] {
   opacity: 0;
-  color: transparent;
   position: absolute;
   top: 0px;
   left: 0px;
   width: 100%;
   height: 100%;
+  /* hide mouseover tooltip */
+  color: transparent;
 }
 .file-upload-container:hover,
 .file-upload input[type="file"]:hover {
