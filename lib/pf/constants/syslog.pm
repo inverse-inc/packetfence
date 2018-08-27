@@ -139,6 +139,10 @@ our @SyslogInfo = (
         'conditions' => [ '$programname == "pfmon"' ]
     },
     {
+        'name'       => 'pfsso.log',
+        'conditions' => [ '$programname == "pfsso"' ]
+    },
+    {
         'name'       => 'radius-acct.log',
         'conditions' => [
 '$programname contains "radius" and $syslogfacility-text == "local2"',
@@ -146,7 +150,7 @@ our @SyslogInfo = (
         ]
     },
     {
-        'name' => 'radius-cli.log',
+        'name'       => 'radius-cli.log',
         'conditions' =>
           [ '$syslogtag contains "cli" and $syslogfacility-text == "local3"' ]
     },
@@ -184,12 +188,20 @@ our @SyslogInfo = (
         'conditions' => [ '$programname == "redis-server"' ]
     },
     {
-        'name'      => 'mariadb_error.log',
+        'name'       => 'mariadb_error.log',
         'conditions' => [ '$syslogtag contains "mysqld"' ],
     },
     {
-        'name'      => 'haproxy_portal.log',
+        'name'       => 'haproxy_portal.log',
         'conditions' => [ '$programname == "haproxy" and ($msg contains "portal-http" or $msg contains "backend has no server available")' ],
+    },
+    {
+        'name'       => 'haproxy_db.log',
+        'conditions' => [ '$programname == "haproxy" and ($msg contains "mysql" or $msg contains "backend has no server available")' ],
+    },
+    {
+        'name'       => 'etcd.log',
+        'conditions' => [ '$programname == "etcd"' ],
     },
 );
 
