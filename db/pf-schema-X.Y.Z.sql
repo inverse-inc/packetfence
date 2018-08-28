@@ -1266,6 +1266,28 @@ CREATE TABLE `api_user` (
 ) ENGINE=InnoDB;
 
 --
+-- Dumping routines for database 'pf'
+--
+DROP FUNCTION IF EXISTS `FREERADIUS_DECODE`;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` FUNCTION `FREERADIUS_DECODE`(str text) RETURNS text CHARSET latin1
+    DETERMINISTIC
+BEGIN 
+    DECLARE result text;
+    DECLARE ind INT DEFAULT 0;
+
+    SET result = str;
+    WHILE ind <= 255 DO
+       SET result = REPLACE(result, CONCAT('=', LPAD(LOWER(HEX(ind)), 2, 0)), CHAR(ind));
+       SET result = REPLACE(result, CONCAT('=', LPAD(HEX(ind), 2, 0)), CHAR(ind));
+       SET ind = ind + 1;
+    END WHILE;
+
+    RETURN result;
+END ;;
+DELIMITER ;
+
+--
 -- Updating to current version
 --
 
