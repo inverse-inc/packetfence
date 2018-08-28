@@ -45,7 +45,7 @@
         </template>
         <template slot="actions" slot-scope="data">
           <input type="checkbox" :id="data.value" :value="data.item" v-model="selectValues" @click.stop="onToggleSelected($event, data.index)">
-          <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[data.index]._message" v-b-tooltip.hover.right :title="tableValues[data.index]._message"></icon>
+          <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[data.index]._rowMessage" v-b-tooltip.hover.right :title="tableValues[data.index]._rowMessage"></icon>
         </template>
         <template slot="empty">
           <pf-empty-table :isLoading="isLoading">{{ $t('No user found') }}</pf-empty-table>
@@ -514,22 +514,6 @@ export default {
     },
     onRowClick (item, index) {
       this.$router.push({ name: 'user', params: { pid: item.pid } })
-    }
-  },
-  watch: {
-    selectValues (a, b) {
-      if (JSON.stringify(a) !== JSON.stringify(b)) {
-        const _this = this
-        const selectValues = this.selectValues
-        this.tableValues.forEach(function (item, index, items) {
-          if (selectValues.includes(item)) {
-            _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, variant: 'info'})
-          } else {
-            _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, variant: ''})
-            _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: ''})
-          }
-        })
-      }
     }
   }
 }

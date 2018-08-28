@@ -205,7 +205,6 @@ export default {
     }
   },
   mounted () {
-    console.log(['pfSearch storeName', this.storeName])
     if (!this.advancedMode && !this.quickWithFields) {
       this.quickValue = this.condition.values[0].value
     }

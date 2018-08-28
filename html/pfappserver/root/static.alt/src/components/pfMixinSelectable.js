@@ -58,7 +58,7 @@
  *     <b-table ... >
  *       <template slot="actions" slot-scope="data">
  *         <input type="checkbox" :id="data.value" :value="data.item" v-model="selectValues" @click.stop="onToggleSelected($event, data.index)">
- *         <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[data.index]._message" v-b-tooltip.hover.right :title="tableValues[data.index]._message"></icon>
+ *         <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[data.index]._rowMessage" v-b-tooltip.hover.right :title="tableValues[data.index]._rowMessage"></icon>
  *       </template>
  *     </b-table>
  *
@@ -73,28 +73,15 @@
  *
  *     (array) selectValues
  *
- *   3. Watch the selected values:
- *
- *     watch: {
- *       selectValues (a, b) {
- *         const _this = this
- *         const selectValues = this.selectValues
- *         this.tableValues.forEach(function (item, index, items) {
- *           if (selectValues.includes(item)) {
- *             _this.$store.commit(`${this.storeName}_searchable/ROW_VARIANT`, {index: index, variant: 'info'})
- *           } else {
- *             _this.$store.commit(`${this.storeName}_searchable/ROW_VARIANT`, {index: index, variant: ''})
- *             _this.$store.commit(`${this.storeName}_searchable/ROW_MESSAGE`, {index: index, message: ''})
- *           }
- *         })
- *       }
- *     }
- *
 **/
 export default {
   name: 'pfMixinSelectable',
   props: {
-    storeName: String, // from router
+    storeName: { // from router
+      type: String,
+      default: null,
+      required: true
+    },
     selectValues: {
       type: Array,
       default: []
@@ -118,8 +105,8 @@ export default {
       this.lastIndex = null
       const _this = this
       this.selectValues.forEach(function (item, index, items) {
-        _this.$store.commit(`${this.storeName}_searchable/ROW_VARIANT`, {index: index, variant: ''})
-        _this.$store.commit(`${this.storeName}_searchable/ROW_MESSAGE`, {index: index, message: ''})
+        _this.tableValues[index]._rowVariant = ''
+        _this.tableValues[index]._rowMessage = ''
       })
     },
     onToggleSelected (event, index) {
@@ -150,11 +137,30 @@ export default {
           this.selectValues = []
           break
       }
+    },
+    searchableStoreName () {
+      if (this.storeName) {
+        return this.storeName + '_searchable'
+      } else {
+        return undefined
+      }
     }
   },
   watch: {
     selectValues (a, b) {
       this.selectAll = (this.tableValues.length === a.length && a.length > 0)
+      if (JSON.stringify(a) !== JSON.stringify(b)) {
+        const _this = this
+        const selectValues = this.selectValues
+        this.tableValues.forEach(function (item, index, items) {
+          _this.tableValues[index]._rowMessage = ''
+          if (selectValues.includes(item)) {
+            _this.tableValues[index]._rowVariant = 'info'
+          } else {
+            _this.tableValues[index]._rowVariant = ''
+          }
+        })
+      }
     },
     requestPage (a, b) {
       if (a !== b) this.clearSelected()
