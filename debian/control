@@ -45,6 +45,8 @@ Depends: ${misc:Depends}, vlan,
  ipset,
  sudo,
  sscep,
+ patch,
+ git,
 # process management
  procps,
 # perl basic components
