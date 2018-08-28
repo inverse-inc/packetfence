@@ -86,6 +86,7 @@ sub _get_local_dhcp_servers {
             if ($NetworkConfig{$network}{'dhcpd'} eq 'enabled') {
                 push @local_dhcp_servers_ip, $NetworkConfig{$network}{'gateway'};
 		push @local_dhcp_servers_ip, $NetworkConfig{$network}{'vip'} if ($NetworkConfig{$network}{'vip'});
+                push @local_dhcp_servers_ip, split(',',$NetworkConfig{$network}{'cluster_ips'}) if ($NetworkConfig{$network}{'cluster_ips'});
             }
         }
     }
