@@ -284,6 +284,8 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 
 	if VIP[h.Name] {
 
+		answer.Local = handler.layer2
+
 		log.LoggerWContext(ctx).Debug(p.CHAddr().String() + " " + msgType.String() + " xID " + sharedutils.ByteToString(p.XId()))
 
 		GlobalTransactionLock.Lock()
