@@ -48,7 +48,7 @@ DELIMITER ;
 call ValidateVersion;                                                                                                  
 
 --
--- Adjust the pf_version engine so its synchronized in a cluster
+-- Increase node bandwidth_balance
 --
 ALTER TABLE `node` MODIFY `bandwidth_balance` bigint(20) unsigned DEFAULT NULL;
 
