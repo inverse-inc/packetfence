@@ -6,7 +6,7 @@
       <h4 class="mb-0" v-t="'Search Users'"></h4>
     </b-card-header>
     <pf-search :quick-with-fields="false" :quick-placeholder="$t('Search by name or email')"
-      :fields="fields" :store="$store" storeName="$_users" :advanced-mode="advancedMode" :condition="condition"
+      :fields="fields" :store="$store" :storeName="storeName" :advanced-mode="advancedMode" :condition="condition"
       @submit-search="onSearch" @reset-search="onReset" @import-search="onImport"></pf-search>
     <div class="card-body">
       <b-row align-h="between" align-v="center">
@@ -65,7 +65,6 @@ import pfFormToggle from '@/components/pfFormToggle'
 
 export default {
   name: 'UsersSearch',
-  storeName: '$_users',
   mixins: [
     pfMixinSelectable,
     pfMixinSearchable
@@ -76,6 +75,11 @@ export default {
     'pf-form-toggle': pfFormToggle
   },
   props: {
+    storeName: { // from router
+      type: String,
+      default: null,
+      required: true
+    },
     pfMixinSearchableOptions: {
       type: Object,
       default: {

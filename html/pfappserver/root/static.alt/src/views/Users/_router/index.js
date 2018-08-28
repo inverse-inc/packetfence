@@ -10,6 +10,7 @@ const route = {
   name: 'users',
   redirect: '/users/search',
   component: UsersView,
+  props: { storeName: '$_users' },
   meta: { transitionDelay: 300 * 2 }, // See _transitions.scss => $slide-bottom-duration
   beforeEnter: (to, from, next) => {
     if (!store.state.$_users) {
@@ -22,17 +23,18 @@ const route = {
     {
       path: 'search',
       component: UsersSearch,
-      props: (route) => ({ query: route.query.query })
+      props: (route) => ({ query: route.query.query, storeName: '$_users' })
     },
     {
       path: 'create',
-      component: UsersCreate
+      component: UsersCreate,
+      props: { storeName: '$_users' }
     },
     {
       path: '/user/:pid',
       name: 'user',
       component: UserView,
-      props: true,
+      props: { storeName: '$_users' },
       beforeEnter: (to, from, next) => {
         store.dispatch('$_users/getUser', to.params.pid).then(user => {
           next()

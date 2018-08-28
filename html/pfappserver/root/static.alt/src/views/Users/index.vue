@@ -15,7 +15,7 @@
                             <b-nav-item to="search/openviolations">Open Violations</b-nav-item>
                             <b-nav-item to="search/closedviolations">Closed Violations</b-nav-item>
                         </b-nav>
-                        <pf-saved-search :storeName="'$_' + this.$options.name.toLowerCase()" :routeName="this.$options.name.toLowerCase()"/>
+                        <pf-saved-search :storeName="storeName" :routeName="this.$options.name.toLowerCase()"/>
                       </div>
                 </b-collapse>
             </b-col>
@@ -37,6 +37,13 @@ export default {
   ],
   components: {
     'pf-saved-search': pfMixinSavedSearch
+  },
+  props: {
+    storeName: { // from router
+      type: String,
+      default: null,
+      required: true
+    }
   }
 }
 </script>

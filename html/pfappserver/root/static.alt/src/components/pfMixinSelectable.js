@@ -81,10 +81,10 @@
  *         const selectValues = this.selectValues
  *         this.tableValues.forEach(function (item, index, items) {
  *           if (selectValues.includes(item)) {
- *             _this.$store.commit(`${this.$options.storeName}_searchable/ROW_VARIANT`, {index: index, variant: 'info'})
+ *             _this.$store.commit(`${this.storeName}_searchable/ROW_VARIANT`, {index: index, variant: 'info'})
  *           } else {
- *             _this.$store.commit(`${this.$options.storeName}_searchable/ROW_VARIANT`, {index: index, variant: ''})
- *             _this.$store.commit(`${this.$options.storeName}_searchable/ROW_MESSAGE`, {index: index, message: ''})
+ *             _this.$store.commit(`${this.storeName}_searchable/ROW_VARIANT`, {index: index, variant: ''})
+ *             _this.$store.commit(`${this.storeName}_searchable/ROW_MESSAGE`, {index: index, message: ''})
  *           }
  *         })
  *       }
@@ -94,6 +94,7 @@
 export default {
   name: 'pfMixinSelectable',
   props: {
+    storeName: String, // from router
     selectValues: {
       type: Array,
       default: []
@@ -117,8 +118,8 @@ export default {
       this.lastIndex = null
       const _this = this
       this.selectValues.forEach(function (item, index, items) {
-        _this.$store.commit(`${this.$options.storeName}_searchable/ROW_VARIANT`, {index: index, variant: ''})
-        _this.$store.commit(`${this.$options.storeName}_searchable/ROW_MESSAGE`, {index: index, message: ''})
+        _this.$store.commit(`${this.storeName}_searchable/ROW_VARIANT`, {index: index, variant: ''})
+        _this.$store.commit(`${this.storeName}_searchable/ROW_MESSAGE`, {index: index, message: ''})
       })
     },
     onToggleSelected (event, index) {
@@ -177,7 +178,7 @@ export default {
   },
   created () {
     // Called before the component's created function.
-    if (!this.$options.storeName) {
+    if (!this.storeName) {
       throw new Error(`Missing 'storeName' in options of component ${this.$options.name}`)
     }
     if (!this.$options.props.tableValues) {

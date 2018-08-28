@@ -90,6 +90,13 @@ export default {
   mixins: [
     validationMixin
   ],
+  props: {
+    storeName: { // from router
+      type: String,
+      default: null,
+      required: true
+    }
+  },
   data () {
     return {
       globals: {

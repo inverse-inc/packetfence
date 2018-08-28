@@ -92,6 +92,12 @@ export default {
     'pf-search-boolean': pfSearchBoolean
   },
   props: {
+    store: Object,
+    storeName: { // from router
+      type: String,
+      default: null,
+      required: true
+    },
     condition: {
       type: Object
     },
@@ -109,14 +115,6 @@ export default {
     quickPlaceholder: {
       type: String,
       default: 'Search'
-    },
-    store: {
-      type: Object
-    },
-    storeName: {
-      type: String,
-      default: null,
-      required: true
     },
     showExportJsonModal: {
       type: Boolean,
@@ -207,6 +205,7 @@ export default {
     }
   },
   mounted () {
+    console.log(['pfSearch storeName', this.storeName])
     if (!this.advancedMode && !this.quickWithFields) {
       this.quickValue = this.condition.values[0].value
     }

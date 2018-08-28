@@ -5,6 +5,7 @@
       <b-card-header>
         <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
         <h4 class="mb-0">MAC <strong v-text="mac"></strong></h4>
+        ---{{ testName }}---
       </b-card-header>
       <b-tabs ref="tabs" v-model="tabIndex" card>
 
@@ -274,7 +275,6 @@ const { required } = require('vuelidate/lib/validators')
 
 export default {
   name: 'NodeView',
-  storeName: '$_nodes',
   components: {
     'delete-button': DeleteButton,
     'pf-fingerbank-score': pfFingerbankScore,
@@ -288,6 +288,11 @@ export default {
     validationMixin
   ],
   props: {
+    storeName: { // from router
+      type: String,
+      default: null,
+      required: true
+    },
     mac: String
   },
   data () {

@@ -7,6 +7,7 @@ const route = {
   name: 'reports',
   redirect: '/reports/table/os',
   component: ReportsView,
+  props: { storeName: '$_reports' },
   meta: { transitionDelay: 300 * 2 }, // See _transitions.scss => $slide-bottom-duration
   children: [
     // {
@@ -19,7 +20,7 @@ const route = {
       path: 'table/:path([a-zA-Z0-9/]+)/:start_datetime?/:end_datetime?',
       name: 'table',
       component: ReportTable,
-      props: true
+      props: { storeName: '$_reports' }
     }
   ]
 }
