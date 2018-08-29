@@ -5,7 +5,6 @@
       <b-card-header>
         <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
         <h4 class="mb-0">MAC <strong v-text="mac"></strong></h4>
-        ---{{ testName }}---
       </b-card-header>
       <b-tabs ref="tabs" v-model="tabIndex" card>
 
@@ -25,7 +24,7 @@
              <b-form-group horizontal label-cols="3" :label="$t('Unregistration')">
                 <pf-form-datetime v-model="nodeContent.unregdate" :moments="['1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"></pf-form-datetime>
               </b-form-group>
-              <pf-form-input v-model="nodeContent.time_balance" type="number" :filter="globals.regExp.integerAbsolute" :label="$t('Access Time Balance')" :text="$t('seconds')"/>
+              <pf-form-input v-model="nodeContent.time_balance" type="number" :filter="globals.regExp.integerPositive" :label="$t('Access Time Balance')" :text="$t('seconds')"/>
               <b-form-group horizontal label-cols="3" :label="$t('Bandwidth Balance')">
                 <pf-form-prefix-multiplier v-model="nodeContent.bandwidth_balance" :max="globals.sqlLimits.ubigint.max"></pf-form-prefix-multiplier>
               </b-form-group>
@@ -491,9 +490,6 @@ export default {
     },
     close () {
       this.$router.push({ name: 'nodes' })
-    },
-    reset () {
-      // noop
     },
     connectionSubType (type) {
       if (type && eapType[type]) {
