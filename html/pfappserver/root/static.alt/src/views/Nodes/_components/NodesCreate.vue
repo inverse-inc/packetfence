@@ -202,7 +202,7 @@ export default {
             status: 'reg'
           }
         }).catch(err => {
-          this.$store.dispatch('notification/danger', {message: this.$store.state.$_nodes.message})
+          this.$store.dispatch('notification/danger', {message: this.$store.state[this.storeName].message})
           console.debug(err)
           console.debug(this.$store.state.$_nodes.message)
         })

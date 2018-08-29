@@ -219,13 +219,10 @@ export default {
           text = text.slice(0, -1)
         }
         if (amount < 0) {
-          // make absolute
-          amount = 0 - amount
-          text += ' ago'
+          return this.$i18n.t('{num} {unit} ago', { num: -amount.toString(), unit: this.$i18n.t(text) })
         } else {
-          text += ' from now'
+          return this.$i18n.t('{num} {unit} from now', { num: amount.toString(), unit: this.$i18n.t(text) })
         }
-        return amount.toString() + ' ' + this.$i18n.t(text)
       }
       return null
     },
