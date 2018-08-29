@@ -15,12 +15,9 @@ Developed and tested on a MS220_8P (P standing for PoE) switch
 
 =head1 BUGS AND LIMITATIONS
 
-The firmware allow only for VLAN enforcement at the moment. We cannot push the predefined policies from PacketFence.
+=head2 Cannot detect VoIP devices
 
-=head2 Cannot reevaluate the access
-
-There is currently no way to reevaluate the access of the device.
-There is neither an API access or a RADIUS disconnect that can be sent either to the switch.
+VoIP devices cannot be detected via CDP/LLDP via an SNMP lookup.
 
 =cut
 
