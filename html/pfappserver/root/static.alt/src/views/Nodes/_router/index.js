@@ -24,7 +24,7 @@ const route = {
     {
       path: 'search',
       component: NodesSearch,
-      props: (route) => ({ storeName: '$_nodes' query: route.query.query })
+      props: (route) => ({ storeName: '$_nodes', query: route.query.query })
     },
     {
       path: 'create',
