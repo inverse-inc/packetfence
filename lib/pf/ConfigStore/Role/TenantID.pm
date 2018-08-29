@@ -8,7 +8,7 @@ pf::ConfigStore::Role::TenantID -
 
 =head1 DESCRIPTION
 
-pf::ConfigStore::Role::TenantID
+Role to scope a config store by a tenant
 
 =cut
 
