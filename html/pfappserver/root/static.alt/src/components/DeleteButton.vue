@@ -1,5 +1,8 @@
 <template>
-  <b-button-group :size="size" @mouseleave="stopInterrupt($event)">
+  <b-button-group 
+    :size="size" @mouseleave="stopInterrupt($event)"
+    :class="['d-inline-flex', {'flex-row-reverse': reverse}]"
+  >
     <b-button 
       v-if="!interrupt"
       type="button"
@@ -8,15 +11,14 @@
       @click="startInterrupt($event)"
       ><slot>{{ $t('Delete') }}</slot></b-button>
 
-    <!-- LTR (Left To Right) BEGIN -->
     <b-button 
-      v-if="interrupt && mode === 'ltr'"
+      v-if="interrupt"
       type="button"
       variant="outline-secondary"
       disabled
       >{{ confirm }}</b-button>
     <b-button 
-      v-if="interrupt && mode === 'ltr'"
+      v-if="interrupt"
       type="button"
       variant="warning"
       @click.stop="stopInterrupt($event, 'a')"
@@ -24,40 +26,13 @@
       @mouseover="startInterrupt($event)"
       >{{ $t('Cancel') }}</b-button>
     <b-button 
-      v-if="interrupt && mode === 'ltr'"
+      v-if="interrupt"
       type="button"
       variant="danger"
       @click.stop="onDelete($event)"
       @mousemove="startInterrupt($event)"
       @mouseover="startInterrupt($event)"
       >{{ $t('Delete') }}</b-button>
-    <!-- LTR END -->
-
-    <!-- RTL (Right To Left) BEGIN -->
-    <b-button 
-      v-if="interrupt && mode === 'rtl'"
-      type="button"
-      variant="danger"
-      @click.stop="onDelete($event)"
-      @mousemove="startInterrupt($event)"
-      @mouseover="startInterrupt($event)"
-      >{{ $t('Delete') }}</b-button>
-    <b-button 
-      v-if="interrupt && mode === 'rtl'"
-      type="button"
-      variant="warning"
-      @click.stop="stopInterrupt($event)"
-      @mousemove="startInterrupt($event)"
-      @mouseover="startInterrupt($event)"
-      >{{ $t('Cancel') }}</b-button>
-    <b-button 
-      v-if="interrupt && mode === 'rtl'"
-      type="button"
-      variant="outline-secondary"
-      disabled
-      >{{ confirm }}</b-button>
-    <!-- RTL END -->
-
   </b-button-group>
 </template>
 
@@ -91,9 +66,9 @@ export default {
       type: Boolean,
       default: false
     },
-    mode: {
-      type: String,
-      default: 'ltr'
+    reverse: {
+      type: Boolean,
+      default: false
     }
   },
   methods: {
