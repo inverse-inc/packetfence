@@ -244,6 +244,14 @@ sub radiusDisconnect {
     return;
 }
 
+sub radiusDisconnect {
+    my ($self, $mac, $add_attributes_ref) = @_;
+    my $logger = $self->logger;
+    # Use the same disconnect method as the Meraki MR v2
+    pf::Switch::Meraki::MR_v2::radiusDisconnect(@_);
+}
+
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
