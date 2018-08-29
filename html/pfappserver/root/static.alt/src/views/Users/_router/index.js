@@ -23,7 +23,7 @@ const route = {
     {
       path: 'search',
       component: UsersSearch,
-      props: (route) => ({ query: route.query.query, storeName: '$_users' })
+      props: (route) => ({ storeName: '$_users', query: route.query.query })
     },
     {
       path: 'create',
@@ -34,7 +34,7 @@ const route = {
       path: '/user/:pid',
       name: 'user',
       component: UserView,
-      props: { storeName: '$_users' },
+      props: (route) => ({ storeName: '$_users', pid: route.params.pid }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_users/getUser', to.params.pid).then(user => {
           next()

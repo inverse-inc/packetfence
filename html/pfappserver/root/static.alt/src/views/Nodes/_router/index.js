@@ -24,7 +24,7 @@ const route = {
     {
       path: 'search',
       component: NodesSearch,
-      props: (route) => ({ query: route.query.query, storeName: '$_nodes' })
+      props: (route) => ({ storeName: '$_nodes' query: route.query.query })
     },
     {
       path: 'create',
@@ -40,7 +40,7 @@ const route = {
       path: '/node/:mac',
       name: 'node',
       component: NodeView,
-      props: { storeName: '$_nodes' },
+      props: (route) => ({ storeName: '$_nodes', mac: route.params.mac }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_nodes/getNode', to.params.mac).then(node => {
           next()

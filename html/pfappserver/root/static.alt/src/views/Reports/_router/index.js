@@ -20,7 +20,12 @@ const route = {
       path: 'table/:path([a-zA-Z0-9/]+)/:start_datetime?/:end_datetime?',
       name: 'table',
       component: ReportTable,
-      props: { storeName: '$_reports' }
+      props: (route) => ({
+        storeName: '$_reports',
+        path: route.params.path,
+        start_datetime: route.params.start_datetime,
+        end_datetime: route.params.end_datetime
+      })
     }
   ]
 }
