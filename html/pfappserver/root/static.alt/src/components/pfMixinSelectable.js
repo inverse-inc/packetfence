@@ -74,6 +74,8 @@
  *     (array) selectValues
  *
 **/
+import Vue from 'vue'
+
 export default {
   name: 'pfMixinSelectable',
   props: {
@@ -96,6 +98,20 @@ export default {
     }
   },
   methods: {
+    forceUpdate () {
+      if (this.forceUpdateTimeout) clearTimeout(this.forceUpdateTimeout)
+      this.forceUpdateTimeout = setTimeout(() => {
+        this.$forceUpdate()
+      }, 100)
+    },
+    setRowVariant (index, variant) {
+      Vue.set(this.tableValues[index], '_rowVariant', variant)
+      this.forceUpdate()
+    },
+    setRowMessage (index, message) {
+      Vue.set(this.tableValues[index], '_rowMessage', message)
+      this.forceUpdate()
+    },
     onSelectAllChange (item) {
       this.selectValues = this.selectAll ? this.tableValues : []
     },
@@ -103,10 +119,9 @@ export default {
       this.selectValues = []
       this.selectAll = false
       this.lastIndex = null
-      const _this = this
-      this.selectValues.forEach(function (item, index, items) {
-        _this.tableValues[index]._rowVariant = ''
-        _this.tableValues[index]._rowMessage = ''
+      this.selectValues.forEach((item, index, items) => {
+        this.setRowVariant(index, '')
+        this.setRowMessage(index, '')
       })
     },
     onToggleSelected (event, index) {
@@ -150,14 +165,13 @@ export default {
     selectValues (a, b) {
       this.selectAll = (this.tableValues.length === a.length && a.length > 0)
       if (JSON.stringify(a) !== JSON.stringify(b)) {
-        const _this = this
         const selectValues = this.selectValues
-        this.tableValues.forEach(function (item, index, items) {
-          _this.tableValues[index]._rowMessage = ''
+        this.tableValues.forEach((item, index, items) => {
+          this.setRowMessage(index, '')
           if (selectValues.includes(item)) {
-            _this.tableValues[index]._rowVariant = 'info'
+            this.setRowVariant(index, 'info')
           } else {
-            _this.tableValues[index]._rowVariant = ''
+            this.setRowVariant(index, '')
           }
         })
       }
@@ -187,8 +201,8 @@ export default {
     if (!this.storeName) {
       throw new Error(`Missing 'storeName' in options of component ${this.$options.name}`)
     }
-    if (!this.$options.props.tableValues) {
-      throw new Error(`Missing 'props.tableValues' in properties of component ${this.$options.name}`)
+    if (!this.tableValues) {
+      throw new Error(`Missing 'tableValues' in properties of component ${this.$options.name}`)
     }
     if (this.columns.filter(column => column.key === 'actions').length === 0) {
       throw new Error(`Missing column 'actions' in properties of component ${this.$options.name}`)

@@ -86,9 +86,17 @@
           </b-container>
         </b-col>
       </b-row>
-      <b-table :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc" v-model="tableValues"
-        @sort-changed="onSortingChanged" @row-clicked="onRowClick" @head-clicked="clearSelected"
-        show-empty responsive hover no-local-sorting>
+      <b-table 
+        v-model.sync="tableValues"
+        :items="items"
+        :fields="visibleColumns"
+        :sort-by="sortBy"
+        :sort-desc="sortDesc"
+        @sort-changed="onSortingChanged" 
+        @row-clicked="onRowClick" 
+        @head-clicked="clearSelected"
+        show-empty responsive hover no-local-sorting
+      >
         <template slot="HEAD_actions" slot-scope="head">
           <input type="checkbox" id="checkallnone" v-model="selectAll" @change="onSelectAllChange" @click.stop>
           <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{$t('Select None [ALT+N]')}}</b-tooltip>
@@ -157,14 +165,11 @@ export default {
         defaultSearchCondition: { op: 'and', values: [{ op: 'or', values: [{ field: 'mac', op: 'equals', value: null }] }] },
         defaultRoute: { name: 'nodes' }
       }
-    },
-    tableValues: {
-      type: Array,
-      default: []
     }
   },
   data () {
     return {
+      tableValues: Array,
       /**
        *  Fields on which a search can be defined.
        *  The names must match the database schema.
@@ -658,11 +663,11 @@ export default {
     }
   },
   methods: {
-    pfMixinSearchableAdvancedMode (condition) {
-      return (condition.values.length > 1 || condition.values[0].values.length > 1)
-    },
     onRowClick (item, index) {
       this.$router.push({ name: 'node', params: { mac: item.mac } })
+    },
+    pfMixinSearchableAdvancedMode (condition) {
+      return (condition.values.length > 1 || condition.values[0].values.length > 1)
     },
     applyBulkClearViolation () {
       const macs = this.selectValues.map(item => item.mac)
@@ -670,8 +675,8 @@ export default {
         this.$store.dispatch(`${this.storeName}/clearViolationBulkNodes`, {items: macs}).then(response => {
           response.items.forEach((item, _index, items) => {
             let index = this.tableValues.findIndex(node => node.mac === item.mac)
-            this.tableValues[index]._rowVariant = convert.statusToVariant({ status: item.status })
-            this.tableValues[index]._rowMessage = item.message
+            this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
+            this.setRowMessage(index, item.message)
             if (item.message) {
               this.$store.dispatch('notification/status_' + item.status, {message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message})
             }
@@ -685,7 +690,7 @@ export default {
         }).catch(() => {
           macs.forEach((mac, i) => {
             let index = this.tableValues.findIndex(node => node.mac === mac)
-            this.tableValues[index]._rowVariant = 'danger'
+            this.setRowVariant(index, 'danger')
           })
         })
       }
@@ -696,11 +701,8 @@ export default {
         this.$store.dispatch(`${this.storeName}/registerBulkNodes`, {items: macs}).then(response => {
           response.items.forEach((item, _index, items) => {
             let index = this.tableValues.findIndex(node => node.mac === item.mac)
-            console.log(['convert', index, convert.statusToVariant({ status: item.status })])
-
-            this.tableValues[index]._rowVariant = convert.statusToVariant({ status: item.status })
-            this.tableValues[index]._rowMessage = item.message
-
+            this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
+            this.setRowMessage(index, item.message)
             if (item.message) {
               this.$store.dispatch('notification/status_' + item.status, {message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message})
             }
@@ -714,7 +716,7 @@ export default {
         }).catch(() => {
           macs.forEach((mac, i) => {
             let index = this.tableValues.findIndex(node => node.mac === mac)
-            this.tableValues[index]._rowVariant = 'danger'
+            this.setRowVariant(index, 'danger')
           })
         })
       }
@@ -725,8 +727,8 @@ export default {
         this.$store.dispatch(`${this.storeName}/deregisterBulkNodes`, {items: macs}).then(response => {
           response.items.forEach((item, _index, items) => {
             let index = this.tableValues.findIndex(node => node.mac === item.mac)
-            this.tableValues[index]._rowVariant = convert.statusToVariant({ status: item.status })
-            this.tableValues[index]._rowMessage = item.message
+            this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
+            this.setRowMessage(index, item.message)
             if (item.message) {
               this.$store.dispatch('notification/status_' + item.status, {message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message})
             }
@@ -740,7 +742,7 @@ export default {
         }).catch(() => {
           macs.forEach((mac, i) => {
             let index = this.tableValues.findIndex(node => node.mac === mac)
-            this.tableValues[index]._rowVariant = 'danger'
+            this.setRowVariant(index, 'danger')
           })
         })
       }
@@ -751,8 +753,8 @@ export default {
         this.$store.dispatch(`${this.storeName}/reevaluateAccessBulkNodes`, {items: macs}).then(response => {
           response.items.forEach((item, _index, items) => {
             let index = this.tableValues.findIndex(node => node.mac === item.mac)
-            this.tableValues[index]._rowVariant = convert.statusToVariant({ status: item.status })
-            this.tableValues[index]._rowMessage = item.message
+            this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
+            this.setRowMessage(index, item.message)
             if (item.message) {
               this.$store.dispatch('notification/status_' + item.status, {message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message})
             }
@@ -766,7 +768,7 @@ export default {
         }).catch(() => {
           macs.forEach((mac, i) => {
             let index = this.tableValues.findIndex(node => node.mac === mac)
-            this.tableValues[index]._rowVariant = 'danger'
+            this.setRowVariant(index, 'danger')
           })
         })
       }
@@ -777,8 +779,8 @@ export default {
         this.$store.dispatch(`${this.storeName}/restartSwitchportBulkNodes`, {items: macs}).then(response => {
           response.items.forEach((item, _index, items) => {
             let index = this.tableValues.findIndex(node => node.mac === item.mac)
-            this.tableValues[index]._rowVariant = convert.statusToVariant({ status: item.status })
-            this.tableValues[index]._rowMessage = item.message
+            this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
+            this.setRowMessage(index, item.message)
             if (item.message) {
               this.$store.dispatch('notification/status_' + item.status, {message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message})
             }
@@ -792,7 +794,7 @@ export default {
         }).catch(() => {
           macs.forEach((mac, i) => {
             let index = this.tableValues.findIndex(node => node.mac === mac)
-            this.tableValues[index]._rowVariant = 'danger'
+            this.setRowVariant(index, 'danger')
           })
         })
       }
@@ -803,8 +805,8 @@ export default {
         this.$store.dispatch(`${this.storeName}/refreshFingerbankBulkNodes`, {items: macs}).then(response => {
           response.items.forEach((item, _index, items) => {
             let index = this.tableValues.findIndex(node => node.mac === item.mac)
-            this.tableValues[index]._rowVariant = convert.statusToVariant({ status: item.status })
-            this.tableValues[index]._rowMessage = item.message
+            this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
+            this.setRowMessage(index, item.message)
             if (item.message) {
               this.$store.dispatch('notification/status_' + item.status, {message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message})
             }
@@ -818,7 +820,7 @@ export default {
         }).catch(() => {
           macs.forEach((mac, i) => {
             let index = this.tableValues.findIndex(node => node.mac === mac)
-            this.tableValues[index]._rowVariant = 'danger'
+            this.setRowVariant(index, 'danger')
           })
         })
       }
@@ -829,10 +831,10 @@ export default {
         macs.forEach((mac, i) => {
           let index = this.tableValues.findIndex(node => node.mac === mac)
           this.$store.dispatch(`${this.storeName}/roleNode`, {mac: mac, category_id: role.category_id}).then(response => {
-            this.tableValues[index]._rowVariant = convert.statusToVariant({ status: response.status })
-            this.tableValues[index]._rowMessage = response.message
+            this.setRowVariant(index, convert.statusToVariant({ status: response.status }))
+            this.setRowMessage(index, response.message)
           }).catch(() => {
-            this.tableValues[index]._rowVariant = 'danger'
+            this.setRowVariant(index, 'danger')
           })
         })
         if (role.category_id) {
@@ -848,10 +850,10 @@ export default {
         macs.forEach((mac, i) => {
           let index = this.tableValues.findIndex(node => node.mac === mac)
           this.$store.dispatch(`${this.storeName}/bypassRoleNode`, {mac: mac, bypass_role_id: role.category_id}).then(response => {
-            this.tableValues[index]._rowVariant = convert.statusToVariant({ status: response.status })
-            this.tableValues[index]._rowMessage = response.message
+            this.setRowVariant(index, convert.statusToVariant({ status: response.status }))
+            this.setRowMessage(index, response.message)
           }).catch(() => {
-            this.tableValues[index]._rowVariant = 'danger'
+            this.setRowVariant(index, 'danger')
           })
         })
         if (role.category_id) {
@@ -867,8 +869,8 @@ export default {
         this.$store.dispatch(`${this.storeName}/applyViolationBulkNodes`, {items: macs, vid: violation.id}).then(response => {
           response.items.forEach((item, _index, items) => {
             let index = this.tableValues.findIndex(node => node.mac === item.mac)
-            this.tableValues[index]._rowVariant = convert.statusToVariant({ status: item.status })
-            this.tableValues[index]._rowMessage = item.message
+            this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
+            this.setRowMessage(index, item.message)
             if (item.message) {
               this.$store.dispatch('notification/status_' + item.status, {message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message})
             }
@@ -882,7 +884,7 @@ export default {
         }).catch(() => {
           macs.forEach((mac, i) => {
             let index = this.tableValues.findIndex(node => node.mac === mac)
-            this.tableValues[index]._rowVariant = 'danger'
+            this.setRowVariant(index, 'danger')
           })
         })
       }

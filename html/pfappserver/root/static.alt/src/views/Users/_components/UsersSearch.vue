@@ -97,14 +97,11 @@ export default {
         },
         defaultRoute: { name: 'users' }
       }
-    },
-    tableValues: {
-      type: Array,
-      default: []
     }
   },
   data () {
     return {
+      tableValues: Array,
       // Fields must match the database schema
       fields: [ // keys match with b-form-select
         {
