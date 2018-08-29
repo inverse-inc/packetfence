@@ -48,6 +48,25 @@ use Try::Tiny;
 sub description { 'Meraki switch MS220_8' }
 sub supportsWiredMacAuth { return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
+sub supportsRadiusVoip { return $TRUE; }
+
+sub isVoIPEnabled {
+    my ($self) = @_;
+    return isenabled($self->{_VoIPEnabled});
+}
+
+=head2 getVoipVSA
+
+Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
+
+=cut
+
+sub getVoipVsa {
+    my ($self) = @_;
+    my $logger = $self->logger;
+
+    return ('Cisco-AVPair' => "device-traffic-class=voice");
+}
 
 =head2 getVersion 
 
