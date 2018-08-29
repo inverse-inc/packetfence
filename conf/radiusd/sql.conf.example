@@ -286,7 +286,14 @@ sql pfguest {
         sqltracefile = ${logdir}/sqltrace.sql
 
         sql_user_name = "%{User-Name}"
-        authorize_check_query = "SELECT 1, pid, \"%%hash_passwords%%\", REPLACE(password,'{ntlm}',''), \":=\" \
+        authorize_check_query = "SELECT 1, pid,
+            (
+              CASE
+                WHEN SUBSTR(password, 1, LENGTH('{ntlm}') ) = '{ntlm}' THEN "NT-Password"
+                ELSE "Cleartext-Password"
+             END
+          ) AS passwordhash,
+          REPLACE(password,'{ntlm}',''), \":=\" \
           FROM ${authcheck_table} \
           JOIN activation using (pid) \
           WHERE pid = '%{SQL-User-Name}' \
@@ -324,7 +331,14 @@ sql pfsponsor {
         sqltracefile = ${logdir}/sqltrace.sql
 
         sql_user_name = "%{User-Name}"
-        authorize_check_query = "SELECT 1, pid, \"%%hash_passwords%%\", REPLACE(password,'{ntlm}',''), \":=\" \
+        authorize_check_query = "SELECT 1, pid,
+          (
+            CASE
+              WHEN SUBSTR(password, 1, LENGTH('{ntlm}') ) = '{ntlm}' THEN "NT-Password"
+              ELSE "Cleartext-Password"
+            END
+          ) AS passwordhash,
+          REPLACE(password,'{ntlm}',''), \":=\" \
           FROM ${authcheck_table} \
           JOIN activation using (pid) \
           WHERE pid = '%{SQL-User-Name}' \
@@ -363,7 +377,14 @@ sql pfsms {
         sqltracefile = ${logdir}/sqltrace.sql
 
         sql_user_name = "%{User-Name}"
-        authorize_check_query = "SELECT 1, pid, \"%%hash_passwords%%\", REPLACE(password,'{ntlm}',''), \":=\" \
+        authorize_check_query = "SELECT 1, pid,
+          (
+            CASE
+              WHEN SUBSTR(password, 1, LENGTH('{ntlm}') ) = '{ntlm}' THEN "NT-Password"
+              ELSE "Cleartext-Password"
+            END
+          ) AS passwordhash,
+          REPLACE(password,'{ntlm}',''), \":=\" \
           FROM ${authcheck_table} \
           JOIN activation using (pid) \
           WHERE pid = '%{SQL-User-Name}' \
@@ -402,7 +423,14 @@ sql pflocal {
         sqltracefile = ${logdir}/sqltrace.sql
 
         sql_user_name = "%{User-Name}"
-        authorize_check_query = "SELECT 1, pid, \"%%hash_passwords%%\", REPLACE(password,'{ntlm}',''), \":=\" \
+        authorize_check_query = "SELECT 1, pid,
+          (
+            CASE
+              WHEN SUBSTR(password, 1, LENGTH('{ntlm}') ) = '{ntlm}' THEN "NT-Password"
+              ELSE "Cleartext-Password"
+            END
+          ) AS passwordhash,
+          REPLACE(password,'{ntlm}',''), \":=\" \
           FROM ${authcheck_table} \
           WHERE pid = '%{SQL-User-Name}' \
           AND ${authcheck_table}.tenant_id = '%{control:PacketFence-Tenant-Id}' \
