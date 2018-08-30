@@ -1964,9 +1964,79 @@ CAUTION: Node role will take effect only with a 802.1X connection or if you use 
 
 * Advanced filter under *Configuration -> Policies and Access Control -> Connection Profile -> Profile Name -> Advanced Filter*
 
-Examples
+In this section you are able to define an advanced filter in order to match specific attributes.
 
-* last_switch =~ "^JAMES" && extended.mse_inout.bob == "bobby"
+You have access to the following attributes:
+
+ From the database (mean that it comes from a previous connection):
+     autoreg
+     status
+     bypass_vlan
+     bandwidth_balance
+     regdate
+     bypass_role
+     device_class
+     device_type
+     device_version
+     device_score
+     pid
+     machine_account
+     category
+     mac
+     last_arp
+     lastskip
+     last_dhcp
+     user_agent
+     computername
+     dhcp_fingerprint
+     detect_date
+     voip
+     notes
+     time_balance
+     sessionid
+     dhcp_vendor
+     unregdate
+     fingerbank_info.device_name
+     fingerbank_info.device_fq
+     fingerbank_info.device_hierarchy_names
+     fingerbank_info.device_hierarchy_ids
+     fingerbank_info.score
+     fingerbank_info.version
+     fingerbank_info.mobile
+
+ From the current connection:
+     connection_sub_type
+     connection_type
+     switch
+     port
+     vlan
+     ssid
+     dot1x_username
+     realm
+     machine_account
+
+ Operator:
+     && and
+     || or
+     != is not equal
+     == equal
+     ()
+
+ Special value
+    __NULL__ the value is NULL in the database
+
+
+Examples (Match machine authentication on secure wireless ssid)
+
+* machine_account != "" && connection_type == Wireless-802.11-EAP
+
+Examples (Match a device that did machine authentication in a previous connection and connect on ssid Secure)
+
+* node_info.machine_account != "" && ssid == Secure
+
+Examples (Match a device that never did a machine authentication (BYOD))
+
+* node_info.machine_account == __NULL__
 
 PacketFence relies extensively on Apache for its captive portal, administrative interface and Web services. The PacketFence Apache configuration is located in `/usr/local/pf/conf/httpd.conf.d/`.
 
