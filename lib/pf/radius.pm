@@ -111,7 +111,7 @@ sub authorize {
     $self->handleNtlmCaching($radius_request);
 
     $logger->debug("instantiating switch");
-    my $switch = pf::SwitchFactory->instantiate({ switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $switch_ip});
+    my $switch = pf::SwitchFactory->instantiate({ switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $switch_ip}, {radius_request => $radius_request});
 
     # is switch object correct?
     if (!$switch) {
