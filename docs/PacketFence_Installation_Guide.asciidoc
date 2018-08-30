@@ -1969,33 +1969,33 @@ In this section you are able to define an advanced filter in order to match spec
 You have access to the following attributes:
 
  From the database (mean that it comes from a previous connection):
-     node_info.autoreg
-     node_info.status
-     node_info.bypass_vlan
-     node_info.bandwidth_balance
-     node_info.regdate
-     node_info.bypass_role
-     node_info.device_class
-     node_info.device_type
-     node_info.device_version
-     node_info.device_score
-     node_info.pid
-     node_info.machine_account
-     node_info.category
-     node_info.mac
-     node_info.last_arp
-     node_info.lastskip
-     node_info.last_dhcp
-     node_info.user_agent
-     node_info.computername
-     node_info.dhcp_fingerprint
-     node_info.detect_date
-     node_info.voip
-     node_info.notes
-     node_info.time_balance
-     node_info.sessionid
-     node_info.dhcp_vendor
-     node_info.unregdate
+     autoreg
+     status
+     bypass_vlan
+     bandwidth_balance
+     regdate
+     bypass_role
+     device_class
+     device_type
+     device_version
+     device_score
+     pid
+     machine_account
+     category
+     mac
+     last_arp
+     lastskip
+     last_dhcp
+     user_agent
+     computername
+     dhcp_fingerprint
+     detect_date
+     voip
+     notes
+     time_balance
+     sessionid
+     dhcp_vendor
+     unregdate
      fingerbank_info.device_name
      fingerbank_info.device_fq
      fingerbank_info.device_hierarchy_names
