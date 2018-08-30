@@ -76,6 +76,10 @@ sub hasId { exists $SwitchConfig{$_[0]} }
 sub instantiate {
     my $timer = pf::StatsD::Timer->new({level => 7});
     my ( $class, $switchRequest, $args ) = @_;
+
+    # Defaults to an empty hash to be backward compatible
+    $args //= {};
+
     my $logger = get_logger();
     my @requestedSwitches;
     my $requestedSwitch;

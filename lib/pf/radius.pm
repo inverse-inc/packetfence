@@ -380,7 +380,7 @@ sub accounting {
     my ( $switch_mac, $switch_ip, $source_ip, $stripped_user_name, $realm ) = $self->_parseRequest($radius_request);
 
     $logger->debug("instantiating switch");
-    my $switch = pf::SwitchFactory->instantiate( { switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $switch_ip } );
+    my $switch = pf::SwitchFactory->instantiate( { switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $switch_ip }, {radius_request => $radius_request} );
 
     # is switch object correct?
     if ( !$switch ) {
@@ -486,7 +486,7 @@ sub update_locationlog_accounting {
     my ( $switch_mac, $switch_ip, $source_ip, $stripped_user_name, $realm ) = $self->_parseRequest($radius_request);
 
     $logger->debug("instantiating switch");
-    my $switch = pf::SwitchFactory->instantiate( { switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $switch_ip } );
+    my $switch = pf::SwitchFactory->instantiate( { switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $switch_ip }, {radius_request => $radius_request} );
 
     # is switch object correct?
     if ( !$switch ) {
@@ -680,7 +680,7 @@ sub _handleStaticPortSecurityMovement {
         return undef;
     }
 
-    my $oldSwitch = pf::SwitchFactory->instantiate($old_switch_id);
+    my $oldSwitch = pf::SwitchFactory->instantiate($old_switch_id, {radius_request => $args->{radius_request}});
     if (!$oldSwitch) {
         $logger->error("Can not instantiate switch $old_switch_id !");
         return;
@@ -780,7 +780,7 @@ sub switch_access {
     my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $self->_parseRequest($radius_request);
 
     $logger->debug("instantiating switch");
-    my $switch = pf::SwitchFactory->instantiate({ switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $switch_ip});
+    my $switch = pf::SwitchFactory->instantiate({ switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $switch_ip}, {radius_request => $radius_request});
 
     # is switch object correct?
     if (!$switch) {
