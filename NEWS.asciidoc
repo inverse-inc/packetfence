@@ -24,6 +24,7 @@ Enhancements
 * Take the tenant id in consideration in the queue (#3269)
 * Performed various improvements to the maintenance script (PR #3445)
 * Increased maximum node bandwidth balance from 4 GB to 18.4467441 XB (exabytes) (#3477) (PR #3493)
+* Improve connection profile's advanced filter
 
 Bug Fixes
 +++++++++
