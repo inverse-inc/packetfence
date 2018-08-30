@@ -1,0 +1,5 @@
+<mj-section>
+  <mj-column>
+    <mj-text align="center" color="#9B9B9B">[% i18n("This is a post only E-mail, please do not reply.") %]</mj-text>
+  </mj-column>
+</mj-section>

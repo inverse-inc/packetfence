@@ -1,0 +1,40 @@
+<mjml>
+  <mj-head>
+    <mj-include path="_header.mjml" />
+    <mj-preview>[% i18n("Guest access to the network was requested using this email address.") %]</mj-preview>
+  </mj-head>
+  <mj-body>
+    <mj-section></mj-section>
+    <mj-wrapper>
+      <mj-section>
+        <mj-column>
+          <mj-text mj-class="title">[% i18n("Network access activation") %]</mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section>
+        <mj-column>
+          <mj-divider></mj-divider>
+        </mj-column>
+      </mj-section>
+      <mj-section padding-top="0">
+        <mj-column>
+          <mj-text>
+            <p style="padding-bottom: 20px">[% i18n("Hello") %] [% firstname %] [% lastname %]</p>
+            <p>[% i18n("Guest access to the network was requested using this email address.") %]</p>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section padding-top="0">
+        <mj-column>
+          <mj-button href="[% activation_uri %]">[% i18n("Activate Access") %]</mj-button>
+          <mj-text>
+            <p>[% i18n_format("Failure to do so within %s minutes will result in a termination of your network access.", activation_timeout / 60) %]</p>
+            <p>[% i18n("Thank you for your understanding") %]</p>
+            <p>[% i18n("Please ignore this request if you have not requested network access.") %]</p>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+    </mj-wrapper>
+    <mj-include path="_footer.mjml" />
+  </mj-body>
+</mjml>
