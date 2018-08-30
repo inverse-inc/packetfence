@@ -46,6 +46,7 @@ END
 
 DELIMITER ;                                                                                                            
 call ValidateVersion;                                                                                                  
+DROP PROCEDURE IF EXISTS ValidateVersion;
 
 --
 -- Increase node bandwidth_balance
