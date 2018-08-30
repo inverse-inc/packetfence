@@ -58,7 +58,7 @@
  *     <b-table ... >
  *       <template slot="actions" slot-scope="data">
  *         <input type="checkbox" :id="data.value" :value="data.item" v-model="selectValues" @click.stop="onToggleSelected($event, data.index)">
- *         <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[data.index]._message" v-b-tooltip.hover.right :title="tableValues[data.index]._message"></icon>
+ *         <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[data.index]._rowMessage" v-b-tooltip.hover.right :title="tableValues[data.index]._rowMessage"></icon>
  *       </template>
  *     </b-table>
  *
@@ -73,27 +73,17 @@
  *
  *     (array) selectValues
  *
- *   3. Watch the selected values:
- *
- *     watch: {
- *       selectValues (a, b) {
- *         const _this = this
- *         const selectValues = this.selectValues
- *         this.tableValues.forEach(function (item, index, items) {
- *           if (selectValues.includes(item)) {
- *             _this.$store.commit(`${this.$options.storeName}_searchable/ROW_VARIANT`, {index: index, variant: 'info'})
- *           } else {
- *             _this.$store.commit(`${this.$options.storeName}_searchable/ROW_VARIANT`, {index: index, variant: ''})
- *             _this.$store.commit(`${this.$options.storeName}_searchable/ROW_MESSAGE`, {index: index, message: ''})
- *           }
- *         })
- *       }
- *     }
- *
 **/
+import Vue from 'vue'
+
 export default {
   name: 'pfMixinSelectable',
   props: {
+    storeName: { // from router
+      type: String,
+      default: null,
+      required: true
+    },
     selectValues: {
       type: Array,
       default: []
@@ -108,6 +98,20 @@ export default {
     }
   },
   methods: {
+    forceUpdate () {
+      if (this.forceUpdateTimeout) clearTimeout(this.forceUpdateTimeout)
+      this.forceUpdateTimeout = setTimeout(() => {
+        this.$forceUpdate()
+      }, 100)
+    },
+    setRowVariant (index, variant) {
+      Vue.set(this.tableValues[index], '_rowVariant', variant)
+      this.forceUpdate()
+    },
+    setRowMessage (index, message) {
+      Vue.set(this.tableValues[index], '_rowMessage', message)
+      this.forceUpdate()
+    },
     onSelectAllChange (item) {
       this.selectValues = this.selectAll ? this.tableValues : []
     },
@@ -115,10 +119,9 @@ export default {
       this.selectValues = []
       this.selectAll = false
       this.lastIndex = null
-      const _this = this
-      this.selectValues.forEach(function (item, index, items) {
-        _this.$store.commit(`${this.$options.storeName}_searchable/ROW_VARIANT`, {index: index, variant: ''})
-        _this.$store.commit(`${this.$options.storeName}_searchable/ROW_MESSAGE`, {index: index, message: ''})
+      this.selectValues.forEach((item, index, items) => {
+        this.setRowVariant(index, '')
+        this.setRowMessage(index, '')
       })
     },
     onToggleSelected (event, index) {
@@ -149,11 +152,29 @@ export default {
           this.selectValues = []
           break
       }
+    },
+    searchableStoreName () {
+      if (this.storeName) {
+        return this.storeName + '_searchable'
+      } else {
+        return undefined
+      }
     }
   },
   watch: {
     selectValues (a, b) {
       this.selectAll = (this.tableValues.length === a.length && a.length > 0)
+      if (JSON.stringify(a) !== JSON.stringify(b)) {
+        const selectValues = this.selectValues
+        this.tableValues.forEach((item, index, items) => {
+          this.setRowMessage(index, '')
+          if (selectValues.includes(item)) {
+            this.setRowVariant(index, 'info')
+          } else {
+            this.setRowVariant(index, '')
+          }
+        })
+      }
     },
     requestPage (a, b) {
       if (a !== b) this.clearSelected()
@@ -177,11 +198,11 @@ export default {
   },
   created () {
     // Called before the component's created function.
-    if (!this.$options.storeName) {
+    if (!this.storeName) {
       throw new Error(`Missing 'storeName' in options of component ${this.$options.name}`)
     }
-    if (!this.$options.props.tableValues) {
-      throw new Error(`Missing 'props.tableValues' in properties of component ${this.$options.name}`)
+    if (!this.tableValues) {
+      throw new Error(`Missing 'tableValues' in properties of component ${this.$options.name}`)
     }
     if (this.columns.filter(column => column.key === 'actions').length === 0) {
       throw new Error(`Missing column 'actions' in properties of component ${this.$options.name}`)

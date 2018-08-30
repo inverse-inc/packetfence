@@ -13,7 +13,7 @@
   <input type="checkbox"
          class="v-switch-input"
          @change.stop="toggle">
-  <div class="v-switch-core"
+  <div class="v-switch-core mr-2"
         :style="coreStyle">
     <div class="v-switch-button"
         :style="buttonStyle"/>
@@ -34,7 +34,7 @@
 
 <script>
 const constants = {
-  colorChecked: '#75C791',
+  colorChecked: '#28a745',
   colorUnchecked: '#bfcbd9',
   cssColors: false,
   labelChecked: 'on',
@@ -48,26 +48,33 @@ const contains = (object, title) => {
 }
 const px = v => v + 'px'
 export default {
-  name: 'toggle-button',
+  name: 'pf-form-toggle',
   props: {
     value: {
-      type: Boolean,
-      default: false
+      default: null
+    },
+    values: {
+      type: [Boolean, Object],
+      default: {
+        checked: true,
+        unchecked: false
+      },
+      validator (value) {
+        return typeof value === 'object'
+          ? (value.checked || value.unchecked)
+          : typeof value === 'boolean'
+      }
     },
     disabled: {
       type: Boolean,
       default: false
     },
-    sync: {
-      type: Boolean,
-      default: false
-    },
-    // speed: {
-    //   type: Number,
-    //   default: 300
-    // },
     color: {
       type: [String, Object],
+      default: {
+        checked: '#28a745',
+        unchecked: '#bfcbd9'
+      },
       validator (value) {
         return typeof value === 'object'
           ? (value.checked || value.unchecked)
@@ -122,7 +129,6 @@ export default {
       return {
         width: px(this.buttonRadius),
         height: px(this.buttonRadius),
-        // transition: `transform ${this.speed}ms`,
         transform: this.toggled
           ? `translate3d(${this.distance}, 3px, 0px)`
           : null
@@ -165,23 +171,30 @@ export default {
     }
   },
   watch: {
-    value (value) {
-      if (this.sync) {
-        this.toggled = !!value
-      }
+    value (a, b) {
+      this.toggled = (typeof this.values === 'object')
+        ? (a === this.values.checked)
+        : !!a
     }
   },
   data () {
     return {
-      toggled: !!this.value
+      toggled: (typeof this.values === 'object')
+        ? (this.value === this.values.checked)
+        : !!this.value
     }
   },
   methods: {
     toggle (event) {
       this.toggled = !this.toggled
-      this.$emit('input', this.toggled)
+      let value = (typeof this.values === 'object')
+        ? (this.toggled)
+          ? this.values.checked
+          : this.values.unchecked
+        : this.value
+      this.$emit('input', value)
       this.$emit('change', {
-        value: this.toggled,
+        value: value,
         srcEvent: event
       })
     }

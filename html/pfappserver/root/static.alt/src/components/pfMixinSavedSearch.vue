@@ -12,7 +12,7 @@
 export default {
   name: 'pfMixinSavedSearch',
   props: {
-    storeName: {
+    storeName: { // from router
       type: String,
       default: null,
       required: true

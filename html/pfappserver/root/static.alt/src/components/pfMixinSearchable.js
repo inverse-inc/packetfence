@@ -36,13 +36,11 @@
  */
 import SearchableStore from '@/store/base/searchable'
 import pfSearch from '@/components/pfSearch'
-import ToggleButton from '@/components/ToggleButton'
 
 export default {
   name: 'pfMixinSearchable',
   components: {
-    'pf-search': pfSearch,
-    'toggle-button': ToggleButton
+    'pf-search': pfSearch
   },
   props: {
     pfMixinSearchableOptions: {

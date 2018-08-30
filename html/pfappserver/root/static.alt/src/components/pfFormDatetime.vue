@@ -12,9 +12,11 @@
  *    disabled: boolean true/false to disable/enable input
  *    min: minimum datetime string, Date or moment
  *    max: maximum datetime String, Date or moment
+ *    moments: button array of +/- seconds from now (see: https://momentjs.com/docs/#/manipulating/add/)
+ *      example :moments="['-1 hours', '1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"
  */
  <template>
-  <b-form-group :label-cols="labelCols" :label="$t(label)" :state="isValid()" :invalid-feedback="$t(invalidFeedback)" horizontal>
+  <b-form-group :label-cols="labelCols" :label="$t(label)" :state="isValid()" :invalid-feedback="$t(invalidFeedback)" class="mb-0" horizontal>
     <b-input-group>
       <b-input-group-prepend v-if="prependText" is-text>
         {{ prependText }}
@@ -22,7 +24,11 @@
       <date-picker ref="datetime" v-model="inputValue" :config="datetimeConfig" :placeholder="placeholder" @input.native="validate()"
         :state="isValid()"></date-picker>
       <b-input-group-append>
-        <div class="input-group-text" @click.stop="toggle($event)"><icon name="calendar-alt" variant="secondary"></icon></div>
+        <b-button class="input-group-text" v-if="initialValue && initialValue !== inputValue" @click.stop="reset($event)" v-b-tooltip.hover.top.d300 :title="$t('Reset')"><icon name="undo-alt" variant="light"></icon></b-button>
+        <b-button-group v-if="moments.length > 0" rel="moments" v-b-tooltip.hover.top.d300 :title="$t('Cumulate [CTRL] + [CLICK]')">
+          <b-button v-for="(moment, index) in moments" :key="index" variant="light" @click="onClickMoment($event, index)" v-b-tooltip.hover.bottom.d300 :title="momentTooltip(index)">{{ momentLabel(index) }}</b-button>
+        </b-button-group>
+        <b-button class="input-group-text" @click.stop="toggle($event)"><icon name="calendar-alt" variant="light"></icon></b-button>
       </b-input-group-append>
     </b-input-group>
     <b-form-text v-if="text" v-t="text"></b-form-text>
@@ -33,6 +39,10 @@
 import {createDebouncer} from 'promised-debounce'
 import datePicker from 'vue-bootstrap-datetimepicker'
 import 'pc-bootstrap4-datetimepicker/build/css/bootstrap-datetimepicker.css'
+import moment from 'moment'
+
+// even indexes (0, 2, ...) must be full names, odd (1, 3, ...) indexes must be abbreviations
+const validMomentKeys = ['years', 'y', 'quarters', 'Q', 'months', 'M', 'weeks', 'w', 'days', 'd', 'hours', 'h', 'minutes', 'm', 'seconds', 's', 'milliseconds', 'ms']
 
 export default {
   name: 'pf-form-input',
@@ -85,6 +95,10 @@ export default {
     },
     max: {
       type: String
+    },
+    moments: {
+      type: Array,
+      default: []
     }
   },
   data () {
@@ -136,7 +150,8 @@ export default {
           decrementSecond: this.$i18n.t('Decrement Second')
         },
         useCurrent: false
-      }
+      },
+      initialValue: undefined
     }
   },
   computed: {
@@ -145,7 +160,7 @@ export default {
         return this.value
       },
       set (newValue) {
-        this.$emit('input', newValue)
+        this.$emit('input', (newValue === null) ? '0000-00-00 00:00:00' : newValue)
       }
     },
     labelCols () {
@@ -185,6 +200,53 @@ export default {
     toggle (event) {
       let picker = this.$refs.datetime.dp
       picker.toggle()
+    },
+    reset (event) {
+      this.inputValue = JSON.parse(JSON.stringify(this.initialValue))
+    },
+    momentTooltip (index) {
+      let [amount, key] = this.moments[index].split(' ', 2)
+      amount = parseInt(amount)
+      if (validMomentKeys.includes(key)) {
+        let i = validMomentKeys.indexOf(key)
+        if (i % 2) {
+          // is odd, shift index left, use full key name
+          i -= 1
+        }
+        let text = validMomentKeys[i]
+        if ([-1, 1].includes(amount)) {
+          // singular, drop trailing 's'
+          text = text.slice(0, -1)
+        }
+        if (amount < 0) {
+          return this.$i18n.t('{num} {unit} ago', { num: -amount.toString(), unit: this.$i18n.t(text) })
+        } else {
+          return this.$i18n.t('{num} {unit} from now', { num: amount.toString(), unit: this.$i18n.t(text) })
+        }
+      }
+      return null
+    },
+    momentLabel (index) {
+      let [amount, key] = this.moments[index].split(' ', 2)
+      if (validMomentKeys.includes(key)) {
+        let i = validMomentKeys.indexOf(key)
+        if (i % 2 === 0) {
+          // is even, shift index right, use abbreviated key name
+          i += 1
+        }
+        let abbr = validMomentKeys[i]
+        return ((amount > 0) ? '+' : '') + amount.toString() + abbr
+      }
+      return null
+    },
+    onClickMoment (event, index) {
+      let [amount, key] = this.moments[index].split(' ', 2)
+      amount = parseInt(amount)
+      // allow [CTRL]+[CLICK] for cumulative change
+      const base = (event.ctrlKey) ? this.inputValue || undefined : undefined
+      if (validMomentKeys.includes(key)) {
+        this.inputValue = moment(base).add(amount, key).format('YYYY-MM-DD HH:mm:ss')
+      }
     }
   },
   watch: {
@@ -199,11 +261,26 @@ export default {
   },
   created () {
     this.$debouncer = createDebouncer()
+    // dereference inputValue and assign initialValue
+    if (this.inputValue && this.inputValue !== '0000-00-00 00:00:00') {
+      this.initialValue = JSON.parse(JSON.stringify(this.inputValue))
+    }
   }
 }
 </script>
 
 <style lang="scss">
+@import "../../node_modules/bootstrap/scss/functions";
+@import "../styles/variables";
+
+/**
+ * Add btn-primary color(s) on hover
+ */
+.btn-group[rel=moments] button:hover {
+  color: $input-btn-hover-text-color;
+  background-color: $input-btn-hover-bg-color;
+  border-color: $input-btn-hover-bg-color;
+}
 /**
  * vue-bootstrap-datetimepicker only supports fontawesome icons,
  * define base64 encoded icon content and style dirrectly.

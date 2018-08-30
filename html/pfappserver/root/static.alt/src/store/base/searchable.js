@@ -193,24 +193,6 @@ export default class SearchableStore {
         if (index in state.results) {
           Vue.set(state.results[index], params.prop, params.data)
         }
-      },
-      ROW_VARIANT: (state, params) => {
-        let variant = params.variant || ''
-        switch (params.status) {
-          case 'success':
-            variant = 'success'
-            break
-          case 'skipped':
-            variant = 'warning'
-            break
-          case 'failed':
-            variant = 'danger'
-            break
-        }
-        Vue.set(state.results[params.index], '_rowVariant', variant)
-      },
-      ROW_MESSAGE: (state, params) => {
-        Vue.set(state.results[params.index], '_message', params.message)
       }
     }
 

@@ -1,8 +1,7 @@
 <template>
   <b-form-group horizontal label-cols="3" :label="$t(label)"
     :state="isValid()" :invalid-feedback="$t(invalidFeedback)">
-    <b-form-input :type="type" :placeholder="placeholder" v-model="inputValue" @input.native="validate()"
-      :state="isValid()"></b-form-input>
+    <b-form-input :type="type" :placeholder="placeholder" v-model="inputValue" @input.native="validate()" @keyup.native="onChange($event)" @change.native="onChange($event)" :state="isValid()"></b-form-input>
     <b-form-text v-if="text" v-t="text"></b-form-text>
   </b-form-group>
 </template>
@@ -46,6 +45,14 @@ export default {
     debounce: {
       type: Number,
       default: 300
+    },
+    filter: {
+      type: RegExp,
+      default: null
+    },
+    lastValidValue: {
+      type: String,
+      default: null
     }
   },
   computed: {
@@ -77,6 +84,24 @@ export default {
             _this.validation.$touch()
           },
           time: this.debounce
+        })
+      }
+    },
+    onChange (event) {
+      if (this.filter) {
+        // this.value is one char behind, wait until next tick for our v-model to update
+        this.$nextTick(() => {
+          if (this.value.length === 0) {
+            this.lastValidValue = ''
+          } else {
+            if (this.filter.test(this.value)) {
+              // good, remember
+              this.lastValidValue = this.value
+            } else {
+              // bad, restore
+              this.value = this.lastValidValue
+            }
+          }
         })
       }
     }

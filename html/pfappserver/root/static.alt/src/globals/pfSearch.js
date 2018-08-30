@@ -2,22 +2,23 @@
 
 export const pfSearchConditionType = {
   BOOL:                    'bool', // is true or is false
+  DATETIME:                'datetime',
+  INTEGER:                 'integer',
   LIST:                    'list', // is only
   LISTEXTEND:              'list', // is or is not
   SUBSTRING:               'substring',
-  NODE_STATUS:             'node_status',
-  ROLE:                    'role',
+  YESNO:                   'yesno',
   CONNECTION_TYPE:         'connection_type',
+  NODE_STATUS:             'node_status',
   ONLINE:                  'online',
-  INTEGER:                 'integer',
-  DATETIME:                'datetime',
-  VOIP:                    'voip'
+  ROLE:                    'role'
 }
 
 export const pfSearchConditionValue = {
   TEXT:                    'text',
   SELECT:                  'select',
-  DATETIME:                'datetime'
+  DATETIME:                'datetime',
+  PREFIXMULTIPLE:          'prefixmultiple'
 }
 
 /**
@@ -25,16 +26,15 @@ export const pfSearchConditionValue = {
  */
 // See lib/pf/UnifiedApi/Search.pm#L20
 export const pfConditionOperators = {}
-pfConditionOperators[pfSearchConditionType.SUBSTRING] = {
-  'equals':                pfSearchConditionValue.TEXT,
-  'not_equals':            pfSearchConditionValue.TEXT,
-  'starts_with':           pfSearchConditionValue.TEXT,
-  'ends_with':             pfSearchConditionValue.TEXT,
-  'contains':              pfSearchConditionValue.TEXT
-}
 pfConditionOperators[pfSearchConditionType.BOOL] = {
   'is_true':               null,
   'is_false':              null
+}
+pfConditionOperators[pfSearchConditionType.DATETIME] = {
+  'greater_than':          pfSearchConditionValue.DATETIME,
+  'greater_than_equals':   pfSearchConditionValue.DATETIME,
+  'less_than':             pfSearchConditionValue.DATETIME,
+  'less_than_equals':      pfSearchConditionValue.DATETIME
 }
 pfConditionOperators[pfSearchConditionType.INTEGER] = {
   'equals':                pfSearchConditionValue.TEXT,
@@ -44,15 +44,23 @@ pfConditionOperators[pfSearchConditionType.INTEGER] = {
   'greater_than_equals':   pfSearchConditionValue.TEXT,
   'less_than_equals':      pfSearchConditionValue.TEXT
 }
-pfConditionOperators[pfSearchConditionType.NODE_STATUS] = {
+pfConditionOperators[pfSearchConditionType.SUBSTRING] = {
+  'equals':                pfSearchConditionValue.TEXT,
+  'not_equals':            pfSearchConditionValue.TEXT,
+  'starts_with':           pfSearchConditionValue.TEXT,
+  'ends_with':             pfSearchConditionValue.TEXT,
+  'contains':              pfSearchConditionValue.TEXT
+}
+pfConditionOperators[pfSearchConditionType.YESNO] = {
   'equals':                pfSearchConditionValue.SELECT,
   'not_equals':            pfSearchConditionValue.SELECT
 }
-pfConditionOperators[pfSearchConditionType.ROLE] = {
-  'equals':                pfSearchConditionValue.SELECT,
-  'not_equals':            pfSearchConditionValue.SELECT
-}
+
 pfConditionOperators[pfSearchConditionType.CONNECTION_TYPE] = {
+  'equals':                pfSearchConditionValue.SELECT,
+  'not_equals':            pfSearchConditionValue.SELECT
+}
+pfConditionOperators[pfSearchConditionType.NODE_STATUS] = {
   'equals':                pfSearchConditionValue.SELECT,
   'not_equals':            pfSearchConditionValue.SELECT
 }
@@ -60,7 +68,7 @@ pfConditionOperators[pfSearchConditionType.ONLINE] = {
   'equals':                pfSearchConditionValue.SELECT,
   'not_equals':            pfSearchConditionValue.SELECT
 }
-pfConditionOperators[pfSearchConditionType.VOIP] = {
+pfConditionOperators[pfSearchConditionType.ROLE] = {
   'equals':                pfSearchConditionValue.SELECT,
   'not_equals':            pfSearchConditionValue.SELECT
 }
@@ -68,35 +76,30 @@ pfConditionOperators[pfSearchConditionType.VIOLATION] = {
   'equals':                pfSearchConditionValue.SELECT,
   'not_equals':            pfSearchConditionValue.SELECT
 }
-pfConditionOperators[pfSearchConditionType.DATETIME] = {
-  'greater_than':          pfSearchConditionValue.DATETIME,
-  'greater_than_equals':   pfSearchConditionValue.DATETIME,
-  'less_than':             pfSearchConditionValue.DATETIME,
-  'less_than_equals':      pfSearchConditionValue.DATETIME
+pfConditionOperators[pfSearchConditionType.PREFIXMULTIPLE] = {
+  'equals':                pfSearchConditionValue.PREFIXMULTIPLE,
+  'not_equals':            pfSearchConditionValue.PREFIXMULTIPLE,
+  'greater_than':          pfSearchConditionValue.PREFIXMULTIPLE,
+  'less_than':             pfSearchConditionValue.PREFIXMULTIPLE,
+  'greater_than_equals':   pfSearchConditionValue.PREFIXMULTIPLE,
+  'less_than_equals':      pfSearchConditionValue.PREFIXMULTIPLE
 }
 
 /**
  * Values of some condition types
  */
 export const pfSearchConditionValues = {}
-pfSearchConditionValues[pfSearchConditionType.NODE_STATUS] = [
+// See lib/pf/config.pm#L344-L350
+pfSearchConditionValues[pfSearchConditionType.YESNO] = [
   {
-    value: 'reg',
-    text: 'Registered'
+    value: 'yes',
+    text: 'Yes'
   },
   {
-    value: 'unreg',
-    text: 'Unregistered'
-  },
-  {
-    value: 'pending',
-    text: 'Pending'
+    value: 'no',
+    text: 'No'
   }
 ]
-pfSearchConditionValues[pfSearchConditionType.ROLE] = (store) => {
-  return store.getters['config/rolesList']
-}
-// See lib/pf/config.pm#L344-L350
 pfSearchConditionValues[pfSearchConditionType.CONNECTION_TYPE] = [
   {
     value: 'Wireless-802.11-EAP',
@@ -123,6 +126,20 @@ pfSearchConditionValues[pfSearchConditionType.CONNECTION_TYPE] = [
     text: 'Inline'
   }
 ]
+pfSearchConditionValues[pfSearchConditionType.NODE_STATUS] = [
+  {
+    value: 'reg',
+    text: 'Registered'
+  },
+  {
+    value: 'unreg',
+    text: 'Unregistered'
+  },
+  {
+    value: 'pending',
+    text: 'Pending'
+  }
+]
 pfSearchConditionValues[pfSearchConditionType.ONLINE] = [
   {
     value: 'on',
@@ -137,16 +154,9 @@ pfSearchConditionValues[pfSearchConditionType.ONLINE] = [
     text: 'Unknown'
   }
 ]
-pfSearchConditionValues[pfSearchConditionType.VOIP] = [
-  {
-    value: 'yes',
-    text: 'Yes'
-  },
-  {
-    value: 'no',
-    text: 'No'
-  }
-]
+pfSearchConditionValues[pfSearchConditionType.ROLE] = (store) => {
+  return store.getters['config/rolesList']
+}
 pfSearchConditionValues[pfSearchConditionType.VIOLATION] = (store) => {
   return store.getters['config/violationsList']
 }

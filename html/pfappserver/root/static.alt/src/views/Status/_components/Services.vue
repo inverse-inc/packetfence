@@ -6,19 +6,17 @@
     <div class="card-body">
     <b-table small="true" :fields="fields" :items="services">
       <template slot="state" slot-scope="service">
-        <toggle-button
+        <pf-form-toggle
          :value="service.item.enabled"
-         :sync="true"
          :disabled="service.item.loading"
          width="90" class="d-inline-block"
-         :labels="{ checked: 'enabled', unchecked: 'disabled' }"></toggle-button>
-        <toggle-button
+         :labels="{ checked: 'enabled', unchecked: 'disabled' }"></pf-form-toggle>
+        <pf-form-toggle
          :value="service.item.alive"
-         :sync="true"
          :disabled="service.item.loading"
          width="90" class="d-inline-block"
          :labels="{ checked: 'running', unchecked: 'stopped' }"
-         :color="{ unchecked: '#be2125' }"></toggle-button>
+         :color="{ unchecked: '#be2125' }"></pf-form-toggle>
       </template>
     </b-table>
     </div>
@@ -26,12 +24,12 @@
 </template>
 
 <script>
-import ToggleButton from '@/components/ToggleButton'
+import pfFormToggle from '@/components/pfFormToggle'
 
 export default {
   name: 'Services',
   components: {
-    'toggle-button': ToggleButton
+    'pf-form-toggle': pfFormToggle
   },
   props: {
   },

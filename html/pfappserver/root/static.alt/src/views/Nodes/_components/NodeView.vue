@@ -14,23 +14,27 @@
           </template>
           <b-row>
             <b-col>
-              <pf-form-input v-model="nodeContent.pid" label="Owner" :validation="$v.nodeContent.pid"/>
+              <pf-form-input v-model="nodeContent.pid" :label="$t('Owner')" :validation="$v.nodeContent.pid"/>
               <b-form-group horizontal label-cols="3" :label="$t('Status')">
                 <b-form-select v-model="nodeContent.status" :options="statuses"></b-form-select>
              </b-form-group>
               <b-form-group horizontal label-cols="3" :label="$t('Role')">
                 <b-form-select v-model="nodeContent.category_id" :options="rolesWithNull"></b-form-select>
              </b-form-group>
-              <b-form-group horizontal label-cols="3" :label="$t('Unregistration')">
-                <b-form-row>
-                  <b-col>
-                    <b-form-input type="date" v-model="node.unreg_date"/>
-                  </b-col>
-                  <b-col>
-                    <b-form-input type="time" v-model="node.unreg_time"/>
-                  </b-col>
-                </b-form-row>
+             <b-form-group horizontal label-cols="3" :label="$t('Unregistration')">
+                <pf-form-datetime v-model="nodeContent.unregdate" :moments="['1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"></pf-form-datetime>
               </b-form-group>
+              <pf-form-input v-model="nodeContent.time_balance" type="number" :filter="globals.regExp.integerPositive" :label="$t('Access Time Balance')" :text="$t('seconds')"/>
+              <b-form-group horizontal label-cols="3" :label="$t('Bandwidth Balance')">
+                <pf-form-prefix-multiplier v-model="nodeContent.bandwidth_balance" :max="globals.sqlLimits.ubigint.max"></pf-form-prefix-multiplier>
+              </b-form-group>
+              <b-form-group horizontal label-cols="3" :label="$t('VOIP')" class="my-1">
+                <pf-form-toggle v-model="nodeContent.voip" :color="{checked: '#28a745', unchecked: '#dc3545'}" :values="{checked: 'yes', unchecked: 'no'}">{{ (nodeContent.voip === 'yes') ? $t('Yes') : $t('No') }}</pf-form-toggle>
+              </b-form-group>
+              <pf-form-input v-model="nodeContent.bypass_vlan" type="text" :filter="globals.regExp.stringVlan" :label="$t('Bypass VLAN')"/>
+              <b-form-group horizontal label-cols="3" :label="$t('Bypass Role')">
+                <b-form-select v-model="nodeContent.bypass_role_id" :options="rolesWithNull"></b-form-select>
+             </b-form-group>
               <b-form-group horizontal label-cols="3" :label="$t('Notes')">
                 <b-form-textarea v-model="nodeContent.notes" rows="4" max-rows="6"></b-form-textarea>
               </b-form-group>
@@ -250,11 +254,15 @@
 
 <script>
 import DeleteButton from '@/components/DeleteButton'
-import ToggleButton from '@/components/ToggleButton'
 import pfFingerbankScore from '@/components/pfFingerbankScore'
+import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormInput from '@/components/pfFormInput'
+import pfFormPrefixMultiplier from '@/components/pfFormPrefixMultiplier'
 import pfFormRow from '@/components/pfFormRow'
+import pfFormToggle from '@/components/pfFormToggle'
+import { mysqlLimits as sqlLimits } from '@/globals/mysqlLimits'
 import { pfEapType as eapType } from '@/globals/pfEapType'
+import { pfRegExp as regExp } from '@/globals/pfRegExp'
 import {
   pfSearchConditionType as conditionType,
   pfSearchConditionValues as conditionValues
@@ -266,22 +274,32 @@ const { required } = require('vuelidate/lib/validators')
 
 export default {
   name: 'NodeView',
-  storeName: '$_nodes',
   components: {
     'delete-button': DeleteButton,
-    'toggle-button': ToggleButton,
     'pf-fingerbank-score': pfFingerbankScore,
+    'pf-form-datetime': pfFormDatetime,
     'pf-form-row': pfFormRow,
-    'pf-form-input': pfFormInput
+    'pf-form-prefix-multiplier': pfFormPrefixMultiplier,
+    'pf-form-input': pfFormInput,
+    'pf-form-toggle': pfFormToggle
   },
   mixins: [
     validationMixin
   ],
   props: {
+    storeName: { // from router
+      type: String,
+      default: null,
+      required: true
+    },
     mac: String
   },
   data () {
     return {
+      globals: {
+        regExp: regExp,
+        sqlLimits: sqlLimits
+      },
       visGroups: new DataSet(),
       visItems: new DataSet(),
       visOptions: {

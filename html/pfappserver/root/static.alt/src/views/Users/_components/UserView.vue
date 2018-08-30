@@ -50,7 +50,7 @@
 </template>
 
 <script>
-  import ToggleButton from '@/components/ToggleButton'
+  import pfFormToggle from '@/components/pfFormToggle'
   import pfFormInput from '@/components/pfFormInput'
   const { validationMixin } = require('vuelidate')
   const { required, email } = require('vuelidate/lib/validators')
@@ -58,7 +58,7 @@
   export default {
     name: 'UserView',
     components: {
-      'toggle-button': ToggleButton,
+      'pf-form-toggle': pfFormToggle,
       'pf-form-input': pfFormInput
     },
     mixins: [
