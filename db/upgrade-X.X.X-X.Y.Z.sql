@@ -48,6 +48,11 @@ DELIMITER ;
 call ValidateVersion;                                                                                                  
 
 --
+-- Increase node bandwidth_balance
+--
+ALTER TABLE `node` MODIFY `bandwidth_balance` bigint(20) unsigned DEFAULT NULL;
+
+--
 -- Adjust the pf_version engine so its synchronized in a cluster
 --
 ALTER TABLE pf_version engine = InnoDB;
