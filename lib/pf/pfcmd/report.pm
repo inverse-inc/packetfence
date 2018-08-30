@@ -412,7 +412,7 @@ sub report_db_prepare {
 
     $report_statements->{'report_topauthenticationfailures_by_username_sql'} = get_db_handle()->prepare(qq[
         SELECT
-            `user_name`, 
+            FREERADIUS_DECODE(`user_name`) AS `user_name`,
             COUNT(1) AS `count`, 
             SUM(100) / `total` AS `percent`
         FROM `radius_audit_log`
@@ -475,7 +475,7 @@ sub report_db_prepare {
 
     $report_statements->{'report_topauthenticationsuccesses_by_username_sql'} = get_db_handle()->prepare(qq[
         SELECT
-            `user_name`, 
+            FREERADIUS_DECODE(`user_name`) AS `user_name`,
             COUNT(1) AS `count`, 
             SUM(100) / `total` AS `percent`
         FROM `radius_audit_log`
@@ -496,7 +496,7 @@ sub report_db_prepare {
 
     $report_statements->{'report_topauthenticationsuccesses_by_computername_sql'} = get_db_handle()->prepare(qq[
         SELECT
-            `computer_name`, 
+            FREERADIUS_DECODE(`computer_name`) AS `computer_name`,
             COUNT(1) AS `count`, 
             SUM(100) / `total` AS `percent`
         FROM `radius_audit_log`
