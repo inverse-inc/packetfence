@@ -35,6 +35,7 @@ use pf::util;
 use pf::node;
 use pf::util::radius qw(perform_coa);
 use Try::Tiny;
+use pf::Switch::Meraki::MR_v2;
 
 =head1 SUBROUTINES
 
