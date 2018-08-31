@@ -60,7 +60,7 @@ sub build {
             $logger->info("Building condition '$rule'");
             my $condition = eval { pf::factory::condition::access_filter->instantiate($data) };
             unless (defined $condition) {
-                $self->_error("Error building condition '$rule'");
+                $self->_error("Error building condition '$rule': $@");
                 next;
             }
             $self->{prebuilt_conditions}{$rule} = $condition;
@@ -85,7 +85,8 @@ Record and display an error that occured while building the engine
 sub _error {
     my ($self, $msg, $add_info) = @_;
     my $long_msg = $msg. (defined($add_info) ? " : $add_info" : '');
-    warn($long_msg."\n");
+    $long_msg .= "\n" unless $long_msg =~ /\n\z/s;
+    warn($long_msg);
     get_logger->error($long_msg);
     push @{$self->{errors}}, $msg;
 }
