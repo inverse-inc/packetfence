@@ -27,6 +27,7 @@ Enhancements
 * Increased maximum node bandwidth balance from 4 GB to 18.4467441 XB (exabytes) (#3477) (PR #3493)
 * Improve connection profile's advanced filter
 * Use MySQL as backend for pfdhcp options (deprecates etcd) (PR #3484)
+* Reorder iptables rules (PR #3463)
 
 Bug Fixes
 +++++++++
