@@ -1288,6 +1288,16 @@ END ;;
 DELIMITER ;
 
 --
+-- Table structure for table `key_value_storage`
+--
+
+CREATE TABLE key_value_storage (
+  id VARCHAR(255),
+  value BLOB,
+  PRIMARY KEY(id)
+) ENGINE=InnoDB;
+
+--
 -- Updating to current version
 --
 

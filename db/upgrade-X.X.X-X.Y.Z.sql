@@ -92,4 +92,14 @@ BEGIN
 END$$
 DELIMITER ;
 
+--
+-- Table structure for table `key_value_storage`
+--
+
+CREATE TABLE key_value_storage (
+  id VARCHAR(255),
+  value BLOB,
+  PRIMARY KEY(id)
+) ENGINE=InnoDB;
+
 INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION)); 

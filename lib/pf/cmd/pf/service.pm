@@ -15,7 +15,6 @@ pfcmd service <service> [start|stop|restart|status|generateconfig|updatesystemd]
 Services managed by PacketFence:
 
   api-frontend         | Golang daemon providing API
-  etcd                 | Distributed cache to store DHCP options
   fingerbank-collector | Fingerprinting data collection daemon
   haproxy-portal       | haproxy portal daemon
   haproxy-db           | haproxy database daemon

@@ -4020,10 +4020,6 @@ msgid ""
 "running the RPMed version."
 msgstr "Emplacement du binaire DHCPd."
 
-# conf/documentation.conf (services.etcd_binary)
-msgid "Location of the etcd binary."
-msgstr "Emplacement du binaire etcd."
-
 # conf/documentation.conf (services.fingerbank-collector_binary)
 msgid "Location of the fingerbank-collector binary."
 msgstr "Emplacement du binaire fingerbank-collector."
@@ -7184,10 +7180,6 @@ msgstr "Est-ce que Fingerbank interagit avec le web en utilisant un proxy?"
 # conf/documentation.conf (services.api-frontend)
 msgid "Should api-frontend be managed by PacketFence?"
 msgstr "Est-ce api-frontend doit être géré par PacketFence ?"
-
-# conf/documentation.conf (services.etcd)
-msgid "Should etcd be managed by PacketFence?"
-msgstr "Est-ce etcd doit être géré par PacketFence ?"
 
 # conf/documentation.conf (services.haproxy-db)
 msgid ""
@@ -10568,7 +10560,6 @@ msgstr "dhcplistener"
 # conf/documentation.conf (pfdhcp.mac2ip_lookup options)
 # conf/documentation.conf (provisioning.autoconfig options)
 # conf/documentation.conf (services.api-frontend options)
-# conf/documentation.conf (services.etcd options)
 # conf/documentation.conf (services.fingerbank-collector options)
 # conf/documentation.conf (services.haproxy-db options)
 # conf/documentation.conf (services.haproxy-portal options)
@@ -10703,7 +10694,6 @@ msgstr "en_US"
 # conf/documentation.conf (pfdhcp.mac2ip_lookup options)
 # conf/documentation.conf (provisioning.autoconfig options)
 # conf/documentation.conf (services.api-frontend options)
-# conf/documentation.conf (services.etcd options)
 # conf/documentation.conf (services.fingerbank-collector options)
 # conf/documentation.conf (services.haproxy-db options)
 # conf/documentation.conf (services.haproxy-portal options)
@@ -11793,14 +11783,6 @@ msgstr "Emplacement de arp"
 # conf/documentation.conf
 msgid "services.dhcpd_binary"
 msgstr "Emplacement de DHCPd"
-
-# conf/documentation.conf
-msgid "services.etcd"
-msgstr ""
-
-# conf/documentation.conf
-msgid "services.etcd_binary"
-msgstr "Emplacement du binaire etcd."
 
 # conf/documentation.conf
 msgid "services.fingerbank-collector"

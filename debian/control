@@ -139,8 +139,6 @@ Depends: ${misc:Depends}, vlan,
  libnet-syslog-perl,
 # for packaging
  dpkg-distribution,
- etcd-server,
- etcd-client,
 # Distribution specific
  ${packetfence:dist}
 Description: PacketFence network registration / worm mitigation system

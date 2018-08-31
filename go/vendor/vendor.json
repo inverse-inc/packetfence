@@ -63,12 +63,6 @@
 			"revisionTime": "2017-10-19T14:11:01Z"
 		},
 		{
-			"checksumSHA1": "3Sr7cI/2HAnSbL2rHFZKexEwJ9Y=",
-			"path": "github.com/coreos/etcd/client",
-			"revision": "0c692fb898c887d028837a1fee6db601de6dcee6",
-			"revisionTime": "2018-01-25T19:57:10Z"
-		},
-		{
 			"checksumSHA1": "mKIXx1kDwmVmdIpZ3pJtRBuUKso=",
 			"path": "github.com/coreos/etcd/pkg/pathutil",
 			"revision": "0c692fb898c887d028837a1fee6db601de6dcee6",
