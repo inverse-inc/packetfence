@@ -17,6 +17,7 @@ Version X.Y.Z released on xxxx-xx-xx
 New Features
 ++++++++++++
 * Now supports CoA on Meraki switches
+* Permit incoming eduroam tlrs radius request (PR #3399)
 
 Enhancements
 ++++++++++++
