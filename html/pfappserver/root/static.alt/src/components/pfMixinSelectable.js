@@ -95,7 +95,8 @@ export default {
     lastIndex: {
       type: Number,
       default: null
-    }
+    },
+    noInitBindKeys: Boolean
   },
   methods: {
     forceUpdate () {
@@ -141,7 +142,7 @@ export default {
         this.selectValues = this.selectValues.reduce((x, y) => subset.includes(y) ? x : [...x, y], [])
       }
     },
-    onKeydown (event) {
+    onKeyDown (event) {
       switch (true) {
         case (event.altKey && event.keyCode === 65): // ALT+A
           event.preventDefault()
@@ -209,9 +210,13 @@ export default {
     }
   },
   mounted () {
-    document.addEventListener('keydown', this.onKeydown)
+    if (!this.noInitBindKeys) {
+      document.addEventListener('keydown', this.onKeyDown)
+    }
   },
   beforeDestroy () {
-    document.removeEventListener('keydown', this.onKeydown)
+    if (!this.noInitBindKeys) {
+      document.removeEventListener('keydown', this.onKeyDown)
+    }
   }
 }
