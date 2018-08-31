@@ -132,13 +132,26 @@ sub validate_item {
         return $form->value;
     }
 
+    $self->render_error(422, "Unable to validate", $self->format_form_errors($form));
+    return undef;
+}
+
+
+=head2 format_form_errors
+
+format_form_errors
+
+=cut
+
+sub format_form_errors {
+    my ($self, $form) = @_;
     my $field_errors = $form->field_errors;
     my @errors;
     while (my ($k,$v) = each %$field_errors) {
-        push @errors, {$k => $v};
+        push @errors, {field => $k, message => $v};
     }
-    $self->render_error(422, "Unable to validate", \@errors);
-    return undef;
+
+    return \@errors;
 }
 
 sub make_location_url {

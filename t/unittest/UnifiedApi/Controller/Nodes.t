@@ -30,7 +30,7 @@ BEGIN {
 
 #insert known data
 #run tests
-use Test::More tests => 54;
+use Test::More tests => 57;
 use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
@@ -108,6 +108,10 @@ $t->post_ok("/api/v1/node/$mac/apply_violation" => json => { vid => '1100013' })
 $t->post_ok('/api/v1/nodes/search' => json => { fields => [qw(mac violation.open_count)] })
   ->status_is(200)
   ->json_has('/items/0/violation.open_count');
+
+$t->post_ok('/api/v1/nodes/search' => json => { fields => [qw(mac)], with_count => 1 })
+  ->status_is(200)
+  ->json_has('count');
 
 =head1 AUTHOR
 

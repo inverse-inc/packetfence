@@ -1,42 +1,29 @@
-package pf::UnifiedApi::Controller::Config::Switches;
+package pf::UnifiedApi::Controller::Config::SyslogForwarders;
 
 =head1 NAME
 
-pf::UnifiedApi::Controller::Config::Switches - 
+pf::UnifiedApi::Controller::Config::SyslogForwarders - 
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::UnifiedApi::Controller::Config::Switches
-
-
+pf::UnifiedApi::Controller::Config::SyslogForwarders
 
 =cut
 
 use strict;
 use warnings;
 
-
 use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
 
-has 'config_store_class' => 'pf::ConfigStore::Switch';
-has 'form_class' => 'pfappserver::Form::Config::Switch';
-has 'primary_key' => 'switch_id';
+has 'config_store_class' => 'pf::ConfigStore::Syslog';
+has 'form_class' => 'pfappserver::Form::Config::Syslog';
+has 'primary_key' => 'syslog_forwarder_id';
 
-use pf::ConfigStore::Switch;
-use pfappserver::Form::Config::Switch;
+use pf::ConfigStore::Syslog;
+use pfappserver::Form::Config::Syslog;
 
-sub invalidate_cache {
-    my ($self) = @_;
-    my $switch_id = $self->item;
-    my $switch = pf::SwitchFactory->instantiate($switch_id);
-    unless ( ref($switch) ) {
-        return $self->render_error(status => 422, "Cannot create switch $switch");
-    }
-    $switch->invalidate_distributed_cache();
-    return $self->render(status => 200, json => { status => "success" });
-}
  
 =head1 AUTHOR
 

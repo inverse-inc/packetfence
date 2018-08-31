@@ -2,13 +2,13 @@
 
 =head1 NAME
 
-Sources
+Syslogs
 
 =cut
 
 =head1 DESCRIPTION
 
-unit test for Sources
+unit test for Syslogs
 
 =cut
 
@@ -26,16 +26,16 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 13;
+use Test::More tests => 7;
 use Test::Mojo;
 
 #This test will running last
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
 
-my $collection_base_url = '/api/v1/config/sources';
+my $collection_base_url = '/api/v1/config/syslog_forwarders';
 
-my $base_url = '/api/v1/config/source';
+my $base_url = '/api/v1/config/syslog_forwarder';
 
 $t->get_ok($collection_base_url)
   ->status_is(200);
@@ -45,21 +45,6 @@ $t->post_ok($collection_base_url => json => {})
 
 $t->post_ok($collection_base_url, {'Content-Type' => 'application/json'} => '{')
   ->status_is(400);
-
-$t->post_ok("$collection_base_url/test" => json => {type => 'Htpasswd', id => 'test'})
-  ->status_is(422)
-  ->json_has('/errors/0/field');
-
-$t->post_ok("$collection_base_url/test" =>
-    json => {
-        type => 'Htpasswd',
-        id   => 'test',
-        path => '/usr/local/pf/t/data/htpasswd.conf',
-        description => "Test",
-    }
-  )
-  ->status_is(405)
-  ->json_has('/errors');
 
 =head1 AUTHOR
 

@@ -232,16 +232,37 @@ our @API_V1_ROUTES = (
         Config::MaintenanceTasks
         Config::PkiProviders
         Config::PortalModules
+        Config::Provisionings
         Config::Realms
         Config::Roles
         Config::Scans
-        Config::Sources
         Config::Switches
         Config::SwitchGroups
+        Config::SyslogForwarders
         Config::SyslogParsers
         Config::TrafficShapingPolicies
         Config::Violations
     ),
+    {
+        controller => 'Config::Sources',
+        collection   => {
+            subroutes => {
+                test => {
+                    post => 'test',
+                }
+            }
+        },
+    },
+    {
+        controller => 'Config::Switches',
+        resource   => {
+            subroutes => {
+                invalidate_cache => {
+                    post => 'invalidate_cache',
+                }
+            }
+        },
+    },
     {
         controller => 'Translations',
         collection => {

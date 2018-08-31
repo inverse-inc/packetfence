@@ -60,7 +60,8 @@ sub search {
         return $status, $search_args;
     }
 
-    ( $status, my $iter ) = $search_info->{dal}->search( %$search_args );
+    my $dal = $search_info->{dal};
+    ( $status, my $iter ) = $dal->search( %$search_args );
     if ( is_error($status) ) {
         return $status, {msg =>  "Error fulfilling search"}
     }
@@ -74,11 +75,23 @@ sub search {
         $nextCursor = $offset + $limit - 1;
     }
 
+    my $count;
+    if ($search_info->{with_count}) {
+        my ($status, $sth) = $dal->db_execute("SELECT FOUND_ROWS();");
+        if ( is_error($status) ) {
+            return $status, {msg =>  "Error getting count"}
+        }
+
+        ($count) = $sth->fetchrow_array;
+        $sth->finish();
+    }
+
     return $status,
       {
         prevCursor => $offset,
         items      => $items,
-        ( defined $nextCursor ? ( nextCursor => $nextCursor ) : () )
+        ( defined $nextCursor ? ( nextCursor => $nextCursor ) : () ),
+        ( defined $count ? ( count => $count ) : () ),
       }
       ;
 }
@@ -237,7 +250,11 @@ sub make_columns {
         push @{$s->{found_fields}}, @$cols;
         @$cols = map { $self->format_column($s, $_) } @$cols
     } else {
-        $cols = $s->{dal}->table_field_names;
+        $cols = [@{$s->{dal}->table_field_names}];
+    }
+
+    if ($s->{with_count}) {
+        unshift @$cols, '-SQL_CALC_FOUND_ROWS';
     }
 
     return 200, $cols;

@@ -14,8 +14,8 @@ pf::UnifiedApi::Controller::Config::Sources
 
 use strict;
 use warnings;
-
-
+use pf::authentication;
+use HTTP::Status qw(:constants :is);
 use Mojo::Base qw(pf::UnifiedApi::Controller::Config::Subtype);
 
 has 'config_store_class' => 'pf::ConfigStore::Source';
@@ -92,6 +92,47 @@ our %TYPES_TO_FORMS = (
 
 sub type_lookup {
     return \%TYPES_TO_FORMS;
+}
+
+sub test {
+    my ($self) = @_;
+    my ($error, $new_data) = $self->get_json;
+    if (defined $error) {
+        return $self->render_error(400, "Bad Request : $error");
+    }
+
+    my $form = $self->form($new_data);
+    if (!defined $form) {
+        return $self->render_error(422, "Cannot determine the valid type");
+    }
+
+    $form->process(params => $new_data, posted => 1);
+    if ($form->has_errors) {
+        return $self->render_error(422, "Unable to validate", $self->format_form_errors($form));
+    }
+
+    my $success = eval {
+        my $source = newAuthenticationSource($new_data->{type}, 'test', $form->getSourceArgs());
+        my $method = $source->can('test');
+        if (!$method) {
+            return $self->render_error(HTTP_METHOD_NOT_ALLOWED, "$new_data->{type} cannot be tested");
+        }
+
+        my ($status, $message) = $source->test();
+        if (!$status) {
+            return $self->render_error(HTTP_BAD_REQUEST, $message);
+        }
+        return 1;
+    };
+    if ($@) {
+        return $self->render_error(HTTP_BAD_REQUEST, "$@");
+    }
+    if (!$success) {
+        return;
+    }
+
+    $self->render(status => 200, json => {status => "success"});
+    return;
 }
 
 =head1 AUTHOR

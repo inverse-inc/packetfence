@@ -384,7 +384,7 @@ sub build_search_info {
                 exists $data_or_error->{$_}
                   ? ( $_ => $data_or_error->{$_} )
                   : ()
-            } qw(limit query fields sort cursor)
+            } qw(limit query fields sort cursor with_count)
         )
     };
 }
