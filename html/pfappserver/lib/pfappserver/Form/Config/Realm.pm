@@ -91,7 +91,7 @@ has_field 'permit_userPrincipalName' =>
    type => 'Toggle',
    checkbox_value => "enabled",
    unchecked_value => "disabled",
-   default => "enabled",
+   default => "disabled",
    label => 'userPrincipalName',
    tags => { after_element => \&help,
              help => 'Allow userPrincipalName attribute to authenticate 802.1x users' },
