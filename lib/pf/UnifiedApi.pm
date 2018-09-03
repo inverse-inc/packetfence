@@ -257,6 +257,7 @@ our @API_V1_ROUTES = (
             subroutes => undef,
         },
     },
+    'WrixLocations',
     {
         controller => 'Queues',
         collection => {
