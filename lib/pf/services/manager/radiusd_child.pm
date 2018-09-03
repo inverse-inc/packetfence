@@ -330,7 +330,7 @@ EOT
         my $server2_address = $eduroam_authentication_source[0]{'server2_address'};
         my $radius_secret = $eduroam_authentication_source[0]{'radius_secret'};
         my $virtual_server = "packetfence";
-	if ($cluster_enabled) {
+        if ($cluster_enabled) {
             $virtual_server = "pf.cluster";
         }
             $tags{'config'} .= <<"EOT";
