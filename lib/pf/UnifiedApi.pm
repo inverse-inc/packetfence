@@ -65,7 +65,12 @@ our @API_V1_ROUTES = (
                         }
                     },
                 }
-            ]
+            ],
+          subroutes => {
+            unassign_nodes => {
+                post => 'unassign_nodes',
+            },
+          },
         },
     },
     {

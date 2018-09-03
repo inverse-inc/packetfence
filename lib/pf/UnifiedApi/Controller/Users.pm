@@ -16,10 +16,33 @@ use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
 use pf::dal::person;
+use pf::dal::node;
+use pf::node;
+use pf::constants qw($default_pid);
 
 has dal => 'pf::dal::person';
 has url_param_name => 'user_id';
 has primary_key => 'pid';
+
+sub unassign_nodes {
+    my ($self) = @_;
+    my $pid = $self->id;
+
+    my ($status, $count) = pf::dal::node->update_items(
+        -where => {
+            pid => $pid,
+        },
+        -set => {
+            pid => $default_pid
+        }
+    );
+
+    if (is_error($status)) {
+        return $self->render_error($status, "Unable the unassign nodes for $pid");
+    }
+
+    return $self->render(status => 200, json => {status => "success", count => $count});
+}
 
 =head1 AUTHOR
 
