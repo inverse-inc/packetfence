@@ -82,25 +82,25 @@
                   <b-badge variant="danger" v-else>{{ $t('Inactive') }}</b-badge>
               </pf-form-row>
               <pf-form-row class="text-nowrap" :label="$t('Detect Date')">
-                {{ node.detect_date }}
+                {{ node.detect_date | longDateTime }}
               </pf-form-row>
               <pf-form-row class="text-nowrap" :label="$t('Registration Date')">
-                {{ node.regdate }}
+                {{ node.regdate | longDateTime }}
               </pf-form-row>
               <pf-form-row class="text-nowrap" :label="$t('Unregistration Date')">
-                {{ node.unregdate }}
+                {{ node.unregdate | longDateTime }}
               </pf-form-row>
               <pf-form-row class="text-nowrap" :label="$t('Last ARP')">
-                {{ node.last_arp }}
+                {{ node.last_arp | longDateTime }}
               </pf-form-row>
               <pf-form-row class="text-nowrap" :label="$t('Last DHCP')">
-                {{ node.last_dhcp }}
+                {{ node.last_dhcp | longDateTime }}
               </pf-form-row>
               <pf-form-row class="text-nowrap" :label="$t('Last Seen')">
-                {{ node.last_seen }}
+                {{ node.last_seen | longDateTime }}
               </pf-form-row>
               <pf-form-row class="text-nowrap" :label="$t('Last Skip')">
-                {{ node.lastskip }}
+                {{ node.lastskip | longDateTime }}
               </pf-form-row>
               <pf-form-row class="text-nowrap" :label="$t('Last Connection Type')">
                 {{ node.last_connection_type }} <span v-if="node.last_connection_sub_type">/</span> {{ node.last_connection_sub_type }}
@@ -330,12 +330,13 @@ export default {
         {
           key: 'start_time',
           label: this.$i18n.t('Start Time'),
+          formatter: this.$options.filters.shortDateTime,
           class: 'text-nowrap'
         },
         {
           key: 'end_time',
           label: this.$i18n.t('End Time'),
-          formatter: this.$options.filters.pfDate,
+          formatter: this.$options.filters.shortDateTime,
           class: 'text-nowrap'
         },
         {
@@ -364,7 +365,7 @@ export default {
         {
           key: 'end_time',
           label: this.$i18n.t('End Time'),
-          formatter: this.$options.filters.pfDate,
+          formatter: this.$options.filters.shortDateTime,
           class: 'text-nowrap'
         }
       ],
@@ -393,7 +394,7 @@ export default {
         {
           key: 'created_at',
           label: this.$i18n.t('Created At'),
-          formatter: this.$options.filters.pfDate,
+          formatter: this.$options.filters.shortDateTime,
           class: 'text-nowrap'
         },
         {
