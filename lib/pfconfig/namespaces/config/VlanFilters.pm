@@ -22,6 +22,7 @@ use pf::file_paths qw(
     $vlan_filters_config_file
     $vlan_filters_config_default_file
 );
+use pf::IniFiles;
 
 use base 'pfconfig::namespaces::config';
 
@@ -30,7 +31,7 @@ sub init {
     $self->{file} = $vlan_filters_config_file;
     $self->{child_resources} = [ 'FilterEngine::VlanScopes'];
 
-    my $defaults = Config::IniFiles->new( -file => $vlan_filters_config_default_file );
+    my $defaults = pf::IniFiles->new( -file => $vlan_filters_config_default_file );
     $self->{added_params}->{'-import'} = $defaults;
 }
 

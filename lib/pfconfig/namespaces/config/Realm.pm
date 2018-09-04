@@ -27,12 +27,20 @@ use base 'pfconfig::namespaces::config';
 
 sub init {
     my ($self) = @_;
+<<<<<<< d379751f74e7f1aba0b2270f80537f4b3404c5f4
     $self->{_scoped_by_tenant_id} = 1;
     $self->{ini} = pf::IniFiles->new(
         -file       => $realm_config_file,
         -import     => pf::IniFiles->new(-file => $realm_default_config_file),
         -allowempty => 1,
     );
+=======
+    $self->{file}              = $realm_config_file;
+    $self->{expandable_params} = qw(categories);
+
+    my $defaults = pf::IniFiles->new( -file => $realm_default_config_file );
+    $self->{added_params}->{'-import'} = $defaults;
+>>>>>>> Move to pf::IniFiles
 }
 
 sub build {

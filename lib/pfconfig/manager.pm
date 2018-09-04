@@ -32,6 +32,7 @@ use strict;
 use warnings;
 
 use Config::IniFiles;
+use JSON::MaybeXS;
 use List::MoreUtils qw(any firstval uniq);
 use Scalar::Util qw(refaddr reftype tainted blessed);
 use UNIVERSAL::require;

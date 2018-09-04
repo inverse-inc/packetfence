@@ -29,7 +29,7 @@ sub init {
     my ($self) = @_;
     $self->{file}              = $roles_config_file;
 
-    my $defaults = Config::IniFiles->new( -file => $roles_default_config_file );
+    my $defaults = pf::IniFiles->new( -file => $roles_default_config_file );
     $self->{added_params}->{'-import'} = $defaults;
 }
 

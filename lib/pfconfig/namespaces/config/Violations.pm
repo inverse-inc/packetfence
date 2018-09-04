@@ -30,7 +30,7 @@ sub init {
     $self->{file}            = $violations_config_file;
     $self->{default_section} = "defaults";
     $self->{child_resources} = [ 'FilterEngine::Violation' ];
-    my $defaults = Config::IniFiles->new(-file => $violations_default_config_file);
+    my $defaults = pf::IniFiles->new(-file => $violations_default_config_file);
     $self->{added_params}{'-import'} = $defaults;
 }
 

@@ -22,7 +22,7 @@ use pf::file_paths qw(
     $portal_modules_default_config_file
     $portal_modules_config_file
 );
-use Config::IniFiles;
+use pf::IniFiles;
 
 use base 'pfconfig::namespaces::config';
 
@@ -30,7 +30,7 @@ sub init {
     my ($self) = @_;
     $self->{file} = $portal_modules_config_file;
 
-    my $defaults = Config::IniFiles->new( -file => $portal_modules_default_config_file );
+    my $defaults = pf::IniFiles->new( -file => $portal_modules_default_config_file );
     $self->{added_params}->{'-import'} = $defaults;
     $self->{child_resources} = ['resource::PortalModuleReverseLookup'];
 }
