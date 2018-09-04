@@ -17,6 +17,7 @@ use Fcntl ':mode'; # symbolic file permissions
 use Try::Tiny;
 use Readonly;
 
+use pf::constants::filters;
 use pf::validation::profile_filters;
 use pf::constants;
 use pf::constants::config qw($TIME_MODIFIER_RE);
@@ -54,6 +55,7 @@ use pfconfig::manager;
 use pfconfig::namespaces::config::Pf;
 use pf::version;
 use File::Slurp;
+use pf::AccessScopes;
 use pf::file_paths qw(
     $conf_dir
     $lib_dir
@@ -170,6 +172,7 @@ sub sanity_check {
     provisioning();
     scan();
     pfdetect();
+    validate_access_filters();
 
     return @problems;
 }
@@ -1317,6 +1320,26 @@ sub pfdetect {
         my $error_msg =  "$file: $err->{rule}) $err->{message}";
         add_problem($WARN, $error_msg);
     }
+}
+
+=head2 validate_access_filters
+
+validate_access_filters
+
+=cut
+
+sub validate_access_filters {
+    while (my ($f, $cs) = each %pf::constants::filters::CONFIGSTORE_MAP) {
+       my $asb = pf::AccessScopes->new();
+       my $ini = $cs->configIniFile();
+       my ($errors, undef) = $asb->build($ini);
+       if ($errors) {
+            foreach my $err (@$errors) {
+                add_problem($WARN, "$f: $err->{rule}) $err->{message}");
+            }
+       }
+    }
+    return ;
 }
 
 =back
