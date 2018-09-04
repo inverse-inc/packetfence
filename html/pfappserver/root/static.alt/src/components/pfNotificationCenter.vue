@@ -7,7 +7,7 @@
       <!-- menu items -->
       <div class="notifications-scroll">
         <div v-for="(notification, index) in notifications" :key="index">
-          <b-dropdown-item class="border-right" :class="'border-'+notification.variant">
+          <b-dropdown-item>
             <small>
               <b-row class="justify-content-md-center">
                 <b-col cols="auto">
@@ -35,7 +35,7 @@
     </b-nav-item-dropdown>
     <!-- toasts -->
     <div class="notifications-toasts">
-      <b-alert v-for="(notification, index) in notifications_new" :key="index" :variant="notification.variant" 
+      <b-alert v-for="(notification, index) in notifications_new" :key="index" variant="secondary"
         @dismissed="dismiss(notification)" show dismissible fade>
         <b-row class="justify-content-md-center">
           <b-col cols="auto">
