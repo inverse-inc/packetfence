@@ -196,7 +196,7 @@ BEGIN {
             is_nullable => 1,
         },
         bandwidth_balance => {
-            type => 'INT',
+            type => 'BIGINT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
