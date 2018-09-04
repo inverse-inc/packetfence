@@ -4,7 +4,7 @@ import NodesStore from '../_store'
 import NodesSearch from '../_components/NodesSearch'
 const NodesCreate = () => import(/* webpackChunkName: "Nodes" */ '../_components/NodesCreate')
 const NodeView = () => import(/* webpackChunkName: "Nodes" */ '../_components/NodeView')
-const NodesUpload = () => import(/* webpackChunkName: "Nodes" */ '../_components/NodesUpload')
+// const NodesUpload = () => import(/* webpackChunkName: "Nodes" */ '../_components/NodesUpload')
 
 const route = {
   path: '/nodes',
@@ -31,11 +31,11 @@ const route = {
       component: NodesCreate,
       props: { storeName: '$_nodes' }
     },
-    {
-      path: 'upload',
-      component: NodesUpload,
-      props: { storeName: '$_nodes' }
-    },
+    // {
+    //   path: 'upload',
+    //   component: NodesUpload,
+    //   props: { storeName: '$_nodes' }
+    // },
     {
       path: '/node/:mac',
       name: 'node',
