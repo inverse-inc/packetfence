@@ -82,27 +82,32 @@ sub _buildCachedConfig {
             expire_if => sub { $self->expire_if(@_) }
         },
         sub {
-            my %args = $self->configIniFilesArgs();
-            my $file_path = $args{'-file'};
-            my $file_exists = -e $file_path;
-            if (!$file_exists) {
-                delete $args{'-file'};
-            }
-
-            my $config = eval {pf::IniFiles->new(%args)};
-            if ($@) {
-                get_logger->error("Error opening $file_path : $@");
-                return undef;
-            }
-
-            if (!$file_exists) {
-                $config->SetFileName($file_path);
-            }
-
-            $config->SetLastModTimestamp;
-            return $config;
+            return $self->configIniFile();
         }
     );
+}
+
+sub configIniFile {
+    my ($self) = @_;
+    my %args = $self->configIniFilesArgs();
+    my $file_path = $args{'-file'};
+    my $file_exists = -e $file_path;
+    if (!$file_exists) {
+        delete $args{'-file'};
+    }
+
+    my $config = eval {pf::IniFiles->new(%args)};
+    if ($@) {
+        get_logger->error("Error opening $file_path : $@");
+        return undef;
+    }
+
+    if (!$file_exists) {
+        $config->SetFileName($file_path);
+    }
+
+    $config->SetLastModTimestamp;
+    return $config;
 }
 
 sub configIniFilesArgs {
