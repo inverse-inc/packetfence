@@ -21,6 +21,8 @@ use File::Slurp;
 use pf::util;
 use pf::error qw(is_error);
 use Mojo::Base qw(pf::UnifiedApi::Controller::RestRoute);
+use pf::AccessScopes;
+use pf::IniFiles;
 
 =head2 resource
 
@@ -82,12 +84,14 @@ replace on filter content
 sub replace {
     my ($self) = @_;
     my $id = $self->stash->{filter_id};
-    my ($status, $msg)  = $self->is_valid();
+    my ($status, $errors)  = $self->is_valid();
     if (is_error($status)) {
-        return $self->render_error(422, $msg);
+        return $self->render_error($status, "Invalid $id file" ,$errors);
     }
-    pf::util::safe_file_update($self->fileName, $self->req->body);
-    return $self->render(status => $status, json => {status => "success"});
+    my $body = $self->req->body;
+    $body .= "\n" if $body !~ m/\n\z/s;
+    pf::util::safe_file_update($self->fileName, $body);
+    return $self->render(status => $status, json => {});
 }
 
 =head2 is_valid
@@ -98,6 +102,19 @@ is_valid
 
 sub is_valid {
     my ($self) = @_;
+    my $body = $self->req->body;
+    $body .= "\n" if $body =~ m/\n\z/s;
+    my %args = $self->configStore->configIniFilesArgs();
+    $args{'-file'} = \$body;
+    my $asb = pf::AccessScopes->new;
+    my $ini = pf::IniFiles->new(%args);
+    unless (defined $ini) {
+        return (422, [{ message => join("\n", @pf::IniFiles::errors)}]);
+    }
+    my ($err, $scopes) = $asb->build($ini);
+    if ($err) {
+        return (422, $scopes);
+    }
     return (200, undef);
 }
 

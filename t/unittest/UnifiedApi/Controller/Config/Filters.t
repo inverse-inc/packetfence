@@ -34,15 +34,57 @@ use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
 
 my $base_url = '/api/v1/config/filter/vlan';
-my $content = 'This is content';
+my $content = <<'CONTENT';
+[2]
+filter = node_info
+attribute=category
+operator = match
+value = default
+
+[3]
+filter = ssid
+operator = is
+value = OPEN
+
+[4]
+filter = ssid
+operator = is
+value = TEST
+
+[5]
+filter = node_info.category
+operator = match_not
+value = bob
+
+[6]
+filter = node_info.status
+operator = is
+value = unreg
+
+[2:2&3]
+scope = RegistrationRole
+role = registration
+
+[3: 4 && ( 5 & 6 )]
+scope = RegistrationRole
+role = registration2
+CONTENT
 
 $t->put_ok($base_url => {} => $content)
   ->status_is(200)
-  ->json_is({ status => "success"});
+  ->json_is({ });
 
 $t->get_ok($base_url)
   ->status_is(200)
   ->content_is($content);
+
+$t->put_ok($base_url => {} => "This is a garbage")
+  ->status_is(422)
+  ->json_has("/errors");
+
+$t->put_ok($base_url => {} => "This is a garbage\n")
+  ->status_is(422)
+  ->json_has("/errors");
 
 =head1 AUTHOR
 
