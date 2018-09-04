@@ -103,7 +103,7 @@ is_valid
 sub is_valid {
     my ($self) = @_;
     my $body = $self->req->body;
-    $body .= "\n" if $body =~ m/\n\z/s;
+    $body .= "\n" if $body !~ m/\n\z/s;
     my %args = $self->configStore->configIniFilesArgs();
     $args{'-file'} = \$body;
     my $asb = pf::AccessScopes->new;
