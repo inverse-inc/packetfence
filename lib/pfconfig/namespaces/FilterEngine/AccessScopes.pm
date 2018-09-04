@@ -14,12 +14,10 @@ pfconfig::namespaces::FilterEngine::AccessScopes
 
 use strict;
 use warnings;
-use pf::log;
 use pfconfig::namespaces::config;
-use pf::factory::condition::access_filter;
-use pf::filter;
-use pf::filter_engine;
-use pf::condition_parser qw(parse_condition_string);
+use pf::AccessScopes;
+use pf::log;
+use pf::IniFiles;
 
 use base 'pfconfig::namespaces::resource';
 
@@ -33,47 +31,25 @@ sub parentConfig {
 sub build {
     my ($self)            = @_;
     my $config   = $self->parentConfig;
-    my %AccessFiltersConfig = %{$config->build};
-
-    $self->{errors} = [];
-    if($config->{parse_error}){
-        push @{$self->{errors}}, $config->{parse_error};
+    $config->init;
+    my $file = $config->{file};
+    my $ini = pf::IniFiles->new(%{$config->{added_params}}, -file => $file, -allowempty => 1);
+    unless ($ini) {
+        my $error_msg = join("\n", @pf::IniFiles::errors, "");
+        get_logger->error($error_msg);
+        warn($error_msg);
+        return {};
     }
 
-    $self->{prebuilt_conditions} = {};
-    my (%AccessScopes, @filter_data, %filters_scopes);
-    foreach my $rule (@{$config->{ordered_sections}}) {
-        my $logger = get_logger();
-        my $data = $AccessFiltersConfig{$rule};
-        if ($rule =~ /^[^:]+:(.*)$/) {
-            my $condition = $1;
-            $logger->info("Building rule '$rule'");
-            my ($parsed_conditions, $msg) = parse_condition_string($condition);
-            unless (defined $parsed_conditions) {
-                $self->_error("Error building rule '$rule'", $msg);
-                next;
-            }
-            $data->{_rule} = $rule;
-            push @filter_data, [$parsed_conditions, $data];
-        }
-        else {
-            $logger->info("Building condition '$rule'");
-            my $condition = eval { pf::factory::condition::access_filter->instantiate($data) };
-            unless (defined $condition) {
-                $self->_error("Error building condition '$rule': $@");
-                next;
-            }
-            $self->{prebuilt_conditions}{$rule} = $condition;
-        }
+    my $asb = pf::AccessScopes->new();
+    my ($errors, $accessScopes) = $asb->build($ini);
+    for my $err (@{ $errors // [] }) {
+        my $error_msg =  "$file: $err->{rule}) $err->{message}";
+        get_logger->error($error_msg);
+        warn($error_msg);
     }
 
-    foreach my $filter_data (@filter_data) {
-        $self->build_filter(\%filters_scopes, @$filter_data);
-    }
-    while (my ($scope, $filters) = each %filters_scopes) {
-        $AccessScopes{$scope} = pf::filter_engine->new({filters => $filters});
-    }
-    return \%AccessScopes;
+    return $accessScopes;
 }
 
 =head2 _error

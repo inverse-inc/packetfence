@@ -29,6 +29,7 @@ use warnings;
 
 use JSON::MaybeXS;
 use pf::log;
+use pf::IniFiles;
 
 use base 'pfconfig::namespaces::resource';
 
@@ -41,7 +42,7 @@ sub init {
 
 sub _parse_error {
     my ($self) = @_;
-    my $message = "Can't parse ".$self->{file}. " : ".join(', ', @Config::IniFiles::errors);
+    my $message = "Can't parse ".$self->{file}. " : ".join(', ', @pf::IniFiles::errors);
     print STDERR "$message\n";
     get_logger->error($message);
     $self->{parse_error} = $message;
@@ -55,7 +56,7 @@ sub build {
     $self->{added_params}->{-file} = $self->{file};
     $self->{added_params}->{-allowempty} = 1;
 
-    tie %tmp_cfg, 'Config::IniFiles', %{$self->{added_params}} or $self->_parse_error();
+    tie %tmp_cfg, 'pf::IniFiles', %{$self->{added_params}} or $self->_parse_error();
 
     @{ $self->{ordered_sections} } = keys %tmp_cfg;
 
