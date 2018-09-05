@@ -38,6 +38,7 @@ parse the Line using the rule
 
 sub parseLineFromRule {
     my ($self, $rule, $line) = @_;
+    use re::engine::RE2 -strict => 1;
     return 0, undef unless $line =~ $rule->{regex};
     my %data = %+;
     my $success = 1;

@@ -108,17 +108,17 @@ Validate the rule is valid
 
 sub validate {
     my ($self) = @_;
+    use re::engine::RE2 -strict => 1;
     my $rule = $self->value;
-    my $regex = '/' . $rule->{regex} . '/';
-    my $re = PPIx::Regexp->new($regex);
-    my %captures = map { $_ => 1 } $re->capture_names();
+    my $re = qr/$rule->{regex}/;
+    my $captures = $re->named_captures();
     my $ip_mac_translation = isenabled($rule->{ip_mac_translation});
     foreach my $action_field ($self->field('actions')->fields()) {
         my $api_parameters_field = $action_field->field('api_parameters');
         my $api_parameters = $api_parameters_field->value;
         for my $replace (map {s/^\$//;$_} grep {/^\$/} split(/\s*,\s*/, $api_parameters)) {
-            next if exists $captures{$replace};
-            next if $ip_mac_translation && (($replace eq 'mac' && exists $captures{ip}) || ($replace eq 'ip' && exists $captures{mac}  ));
+            next if exists $captures->{$replace};
+            next if $ip_mac_translation && (($replace eq 'mac' && exists $captures->{ip}) || ($replace eq 'ip' && exists $captures->{mac}  ));
             $api_parameters_field->add_error("$replace is not a named capture");
         }
     }
