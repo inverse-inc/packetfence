@@ -100,7 +100,7 @@ sub update :Chained('object') :PathPart :Args(0) {
     my $namespace = $manager->get_namespace($ENGINE_MAP{$c->stash->{id}});
     $namespace->build();
     if(defined($namespace->{errors}) && @{$namespace->{errors}} > 0){
-        my @errors = map {$self->_clean_error($_)} @{$namespace->{errors}};
+        my @errors = map {$self->_clean_error("$_->{rule}> $_->{message}")} @{$namespace->{errors}};
         $c->stash->{status_msg} = [ "There are errors in the file, check server side logs for details : [_1]. Your file has been saved but the configuration has not been made active.", join(", ", @errors) ];
         $c->response->status(HTTP_BAD_REQUEST);
     }
