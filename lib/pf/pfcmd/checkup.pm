@@ -1034,21 +1034,24 @@ sub vlan_filter_rules {
     require pf::access_filter::vlan;
     my %ConfigVlanFilters = %pf::access_filter::vlan::ConfigVlanFilters;
     foreach my $rule  ( sort keys  %ConfigVlanFilters ) {
+        my $rule_data = $ConfigVlanFilters{$rule};
         if ($rule =~ /^[^:]+:(.*)$/) {
             my ($condition, $msg) = parse_condition_string($1);
             add_problem ( $WARN, "Cannot parse condition '$1' in $rule for vlan filter rule" . "\n" . $msg)
                 if !defined $condition;
             add_problem ( $WARN, "Missing scope attribute in $rule vlan filter rule")
-                if (!defined($ConfigVlanFilters{$rule}->{'scope'}));
+                if (!defined($rule_data->{'scope'}));
             add_problem ( $WARN, "Missing role attribute in $rule vlan filter rule")
-                if (!defined($ConfigVlanFilters{$rule}->{'role'}));
+                if (!defined($rule_data->{'role'}));
         } else {
             add_problem ( $WARN, "Missing filter attribute in $rule vlan filter rule")
-                if (!defined($ConfigVlanFilters{$rule}->{'filter'}));
-            add_problem ( $WARN, "Missing operator attribute in $rule vlan filter rule")
-                if (!defined($ConfigVlanFilters{$rule}->{'operator'}));
-            add_problem ( $WARN, "Missing value attribute in $rule vlan filter rule")
-                if (!defined($ConfigVlanFilters{$rule}->{'value'}) && $ConfigVlanFilters{$rule}->{'operator'} ne 'defined' && $ConfigVlanFilters{$rule}->{'operator'} ne 'not_defined');
+                if (!defined($rule_data->{'filter'}));
+            if (!defined($rule_data->{'operator'})) {
+                add_problem ( $WARN, "Missing operator attribute in $rule vlan filter rule");
+            } else {
+                add_problem ( $WARN, "Missing value attribute in $rule vlan filter rule")
+                    if (!defined($rule_data->{'value'}) && $rule_data->{'operator'} ne 'defined' && $rule_data->{'operator'} ne 'not_defined');
+            }
         }
     }
 }
@@ -1330,6 +1333,7 @@ validate_access_filters
 
 sub validate_access_filters {
     while (my ($f, $cs) = each %pf::constants::filters::CONFIGSTORE_MAP) {
+       next if $f eq 'apache-filters';
        my $asb = pf::AccessScopes->new();
        my $ini = $cs->configIniFile();
        my ($errors, undef) = $asb->build($ini);
