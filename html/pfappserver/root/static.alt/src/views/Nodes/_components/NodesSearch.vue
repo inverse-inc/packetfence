@@ -826,6 +826,7 @@ export default {
       }
     },
     applyBulkRole (role) {
+      /*
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
         macs.forEach((mac, i) => {
@@ -843,8 +844,34 @@ export default {
           this.$store.dispatch('notification/info', {message: macs.length + ' ' + this.$i18n.t('nodes unassigned role')})
         }
       }
+      */
+      const macs = this.selectValues.map(item => item.mac)
+      if (macs.length > 0) {
+        this.$store.dispatch(`${this.storeName}/roleBulkNodes`, {items: macs}).then(response => {
+          response.items.forEach((item, _index, items) => {
+            let index = this.tableValues.findIndex(node => node.mac === item.mac)
+            this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
+            this.setRowMessage(index, item.message)
+            if (item.message) {
+              this.$store.dispatch('notification/status_' + item.status, {message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message})
+            }
+          })
+          this.$store.dispatch('notification/info', {
+            message: response.items.length + ' ' + this.$i18n.t('node profiling refreshed'),
+            success: response.items.filter(item => item.status === 'success').length,
+            skipped: response.items.filter(item => item.status === 'skipped').length,
+            failed: response.items.filter(item => item.status === 'failed').length
+          })
+        }).catch(() => {
+          macs.forEach((mac, i) => {
+            let index = this.tableValues.findIndex(node => node.mac === mac)
+            this.setRowVariant(index, 'danger')
+          })
+        })
+      }
     },
     applyBulkBypassRole (role) {
+      /*
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
         macs.forEach((mac, i) => {
@@ -861,6 +888,31 @@ export default {
         } else {
           this.$store.dispatch('notification/info', {message: macs.length + ' ' + this.$i18n.t('nodes unassigned bypass role')})
         }
+      }
+      */
+      const macs = this.selectValues.map(item => item.mac)
+      if (macs.length > 0) {
+        this.$store.dispatch(`${this.storeName}/bypassRoleBulkNodes`, {items: macs}).then(response => {
+          response.items.forEach((item, _index, items) => {
+            let index = this.tableValues.findIndex(node => node.mac === item.mac)
+            this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
+            this.setRowMessage(index, item.message)
+            if (item.message) {
+              this.$store.dispatch('notification/status_' + item.status, {message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message})
+            }
+          })
+          this.$store.dispatch('notification/info', {
+            message: response.items.length + ' ' + this.$i18n.t('node profiling refreshed'),
+            success: response.items.filter(item => item.status === 'success').length,
+            skipped: response.items.filter(item => item.status === 'skipped').length,
+            failed: response.items.filter(item => item.status === 'failed').length
+          })
+        }).catch(() => {
+          macs.forEach((mac, i) => {
+            let index = this.tableValues.findIndex(node => node.mac === mac)
+            this.setRowVariant(index, 'danger')
+          })
+        })
       }
     },
     applyBulkViolation (violation) {

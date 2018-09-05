@@ -340,6 +340,16 @@ const actions = {
       })
     })
   },
+  roleBulkNodes: ({commit}, data) => {
+    return new Promise((resolve, reject) => {
+      api.roleBulkNodes(data).then(response => {
+        resolve(response)
+      }).catch(err => {
+        commit('NODE_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
   bypassRoleNode: ({commit}, data) => {
     commit('ITEM_REQUEST')
     return new Promise((resolve, reject) => {
@@ -351,6 +361,16 @@ const actions = {
         resolve(response)
       }).catch(err => {
         commit('ITEM_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  bypassRoleBulkNodes: ({commit}, data) => {
+    return new Promise((resolve, reject) => {
+      api.bypassRoleBulkNodes(data).then(response => {
+        resolve(response)
+      }).catch(err => {
+        commit('NODE_ERROR', err.response)
         reject(err)
       })
     })
