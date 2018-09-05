@@ -54,7 +54,7 @@ import 'vue-awesome/icons/user'
 import 'vue-awesome/icons/user-plus'
 import 'vue-awesome/icons/user-secret'
 import 'vue-awesome/icons/wifi'
-import { Timeline } from 'vue2vis'
+import Timeline from 'vue2vis'
 
 import store from './store'
 import router from './router'
