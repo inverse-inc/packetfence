@@ -38,7 +38,7 @@ Regex
 =cut
 
 has_field 'regex' => (
-    type     => 'Regex',
+    type     => 'RE2',
     label    => 'Regex',
     element_class => ['input-xxlarge'],
     required => 1,
