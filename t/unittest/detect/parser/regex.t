@@ -59,7 +59,10 @@ is_deeply(
         {
             'success' => 1,
             rule => $config->{rules}[1],
-            actions => [['modify_node', ['1.2.3.4', '1.2.3.5']], ['violation_log', ['bob', 'bob']]],
+            actions => [
+                { api_method => 'modify_node', api_parameters => ['1.2.3.4', '1.2.3.5']},
+                { api_method => 'violation_log', api_parameters => ['bob', 'bob']}
+            ],
         }
     ],
     "Match one rule"
@@ -73,12 +76,18 @@ is_deeply(
         {
             'success' => 1,
             rule => $config->{rules}[0],
-            actions => [['modify_node', ['1.2.3.4', '1.2.3.5', 'aa:bb:cc:dd:ee:ff']], ['violation_log', ['bob', 'bob']]],
+            actions => [
+                { api_method => 'modify_node', api_parameters => ['1.2.3.4', '1.2.3.5', 'aa:bb:cc:dd:ee:ff']}, 
+                { api_method => 'violation_log', api_parameters => ['bob', 'bob']}
+            ],
         },
         {
             'success' => 1,
             rule => $config->{rules}[1],
-            actions => [['modify_node', ['1.2.3.4', '1.2.3.5']], ['violation_log', ['bob', 'bob']]],
+            actions => [
+                {api_method => 'modify_node', api_parameters =>['1.2.3.4', '1.2.3.5']},
+                {api_method => 'violation_log', api_parameters => ['bob', 'bob']}
+            ],
         }
     ],
     "Match two rules"
