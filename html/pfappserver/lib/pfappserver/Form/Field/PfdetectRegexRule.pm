@@ -110,7 +110,10 @@ sub validate {
     my ($self) = @_;
     use re::engine::RE2 -strict => 1;
     my $rule = $self->value;
-    my $re = qr/$rule->{regex}/;
+    my $re = eval {qr/$rule->{regex}/};
+    if ($@) {
+        $self->field('regex')->add_error("$rule->{regex} is an invalid RE2 regex");
+    }
     my $captures = $re->named_captures();
     my $ip_mac_translation = isenabled($rule->{ip_mac_translation});
     foreach my $action_field ($self->field('actions')->fields()) {
