@@ -275,6 +275,7 @@ sub startup {
     $self->controller_class('pf::UnifiedApi::Controller');
     $self->routes->namespaces(['pf::UnifiedApi::Controller', 'pf::UnifiedApi']);
     $self->hook(before_dispatch => \&set_tenant_id);
+    $self->hook(after_dispatch => \&after_dispatch_cb);
     $self->plugin('pf::UnifiedApi::Plugin::RestCrud');
     $self->setup_api_v1_routes();
     $self->custom_startup_hook();
@@ -284,6 +285,21 @@ sub startup {
     });
 
     return;
+}
+
+=head2 after_dispatch_cb
+
+after_dispatch_cb
+
+=cut
+
+sub after_dispatch_cb {
+    my ($c) = @_;
+    my $requests_handled = ++$c->app->{requests_handled};
+    if ($requests_handled >= 2000) {
+        kill 'QUIT', $$;
+    }
+    return ;
 }
 
 sub setup_api_v1_routes {
