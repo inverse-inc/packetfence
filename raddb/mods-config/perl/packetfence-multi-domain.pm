@@ -52,7 +52,7 @@ RADIUS calls this method to authorize clients.
 
 sub authorize {
     my $timer = pf::StatsD::Timer->new({ sample_rate => 0.05, 'stat' => "freeradius::" . called() });
-    pf::config::tenant::set_tenant($RAD_REQUEST{'PacketFence-Tenant-Id'});
+    pf::config::tenant::set_tenant($RAD_CONFIG{'PacketFence-Tenant-Id'});
     # For debugging purposes only
     #&log_request_attributes;
 

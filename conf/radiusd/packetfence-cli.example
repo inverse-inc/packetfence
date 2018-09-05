@@ -255,6 +255,7 @@ preacct {
 #  Accounting.  Log the accounting data.
 #
 accounting {
+    packetfence-set-tenant-id
 	#rewrite_calling_station_id
 	#rewrite_called_station_id
 	#
