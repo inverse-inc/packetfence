@@ -115,6 +115,10 @@ sub _error {
 
 sub build_filter {
     my ($self, $build_data, $parsed_conditions, $data) = @_;
+    if (!defined $data->{scope}) {
+        $self->_error($build_data, $data->{_rule}, "Error building rule", "scope is not defined");
+        return;
+    }
     my $condition = eval { $self->build_filter_condition($build_data, $parsed_conditions) };
     if ($condition) {
         push @{$build_data->{scopes}{$data->{scope}}}, pf::filter->new({
