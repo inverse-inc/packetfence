@@ -105,7 +105,7 @@ sub prepAction {
             "Parser id $id : Matched rule '$rule->{name}' : preparing action spec '$action_spec'";
         });
     my $params = $self->evalParams($action_params, $data);
-    return [$action, $params];
+    return { api_method => $action, api_parameters => $params};
 }
 
 =head2 evalParams
