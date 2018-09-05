@@ -49,52 +49,8 @@ sub build {
         warn($error_msg);
     }
 
+    $self->{errors} = $errors;
     return $accessScopes;
-}
-
-=head2 _error
-
-Record and display an error that occured while building the engine
-
-=cut
-
-sub _error {
-    my ($self, $msg, $add_info) = @_;
-    my $long_msg = $msg. (defined($add_info) ? " : $add_info" : '');
-    $long_msg .= "\n" unless $long_msg =~ /\n\z/s;
-    warn($long_msg);
-    get_logger->error($long_msg);
-    push @{$self->{errors}}, $msg;
-}
-
-sub build_filter {
-    my ($self, $filters_scopes, $parsed_conditions, $data) = @_;
-    my $condition = eval { $self->build_filter_condition($parsed_conditions) };
-    if ($condition) {
-        push @{$filters_scopes->{$data->{scope}}}, pf::filter->new({
-            answer    => $data,
-            condition => $condition,
-        });
-    } else {
-        $self->_error("Error build rule '$data->{_rule}'", $@)
-    }
-}
-
-sub build_filter_condition {
-    my ($self, $parsed_condition) = @_;
-    if (ref $parsed_condition) {
-        local $_;
-        my ($type, @parsed_conditions) = @$parsed_condition;
-        my $conditions = [map {$self->build_filter_condition($_)} @parsed_conditions];
-        if($type eq 'NOT' ) {
-            return pf::condition::not->new({condition => $conditions->[0]});
-        }
-        my $module = $type eq 'AND' ? 'pf::condition::all' : 'pf::condition::any';
-        return $module->new({conditions => $conditions});
-    }
-    my $condition = $self->{prebuilt_conditions}->{$parsed_condition};
-    return $condition if defined $condition;
-    die "condition '$parsed_condition' was not found\n";
 }
 
 =head1 AUTHOR
