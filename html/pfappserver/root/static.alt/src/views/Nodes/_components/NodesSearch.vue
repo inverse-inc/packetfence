@@ -826,28 +826,9 @@ export default {
       }
     },
     applyBulkRole (role) {
-      /*
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
-        macs.forEach((mac, i) => {
-          let index = this.tableValues.findIndex(node => node.mac === mac)
-          this.$store.dispatch(`${this.storeName}/roleNode`, {mac: mac, category_id: role.category_id}).then(response => {
-            this.setRowVariant(index, convert.statusToVariant({ status: response.status }))
-            this.setRowMessage(index, response.message)
-          }).catch(() => {
-            this.setRowVariant(index, 'danger')
-          })
-        })
-        if (role.category_id) {
-          this.$store.dispatch('notification/info', {message: macs.length + ' ' + this.$i18n.t('nodes assigned role') + ' ' + this.roles.filter(r => r.category_id === role.category_id).map(r => r.name)})
-        } else {
-          this.$store.dispatch('notification/info', {message: macs.length + ' ' + this.$i18n.t('nodes unassigned role')})
-        }
-      }
-      */
-      const macs = this.selectValues.map(item => item.mac)
-      if (macs.length > 0) {
-        this.$store.dispatch(`${this.storeName}/roleBulkNodes`, {items: macs}).then(response => {
+        this.$store.dispatch(`${this.storeName}/roleBulkNodes`, {items: macs, category_id: role.category_id}).then(response => {
           response.items.forEach((item, _index, items) => {
             let index = this.tableValues.findIndex(node => node.mac === item.mac)
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
@@ -871,28 +852,9 @@ export default {
       }
     },
     applyBulkBypassRole (role) {
-      /*
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
-        macs.forEach((mac, i) => {
-          let index = this.tableValues.findIndex(node => node.mac === mac)
-          this.$store.dispatch(`${this.storeName}/bypassRoleNode`, {mac: mac, bypass_role_id: role.category_id}).then(response => {
-            this.setRowVariant(index, convert.statusToVariant({ status: response.status }))
-            this.setRowMessage(index, response.message)
-          }).catch(() => {
-            this.setRowVariant(index, 'danger')
-          })
-        })
-        if (role.category_id) {
-          this.$store.dispatch('notification/info', {message: macs.length + ' ' + this.$i18n.t('nodes assigned bypass role') + ' ' + this.roles.filter(r => r.category_id === role.category_id).map(r => r.name)})
-        } else {
-          this.$store.dispatch('notification/info', {message: macs.length + ' ' + this.$i18n.t('nodes unassigned bypass role')})
-        }
-      }
-      */
-      const macs = this.selectValues.map(item => item.mac)
-      if (macs.length > 0) {
-        this.$store.dispatch(`${this.storeName}/bypassRoleBulkNodes`, {items: macs}).then(response => {
+        this.$store.dispatch(`${this.storeName}/bypassRoleBulkNodes`, {items: macs, bypass_role_id: role.category_id}).then(response => {
           response.items.forEach((item, _index, items) => {
             let index = this.tableValues.findIndex(node => node.mac === item.mac)
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
