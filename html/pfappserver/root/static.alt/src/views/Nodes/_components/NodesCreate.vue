@@ -76,6 +76,7 @@ import {
   pfSearchConditionType as conditionType,
   pfSearchConditionValues as conditionValues
 } from '@/globals/pfSearch'
+// import { pfValidateMacAddressIsUnique as macAddressIsUnique } from '@/globals/pfValidators'
 const { validationMixin } = require('vuelidate')
 const { macAddress, required } = require('vuelidate/lib/validators')
 

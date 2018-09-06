@@ -71,7 +71,7 @@ export default {
       fields: [
         {
           value: 'mac',
-          text: this.$i18n.t('MAC Address'),
+          text: '⚠ ' + this.$i18n.t('MAC Address'),
           required: true,
           validators: { required, minLength: minLength(17), maxLength: maxLength(17), macAddress }
         },
@@ -145,7 +145,17 @@ export default {
     },
     onImport (values) {
       values.forEach((value, index, values) => {
-        value._tableValue._rowDisabled = true
+        this.$store.dispatch('$_nodes/exists', value.mac).then(results => {
+          console.log(['exists', value])
+          this.$store.dispatch('$_nodes/updateNode', value).then(results => {
+            console.log(['updateNode', results])
+          }).catch(() => {})
+        }).catch(() => {
+          console.log(['not exists', value])
+          this.$store.dispatch('$_nodes/createNode', value).then(results => {
+            console.log(['createNode', results])
+          }).catch(() => {})
+        })
       })
       this.$forceUpdate()
       console.log(['onImport', values])
