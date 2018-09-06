@@ -172,6 +172,36 @@ sub runScanTemplate {
     return $response;
 }
 
+=head2 listSites
+
+List the available sites in Rapid7, limited to 1000
+
+=cut
+
+sub listScanEngines {
+    my ($self) = @_;
+
+    my $req = HTTP::Request->new(GET => $self->buildApiUri("scan_engines"));
+    my $response = $self->doRequest($req);
+    
+    return $response->is_success ? decode_json($response->decoded_content)->{"resources"} : undef;
+}
+
+=head2 listSites
+
+List the available sites in Rapid7, limited to 1000
+
+=cut
+
+sub listSites {
+    my ($self) = @_;
+
+    my $req = HTTP::Request->new(GET => $self->buildApiUri("sites?size=1000"));
+    my $response = $self->doRequest($req);
+    
+    return $response->is_success ? decode_json($response->decoded_content)->{"resources"} : undef;
+}
+
 =head2 listScanTemplates
 
 List the available scan templates that can be ran on endpoints
