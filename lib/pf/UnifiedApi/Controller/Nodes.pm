@@ -425,14 +425,7 @@ bulk_apply_role
 
 sub bulk_apply_role {
     my ($self) = @_;
-    my ($status, $data) = $self->parse_json;
-    if (is_error($status)) {
-        return $self->render(json => $data, status => $status);
-    }
-
-    my $items = $data->{items} // [];
-    my $role_id = $data->{role_id};
-    return $self->do_bulk_update_field($items, 'category_id', $role_id);
+    return $self->do_bulk_update_field('category_id');
 }
 
 =head2 bulk_apply_bypass_role
@@ -443,14 +436,7 @@ bulk_apply_bypass_role
 
 sub bulk_apply_bypass_role {
     my ($self) = @_;
-    my ($status, $data) = $self->parse_json;
-    if (is_error($status)) {
-        return $self->render(json => $data, status => $status);
-    }
-
-    my $items = $data->{items} // [];
-    my $role_id = $data->{role_id};
-    return $self->do_bulk_update_field($items, 'bypass_role_id', $role_id);
+    return $self->do_bulk_update_field('bypass_role_id');
 }
 
 =head2 do_bulk_update_field
@@ -460,8 +446,15 @@ do_bulk_update_field
 =cut
 
 sub do_bulk_update_field {
-    my ($self, $items, $field, $value) = @_;
-    my ($status, $iter) = $self->dal->search(
+    my ($self, $field) = @_;
+    my ($status, $data) = $self->parse_json;
+    if (is_error($status)) {
+        return $self->render(json => $data, status => $status);
+    }
+
+    my $items = $data->{items} // [];
+    my $value = $data->{$field};
+    ($status, my $iter) = $self->dal->search(
         -columns => [qw(mac)],
         -where => {
             mac => { -in => $items },
