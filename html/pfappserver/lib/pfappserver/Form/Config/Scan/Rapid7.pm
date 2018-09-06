@@ -34,14 +34,6 @@ has_field 'host' =>
    messages => { required => 'Please specify the hostname or IP of the scan engine' },
   );
 
-has_field 'template_id' =>
-  (
-   type => 'Text',
-   label => 'Scan template ID',
-   tags => { after_element => \&help,
-             help => 'The scan template to use for scanning the clients.' },
-  );
-
 has_field 'port' =>
   (
    type => 'PosInteger',
@@ -88,7 +80,7 @@ has_field 'engine_id' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type username password host port verify_hostname template_id site_id categories oses duration pre_registration registration post_registration) ],
+   render_list => [ qw(id type username password host port verify_hostname engine_id template_id site_id categories oses duration pre_registration registration post_registration) ],
   );
 
 =over
