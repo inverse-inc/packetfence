@@ -92,3 +92,7 @@ form .uneditable {
 .rapid7-node-info .controls {
   margin-left: 245px;
 }
+
+.rapid7-node-info .rapid7-scan-selection {
+  text-align:right;
+}

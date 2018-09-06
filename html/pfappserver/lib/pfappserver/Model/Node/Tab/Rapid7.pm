@@ -38,7 +38,8 @@ sub process_view {
         item => $scan->assetDetails($ip),
         device_profiling => $scan->deviceProfiling($ip),
         top_vulnerabilities => $scan->assetTopVulnerabilities($ip),
-        last_scan => $scan->lastScan($ip)
+        last_scan => $scan->lastScan($ip),
+        scan_templates => $scan->listScanTemplates(),
     });
 }
 

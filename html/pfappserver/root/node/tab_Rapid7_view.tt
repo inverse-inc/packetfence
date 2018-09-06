@@ -29,6 +29,7 @@
       displayRapid7Info("malwareKits", "Malware Kits Found", item.vulnerabilities.malwareKits) | none;
       displayRapid7Info("lastScan", "Last Scan Done", last_scan.endTime) | none;
     %]
+
   </div>
 
   <div class="tab-pane fade in" id="rapid7-device-profiling">
@@ -86,6 +87,20 @@
     [% END %]
   </div>
 
+  <hr>
+
+  <div class="run-manual-scan">
+    <div class="rapid7-scan-selection">
+      <select id="rapid7ScanTemplateSelection">
+        [% FOREACH scan IN scan_templates %]
+        <option trigger_url=[% c.uri_for(c.controller('Node').action_for('runRapid7Scan'), [mac] scan.id, {tenant_id => tenant_id})  %]>[% scan.name %]</option>
+        [% END %]
+      </select>
+      <button id="runRapid7Scan" class="btn btn-primary">Run scan on endpoint</button>
+    </div>
+  </div>
+
+  <hr>
 </div>
 
 [% ELSE %]

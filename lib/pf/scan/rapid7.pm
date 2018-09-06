@@ -119,20 +119,7 @@ sub startScan {
 
     $logger->info("Starting Rapid7 scan");
 
-    my $payload = {
-        engineId => $self->{_engine_id} . "",
-        hosts => [ $self->{_scanIp} ],
-        name => "Automatic scan started from PacketFence",
-        templateId => $self->{_template_id},
-    };
-
-    my $req = HTTP::Request->new(
-        POST => $self->buildApiUri("sites/".$self->{_site_id}."/scans"), 
-        ["Content-Type" => "application/json"],
-        encode_json($payload),
-    );
-    my $response = $self->doRequest($req);
-
+    my $response = $self->runScanTemplate("Automatic scan started from PacketFence", $self->{_scanIp}, $self->{_template_id});
     my $result = $response->is_success;
  
     my $scan_vid = $pf::constants::scan::POST_SCAN_VID;
@@ -157,6 +144,47 @@ sub startScan {
     $self->setStatus($pf::constants::scan::STATUS_CLOSED);
     $self->statusReportSyncToDb();
     return 0;
+}
+
+=head2 runScanTemplate
+
+Run a specific scan template on an endpoint
+
+=cut
+
+sub runScanTemplate {
+    my ($self, $name, $ip, $template_id) = @_;
+    
+    my $payload = {
+        engineId => $self->{_engine_id} . "",
+        hosts => [ $ip ],
+        name => $name,
+        templateId => $template_id,
+    };
+
+    my $req = HTTP::Request->new(
+        POST => $self->buildApiUri("sites/".$self->{_site_id}."/scans"), 
+        ["Content-Type" => "application/json"],
+        encode_json($payload),
+    );
+    my $response = $self->doRequest($req);
+
+    return $response;
+}
+
+=head2 listScanTemplates
+
+List the available scan templates that can be ran on endpoints
+
+=cut
+
+sub listScanTemplates {
+    my ($self) = @_;
+
+    my $req = HTTP::Request->new(GET => $self->buildApiUri("scan_templates"));
+    my $response = $self->doRequest($req);
+    
+    return $response->is_success ? decode_json($response->decoded_content)->{"resources"} : undef;
 }
 
 =head2 assetDetails
