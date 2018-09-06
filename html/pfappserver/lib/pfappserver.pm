@@ -229,6 +229,8 @@ sub form {
           if $c->stash->{current_form_instance};
         return $c->form( $c->stash->{current_form} )
           if $c->stash->{current_form};
+        return $c->form( $c->action->{form} )
+          if $c->action->{form};
     }
     return $c->form( $appclass->config->{default_form} )
       if $appclass->config->{default_form};
