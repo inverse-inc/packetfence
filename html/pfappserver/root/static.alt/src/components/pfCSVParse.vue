@@ -1,4 +1,46 @@
-<template>
+/**
+ * Component to parse CSV
+ * 
+ * Supports:
+ *  Multiple file isolation
+ *  Papa parsing (See: https://www.papaparse.com/)
+ *  Table output with user-selected mappings
+ *  Active validation on fields w/ Vuelidate
+ *
+ *  Basic Usage:
+ *
+ *  <pf-csv-parse @input="onImport" :file="file" :fields="fields" no-init-bind-keys></pf-csv-parse>
+ *
+ *  Properties:
+ *
+ *    `file`: (object) -- file Object from pfFormUpload [
+ *      {
+ *        result: (string) -- the file contents,
+ *        lastModified: (int) -- timestamp-milliseconds of when the file was last modified,
+ *        name: (string) -- the original filename (no path),
+ *        size: (int) -- the file size in Bytes,
+ *        type: (string) -- the mime-type of the file (eg: 'text/plain').
+ *      },
+ *      ...
+ *    ]
+ *
+ *    `fields`: (array) -- Fields for user-selected mappings [
+ *      {
+ *        value: (string) -- key name,
+ *        text: (string) -- localized label,
+ *        required: (boolean) -- requires user-selected mapping,
+ *        validators: (object) -- list of vuelidate validators
+ *      }
+ *    ]
+ *
+ *    `no-init-bind-keys` -- for pfMixinSelectable, don't bind onKeyDown for multiple instances
+ *
+ *  Events:
+ *
+ *    @input: emitted w/ `exportModel`, a remapped array of objects based on user-mappings and clean vuelidations
+ *
+**/
+ <template>
   <b-form @submit.prevent="doExport()">
 
     <b-card-header header-tag="header" class="p-1 mt-3" role="tab">
@@ -163,7 +205,7 @@ export default {
       tableValues: Array,
       tableMapping: Array,
       exportModel: Array,
-      uuid: uuidv4(),
+      uuid: uuidv4(), // unique id for multiple instances of this component
       config: {
         delimiter: '', // auto-detect
         newline: '', // auto-detect
@@ -233,10 +275,10 @@ export default {
       Papa.parse(this.file.result, Object.assign({}, this.config, {
         complete (results) {
           _this.meta = results.meta
-          // CSV header (1st-row) may be ignored
+          // CSV header (1st-row) may be ignored (See Papa::config.header)
           if (!results.meta.fields || results.meta.fields.length === 0) {
             // find widest row
-            const size = results.data.reduce((acc, row) => (acc > row.length) ? acc : row.length, 0)
+            const size = results.data.reduce((max, row) => (max > row.length) ? max : row.length, 0)
             _this.meta.fields = new Array(size)
             for (let i = 0; i < size; i++) {
               // fields must be unique
@@ -244,20 +286,20 @@ export default {
             }
             // Papa flattens data into an Array (not Object) when CSV header is skipped,
             //  remap data from Array into Object
-            _this.data = results.data.reduce((accumulatorRows, row) => {
-              const mappedRow = row.reduce((accumulatorCols, column, index) => {
-                accumulatorCols[index.toString()] = column
-                return accumulatorCols
+            _this.data = results.data.reduce((data, row) => {
+              const mappedRow = row.reduce((mappedRow, column, index) => {
+                mappedRow[index.toString()] = column
+                return mappedRow
               }, {})
-              accumulatorRows.push(mappedRow)
-              return accumulatorRows
+              data.push(mappedRow)
+              return data
             }, [])
           } else {
             _this.data = results.data
           }
-          // setup placeholders in tableMapping Array
+          // setup null placeholders in tableMapping Array
           _this.tableMapping = new Array(_this.meta.fields.length).fill(null)
-          // clear selectValues' artifacts
+          // clear selectValues artifacts
           _this.selectValues = []
           // _this.$refs[_this.uuidStr('table')].refresh()
         },
@@ -300,22 +342,26 @@ export default {
       })
     },
     buildExportModel () {
-      const cheatSheet = this.tableMapping.reduce((accumulator, field, index) => {
-        if (field !== null) accumulator[this.meta.fields[index]] = field
-        return accumulator
+      const cheatSheet = this.tableMapping.reduce((cheatSheet, mapping, index) => {
+        // (tableMapping) [null, 'mac'] + (meta.fields) ['colA', 'colB']
+        //    => (cheatSheet) {colB: 'mac'}
+        if (mapping !== null) cheatSheet[this.meta.fields[index]] = mapping
+        return cheatSheet
       }, {})
-      this.exportModel = this.selectValues.reduce((accumulatorRows, value, index) => {
+      this.exportModel = this.selectValues.reduce((exportModel, selectValue, index) => {
+        // (selectValues) [ {colA: 'W', colB: 'X'}, {colA: 'Y', colB: 'Z'} ] + (cheatSheet) {colB: 'mac'}
+        //    => (exportModel) [ {mac: 'X'}, {mac: 'Z'} ]
         // ignore selectValues with validation errors
         if (!this.$v.selectValues.$each.$iter[index].$anyError) {
-          const mappedRow = Object.keys(value).reduce((accumulatorCols, key) => {
-            if (cheatSheet[key]) accumulatorCols[cheatSheet[key]] = value[key]
-            return accumulatorCols
+          const mappedRow = Object.keys(selectValue).reduce((mappedRow, key) => {
+            if (cheatSheet[key]) mappedRow[cheatSheet[key]] = selectValue[key]
+            return mappedRow
           }, {})
           // add pointer reference to tableValue for callback
-          mappedRow._tableValue = this.tableValues.find(v => v === value)
-          accumulatorRows.push(mappedRow)
+          mappedRow._tableValue = this.tableValues.find(v => v === selectValue)
+          exportModel.push(mappedRow)
         }
-        return accumulatorRows
+        return exportModel
       }, [])
     },
     doExport (event) {
@@ -327,14 +373,14 @@ export default {
       return this.data || []
     },
     columns () {
-      const columns = [{
+      const columns = [{ // for pfMixinSelectable
         key: 'actions',
         label: this.$i18n.t('Actions'),
         sortable: false,
         visible: true,
         locked: true,
         variant: (this.selectValues.length > 0) ? '' : 'danger'
-      }] // for pfMixinSelectable
+      }]
       if (this.meta && this.meta.fields) {
         columns.push(...this.meta.fields.map((field, index) => {
           let variant = (this.tableMapping[index] === null) // is it mapped?
@@ -378,19 +424,24 @@ export default {
     },
     '$v': {
       handler: function (a, b) {
-        // iterate selectValues and run validations
-        if (a.selectValues.$each.$iter) {
-          Object.entries(a.selectValues.$each.$iter).forEach((f, i) => {
-            let [index, field] = f
-            // set row variant based on validation error on tableValue (not selectValue)
-            this.tableValues.find(row => row === a.selectValues.$model[index])._rowVariant = (field.$anyError) ? 'danger' : 'info'
-          })
-        }
+        // debounce
+        if (this.validateTimeout) clearTimeout(this.validateTimeout)
+        this.validateTimeout = setTimeout(() => {
+          // iterate selectValues and exec validations
+          if (a.selectValues.$each.$iter) {
+            Object.entries(a.selectValues.$each.$iter).forEach((f, i) => {
+              let [index, field] = f
+              // set row variant based on validation error on tableValue (not selectValue)
+              this.tableValues.find(row => row === a.selectValues.$model[index])._rowVariant = (field.$anyError) ? 'danger' : 'info'
+            })
+          }
+        }, 100)
       },
       deep: true
     }
   },
   mounted () {
+    // reset `file` when page reloaded, remove w/ $store implementation
     this.parse()
   }
 }
