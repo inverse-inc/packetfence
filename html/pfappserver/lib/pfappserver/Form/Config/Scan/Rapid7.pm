@@ -45,26 +45,36 @@ has_field 'port' =>
 
 has_field 'template_id' =>
   (
-   type => 'Text',
-   label => 'Scan template ID',
+   type => 'Select',
+   multiple => 0,
+   label => 'Scan template',
+   element_class => ['chzn-deselect'],
+   element_attr => {'data-placeholder' => 'Click to select a scan template'},
    tags => { after_element => \&help,
              help => 'The scan template to use for scanning the clients.' },
   );
 
 has_field 'site_id' =>
   (
-   type => 'Text',
-   label => 'Site ID',
+   type => 'Select',
+   multiple => 0,
+   label => 'Site',
+   element_class => ['chzn-deselect'],
+   element_attr => {'data-placeholder' => 'Click to select a site'},
    tags => { after_element => \&help,
              help => 'The identifier of the site to scan (the site where the hosts are located)' },
   );
 
+
 has_field 'engine_id' =>
   (
-   type => 'Text',
-   label => 'Engine ID',
+   type => 'Select',
+   multiple => 0,
+   label => 'Scan Engine',
+   element_class => ['chzn-deselect'],
+   element_attr => {'data-placeholder' => 'Click to select an engine'},
    tags => { after_element => \&help,
-             help => 'The identifier of the scan engine to use when scanning the devices' },
+             help => 'The identifier of the scan engine to use when scanning the devices.' },
   );
 
   has_field 'verify_hostname' =>
@@ -82,6 +92,47 @@ has_block definition =>
   (
    render_list => [ qw(id type username password host port verify_hostname engine_id template_id site_id categories oses duration pre_registration registration post_registration) ],
   );
+
+around 'process' => sub {
+    my $sub = shift;
+    my @args = @_;
+
+    my ($form, $context, $params) = @args;
+    
+    my $scan;
+    eval {
+        $scan = pf::factory::scan->new($params->{id});
+    };
+    
+    my %sub_map = (
+        engine_id => sub {$scan->listScanEngines},
+        template_id => sub {$scan->listScanTemplates},
+        site_id => sub {$scan->listSites},
+    );
+
+    foreach my $field_name (qw(engine_id template_id site_id)) {
+        my $field = $form->field($field_name);
+        if($scan) {
+            my $values = $sub_map{$field_name}->();
+            if(defined($values)) {
+                my @options = map{ {label => $_->{name}, value => $_->{id}} } @$values;
+                $field->options(\@options);
+            }
+            else {
+                $field->options([{label => $params->{$field_name}, value => $params->{$field_name}}]);
+                $field->disabled(1);
+                $field->tags->{help} = "There was an error communicating with Rapid7. Check server side logs or retry later to be able to edit this field.";
+            }
+        }
+        else {
+            $field->options([{label => $params->{$field_name}, value => $params->{$field_name}}]);
+            $field->disabled(1);
+            $field->tags->{help} = "After configuring this scan engine for the first time, you will be able to select this attribute from the available ones in Rapid7.";
+        }
+    }
+
+    $sub->(@args);
+};
 
 =over
 
