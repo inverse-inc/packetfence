@@ -992,6 +992,8 @@ fi
 %dir			/usr/local/pf/conf/radiusd
 %config(noreplace)      /usr/local/pf/conf/radiusd/clients.conf.inc
                         /usr/local/pf/conf/radiusd/clients.conf.inc.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/clients.eduroam.conf.inc
+                        /usr/local/pf/conf/radiusd/clients.eduroam.conf.inc.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/packetfence-cluster
                         /usr/local/pf/conf/radiusd/packetfence-cluster.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/proxy.conf.inc
