@@ -1,6 +1,6 @@
 <template>
   <b-card no-body>
-    <pf-progress :active="isLoading"></pf-progress>
+    <b-progress height="2px" :value="progressValue" :max="progressTotal" v-show="progressValue > 0 && progressValue < progressTotal"></b-progress>
     <b-card-header>
       <h4 class="mb-0" v-t="'Import Nodes'"></h4>
     </b-card-header>
@@ -46,6 +46,7 @@
 import pfCSVParse from '@/components/pfCSVParse'
 import pfProgress from '@/components/pfProgress'
 import pfFormUpload from '@/components/pfFormUpload'
+import convert from '@/utils/convert'
 
 import { required, minLength, maxLength, macAddress } from 'vuelidate/lib/validators'
 // import { pfValidateMacAddressIsUnique as macAddressIsUnique } from '@/globals/pfValidators'
@@ -130,7 +131,10 @@ export default {
           text: this.$i18n.t('Bandwidth Balance'),
           required: false
         }
-      ]
+      ],
+      progressTotal: 0,
+      progressValue: 0,
+      promises: Array
     }
   },
   methods: {
@@ -144,21 +148,71 @@ export default {
       }
     },
     onImport (values) {
+      // track progress
+      this.progressValue = 1
+      this.progressTotal = values.length + 1
+      // track promises
+      this.promises = []
       values.forEach((value, index, values) => {
         this.$store.dispatch('$_nodes/exists', value.mac).then(results => {
-          console.log(['exists', value])
-          this.$store.dispatch('$_nodes/updateNode', value).then(results => {
-            console.log(['updateNode', results])
-          }).catch(() => {})
+          // node does not exist
+          this.updateNode(value).then(results => {
+            console.log(value)
+            value._tableValue._rowVariant = convert.statusToVariant({ status: results.status })
+            if (results.message) {
+              value._tableValue._rowMessage = this.$i18n.t(results.message)
+            }
+          }).catch((err) => {
+            throw err
+          })
         }).catch(() => {
-          console.log(['not exists', value])
-          this.$store.dispatch('$_nodes/createNode', value).then(results => {
-            console.log(['createNode', results])
-          }).catch(() => {})
+          // node already exists
+          this.createNode(value).then(results => {
+            value._tableValue._rowVariant = convert.statusToVariant({ status: results.status })
+            if (results.message) {
+              value._tableValue._rowMessage = this.$i18n.t(results.message)
+            }
+          }).catch((err) => {
+            throw err
+          })
         })
       })
-      this.$forceUpdate()
-      console.log(['onImport', values])
+      Promise.all([...this.promises]).then(() => {
+        console.log('done')
+      })
+    },
+    createNode (data) {
+      const promise = this.$store.dispatch('$_nodes/createNode', data).then(results => {
+        // does the data contain anything other than 'mac' or a private key (_*)?
+        if (Object.keys(data).filter(key => key !== 'mac' && key[0] !== '_').length > 0) {
+          // chain updateNode
+          this.progressTotal += 1
+          this.updateNode(data).then(results => {
+            // ...
+          }).catch((err) => {
+            throw err
+          })
+        }
+        return results
+      }).catch((err) => {
+        throw err
+      }).finally(() => {
+        this.progressValue += 1
+      })
+      this.promises.push(promise)
+      return promise
+    },
+    updateNode (data) {
+      const promise = this.$store.dispatch('$_nodes/updateNode', data).then(results => {
+        // ...
+        return results
+      }).catch((err) => {
+        throw err
+      }).finally(() => {
+        this.progressValue += 1
+      })
+      this.promises.push(promise)
+      return promise
     }
   },
   mounted () {
