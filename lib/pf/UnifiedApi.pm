@@ -16,9 +16,12 @@ use strict;
 use warnings;
 use Mojo::Base 'Mojolicious';
 use pf::dal;
+use pf::util qw(add_jitter);
 use pf::file_paths qw($log_conf_dir);
 use MojoX::Log::Log4perl;
 use pf::UnifiedApi::Controller;
+our $MAX_REQUEST_HANDLED = 2000;
+our $REQUEST_HANDLED_JITTER = 500;
 
 has commands => sub {
   my $commands = Mojolicious::Commands->new(app => shift);
@@ -295,11 +298,12 @@ after_dispatch_cb
 
 sub after_dispatch_cb {
     my ($c) = @_;
-    my $requests_handled = ++$c->app->{requests_handled};
-    if ($requests_handled >= 2000) {
+    my $app = $c->app;
+    my $max = $app->{max_requests_handled} //= add_jitter( $MAX_REQUEST_HANDLED, $REQUEST_HANDLED_JITTER );
+    if (++$app->{requests_handled} >= $max) {
         kill 'QUIT', $$;
     }
-    return ;
+    return;
 }
 
 =head2 before_dispatch_cb
