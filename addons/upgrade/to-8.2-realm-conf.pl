@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-to-8.2-pfmon-conf.pl
+to-8.2-realm-conf.pl
 
 =head1 DESCRIPTION
 
