@@ -2751,8 +2751,8 @@ Configure `/etc/syslog-ng/syslog-ng.conf` by adding the following to enable send
   # This line specifies where the sguild.log file is located
   # -> Make sure to configure the right path along with the right filename (on a Security Onion setup, that should be pretty much standard)
   source s_sguil { file("/var/log/nsm/securityonion/sguild.log" program_override("securityonion_ids")); };
-  # This line filters on the string “Alert Received”
-  filter f_sguil { match("Alert Received"); };
+  # This line filters on the string “Archived Alert”
+  filter f_sguil { match("Archived Alert"); };
   # This line tells syslog-ng to send the data read to the PacketFence management IP address using UDP 514
   # -> Make sure to configure the right PacketFence management interface IP address
   destination d_packetfence_alerts { udp("PACKETFENCE_MGMT_IP" port(514)); };
