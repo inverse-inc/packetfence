@@ -4,11 +4,9 @@
 
 to-8.2-pfmon-conf.pl
 
-=cut
-
 =head1 DESCRIPTION
 
-Remove the queue_stats section from pfmon.conf if present
+Make all the realms tenant aware
 
 =cut
 
