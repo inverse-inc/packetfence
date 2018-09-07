@@ -94,6 +94,7 @@ BEGIN {
         find_outgoing_interface
         strip_filename_from_exceptions
         expand_csv
+        add_jitter
     );
 }
 
@@ -1421,6 +1422,17 @@ sub strip_filename_from_exceptions {
         $exception =~ s/^(.*) at .*?$/$1/;
     }
     return $exception;
+}
+
+=head2 add_jitter($number, $jitter)
+
+Add a random number from (-$jitter to $jitter) to $number
+
+=cut
+
+sub add_jitter {
+    my ($number, $jitter) = @_;
+    return $number + int(rand(2 * $jitter + 1)) - $jitter;
 }
 
 =back
