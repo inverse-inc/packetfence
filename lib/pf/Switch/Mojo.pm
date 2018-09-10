@@ -241,7 +241,7 @@ sub parseExternalPortalRequest {
     my %params = ();
     my $client_ip = defined($r->headers_in->{'X-Forwarded-For'}) ? $r->headers_in->{'X-Forwarded-For'} : $r->connection->remote_ip;
     %params = (
-        switch_id               => clean_mac($req->param('ap_id')),
+        switch_id               => pf::SwitchFactory->instantiate($req->param("uamip")) ? $req->param("uamip") : clean_mac($req->param('ap_id')),
         client_mac              => clean_mac($req->param('client_mac')),
         client_ip               => $client_ip,
         ssid                    => $req->param('ap_ssid'),
@@ -263,25 +263,8 @@ sub getAcceptForm {
     my $logger = $self->logger;
     $logger->debug("Creating web release form");
 
-    my $ssid = $portalSession->param("ecwp-original-param-ap_ssid");
-    my $res = $portalSession->param("ecwp-original-param-res");
     my $challenge = $portalSession->param("ecwp-original-param-challenge");
-    my $client_mac = $portalSession->param("ecwp-original-param-client_mac");
-    my $ap_id = $portalSession->param("ecwp-original-param-ap_id");
-    my $uamip = $portalSession->param("ecwp-original-param-uamip");
-    my $uamport = $portalSession->param("ecwp-original-param-uamport");
-    my $failure_count = $portalSession->param("ecwp-original-param-failure_count");
-    my $userurl = $portalSession->param("ecwp-original-param-userurl");
     my $login_url = $portalSession->param("ecwp-original-param-login_url");
-    my $logoff_url = $portalSession->param("ecwp-original-param-logoff_url");
-    my $blackout_time = $portalSession->param("ecwp-original-param-blackout_time");
-    my $service_id = $portalSession->param("ecwp-original-param-service_id");
-    my $redirect_type = $portalSession->param("ecwp-original-param-redirect_type");
-    my $gate_state_to_portal = $portalSession->param("ecwp-original-param-gate_state_to_portal");
-    my $conf_hash = $portalSession->param("ecwp-original-param-conf_hash");
-    my $login_timeout = $portalSession->param("ecwp-original-param-login_timeout");
-    my $home_page = $portalSession->param("ecwp-original-param-home_page");
-    my $challenge_timeout = $portalSession->param("ecwp-original-param-challenge_timeout");
 
     my $html_form = qq[
         <form name="weblogin_form" data-autosubmit="1000" method="GET" action="$login_url">
@@ -338,30 +321,6 @@ sub returnRadiusAccessAccept {
 
     return $self->SUPER::returnRadiusAccessAccept($args);
 }
-
-
-
-
-#item encodePassword
-#
-#Encode the password using challenge and shared secret and return string of encoded password in array
-#
-#=cut
-#
-#sub encodePassword($sharedSecret) {
-#    $asciiChallenge = pack("H*", $challenge);
-#
-#    $key = md5($asciiChallenge . $sharedSecret);
-#
-#    while (length $key < length $password) {
-#	$key .= $key;
-#    }
-#
-#    $encodedPassword = unpack("H*", substr ($password xor $key)
-#}
-
-
-
 
 =head1 AUTHOR
 
