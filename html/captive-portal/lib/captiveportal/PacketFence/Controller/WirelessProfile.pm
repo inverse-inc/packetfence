@@ -40,19 +40,20 @@ sub index : Path : Args(0) {
     $provisioner->authorize($mac) if (defined($provisioner));
     my $profile_template = $provisioner->profile_template;
     $c->stash(
-        template     => $profile_template,
-        current_view => 'MobileConfig',
-        provisioner  => $provisioner,
-        username     => $c->session->{username} ? $c->session->{username} : '',
-        cert_content => $pki_session->{b64_cert},
-        cert_cn      => $pki_session->{certificate_cn},
-        for_windows  => ($provisioner->{type} eq 'windows'),
-        for_android  => ($provisioner->{type} eq 'android'),
-        ca_cn        => $pki_session->{ca_cn},
-        server_cn    => $pki_session->{server_cn},
-        ca_content   => $pki_session->{ca_content},
-        reverse_fqdn => $reverse_fqdn,
-        raw          => $TRUE,
+        template         => $profile_template,
+        current_view     => 'MobileConfig',
+        provisioner      => $provisioner,
+        username         => $c->session->{username} ? $c->session->{username} : '',
+        cert_content     => $pki_session->{b64_cert},
+        cert_cn          => $pki_session->{certificate_cn},
+        for_windows      => ($provisioner->{type} eq 'windows'),
+        for_android      => ($provisioner->{type} eq 'android'),
+        ca_cn            => $pki_session->{ca_cn},
+        server_cn        => $pki_session->{server_cn},
+        server_content   => $pki_session->{server_content},
+        ca_content       => $pki_session->{ca_content},
+        reverse_fqdn     => $reverse_fqdn,
+        raw              => $TRUE,
     );
 }
 
