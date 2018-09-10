@@ -216,16 +216,18 @@ sub prepare_profile {
     my $pki_session = $user_cache->compute("pki_session", sub {});
 
     my $ca_content = $self->pki_provider->raw_ca_cert_string();
+    my $server_content = $self->pki_provider->raw_server_cert_string();
     my $server_cn = $self->pki_provider->server_cn();
     my $ca_cn = $self->pki_provider->ca_cn();
 
     return $FALSE unless($self->get_bundle());
     my $b64_cert = encode_base64($self->session->{cert_content});
 
-    @$pki_session{qw(ca_cn server_cn ca_content b64_cert)} = (
+    @$pki_session{qw(ca_cn server_cn ca_content server_content b64_cert)} = (
         $ca_cn,
         $server_cn,
         $ca_content,
+        $server_content,
         $b64_cert,
     );
     $user_cache->set("pki_session" => $pki_session);
