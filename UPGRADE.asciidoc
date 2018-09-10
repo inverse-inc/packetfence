@@ -1758,6 +1758,17 @@ The queue_stats maintenance job has been deprecated in favor of using pfstats. I
 
   /usr/local/pf/addons/upgrade/to-8.2-pfmon-conf.pl
 
+Upgrade pfdetect perl regex to the go RE2 regex
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The pfdetect was moved from perl to go so all rule regexes have to be converted to the RE2 regex syntax.
+RE2 is mostly is compatiable the perl regex syntax.
+More information on the RE2 syntax can be found here https://github.com/google/re2/wiki/Syntax.
+To upgrade the regex run:
+
+  /usr/local/pf/addons/upgrade/to-8.2-pfdetect-conf.pl
+
+Any perl regex that cannnot be convert will be displayed and should be fixed.
+
 Database schema update (All linux distributions)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
