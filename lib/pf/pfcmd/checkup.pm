@@ -64,12 +64,15 @@ use pf::file_paths qw(
     $log_dir
     @log_files
     $generated_conf_dir
+    $pfdetect_config_file
 );
 use Crypt::OpenSSL::X509;
 use Date::Parse;
 use pf::factory::condition::profile;
 use pf::condition_parser qw(parse_condition_string);
 use pf::cluster;
+use pf::config::builder::pfdetect;
+use pf::IniFiles;
 
 use lib $conf_dir;
 
@@ -166,6 +169,7 @@ sub sanity_check {
     cluster();
     provisioning();
     scan();
+    pfdetect();
 
     return @problems;
 }
@@ -1289,6 +1293,29 @@ sub valid_fingerbank_device_id {
     }
     else {
         return $TRUE;
+    }
+}
+
+=head2 pfdetect
+
+pfdetect
+
+=cut
+
+sub pfdetect {
+    my $file = $pfdetect_config_file;
+    my $ini = pf::IniFiles->new(-file => $file, -allowempty => 1);
+    unless ($ini) {
+        my $error_msg = join("\n", @pf::IniFiles::errors, "");
+        add_problem($FATAL, "$file: Invalid config file");
+        return;
+    }
+
+    my $builder = pf::config::builder::pfdetect->new();
+    my ($errors, $data) = $builder->build($ini);
+    for my $err (@{ $errors // [] }) {
+        my $error_msg =  "$file: $err->{rule}) $err->{message}";
+        add_problem($WARN, $error_msg);
     }
 }
 
