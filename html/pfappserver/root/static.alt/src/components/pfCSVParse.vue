@@ -354,7 +354,7 @@ export default {
         // ignore selectValues with validation errors
         if (!this.$v.selectValues.$each.$iter[index].$anyError) {
           const mappedRow = Object.keys(selectValue).reduce((mappedRow, key) => {
-            if (cheatSheet[key]) mappedRow[cheatSheet[key]] = selectValue[key]
+            if (cheatSheet[key]) mappedRow[cheatSheet[key]] = (selectValue[key] === '') ? null : selectValue[key]
             return mappedRow
           }, {})
           // add pointer reference to tableValue for callback
