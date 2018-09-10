@@ -66,6 +66,7 @@
                         <key>PayloadVersion</key>
                         <integer>1</integer>
                 </dict>
+                [% IF !for_windows AND !for_android %]
                 <dict>
                         <key>PayloadCertificateFileName</key>
                         <string>[% server_cn %]</string>
@@ -90,6 +91,7 @@
                         <key>PayloadVersion</key>
                         <integer>1</integer>
                 </dict>
+                [% END %]
                 <dict>
                         <key>PayloadCertificateFileName</key>
                         <string>[% ca_cn %]</string>
