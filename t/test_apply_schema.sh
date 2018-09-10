@@ -17,7 +17,7 @@ UPGRADED_DB="${DB_PREFIX}_upgraded_$$"
 
 PRISTINE_DB="${DB_PREFIX}_pristine_$$"
 
-MYSQL="mysql -upf_smoke_tester -ppacket"
+MYSQL="mysql -upf_smoke_tester -ppacket -h127.0.0.1"
 
 MYSQLDUMP="mysqldump -upf_smoke_tester --no-data -a --skip-comments --routines -ppacket"
 
