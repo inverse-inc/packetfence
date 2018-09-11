@@ -39,6 +39,9 @@
         </div>
       </b-tabs>
     </div>
+
+    <pre>{{ $v }}</pre>
+
   </b-card>
 </template>
 
@@ -46,10 +49,24 @@
 import pfCSVParse from '@/components/pfCSVParse'
 import pfProgress from '@/components/pfProgress'
 import pfFormUpload from '@/components/pfFormUpload'
+import { pfFormatters as formatter } from '@/globals/pfFormatters'
+import { mysqlLimits as sqlLimits } from '@/globals/mysqlLimits'
 import convert from '@/utils/convert'
-
-import { required, minLength, maxLength, macAddress } from 'vuelidate/lib/validators'
-// import { pfValidateMacAddressIsUnique as macAddressIsUnique } from '@/globals/pfValidators'
+import {
+  required,
+  macAddress,
+  maxLength,
+  minLength,
+  minValue,
+  maxValue
+} from 'vuelidate/lib/validators'
+import {
+  categoryIdNumberExists, // validate category_id/bypass_role_id (Number) exists
+  categoryIdStringExists, // validate category_id/bypass_role_id (String) exists
+  inArray,
+  isDateTime,
+  userExists // validate user pid exists
+} from '@/globals/pfValidators'
 
 export default {
   name: 'NodesImport',
@@ -72,69 +89,83 @@ export default {
       fields: [
         {
           value: 'mac',
-          text: '⚠ ' + this.$i18n.t('MAC Address'),
+          text: '&#128308; ' + this.$i18n.t('MAC Address'),
           required: true,
           validators: { required, minLength: minLength(17), maxLength: maxLength(17), macAddress }
         },
         {
-          value: 'bypass_role_id',
-          text: this.$i18n.t('Bypass Role'),
-          required: false
-        },
-        {
-          value: 'bypass_vlan',
-          text: this.$i18n.t('Bypass VLAN [?]'),
-          required: false
-        },
-        {
-          value: 'computername',
-          text: this.$i18n.t('Computer Name'),
-          required: false
-        },
-        {
-          value: 'regdate',
-          text: this.$i18n.t('Datetime Registered'),
-          required: false
-        },
-        {
-          value: 'unregdate',
-          text: this.$i18n.t('Datetime Unregistered'),
-          required: false
-        },
-        {
-          value: 'notes',
-          text: this.$i18n.t('Notes'),
-          required: false
-        },
-        {
-          value: 'pid',
-          text: this.$i18n.t('Owner'),
-          required: false
-        },
-        {
-          value: 'category_id',
-          text: this.$i18n.t('Role'),
-          required: false
-        },
-        {
-          value: 'voip',
-          text: this.$i18n.t('VoIP'),
-          required: false
-        },
-        {
           value: 'autoreg',
           text: this.$i18n.t('Auto Registration'),
-          required: false
+          required: false,
+          formatter: formatter.yesNoFromString,
+          validators: { inArray: inArray(['yes', 'no', 'y', 'n', '1', '0', 'true', 'false']) }
         },
         {
           value: 'bandwidth_balance',
           text: this.$i18n.t('Bandwidth Balance'),
-          required: false
+          required: false,
+          validators: { minValue: minValue(sqlLimits.ubigint.min), maxValue: maxValue(sqlLimits.ubigint.max) }
+        },
+        {
+          value: 'bypass_role_id',
+          text: this.$i18n.t('Bypass Role'),
+          required: false,
+          formatter: formatter.categoryIdFromIntOrString,
+          validators: { categoryIdNumberExists, categoryIdStringExists }
+        },
+        {
+          value: 'bypass_vlan',
+          text: this.$i18n.t('Bypass VLAN [?]'),
+          required: false,
+          validators: { maxLength: maxLength(50) }
+        },
+        {
+          value: 'computername',
+          text: this.$i18n.t('Computer Name'),
+          required: false,
+          validators: { maxLength: maxLength(255) }
+        },
+        {
+          value: 'regdate',
+          text: this.$i18n.t('Datetime Registered'),
+          required: false,
+          validators: { isDateTime }
+        },
+        {
+          value: 'unregdate',
+          text: this.$i18n.t('Datetime Unregistered'),
+          required: false,
+          validators: { isDateTime }
+        },
+        {
+          value: 'notes',
+          text: this.$i18n.t('Notes'),
+          required: false,
+          validators: { maxLength: maxLength(255) }
+        },
+        {
+          value: 'pid',
+          text: this.$i18n.t('Owner'),
+          required: false,
+          validators: { userExists }
+        },
+        {
+          value: 'category_id',
+          text: this.$i18n.t('Role'),
+          required: false,
+          formatter: formatter.categoryIdFromIntOrString,
+          validators: { categoryIdNumberExists, categoryIdStringExists }
+        },
+        {
+          value: 'voip',
+          text: this.$i18n.t('VoIP'),
+          required: false,
+          formatter: formatter.yesNoFromString,
+          validators: { inArray: inArray(['yes', 'no', 'y', 'n', '1', '0', 'true', 'false']) }
         }
       ],
       progressTotal: 0,
-      progressValue: 0,
-      promises: Array
+      progressValue: 0
     }
   },
   methods: {
@@ -151,68 +182,70 @@ export default {
       // track progress
       this.progressValue = 1
       this.progressTotal = values.length + 1
-      // track promises
-      this.promises = []
-      values.forEach((value, index, values) => {
-        this.$store.dispatch('$_nodes/exists', value.mac).then(results => {
-          // node does not exist
-          this.updateNode(value).then(results => {
-            console.log(value)
+      // track promise(s)
+      Promise.all(values.map(value => {
+        return this.$store.dispatch('$_nodes/exists', value.mac).then(results => {
+          console.log('exists')
+          // node exists
+          return this.updateNode(value).then(results => {
+            console.log('updateNode', value)
             value._tableValue._rowVariant = convert.statusToVariant({ status: results.status })
             if (results.message) {
               value._tableValue._rowMessage = this.$i18n.t(results.message)
             }
-          }).catch((err) => {
+            return results
+          }).catch(err => {
             throw err
           })
         }).catch(() => {
-          // node already exists
-          this.createNode(value).then(results => {
+          console.log('not exists')
+          // node not exists
+          return this.createNode(value).then(results => {
             value._tableValue._rowVariant = convert.statusToVariant({ status: results.status })
             if (results.message) {
               value._tableValue._rowMessage = this.$i18n.t(results.message)
             }
-          }).catch((err) => {
+            return results
+          }).catch(err => {
             throw err
           })
         })
+      })).then(values => {
+        console.log(['promise values', values])
+      }).catch(reason => {
+        console.log(['promises reason', reason])
       })
-      Promise.all([...this.promises]).then(() => {
-        console.log('done')
-      })
+      console.log('onImport done')
     },
     createNode (data) {
-      const promise = this.$store.dispatch('$_nodes/createNode', data).then(results => {
+      console.log('> createNode', data)
+      return this.$store.dispatch('$_nodes/createNode', data).then(results => {
         // does the data contain anything other than 'mac' or a private key (_*)?
-        if (Object.keys(data).filter(key => key !== 'mac' && key[0] !== '_').length > 0) {
+        if (Object.keys(data).filter(key => key !== 'mac' && key.charAt(0) !== '_').length > 0) {
           // chain updateNode
           this.progressTotal += 1
-          this.updateNode(data).then(results => {
-            // ...
-          }).catch((err) => {
+          return this.updateNode(data).then(results => {
+            return results
+          }).catch(err => {
             throw err
           })
         }
         return results
-      }).catch((err) => {
+      }).catch(err => {
         throw err
       }).finally(() => {
         this.progressValue += 1
       })
-      this.promises.push(promise)
-      return promise
     },
     updateNode (data) {
-      const promise = this.$store.dispatch('$_nodes/updateNode', data).then(results => {
-        // ...
+      console.log('> updateNode')
+      return this.$store.dispatch('$_nodes/updateNode', data).then(results => {
         return results
-      }).catch((err) => {
+      }).catch(err => {
         throw err
       }).finally(() => {
         this.progressValue += 1
       })
-      this.promises.push(promise)
-      return promise
     }
   },
   mounted () {

@@ -29,7 +29,8 @@
  *        value: (string) -- key name,
  *        text: (string) -- localized label,
  *        required: (boolean) -- requires user-selected mapping,
- *        validators: (object) -- list of vuelidate validators
+ *        validators: (object) -- list of vuelidate validators, validated after formatting
+ *        formatter: (value, key, item) -- field formatter, does not affect table data, formatted before validation.
  *      }
  *    ]
  *
@@ -162,6 +163,8 @@
         </b-container>
       </b-card-body>
     </b-collapse>
+
+    <pre>{{ $v }}</pre>
 
   </b-form>
 </template>
@@ -329,6 +332,7 @@ export default {
       fields.push(...this.fields)
       fields.forEach((f, i, fs) => {
         if (!f.value) return // ignore null
+        // fields[i].text = ((fields[i].required) ? '[req] ' : '[opt] ') + fields[i].text
         // disable fields selected elsewhere
         fields[i].disabled = this.tableMapping.map((field, _i) => { return (_i === index) ? null : field }).includes(f.value)
       })
@@ -357,6 +361,16 @@ export default {
             if (cheatSheet[key]) mappedRow[cheatSheet[key]] = (selectValue[key] === '') ? null : selectValue[key]
             return mappedRow
           }, {})
+          // format fields
+          Object.keys(mappedRow).forEach((key) => {
+            const field = this.fields.filter(field => field.value === key)[0]
+            if (field && field.hasOwnProperty('formatter')) {
+              const formatted = field.formatter(mappedRow[key], key, mappedRow)
+              if (formatted) {
+                mappedRow[key] = formatted[0]
+              }
+            }
+          })
           // add pointer reference to tableValue for callback
           mappedRow._tableValue = this.tableValues.find(v => v === selectValue)
           exportModel.push(mappedRow)
@@ -427,14 +441,28 @@ export default {
         // debounce
         if (this.validateTimeout) clearTimeout(this.validateTimeout)
         this.validateTimeout = setTimeout(() => {
+          // reset all cellVariants
+          this.tableValues.forEach((row, index, values) => {
+            this.tableValues[index]._cellVariants = {}
+          })
           // iterate selectValues and exec validations
           if (a.selectValues.$each.$iter) {
-            Object.entries(a.selectValues.$each.$iter).forEach((f, i) => {
+            Object.entries(a.selectValues.$each.$iter).forEach(f => {
               let [index, field] = f
               // set row variant based on validation error on tableValue (not selectValue)
-              this.tableValues.find(row => row === a.selectValues.$model[index])._rowVariant = (field.$anyError) ? 'danger' : 'info'
+              const row = this.tableValues.find(row => row === a.selectValues.$model[index])
+              row._rowVariant = (field.$anyError) ? '' : 'info'
+              if (field.$anyError) {
+                Object.keys(field.$model).forEach(key => {
+                  if (field[key] && field[key].$anyError) {
+                    row._cellVariants.actions = 'danger'
+                    row._cellVariants[key] = 'danger'
+                  }
+                })
+              }
             })
           }
+          this.$forceUpdate()
         }, 100)
       },
       deep: true
