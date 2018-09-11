@@ -9,6 +9,7 @@ const STORAGE_SAVED_SEARCH = 'nodes-saved-search'
 // Default values
 const state = {
   nodes: {}, // nodes details
+  nodeExists: {}, // node exists true|false
   message: '',
   nodeStatus: '',
   savedSearches: JSON.parse(localStorage.getItem(STORAGE_SAVED_SEARCH)) || []
@@ -58,6 +59,12 @@ const actions = {
     }
   },
   exists: ({commit}, mac) => {
+    if (state.nodeExists[mac] !== undefined) {
+      if (state.nodeExists[mac]) {
+        return Promise.resolve(true)
+      }
+      return Promise.reject(new Error('Unknown MAC'))
+    }
     let body = {
       fields: ['mac'],
       limit: 1,
@@ -73,8 +80,10 @@ const actions = {
       api.search(body).then(response => {
         commit('SEARCH_SUCCESS')
         if (response.items.length > 0) {
+          commit('NODE_EXISTS', mac)
           resolve(true)
         } else {
+          commit('NODE_NOT_EXISTS', mac)
           reject(new Error('Unknown MAC'))
         }
       }).catch(err => {
@@ -178,6 +187,7 @@ const actions = {
     return new Promise((resolve, reject) => {
       api.createNode(data).then(response => {
         commit('NODE_REPLACED', data)
+        commit('NODE_EXISTS', data.mac)
         resolve(response)
       }).catch(err => {
         commit('NODE_ERROR', err.response)
@@ -202,6 +212,7 @@ const actions = {
     return new Promise((resolve, reject) => {
       api.deleteNode(data).then(response => {
         commit('NODE_DESTROYED', data)
+        commit('NODE_NOT_EXISTS', data.mac)
         resolve(response)
       }).catch(err => {
         commit('NODE_ERROR', err.response)
@@ -443,6 +454,12 @@ const mutations = {
     if (response && response.data) {
       state.message = response.data.message
     }
+  },
+  NODE_EXISTS: (state, mac) => {
+    Vue.set(state.nodeExists, mac, true)
+  },
+  NODE_NOT_EXISTS: (state, mac) => {
+    Vue.set(state.nodeExists, mac, false)
   },
   SAVED_SEARCHES_UPDATED: (state, searches) => {
     state.savedSearches = searches

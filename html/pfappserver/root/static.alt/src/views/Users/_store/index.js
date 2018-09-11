@@ -9,13 +9,15 @@ const STORAGE_SAVED_SEARCH = 'users-saved-search'
 // Default values
 const state = {
   items: {}, // users details
+  userExists: {}, // node exists true|false
   message: '',
   userStatus: '',
   savedSearches: JSON.parse(localStorage.getItem(STORAGE_SAVED_SEARCH)) || []
 }
 
 const getters = {
-  isLoading: state => state.userStatus === 'loading'
+  isLoading: state => state.userStatus === 'loading',
+  isLoadingResults: state => state.searchStatus === 'loading'
 }
 
 const actions = {
@@ -33,6 +35,63 @@ const actions = {
     let savedSearches = state.savedSearches.filter(searches => searches.name !== search.name)
     commit('SAVED_SEARCHES_UPDATED', savedSearches)
     localStorage.setItem(STORAGE_SAVED_SEARCH, JSON.stringify(savedSearches))
+  },
+  search: ({state, getters, commit, dispatch}, page) => {
+    let sort = [state.searchSortDesc ? `${state.searchSortBy} DESC` : state.searchSortBy]
+    let body = {
+      cursor: state.searchPageSize * (page - 1),
+      limit: state.searchPageSize,
+      fields: state.searchFields,
+      sort
+    }
+    let apiPromise = state.searchQuery ? api.search(Object.assign(body, {query: state.searchQuery})) : api.all(body)
+    if (state.searchStatus !== 'loading') {
+      return new Promise((resolve, reject) => {
+        commit('SEARCH_REQUEST')
+        apiPromise.then(response => {
+          commit('SEARCH_SUCCESS', response)
+          resolve(response)
+        }).catch(err => {
+          commit('SEARCH_ERROR', err.response)
+          reject(err)
+        })
+      })
+    }
+  },
+  exists: ({commit}, pid) => {
+    if (state.userExists[pid] !== undefined) {
+      console.log(pid + ' cached')
+      if (state.userExists[pid]) {
+        return Promise.resolve(true)
+      }
+      return Promise.reject(new Error('Unknown PID'))
+    }
+    let body = {
+      fields: ['pid'],
+      limit: 1,
+      query: {
+        op: 'and',
+        values: [{
+          field: 'pid', op: 'equals', value: pid
+        }]
+      }
+    }
+    return new Promise((resolve, reject) => {
+      commit('SEARCH_REQUEST')
+      api.search(body).then(response => {
+        commit('SEARCH_SUCCESS')
+        if (response.items.length > 0) {
+          commit('USER_EXISTS', pid)
+          resolve(true)
+        } else {
+          commit('USER_NOT_EXISTS', pid)
+          reject(new Error('Unknown PID'))
+        }
+      }).catch(err => {
+        commit('SEARCH_ERROR', err.response)
+        reject(err)
+      })
+    })
   },
   getUser: ({commit, state}, pid) => {
     if (state.items[pid]) {
@@ -52,6 +111,7 @@ const actions = {
     return new Promise((resolve, reject) => {
       api.createUser(data).then(response => {
         commit('USER_REPLACED', data)
+        commit('USER_EXISTS', data.pid)
         resolve(response)
       }).catch(err => {
         commit('USER_ERROR', err.response)
@@ -75,6 +135,7 @@ const actions = {
     return new Promise((resolve, reject) => {
       api.deleteUser(pid).then(response => {
         commit('USER_DESTROYED', pid)
+        commit('USER_NOT_EXISTS', pid)
         resolve(response)
       }).catch(err => {
         commit('USER_ERROR', err.response)
@@ -102,6 +163,12 @@ const mutations = {
     if (response && response.data) {
       state.message = response.data.message
     }
+  },
+  USER_EXISTS: (state, pid) => {
+    Vue.set(state.userExists, pid, true)
+  },
+  USER_NOT_EXISTS: (state, pid) => {
+    Vue.set(state.userExists, pid, false)
   },
   SAVED_SEARCHES_UPDATED: (state, searches) => {
     state.savedSearches = searches
