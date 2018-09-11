@@ -157,6 +157,15 @@ sub set_credentials :Local :Args(1) {
     my ($self, $c, $domain) = @_;
     my $username = $c->request->param('username');
     my $password = $c->request->param('password');
+    if ( (!defined $username) || length ($username) == 0 || (!defined $password) || length($password) == 0) {
+        $c->stash(
+            status_msg   => 'Username or Password not set',
+            current_view => 'JSON',
+        );
+        $c->response->status(HTTP_BAD_REQUEST);
+        return;
+    }
+
     my $model = $self->getModel($c);
     my ($status,$result) = $model->update($domain, { bind_dn => $username, bind_pass => $password } );
     ($status,$result) = $model->commit();

@@ -200,7 +200,7 @@ DomainView.prototype.setPassword = function(domain,callback) {
                 .fail(function(jqXHR) {
                     $("body,html").animate({scrollTop:0}, 'fast');
                     var status_msg = getStatusMsg(jqXHR);
-                    showError($('#section h2'), status_msg);
+                    showError(modal.find('.modal-body').first(), status_msg);
                 });
         }
         return false;
