@@ -266,6 +266,10 @@ sub getAcceptForm {
     my $challenge = $portalSession->param("ecwp-original-param-challenge");
     my $login_url = $portalSession->param("ecwp-original-param-login_url");
 
+    # transforming MAC to the expected format 00-11-22-33-CA-FE
+    $mac = uc($mac);
+    $mac =~ s/:/-/g;
+
     my $html_form = qq[
         <form name="weblogin_form" data-autosubmit="1000" method="GET" action="$login_url">
             <input type="hidden" name="username" value="$mac">
