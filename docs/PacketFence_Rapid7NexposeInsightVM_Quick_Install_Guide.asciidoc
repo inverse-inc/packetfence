@@ -3,6 +3,10 @@ Rapid7 InsightVM Nexpose: Quick Integration Guide
 :doctype: book
 :toc: left
 
+ifdef::env-github[]
+:imagesdir: images
+endif::[]
+
 include::includes/global-attributes.asciidoc[]
 
 ////
