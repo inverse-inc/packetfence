@@ -8,6 +8,14 @@ export const pfFormatters = {
     if (!value) return null
     return store.state.config.roles.filter(role => role.category_id === item.category_id).map(role => role.name)
   },
+  categoryIdFromIntOrString: (value, key, item) => {
+    if (!value) return null
+    if (isNaN(parseInt(value))) {
+      return store.state.config.roles.filter(role => role.name.toLowerCase() === value.toLowerCase()).map(role => role.category_id) // string
+    } else {
+      return value // int
+    }
+  },
   bypassRoleId: (value, key, item) => {
     if (!value) return null
     return store.state.config.roles.filter(role => role.category_id === item.bypass_role_id).map(role => role.name)
@@ -16,5 +24,24 @@ export const pfFormatters = {
     if (!value) return null
     const uVids = [...new Set(value.split(',').filter(item => item))]
     return store.getters['config/sortedViolations'].filter(violation => uVids.includes(violation.id)).map(violation => violation.desc).join(', ')
+  },
+  yesNoFromString: (value, key, item) => {
+    if (value === undefined) return null
+    switch (value.toLowerCase()) {
+      case 'yes':
+      case 'y':
+      case '1':
+      case 1:
+      case true:
+        return 'yes'
+      case 'no':
+      case 'n':
+      case '0':
+      case 0:
+      case false:
+        return 'no'
+      default:
+        return null
+    }
   }
 }
