@@ -60,7 +60,6 @@ const actions = {
   },
   exists: ({commit}, pid) => {
     if (state.userExists[pid] !== undefined) {
-      console.log(pid + ' cached')
       if (state.userExists[pid]) {
         return Promise.resolve(true)
       }
