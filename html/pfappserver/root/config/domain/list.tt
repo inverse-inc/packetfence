@@ -51,7 +51,7 @@
 
                 <div class="modal-footer">
                   <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
-                  <input class="btn btn-primary" type="submit" value="Set password">
+                  <input class="btn btn-primary" type="submit" value="Rejoin Domain">
                 </div>
               </form>
             </div>
