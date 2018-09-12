@@ -300,7 +300,7 @@ sub process_destination_url {
         goto SET_URL;
     }
 
-    if($path eq "/network_logoff") {
+    if($path eq $pf::web::constants::URL_NETWORK_LOGOFF) {
         get_logger->info("The destination URL is pointing to the network logoff page, will leave it as is.");
         goto SET_URL;
     }
