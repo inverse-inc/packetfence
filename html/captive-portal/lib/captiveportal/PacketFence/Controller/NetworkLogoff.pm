@@ -4,6 +4,7 @@ use namespace::autoclean;
 use pf::node;
 use pf::constants::node qw($STATUS_REGISTERED);
 use pf::enforcement qw(reevaluate_access);
+use pf::util;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -21,6 +22,10 @@ Catalyst Controller.
 
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
+
+    if(isdisabled($c->portalSession->profile->{_network_logoff})) {
+        $self->showError($c, "This feature is currently disabled. Please contact your network administrator for more details.");
+    }
 
     my $mac = $c->portalSession->clientMac;
     my $node = $c->stash->{node} = node_view($mac);

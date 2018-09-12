@@ -16,11 +16,13 @@ use pf::constants qw($TRUE $FALSE $default_pid);
 use pf::config qw(
     %Config
     %CAPTIVE_PORTAL
+    $fqdn
 );
 use Hash::Merge qw(merge);
 use List::MoreUtils qw(any);
 use pf::node;
 use pf::person;
+use pf::util;
 use captiveportal::Base::Actions;
 use captiveportal::DynamicRouting::Detach;
 
@@ -221,6 +223,8 @@ sub _release_args {
         auto_redirect => $Config{'captive_portal'}{'network_detection'},
         image_path => $Config{'captive_portal'}{'image_path'},
         title => "release: enabling network",
+        network_logoff_popup => isenabled($self->app->profile->{_network_logoff_popup}),
+        hostname => $fqdn,
     };
 }
 

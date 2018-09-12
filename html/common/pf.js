@@ -14,12 +14,15 @@
    Called when access to the network outside registration or quarantine works
  */
 var network_redirected = false;
+var network_logoff_popup = "";
 function networkAccessCallback(destination_url) {
 
   network_redirected = true;
 
   //show a web notification
   if (txt_web_notification) showWebNotification(txt_web_notification, '/content/images/unlock.png');
+
+  if(network_logoff_popup != "") window.open(network_logoff_popup);
 
   // Try to redirect browser in 3 seconds
   setTimeout(function() {

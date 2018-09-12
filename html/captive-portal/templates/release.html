@@ -6,11 +6,13 @@
     "image_path":           "[% image_path %]",
     "waitTime":              [% timer || 30 %],
     "initial_delay":         [% initial_delay || 0 %],
-    "retry_delay":           [% retry_delay || 0 %]
+    "retry_delay":           [% retry_delay || 0 %],
+    "network_logoff_popup":  [% network_logoff_popup || 0 %],
+    "hostname":              "[% hostname %]"
   }
 </script>
-<script type="text/javascript" src="/content/release.js"></script>
 <script type="text/javascript" src="/content/timerbar.js"></script>
+<script type="text/javascript" src="/content/release.js"></script>
 
 <div class="u-padding">
 
@@ -43,3 +45,4 @@
 
 [%# DO NOT REMOVE! REQUIRED FOR NETWORK ACCESS DETECTION %]
 <div id="internet-detection" class="hide"><img id="netdetect"/></div>
+
