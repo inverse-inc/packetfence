@@ -283,7 +283,8 @@ sub process_destination_url {
 
     # Return connection profile's redirection URL if destination_url is not set or if redirection URL is forced
     if (!defined($url) || !$url || isenabled($self->profile->forceRedirectURL)) {
-        $url = $self->session->{destination_url} || $self->profile->getRedirectURL;
+        $url = $self->profile->getRedirectURL;
+        goto SET_URL;
     }
 
     my $host;
@@ -293,25 +294,26 @@ sub process_destination_url {
     if($@) {
         get_logger->info("Invalid destination_url $url. Replacing with profile defined one.");
         $url = $self->session->{destination_url} || $self->profile->getRedirectURL;
-        return $url
+        goto SET_URL;
     }
-
 
     my @portal_hosts = portal_hosts();
     # if the destination URL points to the portal, we put the default URL of the connection profile
     if ( any { $_ eq $host } @portal_hosts) {
         get_logger->info("Replacing destination URL $url since it points to the captive portal");
         $url = $self->session->{destination_url} || $self->profile->getRedirectURL;
-        return $url;
+        goto SET_URL;
     }
 
     # if the destination URL points to a network detection URL, we put the default URL of the connection profile
     if ( any { $_ eq $url } @{$Config{captive_portal}{detection_mecanism_urls}}) {
         get_logger->info("Replacing destination URL $url since it is a network detection URL");
         $url = $self->profile->getRedirectURL;
+        goto SET_URL;
     }
 
 
+SET_URL:
     $url = decode_entities(uri_unescape($url));
     $self->session->{destination_url} = $url;
 
