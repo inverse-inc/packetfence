@@ -8,7 +8,7 @@ Mojo Networks cloud controller
 =head1 STATUS
 
 Developed and tested on firmware version 8.1.1 and build 8.1.1.84
-Tested on 8.6.0-316.7 AP model C-65
+Tested on 8.6.0-316.7 AP model C-130
 
 =over
 
@@ -24,7 +24,7 @@ Tested on 8.6.0-316.7 AP model C-65
 
 =head1 BUGS AND LIMITATIONS
 
-This module supports 802.1X only. The mac authentication is not supported yet.
+This module supports 802.1X and web authentication. MAC authentication is not supported yet.
 
 =over
 

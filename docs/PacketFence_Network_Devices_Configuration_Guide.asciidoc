@@ -5623,11 +5623,11 @@ image::mojo-security.png[scaledwidth="100%",alt="Mojo Security"]
 
 image::mojo-network-vlan.png[scaledwidth="100%",alt="Mojo Network"]
 
-   Captive Portal: select and fill in *External Splash Page with RADIUS Authentication* with “http://IP_OR_HOSTNAME_OF_PACKETFENCE/Mojo” and the RADIUS shared secret. Click on *RADIUS Settings* to select PacketFence as authentication and accounting server.
+   Captive Portal: select and fill in External Splash Page with RADIUS Authentication with “http://IP_OR_HOSTNAME_OF_PACKETFENCE/Mojo” and the RADIUS shared secret. Click on *RADIUS Settings* to select PacketFence as authentication and accounting server.
 
 image::mojo-external-splash.png[scaledwidth="100%",alt="Mojo External Splash Page"]
 
-   On the right, add the IP address or hostname of PacketFence to the *Walled Garden Sites*.
+   On the right, add the IP address or hostname of PacketFence to the Walled Garden Sites.
 
 image::mojo-walled-garden.png[scaledwidth="100%",alt="Mojo Walled Garden"]
 
@@ -5645,6 +5645,10 @@ Click the 'Save' button to broadcast the PF-Secure SSID.
 Configure the Mojo Networks AP in PacketFence:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+[float]
+802.1X
+++++++
+
 Add a Switch with the IP address of the Access Point (AP) with the following configuration:
 
 * Go to *Configuration -> Network -> Switches -> Add switch to group -> Default*
@@ -5657,7 +5661,7 @@ Add a Switch with the IP address of the Access Point (AP) with the following con
     Switch Group: None
     Deauthentication Method: RADIUS
     Use CoA: Checked
-   
+
    Roles:
     Role by VLAN ID: Checked
     registration: 2
@@ -5670,10 +5674,34 @@ Add a Switch with the IP address of the Access Point (AP) with the following con
    Radius:
     Secret Passphrase: useStrongerSecret
 
+[float]
+Web Authentication
+++++++++++++++++++
+
+Add a switch with the IP address fo the Access Point (AP) with the following configuration:
+
+* Go to *Configuration -> Network -> Switches -> Add switch to group -> Default*
+
+   Definition:
+    IP Address/MAC Address/Range (CIDR): Local IP of the AP
+    Description: Mojo Networks Access Point
+    Type: Mojo Networks AP
+    Mode: Production
+    Switch Group: None
+    Deauthentication Method: RADIUS
+    Use CoA: Checked
+
+   Roles:
+    Uncheck Role by VLAN ID
+    Check Role by Web Auth URL
+     registration: http://IP_OR_HOSTNAME_OF_PACKETFENCE/Mojo
+
+   Radius:
+    Secret Passphrase: useStrongerSecret
+
 Click the 'Save' button to save the AP configuration.
 
-
-
+IMPORTANT: Clone the newly created switch and enter *192.0.2.254* or the MAC address of the AP.
 
 Motorola
 ~~~~~~~~
