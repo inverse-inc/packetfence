@@ -5572,7 +5572,7 @@ NOTE: You need to have the *Per-User Firewall* license in order to benefit this 
 Mojo Networks
 ~~~~~~~~~~~~~
 
-PacketFence supports SSIDs configured with 802.1X andw Web Authentication
+PacketFence supports SSIDs configured with 802.1X and Web Authentication
 
 Configure the 802.1X Secure SSID:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
