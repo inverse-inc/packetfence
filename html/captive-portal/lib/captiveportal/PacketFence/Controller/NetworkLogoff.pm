@@ -25,10 +25,17 @@ sub index : Path : Args(0) {
 
     if(isdisabled($c->portalSession->profile->{_network_logoff})) {
         $self->showError($c, "This feature is currently disabled. Please contact your network administrator for more details.");
+        $c->detach();
+    }
+
+    unless($c->portalSession->clientMac) {
+        $self->showError($c, "This feature cannot be accessed because the system is not able to find your MAC address. Please contact your network administrator for more details.");
+        $c->detach();
     }
 
     my $mac = $c->portalSession->clientMac;
     my $node = $c->stash->{node} = node_view($mac);
+
     $c->stash(
         title => "Network Logoff",
         template => 'networklogoff.html',
