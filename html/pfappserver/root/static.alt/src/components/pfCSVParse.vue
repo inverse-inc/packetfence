@@ -147,7 +147,7 @@
                   <b-form-select v-model="staticMapping[index].key" :options="staticMappingOptions()" :class="{ 'border-danger': $v.staticMapping[index].value.$anyError }"></b-form-select>
                 </b-col>
                 <b-col cols="auto" class="mx-0 px-0">
-                  <b-form-input v-model="staticMapping[index].value" :class="{ 'border-danger': $v.staticMapping[index].value.$anyError }" />
+                  <b-form-input v-model="staticMapping[index].value" :class="{ 'border-danger': $v.staticMapping[index].value.$anyError }" placeholder="null" />
                 </b-col>
                 <b-col>
                   <icon name="trash-alt" class="my-2" style="cursor: pointer" @click.native="deleteStatic(index)" v-b-tooltip.hover.right.d300 :title="$t('Remove static field')"></icon>
@@ -426,8 +426,7 @@ export default {
         const field = this.fields.filter(field => field.value === mapping.key)[0]
         staticMapping[mapping.key] = mapping.value
         if (field && field.hasOwnProperty('formatter')) {
-          const formatted = field.formatter(mapping.value, mapping.key, staticMapping)
-          staticMapping[mapping.key] = (formatted) ? formatted[0] : null
+          staticMapping[mapping.key] = field.formatter(mapping.value, mapping.key, staticMapping)
         }
       })
 
@@ -451,8 +450,7 @@ export default {
           Object.keys(mappedRow).forEach((key) => {
             const field = this.fields.filter(field => field.value === key)[0]
             if (field && field.hasOwnProperty('formatter')) {
-              const formatted = field.formatter(mappedRow[key], key, mappedRow)
-              mappedRow[key] = (formatted) ? formatted[0] : null
+              mappedRow[key] = field.formatter(mappedRow[key], key, mappedRow)
             }
           })
           // add pointer reference to tableValue for callback
