@@ -48,6 +48,7 @@ sub available_attributes {
       TLS-Cert-Issuer
       TLS-Cert-Subject
       TLS-Cert-Common-Name
+      TLS-Client-Cert-Subject-Alt-Name-Dns
       username
     );
     return [@$super_attributes, @own_attributes];
