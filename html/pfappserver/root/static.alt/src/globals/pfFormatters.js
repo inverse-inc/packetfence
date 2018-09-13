@@ -6,19 +6,19 @@ export const pfFormatters = {
   },
   categoryId: (value, key, item) => {
     if (!value) return null
-    return store.state.config.roles.filter(role => role.category_id === item.category_id).map(role => role.name)
+    return store.state.config.roles.filter(role => role.category_id === item.category_id).map(role => role.name)[0]
   },
   categoryIdFromIntOrString: (value, key, item) => {
     if (!value) return null
     if (isNaN(parseInt(value))) {
-      return store.state.config.roles.filter(role => role.name.toLowerCase() === value.toLowerCase()).map(role => role.category_id) // string
+      return store.state.config.roles.filter(role => role.name.toLowerCase() === value.toLowerCase()).map(role => role.category_id)[0] // string
     } else {
       return value // int
     }
   },
   bypassRoleId: (value, key, item) => {
     if (!value) return null
-    return store.state.config.roles.filter(role => role.category_id === item.bypass_role_id).map(role => role.name)
+    return store.state.config.roles.filter(role => role.category_id === item.bypass_role_id).map(role => role.name)[0]
   },
   violationIdsToDescCsv: (value, key, item) => {
     if (!value) return null
@@ -26,19 +26,17 @@ export const pfFormatters = {
     return store.getters['config/sortedViolations'].filter(violation => uVids.includes(violation.id)).map(violation => violation.desc).join(', ')
   },
   yesNoFromString: (value, key, item) => {
-    if (value === undefined) return null
+    if (value === null || value === '') return null
     switch (value.toLowerCase()) {
       case 'yes':
       case 'y':
       case '1':
-      case 1:
-      case true:
+      case 'true':
         return 'yes'
       case 'no':
       case 'n':
       case '0':
-      case 0:
-      case false:
+      case 'false':
         return 'no'
       default:
         return null
