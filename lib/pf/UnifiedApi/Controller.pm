@@ -43,7 +43,7 @@ sub log {
 sub render_error {
     my ($self, $code, $msg, $errors) = @_;
     $errors //= [];
-    my $data = {message => $msg, errors => $errors};
+    my $data = {message => $msg, errors => $errors, status => $code};
     $self->render(json => $data, status => $code);
     return 0;
 }
