@@ -29,9 +29,10 @@
  *        value: (string) -- key name,
  *        text: (string) -- localized label,
  *        required: (boolean) -- requires user-selected mapping,
- *        validators: (object) -- list of vuelidate validators, validated after formatting
- *        formatter: (value, key, item) -- field formatter, does not affect table data, formatted before validation.
- *      }
+ *        validators: (object) -- list of vuelidate validators, validated before formatting,
+ *        formatter: (value, key, item) -- field formatter, does not affect table data, formatted after validation.
+ *      },
+ *      ...
  *    ]
  *
  *    `no-init-bind-keys` -- for pfMixinSelectable, don't bind onKeyDown for multiple instances
@@ -135,16 +136,47 @@
 
           <template slot="top-row" slot-scope="data">
             <td v-for="column in data.columns" :class="['p-1', {'table-danger': !hasRequiredMappings() || column === 1 && selectValues.length === 0 }]">
-              <b-form-select v-if="column > 1" v-model="tableMapping[column - 2]" :options="selectMapping(column)" />
+              <b-form-select v-if="column > 1" v-model="tableMapping[column - 2]" :options="tableMappingOptions()" />
             </td>
           </template>
-          <template slot="bottom-row" slot-scope="data">
+          <template slot="bottom-row" slot-scope="data" class="bg-white">
             <td :colspan="data.columns">
-              <b-button type="submit" variant="primary" :disabled="$v.$anyError">
-                <icon v-if="isLoading" name="circle-notch" spin class="mr-1"></icon> 
-                <icon v-else name="download" class="mr-1"></icon> 
-                {{ $t('Import') + ' ' + selectValues.length + ' ' + $t('selected rows') }}
-              </b-button>
+
+              <b-row class="mx-0 px-0 mb-3 justify-content-md-center" v-for="(staticMap, index) in staticMapping" :key="index">
+                <b-col cols="2" class="ml-0 mr-1 px-0">
+                  <b-form-select v-model="staticMapping[index].key" :options="staticMappingOptions()" :class="{ 'border-danger': $v.staticMapping[index].value.$anyError }"></b-form-select>
+                </b-col>
+                <b-col cols="auto" class="mx-0 px-0">
+                  <b-form-input v-model="staticMapping[index].value" :class="{ 'border-danger': $v.staticMapping[index].value.$anyError }" />
+                </b-col>
+                <b-col>
+                  <icon name="trash-alt" class="my-2" style="cursor: pointer" @click.native="deleteStatic(index)" v-b-tooltip.hover.right.d300 :title="$t('Remove static field')"></icon>
+                </b-col>
+              </b-row>
+
+              <b-row fluid class="mx-0 px-0 mb-3" v-if="staticMappingOptions().filter(f => f.value && !f.disabled).length > 0">
+                <b-col cols="2" class="ml-0 mr-1 px-0">
+                  <b-form-select v-model="staticMappingNew" :options="staticMappingOptions()">
+                    <template slot="first">
+                      <option :value="null" disabled>-- {{ $t('Choose static field') }} --</option>
+                    </template>
+                  </b-form-select>
+                </b-col>
+                <b-col cols="auto" class="mx-0 px-0">
+                  <b-button type="button" variant="outline-secondary" :disabled="typeof staticMappingNew !== 'string'" @click.prevent="addStatic">
+                    <icon name="plus-circle" class="mr-1"></icon>
+                    {{ $t('Add static field') }}
+                  </b-button>
+                </b-col>
+              </b-row>
+
+              <b-container fluid class="mx-0 px-0 mt-3">
+                <b-button type="submit" variant="primary" :disabled="$v.$anyError">
+                  <icon v-if="isLoading" name="circle-notch" spin class="mr-1"></icon> 
+                  <icon v-else name="download" class="mr-1"></icon> 
+                  {{ $t('Import') + ' ' + selectValues.length + ' ' + $t('selected rows') }}
+                </b-button>
+              </b-container>
             </td>
           </template>
 
@@ -163,9 +195,6 @@
         </b-container>
       </b-card-body>
     </b-collapse>
-
-    <pre>{{ $v }}</pre>
-
   </b-form>
 </template>
 
@@ -207,6 +236,8 @@ export default {
     return {
       tableValues: Array,
       tableMapping: Array,
+      staticMapping: Array,
+      staticMappingNew: null,
       exportModel: Array,
       uuid: uuidv4(), // unique id for multiple instances of this component
       config: {
@@ -239,8 +270,11 @@ export default {
     }
   },
   validations () {
+    // dynamically apply vuelidate validations
     let eachSelectValues = {}
+    let eachStaticMapping = {}
     let eachExportModel = {}
+
     this.fields.forEach((field, index, fields) => {
       if (field.hasOwnProperty('validators')) {
         if (typeof this.tableMapping !== 'function' && this.tableMapping.length > 0) {
@@ -249,9 +283,22 @@ export default {
             eachSelectValues[this.meta.fields[index]] = field.validators
           }
         }
+        if (typeof this.staticMapping !== 'function' && this.staticMapping.length > 0) {
+          let index = this.staticMapping.findIndex(f => f.key === field.value)
+          if (index !== -1) {
+            eachStaticMapping[field.value] = { value: field.validators }
+          }
+        }
         eachExportModel[field.value] = field.validators
       }
     })
+
+    let funcStaticMapping = {}
+    if (typeof this.staticMapping !== 'function' && this.staticMapping.length > 0) {
+      // https://github.com/monterail/vuelidate/issues/166#issuecomment-319924309
+      funcStaticMapping = {...this.staticMapping.map(m => eachStaticMapping[m.key])}
+    }
+
     return {
       selectValues: {
         required,
@@ -262,6 +309,7 @@ export default {
         required,
         minLength: minLength(1)
       },
+      staticMapping: funcStaticMapping,
       exportModel: {
         required,
         minLength: minLength(1),
@@ -302,9 +350,10 @@ export default {
           }
           // setup null placeholders in tableMapping Array
           _this.tableMapping = new Array(_this.meta.fields.length).fill(null)
+          // init staticMapping
+          _this.staticMapping = []
           // clear selectValues artifacts
           _this.selectValues = []
-          // _this.$refs[_this.uuidStr('table')].refresh()
         },
         error (errors) {
           _this.data = null
@@ -317,11 +366,18 @@ export default {
         }
       }))
     },
-    selectMapping (index) {
+    reservedMappingOptions () {
+      // aggregate all selected fields
+      let options = []
+      options.push(...this.tableMapping.filter(val => val))
+      options.push(...this.staticMapping.map(val => val.key))
+      return options
+    },
+    tableMappingOptions () {
       let fields = [
         { // ignore
           value: null,
-          text: this.$i18n.t('Ignore Column')
+          text: this.$i18n.t('Ignore field')
         },
         { // seperator
           value: null,
@@ -330,13 +386,32 @@ export default {
         }
       ]
       fields.push(...this.fields)
-      fields.forEach((f, i, fs) => {
+      const reserved = this.reservedMappingOptions()
+      fields.forEach((f, i) => {
         if (!f.value) return // ignore null
-        // fields[i].text = ((fields[i].required) ? '[req] ' : '[opt] ') + fields[i].text
         // disable fields selected elsewhere
-        fields[i].disabled = this.tableMapping.map((field, _i) => { return (_i === index) ? null : field }).includes(f.value)
+        fields[i].disabled = reserved.includes(f.value)
       })
       return fields
+    },
+    staticMappingOptions () {
+      let fields = []
+      fields.push(...this.fields.filter(field => !field.required))
+      const reserved = this.reservedMappingOptions()
+      fields.forEach((f, i) => {
+        if (!f.value) return // ignore null
+        // disable fields selected elsewhere
+        fields[i].disabled = reserved.includes(f.value)
+      })
+      return fields
+    },
+    addStatic () {
+      if (this.reservedMappingOptions().includes(this.staticMappingNew)) return
+      this.staticMapping.push({ key: this.staticMappingNew, value: null })
+      this.staticMappingNew = null
+    },
+    deleteStatic (index) {
+      this.staticMapping.splice(index, 1)
     },
     hasRequiredMappings () {
       // is every required fields mapped?
@@ -346,12 +421,23 @@ export default {
       })
     },
     buildExportModel () {
+      let staticMapping = {}
+      this.staticMapping.forEach((mapping) => {
+        const field = this.fields.filter(field => field.value === mapping.key)[0]
+        staticMapping[mapping.key] = mapping.value
+        if (field && field.hasOwnProperty('formatter')) {
+          const formatted = field.formatter(mapping.value, mapping.key, staticMapping)
+          staticMapping[mapping.key] = (formatted) ? formatted[0] : null
+        }
+      })
+
       const cheatSheet = this.tableMapping.reduce((cheatSheet, mapping, index) => {
         // (tableMapping) [null, 'mac'] + (meta.fields) ['colA', 'colB']
         //    => (cheatSheet) {colB: 'mac'}
         if (mapping !== null) cheatSheet[this.meta.fields[index]] = mapping
         return cheatSheet
       }, {})
+
       this.exportModel = this.selectValues.reduce((exportModel, selectValue, index) => {
         // (selectValues) [ {colA: 'W', colB: 'X'}, {colA: 'Y', colB: 'Z'} ] + (cheatSheet) {colB: 'mac'}
         //    => (exportModel) [ {mac: 'X'}, {mac: 'Z'} ]
@@ -360,15 +446,13 @@ export default {
           const mappedRow = Object.keys(selectValue).reduce((mappedRow, key) => {
             if (cheatSheet[key]) mappedRow[cheatSheet[key]] = (selectValue[key] === '') ? null : selectValue[key]
             return mappedRow
-          }, {})
+          }, staticMapping)
           // format fields
           Object.keys(mappedRow).forEach((key) => {
             const field = this.fields.filter(field => field.value === key)[0]
             if (field && field.hasOwnProperty('formatter')) {
               const formatted = field.formatter(mappedRow[key], key, mappedRow)
-              if (formatted) {
-                mappedRow[key] = formatted[0]
-              }
+              mappedRow[key] = (formatted) ? formatted[0] : null
             }
           })
           // add pointer reference to tableValue for callback
@@ -377,6 +461,7 @@ export default {
         }
         return exportModel
       }, [])
+      this.$forceUpdate()
     },
     doExport (event) {
       this.$emit('input', this.exportModel)
@@ -423,6 +508,13 @@ export default {
       deep: true
     },
     tableMapping: {
+      handler: function (a, b) {
+        this.buildExportModel()
+        this.$v.$touch()
+      },
+      deep: true
+    },
+    staticMapping: {
       handler: function (a, b) {
         this.buildExportModel()
         this.$v.$touch()
