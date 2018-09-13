@@ -112,9 +112,19 @@
     </b-card-header>
     <b-collapse :id="uuidStr('table')" :accordion="uuidStr()" role="tabpanel" visible>
       <b-card-body>
+        <b-container fluid>
+          <b-row align-v="center" class="float-right">
+            <b-form inline class="mb-0">
+              <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[10,25,50,100,1000]" :disabled="isLoading"
+                @input="onPageSizeChange" />
+            </b-form>
+            <b-pagination align="right" v-model="requestPage" :per-page="pageSizeLimit" :total-rows="totalRows" :disabled="isLoading"
+              @input="onPageChange" />
+          </b-row>
+        </b-container>
         <b-table
           v-if="items.length"
-          v-model="tableValues"
+          v-model.sync="tableValues"
           :disabled="isLoading"
           :ref="uuidStr('table')"
           :items="items" :fields="columns"
@@ -122,7 +132,7 @@
           @sort-changed="onSortingChanged"
           @row-clicked="onRowClick"
           @head-clicked="clearSelected"
-          hover outlined responsive show-empty
+          hover outlined responsive show-empty no-local-sorting
         >
           <template slot="HEAD_actions" slot-scope="head">
             <input type="checkbox" id="checkallnone" v-model="selectAll" @change="onSelectAllChange" @click.stop>
@@ -266,7 +276,10 @@ export default {
       meta: null,
       data: null,
       sortBy: null,
-      sortDesc: false
+      sortDesc: false,
+      requestPage: 1,
+      currentPage: 1,
+      pageSizeLimit: 100
     }
   },
   validations () {
@@ -463,11 +476,29 @@ export default {
     },
     doExport (event) {
       this.$emit('input', this.exportModel)
+    },
+    onPageSizeChange () {
+      this.requestPage = 1 // reset to the first page
+    },
+    onPageChange () {
+      this.currentPage = this.requestPage
+    },
+    onSortingChanged (params) {
+      this.requestPage = 1 // reset to the first page
+      this.sortBy = params.sortBy
+      this.sortDesc = params.sortDesc
     }
   },
   computed: {
     items () {
-      return this.data || []
+      if (!this.data) return []
+      // paginated
+      const begin = this.pageSizeLimit * (this.currentPage - 1)
+      const end = begin + this.pageSizeLimit
+      const data = (this.sortBy) ? this.data.sort((a, b) => {
+        return a[this.sortBy].localeCompare(b[this.sortBy]) * ((this.sortDesc) ? -1 : 1)
+      }) : this.data
+      return data.slice(begin, end)
     },
     columns () {
       const columns = [{ // for pfMixinSelectable
