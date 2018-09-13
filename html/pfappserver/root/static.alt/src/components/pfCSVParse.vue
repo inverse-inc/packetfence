@@ -115,7 +115,7 @@
         <b-container fluid>
           <b-row align-v="center" class="float-right">
             <b-form inline class="mb-0">
-              <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[10,25,50,100,1000]" :disabled="isLoading"
+              <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[10,25,50,100]" :disabled="isLoading"
                 @input="onPageSizeChange" />
             </b-form>
             <b-pagination align="right" v-model="requestPage" :per-page="pageSizeLimit" :total-rows="totalRows" :disabled="isLoading"
@@ -499,6 +499,9 @@ export default {
         return a[this.sortBy].localeCompare(b[this.sortBy]) * ((this.sortDesc) ? -1 : 1)
       }) : this.data
       return data.slice(begin, end)
+    },
+    totalRows () {
+      return (this.data) ? this.data.length : 0
     },
     columns () {
       const columns = [{ // for pfMixinSelectable
