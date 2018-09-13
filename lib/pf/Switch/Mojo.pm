@@ -48,6 +48,7 @@ use pf::locationlog;
 use Try::Tiny;
 use DateTime;
 use DateTime::Format::MySQL;
+use pf::constants qw($ZERO_DATE);
 
 sub description { 'Mojo Networks AP' }
 
@@ -319,7 +320,7 @@ sub returnRadiusAccessAccept {
             $self->handleRadiusDeny();
         }
         else {
-            if($node->{unregdate}) {
+            if($node->{unregdate} ne $ZERO_DATE) {
                 my $unreg = DateTime::Format::MySQL->parse_datetime($node->{unregdate}) ; 
                 $unreg->set_time_zone("local"); 
                 my $now = DateTime->now(time_zone => "local"); 
