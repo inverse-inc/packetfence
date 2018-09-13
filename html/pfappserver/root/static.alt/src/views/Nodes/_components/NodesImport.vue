@@ -39,9 +39,6 @@
         </div>
       </b-tabs>
     </div>
-
-    <pre>{{ $v }}</pre>
-
   </b-card>
 </template>
 
