@@ -30,6 +30,7 @@ Enhancements
 * Improve connection profile's advanced filter
 * Use MySQL as backend for pfdhcp options (deprecates etcd) (PR #3484)
 * Reorder iptables rules (PR #3463)
+* Better error handling for pfdetect.conf (PR #3607)
 
 Bug Fixes
 +++++++++
