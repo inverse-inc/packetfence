@@ -175,7 +175,7 @@ default_access_duration=12h
 #
 # alerting.emailaddr
 #
-# Email address to which notifications of rogue DHCP servers, violations with an action of "email", or any other 
+# Comma-delimited list of email addresses to which notifications of rogue DHCP servers, violations with an action of "email", or any other
 # PacketFence-related message goes to.
 emailaddr=pf@localhost
 #
