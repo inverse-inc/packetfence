@@ -4834,9 +4834,9 @@ All these parameters are also accessible through the web-based administration in
 Custom Reports
 ~~~~~~~~~~~~~~
 
-Using the `report.conf` configuration file, you can define reports that create SQL queries to view tables in the PacketFence database. These reports will appear under the 'Reports' tab of the administration interface.
+Using the `report.conf` configuration file, you can define reports that create SQL queries to view tables in the PacketFence database. These reports will appear under the 'Reports -> Custom Reports' menu of the administration interface.
 
-In order to configure a report, you need to edit `/usr/local/pf/conf/report.conf` and add a section that will define your report.
+In order to configure a report, you need to edit `/usr/local/pf/conf/report.conf` and add a section that will define your report. Then do a `/usr/local/pf/bin/pfcmd configreload hard`.
 
 The following attributes are available to define your report (the ones that have an asterisk are mandatory):
 [options="compact"]
@@ -4856,6 +4856,8 @@ The following attributes are available to define your report (the ones that have
 ** `type` defines the type of the search, the only one currently supported is `string`.
 ** `Display Name` is the user friendly name of the field for display.
 ** `field` is the SQL name of the field to search
+
+WARNING: Replace respectively operators `IS` and `<>` by `=` and `!=`
 
 NOTE: You should always prefix the fields with the table name and a dot (ex: `node.mac`, `locationlog.role`, ...) so that they are not ambiguous. Although your query may work with a single table, it will not if you decide to add joins that contain column name(s) that are the same as the base table.
 
