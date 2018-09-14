@@ -29,6 +29,7 @@ use LWP::UserAgent;
 use HTTP::Request;
 use pf::api::jsonrpcclient;
 use JSON::MaybeXS;
+use List::MoreUtils qw(last_value);
 
 sub description { 'rapid7 Scanner' }
 
@@ -71,10 +72,22 @@ sub new {
     return $self;
 }
 
+=head2 buildApiUri
+
+Given a path, build the URI that points to the Rapid7 API
+
+=cut
+
 sub buildApiUri {
     my ($self, $path) = @_;
     return "https://".$self->{_host}.":".$self->{_port}."/api/3/".$path;
 }
+
+=head2 buildUA
+
+Build the LWP::UserAgent object to connect to the Rapid7 API
+
+=cut
 
 sub buildUA {
     my ($self) = @_;
@@ -86,11 +99,23 @@ sub buildUA {
     return $ua;
 }
 
+=head2 wrapRequest
+
+Add common parameters that should be in all API requests sent to Rapid7
+
+=cut
+
 sub wrapRequest {
     my ($self, $req) = @_;
     $req->authorization_basic($self->{_username}, $self->{_password});
     return $req;
 }
+
+=head2 doRequest
+
+Execute a request bound for the Rapid7 API
+
+=cut
 
 sub doRequest {
     my ($self, $req) = @_;
@@ -110,6 +135,8 @@ sub doRequest {
 }
 
 =item startScan
+
+Start a scan using the Rapid7 API
 
 =cut
 
@@ -172,9 +199,9 @@ sub runScanTemplate {
     return $response;
 }
 
-=head2 listSites
+=head2 listScanEngines
 
-List the available sites in Rapid7, limited to 1000
+List the available scan engines in Rapid7
 
 =cut
 
@@ -353,15 +380,9 @@ sub lastScan {
     my $details = $self->assetDetails($assetIp);
     return undef unless(defined $details);
 
-    my $i = 1;
-    my $scan_id;
-    # Find the latest history entry that is a scan and fetch its ID
     my $history = $details->{history};
-    while(!defined($scan_id) && $i < scalar(@{$history})) {
-        my $entry = $history->[-$i];
-        $scan_id = $entry->{type} eq "SCAN" ? $entry->{scanId} : undef;
-        $i++;
-    }
+    my $scan = last_value{ $_->{type} eq "SCAN" } @$history;
+    my $scan_id = $scan->{scanId};
 
     if(!defined($scan_id)) {
         $logger->error("Failed to find scan entry in the asset's history for IP $assetIp");
