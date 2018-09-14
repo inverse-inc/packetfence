@@ -15,11 +15,17 @@ pfconfig::namespaces::FilterEngine::AccessScopes
 use strict;
 use warnings;
 use pfconfig::namespaces::config;
-use pf::AccessScopes;
+use pf::config::builder::scoped_filter_engines;
 use pf::log;
 use pf::IniFiles;
 
 use base 'pfconfig::namespaces::resource';
+
+=head2 parentConfig
+
+Parent pfconfig::namespaces::config object
+
+=cut
 
 sub parentConfig {
     my ($self) = @_;
@@ -27,6 +33,12 @@ sub parentConfig {
     die "${class}::parentConfig has not been implemented\n";
 }
 
+
+=head2 build
+
+Build the scoped filter engines
+
+=cut
 
 sub build {
     my ($self)            = @_;
@@ -41,8 +53,8 @@ sub build {
         return {};
     }
 
-    my $asb = pf::AccessScopes->new();
-    my ($errors, $accessScopes) = $asb->build($ini);
+    my $builder = pf::config::builder::scoped_filter_engines->new;
+    my ($errors, $accessScopes) = $builder->build($ini);
     for my $err (@{ $errors // [] }) {
         my $error_msg =  "$file: $err->{rule}) $err->{message}";
         get_logger->error($error_msg);

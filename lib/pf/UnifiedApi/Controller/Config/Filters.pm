@@ -21,7 +21,7 @@ use File::Slurp;
 use pf::util;
 use pf::error qw(is_error);
 use Mojo::Base qw(pf::UnifiedApi::Controller::RestRoute);
-use pf::AccessScopes;
+use pf::config::builder::scoped_filter_engines;
 use pf::IniFiles;
 
 =head2 resource
@@ -65,7 +65,7 @@ sub configStore {
 
 =head2 get
 
-get the content of the filter
+get a filter
 
 =cut
 
@@ -77,44 +77,47 @@ sub get {
 
 =head2 replace
 
-replace on filter content
+replace a filter
 
 =cut
 
 sub replace {
     my ($self) = @_;
     my $id = $self->stash->{filter_id};
-    my ($status, $errors)  = $self->is_valid();
+    my ($status, $errors)  = $self->isFilterValid();
     if (is_error($status)) {
         return $self->render_error($status, "Invalid $id file" ,$errors);
     }
+
     my $body = $self->req->body;
     $body .= "\n" if $body !~ m/\n\z/s;
     pf::util::safe_file_update($self->fileName, $body);
     return $self->render(status => $status, json => {});
 }
 
-=head2 is_valid
+=head2 isFilterValid
 
-is_valid
+Is a filter valid
 
 =cut
 
-sub is_valid {
+sub isFilterValid {
     my ($self) = @_;
     my $body = $self->req->body;
     $body .= "\n" if $body !~ m/\n\z/s;
     my %args = $self->configStore->configIniFilesArgs();
     $args{'-file'} = \$body;
-    my $asb = pf::AccessScopes->new;
+    my $builder = pf::config::builder::scoped_filter_engines->new();
     my $ini = pf::IniFiles->new(%args);
     unless (defined $ini) {
         return (422, [{ message => join("\n", @pf::IniFiles::errors)}]);
     }
-    my ($err, $scopes) = $asb->build($ini);
-    if ($err) {
-        return (422, $scopes);
+
+    my ($errors, $scopes) = $builder->build($ini);
+    if ($errors) {
+        return (422, $errors);
     }
+
     return (200, undef);
 }
 

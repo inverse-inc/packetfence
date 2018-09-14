@@ -55,7 +55,6 @@ use pfconfig::manager;
 use pfconfig::namespaces::config::Pf;
 use pf::version;
 use File::Slurp;
-use pf::AccessScopes;
 use pf::file_paths qw(
     $conf_dir
     $lib_dir
@@ -74,6 +73,7 @@ use pf::factory::condition::profile;
 use pf::condition_parser qw(parse_condition_string);
 use pf::cluster;
 use pf::config::builder::pfdetect;
+use pf::config::builder::scoped_filter_engines;
 use pf::IniFiles;
 
 use lib $conf_dir;
@@ -1327,16 +1327,16 @@ sub pfdetect {
 
 =head2 validate_access_filters
 
-validate_access_filters
+Validate Access Filters
 
 =cut
 
 sub validate_access_filters {
+    my $builder = pf::config::builder::scoped_filter_engines->new();
     while (my ($f, $cs) = each %pf::constants::filters::CONFIGSTORE_MAP) {
-       next if $f eq 'apache-filters';
-       my $asb = pf::AccessScopes->new();
+        next if $f eq 'apache-filters';
        my $ini = $cs->configIniFile();
-       my ($errors, undef) = $asb->build($ini);
+       my ($errors, undef) = $builder->build($ini);
        if ($errors) {
             foreach my $err (@$errors) {
                 add_problem($WARN, "$f: $err->{rule}) $err->{message}");

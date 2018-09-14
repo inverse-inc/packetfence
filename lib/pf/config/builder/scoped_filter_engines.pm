@@ -1,14 +1,14 @@
-package pf::AccessScopes;
+package pf::config::builder::scoped_filter_engines;
 
 =head1 NAME
 
-pf::AccessScopes - Access Scope builder
+pf::config::builder::scoped_filter_engines - Scoped Filter Engines builder
 
 =cut
 
 =head1 DESCRIPTION
 
-Builds the access scopes for a filter file
+Builds scoped filter engines from a pf::IniFiles
 
 =cut
 
@@ -20,88 +20,95 @@ use pf::factory::condition::access_filter;
 use pf::filter;
 use pf::filter_engine;
 use pf::condition_parser qw(parse_condition_string);
+use base qw(pf::config::builder);
 
-sub new {
-    my ($proto) = @_;
-    return bless {}, ref($proto) || $proto;
-}
+=head2 cleanupBuildData
 
-sub build {
-    my ( $self, $ini ) = @_;
-    my %buildData = (
-        errors      => undef,
-        filter_data => [],
-        scopes      => {},
-        conditions  => {},
-    );
-    my $logger = get_logger();
-    foreach my $rule ($ini->Sections()) {
-        my $data = $self->getSectionData($ini, $rule);
-        if ( $rule =~ /^[^:]+:(.*)$/ ) {
-            my $condition = $1;
-            $logger->info("Building rule '$rule'");
-            my ($conditions, $msg) = parse_condition_string($condition);
-            unless ( defined $conditions ) {
-                $self->_error(\%buildData, $rule, "Error building rule", $msg);
-                next;
-            }
-            $data->{_rule} = $rule;
-            push @{ $buildData{filter_data} }, [$conditions, $data];
-        }
-        else {
-            $logger->info("Building condition '$rule'");
-            my $condition = eval { 
-                pf::factory::condition::access_filter->instantiate($data)
-            };
-            unless (defined $condition) {
-                $self->_error(
-                    \%buildData,
-                    $rule,
-                    "Error building condition",
-                    $@
-                );
-                next;
-            }
-
-            $buildData{conditions}{$rule} = $condition;
-        }
-    }
-
-    foreach my $filter_data ( @{ $buildData{filter_data} } ) {
-        $self->build_filter( \%buildData, @$filter_data );
-    }
-
-    my %AccessScopes;
-    while ( my ( $scope, $filters ) = each %{ $buildData{scopes} } ) {
-        $AccessScopes{$scope} =
-          pf::filter_engine->new( { filters => $filters } );
-    }
-
-    return ( $buildData{errors}, \%AccessScopes );
-}
-
-=head2 getSectionData
-
-getSectionData
+Merge all conditions and filters to build the scoped filter engines
 
 =cut
 
-sub getSectionData {
-    my ($self, $ini, $section) = @_;
-    my %data;
-    my $default = $ini->{'default'} if exists $ini->{default};
-    my @default_params = $ini->Parameters($default) if defined $default;
-    for my $param (uniq $ini->Parameters($section), @default_params) {
-        my $val = $ini->val($section, $param);
-        $val =~ s/\s+$//;
-        $data{$param} = $val;
+sub cleanupBuildData { 
+    my ($self, $buildData) = @_;
+    foreach my $filter_data ( @{ $buildData->{filter_data} } ) {
+        $self->buildFilter( $buildData, @$filter_data );
     }
-    return \%data;
+
+    while ( my ( $scope, $filters ) = each %{ $buildData->{scopes} } ) {
+        $buildData->{entries}{$scope} =
+          pf::filter_engine->new( { filters => $filters } );
+    }
+
+}
+
+=head2 buildEntry
+
+Preprocess a condition or rule from an entry
+
+=cut
+
+sub buildEntry {
+    my ($self, $buildData, $id, $entry) = @_;
+    if ( $id =~ /^[^:]+:(.*)$/ ) {
+        $self->preprocessRule($buildData, $id, $1, $entry);
+    } else {
+        $self->preprocessCondition($buildData, $id, $entry);
+    }
+
+    return undef;
+}
+
+=head2 preprocessCondition
+
+Preprocess a condition
+
+=cut
+
+sub preprocessCondition {
+    my ($self, $buildData, $id, $entry) = @_;
+    my $logger = get_logger();
+    $logger->info("Preprocessing filter condition '$id'");
+    my $condition = eval {
+        pf::factory::condition::access_filter->instantiate($entry)
+    };
+    unless (defined $condition) {
+        $self->_error(
+            $buildData,
+            $id,
+            "Error building condition",
+            $@
+        );
+        return;
+    }
+
+    $buildData->{conditions}{$id} = $condition;
+    return ;
+}
+
+=head2 preprocessRule
+
+Preprocess a rule
+
+=cut
+
+sub preprocessRule {
+    my ($self, $buildData, $id, $condition, $entry) = @_;
+    my $logger = get_logger();
+    $logger->info("Processing rule '$id'");
+    my ($conditions, $msg) = parse_condition_string($condition);
+    unless ( defined $conditions ) {
+        $self->_error($buildData, $id, "Error building rule", $msg);
+        return;
+    }
+
+    $entry->{_rule} = $id;
+    push @{ $buildData->{filter_data} }, [$conditions, $entry];
+    return ;
 }
 
 =head2 _error
 
-Record and display an error that occured while building the engine
+Record and log an error
 
 =cut
 
@@ -113,12 +120,13 @@ sub _error {
     push @{$build_data->{errors}}, {rule => $rule, message => $long_msg};
 }
 
-sub build_filter {
+sub buildFilter {
     my ($self, $build_data, $parsed_conditions, $data) = @_;
     if (!defined $data->{scope}) {
         $self->_error($build_data, $data->{_rule}, "Error building rule", "scope is not defined");
         return;
     }
+
     my $condition = eval { $self->build_filter_condition($build_data, $parsed_conditions) };
     if ($condition) {
         push @{$build_data->{scopes}{$data->{scope}}}, pf::filter->new({
@@ -128,6 +136,7 @@ sub build_filter {
     } else {
         $self->_error($build_data, $data->{_rule}, "Error building rule", $@)
     }
+
 }
 
 sub build_filter_condition {
@@ -135,13 +144,19 @@ sub build_filter_condition {
     if (ref $parsed_condition) {
         local $_;
         my ($type, @parsed_conditions) = @$parsed_condition;
-        my $conditions = [map {$self->build_filter_condition($build_data, $_)} @parsed_conditions];
+        my @conditions = map {$self->build_filter_condition($build_data, $_)} @parsed_conditions;
         if($type eq 'NOT' ) {
-            return pf::condition::not->new({condition => $conditions->[0]});
+            return pf::condition::not->new({condition => $conditions[0]});
         }
+
+        if (@conditions == 1) {
+            return $conditions[0];
+        }
+
         my $module = $type eq 'AND' ? 'pf::condition::all' : 'pf::condition::any';
-        return $module->new({conditions => $conditions});
+        return $module->new({conditions => \@conditions});
     }
+
     my $condition = $build_data->{conditions}{$parsed_condition};
     return $condition if defined $condition;
     die "condition '$parsed_condition' was not found\n";
