@@ -5574,12 +5574,32 @@ Mojo Networks
 
 PacketFence supports SSIDs configured with 802.1X and Web Authentication
 
+Create the RADIUS Profile
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+First, create a RADIUS Profile for PacketFence.
+
+* Login to the https://dashboard.mojonetworks.com
+* Go to *Wireless Manager*
+* Then click on *Configuration -> Device Configuration -> RADIUS Profiles -> Add a RADIUS Profile* 
+
+   Profile Name: NAME_OF_PROFILE_FOR_PACKETFENCE
+   IP Address: IP_OF_PACKETFENCE
+   Authentication Port: 1812
+   Accounting Port: 1813
+   Shared Secret: useStrongerSecret
+
+Click on 'Save'.
+
 Configure the 802.1X Secure SSID:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+[float]
+802.1X Secure
++++++++++++++
+
 * Login to the https://dashboard.mojonetworks.com
-* Create the 802.1X SSID:
-* Go to *Services -> Mojo Wireless Manager*
+* Go to *Wireless Manager*
 * Then click on *Configuration -> Device Configuration -> SSID Profiles -> Add a new Profile -> WLAN* 
 
 NOTE: (Leave the default configuration for the other settings)
@@ -5592,24 +5612,17 @@ NOTE: (Leave the default configuration for the other settings)
    Called-Station-ID: %m-%s
    COA: Checked
 
-RADIUS Authentication:
+   RADIUS Authentication
+    Primary Authentication Server: PacketFence RADIUS profile created above.
 
-   Primary Authentication Server:
-   Server IP: 192.168.1.5
-   Port Number: 1812
-   Shared Secret: useStrongerSecret
-
-RADIUS Accounting Server Details
-
-   Primary Authentication Server:
-   Server IP: 192.168.1.5
-   Port Number: 1813
-   Shared Secret: useStrongerSecret
+   RADIUS Accounting Server Details
+    Primary Accounting Server: PacketFence RADIUS profile created above.
 
 Click the 'Save' button to save the PF-Secure SSID configuration.
 
-Web Authentication:
-^^^^^^^^^^^^^^^^^^^
+[float]
+Web Authentication
+++++++++++++++++++
 
 To enable the external captive portal, go to the *SSID Profiles* page in *Device Configuration*. Add a new Wi-Fi profile with the following attributes:
 
@@ -5693,8 +5706,6 @@ Add a switch with the IP address fo the Access Point (AP) with the following con
 
    Roles:
     Uncheck Role by VLAN ID
-    Check Role by Web Auth URL
-     registration: http://IP_OR_HOSTNAME_OF_PACKETFENCE/Mojo
 
    Radius:
     Secret Passphrase: useStrongerSecret
