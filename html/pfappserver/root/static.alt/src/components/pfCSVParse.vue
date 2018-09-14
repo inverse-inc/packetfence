@@ -295,7 +295,7 @@ export default {
     let eachStaticMapping = {}
     let eachExportModel = {}
 
-    this.fields.forEach((field, index, fields) => {
+    this.fields.forEach((field, index) => {
       if (field.hasOwnProperty('validators')) {
         if (typeof this.tableMapping !== 'function' && this.tableMapping.length > 0) {
           let index = this.tableMapping.findIndex(f => f === field.value)
