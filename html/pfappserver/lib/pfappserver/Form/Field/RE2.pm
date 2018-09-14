@@ -18,7 +18,7 @@ use namespace::autoclean;
 
 
 our $class_messages = {
-    'regex' => 'It must be a valid regex',
+    'regex' => 'It must be a valid RE2 regex',
 };
 
 sub get_class_messages {
