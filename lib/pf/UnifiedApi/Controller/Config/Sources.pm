@@ -94,6 +94,12 @@ sub type_lookup {
     return \%TYPES_TO_FORMS;
 }
 
+=head2 test
+
+test a source configuration
+
+=cut
+
 sub test {
     my ($self) = @_;
     my ($error, $new_data) = $self->get_json;
