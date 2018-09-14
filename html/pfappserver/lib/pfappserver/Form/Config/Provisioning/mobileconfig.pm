@@ -22,6 +22,7 @@ has_field 'ssid' =>
   (
    type => 'Text',
    label => 'SSID',
+   required => 1,
   );
 
 has_field 'broadcast' =>
