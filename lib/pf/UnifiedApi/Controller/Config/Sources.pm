@@ -121,17 +121,17 @@ sub test {
         my $source = newAuthenticationSource($new_data->{type}, 'test', $form->getSourceArgs());
         my $method = $source->can('test');
         if (!$method) {
-            return $self->render_error(HTTP_METHOD_NOT_ALLOWED, "$new_data->{type} cannot be tested");
+            return $self->render_error(405, "$new_data->{type} cannot be tested");
         }
 
         my ($status, $message) = $source->test();
         if (!$status) {
-            return $self->render_error(HTTP_BAD_REQUEST, $message);
+            return $self->render_error(422, $message);
         }
         return 1;
     };
     if ($@) {
-        return $self->render_error(HTTP_BAD_REQUEST, "$@");
+        return $self->render_error(422, "$@");
     }
     if (!$success) {
         return;
