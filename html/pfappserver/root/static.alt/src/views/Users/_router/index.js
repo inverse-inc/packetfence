@@ -5,6 +5,8 @@ import UsersSearch from '../_components/UsersSearch'
 import UsersCreate from '../_components/UsersCreate'
 import UserView from '../_components/UserView'
 
+const UsersImport = () => import(/* webpackChunkName: "Nodes" */ '../_components/UsersImport')
+
 const route = {
   path: '/users',
   name: 'users',
@@ -28,6 +30,11 @@ const route = {
     {
       path: 'create',
       component: UsersCreate,
+      props: { storeName: '$_users' }
+    },
+    {
+      path: 'import',
+      component: UsersImport,
       props: { storeName: '$_users' }
     },
     {

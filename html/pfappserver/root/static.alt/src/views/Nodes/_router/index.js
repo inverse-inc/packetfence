@@ -1,8 +1,8 @@
 import store from '@/store'
 import NodesView from '../'
 import NodesStore from '../_store'
-import NodesSearch from '../_components/NodesSearch'
 import UsersStore from '../../Users/_store'
+import NodesSearch from '../_components/NodesSearch'
 
 const NodesCreate = () => import(/* webpackChunkName: "Nodes" */ '../_components/NodesCreate')
 const NodeView = () => import(/* webpackChunkName: "Nodes" */ '../_components/NodeView')

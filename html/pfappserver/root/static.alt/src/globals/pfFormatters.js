@@ -41,5 +41,24 @@ export const pfFormatters = {
       default:
         return null
     }
+  },
+  genderFromString: (value, key, item) => {
+    if (value === null || value === '') return null
+    switch (value.toLowerCase()) {
+      case 'm':
+      case 'male':
+      case 'man':
+      case 'boy':
+      case 'him':
+        return 'm'
+      case 'f':
+      case 'female':
+      case 'woman':
+      case 'girl':
+      case 'her':
+        return 'f'
+      default:
+        return null
+    }
   }
 }
