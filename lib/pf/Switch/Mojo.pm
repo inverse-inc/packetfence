@@ -46,6 +46,9 @@ use pf::util::radius qw(perform_disconnect);
 use pf::radius::constants;
 use pf::locationlog;
 use Try::Tiny;
+use DateTime;
+use DateTime::Format::MySQL;
+use pf::constants qw($ZERO_DATE);
 
 sub description { 'Mojo Networks AP' }
 
@@ -316,7 +319,15 @@ sub returnRadiusAccessAccept {
             $args->{user_role} = $REJECT_ROLE;
             $self->handleRadiusDeny();
         }
-        else{
+        else {
+            if($node->{unregdate} ne $ZERO_DATE) {
+                my $unreg = DateTime::Format::MySQL->parse_datetime($node->{unregdate}) ; 
+                $unreg->set_time_zone("local"); 
+                my $now = DateTime->now(time_zone => "local"); 
+                my $session_timeout = $unreg->epoch - $now->epoch;
+                $self->logger->info("Setting Session-Timeout to $session_timeout");
+                $radius_reply_ref->{"Session-Timeout"} = $session_timeout;
+            }
             $logger->info("Returning ACCEPT");
             ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
             return [$status, %$radius_reply_ref];
