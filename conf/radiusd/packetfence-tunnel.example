@@ -27,6 +27,7 @@ authorize {
             &EAP-Type := TTLS
         }
     }
+	packetfence-set-tenant-id
 	#
 	#  Take a User-Name, and perform some checks on it, for spaces and other
 	#  invalid characters.  If the User-Name appears invalid, reject the

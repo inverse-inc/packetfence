@@ -48,6 +48,7 @@ use IO::Socket::UNIX qw( SOCK_STREAM );
 use JSON::MaybeXS;
 use List::MoreUtils qw(first_index);
 use pf::log;
+use pf::config::tenant;
 use pfconfig::cached;
 our @ISA = ( 'Tie::StdHash', 'pfconfig::cached' );
 
@@ -58,16 +59,13 @@ Constructor of the hash
 =cut
 
 sub TIEHASH {
-    my ( $class, $config ) = @_;
+    my ( $class, $config, %extra ) = @_;
     my $self = bless {}, $class;
-
     $self->init();
-
     $self->{"_namespace"} = $config;
+    $self->{"_scoped_by_tenant_id"} = $extra{tenant_id_scoped};
     $self->{"_control_file_path"} = pfconfig::util::control_file_path($config);
-
     $self->{element_socket_method} = "hash_element";
-
     return $self;
 }
 
@@ -82,14 +80,20 @@ Other than that it proxies the call to pfconfig
 sub FETCH {
     my ( $self, $key ) = @_;
     my $logger = $self->logger;
-
     unless ( defined($key) ) {
         my $caller = ( caller(1) )[3];
         $logger->error("Accessing hash $self->{_namespace} with undef key. Caller : $caller.");
         return undef;
     }
 
-    return $self->{_internal_elements}{$key} if defined( $self->{_internal_elements}{$key} );
+    if ($self->{_scoped_by_tenant_id}) {
+        my $tenant_id = pf::config::tenant::get_tenant();
+        if( defined $self->{_internal_elements}{$tenant_id}{$key}) {
+            return  $self->{_internal_elements}{$tenant_id}{$key}
+        }
+    } elsif (defined( $self->{_internal_elements}{$key} )) {
+        return $self->{_internal_elements}{$key};
+    }
 
     my $result = $self->compute_from_subcache($key, sub {
         my $reply = $self->_get_from_socket("$self->{_namespace};$key");
@@ -161,10 +165,12 @@ Stores it without any saving capability
 sub STORE {
     my ( $self, $key, $value ) = @_;
     my $logger = $self->logger;
-
-    $self->{_internal_elements} = {} unless ( defined( $self->{_internal_elements} ) );
-
-    $self->{_internal_elements}{$key} = $value;
+    if ($self->{_scoped_by_tenant_id}) {
+        my $tenant_id = pf::config::tenant::get_tenant();
+        $self->{_internal_elements}{$tenant_id}{$key} = $value;
+    } else {
+        $self->{_internal_elements}{$key} = $value;
+    }
 }
 
 =head2 STORE

@@ -19,42 +19,66 @@ use warnings;
 
 use pfconfig::namespaces::config;
 use pf::file_paths qw(
-    $realm_default_config_file
-    $realm_config_file
+  $realm_default_config_file
+  $realm_config_file
 );
 
 use base 'pfconfig::namespaces::config';
 
 sub init {
     my ($self) = @_;
-    $self->{file}              = $realm_config_file;
-    $self->{expandable_params} = qw(categories);
-
-    my $defaults = Config::IniFiles->new( -file => $realm_default_config_file );
-    $self->{added_params}->{'-import'} = $defaults;
+    $self->{_scoped_by_tenant_id} = 1;
+    $self->{ini} = pf::IniFiles->new(
+        -file       => $realm_config_file,
+        -import     => pf::IniFiles->new(-file => $realm_default_config_file),
+        -allowempty => 1,
+    );
 }
 
-sub build_child {
+sub build {
     my ($self) = @_;
+    return {
+        map {
+            my $id = $_;
+            $id => $self->build_tenant_sections($id)
+        } $self->tenant_ids()
+    };
+}
 
-    my %tmp_cfg = %{ $self->{cfg} };
+sub tenant_ids {
+    my ($self) = @_;
+    return $self->{ini}->Groups();
+}
 
-    foreach my $key ( keys %tmp_cfg ) {
-        $self->cleanup_after_read( $key, $tmp_cfg{$key} );
+sub build_tenant_sections {
+    my ($self, $tenant_id) = @_;
+    return {
+        map {
+            my $section = $_;
+            my $name = $section;
+            $name =~ s/^\Q$tenant_id \E//;
+            $name = lc($name);
+            $name => $self->get_params($section)
+        } $self->sections_for_tenant($tenant_id)
+    };
+}
+
+sub sections_for_tenant {
+    my ($self, $tenant_id) = @_;
+    return $self->{ini}->GroupMembers($tenant_id);
+}
+
+sub get_params {
+    my ($self, $section) = @_;
+    my $ini = $self->{ini};
+    my %data;
+    for my $param ($ini->Parameters($section)) {
+        $data{$param} = $ini->val($section, $param);
     }
 
-    # Lower casing all realms to find them consistently
-    my $cfg = { map{lc($_) => $tmp_cfg{$_}} keys(%tmp_cfg) };
-
-    return $cfg;
-
+    $self->expand_list(\%data, qw(categories));
+    return \%data;
 }
-
-sub cleanup_after_read {
-    my ( $self, $id, $item ) = @_;
-    $self->expand_list( $item, $self->{expandable_params} );
-}
-
 
 =head1 AUTHOR
 
@@ -88,4 +112,3 @@ USA.
 # vim: set shiftwidth=4:
 # vim: set expandtab:
 # vim: set backspace=indent,eol,start:
-
