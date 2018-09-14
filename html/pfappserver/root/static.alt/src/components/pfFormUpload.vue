@@ -1,7 +1,7 @@
 /**
  * Component to pseudo-upload and access local files using FileReader.
  *
- * Supports
+ * Supports:
  *  multiple files
  *  drag-and-drop
  *  restrict by mime-type(s) and/or file extension(s)
@@ -128,6 +128,9 @@ export default {
       // clear the input to allow re-upload
       this.$refs.uploadform.reset()
     }
+  },
+  mounted () {
+    this.files = []
   }
 }
 </script>

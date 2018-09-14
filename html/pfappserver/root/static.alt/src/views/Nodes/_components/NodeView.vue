@@ -253,6 +253,7 @@
 </template>
 
 <script>
+import { DataSet, Timeline } from 'vue2vis'
 import DeleteButton from '@/components/DeleteButton'
 import pfFingerbankScore from '@/components/pfFingerbankScore'
 import pfFormDatetime from '@/components/pfFormDatetime'
@@ -267,14 +268,15 @@ import {
   pfSearchConditionType as conditionType,
   pfSearchConditionValues as conditionValues
 } from '@/globals/pfSearch'
-import { DataSet } from 'vue2vis'
 import network from '@/utils/network'
+
 const { validationMixin } = require('vuelidate')
 const { required } = require('vuelidate/lib/validators')
 
 export default {
   name: 'NodeView',
   components: {
+    'timeline': Timeline,
     'delete-button': DeleteButton,
     'pf-fingerbank-score': pfFingerbankScore,
     'pf-form-datetime': pfFormDatetime,

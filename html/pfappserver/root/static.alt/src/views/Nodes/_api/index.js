@@ -132,6 +132,16 @@ export default {
       return response.data
     })
   },
+  roleBulkNodes: body => {
+    return apiCall.post('nodes/bulk_apply_role', body).then(response => {
+      return response.data
+    })
+  },
+  bypassRoleBulkNodes: body => {
+    return apiCall.post('nodes/bulk_apply_bypass_role', body).then(response => {
+      return response.data
+    })
+  },
   reevaluateAccessNode: mac => {
     return apiCall.postQuiet(`node/${mac}/reevaluate_access`).then(response => {
       return response.data

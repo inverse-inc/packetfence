@@ -24,6 +24,8 @@ import 'vue-awesome/icons/ellipsis-v'
 import 'vue-awesome/icons/exclamation-circle'
 import 'vue-awesome/icons/exclamation-triangle'
 import 'vue-awesome/icons/desktop'
+import 'vue-awesome/icons/download'
+import 'vue-awesome/icons/file'
 import 'vue-awesome/icons/id-card'
 import 'vue-awesome/icons/info-circle'
 import 'vue-awesome/icons/magic'
@@ -35,6 +37,7 @@ import 'vue-awesome/icons/plus-circle'
 import 'vue-awesome/icons/power-off'
 import 'vue-awesome/icons/project-diagram'
 import 'vue-awesome/icons/retweet'
+import 'vue-awesome/icons/ruler-combined'
 import 'vue-awesome/icons/save'
 import 'vue-awesome/icons/search'
 import 'vue-awesome/icons/sign-in-alt'
@@ -51,7 +54,6 @@ import 'vue-awesome/icons/user'
 import 'vue-awesome/icons/user-plus'
 import 'vue-awesome/icons/user-secret'
 import 'vue-awesome/icons/wifi'
-import { Timeline } from 'vue2vis'
 
 import store from './store'
 import router from './router'
@@ -71,7 +73,6 @@ Vue.use(VueTimeago, {
 Vue.config.productionTip = process.env.NODE_ENV === 'production'
 
 Vue.component('icon', Icon)
-Vue.component('timeline', Timeline)
 
 Vue.use(BootstrapVue)
 

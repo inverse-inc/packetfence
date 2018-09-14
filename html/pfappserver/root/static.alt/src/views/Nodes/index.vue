@@ -11,7 +11,7 @@
                             <div class="bd-toc-link" v-t="'Nodes'"></div>
                             <b-nav-item to="/nodes/search" replace>{{ $t('Search') }}</b-nav-item>
                             <b-nav-item to="/nodes/create" replace>{{ $t('Create') }}</b-nav-item>
-                            <b-nav-item to="/nodes/upload" replace>{{ $t('Upload') }}</b-nav-item>
+                            <b-nav-item to="/nodes/import" replace>{{ $t('Import') }}</b-nav-item>
 
                             <hr/>
                             <div class="bd-toc-link" v-t="'Standard Searches'"></div>

@@ -828,39 +828,53 @@ export default {
     applyBulkRole (role) {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
-        macs.forEach((mac, i) => {
-          let index = this.tableValues.findIndex(node => node.mac === mac)
-          this.$store.dispatch(`${this.storeName}/roleNode`, {mac: mac, category_id: role.category_id}).then(response => {
-            this.setRowVariant(index, convert.statusToVariant({ status: response.status }))
-            this.setRowMessage(index, response.message)
-          }).catch(() => {
+        this.$store.dispatch(`${this.storeName}/roleBulkNodes`, {items: macs, category_id: role.category_id}).then(response => {
+          response.items.forEach((item, _index, items) => {
+            let index = this.tableValues.findIndex(node => node.mac === item.mac)
+            this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
+            this.setRowMessage(index, item.message)
+            if (item.message) {
+              this.$store.dispatch('notification/status_' + item.status, {message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message})
+            }
+          })
+          this.$store.dispatch('notification/info', {
+            message: response.items.length + ' ' + this.$i18n.t('node roles updated'),
+            success: response.items.filter(item => item.status === 'success').length,
+            skipped: response.items.filter(item => item.status === 'skipped').length,
+            failed: response.items.filter(item => item.status === 'failed').length
+          })
+        }).catch(() => {
+          macs.forEach((mac, i) => {
+            let index = this.tableValues.findIndex(node => node.mac === mac)
             this.setRowVariant(index, 'danger')
           })
         })
-        if (role.category_id) {
-          this.$store.dispatch('notification/info', {message: macs.length + ' ' + this.$i18n.t('nodes assigned role') + ' ' + this.roles.filter(r => r.category_id === role.category_id).map(r => r.name)})
-        } else {
-          this.$store.dispatch('notification/info', {message: macs.length + ' ' + this.$i18n.t('nodes unassigned role')})
-        }
       }
     },
     applyBulkBypassRole (role) {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
-        macs.forEach((mac, i) => {
-          let index = this.tableValues.findIndex(node => node.mac === mac)
-          this.$store.dispatch(`${this.storeName}/bypassRoleNode`, {mac: mac, bypass_role_id: role.category_id}).then(response => {
-            this.setRowVariant(index, convert.statusToVariant({ status: response.status }))
-            this.setRowMessage(index, response.message)
-          }).catch(() => {
+        this.$store.dispatch(`${this.storeName}/bypassRoleBulkNodes`, {items: macs, bypass_role_id: role.category_id}).then(response => {
+          response.items.forEach((item, _index, items) => {
+            let index = this.tableValues.findIndex(node => node.mac === item.mac)
+            this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
+            this.setRowMessage(index, item.message)
+            if (item.message) {
+              this.$store.dispatch('notification/status_' + item.status, {message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message})
+            }
+          })
+          this.$store.dispatch('notification/info', {
+            message: response.items.length + ' ' + this.$i18n.t('node bypass roles updated'),
+            success: response.items.filter(item => item.status === 'success').length,
+            skipped: response.items.filter(item => item.status === 'skipped').length,
+            failed: response.items.filter(item => item.status === 'failed').length
+          })
+        }).catch(() => {
+          macs.forEach((mac, i) => {
+            let index = this.tableValues.findIndex(node => node.mac === mac)
             this.setRowVariant(index, 'danger')
           })
         })
-        if (role.category_id) {
-          this.$store.dispatch('notification/info', {message: macs.length + ' ' + this.$i18n.t('nodes assigned bypass role') + ' ' + this.roles.filter(r => r.category_id === role.category_id).map(r => r.name)})
-        } else {
-          this.$store.dispatch('notification/info', {message: macs.length + ' ' + this.$i18n.t('nodes unassigned bypass role')})
-        }
       }
     },
     applyBulkViolation (violation) {
