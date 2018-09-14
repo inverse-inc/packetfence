@@ -21,6 +21,12 @@ our $class_messages = {
     'regex' => 'It must be a valid RE2 regex',
 };
 
+=head2 get_class_messages
+
+Overridden get_class_messages
+
+=cut
+
 sub get_class_messages {
     my $self = shift;
     return {
