@@ -359,7 +359,11 @@ sub assetTopVulnerabilities {
     my @sorted = sort { $b->{cvss}->{v2}->{score} <=> $a->{cvss}->{v2}->{score} } @vulnerabilities_with_details;
 
     # Make the amount a maximum of the amount of vulnerabilities
-    $amount = scalar(@sorted) -1 if($amount > (scalar(@sorted) -1));
+    if($amount > (scalar(@sorted) -1)) {
+        $amount = scalar(@sorted) -1 
+    } else {
+        $amount -= 1;
+    }
 
     return [@sorted[0..$amount]];
 }
