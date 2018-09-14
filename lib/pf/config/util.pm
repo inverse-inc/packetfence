@@ -144,12 +144,12 @@ sub ip2device {
 
 sub pfmailer {
     my (%data) = @_;
-    my @to = split( /\s*,\s*/, $Config{'alerting'}{'emailaddr'} );
+    my $to = $Config{'alerting'}{'emailaddr'};
     my $host_prefix = $cluster_enabled ? " ($host_id)" : '';
     my $date = POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
     my $subject = $Config{'alerting'}{'subjectprefix'} . $host_prefix . " " . $data{'subject'} . " ($date)";
     my $msg = MIME::Lite->new(
-        To      => \@to,
+        To      => $to,
         Subject => $subject,
         Data    => $data{message} . "\n",
     );
