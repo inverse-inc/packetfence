@@ -18,6 +18,8 @@ New Features
 ++++++++++++
 * Now supports CoA on Meraki switches
 * Permit incoming eduroam tlrs radius request (PR #3399)
+* pfconfig is tenant aware (PR #3385)
+* Realm are tenant scope (PR #3385)
 
 Enhancements
 ++++++++++++
