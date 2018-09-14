@@ -36,7 +36,7 @@ const actions = {
     localStorage.setItem(STORAGE_SAVED_SEARCH, JSON.stringify(savedSearches))
   },
   exists: ({commit}, mac) => {
-    if (state.nodeExists.hasOwnProperty('mac')) {
+    if (state.nodeExists.hasOwnProperty(mac)) {
       if (state.nodeExists[mac]) {
         return Promise.resolve(true)
       }
