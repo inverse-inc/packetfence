@@ -5591,8 +5591,8 @@ First, create a RADIUS Profile for PacketFence.
 
 Click on 'Save'.
 
-Configure the 802.1X Secure SSID:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Configure the SSID:
+^^^^^^^^^^^^^^^^^^^
 
 [float]
 802.1X Secure
