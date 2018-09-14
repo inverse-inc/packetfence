@@ -239,12 +239,21 @@ our @API_V1_ROUTES = (
         Config::Roles
         Config::Scans
         Config::Sources
-        Config::Switches
         Config::SwitchGroups
         Config::SyslogParsers
         Config::TrafficShapingPolicies
         Config::Violations
     ),
+    {
+        controller => 'Config::Switches',
+        resource   => {
+            subroutes => {
+                invalidate_cache => {
+                    post => 'invalidate_cache',
+                }
+            }
+        },
+    },
     {
         controller => 'Translations',
         collection => {
