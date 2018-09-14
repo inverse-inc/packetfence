@@ -55,7 +55,7 @@
           :disabled="isLoading"
           class="line-numbers" size="sm" rows="1" max-rows="40"
           v-model="file.result"
-          v-on:input="parse"
+          v-on:input="parseDebounce"
         ></b-form-textarea>
       </b-card-body>
     </b-collapse>
@@ -257,7 +257,7 @@ export default {
       staticMappingNew: null,
       exportModel: Array,
       uuid: uuidv4(), // unique id for multiple instances of this component
-      config: {
+      config: { // Papa parse config
         delimiter: '', // auto-detect
         newline: '', // auto-detect
         quoteChar: '"',
@@ -340,6 +340,10 @@ export default {
   methods: {
     uuidStr (section) {
       return (section || 'default') + '-' + this.uuid
+    },
+    parseDebounce () {
+      if (this.parseTimeout) clearTimeout(this.parseTimeout)
+      this.parseTimeout = setTimeout(this.parse, 100)
     },
     parse () {
       const _this = this
@@ -531,7 +535,7 @@ export default {
   watch: {
     config: {
       handler: function (a, b) {
-        this.parse()
+        this.parseDebounce()
       },
       deep: true
     },
@@ -591,7 +595,7 @@ export default {
   },
   mounted () {
     // reset `file` when page reloaded, remove w/ $store implementation
-    this.parse()
+    this.parseDebounce()
   }
 }
 </script>

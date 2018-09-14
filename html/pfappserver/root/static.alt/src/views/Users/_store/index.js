@@ -16,8 +16,7 @@ const state = {
 }
 
 const getters = {
-  isLoading: state => state.userStatus === 'loading',
-  isLoadingResults: state => state.searchStatus === 'loading'
+  isLoading: state => state.userStatus === 'loading'
 }
 
 const actions = {
@@ -36,30 +35,8 @@ const actions = {
     commit('SAVED_SEARCHES_UPDATED', savedSearches)
     localStorage.setItem(STORAGE_SAVED_SEARCH, JSON.stringify(savedSearches))
   },
-  search: ({state, getters, commit, dispatch}, page) => {
-    let sort = [state.searchSortDesc ? `${state.searchSortBy} DESC` : state.searchSortBy]
-    let body = {
-      cursor: state.searchPageSize * (page - 1),
-      limit: state.searchPageSize,
-      fields: state.searchFields,
-      sort
-    }
-    let apiPromise = state.searchQuery ? api.search(Object.assign(body, {query: state.searchQuery})) : api.all(body)
-    if (state.searchStatus !== 'loading') {
-      return new Promise((resolve, reject) => {
-        commit('SEARCH_REQUEST')
-        apiPromise.then(response => {
-          commit('SEARCH_SUCCESS', response)
-          resolve(response)
-        }).catch(err => {
-          commit('SEARCH_ERROR', err.response)
-          reject(err)
-        })
-      })
-    }
-  },
   exists: ({commit}, pid) => {
-    if (state.userExists[pid] !== undefined) {
+    if (state.userExists.hasOwnProperty('pid')) {
       if (state.userExists[pid]) {
         return Promise.resolve(true)
       }
@@ -76,9 +53,7 @@ const actions = {
       }
     }
     return new Promise((resolve, reject) => {
-      commit('SEARCH_REQUEST')
       api.search(body).then(response => {
-        commit('SEARCH_SUCCESS')
         if (response.items.length > 0) {
           commit('USER_EXISTS', pid)
           resolve(true)
@@ -87,7 +62,6 @@ const actions = {
           reject(new Error('Unknown PID'))
         }
       }).catch(err => {
-        commit('SEARCH_ERROR', err.response)
         reject(err)
       })
     })

@@ -10,7 +10,7 @@ export const pfFormatters = {
   },
   categoryIdFromIntOrString: (value, key, item) => {
     if (!value) return null
-    if (isNaN(parseInt(value))) {
+    if (!/\d+/.test(value)) {
       return store.state.config.roles.filter(role => role.name.toLowerCase() === value.toLowerCase()).map(role => role.category_id)[0] // string
     } else {
       return value // int

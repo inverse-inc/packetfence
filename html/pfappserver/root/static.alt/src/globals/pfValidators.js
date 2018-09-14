@@ -10,13 +10,13 @@ import moment from 'moment'
 const _common = require('vuelidate/lib/validators/common')
 
 export const categoryIdNumberExists = (value, component) => {
-  if (!value || isNaN(parseInt(value))) return true
+  if (!value || !/\d+/.test(value)) return true
   if (store.state.config.roles.filter(role => role.category_id === value).length === 0) return false
   return true
 }
 
 export const categoryIdStringExists = (value, component) => {
-  if (!value || !isNaN(parseInt(value))) return true
+  if (!value || /\d+/.test(value)) return true
   if (store.state.config.roles.filter(role => role.name.toLowerCase() === value.toLowerCase()).length === 0) return false
   return true
 }
