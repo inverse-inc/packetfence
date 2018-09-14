@@ -407,6 +407,12 @@ sub _ReadConfig_handle_line
     return $RET_CONTINUE;
 }
 
+=head2 GetFileNameForError
+
+Get file name for error
+
+=cut
+
 sub GetFileNameForError {
     my ($self) = @_;
     my $cf = $self->GetFileName();

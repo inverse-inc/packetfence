@@ -120,6 +120,12 @@ sub _error {
     push @{$build_data->{errors}}, {rule => $rule, message => $long_msg};
 }
 
+=head2 buildFilter
+
+build a filter
+
+=cut
+
 sub buildFilter {
     my ($self, $build_data, $parsed_conditions, $data) = @_;
     if (!defined $data->{scope}) {
@@ -127,7 +133,7 @@ sub buildFilter {
         return;
     }
 
-    my $condition = eval { $self->build_filter_condition($build_data, $parsed_conditions) };
+    my $condition = eval { $self->buildCondition($build_data, $parsed_conditions) };
     if ($condition) {
         push @{$build_data->{scopes}{$data->{scope}}}, pf::filter->new({
             answer    => $data,
@@ -139,12 +145,18 @@ sub buildFilter {
 
 }
 
-sub build_filter_condition {
+=head2 buildCondition
+
+build a condition
+
+=cut
+
+sub buildCondition {
     my ($self, $build_data, $parsed_condition) = @_;
     if (ref $parsed_condition) {
         local $_;
         my ($type, @parsed_conditions) = @$parsed_condition;
-        my @conditions = map {$self->build_filter_condition($build_data, $_)} @parsed_conditions;
+        my @conditions = map {$self->buildCondition($build_data, $_)} @parsed_conditions;
         if($type eq 'NOT' ) {
             return pf::condition::not->new({condition => $conditions[0]});
         }
