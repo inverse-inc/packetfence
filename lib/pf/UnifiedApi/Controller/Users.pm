@@ -25,6 +25,12 @@ has dal => 'pf::dal::person';
 has url_param_name => 'user_id';
 has primary_key => 'pid';
 
+=head2 unassign_nodes
+
+unassign user nodes
+
+=cut
+
 sub unassign_nodes {
     my ($self) = @_;
     my $pid = $self->id;
@@ -64,4 +70,3 @@ USA.
 =cut
 
 1;
-
