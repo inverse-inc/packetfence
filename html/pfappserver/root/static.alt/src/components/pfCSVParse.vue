@@ -13,22 +13,19 @@
  *
  *  Properties:
  *
- *    `file`: (object) -- file Object from pfFormUpload [
- *      {
- *        result: (string) -- the file contents,
- *        lastModified: (int) -- timestamp-milliseconds of when the file was last modified,
- *        name: (string) -- the original filename (no path),
- *        size: (int) -- the file size in Bytes,
- *        type: (string) -- the mime-type of the file (eg: 'text/plain').
- *      },
- *      ...
- *    ]
+ *    `file`: (object) -- file Object from pfFormUpload {
+ *      result: (string) -- the file contents,
+ *      lastModified: (int) -- timestamp-milliseconds of when the file was last modified,
+ *      name: (string) -- the original filename (no path),
+ *      size: (int) -- the file size in Bytes,
+ *      type: (string) -- the mime-type of the file (eg: 'text/plain').
+ *    }
  *
  *    `fields`: (array) -- Fields for user-selected mappings [
  *      {
  *        value: (string) -- key name,
  *        text: (string) -- localized label,
- *        required: (boolean) -- requires user-selected mapping,
+ *        required: (boolean) -- required in field mappings, not shown in static mappings,
  *        validators: (object) -- list of vuelidate validators, validated before formatting,
  *        formatter: (value, key, item) -- field formatter, does not affect table data, formatted after validation.
  *      },
@@ -86,7 +83,7 @@
             </b-form-group>
             <b-form-group horizontal label-cols="3" :label="$t('Skip Empty Lines')" class="my-1">
               <pf-form-toggle v-model="config.skipEmptyLines" :color="{checked: '#28a745', unchecked: '#dc3545'}" :values="{checked: true, unchecked: false}">{{ (config.skipEmptyLines) ? $t('Yes') : $t('No') }}</pf-form-toggle>
-              <b-form-text>{{ $t('If true, lines that are completely empty (those which evaluate to an empty string) will be skipped.') }}</b-form-text>
+              <b-form-text>{{ $t('If enabled, lines that are completely empty (those which evaluate to an empty string) will be skipped.') }}</b-form-text>
             </b-form-group>
           </b-col>
           <b-col cols="6">
@@ -146,17 +143,27 @@
 
           <template slot="top-row" slot-scope="data">
             <td v-for="column in data.columns" :class="['p-1', {'table-danger': !hasRequiredMappings() || column === 1 && selectValues.length === 0 }]">
-              <b-form-select v-if="column > 1" v-model="tableMapping[column - 2]" :options="tableMappingOptions()" />
+              <b-form-select v-if="column > 1" v-model="tableMapping[column - 2]">
+                <template slot="first">
+                  <option :value="null">-- {{ $t('Ignore field') }} --</option>
+                </template>
+                <optgroup :label="$t('Required fields')">
+                  <option v-for="option in tableMappingOptions().filter(o => o.required)" :key="option.value" :value="option.value" :disabled="option.disabled" :class="{'bg-success text-white': !option.disabled}">{{ option.text }}</option>
+                </optgroup>
+                <optgroup :label="$t('Optional fields')">
+                  <option v-for="option in tableMappingOptions().filter(o => !o.required)" :key="option.value" :value="option.value" :disabled="option.disabled" :class="{'bg-warning': !option.disabled}">{{ option.text }}</option>
+                </optgroup>
+              </b-form-select>
             </td>
           </template>
           <template slot="bottom-row" slot-scope="data" class="bg-white">
             <td :colspan="data.columns">
 
               <b-row class="mx-0 px-0 mb-3 justify-content-md-center" v-for="(staticMap, index) in staticMapping" :key="index">
-                <b-col cols="2" class="ml-0 mr-1 px-0">
+                <b-col cols="3" class="ml-0 mr-1 px-0">
                   <b-form-select v-model="staticMapping[index].key" :options="staticMappingOptions()" :class="{ 'border-danger': $v.staticMapping[index].value.$anyError }"></b-form-select>
                 </b-col>
-                <b-col cols="auto" class="mx-0 px-0">
+                <b-col cols="8" class="mx-0 px-0">
                   <b-form-input v-model="staticMapping[index].value" :class="{ 'border-danger': $v.staticMapping[index].value.$anyError }" placeholder="null" />
                 </b-col>
                 <b-col>
@@ -165,14 +172,14 @@
               </b-row>
 
               <b-row fluid class="mx-0 px-0 mb-3" v-if="staticMappingOptions().filter(f => f.value && !f.disabled).length > 0">
-                <b-col cols="2" class="ml-0 mr-1 px-0">
+                <b-col cols="3" class="ml-0 mr-1 px-0">
                   <b-form-select v-model="staticMappingNew" :options="staticMappingOptions()">
                     <template slot="first">
                       <option :value="null" disabled>-- {{ $t('Choose static field') }} --</option>
                     </template>
                   </b-form-select>
                 </b-col>
-                <b-col cols="auto" class="mx-0 px-0">
+                <b-col cols="8" class="mx-0 px-0">
                   <b-button type="button" variant="outline-secondary" :disabled="typeof staticMappingNew !== 'string'" @click.prevent="addStatic">
                     <icon name="plus-circle" class="mr-1"></icon>
                     {{ $t('Add static field') }}
@@ -181,7 +188,7 @@
               </b-row>
 
               <b-container fluid class="mx-0 px-0 mt-3">
-                <b-button type="submit" variant="primary" :disabled="$v.$anyError">
+                <b-button type="submit" variant="primary" :disabled="$v.$anyError" @mouseenter="$v.$touch()">
                   <icon v-if="isLoading" name="circle-notch" spin class="mr-1"></icon> 
                   <icon v-else name="download" class="mr-1"></icon> 
                   {{ $t('Import') + ' ' + selectValues.length + ' ' + $t('selected rows') }}
@@ -387,18 +394,7 @@ export default {
       return options
     },
     tableMappingOptions () {
-      let fields = [
-        { // ignore
-          value: null,
-          text: this.$i18n.t('Ignore field')
-        },
-        { // seperator
-          value: null,
-          text: ' ',
-          disabled: true
-        }
-      ]
-      fields.push(...this.fields)
+      let fields = this.fields
       const reserved = this.reservedMappingOptions()
       fields.forEach((f, i) => {
         if (!f.value) return // ignore null
@@ -541,6 +537,7 @@ export default {
     },
     tableMapping: {
       handler: function (a, b) {
+        console.log('tableMapping', a)
         this.buildExportModel()
         this.$v.$touch()
       },

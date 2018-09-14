@@ -86,7 +86,7 @@ export default {
       fields: [
         {
           value: 'mac',
-          text: '&#128308; ' + this.$i18n.t('MAC Address'),
+          text: this.$i18n.t('MAC Address'),
           required: true,
           validators: { required, minLength: minLength(17), maxLength: maxLength(17), macAddress }
         },
@@ -112,7 +112,7 @@ export default {
         },
         {
           value: 'bypass_vlan',
-          text: this.$i18n.t('Bypass VLAN [?]'),
+          text: this.$i18n.t('Bypass VLAN'),
           required: false,
           validators: { maxLength: maxLength(50) }
         },
