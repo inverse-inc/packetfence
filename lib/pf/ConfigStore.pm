@@ -70,7 +70,7 @@ sub validParam { 1; }
 
 =head2 _buildCachedConfig
 
-Build the pf::IniFiles object
+Build the cached pf::IniFiles object
 
 =cut
 
@@ -86,6 +86,12 @@ sub _buildCachedConfig {
         }
     );
 }
+
+=head2 configIniFile
+
+Non cached pf::IniFiles object
+
+=cut
 
 sub configIniFile {
     my ($self) = @_;
