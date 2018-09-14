@@ -51,6 +51,12 @@ sub type_lookup {
     return \%TYPES_TO_FORMS;
 }
 
+=head2 dry_run
+
+Dry run a regex parser configuration
+
+=cut
+
 sub dry_run {
     my ($self) = @_;
     my ( $error, $new_data ) = $self->get_json;
