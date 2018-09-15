@@ -4857,7 +4857,7 @@ The following attributes are available to define your report (the ones that have
 ** `Display Name` is the user friendly name of the field for display.
 ** `field` is the SQL name of the field to search
 
-WARNING: Replace respectively operators `IS` and `<>` by `=` and `!=`
+WARNING: Replace operators `IS` and `<>` by `=` and `!=`, respectively.
 
 NOTE: You should always prefix the fields with the table name and a dot (ex: `node.mac`, `locationlog.role`, ...) so that they are not ambiguous. Although your query may work with a single table, it will not if you decide to add joins that contain column name(s) that are the same as the base table.
 
