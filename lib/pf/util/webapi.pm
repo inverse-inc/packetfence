@@ -26,6 +26,7 @@ our %MAC_KEYS = (
 
 sub add_mac_to_log_context {
     my ($args) = @_;
+    pf::log::reset_log_context();
     return unless defined $args;
     my $params;
     if (@$args == 1) {
