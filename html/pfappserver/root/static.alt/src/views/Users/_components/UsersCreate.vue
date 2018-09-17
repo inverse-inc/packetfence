@@ -35,30 +35,6 @@
       </b-tab>
       <b-tab :title="$t('Multiple')" v-can:create-multiple="'users'">
       </b-tab>
-      <b-tab :title="$t('Import')" v-can:create-multiple="'users'">
-        <b-form>
-          <b-form-group horizontal label-cols="3" label="CSV File">
-            <b-form-file v-model="csv.file" accept="text/*" choose-label="Choose a file" required></b-form-file>
-          </b-form-group>
-          <b-form-group horizontal label-cols="3" label="Column Delimiter">
-            <b-form-select v-model="csv.delimiter" :options="csv.delimiters"></b-form-select>
-          </b-form-group>
-          <b-form-group horizontal label-cols="3" label="Default Voice Over IP">
-            <b-form-checkbox v-model="csv.voip" value="yes"></b-form-checkbox>
-          </b-form-group>
-          <b-row>
-            <b-col sm="3">{{ $t('Columns Order') }}</b-col>
-            <b-col>
-              <draggable v-model="csv.columns" :options="{ handle: '.draggable-handle' }">
-                <div class="draggable-item" v-for="(column, index) in csv.columns" :key="column.name">
-                  <span class="draggable-handle">{{ index }}</span>
-                  <b-form-checkbox v-model="column.value" value="1">{{column.text}}</b-form-checkbox>
-                </div>
-              </draggable>
-            </b-col>
-          </b-row>
-        </b-form>
-      </b-tab>
     </b-tabs>
 
     <b-container class="card-body" fluid>
@@ -111,22 +87,6 @@
           pid: '',
           email: '',
           password: ''
-        },
-        csv: {
-          file: null,
-          delimiter: 'comma',
-          delimiters: [
-            { value: 'comma', text: 'Comma' },
-            { value: 'semicolon', text: 'Semicolon' },
-            { value: 'tab', text: 'Tab' }
-          ],
-          voip: null,
-          columns: [
-            { value: '1', name: 'mac', text: 'MAC Address' },
-            { value: '0', name: 'owner', text: 'Owner' },
-            { value: '0', name: 'role', text: 'Role' },
-            { value: '0', name: 'unregdate', text: 'Unregistration Date' }
-          ]
         },
         valid_from: new Date()
       }

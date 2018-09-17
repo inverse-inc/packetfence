@@ -12,12 +12,14 @@
                             <b-nav-item to="/users/search" replace>{{ $t('Search') }}</b-nav-item>
                             <b-nav-item to="/users/create" replace>{{ $t('Create') }}</b-nav-item>
                             <b-nav-item to="/users/import" replace>{{ $t('Import') }}</b-nav-item>
-                            
+
                             <hr/>
                             <div class="bd-toc-link" v-t="'Standard Searches'"></div>
                             <b-nav-item to="search/openviolations">Open Violations</b-nav-item>
                             <b-nav-item to="search/closedviolations">Closed Violations</b-nav-item>
                         </b-nav>
+
+                        <hr/>
                         <pf-saved-search :storeName="storeName" :routeName="this.$options.name.toLowerCase()"/>
                       </div>
                 </b-collapse>

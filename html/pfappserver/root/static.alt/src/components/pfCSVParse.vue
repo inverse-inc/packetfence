@@ -109,7 +109,7 @@
     </b-card-header>
     <b-collapse :id="uuidStr('table')" :accordion="uuidStr()" role="tabpanel" visible>
       <b-card-body>
-        <b-container fluid>
+        <b-container fluid v-if="items.length">
           <b-row align-v="center" class="float-right">
             <b-form inline class="mb-0">
               <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[10,25,50,100]" :disabled="isLoading"
@@ -541,7 +541,6 @@ export default {
     },
     tableMapping: {
       handler: function (a, b) {
-        console.log('tableMapping', a)
         this.buildExportModel()
         this.$v.$touch()
       },
