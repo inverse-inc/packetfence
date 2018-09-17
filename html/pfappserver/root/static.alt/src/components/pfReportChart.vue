@@ -51,7 +51,7 @@
 
 <script>
 import Plotly from 'plotly.js'
-import moment from 'moment'
+import { format, subSeconds } from 'date-fns'
 import {
   pfReportChartColorsFull as colorsFull,
   pfReportChartColorsNull as colorsNull
@@ -167,8 +167,8 @@ export default {
     },
     setRangeByPeriod (period) {
       this.showPeriod = false
-      this.$emit('changeDatetimeEnd', moment().format('YYYY-MM-DD HH:mm:ss'))
-      this.$emit('changeDatetimeStart', moment().subtract(period, 'seconds').format('YYYY-MM-DD HH:mm:ss'))
+      this.$emit('changeDatetimeEnd', format(new Date(), 'YYYY-MM-DD HH:mm:ss'))
+      this.$emit('changeDatetimeStart', format(subSeconds(new Date(), period), 'YYYY-MM-DD HH:mm:ss'))
     }
   },
   mounted () {

@@ -5,7 +5,7 @@
  *
 **/
 import store from '@/store'
-import moment from 'moment'
+import { parse, format } from 'date-fns'
 
 const _common = require('vuelidate/lib/validators/common')
 
@@ -30,9 +30,9 @@ export const inArray = (array) => {
   })
 }
 
-export const isDate = (value) => (!value) || value === '0000-00-00' || moment(value, 'YYYY-MM-DD', true).isValid()
+export const isDate = (value) => (!value) || value === '0000-00-00' || format(parse(value), 'YYYY-MM-DD') === value
 
-export const isDateTime = (value) => (!value) || value === '0000-00-00 00:00:00' || moment(value, 'YYYY-MM-DD HH:mm:ss', true).isValid()
+export const isDateTime = (value) => (!value) || value === '0000-00-00 00:00:00' || format(parse(value), 'YYYY-MM-DD HH:mm:ss') === value
 
 export const macAddressIsUnique = (value, component) => {
   if (!value || value.length !== 17) return true

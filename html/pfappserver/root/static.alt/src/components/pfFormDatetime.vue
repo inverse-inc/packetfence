@@ -9,10 +9,10 @@
  *    prependText: input-group prepend slot
  *    config: extend/overload pc-bootstrap4-datetimepicker options
  *      See: http://eonasdan.github.io/bootstrap-datetimepicker/Options/
- *    disabled: boolean true/false to disable/enable input
- *    min: minimum datetime string, Date or moment
- *    max: maximum datetime String, Date or moment
- *    moments: button array of +/- seconds from now (see: https://momentjs.com/docs/#/manipulating/add/)
+ *    disabled: (Boolean) true/false to disable/enable input
+ *    min: (Date) minimum datetime string
+ *    max: (Date) maximum datetime String
+ *    moments: button array of +/- seconds from now (see: https://date-fns.org/v1.29.0/docs/addSeconds)
  *      example :moments="['-1 hours', '1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"
  */
  <template>
@@ -39,7 +39,19 @@
 import {createDebouncer} from 'promised-debounce'
 import datePicker from 'vue-bootstrap-datetimepicker'
 import 'pc-bootstrap4-datetimepicker/build/css/bootstrap-datetimepicker.css'
-import moment from 'moment'
+import {
+  parse,
+  format,
+  addYears,
+  addQuarters,
+  addMonths,
+  addWeeks,
+  addDays,
+  addHours,
+  addMinutes,
+  addSeconds,
+  addMilliseconds
+} from 'date-fns'
 
 // even indexes (0, 2, ...) must be full names, odd (1, 3, ...) indexes must be abbreviations
 const validMomentKeys = ['years', 'y', 'quarters', 'Q', 'months', 'M', 'weeks', 'w', 'days', 'd', 'hours', 'h', 'minutes', 'm', 'seconds', 's', 'milliseconds', 'ms']
@@ -243,9 +255,39 @@ export default {
       let [amount, key] = this.moments[index].split(' ', 2)
       amount = parseInt(amount)
       // allow [CTRL]+[CLICK] for cumulative change
-      const base = (event.ctrlKey) ? this.inputValue || undefined : undefined
+      const base = (event.ctrlKey) ? parse(this.inputValue, 'YYYY-MM-DD HH:mm:ss') || new Date() : new Date()
       if (validMomentKeys.includes(key)) {
-        this.inputValue = moment(base).add(amount, key).format('YYYY-MM-DD HH:mm:ss')
+        switch (key) {
+          case 'years':
+            this.inputValue = format(addYears(base, amount), 'YYYY-MM-DD HH:mm:ss')
+            break
+          case 'quarters':
+            this.inputValue = format(addQuarters(base, amount), 'YYYY-MM-DD HH:mm:ss')
+            break
+          case 'months':
+            this.inputValue = format(addMonths(base, amount), 'YYYY-MM-DD HH:mm:ss')
+            break
+          case 'weeks':
+            this.inputValue = format(addWeeks(base, amount), 'YYYY-MM-DD HH:mm:ss')
+            break
+          case 'days':
+            this.inputValue = format(addDays(base, amount), 'YYYY-MM-DD HH:mm:ss')
+            break
+          case 'hours':
+            this.inputValue = format(addHours(base, amount), 'YYYY-MM-DD HH:mm:ss')
+            break
+          case 'minutes':
+            this.inputValue = format(addMinutes(base, amount), 'YYYY-MM-DD HH:mm:ss')
+            break
+          case 'seconds':
+            this.inputValue = format(addSeconds(base, amount), 'YYYY-MM-DD HH:mm:ss')
+            break
+          case 'milliseconds':
+            this.inputValue = format(addMilliseconds(base, amount), 'YYYY-MM-DD HH:mm:ss')
+            break
+          default:
+            this.inputValue = format(base, 'YYYY-MM-DD HH:mm:ss')
+        }
       }
     }
   },
