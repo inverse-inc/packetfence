@@ -261,7 +261,7 @@ sub getPhonesLLDPAtIfIndex {
     my $baseoid = "$oid_lldpRemSysCapEnabled.$CISCO::DEFAULT_LLDP_REMTIMEMARK.$lldpPort";
 
     $logger->trace(sub {"SNMP get_next_request for lldpRemSysCapEnabled: $baseoid"});
-    my $result = $self->cachedSNMPRequest([-baseoid => $baseoid]);
+    my $result = $self->cachedSNMPTable([-baseoid => $baseoid]);
 
     # Cap entries look like this:
     # iso.0.8802.1.1.2.1.4.1.1.12.0.10.29 = Hex-STRING: 24 00

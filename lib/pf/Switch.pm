@@ -422,6 +422,29 @@ sub connectRead {
     return 1;
 }
 
+=item cachedSNMPTable
+
+Get a cached SNMP request using the default cache expiration
+
+    $self->cachedSNMPTable([-base_oid => ['1.3.6.1.2.1.1.6.0']]);
+
+Get a cached SNMP request using a provided expiration
+
+    $self->cachedSNMPTable([-base_oid => ['1.3.6.1.2.1.1.6.0']], {expires_in => '10m'});
+
+=cut
+
+sub cachedSNMPTable {
+    my ($self, $args, $options) = @_;
+    my $session = $self->{_sessionRead};
+    if(!defined $session) {
+        $self->logger->error("Trying read to from a undefined session");
+        return undef;
+    }
+    $options //= {};
+    return $self->cache->compute($self->{'_id'} . "-" . $args, $options, sub {$self->{_sessionRead}->get_table(@$args)});
+}
+
 =item cachedSNMPRequest
 
 Get a cached SNMP request using the default cache expiration
