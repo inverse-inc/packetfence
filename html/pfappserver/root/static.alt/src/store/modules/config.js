@@ -8,6 +8,9 @@ const api = {
   getRoles () {
     return apiCall({url: 'node_categories', method: 'get'})
   },
+  getSources () {
+    return apiCall({url: 'config/sources', method: 'get'})
+  },
   getSwitches () {
     return apiCall({url: 'config/switches', method: 'get'})
   },
@@ -18,6 +21,7 @@ const api = {
 
 const state = {
   roles: [],
+  sources: [],
   switches: [],
   violations: {}
 }
@@ -85,6 +89,16 @@ const actions = {
       return Promise.resolve(state.roles)
     }
   },
+  getSources: ({state, commit}) => {
+    if (state.sources.length === 0) {
+      return api.getSources().then(response => {
+        commit('SOURCES_UPDATED', response.data.items)
+        return state.sources
+      })
+    } else {
+      return Promise.resolve(state.sources)
+    }
+  },
   getSwitches: ({state, commit}) => {
     if (state.switches.length === 0) {
       return api.getSwitches().then(response => {
@@ -114,6 +128,9 @@ const actions = {
 const mutations = {
   ROLES_UPDATED: (state, roles) => {
     state.roles = roles
+  },
+  SOURCES_UPDATED: (state, sources) => {
+    state.sources = sources
   },
   SWICTHES_UPDATED: (state, switches) => {
     state.switches = switches

@@ -250,6 +250,9 @@ export default {
       document.addEventListener('keydown', this.onKeyDown)
     }
   },
+  created () {
+    this.$store.dispatch('config/getRoles')
+  },
   beforeDestroy () {
     if (!this.noInitBindKeys) {
       document.removeEventListener('keydown', this.onKeyDown)

@@ -9,18 +9,6 @@ import { parse, format } from 'date-fns'
 
 const _common = require('vuelidate/lib/validators/common')
 
-export const categoryIdNumberExists = (value, component) => {
-  if (!value || !/\d+/.test(value)) return true
-  if (store.state.config.roles.filter(role => role.category_id === value).length === 0) return false
-  return true
-}
-
-export const categoryIdStringExists = (value, component) => {
-  if (!value || /\d+/.test(value)) return true
-  if (store.state.config.roles.filter(role => role.name.toLowerCase() === value.toLowerCase()).length === 0) return false
-  return true
-}
-
 export const inArray = (array) => {
   return (0, _common.withParams)({
     type: 'inArray',
@@ -33,6 +21,33 @@ export const inArray = (array) => {
 export const isDate = (value) => (!value) || value === '0000-00-00' || format(parse(value), 'YYYY-MM-DD') === value
 
 export const isDateTime = (value) => (!value) || value === '0000-00-00 00:00:00' || format(parse(value), 'YYYY-MM-DD HH:mm:ss') === value
+
+export const categoryIdNumberExists = (value, component) => {
+  if (!value || !/\d+/.test(value)) return true
+  return store.dispatch('config/getRoles').then((response) => {
+    return (response.filter(role => role.category_id === value).length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const categoryIdStringExists = (value, component) => {
+  if (!value || /\d+/.test(value)) return true
+  return store.dispatch('config/getRoles').then((response) => {
+    return (response.filter(role => role.name.toLowerCase() === value.toLowerCase()).length > 0)
+  }).catch(() => {
+    return true
+  })
+}
+
+export const sourceExists = (value, component) => {
+  if (!value) return true
+  return store.dispatch('config/getSources').then((response) => {
+    return (response.filter(source => source.id.toLowerCase() === value.toLowerCase()).length > 0)
+  }).catch(() => {
+    return true
+  })
+}
 
 export const macAddressIsUnique = (value, component) => {
   if (!value || value.length !== 17) return true
