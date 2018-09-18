@@ -61,7 +61,7 @@ import {
   categoryIdNumberExists, // validate category_id/bypass_role_id (Number) exists
   categoryIdStringExists, // validate category_id/bypass_role_id (String) exists
   inArray,
-  isDateTime,
+  isDateFormat,
   userExists // validate user pid exists
 } from '@/globals/pfValidators'
 
@@ -126,13 +126,13 @@ export default {
           value: 'regdate',
           text: this.$i18n.t('Datetime Registered'),
           required: false,
-          validators: { isDateTime }
+          validators: { isDateFormat: isDateFormat('YYYY-MM-DD HH:mm:ss') }
         },
         {
           value: 'unregdate',
           text: this.$i18n.t('Datetime Unregistered'),
           required: false,
-          validators: { isDateTime }
+          validators: { isDateFormat: isDateFormat('YYYY-MM-DD HH:mm:ss') }
         },
         {
           value: 'notes',

@@ -18,9 +18,14 @@ export const inArray = (array) => {
   })
 }
 
-export const isDate = (value) => (!value) || value === '0000-00-00' || format(parse(value), 'YYYY-MM-DD') === value
-
-export const isDateTime = (value) => (!value) || value === '0000-00-00 00:00:00' || format(parse(value), 'YYYY-MM-DD HH:mm:ss') === value
+export const isDateFormat = (dateFormat) => {
+  return (0, _common.withParams)({
+    type: 'isDateFormat',
+    dateFormat: dateFormat
+  }, function (value) {
+    return !(0, _common.req)(value) || format(parse(value), dateFormat) === value || dateFormat.replace(/[a-z]/gi, '0') === value
+  })
+}
 
 export const categoryIdNumberExists = (value, component) => {
   if (!value || !/\d+/.test(value)) return true
