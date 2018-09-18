@@ -472,8 +472,6 @@ export default {
         }
         return exportModel
       }, [])
-      this.$v.$touch()
-      this.$forceUpdate()
     },
     doExport (event) {
       this.$emit('input', this.exportModel)
@@ -542,24 +540,28 @@ export default {
     },
     tableMapping: {
       handler: function (a, b) {
+        this.$v.$touch()
         this.buildExportModel()
       },
       deep: true
     },
     staticMapping: {
       handler: function (a, b) {
+        this.$v.$touch()
         this.buildExportModel()
       },
       deep: true
     },
     selectValues: {
       handler: function (a, b) {
+        this.$v.$touch()
         this.buildExportModel()
       },
       deep: true
     },
     '$v': {
       handler: function (a, b) {
+        if (typeof this.tableValues === 'function') return
         // debounce
         if (this.validateTimeout) clearTimeout(this.validateTimeout)
         this.validateTimeout = setTimeout(() => {
