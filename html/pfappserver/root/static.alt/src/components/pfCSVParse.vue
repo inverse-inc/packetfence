@@ -455,7 +455,7 @@ export default {
         //    => (exportModel) [ {mac: 'X'}, {mac: 'Z'} ]
         // ignore selectValues with validation errors
         if (!this.$v.selectValues.$each.$iter[index].$anyError) {
-          const mappedRow = Object.keys(selectValue).reduce((mappedRow, key) => {
+          let mappedRow = Object.keys(selectValue).reduce((mappedRow, key) => {
             if (cheatSheet[key]) mappedRow[cheatSheet[key]] = (selectValue[key] === '') ? null : selectValue[key]
             return mappedRow
           }, staticMapping)
@@ -466,8 +466,12 @@ export default {
               mappedRow[key] = field.formatter(mappedRow[key], key, mappedRow)
             }
           })
+          // dereference mappedRow
+          mappedRow = JSON.parse(JSON.stringify(mappedRow))
           // add pointer reference to tableValue for callback
-          mappedRow._tableValue = this.tableValues.find(v => v === selectValue)
+          let tableValue = this.tableValues.find(v => v === selectValue)
+          mappedRow._rowMessage = tableValue._rowMessage
+          mappedRow._rowVariant = tableValue._rowVariant
           exportModel.push(mappedRow)
         }
         return exportModel
