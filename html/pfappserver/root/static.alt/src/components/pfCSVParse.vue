@@ -36,7 +36,9 @@
  *
  *  Events:
  *
- *    @input: emitted w/ `exportModel`, a remapped array of objects based on user-mappings and clean vuelidations
+ *    @input: emitted w/ (`exportModel`, `this`)
+ *      `exportModel`: (array) -- a remapped array of objects based on user-mappings and clean vuelidations
+ *      `this`: (object) -- forward `this` to allow direct modification of this.tableValues[index]... _rowVariant and _rowMessage.
  *
 **/
  <template>
@@ -469,16 +471,15 @@ export default {
           // dereference mappedRow
           mappedRow = JSON.parse(JSON.stringify(mappedRow))
           // add pointer reference to tableValue for callback
-          let tableValue = this.tableValues.find(v => v === selectValue)
-          mappedRow._rowMessage = tableValue._rowMessage
-          mappedRow._rowVariant = tableValue._rowVariant
+          let tableValueIndex = this.tableValues.findIndex(v => v === selectValue)
+          mappedRow._tableValueIndex = tableValueIndex
           exportModel.push(mappedRow)
         }
         return exportModel
       }, [])
     },
     doExport (event) {
-      this.$emit('input', this.exportModel)
+      this.$emit('input', this.exportModel, this)
     },
     onPageSizeChange () {
       this.requestPage = 1 // reset to the first page
@@ -558,6 +559,8 @@ export default {
     },
     selectValues: {
       handler: function (a, b) {
+        if (JSON.stringify(a) === JSON.stringify(b)) return
+        a.forEach(row => { row._rowVariant = 'info' })
         this.$v.$touch()
         this.buildExportModel()
       },
@@ -579,7 +582,9 @@ export default {
               let [index, field] = f
               // set row variant based on validation error on tableValue (not selectValue)
               const row = this.tableValues.find(row => row === a.selectValues.$model[index])
-              row._rowVariant = (field.$anyError) ? '' : 'info'
+              if (row._rowVariant === 'info') { // ignore non-'info' variants
+                row._rowVariant = (field.$anyError) ? '' : 'info'
+              }
               if (field.$anyError) {
                 Object.keys(field.$model).forEach(key => {
                   if (field[key] && field[key].$anyError) {
