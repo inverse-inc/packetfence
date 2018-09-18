@@ -9,7 +9,7 @@
         <b-tab v-for="(file, index) in files" :key="file.name + file.lastModified" :title="file.name" no-body>
           <template slot="title">
             <b-button-close class="float-right ml-3" @click.stop.prevent="closeFile(index)" v-b-tooltip.hover.left.d300 :title="$t('Close File')"><icon name="times"></icon></b-button-close>
-            {{ $t(file.name) }}
+            {{ $t(file.name) }} {{ index }}
           </template>
           <pf-csv-parse @input="onImport" :ref="'parser-' + index" :file="file" :fields="fields" :storeName="storeName" no-init-bind-keys></pf-csv-parse>
         </b-tab>
@@ -286,32 +286,39 @@ export default {
         this.$refs['parser-' + this.tabIndex][0].onKeyDown(event)
       }
     },
-    onImport (values) {
+    onImport (values, parser) {
       // track progress
       this.progressValue = 1
       this.progressTotal = values.length + 1
       // track promise(s)
       Promise.all(values.map(value => {
-        return this.$store.dispatch('$_nodes/exists', value.mac).then(results => {
-          console.log('exists')
+        // map child components' tableValue
+        let tableValue = parser.tableValues[value._tableValueIndex]
+        return this.$store.dispatch('$_users/exists', value.pid).then(results => {
           // node exists
           return this.updateUser(value).then(results => {
-            console.log('updateUser', value)
-            value._tableValue._rowVariant = convert.statusToVariant({ status: results.status })
+            if (results.status) {
+              tableValue._rowVariant = convert.statusToVariant({ status: results.status })
+            } else {
+              tableValue._rowVariant = 'success'
+            }
             if (results.message) {
-              value._tableValue._rowMessage = this.$i18n.t(results.message)
+              tableValue._rowMessage = this.$i18n.t(results.message)
             }
             return results
           }).catch(err => {
             throw err
           })
         }).catch(() => {
-          console.log('not exists')
           // node not exists
           return this.createUser(value).then(results => {
-            value._tableValue._rowVariant = convert.statusToVariant({ status: results.status })
+            if (results.status) {
+              tableValue._rowVariant = convert.statusToVariant({ status: results.status })
+            } else {
+              tableValue._rowVariant = 'success'
+            }
             if (results.message) {
-              value._tableValue._rowMessage = this.$i18n.t(results.message)
+              tableValue._rowMessage = this.$i18n.t(results.message)
             }
             return results
           }).catch(err => {
@@ -319,17 +326,18 @@ export default {
           })
         })
       })).then(values => {
-        console.log(['promise values', values])
-      }).catch(reason => {
-        console.log(['promises reason', reason])
+        this.$store.dispatch('notification/info', {
+          message: values.length + ' ' + this.$i18n.t('users imported'),
+          success: null,
+          skipped: null,
+          failed: null
+        })
       })
-      console.log('onImport done')
     },
     createUser (data) {
-      console.log('> createUser', data)
-      return this.$store.dispatch('$_nodes/createUser', data).then(results => {
-        // does the data contain anything other than 'mac' or a private key (_*)?
-        if (Object.keys(data).filter(key => key !== 'mac' && key.charAt(0) !== '_').length > 0) {
+      return this.$store.dispatch('$_users/createUser', data).then(results => {
+        // does the data contain anything other than 'pid' or a private key (_*)?
+        if (Object.keys(data).filter(key => key !== 'pid' && key.charAt(0) !== '_').length > 0) {
           // chain updateUser
           this.progressTotal += 1
           return this.updateUser(data).then(results => {
@@ -346,8 +354,7 @@ export default {
       })
     },
     updateUser (data) {
-      console.log('> updateUser')
-      return this.$store.dispatch('$_nodes/updateUser', data).then(results => {
+      return this.$store.dispatch('$_users/updateUser', data).then(results => {
         return results
       }).catch(err => {
         throw err
