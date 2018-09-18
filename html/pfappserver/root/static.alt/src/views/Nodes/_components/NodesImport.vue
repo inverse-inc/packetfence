@@ -175,32 +175,39 @@ export default {
         this.$refs['parser-' + this.tabIndex][0].onKeyDown(event)
       }
     },
-    onImport (values) {
+    onImport (values, parser) {
       // track progress
       this.progressValue = 1
       this.progressTotal = values.length + 1
       // track promise(s)
       Promise.all(values.map(value => {
+        // map child components' tableValue
+        let tableValue = parser.tableValues[value._tableValueIndex]
         return this.$store.dispatch('$_nodes/exists', value.mac).then(results => {
-          console.log('exists')
           // node exists
           return this.updateNode(value).then(results => {
-            console.log('updateNode', value)
-            value._tableValue._rowVariant = convert.statusToVariant({ status: results.status })
+            if (results.status) {
+              tableValue._rowVariant = convert.statusToVariant({ status: results.status })
+            } else {
+              tableValue._rowVariant = 'success'
+            }
             if (results.message) {
-              value._tableValue._rowMessage = this.$i18n.t(results.message)
+              tableValue._rowMessage = this.$i18n.t(results.message)
             }
             return results
           }).catch(err => {
             throw err
           })
         }).catch(() => {
-          console.log('not exists')
           // node not exists
           return this.createNode(value).then(results => {
-            value._tableValue._rowVariant = convert.statusToVariant({ status: results.status })
+            if (results.status) {
+              tableValue._rowVariant = convert.statusToVariant({ status: results.status })
+            } else {
+              tableValue._rowVariant = 'success'
+            }
             if (results.message) {
-              value._tableValue._rowMessage = this.$i18n.t(results.message)
+              tableValue._rowMessage = this.$i18n.t(results.message)
             }
             return results
           }).catch(err => {
@@ -208,11 +215,13 @@ export default {
           })
         })
       })).then(values => {
-        console.log(['promise values', values])
-      }).catch(reason => {
-        console.log(['promises reason', reason])
+        this.$store.dispatch('notification/info', {
+          message: values.length + ' ' + this.$i18n.t('nodes imported'),
+          success: null,
+          skipped: null,
+          failed: null
+        })
       })
-      console.log('onImport done')
     },
     createNode (data) {
       console.log('> createNode', data)
