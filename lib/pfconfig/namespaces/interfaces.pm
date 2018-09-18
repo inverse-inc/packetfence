@@ -24,6 +24,7 @@ use Net::Interface;
 use Socket;
 use pf::util;
 use List::MoreUtils qw(uniq);
+use pf::config::cluster;
 
 use base 'pfconfig::namespaces::resource';
 
@@ -55,8 +56,7 @@ sub init {
     }
     $self->{config_resource} = pfconfig::namespaces::config::Pf->new( $self->{cache}, $host_id );
     #$self->{cluster_enabled} = pfconfig::namespaces::resource::cluster_enabled->new( $self->{cache} )->build();
-    require pf::cluster;
-    $self->{cluster_enabled} = $pf::cluster::cluster_enabled;
+    $self->{cluster_enabled} = $pf::config::cluster::cluster_enabled;
 }
 
 sub build {

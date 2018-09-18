@@ -38,6 +38,7 @@ use File::Slurp qw(read_file write_file);
 use Time::HiRes qw(time);
 use POSIX qw(ceil);
 use Crypt::CBC;
+use pf::config::cluster;
 
 use Module::Pluggable
   'search_path' => [qw(pf::ConfigStore)],
@@ -52,20 +53,21 @@ our ( @ISA, @EXPORT );
 @ISA = qw(Exporter);
 @EXPORT = qw(%ConfigCluster @cluster_servers @cluster_hosts $cluster_enabled $host_id $CLUSTER);
 
-our ($cluster_enabled, %ConfigCluster, @cluster_servers, @cluster_hosts);
-tie %ConfigCluster, 'pfconfig::cached_hash', 'config::Cluster';
-tie @cluster_servers, 'pfconfig::cached_array', 'resource::cluster_servers';
-tie @cluster_hosts, 'pfconfig::cached_array', 'resource::cluster_hosts';
-$cluster_enabled = sub {
-    my $cfg = Config::IniFiles->new( -file => $cluster_config_file );
-    return 0 unless($cfg);
-    my $mgmt_ip = $cfg->val('CLUSTER', 'management_ip');
-    defined($mgmt_ip) && valid_ip($mgmt_ip) ? 1 : 0 ;
-}->();
+our (%clusters_hostname_map, $cluster_enabled, $cluster_name, %ConfigCluster, @cluster_servers, @cluster_hosts);
+tie %clusters_hostname_map, 'pfconfig::cached_hash', 'resource::clusters_hostname_map';
 
 our $CLUSTER = "CLUSTER";
 
 our $host_id = hostname();
+
+$cluster_enabled = $pf::config::cluster::cluster_enabled;
+
+if($cluster_enabled) {
+    $cluster_name = $clusters_hostname_map{$host_id} // die "Can't determine cluster name for host $host_id\n";
+    tie %ConfigCluster, 'pfconfig::cached_hash', "config::Cluster($cluster_name)";
+    tie @cluster_servers, 'pfconfig::cached_array', "resource::cluster_servers($cluster_name)";
+    tie @cluster_hosts, 'pfconfig::cached_array', "resource::cluster_hosts($cluster_name)";
+}
 
 =head2 node_disabled_file
 

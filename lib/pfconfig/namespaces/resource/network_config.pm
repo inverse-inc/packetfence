@@ -23,7 +23,7 @@ use pfconfig::namespaces::interfaces;
 use pfconfig::namespaces::config::Cluster;
 
 sub init {
-    my ($self) = @_;
+    my ($self, $cluster_name) = @_;
 
     $self->{config_pf} = pfconfig::namespaces::config::Pf->new( $self->{cache} )->build();
     $self->{networks} = $self->{cache}->get_cache('config::Network');
@@ -36,6 +36,9 @@ sub build {
     my ($self) = @_;
 
     $self->{cluster_resource}->build();
+
+    #TODO: handle this for multi-cluster
+    return {};
 
     my %ConfigNetwork;
 

@@ -1,4 +1,4 @@
-package pfconfig::namespaces::resource::cluster_hosts;
+package pfconfig::namespaces::resource::clusters_hostname_map;
 
 =head1 NAME
 
@@ -19,9 +19,8 @@ use base 'pfconfig::namespaces::resource';
 use pfconfig::namespaces::config::Cluster;
 
 sub init {
-    my ($self, $cluster_name) = @_;
+    my ($self) = @_;
 
-    $self->{cluster_name} = $cluster_name // "DEFAULT";
     $self->{cluster_resource} = pfconfig::namespaces::config::Cluster->new($self->{cache});
 }
 
@@ -30,9 +29,7 @@ sub build {
     my @cluster_ips;
     $self->{cluster_resource}->build();
 
-    my @cluster_hosts = map { $_->{host} } @{$self->{cluster_resource}->{_servers}->{$self->{cluster_name}}};
-
-    return \@cluster_hosts;
+    return $self->{cluster_resource}->{hostname_map};
 }
 
 
@@ -68,4 +65,5 @@ USA.
 # vim: set shiftwidth=4:
 # vim: set expandtab:
 # vim: set backspace=indent,eol,start:
+
 
