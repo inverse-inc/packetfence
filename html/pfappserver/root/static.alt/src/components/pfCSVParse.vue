@@ -545,6 +545,7 @@ export default {
     },
     tableMapping: {
       handler: function (a, b) {
+        this.selectValues.forEach(row => { row._rowVariant = 'info' })
         this.$v.$touch()
         this.buildExportModel()
       },
@@ -560,7 +561,6 @@ export default {
     selectValues: {
       handler: function (a, b) {
         if (JSON.stringify(a) === JSON.stringify(b)) return
-        a.forEach(row => { row._rowVariant = 'info' })
         this.$v.$touch()
         this.buildExportModel()
       },
@@ -581,11 +581,12 @@ export default {
             Object.entries(a.selectValues.$each.$iter).forEach(f => {
               let [index, field] = f
               // set row variant based on validation error on tableValue (not selectValue)
-              const row = this.tableValues.find(row => row === a.selectValues.$model[index])
-              if (row._rowVariant === 'info') { // ignore non-'info' variants
-                row._rowVariant = (field.$anyError) ? '' : 'info'
-              }
               if (field.$anyError) {
+                const row = this.tableValues.find(row => row === a.selectValues.$model[index])
+                if (row._rowVariant !== '') {
+                  // clear row variant, allows cell variant to show
+                  row._rowVariant = ''
+                }
                 Object.keys(field.$model).forEach(key => {
                   if (field[key] && field[key].$anyError) {
                     row._cellVariants.actions = 'danger'
