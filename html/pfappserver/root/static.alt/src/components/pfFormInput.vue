@@ -1,6 +1,6 @@
 <template>
   <b-form-group horizontal label-cols="3" :label="$t(label)"
-    :state="isValid()" :invalid-feedback="$t(invalidFeedback)">
+    :state="isValid()" :invalid-feedback="$t(getInvalidFeedback())">
     <b-form-input :type="type" :placeholder="placeholder" v-model="inputValue" @input.native="validate()" @keyup.native="onChange($event)" @change.native="onChange($event)" :state="isValid()"></b-form-input>
     <b-form-text v-if="text" v-t="text"></b-form-text>
   </b-form-group>
@@ -35,7 +35,6 @@ export default {
       default: null
     },
     invalidFeedback: {
-      type: String,
       default: null
     },
     highlightValid: {
@@ -104,6 +103,25 @@ export default {
           }
         })
       }
+    },
+    getInvalidFeedback () {
+      const processFeedback = (feedback) => {
+        if (feedback instanceof String) return feedback
+        if (feedback instanceof Array) {
+          let ret = ''
+          feedback.forEach(f => {
+            ret += ((ret !== '') ? ' ' : '') + processFeedback(f)
+          })
+          return ret
+        }
+        if (feedback instanceof Object) {
+          if (Object.values(feedback)[0] === true) {
+            return Object.keys(feedback)[0]
+          }
+          return ''
+        }
+      }
+      return processFeedback(this.invalidFeedback)
     }
   },
   created () {
