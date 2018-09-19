@@ -7,29 +7,32 @@
   https://vmware.github.io/clarity/documentation/v0.11/toggle-switches
 -->
 <template>
-<label role="checkbox"
-       :class="className"
-       :aria-checked="ariaChecked">
-  <input type="checkbox"
-         class="v-switch-input"
-         @change.stop="toggle">
-  <div class="v-switch-core mr-2"
-        :style="coreStyle">
-    <div class="v-switch-button"
-        :style="buttonStyle"/>
-  </div>
-  <template v-if="labels">
-    <span class="v-switch-label v-left"
-          :style="labelStyle"
-          v-if="toggled"
-          v-html="labelChecked"/>
-    <span class="v-switch-label v-right"
-          :style="labelStyle"
-          v-else
-          v-html="labelUnchecked"/>
-  </template>
-  <slot/>
-</label>
+  <b-form-group horizontal :label-cols="(label) ? 3 : 0" :label="$t(label)">
+    <label role="checkbox"
+          :class="className"
+          :aria-checked="ariaChecked">
+      <input type="checkbox"
+            class="v-switch-input"
+            @change.stop="toggle">
+      <div class="v-switch-core mr-2"
+            :style="coreStyle">
+        <div class="v-switch-button"
+            :style="buttonStyle"/>
+      </div>
+      <template v-if="labels">
+        <span class="v-switch-label v-left"
+              :style="labelStyle"
+              v-if="toggled"
+              v-html="labelChecked"/>
+        <span class="v-switch-label v-right"
+              :style="labelStyle"
+              v-else
+              v-html="labelUnchecked"/>
+      </template>
+      <slot/>
+    </label>
+    <b-form-text v-if="text" v-t="text"></b-form-text>
+  </b-form-group>
 </template>
 
 <script>
@@ -85,6 +88,10 @@ export default {
       type: Boolean,
       default: false
     },
+    label: {
+      type: String,
+      default: null
+    },
     labels: {
       type: [Boolean, Object],
       default: false,
@@ -93,6 +100,10 @@ export default {
           ? (value.checked || value.unchecked)
           : typeof value === 'boolean'
       }
+    },
+    text: {
+      type: String,
+      default: null
     },
     height: {
       type: Number,
