@@ -18,7 +18,6 @@ To avoid circular dependencies pf::api needs to be included before consuming thi
 use strict;
 use warnings;
 use pf::log;
-use pf::db;
 use pf::util::webapi;
 use POSIX;
 use Moo;
@@ -47,7 +46,6 @@ sub notify {
     my ($self, $method, @args) = @_;
     my $pid;
     if (pf::api->shouldFork($method)) {
-        db_disconnect();
         $pid = fork;
         unless (defined $pid) {
             $logger->error("Error fork $!");
