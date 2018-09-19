@@ -246,6 +246,27 @@ sub get_all_unittests {
     return @list;
 }
 
+=head2 get_all_serialized_unittests
+
+Return all the files /usr/local/pf/t/serialized_unittests
+
+=cut
+
+sub get_all_serialized_unittests {
+
+    my @list;
+
+    # find2perl /usr/local/pf/lib/pf/Switch -name "*.pm"
+    File::Find::find({
+        wanted => sub {
+            if ($File::Find::name =~ m#^\Q$Bin\E/serialized_unittests/(.*\.t)$# ) {
+                push(@list, "serialized_unittests/$1");
+            }
+        }}, "$Bin/serialized_unittests"
+    );
+    return @list;
+}
+
 =head2 get_networkdevices_classes
 
 Return the pf::Switch::Device form for all modules under /usr/local/pf/lib/pf/Switch except constants.pm and Generic.pm
