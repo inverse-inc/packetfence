@@ -24,7 +24,7 @@ use pf::auth_log;
 
 has '+pid_field' => (default => sub { "telephone" });
 
-has '+source' => (isa => 'pf::Authentication::Source::SMSSource|pf::Authentication::Source::TwilioSource');
+has '+source' => (isa => 'pf::Authentication::Source::SMSSource|pf::Authentication::Source::TwilioSource|pf::Authentication::Source::ClickatellSource');
 
 =head2 allowed_urls_auth_module
 
