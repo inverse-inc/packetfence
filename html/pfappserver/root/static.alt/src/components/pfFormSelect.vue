@@ -1,6 +1,6 @@
 <template>
   <b-form-group horizontal :label-cols="(label) ? labelCols : 0" :label="$t(label)"
-    :state="isValid()" :invalid-feedback="getInvalidFeedback()">
+    :state="isValid()" :invalid-feedback="getInvalidFeedback()" :class="{ 'mb-0': !label }">
     <b-form-select 
       v-model="inputValue" 
       :id="id"

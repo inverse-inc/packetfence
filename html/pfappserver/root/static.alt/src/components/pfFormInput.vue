@@ -1,6 +1,6 @@
 <template>
-  <b-form-group horizontal label-cols="3" :label="$t(label)"
-    :state="isValid()" :invalid-feedback="$t(getInvalidFeedback())">
+  <b-form-group horizontal :label-cols="(label) ? labelCols : 0" :label="$t(label)"
+    :state="isValid()" :invalid-feedback="getInvalidFeedback()" :class="{ 'mb-0': !label }">
     <b-form-input 
       v-model="inputValue"
       :id="id"
@@ -18,8 +18,8 @@
       :lazy-formatter="lazyFormatter"
       @input.native="validate()"
       @keyup.native="onChange($event)"
-      @change.native="onChange($event)
-    "></b-form-input>
+      @change.native="onChange($event)"
+    ></b-form-input>
     <b-form-text v-if="text" v-t="text"></b-form-text>
   </b-form-group>
 </template>
@@ -38,6 +38,10 @@ export default {
     },
     label: {
       type: String
+    },
+    labelCols: {
+      type: Number,
+      default: 3
     },
     text: {
       type: String,

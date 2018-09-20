@@ -109,7 +109,7 @@ export const sourceExists = (value, component) => {
   })
 }
 
-export const macAddressIsUnique = (value, component) => {
+export const nodeExists = (value, component) => {
   if (!value || value.length !== 17) return true
   return store.dispatch('$_nodes/exists', value).then(() => {
     return false

@@ -1,6 +1,6 @@
 <template>
-  <b-form-group horizontal label-cols="3" :label="$t(label)"
-    :state="isValid()" :invalid-feedback="$t(getInvalidFeedback())">
+  <b-form-group horizontal :label-cols="(label) ? labelCols : 0" :label="$t(label)"
+    :state="isValid()" :invalid-feedback="getInvalidFeedback()" :class="{ 'mb-0': !label }">
     <b-form-textarea 
       v-model="inputValue"
       :id="id"
@@ -40,6 +40,10 @@ export default {
     label: {
       type: String,
       default: null
+    },
+    labelCols: {
+      type: Number,
+      default: 3
     },
     text: {
       type: String,

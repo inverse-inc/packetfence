@@ -16,13 +16,22 @@
  *      example :moments="['-1 hours', '1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"
  */
  <template>
-  <b-form-group :label-cols="labelCols" :label="$t(label)" :state="isValid()" :invalid-feedback="$t(invalidFeedback)" class="mb-0" horizontal>
+  <b-form-group horizontal :label-cols="(label) ? labelCols : 0" :label="$t(label)" 
+    :state="isValid()" :invalid-feedback="getInvalidFeedback()" :class="{ 'mb-0': !label }">
     <b-input-group>
       <b-input-group-prepend v-if="prependText" is-text>
         {{ prependText }}
       </b-input-group-prepend>
-      <date-picker ref="datetime" v-model="inputValue" :config="datetimeConfig" :placeholder="placeholder" @input.native="validate()"
-        :state="isValid()"></date-picker>
+      <date-picker
+        v-model="inputValue"
+        ref="datetime"
+        :config="datetimeConfig"
+        :placeholder="placeholder"
+        :state="isValid()"
+        @input.native="validate()"
+        @keyup.native="onChange($event)"
+        @change.native="onChange($event)"
+      ></date-picker>
       <b-input-group-append>
         <b-button class="input-group-text" v-if="initialValue && initialValue !== inputValue" @click.stop="reset($event)" v-b-tooltip.hover.top.d300 :title="$t('Reset')"><icon name="undo-alt" variant="light"></icon></b-button>
         <b-button-group v-if="moments.length > 0" rel="moments" v-b-tooltip.hover.top.d300 :title="$t('Cumulate [CTRL] + [CLICK]')">
@@ -36,7 +45,7 @@
 </template>
 
 <script>
-import {createDebouncer} from 'promised-debounce'
+import pfMixinValidation from '@/components/pfMixinValidation'
 import datePicker from 'vue-bootstrap-datetimepicker'
 import 'pc-bootstrap4-datetimepicker/build/css/bootstrap-datetimepicker.css'
 import {
@@ -58,6 +67,9 @@ const validMomentKeys = ['years', 'y', 'quarters', 'Q', 'months', 'M', 'weeks', 
 
 export default {
   name: 'pf-form-input',
+  mixins: [
+    pfMixinValidation
+  ],
   components: {
     'date-picker': datePicker
   },
@@ -68,29 +80,17 @@ export default {
     label: {
       type: String
     },
-    placeholder: { // Warning: This prop is not automatically translated.
-      type: String,
-      default: null
-    },
-    validation: {
-      type: Object,
-      default: null
+    labelCols: {
+      type: Number,
+      default: 3
     },
     text: {
       type: String,
       default: null
     },
-    invalidFeedback: {
+    placeholder: { // Warning: This prop is not automatically translated.
       type: String,
       default: null
-    },
-    highlightValid: {
-      type: Boolean,
-      default: false
-    },
-    debounce: {
-      type: Number,
-      default: 300
     },
     prependText: {
       type: String
@@ -175,10 +175,6 @@ export default {
         this.$emit('input', (newValue === null) ? '0000-00-00 00:00:00' : newValue)
       }
     },
-    labelCols () {
-      // do not reserve label column if no label
-      return (this.label) ? 3 : 0
-    },
     datetimeConfig () {
       const minMaxConfig = {
         minDate: (this.min === '0000-00-00 00:00:00') ? new Date(-8640000000000000) : this.min,
@@ -188,27 +184,6 @@ export default {
     }
   },
   methods: {
-    isValid () {
-      if (this.validation && this.validation.$dirty) {
-        if (this.validation.$invalid) {
-          return false
-        } else if (this.highlightValid) {
-          return true
-        }
-      }
-      return null
-    },
-    validate () {
-      const _this = this
-      if (this.validation) {
-        this.$debouncer({
-          handler: () => {
-            _this.validation.$touch()
-          },
-          time: this.debounce
-        })
-      }
-    },
     toggle (event) {
       let picker = this.$refs.datetime.dp
       picker.toggle()
@@ -302,7 +277,6 @@ export default {
     }
   },
   created () {
-    this.$debouncer = createDebouncer()
     // dereference inputValue and assign initialValue
     if (this.inputValue && this.inputValue !== '0000-00-00 00:00:00') {
       this.initialValue = JSON.parse(JSON.stringify(this.inputValue))
