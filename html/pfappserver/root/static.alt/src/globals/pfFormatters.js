@@ -48,14 +48,10 @@ export const pfFormatters = {
       case 'm':
       case 'male':
       case 'man':
-      case 'boy':
-      case 'him':
         return 'm'
       case 'f':
       case 'female':
       case 'woman':
-      case 'girl':
-      case 'her':
         return 'f'
       default:
         return null
