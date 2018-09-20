@@ -19,7 +19,7 @@ PRISTINE_DB="${DB_PREFIX}_pristine_$$"
 
 MYSQL="mysql -upf_smoke_tester -ppacket -h127.0.0.1"
 
-MYSQLDUMP="mysqldump -upf_smoke_tester --no-data -a --skip-comments --routines -ppacket"
+MYSQLDUMP="mysqldump -upf_smoke_tester -h127.0.0.1 --no-data -a --skip-comments --routines -ppacket"
 
 for db in $UPGRADED_DB $PRISTINE_DB;do
     echo "Created test db $db"
