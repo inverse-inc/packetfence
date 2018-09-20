@@ -52,6 +52,8 @@ our ( @ISA, @EXPORT );
 @ISA = qw(Exporter);
 @EXPORT = qw(%ConfigCluster @cluster_servers @cluster_hosts $cluster_enabled $host_id $CLUSTER);
 
+use Carp; carp "here";
+
 our (%clusters_hostname_map, $cluster_enabled, $cluster_name, %ConfigCluster, @cluster_servers, @cluster_hosts);
 tie %clusters_hostname_map, 'pfconfig::cached_hash', 'resource::clusters_hostname_map';
 
@@ -425,43 +427,6 @@ sub queue_stats {
     return \@stats;
 }
 
-=head2 increment_config_version
-
-=cut
-
-sub increment_config_version {
-    return set_config_version(time);
-}
-
-=head2 set_config_version
-
-Set the configuration version for this server
-
-=cut
-
-sub set_config_version {
-    my ($ver) = @_;
-    return write_file($config_version_file, $ver);
-}
-
-=head2 get_config_version
-
-Get the configuration version for this server
-
-=cut
-
-sub get_config_version {
-    my $result;
-    eval {
-        $result = read_file($config_version_file);
-    };
-    if($@) {
-        get_logger->error("Cannot read $config_version_file to get the current configuration version.");
-        return $FALSE;
-    }
-    return $result;
-}
-
 =head2 get_all_config_version
 
 Get the configuration version from all the cluster members
@@ -504,8 +469,8 @@ See the Clustering guide for details on the algorithm
 sub handle_config_conflict {
     my $quorum_version;
 
-    my $version = get_config_version();
-    my ($servers_map, $versions_map) = get_all_config_version();
+    my $version = pf::config::cluster::get_config_version();
+    my ($servers_map, $versions_map) = pf::config::cluster::get_all_config_version();
 
     # We make sure we have the right version for this node (in case webservices is currently dead)
     $servers_map->{$host_id} = $version;
