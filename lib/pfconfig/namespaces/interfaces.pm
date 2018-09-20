@@ -54,6 +54,7 @@ sub init {
     if($host_id){
         @{$self->{child_resources}} = map { "$_($host_id)" } @{$self->{child_resources}}; 
     }
+
     $self->{config_resource} = pfconfig::namespaces::config::Pf->new( $self->{cache}, $host_id );
     #$self->{cluster_enabled} = pfconfig::namespaces::resource::cluster_enabled->new( $self->{cache} )->build();
     $self->{cluster_enabled} = $pf::config::cluster::cluster_enabled;

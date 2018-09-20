@@ -18,7 +18,7 @@ modules.
 use strict;
 use warnings;
 
-use pf::cluster;
+use pf::cluster qw();
 use pf::constants;
 use pf::config qw(
     %Config
@@ -27,7 +27,6 @@ use pf::config qw(
     @routed_isolation_nets
     @routed_registration_nets
     @inline_nets
-    %connection_type_to_str
     %connection_type
     $UNKNOWN
     $management_network
@@ -67,7 +66,6 @@ BEGIN {
     get_routed_registration_nets get_inline_nets
     get_internal_devs get_internal_devs_phy
     get_internal_macs get_internal_info
-    connection_type_to_str str_to_connection_type
     get_translatable_time trappable_mac
     portal_hosts
     filter_authentication_sources
@@ -291,59 +289,6 @@ sub get_internal_info {
     return;
 }
 
-=head2 connection_type_to_str
-
-In the database we store the connection type as a string but we use a constant binary value internally.
-This converts from the constant binary value to the string.
-
-return connection_type string (as defined in pf::config) or an empty string if connection type not found
-
-=cut
-
-sub connection_type_to_str {
-    my ($conn_type) = @_;
-    my $logger = get_logger();
-
-    # convert connection_type constant into a string for database
-    if (defined($conn_type) && $conn_type ne '' && defined($connection_type_to_str{$conn_type})) {
-
-        return $connection_type_to_str{$conn_type};
-    } else {
-        my ($package, undef, undef, $routine) = caller(1);
-        $logger->warn("unable to convert connection_type to string. called from $package $routine");
-        return '';
-    }
-}
-
-
-=head2 str_to_connection_type
-
-In the database we store the connection type as a string but we use a constant binary value internally.
-This parses the string from the database into the the constant binary value.
-
-return connection_type constant (as defined in pf::config) or undef if connection type not found
-
-=cut
-
-sub str_to_connection_type {
-    my ($conn_type_str) = @_;
-    my $logger = get_logger();
-
-    # convert database string into connection_type constant
-    if (defined($conn_type_str) && $conn_type_str ne '' && defined($connection_type{$conn_type_str})) {
-
-        return $connection_type{$conn_type_str};
-    } elsif (defined($conn_type_str) && $conn_type_str eq '') {
-
-        $logger->debug("got an empty connection_type, this happens if we discovered the node but it never connected");
-        return $UNKNOWN;
-
-    } else {
-        my ($package, undef, undef, $routine) = caller(1);
-        $logger->warn("unable to parse string into a connection_type constant. called from $package $routine");
-        return;
-    }
-}
 
 =head2 get_translatable_time
 

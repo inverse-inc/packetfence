@@ -6,6 +6,9 @@ use warnings;
 use pf::util;
 use pf::file_paths qw($cluster_config_file);
 use Config::IniFiles;
+use Sys::Hostname;
+
+our $host_id = hostname();
 
 our $cluster_enabled = sub {
     my $cfg = Config::IniFiles->new( -file => $cluster_config_file );
