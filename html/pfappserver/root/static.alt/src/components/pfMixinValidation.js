@@ -17,7 +17,7 @@ export default {
       type: Boolean,
       default: false
     },
-    debounce: {
+    validationDebounce: {
       type: Number,
       default: 300
     },
@@ -44,11 +44,11 @@ export default {
     validate () {
       const _this = this
       if (this.validation) {
-        this.$debouncer({
+        this.$validationDebouncer({
           handler: () => {
             _this.validation.$touch()
           },
-          time: this.debounce
+          time: this.validationDebounce
         })
       }
     },
@@ -91,6 +91,6 @@ export default {
     }
   },
   created () {
-    this.$debouncer = createDebouncer()
+    this.$validationDebouncer = createDebouncer()
   }
 }
