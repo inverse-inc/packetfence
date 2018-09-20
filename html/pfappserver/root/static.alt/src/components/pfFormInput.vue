@@ -7,10 +7,13 @@
 </template>
 
 <script>
-import {createDebouncer} from 'promised-debounce'
+import pfMixinValidation from '@/components/pfMixinValidation'
 
 export default {
   name: 'pf-form-input',
+  mixins: [
+    pfMixinValidation
+  ],
   props: {
     value: {
       default: null
@@ -26,30 +29,7 @@ export default {
       type: String,
       default: null
     },
-    validation: {
-      type: Object,
-      default: null
-    },
     text: {
-      type: String,
-      default: null
-    },
-    invalidFeedback: {
-      default: null
-    },
-    highlightValid: {
-      type: Boolean,
-      default: false
-    },
-    debounce: {
-      type: Number,
-      default: 300
-    },
-    filter: {
-      type: RegExp,
-      default: null
-    },
-    lastValidValue: {
       type: String,
       default: null
     }
@@ -63,69 +43,6 @@ export default {
         this.$emit('input', newValue)
       }
     }
-  },
-  methods: {
-    isValid () {
-      if (this.validation && this.validation.$dirty) {
-        if (this.validation.$invalid) {
-          return false
-        } else if (this.highlightValid) {
-          return true
-        }
-      }
-      return null
-    },
-    validate () {
-      const _this = this
-      if (this.validation) {
-        this.$debouncer({
-          handler: () => {
-            _this.validation.$touch()
-          },
-          time: this.debounce
-        })
-      }
-    },
-    onChange (event) {
-      if (this.filter) {
-        // this.value is one char behind, wait until next tick for our v-model to update
-        this.$nextTick(() => {
-          if (this.value.length === 0) {
-            this.lastValidValue = ''
-          } else {
-            if (this.filter.test(this.value)) {
-              // good, remember
-              this.lastValidValue = this.value
-            } else {
-              // bad, restore
-              this.value = this.lastValidValue
-            }
-          }
-        })
-      }
-    },
-    getInvalidFeedback () {
-      const processFeedback = (feedback) => {
-        if (feedback instanceof String) return feedback
-        if (feedback instanceof Array) {
-          let ret = ''
-          feedback.forEach(f => {
-            ret += ((ret !== '') ? ' ' : '') + processFeedback(f)
-          })
-          return ret
-        }
-        if (feedback instanceof Object) {
-          if (Object.values(feedback)[0] === true) {
-            return Object.keys(feedback)[0]
-          }
-          return ''
-        }
-      }
-      return processFeedback(this.invalidFeedback)
-    }
-  },
-  created () {
-    this.$debouncer = createDebouncer()
   }
 }
 </script>
