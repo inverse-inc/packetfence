@@ -21,7 +21,7 @@ use pfconfig::namespaces::config::Cluster;
 sub init {
     my ($self, $cluster_name) = @_;
 
-    $self->{cluster_name} = $cluster_name // "DEFAULT";
+    $self->{cluster_name} = $cluster_name || "DEFAULT";
     $self->{cluster_resource} = pfconfig::namespaces::config::Cluster->new($self->{cache});
 }
 

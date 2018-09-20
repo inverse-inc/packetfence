@@ -22,7 +22,7 @@ sub init {
     my ($self, $cluster_name) = @_;
 
     $self->{cluster_resource} = pfconfig::namespaces::config::Cluster->new($self->{cache});
-    $self->{cluster_name} = $cluster_name // "DEFAULT";
+    $self->{cluster_name} = $cluster_name || "DEFAULT";
 }
 
 sub build {

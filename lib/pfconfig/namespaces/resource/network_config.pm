@@ -23,7 +23,8 @@ use pfconfig::namespaces::interfaces;
 use pfconfig::namespaces::config::Cluster;
 
 sub init {
-    my ($self, $cluster_name) = @_;
+    my ($self) = @_;
+    $self->{cluster_name} = $self->{cache}->get_cache("resource::clusters_hostname_map")->{$host_id} // "DEFAULT";
 
     $self->{config_pf} = pfconfig::namespaces::config::Pf->new( $self->{cache} )->build();
     $self->{networks} = $self->{cache}->get_cache('config::Network');
