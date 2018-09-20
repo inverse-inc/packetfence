@@ -1,12 +1,34 @@
 <template>
-  <div class="pf-autocomplete">
-    <b-form-input v-model="inputValue" v-bind="$attrs" :class="{ 'form-control-with-suggestions': suggestions.length && visible }"
+  <b-form-group horizontal :label-cols="(label) ? labelCols : 0" :label="$t(label)"   
+    :state="isValid()" :invalid-feedback="getInvalidFeedback()" :class="['pf-autocomplete', { 'mb-0': !label }]">
+    <b-form-input 
+      v-model="inputValue"
+      v-bind="$attrs"
+      :class="{ 'form-control-with-suggestions': suggestions.length && visible }"
+      :id="id"
+      :name="name"
+      :disabled="disabled"
+      :required="required"
+      :size="size"
+      :state="isValid()"
+      :type="type"
+      :readonly="readonly"
+      :plaintext="plaintext"
+      :autocomplete="autocomplete"
+      :placeholder="placeholder"
+      :formatter="formatter"
+      :lazy-formatter="lazyFormatter"
       @blur.native="hideSuggestions"
       @focus.native="showSuggestions"
       @keyup.native.up.stop="highlightPrevious"
       @keyup.native.down.stop="highlightNext"
       @keyup.native.enter.stop="selectHighlighted"
-      @keyup.native.delete="hideSuggestions"></b-form-input>
+      @keyup.native.delete="hideSuggestions"
+      @input.native="validate()"
+      @keyup.native="onChange($event)"
+      @change.native="onChange($event)"
+    ></b-form-input>
+    <b-form-text v-if="text" v-t="text"></b-form-text>
     <ul class="pf-autocomplete-suggestions dropdown-menu" :class="{ show: suggestions.length && visible }"
       @mouseout="resetHightlight" @mousedown="selectHighlighted">
       <li class="pf-autocomplete-suggestion form-control" v-for="(match, index) in suggestions" :key="match"
@@ -15,18 +37,80 @@
         <span v-html="highlight(match)"></span>
       </li>
     </ul>
-   </div>
+  </b-form-group>
 </template>
 
 <script>
-import {createDebouncer} from 'promised-debounce'
+import { createDebouncer } from 'promised-debounce'
+import pfMixinValidation from '@/components/pfMixinValidation'
 
 export default {
-  name: 'pf-autocomplete',
+  name: 'pf-form-autocomplete',
+  mixins: [
+    pfMixinValidation
+  ],
   inheritAttrs: false,
   props: {
     value: {
       default: null
+    },
+    label: {
+      type: String
+    },
+    labelCols: {
+      type: Number,
+      default: 3
+    },
+    text: {
+      type: String,
+      default: null
+    },
+    id: {
+      type: String,
+      default: null
+    },
+    name: {
+      type: String,
+      default: null
+    },
+    disabled: {
+      type: Boolean,
+      default: null
+    },
+    required: {
+      type: Boolean,
+      default: false
+    },
+    size: {
+      type: String,
+      default: null
+    },
+    type: {
+      type: String,
+      default: 'text'
+    },
+    readonly: {
+      type: Boolean,
+      default: false
+    },
+    plaintext: {
+      type: Boolean,
+      default: false
+    },
+    autocomplete: {
+      type: String,
+      default: null
+    },
+    placeholder: { // Warning: This prop is not automatically translated.
+      type: String,
+      default: null
+    },
+    formatter: {
+      type: Function
+    },
+    lazyFormatter: {
+      type: Boolean,
+      default: false
     },
     suggestions: {
       type: Array
