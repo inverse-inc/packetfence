@@ -23,7 +23,8 @@ use pfconfig::namespaces::interfaces;
 use pfconfig::namespaces::config::Cluster;
 
 sub init {
-    my ($self) = @_;
+    #TODO: go through the places where network_config is being used in the pfconfig driver
+    my ($self, $host_id) = @_;
     $self->{cluster_name} = $self->{cache}->get_cache("resource::clusters_hostname_map")->{$host_id} // "DEFAULT";
 
     $self->{config_pf} = pfconfig::namespaces::config::Pf->new( $self->{cache} )->build();
