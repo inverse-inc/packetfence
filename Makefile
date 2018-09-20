@@ -115,7 +115,7 @@ bin/ntlm_auth_wrapper: src/ntlm_auth_wrap.c
 sudo: /etc/sudoers.d/packetfence.sudoers
 
 
-permissions:
+permissions: bin/pfcmd
 	./bin/pfcmd fixpermissions
 
 raddb/certs/server.crt:
