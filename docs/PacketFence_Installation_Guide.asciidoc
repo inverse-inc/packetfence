@@ -1833,7 +1833,7 @@ Users have the possibility to register their devices right from a special portal
 
 The section *Configuration -> -> Advanced Access Configuration -> Device Registration* is where to configure it.
 The portal page can be accessed by the following URL: https://YOUR_PORTAL_HOSTNAME/device-registration
-This URL is accessible from within the network, in any VLAN that can reach the PacketFence server.
+This URL is accessible from within the network, in any VLAN that can reach the PacketFence server on a 'portal' interface (see note below). 
 
 As from PacketFence 7.3 and onwards you need to create a device registration profile and associate it with the connection profile.
 
