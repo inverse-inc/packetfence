@@ -71,7 +71,7 @@ export default {
       }
     },
     stringifyFeedback (feedback) {
-      if (feedback instanceof String) return this.$i18n.t(feedback)
+      if (feedback instanceof String) return feedback
       if (feedback instanceof Array) {
         let ret = ''
         feedback.forEach(f => {

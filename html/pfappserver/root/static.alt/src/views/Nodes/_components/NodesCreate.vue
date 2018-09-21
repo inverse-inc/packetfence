@@ -11,16 +11,16 @@
               :filter="globals.regExp.stringMac"
               :validation="$v.single.mac" 
               :invalid-feedback="[
-                { 'MAC address required': !$v.single.mac.required },
-                { 'Enter a valid MAC address': !$v.single.mac.macAddress || !$v.single.mac.minLength || !$v.single.mac.maxLength },
-                { 'MAC address already exists': !$v.single.mac.nodeExists }
+                { [$t('MAC address required')]: !$v.single.mac.required },
+                { [$t('Enter a valid MAC address')]: !$v.single.mac.macAddress || !$v.single.mac.minLength || !$v.single.mac.maxLength },
+                { [$t('MAC address already exists')]: !$v.single.mac.nodeExists }
               ]
             "/>
             <pf-form-autocomplete v-model="single.pid" :label="$t('Owner')" placeholder="default" @search="searchUsers" 
               :suggestions="matchingUsers"
               :validation="$v.single.pid"
               :invalid-feedback="[
-                { 'Owner does not exist': !$v.single.pid.userExists }
+                { [$t('Owner does not exist')]: !$v.single.pid.userExists }
               ]"
             />
             <pf-form-select v-model="single.status" :label="$t('Status')" :options="statuses"/>
@@ -28,13 +28,13 @@
             <pf-form-datetime v-model="single.unregdate" :label="$t('Unregistration')" :moments="['1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"
               :validation="$v.single.unregdate"
               :invalid-feedback="[
-                { 'Invalid date': !$v.single.unregdate.isDateFormat }
+                { [$t('Invalid date')]: !$v.single.unregdate.isDateFormat }
               ]"
             />
             <pf-form-textarea v-model="single.notes" :label="$t('Notes')" rows="8" max-rows="12"
               :validation="$v.single.notes"
               :invalid-feedback="[
-                { [`Maximum ${globals.schema.person.notes.maxLength} characters`]: !$v.single.notes.maxLength }
+                { [$t('Maximum {max} characters', {max: globals.schema.person.notes.maxLength})]: !$v.single.notes.maxLength }
               ]"
             />
           </b-col>

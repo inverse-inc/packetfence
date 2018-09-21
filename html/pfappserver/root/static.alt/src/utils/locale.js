@@ -9,12 +9,8 @@ const formatter = new Formatter({ locale })
 
 const i18n = new VueI18n({
   locale,
-  formatter,
-  messages: { 'en-US': {
-    message: {
-      test: 'Test {num}'
-    }
-  } },
+  formatter, 
+  messages: { 'en-US': {} },
   missing: (locale, key, vm, values) => {
     console.error(`[Translation] missing: locale=${locale}, key=${key}, values=${JSON.stringify(values)}`)
     if (values === [] || !values[0] || !key.includes('{') || !key.includes('}')) return key
