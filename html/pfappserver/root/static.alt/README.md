@@ -36,6 +36,7 @@ Since this is a SPA (Single-Page Application), it is currently accessible from `
 * [Vuex](https://vuex.vuejs.org/) -- state management
 * [vue-router](https://router.vuejs.org/) -- official router
 * [vue-i18n](https://kazupon.github.io/vue-i18n/) -- internationalization
+* [messageformat](https://messageformat.github.io/messageformat/) -- internationalization formatting
 * [vue-browser-acl](https://github.com/mblarsen/vue-browser-acl) -- ACLs
 * [axios](https://github.com/axios/axios) -- http client
 * [vuelidate](https://monterail.github.io/vuelidate/) -- form validation

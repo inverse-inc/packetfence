@@ -17,6 +17,7 @@
   "dependencies": {
     "axios": "^0.x",
     "bootstrap-vue": "^2.0.0-rc.11",
+    "messageformat": "^2.0.4",
     "papaparse": "^4.6.0",
     "plotly.js": "^1.39.3",
     "uuid": "^3.3.2",
