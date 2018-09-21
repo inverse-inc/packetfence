@@ -28,15 +28,9 @@ use pf::file_paths qw(
     $log_dir
 );
 use pf::util;
-use pf::constants::config qw($DEFAULT_SMTP_PORT $DEFAULT_SMTP_PORT_SSL $DEFAULT_SMTP_PORT_TLS);
+use pf::constants::config qw($DEFAULT_SMTP_PORT $DEFAULT_SMTP_PORT_SSL $DEFAULT_SMTP_PORT_TLS %ALERTING_PORTS);
 use List::MoreUtils qw(uniq);
 use DateTime::TimeZone;
-
-our %ALERTING_PORTS = (
-    none => $DEFAULT_SMTP_PORT,
-    ssl => $DEFAULT_SMTP_PORT_SSL,
-    starttls => $DEFAULT_SMTP_PORT_TLS,
-);
 
 use base 'pfconfig::namespaces::config';
 

@@ -35,6 +35,7 @@ use pf::config qw(
     $HTTPS
     $HTTP
 );
+use pf::constants::config qw($DEFAULT_SMTP_PORT $DEFAULT_SMTP_PORT_SSL $DEFAULT_SMTP_PORT_TLS %ALERTING_PORTS);
 use IO::Socket::SSL qw(SSL_VERIFY_NONE);
 use pf::constants::config qw($TIME_MODIFIER_RE);
 use pf::constants::realm;
@@ -449,9 +450,10 @@ get the configuration for sending email
 =cut
 
 sub get_send_email_config {
-    my $config = $Config{alerting};
+    my ($config) = @_;
     my %args;
-    my $encryption = $config->{smtp_encryption};
+    my $encryption = $config->{smtp_encryption} // 'none';
+    $encryption = 'none' if !exists $ALERTING_PORTS{$encryption};
     if ($encryption eq 'ssl') {
         $args{SSL} = 1;
     } elsif ($encryption eq 'starttls') {
@@ -471,7 +473,7 @@ sub get_send_email_config {
     $args{Hostname} = $config->{smtpserver};
     $args{Hello} = $fqdn;
     $args{Timeout} = $config->{smtp_timeout};
-    $args{Port} = $config->{smtp_port};
+    $args{Port} = $config->{smtp_port} || $ALERTING_PORTS{$encryption};
     return \%args;
 }
 
@@ -483,14 +485,8 @@ Submit a mime lite object using the current alerting settings
 
 sub send_mime_lite {
     my ($mime, @args) = @_;
-    my $result = $FALSE;
-    eval {
-        $mime->send(
-            'sub',
-            \&send_using_smtp_callback,
-            @args
-        );
-        $result = $mime->last_send_successful();
+    my $result = eval {
+        do_send_mime_lite($mime, @args);
     };
     if ($@) {
         my $to = $mime->{_extracted_to};
@@ -498,10 +494,24 @@ sub send_mime_lite {
         $msg =~ s/\n//g;
         get_logger->error($msg);
     }
-    else {
-        $result = $result ? $TRUE : $FALSE;
-    }
-    return $result;
+
+    return $result ? $TRUE : $FALSE;
+}
+
+=head2 do_send_mime_lite
+
+do_send_mime_lite
+
+=cut
+
+sub do_send_mime_lite {
+    my ($mime, @args) = @_;
+    $mime->send(
+        'sub',
+        \&send_using_smtp_callback,
+        @args
+    );
+    return $mime->last_send_successful();
 }
 
 =head2 send_using_smtp_callback
@@ -512,8 +522,9 @@ Using the configuration of from pf.conf
 =cut
 
 sub send_using_smtp_callback {
-    my ( $self, %args ) = @_;
-    my $config = get_send_email_config();
+    my ($self, %args) = @_;
+    my $alerting_config = merge_with_alert_config(\%args);
+    my $config = get_send_email_config($alerting_config);
     %args = (%$config, %args);
 
     # We may need the "From:" and "To:" headers to pass to the
@@ -594,6 +605,25 @@ sub send_using_smtp_callback {
     $smtp->quit;
 
     return $self->{last_send_successful} = 1;
+}
+
+=head2 merge_with_alert_config
+
+merge_with_alert_config
+
+=cut
+
+sub merge_with_alert_config {
+    my ($config) = @_;
+    my %alerting_config = %{$Config{alerting}};
+    for my $k (keys %alerting_config ) {
+        next unless exists $config->{$k};
+        if (defined (my $val = delete $config->{$k})) {
+            $alerting_config{$k} = $val;
+        }
+    }
+
+    return \%alerting_config;
 }
 
 =head2 strip_username_if_needed
