@@ -19,5 +19,6 @@ export const pfRegExp = {
   float: /^[-0-9.]*$/,
   floatPositive: /^[0-9.]*$/,
   stringVlan: /^[0-9a-z]{1,50}$/i,
-  stringMac: /^[0-9a-f:]{1,17}$/i
+  stringMac: /^[0-9a-f:]{1,17}$/i,
+  stringPhone: /^[0-9.,+\- ()]*$/i
 }

@@ -46,8 +46,8 @@
 import pfCSVParse from '@/components/pfCSVParse'
 import pfProgress from '@/components/pfProgress'
 import pfFormUpload from '@/components/pfFormUpload'
+import { pfDatabaseSchema as schema } from '@/globals/pfDatabaseSchema'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
-import { mysqlLimits as sqlLimits } from '@/globals/mysqlLimits'
 import convert from '@/utils/convert'
 import {
   required,
@@ -81,6 +81,9 @@ export default {
   },
   data () {
     return {
+      globals: {
+        schema: schema
+      },
       files: [],
       tabIndex: 0,
       fields: [
@@ -101,7 +104,7 @@ export default {
           value: 'bandwidth_balance',
           text: this.$i18n.t('Bandwidth Balance'),
           required: false,
-          validators: { minValue: minValue(sqlLimits.ubigint.min), maxValue: maxValue(sqlLimits.ubigint.max) }
+          validators: { minValue: minValue(schema.node.bandwidth_balance.min), maxValue: maxValue(schema.node.bandwidth_balance.max) }
         },
         {
           value: 'bypass_role_id',
@@ -114,13 +117,13 @@ export default {
           value: 'bypass_vlan',
           text: this.$i18n.t('Bypass VLAN'),
           required: false,
-          validators: { maxLength: maxLength(50) }
+          validators: { maxLength: maxLength(schema.node.bypass_vlan.maxLength) }
         },
         {
           value: 'computername',
           text: this.$i18n.t('Computer Name'),
           required: false,
-          validators: { maxLength: maxLength(255) }
+          validators: { maxLength: maxLength(schema.node.computername.maxLength) }
         },
         {
           value: 'regdate',
@@ -138,7 +141,7 @@ export default {
           value: 'notes',
           text: this.$i18n.t('Notes'),
           required: false,
-          validators: { maxLength: maxLength(255) }
+          validators: { maxLength: maxLength(schema.node.notes.maxLength) }
         },
         {
           value: 'pid',
