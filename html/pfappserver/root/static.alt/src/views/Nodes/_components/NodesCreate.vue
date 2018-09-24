@@ -7,22 +7,36 @@
       <b-form @submit.prevent="create()">
         <b-form-row align-v="center">
           <b-col sm="8">
-            <pf-form-input v-model="single.mac" :filter="globals.regExp.stringMac" :label="$t('MAC')" :validation="$v.single.mac" :invalid-feedback="$t(invalidMacFeedback)"/>
-            <b-form-group horizontal label-cols="3" :label="$t('Owner')">
-              <pf-autocomplete v-model="single.pid" placeholder="default" @search="searchUsers" :suggestions="matchingUsers"></pf-autocomplete>
-            </b-form-group>
-            <b-form-group horizontal label-cols="3" :label="$t('Status')">
-              <b-form-select v-model="single.status" :options="statuses"></b-form-select>
-            </b-form-group>
-            <b-form-group horizontal label-cols="3" :label="$t('Role')">
-              <b-form-select v-model="single.category" :options="roles"></b-form-select>
-            </b-form-group>
-            <b-form-group horizontal label-cols="3" :label="$t('Unregistration')">
-              <pf-form-datetime v-model="single.unregdate" :moments="['1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"></pf-form-datetime>
-            </b-form-group>
-            <b-form-group horizontal label-cols="3" :label="$t('Notes')">
-              <b-form-textarea v-model="single.notes" rows="8" max-rows="12"></b-form-textarea>
-            </b-form-group>
+            <pf-form-input v-model="single.mac" :column-label="$t('MAC')" 
+              :filter="globals.regExp.stringMac"
+              :validation="$v.single.mac" 
+              :invalid-feedback="[
+                { [$t('MAC address required')]: !$v.single.mac.required },
+                { [$t('Enter a valid MAC address')]: !$v.single.mac.macAddress || !$v.single.mac.minLength || !$v.single.mac.maxLength },
+                { [$t('MAC address already exists')]: !$v.single.mac.nodeExists }
+              ]
+            "/>
+            <pf-form-autocomplete v-model="single.pid" :column-label="$t('Owner')" placeholder="default" @search="searchUsers" 
+              :suggestions="matchingUsers"
+              :validation="$v.single.pid"
+              :invalid-feedback="[
+                { [$t('Owner does not exist')]: !$v.single.pid.userExists }
+              ]"
+            />
+            <pf-form-select v-model="single.status" :column-label="$t('Status')" :options="statuses"/>
+            <pf-form-select v-model="single.category" :column-label="$t('Role')" :options="roles"/>
+            <pf-form-datetime v-model="single.unregdate" :column-label="$t('Unregistration')" :moments="['1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"
+              :validation="$v.single.unregdate"
+              :invalid-feedback="[
+                { [$t('Invalid date')]: !$v.single.unregdate.isDateFormat }
+              ]"
+            />
+            <pf-form-textarea v-model="single.notes" :column-label="$t('Notes')" rows="8" max-rows="12"
+              :validation="$v.single.notes"
+              :invalid-feedback="[
+                { [$t('Maximum {max} characters', {max: globals.schema.person.notes.maxLength})]: !$v.single.notes.maxLength }
+              ]"
+            />
           </b-col>
         </b-form-row>
       </b-form>
@@ -37,27 +51,42 @@
 </template>
 
 <script>
-import { pfRegExp as regExp } from '@/globals/pfRegExp'
-import pfFormInput from '@/components/pfFormInput'
+import pfFormAutocomplete from '@/components/pfFormAutocomplete'
 import pfFormDatetime from '@/components/pfFormDatetime'
-import pfAutocomplete from '@/components/pfAutocomplete'
+import pfFormInput from '@/components/pfFormInput'
+import pfFormSelect from '@/components/pfFormSelect'
+import pfFormTextarea from '@/components/pfFormTextarea'
 import draggable from 'vuedraggable'
 import usersApi from '@/views/Users/_api'
+import { pfRegExp as regExp } from '@/globals/pfRegExp'
 import {
   pfSearchConditionType as conditionType,
   pfSearchConditionValues as conditionValues
 } from '@/globals/pfSearch'
-// import { pfValidateMacAddressIsUnique as macAddressIsUnique } from '@/globals/pfValidators'
+import {
+  required,
+  macAddress,
+  minLength,
+  maxLength
+} from 'vuelidate/lib/validators'
+import {
+  isDateFormat,
+  userExists,
+  nodeExists
+} from '@/globals/pfValidators'
+import { pfDatabaseSchema as schema } from '@/globals/pfDatabaseSchema'
+
 const { validationMixin } = require('vuelidate')
-const { macAddress, required } = require('vuelidate/lib/validators')
 
 export default {
   name: 'NodesCreate',
   components: {
     draggable,
+    'pf-form-autocomplete': pfFormAutocomplete,
     'pf-form-datetime': pfFormDatetime,
     'pf-form-input': pfFormInput,
-    'pf-autocomplete': pfAutocomplete
+    'pf-form-select': pfFormSelect,
+    'pf-form-textarea': pfFormTextarea
   },
   mixins: [
     validationMixin
@@ -72,7 +101,8 @@ export default {
   data () {
     return {
       globals: {
-        regExp: regExp
+        regExp: regExp,
+        schema: schema
       },
       modeIndex: 0,
       single: {
@@ -82,23 +112,20 @@ export default {
       matchingUsers: []
     }
   },
-  validations: {
-    single: {
-      mac: {
-        macAddress: macAddress(),
-        required,
-        isUnique (mac) {
-          if (!this.$v.single.mac.macAddress) return true
-          return this.$store.dispatch('$_nodes/exists', mac).then(results => {
-            return false
-          }).catch(() => {
-            return true
-          })
-        }
+  validations () {
+    return {
+      single: {
+        mac: {
+          required,
+          macAddress,
+          nodeExists,
+          minLength: minLength(17),
+          maxLength: maxLength(17)
+        },
+        pid: { userExists },
+        unregdate: { isDateFormat: isDateFormat(schema.node.unregdate.format) },
+        notes: { maxLength: maxLength(schema.node.notes.maxLength) }
       }
-    },
-    csv: {
-      file: { required }
     }
   },
   computed: {
@@ -110,12 +137,6 @@ export default {
     },
     isLoading () {
       return this.$store.getters['$_nodes/isLoading']
-    },
-    invalidMacFeedback () {
-      if (!this.$v.single.mac.isUnique) {
-        return 'MAC address already exists'
-      }
-      return 'Enter a valid MAC address'
     },
     invalidForm () {
       if (this.modeIndex === 0) {
@@ -170,4 +191,3 @@ export default {
   }
 }
 </script>
-

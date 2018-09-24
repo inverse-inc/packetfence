@@ -1,14 +1,14 @@
 <template>
   <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
     :state="isValid()" :invalid-feedback="getInvalidFeedback()" :class="{ 'mb-0': !columnLabel }">
-    <b-form-input 
-      v-model="inputValue"
+    <b-form-select 
+      v-model="inputValue" 
       v-bind="$attrs"
       :state="isValid()"
       @input.native="validate()"
       @keyup.native="onChange($event)"
       @change.native="onChange($event)"
-    ></b-form-input>
+    ></b-form-select>
     <b-form-text v-if="text" v-t="text"></b-form-text>
   </b-form-group>
 </template>
@@ -17,7 +17,7 @@
 import pfMixinValidation from '@/components/pfMixinValidation'
 
 export default {
-  name: 'pf-form-input',
+  name: 'pf-form-select',
   mixins: [
     pfMixinValidation
   ],

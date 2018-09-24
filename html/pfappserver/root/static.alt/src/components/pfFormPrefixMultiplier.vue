@@ -1,25 +1,37 @@
 <template>
-  <b-form-group :label-cols="labelCols" :label="$t(label)" :state="isValid()" :invalid-feedback="$t(invalidFeedback)" class="mb-0" horizontal>
+  <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)" 
+    :state="isValid()" :invalid-feedback="getInvalidFeedback()" :class="{ 'mb-0': !columnLabel }">
     <b-input-group>
       <b-input-group-prepend v-if="prependText" is-text>
         {{ prependText }}
       </b-input-group-prepend>
-      <b-form-input type="number" :placeholder="placeholder" v-model="inputValue" @input.native="validate()" :state="isValid()"></b-form-input>
-      <b-form-text v-if="text" v-t="text"></b-form-text>
+      <b-form-input
+        v-model="inputValue"
+        v-bind="$attrs"
+        type="number"
+        :state="isValid()"
+        @input.native="validate()"
+        @keyup.native="onChange($event)"
+        @change.native="onChange($event)"
+      ></b-form-input>
       <b-input-group-append>
         <b-button-group v-if="prefixes.length > 0" rel="prefixButtonGroup">
           <b-button v-for="(prefix, index) in prefixes" v-if="inRange(index)" :key="index" :variant="[prefix.selected ? 'primary' : 'light']" v-b-tooltip.hover.bottom.d300 :title="$t(prefix.name + units.name)" @click.stop="changeMultiplier($event, index)">{{ $t(prefix.label + units.label) }}</b-button>
         </b-button-group>
       </b-input-group-append>
     </b-input-group>
+    <b-form-text v-if="text" v-t="text"></b-form-text>
   </b-form-group>
 </template>
 
 <script>
-import {createDebouncer} from 'promised-debounce'
+import pfMixinValidation from '@/components/pfMixinValidation'
 
 export default {
   name: 'pf-form-input',
+  mixins: [
+    pfMixinValidation
+  ],
   model: {
     prop: 'realValue'
   },
@@ -30,36 +42,20 @@ export default {
     value: {
       default: null
     },
-    label: {
+    columnLabel: {
       type: String
     },
-    type: {
-      type: String,
-      default: 'text'
-    },
-    placeholder: { // Warning: This prop is not automatically translated.
-      type: String,
-      default: null
-    },
-    validation: {
-      type: Object,
-      default: null
+    labelCols: {
+      type: Number,
+      default: 3
     },
     text: {
       type: String,
       default: null
     },
-    invalidFeedback: {
+    type: {
       type: String,
-      default: null
-    },
-    highlightValid: {
-      type: Boolean,
-      default: false
-    },
-    debounce: {
-      type: Number,
-      default: 300
+      default: 'text'
     },
     prependText: {
       type: String
@@ -137,34 +133,7 @@ export default {
       ]
     }
   },
-  computed: {
-    labelCols () {
-      // do not reserve label column if no label
-      return (this.label) ? 3 : 0
-    }
-  },
   methods: {
-    isValid () {
-      if (this.validation && this.validation.$dirty) {
-        if (this.validation.$invalid) {
-          return false
-        } else if (this.highlightValid) {
-          return true
-        }
-      }
-      return null
-    },
-    validate () {
-      const _this = this
-      if (this.validation) {
-        this.$debouncer({
-          handler: () => {
-            _this.validation.$touch()
-          },
-          time: this.debounce
-        })
-      }
-    },
     changeMultiplier (event, newindex) {
       const curindex = this.prefixes.findIndex((prefix) => { return prefix.selected })
       if (curindex >= 0) {
@@ -220,9 +189,6 @@ export default {
         }
       }
     }
-  },
-  created () {
-    this.$debouncer = createDebouncer()
   }
 }
 </script>

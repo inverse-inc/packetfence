@@ -46,8 +46,8 @@
 import pfCSVParse from '@/components/pfCSVParse'
 import pfProgress from '@/components/pfProgress'
 import pfFormUpload from '@/components/pfFormUpload'
+import { pfDatabaseSchema as schema } from '@/globals/pfDatabaseSchema'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
-import { mysqlLimits as sqlLimits } from '@/globals/mysqlLimits'
 import convert from '@/utils/convert'
 import {
   required,
@@ -61,7 +61,7 @@ import {
   categoryIdNumberExists, // validate category_id/bypass_role_id (Number) exists
   categoryIdStringExists, // validate category_id/bypass_role_id (String) exists
   inArray,
-  isDateTime,
+  isDateFormat,
   userExists // validate user pid exists
 } from '@/globals/pfValidators'
 
@@ -81,6 +81,9 @@ export default {
   },
   data () {
     return {
+      globals: {
+        schema: schema
+      },
       files: [],
       tabIndex: 0,
       fields: [
@@ -101,7 +104,7 @@ export default {
           value: 'bandwidth_balance',
           text: this.$i18n.t('Bandwidth Balance'),
           required: false,
-          validators: { minValue: minValue(sqlLimits.ubigint.min), maxValue: maxValue(sqlLimits.ubigint.max) }
+          validators: { minValue: minValue(schema.node.bandwidth_balance.min), maxValue: maxValue(schema.node.bandwidth_balance.max) }
         },
         {
           value: 'bypass_role_id',
@@ -114,31 +117,31 @@ export default {
           value: 'bypass_vlan',
           text: this.$i18n.t('Bypass VLAN'),
           required: false,
-          validators: { maxLength: maxLength(50) }
+          validators: { maxLength: maxLength(schema.node.bypass_vlan.maxLength) }
         },
         {
           value: 'computername',
           text: this.$i18n.t('Computer Name'),
           required: false,
-          validators: { maxLength: maxLength(255) }
+          validators: { maxLength: maxLength(schema.node.computername.maxLength) }
         },
         {
           value: 'regdate',
           text: this.$i18n.t('Datetime Registered'),
           required: false,
-          validators: { isDateTime }
+          validators: { isDateFormat: isDateFormat(schema.node.regdate.format) }
         },
         {
           value: 'unregdate',
           text: this.$i18n.t('Datetime Unregistered'),
           required: false,
-          validators: { isDateTime }
+          validators: { isDateFormat: isDateFormat(schema.node.unregdate.format) }
         },
         {
           value: 'notes',
           text: this.$i18n.t('Notes'),
           required: false,
-          validators: { maxLength: maxLength(255) }
+          validators: { maxLength: maxLength(schema.node.notes.maxLength) }
         },
         {
           value: 'pid',
@@ -175,32 +178,39 @@ export default {
         this.$refs['parser-' + this.tabIndex][0].onKeyDown(event)
       }
     },
-    onImport (values) {
+    onImport (values, parser) {
       // track progress
       this.progressValue = 1
       this.progressTotal = values.length + 1
       // track promise(s)
       Promise.all(values.map(value => {
+        // map child components' tableValue
+        let tableValue = parser.tableValues[value._tableValueIndex]
         return this.$store.dispatch('$_nodes/exists', value.mac).then(results => {
-          console.log('exists')
           // node exists
           return this.updateNode(value).then(results => {
-            console.log('updateNode', value)
-            value._tableValue._rowVariant = convert.statusToVariant({ status: results.status })
+            if (results.status) {
+              tableValue._rowVariant = convert.statusToVariant({ status: results.status })
+            } else {
+              tableValue._rowVariant = 'success'
+            }
             if (results.message) {
-              value._tableValue._rowMessage = this.$i18n.t(results.message)
+              tableValue._rowMessage = this.$i18n.t(results.message)
             }
             return results
           }).catch(err => {
             throw err
           })
         }).catch(() => {
-          console.log('not exists')
           // node not exists
           return this.createNode(value).then(results => {
-            value._tableValue._rowVariant = convert.statusToVariant({ status: results.status })
+            if (results.status) {
+              tableValue._rowVariant = convert.statusToVariant({ status: results.status })
+            } else {
+              tableValue._rowVariant = 'success'
+            }
             if (results.message) {
-              value._tableValue._rowMessage = this.$i18n.t(results.message)
+              tableValue._rowMessage = this.$i18n.t(results.message)
             }
             return results
           }).catch(err => {
@@ -208,11 +218,13 @@ export default {
           })
         })
       })).then(values => {
-        console.log(['promise values', values])
-      }).catch(reason => {
-        console.log(['promises reason', reason])
+        this.$store.dispatch('notification/info', {
+          message: values.length + ' ' + this.$i18n.t('nodes imported'),
+          success: null,
+          skipped: null,
+          failed: null
+        })
       })
-      console.log('onImport done')
     },
     createNode (data) {
       console.log('> createNode', data)
@@ -249,6 +261,9 @@ export default {
     if (!this.noInitBindKeys) {
       document.addEventListener('keydown', this.onKeyDown)
     }
+  },
+  created () {
+    this.$store.dispatch('config/getRoles')
   },
   beforeDestroy () {
     if (!this.noInitBindKeys) {

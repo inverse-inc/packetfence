@@ -1,31 +1,58 @@
 <template>
-  <div class="pf-autocomplete">
-    <b-form-input v-model="inputValue" v-bind="$attrs" :class="{ 'form-control-with-suggestions': suggestions.length && visible }"
-      @blur.native="hideSuggestions"
-      @focus.native="showSuggestions"
-      @keyup.native.up.stop="highlightPrevious"
-      @keyup.native.down.stop="highlightNext"
-      @keyup.native.enter.stop="selectHighlighted"
-      @keyup.native.delete="hideSuggestions"></b-form-input>
-    <ul class="pf-autocomplete-suggestions dropdown-menu" :class="{ show: suggestions.length && visible }"
-      @mouseout="resetHightlight" @mousedown="selectHighlighted">
-      <li class="pf-autocomplete-suggestion form-control" v-for="(match, index) in suggestions" :key="match"
-        :class="{ 'pf-autocomplete-suggestion-highlighted': isHighlighted(index) }"
-        @mouseover="highlightIndex(index)">
-        <span v-html="highlight(match)"></span>
-      </li>
-    </ul>
-   </div>
+  <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"   
+    :state="isValid()" :invalid-feedback="getInvalidFeedback()" :class="{ 'mb-0': !columnLabel }">
+    <div class="pf-autocomplete">
+      <b-form-input 
+        v-model="inputValue"
+        v-bind="$attrs"
+        :class="{ 'form-control-with-suggestions': suggestions.length && visible }"
+        :state="isValid()"
+        @blur.native="hideSuggestions"
+        @focus.native="showSuggestions"
+        @keyup.native.up.stop="highlightPrevious"
+        @keyup.native.down.stop="highlightNext"
+        @keyup.native.enter.stop="selectHighlighted"
+        @keyup.native.delete="hideSuggestions"
+        @input.native="validate()"
+        @keyup.native.stop="onChange($event)"
+        @change.native="onChange($event)"
+      ></b-form-input>
+      <ul class="pf-autocomplete-suggestions dropdown-menu" :class="{ show: suggestions.length && visible }"
+        @mouseout="resetHightlight" @mousedown="selectHighlighted">
+        <li class="pf-autocomplete-suggestion form-control" v-for="(match, index) in suggestions" :key="match"
+          :class="{ 'pf-autocomplete-suggestion-highlighted': isHighlighted(index) }"
+          @mouseover="highlightIndex(index)">
+          <span v-html="highlight(match)"></span>
+        </li>
+      </ul>
+    </div>
+    <b-form-text v-if="text" v-t="text"></b-form-text>
+  </b-form-group>
 </template>
 
 <script>
-import {createDebouncer} from 'promised-debounce'
+import { createDebouncer } from 'promised-debounce'
+import pfMixinValidation from '@/components/pfMixinValidation'
 
 export default {
-  name: 'pf-autocomplete',
+  name: 'pf-form-autocomplete',
+  mixins: [
+    pfMixinValidation
+  ],
   inheritAttrs: false,
   props: {
     value: {
+      default: null
+    },
+    columnLabel: {
+      type: String
+    },
+    labelCols: {
+      type: Number,
+      default: 3
+    },
+    text: {
+      type: String,
       default: null
     },
     suggestions: {

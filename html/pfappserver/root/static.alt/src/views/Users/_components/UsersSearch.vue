@@ -106,7 +106,7 @@ export default {
       fields: [ // keys match with b-form-select
         {
           value: 'pid',
-          text: this.$i18n.t('Username'),
+          text: this.$i18n.t('PID'),
           types: [attributeType.SUBSTRING]
         },
         {

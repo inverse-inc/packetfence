@@ -1,14 +1,14 @@
 <template>
   <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
     :state="isValid()" :invalid-feedback="getInvalidFeedback()" :class="{ 'mb-0': !columnLabel }">
-    <b-form-input 
+    <b-form-textarea 
       v-model="inputValue"
       v-bind="$attrs"
       :state="isValid()"
       @input.native="validate()"
       @keyup.native="onChange($event)"
       @change.native="onChange($event)"
-    ></b-form-input>
+    ></b-form-textarea>
     <b-form-text v-if="text" v-t="text"></b-form-text>
   </b-form-group>
 </template>
@@ -26,7 +26,8 @@ export default {
       default: null
     },
     columnLabel: {
-      type: String
+      type: String,
+      default: null
     },
     labelCols: {
       type: Number,

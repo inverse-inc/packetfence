@@ -36,7 +36,9 @@
  *
  *  Events:
  *
- *    @input: emitted w/ `exportModel`, a remapped array of objects based on user-mappings and clean vuelidations
+ *    @input: emitted w/ (`exportModel`, `this`)
+ *      `exportModel`: (array) -- a remapped array of objects based on user-mappings and clean vuelidations
+ *      `this`: (object) -- forward `this` to allow direct modification of this.tableValues[index]... _rowVariant and _rowMessage.
  *
 **/
  <template>
@@ -71,29 +73,29 @@
       <b-card-body>
         <b-row>
           <b-col cols="6">
-            <pf-form-input v-model="config.encoding" :label="$t('Encoding')" 
+            <pf-form-input v-model="config.encoding" :column-label="$t('Encoding')" 
             :text="$t('The encoding to use when opening local files.')"/>
-            <pf-form-input v-model="config.delimiter" :label="$t('Delimiter')" placeholder="auto" 
+            <pf-form-input v-model="config.delimiter" :column-label="$t('Delimiter')" placeholder="auto" 
             :text="$t('The delimiting character. Leave blank to auto-detect from a list of most common delimiters.')"/>
-            <pf-form-input v-model="config.newline" :label="$t('Newline')" placeholder="auto" 
+            <pf-form-input v-model="config.newline" :column-label="$t('Newline')" placeholder="auto" 
             :text="$t('The newline sequence. Leave blank to auto-detect. Must be one of \\r, \\n, or \\r\\n.')"/>
-            <b-form-group horizontal label-cols="3" :label="$t('Header')" class="my-1">
+            <b-form-group horizontal label-cols="3" :column-label="$t('Header')" class="my-1">
               <pf-form-toggle v-model="config.header" :color="{checked: '#28a745', unchecked: '#dc3545'}" :values="{checked: true, unchecked: false}">{{ (config.header) ? $t('Yes') : $t('No') }}</pf-form-toggle>
               <b-form-text>{{ $t('If enbabled, the first row of parsed data will be interpreted as field names.') }}</b-form-text>
             </b-form-group>
-            <b-form-group horizontal label-cols="3" :label="$t('Skip Empty Lines')" class="my-1">
+            <b-form-group horizontal label-cols="3" :column-label="$t('Skip Empty Lines')" class="my-1">
               <pf-form-toggle v-model="config.skipEmptyLines" :color="{checked: '#28a745', unchecked: '#dc3545'}" :values="{checked: true, unchecked: false}">{{ (config.skipEmptyLines) ? $t('Yes') : $t('No') }}</pf-form-toggle>
               <b-form-text>{{ $t('If enabled, lines that are completely empty (those which evaluate to an empty string) will be skipped.') }}</b-form-text>
             </b-form-group>
           </b-col>
           <b-col cols="6">
-            <pf-form-input v-model="config.quoteChar" :label="$t('Quote Character')" 
+            <pf-form-input v-model="config.quoteChar" :column-label="$t('Quote Character')" 
             :text="$t('The character used to quote fields. The quoting of all fields is not mandatory. Any field which is not quoted will correctly read.')"/>
-            <pf-form-input v-model="config.escapeChar" :label="$t('Escape Character')" 
+            <pf-form-input v-model="config.escapeChar" :column-label="$t('Escape Character')" 
             :text="$t('The character used to escape the quote character within a field. If not set, this option will default to the value of quoteChar, meaning that the default escaping of quote character within a quoted field is using the quote character two times.')"/>
-            <pf-form-input v-model="config.comments" :label="$t('Comments')" 
+            <pf-form-input v-model="config.comments" :column-label="$t('Comments')" 
             :text="$t('A string that indicates a comment (for example, \'#\' or \'//\').')"/>
-            <pf-form-input v-model="config.preview" :label="$t('Preview')" 
+            <pf-form-input v-model="config.preview" :column-label="$t('Preview')" 
             :text="$t('If > 0, only that many rows will be parsed.')"/>
           </b-col>
         </b-row>
@@ -109,7 +111,7 @@
     </b-card-header>
     <b-collapse :id="uuidStr('table')" :accordion="uuidStr()" role="tabpanel" visible>
       <b-card-body>
-        <b-container fluid>
+        <b-container fluid v-if="items.length">
           <b-row align-v="center" class="float-right">
             <b-form inline class="mb-0">
               <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[10,25,50,100]" :disabled="isLoading"
@@ -455,7 +457,7 @@ export default {
         //    => (exportModel) [ {mac: 'X'}, {mac: 'Z'} ]
         // ignore selectValues with validation errors
         if (!this.$v.selectValues.$each.$iter[index].$anyError) {
-          const mappedRow = Object.keys(selectValue).reduce((mappedRow, key) => {
+          let mappedRow = Object.keys(selectValue).reduce((mappedRow, key) => {
             if (cheatSheet[key]) mappedRow[cheatSheet[key]] = (selectValue[key] === '') ? null : selectValue[key]
             return mappedRow
           }, staticMapping)
@@ -466,16 +468,18 @@ export default {
               mappedRow[key] = field.formatter(mappedRow[key], key, mappedRow)
             }
           })
+          // dereference mappedRow
+          mappedRow = JSON.parse(JSON.stringify(mappedRow))
           // add pointer reference to tableValue for callback
-          mappedRow._tableValue = this.tableValues.find(v => v === selectValue)
+          let tableValueIndex = this.tableValues.findIndex(v => v === selectValue)
+          mappedRow._tableValueIndex = tableValueIndex
           exportModel.push(mappedRow)
         }
         return exportModel
       }, [])
-      this.$forceUpdate()
     },
     doExport (event) {
-      this.$emit('input', this.exportModel)
+      this.$emit('input', this.exportModel, this)
     },
     onPageSizeChange () {
       this.requestPage = 1 // reset to the first page
@@ -541,28 +545,30 @@ export default {
     },
     tableMapping: {
       handler: function (a, b) {
-        console.log('tableMapping', a)
-        this.buildExportModel()
+        this.selectValues.forEach(row => { row._rowVariant = 'info' })
         this.$v.$touch()
+        this.buildExportModel()
       },
       deep: true
     },
     staticMapping: {
       handler: function (a, b) {
-        this.buildExportModel()
         this.$v.$touch()
+        this.buildExportModel()
       },
       deep: true
     },
     selectValues: {
       handler: function (a, b) {
-        this.buildExportModel()
+        if (a.length === b.length) return
         this.$v.$touch()
+        this.buildExportModel()
       },
       deep: true
     },
     '$v': {
       handler: function (a, b) {
+        if (typeof this.tableValues === 'function') return
         // debounce
         if (this.validateTimeout) clearTimeout(this.validateTimeout)
         this.validateTimeout = setTimeout(() => {
@@ -575,9 +581,12 @@ export default {
             Object.entries(a.selectValues.$each.$iter).forEach(f => {
               let [index, field] = f
               // set row variant based on validation error on tableValue (not selectValue)
-              const row = this.tableValues.find(row => row === a.selectValues.$model[index])
-              row._rowVariant = (field.$anyError) ? '' : 'info'
               if (field.$anyError) {
+                const row = this.tableValues.find(row => row === a.selectValues.$model[index])
+                if (row._rowVariant !== '') {
+                  // clear row variant, allows cell variant to show
+                  row._rowVariant = ''
+                }
                 Object.keys(field.$model).forEach(key => {
                   if (field[key] && field[key].$anyError) {
                     row._cellVariants.actions = 'danger'
