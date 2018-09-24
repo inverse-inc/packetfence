@@ -53,6 +53,9 @@ export const pfFormatters = {
       case 'female':
       case 'woman':
         return 'f'
+      case 'o':
+      case 'other':
+        return 'o'
       default:
         return null
     }

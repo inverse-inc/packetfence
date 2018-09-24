@@ -171,7 +171,7 @@ export default {
           text: this.$i18n.t('Gender'),
           required: false,
           formatter: formatter.genderFromString,
-          validators: { inArray: inArray(['m', 'male', 'f', 'female']) }
+          validators: { inArray: inArray(['m', 'male', 'f', 'female', 'o', 'other']) }
         },
         {
           value: 'lang',
