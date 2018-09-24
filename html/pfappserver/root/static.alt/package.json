@@ -25,8 +25,8 @@
     "vue-bootstrap-datetimepicker": "^5.0.0-beta.2",
     "vue-browser-acl": "^0.8.0",
     "vue-i18n": "^7.8.1",
+    "vue-multiselect": "^2.1.0",
     "vue-router": "^3.0.1",
-    "vue-select": "^2.5.1",
     "vue2vis": "^0.0.x",
     "vuex": "^3.0.1"
   },
