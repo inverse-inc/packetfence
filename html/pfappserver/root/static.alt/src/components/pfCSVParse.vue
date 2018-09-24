@@ -560,7 +560,7 @@ export default {
     },
     selectValues: {
       handler: function (a, b) {
-        if (JSON.stringify(a) === JSON.stringify(b)) return
+        if (a.length === b.length) return
         this.$v.$touch()
         this.buildExportModel()
       },
