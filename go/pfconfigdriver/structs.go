@@ -62,7 +62,8 @@ type configStruct struct {
 	Cluster    struct {
 		HostsIp struct {
 			PfconfigKeys
-			PfconfigNS string `val:"resource::cluster_hosts_ip"`
+			PfconfigNS                 string `val:"resource::cluster_hosts_ip"`
+			PfconfigClusterNameOverlay string `val:"yes"`
 		}
 	}
 	UnifiedApiSystemUser UnifiedApiSystemUser
@@ -213,10 +214,11 @@ type ListenInts struct {
 
 type PfClusterIp struct {
 	StructConfig
-	PfconfigMethod string `val:"hash_element"`
-	PfconfigNS     string `val:"resource::cluster_hosts_ip"`
-	PfconfigHashNS string `val:"-"`
-	Ip             string `json:"ip"`
+	PfconfigMethod             string `val:"hash_element"`
+	PfconfigNS                 string `val:"resource::cluster_hosts_ip"`
+	PfconfigClusterNameOverlay string `val:"yes"`
+	PfconfigHashNS             string `val:"-"`
+	Ip                         string `json:"ip"`
 }
 
 type PfNetwork struct {
@@ -297,6 +299,14 @@ type RolesConf struct {
 	PfconfigHashNS string `val:"-"`
 	Notes          string `json:"notes"`
 	MaxNodesPerPid string `json:"max_nodes_per_pid"`
+}
+
+type ClusterName struct {
+	StructConfig
+	PfconfigMethod string `val:"hash_element"`
+	PfconfigNS     string `val:"resource::clusters_hostname_map"`
+	PfconfigHashNS string `val:"-"`
+	Element        string
 }
 
 type NetInterface struct {

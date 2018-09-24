@@ -29,6 +29,8 @@ var SocketTimeout time.Duration = 60 * time.Second
 
 var myHostname string
 
+var myClusterName string
+
 var nsHasOverlayRe = regexp.MustCompile(`.*\(.*\)$`)
 
 func init() {
@@ -212,6 +214,21 @@ func createQuery(ctx context.Context, o PfconfigObject) Query {
 		query.ns = query.ns + "(" + myHostname + ")"
 	}
 
+	//TODO: only do this if cluster is enabled
+	if metadataFromField(ctx, o, "PfconfigClusterNameOverlay") == "yes" && !nsHasOverlayRe.MatchString(query.ns) {
+		if myClusterName == "" {
+			var res ClusterName
+			res.PfconfigHashNS = myHostname
+			FetchDecodeSocketCache(ctx, &res)
+			if res.Element == "" {
+				panic("Can't determine cluster name for this host")
+			}
+			myClusterName = res.Element
+		}
+
+		query.ns = query.ns + "(" + myClusterName + ")"
+	}
+
 	query.method = metadataFromField(ctx, o, "PfconfigMethod")
 	if query.method == "hash_element" {
 		query.ns = query.ns + ";" + metadataFromField(ctx, o, "PfconfigHashNS")
@@ -258,14 +275,14 @@ func FetchDecodeSocketCache(ctx context.Context, o PfconfigObject) (bool, error)
 }
 
 // Fetch the keys of a namespace
-func FetchKeys(ctx context.Context, name string) ([]string , error) {
-    keys := PfconfigKeys{PfconfigNS : name}
-    err := FetchDecodeSocket(ctx, &keys)
-    if err != nil {
-        return nil, err
-    }
+func FetchKeys(ctx context.Context, name string) ([]string, error) {
+	keys := PfconfigKeys{PfconfigNS: name}
+	err := FetchDecodeSocket(ctx, &keys)
+	if err != nil {
+		return nil, err
+	}
 
-    return keys.Keys, nil
+	return keys.Keys, nil
 }
 
 // Fetch and decode a namespace from pfconfig given a pfconfig compatible struct
