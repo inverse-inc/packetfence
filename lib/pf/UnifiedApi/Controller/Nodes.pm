@@ -58,7 +58,7 @@ sub register {
         return $self->render_error(422, "Cannot register $mac" . ($msg ? " $msg" : ""));
     }
 
-    return $self->render_empty;
+    return $self->render(json => {}, status => 200);
 }
 
 =head2 deregister
@@ -80,7 +80,7 @@ sub deregister {
         return $self->render_error(422, "Cannot deregister $mac");
     }
 
-    return $self->render_empty;
+    return $self->render(json => {}, status => 200);
 }
 
 =head2 bulk_register
@@ -206,7 +206,7 @@ sub fingerbank_refresh {
         return $self->render_error(500, "Couldn't refresh device profiling through Fingerbank");
     }
 
-    return $self->render_empty();
+    return $self->render(json => {}, status => 200);
 }
 
 =head2 bulk_close_violations
@@ -283,7 +283,7 @@ sub close_violation {
         return $self->render_error(500, "Unable to close violation");
     }
 
-    return $self->render_empty();
+    return $self->render(json => {}, status => 200);
 }
 
 =head2 create_error_msg
@@ -497,7 +497,7 @@ sub restart_switchport {
         return $self->render_error($status, $msg);
     }
 
-    return $self->render_empty();
+    return $self->render(json => {}, status => 200);
 }
 
 =head2 do_restart_switchport
@@ -545,7 +545,7 @@ sub reevaluate_access {
         return $self->render_error($STATUS::UNPROCESSABLE_ENTITY, "unable reevaluate access for $mac");
     }
 
-    return $self->render_empty();
+    return $self->render(json => {}, status => 200);
 }
 
 =head1 AUTHOR

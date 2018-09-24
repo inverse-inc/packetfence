@@ -39,7 +39,7 @@ sub invalidate_cache {
     }
 
     $switch->invalidate_distributed_cache();
-    return $self->render(status => 200, json => { status => "success" });
+    return $self->render(status => 200, json => { });
 }
  
 =head1 AUTHOR

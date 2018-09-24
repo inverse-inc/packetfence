@@ -288,6 +288,7 @@ sub startup {
     $self->routes->namespaces(['pf::UnifiedApi::Controller', 'pf::UnifiedApi']);
     $self->hook(before_dispatch => \&before_dispatch_cb);
     $self->hook(after_dispatch => \&after_dispatch_cb);
+    $self->hook(before_render => \&before_render_cb);
     $self->plugin('pf::UnifiedApi::Plugin::RestCrud');
     $self->setup_api_v1_routes();
     $self->custom_startup_hook();
@@ -297,6 +298,19 @@ sub startup {
     });
 
     return;
+}
+
+=head2 before_render_cb
+
+before_render_cb
+
+=cut
+
+sub before_render_cb {
+    my ($self, $args) = @_;
+    my $json = $args->{json};
+    return unless $json;
+    $json->{status} //= $args->{status};
 }
 
 =head2 after_dispatch_cb

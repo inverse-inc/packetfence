@@ -117,7 +117,7 @@ sub create {
     $cs->create($id, $item);
     $cs->commit;
     $self->res->headers->location($self->make_location_url($id));
-    $self->render(status => 201, text => '');
+    $self->render(status => 201, json => {});
 }
 
 sub validate_item {
@@ -169,7 +169,8 @@ sub remove {
     }
 
     $cs->commit;
-    return $self->render_empty();
+
+    return $self->render(json => {}, status => 200);
 }
 
 sub update {

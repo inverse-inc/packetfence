@@ -56,13 +56,13 @@ $t->patch_ok("/api/v1/node/$mac" => json => { notes => "$mac" })
   ->status_is(200);
 
 $t->post_ok("/api/v1/node/$mac/register" => json => {   })
-  ->status_is(204);
+  ->status_is(200);
 
 $t->post_ok("/api/v1/node/$mac/register" => json => { pid => 'default'  })
-  ->status_is(204);
+  ->status_is(200);
 
 $t->post_ok("/api/v1/node/$mac/deregister" => json => { })
-  ->status_is(204);
+  ->status_is(200);
 
 $t->get_ok("/api/v1/node/$mac/fingerbank_info" => json => {})
   ->status_is(200);
