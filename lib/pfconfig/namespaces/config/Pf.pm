@@ -68,7 +68,8 @@ sub init {
     $self->{file}            = $pf_config_file;
     $self->{default_config}  = $self->{cache}->get_cache('config::PfDefault');
     $self->{doc_config}      = $self->{cache}->get_cache('config::Documentation');
-    $self->{cluster_config}  = $self->{cache}->get_cache("config::Cluster(".$self->{cluster_name}.")");
+
+    $self->{cluster_config}  = $self->{cluster_name} ? $self->{cache}->get_cache("config::Cluster(".$self->{cluster_name}.")") : {};
 
     $self->{child_resources} = [ 'resource::CaptivePortal', 'resource::Database', 'resource::fqdn', 'config::Pfdetect', 'resource::trapping_range', 'resource::stats_levels', 'resource::passthroughs', 'resource::isolation_passthroughs', 'resource::network_config' ];
     if(defined($host_id)){
