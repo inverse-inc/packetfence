@@ -1,4 +1,8 @@
 .:54 {
+    logger {
+      level INFO
+    }
+
 [% domain %]
 
 proxy . /etc/resolv.conf
@@ -6,6 +10,10 @@ proxy . /etc/resolv.conf
 
 # all other domains are subject to interception
 :53 {
+    logger {
+      level INFO
+    }
+
     pfdns {
     }
     # Anything not handled by pfdns will be resolved normally

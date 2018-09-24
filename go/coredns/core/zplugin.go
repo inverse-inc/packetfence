@@ -20,6 +20,7 @@ import (
 	_ "github.com/inverse-inc/packetfence/go/coredns/plugin/hosts"
 	_ "github.com/inverse-inc/packetfence/go/coredns/plugin/loadbalance"
 	_ "github.com/inverse-inc/packetfence/go/coredns/plugin/log"
+	_ "github.com/inverse-inc/packetfence/go/coredns/plugin/logger"
 	_ "github.com/inverse-inc/packetfence/go/coredns/plugin/metrics"
 	_ "github.com/inverse-inc/packetfence/go/coredns/plugin/pfdns"
 	_ "github.com/inverse-inc/packetfence/go/coredns/plugin/pprof"
