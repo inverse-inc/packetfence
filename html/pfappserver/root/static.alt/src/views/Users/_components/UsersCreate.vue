@@ -70,6 +70,11 @@
                 ]"
               />
 
+              <pf-form-chosen multiple v-model="single.chosen" :column-label="$t('Choose')" label="label" track-by="value" :options="[{label:'darren', value:'D'}, {label:'joanne', value:'J'}, {label:'victor', value:'V'}, {label:'barbara', value:'B'}, {label:'A really really long description', value: 'Z'}]" :multiple="true">
+                <template slot="singleLabel" slot-scope="{ option }"><strong>{{ option.label }}</strong>'s first initial is <strong>  {{ option.value }}</strong></template>
+              </pf-form-chosen>
+              <pre>{{ JSON.stringify(single.chosen, null, 2) }}</pre>
+
             </b-col>
           </b-form-row>
         </b-form>
@@ -106,6 +111,7 @@
 </template>
 
 <script>
+import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormToggle from '@/components/pfFormToggle'
@@ -131,6 +137,7 @@ export default {
   name: 'UsersCreate',
   components: {
     draggable,
+    'pf-form-chosen': pfFormChosen,
     'pf-form-input': pfFormInput,
     'pf-form-textarea': pfFormTextarea,
     'pf-form-toggle': pfFormToggle
