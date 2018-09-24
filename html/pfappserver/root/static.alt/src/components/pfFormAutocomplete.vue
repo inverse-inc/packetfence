@@ -6,19 +6,7 @@
         v-model="inputValue"
         v-bind="$attrs"
         :class="{ 'form-control-with-suggestions': suggestions.length && visible }"
-        :id="id"
-        :name="name"
-        :disabled="disabled"
-        :required="required"
-        :size="size"
         :state="isValid()"
-        :type="type"
-        :readonly="readonly"
-        :plaintext="plaintext"
-        :autocomplete="autocomplete"
-        :placeholder="placeholder"
-        :formatter="formatter"
-        :lazy-formatter="lazyFormatter"
         @blur.native="hideSuggestions"
         @focus.native="showSuggestions"
         @keyup.native.up.stop="highlightPrevious"
@@ -66,53 +54,6 @@ export default {
     text: {
       type: String,
       default: null
-    },
-    id: {
-      type: String,
-      default: null
-    },
-    name: {
-      type: String,
-      default: null
-    },
-    disabled: {
-      type: Boolean,
-      default: null
-    },
-    required: {
-      type: Boolean,
-      default: false
-    },
-    size: {
-      type: String,
-      default: null
-    },
-    type: {
-      type: String,
-      default: 'text'
-    },
-    readonly: {
-      type: Boolean,
-      default: false
-    },
-    plaintext: {
-      type: Boolean,
-      default: false
-    },
-    autocomplete: {
-      type: String,
-      default: null
-    },
-    placeholder: { // Warning: This prop is not automatically translated.
-      type: String,
-      default: null
-    },
-    formatter: {
-      type: Function
-    },
-    lazyFormatter: {
-      type: Boolean,
-      default: false
     },
     suggestions: {
       type: Array

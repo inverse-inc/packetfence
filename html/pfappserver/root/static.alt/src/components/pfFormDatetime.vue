@@ -24,9 +24,9 @@
       </b-input-group-prepend>
       <date-picker
         v-model="inputValue"
+        v-bind="$attrs"
         ref="datetime"
         :config="datetimeConfig"
-        :placeholder="placeholder"
         :state="isValid()"
         @input.native="validate()"
         @keyup.native="onChange($event)"
@@ -88,19 +88,11 @@ export default {
       type: String,
       default: null
     },
-    placeholder: { // Warning: This prop is not automatically translated.
-      type: String,
-      default: null
-    },
     prependText: {
       type: String
     },
     config: {
       type: Object
-    },
-    disabled: {
-      type: Boolean,
-      default: false
     },
     min: {
       type: String

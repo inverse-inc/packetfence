@@ -7,8 +7,8 @@
       </b-input-group-prepend>
       <b-form-input
         v-model="inputValue"
+        v-bind="$attrs"
         type="number"
-        :placeholder="placeholder"
         :state="isValid()"
         @input.native="validate()"
         @keyup.native="onChange($event)"
@@ -56,10 +56,6 @@ export default {
     type: {
       type: String,
       default: 'text'
-    },
-    placeholder: { // Warning: This prop is not automatically translated.
-      type: String,
-      default: null
     },
     prependText: {
       type: String

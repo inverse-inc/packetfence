@@ -3,19 +3,8 @@
     :state="isValid()" :invalid-feedback="getInvalidFeedback()" :class="{ 'mb-0': !label }">
     <b-form-input 
       v-model="inputValue"
-      :id="id"
-      :name="name"
-      :disabled="disabled"
-      :required="required"
-      :size="size"
+      v-bind="$attrs"
       :state="isValid()"
-      :type="type"
-      :readonly="readonly"
-      :plaintext="plaintext"
-      :autocomplete="autocomplete"
-      :placeholder="placeholder"
-      :formatter="formatter"
-      :lazy-formatter="lazyFormatter"
       @input.native="validate()"
       @keyup.native="onChange($event)"
       @change.native="onChange($event)"
@@ -46,53 +35,6 @@ export default {
     text: {
       type: String,
       default: null
-    },
-    id: {
-      type: String,
-      default: null
-    },
-    name: {
-      type: String,
-      default: null
-    },
-    disabled: {
-      type: Boolean,
-      default: null
-    },
-    required: {
-      type: Boolean,
-      default: false
-    },
-    size: {
-      type: String,
-      default: null
-    },
-    type: {
-      type: String,
-      default: 'text'
-    },
-    readonly: {
-      type: Boolean,
-      default: false
-    },
-    plaintext: {
-      type: Boolean,
-      default: false
-    },
-    autocomplete: {
-      type: String,
-      default: null
-    },
-    placeholder: { // Warning: This prop is not automatically translated.
-      type: String,
-      default: null
-    },
-    formatter: {
-      type: Function
-    },
-    lazyFormatter: {
-      type: Boolean,
-      default: false
     }
   },
   computed: {

@@ -3,20 +3,8 @@
     :state="isValid()" :invalid-feedback="getInvalidFeedback()" :class="{ 'mb-0': !label }">
     <b-form-textarea 
       v-model="inputValue"
-      :id="id"
-      :name="name"
-      :disabled="disabled"
-      :required="required"
-      :size="size"
+      v-bind="$attrs"
       :state="isValid()"
-      :readonly="readonly"
-      :plaintext="plaintext"
-      :autocomplete="autocomplete"
-      :placeholder="placeholder"
-      :rows="rows"
-      :max-rows="maxRows"
-      :wrap="wrap"
-      :no-resize="noResize"
       @input.native="validate()"
       @keyup.native="onChange($event)"
       @change.native="onChange($event)"
@@ -48,58 +36,6 @@ export default {
     text: {
       type: String,
       default: null
-    },
-    id: {
-      type: String,
-      default: null
-    },
-    name: {
-      type: String,
-      default: null
-    },
-    disabled: {
-      type: Boolean,
-      default: null
-    },
-    required: {
-      type: Boolean,
-      default: false
-    },
-    size: {
-      type: String,
-      default: null
-    },
-    readonly: {
-      type: Boolean,
-      default: false
-    },
-    plaintext: {
-      type: Boolean,
-      default: false
-    },
-    autocomplete: {
-      type: String,
-      default: null
-    },
-    placeholder: { // Warning: This prop is not automatically translated.
-      type: String,
-      default: null
-    },
-    rows: {
-      type: Number,
-      default: undefined
-    },
-    maxRows: {
-      type: Number,
-      default: undefined
-    },
-    wrap: {
-      type: String,
-      default: 'soft'
-    },
-    noResize: {
-      type: Boolean,
-      default: false
     }
   },
   computed: {
