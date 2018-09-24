@@ -83,7 +83,7 @@ export const isDateFormat = (dateFormat) => {
 }
 
 export const categoryIdNumberExists = (value, component) => {
-  if (!value || !/\d+/.test(value)) return true
+  if (!value || !/^\d+$/.test(value)) return true
   return store.dispatch('config/getRoles').then((response) => {
     return (response.filter(role => role.category_id === value).length > 0)
   }).catch(() => {
@@ -92,7 +92,7 @@ export const categoryIdNumberExists = (value, component) => {
 }
 
 export const categoryIdStringExists = (value, component) => {
-  if (!value || /\d+/.test(value)) return true
+  if (!value || /^\d+$/.test(value)) return true
   return store.dispatch('config/getRoles').then((response) => {
     return (response.filter(role => role.name.toLowerCase() === value.toLowerCase()).length > 0)
   }).catch(() => {
