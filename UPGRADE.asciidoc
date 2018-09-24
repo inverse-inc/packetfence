@@ -1577,7 +1577,7 @@ Changes to `authentication.conf` and `domain.conf` regarding realms and source m
 
 You have to run the following script to change the configuration:
 
-  addons/upgrade/to-7.3-authentication-conf.pl
+  /usr/local/pf/addons/upgrade/to-7.3-authentication-conf.pl
 
 MariaDB database read-only mode
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
