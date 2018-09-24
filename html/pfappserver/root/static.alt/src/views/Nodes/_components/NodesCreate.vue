@@ -7,7 +7,7 @@
       <b-form @submit.prevent="create()">
         <b-form-row align-v="center">
           <b-col sm="8">
-            <pf-form-input v-model="single.mac" :label="$t('MAC')" 
+            <pf-form-input v-model="single.mac" :column-label="$t('MAC')" 
               :filter="globals.regExp.stringMac"
               :validation="$v.single.mac" 
               :invalid-feedback="[
@@ -16,22 +16,22 @@
                 { [$t('MAC address already exists')]: !$v.single.mac.nodeExists }
               ]
             "/>
-            <pf-form-autocomplete v-model="single.pid" :label="$t('Owner')" placeholder="default" @search="searchUsers" 
+            <pf-form-autocomplete v-model="single.pid" :column-label="$t('Owner')" placeholder="default" @search="searchUsers" 
               :suggestions="matchingUsers"
               :validation="$v.single.pid"
               :invalid-feedback="[
                 { [$t('Owner does not exist')]: !$v.single.pid.userExists }
               ]"
             />
-            <pf-form-select v-model="single.status" :label="$t('Status')" :options="statuses"/>
-            <pf-form-select v-model="single.category" :label="$t('Role')" :options="roles"/>
-            <pf-form-datetime v-model="single.unregdate" :label="$t('Unregistration')" :moments="['1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"
+            <pf-form-select v-model="single.status" :column-label="$t('Status')" :options="statuses"/>
+            <pf-form-select v-model="single.category" :column-label="$t('Role')" :options="roles"/>
+            <pf-form-datetime v-model="single.unregdate" :column-label="$t('Unregistration')" :moments="['1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"
               :validation="$v.single.unregdate"
               :invalid-feedback="[
                 { [$t('Invalid date')]: !$v.single.unregdate.isDateFormat }
               ]"
             />
-            <pf-form-textarea v-model="single.notes" :label="$t('Notes')" rows="8" max-rows="12"
+            <pf-form-textarea v-model="single.notes" :column-label="$t('Notes')" rows="8" max-rows="12"
               :validation="$v.single.notes"
               :invalid-feedback="[
                 { [$t('Maximum {max} characters', {max: globals.schema.person.notes.maxLength})]: !$v.single.notes.maxLength }

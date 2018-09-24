@@ -1,6 +1,6 @@
 <template>
-  <b-form-group horizontal :label-cols="(label) ? labelCols : 0" :label="$t(label)"   
-    :state="isValid()" :invalid-feedback="getInvalidFeedback()" :class="{ 'mb-0': !label }">
+  <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"   
+    :state="isValid()" :invalid-feedback="getInvalidFeedback()" :class="{ 'mb-0': !columnLabel }">
     <div class="pf-autocomplete">
       <b-form-input 
         v-model="inputValue"
@@ -44,7 +44,7 @@ export default {
     value: {
       default: null
     },
-    label: {
+    columnLabel: {
       type: String
     },
     labelCols: {

@@ -73,29 +73,29 @@
       <b-card-body>
         <b-row>
           <b-col cols="6">
-            <pf-form-input v-model="config.encoding" :label="$t('Encoding')" 
+            <pf-form-input v-model="config.encoding" :column-label="$t('Encoding')" 
             :text="$t('The encoding to use when opening local files.')"/>
-            <pf-form-input v-model="config.delimiter" :label="$t('Delimiter')" placeholder="auto" 
+            <pf-form-input v-model="config.delimiter" :column-label="$t('Delimiter')" placeholder="auto" 
             :text="$t('The delimiting character. Leave blank to auto-detect from a list of most common delimiters.')"/>
-            <pf-form-input v-model="config.newline" :label="$t('Newline')" placeholder="auto" 
+            <pf-form-input v-model="config.newline" :column-label="$t('Newline')" placeholder="auto" 
             :text="$t('The newline sequence. Leave blank to auto-detect. Must be one of \\r, \\n, or \\r\\n.')"/>
-            <b-form-group horizontal label-cols="3" :label="$t('Header')" class="my-1">
+            <b-form-group horizontal label-cols="3" :column-label="$t('Header')" class="my-1">
               <pf-form-toggle v-model="config.header" :color="{checked: '#28a745', unchecked: '#dc3545'}" :values="{checked: true, unchecked: false}">{{ (config.header) ? $t('Yes') : $t('No') }}</pf-form-toggle>
               <b-form-text>{{ $t('If enbabled, the first row of parsed data will be interpreted as field names.') }}</b-form-text>
             </b-form-group>
-            <b-form-group horizontal label-cols="3" :label="$t('Skip Empty Lines')" class="my-1">
+            <b-form-group horizontal label-cols="3" :column-label="$t('Skip Empty Lines')" class="my-1">
               <pf-form-toggle v-model="config.skipEmptyLines" :color="{checked: '#28a745', unchecked: '#dc3545'}" :values="{checked: true, unchecked: false}">{{ (config.skipEmptyLines) ? $t('Yes') : $t('No') }}</pf-form-toggle>
               <b-form-text>{{ $t('If enabled, lines that are completely empty (those which evaluate to an empty string) will be skipped.') }}</b-form-text>
             </b-form-group>
           </b-col>
           <b-col cols="6">
-            <pf-form-input v-model="config.quoteChar" :label="$t('Quote Character')" 
+            <pf-form-input v-model="config.quoteChar" :column-label="$t('Quote Character')" 
             :text="$t('The character used to quote fields. The quoting of all fields is not mandatory. Any field which is not quoted will correctly read.')"/>
-            <pf-form-input v-model="config.escapeChar" :label="$t('Escape Character')" 
+            <pf-form-input v-model="config.escapeChar" :column-label="$t('Escape Character')" 
             :text="$t('The character used to escape the quote character within a field. If not set, this option will default to the value of quoteChar, meaning that the default escaping of quote character within a quoted field is using the quote character two times.')"/>
-            <pf-form-input v-model="config.comments" :label="$t('Comments')" 
+            <pf-form-input v-model="config.comments" :column-label="$t('Comments')" 
             :text="$t('A string that indicates a comment (for example, \'#\' or \'//\').')"/>
-            <pf-form-input v-model="config.preview" :label="$t('Preview')" 
+            <pf-form-input v-model="config.preview" :column-label="$t('Preview')" 
             :text="$t('If > 0, only that many rows will be parsed.')"/>
           </b-col>
         </b-row>

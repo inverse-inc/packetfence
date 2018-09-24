@@ -7,7 +7,7 @@
   https://vmware.github.io/clarity/documentation/v0.11/toggle-switches
 -->
 <template>
-  <b-form-group horizontal :label-cols="(label) ? 3 : 0" :label="$t(label)">
+  <b-form-group horizontal :label-cols="(columnLabel) ? 3 : 0" :label="$t(columnLabel)">
     <label role="checkbox"
           :class="className"
           :aria-checked="ariaChecked">
@@ -88,7 +88,7 @@ export default {
       type: Boolean,
       default: false
     },
-    label: {
+    columnLabel: {
       type: String,
       default: null
     },
