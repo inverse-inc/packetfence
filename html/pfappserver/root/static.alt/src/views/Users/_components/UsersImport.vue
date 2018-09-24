@@ -128,13 +128,13 @@ export default {
           value: 'anniversary',
           text: this.$i18n.t('Anniversary'),
           required: false,
-          validators: { isDateFormat: isDateFormat('YYYY-MM-DD HH:mm:ss') }
+          validators: { isDateFormat: isDateFormat(schema.person.anniversary.format) }
         },
         {
           value: 'birthday',
           text: this.$i18n.t('Birthday'),
           required: false,
-          validators: { isDateFormat: isDateFormat('YYYY-MM-DD HH:mm:ss') }
+          validators: { isDateFormat: isDateFormat(schema.person.birthday.format) }
         },
         {
           value: 'address',

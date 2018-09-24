@@ -129,13 +129,13 @@ export default {
           value: 'regdate',
           text: this.$i18n.t('Datetime Registered'),
           required: false,
-          validators: { isDateFormat: isDateFormat('YYYY-MM-DD HH:mm:ss') }
+          validators: { isDateFormat: isDateFormat(schema.node.regdate.format) }
         },
         {
           value: 'unregdate',
           text: this.$i18n.t('Datetime Unregistered'),
           required: false,
-          validators: { isDateFormat: isDateFormat('YYYY-MM-DD HH:mm:ss') }
+          validators: { isDateFormat: isDateFormat(schema.node.unregdate.format) }
         },
         {
           value: 'notes',

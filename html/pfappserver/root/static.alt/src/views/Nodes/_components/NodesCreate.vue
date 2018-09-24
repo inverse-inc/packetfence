@@ -123,7 +123,7 @@ export default {
           maxLength: maxLength(17)
         },
         pid: { userExists },
-        unregdate: { isDateFormat: isDateFormat('YYYY-MM-DD HH:mm:ss') },
+        unregdate: { isDateFormat: isDateFormat(schema.node.unregdate.format) },
         notes: { maxLength: maxLength(schema.node.notes.maxLength) }
       }
     }
