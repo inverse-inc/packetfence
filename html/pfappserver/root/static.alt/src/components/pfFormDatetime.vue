@@ -164,7 +164,8 @@ export default {
         return this.value
       },
       set (newValue) {
-        this.$emit('input', (newValue === null) ? '0000-00-00 00:00:00' : newValue)
+        const dateFormat = this.datetimeConfig().format
+        this.$emit('input', (newValue === null) ? dateFormat.replace(/[a-z]/gi, '0') : newValue)
       }
     },
     datetimeConfig () {
@@ -181,7 +182,7 @@ export default {
       picker.toggle()
     },
     reset (event) {
-      this.inputValue = JSON.parse(JSON.stringify(this.initialValue))
+      this.inputValue = this.initialValue
     },
     momentTooltip (index) {
       let [amount, key] = this.moments[index].split(' ', 2)
@@ -222,38 +223,39 @@ export default {
       let [amount, key] = this.moments[index].split(' ', 2)
       amount = parseInt(amount)
       // allow [CTRL]+[CLICK] for cumulative change
-      const base = (event.ctrlKey) ? parse(this.inputValue, 'YYYY-MM-DD HH:mm:ss') || new Date() : new Date()
+      const dateFormat = this.datetimeConfig().format
+      const base = (event.ctrlKey) ? parse(this.inputValue, dateFormat) || new Date() : new Date()
       if (validMomentKeys.includes(key)) {
         switch (key) {
           case 'years':
-            this.inputValue = format(addYears(base, amount), 'YYYY-MM-DD HH:mm:ss')
+            this.inputValue = format(addYears(base, amount), dateFormat)
             break
           case 'quarters':
-            this.inputValue = format(addQuarters(base, amount), 'YYYY-MM-DD HH:mm:ss')
+            this.inputValue = format(addQuarters(base, amount), dateFormat)
             break
           case 'months':
-            this.inputValue = format(addMonths(base, amount), 'YYYY-MM-DD HH:mm:ss')
+            this.inputValue = format(addMonths(base, amount), dateFormat)
             break
           case 'weeks':
-            this.inputValue = format(addWeeks(base, amount), 'YYYY-MM-DD HH:mm:ss')
+            this.inputValue = format(addWeeks(base, amount), dateFormat)
             break
           case 'days':
-            this.inputValue = format(addDays(base, amount), 'YYYY-MM-DD HH:mm:ss')
+            this.inputValue = format(addDays(base, amount), dateFormat)
             break
           case 'hours':
-            this.inputValue = format(addHours(base, amount), 'YYYY-MM-DD HH:mm:ss')
+            this.inputValue = format(addHours(base, amount), dateFormat)
             break
           case 'minutes':
-            this.inputValue = format(addMinutes(base, amount), 'YYYY-MM-DD HH:mm:ss')
+            this.inputValue = format(addMinutes(base, amount), dateFormat)
             break
           case 'seconds':
-            this.inputValue = format(addSeconds(base, amount), 'YYYY-MM-DD HH:mm:ss')
+            this.inputValue = format(addSeconds(base, amount), dateFormat)
             break
           case 'milliseconds':
-            this.inputValue = format(addMilliseconds(base, amount), 'YYYY-MM-DD HH:mm:ss')
+            this.inputValue = format(addMilliseconds(base, amount), dateFormat)
             break
           default:
-            this.inputValue = format(base, 'YYYY-MM-DD HH:mm:ss')
+            this.inputValue = format(base, dateFormat)
         }
       }
     }
@@ -270,8 +272,14 @@ export default {
   },
   created () {
     // dereference inputValue and assign initialValue
-    if (this.inputValue && this.inputValue !== '0000-00-00 00:00:00') {
-      this.initialValue = JSON.parse(JSON.stringify(this.inputValue))
+    const dateFormat = Object.assign(this.defaultConfig, this.config).format
+    if (this.inputValue instanceof Date) {
+      // instanceof Date, convert to String
+      this.inputValue = format(this.inputValue, dateFormat)
+    }
+    if (this.inputValue && this.inputValue !== dateFormat.replace(/[a-z]/gi, '0')) {
+      // non-zero value, store for reset
+      this.initialValue = format(this.inputValue, dateFormat)
     }
   }
 }
