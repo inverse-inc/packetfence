@@ -63,7 +63,7 @@ sub build {
 
 sub init {
     my ($self, $host_id) = @_;
-    $self->{cluster_name} = $self->{cache}->get_cache("resource::clusters_hostname_map")->{$host_id} // "DEFAULT";
+    $self->{cluster_name} = ($host_id ? $self->{cache}->get_cache("resource::clusters_hostname_map")->{$host_id} : undef) // "DEFAULT";
 
     $self->{file}            = $pf_config_file;
     $self->{default_config}  = $self->{cache}->get_cache('config::PfDefault');

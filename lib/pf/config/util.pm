@@ -18,7 +18,7 @@ modules.
 use strict;
 use warnings;
 
-use pf::cluster qw();
+use pf::cluster;
 use pf::constants;
 use pf::config qw(
     %Config

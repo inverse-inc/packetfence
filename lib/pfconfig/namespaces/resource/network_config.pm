@@ -25,7 +25,7 @@ use pfconfig::namespaces::config::Cluster;
 sub init {
     #TODO: go through the places where network_config is being used in the pfconfig driver
     my ($self, $host_id) = @_;
-    $self->{cluster_name} = $self->{cache}->get_cache("resource::clusters_hostname_map")->{$host_id} // "DEFAULT";
+    $self->{cluster_name} = ($host_id ? $self->{cache}->get_cache("resource::clusters_hostname_map")->{$host_id} : undef) // "DEFAULT";
 
     $self->{config_pf} = pfconfig::namespaces::config::Pf->new( $self->{cache} )->build();
     $self->{networks} = $self->{cache}->get_cache('config::Network');
