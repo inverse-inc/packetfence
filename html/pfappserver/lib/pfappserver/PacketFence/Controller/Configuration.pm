@@ -21,6 +21,8 @@ use POSIX;
 use URI::Escape::XS;
 use pf::log;
 use Tie::IxHash;
+use MIME::Lite;
+use pf::config::util;
 
 use pf::util qw(load_oui download_oui);
 # imported only for the $TIME_MODIFIER_RE regex. Ideally shouldn't be
@@ -544,6 +546,38 @@ sub all_subsections : Private {
         }->(),
 
     }
+}
+
+sub test_smtp : Local {
+    my ($self, $c) = @_;
+    my $form = $c->form("Config::Pf", section => "alerting"); 
+    my ($status, $status_msg) = (200, "success");
+    $form->process(params => $c->request->params);
+    if ($form->has_errors) {
+        $status = HTTP_PRECONDITION_FAILED;
+        $status_msg = $form->field_errors;
+    } else {
+        my $alerting_config = $form->value;
+        my $email = $c->request->param('test_emailaddr') || $alerting_config->{emailaddr};
+        my $msg = MIME::Lite->new(
+            To => $email,
+            Subject => "PacketFence SMTP Test",
+            Data => "PacketFence SMTP Test successful!\n"
+        );
+
+        my $results = eval {
+            pf::config::util::do_send_mime_lite($msg, %$alerting_config);
+        };
+        # the variable $@ holds the error
+        if ($@) {
+            $status = 400;
+            $status_msg = $@;
+        }
+    }
+
+    $c->response->status($status);
+    $c->stash->{status_msg} = $status_msg; # TODO: localize status message
+    $c->stash->{current_view} = 'JSON';
 }
 
 =head1 COPYRIGHT
