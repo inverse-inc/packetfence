@@ -38,8 +38,8 @@ function init() {
         var btn = $(this);
         var href = btn.attr('href');
         var modal = $('#testSMTPModal');
-	var form = $('form[name="section"]');
-	var valid = isFormValid(form);
+        var form = $('form[name="section"]');
+        var valid = isFormValid(form);
 
         if (valid) {
             btn.button('loading');
