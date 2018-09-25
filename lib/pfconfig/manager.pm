@@ -415,6 +415,9 @@ sub expire {
         # expire overlayed namespaces
         my @overlayed_namespaces = $self->overlayed_namespaces($what);
         foreach my $namespace (@overlayed_namespaces){
+            # prevent deep recursion on namespace itself
+            next if $namespace eq $what;
+
             $logger->info("Expiring overlayed resource from base resource $what.");
             $self->expire($namespace, $light);
         }
