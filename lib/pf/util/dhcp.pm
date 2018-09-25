@@ -305,6 +305,13 @@ sub _decode_dhcp_option82_suboption1 {
     elsif ($type == 1) {
         $option->{circuit_id_string} = $data;
     }
+    else {
+	# Last resort fallback - use the whole option (if it only contains printable characters) as circuit id string
+	my $s = pack("C*", @$sub_option);
+	if ($s =~ /\p{XPosixPrint}/) {
+	    $option->{circuit_id_string} = $s;
+	}
+    }
 }
 
 =item _decode_dhcp_option82_suboption2
@@ -328,6 +335,13 @@ sub _decode_dhcp_option82_suboption2 {
     }
     elsif ($type == 1) {
         $option->{host} = $data;
+    }
+    else {
+	# Last resort fallback - use the whole option (if it only contains printable characters) as host
+	my $s = pack("C*", @$sub_option);
+	if ($s =~ /\p{XPosixPrint}/) {
+	    $option->{host} = $s;
+	}
     }
 }
 
