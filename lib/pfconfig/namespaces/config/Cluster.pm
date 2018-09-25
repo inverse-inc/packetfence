@@ -27,7 +27,7 @@ sub init {
     my ($self, $cluster_name) = @_;
     $self->{cluster_name} = $cluster_name || "DEFAULT";
     $self->{file} = $cluster_config_file;
-    $self->{child_resources} = ['config::Pf', 'resource::cluster_servers', 'resource::cluster_hosts', 'resource::network_config', 'resource::clusters_hostname_map'];
+    $self->{child_resources} = ['config::Pf', 'config::Network', 'resource::cluster_servers', 'resource::cluster_hosts', 'resource::network_config', 'resource::clusters_hostname_map'];
 
     $self->{hostname_map} = {};
 }
