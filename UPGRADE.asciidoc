@@ -1776,10 +1776,18 @@ The realms are now multi-tenant aware, in order to upgrade your configuration to
 
   /usr/local/pf/addons/upgrade/to-8.2-realm-conf.pl
 
+
 The api_user table has been deprecated
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Any users in that were in the api_user table should be migrated to PacketFence local account (password table)
+
+
+Upgrade sudoers file (All linux distributions)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+`sudo` configuration will now hide commands starting by `/sbin/ip netns exec` in syslog file. During upgrade of PacketFence package, package manager of your distribution will inform you that `/etc/sudoers.d/packetfence` has changed. You will need to merge current and new `sudoers` file.
+
 
 Database schema update (All linux distributions)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
