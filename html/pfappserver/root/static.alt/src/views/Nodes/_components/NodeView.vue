@@ -28,9 +28,9 @@
               <b-form-group horizontal label-cols="3" :label="$t('Bandwidth Balance')">
                 <pf-form-prefix-multiplier v-model="nodeContent.bandwidth_balance" :max="globals.sqlLimits.ubigint.max"></pf-form-prefix-multiplier>
               </b-form-group>
-              <b-form-group horizontal label-cols="3" :label="$t('VOIP')" class="my-1">
-                <pf-form-toggle v-model="nodeContent.voip" :values="{checked: 'yes', unchecked: 'no'}">{{ (nodeContent.voip === 'yes') ? $t('Yes') : $t('No') }}</pf-form-toggle>
-              </b-form-group>
+              <pf-form-toggle v-model="nodeContent.voip" :column-label="$t('VOIP')" :values="{checked: 'yes', unchecked: 'no'}">
+                {{ (nodeContent.voip === 'yes') ? $t('Yes') : $t('No') }}
+              </pf-form-toggle>
               <pf-form-input v-model="nodeContent.bypass_vlan" type="text" :filter="globals.regExp.stringVlan" :column-label="$t('Bypass VLAN')"/>
               <b-form-group horizontal label-cols="3" :label="$t('Bypass Role')">
                 <b-form-select v-model="nodeContent.bypass_role_id" :options="rolesWithNull"></b-form-select>

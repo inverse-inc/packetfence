@@ -7,7 +7,7 @@
   https://vmware.github.io/clarity/documentation/v0.11/toggle-switches
 -->
 <template>
-  <b-form-group horizontal :label-cols="(columnLabel) ? 3 : 0" :label="$t(columnLabel)">
+  <component class="v-switch-wrapper" :is="wrapper" horizontal :label-cols="(columnLabel) ? 3 : 0" :label="$t(columnLabel)">
     <label role="checkbox"
           :class="className"
           :aria-checked="ariaChecked">
@@ -32,7 +32,7 @@
       <slot/>
     </label>
     <b-form-text v-if="text" v-t="text"></b-form-text>
-  </b-form-group>
+  </component>
 </template>
 
 <script>
@@ -114,6 +114,9 @@ export default {
     }
   },
   computed: {
+    wrapper () {
+      return this.columnLabel ? 'b-form-group' : 'div'
+    },
     className () {
       let { toggled, disabled } = this
       return ['vue-js-switch', { toggled, disabled }]
@@ -219,6 +222,10 @@ export default {
 $colorChecked: $blue;
 $colorUnchecked: $gray-500;
 $margin: 3px;
+
+.v-switch-wrapper [role=group] {
+  display: flex;
+}
 
 .vue-js-switch {
   display: flex;
