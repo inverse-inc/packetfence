@@ -51,6 +51,7 @@ import 'pc-bootstrap4-datetimepicker/build/css/bootstrap-datetimepicker.css'
 import {
   parse,
   format,
+  isValid as dateFnsIsValid, // avoid overlap on pfMixinValidation::isValid()
   addYears,
   addQuarters,
   addMonths,
@@ -164,8 +165,10 @@ export default {
         return this.value
       },
       set (newValue) {
-        const dateFormat = this.datetimeConfig().format
-        this.$emit('input', (newValue === null) ? dateFormat.replace(/[a-z]/gi, '0') : newValue)
+        const dateFormat = Object.assign(this.defaultConfig, this.config).format
+        const value = (newValue === null) ? dateFormat.replace(/[a-z]/gi, '0') : newValue
+        this.$emit('input', value)
+        // this.$emit('update:inputValue', value)
       }
     },
     datetimeConfig () {
@@ -262,10 +265,14 @@ export default {
   },
   watch: {
     min (a, b) {
+      const dateFormat = Object.assign(this.defaultConfig, this.config).format
+      a = parse(format((a instanceof Date && dateFnsIsValid(a) ? a : parse(a)), dateFormat))
       let picker = this.$refs.datetime.dp
       picker.minDate(a)
     },
     max (a, b) {
+      const dateFormat = Object.assign(this.defaultConfig, this.config).format
+      a = parse(format((a instanceof Date && dateFnsIsValid(a) ? a : parse(a)), dateFormat))
       let picker = this.$refs.datetime.dp
       picker.maxDate(a)
     }
@@ -280,6 +287,13 @@ export default {
     if (this.inputValue && this.inputValue !== dateFormat.replace(/[a-z]/gi, '0')) {
       // non-zero value, store for reset
       this.initialValue = format(this.inputValue, dateFormat)
+    }
+    // normalize (floor) min/max
+    if (this.min) {
+      this.min = parse(format((this.min instanceof Date && dateFnsIsValid(this.min) ? this.min : parse(this.min)), dateFormat))
+    }
+    if (this.max) {
+      this.max = parse(format((this.max instanceof Date && dateFnsIsValid(this.max) ? this.max : parse(this.max)), dateFormat))
     }
   }
 }
