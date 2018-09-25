@@ -8,9 +8,8 @@
         <b-form @submit.prevent="create()">
           <b-form-row align-v="center">
             <b-col sm="8">
-              <pf-form-toggle v-model="single.pid_overwrite" :column-label="$t('Username (PID) overwrite')" 
-                :color="{checked: '#28a745', unchecked: '#dc3545'}" :values="{checked: 1, unchecked: 0}"
-                text="Overwrite the username (PID) if it already exists."
+              <pf-form-toggle v-model="single.pid_overwrite" :column-label="$t('Username (PID) overwrite')"
+                :values="{checked: 1, unchecked: 0}" text="Overwrite the username (PID) if it already exists."
                 >{{ (single.pid_overwrite === 1) ? $t('Overwrite') : $t('Ignore') }}</pf-form-toggle>
               <pf-form-input v-model.trim="single.pid" :column-label="$t('Username (PID)')"
                 :validation="$v.single.pid"
@@ -194,11 +193,7 @@ export default {
   methods: {
     create () {
       if (this.modeIndex === 0) {
-        this.$store.dispatch('$_users/createUser', this.single).then(response => {
-          // user created
-        }).catch(err => {
-          // noop
-        })
+        this.$store.dispatch('$_users/createUser', this.single)
       }
     }
   },

@@ -37,9 +37,8 @@
 
 <script>
 const constants = {
-  colorChecked: '#28a745',
-  colorUnchecked: '#bfcbd9',
-  cssColors: false,
+  colorChecked: null, // default is $blue
+  colorUnchecked: null, // default is $gray-500
   labelChecked: 'on',
   labelUnchecked: 'off',
   width: 40,
@@ -75,8 +74,8 @@ export default {
     color: {
       type: [String, Object],
       default: {
-        checked: '#28a745',
-        unchecked: '#bfcbd9'
+        checked: constants.colorChecked,
+        unchecked: constants.colorUnchecked
       },
       validator (value) {
         return typeof value === 'object'
@@ -213,8 +212,14 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+@import "../../node_modules/bootstrap/scss/functions";
+@import "../styles/variables";
+
+$colorChecked: $blue;
+$colorUnchecked: $gray-500;
 $margin: 3px;
+
 .vue-js-switch {
   display: flex;
   align-items: center;
@@ -247,6 +252,7 @@ $margin: 3px;
     display: block;
     position: relative;
     box-sizing: border-box;
+    background-color: $colorUnchecked;
     outline: 0;
     margin: 0 $margin 0 0;
     transition: border-color .3s, background-color .3s;
@@ -266,6 +272,9 @@ $margin: 3px;
   &.disabled {
     pointer-events: none;
     opacity: 0.6;
+  }
+  &.toggled .v-switch-core {
+    background-color: $colorChecked;
   }
 }
 </style>

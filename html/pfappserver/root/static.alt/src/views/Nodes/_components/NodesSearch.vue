@@ -86,14 +86,14 @@
           </b-container>
         </b-col>
       </b-row>
-      <b-table 
-        v-model.sync="tableValues"
+      <b-table
+        v-model="tableValues"
         :items="items"
         :fields="visibleColumns"
         :sort-by="sortBy"
         :sort-desc="sortDesc"
-        @sort-changed="onSortingChanged" 
-        @row-clicked="onRowClick" 
+        @sort-changed="onSortingChanged"
+        @row-clicked="onRowClick"
         @head-clicked="clearSelected"
         show-empty responsive hover no-local-sorting
       >
