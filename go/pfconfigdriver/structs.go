@@ -16,8 +16,9 @@ type PfconfigObject interface {
 // A basic StructConfig that contains the loaded at time which ensures FetchDecodeSocketCache will refresh the struct when needed
 // FetchDecodeSocket can be used by structs that don't include this one, but the pool uses FetchDecodeSocketCache so this struct should always be included in the pfconfig based structs
 type StructConfig struct {
-	PfconfigLoadedAt        time.Time
-	PfconfigHostnameOverlay string `val:"no"`
+	PfconfigLoadedAt           time.Time
+	PfconfigHostnameOverlay    string `val:"no"`
+	PfconfigClusterNameOverlay string `val:"no"`
 }
 
 // Set the loaded at of the struct
@@ -223,32 +224,34 @@ type PfClusterIp struct {
 
 type PfNetwork struct {
 	StructConfig
-	PfconfigMethod string `val:"keys"`
-	PfconfigNS     string `val:"config::Network"`
-	Keys           []string
+	PfconfigMethod          string `val:"keys"`
+	PfconfigNS              string `val:"config::Network"`
+	PfconfigHostnameOverlay string `val:"yes"`
+	Keys                    []string
 }
 
 type NetworkConf struct {
 	StructConfig
-	PfconfigMethod       string `val:"hash_element"`
-	PfconfigNS           string `val:"config::Network"`
-	PfconfigHashNS       string `val:"-"`
-	Dns                  string `json:"dns"`
-	DhcpStart            string `json:"dhcp_start"`
-	Gateway              string `json:"gateway"`
-	DomainName           string `json:"domain-name"`
-	NatEnabled           string `json:"nat_enabled"`
-	DhcpMaxLeaseTime     string `json:"dhcp_max_lease_time"`
-	Named                string `json:"named"`
-	FakeMacEnabled       string `json:"fake_mac_enabled"`
-	Dhcpd                string `json:"dhcpd"`
-	DhcpEnd              string `json:"dhcp_end"`
-	Type                 string `json:"type"`
-	Netmask              string `json:"netmask"`
-	DhcpDefaultLeaseTime string `json:"dhcp_default_lease_time"`
-	NextHop              string `json:"next_hop"`
-	SplitNetwork         string `json:"split_network"`
-	RegNetwork           string `json:"reg_network"`
+	PfconfigMethod          string `val:"hash_element"`
+	PfconfigNS              string `val:"config::Network"`
+	PfconfigHostnameOverlay string `val:"yes"`
+	PfconfigHashNS          string `val:"-"`
+	Dns                     string `json:"dns"`
+	DhcpStart               string `json:"dhcp_start"`
+	Gateway                 string `json:"gateway"`
+	DomainName              string `json:"domain-name"`
+	NatEnabled              string `json:"nat_enabled"`
+	DhcpMaxLeaseTime        string `json:"dhcp_max_lease_time"`
+	Named                   string `json:"named"`
+	FakeMacEnabled          string `json:"fake_mac_enabled"`
+	Dhcpd                   string `json:"dhcpd"`
+	DhcpEnd                 string `json:"dhcp_end"`
+	Type                    string `json:"type"`
+	Netmask                 string `json:"netmask"`
+	DhcpDefaultLeaseTime    string `json:"dhcp_default_lease_time"`
+	NextHop                 string `json:"next_hop"`
+	SplitNetwork            string `json:"split_network"`
+	RegNetwork              string `json:"reg_network"`
 }
 
 type Interface struct {

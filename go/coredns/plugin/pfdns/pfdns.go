@@ -327,6 +327,7 @@ func (pf *pfdns) detectVIP() error {
 
 	var keyConfNet pfconfigdriver.PfconfigKeys
 	keyConfNet.PfconfigNS = "config::Network"
+	keyConfNet.PfconfigHostnameOverlay = "yes"
 	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfNet)
 
 	var keyConfCluster pfconfigdriver.NetInterface
@@ -456,6 +457,7 @@ func (pf *pfdns) detectType() error {
 
 	var keyConfNet pfconfigdriver.PfconfigKeys
 	keyConfNet.PfconfigNS = "config::Network"
+	keyConfNet.PfconfigHostnameOverlay = "yes"
 	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfNet)
 
 	var keyConfCluster pfconfigdriver.NetInterface

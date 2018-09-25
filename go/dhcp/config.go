@@ -63,6 +63,7 @@ func (d *Interfaces) readConfig() {
 
 	var keyConfNet pfconfigdriver.PfconfigKeys
 	keyConfNet.PfconfigNS = "config::Network"
+	keyConfNet.PfconfigHostnameOverlay = "yes"
 
 	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfNet)
 

@@ -234,6 +234,7 @@ if($pf::config::cluster::cluster_enabled) {
     tie @routed_registration_nets, 'pfconfig::cached_array', "interfaces::routed_registration_nets($host_id)";
     tie @inline_nets, 'pfconfig::cached_array', "interfaces::inline_nets($host_id)";
     tie %ConfigDomain, 'pfconfig::cached_hash', "config::Domain($host_id)";
+    tie %ConfigNetworks, 'pfconfig::cached_hash', "config::Network($host_id)";
 }
 else {
     tie %Config, 'pfconfig::cached_hash', "config::Pf";
@@ -251,6 +252,7 @@ else {
     tie @routed_registration_nets, 'pfconfig::cached_array', "interfaces::routed_registration_nets";
     tie @inline_nets, 'pfconfig::cached_array', "interfaces::inline_nets";
     tie %ConfigDomain, 'pfconfig::cached_hash', "config::Domain";
+    tie %ConfigNetworks, 'pfconfig::cached_hash', 'config::Network';
 }
 
 tie %Default_Config, 'pfconfig::cached_hash', 'config::PfDefault';
@@ -262,7 +264,6 @@ tie $reverse_fqdn, 'pfconfig::cached_scalar', 'resource::reverse_fqdn';
 tie %Profiles_Config, 'pfconfig::cached_hash', 'config::Profiles';
 tie @Profile_Filters, 'pfconfig::cached_array', 'resource::Profile_Filters';
 
-tie %ConfigNetworks, 'pfconfig::cached_hash', 'config::Network';
 tie %ConfigAuthentication, 'pfconfig::cached_hash', 'resource::authentication_config_hash';
 tie %ConfigFloatingDevices, 'pfconfig::cached_hash', 'config::FloatingDevices';
 
