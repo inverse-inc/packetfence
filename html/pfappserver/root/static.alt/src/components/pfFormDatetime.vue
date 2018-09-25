@@ -19,8 +19,10 @@
   <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
     :state="isValid()" :invalid-feedback="getInvalidFeedback()" :class="{ 'mb-0': !columnLabel }">
     <b-input-group>
-      <b-input-group-prepend v-if="prependText" is-text>
-        {{ prependText }}
+      <b-input-group-prepend v-if="prependText">
+        <div :class="['input-group-text', 'border-right-0', {'border-info': focus}, {'border-danger': isValid() === false}]">
+          {{ prependText }}
+        </div>
       </b-input-group-prepend>
       <date-picker
         v-model="inputValue"
@@ -28,16 +30,19 @@
         ref="datetime"
         :config="datetimeConfig"
         :state="isValid()"
+        :class="[{'border-left-0': prependText}, 'border-right-0', {'is-invalid': isValid() === false}]"
         @input.native="validate()"
         @keyup.native="onChange($event)"
         @change.native="onChange($event)"
+        @focus.native="focus = true"
+        @blur.native="focus = false"
       ></date-picker>
       <b-input-group-append>
         <b-button class="input-group-text" v-if="initialValue && initialValue !== inputValue" @click.stop="reset($event)" v-b-tooltip.hover.top.d300 :title="$t('Reset')"><icon name="undo-alt" variant="light"></icon></b-button>
         <b-button-group v-if="moments.length > 0" rel="moments" v-b-tooltip.hover.top.d300 :title="$t('Cumulate [CTRL] + [CLICK]')">
-          <b-button v-for="(moment, index) in moments" :key="index" variant="light" @click="onClickMoment($event, index)" v-b-tooltip.hover.bottom.d300 :title="momentTooltip(index)">{{ momentLabel(index) }}</b-button>
+          <b-button v-for="(moment, index) in moments" :key="index" :class="['border-left-0', 'border-right-0', {'border-info': focus}, {'border-danger': isValid() === false}]" variant="light" @click="onClickMoment($event, index)" v-b-tooltip.hover.bottom.d300 :title="momentTooltip(index)">{{ momentLabel(index) }}</b-button>
         </b-button-group>
-        <b-button class="input-group-text" @click.stop="toggle($event)"><icon name="calendar-alt" variant="light"></icon></b-button>
+        <b-button :class="['input-group-text', 'border-left-0', {'border-info': focus}, {'border-danger': isValid() === false}]" @click.stop="toggle($event)"><icon name="calendar-alt" variant="light"></icon></b-button>
       </b-input-group-append>
     </b-input-group>
     <b-form-text v-if="text" v-t="text"></b-form-text>
@@ -156,7 +161,8 @@ export default {
         },
         useCurrent: false
       },
-      initialValue: undefined
+      initialValue: undefined,
+      focus: false
     }
   },
   computed: {
