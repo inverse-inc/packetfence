@@ -87,20 +87,6 @@
     [% END %]
   </div>
 
-  <hr>
-
-  <div class="run-manual-scan">
-    <div class="rapid7-scan-selection">
-      <select id="rapid7ScanTemplateSelection">
-        [% FOREACH scan IN scan_templates %]
-        <option trigger_url=[% c.uri_for(c.controller('Node').action_for('runRapid7Scan'), [mac] scan.id, {tenant_id => tenant_id})  %]>[% scan.name %]</option>
-        [% END %]
-      </select>
-      <button id="runRapid7Scan" class="btn btn-primary">Run scan on endpoint</button>
-    </div>
-  </div>
-
-  <hr>
 </div>
 
 [% ELSE %]
@@ -108,4 +94,22 @@
     <i class="icon-legal icon-large"></i><p>[% l('No Rapid7 information found') %]</p>
   </div>
 [% END %]
+
+[% IF scan_templates && ip %]
+<hr>
+
+<div class="run-manual-scan">
+  <div class="rapid7-scan-selection">
+    <select id="rapid7ScanTemplateSelection">
+      [% FOREACH scan IN scan_templates %]
+      <option trigger_url=[% c.uri_for(c.controller('Node').action_for('runRapid7Scan'), [mac] scan.id, {tenant_id => tenant_id})  %]>[% scan.name %]</option>
+      [% END %]
+    </select>
+    <button id="runRapid7Scan" class="btn btn-primary">Run scan on endpoint</button>
+  </div>
+</div>
+
+<hr>
+[% END %]
+
 </div>

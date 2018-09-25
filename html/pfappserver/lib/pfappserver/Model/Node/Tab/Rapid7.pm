@@ -35,6 +35,7 @@ sub process_view {
 
     my $ip = pf::ip4log::mac2ip($mac);
     return ($STATUS::OK, {
+        ip => $ip,
         item => $scan->assetDetails($ip),
         device_profiling => $scan->deviceProfiling($ip),
         top_vulnerabilities => $scan->assetTopVulnerabilities($ip),
