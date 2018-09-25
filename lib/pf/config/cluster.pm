@@ -6,7 +6,7 @@ use warnings;
 use Exporter;
 our ( @ISA, @EXPORT );
 @ISA = qw(Exporter);
-@EXPORT = qw($cluster_enabled);
+@EXPORT = qw($cluster_enabled $host_id);
 
 use pf::util;
 use pf::file_paths qw($cluster_config_file);

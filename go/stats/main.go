@@ -343,6 +343,7 @@ func main() {
 
 	var keyConfStats pfconfigdriver.PfconfigKeys
 	keyConfStats.PfconfigNS = "config::Stats"
+	keyConfStats.PfconfigHostnameOverlay = "yes"
 	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfStats)
 	RegExpMetric := regexp.MustCompile("^metric .*")
 

@@ -216,44 +216,24 @@ BEGIN {
 
 tie %Doc_Config, 'pfconfig::cached_hash', 'config::Documentation';
 
-# if we're doing clustering, we'll use the config overlaying
-if($pf::config::cluster::cluster_enabled) {
-    my $host_id = $pf::config::cluster::host_id;
-    tie %Config, 'pfconfig::cached_hash', "config::Pf($host_id)";
-    tie @dhcplistener_ints,  'pfconfig::cached_array', "interfaces::dhcplistener_ints($host_id)";
-    tie @ha_ints, 'pfconfig::cached_array', "interfaces::ha_ints($host_id)";
-    tie @listen_ints, 'pfconfig::cached_array', "interfaces::listen_ints($host_id)";
-    tie @inline_enforcement_nets, 'pfconfig::cached_array', "interfaces::inline_enforcement_nets($host_id)";
-    tie @internal_nets, 'pfconfig::cached_array', "interfaces::internal_nets($host_id)";
-    tie @portal_ints, 'pfconfig::cached_array', "interfaces::portal_ints($host_id)";
-    tie @radius_ints, 'pfconfig::cached_array', "interfaces::radius_ints($host_id)";
-    tie @vlan_enforcement_nets, 'pfconfig::cached_array', "interfaces::vlan_enforcement_nets($host_id)";
-    tie $management_network, 'pfconfig::cached_scalar', "interfaces::management_network($host_id)";
-    tie $monitor_int, 'pfconfig::cached_scalar', "interfaces::monitor_int($host_id)";
-    tie @routed_isolation_nets, 'pfconfig::cached_array', "interfaces::routed_isolation_nets($host_id)";
-    tie @routed_registration_nets, 'pfconfig::cached_array', "interfaces::routed_registration_nets($host_id)";
-    tie @inline_nets, 'pfconfig::cached_array', "interfaces::inline_nets($host_id)";
-    tie %ConfigDomain, 'pfconfig::cached_hash', "config::Domain($host_id)";
-    tie %ConfigNetworks, 'pfconfig::cached_hash', "config::Network($host_id)";
-}
-else {
-    tie %Config, 'pfconfig::cached_hash', "config::Pf";
-    tie @dhcplistener_ints,  'pfconfig::cached_array', "interfaces::dhcplistener_ints";
-    tie @ha_ints, 'pfconfig::cached_array', "interfaces::ha_ints";
-    tie @listen_ints, 'pfconfig::cached_array', "interfaces::listen_ints";
-    tie @inline_enforcement_nets, 'pfconfig::cached_array', "interfaces::inline_enforcement_nets";
-    tie @internal_nets, 'pfconfig::cached_array', "interfaces::internal_nets";
-    tie @portal_ints, 'pfconfig::cached_array', "interfaces::portal_ints";
-    tie @radius_ints, 'pfconfig::cached_array', "interfaces::radius_ints";
-    tie @vlan_enforcement_nets, 'pfconfig::cached_array', "interfaces::vlan_enforcement_nets";
-    tie $management_network, 'pfconfig::cached_scalar', "interfaces::management_network";
-    tie $monitor_int, 'pfconfig::cached_scalar', "interfaces::monitor_int";
-    tie @routed_isolation_nets, 'pfconfig::cached_array', "interfaces::routed_isolation_nets";
-    tie @routed_registration_nets, 'pfconfig::cached_array', "interfaces::routed_registration_nets";
-    tie @inline_nets, 'pfconfig::cached_array', "interfaces::inline_nets";
-    tie %ConfigDomain, 'pfconfig::cached_hash', "config::Domain";
-    tie %ConfigNetworks, 'pfconfig::cached_hash', 'config::Network';
-}
+my $host_id = $pf::config::cluster::host_id;
+# Cluster compatible namespaces requiring the host ID to be provided
+tie %Config, 'pfconfig::cached_hash', "config::Pf($host_id)";
+tie @dhcplistener_ints,  'pfconfig::cached_array', "interfaces::dhcplistener_ints($host_id)";
+tie @ha_ints, 'pfconfig::cached_array', "interfaces::ha_ints($host_id)";
+tie @listen_ints, 'pfconfig::cached_array', "interfaces::listen_ints($host_id)";
+tie @inline_enforcement_nets, 'pfconfig::cached_array', "interfaces::inline_enforcement_nets($host_id)";
+tie @internal_nets, 'pfconfig::cached_array', "interfaces::internal_nets($host_id)";
+tie @portal_ints, 'pfconfig::cached_array', "interfaces::portal_ints($host_id)";
+tie @radius_ints, 'pfconfig::cached_array', "interfaces::radius_ints($host_id)";
+tie @vlan_enforcement_nets, 'pfconfig::cached_array', "interfaces::vlan_enforcement_nets($host_id)";
+tie $management_network, 'pfconfig::cached_scalar', "interfaces::management_network($host_id)";
+tie $monitor_int, 'pfconfig::cached_scalar', "interfaces::monitor_int($host_id)";
+tie @routed_isolation_nets, 'pfconfig::cached_array', "interfaces::routed_isolation_nets($host_id)";
+tie @routed_registration_nets, 'pfconfig::cached_array', "interfaces::routed_registration_nets($host_id)";
+tie @inline_nets, 'pfconfig::cached_array', "interfaces::inline_nets($host_id)";
+tie %ConfigDomain, 'pfconfig::cached_hash', "config::Domain($host_id)";
+tie %ConfigNetworks, 'pfconfig::cached_hash', "config::Network($host_id)";
 
 tie %Default_Config, 'pfconfig::cached_hash', 'config::PfDefault';
 

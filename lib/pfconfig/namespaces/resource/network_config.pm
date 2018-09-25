@@ -25,12 +25,14 @@ use pfconfig::namespaces::config::Cluster;
 sub init {
     #TODO: go through the places where network_config is being used in the pfconfig driver
     my ($self, $host_id) = @_;
+    $host_id //= "";
+
     $self->{cluster_name} = ($host_id ? $self->{cache}->get_cache("resource::clusters_hostname_map")->{$host_id} : undef) // "DEFAULT";
 
-    $self->{config_pf} = pfconfig::namespaces::config::Pf->new( $self->{cache} )->build();
-    $self->{networks} = $self->{cache}->get_cache('config::Network');
-    $self->{interfaces} = $self->{cache}->get_cache('interfaces');
-    $self->{cluster_resource} = pfconfig::namespaces::config::Cluster->new($self->{cache});
+    $self->{config_pf} = pfconfig::namespaces::config::Pf->new( $self->{cache}, $host_id )->build();
+    $self->{networks} = $self->{cache}->get_cache("config::Network($host_id)");
+    $self->{interfaces} = $self->{cache}->get_cache("interfaces($host_id)");
+    $self->{cluster_resource} = pfconfig::namespaces::config::Cluster->new($self->{cache}, $self->{cluster_name});
 
 }
 
@@ -38,9 +40,6 @@ sub build {
     my ($self) = @_;
 
     $self->{cluster_resource}->build();
-
-    #TODO: handle this for multi-cluster
-    return {};
 
     my %ConfigNetwork;
 
@@ -57,7 +56,7 @@ sub build {
             if ( defined($self->{networks}{$network}{'next_hop'})) {
                 my $ip = new NetAddr::IP::Lite clean_ip($self->{networks}{$network}{'next_hop'});
                 if ($net_addr->contains($ip)) {
-                    $ConfigNetwork{$network}{'cluster_ips'} = join(',', map { $_->{"interface ".$interface{'int'}}->{ip}} @{$self->{cluster_resource}->{_servers}});
+                    $ConfigNetwork{$network}{'cluster_ips'} = join(',', map { $_->{"interface ".$interface{'int'}}->{ip}} @{$self->{cluster_resource}->{$self->{cluster_name}}->{_servers}});
                     if(isenabled($self->{config_pf}->{active_active}->{dns_on_vip_only})) {
                         $ConfigNetwork{$network}{'dns_vip'} = $self->{cluster_resource}->{cfg}->{CLUSTER}->{'interface '. $interface{'int'}}->{ip} || $interface{'ip'};
                     }
@@ -67,7 +66,7 @@ sub build {
             } else {
                 my $ip = new NetAddr::IP::Lite clean_ip($self->{networks}{$network}{'gateway'});
                 if ($net_addr->contains($ip)) {
-                    $ConfigNetwork{$network}{'cluster_ips'} = join(',', map { $_->{"interface ".$interface{'int'}}->{ip}} @{$self->{cluster_resource}->{_servers}});
+                    $ConfigNetwork{$network}{'cluster_ips'} = join(',', map { $_->{"interface ".$interface{'int'}}->{ip}} @{$self->{cluster_resource}->{$self->{cluster_name}}->{_servers}});
                     if(isenabled($self->{config_pf}->{active_active}->{dns_on_vip_only})) {
                         $ConfigNetwork{$network}{'dns_vip'} = $self->{cluster_resource}->{cfg}->{CLUSTER}->{'interface '. $interface{'int'}}->{ip} || $interface{'ip'};
                     }

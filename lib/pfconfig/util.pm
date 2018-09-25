@@ -81,6 +81,7 @@ sub parse_namespace {
         $args =~ s/[)]{1}$//;
         @args_list = split(',', $args);
     }
+
     return ($namespace, @args_list);
 }
 

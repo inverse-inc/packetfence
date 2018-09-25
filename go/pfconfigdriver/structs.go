@@ -263,29 +263,30 @@ type Interface struct {
 
 type RessourseNetworkConf struct {
 	StructConfig
-	PfconfigMethod       string    `val:"hash_element"`
-	PfconfigNS           string    `val:"resource::network_config"`
-	PfconfigHashNS       string    `val:"-"`
-	Dns                  string    `json:"dns"`
-	DhcpStart            string    `json:"dhcp_start"`
-	Gateway              string    `json:"gateway"`
-	DomainName           string    `json:"domain-name"`
-	NatEnabled           string    `json:"nat_enabled"`
-	DhcpMaxLeaseTime     string    `json:"dhcp_max_lease_time"`
-	Named                string    `json:"named"`
-	FakeMacEnabled       string    `json:"fake_mac_enabled"`
-	Dhcpd                string    `json:"dhcpd"`
-	DhcpEnd              string    `json:"dhcp_end"`
-	Type                 string    `json:"type"`
-	Netmask              string    `json:"netmask"`
-	DhcpDefaultLeaseTime string    `json:"dhcp_default_lease_time"`
-	NextHop              string    `json:"next_hop"`
-	SplitNetwork         string    `json:"split_network"`
-	RegNetwork           string    `json:"reg_network"`
-	Dnsvip               string    `json:"dns_vip"`
-	ClusterIPs           string    `json:"cluster_ips"`
-	IpReserved           string    `json:"ip_reserved"`
-	Interface            Interface `json:"interface"`
+	PfconfigMethod          string    `val:"hash_element"`
+	PfconfigNS              string    `val:"resource::network_config"`
+	PfconfigHostnameOverlay string    `val:"yes"`
+	PfconfigHashNS          string    `val:"-"`
+	Dns                     string    `json:"dns"`
+	DhcpStart               string    `json:"dhcp_start"`
+	Gateway                 string    `json:"gateway"`
+	DomainName              string    `json:"domain-name"`
+	NatEnabled              string    `json:"nat_enabled"`
+	DhcpMaxLeaseTime        string    `json:"dhcp_max_lease_time"`
+	Named                   string    `json:"named"`
+	FakeMacEnabled          string    `json:"fake_mac_enabled"`
+	Dhcpd                   string    `json:"dhcpd"`
+	DhcpEnd                 string    `json:"dhcp_end"`
+	Type                    string    `json:"type"`
+	Netmask                 string    `json:"netmask"`
+	DhcpDefaultLeaseTime    string    `json:"dhcp_default_lease_time"`
+	NextHop                 string    `json:"next_hop"`
+	SplitNetwork            string    `json:"split_network"`
+	RegNetwork              string    `json:"reg_network"`
+	Dnsvip                  string    `json:"dns_vip"`
+	ClusterIPs              string    `json:"cluster_ips"`
+	IpReserved              string    `json:"ip_reserved"`
+	Interface               Interface `json:"interface"`
 }
 
 type PfRoles struct {
@@ -388,20 +389,21 @@ type AuthenticationSourceLdap struct {
 
 type PfStats struct {
 	StructConfig
-	PfconfigMethod string `val:"hash_element"`
-	PfconfigHashNS string `val:"-"`
-	PfconfigNS     string `val:"config::Stats"`
-	File           string `json:"file"`
-	Match          string `json:"match"`
-	Type           string `json:"type"`
-	StatsdType     string `json:"statsd_type"`
-	StatsdNS       string `json:"statsd_ns"`
-	MySQLQuery     string `json:"mysql_query"`
-	Interval       string `json:"interval"`
-	Randomize      string `json:"randomize"`
-	Host           string `json:"host"`
-	ApiMethod      string `json:"api_method"`
-	ApiPayload     string `json:"api_payload"`
-	ApiPath        string `json:"api_path"`
-	ApiCompile     string `json:"api_compile"`
+	PfconfigMethod          string `val:"hash_element"`
+	PfconfigHashNS          string `val:"-"`
+	PfconfigNS              string `val:"config::Stats"`
+	PfconfigHostnameOverlay string `val:"yes"`
+	File                    string `json:"file"`
+	Match                   string `json:"match"`
+	Type                    string `json:"type"`
+	StatsdType              string `json:"statsd_type"`
+	StatsdNS                string `json:"statsd_ns"`
+	MySQLQuery              string `json:"mysql_query"`
+	Interval                string `json:"interval"`
+	Randomize               string `json:"randomize"`
+	Host                    string `json:"host"`
+	ApiMethod               string `json:"api_method"`
+	ApiPayload              string `json:"api_payload"`
+	ApiPath                 string `json:"api_path"`
+	ApiCompile              string `json:"api_compile"`
 }
