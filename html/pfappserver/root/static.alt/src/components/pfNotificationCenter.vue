@@ -9,14 +9,14 @@
         <div v-for="(notification, index) in notifications" :key="index">
           <b-dropdown-item>
             <small>
-              <b-row class="justify-content-md-center">
-                <b-col cols="auto">
+              <b-row no-gutters>
+                <b-col>
                   <div class="notification-message" :class="{'text-secondary': !notification.unread}">
                     <icon :name="notification.icon" :class="'text-'+notification.variant"></icon> <span :class="{ 'font-weight-bold': notification.unread }">{{notification.message}}</span>
                   </div>
                   <small class="notification-url text-secondary">{{notification.url}}</small>
                 </b-col>
-                <b-col class="text-right">
+                <b-col cols="auto" class="ml-3 text-right">
                   <timeago :class="{'text-secondary': !notification.unread}" :datetime="notification.timestamp" :auto-update="60" :locale="$i18n.locale"></timeago>
                   <br/>
                   <b-badge pill v-if="notification.success" variant="success" class="mr-1" v-b-tooltip.hover.top.d300 :title="notification.success + ' ' + $t('succeeded')">{{notification.success}}</b-badge>
