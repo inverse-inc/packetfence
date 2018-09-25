@@ -11,7 +11,7 @@
  *
 **/
 import store from '@/store'
-import { parse, format } from 'date-fns'
+import { parse, format, isValid, compareAsc } from 'date-fns'
 
 const _common = require('vuelidate/lib/validators/common')
 
@@ -95,17 +95,43 @@ export const isFQDN = (str) => {
       return false
     }
     if (!/^[a-z\u00a1-\uffff0-9-_]+$/i.test(part)) {
-			return false
-		}
-		if (/[\uff01-\uff5e]/.test(part)) {
-			// disallow full-width chars
-			return false
-		}
-		if (part[0] === '-' || part[part.length - 1] === '-') {
-			return false
-		}
-	}
-	return true
+      return false
+    }
+    if (/[\uff01-\uff5e]/.test(part)) {
+      // disallow full-width chars
+      return false
+    }
+    if (part[0] === '-' || part[part.length - 1] === '-') {
+      return false
+    }
+  }
+  return true
+}
+
+export const compareDate = (comparison, date = new Date(), dateFormat = 'YYYY-MM-DD HH:mm:ss') => {
+  return (0, _common.withParams)({
+    type: 'compareDate',
+    comparison: comparison,
+    date: date,
+    dateFormat: dateFormat
+  }, function (value) {
+    // ignore empty or zero'd (0000-00-00...)
+    if (!value || value === dateFormat.replace(/[a-z]/gi, '0')) return true
+    // round date/value using dateFormat
+    date = parse(format((date instanceof Date && isValid(date) ? date : parse(date)), dateFormat))
+    value = parse(format((value instanceof Date && isValid(value) ? value : parse(value)), dateFormat))
+    // compare
+    const cmp = compareAsc(value, date)
+    switch (comparison.toLowerCase()) {
+      case '>': case 'gt': return (cmp > 0)
+      case '>=': case 'gte': return (cmp >= 0)
+      case '<': case 'lt': return (cmp < 0)
+      case '<=': case 'lte': return (cmp <= 0)
+      case '===': case 'eq': return (cmp === 0)
+      case '!==': case 'ne': return (cmp !== 0)
+      default: return false
+    }
+  })
 }
 
 export const categoryIdNumberExists = (value, component) => {
