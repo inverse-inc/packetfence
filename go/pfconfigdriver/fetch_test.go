@@ -219,13 +219,6 @@ func TestCreateQuery(t *testing.T) {
 		t.Error("Wrong namespace name out of createQuery", query.ns)
 	}
 
-	// Test a struct that overrides the field
-	pfcip := PfClusterIp{}
-	query = createQuery(ctx, &pfcip)
-	if query.ns != "resource::cluster_hosts_ip("+myClusterName+")" {
-		t.Error("Wrong namespace name out of createQuery", query.ns)
-	}
-
 }
 
 // fetches resource::fqdn requesting Sereal encoding for the reply

@@ -303,10 +303,11 @@ type RolesConf struct {
 
 type ClusterName struct {
 	StructConfig
-	PfconfigMethod string `val:"hash_element"`
-	PfconfigNS     string `val:"resource::clusters_hostname_map"`
-	PfconfigHashNS string `val:"-"`
-	Element        string
+	PfconfigMethod          string `val:"hash_element"`
+	PfconfigNS              string `val:"resource::clusters_hostname_map"`
+	PfconfigHashNS          string `val:"-"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 string
 }
 
 type NetInterface struct {
