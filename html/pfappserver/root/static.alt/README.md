@@ -50,6 +50,7 @@ Since this is a SPA (Single-Page Application), it is currently accessible from `
 * [papaparse](https://www.papaparse.com/) -- parse CSV
 * [uuid](https://www.npmjs.com/package/uuid) -- RFC4122 UUIDs
 * [vue-multiselect](https://vue-multiselect.js.org/) -- multi-select/chosen component
+* [vuedraggable](https://github.com/SortableJS/Vue.Draggable) -- draggable component
 
 ## Files Structure
 
