@@ -52,7 +52,7 @@ use pf::firewallsso();
 use pf::pfqueue::stats();
 use pf::pfqueue::producer::redis();
 
-use List::MoreUtils qw(uniq);
+use List::MoreUtils qw(uniq any);
 use List::Util qw(pairmap);
 use File::Copy::Recursive qw(dircopy);
 use NetAddr::IP;
@@ -657,7 +657,7 @@ sub notify_configfile_changed : Public {
     };
     pfconfig::util::fetch_decode_socket(encode_json($payload));
 
-    my $master_server = $ConfigCluster{$postdata{server}};
+    my $master_server = any { $_ eq $postdata{server} } pf::cluster::config_enabled_hosts;
     die "Master server is not in configuration" unless ($master_server);
 
     my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $master_server->{management_ip});
