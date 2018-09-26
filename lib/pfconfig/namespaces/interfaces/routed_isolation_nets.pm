@@ -20,6 +20,7 @@ use base 'pfconfig::namespaces::interfaces';
 
 sub init {
     my ($self, $host_id) = @_;
+    $host_id //= "";
     $self->{network_config} = $self->{cache}->get_cache("config::Network($host_id)");
 }
 
