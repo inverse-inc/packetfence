@@ -1,4 +1,4 @@
-package pfconfig::namespaces::resource::cluster_servers;
+package pfconfig::namespaces::resource::db_cluster_hosts;
 
 =head1 NAME
 
@@ -15,9 +15,8 @@ pfconfig::namespaces::resource::fqdn
 use strict;
 use warnings;
 
-use pfconfig::namespaces::config::Cluster;
-
 use base 'pfconfig::namespaces::resource';
+use pfconfig::namespaces::config::Cluster;
 
 sub init {
     my ($self, $cluster_name) = @_;
@@ -31,7 +30,11 @@ sub build {
     my @cluster_ips;
     $self->{cluster_resource}->build();
 
-    return $self->{cluster_resource}->{_servers}->{$self->{cluster_name}};
+    my $db_group = $self->{cluster_resource}->{_dbs_map}->{$self->{cluster_name}};
+
+    my @cluster_hosts = map { $_->{host} } @{$self->{cluster_resource}->{_db_servers}->{$db_group}};
+
+    return \@cluster_hosts;
 }
 
 

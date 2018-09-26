@@ -1,4 +1,4 @@
-package pfconfig::namespaces::resource::cluster_servers;
+package pfconfig::namespaces::resource::db_cluster_servers;
 
 =head1 NAME
 
@@ -31,9 +31,10 @@ sub build {
     my @cluster_ips;
     $self->{cluster_resource}->build();
 
-    return $self->{cluster_resource}->{_servers}->{$self->{cluster_name}};
-}
+    my $db_group = $self->{cluster_resource}->{_dbs_map}->{$self->{cluster_name}};
 
+    return $self->{cluster_resource}->{_db_servers}->{$db_group};
+}
 
 =head1 AUTHOR
 

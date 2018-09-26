@@ -30,6 +30,7 @@ use base 'pfconfig::namespaces::resource';
 
 sub init {
     my ($self, $host_id) = @_;
+    $host_id //= "";
     $self->{_interfaces} = {
         listen_ints             => [],
         dhcplistener_ints       => [],

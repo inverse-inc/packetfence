@@ -31,6 +31,7 @@ sub init {
     $self->{file}            = $switches_config_file;
     $self->{child_resources} = [ 'resource::default_switch', 'resource::switches_group', 'resource::switches_ranges', 'interfaces::management_network', 'resource::SwitchTypesConfigured', 'resource::cli_switches', 'resource::SwitchReverseLookup' ];
 
+    $host_id //= "";
     $self->{management_network} = $self->{cache}->get_cache("interfaces::management_network($host_id)");
     $self->{local_secret} = $self->{cache}->get_cache('resource::local_secret');
     my $defaults = pf::IniFiles->new(-file => $switches_default_config_file);
