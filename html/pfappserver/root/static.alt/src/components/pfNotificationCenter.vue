@@ -38,13 +38,13 @@
       <b-alert v-for="(notification, index) in notifications_new" :key="index" variant="secondary"
         @dismissed="dismiss(notification)" show dismissible fade>
         <b-row class="justify-content-md-center">
-          <b-col cols="auto">
+          <b-col>
             <div class="notification-message">
               <icon :name="notification.icon" :class="'text-'+notification.variant"></icon> {{notification.message}}
             </div>
             <small class="notification-url text-secondary">{{notification.url}}</small>
           </b-col>
-          <b-col class="text-right">
+          <b-col cols="auto" class="text-right">
             <b-badge pill v-if="notification.success" variant="success" class="mr-1" v-b-tooltip.hover.top.d300 :title="notification.success + ' ' + $t('succeeded')">{{notification.success}}</b-badge>
             <b-badge pill v-if="notification.skipped" variant="warning" class="mr-1" v-b-tooltip.hover.top.d300 :title="notification.skipped + ' ' + $t('skipped')">{{notification.skipped}}</b-badge>
             <b-badge pill v-if="notification.failed" variant="danger" class="mr-1" v-b-tooltip.hover.top.d300 :title="notification.failed + ' ' + $t('failed')">{{notification.failed}}</b-badge>
