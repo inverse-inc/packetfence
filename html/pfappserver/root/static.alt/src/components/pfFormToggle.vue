@@ -223,15 +223,12 @@ $colorChecked: $blue;
 $colorUnchecked: $gray-500;
 $margin: 3px;
 
-.v-switch-wrapper [role=group] {
-  display: flex;
-}
-
 .vue-js-switch {
   display: flex;
   align-items: center;
   position: relative;
   overflow: hidden;
+  padding-top: calc(#{$input-padding-y} + #{$input-border-width});
   vertical-align: middle;
   margin: 0;
   user-select: none;
