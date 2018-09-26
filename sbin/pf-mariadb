@@ -166,7 +166,7 @@ sub ping_quorum {
             $alive ++;
         }
     }
-    return ($alive > (scalar(pf::cluster::mysql_servers()) / 2));
+    return ($alive > (scalar(pf::cluster::db_enabled_hosts()) / 2));
 }
 
 =head2 test_db
@@ -266,7 +266,7 @@ Refer to the clustering guide for details on how this works.
 
 sub attempt_start {
     # Just start it without anything special if we're in standalone mode or if we're a single cluster node
-    if(!$GALERA_ENABLED || scalar(pf::cluster::mysql_servers()) == 1) {
+    if(!$GALERA_ENABLED || scalar(pf::cluster::db_enabled_hosts()) == 1) {
         fork_launch_mysql("standalone");
     }
     elsif(!_check_pid($MYSQLD_SPAWNER_PID) && -f "/var/lib/mysql/gvwstate.dat") {
