@@ -8,6 +8,8 @@ our ( @ISA, @EXPORT );
 @ISA = qw(Exporter);
 @EXPORT = qw($cluster_enabled $host_id);
 
+use pf::log;
+use File::Slurp qw(read_file write_file);
 use pf::util;
 use pf::file_paths qw($cluster_config_file);
 use Config::IniFiles;
