@@ -657,7 +657,7 @@ sub notify_configfile_changed : Public {
     };
     pfconfig::util::fetch_decode_socket(encode_json($payload));
 
-    my $master_server = firstval { $_->{host} eq $postdata{server} } pf::cluster::config_enabled_hosts;
+    my $master_server = firstval { $_->{host} eq $postdata{server} } pf::cluster::config_enabled_servers;
     die "Master server is not in configuration" unless ($master_server);
 
     my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $master_server->{management_ip});
