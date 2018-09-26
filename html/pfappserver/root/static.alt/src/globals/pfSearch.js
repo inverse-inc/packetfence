@@ -6,12 +6,14 @@ export const pfSearchConditionType = {
   INTEGER:                 'integer',
   LIST:                    'list', // is only
   LISTEXTEND:              'list', // is or is not
+  PREFIXMULTIPLE:          'prefixmultiple',
   SUBSTRING:               'substring',
   YESNO:                   'yesno',
   CONNECTION_TYPE:         'connection_type',
   NODE_STATUS:             'node_status',
   ONLINE:                  'online',
-  ROLE:                    'role'
+  ROLE:                    'role',
+  VIOLATION:               'violation'
 }
 
 export const pfSearchConditionValue = {
