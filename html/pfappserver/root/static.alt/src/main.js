@@ -18,6 +18,7 @@ import 'vue-awesome/icons/chevron-left'
 import 'vue-awesome/icons/chevron-right'
 import 'vue-awesome/icons/chevron-down'
 import 'vue-awesome/icons/cogs'
+import 'vue-awesome/icons/circle-notch'
 import 'vue-awesome/icons/columns'
 import 'vue-awesome/icons/clock'
 import 'vue-awesome/icons/ellipsis-v'
@@ -63,6 +64,9 @@ import App from './App'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import 'vue2vis/dist/vue2vis.css'
 
+Vue.config.productionTip = process.env.NODE_ENV === 'production'
+Vue.config.devtools = true
+
 Vue.use(VueTimeago, {
   name: 'Timeago',
   locale: undefined,
@@ -70,7 +74,6 @@ Vue.use(VueTimeago, {
     'fr': require('date-fns/locale/fr')
   }
 })
-Vue.config.productionTip = process.env.NODE_ENV === 'production'
 
 Vue.component('icon', Icon)
 
