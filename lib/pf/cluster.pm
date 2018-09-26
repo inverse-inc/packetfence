@@ -55,7 +55,7 @@ our ( @ISA, @EXPORT );
 
 use Carp; carp "here";
 
-our (%clusters_hostname_map, $cluster_enabled, $cluster_name, %ConfigCluster, @cluster_servers, @cluster_hosts, @db_cluster_servers, @db_cluster_hosts);
+our (%clusters_hostname_map, $cluster_enabled, $cluster_name, %ConfigCluster, @cluster_servers, @cluster_hosts, @db_cluster_servers, @db_cluster_hosts, @config_cluster_servers, @config_cluster_hosts);
 tie %clusters_hostname_map, 'pfconfig::cached_hash', 'resource::clusters_hostname_map';
 
 our $CLUSTER = "CLUSTER";
@@ -71,6 +71,8 @@ if($cluster_enabled) {
     tie @cluster_hosts, 'pfconfig::cached_array', "resource::cluster_hosts($cluster_name)";
     tie @db_cluster_servers, 'pfconfig::cached_array', "resource::db_cluster_servers($cluster_name)";
     tie @db_cluster_hosts, 'pfconfig::cached_array', "resource::db_cluster_hosts($cluster_name)";
+    tie @config_cluster_servers, 'pfconfig::cached_array', "resource::config_cluster_servers($cluster_name)";
+    tie @config_cluster_hosts, 'pfconfig::cached_array', "resource::config_cluster_hosts($cluster_name)";
 }
 
 =head2 node_disabled_file
@@ -110,6 +112,14 @@ sub db_enabled_servers {
 
 sub db_enabled_hosts {
     return map { (-f node_disabled_file($_)) ? () : $_ } @db_cluster_hosts;
+}
+
+sub config_enabled_servers {
+    return map { (-f node_disabled_file($_->{host})) ? () : $_ } @config_cluster_servers;
+}
+
+sub config_enabled_hosts {
+    return map { (-f node_disabled_file($_)) ? () : $_ } @config_cluster_hosts;
 }
 
 =head2 all_hosts
@@ -258,7 +268,7 @@ sub api_call_each_server {
     require pf::api::jsonrpcclient;
     my @failed;
     my $method = $asynchronous ? "notify" : "call";
-    foreach my $server (enabled_servers()){
+    foreach my $server (config_enabled_servers()){
         next if($server->{host} eq $host_id);
         my $apiclient = pf::api::jsonrpcclient->new(host => $server->{management_ip}, proto => 'https');
         eval {
@@ -404,7 +414,7 @@ If this is not a cluster, it will dispatch the notification only to itself.
 sub notify_each_server {
     my (@args) = @_;
     if($cluster_enabled) {
-        foreach my $server (enabled_servers()) {
+        foreach my $server (config_enabled_servers()) {
             my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $server->{management_ip});
             $apiclient->notify(@args);
         }
@@ -458,7 +468,7 @@ Returns a map of the format {SERVER_NAME => VERSION, SERVER_NAME_2 => VERSION, .
 
 sub get_all_config_version {
     my %results;
-    foreach my $server (enabled_hosts()) {
+    foreach my $server (config_enabled_hosts()) {
         eval {
             $results{$server} = [pf::cluster::call_server($server, 'get_config_version')]->[0]->{version};
         };
@@ -504,8 +514,8 @@ sub handle_config_conflict {
         get_logger->warn("Current version is not the same as the one on all the other cluster servers");
         
         # Can't quorum using 2 hosts
-        if(scalar(enabled_hosts()) > 2) {
-            my $half = (scalar(enabled_hosts()) / 2);
+        if(scalar(config_enabled_hosts()) > 2) {
+            my $half = (scalar(config_enabled_hosts()) / 2);
             my $quorum = int($half) == $half ? $half + 1 : ceil($half);
 
             my $servers_count = 0;
