@@ -231,7 +231,7 @@ Get the list of the MySQL servers ordered by priority
 sub mysql_servers {
     if(scalar(db_enabled_servers()) >= 1){
         # we make the prefered management node the last prefered for MySQL
-        my @servers = enabled_servers();
+        my @servers = db_enabled_servers();
         return reverse(@servers);
     }
     else{
