@@ -31,6 +31,7 @@ sub build {
     $self->{cluster_resource}->build();
 
     my $db_group = $self->{cluster_resource}->{_dbs_map}->{$self->{cluster_name}};
+    return [] unless($db_group);
 
     my @cluster_hosts = map { $_->{host} } @{$self->{cluster_resource}->{_db_servers}->{$db_group}};
 
