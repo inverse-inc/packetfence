@@ -35,7 +35,7 @@
           </b-container>
         </b-col>
       </b-row>
-      <b-table :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc" v-model="tableValues"
+      <b-table class="table-clickable" :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc" v-model="tableValues"
         @sort-changed="onSortingChanged" @row-clicked="onRowClick" @head-clicked="clearSelected"
         show-empty responsive hover no-local-sorting>
         <template slot="HEAD_actions" slot-scope="head">

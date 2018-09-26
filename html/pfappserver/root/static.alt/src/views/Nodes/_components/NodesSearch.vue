@@ -88,6 +88,7 @@
       </b-row>
       <b-table
         v-model="tableValues"
+        class="table-clickable"
         :items="items"
         :fields="visibleColumns"
         :sort-by="sortBy"
