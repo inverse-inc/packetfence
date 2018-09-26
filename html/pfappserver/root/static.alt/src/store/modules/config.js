@@ -14,6 +14,9 @@ const api = {
   getSwitches () {
     return apiCall({ url: 'config/switches', method: 'get' })
   },
+  getTenants () {
+    return apiCall({url: 'tenants', method: 'get'})
+  },
   getViolations () {
     return apiCall({ url: 'config/violations', method: 'get' })
   }
@@ -23,6 +26,7 @@ const state = {
   roles: [],
   sources: [],
   switches: [],
+  tenants: [],
   violations: {}
 }
 
@@ -113,6 +117,16 @@ const actions = {
       return Promise.resolve(state.switches)
     }
   },
+  getTenants: ({ state, commit }) => {
+    if (state.tenants.length === 0) {
+      return api.getTenants().then(response => {
+        commit('TENANTS_UPDATED', response.data.items)
+        return state.tenants
+      })
+    } else {
+      return Promise.resolve(state.tenants)
+    }
+  },
   getViolations: ({ commit, state }) => {
     if (Object.keys(state.violations).length === 0) {
       return api.getViolations().then(response => {
@@ -134,6 +148,9 @@ const mutations = {
   },
   SWICTHES_UPDATED: (state, switches) => {
     state.switches = switches
+  },
+  TENANTS_UPDATED: (state, tenants) => {
+    state.tenants = tenants
   },
   VIOLATIONS_UPDATED: (state, violations) => {
     let ref = {}
