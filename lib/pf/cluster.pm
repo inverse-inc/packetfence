@@ -38,6 +38,7 @@ use Time::HiRes qw(time);
 use POSIX qw(ceil);
 use Crypt::CBC;
 use pf::config::cluster;
+use List::MoreUtils qw(uniq);
 
 use Module::Pluggable
   'search_path' => [qw(pf::ConfigStore)],
@@ -54,7 +55,7 @@ our ( @ISA, @EXPORT );
 
 use Carp; carp "here";
 
-our (%clusters_hostname_map, $cluster_enabled, $cluster_name, %ConfigCluster, @cluster_servers, @cluster_hosts);
+our (%clusters_hostname_map, $cluster_enabled, $cluster_name, %ConfigCluster, @cluster_servers, @cluster_hosts, @db_cluster_servers, @db_cluster_hosts);
 tie %clusters_hostname_map, 'pfconfig::cached_hash', 'resource::clusters_hostname_map';
 
 our $CLUSTER = "CLUSTER";
@@ -68,6 +69,8 @@ if($cluster_enabled) {
     tie %ConfigCluster, 'pfconfig::cached_hash', "config::Cluster($cluster_name)";
     tie @cluster_servers, 'pfconfig::cached_array', "resource::cluster_servers($cluster_name)";
     tie @cluster_hosts, 'pfconfig::cached_array', "resource::cluster_hosts($cluster_name)";
+    tie @db_cluster_servers, 'pfconfig::cached_array', "resource::db_cluster_servers($cluster_name)";
+    tie @db_cluster_hosts, 'pfconfig::cached_array', "resource::db_cluster_hosts($cluster_name)";
 }
 
 =head2 node_disabled_file
@@ -99,6 +102,24 @@ Returns the @cluster_hosts list without the servers that are disabled on this ho
 
 sub enabled_hosts {
     return map { (-f node_disabled_file($_)) ? () : $_ } @cluster_hosts;
+}
+
+sub db_enabled_servers {
+    return map { (-f node_disabled_file($_->{host})) ? () : $_ } @db_cluster_servers;
+}
+
+sub db_enabled_hosts {
+    return map { (-f node_disabled_file($_)) ? () : $_ } @db_cluster_hosts;
+}
+
+=head2 all_hosts
+
+Returns the list of all the hosts this server interracts with whether its DB servers or app servers
+
+=cut
+
+sub all_hosts {
+    return uniq(@cluster_hosts, @db_cluster_hosts);
 }
 
 =head2 is_management
@@ -198,13 +219,13 @@ Get the list of the MySQL servers ordered by priority
 =cut
 
 sub mysql_servers {
-    if(scalar(enabled_servers()) >= 1){
+    if(scalar(db_enabled_servers()) >= 1){
         # we make the prefered management node the last prefered for MySQL
         my @servers = enabled_servers();
         return reverse(@servers);
     }
     else{
-        return enabled_servers();
+        return db_enabled_servers();
     }
 }
 
