@@ -207,10 +207,11 @@ func (pk *PfconfigKeys) GetKeys() *[]string {
 
 type ListenInts struct {
 	StructConfig
-	PfconfigMethod string `val:"element"`
-	PfconfigNS     string `val:"interfaces::listen_ints"`
-	PfconfigArray  string `val:"yes"`
-	Element        []string
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"interfaces::listen_ints"`
+	PfconfigArray           string `val:"yes"`
+	PfconfigHostnameOverlay string `val:"yes"`
+	Element                 []string
 }
 
 type PfClusterIp struct {

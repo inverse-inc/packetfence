@@ -8,7 +8,7 @@ pfconfig::namespaces::config::AdminRoles
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::config::Switch
+pfconfig::namespaces::config::AdminRoles
 
 This module creates the configuration hash associated to admin_roles.conf
 
