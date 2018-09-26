@@ -501,7 +501,7 @@ sub handle_config_conflict {
     my $quorum_version;
 
     my $version = pf::config::cluster::get_config_version();
-    my ($servers_map, $versions_map) = pf::config::cluster::get_all_config_version();
+    my ($servers_map, $versions_map) = pf::cluster::get_all_config_version();
 
     # We make sure we have the right version for this node (in case webservices is currently dead)
     $servers_map->{$host_id} = $version;
