@@ -114,8 +114,6 @@ sub build_single_cluster {
         $self->{hostname_map}->{$section} = $cluster_name;
     }
 
-    $self->{_dbs_map}->{$cluster_name} = $tmp_cfg{CLUSTER}{db_group} // "DEFAULT";
-    push @{$self->{_db_servers}->{$self->{_dbs_map}->{$cluster_name}}}, @servers;
     $self->{_servers}->{$cluster_name} = \@servers;
 
     return \%tmp_cfg;
