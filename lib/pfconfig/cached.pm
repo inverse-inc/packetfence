@@ -33,7 +33,7 @@ use warnings;
 use IO::Socket::UNIX qw( SOCK_STREAM );
 use JSON::MaybeXS;
 use pf::log;
-use pfconfig::util qw($undef_element);
+use pfconfig::util qw($undef_element normalize_namespace_query);
 use pf::config::tenant;
 use pfconfig::constants;
 use Sereal::Decoder qw(sereal_decode_with_object);
@@ -255,7 +255,7 @@ sub is_valid {
         return 1;
     }
     else {
-        $logger->debug("Memory configuration is not valid anymore for key $what in local cached_hash");
+            $logger->debug("Memory configuration is not valid anymore for key $what in local cached_hash");
         return 0;
     }
 }
@@ -265,6 +265,11 @@ sub logger {
     return $self->{logger} if defined $self->{logger};
     $self->{logger} = get_logger(ref($self) || $self);
     return $self->{logger};
+}
+
+sub set_namespace {
+    my ($self, $namespace) = @_;
+    $self->{_namespace} = normalize_namespace_query($namespace);
 }
 
 =head1 AUTHOR
