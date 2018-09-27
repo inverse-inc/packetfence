@@ -1,4 +1,4 @@
-package pfconfig::namespaces::resource::config_cluster_servers;
+package pfconfig::namespaces::resource::all_cluster_servers;
 
 =head1 NAME
 

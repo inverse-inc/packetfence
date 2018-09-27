@@ -1,4 +1,4 @@
-package pfconfig::namespaces::resource::config_cluster_hosts;
+package pfconfig::namespaces::resource::all_cluster_hosts;
 
 =head1 NAME
 pfconfig::namespaces::resource::fqdn

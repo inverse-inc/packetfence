@@ -69,10 +69,10 @@ if($cluster_enabled) {
     tie %ConfigCluster, 'pfconfig::cached_hash', "config::Cluster($cluster_name)";
     tie @cluster_servers, 'pfconfig::cached_array', "resource::cluster_servers($cluster_name)";
     tie @cluster_hosts, 'pfconfig::cached_array', "resource::cluster_hosts($cluster_name)";
-    tie @db_cluster_servers, 'pfconfig::cached_array', "resource::cluster_servers($cluster_name)";
-    tie @db_cluster_hosts, 'pfconfig::cached_array', "resource::cluster_hosts($cluster_name)";
-    tie @config_cluster_servers, 'pfconfig::cached_array', "resource::config_cluster_servers($cluster_name)";
-    tie @config_cluster_hosts, 'pfconfig::cached_array', "resource::config_cluster_hosts($cluster_name)";
+    tie @db_cluster_servers, 'pfconfig::cached_array', "resource::all_cluster_servers($cluster_name)";
+    tie @db_cluster_hosts, 'pfconfig::cached_array', "resource::all_cluster_hosts($cluster_name)";
+    tie @config_cluster_servers, 'pfconfig::cached_array', "resource::all_cluster_servers($cluster_name)";
+    tie @config_cluster_hosts, 'pfconfig::cached_array', "resource::all_cluster_hosts($cluster_name)";
 }
 
 =head2 node_disabled_file
