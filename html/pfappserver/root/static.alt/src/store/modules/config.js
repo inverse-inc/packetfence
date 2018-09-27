@@ -5,6 +5,9 @@
 import apiCall from '@/utils/api'
 
 const api = {
+  getAdminRoles () {
+    return apiCall({url: 'config/admin_roles', method: 'get'})
+  },
   getRoles () {
     return apiCall({ url: 'node_categories', method: 'get' })
   },
@@ -23,6 +26,7 @@ const api = {
 }
 
 const state = {
+  admin_roles: [],
   roles: [],
   sources: [],
   switches: [],
@@ -83,6 +87,16 @@ const getters = {
 }
 
 const actions = {
+  getAdminRoles: ({ state, commit }) => {
+    if (state.admin_roles.length === 0) {
+      return api.getAdminRoles().then(response => {
+        commit('ADMIN_ROLES_UPDATED', response.data.items)
+        return state.admin_roles
+      })
+    } else {
+      return Promise.resolve(state.admin_roles)
+    }
+  },
   getRoles: ({ state, commit }) => {
     if (state.roles.length === 0) {
       return api.getRoles().then(response => {
@@ -140,6 +154,9 @@ const actions = {
 }
 
 const mutations = {
+  ADMIN_ROLES_UPDATED: (state, admin_roles) => {
+    state.admin_roles = admin_roles
+  },
   ROLES_UPDATED: (state, roles) => {
     state.roles = roles
   },
