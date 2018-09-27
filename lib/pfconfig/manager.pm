@@ -232,6 +232,13 @@ It should not have to build the L3 since that's the slowest. The L3 should be bu
 
 sub get_cache {
     my ( $self, $what ) = @_;
+
+    # Normalize all namespaces to end with parentheses without arguments if its not already overlayed
+    # Can't use is_overlayed_namespace since it requires args to be between the parentheses
+    if($what !~ /\)$/) {
+        $what .= "()";
+    }
+
     my $logger = get_logger;
     # we look in raw memory and make sure that it's not expired
     my $memory = $self->{memory}{$what};
