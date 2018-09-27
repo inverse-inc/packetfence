@@ -3187,7 +3187,7 @@ PacketFence supports integration with Rapid7 to start scans automatically when a
 Rapid7 installation
 ^^^^^^^^^^^^^^^^^^^
 
-* Install the InsighVM application 
+* Install the InsightVM application 
 ** https://insightvm.help.rapid7.com/docs/installing-in-linux-environments#section-installing-in-red-hat
 
 * Run the application 
@@ -3205,7 +3205,7 @@ Rapid7 PacketFence user
 
 First, you will need to create credentials for PacketFence so that it can perform API calls on Rapid7. In order to do so, go in Administration and click on "Create" in the "Users" section in Rapid7. Then configure the appropriate username and password and make sure the account is enabled.
 
-## screenshot user create 1
+  screenshot user create 1
 
 Next, in the roles of that user, select the "Custom" role and assign at least the following privileges to the new user:
 
@@ -3216,13 +3216,13 @@ Next, in the roles of that user, select the "Custom" role and assign at least th
 * Specify Scan Targets
 * View Group Asset Data
 
-## screenshot user create 2
+  screenshot user create 2
 
 Next, in "Site access" and "Asset group access", ensure you provide access to this user to all the assets and sites it needs to manage. When in doubt, grant access to all sites and asset groups.
 
-## screenshot user create 3
+  screenshot user create 3
 
-## screenshot user create 4
+  screenshot user create 4
 
 Configure the scan engine in PacketFence
 ++++++++++++++++++++++++++++++++++++++++
@@ -3237,21 +3237,21 @@ Notes on the configuration:
 * Scan before/on/after registration controls when the automated scans are started for the devices PacketFence sees. If you only want to start the scans manually, leave those unchecked.
 * You will not be able to select a scan template, site and scan engine when initially configuring the engine. First configure the access and credentials and edit the engine again to be able to select those from the available values in Rapid7.
 
-## screenshot pf config
+  screenshot pf config
 
 Assign the engine to a connection profile
 +++++++++++++++++++++++++++++++++++++++++
 
 With the scan engine now created, you need to assign it to the connection profile that your endpoints use. In order to do so, go in Configuration -> Connection Profiles, select your connection profile and add your scan engine there.
 
-## screenshot connection profile
+  screenshot connection profile
 
 Viewing data on endpoints
 +++++++++++++++++++++++++
 
 With the scan engine integration completed, PacketFence will now automatically start scans on the endpoints it sees DHCP for and you will be able to view the Rapid7 information of the endpoints by going in the Nodes tab in PacketFence and then viewing a node and browsing its Rapid7 tab.
 
-## screenshot rapid7 node tab
+  screenshot rapid7 node tab
 
 Configuring the syslog integration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -3263,114 +3263,81 @@ Sending syslog information to PacketFence
 
 In Rapid7:
 [options="compact"]
-* On the left, create a new alert.
-* In the *Menu*, select *Alerts*
+* First select the site you want to have alerts for and click on __Manage Site__
+* In the site management tabs select *Alerts*, then create a new alert
 
-|===
-|*Enable*: Must be checked. 
-
+[options="compact"]
+*Enable*: Must be checked. 
 *Alert Name*: Rsyslog to PacketFence or else.
-
 *Maximum Alerts to send*: blank (none)
-
 *Scan events*: Check all.
-
 *Vulnerability Events*: _Any severity_ ; Check as well _Confirmed_, _Unconfirmed_, _Potential_
-
 *Notification Method*: Select _Syslog message_
+*Syslog Server*: PacketFence cluster VIP or server IP for a standalone
 
-*Syslog Server*: "PacketFence cluster VIP or server IP for a standalone"  
-|===
+  screenshot rapid7 alert
 
-In the *Menu*, select now *Schedule*, and define the schedules of your audits.
-
-PacketFence changes to handle Rapid7 syslog information
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Creating the alert pipe on PacketFence
+++++++++++++++++++++++++++++++++++++++
 
 WARNING: If you are using a PacketFence cluster, you will need to do these steps on all your PacketFence servers.
 
-* Logon to PacketFence Server with a _ssh_ terminal.
-* Create the fifo pipe file that PacketFence will use to get data from Rapid7
- 
- mkfifo /usr/local/pf/var/run/nexpose_pipe
+First, logon to PacketFence Server with a ssh terminal, then create the fifo pipe file that PacketFence will use to get data from Rapid7.
 
-* Create a new file named /etc/rsyslog.d/nexpose-log.conf.
+  mkfifo /usr/local/pf/var/run/nexpose_pipe
+
+Create a new file named /etc/rsyslog.d/nexpose-log.conf with the following content
 
  # rsyslog conf for Rapid7 Nexpose server logs reception
  if $programname == 'Nexpose' then /usr/local/pf/var/run/nexpose_pipe
  & ~
 
-* Modify /etc/rsyslog.conf to accept syslogs data on 'udp 514'
-** Uncomment the two lines:
+Next, modify /etc/rsyslog.conf to accept syslogs data on 'udp 514' by uncommenting the following two lines:
 
  $ModLoad imudp
  $UDPServerRun 514
 
-* Restart the 'rsyslog' service
-** Run this command:
-  
+Restart the 'rsyslog' service
+
   service rsyslog restart
 
-At this point PacketFence must be able to get the Nexpose audit results.
+At this point PacketFence must be able to get the Rapid7 audit results via syslog.
 
-TIP: You can see if the Nexpose server is sending to the right server by monitoring both sides traffic, with a 'tcpdump -i any dst host YOUR_PACKETFENCE_SERVER_IP' on your Rapid7 Nexpose server and 'tcpdump -i any port 514' on the PacketFence server.
+TIP: You can see if the Nexpose server is sending to the right server by monitoring the traffic using `tcpdump -i any dst host YOUR_PACKETFENCE_SERVER_IP` on your Rapid7 Nexpose server and `tcpdump -i any src host YOUR_RAPID7_IP` on the PacketFence server.
 
-Integrating with PacketFence violation system
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Creating the syslog parser
+++++++++++++++++++++++++++
 
-Let's give PacketFence the Nexpose parser it needs to detect Nexpose events ::
-* Logon to PacketFence server with a browser on the PacketFence admin interface. 
-** _https://YOUR_PACKETFENCE_SERVER_IP:1443_
+In the Packetfence administration interface, go to *Configuration -> Integration -> Syslog parsers* and add a new Nexpose syslog parser
 
-* Go to *Configuration -> Integration -> Syslog parsers*
-* On the drop list 'ADD SYSLOG PARSER', take 'Nexpose'
+  screenshot syslog parser
+
+[options="compact"]
 * As Detector, put the name of your choice for this parser.
-* In Alert pipe, put the 'absolute' path to our nexpose pipe
+* In Alert pipe, put the 'absolute' path to our nexpose pipe (`/usr/local/pf/var/run/nexpose_pipe` if you used the same name as above)
 
-  /usr/local/pf/var/run/nexpose_pipe
+Once done, restart the following services
 
-* Click on 'SAVE'.
+  /usr/local/pf/pfcmd service pfdetect restart
+  /usr/local/pf/pfcmd service pfqueue restart
 
-Once done, we need to restart the good services ::
-* Restart the 'pfdetect' and the 'pfqueue' service.
-----
-/usr/local/pf/pfcmd service pfdetect restart
-/usr/local/pf/pfcmd service pfqueue restart
-----
+Now that PacketFence is properly configured to receive information from Nexpose, we can configure it to perform some actions on the alerts it receives. In the PacketFence GUI, go to *Configuration -> Compliance -> Violations* and create a new violation.
 
-Now that PacketFence is properly configured to receive information from Nexpose, lets configure it to perform some actionsi ::
-* In the PacketFence GUI, go to *Configuration -> Compliance -> Violations*
-* Go down on the page to the end of the section and note the last violation ID XXXXXXX
-* Click on *ADD VIOLATION*
+Make sure you set the following parameters in the 'Definition' tab:
+[options="compact"]
+* Enable: Set it to *ON* 
+* Action: This is where you put what you want PacketFence to do, refer to the violations documentation in this guide for details on these.
 
-|===
-|*Definition*
-|*Enable*: Set it to *ON* 
+Next, in the 'Triggers' tab:
+[options="compact"]
+* Click on the plus *(+)*, on the right side of the page.
+* On the second line, choose the appropriate trigger between "*nexpose_event_contains*" or "*nexpose_event_start_with*"
+* Choose "nexpose_event_contains" if you know, for example, the "*Common Vulnerabilities and Exposures*" you want to take action on.
+* For "*nexpose_event_contains*": You can put there the CVE or the vlnerability name you are looking for.
+* For "*nexpose_event_start_with*": Put there the full vulnerability name you can find in the Nexpose report, on the Nexpose GUI
+* Click on *ADD*, then *SAVE*
 
-*Identifier*: Use the previously noted violation ID and add 1 to it. (But you can use whatever you want.)
-
-*Action*: This is where you put what you want PacketFence to do, in this case.
-|===
-
-
-|===
-|*Triggers*
-|Click on the plus *(+)*, on the right side of the page.
-
-On the second line, choose the appropriate trigger between "*nexpose_event_contains*" or "*nexpose_event_start_with*"
-
-Choose "nexpose_event_contains" if you know, for example, the "*Common Vulnerabilities and Exposures*" you want to take action on.
-
-| For "*nexpose_event_contains*": You can put there the CVE or the vlnerability name you are looking for.
-
-For "*nexpose_event_start_with*": Put there the full vulnerability name you can find in the Nexpose report, on the Nexpose GUI
-
-| Click on *ADD*, then *SAVE*
-
-INFO: You can only have one trigger, for one violation.
-
-|===
-
+  screenshot rapid7 violation
 
 For more info on violation actions, go to the _Blocking malicious activities with violations_ section of this guide.
 
