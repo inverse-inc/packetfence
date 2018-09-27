@@ -69,7 +69,10 @@ sub build {
     $self->{config} = $config->build();
     my %Config = %{ $self->{config} };
 
-    foreach my $interface ( $config->GroupMembers("interface") ) {
+    foreach my $section ( keys(%Config) ) {
+        next unless($section =~ /^interface /);
+        my $interface = $section;
+
         my $int_obj;
         my $int = $interface;
         $int =~ s/interface //;
