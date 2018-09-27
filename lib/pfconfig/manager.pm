@@ -410,13 +410,6 @@ sub expire {
 
     unless($self->is_overlayed_namespace($what)){
         my $namespace = $self->get_namespace($what);
-        if ( $namespace->{child_resources} ) {
-            foreach my $child_resource ( @{ $namespace->{child_resources} } ) {
-                $logger->info("Expiring child resource $child_resource. Master resource is $what");
-                $self->expire($child_resource, $light);
-            }
-        }
-
         # expire overlayed namespaces
         my @overlayed_namespaces = $self->overlayed_namespaces($what);
         foreach my $namespace (@overlayed_namespaces){
@@ -426,6 +419,14 @@ sub expire {
             $logger->info("Expiring overlayed resource from base resource $what.");
             $self->expire($namespace, $light);
         }
+
+        if ( $namespace->{child_resources} ) {
+            foreach my $child_resource ( @{ $namespace->{child_resources} } ) {
+                $logger->info("Expiring child resource $child_resource. Master resource is $what");
+                $self->expire($child_resource, $light);
+            }
+        }
+
     }
 }
 
