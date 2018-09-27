@@ -3205,7 +3205,7 @@ Rapid7 PacketFence user
 
 First, you will need to create credentials for PacketFence so that it can perform API calls on Rapid7. In order to do so, go in Administration and click on "Create" in the "Users" section in Rapid7. Then configure the appropriate username and password and make sure the account is enabled.
 
-  screenshot user create 1
+image::rapid7/rapid7-user-create-1.png[scaledwidth="100%",alt="Rapid7 PacketFence user"]
 
 Next, in the roles of that user, select the "Custom" role and assign at least the following privileges to the new user:
 
@@ -3216,13 +3216,13 @@ Next, in the roles of that user, select the "Custom" role and assign at least th
 * Specify Scan Targets
 * View Group Asset Data
 
-  screenshot user create 2
+image::rapid7/rapid7-user-create-2.png[scaledwidth="100%",alt="Rapid7 PacketFence user"]
 
 Next, in "Site access" and "Asset group access", ensure you provide access to this user to all the assets and sites it needs to manage. When in doubt, grant access to all sites and asset groups.
 
-  screenshot user create 3
+image::rapid7/rapid7-user-create-3.png[scaledwidth="100%",alt="Rapid7 PacketFence user"]
 
-  screenshot user create 4
+image::rapid7/rapid7-user-create-4.png[scaledwidth="100%",alt="Rapid7 PacketFence user"]
 
 Configure the scan engine in PacketFence
 ++++++++++++++++++++++++++++++++++++++++
@@ -3237,21 +3237,25 @@ Notes on the configuration:
 * Scan before/on/after registration controls when the automated scans are started for the devices PacketFence sees. If you only want to start the scans manually, leave those unchecked.
 * You will not be able to select a scan template, site and scan engine when initially configuring the engine. First configure the access and credentials and edit the engine again to be able to select those from the available values in Rapid7.
 
-  screenshot pf config
+image::rapid7/rapid7-pf-1.png[scaledwidth="100%",alt="Rapid7 PacketFence config"]
+
+image::rapid7/rapid7-pf-2.png[scaledwidth="100%",alt="Rapid7 PacketFence config"]
+
+image::rapid7/rapid7-pf-3.png[scaledwidth="100%",alt="Rapid7 PacketFence config"]
 
 Assign the engine to a connection profile
 +++++++++++++++++++++++++++++++++++++++++
 
 With the scan engine now created, you need to assign it to the connection profile that your endpoints use. In order to do so, go in Configuration -> Connection Profiles, select your connection profile and add your scan engine there.
 
-  screenshot connection profile
+image::rapid7/rapid7-connection-profile.png[scaledwidth="100%",alt="Rapid7 connection profile"]
 
 Viewing data on endpoints
 +++++++++++++++++++++++++
 
 With the scan engine integration completed, PacketFence will now automatically start scans on the endpoints it sees DHCP for and you will be able to view the Rapid7 information of the endpoints by going in the Nodes tab in PacketFence and then viewing a node and browsing its Rapid7 tab.
 
-  screenshot rapid7 node tab
+image::rapid7/rapid7-node-tab.png[scaledwidth="100%",alt="Rapid7 node tab"]
 
 Configuring the syslog integration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -3275,7 +3279,7 @@ In Rapid7:
 *Notification Method*: Select _Syslog message_
 *Syslog Server*: PacketFence cluster VIP or server IP for a standalone
 
-  screenshot rapid7 alert
+image::rapid7/rapid7-syslog.png[scaledwidth="100%",alt="Rapid7 syslog"]
 
 Creating the alert pipe on PacketFence
 ++++++++++++++++++++++++++++++++++++++
@@ -3310,7 +3314,7 @@ Creating the syslog parser
 
 In the Packetfence administration interface, go to *Configuration -> Integration -> Syslog parsers* and add a new Nexpose syslog parser
 
-  screenshot syslog parser
+image::rapid7/rapid7-syslog-parser.png[scaledwidth="100%",alt="Rapid7 syslog parser"]
 
 [options="compact"]
 * As Detector, put the name of your choice for this parser.
@@ -3337,7 +3341,7 @@ Next, in the 'Triggers' tab:
 * For "*nexpose_event_start_with*": Put there the full vulnerability name you can find in the Nexpose report, on the Nexpose GUI
 * Click on *ADD*, then *SAVE*
 
-  screenshot rapid7 violation
+image::rapid7/rapid7-violation-trigger.png[scaledwidth="100%",alt="Rapid7 violation trigger"]
 
 For more info on violation actions, go to the _Blocking malicious activities with violations_ section of this guide.
 
