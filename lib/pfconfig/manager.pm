@@ -122,6 +122,11 @@ Returns the overlayed namespaces for a static namespace
 sub overlayed_namespaces {
     my ($self, $base_namespace) = @_;
 
+    # Namespace is an empty overlay
+    if($base_namespace =~ /(.+)\(\)$/) {
+        $base_namespace = $1;
+    }
+
     # An overlayed namespace can't have overlayed namespaces
     return () if $self->is_overlayed_namespace($base_namespace);
 
