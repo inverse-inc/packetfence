@@ -56,7 +56,7 @@ sub build {
             if ( defined($self->{networks}{$network}{'next_hop'})) {
                 my $ip = new NetAddr::IP::Lite clean_ip($self->{networks}{$network}{'next_hop'});
                 if ($net_addr->contains($ip)) {
-                    $ConfigNetwork{$network}{'cluster_ips'} = join(',', map { $_->{"interface ".$interface{'int'}}->{ip}} @{$self->{cluster_resource}->{$self->{cluster_name}}->{_servers}});
+                    $ConfigNetwork{$network}{'cluster_ips'} = join(',', map { $_->{"interface ".$interface{'int'}}->{ip}} @{$self->{cluster_resource}->{_servers}->{$self->{cluster_name}}});
                     if(isenabled($self->{config_pf}->{active_active}->{dns_on_vip_only})) {
                         $ConfigNetwork{$network}{'dns_vip'} = $self->{cluster_resource}->{cfg}->{CLUSTER}->{'interface '. $interface{'int'}}->{ip} || $interface{'ip'};
                     }
@@ -66,7 +66,7 @@ sub build {
             } else {
                 my $ip = new NetAddr::IP::Lite clean_ip($self->{networks}{$network}{'gateway'});
                 if ($net_addr->contains($ip)) {
-                    $ConfigNetwork{$network}{'cluster_ips'} = join(',', map { $_->{"interface ".$interface{'int'}}->{ip}} @{$self->{cluster_resource}->{$self->{cluster_name}}->{_servers}});
+                    $ConfigNetwork{$network}{'cluster_ips'} = join(',', map { $_->{"interface ".$interface{'int'}}->{ip}} @{$self->{cluster_resource}->{_servers}->{$self->{cluster_name}}});
                     if(isenabled($self->{config_pf}->{active_active}->{dns_on_vip_only})) {
                         $ConfigNetwork{$network}{'dns_vip'} = $self->{cluster_resource}->{cfg}->{CLUSTER}->{'interface '. $interface{'int'}}->{ip} || $interface{'ip'};
                     }
