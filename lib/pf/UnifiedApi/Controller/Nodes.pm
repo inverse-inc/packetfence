@@ -58,7 +58,7 @@ sub register {
         return $self->render_error(422, "Cannot register $mac" . ($msg ? " $msg" : ""));
     }
 
-    return $self->render_empty;
+    return $self->render(json => {}, status => 200);
 }
 
 =head2 deregister
@@ -80,7 +80,7 @@ sub deregister {
         return $self->render_error(422, "Cannot deregister $mac");
     }
 
-    return $self->render_empty;
+    return $self->render(json => {}, status => 200);
 }
 
 =head2 bulk_register
@@ -206,7 +206,7 @@ sub fingerbank_refresh {
         return $self->render_error(500, "Couldn't refresh device profiling through Fingerbank");
     }
 
-    return $self->render_empty();
+    return $self->render(json => {}, status => 200);
 }
 
 =head2 bulk_close_violations
@@ -283,7 +283,7 @@ sub close_violation {
         return $self->render_error(500, "Unable to close violation");
     }
 
-    return $self->render_empty();
+    return $self->render(json => {}, status => 200);
 }
 
 =head2 create_error_msg
@@ -425,14 +425,7 @@ bulk_apply_role
 
 sub bulk_apply_role {
     my ($self) = @_;
-    my ($status, $data) = $self->parse_json;
-    if (is_error($status)) {
-        return $self->render(json => $data, status => $status);
-    }
-
-    my $items = $data->{items} // [];
-    my $role_id = $data->{role_id};
-    return $self->do_bulk_update_field($items, 'category_id', $role_id);
+    return $self->do_bulk_update_field('category_id');
 }
 
 =head2 bulk_apply_bypass_role
@@ -443,14 +436,7 @@ bulk_apply_bypass_role
 
 sub bulk_apply_bypass_role {
     my ($self) = @_;
-    my ($status, $data) = $self->parse_json;
-    if (is_error($status)) {
-        return $self->render(json => $data, status => $status);
-    }
-
-    my $items = $data->{items} // [];
-    my $role_id = $data->{role_id};
-    return $self->do_bulk_update_field($items, 'bypass_role_id', $role_id);
+    return $self->do_bulk_update_field('bypass_role_id');
 }
 
 =head2 do_bulk_update_field
@@ -460,8 +446,15 @@ do_bulk_update_field
 =cut
 
 sub do_bulk_update_field {
-    my ($self, $items, $field, $value) = @_;
-    my ($status, $iter) = $self->dal->search(
+    my ($self, $field) = @_;
+    my ($status, $data) = $self->parse_json;
+    if (is_error($status)) {
+        return $self->render(json => $data, status => $status);
+    }
+
+    my $items = $data->{items} // [];
+    my $value = $data->{$field};
+    ($status, my $iter) = $self->dal->search(
         -columns => [qw(mac)],
         -where => {
             mac => { -in => $items },
@@ -504,7 +497,7 @@ sub restart_switchport {
         return $self->render_error($status, $msg);
     }
 
-    return $self->render_empty();
+    return $self->render(json => {}, status => 200);
 }
 
 =head2 do_restart_switchport
@@ -552,7 +545,7 @@ sub reevaluate_access {
         return $self->render_error($STATUS::UNPROCESSABLE_ENTITY, "unable reevaluate access for $mac");
     }
 
-    return $self->render_empty();
+    return $self->render(json => {}, status => 200);
 }
 
 =head1 AUTHOR

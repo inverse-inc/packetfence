@@ -46,6 +46,12 @@ END
 
 DELIMITER ;                                                                                                            
 call ValidateVersion;                                                                                                  
+DROP PROCEDURE IF EXISTS ValidateVersion;
+
+--
+-- Increase node bandwidth_balance
+--
+ALTER TABLE `node` MODIFY `bandwidth_balance` bigint(20) unsigned DEFAULT NULL;
 
 --
 -- Adjust the pf_version engine so its synchronized in a cluster
@@ -62,5 +68,38 @@ INSERT INTO sms_carrier VALUES(100124, 'Eastlink', '%s@txt.eastlink.ca', now(), 
 INSERT INTO sms_carrier VALUES(100125, 'Freedom', 'txt.freedommobile.ca', now(), now());
 INSERT INTO sms_carrier VALUES(100126, 'PC Mobile', '%s@msg.telus.com', now(), now());
 INSERT INTO sms_carrier VALUES(100127, 'TBayTel', '%s@pcs.rogers.com', now(), now());
+
+--
+-- Add Freeradius decode procedure
+-- 
+DELIMITER $$
+DROP FUNCTION IF EXISTS FREERADIUS_DECODE $$
+CREATE FUNCTION FREERADIUS_DECODE (str text) 
+RETURNS text
+DETERMINISTIC
+BEGIN 
+    DECLARE result text;
+    DECLARE ind INT DEFAULT 0;
+
+    SET result = str;
+    WHILE ind <= 255 DO
+       SET result = REPLACE(result, CONCAT('=', LPAD(LOWER(HEX(ind)), 2, 0)), CHAR(ind));
+       SET result = REPLACE(result, CONCAT('=', LPAD(HEX(ind), 2, 0)), CHAR(ind));
+       SET ind = ind + 1;
+    END WHILE;
+
+    RETURN result;
+END$$
+DELIMITER ;
+
+--
+-- Table structure for table `key_value_storage`
+--
+
+CREATE TABLE key_value_storage (
+  id VARCHAR(255),
+  value BLOB,
+  PRIMARY KEY(id)
+) ENGINE=InnoDB;
 
 INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION)); 

@@ -349,7 +349,7 @@ sub extract_modules {
     const('pf::config', 'Network types', [$pf::config::NET_TYPE_VLAN_REG, $pf::config::NET_TYPE_VLAN_ISOL, $pf::config::NET_TYPE_INLINE, 'management', 'other']);
     const('pf::radius_audit_log', 'RADIUS Audit Log', \@pf::radius_audit_log::FIELDS);
     const('pf::dhcp_option82', 'DHCP Option 82', [values %pf::dhcp_option82::HEADINGS]);
-    const('pf::factory::detect::parser', 'Detect Parsers', [map { "pfdetect_type_$1"  } @pf::constants::pfdetect::TYPES]);
+    const('pf::factory::detect::parser', 'Detect Parsers', [map { "pfdetect_type_$_"  } @pf::constants::pfdetect::TYPES]);
     const('pf::factory::scan', 'Scans Engine', [map { /^pf::scan(.*)/; my $x = $1;  $x =~ s/(::)/_/g; "scan_type$x"  } @pf::factory::scan::MODULES]);
 
     my @values = map { "${_}_action" } @pf::action::VIOLATION_ACTIONS;
@@ -369,39 +369,40 @@ sub extract_modules {
     const('pf::Authentication::Source', 'common_attributes', \@common);
     my $types = pf::authentication::availableAuthenticationSourceTypes();
     my %string_attributes = map {$_ => ''} qw(
-      id
-      client_secret
-      host
+      api_login_id
       authenticate_realm
-      secret
       basedn
-      encryption
-      scope
-      path
-      client_id
-      paypal_cert_file
       cert_file
-      key_file
-      payment_type
-      identity_token
+      cert_file
       cert_id
-      cert_file
-      key_file
-      paypal_cert_file
+      client_id
+      client_secret
+      domains
       email_address
+      encryption
+      host
+      id
+      identity_token
+      key_file
+      key_file
+      md5_hash
+      merchant_id
+      merchant_id
+      path
       payment_type
+      payment_type
+      paypal_cert_file
+      paypal_cert_file
+      public_client_key
       publishable_key
+      scope
+      secret
       secret_key
       shared_secret
-      merchant_id
-      md5_hash
-      transaction_key
-      api_login_id
       shared_secret
-      merchant_id
-      terminal_id
       shared_secret_direct
-      domains
+      terminal_id
+      transaction_key
     );
     foreach (@$types) {
         my $type = "pf::Authentication::Source::${_}Source";

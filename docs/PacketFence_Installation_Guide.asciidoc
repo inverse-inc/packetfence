@@ -1833,7 +1833,7 @@ Users have the possibility to register their devices right from a special portal
 
 The section *Configuration -> -> Advanced Access Configuration -> Device Registration* is where to configure it.
 The portal page can be accessed by the following URL: https://YOUR_PORTAL_HOSTNAME/device-registration
-This URL is accessible from within the network, in any VLAN that can reach the PacketFence server.
+This URL is accessible from within the network, in any VLAN that can reach the PacketFence server on a 'portal' interface (see note below). 
 
 As from PacketFence 7.3 and onwards you need to create a device registration profile and associate it with the connection profile.
 
@@ -1964,9 +1964,79 @@ CAUTION: Node role will take effect only with a 802.1X connection or if you use 
 
 * Advanced filter under *Configuration -> Policies and Access Control -> Connection Profile -> Profile Name -> Advanced Filter*
 
-Examples
+In this section you are able to define an advanced filter in order to match specific attributes.
 
-* last_switch =~ "^JAMES" && extended.mse_inout.bob == "bobby"
+You have access to the following attributes:
+
+ From the database (mean that it comes from a previous connection):
+     autoreg
+     status
+     bypass_vlan
+     bandwidth_balance
+     regdate
+     bypass_role
+     device_class
+     device_type
+     device_version
+     device_score
+     pid
+     machine_account
+     category
+     mac
+     last_arp
+     lastskip
+     last_dhcp
+     user_agent
+     computername
+     dhcp_fingerprint
+     detect_date
+     voip
+     notes
+     time_balance
+     sessionid
+     dhcp_vendor
+     unregdate
+     fingerbank_info.device_name
+     fingerbank_info.device_fq
+     fingerbank_info.device_hierarchy_names
+     fingerbank_info.device_hierarchy_ids
+     fingerbank_info.score
+     fingerbank_info.version
+     fingerbank_info.mobile
+
+ From the current connection:
+     connection_sub_type
+     connection_type
+     switch
+     port
+     vlan
+     ssid
+     dot1x_username
+     realm
+     machine_account
+
+ Operator:
+     && and
+     || or
+     != is not equal
+     == equal
+     ()
+
+ Special value
+    __NULL__ the value is NULL in the database
+
+
+Examples (Match machine authentication on secure wireless ssid)
+
+* machine_account != "" && connection_type == Wireless-802.11-EAP
+
+Examples (Match a device that did machine authentication in a previous connection and connect on ssid Secure)
+
+* node_info.machine_account != "" && ssid == Secure
+
+Examples (Match a device that never did a machine authentication (BYOD))
+
+* node_info.machine_account == __NULL__
 
 PacketFence relies extensively on Apache for its captive portal, administrative interface and Web services. The PacketFence Apache configuration is located in `/usr/local/pf/conf/httpd.conf.d/`.
 
@@ -2681,13 +2751,15 @@ Configure `/etc/syslog-ng/syslog-ng.conf` by adding the following to enable send
   # This line specifies where the sguild.log file is located
   # -> Make sure to configure the right path along with the right filename (on a Security Onion setup, that should be pretty much standard)
   source s_sguil { file("/var/log/nsm/securityonion/sguild.log" program_override("securityonion_ids")); };
-  # This line filters on the string “Alert Received”
-  filter f_sguil { match("Alert Received"); };
+  # This line filters on the string “Archived Alert”
+  filter f_sguil { match("Archived Alert"); };
   # This line tells syslog-ng to send the data read to the PacketFence management IP address using UDP 514
   # -> Make sure to configure the right PacketFence management interface IP address
   destination d_packetfence_alerts { udp("PACKETFENCE_MGMT_IP" port(514)); };
   # This line indicates syslog-ng to use the s_sguil source, apply the f_sguil filter and send it to the d_packetfence_alerts destination
   log { source(s_sguil); filter(f_sguil); destination(d_packetfence_alerts); };
+
+NOTE: Ensure you change PACKETFENCE_MGMT_IP to the management IP address of your PacketFence server
 
 Sending sguild alert output to syslog requires DEBUG to be changed from 1 to 2 under `/etc/sguild/sguild.conf`
 
@@ -4762,9 +4834,9 @@ All these parameters are also accessible through the web-based administration in
 Custom Reports
 ~~~~~~~~~~~~~~
 
-Using the `report.conf` configuration file, you can define reports that create SQL queries to view tables in the PacketFence database. These reports will appear under the 'Reports' tab of the administration interface.
+Using the `report.conf` configuration file, you can define reports that create SQL queries to view tables in the PacketFence database. These reports will appear under the 'Reports -> Custom Reports' menu of the administration interface.
 
-In order to configure a report, you need to edit `/usr/local/pf/conf/report.conf` and add a section that will define your report.
+In order to configure a report, you need to edit `/usr/local/pf/conf/report.conf` and add a section that will define your report. Then do a `/usr/local/pf/bin/pfcmd configreload hard`.
 
 The following attributes are available to define your report (the ones that have an asterisk are mandatory):
 [options="compact"]
@@ -4784,6 +4856,8 @@ The following attributes are available to define your report (the ones that have
 ** `type` defines the type of the search, the only one currently supported is `string`.
 ** `Display Name` is the user friendly name of the field for display.
 ** `field` is the SQL name of the field to search
+
+WARNING: Replace operators `IS` and `<>` by `=` and `!=`, respectively.
 
 NOTE: You should always prefix the fields with the table name and a dot (ex: `node.mac`, `locationlog.role`, ...) so that they are not ambiguous. Although your query may work with a single table, it will not if you decide to add joins that contain column name(s) that are the same as the base table.
 

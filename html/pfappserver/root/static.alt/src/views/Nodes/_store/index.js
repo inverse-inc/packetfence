@@ -9,14 +9,14 @@ const STORAGE_SAVED_SEARCH = 'nodes-saved-search'
 // Default values
 const state = {
   nodes: {}, // nodes details
+  nodeExists: {}, // node exists true|false
   message: '',
   nodeStatus: '',
   savedSearches: JSON.parse(localStorage.getItem(STORAGE_SAVED_SEARCH)) || []
 }
 
 const getters = {
-  isLoading: state => state.nodeStatus === 'loading',
-  isLoadingResults: state => state.searchStatus === 'loading'
+  isLoading: state => state.nodeStatus === 'loading'
 }
 
 const actions = {
@@ -35,29 +35,13 @@ const actions = {
     commit('SAVED_SEARCHES_UPDATED', savedSearches)
     localStorage.setItem(STORAGE_SAVED_SEARCH, JSON.stringify(savedSearches))
   },
-  search: ({state, getters, commit, dispatch}, page) => {
-    let sort = [state.searchSortDesc ? `${state.searchSortBy} DESC` : state.searchSortBy]
-    let body = {
-      cursor: state.searchPageSize * (page - 1),
-      limit: state.searchPageSize,
-      fields: state.searchFields,
-      sort
-    }
-    let apiPromise = state.searchQuery ? api.search(Object.assign(body, {query: state.searchQuery})) : api.all(body)
-    if (state.searchStatus !== 'loading') {
-      return new Promise((resolve, reject) => {
-        commit('SEARCH_REQUEST')
-        apiPromise.then(response => {
-          commit('SEARCH_SUCCESS', response)
-          resolve(response)
-        }).catch(err => {
-          commit('SEARCH_ERROR', err.response)
-          reject(err)
-        })
-      })
-    }
-  },
   exists: ({commit}, mac) => {
+    if (state.nodeExists.hasOwnProperty(mac)) {
+      if (state.nodeExists[mac]) {
+        return Promise.resolve(true)
+      }
+      return Promise.reject(new Error('Unknown MAC'))
+    }
     let body = {
       fields: ['mac'],
       limit: 1,
@@ -69,16 +53,15 @@ const actions = {
       }
     }
     return new Promise((resolve, reject) => {
-      commit('SEARCH_REQUEST')
       api.search(body).then(response => {
-        commit('SEARCH_SUCCESS')
         if (response.items.length > 0) {
+          commit('NODE_EXISTS', mac)
           resolve(true)
         } else {
+          commit('NODE_NOT_EXISTS', mac)
           reject(new Error('Unknown MAC'))
         }
       }).catch(err => {
-        commit('SEARCH_ERROR', err.response)
         reject(err)
       })
     })
@@ -95,9 +78,6 @@ const actions = {
       Object.assign(node, item)
       if (node.status === null) {
         node.status = 'unreg'
-      }
-      if (/^[12][0-9]{3}-[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9]$/.test(node.unregdate)) {
-        [node.unreg_date, node.unreg_time] = node.unregdate.split(' ', 2)
       }
       commit('NODE_REPLACED', node)
 
@@ -181,6 +161,7 @@ const actions = {
     return new Promise((resolve, reject) => {
       api.createNode(data).then(response => {
         commit('NODE_REPLACED', data)
+        commit('NODE_EXISTS', data.mac)
         resolve(response)
       }).catch(err => {
         commit('NODE_ERROR', err.response)
@@ -205,6 +186,7 @@ const actions = {
     return new Promise((resolve, reject) => {
       api.deleteNode(data).then(response => {
         commit('NODE_DESTROYED', data)
+        commit('NODE_NOT_EXISTS', data.mac)
         resolve(response)
       }).catch(err => {
         commit('NODE_ERROR', err.response)
@@ -343,6 +325,16 @@ const actions = {
       })
     })
   },
+  roleBulkNodes: ({commit}, data) => {
+    return new Promise((resolve, reject) => {
+      api.roleBulkNodes(data).then(response => {
+        resolve(response)
+      }).catch(err => {
+        commit('NODE_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
   bypassRoleNode: ({commit}, data) => {
     commit('ITEM_REQUEST')
     return new Promise((resolve, reject) => {
@@ -354,6 +346,16 @@ const actions = {
         resolve(response)
       }).catch(err => {
         commit('ITEM_ERROR', err.response)
+        reject(err)
+      })
+    })
+  },
+  bypassRoleBulkNodes: ({commit}, data) => {
+    return new Promise((resolve, reject) => {
+      api.bypassRoleBulkNodes(data).then(response => {
+        resolve(response)
+      }).catch(err => {
+        commit('NODE_ERROR', err.response)
         reject(err)
       })
     })
@@ -426,6 +428,12 @@ const mutations = {
     if (response && response.data) {
       state.message = response.data.message
     }
+  },
+  NODE_EXISTS: (state, mac) => {
+    Vue.set(state.nodeExists, mac, true)
+  },
+  NODE_NOT_EXISTS: (state, mac) => {
+    Vue.set(state.nodeExists, mac, false)
   },
   SAVED_SEARCHES_UPDATED: (state, searches) => {
     state.savedSearches = searches

@@ -1,14 +1,14 @@
-[DEFAULT]
+[1 DEFAULT]
 admin_strip_username=disabled
 radius_strip_username=disabled
 portal_strip_username=disabled
 
-[LOCAL]
+[1 LOCAL]
 admin_strip_username=disabled
 radius_strip_username=disabled
 portal_strip_username=disabled
 
-[NULL]
+[1 NULL]
 admin_strip_username=disabled
 radius_strip_username=disabled
 portal_strip_username=disabled

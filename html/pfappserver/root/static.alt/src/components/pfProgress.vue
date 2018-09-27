@@ -1,5 +1,5 @@
 <template>
-    <b-progress height="2px" :value="percentage" v-show="visible"></b-progress>
+    <b-progress class="fixed-top" height="4px" :value="percentage" v-show="visible"></b-progress>
 </template>
 
 <script>
@@ -71,3 +71,12 @@ export default {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+  @import "../../node_modules/bootstrap/scss/functions";
+  @import "../styles/variables";
+
+  .progress.fixed-top {
+    background-color: $gray-700;
+  }
+</style>

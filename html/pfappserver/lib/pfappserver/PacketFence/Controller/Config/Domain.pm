@@ -46,20 +46,29 @@ __PACKAGE__->config(
 
 =head1 METHODS
 
+=head2 before create clone update_rejoin
+
+Set the bind_dn and the bind_pass as required
+
+=cut
+
+before [qw(create clone update_rejoin)] => sub {
+    my ($self, $c) = @_;
+    my $form = $self->getForm($c);
+    for my $f (qw(bind_dn bind_pass)) {
+        my $field = $form->field($f);
+        $field->required(1);
+    }
+    $c->stash->{current_form_instance} = $form;
+};
+
 =head2 after create clone
 
-Show the 'view' template when creating or cloning domain.
+Join the after creating or cloning domain
 
 =cut
 
 after [qw(create clone)] => sub {
-    my ($self, $c) = @_;
-    if (!(is_success($c->response->status) && $c->request->method eq 'POST' )) {
-        $c->stash->{template} = 'config/domain/view.tt';
-    }
-};
-
-after [qw(create)] => sub {
     my ($self, $c) = @_;
     if( $c->request->method eq 'POST' && !$c->stash->{form}->has_errors ) {
         pf::domain::regenerate_configuration();
@@ -148,6 +157,15 @@ sub set_credentials :Local :Args(1) {
     my ($self, $c, $domain) = @_;
     my $username = $c->request->param('username');
     my $password = $c->request->param('password');
+    if ( (!defined $username) || length ($username) == 0 || (!defined $password) || length($password) == 0) {
+        $c->stash(
+            status_msg   => 'Username or Password not set',
+            current_view => 'JSON',
+        );
+        $c->response->status(HTTP_BAD_REQUEST);
+        return;
+    }
+
     my $model = $self->getModel($c);
     my ($status,$result) = $model->update($domain, { bind_dn => $username, bind_pass => $password } );
     ($status,$result) = $model->commit();
@@ -168,7 +186,7 @@ Resets the password of the specified domain
 sub reset_credentials :Private {
     my ($self, $c, $domain) = @_;
     my $model = $self->getModel($c);
-    my ($status,$result) = $model->update($domain, { bind_dn => '', bind_pass => '' } );
+    my ($status,$result) = $model->update($domain, { bind_dn => undef, bind_pass => undef } );
     ($status,$result) = $model->commit();
     $c->stash(
         status_msg   => $result,
@@ -188,7 +206,9 @@ sub update_rejoin :Local :Args(1) {
     my ($self, $c, $domain) = @_;
     $c->stash->{id} = $domain;
     $c->forward('update');
-    $c->forward('rejoin');
+    if (!$c->stash->{form}->has_errors) {
+        $c->forward('rejoin');
+    }
 }
 
 =head1 COPYRIGHT

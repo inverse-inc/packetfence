@@ -120,6 +120,7 @@ sub iptables_generate {
         'routed_postrouting_inline' => '','input_inter_vlan_if' => '',
         'domain_postrouting' => '','mangle_postrouting_inline' => '',
         'filter_forward_isol_vlan' => '', 'input_inter_isol_vlan_if' => '',
+        'filter_forward' => '',
     );
 
     # global substitution variables
@@ -131,7 +132,7 @@ sub iptables_generate {
     $tags{'httpd_collector_port'} = $Config{'ports'}{'collector'};
     # FILTER
     # per interface-type pointers to pre-defined chains
-    $tags{'filter_if_src_to_chain'} .= $self->generate_filter_if_src_to_chain();
+    ($tags{'filter_if_src_to_chain'},$tags{'filter_forward'}) = $self->generate_filter_if_src_to_chain();
 
     # eduroam RADIUS virtual-server
     if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
@@ -202,7 +203,7 @@ sub generate_filter_if_src_to_chain {
     my ($self) = @_;
     my $logger = get_logger();
     my $rules = '';
-
+    my $rules_forward = '';
     my $passthrough_enabled = (isenabled($Config{'fencing'}{'passthrough'}) || isenabled($Config{'fencing'}{'isolation_passthrough'}));
     my $isolation_passthrough_enabled = isenabled($Config{'fencing'}{'isolation_passthrough'});
 
@@ -242,12 +243,12 @@ sub generate_filter_if_src_to_chain {
             $rules .= "-A INPUT --in-interface $dev -d " . $interface->tag("ip") . " --jump $FW_FILTER_INPUT_INT_VLAN\n";
             $rules .= "-A INPUT --in-interface $dev -d 255.255.255.255 --jump $FW_FILTER_INPUT_INT_VLAN\n";
             if ($passthrough_enabled && ($type eq $pf::config::NET_TYPE_VLAN_REG)) {
-                $rules .= "-A FORWARD --in-interface $dev --jump $FW_FILTER_FORWARD_INT_VLAN\n";
-                $rules .= "-A FORWARD --out-interface $dev --jump $FW_FILTER_FORWARD_INT_VLAN\n";
+                $rules_forward .= "-A FORWARD --in-interface $dev --jump $FW_FILTER_FORWARD_INT_VLAN\n";
+                $rules_forward .= "-A FORWARD --out-interface $dev --jump $FW_FILTER_FORWARD_INT_VLAN\n";
             }
             if ($isolation_passthrough_enabled && ($type eq $pf::config::NET_TYPE_VLAN_ISOL)) { 
-                $rules .= "-A FORWARD --in-interface $dev --jump $FW_FILTER_FORWARD_INT_ISOL_VLAN\n";
-                $rules .= "-A FORWARD --out-interface $dev --jump $FW_FILTER_FORWARD_INT_ISOL_VLAN\n";
+                $rules_forward .= "-A FORWARD --in-interface $dev --jump $FW_FILTER_FORWARD_INT_ISOL_VLAN\n";
+                $rules_forward .= "-A FORWARD --out-interface $dev --jump $FW_FILTER_FORWARD_INT_ISOL_VLAN\n";
             }
 
         # inline enforcement
@@ -264,7 +265,7 @@ sub generate_filter_if_src_to_chain {
             $rules .= "-A INPUT --in-interface $dev -d $ip --jump $FW_FILTER_INPUT_INT_INLINE\n";
             $rules .= "-A INPUT --in-interface $dev -d 255.255.255.255 --jump $FW_FILTER_INPUT_INT_INLINE\n";
             $rules .= "-A INPUT --in-interface $dev -d $mgmt_ip --protocol tcp --match tcp --dport 443 --jump ACCEPT\n";
-            $rules .= "-A FORWARD --in-interface $dev --jump $FW_FILTER_FORWARD_INT_INLINE\n";
+            $rules_forward .= "-A FORWARD --in-interface $dev --jump $FW_FILTER_FORWARD_INT_INLINE\n";
 
         # nothing? something is wrong
         } else {
@@ -308,16 +309,16 @@ sub generate_filter_if_src_to_chain {
                 my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
                 my $nat = $ConfigNetworks{$network}{'nat_enabled'};
                 if (defined ($nat) && (isdisabled($nat))) {
-                    $rules .= "-A FORWARD -d $network/$inline_obj->{BITS} --in-interface $val ";
-                    $rules .= "--jump ACCEPT";
-                    $rules .= "\n";
+                    $rules_forward .= "-A FORWARD -d $network/$inline_obj->{BITS} --in-interface $val ";
+                    $rules_forward .= "--jump ACCEPT";
+                    $rules_forward .= "\n";
                 }
             }
-            $rules .= "-A FORWARD --in-interface $val --match state --state ESTABLISHED,RELATED --jump ACCEPT\n";
+            $rules_forward .= "-A FORWARD --in-interface $val --match state --state ESTABLISHED,RELATED --jump ACCEPT\n";
         }
     }
 
-    return $rules;
+    return ($rules,$rules_forward);
 }
 
 

@@ -83,7 +83,7 @@ BuildArch: noarch
 # TODO we might consider re-enabling this to simplify our SPEC
 AutoReqProv: 0
 
-Requires: chkconfig, coreutils, grep, openssl, sed, tar, wget, gettext, conntrack-tools, patch
+Requires: chkconfig, coreutils, grep, openssl, sed, tar, wget, gettext, conntrack-tools, patch, git
 # for process management
 Requires: procps
 Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
@@ -106,6 +106,7 @@ Requires(pre): %{real_name}-ntlm-wrapper
 Requires: perl(Bit::Vector)
 Requires: perl(CGI::Session), perl(CGI::Session::Driver::chi) >= 1.0.3, perl(JSON) >= 2.90, perl(JSON::MaybeXS), perl(JSON::XS) >= 3
 Requires: perl-Switch, perl-Locale-Codes
+Requires: perl-re-engine-RE2
 Requires: perl(Apache2::Request)
 Requires: perl(Apache::Session)
 Requires: perl(Class::Accessor)
@@ -331,9 +332,6 @@ Requires: haproxy >= 1.8.9, keepalived >= 1.4.3
 Requires: fingerbank >= 4.1.0, fingerbank < 5.0.0
 Requires: perl(File::Tempdir)
 
-# etcd
-Requires: etcd >= 3.1
-
 %description -n %{real_name}
 
 PacketFence is an open source network access control (NAC) system. 
@@ -492,7 +490,6 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-snmptrapd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-snmptrapd.service
 %{__install} -D -m0644 conf/systemd/packetfence-tc.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-tc.service
 %{__install} -D -m0644 conf/systemd/packetfence-winbindd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-winbindd.service
-%{__install} -D -m0644 conf/systemd/packetfence-etcd.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-etcd.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdhcp.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfdhcp.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfipset.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-pfipset.service
 %{__install} -D -m0644 conf/systemd/packetfence-netdata.service $RPM_BUILD_ROOT/usr/lib/systemd/system/packetfence-netdata.service
@@ -918,8 +915,6 @@ fi
                         /usr/local/pf/conf/dns_filters.conf.example
 %config                 /usr/local/pf/conf/dns_filters.conf.defaults
 %config                 /usr/local/pf/conf/documentation.conf
-%config(noreplace)      /usr/local/pf/conf/etcd.conf.yml
-                        /usr/local/pf/conf/etcd.conf.yml.example
 %config(noreplace)      /usr/local/pf/conf/firewall_sso.conf
                         /usr/local/pf/conf/firewall_sso.conf.example
 %config(noreplace)      /usr/local/pf/conf/survey.conf
@@ -998,6 +993,8 @@ fi
 %dir			/usr/local/pf/conf/radiusd
 %config(noreplace)      /usr/local/pf/conf/radiusd/clients.conf.inc
                         /usr/local/pf/conf/radiusd/clients.conf.inc.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/clients.eduroam.conf.inc
+                        /usr/local/pf/conf/radiusd/clients.eduroam.conf.inc.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/packetfence-cluster
                         /usr/local/pf/conf/radiusd/packetfence-cluster.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/proxy.conf.inc

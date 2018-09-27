@@ -1,6 +1,6 @@
 <template>
     <b-row class="my-1" align-v="center">
-        <b-col sm="3"><label class="mb-0" :for="id" v-t="label"></label></b-col>
+        <b-col sm="3" class="col-form-label"><label class="mb-0" :for="id" v-t="columnLabel"></label></b-col>
         <b-col sm="9"><slot/></b-col>
     </b-row>
 </template>
@@ -13,7 +13,7 @@ export default {
     id: {
       type: String
     },
-    label: {
+    columnLabel: {
       type: String
     }
   },

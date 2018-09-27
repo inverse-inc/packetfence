@@ -16,9 +16,12 @@ use strict;
 use warnings;
 use Mojo::Base 'Mojolicious';
 use pf::dal;
+use pf::util qw(add_jitter);
 use pf::file_paths qw($log_conf_dir);
 use MojoX::Log::Log4perl;
 use pf::UnifiedApi::Controller;
+our $MAX_REQUEST_HANDLED = 2000;
+our $REQUEST_HANDLED_JITTER = 500;
 
 has commands => sub {
   my $commands = Mojolicious::Commands->new(app => shift);
@@ -236,12 +239,21 @@ our @API_V1_ROUTES = (
         Config::Roles
         Config::Scans
         Config::Sources
-        Config::Switches
         Config::SwitchGroups
         Config::SyslogParsers
         Config::TrafficShapingPolicies
         Config::Violations
     ),
+    {
+        controller => 'Config::Switches',
+        resource   => {
+            subroutes => {
+                invalidate_cache => {
+                    post => 'invalidate_cache',
+                }
+            }
+        },
+    },
     {
         controller => 'Translations',
         collection => {
@@ -275,6 +287,8 @@ sub startup {
     $self->controller_class('pf::UnifiedApi::Controller');
     $self->routes->namespaces(['pf::UnifiedApi::Controller', 'pf::UnifiedApi']);
     $self->hook(before_dispatch => \&before_dispatch_cb);
+    $self->hook(after_dispatch => \&after_dispatch_cb);
+    $self->hook(before_render => \&before_render_cb);
     $self->plugin('pf::UnifiedApi::Plugin::RestCrud');
     $self->setup_api_v1_routes();
     $self->custom_startup_hook();
@@ -283,6 +297,35 @@ sub startup {
         return $c->unknown_action;
     });
 
+    return;
+}
+
+=head2 before_render_cb
+
+before_render_cb
+
+=cut
+
+sub before_render_cb {
+    my ($self, $args) = @_;
+    my $json = $args->{json};
+    return unless $json;
+    $json->{status} //= $args->{status};
+}
+
+=head2 after_dispatch_cb
+
+after_dispatch_cb
+
+=cut
+
+sub after_dispatch_cb {
+    my ($c) = @_;
+    my $app = $c->app;
+    my $max = $app->{max_requests_handled} //= add_jitter( $MAX_REQUEST_HANDLED, $REQUEST_HANDLED_JITTER );
+    if (++$app->{requests_handled} >= $max) {
+        kill 'QUIT', $$;
+    }
     return;
 }
 

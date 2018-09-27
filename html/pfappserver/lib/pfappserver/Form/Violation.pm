@@ -187,7 +187,7 @@ has_field 'vlan' =>
    element_class => ['chzn-deselect'],
    element_attr => {'data-placeholder' => 'Select a Role'},
    tags => { after_element => \&help,
-             help => 'Destination Role where PacketFence should put the client when a violation of this type is open.' }
+             help => 'Destination Role where PacketFence should put the client when a violation of this type is open (only for <em>Change network access on violation</em> action).' }
   );
 has_field 'redirect_url' =>
   (

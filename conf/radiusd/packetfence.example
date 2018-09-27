@@ -263,6 +263,7 @@ accounting {
 		&control:PacketFence-RPC-Pass = ${rpc_pass}
 		&control:PacketFence-RPC-Proto = ${rpc_proto}
 	}
+	packetfence-set-tenant-id
 	#
 	#  Log traffic to an SQL database.
 	#

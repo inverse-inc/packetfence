@@ -16,16 +16,25 @@ Version X.Y.Z released on xxxx-xx-xx
 
 New Features
 ++++++++++++
-
+* Now supports CoA on Meraki switches
+* Permit incoming eduroam tlrs radius request (PR #3399)
+* pfconfig is tenant aware (PR #3385)
+* Realm are tenant scope (PR #3385)
 
 Enhancements
 ++++++++++++
 * jsonrpc requests send the current tenant_id (#3271)
 * Take the tenant id in consideration in the queue (#3269)
 * Performed various improvements to the maintenance script (PR #3445)
+* Increased maximum node bandwidth balance from 4 GB to 18.4467441 XB (exabytes) (#3477) (PR #3493)
+* Improve connection profile's advanced filter
+* Use MySQL as backend for pfdhcp options (deprecates etcd) (PR #3484)
+* Reorder iptables rules (PR #3463)
+* Better error handling for pfdetect.conf (PR #3607)
 
 Bug Fixes
 +++++++++
+* Backslash in usernames in Reports section is shown as "=5C" (#3508) (PR #3510)
 
 Version 8.1.0 released on 2018-07-09
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -36,6 +36,7 @@ Since this is a SPA (Single-Page Application), it is currently accessible from `
 * [Vuex](https://vuex.vuejs.org/) -- state management
 * [vue-router](https://router.vuejs.org/) -- official router
 * [vue-i18n](https://kazupon.github.io/vue-i18n/) -- internationalization
+* [messageformat](https://messageformat.github.io/messageformat/) -- internationalization formatting
 * [vue-browser-acl](https://github.com/mblarsen/vue-browser-acl) -- ACLs
 * [axios](https://github.com/axios/axios) -- http client
 * [vuelidate](https://monterail.github.io/vuelidate/) -- form validation
@@ -43,6 +44,12 @@ Since this is a SPA (Single-Page Application), it is currently accessible from `
 * [vue2vis](https://github.com/alexcode/vue2vis/) -- VueJS to Vis
  * [vis](http://visjs.org/) -- Vis
 * [vue-timeago](https://github.com/egoist/vue-timeago) -- show relative time
+* [Plotly](https://plot.ly/javascript/reference/) -- svg charts
+* [date-fns](https://date-fns.org/v1.29.0/docs/) -- datetime utils
+* [vue-bootstrap-datetimepicker](http://eonasdan.github.io/bootstrap-datetimepicker/) -- datetime input form element
+* [papaparse](https://www.papaparse.com/) -- parse CSV
+* [uuid](https://www.npmjs.com/package/uuid) -- RFC4122 UUIDs
+* [vue-multiselect](https://vue-multiselect.js.org/) -- multi-select/chosen component
 
 ## Files Structure
 

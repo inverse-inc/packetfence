@@ -15,12 +15,9 @@ Developed and tested on a MS220_8P (P standing for PoE) switch
 
 =head1 BUGS AND LIMITATIONS
 
-The firmware allow only for VLAN enforcement at the moment. We cannot push the predefined policies from PacketFence.
+=head2 Cannot detect VoIP devices
 
-=head2 Cannot reevaluate the access
-
-There is currently no way to reevaluate the access of the device.
-There is neither an API access or a RADIUS disconnect that can be sent either to the switch.
+VoIP devices cannot be detected via CDP/LLDP via an SNMP lookup.
 
 =cut
 
@@ -29,8 +26,16 @@ use warnings;
 
 use base ('pf::Switch::Meraki');
 
+use pf::config qw(
+    $WIRED_802_1X
+    $WIRED_MAC_AUTH
+);
 use pf::constants;
 use pf::util;
+use pf::node;
+use pf::util::radius qw(perform_coa);
+use Try::Tiny;
+use pf::Switch::Meraki::MR_v2;
 
 =head1 SUBROUTINES
 
@@ -41,6 +46,25 @@ use pf::util;
 sub description { 'Meraki switch MS220_8' }
 sub supportsWiredMacAuth { return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
+sub supportsRadiusVoip { return $TRUE; }
+
+sub isVoIPEnabled {
+    my ($self) = @_;
+    return isenabled($self->{_VoIPEnabled});
+}
+
+=head2 getVoipVSA
+
+Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
+
+=cut
+
+sub getVoipVsa {
+    my ($self) = @_;
+    my $logger = $self->logger;
+
+    return ('Cisco-AVPair' => "device-traffic-class=voice");
+}
 
 =head2 getVersion 
 
@@ -80,6 +104,64 @@ sub parseRequest {
     }
     return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, $session_id, $nas_port_id);
 }
+
+=head2 wiredeauthTechniques
+
+Return the reference to the deauth technique or the default deauth technique.
+
+=cut
+
+sub wiredeauthTechniques {
+   my ($self, $method, $connection_type) = @_;
+   my $logger = $self->logger;
+
+    if ($connection_type == $WIRED_802_1X) {
+        my $default = $SNMP::RADIUS;
+        my %tech = (
+            $SNMP::RADIUS => 'deauthenticateMacRadius',
+        );
+
+        if (!defined($method) || !defined($tech{$method})) {
+            $method = $default;
+        }
+        return $method,$tech{$method};
+    }
+    elsif ($connection_type == $WIRED_MAC_AUTH) {
+        my $default = $SNMP::RADIUS;
+        my %tech = (
+            $SNMP::RADIUS => 'deauthenticateMacRadius',
+        );
+        if (!defined($method) || !defined($tech{$method})) {
+            $method = $default;
+        }
+        return $method,$tech{$method};
+    }
+    else{
+        $logger->error("This authentication mode is not supported");
+    }
+
+}
+
+=head2 deauthenticateMacRadius
+
+Method to deauth a wired node with RADIUS Disconnect.
+
+=cut
+
+sub deauthenticateMacRadius {
+    my ($self, $ifIndex,$mac) = @_;
+    my $logger = $self->logger;
+
+    $self->radiusDisconnect($mac );
+}
+
+sub radiusDisconnect {
+    my ($self, $mac, $add_attributes_ref) = @_;
+    my $logger = $self->logger;
+    # Use the same disconnect method as the Meraki MR v2
+    pf::Switch::Meraki::MR_v2::radiusDisconnect(@_);
+}
+
 
 =head1 AUTHOR
 

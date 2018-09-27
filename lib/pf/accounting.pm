@@ -298,7 +298,7 @@ sub _node_accounting_bw {
             'SUM(radacct_log.acctoutputoctets)|acctoutput',
             'SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)|accttotal'
         ],
-        -from => [-join => 'radacct_log', '=>{radacct_log.acctuniqueid=radacct.acctuniqueid}', 'radacct'],
+        -from => [-join => 'radacct_log', '=>{radacct_log.acctuniqueid=radacct.acctuniqueid}', "(select acctuniqueid, callingstationid from radacct group by acctuniqueid) as radacct"],
         @_,
     );
 }
@@ -353,7 +353,7 @@ sub node_accounting_yearly_bw {
 sub _node_accounting_time {
     return _db_item (
         -columns => ['SUM(FORMAT((radacct_log.acctsessiontime/60),2))|accttotaltime'],
-        -from => [-join => 'radacct_log', '=>{radacct_log.acctuniqueid=radacct.acctuniqueid}', 'radacct'],
+        -from => [-join => 'radacct_log', '=>{radacct_log.acctuniqueid=radacct.acctuniqueid}', "(select acctuniqueid, callingstationid from radacct group by acctuniqueid) as radacct"],
         @_
     );
 }
@@ -436,7 +436,7 @@ sub node_acct_maintenance_bw_inbound {
     my $method = $INTERVAL_TO_METHOD{$interval};
     return _db_items (
         -columns => ['radacct.callingstationid' , 'SUM(radacct_log.acctinputoctets)|acctinput'],
-        -from => [-join => 'radacct_log', '<={radacct_log.acctuniqueid=radacct.acctuniqueid}', 'radacct'],
+        -from => [-join => 'radacct_log', '=>{radacct_log.acctuniqueid=radacct.acctuniqueid}', "(select acctuniqueid, callingstationid from radacct group by acctuniqueid) as radacct"],
         -group_by => 'radacct.callingstationid',
         -where => [
             -and => [
@@ -464,7 +464,7 @@ sub node_acct_maintenance_bw_outbound {
         ],
         -from => [
             -join => 'radacct_log',
-            '<={radacct_log.acctuniqueid=radacct.acctuniqueid}', 'radacct'
+            '=>{radacct_log.acctuniqueid=radacct.acctuniqueid}', "(select acctuniqueid, callingstationid from radacct group by acctuniqueid) as radacct"
         ],
         -group_by => 'radacct.callingstationid',
         -where    => [
@@ -495,7 +495,7 @@ sub node_acct_maintenance_bw_total {
         ],
         -from => [
             -join => 'radacct_log',
-            '<={radacct_log.acctuniqueid=radacct.acctuniqueid}', 'radacct'
+            '=>{radacct_log.acctuniqueid=radacct.acctuniqueid}', "(select acctuniqueid, callingstationid from radacct group by acctuniqueid) as radacct"
         ],
         -group_by => 'radacct.callingstationid',
         -where    => [
@@ -524,7 +524,7 @@ sub node_acct_maintenance_bw_inbound_exists {
         -group_by => 'radacct.callingstationid',
         -from => [
             -join => 'radacct_log',
-            '<={radacct_log.acctuniqueid=radacct.acctuniqueid}', 'radacct'
+            '=>{radacct_log.acctuniqueid=radacct.acctuniqueid}', "(select acctuniqueid, callingstationid from radacct group by acctuniqueid) as radacct" 
         ],
         -where => {
             timestamp => {
@@ -553,7 +553,7 @@ sub node_acct_maintenance_bw_outbound_exists {
         -group_by => 'radacct.callingstationid',
         -from => [
             -join => 'radacct_log',
-            '<={radacct_log.acctuniqueid=radacct.acctuniqueid}', 'radacct'
+            '=>{radacct_log.acctuniqueid=radacct.acctuniqueid}', "(select acctuniqueid, callingstationid from radacct group by acctuniqueid) as radacct" 
         ],
         -where => {
             timestamp => {
@@ -584,7 +584,7 @@ sub node_acct_maintenance_bw_total_exists {
         -group_by => 'radacct.callingstationid',
         -from => [
             -join => 'radacct_log',
-            '<={radacct_log.acctuniqueid=radacct.acctuniqueid}', 'radacct'
+            '=>{radacct_log.acctuniqueid=radacct.acctuniqueid}', "(select acctuniqueid, callingstationid from radacct group by acctuniqueid) as radacct" 
         ],
         -where => {
             timestamp => {

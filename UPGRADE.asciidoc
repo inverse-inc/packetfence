@@ -19,7 +19,7 @@ Database backup
 Before making any changes to your database, ensure that you have a backup.
 A complete database backup can be taken using this command:
 
-  mysqldump --opt -u root -p pf | gzip > /root/packetfence_db.sql.gz
+  mysqldump --opt --routines -u root -p pf | gzip > /root/packetfence_db.sql.gz
 
 If your database is more than a few hundred megabytes, you may also want to consider using a tool such as Percona XtraBackup which makes for much faster restores than mysqldump.
 
@@ -427,7 +427,7 @@ Database schema update
 Before making any changes to your database, ensure that you have a backup.
 A complete database backup can be taken using this command:
 
-  mysqldump --opt -u root -p pf | gzip > /root/packetfence_db.sql.gz
+  mysqldump --opt --routines -u root -p pf | gzip > /root/packetfence_db.sql.gz
 
 If your database is more than a few hundred megabytes, you may also want to consider using a tool such as Percona XtraBackup which makes for much faster restores than mysqldump.
 
@@ -1577,7 +1577,7 @@ Changes to `authentication.conf` and `domain.conf` regarding realms and source m
 
 You have to run the following script to change the configuration:
 
-  addons/upgrade/to-7.3-authentication-conf.pl
+  /usr/local/pf/addons/upgrade/to-7.3-authentication-conf.pl
 
 MariaDB database read-only mode
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1741,6 +1741,44 @@ Once completed, update the file /usr/local/pf/conf/currently-at to match the new
 Upgrading from a version prior to X.Y.Z
 ---------------------------------------
 
+Removal of etcd
+^^^^^^^^^^^^^^^
+
+The etcd storage backend has been removed in favor of storing the data directly inside the MySQL database. In order to disable the service permanently, execute the following commands:
+
+  systemctl stop packetfence-etcd
+  systemctl disable packetfence-etcd
+  rm -f /usr/lib/systemd/system/packetfence-etcd.service
+  rm -f /etc/systemd/system/packetfence-etcd.service
+  systemctl daemon-reload
+
+Queue Stats maintenance job removal
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The queue_stats maintenance job has been deprecated in favor of using pfstats. In order to remove configuration related to this maintenance job, run:
+
+  /usr/local/pf/addons/upgrade/to-8.2-pfmon-conf.pl
+
+Upgrade pfdetect perl regex to the go RE2 regex
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The pfdetect was moved from perl to go so all rule regexes have to be converted to the RE2 regex syntax.
+RE2 is mostly is compatiable the perl regex syntax.
+More information on the RE2 syntax can be found here https://github.com/google/re2/wiki/Syntax.
+To upgrade the regex run:
+
+  /usr/local/pf/addons/upgrade/to-8.2-pfdetect-conf.pl
+
+Any perl regex that cannnot be convert will be displayed and should be fixed.
+
+Upgrade realm.conf to be tenant aware
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The realms are now multi-tenant aware, in order to upgrade your configuration to have the existing realms use the default tenant, execute the following script:
+
+  /usr/local/pf/addons/upgrade/to-8.2-realm-conf.pl
+
+Database schema update (All linux distributions)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Changes have been made to the database schema. You will need to update it accordingly.
 An SQL upgrade script has been provided to upgrade the database from the X.X schema to X.Y.
 
@@ -1750,8 +1788,4 @@ To upgrade the database schema, run the following command:
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
 
-Queue Stats maintenance job removal
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-The queue_stats maintenance job has been deprecated in favor of using pfstats. In order to remove configuration related to this maintenance job, run:
 
-  /usr/local/pf/addons/upgrade/to-8.2-pfmon-conf.pl

@@ -115,7 +115,7 @@ sub getIfIndexByNasPortId {
 
     my @ifDescTemp = split(':',$ifDesc_param);
     my $OID_ifDesc = '1.3.6.1.2.1.2.2.1.2';
-    my $result = $self->cachedSNMPRequest([-baseoid => $OID_ifDesc]);
+    my $result = $self->cachedSNMPTable([-baseoid => $OID_ifDesc]);
     foreach my $key ( keys %{$result} ) {
         my $ifDesc = $result->{$key};
         if ( $ifDesc =~ /$ifDescTemp[1]$/i ) {

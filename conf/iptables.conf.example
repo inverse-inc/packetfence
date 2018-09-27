@@ -71,10 +71,6 @@
 # Syslog
 -A input-management-if --protocol udp --match udp --dport 514 --jump ACCEPT
 
-# ETCD
--A input-management-if --protocol tcp --match tcp --dport 2380 --jump ACCEPT
--A input-management-if --protocol tcp --match tcp --dport 2379 --jump ACCEPT
-
 # GO DHCP API
 -A input-management-if --protocol tcp --match tcp --dport 22222 --jump ACCEPT
 
@@ -158,6 +154,9 @@
 -A input-highavailability-if --protocol tcp --match tcp --dport 3121 --jump ACCEPT
 -A input-highavailability-if --protocol tcp --match tcp --dport 21064 --jump ACCEPT
 
+# These will redirect to the proper chains based on conf/pf.conf's configuration
+%%filter_if_src_to_chain%%
+
 ### FORWARD ###
 :FORWARD DROP [0:0]
 :forward-internal-vlan-if - [0:0]
@@ -169,11 +168,12 @@
 :forward-internal-inline-if - [0:0]
 %%filter_forward_inline%%
 
+%%filter_forward%%
+
+%%filter_forward_domain%%
+
 :OUTPUT ACCEPT [0:0]
 
-# These will redirect to the proper chains based on conf/pf.conf's configuration
-%%filter_if_src_to_chain%%
-%%filter_forward_domain%%
 COMMIT
 
 *mangle

@@ -25,6 +25,7 @@ use pfconfig::namespaces::config::Cluster;
 sub init {
     my ($self) = @_;
 
+    $self->{config_pf} = pfconfig::namespaces::config::Pf->new( $self->{cache} )->build();
     $self->{networks} = $self->{cache}->get_cache('config::Network');
     $self->{interfaces} = $self->{cache}->get_cache('interfaces');
     $self->{cluster_resource} = pfconfig::namespaces::config::Cluster->new($self->{cache});
@@ -52,14 +53,18 @@ sub build {
                 my $ip = new NetAddr::IP::Lite clean_ip($self->{networks}{$network}{'next_hop'});
                 if ($net_addr->contains($ip)) {
                     $ConfigNetwork{$network}{'cluster_ips'} = join(',', map { $_->{"interface ".$interface{'int'}}->{ip}} @{$self->{cluster_resource}->{_servers}});
-                    $ConfigNetwork{$network}{'dns_vip'} = $self->{cluster_resource}->{cfg}->{CLUSTER}->{'interface '. $interface{'int'}}->{ip} || $interface{'ip'};
+                    if(isenabled($self->{config_pf}->{active_active}->{dns_on_vip_only})) {
+                        $ConfigNetwork{$network}{'dns_vip'} = $self->{cluster_resource}->{cfg}->{CLUSTER}->{'interface '. $interface{'int'}}->{ip} || $interface{'ip'};
+                    }
                     $ConfigNetwork{$network}{'interface'} = \%interface;
                 }
             } else {
                 my $ip = new NetAddr::IP::Lite clean_ip($self->{networks}{$network}{'gateway'});
                 if ($net_addr->contains($ip)) {
                     $ConfigNetwork{$network}{'cluster_ips'} = join(',', map { $_->{"interface ".$interface{'int'}}->{ip}} @{$self->{cluster_resource}->{_servers}});
-                    $ConfigNetwork{$network}{'dns_vip'} = $self->{cluster_resource}->{cfg}->{CLUSTER}->{'interface '. $interface{'int'}}->{ip} || $interface{'ip'};
+                    if(isenabled($self->{config_pf}->{active_active}->{dns_on_vip_only})) {
+                        $ConfigNetwork{$network}{'dns_vip'} = $self->{cluster_resource}->{cfg}->{CLUSTER}->{'interface '. $interface{'int'}}->{ip} || $interface{'ip'};
+                    }
                     $ConfigNetwork{$network}{'interface'} = \%interface;
                 }
             }

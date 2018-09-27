@@ -7,36 +7,38 @@
   https://vmware.github.io/clarity/documentation/v0.11/toggle-switches
 -->
 <template>
-<label role="checkbox"
-       :class="className"
-       :aria-checked="ariaChecked">
-  <input type="checkbox"
-         class="v-switch-input"
-         @change.stop="toggle">
-  <div class="v-switch-core"
-        :style="coreStyle">
-    <div class="v-switch-button"
-        :style="buttonStyle"/>
-  </div>
-  <template v-if="labels">
-    <span class="v-switch-label v-left"
-          :style="labelStyle"
-          v-if="toggled"
-          v-html="labelChecked"/>
-    <span class="v-switch-label v-right"
-          :style="labelStyle"
-          v-else
-          v-html="labelUnchecked"/>
-  </template>
-  <slot/>
-</label>
+  <component class="v-switch-wrapper" :is="wrapper" horizontal :label-cols="(columnLabel) ? 3 : 0" :label="$t(columnLabel)">
+    <label role="checkbox"
+          :class="className"
+          :aria-checked="ariaChecked">
+      <input type="checkbox"
+            class="v-switch-input"
+            @change.stop="toggle">
+      <div class="v-switch-core mr-2"
+            :style="coreStyle">
+        <div class="v-switch-button"
+            :style="buttonStyle"/>
+      </div>
+      <template v-if="labels">
+        <span class="v-switch-label v-left"
+              :style="labelStyle"
+              v-if="toggled"
+              v-html="labelChecked"/>
+        <span class="v-switch-label v-right"
+              :style="labelStyle"
+              v-else
+              v-html="labelUnchecked"/>
+      </template>
+      <slot/>
+    </label>
+    <b-form-text v-if="text" v-t="text"></b-form-text>
+  </component>
 </template>
 
 <script>
 const constants = {
-  colorChecked: '#75C791',
-  colorUnchecked: '#bfcbd9',
-  cssColors: false,
+  colorChecked: null, // default is $blue
+  colorUnchecked: null, // default is $gray-500
   labelChecked: 'on',
   labelUnchecked: 'off',
   width: 40,
@@ -48,26 +50,33 @@ const contains = (object, title) => {
 }
 const px = v => v + 'px'
 export default {
-  name: 'toggle-button',
+  name: 'pf-form-toggle',
   props: {
     value: {
-      type: Boolean,
-      default: false
+      default: null
+    },
+    values: {
+      type: [Boolean, Object],
+      default: {
+        checked: true,
+        unchecked: false
+      },
+      validator (value) {
+        return typeof value === 'object'
+          ? (value.checked || value.unchecked)
+          : typeof value === 'boolean'
+      }
     },
     disabled: {
       type: Boolean,
       default: false
     },
-    sync: {
-      type: Boolean,
-      default: false
-    },
-    // speed: {
-    //   type: Number,
-    //   default: 300
-    // },
     color: {
       type: [String, Object],
+      default: {
+        checked: constants.colorChecked,
+        unchecked: constants.colorUnchecked
+      },
       validator (value) {
         return typeof value === 'object'
           ? (value.checked || value.unchecked)
@@ -78,6 +87,10 @@ export default {
       type: Boolean,
       default: false
     },
+    columnLabel: {
+      type: String,
+      default: null
+    },
     labels: {
       type: [Boolean, Object],
       default: false,
@@ -86,6 +99,10 @@ export default {
           ? (value.checked || value.unchecked)
           : typeof value === 'boolean'
       }
+    },
+    text: {
+      type: String,
+      default: null
     },
     height: {
       type: Number,
@@ -97,6 +114,9 @@ export default {
     }
   },
   computed: {
+    wrapper () {
+      return this.columnLabel ? 'b-form-group' : 'div'
+    },
     className () {
       let { toggled, disabled } = this
       return ['vue-js-switch', { toggled, disabled }]
@@ -122,7 +142,6 @@ export default {
       return {
         width: px(this.buttonRadius),
         height: px(this.buttonRadius),
-        // transition: `transform ${this.speed}ms`,
         transform: this.toggled
           ? `translate3d(${this.distance}, 3px, 0px)`
           : null
@@ -165,23 +184,30 @@ export default {
     }
   },
   watch: {
-    value (value) {
-      if (this.sync) {
-        this.toggled = !!value
-      }
+    value (a, b) {
+      this.toggled = (typeof this.values === 'object')
+        ? (a === this.values.checked)
+        : !!a
     }
   },
   data () {
     return {
-      toggled: !!this.value
+      toggled: (typeof this.values === 'object')
+        ? (this.value === this.values.checked)
+        : !!this.value
     }
   },
   methods: {
     toggle (event) {
       this.toggled = !this.toggled
-      this.$emit('input', this.toggled)
+      let value = (typeof this.values === 'object')
+        ? (this.toggled)
+          ? this.values.checked
+          : this.values.unchecked
+        : this.value
+      this.$emit('input', value)
       this.$emit('change', {
-        value: this.toggled,
+        value: value,
         srcEvent: event
       })
     }
@@ -189,13 +215,20 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+@import "../../node_modules/bootstrap/scss/functions";
+@import "../styles/variables";
+
+$colorChecked: $blue;
+$colorUnchecked: $gray-500;
 $margin: 3px;
+
 .vue-js-switch {
   display: flex;
   align-items: center;
   position: relative;
   overflow: hidden;
+  padding-top: calc(#{$input-padding-y} + #{$input-border-width});
   vertical-align: middle;
   margin: 0;
   user-select: none;
@@ -223,6 +256,7 @@ $margin: 3px;
     display: block;
     position: relative;
     box-sizing: border-box;
+    background-color: $colorUnchecked;
     outline: 0;
     margin: 0 $margin 0 0;
     transition: border-color .3s, background-color .3s;
@@ -242,6 +276,9 @@ $margin: 3px;
   &.disabled {
     pointer-events: none;
     opacity: 0.6;
+  }
+  &.toggled .v-switch-core {
+    background-color: $colorChecked;
   }
 }
 </style>

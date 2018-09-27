@@ -49,9 +49,11 @@ our @EXPORT_OK = qw(
   $SELFREG_MODE_KICKBOX
   $SELFREG_MODE_BLACKHOLE
   %NET_INLINE_TYPES
+
   $DEFAULT_SMTP_PORT
   $DEFAULT_SMTP_PORT_SSL
   $DEFAULT_SMTP_PORT_TLS
+  %ALERTING_PORTS
 );
 
 use Readonly;
@@ -100,6 +102,11 @@ Readonly our $DEFAULT_SMTP_PORT => 25;
 Readonly our $DEFAULT_SMTP_PORT_SSL => 465;
 Readonly our $DEFAULT_SMTP_PORT_TLS => 587;
 
+Readonly our %ALERTING_PORTS = (
+    none => $DEFAULT_SMTP_PORT,
+    ssl => $DEFAULT_SMTP_PORT_SSL,
+    starttls => $DEFAULT_SMTP_PORT_TLS,
+);
 
 =head1 AUTHOR
 
@@ -129,4 +136,3 @@ USA.
 =cut
 
 1;
-

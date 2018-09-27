@@ -154,7 +154,7 @@ CREATE TABLE node (
   unregdate datetime NOT NULL default "0000-00-00 00:00:00",
   lastskip datetime NOT NULL default "0000-00-00 00:00:00",
   time_balance int(10) unsigned DEFAULT NULL,
-  bandwidth_balance int(10) unsigned DEFAULT NULL,
+  bandwidth_balance bigint(20) unsigned DEFAULT NULL,
   status varchar(15) NOT NULL default "unreg",
   user_agent varchar(255) default NULL,
   computername varchar(255) default NULL,
@@ -1263,6 +1263,38 @@ CREATE TABLE `api_user` (
   `access_level` varchar(255) DEFAULT 'NONE',
   `tenant_id` int(11) DEFAULT '0',
   PRIMARY KEY (`username`)
+) ENGINE=InnoDB;
+
+--
+-- Dumping routines for database 'pf'
+--
+DROP FUNCTION IF EXISTS `FREERADIUS_DECODE`;
+DELIMITER ;;
+CREATE FUNCTION `FREERADIUS_DECODE`(str text) RETURNS text CHARSET latin1
+    DETERMINISTIC
+BEGIN 
+    DECLARE result text;
+    DECLARE ind INT DEFAULT 0;
+
+    SET result = str;
+    WHILE ind <= 255 DO
+       SET result = REPLACE(result, CONCAT('=', LPAD(LOWER(HEX(ind)), 2, 0)), CHAR(ind));
+       SET result = REPLACE(result, CONCAT('=', LPAD(HEX(ind), 2, 0)), CHAR(ind));
+       SET ind = ind + 1;
+    END WHILE;
+
+    RETURN result;
+END ;;
+DELIMITER ;
+
+--
+-- Table structure for table `key_value_storage`
+--
+
+CREATE TABLE key_value_storage (
+  id VARCHAR(255),
+  value BLOB,
+  PRIMARY KEY(id)
 ) ENGINE=InnoDB;
 
 --

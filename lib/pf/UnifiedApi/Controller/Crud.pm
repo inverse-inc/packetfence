@@ -187,7 +187,7 @@ sub get_lookup_info {
 sub render_get {
     my ($self) = @_;
     my $stash = $self->stash;
-    return $self->render(json => { item => $self->item, status => $stash->{status}});
+    return $self->render(json => { item => $self->item }, status => $stash->{status});
 }
 
 =head2 item

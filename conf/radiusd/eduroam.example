@@ -25,6 +25,7 @@ authorize {
 		&control:Tmp-Integer-0 := "%l"
 		&control:PacketFence-Request-Time := 0
 	}
+    packetfence-set-tenant-id
 	rewrite_calling_station_id
 	rewrite_called_station_id
 	#
@@ -269,6 +270,7 @@ accounting {
 		&control:PacketFence-RPC-Pass = ${rpc_pass}
 		&control:PacketFence-RPC-Proto = ${rpc_proto}
 	}
+    packetfence-set-tenant-id
 	rewrite_calling_station_id
 	rewrite_called_station_id
 
@@ -333,7 +335,6 @@ post-auth {
 	#update {
 	#	&reply: += &session-state:
 	#}
-
 	if (Realm == "eduroam") {
 		# Update the realm in the request so its consistent with the logic that will be performed in httpd.aaa
 		update request {

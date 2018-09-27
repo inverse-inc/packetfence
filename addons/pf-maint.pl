@@ -23,6 +23,7 @@ pf-maint.pl [options]
    -n --no-ask             Do not ask to patch
    -d --pf-dir             The PacketFence directory
    -p --patch-bin          The patch binary default /usr/bin/patch
+   -g --git-bin            The git binary default /usr/bin/git
    -t --test               Test if PacketFence has to be patched
 
 =cut
@@ -83,7 +84,7 @@ GetOptions(
     "pf-dir|d=s"      => \$PF_DIR,
     "commit|c=s"      => \$COMMIT,
     "patch-bin|p=s"   => \$PATCH_BIN,
-    "git-bin|p=s"     => \$GIT_BIN,
+    "git-bin|g=s"     => \$GIT_BIN,
     "base-commit|b=s" => \$BASE_COMMIT,
     "no-ask|n"        => \$NO_ASK,
     "help|h"          => \$help,
@@ -97,9 +98,9 @@ update_terminal_width();
 die "$PATCH_BIN does not exists or is not executable please install or make it executable" unless patch_bin_exists();
 
 unless(git_bin_exists()) {
-    print STDERR "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+    print STDERR "!" x $TERMINAL_WIDTH . "\n";
     print STDERR "$GIT_BIN does not exist, it is advised to install git to improve the patching process\n";
-    print STDERR "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+    print STDERR "!" x $TERMINAL_WIDTH . "\n";
 }
 
 our $PATCHES_DIR = catdir( $PF_DIR, '.patches' );
@@ -328,6 +329,7 @@ sub download_and_install_binaries {
 
 sub update_terminal_width {
     ($TERMINAL_WIDTH, undef, undef, undef) = GetTerminalSize();
+    $TERMINAL_WIDTH //= 80;
 }
 
 =head1 AUTHOR

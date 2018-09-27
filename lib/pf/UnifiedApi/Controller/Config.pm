@@ -117,7 +117,7 @@ sub create {
     $cs->create($id, $item);
     $cs->commit;
     $self->res->headers->location($self->make_location_url($id));
-    $self->render(status => 201, text => '');
+    $self->render(status => 201, json => {});
 }
 
 sub validate_item {
@@ -132,13 +132,26 @@ sub validate_item {
         return $form->value;
     }
 
+    $self->render_error(422, "Unable to validate", $self->format_form_errors($form));
+    return undef;
+}
+
+
+=head2 format_form_errors
+
+format_form_errors
+
+=cut
+
+sub format_form_errors {
+    my ($self, $form) = @_;
     my $field_errors = $form->field_errors;
     my @errors;
     while (my ($k,$v) = each %$field_errors) {
-        push @errors, {$k => $v};
+        push @errors, {field => $k, message => $v};
     }
-    $self->render_error(422, "Unable to validate", \@errors);
-    return undef;
+
+    return \@errors;
 }
 
 sub make_location_url {
@@ -156,7 +169,8 @@ sub remove {
     }
 
     $cs->commit;
-    return $self->render_empty();
+
+    return $self->render(json => {}, status => 200);
 }
 
 sub update {

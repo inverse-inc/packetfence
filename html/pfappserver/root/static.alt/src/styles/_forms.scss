@@ -1,0 +1,13 @@
+@import "../../node_modules/bootstrap/scss/forms";
+
+.col-form-label {
+    color: $gray-600;
+    font-weight: 500;
+    font-size: $font-size-sm;
+    line-height: $font-size-base / $font-size-sm * $line-height-base;
+    &[class*=col-sm-] {
+        @include media-breakpoint-up(sm) {
+            text-align: right;
+        }
+    }
+}

@@ -59,14 +59,18 @@ sub instantiate {
     my ($class, $data) = @_;
     my $filter = $data->{filter};
     return unless defined $filter;
+
     if ($filter eq 'time') {
         my $c = pf::condition::time_period->new({value => $data->{value}});
         if ($data->{operator} eq 'is_not') {
             return pf::condition::not->new({condition => $c});
         }
+
         return $c;
     }
-    $filter .= "." . $data->{attribute} if defined $data->{attribute} && length $data->{attribute};
+
+    my $attribute = $data->{attribute};
+    $filter .= ".$attribute" if defined $attribute && length $attribute;
     my $sub_condition = _build_sub_condition($data);
     return _build_parent_condition($sub_condition, (split /\./, $filter));
 }
@@ -79,6 +83,7 @@ sub _build_parent_condition {
             condition => $child,
         });
     }
+
     return pf::condition::key->new({
         key       => $key,
         condition => _build_parent_condition($child, @parents),
@@ -95,11 +100,16 @@ my %VALUE_FILTERS = (
 sub _build_sub_condition {
     my ($data) = @_;
     my $condition_class = $ACCESS_FILTER_OPERATOR_TO_CONDITION_TYPE{$data->{operator}};
+    unless ($condition_class) {
+        die "Invalid operator : $data->{operator}\n";
+    }
+
     my $filter = $data->{filter};
     my $value = $data->{value};
     if (exists $VALUE_FILTERS{$filter}) {
         $value = $VALUE_FILTERS{$filter}->($value);
     }
+
     return $condition_class ? $condition_class->new({value => $value}) : undef;
 }
 

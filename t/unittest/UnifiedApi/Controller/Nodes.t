@@ -56,13 +56,13 @@ $t->patch_ok("/api/v1/node/$mac" => json => { notes => "$mac" })
   ->status_is(200);
 
 $t->post_ok("/api/v1/node/$mac/register" => json => {   })
-  ->status_is(204);
+  ->status_is(200);
 
 $t->post_ok("/api/v1/node/$mac/register" => json => { pid => 'default'  })
-  ->status_is(204);
+  ->status_is(200);
 
 $t->post_ok("/api/v1/node/$mac/deregister" => json => { })
-  ->status_is(204);
+  ->status_is(200);
 
 $t->get_ok("/api/v1/node/$mac/fingerbank_info" => json => {})
   ->status_is(200);
@@ -92,12 +92,12 @@ $t->post_ok('/api/v1/nodes/bulk_restart_switchport' => json => { items => [$mac]
   ->json_is('/items/0/mac', $mac)
   ->json_is('/items/0/status', 'skipped');
 
-$t->post_ok('/api/v1/nodes/bulk_apply_role' => json => { role_id => 1,  items => [$mac] })
+$t->post_ok('/api/v1/nodes/bulk_apply_role' => json => { category_id => 1,  items => [$mac] })
   ->status_is(200)
   ->json_is('/items/0/mac', $mac)
   ->json_is('/items/0/status', 'success');
 
-$t->post_ok('/api/v1/nodes/bulk_apply_role' => json => { role_id => 1,  items => [$mac] })
+$t->post_ok('/api/v1/nodes/bulk_apply_role' => json => { category_id => 1,  items => [$mac] })
   ->status_is(200)
   ->json_is('/items/0/mac', $mac)
   ->json_is('/items/0/status', 'skipped');

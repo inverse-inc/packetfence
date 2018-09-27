@@ -63,8 +63,9 @@
         <b-col cols="auto" class="px-0 mr-auto">
           <pf-search-boolean :model="condition" :fields="fields" :store="store" :advancedMode="false"/>
         </b-col>
-        <b-col align="right" class="flex-grow-0">
+        <b-col cols="auto" align="right" class="flex-grow-0">
           <b-button type="submit" variant="primary">{{ $t('Search') }}</b-button>
+          <b-button type="reset" variant="secondary">{{ $t('Clear') }}</b-button>
         </b-col>
       </b-form-row>
     </b-form>
@@ -76,6 +77,7 @@
         </div>
         <b-form-input v-model="quickValue" type="text" :placeholder="quickPlaceholder"></b-form-input>
         <b-button class="ml-1" type="submit" variant="primary">{{ $t('Search') }}</b-button>
+        <b-button class="ml-1" type="reset" variant="secondary">{{ $t('Clear') }}</b-button>
       </div>
     </b-form>
   </div>
@@ -90,6 +92,12 @@ export default {
     'pf-search-boolean': pfSearchBoolean
   },
   props: {
+    store: Object,
+    storeName: { // from router
+      type: String,
+      default: null,
+      required: true
+    },
     condition: {
       type: Object
     },
@@ -107,14 +115,6 @@ export default {
     quickPlaceholder: {
       type: String,
       default: 'Search'
-    },
-    store: {
-      type: Object
-    },
-    storeName: {
-      type: String,
-      default: null,
-      required: true
     },
     showExportJsonModal: {
       type: Boolean,
@@ -162,6 +162,7 @@ export default {
       this.$emit('submit-search', query)
     },
     onReset (event) {
+      this.quickValue = ''
       this.$emit('reset-search')
     },
     copyJsonTextarea () {
@@ -169,6 +170,7 @@ export default {
         this.$refs.exportJsonTextarea.$el.select()
         document.execCommand('copy')
         this.showExportJsonModal = false
+        this.$store.dispatch('notification/info', {message: this.$i18n.t('Search copied to clipboard')})
       }
     },
     importJsonTextarea () {
@@ -178,6 +180,7 @@ export default {
         this.$emit('import-search', json)
         this.importJsonString = ''
         this.showImportJsonModal = false
+        this.$store.dispatch('notification/info', {message: this.$i18n.t('Search imported')})
       } catch (e) {
         if (e instanceof SyntaxError) {
           this.importJsonError = this.$i18n.t('Invalid JSON') + ': ' + e.message
@@ -195,6 +198,7 @@ export default {
     saveSearch () {
       const _this = this
       this.$store.dispatch(`${this.storeName}/addSavedSearch`, {name: this.saveSearchString, query: this.condition}).then(response => {
+        _this.$store.dispatch('notification/info', {message: _this.$i18n.t('Search saved as ') + '\'' + _this.saveSearchString + '\''})
         _this.saveSearchString = ''
         _this.showSaveSearchModal = false
       })

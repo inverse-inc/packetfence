@@ -60,7 +60,7 @@ has_field 'fields[mobileprovider]' => (type => "Select", label => "Mobile provid
 
 has_field 'fields[aup]' => (type => 'AUP', id => 'aup', validate_method => \&check_aup);
 
-has_field 'fields[email_instructions]' => (type => 'Display', set_html => 'render_email_instructions');
+has_field 'fields[email_instructions]' => (type => 'Display', set_html => 'render_email_instructions', default => 1);
 
 has_field 'fields[birthday]' => (type => 'Date', label => 'Date Of Birth');
 

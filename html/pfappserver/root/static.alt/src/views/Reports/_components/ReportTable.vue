@@ -43,7 +43,11 @@
         </b-col>
       </b-row>
       <b-table :items="items" :fields="visibleColumns" :per-page="pageSizeLimit" :current-page="requestPage" :sort-by="sortBy" :sort-desc="sortDesc" :sort-compare="sortCompare"
-        @sort-changed="onSortingChanged" responsive="true" hover v-model="tableValues"></b-table>
+        @sort-changed="onSortingChanged" show-empty responsive hover v-model="tableValues">
+        <template slot="empty">
+          <pf-empty-table :isLoading="isLoading">{{ $t('No data found') }}</pf-empty-table>
+        </template>
+      </b-table>
     </div>
   </b-card>
 </template>

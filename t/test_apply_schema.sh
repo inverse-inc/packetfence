@@ -1,5 +1,14 @@
 #!/bin/bash
 
+#Test if stdout is a terminal
+if [ -t 1 ]; then
+    RED_COLOR=$(echo -en '\e[31m')
+    RESET_COLOR=$(echo -en '\033[0m')
+else
+    RED_COLOR=
+    RESET_COLOR=
+fi
+
 PF_DIR=/usr/local/pf
 
 DB_PREFIX=pf_smoke_test_
@@ -8,9 +17,9 @@ UPGRADED_DB="${DB_PREFIX}_upgraded_$$"
 
 PRISTINE_DB="${DB_PREFIX}_pristine_$$"
 
-MYSQL="mysql -upf_smoke_tester -ppacket"
+MYSQL="mysql -upf_smoke_tester -ppacket -h127.0.0.1"
 
-MYSQLDUMP="mysqldump -upf_smoke_tester --no-data -a --skip-comments -ppacket"
+MYSQLDUMP="mysqldump -upf_smoke_tester -h127.0.0.1 --no-data -a --skip-comments --routines -ppacket"
 
 for db in $UPGRADED_DB $PRISTINE_DB;do
     echo "Created test db $db"
@@ -38,14 +47,14 @@ done
 
 DIFF=$(diff "${PRISTINE_DB}.dump" "${UPGRADED_DB}.dump" | tee upgrade.diff )
 
-rm -f ${PRISTINE_DB}.dump ${UPGRADED_DB}.dump
-
 if [ -z "$DIFF" ];then
     echo "Upgrade is successful"
-    rm -f upgrade.diff
+    rm -f upgrade.diff ${PRISTINE_DB}.dump ${UPGRADED_DB}.dump
 else
-    echo "Upgrade did not create the same db"
+    echo "${RED_COLOR}Upgrade did not create the same db"
     echo "Please look at upgrade.diff for the differences"
+    echo "You can also look at ${PRISTINE_DB}.dump and ${UPGRADED_DB}.dump${RESET_COLOR}"
+    exit 1
 fi
 
 for db in $UPGRADED_DB $PRISTINE_DB;do

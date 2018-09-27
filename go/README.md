@@ -37,6 +37,7 @@ Then pull the dependencies of PacketFence. Be patient as it can take a few minut
 ```
 # cd $GOPATH/src/github.com/inverse-inc/packetfence/go
 # govendor sync
+# yum install ipset-devel
 ```
 
 ## Building the code
@@ -50,6 +51,18 @@ In order to build the caddy HTTP service:
 ```
 # make pfhttpd
 # mv pfhttpd /usr/local/pf/sbin/
+```
+Do the same to build pfdns, pfdhcp, pfdetect and pfstats:
+
+```
+# make pfdns
+# mv pfdns /usr/local/pf/sbin/
+# make pfdhcp
+# mv pfdhcp /usr/local/pf/sbin/
+# make pfdetect
+# mv pfdetect /usr/local/pf/sbin/
+# make pfstats
+# mv pfstats /usr/local/pf/sbin/
 ```
 
 ## Creating a service

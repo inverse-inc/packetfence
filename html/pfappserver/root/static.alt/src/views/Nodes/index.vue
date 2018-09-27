@@ -11,6 +11,7 @@
                             <div class="bd-toc-link" v-t="'Nodes'"></div>
                             <b-nav-item to="/nodes/search" replace>{{ $t('Search') }}</b-nav-item>
                             <b-nav-item to="/nodes/create" replace>{{ $t('Create') }}</b-nav-item>
+                            <b-nav-item to="/nodes/import" replace>{{ $t('Import') }}</b-nav-item>
 
                             <hr/>
                             <div class="bd-toc-link" v-t="'Standard Searches'"></div>
@@ -65,7 +66,7 @@
                             </b-collapse>
                           </b-nav>
                         <hr/>
-                        <pf-saved-search :storeName="'$_' + this.$options.name.toLowerCase()" :routeName="this.$options.name.toLowerCase()"/>
+                        <pf-saved-search :storeName="storeName" :routeName="this.$options.name.toLowerCase()"/>
                     </div>
                 </b-collapse>
             </b-col>
@@ -87,6 +88,13 @@ export default {
   ],
   components: {
     'pf-saved-search': pfMixinSavedSearch
+  },
+  props: {
+    storeName: { // from router
+      type: String,
+      default: null,
+      required: true
+    }
   },
   computed: {
     roles () {

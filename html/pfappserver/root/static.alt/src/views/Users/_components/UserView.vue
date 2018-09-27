@@ -12,20 +12,20 @@
         <b-tab :title="$t('Profile')" active>
           <b-row>
             <b-col>
-              <pf-form-input v-model="userContent.email" label="Email"
-                :validation="$v.userContent.email" invalid-feedback="Must be a valid email address"/>
-              <pf-form-input v-model="userContent.firstname" label="Firstname"/>
-              <pf-form-input v-model="userContent.lastname" label="Lastname"/>
-              <pf-form-input v-model="userContent.company" label="Company"/>
-              <pf-form-input v-model="userContent.telephone" label="Telephone"/>
+              <pf-form-input v-model="userContent.email" :column-label="$t('Email')"
+                :validation="$v.userContent.email" invalid-feedback="$t('Must be a valid email address.')"/>
+              <pf-form-input v-model="userContent.firstname" :column-label="$t('Firstname')"/>
+              <pf-form-input v-model="userContent.lastname" :column-label="$t('Lastname')"/>
+              <pf-form-input v-model="userContent.company" :column-label="$t('Company')"/>
+              <pf-form-input v-model="userContent.telephone" :column-label="$t('Telephone')"/>
               <b-form-group horizontal label-cols="3" :label="$t('Notes')">
                 <b-form-textarea v-model="userContent.notes" rows="4" max-rows="6"></b-form-textarea>
               </b-form-group>
             </b-col>
             <b-col>
-              <pf-form-input v-model="userContent.anniversary" label="Anniversary" type="date"/>
-              <pf-form-input v-model="userContent.birthday" label="Birthday" type="date"/>
-              <pf-form-input v-model="userContent.gender" label="Gender"/>
+              <pf-form-input v-model="userContent.anniversary" :column-label="$t('Anniversary')" type="date"/>
+              <pf-form-input v-model="userContent.birthday" :column-label="$t('Birthday')" type="date"/>
+              <pf-form-input v-model="userContent.gender" :column-label="$t('Gender')"/>
             </b-col>
           </b-row>
         </b-tab>
@@ -33,7 +33,7 @@
         <b-tab :title="$t('Custom Fields')">
           <b-form-row>
             <b-col cols="6">
-              <pf-form-input v-for="i in 9" v-model="userContent['custom_field_' + i]" :label="'custom_field_' + i" :key="i"/>
+              <pf-form-input v-for="i in 9" v-model="userContent['custom_field_' + i]" :column-label="'custom_field_' + i" :key="i"/>
             </b-col>
           </b-form-row>
         </b-tab>
@@ -50,7 +50,7 @@
 </template>
 
 <script>
-  import ToggleButton from '@/components/ToggleButton'
+  import pfFormToggle from '@/components/pfFormToggle'
   import pfFormInput from '@/components/pfFormInput'
   const { validationMixin } = require('vuelidate')
   const { required, email } = require('vuelidate/lib/validators')
@@ -58,7 +58,7 @@
   export default {
     name: 'UserView',
     components: {
-      'toggle-button': ToggleButton,
+      'pf-form-toggle': pfFormToggle,
       'pf-form-input': pfFormInput
     },
     mixins: [

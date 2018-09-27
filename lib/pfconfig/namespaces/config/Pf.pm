@@ -28,15 +28,9 @@ use pf::file_paths qw(
     $log_dir
 );
 use pf::util;
-use pf::constants::config qw($DEFAULT_SMTP_PORT $DEFAULT_SMTP_PORT_SSL $DEFAULT_SMTP_PORT_TLS);
+use pf::constants::config qw($DEFAULT_SMTP_PORT $DEFAULT_SMTP_PORT_SSL $DEFAULT_SMTP_PORT_TLS %ALERTING_PORTS);
 use List::MoreUtils qw(uniq);
 use DateTime::TimeZone;
-
-our %ALERTING_PORTS = (
-    none => $DEFAULT_SMTP_PORT,
-    ssl => $DEFAULT_SMTP_PORT_SSL,
-    starttls => $DEFAULT_SMTP_PORT_TLS,
-);
 
 use base 'pfconfig::namespaces::config';
 
@@ -74,7 +68,7 @@ sub init {
     $self->{doc_config}      = $self->{cache}->get_cache('config::Documentation');
     $self->{cluster_config}  = $self->{cache}->get_cache('config::Cluster');
 
-    $self->{child_resources} = [ 'resource::CaptivePortal', 'resource::Database', 'resource::fqdn', 'config::Pfdetect', 'resource::trapping_range', 'resource::stats_levels', 'resource::passthroughs', 'resource::isolation_passthroughs' ];
+    $self->{child_resources} = [ 'resource::CaptivePortal', 'resource::Database', 'resource::fqdn', 'config::Pfdetect', 'resource::trapping_range', 'resource::stats_levels', 'resource::passthroughs', 'resource::isolation_passthroughs', 'resource::network_config' ];
     if(defined($host_id)){
         push @{$self->{child_resources}}, "interfaces($host_id)";
     }

@@ -2,11 +2,11 @@
   <b-card no-body>
     <pf-progress :active="isLoading"></pf-progress>
     <b-card-header>
-      <div class="float-right"><toggle-button v-model="advancedMode" :sync="true">{{ $t('Advanced') }}</toggle-button></div>
+      <div class="float-right"><pf-form-toggle v-model="advancedMode">{{ $t('Advanced') }}</pf-form-toggle></div>
       <h4 class="mb-0" v-t="'Search Users'"></h4>
     </b-card-header>
     <pf-search :quick-with-fields="false" :quick-placeholder="$t('Search by name or email')"
-      :fields="fields" :store="$store" storeName="$_users" :advanced-mode="advancedMode" :condition="condition"
+      :fields="fields" :store="$store" :storeName="storeName" :advanced-mode="advancedMode" :condition="condition"
       @submit-search="onSearch" @reset-search="onReset" @import-search="onImport"></pf-search>
     <div class="card-body">
       <b-row align-h="between" align-v="center">
@@ -35,7 +35,7 @@
           </b-container>
         </b-col>
       </b-row>
-      <b-table :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc" v-model="tableValues"
+      <b-table class="table-clickable" :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc" v-model="tableValues"
         @sort-changed="onSortingChanged" @row-clicked="onRowClick" @head-clicked="clearSelected"
         show-empty responsive hover no-local-sorting>
         <template slot="HEAD_actions" slot-scope="head">
@@ -45,7 +45,7 @@
         </template>
         <template slot="actions" slot-scope="data">
           <input type="checkbox" :id="data.value" :value="data.item" v-model="selectValues" @click.stop="onToggleSelected($event, data.index)">
-          <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[data.index]._message" v-b-tooltip.hover.right :title="tableValues[data.index]._message"></icon>
+          <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[data.index]._rowMessage" v-b-tooltip.hover.right :title="tableValues[data.index]._rowMessage"></icon>
         </template>
         <template slot="empty">
           <pf-empty-table :isLoading="isLoading">{{ $t('No user found') }}</pf-empty-table>
@@ -61,19 +61,25 @@ import pfProgress from '@/components/pfProgress'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
 import pfMixinSelectable from '@/components/pfMixinSelectable'
+import pfFormToggle from '@/components/pfFormToggle'
 
 export default {
   name: 'UsersSearch',
-  storeName: '$_users',
   mixins: [
     pfMixinSelectable,
     pfMixinSearchable
   ],
   components: {
     'pf-progress': pfProgress,
-    'pf-empty-table': pfEmptyTable
+    'pf-empty-table': pfEmptyTable,
+    'pf-form-toggle': pfFormToggle
   },
   props: {
+    storeName: { // from router
+      type: String,
+      default: null,
+      required: true
+    },
     pfMixinSearchableOptions: {
       type: Object,
       default: {
@@ -91,19 +97,16 @@ export default {
         },
         defaultRoute: { name: 'users' }
       }
-    },
-    tableValues: {
-      type: Array,
-      default: []
     }
   },
   data () {
     return {
+      tableValues: Array,
       // Fields must match the database schema
       fields: [ // keys match with b-form-select
         {
           value: 'pid',
-          text: this.$i18n.t('Username'),
+          text: this.$i18n.t('PID'),
           types: [attributeType.SUBSTRING]
         },
         {
@@ -508,20 +511,6 @@ export default {
     },
     onRowClick (item, index) {
       this.$router.push({ name: 'user', params: { pid: item.pid } })
-    }
-  },
-  watch: {
-    selectValues (a, b) {
-      const _this = this
-      const selectValues = this.selectValues
-      this.tableValues.forEach(function (item, index, items) {
-        if (selectValues.includes(item)) {
-          _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, variant: 'info'})
-        } else {
-          _this.$store.commit(`${_this.searchableStoreName}/ROW_VARIANT`, {index: index, variant: ''})
-          _this.$store.commit(`${_this.searchableStoreName}/ROW_MESSAGE`, {index: index, message: ''})
-        }
-      })
     }
   }
 }

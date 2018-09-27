@@ -209,8 +209,8 @@ func handleOverrideOptions(res http.ResponseWriter, req *http.Request) {
 		panic(err)
 	}
 
-	// Insert information in etcd
-	_ = etcdInsert(vars["mac"], sharedutils.ConvertToString(body))
+	// Insert information in MySQL
+	_ = MysqlInsert(vars["mac"], sharedutils.ConvertToString(body))
 
 	var result = &Info{Mac: vars["mac"], Status: "ACK"}
 
@@ -233,8 +233,8 @@ func handleOverrideNetworkOptions(res http.ResponseWriter, req *http.Request) {
 		panic(err)
 	}
 
-	// Insert information in etcd
-	_ = etcdInsert(vars["network"], sharedutils.ConvertToString(body))
+	// Insert information in MySQL
+	_ = MysqlInsert(vars["network"], sharedutils.ConvertToString(body))
 
 	var result = &Info{Network: vars["network"], Status: "ACK"}
 
@@ -251,7 +251,7 @@ func handleRemoveOptions(res http.ResponseWriter, req *http.Request) {
 
 	var result = &Info{Mac: vars["mac"], Status: "ACK"}
 
-	err := etcdDel(vars["mac"])
+	err := MysqlDel(vars["mac"])
 	if !err {
 		result = &Info{Mac: vars["mac"], Status: "NAK"}
 	}
@@ -268,7 +268,7 @@ func handleRemoveNetworkOptions(res http.ResponseWriter, req *http.Request) {
 
 	var result = &Info{Network: vars["network"], Status: "ACK"}
 
-	err := etcdDel(vars["network"])
+	err := MysqlDel(vars["network"])
 	if !err {
 		result = &Info{Network: vars["network"], Status: "NAK"}
 	}
@@ -281,7 +281,7 @@ func handleRemoveNetworkOptions(res http.ResponseWriter, req *http.Request) {
 
 func decodeOptions(b string) (map[dhcp.OptionCode][]byte, bool) {
 	var options []Options
-	_, value := etcdGet(b)
+	_, value := MysqlGet(b)
 	decodedValue := sharedutils.ConvertToByte(value)
 	var dhcpOptions = make(map[dhcp.OptionCode][]byte)
 	if err := json.Unmarshal(decodedValue, &options); err != nil {

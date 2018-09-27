@@ -10,13 +10,10 @@ pf::UnifiedApi::Controller::Config::Switches -
 
 pf::UnifiedApi::Controller::Config::Switches
 
-
-
 =cut
 
 use strict;
 use warnings;
-
 
 use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
 
@@ -27,6 +24,23 @@ has 'primary_key' => 'switch_id';
 use pf::ConfigStore::Switch;
 use pfappserver::Form::Config::Switch;
 
+=head2 invalidate_cache
+
+invalidate switch cache
+
+=cut
+
+sub invalidate_cache {
+    my ($self) = @_;
+    my $switch_id = $self->item;
+    my $switch = pf::SwitchFactory->instantiate($switch_id);
+    unless ( ref($switch) ) {
+        return $self->render_error(status => 422, "Cannot instantiate switch $switch");
+    }
+
+    $switch->invalidate_distributed_cache();
+    return $self->render(status => 200, json => { });
+}
  
 =head1 AUTHOR
 
@@ -56,4 +70,3 @@ USA.
 =cut
 
 1;
-

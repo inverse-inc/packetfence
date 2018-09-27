@@ -337,12 +337,8 @@ sub tasks_count {
     if ($jitter > $count / 4) {
         $jitter = int($count / 4);
     }
-    if ($jitter > 0 ) {
-        # find a random number between -task_jitter to +task_jitter
-        $count += int(rand(2*$jitter + 1)) - $jitter;
-    }
 
-    return $count;
+    return add_jitter($count, $jitter);
 }
 
 =head2 is_parent_alive
