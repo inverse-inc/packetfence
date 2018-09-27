@@ -519,14 +519,7 @@ sub expire_all {
     my $logger = get_logger;
     my @namespaces = $self->list_top_namespaces;
     foreach my $namespace (@namespaces) {
-        if(defined($light) && $light){
-            $logger->info("Light expiring $namespace");
-            delete $self->{memorized_at}->{$namespace};
-        }
-        else{
-            $logger->info("Hard expiring $namespace");
-            $self->expire($namespace);
-        }
+        $self->expire($namespace, $light);
     }
 }
 
