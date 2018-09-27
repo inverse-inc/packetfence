@@ -62,8 +62,14 @@ sub build {
 }
 
 sub init {
-    my ($self, $host_id) = @_;
-    $self->{cluster_name} = ($host_id ? $self->{cache}->get_cache("resource::clusters_hostname_map")->{$host_id} : undef) // "DEFAULT";
+    my ($self, $host_id, $cluster_name) = @_;
+    # This namespace supports optionnaly specifying the cluster name so that consummers can get the CLUSTER configuration of each cluster
+    # If the cluster_name isn't specified, it falls back to a lookups in the clusters hostname map
+    if($cluster_name) {
+        $self->{cluster_name} = $cluster_name;
+    else {
+        $self->{cluster_name} = ($host_id ? $self->{cache}->get_cache("resource::clusters_hostname_map")->{$host_id} : undef) // "DEFAULT";
+    }
 
     $self->{file}            = $pf_config_file;
     $self->{default_config}  = $self->{cache}->get_cache('config::PfDefault');

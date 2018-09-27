@@ -331,7 +331,7 @@ func (pf *pfdns) detectVIP() error {
 	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfNet)
 
 	var keyConfCluster pfconfigdriver.NetInterface
-	keyConfCluster.PfconfigNS = "config::Pf(CLUSTER)"
+	keyConfCluster.PfconfigNS = "config::Pf(CLUSTER," + pfconfigdriver.FindClusterName(ctx) + ")"
 
 	for _, v := range interfaces.Element {
 
@@ -461,7 +461,7 @@ func (pf *pfdns) detectType() error {
 	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfNet)
 
 	var keyConfCluster pfconfigdriver.NetInterface
-	keyConfCluster.PfconfigNS = "config::Pf(CLUSTER)"
+	keyConfCluster.PfconfigNS = "config::Pf(CLUSTER," + pfconfigdriver.FindClusterName(ctx) + ")"
 
 	for _, v := range interfaces.Element {
 

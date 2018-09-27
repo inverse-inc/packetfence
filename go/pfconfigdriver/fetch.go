@@ -216,17 +216,12 @@ func createQuery(ctx context.Context, o PfconfigObject) Query {
 
 	//TODO: only do this if cluster is enabled
 	if metadataFromField(ctx, o, "PfconfigClusterNameOverlay") == "yes" && !nsHasOverlayRe.MatchString(query.ns) {
-		if myClusterName == "" {
-			var res ClusterName
-			res.PfconfigHashNS = myHostname
-			FetchDecodeSocketCache(ctx, &res)
-			if res.Element == "" {
-				panic("Can't determine cluster name for this host")
-			}
-			myClusterName = res.Element
+		clusterName := FindClusterName(ctx)
+		if clusterName == "" {
+			panic("Can't determine cluster name for this host")
 		}
 
-		query.ns = query.ns + "(" + myClusterName + ")"
+		query.ns = query.ns + "(" + clusterName + ")"
 	}
 
 	query.method = metadataFromField(ctx, o, "PfconfigMethod")
@@ -235,6 +230,16 @@ func createQuery(ctx context.Context, o PfconfigObject) Query {
 	}
 	query.encoding = "json"
 	return query
+}
+
+func FindClusterName(ctx context.Context) string {
+	if myClusterName == "" {
+		var res ClusterName
+		res.PfconfigHashNS = myHostname
+		FetchDecodeSocketCache(ctx, &res)
+		myClusterName = res.Element
+	}
+	return myClusterName
 }
 
 // Checks wheter the LoadedAt field of the PfconfigObject (set by FetchDecodeSocket) is before or after the timestamp of the namespace control file.
