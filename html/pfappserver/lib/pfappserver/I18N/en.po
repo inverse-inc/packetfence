@@ -10923,6 +10923,10 @@ msgid "sAMAccountType"
 msgstr ""
 
 # pf::factory::scan (Scans Engine)
+msgid "scan_type_rapid7"
+msgstr "Rapid7"
+
+# pf::factory::scan (Scans Engine)
 msgid "scan_type_nessus"
 msgstr "Nessus"
 
