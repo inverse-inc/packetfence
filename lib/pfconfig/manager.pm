@@ -233,11 +233,7 @@ It should not have to build the L3 since that's the slowest. The L3 should be bu
 sub get_cache {
     my ( $self, $what ) = @_;
 
-    # Normalize all namespaces to end with parentheses without arguments if its not already overlayed
-    # Can't use is_overlayed_namespace since it requires args to be between the parentheses
-    if($what !~ /\)$/) {
-        $what .= "()";
-    }
+    $what = $self->normalize_namespace_query($what);
 
     my $logger = get_logger;
     # we look in raw memory and make sure that it's not expired
@@ -399,6 +395,8 @@ To fully expire a namespace with it's child resources and overlayed namespaces, 
 
 sub expire {
     my ( $self, $what, $light ) = @_;
+    $what = $self->normalize_namespace_query($what);
+
     my $logger = get_logger;
     if(defined($light) && $light){
         $logger->info("Light expiring resource : $what");
@@ -529,6 +527,24 @@ sub expire_all {
             $self->expire($namespace);
         }
     }
+}
+
+=head2 normalize_namespace_query
+
+Method that normalizes a namespace query
+
+=cut
+
+sub normalize_namespace_query {
+    my ($self, $ns) = @_;
+    
+    # Normalize all namespaces to end with parentheses without arguments if its not already overlayed
+    # Can't use is_overlayed_namespace since it requires args to be between the parentheses
+    if($ns !~ /\)$/) {
+        $ns .= "()";
+    }
+    
+    return $ns;
 }
 
 =head1 AUTHOR
