@@ -65,7 +65,11 @@ sub cleanupAfterRead {
     # if the uplink attribute is set to dynamic or not set and the group we inherit from is dynamic
     if ( ($switch->{uplink} && $switch->{uplink} eq 'dynamic') ) {
         $switch->{uplink_dynamic} = 'dynamic';
+<<<<<<< HEAD
         $switch->{uplink} = undef;
+=======
+        $switch->{uplink}         = undef;
+>>>>>>> parent of b14e8dd... Undo.
     }
     $self->expand_list( $switch, 'inlineTrigger' );
     if ( exists $switch->{inlineTrigger} ) {
