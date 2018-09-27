@@ -14,7 +14,7 @@
         @close="focus = false"
       ></multiselect>
     </b-input-group>
-    <b-form-text v-if="text" v-t="text">This is an error</b-form-text>
+    <b-form-text v-if="text" v-t="text"></b-form-text>
   </b-form-group>
 </template>
 
@@ -86,6 +86,7 @@ export default {
 .form-group {
   .multiselect {
       border-width: 1px;
+      font-size: $font-size-base;
   }
   .multiselect__tags {
     background-color: $input-focus-bg;
@@ -97,6 +98,8 @@ export default {
   .multiselect__input,
   .multiselect__single {
     background-color: $input-focus-bg;
+    line-height: $input-line-height;
+    color: $input-color;
   }
   .multiselect__content-wrapper {
       border-left-width: 1px;
