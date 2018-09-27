@@ -60,6 +60,7 @@ has 'password' => (isa => 'Maybe[Str]', is => 'rw');
 has 'encryption' => (isa => 'Str', is => 'rw', required => 1);
 has 'scope' => (isa => 'Str', is => 'rw', required => 1);
 has 'usernameattribute' => (isa => 'Str', is => 'rw', required => 1);
+has 'searchattributes' => (isa => 'ArrayRef[Str]', is => 'rw', required => 1);
 has '_cached_connection' => (is => 'rw');
 has 'cache_match' => ( isa => 'Bool', is => 'rw', default => 0 );
 has 'email_attribute' => (isa => 'Maybe[Str]', is => 'rw', default => 'mail');
@@ -125,7 +126,7 @@ sub authenticate {
     return ($FALSE, $COMMUNICATION_ERROR_MSG);
   }
 
-  my $filter = "($self->{'usernameattribute'}=$username)";
+  my $filter = $self->_makefilter($username);
 
   my $result = do {
     my $timer = pf::StatsD::Timer->new({'stat' => "${timer_stat_prefix}.search", level => 7});
@@ -604,6 +605,19 @@ sub preMatchProcessing {
 
     $self->_cached_connection([$connection, $LDAPServer, $LDAPServerPort]);
 }
+
+=head2 _makefilter
+
+Create the filter to search for the dn
+
+=cut
+
+sub _makefilter {
+  my ($self,$username) = @_;
+  my $search = join ("", map { "($_=$username)" } @{$self->{'searchattributes'}});
+  return "(|$search)";
+}
+
 
 =head1 AUTHOR
 
