@@ -64,8 +64,8 @@ sub cleanupAfterRead {
     my $config = $self->cachedConfig;
     # if the uplink attribute is set to dynamic or not set and the group we inherit from is dynamic
     if ( ($switch->{uplink} && $switch->{uplink} eq 'dynamic') ) {
-        $switch->{uplink_dynamic} = 'dynamic';
-        $switch->{uplink}         = undef;
+        $switch->{uplink}         = 'dynamic';
+        $switch->{uplink_dynamic} = undef;
     }
     $self->expand_list( $switch, 'inlineTrigger' );
     if ( exists $switch->{inlineTrigger} ) {
