@@ -144,7 +144,7 @@ Returns an Array ref of all the overlayed namespaces persisted in the backend
 
 sub all_overlayed_namespaces {
     my ($self) = @_;
-    return [ uniq($self->{cache}->list_matching('\(.*\)$'), $self->list_control_overlayed_namespaces()) ];
+    return [ uniq($self->{cache}->list_matching('\(.+\)$'), $self->list_control_overlayed_namespaces()) ];
 }
 
 =head2 list_control_overlayed_namespaces
