@@ -40,7 +40,7 @@ has_field 'port' =>
    label => 'Port of the API',
    tags => { after_element => \&help,
              help => 'If you use an alternative port, please specify' },
-   default => 3380,
+   default => 3780,
   );
 
 has_field 'template_id' =>
