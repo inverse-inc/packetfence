@@ -67,6 +67,7 @@ sub init {
     # If the cluster_name isn't specified, it falls back to a lookups in the clusters hostname map
     if($cluster_name) {
         $self->{cluster_name} = $cluster_name;
+    }
     else {
         $self->{cluster_name} = ($host_id ? $self->{cache}->get_cache("resource::clusters_hostname_map")->{$host_id} : undef) // "DEFAULT";
     }
