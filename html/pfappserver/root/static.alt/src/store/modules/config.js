@@ -66,10 +66,22 @@ const helpers = {
 }
 
 const getters = {
+  adminRolesList: state => {
+    // Remap for b-form-select component
+    return state.admin_roles.map((item) => {
+      return { value: item.id, name: item.id }
+    })
+  },
   rolesList: state => {
     // Remap for b-form-select component
     return state.roles.map((item) => {
       return { value: item.category_id, name: item.name, text: `${item.name} - ${item.notes}` }
+    })
+  },
+  tenantsList: state => {
+    // Remap for b-form-select component
+    return state.tenants.map((item) => {
+      return { value: item.id, name: item.name }
     })
   },
   violationsList: state => {
