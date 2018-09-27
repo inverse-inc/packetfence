@@ -135,7 +135,7 @@ sub overlayed_namespaces {
     $base_namespace = quotemeta($base_namespace);
     foreach my $namespace (@namespaces){
         if($namespace =~ /^$base_namespace/){
-            push @overlayed_namespaces, $namespace;
+            push @overlayed_namespaces, $namespace if $self->is_overlayed_namespace($namespace);
         }
     }
     return @overlayed_namespaces;
