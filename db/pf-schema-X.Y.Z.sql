@@ -670,6 +670,8 @@ CREATE PROCEDURE acct_start (
     IN p_framedprotocol varchar(32),
     IN p_framedipaddress varchar(15),
     IN p_acctstatustype varchar(25),
+    IN p_nasidentifier varchar(64),
+    IN p_calledstationssid varchar(64),
     IN p_tenant_id int
 )
 BEGIN
@@ -699,7 +701,8 @@ INSERT INTO radacct
             connectinfo_start,  connectinfo_stop,   acctinputoctets,
             acctoutputoctets,   calledstationid,    callingstationid,
             acctterminatecause, servicetype,        framedprotocol,
-            framedipaddress, tenant_id
+            framedipaddress,    nasidentifier,      calledstationssid,
+            tenant_id
            )
 VALUES
     (
@@ -710,8 +713,10 @@ VALUES
     p_connectinfo_start, p_connectinfo_stop, p_acctinputoctets,
     p_acctoutputoctets, p_calledstationid, p_callingstationid,
     p_acctterminatecause, p_servicetype, p_framedprotocol,
-    p_framedipaddress, p_tenant_id
+    p_framedipaddress, p_nasidentifier, p_calledstationssid,
+    p_tenant_id
     );
+
 
 
   INSERT INTO radacct_log
@@ -727,6 +732,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `acct_stop`;
 DELIMITER /
+<<<<<<< HEAD
 CREATE PROCEDURE `acct_stop` (
   IN `p_timestamp` datetime,
   IN `p_framedipaddress` varchar(15),
@@ -748,6 +754,8 @@ CREATE PROCEDURE `acct_stop` (
   IN `p_framedprotocol` varchar(32),
   IN `p_acctterminatecause` varchar(12),
   IN `p_acctstatustype` varchar(25),
+  IN `p_nasidentifier` varchar(64),                                                                                                                                                                                                                                                
+  IN `p_calledstationssid` varchar(64),
   IN `p_tenant_id` int(11) unsigned
 )
 BEGIN
@@ -811,6 +819,8 @@ CREATE PROCEDURE acct_update(
   IN p_servicetype varchar(32),
   IN p_framedprotocol varchar(32),
   IN p_acctstatustype varchar(25),
+  IN p_nasidentifier varchar(64),
+  IN p_calledstationssid varchar(64),
   IN p_tenant_id int
 )
 BEGIN
@@ -837,8 +847,6 @@ BEGIN
         AND acctstarttime < Latest_acctstarttime
         AND (acctstoptime IS NULL OR acctstoptime = 0);
   END IF;
-
-
   # Detect if we receive in the same time a stop before the interim update
   SELECT COUNT(*)
   INTO cnt
@@ -893,7 +901,8 @@ BEGIN
               connectinfo_start,acctinputoctets,
               acctoutputoctets,calledstationid,callingstationid,
               servicetype,framedprotocol,
-              framedipaddress, tenant_id
+              framedipaddress, nasidentifier,
+              calledstationssid, tenant_id
              )
       VALUES
           (
@@ -904,11 +913,10 @@ BEGIN
               p_connectinfo_start,p_acctinputoctets,
               p_acctoutputoctets,p_calledstationid,p_callingstationid,
               p_servicetype,p_framedprotocol,
-              p_framedipaddress, p_tenant_id
+              p_framedipaddress, p_nasidentifier, p_calledstationssid, p_tenant_id
           );
      END IF;
    END IF;
-
 
   # Create new record in the log table
   INSERT INTO radacct_log
