@@ -117,8 +117,8 @@ _normalizeUplink
 sub _normalizeUplink {
     my ($self, $switch) = @_;
     if ( $switch->{uplink_dynamic} ) {
-        $switch->{uplink}         = 'dynamic';
-        $switch->{uplink_dynamic} = undef;
+        $switch->{uplink_dynamic} = 'dynamic';
+        $switch->{uplink} = undef;
     }
 }
 
