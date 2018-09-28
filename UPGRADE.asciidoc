@@ -1279,7 +1279,7 @@ Once done, restart the MariaDB service (managed by PacketFence)
 
   systemctl start packetfence-mariadb
 
-Database schema update (All linux distributions)
+Database schema update (all linux distributions)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Changes have been made to the database schema. You will need to update it accordingly.
@@ -1504,7 +1504,7 @@ Instagram source changes
 
 Due to a change in the API of Instagram please change the scope if you are using an Instagram OAuth2 source. Replace 'scope=email' by 'scope=basic' in conf/authentication.conf under the section '[Instagram Source]'.
 
-Database schema update (All linux distributions)
+Database schema update (all linux distributions)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Changes have been made to the database schema. You will need to update it accordingly.
@@ -1553,7 +1553,7 @@ Forms
 /usr/local/pf/html/pfappserver/lib/pfappserver/Form/Config/Source
 
 
-Database schema update (All linux distributions)
+Database schema update (all linux distributions)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Changes have been made to the database schema. You will need to update it accordingly.
@@ -1592,7 +1592,7 @@ Ensure you merge changes in the galera section of `conf/mariadb/mariadb.conf.tt.
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 7.3.0).
 
 
-Database schema update (All linux distributions)
+Database schema update (all linux distributions)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Changes have been made to the database schema. You will need to update it accordingly.
@@ -1619,7 +1619,7 @@ Portal redirection timer
 
 The redirection timer configuration (length of the timer bar at the end of the portal) has been moved from the fencing section to the captive_portal section. More precisely, it has moved from `fencing.redirtimer` to `captive_portal.network_redirect_delay`.
 
-Database schema update (All linux distributions)
+Database schema update (all linux distributions)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Changes have been made to the database schema. You will need to update it accordingly.
@@ -1704,7 +1704,7 @@ In order to do so, execute the following command:
 
   sed -i -e 's/\$qname//g' /usr/local/pf/conf/dns_filters.conf
 
-Database schema update (All linux distributions)
+Database schema update (all linux distributions)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Changes have been made to the database schema. You will need to update it accordingly.
@@ -1726,7 +1726,7 @@ The global configuration parameter unreg_on_acct_stop has been moved in the conn
 So if you enabled it then make sure to enable it now in the connection profile.
 
 
-Database schema update (All linux distributions)
+Database schema update (all linux distributions)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Changes have been made to the database schema. You will need to update it accordingly.
@@ -1783,13 +1783,13 @@ The api_user table has been deprecated
 Any users in that were in the api_user table should be migrated to PacketFence local account (password table)
 
 
-Upgrade sudoers file (All linux distributions)
+Upgrade sudoers file (all linux distributions)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 `sudo` configuration will now hide commands starting by `/sbin/ip netns exec` in syslog file. During upgrade of PacketFence package, package manager of your distribution will inform you that `/etc/sudoers.d/packetfence` has changed. You will need to merge current and new `sudoers` file.
 
 
-Database schema update (All linux distributions)
+Database schema update (all linux distributions)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Changes have been made to the database schema. You will need to update it accordingly.
