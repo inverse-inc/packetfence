@@ -75,6 +75,21 @@ use pf::constants::config qw(
   $SELFREG_MODE_BLACKHOLE
   %NET_INLINE_TYPES
 
+  $WIRELESS_802_1X
+  $WIRELESS_MAC_AUTH
+  $WIRED_802_1X
+  $WIRED_MAC_AUTH
+  $WIRED_SNMP_TRAPS
+  $UNKNOWN
+  $INLINE
+  $WEBAUTH
+  $WEBAUTH_WIRED
+  $WEBAUTH_WIRELESS
+    
+  $WIRELESS
+  $WIRED
+  $EAP
+
   %connection_type
   %connection_type_to_str
   %connection_type_explained
