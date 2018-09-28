@@ -19,7 +19,7 @@ use pf::log;
 use pfconfig::cached_hash;
 use pfconfig::cached_array;
 use pfconfig::cached_scalar;
-use List::MoreUtils qw(first_index first_val uniq);
+use List::MoreUtils qw(first_index firstval uniq);
 use Net::Interface;
 use NetAddr::IP;
 use Socket;
