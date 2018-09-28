@@ -51,7 +51,7 @@ apiCall.interceptors.response.use((response) => {
   if (error.response) {
     if (error.response.status === 401 || // unauthorized
       (error.response.status === 404 && /token_info/.test(error.config.url))) {
-      router.push('/expire')
+      router.push({ name: 'login', params: { expire: true, previousRoute: router.currentRoute } })
     } else if (error.response.data) {
       switch (error.response.status) {
         case 401:

@@ -47,7 +47,7 @@ export default {
       this.$store.dispatch('$_auth/logout').then(() => {
         this.message = { level: 'success', text: 'You have logged out' }
       })
-    } else if (this.$route.path === '/expire') {
+    } else if (this.$route.path === '/expire' || this.$route.params.expire) {
       this.$store.dispatch('$_auth/logout').then(() => {
         this.message = { level: 'warning', text: 'Your session has expired' }
       })
@@ -59,7 +59,11 @@ export default {
       this.submitted = true
       this.message = false
       this.$store.dispatch('$_auth/login', { username: this.username, password: this.password }).then(response => {
-        this.$router.push('/nodes')
+        if (this.$route.params.previousRoute) {
+          this.$router.push(this.$route.params.previousRoute.fullPath)
+        } else {
+          this.$router.push('/nodes') // TODO: let user choose default module
+        }
       }, error => {
         if (error.response) {
           this.message = { level: 'danger', text: error.response.data.message }
