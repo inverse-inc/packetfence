@@ -491,6 +491,9 @@ export default {
       this.requestPage = 1 // reset to the first page
       this.sortBy = params.sortBy
       this.sortDesc = params.sortDesc
+      this.data.sort((a, b) => {
+        return a[params.sortBy].localeCompare(b[params.sortBy]) * ((params.sortDesc) ? -1 : 1)
+      })
     }
   },
   computed: {
@@ -499,9 +502,6 @@ export default {
       // paginated
       const begin = this.pageSizeLimit * (this.currentPage - 1)
       const end = begin + this.pageSizeLimit
-      const data = (this.sortBy) ? this.data.sort((a, b) => {
-        return a[this.sortBy].localeCompare(b[this.sortBy]) * ((this.sortDesc) ? -1 : 1)
-      }) : this.data
       return data.slice(begin, end)
     },
     totalRows () {
