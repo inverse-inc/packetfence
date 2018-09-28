@@ -1,9 +1,9 @@
 <template>
-  <b-button-group 
+  <b-button-group
     :size="size" @mouseleave="stopInterrupt($event)"
     :class="['d-inline-flex', {'flex-row-reverse': reverse}]"
   >
-    <b-button 
+    <b-button
       v-if="!interrupt"
       type="button"
       :variant="variant"
@@ -11,13 +11,13 @@
       @click="startInterrupt($event)"
       ><slot>{{ $t('Delete') }}</slot></b-button>
 
-    <b-button 
+    <b-button
       v-if="interrupt"
       type="button"
       variant="outline-secondary"
       disabled
       >{{ confirm }}</b-button>
-    <b-button 
+    <b-button
       v-if="interrupt"
       type="button"
       variant="warning"
@@ -25,7 +25,7 @@
       @mousemove="startInterrupt($event)"
       @mouseover="startInterrupt($event)"
       >{{ $t('Cancel') }}</b-button>
-    <b-button 
+    <b-button
       v-if="interrupt"
       type="button"
       variant="danger"

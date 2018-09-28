@@ -1,6 +1,6 @@
 /**
  * Component to pick datetime.
- * 
+ *
  * Optional Properties:
  *    v-model: reactive property getter/setter
  *    value: default value
@@ -16,7 +16,7 @@
  *      example :moments="['-1 hours', '1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"
  */
  <template>
-  <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)" 
+  <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
     :state="isValid()" :invalid-feedback="getInvalidFeedback()" :class="{ 'mb-0': !columnLabel }">
     <b-input-group>
       <b-input-group-prepend v-if="prependText" is-text>
@@ -102,7 +102,7 @@ export default {
     },
     moments: {
       type: Array,
-      default: []
+      default: () => []
     }
   },
   data () {

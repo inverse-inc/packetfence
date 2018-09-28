@@ -1,5 +1,5 @@
 <template>
-  <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)" 
+  <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
     :state="isValid()" :invalid-feedback="getInvalidFeedback()" :class="{ 'mb-0': !columnLabel }">
     <b-input-group>
       <b-input-group-prepend v-if="prependText" is-text>
@@ -62,10 +62,10 @@ export default {
     },
     units: {
       type: Object,
-      default: {
+      default: () => ({
         label: 'B',
         name: 'bytes'
-      }
+      })
     },
     max: {
       type: Number,

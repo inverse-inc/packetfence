@@ -1,8 +1,8 @@
 <template>
   <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
     :state="isValid()" :invalid-feedback="getInvalidFeedback()" :class="{ 'mb-0': !columnLabel }">
-    <b-form-select 
-      v-model="inputValue" 
+    <b-form-select
+      v-model="inputValue"
       v-bind="$attrs"
       :state="isValid()"
       @input.native="validate()"

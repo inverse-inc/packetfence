@@ -1,4 +1,4 @@
-/**
+<!--
  * Component to pseudo-upload and access local files using FileReader.
  *
  * Supports:
@@ -56,7 +56,7 @@
  *     <b-button><icon variant="primary" name="upload"></icon> {{ $t('Custom Styled Button') }}</b-button>
  *   </pf-form-upload>
  *
-**/
+-->
 <template>
   <div class="file-upload-container" :title="title">
     <label class="file-upload mb-0">
@@ -87,7 +87,7 @@ export default {
     },
     files: {
       type: Array,
-      default: []
+      default: () => []
     },
     cumulative: {
       type: Boolean,
@@ -138,7 +138,7 @@ export default {
 <style lang="scss" scoped>
 /**
  * Overlap the default <file/> (top) and the <slot/> (bottom)
- *  where <file/> opacity is 0, permitting click events while 
+ *  where <file/> opacity is 0, permitting click events while
  *  hiding <file/> and allowing <slot/> seethrough for styling.
 **/
 .file-upload-container {

@@ -1,6 +1,6 @@
 /**
  * Component to draw plotly charts.
- * 
+ *
  * https://plot.ly/javascript/reference/
  * https://plot.ly/javascript/plotlyjs-function-reference/
  */
@@ -145,7 +145,7 @@ export default {
         values: values,
         labels: labels
       }, options)]
-      Plotly.react(this.$refs.plotly, this.data, this.report.chart.layout, {displayModeBar: true, scrollZoom: true, displaylogo: false, showLink: false})
+      Plotly.react(this.$refs.plotly, this.data, this.report.chart.layout, { displayModeBar: true, scrollZoom: true, displaylogo: false, showLink: false })
     },
     getWindowWidth (event) {
       const width = document.documentElement.clientWidth
@@ -235,4 +235,3 @@ export default {
   border-color: $input-btn-hover-bg-color;
 }
 </style>
-
