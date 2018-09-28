@@ -86,9 +86,8 @@ for (const filter of Object.keys(filters)) {
 
 /* eslint-disable no-new */
 new Vue({
-  el: '#app',
+  render: h => h(App),
   router,
   store,
-  i18n,
-  components: { App }
-})
+  i18n
+}).$mount('#app')
