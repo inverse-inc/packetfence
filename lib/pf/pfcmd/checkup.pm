@@ -53,6 +53,7 @@ use NetAddr::IP;
 use pf::web::filter;
 use pfconfig::manager;
 use pfconfig::namespaces::config::Pf;
+use pfconfig::namespaces::resource::clusters_hostname_map;
 use pf::version;
 use File::Slurp;
 use pf::file_paths qw(
@@ -1256,11 +1257,19 @@ sub cluster {
     my $int_cs = pf::ConfigStore::Interface->new;
     my @ints = @{$int_cs->readAll('name')};
     my @servers = @pf::cluster::cluster_servers;
+ 
+    my $hostname_map = pfconfig::namespaces::resource::clusters_hostname_map->new->build();
+    my $cluster_name = $hostname_map->{$pf::cluster::host_id};
 
-    my $cluster_config = pfconfig::namespaces::config::Cluster->new;
+    unless($cluster_name) {
+        add_problem($FATAL, "current host ($pf::cluster::host_id) isn't assigned to any cluster");
+        return;
+    }
+
+    my $cluster_config = pfconfig::namespaces::config::Cluster->new(undef, $cluster_name);
     $cluster_config->build();
 
-    unshift @servers, $cluster_config->{_CLUSTER};
+    unshift @servers, $cluster_config->{_CLUSTER}->{$cluster_name};
 
     unless(List::MoreUtils::any { $_->{host} eq $pf::cluster::host_id} @servers) {
         add_problem($FATAL, "current host ($pf::cluster::host_id) is missing from the cluster.conf file");
