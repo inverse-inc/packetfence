@@ -853,7 +853,7 @@ ntlm_redis_cache=disabled
 # advanced.ldap_attributes
 #
 # List of LDAP attributes that can be used in the sources configuration
-ldap_attributes=uid,cn,department,displayName,distinguishedName,givenName,memberOf,sn,eduPersonPrimaryAffiliation,mail,postOfficeBox,description,groupMembership
+ldap_attributes=uid,cn,sAMAccountName,UserPrincipalName,department,displayName,distinguishedName,givenName,memberOf,sn,eduPersonPrimaryAffiliation,mail,postOfficeBox,description,groupMembership
 #
 # advanced.radius_attributes
 #

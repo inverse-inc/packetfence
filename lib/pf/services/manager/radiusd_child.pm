@@ -168,7 +168,7 @@ EOT
     my @realms;
     my $flag = $TRUE;
     foreach my $realm ( sort keys %pf::config::ConfigRealm ) {
-        if(isenabled($pf::config::ConfigRealm{$realm}->{'permit_userPrincipalName'})) {
+        if(isenabled($pf::config::ConfigRealm{$realm}->{'permit_custom_attributes'})) {
             if ($flag) {
                 $tags{'userPrincipalName'} .= <<"EOT";
         update control {
@@ -501,6 +501,11 @@ sub generate_radiusd_ldap {
    $tags{'template'}    = "$conf_dir/radiusd/ldap_packetfence.conf";
    $tags{'install_dir'} = $install_dir;
    foreach my $ldap (keys %ConfigAuthenticationLdap) {
+      my $searchattributes;
+      foreach my $searchattribute (@{$ConfigAuthenticationLdap{$ldap}->{searchattributes}}) {
+          $searchattributes .= '('.$searchattribute.'=%{ldapquote:&User-Name})';
+      }
+
       $tags{'servers'} .= <<"EOT";
 
 ldap $ldap {
@@ -519,7 +524,7 @@ ldap $ldap {
     }
     user {
         base_dn = "\${..base_dn}"
-        filter = "(|(userPrincipalName=%{ldapquote:&User-Name})(sAMAccountName=%{%{Stripped-User-Name}:-%{User-Name}}))"
+        filter = "(|$searchattributes(sAMAccountName=%{%{Stripped-User-Name}:-%{User-Name}}))"
     }
     options {
         chase_referrals = yes

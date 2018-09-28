@@ -60,7 +60,7 @@ has 'password' => (isa => 'Maybe[Str]', is => 'rw');
 has 'encryption' => (isa => 'Str', is => 'rw', required => 1);
 has 'scope' => (isa => 'Str', is => 'rw', required => 1);
 has 'usernameattribute' => (isa => 'Str', is => 'rw', required => 1);
-has 'searchattributes' => (isa => 'ArrayRef[Str]', is => 'rw', required => 1);
+has 'searchattributes' => (isa => 'ArrayRef[Str]', is => 'rw', required => 0);
 has '_cached_connection' => (is => 'rw');
 has 'cache_match' => ( isa => 'Bool', is => 'rw', default => 0 );
 has 'email_attribute' => (isa => 'Maybe[Str]', is => 'rw', default => 'mail');

@@ -86,15 +86,15 @@ has_field 'admin_strip_username' =>
              help => 'Should the usernames matching this realm be stripped when used on the administration interface' },
   );
 
-has_field 'permit_userPrincipalName' =>
+has_field 'permit_custom_attributes' =>
   (
    type => 'Toggle',
    checkbox_value => "enabled",
    unchecked_value => "disabled",
    default => "disabled",
-   label => 'userPrincipalName',
+   label => 'Custom attributes',
    tags => { after_element => \&help,
-             help => 'Allow userPrincipalName attribute to authenticate 802.1x users' },
+             help => 'Allow to use custom attributes to authenticate 802.1x users (attributes are defined in the source)' },
   );
 
 has_field 'ldap_source' =>
@@ -106,7 +106,7 @@ has_field 'ldap_source' =>
    element_class => ['chzn-select'],
    element_attr => {'data-placeholder' => 'Click to select a LDAP Server'},
    tags => { after_element => \&help,
-             help => 'The LDAP Server to query the userPrincipalName' },
+             help => 'The LDAP Server to query the custom attributes' },
   );
 
 =head2 options_roles
