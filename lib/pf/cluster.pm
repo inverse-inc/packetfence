@@ -19,7 +19,7 @@ use pf::log;
 use pfconfig::cached_hash;
 use pfconfig::cached_array;
 use pfconfig::cached_scalar;
-use List::MoreUtils qw(first_index);
+use List::MoreUtils qw(first_index first_val uniq);
 use Net::Interface;
 use NetAddr::IP;
 use Socket;
@@ -38,7 +38,6 @@ use Time::HiRes qw(time);
 use POSIX qw(ceil);
 use Crypt::CBC;
 use pf::config::cluster;
-use List::MoreUtils qw(uniq);
 
 use Module::Pluggable
   'search_path' => [qw(pf::ConfigStore)],
@@ -434,7 +433,8 @@ Call an API method on a cluster member
 sub call_server {
     my ($cluster_id, @args) = @_;
     require pf::api::jsonrpcclient;
-    my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $ConfigCluster{$cluster_id}->{management_ip});
+    my $server = firstval { $_->{host} eq $cluster_id } @config_cluster_servers;
+    my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $server->{management_ip});
     return $apiclient->call(@args);
 }
 
