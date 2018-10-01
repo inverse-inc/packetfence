@@ -59,7 +59,7 @@ sub get {
     my ($self) = @_;
     my $item = $self->item;
     if ($item) {
-        return $self->render(json => {item => $item});
+        return $self->render(json => {item => $item}, status => 200);
     }
     return;
 }
@@ -87,7 +87,9 @@ sub cleanup_item {
     }
 
     $form->process(init_object => $item);
-    return $form->value;
+    $item = $form->value;
+    $item->{not_deletable} = $self->config_store->is_section_in_import($item->{id}) ? $self->json_false : $self->json_true;
+    return $item;
 }
 
 sub create {
@@ -169,7 +171,6 @@ sub remove {
     }
 
     $cs->commit;
-
     return $self->render(json => {}, status => 200);
 }
 
