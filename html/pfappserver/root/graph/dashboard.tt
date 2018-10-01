@@ -690,6 +690,7 @@ END
         </div>
         <div class="tab-pane[% IF tab == "dhcp" %] active[% END %]" id="dhcp">
         [% FOREACH network IN networks.keys %]
+            [% IF networks.$network.dhcpd == "enabled" %]
             <div class="card">
                 <div class="card-title">
                     <h2>[% l('DHCP on') %] [% network %]</h2>
@@ -763,6 +764,13 @@ END
                     </div>
                 </div>
             </div>
+            [% ELSE %]
+            <div class="card">
+              <div class="card-title">
+                <h2>[% l('DHCP on') %] [% network %] [% l('disabled') %]</h2>
+              </div>
+            </div>
+            [% END %]
         [% END %]
         </div>
         <div class="tab-pane[% IF tab == "endpoints" %] active[% END %]" id="endpoints">
