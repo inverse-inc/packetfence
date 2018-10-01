@@ -71,10 +71,6 @@ our @unit_failing_tests = qw(
     network-devices/wired.t
 );
 
-our @config_store_test = qw(
-    ConfigStore/Base.t ConfigStore/Group.t
-);
-
 =head2 get_compile_tests
 
 get_compile_tests

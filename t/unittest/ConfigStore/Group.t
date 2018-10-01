@@ -15,18 +15,24 @@ use strict;
 use warnings;
 use File::Temp;
 
-use Test::More tests => 17;
+use Test::More tests => 15;
 
 use Test::NoWarnings;
 BEGIN {
     use lib qw(/usr/local/pf/t /usr/local/pf/lib);
     use setup_test_config;
 }
+use pf::ConfigStore;
+use pf::ConfigStore::Group;
 
-use_ok("pf::ConfigStore");
-use_ok("ConfigStore::GroupTest");
+{
+    package ConfigStore::GroupTest;
+    use Moo;
+    extends qw(pf::ConfigStore);
+    with qw(pf::ConfigStore::Group);
+}
+
 my $fh = File::Temp->new;
-
 
 my $path = $fh->filename;
 

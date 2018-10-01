@@ -57,7 +57,6 @@ my @par_tests = (
     TestUtils::get_all_unittests(),
     @TestUtils::cli_tests,
     @TestUtils::quality_tests,
-    @TestUtils::config_store_test,
 );
 
 if ($SLOW_TESTS) {

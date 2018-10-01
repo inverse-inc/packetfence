@@ -14,7 +14,7 @@ Group
 use strict;
 use warnings;
 
-use Test::More tests => 10;
+use Test::More tests => 9;
 
 use Test::NoWarnings;
 BEGIN {
@@ -22,8 +22,23 @@ BEGIN {
     use setup_test_config;
 }
 
+{
+    package ConfigStore::HierarchyTest;
+    use Moo;
+    use pf::ConfigStore;
+    use pf::ConfigStore::Hierarchy;
 
-use_ok("ConfigStore::HierarchyTest");
+    extends qw(pf::ConfigStore);
+    with qw(pf::ConfigStore::Hierarchy);
+
+    sub default_section { undef }
+
+    sub topLevelGroup { "group default" }
+
+    sub _formatGroup {
+        return "group ".$_[1];
+    }
+}
 
 my $config = new_ok("ConfigStore::HierarchyTest",[configFile => './data/hierarchy.conf']);
 
