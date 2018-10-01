@@ -305,23 +305,21 @@ function initDashboard() {
     var cluster = JSON.parse(clusterEl.textContent || clusterEl.innerHTML);
 
     /* Hide missing charts */
-    validateCharts();
+    setInterval(validateCharts, 100);
     function validateCharts() {
         $('[data-hide-missing]').each(function (index) {
+          if($(this).html().match(/chart not found/)) {
             var $chartEl = $(this);
             var chart = $chartEl.data('netdata');
-            $.ajax({
-                url: $chartEl.data('host') + '/api/v1/chart?chart=' + chart,
-                method: 'GET',
-            }).fail(function (data) {
-                // Unknown or missing chart; show warning
-                var alert = $('[data-template="missing-chart"]').first().clone();
-                alert.removeAttr('data-template');
-                $chartEl.parent().append(alert);
-                alert.find('[data-block="chart"]').html(chart);
-                alert.removeClass('hide');
-                $chartEl.remove();
-            });
+            // Unknown or missing chart; show warning
+            var alert = $('[data-template="missing-chart"]').first().clone();
+            alert.removeAttr('data-template');
+            $chartEl.parent().append(alert);
+            alert.find('[data-block="chart"]').html(chart);
+            alert.removeClass('hide');
+            $chartEl.remove();
+
+          }
         });
     }
 

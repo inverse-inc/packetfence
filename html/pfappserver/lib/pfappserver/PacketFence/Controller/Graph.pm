@@ -496,6 +496,7 @@ sub dashboard :Local :AdminRole('REPORTS') {
         tab            => $tab,
         networks       => \%NetworkConfig,
         listen_ints    => \@listen_ints,
+        queue_stats    => $c->model('Pfqueue')->stats,
     );
 }
 

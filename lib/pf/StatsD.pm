@@ -108,7 +108,6 @@ Log timing information
 
 sub timing {
     my ( $self, $stats, $time, $sample_rate ) = @_;
-    $stats = $self->{hostname} . ".$stats";
     $time = ceil $time; # make sure it is at lease == 1
     $stats =~ s/\Q$STATSD_DELIMITER\E/_/g;
     $self->send( { $stats => "$time|ms" }, $sample_rate );
@@ -149,10 +148,10 @@ sub update {
     $delta = 1 unless defined $delta;
     my %data;
     if ( ref($stats) eq 'ARRAY' ) {
-        %data = map { "$self->{hostname}\.$_" => "$delta|c" }, @$stats;
+        %data = map { "$_" => "$delta|c" }, @$stats;
     }
     else {
-        %data = ( "$self->{hostname}\.$stats" => "$delta|c" );
+        %data = ( "$stats" => "$delta|c" );
     }
     $self->send( \%data, $sample_rate );
 }
@@ -165,7 +164,6 @@ Set the gauge
 
 sub gauge {
     my ($self, $stats, $gauge, $sample_rate) = @_;
-    $stats = $self->{hostname} . ".$stats";
     $stats =~ s/\Q$STATSD_DELIMITER\E/_/g;
     $self->send( { $stats => "$gauge|g" }, $sample_rate );
 }

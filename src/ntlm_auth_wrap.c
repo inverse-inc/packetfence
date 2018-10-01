@@ -253,33 +253,17 @@ void send_statsd(const struct arguments args , int status, double elapsed)
     }
 
     char *buf;
-    char hostname[MAX_STR_LENGTH] = "";
 
-    if ((gethostname(hostname, sizeof(hostname))) < 0 ) { 
-        err = errno;
-        fprintf(stderr, "cannot get my own hostname: %s\n", strerror(err));
-        return;
-    }
-
-    // replace the dots in the hostname with underscores. StatsD uses dots as namespace sep.
-    char c;
-    for ( int i=0; i < strlen(hostname); i++ ) { 
-        c =  hostname[i];
-        if ( c == '.' ) { 
-            hostname[i] = '_';
-        } 
-    }
-
-    asprintf(&buf, "%s.ntlm_auth.time:%g|ms\n", hostname, elapsed);
+    asprintf(&buf, "ntlm_auth.time:%g|ms\n", elapsed);
 
     sendto(sockfd, buf, strlen(buf), 0, ailist->ai_addr, ailist->ai_addrlen);
 
     // increment counter if auth failed
     if (status == SIGTERM) {
-        asprintf(&buf, "%s.ntlm_auth.timeout:1|c\n", hostname);
+        asprintf(&buf, "ntlm_auth.timeout:1|c\n");
         sendto(sockfd, buf, strlen(buf), 0, ailist->ai_addr, ailist->ai_addrlen);
     } else if (status > 0) {
-        asprintf(&buf, "%s.ntlm_auth.failures:1|c\n", hostname);
+        asprintf(&buf, "ntlm_auth.failures:1|c\n");
         sendto(sockfd, buf, strlen(buf), 0, ailist->ai_addr, ailist->ai_addrlen);
     }
     close(sockfd);
