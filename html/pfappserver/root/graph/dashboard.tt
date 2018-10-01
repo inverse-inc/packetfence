@@ -748,6 +748,12 @@ END
                     </div>
                 </div>
             </div>
+            [% ELSE %]
+            <div class="card">
+              <div class="card-title">
+                <h2>[% l('DHCP on') %] [% network %] [% l('disabled') %]</h2>
+              </div>
+            </div>
             [% END %]
         [% END %]
         </div>
