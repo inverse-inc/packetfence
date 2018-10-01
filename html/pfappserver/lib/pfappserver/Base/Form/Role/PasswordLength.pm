@@ -20,10 +20,12 @@ with 'pfappserver::Base::Form::Role::Help';
 
 has_field 'password_length' =>
   (
-   type => 'PosInteger',
+   type => 'IntRange',
    label => 'Password length',
    required => 1,
    default => 8,
+   range_start => 1,
+   range_end => 15,
    tags => { after_element => \&help,
              help => 'The length of the password to generate.' },
   );
