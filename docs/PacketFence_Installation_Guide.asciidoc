@@ -2947,6 +2947,11 @@ Palo Alto
 
 include::firewall/paloalto.asciidoc[]
 
+Juniper SRX
+~~~~~~~~~~~
+
+include::firewall/junipersrx.asciidoc[]
+
 Performing Compliance Checks
 ----------------------------
 
