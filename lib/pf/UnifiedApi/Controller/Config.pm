@@ -25,7 +25,13 @@ has 'openapi_generator_class' => 'pf::UnifiedApi::OpenAPI::Generator::Config';
 sub list {
     my ($self) = @_;
     my $cs = $self->config_store;
-    $self->render(json => {items => $cs->readAll('id')}, status => 200);
+    $self->render(json => {items => $self->items}, status => 200);
+}
+
+sub items {
+    my ($self) = @_;
+    my $cs = $self->config_store;
+    return $cs->readAll('id');
 }
 
 sub config_store {

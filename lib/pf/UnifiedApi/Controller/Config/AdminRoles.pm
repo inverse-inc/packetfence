@@ -17,10 +17,27 @@ use warnings;
 use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
 use pf::ConfigStore::AdminRoles;
 use pfappserver::Form::Config::AdminRoles;
+use pf::config qw(%ConfigAdminRoles);
 
 has 'config_store_class' => 'pf::ConfigStore::AdminRoles';
 has 'form_class' => 'pfappserver::Form::Config::AdminRoles';
 has 'primary_key' => 'admin_role_id';
+
+sub items {
+    my ($self) = @_;
+    my $items = $self->SUPER::items();
+    unshift @$items, map {
+        my $id = $_;
+        my $item = {
+            id => $id,
+            %{ $ConfigAdminRoles{$_} }, readonly => $self->json_true()
+        };
+        my $actions = delete $item->{ACTIONS};
+        $item->{actions} = [keys %$actions];
+        $item;
+    } qw(NONE ALL ALL_PF_ONLY);
+    return $items;
+}
 
 =head1 AUTHOR
 
