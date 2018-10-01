@@ -44,10 +44,10 @@ use pf::config qw(
     %ConfigDomain
     $local_secret
     @radius_ints
+    %ConfigAuthenticationLdap
 );
 
 tie my @cli_switches, 'pfconfig::cached_array', 'resource::cli_switches';
-tie my %ConfigAuthenticationLdap, 'pfconfig::cached_hash', 'resource::authentication_sources_ldap';
 
 extends 'pf::services::manager';
 
