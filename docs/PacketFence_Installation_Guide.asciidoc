@@ -2499,9 +2499,11 @@ EAP Guest Authentication on Email, Sponsor and SMS Registration
 
 This section will allow local credentials created during guest registration to be used in 802.1X EAP-PEAP connections.
 
+Caution: Be sure to select `plaintext` or `ntlm` as the "Database passwords hashing method" to make it work.
+
 First create a guest SSID with the guest access you want to use (Email, Sponsor or SMS, ...) and activate 'Create local account' on that source.
 
-At the end of the guest registration, PacketFence will send an email with the credentials for Email and Sponsor. For SMS the phone number and the PIN code should be used.
+At the end of the guest registration, PacketFence will send an email with the credentials for Email and Sponsor and SMS.
 
 NOTE: This option doesn't currently work with the 'Reuse dot1x credentials' option of the captive portal.
 
@@ -2555,7 +2557,7 @@ Restart the radiusd service in order to apply the change.
 
 /usr/local/pf/bin/pfcmd service radiusd restart
 
-CAUTION: You will need to disable password hashing in the database for local authentication to work. In the administration interface, go in 'Configuration -> System Configuration -> Main Configuration ->Advanced' and set 'Database passwords hashing method' to `plaintext` or `ntlm`. Don't use `bcrypt`.
+CAUTION: Take care of the "Database passwords hashing method" that has been configured in "Configuration -> System Configuration -> Main Configuration ->Advanced" or in the authentication source configuration (when you enabled "create local account") , the hash method must be `plaintext` or ` ntlm` to be able to work.
 
 Limit Brute Force EAP Authentication
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
