@@ -56,6 +56,11 @@ form .uneditable {
     margin-left: -390px;
     width: 780px;
 }
+/* x-large modal */
+.modal-x-large {
+    margin-left: -425px;
+    width: 850px;
+}
 .inline {
     display: inline;
 }
@@ -78,4 +83,16 @@ form .uneditable {
 .input-prepend .chzn-choices .search-choice,
 .input-append .chzn-choices .search-choice {
     font-size : 14px;
+}
+
+.rapid7-node-info .control-label {
+  width:225px;  
+}
+
+.rapid7-node-info .controls {
+  margin-left: 245px;
+}
+
+.rapid7-node-info .rapid7-scan-selection {
+  text-align:right;
 }

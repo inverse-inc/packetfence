@@ -288,7 +288,7 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('NODES_READ') 
         push @tabs, 'MSE';
     }
 
-    push @tabs, 'WMI', 'Option82';
+    push @tabs, 'WMI', 'Option82', 'Rapid7';
 
     ($status, $result) = $c->model('Node')->view($c->stash->{mac});
     if (is_success($status)) {
@@ -476,6 +476,41 @@ sub violations :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
         $c->stash->{status_msg} = $result;
         $c->stash->{current_view} = 'JSON';
     }
+}
+
+=head2 runRapid7Scan
+
+Run a Rapid7 scan on a node
+
+=cut
+
+sub runRapid7Scan :Chained('object') :PathPart('runRapid7Scan') :Args(1) :AdminRole('NODES_UPDATE') {
+    my ( $self, $c, $id ) = @_;
+    
+    $c->stash->{current_view} = 'JSON';
+
+    my $mac = $c->stash->{mac};
+
+    my $scan = pf::Connection::ProfileFactory->instantiate($mac)->findScan($mac);
+    if(ref($scan) ne "pf::scan::rapid7") {
+        my $msg = "The scan engine for $mac is not a Rapid7 scan engine.";
+        $c->log->error($msg);
+        $c->response->status(HTTP_UNPROCESSABLE_ENTITY);
+        $c->stash->{status_msg} = $msg;
+    }
+
+    $self->audit_current_action($c, mac => $mac, scan_id => $id);
+    my $response = $scan->runScanTemplate("Manual scan from PacketFence", pf::ip4log::mac2ip($mac), $id);
+
+    if($response->is_success) {
+        $c->response->status(HTTP_OK);
+        $c->stash->{status_msg} = "Successfully started scan.";
+    }
+    else {
+        $c->response->status(HTTP_INTERNAL_SERVER_ERROR);
+        $c->stash->{status_msg} = "Failed to start scan, check server side logs for details.";
+    }
+
 }
 
 =head2 triggerViolation

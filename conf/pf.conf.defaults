@@ -806,6 +806,11 @@ portal_csp_security_headers=enabled
 # Trigger Single-Sign-On (Firewall SSO) on access reevaluation
 sso_on_access_reevaluation=disabled
 #
+# advanced.scan_on_accounting
+#
+# Trigger scan engines on accounting
+scan_on_accounting=disabled
+#
 # advanced.sso_on_accounting
 #
 # Trigger Single-Sign-On (Firewall SSO) on accounting

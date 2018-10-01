@@ -81,6 +81,7 @@ our (
     $wmi_config_file,
     $pki_provider_config_file,
     $suricata_categories_file,
+    $nexpose_categories_file,
     $radius_filters_config_file,
     $billing_tiers_config_file,
     $dhcp_filters_config_file,
@@ -160,6 +161,7 @@ BEGIN {
         $wmi_config_file
         $pki_provider_config_file
         $suricata_categories_file
+        $nexpose_categories_file
         $radius_filters_config_file
         $billing_tiers_config_file
         $dhcp_filters_config_file
@@ -212,6 +214,7 @@ $pfcmd_binary = catfile( $bin_dir, "pfcmd" );
 
 $oui_file           = catfile($conf_dir, "oui.txt");
 $suricata_categories_file = catfile($conf_dir, "suricata_categories.txt");
+$nexpose_categories_file = catfile($conf_dir, "nexpose-responses.txt");
 $local_secret_file  = catfile($conf_dir, "local_secret");
 $unified_api_system_pass_file  = catfile($conf_dir, "unified_api_system_pass");
 $pf_doc_file        = catfile($conf_dir, "documentation.conf");

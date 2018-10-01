@@ -16,7 +16,10 @@ use warnings;
 use base qw(Exporter);
 use Readonly;
 use pf::metadefender();
-use pf::file_paths qw($suricata_categories_file);
+use pf::file_paths qw(
+    $suricata_categories_file
+    $nexpose_categories_file
+);
 use File::Slurp;
 use pf::SwitchFactory;
 use pf::config qw(
@@ -40,6 +43,7 @@ Readonly::Scalar our $TRIGGER_TYPE_OPENVAS => 'openvas';
 Readonly::Scalar our $TRIGGER_TYPE_METADEFENDER => 'metadefender';
 Readonly::Scalar our $TRIGGER_TYPE_OS => 'os';
 Readonly::Scalar our $TRIGGER_TYPE_SURICATA_EVENT => 'suricata_event';
+Readonly::Scalar our $TRIGGER_TYPE_NEXPOSE_EVENT_STARTS_WITH => 'nexpose_event_starts_with';
 Readonly::Scalar our $TRIGGER_TYPE_USERAGENT => 'useragent';
 Readonly::Scalar our $TRIGGER_TYPE_VENDORMAC => 'vendormac';
 Readonly::Scalar our $TRIGGER_TYPE_PROVISIONER => 'provisioner';
@@ -50,6 +54,15 @@ Readonly::Scalar our $TRIGGER_TYPE_SWITCH_GROUP => 'switch_group';
 Readonly::Scalar our $SURICATA_CATEGORIES => sub {
     my %map;
     my @categories = split("\n", read_file($suricata_categories_file));
+    foreach my $category (@categories){
+        $map{$category} = $category;
+    }
+    return \%map;
+}->();
+
+Readonly::Scalar our $NEXPOSE_CATEGORIES => sub {
+    my %map;
+    my @categories = split("\n", read_file($nexpose_categories_file));
     foreach my $category (@categories){
         $map{$category} = $category;
     }
@@ -69,6 +82,7 @@ Readonly::Scalar our $TRIGGER_MAP => {
     $TRIGGER_ID_PROVISIONER => "Check status",
   },
   $TRIGGER_TYPE_SURICATA_EVENT => $SURICATA_CATEGORIES,
+  $TRIGGER_TYPE_NEXPOSE_EVENT_STARTS_WITH => $NEXPOSE_CATEGORIES,
   $TRIGGER_TYPE_METADEFENDER => $pf::metadefender::METADEFENDER_RESULT_IDS,
   $TRIGGER_TYPE_SWITCH => \%ConfigSwitchesList,
   $TRIGGER_TYPE_SWITCH_GROUP => \%ConfigSwitchesGroup,
