@@ -1,6 +1,6 @@
 global_defs {
    notification_email {
-     %%emailaddr%%
+    %%emailaddr%%
    }
    notification_email_from %%fromaddr%%
    smtp_server %%smtpserver%%

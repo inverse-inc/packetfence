@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import {createDebouncer} from 'promised-debounce'
+import { createDebouncer } from 'promised-debounce'
 
 export default {
   name: 'pf-progress',

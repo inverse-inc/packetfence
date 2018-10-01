@@ -622,6 +622,20 @@ sub filter_offset_limit {
     return filter_with_offset_limit($filter, $offset, $limit, $self->readAll($idKey));
 }
 
+=head2 is_section_in_import
+
+Check if section is in the imported Config::IniFiles
+
+=cut
+
+sub is_section_in_import {
+    my ($self, $section) = @_;
+    my $ini = $self->cachedConfig;
+    my $imported = $ini->{imported};
+    return $FALSE unless $imported;
+    return $ini->SectionExists($section) ? $TRUE : $FALSE;
+}
+
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT

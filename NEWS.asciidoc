@@ -20,6 +20,7 @@ New Features
 * Permit incoming eduroam tlrs radius request (PR #3399)
 * pfconfig is tenant aware (PR #3385)
 * Realm are tenant scope (PR #3385)
+* Added Mojo web authentication support (PR #3604)
 
 Enhancements
 ++++++++++++

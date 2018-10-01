@@ -99,8 +99,6 @@ func buildApiAAAHandler(ctx context.Context) (ApiAAAHandler, error) {
 	db, err := db.DbFromConfig(ctx)
 	sharedutils.CheckError(err)
 
-	apiAAA.authentication.AddAuthenticationBackend(aaa.NewDbAuthenticationBackend(ctx, db, "api_user"))
-
 	url, err := url.Parse("http://localhost:8080/api/v1/authentication/admin_authentication")
 	sharedutils.CheckError(err)
 	apiAAA.authentication.AddAuthenticationBackend(aaa.NewPfAuthenticationBackend(ctx, url, false))
@@ -188,9 +186,9 @@ func (h ApiAAAHandler) handleTokenInfo(w http.ResponseWriter, r *http.Request, p
 }
 
 func (h ApiAAAHandler) HandleAAA(w http.ResponseWriter, r *http.Request) bool {
-    if aaa.IsPathPublic(r.URL.Path) {
-        return true
-    }
+	if aaa.IsPathPublic(r.URL.Path) {
+		return true
+	}
 
 	ctx := r.Context()
 	auth, err := h.authentication.BearerRequestIsAuthorized(ctx, r)

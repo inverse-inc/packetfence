@@ -1,0 +1,9 @@
+{
+  "name": "emails-templates",
+  "version": "1.0.0",
+  "description": "",
+  "author": "Inverse inc",
+  "dependencies": {
+    "mjml": "^4.x.x"
+  }
+}

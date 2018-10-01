@@ -55,7 +55,6 @@
 </b-navbar-nav>
 </template>
 
-
 <script>
 import IconCounter from '@/components/IconCounter'
 

@@ -90,6 +90,8 @@ var NodeView = function(options) {
     this.proxyClick(body, '#modalNode #restartSwitchport', this.restartSwitchport);
 
     this.proxyClick(body, '#modalNode #addViolation', this.triggerViolation);
+    
+    this.proxyClick(body, '#modalNode #runRapid7Scan', this.runRapid7Scan);
 
     /* Update the advanced search form to the next page or sort the query */
     this.proxyClick(body, '.nodes .pagination a', this.searchPagination);
@@ -418,6 +420,25 @@ NodeView.prototype.triggerViolation = function(e) {
         success: function(data) {
             pane.html(data);
             pane.find('.switch').bootstrapSwitch();
+        },
+        errorSibling: pane.children().first()
+    });
+};
+
+NodeView.prototype.runRapid7Scan = function(e) {
+    e.preventDefault();
+
+    var modal = $('#modalNode');
+    var modal_body = modal.find('.modal-body');
+    var btn = $(e.target);
+    var option = modal.find('#rapid7ScanTemplateSelection').find(':selected');
+    var href = option.attr("trigger_url");
+    var pane = $('#runRapid7Scan').closest('div');
+    resetAlert(pane);
+    this.nodes.get({
+        url: href,
+        success: function(data) {
+            showSuccess(pane, data.status_msg);
         },
         errorSibling: pane.children().first()
     });

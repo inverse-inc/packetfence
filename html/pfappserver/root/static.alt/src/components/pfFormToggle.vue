@@ -57,10 +57,10 @@ export default {
     },
     values: {
       type: [Boolean, Object],
-      default: {
+      default: () => ({
         checked: true,
         unchecked: false
-      },
+      }),
       validator (value) {
         return typeof value === 'object'
           ? (value.checked || value.unchecked)
@@ -73,10 +73,10 @@ export default {
     },
     color: {
       type: [String, Object],
-      default: {
+      default: () => ({
         checked: constants.colorChecked,
         unchecked: constants.colorUnchecked
-      },
+      }),
       validator (value) {
         return typeof value === 'object'
           ? (value.checked || value.unchecked)

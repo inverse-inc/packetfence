@@ -25,7 +25,13 @@ has 'openapi_generator_class' => 'pf::UnifiedApi::OpenAPI::Generator::Config';
 sub list {
     my ($self) = @_;
     my $cs = $self->config_store;
-    $self->render(json => {items => $cs->readAll('id')}, status => 200);
+    $self->render(json => {items => $self->items}, status => 200);
+}
+
+sub items {
+    my ($self) = @_;
+    my $cs = $self->config_store;
+    return $cs->readAll('id');
 }
 
 sub config_store {
@@ -59,7 +65,7 @@ sub get {
     my ($self) = @_;
     my $item = $self->item;
     if ($item) {
-        return $self->render(json => {item => $item});
+        return $self->render(json => {item => $item}, status => 200);
     }
     return;
 }
@@ -87,7 +93,9 @@ sub cleanup_item {
     }
 
     $form->process(init_object => $item);
-    return $form->value;
+    $item = $form->value;
+    $item->{not_deletable} = $self->config_store->is_section_in_import($item->{id}) ? $self->json_false : $self->json_true;
+    return $item;
 }
 
 sub create {
@@ -169,7 +177,6 @@ sub remove {
     }
 
     $cs->commit;
-
     return $self->render(json => {}, status => 200);
 }
 

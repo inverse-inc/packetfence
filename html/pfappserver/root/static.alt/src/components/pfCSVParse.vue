@@ -318,7 +318,7 @@ export default {
     let funcStaticMapping = {}
     if (typeof this.staticMapping !== 'function' && this.staticMapping.length > 0) {
       // https://github.com/monterail/vuelidate/issues/166#issuecomment-319924309
-      funcStaticMapping = {...this.staticMapping.map(m => eachStaticMapping[m.key])}
+      funcStaticMapping = { ...this.staticMapping.map(m => eachStaticMapping[m.key]) }
     }
 
     return {
@@ -491,6 +491,9 @@ export default {
       this.requestPage = 1 // reset to the first page
       this.sortBy = params.sortBy
       this.sortDesc = params.sortDesc
+      this.data.sort((a, b) => {
+        return a[params.sortBy].localeCompare(b[params.sortBy]) * ((params.sortDesc) ? -1 : 1)
+      })
     }
   },
   computed: {
@@ -499,10 +502,7 @@ export default {
       // paginated
       const begin = this.pageSizeLimit * (this.currentPage - 1)
       const end = begin + this.pageSizeLimit
-      const data = (this.sortBy) ? this.data.sort((a, b) => {
-        return a[this.sortBy].localeCompare(b[this.sortBy]) * ((this.sortDesc) ? -1 : 1)
-      }) : this.data
-      return data.slice(begin, end)
+      return this.data.slice(begin, end)
     },
     totalRows () {
       return (this.data) ? this.data.length : 0

@@ -30,7 +30,7 @@
       </nav>
       END NAVBAR -->
       <b-container fluid class="rc px-0 py-1 bg-secondary">
-        <draggable v-model="model.values[outerindex].values" :options="{group: 'or', handle: '.draghandle', filter: '.nodrag', dragClass: 'sortable-drag'}" @start="onDragStart" @end="onDragEnd"> 
+        <draggable v-model="model.values[outerindex].values" :options="{group: 'or', handle: '.draghandle', filter: '.nodrag', dragClass: 'sortable-drag'}" @start="onDragStart" @end="onDragEnd">
           <b-container fluid class="px-1" v-for="(rule, innerindex) in model.values[outerindex].values" :key="innerindex">
             <b-row class="mx-auto isdrag">
               <b-col cols="12" class="bg-white rc">
@@ -61,7 +61,7 @@
               <b-col cols="12" class="bg-white rc">
                 <b-container class="mx-0 px-1 py-1">
                   <a href="#" class="text-nowrap" @click="addInnerStatement(outerindex)">{{ $t('Add "or" statement') }}</a>
-                </b-container>  
+                </b-container>
               </b-col>
             </b-row>
           </b-container>
@@ -78,7 +78,7 @@
       <b-col cols="12" class="bg-secondary rc">
         <b-container class="mx-0 px-1 py-1">
           <a href="#" class="text-nowrap text-white" @click="addOuterStatement()">{{ $t('Add "and" statement') }}</a>
-        </b-container>  
+        </b-container>
       </b-col>
     </b-row>
     <!-- END ADVANCED SEARCH -->

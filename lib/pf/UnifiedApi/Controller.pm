@@ -96,6 +96,14 @@ sub openapi_generator {
     return $class ? $class->new : undef;
 }
 
+sub json_true {
+    return do { bless \(my $dummy = 1), "JSON::PP::Boolean" };
+}
+
+sub json_false {
+    return do { bless \(my $dummy = 0), "JSON::PP::Boolean" };
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

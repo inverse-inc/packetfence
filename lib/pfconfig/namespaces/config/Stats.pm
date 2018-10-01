@@ -21,6 +21,7 @@ use warnings;
 use pfconfig::namespaces::config;
 use pf::log;
 use pf::file_paths qw($stats_config_file);
+use pf::util qw(isdisabled);
 
 use base 'pfconfig::namespaces::config';
 
@@ -41,6 +42,7 @@ sub build_child {
     foreach my $network (keys $self->{network_config}) {
         my $dev = $self->{network_config}{$network}{'interface'}{'int'};
         next if !defined $dev;
+        next if isdisabled($self->{network_config}{$network}{'dhcpd'});
         $tmp_cfg{"metric 'total dhcp leases remaining on $network' past day"} = {
             'type' => 'api',
             'statsd_type' => 'gauge',

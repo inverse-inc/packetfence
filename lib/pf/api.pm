@@ -1370,6 +1370,7 @@ sub handle_accounting_metadata : Public {
         #
         $logger->info("Updating locationlog from accounting request");
         $client->notify("radius_update_locationlog", %RAD_REQUEST);
+
     }
 
     if ($RAD_REQUEST{'Acct-Status-Type'} != $ACCOUNTING::STOP){
@@ -1380,6 +1381,17 @@ sub handle_accounting_metadata : Public {
         }
         else {
             pf::log::get_logger->debug("Not handling iplog update because we're not configured to do so on accounting packets.");
+        }
+        
+        if(pf::util::isenabled($pf::config::Config{advanced}{scan_on_accounting}) && $RAD_REQUEST{"Framed-IP-Address"}) {
+            my $node = pf::node::node_attributes($mac);
+            if($node->{status} eq $pf::constants::node::STATUS_REGISTERED) {
+                $logger->debug("Will trigger scan engines for this device based on the data in the accounting packet");
+                $client->notify("trigger_scan", mac => $mac, ip => $RAD_REQUEST{"Framed-IP-Address"}, net_type => "management");
+            }
+        }
+        else {
+            pf::log::get_logger->debug("Not handling scan engines because we're not configured to do so on accounting packets or the IP address (Framed-IP-Address) is missing from the packet.");
         }
     }
     if ($RAD_REQUEST{'Acct-Status-Type'} == $ACCOUNTING::STOP){
