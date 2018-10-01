@@ -33,13 +33,13 @@ set services user-identification authentication-source aruba-clearpass authentic
 set services user-identification authentication-source aruba-clearpass no-user-query
 set services user-identification device-information authentication-source network-access-controller
 
-Then you need to allow traffic from packetfence management interface to port you set up on webapi settings (i.e. 8443) on SRX device.
+Then you need to allow traffic from the PacketFence management interface to port you set up on webapi settings (i.e. 8443) on SRX device.
 
 
 Step 2: Verification
 ^^^^^^^^^^^^^^^^^^^^
 
-For debuging webapi set (disable it when you won't need it anymore):
+For debuging the webapi set (disable it when you won't need it anymore):
 
 set system services webapi debug-log api-log
 set system services webapi debug-level notice
