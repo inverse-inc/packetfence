@@ -32,6 +32,7 @@ use pf::file_paths qw(
 );
 use pf::log;
 use pf::util;
+use pf::constants qw($SPACE $SPACE_NUMBERS);
 use pf::cluster;
 
 extends 'pf::services::manager';
@@ -58,7 +59,10 @@ sub generateConfig {
 
     my %tags;
     $tags{'template'} = "$conf_dir/keepalived.conf";
-    $tags{'emailaddr'} = $Config{'alerting'}{'emailaddr'};
+    
+    # split email addresses then rejoin them with line feed and indent
+    $tags{'emailaddr'} = join("\n" . ($SPACE x $SPACE_NUMBERS), split( /\s*,\s*/, $Config{'alerting'}{'emailaddr'}));
+    
     $tags{'fromaddr'} = $Config{'alerting'}{'fromaddr'} || "keepalived\@$host_id";
     $tags{'smtpserver'} = $Config{'alerting'}{'smtpserver'};
     $tags{'router_id'} = "PacketFence-$host_id";
