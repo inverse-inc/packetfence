@@ -14,7 +14,7 @@ use pf::person;
 use HTML::FormHandler::Moose;
 use pf::Authentication::Source::PotdSource;
 extends 'pfappserver::Form::Config::Source';
-with 'pfappserver::Base::Form::Role::Help', 'pfappserver::Base::Form::Role::InternalSource';
+with 'pfappserver::Base::Form::Role::Help', 'pfappserver::Base::Form::Role::InternalSource','pfappserver::Base::Form::Role::PasswordLength';
 
 # Form fields
 has_field 'id' =>
@@ -46,16 +46,6 @@ has_field 'password_rotation' =>
    default => pfappserver::Form::Field::Duration->duration_inflate(pf::Authentication::Source::PotdSource->meta->get_attribute('password_rotation')->default),
    tags => { after_element => \&help,
              help => 'Period of time after the password must be rotated.' },
-  );
-
-has_field 'password_length' =>
-  (
-   type => 'PosInteger',
-   label => 'Password length',
-   required => 1,
-   default => 8,
-   tags => { after_element => \&help,
-             help => 'The length of the password to generate.' },
   );
 
 has_field 'password_email_update' => (

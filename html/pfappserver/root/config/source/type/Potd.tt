@@ -1,1 +1,2 @@
 [% form.block('definition').render | none %]
+[% form.block('password_length').render | none %]
