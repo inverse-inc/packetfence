@@ -309,7 +309,7 @@ sub before_render_cb {
     my ($self, $args) = @_;
     my $json = $args->{json};
     return unless $json;
-    $json->{status} //= $args->{status};
+    $json->{status} //= ($args->{status} // 200);
 }
 
 =head2 after_dispatch_cb
