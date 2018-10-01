@@ -2557,7 +2557,7 @@ Restart the radiusd service in order to apply the change.
 
 /usr/local/pf/bin/pfcmd service radiusd restart
 
-CAUTION: Take care of the "Database passwords hashing method" that has been configured in "Configuration -> System Configuration -> Main Configuration ->Advanced" or in the authentication source configuration (when you enabled "create local account") , the hash method must be `plaintext` or ` ntlm` to be able to work.
+CAUTION: Take care of the "Database passwords hashing method" that has been configured in "Configuration -> System Configuration -> Main Configuration ->Advanced" or in the authentication source configuration (when you enabled "create local account") , the hash method must be `plaintext` or `ntlm` to be able to work.
 
 Limit Brute Force EAP Authentication
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
