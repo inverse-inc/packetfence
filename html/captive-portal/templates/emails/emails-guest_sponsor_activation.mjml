@@ -1,0 +1,59 @@
+<mjml>
+  <mj-head>
+    <mj-include path="_header.mjml" />
+    <mj-preview>[% firstname %] [% lastname %] [% i18n("requested guest access to your network.") %]</mj-preview>
+  </mj-head>
+  <mj-body>
+    <mj-section></mj-section>
+    <mj-wrapper>
+      <mj-section>
+        <mj-column>
+          <mj-text mj-class="title">[% i18n("Guest request") %]</mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section>
+        <mj-column>
+          <mj-divider></mj-divider>
+        </mj-column>
+      </mj-section>
+      <mj-section padding-top="0">
+        <mj-column>
+          <mj-text>
+            <p style="padding-bottom: 20px">[% i18n("Hello") %]</p>
+            <p>[% firstname %] [% lastname %] [% i18n("requested guest access to your network.") %]</p>
+            <p>[% i18n("Do NOT authorize access if you were not expecting this guest.") %]</p>
+            <p>[% i18n("Here is the information the guest provided with registration form") %]:</p>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section padding-top="0">
+        <mj-column width="50%">
+          <mj-text align="left">
+            <p class="label">[% i18n("Firstname") %]</p>
+            <p class="value">[% firstname %]</p>
+            <p class="label">[% i18n("Lastname") %]</p>
+            <p class="value">[% lastname %]</p>
+            [% IF telephone %]<p class="label">[% i18n("Phone number") %]</p>
+            <p class="value">[% telephone %]</p>[% END %]
+            <p class="label">[% i18n("Email") %]</p>
+            <p class="value">[% pid %]</p>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section padding-top="0">
+        <mj-column>
+          <mj-button href="[% activation_uri %]">[% i18n("Activate Access") %]</mj-button>
+          <mj-text>
+            [% IF is_preregistration -%]
+            <p>[% i18n("Once you click on the activation link the guest will be sent a username and password by email which will allow him to register as a guest in the network once on-site.") %]</p>
+            [% ELSE %]
+            <p>[% i18n("Until you click on the activation link this guest will have NO Internet access.") %]</p>
+            [%- END %]
+            <p>[% i18n("Thank you for your cooperation.") %]</p>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+    </mj-wrapper>
+    <mj-include path="_footer.mjml" />
+  </mj-body>
+</mjml>

@@ -1,0 +1,31 @@
+<mjml>
+  <mj-head>
+    <mj-include path="_header.mjml" />
+    <mj-preview>[% i18n("Your guest access to the network was authorized.") %]</mj-preview>
+  </mj-head>
+  <mj-body>
+    <mj-section></mj-section>
+    <mj-wrapper>
+      <mj-section>
+        <mj-column>
+          <mj-text mj-class="title">[% i18n("Access Authorized") %]</mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section>
+        <mj-column>
+          <mj-divider></mj-divider>
+        </mj-column>
+      </mj-section>
+      <mj-section padding-top="0">
+        <mj-column>
+          <mj-text>
+            <p style="padding-bottom: 20px">[% i18n("Hello") %]</p>
+            <p>[% i18n("Your guest access to the network was authorized.") %]</p>
+            <p>[% i18n("If you have any questions regarding the registration process please contact your local support staff.") %]</p>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+    </mj-wrapper>
+    <mj-include path="_footer.mjml" />
+  </mj-body>
+</mjml>

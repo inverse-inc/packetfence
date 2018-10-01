@@ -1,0 +1,50 @@
+<mjml>
+  <mj-head>
+    <mj-include path="_header.mjml" />
+    <mj-preview>[% i18n("Thank you for your purchase.") %]</mj-preview>
+  </mj-head>
+  <mj-body>
+    <mj-section></mj-section>
+    <mj-wrapper>
+      <mj-section>
+        <mj-column>
+          <mj-text mj-class="title">[% i18n("Billing invoice") %]</mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section>
+        <mj-column>
+          <mj-divider></mj-divider>
+        </mj-column>
+      </mj-section>
+      <mj-section padding-top="0" background-color="#FFFFFF">
+        <mj-column>
+          <mj-text>
+            <p style="padding-bottom: 20px">[% i18n("Hello") %] [% firstname %] [% lastname %]</p>
+            <p>[% i18n("Thank you for your purchase.") %]</p>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section padding-top="0">
+        <mj-column width="50%">
+          <mj-text align="left">
+            <p class="label">[% tier_name %]</p>
+            <p class="value">[% tier_description %]</p>
+            <p class="label">[% i18n("Cost") %]</p>
+            <p class="value">[% tier_price %]</p>
+            <p class="label">[% i18n("Transaction ID") %]</p>
+            <p class="value">[% transaction_id %]</p>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section padding-top="0">
+        <mj-column>
+          <mj-text>
+            <p>[% i18n("To extend your network access, please visit") %] <a href="https://[% hostname %].[% domain %]/billing">[% i18n("Extend access duration") %]</a></p>
+            <p>[% i18n("To view your current network status, please visit") %] <a href="https://[% hostname %].[% domain %]/status">[% i18n("Status") %]</a></p>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+    </mj-wrapper>
+    <mj-include path="_footer.mjml" />
+  </mj-body>
+</mjml>
