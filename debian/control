@@ -207,3 +207,9 @@ Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Description: PacketFence Golang binary.
 Conflicts: packetfence (<= 8.0.1)
+
+Package: packetfence-pfappserver-javascript
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: PacketFence Admin javascript
+Conflicts: packetfence (<= 8.1.0)
