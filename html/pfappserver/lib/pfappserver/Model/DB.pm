@@ -60,7 +60,7 @@ sub assign {
             return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
         }
     }
-    # To dump stored procedures
+    # To dump stored procedures, only on '%'
     $sql_query = "GRANT SELECT ON mysql.proc TO ?";
     $dbHandler->do($sql_query, undef, $user, $password);
     if ( $DBI::errstr ) {
