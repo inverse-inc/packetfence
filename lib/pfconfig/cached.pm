@@ -267,6 +267,12 @@ sub logger {
     return $self->{logger};
 }
 
+=head2 set_namespace
+
+Set the namespace of this object while normalizing it if needed
+
+=cut
+
 sub set_namespace {
     my ($self, $namespace) = @_;
     $self->{_namespace} = normalize_namespace_query($namespace);
