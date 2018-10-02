@@ -96,9 +96,6 @@ func buildApiAAAHandler(ctx context.Context) (ApiAAAHandler, error) {
 		apiAAA.webservicesBackend.SetUser(pfconfigdriver.Config.PfConf.Webservices.User, pfconfigdriver.Config.PfConf.Webservices.Pass)
 	}
 
-	db, err := db.DbFromConfig(ctx)
-	sharedutils.CheckError(err)
-
 	url, err := url.Parse("http://localhost:8080/api/v1/authentication/admin_authentication")
 	sharedutils.CheckError(err)
 	apiAAA.authentication.AddAuthenticationBackend(aaa.NewPfAuthenticationBackend(ctx, url, false))
