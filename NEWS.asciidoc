@@ -37,6 +37,7 @@ Enhancements
 Bug Fixes
 +++++++++
 * Backslash in usernames in Reports section is shown as "=5C" (#3508) (PR #3510)
+* Multiple bug fixes to the pfdhcp service (PR #3571)
 
 Version 8.1.0 released on 2018-07-09
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
