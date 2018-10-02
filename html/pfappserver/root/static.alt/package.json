@@ -22,7 +22,7 @@
     "vue-bootstrap-datetimepicker": "^5.0.1",
     "vue-browser-acl": "^0.9.0",
     "vue-i18n": "^8.0.0",
-    "vue-multiselect": "^2.1.0",
+    "vue-multiselect": "^2.1.2",
     "vue-router": "^3.0.1",
     "vue-timeago": "^5.0.0",
     "vue2vis": "0.0.15",
@@ -40,7 +40,7 @@
     "sass-loader": "^7.0.1",
     "svg-arc-to-cubic-bezier": "3.1.0",
     "vue-cli-plugin-bootstrap-vue": "^0.1.0",
-    "vue-cli-plugin-i18n": "^0.5.0",
+    "vue-cli-plugin-i18n": "^0.5.1",
     "vue-template-compiler": "^2.5.17"
   }
 }
