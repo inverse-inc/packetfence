@@ -26,7 +26,7 @@ sub init {
     my ($self) = @_;
     $self->{file} = $dns_filters_config_file;
     $self->{child_resources} = [ 'FilterEngine::DNS_Scopes'];
-    my $defaults = Config::IniFiles->new( -file => $dns_filters_default_config_file);
+    my $defaults = pf::IniFiles->new( -file => $dns_filters_default_config_file);
     $self->{added_params}->{'-import'} = $defaults;
 }
 

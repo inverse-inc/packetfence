@@ -24,6 +24,7 @@ use Time::HiRes qw(stat time);
 *errors = \@Config::IniFiles::errors;
 use List::MoreUtils qw(all first_index uniq);
 use Scalar::Util qw(tainted reftype);
+our $PrettyName;
 
 =head2 new
 
@@ -363,6 +364,64 @@ sub TIEHASH {
     die "cannot create a tied pf::IniFiles"
         unless $object;
     return $object;
+}
+
+my $RET_CONTINUE = 1;
+# Return 1 to continue - undef to terminate the loop.
+sub _ReadConfig_handle_line
+{
+    my ($self, $fh, $line) = @_;
+
+    my $allCmt = $self->{allowed_comment_char};
+
+    # ignore blank lines
+    if ($line =~ /\A\s*\z/)
+    {
+        return $RET_CONTINUE;
+    }
+
+    # collect comments
+    if ($line =~/\A\s*[$allCmt]/)
+    {
+        return $self->_ReadConfig_handle_comment($line);
+    }
+
+    # New Section
+    if (my ($sect) = $line =~ /\A\s*\[\s*(\S|\S.*\S)\s*\]\s*\z/)
+    {
+        return $self->_ReadConfig_new_section($sect);
+    }
+
+    # New parameter
+    if (my ($parm, $value_to_assign) = $line =~ /^\s*([^=]*?[^=\s])\s*=\s*(.*)$/)
+    {
+        return $self->_ReadConfig_param_assignment($fh, $line, $parm, $value_to_assign);
+    }
+
+    $self->_add_error(
+        sprintf("Line %d in file %s is mal-formed:\n\t\%s",
+            $self->_read_line_num(), $self->GetFileNameForError(), $line
+        )
+    );
+
+    return $RET_CONTINUE;
+}
+
+=head2 GetFileNameForError
+
+Get file name for error
+
+=cut
+
+sub GetFileNameForError {
+    my ($self) = @_;
+    my $cf = $self->GetFileName();
+    my $ref = ref $cf;
+    if ($ref eq 'SCALAR' || ref eq 'IO::SCALAR') {
+        return $PrettyName // '<unknown>';
+    }
+
+    return $cf;
 }
 
 =head1 AUTHOR

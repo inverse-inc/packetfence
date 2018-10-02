@@ -18,7 +18,7 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use Config::IniFiles;
+use pf::IniFiles;
 use pf::log;
 use pf::file_paths qw($switches_config_file $switches_default_config_file);
 use pf::util;
@@ -33,7 +33,7 @@ sub init {
 
     $self->{management_network} = $self->{cache}->get_cache('interfaces::management_network');
     $self->{local_secret} = $self->{cache}->get_cache('resource::local_secret');
-    my $defaults = Config::IniFiles->new(-file => $switches_default_config_file);
+    my $defaults = pf::IniFiles->new(-file => $switches_default_config_file);
     $self->{added_params}{'-import'} = $defaults;
 }
 

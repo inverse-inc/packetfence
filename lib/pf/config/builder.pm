@@ -78,11 +78,12 @@ sub buildData {
     foreach my $id ( @{$buildData->{ini_sections}}) {
         my $entry = $self->getSectionData($ini, $id);
         next if $self->skipEntry($buildData, $id, $entry);
-        if ($entry = $self->buildEntry($buildData, $id, $entry)) {
+        if (defined ($entry = $self->buildEntry($buildData, $id, $entry))) {
             $buildData->{entries}{$id} = $entry;
         }
     }
 
+    $self->cleanupBuildData($buildData);
     return $buildData;
 }
 
@@ -96,6 +97,14 @@ sub buildEntry {
     my ($self, $buildData, $id, $entry) = @_;
     return $entry;
 }
+
+=head2 cleanupBuildData
+
+cleanupBuildData
+
+=cut
+
+sub cleanupBuildData { }
 
 =head1 AUTHOR
 

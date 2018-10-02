@@ -16,7 +16,7 @@ Configuration access to pfconfig.conf
 
 use pfconfig::constants;
 use UNIVERSAL::require;
-use Config::IniFiles;
+use pf::IniFiles;
 use pf::util;
 use pf::log;
 
@@ -44,7 +44,7 @@ sub init {
     my $file = $pfconfig::constants::CONFIG_FILE_PATH;
 
     my %cfg;
-    tie %cfg, 'Config::IniFiles', ( -file => $file );
+    tie %cfg, 'pf::IniFiles', ( -file => $file );
 
     $self->{cfg} = \%cfg;
 }

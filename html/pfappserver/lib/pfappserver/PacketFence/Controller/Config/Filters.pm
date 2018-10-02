@@ -16,6 +16,7 @@ use namespace::autoclean;
 
 use pf::constants qw($TRUE);
 use File::Slurp;
+use pf::IniFiles;
 use pf::constants::filters qw(%FILTERS_IDENTIFIERS %CONFIGSTORE_MAP %ENGINE_MAP);
 use pfconfig::manager;
 
@@ -82,8 +83,16 @@ Update a filters configuration
 sub update :Chained('object') :PathPart :Args(0) {
     my ($self, $c) = @_;
     $c->stash->{current_view} = 'JSON';
+    my $content = $c->request->param('content');
+    local $pf::IniFiles::PrettyName = $c->stash->{id};
+    my $ini = pf::IniFiles->new(-file => \$content);
+    if (!defined $ini) {
+        $c->stash->{status_msg} = [ "There are errors in the file [_1]. Your file was not been saved.", join(", ", map { $self->_clean_error($_)} @pf::IniFiles::errors) ];
+        $c->response->status(HTTP_BAD_REQUEST);
+        return;
+    }
 
-    pf::util::safe_file_update($c->stash->{object}->configFile, $c->request->param('content'));
+    pf::util::safe_file_update($c->stash->{object}->configFile, $content);
     $self->audit_current_action($c, configfile => $c->stash->{object}->configFile );
 
     my $manager = pfconfig::manager->new;
@@ -91,7 +100,7 @@ sub update :Chained('object') :PathPart :Args(0) {
     my $namespace = $manager->get_namespace($ENGINE_MAP{$c->stash->{id}});
     $namespace->build();
     if(defined($namespace->{errors}) && @{$namespace->{errors}} > 0){
-        my @errors = map {$self->_clean_error($_)} @{$namespace->{errors}};
+        my @errors = map {$self->_clean_error("$_->{rule}> $_->{message}")} @{$namespace->{errors}};
         $c->stash->{status_msg} = [ "There are errors in the file, check server side logs for details : [_1]. Your file has been saved but the configuration has not been made active.", join(", ", @errors) ];
         $c->response->status(HTTP_BAD_REQUEST);
     }

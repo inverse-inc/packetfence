@@ -18,7 +18,6 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use Config::IniFiles;
 use pf::file_paths qw($admin_roles_config_file);
 use pf::constants::admin_roles;
 

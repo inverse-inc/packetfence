@@ -17,6 +17,7 @@ use Fcntl ':mode'; # symbolic file permissions
 use Try::Tiny;
 use Readonly;
 
+use pf::constants::filters;
 use pf::validation::profile_filters;
 use pf::constants;
 use pf::constants::config qw($TIME_MODIFIER_RE);
@@ -72,6 +73,7 @@ use pf::factory::condition::profile;
 use pf::condition_parser qw(parse_condition_string);
 use pf::cluster;
 use pf::config::builder::pfdetect;
+use pf::config::builder::scoped_filter_engines;
 use pf::IniFiles;
 
 use lib $conf_dir;
@@ -170,6 +172,7 @@ sub sanity_check {
     provisioning();
     scan();
     pfdetect();
+    validate_access_filters();
 
     return @problems;
 }
@@ -1031,21 +1034,24 @@ sub vlan_filter_rules {
     require pf::access_filter::vlan;
     my %ConfigVlanFilters = %pf::access_filter::vlan::ConfigVlanFilters;
     foreach my $rule  ( sort keys  %ConfigVlanFilters ) {
+        my $rule_data = $ConfigVlanFilters{$rule};
         if ($rule =~ /^[^:]+:(.*)$/) {
             my ($condition, $msg) = parse_condition_string($1);
             add_problem ( $WARN, "Cannot parse condition '$1' in $rule for vlan filter rule" . "\n" . $msg)
                 if !defined $condition;
             add_problem ( $WARN, "Missing scope attribute in $rule vlan filter rule")
-                if (!defined($ConfigVlanFilters{$rule}->{'scope'}));
+                if (!defined($rule_data->{'scope'}));
             add_problem ( $WARN, "Missing role attribute in $rule vlan filter rule")
-                if (!defined($ConfigVlanFilters{$rule}->{'role'}));
+                if (!defined($rule_data->{'role'}));
         } else {
             add_problem ( $WARN, "Missing filter attribute in $rule vlan filter rule")
-                if (!defined($ConfigVlanFilters{$rule}->{'filter'}));
-            add_problem ( $WARN, "Missing operator attribute in $rule vlan filter rule")
-                if (!defined($ConfigVlanFilters{$rule}->{'operator'}));
-            add_problem ( $WARN, "Missing value attribute in $rule vlan filter rule")
-                if (!defined($ConfigVlanFilters{$rule}->{'value'}) && $ConfigVlanFilters{$rule}->{'operator'} ne 'defined' && $ConfigVlanFilters{$rule}->{'operator'} ne 'not_defined');
+                if (!defined($rule_data->{'filter'}));
+            if (!defined($rule_data->{'operator'})) {
+                add_problem ( $WARN, "Missing operator attribute in $rule vlan filter rule");
+            } else {
+                add_problem ( $WARN, "Missing value attribute in $rule vlan filter rule")
+                    if (!defined($rule_data->{'value'}) && $rule_data->{'operator'} ne 'defined' && $rule_data->{'operator'} ne 'not_defined');
+            }
         }
     }
 }
@@ -1317,6 +1323,27 @@ sub pfdetect {
         my $error_msg =  "$file: $err->{rule}) $err->{message}";
         add_problem($WARN, $error_msg);
     }
+}
+
+=head2 validate_access_filters
+
+Validate Access Filters
+
+=cut
+
+sub validate_access_filters {
+    my $builder = pf::config::builder::scoped_filter_engines->new();
+    while (my ($f, $cs) = each %pf::constants::filters::CONFIGSTORE_MAP) {
+        next if $f eq 'apache-filters';
+       my $ini = $cs->configIniFile();
+       my ($errors, undef) = $builder->build($ini);
+       if ($errors) {
+            foreach my $err (@$errors) {
+                add_problem($WARN, "$f: $err->{rule}) $err->{message}");
+            }
+       }
+    }
+    return ;
 }
 
 =back

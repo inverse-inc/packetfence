@@ -19,7 +19,7 @@ use warnings;
 
 use JSON::MaybeXS;
 use pfconfig::namespaces::config;
-use Config::IniFiles;
+use pf::IniFiles;
 use File::Slurp qw(read_file);
 use pf::log;
 use pf::file_paths qw(
@@ -40,9 +40,9 @@ sub build {
 
     my %tmp_cfg;
 
-    my $pf_conf_defaults = Config::IniFiles->new( -file => $pf_default_file );
+    my $pf_conf_defaults = pf::IniFiles->new( -file => $pf_default_file );
 
-    tie %tmp_cfg, 'Config::IniFiles', ( -file => $self->{file}, -import => $pf_conf_defaults );
+    tie %tmp_cfg, 'pf::IniFiles', ( -file => $self->{file}, -import => $pf_conf_defaults );
 
     # for pfcmd checkup
     $self->{_file_cfg} = {%tmp_cfg};

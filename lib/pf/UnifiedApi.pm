@@ -251,6 +251,17 @@ our @API_V1_ROUTES = (
                     post => 'invalidate_cache',
                 }
             }
+        }
+    },
+    {
+        controller => 'Config::Filters',
+        collection => undef,
+        resource => {
+            http_methods => {
+                get => 'get',
+                put => 'replace',
+            },
+            subroutes => undef,
         },
     },
     {
