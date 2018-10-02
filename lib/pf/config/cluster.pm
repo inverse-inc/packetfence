@@ -56,6 +56,12 @@ our $cluster_enabled = sub {
     }
 }->();
 
+=head2 cluster_ini_config
+
+Get the cluster.conf Config::IniFiles object
+
+=cut
+
 sub cluster_ini_config {
     my $cfg = Config::IniFiles->new( -file => $cluster_config_file );
     return $cfg;
