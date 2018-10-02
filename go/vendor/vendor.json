@@ -7,10 +7,10 @@
 			"revision": ""
 		},
 		{
-			"checksumSHA1": "7mprbpj02WcgC9xu1zprEodfEi0=",
+			"checksumSHA1": "71CUlwPjyFSBuuyiQvl4YHDR5Rs=",
 			"path": "github.com/RoaringBitmap/roaring",
-			"revision": "66171eeecb4dd93bf42f097a64b5b56982e76966",
-			"revisionTime": "2018-01-24T21:16:33Z"
+			"revision": "627b662e6d11b18beaff2266712a59f8845f3d35",
+			"revisionTime": "2018-08-20T16:54:55Z"
 		},
 		{
 			"checksumSHA1": "TFCZLa7falNwfCedc4wHtdu7P58=",

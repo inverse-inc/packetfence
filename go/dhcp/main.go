@@ -278,6 +278,8 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 
 	if VIP[h.Name] {
 
+		answer.Local = handler.layer2
+
 		log.LoggerWContext(ctx).Debug(p.CHAddr().String() + " " + msgType.String() + " xID " + sharedutils.ByteToString(p.XId()))
 
 		GlobalTransactionLock.Lock()
@@ -320,7 +322,7 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 				// Check if the device request a specific ip
 				if p.ParseOptions()[50] != nil && firstTry {
 					log.LoggerWContext(ctx).Debug("Attempting to use the IP requested by the device")
-					element := uint32(binary.BigEndian.Uint32(p.ParseOptions()[50])) - uint32(binary.BigEndian.Uint32(handler.start.To4()))
+					element = uint32(binary.BigEndian.Uint32(p.ParseOptions()[50])) - uint32(binary.BigEndian.Uint32(handler.start.To4()))
 					if handler.available.Contains(element) {
 						// Ip is available, return OFFER with this ip address
 						free = int(element)
@@ -330,9 +332,17 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 				// If we still haven't found an IP address to offer, we get the next one
 				if free == 0 {
 					log.LoggerWContext(ctx).Debug("Grabbing next available IP")
-					element := uint32(r.Intn(len(handler.available.ToArray())) - 1)
-					handler.available.Remove(element)
-					free = int(element)
+					GlobalTransactionLock.Lock()
+					element = uint32(r.Intn(len(handler.available.ToArray())) - 1)
+					if handler.available.CheckedRemove(element) {
+						free = int(element)
+						GlobalTransactionLock.Unlock()
+					} else {
+						log.LoggerWContext(ctx).Debug("Error when remove from the pool, trying next")
+						free = 0
+						GlobalTransactionLock.Unlock()
+						goto retry
+					}
 				}
 
 				// Lock it
@@ -452,8 +462,19 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 						// Requested IP is equal to what we have in the cache ?
 
 						if dhcp.IPAdd(handler.start, index.(int)).Equal(reqIP) {
-							Reply = true
-							Index = index.(int)
+							GlobalTransactionLock.Lock()
+							cacheKey := p.CHAddr().String() + " " + msgType.String() + " xID " + sharedutils.ByteToString(p.XId())
+							if _, found = GlobalTransactionCache.Get(cacheKey); found {
+								log.LoggerWContext(ctx).Debug("Not answering to REQUEST. Already processed")
+								Reply = false
+								GlobalTransactionLock.Unlock()
+								return answer
+							} else {
+								Reply = true
+								Index = index.(int)
+								GlobalTransactionCache.Set(cacheKey, 1, time.Duration(1)*time.Second)
+								GlobalTransactionLock.Unlock()
+							}
 							// So remove the ip from the cache
 						} else {
 							Reply = false
