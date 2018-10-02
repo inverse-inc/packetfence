@@ -31,6 +31,7 @@ use pfappserver::Form::Interface::Create;
 use pfappserver::Base::Action::AdminRole;
 use pf::config;
 use List::MoreUtils qw(all);
+use pf::config::cluster;
 
 BEGIN {
     extends 'Catalyst::Controller';
@@ -51,6 +52,8 @@ sub begin :Private {
     my ( $self, $c ) = @_;
 
     $c->stash->{current_view} = 'HTML';
+
+    $c->stash->{cluster_multi_zone} = $multi_zone_enabled;
 
     # Only show the interfaces networks when in the admin app.
     # We know we're in the configurator when the 'enforcements' session variable is defined.
