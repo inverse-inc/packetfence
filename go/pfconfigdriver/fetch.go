@@ -31,6 +31,8 @@ var myHostname string
 
 var myClusterName string
 
+var clusterSummary *ClusterSummary
+
 var nsHasOverlayRe = regexp.MustCompile(`.*\(.*\)$`)
 
 func init() {
@@ -214,14 +216,15 @@ func createQuery(ctx context.Context, o PfconfigObject) Query {
 		query.ns = query.ns + "(" + myHostname + ")"
 	}
 
-	//TODO: only do this if cluster is enabled
-	if metadataFromField(ctx, o, "PfconfigClusterNameOverlay") == "yes" && !nsHasOverlayRe.MatchString(query.ns) {
-		clusterName := FindClusterName(ctx)
-		if clusterName == "" {
-			panic("Can't determine cluster name for this host")
-		}
+	if GetClusterSummary().ClusterEnabled {
+		if metadataFromField(ctx, o, "PfconfigClusterNameOverlay") == "yes" && !nsHasOverlayRe.MatchString(query.ns) {
+			clusterName := FindClusterName(ctx)
+			if clusterName == "" {
+				panic("Can't determine cluster name for this host")
+			}
 
-		query.ns = query.ns + "(" + clusterName + ")"
+			query.ns = query.ns + "(" + clusterName + ")"
+		}
 	}
 
 	query.method = metadataFromField(ctx, o, "PfconfigMethod")
@@ -320,4 +323,25 @@ func FetchDecodeSocket(ctx context.Context, o PfconfigObject) error {
 	o.SetLoadedAt(time.Now())
 
 	return nil
+}
+
+func GetClusterSummary(ctx context.Context) ClusterSummary {
+	if clusterSummary != nil {
+		return *clusterSummary
+	}
+
+	query := Query{}
+	query.ns = "resource::cluster_summary"
+	query.method = "element"
+	query.encoding = "json"
+
+	clusterSummary = &ClusterSummary{}
+
+	jsonResponse := FetchSocket(ctx, query.GetPayload())
+	receiver := &PfconfigElementResponse{}
+	decodeInterface(ctx, query.encoding, jsonResponse, receiver)
+	b, _ := receiver.Element.MarshalJSON()
+	decodeInterface(ctx, query.encoding, b, clusterSummary)
+
+	return *clusterSummary
 }

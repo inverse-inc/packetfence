@@ -39,9 +39,13 @@ sub build_child {
     $self->cleanup_whitespaces(\%cfg);
 
     if($cfg{general} && isenabled($cfg{general}{multi_zone})) {
+        $self->{multi_zone_enabled} = 1;
+        $self->{cluster_enabled} = 1;
         return $self->build_multi_zone(\%cfg);
     }
     else {
+        $self->{multi_zone_enabled} = 0;
+        $self->{cluster_enabled} = $cfg{CLUSTER}{management_ip} ? 1 : 0;
         return $self->build_single_cluster("DEFAULT", $self->{ordered_sections}, \%cfg);
     }
 }

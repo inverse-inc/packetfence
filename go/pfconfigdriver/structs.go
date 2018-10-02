@@ -408,3 +408,9 @@ type PfStats struct {
 	ApiPath                 string `json:"api_path"`
 	ApiCompile              string `json:"api_compile"`
 }
+
+type ClusterSummary struct {
+	StructConfig
+	ClusterEnabled   int `json:"cluster_enabled"`
+	MultiZoneEnabled int `json:"multi_zone_enabled"`
+}
