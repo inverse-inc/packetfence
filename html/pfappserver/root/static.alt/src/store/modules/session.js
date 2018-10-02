@@ -58,7 +58,7 @@ const getters = {
 }
 
 const actions = {
-  load: ({state, dispatch}) => {
+  load: ({ state, dispatch }) => {
     if (state.token) {
       if (!state.username) {
         return dispatch('update', state.token)
@@ -68,7 +68,7 @@ const actions = {
       return Promise.reject(new Error('No token'))
     }
   },
-  update: ({commit, dispatch}, token) => {
+  update: ({ commit, dispatch }, token) => {
     localStorage.setItem(STORAGE_TOKEN_KEY, token)
     api.setToken(token)
     commit('TOKEN_UPDATED', token)
@@ -96,24 +96,24 @@ const actions = {
       commit('ROLES_UPDATED', roles)
     })
   },
-  delete: ({commit, dispatch}) => {
+  delete: ({ commit, dispatch }) => {
     localStorage.removeItem(STORAGE_TOKEN_KEY)
     commit('TOKEN_DELETED')
     commit('USERNAME_DELETED')
     commit('ROLES_DELETED')
   },
-  getTokenInfo: ({commit, dispatch}) => {
+  getTokenInfo: ({ commit, dispatch }) => {
     return api.getTokenInfo().then(response => {
       commit('USERNAME_UPDATED', response.data.item.username)
       return response.data.item.admin_roles
     })
   },
-  getTenants: ({commit}) => {
+  getTenants: ({ commit }) => {
     return api.getTenants().then(response => {
       commit('TENANTS_UPDATED', response.data)
     })
   },
-  setLanguage: ({state, commit}, params) => {
+  setLanguage: ({ state, commit }, params) => {
     if (params.i18n.locale !== params.lang || state.languages.indexOf(params.lang) < 0) {
       if (state.languages.indexOf(params.lang) < 0) {
         return api.getLanguage(params.lang).then(response => {

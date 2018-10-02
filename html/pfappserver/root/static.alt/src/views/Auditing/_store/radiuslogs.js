@@ -29,28 +29,28 @@ const getters = {
 }
 
 const actions = {
-  setSearchFields: ({commit}, fields) => {
+  setSearchFields: ({ commit }, fields) => {
     commit('SEARCH_FIELDS_UPDATED', fields)
   },
-  setSearchQuery: ({commit}, query) => {
+  setSearchQuery: ({ commit }, query) => {
     commit('SEARCH_QUERY_UPDATED', query)
     commit('SEARCH_MAX_PAGE_NUMBER_UPDATED', 1) // reset page count
   },
-  setSearchPageSize: ({commit}, limit) => {
+  setSearchPageSize: ({ commit }, limit) => {
     localStorage.setItem(STORAGE_SEARCH_LIMIT_KEY, limit)
     commit('SEARCH_LIMIT_UPDATED', limit)
     commit('SEARCH_MAX_PAGE_NUMBER_UPDATED', 1) // reset page count
   },
-  setSearchSorting: ({commit}, params) => {
+  setSearchSorting: ({ commit }, params) => {
     commit('SEARCH_SORT_BY_UPDATED', params.sortBy)
     commit('SEARCH_SORT_DESC_UPDATED', params.sortDesc)
     commit('SEARCH_MAX_PAGE_NUMBER_UPDATED', 1) // reset page count
   },
-  setVisibleColumns: ({commit}, columns) => {
+  setVisibleColumns: ({ commit }, columns) => {
     localStorage.setItem(STORAGE_VISIBLE_COLUMNS_KEY, JSON.stringify(columns))
     commit('VISIBLE_COLUMNS_UPDATED', columns)
   },
-  search: ({state, getters, commit, dispatch}, page) => {
+  search: ({ state, getters, commit, dispatch }, page) => {
     let sort = [state.searchSortDesc ? `${state.searchSortBy} DESC` : state.searchSortBy]
     let body = {
       cursor: state.searchPageSize * (page - 1),
@@ -58,7 +58,7 @@ const actions = {
       fields: state.searchFields,
       sort
     }
-    let apiPromise = state.searchQuery ? api.search(Object.assign(body, {query: state.searchQuery})) : api.all(body)
+    let apiPromise = state.searchQuery ? api.search(Object.assign(body, { query: state.searchQuery })) : api.all(body)
     if (state.searchStatus !== 'loading') {
       return new Promise((resolve, reject) => {
         commit('SEARCH_REQUEST')
@@ -72,7 +72,7 @@ const actions = {
       })
     }
   },
-  getItem: ({state, commit}, id) => {
+  getItem: ({ state, commit }, id) => {
     if (state.cache[id]) {
       return Promise.resolve(state.cache[id])
     }

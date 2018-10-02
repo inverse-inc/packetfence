@@ -227,7 +227,7 @@ export default {
       handler: function (a, b) {
         // clear if query param !== condition
         if (JSON.stringify(a) !== this.query) {
-          this.$router.push({query: null})
+          this.$router.push({ query: null })
         }
         if (a !== b) {
           if (a === undefined || a === null) {

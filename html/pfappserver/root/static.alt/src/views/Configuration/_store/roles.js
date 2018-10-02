@@ -22,7 +22,7 @@ const getters = {
 }
 
 const actions = {
-  getRole: ({state, commit}, id) => {
+  getRole: ({ state, commit }, id) => {
     if (state.cache[id]) {
       return Promise.resolve(state.cache[id])
     }
@@ -33,7 +33,7 @@ const actions = {
       commit('ITEM_ERROR', err.response)
     })
   },
-  updateRole: ({commit}, data) => {
+  updateRole: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     return api.updateRole(data).then(response => {
       commit('ITEM_REPLACED', data)
@@ -41,7 +41,7 @@ const actions = {
       commit('ITEM_ERROR', err.response)
     })
   },
-  deleteRole: ({commit}, data) => {
+  deleteRole: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     return api.deleteRole(data).then(response => {
       commit('ITEM_DESTROYED', data)

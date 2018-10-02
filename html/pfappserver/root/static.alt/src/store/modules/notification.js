@@ -12,7 +12,7 @@ const getters = {
 
 const actions = {
   // data is expected to be either a string or an object with a 'message' property
-  info: ({commit}, data) => {
+  info: ({ commit }, data) => {
     let notification = {
       variant: 'info',
       icon: 'info-circle',
@@ -22,7 +22,7 @@ const actions = {
     }
     commit('NOTIFICATION', { base: notification, data })
   },
-  warning: ({commit}, data) => {
+  warning: ({ commit }, data) => {
     let notification = {
       variant: 'warning',
       icon: 'exclamation-triangle',
@@ -32,7 +32,7 @@ const actions = {
     }
     commit('NOTIFICATION', { base: notification, data })
   },
-  danger: ({commit}, data) => {
+  danger: ({ commit }, data) => {
     let notification = {
       variant: 'danger',
       icon: 'ban',
@@ -42,7 +42,7 @@ const actions = {
     }
     commit('NOTIFICATION', { base: notification, data })
   },
-  status_success: ({commit}, data) => {
+  status_success: ({ commit }, data) => {
     let notification = {
       variant: 'success',
       icon: 'check',
@@ -52,7 +52,7 @@ const actions = {
     }
     commit('NOTIFICATION', { base: notification, data })
   },
-  status_skipped: ({commit}, data) => {
+  status_skipped: ({ commit }, data) => {
     let notification = {
       variant: 'warning',
       icon: 'exclamation-circle',
@@ -62,7 +62,7 @@ const actions = {
     }
     commit('NOTIFICATION', { base: notification, data })
   },
-  status_failed: ({commit}, data) => {
+  status_failed: ({ commit }, data) => {
     let notification = {
       variant: 'danger',
       icon: 'ban',

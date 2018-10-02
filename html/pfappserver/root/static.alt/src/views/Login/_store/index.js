@@ -9,7 +9,7 @@ const getters = {
 }
 
 const actions = {
-  login: ({state, getters, commit, dispatch}, user) => {
+  login: ({ state, getters, commit, dispatch }, user) => {
     return new Promise((resolve, reject) => {
       commit('LOGIN_REQUEST')
       api.login(user).then(response => {
@@ -25,7 +25,7 @@ const actions = {
       })
     })
   },
-  logout: ({commit, dispatch}) => {
+  logout: ({ commit, dispatch }) => {
     return new Promise((resolve, reject) => {
       dispatch('session/delete', null, { root: true })
       resolve()

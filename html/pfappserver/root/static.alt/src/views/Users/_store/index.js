@@ -20,7 +20,7 @@ const getters = {
 }
 
 const actions = {
-  addSavedSearch: ({commit}, search) => {
+  addSavedSearch: ({ commit }, search) => {
     let savedSearches = state.savedSearches
     savedSearches = state.savedSearches.filter(searches => searches.name !== search.name)
     savedSearches.push(search)
@@ -30,12 +30,12 @@ const actions = {
     commit('SAVED_SEARCHES_UPDATED', savedSearches)
     localStorage.setItem(STORAGE_SAVED_SEARCH, JSON.stringify(savedSearches))
   },
-  deleteSavedSearch: ({commit}, search) => {
+  deleteSavedSearch: ({ commit }, search) => {
     let savedSearches = state.savedSearches.filter(searches => searches.name !== search.name)
     commit('SAVED_SEARCHES_UPDATED', savedSearches)
     localStorage.setItem(STORAGE_SAVED_SEARCH, JSON.stringify(savedSearches))
   },
-  exists: ({commit}, pid) => {
+  exists: ({ commit }, pid) => {
     if (state.userExists.hasOwnProperty(pid)) {
       if (state.userExists[pid]) {
         return Promise.resolve(true)
@@ -66,7 +66,7 @@ const actions = {
       })
     })
   },
-  getUser: ({commit, state}, pid) => {
+  getUser: ({ commit, state }, pid) => {
     if (state.items[pid]) {
       return Promise.resolve(state.items[pid])
     }
@@ -79,7 +79,7 @@ const actions = {
       return err
     })
   },
-  createUser: ({commit}, data) => {
+  createUser: ({ commit }, data) => {
     commit('USER_REQUEST')
     return new Promise((resolve, reject) => {
       api.createUser(data).then(response => {
@@ -92,7 +92,7 @@ const actions = {
       })
     })
   },
-  updateUser: ({commit}, data) => {
+  updateUser: ({ commit }, data) => {
     commit('USER_REQUEST')
     delete data.access_duration
     delete data.access_level
@@ -103,7 +103,7 @@ const actions = {
       commit('USER_ERROR', err.response)
     })
   },
-  deleteUser: ({commit}, pid) => {
+  deleteUser: ({ commit }, pid) => {
     commit('USER_REQUEST')
     return new Promise((resolve, reject) => {
       api.deleteUser(pid).then(response => {

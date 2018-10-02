@@ -50,77 +50,77 @@
 </template>
 
 <script>
-  import pfFormToggle from '@/components/pfFormToggle'
-  import pfFormInput from '@/components/pfFormInput'
-  const { validationMixin } = require('vuelidate')
-  const { required, email } = require('vuelidate/lib/validators')
+import pfFormToggle from '@/components/pfFormToggle'
+import pfFormInput from '@/components/pfFormInput'
+const { validationMixin } = require('vuelidate')
+const { required, email } = require('vuelidate/lib/validators')
 
-  export default {
-    name: 'UserView',
-    components: {
-      'pf-form-toggle': pfFormToggle,
-      'pf-form-input': pfFormInput
-    },
-    mixins: [
-      validationMixin
-    ],
-    props: {
-      pid: String
-    },
-    data () {
-      return {
-        userContent: {
-          // Must at least define all fields that require validation
-          email: '',
-          notes: ''
-        }
-      }
-    },
-    validations: {
+export default {
+  name: 'UserView',
+  components: {
+    'pf-form-toggle': pfFormToggle,
+    'pf-form-input': pfFormInput
+  },
+  mixins: [
+    validationMixin
+  ],
+  props: {
+    pid: String
+  },
+  data () {
+    return {
       userContent: {
-        email: { email, required }
+        // Must at least define all fields that require validation
+        email: '',
+        notes: ''
       }
-    },
-    computed: {
-      node () {
-        return this.$store.state.$_users.users[this.pid]
-      },
-      isLoading () {
-        return this.$store.getters['$_users/isLoading']
-      },
-      invalidForm () {
-        return this.$v.userContent.$invalid || this.$store.getters['$_users/isLoading']
-      }
-    },
-    methods: {
-      close () {
-        this.$router.push({ name: 'users' })
-      },
-      save () {
-        this.$store.dispatch('$_users/updateUser', this.userContent).then(response => {
-          this.close()
-        })
-      },
-      deleteUser () {
-        this.$store.dispatch('$_users/deleteUser', this.pid).then(response => {
-          this.close()
-        })
-      },
-      onKeyup (event) {
-        switch (event.keyCode) {
-          case 27: // escape
-            this.close()
-        }
-      }
-    },
-    mounted () {
-      this.$store.dispatch('$_users/getUser', this.pid).then(data => {
-        this.userContent = Object.assign({}, data)
-      })
-      document.addEventListener('keyup', this.onKeyup)
-    },
-    beforeDestroy () {
-      document.removeEventListener('keyup', this.onKeyup)
     }
+  },
+  validations: {
+    userContent: {
+      email: { email, required }
+    }
+  },
+  computed: {
+    node () {
+      return this.$store.state.$_users.users[this.pid]
+    },
+    isLoading () {
+      return this.$store.getters['$_users/isLoading']
+    },
+    invalidForm () {
+      return this.$v.userContent.$invalid || this.$store.getters['$_users/isLoading']
+    }
+  },
+  methods: {
+    close () {
+      this.$router.push({ name: 'users' })
+    },
+    save () {
+      this.$store.dispatch('$_users/updateUser', this.userContent).then(response => {
+        this.close()
+      })
+    },
+    deleteUser () {
+      this.$store.dispatch('$_users/deleteUser', this.pid).then(response => {
+        this.close()
+      })
+    },
+    onKeyup (event) {
+      switch (event.keyCode) {
+        case 27: // escape
+          this.close()
+      }
+    }
+  },
+  mounted () {
+    this.$store.dispatch('$_users/getUser', this.pid).then(data => {
+      this.userContent = Object.assign({}, data)
+    })
+    document.addEventListener('keyup', this.onKeyup)
+  },
+  beforeDestroy () {
+    document.removeEventListener('keyup', this.onKeyup)
   }
+}
 </script>

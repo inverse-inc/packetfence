@@ -74,28 +74,28 @@ export default class SearchableStore {
     }
 
     const actions = {
-      setSearchFields: ({commit}, fields) => {
+      setSearchFields: ({ commit }, fields) => {
         commit('SEARCH_FIELDS_UPDATED', fields)
       },
-      setSearchQuery: ({commit}, query) => {
+      setSearchQuery: ({ commit }, query) => {
         commit('SEARCH_QUERY_UPDATED', query)
         commit('SEARCH_MAX_PAGE_NUMBER_UPDATED', 1) // reset page count
       },
-      setSearchPageSize: ({commit}, limit) => {
+      setSearchPageSize: ({ commit }, limit) => {
         localStorage.setItem(_this.storage_search_limit_key, limit)
         commit('SEARCH_LIMIT_UPDATED', limit)
         commit('SEARCH_MAX_PAGE_NUMBER_UPDATED', 1) // reset page count
       },
-      setSearchSorting: ({commit}, params) => {
+      setSearchSorting: ({ commit }, params) => {
         commit('SEARCH_SORT_BY_UPDATED', params.sortBy)
         commit('SEARCH_SORT_DESC_UPDATED', params.sortDesc)
         commit('SEARCH_MAX_PAGE_NUMBER_UPDATED', 1) // reset page count
       },
-      setVisibleColumns: ({commit}, columns) => {
+      setVisibleColumns: ({ commit }, columns) => {
         localStorage.setItem(_this.storage_visible_columns_key, JSON.stringify(columns))
         commit('VISIBLE_COLUMNS_UPDATED', columns)
       },
-      search: ({state, getters, commit, dispatch}, page) => {
+      search: ({ state, getters, commit, dispatch }, page) => {
         let sort = [state.searchSortDesc ? `${state.searchSortBy} DESC` : state.searchSortBy]
         let body = {
           cursor: state.searchPageSize * (page - 1),
@@ -103,7 +103,7 @@ export default class SearchableStore {
           fields: state.searchFields,
           sort
         }
-        let apiPromise = state.searchQuery ? _this.api.search(Object.assign(body, {query: state.searchQuery})) : _this.api.all(body)
+        let apiPromise = state.searchQuery ? _this.api.search(Object.assign(body, { query: state.searchQuery })) : _this.api.all(body)
         if (state.searchStatus !== types.LOADING) {
           commit('SEARCH_REQUEST')
           return new Promise((resolve, reject) => {
@@ -117,7 +117,7 @@ export default class SearchableStore {
           })
         }
       },
-      getItem: ({state, commit}, id) => {
+      getItem: ({ state, commit }, id) => {
         if (state.cache[id]) {
           return Promise.resolve(state.cache[id])
         }

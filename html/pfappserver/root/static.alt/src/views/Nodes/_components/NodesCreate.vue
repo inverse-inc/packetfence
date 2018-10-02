@@ -7,16 +7,16 @@
       <b-form @submit.prevent="create()">
         <b-form-row align-v="center">
           <b-col sm="8">
-            <pf-form-input v-model="single.mac" :column-label="$t('MAC')" 
+            <pf-form-input v-model="single.mac" :column-label="$t('MAC')"
               :filter="globals.regExp.stringMac"
-              :validation="$v.single.mac" 
+              :validation="$v.single.mac"
               :invalid-feedback="[
                 { [$t('MAC address required')]: !$v.single.mac.required },
                 { [$t('Enter a valid MAC address')]: !$v.single.mac.macAddress || !$v.single.mac.minLength || !$v.single.mac.maxLength },
                 { [$t('MAC address already exists')]: !$v.single.mac.nodeExists }
               ]
             "/>
-            <pf-form-autocomplete v-model="single.pid" :column-label="$t('Owner')" placeholder="default" @search="searchUsers" 
+            <pf-form-autocomplete v-model="single.pid" :column-label="$t('Owner')" placeholder="default" @search="searchUsers"
               :suggestions="matchingUsers"
               :validation="$v.single.pid"
               :invalid-feedback="[
@@ -158,10 +158,10 @@ export default {
           values: [{
             op: 'or',
             values: [
-              {field: 'pid', op: 'contains', value: this.single.pid},
-              {field: 'firstname', op: 'contains', value: this.single.pid},
-              {field: 'lastname', op: 'contains', value: this.single.pid},
-              {field: 'email', op: 'contains', value: this.single.pid}
+              { field: 'pid', op: 'contains', value: this.single.pid },
+              { field: 'firstname', op: 'contains', value: this.single.pid },
+              { field: 'lastname', op: 'contains', value: this.single.pid },
+              { field: 'email', op: 'contains', value: this.single.pid }
             ]
           }]
         }
@@ -173,13 +173,13 @@ export default {
     create () {
       if (this.modeIndex === 0) {
         this.$store.dispatch('$_nodes/createNode', this.single).then(response => {
-          this.$store.dispatch('notification/info', {message: this.$i18n.t('Node') + ' ' + this.single.mac + ' ' + this.$i18n.t('created')})
+          this.$store.dispatch('notification/info', { message: this.$i18n.t('Node') + ' ' + this.single.mac + ' ' + this.$i18n.t('created') })
           this.single = {
             mac: '',
             status: 'reg'
           }
         }).catch(err => {
-          this.$store.dispatch('notification/danger', {message: this.$store.state[this.storeName].message})
+          this.$store.dispatch('notification/danger', { message: this.$store.state[this.storeName].message })
           console.debug(err)
           console.debug(this.$store.state[this.storeName].message)
         })

@@ -6,16 +6,16 @@ import apiCall from '@/utils/api'
 
 const api = {
   getRoles () {
-    return apiCall({url: 'node_categories', method: 'get'})
+    return apiCall({ url: 'node_categories', method: 'get' })
   },
   getSources () {
-    return apiCall({url: 'config/sources', method: 'get'})
+    return apiCall({ url: 'config/sources', method: 'get' })
   },
   getSwitches () {
-    return apiCall({url: 'config/switches', method: 'get'})
+    return apiCall({ url: 'config/switches', method: 'get' })
   },
   getViolations () {
-    return apiCall({url: 'config/violations', method: 'get'})
+    return apiCall({ url: 'config/violations', method: 'get' })
   }
 }
 
@@ -51,7 +51,7 @@ const helpers = {
     let ret = []
     let groups = [...new Set(switches.map(sw => sw.group))]
     groups.forEach(function (group, index, groups) {
-      ret.push({group: group, switches: switches.filter(sw => sw.group === group)})
+      ret.push({ group: group, switches: switches.filter(sw => sw.group === group) })
     })
     return ret
   }
@@ -79,7 +79,7 @@ const getters = {
 }
 
 const actions = {
-  getRoles: ({state, commit}) => {
+  getRoles: ({ state, commit }) => {
     if (state.roles.length === 0) {
       return api.getRoles().then(response => {
         commit('ROLES_UPDATED', response.data.items)
@@ -89,7 +89,7 @@ const actions = {
       return Promise.resolve(state.roles)
     }
   },
-  getSources: ({state, commit}) => {
+  getSources: ({ state, commit }) => {
     if (state.sources.length === 0) {
       return api.getSources().then(response => {
         commit('SOURCES_UPDATED', response.data.items)
@@ -99,12 +99,12 @@ const actions = {
       return Promise.resolve(state.sources)
     }
   },
-  getSwitches: ({state, commit}) => {
+  getSwitches: ({ state, commit }) => {
     if (state.switches.length === 0) {
       return api.getSwitches().then(response => {
         // group can be undefined
         response.data.items.forEach(function (item, index, items) {
-          response.data.items[index] = Object.assign({group: item.group || 'Default'}, item)
+          response.data.items[index] = Object.assign({ group: item.group || 'Default' }, item)
         })
         commit('SWICTHES_UPDATED', response.data.items)
         return state.switches
@@ -113,7 +113,7 @@ const actions = {
       return Promise.resolve(state.switches)
     }
   },
-  getViolations: ({commit, state}) => {
+  getViolations: ({ commit, state }) => {
     if (Object.keys(state.violations).length === 0) {
       return api.getViolations().then(response => {
         commit('VIOLATIONS_UPDATED', response.data.items)

@@ -20,7 +20,7 @@ const getters = {
 }
 
 const actions = {
-  addSavedSearch: ({commit}, search) => {
+  addSavedSearch: ({ commit }, search) => {
     let savedSearches = state.savedSearches
     savedSearches = state.savedSearches.filter(searches => searches.name !== search.name)
     savedSearches.push(search)
@@ -30,12 +30,12 @@ const actions = {
     commit('SAVED_SEARCHES_UPDATED', savedSearches)
     localStorage.setItem(STORAGE_SAVED_SEARCH, JSON.stringify(savedSearches))
   },
-  deleteSavedSearch: ({commit}, search) => {
+  deleteSavedSearch: ({ commit }, search) => {
     let savedSearches = state.savedSearches.filter(searches => searches.name !== search.name)
     commit('SAVED_SEARCHES_UPDATED', savedSearches)
     localStorage.setItem(STORAGE_SAVED_SEARCH, JSON.stringify(savedSearches))
   },
-  exists: ({commit}, mac) => {
+  exists: ({ commit }, mac) => {
     if (state.nodeExists.hasOwnProperty(mac)) {
       if (state.nodeExists[mac]) {
         return Promise.resolve(true)
@@ -66,7 +66,7 @@ const actions = {
       })
     })
   },
-  getNode: ({state, commit}, mac) => {
+  getNode: ({ state, commit }, mac) => {
     let node = { fingerbank: {} } // ip4: { history: [] }, ip6: { history: [] } }
 
     if (state.nodes[mac]) {
@@ -153,7 +153,7 @@ const actions = {
       return node
     })
   },
-  createNode: ({commit}, data) => {
+  createNode: ({ commit }, data) => {
     commit('NODE_REQUEST')
     if (data.unreg_date && data.unreg_time) {
       data.unregdate = `${data.unreg_date} ${data.unreg_time}`
@@ -169,7 +169,7 @@ const actions = {
       })
     })
   },
-  updateNode: ({commit}, data) => {
+  updateNode: ({ commit }, data) => {
     commit('NODE_REQUEST')
     return new Promise((resolve, reject) => {
       api.updateNode(data).then(response => {
@@ -181,7 +181,7 @@ const actions = {
       })
     })
   },
-  deleteNode: ({commit}, data) => {
+  deleteNode: ({ commit }, data) => {
     commit('NODE_REQUEST')
     return new Promise((resolve, reject) => {
       api.deleteNode(data).then(response => {
@@ -194,7 +194,7 @@ const actions = {
       })
     })
   },
-  registerNode: ({commit}, data) => {
+  registerNode: ({ commit }, data) => {
     commit('NODE_REQUEST')
     return new Promise((resolve, reject) => {
       api.registerNode(data).then(response => {
@@ -206,7 +206,7 @@ const actions = {
       })
     })
   },
-  registerBulkNodes: ({commit}, data) => {
+  registerBulkNodes: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     return new Promise((resolve, reject) => {
       api.registerBulkNodes(data).then(response => {
@@ -221,7 +221,7 @@ const actions = {
       })
     })
   },
-  deregisterNode: ({commit}, data) => {
+  deregisterNode: ({ commit }, data) => {
     commit('NODE_REQUEST')
     return new Promise((resolve, reject) => {
       api.deregisterNode(data).then(response => {
@@ -233,7 +233,7 @@ const actions = {
       })
     })
   },
-  deregisterBulkNodes: ({commit}, data) => {
+  deregisterBulkNodes: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     return new Promise((resolve, reject) => {
       api.deregisterBulkNodes(data).then(response => {
@@ -248,7 +248,7 @@ const actions = {
       })
     })
   },
-  clearViolationNode: ({commit}, data) => {
+  clearViolationNode: ({ commit }, data) => {
     commit('NODE_REQUEST')
     return new Promise((resolve, reject) => {
       api.clearViolationNode(data).then(response => {
@@ -260,7 +260,7 @@ const actions = {
       })
     })
   },
-  applyViolationBulkNodes: ({commit}, data) => {
+  applyViolationBulkNodes: ({ commit }, data) => {
     return new Promise((resolve, reject) => {
       api.applyViolationBulkNodes(data).then(response => {
         resolve(response)
@@ -270,7 +270,7 @@ const actions = {
       })
     })
   },
-  clearViolationBulkNodes: ({commit}, data) => {
+  clearViolationBulkNodes: ({ commit }, data) => {
     return new Promise((resolve, reject) => {
       api.clearViolationBulkNodes(data).then(response => {
         resolve(response)
@@ -280,7 +280,7 @@ const actions = {
       })
     })
   },
-  reevaluateAccessBulkNodes: ({commit}, data) => {
+  reevaluateAccessBulkNodes: ({ commit }, data) => {
     return new Promise((resolve, reject) => {
       api.reevaluateAccessBulkNodes(data).then(response => {
         resolve(response)
@@ -290,7 +290,7 @@ const actions = {
       })
     })
   },
-  restartSwitchportBulkNodes: ({commit}, data) => {
+  restartSwitchportBulkNodes: ({ commit }, data) => {
     return new Promise((resolve, reject) => {
       api.restartSwitchportBulkNodes(data).then(response => {
         resolve(response)
@@ -300,7 +300,7 @@ const actions = {
       })
     })
   },
-  refreshFingerbankBulkNodes: ({commit}, data) => {
+  refreshFingerbankBulkNodes: ({ commit }, data) => {
     return new Promise((resolve, reject) => {
       api.refreshFingerbankBulkNodes(data).then(response => {
         resolve(response)
@@ -310,7 +310,7 @@ const actions = {
       })
     })
   },
-  roleNode: ({commit}, data) => {
+  roleNode: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     return new Promise((resolve, reject) => {
       api.updateNode(data).then(response => {
@@ -325,7 +325,7 @@ const actions = {
       })
     })
   },
-  roleBulkNodes: ({commit}, data) => {
+  roleBulkNodes: ({ commit }, data) => {
     return new Promise((resolve, reject) => {
       api.roleBulkNodes(data).then(response => {
         resolve(response)
@@ -335,7 +335,7 @@ const actions = {
       })
     })
   },
-  bypassRoleNode: ({commit}, data) => {
+  bypassRoleNode: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     return new Promise((resolve, reject) => {
       api.updateNode(data).then(response => {
@@ -350,7 +350,7 @@ const actions = {
       })
     })
   },
-  bypassRoleBulkNodes: ({commit}, data) => {
+  bypassRoleBulkNodes: ({ commit }, data) => {
     return new Promise((resolve, reject) => {
       api.bypassRoleBulkNodes(data).then(response => {
         resolve(response)
@@ -360,7 +360,7 @@ const actions = {
       })
     })
   },
-  reevaluateAccessNode: ({commit}, data) => {
+  reevaluateAccessNode: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     return new Promise((resolve, reject) => {
       api.reevaluateAccessNode(data).then(response => {
@@ -374,7 +374,7 @@ const actions = {
       })
     })
   },
-  refreshFingerbankNode: ({commit}, data) => {
+  refreshFingerbankNode: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     return new Promise((resolve, reject) => {
       api.refreshFingerbankNode(data).then(response => {
@@ -388,7 +388,7 @@ const actions = {
       })
     })
   },
-  restartSwitchportNode: ({commit}, data) => {
+  restartSwitchportNode: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     return new Promise((resolve, reject) => {
       api.restartSwitchportNode(data).then(response => {

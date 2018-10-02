@@ -673,13 +673,13 @@ export default {
     applyBulkClearViolation () {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
-        this.$store.dispatch(`${this.storeName}/clearViolationBulkNodes`, {items: macs}).then(response => {
+        this.$store.dispatch(`${this.storeName}/clearViolationBulkNodes`, { items: macs }).then(response => {
           response.items.forEach((item, _index, items) => {
             let index = this.tableValues.findIndex(node => node.mac === item.mac)
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
             this.setRowMessage(index, item.message)
             if (item.message) {
-              this.$store.dispatch('notification/status_' + item.status, {message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message})
+              this.$store.dispatch('notification/status_' + item.status, { message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message })
             }
           })
           this.$store.dispatch('notification/info', {
@@ -699,13 +699,13 @@ export default {
     applyBulkRegister () {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
-        this.$store.dispatch(`${this.storeName}/registerBulkNodes`, {items: macs}).then(response => {
+        this.$store.dispatch(`${this.storeName}/registerBulkNodes`, { items: macs }).then(response => {
           response.items.forEach((item, _index, items) => {
             let index = this.tableValues.findIndex(node => node.mac === item.mac)
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
             this.setRowMessage(index, item.message)
             if (item.message) {
-              this.$store.dispatch('notification/status_' + item.status, {message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message})
+              this.$store.dispatch('notification/status_' + item.status, { message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message })
             }
           })
           this.$store.dispatch('notification/info', {
@@ -725,13 +725,13 @@ export default {
     applyBulkDeregister () {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
-        this.$store.dispatch(`${this.storeName}/deregisterBulkNodes`, {items: macs}).then(response => {
+        this.$store.dispatch(`${this.storeName}/deregisterBulkNodes`, { items: macs }).then(response => {
           response.items.forEach((item, _index, items) => {
             let index = this.tableValues.findIndex(node => node.mac === item.mac)
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
             this.setRowMessage(index, item.message)
             if (item.message) {
-              this.$store.dispatch('notification/status_' + item.status, {message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message})
+              this.$store.dispatch('notification/status_' + item.status, { message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message })
             }
           })
           this.$store.dispatch('notification/info', {
@@ -751,13 +751,13 @@ export default {
     applyBulkReevaluateAccess () {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
-        this.$store.dispatch(`${this.storeName}/reevaluateAccessBulkNodes`, {items: macs}).then(response => {
+        this.$store.dispatch(`${this.storeName}/reevaluateAccessBulkNodes`, { items: macs }).then(response => {
           response.items.forEach((item, _index, items) => {
             let index = this.tableValues.findIndex(node => node.mac === item.mac)
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
             this.setRowMessage(index, item.message)
             if (item.message) {
-              this.$store.dispatch('notification/status_' + item.status, {message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message})
+              this.$store.dispatch('notification/status_' + item.status, { message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message })
             }
           })
           this.$store.dispatch('notification/info', {
@@ -777,13 +777,13 @@ export default {
     applyBulkRestartSwitchport () {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
-        this.$store.dispatch(`${this.storeName}/restartSwitchportBulkNodes`, {items: macs}).then(response => {
+        this.$store.dispatch(`${this.storeName}/restartSwitchportBulkNodes`, { items: macs }).then(response => {
           response.items.forEach((item, _index, items) => {
             let index = this.tableValues.findIndex(node => node.mac === item.mac)
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
             this.setRowMessage(index, item.message)
             if (item.message) {
-              this.$store.dispatch('notification/status_' + item.status, {message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message})
+              this.$store.dispatch('notification/status_' + item.status, { message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message })
             }
           })
           this.$store.dispatch('notification/info', {
@@ -803,13 +803,13 @@ export default {
     applyBulkRefreshFingerbank () {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
-        this.$store.dispatch(`${this.storeName}/refreshFingerbankBulkNodes`, {items: macs}).then(response => {
+        this.$store.dispatch(`${this.storeName}/refreshFingerbankBulkNodes`, { items: macs }).then(response => {
           response.items.forEach((item, _index, items) => {
             let index = this.tableValues.findIndex(node => node.mac === item.mac)
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
             this.setRowMessage(index, item.message)
             if (item.message) {
-              this.$store.dispatch('notification/status_' + item.status, {message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message})
+              this.$store.dispatch('notification/status_' + item.status, { message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message })
             }
           })
           this.$store.dispatch('notification/info', {
@@ -829,13 +829,13 @@ export default {
     applyBulkRole (role) {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
-        this.$store.dispatch(`${this.storeName}/roleBulkNodes`, {items: macs, category_id: role.category_id}).then(response => {
+        this.$store.dispatch(`${this.storeName}/roleBulkNodes`, { items: macs, category_id: role.category_id }).then(response => {
           response.items.forEach((item, _index, items) => {
             let index = this.tableValues.findIndex(node => node.mac === item.mac)
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
             this.setRowMessage(index, item.message)
             if (item.message) {
-              this.$store.dispatch('notification/status_' + item.status, {message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message})
+              this.$store.dispatch('notification/status_' + item.status, { message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message })
             }
           })
           this.$store.dispatch('notification/info', {
@@ -855,13 +855,13 @@ export default {
     applyBulkBypassRole (role) {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
-        this.$store.dispatch(`${this.storeName}/bypassRoleBulkNodes`, {items: macs, bypass_role_id: role.category_id}).then(response => {
+        this.$store.dispatch(`${this.storeName}/bypassRoleBulkNodes`, { items: macs, bypass_role_id: role.category_id }).then(response => {
           response.items.forEach((item, _index, items) => {
             let index = this.tableValues.findIndex(node => node.mac === item.mac)
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
             this.setRowMessage(index, item.message)
             if (item.message) {
-              this.$store.dispatch('notification/status_' + item.status, {message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message})
+              this.$store.dispatch('notification/status_' + item.status, { message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message })
             }
           })
           this.$store.dispatch('notification/info', {
@@ -881,13 +881,13 @@ export default {
     applyBulkViolation (violation) {
       const macs = this.selectValues.map(item => item.mac)
       if (macs.length > 0) {
-        this.$store.dispatch(`${this.storeName}/applyViolationBulkNodes`, {items: macs, vid: violation.id}).then(response => {
+        this.$store.dispatch(`${this.storeName}/applyViolationBulkNodes`, { items: macs, vid: violation.id }).then(response => {
           response.items.forEach((item, _index, items) => {
             let index = this.tableValues.findIndex(node => node.mac === item.mac)
             this.setRowVariant(index, convert.statusToVariant({ status: item.status }))
             this.setRowMessage(index, item.message)
             if (item.message) {
-              this.$store.dispatch('notification/status_' + item.status, {message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message})
+              this.$store.dispatch('notification/status_' + item.status, { message: this.$i18n.t('Node') + ' ' + item.mac + ': ' + item.message })
             }
           })
           this.$store.dispatch('notification/info', {

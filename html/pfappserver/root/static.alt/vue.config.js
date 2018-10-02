@@ -14,11 +14,11 @@ module.exports = {
     config.module
       .rule('vue')
       .use('vue-loader')
-        .loader('vue-loader')
-        .tap(options => {
-          // Because we like to have automatic spaces between buttons
-          options.compilerOptions.preserveWhitespace = true
-          return options
-        })
+      .loader('vue-loader')
+      .tap(options => {
+        // Because we like to have automatic spaces between buttons
+        options.compilerOptions.preserveWhitespace = true
+        return options
+      })
   }
 }

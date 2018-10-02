@@ -22,7 +22,7 @@ const getters = {
 }
 
 const actions = {
-  getFloatingDevice: ({state, commit}, id) => {
+  getFloatingDevice: ({ state, commit }, id) => {
     if (state.cache[id]) {
       return Promise.resolve(state.cache[id])
     }
@@ -33,7 +33,7 @@ const actions = {
       commit('ITEM_ERROR', err.response)
     })
   },
-  updateFloatingDevice: ({commit}, data) => {
+  updateFloatingDevice: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     return api.updateFloatingDevice(data).then(response => {
       commit('ITEM_REPLACED', data)
@@ -41,7 +41,7 @@ const actions = {
       commit('ITEM_ERROR', err.response)
     })
   },
-  deleteFloatingDevice: ({commit}, data) => {
+  deleteFloatingDevice: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     return api.deleteFloatingDevice(data).then(response => {
       commit('ITEM_DESTROYED', data)
