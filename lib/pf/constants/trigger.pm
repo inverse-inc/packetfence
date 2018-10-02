@@ -27,27 +27,29 @@ use pf::config qw(
 );
 
 our @EXPORT_OK = qw(
-        $TRIGGER_TYPE_ACCOUNTING $TRIGGER_TYPE_DETECT $TRIGGER_TYPE_INTERNAL $TRIGGER_TYPE_MAC $TRIGGER_TYPE_NESSUS $TRIGGER_TYPE_OPENVAS $TRIGGER_TYPE_OS $TRIGGER_TYPE_USERAGENT $TRIGGER_TYPE_VENDORMAC $TRIGGER_TYPE_PROVISIONER $TRIGGER_TYPE_SWITCH $TRIGGER_TYPE_SWITCH_GROUP @VALID_TRIGGER_TYPES
+        $TRIGGER_TYPE_ACCOUNTING $TRIGGER_TYPE_CUSTOM $TRIGGER_TYPE_DETECT $TRIGGER_TYPE_INTERNAL $TRIGGER_TYPE_MAC $TRIGGER_TYPE_NESSUS $TRIGGER_TYPE_OPENVAS $TRIGGER_TYPE_OS $TRIGGER_TYPE_USERAGENT $TRIGGER_TYPE_VENDORMAC $TRIGGER_TYPE_PROVISIONER $TRIGGER_TYPE_SWITCH $TRIGGER_TYPE_SWITCH_GROUP @VALID_TRIGGER_TYPES
         $TRIGGER_ID_PROVISIONER
         $TRIGGER_MAP
 );
 
 # SecurityEvent trigger types
 Readonly::Scalar our $TRIGGER_TYPE_ACCOUNTING => 'accounting';
+Readonly::Scalar our $TRIGGER_TYPE_CUSTOM => 'custom';
 Readonly::Scalar our $TRIGGER_TYPE_DETECT => 'detect';
 Readonly::Scalar our $TRIGGER_TYPE_INTERNAL => 'internal';
 Readonly::Scalar our $TRIGGER_TYPE_MAC => 'mac';
 Readonly::Scalar our $TRIGGER_TYPE_NESSUS => 'nessus';
+Readonly::Scalar our $TRIGGER_TYPE_NEXPOSE_EVENT_STARTS_WITH => 'nexpose_event_starts_with';
 Readonly::Scalar our $TRIGGER_TYPE_OPENVAS => 'openvas';
 Readonly::Scalar our $TRIGGER_TYPE_OS => 'os';
+Readonly::Scalar our $TRIGGER_TYPE_PROVISIONER => 'provisioner';
 Readonly::Scalar our $TRIGGER_TYPE_SURICATA_EVENT => 'suricata_event';
-Readonly::Scalar our $TRIGGER_TYPE_NEXPOSE_EVENT_STARTS_WITH => 'nexpose_event_starts_with';
+Readonly::Scalar our $TRIGGER_TYPE_SWITCH_GROUP => 'switch_group';
+Readonly::Scalar our $TRIGGER_TYPE_SWITCH => 'switch';
 Readonly::Scalar our $TRIGGER_TYPE_USERAGENT => 'useragent';
 Readonly::Scalar our $TRIGGER_TYPE_VENDORMAC => 'vendormac';
-Readonly::Scalar our $TRIGGER_TYPE_PROVISIONER => 'provisioner';
+
 Readonly::Scalar our $TRIGGER_ID_PROVISIONER => 'check';
-Readonly::Scalar our $TRIGGER_TYPE_SWITCH => 'switch';
-Readonly::Scalar our $TRIGGER_TYPE_SWITCH_GROUP => 'switch_group';
 
 Readonly::Scalar our $SURICATA_CATEGORIES => sub {
     my %map;

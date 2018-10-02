@@ -38,6 +38,7 @@ our %TRIGGER_TYPE_TO_CONDITION_TYPE = (
     'dhcp6_fingerprint'         => {type => 'equals',                   key  => 'dhcp6_fingerprint_id'},
     'dhcp6_enterprise'          => {type => 'equals',                   key  => 'dhcp6_enterprise_id'},
     'internal'                  => {type => 'equals',                   key  => 'last_internal_id',        event => $TRUE},
+    'custom'                    => {type => 'equals',                   key  => 'last_custom_id',        event => $TRUE},
     'mac'                       => {type => 'regex',                    key  => 'mac'},
     'mac_vendor'                => {type => 'equals',                   key  => 'mac_vendor_id'},
     'nessus'                    => {type => 'equals',                   key  => 'last_nessus_id',          event => $TRUE},
