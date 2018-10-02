@@ -50,6 +50,12 @@ sub build_child {
     }
 }
 
+=head2 build_multi_zone
+
+Build the cluster configuration when cluster.conf is used in multi zone mode
+
+=cut
+
 sub build_multi_zone {
     my ($self, $cfg) = @_;
 
@@ -79,6 +85,12 @@ sub build_multi_zone {
 
     return $tmp_cfg{$self->{cluster_name}};
 }
+
+=head2 build_single_cluster
+
+Build cluster configuration when cluster.conf isn't in multi zone mode
+
+=cut
 
 sub build_single_cluster {
     my ($self, $cluster_name, $ordered_sections, $cfg) = @_;

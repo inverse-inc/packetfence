@@ -23,7 +23,6 @@ use pfconfig::namespaces::interfaces;
 use pfconfig::namespaces::config::Cluster;
 
 sub init {
-    #TODO: go through the places where network_config is being used in the pfconfig driver
     my ($self, $host_id) = @_;
     $host_id //= "";
 

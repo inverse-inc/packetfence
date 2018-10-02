@@ -2,13 +2,13 @@ package pfconfig::namespaces::resource::clusters_hostname_map;
 
 =head1 NAME
 
-pfconfig::namespaces::resource::fqdn
+pfconfig::namespaces::resource::clusters_hostname_map
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::resource::fqdn
+pfconfig::namespaces::resource::clusters_hostname_map
 
 =cut
 

@@ -1,11 +1,11 @@
 package pfconfig::namespaces::resource::all_cluster_hosts;
 
 =head1 NAME
-pfconfig::namespaces::resource::fqdn
+pfconfig::namespaces::resource::all_cluster_hosts
 =cut
 
 =head1 DESCRIPTION
-pfconfig::namespaces::resource::fqdn
+pfconfig::namespaces::resource::all_cluster_hosts
 =cut
 
 use strict;

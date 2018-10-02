@@ -53,7 +53,7 @@ sub build_child {
 
     # for cluster overlaying
     if(defined($self->{cluster_name}) && exists($ConfigCluster{CLUSTER})){
-        $logger->debug("Doing the netowrk overlaying for cluster");
+        $logger->debug("Doing the network overlaying for cluster");
         while(my ($key, $config) = (each %{$ConfigCluster{CLUSTER}})){
             if($key =~ /^network ([0-9.]+)/){
                 my $net = $1;

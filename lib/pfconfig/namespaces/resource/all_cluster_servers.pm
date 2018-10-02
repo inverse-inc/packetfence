@@ -2,13 +2,13 @@ package pfconfig::namespaces::resource::all_cluster_servers;
 
 =head1 NAME
 
-pfconfig::namespaces::resource::fqdn
+pfconfig::namespaces::resource::all_cluster_servers
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::resource::fqdn
+pfconfig::namespaces::resource::all_cluster_servers
 
 =cut
 
