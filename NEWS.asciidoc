@@ -32,7 +32,7 @@ Enhancements
 * Use MySQL as backend for pfdhcp options (deprecates etcd) (PR #3484)
 * Reorder iptables rules (PR #3463)
 * Better error handling for pfdetect.conf (PR #3607)
-* HAProxy stats files are now located in var/run/ with explicit filenames
+* HAProxy stats files are now located in var/run/ with explicit filenames (PR #3645)
 
 Bug Fixes
 +++++++++
