@@ -105,17 +105,41 @@ sub enabled_hosts {
     return map { (-f node_disabled_file($_)) ? () : $_ } @cluster_hosts;
 }
 
+=head2 db_enabled_servers
+
+Returns the @db_cluster_servers list without the servers that are disabled on this host
+
+=cut
+
 sub db_enabled_servers {
     return map { (-f node_disabled_file($_->{host})) ? () : $_ } @db_cluster_servers;
 }
+
+=head2 db_enabled_hosts
+
+Returns the @db_cluster_hosts list without the servers that are disabled on this host
+
+=cut
 
 sub db_enabled_hosts {
     return map { (-f node_disabled_file($_)) ? () : $_ } @db_cluster_hosts;
 }
 
+=head2 config_enabled_servers
+
+Returns the @config_cluster_servers list without the servers that are disabled on this host
+
+=cut
+
 sub config_enabled_servers {
     return map { (-f node_disabled_file($_->{host})) ? () : $_ } @config_cluster_servers;
 }
+
+=head2 config_enabled_hosts
+
+Returns the @config_cluster_hosts list without the servers that are disabled on this host
+
+=cut
 
 sub config_enabled_hosts {
     return map { (-f node_disabled_file($_)) ? () : $_ } @config_cluster_hosts;
