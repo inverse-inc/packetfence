@@ -172,6 +172,7 @@ install: build
 	#Golang binary
 	install -d -m0744 $(CURDIR)/debian/packetfence-golang-daemon$(PREFIX)/$(NAME)/sbin
 	PATH=$$PATH:/usr/lib/go-1.7/bin && addons/packages/build-go.sh build $(CURDIR)/ $(CURDIR)/debian/packetfence-golang-daemon$(PREFIX)/$(NAME)/sbin $(CURDIR)/debian
+	npm install -g grunt-cli
 	#Portal javascript/css
 	make -C html/common/ vendor
 	make -C html/common light-dist
