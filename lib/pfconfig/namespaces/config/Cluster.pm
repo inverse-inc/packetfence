@@ -38,15 +38,15 @@ sub build_child {
     my %cfg = %{$self->{cfg}};
     $self->cleanup_whitespaces(\%cfg);
 
-    if($cfg{general} && isenabled($cfg{general}{multi_cluster})) {
-        return $self->build_multi_cluster(\%cfg);
+    if($cfg{general} && isenabled($cfg{general}{multi_zone})) {
+        return $self->build_multi_zone(\%cfg);
     }
     else {
         return $self->build_single_cluster("DEFAULT", $self->{ordered_sections}, \%cfg);
     }
 }
 
-sub build_multi_cluster {
+sub build_multi_zone {
     my ($self, $cfg) = @_;
 
     my %tmp_cfg;
