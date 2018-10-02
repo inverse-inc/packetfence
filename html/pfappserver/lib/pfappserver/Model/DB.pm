@@ -60,6 +60,14 @@ sub assign {
             return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
         }
     }
+    # To dump stored procedures
+    $sql_query = "GRANT SELECT ON mysql.proc TO ?";
+    $dbHandler->do($sql_query, undef, $user, $password);
+    if ( $DBI::errstr ) {
+        $status_msg = "Error creating the user $user on database $db";
+        $logger->warn("$DBI::errstr");
+        return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
+    }
     # Apply the new privileges
     $dbHandler->do("FLUSH PRIVILEGES");
     if ( $DBI::errstr ) {
