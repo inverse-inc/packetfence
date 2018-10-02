@@ -47,14 +47,14 @@ export default {
     pfMixinSearchable
   ],
   components: {
-    'pf-progress': pfProgress,
-    'pf-empty-table': pfEmptyTable,
-    'pf-search': pfSearch
+    pfProgress,
+    pfEmptyTable,
+    pfSearch
   },
   props: {
     pfMixinSearchableOptions: {
       type: Object,
-      default: {
+      default: () => ({
         searchApiEndpoint: 'config/roles',
         defaultSortKeys: ['id'],
         defaultSearchCondition: {
@@ -68,11 +68,11 @@ export default {
           }]
         },
         defaultRoute: { name: 'configuration/roles' }
-      }
+      })
     },
     tableValues: {
       type: Array,
-      default: []
+      default: () => []
     }
   },
   data () {

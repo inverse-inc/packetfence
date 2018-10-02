@@ -54,7 +54,7 @@ export default {
   props: {
     pfMixinSearchableOptions: {
       type: Object,
-      default: {
+      default: () => ({
         searchApiEndpoint: 'config/floating_devices',
         defaultSortKeys: ['id'], // id is the MAC address
         defaultSearchCondition: {
@@ -68,11 +68,11 @@ export default {
           }]
         },
         defaultRoute: { name: 'configuration/floating_devices' }
-      }
+      })
     },
     tableValues: {
       type: Array,
-      default: []
+      default: () => []
     }
   },
   data () {

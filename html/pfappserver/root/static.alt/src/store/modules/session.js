@@ -85,10 +85,12 @@ const actions = {
             }
           }
           if (!target) {
+            // eslint-disable-next-line
             console.warn(`No action found for ${role}`)
             action = 'access'
             target = role.toLowerCase()
           }
+          // eslint-disable-next-line
           console.debug('configure acl ' + action + ' => ' + target)
           acl.rule(action, target, () => true)
         }

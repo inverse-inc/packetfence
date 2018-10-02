@@ -160,12 +160,12 @@ export default {
     },
     pfMixinSearchableOptions: {
       type: Object,
-      default: {
+      default: () => ({
         searchApiEndpoint: 'nodes',
         defaultSortKeys: ['mac'],
         defaultSearchCondition: { op: 'and', values: [{ op: 'or', values: [{ field: 'mac', op: 'equals', value: null }] }] },
         defaultRoute: { name: 'nodes' }
-      }
+      })
     }
   },
   data () {

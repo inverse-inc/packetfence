@@ -36,7 +36,6 @@ const actions = {
     })
   },
   addChart: ({ state, commit }, definition) => {
-    console.debug('adding chart ' + definition.id)
     let chart = {
       id: definition.id,
       name: definition.name,

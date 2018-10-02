@@ -73,7 +73,7 @@ export default {
   props: {
     pfMixinSearchableOptions: {
       type: Object,
-      default: {
+      default: () => ({
         searchApiEndpoint: 'radius_audit_logs',
         defaultSortKeys: ['created_at', 'mac'],
         defaultSearchCondition: {
@@ -87,11 +87,11 @@ export default {
           }]
         },
         defaultRoute: { name: 'auditing' }
-      }
+      })
     },
     tableValues: {
       type: Array,
-      default: []
+      default: () => []
     }
   },
   data () {

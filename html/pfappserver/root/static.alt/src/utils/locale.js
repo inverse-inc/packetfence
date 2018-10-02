@@ -12,12 +12,14 @@ const i18n = new VueI18n({
   formatter,
   messages: { 'en-US': {} },
   missing: (locale, key, vm, values) => {
+    // eslint-disable-next-line
     console.error(`[Translation] missing: locale=${locale}, key=${key}, values=${JSON.stringify(values)}`)
     if (values === [] || !values[0] || !key.includes('{') || !key.includes('}')) return key
     // handle formatting manually
     try {
       return formatter.interpolate(key, values[0])[0]
     } catch (err) {
+      // eslint-disable-next-line
       console.error(err)
     }
     return key

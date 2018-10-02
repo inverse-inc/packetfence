@@ -82,7 +82,7 @@ export default {
     },
     pfMixinSearchableOptions: {
       type: Object,
-      default: {
+      default: () => ({
         searchApiEndpoint: 'users',
         defaultSortKeys: ['pid'],
         defaultSearchCondition: {
@@ -96,7 +96,7 @@ export default {
           }]
         },
         defaultRoute: { name: 'users' }
-      }
+      })
     }
   },
   data () {

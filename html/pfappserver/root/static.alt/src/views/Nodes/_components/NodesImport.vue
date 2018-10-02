@@ -227,7 +227,8 @@ export default {
       })
     },
     createNode (data) {
-      console.log('> createNode', data)
+      // eslint-disable-next-line
+      console.debug('> createNode', data)
       return this.$store.dispatch('$_nodes/createNode', data).then(results => {
         // does the data contain anything other than 'mac' or a private key (_*)?
         if (Object.keys(data).filter(key => key !== 'mac' && key.charAt(0) !== '_').length > 0) {
@@ -247,7 +248,8 @@ export default {
       })
     },
     updateNode (data) {
-      console.log('> updateNode')
+      // eslint-disable-next-line
+      console.debug('> updateNode')
       return this.$store.dispatch('$_nodes/updateNode', data).then(results => {
         return results
       }).catch(err => {

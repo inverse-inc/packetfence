@@ -64,15 +64,19 @@ apiCall.interceptors.response.use((response) => {
           store.commit('session/API_ERROR')
           break
       }
+      // eslint-disable-next-line
       console.group('API error')
-      console.log(error.response.data)
+      // eslint-disable-next-line
+      console.warn(error.response.data)
       if (error.response.data.errors) {
         error.response.data.errors.forEach(err => {
           Object.keys(err).forEach(attr => {
-            console.log(`${attr}: ${err[attr]}`)
+            // eslint-disable-next-line
+            console.warn(`${attr}: ${err[attr]}`)
           })
         })
       }
+      // eslint-disable-next-line
       console.groupEnd()
       if (typeof error.response.data === 'string') {
         store.dispatch('notification/danger', { icon, url: error.config.url, message: error.message })
