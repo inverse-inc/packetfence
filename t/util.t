@@ -62,6 +62,11 @@ BEGIN {
             out => 'Blah at blah and at blah',
             msg => "Nothing needs to be stripped"
         },
+        {
+            in  => "\nBlah at blah \nalso blah at -e line 1.\n",
+            out => "\nBlah at blah \nalso blah\n",
+            msg => "Exception with multiple lines"
+        },
     );
 
     @NORMALIZE_TIME_TESTS = (
