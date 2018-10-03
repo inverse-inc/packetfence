@@ -24,6 +24,19 @@ has 'password_rotation' => (isa => 'Str', is => 'rw', default => '10m');
 has 'password_email_update' => (isa => 'Maybe[Str]', is => 'rw');
 has 'password_length' => (isa => 'Maybe[Int]', is => 'rw', default => 8);
 
+=head2 available_attributes
+
+=cut
+
+sub available_attributes {
+    my $self = shift;
+
+    my $super_attributes = $self->SUPER::available_attributes;
+    my $own_attributes = [{ value => 'username', type => $Conditions::SUBSTRING }];
+
+    return [@$super_attributes, @$own_attributes];
+}
+
 =head2 authenticate
 
 =cut
@@ -47,7 +60,7 @@ sub authenticate {
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
     foreach my $condition (@{ $own_conditions }) {
-        if ($condition->{'attribute'} eq $params->{'username'}) {
+        if ($condition->{'attribute'} eq "username") {
             if ( $condition->matches("username", $params->{'username'}) ) {
                 push(@{ $matching_conditions }, $condition);
             }
