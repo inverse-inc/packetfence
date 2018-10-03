@@ -14,7 +14,7 @@ autentication
 use strict;
 use warnings;
 
-use Test::More tests => 56;                      # last test to print
+use Test::More tests => 57;                      # last test to print
 
 use Test::NoWarnings;
 use diagnostics;
@@ -26,6 +26,7 @@ BEGIN {
 
 use pf::constants;
 use pf::constants::realm;
+use pf::Authentication::constants;
 use pf::constants::authentication::messages;
 
 # pf core libs
@@ -383,6 +384,41 @@ for my $test (@tests) {
 
 
 }
+
+is_deeply(
+    pf::authentication::match2(
+        'potd',
+        {
+            context    => $pf::constants::realm::ADMIN_CONTEXT,
+            rule_class => $Rules::AUTH,
+            username   => 'match_test'
+        }
+    ),
+    {
+        'actions' => [
+            pf::Authentication::Action->new(
+                {
+                    'value' => 'default',
+                    'type'  => 'set_role',
+                    'class' => 'authentication',
+                }
+            ),
+            pf::Authentication::Action->new(
+                {
+                    'value' => '2038-01-01',
+                    'type'  => 'set_unreg_date',
+                    'class' => 'authentication',
+                }
+            ),
+        ],
+        'source_id' => 'potd',
+        'values'    => {
+            'set_role'       => 'default',
+            'set_unreg_date' => '2038-01-01'
+        }
+    },
+   "potd match rule"
+);
 
 =head1 AUTHOR
 
