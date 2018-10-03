@@ -69,6 +69,7 @@ BEGIN {
         portal
         source
         psk
+        potd
     );
 
     %DEFAULTS = (
@@ -105,6 +106,7 @@ BEGIN {
         portal => undef,
         source => undef,
         psk => undef,
+        potd => 'no',
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -141,6 +143,7 @@ BEGIN {
         portal
         source
         psk
+        potd
     );
 
     %FIELDS_META = (
@@ -342,6 +345,16 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        potd => {
+            type => 'ENUM',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+            enums_values => {
+                'no' => 1,
+                'yes' => 1,
+            },
+        },
     );
 
     @PRIMARY_KEYS = qw(
@@ -383,6 +396,7 @@ BEGIN {
         person.portal
         person.source
         person.psk
+        person.potd
     );
 
 }

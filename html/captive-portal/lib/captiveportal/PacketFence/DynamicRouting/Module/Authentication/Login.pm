@@ -69,6 +69,7 @@ sub sources_classes {
         "pf::Authentication::Source::EAPTLSSource",
         "pf::Authentication::Source::HTTPSource",
         "pf::Authentication::Source::RADIUSSource",
+        "pf::Authentication::Source::PotdSource",
     ];
 }
 

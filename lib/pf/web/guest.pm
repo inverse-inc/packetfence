@@ -79,6 +79,7 @@ Readonly our $TEMPLATE_EMAIL_EMAIL_PREREGISTRATION_CONFIRMED => 'guest_email_pre
 Readonly our $TEMPLATE_EMAIL_SPONSOR_PREREGISTRATION => 'guest_sponsor_preregistration';
 Readonly our $TEMPLATE_EMAIL_GUEST_ADMIN_PREREGISTRATION => 'guest_admin_pregistration';
 Readonly our $TEMPLATE_EMAIL_LOCAL_ACCOUNT_CREATION => 'guest_local_account_creation';
+Readonly our $TEMPLATE_EMAIL_PASSWORD_OF_THE_DAY => 'guest_password_of_the_day';
 
 our $EMAIL_FROM = undef;
 
