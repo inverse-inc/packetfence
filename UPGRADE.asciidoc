@@ -1790,15 +1790,24 @@ Upgrade sudoers file (all Linux distributions)
 During the Packetfence upgrade, the package manager of your distribution will inform you that `/etc/sudoers.d/packetfence` has changed. You will need to merge the current and new `sudoers` file.
 
 
-Database schema update (all Linux distributions)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Database schema and privileges update (all Linux distributions)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Changes have been made to the database schema. You will need to update it accordingly.
+Changes have been made to the database schema and to the backup script
+`/usr/local/pf/addons/database-backup-and-maintenance.sh`. Starting from now,
+we will dump stored routines with the PacketFence database. You will need to update:
+
+ * database schema
+ * privileges of the user configured in PacketFence (so he can dump stored routines)
+
 An SQL upgrade script has been provided to upgrade the database from the X.X schema to X.Y.
+To upgrade the database schema and privileges, run the following commands:
 
-To upgrade the database schema, run the following command:
-
-  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-X.X.X-X.Y.Z.sql
+ PF_USER=$(perl -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{user}')
+ mysql -u root -p -e "GRANT SELECT ON mysql.proc TO $PF_USER@'%';" \
+ -e "GRANT SELECT ON mysql.proc TO $PF_USER@'localhost';" \
+ -e "FLUSH PRIVILEGES;"
+ mysql -u root -p pf -v < /usr/local/pf/db/upgrade-X.X.X-X.Y.Z.sql
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
 
