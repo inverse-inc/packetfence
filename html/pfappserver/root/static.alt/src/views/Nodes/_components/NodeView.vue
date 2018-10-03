@@ -242,8 +242,8 @@
 
       </b-tabs>
       <b-card-footer @mouseenter="$v.nodeContent.$touch()" v-if="ifTab(['Edit', 'Location', 'Fingerbank'])">
-        <b-button v-if="ifTab(['Edit'])" variant="primary" type="submit" :disabled="invalidForm"><icon name="circle-notch" spin v-show="isLoading"></icon> {{ $t('Save') }}</b-button>
-        <delete-button v-if="ifTab(['Edit'])" variant="danger" class="mr-3" :disabled="isLoading" :confirm="$t('Delete Node?')" @on-delete="deleteNode()">{{ $t('Delete') }}</delete-button>
+        <pf-button-save v-if="ifTab(['Edit'])" :disabled="invalidForm" :isLoading="isLoading"/>
+        <pf-button-delete v-if="ifTab(['Edit'])" class="mr-3" :disabled="isLoading" :confirm="$t('Delete Node?')" @on-delete="deleteNode()"/>
         <b-button size="sm" v-if="ifTab(['Edit', 'Location'])" variant="outline-secondary" @click="applyReevaluateAccess" :disabled="!canReevaluateAccess(node)">{{ $t('Reevaulate Access') }}</b-button>
         <b-button size="sm" v-if="ifTab(['Edit', 'Fingerbank'])" variant="outline-secondary" @click="applyRefreshFingerbank">{{ $t('Refresh Fingerbank') }}</b-button>
         <b-button size="sm" v-if="ifTab(['Edit', 'Location'])" variant="outline-secondary" @click="applyRestartSwitchport" :disabled="!canRestartSwitchport(node)">{{ $t('Restart Switch Port') }}</b-button>
@@ -254,7 +254,8 @@
 
 <script>
 import { DataSet, Timeline } from 'vue2vis'
-import DeleteButton from '@/components/DeleteButton'
+import pfButtonSave from '@/components/pfButtonSave'
+import pfButtonDelete from '@/components/pfButtonDelete'
 import pfFingerbankScore from '@/components/pfFingerbankScore'
 import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormInput from '@/components/pfFormInput'
@@ -277,13 +278,14 @@ export default {
   name: 'NodeView',
   components: {
     'timeline': Timeline,
-    'delete-button': DeleteButton,
-    'pf-fingerbank-score': pfFingerbankScore,
-    'pf-form-datetime': pfFormDatetime,
-    'pf-form-row': pfFormRow,
-    'pf-form-prefix-multiplier': pfFormPrefixMultiplier,
-    'pf-form-input': pfFormInput,
-    'pf-form-toggle': pfFormToggle
+    pfButtonSave,
+    pfButtonDelete,
+    pfFingerbankScore,
+    pfFormDatetime,
+    pfFormRow,
+    pfFormPrefixMultiplier,
+    pfFormInput,
+    pfFormToggle
   },
   mixins: [
     validationMixin

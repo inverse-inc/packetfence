@@ -17,15 +17,16 @@
           :text="$t('nodes')"/>
       </div>
       <b-card-footer @mouseenter="$v.roleContent.$touch()">
-        <b-button variant="primary" type="submit" :disabled="invalidForm"><icon name="circle-notch" spin v-show="isLoading"></icon> {{ $t('Save') }}</b-button>
-        <delete-button variant="danger" class="mr-3" :disabled="isLoading" :confirm="$t('Delete Role?')" @on-delete="deleteRole()">{{ $t('Delete') }}</delete-button>
+        <pf-button-save :disabled="invalidForm" :isLoading="isLoading"/>
+        <pf-button-delete class="ml-1" :disabled="isLoading" :confirm="$t('Delete Role?')" @on-delete="deleteRole()"/>
       </b-card-footer>
     </b-card>
   </b-form>
 </template>
 
 <script>
-import DeleteButton from '@/components/DeleteButton'
+import pfButtonSave from '@/components/pfButtonSave'
+import pfButtonDelete from '@/components/pfButtonDelete'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRow from '@/components/pfFormRow'
 import { pfRegExp as regExp } from '@/globals/pfRegExp'
@@ -35,9 +36,10 @@ const { required, integer } = require('vuelidate/lib/validators')
 export default {
   name: 'RoleView',
   components: {
-    'delete-button': DeleteButton,
-    'pf-form-row': pfFormRow,
-    'pf-form-input': pfFormInput
+    pfButtonSave,
+    pfButtonDelete,
+    pfFormRow,
+    pfFormInput
   },
   mixins: [
     validationMixin

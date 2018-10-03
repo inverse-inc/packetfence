@@ -1,9 +1,8 @@
 <template>
   <b-button-group
     :size="size" @mouseleave="stopInterrupt($event)"
-    :class="['d-inline-flex', {'flex-row-reverse': reverse}]"
-  >
-    <b-button
+    :class="['d-inline-flex', {'flex-row-reverse': reverse}]">
+  <b-button
       v-if="!interrupt"
       type="button"
       :variant="variant"
@@ -14,14 +13,13 @@
     <b-button
       v-if="interrupt"
       type="button"
-      variant="outline-secondary"
+      variant="link"
       disabled
       >{{ confirm }}</b-button>
     <b-button
       v-if="interrupt"
       type="button"
-      variant="warning"
-      @click.stop="stopInterrupt($event, 'a')"
+      @click.stop="stopInterrupt($event)"
       @mousemove="startInterrupt($event)"
       @mouseover="startInterrupt($event)"
       >{{ $t('Cancel') }}</b-button>
@@ -40,11 +38,11 @@
 import i18n from '@/utils/locale'
 
 export default {
-  name: 'delete-button',
+  name: 'pf-button-delete',
   props: {
     variant: {
       type: String,
-      default: 'outline-danger'
+      default: 'danger'
     },
     size: {
       type: String,
@@ -77,7 +75,7 @@ export default {
       this.interrupt = true
       this.timerStop = setTimeout(this.stopInterrupt, this.timeout)
     },
-    stopInterrupt (event, debug) {
+    stopInterrupt (event) {
       if (this.timerStop) clearTimeout(this.timerStop)
       this.interrupt = false
     },

@@ -26,15 +26,16 @@
           :text="$t('Comma separated list of VLANs. If the port is a multi-vlan, these are the VLANs that have to be tagged on the port.')"/>
       </div>
       <b-card-footer @mouseenter="$v.floatingDevice.$touch()">
-        <b-button variant="primary" type="submit" :disabled="invalidForm"><icon name="circle-notch" spin v-show="isLoading"></icon> {{ $t('Save') }}</b-button>
-        <delete-button variant="danger" class="mr-3" :disabled="isLoading" :confirm="$t('Delete Floating Device?')" @on-delete="deleteFloatingDevice()">{{ $t('Delete') }}</delete-button>
+        <pf-button-save :disabled="invalidForm" :isLoading="isLoading"/>
+        <pf-button-delete class="mr-3" :disabled="isLoading" :confirm="$t('Delete Floating Device?')" @on-delete="deleteFloatingDevice()"/>
       </b-card-footer>
     </b-card>
   </b-form>
 </template>
 
 <script>
-import DeleteButton from '@/components/DeleteButton'
+import pfButtonSave from '@/components/pfButtonSave'
+import pfButtonDelete from '@/components/pfButtonDelete'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormRow from '@/components/pfFormRow'
 import pfFormToggle from '@/components/pfFormToggle'
@@ -45,7 +46,8 @@ const { required, integer, ipAddress } = require('vuelidate/lib/validators')
 export default {
   name: 'FloatingDeviceView',
   components: {
-    DeleteButton,
+    pfButtonSave,
+    pfButtonDelete,
     pfFormInput,
     pfFormRow,
     pfFormToggle
