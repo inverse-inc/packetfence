@@ -176,7 +176,7 @@ export default {
   },
   watch: {
     realValue (a, b) {
-      if (a !== b) {
+      if (a !== b && a !== undefined) {
         // inputValue initialized later
         if (!this.initialized) {
           this.initialized = true
@@ -188,14 +188,19 @@ export default {
     inputValue (a, b) {
       if (a !== b) {
         const selectedIndex = this.prefixes.findIndex((prefix) => { return prefix.selected })
+        let multiplier = 1
         if (selectedIndex >= 0) {
           // scale up
-          this.realValue = a * this.prefixes[selectedIndex].multiplier
+          multiplier = this.prefixes[selectedIndex].multiplier
         }
+        this.realValue = a * multiplier
       }
     }
   },
   created () {
+    if (this.value) {
+      this.realValue = this.value
+    }
     this.setInputValueFromRealValue()
   }
 }
