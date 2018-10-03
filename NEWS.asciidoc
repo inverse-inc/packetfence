@@ -21,6 +21,7 @@ New Features
 * pfconfig is tenant aware (PR #3385)
 * Realm are tenant scope (PR #3385)
 * Added Mojo web authentication support (PR #3604)
+* New authentication source Password Of the Day (PR #3285)
 
 Enhancements
 ++++++++++++
