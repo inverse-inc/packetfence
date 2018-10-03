@@ -109,7 +109,7 @@ bin/ntlm_auth_wrapper: src/ntlm_auth_wrap.c
 .PHONY:permissions
 
 /etc/sudoers.d/packetfence.sudoers: packetfence.sudoers
-	cp packetfence.sudoers /etc/sudoers.d/packetfence.sudoers
+	cp packetfence.sudoers /etc/sudoers.d/packetfence
 
 .PHONY: sudo
 
