@@ -571,7 +571,7 @@ sub test_smtp : Local {
         # the variable $@ holds the error
         if ($@) {
             $status = 400;
-            $status_msg = $@;
+            $status_msg = pf::util::strip_filename_from_exceptions($@);
         }
     }
 
