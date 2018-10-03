@@ -1417,7 +1417,7 @@ Strip out filename from exception messages
 sub strip_filename_from_exceptions {
     my ($exception) = @_;
     if (defined $exception) {
-        $exception =~ s/^(.*) at .*?$/$1/;
+        $exception =~ s/^(.*) at .* line \d+\.$/$1/;
     }
     return $exception;
 }

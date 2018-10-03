@@ -57,6 +57,11 @@ BEGIN {
             out => 'Blah at blah and at blah',
             msg => "With multiple at in exception string"
         },
+        {
+            in  => 'Blah at blah and at blah',
+            out => 'Blah at blah and at blah',
+            msg => "Nothing needs to be stripped"
+        },
     );
 
     @NORMALIZE_TIME_TESTS = (
