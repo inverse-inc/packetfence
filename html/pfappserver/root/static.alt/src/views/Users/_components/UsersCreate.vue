@@ -196,9 +196,6 @@ export default {
         this.$store.dispatch('$_users/createUser', this.single)
       }
     }
-  },
-  created () {
-    console.log(schema)
   }
 }
 </script>

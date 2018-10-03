@@ -67,6 +67,7 @@ const mutations = {
   },
   CHARTS_UPDATED: (state, chart) => {
     if (state.charts.filter(c => c.id === chart.id).length) {
+      // eslint-disable-next-line
       console.warn('chart ' + chart.id + ' already on dashboard')
     } else {
       state.charts.push(chart)

@@ -178,10 +178,8 @@ export default {
             mac: '',
             status: 'reg'
           }
-        }).catch(err => {
+        }).catch(() => {
           this.$store.dispatch('notification/danger', { message: this.$store.state[this.storeName].message })
-          console.debug(err)
-          console.debug(this.$store.state[this.storeName].message)
         })
       }
     }
