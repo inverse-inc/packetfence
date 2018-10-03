@@ -56,7 +56,7 @@ export default {
       if (this.filter) {
         // this.value is one char behind, wait until next tick for our v-model to update
         this.$nextTick(() => {
-          if (this.value.length === 0) {
+          if (!this.value || this.value.length === 0) {
             this.lastValidValue = ''
           } else {
             if (this.filter.test(this.value)) {
