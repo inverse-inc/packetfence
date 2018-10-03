@@ -6,6 +6,7 @@ import api from '../_api'
 
 const types = {
   LOADING: 'loading',
+  DELETING: 'deleting',
   SUCCESS: 'success',
   ERROR: 'error'
 }
@@ -18,6 +19,7 @@ const state = {
 }
 
 const getters = {
+  isWaiting: state => [types.LOADING, types.DELETING].includes(state.itemStatus),
   isLoading: state => state.itemStatus === types.LOADING
 }
 
@@ -33,6 +35,14 @@ const actions = {
       commit('ITEM_ERROR', err.response)
     })
   },
+  createRole: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    return api.createRole(data).then(response => {
+      commit('ITEM_REPLACED', data)
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+    })
+  },
   updateRole: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     return api.updateRole(data).then(response => {
@@ -42,7 +52,7 @@ const actions = {
     })
   },
   deleteRole: ({ commit }, data) => {
-    commit('ITEM_REQUEST')
+    commit('ITEM_REQUEST', types.DELETING)
     return api.deleteRole(data).then(response => {
       commit('ITEM_DESTROYED', data)
     }).catch(err => {
@@ -52,8 +62,8 @@ const actions = {
 }
 
 const mutations = {
-  ITEM_REQUEST: (state) => {
-    state.itemStatus = types.LOADING
+  ITEM_REQUEST: (state, type) => {
+      state.itemStatus = type || types.LOADING
     state.message = ''
   },
   ITEM_REPLACED: (state, data) => {

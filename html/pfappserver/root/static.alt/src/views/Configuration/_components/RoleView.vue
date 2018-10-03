@@ -1,24 +1,30 @@
 
 <template>
-  <b-form @submit.prevent="save()">
+  <b-form @submit.prevent="isNew? create() : save()">
     <b-card no-body>
       <b-card-header>
         <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
-        <h4 class="mb-0">{{ $t('Role') }} <strong v-text="id"></strong></h4>
+        <h4 class="mb-0">
+          <span v-if="id">{{ $t('Role') }} <strong v-text="id"></strong></span>
+          <span v-else>{{ $t('New Role') }}</span>
+        </h4>
       </b-card-header>
       <div class="card-body">
-        <pf-form-input v-model="roleContent.notes"
+        <pf-form-input v-if="isNew" v-model="role.id"
+          :column-label="$t('Name')"
+          :validation="$v.role.id"/>
+        <pf-form-input v-model="role.notes"
           :column-label="$t('Description')"
-          :validation="$v.roleContent.notes"/>
-        <pf-form-input v-model="roleContent.max_nodes_per_pid" type="number"
+          :validation="$v.role.notes"/>
+        <pf-form-input v-model="role.max_nodes_per_pid" type="number"
           :filter="globals.regExp.integerPositive"
-          :validation="$v.roleContent.max_nodes_per_pid"
+          :validation="$v.role.max_nodes_per_pid"
           :column-label="$t('Max nodes per user')"
           :text="$t('nodes')"/>
       </div>
-      <b-card-footer @mouseenter="$v.roleContent.$touch()">
-        <pf-button-save :disabled="invalidForm" :isLoading="isLoading"/>
-        <pf-button-delete class="ml-1" :disabled="isLoading" :confirm="$t('Delete Role?')" @on-delete="deleteRole()"/>
+      <b-card-footer @mouseenter="$v.role.$touch()">
+        <pf-button-save :disabled="invalidForm" :isLoading="isLoading">{{ isNew? $t('Create') : $t('Save') }}</pf-button-save>
+        <pf-button-delete v-if="!isNew" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Role?')" @on-delete="deleteRole()"/>
       </b-card-footer>
     </b-card>
   </b-form>
@@ -31,7 +37,7 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormRow from '@/components/pfFormRow'
 import { pfRegExp as regExp } from '@/globals/pfRegExp'
 const { validationMixin } = require('vuelidate')
-const { required, integer } = require('vuelidate/lib/validators')
+const { required, alphaNum, integer } = require('vuelidate/lib/validators')
 
 export default {
   name: 'RoleView',
@@ -50,40 +56,47 @@ export default {
       default: null,
       required: true
     },
-    id: String
+    id: { // from router
+      type: String,
+      default: null
+    }
   },
   data () {
     return {
       globals: {
         regExp: regExp
       },
-      roleContent: { // will be overloaded with the data from the store
-        pid: ''
-      }
+      role: {} // will be overloaded with the data from the store
     }
   },
   validations: {
-    roleContent: {
+    role: {
+      id: { required, alphaNum },
       max_nodes_per_pid: { required, integer }
     }
   },
   computed: {
-    // role () {
-    //   return this.$store.state.$_roles.roles[this.id]
-    // },
+    isNew () {
+      return this.id === null
+    },
     isLoading () {
       return this.$store.getters['$_roles/isLoading']
     },
     invalidForm () {
-      return this.$v.roleContent.$invalid || this.$store.getters['$_roles/isLoading']
+      return this.$v.role.$invalid || this.$store.getters['$_roles/isWaiting']
     }
   },
   methods: {
     close () {
       this.$router.push({ name: 'roles' })
     },
+    create () {
+      this.$store.dispatch('$_roles/createRole', this.role).then(response => {
+        this.close()
+      })
+    },
     save () {
-      this.$store.dispatch('$_roles/updateRole', this.roleContent).then(response => {
+      this.$store.dispatch('$_roles/updateRole', this.role).then(response => {
         this.close()
       })
     },
@@ -100,9 +113,11 @@ export default {
     }
   },
   created () {
-    this.$store.dispatch('$_roles/getRole', this.id).then(data => {
-      this.roleContent = Object.assign({}, data)
-    })
+    if (this.id) {
+      this.$store.dispatch('$_roles/getRole', this.id).then(data => {
+        this.role = Object.assign({}, data)
+      })
+    }
   },
   mounted () {
     document.addEventListener('keyup', this.onKeyup)
@@ -112,6 +127,3 @@ export default {
   }
 }
 </script>
-
-<style>
-</style>

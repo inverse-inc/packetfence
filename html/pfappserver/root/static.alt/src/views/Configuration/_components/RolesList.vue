@@ -31,6 +31,9 @@
         </template>
       </b-table>
     </div>
+    <b-card-footer>
+      <b-button variant="outline-primary" class="ml-1" :to="{ name: 'newRole' }">{{ $t('Add Role') }}</b-button>
+    </b-card-footer>
   </b-card>
 </template>
 
@@ -130,8 +133,6 @@ export default {
     onRowClick (item, index) {
       this.$router.push({ name: 'role', params: { id: item.id } })
     }
-  },
-  created () {
   }
 }
 </script>

@@ -39,6 +39,12 @@ const route = {
       props: (route) => ({ query: route.query.query })
     },
     {
+      path: 'role-new',
+      name: 'newRole',
+      component: RoleView,
+      props: (route) => ({ storeName: '$_roles' })
+    },
+    {
       path: 'role/:id',
       name: 'role',
       component: RoleView,

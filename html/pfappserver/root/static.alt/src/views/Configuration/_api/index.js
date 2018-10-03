@@ -6,6 +6,11 @@ export default {
       return response.data.item
     })
   },
+  createRole: data => {
+    return apiCall.post('config/roles', data).then(response => {
+      return response.data
+    })
+  },
   updateRole: data => {
     return apiCall.patch(`config/role/${data.id}`, data).then(response => {
       return response.data
