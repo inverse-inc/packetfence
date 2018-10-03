@@ -1,6 +1,5 @@
 STATIC_FILES = ../admin/v-index.tt
-DYNAMIC_FILES = dist/css/app.* dist/js/app.* dist/js/vendor.* dist/js/[0-9]*
-MANIFEST_FILES = dist/js/manifest.*
+DYNAMIC_FILES = dist/css/* dist/js/* dist/js/*
 
 .PHONY: all vendor dev dist
 
@@ -11,14 +10,13 @@ vendor:
 	npm install
 
 dev:
-	npm run build-dev
+	npm run build
 
 dist:
 	npm run build
 	git add -f $(STATIC_FILES) $(DYNAMIC_FILES)
 	@if ! git diff --cached --quiet --exit-code; then \
 		git add --update dist; \
-		git add -f $(MANIFEST_FILES); \
 		git commit -m "(web admin alt) Update generated files"; \
 	else \
 		echo "Nothing to commit; skipping git-commit"; \
