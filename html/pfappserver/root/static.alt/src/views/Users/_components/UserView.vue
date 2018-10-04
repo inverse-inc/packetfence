@@ -41,7 +41,7 @@
       </b-tabs>
 
       <b-card-footer @mouseenter="$v.userContent.$touch()">
-        <b-button type="submit" variant="primary" :disabled="invalidForm"><icon name="circle-notch" spin v-show="isLoading"></icon> {{ $t('Save') }}</b-button>
+        <b-button class="mr-1" type="submit" variant="primary" :disabled="invalidForm"><icon name="circle-notch" spin v-show="isLoading"></icon> {{ $t('Save') }}</b-button>
         <b-button variant="danger" :disabled="isLoading" @click="deleteUser()" v-t="'Delete'"></b-button>
       </b-card-footer>
 
