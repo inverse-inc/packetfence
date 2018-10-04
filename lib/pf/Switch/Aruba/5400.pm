@@ -20,6 +20,8 @@ Module to manage rebanded Aruba HP 5400 switches
 
 =item 802.1X
 
+=item Radius downloadable ACL support
+
 =item Voice over IP
 
 =item Radius CLI Login
