@@ -216,7 +216,7 @@ func createQuery(ctx context.Context, o PfconfigObject) Query {
 		query.ns = query.ns + "(" + myHostname + ")"
 	}
 
-	if GetClusterSummary().ClusterEnabled {
+	if GetClusterSummary(ctx).ClusterEnabled == 1 {
 		if metadataFromField(ctx, o, "PfconfigClusterNameOverlay") == "yes" && !nsHasOverlayRe.MatchString(query.ns) {
 			clusterName := FindClusterName(ctx)
 			if clusterName == "" {
