@@ -39,7 +39,7 @@ sub unassign_nodes {
         return $self->render_error(500, "Unable the unassign nodes for $pid");
     }
 
-    return $self->render(status => 200, json => {status => "success", count => $count});
+    return $self->render(status => 200, json => {count => $count});
 }
 
 =head1 AUTHOR
