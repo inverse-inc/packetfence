@@ -122,7 +122,6 @@ sub build_single_cluster {
             push @servers, $server;
         }
 
-        print "$cluster_name $section\n";
         # Add it to the map for getting the cluster name of a server
         die "The same hostname ($section) is declared in two different clusters (".$self->{hostname_map}->{$section}." and $cluster_name). This is currently unsupported\n" 
             if($section ne "CLUSTER" && defined($self->{hostname_map}->{$section}) && $self->{hostname_map}->{$section} ne $cluster_name);
