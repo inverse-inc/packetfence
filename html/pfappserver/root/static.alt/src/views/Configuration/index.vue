@@ -10,6 +10,8 @@
                         <b-nav vertical class="bd-sidenav">
                             <div class="bd-toc-link" v-t="'Policies and Access Control'"></div>
                             <b-nav-item to="/configuration/roles" replace>{{ $t('Roles') }}</b-nav-item>
+                            <b-nav-item to="/configuration/domains" replace>{{ $t('Domains') }}</b-nav-item>
+                            <b-nav-item to="/configuration/realms" replace>{{ $t('REALMS') }}</b-nav-item>
                             <div class="bd-toc-link" v-t="'Network Configuration'"></div>
                             <b-nav-item to="/configuration/floating_devices" replace>{{ $t('Floating Devices') }}</b-nav-item>
                         </b-nav>

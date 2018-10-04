@@ -1,5 +1,5 @@
 /**
-* "$_roles" store module
+* "$_domains" store module
 */
 import Vue from 'vue'
 import api from '../_api'
@@ -24,39 +24,48 @@ const getters = {
 }
 
 const actions = {
-  getRole: ({ state, commit }, id) => {
+  all: () => {
+    const params = {
+      sort: 'id',
+      fields: ['id', 'workgroup'].join(',')
+    }
+    return api.domains(params).then(response => {
+      return response.items
+    })
+  },
+  getDomain: ({ state, commit }, id) => {
     if (state.cache[id]) {
       return Promise.resolve(state.cache[id])
     }
     commit('ITEM_REQUEST')
-    return api.role(id).then(item => {
+    return api.domain(id).then(item => {
       commit('ITEM_REPLACED', item)
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
   },
-  createRole: ({ commit }, data) => {
+  createDomain: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.createRole(data).then(response => {
+    return api.createDomain(data).then(response => {
       commit('ITEM_REPLACED', data)
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
   },
-  updateRole: ({ commit }, data) => {
+  updateDomain: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.updateRole(data).then(response => {
+    return api.updateDomain(data).then(response => {
       commit('ITEM_REPLACED', data)
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
   },
-  deleteRole: ({ commit }, data) => {
+  deleteDomain: ({ commit }, data) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteRole(data).then(response => {
+    return api.deleteDomain(data).then(response => {
       commit('ITEM_DESTROYED', data)
     }).catch(err => {
       commit('ITEM_ERROR', err.response)

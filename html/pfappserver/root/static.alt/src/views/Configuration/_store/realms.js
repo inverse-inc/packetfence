@@ -1,5 +1,5 @@
 /**
-* "$_roles" store module
+* "$_realms" store module
 */
 import Vue from 'vue'
 import api from '../_api'
@@ -24,39 +24,39 @@ const getters = {
 }
 
 const actions = {
-  getRole: ({ state, commit }, id) => {
+  getRealm: ({ state, commit }, id) => {
     if (state.cache[id]) {
       return Promise.resolve(state.cache[id])
     }
     commit('ITEM_REQUEST')
-    return api.role(id).then(item => {
+    return api.realm(id).then(item => {
       commit('ITEM_REPLACED', item)
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
   },
-  createRole: ({ commit }, data) => {
+  createRealm: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.createRole(data).then(response => {
+    return api.createRealm(data).then(response => {
       commit('ITEM_REPLACED', data)
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
   },
-  updateRole: ({ commit }, data) => {
+  updateRealm: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.updateRole(data).then(response => {
+    return api.updateRealm(data).then(response => {
       commit('ITEM_REPLACED', data)
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
   },
-  deleteRole: ({ commit }, data) => {
+  deleteRealm: ({ commit }, data) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteRole(data).then(response => {
+    return api.deleteRealm(data).then(response => {
       commit('ITEM_DESTROYED', data)
     }).catch(err => {
       commit('ITEM_ERROR', err.response)

@@ -82,6 +82,32 @@ export const isDateFormat = (dateFormat) => {
   })
 }
 
+export const isFQDN = (str) => {
+  const parts = str.split('.')
+  const tld = parts.pop()
+
+  if (!parts.length || !/^([a-z\u00a1-\uffff]{2,}|xn[a-z0-9-]{2,})$/i.test(tld)) {
+    return false
+  }
+  for (let i = 0; i < parts.length; i++) {
+    let part = parts[i]
+    if (part.indexOf('__') >= 0) {
+      return false
+    }
+    if (!/^[a-z\u00a1-\uffff0-9-_]+$/i.test(part)) {
+			return false
+		}
+		if (/[\uff01-\uff5e]/.test(part)) {
+			// disallow full-width chars
+			return false
+		}
+		if (part[0] === '-' || part[part.length - 1] === '-') {
+			return false
+		}
+	}
+	return true
+}
+
 export const categoryIdNumberExists = (value, component) => {
   if (!value || !/^\d+$/.test(value)) return true
   return store.dispatch('config/getRoles').then((response) => {

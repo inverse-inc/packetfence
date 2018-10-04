@@ -1,25 +1,24 @@
 <template>
-  <b-card no-body>
+  <div>
     <pf-progress :active="isLoading"></pf-progress>
-    <b-card-header>
-      <h4 class="mb-0" v-t="'Floating Devices'"></h4>
-    </b-card-header>
-    <pf-search :quick-with-fields="false" quick-placeholder="Search by MAC or IP address"
-      :fields="fields" :advanced-mode="false" :condition="condition"
+    <pf-search :quick-with-fields="false" quick-placeholder="Search by name"
+      :fields="fields" :store="$store" :advanced-mode="false" :condition="condition"
       @submit-search="onSearch" @reset-search="onReset"></pf-search>
     <div class="card-body">
       <b-row align-h="end" align-v="start">
         <b-col>
-          <b-button variant="outline-primary" :to="{ name: 'newFloatingDevice' }">{{ $t('Add Floating Device') }}</b-button>
+          <b-button variant="outline-primary" :to="{ name: 'newRealm' }">{{ $t('Add Realm') }}</b-button>
         </b-col>
         <b-col cols="auto">
           <b-container fluid>
             <b-row align-v="center">
               <b-form inline class="mb-0">
-                <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[10,25,50,100]" :disabled="isLoading"
+                <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit"
+                  :options="[10,25,50,100]" :disabled="isLoading"
                   @input="onPageSizeChange" />
               </b-form>
-              <b-pagination align="right" :per-page="pageSizeLimit" :total-rows="totalRows" v-model="requestPage" :disabled="isLoading"
+              <b-pagination align="right" v-model="requestPage"
+                :per-page="pageSizeLimit" :total-rows="totalRows" :disabled="isLoading"
                 @input="onPageChange" />
             </b-row>
           </b-container>
@@ -30,11 +29,11 @@
         @sort-changed="onSortingChanged" @row-clicked="onRowClick"
         show-empty responsive hover no-local-sorting>
         <template slot="empty">
-          <pf-empty-table :isLoading="isLoading">{{ $t('No floating device found') }}</pf-empty-table>
+          <pf-empty-table :isLoading="isLoading">{{ $t('No realm found') }}</pf-empty-table>
         </template>
       </b-table>
     </div>
-  </b-card>
+  </div>
 </template>
 
 <script>
@@ -45,32 +44,31 @@ import pfEmptyTable from '@/components/pfEmptyTable'
 import pfSearch from '@/components/pfSearch'
 
 export default {
-  name: 'FloatingDevicesList',
+  name: 'RealmsList',
   mixins: [
     pfMixinSearchable
   ],
   components: {
-    'pf-progress': pfProgress,
-    'pf-empty-table': pfEmptyTable,
-    'pf-search': pfSearch
+    pfProgress,
+    pfEmptyTable,
+    pfSearch
   },
   props: {
     pfMixinSearchableOptions: {
       type: Object,
       default: () => ({
-        searchApiEndpoint: 'config/floating_devices',
-        defaultSortKeys: ['id'], // id is the MAC address
+        searchApiEndpoint: 'config/realms',
+        defaultSortKeys: ['id'],
         defaultSearchCondition: {
           op: 'and',
           values: [{
             op: 'or',
             values: [
-              { field: 'id', op: 'contains', value: null },
-              { field: 'ip', op: 'contains', value: null }
+              { field: 'id', op: 'contains', value: null }
             ]
           }]
         },
-        defaultRoute: { name: 'configuration/floating_devices' }
+        defaultRoute: { name: 'configuration/realms' }
       })
     },
     tableValues: {
@@ -84,31 +82,14 @@ export default {
       fields: [ // keys match with b-form-select
         {
           value: 'id',
-          text: 'MAC',
-          types: [conditionType.SUBSTRING]
-        },
-        {
-          value: 'ip',
-          text: 'IP Address',
+          text: 'Name',
           types: [conditionType.SUBSTRING]
         }
       ],
       columns: [
         {
           key: 'id',
-          label: this.$i18n.t('MAC'),
-          sortable: true,
-          visible: true
-        },
-        {
-          key: 'ip',
-          label: this.$i18n.t('IP Address'),
-          sortable: true,
-          visible: true
-        },
-        {
-          key: 'pvid',
-          label: this.$i18n.t('Native VLAN'),
+          label: this.$i18n.t('Name'),
           sortable: true,
           visible: true
         }
@@ -123,18 +104,15 @@ export default {
           {
             op: 'or',
             values: [
-              { field: 'id', op: 'contains', value: quickCondition },
-              { field: 'ip', op: 'contains', value: quickCondition }
+              { field: 'id', op: 'contains', value: quickCondition }
             ]
           }
         ]
       }
     },
     onRowClick (item, index) {
-      this.$router.push({ name: 'floating_device', params: { id: item.id } })
+      this.$router.push({ name: 'realm', params: { id: item.id } })
     }
-  },
-  created () {
   }
 }
 </script>

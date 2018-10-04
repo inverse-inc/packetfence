@@ -8,7 +8,10 @@
       :fields="fields" :store="$store" :advanced-mode="false" :condition="condition"
       @submit-search="onSearch" @reset-search="onReset"></pf-search>
     <div class="card-body">
-      <b-row align-h="end" align-v="center">
+      <b-row align-h="end" align-v="start">
+        <b-col>
+          <b-button variant="outline-primary" :to="{ name: 'newRole' }">{{ $t('Add Role') }}</b-button>
+        </b-col>
         <b-col cols="auto">
           <b-container fluid>
             <b-row align-v="center">
@@ -31,9 +34,6 @@
         </template>
       </b-table>
     </div>
-    <b-card-footer>
-      <b-button variant="outline-primary" class="ml-1" :to="{ name: 'newRole' }">{{ $t('Add Role') }}</b-button>
-    </b-card-footer>
   </b-card>
 </template>
 
