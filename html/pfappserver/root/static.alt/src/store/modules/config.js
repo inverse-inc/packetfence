@@ -26,7 +26,7 @@ const api = {
 }
 
 const state = {
-  admin_roles: [],
+  adminRoles: [],
   roles: [],
   sources: [],
   switches: [],
@@ -68,7 +68,7 @@ const helpers = {
 const getters = {
   adminRolesList: state => {
     // Remap for b-form-select component
-    return state.admin_roles.map((item) => {
+    return state.adminRoles.map((item) => {
       return { value: item.id, name: item.id }
     })
   },
@@ -100,13 +100,13 @@ const getters = {
 
 const actions = {
   getAdminRoles: ({ state, commit }) => {
-    if (state.admin_roles.length === 0) {
+    if (state.adminRoles.length === 0) {
       return api.getAdminRoles().then(response => {
         commit('ADMIN_ROLES_UPDATED', response.data.items)
-        return state.admin_roles
+        return state.adminRoles
       })
     } else {
-      return Promise.resolve(state.admin_roles)
+      return Promise.resolve(state.adminRoles)
     }
   },
   getRoles: ({ state, commit }) => {
@@ -166,8 +166,8 @@ const actions = {
 }
 
 const mutations = {
-  ADMIN_ROLES_UPDATED: (state, admin_roles) => {
-    state.admin_roles = admin_roles
+  ADMIN_ROLES_UPDATED: (state, adminRoles) => {
+    state.adminRoles = adminRoles
   },
   ROLES_UPDATED: (state, roles) => {
     state.roles = roles

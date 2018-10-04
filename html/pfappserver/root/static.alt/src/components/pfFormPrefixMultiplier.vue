@@ -1,6 +1,6 @@
 <template>
   <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)" 
-    :state="isValid()" :invalid-feedback="getInvalidFeedback()" :class="[{ 'mb-0': !columnLabel }, { 'is-focus': focus}]">
+    :state="isValid()" :invalid-feedback="getInvalidFeedback()" :class="['prefixmultiplier-element', { 'mb-0': !columnLabel }, { 'is-focus': focus}]">
     <b-input-group class="input-group-prefixmultiplier">
       <b-input-group-prepend v-if="prependText">
         <div class="input-group-text">
@@ -215,7 +215,7 @@ export default {
 /**
  * Adjust is-invalid and is-focus borders
  */
-.form-group {
+.prefixmultiplier-element {
   .input-group-prefixmultiplier {
     background-color: $input-focus-bg;
     border: 1px solid $input-focus-bg;

@@ -1,13 +1,14 @@
 <template>
   <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
-    :state="isValid()" :invalid-feedback="getInvalidFeedback()" :class="[{ 'is-focus': drag }, { 'mb-0': !columnLabel }]">
+    :state="isValid()" :invalid-feedback="buildInvalidFeedback()" :class="['sortablefields-element', { 'is-focus': drag }, { 'mb-0': !columnLabel }]"
+    >
     <b-input-group class="input-group-sortablefields">
       <b-container fluid class="px-0"
         @mouseleave="onMouseLeave()"
       >
         <draggable
           v-model="inputValue"
-          :options="{handle: '.draghandle', dragClass: 'sortable-drag'}"
+          :options="{handle: '.draghandle', dragClass: 'dragclass'}"
           @start="onDragStart"
           @end="onDragEnd"
         >
@@ -20,7 +21,7 @@
             @mousemove="onMouseEnter(index)"
             no-gutter
           >
-            <b-col col v-if="hover === index && inputValue.length > 1" class="draghandle text-center"><icon name="th"></icon></b-col>
+            <b-col col v-if="sortable && hover === index && inputValue.length > 1" class="draghandle text-center"><icon name="th"></icon></b-col>
             <b-col col v-else class="dragindex text-center"><b-badge variant="light">{{ index + 1 }}</b-badge></b-col>
             <b-col cols="4" class="text-left py-1">
 
@@ -36,68 +37,84 @@
             </b-col>
             <b-col cols="6" class="text-left py-1">
 
+              <!--
+                - Don't use 'v-model='...,
+                - instead use ':value=' and '@input=' combination
+              -->
+
               <!-- BEGIN ADMINROLE -->
-              <pf-form-chosen
-                v-if="isFieldType(adminroleValueType, inputValue[index])"
+              <pf-form-chosen v-if="isFieldType(adminroleValueType, inputValue[index])"
                 :value="inputValue[index].value"
                 label="name"
                 track-by="value"
                 :options="values(inputValue[index])"
+                :validation="$v.inputValue[index]"
+                :invalid-feedback="buildInvalidFeedback(index)"
                 @input="setValue(index, $event)"
               ></pf-form-chosen>
 
               <!-- BEGIN ROLE -->
-              <pf-form-chosen
-                v-if="isFieldType(roleValueType, inputValue[index])"
+              <pf-form-chosen v-if="isFieldType(roleValueType, inputValue[index])"
                 :value="inputValue[index].value"
                 label="name"
                 track-by="value"
                 :options="values(inputValue[index])"
+                :validation="$v.inputValue[index]"
+                :invalid-feedback="buildInvalidFeedback(index)"
                 @input="setValue(index, $event)"
               ></pf-form-chosen>
 
               <!-- BEGIN TENANT -->
-              <pf-form-chosen
-                v-if="isFieldType(tenantValueType, inputValue[index])"
+              <pf-form-chosen v-if="isFieldType(tenantValueType, inputValue[index])"
                 :value="inputValue[index].value"
                 label="name"
                 track-by="value"
                 :options="values(inputValue[index])"
+                :validation="$v.inputValue[index]"
+                :invalid-feedback="buildInvalidFeedback(index)"
                 @input="setValue(index, $event)"
               ></pf-form-chosen>
 
               <!-- BEGIN DATETIME -->
-              <pf-form-datetime
-                v-if="isFieldType(datetimeValueType, inputValue[index])"
-                v-model="inputValue[index].value"
+              <pf-form-datetime v-if="isFieldType(datetimeValueType, inputValue[index])"
+                :value="inputValue[index].value"
                 :config="{useCurrent: true}"
+                :validation="$v.inputValue[index]"
+                :invalid-feedback="buildInvalidFeedback(index)"
+                @input="setValue(index, $event)"
               ></pf-form-datetime>
 
               <!-- BEGIN DURATION -->
-              <pf-form-chosen
-                v-if="isFieldType(durationValueType, inputValue[index])"
+              <pf-form-chosen v-if="isFieldType(durationValueType, inputValue[index])"
                 :value="inputValue[index].value"
                 label="name"
                 track-by="value"
                 :options="values(inputValue[index])"
+                :validation="$v.inputValue[index]"
+                :invalid-feedback="buildInvalidFeedback(index)"
                 @input="setValue(index, $event)"
               ></pf-form-chosen>
 
               <!-- BEGIN PREFIXMULTIPLER -->
-              <pf-form-prefix-multiplier
-                v-if="isFieldType(prefixmultiplerValueType, inputValue[index])"
-                v-model="inputValue[index].value"
+              <pf-form-prefix-multiplier v-if="isFieldType(prefixmultiplerValueType, inputValue[index])"
+                :value="inputValue[index].value"
+                :validation="$v.inputValue[index]"
+                :invalid-feedback="buildInvalidFeedback(index)"
+                @input="setValue(index, $event)"
               ></pf-form-prefix-multiplier>
 
             </b-col>
             <b-col col class="text-center text-nowrap">
-              <icon name="plus-circle" class="text-pointer mx-1" @click.native="rowAdd(index)"></icon>
-              <icon name="minus-circle" v-if="inputValue.length > 1" class="text-pointer mx-1" @click.native="rowDel(index)"></icon>
+              <icon name="plus-circle" class="cursor-pointer mx-1" @click.native.stop.prevent="rowAdd(index)"></icon>
+              <icon name="minus-circle" v-if="inputValue.length > 1" class="cursor-pointer mx-1" @click.native.stop.prevent="rowDel(index)"></icon>
             </b-col>
           </b-form-row>
         </draggable>
 
-        <pre>{{ JSON.stringify(inputValue, null, 2) }}</pre>
+        <!--
+        <h1>$v</h1>
+        <pre>{{ JSON.stringify($v, null, 2) }}</pre>
+        -->
 
       </b-container>
     </b-input-group>
@@ -108,19 +125,22 @@
 <script>
 /* eslint key-spacing: ["error", { "mode": "minimum" }] */
 import draggable from 'vuedraggable'
-import pfMixinValidation from '@/components/pfMixinValidation'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormPrefixMultiplier from '@/components/pfFormPrefixMultiplier'
+import pfMixinValidation from '@/components/pfMixinValidation'
 import {
   pfFieldType as fieldType,
   pfFieldTypeValues as fieldTypeValues
 } from '@/globals/pfField'
 
+const { validationMixin } = require('vuelidate')
+
 export default {
   name: 'pf-form-sortable-fields',
   mixins: [
-    pfMixinValidation
+    pfMixinValidation,
+    validationMixin
   ],
   components: {
     draggable,
@@ -146,6 +166,10 @@ export default {
     fields: {
       type: Array,
       default: null
+    },
+    sortable: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -169,45 +193,61 @@ export default {
   },
   computed: {
     inputValue: {
+      /**
+        * `inputValue` has 2 different models:
+        *
+        *   1. Internal Model (uncompressed): In this model we keep the entire type/value in-tact for use with the various pfForm* components.
+        *     Example: [
+        *         { "type": { "value": "set_bandwidth_balance", "text": "Bandwidth balance", "types": [ "prefixmultiplier" ], "validators": {} }, "value": 64 },
+        *         { "type": { "value": "set_access_duration", "text": "Access duration", "types": [ "duration" ], "validators": {} }, "value": { "name": "12 hours", "value": "12h" } },
+        *         { "type": { "value": "set_access_level", "text": "Access level", "types": [ "adminrole" ], "validators": {} }, "value": { "value": "User Manager", "name": "User Manager" } },
+        *         { "type": { "value": "mark_as_sponsor", "text": "Mark as sponsor", "types": [ "none" ], "validators": {} }, "value": null },
+        *         { "type": { "value": "set_role", "text": "Role", "types": [ "role" ], "validators": {} }, "value": { "value": "1", "name": "default", "text": "default - Placeholder role/category, feel free to edit" } },
+        *         { "type": { "value": "set_tenant_id", "text": "Tenant ID", "types": [ "tenant" ], "validators": {} }, "value": { "value": "1", "name": "default" } },
+        *         { "type": { "value": "set_time_balance", "text": "Time balance", "types": [ "duration" ], "validators": {} }, "value": { "name": "12 hours", "value": "12h" } },
+        *         { "type": { "value": "set_unreg_date", "text": "Unregistration date", "types": [ "datetime" ], "validators": {} }, "value": 1973-08-05 13:00:00" }
+        *        ]
+        *
+        *   2. External Model (compressed): In this model we compress the internal model into somewthing more clean and useable by the parent component.
+        *     Example: [
+        *         { "type": "set_bandwidth_balance", "value": 64 },
+        *         { "type": "set_access_duration", "value": "12h" },
+        *         { "type": "set_access_level", "value": "User Manager" },
+        *         { "type": "mark_as_sponsor", "value": null },
+        *         { "type": "set_role", "value": "1" },
+        *         { "type": "set_tenant_id", "value": "1" },
+        *         { "type": "set_time_balance", "value": "12h" },
+        *         { "type": "set_unreg_date", "value": "1973-08-05 13:00:00" }
+        *       ]
+        *
+      **/
       get () {
         const value = (this.value) ? this.value : [this.valuePlaceholder]
-        const compressedValue = value.map(row => {
+        const uncompressedValue = value.map(row => {
+          let field = this.fields.find(field => field.value === row.type)
           return {
             type: (row.type && typeof row.type !== 'object')
-              ? this.fields.find(field => field.value === row.type)
+              ? field
               : row.type,
             value: (row.value && typeof row.value !== 'object')
-              ? this.values({ type: this.fields.find(field => field.value === row.type) }).find(value => value.value === row.value)
+              ? this.values({ type: field }).find(value => value.value === row.value) || row.value
               : row.value
           }
         })
-        return compressedValue
+        return uncompressedValue
       },
       set (newValue) {
-        const uncompressedValue = newValue.map(row => {
+        const compressedValue = newValue.map(row => {
           return {
             type: ((row.type && row.type.value) ? this.fields.find(field => field.value === row.type.value).value : row.type),
             value: ((row.value && row.value.value) ? row.value.value : row.value)
           }
         })
-        this.$emit('input', uncompressedValue)
+        this.$emit('input', compressedValue)
+        this.emitValidations()
+        this.$v.$touch()
       }
     }
-    /*
-    newValue [
-      {
-        "type": {
-          "value": "set_access_duration",
-          "text": "Access duration",
-          "types": [
-            "duration"
-          ],
-          "validations": {}
-        },
-        "value": null
-      }
-    ]
-    */
   },
   methods: {
     setType (index, type) {
@@ -215,21 +255,33 @@ export default {
       inputValue[index].type = type
       inputValue[index].value = null
       this.inputValue = inputValue
+      this.$v.$touch()
+      this.emitValidations()
     },
     setValue (index, value) {
       let inputValue = JSON.parse(JSON.stringify(this.inputValue))
       inputValue[index].value = value
       this.inputValue = inputValue
+      this.$v.$touch()
     },
     rowAdd (index) {
-      let inputValue = JSON.parse(JSON.stringify(this.inputValue))
+      let inputValue = this.inputValue
       // push placeholder into middle of array
       this.inputValue = [...inputValue.slice(0, index + 1), this.valuePlaceholder, ...inputValue.slice(index + 1)]
+      this.$forceUpdate()
+      this.$v.$touch()
+      this.emitValidations()
     },
     rowDel (index) {
-      this.inputValue.splice(index, 1)
+      let inputValue = JSON.parse(JSON.stringify(this.inputValue))
+      inputValue.splice(index, 1)
+      this.inputValue = inputValue
       if (this.inputValue.length === 0) {
         this.rowAdd(0)
+      } else {
+        this.$forceUpdate()
+        this.$v.$touch()
+        this.emitValidations()
       }
     },
     onDragStart (event) {
@@ -270,7 +322,63 @@ export default {
         }
       }
       return false
+    },
+    getValidations (internal = false) {
+      let eachInputValue = {}
+      this.inputValue.forEach((input, index) => {
+        let field = this.fields.find(field => input.type && field.value === input.type.value)
+        if (field && field.hasOwnProperty('validators')) {
+          eachInputValue[field.value] = (internal && typeof input.value === 'object')
+            ? { value: { value: field.validators } } /* internal object */
+            : { value: field.validators } /* external, or internal non-object */
+        } else if (field && field.value) {
+          // no validations
+          eachInputValue[field.value] = {/* ignore */}
+        } else {
+          // 1+ empty field(s)
+          eachInputValue[null] = {/* ignore */}
+        }
+      })
+      if (eachInputValue !== {}) {
+        // use functional validations
+        // https://github.com/monterail/vuelidate/issues/166#issuecomment-319924309
+        return { ...this.inputValue.map(input => eachInputValue[(input.type && input.type.value) ? input.type.value : null]) }
+      }
+      return {}
+    },
+    emitValidations () {
+      // debounce to avoid emit storm,
+      // delay to allow internal inputValue to update before building external validations
+      if (this.emitValidationsTimeout) clearTimeout(this.emitValidationsTimeout)
+      this.emitValidationsTimeout = setTimeout(() => {
+        this.$emit('validations', this.getValidations())
+      }, 500)
+    },
+    buildInvalidFeedback (index) {
+      let feedback = []
+      if (index !== undefined) {
+        const inputValue = this.$v.inputValue[index]
+        if (inputValue.value) {
+          const validationModel = (inputValue.value.value) ? inputValue.value.value : inputValue.value
+          if (validationModel) {
+            Object.entries(validationModel.$params).forEach(([key, value]) => {
+              if (validationModel[key] === false) {
+                feedback.push(key.trim())
+              }
+            })
+          }
+        }
+      }
+      return feedback.join(' ')
     }
+  },
+  validations () {
+    return {
+      inputValue: this.getValidations(true) /* internal validation model */
+    }
+  },
+  mounted () {
+    this.emitValidations()
   }
 }
 </script>
@@ -281,7 +389,7 @@ export default {
 @import "../../node_modules/bootstrap/scss/mixins/transition";
 @import "../styles/variables";
 
-.form-group {
+.sortablefields-element {
   .input-group-sortablefields {
     border: 1px solid $input-focus-bg;
     @include border-radius($border-radius);
@@ -312,7 +420,7 @@ export default {
 .dragindex {
   font-size: 80%
 }
-.text-pointer {
+.cursor-pointer {
   cursor: pointer;
 }
 </style>

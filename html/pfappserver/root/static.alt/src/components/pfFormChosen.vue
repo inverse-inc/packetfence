@@ -1,10 +1,11 @@
 <template>
   <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
-    :state="isValid()" :invalid-feedback="getInvalidFeedback()" :class="[{ 'mb-0': !columnLabel }, { 'is-focus': focus}]">
+    :state="isValid()" :invalid-feedback="getInvalidFeedback()" :class="['chosen-element', { 'mb-0': !columnLabel }, { 'is-focus': focus}]">
     <b-input-group class="input-group-chosen">
-      <multiselect 
+      <multiselect
         v-model="inputValue"
         v-bind="$attrs"
+        :id="id"
         :options="options"
         :state="isValid()"
         @input.native="validate()"
@@ -12,7 +13,13 @@
         @change.native="onChange($event)"
         @open="focus = true"
         @close="focus = false"
-      ></multiselect>
+      >
+        <b-media slot="noResult" class="text-secondary" md="auto">
+          <icon name="search" scale="2" slot="aside" class="ml-2"></icon>
+          <strong>{{ $t('No results') }}</strong>
+          <b-form-text class="font-weight-light">{{ $t('Please refine your search.') }}</b-form-text>
+        </b-media>
+      </multiselect>
     </b-input-group>
     <b-form-text v-if="text" v-t="text"></b-form-text>
   </b-form-group>
@@ -49,6 +56,9 @@ export default {
     options: {
       type: Array,
       default: null
+    },
+    id: {
+      type: String
     }
   },
   data () {
@@ -75,15 +85,10 @@ export default {
 @import "../../node_modules/bootstrap/scss/mixins/transition";
 @import "../styles/variables";
 
-/* fix underlap with input-group::z-index:2 */
-.input-group-prepend .btn, .input-group-append .btn {
-  z-index: auto;
-}
-
 /**
  * Adjust is-invalid and is-focus borders
  */
-.form-group {
+.chosen-element {
   .multiselect {
       border-width: 1px;
       font-size: $font-size-base;
@@ -104,6 +109,7 @@ export default {
   .multiselect__content-wrapper {
       border-left-width: 1px;
       border-right-width: 1px;
+      z-index: 3;
   }
   .multiselect--active:not(.multiselect--above) {
     .multiselect__content-wrapper {

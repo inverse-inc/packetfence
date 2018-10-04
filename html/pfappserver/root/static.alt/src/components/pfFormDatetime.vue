@@ -17,7 +17,7 @@
  */
  <template>
   <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)" 
-    :state="isValid()" :invalid-feedback="getInvalidFeedback()" :class="[{ 'mb-0': !columnLabel }, { 'is-focus': focus}]">
+    :state="isValid()" :invalid-feedback="getInvalidFeedback()" :class="['datetime-element', { 'mb-0': !columnLabel }, { 'is-focus': focus}]">
     <b-input-group class="input-group-datetime">
       <b-input-group-prepend v-if="prependText">
         <div class="input-group-text">
@@ -173,7 +173,6 @@ export default {
         const dateFormat = Object.assign(this.defaultConfig, this.config).format
         const value = (newValue === null) ? dateFormat.replace(/[a-z]/gi, '0') : newValue
         this.$emit('input', value)
-        // this.$emit('update:inputValue', value)
       }
     },
     datetimeConfig () {
@@ -313,7 +312,7 @@ export default {
 /**
  * Adjust is-invalid and is-focus borders
  */
-.form-group {
+.datetime-element {
   .input-group-datetime {
     background-color: $input-focus-bg;
     border: 1px solid $input-focus-bg;
