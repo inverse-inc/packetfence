@@ -14,12 +14,24 @@ use warnings;
 use base 'pfconfig::namespaces::resource';
 use pfconfig::namespaces::config::Cluster;
 
+=head2 init
+
+Initialize the namespace
+
+=cut
+
 sub init {
     my ($self, $cluster_name) = @_;
 
     $self->{cluster_name} = $cluster_name || "DEFAULT";
     $self->{cluster_resource} = pfconfig::namespaces::config::Cluster->new($self->{cache});
 }
+
+=head2 build
+
+Build the list of all servers in the cluster (including the ones across multiple L3 zones)
+
+=cut
 
 sub build {
     my ($self) = @_;

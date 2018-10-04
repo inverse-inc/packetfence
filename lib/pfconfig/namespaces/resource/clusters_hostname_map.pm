@@ -18,11 +18,23 @@ use warnings;
 use base 'pfconfig::namespaces::resource';
 use pfconfig::namespaces::config::Cluster;
 
+=head2 init
+
+Initialize the namespace
+
+=cut
+
 sub init {
     my ($self) = @_;
 
     $self->{cluster_resource} = pfconfig::namespaces::config::Cluster->new($self->{cache});
 }
+
+=head2 build
+
+Build the map that allows to get the cluster name for a cluster hostname
+
+=cut
 
 sub build {
     my ($self) = @_;
