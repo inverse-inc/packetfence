@@ -177,6 +177,15 @@ func metadataFromField(ctx context.Context, param interface{}, fieldName string)
 	}
 }
 
+func normalizeNamespace(ctx context.Context, ns string) string {
+	//TODO: compile once
+	if res, _ := regexp.MatchString(`\)$`, ns); res {
+		return ns
+	} else {
+		return ns + "()"
+	}
+}
+
 // Decode the struct from bytes given an encoding
 // For now only JSON is supported
 func decodeInterface(ctx context.Context, encoding string, b []byte, o interface{}) {
@@ -227,6 +236,9 @@ func createQuery(ctx context.Context, o PfconfigObject) Query {
 		}
 	}
 
+	// Make sure the namespace is normalized
+	query.ns = normalizeNamespace(ctx, query.ns)
+
 	query.method = metadataFromField(ctx, o, "PfconfigMethod")
 	if query.method == "hash_element" {
 		query.ns = query.ns + ";" + metadataFromField(ctx, o, "PfconfigHashNS")
@@ -249,7 +261,7 @@ func FindClusterName(ctx context.Context) string {
 // If the LoadedAt field was set before the namespace control file, then the resource isn't valid anymore
 // If the namespace control file doesn't exist, the resource is considered invalid
 func IsValid(ctx context.Context, o PfconfigObject) bool {
-	ns := metadataFromField(ctx, o, "PfconfigNS")
+	ns := normalizeNamespace(ctx, metadataFromField(ctx, o, "PfconfigNS"))
 	controlFile := "/usr/local/pf/var/control/" + ns + "-control"
 
 	stat, err := os.Stat(controlFile)
