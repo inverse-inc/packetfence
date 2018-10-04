@@ -19,6 +19,7 @@ use Mojo::JSON qw(decode_json);
 use pf::error qw(is_error);
 use pf::log;
 use pf::util qw(expand_csv);
+use Mojo::Util qw(url_unescape);
 use pf::UnifiedApi::Search::Builder;
 use pf::UnifiedApi::OpenAPI::Generator::Crud;
 
@@ -220,6 +221,17 @@ sub create {
     return $self->render_create(
         $self->do_create($self->make_create_data())
     );
+}
+
+=head2 id
+
+Get id of current resource
+
+=cut
+
+sub id {
+    my ($self) = @_;
+    url_unescape($self->stash->{$self->url_param_name});
 }
 
 sub create_error_msg {
