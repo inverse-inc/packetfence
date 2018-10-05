@@ -36,6 +36,7 @@ Enhancements
 * Better error handling for pfdetect.conf (PR #3607)
 * HAProxy stats files are now located in var/run/ with explicit filenames (PR #3645)
 * pfdns now uses the PacketFence standard Golang logging library (PR #3638)
+* Added VOIP and Downloadable ACLs support to Aruba 5400 switch module (PR #3372)
 
 Bug Fixes
 +++++++++
