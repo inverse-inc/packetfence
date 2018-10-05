@@ -75,7 +75,11 @@ sub hasId { exists $SwitchConfig{$_[0]} }
 
 sub instantiate {
     my $timer = pf::StatsD::Timer->new({level => 7});
-    my ( $class, $switchRequest ) = @_;
+    my ( $class, $switchRequest, $args ) = @_;
+
+    # Defaults to an empty hash to be backward compatible
+    $args //= {};
+
     my $logger = get_logger();
     my @requestedSwitches;
     my $requestedSwitch;
@@ -149,6 +153,11 @@ sub instantiate {
     my $switchOverlay = $switch_overlay_cache->get($requestedSwitch) || {};
     my ($module, $type);
     $type = untaint_chain( $switch_data->{'type'} );
+    
+    my $filter = pf::access_filter::switch->new;
+    my $type_switch = $filter->filter('instantiate_module', $args);
+    $type = $type_switch if($type_switch);
+
     if ($requestedSwitch ne 'default') {
         $module = getModule($type);
     } else {

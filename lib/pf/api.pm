@@ -330,7 +330,7 @@ sub ReAssignVlan : Public : Fork {
         return;
     }
 
-    my $switch = pf::SwitchFactory->instantiate( $postdata{'switch'} );
+    my $switch = pf::SwitchFactory->instantiate( $postdata{'switch'}, {locationlog => pf::locationlog::locationlog_view_open_mac($postdata{'mac'})} );
     unless ($switch) {
         $logger->error("switch $postdata{'switch'} not found for ReAssignVlan");
         return;
@@ -372,7 +372,7 @@ sub desAssociate : Public : Fork {
 
     my $logger = pf::log::get_logger();
 
-    my $switch = pf::SwitchFactory->instantiate($postdata{'switch'});
+    my $switch = pf::SwitchFactory->instantiate($postdata{'switch'}, {locationlog => pf::locationlog::locationlog_view_open_mac($postdata{'mac'})});
     unless ($switch) {
         $logger->error("switch $postdata{'switch'} not found for desAssociate");
         return;
