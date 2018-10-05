@@ -1,6 +1,6 @@
 <template>
   <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
-    :state="isValid()" :invalid-feedback="buildInvalidFeedback()" :class="['sortablefields-element', { 'is-focus': drag }, { 'mb-0': !columnLabel }]"
+    :state="isValid()" :invalid-feedback="getInvalidFeedback()" :class="['sortablefields-element', { 'is-focus': drag }, { 'mb-0': !columnLabel }]"
     >
     <b-input-group class="input-group-sortablefields">
       <b-container fluid class="px-0"
@@ -23,7 +23,7 @@
           >
             <b-col col v-if="sortable && hover === index && inputValue.length > 1" class="draghandle text-center"><icon name="th"></icon></b-col>
             <b-col col v-else class="dragindex text-center"><b-badge variant="light">{{ index + 1 }}</b-badge></b-col>
-            <b-col cols="4" class="text-left py-1">
+            <b-col cols="4" class="text-left py-1" align-self="start">
 
               <pf-form-chosen
                 :value="inputValue[index].type"
@@ -35,7 +35,7 @@
               ></pf-form-chosen>
 
             </b-col>
-            <b-col cols="6" class="text-left py-1">
+            <b-col cols="6" class="text-left py-1" align-self="start">
 
               <!--
                 - Don't use 'v-model='...,
@@ -48,8 +48,8 @@
                 label="name"
                 track-by="value"
                 :options="values(inputValue[index])"
-                :validation="$v.inputValue[index]"
-                :invalid-feedback="buildInvalidFeedback(index)"
+                :validation="validation[index]"
+                :invalid-feedback="getInvalidFeedbackExternalValue(index)"
                 @input="setValue(index, $event)"
               ></pf-form-chosen>
 
@@ -59,8 +59,8 @@
                 label="name"
                 track-by="value"
                 :options="values(inputValue[index])"
-                :validation="$v.inputValue[index]"
-                :invalid-feedback="buildInvalidFeedback(index)"
+                :validation="validation[index]"
+                :invalid-feedback="getInvalidFeedbackExternalValue(index)"
                 @input="setValue(index, $event)"
               ></pf-form-chosen>
 
@@ -70,8 +70,8 @@
                 label="name"
                 track-by="value"
                 :options="values(inputValue[index])"
-                :validation="$v.inputValue[index]"
-                :invalid-feedback="buildInvalidFeedback(index)"
+                :validation="validation[index]"
+                :invalid-feedback="getInvalidFeedbackExternalValue(index)"
                 @input="setValue(index, $event)"
               ></pf-form-chosen>
 
@@ -79,8 +79,8 @@
               <pf-form-datetime v-if="isFieldType(datetimeValueType, inputValue[index])"
                 :value="inputValue[index].value"
                 :config="{useCurrent: true}"
-                :validation="$v.inputValue[index]"
-                :invalid-feedback="buildInvalidFeedback(index)"
+                :validation="validation[index]"
+                :invalid-feedback="getInvalidFeedbackExternalValue(index)"
                 @input="setValue(index, $event)"
               ></pf-form-datetime>
 
@@ -90,16 +90,16 @@
                 label="name"
                 track-by="value"
                 :options="values(inputValue[index])"
-                :validation="$v.inputValue[index]"
-                :invalid-feedback="buildInvalidFeedback(index)"
+                :validation="validation[index]"
+                :invalid-feedback="getInvalidFeedbackExternalValue(index)"
                 @input="setValue(index, $event)"
               ></pf-form-chosen>
 
               <!-- BEGIN PREFIXMULTIPLER -->
               <pf-form-prefix-multiplier v-if="isFieldType(prefixmultiplerValueType, inputValue[index])"
                 :value="inputValue[index].value"
-                :validation="$v.inputValue[index]"
-                :invalid-feedback="buildInvalidFeedback(index)"
+                :validation="validation[index]"
+                :invalid-feedback="getInvalidFeedbackExternalValue(index)"
                 @input="setValue(index, $event)"
               ></pf-form-prefix-multiplier>
 
@@ -110,11 +110,6 @@
             </b-col>
           </b-form-row>
         </draggable>
-
-        <!--
-        <h1>$v</h1>
-        <pre>{{ JSON.stringify($v, null, 2) }}</pre>
-        -->
 
       </b-container>
     </b-input-group>
@@ -134,13 +129,10 @@ import {
   pfFieldTypeValues as fieldTypeValues
 } from '@/globals/pfField'
 
-const { validationMixin } = require('vuelidate')
-
 export default {
   name: 'pf-form-sortable-fields',
   mixins: [
-    pfMixinValidation,
-    validationMixin
+    pfMixinValidation
   ],
   components: {
     draggable,
@@ -198,14 +190,14 @@ export default {
         *
         *   1. Internal Model (uncompressed): In this model we keep the entire type/value in-tact for use with the various pfForm* components.
         *     Example: [
-        *         { "type": { "value": "set_bandwidth_balance", "text": "Bandwidth balance", "types": [ "prefixmultiplier" ], "validators": {} }, "value": 64 },
-        *         { "type": { "value": "set_access_duration", "text": "Access duration", "types": [ "duration" ], "validators": {} }, "value": { "name": "12 hours", "value": "12h" } },
-        *         { "type": { "value": "set_access_level", "text": "Access level", "types": [ "adminrole" ], "validators": {} }, "value": { "value": "User Manager", "name": "User Manager" } },
-        *         { "type": { "value": "mark_as_sponsor", "text": "Mark as sponsor", "types": [ "none" ], "validators": {} }, "value": null },
-        *         { "type": { "value": "set_role", "text": "Role", "types": [ "role" ], "validators": {} }, "value": { "value": "1", "name": "default", "text": "default - Placeholder role/category, feel free to edit" } },
-        *         { "type": { "value": "set_tenant_id", "text": "Tenant ID", "types": [ "tenant" ], "validators": {} }, "value": { "value": "1", "name": "default" } },
-        *         { "type": { "value": "set_time_balance", "text": "Time balance", "types": [ "duration" ], "validators": {} }, "value": { "name": "12 hours", "value": "12h" } },
-        *         { "type": { "value": "set_unreg_date", "text": "Unregistration date", "types": [ "datetime" ], "validators": {} }, "value": 1973-08-05 13:00:00" }
+        *         { "type": { "value": "set_bandwidth_balance", "text": "Bandwidth balance", "types": [ "prefixmultiplier" ] }, "value": 64 },
+        *         { "type": { "value": "set_access_duration", "text": "Access duration", "types": [ "duration" ] }, "value": { "name": "12 hours", "value": "12h" } },
+        *         { "type": { "value": "set_access_level", "text": "Access level", "types": [ "adminrole" ] }, "value": { "value": "User Manager", "name": "User Manager" } },
+        *         { "type": { "value": "mark_as_sponsor", "text": "Mark as sponsor", "types": [ "none" ] }, "value": null },
+        *         { "type": { "value": "set_role", "text": "Role", "types": [ "role" ] }, "value": { "value": "1", "name": "default", "text": "default - Placeholder role/category, feel free to edit" } },
+        *         { "type": { "value": "set_tenant_id", "text": "Tenant ID", "types": [ "tenant" ] }, "value": { "value": "1", "name": "default" } },
+        *         { "type": { "value": "set_time_balance", "text": "Time balance", "types": [ "duration" ] }, "value": { "name": "12 hours", "value": "12h" } },
+        *         { "type": { "value": "set_unreg_date", "text": "Unregistration date", "types": [ "datetime" ] }, "value": 1973-08-05 13:00:00" }
         *        ]
         *
         *   2. External Model (compressed): In this model we compress the internal model into somewthing more clean and useable by the parent component.
@@ -244,7 +236,7 @@ export default {
           }
         })
         this.$emit('input', compressedValue)
-        this.emitValidations()
+        this.emitExternalValidations()
       }
     }
   },
@@ -254,7 +246,7 @@ export default {
       inputValue[index].type = type
       inputValue[index].value = null
       this.inputValue = inputValue
-      this.emitValidations()
+      this.emitExternalValidations()
     },
     setValue (index, value) {
       let inputValue = JSON.parse(JSON.stringify(this.inputValue))
@@ -266,7 +258,7 @@ export default {
       // push placeholder into middle of array
       this.inputValue = [...inputValue.slice(0, index + 1), this.valuePlaceholder, ...inputValue.slice(index + 1)]
       this.$forceUpdate()
-      this.emitValidations()
+      this.emitExternalValidations()
     },
     rowDel (index) {
       let inputValue = JSON.parse(JSON.stringify(this.inputValue))
@@ -276,7 +268,7 @@ export default {
         this.rowAdd(0)
       } else {
         this.$forceUpdate()
-        this.emitValidations()
+        this.emitExternalValidations()
       }
     },
     onDragStart (event) {
@@ -318,14 +310,12 @@ export default {
       }
       return false
     },
-    getValidations (internal = false) {
+    getValidations () {
       let eachInputValue = {}
       this.inputValue.forEach((input, index) => {
         let field = this.fields.find(field => input.type && field.value === input.type.value)
-        if (field && field.hasOwnProperty('validators')) {
-          eachInputValue[field.value] = (internal && typeof input.value === 'object')
-            ? { value: { value: field.validators } } /* internal object */
-            : { value: field.validators } /* external, or internal non-object */
+        if (field && field.validators) {
+          eachInputValue[field.value] = { value: field.validators }
         } else if (field && field.value) {
           // no validations
           eachInputValue[field.value] = {/* ignore */}
@@ -341,20 +331,12 @@ export default {
       }
       return {}
     },
-    emitValidations () {
-      // debounce to avoid emit storm,
-      // delay to allow internal inputValue to update before building external validations
-      if (this.emitValidationsTimeout) clearTimeout(this.emitValidationsTimeout)
-      this.emitValidationsTimeout = setTimeout(() => {
-        this.$emit('validations', this.getValidations())
-      }, 500)
-    },
-    buildInvalidFeedback (index) {
+    getInvalidFeedbackExternalValue (index) {
       let feedback = []
       if (index !== undefined) {
-        const inputValue = this.$v.inputValue[index]
+        const inputValue = this.validation[index] /* use external vuelidate $v model */
         if (inputValue.value) {
-          const validationModel = (inputValue.value.value) ? inputValue.value.value : inputValue.value
+          const validationModel = inputValue.value
           if (validationModel) {
             Object.entries(validationModel.$params).forEach(([key, value]) => {
               if (validationModel[key] === false) {
@@ -365,26 +347,18 @@ export default {
         }
       }
       return feedback.join(' ')
-    }
-  },
-  validations () {
-    return {
-      inputValue: this.getValidations(true) /* internal vuelidate model */
+    },
+    emitExternalValidations () {
+      // debounce to avoid emit storm,
+      // delay to allow internal inputValue to update before building external validations
+      if (this.emitExternalValidationsTimeout) clearTimeout(this.emitExternalValidationsTimeout)
+      this.emitExternalValidationsTimeout = setTimeout(() => {
+        this.$emit('validations', this.getValidations())
+      }, 100)
     }
   },
   mounted () {
-    this.emitValidations()
-  },
-  watch: {
-    validation: {
-      handler: function (after, before) {
-        if (after.$dirty) {
-          // parent component triggered $v.touch(), ditto...
-          this.$v.$touch()
-        }
-      },
-      deep: true
-    }
+    this.emitExternalValidations()
   }
 }
 </script>
