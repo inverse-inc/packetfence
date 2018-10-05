@@ -3471,6 +3471,48 @@ components:
               $ref: '#/components/schemas/ConfigPortalModule'
             type: array
         type: object
+    ConfigProvisioning:
+      properties:
+        category:
+          description: Nodes with the selected roles will be affected
+          items:
+            description: Nodes with the selected roles will be affected
+            type: string
+          type: array
+        description:
+          description: Description
+          type: string
+        id:
+          description: Provisioning ID
+          type: string
+        non_compliance_violation:
+          description: Which violation should be raised when non compliance is detected
+          type: string
+        oses:
+          description: Nodes with the selected OS will be affected
+          items:
+            description: Nodes with the selected OS will be affected
+            type: string
+          type: array
+        pki_provider:
+          description: PKI Provider
+          type: string
+        type:
+          description: Provisioning type
+          type: string
+      required:
+      - id
+      - type
+      type: object
+    ConfigProvisioningsList:
+      allOf:
+      - $ref: '#/components/schemas/Iterable'
+      - properties:
+          items:
+            items:
+              $ref: '#/components/schemas/ConfigProvisioning'
+            type: array
+        type: object
     ConfigRealm:
       properties:
         admin_strip_username:
@@ -11256,6 +11298,91 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigPortalModulesList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+  /config/provisioning/{provisioning_id}:
+    delete:
+      description: Remove an item
+      operationId: api.v1.Config::Provisionings.remove
+      parameters:
+      - in: path
+        name: provisioning_id
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Deleted a config item
+    description: pf::UnifiedApi::Controller::Config::Provisionings
+    get:
+      description: Get an item
+      operationId: api.v1.Config::Provisionings.get
+      parameters:
+      - in: path
+        name: provisioning_id
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigProvisioning'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+    patch:
+      description: Update an item
+      operationId: api.v1.Config::Provisionings.update
+      parameters:
+      - in: path
+        name: provisioning_id
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigProvisioning'
+      responses:
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+    put:
+      description: Replace an item
+      operationId: api.v1.Config::Provisionings.replace
+      parameters:
+      - in: path
+        name: provisioning_id
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigProvisioning'
+      responses:
+        '201':
+          $ref: '#/components/responses/Created'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+  /config/provisionings:
+    description: pf::UnifiedApi::Controller::Config::Provisionings
+    get:
+      description: List items
+      operationId: api.v1.Config::Provisionings.list
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigProvisioningsList'
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
