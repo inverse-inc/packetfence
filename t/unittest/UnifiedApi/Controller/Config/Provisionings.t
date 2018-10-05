@@ -26,7 +26,19 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 7;
+use File::Temp;
+use pf::ConfigStore::Provisioning;
+
+my ($fh, $filename) = File::Temp::tempfile( UNLINK => 1 );
+
+{
+    no warnings qw(redefine);
+   *pf::ConfigStore::Provisioning::configFile = sub {
+        $filename;
+   };
+}
+
+use Test::More tests => 20;
 use Test::Mojo;
 
 #This test will running last
@@ -45,6 +57,31 @@ $t->post_ok($collection_base_url => json => {})
 
 $t->post_ok($collection_base_url, {'Content-Type' => 'application/json'} => '{')
   ->status_is(400);
+
+my $item = {
+    id          => 'test',
+    description => 'v1',
+    type        => 'accept'
+};
+
+$t->post_ok($collection_base_url => json => { id => 'test', description => 'v1', type => 'accept'})
+  ->status_is(201);
+
+$t->post_ok($collection_base_url => json => $item)
+  ->status_is(409);
+
+$t->get_ok("$base_url/test")
+  ->status_is(200);
+
+while (my ($k, $v) = each %$item) {
+  $t->json_is( "/item/$k" => $v);
+}
+
+$t->delete_ok("$base_url/test")
+  ->status_is(200);
+
+$t->get_ok("$base_url/test")
+  ->status_is(404);
 
 =head1 AUTHOR
 
