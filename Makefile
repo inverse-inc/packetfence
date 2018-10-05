@@ -33,7 +33,7 @@ docs/docbook/xsl/import-fo.xsl:
 	</xsl:stylesheet>" \
 	> docs/docbook/xsl/import-fo.xsl
 
-%.pdf : docs/%.asciidoc
+%.pdf : docs/%.asciidoc docs/docbook/xsl/titlepage-fo.xsl docs/docbook/xsl/import-fo.xsl
 	asciidoc \
 		-a docinfo2 \
 		-b docbook \
