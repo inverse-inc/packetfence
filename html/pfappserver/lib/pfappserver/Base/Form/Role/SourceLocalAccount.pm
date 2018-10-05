@@ -14,7 +14,7 @@ pfappserver::Base::Form::Role::SourceLocalAccount
 
 use strict;
 use warnings;
-use pf::ConfigStore::Pf;
+use pf::config qw(%Config);
 use namespace::autoclean;
 use HTML::FormHandler::Moose::Role;
 with 'pfappserver::Base::Form::Role::Help';
@@ -52,7 +52,7 @@ has_field 'hash_passwords' => (
     ],
     required => 1,
     element_class => ['input-small'],
-    default => pf::ConfigStore::Pf->new->read("advanced")->{"hash_passwords"},
+    default_method => sub { $Config{advanced}{hash_passwords} },
     tags => {
         after_element => \&help_list,
         help => 'The algorithm used to hash the passwords in the database.This will only affect newly created or reset passwords.'
@@ -114,4 +114,3 @@ USA.
 =cut
 
 1;
-
