@@ -1814,4 +1814,9 @@ To upgrade the database schema, run the following command:
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
 
+Update connection_type from WIRED_MAC_AUTH to Ethernet-NoEAP
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+We merged the WIRED_MAC_AUTH and Ethernet-NoEAP to Ethernet-NoEAP so the configuration needs to be updated, to do that run:
+
+ sed -i "s/WIRED_MAC_AUTH/Ethernet-NoEAP/g" /usr/local/pf/conf/profiles.conf /usr/local/pf/conf/vlan_filters.conf /usr/local/pf/conf/radius_filters.conf /usr/local/pf/conf/switch_filters.conf /usr/local/pf/conf/authentication.conf
 

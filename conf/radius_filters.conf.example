@@ -27,7 +27,7 @@
 #[macauth]
 #filter = connection_type
 #operator = is
-#value = WIRED_MAC_AUTH
+#value = Ethernet-NoEAP
 #
 #[mac]
 #filter = mac
@@ -226,7 +226,7 @@
 #    Ethernet-NoEAP
 #    SNMP-Traps
 #    Inline
-#    WIRED_MAC_AUTH
+#    Ethernet-NoEAP
 #
 #
 # - for the radius_request

@@ -5,7 +5,7 @@
 [pf_wired_mac_auth]
 filter = connection_type
 operator = is
-value = WIRED_MAC_AUTH
+value = Ethernet-NoEAP
 
 [pf_wireless_mac_auth]
 filter = connection_type

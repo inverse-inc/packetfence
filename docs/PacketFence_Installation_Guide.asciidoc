@@ -448,7 +448,7 @@ For Web Authentication, we will create a new connection profile in PacketFence. 
 [options="compact"]
  * Profile Name: guest
  * Filters: If any of the following conditions are met:
-  - Connection Type: WIRED_MAC_AUTH
+  * Connection Type: Ethernet-NoEAP
  * Sources: null-source
 
 Click on 'Save' to save all configuration changes.
@@ -2339,7 +2339,7 @@ Here is an example on filtering by switch IP addresses and using MAC authenticat
   [macauth]
   filter = connection_type
   operator = is
-  value = WIRED_MAC_AUTH
+  value = Ethernet-NoEAP
 
   [1:switch_ip&macauth]
   scope = returnRadiusAccessAccept
