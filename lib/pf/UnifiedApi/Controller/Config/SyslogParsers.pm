@@ -83,7 +83,7 @@ sub dry_run {
     my $lines = delete $data->{lines} // '';
     my $parser   = pf::detect::parser::regex->new($data);
     my $dryrun_info = $parser->dryRun(@$lines);
-    return $self->render(status => 200, json => $dryrun_info);
+    return $self->render(status => 200, json => {items => $dryrun_info});
 }
 
 =head1 AUTHOR

@@ -26,7 +26,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 15;
+use Test::More tests => 16;
 use Test::Mojo;
 
 #This test will running last
@@ -87,31 +87,33 @@ my $config = {
 $t->post_ok( "$collection_base_url/dry_run" => json => $config )
   ->status_is(200)
   ->json_is(
-    [
-        {
-            'matches' => [
-                {
-                    'success' => 1,
-                    'actions' => [
-                        { api_method =>  'modify_node',  api_parameters => [ '1.2.3.4', '1.2.3.5' ] },
-                        { api_method => 'trigger_scan', api_parameters => [ 'bob',     'bob' ] }
-                    ],
-                    'rule' => {
-                        'ip_mac_translation' => 'disabled',
-                        'actions'            => [
-                            'modify_node: $scrip, $dstip',
-                            'trigger_scan: bob, bob'
+    {
+        items => [
+            {
+                'matches' => [
+                    {
+                        'success' => 1,
+                        'actions' => [
+                            { api_method =>  'modify_node',  api_parameters => [ '1.2.3.4', '1.2.3.5' ] },
+                            { api_method => 'trigger_scan', api_parameters => [ 'bob',     'bob' ] }
                         ],
-                        'last_if_match' => 'enabled',
-                        'regex' =>
-'from: (?P<scrip>\\d{1,3}(\\.\\d{1,3}){3}), to: (?P<dstip>\\d{1,3}(\\.\\d{1,3}){3})',
-                        'name' => 'from to'
+                        'rule' => {
+                            'ip_mac_translation' => 'disabled',
+                            'actions'            => [
+                                'modify_node: $scrip, $dstip',
+                                'trigger_scan: bob, bob'
+                            ],
+                            'last_if_match' => 'enabled',
+                            'regex' =>
+    'from: (?P<scrip>\\d{1,3}(\\.\\d{1,3}){3}), to: (?P<dstip>\\d{1,3}(\\.\\d{1,3}){3})',
+                            'name' => 'from to'
+                        }
                     }
-                }
-            ],
-            'line' => 'from: 1.2.3.4, to: 1.2.3.5'
-        }
-    ]
+                ],
+                'line' => 'from: 1.2.3.4, to: 1.2.3.5'
+            }
+        ]
+    }
   );
 
 =head1 AUTHOR
