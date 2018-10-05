@@ -101,7 +101,7 @@ func buildApiAAAHandler(ctx context.Context) (ApiAAAHandler, error) {
 
 	apiAAA.authentication.AddAuthenticationBackend(aaa.NewDbAuthenticationBackend(ctx, db, "api_user"))
 
-	url, err := url.Parse("http://localhost:8080/api/v1/authentication/admin_authentication")
+	url, err := url.Parse("http://127.0.0.1:8080/api/v1/authentication/admin_authentication")
 	sharedutils.CheckError(err)
 	apiAAA.authentication.AddAuthenticationBackend(aaa.NewPfAuthenticationBackend(ctx, url, false))
 
