@@ -18,6 +18,8 @@ Pre-Depends:  ca-certificates,
  fingerbank (>= 4.1.0), fingerbank (<< 5.0.0),
  fingerbank-collector (>= 1.0.0),
  packetfence-redis-cache (>= ${source:Version}),
+ packetfence-pfappserver-javascript (>= ${source:Version}),
+ packetfence-captive-portal-javascript (>= ${source:Version}),
 # wmi
  libnet-wmiclient-perl, libwmiclient1, wmi-client,
  netdata (>= 1.10),
@@ -210,12 +212,12 @@ Conflicts: packetfence (<= 8.0.1)
 
 Package: packetfence-captive-portal-javascript
 Architecture: any
-Depends: ${misc:Depends}, ${shlibs:Depends}
+Depends: ${misc:Depends}
 Description: PacketFence captive portal javascript
 Conflicts: packetfence (<= 8.1.0)
 
 Package: packetfence-pfappserver-javascript
 Architecture: any
-Depends: ${misc:Depends}, ${shlibs:Depends}
+Depends: ${misc:Depends}
 Description: PacketFence Admin javascript css
 Conflicts: packetfence (<= 8.1.0)
