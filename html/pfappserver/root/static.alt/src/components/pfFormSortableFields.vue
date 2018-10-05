@@ -31,6 +31,8 @@
                 label="text"
                 track-by="value"
                 :options="fields"
+                :validation="getTypeValidation(index)"
+                :invalid-feedback="getTypeInvalidFeedback(index)"
                 @input="setType(index, $event)"
               ></pf-form-chosen>
 
@@ -48,8 +50,8 @@
                 label="name"
                 track-by="value"
                 :options="values(inputValue[index])"
-                :validation="validation[index]"
-                :invalid-feedback="getInvalidFeedbackExternalValue(index)"
+                :validation="getValueValidation(index)"
+                :invalid-feedback="getValueInvalidFeedback(index)"
                 @input="setValue(index, $event)"
               ></pf-form-chosen>
 
@@ -59,8 +61,8 @@
                 label="name"
                 track-by="value"
                 :options="values(inputValue[index])"
-                :validation="validation[index]"
-                :invalid-feedback="getInvalidFeedbackExternalValue(index)"
+                :validation="getValueValidation(index)"
+                :invalid-feedback="getValueInvalidFeedback(index)"
                 @input="setValue(index, $event)"
               ></pf-form-chosen>
 
@@ -70,8 +72,8 @@
                 label="name"
                 track-by="value"
                 :options="values(inputValue[index])"
-                :validation="validation[index]"
-                :invalid-feedback="getInvalidFeedbackExternalValue(index)"
+                :validation="getValueValidation(index)"
+                :invalid-feedback="getValueInvalidFeedback(index)"
                 @input="setValue(index, $event)"
               ></pf-form-chosen>
 
@@ -79,8 +81,8 @@
               <pf-form-datetime v-if="isFieldType(datetimeValueType, inputValue[index])"
                 :value="inputValue[index].value"
                 :config="{useCurrent: true}"
-                :validation="validation[index]"
-                :invalid-feedback="getInvalidFeedbackExternalValue(index)"
+                :validation="getValueValidation(index)"
+                :invalid-feedback="getValueInvalidFeedback(index)"
                 @input="setValue(index, $event)"
               ></pf-form-datetime>
 
@@ -90,16 +92,16 @@
                 label="name"
                 track-by="value"
                 :options="values(inputValue[index])"
-                :validation="validation[index]"
-                :invalid-feedback="getInvalidFeedbackExternalValue(index)"
+                :validation="getValueValidation(index)"
+                :invalid-feedback="getValueInvalidFeedback(index)"
                 @input="setValue(index, $event)"
               ></pf-form-chosen>
 
               <!-- BEGIN PREFIXMULTIPLER -->
               <pf-form-prefix-multiplier v-if="isFieldType(prefixmultiplerValueType, inputValue[index])"
                 :value="inputValue[index].value"
-                :validation="validation[index]"
-                :invalid-feedback="getInvalidFeedbackExternalValue(index)"
+                :validation="getValueValidation(index)"
+                :invalid-feedback="getValueInvalidFeedback(index)"
                 @input="setValue(index, $event)"
               ></pf-form-prefix-multiplier>
 
@@ -158,6 +160,9 @@ export default {
     fields: {
       type: Array,
       default: null
+    },
+    validation: {
+    
     },
     sortable: {
       type: Boolean,
@@ -314,14 +319,22 @@ export default {
       let eachInputValue = {}
       this.inputValue.forEach((input, index) => {
         let field = this.fields.find(field => input.type && field.value === input.type.value)
-        if (field && field.validators) {
-          eachInputValue[field.value] = { value: field.validators }
-        } else if (field && field.value) {
-          // no validations
-          eachInputValue[field.value] = {/* ignore */}
-        } else {
-          // 1 or more undefined field(s)
-          eachInputValue[null] = {/* ignore */}
+        if (field) {
+          eachInputValue[field.value] = {}
+          if ('validators' in field) { // has vuelidate validations
+            if ('type' in field.validators) {
+              eachInputValue[field.value].type = field.validators.type
+            }
+            if ('value' in field.validators) {
+              eachInputValue[field.value].value = field.validators.value
+            }
+          } else if (field && field.value) {
+            // no validations
+            eachInputValue[field.value] = {/* ignore */}
+          } else {
+            // 1 or more undefined field(s)
+            eachInputValue[null] = {/* ignore */}
+          }
         }
       })
       if (eachInputValue !== {}) {
@@ -331,9 +344,38 @@ export default {
       }
       return {}
     },
-    getInvalidFeedbackExternalValue (index) {
+    getTypeValidation (index) {
+      if (index in this.validation && 'type' in this.validation[index]) {
+        return this.validation[index].type
+      }
+      return {}
+    },
+    getTypeInvalidFeedback (index) {
       let feedback = []
-      if (index !== undefined) {
+      if (index in this.validation) {
+        const inputValue = this.validation[index] /* use external vuelidate $v model */
+        if (inputValue.type) {
+          const validationModel = inputValue.type
+          if (validationModel) {
+            Object.entries(validationModel.$params).forEach(([key, value]) => {
+              if (validationModel[key] === false) {
+                feedback.push(key.trim())
+              }
+            })
+          }
+        }
+      }
+      return feedback.join(' ')
+    },
+    getValueValidation (index) {
+      if (index in this.validation && 'value' in this.validation[index]) {
+        return this.validation[index].value
+      }
+      return {}
+    },
+    getValueInvalidFeedback (index) {
+      let feedback = []
+      if (index in this.validation) {
         const inputValue = this.validation[index] /* use external vuelidate $v model */
         if (inputValue.value) {
           const validationModel = inputValue.value
