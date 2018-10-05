@@ -23,6 +23,7 @@ use pf::constants qw(
     $TRUE
 );
 use pf::constants::api;
+use pf::constants::firewallsso qw($UNKNOWN);
 use pf::log;
 use pf::node();
 use pf::util();
@@ -64,6 +65,10 @@ sub do_sso {
         stripped_username => $stripped_username,
         realm             => $realm,
         status            => $node->{status},
+        device_version    => $node->{device_version} || $UNKNOWN,
+        device_class      => $node->{device_class} || $UNKNOWN,
+        device_type       => $node->{device_type} || $UNKNOWN,
+        computername      => $node->{computername} || $UNKNOWN,
     });
 
     return $TRUE;

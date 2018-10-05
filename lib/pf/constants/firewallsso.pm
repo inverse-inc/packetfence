@@ -17,16 +17,18 @@ use warnings;
 use base qw(Exporter);
 use Readonly;
 
-our @EXPORT_OK = qw($SYSLOG_TRANSPORT $HTTP_TRANSPORT);
+our @EXPORT_OK = qw($SYSLOG_TRANSPORT $HTTP_TRANSPORT $UNKNOWN);
 
 Readonly::Scalar our $SYSLOG_TRANSPORT => "syslog";
 Readonly::Scalar our $HTTP_TRANSPORT => "http";
+Readonly::Scalar our $UNKNOWN => "unknown";
 
 Readonly::Scalar our $FIREWALL_TYPES => [
     "BarracudaNG",
     "Checkpoint",
     "FortiGate",
     "Iboss",
+    "JuniperSRX",
     "PaloAlto",
     "WatchGuard",
     "JSONRPC",
