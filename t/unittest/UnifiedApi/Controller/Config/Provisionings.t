@@ -38,7 +38,7 @@ my ($fh, $filename) = File::Temp::tempfile( UNLINK => 1 );
    };
 }
 
-use Test::More tests => 20;
+use Test::More tests => 36;
 use Test::Mojo;
 
 #This test will running last
@@ -69,6 +69,28 @@ $t->post_ok($collection_base_url => json => { id => 'test', description => 'v1',
 
 $t->post_ok($collection_base_url => json => $item)
   ->status_is(409);
+
+$t->get_ok("$base_url/test")
+  ->status_is(200);
+
+while (my ($k, $v) = each %$item) {
+  $t->json_is( "/item/$k" => $v);
+}
+
+$t->patch_ok("$base_url/test" => json => {description => 'v2'})
+  ->status_is(200);
+
+$t->get_ok("$base_url/test")
+  ->status_is(200)
+  ->json_is('/item/id', 'test')
+  ->json_is('/item/description', 'v2')
+  ->json_is('/item/type', 'accept');
+
+$t->put_ok("$base_url/test" => json => {description => 'v1'})
+  ->status_is(422);
+
+$t->put_ok("$base_url/test" => json => {description => 'v1', type => 'accept'})
+  ->status_is(200);
 
 $t->get_ok("$base_url/test")
   ->status_is(200);
@@ -111,4 +133,3 @@ USA.
 =cut
 
 1;
-
