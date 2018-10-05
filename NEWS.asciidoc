@@ -23,6 +23,7 @@ New Features
 * Added Mojo web authentication support (PR #3604)
 * New authentication source Password Of the Day (PR #3285)
 * Added SMTP test function in Alerting (PR #3642)
+* Juniper SRX Firewall SSO module (PR #2842)
 
 Enhancements
 ++++++++++++
