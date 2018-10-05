@@ -4525,6 +4525,10 @@ Source NAT on VLAN
   alias "user" alias "packetfence-portal" "svc-http" permit queue low
   alias "user" alias "packetfence-portal" "svc-https" permit queue low
 
+Enable the "firewall allow-tri-session" :
+
+  firewall allow-tri-session
+
 Source NAT per Application
 
   ip access-list session "packetfence-externalportal"
