@@ -35,6 +35,7 @@ Enhancements
 * Reorder iptables rules (PR #3463)
 * Better error handling for pfdetect.conf (PR #3607)
 * HAProxy stats files are now located in var/run/ with explicit filenames (PR #3645)
+* pfdns now uses the PacketFence standard Golang logging library (PR #3638)
 
 Bug Fixes
 +++++++++
