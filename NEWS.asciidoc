@@ -38,6 +38,7 @@ Enhancements
 * pfdns now uses the PacketFence standard Golang logging library (PR #3638)
 * Added VOIP and Downloadable ACLs support to Aruba 5400 switch module (PR #3372)
 * Switch filters can now be used to override the switch module that is instantiated during a RADIUS connection (PR #3583)
+* WIRED_MAC_AUTH and Ethernet-NoEAP merged (#3069) (PR #3261)
 
 Bug Fixes
 +++++++++
