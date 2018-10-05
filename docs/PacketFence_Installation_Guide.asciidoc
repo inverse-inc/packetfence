@@ -5177,12 +5177,11 @@ NOTE: On Debian the service will be called `mysql` and on CentOS 7 `mariadb`. Ma
 
 Should the service fail to start, make sure you look into the MySQL error logs.
 
-
 [appendix]
 How to restore a standalone PacketFence server ?
 ------------------------------------------------
 
-Following steps assume:
+For the restore procedure, we make the following assumptions:
 
 - database `pf` removed (but user `pf` still presents in DB)
 - `/usr/local/pf` removed
