@@ -245,7 +245,6 @@ export default {
         })
         this.$emit('input', compressedValue)
         this.emitValidations()
-        this.$v.$touch()
       }
     }
   },
@@ -255,21 +254,18 @@ export default {
       inputValue[index].type = type
       inputValue[index].value = null
       this.inputValue = inputValue
-      this.$v.$touch()
       this.emitValidations()
     },
     setValue (index, value) {
       let inputValue = JSON.parse(JSON.stringify(this.inputValue))
       inputValue[index].value = value
       this.inputValue = inputValue
-      this.$v.$touch()
     },
     rowAdd (index) {
       let inputValue = this.inputValue
       // push placeholder into middle of array
       this.inputValue = [...inputValue.slice(0, index + 1), this.valuePlaceholder, ...inputValue.slice(index + 1)]
       this.$forceUpdate()
-      this.$v.$touch()
       this.emitValidations()
     },
     rowDel (index) {
@@ -280,7 +276,6 @@ export default {
         this.rowAdd(0)
       } else {
         this.$forceUpdate()
-        this.$v.$touch()
         this.emitValidations()
       }
     },
@@ -335,7 +330,7 @@ export default {
           // no validations
           eachInputValue[field.value] = {/* ignore */}
         } else {
-          // 1+ empty field(s)
+          // 1 or more undefined field(s)
           eachInputValue[null] = {/* ignore */}
         }
       })
@@ -374,11 +369,22 @@ export default {
   },
   validations () {
     return {
-      inputValue: this.getValidations(true) /* internal validation model */
+      inputValue: this.getValidations(true) /* internal vuelidate model */
     }
   },
   mounted () {
     this.emitValidations()
+  },
+  watch: {
+    validation: {
+      handler: function (after, before) {
+        if (after.$dirty) {
+          // parent component triggered $v.touch(), ditto...
+          this.$v.$touch()
+        }
+      },
+      deep: true
+    }
   }
 }
 </script>
