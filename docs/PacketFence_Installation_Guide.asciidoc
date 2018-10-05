@@ -5121,7 +5121,6 @@ The node view option shows all information contained in the node database table 
   mac|pid|detect_date|regdate|unregdate|lastskip|status|user_agent|computername|notes|last_arp|last_dhcp|switch|port|vlan|dhcp_fingerprint
   52:54:00:12:35:02|1|2008-10-23 17:32:16||||unreg||||2008-10-23 21:12:21|||||
 
-
 [appendix]
 Restoring a Percona XtraBackup dump
 -----------------------------------
