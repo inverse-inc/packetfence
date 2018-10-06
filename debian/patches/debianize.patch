@@ -92,91 +92,116 @@ index 28bb594f78..4cfff9dc0a 100644
  ExecStart=/usr/sbin/haproxy -Ws -f /usr/local/pf/var/conf/haproxy-portal.conf -p /usr/local/pf/var/run/haproxy-portal.pid
  ExecReload=/bin/kill -USR2 $MAINPID
  Restart=on-failure
+diff --git a/conf/systemd/packetfence-httpd.aaa.service b/conf/systemd/packetfence-httpd.aaa.service
+index 74e396af34..8490172e71 100644
+--- a/conf/systemd/packetfence-httpd.aaa.service
++++ b/conf/systemd/packetfence-httpd.aaa.service
+@@ -10,7 +10,7 @@ Before=packetfence-radiusd-auth.service packetfence-radiusd-acct.service packetf
+ StartLimitBurst=3
+ StartLimitInterval=10
+ Type=notify
+-ExecStartPre=/usr/bin/rm -f /usr/local/pf/var/run/httpd.aaa.pid
++ExecStartPre=/bin/rm -f /usr/local/pf/var/run/httpd.aaa.pid
+ ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_aaa' -e 'pf::services::manager::httpd_aaa->new()->generateConfig()'
+ ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.aaa -DFOREGROUND  -Drhel
+ ExecReload=/bin/kill -USR1 ${MAINPID}
 diff --git a/conf/systemd/packetfence-httpd.admin.service b/conf/systemd/packetfence-httpd.admin.service
-index 3d86c57b0c..91ed297e5f 100644
+index 3d86c57b0c..328bfcad8b 100644
 --- a/conf/systemd/packetfence-httpd.admin.service
 +++ b/conf/systemd/packetfence-httpd.admin.service
-@@ -12,8 +12,8 @@ Type=notify
+@@ -11,9 +11,9 @@ StartLimitInterval=10
+ Type=notify
  Environment=X_PORTAL=default
  Environment=PF_SKIP_MAKE_IMMUTABLE=1
- ExecStartPre=/usr/bin/rm -f /usr/local/pf/var/run/httpd.admin.pid
+-ExecStartPre=/usr/bin/rm -f /usr/local/pf/var/run/httpd.admin.pid
 -ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_admin' -e 'pf::services::manager::httpd_admin->new()->generateConfig()'
 -ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.admin -DFOREGROUND  -Drhel
++ExecStartPre=/bin/rm -f /usr/local/pf/var/run/httpd.admin.pid
 +ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_admin' -e 'pf::services::manager::httpd_admin->new()->generateConfig()'
 +ExecStart=/usr/sbin/apache2 -f /usr/local/pf/var/conf/httpd.conf.d/httpd.admin -DFOREGROUND  -Ddebian
  ExecReload=/bin/kill -USR1 ${MAINPID}
  ExecStop=/bin/kill -WINCH ${MAINPID}
  # We want systemd to give httpd some time to finish gracefully, but still want
 diff --git a/conf/systemd/packetfence-httpd.collector.service b/conf/systemd/packetfence-httpd.collector.service
-index aa6ec54f4e..2e7cc2f600 100644
+index aa6ec54f4e..17e83c5b17 100644
 --- a/conf/systemd/packetfence-httpd.collector.service
 +++ b/conf/systemd/packetfence-httpd.collector.service
-@@ -10,8 +10,8 @@ StartLimitBurst=3
+@@ -9,9 +9,9 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
+ StartLimitBurst=3
  StartLimitInterval=10
  Type=notify
- ExecStartPre=/usr/bin/rm -f /usr/local/pf/var/run/httpd.collector.pid
+-ExecStartPre=/usr/bin/rm -f /usr/local/pf/var/run/httpd.collector.pid
 -ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_collector' -e 'pf::services::manager::httpd_collector->new()->generateConfig()'
 -ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.collector -DFOREGROUND  -Drhel
++ExecStartPre=/bin/rm -f /usr/local/pf/var/run/httpd.collector.pid
 +ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_collector' -e 'pf::services::manager::httpd_collector->new()->generateConfig()'
 +ExecStart=/usr/sbin/apache2 -f /usr/local/pf/var/conf/httpd.conf.d/httpd.collector -DFOREGROUND  -Ddebian
  ExecReload=/bin/kill -USR1 ${MAINPID}
  ExecStop=/bin/kill -WINCH ${MAINPID}
  # We want systemd to give httpd some time to finish gracefully, but still want
 diff --git a/conf/systemd/packetfence-httpd.parking.service b/conf/systemd/packetfence-httpd.parking.service
-index f893836e6c..9a37e42c54 100644
+index f893836e6c..88eb9a8451 100644
 --- a/conf/systemd/packetfence-httpd.parking.service
 +++ b/conf/systemd/packetfence-httpd.parking.service
-@@ -10,8 +10,8 @@ StartLimitBurst=3
+@@ -9,9 +9,9 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
+ StartLimitBurst=3
  StartLimitInterval=10
  Type=notify
- ExecStartPre=/usr/bin/rm -f /usr/local/pf/var/run/httpd.parking.pid
+-ExecStartPre=/usr/bin/rm -f /usr/local/pf/var/run/httpd.parking.pid
 -ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_parking' -e 'pf::services::manager::httpd_parking->new()->generateConfig()'
 -ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.parking -DFOREGROUND  -Drhel
++ExecStartPre=/bin/rm -f /usr/local/pf/var/run/httpd.parking.pid
 +ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_parking' -e 'pf::services::manager::httpd_parking->new()->generateConfig()'
 +ExecStart=/usr/sbin/apache2 -f /usr/local/pf/var/conf/httpd.conf.d/httpd.parking -DFOREGROUND  -Ddebian
  ExecReload=/bin/kill -USR1 ${MAINPID}
  ExecStop=/bin/kill -WINCH ${MAINPID}
  # We want systemd to give httpd some time to finish gracefully, but still want
 diff --git a/conf/systemd/packetfence-httpd.portal.service b/conf/systemd/packetfence-httpd.portal.service
-index 2d65852f85..64c4cfcc9d 100644
+index 2d65852f85..ad9107784b 100644
 --- a/conf/systemd/packetfence-httpd.portal.service
 +++ b/conf/systemd/packetfence-httpd.portal.service
-@@ -10,8 +10,8 @@ StartLimitBurst=3
+@@ -9,9 +9,9 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
+ StartLimitBurst=3
  StartLimitInterval=10
  Type=notify
- ExecStartPre=/usr/bin/rm -f /usr/local/pf/var/run/httpd.portal.pid
+-ExecStartPre=/usr/bin/rm -f /usr/local/pf/var/run/httpd.portal.pid
 -ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_portal' -e 'pf::services::manager::httpd_portal->new()->generateConfig()'
 -ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.portal -DFOREGROUND  -Drhel
++ExecStartPre=/bin/rm -f /usr/local/pf/var/run/httpd.portal.pid
 +ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_portal' -e 'pf::services::manager::httpd_portal->new()->generateConfig()'
 +ExecStart=/usr/sbin/apache2 -f /usr/local/pf/var/conf/httpd.conf.d/httpd.portal -DFOREGROUND  -Ddebian
  ExecReload=/bin/kill -USR1 ${MAINPID}
  ExecStop=/bin/kill -WINCH ${MAINPID}
  # We want systemd to give httpd some time to finish gracefully, but still want
 diff --git a/conf/systemd/packetfence-httpd.proxy.service b/conf/systemd/packetfence-httpd.proxy.service
-index eb3c0fec7a..f3ff5ab13a 100644
+index eb3c0fec7a..c510a331dd 100644
 --- a/conf/systemd/packetfence-httpd.proxy.service
 +++ b/conf/systemd/packetfence-httpd.proxy.service
-@@ -10,8 +10,8 @@ StartLimitBurst=3
+@@ -9,9 +9,9 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
+ StartLimitBurst=3
  StartLimitInterval=10
  Type=notify
- ExecStartPre=/usr/bin/rm -f /usr/local/pf/var/run/httpd.proxy.pid
+-ExecStartPre=/usr/bin/rm -f /usr/local/pf/var/run/httpd.proxy.pid
 -ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_proxy' -e 'pf::services::manager::httpd_proxy->new()->generateConfig()'
 -ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.proxy -DFOREGROUND  -Drhel
++ExecStartPre=/bin/rm -f /usr/local/pf/var/run/httpd.proxy.pid
 +ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_proxy' -e 'pf::services::manager::httpd_proxy->new()->generateConfig()'
 +ExecStart=/usr/sbin/apache2 -f /usr/local/pf/var/conf/httpd.conf.d/httpd.proxy -DFOREGROUND  -Ddebian
  ExecReload=/bin/kill -USR1 ${MAINPID}
  PrivateTmp=true
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-httpd.webservices.service b/conf/systemd/packetfence-httpd.webservices.service
-index 46d01ba1ef..4a34dfcc46 100644
+index 46d01ba1ef..6a56ce1dc1 100644
 --- a/conf/systemd/packetfence-httpd.webservices.service
 +++ b/conf/systemd/packetfence-httpd.webservices.service
-@@ -10,8 +10,8 @@ StartLimitBurst=3
+@@ -9,9 +9,9 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
+ StartLimitBurst=3
  StartLimitInterval=10
  Type=notify
- ExecStartPre=/usr/bin/rm -f /usr/local/pf/var/run/httpd.webservices.pid
+-ExecStartPre=/usr/bin/rm -f /usr/local/pf/var/run/httpd.webservices.pid
 -ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_webservices' -e 'pf::services::manager::httpd_webservices->new()->generateConfig()'
 -ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.webservices -DFOREGROUND  -Drhel
++ExecStartPre=/bin/rm -f /usr/local/pf/var/run/httpd.webservices.pid
 +ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_webservices' -e 'pf::services::manager::httpd_webservices->new()->generateConfig()'
 +ExecStart=/usr/sbin/apache2 -f /usr/local/pf/var/conf/httpd.conf.d/httpd.webservices -DFOREGROUND  -Ddebian
  ExecReload=/bin/kill -USR1 ${MAINPID}
