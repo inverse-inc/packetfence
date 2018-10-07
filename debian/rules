@@ -187,7 +187,7 @@ install: build
 		install -D -m0644 $$i $(CURDIR)/debian/packetfence-pfappserver-javascript$(PREFIX)/$(NAME)/$$i; \
 	done
 	install -d -m0755 $(CURDIR)/debian/packetfence-pfappserver-javascript$(PREFIX)/$(NAME)/html/pfappserver/root/static.alt
-	for i in `find * -wholename "*dist/css/app.*" -o -wholename "*dist/js/app.*" -o -wholename "*dist/js/vendor.*" -o -wholename "*dist/js/[0-9]*" -o -wholename "*dist/js/manifest.*" -path 'html/pfappserver/root/static.alt/*' -type f`; do \
+	for i in `find * -wholename "*dist/js/*" -o -wholename "*dist/css/*" -path 'html/pfappserver/root/static.alt/*' -type f`; do \
 		install -D -m0644 $$i $(CURDIR)/debian/packetfence-pfappserver-javascript$(PREFIX)/$(NAME)/$$i; \
 	done
 	for i in `find * -wholename "*admin/v-index.tt" -path 'html/pfappserver/root/admin/*' -type f`; do \
