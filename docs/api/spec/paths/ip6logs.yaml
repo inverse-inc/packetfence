@@ -1,23 +1,19 @@
-/user/{user_id}/nodes:
-  description: pf::UnifiedApi::Controller::Users::Nodes
+/ip6logs:
+  description: pf::UnifiedApi::Controller::Ip6logs
   get:
     description: List items
-    operationId: api.v1.Users.Nodes.list
+    operationId: api.v1.Ip6logs.list
     parameters:
     - $ref: '#/components/parameters/cursor'
     - $ref: '#/components/parameters/limit'
     - $ref: '#/components/parameters/fields'
     - $ref: '#/components/parameters/sort'
-    - in: path
-      name: user_id
-      schema:
-        type: string
     responses:
       '200':
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UsersNodesList'
+              $ref: '#/components/schemas/Ip6logsList'
         description: List
       '400':
         $ref: '#/components/responses/BadRequest'
@@ -25,17 +21,13 @@
         $ref: '#/components/responses/UnprocessableEntity'
   post:
     description: Create an item
-    operationId: api.v1.Users.Nodes.create
-    parameters:
-    - in: path
-      name: user_id
-      schema:
-        type: string
+    operationId: api.v1.Ip6logs.create
+    parameters: []
     requestBody:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/UsersNode'
+            $ref: '#/components/schemas/Ip6log'
       description: Create item
     responses:
       '201':

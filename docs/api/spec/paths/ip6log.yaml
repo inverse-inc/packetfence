@@ -1,26 +1,22 @@
-/config/switch/{switch_id}:
+/ip6log/{ip6log_id}:
   delete:
     description: Remove an item
-    operationId: api.v1.Config::Switches.remove
+    operationId: api.v1.Ip6logs.remove
     parameters:
     - in: path
-      name: switch_id
+      name: ip6log_id
       schema:
         type: string
     responses:
       '204':
-        description: Deleted a config item
-  description: |-
-    pf::UnifiedApi::Controller::Config::Switches
-
-      invalidate_cache
-        invalidate switch cache
+        description: Item deleted
+  description: pf::UnifiedApi::Controller::Ip6logs
   get:
     description: Get an item
-    operationId: api.v1.Config::Switches.get
+    operationId: api.v1.Ip6logs.get
     parameters:
     - in: path
-      name: switch_id
+      name: ip6log_id
       schema:
         type: string
     responses:
@@ -28,46 +24,52 @@
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ConfigSwitch'
-        description: Item
+              description: Item
+              properties:
+                item:
+                  $ref: '#/components/schemas/Ip6log'
+              type: object
+        description: Get item
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
   patch:
     description: Update an item
-    operationId: api.v1.Config::Switches.update
+    operationId: api.v1.Ip6logs.update
     parameters:
     - in: path
-      name: switch_id
+      name: ip6log_id
       schema:
         type: string
     requestBody:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ConfigSwitch'
+            $ref: '#/components/schemas/Ip6log'
     responses:
+      '200':
+        $ref: '#/components/responses/Message'
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
   put:
     description: Replace an item
-    operationId: api.v1.Config::Switches.replace
+    operationId: api.v1.Ip6logs.replace
     parameters:
     - in: path
-      name: switch_id
+      name: ip6log_id
       schema:
         type: string
     requestBody:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ConfigSwitch'
+            $ref: '#/components/schemas/Ip6log'
     responses:
-      '201':
-        $ref: '#/components/responses/Created'
+      '200':
+        $ref: '#/components/responses/Message'
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':

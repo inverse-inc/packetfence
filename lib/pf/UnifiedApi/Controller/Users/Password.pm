@@ -19,6 +19,7 @@ use pf::dal::password;
 has dal => 'pf::dal::password';
 has url_param_name => 'user_id';
 has primary_key => 'pid';
+has 'url_parent_ids' =>  sub { [qw(user_id)] };
 
 sub make_create_data {
     my ($self) = @_;

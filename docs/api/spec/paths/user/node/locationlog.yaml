@@ -4,11 +4,15 @@
     operationId: api.v1.Users.Nodes.Locationlogs.remove
     parameters:
     - in: path
-      name: locationlog_id
+      name: user_id
       schema:
         type: string
     - in: path
       name: node_id
+      schema:
+        type: string
+    - in: path
+      name: locationlog_id
       schema:
         type: string
     responses:
@@ -20,11 +24,15 @@
     operationId: api.v1.Users.Nodes.Locationlogs.get
     parameters:
     - in: path
-      name: locationlog_id
+      name: user_id
       schema:
         type: string
     - in: path
       name: node_id
+      schema:
+        type: string
+    - in: path
+      name: locationlog_id
       schema:
         type: string
     responses:
@@ -47,11 +55,15 @@
     operationId: api.v1.Users.Nodes.Locationlogs.update
     parameters:
     - in: path
-      name: locationlog_id
+      name: user_id
       schema:
         type: string
     - in: path
       name: node_id
+      schema:
+        type: string
+    - in: path
+      name: locationlog_id
       schema:
         type: string
     requestBody:
@@ -71,11 +83,15 @@
     operationId: api.v1.Users.Nodes.Locationlogs.replace
     parameters:
     - in: path
-      name: locationlog_id
+      name: user_id
       schema:
         type: string
     - in: path
       name: node_id
+      schema:
+        type: string
+    - in: path
+      name: locationlog_id
       schema:
         type: string
     requestBody:

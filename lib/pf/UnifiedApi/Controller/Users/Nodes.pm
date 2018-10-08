@@ -21,6 +21,7 @@ has 'dal' => 'pf::dal::node';
 has 'url_param_name' => 'node_id';
 has 'primary_key' => 'mac';
 has 'parent_primary_key_map' => sub { {user_id => 'pid'} };
+has 'url_parent_ids' =>  sub { [qw(user_id)] };
 
 =head1 AUTHOR
 

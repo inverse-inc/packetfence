@@ -2,7 +2,11 @@
   description: pf::UnifiedApi::Controller::Users::Password
   post:
     operationId: api.v1.Users.Password.search
-    parameters: []
+    parameters:
+    - in: path
+      name: user_id
+      schema:
+        type: string
     requestBody:
       content:
         application/json:

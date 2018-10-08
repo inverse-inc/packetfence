@@ -8,6 +8,14 @@
     - $ref: '#/components/parameters/limit'
     - $ref: '#/components/parameters/fields'
     - $ref: '#/components/parameters/sort'
+    - in: path
+      name: user_id
+      schema:
+        type: string
+    - in: path
+      name: node_id
+      schema:
+        type: string
     responses:
       '200':
         content:
@@ -22,7 +30,15 @@
   post:
     description: Create an item
     operationId: api.v1.Users.Nodes.Locationlogs.create
-    parameters: []
+    parameters:
+    - in: path
+      name: user_id
+      schema:
+        type: string
+    - in: path
+      name: node_id
+      schema:
+        type: string
     requestBody:
       content:
         application/json:

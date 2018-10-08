@@ -141,7 +141,7 @@ ConfigConnectionProfile:
         type: string
       type: array
     status:
-      description: If profile is disabled it will not used
+      description: Enable profile
       type: string
     unreg_on_acct_stop:
       description: This activates automatic deregistation of devices for the profile

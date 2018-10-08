@@ -64,11 +64,29 @@ my %OPERATION_DESCRIPTIONS = (
     remove  => 'Remove an item',
 );
 
+=head2 operationParameters
+
+operationParameters
+
+=cut
+
+sub operationParameters {
+    my ($self, $scope, $c, $m, $a) = @_;
+    my @parameters = @{$self->SUPER::operationParameters($scope, $c, $m, $a)};
+    push @parameters, $self->parent_path_parameters($scope, $c, $m, $a);
+    return \@parameters;
+}
+
 sub resoureParameters {
     my ( $self, $scope, $c, $m, $a ) = @_;
     my $parameters = $self->operationParameters( $scope, $c, $m, $a );
-    push @$parameters, $self->path_parameter($c->url_param_name), (map { $self->path_parameter($_) } sort keys %{$c->parent_primary_key_map});
+    push @$parameters, $self->path_parameter($c->url_param_name);
     return $parameters;
+}
+
+sub parent_path_parameters {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return (map { $self->path_parameter($_) } @{$c->url_parent_ids});
 }
 
 sub createOperationParameters {

@@ -1,12 +1,8 @@
-/user/{user_id}/nodes/search:
-  description: pf::UnifiedApi::Controller::Users::Nodes
+/classes/search:
+  description: pf::UnifiedApi::Controller::Classes
   post:
-    operationId: api.v1.Users.Nodes.search
-    parameters:
-    - in: path
-      name: user_id
-      schema:
-        type: string
+    operationId: api.v1.Classes.search
+    parameters: []
     requestBody:
       content:
         application/json:
@@ -18,7 +14,7 @@
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UsersNodesList'
+              $ref: '#/components/schemas/ClassesList'
         description: List
       '400':
         $ref: '#/components/responses/BadRequest'

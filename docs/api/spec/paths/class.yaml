@@ -1,0 +1,25 @@
+/class/{class_id}:
+  description: pf::UnifiedApi::Controller::Classes
+  get:
+    description: Get an item
+    operationId: api.v1.Classes.get
+    parameters:
+    - in: path
+      name: class_id
+      schema:
+        type: string
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              description: Item
+              properties:
+                item:
+                  $ref: '#/components/schemas/Class'
+              type: object
+        description: Get item
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'

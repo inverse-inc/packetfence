@@ -60,7 +60,7 @@ ConfigBase:
       dhcpoption82logger:
         description: 'If enabled PacketFence will monitor DHCP option82 location-based
           information. This feature is only available if the dhcpdetector is activated.
-          <a target="_blank" href="/static/doc/PacketFence_Administration_Guide.html#_dhcp_option_82"><i
+          <a target="_blank" href="/static/doc/PacketFence_Installation_Guide.html#_dhcp_option_82"><i
           class="icon-question-circle-o"></i></a> '
         type: string
       force_listener_update_on_ack:
@@ -117,7 +117,7 @@ ConfigBase:
         description: 'When enabled, PacketFence uses pfdns if you defined <i>Passthroughs</i>
           or Apache mod-proxy if you defined <i>Proxy passthroughs</i> to allow trapped
           devices to reach web sites.Modifying this parameter requires to restart
-          pfdns and iptables to be fully effective. <a target="_blank" href="/static/doc/PacketFence_Administration_Guide.html#_passthroughs_2"><i
+          pfdns and iptables to be fully effective. <a target="_blank" href="/static/doc/PacketFence_Installation_Guide.html#_passthroughs_2"><i
           class="icon-question-circle-o"></i></a> '
         type: string
       passthroughs:
@@ -135,7 +135,7 @@ ConfigBase:
       proxy_passthroughs:
         description: 'Comma-delimited list of domains to be used with apache passthroughs.
           The configuration parameter <i>passthrough</i> must be enabled for passthroughs
-          to be effective. <a target="_blank" href="/static/doc/PacketFence_Administration_Guide.html#_mod_proxy_passthroughs"><i
+          to be effective. <a target="_blank" href="/static/doc/PacketFence_Installation_Guide.html#_mod_proxy_passthroughs"><i
           class="icon-question-circle-o"></i></a> '
         type: string
       range:
@@ -209,6 +209,9 @@ ConfigBase:
         description: Record the accounting data in the SQL tables.Requires a restart
           of radiusd to be effective.
         type: string
+      scan_on_accounting:
+        description: advanced.scan_on_accounting
+        type: string
       source_to_send_sms_when_creating_users:
         description: The source to use to send an SMS when creating a user
         type: string
@@ -231,7 +234,7 @@ ConfigBase:
         type: string
       vlan_pool_technique:
         description: 'The algorithm used to calculate the VLAN in a VLAN pool. <a
-          target="_blank" href="/static/doc/PacketFence_Administration_Guide.html#_roles_management"><i
+          target="_blank" href="/static/doc/PacketFence_Installation_Guide.html#_roles_management"><i
           class="icon-question-circle-o"></i></a> '
         type: string
     type: object
@@ -552,9 +555,6 @@ ConfigBase:
   - properties:
       api-frontend:
         description: Should api-frontend be managed by PacketFence?
-        type: string
-      etcd:
-        description: Should etcd be managed by PacketFence?
         type: string
       fingerbank-collector:
         description: Should the fingerbank-collector be managed by PacketFence?

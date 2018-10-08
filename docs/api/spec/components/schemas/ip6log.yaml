@@ -1,0 +1,15 @@
+Ip6log:
+  properties:
+    end_time:
+      type: string
+    ip:
+      type: string
+    mac:
+      type: string
+    start_time:
+      type: string
+    tenant_id:
+      type: integer
+    type:
+      type: string
+  type: object

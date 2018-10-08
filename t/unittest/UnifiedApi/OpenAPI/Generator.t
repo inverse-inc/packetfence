@@ -124,6 +124,7 @@ sub standardSchema {
                 ],
                 responses  => {
                     "200" =>  {
+                        'description' => 'Item',
                         content => {
                             "application/json" => {
                                 schema => {
@@ -262,11 +263,13 @@ sub standardSchema {
         ),
         {
             '/components/schemas/ConfigFloatingDevicesList' => {
+                description => 'List',
                 allOf => [
                     { '$ref' => "#/components/schemas/Iterable" },
                     {
                         "properties" => {
                             "items" => {
+                                'description' => 'List',
                                 "items" => {
                                     "\$ref" =>
                                       "#/components/schemas/ConfigFloatingDevice"

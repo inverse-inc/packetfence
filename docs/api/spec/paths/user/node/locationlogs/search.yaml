@@ -2,7 +2,15 @@
   description: pf::UnifiedApi::Controller::Users::Nodes::Locationlogs
   post:
     operationId: api.v1.Users.Nodes.Locationlogs.search
-    parameters: []
+    parameters:
+    - in: path
+      name: user_id
+      schema:
+        type: string
+    - in: path
+      name: node_id
+      schema:
+        type: string
     requestBody:
       content:
         application/json:

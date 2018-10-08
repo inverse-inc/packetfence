@@ -3266,9 +3266,15 @@ ConfigSource:
       server1_address:
         description: Eduroam server 1 address
         type: string
+      server1_port:
+        description: Eduroam server 1 port
+        type: integer
       server2_address:
         description: Eduroam server 2 address
         type: string
+      server2_port:
+        description: Eduroam server 2 port
+        type: integer
       type:
         description: Type
         type: string

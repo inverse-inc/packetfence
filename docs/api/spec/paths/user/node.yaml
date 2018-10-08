@@ -4,11 +4,11 @@
     operationId: api.v1.Users.Nodes.remove
     parameters:
     - in: path
-      name: node_id
+      name: user_id
       schema:
         type: string
     - in: path
-      name: user_id
+      name: node_id
       schema:
         type: string
     responses:
@@ -20,11 +20,11 @@
     operationId: api.v1.Users.Nodes.get
     parameters:
     - in: path
-      name: node_id
+      name: user_id
       schema:
         type: string
     - in: path
-      name: user_id
+      name: node_id
       schema:
         type: string
     responses:
@@ -47,11 +47,11 @@
     operationId: api.v1.Users.Nodes.update
     parameters:
     - in: path
-      name: node_id
+      name: user_id
       schema:
         type: string
     - in: path
-      name: user_id
+      name: node_id
       schema:
         type: string
     requestBody:
@@ -71,11 +71,11 @@
     operationId: api.v1.Users.Nodes.replace
     parameters:
     - in: path
-      name: node_id
+      name: user_id
       schema:
         type: string
     - in: path
-      name: user_id
+      name: node_id
       schema:
         type: string
     requestBody:

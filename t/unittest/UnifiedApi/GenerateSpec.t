@@ -137,6 +137,7 @@ is_deeply(
             type       => 'object',
             properties => {
                 items => {
+                    'description' => 'List',
                     type    => 'array',
                     'items' => {
                         '$ref' => "#/components/schemas/Domain"
@@ -325,6 +326,7 @@ cmp_deeply(
             type       => 'object',
             properties => {
                 items => {
+                    'description' => 'List',
                     type    => 'array',
                     'items' => {
                         '$ref' => "#/components/schemas/Profile"

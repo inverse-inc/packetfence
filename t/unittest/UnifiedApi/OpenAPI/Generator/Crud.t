@@ -139,6 +139,7 @@ my @actions = (
                         content => {
                             "application/json" => {
                                 schema => {
+                                    'description' => 'Item',
                                     "properties" => {
                                         "item" => {
                                             "\$ref" => "#/components/schemas/DhcpOption82",
@@ -259,7 +260,6 @@ my @actions = (
                          }
                       }
                    },
-                   "required" => "1"
                 },
                 "responses" => {
                    "200" => {
@@ -324,7 +324,6 @@ my @actions = (
                          }
                       }
                    },
-                   "required" => "1"
                 },
                 "responses" => {
                    "200" => {
@@ -385,6 +384,7 @@ my @actions = (
                 },
                 'responses'  => {
                     "200" => {
+                        description => 'List',
                         content => {
                             "application/json" => {
                                 schema => {
@@ -487,6 +487,7 @@ my @actions = (
                 'description' => 'List items',
                 'responses'  => {
                     "200" => {
+                        description => 'List',
                         content => {
                             "application/json" => {
                                 schema => {
@@ -620,6 +621,7 @@ my @actions = (
                     {
                         "properties" => {
                             "items" => {
+                                description => 'Items',
                                 "items" => {
                                     "\$ref" =>
                                       "#/components/schemas/DhcpOption82"
@@ -644,7 +646,6 @@ my @actions = (
                     host              => { type => 'string' },
                 },
                 type     => 'object',
-                required => [],
             },
         },
         "Schemas For DhcpOption82s",
