@@ -137,7 +137,7 @@ sub test {
         return;
     }
 
-    $self->render(status => 200, json => {status => "success"});
+    $self->render(status => 200, json => {});
     return;
 }
 
