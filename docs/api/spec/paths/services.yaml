@@ -30,8 +30,6 @@
                     $SERVICE_NAME:
                       $ref: "#/components/schemas/Service"
 
-                    
-
 /service/{service}/status:
   get:
     summary: Returns a service status
@@ -42,8 +40,6 @@
         description: The service name to fetch
         schema:
           type: string
-    parameters:
-      - $ref: '#/components/parameters/cursor'
     responses:
       '200':
         description: Service details
