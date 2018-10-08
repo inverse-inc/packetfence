@@ -1,0 +1,23 @@
+/config/sources/test:
+  description: pf::UnifiedApi::Controller::Config::Sources
+  post:
+    description: Test Source
+    operationId: api.v1.Config::Sources.test
+    parameters: []
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              properties:
+                status:
+                  type: integer
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+    requestBody:
+      content:
+        application/json:
+          schema:
+              $ref: '#/components/schemas/ConfigSource'
