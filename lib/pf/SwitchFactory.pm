@@ -30,6 +30,7 @@ use pfconfig::cached_array;
 use NetAddr::IP;
 use pf::StatsD::Timer;
 use pf::util::statsd qw(called);
+use pf::access_filter::switch;
 
 our %SwitchConfig;
 tie %SwitchConfig, 'pfconfig::cached_hash', 'config::Switch';
