@@ -93,18 +93,22 @@ index 28bb594f78..4cfff9dc0a 100644
  ExecReload=/bin/kill -USR2 $MAINPID
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-httpd.aaa.service b/conf/systemd/packetfence-httpd.aaa.service
-index 74e396af34..8490172e71 100644
+index 74e396af34..bc14d6f6d9 100644
 --- a/conf/systemd/packetfence-httpd.aaa.service
 +++ b/conf/systemd/packetfence-httpd.aaa.service
-@@ -10,7 +10,7 @@ Before=packetfence-radiusd-auth.service packetfence-radiusd-acct.service packetf
+@@ -10,9 +10,9 @@ Before=packetfence-radiusd-auth.service packetfence-radiusd-acct.service packetf
  StartLimitBurst=3
  StartLimitInterval=10
  Type=notify
 -ExecStartPre=/usr/bin/rm -f /usr/local/pf/var/run/httpd.aaa.pid
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_aaa' -e 'pf::services::manager::httpd_aaa->new()->generateConfig()'
+-ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.aaa -DFOREGROUND  -Drhel
 +ExecStartPre=/bin/rm -f /usr/local/pf/var/run/httpd.aaa.pid
- ExecStartPre=/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_aaa' -e 'pf::services::manager::httpd_aaa->new()->generateConfig()'
- ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.aaa -DFOREGROUND  -Drhel
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib '-Mpf::services::manager::httpd_aaa' -e 'pf::services::manager::httpd_aaa->new()->generateConfig()'
++ExecStart=/usr/sbin/apache2 -f /usr/local/pf/var/conf/httpd.conf.d/httpd.aaa -DFOREGROUND  -Ddebian
  ExecReload=/bin/kill -USR1 ${MAINPID}
+ PrivateTmp=true
+ Restart=on-failure
 diff --git a/conf/systemd/packetfence-httpd.admin.service b/conf/systemd/packetfence-httpd.admin.service
 index 3d86c57b0c..328bfcad8b 100644
 --- a/conf/systemd/packetfence-httpd.admin.service
