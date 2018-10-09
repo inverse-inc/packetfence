@@ -282,6 +282,7 @@ export default {
     },
     onDragEnd (event) {
       this.drag = false
+      this.emitExternalValidations()
     },
     onMouseEnter (index) {
       if (this.drag) return

@@ -217,9 +217,32 @@ export const userNotExists = (value, component) => {
   })
 }
 
+export const limitSiblingFieldTypes = (limit) => {
+  return (0, _common.withParams)({
+    type: 'limitSiblingFieldTypes',
+    limit: limit
+  }, function (value, field) {
+    let count = 0
+    // get the |id| of this
+    const id = idOfV(field)
+    // find |parent|, using |id|
+    const parent = parentVofId(this.$v, id)
+    // backup and destructure parent params
+    const params = Object.entries(parent.$params)
+    // iterate through all params
+    for (let i = 0; i < params.length; i++) {
+      const [param] = params[i] // destructure
+      if (parent[param].$model === undefined) continue // ignore empty models
+      if (idOfV(parent[param].$model) === id) continue // ignore (self)
+      if (parent[param].$model.type === field.type) count += 1 // increment count
+    }
+    return (count <= limit)
+  })
+}
+
 export const requireAllSiblingFieldTypes = (...fieldTypes) => {
   return (0, _common.withParams)({
-    type: 'requireAllFieldTypes',
+    type: 'requireAllSiblingFieldTypes',
     fieldTypes: fieldTypes
   }, function (value, field) {
     // dereference, preserve original
@@ -249,7 +272,7 @@ export const requireAllSiblingFieldTypes = (...fieldTypes) => {
 
 export const requireAnySiblingFieldTypes = (...fieldTypes) => {
   return (0, _common.withParams)({
-    type: 'requireAnyFieldTypes',
+    type: 'requireAnySiblingFieldTypes',
     fieldTypes: fieldTypes
   }, function (value, field) {
     // dereference, preserve original
@@ -279,7 +302,7 @@ export const requireAnySiblingFieldTypes = (...fieldTypes) => {
 
 export const restrictAllSiblingFieldTypes = (...fieldTypes) => {
   return (0, _common.withParams)({
-    type: 'requireAllFieldTypes',
+    type: 'restrictAllSiblingFieldTypes',
     fieldTypes: fieldTypes
   }, function (value, field) {
     // dereference, preserve original
@@ -309,7 +332,7 @@ export const restrictAllSiblingFieldTypes = (...fieldTypes) => {
 
 export const restrictAnySiblingFieldTypes = (...fieldTypes) => {
   return (0, _common.withParams)({
-    type: 'requireAnyFieldTypes',
+    type: 'restrictAnySiblingFieldTypes',
     fieldTypes: fieldTypes
   }, function (value, field) {
     // dereference, preserve original
@@ -336,5 +359,3 @@ export const restrictAnySiblingFieldTypes = (...fieldTypes) => {
     return !_fieldTypes.includes(true)
   })
 }
-
-
