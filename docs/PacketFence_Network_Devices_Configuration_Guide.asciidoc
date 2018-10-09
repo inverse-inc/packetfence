@@ -5212,6 +5212,8 @@ image::Meraki-config-pf-role.png[scaledwidth="100%",alt="PacketFence role config
 
 image::Meraki-config-pf-url.png[scaledwidth="100%",alt="PacketFence URL configuration"]
 
+URL in registration field should be in the form: 'http://<your_captive_portal_ip>/Meraki::MR_v2'
+
 VLAN enforcement
 ^^^^^^^^^^^^^^^^
 
