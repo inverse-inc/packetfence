@@ -5183,6 +5183,8 @@ Meraki
 
 To add the AP on PacketFence use the internal IP of the AP.
 
+The 'Disconnect port' field must be set to '1700'.
+
 WebAuth
 ^^^^^^^
 
