@@ -10,6 +10,9 @@ Search:
     sort:
       type: string
       description: "A list of fields to sort on along with the ordering way (ASC or DESC)."
+    with_total_count:
+      type: boolean
+      description: The total count of the query will be returned
     cursor:
       type: string
       description: "The cursor pointer to fetch the data (value should be taken from previousCursor and nextCursor)"

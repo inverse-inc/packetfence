@@ -458,7 +458,7 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
     my %search_info = (
         dal => $dal,
         fields => \@f,
-        with_count => 1,
+        with_total_count => 1,
     );
     is_deeply(
         [

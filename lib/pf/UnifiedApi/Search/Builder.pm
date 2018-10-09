@@ -76,7 +76,7 @@ sub search {
     }
 
     my $count;
-    if ($search_info->{with_count}) {
+    if ($search_info->{with_total_count}) {
         my ($status, $sth) = $dal->db_execute("SELECT FOUND_ROWS();");
         if ( is_error($status) ) {
             return $status, {msg =>  "Error getting count"}
@@ -91,7 +91,7 @@ sub search {
         prevCursor => $offset,
         items      => $items,
         ( defined $nextCursor ? ( nextCursor => $nextCursor ) : () ),
-        ( defined $count ? ( count => $count ) : () ),
+        ( defined $count ? ( total_count => $count ) : () ),
       }
       ;
 }
@@ -253,7 +253,7 @@ sub make_columns {
         $cols = [@{$s->{dal}->table_field_names}];
     }
 
-    if ($s->{with_count}) {
+    if ($s->{with_total_count}) {
         unshift @$cols, '-SQL_CALC_FOUND_ROWS';
     }
 

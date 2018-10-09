@@ -109,9 +109,9 @@ $t->post_ok('/api/v1/nodes/search' => json => { fields => [qw(mac violation.open
   ->status_is(200)
   ->json_has('/items/0/violation.open_count');
 
-$t->post_ok('/api/v1/nodes/search' => json => { fields => [qw(mac)], with_count => 1 })
+$t->post_ok('/api/v1/nodes/search' => json => { fields => [qw(mac)], with_total_count => \1 })
   ->status_is(200)
-  ->json_has('count');
+  ->json_has('total_count');
 
 =head1 AUTHOR
 
