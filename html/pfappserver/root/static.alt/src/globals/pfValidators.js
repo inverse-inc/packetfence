@@ -41,7 +41,7 @@ const parentVofId = ($v, id) => {
 }
 
 /**
- * Vuelidation functions
+ * Vuelidate functions - Default replacements (Fix Promises)
 **/
 
 // `and` replacement, handles Promises
@@ -83,6 +83,10 @@ export const not = (validator) => {
     return !newValue
   })
 }
+
+/**
+ * Vuelidate functions - Custom functions
+**/
 
 export const conditional = (conditional) => {
   return (0, _common.withParams)({

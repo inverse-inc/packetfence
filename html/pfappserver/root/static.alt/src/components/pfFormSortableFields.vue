@@ -1,3 +1,78 @@
+<!--
+ * Component to manage sortable lists (arrays).
+ *
+ * Supports:
+ *  sortable drag-and-drop, must be explicitly enabled
+ *  vuelidate on field |type|
+ *  vuelidate on field |value|
+ *
+ * Basic Usage:
+ *
+ *  <template>
+ *    <pf-form-sortable-fields
+ *      v-model="actions"
+ *      :column-label="$t('Actions')"
+ *      :fields="actionFields"
+ *    ></pf-form-sortable-fields>
+ *  </template>
+ *
+ * Extended Usage:
+ *
+ *  <template>
+ *    <pf-form-sortable-fields
+ *      sortable
+ *      v-model="actions"
+ *      :column-label="$t('Actions')"
+ *      :fields="actionFields"
+ *      :validation="$v.actions"
+ *      :invalid-feedback="[
+ *        { [$t('One or more errors exist.')]: !$v.actions.anyError }
+ *      ]"
+ *      @validations="actionsValidations = $event"
+ *    ></pf-form-sortable-fields>
+ *  </template>
+ *
+ * Properties:
+ *
+ *    `sortable`: (boolean) -- enable drag-and-drop reordering
+ *
+ *    `v-model`: (Object) -- VueX inputValue setter
+ *
+ *    `fields`: (array) -- [
+ *      {
+ *        value: (string) -- the field |type|
+ *        text: (string) -- the field label
+ *        types: [fieldType.ROLE],
+ *        validators: (object) -- {
+ *          type: (object) -- vuelidate key/value pairs for this field |type| -- {
+ *            (array) -- [
+ *              key: (string) -- the string to output on vuelidate error,
+ *              value: (function) -- the vuelidate function to test this field |type|
+ *            ],
+ *            ...
+ *          },
+ *          value: (object) -- vuelidate key/value pairs for this field |value| -- {
+ *            (array) -- [
+ *              key: (string) -- the string to output on vuelidate error,
+ *              value: (function) -- the vuelidate function to test this field |value|
+ *            ],
+ *            ...
+ *          }
+ *        }
+ *      },
+ *      ...
+ *    ]
+ *
+ *    `validation` (vuelidate object) -- the local vuelidate model where this component attaches itself.
+ *      This component does not keep a local vuelidate model, but rather uses the parent's vuelidate model
+ *      to validate. See `@validations` event.
+ *
+ * Events:
+ *
+ *    `@validations` (event) -- the component uses the parent's vuelidate model for validation.
+ *      The components vuelidate model is emitted through this event whenever the internal model changes.
+ *
+-->
 <template>
   <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
     :state="isValid()" :invalid-feedback="getInvalidFeedback()" :class="['sortablefields-element', { 'is-focus': drag }, { 'mb-0': !columnLabel }]"
