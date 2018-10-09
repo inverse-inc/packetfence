@@ -4,6 +4,7 @@
     >
     <b-input-group class="input-group-sortablefields">
       <b-container fluid class="px-0"
+        v-bind="$attrs"
         @mouseleave="onMouseLeave()"
       >
         <draggable
@@ -162,7 +163,8 @@ export default {
       default: null
     },
     validation: {
-    
+      type: Object,
+      default: {}
     },
     sortable: {
       type: Boolean,
@@ -221,7 +223,7 @@ export default {
       get () {
         const value = (this.value) ? this.value : [this.valuePlaceholder]
         const uncompressedValue = value.map(row => {
-          let field = this.fields.find(field => field.value === row.type)
+          const field = this.fields.find(field => field.value === row.type)
           return {
             type: (row.type && typeof row.type !== 'object')
               ? field
@@ -262,7 +264,6 @@ export default {
       let inputValue = this.inputValue
       // push placeholder into middle of array
       this.inputValue = [...inputValue.slice(0, index + 1), this.valuePlaceholder, ...inputValue.slice(index + 1)]
-      this.$forceUpdate()
       this.emitExternalValidations()
     },
     rowDel (index) {
@@ -272,7 +273,6 @@ export default {
       if (this.inputValue.length === 0) {
         this.rowAdd(0)
       } else {
-        this.$forceUpdate()
         this.emitExternalValidations()
       }
     },
@@ -292,10 +292,10 @@ export default {
     },
     values (inputValue) {
       if (!inputValue || !inputValue.type) return []
-      let index = this.fields.findIndex(field => inputValue.type.value === field.value)
+      const index = this.fields.findIndex(field => inputValue.type.value === field.value)
       let values = []
       if (index >= 0) {
-        let field = this.fields[index]
+        const field = this.fields[index]
         for (const type of field.types) {
           if (fieldTypeValues[type]) {
             values.push(...fieldTypeValues[type](this.$store))
@@ -306,9 +306,9 @@ export default {
     },
     isFieldType (type, inputValue) {
       if (!inputValue.type) return false
-      let index = this.fields.findIndex(field => inputValue.type.value === field.value)
+      const index = this.fields.findIndex(field => inputValue.type.value === field.value)
       if (index >= 0) {
-        let field = this.fields[index]
+        const field = this.fields[index]
         if (field.types.includes(type)) {
           return true
         }
@@ -316,9 +316,9 @@ export default {
       return false
     },
     getValidations () {
-      let eachInputValue = {}
+      const eachInputValue = {}
       this.inputValue.forEach((input, index) => {
-        let field = this.fields.find(field => input.type && field.value === input.type.value)
+        const field = this.fields.find(field => input.type && field.value === input.type.value)
         if (field) {
           eachInputValue[field.value] = {}
           if ('validators' in field) { // has vuelidate validations
@@ -330,17 +330,18 @@ export default {
             }
           } else if (field && field.value) {
             // no validations
-            eachInputValue[field.value] = {/* ignore */}
+            eachInputValue[field.value] = {} // ignore
           } else {
             // 1 or more undefined field(s)
-            eachInputValue[null] = {/* ignore */}
+            eachInputValue[null] = {} // ignore
           }
         }
       })
+      Object.freeze(eachInputValue)
       if (eachInputValue !== {}) {
         // use functional validations
         // https://github.com/monterail/vuelidate/issues/166#issuecomment-319924309
-        return { ...this.inputValue.map(input => eachInputValue[(input.type && input.type.value) ? input.type.value : null]) }
+        return { ...this.inputValue.map(input => eachInputValue[(input.type && input.type.value) ? input.type.value : null] || {/* empty */}) }
       }
       return {}
     },
@@ -396,6 +397,10 @@ export default {
       if (this.emitExternalValidationsTimeout) clearTimeout(this.emitExternalValidationsTimeout)
       this.emitExternalValidationsTimeout = setTimeout(() => {
         this.$emit('validations', this.getValidations())
+        this.$nextTick(() => {
+          // force DOM update
+          this.$forceUpdate()
+        })
       }, 100)
     }
   },
