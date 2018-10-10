@@ -6,7 +6,7 @@
       </template>
       <!-- menu items -->
       <div class="notifications-scroll">
-        <div v-for="(notification, index) in notifications" :key="index">
+        <div v-for="(notification) in notifications" :key="notification.id">
           <b-dropdown-item>
             <small>
               <b-row no-gutters>
@@ -35,8 +35,8 @@
     </b-nav-item-dropdown>
     <!-- toasts -->
     <div class="notifications-toasts">
-      <b-alert v-for="(notification, index) in notifications_new" :key="index" variant="secondary"
-        @dismissed="dismiss(notification)" show dismissible fade>
+      <b-alert v-for="(notification) in newNotifications" :key="notification.id" variant="secondary"
+        @dismissed="dismiss(notification)" :show="notification.new" fade dismissible>
         <b-row class="justify-content-md-center">
           <b-col>
             <div class="notification-message">
@@ -72,7 +72,7 @@ export default {
     notifications () {
       return this.$store.state.notification.all
     },
-    notifications_new () {
+    newNotifications () {
       return this.$store.state.notification.all.filter(n => n.new)
     },
     count () {

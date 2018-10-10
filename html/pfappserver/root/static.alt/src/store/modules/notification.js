@@ -2,6 +2,9 @@
 /**
  * "notification" store module
  */
+// import Vue from 'vue'
+import uuidv4 from 'uuid/v4'
+
 const state = {
   all: [],
   hideDelay: 5
@@ -83,6 +86,7 @@ const mutations = {
       notification = Object.assign(params.base, params.data)
     }
     if (notification) {
+      notification.id = uuidv4()
       state.all.splice(0, 0, notification)
       setTimeout(() => {
         notification.new = false
