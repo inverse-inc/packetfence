@@ -221,6 +221,7 @@ import {
   pfFieldType as fieldType,
   pfFieldTypeValues as fieldTypeValues
 } from '@/globals/pfField'
+import { required } from 'vuelidate/lib/validators'
 
 export default {
   name: 'pf-form-sortable-fields',
@@ -253,8 +254,7 @@ export default {
       default: null
     },
     validation: {
-      type: Object,
-      default: {}
+      type: Object
     },
     sortable: {
       type: Boolean,
@@ -441,7 +441,12 @@ export default {
             eachInputValue[field.value] = {} // ignore
           } else {
             // 1 or more undefined field(s)
-            eachInputValue[null] = {} // ignore
+            eachInputValue[null] = {} //ignore
+          }
+        } else {
+          // field |type| is null (placeHolder)
+          eachInputValue[null] = { 
+            type: { [this.$i18n.t('Type required.')]: required } 
           }
         }
       })
@@ -462,9 +467,9 @@ export default {
     getTypeInvalidFeedback (index) {
       let feedback = []
       if (index in this.validation) {
-        const inputValue = this.validation[index] /* use external vuelidate $v model */
-        if (inputValue.type) {
-          const validationModel = inputValue.type
+        const validation = this.validation[index] /* use external vuelidate $v model */
+        if (validation.type) {
+          const validationModel = validation.type
           if (validationModel) {
             Object.entries(validationModel.$params).forEach(([key, value]) => {
               if (validationModel[key] === false) {
@@ -485,9 +490,9 @@ export default {
     getValueInvalidFeedback (index) {
       let feedback = []
       if (index in this.validation) {
-        const inputValue = this.validation[index] /* use external vuelidate $v model */
-        if (inputValue.value) {
-          const validationModel = inputValue.value
+        const validation = this.validation[index] /* use external vuelidate $v model */
+        if (validation.value) {
+          const validationModel = validation.value
           if (validationModel) {
             Object.entries(validationModel.$params).forEach(([key, value]) => {
               if (validationModel[key] === false) {
