@@ -442,11 +442,11 @@ export default {
           } else {
             // 1 or more undefined field(s)
             eachInputValue[null] = {} // ignore
-          } 
+          }
         } else {
           // field |type| is null (placeHolder)
-          eachInputValue[null] = { 
-            type: { [this.$i18n.t('Type required.')]: required } 
+          eachInputValue[null] = {
+            type: { [this.$i18n.t('Type required.')]: required }
           }
         }
       })
