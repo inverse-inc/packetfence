@@ -50,9 +50,9 @@ const parentVofId = ($v, id) => {
 }
 
 // Get the id, parent and params from a given $v member
-const idParentParamsFromV = (v) => {
-  const id = idOfV(v)
-  const parent = parentVofId(this.$v, id)
+const idParentParamsFromV = (vBase, vMember) => {
+  const id = idOfV(vMember)
+  const parent = parentVofId(vBase, id)
   const params = Object.entries(parent.$params)
   return { id: id, parent: parent, params: params }
 }
@@ -255,7 +255,7 @@ export const limitSiblingFieldTypes = (limit) => {
     limit: limit
   }, function (value, field) {
     let count = 0
-    const { id, parent, params } = idParentParamsFromV(field)
+    const { id, parent, params } = idParentParamsFromV(this.$v, field)
     // iterate through all params
     for (let i = 0; i < params.length; i++) {
       const [param] = params[i] // destructure
@@ -275,7 +275,7 @@ export const requireAllSiblingFieldTypes = (...fieldTypes) => {
   }, function (value, field) {
     // dereference, preserve original
     let _fieldTypes = JSON.parse(JSON.stringify(fieldTypes))
-    const { id, parent, params } = idParentParamsFromV(field)
+    const { id, parent, params } = idParentParamsFromV(this.$v, field)
     // iterate through all params
     for (let i = 0; i < params.length; i++) {
       const [param] = params[i] // destructure
@@ -301,7 +301,7 @@ export const requireAnySiblingFieldTypes = (...fieldTypes) => {
   }, function (value, field) {
     // dereference, preserve original
     let _fieldTypes = JSON.parse(JSON.stringify(fieldTypes))
-    const { id, parent, params } = idParentParamsFromV(field)
+    const { id, parent, params } = idParentParamsFromV(this.$v, field)
     // iterate through all params
     for (let i = 0; i < params.length; i++) {
       const [param] = params[i] // destructure
@@ -327,7 +327,7 @@ export const restrictAllSiblingFieldTypes = (...fieldTypes) => {
   }, function (value, field) {
     // dereference, preserve original
     let _fieldTypes = JSON.parse(JSON.stringify(fieldTypes))
-    const { id, parent, params } = idParentParamsFromV(field)
+    const { id, parent, params } = idParentParamsFromV(this.$v, field)
     // iterate through all params
     for (let i = 0; i < params.length; i++) {
       const [param] = params[i] // destructure
@@ -353,7 +353,7 @@ export const restrictAnySiblingFieldTypes = (...fieldTypes) => {
   }, function (value, field) {
     // dereference, preserve original
     let _fieldTypes = JSON.parse(JSON.stringify(fieldTypes))
-    const { id, parent, params } = idParentParamsFromV(field)
+    const { id, parent, params } = idParentParamsFromV(this.$v, field)
     // iterate through all params
     for (let i = 0; i < params.length; i++) {
       const [param] = params[i] // destructure

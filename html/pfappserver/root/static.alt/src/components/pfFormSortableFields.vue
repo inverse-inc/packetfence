@@ -11,7 +11,6 @@
  *  <template>
  *    <pf-form-sortable-fields
  *      v-model="actions"
- *      :column-label="$t('Actions')"
  *      :fields="actionFields"
  *    ></pf-form-sortable-fields>
  *  </template>
@@ -36,9 +35,9 @@
  *
  *    `sortable`: (boolean) -- enable drag-and-drop reordering
  *
- *    `v-model`: (Object) -- VueX inputValue setter
+ *    `v-model`: (Object) -- inputValue setter/getter, returns an array
  *
- *    `fields`: (array) -- [
+ *    `fields`: (array) -- the fields to use in the |type| and |value| fields -- [
  *      {
  *        value: (string) -- the field |type|
  *        text: (string) -- the field label
@@ -78,6 +77,13 @@
     :state="isValid()" :invalid-feedback="getInvalidFeedback()" :class="['sortablefields-element', { 'is-focus': drag }, { 'mb-0': !columnLabel }]"
     >
     <b-input-group class="input-group-sortablefields">
+
+      <!--
+         - Vacuum-up label click event.
+         - See: https://github.com/bootstrap-vue/bootstrap-vue/issues/2063
+      -->
+      <input type="text" name="vaccum" :value="null" style="position: absolute; width: 1px; height: 1px; visibility: hidden;" />
+
       <b-container fluid class="px-0"
         v-bind="$attrs"
         @mouseleave="onMouseLeave()"
@@ -188,7 +194,6 @@
             </b-col>
           </b-form-row>
         </draggable>
-
       </b-container>
     </b-input-group>
     <b-form-text v-if="text" v-t="text"></b-form-text>
@@ -473,6 +478,9 @@ export default {
       if (this.emitExternalValidationsTimeout) clearTimeout(this.emitExternalValidationsTimeout)
       this.emitExternalValidationsTimeout = setTimeout(() => {
         this.$emit('validations', this.getValidations())
+        if (this.validation && this.validation.$dirty) {
+          this.validation.$touch()
+        }
         this.$nextTick(() => {
           // force DOM update
           this.$forceUpdate()
