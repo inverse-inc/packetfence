@@ -441,8 +441,8 @@ export default {
             eachInputValue[field.value] = {} // ignore
           } else {
             // 1 or more undefined field(s)
-            eachInputValue[null] = {} //ignore
-          }
+            eachInputValue[null] = {} // ignore
+          } 
         } else {
           // field |type| is null (placeHolder)
           eachInputValue[null] = { 
