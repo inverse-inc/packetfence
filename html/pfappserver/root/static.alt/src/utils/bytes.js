@@ -16,7 +16,6 @@ const bytes = {
       let quotient = bytes / prefixes[i].multiplier
       if (quotient >= 1 && quotient < 1024) {
         let q = Number.parseFloat(quotient).toFixed(precision).replace(/\.0+$/, '')
-        console.log(q, typeof q)
         return q + ' ' + ((abbreviate) ? prefixes[i].abbr : prefixes[i].suffix)
       }
     }
