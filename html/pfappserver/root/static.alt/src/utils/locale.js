@@ -12,8 +12,9 @@ const i18n = new VueI18n({
   formatter,
   messages: { 'en-US': {} },
   missing: (locale, key, vm, values) => {
+    // uncomment the next line to debug missing translations
     // eslint-disable-next-line
-    console.error(`[Translation] missing: locale=${locale}, key=${key}, values=${JSON.stringify(values)}`)
+    // console.error(`[Translation] missing: locale=${locale}, key=${key}, values=${JSON.stringify(values)}`)
     if (values === [] || !values[0] || !key.includes('{') || !key.includes('}')) return key
     // handle formatting manually
     try {
