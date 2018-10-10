@@ -27,7 +27,7 @@
       <date-picker
         v-model="inputValue"
         v-bind="$attrs"
-        ref="datetime"
+        ref="input"
         :config="datetimeConfig"
         :state="isValid()"
         @input.native="validate()"
@@ -185,7 +185,7 @@ export default {
   },
   methods: {
     toggle (event) {
-      let picker = this.$refs.datetime.dp
+      let picker = this.$refs.input.dp
       picker.toggle()
     },
     reset (event) {
@@ -271,13 +271,13 @@ export default {
     min (a, b) {
       const dateFormat = Object.assign(this.defaultConfig, this.config).format
       a = parse(format((a instanceof Date && dateFnsIsValid(a) ? a : parse(a)), dateFormat))
-      let picker = this.$refs.datetime.dp
+      let picker = this.$refs.input.dp
       picker.minDate(a)
     },
     max (a, b) {
       const dateFormat = Object.assign(this.defaultConfig, this.config).format
       a = parse(format((a instanceof Date && dateFnsIsValid(a) ? a : parse(a)), dateFormat))
-      let picker = this.$refs.datetime.dp
+      let picker = this.$refs.input.dp
       picker.maxDate(a)
     }
   },

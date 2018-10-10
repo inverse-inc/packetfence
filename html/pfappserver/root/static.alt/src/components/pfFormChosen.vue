@@ -6,6 +6,7 @@
         v-model="inputValue"
         v-bind="$attrs"
         :id="id"
+        ref="input"
         :options="options"
         :state="isValid()"
         @input.native="validate()"

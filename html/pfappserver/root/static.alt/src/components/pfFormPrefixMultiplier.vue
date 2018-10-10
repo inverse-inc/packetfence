@@ -10,6 +10,7 @@
       <b-form-input
         v-model="inputValue"
         v-bind="$attrs"
+        ref="input"
         :type="type"
         :state="isValid()"
         @input.native="validate()"

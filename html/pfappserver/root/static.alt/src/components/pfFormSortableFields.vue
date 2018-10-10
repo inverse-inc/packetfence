@@ -110,6 +110,7 @@
               <pf-form-chosen
                 :value="inputValue[index].type"
                 :id="'chosen-' + index"
+                :ref="'type-' + index"
                 label="text"
                 track-by="value"
                 :options="fields"
@@ -129,6 +130,7 @@
               <!-- BEGIN ADMINROLE -->
               <pf-form-chosen v-if="isFieldType(adminroleValueType, inputValue[index])"
                 :value="inputValue[index].value"
+                :ref="'value-' + index"
                 label="name"
                 track-by="value"
                 :options="values(inputValue[index])"
@@ -140,6 +142,7 @@
               <!-- BEGIN ROLE -->
               <pf-form-chosen v-if="isFieldType(roleValueType, inputValue[index])"
                 :value="inputValue[index].value"
+                :ref="'value-' + index"
                 label="name"
                 track-by="value"
                 :options="values(inputValue[index])"
@@ -151,6 +154,7 @@
               <!-- BEGIN TENANT -->
               <pf-form-chosen v-if="isFieldType(tenantValueType, inputValue[index])"
                 :value="inputValue[index].value"
+                :ref="'value-' + index"
                 label="name"
                 track-by="value"
                 :options="values(inputValue[index])"
@@ -162,6 +166,7 @@
               <!-- BEGIN DATETIME -->
               <pf-form-datetime v-if="isFieldType(datetimeValueType, inputValue[index])"
                 :value="inputValue[index].value"
+                :ref="'value-' + index"
                 :config="{useCurrent: true}"
                 :validation="getValueValidation(index)"
                 :invalid-feedback="getValueInvalidFeedback(index)"
@@ -171,6 +176,7 @@
               <!-- BEGIN DURATION -->
               <pf-form-chosen v-if="isFieldType(durationValueType, inputValue[index])"
                 :value="inputValue[index].value"
+                :ref="'value-' + index"
                 label="name"
                 track-by="value"
                 :options="values(inputValue[index])"
@@ -182,6 +188,7 @@
               <!-- BEGIN PREFIXMULTIPLER -->
               <pf-form-prefix-multiplier v-if="isFieldType(prefixmultiplerValueType, inputValue[index])"
                 :value="inputValue[index].value"
+                :ref="'value-' + index"
                 :validation="getValueValidation(index)"
                 :invalid-feedback="getValueInvalidFeedback(index)"
                 @input="setValue(index, $event)"
@@ -334,17 +341,34 @@ export default {
       inputValue[index].value = null
       this.inputValue = inputValue
       this.emitExternalValidations()
+      // focus the value element in this row
+      this.setFocus('value-' + index)
     },
     setValue (index, value) {
       let inputValue = JSON.parse(JSON.stringify(this.inputValue))
       inputValue[index].value = value
       this.inputValue = inputValue
     },
+    setFocus (ref) {
+      this.$nextTick(() => {
+        if (ref in this.$refs) {
+          const reference = this.$refs[ref][0]
+          if (reference && '$refs' in reference && 'input' in reference.$refs) {
+            const input = reference.$refs.input
+            if ('$el' in input) {
+              input.$el.focus()
+            }
+          }
+        }
+      })
+    },
     rowAdd (index) {
       let inputValue = this.inputValue
       // push placeholder into middle of array
       this.inputValue = [...inputValue.slice(0, index + 1), this.valuePlaceholder, ...inputValue.slice(index + 1)]
       this.emitExternalValidations()
+      // focus the type element in new row
+      this.setFocus('type-' + (index + 1))
     },
     rowDel (index) {
       let inputValue = JSON.parse(JSON.stringify(this.inputValue))
