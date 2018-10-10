@@ -72,7 +72,7 @@ has_field 'pin_code_length' => (
     default => pf::Authentication::Source::TwilioSource->meta->get_attribute('pin_code_length')->default,
     tags => {
         after_element => \&help,
-        help => 'The length of the PIN code to be sent over sms',
+        help => 'The length of the PIN code to be sent over SMS',
     },
 );
 

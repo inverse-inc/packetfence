@@ -114,8 +114,8 @@ ConfigSource:
         description: The amount of digits of the PIN number.
         type: integer
       sms_activation_timeout:
-        description: This is the delay given to a guest who registered by sms confirmation
-          to fill the pin code.
+        description: This is the delay given to a guest who registered by SMS confirmation
+          to fill the PIN code.
         properties:
           interval:
             description: Interval
@@ -3129,7 +3129,7 @@ ConfigSource:
         description: SMS text message ($pin will be replaced by the PIN number)
         type: string
       pin_code_length:
-        description: The length of the PIN code to be sent over sms
+        description: The length of the PIN code to be sent over SMS
         type: integer
       twilio_phone_number:
         description: Twilio provided phone number which will show as the sender
