@@ -33,7 +33,7 @@
  *
  * Properties:
  *
- *    `sortable`: (boolean) -- enable drag-and-drop reordering
+ *    `sortable`: (boolean) -- enable drag-and-drop reordering, default: false
  *
  *    `v-model`: (Object) -- inputValue setter/getter, returns an array
  *
@@ -41,7 +41,10 @@
  *      {
  *        value: (string) -- the field |type|
  *        text: (string) -- the field label
- *        types: [fieldType.ROLE],
+ *        types: (array) -- [
+ *          type: (string) -- See globals/pfFields.js,
+ *          ...
+ *        ],
  *        validators: (object) -- {
  *          type: (object) -- vuelidate key/value pairs for this field |type| -- {
  *            (array) -- [
