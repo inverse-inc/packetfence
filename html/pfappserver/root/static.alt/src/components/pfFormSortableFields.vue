@@ -351,6 +351,7 @@ export default {
       let inputValue = JSON.parse(JSON.stringify(this.inputValue))
       inputValue[index].value = value
       this.inputValue = inputValue
+      this.emitExternalValidations()
     },
     setFocus (ref) {
       this.$nextTick(() => {
@@ -511,7 +512,9 @@ export default {
       this.emitExternalValidationsTimeout = setTimeout(() => {
         this.$emit('validations', this.getValidations())
         if (this.validation && this.validation.$dirty) {
-          this.validation.$touch()
+          this.$nextTick(() => {
+            this.validation.$touch()
+          })
         }
         this.$nextTick(() => {
           // force DOM update
