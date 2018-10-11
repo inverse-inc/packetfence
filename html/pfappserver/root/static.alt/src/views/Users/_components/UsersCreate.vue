@@ -198,11 +198,11 @@ export default {
           validators: {
             type: {
               /* Require "set_role" */
-              [this.$i18n.t('Requires "Set Role".')]: requireAllSiblingFieldTypes('set_role'),
+              [this.$i18n.t('Action requires "Set Role".')]: requireAllSiblingFieldTypes('set_role'),
               /* Restrict "set_unreg_date" */
-              [this.$i18n.t('Conflict with "Unregistration date".')]: restrictAllSiblingFieldTypes('set_unreg_date'),
+              [this.$i18n.t('Action conflicts with "Unregistration date".')]: restrictAllSiblingFieldTypes('set_unreg_date'),
               /* Don't allow elsewhere */
-              [this.$i18n.t('Already exists.')]: limitSiblingFieldTypes(0)
+              [this.$i18n.t('Action already exists.')]: limitSiblingFieldTypes(0)
             },
             value: {
               [this.$i18n.t('Value required.')]: required
@@ -216,7 +216,7 @@ export default {
           validators: {
             type: {
               /* Don't allow elsewhere */
-              [this.$i18n.t('Already exists.')]: limitSiblingFieldTypes(0)
+              [this.$i18n.t('Action already exists.')]: limitSiblingFieldTypes(0)
             },
             value: {
               [this.$i18n.t('Value required.')]: required
@@ -230,7 +230,7 @@ export default {
           validators: {
             type: {
               /* Don't allow elsewhere */
-              [this.$i18n.t('Already exists.')]: limitSiblingFieldTypes(0)
+              [this.$i18n.t('Action already exists.')]: limitSiblingFieldTypes(0)
             },
             value: {
               [this.$i18n.t('Value required.')]: required,
@@ -246,7 +246,7 @@ export default {
           validators: {
             type: {
               /* Don't allow elsewhere */
-              [this.$i18n.t('Already exists.')]: limitSiblingFieldTypes(0)
+              [this.$i18n.t('Action already exists.')]: limitSiblingFieldTypes(0)
             }
           }
         },
@@ -257,9 +257,9 @@ export default {
           validators: {
             type: {
               /* When "Role" is selected, either "Time Balance" or "set_unreg_date" is required */
-              [this.$i18n.t('Requires either "Access duration" or "Unregistration date".')]: requireAnySiblingFieldTypes('set_access_duration', 'set_unreg_date'),
+              [this.$i18n.t('Action requires either "Access duration" or "Unregistration date".')]: requireAnySiblingFieldTypes('set_access_duration', 'set_unreg_date'),
               /* Don't allow elsewhere */
-              [this.$i18n.t('Already exists.')]: limitSiblingFieldTypes(0)
+              [this.$i18n.t('Action already exists.')]: limitSiblingFieldTypes(0)
             },
             value: {
               [this.$i18n.t('Value required.')]: required
@@ -273,7 +273,7 @@ export default {
           validators: {
             type: {
               /* Don't allow elsewhere */
-              [this.$i18n.t('Already exists.')]: limitSiblingFieldTypes(0)
+              [this.$i18n.t('Action already exists.')]: limitSiblingFieldTypes(0)
             },
             value: {
               [this.$i18n.t('Value required.')]: required,
@@ -288,7 +288,7 @@ export default {
           validators: {
             type: {
               /* Don't allow elsewhere */
-              [this.$i18n.t('Already exists.')]: limitSiblingFieldTypes(0)
+              [this.$i18n.t('Action already exists.')]: limitSiblingFieldTypes(0)
             },
             value: {
               [this.$i18n.t('Value required.')]: required
@@ -299,17 +299,18 @@ export default {
           value: 'set_unreg_date',
           text: this.$i18n.t('Unregistration date'),
           types: [fieldType.DATETIME],
+          moments: ['1 days', '1 weeks', '1 months', '1 years'],
           validators: {
             type: {
               /* Require "set_role" */
-              [this.$i18n.t('Requires "Set Role".')]: requireAllSiblingFieldTypes('set_role'),
+              [this.$i18n.t('Action requires "Set Role".')]: requireAllSiblingFieldTypes('set_role'),
               /* Restrict "set_access_duration" */
-              [this.$i18n.t('Conflict with "Access duration".')]: restrictAllSiblingFieldTypes('set_access_duration'),
+              [this.$i18n.t('Action conflicts with "Access duration".')]: restrictAllSiblingFieldTypes('set_access_duration'),
               /* Don't allow elsewhere */
-              [this.$i18n.t('Already exists.')]: limitSiblingFieldTypes(0)
+              [this.$i18n.t('Action already exists.')]: limitSiblingFieldTypes(0)
             },
             value: {
-              [this.$i18n.t('Value required.')]: required,
+              [this.$i18n.t('Future value required.')]: compareDate('>=', new Date(), schema.node.unregdate.format, false),
               [this.$i18n.t('Invalid date.')]: isDateFormat(schema.node.unregdate.format)
             }
           }
