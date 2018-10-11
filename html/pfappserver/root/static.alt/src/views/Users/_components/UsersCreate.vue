@@ -175,11 +175,11 @@ const { validationMixin } = require('vuelidate')
 export default {
   name: 'UsersCreate',
   components: {
-    'pf-form-datetime': pfFormDatetime,
-    'pf-form-input': pfFormInput,
-    'pf-form-sortable-fields': pfFormSortableFields,
-    'pf-form-textarea': pfFormTextarea,
-    'pf-form-toggle': pfFormToggle
+    pfFormDatetime,
+    pfFormInput,
+    pfFormSortableFields,
+    pfFormTextarea,
+    pfFormToggle
   },
   mixins: [
     validationMixin

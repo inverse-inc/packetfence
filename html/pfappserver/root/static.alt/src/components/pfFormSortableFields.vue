@@ -77,7 +77,7 @@
 -->
 <template>
   <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
-    :state="isValid()" :invalid-feedback="getInvalidFeedback()" 
+    :state="isValid()" :invalid-feedback="getInvalidFeedback()"
     class="sortablefields-element" :class="[{ 'is-focus': drag }, { 'mb-0': !columnLabel }]"
     >
     <b-input-group class="input-group-sortablefields">
@@ -231,9 +231,9 @@ export default {
   ],
   components: {
     draggable,
-    'pf-form-chosen': pfFormChosen,
-    'pf-form-datetime': pfFormDatetime,
-    'pf-form-prefix-multiplier': pfFormPrefixMultiplier
+    pfFormChosen,
+    pfFormDatetime,
+    pfFormPrefixMultiplier
   },
   props: {
     value: {
