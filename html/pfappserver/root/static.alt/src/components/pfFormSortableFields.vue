@@ -517,6 +517,8 @@ export default {
       // debounce to avoid emit storm,
       // delay to allow internal inputValue to update before building external validations
       if (this.emitExternalValidationsTimeout) clearTimeout(this.emitExternalValidationsTimeout)
+      // don't emit on |drag|, fixes .is-invalid flicker on internal components shortly after drag @end
+      if (this.drag) return
       this.emitExternalValidationsTimeout = setTimeout(() => {
         this.$emit('validations', this.getValidations())
         if (this.validation && this.validation.$dirty) {
