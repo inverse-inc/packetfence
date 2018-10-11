@@ -21,4 +21,5 @@ dist:
 	git update-index --assume-unchanged $(CSS_FILES) $(JS_FILES) $(JS_LIB_FILES)
 
 light-dist:
+	npm install -g grunt-cli
 	grunt --stack dist

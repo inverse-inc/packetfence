@@ -28,4 +28,6 @@ dist:
 	fi
 
 light-dist:
+	npm install -g grunt-cli
+	npm install -g bower
 	grunt --stack dist
