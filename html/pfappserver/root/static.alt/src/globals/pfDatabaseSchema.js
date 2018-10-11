@@ -165,6 +165,68 @@ export const pfDatabaseSchema = {
       default: '0000-00-00 00:00:00'
     }
   },
+  password: {
+    tenant_id: Object.assign(
+      sqlLimits.int,
+      {
+        type: Number,
+        default: 1
+      }
+    ),
+    pid: {
+      type: String,
+      maxLength: 255
+    },
+    password: {
+      type: String,
+      maxLength: 255
+    },
+    valid_from: {
+      type: String,
+      format: 'YYYY-MM-DD HH:mm:ss',
+      default: '0000-00-00 00:00:00'
+    },
+    expiration: {
+      type: String,
+      format: 'YYYY-MM-DD HH:mm:ss',
+      default: ''
+    },
+    access_duration: {
+      type: String,
+      maxLength: 255
+    },
+    access_level: {
+      type: String,
+      maxLength: 255,
+      default: 'NONE'
+    },
+    category: Object.assign(
+      sqlLimits.int,
+      {
+        type: Number,
+        default: null
+      }
+    ),
+    sponsor: Object.assign(
+      sqlLimits.tinyint,
+      {
+        type: Number,
+        default: 0
+      }
+    ),
+    unregdate: {
+      type: String,
+      format: 'YYYY-MM-DD HH:mm:ss',
+      default: '0000-00-00 00:00:00'
+    },
+    login_remaining: Object.assign(
+      sqlLimits.int,
+      {
+        type: Number,
+        default: null
+      }
+    )
+  },
   person: {
     tenant_id: sqlLimits.int,
     pid: {
