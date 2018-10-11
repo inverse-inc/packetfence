@@ -265,10 +265,13 @@ export const limitSiblingFieldTypes = (limit) => {
         const [param] = params[i] // destructure
         if (parent[param].$model === undefined) continue // ignore empty models
         if (idOfV(parent[param].$model) === id) continue // ignore (self)
-        if (parent[param].$model.type === field.type) count += 1 // increment count
+        if (parent[param].$model.type === field.type) {
+            count += 1 // increment count
+            if (count > limit) return false
+        }
       }
     }
-    return (count <= limit)
+    return true
   })
 }
 
@@ -315,16 +318,12 @@ export const requireAnySiblingFieldTypes = (...fieldTypes) => {
         const [param] = params[i] // destructure
         if (parent[param].$model === undefined) continue // ignore empty models
         if (idOfV(parent[param].$model) === id) continue // ignore (self)
-        // iterate through _fieldTypes and substitute
-        _fieldTypes = _fieldTypes.map(fieldType => {
-          // substitute the fieldType with |true| if it exists
-          return (parent[param].$model.type === fieldType) ? true : fieldType
-        })
+        // return |true| if any fieldType exists
+        if (_fieldTypes.includes(parent[param].$model.type)) return true
       }
     }
-    // return |true| if any member of the the array is |true|,
     // otherwise return false
-    return _fieldTypes.includes(true)
+    return false
   })
 }
 
@@ -371,15 +370,11 @@ export const restrictAnySiblingFieldTypes = (...fieldTypes) => {
         const [param] = params[i] // destructure
         if (parent[param].$model === undefined) continue // ignore empty models
         if (idOfV(parent[param].$model) === id) continue // ignore (self)
-        // iterate through _fieldTypes and substitute
-        _fieldTypes = _fieldTypes.map(fieldType => {
-          // substitute the fieldType with |true| if it exists
-          return (parent[param].$model.type === fieldType) ? true : fieldType
-        })
+        // return |false| if any fieldType exists
+        if (_fieldTypes.includes(parent[param].$model.type)) return false
       }
     }
-    // return |false| if any member of the the array is |true|,
     // otherwise return true
-    return !_fieldTypes.includes(true)
+    return true
   })
 }
