@@ -231,7 +231,7 @@ export default {
       let [amount, key] = this.moments[index].split(' ', 2)
       amount = parseInt(amount)
       // allow [CTRL]+[CLICK] for cumulative change
-      const dateFormat = this.datetimeConfig().format
+      const dateFormat = this.datetimeConfig.format
       const base = (event.ctrlKey) ? parse(this.inputValue, dateFormat) || new Date() : new Date()
       if (validMomentKeys.includes(key)) {
         switch (key) {
