@@ -80,7 +80,7 @@
 <template>
   <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
     :state="isValid()" :invalid-feedback="getInvalidFeedback()"
-    class="sortablefields-element" :class="[{ 'is-focus': drag }, { 'mb-0': !columnLabel }]"
+    class="sortablefields-element" :class="{ 'is-focus': drag, 'mb-0': !columnLabel }"
     >
     <b-input-group class="input-group-sortablefields">
 
@@ -442,6 +442,9 @@ export default {
     getValidations () {
       // don't emit validation error if only a single inputValue member exists,
       //  this allows the parent form to pass when the component is not used (is valuePlaceHolder).
+      
+      
+      
       if (this.inputValue.length > 1 || JSON.stringify(this.inputValue[0]) !== JSON.stringify(this.valuePlaceHolder)) {
         const eachInputValue = {}
         this.inputValue.forEach((input, index) => {
