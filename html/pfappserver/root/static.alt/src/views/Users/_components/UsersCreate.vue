@@ -25,6 +25,14 @@
                   { [$t('The password must be at least 6 characters.')]: !$v.single.password.minLength }
                 ]"
                 text="Leave it empty if you want to generate a random password."/>
+              <pf-form-input type="number" v-model="single.login_remaining" :column-label="$t('Login remaining')"
+                :validation="$v.single.login_remaining"
+                :invalid-feedback="[
+                  { [$t('Must be numeric.')]: !$v.single.login_remaining.numeric },
+                  { [$t('Must be greater than {min}.', { min: globals.schema.password.login_remaining.min })]: !$v.single.login_remaining.min },
+                  { [$t('Must be less than {max}.', { max: globals.schema.password.login_remaining.max })]: !$v.single.login_remaining.max },
+                ]"
+                text="Leave it empty to allow unlimited logins."/>
               <pf-form-input v-model.trim="single.email" :column-label="$t('Email')"
                 :validation="$v.single.email"
                 :invalid-feedback="[
@@ -69,12 +77,65 @@
                   { [$t('Maximum {max} characters.', {max: globals.schema.person.notes.maxLength})]: !$v.single.notes.maxLength }
                 ]"
               />
-
             </b-col>
           </b-form-row>
         </b-form>
       </b-tab>
       <b-tab :title="$t('Multiple')" v-can:create-multiple="'users'">
+        <b-form @submit.prevent="create()">
+          <b-form-row align-v="center">
+            <b-col sm="12">
+              <pf-form-toggle v-model="multiple.pid_overwrite" :column-label="$t('Username (PID) overwrite')"
+                :values="{checked: 1, unchecked: 0}" text="Overwrite the username (PID) if it already exists."
+                >{{ (multiple.pid_overwrite === 1) ? $t('Overwrite') : $t('Ignore') }}</pf-form-toggle>
+              <pf-form-input v-model="multiple.prefix" :column-label="$t('Username Prefix')"
+                :validation="$v.multiple.prefix"
+                :invalid-feedback="[
+                  { [$t('Username prefix required.')]: !$v.multiple.prefix.required },
+                  { [$t('Maximum {max} characters.', {max: globals.schema.person.pid.maxLength - Math.floor(Math.log10(this.multiple.quantity || 1) + 1)})]: !$v.multiple.prefix.maxLength }
+                ]"
+              />
+              <pf-form-input v-model="multiple.quantity" :column-label="$t('Quantity')"
+                :validation="$v.multiple.quantity"
+                :invalid-feedback="[
+                  { [$t('Quantity required.')]: !$v.multiple.quantity.required }
+                ]"
+              />
+              <pf-form-input type="number" v-model="multiple.login_remaining" :column-label="$t('Login remaining')"
+                :validation="$v.multiple.login_remaining"
+                :invalid-feedback="[
+                  { [$t('Must be numeric.')]: !$v.multiple.login_remaining.numeric },
+                  { [$t('Must be greater than {min}.', { min: globals.schema.password.login_remaining.min })]: !$v.multiple.login_remaining.min },
+                  { [$t('Must be less than {max}.', { max: globals.schema.password.login_remaining.max })]: !$v.multiple.login_remaining.max },
+                ]"
+                text="Leave it empty to allow unlimited logins."/>
+              <pf-form-input v-model="multiple.firstname" :column-label="$t('Firstname')"
+                :validation="$v.multiple.firstname"
+                :invalid-feedback="[
+                  { [$t('Maximum {max} characters.', {max: globals.schema.person.firstname.maxLength})]: !$v.multiple.firstname.maxLength }
+                ]"
+              />
+              <pf-form-input v-model="multiple.lastname" :column-label="$t('Lastname')"
+                :validation="$v.multiple.lastname"
+                :invalid-feedback="[
+                  { [$t('Maximum {max} characters.', {max: globals.schema.person.lastname.maxLength})]: !$v.multiple.lastname.maxLength }
+                ]"
+              />
+              <pf-form-input v-model="multiple.company" :column-label="$t('Company')"
+                :validation="$v.multiple.company"
+                :invalid-feedback="[
+                  { [$t('Maximum {max} characters.', {max: globals.schema.person.company.maxLength})]: !$v.multiple.company.maxLength }
+                ]"
+              />
+              <pf-form-textarea v-model="multiple.notes" :column-label="$t('Notes')" rows="8" max-rows="12"
+                :validation="$v.multiple.notes"
+                :invalid-feedback="[
+                  { [$t('Maximum {max} characters.', {max: globals.schema.person.notes.maxLength})]: !$v.multiple.notes.maxLength }
+                ]"
+              />
+            </b-col>
+          </b-form-row>
+        </b-form>
       </b-tab>
     </b-tabs>
 
@@ -116,6 +177,8 @@
             sortable
             v-model="actions"
             column-label="Actions"
+            :type-label="$t('Select action type')"
+            :value-label="$t('Select action value')"
             :fields="actionFields"
             :validation="$v.actions"
             :invalid-feedback="[
@@ -310,7 +373,7 @@ export default {
               [this.$i18n.t('Action already exists.')]: limitSiblingFieldTypes(0)
             },
             value: {
-              [this.$i18n.t('Future value required.')]: compareDate('>=', new Date(), schema.node.unregdate.format, false),
+              [this.$i18n.t('Future date required.')]: compareDate('>=', new Date(), schema.node.unregdate.format, false),
               [this.$i18n.t('Invalid date.')]: isDateFormat(schema.node.unregdate.format)
             }
           }
@@ -321,7 +384,24 @@ export default {
         pid_overwrite: 0,
         pid: '',
         email: '',
-        password: ''
+        password: '',
+        login_remaining: null,
+        firstname: '',
+        lastname: '',
+        company: '',
+        telephone: '',
+        address: '',
+        notes: ''
+      },
+      multiple: {
+        pid_overwrite: 0,
+        prefix: '',
+        quantity: '',
+        login_remaining: null,
+        firstname: '',
+        lastname: '',
+        company: '',
+        notes: ''
       },
       valid_from: null,
       expiration: null,
@@ -343,11 +423,32 @@ export default {
           maxLength: maxLength(schema.person.email.maxLength)
         },
         password: { minLength: minLength(6) },
+        login_remaining: {
+          numeric,
+          min: minValue(schema.password.login_remaining.min),
+          max: maxValue(schema.password.login_remaining.max)
+        },
         firstname: { maxLength: maxLength(schema.person.firstname.maxLength) },
         lastname: { maxLength: maxLength(schema.person.lastname.maxLength) },
         company: { maxLength: maxLength(schema.person.company.maxLength) },
         telephone: { maxLength: maxLength(schema.person.telephone.maxLength) },
         address: { maxLength: maxLength(schema.person.address.maxLength) },
+        notes: { maxLength: maxLength(schema.person.notes.maxLength) }
+      },
+      multiple: {
+        prefix: {
+          required,
+          maxLength: maxLength(schema.person.pid.maxLength - Math.floor(Math.log10(this.multiple.quantity || 1) + 1))
+        },
+        quantity: { required },
+        login_remaining: {
+          numeric,
+          min: minValue(schema.password.login_remaining.min),
+          max: maxValue(schema.password.login_remaining.max)
+        },
+        firstname: { maxLength: maxLength(schema.person.firstname.maxLength) },
+        lastname: { maxLength: maxLength(schema.person.lastname.maxLength) },
+        company: { maxLength: maxLength(schema.person.company.maxLength) },
         notes: { maxLength: maxLength(schema.person.notes.maxLength) }
       },
       valid_from: {
