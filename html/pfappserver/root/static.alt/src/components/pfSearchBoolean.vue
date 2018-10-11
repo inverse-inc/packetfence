@@ -1,11 +1,11 @@
 <template>
   <b-container fluid class="px-0" v-if="!advancedMode">
     <!-- BEGIN SIMPLE SEARCH -->
-    <b-row class="mx-auto">
+    <b-row class="mx-auto" no-gutters>
       <b-col cols="12" class="bg-white rc">
         <b-container fluid class="mx-0 px-0 py-1">
-          <b-form-select v-model="model.values[0].values[0].field" :options="fields"></b-form-select>
-          <b-form-select v-model="model.values[0].values[0].op" :options="operators(model.values[0].values[0])"></b-form-select>
+          <b-form-select class="mr-1" v-model="model.values[0].values[0].field" :options="fields"></b-form-select>
+          <b-form-select class="mr-1" v-model="model.values[0].values[0].op" :options="operators(model.values[0].values[0])"></b-form-select>
           <b-form-input v-model="model.values[0].values[0].value" type="text" v-if="isFieldType(substringValueType, model.values[0].values[0])"></b-form-input>
           <pf-form-datetime v-model="model.values[0].values[0].value" v-else-if="isFieldType(datetimeValueType, model.values[0].values[0])" :config="{useCurrent: true}"></pf-form-datetime>
           <pf-form-prefix-multiplier v-model="model.values[0].values[0].value" v-else-if="isFieldType(prefixmultipleValueType, model.values[0].values[0])"></pf-form-prefix-multiplier>
@@ -36,13 +36,13 @@
               <b-col cols="12" class="bg-white rc">
                 <b-container fluid class="mx-0 px-0 py-1">
                   <span v-if="model.values.length > 1 || model.values[outerindex].values.length > 1" class="draghandle mr-2" v-b-tooltip.hover.right :title="$t('Click &amp; Drag statement to reorder')"><icon name="ellipsis-v"></icon></span>
-                  <b-button-group>
+                  <b-button-group class="mr-1">
                     <b-input-group-prepend is-text v-if="icon(rule)">
                       <icon :name="icon(rule)"></icon>
                     </b-input-group-prepend>
                     <b-form-select v-model="rule.field" :options="fields"></b-form-select>
                   </b-button-group>
-                  <b-form-select v-model="rule.op" :options="operators(rule)"></b-form-select>
+                  <b-form-select class="mr-1" v-model="rule.op" :options="operators(rule)"></b-form-select>
                   <b-form-input v-model="rule.value" type="text" v-if="isFieldType(substringValueType, rule)"></b-form-input>
                   <pf-form-datetime v-model="rule.value" v-else-if="isFieldType(datetimeValueType, rule)" :config="{useCurrent: true}" :moments="['-1 hours', '-1 days', '-1 weeks', '-1 months', '-1 quarters', '-1 years']"></pf-form-datetime>
                   <pf-form-prefix-multiplier v-model="rule.value" v-else-if="isFieldType(prefixmultipleValueType, rule)"></pf-form-prefix-multiplier>

@@ -1,11 +1,12 @@
 <template>
   <div class="card-body">
     <!-- Advanced Search Mode -->
+    <transition name="fade" mode="out-in">
     <div v-if="advancedMode">
       <b-form inline @submit.prevent="onSubmit" @reset.prevent="onReset">
         <pf-search-boolean :model="condition" :fields="fields" :store="store" :advancedMode="advancedMode"/>
-        <br/>
-        <b-container fluid class="mt-3 px-0">
+        <b-container fluid class="text-right mt-3 px-0">
+          <b-button class="mr-1" type="reset" variant="secondary">{{ $t('Clear') }}</b-button>
           <b-button-group>
             <b-button type="submit" variant="primary">{{ $t('Search') }}</b-button>
             <b-dropdown variant="primary" right>
@@ -24,50 +25,45 @@
               </b-dropdown-item>
             </b-dropdown>
           </b-button-group>
-          <b-button type="reset" variant="secondary">{{ $t('Clear') }}</b-button>
         </b-container>
       </b-form>
       <b-modal v-model="showExportJsonModal" size="lg" centered id="exportJsonModal" :title="$t('Export to JSON')">
         <b-form-textarea ref="exportJsonTextarea" v-model="jsonCondition" :rows="3" :max-rows="3" readonly></b-form-textarea>
         <div slot="modal-footer">
-          <b-button-group class="float-right">
-            <b-button variant="outline-secondary" @click="showExportJsonModal=false">{{ $t('Cancel') }}</b-button>
-            <b-button variant="primary" @click="copyJsonTextarea">{{ $t('Copy to Clipboard') }}</b-button>
-          </b-button-group>
+          <b-button variant="secondary" class="mr-1" @click="showExportJsonModal=false">{{ $t('Cancel') }}</b-button>
+          <b-button variant="primary" @click="copyJsonTextarea">{{ $t('Copy to Clipboard') }}</b-button>
         </div>
       </b-modal>
       <b-modal v-model="showImportJsonModal" size="lg" centered id="importJsonModal" :title="$t('Import from JSON')" @shown="focusImportJsonTextarea">
         <b-card v-if="importJsonError" class="mb-3" bg-variant="danger" text-variant="white"><icon name="exclamation-triangle" class="mr-1"></icon>{{ importJsonError }}</b-card>
         <b-form-textarea ref="importJsonTextarea" v-model="importJsonString" :rows="3" :max-rows="3" :placeholder="$t('Enter JSON')"></b-form-textarea>
         <div slot="modal-footer">
-          <b-button-group class="float-right">
-            <b-button variant="outline-secondary" @click="showImportJsonModal=false">{{ $t('Cancel') }}</b-button>
-            <b-button variant="primary" @click="importJsonTextarea">{{ $t('Import JSON') }}</b-button>
-          </b-button-group>
+          <b-button variant="secondary" class="mr-1" @click="showImportJsonModal=false">{{ $t('Cancel') }}</b-button>
+          <b-button variant="primary" @click="importJsonTextarea">{{ $t('Import JSON') }}</b-button>
         </div>
       </b-modal>
-      <b-modal v-model="showSaveSearchModal" size="lg" centered id="saveSearchModal" :title="$t('Save Search')" @shown="focusSaveSearchInput">
-        <label for="saveSearchInput">{{ $t('Search Name') }}:</label>
-        <b-form-input id="saveSearchInput" ref="saveSearchInput" v-model="saveSearchString" type="text" :placeholder="$t('Enter a unique name')"></b-form-input>
+      <b-modal v-model="showSaveSearchModal" size="sm" centered id="saveSearchModal" :title="$t('Save Search')" @shown="focusSaveSearchInput">
+        <b-form-input ref="saveSearchInput" v-model="saveSearchString" type="text"
+          :placeholder="$t('Enter a unique name')"/>
         <div slot="modal-footer">
-          <b-button-group class="float-right">
-            <b-button variant="outline-secondary" @click="showSaveSearchModal=false">{{ $t('Cancel') }}</b-button>
-            <b-button variant="primary" @click="saveSearch">{{ $t('Save') }}</b-button>
-          </b-button-group>
+          <b-button variant="secondary" class="mr-1" @click="showSaveSearchModal=false">{{ $t('Cancel') }}</b-button>
+          <b-button variant="primary" @click="saveSearch">{{ $t('Save') }}</b-button>
         </div>
       </b-modal>
     </div>
     <!-- Simple Search Mode with Search Fields -->
     <b-form inline @submit.prevent="onSubmit" @reset.prevent="onReset" v-else-if="quickWithFields">
-      <b-form-row class="align-items-center">
-        <b-col cols="auto" class="px-0 mr-auto">
-          <pf-search-boolean :model="condition" :fields="fields" :store="store" :advancedMode="false"/>
-        </b-col>
-        <b-col cols="auto" align="right" class="flex-grow-0">
-          <b-button type="submit" variant="primary">{{ $t('Search') }}</b-button>
-          <b-button type="reset" variant="secondary">{{ $t('Clear') }}</b-button>
-        </b-col>
-      </b-form-row>
+      <b-container class="px-0" fluid>
+        <b-row class="align-items-center px-0" no-gutters>
+          <b-col cols="auto" class="mr-auto">
+            <pf-search-boolean :model="condition" :fields="fields" :store="store" :advancedMode="false"/>
+          </b-col>
+          <b-col cols="auto" align="right" class="flex-grow-0">
+            <b-button type="reset" variant="secondary" class="mr-1">{{ $t('Clear') }}</b-button>
+            <b-button type="submit" variant="primary">{{ $t('Search') }}</b-button>
+          </b-col>
+        </b-row>
+      </b-container>
     </b-form>
     <!-- Quick Search Mode -->
     <b-form @submit.prevent="onSubmit" @reset.prevent="onReset" v-else>
@@ -76,10 +72,11 @@
           <div class="input-group-text"><icon name="search"></icon></div>
         </div>
         <b-form-input v-model="quickValue" type="text" :placeholder="quickPlaceholder"></b-form-input>
-        <b-button class="ml-1" type="submit" variant="primary">{{ $t('Search') }}</b-button>
         <b-button class="ml-1" type="reset" variant="secondary">{{ $t('Clear') }}</b-button>
+        <b-button class="ml-1" type="submit" variant="primary">{{ $t('Search') }}</b-button>
       </div>
     </b-form>
+    </transition>
   </div>
 </template>
 
@@ -89,7 +86,7 @@ import pfSearchBoolean from './pfSearchBoolean'
 export default {
   name: 'pf-search',
   components: {
-    'pf-search-boolean': pfSearchBoolean
+    pfSearchBoolean
   },
   props: {
     storeName: { // from router
