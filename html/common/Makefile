@@ -5,6 +5,7 @@ all:
 
 vendor:
 	npm install
+	npm install -g grunt-cli
 
 dev:
 	grunt --stack dev
@@ -19,3 +20,6 @@ dist:
 		echo "Nothing to commit; skipping git-commit"; \
 	fi
 	git update-index --assume-unchanged $(CSS_FILES) $(JS_FILES) $(JS_LIB_FILES)
+
+light-dist:
+	grunt --stack dist

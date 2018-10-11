@@ -2,7 +2,7 @@ Source: packetfence
 Section: net
 Priority: optional
 Maintainer: Durand fabrice <fdurand@inverse.ca>
-Build-Depends: debhelper (>= 7.0.50~), gettext, libparse-recdescent-perl, gcc, dpkg-distribution, dh-systemd, libfile-fcntllock-perl, asciidoctor, git, libipset-dev, pkg-config
+Build-Depends: debhelper (>= 7.0.50~), gettext, libparse-recdescent-perl, gcc, dpkg-distribution, dh-systemd, libfile-fcntllock-perl, asciidoctor, git, libipset-dev, pkg-config, nodejs (>= 8.0)
 Standards-Version: 3.8.4
 Vcs-Git: git://github.com/inverse-inc/packetfence.git
 Vcs-browser: https://github.com/inverse-inc/packetfence/
@@ -18,6 +18,8 @@ Pre-Depends:  ca-certificates,
  fingerbank (>= 4.1.0), fingerbank (<< 5.0.0),
  fingerbank-collector (>= 1.0.0),
  packetfence-redis-cache (>= ${source:Version}),
+ packetfence-pfappserver-javascript (>= ${source:Version}),
+ packetfence-captive-portal-javascript (>= ${source:Version}),
 # wmi
  libnet-wmiclient-perl, libwmiclient1, wmi-client,
  netdata (>= 1.10),
@@ -207,3 +209,15 @@ Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Description: PacketFence Golang binary.
 Conflicts: packetfence (<= 8.0.1)
+
+Package: packetfence-captive-portal-javascript
+Architecture: any
+Depends: ${misc:Depends}
+Description: PacketFence captive portal javascript
+Conflicts: packetfence (<= 8.1.0)
+
+Package: packetfence-pfappserver-javascript
+Architecture: any
+Depends: ${misc:Depends}
+Description: PacketFence Admin javascript css
+Conflicts: packetfence (<= 8.1.0)

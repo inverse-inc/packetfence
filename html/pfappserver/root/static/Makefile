@@ -9,6 +9,8 @@ all:
 
 vendor:
 	npm install
+	npm install -g grunt-cli
+	npm install -g bower
 	@if [ -d bower_components ]; then \
 	  bower update --allow-root; \
 	else \
@@ -26,3 +28,6 @@ dist:
 	else \
 		echo "Nothing to commit; skipping git-commit"; \
 	fi
+
+light-dist:
+	grunt --stack dist
