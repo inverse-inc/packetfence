@@ -265,7 +265,7 @@ export default {
   },
   data () {
     return {
-      valuePlaceholder:         { type: null, value: null },
+      valuePlaceHolder:         { type: null, value: null },
       hover:                    null,
       drag:                     false,
       /* Generic field types */
@@ -313,7 +313,7 @@ export default {
         *
       **/
       get () {
-        const value = (this.value) ? this.value : [this.valuePlaceholder]
+        const value = (this.value) ? this.value : [this.valuePlaceHolder]
         const uncompressedValue = value.map(row => {
           const field = this.fields.find(field => field.value === row.type)
           return {
@@ -371,7 +371,7 @@ export default {
     rowAdd (index) {
       let inputValue = this.inputValue
       // push placeholder into middle of array
-      this.inputValue = [...inputValue.slice(0, index + 1), this.valuePlaceholder, ...inputValue.slice(index + 1)]
+      this.inputValue = [...inputValue.slice(0, index + 1), this.valuePlaceHolder, ...inputValue.slice(index + 1)]
       this.emitExternalValidations()
       // focus the type element in new row
       this.setFocus('type-' + (index + 1))
@@ -428,45 +428,45 @@ export default {
     },
     getValidations () {
       // don't emit validation error if only a single inputValue member exists,
-      //  this allows the parent form to pass when the component is not used (is placeHolder).
-      if (this.inputValue.length === 1 && JSON.parse(JSON.stringify(this.inputValue)) === [this.placeHolder]) {
-        return {}
-      }
-      const eachInputValue = {}
-      this.inputValue.forEach((input, index) => {
-        const field = this.fields.find(field => input.type && field.value === input.type.value)
-        if (field) {
-          eachInputValue[field.value] = {}
-          if ('validators' in field) { // has vuelidate validations
-            if ('type' in field.validators) {
-              eachInputValue[field.value].type = field.validators.type
+      //  this allows the parent form to pass when the component is not used (is valuePlaceHolder).
+      if (this.inputValue.length > 1 || JSON.stringify(this.inputValue[0]) !== JSON.stringify(this.valuePlaceHolder)) {
+        const eachInputValue = {}
+        this.inputValue.forEach((input, index) => {
+          const field = this.fields.find(field => input.type && field.value === input.type.value)
+          if (field) {
+            eachInputValue[field.value] = {}
+            if ('validators' in field) { // has vuelidate validations
+              if ('type' in field.validators) {
+                eachInputValue[field.value].type = field.validators.type
+              }
+              if ('value' in field.validators) {
+                eachInputValue[field.value].value = field.validators.value
+              }
+            } else if (field && field.value) {
+              // no validations
+              eachInputValue[field.value] = {} // ignore
+            } else {
+              // 1 or more undefined field(s)
+              eachInputValue[null] = {} // ignore
             }
-            if ('value' in field.validators) {
-              eachInputValue[field.value].value = field.validators.value
-            }
-          } else if (field && field.value) {
-            // no validations
-            eachInputValue[field.value] = {} // ignore
           } else {
-            // 1 or more undefined field(s)
-            eachInputValue[null] = {} // ignore
+            // field |type| is null (placeHolder)
+            eachInputValue[null] = {
+              type: { [this.$i18n.t('Type required.')]: required }
+            }
           }
-        } else {
-          // field |type| is null (placeHolder)
-          eachInputValue[null] = {
-            type: { [this.$i18n.t('Type required.')]: required }
-          }
+        })
+        Object.freeze(eachInputValue)
+        if (eachInputValue !== {}) {
+          // use functional validations
+          // https://github.com/monterail/vuelidate/issues/166#issuecomment-319924309
+          return { ...this.inputValue.map(input => eachInputValue[(input.type && input.type.value) ? input.type.value : null] || {/* empty */}) }
         }
-      })
-      Object.freeze(eachInputValue)
-      if (eachInputValue !== {}) {
-        // use functional validations
-        // https://github.com/monterail/vuelidate/issues/166#issuecomment-319924309
-        return { ...this.inputValue.map(input => eachInputValue[(input.type && input.type.value) ? input.type.value : null] || {/* empty */}) }
       }
       return {}
     },
     getTypeValidation (index) {
+      console.log(this.inputValue)
       if (index in this.validation && 'type' in this.validation[index]) {
         return this.validation[index].type
       }
