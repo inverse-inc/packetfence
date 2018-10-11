@@ -59,8 +59,8 @@ export default {
       this.submitted = true
       this.message = false
       this.$store.dispatch('$_auth/login', { username: this.username, password: this.password }).then(response => {
-        if (this.$route.params.previousRoute) {
-          this.$router.push(this.$route.params.previousRoute.fullPath)
+        if (this.$route.params.previousPath) {
+          this.$router.push(this.$route.params.previousPath)
         } else {
           this.$router.push('/nodes') // TODO: let user choose default module
         }
