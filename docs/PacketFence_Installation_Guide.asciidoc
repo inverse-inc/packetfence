@@ -5192,7 +5192,7 @@ Procedure:
 # BACKUP_DB_FILE=packetfence-db-dump-2018-10-01_00h30.sql.gz
 ----
 
-Reinstall pf (to avoid creating var directories by hand):
+Reinstall PacketFence (to avoid creating var directories by hand):
 
  # yum reinstall packetfence\* --enablerepo=packetfence
 
