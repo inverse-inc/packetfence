@@ -71,7 +71,7 @@ export default {
       }
     },
     stringifyFeedback (feedback) {
-      if (feedback instanceof String) return feedback
+      if (feedback === null) return ''
       if (feedback instanceof Array) {
         let ret = ''
         feedback.forEach(f => {
@@ -85,6 +85,7 @@ export default {
         }
         return ''
       }
+      return feedback
     },
     getInvalidFeedback () {
       return this.stringifyFeedback(this.invalidFeedback)

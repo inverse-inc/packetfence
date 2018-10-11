@@ -11,11 +11,60 @@
  *
 **/
 import store from '@/store'
-import { parse, format } from 'date-fns'
+import { parse, format, isValid, compareAsc } from 'date-fns'
 
 const _common = require('vuelidate/lib/validators/common')
 
-// `and` replacement, handles Promises
+/**
+ *
+ * Misc local helpers
+ *
+**/
+
+// Get the unique id of a given $v.
+const idOfV = ($v) => {
+  if ($v && '__ob__' in $v && 'dep' in $v.__ob__ && 'id' in $v.__ob__.dep) {
+    return $v.__ob__.dep.id
+  }
+  return undefined
+}
+
+/**
+ *  Get the parent $v of a given id.
+ *
+ *  For use with "Field" functions.
+ *  Searches for a member from a given |id|,
+ *   starts with the base $v, and traverses the entire $v model tree recursively,
+ *   returns the members' parent.
+**/
+const parentVofId = ($v, id) => {
+  const params = Object.entries($v.$params)
+  for (let i = 0; i < params.length; i++) {
+    const [param] = params[i] // destructure
+    if (typeof $v[param] === 'object' && typeof $v[param].$model === 'object') {
+      if ($v[param].$model && '__ob__' in $v[param].$model) {
+        if (idOfV($v[param].$model) === id) return $v
+      }
+      // recurse
+      if (parentVofId($v[param], id)) return $v[param]
+    }
+  }
+  return undefined
+}
+
+// Get the id, parent and params from a given $v member
+const idParentParamsFromV = (vBase, vMember) => {
+  const id = idOfV(vMember)
+  const parent = (id) ? parentVofId(vBase, id) : undefined
+  const params = (id) ? Object.entries(parent.$params) : undefined
+  return { id: id, parent: parent, params: params }
+}
+
+/**
+ * Default replacements - Fix Promises
+**/
+
+// Default vuelidate |and| replacement, handles Promises
 export const and = (...validators) => {
   return _common.withParams({ type: 'and' }, function (...args) {
     return (
@@ -29,7 +78,7 @@ export const and = (...validators) => {
   })
 }
 
-// `or` replacement, handles Promises
+// Default vuelidate |or| replacement, handles Promises
 export const or = (...validators) => {
   return _common.withParams({ type: 'and' }, function (...args) {
     return (
@@ -43,7 +92,7 @@ export const or = (...validators) => {
   })
 }
 
-// `not` replacement, handles Promises
+// Default vuelidate |not| replacement, handles Promises
 export const not = (validator) => {
   return _common.withParams({ type: 'not' }, function (value, vm) {
     let newValue = validator.call(this, value, vm)
@@ -54,6 +103,12 @@ export const not = (validator) => {
     return !newValue
   })
 }
+
+/**
+ *
+ * Custom functions
+ *
+**/
 
 export const conditional = (conditional) => {
   return (0, _common.withParams)({
@@ -95,17 +150,44 @@ export const isFQDN = (str) => {
       return false
     }
     if (!/^[a-z\u00a1-\uffff0-9-_]+$/i.test(part)) {
-			return false
-		}
-		if (/[\uff01-\uff5e]/.test(part)) {
-			// disallow full-width chars
-			return false
-		}
-		if (part[0] === '-' || part[part.length - 1] === '-') {
-			return false
-		}
-	}
-	return true
+      return false
+    }
+    if (/[\uff01-\uff5e]/.test(part)) {
+      // disallow full-width chars
+      return false
+    }
+    if (part[0] === '-' || part[part.length - 1] === '-') {
+      return false
+    }
+  }
+  return true
+}
+
+export const compareDate = (comparison, date = new Date(), dateFormat = 'YYYY-MM-DD HH:mm:ss', allowZero = true) => {
+  return (0, _common.withParams)({
+    type: 'compareDate',
+    comparison: comparison,
+    date: date,
+    dateFormat: dateFormat,
+    allowZero: allowZero
+  }, function (value) {
+    // ignore empty or zero'd (0000-00-00...)
+    if (!value || (value === dateFormat.replace(/[a-z]/gi, '0') && allowZero)) return true
+    // round date/value using dateFormat
+    date = parse(format((date instanceof Date && isValid(date) ? date : parse(date)), dateFormat))
+    value = parse(format((value instanceof Date && isValid(value) ? value : parse(value)), dateFormat))
+    // compare
+    const cmp = compareAsc(value, date)
+    switch (comparison.toLowerCase()) {
+      case '>': case 'gt': return (cmp > 0)
+      case '>=': case 'gte': return (cmp >= 0)
+      case '<': case 'lt': return (cmp < 0)
+      case '<=': case 'lte': return (cmp <= 0)
+      case '===': case 'eq': return (cmp === 0)
+      case '!==': case 'ne': return (cmp !== 0)
+      default: return false
+    }
+  })
 }
 
 export const categoryIdNumberExists = (value, component) => {
@@ -158,6 +240,142 @@ export const userNotExists = (value, component) => {
   return store.dispatch('$_users/exists', value).then(results => {
     return false
   }).catch(() => {
+    return true
+  })
+}
+
+/**
+ * Field functions
+ *
+ * For use with pfFormSortableField component.
+ * Used to validate |type| fields with immediate siblings.
+ * All functions ignore self.
+**/
+
+// Limit the count of sibling field |type|s
+export const limitSiblingFieldTypes = (limit) => {
+  return (0, _common.withParams)({
+    type: 'limitSiblingFieldTypes',
+    limit: limit
+  }, function (value, field) {
+    let count = 0
+    const { id, parent, params } = idParentParamsFromV(this.$v, field)
+    if (params) {
+      // iterate through all params
+      for (let i = 0; i < params.length; i++) {
+        const [param] = params[i] // destructure
+        if (parent[param].$model === undefined) continue // ignore empty models
+        if (idOfV(parent[param].$model) === id) continue // ignore (self)
+        if (parent[param].$model.type === field.type) {
+            count += 1 // increment count
+            if (count > limit) return false
+        }
+      }
+    }
+    return true
+  })
+}
+
+// Require all of sibling field |type|s
+export const requireAllSiblingFieldTypes = (...fieldTypes) => {
+  return (0, _common.withParams)({
+    type: 'requireAllSiblingFieldTypes',
+    fieldTypes: fieldTypes
+  }, function (value, field) {
+    // dereference, preserve original
+    let _fieldTypes = JSON.parse(JSON.stringify(fieldTypes))
+    const { id, parent, params } = idParentParamsFromV(this.$v, field)
+    if (params) {
+      // iterate through all params
+      for (let i = 0; i < params.length; i++) {
+        const [param] = params[i] // destructure
+        if (parent[param].$model === undefined) continue // ignore empty models
+        if (idOfV(parent[param].$model) === id) continue // ignore (self)
+        // iterate through _fieldTypes and substitute
+        _fieldTypes = _fieldTypes.map(fieldType => {
+          // substitute the fieldType with |true| if it exists
+          return (parent[param].$model.type === fieldType) ? true : fieldType
+        })
+      }
+    }
+    // return |true| if all members of the the array are |true|,
+    // anything else return false
+    return _fieldTypes.reduce((bool, fieldType) => { return bool && (fieldType === true) }, true)
+  })
+}
+
+// Require any of sibling field |type|s
+export const requireAnySiblingFieldTypes = (...fieldTypes) => {
+  return (0, _common.withParams)({
+    type: 'requireAnySiblingFieldTypes',
+    fieldTypes: fieldTypes
+  }, function (value, field) {
+    // dereference, preserve original
+    let _fieldTypes = JSON.parse(JSON.stringify(fieldTypes))
+    const { id, parent, params } = idParentParamsFromV(this.$v, field)
+    if (params) {
+      // iterate through all params
+      for (let i = 0; i < params.length; i++) {
+        const [param] = params[i] // destructure
+        if (parent[param].$model === undefined) continue // ignore empty models
+        if (idOfV(parent[param].$model) === id) continue // ignore (self)
+        // return |true| if any fieldType exists
+        if (_fieldTypes.includes(parent[param].$model.type)) return true
+      }
+    }
+    // otherwise return false
+    return false
+  })
+}
+
+// Restrict all of sibling field |type|s
+export const restrictAllSiblingFieldTypes = (...fieldTypes) => {
+  return (0, _common.withParams)({
+    type: 'restrictAllSiblingFieldTypes',
+    fieldTypes: fieldTypes
+  }, function (value, field) {
+    // dereference, preserve original
+    let _fieldTypes = JSON.parse(JSON.stringify(fieldTypes))
+    const { id, parent, params } = idParentParamsFromV(this.$v, field)
+    if (params) {
+      // iterate through all params
+      for (let i = 0; i < params.length; i++) {
+        const [param] = params[i] // destructure
+        if (parent[param].$model === undefined) continue // ignore empty models
+        if (idOfV(parent[param].$model) === id) continue // ignore (self)
+        // iterate through _fieldTypes and substitute
+        _fieldTypes = _fieldTypes.map(fieldType => {
+          // substitute the fieldType with |true| if it exists
+          return (parent[param].$model.type === fieldType) ? true : fieldType
+        })
+      }
+    }
+    // return |false| if all members of the the array are |true|,
+    // anything else return true
+    return !_fieldTypes.reduce((bool, fieldType) => { return bool && (fieldType === true) }, true)
+  })
+}
+
+// Restrict any of sibling field |type|s
+export const restrictAnySiblingFieldTypes = (...fieldTypes) => {
+  return (0, _common.withParams)({
+    type: 'restrictAnySiblingFieldTypes',
+    fieldTypes: fieldTypes
+  }, function (value, field) {
+    // dereference, preserve original
+    let _fieldTypes = JSON.parse(JSON.stringify(fieldTypes))
+    const { id, parent, params } = idParentParamsFromV(this.$v, field)
+    if (params) {
+      // iterate through all params
+      for (let i = 0; i < params.length; i++) {
+        const [param] = params[i] // destructure
+        if (parent[param].$model === undefined) continue // ignore empty models
+        if (idOfV(parent[param].$model) === id) continue // ignore (self)
+        // return |false| if any fieldType exists
+        if (_fieldTypes.includes(parent[param].$model.type)) return false
+      }
+    }
+    // otherwise return true
     return true
   })
 }

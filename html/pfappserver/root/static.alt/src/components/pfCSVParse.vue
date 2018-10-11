@@ -317,6 +317,7 @@ export default {
 
     let funcStaticMapping = {}
     if (typeof this.staticMapping !== 'function' && this.staticMapping.length > 0) {
+      // use functional validations
       // https://github.com/monterail/vuelidate/issues/166#issuecomment-319924309
       funcStaticMapping = { ...this.staticMapping.map(m => eachStaticMapping[m.key]) }
     }

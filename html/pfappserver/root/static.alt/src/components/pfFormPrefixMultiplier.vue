@@ -1,18 +1,24 @@
 <template>
   <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
-    :state="isValid()" :invalid-feedback="getInvalidFeedback()" :class="{ 'mb-0': !columnLabel }">
-    <b-input-group>
-      <b-input-group-prepend v-if="prependText" is-text>
-        {{ prependText }}
+    :state="isValid()" :invalid-feedback="getInvalidFeedback()"
+    class="prefixmultiplier-element" :class="{ 'mb-0': !columnLabel, 'is-focus': focus}">
+    <b-input-group class="input-group-prefixmultiplier">
+      <b-input-group-prepend v-if="prependText">
+        <div class="input-group-text">
+          {{ prependText }}
+        </div>
       </b-input-group-prepend>
       <b-form-input
         v-model="inputValue"
         v-bind="$attrs"
-        type="number"
+        ref="input"
+        :type="type"
         :state="isValid()"
         @input.native="validate()"
         @keyup.native="onChange($event)"
         @change.native="onChange($event)"
+        @focus.native="focus = true"
+        @blur.native="focus = false"
       ></b-form-input>
       <b-input-group-append>
         <b-button-group v-if="prefixes.length > 0" rel="prefixButtonGroup">
@@ -55,7 +61,7 @@ export default {
     },
     type: {
       type: String,
-      default: 'text'
+      default: 'number'
     },
     prependText: {
       type: String
@@ -130,7 +136,8 @@ export default {
           multiplier: Math.pow(1024, 8),
           selected: false
         }
-      ]
+      ],
+      focus: false
     }
   },
   methods: {
@@ -171,7 +178,7 @@ export default {
   },
   watch: {
     realValue (a, b) {
-      if (a !== b) {
+      if (a !== b && a !== undefined) {
         // inputValue initialized later
         if (!this.initialized) {
           this.initialized = true
@@ -183,19 +190,67 @@ export default {
     inputValue (a, b) {
       if (a !== b) {
         const selectedIndex = this.prefixes.findIndex((prefix) => { return prefix.selected })
+        let multiplier = 1
         if (selectedIndex >= 0) {
           // scale up
-          this.realValue = a * this.prefixes[selectedIndex].multiplier
+          multiplier = this.prefixes[selectedIndex].multiplier
         }
+        this.realValue = a * multiplier
       }
     }
+  },
+  created () {
+    if (this.value) {
+      this.realValue = this.value
+    }
+    this.setInputValueFromRealValue()
   }
 }
 </script>
 
 <style lang="scss" scoped>
 @import "../../node_modules/bootstrap/scss/functions";
+@import "../../node_modules/bootstrap/scss/mixins/border-radius";
+@import "../../node_modules/bootstrap/scss/mixins/transition";
 @import "../styles/variables";
+
+/**
+ * Adjust is-invalid and is-focus borders
+ */
+.prefixmultiplier-element {
+  .input-group-prefixmultiplier {
+    background-color: $input-focus-bg;
+    border: 1px solid $input-focus-bg;
+    @include border-radius($border-radius);
+    @include transition($custom-forms-transition);
+    padding: 1px;
+    outline: 0;
+
+    * {
+      border: 0px;
+    }
+    &:not(:first-child):not(:last-child):not(:only-child),
+    &.btn-group:first-child {
+      border-radius: 0;
+    }
+    &:first-child {
+      border-top-left-radius: $border-radius;
+      border-bottom-left-radius: $border-radius;
+    }
+    &:last-child {
+      border-top-right-radius: $border-radius;
+      border-bottom-right-radius: $border-radius;
+    }
+  }
+  &.is-focus .input-group-prefixmultiplier  {
+    border: 1px solid $input-focus-border-color;
+    box-shadow: 0 0 0 $input-focus-width rgba($input-focus-border-color, .25);
+  }
+  &.is-invalid .input-group-prefixmultiplier  {
+    border: 1px solid $form-feedback-invalid-color;
+    box-shadow: 0 0 0 $input-focus-width rgba($form-feedback-invalid-color, .25);
+  }
+}
 
 /**
  * Add btn-primary color(s) on hover

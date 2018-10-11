@@ -5,6 +5,9 @@
 import apiCall from '@/utils/api'
 
 const api = {
+  getAdminRoles () {
+    return apiCall({url: 'config/admin_roles', method: 'get'})
+  },
   getRoles () {
     return apiCall({ url: 'node_categories', method: 'get' })
   },
@@ -14,15 +17,20 @@ const api = {
   getSwitches () {
     return apiCall({ url: 'config/switches', method: 'get' })
   },
+  getTenants () {
+    return apiCall({url: 'tenants', method: 'get'})
+  },
   getViolations () {
     return apiCall({ url: 'config/violations', method: 'get' })
   }
 }
 
 const state = {
+  adminRoles: [],
   roles: [],
   sources: [],
   switches: [],
+  tenants: [],
   violations: {}
 }
 
@@ -58,10 +66,22 @@ const helpers = {
 }
 
 const getters = {
+  adminRolesList: state => {
+    // Remap for b-form-select component
+    return state.adminRoles.map((item) => {
+      return { value: item.id, name: item.id }
+    })
+  },
   rolesList: state => {
     // Remap for b-form-select component
     return state.roles.map((item) => {
       return { value: item.category_id, name: item.name, text: `${item.name} - ${item.notes}` }
+    })
+  },
+  tenantsList: state => {
+    // Remap for b-form-select component
+    return state.tenants.map((item) => {
+      return { value: item.id, name: item.name }
     })
   },
   violationsList: state => {
@@ -79,6 +99,16 @@ const getters = {
 }
 
 const actions = {
+  getAdminRoles: ({ state, commit }) => {
+    if (state.adminRoles.length === 0) {
+      return api.getAdminRoles().then(response => {
+        commit('ADMIN_ROLES_UPDATED', response.data.items)
+        return state.adminRoles
+      })
+    } else {
+      return Promise.resolve(state.adminRoles)
+    }
+  },
   getRoles: ({ state, commit }) => {
     if (state.roles.length === 0) {
       return api.getRoles().then(response => {
@@ -113,6 +143,16 @@ const actions = {
       return Promise.resolve(state.switches)
     }
   },
+  getTenants: ({ state, commit }) => {
+    if (state.tenants.length === 0) {
+      return api.getTenants().then(response => {
+        commit('TENANTS_UPDATED', response.data.items)
+        return state.tenants
+      })
+    } else {
+      return Promise.resolve(state.tenants)
+    }
+  },
   getViolations: ({ commit, state }) => {
     if (Object.keys(state.violations).length === 0) {
       return api.getViolations().then(response => {
@@ -126,6 +166,9 @@ const actions = {
 }
 
 const mutations = {
+  ADMIN_ROLES_UPDATED: (state, adminRoles) => {
+    state.adminRoles = adminRoles
+  },
   ROLES_UPDATED: (state, roles) => {
     state.roles = roles
   },
@@ -134,6 +177,9 @@ const mutations = {
   },
   SWICTHES_UPDATED: (state, switches) => {
     state.switches = switches
+  },
+  TENANTS_UPDATED: (state, tenants) => {
+    state.tenants = tenants
   },
   VIOLATIONS_UPDATED: (state, violations) => {
     let ref = {}

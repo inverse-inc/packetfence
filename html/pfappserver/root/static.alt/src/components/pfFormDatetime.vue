@@ -17,20 +17,25 @@
  */
  <template>
   <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
-    :state="isValid()" :invalid-feedback="getInvalidFeedback()" :class="{ 'mb-0': !columnLabel }">
-    <b-input-group>
-      <b-input-group-prepend v-if="prependText" is-text>
-        {{ prependText }}
+    :state="isValid()" :invalid-feedback="getInvalidFeedback()"
+    class="datetime-element" :class="{ 'mb-0': !columnLabel, 'is-focus': focus}">
+    <b-input-group class="input-group-datetime">
+      <b-input-group-prepend v-if="prependText">
+        <div class="input-group-text">
+          {{ prependText }}
+        </div>
       </b-input-group-prepend>
       <date-picker
         v-model="inputValue"
         v-bind="$attrs"
-        ref="datetime"
+        ref="input"
         :config="datetimeConfig"
         :state="isValid()"
         @input.native="validate()"
         @keyup.native="onChange($event)"
         @change.native="onChange($event)"
+        @focus.native="focus = true"
+        @blur.native="focus = false"
       ></date-picker>
       <b-input-group-append>
         <b-button class="input-group-text" v-if="initialValue && initialValue !== inputValue" @click.stop="reset($event)" v-b-tooltip.hover.top.d300 :title="$t('Reset')"><icon name="undo-alt" variant="light"></icon></b-button>
@@ -51,6 +56,7 @@ import 'pc-bootstrap4-datetimepicker/build/css/bootstrap-datetimepicker.css'
 import {
   parse,
   format,
+  isValid as dateFnsIsValid, // avoid overlap on pfMixinValidation::isValid()
   addYears,
   addQuarters,
   addMonths,
@@ -155,7 +161,8 @@ export default {
         },
         useCurrent: false
       },
-      initialValue: undefined
+      initialValue: undefined,
+      focus: false
     }
   },
   computed: {
@@ -164,7 +171,9 @@ export default {
         return this.value
       },
       set (newValue) {
-        this.$emit('input', (newValue === null) ? '0000-00-00 00:00:00' : newValue)
+        const dateFormat = Object.assign(this.defaultConfig, this.config).format
+        const value = (newValue === null) ? dateFormat.replace(/[a-z]/gi, '0') : newValue
+        this.$emit('input', value)
       }
     },
     datetimeConfig () {
@@ -177,11 +186,11 @@ export default {
   },
   methods: {
     toggle (event) {
-      let picker = this.$refs.datetime.dp
+      let picker = this.$refs.input.dp
       picker.toggle()
     },
     reset (event) {
-      this.inputValue = JSON.parse(JSON.stringify(this.initialValue))
+      this.inputValue = this.initialValue
     },
     momentTooltip (index) {
       let [amount, key] = this.moments[index].split(' ', 2)
@@ -222,56 +231,74 @@ export default {
       let [amount, key] = this.moments[index].split(' ', 2)
       amount = parseInt(amount)
       // allow [CTRL]+[CLICK] for cumulative change
-      const base = (event.ctrlKey) ? parse(this.inputValue, 'YYYY-MM-DD HH:mm:ss') || new Date() : new Date()
+      const dateFormat = this.datetimeConfig.format
+      const base = (event.ctrlKey) ? parse(this.inputValue, dateFormat) || new Date() : new Date()
       if (validMomentKeys.includes(key)) {
         switch (key) {
           case 'years':
-            this.inputValue = format(addYears(base, amount), 'YYYY-MM-DD HH:mm:ss')
+            this.inputValue = format(addYears(base, amount), dateFormat)
             break
           case 'quarters':
-            this.inputValue = format(addQuarters(base, amount), 'YYYY-MM-DD HH:mm:ss')
+            this.inputValue = format(addQuarters(base, amount), dateFormat)
             break
           case 'months':
-            this.inputValue = format(addMonths(base, amount), 'YYYY-MM-DD HH:mm:ss')
+            this.inputValue = format(addMonths(base, amount), dateFormat)
             break
           case 'weeks':
-            this.inputValue = format(addWeeks(base, amount), 'YYYY-MM-DD HH:mm:ss')
+            this.inputValue = format(addWeeks(base, amount), dateFormat)
             break
           case 'days':
-            this.inputValue = format(addDays(base, amount), 'YYYY-MM-DD HH:mm:ss')
+            this.inputValue = format(addDays(base, amount), dateFormat)
             break
           case 'hours':
-            this.inputValue = format(addHours(base, amount), 'YYYY-MM-DD HH:mm:ss')
+            this.inputValue = format(addHours(base, amount), dateFormat)
             break
           case 'minutes':
-            this.inputValue = format(addMinutes(base, amount), 'YYYY-MM-DD HH:mm:ss')
+            this.inputValue = format(addMinutes(base, amount), dateFormat)
             break
           case 'seconds':
-            this.inputValue = format(addSeconds(base, amount), 'YYYY-MM-DD HH:mm:ss')
+            this.inputValue = format(addSeconds(base, amount), dateFormat)
             break
           case 'milliseconds':
-            this.inputValue = format(addMilliseconds(base, amount), 'YYYY-MM-DD HH:mm:ss')
+            this.inputValue = format(addMilliseconds(base, amount), dateFormat)
             break
           default:
-            this.inputValue = format(base, 'YYYY-MM-DD HH:mm:ss')
+            this.inputValue = format(base, dateFormat)
         }
       }
     }
   },
   watch: {
     min (a, b) {
-      let picker = this.$refs.datetime.dp
+      const dateFormat = Object.assign(this.defaultConfig, this.config).format
+      a = parse(format((a instanceof Date && dateFnsIsValid(a) ? a : parse(a)), dateFormat))
+      let picker = this.$refs.input.dp
       picker.minDate(a)
     },
     max (a, b) {
-      let picker = this.$refs.datetime.dp
+      const dateFormat = Object.assign(this.defaultConfig, this.config).format
+      a = parse(format((a instanceof Date && dateFnsIsValid(a) ? a : parse(a)), dateFormat))
+      let picker = this.$refs.input.dp
       picker.maxDate(a)
     }
   },
   created () {
     // dereference inputValue and assign initialValue
-    if (this.inputValue && this.inputValue !== '0000-00-00 00:00:00') {
-      this.initialValue = JSON.parse(JSON.stringify(this.inputValue))
+    const dateFormat = Object.assign(this.defaultConfig, this.config).format
+    if (this.inputValue instanceof Date) {
+      // instanceof Date, convert to String
+      this.inputValue = format(this.inputValue, dateFormat)
+    }
+    if (this.inputValue && this.inputValue !== dateFormat.replace(/[a-z]/gi, '0')) {
+      // non-zero value, store for reset
+      this.initialValue = format(this.inputValue, dateFormat)
+    }
+    // normalize (floor) min/max
+    if (this.min) {
+      this.min = parse(format((this.min instanceof Date && dateFnsIsValid(this.min) ? this.min : parse(this.min)), dateFormat))
+    }
+    if (this.max) {
+      this.max = parse(format((this.max instanceof Date && dateFnsIsValid(this.max) ? this.max : parse(this.max)), dateFormat))
     }
   }
 }
@@ -279,7 +306,48 @@ export default {
 
 <style lang="scss">
 @import "../../node_modules/bootstrap/scss/functions";
+@import "../../node_modules/bootstrap/scss/mixins/border-radius";
+@import "../../node_modules/bootstrap/scss/mixins/transition";
 @import "../styles/variables";
+
+/**
+ * Adjust is-invalid and is-focus borders
+ */
+.datetime-element {
+  .input-group-datetime {
+    background-color: $input-focus-bg;
+    border: 1px solid $input-focus-bg;
+    @include border-radius($border-radius);
+    @include transition($custom-forms-transition);
+    padding: 1px;
+    outline: 0;
+
+    * {
+      border: 0px;
+    }
+    &:not(:first-child):not(:last-child):not(:only-child) {
+      border-radius: 0;
+    }
+    &:first-child {
+      border-top-left-radius: $border-radius;
+      border-bottom-left-radius: $border-radius;
+    }
+    &:last-child {
+      border-top-right-radius: $border-radius;
+      border-bottom-right-radius: $border-radius;
+    }
+  }
+  &.is-focus .input-group-datetime,
+  &.is-focus .bootstrap-datetimepicker-widget {
+    border: 1px solid $input-focus-border-color;
+    box-shadow: 0 0 0 $input-focus-width rgba($input-focus-border-color, .25);
+  }
+  &.is-invalid .input-group-datetime,
+  &.is-invalid .bootstrap-datetimepicker-widget {
+    border: 1px solid $form-feedback-invalid-color;
+    box-shadow: 0 0 0 $input-focus-width rgba($form-feedback-invalid-color, .25);
+  }
+}
 
 /**
  * Add btn-primary color(s) on hover
@@ -288,6 +356,7 @@ export default {
   color: $input-btn-hover-text-color;
   background-color: $input-btn-hover-bg-color;
   border-color: $input-btn-hover-bg-color;
+  border-radius: 0;
 }
 /**
  * vue-bootstrap-datetimepicker only supports fontawesome icons,
