@@ -101,6 +101,11 @@ export default {
     @include border-radius($border-radius);
     @include transition($custom-forms-transition);
     outline: 0;
+    span > span.multiselect__single { /* placeholder */
+      color: $input-placeholder-color;
+      // Override Firefox's unusual default opacity; see https://github.com/twbs/bootstrap/pull/11526.
+      opacity: 1;
+    }
   }
   .multiselect__input,
   .multiselect__single {
