@@ -9,6 +9,8 @@ all:
 
 vendor:
 	npm install
+	npm install -g grunt-cli
+	npm install -g bower
 	@if [ -d bower_components ]; then \
 	  bower update --allow-root; \
 	else \
@@ -28,6 +30,4 @@ dist:
 	fi
 
 light-dist:
-	npm install -g grunt-cli
-	npm install -g bower
 	grunt --stack dist
