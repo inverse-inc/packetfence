@@ -163,15 +163,16 @@ export const isFQDN = (str) => {
   return true
 }
 
-export const compareDate = (comparison, date = new Date(), dateFormat = 'YYYY-MM-DD HH:mm:ss') => {
+export const compareDate = (comparison, date = new Date(), dateFormat = 'YYYY-MM-DD HH:mm:ss', allowZero = true) => {
   return (0, _common.withParams)({
     type: 'compareDate',
     comparison: comparison,
     date: date,
-    dateFormat: dateFormat
+    dateFormat: dateFormat,
+    allowZero: allowZero
   }, function (value) {
     // ignore empty or zero'd (0000-00-00...)
-    if (!value || value === dateFormat.replace(/[a-z]/gi, '0')) return true
+    if (!value || (value === dateFormat.replace(/[a-z]/gi, '0') && allowZero)) return true
     // round date/value using dateFormat
     date = parse(format((date instanceof Date && isValid(date) ? date : parse(date)), dateFormat))
     value = parse(format((value instanceof Date && isValid(value) ? value : parse(value)), dateFormat))
