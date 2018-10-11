@@ -115,7 +115,7 @@
           <pf-form-sortable-fields
             sortable
             v-model="actions"
-            :column-label="$t('Actions')"
+            column-label="Actions"
             :fields="actionFields"
             :validation="$v.actions"
             :invalid-feedback="[
