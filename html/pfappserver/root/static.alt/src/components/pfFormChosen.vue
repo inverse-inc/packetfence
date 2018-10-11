@@ -105,6 +105,7 @@ export default {
   .multiselect__input,
   .multiselect__single {
     background-color: $input-focus-bg;
+    font-size: $font-size-base;
     line-height: $input-line-height;
     color: $input-color;
   }
