@@ -124,11 +124,6 @@
             @validations="actionsValidations = $event"
           ></pf-form-sortable-fields>
 
-          <!--
-          <h1>$v</h1>
-          <pre>{{ JSON.stringify($v.actions, null, 2) }}</pre>
-          -->
-
         </b-col>
         <b-col sm="4"></b-col>
       </b-form-row>
@@ -239,7 +234,6 @@ export default {
             },
             value: {
               [this.$i18n.t('Value required.')]: required,
-              [this.$i18n.t('Value must be numeric.')]: numeric,
               [this.$i18n.t('Value must be greater than {min}bytes.', { min: bytes.toHuman(schema.node.bandwidth_balance.min) })]: minValue(schema.node.bandwidth_balance.min),
               [this.$i18n.t('Value must be less than {max}bytes.', { max: bytes.toHuman(schema.node.bandwidth_balance.max) })]: maxValue(schema.node.bandwidth_balance.max)
             }
@@ -330,7 +324,7 @@ export default {
       },
       valid_from: null,
       expiration: null,
-      actions: JSON.parse('[ { "type": "set_bandwidth_balance", "value": 64 }, { "type": "set_access_duration", "value": "" }, { "type": "set_access_level", "value": "User Manager" }, { "type": "mark_as_sponsor", "value": null }, { "type": "set_role", "value": "1" }, { "type": "set_tenant_id", "value": "1" }, { "type": "set_time_balance", "value": "12h" }, { "type": "set_unreg_date", "value": "2019-08-05 01:00:00" } ]'),
+      actions: null,
       actionsValidations: {}
     }
   },
