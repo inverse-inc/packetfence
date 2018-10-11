@@ -22,6 +22,8 @@
  *      sortable
  *      v-model="actions"
  *      :column-label="$t('Actions')"
+ *      :type-label="$t('Choose type')"
+ *      :value-label="$t('Choose value')"
  *      :fields="actionFields"
  *      :validation="$v.actions"
  *      :invalid-feedback="[
@@ -117,6 +119,7 @@
                 :ref="'type-' + index"
                 label="text"
                 track-by="value"
+                :placeholder="typeLabel"
                 :options="fields"
                 :validation="getTypeValidation(index)"
                 :invalid-feedback="getTypeInvalidFeedback(index)"
@@ -137,6 +140,7 @@
                 :ref="'value-' + index"
                 label="name"
                 track-by="value"
+                :placeholder="valueLabel"
                 :options="values(inputValue[index])"
                 :validation="getValueValidation(index)"
                 :invalid-feedback="getValueInvalidFeedback(index)"
@@ -149,6 +153,7 @@
                 :ref="'value-' + index"
                 label="name"
                 track-by="value"
+                :placeholder="valueLabel"
                 :options="values(inputValue[index])"
                 :validation="getValueValidation(index)"
                 :invalid-feedback="getValueInvalidFeedback(index)"
@@ -161,6 +166,7 @@
                 :ref="'value-' + index"
                 label="name"
                 track-by="value"
+                :placeholder="valueLabel"
                 :options="values(inputValue[index])"
                 :validation="getValueValidation(index)"
                 :invalid-feedback="getValueInvalidFeedback(index)"
@@ -184,6 +190,7 @@
                 :ref="'value-' + index"
                 label="name"
                 track-by="value"
+                :placeholder="valueLabel"
                 :options="values(inputValue[index])"
                 :validation="getValueValidation(index)"
                 :invalid-feedback="getValueInvalidFeedback(index)"
@@ -261,6 +268,12 @@ export default {
     sortable: {
       type: Boolean,
       default: false
+    },
+    typeLabel: {
+      type: String
+    },
+    valueLabel: {
+      type: String
     }
   },
   data () {
