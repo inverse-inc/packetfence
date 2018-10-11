@@ -1,7 +1,8 @@
 <template>
   <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
-    :state="isValid()" :invalid-feedback="getInvalidFeedback()" :class="['chosen-element', { 'mb-0': !columnLabel }, { 'is-focus': focus}]">
-    <b-input-group class="input-group-chosen">
+    :state="isValid()" :invalid-feedback="getInvalidFeedback()" 
+    class="chosen-element" :class="[{ 'mb-0': !columnLabel }, { 'is-focus': focus}]">
+    <b-input-group>
       <multiselect
         v-model="inputValue"
         v-bind="$attrs"
@@ -32,7 +33,7 @@ import 'vue-multiselect/dist/vue-multiselect.min.css'
 import pfMixinValidation from '@/components/pfMixinValidation'
 
 export default {
-  name: 'pf-form-input',
+  name: 'pf-form-chosen',
   mixins: [
     pfMixinValidation
   ],
@@ -142,7 +143,6 @@ export default {
     }
   }
   &.is-invalid {
-
     .multiselect__tags {
       border-color: $form-feedback-invalid-color;
     }

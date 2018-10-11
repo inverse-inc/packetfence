@@ -77,7 +77,8 @@
 -->
 <template>
   <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
-    :state="isValid()" :invalid-feedback="getInvalidFeedback()" :class="['sortablefields-element', { 'is-focus': drag }, { 'mb-0': !columnLabel }]"
+    :state="isValid()" :invalid-feedback="getInvalidFeedback()" 
+    class="sortablefields-element" :class="[{ 'is-focus': drag }, { 'mb-0': !columnLabel }]"
     >
     <b-input-group class="input-group-sortablefields">
 

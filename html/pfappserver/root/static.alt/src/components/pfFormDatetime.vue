@@ -17,7 +17,8 @@
  */
  <template>
   <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)" 
-    :state="isValid()" :invalid-feedback="getInvalidFeedback()" :class="['datetime-element', { 'mb-0': !columnLabel }, { 'is-focus': focus}]">
+    :state="isValid()" :invalid-feedback="getInvalidFeedback()" 
+    class="datetime-element" :class="[{ 'mb-0': !columnLabel }, { 'is-focus': focus}]">
     <b-input-group class="input-group-datetime">
       <b-input-group-prepend v-if="prependText">
         <div class="input-group-text">
