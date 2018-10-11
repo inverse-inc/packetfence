@@ -466,7 +466,6 @@ export default {
       return {}
     },
     getTypeValidation (index) {
-      console.log(this.inputValue)
       if (index in this.validation && 'type' in this.validation[index]) {
         return this.validation[index].type
       }
