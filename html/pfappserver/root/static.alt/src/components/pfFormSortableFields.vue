@@ -442,9 +442,6 @@ export default {
     getValidations () {
       // don't emit validation error if only a single inputValue member exists,
       //  this allows the parent form to pass when the component is not used (is valuePlaceHolder).
-      
-      
-      
       if (this.inputValue.length > 1 || JSON.stringify(this.inputValue[0]) !== JSON.stringify(this.valuePlaceHolder)) {
         const eachInputValue = {}
         this.inputValue.forEach((input, index) => {
