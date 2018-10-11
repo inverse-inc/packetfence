@@ -1,6 +1,6 @@
 const bytes = {
   toHuman (bytes, precision=2, abbreviate=false) {
-    if (bytes === 0) return bytes.toString()
+    if (bytes === 0) return (bytes.toString() + ' ')
     const prefixes = [
       { abbr: '', suffix: '', multiplier: Math.pow(1024, 0) },
       { abbr: 'k', suffix: 'kilo', multiplier: Math.pow(1024, 1) },
@@ -19,7 +19,7 @@ const bytes = {
         return q + ' ' + ((abbreviate) ? prefixes[i].abbr : prefixes[i].suffix)
       }
     }
-    return bytes.toString()
+    return (bytes.toString() + ' ')
   }
 }
 
