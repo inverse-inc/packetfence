@@ -107,7 +107,7 @@
             @mousemove="onMouseEnter(index)"
             no-gutter
           >
-            <b-col col v-if="sortable && hover === index && inputValue.length > 1" class="draghandle text-center"><icon name="th"></icon></b-col>
+            <b-col col v-if="sortable && hover === index && inputValue.length > 1" class="draghandle text-center"><icon name="th" v-b-tooltip.hover.left.d300 :title="$t('Click and drag to re-order')"></icon></b-col>
             <b-col col v-else class="dragindex text-center"><b-badge variant="light">{{ index + 1 }}</b-badge></b-col>
             <b-col cols="4" class="text-left py-1" align-self="start">
 
@@ -172,6 +172,7 @@
                 :value="inputValue[index].value"
                 :ref="'value-' + index"
                 :config="{useCurrent: true}"
+                :moments="getMoments(index)"
                 :validation="getValueValidation(index)"
                 :invalid-feedback="getValueInvalidFeedback(index)"
                 @input="setValue(index, $event)"
@@ -200,8 +201,8 @@
 
             </b-col>
             <b-col col class="text-center text-nowrap">
-              <icon name="plus-circle" class="cursor-pointer mx-1" @click.native.stop.prevent="rowAdd(index)"></icon>
-              <icon name="minus-circle" v-if="inputValue.length > 1" class="cursor-pointer mx-1" @click.native.stop.prevent="rowDel(index)"></icon>
+              <icon name="plus-circle" class="cursor-pointer mx-1" v-b-tooltip.hover.left.d300 :title="$t('Add row')" @click.native.stop.prevent="rowAdd(index)"></icon>
+              <icon name="minus-circle" v-if="inputValue.length > 1" class="cursor-pointer mx-1" v-b-tooltip.hover.left.d300 :title="$t('Delete row')" @click.native.stop.prevent="rowDel(index)"></icon>
             </b-col>
           </b-form-row>
         </draggable>
@@ -505,6 +506,12 @@ export default {
         }
       }
       return feedback.join(' ')
+    },
+    getMoments (index) {
+      if ('moments' in this.inputValue[index].type) {
+        return this.inputValue[index].type.moments
+      }
+      return null
     },
     emitExternalValidations () {
       // debounce to avoid emit storm,
