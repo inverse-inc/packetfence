@@ -15,6 +15,7 @@
         [% form.field('source').render | none %]
         [% form.field('radius_auth').render | none %]
         [% form.field('radius_auth_proxy_type').render | none %]
+        [% form.field('radius_auth_compute_in_pf').render | none %]
         [% form.field('radius_acct').render | none %]
         [% form.field('radius_acct_proxy_type').render | none %]
         [% form.field('portal_strip_username').render | none %]

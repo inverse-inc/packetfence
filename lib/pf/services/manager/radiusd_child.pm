@@ -131,6 +131,23 @@ sub generate_radiusd_sitesconf {
         $tags{'accounting_sql'} = "# sql not activated because explicitly disabled in pf.conf";
     }
 
+    $tags{'local_realm'} = '';
+    my @realms;
+    foreach my $realm ( sort keys %pf::config::ConfigRealm ) {
+        if (isenabled($pf::config::ConfigRealm{$realm}->{'radius_auth_compute_in_pf'})) {
+            push (@realms, "Realm == \"$realm\"");
+        }
+    }
+    if (@realms) {
+        $tags{'local_realm'} .= 'if ( ';
+        $tags{'local_realm'} .=  join(' || ', @realms);
+        $tags{'local_realm'} .= ' ) {'."\n";
+        $tags{'local_realm'} .= <<"EOT";
+    rest
+}
+EOT
+    }
+
     $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence";
     parse_template( \%tags, "$conf_dir/radiusd/packetfence", "$install_dir/raddb/sites-enabled/packetfence" );
 

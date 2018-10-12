@@ -28,6 +28,7 @@ use pfappserver::Form::Config::Source::AdminProxy;
 use pfappserver::Form::Config::Source::AD;
 use pfappserver::Form::Config::Source::AuthorizeNet;
 use pfappserver::Form::Config::Source::Blackhole;
+use pfappserver::Form::Config::Source::DUMMY;
 use pfappserver::Form::Config::Source::EAPTLS;
 use pfappserver::Form::Config::Source::Eduroam;
 use pfappserver::Form::Config::Source::Email;
@@ -62,6 +63,7 @@ our %TYPES_TO_FORMS = (
       AD
       AuthorizeNet
       Blackhole
+      DUMMY
       EAPTLS
       Eduroam
       Email

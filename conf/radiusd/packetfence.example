@@ -331,7 +331,13 @@ post-auth {
 	#	&reply: += &session-state:
 	#}
 	if (&control:PacketFence-Proxied-From == "True") {
-		packetfence-audit-log-accept
+%%local_realm%%
+		if (&control:PacketFence-Authorization-Status == "deny") {
+			packetfence-audit-log-reject
+			reject
+		} else {
+			packetfence-audit-log-accept
+		}
 	}
 
 	# If the request has not been handled inside the inner-tunnel
