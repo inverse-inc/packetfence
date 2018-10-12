@@ -79,7 +79,7 @@ export default {
       }
     },
     forwardListeners () {
-      const {input, ...listeners} = this.$listeners
+      const { input, ...listeners } = this.$listeners
       return listeners
     }
   }
