@@ -6,6 +6,7 @@
       <multiselect
         v-model="inputValue"
         v-bind="$attrs"
+        v-on="forwardListeners"
         :id="id"
         ref="input"
         :options="options"
@@ -76,6 +77,10 @@ export default {
       set (newValue) {
         this.$emit('input', newValue)
       }
+    },
+    forwardListeners () {
+      const {input, ...listeners} = this.$listeners
+      return listeners
     }
   }
 }
