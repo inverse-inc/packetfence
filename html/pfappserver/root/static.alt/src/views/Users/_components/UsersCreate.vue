@@ -27,7 +27,7 @@
                   { [$t('The password must be at least 6 characters.')]: !$v.single.password.minLength }
                 ]"
                 type="password"
-                text="Leave it empty if you want to generate a random password."/>
+                text="Leave empty to generate a random password."/>
               <pf-form-input :column-label="$t('Login remaining')"
                 v-model="single.login_remaining"
                 :validation="$v.single.login_remaining"
@@ -37,7 +37,7 @@
                   { [$t('Must be less than {max}.', { max: globals.schema.password.login_remaining.max })]: !$v.single.login_remaining.max },
                 ]"
                 type="number"
-                text="Leave it empty to allow unlimited logins."/>
+                text="Leave empty to allow unlimited logins."/>
               <pf-form-input :column-label="$t('Email')"
                 v-model.trim="single.email"
                 :validation="$v.single.email"
@@ -272,7 +272,7 @@
                   { [$t('Must be less than {max}.', { max: globals.schema.password.login_remaining.max })]: !$v.multiple.login_remaining.max },
                 ]"
                 type="number"
-                text="Leave it empty to allow unlimited logins."/>
+                text="Leave empty to allow unlimited logins."/>
               <pf-form-input :column-label="$t('Firstname')"
                 v-model="multiple.firstname"
                 :validation="$v.multiple.firstname"
