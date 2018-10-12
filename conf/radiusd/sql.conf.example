@@ -286,21 +286,20 @@ sql pfguest {
         sqltracefile = ${logdir}/sqltrace.sql
 
         sql_user_name = "%{User-Name}"
-        authorize_check_query = "SELECT 1, pid,
-            (
-              CASE
-                WHEN SUBSTR(password, 1, LENGTH('{ntlm}') ) = '{ntlm}' THEN "NT-Password"
-                ELSE "Cleartext-Password"
-             END
-          ) AS passwordhash,
-          REPLACE(password,'{ntlm}',''), \":=\" \
-          FROM ${authcheck_table} \
-          JOIN activation using (pid) \
-          WHERE pid = '%{SQL-User-Name}' \
-            AND (SELECT type from activation WHERE pid='%{SQL-User-Name}' ORDER BY code_id DESC LIMIT 1) = \"guest\" \
-            AND ( now() <= password.unregdate OR password.unregdate = '0000-00-00 00:00:00' ) \
-            AND ${authcheck_table}.tenant_id = '%{control:PacketFence-Tenant-Id}' \
-            LIMIT 1 "
+        authorize_check_query = "\
+                              SELECT 1, pid, ( \
+                              CASE \
+                                  WHEN SUBSTR(password, 1, LENGTH('{ntlm}') ) = '{ntlm}' THEN 'NT-Password' \
+                                  ELSE 'Cleartext-Password' \
+                              END ) AS passwordhash, \
+                              REPLACE(password,'{ntlm}',''), \":=\" \
+                              FROM ${authcheck_table} \
+                              JOIN activation using (pid) \
+                              WHERE pid = '%{SQL-User-Name}' \
+                                  AND (SELECT type from activation WHERE pid='%{SQL-User-Name}' ORDER BY code_id DESC LIMIT 1) = \"guest\" \
+                                  AND ( now() <= password.unregdate OR password.unregdate = '0000-00-00 00:00:00' ) \
+                                  AND ${authcheck_table}.tenant_id = '%{control:PacketFence-Tenant-Id}' \
+                                  LIMIT 1"
 
         postauth_query = ""
         group_membership_query = "select 1"
@@ -331,21 +330,20 @@ sql pfsponsor {
         sqltracefile = ${logdir}/sqltrace.sql
 
         sql_user_name = "%{User-Name}"
-        authorize_check_query = "SELECT 1, pid,
-          (
-            CASE
-              WHEN SUBSTR(password, 1, LENGTH('{ntlm}') ) = '{ntlm}' THEN "NT-Password"
-              ELSE "Cleartext-Password"
-            END
-          ) AS passwordhash,
-          REPLACE(password,'{ntlm}',''), \":=\" \
-          FROM ${authcheck_table} \
-          JOIN activation using (pid) \
-          WHERE pid = '%{SQL-User-Name}' \
-            AND (SELECT type from activation WHERE pid='%{SQL-User-Name}' ORDER BY code_id DESC LIMIT 1) = \"sponsor\" \
-            AND ( now() <= password.unregdate OR password.unregdate = '0000-00-00 00:00:00' ) \
-            AND ${authcheck_table}.tenant_id = '%{control:PacketFence-Tenant-Id}' \
-            LIMIT 1 "
+        authorize_check_query = "\
+                              SELECT 1, pid, ( \
+                              CASE \
+                                  WHEN SUBSTR(password, 1, LENGTH('{ntlm}') ) = '{ntlm}' THEN 'NT-Password' \
+                                  ELSE 'Cleartext-Password' \
+                              END ) AS passwordhash, \
+                              REPLACE(password,'{ntlm}',''), \":=\" \
+                              FROM ${authcheck_table} \
+                              JOIN activation using (pid) \
+                              WHERE pid = '%{SQL-User-Name}' \
+                                  AND (SELECT type from activation WHERE pid='%{SQL-User-Name}' ORDER BY code_id DESC LIMIT 1) = \"sponsor\" \
+                                  AND ( now() <= password.unregdate OR password.unregdate = '0000-00-00 00:00:00' ) \
+                                  AND ${authcheck_table}.tenant_id = '%{control:PacketFence-Tenant-Id}' \
+                                  LIMIT 1"
 
         postauth_query = ""
         group_membership_query = "select 1"
@@ -377,22 +375,20 @@ sql pfsms {
         sqltracefile = ${logdir}/sqltrace.sql
 
         sql_user_name = "%{User-Name}"
-        authorize_check_query = "SELECT 1, pid,
-          (
-            CASE
-              WHEN SUBSTR(password, 1, LENGTH('{ntlm}') ) = '{ntlm}' THEN "NT-Password"
-              ELSE "Cleartext-Password"
-            END
-          ) AS passwordhash,
-          REPLACE(password,'{ntlm}',''), \":=\" \
-          FROM ${authcheck_table} \
-          JOIN activation using (pid) \
-          WHERE pid = '%{SQL-User-Name}' \
-            AND (SELECT type from activation WHERE pid='%{SQL-User-Name}' ORDER BY code_id DESC LIMIT 1) = \"sms\" \
-            AND ( now() <= password.unregdate OR password.unregdate = '0000-00-00 00:00:00' ) \
-            AND ${authcheck_table}.tenant_id = '%{control:PacketFence-Tenant-Id}' \
-            LIMIT 1 "
-
+        authorize_check_query = "\
+                              SELECT 1, pid, ( \
+                              CASE \
+                                  WHEN SUBSTR(password, 1, LENGTH('{ntlm}') ) = '{ntlm}' THEN 'NT-Password' \
+                                  ELSE 'Cleartext-Password' \
+                              END ) AS passwordhash, \
+                              REPLACE(password,'{ntlm}',''), \":=\" \
+                              FROM ${authcheck_table} \
+                              JOIN activation using (pid) \
+                              WHERE pid = '%{SQL-User-Name}' \
+                                  AND (SELECT type from activation WHERE pid='%{SQL-User-Name}' ORDER BY code_id DESC LIMIT 1) = \"sms\" \
+                                  AND ( now() <= password.unregdate OR password.unregdate = '0000-00-00 00:00:00' ) \
+                                  AND ${authcheck_table}.tenant_id = '%{control:PacketFence-Tenant-Id}' \
+                                  LIMIT 1"
 
         postauth_query = ""
         group_membership_query = "select 1"
@@ -423,18 +419,17 @@ sql pflocal {
         sqltracefile = ${logdir}/sqltrace.sql
 
         sql_user_name = "%{User-Name}"
-        authorize_check_query = "SELECT 1, pid,
-          (
-            CASE
-              WHEN SUBSTR(password, 1, LENGTH('{ntlm}') ) = '{ntlm}' THEN "NT-Password"
-              ELSE "Cleartext-Password"
-            END
-          ) AS passwordhash,
-          REPLACE(password,'{ntlm}',''), \":=\" \
-          FROM ${authcheck_table} \
-          WHERE pid = '%{SQL-User-Name}' \
-          AND ${authcheck_table}.tenant_id = '%{control:PacketFence-Tenant-Id}' \
-          AND NOT EXISTS (SELECT pid FROM activation WHERE pid = '%{SQL-User-Name}') "
+        authorize_check_query = "\
+                              SELECT 1, pid, ( \
+                              CASE \
+                                  WHEN SUBSTR(password, 1, LENGTH('{ntlm}') ) = '{ntlm}' THEN 'NT-Password' \
+                                  ELSE 'Cleartext-Password' \
+                              END ) AS passwordhash, \
+                              REPLACE(password,'{ntlm}',''), \":=\" \
+                              FROM ${authcheck_table} \
+                              WHERE pid = '%{SQL-User-Name}' \
+                              AND ${authcheck_table}.tenant_id = '%{control:PacketFence-Tenant-Id}' \
+                              AND NOT EXISTS (SELECT pid FROM activation WHERE pid = '%{SQL-User-Name}')"
 
         postauth_query = ""
         group_membership_query = "select 1"
