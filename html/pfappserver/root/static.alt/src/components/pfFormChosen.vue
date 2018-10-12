@@ -67,6 +67,8 @@ export default {
       type: String,
       default: 'value'
     },
+    // Add a proxy on our inputValue to modify set/get for simple external models.
+    // https://github.com/shentao/vue-multiselect/issues/385#issuecomment-418881148
     collapseObject: {
       type: Boolean,
       default: false
