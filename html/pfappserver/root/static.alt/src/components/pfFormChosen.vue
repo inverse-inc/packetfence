@@ -62,6 +62,14 @@ export default {
     },
     id: {
       type: String
+    },
+    trackBy: {
+      type: String,
+      default: 'value'
+    },
+    collapseObject: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -72,9 +80,19 @@ export default {
   computed: {
     inputValue: {
       get () {
+        if (this.collapseObject) {
+          return this.$attrs['multiple']
+            ? this.value.map(value => this.options.find(option => option[this.trackBy] === value))
+            : this.options.find(option => option[this.trackBy] === this.value)
+        }
         return this.value
       },
       set (newValue) {
+        if (this.collapseObject) {
+          newValue = (this.$attrs['multiple'])
+            ? newValue.map(value => value[this.trackBy])
+            : (newValue && newValue[this.trackBy])
+        }
         this.$emit('input', newValue)
       }
     },
