@@ -407,11 +407,13 @@ canDelete
 
 sub canDelete {
     my ($self, $id) = @_;
-    my $default_section = $self->default_section;
-    return $TRUE
-        if !defined $default_section;
+    my $realSectionName = $self->_formatSectionName($id);
+    my $import = $self->cachedConfig->{imported};
+    if ($import && $import->SectionExists($realSectionName)) {
+        return $FALSE;
+    }
 
-    return $self->_formatSectionName($id) ne $default_section;
+    return $TRUE;
 }
 
 =head2 Copy
