@@ -64,6 +64,21 @@ has_field 'filter_match_style' =>
     element_class => ['input-mini'],
 );
 
+=head2 status
+
+The status of the profile if it is enabled or disabled
+
+=cut
+
+has_field 'status' =>
+  (
+   type => 'Toggle',
+   label => 'Enable profile',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   default => 'enabled'
+  );
+
 sub options_filter_match_style {
     return  map { { value => $_, label => $_ } } qw(all any);
 }
@@ -111,6 +126,17 @@ sub validate {
         }
     }
 }
+
+=head2 definition
+
+The main definition block
+
+=cut
+
+has_block 'definition' =>
+  (
+    render_list => [qw(id description status root_module preregistration autoregister reuse_dot1x_credentials dot1x_recompute_role_from_portal dpsk default_psk_key unreg_on_acct_stop)],
+  );
 
 
 =head1 COPYRIGHT
