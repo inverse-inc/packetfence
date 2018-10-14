@@ -176,12 +176,6 @@ has_field 'nickname' =>
    label => 'nickname',
   );
 
-has_field 'organization' =>
-  (
-   type => 'Text',
-   label => 'organization',
-  );
-
 has_field 'cell_phone' =>
   (
    type => 'Text',
