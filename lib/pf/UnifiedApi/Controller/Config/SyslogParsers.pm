@@ -80,7 +80,7 @@ sub dry_run {
     }
 
     my $data     = $form->value;
-    my $lines = delete $data->{lines} // '';
+    my $lines = delete $data->{lines} // [];
     my $parser   = pf::detect::parser::regex->new($data);
     my $dryrun_info = $parser->dryRun(@$lines);
     return $self->render(status => 200, json => {items => $dryrun_info});
