@@ -37,7 +37,7 @@ has_field port => (
 
 has_block definition =>
   (
-    render_list => [qw(type proto host port logs)],
+    render_list => [qw(type proto host port all_logs logs)],
   );
 
 =head1 AUTHOR
