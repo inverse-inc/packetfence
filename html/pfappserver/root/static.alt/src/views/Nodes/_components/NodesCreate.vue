@@ -10,32 +10,18 @@
             <pf-form-input v-model="single.mac" :column-label="$t('MAC')"
               :filter="globals.regExp.stringMac"
               :validation="$v.single.mac"
-              :invalid-feedback="[
-                { [$t('MAC address required.')]: !$v.single.mac.required },
-                { [$t('Enter a valid MAC address.')]: !$v.single.mac.macAddress || !$v.single.mac.minLength || !$v.single.mac.maxLength },
-                { [$t('MAC address already exists.')]: !$v.single.mac.nodeExists }
-              ]
-            "/>
+            />
             <pf-form-autocomplete v-model="single.pid" :column-label="$t('Owner')" placeholder="default" @search="searchUsers"
               :suggestions="matchingUsers"
               :validation="$v.single.pid"
-              :invalid-feedback="[
-                { [$t('Owner does not exist.')]: !$v.single.pid.userExists }
-              ]"
             />
             <pf-form-select v-model="single.status" :column-label="$t('Status')" :options="statuses"/>
             <pf-form-select v-model="single.category" :column-label="$t('Role')" :options="roles"/>
             <pf-form-datetime v-model="single.unregdate" :column-label="$t('Unregistration')" :moments="['1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"
               :validation="$v.single.unregdate"
-              :invalid-feedback="[
-                { [$t('Invalid date.')]: !$v.single.unregdate.isDateFormat }
-              ]"
             />
             <pf-form-textarea v-model="single.notes" :column-label="$t('Notes')" rows="8" max-rows="12"
               :validation="$v.single.notes"
-              :invalid-feedback="[
-                { [$t('Maximum {maxLength} characters.', globals.schema.person.notes)]: !$v.single.notes.maxLength }
-              ]"
             />
           </b-col>
         </b-form-row>
@@ -116,15 +102,21 @@ export default {
     return {
       single: {
         mac: {
-          required,
-          macAddress,
-          nodeExists,
-          minLength: minLength(17),
-          maxLength: maxLength(17)
+          [this.$i18n.t('MAC address required.')]: required,
+          [this.$i18n.t('Enter a valid MAC address.')]: macAddress,
+          [this.$i18n.t('Enter a valid MAC address.')]: minLength: minLength(17),
+          [this.$i18n.t('Enter a valid MAC address.')]: maxLength: maxLength(17),
+          [this.$i18n.t('MAC address already exists.')]: nodeExists
         },
-        pid: { userExists },
-        unregdate: { isDateFormat: isDateFormat(schema.node.unregdate.format) },
-        notes: { maxLength: maxLength(schema.node.notes.maxLength) }
+        pid: {
+          [this.$i18n.t('Owner does not exist.')]: userExists
+        },
+        unregdate: {
+          [this.$i18n.t('Invalid date.')]: isDateFormat(schema.node.unregdate.format)
+        },
+        notes: {
+          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.notes)]: maxLength(schema.node.notes.maxLength)
+        }
       }
     }
   },

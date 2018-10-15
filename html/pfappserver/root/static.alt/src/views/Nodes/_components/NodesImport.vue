@@ -91,77 +91,107 @@ export default {
           value: 'mac',
           text: this.$i18n.t('MAC Address'),
           required: true,
-          validators: { required, minLength: minLength(17), maxLength: maxLength(17), macAddress }
+          validators: {
+            required,
+            minLength: minLength(17),
+            maxLength: maxLength(17),
+            macAddress
+          }
         },
         {
           value: 'autoreg',
           text: this.$i18n.t('Auto Registration'),
           required: false,
           formatter: formatter.yesNoFromString,
-          validators: { inArray: inArray(['yes', 'no', 'y', 'n', '1', '0', 'true', 'false']) }
+          validators: {
+            [this.$i18n.t('Invalid value.')]: inArray(['yes', 'no', 'y', 'n', '1', '0', 'true', 'false'])
+          }
         },
         {
           value: 'bandwidth_balance',
           text: this.$i18n.t('Bandwidth Balance'),
           required: false,
-          validators: { minValue: minValue(schema.node.bandwidth_balance.min), maxValue: maxValue(schema.node.bandwidth_balance.max) }
+          validators: {
+            [this.$i18n.t('Must be greater than {min}.', schema.node.bandwidth_balance)]: minValue(schema.node.bandwidth_balance.min),
+            [this.$i18n.t('Must be less than {max}.', schema.node.bandwidth_balance)]: maxValue(schema.node.bandwidth_balance.max)
+          }
         },
         {
           value: 'bypass_role_id',
           text: this.$i18n.t('Bypass Role'),
           required: false,
           formatter: formatter.categoryIdFromIntOrString,
-          validators: { categoryIdNumberExists, categoryIdStringExists }
+          validators: {
+            [this.$i18n.t('Role does not exist.')]: categoryIdNumberExists,
+            [this.$i18n.t('Role does not exist')]: categoryIdStringExists
+          }
         },
         {
           value: 'bypass_vlan',
           text: this.$i18n.t('Bypass VLAN'),
           required: false,
-          validators: { maxLength: maxLength(schema.node.bypass_vlan.maxLength) }
+          validators: {
+            [this.$i18n.t('Maximum {maxLength} characters.', schema.node.bypass_vlan)]: maxLength(schema.node.bypass_vlan.maxLength)
+          }
         },
         {
           value: 'computername',
           text: this.$i18n.t('Computer Name'),
           required: false,
-          validators: { maxLength: maxLength(schema.node.computername.maxLength) }
+          validators: {
+            [this.$i18n.t('Maximum {maxLength} characters.', schema.node.computername)]: maxLength(schema.node.computername.maxLength)
+          }
         },
         {
           value: 'regdate',
           text: this.$i18n.t('Datetime Registered'),
           required: false,
-          validators: { isDateFormat: isDateFormat(schema.node.regdate.format) }
+          validators: {
+            [this.$i18n.t('Invalid date.')]: isDateFormat(schema.node.regdate.format)
+          }
         },
         {
           value: 'unregdate',
           text: this.$i18n.t('Datetime Unregistered'),
           required: false,
-          validators: { isDateFormat: isDateFormat(schema.node.unregdate.format) }
+          validators: {
+            [this.$i18n.t('Invalid date.')]: isDateFormat(schema.node.unregdate.format)
+          }
         },
         {
           value: 'notes',
           text: this.$i18n.t('Notes'),
           required: false,
-          validators: { maxLength: maxLength(schema.node.notes.maxLength) }
+          validators: {
+            [this.$i18n.t('Maximum {maxLength} characters.', schema.node.bypass_notes)]: maxLength(schema.node.notes.maxLength)
+          }
         },
         {
           value: 'pid',
           text: this.$i18n.t('Owner'),
           required: false,
-          validators: { userExists }
+          validators: {
+            [this.$i18n.t('User exists.')]: userExists
+          }
         },
         {
           value: 'category_id',
           text: this.$i18n.t('Role'),
           required: false,
           formatter: formatter.categoryIdFromIntOrString,
-          validators: { categoryIdNumberExists, categoryIdStringExists }
+          validators: {
+            [this.$i18n.t('Role does not exist.')]: categoryIdNumberExists,
+            [this.$i18n.t('Role does not exist.')]: categoryIdStringExists
+          }
         },
         {
           value: 'voip',
           text: this.$i18n.t('VoIP'),
           required: false,
           formatter: formatter.yesNoFromString,
-          validators: { inArray: inArray(['yes', 'no', 'y', 'n', '1', '0', 'true', 'false']) }
+          validators: {
+            [this.$i18n.t('Invalid value.')]: inArray(['yes', 'no', 'y', 'n', '1', '0', 'true', 'false'])
+          }
         }
       ],
       progressTotal: 0,

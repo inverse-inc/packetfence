@@ -16,45 +16,25 @@
                 readonly
                 v-model.trim="userContent.pid"
                 :validation="$v.userContent.pid"
-                :invalid-feedback="[
-                  { [$t('Username required.')]: !$v.userContent.pid.required },
-                  { [$t('This username already exists.')]: !$v.userContent.pid.userExists },
-                  { [$t('Maximum {maxLength} characters.', globals.schema.person.pid)]: !$v.userContent.pid.maxLength }
-                ]"
                 text="The username to use for login to the captive portal."/>
               <pf-form-input :column-label="$t('Password')"
                 v-model="userContent.password"
                 :validation="$v.userContent.password"
-                :invalid-feedback="[
-                  { [$t('The password must be at least 6 characters.')]: !$v.userContent.password.minLength }
-                ]"
                 type="password"
                 text="Leave empty to keep current password."/>
               <pf-form-input :column-label="$t('Login remaining')"
                 v-model="userContent.login_remaining"
                 :validation="$v.userContent.login_remaining"
-                :invalid-feedback="[
-                  { [$t('Must be numeric.')]: !$v.userContent.login_remaining.numeric },
-                  { [$t('Must be greater than {min}.', globals.schema.password.login_remaining)]: !$v.userContent.login_remaining.min },
-                  { [$t('Must be less than {max}.', globals.schema.password.login_remaining)]: !$v.userContent.login_remaining.max },
-                ]"
                 type="number"
                 text="Leave empty to allow unlimited logins."/>
               <pf-form-input :column-label="$t('Email')"
                 v-model.trim="userContent.email"
                 :validation="$v.userContent.email"
-                :invalid-feedback="[
-                  { [$t('Email address required.')]: !$v.userContent.email.required },
-                  { [$t('Specify a valid email address.')]: !$v.userContent.email.email },
-                  { [$t('Maximum {maxLength} characters.', globals.schema.person.email)]: !$v.userContent.email.maxLength }
-                ]"/>
+              />
               <pf-form-input :column-label="$t('Sponsor')"
                 v-model.trim="userContent.sponsor"
                 :validation="$v.userContent.sponsor"
-                :invalid-feedback="[
-                  { [$t('Specify a valid email address.')]: !$v.userContent.sponsor.email },
-                  { [$t('Maximum {maxLength} characters.', globals.schema.person.sponsor)]: !$v.userContent.sponsor.maxLength }
-                ]"/>
+              />
               <pf-form-chosen :column-label="$t('Gender')"
                 v-model="userContent.gender"
                 label="text"
@@ -65,115 +45,70 @@
               <pf-form-input :column-label="$t('Title')"
                 v-model="userContent.title"
                 :validation="$v.userContent.title"
-                :invalid-feedback="[
-                  { [$t('Maximum {maxLength} characters.', globals.schema.person.title)]: !$v.userContent.title.maxLength }
-                ]"
               />
               <pf-form-input :column-label="$t('Firstname')"
                 v-model="userContent.firstname"
                 :validation="$v.userContent.firstname"
-                :invalid-feedback="[
-                  { [$t('Maximum {maxLength} characters.', globals.schema.person.firstname)]: !$v.userContent.firstname.maxLength }
-                ]"
               />
               <pf-form-input :column-label="$t('Lastname')"
                 v-model="userContent.lastname"
                 :validation="$v.userContent.lastname"
-                :invalid-feedback="[
-                  { [$t('Maximum {maxLength} characters.', globals.schema.person.lastname)]: !$v.userContent.lastname.maxLength }
-                ]"
               />
               <pf-form-input :column-label="$t('Nickname')"
                 v-model="userContent.nickname"
                 :validation="$v.userContent.nickname"
-                :invalid-feedback="[
-                  { [$t('Maximum {maxLength} characters.', globals.schema.person.nickname)]: !$v.userContent.nickname.maxLength }
-                ]"
               />
               <pf-form-input :column-label="$t('Company')"
                 v-model="userContent.company"
                 :validation="$v.userContent.company"
-                :invalid-feedback="[
-                  { [$t('Maximum {maxLength} characters.', globals.schema.person.company)]: !$v.userContent.company.maxLength }
-                ]"
               />
               <pf-form-input :column-label="$t('Telephone number')"
                 v-model="userContent.telephone"
                 :filter="globals.regExp.stringPhone"
                 :validation="$v.userContent.telephone"
-                :invalid-feedback="[
-                  { [$t('Maximum {maxLength} characters.', globals.schema.person.telephone)]: !$v.userContent.telephone.maxLength }
-                ]"
               />
               <pf-form-input :column-label="$t('Cellphone number')"
                 v-model="userContent.cell_phone"
                 :filter="globals.regExp.stringPhone"
                 :validation="$v.userContent.cell_phone"
-                :invalid-feedback="[
-                  { [$t('Maximum {maxLength} characters.', globals.schema.person.cell_phone)]: !$v.userContent.cell_phone.maxLength }
-                ]"
               />
               <pf-form-input :column-label="$t('Workphone number')"
                 v-model="userContent.work_phone"
                 :filter="globals.regExp.stringPhone"
                 :validation="$v.userContent.work_phone"
-                :invalid-feedback="[
-                  { [$t('Maximum {maxLength} characters.', globals.schema.person.work_phone)]: !$v.userContent.work_phone.maxLength }
-                ]"
               />
               <pf-form-input :column-label="$t('Apartment number')"
                 v-model="userContent.apartment_number"
                 :filter="globals.regExp.stringPhone"
                 :validation="$v.userContent.apartment_number"
-                :invalid-feedback="[
-                  { [$t('Maximum {maxLength} characters.', globals.schema.person.apartment_number)]: !$v.userContent.apartment_number.maxLength }
-                ]"
               />
               <pf-form-input :column-label="$t('Building Number')"
                 v-model="userContent.building_number"
                 :filter="globals.regExp.stringPhone"
                 :validation="$v.userContent.building_number"
-                :invalid-feedback="[
-                  { [$t('Maximum {maxLength} characters.', globals.schema.person.building_number)]: !$v.userContent.building_number.maxLength }
-                ]"
               />
               <pf-form-input :column-label="$t('Room Number')"
                 v-model="userContent.room_number"
                 :filter="globals.regExp.stringPhone"
                 :validation="$v.userContent.room_number"
-                :invalid-feedback="[
-                  { [$t('Maximum {maxLength} characters.', globals.schema.person.room_number)]: !$v.userContent.room_number.maxLength }
-                ]"
               />
               <pf-form-textarea :column-label="$t('Address')" rows="4" max-rows="6"
                 v-model="userContent.address"
                 :validation="$v.userContent.address"
-                :invalid-feedback="[
-                  { [$t('Maximum {maxLength} characters.', globals.schema.person.address)]: !$v.userContent.address.maxLength }
-                ]"
               />
               <pf-form-datetime :column-label="$t('Anniversary')"
                 v-model="userContent.anniversary"
                 :config="{format: 'YYYY-MM-DD'}"
                 :validation="$v.userContent.anniversary"
-                :invalid-feedback="[
-                  { [$t('Maximum {maxLength} characters.', globals.schema.person.anniversary)]: !$v.userContent.anniversary.maxLength }
-                ]"
               />
               <pf-form-datetime :column-label="$t('Birthday')"
                 v-model="userContent.birthday"
                 :config="{format: 'YYYY-MM-DD'}"
                 :validation="$v.userContent.birthday"
-                :invalid-feedback="[
-                  { [$t('Maximum {maxLength} characters.', globals.schema.person.birthday)]: !$v.userContent.birthday.maxLength }
-                ]"
               />
               <pf-form-textarea :column-label="$t('Notes')"
                 v-model="userContent.notes"
                 :validation="$v.userContent.notes"
-                :invalid-feedback="[
-                  { [$t('Maximum {maxLength} characters.', globals.schema.person.notes)]: !$v.userContent.notes.maxLength }
-                ]"
                 rows="8" max-rows="12"
               />
             </b-col>
@@ -284,49 +219,99 @@ export default {
     return {
       userContent: {
         pid: {
-          required,
-          userExists: not(and(required, userExists, conditional(this.userContent.pid !== this.pid))),
-          maxLength: maxLength(schema.person.pid.maxLength)
+          [this.$i18n.t('Username required.')]: required,
+          [this.$i18n.t('Username already exists.')]: not(and(required, userExists, conditional(this.userContent.pid !== this.pid))),
+          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.pid)]: maxLength(schema.person.pid.maxLength)
         },
         email: {
-          email,
-          required,
-          maxLength: maxLength(schema.person.email.maxLength)
+          [this.$i18n.t('Email address required.')]: required,
+          [this.$i18n.t('Email address is invalid.')]: email,
+          [this.$i18n.t('Maximum {maxLenth} characters.', schema.person.email)]: maxLength(schema.person.email.maxLength)
         },
         sponsor: {
-          email,
-          maxLength: maxLength(schema.person.sponsor.maxLength)
+          [this.$i18n.t('Email address is invalid.')]: email,
+          [this.$i18n.t('Maximum {maxLenth} characters.', schema.person.sponsor)]: maxLength(schema.person.sponsor.maxLength)
         },
-        password: { minLength: minLength(6) },
+        password: {
+          [this.$i18n.t('Password must be at least 6 characters.')]: minLength(6)
+        },
         login_remaining: {
-          numeric,
-          min: minValue(schema.password.login_remaining.min),
-          max: maxValue(schema.password.login_remaining.max)
+          [this.$i18n.t('Must be numeric.')]: numeric,
+          [this.$i18n.t('Must be greater than {min}.', schema.password.login_remaining)]: minValue(schema.password.login_remaining.min),
+          [this.$i18n.t('Must be less than {max}.', schema.password.login_remaining)]: maxValue(schema.password.login_remaining.max)
         },
-        title: { maxLength: maxLength(schema.person.title.maxLength) },
-        firstname: { maxLength: maxLength(schema.person.firstname.maxLength) },
-        lastname: { maxLength: maxLength(schema.person.lastname.maxLength) },
-        nickname: { maxLength: maxLength(schema.person.lastname.maxLength) },
-        company: { maxLength: maxLength(schema.person.company.maxLength) },
-        telephone: { maxLength: maxLength(schema.person.telephone.maxLength) },
-        cell_phone: { maxLength: maxLength(schema.person.cell_phone.maxLength) },
-        work_phone: { maxLength: maxLength(schema.person.work_phone.maxLength) },
-        address: { maxLength: maxLength(schema.person.address.maxLength) },
-        apartment_number: { maxLength: maxLength(schema.person.apartment_number.maxLength) },
-        building_number: { maxLength: maxLength(schema.person.building_number.maxLength) },
-        room_number: { maxLength: maxLength(schema.person.room_number.maxLength) },
-        anniversary: { maxLength: maxLength(schema.person.anniversary.maxLength) },
-        birthday: { maxLength: maxLength(schema.person.birthday.maxLength) },
-        notes: { maxLength: maxLength(schema.person.notes.maxLength) },
-        custom_field_1: { maxLength: maxLength(schema.person.custom_field_1.maxLength) },
-        custom_field_2: { maxLength: maxLength(schema.person.custom_field_2.maxLength) },
-        custom_field_3: { maxLength: maxLength(schema.person.custom_field_3.maxLength) },
-        custom_field_4: { maxLength: maxLength(schema.person.custom_field_4.maxLength) },
-        custom_field_5: { maxLength: maxLength(schema.person.custom_field_5.maxLength) },
-        custom_field_6: { maxLength: maxLength(schema.person.custom_field_6.maxLength) },
-        custom_field_7: { maxLength: maxLength(schema.person.custom_field_7.maxLength) },
-        custom_field_8: { maxLength: maxLength(schema.person.custom_field_8.maxLength) },
-        custom_field_9: { maxLength: maxLength(schema.person.custom_field_9.maxLength) }
+        title: {
+          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.title)]: maxLength(schema.person.title.maxLength)
+        },
+        firstname: {
+          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.firstname)]: maxLength(schema.person.firstname.maxLength)
+        },
+        lastname: {
+          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.lastname)]: maxLength(schema.person.lastname.maxLength)
+        },
+        nickname: {
+          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.nickname)]: maxLength(schema.person.lastname.maxLength)
+        },
+        company: {
+          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.company)]: maxLength(schema.person.company.maxLength)
+        },
+        telephone: {
+          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.telephone)]: maxLength(schema.person.telephone.maxLength)
+        },
+        cell_phone: {
+          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.cell_phone)]: maxLength(schema.person.cell_phone.maxLength)
+        },
+        work_phone: {
+          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.work_phone)]: maxLength(schema.person.work_phone.maxLength)
+        },
+        address: {
+          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.address)]: maxLength(schema.person.address.maxLength)
+        },
+        apartment_number: {
+          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.apartment_number)]: maxLength(schema.person.apartment_number.maxLength)
+        },
+        building_number: {
+          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.building_number)]: maxLength(schema.person.building_number.maxLength)
+        },
+        room_number: {
+          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.room_number)]: maxLength(schema.person.room_number.maxLength)
+        },
+        anniversary: {
+          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.anniversary)]: maxLength(schema.person.anniversary.maxLength)
+        },
+        birthday: {
+          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.birthday)]: maxLength(schema.person.birthday.maxLength)
+        },
+        notes: {
+          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.notes)]: maxLength(schema.person.notes.maxLength)
+        },
+        custom_field_1: {
+          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.custom_field_1)]: maxLength(schema.person.custom_field_1.maxLength)
+        },
+        custom_field_2: {
+          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.custom_field_2)]: maxLength(schema.person.custom_field_2.maxLength)
+        },
+        custom_field_3: {
+          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.custom_field_3)]: maxLength(schema.person.custom_field_3.maxLength)
+        },
+        custom_field_4: {
+          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.custom_field_4)]: maxLength(schema.person.custom_field_4.maxLength)
+        },
+        custom_field_5: {
+          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.custom_field_5)]: maxLength(schema.person.custom_field_5.maxLength)
+        },
+        custom_field_6: {
+          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.custom_field_6)]: maxLength(schema.person.custom_field_6.maxLength)
+        },
+        custom_field_7: {
+          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.custom_field_7)]: maxLength(schema.person.custom_field_7.maxLength)
+        },
+        custom_field_8: {
+          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.custom_field_8)]: maxLength(schema.person.custom_field_8.maxLength)
+        },
+        custom_field_9: {
+          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.custom_field_9)]: maxLength(schema.person.custom_field_9.maxLength)
+        }
       }
     }
   },

@@ -47,6 +47,7 @@ import pfCSVParse from '@/components/pfCSVParse'
 import pfProgress from '@/components/pfProgress'
 import pfFormUpload from '@/components/pfFormUpload'
 import { pfDatabaseSchema as schema } from '@/globals/pfDatabaseSchema'
+import { pfFieldType as fieldType } from '@/globals/pfField'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import convert from '@/utils/convert'
 import {
@@ -85,195 +86,295 @@ export default {
         {
           value: 'pid',
           text: this.$i18n.t('PID'),
+          types: [fieldType.SUBSTRING],
           required: true,
-          validators: { required, maxLength: maxLength(schema.person.pid.maxLength) }
+          validators: {
+            required,
+            [this.$i18n.t('Maximum {maxLength} characters.', schema.person.pid)]: maxLength(schema.person.pid.maxLength)
+          }
         },
         {
           value: 'title',
           text: this.$i18n.t('Title'),
+          types: [fieldType.SUBSTRING],
           required: false,
-          validators: { maxLength: maxLength(schema.person.title.maxLength) }
+          validators: {
+            [this.$i18n.t('Maximum {maxLength} characters.', schema.person.title)]: maxLength(schema.person.title.maxLength)
+          }
         },
         {
           value: 'firstname',
           text: this.$i18n.t('First Name'),
+          types: [fieldType.SUBSTRING],
           required: false,
-          validators: { maxLength: maxLength(schema.person.firstname.maxLength) }
+          validators: {
+            [this.$i18n.t('Maximum {maxLength} characters.', schema.person.firstname)]: maxLength(schema.person.firstname.maxLength)
+          }
         },
         {
           value: 'lastname',
           text: this.$i18n.t('Last Name'),
+          types: [fieldType.SUBSTRING],
           required: false,
-          validators: { maxLength: maxLength(schema.person.lastname.maxLength) }
+          validators: {
+            [this.$i18n.t('Maximum {maxLength} characters.', schema.person.lastname)]: maxLength(schema.person.lastname.maxLength)
+          }
         },
         {
           value: 'nickname',
           text: this.$i18n.t('Nickname'),
+          types: [fieldType.SUBSTRING],
           required: false,
-          validators: { maxLength: maxLength(schema.person.nickname.maxLength) }
+          validators: {
+            [this.$i18n.t('Maximum {maxLength} characters.', schema.person.nickname)]: maxLength(schema.person.nickname.maxLength)
+          }
         },
         {
           value: 'email',
           text: this.$i18n.t('Email'),
+          types: [fieldType.SUBSTRING],
           required: false,
-          validators: { email, maxLength: maxLength(schema.person.email.maxLength) }
+          validators: {
+            [this.$i18n.t('Valid email address required.')]: email,
+            [this.$i18n.t('Maximum {maxLength} characters.', schema.person.email)]: maxLength(schema.person.email.maxLength)
+          }
         },
         {
           value: 'sponsor',
           text: this.$i18n.t('Sponsor'),
+          types: [fieldType.SUBSTRING],
           required: false,
-          validators: { email, maxLength: maxLength(schema.person.sponsor.maxLength) }
+          validators: {
+            [this.$i18n.t('Valid email address required.')]: email,
+            [this.$i18n.t('Maximum {maxLength} characters.', schema.person.sponsor)]: maxLength(schema.person.sponsor.maxLength)
+          }
         },
         {
           value: 'anniversary',
           text: this.$i18n.t('Anniversary'),
+          types: [fieldType.DATE],
           required: false,
-          validators: { isDateFormat: isDateFormat(schema.person.anniversary.format) }
+          validators: {
+            [this.$i18n.t('Invalid date.')]: isDateFormat(schema.person.anniversary.format)
+          }
         },
         {
           value: 'birthday',
           text: this.$i18n.t('Birthday'),
+          types: [fieldType.DATE],
           required: false,
-          validators: { isDateFormat: isDateFormat(schema.person.birthday.format) }
+          validators: {
+            [this.$i18n.t('Invalid date.')]: isDateFormat(schema.person.birthday.format)
+          }
         },
         {
           value: 'address',
           text: this.$i18n.t('Address'),
+          types: [fieldType.SUBSTRING],
           required: false,
-          validators: { maxLength: maxLength(schema.person.address.maxLength) }
+          validators: {
+            [this.$i18n.t('Maximum {maxLength} characters.', schema.person.address)]: maxLength(schema.person.address.maxLength)
+          }
         },
         {
           value: 'apartment_number',
           text: this.$i18n.t('Apartment Number'),
+          types: [fieldType.SUBSTRING],
           required: false,
-          validators: { maxLength: maxLength(schema.person.apartment_number.maxLength) }
+          validators: {
+            [this.$i18n.t('Maximum {maxLength} characters.', schema.person.apartment_number)]: maxLength(schema.person.apartment_number.maxLength)
+          }
         },
         {
           value: 'building_number',
           text: this.$i18n.t('Building Number'),
+          types: [fieldType.SUBSTRING],
           required: false,
-          validators: { maxLength: maxLength(schema.person.building_number.maxLength) }
+          validators: {
+            [this.$i18n.t('Maximum {maxLength} characters.', schema.person.building_number)]: maxLength(schema.person.building_number.maxLength)
+          }
         },
         {
           value: 'room_number',
           text: this.$i18n.t('Room Number'),
+          types: [fieldType.SUBSTRING],
           required: false,
-          validators: { maxLength: maxLength(schema.person.room_number.maxLength) }
+          validators: {
+            [this.$i18n.t('Maximum {maxLength} characters.', schema.person.room_number)]: maxLength(schema.person.room_number.maxLength)
+          }
         },
         {
           value: 'company',
           text: this.$i18n.t('Company'),
+          types: [fieldType.SUBSTRING],
           required: false,
-          validators: { maxLength: maxLength(schema.person.company.maxLength) }
+          validators: {
+            [this.$i18n.t('Maximum {maxLength} characters.', schema.person.company)]: maxLength(schema.person.company.maxLength)
+          }
         },
         {
           value: 'gender',
           text: this.$i18n.t('Gender'),
+          types: [fieldType.GENDER],
           required: false,
           formatter: formatter.genderFromString,
-          validators: { inArray: inArray(['m', 'male', 'f', 'female', 'o', 'other']) }
+          validators: {
+            [this.$i18n.t('Invalid gender.')]: inArray(['m', 'male', 'f', 'female', 'o', 'other'])
+          }
         },
         {
           value: 'lang',
           text: this.$i18n.t('Language'),
+          types: [fieldType.SUBSTRING],
           required: false,
-          validators: { maxLength: maxLength(schema.person.lang.maxLength) }
+          validators: {
+            [this.$i18n.t('Maximum {maxLength} characters.', schema.person.lang)]: maxLength(schema.person.lang.maxLength)
+          }
         },
         {
           value: 'notes',
           text: this.$i18n.t('Notes'),
+          types: [fieldType.SUBSTRING],
           required: false,
-          validators: { maxLength: maxLength(schema.person.notes.maxLength) }
+          validators: {
+            [this.$i18n.t('Maximum {maxLength} characters.', schema.person.notes)]: maxLength(schema.person.notes.maxLength)
+          }
         },
         {
           value: 'portal',
           text: this.$i18n.t('Portal'),
+          types: [fieldType.SUBSTRING],
           required: false,
-          validators: { maxLength: maxLength(schema.person.portal.maxLength) }
+          validators: {
+            [this.$i18n.t('Maximum {maxLength} characters.', schema.person.portal)]: maxLength(schema.person.portal.maxLength)
+          }
         },
         {
           value: 'psk',
           text: this.$i18n.t('PSK'),
+          types: [fieldType.SUBSTRING],
           required: false,
-          validators: { maxLength: maxLength(schema.person.psk.maxLength) }
+          validators: {
+            [this.$i18n.t('Maximum {maxLength} characters.', schema.person.psk)]: maxLength(schema.person.psk.maxLength)
+          }
         },
         {
           value: 'source',
           text: this.$i18n.t('Source'),
+          types: [fieldType.SUBSTRING],
           required: false,
-          validators: { sourceExists, maxLength: maxLength(schema.person.source.maxLength) }
+          validators: {
+            sourceExists,
+            [this.$i18n.t('Maximum {maxLength} characters.', schema.person.source)]: maxLength(schema.person.source.maxLength)
+          }
         },
         {
           value: 'telephone',
           text: this.$i18n.t('Telephone'),
+          types: [fieldType.SUBSTRING],
           required: false,
-          validators: { maxLength: maxLength(schema.person.telephone.maxLength) }
+          validators: {
+            [this.$i18n.t('Maximum {maxLength} characters.', schema.person.telephone)]: maxLength(schema.person.telephone.maxLength)
+          }
         },
         {
           value: 'cell_phone',
           text: this.$i18n.t('Cellular Phone'),
+          types: [fieldType.SUBSTRING],
           required: false,
-          validators: { maxLength: maxLength(schema.person.cell_phone.maxLength) }
+          validators: {
+            [this.$i18n.t('Maximum {maxLength} characters.', schema.person.cell_phone)]: maxLength(schema.person.cell_phone.maxLength)
+          }
         },
         {
           value: 'work_phone',
           text: this.$i18n.t('Work Phone'),
+          types: [fieldType.SUBSTRING],
           required: false,
-          validators: { maxLength: maxLength(schema.person.work_phone.maxLength) }
+          validators: {
+            [this.$i18n.t('Maximum {maxLength} characters.', schema.person.work_phone)]: maxLength(schema.person.work_phone.maxLength)
+          }
         },
         {
           value: 'custom_field_1',
           text: this.$i18n.t('Custom Field 1'),
+          types: [fieldType.SUBSTRING],
           required: false,
-          validators: { maxLength: maxLength(schema.person.custom_field_1.maxLength) }
+          validators: {
+            [this.$i18n.t('Maximum {maxLength} characters.', schema.person.custom_field_1)]: maxLength(schema.person.custom_field_1.maxLength)
+          }
         },
         {
           value: 'custom_field_2',
           text: this.$i18n.t('Custom Field 2'),
+          types: [fieldType.SUBSTRING],
           required: false,
-          validators: { maxLength: maxLength(schema.person.custom_field_2.maxLength) }
+          validators: {
+            [this.$i18n.t('Maximum {maxLength} characters.', schema.person.custom_field_2)]: maxLength(schema.person.custom_field_2.maxLength)
+          }
         },
         {
           value: 'custom_field_3',
           text: this.$i18n.t('Custom Field 3'),
+          types: [fieldType.SUBSTRING],
           required: false,
-          validators: { maxLength: maxLength(schema.person.custom_field_3.maxLength) }
+          validators: {
+            [this.$i18n.t('Maximum {maxLength} characters.', schema.person.custom_field_3)]: maxLength(schema.person.custom_field_3.maxLength)
+          }
         },
         {
           value: 'custom_field_4',
           text: this.$i18n.t('Custom Field 4'),
+          types: [fieldType.SUBSTRING],
           required: false,
-          validators: { maxLength: maxLength(schema.person.custom_field_4.maxLength) }
+          validators: {
+            [this.$i18n.t('Maximum {maxLength} characters.', schema.person.custom_field_4)]: maxLength(schema.person.custom_field_4.maxLength)
+          }
         },
         {
           value: 'custom_field_5',
           text: this.$i18n.t('Custom Field 5'),
+          types: [fieldType.SUBSTRING],
           required: false,
-          validators: { maxLength: maxLength(schema.person.custom_field_5.maxLength) }
+          validators: {
+            [this.$i18n.t('Maximum {maxLength} characters.', schema.person.custom_field_5)]: maxLength(schema.person.custom_field_5.maxLength)
+          }
         },
         {
           value: 'custom_field_6',
           text: this.$i18n.t('Custom Field 6'),
+          types: [fieldType.SUBSTRING],
           required: false,
-          validators: { maxLength: maxLength(schema.person.custom_field_6.maxLength) }
+          validators: {
+            [this.$i18n.t('Maximum {maxLength} characters.', schema.person.custom_field_6)]: maxLength(schema.person.custom_field_6.maxLength)
+          }
         },
         {
           value: 'custom_field_7',
           text: this.$i18n.t('Custom Field 7'),
+          types: [fieldType.SUBSTRING],
           required: false,
-          validators: { maxLength: maxLength(schema.person.custom_field_7.maxLength) }
+          validators: {
+            [this.$i18n.t('Maximum {maxLength} characters.', schema.person.custom_field_7)]: maxLength(schema.person.custom_field_7.maxLength)
+          }
         },
         {
           value: 'custom_field_8',
           text: this.$i18n.t('Custom Field 8'),
+          types: [fieldType.SUBSTRING],
           required: false,
-          validators: { maxLength: maxLength(schema.person.custom_field_8.maxLength) }
+          validators: {
+            [this.$i18n.t('Maximum {maxLength} characters.', schema.person.custom_field_8)]: maxLength(schema.person.custom_field_8.maxLength)
+          }
         },
         {
           value: 'custom_field_9',
           text: this.$i18n.t('Custom Field 9'),
+          types: [fieldType.SUBSTRING],
           required: false,
-          validators: { maxLength: maxLength(schema.person.custom_field_9.maxLength) }
+          validators: {
+            [this.$i18n.t('Maximum {maxLength} characters.', schema.person.custom_field_9)]: maxLength(schema.person.custom_field_9.maxLength)
+          }
         }
       ],
       progressTotal: 0,
