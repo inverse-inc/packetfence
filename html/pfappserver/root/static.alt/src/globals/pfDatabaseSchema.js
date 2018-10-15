@@ -276,11 +276,13 @@ export const pfDatabaseSchema = {
     anniversary: {
       type: String,
       maxLength: 255,
+      format: 'YYYY-MM-DD',
       default: null
     },
     birthday: {
       type: String,
       maxLength: 255,
+      format: 'YYYY-MM-DD',
       default: null
     },
     gender: {
