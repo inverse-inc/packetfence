@@ -291,7 +291,7 @@ has_block 'user' =>
 
 has_block 'miscellaneous' =>
   (
-   render_list => [qw(anniversary birthday gender lang nickname organization cell_phone work_phone title building_number apartment_number room_number psk)]
+   render_list => [qw(anniversary birthday gender lang nickname cell_phone work_phone title building_number apartment_number room_number psk)]
   );
 
 has_block 'custom_fields' =>
