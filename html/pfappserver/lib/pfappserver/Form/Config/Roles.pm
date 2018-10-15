@@ -38,9 +38,10 @@ has_field 'max_nodes_per_pid' =>
   (
    type => 'PosInteger',
    label => 'Max nodes per user',
+   default => 0,
    required => 1,
    tags => { after_element => \&help,
-             help => 'The maximum number of nodes a user having this role can register.' },
+             help => 'The maximum number of nodes a user having this role can register. A number of 0 means unlimited number of devices.' },
   );
 
 =head2 validate
