@@ -100,4 +100,21 @@ DROP TABLE violation;
 ALTER TABLE sms_carrier
     MODIFY COLUMN `id` INTEGER NOT NULL AUTO_INCREMENT COMMENT 'primary key for SMS carrier';
 
+--
+-- Add voip column to locationlog
+--
+alter table locationlog add column voip enum('no','yes') NOT NULL DEFAULT 'no';
+
+--
+-- Update the locationlog voip information from the node table information
+--
+update locationlog join node on locationlog.mac = node.mac set locationlog.voip = node.voip;
+
+--
+-- Add potd column in person table
+--
+
+ALTER TABLE person
+    ADD `potd` enum('no','yes') NOT NULL DEFAULT 'no';
+
 INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION)); 
