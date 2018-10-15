@@ -17,7 +17,7 @@
                 :invalid-feedback="[
                   { [$t('Username required.')]: !$v.single.pid.required },
                   { [$t('This username already exists.')]: !$v.single.pid.userExists },
-                  { [$t('Maximum {max} characters.', {max: globals.schema.person.pid.maxLength})]: !$v.single.pid.maxLength }
+                  { [$t('Maximum {maxLength} characters.', globals.schema.person.pid)]: !$v.single.pid.maxLength }
                 ]"
                 text="The username to use for login to the captive portal."/>
               <pf-form-input :column-label="$t('Password')"
@@ -33,8 +33,8 @@
                 :validation="$v.single.login_remaining"
                 :invalid-feedback="[
                   { [$t('Must be numeric.')]: !$v.single.login_remaining.numeric },
-                  { [$t('Must be greater than {min}.', { min: globals.schema.password.login_remaining.min })]: !$v.single.login_remaining.min },
-                  { [$t('Must be less than {max}.', { max: globals.schema.password.login_remaining.max })]: !$v.single.login_remaining.max },
+                  { [$t('Must be greater than {min}.', globals.schema.password.login_remaining)]: !$v.single.login_remaining.min },
+                  { [$t('Must be less than {max}.', globals.schema.password.login_remaining)]: !$v.single.login_remaining.max },
                 ]"
                 type="number"
                 text="Leave empty to allow unlimited logins."/>
@@ -44,14 +44,14 @@
                 :invalid-feedback="[
                   { [$t('Email address required.')]: !$v.single.email.required },
                   { [$t('Specify a valid email address.')]: !$v.single.email.email },
-                  { [$t('Maximum {max} characters.', {max: globals.schema.person.email.maxLength})]: !$v.single.email.maxLength }
+                  { [$t('Maximum {maxLenth} characters.', globals.schema.person.email)]: !$v.single.email.maxLength }
                 ]"/>
               <pf-form-input :column-label="$t('Sponsor')"
                 v-model.trim="single.sponsor"
                 :validation="$v.single.sponsor"
                 :invalid-feedback="[
                   { [$t('Specify a valid email address.')]: !$v.single.sponsor.email },
-                  { [$t('Maximum {max} characters.', {max: globals.schema.person.sponsor.maxLength})]: !$v.single.sponsor.maxLength }
+                  { [$t('Maximum {maxLength} characters.', globals.schema.person.sponsor)]: !$v.single.sponsor.maxLength }
                 ]"/>
               <pf-form-chosen :column-label="$t('Gender')"
                 v-model="single.gender"
@@ -64,35 +64,35 @@
                 v-model="single.title"
                 :validation="$v.single.title"
                 :invalid-feedback="[
-                  { [$t('Maximum {max} characters.', {max: globals.schema.person.title.maxLength})]: !$v.single.title.maxLength }
+                  { [$t('Maximum {maxLength} characters.', globals.schema.person.title.maxLength)]: !$v.single.title.maxLength }
                 ]"
               />
               <pf-form-input :column-label="$t('Firstname')"
                 v-model="single.firstname"
                 :validation="$v.single.firstname"
                 :invalid-feedback="[
-                  { [$t('Maximum {max} characters.', {max: globals.schema.person.firstname.maxLength})]: !$v.single.firstname.maxLength }
+                  { [$t('Maximum {maxLength} characters.', globals.schema.person.firstname)]: !$v.single.firstname.maxLength }
                 ]"
               />
               <pf-form-input :column-label="$t('Lastname')"
                 v-model="single.lastname"
                 :validation="$v.single.lastname"
                 :invalid-feedback="[
-                  { [$t('Maximum {max} characters.', {max: globals.schema.person.lastname.maxLength})]: !$v.single.lastname.maxLength }
+                  { [$t('Maximum {maxLength} characters.', globals.schema.person.lastname)]: !$v.single.lastname.maxLength }
                 ]"
               />
               <pf-form-input :column-label="$t('Nickname')"
                 v-model="single.nickname"
                 :validation="$v.single.nickname"
                 :invalid-feedback="[
-                  { [$t('Maximum {max} characters.', {max: globals.schema.person.nickname.maxLength})]: !$v.single.nickname.maxLength }
+                  { [$t('Maximum {maxLength} characters.', globals.schema.person.nickname)]: !$v.single.nickname.maxLength }
                 ]"
               />
               <pf-form-input :column-label="$t('Company')"
                 v-model="single.company"
                 :validation="$v.single.company"
                 :invalid-feedback="[
-                  { [$t('Maximum {max} characters.', {max: globals.schema.person.company.maxLength})]: !$v.single.company.maxLength }
+                  { [$t('Maximum {maxLength} characters.', globals.schema.person.company)]: !$v.single.company.maxLength }
                 ]"
               />
               <pf-form-input :column-label="$t('Telephone number')"
@@ -100,7 +100,7 @@
                 :filter="globals.regExp.stringPhone"
                 :validation="$v.single.telephone"
                 :invalid-feedback="[
-                  { [$t('Maximum {max} characters.', {max: globals.schema.person.telephone.maxLength})]: !$v.single.telephone.maxLength }
+                  { [$t('Maximum {maxLength} characters.', globals.schema.person.telephone)]: !$v.single.telephone.maxLength }
                 ]"
               />
               <pf-form-input :column-label="$t('Cellphone number')"
@@ -108,7 +108,7 @@
                 :filter="globals.regExp.stringPhone"
                 :validation="$v.single.cell_phone"
                 :invalid-feedback="[
-                  { [$t('Maximum {max} characters.', {max: globals.schema.person.cell_phone.maxLength})]: !$v.single.cell_phone.maxLength }
+                  { [$t('Maximum {maxLength} characters.', globals.schema.person.cell_phone)]: !$v.single.cell_phone.maxLength }
                 ]"
               />
               <pf-form-input :column-label="$t('Workphone number')"
@@ -116,7 +116,7 @@
                 :filter="globals.regExp.stringPhone"
                 :validation="$v.single.work_phone"
                 :invalid-feedback="[
-                  { [$t('Maximum {max} characters.', {max: globals.schema.person.work_phone.maxLength})]: !$v.single.work_phone.maxLength }
+                  { [$t('Maximum {maxLength} characters.', globals.schema.person.work_phone)]: !$v.single.work_phone.maxLength }
                 ]"
               />
               <pf-form-input :column-label="$t('Apartment number')"
@@ -124,7 +124,7 @@
                 :filter="globals.regExp.stringPhone"
                 :validation="$v.single.apartment_number"
                 :invalid-feedback="[
-                  { [$t('Maximum {max} characters.', {max: globals.schema.person.apartment_number.maxLength})]: !$v.single.apartment_number.maxLength }
+                  { [$t('Maximum {maxLength} characters.', globals.schema.person.apartment_number)]: !$v.single.apartment_number.maxLength }
                 ]"
               />
               <pf-form-input :column-label="$t('Building Number')"
@@ -132,7 +132,7 @@
                 :filter="globals.regExp.stringPhone"
                 :validation="$v.single.building_number"
                 :invalid-feedback="[
-                  { [$t('Maximum {max} characters.', {max: globals.schema.person.building_number.maxLength})]: !$v.single.building_number.maxLength }
+                  { [$t('Maximum {maxLength} characters.', globals.schema.person.building_number)]: !$v.single.building_number.maxLength }
                 ]"
               />
               <pf-form-input :column-label="$t('Room Number')"
@@ -140,14 +140,14 @@
                 :filter="globals.regExp.stringPhone"
                 :validation="$v.single.room_number"
                 :invalid-feedback="[
-                  { [$t('Maximum {max} characters.', {max: globals.schema.person.room_number.maxLength})]: !$v.single.room_number.maxLength }
+                  { [$t('Maximum {maxLength} characters.', globals.schema.person.room_number)]: !$v.single.room_number.maxLength }
                 ]"
               />
               <pf-form-textarea :column-label="$t('Address')" rows="4" max-rows="6"
                 v-model="single.address"
                 :validation="$v.single.address"
                 :invalid-feedback="[
-                  { [$t('Maximum {max} characters.', {max: globals.schema.person.address.maxLength})]: !$v.single.address.maxLength }
+                  { [$t('Maximum {maxLength} characters.', globals.schema.person.address)]: !$v.single.address.maxLength }
                 ]"
               />
               <pf-form-datetime :column-label="$t('Anniversary')"
@@ -155,7 +155,7 @@
                 :config="{format: 'YYYY-MM-DD'}"
                 :validation="$v.single.anniversary"
                 :invalid-feedback="[
-                  { [$t('Maximum {max} characters.', {max: globals.schema.person.anniversary.maxLength})]: !$v.single.anniversary.maxLength }
+                  { [$t('Maximum {maxLength} characters.', globals.schema.person.anniversary)]: !$v.single.anniversary.maxLength }
                 ]"
               />
               <pf-form-datetime :column-label="$t('Birthday')"
@@ -163,78 +163,78 @@
                 :config="{format: 'YYYY-MM-DD'}"
                 :validation="$v.single.birthday"
                 :invalid-feedback="[
-                  { [$t('Maximum {max} characters.', {max: globals.schema.person.birthday.maxLength})]: !$v.single.birthday.maxLength }
+                  { [$t('Maximum {maxLength} characters.', globals.schema.person.birthday)]: !$v.single.birthday.maxLength }
                 ]"
               />
               <pf-form-textarea :column-label="$t('Notes')"
                 v-model="single.notes"
                 :validation="$v.single.notes"
                 :invalid-feedback="[
-                  { [$t('Maximum {max} characters.', {max: globals.schema.person.notes.maxLength})]: !$v.single.notes.maxLength }
+                  { [$t('Maximum {maxLength} characters.', globals.schema.person.notes)]: !$v.single.notes.maxLength }
                 ]"
                 rows="8" max-rows="12"
               />
-              <pf-form-input :column-label="$t('Custom Field #1')"
+              <pf-form-input :column-label="$t('Custom Field 1')"
                 v-model="single.custom_field_1"
                 :validation="$v.single.custom_field_1"
                 :invalid-feedback="[
-                  { [$t('Maximum {max} characters.', {max: globals.schema.person.custom_field_1.maxLength})]: !$v.single.custom_field_1.maxLength }
+                  { [$t('Maximum {maxLength} characters.', globals.schema.person.custom_field_1)]: !$v.single.custom_field_1.maxLength }
                 ]"
               />
-              <pf-form-input :column-label="$t('Custom Field #2')"
+              <pf-form-input :column-label="$t('Custom Field 2')"
                 v-model="single.custom_field_2"
                 :validation="$v.single.custom_field_2"
                 :invalid-feedback="[
-                  { [$t('Maximum {max} characters.', {max: globals.schema.person.custom_field_2.maxLength})]: !$v.single.custom_field_2.maxLength }
+                  { [$t('Maximum {maxLength} characters.', globals.schema.person.custom_field_2)]: !$v.single.custom_field_2.maxLength }
                 ]"
               />
-              <pf-form-input :column-label="$t('Custom Field #3')"
+              <pf-form-input :column-label="$t('Custom Field 3')"
                 v-model="single.custom_field_3"
                 :validation="$v.single.custom_field_3"
                 :invalid-feedback="[
-                  { [$t('Maximum {max} characters.', {max: globals.schema.person.custom_field_3.maxLength})]: !$v.single.custom_field_3.maxLength }
+                  { [$t('Maximum {maxLength} characters.', globals.schema.person.custom_field_3)]: !$v.single.custom_field_3.maxLength }
                 ]"
               />
-              <pf-form-input :column-label="$t('Custom Field #4')"
+              <pf-form-input :column-label="$t('Custom Field 4')"
                 v-model="single.custom_field_4"
                 :validation="$v.single.custom_field_4"
                 :invalid-feedback="[
-                  { [$t('Maximum {max} characters.', {max: globals.schema.person.custom_field_4.maxLength})]: !$v.single.custom_field_4.maxLength }
+                  { [$t('Maximum {maxLength} characters.', globals.schema.person.custom_field_4)]: !$v.single.custom_field_4.maxLength }
                 ]"
               />
-              <pf-form-input :column-label="$t('Custom Field #5')"
+              <pf-form-input :column-label="$t('Custom Field 5')"
                 v-model="single.custom_field_5"
                 :validation="$v.single.custom_field_5"
                 :invalid-feedback="[
-                  { [$t('Maximum {max} characters.', {max: globals.schema.person.custom_field_5.maxLength})]: !$v.single.custom_field_5.maxLength }
+                  { [$t('Maximum {maxLength} characters.', globals.schema.person.custom_field_5)]: !$v.single.custom_field_5.maxLength }
                 ]"
               />
-              <pf-form-input :column-label="$t('Custom Field #6')"
+              <pf-form-input :column-label="$t('Custom Field 6')"
                 v-model="single.custom_field_6"
                 :validation="$v.single.custom_field_6"
                 :invalid-feedback="[
-                  { [$t('Maximum {max} characters.', {max: globals.schema.person.custom_field_6.maxLength})]: !$v.single.custom_field_6.maxLength }
+                  { [$t('Maximum {maxLength} characters.', globals.schema.person.custom_field_6)]: !$v.single.custom_field_6.maxLength }
                 ]"
               />
-              <pf-form-input :column-label="$t('Custom Field #7')"
+              <pf-form-input :column-label="$t('Custom Field 7')"
                 v-model="single.custom_field_7"
                 :validation="$v.single.custom_field_7"
                 :invalid-feedback="[
-                  { [$t('Maximum {max} characters.', {max: globals.schema.person.custom_field_7.maxLength})]: !$v.single.custom_field_7.maxLength }
+                  { [$t('Maximum {maxLength} characters.', globals.schema.person.custom_field_7)]: !$v.single.custom_field_7.maxLength }
                 ]"
               />
-              <pf-form-input :column-label="$t('Custom Field #8')"
+              <pf-form-input :column-label="$t('Custom Field 8')"
                 v-model="single.custom_field_8"
                 :validation="$v.single.custom_field_8"
                 :invalid-feedback="[
-                  { [$t('Maximum {max} characters.', {max: globals.schema.person.custom_field_8.maxLength})]: !$v.single.custom_field_8.maxLength }
+                  { [$t('Maximum {maxLength} characters.', globals.schema.person.custom_field_8)]: !$v.single.custom_field_8.maxLength }
                 ]"
               />
-              <pf-form-input :column-label="$t('Custom Field #9')"
+              <pf-form-input :column-label="$t('Custom Field 9')"
                 v-model="single.custom_field_9"
                 :validation="$v.single.custom_field_9"
                 :invalid-feedback="[
-                  { [$t('Maximum {max} characters.', {max: globals.schema.person.custom_field_9.maxLength})]: !$v.single.custom_field_9.maxLength }
+                  { [$t('Maximum {maxLength} characters.', globals.schema.person.custom_field_9)]: !$v.single.custom_field_9.maxLength }
                 ]"
               />
             </b-col>
@@ -253,7 +253,7 @@
                 :validation="$v.multiple.prefix"
                 :invalid-feedback="[
                   { [$t('Username prefix required.')]: !$v.multiple.prefix.required },
-                  { [$t('Maximum {max} characters.', {max: globals.schema.person.pid.maxLength - Math.floor(Math.log10(this.multiple.quantity || 1) + 1)})]: !$v.multiple.prefix.maxLength }
+                  { [$t('Maximum {maxLength} characters.', {maxLength: globals.schema.person.pid.maxLength - Math.floor(Math.log10(this.multiple.quantity || 1) + 1)})]: !$v.multiple.prefix.maxLength }
                 ]"
               />
               <pf-form-input :column-label="$t('Quantity')"
@@ -268,8 +268,8 @@
                 :validation="$v.multiple.login_remaining"
                 :invalid-feedback="[
                   { [$t('Must be numeric.')]: !$v.multiple.login_remaining.numeric },
-                  { [$t('Must be greater than {min}.', { min: globals.schema.password.login_remaining.min })]: !$v.multiple.login_remaining.min },
-                  { [$t('Must be less than {max}.', { max: globals.schema.password.login_remaining.max })]: !$v.multiple.login_remaining.max },
+                  { [$t('Must be greater than {min}.', globals.schema.password.login_remaining)]: !$v.multiple.login_remaining.min },
+                  { [$t('Must be less than {max}.', globals.schema.password.login_remaining)]: !$v.multiple.login_remaining.max },
                 ]"
                 type="number"
                 text="Leave empty to allow unlimited logins."/>
@@ -277,28 +277,28 @@
                 v-model="multiple.firstname"
                 :validation="$v.multiple.firstname"
                 :invalid-feedback="[
-                  { [$t('Maximum {max} characters.', {max: globals.schema.person.firstname.maxLength})]: !$v.multiple.firstname.maxLength }
+                  { [$t('Maximum {maxLength} characters.', globals.schema.person.firstname)]: !$v.multiple.firstname.maxLength }
                 ]"
               />
               <pf-form-input :column-label="$t('Lastname')"
                 v-model="multiple.lastname"
                 :validation="$v.multiple.lastname"
                 :invalid-feedback="[
-                  { [$t('Maximum {max} characters.', {max: globals.schema.person.lastname.maxLength})]: !$v.multiple.lastname.maxLength }
+                  { [$t('Maximum {maxLength} characters.', globals.schema.person.lastname)]: !$v.multiple.lastname.maxLength }
                 ]"
               />
               <pf-form-input :column-label="$t('Company')"
                 v-model="multiple.company"
                 :validation="$v.multiple.company"
                 :invalid-feedback="[
-                  { [$t('Maximum {max} characters.', {max: globals.schema.person.company.maxLength})]: !$v.multiple.company.maxLength }
+                  { [$t('Maximum {maxLength} characters.', globals.schema.person.company)]: !$v.multiple.company.maxLength }
                 ]"
               />
               <pf-form-textarea :column-label="$t('Notes')"
                 v-model="multiple.notes"
                 :validation="$v.multiple.notes"
                 :invalid-feedback="[
-                  { [$t('Maximum {max} characters.', {max: globals.schema.person.notes.maxLength})]: !$v.multiple.notes.maxLength }
+                  { [$t('Maximum {maxLength} characters.', globals.schema.person.notes)]: !$v.multiple.notes.maxLength }
                 ]"
                 rows="8" max-rows="12"
               />

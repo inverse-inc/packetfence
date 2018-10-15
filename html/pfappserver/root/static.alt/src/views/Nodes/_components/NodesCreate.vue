@@ -34,7 +34,7 @@
             <pf-form-textarea v-model="single.notes" :column-label="$t('Notes')" rows="8" max-rows="12"
               :validation="$v.single.notes"
               :invalid-feedback="[
-                { [$t('Maximum {max} characters.', {max: globals.schema.person.notes.maxLength})]: !$v.single.notes.maxLength }
+                { [$t('Maximum {maxLength} characters.', globals.schema.person.notes)]: !$v.single.notes.maxLength }
               ]"
             />
           </b-col>
