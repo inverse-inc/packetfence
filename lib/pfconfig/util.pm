@@ -30,6 +30,7 @@ use Readonly;
 our @EXPORT_OK = qw(
     is_type_inline
     $undef_element
+    normalize_namespace_query
 );
 
 Readonly our $undef_element => pfconfig::undef_element->new;
@@ -81,6 +82,7 @@ sub parse_namespace {
         $args =~ s/[)]{1}$//;
         @args_list = split(',', $args);
     }
+
     return ($namespace, @args_list);
 }
 
@@ -102,6 +104,24 @@ sub control_file_path {
 sub is_type_inline {
     my ($type) = @_;
     return exists $NET_INLINE_TYPES{$type};
+}
+
+=head2 normalize_namespace_query
+
+Method that normalizes a namespace query
+
+=cut
+
+sub normalize_namespace_query {
+    my ($ns) = @_;
+    
+    # Normalize all namespaces to end with parentheses without arguments if its not already overlayed
+    # Can't use is_overlayed_namespace since it requires args to be between the parentheses
+    if($ns !~ /\)$/) {
+        $ns .= "()";
+    }
+    
+    return $ns;
 }
 
 =head1 AUTHOR

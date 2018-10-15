@@ -16,11 +16,10 @@ use strict;
 use warnings;
 
 use pf::log;
-use Sys::Hostname;
 use pfconfig::cached_hash;
 use pfconfig::cached_array;
 use pfconfig::cached_scalar;
-use List::MoreUtils qw(first_index);
+use List::MoreUtils qw(first_index firstval uniq);
 use Net::Interface;
 use NetAddr::IP;
 use Socket;
@@ -38,6 +37,7 @@ use File::Slurp qw(read_file write_file);
 use Time::HiRes qw(time);
 use POSIX qw(ceil);
 use Crypt::CBC;
+use pf::config::cluster;
 
 use Module::Pluggable
   'search_path' => [qw(pf::ConfigStore)],
@@ -50,22 +50,27 @@ use Module::Pluggable
 use Exporter;
 our ( @ISA, @EXPORT );
 @ISA = qw(Exporter);
-@EXPORT = qw(%ConfigCluster @cluster_servers @cluster_hosts $cluster_enabled $host_id $CLUSTER);
+@EXPORT = qw(%ConfigCluster @cluster_servers @cluster_hosts $cluster_enabled $host_id $CLUSTER $cluster_name);
 
-our ($cluster_enabled, %ConfigCluster, @cluster_servers, @cluster_hosts);
-tie %ConfigCluster, 'pfconfig::cached_hash', 'config::Cluster';
-tie @cluster_servers, 'pfconfig::cached_array', 'resource::cluster_servers';
-tie @cluster_hosts, 'pfconfig::cached_array', 'resource::cluster_hosts';
-$cluster_enabled = sub {
-    my $cfg = Config::IniFiles->new( -file => $cluster_config_file );
-    return 0 unless($cfg);
-    my $mgmt_ip = $cfg->val('CLUSTER', 'management_ip');
-    defined($mgmt_ip) && valid_ip($mgmt_ip) ? 1 : 0 ;
-}->();
+our (%clusters_hostname_map, $cluster_enabled, $cluster_name, %ConfigCluster, @cluster_servers, @cluster_hosts, @db_cluster_servers, @db_cluster_hosts, @config_cluster_servers, @config_cluster_hosts);
+tie %clusters_hostname_map, 'pfconfig::cached_hash', 'resource::clusters_hostname_map';
 
 our $CLUSTER = "CLUSTER";
 
-our $host_id = hostname();
+our $host_id = $pf::config::cluster::host_id;
+
+$cluster_enabled = $pf::config::cluster::cluster_enabled;
+
+if($cluster_enabled) {
+    $cluster_name = $clusters_hostname_map{$host_id} // die "Can't determine cluster name for host $host_id\n";
+    tie %ConfigCluster, 'pfconfig::cached_hash', "config::Cluster($cluster_name)";
+    tie @cluster_servers, 'pfconfig::cached_array', "resource::cluster_servers($cluster_name)";
+    tie @cluster_hosts, 'pfconfig::cached_array', "resource::cluster_hosts($cluster_name)";
+    tie @db_cluster_servers, 'pfconfig::cached_array', "resource::all_cluster_servers($cluster_name)";
+    tie @db_cluster_hosts, 'pfconfig::cached_array', "resource::all_cluster_hosts($cluster_name)";
+    tie @config_cluster_servers, 'pfconfig::cached_array', "resource::all_cluster_servers($cluster_name)";
+    tie @config_cluster_hosts, 'pfconfig::cached_array', "resource::all_cluster_hosts($cluster_name)";
+}
 
 =head2 node_disabled_file
 
@@ -85,7 +90,7 @@ Returns the @cluster_servers list without the servers that are disabled on this 
 =cut
 
 sub enabled_servers {
-    return map { (-f node_disabled_file($_->{host})) ? () : $_ } @cluster_servers;
+    return grep { -f node_disabled_file($_->{host}) }  @cluster_servers;
 }
 
 =head2 enabled_hosts
@@ -95,7 +100,57 @@ Returns the @cluster_hosts list without the servers that are disabled on this ho
 =cut
 
 sub enabled_hosts {
-    return map { (-f node_disabled_file($_)) ? () : $_ } @cluster_hosts;
+    return grep { -f node_disabled_file($_) }  @cluster_hosts;
+}
+
+=head2 db_enabled_servers
+
+Returns the @db_cluster_servers list without the servers that are disabled on this host
+
+=cut
+
+sub db_enabled_servers {
+    return grep { -f node_disabled_file($_->{host}) }  @db_cluster_servers;
+}
+
+=head2 db_enabled_hosts
+
+Returns the @db_cluster_hosts list without the servers that are disabled on this host
+
+=cut
+
+sub db_enabled_hosts {
+    return grep { -f node_disabled_file($_) }  @db_cluster_hosts;
+}
+
+=head2 config_enabled_servers
+
+Returns the @config_cluster_servers list without the servers that are disabled on this host
+
+=cut
+
+sub config_enabled_servers {
+    return grep { -f node_disabled_file($_->{host}) }  @config_cluster_servers;
+}
+
+=head2 config_enabled_hosts
+
+Returns the @config_cluster_hosts list without the servers that are disabled on this host
+
+=cut
+
+sub config_enabled_hosts {
+    return grep { -f node_disabled_file($_) }  @config_cluster_hosts;
+}
+
+=head2 all_hosts
+
+Returns the list of all the hosts this server interracts with whether its DB servers or app servers
+
+=cut
+
+sub all_hosts {
+    return uniq(@cluster_hosts, @db_cluster_hosts);
 }
 
 =head2 is_management
@@ -195,14 +250,7 @@ Get the list of the MySQL servers ordered by priority
 =cut
 
 sub mysql_servers {
-    if(scalar(enabled_servers()) >= 1){
-        # we make the prefered management node the last prefered for MySQL
-        my @servers = enabled_servers();
-        return reverse(@servers);
-    }
-    else{
-        return enabled_servers();
-    }
+    return reverse(db_enabled_hosts());
 }
 
 =head2 members_ips
@@ -234,7 +282,7 @@ sub api_call_each_server {
     require pf::api::jsonrpcclient;
     my @failed;
     my $method = $asynchronous ? "notify" : "call";
-    foreach my $server (enabled_servers()){
+    foreach my $server (config_enabled_servers()){
         next if($server->{host} eq $host_id);
         my $apiclient = pf::api::jsonrpcclient->new(host => $server->{management_ip}, proto => 'https');
         eval {
@@ -380,7 +428,7 @@ If this is not a cluster, it will dispatch the notification only to itself.
 sub notify_each_server {
     my (@args) = @_;
     if($cluster_enabled) {
-        foreach my $server (enabled_servers()) {
+        foreach my $server (config_enabled_servers()) {
             my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $server->{management_ip});
             $apiclient->notify(@args);
         }
@@ -400,7 +448,8 @@ Call an API method on a cluster member
 sub call_server {
     my ($cluster_id, @args) = @_;
     require pf::api::jsonrpcclient;
-    my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $ConfigCluster{$cluster_id}->{management_ip});
+    my $server = firstval { $_->{host} eq $cluster_id } @config_cluster_servers;
+    my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $server->{management_ip});
     return $apiclient->call(@args);
 }
 
@@ -424,43 +473,6 @@ sub queue_stats {
     return \@stats;
 }
 
-=head2 increment_config_version
-
-=cut
-
-sub increment_config_version {
-    return set_config_version(time);
-}
-
-=head2 set_config_version
-
-Set the configuration version for this server
-
-=cut
-
-sub set_config_version {
-    my ($ver) = @_;
-    return write_file($config_version_file, $ver);
-}
-
-=head2 get_config_version
-
-Get the configuration version for this server
-
-=cut
-
-sub get_config_version {
-    my $result;
-    eval {
-        $result = read_file($config_version_file);
-    };
-    if($@) {
-        get_logger->error("Cannot read $config_version_file to get the current configuration version.");
-        return $FALSE;
-    }
-    return $result;
-}
-
 =head2 get_all_config_version
 
 Get the configuration version from all the cluster members
@@ -471,7 +483,7 @@ Returns a map of the format {SERVER_NAME => VERSION, SERVER_NAME_2 => VERSION, .
 
 sub get_all_config_version {
     my %results;
-    foreach my $server (enabled_hosts()) {
+    foreach my $server (config_enabled_hosts()) {
         eval {
             $results{$server} = [pf::cluster::call_server($server, 'get_config_version')]->[0]->{version};
         };
@@ -503,8 +515,8 @@ See the Clustering guide for details on the algorithm
 sub handle_config_conflict {
     my $quorum_version;
 
-    my $version = get_config_version();
-    my ($servers_map, $versions_map) = get_all_config_version();
+    my $version = pf::config::cluster::get_config_version();
+    my ($servers_map, $versions_map) = pf::cluster::get_all_config_version();
 
     # We make sure we have the right version for this node (in case webservices is currently dead)
     $servers_map->{$host_id} = $version;
@@ -517,8 +529,8 @@ sub handle_config_conflict {
         get_logger->warn("Current version is not the same as the one on all the other cluster servers");
         
         # Can't quorum using 2 hosts
-        if(scalar(enabled_hosts()) > 2) {
-            my $half = (scalar(enabled_hosts()) / 2);
+        if(scalar(config_enabled_hosts()) > 2) {
+            my $half = (scalar(config_enabled_hosts()) / 2);
             my $quorum = int($half) == $half ? $half + 1 : ceil($half);
 
             my $servers_count = 0;
@@ -708,6 +720,17 @@ Decrypt a message using the cluster shared key
 sub decrypt_message {
     my ($text) = @_;
     cipher()->decrypt_hex($text);
+}
+
+=head2 find_server_by_hostname
+
+Finds a server configuration using the hostname
+
+=cut
+
+sub find_server_by_hostname {
+    my ($hostname) = @_;
+    return firstval { $_->{host} eq $hostname } pf::cluster::config_enabled_servers;
 }
 
 =head1 AUTHOR

@@ -41,7 +41,7 @@ use pf::util;
 use Fcntl;
 use Time::HiRes qw(stat time);
 use File::Find;
-use pfconfig::util;
+use pfconfig::util qw(normalize_namespace_query);
 use POSIX;
 use POSIX::2008;
 use List::MoreUtils qw(first_index);
@@ -122,6 +122,11 @@ Returns the overlayed namespaces for a static namespace
 sub overlayed_namespaces {
     my ($self, $base_namespace) = @_;
 
+    # Namespace is an empty overlay
+    if($base_namespace =~ /(.+)\(\)$/) {
+        $base_namespace = $1;
+    }
+
     # An overlayed namespace can't have overlayed namespaces
     return () if $self->is_overlayed_namespace($base_namespace);
 
@@ -130,7 +135,7 @@ sub overlayed_namespaces {
     $base_namespace = quotemeta($base_namespace);
     foreach my $namespace (@namespaces){
         if($namespace =~ /^$base_namespace/){
-            push @overlayed_namespaces, $namespace;
+            push @overlayed_namespaces, $namespace if $self->is_overlayed_namespace($namespace);
         }
     }
     return @overlayed_namespaces;
@@ -144,7 +149,7 @@ Returns an Array ref of all the overlayed namespaces persisted in the backend
 
 sub all_overlayed_namespaces {
     my ($self) = @_;
-    return [ uniq($self->{cache}->list_matching('\(.*\)$'), $self->list_control_overlayed_namespaces()) ];
+    return [ uniq($self->{cache}->list_matching('\(.+\)$'), $self->list_control_overlayed_namespaces()) ];
 }
 
 =head2 list_control_overlayed_namespaces
@@ -232,6 +237,9 @@ It should not have to build the L3 since that's the slowest. The L3 should be bu
 
 sub get_cache {
     my ( $self, $what ) = @_;
+
+    $what = normalize_namespace_query($what);
+
     my $logger = get_logger;
     # we look in raw memory and make sure that it's not expired
     my $memory = $self->{memory}{$what};
@@ -392,6 +400,8 @@ To fully expire a namespace with it's child resources and overlayed namespaces, 
 
 sub expire {
     my ( $self, $what, $light ) = @_;
+    $what = normalize_namespace_query($what);
+
     my $logger = get_logger;
     if(defined($light) && $light){
         $logger->info("Light expiring resource : $what");
@@ -405,6 +415,16 @@ sub expire {
 
     unless($self->is_overlayed_namespace($what)){
         my $namespace = $self->get_namespace($what);
+        # expire overlayed namespaces
+        my @overlayed_namespaces = $self->overlayed_namespaces($what);
+        foreach my $namespace (@overlayed_namespaces){
+            # prevent deep recursion on namespace itself
+            next if $namespace eq $what;
+
+            $logger->info("Expiring overlayed resource from base resource $what.");
+            $self->expire($namespace, $light);
+        }
+
         if ( $namespace->{child_resources} ) {
             foreach my $child_resource ( @{ $namespace->{child_resources} } ) {
                 $logger->info("Expiring child resource $child_resource. Master resource is $what");
@@ -412,12 +432,6 @@ sub expire {
             }
         }
 
-        # expire overlayed namespaces
-        my @overlayed_namespaces = $self->overlayed_namespaces($what);
-        foreach my $namespace (@overlayed_namespaces){
-            $logger->info("Expiring overlayed resource from base resource $what.");
-            $self->expire($namespace, $light);
-        }
     }
 }
 
@@ -510,14 +524,7 @@ sub expire_all {
     my $logger = get_logger;
     my @namespaces = $self->list_top_namespaces;
     foreach my $namespace (@namespaces) {
-        if(defined($light) && $light){
-            $logger->info("Light expiring $namespace");
-            delete $self->{memorized_at}->{$namespace};
-        }
-        else{
-            $logger->info("Hard expiring $namespace");
-            $self->expire($namespace);
-        }
+        $self->expire($namespace, $light);
     }
 }
 

@@ -63,7 +63,7 @@ sub print_node_state {
 }
 
 unless(defined($node_hostname)) {
-    for my $node_hostname (@cluster_hosts) {
+    for my $node_hostname (pf::cluster::all_hosts) {
         print_node_state($node_hostname);
     }
     exit;

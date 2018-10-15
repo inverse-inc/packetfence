@@ -95,13 +95,19 @@ BEGIN {
         strip_filename_from_exceptions
         expand_csv
         add_jitter
+        connection_type_to_str
+        str_to_connection_type
     );
 }
 
 # TODO pf::util shouldn't rely on pf::config as this prevent pf::config from
 #      being able to use pf::util
 use pf::constants;
-use pf::constants::config;
+use pf::constants::config qw(
+    %connection_type
+    $UNKNOWN
+    %connection_type_to_str
+);
 use pf::constants::user;
 #use pf::config;
 use pf::log;
@@ -1432,6 +1438,60 @@ sub add_jitter {
     my ($number, $jitter) = @_;
     return $number + int(rand(2 * $jitter + 1)) - $jitter;
 }
+
+=head2 str_to_connection_type
+
+In the database we store the connection type as a string but we use a constant binary value internally.
+This parses the string from the database into the the constant binary value.
+
+return connection_type constant (as defined in pf::config) or undef if connection type not found
+
+=cut
+
+sub str_to_connection_type {
+    my ($conn_type_str) = @_;
+    my $logger = get_logger();
+
+    # convert database string into connection_type constant
+    if (defined($conn_type_str) && $conn_type_str ne '' && defined($connection_type{$conn_type_str})) {
+
+        return $connection_type{$conn_type_str};
+    } elsif (defined($conn_type_str) && $conn_type_str eq '') {
+
+        $logger->debug("got an empty connection_type, this happens if we discovered the node but it never connected");
+        return $UNKNOWN;
+
+    } else {
+        my ($package, undef, undef, $routine) = caller(1);
+        $logger->warn("unable to parse string into a connection_type constant. called from $package $routine");
+        return;
+    }
+}
+
+=head2 connection_type_to_str
+
+In the database we store the connection type as a string but we use a constant binary value internally.
+This converts from the constant binary value to the string.
+
+return connection_type string (as defined in pf::config) or an empty string if connection type not found
+
+=cut
+
+sub connection_type_to_str {
+    my ($conn_type) = @_;
+    my $logger = get_logger();
+
+    # convert connection_type constant into a string for database
+    if (defined($conn_type) && $conn_type ne '' && defined($connection_type_to_str{$conn_type})) {
+
+        return $connection_type_to_str{$conn_type};
+    } else {
+        my ($package, undef, undef, $routine) = caller(1);
+        $logger->warn("unable to convert connection_type to string. called from $package $routine");
+        return '';
+    }
+}
+
 
 =back
 

@@ -18,14 +18,18 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
+use pf::util;
 use pf::file_paths qw($cluster_config_file);
 
 use base 'pfconfig::namespaces::config';
 
 sub init {
-    my ($self) = @_;
+    my ($self, $cluster_name) = @_;
+    $self->{cluster_name} = $cluster_name || "DEFAULT";
     $self->{file} = $cluster_config_file;
-    $self->{child_resources} = ['config::Pf', 'resource::cluster_servers', 'resource::cluster_hosts', 'resource::network_config'];
+    $self->{child_resources} = ['config::Pf', 'config::Network', 'resource::cluster_servers', 'resource::cluster_hosts', 'resource::network_config', 'resource::clusters_hostname_map'];
+
+    $self->{hostname_map} = {};
 }
 
 sub build_child {
@@ -33,18 +37,78 @@ sub build_child {
 
     my %cfg = %{$self->{cfg}};
     $self->cleanup_whitespaces(\%cfg);
+
+    if($cfg{general} && isenabled($cfg{general}{multi_zone})) {
+        $self->{multi_zone_enabled} = 1;
+        $self->{cluster_enabled} = 1;
+        return $self->build_multi_zone(\%cfg);
+    }
+    else {
+        $self->{multi_zone_enabled} = 0;
+        $self->{cluster_enabled} = $cfg{CLUSTER}{management_ip} ? 1 : 0;
+        return $self->build_single_cluster("DEFAULT", $self->{ordered_sections}, \%cfg);
+    }
+}
+
+=head2 build_multi_zone
+
+Build the cluster configuration when cluster.conf is used in multi zone mode
+
+=cut
+
+sub build_multi_zone {
+    my ($self, $cfg) = @_;
+
+    my %tmp_cfg;
+
+    # Ensure the default cluster has at least an empty hashref
+    $tmp_cfg{DEFAULT} = {};
+
+    my @clusters;
+    foreach my $section (@{$self->{ordered_sections}}){
+        # we don't want double groups
+        if ($section =~ m/^([a-zA-Z0-9]+)\s[a-zA-Z0-9]+$/i) {
+            push @clusters, $1;
+        }
+    }
+
+    foreach my $cluster (@clusters) {
+        map { 
+            $_ =~ s/^$cluster //g;
+            $tmp_cfg{$cluster}{$_} = $cfg->{"$cluster $_"};
+        } $self->GroupMembers($cluster);
+        my $ordered_sections = [ map{ 
+            $_ =~ s/^$cluster //g ? $_ : ();
+        } @{$self->{ordered_sections}}];
+        $tmp_cfg{$cluster} = $self->build_single_cluster($cluster, $ordered_sections, $tmp_cfg{$cluster});
+    }
+
+    return $tmp_cfg{$self->{cluster_name}};
+}
+
+=head2 build_single_cluster
+
+Build cluster configuration when cluster.conf isn't in multi zone mode
+
+=cut
+
+sub build_single_cluster {
+    my ($self, $cluster_name, $ordered_sections, $cfg) = @_;
+
     my @servers;
     my %tmp_cfg;
 
-    foreach my $section (@{$self->{ordered_sections}}){
+    foreach my $section (@$ordered_sections){
         # we don't want groups
         next if ($section =~ m/\s/i);
 
-        my $server = $cfg{$section};
+        my $server = $cfg->{$section};
 
-        foreach my $group ($self->GroupMembers($section)){
+        foreach my $group (keys(%$cfg)){
+            # we want only groups of that section
+            next if($group !~ /^$section\s/);
             $group =~ s/^$section //g;
-            $server->{$group} = $cfg{"$section $group"};
+            $server->{$group} = $cfg->{"$section $group"};
         }
 
         $tmp_cfg{$section} = $server;
@@ -52,17 +116,22 @@ sub build_child {
         $server->{host} = $section;
         # we add it to the servers list if it's not the shared CLUSTER config
         if ($section eq "CLUSTER") {
-            $self->{_CLUSTER} = $server;
+            $self->{_CLUSTER}->{$cluster_name} = $server;
         }
         else {
             push @servers, $server;
         }
+
+        # Add it to the map for getting the cluster name of a server
+        die "The same hostname ($section) is declared in two different clusters (".$self->{hostname_map}->{$section}." and $cluster_name). This is currently unsupported\n" 
+            if($section ne "CLUSTER" && defined($self->{hostname_map}->{$section}) && $self->{hostname_map}->{$section} ne $cluster_name);
+
+        $self->{hostname_map}->{$section} = $cluster_name;
     }
 
-    $self->{_servers} = \@servers;
+    $self->{_servers}->{$cluster_name} = \@servers;
 
     return \%tmp_cfg;
-
 }
 
 

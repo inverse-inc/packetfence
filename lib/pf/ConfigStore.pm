@@ -21,7 +21,7 @@ use pf::log;
 use List::MoreUtils qw(uniq);
 use pfconfig::manager;
 use pf::api::jsonrpcclient;
-use pf::cluster;
+use pf::config::cluster;
 use pf::constants;
 use pf::CHI;
 use pf::generate_filter qw(filter_with_offset_limit);
@@ -522,7 +522,7 @@ sub commit {
     }
 
     if($result){
-        if(pf::cluster::increment_config_version()) {
+        if(pf::config::cluster::increment_config_version()) {
             ($result,$error) = $self->commitPfconfig;
         }
         else {

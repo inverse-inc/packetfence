@@ -52,7 +52,7 @@ sub _run {
     );
 
     # Only generate cluster configuration if there is more than 1 enabled host in the cluster
-    if(isenabled($Config{active_active}{galera_replication}) && $cluster_enabled && scalar(pf::cluster::enabled_hosts()) > 1) {
+    if(isenabled($Config{active_active}{galera_replication}) && $cluster_enabled && scalar(pf::cluster::db_enabled_hosts()) > 1) {
         %vars = (
             %vars,
 

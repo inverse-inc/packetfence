@@ -22,7 +22,7 @@ our $DEFAULT_TYPE = 'ssid';
 our $PROFILE_FILTER_REGEX = qr/^(([^:]|::)+?):(.*)$/;
 use List::MoreUtils qw(any);
 use pf::condition_parser qw(parse_condition_string);
-use pf::config::util qw(str_to_connection_type);
+use pf::util qw(str_to_connection_type);
 use pf::constants::eap_type qw(%RADIUS_EAP_TYPE_2_VALUES);
 use pf::log;
 

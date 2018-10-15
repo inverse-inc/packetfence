@@ -25,6 +25,7 @@ use pf::log;
 use Readonly;
 use NetAddr::IP;
 use pf::constants;
+use pf::config::cluster;
 
 BEGIN {
     use Exporter ();
@@ -82,7 +83,7 @@ Readonly my $FW_POSTROUTING_INT_INLINE => 'postrouting-int-inline-if';
 Readonly my $FW_POSTROUTING_INT_INLINE_ROUTED => 'postrouting-inline-routed';
 Readonly my $FW_PREROUTING_INT_VLAN => 'prerouting-int-vlan-if';
 
-tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config";
+tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config($host_id)";
 
 =head1 SUBROUTINES
 

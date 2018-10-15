@@ -1,14 +1,14 @@
-package pfconfig::namespaces::resource::cluster_servers;
+package pfconfig::namespaces::resource::all_cluster_servers;
 
 =head1 NAME
 
-pfconfig::namespaces::resource::fqdn
+pfconfig::namespaces::resource::all_cluster_servers
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::resource::fqdn
+pfconfig::namespaces::resource::all_cluster_servers
 
 =cut
 
@@ -31,7 +31,12 @@ sub build {
     my @cluster_ips;
     $self->{cluster_resource}->build();
 
-    return $self->{cluster_resource}->{_servers}->{$self->{cluster_name}};
+    my @servers;
+    for my $cluster_name (keys(%{$self->{cluster_resource}->{_servers}})) {
+        push @servers, @{$self->{cluster_resource}->{_servers}->{$cluster_name}};
+    }
+
+    return \@servers;
 }
 
 

@@ -19,16 +19,17 @@ use base 'pfconfig::namespaces::resource';
 use pfconfig::namespaces::config::Cluster;
 
 sub init {
-    my ($self) = @_;
+    my ($self, $cluster_name) = @_;
 
     $self->{cluster_resource} = pfconfig::namespaces::config::Cluster->new($self->{cache});
+    $self->{cluster_name} = $cluster_name || "DEFAULT";
 }
 
 sub build {
     my ($self) = @_;
     $self->{cluster_resource}->build();
 
-    my %cluster_hosts = map { $_->{host} => { "ip" => $_->{management_ip} } } @{$self->{cluster_resource}->{_servers}};
+    my %cluster_hosts = map { $_->{host} => { "ip" => $_->{management_ip} } } @{$self->{cluster_resource}->{_servers}->{$self->{cluster_name}}};
 
     return \%cluster_hosts;
 }

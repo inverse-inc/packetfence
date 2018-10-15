@@ -17,6 +17,7 @@ This module creates the configuration hash associated to networks.conf
 use strict;
 use warnings;
 
+use pf::log;
 use pfconfig::namespaces::config;
 use pf::constants;
 use pf::file_paths qw($network_config_file);
@@ -26,21 +27,46 @@ use pfconfig::util qw(is_type_inline);
 use base 'pfconfig::namespaces::config';
 
 sub init {
-    my ($self) = @_;
+    my ($self, $host_id) = @_;
+    $self->{cluster_name} = ($host_id ? $self->{cache}->get_cache("resource::clusters_hostname_map")->{$host_id} : undef) // "DEFAULT";
+
     $self->{file}            = $network_config_file;
     $self->{child_resources} = [
         'interfaces',
         'resource::network_config'
     ];
+    
+    $self->{cluster_config}  = $self->{cluster_name} ? $self->{cache}->get_cache("config::Cluster(".$self->{cluster_name}.")") : {};
 }
 
 sub build_child {
     my ($self) = @_;
 
+    my $logger = get_logger;
+
     my %ConfigNetworks = %{ $self->{cfg} };
 
     my ($config) = @_;
     $self->cleanup_whitespaces( \%ConfigNetworks );
+
+    my %ConfigCluster  = %{ $self->{cluster_config} };
+
+    # for cluster overlaying
+    if(defined($self->{cluster_name}) && exists($ConfigCluster{CLUSTER})){
+        $logger->debug("Doing the network overlaying for cluster");
+        while(my ($key, $config) = (each %{$ConfigCluster{CLUSTER}})){
+            if($key =~ /^network ([0-9.]+)/){
+                my $net = $1;
+                $logger->debug("Reconfiguring network $net with cluster information");
+                while(my ($param, $value) = each(%$config)) {
+                    $ConfigNetworks{$net}{$param} = $value;
+                }
+            }
+        }
+    }
+    elsif(defined($self->{host_id})){
+        $logger->warn("A host was defined for the config::Pf namespace but no cluster configuration was found. This is not a big issue but it's worth noting.")
+    }
 
     return \%ConfigNetworks;
 

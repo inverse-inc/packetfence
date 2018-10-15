@@ -46,6 +46,7 @@ use pf::authentication;
 use pf::constants::parking qw($PARKING_IPSET_NAME);
 use pf::constants::node qw($STATUS_UNREGISTERED);
 use pf::api::unifiedapiclient;
+use pf::config::cluster;
 
 Readonly my $FW_TABLE_FILTER => 'filter';
 Readonly my $FW_TABLE_MANGLE => 'mangle';
@@ -58,7 +59,7 @@ Readonly my $FW_FILTER_FORWARD_INT_INLINE => 'forward-internal-inline-if';
 Readonly my $FW_PREROUTING_INT_INLINE => 'prerouting-int-inline-if';
 Readonly my $FW_POSTROUTING_INT_INLINE => 'postrouting-int-inline-if';
 
-tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config";
+tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config($host_id)";
 
 =head1 SUBROUTINES
 

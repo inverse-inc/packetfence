@@ -1,39 +1,35 @@
-package pfconfig::namespaces::resource::cluster_servers;
+package pfconfig::namespaces::resource::cluster_summary;
 
 =head1 NAME
 
-pfconfig::namespaces::resource::fqdn
+pfconfig::namespaces::resource::cluster_summary
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::resource::fqdn
+pfconfig::namespaces::resource::cluster_summary
 
 =cut
 
 use strict;
 use warnings;
-
 use pfconfig::namespaces::config::Cluster;
 
 use base 'pfconfig::namespaces::resource';
 
-sub init {
-    my ($self, $cluster_name) = @_;
 
-    $self->{cluster_name} = $cluster_name || "DEFAULT";
-    $self->{cluster_resource} = pfconfig::namespaces::config::Cluster->new($self->{cache});
+sub init {
+    my ($self) = @_;
 }
 
 sub build {
     my ($self) = @_;
-    my @cluster_ips;
-    $self->{cluster_resource}->build();
-
-    return $self->{cluster_resource}->{_servers}->{$self->{cluster_name}};
+    my $cluster_config = pfconfig::namespaces::config::Cluster->new( $self->{cache} );
+    $cluster_config->build();
+    my @params = ("cluster_enabled", "multi_zone_enabled");
+    return { map{$_ => $cluster_config->{$_}} @params };
 }
-
 
 =head1 AUTHOR
 
@@ -65,6 +61,6 @@ USA.
 1;
 
 # vim: set shiftwidth=4:
-# vim: set expandtab:
-# vim: set backspace=indent,eol,start:
+# # vim: set expandtab:
+# # vim: set backspace=indent,eol,start:
 

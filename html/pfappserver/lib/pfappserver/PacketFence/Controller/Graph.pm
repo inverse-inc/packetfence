@@ -30,6 +30,7 @@ use pfconfig::cached_array;
 use pf::cluster;
 use pf::nodecategory;
 use Sys::Hostname;
+use pf::config::cluster;
 DateTime::Locale->add_aliases({
     'i_default' => 'en',
 });
@@ -55,7 +56,7 @@ Readonly::Array our @GRAPHS =>
    $GRAPH_WIRELESS_CONNECTIONS
   );
 
-tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config";
+tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config($host_id)";
 
 =head1 METHODS
 

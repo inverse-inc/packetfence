@@ -55,9 +55,9 @@ sub TIESCALAR {
     my ($class, $config, %extra) = @_;
     my $self = bless { }, $class;
     $self->init();
-    $self->{"_namespace"} = $config;
+    $self->set_namespace($config);
     $self->{"_scoped_by_tenant_id"} = $extra{tenant_id_scoped};
-    $self->{"_control_file_path"} = pfconfig::util::control_file_path($config);
+    $self->{"_control_file_path"} = pfconfig::util::control_file_path($self->{_namespace});
     $self->{"element_socket_method"} = "element";
     return $self;
 }

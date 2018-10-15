@@ -19,7 +19,7 @@ use Module::Pluggable
   sub_name    => '_modules',
   inner       => 0,
   require     => 1;
-use pf::config::util qw(str_to_connection_type);
+use pf::util qw(str_to_connection_type);
 use pf::constants::eap_type qw(%RADIUS_EAP_TYPE_2_VALUES);
 
 our @MODULES;

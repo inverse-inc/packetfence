@@ -1,5 +1,4 @@
 
-
       <div class="modal fade hide" id="modalEditInterface"></div>
       <form id="interfaces" name="interfaces" class="form">
         <table class="table">
@@ -14,6 +13,14 @@
             </tr>
           </thead>
           <tbody>
+
+          [% IF cluster_multi_zone %]
+          <tr>
+            <td colspan="6" class="alert alert-warning">
+              WARNING: You are currently using multi-zone clusters, the information displayed here might not reflect the actual interface and network settings.
+            </td>
+          </tr>
+          [% END %]
 
           [% FOREACH network IN seen_networks.keys %]
             [% IF seen_networks.$network.size > 1 %]

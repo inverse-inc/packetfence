@@ -15,7 +15,7 @@ use warnings;
 
 use pf::log;
 use pf::api::jsonrpcclient;
-use pf::config qw(%connection_type_to_str);
+use pf::constants::config qw(%connection_type_to_str);
 use pf::person qw(person_view);
 use pf::factory::condition::access_filter;
 use pf::filter_engine;

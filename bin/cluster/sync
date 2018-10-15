@@ -97,7 +97,7 @@ if (-e '/usr/local/pf/conf/cluster-files.txt') {
 }
 
 if($as_master){
-    pf::cluster::increment_config_version();
+    pf::config::cluster::increment_config_version();
     if($file){
         unless($file =~ /^\//){
             get_logger->fatal("File path has to be absolute.");

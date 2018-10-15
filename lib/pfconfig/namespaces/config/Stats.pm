@@ -26,10 +26,12 @@ use pf::util qw(isdisabled);
 use base 'pfconfig::namespaces::config';
 
 sub init {
-    my ($self) = @_;
+    my ($self, $host_id) = @_;
+    $host_id //= "";
+
     $self->{file} = $stats_config_file;
     
-    $self->{network_config} = $self->{cache}->get_cache('resource::network_config');
+    $self->{network_config} = $self->{cache}->get_cache("resource::network_config($host_id)");
 }
 
 sub build_child {

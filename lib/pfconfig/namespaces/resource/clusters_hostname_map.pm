@@ -1,37 +1,47 @@
-package pfconfig::namespaces::resource::cluster_servers;
+package pfconfig::namespaces::resource::clusters_hostname_map;
 
 =head1 NAME
 
-pfconfig::namespaces::resource::fqdn
+pfconfig::namespaces::resource::clusters_hostname_map
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::resource::fqdn
+pfconfig::namespaces::resource::clusters_hostname_map
 
 =cut
 
 use strict;
 use warnings;
 
+use base 'pfconfig::namespaces::resource';
 use pfconfig::namespaces::config::Cluster;
 
-use base 'pfconfig::namespaces::resource';
+=head2 init
+
+Initialize the namespace
+
+=cut
 
 sub init {
-    my ($self, $cluster_name) = @_;
+    my ($self) = @_;
 
-    $self->{cluster_name} = $cluster_name || "DEFAULT";
     $self->{cluster_resource} = pfconfig::namespaces::config::Cluster->new($self->{cache});
 }
+
+=head2 build
+
+Build the map that allows to get the cluster name for a cluster hostname
+
+=cut
 
 sub build {
     my ($self) = @_;
     my @cluster_ips;
     $self->{cluster_resource}->build();
 
-    return $self->{cluster_resource}->{_servers}->{$self->{cluster_name}};
+    return $self->{cluster_resource}->{hostname_map};
 }
 
 
@@ -67,4 +77,5 @@ USA.
 # vim: set shiftwidth=4:
 # vim: set expandtab:
 # vim: set backspace=indent,eol,start:
+
 

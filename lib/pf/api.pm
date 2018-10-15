@@ -41,6 +41,7 @@ use pfconfig::util;
 use pfconfig::manager;
 use pf::api::jsonrpcclient;
 use pf::cluster;
+use pf::config::cluster;
 use fingerbank::DB;
 use File::Slurp;
 use pf::file_paths qw($captiveportal_profile_templates_path);
@@ -656,7 +657,7 @@ sub notify_configfile_changed : Public {
     };
     pfconfig::util::fetch_decode_socket(encode_json($payload));
 
-    my $master_server = $ConfigCluster{$postdata{server}};
+    my $master_server = pf::cluster::find_server_by_hostname($postdata{server});
     die "Master server is not in configuration" unless ($master_server);
 
     my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $master_server->{management_ip});
@@ -746,7 +747,7 @@ sub expire_cluster : Public {
     expire($class, %postdata);
 
     my @failed;
-    foreach my $server (pf::cluster::enabled_servers()){
+    foreach my $server (pf::cluster::config_enabled_servers()){
         next if($pf::cluster::host_id eq $server->{host});
         my $apiclient = pf::api::jsonrpcclient->new(proto => 'https', host => $server->{management_ip});
         my %data = (
@@ -779,7 +780,7 @@ sub expire_cluster : Public {
         }
 
         eval {
-            $apiclient->call('set_config_version', version => pf::cluster::get_config_version());
+            $apiclient->call('set_config_version', version => pf::config::cluster::get_config_version());
         };
 
         if($@){
@@ -1469,7 +1470,7 @@ Get the configuration version
 
 sub get_config_version :Public {
     my ($class) = @_;
-    return { version => pf::cluster::get_config_version() };
+    return { version => pf::config::cluster::get_config_version() };
 }
 
 =head2 set_config_version
@@ -1484,7 +1485,7 @@ sub set_config_version :Public {
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,\@found);
 
-    return pf::cluster::set_config_version($postdata{version});
+    return pf::config::cluster::set_config_version($postdata{version});
 }
 
 =head2 sync_config_as_master
