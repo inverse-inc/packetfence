@@ -722,6 +722,17 @@ sub decrypt_message {
     cipher()->decrypt_hex($text);
 }
 
+=head2 find_server_by_hostname
+
+Finds a server configuration using the hostname
+
+=cut
+
+sub find_server_by_hostname {
+    my ($hostname) = @_;
+    return firstval { $_->{host} eq $hostname } pf::cluster::config_enabled_servers;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
