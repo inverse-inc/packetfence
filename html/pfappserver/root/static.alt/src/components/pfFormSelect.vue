@@ -1,14 +1,17 @@
 <template>
   <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
-    :state="isValid()" :invalid-feedback="getInvalidFeedback()" :class="{ 'mb-0': !columnLabel }">
-    <b-form-select
-      v-model="inputValue"
-      v-bind="$attrs"
-      :state="isValid()"
-      @input.native="validate()"
-      @keyup.native="onChange($event)"
-      @change.native="onChange($event)"
-    ></b-form-select>
+    :state="isValid()" :invalid-feedback="getInvalidFeedback()" 
+    class="select-element" :class="{ 'mb-0': !columnLabel }">
+    <b-input-group class="input-group-select">
+      <b-form-select
+        v-model="inputValue"
+        v-bind="$attrs"
+        :state="isValid()"
+        @input.native="validate()"
+        @keyup.native="onChange($event)"
+        @change.native="onChange($event)"
+      ></b-form-select>
+    </b-input-group>
     <b-form-text v-if="text" v-t="text"></b-form-text>
   </b-form-group>
 </template>
