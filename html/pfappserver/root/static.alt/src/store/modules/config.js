@@ -6,7 +6,7 @@ import apiCall from '@/utils/api'
 
 const api = {
   getAdminRoles () {
-    return apiCall({url: 'config/admin_roles', method: 'get'})
+    return apiCall({ url: 'config/admin_roles', method: 'get' })
   },
   getRoles () {
     return apiCall({ url: 'node_categories', method: 'get' })
@@ -18,7 +18,7 @@ const api = {
     return apiCall({ url: 'config/switches', method: 'get' })
   },
   getTenants () {
-    return apiCall({url: 'tenants', method: 'get'})
+    return apiCall({ url: 'tenants', method: 'get' })
   },
   getViolations () {
     return apiCall({ url: 'config/violations', method: 'get' })
@@ -76,6 +76,12 @@ const getters = {
     // Remap for b-form-select component
     return state.roles.map((item) => {
       return { value: item.category_id, name: item.name, text: `${item.name} - ${item.notes}` }
+    })
+  },
+  sourcesList: state => {
+    // Remap for b-form-select component
+    return state.sources.map((item) => {
+      return { value: item.id, name: item.description }
     })
   },
   tenantsList: state => {
