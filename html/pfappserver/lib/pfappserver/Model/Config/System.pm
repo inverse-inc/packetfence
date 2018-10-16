@@ -19,6 +19,8 @@ use pf::log;
 use pf::error qw(is_error is_success);
 use pf::util;
 
+our $DB_SERVICE_NAME = "packetfence-mariadb";
+
 extends 'Catalyst::Model';
 
 =head1 METHODS
@@ -30,12 +32,13 @@ extends 'Catalyst::Model';
 sub check_mysqld_status {
     my ( $self ) = @_;
     my $logger = get_logger();
-
+    my $cmd = "systemctl show -p MainPID $DB_SERVICE_NAME";
     # -x: this causes the program to also return process id's of shells running the named scripts.
-    my $pid;
-    chomp($pid = `pidof -x mysqld`);
+    my $mainpid;
+    chomp($mainpid = `$cmd`);
+    my (undef,$pid) = split('=', $mainpid);
     $pid = 0 if ( !$pid );
-    $logger->info("pidof -x mysqld returned $pid");
+    $logger->info("$cmd returned $pid");
 
     return ($pid);
 }
@@ -129,15 +132,9 @@ sub start_mysqld_service {
         return ($STATUS::OK, $status_msg);
     }
 
-    my $mysql_script = 'mysqld';
-    $mysql_script = 'mysql' if ( -e "/etc/init.d/mysql" );
-    if ( ( ($DISTRIB eq 'centos') || ($DISTRIB eq 'redhat') ) && ($DIST_VERSION gt 7)) {
-        $mysql_script = 'mariadb';
-    }
-
     # please keep LANG=C in case we need to fetch the output of the command
-    my $cmd = "setsid sudo service $mysql_script start 2>&1";
-    $logger->debug("Starting mysqld service: $cmd");
+    my $cmd = "setsid sudo service $DB_SERVICE_NAME start 2>&1";
+    $logger->debug("Starting $DB_SERVICE_NAME service: $cmd");
     $status = pf_run($cmd);
 
     # Everything goes as expected
