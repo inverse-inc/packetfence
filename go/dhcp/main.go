@@ -38,6 +38,8 @@ var GlobalMacCache *cache.Cache
 var GlobalTransactionCache *cache.Cache
 var GlobalTransactionLock *sync.Mutex
 
+var RequestGlobalTransactionCache *cache.Cache
+
 var VIP map[string]bool
 var VIPIp map[string]net.IP
 
@@ -62,6 +64,7 @@ func main() {
 	// Initialize transaction cache
 	GlobalTransactionCache = cache.New(5*time.Minute, 10*time.Minute)
 	GlobalTransactionLock = &sync.Mutex{}
+	RequestGlobalTransactionCache = cache.New(5*time.Minute, 10*time.Minute)
 
 	// Read DB config
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Database)
@@ -464,7 +467,7 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 						if dhcp.IPAdd(handler.start, index.(int)).Equal(reqIP) {
 							GlobalTransactionLock.Lock()
 							cacheKey := p.CHAddr().String() + " " + msgType.String() + " xID " + sharedutils.ByteToString(p.XId())
-							if _, found = GlobalTransactionCache.Get(cacheKey); found {
+							if _, found = RequestGlobalTransactionCache.Get(cacheKey); found {
 								log.LoggerWContext(ctx).Debug("Not answering to REQUEST. Already processed")
 								Reply = false
 								GlobalTransactionLock.Unlock()
@@ -472,7 +475,7 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 							} else {
 								Reply = true
 								Index = index.(int)
-								GlobalTransactionCache.Set(cacheKey, 1, time.Duration(1)*time.Second)
+								RequestGlobalTransactionCache.Set(cacheKey, 1, time.Duration(1)*time.Second)
 								GlobalTransactionLock.Unlock()
 							}
 							// So remove the ip from the cache
