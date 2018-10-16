@@ -261,10 +261,10 @@ export default {
         {
           value: 'source',
           text: this.$i18n.t('Source'),
-          types: [fieldType.SUBSTRING],
+          types: [fieldType.SOURCE],
           required: false,
           validators: {
-            sourceExists,
+            [this.$i18n.t('Invalid source.')]: sourceExists,
             [this.$i18n.t('Maximum {maxLength} characters.', schema.person.source)]: maxLength(schema.person.source.maxLength)
           }
         },

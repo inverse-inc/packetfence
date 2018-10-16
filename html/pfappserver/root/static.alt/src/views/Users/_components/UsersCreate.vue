@@ -310,7 +310,7 @@ export default {
               /* Restrict "set_unreg_date" */
               [this.$i18n.t('Action conflicts with "Unregistration date".')]: restrictAllSiblingFieldTypes('set_unreg_date'),
               /* Don't allow elsewhere */
-              [this.$i18n.t('Action already exists.')]: limitSiblingFieldTypes(0)
+              [this.$i18n.t('Action exists.')]: limitSiblingFieldTypes(0)
             },
             value: {
               [this.$i18n.t('Value required.')]: required
@@ -324,7 +324,7 @@ export default {
           validators: {
             type: {
               /* Don't allow elsewhere */
-              [this.$i18n.t('Action already exists.')]: limitSiblingFieldTypes(0)
+              [this.$i18n.t('Action exists.')]: limitSiblingFieldTypes(0)
             },
             value: {
               [this.$i18n.t('Value required.')]: required
@@ -338,7 +338,7 @@ export default {
           validators: {
             type: {
               /* Don't allow elsewhere */
-              [this.$i18n.t('Action already exists.')]: limitSiblingFieldTypes(0)
+              [this.$i18n.t('Action exists.')]: limitSiblingFieldTypes(0)
             },
             value: {
               [this.$i18n.t('Value required.')]: required,
@@ -354,7 +354,7 @@ export default {
           validators: {
             type: {
               /* Don't allow elsewhere */
-              [this.$i18n.t('Action already exists.')]: limitSiblingFieldTypes(0)
+              [this.$i18n.t('Action exists.')]: limitSiblingFieldTypes(0)
             }
           }
         },
@@ -367,7 +367,7 @@ export default {
               /* When "Role" is selected, either "Time Balance" or "set_unreg_date" is required */
               [this.$i18n.t('Action requires either "Access duration" or "Unregistration date".')]: requireAnySiblingFieldTypes('set_access_duration', 'set_unreg_date'),
               /* Don't allow elsewhere */
-              [this.$i18n.t('Action already exists.')]: limitSiblingFieldTypes(0)
+              [this.$i18n.t('Action exists.')]: limitSiblingFieldTypes(0)
             },
             value: {
               [this.$i18n.t('Value required.')]: required
@@ -381,7 +381,7 @@ export default {
           validators: {
             type: {
               /* Don't allow elsewhere */
-              [this.$i18n.t('Action already exists.')]: limitSiblingFieldTypes(0)
+              [this.$i18n.t('Action exists.')]: limitSiblingFieldTypes(0)
             },
             value: {
               [this.$i18n.t('Value required.')]: required,
@@ -396,7 +396,7 @@ export default {
           validators: {
             type: {
               /* Don't allow elsewhere */
-              [this.$i18n.t('Action already exists.')]: limitSiblingFieldTypes(0)
+              [this.$i18n.t('Action exists.')]: limitSiblingFieldTypes(0)
             },
             value: {
               [this.$i18n.t('Value required.')]: required
@@ -415,7 +415,7 @@ export default {
               /* Restrict "set_access_duration" */
               [this.$i18n.t('Action conflicts with "Access duration".')]: restrictAllSiblingFieldTypes('set_access_duration'),
               /* Don't allow elsewhere */
-              [this.$i18n.t('Action already exists.')]: limitSiblingFieldTypes(0)
+              [this.$i18n.t('Action exists.')]: limitSiblingFieldTypes(0)
             },
             value: {
               [this.$i18n.t('Future date required.')]: compareDate('>=', new Date(), schema.node.unregdate.format, false),
@@ -482,16 +482,16 @@ export default {
       single: {
         pid: {
           [this.$i18n.t('Username required.')]: required,
-          [this.$i18n.t('Username already exists.')]: not(and(required, userExists, conditional(!this.single.pid_overwrite))),
+          [this.$i18n.t('Username exists.')]: not(and(required, userExists, conditional(!this.single.pid_overwrite))),
           [this.$i18n.t('Maximum {maxLength} characters.', schema.person.pid)]: maxLength(schema.person.pid.maxLength)
         },
         email: {
           [this.$i18n.t('Email address required.')]: required,
-          [this.$i18n.t('Email address is invalid.')]: email,
+          [this.$i18n.t('Invalid email address.')]: email,
           [this.$i18n.t('Maximum {maxLenth} characters.', schema.person.email)]: maxLength(schema.person.email.maxLength)
         },
         sponsor: {
-          [this.$i18n.t('Email address is invalid.')]: email,
+          [this.$i18n.t('Invalid email address.')]: email,
           [this.$i18n.t('Maximum {maxLenth} characters.', schema.person.sponsor)]: maxLength(schema.person.sponsor.maxLength)
         },
         password: {

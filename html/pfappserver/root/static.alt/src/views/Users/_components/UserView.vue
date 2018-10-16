@@ -220,16 +220,16 @@ export default {
       userContent: {
         pid: {
           [this.$i18n.t('Username required.')]: required,
-          [this.$i18n.t('Username already exists.')]: not(and(required, userExists, conditional(this.userContent.pid !== this.pid))),
+          [this.$i18n.t('Username exists.')]: not(and(required, userExists, conditional(this.userContent.pid !== this.pid))),
           [this.$i18n.t('Maximum {maxLength} characters.', schema.person.pid)]: maxLength(schema.person.pid.maxLength)
         },
         email: {
           [this.$i18n.t('Email address required.')]: required,
-          [this.$i18n.t('Email address is invalid.')]: email,
+          [this.$i18n.t('Invalid email address.')]: email,
           [this.$i18n.t('Maximum {maxLenth} characters.', schema.person.email)]: maxLength(schema.person.email.maxLength)
         },
         sponsor: {
-          [this.$i18n.t('Email address is invalid.')]: email,
+          [this.$i18n.t('Invalid email address.')]: email,
           [this.$i18n.t('Maximum {maxLenth} characters.', schema.person.sponsor)]: maxLength(schema.person.sponsor.maxLength)
         },
         password: {

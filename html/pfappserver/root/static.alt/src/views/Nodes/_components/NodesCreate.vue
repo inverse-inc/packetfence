@@ -56,6 +56,7 @@ import {
   maxLength
 } from 'vuelidate/lib/validators'
 import {
+  and,
   isDateFormat,
   userExists,
   nodeExists
@@ -103,10 +104,8 @@ export default {
       single: {
         mac: {
           [this.$i18n.t('MAC address required.')]: required,
-          [this.$i18n.t('Enter a valid MAC address.')]: macAddress,
-          [this.$i18n.t('Enter a valid MAC address.')]: minLength: minLength(17),
-          [this.$i18n.t('Enter a valid MAC address.')]: maxLength: maxLength(17),
-          [this.$i18n.t('MAC address already exists.')]: nodeExists
+          [this.$i18n.t('Invalid MAC address.')]: and(macAddress, minLength(17), maxLength(17)),
+          [this.$i18n.t('MAC address exists.')]: nodeExists
         },
         pid: {
           [this.$i18n.t('Owner does not exist.')]: userExists
