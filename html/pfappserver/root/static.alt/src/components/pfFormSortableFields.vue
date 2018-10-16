@@ -177,7 +177,7 @@
               <pf-form-datetime v-if="isFieldType(datetimeValueType, inputValue[index])"
                 :value="inputValue[index].value"
                 :ref="'value-' + index"
-                :config="{useCurrent: true}"
+                :config="{useCurrent: true, format: 'YYYY-MM-DD HH:mm:ss'}"
                 :moments="getMoments(index)"
                 :validation="getValueValidation(index)"
                 :invalid-feedback="getValueInvalidFeedback(index)"
