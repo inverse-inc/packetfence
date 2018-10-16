@@ -40,9 +40,6 @@ var GlobalTransactionCache *cache.Cache
 var GlobalTransactionLock *timedlock.RWLock
 
 var RequestGlobalTransactionCache *cache.Cache
-var RequestGlobalTransactionLock *sync.Mutex
-
-var RequestGlobalTransactionCache *cache.Cache
 
 var VIP map[string]bool
 var VIPIp map[string]net.IP
