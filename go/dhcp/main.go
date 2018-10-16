@@ -21,6 +21,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/goji/httpauth"
 	"github.com/gorilla/mux"
+	"github.com/inverse-inc/packetfence/go/filter_client"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
@@ -37,6 +38,9 @@ var GlobalMacCache *cache.Cache
 
 var GlobalTransactionCache *cache.Cache
 var GlobalTransactionLock *timedlock.RWLock
+
+var RequestGlobalTransactionCache *cache.Cache
+var RequestGlobalTransactionLock *sync.Mutex
 
 var RequestGlobalTransactionCache *cache.Cache
 
@@ -283,6 +287,12 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 
 		defer recoverName(options)
 		answer.Local = handler.layer2
+		pffilter := filter_client.NewClient()
+
+		info, _ := pffilter.FilterDhcp(msgType.String(), map[string]interface{}{
+			"mac":     p.CHAddr(),
+			"options": p.Options(),
+		})
 
 		log.LoggerWContext(ctx).Info(p.CHAddr().String() + " " + msgType.String() + " xID " + sharedutils.ByteToString(p.XId()))
 
