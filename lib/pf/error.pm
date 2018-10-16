@@ -133,7 +133,7 @@ Readonly::Scalar our $PRECONDITION_REQUIRED            => 428;
 #Readonly::Scalar our $RETRY_WITH                       => 449;
 
 Readonly::Scalar our $INTERNAL_SERVER_ERROR            => 500;
-#Readonly::Scalar our $NOT_IMPLEMENTED                  => 501;
+Readonly::Scalar our $NOT_IMPLEMENTED                  => 501;
 #Readonly::Scalar our $BAD_GATEWAY                      => 502;
 #Readonly::Scalar our $SERVICE_UNAVAILABLE              => 503;
 #Readonly::Scalar our $GATEWAY_TIMEOUT                  => 504;
