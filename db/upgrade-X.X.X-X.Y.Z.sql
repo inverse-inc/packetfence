@@ -94,4 +94,10 @@ FROM   violation;
 
 DROP TABLE violation; 
 
+--
+-- Change id AUTO INC
+--
+ALTER TABLE sms_carrier
+    MODIFY COLUMN `id` INTEGER NOT NULL AUTO_INCREMENT COMMENT 'primary key for SMS carrier';
+
 INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION)); 
