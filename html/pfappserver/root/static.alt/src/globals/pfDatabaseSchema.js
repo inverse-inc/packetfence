@@ -1,9 +1,88 @@
+import i18n from '@/utils/locale'
 import { mysqlLimits as sqlLimits } from '@/globals/mysqlLimits'
+import {
+  inArray,
+  isDateFormat
+} from '@/globals/pfValidators'
+import {
+  email,
+  macAddress,
+  maxLength,
+  minLength,
+  maxValue,
+  minValue,
+  numeric
+} from 'vuelidate/lib/validators'
+
+export class Datetime {}
+export class Enum {}
+export class Email {}
+export class Mac {}
+
+export const buildValidationFromTableSchemas = (...tableSchemas) => {
+  let validation = {}
+  for (let tableSchema of tableSchemas) {
+    for (let [columnKey, columnSchema] of Object.entries(tableSchema)) {
+      // if (!(columnKey in validation)) validation[columnKey] = {}
+      if ('type' in columnSchema) {
+        // direct definition
+        validation[columnKey] = {} // do not overload, only overwrite
+        switch (true) {
+          case (columnSchema.type === String):
+            Object.assign(validation[columnKey], {
+              [i18n.t('Maximum {maxLength} characters.', columnSchema)]: maxLength(columnSchema.maxLength)
+            })
+            break
+          case (columnSchema.type === Number):
+            Object.assign(validation[columnKey], {
+              [i18n.t('Must be numeric.')]: numeric,
+              [i18n.t('Minimum value of {min}.', columnSchema)]: minValue(columnSchema.min),
+              [i18n.t('Maximum value of {max}.', columnSchema)]: maxValue(columnSchema.max)
+            })
+            break
+          case (columnSchema.type === Datetime):
+            if (columnSchema.format) {
+              let allowZero = (columnSchema.default && columnSchema.default === columnSchema.format.replace(/[a-z]/gi, '0'))
+              Object.assign(validation[columnKey], {
+                [i18n.t('Invalid date.')]: isDateFormat(columnSchema.format, allowZero)
+              })
+            }
+            break
+          case (columnSchema.type === Enum):
+            if (columnSchema.enum) {
+              Object.assign(validation[columnKey], {
+                [i18n.t('Invalid value.')]: inArray(columnSchema.enum)
+              })
+            }
+            break
+          case (columnSchema.type === Email):
+            Object.assign(validation[columnKey], {
+              [i18n.t('Invalid email address.')]: email,
+              [i18n.t('Maximum {maxLength} characters.', columnSchema)]: maxLength(columnSchema.maxLength)
+            })
+            break
+          case (columnSchema.type === Mac):
+            Object.assign(validation[columnKey], {
+              [i18n.t('Invalid MAC address.')]: macAddress,
+              [i18n.t('Maximum 17 characters.')]: maxLength(17),
+              [i18n.t('Minimum 17 characters.')]: minLength(17)
+            })
+            break
+        }
+      } else {
+        // direct definition
+        if (!(columnKey in validation)) validation[columnKey] = {}
+        Object.assign(validation[columnKey], columnSchema)
+      }
+    }
+  }
+  return validation
+}
 
 export const pfDatabaseSchema = {
   node: {
     mac: {
-      type: String,
+      type: Mac,
       maxLength: 17
     },
     pid: {
@@ -19,22 +98,22 @@ export const pfDatabaseSchema = {
       }
     ),
     detect_date: {
-      type: String,
+      type: Datetime,
       format: 'YYYY-MM-DD HH:mm:ss',
       default: '0000-00-00 00:00:00'
     },
     regdate: {
-      type: String,
+      type: Datetime,
       format: 'YYYY-MM-DD HH:mm:ss',
       default: '0000-00-00 00:00:00'
     },
     unregdate: {
-      type: String,
+      type: Datetime,
       format: 'YYYY-MM-DD HH:mm:ss',
       default: '0000-00-00 00:00:00'
     },
     lastskip: {
-      type: String,
+      type: Datetime,
       format: 'YYYY-MM-DD HH:mm:ss',
       default: '0000-00-00 00:00:00'
     },
@@ -73,12 +152,12 @@ export const pfDatabaseSchema = {
       default: null
     },
     last_arp: {
-      type: String,
+      type: Datetime,
       format: 'YYYY-MM-DD HH:mm:ss',
       default: '0000-00-00 00:00:00'
     },
     last_dhcp: {
-      type: String,
+      type: Datetime,
       format: 'YYYY-MM-DD HH:mm:ss',
       default: '0000-00-00 00:00:00'
     },
@@ -133,12 +212,12 @@ export const pfDatabaseSchema = {
       default: null
     },
     voip: {
-      type: String,
+      type: Enum,
       enum: ['no', 'yes'],
       default: 'no'
     },
     autoreg: {
-      type: String,
+      type: Enum,
       enum: ['no', 'yes'],
       default: 'no'
     },
@@ -160,7 +239,7 @@ export const pfDatabaseSchema = {
       }
     ),
     last_seen: {
-      type: String,
+      type: Datetime,
       format: 'YYYY-MM-DD HH:mm:ss',
       default: '0000-00-00 00:00:00'
     }
@@ -182,12 +261,12 @@ export const pfDatabaseSchema = {
       maxLength: 255
     },
     valid_from: {
-      type: String,
+      type: Datetime,
       format: 'YYYY-MM-DD HH:mm:ss',
       default: '0000-00-00 00:00:00'
     },
     expiration: {
-      type: String,
+      type: Datetime,
       format: 'YYYY-MM-DD HH:mm:ss',
       default: ''
     },
@@ -215,7 +294,7 @@ export const pfDatabaseSchema = {
       }
     ),
     unregdate: {
-      type: String,
+      type: Datetime,
       format: 'YYYY-MM-DD HH:mm:ss',
       default: '0000-00-00 00:00:00'
     },
@@ -244,7 +323,7 @@ export const pfDatabaseSchema = {
       default: null
     },
     email: {
-      type: String,
+      type: Email,
       maxLength: 255,
       default: null
     },
@@ -269,7 +348,7 @@ export const pfDatabaseSchema = {
       default: null
     },
     sponsor: {
-      type: String,
+      type: Email,
       maxLength: 255,
       default: null
     },

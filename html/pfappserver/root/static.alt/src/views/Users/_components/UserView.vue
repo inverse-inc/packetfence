@@ -109,7 +109,7 @@
               <pf-form-textarea :column-label="$t('Notes')"
                 v-model="userContent.notes"
                 :validation="$v.userContent.notes"
-                rows="8" max-rows="12"
+                rows="3" max-rows="3"
               />
             </b-col>
           </b-row>
@@ -142,12 +142,7 @@ import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormToggle from '@/components/pfFormToggle'
 import {
   required,
-  email,
-  minLength,
-  maxLength,
-  minValue,
-  maxValue,
-  numeric
+  minLength
 } from 'vuelidate/lib/validators'
 import {
   and,
@@ -156,7 +151,10 @@ import {
   userExists
 } from '@/globals/pfValidators'
 import { pfRegExp as regExp } from '@/globals/pfRegExp'
-import { pfDatabaseSchema as schema } from '@/globals/pfDatabaseSchema'
+import {
+  pfDatabaseSchema as schema,
+  buildValidationFromTableSchemas
+} from '@/globals/pfDatabaseSchema'
 
 const { validationMixin } = require('vuelidate')
 
@@ -217,102 +215,24 @@ export default {
   },
   validations () {
     return {
-      userContent: {
-        pid: {
-          [this.$i18n.t('Username required.')]: required,
-          [this.$i18n.t('Username exists.')]: not(and(required, userExists, conditional(this.userContent.pid !== this.pid))),
-          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.pid)]: maxLength(schema.person.pid.maxLength)
-        },
-        email: {
-          [this.$i18n.t('Email address required.')]: required,
-          [this.$i18n.t('Invalid email address.')]: email,
-          [this.$i18n.t('Maximum {maxLenth} characters.', schema.person.email)]: maxLength(schema.person.email.maxLength)
-        },
-        sponsor: {
-          [this.$i18n.t('Invalid email address.')]: email,
-          [this.$i18n.t('Maximum {maxLenth} characters.', schema.person.sponsor)]: maxLength(schema.person.sponsor.maxLength)
-        },
-        password: {
-          [this.$i18n.t('Password must be at least 6 characters.')]: minLength(6)
-        },
-        login_remaining: {
-          [this.$i18n.t('Must be numeric.')]: numeric,
-          [this.$i18n.t('Must be greater than {min}.', schema.password.login_remaining)]: minValue(schema.password.login_remaining.min),
-          [this.$i18n.t('Must be less than {max}.', schema.password.login_remaining)]: maxValue(schema.password.login_remaining.max)
-        },
-        title: {
-          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.title)]: maxLength(schema.person.title.maxLength)
-        },
-        firstname: {
-          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.firstname)]: maxLength(schema.person.firstname.maxLength)
-        },
-        lastname: {
-          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.lastname)]: maxLength(schema.person.lastname.maxLength)
-        },
-        nickname: {
-          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.nickname)]: maxLength(schema.person.lastname.maxLength)
-        },
-        company: {
-          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.company)]: maxLength(schema.person.company.maxLength)
-        },
-        telephone: {
-          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.telephone)]: maxLength(schema.person.telephone.maxLength)
-        },
-        cell_phone: {
-          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.cell_phone)]: maxLength(schema.person.cell_phone.maxLength)
-        },
-        work_phone: {
-          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.work_phone)]: maxLength(schema.person.work_phone.maxLength)
-        },
-        address: {
-          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.address)]: maxLength(schema.person.address.maxLength)
-        },
-        apartment_number: {
-          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.apartment_number)]: maxLength(schema.person.apartment_number.maxLength)
-        },
-        building_number: {
-          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.building_number)]: maxLength(schema.person.building_number.maxLength)
-        },
-        room_number: {
-          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.room_number)]: maxLength(schema.person.room_number.maxLength)
-        },
-        anniversary: {
-          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.anniversary)]: maxLength(schema.person.anniversary.maxLength)
-        },
-        birthday: {
-          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.birthday)]: maxLength(schema.person.birthday.maxLength)
-        },
-        notes: {
-          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.notes)]: maxLength(schema.person.notes.maxLength)
-        },
-        custom_field_1: {
-          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.custom_field_1)]: maxLength(schema.person.custom_field_1.maxLength)
-        },
-        custom_field_2: {
-          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.custom_field_2)]: maxLength(schema.person.custom_field_2.maxLength)
-        },
-        custom_field_3: {
-          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.custom_field_3)]: maxLength(schema.person.custom_field_3.maxLength)
-        },
-        custom_field_4: {
-          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.custom_field_4)]: maxLength(schema.person.custom_field_4.maxLength)
-        },
-        custom_field_5: {
-          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.custom_field_5)]: maxLength(schema.person.custom_field_5.maxLength)
-        },
-        custom_field_6: {
-          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.custom_field_6)]: maxLength(schema.person.custom_field_6.maxLength)
-        },
-        custom_field_7: {
-          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.custom_field_7)]: maxLength(schema.person.custom_field_7.maxLength)
-        },
-        custom_field_8: {
-          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.custom_field_8)]: maxLength(schema.person.custom_field_8.maxLength)
-        },
-        custom_field_9: {
-          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.custom_field_9)]: maxLength(schema.person.custom_field_9.maxLength)
+      userContent: buildValidationFromTableSchemas(
+        schema.person, // include `person` table to generate validations
+        schema.password, // include `password` table to generate validations
+        { sponsor: schema.person.sponsor }, // overload, fix exists in both `person` and `password` tables
+        {
+          // additional custom validations ...
+          pid: {
+            [this.$i18n.t('Username required.')]: required,
+            [this.$i18n.t('Username exists.')]: not(and(required, userExists, conditional(this.userContent.pid !== this.pid)))
+          },
+          email: {
+            [this.$i18n.t('Email address required.')]: required
+          },
+          password: {
+            [this.$i18n.t('Password must be at least 6 characters.')]: minLength(6)
+          }
         }
-      }
+      )
     }
   },
   computed: {

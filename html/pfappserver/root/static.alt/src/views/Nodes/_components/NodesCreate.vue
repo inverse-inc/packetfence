@@ -6,22 +6,38 @@
     <div class="card-body">
       <b-form @submit.prevent="create()">
         <b-form-row align-v="center">
-          <b-col sm="8">
-            <pf-form-input v-model="single.mac" :column-label="$t('MAC')"
+          <b-col sm="12">
+            <pf-form-input :column-label="$t('MAC')"
+              v-model="single.mac"
               :filter="globals.regExp.stringMac"
               :validation="$v.single.mac"
             />
-            <pf-form-autocomplete v-model="single.pid" :column-label="$t('Owner')" placeholder="default" @search="searchUsers"
+            <pf-form-autocomplete :column-label="$t('Owner')"
+              v-model="single.pid"
               :suggestions="matchingUsers"
               :validation="$v.single.pid"
+               placeholder="default"
+              @search="searchUsers"
             />
-            <pf-form-select v-model="single.status" :column-label="$t('Status')" :options="statuses"/>
-            <pf-form-select v-model="single.category" :column-label="$t('Role')" :options="roles"/>
-            <pf-form-datetime v-model="single.unregdate" :column-label="$t('Unregistration')" :moments="['1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"
+            <pf-form-select :column-label="$t('Status')"
+              v-model="single.status"
+              :options="statuses"
+              :validation="$v.single.status"
+            />
+            <pf-form-select :column-label="$t('Role')"
+             v-model="single.category"
+             :options="roles"
+              :validation="$v.single.category"
+            />
+            <pf-form-datetime :column-label="$t('Unregistration')"
+              v-model="single.unregdate"
+              :moments="['1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"
               :validation="$v.single.unregdate"
             />
-            <pf-form-textarea v-model="single.notes" :column-label="$t('Notes')" rows="8" max-rows="12"
+            <pf-form-textarea :column-label="$t('Notes')"
+              v-model="single.notes"
               :validation="$v.single.notes"
+              rows="3" max-rows="3"
             />
           </b-col>
         </b-form-row>
@@ -50,18 +66,16 @@ import {
   pfSearchConditionValues as conditionValues
 } from '@/globals/pfSearch'
 import {
-  required,
-  macAddress,
-  minLength,
-  maxLength
+  required
 } from 'vuelidate/lib/validators'
 import {
-  and,
-  isDateFormat,
   userExists,
   nodeExists
 } from '@/globals/pfValidators'
-import { pfDatabaseSchema as schema } from '@/globals/pfDatabaseSchema'
+import {
+  pfDatabaseSchema as schema,
+  buildValidationFromTableSchemas
+} from '@/globals/pfDatabaseSchema'
 
 const { validationMixin } = require('vuelidate')
 
@@ -101,22 +115,19 @@ export default {
   },
   validations () {
     return {
-      single: {
-        mac: {
-          [this.$i18n.t('MAC address required.')]: required,
-          [this.$i18n.t('Invalid MAC address.')]: and(macAddress, minLength(17), maxLength(17)),
-          [this.$i18n.t('MAC address exists.')]: nodeExists
-        },
-        pid: {
-          [this.$i18n.t('Owner does not exist.')]: userExists
-        },
-        unregdate: {
-          [this.$i18n.t('Invalid date.')]: isDateFormat(schema.node.unregdate.format)
-        },
-        notes: {
-          [this.$i18n.t('Maximum {maxLength} characters.', schema.person.notes)]: maxLength(schema.node.notes.maxLength)
+      single: buildValidationFromTableSchemas(
+        schema.node, // include `node` table to generate validations
+        {
+          // additional custom validations ...
+          mac: {
+            [this.$i18n.t('MAC address required.')]: required,
+            [this.$i18n.t('MAC address exists.')]: nodeExists
+          },
+          pid: {
+            [this.$i18n.t('Owner does not exist.')]: userExists
+          }
         }
-      }
+      )
     }
   },
   computed: {
