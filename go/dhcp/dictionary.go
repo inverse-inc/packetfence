@@ -104,7 +104,7 @@ func (s tlvShortt) Value(a []byte) interface{} {
 	return a
 }
 func (s tlvShortt) String(a []byte) string {
-	return "string"
+	return string(a)
 }
 
 var tlvBool tlvBoolt

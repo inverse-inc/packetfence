@@ -286,9 +286,17 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 		answer.Local = handler.layer2
 		pffilter := filter_client.NewClient()
 
+		var Options map[string]string
+		Options = make(map[string]string)
+		for option, value := range options {
+			key := []byte(option.String())
+			key[0] = key[0] | ('a' - 'A')
+			Options[string(key)] = Tlv.Tlvlist[int(option)].Decode.String(value)
+		}
+
 		info, _ := pffilter.FilterDhcp(msgType.String(), map[string]interface{}{
-			"mac":     p.CHAddr(),
-			"options": p.Options(),
+			"mac":     p.CHAddr().String(),
+			"options": Options,
 		})
 
 		log.LoggerWContext(ctx).Info(p.CHAddr().String() + " " + msgType.String() + " xID " + sharedutils.ByteToString(p.XId()))
