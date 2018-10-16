@@ -3977,7 +3977,7 @@ Over time, some of the tables will grow large and this will drag down performanc
 
 One such table is the `locationlog` table. We recommend that closed entries in this table be moved to the archive table `locationlog_archive` after some time. A closed record is one where the `end_time` field is set to a date (strictly speaking it is when `end_time` is not null and not equals to 0).
 
-We provide a script called `database-backup-and-maintenance.sh` located in `addons/` that performs this cleanup in addition to optimize tables on Sunday and daily backups.
+We provide a script called `backup-and-maintenance.sh` located in `addons/` that performs this cleanup in addition to optimize tables on Sunday and daily backups.
 
 Avoid "Too many connections" problems
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -3996,7 +3996,7 @@ This will grind PacketFence to a halt so you want to avoid that at all cost. One
 Using Percona XtraBackup
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-When dealing with a large database, the database backup and maintenance script (`/usr/local/pf/addons/database-backup-and-maintenance.sh`) which uses mysqldump may create a long lock on your database which may cause service to hang.
+When dealing with a large database, the database backup and maintenance script (`/usr/local/pf/addons/backup-and-maintenance.sh`) which uses mysqldump may create a long lock on your database which may cause service to hang.
 
 This is fixed easily by using Percona XtraBackup which can complete a full database backup without locking your tables.
 
@@ -4020,7 +4020,7 @@ Once this is done, grant the proper rights to the `pf` user (or the one you conf
   mysql> GRANT RELOAD, LOCK TABLES, REPLICATION CLIENT ON *.* TO 'pf'@'localhost';
   mysql> FLUSH PRIVILEGES;
 
-Next, run the maintenance script `/usr/local/pf/addons/database-backup-and-maintenance.sh` and ensure that the following line is part of the output:
+Next, run the maintenance script `/usr/local/pf/addons/backup-and-maintenance.sh` and ensure that the following line is part of the output:
 
   innobackupex: completed OK!
 
