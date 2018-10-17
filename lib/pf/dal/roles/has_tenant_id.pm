@@ -102,9 +102,6 @@ around update_params_for_upsert => sub {
         my $old_set = delete $args{'-values'} // {};
         $old_set->{tenant_id} = $tenant_id;
         $args{'-values'} = $old_set;
-        my $old_conflict = delete $args{-on_conflict} // {};
-        $old_conflict->{tenant_id} = $tenant_id;
-        $args{'-on_conflict'} = $old_conflict;
     }
     return $self->$orig(%args);
 };
