@@ -124,6 +124,7 @@
                 :validation="getTypeValidation(index)"
                 :invalid-feedback="getTypeInvalidFeedback(index)"
                 @input="setType(index, $event)"
+                collapse-object
               ></pf-form-chosen>
 
             </b-col>
@@ -145,6 +146,7 @@
                 :validation="getValueValidation(index)"
                 :invalid-feedback="getValueInvalidFeedback(index)"
                 @input="setValue(index, $event)"
+                collapse-object
               ></pf-form-chosen>
 
               <!-- BEGIN ROLE -->
@@ -158,6 +160,7 @@
                 :validation="getValueValidation(index)"
                 :invalid-feedback="getValueInvalidFeedback(index)"
                 @input="setValue(index, $event)"
+                collapse-object
               ></pf-form-chosen>
 
               <!-- BEGIN TENANT -->
@@ -171,6 +174,7 @@
                 :validation="getValueValidation(index)"
                 :invalid-feedback="getValueInvalidFeedback(index)"
                 @input="setValue(index, $event)"
+                collapse-object
               ></pf-form-chosen>
 
               <!-- BEGIN DATETIME -->
@@ -195,6 +199,7 @@
                 :validation="getValueValidation(index)"
                 :invalid-feedback="getValueInvalidFeedback(index)"
                 @input="setValue(index, $event)"
+                collapse-object
               ></pf-form-chosen>
 
               <!-- BEGIN PREFIXMULTIPLER -->
@@ -326,28 +331,10 @@ export default {
         *
       **/
       get () {
-        const value = (this.value) ? this.value : [this.valuePlaceHolder]
-        const uncompressedValue = value.map(row => {
-          const field = this.fields.find(field => field.value === row.type)
-          return {
-            type: (row.type && typeof row.type !== 'object')
-              ? field
-              : row.type,
-            value: (row.value && typeof row.value !== 'object')
-              ? this.values({ type: field }).find(value => value.value === row.value) || row.value
-              : row.value
-          }
-        })
-        return uncompressedValue
+        return (this.value) ? this.value : [this.valuePlaceHolder]
       },
       set (newValue) {
-        const compressedValue = newValue.map(row => {
-          return {
-            type: ((row.type && row.type.value) ? this.fields.find(field => field.value === row.type.value).value : row.type),
-            value: ((row.value && row.value.value) ? row.value.value : row.value)
-          }
-        })
-        this.$emit('input', compressedValue)
+        this.$emit('input', newValue)
         this.emitExternalValidations()
       }
     }
@@ -416,7 +403,7 @@ export default {
     },
     values (inputValue) {
       if (!inputValue || !inputValue.type) return []
-      const index = this.fields.findIndex(field => inputValue.type.value === field.value)
+      const index = this.fields.findIndex(field => field.value === inputValue.type)
       let values = []
       if (index >= 0) {
         const field = this.fields[index]
@@ -430,7 +417,7 @@ export default {
     },
     isFieldType (type, inputValue) {
       if (!inputValue.type) return false
-      const index = this.fields.findIndex(field => inputValue.type.value === field.value)
+      const index = this.fields.findIndex(field => field.value === inputValue.type)
       if (index >= 0) {
         const field = this.fields[index]
         if (field.types.includes(type)) {
@@ -445,7 +432,7 @@ export default {
       if (this.inputValue.length > 1 || JSON.stringify(this.inputValue[0]) !== JSON.stringify(this.valuePlaceHolder)) {
         const eachInputValue = {}
         this.inputValue.forEach((input, index) => {
-          const field = this.fields.find(field => input.type && field.value === input.type.value)
+          const field = this.fields.find(field => input.type && field.value === input.type)
           if (field) {
             eachInputValue[field.value] = {}
             if ('validators' in field) { // has vuelidate validations
@@ -473,7 +460,7 @@ export default {
         if (eachInputValue !== {}) {
           // use functional validations
           // https://github.com/monterail/vuelidate/issues/166#issuecomment-319924309
-          return { ...this.inputValue.map(input => eachInputValue[(input.type && input.type.value) ? input.type.value : null] || {/* empty */}) }
+          return { ...this.inputValue.map(input => eachInputValue[(input.type) ? input.type : null] || {/* empty */}) }
         }
       }
       return {}
