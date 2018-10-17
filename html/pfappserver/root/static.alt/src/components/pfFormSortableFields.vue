@@ -302,34 +302,6 @@ export default {
   },
   computed: {
     inputValue: {
-      /**
-        * `inputValue` has 2 different models:
-        *
-        *   1. Internal Model (uncompressed): In this model we keep the entire type/value in-tact for use with the various pfForm* components.
-        *     Example: [
-        *         { "type": { "value": "set_bandwidth_balance", "text": "Bandwidth balance", "types": [ "prefixmultiplier" ] }, "value": 64 },
-        *         { "type": { "value": "set_access_duration", "text": "Access duration", "types": [ "duration" ] }, "value": { "name": "12 hours", "value": "12h" } },
-        *         { "type": { "value": "set_access_level", "text": "Access level", "types": [ "adminrole" ] }, "value": { "value": "User Manager", "name": "User Manager" } },
-        *         { "type": { "value": "mark_as_sponsor", "text": "Mark as sponsor", "types": [ "none" ] }, "value": null },
-        *         { "type": { "value": "set_role", "text": "Role", "types": [ "role" ] }, "value": { "value": "1", "name": "default", "text": "default - Placeholder role/category, feel free to edit" } },
-        *         { "type": { "value": "set_tenant_id", "text": "Tenant ID", "types": [ "tenant" ] }, "value": { "value": "1", "name": "default" } },
-        *         { "type": { "value": "set_time_balance", "text": "Time balance", "types": [ "duration" ] }, "value": { "name": "12 hours", "value": "12h" } },
-        *         { "type": { "value": "set_unreg_date", "text": "Unregistration date", "types": [ "datetime" ] }, "value": 1973-08-05 13:00:00" }
-        *        ]
-        *
-        *   2. External Model (compressed): In this model we compress the internal model into somewthing more clean and useable by the parent component.
-        *     Example: [
-        *         { "type": "set_bandwidth_balance", "value": 64 },
-        *         { "type": "set_access_duration", "value": "12h" },
-        *         { "type": "set_access_level", "value": "User Manager" },
-        *         { "type": "mark_as_sponsor", "value": null },
-        *         { "type": "set_role", "value": "1" },
-        *         { "type": "set_tenant_id", "value": "1" },
-        *         { "type": "set_time_balance", "value": "12h" },
-        *         { "type": "set_unreg_date", "value": "1973-08-05 13:00:00" }
-        *       ]
-        *
-      **/
       get () {
         return (this.value) ? this.value : [this.valuePlaceHolder]
       },
