@@ -248,12 +248,15 @@
                 </b-col>
               </b-row>
 
-              <b-container fluid class="mx-0 px-0 mt-3">
+              <b-container fluid class="mx-0 px-0 mt-3 footer-errors">
                 <b-button type="submit" variant="primary" :disabled="$v.$anyError" @mouseenter="$v.$touch()">
                   <icon v-if="isLoading" name="circle-notch" spin class="mr-1"></icon>
                   <icon v-else name="download" class="mr-1"></icon>
                   {{ $t('Import') + ' ' + selectValues.length + ' ' + $t('selected rows') }}
                 </b-button>
+                <b-form-group v-if="$v.staticMapping.$anyError" :state="false" :invalid-feedback="$t('Static field mappings invalid.')"></b-form-group>
+                <b-form-group v-if="$v.tableMapping.$anyError" :state="false" :invalid-feedback="$t('Table field mappings invalid.')"></b-form-group>
+                <b-form-group v-if="$v.selectValues.$anyError" :state="false" :invalid-feedback="$t('Select at least 1 row.')"></b-form-group>
               </b-container>
             </td>
           </template>
@@ -1017,5 +1020,13 @@ header > :not(.collapsed) {
   background-color: #007bff;
   border-color: #007bff;
   transition: all 300ms ease;
+}
+.footer-errors {
+  & .form-group:nth-of-type(1) {
+    margin-top: 1rem;
+  }
+  & .form-group:not(:last-child) {
+    margin-bottom: 0;
+  }
 }
 </style>
