@@ -116,7 +116,7 @@ export default {
   validations () {
     return {
       single: buildValidationFromTableSchemas(
-        schema.node, // include `node` table to generate validations
+        schema.node, // use `node` table schema
         {
           // additional custom validations ...
           mac: {

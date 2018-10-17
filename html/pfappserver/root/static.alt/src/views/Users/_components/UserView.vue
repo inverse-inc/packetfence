@@ -216,9 +216,9 @@ export default {
   validations () {
     return {
       userContent: buildValidationFromTableSchemas(
-        schema.person, // include `person` table to generate validations
-        schema.password, // include `password` table to generate validations
-        { sponsor: schema.person.sponsor }, // overload, fix exists in both `person` and `password` tables
+        schema.person, // use `person` table schema
+        schema.password, // use `password` table schema
+        { sponsor: schema.person.sponsor }, // `sponsor` column exists in both `person` and `password` tables, fix: overload
         {
           // additional custom validations ...
           pid: {

@@ -467,7 +467,7 @@ export default {
   validations () {
     return {
       nodeContent: buildValidationFromTableSchemas(
-        schema.node, // include `node` table to generate validations
+        schema.node, // use `node` table schema
         {
           // additional custom validations ...
           pid: {
