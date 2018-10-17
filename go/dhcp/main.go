@@ -284,7 +284,6 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 
 		defer recoverName(options)
 		answer.Local = handler.layer2
-		pffilter := filter_client.NewClient()
 		var Options map[string]string
 		Options = make(map[string]string)
 		for option, value := range options {
@@ -293,12 +292,7 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 			Options[string(key)] = Tlv.Tlvlist[int(option)].Decode.String(value)
 		}
 
-		info, _ := pffilter.FilterDhcp(msgType.String(), map[string]interface{}{
-			"mac":     p.CHAddr().String(),
-			"options": Options,
-		})
-
-		log.LoggerWContext(ctx).Info(p.CHAddr().String() + " " + msgType.String() + " xID " + sharedutils.ByteToString(p.XId()))
+		log.LoggerWContext(ctx).Debug(p.CHAddr().String() + " " + msgType.String() + " xID " + sharedutils.ByteToString(p.XId()))
 
 		id, _ := GlobalTransactionLock.Lock()
 
@@ -455,6 +449,11 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 
 		reply:
 
+			info, _ := pffilter.FilterDhcp(msgType.String(), map[string]interface{}{
+				"mac":     p.CHAddr().String(),
+				"options": Options,
+			})
+			spew.Dump(info)
 			answer.IP = dhcp.IPAdd(handler.start, free)
 			answer.Iface = h.intNet
 			// Add options on the fly
@@ -583,6 +582,11 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 
 				if Reply {
 
+					info, _ := pffilter.FilterDhcp(msgType.String(), map[string]interface{}{
+						"mac":     p.CHAddr().String(),
+						"options": Options,
+					})
+					spew.Dump(info)
 					var GlobalOptions dhcp.Options
 					var options = make(map[dhcp.OptionCode][]byte)
 					for key, value := range handler.options {
