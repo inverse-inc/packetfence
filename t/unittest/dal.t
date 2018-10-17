@@ -109,7 +109,6 @@ is_deeply(
             'mac' => $test_mac,
         },
         -on_conflict => {
-            'tenant_id' => 1,
             'mac' => $test_mac,
         }
     },
