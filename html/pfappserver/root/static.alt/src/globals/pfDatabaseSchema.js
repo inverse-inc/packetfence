@@ -1,6 +1,7 @@
 import i18n from '@/utils/locale'
 import { mysqlLimits as sqlLimits } from '@/globals/mysqlLimits'
 import {
+  and,
   inArray,
   isDateFormat
 } from '@/globals/pfValidators'
@@ -69,9 +70,7 @@ export const buildValidationFromTableSchemas = (...tableSchemas) => {
             break
           case (columnSchema.type === pfMac):
             Object.assign(validation[columnKey], {
-              [i18n.t('Invalid MAC address.')]: macAddress,
-              [i18n.t('Maximum 17 characters.')]: maxLength(17),
-              [i18n.t('Minimum 17 characters.')]: minLength(17)
+              [i18n.t('Invalid MAC address.')]: and(minLength(17), maxLength(17), macAddress)
             })
             break
         }
