@@ -285,7 +285,6 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 		defer recoverName(options)
 		answer.Local = handler.layer2
 		pffilter := filter_client.NewClient()
-
 		var Options map[string]string
 		Options = make(map[string]string)
 		for option, value := range options {

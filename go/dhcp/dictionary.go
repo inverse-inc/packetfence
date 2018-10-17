@@ -2,7 +2,10 @@ package main
 
 import (
 	"encoding/binary"
+	"encoding/hex"
 	"net"
+	"strconv"
+	"strings"
 )
 
 type TlvList struct {
@@ -71,7 +74,7 @@ func (s tlvBlobt) Value(a []byte) interface{} {
 	return a
 }
 func (s tlvBlobt) String(a []byte) string {
-	return "string"
+	return hex.EncodeToString(a)
 }
 
 var tlvSTime tlvSTimet
@@ -104,7 +107,7 @@ func (s tlvShortt) Value(a []byte) interface{} {
 	return a
 }
 func (s tlvShortt) String(a []byte) string {
-	return string(a)
+	return strconv.Itoa(int(binary.BigEndian.Uint16(a)))
 }
 
 var tlvBool tlvBoolt
@@ -158,7 +161,7 @@ func (s tlvMessaget) Value(a []byte) interface{} {
 	return a
 }
 func (s tlvMessaget) String(a []byte) string {
-	return "string"
+	return strconv.Itoa(int(a[0]))
 }
 
 var tlvInt8 tlvInt8t
@@ -169,7 +172,7 @@ func (s tlvInt8t) Value(a []byte) interface{} {
 	return a
 }
 func (s tlvInt8t) String(a []byte) string {
-	return string(binary.BigEndian.Uint16(a))
+	return hex.EncodeToString(a)
 }
 
 var TlvTypeCn TlvTypeCnt
@@ -192,6 +195,23 @@ func (s tlvRangeBytet) Value(a []byte) interface{} {
 }
 func (s tlvRangeBytet) String(a []byte) string {
 	return "string"
+}
+
+var extractFingerPrint extractFingerPrintt
+
+type extractFingerPrintt struct{}
+
+func (s extractFingerPrintt) Value(a []byte) interface{} {
+	return a
+}
+
+func (s extractFingerPrintt) String(a []byte) string {
+	var tmp []string
+	for _, b := range a {
+		tmp = append(tmp, strconv.FormatUint(uint64(b), 10))
+	}
+	fingerprint := strings.Join(tmp, ",")
+	return fingerprint
 }
 
 var Tlv = TlvList{
@@ -251,7 +271,7 @@ var Tlv = TlvList{
 		52:  TlvType{"OptionOverload", tlvOverload},
 		53:  TlvType{"OptionDHCPMessageType", tlvMessage},
 		54:  TlvType{"OptionServerIdentifier", tlvIpAddr},
-		55:  TlvType{"OptionParameterRequestList", tlvInt8},
+		55:  TlvType{"OptionParameterRequestList", extractFingerPrint},
 		56:  TlvType{"OptionMessage", tlvNstring},
 		57:  TlvType{"OptionMaximumDHCPMessageSize", tlvShort},
 		58:  TlvType{"OptionRenewalTimeValue", tlvSTime},

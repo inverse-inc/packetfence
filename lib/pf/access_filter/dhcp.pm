@@ -12,11 +12,42 @@ pf::access_filter::dhcp
 
 use strict;
 use warnings;
-use pf::api::jsonrpcclient;
+
+use pf::violation qw (violation_view_top);
+use pf::util qw(isenabled generate_session_id);
+use pf::CHI;
+use Scalar::Util qw(reftype);
+use Data::Dumper;
+use pf::log;
 
 use base qw(pf::access_filter);
 tie our %ConfigDhcpFilters, 'pfconfig::cached_hash', 'config::DhcpFilters';
 tie our %DhcpFilterEngineScopes, 'pfconfig::cached_hash', 'FilterEngine::DhcpScopes';
+
+
+=head1 SUBROUTINES
+
+=head2 test
+
+Test all the rules
+
+=cut
+
+sub test {
+    my ($self, $scope, $args) = @_;
+    my $logger = $self->logger;
+    my $engine = $self->getEngineForScope($scope);
+    if ($engine) {
+        $args->{'violation'} =  violation_view_top($args->{'mac'});
+        $args->{'fingerbank_info'} = pf::node::fingerbank_info($args->{mac});
+        my $answer = $engine->match_first($args);
+        $self->logger->info("Match rule $answer->{_rule}") if defined $answer;
+        $logger->warn(Dumper $answer);
+        return $answer;
+    }
+    return undef;
+}
+
 
 =head2 filterRule
 
@@ -27,14 +58,81 @@ tie our %DhcpFilterEngineScopes, 'pfconfig::cached_hash', 'FilterEngine::DhcpSco
 sub filterRule {
     my ($self, $rule, $args) = @_;
     my $logger = $self->logger;
+    my $dhcp_reply = {};
     if(defined $rule) {
-        $logger->info(evalLine($rule->{'log'},$args)) if defined($rule->{'log'});
+        $logger->info(evalParam($rule->{'log'},$args)) if defined($rule->{'log'});
         if (defined($rule->{'action'}) && $rule->{'action'} ne '') {
             $self->dispatchAction($rule, $args);
-            return $pf::config::TRUE;
         }
+        my $i = 1;
+        while (1) {
+            if (defined($rule->{"answer$i"}) && $rule->{"answer$i"} ne '') {
+                my @answer = $rule->{"answer$i"} =~ /([.0-9a-zA-Z_-]*)\s*=>\s*(.*)/;
+                evalAnswer(\@answer,$args,\$dhcp_reply);
+            } else {
+                last;
+            }
+            $i++;
+        }
+
     }
-    return $pf::config::FALSE;
+    return $dhcp_reply;
+}
+
+
+
+=head2 evalAnswer
+
+evaluate the radius answer
+
+=cut
+
+sub evalAnswer {
+    my ($answer,$args,$dhcp_reply_ref) = @_;
+
+    my $return = evalParam(@{$answer}[1],$args);
+    my @multi_value = split(';',$return);
+    @{$answer}[0] =~ s/\s//g;
+    if (scalar @multi_value > 1) {
+        $$dhcp_reply_ref->{@{$answer}[0]} = \@multi_value;
+    } else {
+        $$dhcp_reply_ref->{@{$answer}[0]} = $return;
+    }
+
+}
+
+=head2 evalParam
+
+evaluate all the variables
+
+=cut
+
+sub evalParam {
+    my ($answer, $args) = @_;
+    $answer =~ s/\$([a-zA-Z_0-9]+)/$args->{$1} \/\/ ''/ge;
+    $answer =~ s/\$\{([a-zA-Z0-9_\-]+(?:\.[a-zA-Z0-9_\-]+)*)\}/&_replaceParamsDeep($1,$args)/ge;
+    return $answer;
+}
+
+=head2 _replaceParamsDeep
+
+evaluate all the variables deeply
+
+=cut
+
+sub _replaceParamsDeep {
+    my ($param_string, $args) = @_;
+    my @params = split /\./, $param_string;
+    my $param  = pop @params;
+    my $hash   = $args;
+    foreach my $key (@params) {
+        if (exists $hash->{$key} && reftype($hash->{$key}) eq 'HASH') {
+            $hash = $hash->{$key};
+            next;
+        }
+        return '';
+    }
+    return $hash->{$param} // '';
 }
 
 =head2 getEngineForScope
@@ -49,51 +147,6 @@ sub getEngineForScope {
         return $DhcpFilterEngineScopes{$scope};
     }
     return undef;
-}
-
-=head2 dispatchAction
-
-Return the reference to the function that call the api.
-
-=cut
-
-sub dispatchAction {
-    my ($self, $rule, $args) = @_;
-
-    my $param = $self->evalParam($rule->{'action_param'}, $args);
-    my $apiclient = pf::api::jsonrpcclient->new;
-    $apiclient->notify($rule->{'action'}, %{$param});
-}
-
-=head2 evalParam
-
-evaluate action parameters
-
-=cut
-
-sub evalParam {
-    my ($self, $action_param, $args) = @_;
-    my @params = split(/\s*,\s*/, $action_param);
-    my $return = {};
-    foreach my $param (@params) {
-        $param =~ s/\$([A-Za-z0-9_]+)/$args->{$1} \/\/ '' /ge;
-        $param =~ s/^\s+|\s+$//g;
-        my @param_unit = split(/\s*=\s*/, $param);
-        $return = {%$return, @param_unit};
-    }
-    return $return;
-}
-
-=head2 evalLine
-
-evaluate all the variables
-
-=cut
-
-sub evalLine {
-    my ($answer, $args) = @_;
-    $answer =~ s/\$([a-zA-Z_]+)/$args->{$1} \/\/ ''/ge;
-    return $answer;
 }
 
 =head1 AUTHOR
@@ -124,3 +177,7 @@ USA.
 =cut
 
 1;
+
+# vim: set shiftwidth=4:
+# # vim: set expandtab:
+# # vim: set backspace=indent,eol,start:
