@@ -197,12 +197,37 @@
                     :validation="$v.staticMapping[index].value"
                   ></pf-form-datetime>
 
+                  <!-- BEGIN PREFIXMULTIPLIER -->
+                  <pf-form-prefix-multiplier v-else-if="isFieldType(prefixmultiplierValueType, staticMapping[index])"
+                    v-model="staticMapping[index].value"
+                    :class="{ 'border-danger': $v.staticMapping[index].value.$anyError }"
+                    :validation="$v.staticMapping[index].value"
+                  ></pf-form-prefix-multiplier>
+
+                  <!-- BEGIN YESNO -->
+                  <pf-form-toggle  v-else-if="isFieldType(yesnoValueType, staticMapping[index])"
+                    v-model="staticMapping[index].value" 
+                    :values="{checked: 'yes', unchecked: 'no'}"
+                    :validation="$v.staticMapping[index].value"
+                  >{{ (staticMapping[index].value === 'yes') ? $t('Yes') : $t('No') }}</pf-form-toggle>
+
                   <!-- BEGIN GENDER -->
                   <pf-form-chosen v-else-if="isFieldType(genderValueType, staticMapping[index])"
                     :value="staticMapping[index].value"
                     label="name"
                     track-by="value"
                     :options="fieldTypeValues[genderValueType]()"
+                    :validation="$v.staticMapping[index].value"
+                    @input="staticMapping[index].value = $event"
+                    collapse-object
+                  ></pf-form-chosen>
+
+                  <!-- BEGIN ROLE -->
+                  <pf-form-chosen v-else-if="isFieldType(roleValueType, staticMapping[index])"
+                    :value="staticMapping[index].value"
+                    label="name"
+                    track-by="value"
+                    :options="fieldTypeValues[roleValueType]($store)"
                     :validation="$v.staticMapping[index].value"
                     @input="staticMapping[index].value = $event"
                     collapse-object
@@ -286,6 +311,7 @@ import uuidv4 from 'uuid/v4'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormInput from '@/components/pfFormInput'
+import pfFormPrefixMultiplier from '@/components/pfFormPrefixMultiplier'
 import pfFormSelect from '@/components/pfFormSelect'
 import pfFormToggle from '@/components/pfFormToggle'
 import pfMixinSelectable from '@/components/pfMixinSelectable'
@@ -309,6 +335,7 @@ export default {
     pfFormChosen,
     pfFormDatetime,
     pfFormInput,
+    pfFormPrefixMultiplier,
     pfFormSelect,
     pfFormToggle
   },
@@ -338,11 +365,14 @@ export default {
       staticMapping: Array,
       staticMappingNew: null,
       exportModel: Array,
-      substringValueType: fieldType.SUBSTRING,
-      dateValueType:      fieldType.DATE,
-      datetimeValueType:  fieldType.DATETIME,
-      genderValueType:    fieldType.GENDER,
-      sourceValueType:    fieldType.SOURCE,
+      substringValueType:        fieldType.SUBSTRING,
+      dateValueType:             fieldType.DATE,
+      datetimeValueType:         fieldType.DATETIME,
+      prefixmultiplierValueType: fieldType.PREFIXMULTIPLIER,
+      genderValueType:           fieldType.GENDER,
+      roleValueType:             fieldType.ROLE,
+      sourceValueType:           fieldType.SOURCE,
+      yesnoValueType:            fieldType.YESNO,
       uuid: uuidv4(), // unique id for multiple instances of this component
       config: { // Papa parse config
         delimiter: '', // auto-detect
@@ -580,7 +610,7 @@ export default {
       const index = this.fields.findIndex(field => input.key === field.value)
       if (index >= 0) {
         const field = this.fields[index]
-        if (field.types.includes(type)) {
+        if ('types' in field && field.types.includes(type)) {
           return true
         }
       }
