@@ -14,7 +14,8 @@ export const pfFieldType = {
   ROLE:                    'role',
   SOURCE:                  'source',
   TENANT:                  'tenant',
-  GENDER:                  'gender'
+  GENDER:                  'gender',
+  YESNO:                   'yesno'
 }
 
 export const pfFieldTypeValues = {}
@@ -63,5 +64,11 @@ pfFieldTypeValues[pfFieldType.GENDER] = () => {
     { name: i18n.t('Male'), value: 'm' },
     { name: i18n.t('Female'), value: 'f' },
     { name: i18n.t('Other'), value: 'o' }
+  ]
+}
+pfFieldTypeValues[pfFieldType.YESNO] = () => {
+  return [
+    { name: i18n.t('Yes'), value: 'yes' },
+    { name: i18n.t('No'), value: 'no' }
   ]
 }

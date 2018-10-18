@@ -25,7 +25,7 @@ export class pfMac extends pfDatabaseSchemaType {}
 
 export const buildValidationFromTableSchemas = (...tableSchemas) => {
   let validation = {}
-  for (let tableSchema of tableSchemas) {
+  for (var tableSchema of tableSchemas) {
     for (let [columnKey, columnSchema] of Object.entries(tableSchema)) {
       // eslint-disable-next-line
       if ('type' in columnSchema && new columnSchema.type() instanceof pfDatabaseSchemaType) {
@@ -33,47 +33,7 @@ export const buildValidationFromTableSchemas = (...tableSchemas) => {
         //   Create vuelidate struct from one or more tableSchema(s).
         //   Columns are not unique since more than one tableSchema can utilize the same key(s).
         //   We will overwrite each key (if more than one exists) instead of merging (overloading).
-        validation[columnKey] = {}
-        switch (true) {
-          case (columnSchema.type === pfString):
-            Object.assign(validation[columnKey], {
-              [i18n.t('Maximum {maxLength} characters.', columnSchema)]: maxLength(columnSchema.maxLength)
-            })
-            break
-          case (columnSchema.type === pfNumber):
-            Object.assign(validation[columnKey], {
-              [i18n.t('Must be numeric.')]: numeric,
-              [i18n.t('Minimum value of {min}.', columnSchema)]: minValue(columnSchema.min),
-              [i18n.t('Maximum value of {max}.', columnSchema)]: maxValue(columnSchema.max)
-            })
-            break
-          case (columnSchema.type === pfDatetime):
-            if ('format' in columnSchema) {
-              let allowZero = (columnSchema.default && columnSchema.default === columnSchema.format.replace(/[a-z]/gi, '0'))
-              Object.assign(validation[columnKey], {
-                [i18n.t('Invalid date.')]: isDateFormat(columnSchema.format, allowZero)
-              })
-            }
-            break
-          case (columnSchema.type === pfEnum):
-            if ('enum' in columnSchema) {
-              Object.assign(validation[columnKey], {
-                [i18n.t('Invalid value.')]: inArray(columnSchema.enum)
-              })
-            }
-            break
-          case (columnSchema.type === pfEmail):
-            Object.assign(validation[columnKey], {
-              [i18n.t('Invalid email address.')]: email,
-              [i18n.t('Maximum {maxLength} characters.', columnSchema)]: maxLength(columnSchema.maxLength)
-            })
-            break
-          case (columnSchema.type === pfMac):
-            Object.assign(validation[columnKey], {
-              [i18n.t('Invalid MAC address.')]: and(minLength(17), maxLength(17), macAddress)
-            })
-            break
-        }
+        validation[columnKey] = buildValidationFromColumnSchemas(columnSchema)
       } else {
         // Manual definition:
         //   Create vuelidate struct from one or more direct definitions.
@@ -81,6 +41,58 @@ export const buildValidationFromTableSchemas = (...tableSchemas) => {
         if (!(columnKey in validation)) validation[columnKey] = {}
         Object.assign(validation[columnKey], columnSchema)
       }
+    }
+  }
+  return validation
+}
+
+export const buildValidationFromColumnSchemas = (...columnSchemas) => {
+  let validation = {}
+  for (let columnSchema of columnSchemas) {
+    // eslint-disable-next-line
+    if ('type' in columnSchema && new columnSchema.type() instanceof pfDatabaseSchemaType) {
+      switch (true) {
+        case (columnSchema.type === pfString):
+          Object.assign(validation, {
+            [i18n.t('Maximum {maxLength} characters.', columnSchema)]: maxLength(columnSchema.maxLength)
+          })
+          break
+        case (columnSchema.type === pfNumber):
+          Object.assign(validation, {
+            [i18n.t('Must be numeric.')]: numeric,
+            [i18n.t('Minimum value of {min}.', columnSchema)]: minValue(columnSchema.min),
+            [i18n.t('Maximum value of {max}.', columnSchema)]: maxValue(columnSchema.max)
+          })
+          break
+        case (columnSchema.type === pfDatetime):
+          if ('format' in columnSchema) {
+            let allowZero = (columnSchema.default && columnSchema.default === columnSchema.format.replace(/[a-z]/gi, '0'))
+            Object.assign(validation, {
+              [i18n.t('Invalid date.')]: isDateFormat(columnSchema.format, allowZero)
+            })
+          }
+          break
+        case (columnSchema.type === pfEnum):
+          if ('enum' in columnSchema) {
+            Object.assign(validation, {
+              [i18n.t('Invalid value.')]: inArray(columnSchema.enum)
+            })
+          }
+          break
+        case (columnSchema.type === pfEmail):
+          Object.assign(validation, {
+            [i18n.t('Invalid email address.')]: email,
+            [i18n.t('Maximum {maxLength} characters.', columnSchema)]: maxLength(columnSchema.maxLength)
+          })
+          break
+        case (columnSchema.type === pfMac):
+          Object.assign(validation, {
+            [i18n.t('Invalid MAC address.')]: and(minLength(17), maxLength(17), macAddress)
+          })
+          break
+      }
+    } else {
+      Object.assign(validation, columnSchema)
     }
   }
   return validation
@@ -314,7 +326,13 @@ export const pfDatabaseSchema = {
     )
   },
   person: {
-    tenant_id: sqlLimits.int,
+    tenant_id: Object.assign(
+      sqlLimits.int,
+      {
+        type: pfNumber,
+        default: 1
+      }
+    ),
     pid: {
       type: pfString,
       maxLength: 255
