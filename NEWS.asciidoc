@@ -24,6 +24,7 @@ New Features
 * New authentication source Password Of the Day (PR #3285)
 * Added SMTP test function in Alerting (PR #3642)
 * Juniper SRX Firewall SSO module (PR #2842)
+* Added support for clusters with servers located in multiple layer 3 networks (PR #3656)
 
 Enhancements
 ++++++++++++
