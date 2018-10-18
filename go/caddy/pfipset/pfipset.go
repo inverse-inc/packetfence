@@ -106,8 +106,30 @@ func buildPfipsetHandler(ctx context.Context) (PfipsetHandler, error) {
 		// Create a new context just for this goroutine
 		ctx := context.WithValue(ctx, "dummy", "dummy")
 		for {
-			pfipset.IPSET.initIPSet(ctx, pfipset.database)
-			log.LoggerWContext(ctx).Info("Reloading ipsets")
+			var Inline bool
+			Inline = false
+			var keyConfNet pfconfigdriver.PfconfigKeys
+			keyConfNet.PfconfigNS = "config::Network"
+			keyConfNet.PfconfigHostnameOverlay = "yes"
+
+			pfconfigdriver.FetchDecodeSocket(ctx, &keyConfNet)
+
+			for _, key := range keyConfNet.Keys {
+				var ConfNet pfconfigdriver.RessourseNetworkConf
+				ConfNet.PfconfigHashNS = key
+
+				pfconfigdriver.FetchDecodeSocket(ctx, &ConfNet)
+
+				if ConfNet.Type == "inline" {
+					Inline = true
+				}
+			}
+			if Inline {
+				pfipset.IPSET.initIPSet(ctx, pfipset.database)
+				log.LoggerWContext(ctx).Info("Reloading ipsets")
+			} else {
+				log.LoggerWContext(ctx).Info("No Inline Network bypass ipsets reload")
+			}
 			time.Sleep(300 * time.Second)
 		}
 	}()
