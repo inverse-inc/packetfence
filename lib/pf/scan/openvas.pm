@@ -68,7 +68,7 @@ sub createEscalator {
     if ( defined($response) && $response eq $RESPONSE_RESOURCE_CREATED ) {
         $logger->info("Scan escalator named $name successfully created with id: $escalator_id");
         $self->{_escalatorId} = $escalator_id;
-        return $TRUE;
+        return 0;
     }
 
     $logger->warn("There was an error creating scan escalator named $name, here's the output: $output");
@@ -297,11 +297,10 @@ sub startTask {
         $self->{_reportId} = $report_id;
         $self->{'_status'} = $STATUS_STARTED;
         $self->statusReportSyncToDb();
-        return $TRUE;
+        return;
     }
 
     $logger->warn("There was an error starting the scan task named $name, here's the output: $output");
-    return;
 }
 
 =item _generateCallback

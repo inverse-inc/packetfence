@@ -107,13 +107,13 @@ sub startScan {
     my $policy_id = $nessus->get_policy_id(name => $nessus_clientpolicy);
     if ($policy_id eq "") {
         $logger->warn("Nessus policy doesnt exist ".$nessus_clientpolicy);
-        return 1;
+        return $scan_vid;
     }
 
     my $scanner_id = $nessus->get_scanner_id(name => $scanner_name);
     if ($scanner_id eq ""){
         $logger->warn("Nessus scanner name doesn't exist ".$scanner_id);
-        return 1;
+        return $scan_vid;
     }
 
     #This is neccesary because the way of the new nessus API works, if the scan fails most likely
@@ -121,7 +121,7 @@ sub startScan {
     my $policy_uuid = $nessus->get_template_id( name => 'custom', type => 'scan');
     if ($policy_uuid eq ""){
         $logger->warn("Failled to obtain the uuid for the policy ".$policy_uuid);
-        return 1;
+        return $scan_vid;
     }
 
 
@@ -138,7 +138,7 @@ sub startScan {
     );
     if ( $scan_id eq "") {
         $logger->warn("Failled to create the scan");
-        return 1;
+        return $scan_vid;
     }
 
     $nessus->launch_scan(scan_id => $scan_id->{id});
@@ -153,7 +153,7 @@ sub startScan {
     while ($nessus->get_scan_status(scan_id => $scan_id->{id}) ne 'completed') {
         if ($counter > 3600) {
             $logger->info("Nessus scan is older than 1 hour ...");
-            return 1;
+            return $scan_vid;
         }
         $logger->info("Nessus is scanning $hostaddr");
         sleep 15;
