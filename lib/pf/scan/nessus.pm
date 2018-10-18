@@ -94,7 +94,7 @@ sub startScan {
     my $polid = $n->policy_get_id($nessus_clientpolicy);
     if ($polid eq "") {
         $logger->warn("Nessus policy doesnt exist ".$nessus_clientpolicy);
-        return 1;
+        return 0;
     }
     my $scanname = "pf-".$hostaddr."-".$nessus_clientpolicy;
     my $scanid = $n->scan_new($polid, $scanname, $hostaddr);
@@ -116,7 +116,7 @@ sub startScan {
     while (not $n->scan_finished($scanid)) {
         if ($counter > 3600) {
             $logger->info("Nessus scan is older than 1 hour ...");
-            return 1;
+            return 0;
         }
         $logger->info("Nessus is scanning $hostaddr");
         sleep 15;
