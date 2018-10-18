@@ -239,7 +239,6 @@ our @API_V1_ROUTES = (
         Config::Scans
         Config::Sources
         Config::SwitchGroups
-        Config::SyslogParsers
         Config::TrafficShapingPolicies
         Config::Violations
     ),
@@ -263,6 +262,14 @@ our @API_V1_ROUTES = (
             },
             subroutes => undef,
         },
+    },
+    {
+        controller => 'Config::SyslogParsers',
+        collection => {
+            subroutes => {
+                map { $_ => { post => $_ } } qw(search dry_run)
+            }
+        }
     },
     {
         controller => 'Translations',

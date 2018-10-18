@@ -41,6 +41,15 @@ has_field 'loglines' => (
     'is_inactive' => 1,
 );
 
+has_field 'lines' => (
+    'type' => 'Repeatable',
+    'is_inactive' => 1,
+);
+
+has_field 'lines.contains' => (
+    type => 'Text',
+);
+
 =head2 build_rule_label
 
 Build the rule label
