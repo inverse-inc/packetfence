@@ -458,7 +458,7 @@ export default {
           }
         }
       }
-      return feedback.join(' ')
+      return feedback.join('<br/>')
     },
     getValueValidation (index) {
       if (index in this.validation && 'value' in this.validation[index]) {
@@ -481,7 +481,7 @@ export default {
           }
         }
       }
-      return feedback.join(' ')
+      return feedback.join('<br/>')
     },
     getMoments (index) {
       if ('moments' in this.inputValue[index].type) {
