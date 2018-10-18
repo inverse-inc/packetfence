@@ -5,7 +5,7 @@
             "description" : "The cursor pointer to fetch the data (value should be taken from previousCursor and nextCursor)",
             "in" : "query",
             "name" : "cursor",
-            "required" : "",
+            "required" : false,
             "schema" : {
                "type" : "string"
             }
@@ -14,7 +14,7 @@
             "description" : "Comma delimited fields that should be added to the resource by performing joins. For example, in order to get the IP address of a node when calling the nodes endpoints, setting 'ip4log.ip' into this field will provide the latest IP address of the device in the 'ip4log.ip' field of every node that is returned.",
             "in" : "body",
             "name" : "fields",
-            "required" : "",
+            "required" : false,
             "schema" : {
                "example" : [
                   "mac",
@@ -31,7 +31,7 @@
             "description" : "The name of the ipset to manipulate",
             "in" : "path",
             "name" : "set_name",
-            "required" : "1",
+            "required" : true,
             "schema" : {
                "type" : "string"
             }
@@ -40,7 +40,7 @@
             "description" : "The maximum amount of entries to get.",
             "in" : "query|body",
             "name" : "limit",
-            "required" : "",
+            "required" : false,
             "schema" : {
                "type" : "int"
             }
@@ -49,9 +49,9 @@
             "description" : "The local is used to determine if the request should be forwarded to the rest of the cluster. A value of '0' forwards the request and either a missing or alternate value does not forward the request to the rest of the cluster.",
             "in" : "query",
             "name" : "local",
-            "required" : "",
+            "required" : false,
             "schema" : {
-               "default" : "0",
+               "default" : 0,
                "type" : "integer"
             }
          },
@@ -76,7 +76,7 @@
             "description" : "The JSON encoded search query following the Search schema defined in this spec",
             "in" : "body",
             "name" : "query",
-            "required" : "1",
+            "required" : true,
             "schema" : {
                "$ref" : "#/components/schemas/Search"
             }
@@ -85,7 +85,7 @@
             "description" : "A list of fields to sort on along with the ordering way (ASC or DESC).",
             "in" : "body",
             "name" : "sort",
-            "required" : "",
+            "required" : false,
             "schema" : {
                "example" : [
                   "iplog.ip DESC",
@@ -101,7 +101,7 @@
             "description" : "The user ID",
             "in" : "path",
             "name" : "user_id",
-            "required" : "1",
+            "required" : true,
             "schema" : {
                "type" : "string"
             }
@@ -4549,6 +4549,69 @@
                      "items" : {
                         "items" : {
                            "$ref" : "#/components/schemas/ConfigPortalModule"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
+         },
+         "ConfigProvisioning" : {
+            "properties" : {
+               "category" : {
+                  "description" : "Nodes with the selected roles will be affected",
+                  "items" : {
+                     "description" : "Nodes with the selected roles will be affected",
+                     "type" : "string"
+                  },
+                  "type" : "array"
+               },
+               "description" : {
+                  "description" : "Description",
+                  "type" : "string"
+               },
+               "id" : {
+                  "description" : "Provisioning ID",
+                  "type" : "string"
+               },
+               "non_compliance_violation" : {
+                  "description" : "Which violation should be raised when non compliance is detected",
+                  "type" : "string"
+               },
+               "oses" : {
+                  "description" : "Nodes with the selected OS will be affected",
+                  "items" : {
+                     "description" : "Nodes with the selected OS will be affected",
+                     "type" : "string"
+                  },
+                  "type" : "array"
+               },
+               "pki_provider" : {
+                  "description" : "PKI Provider",
+                  "type" : "string"
+               },
+               "type" : {
+                  "description" : "Provisioning type",
+                  "type" : "string"
+               }
+            },
+            "required" : [
+               "id",
+               "type"
+            ],
+            "type" : "object"
+         },
+         "ConfigProvisioningsList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "items" : {
+                           "$ref" : "#/components/schemas/ConfigProvisioning"
                         },
                         "type" : "array"
                      }
@@ -15614,6 +15677,145 @@
             }
          }
       },
+      "/config/provisioning/{provisioning_id}" : {
+         "delete" : {
+            "description" : "Remove an item",
+            "operationId" : "api.v1.Config::Provisionings.remove",
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "provisioning_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
+            "responses" : {
+               "204" : {
+                  "description" : "Deleted a config item"
+               }
+            }
+         },
+         "description" : "pf::UnifiedApi::Controller::Config::Provisionings",
+         "get" : {
+            "description" : "Get an item",
+            "operationId" : "api.v1.Config::Provisionings.get",
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "provisioning_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ConfigProvisioning"
+                        }
+                     }
+                  }
+               },
+               "400" : {
+                  "$ref" : "#/components/responses/BadRequest"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            }
+         },
+         "patch" : {
+            "description" : "Update an item",
+            "operationId" : "api.v1.Config::Provisionings.update",
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "provisioning_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
+            "requestBody" : {
+               "content" : {
+                  "application/json" : {
+                     "schema" : {
+                        "$ref" : "#/components/schemas/ConfigProvisioning"
+                     }
+                  }
+               }
+            },
+            "responses" : {
+               "400" : {
+                  "$ref" : "#/components/responses/BadRequest"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            }
+         },
+         "put" : {
+            "description" : "Replace an item",
+            "operationId" : "api.v1.Config::Provisionings.replace",
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "provisioning_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
+            "requestBody" : {
+               "content" : {
+                  "application/json" : {
+                     "schema" : {
+                        "$ref" : "#/components/schemas/ConfigProvisioning"
+                     }
+                  }
+               }
+            },
+            "responses" : {
+               "201" : {
+                  "$ref" : "#/components/responses/Created"
+               },
+               "400" : {
+                  "$ref" : "#/components/responses/BadRequest"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            }
+         }
+      },
+      "/config/provisionings" : {
+         "description" : "pf::UnifiedApi::Controller::Config::Provisionings",
+         "get" : {
+            "description" : "List items",
+            "operationId" : "api.v1.Config::Provisionings.list",
+            "parameters" : [],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ConfigProvisioningsList"
+                        }
+                     }
+                  }
+               },
+               "400" : {
+                  "$ref" : "#/components/responses/BadRequest"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            }
+         }
+      },
       "/config/realm/{realm_id}" : {
          "delete" : {
             "description" : "Remove an item",
@@ -17441,7 +17643,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -17470,7 +17672,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -17499,7 +17701,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -17528,7 +17730,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -17557,7 +17759,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -17586,7 +17788,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -17615,7 +17817,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -17647,7 +17849,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -17676,7 +17878,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -17705,7 +17907,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -17963,7 +18165,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -18011,7 +18213,7 @@
                   "description" : "The node ID to fetch",
                   "in" : "path",
                   "name" : "node_id",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -18045,7 +18247,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -18069,7 +18271,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -18227,7 +18429,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -18574,7 +18776,7 @@
                   "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "start",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -18583,7 +18785,7 @@
                   "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "end",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -18713,7 +18915,7 @@
                   "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "start",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -18722,7 +18924,7 @@
                   "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "end",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -18818,7 +19020,7 @@
                   "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "start",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -18827,7 +19029,7 @@
                   "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "end",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -18974,7 +19176,7 @@
                   "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "start",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -18983,7 +19185,7 @@
                   "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "end",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -19079,7 +19281,7 @@
                   "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "start",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -19088,7 +19290,7 @@
                   "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "end",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -19150,7 +19352,7 @@
                   "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "start",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -19159,7 +19361,7 @@
                   "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "end",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -19187,7 +19389,7 @@
                   "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "start",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -19196,7 +19398,7 @@
                   "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "end",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -19224,7 +19426,7 @@
                   "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "start",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -19233,7 +19435,7 @@
                   "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "end",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -19261,7 +19463,7 @@
                   "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "start",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -19270,7 +19472,7 @@
                   "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "end",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -19298,7 +19500,7 @@
                   "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "start",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -19307,7 +19509,7 @@
                   "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "end",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -19335,7 +19537,7 @@
                   "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "start",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -19344,7 +19546,7 @@
                   "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "end",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -19372,7 +19574,7 @@
                   "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "start",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -19381,7 +19583,7 @@
                   "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "end",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -19477,7 +19679,7 @@
                   "description" : "The service name to fetch",
                   "in" : "path",
                   "name" : "service",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -19510,7 +19712,7 @@
                   "description" : "The service name to fetch",
                   "in" : "path",
                   "name" : "service",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -19543,7 +19745,7 @@
                   "description" : "The service name to fetch",
                   "in" : "path",
                   "name" : "service",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -19576,7 +19778,7 @@
                   "description" : "The service name to fetch",
                   "in" : "path",
                   "name" : "service",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -19634,7 +19836,7 @@
                   "description" : "The service name to fetch",
                   "in" : "path",
                   "name" : "service",
-                  "required" : "1",
+                  "required" : true,
                   "schema" : {
                      "type" : "string"
                   }
@@ -20656,7 +20858,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {
@@ -20685,7 +20887,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "201" : {
@@ -20717,7 +20919,7 @@
                      }
                   }
                },
-               "required" : "1"
+               "required" : true
             },
             "responses" : {
                "200" : {

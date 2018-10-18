@@ -1,0 +1,33 @@
+ConfigProvisioning:
+  properties:
+    category:
+      description: Nodes with the selected roles will be affected
+      items:
+        description: Nodes with the selected roles will be affected
+        type: string
+      type: array
+    description:
+      description: Description
+      type: string
+    id:
+      description: Provisioning ID
+      type: string
+    non_compliance_violation:
+      description: Which violation should be raised when non compliance is detected
+      type: string
+    oses:
+      description: Nodes with the selected OS will be affected
+      items:
+        description: Nodes with the selected OS will be affected
+        type: string
+      type: array
+    pki_provider:
+      description: PKI Provider
+      type: string
+    type:
+      description: Provisioning type
+      type: string
+  required:
+  - id
+  - type
+  type: object

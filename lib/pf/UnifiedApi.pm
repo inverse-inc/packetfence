@@ -234,6 +234,7 @@ our @API_V1_ROUTES = (
         Config::MaintenanceTasks
         Config::PkiProviders
         Config::PortalModules
+        Config::Provisionings
         Config::Realms
         Config::Roles
         Config::Scans
