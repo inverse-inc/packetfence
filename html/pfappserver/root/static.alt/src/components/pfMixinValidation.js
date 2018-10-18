@@ -91,7 +91,7 @@ export default {
       let feedback = []
       if (this.invalidFeedback) {
         // add manually defined feedback
-        feedback.push(this.stringifyFeedback(this.invalidFeedback))
+        return this.stringifyFeedback(this.invalidFeedback)
       }
       if (this.validation) {
         // add automatically generated feedback
@@ -100,7 +100,7 @@ export default {
             if (this.validation[param] === false) feedback.push(param)
           })
         }
-        return feedback.join(' ')
+        return feedback.join('\n')
       }
     }
   },
