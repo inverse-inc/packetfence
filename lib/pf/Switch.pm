@@ -61,6 +61,7 @@ use Time::HiRes;
 use pf::access_filter::radius;
 use File::Spec::Functions;
 use File::FcntlLock;
+use JSON::MaybeXS;
 
 #
 # %TRAP_NORMALIZERS
@@ -442,7 +443,7 @@ sub cachedSNMPTable {
         return undef;
     }
     $options //= {};
-    return $self->cache->compute([ $self->{'_id'},  $args ], $options, sub {$self->{_sessionRead}->get_table(@$args)});
+    return $self->cache->compute($self->{'_id'} . "-"  . encode_json($args), $options, sub {$self->{_sessionRead}->get_table(@$args)});
 }
 
 =item cachedSNMPRequest
@@ -465,7 +466,7 @@ sub cachedSNMPRequest {
         return undef;
     }
     $options //= {};
-    return $self->cache->compute([ $self->{'_id'},  $args ], $options, sub {$self->{_sessionRead}->get_request(@$args)});
+    return $self->cache->compute($self->{'_id'} . "-"  . encode_json($args), $options, sub {$self->{_sessionRead}->get_request(@$args)});
 }
 
 =item disconnectRead - closing read connection to switch
