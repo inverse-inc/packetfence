@@ -2,7 +2,7 @@
   <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
     :state="isValid()" :invalid-feedback="getInvalidFeedback()"
     class="input-element" :class="{ 'mb-0': !columnLabel }">
-    <b-input-group class="input-group-input">
+    <b-input-group>
       <b-form-input
         v-model="inputValue"
         v-bind="$attrs"
