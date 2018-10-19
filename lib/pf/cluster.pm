@@ -250,7 +250,7 @@ Get the list of the MySQL servers ordered by priority
 =cut
 
 sub mysql_servers {
-    return reverse(db_enabled_hosts());
+    return reverse(db_enabled_servers());
 }
 
 =head2 members_ips
