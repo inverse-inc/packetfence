@@ -90,7 +90,7 @@ Returns the @cluster_servers list without the servers that are disabled on this 
 =cut
 
 sub enabled_servers {
-    return grep { -f node_disabled_file($_->{host}) }  @cluster_servers;
+    return map { (-f node_disabled_file($_->{host})) ? () : $_ } @cluster_servers;
 }
 
 =head2 enabled_hosts
@@ -100,7 +100,7 @@ Returns the @cluster_hosts list without the servers that are disabled on this ho
 =cut
 
 sub enabled_hosts {
-    return grep { -f node_disabled_file($_) }  @cluster_hosts;
+    return map { (-f node_disabled_file($_)) ? () : $_ } @cluster_hosts;
 }
 
 =head2 db_enabled_servers
@@ -110,7 +110,7 @@ Returns the @db_cluster_servers list without the servers that are disabled on th
 =cut
 
 sub db_enabled_servers {
-    return grep { -f node_disabled_file($_->{host}) }  @db_cluster_servers;
+    return map { (-f node_disabled_file($_->{host})) ? () : $_ } @db_cluster_servers;
 }
 
 =head2 db_enabled_hosts
@@ -120,7 +120,7 @@ Returns the @db_cluster_hosts list without the servers that are disabled on this
 =cut
 
 sub db_enabled_hosts {
-    return grep { -f node_disabled_file($_) }  @db_cluster_hosts;
+    return map { (-f node_disabled_file($_)) ? () : $_ } @db_cluster_hosts;
 }
 
 =head2 config_enabled_servers
@@ -130,7 +130,7 @@ Returns the @config_cluster_servers list without the servers that are disabled o
 =cut
 
 sub config_enabled_servers {
-    return grep { -f node_disabled_file($_->{host}) }  @config_cluster_servers;
+    return map { (-f node_disabled_file($_->{host})) ? () : $_ } @config_cluster_servers;
 }
 
 =head2 config_enabled_hosts
@@ -140,7 +140,7 @@ Returns the @config_cluster_hosts list without the servers that are disabled on 
 =cut
 
 sub config_enabled_hosts {
-    return grep { -f node_disabled_file($_) }  @config_cluster_hosts;
+    return map { (-f node_disabled_file($_)) ? () : $_ } @config_cluster_hosts;
 }
 
 =head2 all_hosts
