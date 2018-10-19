@@ -198,11 +198,6 @@ sub join_options {
     return join("\n",@$options);
 }
 
-sub join_options {
-    my ($self, $options) = @_;
-    return join("\n", @$options);
-}
-
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT
