@@ -504,6 +504,14 @@ cmp_deeply(
                         type => 'string',
                         description => 'Loglines',
                     },
+                    lines => {
+                        type => 'array',
+                        items => {
+                            type => 'string',
+                            description => 'Line',
+                        },
+                        description => 'Lines',
+                    },
                     rules => {
                         type => 'array',
                         items => {
