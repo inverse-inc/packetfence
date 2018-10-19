@@ -35,6 +35,7 @@ ok(!$configStore->remove('default'),"Cannot remove default");
 is_deeply([], [$configStore->search()], "Search for nothing get nothing");
 
 is_deeply(
+    [ $configStore->search( "param1", "value1", ) ],
     [
         {
             'param1' => 'value1',
@@ -61,7 +62,6 @@ is_deeply(
             'param4' => 'value4',
         }
     ],
-    [ $configStore->search( "param1", "value1", ) ],
     "Search param1=value1"
 );
 
@@ -143,6 +143,7 @@ is_deeply(
 is_deeply([], [$configStore->search_like()], "Search like for nothing get nothing");
 
 is_deeply(
+    [$configStore->search_like('param1', qr/^value/)], 
     [
         {
             'param1' => 'value1',
@@ -169,7 +170,6 @@ is_deeply(
             'param4' => 'value4',
         }
     ], 
-    [$configStore->search_like('param1', qr/^value/)], 
     "Search like for nothing get nothing"
 );
 

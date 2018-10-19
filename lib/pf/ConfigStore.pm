@@ -398,6 +398,22 @@ sub remove {
     return $self->cachedConfig->DeleteSection($self->_formatSectionName($id));
 }
 
+=head2 remove_always
+
+remove_always
+
+=cut
+
+sub remove_always {
+    my ($self, $id) = @_;
+    my $realSectionName = $self->_formatSectionName($id);
+    if (!$self->cachedConfig->SectionExists($realSectionName)) {
+        return $FALSE;
+    }
+
+    return $self->cachedConfig->DeleteSection($realSectionName);
+}
+
 
 =head2 canDelete
 
@@ -408,6 +424,11 @@ canDelete
 sub canDelete {
     my ($self, $id) = @_;
     my $realSectionName = $self->_formatSectionName($id);
+    my $default_section = $self->default_section;
+    if ($default_section && $default_section eq $realSectionName) {
+        return $FALSE;
+    }
+
     my $import = $self->cachedConfig->{imported};
     if ($import && $import->SectionExists($realSectionName)) {
         return $FALSE;
