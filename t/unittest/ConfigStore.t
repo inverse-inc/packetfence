@@ -28,7 +28,7 @@ plan tests => 27;
 
 use_ok("pf::ConfigStore");
 
-my $configStore = new_ok("pf::ConfigStore",[{configFile => './data/test.conf',default_section => 'default'}]);
+my $configStore = new_ok("pf::ConfigStore",[{configFile => '/usr/local/pf/t/data/test.conf',default_section => 'default'}]);
 
 ok(!$configStore->remove('default'),"Cannot remove default");
 
