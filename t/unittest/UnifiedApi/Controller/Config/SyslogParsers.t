@@ -112,7 +112,8 @@ $t->post_ok( "$collection_base_url/dry_run" => json => $config )
                 ],
                 'line' => 'from: 1.2.3.4, to: 1.2.3.5'
             }
-        ]
+        ],
+        status => 200,
     }
   );
 
@@ -144,4 +145,3 @@ USA.
 =cut
 
 1;
-
