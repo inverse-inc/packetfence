@@ -5,7 +5,7 @@
             "description" : "The cursor pointer to fetch the data (value should be taken from previousCursor and nextCursor)",
             "in" : "query",
             "name" : "cursor",
-            "required" : false,
+            "required" : "",
             "schema" : {
                "type" : "string"
             }
@@ -14,7 +14,7 @@
             "description" : "Comma delimited fields that should be added to the resource by performing joins. For example, in order to get the IP address of a node when calling the nodes endpoints, setting 'ip4log.ip' into this field will provide the latest IP address of the device in the 'ip4log.ip' field of every node that is returned.",
             "in" : "body",
             "name" : "fields",
-            "required" : false,
+            "required" : "",
             "schema" : {
                "example" : [
                   "mac",
@@ -31,7 +31,7 @@
             "description" : "The name of the ipset to manipulate",
             "in" : "path",
             "name" : "set_name",
-            "required" : true,
+            "required" : "1",
             "schema" : {
                "type" : "string"
             }
@@ -40,7 +40,7 @@
             "description" : "The maximum amount of entries to get.",
             "in" : "query|body",
             "name" : "limit",
-            "required" : false,
+            "required" : "",
             "schema" : {
                "type" : "int"
             }
@@ -49,9 +49,9 @@
             "description" : "The local is used to determine if the request should be forwarded to the rest of the cluster. A value of '0' forwards the request and either a missing or alternate value does not forward the request to the rest of the cluster.",
             "in" : "query",
             "name" : "local",
-            "required" : false,
+            "required" : "",
             "schema" : {
-               "default" : 0,
+               "default" : "0",
                "type" : "integer"
             }
          },
@@ -76,7 +76,7 @@
             "description" : "The JSON encoded search query following the Search schema defined in this spec",
             "in" : "body",
             "name" : "query",
-            "required" : true,
+            "required" : "1",
             "schema" : {
                "$ref" : "#/components/schemas/Search"
             }
@@ -85,7 +85,7 @@
             "description" : "A list of fields to sort on along with the ordering way (ASC or DESC).",
             "in" : "body",
             "name" : "sort",
-            "required" : false,
+            "required" : "",
             "schema" : {
                "example" : [
                   "iplog.ip DESC",
@@ -101,7 +101,7 @@
             "description" : "The user ID",
             "in" : "path",
             "name" : "user_id",
-            "required" : true,
+            "required" : "1",
             "schema" : {
                "type" : "string"
             }
@@ -11503,6 +11503,104 @@
                }
             ]
          },
+         "ConfigSyslogParserDryRun" : {
+            "properties" : {
+               "line" : {
+                  "description" : "Line",
+                  "type" : "string"
+               },
+               "matches" : {
+                  "description" : "The array of matches",
+                  "items" : {
+                     "$ref" : "#/components/schemas/ConfigSyslogParserDryRunMatch"
+                  },
+                  "type" : "array"
+               }
+            },
+            "type" : "object"
+         },
+         "ConfigSyslogParserDryRunAction" : {
+            "description" : "Action",
+            "properties" : {
+               "api_method" : {
+                  "description" : "Api method",
+                  "type" : "string"
+               },
+               "api_parameters" : {
+                  "description" : "Api parameters",
+                  "type" : "string"
+               }
+            },
+            "type" : "object"
+         },
+         "ConfigSyslogParserDryRunList" : {
+            "properties" : {
+               "items" : {
+                  "items" : {
+                     "$ref" : "#/components/schemas/ConfigSyslogParserDryRun"
+                  },
+                  "type" : "array"
+               }
+            },
+            "type" : "object"
+         },
+         "ConfigSyslogParserDryRunMatch" : {
+            "properties" : {
+               "actions" : {
+                  "items" : {
+                     "$ref" : "#/components/schemas/ConfigSyslogParserDryRunAction"
+                  },
+                  "type" : "array"
+               },
+               "rule" : {
+                  "$ref" : "#/components/schemas/ConfigSyslogParserDryRunRule"
+               },
+               "success" : {
+                  "type" : "integer"
+               }
+            },
+            "type" : "object"
+         },
+         "ConfigSyslogParserDryRunRule" : {
+            "description" : "Rule",
+            "properties" : {
+               "actions" : {
+                  "description" : "Actions",
+                  "items" : {
+                     "description" : "Action",
+                     "properties" : {
+                        "api_method" : {
+                           "description" : "Api method",
+                           "type" : "string"
+                        },
+                        "api_parameters" : {
+                           "description" : "Api parameters",
+                           "type" : "string"
+                        }
+                     },
+                     "type" : "object"
+                  },
+                  "type" : "array"
+               },
+               "ip_mac_translation" : {
+                  "description" : "Perform automatic translation of IPs to MACs and the other way around",
+                  "type" : "string"
+               },
+               "last_if_match" : {
+                  "description" : "Stop processing rules if this rule matches",
+                  "type" : "string"
+               },
+               "name" : {
+                  "description" : "Name",
+                  "type" : "string"
+               },
+               "regex" : {
+                  "description" : "Regex",
+                  "type" : "string"
+               }
+            },
+            "type" : "object"
+         },
          "ConfigSyslogParsersList" : {
             "allOf" : [
                {
@@ -12023,6 +12121,10 @@
                "previousCursor" : {
                   "description" : "The cursor to access the data before the one returned in the response",
                   "type" : "string"
+               },
+               "total_count" : {
+                  "description" : "The total count of the query",
+                  "type" : "int"
                }
             },
             "type" : "object"
@@ -13551,6 +13653,10 @@
                "sort" : {
                   "description" : "A list of fields to sort on along with the ordering way (ASC or DESC).",
                   "type" : "string"
+               },
+               "with_total_count" : {
+                  "description" : "The total count of the query will be returned",
+                  "type" : "boolean"
                }
             },
             "type" : "object"
@@ -14124,6 +14230,141 @@
                      "items" : {
                         "items" : {
                            "$ref" : "#/components/schemas/Violation"
+                        },
+                        "type" : "array"
+                     }
+                  },
+                  "type" : "object"
+               }
+            ]
+         },
+         "WrixLocation" : {
+            "properties" : {
+               "Client_Support" : {
+                  "type" : "string"
+               },
+               "Coverage_Area" : {
+                  "type" : "string"
+               },
+               "English_Location_City" : {
+                  "type" : "string"
+               },
+               "English_Location_Name" : {
+                  "type" : "string"
+               },
+               "Latitude" : {
+                  "type" : "string"
+               },
+               "Location_Address1" : {
+                  "type" : "string"
+               },
+               "Location_Address2" : {
+                  "type" : "string"
+               },
+               "Location_Country_Name" : {
+                  "type" : "string"
+               },
+               "Location_Identifier" : {
+                  "type" : "string"
+               },
+               "Location_Phone_Number" : {
+                  "type" : "string"
+               },
+               "Location_State_Province_Name" : {
+                  "type" : "string"
+               },
+               "Location_Type" : {
+                  "type" : "string"
+               },
+               "Location_URL" : {
+                  "type" : "string"
+               },
+               "Location_Zip_Postal_Code" : {
+                  "type" : "string"
+               },
+               "Longitude" : {
+                  "type" : "string"
+               },
+               "MAC_Address" : {
+                  "type" : "string"
+               },
+               "Open_Friday" : {
+                  "type" : "string"
+               },
+               "Open_Monday" : {
+                  "type" : "string"
+               },
+               "Open_Saturday" : {
+                  "type" : "string"
+               },
+               "Open_Sunday" : {
+                  "type" : "string"
+               },
+               "Open_Thursday" : {
+                  "type" : "string"
+               },
+               "Open_Tuesday" : {
+                  "type" : "string"
+               },
+               "Open_Wednesday" : {
+                  "type" : "string"
+               },
+               "Provider_Identifier" : {
+                  "type" : "string"
+               },
+               "Restricted_Access" : {
+                  "type" : "string"
+               },
+               "SSID_1X" : {
+                  "type" : "string"
+               },
+               "SSID_1X_Broadcasted" : {
+                  "type" : "string"
+               },
+               "SSID_Broadcasted" : {
+                  "type" : "string"
+               },
+               "SSID_Open_Auth" : {
+                  "type" : "string"
+               },
+               "Security_Protocol_1X" : {
+                  "type" : "string"
+               },
+               "Service_Provider_Brand" : {
+                  "type" : "string"
+               },
+               "Sub_Location_Type" : {
+                  "type" : "string"
+               },
+               "UTC_Timezone" : {
+                  "type" : "string"
+               },
+               "WEP_Key" : {
+                  "type" : "string"
+               },
+               "WEP_Key_Entry_Method" : {
+                  "type" : "string"
+               },
+               "WEP_Key_Size" : {
+                  "type" : "string"
+               },
+               "id" : {
+                  "type" : "string"
+               }
+            },
+            "required" : [],
+            "type" : "object"
+         },
+         "WrixLocationsList" : {
+            "allOf" : [
+               {
+                  "$ref" : "#/components/schemas/Iterable"
+               },
+               {
+                  "properties" : {
+                     "items" : {
+                        "items" : {
+                           "$ref" : "#/components/schemas/WrixLocation"
                         },
                         "type" : "array"
                      }
@@ -16789,6 +17030,40 @@
             }
          }
       },
+      "/config/syslog_parsers/dry_run" : {
+         "description" : "pf::UnifiedApi::Controller::Config::SyslogParsers",
+         "post" : {
+            "description" : "List items",
+            "operationId" : "api.v1.Config::SyslogParsers.list",
+            "requestBody" : {
+               "content" : {
+                  "application/json" : {
+                     "schema" : {
+                        "$ref" : "#/components/schemas/ConfigSyslogParser"
+                     }
+                  }
+               }
+            },
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/ConfigSyslogParserDryRunList"
+                        }
+                     }
+                  },
+                  "description" : "Dry run list"
+               },
+               "400" : {
+                  "$ref" : "#/components/responses/BadRequest"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            }
+         }
+      },
       "/config/traffic_shaping_policies" : {
          "description" : "pf::UnifiedApi::Controller::Config::TrafficShapingPolicies",
          "get" : {
@@ -17643,7 +17918,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -17672,7 +17947,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -17701,7 +17976,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -17730,7 +18005,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -17759,7 +18034,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -17788,7 +18063,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -17817,7 +18092,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -17849,7 +18124,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -17878,7 +18153,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -17907,7 +18182,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -18165,7 +18440,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -18213,7 +18488,7 @@
                   "description" : "The node ID to fetch",
                   "in" : "path",
                   "name" : "node_id",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -18247,7 +18522,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -18271,7 +18546,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -18429,7 +18704,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "201" : {
@@ -18776,7 +19051,7 @@
                   "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "start",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -18785,7 +19060,7 @@
                   "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "end",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -18915,7 +19190,7 @@
                   "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "start",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -18924,7 +19199,7 @@
                   "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "end",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -19020,7 +19295,7 @@
                   "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "start",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -19029,7 +19304,7 @@
                   "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "end",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -19176,7 +19451,7 @@
                   "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "start",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -19185,7 +19460,7 @@
                   "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "end",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -19281,7 +19556,7 @@
                   "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "start",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -19290,7 +19565,7 @@
                   "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "end",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -19352,7 +19627,7 @@
                   "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "start",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -19361,7 +19636,7 @@
                   "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "end",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -19389,7 +19664,7 @@
                   "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "start",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -19398,7 +19673,7 @@
                   "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "end",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -19426,7 +19701,7 @@
                   "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "start",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -19435,7 +19710,7 @@
                   "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "end",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -19463,7 +19738,7 @@
                   "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "start",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -19472,7 +19747,7 @@
                   "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "end",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -19500,7 +19775,7 @@
                   "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "start",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -19509,7 +19784,7 @@
                   "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "end",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -19537,7 +19812,7 @@
                   "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "start",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -19546,7 +19821,7 @@
                   "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "end",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -19574,7 +19849,7 @@
                   "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "start",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -19583,7 +19858,7 @@
                   "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "end",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -19679,7 +19954,7 @@
                   "description" : "The service name to fetch",
                   "in" : "path",
                   "name" : "service",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -19712,7 +19987,7 @@
                   "description" : "The service name to fetch",
                   "in" : "path",
                   "name" : "service",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -19745,7 +20020,7 @@
                   "description" : "The service name to fetch",
                   "in" : "path",
                   "name" : "service",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -19778,7 +20053,7 @@
                   "description" : "The service name to fetch",
                   "in" : "path",
                   "name" : "service",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -19836,7 +20111,7 @@
                   "description" : "The service name to fetch",
                   "in" : "path",
                   "name" : "service",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -20858,7 +21133,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -20887,7 +21162,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "201" : {
@@ -20919,7 +21194,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -21283,6 +21558,232 @@
                      "application/json" : {
                         "schema" : {
                            "$ref" : "#/components/schemas/ViolationsList"
+                        }
+                     }
+                  }
+               },
+               "400" : {
+                  "$ref" : "#/components/responses/BadRequest"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            }
+         }
+      },
+      "/wrix_location/{wrix_location_id}" : {
+         "delete" : {
+            "description" : "Remove an item",
+            "operationId" : "api.v1.WrixLocations.remove",
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "wrix_location_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
+            "responses" : {
+               "204" : {
+                  "description" : "Item deleted"
+               }
+            }
+         },
+         "description" : "pf::UnifiedApi::Controller::WrixLocations",
+         "get" : {
+            "description" : "Get an item",
+            "operationId" : "api.v1.WrixLocations.get",
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "wrix_location_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "properties" : {
+                              "item" : {
+                                 "$ref" : "#/components/schemas/WrixLocation"
+                              }
+                           },
+                           "type" : "object"
+                        }
+                     }
+                  },
+                  "description" : "Get item"
+               },
+               "400" : {
+                  "$ref" : "#/components/responses/BadRequest"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            }
+         },
+         "patch" : {
+            "description" : "Update an item",
+            "operationId" : "api.v1.WrixLocations.update",
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "wrix_location_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
+            "requestBody" : {
+               "content" : {
+                  "application/json" : {
+                     "schema" : {
+                        "$ref" : "#/components/schemas/WrixLocation"
+                     }
+                  }
+               },
+               "required" : "1"
+            },
+            "responses" : {
+               "200" : {
+                  "$ref" : "#/components/responses/Message"
+               },
+               "400" : {
+                  "$ref" : "#/components/responses/BadRequest"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            }
+         },
+         "put" : {
+            "description" : "Replace an item",
+            "operationId" : "api.v1.WrixLocations.replace",
+            "parameters" : [
+               {
+                  "in" : "path",
+                  "name" : "wrix_location_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
+            "requestBody" : {
+               "content" : {
+                  "application/json" : {
+                     "schema" : {
+                        "$ref" : "#/components/schemas/WrixLocation"
+                     }
+                  }
+               },
+               "required" : "1"
+            },
+            "responses" : {
+               "200" : {
+                  "$ref" : "#/components/responses/Message"
+               },
+               "400" : {
+                  "$ref" : "#/components/responses/BadRequest"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            }
+         }
+      },
+      "/wrix_locations" : {
+         "description" : "pf::UnifiedApi::Controller::WrixLocations",
+         "get" : {
+            "description" : "List items",
+            "operationId" : "api.v1.WrixLocations.list",
+            "parameters" : [
+               {
+                  "$ref" : "#/components/parameters/cursor"
+               },
+               {
+                  "$ref" : "#/components/parameters/limit"
+               },
+               {
+                  "$ref" : "#/components/parameters/fields"
+               },
+               {
+                  "$ref" : "#/components/parameters/sort"
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/WrixLocationsList"
+                        }
+                     }
+                  }
+               },
+               "400" : {
+                  "$ref" : "#/components/responses/BadRequest"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            }
+         },
+         "post" : {
+            "description" : "Create an item",
+            "operationId" : "api.v1.WrixLocations.create",
+            "parameters" : [],
+            "requestBody" : {
+               "content" : {
+                  "application/json" : {
+                     "schema" : {
+                        "$ref" : "#/components/schemas/WrixLocation"
+                     }
+                  }
+               },
+               "description" : "Create item"
+            },
+            "responses" : {
+               "201" : {
+                  "$ref" : "#/components/responses/Created"
+               },
+               "400" : {
+                  "$ref" : "#/components/responses/BadRequest"
+               },
+               "409" : {
+                  "$ref" : "#/components/responses/Duplicate"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            }
+         }
+      },
+      "/wrix_locations/search" : {
+         "description" : "pf::UnifiedApi::Controller::WrixLocations",
+         "post" : {
+            "operationId" : "api.v1.WrixLocations.search",
+            "parameters" : [],
+            "requestBody" : {
+               "content" : {
+                  "application/json" : {
+                     "schema" : {
+                        "$ref" : "#/components/schemas/Search"
+                     }
+                  }
+               },
+               "description" : "Search for items"
+            },
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "$ref" : "#/components/schemas/WrixLocationsList"
                         }
                      }
                   }
