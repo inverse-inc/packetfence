@@ -40,6 +40,7 @@ BEGIN {
         person_violations
         person_cleanup
         persons_without_nodes
+        person_unassign_nodes
         $PID_RE
     );
 }
@@ -277,6 +278,29 @@ sub person_nodes {
     }
 
     return @{$iter->all // []};
+}
+
+=head2 person_unassign_nodes
+
+unassign the nodes of a person
+
+=cut
+
+sub person_unassign_nodes {
+    my ($pid) = @_;
+    my ($status, $count) = pf::dal::node->update_items(
+        -where => {
+            pid => $pid,
+        },
+        -set => {
+            pid => $default_pid
+        }
+    );
+    if (is_error($status)) {
+        return undef;
+    }
+
+    return $count;
 }
 
 sub person_violations {

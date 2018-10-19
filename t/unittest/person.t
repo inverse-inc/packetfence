@@ -1,46 +1,54 @@
-package pf::UnifiedApi::Controller::Users;
+#!/usr/bin/perl
 
 =head1 NAME
 
-pf::UnifiedApi::Controller::User -
-
-=cut
+person
 
 =head1 DESCRIPTION
 
-pf::UnifiedApi::Controller::User
+unit test for person
 
 =cut
 
 use strict;
 use warnings;
-use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
-use pf::dal::person;
-use pf::dal::node;
+#
+use lib '/usr/local/pf/lib';
+
+BEGIN {
+    #include test libs
+    use lib qw(/usr/local/pf/t);
+    #Module for overriding configuration paths
+    use setup_test_config;
+}
+
 use pf::person;
 use pf::node;
-use pf::constants qw($default_pid);
+use Test::More tests => 4;
 
-has dal => 'pf::dal::person';
-has url_param_name => 'user_id';
-has primary_key => 'pid';
+#This test will running last
+use Test::NoWarnings;
 
-=head2 unassign_nodes
+my $test_pid = "pid_$$";
 
-unassign user nodes
+person_add($test_pid);
 
-=cut
 
-sub unassign_nodes {
-    my ($self) = @_;
-    my $pid = $self->id;
-    my $count = person_unassign_nodes($pid);
-    if (!defined $count) {
-        return $self->render_error(500, "Unable the unassign nodes for $pid");
-    }
-
-    return $self->render(status => 200, json => {count => $count});
+for my $mac ("00:00:44:00:00:00", "00:00:45:00:00:00") {
+    node_delete($mac);
+    node_add($mac, pid => $test_pid);
 }
+
+my @nodes = person_nodes($test_pid);
+
+is(scalar @nodes, 2, "Two nodes found");
+
+my $count = person_unassign_nodes($test_pid);
+is($count, 2, "Two nodes unassigned");
+@nodes = person_nodes($test_pid);
+
+is(scalar @nodes, 0, "Zero nodes found");
+
 
 =head1 AUTHOR
 
@@ -70,3 +78,4 @@ USA.
 =cut
 
 1;
+
