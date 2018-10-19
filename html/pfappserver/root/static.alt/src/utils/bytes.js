@@ -1,5 +1,5 @@
 const bytes = {
-  toHuman (bytes, precision=2, abbreviate=false) {
+  toHuman (bytes, precision = 2, abbreviate = false) {
     if (bytes === 0) return (bytes.toString() + ' ')
     const prefixes = [
       { abbr: '', suffix: '', multiplier: Math.pow(1024, 0) },
