@@ -13,13 +13,14 @@ type TlvList struct {
 }
 
 type TlvType struct {
-	Option string
-	Decode DataType
+	Option    string
+	Transform DataType
 }
 
 type DataType interface {
 	Value(a []byte) interface{}
 	String(a []byte) string
+	Encode(a string) []byte
 }
 
 var tlvIpAddr tlvIpAddrt
@@ -55,6 +56,16 @@ func (s tlvIpAddrt) String(a []byte) string {
 	return IPS
 }
 
+func (s tlvIpAddrt) Encode(a string) []byte {
+	var array []net.IP
+	slice := make([]byte, 0, len(array))
+	for _, adresse := range strings.Split(a, ",") {
+		elem := []byte(net.ParseIP(adresse).To4())
+		slice = append(slice, elem...)
+	}
+	return slice
+}
+
 var tlvNstring tlvNstringt
 
 type tlvNstringt struct{}
@@ -64,6 +75,10 @@ func (s tlvNstringt) Value(a []byte) interface{} {
 }
 func (s tlvNstringt) String(a []byte) string {
 	return string(a)
+}
+
+func (s tlvNstringt) Encode(a string) []byte {
+	return []byte(a)
 }
 
 var tlvBlob tlvBlobt
@@ -77,6 +92,10 @@ func (s tlvBlobt) String(a []byte) string {
 	return hex.EncodeToString(a)
 }
 
+func (s tlvBlobt) Encode(a string) []byte {
+	return []byte(a)
+}
+
 var tlvSTime tlvSTimet
 
 type tlvSTimet struct{}
@@ -86,6 +105,12 @@ func (s tlvSTimet) Value(a []byte) interface{} {
 }
 func (s tlvSTimet) String(a []byte) string {
 	return string(a)
+}
+func (s tlvSTimet) Encode(a string) []byte {
+	i, _ := strconv.Atoi(a)
+	bs := make([]byte, 4)
+	binary.BigEndian.PutUint32(bs, uint32(i))
+	return bs
 }
 
 var tlvZeroSize tlvZeroSizet
@@ -98,6 +123,9 @@ func (s tlvZeroSizet) Value(a []byte) interface{} {
 func (s tlvZeroSizet) String(a []byte) string {
 	return "string"
 }
+func (s tlvZeroSizet) Encode(a string) []byte {
+	return []byte(a)
+}
 
 var tlvShort tlvShortt
 
@@ -108,6 +136,9 @@ func (s tlvShortt) Value(a []byte) interface{} {
 }
 func (s tlvShortt) String(a []byte) string {
 	return strconv.Itoa(int(binary.BigEndian.Uint16(a)))
+}
+func (s tlvShortt) Encode(a string) []byte {
+	return []byte(a)
 }
 
 var tlvBool tlvBoolt
@@ -130,6 +161,14 @@ func (s tlvBoolt) String(a []byte) string {
 		return "0"
 	}
 }
+func (s tlvBoolt) Encode(a string) []byte {
+	switch a[0] {
+	case 1:
+		return []byte{1}
+	default:
+		return []byte{0}
+	}
+}
 
 var tlvRangeShort tlvRangeShortt
 
@@ -140,6 +179,9 @@ func (s tlvRangeShortt) Value(a []byte) interface{} {
 }
 func (s tlvRangeShortt) String(a []byte) string {
 	return "string"
+}
+func (s tlvRangeShortt) Encode(a string) []byte {
+	return []byte(a)
 }
 
 var tlvOverload tlvOverloadt
@@ -152,6 +194,9 @@ func (s tlvOverloadt) Value(a []byte) interface{} {
 func (s tlvOverloadt) String(a []byte) string {
 	return "string"
 }
+func (s tlvOverloadt) Encode(a string) []byte {
+	return []byte(a)
+}
 
 var tlvMessage tlvMessaget
 
@@ -162,6 +207,9 @@ func (s tlvMessaget) Value(a []byte) interface{} {
 }
 func (s tlvMessaget) String(a []byte) string {
 	return strconv.Itoa(int(a[0]))
+}
+func (s tlvMessaget) Encode(a string) []byte {
+	return []byte(a)
 }
 
 var tlvInt8 tlvInt8t
@@ -174,6 +222,9 @@ func (s tlvInt8t) Value(a []byte) interface{} {
 func (s tlvInt8t) String(a []byte) string {
 	return hex.EncodeToString(a)
 }
+func (s tlvInt8t) Encode(a string) []byte {
+	return []byte(a)
+}
 
 var TlvTypeCn TlvTypeCnt
 
@@ -185,6 +236,9 @@ func (s TlvTypeCnt) Value(a []byte) interface{} {
 func (s TlvTypeCnt) String(a []byte) string {
 	return "string"
 }
+func (s TlvTypeCnt) Encode(a string) []byte {
+	return []byte(a)
+}
 
 var tlvRangeByte tlvRangeBytet
 
@@ -195,6 +249,9 @@ func (s tlvRangeBytet) Value(a []byte) interface{} {
 }
 func (s tlvRangeBytet) String(a []byte) string {
 	return "string"
+}
+func (s tlvRangeBytet) Encode(a string) []byte {
+	return []byte(a)
 }
 
 var extractFingerPrint extractFingerPrintt
@@ -212,6 +269,9 @@ func (s extractFingerPrintt) String(a []byte) string {
 	}
 	fingerprint := strings.Join(tmp, ",")
 	return fingerprint
+}
+func (s extractFingerPrintt) Encode(a string) []byte {
+	return []byte(a)
 }
 
 var Tlv = TlvList{

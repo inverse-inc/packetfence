@@ -70,6 +70,11 @@ type Info struct {
 	Network string `json:"network,omitempty"`
 }
 
+type OptionsFromFilter struct {
+	Option dhcp.OptionCode `json:"option"`
+	Type   string          `json:"type"`
+}
+
 func handleIP2Mac(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
@@ -318,14 +323,14 @@ func (h *Interface) handleApiReq(Request ApiReq) interface{} {
 			for option, value := range v.dhcpHandler.options {
 				key := []byte(option.String())
 				key[0] = key[0] | ('a' - 'A')
-				Options[string(key)] = Tlv.Tlvlist[int(option)].Decode.String(value)
+				Options[string(key)] = Tlv.Tlvlist[int(option)].Transform.String(value)
 			}
 
 			// Add network options on the fly
 			x, err := decodeOptions(v.network.IP.String())
 			if err {
 				for key, value := range x {
-					Options[key.String()] = Tlv.Tlvlist[int(key)].Decode.String(value)
+					Options[key.String()] = Tlv.Tlvlist[int(key)].Transform.String(value)
 				}
 			}
 
