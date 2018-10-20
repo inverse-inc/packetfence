@@ -21244,6 +21244,44 @@
             }
          }
       },
+      "/user/{user_id}/unassign_nodes" : {
+         "description" : "pf::UnifiedApi::Controller::User",
+         "post" : {
+            "operationId" : "api.v1.Users.unassign_nodes",
+            "parameters" : [
+               {
+                  "description" : "The user id",
+                  "in" : "path",
+                  "name" : "user_id",
+                  "schema" : {
+                     "type" : "string"
+                  }
+               }
+            ],
+            "responses" : {
+               "200" : {
+                  "content" : {
+                     "application/json" : {
+                        "schema" : {
+                           "properties" : {
+                              "count" : {
+                                 "description" : "The number of nodes unassigned",
+                                 "type" : "integer"
+                              }
+                           }
+                        }
+                     }
+                  }
+               },
+               "400" : {
+                  "$ref" : "#/components/responses/BadRequest"
+               },
+               "422" : {
+                  "$ref" : "#/components/responses/UnprocessableEntity"
+               }
+            }
+         }
+      },
       "/users" : {
          "description" : "pf::UnifiedApi::Controller::User",
          "get" : {
