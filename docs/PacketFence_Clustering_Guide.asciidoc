@@ -96,10 +96,6 @@ On *all your servers*, add the following line in `/etc/sysctl.conf` and then rel
 
   net.ipv4.ip_nonlocal_bind = 1
 
-Then, disable the default MariaDB systemd service unit as PacketFence already provides one (`packetfence-mariadb`)
-
-  # systemctl disable mariadb
-
 Basic PacketFence configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
