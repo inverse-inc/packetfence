@@ -17,7 +17,6 @@ use pf::violation qw (violation_view_top);
 use pf::util qw(isenabled generate_session_id);
 use pf::CHI;
 use Scalar::Util qw(reftype);
-use Data::Dumper;
 use pf::log;
 
 use base qw(pf::access_filter);
@@ -40,9 +39,9 @@ sub test {
     if ($engine) {
         $args->{'violation'} =  violation_view_top($args->{'mac'});
         $args->{'fingerbank_info'} = pf::node::fingerbank_info($args->{mac});
-        my $answer = $engine->match_first($args);
+        $args->{'node_info'} = pf::node::node_view($args->{mac});
+	my $answer = $engine->match_first($args);
         $self->logger->info("Match rule $answer->{_rule}") if defined $answer;
-        $logger->warn(Dumper $answer);
         return $answer;
     }
     return undef;
