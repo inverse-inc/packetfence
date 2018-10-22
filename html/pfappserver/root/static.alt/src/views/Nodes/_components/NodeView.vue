@@ -14,30 +14,56 @@
           </template>
           <b-row>
             <b-col>
-              <pf-form-input v-model="nodeContent.pid" :column-label="$t('Owner')" :validation="$v.nodeContent.pid"/>
-              <b-form-group horizontal label-cols="3" :label="$t('Status')">
-                <b-form-select v-model="nodeContent.status" :options="statuses"></b-form-select>
-             </b-form-group>
-              <b-form-group horizontal label-cols="3" :label="$t('Role')">
-                <b-form-select v-model="nodeContent.category_id" :options="rolesWithNull"></b-form-select>
-             </b-form-group>
-             <b-form-group horizontal label-cols="3" :label="$t('Unregistration')">
-                <pf-form-datetime v-model="nodeContent.unregdate" :moments="['1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"></pf-form-datetime>
-              </b-form-group>
-              <pf-form-input v-model="nodeContent.time_balance" type="number" :filter="globals.regExp.integerPositive" :column-label="$t('Access Time Balance')" :text="$t('seconds')"/>
-              <b-form-group horizontal label-cols="3" :label="$t('Bandwidth Balance')">
-                <pf-form-prefix-multiplier v-model="nodeContent.bandwidth_balance" :max="globals.sqlLimits.ubigint.max"></pf-form-prefix-multiplier>
-              </b-form-group>
-              <pf-form-toggle v-model="nodeContent.voip" :column-label="$t('VOIP')" :values="{checked: 'yes', unchecked: 'no'}">
-                {{ (nodeContent.voip === 'yes') ? $t('Yes') : $t('No') }}
-              </pf-form-toggle>
-              <pf-form-input v-model="nodeContent.bypass_vlan" type="text" :filter="globals.regExp.stringVlan" :column-label="$t('Bypass VLAN')"/>
-              <b-form-group horizontal label-cols="3" :label="$t('Bypass Role')">
-                <b-form-select v-model="nodeContent.bypass_role_id" :options="rolesWithNull"></b-form-select>
-             </b-form-group>
-              <b-form-group horizontal label-cols="3" :label="$t('Notes')">
-                <b-form-textarea v-model="nodeContent.notes" rows="4" max-rows="6"></b-form-textarea>
-              </b-form-group>
+              <pf-form-input :column-label="$t('Owner')"
+                v-model="nodeContent.pid"
+                :validation="$v.nodeContent.pid"
+              />
+              <pf-form-select :column-label="$t('Status')"
+                v-model="nodeContent.status"
+                :options="statuses"
+                :validation="$v.nodeContent.status"
+              />
+              <pf-form-select :column-label="$t('Role')"
+                v-model="nodeContent.category_id"
+                :options="rolesWithNull"
+                :validation="$v.nodeContent.category_id"
+              />
+              <pf-form-datetime :column-label="$t('Unregistration')"
+                v-model="nodeContent.unregdate"
+                :moments="['1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"
+                :validation="$v.nodeContent.unregdate"
+              ></pf-form-datetime>
+              <pf-form-input :column-label="$t('Access Time Balance')"
+                v-model="nodeContent.time_balance"
+                :text="$t('seconds')"
+                :validation="$v.nodeContent.time_balance"
+                type="number"
+              />
+              <pf-form-prefix-multiplier :column-label="$t('Bandwidth Balance')"
+                v-model="nodeContent.bandwidth_balance"
+                :max="globals.sqlLimits.ubigint.max"
+                :validation="$v.nodeContent.bandwidth_balance"
+              ></pf-form-prefix-multiplier>
+              <pf-form-toggle :column-label="$t('VOIP')"
+                v-model="nodeContent.voip"
+                :values="{checked: 'yes', unchecked: 'no'}"
+                :validation="$v.nodeContent.voip"
+              >{{ (nodeContent.voip === 'yes') ? $t('Yes') : $t('No') }}</pf-form-toggle>
+              <pf-form-input :column-label="$t('Bypass VLAN')"
+                v-model="nodeContent.bypass_vlan"
+                :validation="$v.nodeContent.bypass_vlan"
+                type="text"
+              />
+              <pf-form-select :column-label="$t('Bypass Role')"
+                v-model="nodeContent.bypass_role_id"
+                :options="rolesWithNull"
+                :validation="$v.nodeContent.bypass_role_id"
+              ></pf-form-select>
+              <pf-form-textarea :column-label="$t('Notes')"
+                v-model="nodeContent.notes"
+                :validation="$v.nodeContent.notes"
+                rows="3" max-rows="3"
+              />
             </b-col>
           </b-row>
         </b-tab>
@@ -261,10 +287,16 @@ import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormPrefixMultiplier from '@/components/pfFormPrefixMultiplier'
 import pfFormRow from '@/components/pfFormRow'
+import pfFormSelect from '@/components/pfFormSelect'
+import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormToggle from '@/components/pfFormToggle'
 import { mysqlLimits as sqlLimits } from '@/globals/mysqlLimits'
 import { pfEapType as eapType } from '@/globals/pfEapType'
 import { pfRegExp as regExp } from '@/globals/pfRegExp'
+import {
+  pfDatabaseSchema as schema,
+  buildValidationFromTableSchemas
+} from '@/globals/pfDatabaseSchema'
 import {
   pfSearchConditionType as conditionType,
   pfSearchConditionValues as conditionValues
@@ -282,9 +314,11 @@ export default {
     pfButtonDelete,
     pfFingerbankScore,
     pfFormDatetime,
+    pfFormInput,
     pfFormRow,
     pfFormPrefixMultiplier,
-    pfFormInput,
+    pfFormSelect,
+    pfFormTextarea,
     pfFormToggle
   },
   mixins: [
@@ -430,9 +464,17 @@ export default {
       ]
     }
   },
-  validations: {
-    nodeContent: {
-      pid: { required }
+  validations () {
+    return {
+      nodeContent: buildValidationFromTableSchemas(
+        schema.node, // use `node` table schema
+        {
+          // additional custom validations ...
+          pid: {
+            [this.$i18n.t('Username required.')]: required
+          }
+        }
+      )
     }
   },
   computed: {

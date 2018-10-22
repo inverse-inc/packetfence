@@ -25,6 +25,7 @@
  *      {
  *        value: (string) -- key name,
  *        text: (string) -- localized label,
+ *        types: (array) -- Input type(s), see globals/pfField.js
  *        required: (boolean) -- required in field mappings, not shown in static mappings,
  *        validators: (object) -- list of vuelidate validators, validated before formatting,
  *        formatter: (value, key, item) -- field formatter, does not affect table data, formatted after validation.
@@ -134,18 +135,24 @@
           hover outlined responsive show-empty no-local-sorting
         >
           <template slot="HEAD_actions" slot-scope="head">
-            <input type="checkbox" id="checkallnone" v-model="selectAll" @change="onSelectAllChange" @click.stop>
-            <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{$t('Select None [ALT+N]')}}</b-tooltip>
-            <b-tooltip target="checkallnone" placement="right" v-else>{{$t('Select All [ALT+A]')}}</b-tooltip>
+            <div class="text-center">
+              <input type="checkbox" id="checkallnone" v-model="selectAll" @change="onSelectAllChange" @click.stop />
+              <b-tooltip target="checkallnone" placement="right" v-if="selectValues.length === tableValues.length">{{$t('Select None [ALT+N]')}}</b-tooltip>
+              <b-tooltip target="checkallnone" placement="right" v-else>{{$t('Select All [ALT+A]')}}</b-tooltip>
+            </div>
           </template>
           <template slot="actions" slot-scope="data">
-            <input type="checkbox" :id="data.value" :value="data.item" :disabled="tableValues[data.index]._rowDisabled" v-model="selectValues" @click.stop="onToggleSelected($event, data.index)">
-            <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[data.index]._rowMessage" v-b-tooltip.hover.right :title="tableValues[data.index]._rowMessage"></icon>
+            <div class="text-center">
+              <input type="checkbox" :id="data.value" :value="data.item" :disabled="tableValues[data.index]._rowDisabled" v-model="selectValues" @click.stop="onToggleSelected($event, data.index)" />
+              <icon name="exclamation-triangle" class="ml-1" v-if="tableValues[data.index]._rowMessage" v-b-tooltip.hover.right :title="tableValues[data.index]._rowMessage"></icon>
+            </div>
           </template>
 
           <template slot="top-row" slot-scope="data">
-            <td v-for="column in data.columns" :key="column" :class="['p-1', {'table-danger': !hasRequiredMappings() || column === 1 && selectValues.length === 0 }]">
-              <b-form-select v-if="column > 1" v-model="tableMapping[column - 2]">
+            <td v-for="column in data.columns" :key="column" :class="['p-1', {'table-danger': column === 1 && selectValues.length === 0 }]">
+              <pf-form-select v-if="column > 1" v-model="tableMapping[column - 2]"
+              :validation="$v.tableMapping"
+              >
                 <template slot="first">
                   <option :value="null">-- {{ $t('Ignore field') }} --</option>
                 </template>
@@ -155,18 +162,95 @@
                 <optgroup :label="$t('Optional fields')">
                   <option v-for="option in tableMappingOptions().filter(o => !o.required)" :key="option.value" :value="option.value" :disabled="option.disabled" :class="{'bg-warning': !option.disabled}">{{ option.text }}</option>
                 </optgroup>
-              </b-form-select>
+              </pf-form-select>
             </td>
           </template>
           <template slot="bottom-row" slot-scope="data" class="bg-white">
             <td :colspan="data.columns">
 
-              <b-row class="mx-0 px-0 mb-3 justify-content-md-center" v-for="(staticMap, index) in staticMapping" :key="index">
+              <b-row align-v="start" class="mx-0 px-0 mb-3" v-for="(staticMap, index) in staticMapping" :key="index">
                 <b-col cols="3" class="ml-0 mr-1 px-0">
-                  <b-form-select v-model="staticMapping[index].key" :options="staticMappingOptions()" :class="{ 'border-danger': $v.staticMapping[index].value.$anyError }"></b-form-select>
+                  <b-form-select v-model="staticMapping[index].key" :options="staticMappingOptions()"></b-form-select>
                 </b-col>
                 <b-col cols="8" class="mx-0 px-0">
-                  <b-form-input v-model="staticMapping[index].value" :class="{ 'border-danger': $v.staticMapping[index].value.$anyError }" placeholder="null" />
+
+                  <!-- BEGIN SUBSTRING -->
+                  <pf-form-input v-if="isFieldType(substringValueType, staticMapping[index])"
+                    v-model="staticMapping[index].value"
+                    :class="{ 'border-danger': $v.staticMapping[index].value.$anyError }"
+                    :validation="$v.staticMapping[index].value"
+                  ></pf-form-input>
+
+                  <!-- BEGIN DATE -->
+                  <pf-form-datetime v-else-if="isFieldType(dateValueType, staticMapping[index])"
+                    v-model="staticMapping[index].value"
+                    :config="{format: 'YYYY-MM-DD'}"
+                    :class="{ 'border-danger': $v.staticMapping[index].value.$anyError }"
+                    :validation="$v.staticMapping[index].value"
+                  ></pf-form-datetime>
+
+                  <!-- BEGIN DATETIME -->
+                  <pf-form-datetime v-else-if="isFieldType(datetimeValueType, staticMapping[index])"
+                    v-model="staticMapping[index].value"
+                    :config="{format: 'YYYY-MM-DD HH:mm:ss'}"
+                    :class="{ 'border-danger': $v.staticMapping[index].value.$anyError }"
+                    :validation="$v.staticMapping[index].value"
+                  ></pf-form-datetime>
+
+                  <!-- BEGIN PREFIXMULTIPLIER -->
+                  <pf-form-prefix-multiplier v-else-if="isFieldType(prefixmultiplierValueType, staticMapping[index])"
+                    v-model="staticMapping[index].value"
+                    :class="{ 'border-danger': $v.staticMapping[index].value.$anyError }"
+                    :validation="$v.staticMapping[index].value"
+                  ></pf-form-prefix-multiplier>
+
+                  <!-- BEGIN YESNO -->
+                  <pf-form-toggle  v-else-if="isFieldType(yesnoValueType, staticMapping[index])"
+                    v-model="staticMapping[index].value" 
+                    :values="{checked: 'yes', unchecked: 'no'}"
+                    :validation="$v.staticMapping[index].value"
+                  >{{ (staticMapping[index].value === 'yes') ? $t('Yes') : $t('No') }}</pf-form-toggle>
+
+                  <!-- BEGIN GENDER -->
+                  <pf-form-chosen v-else-if="isFieldType(genderValueType, staticMapping[index])"
+                    :value="staticMapping[index].value"
+                    label="name"
+                    track-by="value"
+                    :options="fieldTypeValues[genderValueType]()"
+                    :validation="$v.staticMapping[index].value"
+                    @input="staticMapping[index].value = $event"
+                    collapse-object
+                  ></pf-form-chosen>
+
+                  <!-- BEGIN ROLE -->
+                  <pf-form-chosen v-else-if="isFieldType(roleValueType, staticMapping[index])"
+                    :value="staticMapping[index].value"
+                    label="name"
+                    track-by="value"
+                    :options="fieldTypeValues[roleValueType]($store)"
+                    :validation="$v.staticMapping[index].value"
+                    @input="staticMapping[index].value = $event"
+                    collapse-object
+                  ></pf-form-chosen>
+
+                  <!-- BEGIN SOURCE -->
+                  <pf-form-chosen v-else-if="isFieldType(sourceValueType, staticMapping[index])"
+                    :value="staticMapping[index].value"
+                    label="name"
+                    track-by="value"
+                    :options="fieldTypeValues[sourceValueType]($store)"
+                    :validation="$v.staticMapping[index].value"
+                    @input="staticMapping[index].value = $event"
+                    collapse-object
+                  ></pf-form-chosen>
+
+                  <!-- BEGIN ***CATCHALL*** -->
+                  <pf-form-input v-else
+                    v-model="staticMapping[index].value"
+                    :class="{ 'border-danger': $v.staticMapping[index].value.$anyError }"
+                    :validation="$v.staticMapping[index].value"
+                  ></pf-form-input>
+
                 </b-col>
                 <b-col>
                   <icon name="trash-alt" class="my-2" style="cursor: pointer" @click.native="deleteStatic(index)" v-b-tooltip.hover.right.d300 :title="$t('Remove static field')"></icon>
@@ -189,12 +273,15 @@
                 </b-col>
               </b-row>
 
-              <b-container fluid class="mx-0 px-0 mt-3">
+              <b-container fluid class="mx-0 px-0 mt-3 footer-errors">
                 <b-button type="submit" variant="primary" :disabled="$v.$anyError" @mouseenter="$v.$touch()">
                   <icon v-if="isLoading" name="circle-notch" spin class="mr-1"></icon>
                   <icon v-else name="download" class="mr-1"></icon>
                   {{ $t('Import') + ' ' + selectValues.length + ' ' + $t('selected rows') }}
                 </b-button>
+                <b-form-group v-if="$v.staticMapping.$anyError" :state="false" :invalid-feedback="$t('Static field mappings invalid.')"></b-form-group>
+                <b-form-group v-if="$v.tableMapping.$anyError" :state="false" :invalid-feedback="$t('Table field mappings invalid.')"></b-form-group>
+                <b-form-group v-if="$v.selectValues.$anyError" :state="false" :invalid-feedback="$t('Select at least 1 row.')"></b-form-group>
               </b-container>
             </td>
           </template>
@@ -218,19 +305,39 @@
 </template>
 
 <script>
+/* eslint key-spacing: ["error", { "mode": "minimum" }] */
 import Papa from 'papaparse'
 import uuidv4 from 'uuid/v4'
+import pfFormChosen from '@/components/pfFormChosen'
+import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormInput from '@/components/pfFormInput'
+import pfFormPrefixMultiplier from '@/components/pfFormPrefixMultiplier'
+import pfFormSelect from '@/components/pfFormSelect'
 import pfFormToggle from '@/components/pfFormToggle'
 import pfMixinSelectable from '@/components/pfMixinSelectable'
-import { required, minLength } from 'vuelidate/lib/validators'
+import {
+  pfFieldType as fieldType,
+  pfFieldTypeValues as fieldTypeValues
+} from '@/globals/pfField'
+import {
+  conditional
+} from '@/globals/pfValidators'
+import {
+  required,
+  minLength
+} from 'vuelidate/lib/validators'
+
 const { validationMixin } = require('vuelidate')
 
 export default {
   name: 'pf-csv-parse',
   components: {
-    'pf-form-input': pfFormInput,
-    'pf-form-toggle': pfFormToggle
+    pfFormChosen,
+    pfFormDatetime,
+    pfFormInput,
+    pfFormPrefixMultiplier,
+    pfFormSelect,
+    pfFormToggle
   },
   mixins: [
     pfMixinSelectable,
@@ -258,6 +365,14 @@ export default {
       staticMapping: Array,
       staticMappingNew: null,
       exportModel: Array,
+      substringValueType:        fieldType.SUBSTRING,
+      dateValueType:             fieldType.DATE,
+      datetimeValueType:         fieldType.DATETIME,
+      prefixmultiplierValueType: fieldType.PREFIXMULTIPLIER,
+      genderValueType:           fieldType.GENDER,
+      roleValueType:             fieldType.ROLE,
+      sourceValueType:           fieldType.SOURCE,
+      yesnoValueType:            fieldType.YESNO,
       uuid: uuidv4(), // unique id for multiple instances of this component
       config: { // Papa parse config
         delimiter: '', // auto-detect
@@ -288,7 +403,8 @@ export default {
       sortDesc: false,
       requestPage: 1,
       currentPage: 1,
-      pageSizeLimit: 100
+      pageSizeLimit: 100,
+      fieldTypeValues: fieldTypeValues
     }
   },
   validations () {
@@ -298,7 +414,7 @@ export default {
     let eachExportModel = {}
 
     this.fields.forEach((field, index) => {
-      if (field.hasOwnProperty('validators')) {
+      if ('validators' in field) {
         if (typeof this.tableMapping !== 'function' && this.tableMapping.length > 0) {
           let index = this.tableMapping.findIndex(f => f === field.value)
           if (index !== -1) {
@@ -308,7 +424,11 @@ export default {
         if (typeof this.staticMapping !== 'function' && this.staticMapping.length > 0) {
           let index = this.staticMapping.findIndex(f => f.key === field.value)
           if (index !== -1) {
-            eachStaticMapping[field.value] = { value: field.validators }
+            eachStaticMapping[field.value] = {
+              value: Object.assign({
+                [this.$i18n.t('Value required.')]: required /* Require static field if defined */
+              }, field.validators)
+            }
           }
         }
         eachExportModel[field.value] = field.validators
@@ -324,18 +444,16 @@ export default {
 
     return {
       selectValues: {
-        required,
-        minLength: minLength(1),
+        [this.$i18n.t('Select at least 1 row.')]: required,
         $each: eachSelectValues
       },
       tableMapping: {
-        required,
-        minLength: minLength(1)
+        [this.$i18n.t('Map at least 1 column.')]: conditional(this.tableMapping instanceof Array && this.tableMapping.filter(row => row).length > 0),
+        [this.$i18n.t('Missing required fields.')]: conditional(this.fields.filter(field => field.required && this.tableMapping instanceof Array && !this.tableMapping.includes(field.value)).length === 0)
       },
       staticMapping: funcStaticMapping,
       exportModel: {
         required,
-        minLength: minLength(1),
         $each: eachExportModel
       }
     }
@@ -429,30 +547,21 @@ export default {
     deleteStatic (index) {
       this.staticMapping.splice(index, 1)
     },
-    hasRequiredMappings () {
-      // is every required fields mapped?
-      return this.fields.filter(field => field.required).every((field, index, fields) => {
-        // does tableMapping include required field?
-        return this.tableMapping.includes(field.value)
-      })
-    },
     buildExportModel () {
       let staticMapping = {}
       this.staticMapping.forEach((mapping) => {
         const field = this.fields.filter(field => field.value === mapping.key)[0]
         staticMapping[mapping.key] = mapping.value
-        if (field && field.hasOwnProperty('formatter')) {
+        if (field && 'formatter' in field) {
           staticMapping[mapping.key] = field.formatter(mapping.value, mapping.key, staticMapping)
         }
       })
-
       const cheatSheet = this.tableMapping.reduce((cheatSheet, mapping, index) => {
         // (tableMapping) [null, 'mac'] + (meta.fields) ['colA', 'colB']
         //    => (cheatSheet) {colB: 'mac'}
         if (mapping !== null) cheatSheet[this.meta.fields[index]] = mapping
         return cheatSheet
       }, {})
-
       this.exportModel = this.selectValues.reduce((exportModel, selectValue, index) => {
         // (selectValues) [ {colA: 'W', colB: 'X'}, {colA: 'Y', colB: 'Z'} ] + (cheatSheet) {colB: 'mac'}
         //    => (exportModel) [ {mac: 'X'}, {mac: 'Z'} ]
@@ -465,7 +574,7 @@ export default {
           // format fields
           Object.keys(mappedRow).forEach((key) => {
             const field = this.fields.filter(field => field.value === key)[0]
-            if (field && field.hasOwnProperty('formatter')) {
+            if (field && 'formatter' in field) {
               mappedRow[key] = field.formatter(mappedRow[key], key, mappedRow)
             }
           })
@@ -495,6 +604,17 @@ export default {
       this.data.sort((a, b) => {
         return a[params.sortBy].localeCompare(b[params.sortBy]) * ((params.sortDesc) ? -1 : 1)
       })
+    },
+    isFieldType (type, input) {
+      if (!input.key) return false
+      const index = this.fields.findIndex(field => input.key === field.value)
+      if (index >= 0) {
+        const field = this.fields[index]
+        if ('types' in field && field.types.includes(type)) {
+          return true
+        }
+      }
+      return false
     }
   },
   computed: {
@@ -930,5 +1050,13 @@ header > :not(.collapsed) {
   background-color: #007bff;
   border-color: #007bff;
   transition: all 300ms ease;
+}
+.footer-errors {
+  & .form-group:nth-of-type(1) {
+    margin-top: 1rem;
+  }
+  & .form-group:not(:last-child) {
+    margin-bottom: 0;
+  }
 }
 </style>

@@ -128,12 +128,13 @@ export const inArray = (array) => {
   })
 }
 
-export const isDateFormat = (dateFormat) => {
+export const isDateFormat = (dateFormat, allowZero = true) => {
   return (0, _common.withParams)({
     type: 'isDateFormat',
-    dateFormat: dateFormat
+    dateFormat: dateFormat,
+    allowZero: allowZero
   }, function (value) {
-    return !(0, _common.req)(value) || format(parse(value), dateFormat) === value || dateFormat.replace(/[a-z]/gi, '0') === value
+    return !(0, _common.req)(value) || format(parse(value), dateFormat) === value || (dateFormat.replace(/[a-z]/gi, '0') === value && allowZero)
   })
 }
 
@@ -267,8 +268,8 @@ export const limitSiblingFieldTypes = (limit) => {
         if (parent[param].$model === undefined) continue // ignore empty models
         if (idOfV(parent[param].$model) === id) continue // ignore (self)
         if (parent[param].$model.type === field.type) {
-            count += 1 // increment count
-            if (count > limit) return false
+          count += 1 // increment count
+          if (count > limit) return false
         }
       }
     }

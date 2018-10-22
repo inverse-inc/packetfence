@@ -88,7 +88,20 @@ export default {
       return feedback
     },
     getInvalidFeedback () {
-      return this.stringifyFeedback(this.invalidFeedback)
+      let feedback = []
+      if (this.invalidFeedback) {
+        // add manually defined feedback
+        return this.stringifyFeedback(this.invalidFeedback)
+      }
+      if (this.validation) {
+        // add automatically generated feedback
+        if ('$params' in this.validation) {
+          Object.entries(this.validation.$params).forEach(([param, validator]) => {
+            if (this.validation[param] === false) feedback.push(param)
+          })
+        }
+        return feedback.join('\n')
+      }
     }
   },
   created () {

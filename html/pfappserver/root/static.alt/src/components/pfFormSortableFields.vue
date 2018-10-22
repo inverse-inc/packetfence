@@ -124,6 +124,7 @@
                 :validation="getTypeValidation(index)"
                 :invalid-feedback="getTypeInvalidFeedback(index)"
                 @input="setType(index, $event)"
+                collapse-object
               ></pf-form-chosen>
 
             </b-col>
@@ -145,6 +146,7 @@
                 :validation="getValueValidation(index)"
                 :invalid-feedback="getValueInvalidFeedback(index)"
                 @input="setValue(index, $event)"
+                collapse-object
               ></pf-form-chosen>
 
               <!-- BEGIN ROLE -->
@@ -158,6 +160,7 @@
                 :validation="getValueValidation(index)"
                 :invalid-feedback="getValueInvalidFeedback(index)"
                 @input="setValue(index, $event)"
+                collapse-object
               ></pf-form-chosen>
 
               <!-- BEGIN TENANT -->
@@ -171,13 +174,14 @@
                 :validation="getValueValidation(index)"
                 :invalid-feedback="getValueInvalidFeedback(index)"
                 @input="setValue(index, $event)"
+                collapse-object
               ></pf-form-chosen>
 
               <!-- BEGIN DATETIME -->
               <pf-form-datetime v-if="isFieldType(datetimeValueType, inputValue[index])"
                 :value="inputValue[index].value"
                 :ref="'value-' + index"
-                :config="{useCurrent: true}"
+                :config="{useCurrent: true, format: 'YYYY-MM-DD HH:mm:ss'}"
                 :moments="getMoments(index)"
                 :validation="getValueValidation(index)"
                 :invalid-feedback="getValueInvalidFeedback(index)"
@@ -195,6 +199,7 @@
                 :validation="getValueValidation(index)"
                 :invalid-feedback="getValueInvalidFeedback(index)"
                 @input="setValue(index, $event)"
+                collapse-object
               ></pf-form-chosen>
 
               <!-- BEGIN PREFIXMULTIPLER -->
@@ -297,57 +302,11 @@ export default {
   },
   computed: {
     inputValue: {
-      /**
-        * `inputValue` has 2 different models:
-        *
-        *   1. Internal Model (uncompressed): In this model we keep the entire type/value in-tact for use with the various pfForm* components.
-        *     Example: [
-        *         { "type": { "value": "set_bandwidth_balance", "text": "Bandwidth balance", "types": [ "prefixmultiplier" ] }, "value": 64 },
-        *         { "type": { "value": "set_access_duration", "text": "Access duration", "types": [ "duration" ] }, "value": { "name": "12 hours", "value": "12h" } },
-        *         { "type": { "value": "set_access_level", "text": "Access level", "types": [ "adminrole" ] }, "value": { "value": "User Manager", "name": "User Manager" } },
-        *         { "type": { "value": "mark_as_sponsor", "text": "Mark as sponsor", "types": [ "none" ] }, "value": null },
-        *         { "type": { "value": "set_role", "text": "Role", "types": [ "role" ] }, "value": { "value": "1", "name": "default", "text": "default - Placeholder role/category, feel free to edit" } },
-        *         { "type": { "value": "set_tenant_id", "text": "Tenant ID", "types": [ "tenant" ] }, "value": { "value": "1", "name": "default" } },
-        *         { "type": { "value": "set_time_balance", "text": "Time balance", "types": [ "duration" ] }, "value": { "name": "12 hours", "value": "12h" } },
-        *         { "type": { "value": "set_unreg_date", "text": "Unregistration date", "types": [ "datetime" ] }, "value": 1973-08-05 13:00:00" }
-        *        ]
-        *
-        *   2. External Model (compressed): In this model we compress the internal model into somewthing more clean and useable by the parent component.
-        *     Example: [
-        *         { "type": "set_bandwidth_balance", "value": 64 },
-        *         { "type": "set_access_duration", "value": "12h" },
-        *         { "type": "set_access_level", "value": "User Manager" },
-        *         { "type": "mark_as_sponsor", "value": null },
-        *         { "type": "set_role", "value": "1" },
-        *         { "type": "set_tenant_id", "value": "1" },
-        *         { "type": "set_time_balance", "value": "12h" },
-        *         { "type": "set_unreg_date", "value": "1973-08-05 13:00:00" }
-        *       ]
-        *
-      **/
       get () {
-        const value = (this.value) ? this.value : [this.valuePlaceHolder]
-        const uncompressedValue = value.map(row => {
-          const field = this.fields.find(field => field.value === row.type)
-          return {
-            type: (row.type && typeof row.type !== 'object')
-              ? field
-              : row.type,
-            value: (row.value && typeof row.value !== 'object')
-              ? this.values({ type: field }).find(value => value.value === row.value) || row.value
-              : row.value
-          }
-        })
-        return uncompressedValue
+        return (this.value) ? this.value : [this.valuePlaceHolder]
       },
       set (newValue) {
-        const compressedValue = newValue.map(row => {
-          return {
-            type: ((row.type && row.type.value) ? this.fields.find(field => field.value === row.type.value).value : row.type),
-            value: ((row.value && row.value.value) ? row.value.value : row.value)
-          }
-        })
-        this.$emit('input', compressedValue)
+        this.$emit('input', newValue)
         this.emitExternalValidations()
       }
     }
@@ -416,7 +375,7 @@ export default {
     },
     values (inputValue) {
       if (!inputValue || !inputValue.type) return []
-      const index = this.fields.findIndex(field => inputValue.type.value === field.value)
+      const index = this.fields.findIndex(field => field.value === inputValue.type)
       let values = []
       if (index >= 0) {
         const field = this.fields[index]
@@ -430,7 +389,7 @@ export default {
     },
     isFieldType (type, inputValue) {
       if (!inputValue.type) return false
-      const index = this.fields.findIndex(field => inputValue.type.value === field.value)
+      const index = this.fields.findIndex(field => field.value === inputValue.type)
       if (index >= 0) {
         const field = this.fields[index]
         if (field.types.includes(type)) {
@@ -445,7 +404,7 @@ export default {
       if (this.inputValue.length > 1 || JSON.stringify(this.inputValue[0]) !== JSON.stringify(this.valuePlaceHolder)) {
         const eachInputValue = {}
         this.inputValue.forEach((input, index) => {
-          const field = this.fields.find(field => input.type && field.value === input.type.value)
+          const field = this.fields.find(field => input.type && field.value === input.type)
           if (field) {
             eachInputValue[field.value] = {}
             if ('validators' in field) { // has vuelidate validations
@@ -473,7 +432,7 @@ export default {
         if (eachInputValue !== {}) {
           // use functional validations
           // https://github.com/monterail/vuelidate/issues/166#issuecomment-319924309
-          return { ...this.inputValue.map(input => eachInputValue[(input.type && input.type.value) ? input.type.value : null] || {/* empty */}) }
+          return { ...this.inputValue.map(input => eachInputValue[(input.type) ? input.type : null] || {/* empty */}) }
         }
       }
       return {}
@@ -499,7 +458,7 @@ export default {
           }
         }
       }
-      return feedback.join(' ')
+      return feedback.join('<br/>')
     },
     getValueValidation (index) {
       if (index in this.validation && 'value' in this.validation[index]) {
@@ -522,7 +481,7 @@ export default {
           }
         }
       }
-      return feedback.join(' ')
+      return feedback.join('<br/>')
     },
     getMoments (index) {
       if ('moments' in this.inputValue[index].type) {

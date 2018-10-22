@@ -113,8 +113,8 @@ export default {
       Vue.set(this.tableValues[index], '_rowMessage', message)
       this.forceUpdate()
     },
-    onSelectAllChange (value) {
-      this.selectValues = value ? this.tableValues : []
+    onSelectAllChange (event) {
+      this.selectValues = this.selectAll ? this.tableValues : []
     },
     clearSelected () {
       this.selectValues = []

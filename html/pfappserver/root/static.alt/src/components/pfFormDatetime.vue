@@ -319,7 +319,6 @@ export default {
     border: 1px solid $input-focus-bg;
     @include border-radius($border-radius);
     @include transition($custom-forms-transition);
-    padding: 1px;
     outline: 0;
 
     * {

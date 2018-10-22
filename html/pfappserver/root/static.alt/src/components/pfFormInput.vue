@@ -2,15 +2,22 @@
   <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
     :state="isValid()" :invalid-feedback="getInvalidFeedback()"
     class="input-element" :class="{ 'mb-0': !columnLabel }">
-    <b-form-input
-      v-model="inputValue"
-      v-bind="$attrs"
-      ref="input"
-      :state="isValid()"
-      @input.native="validate()"
-      @keyup.native="onChange($event)"
-      @change.native="onChange($event)"
-    ></b-form-input>
+    <b-input-group>
+      <b-form-input
+        v-model="inputValue"
+        v-bind="$attrs"
+        ref="input"
+        :state="isValid()"
+        :readonly="readonly"
+        @input.native="validate()"
+        @keyup.native="onChange($event)"
+        @change.native="onChange($event)"
+      >
+      </b-form-input>
+      <b-input-group-append v-if="readonly">
+        <b-button class="input-group-text"><icon name="lock"></icon></b-button>
+      </b-input-group-append>
+    </b-input-group>
     <b-form-text v-if="text" v-t="text"></b-form-text>
   </b-form-group>
 </template>
@@ -37,6 +44,10 @@ export default {
     text: {
       type: String,
       default: null
+    },
+    readonly: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {

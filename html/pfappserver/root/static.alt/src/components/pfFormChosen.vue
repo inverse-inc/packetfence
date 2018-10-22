@@ -6,6 +6,7 @@
       <multiselect
         v-model="inputValue"
         v-bind="$attrs"
+        v-on="forwardListeners"
         :id="id"
         ref="input"
         :options="options"
@@ -61,6 +62,16 @@ export default {
     },
     id: {
       type: String
+    },
+    trackBy: {
+      type: String,
+      default: 'value'
+    },
+    // Add a proxy on our inputValue to modify set/get for simple external models.
+    // https://github.com/shentao/vue-multiselect/issues/385#issuecomment-418881148
+    collapseObject: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -71,11 +82,25 @@ export default {
   computed: {
     inputValue: {
       get () {
+        if (this.collapseObject) {
+          return this.$attrs['multiple']
+            ? this.value.map(value => this.options.find(option => option[this.trackBy] === value))
+            : this.options.find(option => option[this.trackBy] === this.value)
+        }
         return this.value
       },
       set (newValue) {
+        if (this.collapseObject) {
+          newValue = (this.$attrs['multiple'])
+            ? newValue.map(value => value[this.trackBy])
+            : (newValue && newValue[this.trackBy])
+        }
         this.$emit('input', newValue)
       }
+    },
+    forwardListeners () {
+      const { input, ...listeners } = this.$listeners
+      return listeners
     }
   }
 }
@@ -101,10 +126,16 @@ export default {
     @include border-radius($border-radius);
     @include transition($custom-forms-transition);
     outline: 0;
+    span > span.multiselect__single { /* placeholder */
+      color: $input-placeholder-color;
+      // Override Firefox's unusual default opacity; see https://github.com/twbs/bootstrap/pull/11526.
+      opacity: 1;
+    }
   }
   .multiselect__input,
   .multiselect__single {
     background-color: $input-focus-bg;
+    font-size: $font-size-base;
     line-height: $input-line-height;
     color: $input-color;
   }
