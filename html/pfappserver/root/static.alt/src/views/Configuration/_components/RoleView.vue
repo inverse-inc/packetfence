@@ -64,12 +64,6 @@ export default {
       this.$store.dispatch('$_roles/deleteRole', this.id).then(response => {
         this.close()
       })
-    },
-    onKeyup (event) {
-      switch (event.keyCode) {
-        case 27: // escape
-          this.close()
-      }
     }
   },
   created () {
@@ -78,12 +72,6 @@ export default {
         this.role = Object.assign({}, data)
       })
     }
-  },
-  mounted () {
-    document.addEventListener('keyup', this.onKeyup)
-  },
-  beforeDestroy () {
-    document.removeEventListener('keyup', this.onKeyup)
   }
 }
 </script>
