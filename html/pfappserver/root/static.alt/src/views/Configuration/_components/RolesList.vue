@@ -1,59 +1,10 @@
-<template>
-  <b-card no-body>
-    <pf-progress :active="isLoading"></pf-progress>
-    <b-card-header>
-      <h4 class="mb-0" v-t="'Roles'"></h4>
-    </b-card-header>
-    <pf-search :quick-with-fields="false" quick-placeholder="Search by name or description"
-      :fields="fields" :store="$store" :advanced-mode="false" :condition="condition"
-      @submit-search="onSearch" @reset-search="onReset"></pf-search>
-    <div class="card-body">
-      <b-row align-h="end" align-v="start">
-        <b-col>
-          <b-button variant="outline-primary" :to="{ name: 'newRole' }">{{ $t('Add Role') }}</b-button>
-        </b-col>
-        <b-col cols="auto">
-          <b-container fluid>
-            <b-row align-v="center">
-              <b-form inline class="mb-0">
-                <b-form-select class="mb-3 mr-3" size="sm" v-model="pageSizeLimit" :options="[10,25,50,100]" :disabled="isLoading"
-                  @input="onPageSizeChange" />
-              </b-form>
-              <b-pagination align="right" :per-page="pageSizeLimit" :total-rows="totalRows" v-model="requestPage" :disabled="isLoading"
-                @input="onPageChange" />
-            </b-row>
-          </b-container>
-        </b-col>
-      </b-row>
-      <b-table class="table-clickable"
-        :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc"
-        @sort-changed="onSortingChanged" @row-clicked="onRowClick"
-        show-empty responsive hover no-local-sorting>
-        <template slot="empty">
-          <pf-empty-table :isLoading="isLoading">{{ $t('No role found') }}</pf-empty-table>
-        </template>
-      </b-table>
-    </div>
-  </b-card>
-</template>
-
 <script>
+import BaseList from './_lib/BaseList'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
-import pfMixinSearchable from '@/components/pfMixinSearchable'
-import pfProgress from '@/components/pfProgress'
-import pfEmptyTable from '@/components/pfEmptyTable'
-import pfSearch from '@/components/pfSearch'
 
 export default {
   name: 'RolesList',
-  mixins: [
-    pfMixinSearchable
-  ],
-  components: {
-    pfProgress,
-    pfEmptyTable,
-    pfSearch
-  },
+  extends: BaseList,
   props: {
     pfMixinSearchableOptions: {
       type: Object,
@@ -80,6 +31,12 @@ export default {
   },
   data () {
     return {
+      config: {
+        pageTitle: this.$i18n.t('Roles'),
+        buttonAddLabel: this.$i18n.t('Add Role'),
+        buttonAddRoute: { name: 'newRole' },
+        emptyTableText: this.$i18n.t('No role found')
+      },
       // Fields must match the database schema
       fields: [ // keys match with b-form-select
         {
@@ -116,20 +73,6 @@ export default {
     }
   },
   methods: {
-    pfMixinSearchableQuickCondition (quickCondition) {
-      return {
-        op: 'and',
-        values: [
-          {
-            op: 'or',
-            values: [
-              { field: 'id', op: 'contains', value: quickCondition },
-              { field: 'notes', op: 'contains', value: quickCondition }
-            ]
-          }
-        ]
-      }
-    },
     onRowClick (item, index) {
       this.$router.push({ name: 'role', params: { id: item.id } })
     }
