@@ -1,55 +1,10 @@
-
-<template>
-  <b-form @submit.prevent="isNew? create() : save()">
-    <b-card no-body>
-      <b-card-header>
-        <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
-        <h4 class="mb-0">
-          <span v-if="id">{{ $t('Role') }} <strong v-text="id"></strong></span>
-          <span v-else>{{ $t('New Role') }}</span>
-        </h4>
-      </b-card-header>
-      <div class="card-body">
-        <pf-form-input v-if="isNew" v-model="role.id"
-          :column-label="$t('Name')"
-          :validation="$v.role.id"/>
-        <pf-form-input v-model="role.notes"
-          :column-label="$t('Description')"
-          :validation="$v.role.notes"/>
-        <pf-form-input v-model="role.max_nodes_per_pid" type="number"
-          :filter="globals.regExp.integerPositive"
-          :validation="$v.role.max_nodes_per_pid"
-          :column-label="$t('Max nodes per user')"
-          :text="$t('nodes')"/>
-      </div>
-      <b-card-footer @mouseenter="$v.role.$touch()">
-        <pf-button-save :disabled="invalidForm" :isLoading="isLoading">{{ isNew? $t('Create') : $t('Save') }}</pf-button-save>
-        <pf-button-delete v-if="!isNew" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Role?')" @on-delete="deleteRole()"/>
-      </b-card-footer>
-    </b-card>
-  </b-form>
-</template>
-
 <script>
-import pfButtonSave from '@/components/pfButtonSave'
-import pfButtonDelete from '@/components/pfButtonDelete'
-import pfFormInput from '@/components/pfFormInput'
-import pfFormRow from '@/components/pfFormRow'
-import { pfRegExp as regExp } from '@/globals/pfRegExp'
-const { validationMixin } = require('vuelidate')
+import BaseView from './_lib/BaseView'
 const { required, alphaNum, integer } = require('vuelidate/lib/validators')
 
 export default {
   name: 'RoleView',
-  components: {
-    pfButtonSave,
-    pfButtonDelete,
-    pfFormRow,
-    pfFormInput
-  },
-  mixins: [
-    validationMixin
-  ],
+  extends: BaseView,
   props: {
     storeName: { // from router
       type: String,
@@ -63,16 +18,21 @@ export default {
   },
   data () {
     return {
-      globals: {
-        regExp: regExp
-      },
       role: {} // will be overloaded with the data from the store
     }
   },
-  validations: {
-    role: {
-      id: { required, alphaNum },
-      max_nodes_per_pid: { required, integer }
+  validations () {
+    return {
+      role: {
+        id: {
+          [this.$i18n.t('Name is required')]: required,
+          [this.$i18n.t('Alphanumeric value required')]: alphaNum
+        },
+        max_nodes_per_pid: {
+          [this.$i18n.t('Value required')]: required,
+          [this.$i18n.t('Integer value required')]: integer
+        }
+      }
     }
   },
   computed: {
