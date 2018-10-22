@@ -57,11 +57,11 @@ Source: http://www.packetfence.org/downloads/PacketFence/src/%{real_name}-%{vers
 %global logdir /usr/local/pf/logs
 
 BuildRequires: gettext, httpd, ipset-devel, pkgconfig
-BuildRequires: perl(Parse::RecDescent)
 # Required to build documentation
 # See docs/docbook/README.asciidoc for more info about installing requirements.
 # TODO fop on EL5 is actually xmlgraphics-fop
 BuildRequires: asciidoc >= 8.6.2, fop, libxslt, docbook-style-xsl, xalan-j2
+BuildRequires: gcc
 
 %description
 
