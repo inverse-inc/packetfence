@@ -243,7 +243,6 @@ our @API_V1_ROUTES = (
         Config::Realms
         Config::Roles
         Config::Scans
-        Config::Sources
         Config::SwitchGroups
         Config::SyslogForwarders
         Config::TrafficShapingPolicies
@@ -277,6 +276,16 @@ our @API_V1_ROUTES = (
                 map { $_ => { post => $_ } } qw(search dry_run)
             }
         }
+    },
+    {
+        controller => 'Config::Sources',
+        collection   => {
+            subroutes => {
+                test => {
+                    post => 'test',
+                }
+            }
+        },
     },
     {
         controller => 'Translations',

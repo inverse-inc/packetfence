@@ -26,7 +26,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 7;
+use Test::More tests => 13;
 use Test::Mojo;
 
 #This test will running last
@@ -45,6 +45,21 @@ $t->post_ok($collection_base_url => json => {})
 
 $t->post_ok($collection_base_url, {'Content-Type' => 'application/json'} => '{')
   ->status_is(400);
+
+$t->post_ok("$collection_base_url/test" => json => {type => 'Htpasswd', id => 'test'})
+  ->status_is(422)
+  ->json_has('/errors/0/field');
+
+$t->post_ok("$collection_base_url/test" =>
+    json => {
+        type => 'Htpasswd',
+        id   => 'test',
+        path => '/usr/local/pf/t/data/htpasswd.conf',
+        description => "Test",
+    }
+  )
+  ->status_is(405)
+  ->json_has('/errors');
 
 =head1 AUTHOR
 
