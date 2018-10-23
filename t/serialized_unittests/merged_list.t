@@ -17,22 +17,20 @@ use warnings;
 # pf core libs
 use lib '/usr/local/pf/lib';
 
+my ($fh, $filename);
+
 BEGIN {
     use lib qw(/usr/local/pf/t);
     use File::Spec::Functions qw(catfile catdir rel2abs);
     use File::Basename qw(dirname);
     use test_paths_serial;
     use setup_test_config;
-    my $test_dir = rel2abs(dirname($INC{'setup_test_config.pm'})) if exists $INC{'setup_test_config.pm'};
-    $test_dir ||= catdir($pf::file_paths::install_dir,'t');
-    $pf::file_paths::pf_config_file = catfile($test_dir,'data/pf.conf.tmp');
+    use File::Temp;
+    ($fh, $filename) = File::Temp::tempfile( UNLINK => 1 );
+    $pf::file_paths::pf_config_file = $filename;
 }
 
-if (!-e $pf::file_paths::pf_config_file ) {
-    open(my $fh, ">", $pf::file_paths::pf_config_file);
-}
 use Test::More tests => 6;
-
 use Test::NoWarnings;
 use Test::Exception;
 
