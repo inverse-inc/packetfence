@@ -933,7 +933,7 @@ sub radius_proxy {
     my $logger = $self->logger;
     my ($do_auto_reg, %autoreg_node_defaults);
     my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $self->_parseRequest($radius_request);
-    my $RAD_REPLY_REF;
+    my %RAD_REPLY_REF;
 
     $logger->debug("instantiating switch");
     my $switch = pf::SwitchFactory->instantiate({ switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $switch_ip}, {radius_request => $radius_request});
@@ -994,7 +994,7 @@ sub radius_proxy {
     };
     my $filter = pf::access_filter::radius->new;
     my $rule = $filter->test($scope, $args);
-    my ($reply, $status) = $filter->handleAnswerInRule($rule,$args,\%RAD_REPLY);
+    my ($reply, $status) = $filter->handleAnswerInRule($rule,$args,\%RAD_REPLY_REF);
     return [$status, %$reply];
 }
 
