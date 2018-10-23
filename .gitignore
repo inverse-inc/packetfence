@@ -72,10 +72,12 @@ conf/traffic_shaping.conf
 conf/syslog.conf
 conf/networks.conf
 conf/rsyslog.conf.tt
+conf/oauth_token_key
 conf/radiusd/acct.conf
 conf/radiusd/auth.conf
 conf/radiusd/cli.conf
 conf/radiusd/clients.conf.inc
+conf/radiusd/clients.eduroam.conf.inc
 conf/radiusd/eap.conf
 conf/radiusd/eduroam
 conf/radiusd/eduroam-cluster
