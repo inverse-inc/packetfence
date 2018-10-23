@@ -169,7 +169,18 @@ rest {
         body = 'json'
 		tls = ${..tls}
 	}
-
+        pre-proxy {
+                uri = "${..connect_uri}/radius/rest/pre_proxy"
+                method = 'post'
+                body = 'json'
+                tls = ${..tls}
+        }
+        post-proxy {
+                uri = "${..connect_uri}/radius/rest/post_proxy"
+                method = 'post'
+                body = 'json'
+                tls = ${..tls}
+        }
 	#
 	#  The connection pool is new for 3.0, and will be used in many
 	#  modules, for all kinds of connection-related activity.

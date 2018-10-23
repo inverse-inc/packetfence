@@ -400,6 +400,7 @@ post-auth {
 #  Only a few modules currently have this method.
 #
 pre-proxy {
+	rest
 }
 
 #

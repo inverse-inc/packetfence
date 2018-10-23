@@ -146,6 +146,22 @@ sub radius_authorize : Public {
     return $return;
 }
 
+sub radius_proxy : Public {
+    my ($class, $scope, %radius_request) = @_;
+    my $logger = pf::log::get_logger();
+
+    my $radius = new pf::radius::custom();
+    my $return;
+    eval {
+        $return = $radius->radius_proxy($scope, \%radius_request);
+    };
+    if ($@) {
+        $logger->error("radius $scope failed with error: $@");
+    }
+
+    return $return;
+}
+
 sub radius_accounting : Public {
     my ($class, %radius_request) = @_;
     my $logger = pf::log::get_logger();
@@ -1301,6 +1317,52 @@ sub radius_rest_authorize :Public :RestPath(/radius/rest/authorize) {
     } else {
         $return = $class->radius_switch_access(%remapped_radius_request);
     }
+
+    # This will die with the proper code if it is a deny
+    $return = pf::radius::rest::format_response($return);
+
+    return $return;
+}
+
+=head2 radius_rest_pre_proxy
+
+RADIUS pre-proxy method that uses REST
+
+=cut
+
+sub radius_rest_pre_proxy :Public :RestPath(/radius/rest/pre_proxy) {
+    my ($class, $radius_request) = @_;
+    my $timer = pf::StatsD::Timer->new();
+    my $logger = pf::log::get_logger();
+
+    my %remapped_radius_request = %{pf::radius::rest::format_request($radius_request)};
+
+    my $return;
+
+    $return = $class->radius_proxy("preproxy",%remapped_radius_request);
+
+    # This will die with the proper code if it is a deny
+    $return = pf::radius::rest::format_response($return);
+
+    return $return;
+}
+
+=head2 radius_rest_post_proxy
+
+RADIUS post-proxy method that uses REST
+
+=cut
+
+sub radius_rest_post_proxy :Public :RestPath(/radius/rest/post_proxy) {
+    my ($class, $radius_request) = @_;
+    my $timer = pf::StatsD::Timer->new();
+    my $logger = pf::log::get_logger();
+
+    my %remapped_radius_request = %{pf::radius::rest::format_request($radius_request)};
+
+    my $return;
+
+    $return = $class->radius_proxy("postproxy",%remapped_radius_request);
 
     # This will die with the proper code if it is a deny
     $return = pf::radius::rest::format_response($return);

@@ -104,7 +104,7 @@ sub authorize {
     my $timer = pf::StatsD::Timer->new();
     my ($self, $radius_request) = @_;
     my $logger = $self->logger;
-    my ($do_auto_reg, %autoreg_node_defaults);;
+    my ($do_auto_reg, %autoreg_node_defaults);
     my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $self->_parseRequest($radius_request);
     my $RAD_REPLY_REF;
 
@@ -920,6 +920,82 @@ sub handleConnectionTypeChange {
         my $client = pf::api::queue->new(queue => "general");
         $client->notify("detect_connection_type_transport_change", $mac, $current_connection);
     }
+}
+
+=head2 radius_proxy
+
+Handle radius proxy request (pre-proxy and post-proxy)
+
+=cut
+
+sub radius_proxy {
+    my ($self, $scope, $radius_request) = @_;
+    my $logger = $self->logger;
+    my ($do_auto_reg, %autoreg_node_defaults);
+    my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $self->_parseRequest($radius_request);
+    my $RAD_REPLY_REF;
+
+    $logger->debug("instantiating switch");
+    my $switch = pf::SwitchFactory->instantiate({ switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $switch_ip}, {radius_request => $radius_request});
+
+    # is switch object correct?
+    if (!$switch) {
+        $logger->warn(
+            "Can't instantiate switch ($switch_ip). This request will be failed. "
+            ."Are you sure your switches.conf is correct?"
+        );
+        return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Switch is not managed by PacketFence") ];
+    }
+
+    $switch->setCurrentTenant();
+    my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
+
+    $user_name = normalize_username($user_name, $radius_request);
+
+    if (!$mac) {
+        return [$RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Mac is empty")];
+    }
+    Log::Log4perl::MDC->put( 'mac', $mac );
+    my ($status_code, $node_obj) = pf::dal::node->find_or_create({"mac" => $mac});
+    if (is_error($status_code)) {
+        $node_obj = pf::dal::node->new({"mac" => $mac});
+    }
+    my $connection = pf::Connection->new;
+    $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch);
+    my $connection_type = $connection->attributesToBackwardCompatible;
+    my $connection_sub_type = $connection->subType;
+    # switch-specific information retrieval
+    my $ssid;
+    if (($connection_type & $WIRELESS) == $WIRELESS) {
+        $ssid = $switch->extractSsid($radius_request);
+        $logger->debug("SSID resolved to: $ssid") if (defined($ssid));
+    }
+    my $args = {
+        switch => $switch,
+        switch_mac => $switch_mac,
+        switch_ip => $switch_ip,
+        source_ip => $source_ip,
+        stripped_user_name => $stripped_user_name,
+        realm => $realm,
+        nas_port_type => $nas_port_type,
+        eap_type => $eap_type // '',
+        mac => $mac,
+        ifIndex => $port,
+        ifDesc => $ifDesc,
+        user_name => $user_name,
+        nas_port_id => $nas_port_type // '',
+        session_id => $session_id,
+        connection_type => $connection_type,
+        connection_sub_type => $connection_sub_type,
+        radius_request => $radius_request,
+        ssid => $ssid,
+        node_info => $node_obj
+
+    };
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test($scope, $args);
+    my ($reply, $status) = $filter->handleAnswerInRule($rule,$args,\%RAD_REPLY);
+    return [$status, %$reply];
 }
 
 =back
