@@ -1,80 +1,102 @@
+<template>
+  <b-card no-body>
+    <config-page-list
+      :config="config"
+      :isLoading="isLoading"
+    >
+      <template slot="pageHeader">
+        <b-card-header><h4 class="mb-0" v-t="'Roles'"></h4></b-card-header>
+      </template>
+      <template slot="buttonAdd">
+        <b-button variant="outline-primary" :to="{ name: 'newRole' }">{{ $t('Add Role') }}</b-button>
+      </template>
+      <template slot="emptySearch">
+        <pf-empty-table :isLoading="isLoading">{{ $t('No roles found') }}</pf-empty-table>
+      </template>
+    </config-page-list>
+  </b-card>
+</template>
+
 <script>
-import BaseList from './_lib/BaseList'
+import ConfigPageList from './_lib/ConfigPageList'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import pfEmptyTable from '@/components/pfEmptyTable'
 
 export default {
   name: 'RolesList',
-  extends: BaseList,
-  props: {
-    pfMixinSearchableOptions: {
-      type: Object,
-      default: () => ({
-        searchApiEndpoint: 'config/roles',
-        defaultSortKeys: ['id'],
-        defaultSearchCondition: {
-          op: 'and',
-          values: [{
-            op: 'or',
-            values: [
-              { field: 'id', op: 'contains', value: null },
-              { field: 'notes', op: 'contains', value: null }
-            ]
-          }]
-        },
-        defaultRoute: { name: 'configuration/roles' }
-      })
-    },
-    tableValues: {
-      type: Array,
-      default: () => []
-    }
+  components: {
+    ConfigPageList,
+    pfEmptyTable
   },
   data () {
     return {
       config: {
-        pageTitle: this.$i18n.t('Roles'),
-        buttonAddLabel: this.$i18n.t('Add Role'),
-        buttonAddRoute: { name: 'newRole' },
-        emptyTableText: this.$i18n.t('No role found')
-      },
-      // Fields must match the database schema
-      fields: [ // keys match with b-form-select
-        {
-          value: 'id',
-          text: 'Name',
-          types: [conditionType.SUBSTRING]
+        columns: [
+          {
+            key: 'id',
+            label: this.$i18n.t('Name'),
+            sortable: true,
+            visible: true
+          },
+          {
+            key: 'notes',
+            label: this.$i18n.t('Description'),
+            sortable: true,
+            visible: true
+          },
+          {
+            key: 'max_nodes_per_pid',
+            label: this.$i18n.t('Max nodes per user'),
+            sortable: true,
+            visible: true
+          }
+        ],
+        fields: [
+          {
+            value: 'id',
+            text: this.$i18n.t('Name'),
+            types: [conditionType.SUBSTRING]
+          },
+          {
+            value: 'notes',
+            text: this.$i18n.t('Description'),
+            types: [conditionType.SUBSTRING]
+          }
+        ],
+        rowClickRoute (item, index) {
+          return { name: 'role', params: { id: item.id } }
         },
-        {
-          value: 'notes',
-          text: 'Description',
-          types: [conditionType.SUBSTRING]
+        searchPlaceholder: this.$i18n.t('Search by name or description'),
+        searchableOptions: {
+          searchApiEndpoint: 'config/roles',
+          defaultSortKeys: ['id'],
+          defaultSearchCondition: {
+            op: 'and',
+            values: [{
+              op: 'or',
+              values: [
+                { field: 'id', op: 'contains', value: null },
+                { field: 'notes', op: 'contains', value: null }
+              ]
+            }]
+          },
+          defaultRoute: { name: 'configuration/roles' }
+        },
+        searchableQuickCondition: (quickCondition) => {
+          return {
+            op: 'and',
+            values: [
+              {
+                op: 'or',
+                values: [
+                  { field: 'id', op: 'contains', value: quickCondition },
+                  { field: 'notes', op: 'contains', value: quickCondition }
+                ]
+              }
+            ]
+          }
         }
-      ],
-      columns: [
-        {
-          key: 'id',
-          label: this.$i18n.t('Name'),
-          sortable: true,
-          visible: true
-        },
-        {
-          key: 'notes',
-          label: this.$i18n.t('Description'),
-          sortable: true,
-          visible: true
-        },
-        {
-          key: 'max_nodes_per_pid',
-          label: this.$i18n.t('Max nodes per user'),
-          sortable: true,
-          visible: true
-        }
-      ]
-    }
-  },
-  methods: {
-    onRowClick (item, index) {
-      this.$router.push({ name: 'role', params: { id: item.id } })
+      }
     }
   }
 }
