@@ -175,7 +175,7 @@
 # - see beginning of this file for possible scope. They are usually extensions points of endpoint connection flow
 #
 #
-# Answerx can be:
+# Answer can be:
 # - the dhcp option number and the value associated or the special value to reject the dhcp request "Reject => True"
 #
 # 1 OptionSubnetMask
@@ -286,7 +286,7 @@
 #answer2 = 51 => 300
 
 #[2:android_by_name]
-#scope = Discover
+#scope = Request
 #answer1 = 5 => 172.20.135.4
 #answer2 = 51 => 300
 
