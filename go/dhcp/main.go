@@ -527,7 +527,7 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 						}
 					}
 					if Static == false {
-											// Requested IP is in the cache ?
+					// Requested IP is in the cache ?
 					if index, found := handler.hwcache.Get(p.CHAddr().String()); found {
 						// Requested IP is equal to what we have in the cache ?
 
@@ -558,6 +558,9 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 									handler.hwcache.Delete(p.CHAddr().String())
 								}
 							}
+						} else {
+							// Not in the cache so refuse
+							Reply = false
 						}
 					} else {
 						// Not in the cache so we don't reply
