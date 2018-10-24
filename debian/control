@@ -15,7 +15,7 @@ Pre-Depends:  ca-certificates,
  ca-certificates, winbind,
  packetfence-pfcmd-suid (>= ${source:Version}), packetfence-config (>= ${source:Version}),
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
- fingerbank (>= 4.1.0), fingerbank (<< 5.0.0),
+ fingerbank (>= 4.1.2), fingerbank (<< 5.0.0),
  fingerbank-collector (>= 1.1.0), fingerbank-collector (<< 2.0.0),
  packetfence-redis-cache (>= ${source:Version}),
  packetfence-pfappserver-javascript (>= ${source:Version}),
