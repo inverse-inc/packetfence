@@ -354,6 +354,7 @@ var Tlv = TlvList{
 		75:  TlvType{"OptionStreetTalkServer", tlvIpAddr},
 		76:  TlvType{"OptionStreetTalkDirectoryAssistance", tlvIpAddr},
 		77:  TlvType{"OptionUserClass", TlvTypeCn},
+		81:  TlvType{"OptionFQDN", tlvNstring},
 		82:  TlvType{"OptionRelayAgentInformation", tlvBlob},
 		93:  TlvType{"OptionClientArchitecture", tlvShort},
 		100: TlvType{"OptionTZPOSIXString", tlvNstring},

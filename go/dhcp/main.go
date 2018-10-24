@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/coreos/go-systemd/daemon"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/fdurand/arp"
 	cache "github.com/fdurand/go-cache"
 	"github.com/go-errors/errors"
@@ -287,6 +288,7 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 	if VIP[h.Name] {
 
 		defer recoverName(options)
+
 		answer.Local = handler.layer2
 		var Options map[string]string
 		Options = make(map[string]string)
