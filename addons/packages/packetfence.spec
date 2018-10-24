@@ -329,7 +329,7 @@ Requires: %{real_name}-pfcmd-suid = %{version}-%{rev}%{?dist}
 %endif
 Requires: haproxy >= 1.8.9, keepalived >= 1.4.3
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
-Requires: fingerbank >= 4.1.0, fingerbank < 5.0.0
+Requires: fingerbank >= 4.1.2, fingerbank < 5.0.0
 Requires: fingerbank-collector >= 1.1.0, fingerbank-collector < 2.0.0
 Requires: perl(File::Tempdir)
 
