@@ -520,10 +520,10 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 										handler.hwcache.Delete(p.CHAddr().String())
 									}
 								}
-							} else {
-								// Not in the cache so refuse
-								Reply = false
 							}
+						} else {
+							// Not in the cache so refuse
+							Reply = false
 						}
 					} else {
 						// Not in the cache so we don't reply
