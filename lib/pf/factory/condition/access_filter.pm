@@ -20,13 +20,13 @@ use Module::Pluggable
   inner       => 0,
   require     => 1;
 use pf::util qw(str_to_connection_type);
-use pf::constants::eap_type qw(%RADIUS_EAP_TYPE_2_VALUES);
+use pf::constants::eap_type qw(%RADIUS_EAP_TYPE_2_VALUES %RADIUS_EAP_VALUES_2_TYPE);
 
 our @MODULES;
 
 sub factory_for {'pf::condition'}
 
-our %ACCESS_FILTER_OPERATOR_TO_CONDITION_TYPE = (
+our %FILTER_OP_TO_CONDITION = (
     'is'                        => 'pf::condition::equals',
     'is_not'                    => 'pf::condition::not_equals',
     'includes'                  => 'pf::condition::includes',
@@ -91,17 +91,34 @@ sub _build_parent_condition {
 }
 
 my %VALUE_FILTERS = (
-    connection_type => \&str_to_connection_type,
-    connection_sub_type => sub {
-        return $RADIUS_EAP_TYPE_2_VALUES{$_[0]};
-    },
+    'connection_type'     => \&str_to_connection_type,
+    'connection_sub_type' => \&normalize_connection_sub_type,
+    'EAP-Type'            => \&normalize_eap_type,
 );
+
+sub normalize_connection_sub_type {
+    return $RADIUS_EAP_TYPE_2_VALUES{$_[0]};
+}
+
+sub normalize_eap_type {
+    my $v = $_[0];
+    if (exists $RADIUS_EAP_VALUES_2_TYPE{$v}) {
+        return $v;
+    }
+
+    if (exists $RADIUS_EAP_TYPE_2_VALUES{$v}) {
+        return $RADIUS_EAP_TYPE_2_VALUES{$v};
+    }
+
+    return 0;
+}
 
 sub _build_sub_condition {
     my ($data) = @_;
-    my $condition_class = $ACCESS_FILTER_OPERATOR_TO_CONDITION_TYPE{$data->{operator}};
+    my $op = $data->{operator};
+    my $condition_class = $FILTER_OP_TO_CONDITION{$op};
     unless ($condition_class) {
-        die "Invalid operator : $data->{operator}\n";
+        die "Invalid operator : $op\n";
     }
 
     my $filter = $data->{filter};
