@@ -9233,7 +9233,7 @@ msgstr "Alerting"
 
 # conf/documentation.conf
 msgid "alerting.emailaddr"
-msgstr "Recipient"
+msgstr "Recipients"
 
 # conf/documentation.conf
 msgid "alerting.fromaddr"
