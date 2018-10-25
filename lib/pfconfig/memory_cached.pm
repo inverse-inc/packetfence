@@ -25,6 +25,7 @@ use warnings;
 
 use pf::log;
 use pfconfig::cached;
+use pfconfig::util qw(normalize_namespace_query);
 our @ISA = ( 'pfconfig::cached' );
 
 =head2 init
