@@ -180,7 +180,7 @@ sub do_sponsor_registration {
     }
 
     $info{'sponsor'} = $sponsor;
-    $info{'subject'} = $self->app->i18n_format("%s: Guest access request", $Config{'general'}{'domain'});
+    $info{'subject'} = ["%s: Guest access request", $Config{'general'}{'domain'}];
     $info{'source_id'} = $source->id;
 
     # TODO this portion of the code should be throttled to prevent malicious intents (spamming)

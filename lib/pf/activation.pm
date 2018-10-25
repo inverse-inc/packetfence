@@ -39,6 +39,7 @@ use pf::util;
 use pf::config::util qw();
 use pf::Connection::ProfileFactory;
 use pf::web::guest::constants;
+use pf::web qw(i18n);
 use pf::constants::Connection::Profile qw($DEFAULT_PROFILE);
 
 =head1 CONSTANTS
@@ -442,6 +443,7 @@ sub send_email {
     my $smtpserver = $Config{'alerting'}{'smtpserver'};
     $info{'from'} = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn;
     $info{'currentdate'} = POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
+    $info{'subject'} = i18n($info{'subject'});
 
     if (defined($info{'activation_domain'})) {
         $info{'activation_uri'} = "https://". $info{'activation_domain'} . "$WEB::URL_EMAIL_ACTIVATION_LINK/$type/$activation_code";
