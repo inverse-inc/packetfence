@@ -87,9 +87,12 @@ Readonly::Scalar our $EAP_PWD => 52;
 Readonly::Scalar our $EAP_EVEV1 => 53;
 
 #This was auto generated from the following command
-# egrep ^ATTRIBUTE /usr/share/freeradius/dictionary.freeradius.internal  | grep EAP-Type- | awk 'BEGIN{print "our \%RADIUS_EAP_TYPE_2_VALUES = ("} {print "    \"" $2 "\" => "  $3 - 1280 ", " } END { print ");" }' | perl -p -e's/EAP-Type-//'
+# egrep ^ATTRIBUTE /usr/share/freeradius/dictionary.freeradius.internal  | grep EAP-Type- | awk 'BEGIN{print "our %RADIUS_EAP_TYPE_2_VALUES = ("} {print "    \"" $2 "\" => "  $3 - 1280 "," } END { print ");" }' | perl -p -e's/EAP-Type-//'
 
 our %RADIUS_EAP_TYPE_2_VALUES = (
+    "Base" => 0,
+    "VALUE" => 0,
+    "None" => 0,
     "Identity" => 1,
     "Notification" => 2,
     "NAK" => 3,
