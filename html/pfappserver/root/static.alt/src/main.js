@@ -7,6 +7,7 @@ import 'vue-awesome/icons/arrow-circle-right'
 import 'vue-awesome/icons/balance-scale'
 import 'vue-awesome/icons/ban'
 import 'vue-awesome/icons/barcode'
+import 'vue-awesome/icons/bars'
 import 'vue-awesome/icons/bell'
 import 'vue-awesome/icons/calendar-alt'
 import 'vue-awesome/icons/calendar-check'
@@ -51,6 +52,7 @@ import 'vue-awesome/icons/sync'
 import 'vue-awesome/icons/th'
 import 'vue-awesome/icons/thumbtack'
 import 'vue-awesome/icons/times'
+import 'vue-awesome/icons/times-circle'
 import 'vue-awesome/icons/trash-alt'
 import 'vue-awesome/icons/undo-alt'
 import 'vue-awesome/icons/unlink'
@@ -77,9 +79,7 @@ Vue.use(VueTimeago, {
     'fr': require('date-fns/locale/fr')
   }
 })
-
 Vue.component('icon', Icon)
-
 Vue.use(BootstrapVue)
 
 // Register global filters

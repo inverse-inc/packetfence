@@ -30,17 +30,28 @@ const route = {
     {
       path: 'search',
       component: NodesSearch,
-      props: (route) => ({ storeName: '$_nodes', query: route.query.query })
+      props: (route) => ({ storeName: '$_nodes', query: route.query.query }),
+      meta: {
+        can: 'read nodes'
+      }
     },
     {
       path: 'create',
       component: NodesCreate,
-      props: { storeName: '$_nodes' }
+      props: { storeName: '$_nodes' },
+      meta: {
+        can: 'create nodes',
+        fail: '/search'
+      }
     },
     {
       path: 'import',
       component: NodesImport,
-      props: { storeName: '$_nodes' }
+      props: { storeName: '$_nodes' },
+      meta: {
+        can: 'create nodes',
+        fail: '/search'
+      }
     },
     {
       path: '/node/:mac',
@@ -51,6 +62,9 @@ const route = {
         store.dispatch('$_nodes/getNode', to.params.mac).then(node => {
           next()
         })
+      },
+      meta: {
+        can: 'read nodes'
       }
     }
   ]

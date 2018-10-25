@@ -1,16 +1,20 @@
 <template>
-  <b-nav vertical class="bd-sidenav" v-if="savedSearches && savedSearches.length > 0">
-    <div class="bd-toc-link" v-t="'Saved Searches'"></div>
-    <b-nav-item v-for="search in savedSearches" :key="search.name" :to="routeSavedSearch(search)" active-class="secondary" exact>
-      {{search.name}}
-      <icon class="float-right mt-1" name="trash-alt" @click.native.stop.prevent="deleteSavedSearch(search)"></icon>
-    </b-nav-item>
+  <b-nav vertical class="pf-sidenav" v-if="savedSearches && savedSearches.length > 0">
+    <div class="pf-sidenav-group" v-t="'Saved Searches'"></div>
+    <pf-sidebar-item v-for="item in savedSearches" :key="item.name" :item="savedSearch(item)" :filter="filter" indent>
+      <icon class="mx-1" name="trash-alt" role="button" @click.native.stop.prevent="deleteSavedSearch(item)"></icon>
+    </pf-sidebar-item>
   </b-nav>
 </template>
 
 <script>
+import pfSidebarItem from './pfSidebarItem'
+
 export default {
   name: 'pfMixinSavedSearch',
+  components: {
+    pfSidebarItem
+  },
   props: {
     storeName: { // from router
       type: String,
@@ -32,8 +36,8 @@ export default {
     deleteSavedSearch (search) {
       this.$store.dispatch(`${this.storeName}/deleteSavedSearch`, search)
     },
-    routeSavedSearch (search) {
-      return { name: this.routeName, query: { query: JSON.stringify(search.query) } }
+    savedSearch (item) {
+      return Object.assign(item, { path: { name: this.routeName, query: { query: JSON.stringify(item.query) } } } )
     }
   }
 }

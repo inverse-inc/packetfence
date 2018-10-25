@@ -4,6 +4,7 @@
  */
 import Vue from 'vue'
 import Acl from 'vue-browser-acl'
+import router from '@/router'
 import apiCall from '@/utils/api'
 
 const STORAGE_TOKEN_KEY = 'user-token'
@@ -94,7 +95,7 @@ const actions = {
           console.debug('configure acl ' + action + ' => ' + target)
           acl.rule(action, target, () => true)
         }
-      }, { caseMode: false })
+      }, { caseMode: false, router: router })
       commit('ROLES_UPDATED', roles)
     })
   },

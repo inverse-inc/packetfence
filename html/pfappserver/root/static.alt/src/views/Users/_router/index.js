@@ -25,17 +25,26 @@ const route = {
     {
       path: 'search',
       component: UsersSearch,
-      props: (route) => ({ storeName: '$_users', query: route.query.query })
+      props: (route) => ({ storeName: '$_users', query: route.query.query }),
+      meta: {
+        can: 'read users'
+      }
     },
     {
       path: 'create',
       component: UsersCreate,
-      props: { storeName: '$_users' }
+      props: { storeName: '$_users' },
+      meta: {
+        can: 'create users'
+      }
     },
     {
       path: 'import',
       component: UsersImport,
-      props: { storeName: '$_users' }
+      props: { storeName: '$_users' },
+      meta: {
+        can: 'create users'
+      }
     },
     {
       path: '/user/:pid',
@@ -46,6 +55,9 @@ const route = {
         store.dispatch('$_users/getUser', to.params.pid).then(user => {
           next()
         })
+      },
+      meta: {
+        can: 'read users'
       }
     }
   ]
