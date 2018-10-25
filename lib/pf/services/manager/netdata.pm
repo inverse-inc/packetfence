@@ -23,6 +23,7 @@ use pf::log;
 use pf::util;
 use pf::cluster;
 use pf::constants;
+use NetAddr::IP;
 
 use pf::config qw(
     $management_network
@@ -37,6 +38,10 @@ has '+name' => (default => sub { 'netdata' } );
 has '+optional' => ( default => sub {'1'} );
 
 tie our @authentication_sources_monitored, 'pfconfig::cached_array', "resource::authentication_sources_monitored";
+
+my $host_id = $pf::config::cluster::host_id;
+
+tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config($host_id)";
 
 =head2 postStartCleanup
 
@@ -123,6 +128,31 @@ families: *
 EOT
             }
         }
+    }
+
+    foreach my $network ( keys %NetworkConfig ) {
+        my $dev = $NetworkConfig{$network}{'interface'}{'int'};
+        next if !defined $dev;
+        next if isdisabled($NetworkConfig{$network}{'dhcpd'});
+        my $net_addr = NetAddr::IP->new($network,$NetworkConfig{$network}{'netmask'});
+        my $cidr = $net_addr->cidr();
+        $cidr =~ s/\//_/g;
+        $tags{'alerts'} .= <<"EOT";
+template: dhcp_missing_leases_$cidr
+families: *
+      on: statsd_gauge_source.packetfence.dhcp_leases.percentused.$cidr
+      os: linux
+   hosts: *
+  lookup: DHCP Leases usage
+   units: %
+   every: 1m
+    warn: \$this > ((\$status >= \$WARNING)  ? (75) : (85))
+    crit: \$this > ((\$status == \$CRITICAL) ? (85) : (95))
+   delay: down 15m multiplier 1.5 max 1h
+    info: DHCP leases usage for the last 10 minutes
+      to: sysadmin
+
+EOT
     }
 
     $tags{'httpd_portal_modstatus_port'} = "$Config{'ports'}{'httpd_portal_modstatus'}";
