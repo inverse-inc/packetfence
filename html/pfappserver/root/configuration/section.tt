@@ -21,13 +21,13 @@
       <button type="reset" class="btn">[% l('Reset') %]</button>
       [% IF section == "alerting" %]
       <a class="btn" data-toggle="modal" href="#testSMTPModal">[% l('Test SMTP') %]</a>
-      <div class="modal fade hide" id="testSMTPModal">
+      <div class="modal modal-large fade hide" id="testSMTPModal">
         <div class="modal-header">
           <h3><i>[% l('Test SMTP') %]</i> <span id="content"></span></h3>
         </div>
         <div class="modal-body">
           [% field = form.field('emailaddr').clone('html_name', 'test_emailaddr', 'id', 'test_emailaddr') %]
-          [% field.tags.help  = "Email address to receive test message." %]
+          [% field.tags.help  = "Comma-delimited list of email address(es) to receive test message." %]
           [% field.render | none %]
         </div>
         <div class="modal-footer">
