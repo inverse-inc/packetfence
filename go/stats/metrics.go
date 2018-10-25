@@ -229,37 +229,6 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
 					default:
 						log.LoggerWContext(ctx).Warn("Unhandled statsd_type " + conf.StatsdType + " for " + conf.Type)
 					}
-				case [][3]interface{}:
-					//triple column
-					var namespace string
-					for _, row := range res.([][3]interface{}) {
-						namespace = CleanNameSpace(conf.StatsdNS + "." + row[0].(string))
-						f64Result, _ := strconv.ParseFloat(row[1][0].(string), 64)
-						f64Result2, _ := strconv.ParseFloat(row[1][1].(string), 64)
-						switch conf.StatsdType {
-						case "count":
-							StatsdClient.Count(namespace, f64Result)
-							StatsdClient.Count(namespace, f64Result2)
-
-						case "gauge":
-							StatsdClient.Gauge(namespace, f64Result)
-							StatsdClient.Gauge(namespace, f64Result2)
-
-						case "histogram":
-							StatsdClient.Histogram(namespace, f64Result)
-							StatsdClient.Histogram(namespace, f64Result2)
-
-						case "increment":
-							StatsdClient.Increment(namespace)
-							StatsdClient.Increment(namespace)
-
-						case "unique":
-							StatsdClient.Unique(namespace, row[1][0].(string))
-							StatsdClient.Unique(namespace, row[1][1].(string))
-
-						default:
-							log.LoggerWContext(ctx).Warn("Unhandled statsd_type " + conf.StatsdType + " for " + conf.Type)
-						}
 
 				}
 
@@ -305,30 +274,6 @@ func ProcessMetricConfig(ctx context.Context, conf pfconfigdriver.PfStats) error
  */
 func CompileJson(json interface{}, compile string) (interface{}, error) {
 	c := strings.Split(compile, ",")
-	if len(c) == 2 {
-		// multiple XPath(s)
-		r1, err := CompileJson(json, c[0])
-		if err != nil {
-			return nil, err
-		}
-
-		r2, err := CompileJson(json, c[1])
-		if err != nil {
-			return nil, err
-		}
-
-		r3, err := CompileJson(json, c[2])
-		if err != nil {
-			return nil, err
-		}
-
-		zipped, err := Zip3(r1.([]interface{}), r2.([]interface{}), r3.([]interface{}))
-		if err != nil {
-			return nil, err
-		}
-
-		return zipped, nil
-	}
 	if len(c) > 1 {
 		// multiple XPath(s)
 		r1, err := CompileJson(json, c[0])
@@ -407,23 +352,6 @@ func Zip(a, b []interface{}) ([][2]interface{}, error) {
 	r := make([][2]interface{}, len(a), len(a))
 	for i, e := range a {
 		r[i] = [2]interface{}{e, b[i]}
-	}
-
-	return r, nil
-}
-
-/*
- * Glues 2 []interface{} together into a single slice with 2 elements,
- *     example: Zip([santa tooth], [clause, fairy]) = [[santa clause] [tooth fairy]]
- * Used to match name(s) with value(s) from 2 separate JSON Xpaths
- */
-func Zip3(a, b, c []interface{}) ([][3]interface{}, error) {
-	if len(a) != len(b) {
-		return nil, errors.New("Zip arguments must be of same length")
-	}
-	r := make([][3]interface{}, len(a), len(a))
-	for i, e := range a {
-		r[i] = [3]interface{}{e, b[i], c[i]}
 	}
 
 	return r, nil
