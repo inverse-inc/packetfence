@@ -33,6 +33,9 @@ type Stats struct {
 	EthernetName string            `json:"interface"`
 	Net          string            `json:"network"`
 	Free         int               `json:"free"`
+	PercentFree  int               `json:"percentfree"`
+	Used         int               `json:"used"`
+	PercentUsed  int               `json:"percentused"`
 	Category     string            `json:"category"`
 	Options      map[string]string `json:"options"`
 	Members      []Node            `json:"members"`
@@ -360,13 +363,17 @@ func (h *Interface) handleApiReq(Request ApiReq) interface{} {
 			}
 
 			availableCount := (int(statistics.RunContainerValues) + int(statistics.ArrayContainerValues))
+			usedCount := (v.dhcpHandler.leaseRange - availableCount)
+			percentfree := ((availableCount / v.dhcpHandler.leaseRange) * 100)
+			percentused := ((usedCount / v.dhcpHandler.leaseRange) * 100)
+
 			if Count == (v.dhcpHandler.leaseRange - availableCount) {
 				Status = "Normal"
 			} else {
 				Status = "Calculated available IP " + strconv.Itoa(v.dhcpHandler.leaseRange-Count) + " is different than what we have available in the pool " + strconv.Itoa(availableCount)
 			}
 
-			stats = append(stats, Stats{EthernetName: Request.NetInterface, Net: v.network.String(), Free: int(statistics.RunContainerValues) + int(statistics.ArrayContainerValues), Category: v.dhcpHandler.role, Options: Options, Members: Members, Status: Status, Size: availableCount})
+			stats = append(stats, Stats{EthernetName: Request.NetInterface, Net: v.network.String(), Free: availableCount, Category: v.dhcpHandler.role, Options: Options, Members: Members, Status: Status, Size: v.dhcpHandler.leaseRange, Used: usedCount, PercentFree: percentfree, PercentUsed: percentused})
 		}
 		return stats
 	}

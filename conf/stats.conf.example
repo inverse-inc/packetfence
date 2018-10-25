@@ -144,7 +144,7 @@ randomize=true
 [metric 'number of dhcp free ip addresses']
 type=api
 statsd_type=gauge
-statsd_ns=source.packetfence.dhcp_leases
+statsd_ns=source.packetfence.dhcp_leases.free
 api_method=GET
 api_path=/api/v1/dhcp/stats
 api_compile=$.items[*].network.free, $.items[*].free
@@ -154,7 +154,7 @@ randomize=true
 [metric 'number of dhcp used ip addresses']
 type=api
 statsd_type=gauge
-statsd_ns=source.packetfence.dhcp_leases
+statsd_ns=source.packetfence.dhcp_leases.used
 api_method=GET
 api_path=/api/v1/dhcp/stats
 api_compile=$.items[*].network.used, $.items[*].used
@@ -164,19 +164,19 @@ randomize=true
 [metric 'percent of dhcp free ip addresses']
 type=api
 statsd_type=gauge
-statsd_ns=source.packetfence.dhcp_leases
+statsd_ns=source.packetfence.dhcp_leases.percentfree
 api_method=GET
 api_path=/api/v1/dhcp/stats
-api_compile=$.items[*].network.percentfree, $.items[*].percentfree
+api_compile=$.items[*].network, $.items[*].percentfree
 interval=60s
 randomize=true
 
-[metric 'percent of dhcp free ip addresses']
+[metric 'percent of dhcp used ip addresses']
 type=api
 statsd_type=gauge
-statsd_ns=source.packetfence.dhcp_leases
+statsd_ns=source.packetfence.dhcp_leases.percentused
 api_method=GET
 api_path=/api/v1/dhcp/stats
-api_compile=$.items[*].network.percentused, $.items[*].percentused
+api_compile=$.items[*].network, $.items[*].percentused
 interval=60s
 randomize=true
