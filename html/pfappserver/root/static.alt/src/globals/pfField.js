@@ -23,28 +23,24 @@ export const pfFieldTypeValues = {}
 pfFieldTypeValues[pfFieldType.ADMINROLE] = (store) => {
   if (store === undefined) {
     throw new Error('Missing `store` in pfFieldTypeValues[pfFieldType.ADMINROLE](store)')
-    return
   }
   return store.getters['config/adminRolesList']
 }
 pfFieldTypeValues[pfFieldType.ROLE] = (store) => {
   if (store === undefined) {
     throw new Error('Missing `store` in pfFieldTypeValues[pfFieldType.ROLE](store)')
-    return
   }
   return store.getters['config/rolesList']
 }
 pfFieldTypeValues[pfFieldType.SOURCE] = (store) => {
   if (store === undefined) {
     throw new Error('Missing `store` in pfFieldTypeValues[pfFieldType.SOURCE](store)')
-    return
   }
   return store.getters['config/sourcesList']
 }
 pfFieldTypeValues[pfFieldType.TENANT] = (store) => {
   if (store === undefined) {
     throw new Error('Missing `store` in pfFieldTypeValues[pfFieldType.TENANT](store)')
-    return
   }
   return store.getters['config/tenantsList']
 }

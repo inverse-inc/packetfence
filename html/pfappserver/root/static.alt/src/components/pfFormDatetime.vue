@@ -1,4 +1,4 @@
-/**
+<!--
  * Component to pick datetime.
  *
  * Optional Properties:
@@ -14,7 +14,7 @@
  *    max: (Date) maximum datetime String
  *    moments: button array of +/- seconds from now (see: https://date-fns.org/v1.29.0/docs/addSeconds)
  *      example :moments="['-1 hours', '1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"
- */
+ -->
  <template>
   <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
     :state="isValid()" :invalid-feedback="getInvalidFeedback()"

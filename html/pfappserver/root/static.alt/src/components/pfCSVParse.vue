@@ -1,4 +1,4 @@
-/**
+<!--
  * Component to parse CSV
  *
  * Supports:
@@ -41,7 +41,7 @@
  *      `exportModel`: (array) -- a remapped array of objects based on user-mappings and clean vuelidations
  *      `this`: (object) -- forward `this` to allow direct modification of this.tableValues[index]... _rowVariant and _rowMessage.
  *
-**/
+-->
  <template>
   <b-form @submit.prevent="doExport()">
 
@@ -206,7 +206,7 @@
 
                   <!-- BEGIN YESNO -->
                   <pf-form-toggle  v-else-if="isFieldType(yesnoValueType, staticMapping[index])"
-                    v-model="staticMapping[index].value" 
+                    v-model="staticMapping[index].value"
                     :values="{checked: 'yes', unchecked: 'no'}"
                     :validation="$v.staticMapping[index].value"
                   >{{ (staticMapping[index].value === 'yes') ? $t('Yes') : $t('No') }}</pf-form-toggle>
@@ -323,8 +323,7 @@ import {
   conditional
 } from '@/globals/pfValidators'
 import {
-  required,
-  minLength
+  required
 } from 'vuelidate/lib/validators'
 
 const { validationMixin } = require('vuelidate')
