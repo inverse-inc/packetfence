@@ -147,6 +147,36 @@ statsd_type=gauge
 statsd_ns=source.packetfence.dhcp_leases
 api_method=GET
 api_path=/api/v1/dhcp/stats
-api_compile=$.items[*].network, $.items[*].free
+api_compile=$.items[*].network.free, $.items[*].free
+interval=60s
+randomize=true
+
+[metric 'number of dhcp used ip addresses']
+type=api
+statsd_type=gauge
+statsd_ns=source.packetfence.dhcp_leases
+api_method=GET
+api_path=/api/v1/dhcp/stats
+api_compile=$.items[*].network.used, $.items[*].used
+interval=60s
+randomize=true
+
+[metric 'percent of dhcp free ip addresses']
+type=api
+statsd_type=gauge
+statsd_ns=source.packetfence.dhcp_leases
+api_method=GET
+api_path=/api/v1/dhcp/stats
+api_compile=$.items[*].network.percentfree, $.items[*].percentfree
+interval=60s
+randomize=true
+
+[metric 'percent of dhcp free ip addresses']
+type=api
+statsd_type=gauge
+statsd_ns=source.packetfence.dhcp_leases
+api_method=GET
+api_path=/api/v1/dhcp/stats
+api_compile=$.items[*].network.percentused, $.items[*].percentused
 interval=60s
 randomize=true
