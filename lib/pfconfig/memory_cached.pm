@@ -36,6 +36,8 @@ Constructor
 sub init {
     my ( $self, @namespaces ) = @_;
 
+    @namespaces = map { normalize_namespace_query($_) } @namespaces;
+
     $self->{"_namespaces"} = \@namespaces;
 
     return $self;
