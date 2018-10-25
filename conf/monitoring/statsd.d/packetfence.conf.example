@@ -83,7 +83,7 @@
     type = stacked
     dimension = pattern 'source.packetfence.redis.queue_stats_outstanding.*' '' last 1 1
 
-[dhcp.dhcp_free_leases]
+[dhcp.free_leases]
     name = dhcp.free_leases
     title = Dhcp free leases
     family = packetfence
@@ -93,7 +93,7 @@
     type = line
     dimension = pattern 'source.packetfence.dhcp_leases.free.*' '' last 1 1
 
-[dhcp.dhcp_used_leases]
+[dhcp.used_leases]
     name = dhcp.used_leases
     title = Dhcp used leases
     family = packetfence
@@ -103,9 +103,9 @@
     type = line
     dimension = pattern 'source.packetfence.dhcp_leases.used.*' '' last 1 1
 
-[dhcp.dhcp_percent_free_leases]
+[dhcp.percent_free_leases]
     name = dhcp.percent_free_leases
-    title = Dhcp percent_free leases
+    title = Dhcp percent free leases
     family = packetfence
     context = chart.context
     units = Percent
@@ -113,7 +113,7 @@
     type = line
     dimension = pattern 'source.packetfence.dhcp_leases.percentfree.*' '' last 1 1
 
-[dhcp.dhcp_percent_used_leases]
+[dhcp.percent_used_leases]
     name = dhcp.percent_used_leases
     title = Dhcp percent used leases
     family = packetfence
@@ -122,4 +122,3 @@
     priority = 91000
     type = line
     dimension = pattern 'source.packetfence.dhcp_leases.percentused.*' '' last 1 1
-

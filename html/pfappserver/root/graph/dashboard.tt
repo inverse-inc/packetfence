@@ -422,16 +422,26 @@ END;
         <div class="tab-pane[% IF tab == "dhcp" %] active[% END %]" id="dhcp">
             <div class="card">
               <div class="card-title">
-                <h2>[% l('DHCP free leases') %]</h2>
+                <h2>[% l('DHCP used leases') %]</h2>
               </div>
               <div class="card-block">
                 <div class="row-flex">
-                    [% graph("packetfence.dhcp.free_leases", {"width" => halfGridSize, "filter_graph" => "gauge"}) | none %]
+                    [% graph("packetfence.dhcp.used_leases", "Numbers of ip addresses assigned", {"width" => halfGridSize, "filter_graph" => "gauge"}) | none %]
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-title">
+                <h2>[% l('DHCP percent used leases') %]</h2>
+              </div>
+              <div class="card-block">
+                <div class="row-flex">
+                    [% graph("packetfence.dhcp.percent_used_leases", "Percent of ip addresses used", {"width" => halfGridSize, "filter_graph" => "gauge"}) | none %]
                 </div>
               </div>
             </div>
         </div>
- 
+
         <div class="tab-pane[% IF tab == "endpoints" %] active[% END %]" id="endpoints">
           <div class="card">
             <div class="card-title">
