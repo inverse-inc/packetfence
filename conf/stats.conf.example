@@ -140,3 +140,13 @@ statsd_ns=source.packetfence.authentication.failed_last_day
 mysql_query=select count(1) from radius_audit_log where auth_status='Reject' and created_at >= NOW() - INTERVAL 1 DAY;
 interval=60s
 randomize=true
+
+[metric 'number of dhcp free ip addresses']
+type=api
+statsd_type=gauge
+statsd_ns=source.packetfence.dhcp_leases
+api_method=GET
+api_path=/api/v1/dhcp/stats
+api_compile=$.items[*].network, $.items[*].free
+interval=60s
+randomize=true
