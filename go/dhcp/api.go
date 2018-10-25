@@ -364,8 +364,8 @@ func (h *Interface) handleApiReq(Request ApiReq) interface{} {
 
 			availableCount := (int(statistics.RunContainerValues) + int(statistics.ArrayContainerValues))
 			usedCount := (v.dhcpHandler.leaseRange - availableCount)
-			percentfree := ((availableCount / v.dhcpHandler.leaseRange) * 100)
-			percentused := ((usedCount / v.dhcpHandler.leaseRange) * 100)
+			percentfree := int((float64(availableCount) / float64(v.dhcpHandler.leaseRange)) * 100)
+			percentused := int((float64(usedCount) / float64(v.dhcpHandler.leaseRange)) * 100)
 
 			if Count == (v.dhcpHandler.leaseRange - availableCount) {
 				Status = "Normal"
