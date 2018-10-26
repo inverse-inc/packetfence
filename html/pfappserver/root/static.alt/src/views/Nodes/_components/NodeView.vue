@@ -800,29 +800,45 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
+@import "../../../../node_modules/bootstrap/scss/functions";
+@import "../../../styles/variables";
+
+$vis-item-bg: theme-color("primary");
+$vis-item-color: $white;
+
+.vis-timeline {
+  border: none;
+}
+
+.vis-labelset .vis-label,
+.vis-foreground .vis-group {
+  border-bottom-color: $table-border-color;
+}
+
 .vis-text,
 .vis-label,
 .vis-item {
-  font-family: Monaco, Menlo, Consolas, "Courier New", monospace !important;
-  font-size: .75rem;
-  line-height: .75rem;
+  font-family: $font-family-sans-serif;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-normal;
+  line-height: $line-height-sm;
   white-space: normal;
 }
-.vis-label {
-  color: #d72b3f;
-  font-weight: bold;
+.vis-text.vis-major {
+  font-size: $font-size-base;
+}
+.vis-label,
+.vis-labelset .vis-label {
+  color: $gray-600;
+  font-weight: 500;
+  text-align: right;
 }
 .vis-item {
-  background-color: #f7f7f9;
-  border: 1px solid #e1e1e8;
-  border-radius: 3px;
-  color: #d72b3f;
+  background-color: $gray-200;
+  color: $vis-item-bg;
   padding: 2px 3px 1px;
   text-align: center;
-}
-.vis-label, .vis-group {
-  /* min-height: 35px;  */
 }
 /* bottom arrow on box */
 .vis-item.vis-box:after {
@@ -833,27 +849,43 @@ export default {
   margin-left: -10px;
   width: 0;
   height: 0;
-  border-top: solid 10px #d72b3f;
+  border-top: solid 10px $vis-item-bg;
   border-left: solid 10px transparent;
   border-right: solid 10px transparent;
 }
 /* left and right border on range */
 .vis-item.vis-range {
-  border-left: 5px solid #d72b3f;
-  border-right: 5px solid #d72b3f;
-  border-radius:50px;
+  border-left: 5px solid $vis-item-bg;
+  border-right: 5px solid $vis-item-bg;
+  border-radius: 50px;
 }
 /* alternating column backgrounds */
 .vis-time-axis .vis-grid.vis-odd {
-  background: #f5f5f5;
+  background: $gray-100;
 }
 /* gray background in weekends, white text color */
 .vis-time-axis .vis-grid.vis-saturday,
 .vis-time-axis .vis-grid.vis-sunday {
-  background: gray;
+  background: $gray-700;
 }
 .vis-time-axis .vis-text.vis-saturday,
 .vis-time-axis .vis-text.vis-sunday {
-  color: white;
+  color: $white;
+}
+/* match bootstrap tooltip style */
+div.vis-tooltip {
+  font-family: $font-family-sans-serif;
+  font-size: $tooltip-font-size;
+
+  color: $tooltip-color;
+  background-color: $tooltip-bg;
+
+  border-radius: $tooltip-border-radius;
+  box-shadow: none;
+
+  opacity: $tooltip-opacity;
+  padding: $tooltip-padding-y $tooltip-padding-x;
+
+  z-index: $zindex-tooltip;
 }
 </style>
