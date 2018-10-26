@@ -142,13 +142,12 @@ families: *
       on: statsd_gauge.source.packetfence.dhcp_leases.percentused.$cidr
       os: linux
    hosts: *
-  lookup: DHCP Leases usage
    units: %
    every: 1m
-    warn: \$this > ((\$status >= \$WARNING)  ? (75) : (85))
-    crit: \$this > ((\$status == \$CRITICAL) ? (85) : (95))
-   delay: down 15m multiplier 1.5 max 1h
-    info: DHCP leases usage for the last 10 minutes
+    warn: \$gauge > 80
+    crit: \$gauge > 90
+   delay: down 5m multiplier 1.5 max 1h
+    info: DHCP leases usage $cidr
       to: sysadmin
 
 EOT
