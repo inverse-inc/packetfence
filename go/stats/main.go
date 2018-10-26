@@ -25,6 +25,9 @@ import (
 	. "layeh.com/radius/rfc2865"
 )
 
+var VIP map[string]bool
+var VIPIp map[string]net.IP
+
 type TypeName struct {
 	Typename map[*regexp.Regexp]Types
 }
@@ -341,6 +344,17 @@ func main() {
 		}
 	}()
 
+	var management pfconfigdriver.ManagementNetwork
+	pfconfigdriver.FetchDecodeSocket(ctx, &management)
+
+	go func() {
+		for {
+			detectVIP(management)
+
+			time.Sleep(3 * time.Second)
+		}
+	}()
+
 	var keyConfStats pfconfigdriver.PfconfigKeys
 	keyConfStats.PfconfigNS = "config::Stats"
 	keyConfStats.PfconfigHostnameOverlay = "yes"
@@ -358,9 +372,11 @@ func main() {
 		pfconfigdriver.FetchDecodeSocket(ctx, &ConfStat)
 
 		if RegExpMetric.MatchString(key) {
-			err = ProcessMetricConfig(ctx, ConfStat)
-			if err != nil {
-				log.LoggerWContext(ctx).Error("Error while processing metric config: " + err.Error())
+			if (VIP[management.Int] && ConfStat.Management == "true") || ConfStat.Management == "false" {
+				err = ProcessMetricConfig(ctx, ConfStat)
+				if err != nil {
+					log.LoggerWContext(ctx).Error("Error while processing metric config: " + err.Error())
+				}
 			}
 		}
 	}
@@ -1763,4 +1779,41 @@ var Verb = TypeName{
 			},
 		},
 	},
+}
+
+// Detect the vip on management
+func detectVIP(management pfconfigdriver.ManagementNetwork) bool {
+
+	var keyConfCluster pfconfigdriver.NetInterface
+	keyConfCluster.PfconfigNS = "config::Pf(CLUSTER," + pfconfigdriver.FindClusterName(ctx) + ")"
+
+	keyConfCluster.PfconfigHashNS = "interface " + management.Int
+	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfCluster)
+	// Nothing in keyConfCluster.Ip so we are not in cluster mode
+	if keyConfCluster.Ip == "" {
+		VIP[management.Int] = true
+		return true
+	}
+
+	eth, _ := net.InterfaceByName(management.Int)
+	adresses, _ := eth.Addrs()
+	var found bool
+	found = false
+	for _, adresse := range adresses {
+		IP, _, _ := net.ParseCIDR(adresse.String())
+		VIPIp[management.Int] = net.ParseIP(keyConfCluster.Ip)
+		if IP.Equal(VIPIp[management.Int]) {
+			found = true
+			if VIP[management.Int] == false {
+				log.LoggerWContext(ctx).Info(management.Int + " got the VIP")
+				VIP[management.Int] = true
+				return true
+			}
+		}
+	}
+	if found == false {
+		VIP[management.Int] = false
+		return false
+	}
+	return false
 }
