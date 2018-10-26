@@ -1783,7 +1783,7 @@ var Verb = TypeName{
 }
 
 // Detect the vip on management
-func detectVIP(management pfconfigdriver.ManagementNetwork) bool {
+func detectVIP(management pfconfigdriver.ManagementNetwork) {
 	var keyConfCluster pfconfigdriver.NetInterface
 	keyConfCluster.PfconfigNS = "config::Pf(CLUSTER," + pfconfigdriver.FindClusterName(ctx) + ")"
 
@@ -1792,7 +1792,7 @@ func detectVIP(management pfconfigdriver.ManagementNetwork) bool {
 	// Nothing in keyConfCluster.Ip so we are not in cluster mode
 	if keyConfCluster.Ip == "" {
 		VIP[management.Int] = true
-		return true
+		return
 	}
 
 	eth, _ := net.InterfaceByName(management.Int)
@@ -1806,13 +1806,13 @@ func detectVIP(management pfconfigdriver.ManagementNetwork) bool {
 			found = true
 			if VIP[management.Int] == false {
 				VIP[management.Int] = true
-				return true
+				return
 			}
 		}
 	}
 	if found == false {
 		VIP[management.Int] = false
-		return false
+		return
 	}
-	return false
+	return
 }
