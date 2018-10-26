@@ -249,6 +249,9 @@ func main() {
 	log.SetProcessName("pfstats")
 	ctx = log.LoggerNewContext(ctx)
 
+	VIP = make(map[string]bool)
+	VIPIp = make(map[string]net.IP)
+
 	go func() {
 		var err error
 		var connected bool
@@ -344,18 +347,15 @@ func main() {
 		}
 	}()
 
-	var management pfconfigdriver.ManagementNetwork
-	pfconfigdriver.FetchDecodeSocket(ctx, &management)
-	VIP = make(map[string]bool)
-	VIPIp = make(map[string]net.IP)
+	var Management pfconfigdriver.ManagementNetwork
+	pfconfigdriver.FetchDecodeSocket(ctx, &Management)
+
 	go func() {
 		for {
-			detectVIP(management)
-
+			detectVIP(Management)
 			time.Sleep(3 * time.Second)
 		}
 	}()
-
 	var keyConfStats pfconfigdriver.PfconfigKeys
 	keyConfStats.PfconfigNS = "config::Stats"
 	keyConfStats.PfconfigHostnameOverlay = "yes"
@@ -373,7 +373,7 @@ func main() {
 		pfconfigdriver.FetchDecodeSocket(ctx, &ConfStat)
 
 		if RegExpMetric.MatchString(key) {
-			if (VIP[management.Int] && ConfStat.Management == "true") || ConfStat.Management == "false" {
+			if (VIP[Management.Int] && ConfStat.Management == "true") || ConfStat.Management == "false" {
 				err = ProcessMetricConfig(ctx, ConfStat)
 				if err != nil {
 					log.LoggerWContext(ctx).Error("Error while processing metric config: " + err.Error())
@@ -1784,7 +1784,6 @@ var Verb = TypeName{
 
 // Detect the vip on management
 func detectVIP(management pfconfigdriver.ManagementNetwork) bool {
-
 	var keyConfCluster pfconfigdriver.NetInterface
 	keyConfCluster.PfconfigNS = "config::Pf(CLUSTER," + pfconfigdriver.FindClusterName(ctx) + ")"
 
@@ -1806,7 +1805,6 @@ func detectVIP(management pfconfigdriver.ManagementNetwork) bool {
 		if IP.Equal(VIPIp[management.Int]) {
 			found = true
 			if VIP[management.Int] == false {
-				log.LoggerWContext(ctx).Info(management.Int + " got the VIP")
 				VIP[management.Int] = true
 				return true
 			}
