@@ -1,37 +1,37 @@
-/**
+<!--
  * Component to draw plotly charts.
  *
  * https://plot.ly/javascript/reference/
  * https://plot.ly/javascript/plotlyjs-function-reference/
- */
+ -->
 <template>
-  <b-container fluid>
+  <b-container id="pfReportChart" fluid>
     <b-row class="mb-3" align-h="between" align-v="center">
       <b-col cols="auto" class="text-left" v-if="range">
         <b-form inline>
-          <b-input-group @mouseover="showPeriod = true" @mouseout="showPeriod = false" class="mr-3">
-            <b-input-group-prepend is-text>
-              {{ $t('Previous') }}
-            </b-input-group-prepend>
-            <b-button-group v-if="showPeriod" rel="periodButtonGroup">
-              <b-button variant="light" @click="setRangeByPeriod(60 * 30)" v-b-tooltip.hover.bottom.d300 :title="$t('30 minutes')">30m</b-button>
-              <b-button variant="light" @click="setRangeByPeriod(60 * 60)" v-b-tooltip.hover.bottom.d300 :title="$t('1 hour')">1h</b-button>
-              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 6)" v-b-tooltip.hover.bottom.d300 :title="$t('6 hours')">6h</b-button>
-              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 12)" v-b-tooltip.hover.bottom.d300 :title="$t('12 hours')">12h</b-button>
-              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24)" v-b-tooltip.hover.bottom.d300 :title="$t('1 day')">1D</b-button>
-              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 7)" v-b-tooltip.hover.bottom.d300 :title="$t('1 week')">1W</b-button>
-              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 14)" v-b-tooltip.hover.bottom.d300 :title="$t('2 weeks')">2W</b-button>
-              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 28)" v-b-tooltip.hover.bottom.d300 :title="$t('1 month')">1M</b-button>
-              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 28 * 2)" v-b-tooltip.hover.bottom.d300 :title="$t('2 months')">2M</b-button>
-              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 28 * 6)" v-b-tooltip.hover.bottom.d300 :title="$t('6 months')">6M</b-button>
-              <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 365)" v-b-tooltip.hover.bottom.d300 :title="$t('1 year')">1Y</b-button>
-            </b-button-group>
-            <b-input-group-append is-text>
-              <icon name="stopwatch"></icon>
-            </b-input-group-append>
-          </b-input-group>
-          <pf-form-datetime v-if="!showPeriod" v-model="datetimeStart" :max="maxStartDatetime" :prepend-text="$t('Start')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
-          <pf-form-datetime v-if="!showPeriod" v-model="datetimeEnd" :min="minEndDatetime" :prepend-text="$t('End')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
+          <b-btn variant="link" id="periods">
+            <icon name="stopwatch"></icon>
+          </b-btn>
+          <b-popover class="popover-full" target="periods" triggers="click focus blur" placement="bottomright" container="pfReportChart" :show.sync="showPeriod">
+            <b-form-row class="align-items-center">
+              <div class="mx-1">{{ $t('Previous') }}</div>
+                <b-button-group vrel="periodButtonGroup">
+                  <b-button variant="light" @click="setRangeByPeriod(60 * 30)" v-b-tooltip.hover.bottom.d300 :title="$t('30 minutes')">30m</b-button>
+                  <b-button variant="light" @click="setRangeByPeriod(60 * 60)" v-b-tooltip.hover.bottom.d300 :title="$t('1 hour')">1h</b-button>
+                  <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 6)" v-b-tooltip.hover.bottom.d300 :title="$t('6 hours')">6h</b-button>
+                  <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 12)" v-b-tooltip.hover.bottom.d300 :title="$t('12 hours')">12h</b-button>
+                  <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24)" v-b-tooltip.hover.bottom.d300 :title="$t('1 day')">1D</b-button>
+                  <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 7)" v-b-tooltip.hover.bottom.d300 :title="$t('1 week')">1W</b-button>
+                  <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 14)" v-b-tooltip.hover.bottom.d300 :title="$t('2 weeks')">2W</b-button>
+                  <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 28)" v-b-tooltip.hover.bottom.d300 :title="$t('1 month')">1M</b-button>
+                  <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 28 * 2)" v-b-tooltip.hover.bottom.d300 :title="$t('2 months')">2M</b-button>
+                  <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 28 * 6)" v-b-tooltip.hover.bottom.d300 :title="$t('6 months')">6M</b-button>
+                  <b-button variant="light" @click="setRangeByPeriod(60 * 60 * 24 * 365)" v-b-tooltip.hover.bottom.d300 :title="$t('1 year')">1Y</b-button>
+                </b-button-group>
+            </b-form-row>
+          </b-popover>
+          <pf-form-datetime v-model="datetimeStart" :max="maxStartDatetime" :prepend-text="$t('Start')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
+          <pf-form-datetime v-model="datetimeEnd" :min="minEndDatetime" :prepend-text="$t('End')" class="mr-3" :disabled="isLoading"></pf-form-datetime>
         </b-form>
       </b-col>
       <b-col cols="auto" class="mr-auto"></b-col>
@@ -216,16 +216,26 @@ export default {
 }
 </script>
 
+<style>
+/**
+ * Don't limit the size of the popover
+ */
+#pfReportChart .popover {
+  max-width: none;
+}
+</style>
+
 <style lang="scss" scoped>
 @import "../../node_modules/bootstrap/scss/functions";
 @import "../styles/variables";
 
 /**
- * double-clicking legend causes user selection, disable
+ * Disable selection when double-clicking legend
  */
 .plotly * {
   user-select: none;
 }
+
 /**
  * Add btn-primary color(s) on hover
  */
@@ -234,4 +244,5 @@ export default {
   background-color: $input-btn-hover-bg-color;
   border-color: $input-btn-hover-bg-color;
 }
+
 </style>
