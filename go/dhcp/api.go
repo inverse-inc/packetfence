@@ -33,10 +33,19 @@ type Stats struct {
 	EthernetName string            `json:"interface"`
 	Net          string            `json:"network"`
 	Free         int               `json:"free"`
+	PercentFree  int               `json:"percentfree"`
+	Used         int               `json:"used"`
+	PercentUsed  int               `json:"percentused"`
 	Category     string            `json:"category"`
 	Options      map[string]string `json:"options"`
 	Members      []Node            `json:"members"`
 	Status       string            `json:"status"`
+	Size         int               `json:"size"`
+}
+
+type Items struct {
+	Items  []Stats `json:"items"`
+	Status string  `json:"status"`
 }
 
 type ApiReq struct {
@@ -100,7 +109,7 @@ func handleMac2Ip(res http.ResponseWriter, req *http.Request) {
 }
 
 func handleAllStats(res http.ResponseWriter, req *http.Request) {
-	var stats []Stats
+	var result Items
 	var interfaces pfconfigdriver.ListenInts
 	pfconfigdriver.FetchDecodeSocket(ctx, &interfaces)
 
@@ -108,11 +117,13 @@ func handleAllStats(res http.ResponseWriter, req *http.Request) {
 		if h, ok := intNametoInterface[i]; ok {
 			stat := h.handleApiReq(ApiReq{Req: "stats", NetInterface: i, NetWork: ""})
 			for _, s := range stat.([]Stats) {
-				stats = append(stats, s)
+				result.Items = append(result.Items, s)
 			}
 		}
 	}
-	outgoingJSON, error := json.Marshal(stats)
+
+	result.Status = "200"
+	outgoingJSON, error := json.Marshal(result)
 
 	if error != nil {
 		unifiedapierrors.Error(res, error.Error(), http.StatusInternalServerError)
@@ -352,13 +363,17 @@ func (h *Interface) handleApiReq(Request ApiReq) interface{} {
 			}
 
 			availableCount := (int(statistics.RunContainerValues) + int(statistics.ArrayContainerValues))
+			usedCount := (v.dhcpHandler.leaseRange - availableCount)
+			percentfree := int((float64(availableCount) / float64(v.dhcpHandler.leaseRange)) * 100)
+			percentused := int((float64(usedCount) / float64(v.dhcpHandler.leaseRange)) * 100)
+
 			if Count == (v.dhcpHandler.leaseRange - availableCount) {
 				Status = "Normal"
 			} else {
 				Status = "Calculated available IP " + strconv.Itoa(v.dhcpHandler.leaseRange-Count) + " is different than what we have available in the pool " + strconv.Itoa(availableCount)
 			}
 
-			stats = append(stats, Stats{EthernetName: Request.NetInterface, Net: v.network.String(), Free: int(statistics.RunContainerValues) + int(statistics.ArrayContainerValues), Category: v.dhcpHandler.role, Options: Options, Members: Members, Status: Status})
+			stats = append(stats, Stats{EthernetName: Request.NetInterface, Net: v.network.String(), Free: availableCount, Category: v.dhcpHandler.role, Options: Options, Members: Members, Status: Status, Size: v.dhcpHandler.leaseRange, Used: usedCount, PercentFree: percentfree, PercentUsed: percentused})
 		}
 		return stats
 	}

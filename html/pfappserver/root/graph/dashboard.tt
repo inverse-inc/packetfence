@@ -420,30 +420,28 @@ END;
         </div>
 
         <div class="tab-pane[% IF tab == "dhcp" %] active[% END %]" id="dhcp">
-          [% FOREACH network IN networks.keys %]
-            [% IF networks.$network.dhcpd == "enabled" %]
             <div class="card">
               <div class="card-title">
-                <h2>[% l('DHCP on') %] [% network %]</h2>
+                <h2>[% l('DHCP used leases') %]</h2>
               </div>
               <div class="card-block">
                 <div class="row-flex">
-                  [% FOREACH scope IN ["day", "week", "month", "year"] %]
-                    [% graph("statsd_gauge_source.packetfence.dhcp_leases_" _ network _ "_" _ scope, "DHCP leases free on " _ network _ " for the past " _ scope, {"width" => halfGridSize, "filter_graph" => "gauge"}) | none %]
-                  [% END %]
+                    [% graph("packetfence.dhcp.used_leases", "Numbers of ip addresses assigned", {"width" => halfGridSize, "filter_graph" => "gauge"}) | none %]
                 </div>
               </div>
             </div>
-            [% ELSE %]
             <div class="card">
               <div class="card-title">
-                <h2>[% l('DHCP on') %] [% network %] [% l('disabled') %]</h2>
+                <h2>[% l('DHCP percent used leases') %]</h2>
+              </div>
+              <div class="card-block">
+                <div class="row-flex">
+                    [% graph("packetfence.dhcp.percent_used_leases", "Percent of ip addresses used", {"width" => halfGridSize, "filter_graph" => "gauge"}) | none %]
+                </div>
               </div>
             </div>
-            [% END %]
-          [% END %]
         </div>
-        
+
         <div class="tab-pane[% IF tab == "endpoints" %] active[% END %]" id="endpoints">
           <div class="card">
             <div class="card-title">

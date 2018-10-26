@@ -23,6 +23,7 @@ use pf::log;
 use pf::util;
 use pf::cluster;
 use pf::constants;
+use NetAddr::IP;
 
 use pf::config qw(
     $management_network
@@ -37,6 +38,10 @@ has '+name' => (default => sub { 'netdata' } );
 has '+optional' => ( default => sub {'1'} );
 
 tie our @authentication_sources_monitored, 'pfconfig::cached_array', "resource::authentication_sources_monitored";
+
+my $host_id = $pf::config::cluster::host_id;
+
+tie our %NetworkConfig, 'pfconfig::cached_hash', "resource::network_config($host_id)";
 
 =head2 postStartCleanup
 
@@ -87,7 +92,7 @@ sub generateConfig {
             $tags{'alerts'} .= <<"EOT";
 template: eduroam1__source_available
 families: *
-      on: source.$type.eduroam1
+      on: statsd_gauge.source.$type.Eduroam1
    every: 10s
     crit: \$gauge != 1
    units: ok/failed
@@ -97,7 +102,7 @@ families: *
 
 template: eduroam2_source_available
 families: *
-      on: source.$type.eduroam2
+      on: statsd_gauge.source.$type.Eduroam2
    every: 10s
     crit: \$gauge != 1
    units: ok/failed
@@ -123,6 +128,29 @@ families: *
 EOT
             }
         }
+    }
+
+    foreach my $network ( keys %NetworkConfig ) {
+        my $dev = $NetworkConfig{$network}{'interface'}{'int'};
+        next if !defined $dev;
+        next if isdisabled($NetworkConfig{$network}{'dhcpd'});
+        my $net_addr = NetAddr::IP->new($network,$NetworkConfig{$network}{'netmask'});
+        my $cidr = $net_addr->cidr();
+        $tags{'alerts'} .= <<"EOT";
+template: dhcp_missing_leases_$cidr
+families: *
+      on: statsd_gauge.source.packetfence.dhcp_leases.percentused.$cidr
+      os: linux
+   hosts: *
+   units: %
+   every: 1m
+    warn: \$gauge > 80
+    crit: \$gauge > 90
+   delay: down 5m multiplier 1.5 max 1h
+    info: DHCP leases usage $cidr
+      to: sysadmin
+
+EOT
     }
 
     $tags{'httpd_portal_modstatus_port'} = "$Config{'ports'}{'httpd_portal_modstatus'}";
