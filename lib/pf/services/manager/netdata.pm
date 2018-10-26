@@ -92,7 +92,7 @@ sub generateConfig {
             $tags{'alerts'} .= <<"EOT";
 template: eduroam1__source_available
 families: *
-      on: source.$type.eduroam1
+      on: statsd_gauge.source.$type.Eduroam1
    every: 10s
     crit: \$gauge != 1
    units: ok/failed
@@ -102,7 +102,7 @@ families: *
 
 template: eduroam2_source_available
 families: *
-      on: source.$type.eduroam2
+      on: statsd_gauge.source.$type.Eduroam2
    every: 10s
     crit: \$gauge != 1
    units: ok/failed
@@ -136,11 +136,10 @@ EOT
         next if isdisabled($NetworkConfig{$network}{'dhcpd'});
         my $net_addr = NetAddr::IP->new($network,$NetworkConfig{$network}{'netmask'});
         my $cidr = $net_addr->cidr();
-        $cidr =~ s/\//_/g;
         $tags{'alerts'} .= <<"EOT";
 template: dhcp_missing_leases_$cidr
 families: *
-      on: statsd_gauge_source.packetfence.dhcp_leases.percentused.$cidr
+      on: statsd_gauge.source.packetfence.dhcp_leases.percentused.$cidr
       os: linux
    hosts: *
   lookup: DHCP Leases usage
