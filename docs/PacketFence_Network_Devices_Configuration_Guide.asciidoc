@@ -4174,6 +4174,48 @@ Port  Trunk  Security
   24         Enabled
 -----
 
+Pica8
+~~~~~
+
+PacketFence supports Pica8 switches without VoIP using CoA to:
+
+* bounce-host-port
+* reauthenticate-host
+
+Notes
+
+* **SNMP is not supported yet**
+* **Port Security is not supported**
+
+For interfaces with MAC Authentication, perform:
+
+  set interface gigabit-ethernet ge-1/1/25 family ethernet-switching port-mode trunk
+  set protocols dot1x interface ge-1/1/25 auth-mode mac-radius
+  set protocols dot1x interface ge-1/1/25 dynamic-vlan-enable true
+  set protocols dot1x traceoptions interface ge-1/1/25 flag all disable false
+
+For interfaces with 802.1X, perform:
+
+  set interface gigabit-ethernet ge-1/1/4 family ethernet-switching port-mode trunk
+  set protocols dot1x interface ge-1/1/4 dynamic-vlan-enable true
+  set protocols dot1x interface ge-1/1/4 dynamic-vlan-enable true
+  set protocols dot1x traceoptions interface ge-1/1/4 flag all disable false
+
+Global configuration:
+
+  set protocols dot1x aaa radius authentication server-ip 192.168.1.5 shared-key useStrongerSecret
+  set protocols dot1x aaa radius dynamic-author client 192.168.1.5 shared-key useStrongerSecret
+  set protocols dot1x traceoptions interface ge-1/1/4 flag all disable false
+  set protocols dot1x traceoptions flag radius
+  set protocols dot1x traceoptions flag packet disable false
+  set vlan-interface loopback address 10.10.51.169 prefix-length 32
+  set vlans vlan-id 10
+  set vlans vlan-id 20
+  set vlans vlan-id 30
+
+* `10.10.51.169` is the switch IP
+* Create VLAN(s) on the switch as per requirements
+
 SMC
 ~~~
 
