@@ -18,7 +18,7 @@
         </b-btn>
       </div>
       <!-- navigation -->
-      <b-collapse id="pf-sidebar-links" class="pf-sidebar-links" is-nav>
+      <b-collapse id="pf-sidebar-links" class="pf-sidebar-links" visible is-nav>
         <b-nav class="pf-sidenav" vertical>
           <template v-for="section in filteredSections">
             <!-- collapsable (root level) -->

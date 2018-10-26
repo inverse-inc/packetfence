@@ -14,18 +14,19 @@
           <b-nav-item to="/users" v-can:read="'users'">{{ $t('Users') }}</b-nav-item>
           <b-nav-item to="/configuration" v-can:read="'configuration_main'">{{ $t('Configuration') }}</b-nav-item>
         </b-navbar-nav>
+        <div class="ml-auto"></div>
+        <b-badge class="mr-1" v-if="debug" :variant="apiOK? 'success' : 'danger'">API</b-badge>
+        <b-badge class="mr-1" v-if="debug" :variant="chartsOK? 'success' : 'danger'">dashboard</b-badge>
+        <b-navbar-nav v-if="isAuthenticated">
+          <b-nav-item-dropdown class="pf-label" right :text="username">
+            <b-dropdown-item-button v-if="$i18n.locale == 'en'" @click="setLanguage('fr')">Français</b-dropdown-item-button>
+            <b-dropdown-item-button v-else @click="setLanguage('en')">English</b-dropdown-item-button>
+            <b-dropdown-divider></b-dropdown-divider>
+            <b-dropdown-item to="/logout">{{ $t('Log out') }}</b-dropdown-item>
+          </b-nav-item-dropdown>
+        </b-navbar-nav>
       </b-collapse>
-      <b-badge class="mr-1" :variant="apiOK? 'success' : 'danger'">API</b-badge>
-      <b-badge class="mr-1" :variant="chartsOK? 'success' : 'danger'">dashboard</b-badge>
       <pf-notification-center :isAuthenticated="isAuthenticated" />
-      <b-navbar-nav right v-if="isAuthenticated">
-        <b-nav-item-dropdown class="pf-label" right :text="username">
-          <b-dropdown-item-button v-if="$i18n.locale == 'en'" @click="setLanguage('fr')">Français</b-dropdown-item-button>
-          <b-dropdown-item-button v-else @click="setLanguage('en')">English</b-dropdown-item-button>
-          <b-dropdown-divider></b-dropdown-divider>
-          <b-dropdown-item to="/logout">{{ $t('Log out') }}</b-dropdown-item>
-        </b-nav-item-dropdown>
-      </b-navbar-nav>
     </b-navbar>
     <b-container fluid class="mt-5 pt-3">
       <router-view/>
@@ -40,6 +41,11 @@ export default {
   name: 'app',
   components: {
     'pf-notification-center': pfNotificationCenter
+  },
+  data () {
+    return {
+      debug: process.env.VUE_APP_DEBUG
+    }
   },
   computed: {
     isAuthenticated () {

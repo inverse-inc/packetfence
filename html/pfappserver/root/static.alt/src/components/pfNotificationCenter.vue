@@ -12,7 +12,7 @@
               <b-row no-gutters>
                 <b-col>
                   <div class="notification-message" :class="{'text-secondary': !notification.unread}">
-                    <icon :name="notification.icon" :class="'text-'+notification.variant"></icon> <span :class="{ 'font-weight-bold': notification.unread }">{{notification.message}}</span>
+                    <icon :name="notification.icon" class="mr-1" :class="'text-'+notification.variant"></icon> <span :class="{ 'font-weight-bold': notification.unread }">{{notification.message}}</span>
                   </div>
                   <small class="notification-url text-secondary">{{notification.url}}</small>
                 </b-col>
@@ -48,11 +48,11 @@
             <b-badge pill v-if="notification.success" variant="success" class="mr-1" v-b-tooltip.hover.top.d300 :title="notification.success + ' ' + $t('succeeded')">{{notification.success}}</b-badge>
             <b-badge pill v-if="notification.skipped" variant="warning" class="mr-1" v-b-tooltip.hover.top.d300 :title="notification.skipped + ' ' + $t('skipped')">{{notification.skipped}}</b-badge>
             <b-badge pill v-if="notification.failed" variant="danger" class="mr-1" v-b-tooltip.hover.top.d300 :title="notification.failed + ' ' + $t('failed')">{{notification.failed}}</b-badge>
-        </b-col>
-      </b-row>
-    </b-alert>
-  </div>
-</b-navbar-nav>
+          </b-col>
+        </b-row>
+      </b-alert>
+    </div>
+  </b-navbar-nav>
 </template>
 
 <script>
@@ -105,6 +105,10 @@ export default {
 </script>
 
 <style lang="scss">
+@import "../../node_modules/bootstrap/scss/functions";
+@import "../../node_modules/bootstrap/scss/mixins/breakpoints";
+@import "../styles/variables";
+
 .notifications-toasts {
     width: 30vw;
     position: absolute;
@@ -118,7 +122,10 @@ export default {
     text-transform: none;
 }
 .notifications .dropdown-menu {
+  width: 100%;
+  @include media-breakpoint-up(sm) {
     width: 30vw;
+  }
 }
 .notifications-scroll {
   overflow: auto;

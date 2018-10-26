@@ -71,7 +71,7 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 import 'vue2vis/dist/vue2vis.css'
 
 Vue.config.productionTip = process.env.NODE_ENV === 'production'
-Vue.config.devtools = true
+Vue.config.devtools = process.env.VUE_APP_DEBUG
 
 Vue.use(VueTimeago, {
   name: 'Timeago',
