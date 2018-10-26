@@ -346,7 +346,8 @@ func main() {
 
 	var management pfconfigdriver.ManagementNetwork
 	pfconfigdriver.FetchDecodeSocket(ctx, &management)
-
+	VIP = make(map[string]bool)
+	VIPIp = make(map[string]net.IP)
 	go func() {
 		for {
 			detectVIP(management)
