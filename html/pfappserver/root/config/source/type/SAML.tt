@@ -1,1 +1,9 @@
 [% form.block('definition').render | none %]
+
+[% IF item.id %]
+<div class="control-group">
+  <h4 class="controls">
+    <a target="_blank" href="[% c.uri_for(c.controller.action_for('saml_metadata'), item.id) %]">Download Service Provider metadata</a>
+  </h4>
+</div>
+[% END %]
