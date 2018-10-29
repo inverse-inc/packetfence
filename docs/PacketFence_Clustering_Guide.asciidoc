@@ -739,7 +739,7 @@ WARNING: As shortly explained above, deploying a captive-portal across a layer 3
 
 In order to configure a RADIUS server with a captive-portal on a layer 3 cluster, you will need at least 3 servers (5 are used in this example) with 2 interfaces (one for management and one for registration)
 
-NOTE: Isolation is omitted in this example for brievety and should be configured the same way as registration if needed)
+NOTE: Isolation is omitted in this example for brievety and should be configured the same way as registration if needed
 
 Cluster design and behavior:
 
@@ -835,6 +835,15 @@ When you are at the step where you need to configure your cluster.conf during th
  [DC2 pf2-dc2.example.com interface ens224]
  ip=192.168.22.12
 ----
+
+Notes on the configuration:
+
+ * The hostnames (pf1-dc1.example.com, pf2-dc1.example.com, etc) are not directly related to the cluster logic and the servers can have any hostname without impacting the cluster behavior. The assignment of a server to a cluster zone is made by the first part of the section name (ex: "DC1 pf.example.com" assigns server "pf.example.com" to cluster zone "DC1")
+ * Each cluster zone needs to have its own "CLUSTER" definition that declares the virtual IPs to use for this cluster zone. This also declares the management IP on which the zone should be joined.
+ * Given your zones aren't in the same layer 2 network, you cannot use the same virtual IP between your zones.
+ * You should always declare a "CLUSTER" definition even though a zone has only a single server.
+ * Your network equipment should point RADIUS authentication and accounting to both virtual IPs (192.168.1.10 and 192.168.2.10 in this example) either in primary/secondary or load-balancing mode.
+ * RFC3576 servers (CoA and RADIUS disconnect) should be declared on your network equipment (if supported) for both virtual IPs (192.168.1.10 and 192.168.2.10 in this example)
 
 NOTE: You should use the configuration above to perform the cluster setup and complete all the steps required to build your cluster. You should only continue these steps after it is fully setup and running.
 
