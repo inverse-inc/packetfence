@@ -118,6 +118,9 @@
           <b-badge pill variant="danger" v-else-if="data.value === 'off'">{{ $t('offline') }}</b-badge>
           <b-badge pill variant="info" v-else>{{ $t('unknown') }}</b-badge>
         </template>
+        <template slot="mac" slot-scope="data">
+          <mac v-text="data.value"></mac>
+        </template>
         <template slot="device_score" slot-scope="data">
           <pf-fingerbank-score :score="data.value"></pf-fingerbank-score>
         </template>
@@ -407,21 +410,24 @@ export default {
           label: this.$i18n.t('Detected Date'),
           sortable: true,
           visible: false,
-          formatter: formatter.datetimeIgnoreZero
+          formatter: formatter.datetimeIgnoreZero,
+          class: 'text-nowrap'
         },
         {
           key: 'regdate',
           label: this.$i18n.t('Registration Date'),
           sortable: true,
           visible: false,
-          formatter: formatter.datetimeIgnoreZero
+          formatter: formatter.datetimeIgnoreZero,
+          class: 'text-nowrap'
         },
         {
           key: 'unregdate',
           label: this.$i18n.t('Unregistration Date'),
           sortable: true,
           visible: false,
-          formatter: formatter.datetimeIgnoreZero
+          formatter: formatter.datetimeIgnoreZero,
+          class: 'text-nowrap'
         },
         {
           key: 'computername',
@@ -580,14 +586,16 @@ export default {
           label: this.$i18n.t('Last ARP'),
           sortable: true,
           visible: false,
-          formatter: formatter.datetimeIgnoreZero
+          formatter: formatter.datetimeIgnoreZero,
+          class: 'text-nowrap'
         },
         {
           key: 'last_dhcp',
           label: this.$i18n.t('Last DHCP'),
           sortable: true,
           visible: false,
-          formatter: formatter.datetimeIgnoreZero
+          formatter: formatter.datetimeIgnoreZero,
+          class: 'text-nowrap'
         },
         {
           key: 'machine_account',
