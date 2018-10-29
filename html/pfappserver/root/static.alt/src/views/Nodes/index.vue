@@ -52,28 +52,28 @@ export default {
             {
               name: 'Open Violations',
               path: {
-                path: 'search',
+                name: 'search',
                 query: { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'violation.open_count', op: 'greater_than_equals', value: '1' }] }] }) }
               }
             },
             {
               name: 'Closed Violations',
               path: {
-                path: 'search',
+                name: 'search',
                 query: { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'violation.close_count', op: 'greater_than_equals', value: '1' }] }] }) }
               }
             },
             {
               name: 'Offline Nodes',
               path: {
-                path: 'search',
+                name: 'search',
                 query: { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'online', op: 'not_equals', value: 'on' }] }] }) }
               }
             },
             {
               name: 'Online Nodes',
               path: {
-                path: 'search',
+                name: 'search',
                 query: { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'online', op: 'equals', value: 'on' }] }] }) }
               }
             }
