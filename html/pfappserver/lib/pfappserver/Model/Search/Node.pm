@@ -300,8 +300,14 @@ sub make_order_by {
     if ($direction ne 'desc') {
         $direction = 'asc';
     }
+
     my $by = $params->{by} // 'mac';
-    return { "-$direction" => $by };
+    my @order_by = ({ "-$direction" => $by });
+    if ($by eq 'mac' && $direction eq 'asc') {
+        unshift @order_by, { "-$direction" => 'tenant_id' };
+    }
+
+    return \@order_by;
 }
 
 sub make_condition {
