@@ -749,7 +749,7 @@ Cluster design and behavior:
 
 The schema below presents the routing that needs to be setup in your network in order to deploy this example:
 
-image::docs/images/cluster-zones-registration.png[scaledwidth="100%",alt="Cluster zones with registration network"]
+image::cluster-zones-registration.png[scaledwidth="100%",alt="Cluster zones with registration network"]
 
 Notes on the schema:
 
