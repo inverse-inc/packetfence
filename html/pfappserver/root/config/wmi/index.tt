@@ -17,6 +17,8 @@
 
       <h2>[% l('WMI Rules') %] [% doc('_wmi_rules_definition') | none %]</h2>
 
+<div class="card">
+  <div class="card-block">
       [% INCLUDE config/wmi/list.tt %]
 
       [%- IF can_access("WMI_CREATE") %]
@@ -24,3 +26,5 @@
         <a class="btn createItem" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add Rule') %]</a>
       </div>
       [%- END %]
+  </div>
+</div>

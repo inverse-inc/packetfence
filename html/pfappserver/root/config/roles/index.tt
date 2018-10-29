@@ -2,7 +2,7 @@
 <div class="modal modal-large fade hide" id="modalItem"> </div>
 
 
-      <div class="card">
+<div class="card">
         <h2 class="card-title">[% l('Roles') %] [% doc('_introduction_to_role_based_access_control') | none %]</h2>
         <div class="card-block">
       [% IF error %]<div class="alert alert-error">
@@ -23,4 +23,4 @@
         <a id="createRole" class="btn" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add role') %]</a>
       </div>
       [%- END %]
-      </div>
+</div>

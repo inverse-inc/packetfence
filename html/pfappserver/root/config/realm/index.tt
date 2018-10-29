@@ -15,6 +15,8 @@
         </div>
       </div>
 
+<div class="card">
+  <div class="card-block">
       <h2>[% l('Realms') %] [% doc('_default_domain_configuration') | none %]</h2>
       <div class="alert alert-warning">
         <strong>[% l('Warning!') %]</strong> [% l('Adding or removing a realm requires to restart the radiusd service to be effective.') %]
@@ -27,3 +29,5 @@
         <a class="btn createItem" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add Realm') %]</a>
       </div>
       [%- END %]
+  </div>
+</div>

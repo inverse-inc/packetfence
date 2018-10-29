@@ -16,6 +16,8 @@
         </div>
       </div>
 
+<div class="card">
+  <div class="card-block">
       <h2>[% l('Domains') %] [% doc('_microsoft_active_directory_ad') | none %]</h2>
       [% IF block_edit %]
         <div class="alert alert-danger">
@@ -41,3 +43,5 @@
 
 [% INCLUDE config/domain/modal_info.tt %]
 [% INCLUDE config/domain/modal_wait.tt %]
+  </div>
+</div>
