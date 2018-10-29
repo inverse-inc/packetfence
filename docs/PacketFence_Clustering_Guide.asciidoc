@@ -676,6 +676,7 @@ Cluster configuration
 
 When you are at the step where you need to configure your cluster.conf during the cluster setup, refer to the example below to build your cluster.conf.
 
+----
  [general]
  multi_cluster=enabled
  
@@ -720,6 +721,7 @@ When you are at the step where you need to configure your cluster.conf during th
  
  [DC2 pf2-dc2.example.com interface ens192]
  ip=192.168.2.12
+----
 
 Notes on the configuration:
 
@@ -769,6 +771,7 @@ Cluster configuration
 
 When you are at the step where you need to configure your cluster.conf during the cluster setup, refer to the example below to build your cluster.conf.
 
+----
  [general]
  multi_cluster=enabled
  
@@ -831,6 +834,7 @@ When you are at the step where you need to configure your cluster.conf during th
 
  [DC2 pf2-dc2.example.com interface ens224]
  ip=192.168.22.12
+----
 
 NOTE: You should use the configuration above to perform the cluster setup and complete all the steps required to build your cluster. You should only continue these steps after it is fully setup and running.
 
