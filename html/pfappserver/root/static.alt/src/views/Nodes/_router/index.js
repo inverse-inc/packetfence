@@ -29,6 +29,7 @@ const route = {
   children: [
     {
       path: 'search',
+      name: 'search',
       component: NodesSearch,
       props: (route) => ({ storeName: '$_nodes', query: route.query.query }),
       meta: {

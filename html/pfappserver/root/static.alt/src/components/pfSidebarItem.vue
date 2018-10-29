@@ -6,8 +6,7 @@
 <template>
   <b-nav-item
     v-if="visible" v-bind="$attrs" :to="item.path"
-    :key="item.name" @click.stop="onNav"
-    :exact="isQuery" :exact-active-class="isQuery ? 'secondary' : null">
+    :key="item.name" :exact="isQuery" :exact-active-class="isQuery ? 'secondary' : null">
     <div class="pf-sidebar-item" :class="{ 'ml-3': indent }">
       <div>
         <text-highlight :queries="[filter]">{{ $t(item.name) }}</text-highlight>
@@ -50,11 +49,6 @@ export default {
   computed: {
     isQuery () {
       return this.item.path instanceof Object && 'query' in this.item.path
-    }
-  },
-  methods: {
-    onNav (event) {
-      event.target.classList.add('loading')
     }
   },
   mounted () {

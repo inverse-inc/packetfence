@@ -1,8 +1,8 @@
 <template>
   <b-row>
     <pf-sidebar v-model="sections"></pf-sidebar>
-    <b-col cols='12' md='9' xl='10' class='mt-3 mb-3'>
-      <transition name='slide-bottom'>
+    <b-col cols="12" md="9" xl="10" class="mt-3 mb-3">
+      <transition name="slide-bottom">
         <router-view></router-view>
       </transition>
     </b-col>
@@ -91,7 +91,7 @@ export default {
                   name: sw.id,
                   caption: sw.description,
                   path: {
-                    path: 'search',
+                    name: 'search',
                     query: { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'locationlog.switch', op: 'equals', value: this.getIpFromCIDR(sw.id) }] }] }) }
                   }
                 }

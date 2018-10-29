@@ -58,7 +58,6 @@ export default {
     return {
       advancedMode: false,
       condition: null,
-      query: null,
       requestPage: 1,
       currentPage: 1,
       pageSizeLimit: 10
@@ -143,8 +142,6 @@ export default {
         // Import default condition
         this.pfMixinSearchableInitCondition()
       } while (false)
-      // Initial request to the API
-      this.$store.dispatch(`${this.searchableStoreName}/search`, this.requestPage)
     },
     onSearch (searchCondition) {
       const _this = this
@@ -226,7 +223,7 @@ export default {
     condition: {
       handler: function (a, b) {
         // clear if query param !== condition
-        if (JSON.stringify(a) !== this.query) {
+        if (a && JSON.stringify(a) !== this.query) {
           this.$router.push({ query: null })
         }
         if (a !== b) {
