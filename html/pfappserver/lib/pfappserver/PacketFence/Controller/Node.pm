@@ -123,7 +123,13 @@ sub search :Local :Args() :AdminRole('NODES_READ') {
     $c->stash->{search_action} = $c->action;
 
     for my $item (@{$c->stash->{items}}) {
-        $item->{switch_description} = $c->stash->{switches}->{$item->{switch_ip}} ? $c->stash->{switches}->{$item->{switch_ip}}->{description} : "";
+        my $switch_ip = $item->{switch_ip};
+        if ($switch_ip) {
+            my $switch = $c->stash->{switches}{$switch_ip};
+            if ($switch) {
+                $item->{switch_description} = $switch->{description} || "";
+            }
+        }
     }
 
     if($c->request->param('export')) {
