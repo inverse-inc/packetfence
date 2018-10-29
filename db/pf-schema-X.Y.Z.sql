@@ -763,34 +763,7 @@ BEGIN
     AND (acctstoptime IS NULL OR acctstoptime = 0) LIMIT 1;
 
   # Set values to 0 when no previous records
-  IF (Previous_Session_Time IS NULL) THEN
-    SET Previous_Session_Time = 0;
-    SET Previous_Input_Octets = 0;
-    SET Previous_Output_Octets = 0;
-    # If there is no open session for this, open one.
-    INSERT INTO radacct 
-           (
-            acctsessionid,      acctuniqueid,       username, 
-            realm,              nasipaddress,       nasportid, 
-            nasporttype,        acctstoptime,       acctstarttime,
-            acctsessiontime,    acctauthentic, 
-            connectinfo_stop,  acctinputoctets, 
-            acctoutputoctets,   calledstationid,    callingstationid, 
-            servicetype,        framedprotocol,     acctterminatecause,
-            framedipaddress,    tenant_id
-           ) 
-    VALUES 
-        (
-            p_acctsessionid,        p_acctuniqueid,     p_username,
-            p_realm,                p_nasipaddress,     p_nasportid,
-            p_nasporttype,          p_timestamp,     date_sub(p_timestamp, INTERVAL p_acctsessiontime SECOND ), 
-            p_acctsessiontime,      p_acctauthentic,
-            p_connectinfo_stop,     p_acctinputoctets,
-            p_acctoutputoctets,     p_calledstationid,  p_callingstationid,
-            p_servicetype,          p_framedprotocol,   p_acctterminatecause,
-            p_framedipaddress,      p_tenant_id
-        );
-  ELSE 
+  IF (Previous_Session_Time IS NOT NULL) THEN
     # Update record with new traffic
     UPDATE radacct SET
       acctstoptime = p_timestamp,
@@ -801,16 +774,16 @@ BEGIN
       connectinfo_stop = p_connectinfo_stop
       WHERE acctuniqueid = p_acctuniqueid
       AND (acctstoptime IS NULL OR acctstoptime = 0);
-  END IF;
 
-  # Create new record in the log table
-  INSERT INTO radacct_log
-   (acctsessionid, username, nasipaddress,
-    timestamp, acctstatustype, acctinputoctets, acctoutputoctets, acctsessiontime, acctuniqueid, tenant_id)
-  VALUES
-   (p_acctsessionid, p_username, p_nasipaddress,
-    p_timestamp, p_acctstatustype, (p_acctinputoctets - Previous_Input_Octets), (p_acctoutputoctets - Previous_Output_Octets),
-    (p_acctsessiontime - Previous_Session_Time), p_acctuniqueid, p_tenant_id);
+    # Create new record in the log table
+    INSERT INTO radacct_log
+     (acctsessionid, username, nasipaddress,
+      timestamp, acctstatustype, acctinputoctets, acctoutputoctets, acctsessiontime, acctuniqueid, tenant_id)
+    VALUES
+     (p_acctsessionid, p_username, p_nasipaddress,
+     p_timestamp, p_acctstatustype, (p_acctinputoctets - Previous_Input_Octets), (p_acctoutputoctets - Previous_Output_Octets),
+     (p_acctsessiontime - Previous_Session_Time), p_acctuniqueid, p_tenant_id);
+  END IF;
 END /
 DELIMITER ;
 
