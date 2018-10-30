@@ -363,7 +363,7 @@ NOTE: You can check if the service is down with 'ps -edf | grep mysql', this ser
 
 Now, start packetfence-mariadb normally:
 
-  # systemctl start packetfence-mariadb
+  # systemctl restart packetfence-mariadb
 
 Wrapping up
 ^^^^^^^^^^^
