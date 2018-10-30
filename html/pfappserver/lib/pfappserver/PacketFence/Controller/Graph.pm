@@ -490,7 +490,7 @@ sub dashboard :Local :AdminRole('REPORTS') {
     $c->stash(
         graphs         => \@graphs,
         hostname       => $pf::cluster::host_id,
-        cluster        => pf::cluster::members_ips($management_network->tag('int')),
+        cluster        => { map { $_->{host} => $_->{management_ip} } @config_cluster_servers },
         sources        => \@authentication_sources_monitored,
         roles          => \@categories,
         current_view   => 'HTML',
