@@ -710,6 +710,9 @@ When you are at the step where you need to configure your cluster.conf during th
  [DC2 CLUSTER interface ens192]
  ip=192.168.2.10
  
+ [DC2 CLUSTER interface ens224]
+ ip=192.168.22.10
+ 
  [DC2 pf1-dc2.example.com]
  management_ip=192.168.2.11
  
