@@ -107,7 +107,10 @@ export default {
 <style lang="scss">
 @import "../../node_modules/bootstrap/scss/functions";
 @import "../../node_modules/bootstrap/scss/mixins/breakpoints";
+@import "../../node_modules/bootstrap/scss/mixins/box-shadow";
 @import "../styles/variables";
+
+$enable-shadows: true;
 
 .notifications-toasts {
     width: 30vw;
@@ -126,6 +129,11 @@ export default {
   @include media-breakpoint-up(sm) {
     width: 30vw;
   }
+
+  &.show {
+    @include box-shadow($dropdown-box-shadow);
+    animation: scale-up-center 0.25s cubic-bezier(0.18, 1.25, 0.40, 1.00) both;
+  }
 }
 .notifications-scroll {
   overflow: auto;
@@ -141,5 +149,16 @@ export default {
     .notification-message {
         white-space: normal;
     }
+}
+
+@keyframes scale-up-center {
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 </style>
