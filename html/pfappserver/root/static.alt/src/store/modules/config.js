@@ -9,7 +9,7 @@ const api = {
     return apiCall({ url: 'config/admin_roles', method: 'get' })
   },
   getRoles () {
-    return apiCall({ url: 'node_categories', method: 'get' })
+    return apiCall({ url: 'node_categories', method: 'get', params: { limit: 1000 } })
   },
   getSources () {
     return apiCall({ url: 'config/sources', method: 'get' })
@@ -25,12 +25,25 @@ const api = {
   }
 }
 
+const types = {
+  LOADING: 'loading',
+  DELETING: 'deleting',
+  SUCCESS: 'success',
+  ERROR: 'error'
+}
+
 const state = {
+  adminRolesStatus: '',
   adminRoles: [],
+  rolesStatus: '',
   roles: [],
+  sourcesStatus: '',
   sources: [],
+  switchesStatus: '',
   switches: [],
+  tenantsStatus: '',
   tenants: [],
+  violationsStatus: '',
   violations: {}
 }
 
@@ -71,6 +84,9 @@ const getters = {
     return state.adminRoles.map((item) => {
       return { value: item.id, name: item.id }
     })
+  },
+  isLoadingRoles: state => {
+    return state.rolesStatus === types.LOADING
   },
   rolesList: state => {
     // Remap for b-form-select component
@@ -115,8 +131,12 @@ const actions = {
       return Promise.resolve(state.adminRoles)
     }
   },
-  getRoles: ({ state, commit }) => {
+  getRoles: ({ state, getters, commit }) => {
+    if (getters.isLoadingRoles) {
+      return
+    }
     if (state.roles.length === 0) {
+      commit('ROLES_REQUEST')
       return api.getRoles().then(response => {
         commit('ROLES_UPDATED', response.data.items)
         return state.roles
@@ -127,6 +147,7 @@ const actions = {
   },
   getSources: ({ state, commit }) => {
     if (state.sources.length === 0) {
+      commit('SOURCES_REQUEST')
       return api.getSources().then(response => {
         commit('SOURCES_UPDATED', response.data.items)
         return state.sources
@@ -137,6 +158,7 @@ const actions = {
   },
   getSwitches: ({ state, commit }) => {
     if (state.switches.length === 0) {
+      commit('SWICTHES_REQUEST')
       return api.getSwitches().then(response => {
         // group can be undefined
         response.data.items.forEach(function (item, index, items) {
@@ -151,6 +173,7 @@ const actions = {
   },
   getTenants: ({ state, commit }) => {
     if (state.tenants.length === 0) {
+      commit('TENANTS_REQUEST')
       return api.getTenants().then(response => {
         commit('TENANTS_UPDATED', response.data.items)
         return state.tenants
@@ -161,6 +184,7 @@ const actions = {
   },
   getViolations: ({ commit, state }) => {
     if (Object.keys(state.violations).length === 0) {
+      commit('VIOLATIONS_REQUEST')
       return api.getViolations().then(response => {
         commit('VIOLATIONS_UPDATED', response.data.items)
         return state.violations
@@ -172,20 +196,43 @@ const actions = {
 }
 
 const mutations = {
+  ADMIN_ROLES_REQUEST: (state) => {
+    state.adminRolesStatus = types.LOADING
+  },
   ADMIN_ROLES_UPDATED: (state, adminRoles) => {
     state.adminRoles = adminRoles
+    state.adminRolesStatus = types.SUCCESS
+  },
+  ROLES_REQUEST: (state) => {
+    state.rolesStatus = types.LOADING
   },
   ROLES_UPDATED: (state, roles) => {
     state.roles = roles
+    state.rolesStatus = types.SUCCESS
+  },
+  SOURCES_REQUEST: (state) => {
+    state.sourcesStatus = types.LOADING
   },
   SOURCES_UPDATED: (state, sources) => {
     state.sources = sources
+    state.sourcesStatus = types.SUCCESS
+  },
+  SWICTHES_REQUEST: (state) => {
+    state.switchesStatus = types.LOADING
   },
   SWICTHES_UPDATED: (state, switches) => {
     state.switches = switches
+    state.switchesStatus = types.SUCCESS
+  },
+  TENANTS_REQUEST: (state) => {
+    state.tenantsStatus = types.LOADING
   },
   TENANTS_UPDATED: (state, tenants) => {
     state.tenants = tenants
+    state.tenantsStatus = types.SUCCESS
+  },
+  VIOLATIONS_REQUEST: (state) => {
+    state.violationsStatus = types.LOADING
   },
   VIOLATIONS_UPDATED: (state, violations) => {
     let ref = {}
@@ -193,6 +240,7 @@ const mutations = {
       ref[violation.id] = Object.assign({}, violation)
     }
     state.violations = ref
+    state.violationsStatus = types.SUCCESS
   }
 }
 
