@@ -458,7 +458,7 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 			if len(serverIdBytes) == 4 {
 				serverId := net.IPv4(serverIdBytes[0], serverIdBytes[1], serverIdBytes[2], serverIdBytes[3])
 				if !serverId.Equal(handler.ip.To4()) {
-					log.LoggerWContext(ctx).Info(fmt.Sprintf("Not replying to %s because this server didn't perform the offer (offered by %s, we are %s)", prettyType, serverId, handler.ip.To4()))
+					log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not replying to %s because this server didn't perform the offer (offered by %s, we are %s)", prettyType, serverId, handler.ip.To4()))
 					return Answer{}
 				}
 			}
@@ -501,7 +501,7 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 						}
 					} else {
 						// Not in the cache so we don't reply
-						log.LoggerWContext(ctx).Info(fmt.Sprintf("Not replying to %s because this server didn't perform the offer", prettyType))
+						log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not replying to %s because this server didn't perform the offer", prettyType))
 						return Answer{}
 					}
 				}
