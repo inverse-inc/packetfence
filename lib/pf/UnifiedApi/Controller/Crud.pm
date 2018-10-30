@@ -118,7 +118,7 @@ sub build_list_search_info {
                 exists $params->{$_}
                   ? ( $_ => $params->{$_} )
                   : ()
-            } qw(limit cursor)
+            } qw(limit cursor with_total_count)
         ),
         (
             map {
