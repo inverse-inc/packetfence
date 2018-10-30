@@ -14,7 +14,7 @@
     "date-fns": "^1.29.0",
     "messageformat": "^2.0.4",
     "papaparse": "^4.6.1",
-    "plotly.js": "^1.41.3",
+    "plotly.js": "^1.42.0",
     "promised-debounce": "^0.4.2",
     "uuid": "^3.3.2",
     "vue": "^2.5.17",
