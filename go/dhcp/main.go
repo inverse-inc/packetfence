@@ -292,7 +292,7 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 			GlobalTransactionLock.Unlock()
 			return answer
 		} else {
-			GlobalTransactionCache.Set(cacheKey, 1, time.Duration(5)*time.Second)
+			GlobalTransactionCache.Set(cacheKey, 1, time.Duration(1)*time.Second)
 			GlobalTransactionLock.Unlock()
 		}
 
