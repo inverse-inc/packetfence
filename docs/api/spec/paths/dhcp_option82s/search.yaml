@@ -15,6 +15,7 @@
           application/json:
             schema:
               $ref: '#/components/schemas/DhcpOption82sList'
+        description: List
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':

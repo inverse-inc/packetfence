@@ -693,33 +693,6 @@ ConfigMaintenanceTask:
     - type
     type: object
   - properties:
-      id:
-        description: Pfmon Name
-        type: string
-      interval:
-        description: Interval (frequency) at which the task is executed.<br>Requires
-          a restart of pfmon to be fully effective. Otherwise, it will be taken in
-          consideration next time the tasks runs.
-        properties:
-          interval:
-            description: Interval
-            type: integer
-          unit:
-            description: Unit
-            type: string
-        type: object
-      status:
-        description: Whether or not this task is enabled.<br>Requires a restart of
-          pfmon to be effective.
-        type: string
-      type:
-        description: Type
-        type: string
-    required:
-    - id
-    - type
-    type: object
-  - properties:
       batch:
         description: Amount of items that will be processed in each batch of this
           task. Batches are executed until there is no more items to process or until

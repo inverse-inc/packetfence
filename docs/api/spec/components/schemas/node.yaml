@@ -16,8 +16,10 @@ Node:
       type: string
     device_class:
       type: string
-    device_score:
+    device_manufacturer:
       type: string
+    device_score:
+      type: integer
     device_type:
       type: string
     device_version:
@@ -62,5 +64,4 @@ Node:
       type: string
     voip:
       type: string
-  required: []
   type: object

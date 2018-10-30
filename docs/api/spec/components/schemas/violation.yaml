@@ -18,5 +18,4 @@ Violation:
       type: string
     vid:
       type: integer
-  required: []
   type: object

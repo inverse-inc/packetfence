@@ -64,6 +64,15 @@ Example:
 
 has 'parent_primary_key_map' => sub { {} };
 
+=head2 url_parent_ids
+
+url_parent_ids
+
+=cut
+
+has 'url_parent_ids' => sub { [] };
+
+
 =head2 search_builder_class
 
 search_builder_class

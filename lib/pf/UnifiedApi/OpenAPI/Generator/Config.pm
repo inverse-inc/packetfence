@@ -17,6 +17,7 @@ use warnings;
 use Module::Load;
 use Moo;
 use pf::UnifiedApi::GenerateSpec;
+use pf::constants::pfconf;
 
 extends qw(pf::UnifiedApi::OpenAPI::Generator);
 
@@ -149,6 +150,7 @@ sub listResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
         "200" => {
+            description => "List",
             content => {
                 "application/json" => {
                     schema => {
@@ -176,6 +178,7 @@ sub getResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
         "200" => {
+            description => "Item",
             content => {
                 "application/json" => {
                     schema => {
@@ -206,6 +209,7 @@ sub generateSchemas {
     my @forms = buildForms($controller);
     return {
         $list_path => {
+            description => "List",
             allOf => [
                 { '$ref' => "#/components/schemas/Iterable" },
                 {
@@ -214,8 +218,9 @@ sub generateSchemas {
                             "items" => {
                                 "\$ref" => "#$item_path",
                             },
-                            "type" => "array"
-                        }
+                            "type" => "array",
+                            "description" => "List",
+                        },
                     },
                     "type" => "object"
                 },
@@ -290,10 +295,11 @@ sub buildForms {
     my @form_classes;
     if ( $controller->can("type_lookup") ) {
         @form_classes = values %{ $controller->type_lookup };
-    }
-    else {
+    } else {
         my $form_class = $controller->form_class;
-        return if $form_class eq 'pfappserver::Form::Config::Pf';
+        if ($form_class eq 'pfappserver::Form::Config::Pf') {
+            return map { $form_class->new( section => $_ ) } keys %pf::constants::pfconf::ALLOWED_SECTIONS;
+        }
         @form_classes = ( $controller->form_class );
     }
 

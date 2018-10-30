@@ -3,6 +3,7 @@ UsersNodesLocationlogsList:
   - $ref: '#/components/schemas/Iterable'
   - properties:
       items:
+        description: Items
         items:
           $ref: '#/components/schemas/UsersNodesLocationlog'
         type: array

@@ -21,6 +21,7 @@ has 'dal' => 'pf::dal::locationlog';
 has 'url_param_name' => 'locationlog_id';
 has 'primary_key' => 'id';
 has 'parent_primary_key_map' => sub { {node_id => 'mac'} };
+has 'url_parent_ids' =>  sub { [qw(user_id node_id)] };
 
 =head1 AUTHOR
 

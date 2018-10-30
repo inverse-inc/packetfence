@@ -18,5 +18,4 @@ DhcpOption82:
       type: string
     vlan:
       type: string
-  required: []
   type: object

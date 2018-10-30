@@ -24,6 +24,7 @@
         content:
           application/json:
             schema:
+              description: Item
               properties:
                 item:
                   $ref: '#/components/schemas/Ip4log'
@@ -46,7 +47,6 @@
         application/json:
           schema:
             $ref: '#/components/schemas/Ip4log'
-      required: '1'
     responses:
       '200':
         $ref: '#/components/responses/Message'
@@ -67,7 +67,6 @@
         application/json:
           schema:
             $ref: '#/components/schemas/Ip4log'
-      required: '1'
     responses:
       '200':
         $ref: '#/components/responses/Message'

@@ -288,7 +288,7 @@ sub _runtask {
         my $final_interval = $interval - $time_taken;
         $logger->trace("$task_id is sleeping for $final_interval ($interval from configuration - $time_taken)");
         # Only wait if the interval is positive
-        if ($final_interval > 1) {
+        if ($final_interval >= 1) {
             alarm $final_interval;
             pause;
             last unless $running;

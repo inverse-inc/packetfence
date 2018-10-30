@@ -10,5 +10,4 @@ Ip4log:
       type: string
     tenant_id:
       type: integer
-  required: []
   type: object

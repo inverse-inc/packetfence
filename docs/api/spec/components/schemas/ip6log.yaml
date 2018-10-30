@@ -1,16 +1,15 @@
-ApiUser:
+Ip6log:
   properties:
-    access_level:
+    end_time:
       type: string
-    expiration:
+    ip:
       type: string
-    password:
+    mac:
+      type: string
+    start_time:
       type: string
     tenant_id:
       type: integer
-    username:
+    type:
       type: string
-    valid_from:
-      type: string
-  required: []
   type: object

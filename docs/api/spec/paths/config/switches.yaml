@@ -1,5 +1,9 @@
 /config/switches:
-  description: pf::UnifiedApi::Controller::Config::Switches
+  description: |-
+    pf::UnifiedApi::Controller::Config::Switches
+
+      invalidate_cache
+        invalidate switch cache
   get:
     description: List items
     operationId: api.v1.Config::Switches.list
@@ -10,6 +14,7 @@
           application/json:
             schema:
               $ref: '#/components/schemas/ConfigSwitchesList'
+        description: List
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':

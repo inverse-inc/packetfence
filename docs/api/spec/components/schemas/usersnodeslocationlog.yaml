@@ -38,5 +38,4 @@ UsersNodesLocationlog:
       type: integer
     vlan:
       type: string
-  required: []
   type: object

@@ -3,7 +3,9 @@ ConfigConnectionProfilesList:
   - $ref: '#/components/schemas/Iterable'
   - properties:
       items:
+        description: List
         items:
           $ref: '#/components/schemas/ConfigConnectionProfile'
         type: array
     type: object
+  description: List

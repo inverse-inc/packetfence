@@ -87,7 +87,8 @@ ConfigViolation:
       type: string
     vlan:
       description: Destination Role where PacketFence should put the client when a
-        violation of this type is open.
+        violation of this type is open (only for <em>Change network access on violation</em>
+        action).
       type: string
     whitelisted_roles:
       description: Nodes with the selected roles won't be affected by a violation
@@ -116,5 +117,4 @@ ConfigViolation:
         the violation will open and the release date will be set for the last day
         of the current month).
       type: string
-  required: []
   type: object

@@ -8,5 +8,4 @@ Tenant:
       type: string
     portal_domain_name:
       type: string
-  required: []
   type: object

@@ -37,6 +37,10 @@ ConfigConnectionProfile:
           description: Unit
           type: string
       type: object
+    default_psk_key:
+      description: This is the default PSK key when you enable DPSK on this connection
+        profile. The minimum length is eight characters.
+      type: string
     description:
       description: Profile Description
       type: string
@@ -46,6 +50,11 @@ ConfigConnectionProfile:
     dot1x_recompute_role_from_portal:
       description: When enabled, PacketFence will not use the role initialy computed
         on the portal but will use the dot1x username to recompute the role.
+      type: string
+    dpsk:
+      description: This enables the Dynamic PSK feature on this connection profile.
+        It means that the RADIUS server will answer requests with specific attributes
+        like the PSK key to use to connect on the SSID.
       type: string
     filter:
       description: Filters
@@ -131,6 +140,13 @@ ConfigConnectionProfile:
         description: Source
         type: string
       type: array
+    status:
+      description: Enable profile
+      type: string
+    unreg_on_acct_stop:
+      description: This activates automatic deregistation of devices for the profile
+        if PacketFence receives a RADIUS accounting stop.
+      type: string
   required:
   - id
   - root_module

@@ -38,7 +38,7 @@ has_field 'sms_activation_timeout' =>
    required => 1,
    default => pfappserver::Form::Field::Duration->duration_inflate(pf::Authentication::Source::SMSSource->meta->get_attribute('sms_activation_timeout')->default),
    tags => { after_element => \&help,
-             help => 'This is the delay given to a guest who registered by sms confirmation to fill the pin code.' },
+             help => 'This is the delay given to a guest who registered by SMS confirmation to fill the PIN code.' },
   );
 
 has_field 'message' =>

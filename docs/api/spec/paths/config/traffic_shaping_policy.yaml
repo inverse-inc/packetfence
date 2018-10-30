@@ -4,7 +4,7 @@
     operationId: api.v1.Config::TrafficShapingPolicies.remove
     parameters:
     - in: path
-      name: traffic_shaping_id
+      name: traffic_shaping_policy_id
       schema:
         type: string
     responses:
@@ -16,7 +16,7 @@
     operationId: api.v1.Config::TrafficShapingPolicies.get
     parameters:
     - in: path
-      name: traffic_shaping_id
+      name: traffic_shaping_policy_id
       schema:
         type: string
     responses:
@@ -25,6 +25,7 @@
           application/json:
             schema:
               $ref: '#/components/schemas/ConfigTrafficShapingPolicy'
+        description: Item
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':
@@ -34,7 +35,7 @@
     operationId: api.v1.Config::TrafficShapingPolicies.update
     parameters:
     - in: path
-      name: traffic_shaping_id
+      name: traffic_shaping_policy_id
       schema:
         type: string
     requestBody:
@@ -52,7 +53,7 @@
     operationId: api.v1.Config::TrafficShapingPolicies.replace
     parameters:
     - in: path
-      name: traffic_shaping_id
+      name: traffic_shaping_policy_id
       schema:
         type: string
     requestBody:

@@ -107,6 +107,23 @@ ConfigSource:
         description: The amount of times, the local account can be used after its
           created. 0 means infinite.
         type: integer
+      message:
+        description: SMS text message ($pin will be replaced by the PIN number)
+        type: string
+      pin_code_length:
+        description: The amount of digits of the PIN number.
+        type: integer
+      sms_activation_timeout:
+        description: This is the delay given to a guest who registered by SMS confirmation
+          to fill the PIN code.
+        properties:
+          interval:
+            description: Interval
+            type: integer
+          unit:
+            description: Unit
+            type: string
+        type: object
       sms_carriers:
         description: List of phone carriers available to the user
         items:
@@ -119,6 +136,8 @@ ConfigSource:
     required:
     - id
     - description
+    - sms_activation_timeout
+    - pin_code_length
     type: object
   - properties:
       access_token_param:
@@ -2134,7 +2153,7 @@ ConfigSource:
         type: string
       connection_timeout:
         description: LDAP connection Timeout
-        type: integer
+        type: string
       description:
         description: Description
         type: string
@@ -2162,7 +2181,7 @@ ConfigSource:
         type: integer
       read_timeout:
         description: LDAP response timeout
-        type: integer
+        type: string
       realms:
         description: Realms that will be associated with this source
         items:
@@ -2172,6 +2191,9 @@ ConfigSource:
       scope:
         description: Scope
         type: string
+      shuffle:
+        description: Randomly choose LDAP server to query
+        type: string
       type:
         description: Type
         type: string
@@ -2180,7 +2202,7 @@ ConfigSource:
         type: string
       write_timeout:
         description: LDAP request timeout
-        type: integer
+        type: string
     required:
     - id
     - description
@@ -2790,7 +2812,7 @@ ConfigSource:
           type: object
         type: array
       api_login_id:
-        description: Api login id
+        description: API login ID
         type: string
       authentication_rules:
         description: Authentication Rules
@@ -2858,8 +2880,8 @@ ConfigSource:
         description: The amount of times, the local account can be used after its
           created. 0 means infinite.
         type: integer
-      md5_hash:
-        description: MD5 hash
+      public_client_key:
+        description: Public Client Key
         type: string
       send_email_confirmation:
         description: Send billing confirmation
@@ -2878,7 +2900,7 @@ ConfigSource:
     - description
     - api_login_id
     - transaction_key
-    - md5_hash
+    - public_client_key
     - domains
     type: object
   - properties:
@@ -3103,8 +3125,11 @@ ConfigSource:
         description: The amount of times, the local account can be used after its
           created. 0 means infinite.
         type: integer
+      message:
+        description: SMS text message ($pin will be replaced by the PIN number)
+        type: string
       pin_code_length:
-        description: The length of the PIN code to be sent over sms
+        description: The length of the PIN code to be sent over SMS
         type: integer
       twilio_phone_number:
         description: Twilio provided phone number which will show as the sender
@@ -3241,9 +3266,15 @@ ConfigSource:
       server1_address:
         description: Eduroam server 1 address
         type: string
+      server1_port:
+        description: Eduroam server 1 port
+        type: integer
       server2_address:
         description: Eduroam server 2 address
         type: string
+      server2_port:
+        description: Eduroam server 2 port
+        type: integer
       type:
         description: Type
         type: string
@@ -3755,6 +3786,9 @@ ConfigSource:
       type:
         description: Type
         type: string
+      validate_sponsor:
+        description: Force sponsor to authenticate when validating a guest request.
+        type: string
     required:
     - id
     - description
@@ -3862,7 +3896,7 @@ ConfigSource:
         type: string
       connection_timeout:
         description: LDAP connection Timeout
-        type: integer
+        type: string
       description:
         description: Description
         type: string
@@ -3890,7 +3924,7 @@ ConfigSource:
         type: integer
       read_timeout:
         description: LDAP response timeout
-        type: integer
+        type: string
       realms:
         description: Realms that will be associated with this source
         items:
@@ -3900,6 +3934,9 @@ ConfigSource:
       scope:
         description: Scope
         type: string
+      shuffle:
+        description: Randomly choose LDAP server to query
+        type: string
       type:
         description: Type
         type: string
@@ -3908,7 +3945,7 @@ ConfigSource:
         type: string
       write_timeout:
         description: LDAP request timeout
-        type: integer
+        type: string
     required:
     - id
     - description

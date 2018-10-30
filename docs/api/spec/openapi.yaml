@@ -51,12 +51,6 @@ components:
       schema:
         default: 0
         type: integer
-    search_params:
-    - $ref: '#/components/parameters/cursor'
-    - $ref: '#/components/parameters/limit'
-    - $ref: '#/components/parameters/search_query'
-    - $ref: '#/components/parameters/fields'
-    - $ref: '#/components/parameters/sort'
     search_query:
       description: The JSON encoded search query following the Search schema defined
         in this spec
@@ -240,15 +234,62 @@ components:
           type: string
         valid_from:
           type: string
-      required: []
       type: object
     ApiUsersList:
       allOf:
       - $ref: '#/components/schemas/Iterable'
       - properties:
           items:
+            description: Items
             items:
               $ref: '#/components/schemas/ApiUser'
+            type: array
+        type: object
+    Class:
+      properties:
+        auto_enable:
+          type: string
+        button_text:
+          type: string
+        delay_by:
+          type: integer
+        description:
+          type: string
+        enabled:
+          type: string
+        external_command:
+          type: string
+        grace_period:
+          type: integer
+        max_enable_url:
+          type: string
+        max_enables:
+          type: integer
+        priority:
+          type: integer
+        redirect_url:
+          type: string
+        target_category:
+          type: string
+        template:
+          type: string
+        vclose:
+          type: integer
+        vid:
+          type: integer
+        vlan:
+          type: string
+        window:
+          type: string
+      type: object
+    ClassesList:
+      allOf:
+      - $ref: '#/components/schemas/Iterable'
+      - properties:
+          items:
+            description: Items
+            items:
+              $ref: '#/components/schemas/Class'
             type: array
         type: object
     ConfigAdminRole:
@@ -314,23 +355,884 @@ components:
       - $ref: '#/components/schemas/Iterable'
       - properties:
           items:
+            description: List
             items:
               $ref: '#/components/schemas/ConfigAdminRole'
             type: array
         type: object
+      description: List
     ConfigBase:
       discriminator:
         propertyName: type
-      oneOf: []
+      oneOf:
+      - properties:
+          pass:
+            description: The webservices password
+            type: string
+          user:
+            description: The webservices user name
+            type: string
+        type: object
+      - properties:
+          dhcpservers:
+            description: Comma-delimited list of DHCP servers.
+            type: string
+          domain:
+            description: Domain name of PacketFence system. Changing this requires
+              to restart haproxy-portal.
+            type: string
+          hostname:
+            description: Hostname of PacketFence system. This is concatenated with
+              the domain in Apache rewriting rules and therefore must be resolvable
+              by clients. Changing this requires to restart haproxy-portal.
+            type: string
+          timezone:
+            description: System's timezone in string format. List generated from Perl
+              library DataTime::TimeZoneWhen left empty, it will use the timezone
+              of the server
+            type: string
+        type: object
+      - properties:
+          connection_type_change_detection:
+            description: Will identify if a device switches from wired to wireless
+              (or the opposite) and send an e-mail with these changes.This can help
+              detect MAC spoofing.
+            type: string
+          dhcp_rate_limiting:
+            description: Will rate-limit DHCP packets that contain the same information.For
+              example, a DHCPREQUEST for the same MAC/IP will only be processed once
+              in the timeframe configured below.This is independant of the DHCP server/relay
+              handling the packet and is only based on the IP, MAC Address and DHCP
+              type inside the packet.A value of 0 will disable the rate limitation.
+            properties:
+              interval:
+                description: Interval
+                type: integer
+              unit:
+                description: Unit
+                type: string
+            type: object
+          dhcpdetector:
+            description: If enabled, PacketFence will monitor DHCP-specific items
+              such as rogue DHCP services, DHCP-based OS fingerprinting, computername/hostname
+              resolution, and (optionnally) option-82 location-based information.
+              The monitored DHCP packets are DHCPDISCOVERs and DHCPREQUESTs - both
+              are broadcasts, meaning a span port is not necessary.  This feature
+              is highly recommended if the internal network is DHCP-based.
+            type: string
+          dhcpoption82logger:
+            description: 'If enabled PacketFence will monitor DHCP option82 location-based
+              information. This feature is only available if the dhcpdetector is activated.
+              <a target="_blank" href="/static/doc/PacketFence_Installation_Guide.html#_dhcp_option_82"><i
+              class="icon-question-circle-o"></i></a> '
+            type: string
+          force_listener_update_on_ack:
+            description: This will only do the iplog update and other DHCP related
+              task on a DHCPACK.You need to make sure the UDP reflector is in place
+              so this works on the production network.This is implicitly activated
+              on registration interfaces on which dhcpd runs.
+            type: string
+          hostname_change_detection:
+            description: Will identify hostname changes and send an e-mail with these
+              changes.This can help detect MAC spoofing.
+            type: string
+          interfaceSNAT:
+            description: Choose interface(s) where you want to enable snat for passthrough
+              (by default it's the management interface)
+            type: string
+          rogue_dhcp_detection:
+            description: Tries to identify Rogue DHCP Servers and triggers the 1100010
+              violation if one is found. This feature is only available if the dhcpdetector
+              is activated.
+            type: string
+          rogueinterval:
+            description: When rogue DHCP server detection is enabled, this parameter
+              defines how often to email administrators.  With its default setting
+              of 10, it will email administrators the details of the previous 10 DHCP
+              offers.
+            type: integer
+        type: object
+      - properties:
+          interception_proxy:
+            description: If enabled, we will intercept proxy request on the specified
+              ports to forward to the captive portal.
+            type: string
+          interception_proxy_port:
+            description: Comma-delimited list of port used by proxy interception.
+            type: string
+          isolation_passthrough:
+            description: When enabled, PacketFence uses pfdns if you defined <i>Isolation
+              Passthroughs</i> to allow trapped devices in isolation state to reach
+              web sites.Modifying this parameter requires to restart pfdns and iptables
+              to be fully effective.
+            type: string
+          isolation_passthroughs:
+            description: 'Comma-delimited list of domains to allow access from the
+              isolation VLAN.If no port is specified for the domain (ex: example.com),
+              it opens TCP 80 and 443.You can specify a specific port to open (ex:
+              example.com:tcp:25) which opens port 25 in TCP. When no protocol is
+              specified (ex: example.com:25), this opens the port for both the UDP
+              and TCP protocol.You can specify the same domain with a different port
+              multiple times and they will be combined.The configuration parameter
+              <i>isolation_passthrough</i> must be enabled for passthroughs to be
+              effective.Modifying this parameter requires to restart pfdns to be effective.'
+            type: string
+          passthrough:
+            description: 'When enabled, PacketFence uses pfdns if you defined <i>Passthroughs</i>
+              or Apache mod-proxy if you defined <i>Proxy passthroughs</i> to allow
+              trapped devices to reach web sites.Modifying this parameter requires
+              to restart pfdns and iptables to be fully effective. <a target="_blank"
+              href="/static/doc/PacketFence_Installation_Guide.html#_passthroughs_2"><i
+              class="icon-question-circle-o"></i></a> '
+            type: string
+          passthroughs:
+            description: 'Comma-delimited list of domains to allow access from the
+              registration VLAN.If no port is specified for the domain (ex: example.com),
+              it opens TCP 80 and 443.You can specify a specific port to open (ex:
+              example.com:tcp:25) which opens port 25 in TCP. When no protocol is
+              specified (ex: example.com:25), this opens the port for both the UDP
+              and TCP protocol.You can specify the same domain with a different port
+              multiple times and they will be combined.The configuration parameter
+              <i>passthrough</i> must be enabled for passthroughs to be effective.These
+              passthroughs are only effective in registration networks, for passthroughs
+              in isolation, use fencing.isolation_passthroughs.Modifying this parameter
+              requires to restart pfdns to be effective.'
+            type: string
+          proxy_passthroughs:
+            description: 'Comma-delimited list of domains to be used with apache passthroughs.
+              The configuration parameter <i>passthrough</i> must be enabled for passthroughs
+              to be effective. <a target="_blank" href="/static/doc/PacketFence_Installation_Guide.html#_mod_proxy_passthroughs"><i
+              class="icon-question-circle-o"></i></a> '
+            type: string
+          range:
+            description: Address ranges/CIDR blocks that PacketFence will monitor/detect/trap
+              on.  Gateway, network, and broadcast addresses are ignored. Comma-delimited
+              entries should be of the form <ul><li>a.b.c.0/24</li><li>a.b.c.0-255</li><li>a.b.c.0-a.b.c.255</li><li>a.b.c.d</li></ul>
+            type: string
+          wait_for_redirect:
+            description: How many seconds the webservice should wait before deassociating
+              or reassigning VLAN. If we don't wait, the device may switch VLAN before
+              it has a chance to load the redirection page.
+            type: integer
+          whitelist:
+            description: Comma-delimited list of MAC addresses that are immune to
+              isolation. In inline Level 2 enforcement, the firewall is opened for
+              them as if they were registered. This <i>feature</i> will probably be
+              reworked in the future.
+            type: string
+        type: object
+      - properties:
+          admin_csp_security_headers:
+            description: (Experimental) Enforce Content-Security-Policy (CSP) HTTP
+              response header in admin interface
+            type: string
+          disable_pf_domain_auth:
+            description: Disable Active-Directory domain configuration from within
+              PacketFence
+            type: string
+          hash_passwords:
+            description: The algorithm used to hash the passwords in the database.This
+              will only affect newly created or reset passwords.
+            type: string
+          hashing_cost:
+            description: The cost factor to apply to the password hashing if applicable.Currently
+              only applies to bcrypt.
+            type: integer
+          language:
+            description: Language choice for the communication with administrators
+            type: string
+          ldap_attributes:
+            description: List of LDAP attributes that can be used in the sources configuration
+            type: string
+          locationlog_close_on_accounting_stop:
+            description: Close the locationlog for a node on accounting stop
+            type: string
+          multihost:
+            description: Ability to manage all active devices from a same switch port
+            type: string
+          normalize_radius_machine_auth_username:
+            description: Use the RADIUS username instead of the TLS certificate common
+              name when doing machine authentication.
+            type: string
+          ntlm_redis_cache:
+            description: Enables a Redis driven cache for NTLM authentication. In
+              order for this to work, you need to setup proper NT hash syncronization
+              between your PacketFence server and your AD.Refer to the Administration
+              guide for more details.Applying this requires a restart of radiusd.
+            type: string
+          pfdns_processes:
+            description: Amount of pfdns processes to start
+            type: string
+          pffilter_processes:
+            description: Amount of pffilter processes to start
+            type: string
+          portal_csp_security_headers:
+            description: (Experimental) Enforce Content-Security-Policy (CSP) HTTP
+              response header in captive portal interface
+            type: string
+          radius_attributes:
+            description: List of RADIUS attributes that can be used in the sources
+              configuration
+            type: string
+          record_accounting_in_sql:
+            description: Record the accounting data in the SQL tables.Requires a restart
+              of radiusd to be effective.
+            type: string
+          scan_on_accounting:
+            description: advanced.scan_on_accounting
+            type: string
+          source_to_send_sms_when_creating_users:
+            description: The source to use to send an SMS when creating a user
+            type: string
+          sso_on_access_reevaluation:
+            description: Trigger Single-Sign-On (Firewall SSO) on access reevaluation
+            type: string
+          sso_on_accounting:
+            description: Trigger Single-Sign-On (Firewall SSO) on accounting
+            type: string
+          sso_on_dhcp:
+            description: Trigger Single-Sign-On (Firewall SSO) on dhcp
+            type: string
+          timing_stats_level:
+            description: Level of timing stats to keep - 0 is the lowest - 10 the
+              highest amount to logDo not change unless you know what you are doing
+            type: integer
+          update_iplog_with_accounting:
+            description: Use the information included in the accounting to update
+              the iplog
+            type: string
+          vlan_pool_technique:
+            description: 'The algorithm used to calculate the VLAN in a VLAN pool.
+              <a target="_blank" href="/static/doc/PacketFence_Installation_Guide.html#_roles_management"><i
+              class="icon-question-circle-o"></i></a> '
+            type: string
+        type: object
+      - properties:
+          access_duration_choices:
+            description: List of all the choices offered in the access duration action
+              of an authentication source.
+            type: string
+          default_access_duration:
+            description: This is the default access duration value selected in the
+              dropdown. The value must be part of the above list of access duration
+              choices.
+            type: string
+          default_access_duration_add:
+            description: Duration
+            properties:
+              day_base:
+                description: Relative to the beginning of the day
+                type: string
+              duration:
+                description: Duration
+                properties:
+                  interval:
+                    description: Interval
+                    type: integer
+                  unit:
+                    description: Unit
+                    type: string
+                type: object
+              example:
+                description: Example
+                type: string
+              extended_duration:
+                description: and
+                properties:
+                  interval:
+                    description: Interval
+                    type: integer
+                  operator:
+                    description: Operator
+                    type: string
+                  unit:
+                    description: Unit
+                    type: string
+                type: object
+              period_base:
+                description: Relative to the beginning of the period
+                type: string
+            type: object
+        type: object
+      - properties:
+          enabled:
+            description: Enable MSE
+            type: string
+          pass:
+            description: Password for MSE service
+            type: string
+          url:
+            description: URL of MSE service
+            type: string
+          user:
+            description: Username for MSE service
+            type: string
+        type: object
+      - properties:
+          eap_authentication_types:
+            description: Supported EAP Authentication Methods
+            items:
+              description: Supported EAP Authentication Methods
+              type: string
+            type: array
+          eap_fast_authority_identity:
+            description: EAP-FAST authority ID
+            type: string
+          eap_fast_opaque_key:
+            description: EAP-FAST Opaque Key (32 randomized bytes)
+            type: string
+        type: object
+      - properties:
+          emailaddr:
+            description: Email address to which notifications of rogue DHCP servers,
+              violations with an action of <i>email</i>, or any other PacketFence-related
+              message goes to.
+            type: string
+          fromaddr:
+            description: Email address from which notifications of rogue DHCP servers,
+              violations with an action of <i>email</i>, or any other PacketFence-related
+              message are sent.Empty means <code>root@&lt;server-domain-name&gt;</code>.
+            type: string
+          smtp_encryption:
+            description: Encryption style when connecting to the SMTP server.
+            type: string
+          smtp_password:
+            description: The password used to connect to the SMTP server
+            type: string
+          smtp_port:
+            description: 'The port of the SMTP server. If the port is set to 0 then
+              port is calculated by the encryption type. none: 25, ssl: 465, starttls:
+              587'
+            type: string
+          smtp_timeout:
+            description: The timeout in seconds for sending an email
+            type: string
+          smtp_username:
+            description: The username used to connect to the SMTP server
+            type: string
+          smtp_verifyssl:
+            description: Verify SSL connection
+            type: string
+          smtpserver:
+            description: Server through which to send messages to the above emailaddr.  The
+              default is localhost - be sure you're running an SMTP host locally if
+              you don't change it!
+            type: string
+          subjectprefix:
+            description: Subject prefix for email notifications of rogue DHCP servers,
+              violations with an action of <i>email</i>, or any other PacketFence-related
+              message.
+            type: string
+        type: object
+      - properties:
+          bounce_duration:
+            description: Delay to wait between the shut / no-shut on a port. Some
+              OS need a higher value than others. Default should be reasonable for
+              almost every OS but is too long for the usual proprietary OS.
+            properties:
+              interval:
+                description: Interval
+                type: integer
+              unit:
+                description: Unit
+                type: string
+            type: object
+          trap_limit:
+            description: Controls whether or not the trap limit feature is enabled.
+              Trap limiting is a way to limit the damage done by malicious users or
+              misbehaving switch that sends too many traps to PacketFence causing
+              it to be overloaded. Trap limiting is controlled by the trap limit threshold
+              and trap limit action parameters. Default is enabled.
+            type: string
+          trap_limit_action:
+            description: Action that PacketFence will take if the snmp_traps.trap_limit_threshold
+              is reached. Defaults to none. email will send an email every hour if
+              the limit's still reached. shut will shut the port on the switch and
+              will also send an email even if email is not specified.
+            items:
+              description: Action that PacketFence will take if the snmp_traps.trap_limit_threshold
+                is reached. Defaults to none. email will send an email every hour
+                if the limit's still reached. shut will shut the port on the switch
+                and will also send an email even if email is not specified.
+              type: string
+            type: array
+          trap_limit_threshold:
+            description: Maximum number of SNMP traps that a switchport can send to
+              PacketFence within a minute without being flagged as DoS. Defaults to
+              100.
+            type: integer
+        type: object
+      - properties:
+          category:
+            description: Default category to assign to imported nodes.
+            type: string
+          pid:
+            description: Default pid value to assign to imported nodes.
+            type: string
+          voip:
+            description: By default is an imported node a Voice over IP device or
+              not?
+            type: string
+        type: object
+      - properties:
+          detection_mecanism_bypass:
+            description: Bypass the captive-portal detection mechanism of some browsers
+              / end-points by proxying the detection request.
+            type: string
+          detection_mecanism_urls:
+            description: Comma-delimited list of URLs known to be used by devices
+              to detect the presence of a captive portal and trigger their captive
+              portal mechanism.
+            type: string
+          image_path:
+            description: This is the path where the gif is on the webserver to detect
+              if the network accesshas been enabled.
+            type: string
+          loadbalancers_ip:
+            description: 'If the captive portal is put behind load-balancer(s) that
+              act at Layer 7 (HTTP level) effectively doing reverse proxying then
+              the captive portal no longer sees the IP of the node trying to access
+              the portal. In that case, the load-balancers must do SSL offloading
+              and add a X-Forwarded-By header in the HTTP traffic they forward to
+              PacketFence. Most do by default. Then in this parameter you must specify
+              the IP of the various load balancers. This will instruct the captive
+              portal to look for client IPs in the X-Forwarded-For instead of the
+              actual TCP session when it matches an IP in the list. Format is a comma
+              separated list of IPs. Note: Apache access log format is not changed
+              to automatically log the X-Forwarded-By header. Modify conf/httpd.conf.d/captive-portal-common.conf
+              to use load balanced combined instead of combined in CustomLog statement.'
+            type: string
+          network_detection:
+            description: Enable the automatic network detection feature for registration
+              auto-redirect
+            type: string
+          network_detection_initial_delay:
+            description: The amount of time before network connectivity detection
+              is started.
+            properties:
+              interval:
+                description: Interval
+                type: integer
+              unit:
+                description: Unit
+                type: string
+            type: object
+          network_detection_ip:
+            description: This IP is used as the webserver who hosts the common/network-access-detection.gif
+              which is used to detect if network access was enabled. It cannot be
+              a domain name since it is used in registration or quarantine where DNS
+              is blackholed. It is recommended that you allow your users to reach
+              your PacketFence server and put your LAN's PacketFence IP. By default
+              we will make this reach PacketFence's website as an easy solution.
+            type: string
+          network_detection_retry_delay:
+            description: The amount of time between network connectivity detection
+              checks.
+            properties:
+              interval:
+                description: Interval
+                type: integer
+              unit:
+                description: Unit
+                type: string
+            type: object
+          network_redirect_delay:
+            description: How long to display the progress bar during trap release.
+              Default value is based on VLAN enforcement techniques. Inline enforcement
+              only users could lower the value.
+            properties:
+              interval:
+                description: Interval
+                type: integer
+              unit:
+                description: Unit
+                type: string
+            type: object
+          other_domain_names:
+            description: Other domain names under which the captive portal responds.Requires
+              to restart haproxy-portal to be fully effective.
+            type: string
+          rate_limiting:
+            description: Temporarily deny access to a user that performs too many
+              requests on the captive portal on invalid URLsRequires to restart haproxy-portal
+              in order to apply the change.
+            type: string
+          rate_limiting_threshold:
+            description: Amount of requests on invalid URLs after which the rate limiting
+              will kick in for this device.Requires to restart haproxy-portal in order
+              to apply the change.
+            type: integer
+          request_timeout:
+            description: The amount of seconds before a request times out in the captive
+              portal
+            type: integer
+          secure_redirect:
+            description: Force the captive portal to use HTTPS for all portal clients.Note
+              that clients will be forced to use HTTPS on all URLs.This requires a
+              restart of the httpd.portal process to be fully effective.
+            type: string
+          status_only_on_production:
+            description: When enabled the /status page will only be available on theproduction
+              network. By default this is disabled
+            type: string
+          wispr_redirection:
+            description: Enable or disable WISPr redirection capabilities on the captive-portal
+            type: string
+        type: object
+      - properties:
+          accounting:
+            description: Should we handle accouting data for inline clients? This
+              controls inline accouting tasks in pfmon.
+            type: string
+          interfaceSNAT:
+            description: Comma-delimited list of interfaces used to SNAT inline level
+              2 traffic
+            type: string
+          layer3_accounting_session_timeout:
+            description: Accounting sessions created by pfbandwidthd that haven't
+              been updated for more than this amount of seconds will be considered
+              inactive. This should be higher than the interval at which pfmon runs
+              Defaults to 300 - 5 minutes
+            type: string
+          layer3_accounting_sync_interval:
+            description: Interval at which pfbandwidthd should dump collected information
+              into the database. This should be lower than the interval at which pfmon
+              runs. Defaults to 41 seconds
+            type: string
+          ports_redirect:
+            description: Ports to intercept and redirect for trapped and unregistered
+              systems.  Defaults to 80/tcp (HTTP), 443/tcp (HTTPS). Redirecting 443/tcp
+              (SSL) will work, although users might get certificate errors if you
+              didn't install a valid certificate or if you don't use DNS (although
+              IP-based certificates supposedly exist). Redirecting 53/udp (DNS) seems
+              to have issues and is also not recommended.
+            type: string
+          should_reauth_on_vlan_change:
+            description: Should have to reauthenticate the node if vlan change
+            type: string
+        type: object
+      - properties:
+          lease_length:
+            description: Lease length (in seconds) when a device is in parking
+            type: integer
+          place_in_dhcp_parking_group:
+            description: Place the device in the DHCP parking group when it is detected
+              doing parking
+            type: string
+          show_parking_portal:
+            description: Show the parking portal to the device instead of the usual
+              portal
+            type: string
+          threshold:
+            description: The threshold (in seconds) after which a device will be placed
+              in parking.A value of 0 deactivates the parking detection.The detection
+              works by looking at the time in seconds a device has been in the registration
+              role and comparing it with this threshold.
+            type: integer
+        type: object
+      - properties:
+          api-frontend:
+            description: Should api-frontend be managed by PacketFence?
+            type: string
+          fingerbank-collector:
+            description: Should the fingerbank-collector be managed by PacketFence?
+            type: string
+          haproxy-db:
+            description: Should haproxy-db be started? Keep enabled unless you know
+              what you're doing.
+            type: string
+          haproxy-portal:
+            description: Should haproxy-portal be started? Keep enabled unless you
+              know what you're doing.
+            type: string
+          httpd_aaa:
+            description: Should httpd.aaa be started? Keep enabled unless you know
+              what you're doing.
+            type: string
+          httpd_admin:
+            description: Should httpd.admin be started? Keep enabled unless you know
+              what you're doing.
+            type: string
+          httpd_collector:
+            description: Should httpd.collector be started? Keep enabled unless you
+              know what you're doing.
+            type: string
+          httpd_dispatcher:
+            description: Should httpd.dispatcher be started? Keep enabled unless you
+              know what you're doing.
+            type: string
+          httpd_parking:
+            description: Should httpd.parking be started? Keep enabled unless you
+              know what you're doing.
+            type: string
+          httpd_portal:
+            description: Should httpd.portal be started? Keep enabled unless you know
+              what you're doing.
+            type: string
+          httpd_proxy:
+            description: Should httpd.proxy be started? Keep enabled unless you know
+              what you're doing.
+            type: string
+          httpd_webservices:
+            description: Should httpd.webservices be started? Keep enabled unless
+              you know what you're doing.
+            type: string
+          iptables:
+            description: Should iptables be managed by PacketFence? Keep enabled unless
+              you know what you're doing.
+            type: string
+          keepalived:
+            description: Should keepalived be started? Keep enabled unless you know
+              what you're doing.
+            type: string
+          netdata:
+            description: Should netdata be managed by PacketFence?
+            type: string
+          pfbandwidthd:
+            description: Should pfbandwidthd be managed by PacketFence?
+            type: string
+          pfdhcp:
+            description: Should pfdhcp be managed by PacketFence?
+            type: string
+          pfdhcplistener:
+            description: Should pfdhcplistener be started? Keep enabled unless you
+              know what you're doing.
+            type: string
+          pfdhcplistener_packet_size:
+            description: Set the max size of DHCP packetsDo not change unless you
+              know what you are doing
+            type: integer
+          pfdns:
+            description: Should pfdns be managed by PacketFence?
+            type: string
+          pffilter:
+            description: Should pffilter be managed by PacketFence?
+            type: string
+          pfipset:
+            description: Should pfipset be managed by PacketFence?
+            type: string
+          pfmon:
+            description: Should pfmon be started? Keep enabled unless you know what
+              you're doing.
+            type: string
+          pfperl-api:
+            description: Should pfperl-api be started? Keep enabled unless you know
+              what you're doing.
+            type: string
+          pfqueue:
+            description: Should pfqueue be started? Keep enabled unless you know what
+              you're doing.
+            type: string
+          pfsso:
+            description: Should pfsso be managed by PacketFence?
+            type: string
+          pfstats:
+            description: Should pfstats be managed by PacketFence?
+            type: string
+          radiusd:
+            description: Should radiusd be managed by PacketFence?
+            type: string
+          radsniff:
+            description: Should radsniff be managed by PacketFence?
+            type: string
+          redis_cache:
+            description: Should redis for caching be started? Keep enabled unless
+              you know what you're doing.
+            type: string
+          redis_ntlm_cache:
+            description: Should the redis NTLM cache be started? Use this if you are
+              enabling an Active Directory NTLM cache.
+            type: string
+          redis_queue:
+            description: Should redis be started? Keep enabled unless you know what
+              you're doing.
+            type: string
+          routes:
+            description: Should routes be managed by PacketFence?
+            type: string
+          snmptrapd:
+            description: Should snmptrapd be started? Keep enabled unless you know
+              what you're doing.
+            type: string
+          tc:
+            description: Should traffic shaping be managed by PacketFence?
+            type: string
+          winbindd:
+            description: Should winbindd be started? Keep enabled unless you know
+              what you're doing.
+            type: string
+        type: object
+      - properties:
+          api_key:
+            description: OPSWAT Metadefender Cloud Scanner API key
+            type: string
+          query_url_hash:
+            description: OPSWAT Metadefender Cloud Scanner URL for hash queries
+            type: string
+        type: object
+      - properties:
+          autoconfig:
+            description: Enable or Disable the generation of a pre-built XML mobile
+              configuration profile for iPhone, iPad, or iPod users
+            type: string
+          category:
+            description: Apply to node that are members of the following category
+            type: string
+          certificate:
+            description: Path of the ca certificate
+            type: string
+          ssid:
+            description: The hidden SSID where the user should connect to after registration
+            type: string
+        type: object
+      - properties:
+          db:
+            description: Name of the mysql database used by PacketFence.
+            type: string
+          host:
+            description: Server the mysql server is running on.
+            type: string
+          pass:
+            description: Password for the mysql database used by PacketFence.
+            type: string
+          port:
+            description: Port the mysql server is running on.
+            type: integer
+          user:
+            description: Username of the account with access to the mysql database
+              used by PacketFence.
+            type: string
+        type: object
+      - properties:
+          auth_on_management:
+            description: Process RADIUS authentication requests on the management
+              server (the current load balancer).Disabling it will make the management
+              server only proxy requests to other servers.Useful if your load balancer
+              cannot handle both tasks.Changing this requires to restart radiusd.
+            type: string
+          centralized_deauth:
+            description: Centralize the deauthentication to the management node of
+              the cluster.
+            type: string
+          conflict_resolution_threshold:
+            description: Defines the amount of seconds after which pfmon attempts
+              to resolve a configuration version conflict between cluster members.For
+              example, if this is set to 5 minutes, then a resolution will be attempted
+              when the members will be detected running a different version for more
+              than 5 minutes.
+            properties:
+              interval:
+                description: Interval
+                type: integer
+              unit:
+                description: Unit
+                type: string
+            type: object
+          dns_on_vip_only:
+            description: Set the name server option in DHCP replies to point only
+              to the VIP in cluster mode rather than to all servers in the cluster.
+            type: string
+          galera_replication:
+            description: Whether or not to activate galera cluster when using a cluster
+            type: string
+          galera_replication_password:
+            description: Defines the replication password to be used for the MariaDB
+              Galera cluster replication
+            type: string
+          galera_replication_username:
+            description: Defines the replication username to be used for the MariaDB
+              Galera cluster replication
+            type: string
+          password:
+            description: Shared KEY for VRRP protocol (must be the same on all members).
+            type: string
+          virtual_router_id:
+            description: The virtual router id for keepalive. Leave untouched unless
+              you have another keepalive cluster in this network. Must be between
+              1 and 255.
+            type: string
+          vrrp_unicast:
+            description: Enable keepalived in unicast mode instead of multicast
+            type: string
+        type: object
+      - properties:
+          aaa:
+            description: httpd listening port for AAA webservice
+            type: string
+          admin:
+            description: Port the administrative interface listens on.
+            type: string
+          collector:
+            description: Port of the collector webservice.
+            type: string
+          httpd_portal_modstatus:
+            description: Port the mod_status for httpd.portal listens on.
+            type: string
+          soap:
+            description: Port of the soap webservice.
+            type: string
+          unifiedapi:
+            description: port to use for accessing the Unified API
+            type: string
+        type: object
+      - properties:
+          innodb_additional_mem_pool_size:
+            description: The innodb_additional_mem_pool_size MySQL configuration attribute
+              (in MB). Only change if you know what you are doing. Will only affect
+              a locally running MySQL server.
+            type: integer
+          innodb_buffer_pool_size:
+            description: The innodb_buffer_pool_size MySQL configuration attribute
+              (in MB). Only change if you know what you are doing. Will only affect
+              a locally running MySQL server.
+            type: integer
+          key_buffer_size:
+            description: The key_buffer_size MySQL configuration attribute (in MB).
+              Only change if you know what you are doing. Will only affect a locally
+              running MySQL server.
+            type: integer
+          max_allowed_packet:
+            description: The max_allowed_packet MySQL configuration attribute (in
+              MB). Only change if you know what you are doing. Will only affect a
+              locally running MySQL server.
+            type: integer
+          max_connections:
+            description: The max_connections MySQL configuration attribute. Only change
+              if you know what you are doing. Will only affect a locally running MySQL
+              server.
+            type: integer
+          query_cache_size:
+            description: The query_cache_size MySQL configuration attribute. Only
+              change if you know what you are doing. Will only affect a locally running
+              MySQL server.
+            type: integer
+          table_cache:
+            description: The table_cache MySQL configuration attribute. Only change
+              if you know what you are doing. Will only affect a locally running MySQL
+              server.
+            type: integer
+          thread_cache_size:
+            description: The thread_cache_size MySQL configuration attribute. Only
+              change if you know what you are doing. Will only affect a locally running
+              MySQL server.
+            type: integer
+          thread_concurrency:
+            description: The thread_concurrency MySQL configuration attribute. Only
+              change if you know what you are doing. Will only affect a locally running
+              MySQL server.
+            type: integer
+        type: object
     ConfigBasesList:
       allOf:
       - $ref: '#/components/schemas/Iterable'
       - properties:
           items:
+            description: List
             items:
               $ref: '#/components/schemas/ConfigBase'
             type: array
         type: object
+      description: List
     ConfigBillingTier:
       properties:
         access_duration:
@@ -375,10 +1277,12 @@ components:
       - $ref: '#/components/schemas/Iterable'
       - properties:
           items:
+            description: List
             items:
               $ref: '#/components/schemas/ConfigBillingTier'
             type: array
         type: object
+      description: List
     ConfigConnectionProfile:
       properties:
         access_registration_when_registered:
@@ -418,6 +1322,10 @@ components:
               description: Unit
               type: string
           type: object
+        default_psk_key:
+          description: This is the default PSK key when you enable DPSK on this connection
+            profile. The minimum length is eight characters.
+          type: string
         description:
           description: Profile Description
           type: string
@@ -427,6 +1335,11 @@ components:
         dot1x_recompute_role_from_portal:
           description: When enabled, PacketFence will not use the role initialy computed
             on the portal but will use the dot1x username to recompute the role.
+          type: string
+        dpsk:
+          description: This enables the Dynamic PSK feature on this connection profile.
+            It means that the RADIUS server will answer requests with specific attributes
+            like the PSK key to use to connect on the SSID.
           type: string
         filter:
           description: Filters
@@ -515,6 +1428,13 @@ components:
             description: Source
             type: string
           type: array
+        status:
+          description: Enable profile
+          type: string
+        unreg_on_acct_stop:
+          description: This activates automatic deregistation of devices for the profile
+            if PacketFence receives a RADIUS accounting stop.
+          type: string
       required:
       - id
       - root_module
@@ -524,10 +1444,12 @@ components:
       - $ref: '#/components/schemas/Iterable'
       - properties:
           items:
+            description: List
             items:
               $ref: '#/components/schemas/ConfigConnectionProfile'
             type: array
         type: object
+      description: List
     ConfigDeviceRegistration:
       properties:
         allowed_devices:
@@ -556,10 +1478,12 @@ components:
       - $ref: '#/components/schemas/Iterable'
       - properties:
           items:
+            description: List
             items:
               $ref: '#/components/schemas/ConfigDeviceRegistration'
             type: array
         type: object
+      description: List
     ConfigDomain:
       properties:
         ad_server:
@@ -650,10 +1574,12 @@ components:
       - $ref: '#/components/schemas/Iterable'
       - properties:
           items:
+            description: List
             items:
               $ref: '#/components/schemas/ConfigDomain'
             type: array
         type: object
+      description: List
     ConfigFirewall:
       discriminator:
         propertyName: type
@@ -1039,10 +1965,12 @@ components:
       - $ref: '#/components/schemas/Iterable'
       - properties:
           items:
+            description: List
             items:
               $ref: '#/components/schemas/ConfigFirewall'
             type: array
         type: object
+      description: List
     ConfigFloatingDevice:
       properties:
         id:
@@ -1070,10 +1998,12 @@ components:
       - $ref: '#/components/schemas/Iterable'
       - properties:
           items:
+            description: List
             items:
               $ref: '#/components/schemas/ConfigFloatingDevice'
             type: array
         type: object
+      description: List
     ConfigMaintenanceTask:
       discriminator:
         propertyName: type
@@ -1769,33 +2699,6 @@ components:
         - type
         type: object
       - properties:
-          id:
-            description: Pfmon Name
-            type: string
-          interval:
-            description: Interval (frequency) at which the task is executed.<br>Requires
-              a restart of pfmon to be fully effective. Otherwise, it will be taken
-              in consideration next time the tasks runs.
-            properties:
-              interval:
-                description: Interval
-                type: integer
-              unit:
-                description: Unit
-                type: string
-            type: object
-          status:
-            description: Whether or not this task is enabled.<br>Requires a restart
-              of pfmon to be effective.
-            type: string
-          type:
-            description: Type
-            type: string
-        required:
-        - id
-        - type
-        type: object
-      - properties:
           batch:
             description: Amount of items that will be processed in each batch of this
               task. Batches are executed until there is no more items to process or
@@ -1884,10 +2787,12 @@ components:
       - $ref: '#/components/schemas/Iterable'
       - properties:
           items:
+            description: List
             items:
               $ref: '#/components/schemas/ConfigMaintenanceTask'
             type: array
         type: object
+      description: List
     ConfigPkiProvider:
       discriminator:
         propertyName: type
@@ -2037,10 +2942,12 @@ components:
       - $ref: '#/components/schemas/Iterable'
       - properties:
           items:
+            description: List
             items:
               $ref: '#/components/schemas/ConfigPkiProvider'
             type: array
         type: object
+      description: List
     ConfigPortalModule:
       discriminator:
         propertyName: type
@@ -2071,6 +2978,12 @@ components:
           description:
             description: The description that will be displayed to users
             type: string
+          fields_to_save:
+            description: These fields will be saved through the registration process
+            items:
+              description: These fields will be saved through the registration process
+              type: string
+            type: array
           id:
             description: Identifier
             type: string
@@ -2132,6 +3045,12 @@ components:
           description:
             description: The description that will be displayed to users
             type: string
+          fields_to_save:
+            description: These fields will be saved through the registration process
+            items:
+              description: These fields will be saved through the registration process
+              type: string
+            type: array
           id:
             description: Identifier
             type: string
@@ -2186,6 +3105,12 @@ components:
           description:
             description: The description that will be displayed to users
             type: string
+          fields_to_save:
+            description: These fields will be saved through the registration process
+            items:
+              description: These fields will be saved through the registration process
+              type: string
+            type: array
           id:
             description: Identifier
             type: string
@@ -2237,6 +3162,12 @@ components:
           description:
             description: The description that will be displayed to users
             type: string
+          fields_to_save:
+            description: These fields will be saved through the registration process
+            items:
+              description: These fields will be saved through the registration process
+              type: string
+            type: array
           id:
             description: Identifier
             type: string
@@ -2288,6 +3219,12 @@ components:
           description:
             description: The description that will be displayed to users
             type: string
+          fields_to_save:
+            description: These fields will be saved through the registration process
+            items:
+              description: These fields will be saved through the registration process
+              type: string
+            type: array
           id:
             description: Identifier
             type: string
@@ -2377,6 +3314,12 @@ components:
           description:
             description: The description that will be displayed to users
             type: string
+          fields_to_save:
+            description: These fields will be saved through the registration process
+            items:
+              description: These fields will be saved through the registration process
+              type: string
+            type: array
           id:
             description: Identifier
             type: string
@@ -2447,6 +3390,12 @@ components:
           description:
             description: The description that will be displayed to users
             type: string
+          fields_to_save:
+            description: These fields will be saved through the registration process
+            items:
+              description: These fields will be saved through the registration process
+              type: string
+            type: array
           forced_sponsor:
             description: Defines the sponsor email used. Leave empty so that the user
               has to specify a sponsor.
@@ -2502,6 +3451,12 @@ components:
           description:
             description: The description that will be displayed to users
             type: string
+          fields_to_save:
+            description: These fields will be saved through the registration process
+            items:
+              description: These fields will be saved through the registration process
+              type: string
+            type: array
           id:
             description: Identifier
             type: string
@@ -2556,6 +3511,12 @@ components:
           description:
             description: The description that will be displayed to users
             type: string
+          fields_to_save:
+            description: These fields will be saved through the registration process
+            items:
+              description: These fields will be saved through the registration process
+              type: string
+            type: array
           id:
             description: Identifier
             type: string
@@ -2610,6 +3571,12 @@ components:
           description:
             description: The description that will be displayed to users
             type: string
+          fields_to_save:
+            description: These fields will be saved through the registration process
+            items:
+              description: These fields will be saved through the registration process
+              type: string
+            type: array
           id:
             description: Identifier
             type: string
@@ -2781,6 +3748,12 @@ components:
           description:
             description: The description that will be displayed to users
             type: string
+          fields_to_save:
+            description: These fields will be saved through the registration process
+            items:
+              description: These fields will be saved through the registration process
+              type: string
+            type: array
           id:
             description: Identifier
             type: string
@@ -2829,6 +3802,12 @@ components:
           description:
             description: The description that will be displayed to users
             type: string
+          fields_to_save:
+            description: These fields will be saved through the registration process
+            items:
+              description: These fields will be saved through the registration process
+              type: string
+            type: array
           id:
             description: Identifier
             type: string
@@ -2880,6 +3859,12 @@ components:
           description:
             description: The description that will be displayed to users
             type: string
+          fields_to_save:
+            description: These fields will be saved through the registration process
+            items:
+              description: These fields will be saved through the registration process
+              type: string
+            type: array
           id:
             description: Identifier
             type: string
@@ -2934,6 +3919,12 @@ components:
           description:
             description: The description that will be displayed to users
             type: string
+          fields_to_save:
+            description: These fields will be saved through the registration process
+            items:
+              description: These fields will be saved through the registration process
+              type: string
+            type: array
           id:
             description: Identifier
             type: string
@@ -2975,6 +3966,12 @@ components:
           description:
             description: The description that will be displayed to users
             type: string
+          fields_to_save:
+            description: These fields will be saved through the registration process
+            items:
+              description: These fields will be saved through the registration process
+              type: string
+            type: array
           id:
             description: Identifier
             type: string
@@ -3075,6 +4072,12 @@ components:
           description:
             description: The description that will be displayed to users
             type: string
+          fields_to_save:
+            description: These fields will be saved through the registration process
+            items:
+              description: These fields will be saved through the registration process
+              type: string
+            type: array
           id:
             description: Identifier
             type: string
@@ -3129,6 +4132,12 @@ components:
           description:
             description: The description that will be displayed to users
             type: string
+          fields_to_save:
+            description: These fields will be saved through the registration process
+            items:
+              description: These fields will be saved through the registration process
+              type: string
+            type: array
           id:
             description: Identifier
             type: string
@@ -3256,6 +4265,12 @@ components:
           description:
             description: The description that will be displayed to users
             type: string
+          fields_to_save:
+            description: These fields will be saved through the registration process
+            items:
+              description: These fields will be saved through the registration process
+              type: string
+            type: array
           id:
             description: Identifier
             type: string
@@ -3307,6 +4322,12 @@ components:
           description:
             description: The description that will be displayed to users
             type: string
+          fields_to_save:
+            description: These fields will be saved through the registration process
+            items:
+              description: These fields will be saved through the registration process
+              type: string
+            type: array
           id:
             description: Identifier
             type: string
@@ -3336,19 +4357,6 @@ components:
         - landing_template
         type: object
       - properties:
-          actions:
-            description: Actions
-            items:
-              description: Action
-              properties:
-                arguments:
-                  description: Arguments
-                  type: string
-                type:
-                  description: Type
-                  type: string
-              type: object
-            type: array
           custom_fields:
             description: The additionnal fields that should be required for registration
             items:
@@ -3358,12 +4366,21 @@ components:
           description:
             description: The description that will be displayed to users
             type: string
+          fields_to_save:
+            description: These fields will be saved through the registration process
+            items:
+              description: These fields will be saved through the registration process
+              type: string
+            type: array
           id:
             description: Identifier
             type: string
           source_id:
             description: The sources to use in the module. If no sources are specified,
               all the sources on the Connection Profile will be used
+            type: string
+          template:
+            description: The template to use
             type: string
           type:
             description: Type
@@ -3431,6 +4448,12 @@ components:
           description:
             description: The description that will be displayed to users
             type: string
+          fields_to_save:
+            description: These fields will be saved through the registration process
+            items:
+              description: These fields will be saved through the registration process
+              type: string
+            type: array
           id:
             description: Identifier
             type: string
@@ -3467,10 +4490,12 @@ components:
       - $ref: '#/components/schemas/Iterable'
       - properties:
           items:
+            description: List
             items:
               $ref: '#/components/schemas/ConfigPortalModule'
             type: array
         type: object
+      description: List
     ConfigProvisioning:
       properties:
         category:
@@ -3513,6 +4538,7 @@ components:
               $ref: '#/components/schemas/ConfigProvisioning'
             type: array
         type: object
+      description: List
     ConfigRealm:
       properties:
         admin_strip_username:
@@ -3545,10 +4571,12 @@ components:
       - $ref: '#/components/schemas/Iterable'
       - properties:
           items:
+            description: List
             items:
               $ref: '#/components/schemas/ConfigRealm'
             type: array
         type: object
+      description: List
     ConfigRole:
       properties:
         id:
@@ -3569,10 +4597,12 @@ components:
       - $ref: '#/components/schemas/Iterable'
       - properties:
           items:
+            description: List
             items:
               $ref: '#/components/schemas/ConfigRole'
             type: array
         type: object
+      description: List
     ConfigScan:
       discriminator:
         propertyName: type
@@ -3850,10 +4880,12 @@ components:
       - $ref: '#/components/schemas/Iterable'
       - properties:
           items:
+            description: List
             items:
               $ref: '#/components/schemas/ConfigScan'
             type: array
         type: object
+      description: List
     ConfigSource:
       discriminator:
         propertyName: type
@@ -3963,6 +4995,23 @@ components:
             description: The amount of times, the local account can be used after
               its created. 0 means infinite.
             type: integer
+          message:
+            description: SMS text message ($pin will be replaced by the PIN number)
+            type: string
+          pin_code_length:
+            description: The amount of digits of the PIN number.
+            type: integer
+          sms_activation_timeout:
+            description: This is the delay given to a guest who registered by sms
+              confirmation to fill the pin code.
+            properties:
+              interval:
+                description: Interval
+                type: integer
+              unit:
+                description: Unit
+                type: string
+            type: object
           sms_carriers:
             description: List of phone carriers available to the user
             items:
@@ -3975,6 +5024,8 @@ components:
         required:
         - id
         - description
+        - sms_activation_timeout
+        - pin_code_length
         type: object
       - properties:
           access_token_param:
@@ -5994,7 +7045,7 @@ components:
             type: string
           connection_timeout:
             description: LDAP connection Timeout
-            type: integer
+            type: string
           description:
             description: Description
             type: string
@@ -6022,7 +7073,7 @@ components:
             type: integer
           read_timeout:
             description: LDAP response timeout
-            type: integer
+            type: string
           realms:
             description: Realms that will be associated with this source
             items:
@@ -6032,6 +7083,9 @@ components:
           scope:
             description: Scope
             type: string
+          shuffle:
+            description: Randomly choose LDAP server to query
+            type: string
           type:
             description: Type
             type: string
@@ -6040,7 +7094,7 @@ components:
             type: string
           write_timeout:
             description: LDAP request timeout
-            type: integer
+            type: string
         required:
         - id
         - description
@@ -6650,7 +7704,7 @@ components:
               type: object
             type: array
           api_login_id:
-            description: Api login id
+            description: API login ID
             type: string
           authentication_rules:
             description: Authentication Rules
@@ -6718,8 +7772,8 @@ components:
             description: The amount of times, the local account can be used after
               its created. 0 means infinite.
             type: integer
-          md5_hash:
-            description: MD5 hash
+          public_client_key:
+            description: Public Client Key
             type: string
           send_email_confirmation:
             description: Send billing confirmation
@@ -6738,7 +7792,7 @@ components:
         - description
         - api_login_id
         - transaction_key
-        - md5_hash
+        - public_client_key
         - domains
         type: object
       - properties:
@@ -6963,6 +8017,9 @@ components:
             description: The amount of times, the local account can be used after
               its created. 0 means infinite.
             type: integer
+          message:
+            description: SMS text message ($pin will be replaced by the PIN number)
+            type: string
           pin_code_length:
             description: The length of the PIN code to be sent over sms
             type: integer
@@ -7101,9 +8158,15 @@ components:
           server1_address:
             description: Eduroam server 1 address
             type: string
+          server1_port:
+            description: Eduroam server 1 port
+            type: integer
           server2_address:
             description: Eduroam server 2 address
             type: string
+          server2_port:
+            description: Eduroam server 2 port
+            type: integer
           type:
             description: Type
             type: string
@@ -7617,6 +8680,9 @@ components:
           type:
             description: Type
             type: string
+          validate_sponsor:
+            description: Force sponsor to authenticate when validating a guest request.
+            type: string
         required:
         - id
         - description
@@ -7725,7 +8791,7 @@ components:
             type: string
           connection_timeout:
             description: LDAP connection Timeout
-            type: integer
+            type: string
           description:
             description: Description
             type: string
@@ -7753,7 +8819,7 @@ components:
             type: integer
           read_timeout:
             description: LDAP response timeout
-            type: integer
+            type: string
           realms:
             description: Realms that will be associated with this source
             items:
@@ -7763,6 +8829,9 @@ components:
           scope:
             description: Scope
             type: string
+          shuffle:
+            description: Randomly choose LDAP server to query
+            type: string
           type:
             description: Type
             type: string
@@ -7771,7 +8840,7 @@ components:
             type: string
           write_timeout:
             description: LDAP request timeout
-            type: integer
+            type: string
         required:
         - id
         - description
@@ -7938,10 +9007,12 @@ components:
       - $ref: '#/components/schemas/Iterable'
       - properties:
           items:
+            description: List
             items:
               $ref: '#/components/schemas/ConfigSource'
             type: array
         type: object
+      description: List
     ConfigSwitch:
       properties:
         AccessListMap:
@@ -7950,6 +9021,18 @@ components:
         ExternalPortalEnforcement:
           description: Enable external portal enforcement when supported by network
             equipment
+          type: string
+        REJECTAccessList:
+          description: REJECT
+          type: string
+        REJECTRole:
+          description: REJECT
+          type: string
+        REJECTUrl:
+          description: REJECT
+          type: string
+        REJECTVlan:
+          description: REJECT
           type: string
         RoleMap:
           description: Role by Switch Role
@@ -8064,15 +9147,51 @@ components:
         deauthMethod:
           description: Deauthentication Method
           type: string
+        defaultAccessList:
+          description: default
+          type: string
+        defaultRole:
+          description: default
+          type: string
+        defaultUrl:
+          description: default
+          type: string
+        defaultVlan:
+          description: default
+          type: string
         description:
           description: Description
           type: string
         disconnectPort:
           description: For Disconnect request, if we have to send to another port
           type: integer
+        gamingAccessList:
+          description: gaming
+          type: string
+        gamingRole:
+          description: gaming
+          type: string
+        gamingUrl:
+          description: gaming
+          type: string
+        gamingVlan:
+          description: gaming
+          type: string
         group:
           description: Changing the group requires to save to see the new default
             values
+          type: string
+        guestAccessList:
+          description: guest
+          type: string
+        guestRole:
+          description: guest
+          type: string
+        guestUrl:
+          description: guest
+          type: string
+        guestVlan:
+          description: guest
           type: string
         id:
           description: IP Address/MAC Address/Range (CIDR)
@@ -8172,6 +9291,18 @@ components:
           description: Use CoA when available to deauthenticate the user. When disabled,
             RADIUS Disconnect will be used instead if it is available.
           type: string
+        voiceAccessList:
+          description: voice
+          type: string
+        voiceRole:
+          description: voice
+          type: string
+        voiceUrl:
+          description: voice
+          type: string
+        voiceVlan:
+          description: voice
+          type: string
         wsPwd:
           description: Password
           type: string
@@ -8192,6 +9323,18 @@ components:
         ExternalPortalEnforcement:
           description: Enable external portal enforcement when supported by network
             equipment
+          type: string
+        REJECTAccessList:
+          description: REJECT
+          type: string
+        REJECTRole:
+          description: REJECT
+          type: string
+        REJECTUrl:
+          description: REJECT
+          type: string
+        REJECTVlan:
+          description: REJECT
           type: string
         RoleMap:
           description: Role by Switch Role
@@ -8306,14 +9449,50 @@ components:
         deauthMethod:
           description: Deauthentication Method
           type: string
+        defaultAccessList:
+          description: default
+          type: string
+        defaultRole:
+          description: default
+          type: string
+        defaultUrl:
+          description: default
+          type: string
+        defaultVlan:
+          description: default
+          type: string
         description:
           description: Description
           type: string
         disconnectPort:
           description: For Disconnect request, if we have to send to another port
           type: integer
+        gamingAccessList:
+          description: gaming
+          type: string
+        gamingRole:
+          description: gaming
+          type: string
+        gamingUrl:
+          description: gaming
+          type: string
+        gamingVlan:
+          description: gaming
+          type: string
         group:
           description: Group
+          type: string
+        guestAccessList:
+          description: guest
+          type: string
+        guestRole:
+          description: guest
+          type: string
+        guestUrl:
+          description: guest
+          type: string
+        guestVlan:
+          description: guest
           type: string
         id:
           description: Group name
@@ -8413,6 +9592,18 @@ components:
           description: Use CoA when available to deauthenticate the user. When disabled,
             RADIUS Disconnect will be used instead if it is available.
           type: string
+        voiceAccessList:
+          description: voice
+          type: string
+        voiceRole:
+          description: voice
+          type: string
+        voiceUrl:
+          description: voice
+          type: string
+        voiceVlan:
+          description: voice
+          type: string
         wsPwd:
           description: Password
           type: string
@@ -8430,19 +9621,23 @@ components:
       - $ref: '#/components/schemas/Iterable'
       - properties:
           items:
+            description: List
             items:
               $ref: '#/components/schemas/ConfigSwitchGroup'
             type: array
         type: object
+      description: List
     ConfigSwitchesList:
       allOf:
       - $ref: '#/components/schemas/Iterable'
       - properties:
           items:
+            description: List
             items:
               $ref: '#/components/schemas/ConfigSwitch'
             type: array
         type: object
+      description: List
     ConfigSyslogParser:
       discriminator:
         propertyName: type
@@ -8683,19 +9878,23 @@ components:
       - $ref: '#/components/schemas/Iterable'
       - properties:
           items:
+            description: List
             items:
               $ref: '#/components/schemas/ConfigSyslogParser'
             type: array
         type: object
+      description: List
     ConfigTrafficShapingPoliciesList:
       allOf:
       - $ref: '#/components/schemas/Iterable'
       - properties:
           items:
+            description: List
             items:
               $ref: '#/components/schemas/ConfigTrafficShapingPolicy'
             type: array
         type: object
+      description: List
     ConfigTrafficShapingPolicy:
       properties:
         download:
@@ -8802,7 +10001,8 @@ components:
           type: string
         vlan:
           description: Destination Role where PacketFence should put the client when
-            a violation of this type is open.
+            a violation of this type is open (only for <em>Change network access on
+            violation</em> action).
           type: string
         whitelisted_roles:
           description: Nodes with the selected roles won't be affected by a violation
@@ -8831,17 +10031,18 @@ components:
             after 3 days, the violation will open and the release date will be set
             for the last day of the current month).
           type: string
-      required: []
       type: object
     ConfigViolationsList:
       allOf:
       - $ref: '#/components/schemas/Iterable'
       - properties:
           items:
+            description: List
             items:
               $ref: '#/components/schemas/ConfigViolation'
             type: array
         type: object
+      description: List
     DhcpInterfaceStats:
       description: The schema used for a collection of interface initialization and
         statistics
@@ -8906,7 +10107,6 @@ components:
       description: The schema used when returning a DHCP MAC address and IPv4 address
         pair
       properties:
-        description: A MAC address and IPv4 address pair
         ip:
           description: The IPv4 address
           type: string
@@ -8960,13 +10160,13 @@ components:
           type: string
         vlan:
           type: string
-      required: []
       type: object
     DhcpOption82sList:
       allOf:
       - $ref: '#/components/schemas/Iterable'
       - properties:
           items:
+            description: Items
             items:
               $ref: '#/components/schemas/DhcpOption82'
             type: array
@@ -8992,15 +10192,40 @@ components:
           type: string
         tenant_id:
           type: integer
-      required: []
       type: object
     Ip4logsList:
       allOf:
       - $ref: '#/components/schemas/Iterable'
       - properties:
           items:
+            description: Items
             items:
               $ref: '#/components/schemas/Ip4log'
+            type: array
+        type: object
+    Ip6log:
+      properties:
+        end_time:
+          type: string
+        ip:
+          type: string
+        mac:
+          type: string
+        start_time:
+          type: string
+        tenant_id:
+          type: integer
+        type:
+          type: string
+      type: object
+    Ip6logsList:
+      allOf:
+      - $ref: '#/components/schemas/Iterable'
+      - properties:
+          items:
+            description: Items
+            items:
+              $ref: '#/components/schemas/Ip6log'
             type: array
         type: object
     IpsetIp:
@@ -9107,13 +10332,13 @@ components:
           type: integer
         vlan:
           type: string
-      required: []
       type: object
     LocationlogsList:
       allOf:
       - $ref: '#/components/schemas/Iterable'
       - properties:
           items:
+            description: Items
             items:
               $ref: '#/components/schemas/Locationlog'
             type: array
@@ -9142,8 +10367,10 @@ components:
           type: string
         device_class:
           type: string
-        device_score:
+        device_manufacturer:
           type: string
+        device_score:
+          type: integer
         device_type:
           type: string
         device_version:
@@ -9188,13 +10415,13 @@ components:
           type: string
         voip:
           type: string
-      required: []
       type: object
     NodeCategoriesList:
       allOf:
       - $ref: '#/components/schemas/Iterable'
       - properties:
           items:
+            description: Items
             items:
               $ref: '#/components/schemas/NodeCategory'
             type: array
@@ -9209,13 +10436,13 @@ components:
           type: string
         notes:
           type: string
-      required: []
       type: object
     NodesList:
       allOf:
       - $ref: '#/components/schemas/Iterable'
       - properties:
           items:
+            description: Items
             items:
               $ref: '#/components/schemas/Node'
             type: array
@@ -9424,13 +10651,13 @@ components:
           type: string
         uuid:
           type: string
-      required: []
       type: object
     RadiusAuditLogsList:
       allOf:
       - $ref: '#/components/schemas/Iterable'
       - properties:
           items:
+            description: Items
             items:
               $ref: '#/components/schemas/RadiusAuditLog'
             type: array
@@ -10137,13 +11364,13 @@ components:
           type: string
         portal_domain_name:
           type: string
-      required: []
       type: object
     TenantsList:
       allOf:
       - $ref: '#/components/schemas/Iterable'
       - properties:
           items:
+            description: Items
             items:
               $ref: '#/components/schemas/Tenant'
             type: array
@@ -10200,6 +11427,10 @@ components:
           type: string
         portal:
           type: string
+        potd:
+          type: string
+        psk:
+          type: string
         room_number:
           type: string
         source:
@@ -10214,7 +11445,6 @@ components:
           type: string
         work_phone:
           type: string
-      required: []
       type: object
     UserWithLinks:
       allOf:
@@ -10233,6 +11463,7 @@ components:
       - $ref: '#/components/schemas/Iterable'
       - properties:
           items:
+            description: Items
             items:
               $ref: '#/components/schemas/User'
             type: array
@@ -10255,8 +11486,10 @@ components:
           type: string
         device_class:
           type: string
-        device_score:
+        device_manufacturer:
           type: string
+        device_score:
+          type: integer
         device_type:
           type: string
         device_version:
@@ -10301,13 +11534,13 @@ components:
           type: string
         voip:
           type: string
-      required: []
       type: object
     UsersNodesList:
       allOf:
       - $ref: '#/components/schemas/Iterable'
       - properties:
           items:
+            description: Items
             items:
               $ref: '#/components/schemas/UsersNode'
             type: array
@@ -10352,13 +11585,13 @@ components:
           type: integer
         vlan:
           type: string
-      required: []
       type: object
     UsersNodesLocationlogsList:
       allOf:
       - $ref: '#/components/schemas/Iterable'
       - properties:
           items:
+            description: Items
             items:
               $ref: '#/components/schemas/UsersNodesLocationlog'
             type: array
@@ -10387,13 +11620,13 @@ components:
           type: string
         valid_from:
           type: string
-      required: []
       type: object
     UsersPasswordList:
       allOf:
       - $ref: '#/components/schemas/Iterable'
       - properties:
           items:
+            description: Items
             items:
               $ref: '#/components/schemas/UsersPassword'
             type: array
@@ -10418,13 +11651,13 @@ components:
           type: string
         vid:
           type: integer
-      required: []
       type: object
     ViolationsList:
       allOf:
       - $ref: '#/components/schemas/Iterable'
       - properties:
           items:
+            description: Items
             items:
               $ref: '#/components/schemas/Violation'
             type: array
@@ -10529,6 +11762,74 @@ info:
   version: 1.0.0
 openapi: 3.0.0
 paths:
+  /class/{class_id}:
+    description: pf::UnifiedApi::Controller::Classes
+    get:
+      description: Get an item
+      operationId: api.v1.Classes.get
+      parameters:
+      - in: path
+        name: class_id
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: Item
+                properties:
+                  item:
+                    $ref: '#/components/schemas/Class'
+                type: object
+          description: Get item
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+  /classes:
+    description: pf::UnifiedApi::Controller::Classes
+    get:
+      description: List items
+      operationId: api.v1.Classes.list
+      parameters:
+      - $ref: '#/components/parameters/cursor'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/fields'
+      - $ref: '#/components/parameters/sort'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassesList'
+          description: List
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+  /classes/search:
+    description: pf::UnifiedApi::Controller::Classes
+    post:
+      operationId: api.v1.Classes.search
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Search'
+        description: Search for items
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassesList'
+          description: List
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
   /config/admin_role/{admin_role_id}:
     delete:
       description: Remove an item
@@ -10556,6 +11857,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigAdminRole'
+          description: Item
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -10610,6 +11912,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigAdminRolesList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -10641,6 +11944,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigBase'
+          description: Item
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -10695,6 +11999,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigBasesList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -10726,6 +12031,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigBillingTier'
+          description: Item
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -10780,6 +12086,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigBillingTiersList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -10811,6 +12118,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigConnectionProfile'
+          description: Item
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -10865,6 +12173,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigConnectionProfilesList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -10896,6 +12205,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigDeviceRegistration'
+          description: Item
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -10950,6 +12260,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigDeviceRegistrationsList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -10981,6 +12292,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigDomain'
+          description: Item
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -11035,6 +12347,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigDomainsList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -11066,6 +12379,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigFirewall'
+          description: Item
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -11120,6 +12434,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigFirewallsList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -11151,6 +12466,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigFloatingDevice'
+          description: Item
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -11205,6 +12521,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigFloatingDevicesList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -11236,6 +12553,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigMaintenanceTask'
+          description: Item
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -11290,6 +12608,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigMaintenanceTasksList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -11321,6 +12640,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigPkiProvider'
+          description: Item
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -11375,6 +12695,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigPkiProvidersList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -11406,6 +12727,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigPortalModule'
+          description: Item
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -11460,6 +12782,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigPortalModulesList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -11576,6 +12899,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigRealm'
+          description: Item
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -11630,6 +12954,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigRealmsList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -11661,6 +12986,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigRole'
+          description: Item
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -11715,6 +13041,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigRolesList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -11746,6 +13073,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigScan'
+          description: Item
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -11800,6 +13128,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigScansList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -11831,6 +13160,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigSource'
+          description: Item
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -11885,6 +13215,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigSourcesList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -11924,7 +13255,11 @@ paths:
       responses:
         '204':
           description: Deleted a config item
-    description: pf::UnifiedApi::Controller::Config::Switches
+    description: |-
+      pf::UnifiedApi::Controller::Config::Switches
+
+        invalidate_cache
+          invalidate switch cache
     get:
       description: Get an item
       operationId: api.v1.Config::Switches.get
@@ -11939,6 +13274,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigSwitch'
+          description: Item
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -12008,6 +13344,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigSwitchGroup'
+          description: Item
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -12062,12 +13399,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigSwitchGroupsList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
   /config/switches:
-    description: pf::UnifiedApi::Controller::Config::Switches
+    description: |-
+      pf::UnifiedApi::Controller::Config::Switches
+
+        invalidate_cache
+          invalidate switch cache
     get:
       description: List items
       operationId: api.v1.Config::Switches.list
@@ -12078,6 +13420,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigSwitchesList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -12109,6 +13452,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigSyslogParser'
+          description: Item
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -12163,6 +13507,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigSyslogParsersList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -12200,6 +13545,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigTrafficShapingPoliciesList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -12210,7 +13556,7 @@ paths:
       operationId: api.v1.Config::TrafficShapingPolicies.remove
       parameters:
       - in: path
-        name: traffic_shaping_id
+        name: traffic_shaping_policy_id
         schema:
           type: string
       responses:
@@ -12222,7 +13568,7 @@ paths:
       operationId: api.v1.Config::TrafficShapingPolicies.get
       parameters:
       - in: path
-        name: traffic_shaping_id
+        name: traffic_shaping_policy_id
         schema:
           type: string
       responses:
@@ -12231,6 +13577,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigTrafficShapingPolicy'
+          description: Item
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -12240,7 +13587,7 @@ paths:
       operationId: api.v1.Config::TrafficShapingPolicies.update
       parameters:
       - in: path
-        name: traffic_shaping_id
+        name: traffic_shaping_policy_id
         schema:
           type: string
       requestBody:
@@ -12258,7 +13605,7 @@ paths:
       operationId: api.v1.Config::TrafficShapingPolicies.replace
       parameters:
       - in: path
-        name: traffic_shaping_id
+        name: traffic_shaping_policy_id
         schema:
           type: string
       requestBody:
@@ -12300,6 +13647,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigViolation'
+          description: Item
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -12354,6 +13702,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfigViolationsList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -12365,6 +13714,12 @@ paths:
         '200':
           $ref: '#/components/responses/DhcpInterfaceInit'
       summary: Initialize an interface
+    parameters:
+    - in: path
+      name: interface
+      required: true
+      schema:
+        type: string
   /dhcp/ip/{ip}:
     get:
       description: Performs a dhcp lookup and returns the MAC address for the given
@@ -12373,6 +13728,12 @@ paths:
         '200':
           $ref: '#/components/responses/DhcpMacIp'
       summary: Get a MAC address by IPv4 address
+    parameters:
+    - in: path
+      name: ip
+      required: true
+      schema:
+        type: string
   /dhcp/mac/{mac}:
     delete:
       description: Expires the dhcp lease for a specific MAC address
@@ -12387,17 +13748,41 @@ paths:
         '200':
           $ref: '#/components/responses/DhcpMacIp'
       summary: Get an IPv4 address by MAC address
+    parameters:
+    - in: path
+      name: mac
+      required: true
+      schema:
+        type: string
   /dhcp/options/mac/{mac}:
     delete:
       description: Removes dhcp options for a MAC address
+      parameters:
+      - in: path
+        name: mac
+        required: true
+        schema:
+          type: string
       responses:
         '200':
           $ref: '#/components/responses/DhcpMacResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
       summary: Delete options by MAC address
+    parameters:
+    - in: path
+      name: mac
+      required: true
+      schema:
+        type: string
     post:
       description: Add dhcp options to a MAC address
+      parameters:
+      - in: path
+        name: mac
+        required: true
+        schema:
+          type: string
       responses:
         '200':
           $ref: '#/components/responses/DhcpMacResponse'
@@ -12413,6 +13798,12 @@ paths:
         '400':
           $ref: '#/components/responses/BadRequest'
       summary: Delete options by network
+    parameters:
+    - in: path
+      name: network
+      required: true
+      schema:
+        type: string
     post:
       description: Add dhcp options for a Network
       responses:
@@ -12428,6 +13819,12 @@ paths:
         '200':
           $ref: '#/components/responses/DhcpInterfaceStats'
       summary: Get interface statistics
+    parameters:
+    - in: path
+      name: interface
+      required: true
+      schema:
+        type: string
   /dhcp_option82/{dhcp_option82_id}:
     delete:
       description: Remove an item
@@ -12454,6 +13851,7 @@ paths:
           content:
             application/json:
               schema:
+                description: Item
                 properties:
                   item:
                     $ref: '#/components/schemas/DhcpOption82'
@@ -12476,7 +13874,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/DhcpOption82'
-        required: '1'
       responses:
         '200':
           $ref: '#/components/responses/Message'
@@ -12497,7 +13894,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/DhcpOption82'
-        required: '1'
       responses:
         '200':
           $ref: '#/components/responses/Message'
@@ -12521,6 +13917,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DhcpOption82sList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -12561,6 +13958,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DhcpOption82sList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -12591,6 +13989,7 @@ paths:
           content:
             application/json:
               schema:
+                description: Item
                 properties:
                   item:
                     $ref: '#/components/schemas/Ip4log'
@@ -12613,7 +14012,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Ip4log'
-        required: '1'
       responses:
         '200':
           $ref: '#/components/responses/Message'
@@ -12634,7 +14032,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Ip4log'
-        required: '1'
       responses:
         '200':
           $ref: '#/components/responses/Message'
@@ -12658,6 +14055,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Ip4logsList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -12698,6 +14096,145 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Ip4logsList'
+          description: List
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+  /ip6log/{ip6log_id}:
+    delete:
+      description: Remove an item
+      operationId: api.v1.Ip6logs.remove
+      parameters:
+      - in: path
+        name: ip6log_id
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Item deleted
+    description: pf::UnifiedApi::Controller::Ip6logs
+    get:
+      description: Get an item
+      operationId: api.v1.Ip6logs.get
+      parameters:
+      - in: path
+        name: ip6log_id
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: Item
+                properties:
+                  item:
+                    $ref: '#/components/schemas/Ip6log'
+                type: object
+          description: Get item
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+    patch:
+      description: Update an item
+      operationId: api.v1.Ip6logs.update
+      parameters:
+      - in: path
+        name: ip6log_id
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Ip6log'
+      responses:
+        '200':
+          $ref: '#/components/responses/Message'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+    put:
+      description: Replace an item
+      operationId: api.v1.Ip6logs.replace
+      parameters:
+      - in: path
+        name: ip6log_id
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Ip6log'
+      responses:
+        '200':
+          $ref: '#/components/responses/Message'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+  /ip6logs:
+    description: pf::UnifiedApi::Controller::Ip6logs
+    get:
+      description: List items
+      operationId: api.v1.Ip6logs.list
+      parameters:
+      - $ref: '#/components/parameters/cursor'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/fields'
+      - $ref: '#/components/parameters/sort'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ip6logsList'
+          description: List
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+    post:
+      description: Create an item
+      operationId: api.v1.Ip6logs.create
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Ip6log'
+        description: Create item
+      responses:
+        '201':
+          $ref: '#/components/responses/Created'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Duplicate'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+  /ip6logs/search:
+    description: pf::UnifiedApi::Controller::Ip6logs
+    post:
+      operationId: api.v1.Ip6logs.search
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Search'
+        description: Search for items
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ip6logsList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -12900,6 +14437,7 @@ paths:
           content:
             application/json:
               schema:
+                description: Item
                 properties:
                   item:
                     $ref: '#/components/schemas/Locationlog'
@@ -12922,7 +14460,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Locationlog'
-        required: '1'
       responses:
         '200':
           $ref: '#/components/responses/Message'
@@ -12943,7 +14480,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Locationlog'
-        required: '1'
       responses:
         '200':
           $ref: '#/components/responses/Message'
@@ -12967,6 +14503,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LocationlogsList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -13007,6 +14544,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LocationlogsList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -13049,16 +14587,87 @@ paths:
       summary: Login into the API and obtain a token
   /node/{node_id}:
     delete:
+      description: Remove an item
+      operationId: api.v1.Nodes.remove
+      parameters:
+      - in: path
+        name: node_id
+        schema:
+          type: string
       responses:
         '204':
-          description: Deleted node
-      summary: Allows to delete a node
+          description: Item deleted
+    description: |-
+      pf::UnifiedApi::Controller::Nodes
+
+        register
+          register
+
+        deregister
+          deregister
+
+        bulk_register
+          bulk_register
+
+        bulk_init_results
+          bulk_init_results
+
+        bulk_deregister
+          bulk_deregister
+
+        fingerbank_info
+          fingerbank_info
+
+        fingerbank_refresh
+          fingerbank_refresh
+
+        bulk_close_violations
+          bulk_close_violations
+
+        close_violation
+          close_violation
+
+        create_error_msg
+          create_error_msg
+
+        bulk_reevaluate_access
+          bulk_reevaluate_access
+
+        bulk_fingerbank_refresh
+          bulk_fingerbank_refresh
+
+        bulk_restart_switchport
+          bulk_restart_switchport
+
+        bulk_apply_violation
+          bulk_apply_violation
+
+        apply_violation
+          apply_violation
+
+        bulk_apply_role
+          bulk_apply_role
+
+        bulk_apply_bypass_role
+          bulk_apply_bypass_role
+
+        do_bulk_update_field
+          do_bulk_update_field
+
+        restart_switchport
+          restart_switchport
+
+        do_restart_switchport
+          do_restart_switchport
+
+        reevaluate_access
+          reevaluate_access
     get:
+      description: Get an item
+      operationId: api.v1.Nodes.get
       parameters:
-      - description: The node ID to fetch
-        in: path
+      - in: path
         name: node_id
-        required: true
         schema:
           type: string
       responses:
@@ -13066,19 +14675,29 @@ paths:
           content:
             application/json:
               schema:
+                description: Item
                 properties:
                   item:
                     $ref: '#/components/schemas/Node'
                 type: object
-          description: A specific node
-      summary: Returns a specific node by its ID
+          description: Get item
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
     patch:
+      description: Update an item
+      operationId: api.v1.Nodes.update
+      parameters:
+      - in: path
+        name: node_id
+        schema:
+          type: string
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/Node'
-        required: true
       responses:
         '200':
           $ref: '#/components/responses/Message'
@@ -13086,14 +14705,19 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
-      summary: Allows to update parts of a node
     put:
+      description: Replace an item
+      operationId: api.v1.Nodes.replace
+      parameters:
+      - in: path
+        name: node_id
+        schema:
+          type: string
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/Node'
-        required: true
       responses:
         '200':
           $ref: '#/components/responses/Message'
@@ -13101,7 +14725,6 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
-      summary: Allows to update a whole node
   /node_categories:
     description: pf::UnifiedApi::Controller::NodeCategories
     get:
@@ -13118,6 +14741,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/NodeCategoriesList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -13139,6 +14763,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/NodeCategoriesList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -13158,6 +14783,7 @@ paths:
           content:
             application/json:
               schema:
+                description: Item
                 properties:
                   item:
                     $ref: '#/components/schemas/NodeCategory'
@@ -13168,27 +14794,100 @@ paths:
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
   /nodes:
+    description: |-
+      pf::UnifiedApi::Controller::Nodes
+
+        register
+          register
+
+        deregister
+          deregister
+
+        bulk_register
+          bulk_register
+
+        bulk_init_results
+          bulk_init_results
+
+        bulk_deregister
+          bulk_deregister
+
+        fingerbank_info
+          fingerbank_info
+
+        fingerbank_refresh
+          fingerbank_refresh
+
+        bulk_close_violations
+          bulk_close_violations
+
+        close_violation
+          close_violation
+
+        create_error_msg
+          create_error_msg
+
+        bulk_reevaluate_access
+          bulk_reevaluate_access
+
+        bulk_fingerbank_refresh
+          bulk_fingerbank_refresh
+
+        bulk_restart_switchport
+          bulk_restart_switchport
+
+        bulk_apply_violation
+          bulk_apply_violation
+
+        apply_violation
+          apply_violation
+
+        bulk_apply_role
+          bulk_apply_role
+
+        bulk_apply_bypass_role
+          bulk_apply_bypass_role
+
+        do_bulk_update_field
+          do_bulk_update_field
+
+        restart_switchport
+          restart_switchport
+
+        do_restart_switchport
+          do_restart_switchport
+
+        reevaluate_access
+          reevaluate_access
     get:
-      description: The list of node will be limited to 100 and a cursor will be returned
-        for iterating on other nodes. Iteration is only needed if the nextCursor is
-        not an empty value.
+      description: List items
+      operationId: api.v1.Nodes.list
       parameters:
       - $ref: '#/components/parameters/cursor'
+      - $ref: '#/components/parameters/limit'
+      - $ref: '#/components/parameters/fields'
+      - $ref: '#/components/parameters/sort'
       responses:
         '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/NodesList'
-          description: List of nodes
-      summary: Returns a list of nodes
+          description: List
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
     post:
+      description: Create an item
+      operationId: api.v1.Nodes.create
+      parameters: []
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/Node'
-        required: true
+        description: Create item
       responses:
         '201':
           $ref: '#/components/responses/Created'
@@ -13198,9 +14897,72 @@ paths:
           $ref: '#/components/responses/Duplicate'
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
-      summary: Creates a node
   /nodes/search:
-    description: pf::UnifiedApi::Controller::Nodes
+    description: |-
+      pf::UnifiedApi::Controller::Nodes
+
+        register
+          register
+
+        deregister
+          deregister
+
+        bulk_register
+          bulk_register
+
+        bulk_init_results
+          bulk_init_results
+
+        bulk_deregister
+          bulk_deregister
+
+        fingerbank_info
+          fingerbank_info
+
+        fingerbank_refresh
+          fingerbank_refresh
+
+        bulk_close_violations
+          bulk_close_violations
+
+        close_violation
+          close_violation
+
+        create_error_msg
+          create_error_msg
+
+        bulk_reevaluate_access
+          bulk_reevaluate_access
+
+        bulk_fingerbank_refresh
+          bulk_fingerbank_refresh
+
+        bulk_restart_switchport
+          bulk_restart_switchport
+
+        bulk_apply_violation
+          bulk_apply_violation
+
+        apply_violation
+          apply_violation
+
+        bulk_apply_role
+          bulk_apply_role
+
+        bulk_apply_bypass_role
+          bulk_apply_bypass_role
+
+        do_bulk_update_field
+          do_bulk_update_field
+
+        restart_switchport
+          restart_switchport
+
+        do_restart_switchport
+          do_restart_switchport
+
+        reevaluate_access
+          reevaluate_access
     post:
       operationId: api.v1.Nodes.search
       parameters: []
@@ -13216,6 +14978,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/NodesList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -13252,6 +15015,7 @@ paths:
           content:
             application/json:
               schema:
+                description: Item
                 properties:
                   item:
                     $ref: '#/components/schemas/RadiusAuditLog'
@@ -13274,7 +15038,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/RadiusAuditLog'
-        required: '1'
       responses:
         '200':
           $ref: '#/components/responses/Message'
@@ -13295,7 +15058,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/RadiusAuditLog'
-        required: '1'
       responses:
         '200':
           $ref: '#/components/responses/Message'
@@ -13319,6 +15081,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RadiusAuditLogsList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -13359,6 +15122,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RadiusAuditLogsList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -14066,7 +15830,12 @@ paths:
   /service/{service}/status:
     get:
       parameters:
-      - $ref: '#/components/parameters/cursor'
+      - description: The service name to fetch
+        in: path
+        name: service
+        required: true
+        schema:
+          type: string
       responses:
         '200':
           content:
@@ -14155,6 +15924,7 @@ paths:
           content:
             application/json:
               schema:
+                description: Item
                 properties:
                   item:
                     $ref: '#/components/schemas/Tenant'
@@ -14177,7 +15947,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Tenant'
-        required: '1'
       responses:
         '200':
           $ref: '#/components/responses/Message'
@@ -14198,7 +15967,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Tenant'
-        required: '1'
       responses:
         '200':
           $ref: '#/components/responses/Message'
@@ -14222,6 +15990,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TenantsList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -14262,6 +16031,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TenantsList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -14316,6 +16086,7 @@ paths:
           content:
             application/json:
               schema:
+                description: Item
                 properties:
                   item:
                     $ref: '#/components/schemas/User'
@@ -14338,7 +16109,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/User'
-        required: '1'
       responses:
         '200':
           $ref: '#/components/responses/Message'
@@ -14359,7 +16129,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/User'
-        required: '1'
       responses:
         '200':
           $ref: '#/components/responses/Message'
@@ -14373,11 +16142,11 @@ paths:
       operationId: api.v1.Users.Nodes.remove
       parameters:
       - in: path
-        name: node_id
+        name: user_id
         schema:
           type: string
       - in: path
-        name: user_id
+        name: node_id
         schema:
           type: string
       responses:
@@ -14389,11 +16158,11 @@ paths:
       operationId: api.v1.Users.Nodes.get
       parameters:
       - in: path
-        name: node_id
+        name: user_id
         schema:
           type: string
       - in: path
-        name: user_id
+        name: node_id
         schema:
           type: string
       responses:
@@ -14401,6 +16170,7 @@ paths:
           content:
             application/json:
               schema:
+                description: Item
                 properties:
                   item:
                     $ref: '#/components/schemas/UsersNode'
@@ -14415,11 +16185,11 @@ paths:
       operationId: api.v1.Users.Nodes.update
       parameters:
       - in: path
-        name: node_id
+        name: user_id
         schema:
           type: string
       - in: path
-        name: user_id
+        name: node_id
         schema:
           type: string
       requestBody:
@@ -14427,7 +16197,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/UsersNode'
-        required: '1'
       responses:
         '200':
           $ref: '#/components/responses/Message'
@@ -14440,11 +16209,11 @@ paths:
       operationId: api.v1.Users.Nodes.replace
       parameters:
       - in: path
-        name: node_id
+        name: user_id
         schema:
           type: string
       - in: path
-        name: user_id
+        name: node_id
         schema:
           type: string
       requestBody:
@@ -14452,7 +16221,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/UsersNode'
-        required: '1'
       responses:
         '200':
           $ref: '#/components/responses/Message'
@@ -14466,11 +16234,15 @@ paths:
       operationId: api.v1.Users.Nodes.Locationlogs.remove
       parameters:
       - in: path
-        name: locationlog_id
+        name: user_id
         schema:
           type: string
       - in: path
         name: node_id
+        schema:
+          type: string
+      - in: path
+        name: locationlog_id
         schema:
           type: string
       responses:
@@ -14482,11 +16254,15 @@ paths:
       operationId: api.v1.Users.Nodes.Locationlogs.get
       parameters:
       - in: path
-        name: locationlog_id
+        name: user_id
         schema:
           type: string
       - in: path
         name: node_id
+        schema:
+          type: string
+      - in: path
+        name: locationlog_id
         schema:
           type: string
       responses:
@@ -14494,6 +16270,7 @@ paths:
           content:
             application/json:
               schema:
+                description: Item
                 properties:
                   item:
                     $ref: '#/components/schemas/UsersNodesLocationlog'
@@ -14508,11 +16285,15 @@ paths:
       operationId: api.v1.Users.Nodes.Locationlogs.update
       parameters:
       - in: path
-        name: locationlog_id
+        name: user_id
         schema:
           type: string
       - in: path
         name: node_id
+        schema:
+          type: string
+      - in: path
+        name: locationlog_id
         schema:
           type: string
       requestBody:
@@ -14520,7 +16301,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/UsersNodesLocationlog'
-        required: '1'
       responses:
         '200':
           $ref: '#/components/responses/Message'
@@ -14533,11 +16313,15 @@ paths:
       operationId: api.v1.Users.Nodes.Locationlogs.replace
       parameters:
       - in: path
-        name: locationlog_id
+        name: user_id
         schema:
           type: string
       - in: path
         name: node_id
+        schema:
+          type: string
+      - in: path
+        name: locationlog_id
         schema:
           type: string
       requestBody:
@@ -14545,7 +16329,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/UsersNodesLocationlog'
-        required: '1'
       responses:
         '200':
           $ref: '#/components/responses/Message'
@@ -14563,12 +16346,21 @@ paths:
       - $ref: '#/components/parameters/limit'
       - $ref: '#/components/parameters/fields'
       - $ref: '#/components/parameters/sort'
+      - in: path
+        name: user_id
+        schema:
+          type: string
+      - in: path
+        name: node_id
+        schema:
+          type: string
       responses:
         '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/UsersNodesLocationlogsList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -14576,7 +16368,15 @@ paths:
     post:
       description: Create an item
       operationId: api.v1.Users.Nodes.Locationlogs.create
-      parameters: []
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: string
+      - in: path
+        name: node_id
+        schema:
+          type: string
       requestBody:
         content:
           application/json:
@@ -14596,7 +16396,15 @@ paths:
     description: pf::UnifiedApi::Controller::Users::Nodes::Locationlogs
     post:
       operationId: api.v1.Users.Nodes.Locationlogs.search
-      parameters: []
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: string
+      - in: path
+        name: node_id
+        schema:
+          type: string
       requestBody:
         content:
           application/json:
@@ -14609,6 +16417,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UsersNodesLocationlogsList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -14623,12 +16432,17 @@ paths:
       - $ref: '#/components/parameters/limit'
       - $ref: '#/components/parameters/fields'
       - $ref: '#/components/parameters/sort'
+      - in: path
+        name: user_id
+        schema:
+          type: string
       responses:
         '200':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/UsersNodesList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -14636,7 +16450,11 @@ paths:
     post:
       description: Create an item
       operationId: api.v1.Users.Nodes.create
-      parameters: []
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: string
       requestBody:
         content:
           application/json:
@@ -14656,7 +16474,11 @@ paths:
     description: pf::UnifiedApi::Controller::Users::Nodes
     post:
       operationId: api.v1.Users.Nodes.search
-      parameters: []
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: string
       requestBody:
         content:
           application/json:
@@ -14669,6 +16491,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UsersNodesList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -14752,7 +16575,11 @@ paths:
     description: pf::UnifiedApi::Controller::Users::Password
     post:
       operationId: api.v1.Users.Password.search
-      parameters: []
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: string
       requestBody:
         content:
           application/json:
@@ -14765,6 +16592,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UsersPasswordList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -14808,6 +16636,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UsersList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -14848,6 +16677,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UsersList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -14878,6 +16708,7 @@ paths:
           content:
             application/json:
               schema:
+                description: Item
                 properties:
                   item:
                     $ref: '#/components/schemas/Violation'
@@ -14900,7 +16731,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Violation'
-        required: '1'
       responses:
         '200':
           $ref: '#/components/responses/Message'
@@ -14921,7 +16751,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Violation'
-        required: '1'
       responses:
         '200':
           $ref: '#/components/responses/Message'
@@ -14945,6 +16774,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ViolationsList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':
@@ -14985,6 +16815,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ViolationsList'
+          description: List
         '400':
           $ref: '#/components/responses/BadRequest'
         '422':

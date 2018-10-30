@@ -3,7 +3,9 @@ ConfigFloatingDevicesList:
   - $ref: '#/components/schemas/Iterable'
   - properties:
       items:
+        description: List
         items:
           $ref: '#/components/schemas/ConfigFloatingDevice'
         type: array
     type: object
+  description: List

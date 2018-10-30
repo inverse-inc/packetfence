@@ -8,12 +8,17 @@
     - $ref: '#/components/parameters/limit'
     - $ref: '#/components/parameters/fields'
     - $ref: '#/components/parameters/sort'
+    - in: path
+      name: user_id
+      schema:
+        type: string
     responses:
       '200':
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/UsersNodesList'
+        description: List
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':
@@ -21,7 +26,11 @@
   post:
     description: Create an item
     operationId: api.v1.Users.Nodes.create
-    parameters: []
+    parameters:
+    - in: path
+      name: user_id
+      schema:
+        type: string
     requestBody:
       content:
         application/json:

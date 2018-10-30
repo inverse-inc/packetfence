@@ -4,11 +4,15 @@
     operationId: api.v1.Users.Nodes.Locationlogs.remove
     parameters:
     - in: path
-      name: locationlog_id
+      name: user_id
       schema:
         type: string
     - in: path
       name: node_id
+      schema:
+        type: string
+    - in: path
+      name: locationlog_id
       schema:
         type: string
     responses:
@@ -20,11 +24,15 @@
     operationId: api.v1.Users.Nodes.Locationlogs.get
     parameters:
     - in: path
-      name: locationlog_id
+      name: user_id
       schema:
         type: string
     - in: path
       name: node_id
+      schema:
+        type: string
+    - in: path
+      name: locationlog_id
       schema:
         type: string
     responses:
@@ -32,6 +40,7 @@
         content:
           application/json:
             schema:
+              description: Item
               properties:
                 item:
                   $ref: '#/components/schemas/UsersNodesLocationlog'
@@ -46,11 +55,15 @@
     operationId: api.v1.Users.Nodes.Locationlogs.update
     parameters:
     - in: path
-      name: locationlog_id
+      name: user_id
       schema:
         type: string
     - in: path
       name: node_id
+      schema:
+        type: string
+    - in: path
+      name: locationlog_id
       schema:
         type: string
     requestBody:
@@ -58,7 +71,6 @@
         application/json:
           schema:
             $ref: '#/components/schemas/UsersNodesLocationlog'
-      required: '1'
     responses:
       '200':
         $ref: '#/components/responses/Message'
@@ -71,11 +83,15 @@
     operationId: api.v1.Users.Nodes.Locationlogs.replace
     parameters:
     - in: path
-      name: locationlog_id
+      name: user_id
       schema:
         type: string
     - in: path
       name: node_id
+      schema:
+        type: string
+    - in: path
+      name: locationlog_id
       schema:
         type: string
     requestBody:
@@ -83,7 +99,6 @@
         application/json:
           schema:
             $ref: '#/components/schemas/UsersNodesLocationlog'
-      required: '1'
     responses:
       '200':
         $ref: '#/components/responses/Message'

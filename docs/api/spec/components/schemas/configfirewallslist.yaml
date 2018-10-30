@@ -3,7 +3,9 @@ ConfigFirewallsList:
   - $ref: '#/components/schemas/Iterable'
   - properties:
       items:
+        description: List
         items:
           $ref: '#/components/schemas/ConfigFirewall'
         type: array
     type: object
+  description: List

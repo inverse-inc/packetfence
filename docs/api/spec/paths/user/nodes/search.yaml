@@ -2,7 +2,11 @@
   description: pf::UnifiedApi::Controller::Users::Nodes
   post:
     operationId: api.v1.Users.Nodes.search
-    parameters: []
+    parameters:
+    - in: path
+      name: user_id
+      schema:
+        type: string
     requestBody:
       content:
         application/json:
@@ -15,6 +19,7 @@
           application/json:
             schema:
               $ref: '#/components/schemas/UsersNodesList'
+        description: List
       '400':
         $ref: '#/components/responses/BadRequest'
       '422':

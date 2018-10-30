@@ -64,11 +64,29 @@ my %OPERATION_DESCRIPTIONS = (
     remove  => 'Remove an item',
 );
 
+=head2 operationParameters
+
+operationParameters
+
+=cut
+
+sub operationParameters {
+    my ($self, $scope, $c, $m, $a) = @_;
+    my @parameters = @{$self->SUPER::operationParameters($scope, $c, $m, $a)};
+    push @parameters, $self->parent_path_parameters($scope, $c, $m, $a);
+    return \@parameters;
+}
+
 sub resoureParameters {
     my ( $self, $scope, $c, $m, $a ) = @_;
     my $parameters = $self->operationParameters( $scope, $c, $m, $a );
-    push @$parameters, $self->path_parameter($c->url_param_name), (map { $self->path_parameter($_) } sort keys %{$c->parent_primary_key_map});
+    push @$parameters, $self->path_parameter($c->url_param_name);
     return $parameters;
+}
+
+sub parent_path_parameters {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return (map { $self->path_parameter($_) } @{$c->url_parent_ids});
 }
 
 sub createOperationParameters {
@@ -172,13 +190,13 @@ The OpenAPI Operation Repsonses for the get action
 
 sub getResponses {
     my ($self, $scope, $c, $m, $a) = @_;
-    my @paths = split('/', $a->{path});
     return {
         "200" => {
             description => "Get item",
             content => {
                 "application/json" => {
                     schema => {
+                        description => "Item",
                         properties => {
                             item => {
                                 "\$ref" => "#" . $self->schemaItemPath($c),
@@ -298,6 +316,7 @@ sub listResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
         "200" => {
+            description => "List",
             content => {
                 "application/json" => {
                     schema => {
@@ -364,7 +383,6 @@ sub updateRequestBody {
                 }
             }
         },
-        "required" => "1"
     };
 }
 
@@ -417,9 +435,12 @@ generate Item Schema
 
 sub generateItemSchema {
     my ($self, $controller, $actions) = @_;
+    my $required = $self->itemRequired($controller, $actions);
     return {
         properties => $self->itemProperies($controller, $actions),
-        required => $self->itemRequired($controller, $actions),
+        (
+            @$required != 0 ? ( required => $required) : (),
+        ),
         type => 'object'
     };
 }
@@ -481,7 +502,8 @@ sub generateListSchema {
                         "items" => {
                             "\$ref" => "#" . $self->schemaItemPath($controller),
                         },
-                        "type" => "array"
+                        "type" => "array",
+                        "description" => "Items",
                     }
                 },
                 "type" => "object"
