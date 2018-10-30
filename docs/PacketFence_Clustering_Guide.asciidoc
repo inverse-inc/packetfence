@@ -678,7 +678,7 @@ When you are at the step where you need to configure your cluster.conf during th
 
 ----
  [general]
- multi_cluster=enabled
+ multi_zone=enabled
  
  [DC1 CLUSTER]
  management_ip=192.168.1.10
@@ -773,7 +773,7 @@ When you are at the step where you need to configure your cluster.conf during th
 
 ----
  [general]
- multi_cluster=enabled
+ multi_zone=enabled
  
  [DC1 CLUSTER]
  management_ip=192.168.1.10
