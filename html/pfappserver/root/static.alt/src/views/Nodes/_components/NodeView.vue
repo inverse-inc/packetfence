@@ -160,19 +160,25 @@
               <pf-form-row class="text-nowrap" :column-label="$t('Device Type')">
                 {{ node.device_type }}
               </pf-form-row>
-              <pf-form-row class="text-nowrap" :column-label="$t('Fully Qualified Device Name')">
+              <pf-form-row :column-label="$t('Fully Qualified Device Name')">
                 {{ node.fingerbank.device_fq }}
               </pf-form-row>
               <pf-form-row class="text-nowrap" :column-label="$t('Version')">
                 {{ node.fingerbank.version }}
               </pf-form-row>
               <pf-form-row class="text-nowrap" :column-label="$t('Score')" v-if="node.fingerbank.score">
-                <pf-fingerbank-score :score="node.fingerbank.score"></pf-fingerbank-score>
+                <pf-fingerbank-score class="col-12 col-md-6 col-lg-3" :score="node.fingerbank.score"></pf-fingerbank-score>
               </pf-form-row>
               <pf-form-row class="text-nowrap" :column-label="$t('Mobile')">
-                <b-badge variant="success" v-if="node.fingerbank.mobile === 1">{{ $t('Yes') }}</b-badge>
-                <b-badge variant="danger" v-else-if="node.fingerbank.mobile === 0">{{ $t('No') }}</b-badge>
-                <b-badge variant="light" v-else>{{ $t('Unknown') }}</b-badge>
+                <div v-if="node.fingerbank.mobile === 1">
+                  <icon class="mr-1" name="check-square"></icon> {{ $t('Yes') }}
+                </div>
+                <div v-else-if="node.fingerbank.mobile === 0">
+                  <icon class="mr-1" name="regular/square"></icon> {{ $t('No') }}
+                </div>
+                <div v-else class="text-muted">
+                  {{ $t('Unknown') }}
+                </div>
               </pf-form-row>
               <pf-form-row class="text-nowrap" :column-label="$t('DHCP Fingerprint')">
                 {{ node.dhcp_fingerprint }}
