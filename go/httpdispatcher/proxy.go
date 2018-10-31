@@ -97,6 +97,25 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if r.URL.Path == "/kindle-wifi/wifistub.html" {
+		log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "KINDLE WIFI PROBE HANDLING"))
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>Kindle Reachability Probe Page</title>
+<META http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<!--81ce4465-7167-4dcb-835b-dcc9e44c112a created with python 2.5 uuid.uuid4()-->
+</head>
+<body bgcolor="#ffffff" text="#000000">
+81ce4465-7167-4dcb-835b-dcc9e44c112a
+</body>
+</html>
+
+`))
+		return
+	}
+
 	if !(passThrough.checkProxyPassthrough(ctx, host) || ((passThrough.checkDetectionMechanisms(ctx, fqdn.String()) || passThrough.URIException.MatchString(r.RequestURI)) && passThrough.DetectionMecanismBypass)) {
 		if r.Method != "GET" {
 			log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "FORBIDDEN"))
