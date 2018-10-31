@@ -9,6 +9,8 @@ import (
 
 var timerPool = &sync.Pool{}
 
+const MAX_RLOCK = 1000
+
 type RWLock struct {
 	internalLock *sync.Mutex
 
@@ -34,9 +36,8 @@ type RWLock struct {
 
 func NewRWLock() *RWLock {
 	l := &RWLock{
-		lockChan: make(chan int, 1),
-		// TODO: change this magic number
-		rlockChan:    make(chan int, 1000),
+		lockChan:     make(chan int, 1),
+		rlockChan:    make(chan int, MAX_RLOCK),
 		Timeout:      10 * time.Second,
 		RTimeout:     10 * time.Second,
 		internalLock: &sync.Mutex{},
@@ -45,7 +46,7 @@ func NewRWLock() *RWLock {
 		c:            1,
 	}
 	l.lockChan <- 1
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < MAX_RLOCK; i++ {
 		l.rlockChan <- 1
 	}
 	return l
@@ -92,8 +93,7 @@ func (l *RWLock) Lock() uint64 {
 		timeoutTimer.Stop()
 		for time.Now().Before(stopAt) {
 			l.internalLock.Lock()
-			// TODO: magic number
-			if len(l.rlockChan) == 1000 {
+			if len(l.rlockChan) == MAX_RLOCK {
 				l.internalLock.Unlock()
 				return id
 			} else {
@@ -178,8 +178,7 @@ func (l *RWLock) RLock() uint64 {
 func (l *RWLock) RUnlock(id uint64) {
 	l.internalLock.Lock()
 	defer l.internalLock.Unlock()
-	// TODO: magic number
-	if len(l.rlockChan) >= 1000 {
+	if len(l.rlockChan) >= MAX_RLOCK {
 		panic("RUnlock of unlocked mutex")
 	} else if id == 0 {
 		panic("Unlocking mutex with ID 0")
