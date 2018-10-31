@@ -238,6 +238,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 					"qname":    state.QName(),
 					"peerhost": state.RemoteAddr(),
 					"qtype":    state.QType(),
+					"mac":      mac,
 				})
 				if err != nil {
 					pf.DNSFilter.Set(state.QName(), "null", cache.DefaultExpiration)

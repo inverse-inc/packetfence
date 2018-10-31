@@ -32,6 +32,7 @@
 #     conn.sockhost
 #     conn.peerport
 #     time
+#     mac
 #
 # operator can be:
 #     is
