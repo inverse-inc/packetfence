@@ -5,7 +5,7 @@
             "description" : "The cursor pointer to fetch the data (value should be taken from previousCursor and nextCursor)",
             "in" : "query",
             "name" : "cursor",
-            "required" : false,
+            "required" : "",
             "schema" : {
                "type" : "string"
             }
@@ -14,7 +14,7 @@
             "description" : "Comma delimited fields that should be added to the resource by performing joins. For example, in order to get the IP address of a node when calling the nodes endpoints, setting 'ip4log.ip' into this field will provide the latest IP address of the device in the 'ip4log.ip' field of every node that is returned.",
             "in" : "body",
             "name" : "fields",
-            "required" : false,
+            "required" : "",
             "schema" : {
                "example" : [
                   "mac",
@@ -31,7 +31,7 @@
             "description" : "The name of the ipset to manipulate",
             "in" : "path",
             "name" : "set_name",
-            "required" : true,
+            "required" : "1",
             "schema" : {
                "type" : "string"
             }
@@ -40,7 +40,7 @@
             "description" : "The maximum amount of entries to get.",
             "in" : "query|body",
             "name" : "limit",
-            "required" : false,
+            "required" : "",
             "schema" : {
                "type" : "int"
             }
@@ -49,9 +49,9 @@
             "description" : "The local is used to determine if the request should be forwarded to the rest of the cluster. A value of '0' forwards the request and either a missing or alternate value does not forward the request to the rest of the cluster.",
             "in" : "query",
             "name" : "local",
-            "required" : false,
+            "required" : "",
             "schema" : {
-               "default" : 0,
+               "default" : "0",
                "type" : "integer"
             }
          },
@@ -59,7 +59,7 @@
             "description" : "The JSON encoded search query following the Search schema defined in this spec",
             "in" : "body",
             "name" : "query",
-            "required" : true,
+            "required" : "1",
             "schema" : {
                "$ref" : "#/components/schemas/Search"
             }
@@ -68,7 +68,7 @@
             "description" : "A list of fields to sort on along with the ordering way (ASC or DESC).",
             "in" : "body",
             "name" : "sort",
-            "required" : false,
+            "required" : "",
             "schema" : {
                "example" : [
                   "iplog.ip DESC",
@@ -84,7 +84,7 @@
             "description" : "The user ID",
             "in" : "path",
             "name" : "user_id",
-            "required" : true,
+            "required" : "1",
             "schema" : {
                "type" : "string"
             }
@@ -314,48 +314,6 @@
          }
       },
       "schemas" : {
-         "ApiUser" : {
-            "properties" : {
-               "access_level" : {
-                  "type" : "string"
-               },
-               "expiration" : {
-                  "type" : "string"
-               },
-               "password" : {
-                  "type" : "string"
-               },
-               "tenant_id" : {
-                  "type" : "integer"
-               },
-               "username" : {
-                  "type" : "string"
-               },
-               "valid_from" : {
-                  "type" : "string"
-               }
-            },
-            "type" : "object"
-         },
-         "ApiUsersList" : {
-            "allOf" : [
-               {
-                  "$ref" : "#/components/schemas/Iterable"
-               },
-               {
-                  "properties" : {
-                     "items" : {
-                        "description" : "Items",
-                        "items" : {
-                           "$ref" : "#/components/schemas/ApiUser"
-                        },
-                        "type" : "array"
-                     }
-                  },
-                  "type" : "object"
-               }
-            ]
-         },
          "Class" : {
             "properties" : {
                "auto_enable" : {
@@ -6363,7 +6321,7 @@
                         "type" : "integer"
                      },
                      "sms_activation_timeout" : {
-                        "description" : "This is the delay given to a guest who registered by sms confirmation to fill the pin code.",
+                        "description" : "This is the delay given to a guest who registered by SMS confirmation to fill the PIN code.",
                         "properties" : {
                            "interval" : {
                               "description" : "Interval",
@@ -10430,7 +10388,7 @@
                         "type" : "string"
                      },
                      "pin_code_length" : {
-                        "description" : "The length of the PIN code to be sent over sms",
+                        "description" : "The length of the PIN code to be sent over SMS",
                         "type" : "integer"
                      },
                      "twilio_phone_number" : {
@@ -11787,22 +11745,6 @@
                   "description" : "Enable external portal enforcement when supported by network equipment",
                   "type" : "string"
                },
-               "REJECTAccessList" : {
-                  "description" : "REJECT",
-                  "type" : "string"
-               },
-               "REJECTRole" : {
-                  "description" : "REJECT",
-                  "type" : "string"
-               },
-               "REJECTUrl" : {
-                  "description" : "REJECT",
-                  "type" : "string"
-               },
-               "REJECTVlan" : {
-                  "description" : "REJECT",
-                  "type" : "string"
-               },
                "RoleMap" : {
                   "description" : "Role by Switch Role",
                   "type" : "string"
@@ -11951,22 +11893,6 @@
                   "description" : "Deauthentication Method",
                   "type" : "string"
                },
-               "defaultAccessList" : {
-                  "description" : "default",
-                  "type" : "string"
-               },
-               "defaultRole" : {
-                  "description" : "default",
-                  "type" : "string"
-               },
-               "defaultUrl" : {
-                  "description" : "default",
-                  "type" : "string"
-               },
-               "defaultVlan" : {
-                  "description" : "default",
-                  "type" : "string"
-               },
                "description" : {
                   "description" : "Description",
                   "type" : "string"
@@ -11975,52 +11901,12 @@
                   "description" : "For Disconnect request, if we have to send to another port",
                   "type" : "integer"
                },
-               "gamingAccessList" : {
-                  "description" : "gaming",
-                  "type" : "string"
-               },
-               "gamingRole" : {
-                  "description" : "gaming",
-                  "type" : "string"
-               },
-               "gamingUrl" : {
-                  "description" : "gaming",
-                  "type" : "string"
-               },
-               "gamingVlan" : {
-                  "description" : "gaming",
-                  "type" : "string"
-               },
                "group" : {
                   "description" : "Changing the group requires to save to see the new default values",
                   "type" : "string"
                },
-               "guestAccessList" : {
-                  "description" : "guest",
-                  "type" : "string"
-               },
-               "guestRole" : {
-                  "description" : "guest",
-                  "type" : "string"
-               },
-               "guestUrl" : {
-                  "description" : "guest",
-                  "type" : "string"
-               },
-               "guestVlan" : {
-                  "description" : "guest",
-                  "type" : "string"
-               },
                "id" : {
                   "description" : "IP Address/MAC Address/Range (CIDR)",
-                  "type" : "string"
-               },
-               "inlineAccessList" : {
-                  "description" : "inline",
-                  "type" : "string"
-               },
-               "inlineRole" : {
-                  "description" : "inline",
                   "type" : "string"
                },
                "inlineTrigger" : {
@@ -12040,46 +11926,6 @@
                      "type" : "object"
                   },
                   "type" : "array"
-               },
-               "inlineUrl" : {
-                  "description" : "inline",
-                  "type" : "string"
-               },
-               "inlineVlan" : {
-                  "description" : "inline",
-                  "type" : "string"
-               },
-               "isolationAccessList" : {
-                  "description" : "isolation",
-                  "type" : "string"
-               },
-               "isolationRole" : {
-                  "description" : "isolation",
-                  "type" : "string"
-               },
-               "isolationUrl" : {
-                  "description" : "isolation",
-                  "type" : "string"
-               },
-               "isolationVlan" : {
-                  "description" : "isolation",
-                  "type" : "string"
-               },
-               "macDetectionAccessList" : {
-                  "description" : "macDetection",
-                  "type" : "string"
-               },
-               "macDetectionRole" : {
-                  "description" : "macDetection",
-                  "type" : "string"
-               },
-               "macDetectionUrl" : {
-                  "description" : "macDetection",
-                  "type" : "string"
-               },
-               "macDetectionVlan" : {
-                  "description" : "macDetection",
-                  "type" : "string"
                },
                "macSearchesMaxNb" : {
                   "description" : "Maximum number of MAC addresses retrived from a port",
@@ -12105,22 +11951,6 @@
                   "description" : "Secret Passphrase",
                   "type" : "string"
                },
-               "registrationAccessList" : {
-                  "description" : "registration",
-                  "type" : "string"
-               },
-               "registrationRole" : {
-                  "description" : "registration",
-                  "type" : "string"
-               },
-               "registrationUrl" : {
-                  "description" : "registration",
-                  "type" : "string"
-               },
-               "registrationVlan" : {
-                  "description" : "registration",
-                  "type" : "string"
-               },
                "ssid_trigger" : {
                   "description" : "Ssid trigger",
                   "type" : "string"
@@ -12139,22 +11969,6 @@
                },
                "useCoA" : {
                   "description" : "Use CoA when available to deauthenticate the user. When disabled, RADIUS Disconnect will be used instead if it is available.",
-                  "type" : "string"
-               },
-               "voiceAccessList" : {
-                  "description" : "voice",
-                  "type" : "string"
-               },
-               "voiceRole" : {
-                  "description" : "voice",
-                  "type" : "string"
-               },
-               "voiceUrl" : {
-                  "description" : "voice",
-                  "type" : "string"
-               },
-               "voiceVlan" : {
-                  "description" : "voice",
                   "type" : "string"
                },
                "wsPwd" : {
@@ -17499,8 +17313,7 @@
                            "$ref" : "#/components/schemas/ConfigProvisioning"
                         }
                      }
-                  },
-                  "description" : "Item"
+                  }
                },
                "400" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -17588,8 +17401,7 @@
                            "$ref" : "#/components/schemas/ConfigProvisioningsList"
                         }
                      }
-                  },
-                  "description" : "List"
+                  }
                },
                "400" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -17729,7 +17541,8 @@
                            "$ref" : "#/components/schemas/ConfigRealmsList"
                         }
                      }
-                  }
+                  },
+                  "description" : "List"
                },
                "400" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -17780,7 +17593,8 @@
                            "$ref" : "#/components/schemas/ConfigRole"
                         }
                      }
-                  }
+                  },
+                  "description" : "Item"
                },
                "400" : {
                   "$ref" : "#/components/responses/BadRequest"
@@ -18953,7 +18767,7 @@
             {
                "in" : "path",
                "name" : "interface",
-               "required" : true,
+               "required" : "1",
                "schema" : {
                   "type" : "string"
                }
@@ -18974,7 +18788,7 @@
             {
                "in" : "path",
                "name" : "ip",
-               "required" : true,
+               "required" : "1",
                "schema" : {
                   "type" : "string"
                }
@@ -19004,7 +18818,7 @@
             {
                "in" : "path",
                "name" : "mac",
-               "required" : true,
+               "required" : "1",
                "schema" : {
                   "type" : "string"
                }
@@ -19018,7 +18832,7 @@
                {
                   "in" : "path",
                   "name" : "mac",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -19038,7 +18852,7 @@
             {
                "in" : "path",
                "name" : "mac",
-               "required" : true,
+               "required" : "1",
                "schema" : {
                   "type" : "string"
                }
@@ -19050,7 +18864,7 @@
                {
                   "in" : "path",
                   "name" : "mac",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -19084,7 +18898,7 @@
             {
                "in" : "path",
                "name" : "network",
-               "required" : true,
+               "required" : "1",
                "schema" : {
                   "type" : "string"
                }
@@ -19117,7 +18931,7 @@
             {
                "in" : "path",
                "name" : "interface",
-               "required" : true,
+               "required" : "1",
                "schema" : {
                   "type" : "string"
                }
@@ -19824,7 +19638,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -19853,7 +19667,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -19882,7 +19696,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -19911,7 +19725,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -19940,7 +19754,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -19969,7 +19783,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -19998,7 +19812,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -20030,7 +19844,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -20059,7 +19873,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -20088,7 +19902,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -20347,7 +20161,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -21016,7 +20830,7 @@
                   "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "start",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -21025,7 +20839,7 @@
                   "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "end",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -21155,7 +20969,7 @@
                   "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "start",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -21164,7 +20978,7 @@
                   "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "end",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -21260,7 +21074,7 @@
                   "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "start",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -21269,7 +21083,7 @@
                   "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "end",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -21416,7 +21230,7 @@
                   "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "start",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -21425,7 +21239,7 @@
                   "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "end",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -21521,7 +21335,7 @@
                   "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "start",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -21530,7 +21344,7 @@
                   "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "end",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -21592,7 +21406,7 @@
                   "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "start",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -21601,7 +21415,7 @@
                   "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "end",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -21629,7 +21443,7 @@
                   "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "start",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -21638,7 +21452,7 @@
                   "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "end",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -21666,7 +21480,7 @@
                   "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "start",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -21675,7 +21489,7 @@
                   "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "end",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -21703,7 +21517,7 @@
                   "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "start",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -21712,7 +21526,7 @@
                   "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "end",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -21740,7 +21554,7 @@
                   "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "start",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -21749,7 +21563,7 @@
                   "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "end",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -21777,7 +21591,7 @@
                   "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "start",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -21786,7 +21600,7 @@
                   "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "end",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -21814,7 +21628,7 @@
                   "description" : "URL encoded start date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "start",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -21823,7 +21637,7 @@
                   "description" : "URL encoded end date (eg: '1973-01-01') or date/time (eg: '1973-01-01 12:00:00') of the range",
                   "in" : "path",
                   "name" : "end",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -21919,7 +21733,7 @@
                   "description" : "The service name to fetch",
                   "in" : "path",
                   "name" : "service",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -21952,7 +21766,7 @@
                   "description" : "The service name to fetch",
                   "in" : "path",
                   "name" : "service",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -21985,7 +21799,7 @@
                   "description" : "The service name to fetch",
                   "in" : "path",
                   "name" : "service",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -22018,7 +21832,7 @@
                   "description" : "The service name to fetch",
                   "in" : "path",
                   "name" : "service",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -22051,7 +21865,7 @@
                   "description" : "The service name to fetch",
                   "in" : "path",
                   "name" : "service",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -22082,7 +21896,7 @@
                   "description" : "The service name to fetch",
                   "in" : "path",
                   "name" : "service",
-                  "required" : true,
+                  "required" : "1",
                   "schema" : {
                      "type" : "string"
                   }
@@ -23201,7 +23015,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
@@ -23230,7 +23044,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "201" : {
@@ -23262,7 +23076,7 @@
                      }
                   }
                },
-               "required" : true
+               "required" : "1"
             },
             "responses" : {
                "200" : {
