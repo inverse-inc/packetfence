@@ -116,13 +116,8 @@ sub returnRadiusAccessAccept {
         # if user is unregistered or is in violation then we reject him to show him the captive portal
         if ( $node->{status} eq $pf::node::STATUS_UNREGISTERED || defined($violation) ){
             $logger->info("[$args->{'mac'}] is unregistered. Refusing access to force the eCWP");
-            my $radius_reply_ref = {
-                'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
-                'Tunnel-Type' => $RADIUS::VLAN,
-                'Tunnel-Private-Group-ID' => -1,
-            };
-            ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
-            return [$status, %$radius_reply_ref];
+            $args->{user_role} = $REJECT_ROLE;
+            $self->handleRadiusDeny();
         }
         else{
             $logger->info("Returning ACCEPT");
