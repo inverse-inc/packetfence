@@ -28,6 +28,7 @@ use pf::constants;
 use pf::node;
 use pf::util;
 use pf::violation;
+use pf::constants::role qw($REJECT_ROLE);
 
 
 sub description { 'CoovaChilli' }

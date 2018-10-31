@@ -46,6 +46,7 @@ use pf::node;
 use pf::Switch::constants;
 use pf::util;
 use pf::util::radius qw(perform_disconnect);
+use pf::constants::role qw($REJECT_ROLE);
 
 use base ('pf::Switch');
 
