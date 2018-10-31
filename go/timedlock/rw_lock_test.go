@@ -12,7 +12,7 @@ func TestRWLockLock(t *testing.T) {
 		l := NewRWLock()
 		l.Timeout = 100 * time.Millisecond
 
-		id := l.Lock()
+		id, _ := l.Lock()
 
 		if id == 0 {
 			t.Error("Error while locking, got zero ID")
@@ -30,7 +30,7 @@ func TestRWLockLock(t *testing.T) {
 		l.Timeout = 100 * time.Millisecond
 		l.Panic = false
 
-		id1 := l.Lock()
+		id1, _ := l.Lock()
 
 		if id1 == 0 {
 			t.Error("Error while locking, got zero ID")
@@ -41,7 +41,7 @@ func TestRWLockLock(t *testing.T) {
 		}
 
 		// Can't lock twice
-		id2 := l.Lock()
+		id2, _ := l.Lock()
 
 		if id2 != 0 {
 			t.Error("Got non-zero ID when attempting to lock locked mutex for longer than the timeout")
@@ -59,7 +59,7 @@ func TestRWLockLock(t *testing.T) {
 
 		// Should now be able to lock again
 
-		id3 := l.Lock()
+		id3, _ := l.Lock()
 
 		if id3 == 0 {
 			t.Error("Error while locking, got zero ID")
@@ -76,8 +76,8 @@ func TestRWLockLock(t *testing.T) {
 		l.RTimeout = 100 * time.Millisecond
 		l.Panic = false
 
-		id1 := l.RLock()
-		id2 := l.Lock()
+		id1, _ := l.RLock()
+		id2, _ := l.Lock()
 
 		if id1 == 0 || id2 != 0 {
 			t.Error("Wrong ID came out of the lock")
@@ -95,7 +95,7 @@ func TestRWLockLock(t *testing.T) {
 		// Will be able to lock when its unlocked
 		l.RUnlock(id1)
 
-		id3 := l.Lock()
+		id3, _ := l.Lock()
 
 		if id3 == 0 {
 			t.Error("Wrong ID came out of the lock")
@@ -108,7 +108,7 @@ func TestRWLockRLock(t *testing.T) {
 		l := NewRWLock()
 		l.RTimeout = 100 * time.Millisecond
 
-		id := l.RLock()
+		id, _ := l.RLock()
 
 		if id == 0 {
 			t.Error("Wrong ID came out of the lock")
@@ -133,8 +133,8 @@ func TestRWLockRLock(t *testing.T) {
 		l.RTimeout = 100 * time.Millisecond
 		l.Panic = false
 
-		id1 := l.RLock()
-		id2 := l.RLock()
+		id1, _ := l.RLock()
+		id2, _ := l.RLock()
 
 		if id1 == 0 || id2 == 0 {
 			t.Error("Wrong ID came out of the lock")
@@ -152,8 +152,8 @@ func TestRWLockRLock(t *testing.T) {
 		l.RTimeout = 100 * time.Millisecond
 		l.Panic = false
 
-		id1 := l.Lock()
-		id2 := l.RLock()
+		id1, _ := l.Lock()
+		id2, _ := l.RLock()
 
 		if id1 == 0 || id2 != 0 {
 			t.Error("Wrong ID came out of the lock")
@@ -171,7 +171,7 @@ func TestRWLockRLock(t *testing.T) {
 		// Will be able to lock when its unlocked
 		l.Unlock(id1)
 
-		id3 := l.RLock()
+		id3, _ := l.RLock()
 
 		if id3 == 0 {
 			t.Error("Wrong ID came out of the lock")
@@ -184,13 +184,13 @@ func TestRWLockMaxRestart(t *testing.T) {
 
 	l.c = math.MaxUint64 - 1
 
-	id := l.Lock()
+	id, _ := l.Lock()
 	if id != math.MaxUint64 {
 		t.Error("Wrong ID came out of the lock")
 	}
 	l.Unlock(id)
 
-	id = l.Lock()
+	id, _ = l.Lock()
 	// Should now go back to the beginning but not at zero
 	if id != 1 {
 		t.Error("Wrong ID came out of the lock")
@@ -208,7 +208,7 @@ func TestRWLockOverflow(t *testing.T) {
 			}
 		}()
 
-		id := l.Lock()
+		id, _ := l.Lock()
 		l.c = id - 1
 		l.Lock()
 	}()
@@ -230,12 +230,12 @@ func BenchmarkSyncRWMutex(b *testing.B) {
 func BenchmarkRWLock(b *testing.B) {
 	m := NewRWLock()
 	for i := 0; i < b.N; i++ {
-		id := m.Lock()
+		id, _ := m.Lock()
 		m.Unlock(id)
 	}
 
 	for i := 0; i < b.N; i++ {
-		id := m.RLock()
+		id, _ := m.RLock()
 		m.RUnlock(id)
 	}
 }

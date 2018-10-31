@@ -1,6 +1,7 @@
 package timedlock
 
 import (
+	"errors"
 	"fmt"
 	"runtime"
 	"sync"
@@ -10,6 +11,8 @@ import (
 var timerPool = &sync.Pool{}
 
 const MAX_RLOCK = 1000
+
+var TIMEOUT_ERROR = errors.New("Timeout occured")
 
 type RWLock struct {
 	internalLock *sync.Mutex
@@ -79,7 +82,7 @@ func (l *RWLock) getNextId() uint64 {
 	return l.c
 }
 
-func (l *RWLock) Lock() uint64 {
+func (l *RWLock) Lock() (uint64, error) {
 	id := l.getNextId()
 	stopAt := time.Now().Add(l.Timeout)
 	timeoutTimer := l.getTimer(l.Timeout)
@@ -88,14 +91,14 @@ func (l *RWLock) Lock() uint64 {
 	select {
 	case <-timeoutTimer.C:
 		l.handleTimeout(id, "Timeout obtaining or releasing lock that came from: \n")
-		return 0
+		return 0, TIMEOUT_ERROR
 	case <-l.lockChan:
 		timeoutTimer.Stop()
 		for time.Now().Before(stopAt) {
 			l.internalLock.Lock()
 			if len(l.rlockChan) == MAX_RLOCK {
 				l.internalLock.Unlock()
-				return id
+				return id, nil
 			} else {
 				l.internalLock.Unlock()
 			}
@@ -104,7 +107,7 @@ func (l *RWLock) Lock() uint64 {
 		l.lockChan <- 1
 		l.handleTimeout(id, "Timeout obtaining or releasing lock that came from: \n")
 	}
-	return 0
+	return 0, TIMEOUT_ERROR
 }
 
 func (l *RWLock) Unlock(id uint64) {
@@ -150,7 +153,7 @@ func (l *RWLock) handleTimeout(id uint64, msg string) {
 	}
 }
 
-func (l *RWLock) RLock() uint64 {
+func (l *RWLock) RLock() (uint64, error) {
 	id := l.getNextId()
 	timeoutTimer := l.getTimer(l.RTimeout)
 	defer l.releaseTimer(timeoutTimer)
@@ -158,7 +161,7 @@ func (l *RWLock) RLock() uint64 {
 	select {
 	case <-timeoutTimer.C:
 		l.handleTimeout(id, "Timeout obtaining or releasing read lock that came from: \n")
-		return 0
+		return 0, TIMEOUT_ERROR
 	case <-l.lockChan:
 		l.internalLock.Lock()
 		select {
@@ -166,11 +169,11 @@ func (l *RWLock) RLock() uint64 {
 			l.lockChan <- 1
 			l.internalLock.Unlock()
 			l.handleTimeout(id, "Timeout obtaining or releasing read lock that came from: \n")
-			return 0
+			return 0, TIMEOUT_ERROR
 		case <-l.rlockChan:
 			l.lockChan <- 1
 			l.internalLock.Unlock()
-			return id
+			return id, nil
 		}
 	}
 }
