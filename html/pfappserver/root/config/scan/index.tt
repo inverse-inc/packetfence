@@ -15,6 +15,8 @@
         </div>
       </div>
 
+<div class="card">
+  <div class="card-block">
       <h2>[% l('Scan Engine') %] [% doc('_scanner_definition') | none %]</h2>
 
       [% INCLUDE config/scan/list.tt %]
@@ -32,3 +34,5 @@
           </div>
         </div>
       [%- END %]
+  </div>
+</div>

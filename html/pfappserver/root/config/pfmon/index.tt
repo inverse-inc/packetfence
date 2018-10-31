@@ -4,4 +4,8 @@
 
 <h2>[% l('Maintenance Tasks') %]</h2>
 
-[% INCLUDE config/pfmon/list.tt %]
+<div class="card">
+  <div class="card-block">
+    [% INCLUDE config/pfmon/list.tt %]
+  </div>
+</div>

@@ -35,11 +35,11 @@
         </div>
       </div>
 
-     [% INCLUDE config/switch/list.tt %]
-
-      [%- IF can_access("SWITCHES_CREATE") %]
+<div class="card">
+  <div class="card-block">
+    [% INCLUDE config/switch/list.tt %]
+    [%- IF can_access("SWITCHES_CREATE") %]
       <div class="form-actions">
-
         [% IF controller_namespace == 'Config::Switch' %]
           <div class="btn-group">
             <a class="btn dropdown-toggle" data-toggle="dropdown">[% l('Add switch') %] <span class="caret"></span></a>
@@ -54,10 +54,9 @@
           </div>
         [% ELSE %]
           <a class="btn createSwitch" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add ' _ model_name) %]</a>
-          [% END %]
-
+        [% END %]
           <a href="#modalSwitchImport" id="importSwitchCsv" class="btn" data-toggle="modal">[% l('Import from CSV') %]</a>
-
       </div>
-      [%- END %]
-        </div>
+    [%- END %]
+  </div>
+</div>

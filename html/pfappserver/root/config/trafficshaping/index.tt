@@ -17,5 +17,8 @@
 
       <h2>[% l('Inline Traffic Shaping Policy') %]</h2>
 
+<div class="card">
+  <div class="card-block">
       [% INCLUDE config/trafficshaping/list.tt %]
-
+  </div>
+</div>
