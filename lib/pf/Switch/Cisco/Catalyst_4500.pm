@@ -45,7 +45,7 @@ sub getIfIndexByNasPortId {
 
     my $OID_ifDesc = '1.3.6.1.2.1.2.2.1.2';
     my $ifDescHashRef;
-    my $cache = $self->cache;
+    my $cache = $self->cache_distributed;
     my $result = $cache->compute($self->{'_id'} . "-" . $OID_ifDesc, sub { $self->{_sessionRead}->get_table( -baseoid => $OID_ifDesc )});
     foreach my $key ( keys %{$result} ) {
         my $ifDesc = $result->{$key};
