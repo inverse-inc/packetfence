@@ -1,7 +1,6 @@
 package timedlock
 
 import (
-	"fmt"
 	"math"
 	"sync"
 	"testing"
@@ -13,58 +12,95 @@ func TestRWLockLock(t *testing.T) {
 		l := NewRWLock()
 		l.Timeout = 100 * time.Millisecond
 
-		id, success := l.Lock()
+		id := l.Lock()
 
-		if !success {
-			t.Error("Failed to lock")
+		if id == 0 {
+			t.Error("Error while locking, got zero ID")
+		}
+
+		if len(l.lockChan) != 0 {
+			t.Error("Locking didn't remove the value from the lock channel")
 		}
 
 		l.Unlock(id)
-
-		// Sleep for twice the timeout to make sure this will not panic
-		time.Sleep(200 * time.Millisecond)
 	}
 
 	{
 		l := NewRWLock()
 		l.Timeout = 100 * time.Millisecond
 		l.Panic = false
-		l.LockFailures = make(chan uint64, 10)
 
-		id0, _ := l.Lock()
-		id1, _ := l.Lock()
+		id1 := l.Lock()
 
-		// Sleep for twice the timeout
-		time.Sleep(200 * time.Millisecond)
-
-		select {
-		case failId := <-l.LockFailures:
-			if id1 != failId {
-				t.Error("ID from the LockFailures channel doesn't match")
-			}
-		case <-time.After(1 * time.Second):
-			t.Error("Couldn't detect failure via the LockFailures chan")
+		if id1 == 0 {
+			t.Error("Error while locking, got zero ID")
 		}
 
-		l.Unlock(id0)
+		if len(l.lockChan) != 0 {
+			t.Error("Locking didn't remove the value from the lock channel")
+		}
+
+		// Can't lock twice
+		id2 := l.Lock()
+
+		if id2 != 0 {
+			t.Error("Got non-zero ID when attempting to lock locked mutex for longer than the timeout")
+		}
+
+		if len(l.lockChan) != 0 {
+			t.Error("Failed locking has altered the lockChan")
+		}
+
+		l.Unlock(id1)
+
+		if len(l.lockChan) != 1 {
+			t.Error("Unlocking didn't make the lockChan available again")
+		}
 
 		// Should now be able to lock again
-		id2, success := l.Lock()
 
-		if !success {
-			t.Error("Failed to lock")
+		id3 := l.Lock()
+
+		if id3 == 0 {
+			t.Error("Error while locking, got zero ID")
 		}
 
-		l.Unlock(id2)
+		if len(l.lockChan) != 0 {
+			t.Error("Locking didn't remove the value from the lock channel")
+		}
 
-		select {
-		case <-l.LockFailures:
-			t.Error("There was a lock failure but there shouldn't have been one")
-		case <-time.After(1 * time.Second):
-			// All good
+	}
+	// Can't lock if its rlocked
+	{
+		l := NewRWLock()
+		l.RTimeout = 100 * time.Millisecond
+		l.Panic = false
+
+		id1 := l.RLock()
+		id2 := l.Lock()
+
+		if id1 == 0 || id2 != 0 {
+			t.Error("Wrong ID came out of the lock")
+		}
+
+		if len(l.lockChan) != 1 {
+			t.Error("lockChan was decremented")
+		}
+
+		// TODO: magic number
+		if len(l.rlockChan) != 999 {
+			t.Error("rlockChan wasn't decremented", len(l.rlockChan))
+		}
+
+		// Will be able to lock when its unlocked
+		l.RUnlock(id1)
+
+		id3 := l.Lock()
+
+		if id3 == 0 {
+			t.Error("Wrong ID came out of the lock")
 		}
 	}
-
 }
 
 func TestRWLockRLock(t *testing.T) {
@@ -72,60 +108,74 @@ func TestRWLockRLock(t *testing.T) {
 		l := NewRWLock()
 		l.RTimeout = 100 * time.Millisecond
 
-		id, success := l.RLock()
+		id := l.RLock()
 
-		if !success {
-			t.Error("Failed to RLock")
+		if id == 0 {
+			t.Error("Wrong ID came out of the lock")
+		}
+
+		// TODO: magic number
+		if len(l.rlockChan) != 999 {
+			t.Error("rlockChan wasn't decremented")
 		}
 
 		l.RUnlock(id)
 
-		// Sleep for twice the timeout
-		time.Sleep(200 * time.Millisecond)
-
-	}
-
-	{
-		l := NewRWLock()
-		l.RTimeout = 100 * time.Millisecond
-
-		id1, success := l.RLock()
-		if !success {
-			t.Error("Failed to RLock")
+		// TODO: magic number
+		if len(l.rlockChan) != 1000 {
+			t.Error("rlockChan wasn't decremented")
 		}
 
-		id2, success := l.RLock()
-		if !success {
-			t.Error("Failed to RLock")
-		}
-
-		l.RUnlock(id1)
-		l.RUnlock(id2)
-
-		// Sleep for twice the timeout
-		time.Sleep(200 * time.Millisecond)
 	}
 
 	{
 		l := NewRWLock()
 		l.RTimeout = 100 * time.Millisecond
 		l.Panic = false
-		l.LockFailures = make(chan uint64, 1)
 
-		id1, success := l.RLock()
-		if !success {
-			t.Error("Failed to obtain RLock")
+		id1 := l.RLock()
+		id2 := l.RLock()
+
+		if id1 == 0 || id2 == 0 {
+			t.Error("Wrong ID came out of the lock")
 		}
-		id2, success := l.RLock()
-		if !success {
-			t.Error("Failed to obtain RLock")
+
+		// TODO: magic number
+		if len(l.rlockChan) != 998 {
+			t.Error("rlockChan wasn't decremented")
 		}
-		fmt.Println(id2)
+	}
 
-		l.RUnlock(id1)
+	// Can't rlock if its locked
+	{
+		l := NewRWLock()
+		l.RTimeout = 100 * time.Millisecond
+		l.Panic = false
 
-		// Sleep for twice the timeout
-		time.Sleep(200 * time.Millisecond)
+		id1 := l.Lock()
+		id2 := l.RLock()
+
+		if id1 == 0 || id2 != 0 {
+			t.Error("Wrong ID came out of the lock")
+		}
+
+		if len(l.lockChan) != 0 {
+			t.Error("lockChan wasn't decremented")
+		}
+
+		// TODO: magic number
+		if len(l.rlockChan) != 1000 {
+			t.Error("rlockChan was decremented", len(l.rlockChan))
+		}
+
+		// Will be able to lock when its unlocked
+		l.Unlock(id1)
+
+		id3 := l.RLock()
+
+		if id3 == 0 {
+			t.Error("Wrong ID came out of the lock")
+		}
 	}
 }
 
@@ -134,15 +184,15 @@ func TestRWLockMaxRestart(t *testing.T) {
 
 	l.c = math.MaxUint64 - 1
 
-	id, _ := l.Lock()
+	id := l.Lock()
 	if id != math.MaxUint64 {
 		t.Error("Wrong ID came out of the lock")
 	}
 	l.Unlock(id)
 
-	id, _ = l.Lock()
-	// Should now go back to the beginning
-	if id != 0 {
+	id = l.Lock()
+	// Should now go back to the beginning but not at zero
+	if id != 1 {
 		t.Error("Wrong ID came out of the lock")
 	}
 	l.Unlock(id)
@@ -158,7 +208,7 @@ func TestRWLockOverflow(t *testing.T) {
 			}
 		}()
 
-		id, _ := l.Lock()
+		id := l.Lock()
 		l.c = id - 1
 		l.Lock()
 	}()
@@ -180,12 +230,12 @@ func BenchmarkSyncRWMutex(b *testing.B) {
 func BenchmarkRWLock(b *testing.B) {
 	m := NewRWLock()
 	for i := 0; i < b.N; i++ {
-		id, _ := m.Lock()
+		id := m.Lock()
 		m.Unlock(id)
 	}
 
 	for i := 0; i < b.N; i++ {
-		id, _ := m.RLock()
+		id := m.RLock()
 		m.RUnlock(id)
 	}
 }
