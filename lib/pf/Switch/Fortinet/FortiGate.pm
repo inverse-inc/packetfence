@@ -32,6 +32,7 @@ use pf::log;
 use pf::constants;
 use pf::accounting qw(node_accounting_dynauth_attr);
 use pf::config qw ($WEBAUTH_WIRELESS);
+use pf::constants::role qw($REJECT_ROLE);
 
 use base ('pf::Switch::Fortinet');
 

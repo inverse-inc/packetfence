@@ -35,6 +35,7 @@ use pf::constants;
 use pf::config qw($WIRELESS_MAC_AUTH $WEBAUTH_WIRELESS);
 use pf::util;
 use pf::node;
+use pf::constants::role qw($REJECT_ROLE);
 
 =head1 SUBROUTINES
 

@@ -39,6 +39,7 @@ use pf::locationlog;
 use pf::node;
 use pf::util;
 use pf::violation;
+use pf::constants::role qw($REJECT_ROLE);
 
 use base ('pf::Switch::AeroHIVE');
 
