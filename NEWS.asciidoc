@@ -50,6 +50,7 @@ Bug Fixes
 * Fixed false positive dhcp rogue detection (PR #3514)
 * Sponsor Email subject and body are i18n in the same language (#3670)
 * pfstats hammers pfdhcp and the API frontend with requests (#3634)
+* Can't download SAML metadata in the admin (#3720)
 
 Version 8.1.0 released on 2018-07-09
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
