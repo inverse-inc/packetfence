@@ -163,3 +163,6 @@ devel: configurations conf/ssl/server.crt conf/local_secret bin/pfcmd raddb/cert
 
 test:
 	cd t && ./smoke.t
+
+update_samsung_dns_filter:
+	bash /usr/local/pf/addons/update-samsung-dns-filter.sh
