@@ -148,6 +148,20 @@ sub test :Local :Args(1) {
     $c->stash->{current_view} = 'JSON';
 }
 
+=head2 saml_metadata
+
+Generate the Service Provider metadata for a SAML source
+
+=cut
+
+sub saml_metadata :Local :Args(1) {
+    my ($self, $c, $source_id) = @_;
+    require 'pf::Authentication::Source::SAMLSource';
+
+    $c->response->body(pf::authentication::getAuthenticationSource($source_id)->generate_sp_metadata());
+    $c->response->content_type("text/xml");
+}
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2018 Inverse inc.
