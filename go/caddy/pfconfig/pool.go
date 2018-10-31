@@ -34,8 +34,8 @@ type PoolHandler struct {
 
 // Middleware that ensures there is a read-lock on the pool during every request and released when the request is done
 func (h PoolHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
-	id, success := pfconfigdriver.PfconfigPool.ReadLock(r.Context())
-	if success {
+	id, err := pfconfigdriver.PfconfigPool.ReadLock(r.Context())
+	if err == nil {
 		defer pfconfigdriver.PfconfigPool.ReadUnlock(r.Context(), id)
 
 		// We launch the refresh job once, the first time a request comes in
