@@ -8,14 +8,8 @@ import (
 )
 
 var timerPool = &sync.Pool{}
-var chanPool = &sync.Pool{
-	New: func() interface{} {
-		return make(chan int)
-	},
-}
 
 type RWLock struct {
-	doneChans    map[uint64]chan int
 	internalLock *sync.Mutex
 
 	lockChan  chan int
@@ -175,7 +169,6 @@ func (l *RWLock) RLock() uint64 {
 			return 0
 		case <-l.rlockChan:
 			l.lockChan <- 1
-			timeoutTimer.Stop()
 			l.internalLock.Unlock()
 			return id
 		}
