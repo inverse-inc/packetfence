@@ -35,11 +35,13 @@
         </div>
       </div>
 
-<div class="card">
-  <div class="card-block">
-    [% INCLUDE config/switch/list.tt %]
+  <div class="card">
+    <div class="card-block">
+      [% INCLUDE config/switch/list.tt %]
+    </div>
+
     [%- IF can_access("SWITCHES_CREATE") %]
-      <div class="form-actions">
+      <div class="card-actions form-actions">
         [% IF controller_namespace == 'Config::Switch' %]
           <div class="btn-group">
             <a class="btn dropdown-toggle" data-toggle="dropdown">[% l('Add switch') %] <span class="caret"></span></a>
@@ -59,4 +61,3 @@
       </div>
     [%- END %]
   </div>
-</div>

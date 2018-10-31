@@ -15,10 +15,38 @@
         </div>
       </div>
 
+  <div class="card">
+    <div class="card-title">
       <h2>[% l('Inline Traffic Shaping Policy') %]</h2>
+    </div>
 
-<div class="card">
-  <div class="card-block">
+    <div class="card-block">
       [% INCLUDE config/trafficshaping/list.tt %]
+    </div>
+
+    <div class="card-actions form-actions">
+      [%- IF can_access("TRAFFIC_SHAPING_CREATE") %]
+        [% IF roles.size > 0%]
+          <div class="form-actions">
+              <div class="btn-group">
+                <a class="btn dropdown-toggle" data-toggle="dropdown">[% l('Traffic Shaping Policy for Role') %] <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                  [% FOREACH role IN roles -%]
+                    <li>
+                        <a class="btn createItem" href="[% c.uri_for(c.controller.action_for('create_type'), role.name) %]">[% role.name  %]</a>
+                    </li>
+                  [% END -%]
+                </ul>
+              </div>
+          </div>
+        [% ELSE%]
+          <div class="unwell unwell-horizontal">
+            <p>
+              <i class="icon-group icon-large"></i>
+              [% l('All roles have traffic shaping policy applied to them') %]
+            </p>
+          </div>
+        [% END %]
+      [%- END %]
+    </div>
   </div>
-</div>

@@ -1,11 +1,15 @@
 <div class="modal modal-large fade hide" id="modalItem"></div>
 
-<p class="p3 p-warning">[% l('Enabling or disabling a task as well as modifying its interval requires a restart of pfmon to be fully effective') %]</p>
-
-<h2>[% l('Maintenance Tasks') %]</h2>
 
 <div class="card">
+
+  <div class="card-title">
+    <h2>[% l('Maintenance Tasks') %]</h2>
+  </div>
+
   <div class="card-block">
+    <p class="p3 p-warning">[% l('Enabling or disabling a task as well as modifying its interval requires a restart of pfmon to be fully effective') %]</p>
+
     [% INCLUDE config/pfmon/list.tt %]
   </div>
 </div>

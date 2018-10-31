@@ -15,24 +15,26 @@
         </div>
       </div>
 
-<div class="card">
-  <div class="card-block">
+  <div class="card">
+    <div class="card-title">
       <h2>[% l('Scan Engine') %] [% doc('_scanner_definition') | none %]</h2>
+    </div>
 
+    <div class="card-block">
       [% INCLUDE config/scan/list.tt %]
+    </div>
 
       [%- IF can_access("SCAN_CREATE") %]
-        <div class="form-actions">
-          <div class="btn-group">
-            <a class="btn dropdown-toggle" data-toggle="dropdown">[% l('Add Scan') %] <span class="caret"></span></a>
-            <ul id="createSource" class="dropdown-menu">
-              [% FOREACH type IN types -%]
-                [% SET label = "scan_type_$type"%]
-                <li><a class="createItem" href="[% c.uri_for(c.controller.action_for('create_type'), type) %]">[% l(label) %]</a></li>
-              [% END -%]
-            </ul>
-          </div>
+      <div class="card-actions form-actions">
+        <div class="btn-group">
+          <a class="btn dropdown-toggle" data-toggle="dropdown">[% l('Add Scan') %] <span class="caret"></span></a>
+          <ul id="createSource" class="dropdown-menu">
+            [% FOREACH type IN types -%]
+              [% SET label = "scan_type_$type"%]
+              <li><a class="createItem" href="[% c.uri_for(c.controller.action_for('create_type'), type) %]">[% l(label) %]</a></li>
+            [% END -%]
+          </ul>
         </div>
+      </div>
       [%- END %]
   </div>
-</div>

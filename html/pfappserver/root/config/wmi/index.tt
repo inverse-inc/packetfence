@@ -15,16 +15,18 @@
         </div>
       </div>
 
+  <div class="card">
+    <div class="card-title">
       <h2>[% l('WMI Rules') %] [% doc('_wmi_rules_definition') | none %]</h2>
+    </div>
 
-<div class="card">
-  <div class="card-block">
+    <div class="card-block">
       [% INCLUDE config/wmi/list.tt %]
+    </div>
 
-      [%- IF can_access("WMI_CREATE") %]
-      <div class="form-actions">
-        <a class="btn createItem" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add Rule') %]</a>
-      </div>
-      [%- END %]
+    [%- IF can_access("WMI_CREATE") %]
+    <div class="card-actions form-actions">
+      <a class="btn createItem" href="[% c.uri_for(c.controller.action_for('create')) %]">[% l('Add Rule') %]</a>
+    </div>
+    [%- END %]
   </div>
-</div>
