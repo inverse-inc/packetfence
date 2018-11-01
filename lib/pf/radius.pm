@@ -928,7 +928,7 @@ Handle radius proxy request (pre-proxy and post-proxy)
 
 =cut
 
-sub radius_proxy {
+sub radius_filter {
     my ($self, $scope, $radius_request) = @_;
     my $logger = $self->logger;
     my ($do_auto_reg, %autoreg_node_defaults);
