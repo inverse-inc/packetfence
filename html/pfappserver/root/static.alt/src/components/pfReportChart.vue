@@ -210,6 +210,9 @@ export default {
     }
   },
   beforeDestroy () {
+    if (this.timeoutRender) {
+      clearTimeout(this.timeoutRender)
+    }
     window.removeEventListener('resize', this.getWindowWidth)
     window.removeEventListener('resize', this.getWindowHeight)
   }

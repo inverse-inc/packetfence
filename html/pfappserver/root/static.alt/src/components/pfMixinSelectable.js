@@ -215,6 +215,9 @@ export default {
     }
   },
   beforeDestroy () {
+    if (this.forceUpdateTimeout) {
+      clearTimeout(this.forceUpdateTimeout)
+    }
     if (!this.noInitBindKeys) {
       document.removeEventListener('keydown', this.onKeyDown)
     }
