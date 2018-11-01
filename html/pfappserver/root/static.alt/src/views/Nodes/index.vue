@@ -11,16 +11,13 @@
 
 <script>
 import pfSidebar from '@/components/pfSidebar'
-import pfMixinSavedSearch from '@/components/pfMixinSavedSearch'
+import pfSavedSearch from '@/components/pfSavedSearch'
 
 export default {
   name: 'Nodes',
-  mixins: [
-    pfMixinSavedSearch
-  ],
   components: {
     pfSidebar,
-    'pf-saved-search': pfMixinSavedSearch
+    pfSavedSearch
   },
   props: {
     storeName: { // from router
