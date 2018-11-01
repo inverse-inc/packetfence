@@ -146,14 +146,14 @@ sub radius_authorize : Public {
     return $return;
 }
 
-sub radius_proxy : Public {
+sub radius_filter : Public {
     my ($class, $scope, %radius_request) = @_;
     my $logger = pf::log::get_logger();
 
     my $radius = new pf::radius::custom();
     my $return;
     eval {
-        $return = $radius->radius_proxy($scope, \%radius_request);
+        $return = $radius->radius_filter($scope, \%radius_request);
     };
     if ($@) {
         $logger->error("radius $scope failed with error: $@");
@@ -1339,7 +1339,7 @@ sub radius_rest_pre_proxy :Public :RestPath(/radius/rest/pre_proxy) {
 
     my $return;
 
-    $return = $class->radius_proxy("preproxy",%remapped_radius_request);
+    $return = $class->radius_filter("preproxy",%remapped_radius_request);
 
     # This will die with the proper code if it is a deny
     $return = pf::radius::rest::format_response($return);
@@ -1362,13 +1362,37 @@ sub radius_rest_post_proxy :Public :RestPath(/radius/rest/post_proxy) {
 
     my $return;
 
-    $return = $class->radius_proxy("postproxy",%remapped_radius_request);
+    $return = $class->radius_filter("postproxy",%remapped_radius_request);
 
     # This will die with the proper code if it is a deny
     $return = pf::radius::rest::format_response($return);
 
     return $return;
 }
+
+=head2 radius_rest_authorization
+
+RADIUS authorization method that uses REST
+
+=cut
+
+sub radius_rest_authorization :Public :RestPath(/radius/rest/authorization_filter) {
+    my ($class, $radius_request) = @_;
+    my $timer = pf::StatsD::Timer->new();
+    my $logger = pf::log::get_logger();
+
+    my %remapped_radius_request = %{pf::radius::rest::format_request($radius_request)};
+
+    my $return;
+
+    $return = $class->radius_filter("authorization",%remapped_radius_request);
+
+    # This will die with the proper code if it is a deny
+    $return = pf::radius::rest::format_response($return);
+
+    return $return;
+}
+
 
 =head2 radius_rest_switch_authorize
 
