@@ -292,7 +292,7 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 			GlobalTransactionLock.Unlock()
 			return answer
 		} else {
-			GlobalTransactionCache.Set(cacheKey, 1, time.Duration(5)*time.Second)
+			GlobalTransactionCache.Set(cacheKey, 1, time.Duration(1)*time.Second)
 			GlobalTransactionLock.Unlock()
 		}
 
@@ -435,6 +435,7 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 					GlobalOptions[key] = value
 				}
 			}
+
 			log.LoggerWContext(ctx).Info("DHCPOFFER on " + answer.IP.String() + " to " + clientMac + " (" + clientHostname + ")")
 
 			answer.D = dhcp.ReplyPacket(p, dhcp.Offer, handler.ip.To4(), answer.IP, leaseDuration,
@@ -443,13 +444,24 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 			return answer
 
 		case dhcp.Request, dhcp.Inform:
-
 			reqIP := net.IP(options[dhcp.OptionRequestedIPAddress])
 			if reqIP == nil {
 				reqIP = net.IP(p.CIAddr())
 			}
 
 			log.LoggerWContext(ctx).Info(prettyType + " for " + reqIP.String() + " from " + clientMac + " (" + clientHostname + ")")
+
+			cacheKey := p.CHAddr().String() + " " + msgType.String() + " xID " + sharedutils.ByteToString(p.XId())
+
+			// In the event of a DHCPREQUEST, we do not reply if we're not the server ID in the request
+			serverIdBytes := options[dhcp.OptionServerIdentifier]
+			if len(serverIdBytes) == 4 {
+				serverId := net.IPv4(serverIdBytes[0], serverIdBytes[1], serverIdBytes[2], serverIdBytes[3])
+				if !serverId.Equal(handler.ip.To4()) {
+					log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not replying to %s because this server didn't perform the offer (offered by %s, we are %s)", prettyType, serverId, handler.ip.To4()))
+					return Answer{}
+				}
+			}
 
 			answer.IP = reqIP
 			answer.Iface = h.intNet
@@ -466,7 +478,6 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 
 						if dhcp.IPAdd(handler.start, index.(int)).Equal(reqIP) {
 							GlobalTransactionLock.Lock()
-							cacheKey := p.CHAddr().String() + " " + msgType.String() + " xID " + sharedutils.ByteToString(p.XId())
 							if _, found = RequestGlobalTransactionCache.Get(cacheKey); found {
 								log.LoggerWContext(ctx).Debug("Not answering to REQUEST. Already processed")
 								Reply = false
@@ -489,8 +500,9 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 							}
 						}
 					} else {
-						// Not in the cache so refuse
-						Reply = false
+						// Not in the cache so we don't reply
+						log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not replying to %s because this server didn't perform the offer", prettyType))
+						return Answer{}
 					}
 				}
 				if Reply {
