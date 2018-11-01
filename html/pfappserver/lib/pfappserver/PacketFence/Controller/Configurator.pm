@@ -211,7 +211,7 @@ sub networks :Chained('object') :PathPart('networks') :Args(0) {
         my @missing = ();
 
         foreach my $enforcement (keys %{$c->session->{enforcements}}) {
-            my $types_ref = $c->model('Enforcement')->getAvailableTypes($enforcement);
+            my $types_ref = $c->model('Enforcement')->getRequiredTypes($enforcement);
             foreach my $type (@{$types_ref}) {
                 unless (exists $selected_types{$type} ||
                         $type eq 'other' ||
