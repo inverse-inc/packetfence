@@ -358,14 +358,14 @@ NOTE: You can check if the service is down with 'ps -edf | grep mysql', this ser
 
 Now, start `packetfence-mariadb` normally:
 
-  # systemctl start packetfence-mariadb
+  # systemctl restart packetfence-mariadb
 
 Wrapping up
 ^^^^^^^^^^^
 
 Now start PacketFence on servers 2 and 3, as it should already be started on the first server:
 
-  # /usr/local/pf/bin/pfcmd service pf start
+  # /usr/local/pf/bin/pfcmd service pf restart
 
 Disable the access to the configurator by setting the `currently-at` file on each server:
 
@@ -654,6 +654,289 @@ As the daily automatic backups, you will find the files in:
 ----
 
 Two files will be available, tagged with the Date and Time of your backup.
+
+Layer 3 clusters
+----------------
+
+PacketFence supports having clusters where servers are located in multiple layer 3 networks which we will also refer as cluster zones.
+
+Simple RADIUS only clusters are more simple and can be configured without too much in-depth knowledge, but if you want to use the captive portal with a layer 3 cluster, this will definitely make your setup more complex and will certainly require a lot of thinking and understanding on how PacketFence works to be able to know how to properly design a cluster like this.
+
+This section will describe the changes to do on your cluster.conf when dealing with layer 3 clusters but doesn't cover all the cluster installation. In order to install your cluster, follow the instructions in "Cluster Setup" and refer to this section when reaching the step to configure your cluster.conf.
+
+Simple RADIUS only cluster
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In order to configure a RADIUS only layer 3 cluster, you will need at least 3 servers (5 are used in this example) with a single interface (used for management).
+
+Cluster design and behavior:
+
+ * This example will use 3 servers in a network (called DC1), and 2 in another network (called DC2).
+ * Each group of server (in the same L2 network) will have a virtual IP address and will perform load-balancing to members in the same L2 zone (i.e. same network).
+ * All the servers will use MariaDB Galera cluster and will be part of the same database cluster meaning all servers will have the same data.
+ * In the event of the loss of DC1 or a network split between DC1 and DC2, the databases on DC2 will go in read-only and will exhibit the behavior described in "Quorum behavior".
+ * All the servers will share the same configuration and same cluster.conf. The data in cluster.conf will serve as an overlay to the data in pf.conf to perform changes specific to each layer 3 zone.
+
+Things to take into consideration while performing the cluster setup:
+
+ * While going through the configurator to configure the network interfaces, you only need to have a single interface and set its type to management and high-availability.
+
+Cluster configuration
++++++++++++++++++++++
+
+When you are at the step where you need to configure your cluster.conf during the cluster setup, refer to the example below to build your cluster.conf.
+
+----
+ [general]
+ multi_zone=enabled
+ 
+ [DC1 CLUSTER]
+ management_ip=192.168.1.10
+ 
+ [DC1 CLUSTER interface ens192]
+ ip=192.168.1.10
+ 
+ [DC1 pf1-dc1.example.com]
+ management_ip=192.168.1.11
+ 
+ [DC1 pf1-dc1.example.com interface ens192]
+ ip=192.168.1.11
+ 
+ [DC1 pf2-dc1.example.com]
+ management_ip=192.168.1.12
+ 
+ [DC1 pf2-dc1.example.com interface ens192]
+ ip=192.168.1.12
+ 
+ [DC1 pf3-dc1.example.com]
+ management_ip=192.168.1.13
+ 
+ [DC1 pf3-dc1.example.com interface ens192]
+ ip=192.168.1.13
+ 
+ [DC2 CLUSTER]
+ management_ip=192.168.2.10
+ 
+ [DC2 CLUSTER interface ens192]
+ ip=192.168.2.10
+ 
+ [DC2 CLUSTER interface ens224]
+ ip=192.168.22.10
+ 
+ [DC2 pf1-dc2.example.com]
+ management_ip=192.168.2.11
+ 
+ [DC2 pf1-dc2.example.com interface ens192]
+ ip=192.168.2.11
+
+ [DC2 pf2-dc2.example.com]
+ management_ip=192.168.2.12
+ 
+ [DC2 pf2-dc2.example.com interface ens192]
+ ip=192.168.2.12
+----
+
+Notes on the configuration:
+
+ * The hostnames (pf1-dc1.example.com, pf2-dc1.example.com, etc) are not directly related to the cluster logic and the servers can have any hostname without impacting the cluster behavior. The assignment of a server to a cluster zone is made by the first part of the section name (ex: "DC1 pf.example.com" assigns server "pf.example.com" to cluster zone "DC1")
+ * Each cluster zone needs to have its own "CLUSTER" definition that declares the virtual IPs to use for this cluster zone. This also declares the management IP on which the zone should be joined.
+ * Given your zones aren't in the same layer 2 network, you cannot use the same virtual IP between your zones.
+ * You should always declare a "CLUSTER" definition even though a zone has only a single server.
+ * Your network equipment should point RADIUS authentication and accounting to both virtual IPs (192.168.1.10 and 192.168.2.10 in this example) either in primary/secondary or load-balancing mode.
+ * RFC3576 servers (CoA and RADIUS disconnect) should be declared on your network equipment (if supported) for both virtual IPs (192.168.1.10 and 192.168.2.10 in this example)
+
+RADIUS server with captive-portal
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+WARNING: As shortly explained above, deploying a captive-portal across a layer 3 network using the cluster zones is complex and requires in-depth knowledge of networking and how PacketFence works.
+
+In order to configure a RADIUS server with a captive-portal on a layer 3 cluster, you will need at least 3 servers (5 are used in this example) with 2 interfaces (one for management and one for registration)
+
+NOTE: Isolation is omitted in this example for brevity and should be configured the same way as registration if needed
+
+Cluster design and behavior:
+
+ * This example will use 3 servers in a network (called DC1), and 2 in another network (called DC2).
+ * Each group of server (in the same L2 network) will have a virtual IP address and will perform load-balancing (RADIUS, HTTP) to members in the same L2 zone (i.e. same network).
+ * All the servers will use MariaDB Galera cluster and will be part of the same database cluster meaning all servers will have the same data.
+ * In the event of the loss of DC1 or a network split between DC1 and DC2, the databases on DC2 will go in read-only and will exhibit the behavior described in "Quorum behavior".
+ * All the servers will share the same configuration and same cluster.conf. The data in cluster.conf will serve as an overlay to the data in pf.conf and networks.conf to perform changes specific to each layer 3 zone.
+
+The schema below presents the routing that needs to be setup in your network in order to deploy this example:
+
+image::cluster-zones-registration.png[scaledwidth="100%",alt="Cluster zones with registration network"]
+
+Notes on the schema:
+
+ * The static routes from the PacketFence servers to the gateways on your network equipment will be configured through networks.conf and do not need to be configured manually on the servers. You will simply need to declare the remote networks so that PacketFence offers DHCP on them and routes them properly.
+ * Since the network of the clients is not directly connected to the PacketFence servers via layer 2, you will need to use IP helper (DHCP relaying) on your network equipment that points to both virtual IPs of your cluster.
+ * We assume that your routers are able to route all the different networks that are involved for registration (192.168.11.0/24, 192.168.22.0/24, 192.168.100.0/24) and that any client in these 3 networks can be routed to any of these networks via its gateway (192.168.11.1, 192.168.22.2, 192.168.100.1).
+ * Access lists should be put in place to restrict the clients (network 192.168.100.0/24) from accessing networks other than the 3 registrations networks.
+ * No special routing is required for the management interface.
+
+Things to take into consideration while performing the cluster setup:
+
+ * While going through the configurator to configure the network interfaces, you will need to set an interface to management and high-availability.
+ * While going through the configurator to configure the network interfaces, you will need to set an interface to registration.
+
+Cluster configuration
++++++++++++++++++++++
+
+When you are at the step where you need to configure your cluster.conf during the cluster setup, refer to the example below to build your cluster.conf.
+
+----
+ [general]
+ multi_zone=enabled
+ 
+ [DC1 CLUSTER]
+ management_ip=192.168.1.10
+ 
+ [DC1 CLUSTER interface ens192]
+ ip=192.168.1.10
+ 
+ [DC1 CLUSTER interface ens224]
+ ip=192.168.11.10
+ 
+ [DC1 pf1-dc1.example.com]
+ management_ip=192.168.1.11
+ 
+ [DC1 pf1-dc1.example.com interface ens192]
+ ip=192.168.1.11
+ 
+ [DC1 pf1-dc1.example.com interface ens224]
+ ip=192.168.11.11
+ 
+ [DC1 pf2-dc1.example.com]
+ management_ip=192.168.1.12
+ 
+ [DC1 pf2-dc1.example.com interface ens192]
+ ip=192.168.1.12
+ 
+ [DC1 pf2-dc1.example.com interface ens224]
+ ip=192.168.11.12
+ 
+ [DC1 pf3-dc1.example.com]
+ management_ip=192.168.1.13
+ 
+ [DC1 pf3-dc1.example.com interface ens192]
+ ip=192.168.1.13
+ 
+ [DC1 pf3-dc1.example.com interface ens224]
+ ip=192.168.11.13
+ 
+ [DC2 CLUSTER]
+ management_ip=192.168.2.10
+ 
+ [DC2 CLUSTER interface ens192]
+ ip=192.168.2.10
+ 
+ [DC2 pf1-dc2.example.com]
+ management_ip=192.168.2.11
+ 
+ [DC2 pf1-dc2.example.com interface ens192]
+ ip=192.168.2.11
+
+ [DC2 pf1-dc2.example.com interface ens224]
+ ip=192.168.22.11
+
+ [DC2 pf2-dc2.example.com]
+ management_ip=192.168.2.12
+ 
+ [DC2 pf2-dc2.example.com interface ens192]
+ ip=192.168.2.12
+
+ [DC2 pf2-dc2.example.com interface ens224]
+ ip=192.168.22.12
+----
+
+Notes on the configuration:
+
+ * The hostnames (pf1-dc1.example.com, pf2-dc1.example.com, etc) are not directly related to the cluster logic and the servers can have any hostname without impacting the cluster behavior. The assignment of a server to a cluster zone is made by the first part of the section name (ex: "DC1 pf.example.com" assigns server "pf.example.com" to cluster zone "DC1")
+ * Each cluster zone needs to have its own "CLUSTER" definition that declares the virtual IPs to use for this cluster zone. This also declares the management IP on which the zone should be joined.
+ * Given your zones aren't in the same layer 2 network, you cannot use the same virtual IP between your zones.
+ * You should always declare a "CLUSTER" definition even though a zone has only a single server.
+ * Your network equipment should point RADIUS authentication and accounting to both virtual IPs (192.168.1.10 and 192.168.2.10 in this example) either in primary/secondary or load-balancing mode.
+ * RFC3576 servers (CoA and RADIUS disconnect) should be declared on your network equipment (if supported) for both virtual IPs (192.168.1.10 and 192.168.2.10 in this example)
+
+NOTE: You should use the configuration above to perform the cluster setup and complete all the steps required to build your cluster. You should only continue these steps after it is fully setup and running.
+
+Servers network configuration
++++++++++++++++++++++++++++++
+
+After you've finished configuring your cluster, on one of the servers, add the following in cluster.conf in order to configure both zones registration networks:
+
+  [DC1 CLUSTER network 192.168.11.0]
+  dns=192.168.11.10
+  split_network=disabled
+  dhcp_start=192.168.11.10
+  gateway=192.168.11.10
+  domain-name=vlan-registration.example.com
+  nat_enabled=disabled
+  named=enabled
+  dhcp_max_lease_time=30
+  fake_mac_enabled=disabled
+  dhcpd=enabled
+  dhcp_end=192.168.11.246
+  type=vlan-registration
+  netmask=255.255.255.0
+  dhcp_default_lease_time=30
+
+  [DC2 CLUSTER network 192.168.22.0]
+  dns=192.168.22.10
+  split_network=disabled
+  dhcp_start=192.168.22.10
+  gateway=192.168.22.10
+  domain-name=vlan-registration.example.com
+  nat_enabled=disabled
+  named=enabled
+  dhcp_max_lease_time=30
+  fake_mac_enabled=disabled
+  dhcpd=enabled
+  dhcp_end=192.168.22.246
+  type=vlan-registration
+  netmask=255.255.255.0
+  dhcp_default_lease_time=30
+
+Client network configuration
+++++++++++++++++++++++++++++
+
+Now, add the following in networks.conf in order to declare the common parameters for the clients in both zones
+
+  [192.168.100.0]
+  gateway=192.168.100.1
+  dhcp_start=192.168.100.20
+  domain-name=vlan-registration.example.com
+  nat_enabled=0
+  named=enabled
+  dhcp_max_lease_time=30
+  dhcpd=enabled
+  fake_mac_enabled=disabled
+  netmask=255.255.255.0
+  type=vlan-registration
+  dhcp_end=192.168.100.254
+  dhcp_default_lease_time=30
+
+Then, to complete the client network configuration, you will need to override the next hop (route to reach the network) and DNS server in cluster.conf by adding the following:
+
+  [DC1 CLUSTER network 192.168.100.0]
+  next_hop=192.168.11.1
+  dns=192.168.11.10
+
+  [DC2 CLUSTER network 192.168.100.0]
+  next_hop=192.168.22.1
+  dns=192.168.22.10
+
+Synchronization and wrapping-up
++++++++++++++++++++++++++++++++
+
+Then, reload the configuration and sync the cluster from the server on which you've performed the configuration:
+
+  /usr/local/pf/bin/pfcmd configreload hard
+  /usr/local/pf/bin/cluster/sync --as-master
+
+You should now restart PacketFence on all servers using:
+
+  /usr/local/pf/bin/pfcmd service pf restart
 
 Advanced configuration
 ----------------------
