@@ -140,8 +140,9 @@ rest {
 	#  5xx    server error  no            fail
 	#  xxx    -             no            invalid
 	authorize {
-		uri = "${..connect_uri}/user/%{User-Name}/mac/%{Called-Station-ID}?action=authorize"
-		method = 'get'
+		uri = "${..connect_uri}/radius/rest/authorization_filter"
+		method = 'post'
+		body = 'json'
 		tls = ${..tls}
 	}
 	authenticate {
