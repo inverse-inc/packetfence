@@ -1075,7 +1075,7 @@ msgstr "Your system is being scanned - this process will take approximately %s s
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Remediation.pm
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Violation.pm
 msgid "violation: quarantine established"
-msgstr ""
+msgstr "Your system has been put in quarantine."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Source/Twilio.pm
 msgid "PIN: $pin"
