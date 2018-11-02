@@ -5058,6 +5058,8 @@ image::ipsk2.png[scaledwidth="100%",alt="SSID step 2"]
 
 image::ipsk_radius.png[scaledwidth="100%",alt="SSID step 3"]
 
+image::ipsk_advanced.png[scaledwidth="100%",alt="SSID step 4"]
+
 PacketFence Configuration:
 
 * First because there is no way to detect in the RADIUS request that the request is for an SSID configured for IPSK, you need to configure PacketFence to trigger IPSK on a connection profile.
