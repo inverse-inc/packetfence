@@ -5012,6 +5012,7 @@ In order to configure a report, you need to edit `/usr/local/pf/conf/report.conf
 
 The following attributes are available to define your report (the ones that have an asterisk are mandatory):
 [options="compact"]
+* * `type`: Determines what type of report this is. Setting `type=built-in` will make this report appear in "Other reports", omitting it will display it in "Custom reports" when viewing it in the administration interface. When in doubt, simply omit this parameter.
 * * `description` : The user friendly description that will display for this report
 * * `base_table` : The base SQL table that will be used to create the view
 * * `columns` : The columns to select from the table(s) (ex: `node.mac`).
