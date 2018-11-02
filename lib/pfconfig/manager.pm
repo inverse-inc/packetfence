@@ -222,6 +222,7 @@ That sends the signal that the raw memory is expired
 sub touch_cache {
     my ( $self, $what ) = @_;
     $what =~ s/\//;/g;
+    $what = normalize_namespace_query($what);
     my $filename = pfconfig::util::control_file_path($what);
     $filename = untaint_chain($filename);
     touch_file($filename);
