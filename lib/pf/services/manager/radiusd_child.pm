@@ -130,6 +130,24 @@ sub generate_radiusd_sitesconf {
     else {
         $tags{'accounting_sql'} = "# sql not activated because explicitly disabled in pf.conf";
     }
+    if(isenabled($Config{advanced}{filter_in_authorization})){
+        $tags{'authorization_filter'} = "rest";
+    }
+    else {
+        $tags{'authorization_filter'} = "# filter not activated because explicitly disabled in pf.conf";
+    }
+    if(isenabled($Config{advanced}{filter_in_pre_proxy})){
+        $tags{'pre_proxy_filter'} = "rest";
+    }
+    else {
+        $tags{'pre_proxy_filter'} = "# filter not activated because explicitly disabled in pf.conf";
+    }
+    if(isenabled($Config{advanced}{filter_in_post_proxy})){
+        $tags{'post_proxy_filter'} = "rest";
+    }
+    else {
+        $tags{'post_proxy_filter'} = "# filter not activated because explicitly disabled in pf.conf";
+    }
 
     $tags{'local_realm'} = '';
     my @realms;

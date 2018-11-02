@@ -21,6 +21,9 @@
 # returnAuthorizeRead is when you return the answer for the switch read login access
 # returnAuthorizeWrite is when you return the answer for the switch write login access
 # returnAuthorizeVoip  is when you return the answer for a VoIP
+# authorization call the radius filter in the authorize section
+# preproxy call the radius filter in the pre-proxy section
+# postproxy call the radius filter in the post-proxy section
 #
 # Make a simple rule like this:
 #
@@ -144,6 +147,54 @@
 #scope = returnRadiusAccessAccept
 #merge_answer = yes
 #answer1 = Session-Timeout => 300
+#
+#
+#### authorize example ####
+#
+# There is some cases where you want to override the radius flow, like changing the value of Proxy-To-Realm to force the request to be sent to a specific Realm bases on the username.
+#
+#[acme]
+#filter = radius_request.User-Name
+#operator = regex
+#value = ^bobacme.*
+#
+#[1:acme]
+#scope=authorization
+#merge_answer = yes
+#answer1 = control:Proxy-To-Realm => ACME
+#
+#### pre-proxy example ####
+#
+# There is some cases where you want to modify the radius request before sending it to a remote radius server.
+# In this example we will rewrite the username based on the NAS-Identifier value.
+#
+#[Building1]
+#filter = radius_request.NAS-Identifier
+#operator = is
+#value = Building1
+#
+#[1:Building1]
+#scope=preproxy
+#merge_answer = yes
+#answer1 = proxy-request:User-Name => Building1!${radius_request.User-Name}
+#
+#### post-proxy example ####
+#
+# In this example we will add the vlan 33 for all the answers of the remote radius server
+#
+#[all]
+#filter = mac
+#operator = regex
+#value = .*
+#
+#[1:all]
+#scope=postproxy
+#merge_answer=yes
+#answer1 = reply:Tunnel-Private-Group-Id => 33
+#answer2 = reply:Tunnel-Type => 13
+#answer3 = reply:Tunnel-Medium-Type => 6
+#
+#
 #
 # filter can be for the scope returnRadiusAccessAccept:
 #     node_info.autoreg

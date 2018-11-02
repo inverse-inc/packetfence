@@ -63,7 +63,7 @@ authorize {
 	#  the other styles won't be checked.
 	#
 	suffix
-	rest
+	%%authorization_filter%%
 	ntdomain
 
 	#
@@ -402,7 +402,7 @@ post-auth {
 #  Only a few modules currently have this method.
 #
 pre-proxy {
-	rest
+	%%pre_proxy_filter%%
 }
 
 #
@@ -449,6 +449,6 @@ post-proxy {
 		PacketFence-Proxied-From := "True"
 	}
 
-
+	%%post_proxy_filter%%
 }
 }
