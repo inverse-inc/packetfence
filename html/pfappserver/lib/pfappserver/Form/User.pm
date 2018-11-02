@@ -270,6 +270,7 @@ has_field 'psk' =>
   (
    type => 'Text',
    Label => 'PSK key',
+   minlength => 8,
    tags => { after_element => \&help,
          help => 'Minimum of 8 characters.' },
   );
