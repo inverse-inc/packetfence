@@ -65,13 +65,13 @@ do the node registration after saving
 =cut
 
 sub finalize_node_registration {
-    my ($node, $info, $context) = @_;
+    my ($node, $info, $options, $context) = @_;
 
     do_person_create($node, $info, $context);
     # Closing any parking violations
     pf::violation::violation_force_close($node->mac, $PARKING_VID);
 
-    do_violation_scans($node);
+    do_violation_scans($node, $options);
 
     return ;
 }
@@ -103,10 +103,10 @@ do violation scans for a node
 =cut
 
 sub do_violation_scans {
-    my ($node_obj) = @_;
+    my ($node_obj, $options) = @_;
     my $mac = $node_obj->mac;
     my $logger = get_logger();
-    my $profile = pf::Connection::ProfileFactory->instantiate($node_obj);
+    my $profile = pf::Connection::ProfileFactory->instantiate($node_obj, $options);
     my $scan = $profile->findScan($mac);
     if (defined($scan)) {
         # triggering a violation used to communicate the scan to the user

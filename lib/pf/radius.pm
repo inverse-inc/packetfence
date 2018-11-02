@@ -234,8 +234,8 @@ sub authorize {
         $args->{'isPhone'} = $FALSE;
     }
 
-    $options->{'last_connection_sub_type'} = $args->{'connection_sub_type'} if (defined( $args->{'connection_sub_type'}));
-    $options->{'last_connection_type'}     = connection_type_to_str($args->{'connection_type'}) if (defined( $args->{'connection_type'}));
+    $options->{'last_connection_sub_type'} = $args->{'connection_sub_type'};
+    $options->{'last_connection_type'}     = connection_type_to_str($args->{'connection_type'});
     $options->{'last_switch'}              = $switch_id;
     $options->{'last_port'}                = $args->{'switch'}->{switch_port} if (defined($args->{'switch'}->{switch_port}));
     $options->{'last_vlan'}                = $args->{'vlan'} if (defined($args->{'vlan'}));
@@ -335,7 +335,7 @@ sub authorize {
 
 CLEANUP:
     if ($do_auto_reg) {
-        pf::registration::finalize_node_registration($node_obj, $pf::constants::realm::RADIUS_CONTEXT);
+        pf::registration::finalize_node_registration($node_obj, {}, $options, $pf::constants::realm::RADIUS_CONTEXT);
     }
     $status = $node_obj->save;
     if (is_error($status)) {
