@@ -69,7 +69,7 @@ sub build {
     $self->{config} = $config->build();
     my %Config = %{ $self->{config} };
 
-    foreach my $section ( keys(%Config) ) {
+    foreach my $section ( @{$config->{ordered_sections}} ) {
         next unless($section =~ /^interface /);
         my $interface = $section;
 
