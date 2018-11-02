@@ -54,17 +54,17 @@ my $params = {
     ]
 };
 
-is_deeply( pfappserver::Model::Search::Node->make_order_by($params), { -asc => 'mac' }, "MAC ASC");
+is_deeply( pfappserver::Model::Search::Node->make_order_by($params), [{-asc => 'tenant_id'}, { -asc => 'mac' }], "MAC ASC");
 
-is_deeply( pfappserver::Model::Search::Node->make_order_by({by => 'mac'}), { -asc => 'mac' }, "MAC ASC default order");
+is_deeply( pfappserver::Model::Search::Node->make_order_by({by => 'mac'}), [{-asc => 'tenant_id'}, { -asc => 'mac' }], "MAC ASC default order");
 
-is_deeply( pfappserver::Model::Search::Node->make_order_by({direction => 'desc', by => 'mac'}), { -desc => 'mac' }, "MAC DESC");
+is_deeply( pfappserver::Model::Search::Node->make_order_by({direction => 'desc', by => 'mac'}), [{ -desc => 'mac' }], "MAC DESC");
 
-is_deeply( pfappserver::Model::Search::Node->make_order_by({direction => 'DESC', by => 'mac'}), { -desc => 'mac' }, "MAC DESC upper");
+is_deeply( pfappserver::Model::Search::Node->make_order_by({direction => 'DESC', by => 'mac'}), [{ -desc => 'mac' }], "MAC DESC upper");
 
-is_deeply( pfappserver::Model::Search::Node->make_order_by({direction => 'ASC', by => 'mac'}), { -asc => 'mac' }, "MAC ASC upper");
+is_deeply( pfappserver::Model::Search::Node->make_order_by({direction => 'ASC', by => 'mac'}), [{-asc => 'tenant_id'}, { -asc => 'mac' }], "MAC ASC upper");
 
-is_deeply( pfappserver::Model::Search::Node->make_order_by({direction => 'BAD', by => 'mac'}), { -asc => 'mac' }, "MAC ASC bad");
+is_deeply( pfappserver::Model::Search::Node->make_order_by({direction => 'BAD', by => 'mac'}), [{-asc => 'tenant_id'}, { -asc => 'mac' }], "MAC ASC bad");
 
 is_deeply(
     pfappserver::Model::Search::Node->make_condition(
@@ -288,7 +288,7 @@ is_deeply(
         ],
         -limit => 26,
         -offset => 0,
-        -order_by => {-asc => 'mac'},
+        -order_by => [{-asc => 'tenant_id'}, {-asc => 'mac'}],
     },
     {
         pfappserver::Model::Search::Node->build_additional_search_args($params),
@@ -307,7 +307,7 @@ is_deeply(
         ],
         -limit => 26,
         -offset => 0,
-        -order_by => {-asc => 'mac'},
+        -order_by => [{-asc => 'tenant_id'}, {-asc => 'mac'}],
     },
     {
         pfappserver::Model::Search::Node->build_additional_search_args(
@@ -373,7 +373,7 @@ is_deeply(
         ],
         -limit    => 26,
         -offset   => 0,
-        -order_by => { -asc => 'mac' },
+        -order_by => [{-asc => 'tenant_id'}, { -asc => 'mac' }],
     },
     {
         pfappserver::Model::Search::Node->build_additional_search_args(
@@ -422,7 +422,7 @@ is_deeply(
         ],
         -limit    => 26,
         -offset   => 0,
-        -order_by => { -asc => 'mac' },
+        -order_by => [{-asc => 'tenant_id'}, { -asc => 'mac' }],
     },
     {
         pfappserver::Model::Search::Node->build_additional_search_args(
@@ -463,7 +463,7 @@ is_deeply(
         ],
         -limit    => 26,
         -offset   => 0,
-        -order_by => { -asc => 'mac' },
+        -order_by => [{-asc => 'tenant_id'}, { -asc => 'mac' }],
     },
     {
         pfappserver::Model::Search::Node->build_additional_search_args(
@@ -503,7 +503,7 @@ is_deeply(
         ],
         -limit    => 26,
         -offset   => 0,
-        -order_by => { -asc => 'mac' },
+        -order_by => [{-asc => 'tenant_id'}, { -asc => 'mac' }],
     },
     {
         pfappserver::Model::Search::Node->build_additional_search_args(
@@ -543,7 +543,7 @@ is_deeply(
         ],
         -limit    => 26,
         -offset   => 0,
-        -order_by => { -asc => 'mac' },
+        -order_by => [{-asc => 'tenant_id'}, { -asc => 'mac' }],
     },
     {
         pfappserver::Model::Search::Node->build_additional_search_args(
@@ -578,7 +578,7 @@ is_deeply(
         ],
         -limit    => 26,
         -offset   => 0,
-        -order_by => { -asc => 'mac' },
+        -order_by => [{-asc => 'tenant_id'}, { -asc => 'mac' }],
     },
     {
         pfappserver::Model::Search::Node->build_additional_search_args(
@@ -613,7 +613,7 @@ is_deeply(
         ],
         -limit    => 26,
         -offset   => 0,
-        -order_by => { -asc => 'mac' },
+        -order_by => [{-asc => 'tenant_id'}, { -asc => 'mac' }],
     },
     {
         pfappserver::Model::Search::Node->build_additional_search_args(
