@@ -19,6 +19,7 @@ use pf::log;
 use captiveportal::DynamicRouting::Module::TLSEnrollment;
 use pf::util;
 use pf::provisioner;
+use pf::node;
 
 has 'skipable' => (is => 'rw', default => sub {'disabled'});
 
@@ -123,6 +124,9 @@ sub execute_child {
     my ($self) = @_;
     my $provisioner = $self->get_provisioner();
     my $mac = $self->current_mac;
+
+    # Save the new node attributes since the provisioning workflow may bring the user outside of the portal (DPSK, WPA2 provisioning, etc)
+    node_modify($mac, %{$self->new_node_info});
     
     unless($provisioner){
         get_logger->info("No provisioner found for $mac. Continuing.");
