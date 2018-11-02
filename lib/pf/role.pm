@@ -541,7 +541,7 @@ sub getNodeInfoForAutoReg {
 
     # we do not set a default VLAN here so that node_register will set the default normalVlan from switches.conf
     my %node_info = (
-        pid             => $default_pid,
+        pid             => $args->{node_info}->{pid},
         notes           => 'AUTO-REGISTERED',
         status          => 'reg',
         auto_registered => 1, # tells node_register to autoreg
