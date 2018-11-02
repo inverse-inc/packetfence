@@ -55,7 +55,6 @@ authorize {
 	#  'raddb/huntgroups' files.
 	preprocess
 
-	rest
 
 	#
 	#  If you are using multiple kinds of realms, you probably
@@ -64,6 +63,7 @@ authorize {
 	#  the other styles won't be checked.
 	#
 	suffix
+	rest
 	ntdomain
 
 	#
