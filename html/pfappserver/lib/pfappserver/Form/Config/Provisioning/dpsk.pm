@@ -10,6 +10,7 @@ pfappserver::Form::Config::Provisioning::dpsk - Web form for Dynamic PSK provisi
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Provisioning';
+with 'pfappserver::Base::Form::Role::Help';
 
 has_field 'ssid' =>
   (
