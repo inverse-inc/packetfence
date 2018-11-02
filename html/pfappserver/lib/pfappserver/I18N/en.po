@@ -11542,3 +11542,6 @@ msgstr "Sources"
 
 msgid "network.connection_type_change_detection"
 msgstr "Detect changes in connection type"
+
+msgid "Potd"
+msgstr "Password of the day"
