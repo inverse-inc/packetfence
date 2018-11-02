@@ -226,6 +226,7 @@ has_field 'default_psk_key' =>
   (
    type => 'Text',
    label => 'Default PSK key',
+   minlength => 8,
    tags => { after_element => \&help,
              help => 'This is the default PSK key when you enable DPSK on this connection profile. The minimum length is eight characters.' },
   );
