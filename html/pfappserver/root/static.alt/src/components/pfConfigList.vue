@@ -2,7 +2,7 @@
   <div>
     <pf-progress :active="isLoading"></pf-progress>
     <slot name="pageHeader"></slot>
-    <pf-search :quick-with-fields="false" :quick-placeholder="config.searchPlaceholder"
+    <pf-search :quick-with-fields="false" :quick-placeholder="$t(config.searchPlaceholder)"
       :fields="fields" :store="$store" :advanced-mode="false" :condition="condition"
       @submit-search="onSearch" @reset-search="onReset"></pf-search>
     <div class="card-body">
@@ -44,7 +44,7 @@ import pfEmptyTable from '@/components/pfEmptyTable'
 import pfSearch from '@/components/pfSearch'
 
 export default {
-  name: 'ConfigPageList',
+  name: 'pfConfigList',
   mixins: [
     pfMixinSearchable
   ],
@@ -62,7 +62,7 @@ export default {
         rowClickRoute (item, index) {
           return {}
         },
-        searchPlaceholder: this.$i18n.t('Search'),
+        searchPlaceholder: 'Search',
         searchableOptions: {
           searchApiEndpoint: null,
           defaultSortKeys: [],
@@ -123,3 +123,4 @@ export default {
   }
 }
 </script>
+

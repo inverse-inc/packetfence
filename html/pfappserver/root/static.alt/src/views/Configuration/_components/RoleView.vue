@@ -1,10 +1,49 @@
+<template>
+  <pf-config-view
+    :isLoading="isLoading"
+    :form="form"
+    :validation="$v.role"
+    @validations="roleValidations = $event"
+    @close="close"
+    @create="create"
+    @save="save"
+    @remove="remove"
+  >
+    <template slot="header" is="b-card-header">
+      <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
+      <h4 class="mb-0">
+        <span v-if="id">{{ $t('Role') }} <strong v-text="id"></strong></span>
+        <span v-else>{{ $t('New Role') }}</span>
+        </h4>
+    </template>
+    <template slot="footer" is="b-card-footer" @mouseenter="$v.role.$touch()">
+      <pf-button-save :disabled="invalidForm" :isLoading="isLoading">{{ isNew? $t('Create') : $t('Save') }}</pf-button-save>
+      <pf-button-delete v-if="!isNew" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Role?')" @on-delete="remove()"/>
+    </template>
+  </pf-config-view>
+</template>
+
 <script>
-import BaseView from './_lib/BaseView'
-const { required, alphaNum, integer } = require('vuelidate/lib/validators')
+import pfConfigView from '@/components/pfConfigView'
+import pfButtonSave from '@/components/pfButtonSave'
+import pfButtonDelete from '@/components/pfButtonDelete'
+import pfFormInput from '@/components/pfFormInput'
+import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
+const { validationMixin } = require('vuelidate')
+const { required, alphaNum, integer, maxLength } = require('vuelidate/lib/validators')
 
 export default {
   name: 'RoleView',
-  extends: BaseView,
+  mixins: [
+    validationMixin,
+    pfMixinEscapeKey
+  ],
+  components: {
+    pfConfigView,
+    pfButtonSave,
+    pfButtonDelete,
+    pfFormInput
+  },
   props: {
     storeName: { // from router
       type: String,
@@ -17,22 +56,55 @@ export default {
     }
   },
   data () {
+    let self = this
     return {
-      role: {} // will be overloaded with the data from the store
+      form: {
+        labelCols: 3,
+        fields: [
+          {
+            if: self.isNew,
+            key: 'id',
+            component: pfFormInput,
+            label: this.$i18n.t('Name'),
+            get model () { return self.role.id },
+            set model (value) { self.role.id = value },
+            validators: {
+              [this.$i18n.t('Name is required')]: required,
+              [this.$i18n.t('Alphanumeric value required')]: alphaNum
+            }
+          },
+          {
+            key: 'notes',
+            label: this.$i18n.t('Description'),
+            get model () { return self.role.notes },
+            set model (value) { self.role.notes = value },
+            validators: {
+              [this.$i18n.t('Maximum 3 characters.')]: maxLength(3)
+            }
+          },
+          {
+            key: 'max_nodes_per_pid',
+            component: pfFormInput,
+            label: this.$i18n.t('Max nodes per user'),
+            attrs: {
+              type: 'number'
+            },
+            get model () { return self.role.max_nodes_per_pid },
+            set model (value) { self.role.max_nodes_per_pid = value },
+            validators: {
+              [this.$i18n.t('Value required')]: required,
+              [this.$i18n.t('Integer value required')]: integer
+            }
+          }
+        ]
+      },
+      role: {}, // will be overloaded with the data from the store
+      roleValidations: {}
     }
   },
   validations () {
     return {
-      role: {
-        id: {
-          [this.$i18n.t('Name is required')]: required,
-          [this.$i18n.t('Alphanumeric value required')]: alphaNum
-        },
-        max_nodes_per_pid: {
-          [this.$i18n.t('Value required')]: required,
-          [this.$i18n.t('Integer value required')]: integer
-        }
-      }
+      role: this.roleValidations
     }
   },
   computed: {
@@ -60,7 +132,7 @@ export default {
         this.close()
       })
     },
-    deleteRole () {
+    remove () {
       this.$store.dispatch('$_roles/deleteRole', this.id).then(response => {
         this.close()
       })

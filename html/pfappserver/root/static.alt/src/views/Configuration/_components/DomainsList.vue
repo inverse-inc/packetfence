@@ -1,6 +1,6 @@
 <template>
   <div>
-    <config-page-list
+    <pf-config-list
       :config="config"
       :isLoading="isLoading"
     >
@@ -10,19 +10,19 @@
       <template slot="emptySearch">
         <pf-empty-table :isLoading="isLoading">{{ $t('No domains found') }}</pf-empty-table>
       </template>
-    </config-page-list>
+    </pf-config-list>
   </div>
 </template>
 
 <script>
-import ConfigPageList from './_lib/ConfigPageList'
-import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 
 export default {
   name: 'DomainsList',
   components: {
-    ConfigPageList,
+    pfConfigList,
     pfEmptyTable
   },
   data () {
