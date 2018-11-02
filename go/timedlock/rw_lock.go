@@ -101,6 +101,7 @@ func (l *RWLock) Lock() (uint64, error) {
 				return id, nil
 			} else {
 				l.internalLock.Unlock()
+				time.Sleep(1 * time.Millisecond)
 			}
 		}
 
