@@ -527,45 +527,38 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 						}
 					}
 					if Static == false {
-					// Requested IP is in the cache ?
-					if index, found := handler.hwcache.Get(p.CHAddr().String()); found {
-						// Requested IP is equal to what we have in the cache ?
+						// Requested IP is in the cache ?
+						if index, found := handler.hwcache.Get(p.CHAddr().String()); found {
+							// Requested IP is equal to what we have in the cache ?
 
-						if dhcp.IPAdd(handler.start, index.(int)).Equal(reqIP) {
-							id, _ := GlobalTransactionLock.Lock()
-							if _, found = RequestGlobalTransactionCache.Get(cacheKey); found {
-								log.LoggerWContext(ctx).Debug("Not answering to REQUEST. Already processed")
-								Reply = false
-								GlobalTransactionLock.Unlock(id)
-								return answer
-							} else {
-								_, returnedMac, _ := handler.available.GetMACIndex(uint64(index.(int)))
-								if returnedMac == p.CHAddr().String() {
+							if dhcp.IPAdd(handler.start, index.(int)).Equal(reqIP) {
+								GlobalTransactionLock.Lock()
+								if _, found = RequestGlobalTransactionCache.Get(cacheKey); found {
+									log.LoggerWContext(ctx).Debug("Not answering to REQUEST. Already processed")
+									Reply = false
+									GlobalTransactionLock.Unlock()
+									return answer
+								} else {
 									Reply = true
 									Index = index.(int)
-								} else {
-									Reply = false
+									RequestGlobalTransactionCache.Set(cacheKey, 1, time.Duration(1)*time.Second)
+									GlobalTransactionLock.Unlock()
 								}
-								RequestGlobalTransactionCache.Set(cacheKey, 1, time.Duration(1)*time.Second)
-								GlobalTransactionLock.Unlock(id)
-							}
-							// So remove the ip from the cache
-						} else {
-							Reply = false
-							log.LoggerWContext(ctx).Info(p.CHAddr().String() + " Asked for an IP " + reqIP.String() + " that hasnt been assigned by Offer " + dhcp.IPAdd(handler.start, index.(int)).String() + " xID " + sharedutils.ByteToString(p.XId()))
-							if index, found = handler.xid.Get(string(binary.BigEndian.Uint32(p.XId()))); found {
-								if index.(int) == 1 {
-									handler.hwcache.Delete(p.CHAddr().String())
+								// So remove the ip from the cache
+							} else {
+								Reply = false
+								log.LoggerWContext(ctx).Info(p.CHAddr().String() + " Asked for an IP " + reqIP.String() + " that hasnt been assigned by Offer " + dhcp.IPAdd(handler.start, index.(int)).String() + " xID " + sharedutils.ByteToString(p.XId()))
+								if index, found = handler.xid.Get(string(binary.BigEndian.Uint32(p.XId()))); found {
+									if index.(int) == 1 {
+										handler.hwcache.Delete(p.CHAddr().String())
+									}
 								}
 							}
 						} else {
-							// Not in the cache so refuse
-							Reply = false
+							// Not in the cache so we don't reply
+							log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not replying to %s because this server didn't perform the offer", prettyType))
+							return Answer{}
 						}
-					} else {
-						// Not in the cache so we don't reply
-						log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not replying to %s because this server didn't perform the offer", prettyType))
-						return Answer{}
 					}
 				}
 
