@@ -497,6 +497,7 @@ PacketFence can authenticate users that register devices via the captive portal 
 * RADIUS
 * SMS
 * Sponsored Email
+* Twilio
 * Twitter (OAuth 2)
 * Windows Live (OAuth 2)
 * Password of the day
