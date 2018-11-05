@@ -114,7 +114,7 @@ func InterfaceScopeFromMac(MAC string) string {
 func (d *Interfaces) detectVIP(interfaces pfconfigdriver.ListenInts) {
 
 	var keyConfCluster pfconfigdriver.NetInterface
-	keyConfCluster.PfconfigNS = "config::Pf(CLUSTER," + pfconfigdriver.FindClusterName(ctx) + ")"
+	keyConfCluster.PfconfigNS = "config::Pf(CLUSTER)"
 
 	for _, v := range interfaces.Element {
 		keyConfCluster.PfconfigHashNS = "interface " + v
