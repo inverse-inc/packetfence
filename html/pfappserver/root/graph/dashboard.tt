@@ -323,7 +323,7 @@ END;
               <div class="card-block">
                 <div class="row-flex">
                   [% graph("system.ipv4", "IPv4 Bandwidth", {"width" => halfGridSize}) | none %]
-                  [% graph("system.sockstat_sockets", "IPv4 Sockets", {"width" => halfGridSize}) | none %]
+                  [% graph("ipv4.sockstat_sockets", "IPv4 Sockets", {"width" => halfGridSize}) | none %]
                 </div>
               </div>
             </div>
