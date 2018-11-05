@@ -193,7 +193,7 @@ func TestCreateQuery(t *testing.T) {
 	query := createQuery(ctx, &general)
 
 	// Test namespace that doesn't have the hostname overlay
-	if query.ns != "config::Pf();general" {
+	if query.ns != "config::Pf;general" {
 		t.Error("Wrong namespace name out of createQuery", query.ns)
 	}
 
@@ -218,7 +218,6 @@ func TestCreateQuery(t *testing.T) {
 	if query.ns != "config::Pf(testing);general" {
 		t.Error("Wrong namespace name out of createQuery", query.ns)
 	}
-
 }
 
 // fetches resource::fqdn requesting Sereal encoding for the reply

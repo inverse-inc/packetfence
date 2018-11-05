@@ -16,9 +16,8 @@ type PfconfigObject interface {
 // A basic StructConfig that contains the loaded at time which ensures FetchDecodeSocketCache will refresh the struct when needed
 // FetchDecodeSocket can be used by structs that don't include this one, but the pool uses FetchDecodeSocketCache so this struct should always be included in the pfconfig based structs
 type StructConfig struct {
-	PfconfigLoadedAt           time.Time
-	PfconfigHostnameOverlay    string `val:"no"`
-	PfconfigClusterNameOverlay string `val:"no"`
+	PfconfigLoadedAt        time.Time
+	PfconfigHostnameOverlay string `val:"no"`
 }
 
 // Set the loaded at of the struct
@@ -63,8 +62,7 @@ type configStruct struct {
 	Cluster    struct {
 		HostsIp struct {
 			PfconfigKeys
-			PfconfigNS                 string `val:"resource::cluster_hosts_ip"`
-			PfconfigClusterNameOverlay string `val:"yes"`
+			PfconfigNS string `val:"resource::cluster_hosts_ip"`
 		}
 	}
 	UnifiedApiSystemUser UnifiedApiSystemUser
@@ -207,52 +205,48 @@ func (pk *PfconfigKeys) GetKeys() *[]string {
 
 type ListenInts struct {
 	StructConfig
-	PfconfigMethod          string `val:"element"`
-	PfconfigNS              string `val:"interfaces::listen_ints"`
-	PfconfigArray           string `val:"yes"`
-	PfconfigHostnameOverlay string `val:"yes"`
-	Element                 []string
+	PfconfigMethod string `val:"element"`
+	PfconfigNS     string `val:"interfaces::listen_ints"`
+	PfconfigArray  string `val:"yes"`
+	Element        []string
 }
 
 type PfClusterIp struct {
 	StructConfig
-	PfconfigMethod             string `val:"hash_element"`
-	PfconfigNS                 string `val:"resource::cluster_hosts_ip"`
-	PfconfigClusterNameOverlay string `val:"yes"`
-	PfconfigHashNS             string `val:"-"`
-	Ip                         string `json:"ip"`
+	PfconfigMethod string `val:"hash_element"`
+	PfconfigNS     string `val:"resource::cluster_hosts_ip"`
+	PfconfigHashNS string `val:"-"`
+	Ip             string `json:"ip"`
 }
 
 type PfNetwork struct {
 	StructConfig
-	PfconfigMethod          string `val:"keys"`
-	PfconfigNS              string `val:"config::Network"`
-	PfconfigHostnameOverlay string `val:"yes"`
-	Keys                    []string
+	PfconfigMethod string `val:"keys"`
+	PfconfigNS     string `val:"config::Network"`
+	Keys           []string
 }
 
 type NetworkConf struct {
 	StructConfig
-	PfconfigMethod          string `val:"hash_element"`
-	PfconfigNS              string `val:"config::Network"`
-	PfconfigHostnameOverlay string `val:"yes"`
-	PfconfigHashNS          string `val:"-"`
-	Dns                     string `json:"dns"`
-	DhcpStart               string `json:"dhcp_start"`
-	Gateway                 string `json:"gateway"`
-	DomainName              string `json:"domain-name"`
-	NatEnabled              string `json:"nat_enabled"`
-	DhcpMaxLeaseTime        string `json:"dhcp_max_lease_time"`
-	Named                   string `json:"named"`
-	FakeMacEnabled          string `json:"fake_mac_enabled"`
-	Dhcpd                   string `json:"dhcpd"`
-	DhcpEnd                 string `json:"dhcp_end"`
-	Type                    string `json:"type"`
-	Netmask                 string `json:"netmask"`
-	DhcpDefaultLeaseTime    string `json:"dhcp_default_lease_time"`
-	NextHop                 string `json:"next_hop"`
-	SplitNetwork            string `json:"split_network"`
-	RegNetwork              string `json:"reg_network"`
+	PfconfigMethod       string `val:"hash_element"`
+	PfconfigNS           string `val:"config::Network"`
+	PfconfigHashNS       string `val:"-"`
+	Dns                  string `json:"dns"`
+	DhcpStart            string `json:"dhcp_start"`
+	Gateway              string `json:"gateway"`
+	DomainName           string `json:"domain-name"`
+	NatEnabled           string `json:"nat_enabled"`
+	DhcpMaxLeaseTime     string `json:"dhcp_max_lease_time"`
+	Named                string `json:"named"`
+	FakeMacEnabled       string `json:"fake_mac_enabled"`
+	Dhcpd                string `json:"dhcpd"`
+	DhcpEnd              string `json:"dhcp_end"`
+	Type                 string `json:"type"`
+	Netmask              string `json:"netmask"`
+	DhcpDefaultLeaseTime string `json:"dhcp_default_lease_time"`
+	NextHop              string `json:"next_hop"`
+	SplitNetwork         string `json:"split_network"`
+	RegNetwork           string `json:"reg_network"`
 }
 
 type Interface struct {
@@ -286,7 +280,6 @@ type RessourseNetworkConf struct {
 	Dnsvip               string    `json:"dns_vip"`
 	ClusterIPs           string    `json:"cluster_ips"`
 	IpReserved           string    `json:"ip_reserved"`
-	IpAssigned           string    `json:"ip_assigned"`
 	Interface            Interface `json:"interface"`
 }
 
@@ -304,15 +297,6 @@ type RolesConf struct {
 	PfconfigHashNS string `val:"-"`
 	Notes          string `json:"notes"`
 	MaxNodesPerPid string `json:"max_nodes_per_pid"`
-}
-
-type ClusterName struct {
-	StructConfig
-	PfconfigMethod          string `val:"hash_element"`
-	PfconfigNS              string `val:"resource::clusters_hostname_map"`
-	PfconfigHashNS          string `val:"-"`
-	PfconfigDecodeInElement string `val:"yes"`
-	Element                 string
 }
 
 type NetInterface struct {
@@ -390,27 +374,20 @@ type AuthenticationSourceLdap struct {
 
 type PfStats struct {
 	StructConfig
-	PfconfigMethod          string `val:"hash_element"`
-	PfconfigHashNS          string `val:"-"`
-	PfconfigNS              string `val:"config::Stats"`
-	PfconfigHostnameOverlay string `val:"yes"`
-	File                    string `json:"file"`
-	Match                   string `json:"match"`
-	Type                    string `json:"type"`
-	StatsdType              string `json:"statsd_type"`
-	StatsdNS                string `json:"statsd_ns"`
-	MySQLQuery              string `json:"mysql_query"`
-	Interval                string `json:"interval"`
-	Randomize               string `json:"randomize"`
-	Host                    string `json:"host"`
-	ApiMethod               string `json:"api_method"`
-	ApiPayload              string `json:"api_payload"`
-	ApiPath                 string `json:"api_path"`
-	ApiCompile              string `json:"api_compile"`
-}
-
-type ClusterSummary struct {
-	StructConfig
-	ClusterEnabled   int `json:"cluster_enabled"`
-	MultiZoneEnabled int `json:"multi_zone_enabled"`
+	PfconfigMethod string `val:"hash_element"`
+	PfconfigHashNS string `val:"-"`
+	PfconfigNS     string `val:"config::Stats"`
+	File           string `json:"file"`
+	Match          string `json:"match"`
+	Type           string `json:"type"`
+	StatsdType     string `json:"statsd_type"`
+	StatsdNS       string `json:"statsd_ns"`
+	MySQLQuery     string `json:"mysql_query"`
+	Interval       string `json:"interval"`
+	Randomize      string `json:"randomize"`
+	Host           string `json:"host"`
+	ApiMethod      string `json:"api_method"`
+	ApiPayload     string `json:"api_payload"`
+	ApiPath        string `json:"api_path"`
+	ApiCompile     string `json:"api_compile"`
 }

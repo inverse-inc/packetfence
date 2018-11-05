@@ -29,10 +29,6 @@ var SocketTimeout time.Duration = 60 * time.Second
 
 var myHostname string
 
-var myClusterName string
-
-var clusterSummary *ClusterSummary
-
 var nsHasOverlayRe = regexp.MustCompile(`.*\(.*\)$`)
 
 func init() {
@@ -177,15 +173,6 @@ func metadataFromField(ctx context.Context, param interface{}, fieldName string)
 	}
 }
 
-func normalizeNamespace(ctx context.Context, ns string) string {
-	//TODO: compile once
-	if res, _ := regexp.MatchString(`\)$`, ns); res {
-		return ns
-	} else {
-		return ns + "()"
-	}
-}
-
 // Decode the struct from bytes given an encoding
 // For now only JSON is supported
 func decodeInterface(ctx context.Context, encoding string, b []byte, o interface{}) {
@@ -225,20 +212,6 @@ func createQuery(ctx context.Context, o PfconfigObject) Query {
 		query.ns = query.ns + "(" + myHostname + ")"
 	}
 
-	if GetClusterSummary(ctx).ClusterEnabled == 1 {
-		if metadataFromField(ctx, o, "PfconfigClusterNameOverlay") == "yes" && !nsHasOverlayRe.MatchString(query.ns) {
-			clusterName := FindClusterName(ctx)
-			if clusterName == "" {
-				panic("Can't determine cluster name for this host")
-			}
-
-			query.ns = query.ns + "(" + clusterName + ")"
-		}
-	}
-
-	// Make sure the namespace is normalized
-	query.ns = normalizeNamespace(ctx, query.ns)
-
 	query.method = metadataFromField(ctx, o, "PfconfigMethod")
 	if query.method == "hash_element" {
 		query.ns = query.ns + ";" + metadataFromField(ctx, o, "PfconfigHashNS")
@@ -247,21 +220,11 @@ func createQuery(ctx context.Context, o PfconfigObject) Query {
 	return query
 }
 
-func FindClusterName(ctx context.Context) string {
-	if myClusterName == "" {
-		var res ClusterName
-		res.PfconfigHashNS = myHostname
-		FetchDecodeSocketCache(ctx, &res)
-		myClusterName = res.Element
-	}
-	return myClusterName
-}
-
 // Checks wheter the LoadedAt field of the PfconfigObject (set by FetchDecodeSocket) is before or after the timestamp of the namespace control file.
 // If the LoadedAt field was set before the namespace control file, then the resource isn't valid anymore
 // If the namespace control file doesn't exist, the resource is considered invalid
 func IsValid(ctx context.Context, o PfconfigObject) bool {
-	ns := normalizeNamespace(ctx, metadataFromField(ctx, o, "PfconfigNS"))
+	ns := metadataFromField(ctx, o, "PfconfigNS")
 	controlFile := "/usr/local/pf/var/control/" + ns + "-control"
 
 	stat, err := os.Stat(controlFile)
@@ -295,14 +258,14 @@ func FetchDecodeSocketCache(ctx context.Context, o PfconfigObject) (bool, error)
 }
 
 // Fetch the keys of a namespace
-func FetchKeys(ctx context.Context, name string) ([]string, error) {
-	keys := PfconfigKeys{PfconfigNS: name}
-	err := FetchDecodeSocket(ctx, &keys)
-	if err != nil {
-		return nil, err
-	}
+func FetchKeys(ctx context.Context, name string) ([]string , error) {
+    keys := PfconfigKeys{PfconfigNS : name}
+    err := FetchDecodeSocket(ctx, &keys)
+    if err != nil {
+        return nil, err
+    }
 
-	return keys.Keys, nil
+    return keys.Keys, nil
 }
 
 // Fetch and decode a namespace from pfconfig given a pfconfig compatible struct
@@ -335,25 +298,4 @@ func FetchDecodeSocket(ctx context.Context, o PfconfigObject) error {
 	o.SetLoadedAt(time.Now())
 
 	return nil
-}
-
-func GetClusterSummary(ctx context.Context) ClusterSummary {
-	if clusterSummary != nil {
-		return *clusterSummary
-	}
-
-	query := Query{}
-	query.ns = "resource::cluster_summary"
-	query.method = "element"
-	query.encoding = "json"
-
-	clusterSummary = &ClusterSummary{}
-
-	jsonResponse := FetchSocket(ctx, query.GetPayload())
-	receiver := &PfconfigElementResponse{}
-	decodeInterface(ctx, query.encoding, jsonResponse, receiver)
-	b, _ := receiver.Element.MarshalJSON()
-	decodeInterface(ctx, query.encoding, b, clusterSummary)
-
-	return *clusterSummary
 }
