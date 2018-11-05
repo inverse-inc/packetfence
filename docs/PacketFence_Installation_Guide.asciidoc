@@ -1032,20 +1032,20 @@ Moreover, don't forget to add Google as a *Source* from your connection profile 
 
 Facebook
 ^^^^^^^^
-To use Facebook as an authentication source, you also need an API code and a secret key.  To get one, go here: https://developers.facebook.com/apps.  When you create your App, make sure you specify the following as the Website URL:
-https://YOUR_PORTAL_HOSTNAME/oauth2/callback
-Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
+To use Facebook as an authentication source you will need to setup a Facebook app. Go to: <https://developers.facebook.com/apps>.
 
-To find the secret, go in your newly created app, and click on *Settings -> Basic*.
+Click the *Add a New APP* button or click on an existing APP. Choose a _Display Name_ and a _Contact Email_ address, then click on *Create APP ID*. On the following page in *Add a Product* for *Facebook Login* by clicking *Set Up*. On the following page select *WWW* (Web) as the _Platform_. Enter the *Site URL*: <https://[`HOSTNAME`].[`DOMAIN`]/>. Click *Save*, then click *Continue*.
 
-While in *Settings -> Basic*, add YOUR_PORTAL_HOSTNAME in the *App Domains* field. Next, you will need to add the product *Facebook Login*. Click on *Set up*, and choose *Web* platform. Go through the 5 steps, then on the left side of the screen, go in settings under Facebook Login. For *Valid OAuth Redirect URIs*, enter https://YOUR_PORTAL_HOSTNAME/oauth2/callback and then save changes.
+NOTE: Go to *Configuration -> System Config -> General Configurtation* for the `HOSTNAME` and `DOMAIN` to use throughout the Facebook Oauth configuration (example: *HOSTNAME*=`packetfence.moc` *DOMAIN*=`pf810`, therefore *Site URL*=`https://pf810.packetfence.moc/`).
 
-Also, add the following Authorized domains : *.facebook.com, *.fbcdn.net, *.akamaihd.net (May change)
+Navigate to *Product -> Facebook Login -> Settings*. Enable *Web OAuth Login* and under *Valid OAuth Redirect URIs* enter the following URI using your `HOSTNAME` and `DOMAIN`: <https://[`HOSTNAME`].[`DOMAIN`]/oauth2/callback>
+
+Navigate to *Main Menu -> Settings -> Basic*. Note the *App ID* and *App Secret*. In *App Domains* enter the following URI: [`HOSTNAME`].[`DOMAIN`] (example: *HOSTNAME*=`packetfence.moc` *DOMAIN*=`pf810`, therefore *App Domains*=`pf810.packetfence.moc`).
+
+Setup Packetfence to use the new Fabebook app in *Configuration -> Policies and Access Control -> Authentication Sources -> Add Source -> External -> Fabebook*. Enter the *App ID* and *App Secret* from above. Enter the following Authorized domains: *.facebook.com, *.fbcdn.net, *.akamaihd.net (May change)
 
 Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Facebook OAuth2 authentication source from *Configuration -> Policies and Access Control -> Authentication Sources*.
 Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
-
-You can keep the default configuration, modify the App ID & App Secret (Given by Facebook on the developer platform) and Portal URL (https://YOUR_PORTAL_HOSTNAME/oauth2/callback).
 
 Moreover, don't forget to add Facebook as a *Source* from your connection profile definition, available from *Configuration -> Policies and Access Control -> Connection Profiles and Pages*.
 
