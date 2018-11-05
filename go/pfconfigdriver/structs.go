@@ -280,6 +280,7 @@ type RessourseNetworkConf struct {
 	Dnsvip               string    `json:"dns_vip"`
 	ClusterIPs           string    `json:"cluster_ips"`
 	IpReserved           string    `json:"ip_reserved"`
+	IpAssigned           string    `json:"ip_assigned"`
 	Interface            Interface `json:"interface"`
 }
 
