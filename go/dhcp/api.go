@@ -113,6 +113,9 @@ func handleAllStats(res http.ResponseWriter, req *http.Request) {
 	var interfaces pfconfigdriver.ListenInts
 	pfconfigdriver.FetchDecodeSocket(ctx, &interfaces)
 
+	if len(interfaces.Element) == 0 {
+		result.Items = append(result.Items, Stats{})
+	}
 	for _, i := range interfaces.Element {
 		if h, ok := intNametoInterface[i]; ok {
 			stat := h.handleApiReq(ApiReq{Req: "stats", NetInterface: i, NetWork: ""})
