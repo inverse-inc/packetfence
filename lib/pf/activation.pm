@@ -208,7 +208,7 @@ is_code_in_use
 =cut
 
 sub is_code_in_use {
-    my ($type, $code) = @_;
+    my ($type, $code, $mac) = @_;
     my ($status, $iter) = pf::dal::activation->search(
         -columns => [ \"1" ],
         -where   => {
@@ -216,6 +216,7 @@ sub is_code_in_use {
             activation_code => $code,
             status          => $UNVERIFIED,
             expiration => { ">=" => \['NOW()']},
+            ($type eq 'sms' && defined($mac)) ? ( mac => $mac ) : (),
         },
     );
 
@@ -427,6 +428,7 @@ sub _generate_activation_code {
     my $type = $data{'type'};
     my $style = $data{'style'} // 'md5';
     my $generator = $style eq 'digits' ? \&digits_generator : \&md5_generator;
+    my $mac = $data{mac};
     do {
         # generating something not so easy to guess (and hopefully not in rainbowtables)
         $code = $generator->(\%data);
@@ -434,7 +436,7 @@ sub _generate_activation_code {
             $code = substr($code, 0, $code_length);
         }
         # make sure the generated code is unique
-        $code = undef if (!$no_unique && is_code_in_use($type, $code));
+        $code = undef if (!$no_unique && is_code_in_use($type, $code, $mac));
     } while (!defined($code));
 
     return $code;
