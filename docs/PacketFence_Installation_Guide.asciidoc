@@ -1036,7 +1036,7 @@ To use Facebook as an authentication source you will need to setup a Facebook ap
 
 Click the *Add a New APP* button or click on an existing APP. Choose a _Display Name_ and a _Contact Email_ address, then click on *Create APP ID*. On the following page in *Add a Product* for *Facebook Login* by clicking *Set Up*. On the following page select *WWW* (Web) as the _Platform_. Enter the *Site URL*: <https://[`HOSTNAME`].[`DOMAIN`]/>. Click *Save*, then click *Continue*.
 
-NOTE: Go to *Configuration -> System Config -> General Configurtation* for the `HOSTNAME` and `DOMAIN` to use throughout the Facebook Oauth configuration (example: *HOSTNAME*=`packetfence.moc` *DOMAIN*=`pf810`, therefore *Site URL*=`https://pf810.packetfence.moc/`).
+NOTE: Go to *Configuration -> System Config -> General Configurtation* for the `HOSTNAME` and `DOMAIN` to use throughout the Facebook OAuth configuration (example: *HOSTNAME*=`packetfence.moc` *DOMAIN*=`pf810`, therefore *Site URL*=`https://pf810.packetfence.moc/`).
 
 Navigate to *Product -> Facebook Login -> Settings*. Enable *Web OAuth Login* and under *Valid OAuth Redirect URIs* enter the following URI using your `HOSTNAME` and `DOMAIN`: <https://[`HOSTNAME`].[`DOMAIN`]/oauth2/callback>
 
