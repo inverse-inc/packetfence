@@ -332,14 +332,15 @@ sub update_items {
         @args,
     );
     return $status, undef if is_error($status);
-
+    my $rows = $sth->rows;
+    $sth->finish;
     my $info = $sth->{Database}{mysql_info};
-    if ($info =~ /^.*: (\d+).*: (\d+).*: (\d+)/) {
+    if ($info && $info =~ /^.*: (\d+).*: (\d+).*: (\d+)/) {
         my ($matched, $row, $warning) = ($1, $2, $3);
         return $STATUS::OK, $matched;
     }
 
-    return $STATUS::OK, $sth->rows;
+    return $STATUS::OK, $rows;
 }
 
 =head2 insert
