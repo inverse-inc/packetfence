@@ -501,7 +501,6 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 
 							if dhcp.IPAdd(handler.start, index.(int)).Equal(reqIP) {
 								GlobalTransactionLock.Lock()
-								cacheKey := p.CHAddr().String() + " " + msgType.String() + " xID " + sharedutils.ByteToString(p.XId())
 								if _, found = RequestGlobalTransactionCache.Get(cacheKey); found {
 									log.LoggerWContext(ctx).Debug("Not answering to REQUEST. Already processed")
 									Reply = false
@@ -524,8 +523,9 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 								}
 							}
 						} else {
-							// Not in the cache so refuse
-							Reply = false
+							// Not in the cache so we don't reply
+							log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not replying to %s because this server didn't perform the offer", prettyType))
+							return Answer{}
 						}
 					} else {
 						// Not in the cache so we don't reply
