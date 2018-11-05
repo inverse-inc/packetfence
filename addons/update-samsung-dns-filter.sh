@@ -25,6 +25,11 @@ rcode = NOERROR
 scope = dnsenforcement
 answer = connectivitycheck.gstatic.com IN A 172.217.13.99
 rcode = NOERROR
+
+[inline_samsung_connectivitycheck_gstatic_com:connectivitycheck_gstatic_com&samsung_oui]
+scope = inline
+answer = connectivitycheck.gstatic.com IN A 172.217.13.99
+rcode = NOERROR
 ### END OF SAMSUNG MAC VENDOR CHECK FOR CAPTIVE-PORTAL
 EOF
 
