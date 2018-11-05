@@ -1075,6 +1075,15 @@ Remember to add the Authentication Rules with at least two Actions (example: Rol
 
 Moreover, don't forget to add Instagram as a *Source* from your connection profile definition, available from *Configuration -> Policies and Access Control -> Connection Profiles and Pages*.
 
+Kickbox
+^^^^^^^
+To use Kickbox, you need a API key. To get one, first create an account on <https://kickbox.io>, then navigate to <https://app.kickbox.com/settings/keys>. Click on *API Keys -> Create Key*. Pick a name and choose *Production* mode and *Single* verification.
+
+Once you have your API key, you need to configure the OAuth2 provider. This can be done by adding a Kickbox authentication source from *Configuration -> Policies and Access Control -> Authentication Sources*.
+Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
+
+Moreover, don't forget to add Kickbox as a *Source* from your connection profile definition, available from *Configuration -> Policies and Access Control -> Connection Profiles and Pages*.
+
 LinkedIn
 ^^^^^^^^
 To use LinkedIn, you also need an API code and a secret key.  To get one, you need to create an App here: https://developer.linkedin.com/.  When you create your App, make sure you specify the following as the Callback URL
