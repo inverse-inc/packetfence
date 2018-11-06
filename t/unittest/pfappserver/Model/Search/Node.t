@@ -58,9 +58,9 @@ is_deeply( pfappserver::Model::Search::Node->make_order_by($params), [{-asc => '
 
 is_deeply( pfappserver::Model::Search::Node->make_order_by({by => 'mac'}), [{-asc => 'tenant_id'}, { -asc => 'mac' }], "MAC ASC default order");
 
-is_deeply( pfappserver::Model::Search::Node->make_order_by({direction => 'desc', by => 'mac'}), [{ -desc => 'mac' }], "MAC DESC");
+is_deeply( pfappserver::Model::Search::Node->make_order_by({direction => 'desc', by => 'mac'}), [{-desc => 'tenant_id'}, { -desc => 'mac' }], "MAC DESC");
 
-is_deeply( pfappserver::Model::Search::Node->make_order_by({direction => 'DESC', by => 'mac'}), [{ -desc => 'mac' }], "MAC DESC upper");
+is_deeply( pfappserver::Model::Search::Node->make_order_by({direction => 'DESC', by => 'mac'}), [{-desc => 'tenant_id'},{ -desc => 'mac' }], "MAC DESC upper");
 
 is_deeply( pfappserver::Model::Search::Node->make_order_by({direction => 'ASC', by => 'mac'}), [{-asc => 'tenant_id'}, { -asc => 'mac' }], "MAC ASC upper");
 
