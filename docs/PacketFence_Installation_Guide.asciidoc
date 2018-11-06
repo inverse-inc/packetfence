@@ -1096,7 +1096,7 @@ Remember to add the Authentication Rules with at least two Actions (example: Rol
 
 Moreover, don't forget to add LinkedIn as a *Source* from your connection profile definition, available from *Configuration -> Policies and Access Control -> Connection Profiles and Pages*.
 
-NOTE: When testing LinkedIn OAuth2, use a different LinkedIn account to setup the application and to test the Source in the Captive Portal.
+NOTE: When testing LinkedIn OAuth2, use a different LinkedIn account to setup the application and to test the Source in the captive portal.
 
 OpenID Connect
 ^^^^^^^^^^^^^^
