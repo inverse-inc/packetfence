@@ -37,6 +37,8 @@ sub element_attributes {
         $attr->{'x-placeholder'} = $attr->{placeholder};
         $attr->{placeholder} =~ s/./\*/g;
     }
+
+    $attr->{autocomplete} = 'off';
     return $attr;
 }
 
