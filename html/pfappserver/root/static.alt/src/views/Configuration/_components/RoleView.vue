@@ -30,7 +30,7 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfFormInput from '@/components/pfFormInput'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 const { validationMixin } = require('vuelidate')
-const { required, alphaNum, integer, maxLength } = require('vuelidate/lib/validators')
+const { required, alphaNum, integer } = require('vuelidate/lib/validators')
 
 export default {
   name: 'RoleView',
@@ -62,7 +62,7 @@ export default {
         labelCols: 3,
         fields: [
           {
-            if: self.isNew,
+            if: self.id === null,
             key: 'id',
             component: pfFormInput,
             label: this.$i18n.t('Name'),
@@ -89,14 +89,14 @@ export default {
             get model () { return self.role.max_nodes_per_pid },
             set model (value) { self.role.max_nodes_per_pid = value },
             validators: {
-              [this.$i18n.t('Value required')]: required,
+              [this.$i18n.t('Max nodes per user required')]: required,
               [this.$i18n.t('Integer value required.')]: integer
             }
           }
         ]
       },
       role: {}, // will be overloaded with the data from the store
-      roleValidations: {}
+      roleValidations: {} // will be overloaded with data from the pfConfigView
     }
   },
   validations () {
