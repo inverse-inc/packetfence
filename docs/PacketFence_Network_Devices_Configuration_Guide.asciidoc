@@ -929,7 +929,7 @@ Those switches are supported using 802.1X for networks with or without VoIP.
     mac-authentication enable
     mac-authentication enable ethe 1/1/1
 
-The configuration above enables authentication on port 1/1/1, make sure you change this to the ports where you want to perform enforcement
+The configuration above enables authentication on port 1/1/1 - make sure you change this to the ports where you want to perform enforcement.
 
 * SNMP configuration
 
