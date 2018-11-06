@@ -948,7 +948,7 @@ While configuring the switch in PacketFence, ensure you set at least the followi
 VoIP
 ++++
 
-In order to enable VoIP, you first need to enable LLDP then defined the network policy for tagging VoIP traffic on the ports where PacketFence is enabled.
+In order to enable VoIP, you first need to enable LLDP then define the network policy for tagging VoIP traffic on the ports where PacketFence is enabled.
 
   lldp run
   lldp med network-policy application voice tagged vlan 5 priority 5 dscp 46 ports ethe 1/1/1 
