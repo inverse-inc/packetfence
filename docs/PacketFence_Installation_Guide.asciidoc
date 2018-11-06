@@ -1125,6 +1125,15 @@ Remember to add the Authentication Rules with at least two Actions (example: Rol
 
 Moreover, don't forget to add Pinterest as a *Source* from your connection profile definition, available from *Configuration -> Policies and Access Control -> Connection Profiles and Pages*.
 
+Twilio
+^^^^^^
+To use Twilio, first create an account on <https://www.twilio.com>. From the console (dashboard) <https://www.twilio.com/console> create a *3rd Party Integration*. Note the *Account SID* and *Auth Token* for later use. From the Phone Manager <https://www.twilio.com/console/phone-numbers/incoming> click the "+" button to *Buy a number* with _SMS_ capability - no payment is needed to start using this phone number right away.
+
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Twilio OAuth2 authentication source from *Configuration -> Policies and Access Control -> Authentication Sources*. Enter your *Account SID*, *Auth Token* and *Phone Number (From)* from above.
+Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
+
+Moreover, don't forget to add Twilio as a *Source* from your connection profile definition, available from *Configuration -> Policies and Access Control -> Connection Profiles and Pages*.
+
 Twitter
 ^^^^^^^
 To use Twitter, you also need an API code and a secret key which Twitter calls _consumer key_ and _consumer secret_. Obtain this information by creating an new application from your https://apps.twitter.com/[Twitter Apps Management page].  When you create your App, make sure you specify the following as the _Callback URL_
