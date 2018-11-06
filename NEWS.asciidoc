@@ -17,7 +17,7 @@ Version X.Y.Z released on xxxx-xx-xx
 New Features
 ++++++++++++
 * Added support for clusters with servers located in multiple layer 3 networks (PR #3656)
-* Permit incoming Eduroam TLRs RADIUS requests (PR #3399)
+* Permit incoming Eduroam TLRS RADIUS requests (PR #3399)
 * pfconfig is tenant aware (PR #3385)
 * Realm are tenant scoped (PR #3385)
 * Added Mojo web authentication support (PR #3604)
