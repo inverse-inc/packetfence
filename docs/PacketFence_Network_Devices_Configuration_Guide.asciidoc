@@ -939,6 +939,7 @@ The configuration above enables authentication on port 1/1/1, make sure you chan
 * PacketFence configuration
 
 While configuring the switch in PacketFence, ensure you set at least the following values:
+ * Definition, Type: Brocade Switches
  * RADIUS, Secret Passphrase: useStrongerSecret
  * SNMP, Version: v2c
  * SNMP, Community Read: public
