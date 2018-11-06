@@ -93,7 +93,7 @@ export default {
       if (this.form.fields.length > 0) {
         this.form.fields.forEach((field, index) => {
           eachFieldValue[field.key] = {}
-          if ('validators' in field) { // has vuelidate validations
+          if ('validators' in field && (!('if' in field) || field.if)) { // has vuelidate validations
             eachFieldValue[field.key] = field.validators
           }
         })
