@@ -69,7 +69,6 @@ export default {
   },
   computed: {
     isNew () {
-      console.log('isNew', this.form.fields, this.form.fields.filter(field => field.key === 'id').length === 0)
       return this.form.fields.filter(field => field.key === 'id').length === 0
     },
     defaultComponent () {
@@ -117,7 +116,7 @@ export default {
           // force DOM update
           this.$forceUpdate()
         })
-      }, 100)
+      }, 300)
     }
   },
   watch: {
