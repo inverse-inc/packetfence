@@ -123,7 +123,7 @@ sub processIPTasks {
     $self->preProcessIPTasks(\%iptasks_arguments);
 
     # update last_seen of MAC address as some activity from it has been seen
-    pf::node::node_update_last_seen($iptasks_arguments{'ip'});
+    pf::node::node_update_last_seen($iptasks_arguments{'mac'});
 
     # Firewall SSO
     if (isenabled($pf::config::Config{advanced}{sso_on_dhcp})) {
