@@ -901,8 +901,67 @@ Where `xx` is the switch port number
    mac-authentication enable-dynamic-vlan
    voice-vlan 100
 
+Firmware 08.0.80 and above
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+802.1x/MAC-Auth
++++++++++++++++
+
+Those switches are supported using 802.1X for networks with or without VoIP.
+
+* RADIUS server configuration
+
+  radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 default key useStrongerSecret dot1x mac-auth no-login
+
+* Authentication configuration
+
+  aaa authentication dot1x default radius
+  authentication
+    auth-default-vlan 2
+    re-authentication
+    auth-fail-action restricted-vlan
+    dot1x enable
+    dot1x enable ethe 1/1/1
+    dot1x port-control auto ethe 1/1/1
+    dot1x macauth-override
+    dot1x timeout tx-period 3
+    dot1x timeout quiet-period 2
+    mac-authentication enable
+    mac-authentication enable ethe 1/1/1
+
+The configuration above enables authentication on port 1/1/1, make sure you change this to the ports where you want to perform enforcement
+
+* SNMP configuration
+
+  snmpserver community public ro
+  snmpserver community private rw
+
+* PacketFence configuration
+
+While configuring the switch in PacketFence, ensure you set at least the following values:
+ * RADIUS, Secret Passphrase: useStrongerSecret
+ * SNMP, Version: v2c
+ * SNMP, Community Read: public
+ * SNMP, Community Write: private
+
+VoIP
+++++
+
+In order to enable VoIP, you first need to enable LLDP then defined the network policy for tagging VoIP traffic on the ports where PacketFence is enabled.
+
+  lldp run
+  lldp med network-policy application voice tagged vlan 5 priority 5 dscp 46 ports ethe 1/1/1 
+
+NOTE: Make sure you change VLAN 5 to the VLAN you use for VoIP
+
+* PacketFence configuration
+
+While configuring the switch in PacketFence, ensure you set at least the following values:
+ * Roles, voice VLAN: 5
+ * Definition, VoIP: enabled
+
 Radius CLI Login
-++++++++++++++++
+^^^^^^^^^^^^^^^^
 
 If you want to use the server PacketFence to authenticate users on the Brocade switch.
 
