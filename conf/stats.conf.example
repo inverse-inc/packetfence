@@ -7,7 +7,7 @@ api_path=/api/v1/queues/stats
 api_compile=$.items[*].queue, $.items[*].stats.count
 interval=60s
 randomize=true
-management = false
+management=false
 
 [metric 'redis queue stats expired']
 type=api
@@ -18,7 +18,7 @@ api_path=/api/v1/queues/stats
 api_compile=$.items[*].stats.expired[*].name, $.items[*].stats.expired[*].count
 interval=60s
 randomize=true
-management = false
+management=false
 
 [metric 'redis queue stats outstanding']
 type=api
@@ -29,7 +29,7 @@ api_path=/api/v1/queues/stats
 api_compile=$.items[*].stats.outstanding[*].name, $.items[*].stats.outstanding[*].count
 interval=60s
 randomize=true
-management = false
+management=false
 
 [metric 'total number of registered devices per role']
 type=mysql_query
@@ -38,7 +38,7 @@ statsd_ns=source.packetfence.devices.registered_per_role
 mysql_query=select name, count(distinct node.mac) from node_category left join node on node.category_id=node_category.category_id and node.status='reg' group by node_category.category_id
 interval=60s
 randomize=true
-management = true
+management=true
 
 [metric 'total number of connected devices per connection type']
 type=mysql_query
@@ -46,7 +46,7 @@ statsd_type=gauge
 statsd_ns=source.packetfence.devices.connected_per_connection_type
 mysql_query=select connection_type, count(distinct mac) from locationlog where end_time is null group by connection_type
 interval=720s
-management = true
+management=true
 
 [metric 'total number of connected devices per ssid']
 type=mysql_query
@@ -54,7 +54,7 @@ statsd_type=gauge
 statsd_ns=source.packetfence.devices.connected_per_ssid
 mysql_query= select ssid, count(distinct mac) from locationlog where ssid != '' and end_time is null group by ssid
 interval=720s
-management = true
+management=true
 
 [metric 'total number of unregistered devices']
 type=mysql_query
@@ -63,7 +63,7 @@ statsd_ns=source.packetfence.devices.unregistered
 mysql_query=select count(distinct mac) from node where status='unreg'
 interval=60s
 randomize=true
-management = true
+management=true
 
 [metric 'number of devices currently registered']
 type=mysql_query
@@ -72,7 +72,7 @@ statsd_ns=source.packetfence.devices.registered
 mysql_query=select count(distinct mac) from node where status='reg' and (unregdate >= NOW() or unregdate = '0000-00-00 00:00:00')
 interval=60s
 randomize=true
-management = true
+management=true
 
 [metric 'number of new registered devices during the past hour']
 type=mysql_query
@@ -80,7 +80,7 @@ statsd_type=gauge
 statsd_ns=source.packetfence.devices.registered_last_hour
 mysql_query=select count(distinct mac) from node where status='reg' and regdate >= NOW() - INTERVAL 1 HOUR
 interval=1s
-management = true
+management=true
 
 [metric 'number of new registered devices during the past day']
 type=mysql_query
@@ -88,7 +88,7 @@ statsd_type=gauge
 statsd_ns=source.packetfence.devices.registered_last_day
 mysql_query=select count(distinct mac) from node where status='reg' and regdate >= NOW() - INTERVAL 1 DAY
 interval=24s
-management = true
+management=true
 
 [metric 'number of new registered devices during the past week']
 type=mysql_query
@@ -96,7 +96,7 @@ statsd_type=gauge
 statsd_ns=source.packetfence.devices.registered_last_week
 mysql_query=select count(distinct mac) from node where status='reg' and regdate >= NOW() - INTERVAL 1 WEEK
 interval=168s
-management = true
+management=true
 
 [metric 'number of new registered devices during the past month']
 type=mysql_query
@@ -104,7 +104,7 @@ statsd_type=gauge
 statsd_ns=source.packetfence.devices.registered_last_month
 mysql_query=select count(distinct mac) from node where status='reg' and regdate >= NOW() - INTERVAL 1 MONTH
 interval=720s
-management = true
+management=true
 
 [metric 'number of new registered devices during the past year']
 type=mysql_query
@@ -112,7 +112,7 @@ statsd_type=gauge
 statsd_ns=source.packetfence.devices.registered_last_year
 mysql_query=select count(distinct mac) from node where status='reg' and regdate >= NOW() - INTERVAL 1 YEAR
 interval=8760s
-management = true
+management=true
 
 [metric 'number of devices currently online and registered']
 type=mysql_query
@@ -121,7 +121,7 @@ statsd_ns=source.packetfence.devices.online_registered
 mysql_query=select count(distinct n.mac) from node n join radacct r on r.callingstationid=n.mac where n.status='reg' and (n.unregdate >= NOW() or n.unregdate = '0000-00-00 00:00:00') and r.acctstoptime is null
 interval=720s
 randomize=true
-management = true
+management=true
 
 [metric 'number of devices currently online and unregistered']
 type=mysql_query
@@ -130,7 +130,7 @@ statsd_ns=source.packetfence.devices.online_unregistered
 mysql_query=select count(distinct n.mac) from node n join radacct r on r.callingstationid=n.mac where n.status!='reg' and (n.unregdate >= NOW() or n.unregdate = '0000-00-00 00:00:00') and r.acctstoptime is null
 interval=720s
 randomize=true
-management = true
+management=true
 
 [metric 'number of currently open violations']
 type=mysql_query
@@ -139,7 +139,7 @@ statsd_ns=source.packetfence.violations
 mysql_query=select count(distinct mac) from violation where status='open'
 interval=60s
 randomize=true
-management = true
+management=true
 
 [metric 'number of successful radius authentications in the last day']
 type=mysql_query
@@ -148,7 +148,7 @@ statsd_ns=source.packetfence.authentication.success_last_day
 mysql_query=select count(1) from radius_audit_log where auth_status='Accept' and created_at >= NOW() - INTERVAL 1 DAY;
 interval=60s
 randomize=true
-management = true
+management=true
 
 [metric 'number of failed radius authentications in the last day']
 type=mysql_query
@@ -157,7 +157,7 @@ statsd_ns=source.packetfence.authentication.failed_last_day
 mysql_query=select count(1) from radius_audit_log where auth_status='Reject' and created_at >= NOW() - INTERVAL 1 DAY;
 interval=60s
 randomize=true
-management = true
+management=true
 
 [metric 'number of dhcp free ip addresses']
 type=api
@@ -168,7 +168,7 @@ api_path=/api/v1/dhcp/stats
 api_compile=$.items[*].network.free, $.items[*].free
 interval=60s
 randomize=true
-management = false
+management=false
 
 [metric 'number of dhcp used ip addresses']
 type=api
@@ -179,7 +179,7 @@ api_path=/api/v1/dhcp/stats
 api_compile=$.items[*].network.used, $.items[*].used
 interval=60s
 randomize=true
-management = false
+management=false
 
 [metric 'percent of dhcp free ip addresses']
 type=api
@@ -190,7 +190,7 @@ api_path=/api/v1/dhcp/stats
 api_compile=$.items[*].network, $.items[*].percentfree
 interval=60s
 randomize=true
-management = false
+management=false
 
 [metric 'percent of dhcp used ip addresses']
 type=api
@@ -201,4 +201,4 @@ api_path=/api/v1/dhcp/stats
 api_compile=$.items[*].network, $.items[*].percentused
 interval=60s
 randomize=true
-management = false
+management=false

@@ -1797,22 +1797,15 @@ func detectVIP(management pfconfigdriver.ManagementNetwork) {
 
 	eth, _ := net.InterfaceByName(management.Int)
 	adresses, _ := eth.Addrs()
-	var found bool
-	found = false
+
 	for _, adresse := range adresses {
 		IP, _, _ := net.ParseCIDR(adresse.String())
 		VIPIp[management.Int] = net.ParseIP(keyConfCluster.Ip)
 		if IP.Equal(VIPIp[management.Int]) {
-			found = true
-			if VIP[management.Int] == false {
-				VIP[management.Int] = true
-				return
-			}
+			VIP[management.Int] = true
+			return
 		}
 	}
-	if found == false {
-		VIP[management.Int] = false
-		return
-	}
+	VIP[management.Int] = false
 	return
 }
