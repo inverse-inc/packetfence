@@ -70,17 +70,14 @@ export default {
             set model (value) { self.role.id = value },
             validators: {
               [this.$i18n.t('Name is required')]: required,
-              [this.$i18n.t('Alphanumeric value required')]: alphaNum
+              [this.$i18n.t('Alphanumeric value required.')]: alphaNum
             }
           },
           {
             key: 'notes',
             label: this.$i18n.t('Description'),
             get model () { return self.role.notes },
-            set model (value) { self.role.notes = value },
-            validators: {
-              [this.$i18n.t('Maximum 3 characters.')]: maxLength(3)
-            }
+            set model (value) { self.role.notes = value }
           },
           {
             key: 'max_nodes_per_pid',
@@ -93,7 +90,7 @@ export default {
             set model (value) { self.role.max_nodes_per_pid = value },
             validators: {
               [this.$i18n.t('Value required')]: required,
-              [this.$i18n.t('Integer value required')]: integer
+              [this.$i18n.t('Integer value required.')]: integer
             }
           }
         ]
