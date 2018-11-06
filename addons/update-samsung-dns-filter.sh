@@ -1,6 +1,6 @@
 #!/bin/bash
 
-regex=`sqlite3 /usr/local/fingerbank/db/fingerbank_Upstream.db "select mac from mac_vendor where name like '%samsung%';" | perl -pe 's/([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/$1:$2:$3/g' | tr '\n' '|' | sed 's/|$//g'`
+regex=`sqlite3 /usr/local/fingerbank/db/fingerbank_Upstream.db "select mac from mac_vendor where name like '%samsung%' or name like '%Murata%';" | perl -pe 's/([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/$1:$2:$3/g' | tr '\n' '|' | sed 's/|$//g'`
 regex="^($regex)"
 
 read -r -d '' content <<EOF
