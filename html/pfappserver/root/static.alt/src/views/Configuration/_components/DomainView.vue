@@ -1,7 +1,8 @@
 <template>
   <pf-config-view
     :isLoading="isLoading"
-    :form="form"
+    :form="getForm"
+    :model="domain"
     :validation="$v.domain"
     @validations="domainValidations = $event"
     @close="close"
@@ -14,7 +15,7 @@
       <h4 class="mb-0">
         <span v-if="id">{{ $t('Domain') }} <strong v-text="id"></strong></span>
         <span v-else>{{ $t('New Domain') }}</span>
-        </h4>
+      </h4>
     </template>
     <template slot="footer" is="b-card-footer" @mouseenter="$v.domain.$touch()">
       <pf-button-save :disabled="invalidForm" :isLoading="isLoading">{{ isNew? $t('Create') : $t('Save') }}</pf-button-save>
@@ -59,91 +60,6 @@ export default {
   data () {
     let self = this
     return {
-      form: {
-        labelCols: 3,
-        fields: [
-          {
-            if: self.id === null,
-            key: 'id',
-            component: pfFormInput,
-            label: this.$i18n.t('Identifier'),
-            text: this.$i18n.t('Specify a unique identifier for your configuration.<br/>This doesn\'t have to be related to your domain'),
-            get model () { return self.domain.id },
-            set model (value) { self.domain.id = value },
-            validators: {
-              [this.$i18n.t('Name is required')]: required,
-              [this.$i18n.t('Alphanumeric value required.')]: alphaNum
-            }
-          },
-          {
-            key: 'workgroup',
-            label: this.$i18n.t('Workgroup'),
-            get model () { return self.domain.workgroup },
-            set model (value) { self.domain.workgroup = value },
-            validators: {
-              [this.$i18n.t('Workgroup is required')]: required
-            }
-          },
-          {
-            key: 'dns_name',
-            label: this.$i18n.t('DNS name of the domain'),
-            text: this.$i18n.t('The DNS name (FQDN) of the domain.'),
-            get model () { return self.domain.dns_name },
-            set model (value) { self.domain.dns_name = value },
-            validators: {
-              [this.$i18n.t('DNS name is required')]: required,
-              [this.$i18n.t('Fully Qualified Domain Name required.')]: isFQDN
-            }
-          },
-          {
-            key: 'server_name',
-            label: this.$i18n.t('This server\'s name'),
-            text: this.$i18n.t('This server\'s name (account name) in your Active Directory. Use \'%h\' to automatically use this server hostname.'),
-            get model () { return self.domain.server_name },
-            set model (value) { self.domain.server_name = value },
-            validators: {
-              [this.$i18n.t('Server name is required')]: required
-            }
-          },
-          {
-            key: 'sticky_dc',
-            label: this.$i18n.t('Sticky DC'),
-            text: this.$i18n.t('This is used to specify a sticky domain controller to connect to. If not specified, default \'*\' will be used to connect to any available domain controller'),
-            get model () { return self.domain.sticky_dc },
-            set model (value) { self.domain.sticky_dc = value },
-            validators: {
-              [this.$i18n.t('Sticky DC is required')]: required
-            }
-          },
-          {
-            key: 'ad_server',
-            label: this.$i18n.t('Active Directory server'),
-            text: this.$i18n.t('The IP address or DNS name of your Active Directory server'),
-            get model () { return self.domain.ad_server },
-            set model (value) { self.domain.ad_server = value },
-            validators: {
-              [this.$i18n.t('Active Directory server is required')]: required
-            }
-          },
-          {
-            key: 'bind_dn',
-            label: this.$i18n.t('Username'),
-            text: this.$i18n.t('The username of a Domain Admin to use to join the server to the domain'),
-            get model () { return self.domain.bind_dn },
-            set model (value) { self.domain.bind_dn = value }
-          },
-          {
-            key: 'bind_pass',
-            label: this.$i18n.t('Password'),
-            text: this.$i18n.t('The password of a Domain Admin to use to join the server to the domain. Will not be stored permanently and is only used while joining the domain.'),
-            get model () { return self.domain.bind_pass },
-            set model (value) { self.domain.bind_pass = value },
-            attrs: {
-              type: 'password'
-            }
-          }
-        ]
-      },
       domain: { // will be overloaded with the data from the store
         id: null,
         ad_server: '%h'
@@ -165,6 +81,84 @@ export default {
     },
     invalidForm () {
       return this.$v.domain.$invalid || this.$store.getters['$_domains/isWaiting']
+    },
+    getForm () {
+      return {
+        labelCols: 3,
+        fields: [
+          {
+            if: this.isNew, // new domains only
+            key: 'id',
+            component: pfFormInput,
+            label: this.$i18n.t('Identifier'),
+            text: this.$i18n.t('Specify a unique identifier for your configuration.<br/>This doesn\'t have to be related to your domain.'),
+            validators: {
+              [this.$i18n.t('Name is required.')]: required,
+              [this.$i18n.t('Alphanumeric value required.')]: alphaNum
+            }
+          },
+          {
+            key: 'workgroup',
+            component: pfFormInput,
+            label: this.$i18n.t('Workgroup'),
+            validators: {
+              [this.$i18n.t('Workgroup is required.')]: required
+            }
+          },
+          {
+            key: 'dns_name',
+            component: pfFormInput,
+            label: this.$i18n.t('DNS name of the domain'),
+            text: this.$i18n.t('The DNS name (FQDN) of the domain.'),
+            validators: {
+              [this.$i18n.t('DNS name is required.')]: required,
+              [this.$i18n.t('Fully Qualified Domain Name required.')]: isFQDN
+            }
+          },
+          {
+            key: 'server_name',
+            component: pfFormInput,
+            label: this.$i18n.t('This server\'s name'),
+            text: this.$i18n.t('This server\'s name (account name) in your Active Directory. Use \'%h\' to automatically use this server hostname.'),
+            validators: {
+              [this.$i18n.t('Server name is required.')]: required
+            }
+          },
+          {
+            key: 'sticky_dc',
+            component: pfFormInput,
+            label: this.$i18n.t('Sticky DC'),
+            text: this.$i18n.t('This is used to specify a sticky domain controller to connect to. If not specified, default \'*\' will be used to connect to any available domain controller.'),
+            validators: {
+              [this.$i18n.t('Sticky DC is required.')]: required
+            }
+          },
+          {
+            key: 'ad_server',
+            component: pfFormInput,
+            label: this.$i18n.t('Active Directory server'),
+            text: this.$i18n.t('The IP address or DNS name of your Active Directory server.'),
+            validators: {
+              [this.$i18n.t('Active Directory server is required.')]: required
+            }
+          },
+          {
+            key: 'bind_dn',
+            component: pfFormInput,
+            label: this.$i18n.t('Username'),
+            text: this.$i18n.t('The username of a Domain Admin to use to join the server to the domain.')
+          },
+          {
+            key: 'bind_pass',
+            component: pfFormInput,
+            label: this.$i18n.t('Password'),
+            text: this.$i18n.t('The password of a Domain Admin to use to join the server to the domain. Will not be stored permanently and is only used while joining the domain.'),
+            attrs: {
+              type: 'password'
+            }
+          }
+        ]
+      }
     }
   },
   methods: {

@@ -1,7 +1,8 @@
 <template>
   <pf-config-view
     :isLoading="isLoading"
-    :form="form"
+    :form="getForm"
+    :model="role"
     :validation="$v.role"
     @validations="roleValidations = $event"
     @close="close"
@@ -14,7 +15,7 @@
       <h4 class="mb-0">
         <span v-if="id">{{ $t('Role') }} <strong v-text="id"></strong></span>
         <span v-else>{{ $t('New Role') }}</span>
-        </h4>
+      </h4>
     </template>
     <template slot="footer" is="b-card-footer" @mouseenter="$v.role.$touch()">
       <pf-button-save :disabled="invalidForm" :isLoading="isLoading">{{ isNew? $t('Create') : $t('Save') }}</pf-button-save>
@@ -56,45 +57,7 @@ export default {
     }
   },
   data () {
-    let self = this
     return {
-      form: {
-        labelCols: 3,
-        fields: [
-          {
-            if: self.id === null,
-            key: 'id',
-            component: pfFormInput,
-            label: this.$i18n.t('Name'),
-            get model () { return self.role.id },
-            set model (value) { self.role.id = value },
-            validators: {
-              [this.$i18n.t('Name is required')]: required,
-              [this.$i18n.t('Alphanumeric value required.')]: alphaNum
-            }
-          },
-          {
-            key: 'notes',
-            label: this.$i18n.t('Description'),
-            get model () { return self.role.notes },
-            set model (value) { self.role.notes = value }
-          },
-          {
-            key: 'max_nodes_per_pid',
-            component: pfFormInput,
-            label: this.$i18n.t('Max nodes per user'),
-            attrs: {
-              type: 'number'
-            },
-            get model () { return self.role.max_nodes_per_pid },
-            set model (value) { self.role.max_nodes_per_pid = value },
-            validators: {
-              [this.$i18n.t('Max nodes per user required')]: required,
-              [this.$i18n.t('Integer value required.')]: integer
-            }
-          }
-        ]
-      },
       role: {}, // will be overloaded with the data from the store
       roleValidations: {} // will be overloaded with data from the pfConfigView
     }
@@ -113,6 +76,41 @@ export default {
     },
     invalidForm () {
       return this.$v.role.$invalid || this.$store.getters['$_roles/isWaiting']
+    },
+    getForm () {
+      return {
+        labelCols: 3,
+        fields: [
+          {
+            if: this.isNew, // new roles only
+            key: 'id',
+            component: pfFormInput,
+            label: this.$i18n.t('Name'),
+            validators: {
+              [this.$i18n.t('Name is required.')]: required,
+              [this.$i18n.t('Alphanumeric value required.')]: alphaNum
+            }
+          },
+          {
+            key: 'notes',
+            component: pfFormInput,
+            label: this.$i18n.t('Description'),
+            validators: {}
+          },
+          {
+            key: 'max_nodes_per_pid',
+            component: pfFormInput,
+            label: this.$i18n.t('Max nodes per user'),
+            attrs: {
+              type: 'number'
+            },
+            validators: {
+              [this.$i18n.t('Max nodes per user required.')]: required,
+              [this.$i18n.t('Integer value required.')]: integer
+            }
+          }
+        ]
+      }
     }
   },
   methods: {

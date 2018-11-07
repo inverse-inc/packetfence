@@ -18,8 +18,8 @@
         >
           <b-input-group>
             <component :is="field.component || defaultComponent"
-              v-model="field.model"
               v-bind="field.attrs"
+              v-model="model[field.key]"
               :validation="validation[field.key]"
               class="col-sm-12 px-0"
             ></component>
@@ -58,10 +58,16 @@ export default {
   ],
   props: {
     form: {
-      type: Object
+      type: Object,
+      required: true
+    },
+    model: {
+      type: Object,
+      required: true
     },
     validation: {
-      type: Object
+      type: Object,
+      required: true
     },
     isLoading: {
       type: Boolean
@@ -93,7 +99,10 @@ export default {
       if (this.form.fields.length > 0) {
         this.form.fields.forEach((field, index) => {
           eachFieldValue[field.key] = {}
-          if ('validators' in field && (!('if' in field) || field.if)) { // has vuelidate validations
+          if (
+            'validators' in field && // has vuelidate validations
+            (!('if' in field) || field.if) // is visible
+          ) {
             eachFieldValue[field.key] = field.validators
           }
         })
@@ -107,25 +116,11 @@ export default {
       if (this.emitExternalValidationsTimeout) clearTimeout(this.emitExternalValidationsTimeout)
       this.emitExternalValidationsTimeout = setTimeout(() => {
         this.$emit('validations', this.getValidations())
-        if (this.validation && this.validation.$dirty) {
-          this.$nextTick(() => {
-            this.validation.$touch()
-          })
-        }
-        this.$nextTick(() => {
-          // force DOM update
-          this.$forceUpdate()
-        })
       }, 300)
     }
   },
-  watch: {
-    form: {
-      handler: function (a, b) {
-        this.emitExternalValidations()
-      },
-      deep: true
-    }
+  mounted () {
+    this.emitExternalValidations()
   }
 }
 </script>

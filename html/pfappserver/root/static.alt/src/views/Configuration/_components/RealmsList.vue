@@ -34,6 +34,24 @@ export default {
             label: this.$i18n.t('Name'),
             sortable: true,
             visible: true
+          },
+          {
+            key: 'portal_strip_username',
+            label: this.$i18n.t('Strip Portal'),
+            sortable: true,
+            visible: true
+          },
+          {
+            key: 'admin_strip_username',
+            label: this.$i18n.t('Strip Admin'),
+            sortable: true,
+            visible: true
+          },
+          {
+            key: 'radius_strip_username',
+            label: this.$i18n.t('Strip RADIUS'),
+            sortable: true,
+            visible: true
           }
         ],
         fields: [
