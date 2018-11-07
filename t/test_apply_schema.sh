@@ -9,6 +9,7 @@ else
     RESET_COLOR=
 fi
 
+
 PF_DIR=/usr/local/pf
 
 DB_PREFIX=pf_smoke_test_
@@ -20,6 +21,11 @@ PRISTINE_DB="${DB_PREFIX}_pristine_$$"
 MYSQL="mysql -upf_smoke_tester -ppacket -h127.0.0.1"
 
 MYSQLDUMP="mysqldump -upf_smoke_tester -h127.0.0.1 --no-data -a --skip-comments --routines -ppacket"
+
+if ! [ -f "$PF_DIR/db/upgrade-X.X.X-X.Y.Z.sql" ]; then
+  echo "X.X.X to X.Y.Z upgrade script doesn't exist. Not testing schema upgrade"
+  exit 0
+fi
 
 for db in $UPGRADED_DB $PRISTINE_DB;do
     echo "Created test db $db"
