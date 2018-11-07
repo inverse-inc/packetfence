@@ -1782,14 +1782,6 @@ The api_user table has been deprecated
 
 Any users in that were in the api_user table should be migrated to PacketFence local account (password table)
 
-
-Upgrade sudoers file
-^^^^^^^^^^^^^^^^^^^^
-
-`sudo` configuration will now hide commands starting with `/sbin/ip netns exec` in syslog file.
-During the Packetfence upgrade, the package manager of your distribution will inform you that `/etc/sudoers.d/packetfence` has changed. You will need to merge the current and new `sudoers` file.
-
-
 Upgrade pf user privileges
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
