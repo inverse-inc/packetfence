@@ -13,7 +13,7 @@
 
 // TODO have the build system take care of this
 
-:release_version: 8.1.0
+:release_version: 8.2.0
 // set imagesdir for all asciidoc files
 :imagesdir: images
 
