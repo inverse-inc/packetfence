@@ -2,7 +2,7 @@
     <b-container class="my-5">
         <b-row class="justify-content-md-center text-secondary">
             <b-col cols="12" md="auto">
-                <icon v-if="isLoading" name="sync" scale="2" spin></icon>
+                <icon v-if="isLoading" name="circle-notch" scale="1.5" spin></icon>
                 <b-media v-else>
                     <icon name="search" scale="2" slot="aside"></icon>
                     <h4><slot/></h4>
