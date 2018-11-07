@@ -1741,17 +1741,6 @@ Once completed, update the file /usr/local/pf/conf/currently-at to match the new
 Upgrading from a version prior to X.Y.Z
 ---------------------------------------
 
-Removal of etcd
-^^^^^^^^^^^^^^^
-
-The etcd storage backend has been removed in favor of storing the data directly inside the MySQL database. In order to disable the service permanently, execute the following commands:
-
-  systemctl stop packetfence-etcd
-  systemctl disable packetfence-etcd
-  rm -f /usr/lib/systemd/system/packetfence-etcd.service
-  rm -f /etc/systemd/system/packetfence-etcd.service
-  systemctl daemon-reload
-
 Queue Stats maintenance job removal
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 The queue_stats maintenance job has been deprecated in favor of using pfstats. In order to remove configuration related to this maintenance job, run:
