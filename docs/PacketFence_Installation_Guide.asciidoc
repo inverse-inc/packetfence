@@ -1032,15 +1032,15 @@ Moreover, don't forget to add Google as a *Source* from your connection profile 
 
 Facebook
 ^^^^^^^^
-To use Facebook as an authentication source you will need to setup a Facebook app. Go to: <https://developers.facebook.com/apps>.
+To use Facebook as an authentication source you will need to setup a Facebook account. Then setup a Facebook app. Go to: <https://developers.facebook.com/apps>.
 
 Click the *Add a New APP* button or click on an existing APP. Choose a _Display Name_ and a _Contact Email_ address, then click on *Create APP ID*. On the following page in *Add a Product* for *Facebook Login* by clicking *Set Up*. On the following page select *WWW* (Web) as the _Platform_. Enter the *Site URL*: <https://[`HOSTNAME`].[`DOMAIN`]/>. Click *Save*, then click *Continue*.
 
-NOTE: Go to *Configuration -> System Config -> General Configurtation* for the `HOSTNAME` and `DOMAIN` to use throughout the Facebook OAuth configuration (example: *HOSTNAME*=`packetfence.moc` *DOMAIN*=`pf810`, therefore *Site URL*=`https://pf810.packetfence.moc/`).
+NOTE: Go to *Configuration -> System Config -> General Configurtation* for the `HOSTNAME` and `DOMAIN` to use throughout the Facebook OAuth configuration (example: *DOMAIN*=`packetfence.moc` *HOSTNAME*=`pf810`, therefore *Site URL*=`https://pf810.packetfence.moc/`).
 
 Navigate to *Product -> Facebook Login -> Settings*. Enable *Web OAuth Login* and under *Valid OAuth Redirect URIs* enter the following URI using your `HOSTNAME` and `DOMAIN`: <https://[`HOSTNAME`].[`DOMAIN`]/oauth2/callback>
 
-Navigate to *Main Menu -> Settings -> Basic*. Note the *App ID* and *App Secret*. In *App Domains* enter the following URI: [`HOSTNAME`].[`DOMAIN`] (example: *HOSTNAME*=`packetfence.moc` *DOMAIN*=`pf810`, therefore *App Domains*=`pf810.packetfence.moc`).
+Navigate to *Main Menu -> Settings -> Basic*. Note the *App ID* and *App Secret*. In *App Domains* enter the following URI: [`HOSTNAME`].[`DOMAIN`] (example: *DOMAIN*=`packetfence.moc` *HOSTNAME*=`pf810`, therefore *App Domains*=`pf810.packetfence.moc`).
 
 Setup Packetfence to use the new Fabebook app in *Configuration -> Policies and Access Control -> Authentication Sources -> Add Source -> External -> Fabebook*. Enter the *App ID* and *App Secret* from above. Enter the following Authorized domains: *.facebook.com, *.fbcdn.net, *.akamaihd.net (May change)
 
