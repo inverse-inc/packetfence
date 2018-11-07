@@ -1,7 +1,9 @@
 import store from '@/store'
-import AuditingView from '../'
 import RadiusLogsStore from '../_store/radiuslogs'
 import RadiusLogsSearch from '../_components/RadiusLogsSearch'
+
+const AuditingView = () => import(/* webpackChunkName: "RadiusLogs" */ '../')
+const RadiusLogView = () => import(/* webpackChunkName: "RadiusLogs" */ '../_components/RadiusLogView')
 
 const route = {
   path: '/auditing',
@@ -19,7 +21,23 @@ const route = {
   children: [
     {
       path: 'radiuslogs/search',
+      name: 'radiuslogs',
       component: RadiusLogsSearch
+    },
+    {
+      path: 'radiuslog/:id',
+      name: 'radiuslog',
+      component: RadiusLogView,
+      props: (route) => ({ storeName: '$_radiuslogs', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_radiuslogs/getItem', to.params.id).then(radiuslog => {
+          next()
+        })
+      },
+      meta: {
+        can: 'read radius_log'
+      }
+
     }
   ]
 }

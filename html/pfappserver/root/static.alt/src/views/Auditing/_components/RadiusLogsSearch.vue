@@ -36,7 +36,7 @@
           </b-container>
         </b-col>
       </b-row>
-      <b-table :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc"
+      <b-table class="table-clickable" :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc"
         @sort-changed="onSortingChanged" @row-clicked="onRowClick"
         show-empty responsive hover no-local-sorting>
         <template slot="mac" slot-scope="log">
@@ -114,8 +114,8 @@ export default {
           key: 'id',
           label: this.$i18n.t('ID'),
           sortable: true,
-          visible: false,
-          locked: true
+          visible: true,
+          locked: false
         },
         {
           key: 'auth_status',
@@ -181,7 +181,7 @@ export default {
         }).length !== condition.values[0].values.length
     },
     onRowClick (item, index) {
-      this.$router.push({ name: 'view', params: { id: item.id } })
+      this.$router.push({ name: 'radiuslog', params: { id: item.id } })
     }
   },
   created () {
