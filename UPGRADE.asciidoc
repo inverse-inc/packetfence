@@ -1800,4 +1800,14 @@ To upgrade the database schema, run the following command:
 
 Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence 8.2.0).
 
+Upgrading from a version prior to X.Y.Z
+---------------------------------------
 
+Changes have been made to the database schema. You will need to update it accordingly.
+An SQL upgrade script has been provided to upgrade the database from the X.X schema to X.Y.
+
+To upgrade the database schema, run the following command:
+
+  mysql -u root -p pf -v < /usr/local/pf/db/upgrade-X.X.X-X.Y.Z.sql
+
+Once completed, update the file /usr/local/pf/conf/currently-at to match the new release number (PacketFence X.Y.Z).
