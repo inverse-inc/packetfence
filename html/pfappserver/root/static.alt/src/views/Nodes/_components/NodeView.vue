@@ -512,21 +512,21 @@ export default {
       return this.$refs.tabs && set.includes(this.$refs.tabs.tabs[this.tabIndex].title)
     },
     applyReevaluateAccess () {
-      this.$store.dispatch(`${this.$options.storeName}/reevaluateAccessNode`, this.mac).then(response => {
+      this.$store.dispatch(`${this.storeName}/reevaluateAccessNode`, this.mac).then(response => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('Node access reevaluation initialized') })
       }).catch((response) => {
         this.$store.dispatch('notification/danger', { message: this.$i18n.t('Node access reevaluation failed') })
       })
     },
     applyRefreshFingerbank () {
-      this.$store.dispatch(`${this.$options.storeName}/refreshFingerbankNode`, this.mac).then(response => {
+      this.$store.dispatch(`${this.storeName}/refreshFingerbankNode`, this.mac).then(response => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('Node device profiling initialized') })
       }).catch((response) => {
         this.$store.dispatch('notification/danger', { message: this.$i18n.t('Node device profiling failed') })
       })
     },
     applyRestartSwitchport () {
-      this.$store.dispatch(`${this.$options.storeName}/restartSwitchportNode`, this.mac).then(response => {
+      this.$store.dispatch(`${this.storeName}/restartSwitchportNode`, this.mac).then(response => {
         this.$store.dispatch('notification/info', { message: this.$i18n.t('Node switchport restarted') })
       }).catch((response) => {
         this.$store.dispatch('notification/danger', { message: this.$i18n.t('Node switchport restart failed') })
