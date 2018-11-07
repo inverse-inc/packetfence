@@ -59,7 +59,7 @@ sub authorize {
     # We try to find the realm that's configured in PacketFence
     my $realm_config;
     my $user_name = $RAD_REQUEST{'TLS-Client-Cert-Common-Name'} || $RAD_REQUEST{'User-Name'};
-    if ($user_name =~ /^host\/([0-9a-zA-Z-]+)\.(.*)$/) {
+    if ($user_name =~ /^host\/([0-9a-zA-Z-_]+)\.(.*)$/) {
         $realm_config = $ConfigRealm{lc($2)};
     } elsif (defined $RAD_REQUEST{"Realm"}) {
         $realm_config = $ConfigRealm{$RAD_REQUEST{"Realm"}};
