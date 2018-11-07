@@ -99,9 +99,6 @@ export default {
     fields: {
       type: Array
     },
-    store: {
-      type: Object
-    },
     advancedMode: {
       type: Boolean,
       default: false
