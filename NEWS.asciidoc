@@ -20,7 +20,7 @@ New Features
 
 Enhancements
 ++++++++++++
-
+* Redis now only listens on localhost (#3729)
 
 Bug Fixes
 +++++++++
