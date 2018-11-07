@@ -1363,6 +1363,9 @@ fi
 %exclude                /usr/local/pf/addons/pfconfig/pfconfig.init
 
 %changelog
+* Wed Nov 07 2018 Inverse <info@inverse.ca> - 8.2.0-1
+- New release 8.2.0
+
 * Thu Jul 09 2018 Inverse <info@inverse.ca> - 8.1.0-1
 - New release 8.1.0
 
