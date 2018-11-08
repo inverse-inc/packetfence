@@ -388,7 +388,30 @@ func (pf *pfdns) DomainPassthroughInit() error {
 
 	for _, v := range keyConfDNS.Keys {
 		rgx, _ := regexp.Compile(".*(_msdcs|_sites)." + v)
-		pf.FqdnDomainPort[rgx] = []string{"udp:88", "udp:123", "udp:135", "tcp:135", "udp:137", "udp:138", "udp:139", "tcp:139", "udp:389", "udp:445", "tcp:445", "udp:464", "tcp:464", "tcp:1025", "udp:49155", "tcp:49155", "udp:49156", "tcp:49156", "udp:49172", "tcp:49172"}
+		pf.FqdnDomainPort[rgx] = []string{
+			"tcp:88",
+			"udp:88",
+			"udp:123",
+			"udp:135",
+			"tcp:135",
+			"udp:137",
+			"udp:138",
+			"udp:139",
+			"tcp:139",
+			"tcp:389",
+			"udp:389",
+			"udp:445",
+			"tcp:445",
+			"udp:464",
+			"tcp:464",
+			"tcp:1025",
+			"udp:49155",
+			"tcp:49155",
+			"udp:49156",
+			"tcp:49156",
+			"udp:49172",
+			"tcp:49172",
+		}
 	}
 
 	return nil
