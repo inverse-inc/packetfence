@@ -412,7 +412,8 @@ sub make_top_level_conditions {
     my ($self, $params) = @_;
     my @conditions = (
         'r2.radacctid' => undef,
-        'locationlog2.id' => undef
+        'locationlog2.id' => undef,
+        'node.tenant_id' => pf::dal::get_tenant(),
     );
     if ($params->{online_date} ) {
         push @conditions, $self->make_online_date($params->{online_date});
