@@ -283,6 +283,7 @@ is_deeply(
             -and => [
                 'r2.radacctid' => undef,
                 'locationlog2.id' => undef,
+                'node.tenant_id' => 1,
                 -and => [{'node.mac' => { "=" => "ff:ff:ff:ff:ff:ff"}}]
             ],
         ],
@@ -302,7 +303,8 @@ is_deeply(
         -where => [
             -and => [
                 'r2.radacctid' => undef,
-                'locationlog2.id' => undef
+                'locationlog2.id' => undef,
+                'node.tenant_id' => 1,
             ],
         ],
         -limit => 26,
@@ -359,6 +361,7 @@ is_deeply(
             -and => [
                     'r2.radacctid' => undef,
                     'locationlog2.id' => undef ,
+                    'node.tenant_id' => 1,
                     {
                         "node.mac" => {
                             '-in',
@@ -407,6 +410,7 @@ is_deeply(
             -and => [
                     'r2.radacctid' => undef,
                     'locationlog2.id' => undef ,
+                    'node.tenant_id' => 1,
                     {
                         "node.mac" => {
                             '-in',
@@ -456,6 +460,7 @@ is_deeply(
             -and => [
                     'r2.radacctid' => undef,
                     'locationlog2.id' => undef ,
+                    'node.tenant_id' => 1,
                     -and => [
                         {'locationlog.switch_ip' => {"=" => '1.1.1.1'}},
                     ],
@@ -491,6 +496,7 @@ is_deeply(
             -and => [
                 'r2.radacctid'    => undef,
                 'locationlog2.id' => undef,
+                'node.tenant_id' => 1,
                 -and              => [
                     {
                         -and => [
@@ -531,6 +537,7 @@ is_deeply(
             -and => [
                     'r2.radacctid' => undef,
                     'locationlog2.id' => undef ,
+                    'node.tenant_id' => 1,
                     -and              => [
                         {
                             -and => [
@@ -571,6 +578,7 @@ is_deeply(
             -and => [
                     'r2.radacctid' => undef,
                     'locationlog2.id' => undef ,
+                    'node.tenant_id' => 1,
                     -and => [
                         {'r1.acctstarttime' => {"=" => undef}},
                     ],
@@ -606,6 +614,7 @@ is_deeply(
             -and => [
                     'r2.radacctid' => undef,
                     'locationlog2.id' => undef ,
+                    'node.tenant_id' => 1,
                     -and => [
                         {'node.mac' => {"=" => 'ff:ff:ff:ff:ff:fe'}},
                     ],
