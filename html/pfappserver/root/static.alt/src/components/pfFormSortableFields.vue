@@ -511,6 +511,11 @@ export default {
   },
   mounted () {
     this.emitExternalValidations()
+  },
+  beforeDestroy () {
+    if (this.emitExternalValidationsTimeout) {
+      clearTimeout(this.emitExternalValidationsTimeout)
+    }
   }
 }
 </script>

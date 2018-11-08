@@ -4,7 +4,7 @@
     <transition name="fade" mode="out-in">
     <div v-if="advancedMode">
       <b-form inline @submit.prevent="onSubmit" @reset.prevent="onReset">
-        <pf-search-boolean :model="condition" :fields="fields" :store="store" :advancedMode="advancedMode"/>
+        <pf-search-boolean :model="condition" :fields="fields" :advancedMode="advancedMode"/>
         <b-container fluid class="text-right mt-3 px-0">
           <b-button class="mr-1" type="reset" variant="secondary">{{ $t('Clear') }}</b-button>
           <b-button-group>

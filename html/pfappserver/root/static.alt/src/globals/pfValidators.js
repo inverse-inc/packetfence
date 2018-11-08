@@ -138,10 +138,10 @@ export const isDateFormat = (dateFormat, allowZero = true) => {
   })
 }
 
-export const isFQDN = (str) => {
-  const parts = str.split('.')
+export const isFQDN = (value) => {
+  if (!value) return true
+  const parts = value.split('.')
   const tld = parts.pop()
-
   if (!parts.length || !/^([a-z\u00a1-\uffff]{2,}|xn[a-z0-9-]{2,})$/i.test(tld)) {
     return false
   }

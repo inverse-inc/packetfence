@@ -725,6 +725,14 @@ export default {
   mounted () {
     // reset `file` when page reloaded, remove w/ $store implementation
     this.parseDebounce()
+  },
+  beforeDestroy () {
+    if (this.parseTimeout) {
+      clearTimeout(this.parseTimeout)
+    }
+    if (this.validateTimeout) {
+      clearTimeout(this.validateTimeout)
+    }
   }
 }
 </script>

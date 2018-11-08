@@ -11,7 +11,7 @@
 import pfSidebarItem from './pfSidebarItem'
 
 export default {
-  name: 'pfMixinSavedSearch',
+  name: 'pfSavedSearch',
   components: {
     pfSidebarItem
   },
@@ -37,7 +37,7 @@ export default {
       this.$store.dispatch(`${this.storeName}/deleteSavedSearch`, search)
     },
     savedSearch (item) {
-      return Object.assign(item, { path: { name: this.routeName, query: { query: JSON.stringify(item.query) } } } )
+      return Object.assign(item, { path: { name: this.routeName, query: { query: JSON.stringify(item.query) } } })
     }
   }
 }

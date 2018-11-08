@@ -1,55 +1,50 @@
-
 <template>
-  <b-form @submit.prevent="isNew? create() : save()">
-    <b-card no-body>
-      <b-card-header>
-        <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
-        <h4 class="mb-0">
-          <span v-if="id">{{ $t('Role') }} <strong v-text="id"></strong></span>
-          <span v-else>{{ $t('New Role') }}</span>
-        </h4>
-      </b-card-header>
-      <div class="card-body">
-        <pf-form-input v-if="isNew" v-model="role.id"
-          :column-label="$t('Name')"
-          :validation="$v.role.id"/>
-        <pf-form-input v-model="role.notes"
-          :column-label="$t('Description')"
-          :validation="$v.role.notes"/>
-        <pf-form-input v-model="role.max_nodes_per_pid" type="number"
-          :filter="globals.regExp.integerPositive"
-          :validation="$v.role.max_nodes_per_pid"
-          :column-label="$t('Max nodes per user')"
-          :text="$t('nodes')"/>
-      </div>
-      <b-card-footer @mouseenter="$v.role.$touch()">
-        <pf-button-save :disabled="invalidForm" :isLoading="isLoading">{{ isNew? $t('Create') : $t('Save') }}</pf-button-save>
-        <pf-button-delete v-if="!isNew" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Role?')" @on-delete="deleteRole()"/>
-      </b-card-footer>
-    </b-card>
-  </b-form>
+  <pf-config-view
+    :isLoading="isLoading"
+    :form="getForm"
+    :model="role"
+    :validation="$v.role"
+    @validations="roleValidations = $event"
+    @close="close"
+    @create="create"
+    @save="save"
+    @remove="remove"
+  >
+    <template slot="header" is="b-card-header">
+      <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
+      <h4 class="mb-0">
+        <span v-if="id">{{ $t('Role') }} <strong v-text="id"></strong></span>
+        <span v-else>{{ $t('New Role') }}</span>
+      </h4>
+    </template>
+    <template slot="footer" is="b-card-footer" @mouseenter="$v.role.$touch()">
+      <pf-button-save :disabled="invalidForm" :isLoading="isLoading">{{ isNew? $t('Create') : $t('Save') }}</pf-button-save>
+      <pf-button-delete v-if="!isNew" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Role?')" @on-delete="remove()"/>
+    </template>
+  </pf-config-view>
 </template>
 
 <script>
+import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfFormInput from '@/components/pfFormInput'
-import pfFormRow from '@/components/pfFormRow'
-import { pfRegExp as regExp } from '@/globals/pfRegExp'
+import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 const { validationMixin } = require('vuelidate')
 const { required, alphaNum, integer } = require('vuelidate/lib/validators')
 
 export default {
   name: 'RoleView',
+  mixins: [
+    validationMixin,
+    pfMixinEscapeKey
+  ],
   components: {
+    pfConfigView,
     pfButtonSave,
     pfButtonDelete,
-    pfFormRow,
     pfFormInput
   },
-  mixins: [
-    validationMixin
-  ],
   props: {
     storeName: { // from router
       type: String,
@@ -63,16 +58,13 @@ export default {
   },
   data () {
     return {
-      globals: {
-        regExp: regExp
-      },
-      role: {} // will be overloaded with the data from the store
+      role: {}, // will be overloaded with the data from the store
+      roleValidations: {} // will be overloaded with data from the pfConfigView
     }
   },
-  validations: {
-    role: {
-      id: { required, alphaNum },
-      max_nodes_per_pid: { required, integer }
+  validations () {
+    return {
+      role: this.roleValidations
     }
   },
   computed: {
@@ -84,6 +76,41 @@ export default {
     },
     invalidForm () {
       return this.$v.role.$invalid || this.$store.getters['$_roles/isWaiting']
+    },
+    getForm () {
+      return {
+        labelCols: 3,
+        fields: [
+          {
+            if: this.isNew, // new roles only
+            key: 'id',
+            component: pfFormInput,
+            label: this.$i18n.t('Name'),
+            validators: {
+              [this.$i18n.t('Name is required.')]: required,
+              [this.$i18n.t('Alphanumeric value required.')]: alphaNum
+            }
+          },
+          {
+            key: 'notes',
+            component: pfFormInput,
+            label: this.$i18n.t('Description'),
+            validators: {}
+          },
+          {
+            key: 'max_nodes_per_pid',
+            component: pfFormInput,
+            label: this.$i18n.t('Max nodes per user'),
+            attrs: {
+              type: 'number'
+            },
+            validators: {
+              [this.$i18n.t('Max nodes per user required.')]: required,
+              [this.$i18n.t('Integer value required.')]: integer
+            }
+          }
+        ]
+      }
     }
   },
   methods: {
@@ -100,16 +127,10 @@ export default {
         this.close()
       })
     },
-    deleteRole () {
+    remove () {
       this.$store.dispatch('$_roles/deleteRole', this.id).then(response => {
         this.close()
       })
-    },
-    onKeyup (event) {
-      switch (event.keyCode) {
-        case 27: // escape
-          this.close()
-      }
     }
   },
   created () {
@@ -118,12 +139,6 @@ export default {
         this.role = Object.assign({}, data)
       })
     }
-  },
-  mounted () {
-    document.addEventListener('keyup', this.onKeyup)
-  },
-  beforeDestroy () {
-    document.removeEventListener('keyup', this.onKeyup)
   }
 }
 </script>

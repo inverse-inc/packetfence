@@ -83,6 +83,11 @@ export default {
       // emit to parent
       this.$emit('on-delete', event)
     }
+  },
+  beforeDestroy () {
+    if (this.timerStop) {
+      clearTimeout(this.timerStop)
+    }
   }
 }
 </script>

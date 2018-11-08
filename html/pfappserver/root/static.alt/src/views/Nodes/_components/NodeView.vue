@@ -802,6 +802,9 @@ export default {
   },
   beforeDestroy () {
     document.removeEventListener('keyup', this.onKeyup)
+    if (this.timeoutVis) {
+      clearTimeout(this.timeoutVis)
+    }
   }
 }
 </script>
