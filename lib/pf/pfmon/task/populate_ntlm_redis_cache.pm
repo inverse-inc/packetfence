@@ -21,6 +21,7 @@ use pf::config qw(%ConfigDomain);
 use pf::cluster;
 use pf::constants qw($FALSE);
 use pf::log;
+use pf::util qw(isenabled);
 
 my $logger = get_logger;
 
