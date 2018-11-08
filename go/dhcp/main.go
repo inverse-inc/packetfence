@@ -428,6 +428,7 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 				handler.hwcache.Set(p.CHAddr().String(), free, time.Duration(5)*time.Second)
 				handler.xid.Replace(sharedutils.ByteToString(p.XId()), 1, time.Duration(5)*time.Second)
 			} else {
+				GlobalTransactionLock.Unlock()
 				log.LoggerWContext(ctx).Info(p.CHAddr().String() + " Nak No space left in the pool ")
 				return answer
 			}
@@ -732,7 +733,6 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 
 func recoverName(options dhcp.Options) {
 	if r := recover(); r != nil {
-		fmt.Println(errors.Wrap(r, 2).ErrorStack())
 		fmt.Println("recovered from ", r)
 		fmt.Println(errors.Wrap(r, 2).ErrorStack())
 		spew.Dump(options)
