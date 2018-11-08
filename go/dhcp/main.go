@@ -732,6 +732,7 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 
 func recoverName(options dhcp.Options) {
 	if r := recover(); r != nil {
+		fmt.Println(errors.Wrap(r, 2).ErrorStack())
 		fmt.Println("recovered from ", r)
 		fmt.Println(errors.Wrap(r, 2).ErrorStack())
 		spew.Dump(options)
