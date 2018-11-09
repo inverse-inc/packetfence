@@ -1,6 +1,7 @@
 .:54 {
     logger {
       level INFO
+      processname pfdns
     }
 
 [% domain %]
@@ -12,6 +13,7 @@ proxy . /etc/resolv.conf
 :53 {
     logger {
       level INFO
+      processname pfdns
     }
 
     pfdns {
