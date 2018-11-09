@@ -164,6 +164,11 @@ export const isFQDN = (value) => {
   return true
 }
 
+export const isPort = (value) => {
+  if (!value) return true
+  return /^\d+$/.test(value) && ~~value >= 1 && ~~value <= 65535
+}
+
 export const compareDate = (comparison, date = new Date(), dateFormat = 'YYYY-MM-DD HH:mm:ss', allowZero = true) => {
   return (0, _common.withParams)({
     type: 'compareDate',
