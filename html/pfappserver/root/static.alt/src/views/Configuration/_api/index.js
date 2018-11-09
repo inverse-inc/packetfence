@@ -2,6 +2,27 @@ import apiCall from '@/utils/api'
 
 export default {
   /**
+   * Authentication Sources
+   */
+  authenticationSource: id => {
+    return apiCall.get(`config/source/${id}`).then(response => {
+      return response.data.item
+    })
+  },
+  createAuthenticationSource: data => {
+    return apiCall.post('config/sources', data).then(response => {
+      return response.data
+    })
+  },
+  updateAuthenticationSource: data => {
+    return apiCall.patch(`config/source/${data.id}`, data).then(response => {
+      return response.data
+    })
+  },
+  deleteAuthenticationSource: id => {
+    return apiCall.delete(`config/source/${id}`)
+  },
+  /**
    * Roles
    */
   role: id => {

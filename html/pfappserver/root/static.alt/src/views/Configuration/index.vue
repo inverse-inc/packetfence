@@ -31,7 +31,8 @@ export default {
                 { name: 'Active Directory Domains', path: '/configuration/domains' },
                 { name: 'REALMS', path: '/configuration/realms' }
               ]
-            }
+            },
+            { name: 'Authentication Sources', path: '/configuration/sources' },
           ]
         },
         {

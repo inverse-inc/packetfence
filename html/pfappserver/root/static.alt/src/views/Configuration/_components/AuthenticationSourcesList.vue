@@ -1,0 +1,150 @@
+<template>
+  <b-card no-body>
+    <pf-config-list
+      :config="config"
+      :isLoading="isLoading"
+    >
+      <template slot="pageHeader">
+        <b-card-header>
+          <h4 class="mb-3" v-t="'Authentication Sources'"></h4>
+          <p v-t="'Define the authentication sources to let users access the captive portal or the admin Web interface.'"></p>
+          <p v-t="'Each connection profile must be associated with one or multiple authentication sources while 802.1X connections use the ordered internal sources to determine which role to use. External sources are never used with 802.1X connections.'"></p>
+        </b-card-header>
+      </template>
+      <template slot="buttonAdd">
+        <!--
+        <b-button variant="outline-primary" :to="{ name: 'newRole' }">{{ $t('Add Source') }}</b-button>
+        -->
+        <b-dropdown id="source-add-container" :text="$t('Add Source')" variant="outline-primary" class="m-2">
+          <b-dropdown-header class="text-primary">Internal</b-dropdown-header>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'AD' } }">AD</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'EAPTLS' } }">EAPTLS</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'Htpasswd' } }">Htpasswd</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'HTTP' } }">HTTP</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'Kerbos' } }">Kerbos</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'LDAP' } }">LDAP</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'POTD' } }">POTD</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'RADIUS' } }">RADIUS</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'SAML' } }">SAML</b-dropdown-item>
+          <b-dropdown-divider></b-dropdown-divider>
+          <b-dropdown-header class="text-primary">External</b-dropdown-header>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'Email' } }">Email</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'Facebook' } }">Facebook</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'Github' } }">Github</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'Google' } }">Google</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'Instagram' } }">Instagram</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'Kickbox' } }">Kickbox</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'LinkedIn' } }">LinkedIn</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'Null' } }">Null</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'OpenID' } }">OpenID</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'Pinterest' } }">Pinterest</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'SMS' } }">SMS</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'SponsorEmail' } }">SponsorEmail</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'Twilio' } }">Twilio</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'Twitter' } }">Twitter</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'WindowsLive' } }">WindowsLive</b-dropdown-item>
+          <b-dropdown-divider></b-dropdown-divider>
+          <b-dropdown-header class="text-primary">Exclusive</b-dropdown-header>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'AdminProxy' } }">AdminProxy</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'Blackhole' } }">Blackhole</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'Eduroam' } }">Eduroam</b-dropdown-item>
+          <b-dropdown-divider></b-dropdown-divider>
+          <b-dropdown-header class="text-primary">Billing</b-dropdown-header>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'AuthorizeNet' } }">AuthorizeNet</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'Mirapay' } }">Mirapay</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'Paypal' } }">Paypal</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'Stripe' } }">Stripe</b-dropdown-item>
+        </b-dropdown>
+      </template>
+      <template slot="emptySearch">
+        <pf-empty-table :isLoading="isLoading">{{ $t('No sources found') }}</pf-empty-table>
+      </template>
+      <template slot="buttons" slot-scope="item">
+        <span class="float-right">
+          <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
+          <b-button size="sm" variant="outline-primary" @click.stop.prevent="remove(item)">{{ $t('Delete') }}</b-button>
+        </span>
+      </template>
+    </pf-config-list>
+  </b-card>
+</template>
+
+<script>
+import pfConfigList from '@/components/pfConfigList'
+import pfEmptyTable from '@/components/pfEmptyTable'
+import {
+  pfConfigurationAuthenticationSourcesListColumns as columns,
+  pfConfigurationAuthenticationSourcesListFields as fields
+} from '@/globals/pfConfiguration'
+
+export default {
+  name: 'AuthenticationSourcesList',
+  components: {
+    pfConfigList,
+    pfEmptyTable
+  },
+  data () {
+    return {
+      config: {
+        columns: columns,
+        fields: fields,
+        rowClickRoute (item, index) {
+          return { name: 'source', params: { id: item.id } }
+        },
+        searchPlaceholder: this.$i18n.t('Search by name or description'),
+        searchableOptions: {
+          searchApiEndpoint: 'config/sources',
+          defaultSortKeys: ['id'],
+          defaultSearchCondition: {
+            op: 'and',
+            values: [{
+              op: 'or',
+              values: [
+                { field: 'id', op: 'contains', value: null },
+                { field: 'description', op: 'contains', value: null },
+                { field: 'class', op: 'contains', value: null },
+                { field: 'type', op: 'contains', value: null }
+              ]
+            }]
+          },
+          defaultRoute: { name: 'configuration/sources' }
+        },
+        searchableQuickCondition: (quickCondition) => {
+          return {
+            op: 'and',
+            values: [
+              {
+                op: 'or',
+                values: [
+                  { field: 'id', op: 'contains', value: quickCondition },
+                  { field: 'description', op: 'contains', value: quickCondition },
+                  { field: 'class', op: 'contains', value: quickCondition },
+                  { field: 'type', op: 'contains', value: quickCondition }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  methods: {
+    clone (item) {
+      // TODO
+      console.log('clone', item)
+    },
+    remove (item) {
+      // TODO
+      console.log('remove', item)
+    }
+  }
+}
+</script>
+
+<style lang="scss">
+#source-add-container div[role="menu"] {
+  max-height: 50vh;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+</style>

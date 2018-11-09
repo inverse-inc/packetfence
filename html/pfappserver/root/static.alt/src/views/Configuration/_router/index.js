@@ -4,6 +4,7 @@ import RolesStore from '../_store/roles'
 import FloatingDevicesStore from '../_store/floatingdevices'
 import DomainsStore from '../_store/domains'
 import RealmsStore from '../_store/realms'
+import AuthenticationSourcesStore from '../_store/sources'
 
 const PoliciesAccessControlSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/PoliciesAccessControlSection')
 const RolesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/RolesList')
@@ -15,6 +16,9 @@ const RealmView = () => import(/* webpackChunkName: "Configuration" */ '../_comp
 const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
 const FloatingDevicesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDevicesList')
 const FloatingDeviceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDeviceView')
+
+const AuthenticationSourcesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/AuthenticationSourcesList')
+const AuthenticationSourcesView = () => import(/* webpackChunkName: "Configuration" */ '../_components/AuthenticationSourcesView')
 
 const route = {
   path: '/configuration',
@@ -34,6 +38,9 @@ const route = {
     }
     if (!store.state.$_floatingdevices) {
       store.registerModule('$_floatingdevices', FloatingDevicesStore)
+    }
+    if (!store.state.$_sources) {
+      store.registerModule('$_sources', AuthenticationSourcesStore)
     }
     next()
   },
@@ -140,6 +147,32 @@ const route = {
       props: (route) => ({ storeName: '$_floatingdevices', id: route.params.id }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_floatingdevices/getFloatingDevice', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    /**
+     * AuthenticationSources
+     */
+    {
+      path: 'sources',
+      name: 'sources',
+      component: AuthenticationSourcesList,
+      props: (route) => ({ query: route.query.query })
+    },
+    {
+      path: 'sources/new/:sourceClass',
+      name: 'newAuthenticationSource',
+      component: AuthenticationSourcesView,
+      props: (route) => ({ storeName: '$_sources', sourceClass: route.params.sourceClass })
+    },
+    {
+      path: 'source/:id',
+      name: 'source',
+      component: AuthenticationSourcesView,
+      props: (route) => ({ storeName: '$_sources', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_sources/getAuthenticationSource', to.params.id).then(object => {
           next()
         })
       }
