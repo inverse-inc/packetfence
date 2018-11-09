@@ -168,7 +168,7 @@ rest {
 	post-auth {
 		uri = "${..connect_uri}/radius/rest/authorize"
 		method = 'post'
-        body = 'json'
+		body = 'json'
 		tls = ${..tls}
 	}
         pre-proxy {
