@@ -35,6 +35,16 @@ func setup(c *caddy.Controller) error {
 					fmt.Println("Using configuration set log level: " + level)
 					ctx = log.LoggerSetLevel(ctx, level)
 				}
+			case "processname":
+				args := c.RemainingArgs()
+
+				if len(args) != 1 {
+					return c.ArgErr()
+				} else {
+					name := args[0]
+					fmt.Println("Using configuration set processname: " + name)
+					log.SetProcessName(name)
+				}
 			default:
 				return c.ArgErr()
 			}
