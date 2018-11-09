@@ -28,14 +28,9 @@
 import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
-import pfFormInput from '@/components/pfFormInput'
-import pfFormSelect from '@/components/pfFormSelect'
-import pfFormTextarea from '@/components/pfFormTextarea'
-import pfFormToggle from '@/components/pfFormToggle'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
-import { isFQDN } from '@/globals/pfValidators'
+import { pfConfigurationRealmViewFields as fields } from '@/globals/pfConfiguration'
 const { validationMixin } = require('vuelidate')
-const { required, alphaNum } = require('vuelidate/lib/validators')
 
 export default {
   name: 'RealmView',
@@ -46,11 +41,7 @@ export default {
   components: {
     pfConfigView,
     pfButtonSave,
-    pfButtonDelete,
-    pfFormInput,
-    pfFormSelect,
-    pfFormTextarea,
-    pfFormToggle
+    pfButtonDelete
   },
   props: {
     storeName: { // from router
@@ -93,60 +84,7 @@ export default {
     getForm () {
       return {
         labelCols: 3,
-        fields: [
-          {
-            if: this.isNew, // new realms only
-            key: 'id',
-            component: pfFormInput,
-            label: this.$i18n.t('Realm'),
-            validators: {
-              [this.$i18n.t('Realm is required.')]: required,
-              [this.$i18n.t('Alphanumeric value required.')]: alphaNum
-            }
-          },
-          {
-            key: 'options',
-            component: pfFormTextarea,
-            label: this.$i18n.t('Realm Options'),
-            text: this.$i18n.t('You can add FreeRADIUS options in the realm definition.')
-          },
-          {
-            key: 'domain',
-            component: pfFormSelect,
-            label: this.$i18n.t('Domain'),
-            text: this.$i18n.t('The domain to use for the authentication in that realm.'),
-            attrs: {
-              options: this.domains
-            }
-          },
-          {
-            key: 'portal_strip_username',
-            component: pfFormToggle,
-            label: this.$i18n.t('Strip on the portal'),
-            text: this.$i18n.t('Should the usernames matching this realm be stripped when used on the captive portal.'),
-            attrs: {
-              values: { checked: 'enabled', unchecked: 'disabled' }
-            }
-          },
-          {
-            key: 'admin_strip_username',
-            component: pfFormToggle,
-            label: this.$i18n.t('Strip on the admin'),
-            text: this.$i18n.t('Should the usernames matching this realm be stripped when used on the administration interface.'),
-            attrs: {
-              values: { checked: 'enabled', unchecked: 'disabled' }
-            }
-          },
-          {
-            key: 'radius_strip_username',
-            component: pfFormToggle,
-            label: this.$i18n.t('Strip in RADIUS authorization'),
-            text: this.$i18n.t('Should the usernames matching this realm be stripped when used in the authorization phase of 802.1x. Note that this doesn\'t control the stripping in FreeRADIUS, use the options above for that.'),
-            attrs: {
-              values: { checked: 'enabled', unchecked: 'disabled' }
-            }
-          }
-        ]
+        fields: fields(this)
       }
     }
   },

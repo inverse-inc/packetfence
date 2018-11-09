@@ -10,24 +10,23 @@
         </b-card-header>
       </slot>
       <div class="card-body" v-if="form.fields">
-        <b-form-group v-for="field in form.fields" :key="field.key" v-if="!('if' in field) || field.if"
-          :label-cols="(field.label) ? form.labelCols : 0" :label="field.label"
+        <b-form-group v-for="row in form.fields" :key="[row.key].join('')" v-if="!('if' in row) || row.if"
+          :label-cols="(row.label) ? form.labelCols : 0" :label="row.label"
           :state="isValid()" :invalid-feedback="getInvalidFeedback()"
-          class="input-element" :class="{ 'mb-0': !field.label }"
+          class="input-element" :class="{ 'mb-0': !row.label }"
           horizontal
         >
           <b-input-group>
-            <component :is="field.component || defaultComponent"
+            <component v-for="field in row.fields" :key="field.key" v-if="!('if' in field) || field.if"
+              :is="field.component || defaultComponent"
               v-bind="field.attrs"
               v-model="model[field.key]"
               :validation="validation[field.key]"
-              class="col-sm-12 px-0"
+              class="mr-1 px-0"
+              :class="{ 'col-sm-12': row.fields.length === 1 }"
             ></component>
-            <b-input-group-append v-if="field.attrs && field.attrs.readonly">
-              <b-button class="input-group-text"><icon name="lock"></icon></b-button>
-            </b-input-group-append>
           </b-input-group>
-          <b-form-text v-if="field.text" v-t="field.text"></b-form-text>
+          <b-form-text v-if="row.text" v-t="row.text"></b-form-text>
         </b-form-group>
       </div>
       <slot name="footer">

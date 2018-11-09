@@ -28,12 +28,9 @@
 import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
-import pfFormInput from '@/components/pfFormInput'
-import pfFormToggle from '@/components/pfFormToggle'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
-import { pfRegExp as regExp } from '@/globals/pfRegExp'
+import { pfConfigurationFloatingDevicesViewFields as fields } from '@/globals/pfConfiguration'
 const { validationMixin } = require('vuelidate')
-const { required, integer, macAddress, ipAddress } = require('vuelidate/lib/validators')
 
 export default {
   name: 'FloatingDeviceView',
@@ -44,9 +41,7 @@ export default {
   components: {
     pfConfigView,
     pfButtonSave,
-    pfButtonDelete,
-    pfFormInput,
-    pfFormToggle
+    pfButtonDelete
   },
   props: {
     storeName: { // from router
@@ -61,9 +56,6 @@ export default {
   },
   data () {
     return {
-      globals: {
-        regExp: regExp
-      },
       floatingDevice: {}, // will be overloaded with the data from the store
       floatingDeviceValidations: {} // will be overloaded with data from the pfConfigView
     }
@@ -86,55 +78,7 @@ export default {
     getForm () {
       return {
         labelCols: 3,
-        fields: [
-          {
-            if: this.isNew, // new floating devices only
-            key: 'id',
-            component: pfFormInput,
-            label: this.$i18n.t('MAC Address'),
-            validators: {
-              [this.$i18n.t('MAC address is required.')]: required,
-              [this.$i18n.t('Enter a valid MAC address.')]: macAddress()
-            }
-          },
-          {
-            key: 'ip',
-            component: pfFormInput,
-            label: this.$i18n.t('IP Address'),
-            validators: {
-              [this.$i18n.t('IP address is required.')]: required,
-              [this.$i18n.t('Enter a valid IP address.')]: ipAddress
-            }
-          },
-          {
-            key: 'pvid',
-            component: pfFormInput,
-            label: this.$i18n.t('Native VLAN'),
-            text: this.$i18n.t('VLAN in which PacketFence should put the port.'),
-            attrs: {
-              filter: this.globals.regExp.integerPositive
-            },
-            validators: {
-              [this.$i18n.t('Native VLAN is required.')]: required,
-              [this.$i18n.t('Enter a valid Native VLAN.')]: integer
-            }
-          },
-          {
-            key: 'trunkPort',
-            component: pfFormToggle,
-            label: this.$i18n.t('Trunk Port'),
-            text: this.$i18n.t('The port must be configured as a muti-vlan port.'),
-            attrs: {
-              values: { checked: 'yes', unchecked: 'no' }
-            }
-          },
-          {
-            key: 'taggedVlan',
-            component: pfFormInput,
-            label: this.$i18n.t('Tagged VLANs'),
-            text: this.$i18n.t('Comma separated list of VLANs. If the port is a multi-vlan, these are the VLANs that have to be tagged on the port.')
-          }
-        ]
+        fields: fields(this)
       }
     }
   },
