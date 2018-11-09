@@ -22,8 +22,7 @@
               v-bind="field.attrs"
               v-model="model[field.key]"
               :validation="validation[field.key]"
-              class="mr-1 px-0"
-              :class="{ 'col-sm-12': row.fields.length === 1 }"
+              :class="getClass(row, field)"
             ></component>
           </b-input-group>
           <b-form-text v-if="row.text" v-t="row.text"></b-form-text>
@@ -118,6 +117,18 @@ export default {
       this.emitExternalValidationsTimeout = setTimeout(() => {
         this.$emit('validations', this.getValidations())
       }, 300)
+    },
+    getClass (row, field) {
+      let c = ['px-0'] // always remove padding
+      if ('attrs' in field && `class` in field.attrs) { // if class is defined
+        c.push(field.attrs.class) // use manual definition
+      } else if (row.fields.length === 1) { // else if row is singular
+        c.push('col-sm-12') // use entire width
+      }
+      if (field !== row.fields[row.fields.length - 1]) { // if row is not last
+        c.push('mr-1') // add right-margin
+      }
+      return c.join(' ')
     }
   },
   mounted () {
