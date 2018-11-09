@@ -29,7 +29,10 @@ import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
-import { pfConfigurationFloatingDevicesViewFields as fields } from '@/globals/pfConfiguration'
+import {
+  pfConfigurationFloatingDevicesViewFields as fields,
+  pfConfigurationFloatingDevicesViewDefaults as defaults
+} from '@/globals/pfConfiguration'
 const { validationMixin } = require('vuelidate')
 
 export default {
@@ -56,7 +59,7 @@ export default {
   },
   data () {
     return {
-      floatingDevice: {}, // will be overloaded with the data from the store
+      floatingDevice: defaults(this), // will be overloaded with the data from the store
       floatingDeviceValidations: {} // will be overloaded with data from the pfConfigView
     }
   },

@@ -29,7 +29,10 @@ import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
-import { pfConfigurationDomainsViewFields as fields } from '@/globals/pfConfiguration'
+import {
+  pfConfigurationDomainsViewFields as fields,
+  pfConfigurationDomainsViewDefaults as defaults
+} from '@/globals/pfConfiguration'
 const { validationMixin } = require('vuelidate')
 
 export default {
@@ -56,10 +59,7 @@ export default {
   },
   data () {
     return {
-      domain: { // will be overloaded with the data from the store
-        id: null,
-        ad_server: '%h'
-      },
+      domain: defaults(this), // will be overloaded with the data from the store
       domainValidations: {} // will be overloaded with data from the pfConfigView
     }
   },

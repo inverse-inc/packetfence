@@ -29,7 +29,10 @@ import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
-import { pfConfigurationRealmViewFields as fields } from '@/globals/pfConfiguration'
+import {
+  pfConfigurationRealmViewFields as fields,
+  pfConfigurationRealmViewDefaults as defaults
+} from '@/globals/pfConfiguration'
 const { validationMixin } = require('vuelidate')
 
 export default {
@@ -57,12 +60,7 @@ export default {
   data () {
     return {
       domains: [],
-      realm: { // will be overloaded with the data from the store
-        id: null,
-        portal_strip_username: 'enabled',
-        admin_strip_username: 'enabled',
-        radius_strip_username: 'enabled'
-      },
+      realm: defaults(this), // will be overloaded with the data from the store
       realmValidations: {} // will be overloaded with data from the pfConfigView
     }
   },

@@ -16,6 +16,7 @@
         <span v-if="id">{{ $t('Authentication Source') }} <strong v-text="id"></strong></span>
         <span v-else>{{ $t('New {sourceClass} Authentication Source', { sourceClass: this.sourceClass}) }}</span>
       </h4>
+      XXX: {{ JSON.stringify(source, null, 2) }}
     </template>
     <template slot="footer" is="b-card-footer" @mouseenter="$v.source.$touch()">
       <pf-button-save :disabled="invalidForm" :isLoading="isLoading">{{ isNew? $t('Create') : $t('Save') }}</pf-button-save>
@@ -29,7 +30,10 @@ import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
-import { pfConfigurationAuthenticationSourcesViewFields as fields } from '@/globals/pfConfiguration'
+import {
+  pfConfigurationAuthenticationSourcesViewFields as fields,
+  pfConfigurationAuthenticationSourcesViewDefaults as defaults
+} from '@/globals/pfConfiguration'
 const { validationMixin } = require('vuelidate')
 
 export default {
@@ -60,7 +64,7 @@ export default {
   },
   data () {
     return {
-      source: {}, // will be overloaded with the data from the store
+      source: defaults(this), // will be overloaded with the data from the store
       sourceValidations: {} // will be overloaded with data from the pfConfigView
     }
   },

@@ -5,7 +5,10 @@ import pfFormInput from '@/components/pfFormInput'
 import pfFormSelect from '@/components/pfFormSelect'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormToggle from '@/components/pfFormToggle'
-import { isFQDN } from '@/globals/pfValidators'
+import {
+  isFQDN,
+  isPort
+} from '@/globals/pfValidators'
 const {
   required,
   alphaNum,
@@ -242,15 +245,32 @@ export const pfConfigurationAuthenticationSourcesViewFields = ({ isNew = false, 
           fields: [
             {
               key: 'host',
-              component: pfFormInput
+              component: pfFormInput,
+              attrs: {
+                placeholder: i18n.t('Host'),
+                class: 'col-sm-6'
+              }
             },
             {
               key: 'port',
-              component: pfFormInput
+              component: pfFormInput,
+              attrs: {
+                placeholder: i18n.t('Port')
+              },
+              validators: {
+                [i18n.t('Enter a valid port number.')]: isPort
+              }
             },
             {
               key: 'encryption',
-              component: pfFormInput
+              component: pfFormSelect,
+              attrs: {
+                options: [
+                  { value: 'none', text: i18n.t('None') },
+                  { value: 'ssl', text: 'SSL' },
+                  { value: 'starttls', text: 'Start TLS' }
+                ]
+              }
             }
           ]
         }
@@ -597,4 +617,39 @@ export const pfConfigurationRoleViewFields = ({ isNew = false, isClone = false }
       ]
     }
   ]
+}
+
+export const pfConfigurationAuthenticationSourcesViewDefaults = ({ isNew = false, isClone = false, sourceClass = null } = {}) => {
+  return {
+    id: null,
+    port: 389
+  }
+}
+
+export const pfConfigurationDomainsViewDefaults = ({ isNew = false, isClone = false } = {}) => {
+  return {
+    id: null,
+    ad_server: '%h'
+  }
+}
+
+export const pfConfigurationFloatingDevicesViewDefaults = ({ isNew = false, isClone = false } = {}) => {
+  return {
+    id: null
+  }
+}
+
+export const pfConfigurationRealmViewDefaults = ({ isNew = false, isClone = false, domains = [] } = {}) => {
+  return {
+    id: null,
+    portal_strip_username: 'enabled',
+    admin_strip_username: 'enabled',
+    radius_strip_username: 'enabled'
+  }
+}
+
+export const pfConfigurationRoleViewDefaults = ({ isNew = false, isClone = false } = {}) => {
+  return {
+    id: null
+  }
 }

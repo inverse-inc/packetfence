@@ -29,7 +29,10 @@ import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
-import { pfConfigurationRoleViewFields as fields } from '@/globals/pfConfiguration'
+import {
+  pfConfigurationRoleViewFields as fields,
+  pfConfigurationRoleViewDefaults as defaults
+} from '@/globals/pfConfiguration'
 const { validationMixin } = require('vuelidate')
 
 export default {
@@ -56,7 +59,7 @@ export default {
   },
   data () {
     return {
-      role: {}, // will be overloaded with the data from the store
+      role: defaults(this), // will be overloaded with the data from the store
       roleValidations: {} // will be overloaded with data from the pfConfigView
     }
   },
