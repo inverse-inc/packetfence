@@ -1293,7 +1293,7 @@ sub metadefender_process : Public {
 }
 
 sub rest_ping :Public :RestPath(/rest/ping){
-    my ($class, $args) = @_;
+    my ($class, $args, $headers) = @_;
     return "pong - ".$args->{message};
 }
 
@@ -1304,7 +1304,7 @@ RADIUS authorize method that uses REST
 =cut
 
 sub radius_rest_authorize :Public :RestPath(/radius/rest/authorize) {
-    my ($class, $radius_request) = @_;
+    my ($class, $radius_request, $headers) = @_;
     my $timer = pf::StatsD::Timer->new();
     my $logger = pf::log::get_logger();
 
@@ -1324,14 +1324,14 @@ sub radius_rest_authorize :Public :RestPath(/radius/rest/authorize) {
     return $return;
 }
 
-=head2 radius_rest_pre_proxy
+=head2 radius_rest_filter
 
-RADIUS pre-proxy method that uses REST
+RADIUS filter method that uses REST
 
 =cut
 
-sub radius_rest_pre_proxy :Public :RestPath(/radius/rest/pre_proxy) {
-    my ($class, $radius_request) = @_;
+sub radius_rest_filter :Public :RestPath(/radius/rest/filter) {
+    my ($class, $radius_request, $headers) = @_;
     my $timer = pf::StatsD::Timer->new();
     my $logger = pf::log::get_logger();
 
@@ -1339,60 +1339,13 @@ sub radius_rest_pre_proxy :Public :RestPath(/radius/rest/pre_proxy) {
 
     my $return;
 
-    $return = $class->radius_filter("preproxy",%remapped_radius_request);
+    $return = $class->radius_filter($headers->{'X-FreeRADIUS-Server'}.".".$headers->{'X-FreeRADIUS-Section'},%remapped_radius_request);
 
     # This will die with the proper code if it is a deny
     $return = pf::radius::rest::format_response($return);
 
     return $return;
 }
-
-=head2 radius_rest_post_proxy
-
-RADIUS post-proxy method that uses REST
-
-=cut
-
-sub radius_rest_post_proxy :Public :RestPath(/radius/rest/post_proxy) {
-    my ($class, $radius_request) = @_;
-    my $timer = pf::StatsD::Timer->new();
-    my $logger = pf::log::get_logger();
-
-    my %remapped_radius_request = %{pf::radius::rest::format_request($radius_request)};
-
-    my $return;
-
-    $return = $class->radius_filter("postproxy",%remapped_radius_request);
-
-    # This will die with the proper code if it is a deny
-    $return = pf::radius::rest::format_response($return);
-
-    return $return;
-}
-
-=head2 radius_rest_authorization
-
-RADIUS authorization method that uses REST
-
-=cut
-
-sub radius_rest_authorization :Public :RestPath(/radius/rest/authorization_filter) {
-    my ($class, $radius_request) = @_;
-    my $timer = pf::StatsD::Timer->new();
-    my $logger = pf::log::get_logger();
-
-    my %remapped_radius_request = %{pf::radius::rest::format_request($radius_request)};
-
-    my $return;
-
-    $return = $class->radius_filter("authorization",%remapped_radius_request);
-
-    # This will die with the proper code if it is a deny
-    $return = pf::radius::rest::format_response($return);
-
-    return $return;
-}
-
 
 =head2 radius_rest_switch_authorize
 
@@ -1401,7 +1354,7 @@ RADIUS switch authorize method that uses REST
 =cut
 
 sub radius_rest_switch_authorize :Public :RestPath(/radius/rest/switch/authorize) {
-    my ($class, $radius_request) = @_;
+    my ($class, $radius_request, $headers) = @_;
     my $timer = pf::StatsD::Timer->new();
     my $logger = pf::log::get_logger();
 
@@ -1422,7 +1375,7 @@ RADIUS accounting method that uses REST
 =cut
 
 sub radius_rest_accounting :Public :RestPath(/radius/rest/accounting) {
-    my ($class, $radius_request) = @_;
+    my ($class, $radius_request, $headers) = @_;
     my $timer = pf::StatsD::Timer->new();
     my $logger = pf::log::get_logger();
 
@@ -1432,7 +1385,7 @@ sub radius_rest_accounting :Public :RestPath(/radius/rest/accounting) {
 
     my $radius = new pf::radius::custom();
     eval {
-        $return = $radius->accounting(\%remapped_radius_request);
+        $return = $radius->accounting(\%remapped_radius_request, $headers);
     };
     if ($@) {
         $logger->error("radius accounting failed with error: $@");

@@ -16,14 +16,18 @@
 # RLM_MODULE_UPDATED
 # RLM_MODULE_NUMCODES
 #
-# you can use 4 scopes in the radius filter:
+# you can use scopes in the radius filter:
 # returnRadiusAccessAccept is when you return the answer for a device access
 # returnAuthorizeRead is when you return the answer for the switch read login access
 # returnAuthorizeWrite is when you return the answer for the switch write login access
 # returnAuthorizeVoip  is when you return the answer for a VoIP
-# authorization call the radius filter in the authorize section
-# preproxy call the radius filter in the pre-proxy section
-# postproxy call the radius filter in the post-proxy section
+#
+# Specific scopes just to use radius filter to change the logic of Freeradius on the fly
+#
+# packetfence.authorize call the radius filter in the authorize section
+# packetfence.authenticate call the radius filter in the authenticate section
+# packetfence.pre-proxy call the radius filter in the pre-proxy section
+# packetfence.post-proxy call the radius filter in the post-proxy section
 #
 # Make a simple rule like this:
 #
@@ -159,7 +163,7 @@
 #value = ^bobacme.*
 #
 #[1:acme]
-#scope=authorization
+#scope=packetfence.authorize
 #merge_answer = yes
 #answer1 = control:Proxy-To-Realm => ACME
 #
@@ -174,7 +178,7 @@
 #value = Building1
 #
 #[1:Building1]
-#scope=preproxy
+#scope=packetfence.pre-proxy
 #merge_answer = yes
 #answer1 = proxy-request:User-Name => Building1!${radius_request.User-Name}
 #
@@ -188,7 +192,7 @@
 #value = .*
 #
 #[1:all]
-#scope=postproxy
+#scope=packetfence.post-proxy
 #merge_answer=yes
 #answer1 = reply:Tunnel-Private-Group-Id => 33
 #answer2 = reply:Tunnel-Type => 13

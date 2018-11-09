@@ -146,8 +146,9 @@ rest {
 		tls = ${..tls}
 	}
 	authenticate {
-		uri = "${..connect_uri}/user/%{User-Name}/mac/%{Called-Station-ID}?action=authenticate"
-		method = 'get'
+		uri = "${..connect_uri}/radius/rest/filter"
+		method = 'post'
+		body = 'json'
 		tls = ${..tls}
 	}
 
@@ -165,19 +166,19 @@ rest {
 		tls = ${..tls}
 	}
 	post-auth {
-		uri = "${..connect_uri}/radius/rest/authorize"
+		uri = "${..connect_uri}/radius/rest/filter"
 		method = 'post'
         body = 'json'
 		tls = ${..tls}
 	}
         pre-proxy {
-                uri = "${..connect_uri}/radius/rest/pre_proxy"
+                uri = "${..connect_uri}/radius/rest/filter"
                 method = 'post'
                 body = 'json'
                 tls = ${..tls}
         }
         post-proxy {
-                uri = "${..connect_uri}/radius/rest/post_proxy"
+                uri = "${..connect_uri}/radius/rest/filter"
                 method = 'post'
                 body = 'json'
                 tls = ${..tls}

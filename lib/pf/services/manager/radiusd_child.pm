@@ -131,10 +131,10 @@ sub generate_radiusd_sitesconf {
         $tags{'accounting_sql'} = "# sql not activated because explicitly disabled in pf.conf";
     }
     if(isenabled($Config{advanced}{filter_in_authorization})){
-        $tags{'authorization_filter'} = "rest";
+        $tags{'authorize_filter'} = "rest";
     }
     else {
-        $tags{'authorization_filter'} = "# filter not activated because explicitly disabled in pf.conf";
+        $tags{'authorize_filter'} = "# filter not activated because explicitly disabled in pf.conf";
     }
     if(isenabled($Config{advanced}{filter_in_pre_proxy})){
         $tags{'pre_proxy_filter'} = "rest";
