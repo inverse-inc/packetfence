@@ -18,8 +18,8 @@
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import {
-  pfConfigurationColumnsRealmsList as columns,
-  pfConfigurationFieldsRealmsList as fields
+  pfConfigurationRealmsListColumns as columns,
+  pfConfigurationRealmsListFields as fields
 } from '@/globals/pfConfiguration'
 
 export default {

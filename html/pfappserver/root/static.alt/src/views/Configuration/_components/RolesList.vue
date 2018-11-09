@@ -24,8 +24,8 @@
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import {
-  pfConfigurationColumnsRoles as columns,
-  pfConfigurationFieldsRoles as fields
+  pfConfigurationRolesListColumns as columns,
+  pfConfigurationRolesListFields as fields
 } from '@/globals/pfConfiguration'
 
 export default {

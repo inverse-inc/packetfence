@@ -18,8 +18,8 @@
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import {
-  pfConfigurationColumnsDomains as columns,
-  pfConfigurationFieldsDomains as fields
+  pfConfigurationDomainsListColumns as columns,
+  pfConfigurationDomainsListFields as fields
 } from '@/globals/pfConfiguration'
 
 export default {
