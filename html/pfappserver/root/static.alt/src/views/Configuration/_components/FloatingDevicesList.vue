@@ -20,7 +20,10 @@
 <script>
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import {
+  pfConfigurationColumnsFloatingDevices as columns,
+  pfConfigurationFieldsFloatingDevices as fields
+} from '@/globals/pfConfiguration'
 
 export default {
   name: 'FloatingDevicesList',
@@ -31,38 +34,8 @@ export default {
   data () {
     return {
       config: {
-        columns: [
-          {
-            key: 'id',
-            label: this.$i18n.t('MAC'),
-            sortable: true,
-            visible: true
-          },
-          {
-            key: 'ip',
-            label: this.$i18n.t('IP Address'),
-            sortable: true,
-            visible: true
-          },
-          {
-            key: 'pvid',
-            label: this.$i18n.t('Native VLAN'),
-            sortable: true,
-            visible: true
-          }
-        ],
-        fields: [
-          {
-            value: 'id',
-            text: 'MAC',
-            types: [conditionType.SUBSTRING]
-          },
-          {
-            value: 'ip',
-            text: 'IP Address',
-            types: [conditionType.SUBSTRING]
-          }
-        ],
+        columns: columns,
+        fields: fields,
         rowClickRoute (item, index) {
           return { name: 'floating_device', params: { id: item.id } }
         },

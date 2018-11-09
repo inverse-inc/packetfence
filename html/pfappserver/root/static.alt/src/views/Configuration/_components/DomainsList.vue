@@ -17,7 +17,10 @@
 <script>
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import {
+  pfConfigurationColumnsDomains as columns,
+  pfConfigurationFieldsDomains as fields
+} from '@/globals/pfConfiguration'
 
 export default {
   name: 'DomainsList',
@@ -28,32 +31,8 @@ export default {
   data () {
     return {
       config: {
-        columns: [
-          {
-            key: 'id',
-            label: this.$i18n.t('Name'),
-            sortable: true,
-            visible: true
-          },
-          {
-            key: 'workgroup',
-            label: this.$i18n.t('Workgroup'),
-            sortable: true,
-            visible: true
-          }
-        ],
-        fields: [
-          {
-            value: 'id',
-            text: 'Name',
-            types: [conditionType.SUBSTRING]
-          },
-          {
-            value: 'workgroup',
-            text: 'Workgroup',
-            types: [conditionType.SUBSTRING]
-          }
-        ],
+        columns: columns,
+        fields: fields,
         rowClickRoute (item, index) {
           return { name: 'domain', params: { id: item.id } }
         },

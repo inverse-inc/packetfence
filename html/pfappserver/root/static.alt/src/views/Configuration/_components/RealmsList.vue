@@ -17,7 +17,10 @@
 <script>
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import {
+  pfConfigurationColumnsRealmsList as columns,
+  pfConfigurationFieldsRealmsList as fields
+} from '@/globals/pfConfiguration'
 
 export default {
   name: 'RealmsList',
@@ -28,39 +31,8 @@ export default {
   data () {
     return {
       config: {
-        columns: [
-          {
-            key: 'id',
-            label: this.$i18n.t('Name'),
-            sortable: true,
-            visible: true
-          },
-          {
-            key: 'portal_strip_username',
-            label: this.$i18n.t('Strip Portal'),
-            sortable: true,
-            visible: true
-          },
-          {
-            key: 'admin_strip_username',
-            label: this.$i18n.t('Strip Admin'),
-            sortable: true,
-            visible: true
-          },
-          {
-            key: 'radius_strip_username',
-            label: this.$i18n.t('Strip RADIUS'),
-            sortable: true,
-            visible: true
-          }
-        ],
-        fields: [
-          {
-            value: 'id',
-            text: 'Name',
-            types: [conditionType.SUBSTRING]
-          }
-        ],
+        columns: columns,
+        fields: fields,
         rowClickRoute (item, index) {
           return { name: 'realm', params: { id: item.id } }
         },
