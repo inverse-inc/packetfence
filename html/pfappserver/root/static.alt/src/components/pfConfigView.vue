@@ -96,14 +96,16 @@ export default {
     getValidations () {
       const eachFieldValue = {}
       if (this.form.fields.length > 0) {
-        this.form.fields.forEach((field, index) => {
-          eachFieldValue[field.key] = {}
-          if (
-            'validators' in field && // has vuelidate validations
-            (!('if' in field) || field.if) // is visible
-          ) {
-            eachFieldValue[field.key] = field.validators
-          }
+        this.form.fields.forEach((row, index) => {
+          row.fields.forEach((field, index) => {
+            eachFieldValue[field.key] = {}
+            if (
+              'validators' in field && // has vuelidate validations
+              (!('if' in field) || field.if) // is visible
+            ) {
+              eachFieldValue[field.key] = field.validators
+            }
+          })
         })
         Object.freeze(eachFieldValue)
       }
