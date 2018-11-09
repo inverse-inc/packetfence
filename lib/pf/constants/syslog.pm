@@ -128,7 +128,7 @@ our @SyslogInfo = (
     },
     {
         'name'       => 'pfdns.log',
-        'conditions' => [ '$programname contains "pfdns"' ]
+        'conditions' => [ '$programname == "pfdns"' ]
     },
     {
         'name'       => 'pffilter.log',
