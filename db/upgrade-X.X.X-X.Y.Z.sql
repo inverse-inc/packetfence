@@ -8,11 +8,11 @@
 --                                                                                                                     
 
 SET @MAJOR_VERSION = 8; 
-SET @MINOR_VERSION = 1;
+SET @MINOR_VERSION = 2;
 SET @SUBMINOR_VERSION = 9;                                                                                             
                                                                                                                        
 SET @PREV_MAJOR_VERSION = 8;                                                                                           
-SET @PREV_MINOR_VERSION = 1;
+SET @PREV_MINOR_VERSION = 2;
 SET @PREV_SUBMINOR_VERSION = 0;                                                                                        
                                                                                                                        
 
@@ -46,6 +46,7 @@ END
 
 DELIMITER ;                                                                                                            
 call ValidateVersion;                                                                                                  
+DROP PROCEDURE IF EXISTS ValidateVersion;
 
 
 INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION)); 
