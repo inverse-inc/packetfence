@@ -16,7 +16,6 @@
         <span v-if="id">{{ $t('Authentication Source') }} <strong v-text="id"></strong></span>
         <span v-else>{{ $t('New {sourceClass} Authentication Source', { sourceClass: this.sourceClass}) }}</span>
       </h4>
-      XXX: {{ JSON.stringify(source, null, 2) }}
     </template>
     <template slot="footer" is="b-card-footer" @mouseenter="$v.source.$touch()">
       <pf-button-save :disabled="invalidForm" :isLoading="isLoading">{{ isNew? $t('Create') : $t('Save') }}</pf-button-save>
