@@ -180,7 +180,7 @@ EOT
     else {
         $tags{'multi_domain'} = '# packetfence-multi-domain not activated because no domains configured';
     }
-    if(isenabled($Config{advanced}{filter_in_packetfence-tunnel_authorize})){
+    if(isenabled($Config{advanced}{'filter_in_packetfence-tunnel_authorize'})){
         $tags{'authorize_filter'} = "rest";
     }
     else {
