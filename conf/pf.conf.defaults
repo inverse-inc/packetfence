@@ -816,23 +816,35 @@ sso_on_dhcp=enabled
 # Requires a restart of radiusd to be effective.
 record_accounting_in_sql=enabled
 #
-# advanced.filter_in_authorization
+# advanced.filter_in_authorize
 #
-# Send the radius request in the radius filter in the radius authorization section.
+# Send the radius request in the radius filter in the radius packetfence authorize section.
 # Requires a restart of radiusd to be effective.
-filter_in_authorization=disabled
+filter_in_packetfence_authorize=disabled
 #
 # advanced.filter_in_pre_proxy
 #
-# Send the radius request in the radius filter in the radius pre_proxy section.
+# Send the radius request in the radius filter in the radius packetfence pre_proxy section.
 # Requires a restart of radiusd to be effective.
-filter_in_pre_proxy=disabled
+filter_in_packetfence_pre_proxy=disabled
 #
 # advanced.filter_in_post_proxy
 #
-# Send the radius request in the radius filter in the radius post_proxy section.
+# Send the radius request in the radius filter in the radius packetfence post_proxy section.
 # Requires a restart of radiusd to be effective.
-filter_in_post_proxy=disabled
+filter_in_packetfence_post_proxy=disabled
+#
+# advanced.filter_in_packetfence_accounting
+#
+# Send the radius request in the radius filter in the radius packetfence accounting section.
+# Requires a restart of radiusd to be effective.
+filter_in_packetfence_accounting=disabled
+#
+# advanced.filter_in_packetfence-tunnel_authorize
+#
+# Send the radius request in the radius filter in the radius packetfence-tunnel authorize section.
+# Requires a restart of radiusd to be effective.
+filter_in_packetfence-tunnel_authorize=disabled
 #
 # advanced.hash_passwords
 #

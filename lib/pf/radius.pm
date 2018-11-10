@@ -379,7 +379,7 @@ sub normalize_username {
 
 sub accounting {
     my $timer = pf::StatsD::Timer->new();
-    my ($self, $radius_request) = @_;
+    my ($self, $radius_request, $headers) = @_;
     my $logger = $self->logger;
 
     my ( $switch_mac, $switch_ip, $source_ip, $stripped_user_name, $realm ) = $self->_parseRequest($radius_request);
@@ -473,7 +473,39 @@ sub accounting {
             }
         }
     }
-
+    if(isenabled($Config{advanced}{filter_in_packetfence_accounting})){
+        my %RAD_REPLY_REF;
+        my $node_info = node_attributes($mac);
+        my $ssid;
+        if (($connection_type & $WIRELESS) == $WIRELESS) {
+            $ssid = $switch->extractSsid($radius_request);
+        }
+        my $args = {
+            switch => $switch,
+            switch_mac => $switch_mac,
+            switch_ip => $switch_ip,
+            source_ip => $source_ip,
+            stripped_user_name => $stripped_user_name,
+            realm => $realm,
+            nas_port_type => $nas_port_type,
+            eap_type => $eap_type // '',
+            mac => $mac,
+            ifIndex => $port,
+            ifDesc => $ifDesc,
+            user_name => $user_name,
+            nas_port_id => $nas_port_type // '',
+            session_id => $session_id,
+            connection_type => $connection_type,
+            connection_sub_type => $connection_sub_type,
+            radius_request => $radius_request,
+            ssid => $ssid,
+            node_info => $node_obj
+        };
+        my $filter = pf::access_filter::radius->new;
+        my $rule = $filter->test($headers->{'X-FreeRADIUS-Server'}.".".$headers->{'X-FreeRADIUS-Section'}, $args);
+        my ($reply, $status) = $filter->handleAnswerInRule($rule,$args,\%RAD_REPLY_REF);
+        return [$status, %$reply];
+    }
     return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Accounting ok") ];
 }
 

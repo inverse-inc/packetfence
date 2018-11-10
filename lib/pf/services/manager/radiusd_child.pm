@@ -130,19 +130,19 @@ sub generate_radiusd_sitesconf {
     else {
         $tags{'accounting_sql'} = "# sql not activated because explicitly disabled in pf.conf";
     }
-    if(isenabled($Config{advanced}{filter_in_authorization})){
+    if(isenabled($Config{advanced}{filter_in_packetfence_authorize})){
         $tags{'authorize_filter'} = "rest";
     }
     else {
         $tags{'authorize_filter'} = "# filter not activated because explicitly disabled in pf.conf";
     }
-    if(isenabled($Config{advanced}{filter_in_pre_proxy})){
+    if(isenabled($Config{advanced}{filter_in_packetfence_pre_proxy})){
         $tags{'pre_proxy_filter'} = "rest";
     }
     else {
         $tags{'pre_proxy_filter'} = "# filter not activated because explicitly disabled in pf.conf";
     }
-    if(isenabled($Config{advanced}{filter_in_post_proxy})){
+    if(isenabled($Config{advanced}{filter_in_packetfence_post_proxy})){
         $tags{'post_proxy_filter'} = "rest";
     }
     else {
@@ -180,7 +180,12 @@ EOT
     else {
         $tags{'multi_domain'} = '# packetfence-multi-domain not activated because no domains configured';
     }
-
+    if(isenabled($Config{advanced}{filter_in_packetfence-tunnel_authorize})){
+        $tags{'authorize_filter'} = "rest";
+    }
+    else {
+        $tags{'authorize_filter'} = "# filter not activated because explicitly disabled in pf.conf";
+    }
     if(isenabled($Config{advanced}{ntlm_redis_cache})) {
         my $username_prefix = "NTHASH:%{%{PacketFence-Domain}:-''}";
         $tags{'redis_ntlm_cache_fetch'} = <<EOT
