@@ -396,7 +396,7 @@ sub accounting {
     }
 
     $switch->setCurrentTenant();
-    my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id) = $switch->parseRequest($radius_request);
+    my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
 
     # update last_seen of MAC address as some activity from it has been seen
     node_update_last_seen($mac);
@@ -405,15 +405,16 @@ sub accounting {
     my $isStop   = $radius_request->{'Acct-Status-Type'}  == $ACCOUNTING::STOP;
     my $isUpdate = $radius_request->{'Acct-Status-Type'}  == $ACCOUNTING::INTERIM_UPDATE;
 
+    my $connection = pf::Connection->new;
+    $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch);
+    my $connection_type = $connection->attributesToBackwardCompatible;
+    my $connection_sub_type = $connection->subType;
+
     if($isStart || $isUpdate){
         pf::accounting->cache->set($mac, $radius_request);
     }
 
     if ($isStop || $isUpdate) {
-
-        my $connection = pf::Connection->new;
-        $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch);
-        my $connection_type = $connection->attributesToBackwardCompatible;
 
         $port = $switch->getIfIndexByNasPortId($nas_port_id) || $self->_translateNasPortToIfIndex($connection_type, $switch, $port);
 
@@ -475,7 +476,7 @@ sub accounting {
     }
     if(isenabled($Config{advanced}{filter_in_packetfence_accounting})){
         my %RAD_REPLY_REF;
-        my $node_info = node_attributes($mac);
+        my $node_obj = node_attributes($mac);
         my $ssid;
         if (($connection_type & $WIRELESS) == $WIRELESS) {
             $ssid = $switch->extractSsid($radius_request);
