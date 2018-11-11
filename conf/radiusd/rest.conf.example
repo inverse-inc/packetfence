@@ -166,7 +166,7 @@ rest {
 		tls = ${..tls}
 	}
 	post-auth {
-		uri = "${..connect_uri}/radius/rest/filter"
+		uri = "${..connect_uri}/radius/rest/authorize"
 		method = 'post'
         body = 'json'
 		tls = ${..tls}
