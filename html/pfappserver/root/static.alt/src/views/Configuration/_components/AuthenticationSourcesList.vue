@@ -130,8 +130,7 @@ export default {
   },
   methods: {
     clone (item) {
-      // TODO
-      console.log('clone', item)
+      this.$router.push({ name: 'cloneAuthenticationSource', params: { id: item.id } })
     },
     remove (item) {
       // TODO

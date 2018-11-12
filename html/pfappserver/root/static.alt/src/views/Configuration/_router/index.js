@@ -176,6 +176,17 @@ const route = {
           next()
         })
       }
+    },
+    {
+      path: 'source/:id/clone',
+      name: 'cloneAuthenticationSource',
+      component: AuthenticationSourcesView,
+      props: (route) => ({ storeName: '$_sources', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_sources/getAuthenticationSource', to.params.id).then(object => {
+          next()
+        })
+      }
     }
   ]
 }

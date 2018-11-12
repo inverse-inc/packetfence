@@ -6,8 +6,12 @@ import pfFormSelect from '@/components/pfFormSelect'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormToggle from '@/components/pfFormToggle'
 import {
+  and,
+  not,
+  conditional,
   isFQDN,
-  isPort
+  isPort,
+  sourceExists
 } from '@/globals/pfValidators'
 const {
   required,
@@ -222,11 +226,12 @@ export const pfConfigurationAuthenticationSourcesViewFields = ({ isNew = false, 
               key: 'id',
               component: pfFormInput,
               attrs: {
-                disabled: (!isNew)
+                disabled: (!isNew && !isClone)
               },
               validators: {
                 [i18n.t('Name is required.')]: required,
-                [i18n.t('Alphanumeric value required.')]: alphaNum
+                [i18n.t('Alphanumeric value required.')]: alphaNum,
+                [i18n.t('Source exists.')]: not(and(required, conditional(isNew || isClone), sourceExists))
               }
             }
           ]
@@ -248,7 +253,7 @@ export const pfConfigurationAuthenticationSourcesViewFields = ({ isNew = false, 
               component: pfFormInput,
               attrs: {
                 placeholder: i18n.t('Host'),
-                class: 'col-sm-6'
+                class: 'col-sm-4'
               }
             },
             {
@@ -284,11 +289,12 @@ export const pfConfigurationAuthenticationSourcesViewFields = ({ isNew = false, 
               key: 'id',
               component: pfFormInput,
               attrs: {
-                disabled: (!isNew)
+                disabled: (!isNew && !isClone)
               },
               validators: {
                 [i18n.t('Name is required.')]: required,
-                [i18n.t('Alphanumeric value required.')]: alphaNum
+                [i18n.t('Alphanumeric value required.')]: alphaNum,
+                [i18n.t('Source exists.')]: not(and(required, conditional(isNew || isClone), sourceExists))
               }
             }
           ]

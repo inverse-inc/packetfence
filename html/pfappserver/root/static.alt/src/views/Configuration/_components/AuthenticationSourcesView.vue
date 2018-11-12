@@ -13,13 +13,16 @@
     <template slot="header" is="b-card-header">
       <b-button-close @click="close" v-b-tooltip.hover.left.d300 :title="$t('Close [ESC]')"><icon name="times"></icon></b-button-close>
       <h4 class="mb-0">
-        <span v-if="id">{{ $t('Authentication Source') }} <strong v-text="id"></strong></span>
+        <span v-if="!isNew && !isClone">{{ $t('Authentication Source {id}', { id: id }) }}</span>
+        <span v-else-if="isClone">{{ $t('Clone Authentication Source {id}', { id: id }) }}</span>
         <span v-else>{{ $t('New {sourceClass} Authentication Source', { sourceClass: this.sourceClass}) }}</span>
       </h4>
     </template>
     <template slot="footer" is="b-card-footer" @mouseenter="$v.source.$touch()">
-      <pf-button-save :disabled="invalidForm" :isLoading="isLoading">{{ isNew? $t('Create') : $t('Save') }}</pf-button-save>
-      <pf-button-delete v-if="!isNew" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Source?')" @on-delete="remove()"/>
+      <pf-button-save v-if="!isNew && !isClone" :disabled="invalidForm" :isLoading="isLoading">{{ $t('Save') }}</pf-button-save>
+      <pf-button-save v-else-if="isClone" :disabled="invalidForm" :isLoading="isLoading">{{ $t('Clone') }}</pf-button-save>
+      <pf-button-save v-else :disabled="invalidForm" :isLoading="isLoading">{{ $t('Create') }}</pf-button-save>
+      <pf-button-delete v-if="!isNew && !isClone" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Source?')" @on-delete="remove()"/>
     </template>
   </pf-config-view>
 </template>
@@ -57,6 +60,10 @@ export default {
       default: null
     },
     isNew: { // from router
+      type: Boolean,
+      default: false
+    },
+    isClone: { // from router
       type: Boolean,
       default: false
     },
