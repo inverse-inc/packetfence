@@ -35,7 +35,7 @@ Depends: ${misc:Depends}, vlan,
  libapache2-request-perl, libtie-dxhash-perl, libapache-session-perl,
  libapache-ssllookup-perl, libapache2-mod-systemd,
 # freeradius
- freeradius (>= 3.0.15.6), freeradius-ldap, 
+ freeradius (>= 3.0.18), freeradius-ldap,
  freeradius-mysql, freeradius-utils, freeradius-rest, freeradius-redis,
 # systemd sd_notify support
  libsystemd-daemon-perl,
