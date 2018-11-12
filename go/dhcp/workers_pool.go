@@ -4,18 +4,7 @@ import (
 	"context"
 	_ "expvar"
 	"net"
-
-	dhcp "github.com/krolaw/dhcp4"
 )
-
-type job struct {
-	p        dhcp.Packet
-	msgType  dhcp.MessageType
-	handler  Handler
-	addr     net.Addr
-	dst      net.IP
-	localCtx context.Context
-}
 
 func doWork(id int, jobe job) {
 	var ans Answer
@@ -29,4 +18,13 @@ func doWork(id int, jobe job) {
 			client.Close()
 		}
 	}
+}
+
+type job struct {
+	p        dhcp.Packet
+	msgType  dhcp.MessageType
+	handler  Handler
+	addr     net.Addr
+	dst      net.IP
+	localCtx context.Context
 }
