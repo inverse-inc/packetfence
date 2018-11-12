@@ -4227,7 +4227,7 @@ and a switch section for each switch (managed by PacketFence) including:
 NOTE: `switches.conf` is loaded at startup. A reload is required when changes
 are manually made to this file `/usr/local/pf/bin/pfcmd configreload`.
 
-Import from CSV
+Switch import from CSV
 ^^^^^^^^^^^^^^^
 
 Using this, you will able to import a list of switches and update its description and switch group.
