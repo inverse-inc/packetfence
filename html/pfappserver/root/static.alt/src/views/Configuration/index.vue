@@ -32,7 +32,7 @@ export default {
                 { name: 'REALMS', path: '/configuration/realms' }
               ]
             },
-            { name: 'Authentication Sources', path: '/configuration/sources' },
+            { name: 'Authentication Sources', path: '/configuration/sources' }
           ]
         },
         {
