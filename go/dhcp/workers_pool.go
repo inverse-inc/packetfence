@@ -4,6 +4,8 @@ import (
 	"context"
 	_ "expvar"
 	"net"
+
+	dhcp "github.com/krolaw/dhcp4"
 )
 
 type job struct {
