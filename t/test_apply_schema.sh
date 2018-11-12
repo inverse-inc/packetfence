@@ -22,15 +22,16 @@ MYSQL="mysql -upf_smoke_tester -ppacket -h127.0.0.1"
 
 MYSQLDUMP="mysqldump -upf_smoke_tester -h127.0.0.1 --no-data -a --skip-comments --routines -ppacket"
 
-UPGRADE_SCRIPT="$PF_DIR/db/upgrade-X.X.X-X.Y.Z.sql"
-
 CURRENT_SCHEMA="$PF_DIR/db/pf-schema-X.Y.Z.sql"
 
-if ! [ -f "$UPGRADE_SCRIPT" ]; then
-  echo "X.X.X to X.Y.Z upgrade script doesn't exist. Not testing schema upgrade"
-  exit 0
+if [ -e "$CURRENT_SCHEMA" ]; then
+    UPGRADE_SCRIPT="$PF_DIR/db/upgrade-X.X.X-X.Y.Z.sql"
+    LAST_SCHEMA=$(ls $PF_DIR/db/pf-schema-[0-9]*sql | sort --version-sort -r | head -1)
+else
+    CURRENT_SCHEMA="$PF_DIR/db/pf-schema.sql"
+    LAST_SCHEMA=$(ls $PF_DIR/db/pf-schema-[0-9]*sql | sort --version-sort -r | head -2 | tail -1)
+    UPGRADE_SCRIPT=$(ls $PF_DIR/db/upgrade-[0-9]*sql | sort --version-sort -r | head -1)
 fi
-
 
 for db in $UPGRADED_DB $PRISTINE_DB;do
     echo "Created test db $db"
@@ -38,7 +39,6 @@ for db in $UPGRADED_DB $PRISTINE_DB;do
     $MYSQL -e"CREATE DATABASE $db;"
 done
 
-LAST_SCHEMA=$(ls $PF_DIR/db/pf-schema-[0-9]*sql | sort --version-sort -r | head -1)
 
 echo "Applying last schema $LAST_SCHEMA"
 
