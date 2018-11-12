@@ -242,11 +242,11 @@ export default {
       border-bottom-right-radius: $border-radius;
     }
   }
-  &.is-focus .input-group-prefixmultiplier  {
+  &.is-focus .input-group-prefixmultiplier {
     border: 1px solid $input-focus-border-color;
     box-shadow: 0 0 0 $input-focus-width rgba($input-focus-border-color, .25);
   }
-  &.is-invalid .input-group-prefixmultiplier  {
+  &.is-invalid .input-group-prefixmultiplier {
     border: 1px solid $form-feedback-invalid-color;
     box-shadow: 0 0 0 $input-focus-width rgba($form-feedback-invalid-color, .25);
   }
