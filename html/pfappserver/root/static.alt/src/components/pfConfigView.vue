@@ -17,13 +17,17 @@
           horizontal
         >
           <b-input-group>
-            <component v-for="field in row.fields" :key="field.key" v-if="!('if' in field) || field.if"
-              :is="field.component || defaultComponent"
-              v-bind="field.attrs"
-              v-model="model[field.key]"
-              :validation="validation[field.key]"
-              :class="getClass(row, field)"
-            ></component>
+            <template v-for="field in row.fields">
+              <span v-if="field.text" :key="field.index" :class="field.class">{{ field.text }}</span>
+              <component v-else-if="!('if' in field) || field.if"
+                :key="field.key"
+                :is="field.component || defaultComponent"
+                v-bind="field.attrs"
+                v-model="model[field.key]"
+                :validation="validation[field.key]"
+                :class="getClass(row, field)"
+              ></component>
+            </template>
           </b-input-group>
           <b-form-text v-if="row.text" v-t="row.text"></b-form-text>
         </b-form-group>
@@ -136,3 +140,11 @@ export default {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.input-group > span {
+  display:flex;
+  justify-contents:center;
+  align-items:center;
+}
+</style>

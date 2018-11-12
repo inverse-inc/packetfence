@@ -257,10 +257,15 @@ export const pfConfigurationAuthenticationSourcesViewFields = ({ isNew = false, 
               }
             },
             {
+              text: ':',
+              class: 'mx-1'
+            },
+            {
               key: 'port',
               component: pfFormInput,
               attrs: {
-                placeholder: i18n.t('Port')
+                placeholder: i18n.t('Port'),
+                class: 'col-sm-1'
               },
               validators: {
                 [i18n.t('Enter a valid port number.')]: isPort
