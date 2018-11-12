@@ -312,7 +312,7 @@ func AssignIP(dhcpHandler *DHCPHandler, ip_range string) (map[string]uint32, []n
 				result := rgx.FindStringSubmatch(rangeip)
 				position := uint32(binary.BigEndian.Uint32(net.ParseIP(result[2]).To4())) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
 				// Remove the position in the roaming bitmap
-				dhcpHandler.available.Remove(position)
+				dhcpHandler.available.ReserveIPIndex(uint64(position))
 				couple[result[1]] = position
 				iplist = append(iplist, net.ParseIP(result[2]))
 			}
