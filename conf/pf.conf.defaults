@@ -834,6 +834,12 @@ filter_in_packetfence_pre_proxy=disabled
 # Requires a restart of radiusd to be effective.
 filter_in_packetfence_post_proxy=disabled
 #
+# advanced.filter_in_packetfence_preacct
+#
+# Send the radius request in the radius filter from the radius packetfence.preacct section.
+# Requires a restart of radiusd to be effective.
+filter_in_packetfence_preacct=disabled
+#
 # advanced.filter_in_packetfence_accounting
 #
 # Send the radius request in the radius filter from the radius packetfence.accounting section.

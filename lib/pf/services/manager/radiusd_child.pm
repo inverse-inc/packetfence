@@ -148,6 +148,12 @@ sub generate_radiusd_sitesconf {
     else {
         $tags{'post_proxy_filter'} = "# filter not activated because explicitly disabled in pf.conf";
     }
+    if(isenabled($Config{advanced}{filter_in_packetfence_preacct})){
+        $tags{'preacct_filter'} = "rest";
+    }
+    else {
+        $tags{'preacct_filter'} = "# filter not activated because explicitly disabled in pf.conf";
+    }
 
     $tags{'local_realm'} = '';
     my @realms;

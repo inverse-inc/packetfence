@@ -245,6 +245,7 @@ preacct {
 	#  home server as authentication requests.
 	#	IPASS
 	suffix
+	%%preacct_filter%%
 	ntdomain
 
 	#

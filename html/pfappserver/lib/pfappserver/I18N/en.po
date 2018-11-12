@@ -9196,6 +9196,30 @@ msgid "advanced.record_accounting_in_sql"
 msgstr "Record accounting in SQL tables"
 
 # conf/documentation.conf
+msgid "advanced.filter_in_packetfence_authorize"
+msgstr "Use radius filters in packetfence authorize"
+
+# conf/documentation.conf
+msgid "advanced.filter_in_packetfence_pre_proxy"
+msgstr "Use radius filters in packetfence pre_proxy"
+
+# conf/documentation.conf
+msgid "advanced.filter_in_packetfence_post_proxy"
+msgstr "Use radius filters in packetfence post_proxy"
+
+# conf/documentation.conf
+msgid "advanced.filter_in_packetfence_preacct"
+msgstr "Use radius filters in packetfence preacct"
+
+# conf/documentation.conf
+msgid "advanced.filter_in_packetfence_accounting"
+msgstr "Use radius filters in packetfence accounting"
+
+# conf/documentation.conf
+msgid "advanced.filter_in_packetfence-tunnel_authorize"
+msgstr "Use radius filters in packetfence-tunnel authorize"
+
+# conf/documentation.conf
 msgid "advanced.source_to_send_sms_when_creating_users"
 msgstr "SMS Source for sending user create messages"
 

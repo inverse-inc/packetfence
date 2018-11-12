@@ -10018,6 +10018,30 @@ msgid "advanced.record_accounting_in_sql"
 msgstr "Enregistrer la comptabilisation dans les tables SQL"
 
 # conf/documentation.conf
+msgid "advanced.filter_in_packetfence_authorize"
+msgstr "Use radius filters in packetfence authorize"
+
+# conf/documentation.conf
+msgid "advanced.filter_in_packetfence_pre_proxy"
+msgstr "Utiliser les filtres dans packetfence pre_proxy"
+
+# conf/documentation.conf
+msgid "advanced.filter_in_packetfence_post_proxy"
+msgstr "Utiliser les filtres dans packetfence post_proxy"
+
+# conf/documentation.conf
+msgid "advanced.filter_in_packetfence_preacct"
+msgstr "Utiliser les filtres dans packetfence preacct"
+
+# conf/documentation.conf
+msgid "advanced.filter_in_packetfence_accounting"
+msgstr "Utiliser les filtres dans packetfence accounting"
+
+# conf/documentation.conf
+msgid "advanced.filter_in_packetfence-tunnel_authorize"
+msgstr "Utiliser les filtres dans packetfence-tunnel authorize"
+
+# conf/documentation.conf
 msgid "advanced.source_to_send_sms_when_creating_users"
 msgstr "Source SMS pour envoyer les messages de création d’utilisateur "
 
