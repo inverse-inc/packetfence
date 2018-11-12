@@ -275,6 +275,7 @@ sub unreg_node_for_pid : Public:AllowedAsAction(pid, $pid) {
 
     foreach my $node_info ( @node_infos ) {
         pf::node::node_deregister($node_info->{'mac'});
+        pf::enforcement::reevaluate_access( $node_info->{'mac'}, 'manage_deregister' );
     }
 
     return $count;
