@@ -69,7 +69,7 @@ func initiaLease(dhcpHandler *DHCPHandler) {
 		position := uint32(binary.BigEndian.Uint32(ip.To4())) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
 
 		// Remove the position in the roaming bitmap
-		dhcpHandler.available.Remove(position)
+		dhcpHandler.available.ReserveIPIndex(uint64(position))
 		// Add the mac in the cache
 		dhcpHandler.hwcache.Set(mac, int(position), leaseDuration)
 		GlobalIpCache.Set(ipstr, mac, leaseDuration)
@@ -87,7 +87,7 @@ func InterfaceScopeFromMac(MAC string) string {
 					NetWork = v.network[network].network.String()
 					if x, found := v.network[network].dhcpHandler.hwcache.Get(MAC); found {
 						v.network[network].dhcpHandler.hwcache.Replace(MAC, x.(int), 3*time.Second)
-						v.network[network].dhcpHandler.available.Add(uint32(x.(int)))
+						v.network[network].dhcpHandler.available.FreeIPIndex(uint64(x.(int)))
 						log.LoggerWContext(ctx).Info(MAC + " removed")
 					}
 				}
@@ -282,7 +282,7 @@ func ExcludeIP(dhcpHandler *DHCPHandler, ip_range string) {
 			position := uint32(binary.BigEndian.Uint32(excludeIP.To4())) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
 
 			// Remove the position in the roaming bitmap
-			dhcpHandler.available.Remove(position)
+			dhcpHandler.available.ReserveIPIndex(uint64(position))
 		}
 	}
 }

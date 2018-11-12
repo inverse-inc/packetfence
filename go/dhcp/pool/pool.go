@@ -46,7 +46,7 @@ func (dp *DHCPPool) FreeIPIndex(index uint64) error {
 	dp.lock.Lock()
 	defer dp.lock.Unlock()
 
-	if index >= dp.capacity {
+	if !dp.IndexInPool(index) {
 		return errors.New("Trying to free an IP that is outside the capacity of this pool")
 	}
 
@@ -79,6 +79,11 @@ func (dp *DHCPPool) GetFreeIPIndex() (uint64, error) {
 	delete(dp.free, available)
 
 	return available, nil
+}
+
+// Returns whether or not a specific index is in the capacity of the pool
+func (dp *DHCPPool) IndexInPool(index uint64) bool {
+	return index < dp.capacity
 }
 
 // Returns the amount of free IPs in the pool
