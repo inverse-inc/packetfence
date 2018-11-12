@@ -7,9 +7,11 @@
         v-model="inputValue"
         v-bind="$attrs"
         v-on="forwardListeners"
-        :id="id"
         ref="input"
+        :id="id"
+        :multiple="multiple"
         :options="options"
+        :trackBy="trackBy"
         :state="isValid()"
         @input.native="validate()"
         @keyup.native="onChange($event)"
@@ -60,6 +62,10 @@ export default {
       type: Array,
       default: null
     },
+    multiple: {
+      type: Boolean,
+      default: false
+    },
     id: {
       type: String
     },
@@ -82,17 +88,18 @@ export default {
   computed: {
     inputValue: {
       get () {
+        const currentValue = this.value || ((this.multiple) ? [] : null)
         if (this.collapseObject) {
-          return this.$attrs['multiple']
-            ? this.value.map(value => this.options.find(option => option[this.trackBy] === value))
-            : this.options.find(option => option[this.trackBy] === this.value)
+          return (this.multiple)
+            ? [...new Set(currentValue.map(value => this.options.find(option => option[this.trackBy] === value)))]
+            : this.options.find(option => option[this.trackBy] === currentValue)
         }
-        return this.value
+        return currentValue
       },
       set (newValue) {
         if (this.collapseObject) {
-          newValue = (this.$attrs['multiple'])
-            ? newValue.map(value => value[this.trackBy])
+          newValue = (this.multiple)
+            ? [...new Set(newValue.map(value => value[this.trackBy]))]
             : (newValue && newValue[this.trackBy])
         }
         this.$emit('input', newValue)
