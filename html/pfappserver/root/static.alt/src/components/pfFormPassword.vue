@@ -18,7 +18,7 @@
       </b-form-input>
       <b-input-group-append>
         <b-button-group rel="prefixButtonGroup">
-          <b-button class="input-group-text" @mouseover="over()" @mousemove="over()" @mouseout="out()" :disabled="!this.value"><icon name="eye"></icon></b-button>
+          <b-button class="input-group-text" @mouseover="over()" @mousemove="over()" @mouseout="out()" :disabled="!this.value && this.type === 'password'"><icon name="eye"></icon></b-button>
           <b-button v-if="test" class="input-group-text" @click="test()" :disabled="!this.value">{{ $t('Test') }}</b-button>
         </b-button-group>
       </b-input-group-append>
