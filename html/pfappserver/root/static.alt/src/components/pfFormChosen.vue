@@ -14,7 +14,7 @@
         :trackBy="trackBy"
         :state="isValid()"
         @input.native="validate()"
-        @keyup.native="onChange($event)"
+        @keyup.native.stop.prevent="onChange($event)"
         @change.native="onChange($event)"
         @open="focus = true"
         @close="focus = false"
