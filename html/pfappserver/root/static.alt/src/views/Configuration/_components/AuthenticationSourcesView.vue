@@ -56,6 +56,10 @@ export default {
       type: String,
       default: null
     },
+    isNew: { // from router
+      type: Boolean,
+      default: false
+    },
     id: { // from router
       type: String,
       default: null
@@ -73,9 +77,6 @@ export default {
     }
   },
   computed: {
-    isNew () {
-      return this.id === null
-    },
     isLoading () {
       return this.$store.getters['$_sources/isLoading']
     },

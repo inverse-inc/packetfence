@@ -62,7 +62,7 @@ const route = {
       path: 'roles/new',
       name: 'newRole',
       component: RoleView,
-      props: (route) => ({ storeName: '$_roles' })
+      props: (route) => ({ storeName: '$_roles', isNew: true })
     },
     {
       path: 'role/:id',
@@ -85,7 +85,7 @@ const route = {
       path: 'domains/new',
       name: 'newDomain',
       component: DomainView,
-      props: (route) => ({ storeName: '$_domains' })
+      props: (route) => ({ storeName: '$_domains', isNew: true })
     },
     {
       path: 'domain/:id',
@@ -108,7 +108,7 @@ const route = {
       path: 'realms/new',
       name: 'newRealm',
       component: RealmView,
-      props: (route) => ({ storeName: '$_realms' })
+      props: (route) => ({ storeName: '$_realms', isNew: true })
     },
     {
       path: 'realm/:id',
@@ -138,7 +138,7 @@ const route = {
       path: 'floating_devices/new',
       name: 'newFloatingDevice',
       component: FloatingDeviceView,
-      props: (route) => ({ storeName: '$_floatingdevices' })
+      props: (route) => ({ storeName: '$_floatingdevices', isNew: true })
     },
     {
       path: 'floating_device/:id',
@@ -164,7 +164,7 @@ const route = {
       path: 'sources/new/:sourceClass',
       name: 'newAuthenticationSource',
       component: AuthenticationSourcesView,
-      props: (route) => ({ storeName: '$_sources', sourceClass: route.params.sourceClass })
+      props: (route) => ({ storeName: '$_sources', isNew: true, sourceClass: route.params.sourceClass })
     },
     {
       path: 'source/:id',
