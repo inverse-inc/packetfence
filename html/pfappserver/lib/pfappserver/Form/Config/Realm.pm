@@ -21,7 +21,6 @@ use pf::ConfigStore::Domain;
 
 has domains => ( is => 'rw', builder => '_build_domains');
 tie our %ConfigAuthenticationLdap, 'pfconfig::cached_hash', 'resource::authentication_sources_ldap';
-tie our %ConfigAuthenticationRadius, 'pfconfig::cached_hash', 'resource::authentication_sources_radius';
 
 ## Definition
 has_field 'id' =>
@@ -215,7 +214,7 @@ sub options_ldap {
 
 sub options_radius {
     my $self = shift;
-    my @radius = map { $_ => $_ } keys %ConfigAuthenticationRadius;
+    my @radius = map { $_ => $_ } keys %pf::config::ConfigAuthenticationRadius;
     unshift @radius, ("" => "");
     return @radius;
 }
