@@ -82,8 +82,13 @@ export default {
     visibleColumns () {
       return this.columns.filter(column => column.visible)
     },
+    utilityColumns () {
+      return this.columns.filter(column => column.utility)
+    },
     searchFields () {
-      return this.visibleColumns.filter(column => !column.locked).map(column => column.key)
+      let visibleColumns = this.visibleColumns.filter(column => !column.locked).map(column => column.key)
+      let utilityColumns = this.utilityColumns.map(column => column.key)
+      return [...new Set(visibleColumns.concat(utilityColumns))]
     },
     items () {
       if (this.searchableStoreName) {
