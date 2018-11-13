@@ -16,7 +16,7 @@ pf::UnifiedApi::Controller::Config::Bases
 
 use strict;
 use warnings;
-
+use pf::constants::pfconf;
 
 use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
 
@@ -36,7 +36,15 @@ sub form_parameters {
     return [section => $name];
 }
 
- 
+sub items {
+    my ($self) = @_;
+    my $cs = $self->config_store;
+    my $items = $cs->readAll('id');
+    return [
+        map {$self->cleanup_item($_)} grep { exists $pf::constants::pfconf::ALLOWED_SECTIONS{$_->{id}} } @$items
+    ];
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -65,4 +73,3 @@ USA.
 =cut
 
 1;
-

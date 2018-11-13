@@ -78,7 +78,13 @@ sub item {
 
 sub id {
     my ($self) = @_;
-    url_unescape($self->stash->{$self->primary_key});
+    my $primary_key = $self->primary_key;
+    my $stash = $self->stash;
+    if (exists $stash->{$primary_key}) {
+        return url_unescape($stash->{$primary_key});
+    }
+
+    return undef;
 }
 
 sub item_from_store {
