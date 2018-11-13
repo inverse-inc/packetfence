@@ -24,11 +24,13 @@
 #
 # Specific scopes just to use radius filter to change the logic of Freeradius on the fly
 #
-# packetfence.authorize call the radius filter in the authorize section
-# packetfence.authenticate call the radius filter in the authenticate section
-# packetfence.pre-proxy call the radius filter in the pre-proxy section
-# packetfence.post-proxy call the radius filter in the post-proxy section
-#
+# packetfence.authorize call the radius filter in the packetfence authorize section
+# packetfence.authenticate call the radius filter in the packetfence authenticate section
+# packetfence.pre-proxy call the radius filter in the packetfence pre-proxy section
+# packetfence.post-proxy call the radius filter in the packetfence post-proxy section
+# packetfence-tunnel.authorize call the radius filter in the packetfence-tunnel authorize section
+# packetfence.preacct call the radius filter in the packetfence preacct section
+# packetfence.accounting call the radius filter in the packetfence accounting section
 # Make a simple rule like this:
 #
 #[macauth]
@@ -164,6 +166,20 @@
 #
 #[1:acme]
 #scope=packetfence.authorize
+#merge_answer = yes
+#answer1 = control:Proxy-To-Realm => ACME
+#
+#### preacct example ####
+#
+# There is some cases where you want to override the radius flow, like changing the value of Proxy-To-Realm to force the request to be sent to a specific Realm bases on the username (for accounting).
+#
+#[acme]
+#filter = radius_request.User-Name
+#operator = regex
+#value = ^bobacme.*
+#
+#[1:acme]
+#scope=packetfence.preacct
 #merge_answer = yes
 #answer1 = control:Proxy-To-Realm => ACME
 #
