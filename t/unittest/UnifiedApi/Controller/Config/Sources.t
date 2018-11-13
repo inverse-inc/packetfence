@@ -26,7 +26,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 16;
+use Test::More tests => 17;
 use Test::Mojo;
 
 #This test will running last
@@ -38,6 +38,7 @@ my $collection_base_url = '/api/v1/config/sources';
 my $base_url = '/api/v1/config/source';
 
 $t->get_ok($collection_base_url)
+  ->json_has('/items/0/class')
   ->status_is(200);
 
 $t->post_ok($collection_base_url => json => {})

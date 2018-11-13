@@ -31,7 +31,8 @@ sub list {
 sub items {
     my ($self) = @_;
     my $cs = $self->config_store;
-    return $cs->readAll('id');
+    my $items = $cs->readAll('id');
+    return [map {$self->cleanup_item($_)} @$items];
 }
 
 sub config_store {
@@ -92,7 +93,7 @@ sub cleanup_item {
         return undef;
     }
 
-    $form->process(init_object => $item);
+    $form->process($self->form_process_parameters_for_cleanup($item));
     $item = $form->value;
     $item->{not_deletable} = $self->config_store->is_section_in_import($item->{id}) ? $self->json_false : $self->json_true;
     return $item;
@@ -135,7 +136,7 @@ sub validate_item {
         return undef;
     }
 
-    $form->process(posted => 1, params => $item);
+    $form->process($self->form_process_parameters_for_validation);
     if (!$form->has_errors) {
         return $form->value;
     }
@@ -144,6 +145,16 @@ sub validate_item {
     return undef;
 }
 
+
+sub form_process_parameters_for_validation {
+    my ($self, $item) = @_;
+    return (posted => 1, params => $item);
+}
+
+sub form_process_parameters_for_cleanup {
+    my ($self, $item) = @_;
+    return (init_object => $item);
+}
 
 =head2 format_form_errors
 

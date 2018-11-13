@@ -49,6 +49,7 @@ use pfappserver::Form::Config::Source::Pinterest;
 use pfappserver::Form::Config::Source::RADIUS;
 use pfappserver::Form::Config::Source::SAML;
 use pfappserver::Form::Config::Source::SMS;
+use pfappserver::Form::Config::Source::SQL;
 use pfappserver::Form::Config::Source::SponsorEmail;
 use pfappserver::Form::Config::Source::Stripe;
 use pfappserver::Form::Config::Source::Twilio;
@@ -82,6 +83,7 @@ our %TYPES_TO_FORMS = (
       RADIUS
       SAML
       SMS
+      SQL
       SponsorEmail
       Stripe
       Twilio
@@ -146,6 +148,39 @@ sub cleanup_item {
     $item = $self->SUPER::cleanup_item($item);
     $item->{class} = pf::authentication::classForType($item->{type});
     return $item;
+}
+
+sub form_process_parameters_for_cleanup {
+    my ($self, $item) = @_;
+    return (
+        $self->SUPER::form_process_parameters_for_cleanup($item),
+        inactive => [
+            qw(
+              time_period_operator
+              set_tenant_id_action
+              set_role_action
+              date_value
+              time_value
+              mark_as_sponsor_action
+              set_access_duration_action
+              set_bandwidth_balance_action
+              set_access_level_action
+              ldapattribute_value
+              time_period_value
+              number_operator
+              substring_operator
+              set_unreg_date_action
+              ldapattribute_operator
+              substring_value
+              set_time_balance_action
+              connection_value
+              number_value
+              time_operator
+              date_operator
+              connection_operator
+              )
+        ],
+    );
 }
 
 =head1 AUTHOR
