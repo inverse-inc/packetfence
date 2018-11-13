@@ -428,7 +428,6 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 				handler.hwcache.Set(p.CHAddr().String(), free, time.Duration(5)*time.Second)
 				handler.xid.Replace(sharedutils.ByteToString(p.XId()), 1, time.Duration(5)*time.Second)
 			} else {
-				GlobalTransactionLock.Unlock()
 				log.LoggerWContext(ctx).Info(p.CHAddr().String() + " Nak No space left in the pool ")
 				return answer
 			}
