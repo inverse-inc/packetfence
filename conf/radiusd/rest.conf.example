@@ -140,7 +140,7 @@ rest {
 	#  5xx    server error  no            fail
 	#  xxx    -             no            invalid
 	authorize {
-		uri = "${..connect_uri}/radius/rest/authorization_filter"
+		uri = "${..connect_uri}/radius/rest/filter"
 		method = 'post'
 		body = 'json'
 		tls = ${..tls}
