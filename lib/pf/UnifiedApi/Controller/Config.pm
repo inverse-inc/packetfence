@@ -133,10 +133,11 @@ sub validate_item {
     my ($self, $item) = @_;
     my $form = $self->form($item);
     if (!defined $form) {
+        $self->render_error(422, "Unable to validate invalid no valid formater");
         return undef;
     }
 
-    $form->process($self->form_process_parameters_for_validation);
+    $form->process($self->form_process_parameters_for_validation($item));
     if (!$form->has_errors) {
         return $form->value;
     }
