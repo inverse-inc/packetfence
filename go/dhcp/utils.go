@@ -65,7 +65,7 @@ func initiaLease(dhcpHandler *DHCPHandler) {
 		}
 		ip := net.ParseIP(ipstr)
 
-		// Calculate the position for the roaring bitmap
+		// Calculate the position for the dhcp pool
 		position := uint32(binary.BigEndian.Uint32(ip.To4())) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
 
 		// Remove the position in the roaming bitmap
@@ -278,7 +278,7 @@ func ExcludeIP(dhcpHandler *DHCPHandler, ip_range string) {
 
 	for _, excludeIP := range excludeIPs {
 		if excludeIP != nil {
-			// Calculate the position for the roaring bitmap
+			// Calculate the position for the dhcp pool
 			position := uint32(binary.BigEndian.Uint32(excludeIP.To4())) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
 
 			// Remove the position in the roaming bitmap
