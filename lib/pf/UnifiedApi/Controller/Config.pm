@@ -95,7 +95,7 @@ sub cleanup_item {
 
     $form->process($self->form_process_parameters_for_cleanup($item));
     $item = $form->value;
-    $item->{not_deletable} = $self->config_store->is_section_in_import($item->{id}) ? $self->json_false : $self->json_true;
+    $item->{not_deletable} = $self->config_store->is_section_in_import($item->{id}) ? $self->json_true : $self->json_false;
     return $item;
 }
 
