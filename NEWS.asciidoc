@@ -22,6 +22,7 @@ New Features
 Enhancements
 ++++++++++++
 * Redis now only listens on localhost (#3729)
+* deprecate usage of roaring bitmap for the dhcp ip pool (#3779)
 
 Bug Fixes
 +++++++++
