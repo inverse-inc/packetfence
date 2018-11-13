@@ -455,7 +455,7 @@ END
                     <div class="row-flex">
                         [% FOREACH member IN cluster %]
                         <div class="col[% spanSize %]">
-                            <div data-netdata="statsd_timer_[% member.key.replace('\.','_') %].pf__api__radius_rest_authorize.timing"
+                            <div data-netdata="statsd_timer_[% member.key.replace('\.','_') FILTER lower %].pf__api__radius_rest_authorize.timing"
                             data-host="/netdata/[% member.value %]"
                             data-title="[% member.key %] - Auth Rest"
                             data-chart-library="dygraph"
@@ -472,7 +472,7 @@ END
                     [% END %]
                         [% FOREACH member IN cluster %]
                         <div class="col[% spanSize %]">
-                            <div data-netdata="statsd_timer_[% member.key.replace('\.','_') %].pf__api__radius_rest_accounting.timing"
+                            <div data-netdata="statsd_timer_[% member.key.replace('\.','_') FILTER lower %].pf__api__radius_rest_accounting.timing"
                             data-host="/netdata/[% member.value %]"
                             data-title="[% member.key %] - Acct Rest"
                             data-chart-library="dygraph"
@@ -559,7 +559,7 @@ END
                     <div class="row-flex">
                         [% FOREACH member IN cluster %]
                         <div class="col[% spanSize %]">
-                            <div data-netdata="statsd_timer_[% member.key.replace('\.','_') %].ntlm_auth.time"
+                            <div data-netdata="statsd_timer_[% member.key.replace('\.','_') FILTER lower %].ntlm_auth.time"
                             data-host="/netdata/[% member.value %]"
                             data-title="[% member.key %] - NTLM Latency"
                             data-chart-library="dygraph"
@@ -576,7 +576,7 @@ END
                     [% END %]
                         [% FOREACH member IN cluster %]
                         <div class="col[% spanSize %]">
-                            <div data-netdata="statsd_counter_[% member.key.replace('\.','_') %].ntlm_auth.failures"
+                            <div data-netdata="statsd_counter_[% member.key.replace('\.','_') FILTER lower %].ntlm_auth.failures"
                             data-host="/netdata/[% member.value %]"
                             data-title="[% member.key %] - NTLM Failure"
                             data-chart-library="dygraph"
