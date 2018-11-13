@@ -3,6 +3,7 @@ package sharedutils
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"crypto/rand"
 	"errors"
 	"fmt"
@@ -10,13 +11,15 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"testing"
 	"unicode"
-	"regexp"
 
 	"github.com/cevaris/ordered_map"
+	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/kr/pretty"
 )
 
@@ -266,4 +269,48 @@ func CleanIP(s string) (string, error) {
 	} else {
 		return ip.String(), nil
 	}
+}
+
+// Detect the vip on each interfaces
+func DetectVIP(ctx context.Context, interfaces pfconfigdriver.ListenInts) (map[string]bool, map[string]net.IP) {
+
+	var keyConfCluster pfconfigdriver.NetInterface
+	keyConfCluster.PfconfigNS = "config::Pf(CLUSTER," + pfconfigdriver.FindClusterName(ctx) + ")"
+	var VIP map[string]bool
+	var VIPIp map[string]net.IP
+	VIP = make(map[string]bool)
+	VIPIp = make(map[string]net.IP)
+	for _, v := range interfaces.Element {
+		keyConfCluster.PfconfigHashNS = "interface " + v
+		pfconfigdriver.FetchDecodeSocket(ctx, &keyConfCluster)
+		// Nothing in keyConfCluster.Ip so we are not in cluster mode
+		if keyConfCluster.Ip == "" {
+			VIP[v] = true
+			continue
+		}
+
+		if _, found := VIP[v]; !found {
+			VIP[v] = false
+		}
+
+		eth, _ := net.InterfaceByName(v)
+		adresses, _ := eth.Addrs()
+		var found bool
+		found = false
+		for _, adresse := range adresses {
+			IP, _, _ := net.ParseCIDR(adresse.String())
+			VIPIp[v] = net.ParseIP(keyConfCluster.Ip)
+			if IP.Equal(VIPIp[v]) {
+				found = true
+				if VIP[v] == false {
+					log.LoggerWContext(ctx).Info(v + " got the VIP")
+					VIP[v] = true
+				}
+			}
+		}
+		if found == false {
+			VIP[v] = false
+		}
+	}
+	return VIP, VIPIp
 }
