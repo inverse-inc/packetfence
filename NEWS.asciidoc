@@ -25,6 +25,7 @@ Enhancements
 
 Bug Fixes
 +++++++++
+* Logs permissions and configuration for Debian (#3780)
 
 Version 8.2.0 released on 2018-11-07
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
