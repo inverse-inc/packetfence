@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"encoding/binary"
 	"fmt"
-	"math/rand"
 	"strings"
 	"sync"
 
@@ -212,9 +211,6 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 
 	ctx = log.AddToLogContext(ctx, "mac", answer.MAC.String())
 
-	s := rand.NewSource(time.Now().Unix())
-	r := rand.New(s)
-
 	// Detect the handler to use (config)
 	var NodeCache *cache.Cache
 	NodeCache = cache.New(3*time.Second, 5*time.Second)
@@ -320,13 +316,13 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 
 			// Search for the next available ip in the pool
 		retry:
-			if len(handler.available.ToArray()) > 1 {
+			if handler.available.FreeIPsRemaining() > 0 {
 				var element uint32
 				// Check if the device request a specific ip
 				if p.ParseOptions()[50] != nil && firstTry {
 					log.LoggerWContext(ctx).Debug("Attempting to use the IP requested by the device")
 					element = uint32(binary.BigEndian.Uint32(p.ParseOptions()[50])) - uint32(binary.BigEndian.Uint32(handler.start.To4()))
-					if handler.available.Contains(element) {
+					if handler.available.IndexInPool(uint64(element)) {
 						// Ip is available, return OFFER with this ip address
 						free = int(element)
 					}
@@ -335,17 +331,14 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 				// If we still haven't found an IP address to offer, we get the next one
 				if free == 0 {
 					log.LoggerWContext(ctx).Debug("Grabbing next available IP")
-					GlobalTransactionLock.Lock()
-					element = uint32(r.Intn(len(handler.available.ToArray())) - 1)
-					if handler.available.CheckedRemove(element) {
-						free = int(element)
-						GlobalTransactionLock.Unlock()
-					} else {
-						log.LoggerWContext(ctx).Debug("Error when remove from the pool, trying next")
-						free = 0
-						GlobalTransactionLock.Unlock()
-						goto retry
+					freeu64, err := handler.available.GetFreeIPIndex()
+
+					if err != nil {
+						log.LoggerWContext(ctx).Error("Unable to get free IP address, DHCP pool is full")
+						return answer
 					}
+
+					free = int(freeu64)
 				}
 
 				// Lock it
@@ -373,18 +366,16 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 					firstTry = false
 
 					log.LoggerWContext(ctx).Info("Temporarily declaring " + ipaddr.String() + " as unusable")
-					handler.available.Remove(uint32(free))
 
 					// Put it back into the available IPs in 10 minutes
 					go func(ctx context.Context, free int, ipaddr net.IP) {
 						time.Sleep(10 * time.Minute)
 						log.LoggerWContext(ctx).Info("Releasing previously pingable IP " + ipaddr.String() + " back into the pool")
-						handler.available.Add(uint32(free))
+						handler.available.FreeIPIndex(uint64(free))
 					}(ctx, free, ipaddr)
 					free = 0
 					goto retry
 				}
-				handler.available.Remove(element)
 				// 5 seconds to send a request
 				handler.hwcache.Set(p.CHAddr().String(), free, time.Duration(5)*time.Second)
 				handler.xid.Replace(sharedutils.ByteToString(p.XId()), 1, time.Duration(5)*time.Second)
@@ -592,13 +583,13 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 			if leaseNum := dhcp.IPRange(handler.start, reqIP) - 1; leaseNum >= 0 && leaseNum < handler.leaseRange {
 
 				log.LoggerWContext(ctx).Info("Temporarily declaring " + reqIP.String() + " as unusable")
-				handler.available.Remove(uint32(leaseNum))
+				handler.available.ReserveIPIndex(uint64(leaseNum))
 
 				// Put it back into the available IPs in 10 minutes
 				go func(ctx context.Context, leaseNum int, reqIP net.IP) {
 					time.Sleep(10 * time.Minute)
 					log.LoggerWContext(ctx).Info("Releasing previously declined IP " + reqIP.String() + " back into the pool")
-					handler.available.Add(uint32(leaseNum))
+					handler.available.FreeIPIndex(uint64(leaseNum))
 				}(ctx, leaseNum, reqIP)
 
 			}

@@ -7,12 +7,6 @@
 			"revision": ""
 		},
 		{
-			"checksumSHA1": "71CUlwPjyFSBuuyiQvl4YHDR5Rs=",
-			"path": "github.com/RoaringBitmap/roaring",
-			"revision": "627b662e6d11b18beaff2266712a59f8845f3d35",
-			"revisionTime": "2018-08-20T16:54:55Z"
-		},
-		{
 			"checksumSHA1": "TFCZLa7falNwfCedc4wHtdu7P58=",
 			"path": "github.com/Sereal/Sereal/Go/sereal",
 			"revision": "36f2c9f6f40926fbc799c190676695b929d828e9",
