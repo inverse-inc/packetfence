@@ -22,7 +22,6 @@ use List::MoreUtils qw(any uniq);
 use Moo;
 use NetAddr::IP;
 use Template;
-use Socket;
 
 use pfconfig::cached_array;
 use pfconfig::cached_hash;
