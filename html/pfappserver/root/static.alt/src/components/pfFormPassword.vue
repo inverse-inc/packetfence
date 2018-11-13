@@ -1,7 +1,7 @@
 <template>
   <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
     :state="isValid()" :invalid-feedback="getInvalidFeedback()"
-    class="password-element" :class="{ 'mb-0': !columnLabel, 'is-focus': focus }">
+    class="pf-form-password" :class="{ 'mb-0': !columnLabel, 'is-focus': focus }">
     <b-input-group class="input-group-password">
       <b-form-input
         v-model="inputValue"
@@ -18,7 +18,7 @@
       </b-form-input>
       <b-input-group-append>
         <b-button-group rel="prefixButtonGroup">
-          <b-button class="input-group-text" @mouseover="over()" @mousemove="over()" @mouseout="out()" :disabled="!this.value && this.type === 'password'"><icon name="eye"></icon></b-button>
+          <b-button class="input-group-text" @click="click()" @mouseover="over()" @mousemove="over()" @mouseout="out()" :disabled="!this.value && this.type === 'password'" :pressed="visible"><icon name="eye"></icon></b-button>
           <b-button v-if="test" class="input-group-text" @click="test()" :disabled="!this.value">{{ $t('Test') }}</b-button>
         </b-button-group>
       </b-input-group-append>
@@ -61,6 +61,7 @@ export default {
   },
   data () {
     return {
+      visible: false,
       focus: false
     }
   },
@@ -79,7 +80,10 @@ export default {
       this.type = 'text'
     },
     out () {
-      this.type = 'password'
+      this.type = (this.visible) ? 'text' : 'password'
+    },
+    click () {
+      this.visible = !this.visible
     }
   }
 }
@@ -94,7 +98,7 @@ export default {
 /**
  * Adjust is-invalid and is-focus borders
  */
-.password-element {
+.pf-form-password {
   .input-group-password {
     background-color: $input-focus-bg;
     border: 1px solid $input-focus-bg;
