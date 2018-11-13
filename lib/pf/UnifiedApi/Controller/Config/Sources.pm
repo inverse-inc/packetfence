@@ -141,6 +141,13 @@ sub test {
     return;
 }
 
+sub cleanup_item {
+    my ($self, $item) = @_;
+    $item = $self->SUPER::cleanup_item($item);
+    $item->{class} = pf::authentication::classForType($item->{type});
+    return $item;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

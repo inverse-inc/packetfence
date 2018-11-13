@@ -26,7 +26,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 13;
+use Test::More tests => 16;
 use Test::Mojo;
 
 #This test will running last
@@ -60,6 +60,10 @@ $t->post_ok("$collection_base_url/test" =>
   )
   ->status_is(405)
   ->json_has('/errors');
+
+$t->get_ok("$base_url/htpasswd1")
+  ->status_is(200)
+  ->json_is('/item/class' => 'internal');
 
 =head1 AUTHOR
 

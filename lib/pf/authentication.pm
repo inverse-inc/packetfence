@@ -83,6 +83,8 @@ our @SOURCES = __PACKAGE__->sources();
 
 our %TYPE_TO_SOURCE = map { lc($_->meta->get_attribute('type')->default) => $_ } @SOURCES;
 
+our %TYPE_TO_CLASS = map { lc($_->meta->get_attribute('type')->default) => lc($_->meta->find_attribute_by_name('class')->default) } @SOURCES;
+
 our $logger = get_logger();
 
 =item availableAuthenticationSourceTypes
@@ -481,6 +483,20 @@ sub adminAuthentication {
     }
   }
   return $LOGIN_FAILURE;
+}
+
+sub classForType {
+    my ($type) = @_;
+    if (!defined $type) {
+        return undef;
+    }
+
+    $type = lc($type);
+    if (exists $TYPE_TO_CLASS{$type}) {
+        return $TYPE_TO_CLASS{$type}
+    }
+
+    return undef;
 }
 
 =back
