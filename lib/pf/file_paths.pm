@@ -106,6 +106,7 @@ our (
     $syslog_config_file,
     $syslog_default_config_file,
     $rsyslog_packetfence_config_file,
+    $fingerbank_collector_env_defaults_file,
 );
 
 BEGIN {
@@ -186,6 +187,7 @@ BEGIN {
         $syslog_config_file
         $syslog_default_config_file
         $rsyslog_packetfence_config_file
+        $fingerbank_collector_env_defaults_file
     );
 }
 
@@ -232,6 +234,7 @@ $traffic_shaping_config_file  = catfile($conf_dir,"traffic_shaping.conf");
 $syslog_config_file  = catfile($conf_dir, "syslog.conf");
 $syslog_default_config_file  = catfile($conf_dir, "syslog.conf.defaults");
 $rsyslog_packetfence_config_file  = "/etc/rsyslog.d/packetfence.conf";
+$fingerbank_collector_env_defaults_file = catfile($conf_dir, "fingerbank-collector.env.defaults");
 
 $network_config_file    = catfile($conf_dir, "networks.conf");
 $switches_config_file   = catfile($conf_dir, "switches.conf");
@@ -333,6 +336,7 @@ $captiveportal_default_profile_templates_path = catdir ($captiveportal_profile_t
     $traffic_shaping_config_file,
     $syslog_config_file,
     $realm_config_file,
+    $fingerbank_collector_env_defaults_file,
 );
 
 $pffilter_socket_path = catfile($var_dir, "run/pffilter.sock");
