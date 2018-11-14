@@ -159,9 +159,9 @@ sub freeradius_populate_nas_config {
 
 our $validate_radius_nas_table_sql = <<SQL;
     SELECT
-        (SELECT COUNT(*) FROM radius_nas) = (SELECT COUNT(*) FROM radius_nas WHERE config_timestamp = ?) AS config_valid,
-        (SELECT COUNT(*) FROM radius_nas WHERE config_timestamp > ?) as count_greater_than,
-        (SELECT COUNT(*) FROM radius_nas WHERE config_timestamp < ?) as count_less_than;
+        (SELECT COUNT(1) FROM radius_nas) = (SELECT COUNT(1) FROM radius_nas WHERE config_timestamp = ?) AS config_valid,
+        (SELECT COUNT(1) FROM radius_nas WHERE config_timestamp > ?) as count_greater_than,
+        (SELECT COUNT(1) FROM radius_nas WHERE config_timestamp < ?) as count_less_than;
 SQL
 
 =head2 validate_radius_nas_table
