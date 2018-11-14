@@ -138,6 +138,9 @@ export default {
       // Override Firefox's unusual default opacity; see https://github.com/twbs/bootstrap/pull/11526.
       opacity: 1;
     }
+    .multiselect__tag {
+      margin-bottom: 0px;
+    }
   }
   .multiselect__input,
   .multiselect__single {
@@ -145,6 +148,11 @@ export default {
     font-size: $font-size-base;
     line-height: $input-line-height;
     color: $input-color;
+    padding: 0px;
+  }
+  .multiselect__placeholder {
+    margin-bottom: 0px;
+    padding-top: 0px;
   }
   .multiselect__content-wrapper {
       border-left-width: 1px;
