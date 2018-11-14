@@ -8,7 +8,7 @@
 -->
 <template>
   <component class="v-switch-wrapper" :class="{ 'is-focus': focus }" :is="wrapper" horizontal :label-cols="(columnLabel) ? 3 : 0" :label="$t(columnLabel)">
-    <b-input type="text" name="vaccum" :value="null" style="position: absolute; width: 1px; height: 1px; left: -9999px;"
+    <b-input type="text" name="vaccum" readonly :value="null" style="position: absolute; width: 1px; height: 1px; left: -9999px;"
       @focus.native="focus = true" @blur.native="focus = false" @keyup.native.space="toggle"><!-- Vaccum tabIndex --></b-input>
     <label role="checkbox"
           :class="className"
