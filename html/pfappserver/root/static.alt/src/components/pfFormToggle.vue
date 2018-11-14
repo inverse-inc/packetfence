@@ -7,7 +7,9 @@
   https://vmware.github.io/clarity/documentation/v0.11/toggle-switches
 -->
 <template>
-  <component class="v-switch-wrapper" :is="wrapper" horizontal :label-cols="(columnLabel) ? 3 : 0" :label="$t(columnLabel)">
+  <component class="v-switch-wrapper" :class="{ 'is-focus': focus }" :is="wrapper" horizontal :label-cols="(columnLabel) ? 3 : 0" :label="$t(columnLabel)">
+    <b-input type="text" name="vaccum" :value="null" style="position: absolute; width: 1px; height: 1px; left: -9999px;"
+      @focus.native="focus = true" @blur.native="focus = false" @keyup.native.space="toggle"><!-- Vaccum tabIndex --></b-input>
     <label role="checkbox"
           :class="className"
           :aria-checked="ariaChecked">
@@ -192,6 +194,7 @@ export default {
   },
   data () {
     return {
+      focus: false,
       toggled: (typeof this.values === 'object')
         ? (this.value === this.values.checked)
         : !!this.value
@@ -273,12 +276,20 @@ $margin: 3px;
       background-color: #fff;
     }
   }
+
   &.disabled {
     pointer-events: none;
     opacity: 0.6;
   }
   &.toggled .v-switch-core {
     background-color: $colorChecked;
+  }
+}
+.v-switch-wrapper {
+  &.is-focus {
+    .v-switch-button {
+      background-color: $input-focus-border-color;
+    }
   }
 }
 </style>
