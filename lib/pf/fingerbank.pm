@@ -43,7 +43,7 @@ use POSIX::AtFork;
 use DateTime;
 use DateTime::Format::RFC3339;
 use pf::config qw(%Config);
-use pf::util qw(isdisabled);
+use pf::util qw(isdisabled isenabled);
 
 # Do not remove, even if its not explicitely used. When taking collector requests out of the cache, this must be imported.
 use URI::http;
@@ -447,8 +447,8 @@ sub device_class_transition_allowed {
 
     # Check for manual triggers
     foreach my $transition (@{$config->{triggers}}) {
-        my $from = $transition->[0];
-        my $to = $transition->[1];
+        my $from = $transition->{from};
+        my $to = $transition->{to};
 
         # Handle wildcard transitions
         if($from eq "*") {
@@ -466,7 +466,7 @@ sub device_class_transition_allowed {
     }
     
     # Check if device class change is enabled
-    if(isenabled($config->{trigger_on_device_class_change})) {
+    if(isdisabled($config->{trigger_on_device_class_change})) {
         $logger->trace("Not checking device class change because its disabled");
         return $TRUE;
     }
@@ -498,8 +498,8 @@ sub device_class_transition_allowed {
 
     # Check if the transition is whitelisted
     foreach my $transition (@{$config->{device_class_whitelist}}) {
-        my $from = $transition->[0];
-        my $to = $transition->[1];
+        my $from = $transition->{from};
+        my $to = $transition->{to};
 
         # Handle wildcard transitions
         if($from eq "*") {
