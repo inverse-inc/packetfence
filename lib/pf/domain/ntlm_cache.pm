@@ -239,7 +239,7 @@ sub secretsdump {
         eval {
             my $command = "/usr/local/pf/addons/AD/secretsdump.py '".pf::domain::escape_bind_user_string($sAMAccountName)."':'".pf::domain::escape_bind_user_string($source->{password})."'@".$server." -just-dc-ntlm -output $tmpfile $opts";
             $logger->debug("Executing sync command: $command");
-            $result = pf_run($command, accepted_exit_status => [ 0 ]);
+            $result = pf_run($command, accepted_exit_status => [ 0 ], working_directory => "/tmp");
         };
         $logger->info($result);
         if (!defined($result) || $@) {
