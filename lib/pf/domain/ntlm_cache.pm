@@ -90,6 +90,7 @@ sub generate_valid_users_file {
     my $logger = get_logger;
     my ($users, $msg) = fetch_valid_users($domain);
     if($users) {
+        mkdir $domains_ntlm_cache_users_dir unless -d $domains_ntlm_cache_users_dir;
         my $file = catfile($domains_ntlm_cache_users_dir, "$domain.valid-users.txt");
         write_file($file, join("\n", @$users));
         my $msg = "Successfully created valid users file ($file) with ".scalar(@$users)." entries.";
@@ -241,7 +242,6 @@ sub secretsdump {
             $logger->debug("Executing sync command: $command");
             $result = pf_run($command, accepted_exit_status => [ 0 ], working_directory => "/tmp");
         };
-        $logger->info($result);
         if (!defined($result) || $@) {
             $result = "Can't generate hash list via secretsdump.py. Check logs for details.";
         }
