@@ -160,8 +160,7 @@ sub freeradius_populate_nas_config {
 our $validate_radius_nas_table_sql = <<SQL;
     SELECT
         (SELECT COUNT(1) FROM radius_nas) = (SELECT COUNT(1) FROM radius_nas WHERE config_timestamp = ?) AS config_valid,
-        (SELECT COUNT(1) FROM radius_nas WHERE config_timestamp > ?) as count_greater_than,
-        (SELECT COUNT(1) FROM radius_nas WHERE config_timestamp < ?) as count_less_than;
+        (SELECT COUNT(DISTINCT config_timestamp) FROM radius_nas WHERE config_timestamp != ?) as other_processes;
 SQL
 
 =head2 validate_radius_nas_table
@@ -175,9 +174,11 @@ sub validate_radius_nas_table {
     my ($ts) = @_;
     my $validation = validation_results($ts);
     if (!$validation->{config_valid}) {
-        my $msg = "The radius_nas table is invalid.\nPossible reloading by multiple process at the moment\nrerun 'pfcmd configreload' on a single server\n";
-        print STDERR $msg;
-        $logger->error($msg);
+        if ($validation->{other_processes}) {
+            my $msg = "The radius_nas table is invalid.\nAt least $validation->{other_processes} reloaded\nrerun 'pfcmd configreload' on a single server\n";
+            print STDERR $msg;
+            $logger->error($msg);
+        }
     }
     return ;
 }
@@ -191,7 +192,7 @@ validation_results
 sub validation_results {
     my ($timestamp) = @_;
     my $logger = get_logger();
-    my ($status, $sth) = pf::dal->db_execute($validate_radius_nas_table_sql, $timestamp, $timestamp, $timestamp);
+    my ($status, $sth) = pf::dal->db_execute($validate_radius_nas_table_sql, $timestamp, $timestamp);
     if (is_error($status)) {
         my $msg = "Problem connecting to the database to verify radius_nas table\n";
         print STDERR $msg;
