@@ -34,6 +34,23 @@ func TestReserveIPIndex(t *testing.T) {
 		t.Error("Didn't get an error when trying to reserve an IP outside the capacity")
 	}
 }
+func TestIsFreeIPAtIndex(t *testing.T) {
+	cap := uint64(5)
+	dp := NewDHCPPool(cap)
+
+	dp.ReserveIPIndex(3)
+
+	available := dp.IsFreeIPAtIndex(3)
+
+	if available {
+		t.Errorf("IP address at index 3 is available and should not be")
+	}
+
+	available = dp.IsFreeIPAtIndex(2)
+	if !available {
+		t.Errorf("IP address at index 2 isn't available and should be")
+	}
+}
 
 func TestFreeIPIndex(t *testing.T) {
 	cap := uint64(5)

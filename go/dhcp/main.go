@@ -322,7 +322,7 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 				if p.ParseOptions()[50] != nil && firstTry {
 					log.LoggerWContext(ctx).Debug("Attempting to use the IP requested by the device")
 					element = uint32(binary.BigEndian.Uint32(p.ParseOptions()[50])) - uint32(binary.BigEndian.Uint32(handler.start.To4()))
-					if handler.available.IndexInPool(uint64(element)) {
+					if handler.available.IsFreeIPAtIndex(uint64(element)) {
 						// Ip is available, return OFFER with this ip address
 						free = int(element)
 					}

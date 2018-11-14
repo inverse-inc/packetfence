@@ -97,3 +97,19 @@ func (dp *DHCPPool) FreeIPsRemaining() uint64 {
 func (dp *DHCPPool) Capacity() uint64 {
 	return dp.capacity
 }
+
+// Return if the index in the pool if free
+func (dp *DHCPPool) IsFreeIPAtIndex(index uint64) bool {
+	dp.lock.Lock()
+	defer dp.lock.Unlock()
+
+	if !dp.IndexInPool(index) {
+		return false
+	}
+
+	if _, free := dp.free[index]; free {
+		return true
+	} else {
+		return false
+	}
+}
