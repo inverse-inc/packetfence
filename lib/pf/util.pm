@@ -17,6 +17,7 @@ modules.
 use strict;
 use warnings;
 
+use Cwd;
 use File::Basename;
 use POSIX::2008;
 use Net::MAC::Vendor;
@@ -820,6 +821,12 @@ sub pf_run {
     # Prefixing command using LANG=C to avoid system locale messing up with return
     $command = 'LANG=C ' . $command;
 
+    my $switch_back_wd;
+    if(defined($options{working_directory})) {
+        $switch_back_wd = getcwd();
+        chdir $options{working_directory};
+    }
+
     local $!;
     # Using perl trickery to figure out what the caller expects so I can return him just that
     # this is to perfectly emulate the backtick operator behavior
@@ -828,16 +835,19 @@ sub pf_run {
     if (not defined wantarray) {
         # void context
         `$command`;
+        chdir $switch_back_wd if(defined($switch_back_wd));
         return if ($? == 0);
 
     } elsif (wantarray) {
         # list context
         @result = `$command`;
+        chdir $switch_back_wd if(defined($switch_back_wd));
         return @result if ($? == 0);
 
     } else {
         # scalar context
         $result = `$command`;
+        chdir $switch_back_wd if(defined($switch_back_wd));
         return $result if ($? == 0);
     }
     # copying as soon as possible
@@ -869,6 +879,7 @@ sub pf_run {
         # user specified that this error code is ok
         if (grep { $_ == $exit_status } @{$options{'accepted_exit_status'}}) {
             # we accept the result
+            chdir $switch_back_wd if(defined($switch_back_wd));
             return if (not defined wantarray); # void context
             return @result if (wantarray); # list context
             return $result; # scalar context
@@ -878,6 +889,8 @@ sub pf_run {
             . "Child exited with non-zero value $exit_status"
         );
     }
+    
+    chdir $switch_back_wd if(defined($switch_back_wd));
     return;
 }
 
