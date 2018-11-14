@@ -17,8 +17,10 @@ pfcmd <command> [options]
   checkup                     | perform a sanity checkup and report any problems
   class                       | view violation classes
   configreload                | reload the configution
+  connectionprofileconfig     | query/modify connection profile configuration parameters
   fingerbank                  | Fingerbank related commands
   floatingnetworkdeviceconfig | query/modify floating network devices configuration parameters
+  generatesyslogconfig        | generate the syslog configuration
   help                        | show help for pfcmd commands
   import                      | bulk import of information into the database
   ipmachistory                | IP/MAC history
@@ -27,7 +29,6 @@ pfcmd <command> [options]
   networkconfig               | query/modify network configuration parameters
   node                        | manipulate node entries
   pfconfig                    | interact with pfconfig
-  connectionprofileconfig     | query/modify connection profile configuration parameters
   reload                      | rebuild fingerprint or violations tables without restart
   service                     | start/stop/restart and get PF daemon status
   schedule                    | Nessus scan scheduling
