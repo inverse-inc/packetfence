@@ -15,7 +15,7 @@
       <h4 class="mb-0">
         <span v-if="!isNew && !isClone">{{ $t('Authentication Source {id}', { id: id }) }}</span>
         <span v-else-if="isClone">{{ $t('Clone Authentication Source {id}', { id: id }) }}</span>
-        <span v-else>{{ $t('New {sourceClass} Authentication Source', { sourceClass: this.sourceClass}) }}</span>
+        <span v-else>{{ $t('New {sourceType} Authentication Source', { sourceType: this.sourceType}) }}</span>
       </h4>
     </template>
     <template slot="footer" is="b-card-footer" @mouseenter="$v.source.$touch()">
@@ -55,7 +55,7 @@ export default {
       default: null,
       required: true
     },
-    sourceClass: { // from router
+    sourceType: { // from router (or source)
       type: String,
       default: null
     },
@@ -74,6 +74,8 @@ export default {
   },
   data () {
     return {
+      realms: [], // all realms
+      sources: [], // all sources
       source: defaults(this), // will be overloaded with the data from the store
       sourceValidations: {} // will be overloaded with data from the pfConfigView
     }
@@ -121,8 +123,15 @@ export default {
     if (this.id) {
       this.$store.dispatch('$_sources/getAuthenticationSource', this.id).then(data => {
         this.source = Object.assign({}, data)
+        this.sourceType = data.type
       })
     }
+    this.$store.dispatch('$_sources/all').then(data => {
+      this.sources = data
+    })
+    this.$store.dispatch('$_realms/all').then(data => {
+      this.realms = data
+    })
   }
 }
 </script>

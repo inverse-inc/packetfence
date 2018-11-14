@@ -161,10 +161,10 @@ const route = {
       props: (route) => ({ query: route.query.query })
     },
     {
-      path: 'sources/new/:sourceClass',
+      path: 'sources/new/:sourceType',
       name: 'newAuthenticationSource',
       component: AuthenticationSourcesView,
-      props: (route) => ({ storeName: '$_sources', isNew: true, sourceClass: route.params.sourceClass })
+      props: (route) => ({ storeName: '$_sources', isNew: true, sourceType: route.params.sourceType })
     },
     {
       path: 'source/:id',

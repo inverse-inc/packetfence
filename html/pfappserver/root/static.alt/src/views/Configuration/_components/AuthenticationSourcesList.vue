@@ -17,43 +17,43 @@
         -->
         <b-dropdown id="source-add-container" :text="$t('Add Source')" variant="outline-primary" class="m-2">
           <b-dropdown-header class="text-primary">Internal</b-dropdown-header>
-            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'AD' } }">AD</b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'EAPTLS' } }">EAPTLS</b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'Htpasswd' } }">Htpasswd</b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'HTTP' } }">HTTP</b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'Kerbos' } }">Kerbos</b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'LDAP' } }">LDAP</b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'POTD' } }">POTD</b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'RADIUS' } }">RADIUS</b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'SAML' } }">SAML</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'AD' } }">AD</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'EAPTLS' } }">EAPTLS</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Htpasswd' } }">Htpasswd</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'HTTP' } }">HTTP</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Kerberos' } }">Kerberos</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'LDAP' } }">LDAP</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'POTD' } }">POTD</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'RADIUS' } }">RADIUS</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'SAML' } }">SAML</b-dropdown-item>
           <b-dropdown-divider></b-dropdown-divider>
           <b-dropdown-header class="text-primary">External</b-dropdown-header>
-            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'Email' } }">Email</b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'Facebook' } }">Facebook</b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'Github' } }">Github</b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'Google' } }">Google</b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'Instagram' } }">Instagram</b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'Kickbox' } }">Kickbox</b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'LinkedIn' } }">LinkedIn</b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'Null' } }">Null</b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'OpenID' } }">OpenID</b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'Pinterest' } }">Pinterest</b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'SMS' } }">SMS</b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'SponsorEmail' } }">SponsorEmail</b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'Twilio' } }">Twilio</b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'Twitter' } }">Twitter</b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'WindowsLive' } }">WindowsLive</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Email' } }">Email</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Facebook' } }">Facebook</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Github' } }">Github</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Google' } }">Google</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Instagram' } }">Instagram</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Kickbox' } }">Kickbox</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'LinkedIn' } }">LinkedIn</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Null' } }">Null</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'OpenID' } }">OpenID</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Pinterest' } }">Pinterest</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'SMS' } }">SMS</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'SponsorEmail' } }">SponsorEmail</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Twilio' } }">Twilio</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Twitter' } }">Twitter</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'WindowsLive' } }">WindowsLive</b-dropdown-item>
           <b-dropdown-divider></b-dropdown-divider>
           <b-dropdown-header class="text-primary">Exclusive</b-dropdown-header>
-            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'AdminProxy' } }">AdminProxy</b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'Blackhole' } }">Blackhole</b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'Eduroam' } }">Eduroam</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'AdminProxy' } }">AdminProxy</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Blackhole' } }">Blackhole</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Eduroam' } }">Eduroam</b-dropdown-item>
           <b-dropdown-divider></b-dropdown-divider>
           <b-dropdown-header class="text-primary">Billing</b-dropdown-header>
-            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'AuthorizeNet' } }">AuthorizeNet</b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'Mirapay' } }">Mirapay</b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'Paypal' } }">Paypal</b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceClass: 'Stripe' } }">Stripe</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'AuthorizeNet' } }">AuthorizeNet</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Mirapay' } }">Mirapay</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Paypal' } }">Paypal</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Stripe' } }">Stripe</b-dropdown-item>
         </b-dropdown>
       </template>
       <template slot="emptySearch">
@@ -62,7 +62,7 @@
       <template slot="buttons" slot-scope="item">
         <span class="float-right">
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
-          <b-button size="sm" variant="outline-primary" @click.stop.prevent="remove(item)">{{ $t('Delete') }}</b-button>
+          <b-button v-if="!item.not_deletable" size="sm" variant="outline-primary" @click.stop.prevent="remove(item)">{{ $t('Delete') }}</b-button>
         </span>
       </template>
     </pf-config-list>

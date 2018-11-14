@@ -8,6 +8,9 @@ const api = {
   getAdminRoles () {
     return apiCall({ url: 'config/admin_roles', method: 'get' })
   },
+  getRealms () {
+    return apiCall({ url: 'config/realms', method: 'get' })
+  },
   getRoles () {
     return apiCall({ url: 'node_categories', method: 'get', params: { limit: 1000 } })
   },
@@ -35,6 +38,8 @@ const types = {
 const state = {
   adminRolesStatus: '',
   adminRoles: [],
+  realmsStatus: '',
+  realms: [],
   rolesStatus: '',
   roles: [],
   sourcesStatus: '',
@@ -88,6 +93,12 @@ const getters = {
   isLoadingRoles: state => {
     return state.rolesStatus === types.LOADING
   },
+  realmsList: state => {
+    // Remap for b-form-select component
+    return state.realms.map((item) => {
+      return { value: item.id, name: item.id }
+    })
+  },
   rolesList: state => {
     // Remap for b-form-select component
     return state.roles.map((item) => {
@@ -129,6 +140,20 @@ const actions = {
       })
     } else {
       return Promise.resolve(state.adminRoles)
+    }
+  },
+  getRealms: ({ state, getters, commit }) => {
+    if (getters.isLoadingRoles) {
+      return
+    }
+    if (state.realms.length === 0) {
+      commit('REALMS_REQUEST')
+      return api.getRealms().then(response => {
+        commit('REALMS_UPDATED', response.data.items)
+        return state.realms
+      })
+    } else {
+      return Promise.resolve(state.realms)
     }
   },
   getRoles: ({ state, getters, commit }) => {
@@ -202,6 +227,13 @@ const mutations = {
   ADMIN_ROLES_UPDATED: (state, adminRoles) => {
     state.adminRoles = adminRoles
     state.adminRolesStatus = types.SUCCESS
+  },
+  REALMS_REQUEST: (state) => {
+    state.realmsStatus = types.LOADING
+  },
+  REALMS_UPDATED: (state, realms) => {
+    state.realms = realms
+    state.realmsStatus = types.SUCCESS
   },
   ROLES_REQUEST: (state) => {
     state.rolesStatus = types.LOADING

@@ -4,6 +4,11 @@ export default {
   /**
    * Authentication Sources
    */
+  authenticationSources: params => {
+    return apiCall.get('config/sources', { params }).then(response => {
+      return response.data
+    })
+  },
   authenticationSource: id => {
     return apiCall.get(`config/source/${id}`).then(response => {
       return response.data.item
@@ -72,6 +77,11 @@ export default {
   /**
    * Realms
    */
+  realms: params => {
+    return apiCall.get('config/realms', { params }).then(response => {
+      return response.data
+    })
+  },
   realm: id => {
     return apiCall.get(`config/realm/${id}`).then(response => {
       return response.data.item

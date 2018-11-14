@@ -11,9 +11,9 @@
       </slot>
       <div class="card-body" v-if="form.fields">
         <b-form-group v-for="row in form.fields" :key="[row.key].join('')" v-if="!('if' in row) || row.if"
-          :label-cols="(row.label) ? form.labelCols : 0" :label="row.label"
+          :label-cols="(row.label) ? form.labelCols : 0" :label="row.label" :label-size="(row.fields) ? '' : 'lg'"
           :state="isValid()" :invalid-feedback="getInvalidFeedback()"
-          class="input-element" :class="{ 'mb-0': !row.label }"
+          class="input-element" :class="{ 'mb-0': !row.label, 'pt-3': !row.fields }"
           horizontal
         >
           <b-input-group>
@@ -100,15 +100,17 @@ export default {
       const eachFieldValue = {}
       if (this.form.fields.length > 0) {
         this.form.fields.forEach((row, index) => {
-          row.fields.forEach((field, index) => {
-            eachFieldValue[field.key] = {}
-            if (
-              'validators' in field && // has vuelidate validations
-              (!('if' in field) || field.if) // is visible
-            ) {
-              eachFieldValue[field.key] = field.validators
-            }
-          })
+          if ('fields' in row) {
+            row.fields.forEach((field, index) => {
+              eachFieldValue[field.key] = {}
+              if (
+                'validators' in field && // has vuelidate validations
+                (!('if' in field) || field.if) // is visible
+              ) {
+                eachFieldValue[field.key] = field.validators
+              }
+            })
+          }
         })
         Object.freeze(eachFieldValue)
       }
@@ -143,8 +145,8 @@ export default {
 
 <style lang="scss" scoped>
 .input-group > span {
-  display:flex;
-  justify-contents:center;
-  align-items:center;
+  display: flex;
+  justify-contents: center;
+  align-items: center;
 }
 </style>

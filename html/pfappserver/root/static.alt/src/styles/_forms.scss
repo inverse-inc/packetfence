@@ -11,3 +11,8 @@
         }
     }
 }
+
+.col-form-label-lg {
+    font-size: $font-size-lg;
+    line-height: $font-size-base / $font-size-lg * $line-height-base;
+}
