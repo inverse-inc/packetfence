@@ -1139,3 +1139,27 @@ connect_timeout_ms=200
 # Timeout (in milliseconds) when performing queries to the Unified API
 timeout_ms=200
 
+[fingerbank_device_change]
+# 
+# fingerbank_device_change.enable
+#
+# Whether or not the Fingerbank device change feature is enabled
+enable=disabled
+
+#
+# fingerbank_device_change.trigger_on_device_class_change
+#
+# Whether or not internal::fingerbank_device_change should be triggered when we detect a device class change in Fingerbank
+trigger_on_device_class_change=enabled
+
+#
+# fingerbank_device_change.device_class_whitelist
+# 
+# Which device class changes are allowed in conjunction with trigger_on_device_class_change
+device_class_whitelist=
+
+#
+# fingerbank_device_change.triggers
+#
+# Which changes (changing from a device class to another) should trigger internal::fingerbank_device_change
+triggers=

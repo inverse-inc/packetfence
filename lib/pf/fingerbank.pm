@@ -42,6 +42,8 @@ use fingerbank::Collector;
 use POSIX::AtFork;
 use DateTime;
 use DateTime::Format::RFC3339;
+use pf::config qw(%Config);
+use pf::util qw(isdisabled);
 
 # Do not remove, even if its not explicitely used. When taking collector requests out of the cache, this must be imported.
 use URI::http;
@@ -418,6 +420,107 @@ sub device_name_to_device_id {
         }
     });
     return $id;
+}
+
+sub device_class_transition_allowed {
+    my ($previous_device_class, $previous_device_type, $new_device_class, $new_device_type) = @_;
+
+    my $config = $Config{fingerbank_device_change};
+
+    my $logger = pf::log::get_logger;
+    
+    if(isdisabled($config->{enable})) {
+        $logger->trace("Not checking Fingerbank device change because its disabled");
+        return $TRUE;
+    }
+
+    # Check if going from nothing to something or the opposite
+    if(!$previous_device_class || !$new_device_class) {
+        $logger->info("One of the two device class is empty in the transition. Not evaluating it.");
+        return $TRUE;
+    }
+
+    my $previous_device_class_id = device_name_to_device_id($previous_device_class);
+    return undef unless(defined($previous_device_class_id));
+    my $new_device_class_id = device_name_to_device_id($new_device_class);
+    return undef unless(defined($new_device_class_id));
+
+    # Check for manual triggers
+    foreach my $transition (@{$config->{triggers}}) {
+        my $from = $transition->[0];
+        my $to = $transition->[1];
+
+        # Handle wildcard transitions
+        if($from eq "*") {
+            $from = $previous_device_class_id;
+        }
+
+        if($to eq "*") {
+            $to = $new_device_class_id;
+        }
+
+        if($previous_device_class_id eq $from && $new_device_class_id eq $to) {
+            $logger->info("Transition from $previous_device_class to $new_device_class is not allowed in configuration.");
+            return $FALSE;
+        }
+    }
+    
+    # Check if device class change is enabled
+    if(isenabled($config->{trigger_on_device_class_change})) {
+        $logger->trace("Not checking device class change because its disabled");
+        return $TRUE;
+    }
+
+    # Check if both device classes are the same
+    return $TRUE if($previous_device_class eq $new_device_class);
+
+    # Check if device is_a the previous device class 
+    my $is_a = fingerbank::Model::Device->is_a($new_device_type, $previous_device_class);
+    if(!defined($is_a)) {
+        $logger->error("Didn't get a valid result when checking if $new_device_type is a $previous_device_class");
+        return undef;
+    }
+    elsif($is_a) {
+        $logger->debug("Device $new_device_type is a $previous_device_class");
+        return $TRUE;
+    }
+
+    # Check if device is_a the previous device type 
+    $is_a = fingerbank::Model::Device->is_a($new_device_type, $previous_device_type);
+    if(!defined($is_a)) {
+        $logger->error("Didn't get a valid result when checking if $new_device_type is a $previous_device_type");
+        return undef;
+    }
+    elsif($is_a) {
+        $logger->debug("Device $new_device_type is a $previous_device_type");
+        return $TRUE;
+    }
+
+    # Check if the transition is whitelisted
+    foreach my $transition (@{$config->{device_class_whitelist}}) {
+        my $from = $transition->[0];
+        my $to = $transition->[1];
+
+        # Handle wildcard transitions
+        if($from eq "*") {
+            $from = $previous_device_class_id;
+        }
+
+        if($to eq "*") {
+            $to = $new_device_class_id;
+        }
+
+        if($previous_device_class_id eq $from && $new_device_class_id eq $to) {
+            $logger->info("Transition from $previous_device_class to $new_device_class is allowed in configuration.");
+            return $TRUE;
+        }
+    }
+
+    # Check if the transition goes from a device class to another
+    if($previous_device_class ne $new_device_class) {
+        $logger->info("Detected device class transition from $previous_device_class to $new_device_class.");
+        return $FALSE;
+    }
 }
 
 =head2 CLONE
