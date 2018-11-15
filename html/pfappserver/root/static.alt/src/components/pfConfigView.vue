@@ -11,7 +11,7 @@
       </slot>
       <div class="card-body" v-if="form.fields">
         <b-form-group v-for="row in form.fields" :key="[row.key].join('')" v-if="!('if' in row) || row.if"
-          :label-cols="(row.label) ? form.labelCols : 0" :label="row.label" :label-size="(row.fields) ? '' : 'lg'"
+          :label-cols="(row.label) ? form.labelCols : 0" :label="row.label" :label-size="row.labelSize"
           :state="isValid()" :invalid-feedback="getInvalidFeedback()"
           class="input-element" :class="{ 'mb-0': !row.label, 'pt-3': !row.fields }"
           horizontal
