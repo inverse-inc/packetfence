@@ -108,8 +108,9 @@ export default {
       this.$router.push({ name: 'sources' })
     },
     create (event) {
+      const ctrlKey = this.ctrlKey
       this.$store.dispatch('$_sources/createAuthenticationSource', this.source).then(response => {
-        if (this.ctrlKey) { // [CTRL] key pressed
+        if (ctrlKey) { // [CTRL] key pressed
           this.close()
         } else {
           this.$router.push({ name: 'source', params: { id: this.source.id } })
@@ -117,8 +118,9 @@ export default {
       })
     },
     save (event) {
+      const ctrlKey = this.ctrlKey
       this.$store.dispatch('$_sources/updateAuthenticationSource', this.source).then(response => {
-        if (this.ctrlKey) { // [CTRL] key pressed
+        if (ctrlKey) { // [CTRL] key pressed
           this.close()
         }
       })
