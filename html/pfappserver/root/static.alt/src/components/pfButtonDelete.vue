@@ -7,7 +7,7 @@
       type="button"
       :variant="variant"
       :disabled="disabled"
-      @click="startInterrupt($event)"
+      @click.stop="startInterrupt($event)"
       ><slot>{{ $t('Delete') }}</slot></b-button>
 
     <b-button
