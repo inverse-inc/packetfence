@@ -19,7 +19,11 @@
       <b-input-group-append>
         <b-button-group rel="prefixButtonGroup">
           <b-button class="input-group-text" @click="click()" @mouseover="over()" @mousemove="over()" @mouseout="out()" :disabled="!this.value && this.type === 'password'" :pressed="visible"><icon name="eye"></icon></b-button>
-          <b-button v-if="test" class="input-group-text" @click="test()" :disabled="!this.value">{{ $t('Test') }}</b-button>
+          <b-button v-if="test" class="input-group-text" @click="runTest()" :disabled="!this.value">
+            {{ $t('Test') }}
+            <icon v-if="testResult !== null && testResult" name="check" class="ml-2 text-success"></icon>
+            <icon v-if="testResult !== null && !testResult" name="times" class="ml-2 text-danger"></icon>
+          </b-button>
         </b-button-group>
       </b-input-group-append>
     </b-input-group>
@@ -62,7 +66,9 @@ export default {
   data () {
     return {
       visible: false,
-      focus: false
+      focus: false,
+      testResult: null,
+      testMessage: null
     }
   },
   computed: {
@@ -84,6 +90,23 @@ export default {
     },
     click () {
       this.visible = !this.visible
+    },
+    runTest () {
+      if (this.test) {
+        this.testResult = null
+        this.test().then(response => {
+          this.testResult = true
+          this.$emit('pass')
+        }).catch(err => {
+          this.testResult = false
+          if ('data' in err.response) {
+            this.$emit('fail', err.response.data)
+            if ('message' in err.response.data) {
+              this.testMessage = err.response.data.message
+            }
+          }
+        })
+      }
     }
   }
 }

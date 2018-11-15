@@ -29,7 +29,7 @@ export default {
   },
   testAuthenticationSource: data => {
     return apiCall.post(`config/sources/test`, data).then(response => {
-      return response.data
+      return response
     })
   },
   /**

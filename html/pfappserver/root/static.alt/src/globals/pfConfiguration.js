@@ -941,10 +941,10 @@ export const pfConfigurationViewFields = {
           component: pfFormPassword,
           attrs: {
             test: () => {
-              $store.dispatch('$_sources/testAuthenticationSource', source).then(response => {
-                // pass TODO
+              return $store.dispatch('$_sources/testAuthenticationSource', source).then(response => {
+                return response
               }).catch(err => {
-                // fail TODO
+                throw err
               })
             }
           },
