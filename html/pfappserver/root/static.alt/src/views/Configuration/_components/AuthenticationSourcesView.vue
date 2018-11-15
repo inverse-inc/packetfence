@@ -4,6 +4,8 @@
     :form="getForm"
     :model="source"
     :validation="$v.source"
+    :isNew="isNew"
+    :isClone="isClone"
     @validations="sourceValidations = $event"
     @close="close"
     @create="create"
@@ -100,20 +102,26 @@ export default {
     }
   },
   methods: {
-    close () {
+    close (event) {
       this.$router.push({ name: 'sources' })
     },
-    create () {
+    create (event) {
       this.$store.dispatch('$_sources/createAuthenticationSource', this.source).then(response => {
-        this.close()
+        if ('which' in event && event.which === 17) { // [CTRL] key pressed
+          this.close()
+        } else {
+          this.$router.push({ name: 'source', params: { id: this.source.id } })
+        }
       })
     },
-    save () {
+    save (event) {
       this.$store.dispatch('$_sources/updateAuthenticationSource', this.source).then(response => {
-        this.close()
+        if ('which' in event && event.which === 17) { // [CTRL] key pressed
+          this.close()
+        }
       })
     },
-    remove () {
+    remove (event) {
       this.$store.dispatch('$_sources/deleteAuthenticationSource', this.id).then(response => {
         this.close()
       })
@@ -122,8 +130,11 @@ export default {
   created () {
     if (this.id) {
       this.$store.dispatch('$_sources/getAuthenticationSource', this.id).then(data => {
-        this.source = Object.assign({}, data)
         this.sourceType = data.type
+        this.source = Object.assign({}, data)
+        if (this.isClone) {
+          delete this.source.id
+        }
       })
     }
     this.$store.dispatch('$_sources/all').then(data => {

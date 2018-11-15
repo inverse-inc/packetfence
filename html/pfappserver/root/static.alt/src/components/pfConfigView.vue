@@ -1,5 +1,5 @@
 <template>
-  <b-form @submit.prevent="isNew? create() : save()">
+  <b-form @submit.prevent="(isNew || isClone) ? create($event) : save($event)">
     <b-card no-body>
       <slot name="header">
         <b-card-header>
@@ -35,7 +35,7 @@
       <slot name="footer">
         <b-card-footer @mouseenter="validation.$touch()">
           <pf-button-save :disabled="invalidForm" :isLoading="isLoading">{{ isNew? $t('Create') : $t('Save') }}</pf-button-save>
-          <pf-button-delete v-if="!isNew" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Config?')" @on-delete="remove()"/>
+          <pf-button-delete v-if="!isNew" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Config?')" @on-delete="remove($event)"/>
         </b-card-footer>
       </slot>
     </b-card>
@@ -73,28 +73,36 @@ export default {
     },
     isLoading: {
       type: Boolean
+    },
+    isNew: {
+      type: Boolean
+    },
+    isClone: {
+      type: Boolean
+    }
+  },
+  data () {
+    return {
+      which: null
     }
   },
   computed: {
-    isNew () {
-      return this.form.fields.filter(field => field.key === 'id').length === 0
-    },
     defaultComponent () {
       return pfFormInput
     }
   },
   methods: {
-    close () {
-      this.$emit('close')
+    close (event) {
+      this.$emit('close', Object.assign(event, { which: this.which }))
     },
-    create () {
-      this.$emit('create')
+    create (event) {
+      this.$emit('create', Object.assign(event, { which: this.which }))
     },
-    save () {
-      this.$emit('save')
+    save (event) {
+      this.$emit('save', Object.assign(event, { which: this.which }))
     },
-    remove () {
-      this.$emit('remove')
+    remove (event) {
+      this.$emit('remove', Object.assign(event, { which: this.which }))
     },
     getValidations () {
       const eachFieldValue = {}
@@ -135,10 +143,26 @@ export default {
         c.push('mr-1') // add right-margin
       }
       return c.join(' ')
+    },
+    onKeydown (event) {
+      if ('which' in event) {
+        this.which = event.which
+      } else {
+        this.which = null
+      }
+    },
+    onKeyup (event) {
+      this.which = null
     }
   },
   mounted () {
     this.emitExternalValidations()
+    document.addEventListener('keydown', this.onKeydown)
+    document.addEventListener('keyup', this.onKeyup)
+  },
+  beforeDestroy () {
+    document.removeEventListener('keydown', this.onKeydown)
+    document.removeEventListener('keyup', this.onKeyup)
   }
 }
 </script>
