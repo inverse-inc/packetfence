@@ -21,7 +21,7 @@ BEGIN {
     use lib qw(/usr/local/pf/t);
     use setup_test_config;
 }
-use Test::More tests => 11;
+use Test::More tests => 8;
 
 use Test::NoWarnings;
 use Test::Exception;
@@ -56,7 +56,11 @@ ok($result, "Not switching device class provides allowed result");
 
 # test invalid transition
 $result = pf::fingerbank::device_class_transition_allowed("Windows OS", "Windows OS", "Android OS", "Galaxy S8");
-ok(!$result, "Not switching device class provides allowed result");
+ok(!$result, "Switching device class provides not allowed result");
+
+# test whitelisted transition
+$result = pf::fingerbank::device_class_transition_allowed("Windows OS", "Windows OS", "Printer or Scanner", "Printer or Scanner");
+ok($result, "Whitelisted transition provides allowed result");
 
 =head1 AUTHOR
 
