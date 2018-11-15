@@ -137,7 +137,7 @@ export default {
         this.sourceType = data.type
         this.source = Object.assign({}, data)
         if (this.isClone) {
-          delete this.source.id
+          this.source.id = null
         }
       })
     }
