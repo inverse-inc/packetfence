@@ -16,5 +16,7 @@
 :release_version: 8.2.0
 // set imagesdir for all asciidoc files
 :imagesdir: images
+:sectanchors:
+:sectlinks:
 
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:
