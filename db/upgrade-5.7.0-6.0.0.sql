@@ -417,7 +417,7 @@ INSERT INTO radacct
 INSERT INTO sms_carrier
     (id, name, email_pattern, created)
 VALUES
-    (100122, 'Google Project Fi', '%s@msg.fi.google.com', now());
+    (100128, 'Google Project Fi', '%s@msg.fi.google.com', now());
 
 --
 -- Updating to current version

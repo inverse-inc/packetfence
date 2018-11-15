@@ -64,6 +64,12 @@ UPDATE locationlog set connection_type = "Ethernet-NoEAP" where connection_type 
 ALTER TABLE pf_version engine = InnoDB;
     
 --
+-- Delete Google Project Fi from SMS carriers if it was added by the 5.7 to 6.0 script and add it back with the appropriate ID that matches the one in the schema
+--
+DELETE FROM sms_carrier where id=100122;
+INSERT INTO sms_carrier VALUES(100128, 'Google Project Fi', '%s@msg.fi.google.com', now(), now());
+
+--
 -- Add other canadian SMS carriers
 --
 
