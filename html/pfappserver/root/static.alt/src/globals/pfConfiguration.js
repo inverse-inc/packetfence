@@ -932,7 +932,7 @@ export const pfConfigurationViewFields = {
       }
     ]
   },
-  password: ({ test = () => {} } = {}) => {
+  password: ({ $store = {}, source = {} } = {}) => {
     return {
       label: i18n.t('Password'),
       fields: [
@@ -940,7 +940,13 @@ export const pfConfigurationViewFields = {
           key: 'password',
           component: pfFormPassword,
           attrs: {
-            test: test
+            test: () => {
+              $store.dispatch('$_sources/testAuthenticationSource', source).then(response => {
+                // pass TODO
+              }).catch(err => {
+                // fail TODO
+              })
+            }
           },
           validators: {
             [i18n.t('Password required.')]: required
@@ -1778,15 +1784,7 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.usernameattribute,
         pfConfigurationViewFields.email_attribute,
         pfConfigurationViewFields.binddn,
-        pfConfigurationViewFields.password({
-          test: () => {
-            args.$store.dispatch('$_sources/testAuthenticationSource', args.source).then(response => {
-              // pass TODO
-            }).catch(err => {
-              // fail TODO
-            })
-          }
-        }),
+        pfConfigurationViewFields.password(args),
         pfConfigurationViewFields.cache_match,
         pfConfigurationViewFields.monitor,
         pfConfigurationViewFields.shuffle,
@@ -1845,15 +1843,7 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.usernameattribute,
         pfConfigurationViewFields.email_attribute,
         pfConfigurationViewFields.binddn,
-        pfConfigurationViewFields.password({
-          test: () => {
-            args.$store.dispatch('$_sources/testAuthenticationSource', args.source).then(response => {
-              // pass TODO
-            }).catch(err => {
-              // fail TODO
-            })
-          }
-        }),
+        pfConfigurationViewFields.password(args),
         pfConfigurationViewFields.cache_match,
         pfConfigurationViewFields.monitor,
         pfConfigurationViewFields.shuffle,
