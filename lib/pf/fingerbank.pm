@@ -518,6 +518,8 @@ sub device_class_transition_allowed {
     return $TRUE if($previous_device_class eq $new_device_class);
 
     ## Check if device is_a the previous device class 
+    # Was disabled, shouldn't be necessary, but leaving this in place in the event we need to perform derivation analysis to reduce the amount of false positives
+    # jsemaan@inverse.ca
     #my $is_a = fingerbank::Model::Device->is_a($new_device_type, $previous_device_class);
     #if(!defined($is_a)) {
     #    $logger->error("Didn't get a valid result when checking if $new_device_type is a $previous_device_class");
