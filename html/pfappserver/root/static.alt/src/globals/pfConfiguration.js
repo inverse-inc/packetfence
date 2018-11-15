@@ -1781,9 +1781,9 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.password({
           test: () => {
             args.$store.dispatch('$_sources/testAuthenticationSource', args.source).then(response => {
-              // pass
+              // pass TODO
             }).catch(err => {
-              // fail
+              // fail TODO
             })
           }
         }),
@@ -1848,9 +1848,9 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.password({
           test: () => {
             args.$store.dispatch('$_sources/testAuthenticationSource', args.source).then(response => {
-              // pass
+              // pass TODO
             }).catch(err => {
-              // fail
+              // fail TODO
             })
           }
         }),

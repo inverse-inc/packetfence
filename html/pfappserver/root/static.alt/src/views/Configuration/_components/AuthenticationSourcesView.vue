@@ -19,7 +19,6 @@
         <span v-else-if="isClone">{{ $t('Clone Authentication Source {id}', { id: id }) }}</span>
         <span v-else>{{ $t('New {sourceType} Authentication Source', { sourceType: this.sourceType}) }}</span>
       </h4>
-      <pre>{{ JSON.stringify(source, null, 2) }}</pre>
     </template>
     <template slot="footer" is="b-card-footer" @mouseenter="$v.source.$touch()">
       <pf-button-save v-if="!isNew && !isClone" :disabled="invalidForm" :isLoading="isLoading" :icon="(ctrlKey) ? 'step-backward' : ''">{{ $t('Save') }}</pf-button-save>
