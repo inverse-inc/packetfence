@@ -81,11 +81,6 @@ export default {
       type: Boolean
     }
   },
-  data () {
-    return {
-      which: null
-    }
-  },
   computed: {
     defaultComponent () {
       return pfFormInput
@@ -93,16 +88,16 @@ export default {
   },
   methods: {
     close (event) {
-      this.$emit('close', Object.assign(event, { which: this.which }))
+      this.$emit('close', event)
     },
     create (event) {
-      this.$emit('create', Object.assign(event, { which: this.which }))
+      this.$emit('create', event)
     },
     save (event) {
-      this.$emit('save', Object.assign(event, { which: this.which }))
+      this.$emit('save', event)
     },
     remove (event) {
-      this.$emit('remove', Object.assign(event, { which: this.which }))
+      this.$emit('remove', event)
     },
     getValidations () {
       const eachFieldValue = {}
@@ -143,26 +138,10 @@ export default {
         c.push('mr-1') // add right-margin
       }
       return c.join(' ')
-    },
-    onKeydown (event) {
-      if ('which' in event) {
-        this.which = event.which
-      } else {
-        this.which = null
-      }
-    },
-    onKeyup (event) {
-      this.which = null
     }
   },
   mounted () {
     this.emitExternalValidations()
-    document.addEventListener('keydown', this.onKeydown)
-    document.addEventListener('keyup', this.onKeyup)
-  },
-  beforeDestroy () {
-    document.removeEventListener('keydown', this.onKeydown)
-    document.removeEventListener('keyup', this.onKeyup)
   }
 }
 </script>

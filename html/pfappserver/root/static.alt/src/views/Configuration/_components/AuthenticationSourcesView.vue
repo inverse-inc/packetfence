@@ -21,9 +21,9 @@
       </h4>
     </template>
     <template slot="footer" is="b-card-footer" @mouseenter="$v.source.$touch()">
-      <pf-button-save v-if="!isNew && !isClone" :disabled="invalidForm" :isLoading="isLoading">{{ $t('Save') }}</pf-button-save>
-      <pf-button-save v-else-if="isClone" :disabled="invalidForm" :isLoading="isLoading">{{ $t('Clone') }}</pf-button-save>
-      <pf-button-save v-else :disabled="invalidForm" :isLoading="isLoading">{{ $t('Create') }}</pf-button-save>
+      <pf-button-save v-if="!isNew && !isClone" :disabled="invalidForm" :isLoading="isLoading" :icon="(ctrlKey) ? 'step-backward' : ''">{{ $t('Save') }}</pf-button-save>
+      <pf-button-save v-else-if="isClone" :disabled="invalidForm" :isLoading="isLoading" :icon="(ctrlKey) ? 'step-backward' : ''">{{ $t('Clone') }}</pf-button-save>
+      <pf-button-save v-else :disabled="invalidForm" :isLoading="isLoading" :icon="(ctrlKey) ? 'step-backward' : ''">{{ $t('Create') }}</pf-button-save>
       <pf-button-delete v-if="!isNew && !isClone" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Source?')" @on-delete="remove()"/>
     </template>
   </pf-config-view>
@@ -33,6 +33,7 @@
 import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
+import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
   pfConfigurationAuthenticationSourcesViewFields as fields,
@@ -44,6 +45,7 @@ export default {
   name: 'AuthenticationSourcesView',
   mixins: [
     validationMixin,
+    pfMixinCtrlKey,
     pfMixinEscapeKey
   ],
   components: {
@@ -107,7 +109,7 @@ export default {
     },
     create (event) {
       this.$store.dispatch('$_sources/createAuthenticationSource', this.source).then(response => {
-        if ('which' in event && event.which === 17) { // [CTRL] key pressed
+        if (this.ctrlKey) { // [CTRL] key pressed
           this.close()
         } else {
           this.$router.push({ name: 'source', params: { id: this.source.id } })
@@ -116,7 +118,7 @@ export default {
     },
     save (event) {
       this.$store.dispatch('$_sources/updateAuthenticationSource', this.source).then(response => {
-        if ('which' in event && event.which === 17) { // [CTRL] key pressed
+        if (this.ctrlKey) { // [CTRL] key pressed
           this.close()
         }
       })

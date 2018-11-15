@@ -1,7 +1,11 @@
 <template>
-    <b-button :style="{ minWidth: btnWidth }" ref="saveButton" variant="primary" type="submit" v-bind="$attrs">
-        <icon name="circle-notch" spin v-if="isLoading"></icon>
-        <slot v-else>{{ $t('Save') }}</slot></b-button>
+  <b-button :style="{ minWidth: btnWidth }" ref="saveButton" variant="primary" type="submit" v-bind="$attrs">
+    <icon name="circle-notch" spin v-if="isLoading"></icon>
+    <template v-else>
+      <icon :name="icon" v-if="icon" class="mr-2"></icon>
+      <slot>{{ $t('Save') }}</slot>
+    </template>
+  </b-button>
 </template>
 
 <script>
@@ -11,6 +15,9 @@ export default {
     isLoading: {
       type: Boolean,
       default: false
+    },
+    icon: {
+      type: String
     }
   },
   data () {
