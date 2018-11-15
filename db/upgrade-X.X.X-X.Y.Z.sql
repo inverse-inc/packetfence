@@ -48,5 +48,17 @@ DELIMITER ;
 call ValidateVersion;                                                                                                  
 DROP PROCEDURE IF EXISTS ValidateVersion;
 
+--
+-- Delete Google Project Fi from SMS carriers if it was added by the 5.7 to 6.0 script
+--
+DELETE FROM sms_carrier where id=100122 and name="Google Project Fi";
+--
+-- Delete Google Project Fi from SMS carriers that may have been added during 8.1 to 8.2 upgrade if patched script was used 
+--
+DELETE FROM sms_carriers where id=100128;
+--
+-- Add Project Fi SMS carrier now that its been fully removed above
+--
+INSERT INTO sms_carrier VALUES(100128, 'Google Project Fi', '%s@msg.fi.google.com', now(), now());
 
 INSERT INTO pf_version (id, version) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION, @SUBMINOR_VERSION)); 
