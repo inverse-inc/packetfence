@@ -60,9 +60,9 @@
         <pf-empty-table :isLoading="isLoading">{{ $t('No sources found') }}</pf-empty-table>
       </template>
       <template slot="buttons" slot-scope="item">
-        <span class="float-right">
+        <span class="float-right text-nowrap">
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
-          <b-button v-if="!item.not_deletable" size="sm" variant="outline-danger" @click.stop.prevent="remove(item)">{{ $t('Delete') }}</b-button>
+          <pf-button-delete  v-if="!item.not_deletable" size="sm" variant="outline-danger" :disabled="isLoading" :confirm="$t('Delete Source?')" @on-delete="remove(item)" reverse/>
         </span>
       </template>
     </pf-config-list>
@@ -70,6 +70,7 @@
 </template>
 
 <script>
+import pfButtonDelete from '@/components/pfButtonDelete'
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
 import {
@@ -80,6 +81,7 @@ import {
 export default {
   name: 'AuthenticationSourcesList',
   components: {
+    pfButtonDelete,
     pfConfigList,
     pfEmptyTable
   },
