@@ -1778,7 +1778,15 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.usernameattribute,
         pfConfigurationViewFields.email_attribute,
         pfConfigurationViewFields.binddn,
-        pfConfigurationViewFields.password({ test: () => { /* TODO */ } }),
+        pfConfigurationViewFields.password({
+          test: () => {
+            args.$store.dispatch('$_sources/testAuthenticationSource', args.source).then(response => {
+              // pass
+            }).catch(err => {
+              // fail
+            })
+          }
+        }),
         pfConfigurationViewFields.cache_match,
         pfConfigurationViewFields.monitor,
         pfConfigurationViewFields.shuffle,
@@ -1837,7 +1845,15 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.usernameattribute,
         pfConfigurationViewFields.email_attribute,
         pfConfigurationViewFields.binddn,
-        pfConfigurationViewFields.password({ test: () => { /* TODO */ } }),
+        pfConfigurationViewFields.password({
+          test: () => {
+            args.$store.dispatch('$_sources/testAuthenticationSource', args.source).then(response => {
+              // pass
+            }).catch(err => {
+              // fail
+            })
+          }
+        }),
         pfConfigurationViewFields.cache_match,
         pfConfigurationViewFields.monitor,
         pfConfigurationViewFields.shuffle,

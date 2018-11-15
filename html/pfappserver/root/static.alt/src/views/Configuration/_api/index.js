@@ -27,6 +27,11 @@ export default {
   deleteAuthenticationSource: id => {
     return apiCall.delete(`config/source/${id}`)
   },
+  testAuthenticationSource: data => {
+    return apiCall.post(`config/sources/test`, data).then(response => {
+      return response.data
+    })
+  },
   /**
    * Roles
    */

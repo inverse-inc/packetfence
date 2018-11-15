@@ -71,6 +71,15 @@ const actions = {
       commit('ITEM_ERROR', err.response)
       throw err
     })
+  },
+  testAuthenticationSource: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    return api.testAuthenticationSource(data).then(response => {
+      commit('ITEM_SUCCESS')
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
   }
 }
 
@@ -92,6 +101,9 @@ const mutations = {
     if (response && response.data) {
       state.message = response.data.message
     }
+  },
+  ITEM_SUCCESS: (state) => {
+    state.itemState = types.SUCCESS
   }
 }
 
