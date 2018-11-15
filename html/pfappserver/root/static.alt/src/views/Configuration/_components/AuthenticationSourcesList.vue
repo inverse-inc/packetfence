@@ -62,7 +62,7 @@
       <template slot="buttons" slot-scope="item">
         <span class="float-right">
           <b-button size="sm" variant="outline-primary" class="mr-1" @click.stop.prevent="clone(item)">{{ $t('Clone') }}</b-button>
-          <b-button v-if="!item.not_deletable" size="sm" variant="outline-primary" @click.stop.prevent="remove(item)">{{ $t('Delete') }}</b-button>
+          <b-button v-if="!item.not_deletable" size="sm" variant="outline-danger" @click.stop.prevent="remove(item)">{{ $t('Delete') }}</b-button>
         </span>
       </template>
     </pf-config-list>
@@ -107,22 +107,21 @@ export default {
               ]
             }]
           },
-          defaultRoute: { name: 'configuration/sources' }
+          defaultRoute: { name: 'configuration/sources' },
+          resultsFilter: (results) => results.filter(item => item.id !== 'local') // ignore 'local' source
         },
         searchableQuickCondition: (quickCondition) => {
           return {
             op: 'and',
-            values: [
-              {
-                op: 'or',
-                values: [
-                  { field: 'id', op: 'contains', value: quickCondition },
-                  { field: 'description', op: 'contains', value: quickCondition },
-                  { field: 'class', op: 'contains', value: quickCondition },
-                  { field: 'type', op: 'contains', value: quickCondition }
-                ]
-              }
-            ]
+            values: [{
+              op: 'or',
+              values: [
+                { field: 'id', op: 'contains', value: quickCondition },
+                { field: 'description', op: 'contains', value: quickCondition },
+                { field: 'class', op: 'contains', value: quickCondition },
+                { field: 'type', op: 'contains', value: quickCondition }
+              ]
+            }]
           }
         }
       }
@@ -133,8 +132,9 @@ export default {
       this.$router.push({ name: 'cloneAuthenticationSource', params: { id: item.id } })
     },
     remove (item) {
-      // TODO
-      console.log('remove', item)
+      this.$store.dispatch('$_sources/deleteAuthenticationSource', item.id).then(response => {
+        this.$router.go() // reload
+      })
     }
   }
 }

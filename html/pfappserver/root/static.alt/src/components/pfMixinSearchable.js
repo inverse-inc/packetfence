@@ -87,7 +87,11 @@ export default {
     },
     items () {
       if (this.searchableStoreName) {
-        return this.$store.state[this.searchableStoreName].results
+        let results = this.$store.state[this.searchableStoreName].results
+        if ('resultsFilter' in this.pfMixinSearchableOptions) {
+          results = this.pfMixinSearchableOptions.resultsFilter(results)
+        }
+        return results
       }
     },
     totalRows () {
