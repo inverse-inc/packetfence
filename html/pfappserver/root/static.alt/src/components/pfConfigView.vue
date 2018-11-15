@@ -44,6 +44,7 @@
 </template>
 
 <script>
+import Vue from 'vue'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfFormInput from '@/components/pfFormInput'
@@ -114,7 +115,7 @@ export default {
         const [ first, remainder ] = [ split[0], split.slice(1).join('.') ]
         return this.setValue(remainder, value, model[first])
       }
-      model[key] = value
+      Vue.set(model, key, value)
     },
     getValidation (key, model = this.validation) {
       if (key.includes('.')) { // handle dot-notation keys ('.')
@@ -136,7 +137,7 @@ export default {
           setEachFieldValue(remainder, value, model[first])
           return
         }
-        model[key] = value
+        Vue.set(model, key, value)
       }
       if (this.form.fields.length > 0) {
         this.form.fields.forEach((row, index) => {
