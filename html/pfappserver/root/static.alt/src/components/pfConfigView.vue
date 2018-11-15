@@ -23,9 +23,10 @@
                 :key="field.key"
                 :is="field.component || defaultComponent"
                 v-bind="field.attrs"
-                v-model="model[field.key]"
-                :validation="validation[field.key]"
+                :validation="getValidation(field.key)"
                 :class="getClass(row, field)"
+                :value="getValue(field.key)"
+                @input="setValue(field.key, $event)"
               ></component>
             </template>
           </b-input-group>
@@ -99,24 +100,62 @@ export default {
     remove (event) {
       this.$emit('remove', event)
     },
-    getValidations () {
+    getValue (key, model = this.model) {
+      if (key.includes('.')) { // handle dot-notation keys ('.')
+        const split = key.split('.')
+        const [ first, remainder ] = [ split[0], split.slice(1).join('.') ]
+        return this.getValue(remainder, model[first])
+      }
+      return model[key]
+    },
+    setValue (key, value, model = this.model) {
+      if (key.includes('.')) { // handle dot-notation keys ('.')
+        const split = key.split('.')
+        const [ first, remainder ] = [ split[0], split.slice(1).join('.') ]
+        return this.setValue(remainder, value, model[first])
+      }
+      model[key] = value
+    },
+    getValidation (key, model = this.validation) {
+      if (key.includes('.')) { // handle dot-notation keys ('.')
+        const split = key.split('.')
+        const [ first, remainder ] = [ split[0], split.slice(1).join('.') ]
+        return this.getValidation(remainder, model[first])
+      }
+      return model[key]
+    },
+    getExternalValidations () {
       const eachFieldValue = {}
+      const setEachFieldValue = (key, value, model = eachFieldValue) => {
+        if (key.includes('.')) { // handle dot-notation keys ('.')
+          const split = key.split('.')
+          const [ first, remainder ] = [ split[0], split.slice(1).join('.') ]
+          if (!(first in model)) {
+            model[first] = {}
+          }
+          setEachFieldValue(remainder, value, model[first])
+          return
+        }
+        model[key] = value
+      }
       if (this.form.fields.length > 0) {
         this.form.fields.forEach((row, index) => {
           if ('fields' in row) {
             row.fields.forEach((field, index) => {
-              eachFieldValue[field.key] = {}
-              if (
-                'validators' in field && // has vuelidate validations
-                (!('if' in field) || field.if) // is visible
-              ) {
-                eachFieldValue[field.key] = field.validators
+              if (field.key) {
+                setEachFieldValue(field.key, {})
+                if (
+                  'validators' in field && // has vuelidate validations
+                  (!('if' in field) || field.if) // is visible
+                ) {
+                  setEachFieldValue(field.key, field.validators)
+                }
               }
             })
           }
         })
-        Object.freeze(eachFieldValue)
       }
+      Object.freeze(eachFieldValue)
       return eachFieldValue
     },
     emitExternalValidations () {
@@ -124,7 +163,7 @@ export default {
       // delay to allow internal form field to update before building external validations
       if (this.emitExternalValidationsTimeout) clearTimeout(this.emitExternalValidationsTimeout)
       this.emitExternalValidationsTimeout = setTimeout(() => {
-        this.$emit('validations', this.getValidations())
+        this.$emit('validations', this.getExternalValidations())
       }, 300)
     },
     getClass (row, field) {
