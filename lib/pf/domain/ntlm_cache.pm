@@ -90,6 +90,7 @@ sub generate_valid_users_file {
     my $logger = get_logger;
     my ($users, $msg) = fetch_valid_users($domain);
     if($users) {
+        mkdir $domains_ntlm_cache_users_dir unless -d $domains_ntlm_cache_users_dir;
         my $file = catfile($domains_ntlm_cache_users_dir, "$domain.valid-users.txt");
         write_file($file, join("\n", @$users));
         my $msg = "Successfully created valid users file ($file) with ".scalar(@$users)." entries.";
@@ -233,19 +234,27 @@ sub secretsdump {
     return ($FALSE, $msg) unless($sAMAccountName);
 
     my $result;
-    eval {
-        my $command = "/usr/local/pf/addons/AD/secretsdump.py '".pf::domain::escape_bind_user_string($sAMAccountName)."':'".pf::domain::escape_bind_user_string($source->{password})."'@".$source->{host}." -just-dc-ntlm -output $tmpfile $opts";
-        $logger->debug("Executing sync command: $command");
-        $result = pf_run($command, accepted_exit_status => [ 0 ]);
-    };
-    if (!defined($result) || $@) {
-        return ($FALSE, "Can't generate hash list via secretsdump.py. Check logs for details.");
-    }
-    elsif($result =~ /Something wen't wrong/) {
-        return ($FALSE, "Cannot synchronize users hashes. Command output: $result");
+    my $success = $FALSE;
+    
+    foreach my $server (split(/\s*,\s*/, $source->{host})) {
+        eval {
+            my $command = "/usr/local/pf/addons/AD/secretsdump.py '".pf::domain::escape_bind_user_string($sAMAccountName)."':'".pf::domain::escape_bind_user_string($source->{password})."'@".$server." -just-dc-ntlm -output $tmpfile $opts";
+            $logger->debug("Executing sync command: $command");
+            $result = pf_run($command, accepted_exit_status => [ 0 ], working_directory => "/tmp");
+        };
+        if (!defined($result) || $@) {
+            $result = "Can't generate hash list via secretsdump.py. Check logs for details.";
+        }
+        elsif($result =~ /Something wen't wrong/) {
+            $result = "Cannot synchronize users hashes. Command output: $result";
+        }
+        else {
+            $success = $TRUE;
+            last;
+        }
     }
 
-    return $ntds_file;
+    return $success ? $ntds_file : ($FALSE, $result);
 }
 
 =head2 cache_user
