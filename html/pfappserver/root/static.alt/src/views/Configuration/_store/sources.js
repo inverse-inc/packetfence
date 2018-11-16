@@ -103,7 +103,7 @@ const mutations = {
     }
   },
   ITEM_SUCCESS: (state) => {
-    state.itemState = types.SUCCESS
+    state.itemStatus = types.SUCCESS
   }
 }
 
