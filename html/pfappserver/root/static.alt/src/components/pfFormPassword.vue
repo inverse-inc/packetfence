@@ -17,13 +17,13 @@
       >
       </b-form-input>
       <b-input-group-append>
-        <b-button-group rel="testResultGroup">
+        <b-button-group v-if="test" rel="testResultGroup">
           <b-button v-if="testResult !== null" variant="light" disabled tabindex="-1">
             <span class="mr-1" :class="{ 'text-danger': !testResult, 'text-success': testResult }">{{ testMessage }}</span>
           </b-button>
         </b-button-group>
         <b-button-group rel="prefixButtonGroup">
-          <b-button class="input-group-text" @click="runTest()" :disabled="isLoading || !this.value" tabindex="-1">
+          <b-button v-if="test" class="input-group-text" @click="runTest()" :disabled="isLoading || !this.value" tabindex="-1">
             {{ $t('Test') }}
             <icon v-show="isTesting" name="circle-notch" spin class="ml-2 mr-1"></icon>
             <icon v-if="testResult !== null && testResult" name="check" class="ml-2 mr-1 text-success"></icon>
