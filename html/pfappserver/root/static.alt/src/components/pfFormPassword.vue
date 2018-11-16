@@ -18,18 +18,18 @@
       </b-form-input>
       <b-input-group-append>
         <b-button-group rel="testResultGroup">
-          <b-button v-if="testResult !== null" variant="light" disabled>
+          <b-button v-if="testResult !== null" variant="light" disabled tabindex="-1">
             <span class="mr-1" :class="{ 'text-danger': !testResult, 'text-success': testResult }">{{ testMessage }}</span>
           </b-button>
         </b-button-group>
         <b-button-group rel="prefixButtonGroup">
-          <b-button class="input-group-text" @click="runTest()" :disabled="isLoading || !this.value">
+          <b-button class="input-group-text" @click="runTest()" :disabled="isLoading || !this.value" tabindex="-1">
             {{ $t('Test') }}
             <icon v-show="isTesting" name="circle-notch" spin class="ml-2 mr-1"></icon>
             <icon v-if="testResult !== null && testResult" name="check" class="ml-2 mr-1 text-success"></icon>
             <icon v-if="testResult !== null && !testResult" name="times" class="ml-2 mr-1 text-danger"></icon>
           </b-button>
-          <b-button class="input-group-text" @click="click()" @mouseover="over()" @mousemove="over()" @mouseout="out()" :disabled="!this.value && this.type === 'password'" :pressed="visible"><icon name="eye"></icon></b-button>
+          <b-button class="input-group-text" @click="click()" @mouseover="over()" @mousemove="over()" @mouseout="out()" :disabled="!this.value && this.type === 'password'" :pressed="visible" tabindex="-1"><icon name="eye"></icon></b-button>
         </b-button-group>
       </b-input-group-append>
     </b-input-group>
