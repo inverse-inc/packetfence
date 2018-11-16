@@ -109,6 +109,7 @@ export default {
         this.test().then(response => {
           this.testResult = true
           this.$emit('pass')
+          this.testMessage = null
           this.isTesting = false
         }).catch(err => {
           this.testResult = false
