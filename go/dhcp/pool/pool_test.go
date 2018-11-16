@@ -1,6 +1,8 @@
 package pool
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestReserveIPIndex(t *testing.T) {
 	cap := uint64(5)
@@ -8,11 +10,20 @@ func TestReserveIPIndex(t *testing.T) {
 
 	var err error
 
+	mac := "00:11:22:33:44:55"
+
+	if err != nil {
+		t.Error("Not able to parse mac", err)
+	}
+
 	// Try to reserve all the IPs
 	for i := uint64(0); i < dp.capacity; i++ {
-		err = dp.ReserveIPIndex(i)
+		err, returnedMac := dp.ReserveIPIndex(i, mac)
 		if err != nil {
 			t.Error("Got an error and shouldn't have gotten one", err)
+		}
+		if returnedMac != mac {
+			t.Error("Returned mac is not the same")
 		}
 
 		if free := dp.free[i]; free {
@@ -21,34 +32,17 @@ func TestReserveIPIndex(t *testing.T) {
 	}
 
 	// Try to reserve an IP again
-	err = dp.ReserveIPIndex(3)
+	err, _ = dp.ReserveIPIndex(3, mac)
 
 	if err == nil {
 		t.Error("Didn't get an error when trying to double-reserve an IP")
 	}
 
 	// Try to reserve an IP outside the capacity
-	err = dp.ReserveIPIndex(cap)
+	err, _ = dp.ReserveIPIndex(cap, mac)
 
 	if err == nil {
 		t.Error("Didn't get an error when trying to reserve an IP outside the capacity")
-	}
-}
-func TestIsFreeIPAtIndex(t *testing.T) {
-	cap := uint64(5)
-	dp := NewDHCPPool(cap)
-
-	dp.ReserveIPIndex(3)
-
-	available := dp.IsFreeIPAtIndex(3)
-
-	if available {
-		t.Errorf("IP address at index 3 is available and should not be")
-	}
-
-	available = dp.IsFreeIPAtIndex(2)
-	if !available {
-		t.Errorf("IP address at index 2 isn't available and should be")
 	}
 }
 
@@ -57,6 +51,11 @@ func TestFreeIPIndex(t *testing.T) {
 	dp := NewDHCPPool(cap)
 
 	var err error
+	mac := "00:11:22:33:44:55"
+
+	if err != nil {
+		t.Error("Not able to parse mac", err)
+	}
 
 	// Try to reserve all the IP, then free all of them
 	// Not validating ReserveIPIndex works, this is why TestReserveIPIndex is there
@@ -65,7 +64,7 @@ func TestFreeIPIndex(t *testing.T) {
 			t.Errorf("IP address %d isn't free at the beginning of the process", i)
 		}
 
-		dp.ReserveIPIndex(i)
+		dp.ReserveIPIndex(i, mac)
 		err = dp.FreeIPIndex(i)
 
 		if err != nil {
@@ -96,11 +95,18 @@ func TestGetFreeIPIndex(t *testing.T) {
 	cap := uint64(1000)
 	dp := NewDHCPPool(cap)
 
+	var err error
+	mac := "00:11:22:33:44:55"
+
+	if err != nil {
+		t.Error("Not able to parse mac", err)
+	}
+
 	order1 := []uint64{}
 	seen := map[uint64]bool{}
 
 	for i := uint64(0); i < dp.capacity; i++ {
-		index, err := dp.GetFreeIPIndex()
+		index, _, err := dp.GetFreeIPIndex(mac)
 
 		if err != nil {
 			t.Error("Error while trying to get a free IP in a non-full pool")
@@ -118,7 +124,7 @@ func TestGetFreeIPIndex(t *testing.T) {
 	}
 
 	// Attempt to get another IP when the pool is full
-	_, err := dp.GetFreeIPIndex()
+	_, _, err = dp.GetFreeIPIndex(mac)
 
 	if err == nil {
 		t.Error("Didn't get an error when attempting to get a free index in a pool that has reached capacity")
@@ -133,7 +139,7 @@ func TestGetFreeIPIndex(t *testing.T) {
 
 	// Not performing the validation in this loop, that would be replicating the work the first loop above did
 	for i := uint64(0); i < dp2.capacity; i++ {
-		index, _ := dp2.GetFreeIPIndex()
+		index, _, _ := dp2.GetFreeIPIndex(mac)
 		order2 = append(order2, index)
 	}
 
@@ -157,6 +163,12 @@ func TestFreeIPsRemaining(t *testing.T) {
 	var expected uint64
 	var got uint64
 
+	var err error
+	mac := "00:11:22:33:44:55"
+
+	if err != nil {
+		t.Error("Not able to parse mac", err)
+	}
 	// No IPs reserved or taken, should match the capacity
 	expected = cap
 	got = dp.FreeIPsRemaining()
@@ -165,7 +177,7 @@ func TestFreeIPsRemaining(t *testing.T) {
 	}
 
 	// Reserve an IP, should be cap minus 1
-	dp.ReserveIPIndex(0)
+	dp.ReserveIPIndex(0, mac)
 	expected = cap - 1
 	got = dp.FreeIPsRemaining()
 	if expected != got {
@@ -182,7 +194,7 @@ func TestFreeIPsRemaining(t *testing.T) {
 
 	// Empty the pool, should be 0
 	for i := uint64(0); i < cap; i++ {
-		dp.GetFreeIPIndex()
+		dp.GetFreeIPIndex(mac)
 	}
 
 	expected = 0
