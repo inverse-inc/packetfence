@@ -227,7 +227,7 @@ $colorUnchecked: $gray-500;
 $margin: 3px;
 
 .vue-js-switch {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   position: relative;
   overflow: hidden;
@@ -245,18 +245,17 @@ $margin: 3px;
   }
   .v-switch-label {
     position: absolute;
-    top: 0;
     font-weight: 600;
     color: white;
     &.v-left {
       left: 10px;
     }
     &.v-right {
-      right: 10px;
+      right: 15px;
     }
   }
   .v-switch-core {
-    display: block;
+    display: inline-block;
     position: relative;
     box-sizing: border-box;
     background-color: $colorUnchecked;
