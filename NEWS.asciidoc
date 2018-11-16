@@ -27,6 +27,9 @@ Enhancements
 Bug Fixes
 +++++++++
 * Logs permissions and configuration for Debian (#3780)
+* Fixed missing cache directory for NTLM auth cache (#3788)
+* Fixed working directory of NTLM auth cache sync script (#3777)
+* Handled multiple LDAP hosts properly in NTLM auth cache (#3776)
 
 Version 8.2.0 released on 2018-11-07
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
