@@ -165,6 +165,8 @@ our (
     %ConfigRoles,
 #device_Registration.conf
     %ConfigDeviceRegistration,
+#ldap authentication sources
+    %ConfigAuthenticationLdap,
 );
 
 BEGIN {
@@ -226,6 +228,7 @@ BEGIN {
         %ConfigSurvey
         %ConfigRoles
         %ConfigDeviceRegistration
+        %ConfigAuthenticationLdap
     );
 }
 
