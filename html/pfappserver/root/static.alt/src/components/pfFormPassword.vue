@@ -11,19 +11,25 @@
         :state="isValid()"
         @input.native="validate()"
         @keyup.native="onChange($event)"
+        @keyup.native="resetTest()"
         @change.native="onChange($event)"
         @focus.native="focus = true"
         @blur.native="focus = false"
       >
       </b-form-input>
       <b-input-group-append>
-        <b-button-group rel="prefixButtonGroup">
-          <b-button class="input-group-text" @click="click()" @mouseover="over()" @mousemove="over()" @mouseout="out()" :disabled="!this.value && this.type === 'password'" :pressed="visible"><icon name="eye"></icon></b-button>
-          <b-button v-if="test" class="input-group-text" @click="runTest()" :disabled="!this.value">
-            {{ $t('Test') }}
-            <icon v-if="testResult !== null && testResult" name="check" class="ml-2 text-success"></icon>
-            <icon v-if="testResult !== null && !testResult" name="times" class="ml-2 text-danger"></icon>
+        <b-button-group rel="testResultGroup">
+          <b-button v-if="testResult !== null" variant="light" disabled>
+            <span class="mr-1" :class="{ 'text-danger': !testResult, 'text-success': testResult }">{{ testMessage }}</span>
           </b-button>
+        </b-button-group>
+        <b-button-group rel="prefixButtonGroup">
+          <b-button class="input-group-text" @click="runTest()" :disabled="!this.value">
+            {{ $t('Test') }}
+            <icon v-if="testResult !== null && testResult" name="check" class="ml-2 mr-1 text-success"></icon>
+            <icon v-if="testResult !== null && !testResult" name="times" class="ml-2 mr-1 text-danger"></icon>
+          </b-button>
+          <b-button class="input-group-text" @click="click()" @mouseover="over()" @mousemove="over()" @mouseout="out()" :disabled="!this.value && this.type === 'password'" :pressed="visible"><icon name="eye"></icon></b-button>
         </b-button-group>
       </b-input-group-append>
     </b-input-group>
@@ -107,7 +113,14 @@ export default {
           }
         })
       }
+    },
+    resetTest () {
+      this.testResult = null
+      this.testMessage = null
     }
+  },
+  beforeDestroy () {
+    document.removeEventListener('keyup', this.onKeyup)
   }
 }
 </script>
@@ -159,6 +172,10 @@ export default {
 /**
  * Add btn-primary color(s) on hover
  */
+.btn-group[rel=testResultGroup] button {
+  opacity: 1;
+  text-transform: none;
+}
 .btn-group[rel=prefixButtonGroup] button:hover {
   color: $input-btn-hover-text-color;
   background-color: $input-btn-hover-bg-color;
