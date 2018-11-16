@@ -141,6 +141,7 @@ export default {
         }
       })
     }
+    this.source.type = this.sourceType
     this.$store.dispatch('$_sources/all').then(data => {
       this.sources = data
     })
