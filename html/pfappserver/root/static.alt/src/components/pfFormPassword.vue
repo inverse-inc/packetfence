@@ -10,8 +10,7 @@
         :type="type"
         :state="isValid()"
         @input.native="validate()"
-        @keyup.native="onChange($event)"
-        @keyup.native="resetTest()"
+        @keyup.native="resetTest($event)"
         @change.native="onChange($event)"
         @focus.native="focus = true"
         @blur.native="focus = false"
@@ -24,8 +23,9 @@
           </b-button>
         </b-button-group>
         <b-button-group rel="prefixButtonGroup">
-          <b-button class="input-group-text" @click="runTest()" :disabled="!this.value">
+          <b-button class="input-group-text" @click="runTest()" :disabled="isLoading || !this.value">
             {{ $t('Test') }}
+            <icon v-show="isTesting" name="circle-notch" spin class="ml-2 mr-1"></icon>
             <icon v-if="testResult !== null && testResult" name="check" class="ml-2 mr-1 text-success"></icon>
             <icon v-if="testResult !== null && !testResult" name="times" class="ml-2 mr-1 text-danger"></icon>
           </b-button>
@@ -67,6 +67,10 @@ export default {
     test: {
       type: Function,
       default: null
+    },
+    isLoading: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -74,7 +78,8 @@ export default {
       visible: false,
       focus: false,
       testResult: null,
-      testMessage: null
+      testMessage: null,
+      isTesting: false
     }
   },
   computed: {
@@ -99,10 +104,12 @@ export default {
     },
     runTest () {
       if (this.test) {
+        this.isTesting = true
         this.testResult = null
         this.test().then(response => {
           this.testResult = true
           this.$emit('pass')
+          this.isTesting = false
         }).catch(err => {
           this.testResult = false
           if ('data' in err.response) {
@@ -110,13 +117,15 @@ export default {
             if ('message' in err.response.data) {
               this.testMessage = err.response.data.message
             }
+            this.isTesting = false
           }
         })
       }
     },
-    resetTest () {
+    resetTest (event) {
       this.testResult = null
       this.testMessage = null
+      this.onChange(event)
     }
   },
   beforeDestroy () {
