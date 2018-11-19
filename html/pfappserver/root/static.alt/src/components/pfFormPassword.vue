@@ -29,7 +29,7 @@
             <icon v-if="testResult !== null && testResult" name="check" class="ml-2 mr-1 text-success"></icon>
             <icon v-if="testResult !== null && !testResult" name="times" class="ml-2 mr-1 text-danger"></icon>
           </b-button>
-          <b-button class="input-group-text" @click="click()" @mouseover="over()" @mousemove="over()" @mouseout="out()" :disabled="!this.value && this.type === 'password'" :pressed="visible" tabindex="-1"><icon name="eye"></icon></b-button>
+          <b-button class="input-group-text" @click="toggleVisibility()" @mouseover="startVisibility()" @mousemove="startVisibility()" @mouseout="stopVisibility()" :disabled="!this.value && this.type === 'password'" :pressed="showPassword" tabindex="-1"><icon name="eye"></icon></b-button>
         </b-button-group>
       </b-input-group-append>
     </b-input-group>
@@ -75,7 +75,7 @@ export default {
   },
   data () {
     return {
-      visible: false,
+      showPassword: false,
       focus: false,
       testResult: null,
       testMessage: null,
@@ -93,14 +93,19 @@ export default {
     }
   },
   methods: {
-    over () {
+    startVisibility () {
       this.type = 'text'
     },
-    out () {
-      this.type = (this.visible) ? 'text' : 'password'
+    stopVisibility () {
+      this.type = (this.showPassword) ? 'text' : 'password'
     },
-    click () {
-      this.visible = !this.visible
+    toggleVisibility () {
+      if (this.showPassword) {
+        this.type = 'password' // hide password
+      } else {
+        this.type = 'text' // show password
+      }
+      this.showPassword = !this.showPassword
     },
     runTest () {
       if (this.test) {
