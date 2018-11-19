@@ -24,6 +24,7 @@ has '+type' => (default => 'Email');
 has 'allow_localdomain' => (isa => 'Str', is => 'rw', default => 'yes');
 has 'email_activation_timeout' => (isa => 'Str', is => 'rw', default => '10m');
 has 'activation_domain' => (isa => 'Maybe[Str]', is => 'rw');
+has 'allowed_domains' => (isa => 'Maybe[Str]', is => 'rw');
 
 =head2 dynamic_routing_module
 
@@ -118,6 +119,22 @@ sub authenticate {
     return $TRUE;
 }
 
+
+=head2 isEmailAllowed
+
+isEmailAllowed
+
+=cut
+
+sub isEmailAllowed {
+    my ($self, $email) = @_;
+    my $allowed_domains = $self->allowed_domains;
+    unless ($allowed_domains) {
+        return $TRUE;
+    }
+
+    return ($email =~ /\Q$allowed_domains\E$/)  ? $TRUE :  $FALSE;
+}
 
 =head1 AUTHOR
 
