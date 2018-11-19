@@ -14,13 +14,13 @@
       <template slot="buttonAdd">
         <b-dropdown id="source-add-container" :text="$t('Add Source')" variant="outline-primary" class="m-2">
           <b-dropdown-header class="text-primary">Internal</b-dropdown-header>
-            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'AD' } }">AD</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'AD' } }">Active Directory</b-dropdown-item>
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'EAPTLS' } }">EAPTLS</b-dropdown-item>
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Htpasswd' } }">Htpasswd</b-dropdown-item>
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'HTTP' } }">HTTP</b-dropdown-item>
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Kerberos' } }">Kerberos</b-dropdown-item>
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'LDAP' } }">LDAP</b-dropdown-item>
-            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'POTD' } }">POTD</b-dropdown-item>
+            <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'POTD' } }">Password Of The Day</b-dropdown-item>
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'RADIUS' } }">RADIUS</b-dropdown-item>
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'SAML' } }">SAML</b-dropdown-item>
           <b-dropdown-divider></b-dropdown-divider>
