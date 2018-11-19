@@ -98,6 +98,11 @@ sub field_list {
                 $field->{fingerbank_model} = 'fingerbank::Model::Device';
                 last;
             };
+            $type eq "fingerbank_device_transition" && do {
+                $field->{type} = 'TextArea';
+                $field->{element_class} = ['input-xxlarge'];
+                last;
+            };
             $type eq 'merged_list' && do {
                 delete $field->{element_attr}->{placeholder};
                 $field->{tags}->{before_element} = \&defaults_list;

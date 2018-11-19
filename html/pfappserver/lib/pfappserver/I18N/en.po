@@ -11545,3 +11545,18 @@ msgstr "Detect changes in connection type"
 
 msgid "Potd"
 msgstr "Password of the day"
+
+msgid "fingerbank_device_change"
+msgstr "Fingerbank device change detection"
+
+msgid "fingerbank_device_change.enable"
+msgstr "Enabled"
+
+msgid "fingerbank_device_change.trigger_on_device_class_change"
+msgstr "Trigger on device class change"
+
+msgid "fingerbank_device_change.device_class_whitelist"
+msgstr "Device class change whitelist"
+
+msgid "fingerbank_device_change.triggers"
+msgstr "Manual device class change triggers"

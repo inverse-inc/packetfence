@@ -464,6 +464,12 @@ sub all_subsections : Private {
                     controller => 'Controller::Config::Fingerbank::Settings',
                     name => 'General Settings', 
                 },
+                device_change => {
+                    controller => 'Controller::Configuration',
+                    action => 'section',
+                    action_args => ['fingerbank_device_change'],
+                    name => 'Device change detection', 
+                },
                 combinations => {
                     controller => 'Controller::Config::Fingerbank::Combination',
                     name => 'Combinations', 
