@@ -128,9 +128,6 @@ export default {
       this.testMessage = null
       this.onChange(event)
     }
-  },
-  beforeDestroy () {
-    document.removeEventListener('keyup', this.onKeyup)
   }
 }
 </script>
