@@ -18,7 +18,7 @@ const FloatingDevicesList = () => import(/* webpackChunkName: "Configuration" */
 const FloatingDeviceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDeviceView')
 
 const AuthenticationSourcesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/AuthenticationSourcesList')
-const AuthenticationSourcesView = () => import(/* webpackChunkName: "Configuration" */ '../_components/AuthenticationSourcesView')
+const AuthenticationSourceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/AuthenticationSourceView')
 
 const route = {
   path: '/configuration',
@@ -163,13 +163,13 @@ const route = {
     {
       path: 'sources/new/:sourceType',
       name: 'newAuthenticationSource',
-      component: AuthenticationSourcesView,
+      component: AuthenticationSourceView,
       props: (route) => ({ storeName: '$_sources', isNew: true, sourceType: route.params.sourceType })
     },
     {
       path: 'source/:id',
       name: 'source',
-      component: AuthenticationSourcesView,
+      component: AuthenticationSourceView,
       props: (route) => ({ storeName: '$_sources', id: route.params.id }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_sources/getAuthenticationSource', to.params.id).then(object => {
@@ -180,7 +180,7 @@ const route = {
     {
       path: 'source/:id/clone',
       name: 'cloneAuthenticationSource',
-      component: AuthenticationSourcesView,
+      component: AuthenticationSourceView,
       props: (route) => ({ storeName: '$_sources', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_sources/getAuthenticationSource', to.params.id).then(object => {
