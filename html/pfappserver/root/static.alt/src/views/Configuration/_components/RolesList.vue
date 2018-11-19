@@ -13,6 +13,9 @@
       <template slot="emptySearch">
         <pf-empty-table :isLoading="isLoading">{{ $t('No roles found') }}</pf-empty-table>
       </template>
+      <template slot="buttons" slot-scope="item">
+        <b-button size="sm" variant="outline-primary" :to="{ name: 'TODO' }" class="float-right">{{ $t('Traffic Shaping') }}</b-button>
+      </template>
     </pf-config-list>
   </b-card>
 </template>
@@ -20,7 +23,10 @@
 <script>
 import pfConfigList from '@/components/pfConfigList'
 import pfEmptyTable from '@/components/pfEmptyTable'
-import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import {
+  pfConfigurationRolesListColumns as columns,
+  pfConfigurationRolesListFields as fields
+} from '@/globals/pfConfiguration'
 
 export default {
   name: 'RolesList',
@@ -31,38 +37,8 @@ export default {
   data () {
     return {
       config: {
-        columns: [
-          {
-            key: 'id',
-            label: this.$i18n.t('Name'),
-            sortable: true,
-            visible: true
-          },
-          {
-            key: 'notes',
-            label: this.$i18n.t('Description'),
-            sortable: true,
-            visible: true
-          },
-          {
-            key: 'max_nodes_per_pid',
-            label: this.$i18n.t('Max nodes per user'),
-            sortable: true,
-            visible: true
-          }
-        ],
-        fields: [
-          {
-            value: 'id',
-            text: this.$i18n.t('Name'),
-            types: [conditionType.SUBSTRING]
-          },
-          {
-            value: 'notes',
-            text: this.$i18n.t('Description'),
-            types: [conditionType.SUBSTRING]
-          }
-        ],
+        columns: columns,
+        fields: fields,
         rowClickRoute (item, index) {
           return { name: 'role', params: { id: item.id } }
         },

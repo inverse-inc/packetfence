@@ -8,14 +8,15 @@
         v-bind="$attrs"
         ref="input"
         :state="isValid()"
+        :disabled="disabled"
         :readonly="readonly"
         @input.native="validate()"
         @keyup.native="onChange($event)"
         @change.native="onChange($event)"
       >
       </b-form-input>
-      <b-input-group-append v-if="readonly">
-        <b-button class="input-group-text"><icon name="lock"></icon></b-button>
+      <b-input-group-append v-if="readonly || disabled">
+        <b-button class="input-group-text" tabindex="-1"><icon name="lock"></icon></b-button>
       </b-input-group-append>
     </b-input-group>
     <b-form-text v-if="text" v-t="text"></b-form-text>
@@ -44,6 +45,10 @@ export default {
     text: {
       type: String,
       default: null
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     },
     readonly: {
       type: Boolean,

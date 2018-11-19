@@ -1,5 +1,5 @@
 <template>
-  <b-form @submit.prevent="isNew? create() : save()">
+  <b-form @submit.prevent="(isNew || isClone) ? create($event) : save($event)">
     <b-card no-body>
       <slot name="header">
         <b-card-header>
@@ -10,30 +10,33 @@
         </b-card-header>
       </slot>
       <div class="card-body" v-if="form.fields">
-        <b-form-group v-for="field in form.fields" :key="field.key" v-if="!('if' in field) || field.if"
-          :label-cols="(field.label) ? form.labelCols : 0" :label="field.label"
+        <b-form-group v-for="row in form.fields" :key="[row.key].join('')" v-if="!('if' in row) || row.if"
+          :label-cols="(row.label) ? form.labelCols : 0" :label="row.label" :label-size="row.labelSize"
           :state="isValid()" :invalid-feedback="getInvalidFeedback()"
-          class="input-element" :class="{ 'mb-0': !field.label }"
+          class="input-element" :class="{ 'mb-0': !row.label, 'pt-3': !row.fields }"
           horizontal
         >
           <b-input-group>
-            <component :is="field.component || defaultComponent"
-              v-bind="field.attrs"
-              v-model="model[field.key]"
-              :validation="validation[field.key]"
-              class="col-sm-12 px-0"
-            ></component>
-            <b-input-group-append v-if="field.attrs && field.attrs.readonly">
-              <b-button class="input-group-text"><icon name="lock"></icon></b-button>
-            </b-input-group-append>
+            <template v-for="field in row.fields">
+              <span v-if="field.text" :key="field.index" :class="field.class">{{ field.text }}</span>
+              <component v-else-if="!('if' in field) || field.if"
+                :key="field.key"
+                :is="field.component || defaultComponent"
+                v-bind="field.attrs"
+                :validation="getValidation(field.key)"
+                :class="getClass(row, field)"
+                :value="getValue(field.key)"
+                @input="setValue(field.key, $event)"
+              ></component>
+            </template>
           </b-input-group>
-          <b-form-text v-if="field.text" v-t="field.text"></b-form-text>
+          <b-form-text v-if="row.text" v-t="row.text"></b-form-text>
         </b-form-group>
       </div>
       <slot name="footer">
         <b-card-footer @mouseenter="validation.$touch()">
           <pf-button-save :disabled="invalidForm" :isLoading="isLoading">{{ isNew? $t('Create') : $t('Save') }}</pf-button-save>
-          <pf-button-delete v-if="!isNew" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Config?')" @on-delete="remove()"/>
+          <pf-button-delete v-if="!isNew" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Config?')" @on-delete="remove($event)"/>
         </b-card-footer>
       </slot>
     </b-card>
@@ -41,6 +44,7 @@
 </template>
 
 <script>
+import Vue from 'vue'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfFormInput from '@/components/pfFormInput'
@@ -71,43 +75,88 @@ export default {
     },
     isLoading: {
       type: Boolean
+    },
+    isNew: {
+      type: Boolean
+    },
+    isClone: {
+      type: Boolean
     }
   },
   computed: {
-    isNew () {
-      return this.form.fields.filter(field => field.key === 'id').length === 0
-    },
     defaultComponent () {
       return pfFormInput
     }
   },
   methods: {
-    close () {
-      this.$emit('close')
+    close (event) {
+      this.$emit('close', event)
     },
-    create () {
-      this.$emit('create')
+    create (event) {
+      this.$emit('create', event)
     },
-    save () {
-      this.$emit('save')
+    save (event) {
+      this.$emit('save', event)
     },
-    remove () {
-      this.$emit('remove')
+    remove (event) {
+      this.$emit('remove', event)
     },
-    getValidations () {
+    getValue (key, model = this.model) {
+      if (key.includes('.')) { // handle dot-notation keys ('.')
+        const split = key.split('.')
+        const [ first, remainder ] = [ split[0], split.slice(1).join('.') ]
+        return this.getValue(remainder, model[first])
+      }
+      return model[key]
+    },
+    setValue (key, value, model = this.model) {
+      if (key.includes('.')) { // handle dot-notation keys ('.')
+        const split = key.split('.')
+        const [ first, remainder ] = [ split[0], split.slice(1).join('.') ]
+        return this.setValue(remainder, value, model[first])
+      }
+      Vue.set(model, key, value)
+    },
+    getValidation (key, model = this.validation) {
+      if (key.includes('.')) { // handle dot-notation keys ('.')
+        const split = key.split('.')
+        const [ first, remainder ] = [ split[0], split.slice(1).join('.') ]
+        return this.getValidation(remainder, model[first])
+      }
+      return model[key]
+    },
+    getExternalValidations () {
       const eachFieldValue = {}
+      const setEachFieldValue = (key, value, model = eachFieldValue) => {
+        if (key.includes('.')) { // handle dot-notation keys ('.')
+          const split = key.split('.')
+          const [ first, remainder ] = [ split[0], split.slice(1).join('.') ]
+          if (!(first in model)) {
+            model[first] = {}
+          }
+          setEachFieldValue(remainder, value, model[first])
+          return
+        }
+        Vue.set(model, key, value)
+      }
       if (this.form.fields.length > 0) {
-        this.form.fields.forEach((field, index) => {
-          eachFieldValue[field.key] = {}
-          if (
-            'validators' in field && // has vuelidate validations
-            (!('if' in field) || field.if) // is visible
-          ) {
-            eachFieldValue[field.key] = field.validators
+        this.form.fields.forEach((row, index) => {
+          if ('fields' in row) {
+            row.fields.forEach((field, index) => {
+              if (field.key) {
+                setEachFieldValue(field.key, {})
+                if (
+                  'validators' in field && // has vuelidate validations
+                  (!('if' in field) || field.if) // is visible
+                ) {
+                  setEachFieldValue(field.key, field.validators)
+                }
+              }
+            })
           }
         })
-        Object.freeze(eachFieldValue)
       }
+      Object.freeze(eachFieldValue)
       return eachFieldValue
     },
     emitExternalValidations () {
@@ -115,8 +164,20 @@ export default {
       // delay to allow internal form field to update before building external validations
       if (this.emitExternalValidationsTimeout) clearTimeout(this.emitExternalValidationsTimeout)
       this.emitExternalValidationsTimeout = setTimeout(() => {
-        this.$emit('validations', this.getValidations())
+        this.$emit('validations', this.getExternalValidations())
       }, 300)
+    },
+    getClass (row, field) {
+      let c = ['px-0'] // always remove padding
+      if ('attrs' in field && `class` in field.attrs) { // if class is defined
+        c.push(field.attrs.class) // use manual definition
+      } else if (row.fields.length === 1) { // else if row is singular
+        c.push('col-sm-12') // use entire width
+      }
+      if (field !== row.fields[row.fields.length - 1]) { // if row is not last
+        c.push('mr-1') // add right-margin
+      }
+      return c.join(' ')
     }
   },
   mounted () {
@@ -124,3 +185,11 @@ export default {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.input-group > span {
+  display: flex;
+  justify-contents: center;
+  align-items: center;
+}
+</style>

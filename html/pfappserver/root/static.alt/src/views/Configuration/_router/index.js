@@ -4,6 +4,7 @@ import RolesStore from '../_store/roles'
 import FloatingDevicesStore from '../_store/floatingdevices'
 import DomainsStore from '../_store/domains'
 import RealmsStore from '../_store/realms'
+import AuthenticationSourcesStore from '../_store/sources'
 
 const PoliciesAccessControlSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/PoliciesAccessControlSection')
 const RolesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/RolesList')
@@ -15,6 +16,9 @@ const RealmView = () => import(/* webpackChunkName: "Configuration" */ '../_comp
 const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
 const FloatingDevicesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDevicesList')
 const FloatingDeviceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDeviceView')
+
+const AuthenticationSourcesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/AuthenticationSourcesList')
+const AuthenticationSourceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/AuthenticationSourceView')
 
 const route = {
   path: '/configuration',
@@ -34,6 +38,9 @@ const route = {
     }
     if (!store.state.$_floatingdevices) {
       store.registerModule('$_floatingdevices', FloatingDevicesStore)
+    }
+    if (!store.state.$_sources) {
+      store.registerModule('$_sources', AuthenticationSourcesStore)
     }
     next()
   },
@@ -55,7 +62,7 @@ const route = {
       path: 'roles/new',
       name: 'newRole',
       component: RoleView,
-      props: (route) => ({ storeName: '$_roles' })
+      props: (route) => ({ storeName: '$_roles', isNew: true })
     },
     {
       path: 'role/:id',
@@ -78,7 +85,7 @@ const route = {
       path: 'domains/new',
       name: 'newDomain',
       component: DomainView,
-      props: (route) => ({ storeName: '$_domains' })
+      props: (route) => ({ storeName: '$_domains', isNew: true })
     },
     {
       path: 'domain/:id',
@@ -101,7 +108,7 @@ const route = {
       path: 'realms/new',
       name: 'newRealm',
       component: RealmView,
-      props: (route) => ({ storeName: '$_realms' })
+      props: (route) => ({ storeName: '$_realms', isNew: true })
     },
     {
       path: 'realm/:id',
@@ -131,7 +138,7 @@ const route = {
       path: 'floating_devices/new',
       name: 'newFloatingDevice',
       component: FloatingDeviceView,
-      props: (route) => ({ storeName: '$_floatingdevices' })
+      props: (route) => ({ storeName: '$_floatingdevices', isNew: true })
     },
     {
       path: 'floating_device/:id',
@@ -140,6 +147,43 @@ const route = {
       props: (route) => ({ storeName: '$_floatingdevices', id: route.params.id }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_floatingdevices/getFloatingDevice', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    /**
+     * AuthenticationSources
+     */
+    {
+      path: 'sources',
+      name: 'sources',
+      component: AuthenticationSourcesList,
+      props: (route) => ({ query: route.query.query })
+    },
+    {
+      path: 'sources/new/:sourceType',
+      name: 'newAuthenticationSource',
+      component: AuthenticationSourceView,
+      props: (route) => ({ storeName: '$_sources', isNew: true, sourceType: route.params.sourceType })
+    },
+    {
+      path: 'source/:id',
+      name: 'source',
+      component: AuthenticationSourceView,
+      props: (route) => ({ storeName: '$_sources', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_sources/getAuthenticationSource', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'source/:id/clone',
+      name: 'cloneAuthenticationSource',
+      component: AuthenticationSourceView,
+      props: (route) => ({ storeName: '$_sources', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_sources/getAuthenticationSource', to.params.id).then(object => {
           next()
         })
       }

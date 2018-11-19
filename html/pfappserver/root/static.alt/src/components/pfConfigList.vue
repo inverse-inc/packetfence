@@ -8,9 +8,7 @@
     <div class="card-body">
       <b-row align-h="end" align-v="start">
         <b-col>
-          <slot name="buttonAdd">
-            <b-button variant="outline-primary" :to="{}">{{ $t('Add') }}</b-button>
-          </slot>
+          <slot name="buttonAdd"></slot>
         </b-col>
         <b-col cols="auto">
           <b-container fluid>
@@ -25,13 +23,26 @@
           </b-container>
         </b-col>
       </b-row>
+      <slot name="tableHeader"></slot>
       <b-table class="table-clickable"
         :items="items" :fields="visibleColumns" :sort-by="sortBy" :sort-desc="sortDesc"
         @sort-changed="onSortingChanged" @row-clicked="onRowClick"
-        show-empty responsive hover no-local-sorting>
+        show-empty responsive hover fixed>
         <slot name="emptySearch" slot="empty">
           <pf-empty-table :isLoading="isLoading">{{ $t('No results found') }}</pf-empty-table>
         </slot>
+        <!-- Proxy all possible column slots ([field], HEAD_[field], FOOT_[field]) into b-table slots -->
+        <template v-for="column in config.columns" :slot="column.key" slot-scope="data">
+          <slot :name="column.key" v-bind="data.item">{{ data.item[column.key] }}</slot>
+        </template>
+        <template v-for="column in config.columns" :slot="'HEAD_' + column.key" slot-scope="data">
+          <slot :name="'HEAD_' + column.key">{{ data.label }}</slot>
+        </template>
+        <!--
+        <template v-for="column in config.columns" :slot="'FOOT_' + column.key" slot-scope="data">
+          <slot :name="'FOOT_' + column.key">{{ data.label }}</slot>
+        </template>
+        -->
       </b-table>
     </div>
   </div>
@@ -123,4 +134,3 @@ export default {
   }
 }
 </script>
-

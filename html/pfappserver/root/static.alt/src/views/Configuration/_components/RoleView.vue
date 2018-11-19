@@ -28,10 +28,12 @@
 import pfConfigView from '@/components/pfConfigView'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
-import pfFormInput from '@/components/pfFormInput'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
+import {
+  pfConfigurationRoleViewFields as fields,
+  pfConfigurationRoleViewDefaults as defaults
+} from '@/globals/pfConfiguration'
 const { validationMixin } = require('vuelidate')
-const { required, alphaNum, integer } = require('vuelidate/lib/validators')
 
 export default {
   name: 'RoleView',
@@ -42,14 +44,17 @@ export default {
   components: {
     pfConfigView,
     pfButtonSave,
-    pfButtonDelete,
-    pfFormInput
+    pfButtonDelete
   },
   props: {
     storeName: { // from router
       type: String,
       default: null,
       required: true
+    },
+    isNew: { // from router
+      type: Boolean,
+      default: false
     },
     id: { // from router
       type: String,
@@ -58,7 +63,7 @@ export default {
   },
   data () {
     return {
-      role: {}, // will be overloaded with the data from the store
+      role: defaults(this), // will be overloaded with the data from the store
       roleValidations: {} // will be overloaded with data from the pfConfigView
     }
   },
@@ -68,9 +73,6 @@ export default {
     }
   },
   computed: {
-    isNew () {
-      return this.id === null
-    },
     isLoading () {
       return this.$store.getters['$_roles/isLoading']
     },
@@ -80,36 +82,7 @@ export default {
     getForm () {
       return {
         labelCols: 3,
-        fields: [
-          {
-            if: this.isNew, // new roles only
-            key: 'id',
-            component: pfFormInput,
-            label: this.$i18n.t('Name'),
-            validators: {
-              [this.$i18n.t('Name is required.')]: required,
-              [this.$i18n.t('Alphanumeric value required.')]: alphaNum
-            }
-          },
-          {
-            key: 'notes',
-            component: pfFormInput,
-            label: this.$i18n.t('Description'),
-            validators: {}
-          },
-          {
-            key: 'max_nodes_per_pid',
-            component: pfFormInput,
-            label: this.$i18n.t('Max nodes per user'),
-            attrs: {
-              type: 'number'
-            },
-            validators: {
-              [this.$i18n.t('Max nodes per user required.')]: required,
-              [this.$i18n.t('Integer value required.')]: integer
-            }
-          }
-        ]
+        fields: fields(this)
       }
     }
   },

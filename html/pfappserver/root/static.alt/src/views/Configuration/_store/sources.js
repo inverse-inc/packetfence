@@ -1,5 +1,5 @@
 /**
-* "$_realms" store module
+* "$_sources" store module
 */
 import Vue from 'vue'
 import api from '../_api'
@@ -27,46 +27,55 @@ const actions = {
   all: () => {
     const params = {
       sort: 'id',
-      fields: ['id'].join(',')
+      fields: ['id', 'description', 'class'].join(',')
     }
-    return api.realms(params).then(response => {
+    return api.authenticationSources(params).then(response => {
       return response.items
     })
   },
-  getRealm: ({ state, commit }, id) => {
+  getAuthenticationSource: ({ state, commit }, id) => {
     if (state.cache[id]) {
       return Promise.resolve(state.cache[id])
     }
     commit('ITEM_REQUEST')
-    return api.realm(id).then(item => {
+    return api.authenticationSource(id).then(item => {
       commit('ITEM_REPLACED', item)
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
   },
-  createRealm: ({ commit }, data) => {
+  createAuthenticationSource: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.createRealm(data).then(response => {
+    return api.createAuthenticationSource(data).then(response => {
       commit('ITEM_REPLACED', data)
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
   },
-  updateRealm: ({ commit }, data) => {
+  updateAuthenticationSource: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.updateRealm(data).then(response => {
+    return api.updateAuthenticationSource(data).then(response => {
       commit('ITEM_REPLACED', data)
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
     })
   },
-  deleteRealm: ({ commit }, data) => {
+  deleteAuthenticationSource: ({ commit }, data) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteRealm(data).then(response => {
+    return api.deleteAuthenticationSource(data).then(response => {
       commit('ITEM_DESTROYED', data)
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  testAuthenticationSource: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    return api.testAuthenticationSource(data).then(response => {
+      commit('ITEM_SUCCESS')
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -92,6 +101,9 @@ const mutations = {
     if (response && response.data) {
       state.message = response.data.message
     }
+  },
+  ITEM_SUCCESS: (state) => {
+    state.itemStatus = types.SUCCESS
   }
 }
 

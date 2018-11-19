@@ -1,18 +1,20 @@
 <template>
   <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
     :state="isValid()" :invalid-feedback="getInvalidFeedback()"
-    class="chosen-element" :class="{ 'mb-0': !columnLabel, 'is-focus': focus}">
+    class="chosen-element" :class="{ 'mb-0': !columnLabel, 'is-focus': focus }">
     <b-input-group>
       <multiselect
         v-model="inputValue"
         v-bind="$attrs"
         v-on="forwardListeners"
-        :id="id"
         ref="input"
+        :id="id"
+        :multiple="multiple"
         :options="options"
+        :trackBy="trackBy"
         :state="isValid()"
         @input.native="validate()"
-        @keyup.native="onChange($event)"
+        @keyup.native.stop.prevent="onChange($event)"
         @change.native="onChange($event)"
         @open="focus = true"
         @close="focus = false"
@@ -60,6 +62,10 @@ export default {
       type: Array,
       default: null
     },
+    multiple: {
+      type: Boolean,
+      default: false
+    },
     id: {
       type: String
     },
@@ -82,17 +88,18 @@ export default {
   computed: {
     inputValue: {
       get () {
+        const currentValue = this.value || ((this.multiple) ? [] : null)
         if (this.collapseObject) {
-          return this.$attrs['multiple']
-            ? this.value.map(value => this.options.find(option => option[this.trackBy] === value))
-            : this.options.find(option => option[this.trackBy] === this.value)
+          return (this.multiple)
+            ? [...new Set(currentValue.map(value => this.options.find(option => option[this.trackBy] === value)))]
+            : this.options.find(option => option[this.trackBy] === currentValue)
         }
-        return this.value
+        return currentValue
       },
       set (newValue) {
         if (this.collapseObject) {
-          newValue = (this.$attrs['multiple'])
-            ? newValue.map(value => value[this.trackBy])
+          newValue = (this.multiple)
+            ? [...new Set(newValue.map(value => value[this.trackBy]))]
             : (newValue && newValue[this.trackBy])
         }
         this.$emit('input', newValue)
@@ -131,6 +138,9 @@ export default {
       // Override Firefox's unusual default opacity; see https://github.com/twbs/bootstrap/pull/11526.
       opacity: 1;
     }
+    .multiselect__tag {
+      margin-bottom: 0px;
+    }
   }
   .multiselect__input,
   .multiselect__single {
@@ -138,6 +148,11 @@ export default {
     font-size: $font-size-base;
     line-height: $input-line-height;
     color: $input-color;
+    padding: 0px;
+  }
+  .multiselect__placeholder {
+    margin-bottom: 0px;
+    padding-top: 0px;
   }
   .multiselect__content-wrapper {
       border-left-width: 1px;

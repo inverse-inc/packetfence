@@ -217,7 +217,7 @@
             </b-form-row>
           </b-form-group>
 
-          <pf-form-sortable-fields
+          <pf-form-actions
             sortable
             v-model="actions"
             column-label="Actions"
@@ -229,7 +229,7 @@
               { [$t('One or more errors exist.')]: !$v.actions.anyError }
             ]"
             @validations="actionsValidations = $event"
-          ></pf-form-sortable-fields>
+          ></pf-form-actions>
 
         </b-col>
         <b-col sm="4"></b-col>
@@ -245,10 +245,10 @@
 </template>
 
 <script>
+import pfFormActions from '@/components/pfFormActions'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormInput from '@/components/pfFormInput'
-import pfFormSortableFields from '@/components/pfFormSortableFields'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormToggle from '@/components/pfFormToggle'
 
@@ -285,10 +285,10 @@ const { validationMixin } = require('vuelidate')
 export default {
   name: 'UsersCreate',
   components: {
+    pfFormActions,
     pfFormChosen,
     pfFormDatetime,
     pfFormInput,
-    pfFormSortableFields,
     pfFormTextarea,
     pfFormToggle
   },
