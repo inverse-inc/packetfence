@@ -21,9 +21,12 @@
       </h4>
     </template>
     <template slot="footer" is="b-card-footer" @mouseenter="$v.source.$touch()">
-      <pf-button-save v-if="!isNew && !isClone" :disabled="invalidForm" :isLoading="isLoading" :icon="(ctrlKey) ? 'step-backward' : ''">{{ $t('Save') }}</pf-button-save>
-      <pf-button-save v-else-if="isClone" :disabled="invalidForm" :isLoading="isLoading" :icon="(ctrlKey) ? 'step-backward' : ''">{{ $t('Clone') }}</pf-button-save>
-      <pf-button-save v-else :disabled="invalidForm" :isLoading="isLoading" :icon="(ctrlKey) ? 'step-backward' : ''">{{ $t('Create') }}</pf-button-save>
+      <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
+        <icon v-if="ctrlKey" name="step-backward"></icon>
+        <template v-if="isNew">{{ $('Create') }}</template>
+        <template v-else-if="isClone">{{ $('Clone') }}</template>
+        <template v-else>{{ $('Save') }}</template>
+      </pf-button-save>
       <pf-button-delete v-if="!isNew && !isClone" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Source?')" @on-delete="remove()"/>
     </template>
   </pf-config-view>
