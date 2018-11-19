@@ -245,10 +245,10 @@
 </template>
 
 <script>
+import pfFormActions from '@/components/pfFormActions'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormInput from '@/components/pfFormInput'
-import pfFormSortableFields from '@/components/pfFormSortableFields'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormToggle from '@/components/pfFormToggle'
 
