@@ -13,7 +13,7 @@
       </template>
       <template slot="buttonAdd">
         <b-dropdown id="source-add-container" :text="$t('Add Source')" variant="outline-primary" class="m-2">
-          <b-dropdown-header class="text-primary">Internal</b-dropdown-header>
+          <b-dropdown-header class="text-primary">{{ $t('Internal') }}</b-dropdown-header>
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'AD' } }">Active Directory</b-dropdown-item>
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'EAPTLS' } }">EAPTLS</b-dropdown-item>
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Htpasswd' } }">Htpasswd</b-dropdown-item>
@@ -24,7 +24,7 @@
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'RADIUS' } }">RADIUS</b-dropdown-item>
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'SAML' } }">SAML</b-dropdown-item>
           <b-dropdown-divider></b-dropdown-divider>
-          <b-dropdown-header class="text-primary">External</b-dropdown-header>
+          <b-dropdown-header class="text-primary">{{ $t('External') }}</b-dropdown-header>
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Email' } }">Email</b-dropdown-item>
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Facebook' } }">Facebook</b-dropdown-item>
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Github' } }">Github</b-dropdown-item>
@@ -41,12 +41,12 @@
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Twitter' } }">Twitter</b-dropdown-item>
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'WindowsLive' } }">WindowsLive</b-dropdown-item>
           <b-dropdown-divider></b-dropdown-divider>
-          <b-dropdown-header class="text-primary">Exclusive</b-dropdown-header>
+          <b-dropdown-header class="text-primary">{{ $t('Exclusive') }}</b-dropdown-header>
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'AdminProxy' } }">AdminProxy</b-dropdown-item>
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Blackhole' } }">Blackhole</b-dropdown-item>
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Eduroam' } }">Eduroam</b-dropdown-item>
           <b-dropdown-divider></b-dropdown-divider>
-          <b-dropdown-header class="text-primary">Billing</b-dropdown-header>
+          <b-dropdown-header class="text-primary">{{ $t('Billing') }}</b-dropdown-header>
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'AuthorizeNet' } }">AuthorizeNet</b-dropdown-item>
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Mirapay' } }">Mirapay</b-dropdown-item>
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'Paypal' } }">Paypal</b-dropdown-item>
