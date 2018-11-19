@@ -13,6 +13,7 @@ use pf::config qw(%Config);
 use pf::constants qw($TRUE $FALSE);
 use pf::constants::authentication::messages;
 use pf::log;
+use List::MoreUtils qw(any);
 use pf::util;
 
 use Moose;
@@ -24,7 +25,7 @@ has '+type' => (default => 'Email');
 has 'allow_localdomain' => (isa => 'Str', is => 'rw', default => 'yes');
 has 'email_activation_timeout' => (isa => 'Str', is => 'rw', default => '10m');
 has 'activation_domain' => (isa => 'Maybe[Str]', is => 'rw');
-has 'allowed_domains' => (isa => 'Maybe[Str]', is => 'rw');
+has 'allowed_domains' => (isa => 'Maybe[ArrayRef[Str]]', is => 'rw');
 
 =head2 dynamic_routing_module
 
@@ -129,11 +130,11 @@ isEmailAllowed
 sub isEmailAllowed {
     my ($self, $email) = @_;
     my $allowed_domains = $self->allowed_domains;
-    unless ($allowed_domains) {
+    if (!defined $allowed_domains || @$allowed_domains == 0) {
         return $TRUE;
     }
 
-    return ($email =~ /\Q$allowed_domains\E$/)  ? $TRUE :  $FALSE;
+    return (any {$email =~ /\Q$_\E$/} @$allowed_domains)  ? $TRUE :  $FALSE;
 }
 
 =head1 AUTHOR
