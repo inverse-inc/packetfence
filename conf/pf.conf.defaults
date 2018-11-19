@@ -1156,12 +1156,12 @@ trigger_on_device_class_change=enabled
 # fingerbank_device_change.device_class_whitelist
 # 
 # Which device class changes are allowed in conjunction with trigger_on_device_class_change
-# Comma delimited transitions using the following format: $PREVIOUS_DEVICE_ID->$NEW_DEVICE_ID where $PREVIOUS_DEVICE_ID and $NEW_DEVICE_ID are the IDs in the Fingerbank database
+# Comma delimited transitions using the following format: $PREVIOUS_DEVICE_CLASS_ID->$NEW_DEVICE_CLASS_ID where $PREVIOUS_DEVICE_CLASS_ID and $NEW_DEVICE_CLASS_ID are the IDs in the Fingerbank database.
 device_class_whitelist=
 
 #
 # fingerbank_device_change.triggers
 #
 # Which changes (changing from a device class to another) should trigger internal::fingerbank_device_change
-# Comma delimited transitions using the following format: $PREVIOUS_DEVICE_ID->$NEW_DEVICE_ID where $PREVIOUS_DEVICE_ID and $NEW_DEVICE_ID are the IDs in the Fingerbank database
+# Comma delimited transitions using the following format: $PREVIOUS_DEVICE_CLASS_ID->$NEW_DEVICE_CLASS_ID where $PREVIOUS_DEVICE_CLASS_ID and $NEW_DEVICE_CLASS_ID are the IDs in the Fingerbank database.
 triggers=
