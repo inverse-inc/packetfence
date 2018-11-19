@@ -488,6 +488,11 @@ sub device_class_transition_allowed {
     my $new_device_class_id = device_name_to_device_id($new_device_class);
     return undef unless(defined($new_device_class_id));
 
+    if($previous_device_class_id eq $fingerbank::Constant::HARDWARE_MANUFACTURER_ID) {
+        $logger->info("The device is going from Hardware Manufacturer to another device. Not evaluating it.");
+        return $TRUE;
+    }
+
     # Check for manual triggers
     foreach my $transition (@{$config->{triggers}}) {
         my $from = $transition->{from};
