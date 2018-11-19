@@ -12,9 +12,6 @@
         </b-card-header>
       </template>
       <template slot="buttonAdd">
-        <!--
-        <b-button variant="outline-primary" :to="{ name: 'newRole' }">{{ $t('Add Source') }}</b-button>
-        -->
         <b-dropdown id="source-add-container" :text="$t('Add Source')" variant="outline-primary" class="m-2">
           <b-dropdown-header class="text-primary">Internal</b-dropdown-header>
             <b-dropdown-item :to="{ name: 'newAuthenticationSource', params: { sourceType: 'AD' } }">AD</b-dropdown-item>
