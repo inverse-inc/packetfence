@@ -94,10 +94,10 @@ export default {
   },
   computed: {
     isLoading () {
-      return this.$store.getters['$_sources/isLoading']
+      return this.$store.getters[`${this.storeName}/isLoading`]
     },
     invalidForm () {
-      return this.$v.source.$invalid || this.$store.getters['$_sources/isWaiting']
+      return this.$v.source.$invalid || this.$store.getters[`${this.storeName}/isWaiting`]
     },
     getForm () {
       return {
@@ -112,7 +112,7 @@ export default {
     },
     create (event) {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch('$_sources/createAuthenticationSource', this.source).then(response => {
+      this.$store.dispatch(`${this.storeName}/createAuthenticationSource`, this.source).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         } else {
@@ -122,22 +122,21 @@ export default {
     },
     save (event) {
       const ctrlKey = this.ctrlKey
-      this.$store.dispatch('$_sources/updateAuthenticationSource', this.source).then(response => {
+      this.$store.dispatch(`${this.storeName}/updateAuthenticationSource`, this.source).then(response => {
         if (ctrlKey) { // [CTRL] key pressed
           this.close()
         }
       })
     },
     remove (event) {
-      this.$store.dispatch('$_sources/deleteAuthenticationSource', this.id).then(response => {
+      this.$store.dispatch(`${this.storeName}/deleteAuthenticationSource`, this.id).then(response => {
         this.close()
       })
     }
   },
   created () {
-    console.log('storeName', this.storeName)
     if (this.id) {
-      this.$store.dispatch('$_sources/getAuthenticationSource', this.id).then(data => {
+      this.$store.dispatch(`${this.storeName}/getAuthenticationSource`, this.id).then(data => {
         this.sourceType = data.type
         this.source = Object.assign({}, data)
         if (this.isClone) {
