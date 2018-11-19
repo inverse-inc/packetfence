@@ -10,16 +10,16 @@ import (
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
-func DbFromConfig(ctx context.Context) (*sql.DB, error) {
+func DbFromConfig(ctx context.Context, options string) (*sql.DB, error) {
 
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Database)
 
 	dbConfig := pfconfigdriver.Config.PfConf.Database
 
-	return ConnectDb(ctx, dbConfig.User, dbConfig.Pass, dbConfig.Host, dbConfig.Db)
+	return ConnectDb(ctx, dbConfig.User, dbConfig.Pass, dbConfig.Host, dbConfig.Db, options)
 }
 
-func ConnectDb(ctx context.Context, user, pass, host, dbName string) (*sql.DB, error) {
+func ConnectDb(ctx context.Context, user, pass, host, dbName string, options string) (*sql.DB, error) {
 	proto := "tcp"
 	if host == "localhost" {
 		proto = "unix"
@@ -30,8 +30,12 @@ func ConnectDb(ctx context.Context, user, pass, host, dbName string) (*sql.DB, e
 			host = "/var/lib/mysql/mysql.sock"
 		}
 	}
-
-	uri := fmt.Sprintf("%s:%s@%s(%s)/%s?parseTime=true&loc=Local", user, pass, proto, host, dbName)
+	if len(options) > 0 {
+		options = "&" + options
+	} else {
+		options = ""
+	}
+	uri := fmt.Sprintf("%s:%s@%s(%s)/%s?parseTime=true&loc=Local"+options, user, pass, proto, host, dbName)
 
 	db, err := sql.Open("mysql", uri)
 	db.SetMaxIdleConns(0)

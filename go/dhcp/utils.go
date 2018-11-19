@@ -22,7 +22,8 @@ type NodeInfo struct {
 
 // connectDB connect to the database
 func connectDB(configDatabase pfconfigdriver.PfConfDatabase) {
-	db, err := db.DbFromConfig(ctx)
+	options := "timeout=90s?readTimeout=30s"
+	db, err := db.DbFromConfig(ctx, options)
 	sharedutils.CheckError(err)
 	MySQLdatabase = db
 }
