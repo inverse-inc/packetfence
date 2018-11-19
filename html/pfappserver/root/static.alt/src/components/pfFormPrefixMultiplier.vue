@@ -22,7 +22,7 @@
       ></b-form-input>
       <b-input-group-append>
         <b-button-group v-if="prefixes.length > 0" rel="prefixButtonGroup">
-          <b-button v-for="(prefix, index) in prefixes" v-if="inRange(index)" :key="index" :variant="[prefix.selected ? 'primary' : 'light']" v-b-tooltip.hover.bottom.d300 :title="$t(prefix.name + units.name)" @click.stop="changeMultiplier($event, index)">{{ $t(prefix.label + units.label) }}</b-button>
+          <b-button v-for="(prefix, index) in prefixes" v-if="inRange(index)" :key="index" :variant="[prefix.selected ? 'primary' : 'light']" v-b-tooltip.hover.bottom.d300 :title="$t(prefix.name + units.name)" @click.stop="changeMultiplier($event, index)" tabindex="-1">{{ $t(prefix.label + units.label) }}</b-button>
         </b-button-group>
       </b-input-group-append>
     </b-input-group>
