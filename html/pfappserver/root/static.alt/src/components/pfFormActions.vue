@@ -167,6 +167,20 @@
                 collapse-object
               ></pf-form-chosen>
 
+              <!-- BEGIN ROLE_BY_NAME -->
+              <pf-form-chosen v-if="isFieldType(roleByNameValueType, inputValue[index])"
+                :value="inputValue[index].value"
+                :ref="'value-' + index"
+                label="name"
+                track-by="value"
+                :placeholder="valueLabel"
+                :options="values(inputValue[index])"
+                :validation="getValueValidation(index)"
+                :invalid-feedback="getValueInvalidFeedback(index)"
+                @input="setValue(index, $event)"
+                collapse-object
+              ></pf-form-chosen>
+
               <!-- BEGIN TENANT -->
               <pf-form-chosen v-if="isFieldType(tenantValueType, inputValue[index])"
                 :value="inputValue[index].value"
@@ -272,7 +286,8 @@ export default {
       default: null
     },
     validation: {
-      type: Object
+      type: Object,
+      default: null
     },
     sortable: {
       type: Boolean,
@@ -301,6 +316,7 @@ export default {
       /* Promise based field types */
       adminroleValueType:       fieldType.ADMINROLE,
       roleValueType:            fieldType.ROLE,
+      roleByNameValueType:      fieldType.ROLE_BY_NAME,
       tenantValueType:          fieldType.TENANT
     }
   },
@@ -442,14 +458,14 @@ export default {
       return {}
     },
     getTypeValidation (index) {
-      if (index in this.validation && 'type' in this.validation[index]) {
+      if (this.validation && index in this.validation && 'type' in this.validation[index]) {
         return this.validation[index].type
       }
       return {}
     },
     getTypeInvalidFeedback (index) {
       let feedback = []
-      if (index in this.validation) {
+      if (this.validation && index in this.validation) {
         const validation = this.validation[index] /* use external vuelidate $v model */
         if (validation.type) {
           const validationModel = validation.type
@@ -465,14 +481,14 @@ export default {
       return feedback.join('<br/>')
     },
     getValueValidation (index) {
-      if (index in this.validation && 'value' in this.validation[index]) {
+      if (this.validation && index in this.validation && 'value' in this.validation[index]) {
         return this.validation[index].value
       }
       return {}
     },
     getValueInvalidFeedback (index) {
       let feedback = []
-      if (index in this.validation) {
+      if (this.validation && index in this.validation) {
         const validation = this.validation[index] /* use external vuelidate $v model */
         if (validation.value) {
           const validationModel = validation.value
