@@ -231,8 +231,8 @@
 
             </b-col>
             <b-col col align-self="start" class="text-center text-nowrap col-form-label pt-2">
-              <icon name="minus-circle" v-if="inputValue.length > 1" class="cursor-pointer mx-1" v-b-tooltip.hover.left.d300 :title="$t('Delete row')" @click.native.stop.prevent="rowDel(index)"></icon>
-              <icon name="plus-circle" class="cursor-pointer mx-1" v-b-tooltip.hover.left.d300 :title="$t('Add row')" @click.native.stop.prevent="rowAdd(index)"></icon>
+              <icon name="minus-circle" v-if="inputValue.length > 1" class="cursor-pointer mx-1" v-b-tooltip.hover.left.d300 :title="$t('Delete Action')" @click.native.stop.prevent="rowDel(index)"></icon>
+              <icon name="plus-circle" class="cursor-pointer mx-1" v-b-tooltip.hover.left.d300 :title="$t('Add Action')" @click.native.stop.prevent="rowAdd(index + 1)"></icon>
             </b-col>
           </b-form-row>
         </draggable>
@@ -248,6 +248,7 @@ import draggable from 'vuedraggable'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormPrefixMultiplier from '@/components/pfFormPrefixMultiplier'
+import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 import pfMixinValidation from '@/components/pfMixinValidation'
 import {
   pfFieldType as fieldType,
@@ -258,6 +259,7 @@ import { required } from 'vuelidate/lib/validators'
 export default {
   name: 'pf-form-actions',
   mixins: [
+    pfMixinCtrlKey,
     pfMixinValidation
   ],
   components: {
@@ -360,17 +362,26 @@ export default {
         }
       })
     },
-    rowAdd (index) {
+    rowAdd (index, clone = this.ctrlKey) {
       let inputValue = this.inputValue
+      let valuePlaceHolder = (clone && (index - 1) in inputValue)
+        ? inputValue[index - 1] // clone
+        : JSON.parse(JSON.stringify(this.valuePlaceHolder)) // use placeholder, dereference
       // push placeholder into middle of array
-      this.inputValue = [...inputValue.slice(0, index + 1), this.valuePlaceHolder, ...inputValue.slice(index + 1)]
+      this.inputValue = [...inputValue.slice(0, index), valuePlaceHolder, ...inputValue.slice(index)]
       this.emitExternalValidations()
       // focus the type element in new row
-      this.setFocus('type-' + (index + 1))
+      if (!clone) { // focusing pfFormChosen steals ctrlKey's onkeyup event
+        this.setFocus('type-' + index)
+      }
     },
-    rowDel (index) {
+    rowDel (index, deleteAll = this.ctrlKey) {
       let inputValue = JSON.parse(JSON.stringify(this.inputValue))
-      inputValue.splice(index, 1)
+      if (deleteAll) {
+        inputValue = [] // delete all rows
+      } else {
+        inputValue.splice(index, 1) // delete 1 row
+      }
       this.inputValue = inputValue
       if (this.inputValue.length === 0) {
         this.rowAdd(0)

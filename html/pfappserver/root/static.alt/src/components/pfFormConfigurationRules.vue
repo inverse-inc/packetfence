@@ -1,9 +1,9 @@
 <template>
   <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
     :state="isValid()" :invalid-feedback="getInvalidFeedback()"
-    class="sortablefields-element" :class="{ 'is-focus': drag, 'mb-0': !columnLabel }"
+    class="pf-form-configuration-rules" :class="{ 'is-focus': drag, 'mb-0': !columnLabel }"
     >
-    <b-input-group class="input-group-sortablefields">
+    <b-input-group class="input-group">
       <!--
          - Vacuum-up label click event.
          - See: https://github.com/bootstrap-vue/bootstrap-vue/issues/2063
@@ -22,7 +22,7 @@
           @start="onDragStart"
           @end="onDragEnd"
         >
-          <b-form-group v-for="(value, index) in inputValue" :key="index">
+          <b-form-group v-for="(value, index) in inputValue" :key="index" class="mb-0">
             <b-form-row
               class="text-secondary align-items-center"
               align-v="center"
@@ -30,11 +30,13 @@
               @mousemove="onMouseEnter(index)"
               no-gutter
             >
-              <b-col col v-if="sortable && hover === index && inputValue.length
-> 1" class="drag-handle text-center"><icon name="th" v-b-tooltip.hover.left.d300
-:title="$t('Click and drag to re-order')"></icon></b-col>
+              <b-col col v-if="sortable && hover === index && inputValue.length > 1" class="drag-handle text-center"><icon name="th" v-b-tooltip.hover.left.d300 :title="$t('Click and drag to re-order')"></icon></b-col>
               <b-col col v-else class="drag-index text-center"><b-badge variant="light">{{ index + 1 }}</b-badge></b-col>
-              <b-col cols="10" class="collapse-handle text-primary" v-b-toggle="uuidStr('collapse' + index)">Rule - {{ getValue(index, 'id') || 'New' }} ( {{ getValue(index, 'description') }} )</b-col>
+              <b-col cols="10" class="collapse-handle text-primary" v-b-toggle="uuidStr('collapse' + index)" @click.prevent="clickRule(uuidStr('collapse' + index), $event)">
+                <icon v-if="isRuleVisible(uuidStr('collapse' + index))" :name="(ctrlKey) ? 'chevron-circle-down' : 'chevron-down'" class="mr-3"></icon>
+                <icon v-else :name="(ctrlKey) ? 'chevron-circle-right' : 'chevron-right'" class="mr-3"></icon>
+                <span>Rule - {{ getValue(index, 'id') || 'New' }} ( {{ getValue(index, 'description') }} )</span>
+              </b-col>
               <b-col col class="text-right text-nowrap">
                 <icon name="minus-circle" class="cursor-pointer mx-1" v-b-tooltip.hover.left.d300 :title="$t('Delete Rule')" @click.native.stop.prevent="rowDel(index)"></icon>
                 <icon name="plus-circle" class="cursor-pointer mx-1" v-b-tooltip.hover.left.d300 :title="$t('Add Rule')" @click.native.stop.prevent="rowAdd(index + 1)"></icon>
@@ -107,6 +109,7 @@ import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormPrefixMultiplier from '@/components/pfFormPrefixMultiplier'
 import pfFormSelect from '@/components/pfFormSelect'
+import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 import pfMixinValidation from '@/components/pfMixinValidation'
 import {
   pfFieldType as fieldType,
@@ -120,6 +123,7 @@ import { required } from 'vuelidate/lib/validators'
 export default {
   name: 'pf-form-configuration-rules',
   mixins: [
+    pfMixinCtrlKey,
     pfMixinValidation
   ],
   components: {
@@ -238,21 +242,28 @@ export default {
         }
       })
     },
-    rowAdd (index) {
+    rowAdd (index, clone = this.ctrlKey) {
       // dereference inputValue
       let inputValue = JSON.parse(JSON.stringify(this.inputValue))
-      // dereference rulePlaceHolder
-      let rulePlaceHolder = JSON.parse(JSON.stringify(this.rulePlaceHolder))
+      let rulePlaceHolder = (clone && (index - 1) in inputValue)
+        ? inputValue[index - 1] // clone
+        : JSON.parse(JSON.stringify(this.rulePlaceHolder)) // use placeholder, dereference
       // push placeholder into middle of array
       let newValue = [...inputValue.slice(0, index), rulePlaceHolder, ...inputValue.slice(index)]
       this.$set(this, 'inputValue', newValue)
       this.emitExternalValidations()
       // focus the name element in new row
-      this.setFocus('name-' + index)
+      if (!clone) { // focusing pfFormChosen steals ctrlKey's onkeyup event
+        this.setFocus('name-' + index)
+      }
     },
-    rowDel (index) {
+    rowDel (index, deleteAll = this.ctrlKey) {
       let inputValue = JSON.parse(JSON.stringify(this.inputValue))
-      inputValue.splice(index, 1)
+      if (deleteAll) {
+        inputValue = [] // delete all rows
+      } else {
+        inputValue.splice(index, 1) // delete 1 row
+      }
       this.inputValue = inputValue
       if (this.inputValue.length === 0) {
         this.rowAdd(0)
@@ -411,6 +422,23 @@ export default {
         })
       }, 100)
       */
+    },
+    isRuleVisible (id) {
+      const refs = this.$refs[this.uuidStr('collapse')]
+      if (refs) {
+        let collapse = refs.filter(ref => ref.$el.id === id)[0]
+        if (collapse && 'show' in collapse) {
+          return collapse.show
+        }
+      }
+    },
+    clickRule (id, event) {
+      if (this.ctrlKey) { // [CTRL] + CLICK = toggle all
+        this.$nextTick(() => {
+          const show = this.isRuleVisible(id)
+          this.$refs[this.uuidStr('collapse')].map(ref => { ref.show = show })
+        })
+      }
     }
   },
   mounted () {
@@ -423,7 +451,7 @@ export default {
     this.$nextTick(() => {
       const collapsible = this.$refs[this.uuidStr('collapse')]
       if (this.collapse && collapsible && collapsible.length > 0) {
-        collapsible.map(c => { c.show = false }) // collapse all
+        collapsible.map(ref => { ref.show = false }) // collapse all
       }
     })
   },
@@ -441,21 +469,21 @@ export default {
 @import "../../node_modules/bootstrap/scss/mixins/transition";
 @import "../styles/variables";
 
-.sortablefields-element {
-  .input-group-sortablefields {
+.pf-form-configuration-rules {
+  .input-group {
     border: 1px solid $input-focus-bg;
     @include border-radius($border-radius);
     @include transition($custom-forms-transition);
     outline: 0;
   }
   &.is-focus {
-    .input-group-sortablefields {
+    .input-group {
       border-color: $input-focus-border-color;
       box-shadow: 0 0 0 $input-focus-width rgba($input-focus-border-color, .25);
     }
   }
   &.is-invalid {
-    .input-group-sortablefields {
+    .input-group {
       border-color: $form-feedback-invalid-color;
       box-shadow: 0 0 0 $input-focus-width rgba($form-feedback-invalid-color, .25);
     }
