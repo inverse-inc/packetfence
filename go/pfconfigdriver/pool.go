@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 	"reflect"
-	"sync"
 	"time"
 
 	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/packetfence/go/timedlock"
 )
 
 var PfconfigPool Pool
@@ -19,10 +19,7 @@ var PfconfigPool Pool
 type Pool struct {
 	refreshables []Refreshable
 	structs      map[string]interface{}
-	lock         *sync.RWMutex
-	// The time to wait for the lock for the refresh in ms
-	// Defaults to 1 seconds
-	RefreshLockTimeout time.Duration
+	lock         *timedlock.RWLock
 }
 
 // Init the default global pool when importing this package
@@ -38,8 +35,11 @@ type Refreshable interface {
 // Create a new Pool with a 1 second refresh timeout and initialize the lock
 func NewPool() Pool {
 	p := Pool{}
-	p.lock = &sync.RWMutex{}
-	p.RefreshLockTimeout = time.Duration(100 * time.Millisecond)
+	p.lock = timedlock.NewRWLock()
+	p.lock.Timeout = 100 * time.Millisecond
+	p.lock.RTimeout = 100 * time.Millisecond
+	p.lock.PrintErrors = true
+	p.lock.Panic = false
 	p.structs = make(map[string]interface{})
 	return p
 }
@@ -48,36 +48,39 @@ func NewPool() Pool {
 // All the goroutines that use resources from the pool should call this and release it when they are done
 // Long running processes should aim to retain this lock for the smallest time possible since Refresh will need a RW lock to refresh the resources
 // This lock can be acquired multiple times given its a read lock
-func (p *Pool) ReadLock(ctx context.Context) {
-	p.lock.RLock()
+func (p *Pool) ReadLock(ctx context.Context) (uint64, error) {
+	return p.lock.RLock()
 }
 
 // Unlock the read lock
-func (p *Pool) ReadUnlock(ctx context.Context) {
-	p.lock.RUnlock()
+func (p *Pool) ReadUnlock(ctx context.Context, id uint64) {
+	p.lock.RUnlock(id)
 }
 
 // Add a refreshable resource to the pool
 // Requires the RW lock and will not timeout like Refresh does
 func (p *Pool) AddRefreshable(ctx context.Context, r Refreshable) {
-	p.lock.Lock()
-	defer p.lock.Unlock()
-
-	p.refreshables = append(p.refreshables, r)
-	r.Refresh(ctx)
+	id, err := p.lock.Lock()
+	if err == nil {
+		defer p.lock.Unlock(id)
+		p.refreshables = append(p.refreshables, r)
+		r.Refresh(ctx)
+	}
 }
 
 // Add a struct to the pool
 // Requires the RW lock and will not timeout like Refresh does
 func (p *Pool) AddStruct(ctx context.Context, s interface{}) {
-	p.lock.Lock()
-	defer p.lock.Unlock()
+	id, err := p.lock.Lock()
+	if err == nil {
+		defer p.lock.Unlock(id)
 
-	addr := fmt.Sprintf("%p", s)
-	log.LoggerWContext(ctx).Debug("Adding struct with address " + addr + " to the pool")
+		addr := fmt.Sprintf("%p", s)
+		log.LoggerWContext(ctx).Debug("Adding struct with address " + addr + " to the pool")
 
-	p.structs[addr] = s
-	p.refreshStruct(ctx, s)
+		p.structs[addr] = s
+		p.refreshStruct(ctx, s)
+	}
 }
 
 // Refresh all the refreshables of the pool
@@ -122,30 +125,20 @@ func (p *Pool) refreshStructs(ctx context.Context) {
 // Even if the timeout gets reached, the lock will still be acquired when available but it will be immediately released
 // This is done by sending a message twice in the timeoutChan, one will be caught by the main waiting goroutine, the other one by the lock-waiting goroutine
 // When the lock-waiting goroutine is able to get something out of the timeoutChan channel, it knows it must release the lock immediately
-func (p *Pool) acquireWriteLock(ctx context.Context) bool {
-	// timeoutChan has a capacity of 2 because it signals the timeout to the locking goroutine and the lock-waiting goroutine
-	timeoutChan := make(chan int, 2)
-	go func() {
-		time.Sleep(p.RefreshLockTimeout)
-		timeoutChan <- 1
+func (p *Pool) acquireWriteLock(ctx context.Context) (bool, uint64) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.LoggerWContext(ctx).Error("Couldn't acquire lock for pfconfig pool")
+		}
 	}()
 
-	lockChan := make(chan int, 1)
-	go func() {
-		p.lock.Lock()
-		lockChan <- 1
-	}()
-
-	select {
-	case <-lockChan:
-		log.LoggerWContext(ctx).Debug("Acquired lock for pfconfig pool")
-		return true
-	case <-timeoutChan:
-		log.LoggerWContext(ctx).Error("Couldn't acquire lock for pfconfig pool")
-		p.lock.Unlock()
-		return false
+	id, err := p.lock.Lock()
+	if err != nil {
+		panic("Couldn't acquire lock for pfconfig pool")
 	}
 
+	log.LoggerWContext(ctx).Debug("Acquired lock for pfconfig pool")
+	return err == nil, id
 }
 
 // Refresh all the structs and resources of the pool using the RW lock
@@ -153,10 +146,16 @@ func (p *Pool) acquireWriteLock(ctx context.Context) bool {
 func (p *Pool) Refresh(ctx context.Context) bool {
 	log.LoggerWContext(ctx).Debug("Refreshing pfconfig pool")
 
-	if !p.acquireWriteLock(ctx) {
+	var locked bool
+	var id uint64
+	if locked, id = p.acquireWriteLock(ctx); !locked {
 		return false
 	}
-	defer p.lock.Unlock()
+	log.LoggerWContext(ctx).Debug("Refresh got lock ID", id)
+	defer func(ctx context.Context) {
+		log.LoggerWContext(ctx).Debug("Refresh is releasing lock ID", id)
+		p.lock.Unlock(id)
+	}(ctx)
 
 	p.refreshStructs(ctx)
 	p.refreshRefreshables(ctx)

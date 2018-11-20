@@ -2,12 +2,13 @@ package caddypfconfig
 
 import (
 	"context"
-	"github.com/inverse-inc/packetfence/go/caddy/caddy"
-	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
-	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"net/http"
 	"sync"
 	"time"
+
+	"github.com/inverse-inc/packetfence/go/caddy/caddy"
+	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
 func init() {
@@ -33,20 +34,24 @@ type PoolHandler struct {
 
 // Middleware that ensures there is a read-lock on the pool during every request and released when the request is done
 func (h PoolHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
-	pfconfigdriver.PfconfigPool.ReadLock(r.Context())
-	defer pfconfigdriver.PfconfigPool.ReadUnlock(r.Context())
+	id, err := pfconfigdriver.PfconfigPool.ReadLock(r.Context())
+	if err == nil {
+		defer pfconfigdriver.PfconfigPool.ReadUnlock(r.Context(), id)
 
-	// We launch the refresh job once, the first time a request comes in
-	// This ensures that the pool will run with a context that represents a request (log level for instance)
-	h.refreshLauncher.Do(func() {
-		ctx := r.Context()
-		go func(ctx context.Context) {
-			for {
-				pfconfigdriver.PfconfigPool.Refresh(ctx)
-				time.Sleep(1 * time.Second)
-			}
-		}(ctx)
-	})
+		// We launch the refresh job once, the first time a request comes in
+		// This ensures that the pool will run with a context that represents a request (log level for instance)
+		h.refreshLauncher.Do(func() {
+			ctx := r.Context()
+			go func(ctx context.Context) {
+				for {
+					pfconfigdriver.PfconfigPool.Refresh(ctx)
+					time.Sleep(1 * time.Second)
+				}
+			}(ctx)
+		})
 
-	return h.Next.ServeHTTP(w, r)
+		return h.Next.ServeHTTP(w, r)
+	} else {
+		panic("Unable to obtain pfconfigpool lock in caddy middleware")
+	}
 }
