@@ -51,6 +51,18 @@ has_field 'activation_domain' =>
     },
   );
 
+has_field 'allowed_domains' =>
+  (
+   'type' => 'Text',
+    label => 'Comma seperated list of Allowed Domains',
+  );
+
+has_field 'banned_domains' =>
+  (
+   'type' => 'Text',
+    label => 'Comma seperated list of Banned Domains',
+  );
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005-2018 Inverse inc.
