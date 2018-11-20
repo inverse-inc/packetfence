@@ -223,7 +223,7 @@
             column-label="Actions"
             :type-label="$t('Select action type')"
             :value-label="$t('Select action value')"
-            :fields="actionFields"
+            :fields="userActions"
             :validation="$v.actions"
             :invalid-feedback="[
               { [$t('One or more errors exist.')]: !$v.actions.anyError }
@@ -251,13 +251,10 @@ import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormToggle from '@/components/pfFormToggle'
-
 import {
   required,
   minLength,
   maxLength,
-  minValue,
-  maxValue,
   numeric
 } from 'vuelidate/lib/validators'
 import {
@@ -265,20 +262,14 @@ import {
   not,
   conditional,
   compareDate,
-  isDateFormat,
-  userExists,
-  requireAllSiblingFieldTypes,
-  requireAnySiblingFieldTypes,
-  restrictAllSiblingFieldTypes,
-  limitSiblingFieldTypes
+  userExists
 } from '@/globals/pfValidators'
-import { pfRegExp as regExp } from '@/globals/pfRegExp'
 import {
   pfDatabaseSchema as schema,
   buildValidationFromTableSchemas
 } from '@/globals/pfDatabaseSchema'
-import { pfFieldType as fieldType } from '@/globals/pfField'
-import bytes from '@/utils/bytes'
+import { pfRegExp as regExp } from '@/globals/pfRegExp'
+import { pfConfigurationActions } from '@/globals/pfConfiguration'
 
 const { validationMixin } = require('vuelidate')
 
@@ -301,131 +292,15 @@ export default {
         regExp: regExp,
         schema: schema
       },
-      actionFields: [
-        {
-          value: 'set_access_duration',
-          text: this.$i18n.t('Access duration'),
-          types: [fieldType.DURATION],
-          validators: {
-            type: {
-              /* Require "set_role" */
-              [this.$i18n.t('Action requires "Set Role".')]: requireAllSiblingFieldTypes('set_role'),
-              /* Restrict "set_unreg_date" */
-              [this.$i18n.t('Action conflicts with "Unregistration date".')]: restrictAllSiblingFieldTypes('set_unreg_date'),
-              /* Don't allow elsewhere */
-              [this.$i18n.t('Action exists.')]: limitSiblingFieldTypes(0)
-            },
-            value: {
-              [this.$i18n.t('Value required.')]: required
-            }
-          }
-        },
-        {
-          value: 'set_access_level',
-          text: this.$i18n.t('Access level'),
-          types: [fieldType.ADMINROLE],
-          validators: {
-            type: {
-              /* Don't allow elsewhere */
-              [this.$i18n.t('Action exists.')]: limitSiblingFieldTypes(0)
-            },
-            value: {
-              [this.$i18n.t('Value required.')]: required
-            }
-          }
-        },
-        {
-          value: 'set_bandwidth_balance',
-          text: this.$i18n.t('Bandwidth balance'),
-          types: [fieldType.PREFIXMULTIPLIER],
-          validators: {
-            type: {
-              /* Don't allow elsewhere */
-              [this.$i18n.t('Action exists.')]: limitSiblingFieldTypes(0)
-            },
-            value: {
-              [this.$i18n.t('Value required.')]: required,
-              [this.$i18n.t('Value must be greater than {min}bytes.', { min: bytes.toHuman(schema.node.bandwidth_balance.min) })]: minValue(schema.node.bandwidth_balance.min),
-              [this.$i18n.t('Value must be less than {max}bytes.', { max: bytes.toHuman(schema.node.bandwidth_balance.max) })]: maxValue(schema.node.bandwidth_balance.max)
-            }
-          }
-        },
-        {
-          value: 'mark_as_sponsor',
-          text: this.$i18n.t('Mark as sponsor'),
-          types: [fieldType.NONE],
-          validators: {
-            type: {
-              /* Don't allow elsewhere */
-              [this.$i18n.t('Action exists.')]: limitSiblingFieldTypes(0)
-            }
-          }
-        },
-        {
-          value: 'set_role',
-          text: this.$i18n.t('Role'),
-          types: [fieldType.ROLE],
-          validators: {
-            type: {
-              /* When "Role" is selected, either "Time Balance" or "set_unreg_date" is required */
-              [this.$i18n.t('Action requires either "Access duration" or "Unregistration date".')]: requireAnySiblingFieldTypes('set_access_duration', 'set_unreg_date'),
-              /* Don't allow elsewhere */
-              [this.$i18n.t('Action exists.')]: limitSiblingFieldTypes(0)
-            },
-            value: {
-              [this.$i18n.t('Value required.')]: required
-            }
-          }
-        },
-        {
-          value: 'set_tenant_id',
-          text: this.$i18n.t('Tenant ID'),
-          types: [fieldType.TENANT],
-          validators: {
-            type: {
-              /* Don't allow elsewhere */
-              [this.$i18n.t('Action exists.')]: limitSiblingFieldTypes(0)
-            },
-            value: {
-              [this.$i18n.t('Value required.')]: required,
-              [this.$i18n.t('Value must be numeric.')]: numeric
-            }
-          }
-        },
-        {
-          value: 'set_time_balance',
-          text: this.$i18n.t('Time balance'),
-          types: [fieldType.DURATION],
-          validators: {
-            type: {
-              /* Don't allow elsewhere */
-              [this.$i18n.t('Action exists.')]: limitSiblingFieldTypes(0)
-            },
-            value: {
-              [this.$i18n.t('Value required.')]: required
-            }
-          }
-        },
-        {
-          value: 'set_unreg_date',
-          text: this.$i18n.t('Unregistration date'),
-          types: [fieldType.DATETIME],
-          moments: ['1 days', '1 weeks', '1 months', '1 years'],
-          validators: {
-            type: {
-              /* Require "set_role" */
-              [this.$i18n.t('Action requires "Set Role".')]: requireAllSiblingFieldTypes('set_role'),
-              /* Restrict "set_access_duration" */
-              [this.$i18n.t('Action conflicts with "Access duration".')]: restrictAllSiblingFieldTypes('set_access_duration'),
-              /* Don't allow elsewhere */
-              [this.$i18n.t('Action exists.')]: limitSiblingFieldTypes(0)
-            },
-            value: {
-              [this.$i18n.t('Future date required.')]: compareDate('>=', new Date(), schema.node.unregdate.format, false),
-              [this.$i18n.t('Invalid date.')]: isDateFormat(schema.node.unregdate.format)
-            }
-          }
-        }
+      userActions: [
+        pfConfigurationActions.set_access_duration,
+        pfConfigurationActions.set_access_level,
+        pfConfigurationActions.set_bandwidth_balance,
+        pfConfigurationActions.mark_as_sponsor,
+        pfConfigurationActions.set_role,
+        pfConfigurationActions.set_tenant_id,
+        pfConfigurationActions.set_time_balance,
+        pfConfigurationActions.set_unreg_date
       ],
       modeIndex: 0,
       single: {
