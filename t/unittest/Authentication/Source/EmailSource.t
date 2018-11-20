@@ -22,16 +22,49 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 3;
+our @TESTS = (
+    {
+        name => 'email',
+        allowed => [qw(j@bob.com)],
+        banned => [qw(j@bbob.com j@bobby.com)],
+    },
+    {
+        name => 'email2',
+        allowed => [qw(j@zozz.com)],
+        banned => [qw(j@zoz.com)],
+    },
+    {
+        name => 'email3',
+        allowed => [qw(j@zozz.com j@zoz.com)],
+    },
+    {
+        name => 'email4',
+        allowed => [qw(j@bob.com j@bbob.com)],
+        banned => [qw(j@zoz.com j@bob.comm)],
+    },
+);
+
+use Test::More;
 use pf::authentication;
 
 #This test will running last
 use Test::NoWarnings;
+use List::Util qw(sum);
 
-my $source = getAuthenticationSource('email');
+my $tests = sum 1, map { ( scalar @{$_->{allowed} // []}, scalar @{$_->{banned} // []}) } @TESTS;
 
-ok($source->isEmailAllowed('j@bob.com'), "Email is allowed");
-ok(!$source->isEmailAllowed('j@bobby.com'), "Email is not allowed");
+plan tests => $tests;
+
+for my $test (@TESTS) {
+    my $source = getAuthenticationSource($test->{name});
+    for my $e (@{$test->{allowed} // []}) {
+        ok($source->isEmailAllowed($e), "Email ($e) is allowed");
+    }
+
+    for my $e (@{$test->{banned} // []}) {
+        ok(!$source->isEmailAllowed($e), "Email ($e) is banned");
+    }
+}
 
 =head1 AUTHOR
 

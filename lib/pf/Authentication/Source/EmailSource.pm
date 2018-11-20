@@ -26,6 +26,7 @@ has 'allow_localdomain' => (isa => 'Str', is => 'rw', default => 'yes');
 has 'email_activation_timeout' => (isa => 'Str', is => 'rw', default => '10m');
 has 'activation_domain' => (isa => 'Maybe[Str]', is => 'rw');
 has 'allowed_domains' => (isa => 'Maybe[ArrayRef[Str]]', is => 'rw');
+has 'banned_domains' => (isa => 'Maybe[ArrayRef[Str]]', is => 'rw');
 
 =head2 dynamic_routing_module
 
@@ -129,12 +130,35 @@ isEmailAllowed
 
 sub isEmailAllowed {
     my ($self, $email) = @_;
-    my $allowed_domains = $self->allowed_domains;
-    if (!defined $allowed_domains || @$allowed_domains == 0) {
-        return $TRUE;
+    my @allowed = $self->domains_regexes($self->allowed_domains);
+    if (@allowed) {
+        return (any {$email =~ $_} @allowed) ? $TRUE : $FALSE;
     }
 
-    return (any {$email =~ /\Q$_\E$/} @$allowed_domains)  ? $TRUE :  $FALSE;
+    my @banned = $self->domains_regexes($self->banned_domains);
+    if (@banned) {
+        return (any {$email =~ $_} @banned ) ? $FALSE : $TRUE;
+    }
+
+    return $TRUE;
+}
+
+sub domains_regexes {
+    my ($self, $domains) = @_;
+    return map { make_regex($_) } @{$domains // []};
+}
+
+sub make_regex {
+    my ($d) = @_;
+    local $_;
+    if ($d =~ /\*/) {
+        $d =~ s/\./\\./g;
+        $d =~ s/\*/\.\*/g;
+        $d = "\@$d\$";
+        return qr/$d/;
+    }
+
+    return qr/@\Q$d\E$/;
 }
 
 =head1 AUTHOR
