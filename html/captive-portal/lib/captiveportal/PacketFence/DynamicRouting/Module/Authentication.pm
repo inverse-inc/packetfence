@@ -325,6 +325,12 @@ sub prompt_fields {
     my ($self, $args) = @_;
     $args //= {};
     my %saved_fields = %{$self->app->session->{saved_fields}} if (defined ($self->app->session->{saved_fields}) );
+
+    if($self->with_aup && scalar(@{$self->required_fields}) == 1) {
+        get_logger->debug("Only AUP is required, will not prompt for any fields");
+        $args->{aup_only} = $TRUE;
+    }
+
     $self->render($self->signup_template, {
         previous_request => $self->app->request->parameters(),
         fields => $self->merged_fields,

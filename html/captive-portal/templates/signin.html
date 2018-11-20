@@ -8,6 +8,11 @@
     <div class="c-card u-padding u-padding@tablet u-padding-top-none">
         [% form.get_field('aup').render | none %]
     </div>
+
+      [% IF aup_only %]
+      <script src="/common/aup-autosubmit.js">
+      [% END %]
+
     [% END %]
 
     <div class="c-card[% IF fields.exists('aup') %] c-card--hidden c-card--disabled[% END %] o-layout o-layout--center u-padding">
