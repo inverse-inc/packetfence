@@ -4228,7 +4228,7 @@ NOTE: `switches.conf` is loaded at startup. A reload is required when changes
 are manually made to this file `/usr/local/pf/bin/pfcmd configreload`.
 
 Switch import from CSV
-^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^
 
 Using this, you will able to import a list of switches and update its description and switch group.
 
