@@ -171,7 +171,7 @@ sub newAuthenticationSource {
 
 sub cleanup_after_read {
     my ( $self, $id, $data ) = @_;
-    $self->expand_list( $data, qw(realms local_realm reject_realm allowed_domains) );
+    $self->expand_list( $data, qw(realms local_realm reject_realm allowed_domains banned_domains) );
 }
 
 =head1 AUTHOR
