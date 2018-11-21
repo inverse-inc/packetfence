@@ -230,9 +230,9 @@
               ></pf-form-prefix-multiplier>
 
             </b-col>
-            <b-col col align-self="start" class="text-center text-nowrap col-form-label pt-">
-              <icon name="minus-circle" v-if="inputValue.length > 1" :class="['cursor-pointer mx-1', , { 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }]" v-b-tooltip.hover.left.d300 :title="$t('Delete Action')" @click.native.stop.prevent="rowDel(index)"></icon>
-              <icon name="plus-circle" :class="['cursor-pointer mx-1', , { 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }]" v-b-tooltip.hover.left.d300 :title="$t('Add Action')" @click.native.stop.prevent="rowAdd(index + 1)"></icon>
+            <b-col col align-self="start" class="text-center text-nowrap col-form-label pt-2">
+              <icon name="minus-circle" v-if="inputValue.length > 1" :class="['cursor-pointer mx-1', { 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }]" v-b-tooltip.hover.left.d300 :title="$t((ctrlKey) ? 'Delete All Actions' : 'Delete Action')" @click.native.stop.prevent="rowDel(index)"></icon>
+              <icon name="plus-circle" :class="['cursor-pointer mx-1', { 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }]" v-b-tooltip.hover.left.d300 :title="$t((ctrlKey) ? 'Clone Action' : 'Add Action')" @click.native.stop.prevent="rowAdd(index + 1)"></icon>
             </b-col>
           </b-form-row>
         </draggable>
@@ -376,18 +376,18 @@ export default {
       }
     },
     rowDel (index, deleteAll = this.ctrlKey) {
-      let inputValue = JSON.parse(JSON.stringify(this.inputValue))
       if (deleteAll) {
-        inputValue = [] // delete all rows
+        this.inputValue = [] // delete all rows
       } else {
-        inputValue.splice(index, 1) // delete 1 row
+        this.inputValue.splice(index, 1) // delete 1 row
       }
-      this.inputValue = inputValue
-      if (this.inputValue.length === 0) {
-        this.rowAdd(0)
-      } else {
-        this.emitExternalValidations()
-      }
+      this.$nextTick(() => {
+        if (this.inputValue.length === 0) {
+          this.rowAdd(0)
+        } else {
+          this.emitExternalValidations()
+        }
+      })
     },
     onDragStart (event) {
       this.drag = true
