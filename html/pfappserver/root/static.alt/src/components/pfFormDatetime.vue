@@ -336,13 +336,14 @@ export default {
       border-bottom-right-radius: $border-radius;
     }
   }
-  &.is-focus .input-group-datetime,
-  &.is-focus .bootstrap-datetimepicker-widget {
+  .bootstrap-datetimepicker-widget {
+    border: $dropdown-border-width solid $dropdown-border-color;
+  }
+  &.is-focus .input-group-datetime {
     border: 1px solid $input-focus-border-color;
     box-shadow: 0 0 0 $input-focus-width rgba($input-focus-border-color, .25);
   }
-  &.is-invalid .input-group-datetime,
-  &.is-invalid .bootstrap-datetimepicker-widget {
+  &.is-invalid .input-group-datetime {
     border: 1px solid $form-feedback-invalid-color;
     box-shadow: 0 0 0 $input-focus-width rgba($form-feedback-invalid-color, .25);
   }
