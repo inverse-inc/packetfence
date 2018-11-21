@@ -130,13 +130,13 @@ sub cleanupAfterRead {
         }
     }
 
-    $self->expand_list($item, $self->_fields_expanded($item);
+    $self->expand_list($item, $self->_fields_expanded($item));
 }
 
 
 sub cleanupBeforeCommit {
     my ($self, $id, $item) = @_;
-    $self->flatten_list($item, $self->_fields_expanded($item);
+    $self->flatten_list($item, $self->_fields_expanded($item));
 }
 
 before rewriteConfig => sub {
