@@ -230,9 +230,9 @@
               ></pf-form-prefix-multiplier>
 
             </b-col>
-            <b-col col align-self="start" class="text-center text-nowrap col-form-label pt-2">
-              <icon name="minus-circle" v-if="inputValue.length > 1" class="cursor-pointer mx-1" v-b-tooltip.hover.left.d300 :title="$t('Delete Action')" @click.native.stop.prevent="rowDel(index)"></icon>
-              <icon name="plus-circle" class="cursor-pointer mx-1" v-b-tooltip.hover.left.d300 :title="$t('Add Action')" @click.native.stop.prevent="rowAdd(index + 1)"></icon>
+            <b-col col align-self="start" class="text-center text-nowrap col-form-label pt-">
+              <icon name="minus-circle" v-if="inputValue.length > 1" :class="['cursor-pointer mx-1', , { 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }]" v-b-tooltip.hover.left.d300 :title="$t('Delete Action')" @click.native.stop.prevent="rowDel(index)"></icon>
+              <icon name="plus-circle" :class="['cursor-pointer mx-1', , { 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }]" v-b-tooltip.hover.left.d300 :title="$t('Add Action')" @click.native.stop.prevent="rowAdd(index + 1)"></icon>
             </b-col>
           </b-form-row>
         </draggable>
@@ -365,7 +365,7 @@ export default {
     rowAdd (index, clone = this.ctrlKey) {
       let inputValue = this.inputValue
       let valuePlaceHolder = (clone && (index - 1) in inputValue)
-        ? inputValue[index - 1] // clone
+        ? JSON.parse(JSON.stringify(inputValue[index - 1])) // clone
         : JSON.parse(JSON.stringify(this.valuePlaceHolder)) // use placeholder, dereference
       // push placeholder into middle of array
       this.inputValue = [...inputValue.slice(0, index), valuePlaceHolder, ...inputValue.slice(index)]

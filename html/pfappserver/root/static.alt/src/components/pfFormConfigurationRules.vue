@@ -30,16 +30,20 @@
               @mousemove="onMouseEnter(index)"
               no-gutter
             >
-              <b-col col v-if="sortable && hover === index && inputValue.length > 1" class="drag-handle text-center"><icon name="th" v-b-tooltip.hover.left.d300 :title="$t('Click and drag to re-order')"></icon></b-col>
-              <b-col col v-else class="drag-index text-center"><b-badge variant="light">{{ index + 1 }}</b-badge></b-col>
+              <b-col col v-if="sortable && hover === index && inputValue.length > 1" class="drag-handle text-center">
+                <icon name="th" v-b-tooltip.hover.left.d300 :title="$t('Click and drag to re-order')"></icon>
+              </b-col>
+              <b-col col v-else class="drag-index text-center">
+                <b-badge variant="light">{{ index + 1 }}</b-badge>
+              </b-col>
               <b-col cols="10" class="collapse-handle text-primary" v-b-toggle="uuidStr('collapse' + index)" @click.prevent="clickRule(uuidStr('collapse' + index), $event)">
-                <icon v-if="isRuleVisible(uuidStr('collapse' + index))" :name="(ctrlKey) ? 'chevron-circle-down' : 'chevron-down'" class="mr-3"></icon>
-                <icon v-else :name="(ctrlKey) ? 'chevron-circle-right' : 'chevron-right'" class="mr-3"></icon>
+                <icon v-if="isRuleVisible(uuidStr('collapse' + index))" name="chevron-circle-down" :class="['mr-3', { 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }]"></icon>
+                <icon v-else name="chevron-circle-right" :class="['mr-3', { 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }]"></icon>
                 <span>Rule - {{ getValue(index, 'id') || 'New' }} ( {{ getValue(index, 'description') }} )</span>
               </b-col>
               <b-col col class="text-right text-nowrap">
-                <icon name="minus-circle" class="cursor-pointer mx-1" v-b-tooltip.hover.left.d300 :title="$t('Delete Rule')" @click.native.stop.prevent="rowDel(index)"></icon>
-                <icon name="plus-circle" class="cursor-pointer mx-1" v-b-tooltip.hover.left.d300 :title="$t('Add Rule')" @click.native.stop.prevent="rowAdd(index + 1)"></icon>
+                <icon name="minus-circle" :class="['cursor-pointer mx-1', { 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }]" v-b-tooltip.hover.left.d300 :title="$t('Delete Rule')" @click.native.stop.prevent="rowDel(index)"></icon>
+                <icon name="plus-circle" :class="['cursor-pointer mx-1', { 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }]" v-b-tooltip.hover.left.d300 :title="$t('Add Rule')" @click.native.stop.prevent="rowAdd(index + 1)"></icon>
               </b-col>
             </b-form-row>
             <b-collapse :id="uuidStr('collapse' + index)" :ref="uuidStr('collapse')" class="mt-2" :visible="true">
@@ -246,7 +250,7 @@ export default {
       // dereference inputValue
       let inputValue = JSON.parse(JSON.stringify(this.inputValue))
       let rulePlaceHolder = (clone && (index - 1) in inputValue)
-        ? inputValue[index - 1] // clone
+        ? JSON.parse(JSON.stringify(inputValue[index - 1])) // clone
         : JSON.parse(JSON.stringify(this.rulePlaceHolder)) // use placeholder, dereference
       // push placeholder into middle of array
       let newValue = [...inputValue.slice(0, index), rulePlaceHolder, ...inputValue.slice(index)]
@@ -274,10 +278,21 @@ export default {
     onDragStart (event) {
       this.drag = true
       this.hover = null
+      // store expanded rules for onDragEnd
+      this.expandedRules = this.$refs[this.uuidStr('collapse')].filter(ref => ref.show).map(ref => ref.$el.id)
     },
     onDragEnd (event) {
       this.drag = false
       this.emitExternalValidations()
+      // reset expanded rules
+      console.log('expandedRules', this.expandedRules)
+      this.$nextTick(() => {
+      // TODO
+        this.$refs[this.uuidStr('collapse')].map(ref => {
+          console.log(ref.show, ref.$el.id, this.expandedRules.includes(ref.$el.id))
+          this.$set(ref, 'show', !!(this.expandedRules.includes(ref.$el.id)))
+        })
+      })
     },
     onMouseEnter (index) {
       if (this.drag) return
