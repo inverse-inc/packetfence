@@ -22,9 +22,9 @@
     </template>
     <template slot="footer" is="b-card-footer" @mouseenter="$v.source.$touch()">
       <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
-        <icon v-if="ctrlKey" name="step-backward" class="mx-1"></icon>
         <template v-if="isNew">{{ $t('Create') }}</template>
         <template v-else-if="isClone">{{ $t('Clone') }}</template>
+        <template v-else-if="ctrlKey">{{ $t('Save &amp; Close') }}</template>
         <template v-else>{{ $t('Save') }}</template>
       </pf-button-save>
       <pf-button-delete v-if="!isNew && !isClone" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Source?')" @on-delete="remove()"/>
