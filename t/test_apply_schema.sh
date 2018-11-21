@@ -47,10 +47,18 @@ $MYSQL $UPGRADED_DB < "$LAST_SCHEMA"
 echo "Applying upgrade script $UPGRADE_SCRIPT"
 
 $MYSQL $UPGRADED_DB < "$UPGRADE_SCRIPT"
+if [ $? != "0" ];then
+    echo "Error applying upgrade script $UPGRADE_SCRIPT"
+    exit 1;
+fi
 
 echo "Applying current schema $CURRENT_SCHEMA"
 
 $MYSQL $PRISTINE_DB < "$CURRENT_SCHEMA"
+if [ $? != "0" ];then
+    echo "Error applying current schema $CURRENT_SCHEMA"
+    exit 1;
+fi
 
 for db in $UPGRADED_DB $PRISTINE_DB;do
     $MYSQLDUMP $db > "${db}.dump"
