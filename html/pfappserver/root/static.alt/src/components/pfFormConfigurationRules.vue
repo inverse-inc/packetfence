@@ -246,8 +246,7 @@ export default {
         ? JSON.parse(JSON.stringify(inputValue[index - 1])) // clone
         : JSON.parse(JSON.stringify(this.rulePlaceHolder)) // use placeholder, dereference
       // push placeholder into middle of array
-      let newValue = [...inputValue.slice(0, index), rulePlaceHolder, ...inputValue.slice(index)]
-      this.$set(this, 'inputValue', newValue)
+      this.inputValue = [...inputValue.slice(0, index), rulePlaceHolder, ...inputValue.slice(index)]
       this.emitExternalValidations()
       // focus the name element in new row
       if (!clone) { // focusing pfFormChosen steals ctrlKey's onkeyup event
@@ -276,16 +275,14 @@ export default {
     },
     onDragEnd (event) {
       this.drag = false
-      this.emitExternalValidations()
-      // reset visibility
+      // resort visibility
+      let visibleRules = this.visibleRules
+      visibleRules = [...visibleRules.slice(0, event.oldIndex), ...visibleRules.slice(event.oldIndex + 1)]
+      visibleRules = [...visibleRules.slice(0, event.newIndex), this.visibleRules[event.oldIndex], ...visibleRules.slice(event.newIndex + 1)]
       this.$refs[this.uuidStr('collapse')].map((ref, index) => {
-        if (index === event.oldIndex) {
-          ref.show = this.visibleRules[event.newIndex]
-        }
-        if (index === event.newIndex) {
-          ref.show = this.visibleRules[event.oldIndex]
-        }
+        ref.show = visibleRules[index]
       })
+      this.emitExternalValidations()
     },
     onMouseEnter (index) {
       if (this.drag) return
