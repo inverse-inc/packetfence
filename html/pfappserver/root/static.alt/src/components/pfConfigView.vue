@@ -20,9 +20,10 @@
             <template v-for="field in row.fields">
               <span v-if="field.text" :key="field.index" :class="field.class">{{ field.text }}</span>
               <component v-else-if="!('if' in field) || field.if"
+                v-bind="field.attrs"
                 :key="field.key"
                 :is="field.component || defaultComponent"
-                v-bind="field.attrs"
+                :isLoading="isLoading"
                 :validation="getValidation(field.key)"
                 :class="getClass(row, field)"
                 :value="getValue(field.key)"
@@ -44,7 +45,6 @@
 </template>
 
 <script>
-import Vue from 'vue'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfFormInput from '@/components/pfFormInput'
@@ -116,7 +116,7 @@ export default {
         if (!(first in model)) this.$set(model, first, {})
         return this.setValue(remainder, value, model[first])
       }
-      Vue.set(model, key, value)
+      this.$set(model, key, value)
     },
     getValidation (key, model = this.validation) {
       if (key.includes('.')) { // handle dot-notation keys ('.')
@@ -138,7 +138,7 @@ export default {
           setEachFieldValue(remainder, value, model[first])
           return
         }
-        Vue.set(model, key, value)
+        this.$set(model, key, value)
       }
       if (this.form.fields.length > 0) {
         this.form.fields.forEach((row, index) => {
@@ -187,7 +187,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .input-group > span {
   display: flex;
   justify-contents: center;
