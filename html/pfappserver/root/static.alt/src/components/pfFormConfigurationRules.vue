@@ -175,6 +175,7 @@ export default {
       hover:                    null,
       drag:                     false,
       actionFields:             actionFields,
+      actionsValidations:       {}, // will be overloaded with data from the pfConfigActions
       /* Generic field types */
       noValueType:              fieldType.NONE,
       integerValueType:         fieldType.INTEGER,
@@ -270,20 +271,20 @@ export default {
     onDragStart (event) {
       this.drag = true
       this.hover = null
-      // store expanded rules for onDragEnd
-      this.expandedRules = this.$refs[this.uuidStr('collapse')].filter(ref => ref.show).map(ref => ref.$el.id)
+      // store visible rules for onDragEnd
+      this.visibleRules = this.$refs[this.uuidStr('collapse')].map(ref => ref.show)
     },
     onDragEnd (event) {
       this.drag = false
       this.emitExternalValidations()
-      // reset expanded rules
-      console.log('expandedRules', this.expandedRules)
-      this.$nextTick(() => {
-      // TODO
-        this.$refs[this.uuidStr('collapse')].map(ref => {
-          console.log(ref.show, ref.$el.id, this.expandedRules.includes(ref.$el.id))
-          this.$set(ref, 'show', !!(this.expandedRules.includes(ref.$el.id)))
-        })
+      // reset visibility
+      this.$refs[this.uuidStr('collapse')].map((ref, index) => {
+        if (index === event.oldIndex) {
+          ref.show = this.visibleRules[event.newIndex]
+        }
+        if (index === event.newIndex) {
+          ref.show = this.visibleRules[event.oldIndex]
+        }
       })
     },
     onMouseEnter (index) {
