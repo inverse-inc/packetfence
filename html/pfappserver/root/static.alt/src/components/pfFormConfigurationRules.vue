@@ -42,8 +42,8 @@
                 <span>Rule - {{ getValue(index, 'id') || 'New' }} ( {{ getValue(index, 'description') }} )</span>
               </b-col>
               <b-col col class="text-right text-nowrap">
-                <icon name="minus-circle" :class="['cursor-pointer mx-1', { 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }]" v-b-tooltip.hover.left.d300 :title="$t('Delete Rule')" @click.native.stop.prevent="rowDel(index)"></icon>
-                <icon name="plus-circle" :class="['cursor-pointer mx-1', { 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }]" v-b-tooltip.hover.left.d300 :title="$t('Add Rule')" @click.native.stop.prevent="rowAdd(index + 1)"></icon>
+                <icon name="minus-circle" :class="['cursor-pointer mx-1', { 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }]" v-b-tooltip.hover.left.d300 :title="$t((ctrlKey) ? 'Delete All Rules' : 'Delete Rule')" @click.native.stop.prevent="rowDel(index)"></icon>
+                <icon name="plus-circle" :class="['cursor-pointer mx-1', { 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }]" v-b-tooltip.hover.left.d300 :title="$t((ctrlKey) ? 'Clone Rule' : 'Add Rule')" @click.native.stop.prevent="rowAdd(index + 1)"></icon>
               </b-col>
             </b-form-row>
             <b-collapse :id="uuidStr('collapse' + index)" :ref="uuidStr('collapse')" class="mt-2" :visible="true">
@@ -84,14 +84,6 @@
                     :value-label="$t('Select action value')"
                     :fields="actions"
                   ></pf-form-actions>
-                  <!--
-                    zzzv-model="actions"
-                    :zzzvalidation="$v.actions"
-                    :zzzinvalid-feedback="[
-                      { [$t('One or more errors exist.')]: !$v.actions.anyError }
-                    ]"
-                    @zzzvalidations="actionsValidations = $event"
-                  -->
                 </b-col>
               </b-form-row>
             </b-collapse>
