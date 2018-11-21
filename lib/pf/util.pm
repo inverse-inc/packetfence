@@ -99,7 +99,7 @@ BEGIN {
         connection_type_to_str
         str_to_connection_type
         validate_unregdate
-        find_outgoing_src
+        find_outgoing_srcip
     );
 }
 
@@ -1450,7 +1450,7 @@ sub find_outgoing_interface {
     }
 }
 
-=head2 find_outgoing_src
+=head2 find_outgoing_srcip
 
 Find the src_ip to reach the target
 

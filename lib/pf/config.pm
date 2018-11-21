@@ -167,6 +167,8 @@ our (
     %ConfigDeviceRegistration,
 #ldap authentication sources
     %ConfigAuthenticationLdap,
+# Radius sources
+    %ConfigAuthenticationRadius,
 );
 
 BEGIN {
