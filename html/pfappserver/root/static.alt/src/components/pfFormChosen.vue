@@ -8,6 +8,7 @@
         v-bind="$attrs"
         v-on="forwardListeners"
         ref="input"
+        :showLabels="false"
         :id="id"
         :multiple="multiple"
         :options="options"
@@ -116,6 +117,7 @@ export default {
 <style lang="scss">
 @import "../../node_modules/bootstrap/scss/functions";
 @import "../../node_modules/bootstrap/scss/mixins/border-radius";
+@import "../../node_modules/bootstrap/scss/mixins/box-shadow";
 @import "../../node_modules/bootstrap/scss/mixins/transition";
 @import "../styles/variables";
 
@@ -149,15 +151,21 @@ export default {
     line-height: $input-line-height;
     color: $input-color;
     padding: 0px;
+    &::placeholder {
+      color: $input-placeholder-color;
+    }
   }
   .multiselect__placeholder {
+    color: $input-placeholder-color;
+    font-size: $font-size-base;
     margin-bottom: 0px;
     padding-top: 0px;
   }
   .multiselect__content-wrapper {
-      border-left-width: 1px;
-      border-right-width: 1px;
-      z-index: 3;
+      border: $dropdown-border-width solid $dropdown-border-color;
+      @include border-radius($dropdown-border-radius);
+      @include box-shadow($dropdown-box-shadow);
+      z-index: $zindex-dropdown;
   }
   .multiselect--active:not(.multiselect--above) {
     .multiselect__content-wrapper {
@@ -170,31 +178,24 @@ export default {
     }
   }
   .multiselect--above {
-    .mulitselect__content-wrapper {
-      border-top-width: 1px;
+    .multiselect__content-wrapper {
       border-bottom-width: 0px;
-      border-top-left-radius: $border-radius !important;
-      border-top-right-radius: $border-radius !important;
       border-bottom-left-radius: 0 !important;
       border-bottom-right-radius: 0 !important;
     }
+  }
+  .multiselect__option--highlight {
+    color: $dropdown-link-active-color;
+    background-color: $dropdown-link-active-bg;
   }
   &.is-focus {
     .multiselect__tags {
       border-color: $input-focus-border-color;
     }
-    .multiselect__content-wrapper {
-      border-color: $input-focus-border-color;
-      box-shadow: 0 0 0 $input-focus-width rgba($input-focus-border-color, .25);
-    }
   }
   &.is-invalid {
     .multiselect__tags {
       border-color: $form-feedback-invalid-color;
-    }
-    .multiselect__content-wrapper {
-      border-color: $form-feedback-invalid-color;
-      box-shadow: 0 0 0 $input-focus-width rgba($form-feedback-invalid-color, .25);
     }
   }
 }
