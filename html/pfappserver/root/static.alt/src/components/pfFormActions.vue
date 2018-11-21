@@ -515,8 +515,9 @@ export default {
       return feedback.join('<br/>')
     },
     getMoments (index) {
-      if ('moments' in this.inputValue[index].type) {
-        return this.inputValue[index].type.moments
+      const field = this.fields.find(field => field.value === this.inputValue[index].type)
+      if (field && 'moments' in field) {
+        return field.moments
       }
       return null
     },
