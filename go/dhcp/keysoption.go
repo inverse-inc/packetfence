@@ -36,7 +36,7 @@ func MysqlGet(key string) (string, string) {
 }
 
 func MysqlDel(key string) bool {
-	rows, err := MySQLdatabase.Query("delete from ikey_value_storage where id = ?", "/dhcpd/"+key)
+	rows, err := MySQLdatabase.Query("delete from key_value_storage where id = ?", "/dhcpd/"+key)
 	defer rows.Close()
 	if err != nil {
 		log.LoggerWContext(ctx).Error("Error while deleting MySQL key '" + key + "': " + err.Error())
