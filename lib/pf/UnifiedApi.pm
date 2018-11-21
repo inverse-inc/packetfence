@@ -166,6 +166,7 @@ our @API_V1_ROUTES = (
         },
     },
     { controller => 'DhcpOption82s' },
+    { controller => 'AuthLogs' },
     {
         controller  => 'Ip4logs',
         collection => {
