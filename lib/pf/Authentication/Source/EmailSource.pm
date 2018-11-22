@@ -28,6 +28,35 @@ has 'activation_domain' => (isa => 'Maybe[Str]', is => 'rw');
 has 'allowed_domains' => (isa => 'Maybe[ArrayRef[Str]]', is => 'rw');
 has 'banned_domains' => (isa => 'Maybe[ArrayRef[Str]]', is => 'rw');
 
+=head2 BUILDARGS
+
+BUILDARGS
+
+=cut
+
+around BUILDARGS => sub {
+    my $orig  = shift;
+    my $class = shift;
+    my %hash;
+    if (@_ == 1) {
+        if (ref($_[0]) ne 'HASH') {
+            return $class->$orig(@_);
+        }
+
+        %hash = %{$_[0]};
+    } else {
+        %hash = @_;
+    }
+
+    for my $f (qw(allowed_domains banned_domains)) {
+        next unless $hash{$f};
+        $hash{$f} = [ map { split(/\r?\n/) } expand_csv($hash{$f})];
+    }
+
+    my $args = $class->$orig(\%hash);
+    return $args;
+};
+
 =head2 dynamic_routing_module
 
 Which module to use for DynamicRouting
@@ -43,12 +72,11 @@ Allow to make a condition on the user's email address.
 =cut
 
 sub available_attributes {
-  my $self = shift;
-
-  my $super_attributes = $self->SUPER::available_attributes;
-  my $own_attributes = [{ value => "user_email", type => $Conditions::SUBSTRING }];
-
-  return [@$super_attributes, @$own_attributes];
+    my $self = shift;
+    return [
+        @{ $self->SUPER::available_attributes },
+        { value => "user_email", type => $Conditions::SUBSTRING }
+    ];
 }
 
 =head2 available_rule_classes
@@ -106,8 +134,8 @@ sub mandatoryFields {
 
 sub authenticate {
     my ( $self, $username, $password ) = @_;
-    my $logger = pf::log::get_logger;
     if (!$self->isEmailAllowed($username)) {
+        my $logger = get_logger();
         $logger->warn("Failed to authenticate using EmailSource ($self->{id}) with PID '$username'");
         return ($FALSE, $pf::constants::authentication::messages::EMAIL_UNAUTHORIZED);
     }

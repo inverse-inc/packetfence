@@ -53,7 +53,7 @@ has_field 'activation_domain' =>
 
 has_field 'allowed_domains' =>
   (
-   'type' => 'TextArea',
+    type  => 'TextArea',
     label => 'Comma-separated list of Allowed Domains',
     tags => {
         after_element => \&help,
@@ -63,7 +63,7 @@ has_field 'allowed_domains' =>
 
 has_field 'banned_domains' =>
   (
-   'type' => 'TextArea',
+    type  => 'TextArea',
     label => 'Comma-separated list of Banned Domains',
     tags => {
         after_element => \&help,
