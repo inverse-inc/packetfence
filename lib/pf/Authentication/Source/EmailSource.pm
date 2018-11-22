@@ -118,7 +118,7 @@ sub authenticate {
 
 =head2 isEmailAllowed
 
-isEmailAllowed
+checks if email is allowed
 
 =cut
 
