@@ -157,8 +157,6 @@ func main() {
 	srv := &http.Server{
 		Addr:         "127.0.0.1:22222",
 		IdleTimeout:  5 * time.Second,
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 10 * time.Second,
 		Handler:      router,
 	}
 
