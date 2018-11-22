@@ -125,7 +125,7 @@ isEmailAllowed
 sub isEmailAllowed {
     my ($self, $email) = @_;
     $email = lc($email);
-    my @banned = $self->domains_regexes($self->banned_domains);
+    my @banned = make_domains_regexes($self->banned_domains);
     if (!isenabled($self->allow_localdomain)) {
         push @banned, localdomain_regexes();
     }
@@ -134,7 +134,7 @@ sub isEmailAllowed {
         return $FALSE;
     }
 
-    my @allowed = $self->domains_regexes($self->allowed_domains);
+    my @allowed = make_domains_regexes($self->allowed_domains);
     if (@allowed && isenabled($self->allow_localdomain)) {
         push @allowed, localdomain_regexes();
     }
@@ -146,17 +146,35 @@ sub isEmailAllowed {
     return $TRUE;
 }
 
+=head2 localdomain_regexes
+
+Return list of regexes for matching the the local domain
+
+=cut
+
 sub localdomain_regexes {
     my $domain = $Config{general}{domain};
-    return (make_regex("$domain"), make_regex("*.$domain"));
+    return make_domains_regexes([$domain,"*.$domain"]);
 }
 
-sub domains_regexes {
-    my ($self, $domains) = @_;
-    return map { make_regex($_) } @{$domains // []};
+=head2 make_domains_regexes
+
+Create a domain regexes from a list of domains
+
+=cut
+
+sub make_domains_regexes {
+    my ($domains) = @_;
+    return map { make_domain_regex($_) } @{$domains // []};
 }
 
-sub make_regex {
+=head2 make_domain_regex
+
+Make the regex from a domain
+
+=cut
+
+sub make_domain_regex {
     my ($d) = @_;
     local $_;
     if ($d =~ /\*/) {
