@@ -368,6 +368,17 @@ Connect the Microsoft Windows 7 endpoint on port no. 10 from the Cisco Catalyst 
 
 To see what's going on from PacketFence, click on the 'Auditing' tab from PacketFence's admin interface. You should see an entry for the MAC address of your Microsoft Windows 7 endpoint. Click on the '(+)' button to see the RADIUS exchanges. If the 802.1X authentication is successful, you should have 'Accept' as an 'Auth Status'.
 
+Alerting
+~~~~~~~~
+
+PacketFence can send emails to administrators, users and guests. So it is important to properly configure the mail sending functionality of PacketFence. From 'Configuration->System Configuration->Alerting', set at least the following fields:
+
+[options="compact"]
+ * Sender - the "From" address of emails being sent by PacketFence
+ * SMTP server - IP or DNS name of the SMTP server used by PacketFence to send all emails
+
+If your SMTP server requires authentication or encryption to relay emails, you will have to properly configure the SMTP encryption, username and password parameters.
+
 Enabling the Captive Portal
 ---------------------------
 
@@ -462,25 +473,15 @@ Next, we need to disable 802.1X from the network configuration card from the Mic
 
 Next, connect the endpoint in the Cisco Catalyst 2960 switch. After a few second, open a web browser and try to open any website - say http://packetfence.org. You should now see the captive portal. You should only need to accept the terms and conditions for gaining network access.
 
-Adding SMS Authentication for Guests
-------------------------------------
-
-This section will show you how to enable SMS authentication on the captive portal so that guests use their cellular phone number to register their endpoints. PacketFence will send an SMS PIN code to the guest phone number. That code will be required to complete the registration process. The SMS code will be sent by PacketFence over email - using popular SMTP-to-SMS gateways.
-
-Some of the key concepts presented in this section are:
-
-[options="compact"]
- * Authentication sources
- * Alerting
-
 Authentication Sources
-~~~~~~~~~~~~~~~~~~~~~~
+----------------------
 
 PacketFence can authenticate users that register devices via the captive portal using various methods. Among the supported methods, there are:
 
 [options="compact"]
 * Active Directory
 * Apache htpasswd file
+* BlackHole
 * Email
 * External HTTP API
 * Facebook (OAuth 2)
@@ -512,20 +513,18 @@ When no condition is defined, the rule will be considered as a catch-all. When a
 
 In the previous section, you configured two authentication sources: Microsoft Active Directory and the Null sources. They were both catch-all sources.
 
-Alerting
-~~~~~~~~
+Adding SMS Authentication for Guests
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PacketFence can send emails to administrators, users and guests. So it is important to properly configure the mail sending functionality of PacketFence. From 'Configuration->System Configuration->Alerting', set at least the following fields:
+This section will show you how to enable SMS authentication on the captive portal so that guests use their cellular phone number to register their endpoints. PacketFence will send an SMS PIN code to the guest phone number. That code will be required to complete the registration process. The SMS code will be sent by PacketFence over email - using popular SMTP-to-SMS gateways.
+
+Some of the key concepts presented in this section are:
 
 [options="compact"]
- * Sender - the "From" address of emails being sent by PacketFence
- * SMTP server - IP or DNS name of the SMTP server used by PacketFence to send all emails
-
-If your SMTP server requires authentication or encryption to relay emails, you will have to properly configure the SMTP encryption, username and password parameters.
-
+ * Authentication sources
 
 Adding SMS Authentication Source
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Now that you understand what authentication sources and alerting are, we will add an SMS authentication source on our guest portal. We previously used the 'Null' source but we will add an other source. Portal profiles can provide multiple authentication sources.
 
@@ -541,14 +540,14 @@ Click on 'Save' to save the new authentication source.
 
 
 Configuring the Connection Profile
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Now let's add our new SMS-based authentication source to our guests captive portal. From 'Configuration->Policies and Access Control->Connection Profiles', click on the 'guest' profile that we previously created. In the 'Sources', click on the '(+)' button and add the newly created SMS source, 'sms-source'. Save the changes by clicking on the 'Save' button.
 
 NOTE: You can preview at any time the portal associated with connection profile by clicking on the 'Preview' button.
 
 Testing
-~~~~~~~
+^^^^^^^
 
 First unplug and unregister again the Microsoft Windows 7 endpoint. Then, connect the endpoint in switch port no. 10 - you should see the captive portal with the new SMS-based registration option. Note that the Null option will also be offered.
 
