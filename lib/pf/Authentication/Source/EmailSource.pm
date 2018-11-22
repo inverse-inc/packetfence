@@ -107,15 +107,9 @@ sub mandatoryFields {
 sub authenticate {
     my ( $self, $username, $password ) = @_;
     my $logger = pf::log::get_logger;
-
-    my $localdomain = $Config{'general'}{'domain'};
-
-    # Verify if allowed to use local domain
-    unless ( isenabled($self->allow_localdomain) ) {
-        if ( $username =~ /[@.]$localdomain$/i ) {
-            $logger->warn("Tried to authenticate using EmailSource with PID '$username' matching local domain '$localdomain' while 'allow_localdomain' is disabled");
-            return ($FALSE, $pf::constants::authentication::messages::LOCALDOMAIN_EMAIL_UNAUTHORIZED);
-        }
+    if (!$self->isEmailAllowed($username)) {
+        $logger->warn("Failed to authenticate using EmailSource ($self->{id}) with PID '$username'");
+        return ($FALSE, $pf::constants::authentication::messages::EMAIL_UNAUTHORIZED);
     }
 
     return $TRUE;
@@ -130,17 +124,31 @@ isEmailAllowed
 
 sub isEmailAllowed {
     my ($self, $email) = @_;
+    $email = lc($email);
+    my @banned = $self->domains_regexes($self->banned_domains);
+    if (!isenabled($self->allow_localdomain)) {
+        push @banned, localdomain_regexes();
+    }
+
+    if (any {$email =~ $_} @banned) {
+        return $FALSE;
+    }
+
     my @allowed = $self->domains_regexes($self->allowed_domains);
+    if (@allowed && isenabled($self->allow_localdomain)) {
+        push @allowed, localdomain_regexes();
+    }
+
     if (@allowed) {
         return (any {$email =~ $_} @allowed) ? $TRUE : $FALSE;
     }
 
-    my @banned = $self->domains_regexes($self->banned_domains);
-    if (@banned) {
-        return (any {$email =~ $_} @banned ) ? $FALSE : $TRUE;
-    }
-
     return $TRUE;
+}
+
+sub localdomain_regexes {
+    my $domain = $Config{general}{domain};
+    return (make_regex("$domain"), make_regex("*.$domain"));
 }
 
 sub domains_regexes {
