@@ -21,26 +21,34 @@ BEGIN {
     #Module for overriding configuration paths
     use setup_test_config;
 }
+use pf::config qw(%Config);
+
+my $local_email1 = "j\@$Config{general}{domain}";
+my $local_email2 = "j\@a.$Config{general}{domain}";
 
 our @TESTS = (
     {
         name => 'email',
-        allowed => [qw(j@bob.com)],
+        allowed => [qw(j@bob.com), $local_email1, $local_email2],
         banned => [qw(j@bbob.com j@bobby.com)],
     },
     {
         name => 'email2',
-        allowed => [qw(j@zozz.com)],
+        allowed => [qw(j@zozz.com), $local_email1, $local_email2],
         banned => [qw(j@zoz.com)],
     },
     {
         name => 'email3',
-        allowed => [qw(j@zozz.com j@zoz.com)],
+        allowed => [qw(j@zozz.com j@zoz.com), $local_email1, $local_email2],
     },
     {
         name => 'email4',
-        allowed => [qw(j@bob.com j@bbob.com)],
+        allowed => [qw(j@bob.com j@bbob.com), $local_email1, $local_email2],
         banned => [qw(j@zoz.com j@bob.comm)],
+    },
+    {
+        name => 'email5',
+        banned => [$local_email1, $local_email2],
     },
 );
 
@@ -56,13 +64,14 @@ my $tests = sum 1, map { ( scalar @{$_->{allowed} // []}, scalar @{$_->{banned} 
 plan tests => $tests;
 
 for my $test (@TESTS) {
-    my $source = getAuthenticationSource($test->{name});
+    my $name = $test->{name};
+    my $source = getAuthenticationSource($name);
     for my $e (@{$test->{allowed} // []}) {
-        ok($source->isEmailAllowed($e), "Email ($e) is allowed");
+        ok($source->isEmailAllowed($e), "Email ($e) is allowed for source $name");
     }
 
     for my $e (@{$test->{banned} // []}) {
-        ok(!$source->isEmailAllowed($e), "Email ($e) is banned");
+        ok(!$source->isEmailAllowed($e), "Email ($e) is banned for source $name");
     }
 }
 
