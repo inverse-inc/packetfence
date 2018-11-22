@@ -54,13 +54,13 @@ has_field 'activation_domain' =>
 has_field 'allowed_domains' =>
   (
    'type' => 'Text',
-    label => 'Comma-seperated list of Allowed Domains',
+    label => 'Comma-separated list of Allowed Domains',
   );
 
 has_field 'banned_domains' =>
   (
    'type' => 'Text',
-    label => 'Comma-seperated list of Banned Domains',
+    label => 'Comma-separated list of Banned Domains',
   );
 
 =head1 COPYRIGHT
