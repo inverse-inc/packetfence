@@ -9,6 +9,7 @@ import (
 	"net"
 	"os"
 	"regexp"
+	"strconv"
 	"time"
 
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
@@ -118,6 +119,13 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("ERROR cannot find mac for ip %s\n", srcIP))
 	} else {
 		mac = "00:00:00:00:00:00"
+	}
+
+	var status = "unreg"
+	var category string
+	err = pf.Nodedb.QueryRow(mac, 1).Scan(&status, &category)
+	if err != nil {
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("error getting node status %s %s\n", mac, err))
 	}
 
 	// Domain bypass
@@ -230,8 +238,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 				if status == "reg" && !violation && category != "REJECT" {
 					log.LoggerWContext(ctx).Debug(srcIP + " : " + mac + " serve dns " + state.QName())
 					return pf.Next.ServeDNS(ctx, w, r)
-				}
-				if status == "reg" && category == "REJECT" {
+				} else if status == "reg" && category == "REJECT" {
 					rr, _ = dns.NewRR("30 IN A 127.0.0.1")
 					a.Answer = []dns.RR{rr}
 					log.LoggerWContext(ctx).Debug("REJECT " + mac + " IP " + srcIP + " Query " + state.QName())
@@ -240,7 +247,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 					return 0, nil
 				}
 			}
-			answer, found := pf.DNSFilter.Get(mac + state.QName())
+			answer, found := pf.DNSFilter.Get(mac + category + strconv.FormatBool(violation) + state.QName())
 			if found && answer != "null" {
 				log.LoggerWContext(ctx).Debug("Get answer from the cache for " + state.QName())
 				rr, _ = dns.NewRR(answer.(string))
@@ -252,7 +259,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 					"mac":      mac,
 				})
 				if err != nil {
-					pf.DNSFilter.Set(mac+state.QName(), "null", cache.DefaultExpiration)
+					pf.DNSFilter.Set(mac+category+strconv.FormatBool(violation)+state.QName(), "null", cache.DefaultExpiration)
 					break
 				}
 				var answer string
@@ -263,7 +270,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 					}
 				}
 				log.LoggerWContext(ctx).Debug("Get answer from pffilter for " + state.QName())
-				pf.DNSFilter.Set(mac+state.QName(), answer, cache.DefaultExpiration)
+				pf.DNSFilter.Set(mac+category+strconv.FormatBool(violation)+state.QName(), answer, cache.DefaultExpiration)
 				rr, _ = dns.NewRR(answer)
 			}
 
