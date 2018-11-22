@@ -5,6 +5,7 @@ import (
 	"math"
 	"net"
 	"strconv"
+	"sync"
 	"time"
 
 	cache "github.com/fdurand/go-cache"
@@ -46,7 +47,7 @@ type Interface struct {
 
 type Network struct {
 	network     net.IPNet
-	dhcpHandler DHCPHandler
+	dhcpHandler *DHCPHandler
 	splittednet bool
 }
 
@@ -66,6 +67,7 @@ func (d *Interfaces) readConfig() {
 
 	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfNet)
 
+	wg := &sync.WaitGroup{}
 	for _, v := range interfaces.Element {
 
 		eth, err := net.InterfaceByName(v)
@@ -139,7 +141,8 @@ func (d *Interfaces) readConfig() {
 
 						for _, subnet := range smallnet {
 							var DHCPNet Network
-							var DHCPScope DHCPHandler
+							var DHCPScope *DHCPHandler
+							DHCPScope = &DHCPHandler{}
 							var NetWork *net.IPNet
 							var lastrole bool
 							if len(Roles) == 1 {
@@ -222,9 +225,12 @@ func (d *Interfaces) readConfig() {
 							xid := cache.New(time.Duration(4)*time.Second, 2*time.Second)
 
 							DHCPScope.xid = xid
-
-							initiaLease(&DHCPScope)
-							ExcludeIP(&DHCPScope, ConfNet.IpReserved)
+							wg.Add(1)
+							go func() {
+								initiaLease(DHCPScope)
+								ExcludeIP(DHCPScope, ConfNet.IpReserved)
+								wg.Done()
+							}()
 							DHCPScope.ipReserved = ConfNet.IpReserved
 							var options = make(map[dhcp.OptionCode][]byte)
 
@@ -248,7 +254,8 @@ func (d *Interfaces) readConfig() {
 
 					} else {
 						var DHCPNet Network
-						var DHCPScope DHCPHandler
+						var DHCPScope *DHCPHandler
+						DHCPScope = &DHCPHandler{}
 						DHCPNet.splittednet = false
 						DHCPNet.network.IP = net.ParseIP(key)
 						DHCPNet.network.Mask = net.IPMask(net.ParseIP(ConfNet.Netmask))
@@ -283,9 +290,12 @@ func (d *Interfaces) readConfig() {
 						xid := cache.New(time.Duration(4)*time.Second, 2*time.Second)
 
 						DHCPScope.xid = xid
-
-						initiaLease(&DHCPScope)
-						ExcludeIP(&DHCPScope, ConfNet.IpReserved)
+						wg.Add(1)
+						go func() {
+							initiaLease(DHCPScope)
+							ExcludeIP(DHCPScope, ConfNet.IpReserved)
+							wg.Done()
+						}()
 						DHCPScope.ipReserved = ConfNet.IpReserved
 
 						var options = make(map[dhcp.OptionCode][]byte)
@@ -307,6 +317,7 @@ func (d *Interfaces) readConfig() {
 				}
 			}
 		}
+		wg.Wait()
 		d.intsNet = append(d.intsNet, ethIf)
 
 	}

@@ -380,7 +380,7 @@ func (h *Interface) handleApiReq(Request ApiReq) interface{} {
 	if Request.Req == "initialease" {
 
 		for _, v := range h.network {
-			initiaLease(&v.dhcpHandler)
+			initiaLease(v.dhcpHandler)
 			stats = append(stats, Stats{EthernetName: Request.NetInterface, Net: v.network.String(), Category: v.dhcpHandler.role, Status: "Init Lease success"})
 		}
 		return stats

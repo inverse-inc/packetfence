@@ -11,7 +11,6 @@ import (
 	_ "expvar"
 	"net"
 	"net/http"
-	_ "net/http/pprof"
 	"strconv"
 	"time"
 
@@ -240,7 +239,7 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 				}
 
 				if v.dhcpHandler.role == category {
-					handler = v.dhcpHandler
+					handler = *v.dhcpHandler
 					NetScope = v.network
 					answer.SrcIP = handler.ip
 					break
@@ -251,20 +250,20 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 				if !p.CIAddr().Equal(net.IPv4zero) && !v.network.Contains(p.CIAddr()) {
 					continue
 				}
-				handler = v.dhcpHandler
+				handler = *v.dhcpHandler
 				NetScope = v.network
 				break
 			}
 		}
 		// Case dhcprequest from an already assigned l3 ip address
 		if p.GIAddr().Equal(net.IPv4zero) && v.network.Contains(p.CIAddr()) {
-			handler = v.dhcpHandler
+			handler = *v.dhcpHandler
 			NetScope = v.network
 			break
 		}
 
 		if (!p.GIAddr().Equal(net.IPv4zero) && v.network.Contains(p.GIAddr())) || v.network.Contains(p.CIAddr()) {
-			handler = v.dhcpHandler
+			handler = *v.dhcpHandler
 			NetScope = v.network
 			break
 		}
