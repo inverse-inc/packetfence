@@ -128,12 +128,15 @@ export default {
   .multiselect {
       border-width: 1px;
       font-size: $font-size-base;
+      min-height: auto;
   }
   .multiselect__tags {
     background-color: $input-focus-bg;
     border: 1px solid $input-focus-bg;
     @include border-radius($border-radius);
     @include transition($custom-forms-transition);
+    padding: $input-padding-y $input-padding-x;
+    min-height: auto;
     outline: 0;
     span > span.multiselect__single { /* placeholder */
       color: $input-placeholder-color;
@@ -151,6 +154,7 @@ export default {
     line-height: $input-line-height;
     color: $input-color;
     padding: 0px;
+    margin: 0px;
     &::placeholder {
       color: $input-placeholder-color;
     }
@@ -158,6 +162,7 @@ export default {
   .multiselect__placeholder {
     color: $input-placeholder-color;
     font-size: $font-size-base;
+    line-height: $input-line-height;
     margin-bottom: 0px;
     padding-top: 0px;
   }
