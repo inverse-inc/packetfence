@@ -734,7 +734,7 @@ ip=192.168.2.12
 
 Notes on the configuration:
 
- * The hostnames (pf1-dc1.example.com, pf2-dc1.example.com, etc) are not directly related to the cluster logic and the servers can have any hostname without impacting the cluster behavior. The assignment of a server to a cluster zone is made by the first part of the section name (ex: "DC1 pf.example.com" assigns server "pf.example.com" to cluster zone "DC1")
+ * The hostnames (pf1-dc1.example.com, pf2-dc1.example.com, etc) are not directly related to the cluster logic and the servers can have any hostname without impacting the cluster behavior. The assignment of a server to a cluster zone is made by the first part of the section name (ex: "DC1 pf-dc1.example.com" assigns server "pf-dc1.example.com" to cluster zone "DC1")
  * Each cluster zone needs to have its own "CLUSTER" definition that declares the virtual IPs to use for this cluster zone. This also declares the management IP on which the zone should be joined.
  * Given your zones aren't in the same layer 2 network, you cannot use the same virtual IP between your zones.
  * You should always declare a "CLUSTER" definition even though a zone has only a single server.
