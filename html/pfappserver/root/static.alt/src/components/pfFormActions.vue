@@ -102,16 +102,20 @@
         >
           <b-form-row
             v-for="(value, index) in inputValue"
-            class="text-secondary align-items-center"
+            class="text-secondary py-1"
             align-v="center"
             :key="index"
             @mouseenter="onMouseEnter(index)"
             @mousemove="onMouseEnter(index)"
             no-gutter
           >
-            <b-col col v-if="sortable && hover === index && inputValue.length > 1" class="draghandle text-center"><icon name="th" v-b-tooltip.hover.left.d300 :title="$t('Click and drag to re-order')"></icon></b-col>
-            <b-col col v-else class="dragindex text-center"><b-badge variant="light">{{ index + 1 }}</b-badge></b-col>
-            <b-col cols="4" class="text-left py-1" align-self="start">
+            <b-col col align-self="start" class="draghandle text-center col-form-label pt-2" v-if="sortable && hover === index && inputValue.length > 1">
+              <icon name="th" v-b-tooltip.hover.left.d300 :title="$t('Click and drag to re-order')"></icon>
+            </b-col>
+            <b-col col align-self="start" class="dragindex text-center col-form-label pt-2" v-else>
+              {{ index + 1 }}
+            </b-col>
+            <b-col cols="4" class="text-left" align-self="start">
 
               <pf-form-chosen
                 :value="inputValue[index].type"
@@ -128,7 +132,7 @@
               ></pf-form-chosen>
 
             </b-col>
-            <b-col cols="6" class="text-left py-1" align-self="start">
+            <b-col cols="6" class="text-left" align-self="start">
 
               <!--
                 - Don't use 'v-model='...,
@@ -212,7 +216,7 @@
               ></pf-form-prefix-multiplier>
 
             </b-col>
-            <b-col col class="text-center text-nowrap">
+            <b-col col align-self="start" class="text-center text-nowrap col-form-label pt-2">
               <icon name="minus-circle" v-if="inputValue.length > 1" class="cursor-pointer mx-1" v-b-tooltip.hover.left.d300 :title="$t('Delete row')" @click.native.stop.prevent="rowDel(index)"></icon>
               <icon name="plus-circle" class="cursor-pointer mx-1" v-b-tooltip.hover.left.d300 :title="$t('Add row')" @click.native.stop.prevent="rowAdd(index)"></icon>
             </b-col>
@@ -528,10 +532,15 @@ export default {
 
 .sortablefields-element {
   .input-group-sortablefields {
-    border: 1px solid $input-focus-bg;
+    border: $input-border-width solid transparent;
     @include border-radius($border-radius);
     @include transition($custom-forms-transition);
     outline: 0;
+  }
+  .col-form-label {
+    // Align the label with the text of the first action
+    padding-top: calc(#{$input-padding-y + $spacer * .25} + #{$input-border-width * 3});
+    line-height: auto;
   }
   &.is-focus {
     .input-group-sortablefields {
@@ -547,7 +556,7 @@ export default {
   }
   .form-row {
     &:not(:last-child) {
-      border-bottom: 1px solid $input-focus-bg;
+      border-bottom: $input-border-width solid $input-focus-bg;
     }
   }
 }
