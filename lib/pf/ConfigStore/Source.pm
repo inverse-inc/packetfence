@@ -35,7 +35,6 @@ _fields_expanded
 our %TYPE_TO_EXPANDED_FIELDS = (
     SMS => [qw(sms_carriers)],
     Eduroam => [qw(local_realm reject_realm)],
-    Email => [qw(allowed_domains banned_domains)],
 );
 
 sub _fields_expanded {
@@ -122,11 +121,22 @@ sub cleanupAfterRead {
         $rule->{conditions} = [delete @$rule{@conditions_keys}];
         push @{$item->{"${class}_rules"}}, $rule;
     }
+    my $type = $item->{type};
 
-    if ($item->{type} eq 'SMS' || $item->{type} eq "Twilio") {
+    if ($type eq 'SMS' || $type eq "Twilio") {
         # This can be an array if it's fresh out of the file. We make it separated by newlines so it works fine the frontend
         if(ref($item->{message}) eq 'ARRAY'){
             $item->{message} = $self->join_options($item->{message});
+        }
+    }
+
+    if ($type eq 'Email') {
+        for my $f (qw(allowed_domains banned_domains)) {
+            next unless exists $item->{$f};
+            my $val =  $item->{$f};
+            if (ref($val) eq 'ARRAY') {
+                $item->{$f} = $self->join_options($val);
+            }
         }
     }
 
@@ -136,6 +146,19 @@ sub cleanupAfterRead {
 
 sub cleanupBeforeCommit {
     my ($self, $id, $item) = @_;
+    if ($item->{type} eq 'Email') {
+        for my $f (qw(allowed_domains banned_domains)) {
+            next unless exists $item->{$f};
+            my $val =  $item->{$f};
+            next unless defined $val;
+            if (ref($val) eq 'ARRAY') {
+                $item->{$f} = [ map { my $a = $_; $a =~ s/\r//sg;$a } @$val ];
+            } else {
+                $val =~ s/\r//sg;
+            }
+        }
+    }
+
     $self->flatten_list($item, $self->_fields_expanded($item));
 }
 
@@ -147,8 +170,8 @@ before rewriteConfig => sub {
 
 
 sub join_options {
-    my ($self,$options) = @_;
-    return join("\n",@$options);
+    my ($self, $options) = @_;
+    return join("\n", @$options);
 }
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};

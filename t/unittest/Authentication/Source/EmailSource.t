@@ -50,6 +50,10 @@ our @TESTS = (
         name => 'email5',
         banned => [$local_email1, $local_email2],
     },
+    {
+        name => 'email6',
+        allowed => [qw(j@bob.com j@zoz.com j@aoa.com)],
+    },
 );
 
 use Test::More;
