@@ -513,6 +513,43 @@ When no condition is defined, the rule will be considered as a catch-all. When a
 
 In the previous section, you configured two authentication sources: Microsoft Active Directory and the Null sources. They were both catch-all sources.
 
+Email Authentication for Guests
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This section will show you how to allow guests to register endpoints using their email address. PacketFence sends a PIN code to the guest's email address. That code will then be required to complete the registration process.
+
+Adding Email Authentication Source
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+From 'Configuration->Policies and Access Control->Authentication Sources', click 'Add source->External->Email'. As 'Name' and 'Description', specify 'email-source'.
+
+Additional options available
+
+ * email_activation_timeout - This is the delay given to a guest who registered by email confirmation to log into his email and click the activation link.
+ * allow_localdomain - Accept self-registration from email address within the local domain
+ * activation_domain - Set this value if you want to change the hostname in the validation link. Changing this requires to restart haproxy to be fully effective.
+ * allowed_domains - A comma-separated list of domains that are allowed for email registration. Allowed domains are checked after banned domains.
+ * banned_domains - A comma-separated list of domains that are banned for email registration. Banned domains are checked before allowed domains.
+
+Then add an 'Authentication Rules' with name 'catchall' with no condition and with the following two 'Actions':
+
+[options="compact"]
+ * Role - guest
+ * Access duration - 12 hours
+
+Click on 'Save' to save the new authentication source.
+
+Configuring the Connection Profile
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Now let's add our new Email-based authentication source to our guests captive portal. From 'Configuration->Policies and Access Control->Connection Profiles', click on the 'guest' profile that we previously created. In the 'Sources', click on the '(+)' button and add the newly created Email source, 'email-source'. Save the changes by clicking on the 'Save' button.
+
+NOTE: You can preview at any time the portal associated with connection profile by clicking on the 'Preview' button.
+
+Testing
+^^^^^^^
+
+Unplug and unregister your endpoint. Reconnect the endpoint - you should see the captive portal with the new Email-based registration option.
+
 Adding SMS Authentication for Guests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
