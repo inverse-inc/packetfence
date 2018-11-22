@@ -53,13 +53,13 @@ has_field 'activation_domain' =>
 
 has_field 'allowed_domains' =>
   (
-   'type' => 'Text',
+   'type' => 'TextArea',
     label => 'Comma-separated list of Allowed Domains',
   );
 
 has_field 'banned_domains' =>
   (
-   'type' => 'Text',
+   'type' => 'TextArea',
     label => 'Comma-separated list of Banned Domains',
   );
 
