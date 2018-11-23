@@ -1126,19 +1126,19 @@ user=
 # Password of MSE server
 pass=
 
-[radius_authentication_methods]
+[radius_configuration]
 #
-# radius_authentication_methods.eap_authentication_types
+# radius_configuration.eap_authentication_types
 #
 # EAP Supported Methods. EAP-FAST is disabled by default.
 eap_authentication_types=GTC,MD5,MSCHAPv2,PEAP,TLS,TTLS
 #
-# radius_authentication_methods.eap_fast_opaque_key
+# radius_configuration.eap_fast_opaque_key
 #
 # EAP-FAST 32 bytes Opaque Key (Considered only if EAP-FAST is enabled)
 eap_fast_opaque_key=0123456789abcdef0123456789ABCDEF
 #
-# radius_authentication_methods.eap_fast_authority_identity
+# radius_configuration.eap_fast_authority_identity
 #
 # EAP-FAST authority ID (Considered only if EAP-FAST is enabled)
 eap_fast_authority_identity=1234

@@ -2742,12 +2742,12 @@ msgstr "Les méthodes EAP gérés par PacketFence peuvent être changés depuis 
 msgid "EAP type"
 msgstr "Type EAP"
 
-# conf/documentation.conf (radius_authentication_methods.eap_fast_opaque_key)
+# conf/documentation.conf (radius_configuration.eap_fast_opaque_key)
 msgid "EAP-FAST Opaque Key (32 randomized bytes)"
 msgstr "Clé EAP-FAST (32 octets aléatoires)"
 
 # conf/documentation.conf
-# (radius_authentication_methods.eap_fast_authority_identity)
+# (radius_configuration.eap_fast_authority_identity)
 msgid "EAP-FAST authority ID"
 msgstr "ID de l’autorité EAP-FAST"
 
@@ -3038,7 +3038,7 @@ msgid "External Portal Enforcement"
 msgstr "Authentification par redirection Web"
 
 # conf/documentation.conf
-# (radius_authentication_methods.eap_authentication_types options)
+# (radius_configuration.eap_authentication_types options)
 msgid "FAST"
 msgstr "FAST"
 
@@ -3248,7 +3248,7 @@ msgid "Fully qualified device name"
 msgstr "Nom complet de l’appareil"
 
 # conf/documentation.conf
-# (radius_authentication_methods.eap_authentication_types options)
+# (radius_configuration.eap_authentication_types options)
 msgid "GTC"
 msgstr "GTC"
 
@@ -4226,7 +4226,7 @@ msgid "MAC_UPDATE"
 msgstr "Adresse MAC - Mise à jour"
 
 # conf/documentation.conf
-# (radius_authentication_methods.eap_authentication_types options)
+# (radius_configuration.eap_authentication_types options)
 msgid "MD5"
 msgstr "MD5"
 
@@ -4243,7 +4243,7 @@ msgid "MKEY for the iframe"
 msgstr "MKEY pour la Iframe"
 
 # conf/documentation.conf
-# (radius_authentication_methods.eap_authentication_types options)
+# (radius_configuration.eap_authentication_types options)
 msgid "MSCHAPv2"
 msgstr "MSCHAPv2"
 
@@ -5105,7 +5105,7 @@ msgid "Owner"
 msgstr "Propriétaire"
 
 # conf/documentation.conf
-# (radius_authentication_methods.eap_authentication_types options)
+# (radius_configuration.eap_authentication_types options)
 msgid "PEAP"
 msgstr "PEAP"
 
@@ -7706,7 +7706,7 @@ msgid "Support Inquiry"
 msgstr "Demande de support"
 
 # conf/documentation.conf
-# (radius_authentication_methods.eap_authentication_types)
+# (radius_configuration.eap_authentication_types)
 msgid "Supported EAP Authentication Methods"
 msgstr "Méthodes d’authentification EAP supportées"
 
@@ -7834,7 +7834,7 @@ msgid ""
 msgstr "Fuseau horaire du système en tant que chaîne de caractères. Liste générée à partir de la librairie Perl DateTime::TimeZone"
 
 # conf/documentation.conf
-# (radius_authentication_methods.eap_authentication_types options)
+# (radius_configuration.eap_authentication_types options)
 msgid "TLS"
 msgstr "TLS"
 
@@ -7911,7 +7911,7 @@ msgid "TRAFFIC_SHAPING_UPDATE"
 msgstr "Bande passante - Mettre à jour"
 
 # conf/documentation.conf
-# (radius_authentication_methods.eap_authentication_types options)
+# (radius_configuration.eap_authentication_types options)
 msgid "TTLS"
 msgstr "TTLS"
 
@@ -11659,19 +11659,19 @@ msgid "radius"
 msgstr "RADIUS"
 
 # conf/documentation.conf
-msgid "radius_authentication_methods"
-msgstr "Méthodes d’authentification RADIUS"
+msgid "radius_configuration"
+msgstr "Configuration de RADIUS"
 
 # conf/documentation.conf
-msgid "radius_authentication_methods.eap_authentication_types"
+msgid "radius_configuration.eap_authentication_types"
 msgstr "Types d’authentification EAP"
 
 # conf/documentation.conf
-msgid "radius_authentication_methods.eap_fast_authority_identity"
+msgid "radius_configuration.eap_fast_authority_identity"
 msgstr "ID de l’autorité EAP-FAST"
 
 # conf/documentation.conf
-msgid "radius_authentication_methods.eap_fast_opaque_key"
+msgid "radius_configuration.eap_fast_opaque_key"
 msgstr "Clé EAP FAST"
 
 # pf::radius_audit_log (RADIUS Audit Log)

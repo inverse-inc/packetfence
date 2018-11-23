@@ -214,7 +214,7 @@
               [%- END %]
               [% pf_section_entry( 'database', 'Database', subsections.database) | none %]
               [% pf_section_entry( 'active_active', 'Cluster') | none %]
-              [% pf_section_entry( 'radius_authentication_methods', 'Authentication Methods') | none %]
+              [% pf_section_entry( 'radius_configuration', 'Radius Configuration') | none %]
               [% pf_section_entry( 'node_import', 'Node Import') | none %]
               [%- END %]
               [%- IF can_access("ADMIN_ROLES_READ") %]

@@ -490,12 +490,12 @@ Generates the eap.conf configuration file
 
 sub generate_radiusd_eapconf {
     my ($self, $tt) = @_;
-    my $radius_authentication_methods = $Config{radius_authentication_methods};
+    my $radius_configuration = $Config{radius_configuration};
     my %vars = (
         install_dir => $install_dir,
-        eap_fast_opaque_key => $radius_authentication_methods->{eap_fast_opaque_key},
-        eap_fast_authority_identity => $radius_authentication_methods->{eap_fast_authority_identity},
-        (map { $_ => 1 } (split ( /\s*,\s*/, $radius_authentication_methods->{eap_authentication_types} // ''))),
+        eap_fast_opaque_key => $radius_configuration->{eap_fast_opaque_key},
+        eap_fast_authority_identity => $radius_configuration->{eap_fast_authority_identity},
+        (map { $_ => 1 } (split ( /\s*,\s*/, $radius_configuration->{eap_authentication_types} // ''))),
     );
 
     $tt->process("$conf_dir/radiusd/eap.conf", \%vars, "$install_dir/raddb/mods-enabled/eap") or die $tt->error();
