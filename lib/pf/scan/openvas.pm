@@ -15,16 +15,19 @@ pf::scan::openvas is a module to add OpenVAS scanning option.
 use strict;
 use warnings;
 
+use Text::CSV;
 use pf::log;
 use MIME::Base64;
 use Readonly;
 
 use base ('pf::scan');
 
+use pf::CHI;
 use pf::constants;
 use pf::constants::scan qw($SCAN_VID $PRE_SCAN_VID $POST_SCAN_VID $STATUS_STARTED);
 use pf::config qw(%Config);
 use pf::util;
+use pf::violation;
 
 sub description { 'Openvas Scanner' }
 
@@ -124,15 +127,16 @@ Report processing's duty is to ensure that the proper violation will be triggere
 =cut
 
 sub processReport {
-    my ( $self ) = @_;
+    my ( $self, $task_name ) = @_;
     my $logger = get_logger();
 
-    my $name                = $self->{_id};
-    my $report_id           = $self->{_reportId};
+    my $info           = $self->cache->get("info-$task_name");
+    my $report_id = $info->{report_id};
+    my $mac = $info->{mac};
     my $report_format_id    = $self->{'_openvas_reportformatid'};
     my $command             = "<get_reports report_id=\"$report_id\" format_id=\"$report_format_id\"/>";
 
-    $logger->info("Getting the scan report for the finished scan task named $name");
+    $logger->info("Getting the scan report for the finished scan task named $task_name");
 
     my $cmd = "omp -h $self->{_ip} -p $self->{_port} -u $self->{_username} -w $self->{_password} -X '$command'";
     $logger->info("Report fetching command: $cmd");
@@ -141,29 +145,24 @@ sub processReport {
     $logger->info("Report fetching output: $output");
 
     # Fetch response status and report
-    my ($response, $raw_report) = ($output =~ /<get_reports_response\
-            status="([0-9]+)"       # status code
-            [^\<]+[\<][^\>]+[\>]    # get to the report
-            ([a-zA-Z0-9\=]+)        # report base64 encoded
-            /x);
+    my ($response, $raw_report) = ($output =~ /<get_reports_response.*status="([0-9]+)".*"text\/csv">([a-zA-Z0-9\=\+\/]+)/x);
 
     # Scan report successfully fetched
     if ( defined($response) && $response eq $RESPONSE_OK && defined($raw_report) ) {
-        $logger->info("Report id $report_id successfully fetched for task named $name");
-        $self->{_report} = decode_base64($raw_report);   # we need to decode the base64 report
+        $logger->info("Report id $report_id successfully fetched for task named $task_name");
+        my $report = decode_base64($raw_report);   # we need to decode the base64 report
 
-        # We need to manipulate the scan report.
-        # Each line of the scan report is pushed into an arrayref
-        $self->{'_report'} = [ split("\n", $self->{'_report'}) ];
-        my $scan_vid = $POST_SCAN_VID;
-        $scan_vid = $SCAN_VID if ($self->{'_registration'});
-        $scan_vid = $PRE_SCAN_VID if ($self->{'_pre_registration'});
-        pf::scan::parse_scan_report($self,$scan_vid);
+        my $csv = Text::CSV->new ( { binary => 1, auto_diag => 2 } );
+        open my $io, "<", \$report;
+        $csv->column_names($csv->getline($io));
+        while(my $row = $csv->getline_hr($io)) {
+            violation_trigger( { 'mac' => $mac, 'tid' => $row->{'NVT OID'}, 'type' => 'OpenVAS' } );
+        }
 
         return $TRUE;
     }
 
-    $logger->warn("There was an error fetching the scan report for the task named $name, here's the output: $output");
+    $logger->warn("There was an error fetching the scan report for the task named $task_name, here's the output: $output");
     return;
 }
 
@@ -193,7 +192,6 @@ sub new {
             '_targetId'         => undef,
             '_escalatorId'      => undef,
             '_taskId'           => undef,
-            '_reportId'         => undef,
             '_status'           => undef,
             '_type'             => undef,
             '_oses'             => undef,
@@ -253,7 +251,7 @@ sub startTask {
     # Scan task successfully started
     if ( defined($response) && $response eq $RESPONSE_REQUEST_SUBMITTED ) {
         $logger->info("Scan task named $name successfully started");
-        $self->{_reportId} = $report_id;
+        $self->cache->set("info-$name", {report_id => $report_id, mac => $self->{_scanMac}, ip => $self->{_scanIp}});
         $self->{'_status'} = $STATUS_STARTED;
         $self->statusReportSyncToDb();
         return;
@@ -316,6 +314,11 @@ sub _get_task_string {
 </create_task>
 EOF
     return $self->_to_single_line($s);
+}
+
+sub cache {
+    my ($self) = @_;
+    return pf::CHI->new(namespace => "openvas_scans");
 }
 
 =back

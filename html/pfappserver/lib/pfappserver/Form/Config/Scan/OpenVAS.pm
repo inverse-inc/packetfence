@@ -56,7 +56,7 @@ has_field 'openvas_reportformatid' =>
   (
    type => 'Text',
    label => 'OpenVAS report format',
-   default => 'f5c2a364-47d2-4700-b21d-0a7693daddab',
+   default => '',
    tags => { after_element => \&help,
              help => 'ID of the .NBE report format on the OpenVAS server' },
   );
