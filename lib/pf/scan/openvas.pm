@@ -205,13 +205,13 @@ sub new {
     return $self;
 }
 
-=item startScan
+=item runScan
 
 That's where we use all of these method to run a scan
 
 =cut
 
-sub startScan {
+sub runScan {
     my ( $self ) = @_;
     my $logger = get_logger();
 

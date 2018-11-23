@@ -58,7 +58,7 @@ has_field 'openvas_reportformatid' =>
    label => 'OpenVAS report format',
    default => '',
    tags => { after_element => \&help,
-             help => 'ID of the .NBE report format on the OpenVAS server' },
+             help => 'ID of the "CSV Results" report format on the OpenVAS server' },
   );
 
 =over
