@@ -1,8 +1,8 @@
 <template>
   <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
     :state="isValid()" :invalid-feedback="getInvalidFeedback()"
-    class="prefixmultiplier-element" :class="{ 'mb-0': !columnLabel, 'is-focus': focus}">
-    <b-input-group class="input-group-prefixmultiplier">
+    class="pf-form-prefix-multiplier" :class="{ 'mb-0': !columnLabel, 'is-focus': focus}">
+    <b-input-group class="pf-form-prefix-multiplier-input-group">
       <b-input-group-prepend v-if="prependText">
         <div class="input-group-text">
           {{ prependText }}
@@ -217,8 +217,8 @@ export default {
 /**
  * Adjust is-invalid and is-focus borders
  */
-.prefixmultiplier-element {
-  .input-group-prefixmultiplier {
+.pf-form-prefix-multiplier {
+  .pf-form-prefix-multiplier-input-group {
     background-color: $input-focus-bg;
     border: 1px solid $input-focus-bg;
     @include border-radius($border-radius);
@@ -242,11 +242,11 @@ export default {
       border-bottom-right-radius: $border-radius;
     }
   }
-  &.is-focus .input-group-prefixmultiplier {
+  &.is-focus .pf-form-prefix-multiplier-input-group {
     border: 1px solid $input-focus-border-color;
     box-shadow: 0 0 0 $input-focus-width rgba($input-focus-border-color, .25);
   }
-  &.is-invalid .input-group-prefixmultiplier {
+  &.is-invalid .pf-form-prefix-multiplier-input-group {
     border: 1px solid $form-feedback-invalid-color;
     box-shadow: 0 0 0 $input-focus-width rgba($form-feedback-invalid-color, .25);
   }

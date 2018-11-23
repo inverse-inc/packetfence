@@ -58,8 +58,8 @@
  *
 -->
 <template>
-  <div class="file-upload-container" :title="title">
-    <label class="file-upload mb-0">
+  <div class="pf-form-upload-container" :title="title">
+    <label class="pf-form-upload mb-0">
       <b-form ref="uploadform" @submit.prevent>
         <!-- MUTLIPLE UPLOAD -->
         <input v-if="multiple" type="file" @change="uploadFiles" :accept="accept" title=" " multiple/>
@@ -141,11 +141,11 @@ export default {
  *  where <file/> opacity is 0, permitting click events while
  *  hiding <file/> and allowing <slot/> seethrough for styling.
 **/
-.file-upload-container {
+.pf-form-upload-container {
   position: relative;
   display: inline-block;
 }
-.file-upload input[type="file"] {
+.pf-form-upload input[type="file"] {
   opacity: 0;
   position: absolute;
   top: 0px;
@@ -155,8 +155,8 @@ export default {
   /* hide mouseover tooltip */
   color: transparent;
 }
-.file-upload-container:hover,
-.file-upload input[type="file"]:hover {
+.pf-form-upload-container:hover,
+.pf-form-upload input[type="file"]:hover {
   cursor: pointer;
 }
 </style>
