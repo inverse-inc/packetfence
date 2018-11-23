@@ -113,6 +113,14 @@ sub _handler {
         return Apache2::Const::OK;
     }
 
+    # Openvas hook
+    if ($uri =~ m#/hook/openvas#) {
+        $logger->debug("URI '$uri' (URL: $url) is an OpenVAS request");
+        $r->handler('modperl');
+        $r->set_handlers( PerlResponseHandler => ['pf::web::openvashook'] );
+        return Apache2::Const::DECLINED;
+    }
+
     # Billing hooks
     if ($uri =~ m#/hook/billing#) {
         $logger->debug("URI '$uri' (URL: $url) is a billing request");
