@@ -2,7 +2,7 @@ package pfappserver::Form::Config::Source::RADIUS;
 
 =head1 NAME
 
-pfappserver::Form::Config::Source::RADIUS - Web form for a Kerberos user source
+pfappserver::Form::Config::Source::RADIUS - Web form for a RADIUS user source
 
 =head1 DESCRIPTION
 
@@ -67,7 +67,7 @@ has_field 'options',
    type => 'TextArea',
    label => 'Options',
    tags => { after_element => \&help,
-             help => 'Define options for FreeRADIUS home_server definition (if you use the source in the realm configuration)' },
+             help => 'Define options for FreeRADIUS home_server definition (if you use the source in the realm configuration). Need a radius restart.' },
    default => 'type = auth+acct',
 );
 =head1 COPYRIGHT
