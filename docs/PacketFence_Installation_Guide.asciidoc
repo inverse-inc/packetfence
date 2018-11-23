@@ -2342,11 +2342,24 @@ You can have a look in the file vlan_filters.conf, there are some examples on ho
 RADIUS Filter Definition
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-We added the ability to specify filters directly in the portion of code that return the radius answer or do a call to the API.
+We added the ability to specify filters directly in the portion of code that return radius attributes or do a call to the API.
 
-These rules are only available in one scope:
+These rules are available in thoses scopes:
 
-  returnRadiusAccessAccept
+  returnRadiusAccessAccept is when you return the answer for a device access
+  returnAuthorizeRead is when you return the answer for the switch read login access
+  returnAuthorizeWrite is when you return the answer for the switch write login access
+  returnAuthorizeVoip is when you return the answer for a VoIP
+
+  packetfence.authorize call the radius filter in the packetfence authorize section
+  packetfence.authenticate call the radius filter in the packetfence authenticate section
+  packetfence.pre-proxy call the radius filter in the packetfence pre-proxy section
+  packetfence.post-proxy call the radius filter in the packetfence post-proxy section
+  packetfence-tunnel.authorize call the radius filter in the packetfence-tunnel authorize section
+  packetfence.preacct call the radius filter in the packetfence preacct section
+  packetfence.accounting call the radius filter in the packetfence accounting section
+
+All the packetfence.* scopes are covered in the file radius_filters.conf, this is advanced configuration and you must know what you are doing.
 
 And can be defined using different criteria like:
 
