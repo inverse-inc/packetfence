@@ -51,7 +51,7 @@ sub available_attributes {
   my $self = shift;
 
   my $super_attributes = $self->SUPER::available_attributes;
-  my @attributes = @{$Config{advanced}->{radius_attributes}};
+  my @attributes = @{$Config{radius_configuration}->{radius_attributes}};
   my @radius_attributes = map { { value => $_, type => $Conditions::SUBSTRING } } @attributes;
   return [@$super_attributes, @radius_attributes];
 }

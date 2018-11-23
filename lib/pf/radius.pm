@@ -360,7 +360,7 @@ normalize username
 
 sub normalize_username {
     my ($username, $radius_request) = @_;
-    if (isdisabled($Config{advanced}{normalize_radius_machine_auth_username})) {
+    if (isdisabled($Config{radius_configuration}{normalize_radius_machine_auth_username})) {
         return $username;
     }
     my $tls_username = $radius_request->{'TLS-Client-Cert-Common-Name'} // '';
@@ -474,7 +474,7 @@ sub accounting {
             }
         }
     }
-    if(isenabled($Config{advanced}{filter_in_packetfence_accounting})){
+    if(isenabled($Config{radius_configuration}{filter_in_packetfence_accounting})){
         my %RAD_REPLY_REF;
         my $node_obj = node_attributes($mac);
         my $ssid;

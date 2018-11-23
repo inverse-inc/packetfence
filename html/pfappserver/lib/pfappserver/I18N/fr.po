@@ -2894,7 +2894,7 @@ msgstr "Activez cette option pour éviter les requêtes de mises à jour au coup
 msgid "Enabled"
 msgstr "Activer"
 
-# conf/documentation.conf (advanced.ntlm_redis_cache)
+# conf/documentation.conf (radius_configuration.ntlm_redis_cache)
 msgid ""
 "Enables a Redis driven cache for NTLM authentication. In order for this to "
 "work, you need to setup proper NT hash syncronization between your "
@@ -3888,7 +3888,7 @@ msgid ""
 "List of OS which will be allowed to be register via the self service portal."
 msgstr "Liste des OS qui seront autorisés à s'enregistrer via le portail libre service"
 
-# conf/documentation.conf (advanced.radius_attributes)
+# conf/documentation.conf (radius_configuration.radius_attributes)
 msgid ""
 "List of RADIUS attributes that can be used in the sources configuration"
 msgstr "Liste des attributs RADIUS qui peuvent être utilisés dans la configuration des sources"
@@ -6318,7 +6318,7 @@ msgstr "Realms qui seront rejeter"
 msgid "Reconnecting to the Admin Service in "
 msgstr "Reconnexion au  service d’administration en"
 
-# conf/documentation.conf (advanced.record_accounting_in_sql)
+# conf/documentation.conf (radius_configuration.record_accounting_in_sql)
 msgid ""
 "Record the accounting data in the SQL tables.Requires a restart of radiusd "
 "to be effective."
@@ -9156,7 +9156,7 @@ msgid ""
 "for Wi-Fi only"
 msgstr "Utilisez plutôt cette adresse IP pour la requête de désassociation . Normalement seulement utilisé pour le Wi-Fi."
 
-# conf/documentation.conf (advanced.normalize_radius_machine_auth_username)
+# conf/documentation.conf (radius_configuration.normalize_radius_machine_auth_username)
 msgid ""
 "Use the RADIUS username instead of the TLS certificate common name when "
 "doing machine authentication."
@@ -9990,11 +9990,11 @@ msgid "advanced.multihost"
 msgstr "Hôtes multiple"
 
 # conf/documentation.conf
-msgid "advanced.normalize_radius_machine_auth_username"
+msgid "radius_configuration.normalize_radius_machine_auth_username"
 msgstr "RADIUS machine authentification avec un nom d'utilisateur"
 
 # conf/documentation.conf
-msgid "advanced.ntlm_redis_cache"
+msgid "radius_configuration.ntlm_redis_cache"
 msgstr "Cache Redis NTLM"
 
 # conf/documentation.conf
@@ -10010,35 +10010,35 @@ msgid "advanced.portal_csp_security_headers"
 msgstr "En-têtes CSP pour le portail captif"
 
 # conf/documentation.conf
-msgid "advanced.radius_attributes"
+msgid "radius_configuration.radius_attributes"
 msgstr "Attributs RADIUS"
 
 # conf/documentation.conf
-msgid "advanced.record_accounting_in_sql"
+msgid "radius_configuration.record_accounting_in_sql"
 msgstr "Enregistrer la comptabilisation dans les tables SQL"
 
 # conf/documentation.conf
-msgid "advanced.filter_in_packetfence_authorize"
+msgid "radius_configuration.filter_in_packetfence_authorize"
 msgstr "Use radius filters in packetfence authorize"
 
 # conf/documentation.conf
-msgid "advanced.filter_in_packetfence_pre_proxy"
+msgid "radius_configuration.filter_in_packetfence_pre_proxy"
 msgstr "Utiliser les filtres dans packetfence pre_proxy"
 
 # conf/documentation.conf
-msgid "advanced.filter_in_packetfence_post_proxy"
+msgid "radius_configuration.filter_in_packetfence_post_proxy"
 msgstr "Utiliser les filtres dans packetfence post_proxy"
 
 # conf/documentation.conf
-msgid "advanced.filter_in_packetfence_preacct"
+msgid "radius_configuration.filter_in_packetfence_preacct"
 msgstr "Utiliser les filtres dans packetfence preacct"
 
 # conf/documentation.conf
-msgid "advanced.filter_in_packetfence_accounting"
+msgid "radius_configuration.filter_in_packetfence_accounting"
 msgstr "Utiliser les filtres dans packetfence accounting"
 
 # conf/documentation.conf
-msgid "advanced.filter_in_packetfence-tunnel_authorize"
+msgid "radius_configuration.filter_in_packetfence-tunnel_authorize"
 msgstr "Utiliser les filtres dans packetfence-tunnel authorize"
 
 # conf/documentation.conf
@@ -10550,11 +10550,11 @@ msgstr "dhcplistener"
 # conf/documentation.conf (advanced.locationlog_close_on_accounting_stop
 # options)
 # conf/documentation.conf (advanced.multihost options)
-# conf/documentation.conf (advanced.normalize_radius_machine_auth_username
+# conf/documentation.conf (radius_configuration.normalize_radius_machine_auth_username
 # options)
-# conf/documentation.conf (advanced.ntlm_redis_cache options)
+# conf/documentation.conf (radius_configuration.ntlm_redis_cache options)
 # conf/documentation.conf (advanced.portal_csp_security_headers options)
-# conf/documentation.conf (advanced.record_accounting_in_sql options)
+# conf/documentation.conf (radius_configuration.record_accounting_in_sql options)
 # conf/documentation.conf (advanced.sso_on_access_reevaluation options)
 # conf/documentation.conf (advanced.sso_on_accounting options)
 # conf/documentation.conf (advanced.sso_on_dhcp options)
@@ -10684,11 +10684,11 @@ msgstr "en_US"
 # conf/documentation.conf (advanced.locationlog_close_on_accounting_stop
 # options)
 # conf/documentation.conf (advanced.multihost options)
-# conf/documentation.conf (advanced.normalize_radius_machine_auth_username
+# conf/documentation.conf (radius_configuration.normalize_radius_machine_auth_username
 # options)
-# conf/documentation.conf (advanced.ntlm_redis_cache options)
+# conf/documentation.conf (radius_configuration.ntlm_redis_cache options)
 # conf/documentation.conf (advanced.portal_csp_security_headers options)
-# conf/documentation.conf (advanced.record_accounting_in_sql options)
+# conf/documentation.conf (radius_configuration.record_accounting_in_sql options)
 # conf/documentation.conf (advanced.sso_on_access_reevaluation options)
 # conf/documentation.conf (advanced.sso_on_accounting options)
 # conf/documentation.conf (advanced.sso_on_dhcp options)
