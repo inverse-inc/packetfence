@@ -1,14 +1,14 @@
-package pfappserver::Form::Config::Source::DUMMY;
+package pfappserver::Form::Config::Source::Authorization;
 
 =head1 NAME
 
-pfappserver::Form::Config::Source::DUMMY
+pfappserver::Form::Config::Source::Authorization
 
 =cut
 
 =head1 DESCRIPTION
 
-Form definition to create or update an DUMMY authentication source.
+Form definition to create or update an Authorization source.
 
 =cut
 
@@ -18,7 +18,7 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Source';
 with 'pfappserver::Base::Form::Role::Help', 'pfappserver::Base::Form::Role::InternalSource';
 
-use pf::Authentication::Source::DUMMYSource;
+use pf::Authentication::Source::AuthorizationSource;
 
 =head1 AUTHOR
 

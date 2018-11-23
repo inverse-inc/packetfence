@@ -1,14 +1,14 @@
-package pf::Authentication::Source::DUMMYSource;
+package pf::Authentication::Source::AuthorizationSource;
 
 =head1 NAME
 
-pf::Authentication::Source::DUMMYSource
+pf::Authentication::Source::AuthorizationSource
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::Authentication::Source::DUMMYSource
+pf::Authentication::Source::AuthorizationSource
 
 =cut
 
@@ -25,7 +25,7 @@ extends 'pf::Authentication::Source';
 with qw(pf::Authentication::InternalRole);
 
 has '+class' => (default => 'internal');
-has '+type' => (default => 'DUMMY');
+has '+type' => (default => 'Authorization');
 
 =head2 available_attributes
 

@@ -32,6 +32,8 @@ has_field 'port' =>
    element_attr => {'placeholder' => '1812'},
    default => 1812,
    required => 1,
+   tags => { after_element => \&help,
+             help => 'If you use this source in the realm configuration the accounting port will be this port + 1' },
   );
 has_field 'secret' =>
   (
