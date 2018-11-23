@@ -110,6 +110,7 @@
             no-gutter
           >
 <<<<<<< HEAD
+<<<<<<< HEAD
             <b-col col align-self="start" class="draghandle text-center col-form-label pt-2" v-if="sortable && hover === index && inputValue.length > 1">
               <icon name="th" v-b-tooltip.hover.left.d300 :title="$t('Click and drag to re-order')"></icon>
             </b-col>
@@ -121,6 +122,14 @@
             <b-col col v-if="sortable && hover === index && inputValue.length > 1" class="draghandle text-center"><icon name="th" v-b-tooltip.hover.left.d300 :title="$t('Click and drag to
 re-order')"></icon></b-col>
             <b-col col v-else class="dragindex text-center"><b-badge variant="light">{{ index + 1 }}</b-badge></b-col>
+=======
+            <b-col col v-if="sortable && hover === index && inputValue.length > 1" class="draghandle text-center">
+              <icon name="th" v-b-tooltip.hover.left.d300 :title="$t('Click and drag to re-order')"></icon>
+            </b-col>
+            <b-col col v-else class="dragindex text-center">
+              <b-badge variant="light">{{ index + 1 }}</b-badge>
+            </b-col>
+>>>>>>> Unwrap
             <b-col cols="4" class="text-left py-1" align-self="start">
 >>>>>>> Normalize class names
 
@@ -238,8 +247,15 @@ re-order')"></icon></b-col>
 
             </b-col>
             <b-col col align-self="start" class="text-center text-nowrap col-form-label pt-2 mr-1">
-              <icon name="minus-circle" v-if="inputValue.length > 1" :class="['cursor-pointer mx-1', { 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }]" v-b-tooltip.hover.left.d300 :title="$t((ctrlKey) ? 'Delete All Actions' : 'Delete Action')" @click.native.stop.prevent="rowDel(index)"></icon>
-              <icon name="plus-circle" :class="['cursor-pointer mx-1', { 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }]" v-b-tooltip.hover.left.d300 :title="$t((ctrlKey) ? 'Clone Action' : 'Add Action')" @click.native.stop.prevent="rowAdd(index + 1)"></icon>
+              <icon name="minus-circle" v-if="inputValue.length > 1"
+                :class="['cursor-pointer mx-1', { 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }]"
+                v-b-tooltip.hover.left.d300
+                :title="$t((ctrlKey) ? 'Delete All Actions' : 'Delete Action')"
+                @click.native.stop.prevent="rowDel(index)"></icon>
+              <icon name="plus-circle"
+                :class="['cursor-pointer mx-1', { 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }]"
+                v-b-tooltip.hover.left.d300 :title="$t((ctrlKey) ? 'Clone Action' : 'Add Action')"
+                @click.native.stop.prevent="rowAdd(index + 1)"></icon>
             </b-col>
           </b-form-row>
         </draggable>
