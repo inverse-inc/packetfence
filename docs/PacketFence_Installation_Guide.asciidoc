@@ -2637,24 +2637,16 @@ PacketFence in a Passpoint setup then this section is for you.
 
 To do that in PacketFence you need first to define the target RADIUS server(s) in Configuration -> Policies and Access Control -> Authentication Sources, and create the RADIUS source(s) (ACME1 ACME2).
 In the Source configuration, fill the mandatory fields and add the options to define the home_server in FreeRADIUS. (https://github.com/FreeRADIUS/freeradius-server/blob/v3.0.x/raddb/proxy.conf)
-Per example:
+Per example for the RADIUS Source ACME1:
 
- type = auth+acct
- response_window = 6
- status_check = status-server
- revive_interval = 120
- check_interval = 30
- num_answers_to_alive = 3
+image::ACME1.png[scaledwidth="100%",alt="ACME RADIUS Source"]
+
+$src_ip is a way to dynamically use the correct source interface of the system in case of multiples network interfaces.
 
 Next go in Configuration ->  Policies and Access Control -> REALMS, and add a new realm.
 
- Realm: acme.com
- Realm Options: nostrip
- Domain:
- RADIUS AUTH: ACME1,ACME2
- type: Keyed Balance
- RADIUS ACCT: ACME1,ACME2
- type: Load Balance
+image::acme.com.png[scaledwidth="100%",alt="ACME Realm Configuration"]
+image::acme.com.2.png[scaledwidth="100%",alt="ACME Realm Configuration"]
 
 (type definition can be found here https://wiki.freeradius.org/features/Proxy)
 
