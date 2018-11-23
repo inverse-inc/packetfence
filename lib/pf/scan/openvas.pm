@@ -32,48 +32,16 @@ Readonly our $RESPONSE_OK                   => 200;
 Readonly our $RESPONSE_RESOURCE_CREATED     => 201;
 Readonly our $RESPONSE_REQUEST_SUBMITTED    => 202;
 
+sub _get_scan_id {
+    my ($self) = @_;
+    # TODO: truly random
+    $self->{_scanId} = $self->{_scanId} // $self->{_id} . time;
+    return $self->{_scanId};
+}
+
 =head1 METHODS
 
 =over
-
-=item createEscalator
-
-Create an escalator which will trigger an action on the OpenVAS server once the scan will finish
-
-=cut
-
-sub createEscalator {
-    my ( $self ) = @_;
-    my $logger = get_logger();
-
-    my $name = $self->{_id};
-    my $callback = $self->_generateCallback();
-    my $command = _get_escalator_string($name, $callback);
-
-    $logger->info("Creating a new scan escalator named $name");
-
-    my $cmd = "omp -h $self->{_ip} -p $self->{_port} -u $self->{_username} -w $self->{_password} -X '$command'";
-    $logger->trace("Scan escalator creation command: $cmd");
-    my $output = pf_run($cmd);
-    chomp($output);
-    $logger->trace("Scan escalator creation output: $output");
-
-    # Fetch response status and escalator id
-    my ($response, $escalator_id) = ($output =~ /<create_escalator_response\
-            status="([0-9]+)"\      # status code
-            id="([a-zA-Z0-9\-]+)"   # escalator id
-            /x);
-
-    # Scan escalator successfully created
-    if ( defined($response) && $response eq $RESPONSE_RESOURCE_CREATED ) {
-        $logger->info("Scan escalator named $name successfully created with id: $escalator_id");
-        $self->{_escalatorId} = $escalator_id;
-        return 0;
-    }
-
-    $logger->warn("There was an error creating scan escalator named $name, here's the output: $output");
-    return;
-}
 
 =item createTarget
 
@@ -85,23 +53,20 @@ sub createTarget {
     my ( $self ) = @_;
     my $logger = get_logger();
 
-    my $name = $self->{_id};
+    my $name = $self->_get_scan_id();
     my $target_host = $self->{_scanIp};
     my $command = "<create_target><name>$name</name><hosts>$target_host</hosts></create_target>";
 
     $logger->info("Creating a new scan target named $name for host $target_host");
 
     my $cmd = "omp -h $self->{_ip} -p $self->{_port} -u $self->{_username} -w $self->{_password} -X '$command'";
-    $logger->trace("Scan target creation command: $cmd");
+    $logger->info("Scan target creation command: $cmd");
     my $output = pf_run($cmd);
     chomp($output);
-    $logger->trace("Scan target creation output: $output");
+    $logger->info("Scan target creation output: $output");
 
     # Fetch response status and target id
-    my ($response, $target_id) = ($output =~ /<create_target_response\
-            status="([0-9]+)"\      # status code
-            id="([a-zA-Z0-9\-]+)"   # task id
-            /x);
+    my ($target_id, $response) = ($output =~ /<create_target_response.*id="([a-zA-Z0-9\-]+)".*status="([0-9]+)"/x);
 
     # Scan target successfully created
     if ( defined($response) && $response eq $RESPONSE_RESOURCE_CREATED ) {
@@ -124,24 +89,19 @@ sub createTask {
     my ( $self )  = @_;
     my $logger = get_logger();
 
-    my $name = $self->{_id};
+    my $name = $self->_get_scan_id();
 
     $logger->info("Creating a new scan task named $name");
 
-    my $command = _get_task_string(
-        $name, $self->{_openvas_configid}, $self->{_targetId}, $self->{_escalatorId}
-    );
+    my $command = $self->_get_task_string($name, $self->{_openvas_configid}, $self->{_targetId});
     my $cmd = "omp -h $self->{_ip} -p $self->{_port} -u $self->{_username} -w $self->{_password} -X '$command'";
-    $logger->trace("Scan task creation command: $cmd");
+    $logger->info("Scan task creation command: $cmd");
     my $output = pf_run($cmd);
     chomp($output);
-    $logger->trace("Scan task creation output: $output");
+    $logger->info("Scan task creation output: $output");
 
     # Fetch response status and task id
-    my ($response, $task_id) = ($output =~ /<create_task_response\
-            status="([0-9]+)"\      # status code
-            id="([a-zA-Z0-9\-]*)"   # task id
-            /x);
+    my ($task_id, $response) = ($output =~ /<create_task_response.*id="([a-zA-Z0-9\-]*)".*status="([0-9]+)"/x);
 
     # Scan task successfully created
     if ( defined($response) && $response eq $RESPONSE_RESOURCE_CREATED ) {
@@ -175,10 +135,10 @@ sub processReport {
     $logger->info("Getting the scan report for the finished scan task named $name");
 
     my $cmd = "omp -h $self->{_ip} -p $self->{_port} -u $self->{_username} -w $self->{_password} -X '$command'";
-    $logger->trace("Report fetching command: $cmd");
+    $logger->info("Report fetching command: $cmd");
     my $output = pf_run($cmd);
     chomp($output);
-    $logger->trace("Report fetching output: $output");
+    $logger->info("Report fetching output: $output");
 
     # Fetch response status and report
     my ($response, $raw_report) = ($output =~ /<get_reports_response\
@@ -258,9 +218,11 @@ sub startScan {
     my $logger = get_logger();
 
     $self->createTarget();
-    $self->createEscalator();
     $self->createTask();
     $self->startTask();
+
+    # Clear the scan ID
+    $self->{_scanId} = undef;
 }
 
 =item startTask
@@ -273,23 +235,20 @@ sub startTask {
     my ( $self ) = @_;
     my $logger = get_logger();
 
-    my $name    = $self->{_id};
+    my $name    = $self->_get_scan_id();
     my $task_id = $self->{_taskId};
     my $command = "<start_task task_id=\"$task_id\"/>";
 
     $logger->info("Starting scan task named $name");
 
     my $cmd = "omp -h $self->{_ip} -p $self->{_port} -u $self->{_username} -w $self->{_password} -X '$command'";
-    $logger->trace("Scan task starting command: $cmd");
+    $logger->info("Scan task starting command: $cmd");
     my $output = pf_run($cmd);
     chomp($output);
-    $logger->trace("Scan task starting output: $output");
+    $logger->info("Scan task starting output: $output");
 
     # Fetch response status and report id
-    my ($response, $report_id) = ($output =~ /<start_task_response\
-            status="([0-9]+)"[^\<]+[\<] # status code
-            report_id>([a-zA-Z0-9\-]+)  # report id
-            /x);
+    my ($response, $report_id) = ($output =~ /<start_task_response.*status="([0-9]+)"[^\<]+[\<].*report_id>([a-zA-Z0-9\-]+)/x);
 
     # Scan task successfully started
     if ( defined($response) && $response eq $RESPONSE_REQUEST_SUBMITTED ) {
@@ -331,29 +290,10 @@ sub _generateCallback {
     return $callback;
 }
 
-=back
-
-=head1 SUBROUTINES
-
-=over
-
-=item _get_escalator_string
-
-create_escalator string creation.
-
-=cut
-
-sub _get_escalator_string {
-    my ($name, $callback) = @_;
-
-    return <<"EOF";
-<create_escalator>
-  <name>$name</name>
-  <condition>Always<data>High<name>level</name></data><data>changed<name>direction</name></data></condition>
-  <event>Task run status changed<data>Done<name>status</name></data></event>
-  $callback
-</create_escalator>
-EOF
+sub _to_single_line {
+    my ($self, $s) = @_;
+    $s =~ s/>\s*</></g;
+    return join("", split(/\n/, $s));
 }
 
 =item _get_task_string
@@ -363,16 +303,19 @@ create_task string creation.
 =cut
 
 sub _get_task_string {
-    my ($name, $config_id, $target_id, $escalator_id) = @_;
+    my ($self, $name, $config_id, $target_id) = @_;
 
-    return <<"EOF";
+    $self->{_alertId} = "726bbe0e-2061-43e7-a562-b7cd24df725a";
+
+    my $s = <<"EOF";
 <create_task>
   <name>$name</name>
   <config id=\"$config_id\"/>
   <target id=\"$target_id\"/>
-  <escalator id=\"$escalator_id\"/>
+  <alert id=\"$self->{_alertId}\"/>
 </create_task>
 EOF
+    return $self->_to_single_line($s);
 }
 
 =back
