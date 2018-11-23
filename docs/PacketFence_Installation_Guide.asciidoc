@@ -2650,6 +2650,10 @@ image::acme.com.2.png[scaledwidth="100%",alt="ACME Realm Configuration"]
 
 (type definition can be found here https://wiki.freeradius.org/features/Proxy)
 
+Authorize from PacketFence will send the request to PacketFence to compute the role and access duration of the device.
+In this case the easiest way to achieve that is to create a Authorization source (with rules), assign this source to a connection profile where you enabled "Automatically register devices" and where 
+you defined a filter like Realm = acme.com .
+
 Click on save and restart radius (pfcmd service radiusd restart).
 
 Now when a device connect with the username bob@acme.com then the authentication and accounting requests will be forwarded to one of the ACME RADIUS servers.
