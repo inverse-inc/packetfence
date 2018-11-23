@@ -2631,8 +2631,8 @@ When using such violation feature, setting the grace period is really important.
 RADIUS Proxy
 ~~~~~~~~~~~~
 
-RADIUS Proxy is a way to proxy authentication and accounting requests to another radius server based on the realm.
-Let's say you want to authenticate users on an Active Directory where the is a NPS server running and you don't want to join the PacketFence's server to this domain or in the case you want to integrate
+RADIUS Proxy is a way to proxy authentication and accounting requests to other radius server(s) based on the realm.
+Let's say you want to authenticate users on an Active Directory where there is a NPS server running and you don't want to join the PacketFence's server to this domain or in the case you want to integrate
 PacketFence in a Passpoint setup then this section is for you.
 
 To do that in PacketFence you need first to define the target RADIUS server(s) in Configuration -> Policies and Access Control -> Authentication Sources, and create the RADIUS source(s) (ACME1 ACME2).
@@ -2641,7 +2641,7 @@ Per example for the RADIUS Source ACME1:
 
 image::ACME1.png[scaledwidth="100%",alt="ACME RADIUS Source"]
 
-$src_ip is a way to dynamically use the correct source interface of the system in case of multiples network interfaces.
+$src_ip is a way to dynamically use the correct source ip address of the system in case of multiples network interfaces.
 
 Next go in Configuration ->  Policies and Access Control -> REALMS, and add a new realm.
 
