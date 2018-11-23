@@ -6,7 +6,7 @@
     :validation="$v.source"
     :isNew="isNew"
     :isClone="isClone"
-    @validations="sourceValidations = $event"
+    @validations="setValidations($event)"
     @close="close"
     @create="create"
     @save="save"
@@ -20,7 +20,7 @@
         <span v-else>{{ $t('New {sourceType} Authentication Source', { sourceType: this.sourceType}) }}</span>
       </h4>
     </template>
-    <template slot="footer" is="b-card-footer" @mouseenter="$v.source.$touch()">
+    <template slot="footer" is="b-card-footer" @mouseenter="$v.$touch()">
       <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
         <template v-if="isNew">{{ $t('Create') }}</template>
         <template v-else-if="isClone">{{ $t('Clone') }}</template>
@@ -97,7 +97,7 @@ export default {
       return this.$store.getters[`${this.storeName}/isLoading`]
     },
     invalidForm () {
-      return this.$v.source.$invalid || this.$store.getters[`${this.storeName}/isWaiting`]
+      return this.$v.$invalid || this.$store.getters[`${this.storeName}/isWaiting`]
     },
     getForm () {
       return {
@@ -132,6 +132,9 @@ export default {
       this.$store.dispatch(`${this.storeName}/deleteAuthenticationSource`, this.id).then(response => {
         this.close()
       })
+    },
+    setValidations (validations) {
+      this.$set(this, 'sourceValidations', validations)
     }
   },
   created () {

@@ -24,10 +24,11 @@
                 :key="field.key"
                 :is="field.component || defaultComponent"
                 :isLoading="isLoading"
-                :validation="getValidation(field.key)"
+                :validation="getValidationModel(field.key)"
                 :class="getClass(row, field)"
                 :value="getValue(field.key)"
                 @input="setValue(field.key, $event)"
+                @validations="setComponentValidations(field.key, $event)"
               ></component>
             </template>
           </b-input-group>
@@ -83,6 +84,11 @@ export default {
       type: Boolean
     }
   },
+  data () {
+    return {
+      componentValidations: {}
+    }
+  },
   computed: {
     defaultComponent () {
       return pfFormInput
@@ -118,13 +124,17 @@ export default {
       }
       this.$set(model, key, value)
     },
-    getValidation (key, model = this.validation) {
+    getValidationModel (key, model = this.validation) {
       if (key.includes('.')) { // handle dot-notation keys ('.')
         const split = key.split('.')
         const [ first, remainder ] = [ split[0], split.slice(1).join('.') ]
-        return this.getValidation(remainder, model[first])
+        return this.getValidationModel(remainder, model[first])
       }
       return model[key]
+    },
+    setComponentValidations (key, validations) {
+      this.$set(this.componentValidations, key, validations)
+      this.emitExternalValidations()
     },
     getExternalValidations () {
       const eachFieldValue = {}
@@ -157,6 +167,14 @@ export default {
           }
         })
       }
+      // deep merge component validations
+      Object.keys(this.componentValidations).forEach(key => {
+        if (key in eachFieldValue) {
+          eachFieldValue[key] = {...eachFieldValue[key], ...this.componentValidations[key]} // deep merge
+        } else {
+          eachFieldValue[key] = this.componentValidations[key]
+        }
+      })
       Object.freeze(eachFieldValue)
       return eachFieldValue
     },
@@ -166,6 +184,13 @@ export default {
       if (this.emitExternalValidationsTimeout) clearTimeout(this.emitExternalValidationsTimeout)
       this.emitExternalValidationsTimeout = setTimeout(() => {
         this.$emit('validations', this.getExternalValidations())
+        this.$nextTick(() => {
+          if (this.validation && this.validation.$dirty) {
+            this.validation.$touch()
+          }
+          // force DOM update
+          this.$forceUpdate()
+        })
       }, 300)
     },
     getClass (row, field) {

@@ -3,7 +3,7 @@
     :state="isValid()" :invalid-feedback="getInvalidFeedback()"
     class="pf-form-configuration-rules" :class="{ 'is-focus': drag, 'mb-0': !columnLabel }"
     >
-    <b-input-group class="input-group">
+    <b-input-group class="pf-form-configuration-rules-input-group">
       <!--
          - Vacuum-up label click event.
          - See: https://github.com/bootstrap-vue/bootstrap-vue/issues/2063
@@ -36,14 +36,26 @@
               <b-col col v-else class="drag-index text-center">
                 <b-badge variant="light">{{ index + 1 }}</b-badge>
               </b-col>
-              <b-col cols="10" class="collapse-handle text-primary" v-b-toggle="uuidStr('collapse' + index)" @click.prevent="clickRule(uuidStr('collapse' + index), $event)">
-                <icon v-if="isRuleVisible(uuidStr('collapse' + index))" name="chevron-circle-down" :class="['mr-3', { 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }]"></icon>
-                <icon v-else name="chevron-circle-right" :class="['mr-3', { 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }]"></icon>
+              <b-col cols="10"
+                class="collapse-handle py-2"
+                :class="(invalidRule(index)) ? 'text-danger' : 'text-primary'"
+                v-b-toggle="uuidStr('collapse' + index)" @click.prevent="clickRule(uuidStr('collapse' + index), $event)"
+              >
+                <icon v-if="isRuleVisible(uuidStr('collapse' + index))" name="chevron-circle-down" :class="['mr-3', { 'text-primary': ctrlKey, 'text-dark': !ctrlKey }]"></icon>
+                <icon v-else name="chevron-circle-right" :class="['mr-3', { 'text-primary': ctrlKey, 'text-dark': !ctrlKey }]"></icon>
                 <span>Rule - {{ getValue(index, 'id') || 'New' }} ( {{ getValue(index, 'description') }} )</span>
               </b-col>
-              <b-col col class="text-right text-nowrap">
-                <icon name="minus-circle" :class="['cursor-pointer mx-1', { 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }]" v-b-tooltip.hover.left.d300 :title="$t((ctrlKey) ? 'Delete All Rules' : 'Delete Rule')" @click.native.stop.prevent="rowDel(index)"></icon>
-                <icon name="plus-circle" :class="['cursor-pointer mx-1', { 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }]" v-b-tooltip.hover.left.d300 :title="$t((ctrlKey) ? 'Clone Rule' : 'Add Rule')" @click.native.stop.prevent="rowAdd(index + 1)"></icon>
+              <b-col col class="text-center text-nowrap">
+                <icon name="minus-circle"
+                  :class="['cursor-pointer mx-1', { 'text-primary': ctrlKey, 'text-dark': !ctrlKey }]"
+                  v-b-tooltip.hover.left.d300
+                  :title="$t((ctrlKey) ? 'Delete All Rules' : 'Delete Rule')"
+                  @click.native.stop.prevent="rowDel(index)"></icon>
+                <icon name="plus-circle"
+                  :class="['cursor-pointer mx-1', { 'text-primary': ctrlKey, 'text-dark': !ctrlKey }]"
+                  v-b-tooltip.hover.left.d300
+                  :title="$t((ctrlKey) ? 'Clone Rule' : 'Add Rule')"
+                  @click.native.stop.prevent="rowAdd(index + 1)"></icon>
               </b-col>
             </b-form-row>
             <b-collapse :id="uuidStr('collapse' + index)" :ref="uuidStr('collapse')" class="mt-2" :visible="true">
@@ -54,35 +66,44 @@
                 @mousemove="onMouseEnter(index)"
                 no-gutter
               >
-                <b-col cols="12" class="text-left py-1" align-self="start">
+                <b-col cols="12" class="text-left py-0 px-2" align-self="start">
 
                   <pf-form-input :column-label="$t('Name')" label-cols="2"
                     :ref="'name-' + index"
                     :value="getValue(index, 'id')"
+                    :validation="getValidationModel(index, 'id')"
                     @input="setValue(index, 'id', $event)"
-                    class="mb-1"
+                    class="mb-1 mr-2"
                   ></pf-form-input>
                   <pf-form-input :column-label="$t('Description')" label-cols="2"
                     :value="getValue(index, 'description')"
+                    :validation="getValidationModel(index, 'description')"
                     @input="setValue(index, 'description', $event)"
-                    class="mb-1"
+                    class="mb-1 mr-2"
                   ></pf-form-input>
                   <pf-form-select :column-label="$t('Matches')" label-cols="2"
-                    :value="getValue(index, 'match')"
-                    @input="setValue(index, 'match', $event)"
                     :options="[
                       { value: 'all', text: $i18n.t('All') },
                       { value: 'any', text: $i18n.t('Any') }
                     ]"
-                    class="mb-1"
+                    :validation="getValidationModel(index, 'match')"
+                    :value="getValue(index, 'match')"
+                    @input="setValue(index, 'match', $event)"
+                    class="mb-1 mr-2"
                   ></pf-form-select>
                   <pf-form-actions :column-label="$t('Actions')" label-cols="2"
                     sortable
-                    :value="getValue(index, 'actions')"
-                    @input="setValue(index, 'actions', $event)"
+                    :fields="actions"
                     :type-label="$t('Select action type')"
                     :value-label="$t('Select action value')"
-                    :fields="actions"
+                    :validation="getValidationModel(index, 'actions')"
+                    :invalid-feedback="[
+                      { [$t('Action(s) contain one or more errors.')]: !(getValidationModel(index, 'actions') && getValidationModel(index, 'actions').anyError) }
+                    ]"
+                    :value="getValue(index, 'actions')"
+                    @input="setValue(index, 'actions', $event)"
+                    @validations="setComponentValidations(index, 'actions', $event)"
+                    class="mb-1 mr-2"
                   ></pf-form-actions>
                 </b-col>
               </b-form-row>
@@ -108,13 +129,11 @@ import pfFormSelect from '@/components/pfFormSelect'
 import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 import pfMixinValidation from '@/components/pfMixinValidation'
 import {
-  pfFieldType as fieldType,
-  pfFieldTypeValues as fieldTypeValues
+  pfFieldType as fieldType
 } from '@/globals/pfField'
 import {
   pfConfigurationActions as actionFields
 } from '@/globals/pfConfiguration'
-import { required } from 'vuelidate/lib/validators'
 
 export default {
   name: 'pf-form-configuration-rules',
@@ -175,7 +194,8 @@ export default {
       hover:                    null,
       drag:                     false,
       actionFields:             actionFields,
-      actionsValidations:       {}, // will be overloaded with data from the pfConfigActions
+      visibleRules:             [],
+      componentValidations:     {}, // will be overloaded with data from the pfConfigActions and pfConfigConditions
       /* Generic field types */
       noValueType:              fieldType.NONE,
       integerValueType:         fieldType.INTEGER,
@@ -217,15 +237,6 @@ export default {
         this.$set(this.inputValue[index], key, value)
       }
     },
-    setType (index, type) {
-      let inputValue = JSON.parse(JSON.stringify(this.inputValue))
-      inputValue[index].type = type
-      inputValue[index].value = null
-      this.inputValue = inputValue
-      this.emitExternalValidations()
-      // focus the value element in this row
-      this.setFocus('value-' + index)
-    },
     setFocus (ref) {
       this.$nextTick(() => {
         if (ref in this.$refs) {
@@ -238,6 +249,30 @@ export default {
           }
         }
       })
+    },
+    setComponentValidations (index, key, validations) {
+      if (!(index in this.componentValidations)) {
+        this.componentValidations[index] = {}
+      }
+      this.componentValidations[index][key] = validations
+      this.emitExternalValidations()
+    },
+    getValidationModel (index, key) {
+      if (this.validation) {
+        if (index in this.validation) {
+          if (key in this.validation[index]) {
+            return this.validation[index][key]
+          }
+        }
+        if ('$each' in this.validation) {
+          if (index in this.validation.$each) {
+            if (key in this.validation.$each[index]) {
+              return this.validation.$each[index][key]
+            }
+          }
+        }
+      }
+      return null
     },
     rowAdd (index, clone = this.ctrlKey) {
       // dereference inputValue
@@ -257,8 +292,22 @@ export default {
       let inputValue = JSON.parse(JSON.stringify(this.inputValue))
       if (deleteAll) {
         inputValue = [] // delete all rows
+        this.componentValidations = {} // truncate component validations
       } else {
         inputValue.splice(index, 1) // delete 1 row
+        // truncate component validations
+        let componentValidations = {}
+        Object.keys(this.componentValidations).forEach(i => {
+          switch (true) {
+            case (i < index): componentValidations[i] = this.componentValidations[i]
+              break
+            case (i === index): // noop
+              break
+            case (i > index): componentValidations[i - 1] = this.componentValidations[i]
+              break
+          }
+        })
+        this.componentValidations = componentValidations
       }
       this.inputValue = inputValue
       if (this.inputValue.length === 0) {
@@ -266,6 +315,19 @@ export default {
       } else {
         this.emitExternalValidations()
       }
+    },
+    invalidRule (index) {
+      if (
+        this.validation &&
+        '$each' in this.validation &&
+        index in this.validation.$each &&
+        '$invalid' in this.validation.$each[index] &&
+        !this.validation.$each[index].$invalid
+      ) {
+        this.validation.$each[index].$touch()
+        return false
+      }
+      return true
     },
     onDragStart (event) {
       this.drag = true
@@ -277,8 +339,9 @@ export default {
       this.drag = false
       // resort visibility
       let visibleRules = this.visibleRules
-      visibleRules = [...visibleRules.slice(0, event.oldIndex), ...visibleRules.slice(event.oldIndex + 1)]
-      visibleRules = [...visibleRules.slice(0, event.newIndex), this.visibleRules[event.oldIndex], ...visibleRules.slice(event.newIndex + 1)]
+      let { oldIndex, newIndex } = event
+      visibleRules = [...visibleRules.slice(0, oldIndex), ...visibleRules.slice(oldIndex + 1)]
+      visibleRules = [...visibleRules.slice(0, newIndex), this.visibleRules[oldIndex], ...visibleRules.slice(newIndex)]
       this.$refs[this.uuidStr('collapse')].map((ref, index) => {
         ref.show = visibleRules[index]
       })
@@ -291,142 +354,25 @@ export default {
     onMouseLeave () {
       this.hover = null
     },
-    values (inputValue) {
-      if (!inputValue || !inputValue.type) return []
-      const index = this.fields.findIndex(field => field.value === inputValue.type)
-      let values = []
-      if (index >= 0) {
-        const field = this.fields[index]
-        for (const type of field.types) {
-          if (fieldTypeValues[type]) {
-            values.push(...fieldTypeValues[type](this.$store))
-          }
-        }
-      }
-      return values
-    },
-    isFieldType (type, inputValue) {
-      if (!inputValue.type) return false
-      const index = this.fields.findIndex(field => field.value === inputValue.type)
-      if (index >= 0) {
-        const field = this.fields[index]
-        if (field.types.includes(type)) {
-          return true
-        }
-      }
-      return false
-    },
-    getValidations () {
-      // don't emit validation error if only a single inputValue member exists,
-      //  this allows the parent form to pass when the component is not used (is rulePlaceHolder).
-      if (this.inputValue.length > 1 || JSON.stringify(this.inputValue[0]) !== JSON.stringify(this.rulePlaceHolder)) {
-        const eachInputValue = {}
-        this.inputValue.forEach((input, index) => {
-          const field = this.fields.find(field => input.type && field.value === input.type)
-          if (field) {
-            eachInputValue[field.value] = {}
-            if ('validators' in field) { // has vuelidate validations
-              if ('type' in field.validators) {
-                eachInputValue[field.value].type = field.validators.type
-              }
-              if ('value' in field.validators) {
-                eachInputValue[field.value].value = field.validators.value
-              }
-            } else if (field && field.value) {
-              // no validations
-              eachInputValue[field.value] = {} // ignore
-            } else {
-              // 1 or more undefined field(s)
-              eachInputValue[null] = {} // ignore
-            }
-          } else {
-            // field |type| is null (placeHolder)
-            eachInputValue[null] = {
-              type: { [this.$i18n.t('Type required.')]: required }
-            }
-          }
-        })
-        Object.freeze(eachInputValue)
-        if (eachInputValue !== {}) {
-          // use functional validations
-          // https://github.com/monterail/vuelidate/issues/166#issuecomment-319924309
-          return { ...this.inputValue.map(input => eachInputValue[(input.type) ? input.type : null] || {/* empty */}) }
-        }
-      }
-      return {}
-    },
-    getTypeValidation (index) {
-      if (index in this.validation && 'type' in this.validation[index]) {
-        return this.validation[index].type
-      }
-      return {}
-    },
-    getTypeInvalidFeedback (index) {
-      let feedback = []
-      if (index in this.validation) {
-        const validation = this.validation[index] /* use external vuelidate $v model */
-        if (validation.type) {
-          const validationModel = validation.type
-          if (validationModel) {
-            Object.entries(validationModel.$params).forEach(([key, value]) => {
-              if (validationModel[key] === false) {
-                feedback.push(key.trim())
-              }
-            })
-          }
-        }
-      }
-      return feedback.join('<br/>')
-    },
-    getValueValidation (index) {
-      if (index in this.validation && 'value' in this.validation[index]) {
-        return this.validation[index].value
-      }
-      return {}
-    },
-    getValueInvalidFeedback (index) {
-      let feedback = []
-      if (index in this.validation) {
-        const validation = this.validation[index] /* use external vuelidate $v model */
-        if (validation.value) {
-          const validationModel = validation.value
-          if (validationModel) {
-            Object.entries(validationModel.$params).forEach(([key, value]) => {
-              if (validationModel[key] === false) {
-                feedback.push(key.trim())
-              }
-            })
-          }
-        }
-      }
-      return feedback.join('<br/>')
-    },
-    getMoments (index) {
-      if ('moments' in this.inputValue[index].type) {
-        return this.inputValue[index].type.moments
-      }
-      return null
+    getValidationModels () {
+      return this.componentValidations
     },
     emitExternalValidations () {
-      /*
       // debounce to avoid emit storm,
       // delay to allow internal inputValue to update before building external validations
       if (this.emitExternalValidationsTimeout) clearTimeout(this.emitExternalValidationsTimeout)
       // don't emit on |drag|, fixes .is-invalid flicker on internal components shortly after drag @end
       if (this.drag) return
       this.emitExternalValidationsTimeout = setTimeout(() => {
-        this.$emit('validations', this.getValidations())
-        if (this.validation && this.validation.$dirty) {
-          this.$nextTick(() => {
-            this.validation.$touch()
-          })
-        }
+        this.$emit('validations', this.getValidationModels())
         this.$nextTick(() => {
+          if (this.validation && this.validation.$dirty) {
+            this.validation.$touch()
+          }
           // force DOM update
           this.$forceUpdate()
         })
       }, 100)
-      */
     },
     isRuleVisible (id) {
       const refs = this.$refs[this.uuidStr('collapse')]
@@ -475,20 +421,20 @@ export default {
 @import "../styles/variables";
 
 .pf-form-configuration-rules {
-  .input-group {
+  .pf-form-configuration-rules-input-group {
     border: 1px solid $input-focus-bg;
     @include border-radius($border-radius);
     @include transition($custom-forms-transition);
     outline: 0;
   }
   &.is-focus {
-    .input-group {
+    .pf-form-configuration-rules-input-group {
       border-color: $input-focus-border-color;
       box-shadow: 0 0 0 $input-focus-width rgba($input-focus-border-color, .25);
     }
   }
   &.is-invalid {
-    .input-group {
+    .pf-form-configuration-rules-input-group {
       border-color: $form-feedback-invalid-color;
       box-shadow: 0 0 0 $input-focus-width rgba($form-feedback-invalid-color, .25);
     }
