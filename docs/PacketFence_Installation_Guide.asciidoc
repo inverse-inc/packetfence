@@ -2637,6 +2637,7 @@ PacketFence in a Passpoint setup then this section is for you.
 
 To do that in PacketFence you need first to define the target RADIUS server(s) in Configuration -> Policies and Access Control -> Authentication Sources, and create the RADIUS source(s) (ACME1 ACME2).
 In the Source configuration, fill the mandatory fields and add the options to define the home_server in FreeRADIUS. (https://github.com/FreeRADIUS/freeradius-server/blob/v3.0.x/raddb/proxy.conf)
+
 Per example for the RADIUS Source ACME1:
 
 image::ACME1.png[scaledwidth="100%",alt="ACME RADIUS Source"]
@@ -2651,6 +2652,7 @@ image::acme.com.2.png[scaledwidth="100%",alt="ACME Realm Configuration"]
 (type definition can be found here https://wiki.freeradius.org/features/Proxy)
 
 Authorize from PacketFence will send the request to PacketFence to compute the role and access duration of the device.
+
 In this case the easiest way to achieve that is to create a Authorization source (with rules), assign this source to a connection profile where you enabled "Automatically register devices" and where 
 you defined a filter like Realm = acme.com .
 
