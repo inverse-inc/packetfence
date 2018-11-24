@@ -136,7 +136,7 @@ sub authenticate {
     my ( $self, $username, $password ) = @_;
     if (!$self->isEmailAllowed($username)) {
         my $logger = get_logger();
-        $logger->warn("Failed to authenticate using EmailSource ($self->{id}) with PID '$username'");
+        $logger->warn("EmailSource ($self->{id}) failed to authenticate PID '$username' is banned");
         return ($FALSE, $pf::constants::authentication::messages::EMAIL_UNAUTHORIZED);
     }
 
