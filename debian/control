@@ -21,7 +21,7 @@ Pre-Depends:  ca-certificates,
  packetfence-pfappserver-javascript (>= ${source:Version}),
  packetfence-captive-portal-javascript (>= ${source:Version}),
 # wmi
- libnet-wmiclient-perl, libwmiclient1, wmi-client,
+# libnet-wmiclient-perl, libwmiclient1, wmi-client,
  netdata (>= 1.10),
 Breaks: libdata-alias-perl
 Depends: ${misc:Depends}, vlan,
