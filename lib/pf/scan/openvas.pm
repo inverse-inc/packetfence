@@ -187,8 +187,9 @@ sub new {
             '_scanIp'           => undef,
             '_scanMac'          => undef,
             '_report'           => undef,
-            '_openvas_configId'         => undef,
-            '_openvas_reportFormatId'   => undef,
+            '_openvas_alertid'         => undef,
+            '_openvas_configid'         => undef,
+            '_openvas_reportformatid'   => undef,
             '_targetId'         => undef,
             '_escalatorId'      => undef,
             '_taskId'           => undef,
@@ -303,14 +304,12 @@ create_task string creation.
 sub _get_task_string {
     my ($self, $name, $config_id, $target_id) = @_;
 
-    $self->{_alertId} = "726bbe0e-2061-43e7-a562-b7cd24df725a";
-
     my $s = <<"EOF";
 <create_task>
   <name>$name</name>
   <config id=\"$config_id\"/>
   <target id=\"$target_id\"/>
-  <alert id=\"$self->{_alertId}\"/>
+  <alert id=\"$self->{_openvas_alertid}\"/>
 </create_task>
 EOF
     return $self->_to_single_line($s);
