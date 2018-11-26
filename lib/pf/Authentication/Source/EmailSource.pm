@@ -153,20 +153,11 @@ checks if email is allowed
 sub isEmailAllowed {
     my ($self, $email) = @_;
     $email = lc($email);
-    my @banned = make_domains_regexes($self->banned_domains);
-    if (!isenabled($self->allow_localdomain)) {
-        push @banned, localdomain_regexes();
-    }
-
-    if (any {$email =~ $_} @banned) {
+    if (any {$email =~ $_} $self->banned_email_regexes) {
         return $FALSE;
     }
 
-    my @allowed = make_domains_regexes($self->allowed_domains);
-    if (@allowed && isenabled($self->allow_localdomain)) {
-        push @allowed, localdomain_regexes();
-    }
-
+    my @allowed = $self->allowed_email_regexes;
     if (@allowed) {
         return (any {$email =~ $_} @allowed) ? $TRUE : $FALSE;
     }
@@ -174,45 +165,77 @@ sub isEmailAllowed {
     return $TRUE;
 }
 
+=head2 banned_email_regexes
+
+banned email regexes
+
+=cut
+
+sub banned_email_regexes {
+    my ($self) = @_;
+    my @banned = make_email_regexes($self->banned_domains);
+    if (!isenabled($self->allow_localdomain)) {
+        push @banned, localdomain_regexes();
+    }
+
+    return @banned;
+}
+
+=head2 allowed_email_regexes
+
+allowed email regexes
+
+=cut
+
+sub allowed_email_regexes {
+    my ($self) = @_;
+    my @allowed = make_email_regexes($self->allowed_domains);
+    if (@allowed && isenabled($self->allow_localdomain)) {
+        push @allowed, localdomain_regexes();
+    }
+
+    return @allowed;
+}
+
 =head2 localdomain_regexes
 
-Return list of regexes for matching the the local domain
+Return list of email regexes for matching the the local domain
 
 =cut
 
 sub localdomain_regexes {
-    my $domain = $Config{general}{domain};
-    return make_domains_regexes([$domain,"*.$domain"]);
+    my $domain = lc($Config{general}{domain});
+    return make_email_regexes([$domain,"*.$domain"]);
 }
 
-=head2 make_domains_regexes
+=head2 make_email_regexes
 
-Create a domain regexes from a list of domains
+Create an array of email regexes from a list of domain wildcards
 
 =cut
 
-sub make_domains_regexes {
-    my ($domains) = @_;
-    return map { make_domain_regex($_) } @{$domains // []};
+sub make_email_regexes {
+    my ($domain_wildcards) = @_;
+    return map { make_email_regex($_) } @{$domain_wildcards // []};
 }
 
-=head2 make_domain_regex
+=head2 make_email_regex
 
-Make the regex from a domain
+Make an email regex from a domain wildcard
 
 =cut
 
-sub make_domain_regex {
-    my ($d) = @_;
+sub make_email_regex {
+    my ($domain_wildcard) = @_;
     local $_;
-    if ($d =~ /\*/) {
-        $d =~ s/\./\\./g;
-        $d =~ s/\*/\.\*/g;
-        $d = "\@$d\$";
-        return qr/$d/;
+    if ($domain_wildcard =~ /\*/) {
+        $domain_wildcard =~ s/\./\\./g;
+        $domain_wildcard =~ s/\*/\.\*/g;
+        $domain_wildcard = "\@$domain_wildcard\$";
+        return qr/$domain_wildcard/;
     }
 
-    return qr/@\Q$d\E$/;
+    return qr/@\Q$domain_wildcard\E$/;
 }
 
 =head1 AUTHOR

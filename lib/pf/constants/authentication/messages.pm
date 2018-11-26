@@ -25,7 +25,7 @@ Readonly our $AUTH_FAIL_MSG => 'Invalid login or password';
 Readonly our $AUTH_SUCCESS_MSG => 'Authentication successful.';
 Readonly our $INVALID_EMAIL_MSG => 'Invalid e-mail address';
 Readonly our $LOCALDOMAIN_EMAIL_UNAUTHORIZED => "You can't register as a guest with this corporate email address. Please register as a regular user using your email address instead.";
-Readonly our $EMAIL_UNAUTHORIZED => "Cannot register with this email address.";
+Readonly our $EMAIL_UNAUTHORIZED => "Cannot register with this email address: unallowed domain.";
 
 =head1 AUTHOR
 
