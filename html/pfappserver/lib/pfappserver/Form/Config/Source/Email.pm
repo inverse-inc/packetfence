@@ -51,23 +51,23 @@ has_field 'activation_domain' =>
     },
   );
 
-has_field 'allowed_domains' =>
-  (
-    type  => 'TextArea',
-    label => 'Comma-separated list of Allowed Domains',
-    tags => {
-        after_element => \&help,
-        help => 'A comma-separated list of domains that are allowed for email registration. Allowed domains are checked after banned domains.',
-    },
-  );
-
 has_field 'banned_domains' =>
   (
     type  => 'TextArea',
     label => 'Comma-separated list of Banned Domains',
     tags => {
         after_element => \&help,
-        help => 'A comma-separated list of domains that are banned for email registration. Banned domains are checked before allowed domains.'
+        help => 'A comma-separated list of domains that are banned for email registration. Wildcards are accepted (*pfdemo.org). Banned domains are checked before allowed domains.'
+    },
+  );
+
+has_field 'allowed_domains' =>
+  (
+    type  => 'TextArea',
+    label => 'Comma-separated list of Allowed Domains',
+    tags => {
+        after_element => \&help,
+        help => 'A comma-separated list of domains that are allowed for email registration. Wildcards are accepted (*pfdemo.org). Allowed domains are checked after banned domains.',
     },
   );
 
