@@ -21,7 +21,7 @@ has_field '+signup_template' => ( required => 0 );
 # overriding to remove the signup template
 sub child_definition {
     my ($self) = @_;
-    return (qw(source_id custom_fields with_aup aup_template));
+    return (qw(custom_fields with_aup aup_template));
 }
 
 before 'setup' => sub {
