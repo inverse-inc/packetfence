@@ -508,6 +508,7 @@ sub preload_all {
     my @namespaces = $self->list_namespaces;
     print "\n------------------\n";
     foreach my $namespace (@namespaces) {
+        $namespace = normalize_namespace_query($namespace);
         print "Preloading $namespace\n";
         $self->get_cache($namespace);
         $self->config_builder($namespace);
