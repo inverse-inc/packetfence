@@ -29,21 +29,21 @@ my $local_email2 = "j\@a.$Config{general}{domain}";
 our @TESTS = (
     {
         name => 'email',
-        allowed => [qw(j@bob.com), $local_email1, $local_email2],
+        allowed => [qw(j@bob.com k@BOB.com), $local_email1, $local_email2],
         banned => [qw(j@bbob.com j@bobby.com)],
     },
     {
         name => 'email2',
-        allowed => [qw(j@zozz.com), $local_email1, $local_email2],
+        allowed => [qw(j@zozz.com j@ZoZz.com), $local_email1, $local_email2],
         banned => [qw(j@zoz.com)],
     },
     {
         name => 'email3',
-        allowed => [qw(j@zozz.com j@zoz.com), $local_email1, $local_email2],
+        allowed => [qw(j@zozz.com j@zoz.com j@ZoZ.com j@ZOZZ.com), $local_email1, $local_email2],
     },
     {
         name => 'email4',
-        allowed => [qw(j@bob.com j@bbob.com), $local_email1, $local_email2],
+        allowed => [qw(j@bob.com j@bbob.com j@BOB.COM j@BBOB.COM), $local_email1, $local_email2],
         banned => [qw(j@zoz.com j@bob.comm)],
     },
     {
@@ -63,9 +63,9 @@ use pf::authentication;
 use Test::NoWarnings;
 use List::Util qw(sum);
 
-my $tests = sum 1, map { ( scalar @{$_->{allowed} // []}, scalar @{$_->{banned} // []}) } @TESTS;
+my $test_count = sum 1, map { ( scalar @{$_->{allowed} // []}, scalar @{$_->{banned} // []}) } @TESTS;
 
-plan tests => $tests;
+plan tests => $test_count;
 
 for my $test (@TESTS) {
     my $name = $test->{name};
