@@ -36,6 +36,12 @@ Readonly our $RESPONSE_OK                   => 200;
 Readonly our $RESPONSE_RESOURCE_CREATED     => 201;
 Readonly our $RESPONSE_REQUEST_SUBMITTED    => 202;
 
+=head2 _get_scan_id
+
+Get or generate the scan ID
+
+=cut
+
 sub _get_scan_id {
     my ($self) = @_;
     $self->{_scanId} = $self->{_scanId} // $self->{_id} . time;
@@ -206,7 +212,7 @@ sub new {
     return $self;
 }
 
-=item runScan
+=item startScan
 
 That's where we use all of these method to run a scan
 
@@ -272,15 +278,33 @@ sub startTask {
     $logger->warn("There was an error starting the scan task named $name, here's the output: $output");
 }
 
+=head2 setScanInfo
+
+Set the scan info for a scan ID
+
+=cut
+
 sub setScanInfo {
     my ($self, $scan_id, $info) = @_;
     return $self->cache->set("info-$scan_id", $info);
 }
 
+=head2 getScanInfo
+
+Get the scan info for a scan ID
+
+=cut
+
 sub getScanInfo {
     my ($self, $scan_id) = @_;
     return $self->cache->get("info-$scan_id");
 }
+
+=head2 _to_single_line
+
+Take a multi-line OpenVAS XML payload and make it one line for usage with the omp command line
+
+=cut
 
 sub _to_single_line {
     my ($self, $s) = @_;
@@ -307,6 +331,12 @@ sub _get_task_string {
 EOF
     return $self->_to_single_line($s);
 }
+
+=head2 cache
+
+Get the cache for the OpenVAS engines
+
+=cut
 
 sub cache {
     my ($self) = @_;
