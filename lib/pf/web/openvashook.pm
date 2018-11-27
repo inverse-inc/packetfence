@@ -2,13 +2,13 @@ package pf::web::openvashook;
 
 =head1 NAME
 
-pf::web::billinghook
+pf::web::openvashook
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::web::billinghook
+Provides the web-hook handler for OpenVAS alerts
 
 =cut
 
