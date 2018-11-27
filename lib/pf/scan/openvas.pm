@@ -69,10 +69,10 @@ sub createTarget {
     $logger->info("Creating a new scan target named $name for host $target_host");
 
     my $cmd = "omp -h $self->{_ip} -p $self->{_port} -u $self->{_username} -w $self->{_password} -X '$command'";
-    $logger->info("Scan target creation command: $cmd");
+    $logger->debug("Scan target creation command: $cmd");
     my $output = pf_run($cmd);
     chomp($output);
-    $logger->info("Scan target creation output: $output");
+    $logger->debug("Scan target creation output: $output");
 
     # Fetch response status and target id
     my ($target_id, $response) = ($output =~ /<create_target_response.*id="([a-zA-Z0-9\-]+)".*status="([0-9]+)"/x);
@@ -104,10 +104,10 @@ sub createTask {
 
     my $command = $self->_get_task_string($name, $self->{_openvas_configid}, $self->{_targetId});
     my $cmd = "omp -h $self->{_ip} -p $self->{_port} -u $self->{_username} -w $self->{_password} -X '$command'";
-    $logger->info("Scan task creation command: $cmd");
+    $logger->debug("Scan task creation command: $cmd");
     my $output = pf_run($cmd);
     chomp($output);
-    $logger->info("Scan task creation output: $output");
+    $logger->debug("Scan task creation output: $output");
 
     # Fetch response status and task id
     my ($task_id, $response) = ($output =~ /<create_task_response.*id="([a-zA-Z0-9\-]*)".*status="([0-9]+)"/x);
@@ -145,10 +145,10 @@ sub processReport {
     $logger->info("Getting the scan report for the finished scan task named $task_name");
 
     my $cmd = "omp -h $self->{_ip} -p $self->{_port} -u $self->{_username} -w $self->{_password} -X '$command'";
-    $logger->info("Report fetching command: $cmd");
+    $logger->debug("Report fetching command: $cmd");
     my $output = pf_run($cmd);
     chomp($output);
-    $logger->info("Report fetching output: $output");
+    $logger->debug("Report fetching output: $output");
 
     # Fetch response status and report
     my ($response, $raw_report) = ($output =~ /<get_reports_response.*status="([0-9]+)".*"text\/csv">([a-zA-Z0-9\=\+\/]+)/x);
@@ -258,10 +258,10 @@ sub startTask {
     $logger->info("Starting scan task named $name");
 
     my $cmd = "omp -h $self->{_ip} -p $self->{_port} -u $self->{_username} -w $self->{_password} -X '$command'";
-    $logger->info("Scan task starting command: $cmd");
+    $logger->debug("Scan task starting command: $cmd");
     my $output = pf_run($cmd);
     chomp($output);
-    $logger->info("Scan task starting output: $output");
+    $logger->debug("Scan task starting output: $output");
 
     # Fetch response status and report id
     my ($response, $report_id) = ($output =~ /<start_task_response.*status="([0-9]+)"[^\<]+[\<].*report_id>([a-zA-Z0-9\-]+)/x);
