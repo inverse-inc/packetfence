@@ -29,6 +29,7 @@ use pfconfig::cached_hash;
 use pf::authentication;
 use pf::cluster;
 use pf::util;
+use Socket;
 
 use pf::constants qw($TRUE $FALSE);
 

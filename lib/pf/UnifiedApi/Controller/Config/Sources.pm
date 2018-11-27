@@ -63,7 +63,7 @@ our %TYPES_TO_FORMS = (
       AD
       AuthorizeNet
       Blackhole
-      DUMMY
+      Authorization
       EAPTLS
       Eduroam
       Email
