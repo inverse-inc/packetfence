@@ -3131,13 +3131,57 @@ NOTE: You may run into some issue while using Nessus with the Net::Nessus::XMLRP
 OpenVAS
 ^^^^^^^
 
-Please visit http://www.openvas.org/install-packages.html#openvas4_centos_atomic to configure the correct repository to be able to install the latest OpenVAS scanning engine.
+Requirements
+++++++++++++
 
-Once installed, please make sure to follow the instructions to correctly configure the scanning engine and create a scan configuration that will fit your needs. You'll also need to create a user for PacketFence to be able to communicate with the server.
+You will first need to install OpenVAS along with XYZ and ABC in order to manage OpenVAS remotely via the `omp` command line.
 
-It is important to get the correct scan config ID and NBE report format ID to populate the parameters in the PacketFence configuration file. The easiest way to get these IDs is by downloading both of the scan configuration and report format from the OpenVAS web gui and retrieve the IDs in the filenames.
+In order to validate proper connectivity from PacketFence to OpenVAS for remote management, execute the following command (replacing admin by the user you wish to use for PacketFence to communicate with OpenVAS):
 
-For example `report-format-f5c2a364-47d2-4700-b21d-0a7693daddab.xml` gives report format ID `f5c2a364-47d2-4700-b21d-0a7693daddab`.
+  # omp -u admin -p 9390 -X "<get_version/>" 
+
+The output of the above command should provide you the version of OpenVAS. Otherwise, ensure all the necessary components are in place for management through the `omp` command line client and that PacketFence is able to communicate with OpenVAS on port 9390.
+
+Configuring the alert
++++++++++++++++++++++
+
+You will need to configure an alert policy in OpenVAS to inform PacketFence of the completion of a task. The httpd.portal daemon takes care of handling this callback so you'll want to make sure that you have "portal" in your additionnal listening daemons on your management interface in PacketFence.
+
+In order to create the alert policy, go in the Greenbone Security Assistant, then in "Configuration->Alerts" and create a new alert with the following configuration
+
+image::openvas/alert.png[alt="OpenVAS alert"]
+
+Where:
+
+ * Name is of the value of your choosing
+ * Ensure the event is set to "Task run status changed to: Done"
+ * Ensure the condition is set to "Always"
+ * Method is set to "HTTP Get"
+ * HTTP Get URL is set to: http://PF_MANAGEMENT_IP/hook/openvas?task=$n
+  * In the URL above, only change PF_MANAGEMENT_IP to the management IP of your PacketFence server. Leave the rest of the URL untouched as this exact URL and format is expected by PacketFence.
+
+Collecting the identifiers
+++++++++++++++++++++++++++
+
+Once you have connectivity working between PacketFence and OpenVAS, use the Greebone Security Assistant to obtain the following information for configuring PacketFence
+
+*Alert ID*
+
+Navigate to "Configuration->Alerts", then click on the alert you've configured above to view it, and note down the ID of the alert.
+
+image::openvas/alert-id.png[alt="OpenVAS alert ID"]
+
+*Scan config ID*
+
+Navigate to "Configuration->Scan Configs" and then select the scan configuration you would like to use to scan the hosts. In this scan config view, note down the ID.
+
+image::openvas/scan-config-id.png[alt="OpenVAS scan config ID"]
+
+*Report format ID* 
+
+Navigate to "Configuration->Report Formats" and then select the "CSV Results" report format. In this view, note down the ID.
+
+image::openvas/report-format-id.png[alt="OpenVAS report format ID"]
 
 WMI
 ^^^
@@ -3184,7 +3228,9 @@ Specific to OpenVAS:
   Username: Username to connect to OpenVAS scan
   Password: Password to connect to OpenVAS scan
   Port of the service: port to connect (default 9390)
-  OpenVAS config ID: the ID of scanning configuration on the OpenVAS server
+  Alert ID: the ID of the alert configuration on the OpenVAS server
+  Scan config ID: the ID of the scanning configuration on the OpenVAS server
+  Report format ID: the ID of the report format for the "CSV Results"
 
 Specific to WMI:
 
