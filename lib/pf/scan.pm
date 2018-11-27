@@ -221,6 +221,7 @@ sub run_scan {
     }
 
     my %scan_attributes = (
+            scanner_id => $scanner->{_id},
             id         => $id,
             scanIp     => $host_ip,
             scanMac    => $host_mac,

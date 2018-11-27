@@ -130,7 +130,7 @@ sub processReport {
     my ( $self, $task_name ) = @_;
     my $logger = get_logger();
 
-    my $info           = $self->cache->get("info-$task_name");
+    my $info           = $self->getScanInfo($task_name);
     my $report_id = $info->{report_id};
     my $mac = $info->{mac};
     my $report_format_id    = $self->{'_openvas_reportformatid'};
@@ -212,13 +212,24 @@ That's where we use all of these method to run a scan
 
 =cut
 
-sub runScan {
+sub startScan {
     my ( $self ) = @_;
     my $logger = get_logger();
 
     $self->createTarget();
     $self->createTask();
     $self->startTask();
+
+    my $scan_vid = $pf::constants::scan::POST_SCAN_VID;
+    $scan_vid = $pf::constants::scan::SCAN_VID if ($self->{'_registration'});
+    $scan_vid = $pf::constants::scan::PRE_SCAN_VID if ($self->{'_pre_registration'});
+
+    my $apiclient = pf::api::jsonrpcclient->new;
+    my %data = (
+       'vid' => $scan_vid,
+       'mac' => $self->{'_scanMac'},
+    );
+    $apiclient->notify('close_violation', %data );
 
     # Clear the scan ID
     $self->{_scanId} = undef;
@@ -252,13 +263,23 @@ sub startTask {
     # Scan task successfully started
     if ( defined($response) && $response eq $RESPONSE_REQUEST_SUBMITTED ) {
         $logger->info("Scan task named $name successfully started");
-        $self->cache->set("info-$name", {report_id => $report_id, mac => $self->{_scanMac}, ip => $self->{_scanIp}});
+        $self->setScanInfo($name, {report_id => $report_id, mac => $self->{_scanMac}, ip => $self->{_scanIp}, scan_id => $self->{_scanner_id}});
         $self->{'_status'} = $STATUS_STARTED;
         $self->statusReportSyncToDb();
         return;
     }
 
     $logger->warn("There was an error starting the scan task named $name, here's the output: $output");
+}
+
+sub setScanInfo {
+    my ($self, $scan_id, $info) = @_;
+    return $self->cache->set("info-$scan_id", $info);
+}
+
+sub getScanInfo {
+    my ($self, $scan_id) = @_;
+    return $self->cache->get("info-$scan_id");
 }
 
 =item _generateCallback

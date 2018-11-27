@@ -19,6 +19,8 @@ use Apache2::RequestIO();
 use Apache2::RequestRec();
 use pf::log;
 use HTTP::Status qw(:constants);
+use pf::scan::openvas;
+use pf::factory::scan;
 
 my $logger = get_logger();
 
@@ -28,6 +30,17 @@ sub handler {
     if($args =~ /task=(.+)/) {
         my $task = $1;
         get_logger->info("Will analyze OpenVAS report for task $task");
+        my $info = pf::scan::openvas->getScanInfo($task);
+        
+        unless($info) {
+            get_logger->error("Cannot find scan info for task $task");
+            $r->status(HTTP_INTERNAL_SERVER_ERROR);
+            return Apache2::Const::OK;
+        }
+
+        my $scan = pf::factory::scan->new($info->{scan_id});
+        $scan->processReport($task);
+
         $r->status(HTTP_OK);
         return Apache2::Const::OK;
     }
