@@ -27,7 +27,7 @@ fixes #ISSUE_NUMBER
 YES | NO
 
 # Checklist
-(REQUIRED)
+(REQUIRED) - [yes, no or n/a]
 - [ ] Document the feature
 - [ ] Add unit tests
 - [ ] Add acceptance tests (TestLink)
