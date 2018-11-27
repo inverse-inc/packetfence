@@ -146,7 +146,6 @@ sub sso_url {
         $lassoLogin->request->NameIDPolicy->AllowCreate(1);
         $lassoLogin->request->ForceAuthn(0);
         $lassoLogin->request->IsPassive(0);
-        $lassoLogin->request->ProtocolBinding($pf::constants::saml::SAML2_METADATA_BINDING_ARTIFACT);
 
         $lassoLogin->build_authn_request_msg();
 
