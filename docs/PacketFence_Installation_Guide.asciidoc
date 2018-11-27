@@ -3158,7 +3158,7 @@ Where:
  * Ensure the condition is set to "Always"
  * Method is set to "HTTP Get"
  * HTTP Get URL is set to: http://PF_MANAGEMENT_IP/hook/openvas?task=$n
-   * In the URL above, only change PF_MANAGEMENT_IP to the management IP of your PacketFence server. Leave the rest of the URL untouched as this exact URL and format is expected by PacketFence.
+ ** In the URL above, only change PF_MANAGEMENT_IP to the management IP of your PacketFence server. Leave the rest of the URL untouched as this exact URL and format is expected by PacketFence.
 
 Collecting the identifiers
 ++++++++++++++++++++++++++
