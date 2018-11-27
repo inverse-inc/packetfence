@@ -11,7 +11,6 @@ import (
 	_ "expvar"
 	"net"
 	"net/http"
-	_ "net/http/pprof"
 	"strconv"
 	"time"
 
