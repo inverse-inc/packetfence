@@ -1136,7 +1136,7 @@ ntlm_redis_cache=disabled
 # radius_configuration.radius_attributes
 #
 # List of RADIUS attributes that can be used in the sources configuration
-radius_attributes=username,NAS-ID,Called-Station-Id,Calling-Station-Id
+radius_attributes=username,NAS-Identifier,Called-Station-Id,Calling-Station-Id
 #
 # radius_configuration.normalize_radius_machine_auth_username
 #
