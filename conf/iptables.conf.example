@@ -17,7 +17,6 @@
 # HTTP and HTTPS for the portal
 -A input-management-if --protocol tcp --match tcp --dport 80 --jump ACCEPT
 -A input-management-if --protocol tcp --match tcp --dport 443 --jump ACCEPT
--A input-management-if --protocol tcp --match tcp --dport 8000 --jump ACCEPT
 # Web Admin
 -A input-management-if --protocol tcp --match tcp --dport %%web_admin_port%% --jump ACCEPT
 # Webservices
