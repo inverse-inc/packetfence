@@ -282,34 +282,6 @@ sub getScanInfo {
     return $self->cache->get("info-$scan_id");
 }
 
-=item _generateCallback
-
-Escalator callback needs to be different if we are running OpenVAS locally or remotely.
-
-Local: plain HTTP on loopback (127.0.0.1)
-
-Remote: HTTPS with fully qualified domain name on admin interface
-
-=cut
-
-sub _generateCallback {
-    my ( $self ) = @_;
-    my $logger = get_logger();
-
-    my $name = $self->{'_id'};
-    my $callback = "<method>HTTP Get<data>";
-    if ($self->{'_ip'} eq '127.0.0.1') {
-        $callback .= "http://127.0.0.1/scan/report/$name";
-    }
-    else {
-        $callback .= "https://$Config{general}{hostname}.$Config{general}{domain}:$Config{ports}{admin}/scan/report/$name";
-    }
-    $callback .= "<name>URL</name></data></method>";
-
-    $logger->debug("Generated OpenVAS callback is: $callback");
-    return $callback;
-}
-
 sub _to_single_line {
     my ($self, $s) = @_;
     $s =~ s/>\s*</></g;

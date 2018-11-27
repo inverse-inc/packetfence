@@ -47,7 +47,7 @@ has_block definition =>
 has_field 'openvas_alertid' =>
   (
    type => 'Text',
-   label => 'OpenVAS alert ID',
+   label => 'Alert ID',
    tags => { after_element => \&help,
              help => 'ID of the alert configuration on the OpenVAS server' },
   );
@@ -55,7 +55,7 @@ has_field 'openvas_alertid' =>
 has_field 'openvas_configid' =>
   (
    type => 'Text',
-   label => 'OpenVAS config ID',
+   label => 'Scan config ID',
    tags => { after_element => \&help,
              help => 'ID of the scanning configuration on the OpenVAS server' },
   );
@@ -63,7 +63,7 @@ has_field 'openvas_configid' =>
 has_field 'openvas_reportformatid' =>
   (
    type => 'Text',
-   label => 'OpenVAS report format',
+   label => 'Report format ID',
    default => '',
    tags => { after_element => \&help,
              help => 'ID of the "CSV Results" report format on the OpenVAS server' },
