@@ -28,6 +28,7 @@ use pf::constants::scan qw($SCAN_VID $PRE_SCAN_VID $POST_SCAN_VID $STATUS_STARTE
 use pf::config qw(%Config);
 use pf::util;
 use pf::violation;
+use Time::HiRes qw(time);
 
 sub description { 'Openvas Scanner' }
 
@@ -37,7 +38,6 @@ Readonly our $RESPONSE_REQUEST_SUBMITTED    => 202;
 
 sub _get_scan_id {
     my ($self) = @_;
-    # TODO: truly random
     $self->{_scanId} = $self->{_scanId} // $self->{_id} . time;
     return $self->{_scanId};
 }
