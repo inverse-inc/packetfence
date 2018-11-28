@@ -280,7 +280,7 @@ func ExcludeIP(dhcpHandler *DHCPHandler, ip_range string) {
 			// Calculate the position for the dhcp pool
 			position := uint32(binary.BigEndian.Uint32(excludeIP.To4())) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
 
-			dhcpHandler.available.ReserveIPIndex(uint64(position), "ff:ff:ff:ff:ff:ff")
+			dhcpHandler.available.ReserveIPIndex(uint64(position), FakeMac)
 		}
 	}
 }

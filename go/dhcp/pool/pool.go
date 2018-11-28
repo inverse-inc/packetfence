@@ -6,6 +6,9 @@ import (
 	"sync"
 )
 
+const FreeMac = "00:00:00:00:00:00"
+const FakeMac = "ff:ff:ff:ff:ff:ff"
+
 type DHCPPool struct {
 	lock     *sync.Mutex
 	free     map[uint64]bool
@@ -32,7 +35,7 @@ func (dp *DHCPPool) ReserveIPIndex(index uint64, mac string) (error, string) {
 	defer dp.lock.Unlock()
 
 	if index >= dp.capacity {
-		return errors.New("Trying to reserve an IP that is outside the capacity of this pool"), "00:00:00:00:00:00"
+		return errors.New("Trying to reserve an IP that is outside the capacity of this pool"), FreeMac
 	}
 
 	if _, free := dp.free[index]; free {
@@ -40,7 +43,7 @@ func (dp *DHCPPool) ReserveIPIndex(index uint64, mac string) (error, string) {
 		dp.mac[index] = mac
 		return nil, mac
 	} else {
-		return errors.New("IP is already reserved"), "00:00:00:00:00:00"
+		return errors.New("IP is already reserved"), FreeMac
 	}
 }
 
@@ -84,11 +87,11 @@ func (dp *DHCPPool) GetMACIndex(index uint64) (uint64, string, error) {
 	defer dp.lock.Unlock()
 
 	if !dp.IndexInPool(index) {
-		return index, "00:00:00:00:00:00", errors.New("The index is not part of the pool")
+		return index, FreeMac, errors.New("The index is not part of the pool")
 	}
 
 	if _, free := dp.free[index]; free {
-		return index, "00:00:00:00:00:00", errors.New("Index is free")
+		return index, FreeMac, errors.New("Index is free")
 	} else {
 		return index, dp.mac[index], nil
 	}
@@ -100,7 +103,7 @@ func (dp *DHCPPool) GetFreeIPIndex(mac string) (uint64, string, error) {
 	defer dp.lock.Unlock()
 
 	if len(dp.free) == 0 {
-		return 0, "00:00:00:00:00:00", errors.New("DHCP pool is full")
+		return 0, FreeMac, errors.New("DHCP pool is full")
 	}
 	index := rand.Intn(len(dp.free))
 
