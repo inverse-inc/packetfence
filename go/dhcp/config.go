@@ -7,9 +7,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/RoaringBitmap/roaring"
-
 	cache "github.com/fdurand/go-cache"
+	"github.com/inverse-inc/packetfence/go/dhcp/pool"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
@@ -26,7 +25,7 @@ type DHCPHandler struct {
 	leaseDuration time.Duration // Lease period
 	hwcache       *cache.Cache
 	xid           *cache.Cache
-	available     *roaring.Bitmap // RoaringBitmap to keep track of available IP addresses
+	available     *pool.DHCPPool // DHCPPool keeps track of the available IPs in the pool
 	layer2        bool
 	role          string
 	ipReserved    string
@@ -200,10 +199,8 @@ func (d *Interfaces) readConfig() {
 
 							DHCPScope.leaseRange = dhcp.IPRange(ip, ips)
 
-							// Initialize roaring bitmap
-							available := roaring.New()
-
-							available.AddRange(0, uint64(dhcp.IPRange(ip, ips)))
+							// Initialize dhcp pool
+							available := pool.NewDHCPPool(uint64(dhcp.IPRange(ip, ips)))
 
 							DHCPScope.available = available
 
@@ -216,7 +213,7 @@ func (d *Interfaces) readConfig() {
 									// Always wait 10 minutes before releasing the IP again
 									time.Sleep(10 * time.Minute)
 									log.LoggerWContext(ctx).Info(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Added back in the pool " + DHCPScope.role + " on index " + strconv.Itoa(pool.(int)))
-									DHCPScope.available.Add(uint32(pool.(int)))
+									DHCPScope.available.FreeIPIndex(uint64(pool.(int)))
 								}()
 							})
 
@@ -265,9 +262,8 @@ func (d *Interfaces) readConfig() {
 						DHCPScope.leaseDuration = time.Duration(seconds) * time.Second
 						DHCPScope.leaseRange = dhcp.IPRange(net.ParseIP(ConfNet.DhcpStart), net.ParseIP(ConfNet.DhcpEnd))
 
-						// Initialize roaring bitmap
-						available := roaring.New()
-						available.AddRange(0, uint64(dhcp.IPRange(net.ParseIP(ConfNet.DhcpStart), net.ParseIP(ConfNet.DhcpEnd))))
+						// Initialize dhcp pool
+						available := pool.NewDHCPPool(uint64(dhcp.IPRange(net.ParseIP(ConfNet.DhcpStart), net.ParseIP(ConfNet.DhcpEnd))))
 						DHCPScope.available = available
 
 						// Initialize hardware cache
@@ -278,7 +274,7 @@ func (d *Interfaces) readConfig() {
 								// Always wait 10 minutes before releasing the IP again
 								time.Sleep(10 * time.Minute)
 								log.LoggerWContext(ctx).Info(nic + " " + dhcp.IPAdd(DHCPScope.start, pool.(int)).String() + " Added back in the pool " + DHCPScope.role + " on index " + strconv.Itoa(pool.(int)))
-								DHCPScope.available.Add(uint32(pool.(int)))
+								DHCPScope.available.FreeIPIndex(uint64(pool.(int)))
 							}()
 						})
 

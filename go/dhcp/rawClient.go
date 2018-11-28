@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"encoding/binary"
-	"fmt"
 	"log"
 	"net"
 	"os"
@@ -284,7 +283,7 @@ func sendUnicastDHCP(dhcp []byte, dstIP net.Addr, srcIP net.IP, giAddr net.IP, L
 	// Send packet to target
 	err = syscall.Close(s)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error closing the socket: %v\n", err)
+		log.Fatal("error closing the socket: ", err)
 		os.Exit(1)
 	}
 	return err

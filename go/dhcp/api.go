@@ -11,11 +11,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/RoaringBitmap/roaring"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/gorilla/mux"
 	"github.com/inverse-inc/packetfence/go/api-frontend/unifiedapierrors"
-	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 	dhcp "github.com/krolaw/dhcp4"
@@ -330,8 +328,6 @@ func (h *Interface) handleApiReq(Request ApiReq) interface{} {
 					continue
 				}
 			}
-			var statistics roaring.Statistics
-			statistics = v.dhcpHandler.available.Stats()
 			var Options map[string]string
 			Options = make(map[string]string)
 			Options["optionIPAddressLeaseTime"] = v.dhcpHandler.leaseDuration.String()
@@ -350,7 +346,9 @@ func (h *Interface) handleApiReq(Request ApiReq) interface{} {
 			}
 
 			var Members []Node
+			id, _ := GlobalTransactionLock.Lock()
 			members := v.dhcpHandler.hwcache.Items()
+			GlobalTransactionLock.Unlock(id)
 			var Status string
 			var Count int
 			Count = 0
@@ -365,7 +363,7 @@ func (h *Interface) handleApiReq(Request ApiReq) interface{} {
 				Count = Count + reserved
 			}
 
-			availableCount := (int(statistics.RunContainerValues) + int(statistics.ArrayContainerValues))
+			availableCount := int(v.dhcpHandler.available.FreeIPsRemaining())
 			usedCount := (v.dhcpHandler.leaseRange - availableCount)
 			percentfree := int((float64(availableCount) / float64(v.dhcpHandler.leaseRange)) * 100)
 			percentused := int((float64(usedCount) / float64(v.dhcpHandler.leaseRange)) * 100)
@@ -394,12 +392,8 @@ func (h *Interface) handleApiReq(Request ApiReq) interface{} {
 	if Request.Req == "debug" {
 		for _, v := range h.network {
 			if Request.Role == v.dhcpHandler.role {
-				var statistiques roaring.Statistics
-				statistiques = v.dhcpHandler.available.Stats()
-				spew.Dump(v.dhcpHandler.available.Stats())
 				spew.Dump(v.dhcpHandler.hwcache)
-				log.LoggerWContext(ctx).Info(v.dhcpHandler.available.String())
-				stats = append(stats, Stats{EthernetName: Request.NetInterface, Net: v.network.String(), Free: int(statistiques.RunContainerValues) + int(statistiques.ArrayContainerValues), Category: v.dhcpHandler.role, Status: "Debug finished"})
+				stats = append(stats, Stats{EthernetName: Request.NetInterface, Net: v.network.String(), Free: int(v.dhcpHandler.available.FreeIPsRemaining()), Category: v.dhcpHandler.role, Status: "Debug finished"})
 			}
 		}
 		return stats
