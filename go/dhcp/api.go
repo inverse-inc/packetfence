@@ -346,7 +346,9 @@ func (h *Interface) handleApiReq(Request ApiReq) interface{} {
 			}
 
 			var Members []Node
+			id, _ := GlobalTransactionLock.Lock()
 			members := v.dhcpHandler.hwcache.Items()
+			GlobalTransactionLock.Unlock(id)
 			var Status string
 			var Count int
 			Count = 0
