@@ -250,17 +250,17 @@ const route = {
     },
     {
       path: 'billing_tiers/new',
-      name: 'newRole',
-      component: RoleView,
+      name: 'newBillingTier',
+      component: BillingTierView,
       props: (route) => ({ storeName: '$_billing_tiers', isNew: true })
     },
     {
       path: 'billing_tier/:id',
       name: 'billing_tier',
-      component: RoleView,
+      component: BillingTierView,
       props: (route) => ({ storeName: '$_billing_tiers', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_billing_tiers/getRole', to.params.id).then(object => {
+        store.dispatch('$_billing_tiers/getBillingTier', to.params.id).then(object => {
           next()
         })
       }

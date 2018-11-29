@@ -204,7 +204,6 @@ export const pfConfigurationAuthenticationSourcesListFields = [
 
 export const pfConfigurationBillingTiersListFields = [
   Object.assign(pfConfigurationListFields.id, { text: i18n.t('Name') }), // re-text
-  pfConfigurationListFields.workgroup
 ]
 
 export const pfConfigurationDomainsListFields = [
