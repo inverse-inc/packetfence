@@ -4,6 +4,8 @@
     :form="getForm"
     :model="floatingDevice"
     :validation="$v.floatingDevice"
+    :isNew="isNew"
+    :isClone="isClone"
     @validations="floatingDeviceValidations = $event"
     @close="close"
     @create="create"
@@ -56,10 +58,14 @@ export default {
       type: Boolean,
       default: false
     },
+    isClone: { // from router
+      type: Boolean,
+      default: false
+    },
     id: { // from router
       type: String,
       default: null
-    }
+    },
   },
   data () {
     return {
