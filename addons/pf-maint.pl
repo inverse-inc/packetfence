@@ -39,6 +39,7 @@ use LWP::UserAgent;
 use Pod::Usage;
 use IO::Handle;
 use Term::ReadKey;
+use IO::Interactive qw(is_interactive);
 our $GITHUB_USER = 'inverse-inc';
 our $GITHUB_REPO = 'packetfence';
 our $PF_DIR      = $ENV{PF_DIR} || '/usr/local/pf';
@@ -328,7 +329,9 @@ sub download_and_install_binaries {
 }
 
 sub update_terminal_width {
-    ($TERMINAL_WIDTH, undef, undef, undef) = GetTerminalSize();
+    if (is_interactive()) {
+        ($TERMINAL_WIDTH, undef, undef, undef) = GetTerminalSize();
+    }
     $TERMINAL_WIDTH //= 80;
 }
 
