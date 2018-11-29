@@ -36,6 +36,14 @@ export default {
           ]
         },
         {
+          name: 'Advanced Access Configuration',
+          icon: 'list-alt',
+          collapsable: true,
+          items: [
+            { name: 'Billing Tiers', path: '/configuration/billing_tiers' }
+          ]
+        },
+        {
           name: 'Network Configuration',
           icon: 'project-diagram',
           collapsable: true,

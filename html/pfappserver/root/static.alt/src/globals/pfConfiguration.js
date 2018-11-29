@@ -153,6 +153,10 @@ export const pfConfigurationRolesListColumns = [
   pfConfigurationListColumns.buttons
 ]
 
+export const pfConfigurationBillingTiersListColumns = [
+  Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Name') }), // re-label
+]
+
 export const pfConfigurationListFields = {
   id: {
     value: 'id',
@@ -196,6 +200,11 @@ export const pfConfigurationAuthenticationSourcesListFields = [
   pfConfigurationListFields.description,
   pfConfigurationListFields.class,
   pfConfigurationListFields.type
+]
+
+export const pfConfigurationBillingTiersListFields = [
+  Object.assign(pfConfigurationListFields.id, { text: i18n.t('Name') }), // re-text
+  pfConfigurationListFields.workgroup
 ]
 
 export const pfConfigurationDomainsListFields = [
@@ -2484,7 +2493,7 @@ export const pfConfigurationRealmViewFields = (args = {}) => {
   ]
 }
 
-export const pfConfigurationRoleViewFields = (args = {}) => {
+export const pfConfigurationBillingTierViewFields = (args = {}) => {
   const { isNew = false, isClone = false } = args
   return [
     {
@@ -2511,20 +2520,35 @@ export const pfConfigurationRoleViewFields = (args = {}) => {
           component: pfFormInput
         }
       ]
-    },
+    }
+  ]
+}
+
+export const pfConfigurationRoleViewFields = (args = {}) => {
+  const { isNew = false, isClone = false } = args
+  return [
     {
-      label: i18n.t('Max nodes per user'),
+      label: i18n.t('Billing Tier'),
       fields: [
         {
-          key: 'max_nodes_per_pid',
+          key: 'id',
           component: pfFormInput,
           attrs: {
-            type: 'number'
+            disabled: (!isNew && !isClone)
           },
           validators: {
-            [i18n.t('Max nodes per user required.')]: required,
-            [i18n.t('Integer value required.')]: integer
+            [i18n.t('Name required.')]: required,
+            [i18n.t('Alphanumeric value required.')]: alphaNum
           }
+        }
+      ]
+    },
+    {
+      label: i18n.t('Name'),
+      fields: [
+        {
+          key: 'name',
+          component: pfFormInput
         }
       ]
     }
