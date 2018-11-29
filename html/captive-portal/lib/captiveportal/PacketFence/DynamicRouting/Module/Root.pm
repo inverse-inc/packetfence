@@ -90,11 +90,13 @@ sub release {
 
     get_logger->info("Releasing device");
 
-    $self->app->reset_session;
-
     unless($self->handle_web_form_release){
         reevaluate_access( $self->current_mac, 'manage_register', force => 1 );
-        $self->render("release.html", $self->_release_args());
+        my $release_args = $self->_release_args();
+        $self->app->reset_session;
+        $self->render("release.html", $release_args);
+    } else {
+        $self->app->reset_session;
     }
 }
 

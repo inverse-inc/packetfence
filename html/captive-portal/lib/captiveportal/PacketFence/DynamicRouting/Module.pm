@@ -212,9 +212,10 @@ The arguments that are used when releasing a device on the network
 
 sub _release_args {
     my ($self) = @_;
+    my $app = $self->app;
     return {
         timer => $Config{'captive_portal'}{'network_redirect_delay'},
-        destination_url  => $self->app->session->{destination_url},
+        destination_url  => $app->session->{destination_url} || $app->profile->getRedirectURL,
         initial_delay => $Config{'captive_portal'}{'network_detection_initial_delay'},
         retry_delay   => $Config{'captive_portal'}{'network_detection_retry_delay'},
         external_ip => $Config{'captive_portal'}{'network_detection_ip'},
