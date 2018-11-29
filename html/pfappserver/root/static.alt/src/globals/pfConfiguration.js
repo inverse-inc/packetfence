@@ -2496,37 +2496,6 @@ export const pfConfigurationBillingTierViewFields = (args = {}) => {
   const { isNew = false, isClone = false } = args
   return [
     {
-      label: i18n.t('Name'),
-      fields: [
-        {
-          key: 'id',
-          component: pfFormInput,
-          attrs: {
-            disabled: (!isNew && !isClone)
-          },
-          validators: {
-            [i18n.t('Name required.')]: required,
-            [i18n.t('Alphanumeric value required.')]: alphaNum
-          }
-        }
-      ]
-    },
-    {
-      label: i18n.t('Description'),
-      fields: [
-        {
-          key: 'notes',
-          component: pfFormInput
-        }
-      ]
-    }
-  ]
-}
-
-export const pfConfigurationRoleViewFields = (args = {}) => {
-  const { isNew = false, isClone = false } = args
-  return [
-    {
       label: i18n.t('Billing Tier'),
       fields: [
         {
@@ -2547,6 +2516,37 @@ export const pfConfigurationRoleViewFields = (args = {}) => {
       fields: [
         {
           key: 'name',
+          component: pfFormInput
+        }
+      ]
+    }
+  ]
+}
+
+export const pfConfigurationRoleViewFields = (args = {}) => {
+  const { isNew = false, isClone = false } = args
+  return [
+    {
+      label: i18n.t('Name'),
+      fields: [
+        {
+          key: 'id',
+          component: pfFormInput,
+          attrs: {
+            disabled: (!isNew && !isClone)
+          },
+          validators: {
+            [i18n.t('Name required.')]: required,
+            [i18n.t('Alphanumeric value required.')]: alphaNum
+          }
+        }
+      ]
+    },
+    {
+      label: i18n.t('Description'),
+      fields: [
+        {
+          key: 'notes',
           component: pfFormInput
         }
       ]
@@ -2801,6 +2801,12 @@ export const pfConfigurationRealmViewDefaults = (args = {}) => {
 }
 
 export const pfConfigurationRoleViewDefaults = (args = {}) => {
+  return {
+    id: null
+  }
+}
+
+export const pfConfigurationBillingTierViewDefaults = (args = {}) => {
   return {
     id: null
   }

@@ -2,8 +2,10 @@
   <pf-config-view
     :isLoading="isLoading"
     :form="getForm"
-    :model="billing_tier"
-    :validation="$v.billing_tier"
+    :model="billingTier"
+    :validation="$v.billingTier"
+    :isNew="isNew"
+    :isClone="isClone"
     @validations="billingTierValidations = $event"
     @close="close"
     @create="create"
@@ -17,7 +19,7 @@
         <span v-else>{{ $t('New Billing Tier') }}</span>
       </h4>
     </template>
-    <template slot="footer" is="b-card-footer" @mouseenter="$v.billing_tier.$touch()">
+    <template slot="footer" is="b-card-footer" @mouseenter="$v.billingTier.$touch()">
       <pf-button-save :disabled="invalidForm" :isLoading="isLoading">{{ isNew? $t('Create') : $t('Save') }}</pf-button-save>
       <pf-button-delete v-if="!isNew" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Billing Tier?')" @on-delete="remove()"/>
     </template>
@@ -56,6 +58,10 @@ export default {
       type: Boolean,
       default: false
     },
+    isClone: { // from router
+      type: Boolean,
+      default: false
+    },
     id: { // from router
       type: String,
       default: null
@@ -63,7 +69,7 @@ export default {
   },
   data () {
     return {
-      billing_tier: defaults(this), // will be overloaded with the data from the store
+      billingTier: defaults(this), // will be overloaded with the data from the store
       billingTierValidations: {} // will be overloaded with data from the pfConfigView
     }
   },
@@ -77,7 +83,7 @@ export default {
       return this.$store.getters['$_billing_tiers/isLoading']
     },
     invalidForm () {
-      return this.$v.billing_tier.$invalid || this.$store.getters['$_billing_tiers/isWaiting']
+      return this.$v.billingTier.$invalid || this.$store.getters['$_billing_tiers/isWaiting']
     },
     getForm () {
       return {
@@ -91,12 +97,12 @@ export default {
       this.$router.push({ name: 'billing_tiers' })
     },
     create () {
-      this.$store.dispatch('$_billing_tiers/createBillingTier', this.billing_tier).then(response => {
+      this.$store.dispatch('$_billing_tiers/createBillingTier', this.billingTier).then(response => {
         this.close()
       })
     },
     save () {
-      this.$store.dispatch('$_billing_tiers/updateBillingTier', this.billing_tier).then(response => {
+      this.$store.dispatch('$_billing_tiers/updateBillingTier', this.billingTier).then(response => {
         this.close()
       })
     },
@@ -109,7 +115,7 @@ export default {
   created () {
     if (this.id) {
       this.$store.dispatch('$_billing_tiers/getBillingTier', this.id).then(data => {
-        this.billing_tier = Object.assign({}, data)
+        this.billingTier = Object.assign({}, data)
       })
     }
   }

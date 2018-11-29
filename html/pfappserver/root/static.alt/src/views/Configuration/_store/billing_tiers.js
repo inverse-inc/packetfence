@@ -29,7 +29,7 @@ const actions = {
       return Promise.resolve(state.cache[id])
     }
     commit('ITEM_REQUEST')
-    return api.billing_tier(id).then(item => {
+    return api.billingTier(id).then(item => {
       commit('ITEM_REPLACED', item)
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
