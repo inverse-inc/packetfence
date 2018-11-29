@@ -181,11 +181,32 @@ sub setup_api_v1_crud_routes {
     $self->setup_api_v1_radius_audit_logs_routes($root);
     $self->setup_api_v1_wrix_locations_routes($root);
     $self->setup_api_v1_security_events_routes($root);
+    $self->setup_api_v1_sms_carriers_routes($root);
     $self->setup_api_v1_node_categories_routes($root);
     $self->setup_api_v1_classes_routes($root);
     $self->setup_api_v1_ip4logs_routes($root);
     $self->setup_api_v1_ip6logs_routes($root);
     return;
+}
+
+=head2 setup_api_v1_sms_carriers_routes
+
+setup_api_v1_sms_carriers_routes
+
+=cut
+
+sub setup_api_v1_sms_carriers_routes {
+    my ($self, $root) = @_;
+    my ($collection_route, $resource_route) =
+      $self->setup_api_v1_std_crud_routes(
+        $root,
+        "SMSCarriers",
+        "/sms_carriers",
+        "/sms_carrier/#sms_carrier_id",
+        "api.v1.SMSCarriers"
+    );
+
+    return ($collection_route, $resource_route);
 }
 
 =head2 setup_api_v1_config_routes
