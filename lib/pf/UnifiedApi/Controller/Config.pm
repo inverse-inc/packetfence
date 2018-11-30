@@ -238,6 +238,29 @@ sub replace {
     $self->render(status => 200, json => { message => "$id replaced"});
 }
 
+=head2 sort_items
+
+sort items
+
+=cut
+
+sub sort_items {
+    my ($self) = @_;
+    my ($error, $sort_info) = $self->get_json;
+    if (defined $error) {
+        return $self->render_error(400, "Bad Request : $error");
+    }
+
+    my $cs = $self->config_store;
+    my $items = $sort_info->{items} // [];
+    unless ($cs->sortItems($items)) {
+        return $self->render_error(422, "Items cannot be resorted in the configuration");
+    }
+
+    $cs->commit;
+    return $self->render(json => {});
+}
+
 sub form_parameters {
     []
 }

@@ -219,11 +219,11 @@ ok(!$configStore->hasId("section5") && $configStore->hasId("section6"),"Renaming
 
 is_deeply($configStore->read("section6"), $section5 ,"Renaming a section data matches");
 
-my @resorted_sections = reverse @{$configStore->readAllIds};
+my @resorted_sections = reverse grep { $_ ne 'default' } @{$configStore->readAllIds};
 
 $configStore->sortItems(\@resorted_sections);
 
-is_deeply($configStore->readAllIds, \@resorted_sections ,"Resorting All Sections");
+is_deeply($configStore->readAllIds, ['default', @resorted_sections] ,"Resorting All Sections");
 
 @resorted_sections = @{$configStore->readAllIds};
 

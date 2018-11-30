@@ -228,29 +228,33 @@ our @API_V1_ROUTES = (
             },
         },      
     },
-    qw(
-        Config::AdminRoles
-        Config::Bases
-        Config::BillingTiers
-        Config::ConnectionProfiles
-        Config::DeviceRegistrations
-        Config::Domains
-        Config::Firewalls
-        Config::FloatingDevices
-        Config::MaintenanceTasks
-        Config::PkiProviders
-        Config::PortalModules
-        Config::Provisionings
-        Config::Realms
-        Config::Roles
-        Config::Scans
-        Config::SwitchGroups
-        Config::SyslogForwarders
-        Config::TrafficShapingPolicies
-        Config::Violations
+    (
+        map { ConfigEndpoint($_) }
+          qw(
+          Config::AdminRoles
+          Config::Bases
+          Config::BillingTiers
+          Config::ConnectionProfiles
+          Config::DeviceRegistrations
+          Config::Domains
+          Config::Firewalls
+          Config::FloatingDevices
+          Config::MaintenanceTasks
+          Config::PkiProviders
+          Config::PortalModules
+          Config::Provisionings
+          Config::Realms
+          Config::Roles
+          Config::Scans
+          Config::SwitchGroups
+          Config::SyslogForwarders
+          Config::TrafficShapingPolicies
+          Config::Violations
+          )
     ),
     {
         controller => 'Config::Switches',
+        collection => ConfigEndpointCollection(),
         resource   => {
             subroutes => {
                 invalidate_cache => {
@@ -272,21 +276,11 @@ our @API_V1_ROUTES = (
     },
     {
         controller => 'Config::SyslogParsers',
-        collection => {
-            subroutes => {
-                map { $_ => { post => $_ } } qw(search dry_run)
-            }
-        }
+        collection => ConfigEndpointCollection( dry_run => { post => 'dry_run' } ),
     },
     {
         controller => 'Config::Sources',
-        collection   => {
-            subroutes => {
-                test => {
-                    post => 'test',
-                }
-            }
-        },
+        collection => ConfigEndpointCollection( test => { post => 'test' } ),
     },
     {
         controller => 'Translations',
@@ -424,6 +418,41 @@ sub set_tenant_id {
     } else {
         pf::dal->reset_tenant();
     }
+}
+
+=head2 ConfigEndpoint
+
+ConfigEndpoint
+
+=cut
+
+sub ConfigEndpoint {
+    my ($config) = @_;
+    return {
+        controller => $config,
+        collection => ConfigEndpointCollection(),
+    };
+}
+
+=head2 ConfigEndpointCollection
+
+ConfigEndpointCollection
+
+=cut
+
+sub ConfigEndpointCollection {
+    my @args = @_;
+    return {
+        subroutes => {
+            ( map { $_ => { post => $_ } } qw(search) ),
+            'sort_items' => {
+                patch => {
+                    action => 'sort_items',
+                }
+            },
+            @args,
+        }
+    };
 }
 
 =head2 ReadonlyEndpoint

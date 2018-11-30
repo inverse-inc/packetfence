@@ -473,7 +473,12 @@ Sorting the items
 
 sub sortItems {
     my ( $self, $sections ) = @_;
-    return $self->cachedConfig->ResortSections(map { $_ = $self->_formatSectionName($_) } @$sections);
+    my $default_section = $self->default_section;
+    if ($default_section) {
+        @$sections = grep { $_ ne $default_section } @$sections;
+    }
+
+    return $self->cachedConfig->ResortSections(map { $self->_formatSectionName($_) } @$sections);
 }
 
 =head2 cleanupAfterRead
@@ -493,7 +498,7 @@ sub cleanupBeforeCommit { }
 =cut
 
 sub expand_list {
-    my ( $self,$object,@columns ) = @_;
+    my ($self, $object, @columns) = @_;
     foreach my $column (@columns) {
         if (exists $object->{$column}) {
             $object->{$column} = [ $self->split_list($object->{$column}) ];
