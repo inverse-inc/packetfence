@@ -157,7 +157,8 @@ export default {
         return type
       },
       set (newType) {
-        this.$set(this.inputValue, 'type', newType || null) // type or null
+        this.$set(this.inputValue, 'type', newType || null) // set type or null
+        this.$set(this.inputValue, 'value', null) // clear `value`
         this.emitExternalValidations()
         this.$nextTick(() => { // wait until DOM updates with new type
           this.focusValue()

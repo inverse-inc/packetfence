@@ -201,7 +201,11 @@ export default {
   watch: {
     validation (a, b) {
       // refresh vuelidate model if $dirty
-      if (a.$dirty) a.$touch()
+      if (a.$dirty) {
+        this.$nextTick(() => {
+          this.validation.$touch()
+        })
+      }
     }
   }
 }
