@@ -632,6 +632,9 @@ sub parseExternalPortalRequest {
     if ( defined($req->param('redirect')) ) {
         $redirect_url = $req->param('redirect');
     }
+    elsif ( defined($req->param('redirect_url')) ) {
+        $redirect_url = $req->param('redirect_url');
+    }
     elsif ( defined($r->headers_in->{'Referer'}) ) {
         $redirect_url = $r->headers_in->{'Referer'};
     }
