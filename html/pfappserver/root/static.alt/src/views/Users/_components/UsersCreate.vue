@@ -217,19 +217,18 @@
             </b-row>
           </b-form-group>
 
-          <pf-form-actions
-            sortable
+          <pf-form-fields
             v-model="actions"
-            column-label="Actions"
-            :type-label="$t('Select action type')"
-            :value-label="$t('Select action value')"
-            :fields="userActions"
+            :column-label="$t('Actions')"
+            :button-label="$t('Add Action')"
+            :field="actionField"
             :validation="$v.actions"
             :invalid-feedback="[
               { [$t('One or more errors exist.')]: !$v.actions.anyError }
             ]"
             @validations="actionsValidations = $event"
-          ></pf-form-actions>
+            sortable
+          ></pf-form-fields>
 
         </b-col>
         <b-col sm="4"></b-col>
@@ -245,9 +244,10 @@
 </template>
 
 <script>
-import pfFormActions from '@/components/pfFormActions'
+import pfFieldAction from '@/components/pfFieldAction'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormDatetime from '@/components/pfFormDatetime'
+import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormToggle from '@/components/pfFormToggle'
@@ -276,9 +276,9 @@ const { validationMixin } = require('vuelidate')
 export default {
   name: 'UsersCreate',
   components: {
-    pfFormActions,
     pfFormChosen,
     pfFormDatetime,
+    pfFormFields,
     pfFormInput,
     pfFormTextarea,
     pfFormToggle
@@ -292,16 +292,6 @@ export default {
         regExp: regExp,
         schema: schema
       },
-      userActions: [
-        pfConfigurationActions.set_access_duration,
-        pfConfigurationActions.set_access_level,
-        pfConfigurationActions.set_bandwidth_balance,
-        pfConfigurationActions.mark_as_sponsor,
-        pfConfigurationActions.set_role,
-        pfConfigurationActions.set_tenant_id,
-        pfConfigurationActions.set_time_balance,
-        pfConfigurationActions.set_unreg_date
-      ],
       modeIndex: 0,
       single: {
         pid_overwrite: 0,
@@ -348,7 +338,24 @@ export default {
       },
       valid_from: null,
       expiration: null,
-      actions: null,
+      actions: [],
+      actionField: {
+        component: pfFieldAction,
+        attrs: {
+          typeLabel: this.$i18n.t('Select action type'),
+          valueLabel: this.$i18n.t('Select action value'),
+          fields: [
+            pfConfigurationActions.set_access_duration,
+            pfConfigurationActions.set_access_level,
+            pfConfigurationActions.set_bandwidth_balance,
+            pfConfigurationActions.mark_as_sponsor,
+            pfConfigurationActions.set_role,
+            pfConfigurationActions.set_tenant_id,
+            pfConfigurationActions.set_time_balance,
+            pfConfigurationActions.set_unreg_date
+          ]
+        }
+      },
       actionsValidations: {}
     }
   },
