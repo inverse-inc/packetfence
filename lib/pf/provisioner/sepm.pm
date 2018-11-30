@@ -135,10 +135,6 @@ sub set_access_token {
     }
     else{
         $self->{'access_token'} = $access_token;
-        my $cs = pf::ConfigStore::Provisioning->new;
-        $logger->info($self->{'id'});
-        $cs->update($self->{'id'}, {access_token => $access_token});
-        $cs->commit();
     }
 }
 
@@ -172,6 +168,7 @@ sub refresh_access_token {
         $refresh_token = $json_response->{'refresh_token'};
         if (defined $access_token && $access_token ne '') {
             $updated_config->{access_token} = $access_token;
+            $self->set_access_token($access_token);
         }
         else {
             $logger->error("Cannot update the access token for $self->{id}");
