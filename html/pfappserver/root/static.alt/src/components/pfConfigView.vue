@@ -113,6 +113,7 @@ export default {
       if (key.includes('.')) { // handle dot-notation keys ('.')
         const split = key.split('.')
         const [ first, remainder ] = [ split[0], split.slice(1).join('.') ]
+        if (!(first in model)) this.$set(model, first, {})
         return this.setValue(remainder, value, model[first])
       }
       Vue.set(model, key, value)
