@@ -159,6 +159,9 @@ export default {
       set (newType) {
         this.$set(this.inputValue, 'type', newType || null) // type or null
         this.emitExternalValidations()
+        this.$nextTick(() => { // wait until DOM updates with new type
+          this.focusValue()
+        })
       }
     },
     localValue: {
@@ -255,6 +258,27 @@ export default {
     },
     emitExternalValidations () {
       this.$emit('validations', this.getExternalValidations())
+    },
+    focus () {
+      this.focusType()
+    },
+    focusType () {
+      let vals = Object.values(this.$refs)
+      if (vals[0] && '$refs' in vals[0]) {
+        let refs = vals[0].$refs
+        if ('input' in refs && '$el' in refs.input) {
+          refs.input.$el.focus()
+        }
+      }
+    },
+    focusValue () {
+      let vals = Object.values(this.$refs)
+      if (vals[1] && '$refs' in vals[1]) {
+        let refs = vals[1].$refs
+        if ('input' in refs && '$el' in refs.input) {
+          refs.input.$el.focus()
+        }
+      }
     }
   },
   mounted () {

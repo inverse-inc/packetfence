@@ -155,7 +155,9 @@ export default {
       this.forceUpdate()
       // focus the type element in new row
       if (!clone) { // focusing pfFormChosen steals ctrlKey's onkeyup event
-        this.setFocus('component-' + index)
+        this.$nextTick(() => { // wait until DOM updates with new row
+          this.focus('component-' + index)
+        })
       }
     },
     rowDel (index, deleteAll = this.ctrlKey) {
@@ -187,14 +189,11 @@ export default {
       }
       this.forceUpdate()
     },
-    setFocus (ref) {
+    focus (ref) {
       if (ref in this.$refs) {
-        const reference = this.$refs[ref][0]
-        if (reference && '$refs' in reference && 'input' in reference.$refs) {
-          const input = reference.$refs.input
-          if ('$el' in input) {
-            input.$el.focus()
-          }
+        let component = this.$refs[ref][0]
+        if ('focus' in component) {
+          component.focus() // defer
         }
       }
     }
