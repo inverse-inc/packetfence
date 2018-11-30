@@ -2,15 +2,21 @@
   <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
     :state="isValid()" :invalid-feedback="getInvalidFeedback()"
     class="pf-form-fields" :class="{ 'mb-0': !columnLabel }">
-    <b-input-group class="pf-form-fields-input-group py-1">
-      <draggable
+    <b-input-group class="pf-form-fields-input-group">
+      <b-container v-if="inputValue.length === 0"
+        class="mx-0 px-0"
+      >
+        <b-button variant="outline-secondary" @click.stop="rowAdd()">{{ buttonText || $t('Add row') }}</b-button>
+      </b-container>
+      <draggable v-else
         v-model="inputValue"
         :options="{handle: '.draghandle', dragClass: 'dragclass'}"
-        class="container-fluid px-0"
+        class="container-fluid px-0 py-1"
         @start="onDragStart"
         @end="onDragEnd"
       >
-        <b-container v-for="(_, index) in inputValue" :key="key"
+        <b-container
+          v-for="(_, index) in inputValue" :key="key"
           class="mx-0 px-1"
           @mouseleave="onMouseLeave()"
         >
@@ -31,11 +37,11 @@
               <icon name="th" v-b-tooltip.hover.left.d300 :title="$t('Click and drag to re-order')"></icon>
             </div>
             <div v-else>
-              {{ index + 1 }} {{field.key}}
+              {{ index + 1 }}
             </div>
           </template>
           <template slot="append">
-            <icon name="minus-circle" v-if="inputValue.length > 1"
+            <icon name="minus-circle"
               :class="['cursor-pointer mx-1', { 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }]"
               v-b-tooltip.hover.left.d300
               :title="$t((ctrlKey) ? 'Delete All' : 'Delete Row')"
@@ -82,6 +88,9 @@ export default {
     sortable: {
       type: Boolean,
       default: false
+    },
+    buttonText: {
+      type: String
     }
   },
   data () {
@@ -145,7 +154,7 @@ export default {
         }
       })
     },
-    rowAdd (index, clone = this.ctrlKey) {
+    rowAdd (index = 0, clone = this.ctrlKey) {
       let inputValue = this.inputValue
       let newRow = (clone && (index - 1) in inputValue)
         ? JSON.parse(JSON.stringify(inputValue[index - 1])) // clone, dereference
@@ -166,8 +175,8 @@ export default {
           this.$delete(this.inputValue, i)
           this.$delete(this.externalValidations, i)
         }
-        this.rowAdd(0) // add an empty row
       } else {
+        this.inputValue.splice(index, 1) // delete 1 row
         const length = Object.keys(this.externalValidations).length
         for (let i = index; i < length; i++) {
           if (i < length - 1) {
@@ -178,14 +187,7 @@ export default {
             this.$delete(this.externalValidations, i)
           }
         }
-        // changes to inputValue are not immediately available,
-        //   so we compare before we modify to avoid race-condition
-        if (this.inputValue.length === 1) {
-          this.inputValue.splice(index, 1) // delete 1 row
-          this.rowAdd(0)
-        } else {
-          this.inputValue.splice(index, 1) // delete 1 row
-        }
+        this.emitExternalValidations()
       }
       this.forceUpdate()
     },
