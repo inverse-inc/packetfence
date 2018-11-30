@@ -1015,6 +1015,9 @@ export const pfConfigurationViewFields = {
             { value: 'M', text: i18n.t('months') },
             { value: 'Y', text: i18n.t('years') }
           ]
+        },
+        validators: {
+          [i18n.t('Unit required.')]: required
         }
       }
     ]
@@ -1467,6 +1470,9 @@ export const pfConfigurationViewFields = {
             { value: 'M', text: i18n.t('months') },
             { value: 'Y', text: i18n.t('years') }
           ]
+        },
+        validators: {
+          [i18n.t('Unit required.')]: required
         }
       }
     ]
