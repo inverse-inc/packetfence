@@ -287,6 +287,15 @@ sub authorize {
     $args->{'wasInline'} = $role->{wasInline};
     $args->{'user_role'} = $role->{role};
 
+    my $filter = pf::access_filter::switch->new;
+    my $switch_params = $filter->filter('radius_authorize', $args);
+
+    if (defined($switch_params)) {
+        foreach my $key (keys %{$switch_params}) {
+            $switch->{$key} = $switch_params->{$key};
+        }
+    }
+
     if (isenabled($switch->{_VlanMap})) {
         $vlan = $switch->getVlanByName($role->{role}) if (isenabled($switch->{_VlanMap}));
         $args->{'vlan'} = $vlan;
@@ -311,15 +320,6 @@ sub authorize {
         # WARNING: passing empty switch-lock for now
         # When the _setVlan of a switch who can't do RADIUS VLAN assignment uses the lock we will need to re-evaluate
         $switch->_setVlan( $port, $vlan, undef, {} );
-    }
-
-    my $filter = pf::access_filter::switch->new;
-    my $switch_params = $filter->filter('radius_authorize', $args);
-
-    if (defined($switch_params)) {
-        foreach my $key (keys %{$switch_params}) {
-            $switch->{$key} = $switch_params->{$key};
-        }
     }
 
     $RAD_REPLY_REF = $switch->returnRadiusAccessAccept($args);
