@@ -1,17 +1,29 @@
-$body-bg:                           #eeeeee;
-$font-size-base:                    0.9rem; // Assumes the browser default, typically `16px`
-$card-cap-bg:                       #ffffff; // Card -- header background color
-$headings-font-weight:              200;
-$body-color:                        #495057; // $gray-700
-$input-bg:                          #f6f9fc;
-$input-border-color:                #f6f9fc;
-$input-btn-focus-width:             0; // No box shadow on focus
-$input-btn-hover-text-color:        #ffffff;
-$input-btn-hover-bg-color:          #007bff;
-$input-placeholder-color:           #adb5bd; // $gray-500
-$nav-tabs-link-hover-border-color:  'transparent';
-$nav-tabs-link-active-bg:           'transparent';
+$body-bg:                             #eeeeee;
+$font-size-base:                      0.9rem; // Assumes the browser default, typically `16px`
+$card-cap-bg:                         #ffffff; // Card -- header background color
+$headings-font-weight:                200;
+$body-color:                          #495057; // $gray-700
+$input-bg:                            #f6f9fc;
+$input-border-color:                  #f6f9fc;
+$input-btn-focus-width:               0; // No box shadow on focus
+$input-btn-hover-text-color:          #ffffff;
+$input-btn-hover-bg-color:            #007bff;
+$input-placeholder-color:             #adb5bd; // $gray-500
+$zindex-dropdown:                     1035;
+$spacers:                             (6: (1rem * 4));
 
 @import "../../node_modules/bootstrap/scss/variables";
 
-$nav-tabs-link-active-border-color: $component-active-bg;
+$nav-tabs-link-hover-border-color:    'transparent';
+$nav-tabs-link-active-bg:             'transparent';
+$nav-tabs-link-active-border-color:   $component-active-bg;
+
+$portal-module-connector-color:       #c4c4c4;
+$portal-module-connector-hover-color: darken($portal-module-connector-color, 40%);
+$portal-module-connector-margin:      1.5rem;
+$portal-module-connector-width:       2px;
+$portal-module-width:                 12rem;
+$portal-module-height:                3rem;
+$portal-module-border-color:          #ffb1bb;
+$portal-module-border-width:          3px;
+$portal-module-hover-bg:              lighten($portal-module-border-color, 7%);

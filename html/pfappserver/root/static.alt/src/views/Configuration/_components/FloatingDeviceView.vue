@@ -65,7 +65,7 @@ export default {
     id: { // from router
       type: String,
       default: null
-    },
+    }
   },
   data () {
     return {

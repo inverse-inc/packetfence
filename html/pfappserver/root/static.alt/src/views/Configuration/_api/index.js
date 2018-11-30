@@ -125,5 +125,18 @@ export default {
   },
   deleteFloatingDevice: id => {
     return apiCall.delete(`config/floating_device/${id}`)
+  },
+  /**
+   * Portal Modules
+   */
+  portalModules: params => {
+    return apiCall.get('config/portal_modules', { params }).then(response => {
+      return response.data
+    })
+  },
+  portalModule: id => {
+    return apiCall.get(`config/portal_module/${id}`).then(response => {
+      return response.data.item
+    })
   }
 }

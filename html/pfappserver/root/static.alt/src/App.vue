@@ -28,7 +28,7 @@
       </b-collapse>
       <pf-notification-center :isAuthenticated="isAuthenticated" />
     </b-navbar>
-    <b-container fluid class="mt-5 pt-3">
+    <b-container fluid class="pt-6">
       <router-view/>
     </b-container>
   </div>

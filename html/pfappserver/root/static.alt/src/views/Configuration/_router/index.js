@@ -5,6 +5,7 @@ import FloatingDevicesStore from '../_store/floatingdevices'
 import DomainsStore from '../_store/domains'
 import RealmsStore from '../_store/realms'
 import AuthenticationSourcesStore from '../_store/sources'
+import PortalModulesStore from '../_store/portalmodules'
 
 const PoliciesAccessControlSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/PoliciesAccessControlSection')
 const RolesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/RolesList')
@@ -12,13 +13,14 @@ const RoleView = () => import(/* webpackChunkName: "Configuration" */ '../_compo
 const DomainsTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/DomainsTabs')
 const DomainView = () => import(/* webpackChunkName: "Configuration" */ '../_components/DomainView')
 const RealmView = () => import(/* webpackChunkName: "Configuration" */ '../_components/RealmView')
+const AuthenticationSourcesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/AuthenticationSourcesList')
+const AuthenticationSourceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/AuthenticationSourceView')
 
 const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
 const FloatingDevicesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDevicesList')
 const FloatingDeviceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDeviceView')
-
-const AuthenticationSourcesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/AuthenticationSourcesList')
-const AuthenticationSourceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/AuthenticationSourceView')
+const PortalModulesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/PortalModulesList')
+const PortalModuleView = () => import(/* webpackChunkName: "Configuration" */ '../_components/PortalModuleView')
 
 const route = {
   path: '/configuration',
@@ -27,6 +29,9 @@ const route = {
   component: ConfigurationView,
   meta: { transitionDelay: 300 * 2 }, // See _transitions.scss => $slide-bottom-duration
   beforeEnter: (to, from, next) => {
+    /**
+     * Register Vuex stores
+     */
     if (!store.state.$_roles) {
       store.registerModule('$_roles', RolesStore)
     }
@@ -41,6 +46,9 @@ const route = {
     }
     if (!store.state.$_sources) {
       store.registerModule('$_sources', AuthenticationSourcesStore)
+    }
+    if (!store.state.$_portalmodules) {
+      store.registerModule('$_portalmodules', PortalModulesStore)
     }
     next()
   },
@@ -121,6 +129,40 @@ const route = {
         })
       }
     },
+    {
+      path: 'sources',
+      name: 'sources',
+      component: AuthenticationSourcesList,
+      props: (route) => ({ query: route.query.query })
+    },
+    {
+      path: 'sources/new/:sourceType',
+      name: 'newAuthenticationSource',
+      component: AuthenticationSourceView,
+      props: (route) => ({ storeName: '$_sources', isNew: true, sourceType: route.params.sourceType })
+    },
+    {
+      path: 'source/:id',
+      name: 'source',
+      component: AuthenticationSourceView,
+      props: (route) => ({ storeName: '$_sources', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_sources/getAuthenticationSource', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'source/:id/clone',
+      name: 'cloneAuthenticationSource',
+      component: AuthenticationSourceView,
+      props: (route) => ({ storeName: '$_sources', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_sources/getAuthenticationSource', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
     /**
      * Network Configuration
      */
@@ -152,38 +194,43 @@ const route = {
       }
     },
     /**
-     * AuthenticationSources
+     *  Advanced Access Configuration
      */
     {
-      path: 'sources',
-      name: 'sources',
-      component: AuthenticationSourcesList,
-      props: (route) => ({ query: route.query.query })
+      path: 'portal_modules',
+      name: 'portal_modules',
+      component: PortalModulesList,
+      props: (route) => ({ storeName: '$_portalmodules', query: route.query.query })
     },
     {
-      path: 'sources/new/:sourceType',
-      name: 'newAuthenticationSource',
-      component: AuthenticationSourceView,
-      props: (route) => ({ storeName: '$_sources', isNew: true, sourceType: route.params.sourceType })
-    },
-    {
-      path: 'source/:id',
-      name: 'source',
-      component: AuthenticationSourceView,
-      props: (route) => ({ storeName: '$_sources', id: route.params.id }),
+      path: 'portal_modules/new/:type',
+      name: 'newPortalModule',
+      component: PortalModuleView,
+      props: (route) => ({ storeName: '$_portalmodules', isNew: true, moduleType: route.params.type }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_sources/getAuthenticationSource', to.params.id).then(object => {
+        store.dispatch('config/getSources').then(object => {
           next()
         })
       }
     },
     {
-      path: 'source/:id/clone',
-      name: 'cloneAuthenticationSource',
-      component: AuthenticationSourceView,
-      props: (route) => ({ storeName: '$_sources', id: route.params.id, isClone: true }),
+      path: 'portal_module/:id',
+      name: 'portal_module',
+      component: PortalModuleView,
+      props: (route) => ({ storeName: '$_portalmodules', id: route.params.id }),
       beforeEnter: (to, from, next) => {
-        store.dispatch('$_sources/getAuthenticationSource', to.params.id).then(object => {
+        store.dispatch('$_portalmodules/getPortalModule', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'portal_module/:id/clone',
+      name: 'clonePortalModule',
+      component: PortalModuleView,
+      props: (route) => ({ storeName: '$_portalmodules', id: route.params.id, isClone: true }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_portalmodules/getPortalModule', to.params.id).then(object => {
           next()
         })
       }
