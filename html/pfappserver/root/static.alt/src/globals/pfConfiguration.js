@@ -13,6 +13,7 @@ import {
   conditional,
   isFQDN,
   isPort,
+  isAmount,
   sourceExists
 } from '@/globals/pfValidators'
 const {
@@ -154,7 +155,7 @@ export const pfConfigurationRolesListColumns = [
 ]
 
 export const pfConfigurationBillingTiersListColumns = [
-  Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Name') }), // re-label
+  Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Identifier') }) // re-label
 ]
 
 export const pfConfigurationListFields = {
@@ -203,7 +204,7 @@ export const pfConfigurationAuthenticationSourcesListFields = [
 ]
 
 export const pfConfigurationBillingTiersListFields = [
-  Object.assign(pfConfigurationListFields.id, { text: i18n.t('Name') }), // re-text
+  Object.assign(pfConfigurationListFields.id, { text: i18n.t('Name') }) // re-text
 ]
 
 export const pfConfigurationDomainsListFields = [
@@ -2519,7 +2520,92 @@ export const pfConfigurationBillingTierViewFields = (args = {}) => {
           component: pfFormInput
         }
       ]
-    }
+    },
+    {
+      label: i18n.t('Description'),
+      fields: [
+        {
+          key: 'description',
+          component: pfFormInput,
+        }
+      ]
+    },
+    {
+      label: i18n.t('Price'), // TODO - validate the format is money
+      fields: [
+        {
+          key: 'price',
+          component: pfFormInput,
+          validators: {
+            [i18n.t('Price required')]: required,
+            [i18n.t('Enter a valid positive price')]: isAmount
+          }
+        }
+      ]
+    },
+    {
+      label: i18n.t('Role'),
+      fields: [
+        {
+          key: 'role',
+          component: pfFormChosen,
+          attrs: {
+            collapseObject: true,
+            placeholder: i18n.t('Click to select a role'),
+            trackBy: 'value',
+            label: 'text',
+            multiple: false,
+            clearOnSelect: false,
+            closeOnSelect: false,
+            options: args.roles.map(role => { return { value: role.name.toLowerCase(), text: role.name.toLowerCase() } })
+          }
+        }
+      ]
+    },
+    {
+      label: i18n.t('Access Duration'),
+      text: null, // multiple occurances w/ different strings, nullify for overload
+      fields: [
+        {
+          key: 'access_duration.interval',
+          component: pfFormInput,
+          attrs: {
+            type: 'number'
+          },
+          validators: {
+            //[i18n.t('Interval required.')]: required,
+            //[i18n.t('Integer values required.')]: integer
+          }
+        },
+        {
+          key: 'access_duration.unit',
+          component: pfFormSelect,
+          attrs: {
+            options: [
+              { value: 's', text: i18n.t('seconds') },
+              { value: 'm', text: i18n.t('minutes') },
+              { value: 'h', text: i18n.t('hours') },
+              { value: 'D', text: i18n.t('days') },
+              { value: 'W', text: i18n.t('weeks') },
+              { value: 'M', text: i18n.t('months') },
+              { value: 'Y', text: i18n.t('years') }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      label: i18n.t('Use Time Balance'),
+      fields: [
+        {
+          key: 'use_time_balance',
+          component: pfFormToggle,
+          attrs: {
+            values: { checked: 'enabled', unchecked: 'disabled' }
+          }
+        }
+      ]
+    },
   ]
 }
 

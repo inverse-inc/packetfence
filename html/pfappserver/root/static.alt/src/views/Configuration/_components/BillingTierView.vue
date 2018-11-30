@@ -90,7 +90,10 @@ export default {
         labelCols: 3,
         fields: fields(this)
       }
-    }
+    },
+    roles () {
+      return this.$store.getters['config/rolesList']
+    },
   },
   methods: {
     close () {
@@ -118,6 +121,7 @@ export default {
         this.billingTier = Object.assign({}, data)
       })
     }
+    this.$store.dispatch('config/getRoles')
   }
 }
 </script>

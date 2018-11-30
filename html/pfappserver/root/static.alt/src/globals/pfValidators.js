@@ -169,6 +169,11 @@ export const isPort = (value) => {
   return ~~value >= 1 && ~~value <= 65535
 }
 
+export const isAmount = (value) => {
+  if (!value) return true
+  return /^\d+\.\d{2}$/.test(value)
+}
+
 export const compareDate = (comparison, date = new Date(), dateFormat = 'YYYY-MM-DD HH:mm:ss', allowZero = true) => {
   return (0, _common.withParams)({
     type: 'compareDate',
