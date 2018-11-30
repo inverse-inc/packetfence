@@ -10,17 +10,17 @@ $sidebar-item-padding-right: map-get($spacers, 1);
 
 .pf-sidebar {
   order: 0;
-  padding-left: 0;
   padding-right: 0;
+  padding-left: 0;
 
   @include media-breakpoint-up(md) {
+    border-right: 1px solid rgba(0,0,0,.1);
     @supports (position: sticky) {
       position: sticky;
-      top: 4rem;
       z-index: $zindex-dropdown;
-      max-height: calc(100vh - 4rem);
+      top: ($spacer * 4);
+      max-height: calc(100vh - #{$spacer * 4});
     }
-    border-right: 1px solid rgba(0,0,0,.1);
   }
 
   @include media-breakpoint-up(xl) {
@@ -31,8 +31,8 @@ $sidebar-item-padding-right: map-get($spacers, 1);
 .pf-sidebar-links {
   @include media-breakpoint-up(md) {
     @supports (position: sticky) {
-      max-height: calc(100vh - 9rem);
       overflow-y: auto;
+      max-height: calc(100vh - 9rem);
     }
   }
 
@@ -44,9 +44,9 @@ $sidebar-item-padding-right: map-get($spacers, 1);
 
 .pf-sidebar-filter {
   position: relative;
-  padding: 1rem ($grid-gutter-width / 2);
   display: flex;
   align-items: center;
+  padding: 1rem ($grid-gutter-width / 2);
 
   .form-control:focus {
     border-color: $gray-500;
@@ -55,8 +55,8 @@ $sidebar-item-padding-right: map-get($spacers, 1);
 }
 
 .pf-sidebar-filter-toggle {
-  line-height: 1;
   color: $gray-900;
+  line-height: 1;
 }
 
 .pf-sidenav-group {
@@ -66,9 +66,10 @@ $sidebar-item-padding-right: map-get($spacers, 1);
   font-weight: 400;
 
   &[role=button] {
-    color: rgba(0,0,0,.65);
     padding-left: 0;
+    color: rgba(0,0,0,.65);
     font-weight: 700;
+
     &:hover {
       color: rgba(0,0,0,.85);
       text-decoration: none;
@@ -79,8 +80,8 @@ $sidebar-item-padding-right: map-get($spacers, 1);
 // Link with optional icon
 .pf-sidebar-item {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
   overflow: hidden;
 
   .figure-caption {
@@ -110,27 +111,27 @@ $sidebar-item-padding-right: map-get($spacers, 1);
   color: rgba(0,0,0,.65);
 
   &:hover {
+    background-color: transparent;
     color: rgba(0,0,0,.85);
     text-decoration: none;
-    background-color: transparent;
   }
 }
 
 // Active link
 .pf-sidebar .active:not(.secondary),
 .pf-sidebar .active:not(.secondary):hover {
-  color: $component-active-color;
   background-color: $component-active-bg;
+  color: $component-active-color;
 }
 
 // Secondary active link
 .pf-sidebar .active.secondary,
 .pf-sidebar .active.secondary:hover {
-  font-weight: 500;
-  color: rgba(0,0,0,.85);
-  background-color: transparent;
-  border-left: .2rem solid $component-active-bg;
   padding-left: $sidebar-item-padding-left - .2rem;
+  border-left: .2rem solid $component-active-bg;
+  background-color: transparent;
+  color: rgba(0,0,0,.85);
+  font-weight: 500;
 }
 
 // Collapsable sections
@@ -143,10 +144,10 @@ $sidebar-item-padding-right: map-get($spacers, 1);
 }
 
 .pf-sidenav-group[role=button] {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   cursor: pointer;
   user-select: none;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: relative;
 }

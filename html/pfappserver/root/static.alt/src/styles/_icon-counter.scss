@@ -5,12 +5,12 @@ $icon-counter-width: 2em;
     top: 0;
     right: 0;
     border-radius: 50%;
-    text-align: center;
-    color: #fff;
-    font-size: $font-size-base/2;
     width: $icon-counter-width;
     height: $icon-counter-width;
+    color: #fff;
+    font-size: $font-size-base/2;
     line-height: $icon-counter-width;
+    text-align: center;
 
     &.secondary {
         background-color: $secondary;
