@@ -82,7 +82,7 @@ func initiaLease(dhcpHandler *DHCPHandler, ConfNet pfconfigdriver.RessourseNetwo
 			// Calculate the position for the roaring bitmap
 			position := uint32(binary.BigEndian.Uint32(ip.To4())) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
 			// Remove the position in the roaming bitmap
-			dhcpHandler.available.ReserveIPIndex(uint64(position))
+			dhcpHandler.available.ReserveIPIndex(uint64(position), mac)
 			// Add the mac in the cache
 			dhcpHandler.hwcache.Set(mac, int(position), leaseDuration)
 			GlobalIpCache.Set(ipstr, mac, leaseDuration)
@@ -312,7 +312,7 @@ func AssignIP(dhcpHandler *DHCPHandler, ip_range string) (map[string]uint32, []n
 				result := rgx.FindStringSubmatch(rangeip)
 				position := uint32(binary.BigEndian.Uint32(net.ParseIP(result[2]).To4())) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
 				// Remove the position in the roaming bitmap
-				dhcpHandler.available.ReserveIPIndex(uint64(position))
+				dhcpHandler.available.ReserveIPIndex(uint64(position), result[1])
 				couple[result[1]] = position
 				iplist = append(iplist, net.ParseIP(result[2]))
 			}
