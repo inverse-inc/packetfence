@@ -43,7 +43,7 @@ export default {
     },
     validate () {
       const _this = this
-      if (this.validation) {
+      if (this.validation && '$touch' in this.validation) {
         this.$validationDebouncer({
           handler: () => {
             _this.validation.$touch()

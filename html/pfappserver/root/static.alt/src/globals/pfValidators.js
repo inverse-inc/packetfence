@@ -271,7 +271,7 @@ export const limitSiblingFieldTypes = (limit) => {
       // iterate through all params
       for (let i = 0; i < params.length; i++) {
         const [param] = params[i] // destructure
-        if (parent[param].$model === undefined) continue // ignore empty models
+        if (!parent[param].$model) continue // ignore empty models
         if (idOfV(parent[param].$model) === id) continue // ignore (self)
         if (parent[param].$model.type === field.type) {
           count += 1 // increment count
@@ -296,7 +296,7 @@ export const requireAllSiblingFieldTypes = (...fieldTypes) => {
       // iterate through all params
       for (let i = 0; i < params.length; i++) {
         const [param] = params[i] // destructure
-        if (parent[param].$model === undefined) continue // ignore empty models
+        if (!parent[param].$model) continue // ignore empty models
         if (idOfV(parent[param].$model) === id) continue // ignore (self)
         // iterate through _fieldTypes and substitute
         _fieldTypes = _fieldTypes.map(fieldType => {
@@ -324,7 +324,7 @@ export const requireAnySiblingFieldTypes = (...fieldTypes) => {
       // iterate through all params
       for (let i = 0; i < params.length; i++) {
         const [param] = params[i] // destructure
-        if (parent[param].$model === undefined) continue // ignore empty models
+        if (!parent[param].$model) continue // ignore empty models
         if (idOfV(parent[param].$model) === id) continue // ignore (self)
         // return |true| if any fieldType exists
         if (_fieldTypes.includes(parent[param].$model.type)) return true
@@ -348,7 +348,7 @@ export const restrictAllSiblingFieldTypes = (...fieldTypes) => {
       // iterate through all params
       for (let i = 0; i < params.length; i++) {
         const [param] = params[i] // destructure
-        if (parent[param].$model === undefined) continue // ignore empty models
+        if (!parent[param].$model) continue // ignore empty models
         if (idOfV(parent[param].$model) === id) continue // ignore (self)
         // iterate through _fieldTypes and substitute
         _fieldTypes = _fieldTypes.map(fieldType => {
@@ -376,7 +376,7 @@ export const restrictAnySiblingFieldTypes = (...fieldTypes) => {
       // iterate through all params
       for (let i = 0; i < params.length; i++) {
         const [param] = params[i] // destructure
-        if (parent[param].$model === undefined) continue // ignore empty models
+        if (!parent[param].$model) continue // ignore empty models
         if (idOfV(parent[param].$model) === id) continue // ignore (self)
         // return |false| if any fieldType exists
         if (_fieldTypes.includes(parent[param].$model.type)) return false

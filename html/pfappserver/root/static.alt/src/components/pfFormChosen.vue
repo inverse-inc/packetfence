@@ -1,7 +1,7 @@
 <template>
   <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
     :state="isValid()" :invalid-feedback="getInvalidFeedback()"
-    class="chosen-element" :class="{ 'mb-0': !columnLabel, 'is-focus': focus }">
+    class="pf-form-chosen" :class="{ 'mb-0': !columnLabel, 'is-focus': focus }">
     <b-input-group>
       <multiselect
         v-model="inputValue"
@@ -61,7 +61,7 @@ export default {
     },
     options: {
       type: Array,
-      default: null
+      default: []
     },
     multiple: {
       type: Boolean,
@@ -93,7 +93,9 @@ export default {
         if (this.collapseObject) {
           return (this.multiple)
             ? [...new Set(currentValue.map(value => this.options.find(option => option[this.trackBy] === value)))]
-            : this.options.find(option => option[this.trackBy] === currentValue)
+            : (this.options)
+              ? this.options.find(option => option[this.trackBy] === currentValue)
+              : null
         }
         return currentValue
       },
@@ -124,7 +126,7 @@ export default {
 /**
  * Adjust is-invalid and is-focus borders
  */
-.chosen-element {
+.pf-form-chosen {
   .multiselect {
       border-width: 1px;
       font-size: $font-size-base;
