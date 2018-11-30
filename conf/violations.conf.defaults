@@ -234,7 +234,7 @@ actions=enforce_provisioning,log
 template=enforce_provisioning
 trigger=Provisioner::check
 enabled=Y
-grace=0s
+grace=15m
 delay_by=2m
 
 [1300003]
