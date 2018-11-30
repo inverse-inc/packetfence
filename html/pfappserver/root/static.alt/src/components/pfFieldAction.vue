@@ -1,5 +1,5 @@
 <template>
-  <b-form-row class="pf-field-test mx-0 mb-1 px-0 col-12" align-v="center"
+  <b-form-row class="pf-field-action mx-0 mb-1 px-0 col-12" align-v="center"
     v-on="forwardListeners"
   >
     <b-col v-if="$slots.prepend" cols="1" align-self="start" class="pt-1 text-center col-form-label">
@@ -83,7 +83,7 @@ import {
 import { required } from 'vuelidate/lib/validators'
 
 export default {
-  name: 'pf-field-test',
+  name: 'pf-field-action',
   mixins: [
     pfMixinValidation
   ],
@@ -293,7 +293,7 @@ export default {
 </script>
 
 <style lang="scss">
-.pf-field-test {
+.pf-field-action {
   .pf-form-chosen {
     .col-sm-12[role="group"] {
       padding-left: 0px;
