@@ -6,7 +6,7 @@
       <b-container v-if="inputValue.length === 0"
         class="mx-0 px-0"
       >
-        <b-button variant="outline-secondary" @click.stop="rowAdd()">{{ buttonText || $t('Add row') }}</b-button>
+        <b-button variant="outline-secondary" @click.stop="rowAdd()">{{ buttonLabel || $t('Add row') }}</b-button>
       </b-container>
       <draggable v-else
         v-model="inputValue"
@@ -89,8 +89,15 @@ export default {
       type: Boolean,
       default: false
     },
-    buttonText: {
+    buttonLabel: {
       type: String
+    },
+    columnLabel: {
+      type: String
+    },
+    labelCols: {
+      type: Number,
+      default: 3
     }
   },
   data () {
@@ -228,7 +235,7 @@ export default {
   }
   .col-form-label {
     // Align the label with the text of the first action
-    padding-top: calc(#{$input-padding-y + $spacer * .25} + #{$input-border-width * 3});
+    padding-top: calc(#{$input-padding-y} + #{$input-border-width});
     line-height: auto;
   }
   &.is-focus {
