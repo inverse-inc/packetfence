@@ -260,7 +260,11 @@ export default {
       this.$emit('validations', this.getExternalValidations())
     },
     focus () {
-      this.focusType()
+      if (this.localType) {
+        this.focusValue()
+      } else {
+        this.focusType()
+      }
     },
     focusType () {
       let vals = Object.values(this.$refs)
