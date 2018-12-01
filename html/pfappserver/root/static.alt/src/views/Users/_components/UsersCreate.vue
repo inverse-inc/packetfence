@@ -198,7 +198,7 @@
         <b-col sm="12">
 
           <b-form-group horizontal label-cols="3" :label="$t('Registration Window')">
-            <b-form-row class="align-text-top">
+            <b-row align-v="center">
               <b-col>
                 <pf-form-datetime v-model="valid_from"
                   :min="new Date()"
@@ -206,7 +206,7 @@
                   :validation="$v.valid_from"
                 />
               </b-col>
-              <icon name="long-arrow-alt-right" class="m-2"></icon>
+              <icon name="long-arrow-alt-right"></icon>
               <b-col>
                 <pf-form-datetime v-model="expiration"
                   :min="new Date()"
@@ -214,7 +214,7 @@
                   :validation="$v.expiration"
                 />
               </b-col>
-            </b-form-row>
+            </b-row>
           </b-form-group>
 
           <pf-form-actions
