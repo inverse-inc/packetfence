@@ -17,7 +17,7 @@
 import pfMixinValidation from '@/components/pfMixinValidation'
 
 export default {
-  name: 'pf-form-input',
+  name: 'pf-form-textarea',
   mixins: [
     pfMixinValidation
   ],

@@ -11,7 +11,7 @@
 import pfSidebarItem from './pfSidebarItem'
 
 export default {
-  name: 'pfSavedSearch',
+  name: 'pf-saved-search',
   components: {
     pfSidebarItem
   },

@@ -58,7 +58,6 @@ import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormSelect from '@/components/pfFormSelect'
 import pfFormTextarea from '@/components/pfFormTextarea'
-import draggable from 'vuedraggable'
 import usersApi from '@/views/Users/_api'
 import { pfRegExp as regExp } from '@/globals/pfRegExp'
 import {
@@ -82,12 +81,11 @@ const { validationMixin } = require('vuelidate')
 export default {
   name: 'NodesCreate',
   components: {
-    draggable,
-    'pf-form-autocomplete': pfFormAutocomplete,
-    'pf-form-datetime': pfFormDatetime,
-    'pf-form-input': pfFormInput,
-    'pf-form-select': pfFormSelect,
-    'pf-form-textarea': pfFormTextarea
+    pfFormAutocomplete,
+    pfFormDatetime,
+    pfFormInput,
+    pfFormSelect,
+    pfFormTextarea
   },
   mixins: [
     validationMixin

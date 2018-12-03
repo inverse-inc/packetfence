@@ -55,7 +55,7 @@ import pfEmptyTable from '@/components/pfEmptyTable'
 import pfSearch from '@/components/pfSearch'
 
 export default {
-  name: 'pfConfigList',
+  name: 'pf-config-list',
   mixins: [
     pfMixinSearchable
   ],

@@ -51,7 +51,7 @@ import pfFormInput from '@/components/pfFormInput'
 import pfMixinValidation from '@/components/pfMixinValidation'
 
 export default {
-  name: 'pfConfigView',
+  name: 'pf-config-view',
   components: {
     pfButtonSave,
     pfButtonDelete,

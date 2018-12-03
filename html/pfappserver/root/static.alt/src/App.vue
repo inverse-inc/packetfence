@@ -40,7 +40,7 @@ import pfNotificationCenter from '@/components/pfNotificationCenter'
 export default {
   name: 'app',
   components: {
-    'pf-notification-center': pfNotificationCenter
+    pfNotificationCenter
   },
   data () {
     return {
