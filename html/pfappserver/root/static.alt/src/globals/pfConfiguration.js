@@ -2557,7 +2557,7 @@ export const pfConfigurationBillingTierViewFields = (args = {}) => {
             multiple: false,
             clearOnSelect: false,
             closeOnSelect: false,
-            options: args.roles.map(role => { return { value: role.name.toLowerCase(), text: role.name.toLowerCase() } })
+            options: args.roles.map(role => { return { value: role.name, text: role.name } })
           }
         }
       ]
