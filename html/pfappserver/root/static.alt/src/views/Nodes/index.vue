@@ -81,9 +81,9 @@ export default {
           collapsable: true,
           items: this.switchGroups.map(switchGroup => {
             return {
-              name: switchGroup.group,
+              name: switchGroup.group || 'Default',
               collapsable: true,
-              items: switchGroup.switches.map(sw => {
+              items: switchGroup.switches.filter(sw => sw.id !== 'default').map(sw => {
                 return {
                   name: sw.id,
                   caption: sw.description,
