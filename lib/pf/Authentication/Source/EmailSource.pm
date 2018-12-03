@@ -228,6 +228,7 @@ Make an email regex from a domain wildcard
 sub make_email_regex {
     my ($domain_wildcard) = @_;
     local $_;
+    $domain_wildcard = lc($domain_wildcard);
     if ($domain_wildcard =~ /\*/) {
         $domain_wildcard =~ s/\./\\./g;
         $domain_wildcard =~ s/\*/\.\*/g;
