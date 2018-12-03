@@ -66,7 +66,7 @@ export default {
                 op: 'or',
                 values: [
                   { field: 'id', op: 'contains', value: quickCondition },
-                  { field: 'notes', op: 'contains', value: quickCondition }
+                  { field: 'name', op: 'contains', value: quickCondition }
                 ]
               }
             ]
