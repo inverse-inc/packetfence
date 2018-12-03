@@ -43,6 +43,12 @@ export const pfConfigurationListColumns = {
     sortable: true,
     visible: true
   },
+  price: {
+    key: 'price',
+    label: i18n.t('Price'),
+    sortable: true,
+    visible: true
+  },
   description: {
     key: 'description',
     label: i18n.t('Description'),
@@ -162,7 +168,8 @@ export const pfConfigurationRolesListColumns = [
 
 export const pfConfigurationBillingTiersListColumns = [
   Object.assign(pfConfigurationListColumns.id, { label: i18n.t('Identifier') }), // re-label
-  pfConfigurationListColumns.name
+  pfConfigurationListColumns.name,
+  pfConfigurationListColumns.price
 ]
 
 export const pfConfigurationListFields = {
