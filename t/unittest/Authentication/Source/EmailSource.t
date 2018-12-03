@@ -35,7 +35,7 @@ our @TESTS = (
     {
         name => 'email2',
         allowed => [qw(j@zozz.com j@ZoZz.com), $local_email1, $local_email2],
-        banned => [qw(j@zoz.com)],
+        banned => [qw(j@zoz.com j@ZOZ.com)],
     },
     {
         name => 'email3',
@@ -53,6 +53,16 @@ our @TESTS = (
     {
         name => 'email6',
         allowed => [qw(j@bob.com j@zoz.com j@aoa.com)],
+    },
+    {
+        name => 'email_uppercase_allowed',
+        allowed => [qw(j@bob.com k@BOB.com), $local_email1, $local_email2],
+        banned => [qw(j@bbob.com j@bobby.com)],
+    },
+    {
+        name => 'email_uppercase_banned',
+        allowed => [qw(j@zozz.com j@ZoZz.com), $local_email1, $local_email2],
+        banned => [qw(j@zoz.com j@ZOZ.com)],
     },
 );
 
