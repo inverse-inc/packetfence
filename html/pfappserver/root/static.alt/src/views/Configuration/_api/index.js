@@ -140,7 +140,7 @@ export default {
     })
   }
   /**
-   * Floating Devices
+   * Billing Tiers
    */
   billingTier: id => {
     return apiCall.get(`config/billing_tier/${id}`).then(response => {
