@@ -30,6 +30,7 @@
           @validations="setExternalValidations(index, $event)"
           @mouseenter="onMouseEnter(index)"
           @mousemove="onMouseEnter(index)"
+          @siblings="onSiblings($event)"
           no-gutter
         >
           <template slot="prepend">
@@ -152,6 +153,16 @@ export default {
     },
     onMouseLeave () {
       this.hover = null
+    },
+    onSiblings ([func, ...args]) {
+      this.inputValue.forEach((_, index) => {
+        if (('component-' + index) in this.$refs) {
+          let ref = this.$refs['component-' + index][0]
+          if (func in ref && typeof(ref[func]) === 'function') {
+            ref[func](args)
+          }
+        }
+      })
     },
     forceUpdate () {
       this.key = Math.floor(Math.random() * 1E6) // update component(s) (https://vuejs.org/v2/api/#key)
