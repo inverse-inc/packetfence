@@ -95,19 +95,26 @@ export default {
       }
       const re = new RegExp(this.filter, 'i')
       const keys = ['name', 'caption']
+      const _filterSection = (section) => {
+        if (keys.find((key) => {
+          return section[key] && (re.test(section[key]) || re.test(this.$i18n.t(section[key])))
+        })) {
+          return section
+        }
+        if ('items' in section) {
+          let filteredItems = section.items.map(item => {
+            return _filterSection(item)
+          }).filter(section => section !== undefined)
+          if (filteredItems.length > 0) {
+            return Object.assign({}, section, { items: filteredItems })
+          }
+        }
+        return undefined
+      }
       let filteredSections = this.value.map(section => {
-        const items = section.items.filter(item => {
-          return (re.test(item.name) ||
-           re.test(this.$i18n.t(item.name)) ||
-           (item.caption && (re.test(item.caption) || re.test(this.$i18n.t(item.caption)))) ||
-           (('items' in item) && item.items.find(subitem => {
-            return re.test(subitem.name) || re.test(this.$i18n.t(subitem.name))
-          })))
-        })
-        let filteredSection = Object.assign({}, section, { items })
-        return filteredSection
+        return _filterSection(section)
       })
-      return filteredSections.filter(section => section.items.length)
+      return filteredSections.filter(section => section !== undefined)
     }
   }
 }
