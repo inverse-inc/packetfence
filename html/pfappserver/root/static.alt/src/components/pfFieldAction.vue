@@ -95,7 +95,7 @@ export default {
   props: {
     value: {
       type: Object,
-      default: () => { return { type: null, value: null } }
+      default: () => { return this.valuePlaceHolder }
     },
     typeLabel: {
       type: String
@@ -159,7 +159,7 @@ export default {
       set (newType) {
         this.$set(this.inputValue, 'type', newType || null) // set type or null
         this.$set(this.inputValue, 'value', null) // clear `value`
-        this.emitExternalValidations()
+        this.emitLocalValidationsToParent()
         this.$nextTick(() => { // wait until DOM updates with new type
           this.focusValue()
         })
@@ -171,7 +171,7 @@ export default {
       },
       set (newValue) {
         this.$set(this.inputValue, 'value', newValue || null) // value or null
-        this.emitExternalValidations()
+        this.emitLocalValidationsToParent()
       }
     },
     field () {
@@ -231,7 +231,6 @@ export default {
       let model = {}
       if (this.validation && Object.keys(this.validation).length > 0) {
         if (key in this.validation) model = this.validation[key]
-        if ('$each' in this.validation && key in this.validation.$each) model = this.validation.$each[key]
       }
       return model
     },
@@ -245,7 +244,7 @@ export default {
       }
       return feedback.join('<br/>')
     },
-    getExternalValidations () {
+    buildLocalValidations () {
       const field = this.field
       if (field) {
         if ('validators' in field) { // has vuelidate validations
@@ -257,8 +256,8 @@ export default {
       }
       return { type: { [this.$i18n.t('Type required.')]: required } }
     },
-    emitExternalValidations () {
-      this.$emit('validations', this.getExternalValidations())
+    emitLocalValidationsToParent () {
+      this.$emit('validations', this.buildLocalValidations())
     },
     focus () {
       if (this.localType) {
@@ -287,7 +286,7 @@ export default {
     }
   },
   mounted () {
-    this.emitExternalValidations()
+    this.emitLocalValidationsToParent()
   }
 }
 </script>
