@@ -217,7 +217,7 @@ func (I *Interface) runUnicast(jobs chan job, ctx context.Context) {
 	ListenAndServeIfUnicast(I, I, jobs, ctx)
 }
 
-func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.MessageType, srcIP net.Addr) (answer Answer) {
+func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.MessageType, srcIP net.Addr) (answer Answer) {
 
 	var handler DHCPHandler
 	var NetScope net.IPNet
@@ -230,7 +230,7 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 	var NodeCache *cache.Cache
 	NodeCache = cache.New(3*time.Second, 5*time.Second)
 	var node NodeInfo
-	for _, v := range h.network {
+	for _, v := range I.network {
 
 		// Case of a l2 dhcp request
 		if v.dhcpHandler.layer2 && (p.GIAddr().Equal(net.IPv4zero) || v.network.Contains(p.CIAddr())) {
@@ -290,7 +290,7 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 	}
 	// Do we have the vip ?
 
-	if VIP[h.Name] {
+	if VIP[I.Name] {
 
 		defer recoverName(options)
 
@@ -466,7 +466,7 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 			var err error
 
 			answer.IP = dhcp.IPAdd(handler.start, free)
-			answer.SrcIP = h.Ipv4
+			answer.SrcIP = I.Ipv4
 			// Add options on the fly
 			var GlobalOptions dhcp.Options
 			var options = make(map[dhcp.OptionCode][]byte)
