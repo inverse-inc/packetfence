@@ -17,7 +17,8 @@ use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
 use pf::dal::person;
 use pf::dal::node;
-use pf::dal::violation;
+use pf::dal::security_event;
+use pf::security_event;
 use pf::constants;
 use pf::person;
 use pf::node;
@@ -42,7 +43,7 @@ sub unassign_nodes {
         return $self->render_error(500, "Unable the unassign nodes for $pid");
     }
 
-    return $self->render(status => 200, json => {count => $count});
+    return $self->render(json => {count => $count});
 }
 
 =head2 bulk_register
@@ -86,7 +87,7 @@ sub bulk_register {
         push @{$results->[$indexes->{$pid}]{nodes}}, $node;
     }
 
-    return $self->render(status => 200, json => { items => $results });
+    return $self->render(json => { items => $results });
 }
 
 =head2 bulk_deregister
@@ -132,16 +133,16 @@ sub bulk_deregister {
         push @{$results->[$indexes->{$pid}]{nodes}}, $node;
     }
 
-    return $self->render(status => 200, json => { items => $results });
+    return $self->render(json => { items => $results });
 }
 
-=head2 bulk_close_violations
+=head2 bulk_close_security_events
 
-bulk_close_violations
+bulk_close_security_events
 
 =cut
 
-sub bulk_close_violations {
+sub bulk_close_security_events {
     my ($self) = @_;
     my ($status, $data) = $self->parse_json;
     if (is_error($status)) {
@@ -149,46 +150,46 @@ sub bulk_close_violations {
     }
 
     my $items = $data->{items} // [];
-    ($status, my $iter) = pf::dal::violation->search(
+    ($status, my $iter) = pf::dal::security_event->search(
         -where => {
             'node.pid' => { -in => $items},
-            status => "open",
+            'security_event.status' => "open",
         },
-        -columns => [qw(violation.vid violation.mac node.pid)],
-        -from => [-join => qw(violation <=>{violation.vid=class.vid} class), '=>{violation.tenant_id=node.tenant_id,violation.mac=node.mac}', 'node'],
+        -columns => [qw(security_event.vid security_event.mac node.pid)],
+        -from => [-join => qw(security_event <=>{security_event.vid=class.vid} class), '=>{security_event.tenant_id=node.tenant_id,security_event.mac=node.mac}', 'node'],
         -with_class => undef,
     );
 
     if (is_error($status)) {
-        return $self->render_error($status, "Error finding violations");
+        return $self->render_error($status, "Error finding security_events");
     }
 
-    my ($indexes, $results) = bulk_init_results($items, 'violations');
-    my $violations = $iter->all;
-    for my $violation (@$violations) {
-        my $pid = delete $violation->{pid};
-        my $mac = $violation->{mac};
+    my ($indexes, $results) = bulk_init_results($items, 'security_events');
+    my $security_events = $iter->all;
+    for my $security_event (@$security_events) {
+        my $pid = delete $security_event->{pid};
+        my $mac = $security_event->{mac};
         my $index = $indexes->{$pid};
-        if (violation_force_close($mac, $violation->{vid})) {
+        if (security_event_force_close($mac, $security_event->{vid})) {
             pf::enforcement::reevaluate_access($mac, "admin_modify");
-            $violation->{status} = 200;
+            $security_event->{status} = 200;
         } else {
-            $violation->{status} = 422;
+            $security_event->{status} = 422;
         }
 
-        push @{$results->[$indexes->{$pid}]{violations}}, $violation;
+        push @{$results->[$indexes->{$pid}]{security_events}}, $security_event;
     }
 
-    return $self->render(status => 200, json => { items => $results });
+    return $self->render(json => { items => $results });
 }
 
-=head2 bulk_apply_violation
+=head2 bulk_apply_security_event
 
-bulk_apply_violation
+bulk_apply_security_event
 
 =cut
 
-sub bulk_apply_violation {
+sub bulk_apply_security_event {
     my ($self) = @_;
     my ($status, $data) = $self->parse_json;
     if (is_error($status)) {
@@ -216,11 +217,16 @@ sub bulk_apply_violation {
         my $mac = $node->{mac};
         $node->{'vid'} = $vid;
         my ($last_id) = violation_add($mac, $vid, ( 'force' => $TRUE ));
-        $node->{status} = $last_id > 0 ? 200 : 422;
+        if ($last_id > 0) {
+            $node->{status} = 200;
+            $node->{violation_id} = $last_id;
+        } else {
+            $node->{status} = 422;
+        }
         push @{$results->[$indexes->{$pid}]{violations}}, $node;
     }
 
-    return $self->render( status => 200, json => { items => $results } );
+    return $self->render(json => { items => $results });
 }
 
 =head2 bulk_reevaluate_access
@@ -257,7 +263,7 @@ sub bulk_reevaluate_access {
         push @{$results->[$indexes->{$pid}]{nodes}}, $node;
     }
 
-    return $self->render(status => 200, json => { items => $results });
+    return $self->render(json => { items => $results });
 }
 
 =head2 bulk_init_results
@@ -300,7 +306,8 @@ sub bulk_fingerbank_refresh {
         return $self->render_error($status, "Error finding nodes");
     }
 
-    my ($indexes, $results) = bulk_init_results($items);
+    my ($indexes, $results) = bulk_init_results($items, 'nodes');
+    my $nodes = $iter->all;
     for my $node (@$nodes) {
         my $mac = $node->{mac};
         my $pid = delete $node->{pid};
@@ -309,7 +316,7 @@ sub bulk_fingerbank_refresh {
         push @{$results->[$indexes->{$pid}]{nodes}}, $node;
     }
 
-    return $self->render(status => 200, json => { items => $results });
+    return $self->render(json => { items => $results });
 }
 
 

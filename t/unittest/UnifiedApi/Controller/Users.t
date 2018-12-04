@@ -30,7 +30,7 @@ my $t = Test::Mojo->new('pf::UnifiedApi');
 #This test will running last
 use Test::NoWarnings;
 my $batch = 5;
-plan tests => $batch * (2 + 2 * $batch) + 5;
+plan tests => $batch * (2 + 2 * $batch) + 13;
 my @persons;
 
 for ( 1 .. 5 ) {
@@ -53,6 +53,18 @@ $t->post_ok( "/api/v1/users/bulk_register" => json => { items => \@pids } )
  ->status_is(200);
 
 $t->post_ok( "/api/v1/users/bulk_deregister" => json => { items => \@pids } )
+ ->status_is(200);
+
+$t->post_ok( "/api/v1/users/bulk_apply_violation" => json => { items => \@pids, vid => 1100013 } )
+ ->status_is(200);
+
+$t->post_ok( "/api/v1/users/bulk_close_violations" => json => { items => \@pids } )
+ ->status_is(200);
+
+$t->post_ok( "/api/v1/users/bulk_reevaluate_access" => json => { items => \@pids } )
+ ->status_is(200);
+
+$t->post_ok( "/api/v1/users/bulk_fingerbank_refresh" => json => { items => \@pids } )
  ->status_is(200);
 
 =head1 AUTHOR
