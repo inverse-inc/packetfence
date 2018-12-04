@@ -38,12 +38,15 @@ type Interfaces struct {
 }
 
 type Interface struct {
-	Name    string
-	intNet  *net.Interface
-	network []Network
-	layer2  []*net.IPNet
-	Ipv4    net.IP
-	Ipv6    net.IP
+	Name          string
+	intNet        *net.Interface
+	network       []Network
+	layer2        []*net.IPNet
+	Ipv4          net.IP
+	Ipv6          net.IP
+	InterfaceType string
+	relayIP       net.IP
+	listenPort    int
 }
 
 type Network struct {
@@ -51,6 +54,9 @@ type Network struct {
 	dhcpHandler *DHCPHandler
 	splittednet bool
 }
+
+const bootp_client = 68
+const bootp_server = 67
 
 func newDHCPConfig() *Interfaces {
 	var p Interfaces
@@ -98,6 +104,8 @@ func (d *Interfaces) readConfig() {
 
 		ethIf.intNet = eth
 		ethIf.Name = eth.Name
+		ethIf.InterfaceType = "server"
+		ethIf.listenPort = bootp_server
 
 		adresses, _ := eth.Addrs()
 		for _, adresse := range adresses {
@@ -111,12 +119,14 @@ func (d *Interfaces) readConfig() {
 				continue
 			}
 
-			if IP.To16() != nil {
+			if IsIPv6(IP) {
 				ethIf.Ipv6 = IP
+				continue
 			}
-			if IP.To4() != nil {
+			if IsIPv4(IP) {
 				ethIf.Ipv4 = IP
 			}
+
 			ethIf.layer2 = append(ethIf.layer2, NetIP)
 
 			for _, key := range keyConfNet.Keys {
@@ -310,11 +320,6 @@ func (d *Interfaces) readConfig() {
 						options[dhcp.OptionRouter] = ShuffleGateway(ConfNet)
 						options[dhcp.OptionDomainName] = []byte(ConfNet.DomainName)
 						DHCPScope.options = options
-						if len(ConfNet.NextHop) > 0 {
-							DHCPScope.layer2 = false
-						} else {
-							DHCPScope.layer2 = true
-						}
 						DHCPNet.dhcpHandler = DHCPScope
 
 						ethIf.network = append(ethIf.network, DHCPNet)

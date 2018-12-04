@@ -4,28 +4,30 @@ import (
 	"context"
 	_ "expvar"
 	"net"
+	"strconv"
 
 	dhcp "github.com/krolaw/dhcp4"
 )
 
 type job struct {
-	p        dhcp.Packet
-	msgType  dhcp.MessageType
-	handler  Handler
-	addr     net.Addr
-	dst      net.IP
-	localCtx context.Context
+	DHCPpacket dhcp.Packet
+	msgType    dhcp.MessageType
+	Int        *Interface
+	handler    Handler
+	clientAddr net.Addr //remote client ip
+	localCtx   context.Context
 }
 
-func doWork(id int, jobe job) {
+func doWork(id int, element job) {
 	var ans Answer
-	if ans = jobe.handler.ServeDHCP(jobe.localCtx, jobe.p, jobe.msgType); ans.D != nil {
-		ipStr, _, _ := net.SplitHostPort(jobe.addr.String())
-		if !(jobe.p.GIAddr().Equal(net.IPv4zero) && net.ParseIP(ipStr).Equal(net.IPv4zero)) {
-			sendUnicastDHCP(ans.D, jobe.addr, jobe.dst, jobe.p.GIAddr(), true)
+	if ans = element.handler.ServeDHCP(element.localCtx, element.DHCPpacket, element.msgType, element.clientAddr); ans.D != nil {
+		ipStr, portStr, _ := net.SplitHostPort(element.clientAddr.String())
+		if !(element.DHCPpacket.GIAddr().Equal(net.IPv4zero) && net.ParseIP(ipStr).Equal(net.IPv4zero)) {
+			dstPort, _ := strconv.Atoi(portStr)
+			sendUnicastDHCP(ans.D, net.ParseIP(ipStr), element.Int.Ipv4, element.DHCPpacket.GIAddr(), bootp_server, dstPort)
 		} else {
-			client, _ := NewRawClient(ans.Iface)
-			client.sendDHCP(ans.MAC, ans.D, ans.IP, ans.SrcIP)
+			client, _ := NewRawClient(element.Int.intNet)
+			client.sendDHCP(ans.MAC, ans.D, ans.IP, element.Int.Ipv4)
 			client.Close()
 		}
 	}

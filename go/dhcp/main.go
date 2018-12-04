@@ -137,15 +137,10 @@ func main() {
 		v := v
 		// Create a channel for each interfaces
 		intNametoInterface[v.Name] = &v
-		for net := range v.network {
-			net := net
-			go func() {
-				v.runUnicast(jobs, v.network[net].dhcpHandler.ip, ctx)
-			}()
+		go func() {
+			v.runUnicast(jobs, ctx)
+		}()
 
-			// We only need one listener per ip
-			break
-		}
 	}
 
 	// Broadcast listener
@@ -211,25 +206,23 @@ func main() {
 }
 
 // Broadcast Listener
-func (h *Interface) run(jobs chan job, ctx context.Context) {
+func (I *Interface) run(jobs chan job, ctx context.Context) {
 
-	ListenAndServeIf(h.Name, h, jobs, ctx)
+	ListenAndServeIf(I, I, jobs, ctx)
 }
 
 // Unicast listener
-func (h *Interface) runUnicast(jobs chan job, ip net.IP, ctx context.Context) {
+func (I *Interface) runUnicast(jobs chan job, ctx context.Context) {
 
-	ListenAndServeIfUnicast(h.Name, h, jobs, ip, ctx)
+	ListenAndServeIfUnicast(I, I, jobs, ctx)
 }
 
-func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.MessageType) (answer Answer) {
+func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.MessageType, srcIP net.Addr) (answer Answer) {
 
 	var handler DHCPHandler
 	var NetScope net.IPNet
 	options := p.ParseOptions()
 	answer.MAC = p.CHAddr()
-	answer.SrcIP = h.Ipv4
-	answer.Iface = h.intNet
 
 	ctx = log.AddToLogContext(ctx, "mac", answer.MAC.String())
 
@@ -301,7 +294,6 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 
 		defer recoverName(options)
 
-		answer.Local = handler.layer2
 
 		var Options map[string]string
 		Options = make(map[string]string)
@@ -474,7 +466,7 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 			var err error
 
 			answer.IP = dhcp.IPAdd(handler.start, free)
-			answer.Iface = h.intNet
+
 			// Add options on the fly
 			var GlobalOptions dhcp.Options
 			var options = make(map[dhcp.OptionCode][]byte)
@@ -552,7 +544,6 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 			}
 
 			answer.IP = reqIP
-			answer.Iface = h.intNet
 
 			var Reply bool
 			var Index int
@@ -756,7 +747,6 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 
 		}
 
-		answer.Iface = h.intNet
 		log.LoggerWContext(ctx).Info(p.CHAddr().String() + " Nak " + sharedutils.ByteToString(p.XId()))
 		answer.D = dhcp.ReplyPacket(p, dhcp.NAK, handler.ip.To4(), nil, 0, nil)
 		return answer

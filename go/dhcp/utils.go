@@ -376,3 +376,11 @@ func GetFromGlobalFilterCache(msgType string, mac string, Options map[string]str
 	}
 	return info
 }
+
+func IsIPv4(address net.IP) bool {
+	return strings.Count(address.String(), ":") < 2
+}
+
+func IsIPv6(address net.IP) bool {
+	return strings.Count(address.String(), ":") >= 2
+}
