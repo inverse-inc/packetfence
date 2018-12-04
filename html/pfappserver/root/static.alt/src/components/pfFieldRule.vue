@@ -9,12 +9,11 @@
       <b-col cols="10"
         class="collapse-handle py-2"
         :class="(valid) ? 'text-primary' : 'text-danger'"
-        zzzv-b-toggle="uuidStr('collapse')"
         @click.prevent="click($event)"
       >
         <icon v-if="visible" name="chevron-circle-down" :class="['mr-3', { 'text-primary': ctrlKey, 'text-dark': !ctrlKey }]"></icon>
         <icon v-else name="chevron-circle-right" :class="['mr-3', { 'text-primary': ctrlKey, 'text-dark': !ctrlKey }]"></icon>
-        <span>Rule - {{ localId || 'New' }} ( {{ localDescription }} ) visible: {{ (visible) ? 'true' : 'false' }}</span>
+        <span>Rule - {{ localId || 'New' }} ( {{ localDescription }} )</span>
       </b-col>
       <b-col v-if="$slots.append" cols="1" align-self="start" class="pt-1 text-center col-form-label">
         <slot name="append"></slot>
@@ -68,17 +67,11 @@ import uuidv4 from 'uuid/v4'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormInput from '@/components/pfFormInput'
 import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
-import pfMixinValidation from '@/components/pfMixinValidation'
-import {
-  pfFieldType as fieldType,
-  pfFieldTypeValues as fieldTypeValues
-} from '@/globals/pfField'
 
 export default {
   name: 'pf-field-rule',
   mixins: [
-    pfMixinCtrlKey,
-    pfMixinValidation
+    pfMixinCtrlKey
   ],
   components: {
     pfFormChosen,
@@ -100,17 +93,14 @@ export default {
   data () {
     return {
       valuePlaceHolder: { id: null, description: null, match: 'all' }, // default value
-      uuid:             uuidv4(), // unique id for multiple instances of this component
+      uuid:             uuidv4() // unique id for multiple instances of this component
     }
   },
   computed: {
     valid () {
       if (this.validation) {
         if (!this.validation.$anyError && !this.validation.$dirty) return true
-        if (!this.validation.$invalid) {
-          // this.validation.$touch()
-          return true
-        }
+        if (!this.validation.$invalid) return true
       }
       return false
     },
@@ -184,14 +174,14 @@ export default {
     collapse () {
       const ref = this.$refs[this.uuidStr('collapse')]
       if (ref && ref.$el.id === this.uuidStr('collapse')) {
-         ref.show = false
+        ref.show = false
       }
       this.visible = false
     },
     expand () {
       const ref = this.$refs[this.uuidStr('collapse')]
       if (ref && ref.$el.id === this.uuidStr('collapse')) {
-         ref.show = true
+        ref.show = true
       }
       this.visible = true
     },
@@ -231,16 +221,14 @@ export default {
       this.$emit('validations', this.buildLocalValidations())
     },
     focus () {
-      this.focusId()
+      this.expand()
+      this.$nextTick(() => {
+        this.focusId()
+      })
     },
     focusId () {
-      let vals = Object.values(this.$refs)
-      if (vals[0] && '$refs' in vals[0]) {
-        let refs = vals[0].$refs
-        if ('input' in refs && '$el' in refs.input) {
-          refs.input.$el.focus()
-        }
-      }
+      const ref = this.$refs['localId'].$refs
+      ref.input.$el.focus()
     }
   },
   mounted () {

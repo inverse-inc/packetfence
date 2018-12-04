@@ -75,7 +75,6 @@
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormPrefixMultiplier from '@/components/pfFormPrefixMultiplier'
-import pfMixinValidation from '@/components/pfMixinValidation'
 import {
   pfFieldType as fieldType,
   pfFieldTypeValues as fieldTypeValues
@@ -85,7 +84,6 @@ import { required } from 'vuelidate/lib/validators'
 export default {
   name: 'pf-field-action',
   mixins: [
-    pfMixinValidation
   ],
   components: {
     pfFormChosen,
