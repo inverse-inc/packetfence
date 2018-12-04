@@ -2397,6 +2397,7 @@ On the interface, enable MAC based authentication mode, enable MAB, and set the 
    dot1x mac-auth-bypass
    authentication order dot1x mab
    dot1x reauthentication
+   default mab pap
    exit
 
    authentication order mab
