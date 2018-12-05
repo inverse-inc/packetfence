@@ -3,7 +3,7 @@
     :isLoading="isLoading"
     :form="getForm"
     :model="source"
-    :validation="$v.source"
+    :vuelidate="$v.source"
     :isNew="isNew"
     :isClone="isClone"
     @validations="setValidations($event)"

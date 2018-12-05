@@ -31,7 +31,7 @@
           v-bind="field.attrs"
           :is="field.component"
           :key="uuids[index]"
-          :validation="getVuelidateModel(index)"
+          :vuelidate="getVuelidateModel(index)"
           :ref="'component-' + index"
           @validations="setParentValidations(index, $event)"
           @mouseenter="onMouseEnter(index)"
@@ -70,7 +70,6 @@ import uuidv4 from 'uuid/v4'
 import draggable from 'vuedraggable'
 import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 import pfMixinValidation from '@/components/pfMixinValidation'
-import object from '@/utils/object'
 
 export default {
   name: 'pf-form-fields',
@@ -90,7 +89,7 @@ export default {
       type: Object,
       default: () => { return {} }
     },
-    validation: {
+    vuelidate: {
       type: Object,
       default: () => { return {} }
     },
@@ -208,8 +207,8 @@ export default {
     },
     forceUpdate () {
       this.$nextTick(() => {
-        if (this.validation && this.validation.$dirty) {
-          this.validation.$touch() // update vuelidate model
+        if (this.vuelidate && this.vuelidate.$dirty) {
+          this.vuelidate.$touch() // update vuelidate model
         }
         this.$forceUpdate()
       })
@@ -224,10 +223,10 @@ export default {
     },
     getVuelidateModel (index) {
       let model = {}
-      if (this.validation && Object.keys(this.validation).length > 0) {
-        if (index in this.validation) model = this.validation[index]
-        if ('$each' in this.validation && index in this.validation.$each) {
-          model = { ...model, ...this.validation.$each[index] }
+      if (this.vuelidate && Object.keys(this.vuelidate).length > 0) {
+        if (index in this.vuelidate) model = this.vuelidate[index]
+        if ('$each' in this.vuelidate && index in this.vuelidate.$each) {
+          model = { ...model, ...this.vuelidate.$each[index] }
         }
       }
       return model
@@ -269,11 +268,11 @@ export default {
     }
   },
   watch: {
-    validation (a, b) {
+    vuelidate (a, b) {
       // refresh vuelidate model if $dirty
       if (a.$dirty) {
         this.$nextTick(() => {
-          this.validation.$touch()
+          this.vuelidate.$touch()
         })
       }
     }

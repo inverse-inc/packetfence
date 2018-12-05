@@ -3,7 +3,7 @@
     :isLoading="isLoading"
     :form="getForm"
     :model="floatingDevice"
-    :validation="$v.floatingDevice"
+    :vuelidate="$v.floatingDevice"
     :isNew="isNew"
     :isClone="isClone"
     @validations="floatingDeviceValidations = $event"

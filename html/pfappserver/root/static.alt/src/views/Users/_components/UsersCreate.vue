@@ -13,25 +13,25 @@
                 >{{ (single.pid_overwrite === 1) ? $t('Overwrite') : $t('Ignore') }}</pf-form-toggle>
               <pf-form-input :column-label="$t('Username (PID)')"
                 v-model.trim="single.pid"
-                :validation="$v.single.pid"
+                :vuelidate="$v.single.pid"
                 text="The username to use for login to the captive portal."/>
               <pf-form-input :column-label="$t('Password')"
                 v-model="single.password"
-                :validation="$v.single.password"
+                :vuelidate="$v.single.password"
                 type="password"
                 text="Leave empty to generate a random password."/>
               <pf-form-input :column-label="$t('Login remaining')"
                 v-model="single.login_remaining"
-                :validation="$v.single.login_remaining"
+                :vuelidate="$v.single.login_remaining"
                 type="number"
                 text="Leave empty to allow unlimited logins."/>
               <pf-form-input :column-label="$t('Email')"
                 v-model.trim="single.email"
-                :validation="$v.single.email"
+                :vuelidate="$v.single.email"
               />
               <pf-form-input :column-label="$t('Sponsor')"
                 v-model.trim="single.sponsor"
-                :validation="$v.single.sponsor"
+                :vuelidate="$v.single.sponsor"
               />
               <pf-form-chosen :column-label="$t('Gender')"
                 v-model="single.gender"
@@ -42,108 +42,108 @@
               ></pf-form-chosen>
               <pf-form-input :column-label="$t('Title')"
                 v-model="single.title"
-                :validation="$v.single.title"
+                :vuelidate="$v.single.title"
               />
               <pf-form-input :column-label="$t('Firstname')"
                 v-model="single.firstname"
-                :validation="$v.single.firstname"
+                :vuelidate="$v.single.firstname"
               />
               <pf-form-input :column-label="$t('Lastname')"
                 v-model="single.lastname"
-                :validation="$v.single.lastname"
+                :vuelidate="$v.single.lastname"
               />
               <pf-form-input :column-label="$t('Nickname')"
                 v-model="single.nickname"
-                :validation="$v.single.nickname"
+                :vuelidate="$v.single.nickname"
               />
               <pf-form-input :column-label="$t('Company')"
                 v-model="single.company"
-                :validation="$v.single.company"
+                :vuelidate="$v.single.company"
               />
               <pf-form-input :column-label="$t('Telephone number')"
                 v-model="single.telephone"
                 :filter="globals.regExp.stringPhone"
-                :validation="$v.single.telephone"
+                :vuelidate="$v.single.telephone"
               />
               <pf-form-input :column-label="$t('Cellphone number')"
                 v-model="single.cell_phone"
                 :filter="globals.regExp.stringPhone"
-                :validation="$v.single.cell_phone"
+                :vuelidate="$v.single.cell_phone"
               />
               <pf-form-input :column-label="$t('Workphone number')"
                 v-model="single.work_phone"
                 :filter="globals.regExp.stringPhone"
-                :validation="$v.single.work_phone"
+                :vuelidate="$v.single.work_phone"
               />
               <pf-form-input :column-label="$t('Apartment number')"
                 v-model="single.apartment_number"
                 :filter="globals.regExp.stringPhone"
-                :validation="$v.single.apartment_number"
+                :vuelidate="$v.single.apartment_number"
               />
               <pf-form-input :column-label="$t('Building Number')"
                 v-model="single.building_number"
                 :filter="globals.regExp.stringPhone"
-                :validation="$v.single.building_number"
+                :vuelidate="$v.single.building_number"
               />
               <pf-form-input :column-label="$t('Room Number')"
                 v-model="single.room_number"
                 :filter="globals.regExp.stringPhone"
-                :validation="$v.single.room_number"
+                :vuelidate="$v.single.room_number"
               />
               <pf-form-textarea :column-label="$t('Address')" rows="4" max-rows="6"
                 v-model="single.address"
-                :validation="$v.single.address"
+                :vuelidate="$v.single.address"
               />
               <pf-form-datetime :column-label="$t('Anniversary')"
                 v-model="single.anniversary"
                 :config="{format: 'YYYY-MM-DD'}"
-                :validation="$v.single.anniversary"
+                :vuelidate="$v.single.anniversary"
               />
               <pf-form-datetime :column-label="$t('Birthday')"
                 v-model="single.birthday"
                 :config="{format: 'YYYY-MM-DD'}"
-                :validation="$v.single.birthday"
+                :vuelidate="$v.single.birthday"
               />
               <pf-form-textarea :column-label="$t('Notes')"
                 v-model="single.notes"
-                :validation="$v.single.notes"
+                :vuelidate="$v.single.notes"
                 rows="3" max-rows="3"
               />
               <pf-form-input :column-label="$t('Custom Field 1')"
                 v-model="single.custom_field_1"
-                :validation="$v.single.custom_field_1"
+                :vuelidate="$v.single.custom_field_1"
               />
               <pf-form-input :column-label="$t('Custom Field 2')"
                 v-model="single.custom_field_2"
-                :validation="$v.single.custom_field_2"
+                :vuelidate="$v.single.custom_field_2"
               />
               <pf-form-input :column-label="$t('Custom Field 3')"
                 v-model="single.custom_field_3"
-                :validation="$v.single.custom_field_3"
+                :vuelidate="$v.single.custom_field_3"
               />
               <pf-form-input :column-label="$t('Custom Field 4')"
                 v-model="single.custom_field_4"
-                :validation="$v.single.custom_field_4"
+                :vuelidate="$v.single.custom_field_4"
               />
               <pf-form-input :column-label="$t('Custom Field 5')"
                 v-model="single.custom_field_5"
-                :validation="$v.single.custom_field_5"
+                :vuelidate="$v.single.custom_field_5"
               />
               <pf-form-input :column-label="$t('Custom Field 6')"
                 v-model="single.custom_field_6"
-                :validation="$v.single.custom_field_6"
+                :vuelidate="$v.single.custom_field_6"
               />
               <pf-form-input :column-label="$t('Custom Field 7')"
                 v-model="single.custom_field_7"
-                :validation="$v.single.custom_field_7"
+                :vuelidate="$v.single.custom_field_7"
               />
               <pf-form-input :column-label="$t('Custom Field 8')"
                 v-model="single.custom_field_8"
-                :validation="$v.single.custom_field_8"
+                :vuelidate="$v.single.custom_field_8"
               />
               <pf-form-input :column-label="$t('Custom Field 9')"
                 v-model="single.custom_field_9"
-                :validation="$v.single.custom_field_9"
+                :vuelidate="$v.single.custom_field_9"
               />
             </b-col>
           </b-form-row>
@@ -158,33 +158,33 @@
                 >{{ (multiple.pid_overwrite === 1) ? $t('Overwrite') : $t('Ignore') }}</pf-form-toggle>
               <pf-form-input :column-label="$t('Username Prefix')"
                 v-model="multiple.prefix"
-                :validation="$v.multiple.prefix"
+                :vuelidate="$v.multiple.prefix"
               />
               <pf-form-input :column-label="$t('Quantity')"
                 v-model="multiple.quantity"
-                :validation="$v.multiple.quantity"
+                :vuelidate="$v.multiple.quantity"
                 type="number"
               />
               <pf-form-input :column-label="$t('Login remaining')"
                 v-model="multiple.login_remaining"
-                :validation="$v.multiple.login_remaining"
+                :vuelidate="$v.multiple.login_remaining"
                 type="number"
                 text="Leave empty to allow unlimited logins."/>
               <pf-form-input :column-label="$t('Firstname')"
                 v-model="multiple.firstname"
-                :validation="$v.multiple.firstname"
+                :vuelidate="$v.multiple.firstname"
               />
               <pf-form-input :column-label="$t('Lastname')"
                 v-model="multiple.lastname"
-                :validation="$v.multiple.lastname"
+                :vuelidate="$v.multiple.lastname"
               />
               <pf-form-input :column-label="$t('Company')"
                 v-model="multiple.company"
-                :validation="$v.multiple.company"
+                :vuelidate="$v.multiple.company"
               />
               <pf-form-textarea :column-label="$t('Notes')"
                 v-model="multiple.notes"
-                :validation="$v.multiple.notes"
+                :vuelidate="$v.multiple.notes"
                 rows="3" max-rows="3"
               />
             </b-col>
@@ -203,7 +203,7 @@
                 <pf-form-datetime v-model="valid_from"
                   :min="new Date()"
                   :config="{format: 'YYYY-MM-DD'}"
-                  :validation="$v.valid_from"
+                  :vuelidate="$v.valid_from"
                 />
               </b-col>
               <icon name="long-arrow-alt-right"></icon>
@@ -211,7 +211,7 @@
                 <pf-form-datetime v-model="expiration"
                   :min="new Date()"
                   :config="{format: 'YYYY-MM-DD'}"
-                  :validation="$v.expiration"
+                  :vuelidate="$v.expiration"
                 />
               </b-col>
             </b-row>
@@ -222,7 +222,7 @@
             :column-label="$t('Actions')"
             :button-label="$t('Add Action')"
             :field="actionField"
-            :validation="$v.actions"
+            :vuelidate="$v.actions"
             :invalid-feedback="[
               { [$t('One or more errors exist.')]: !$v.actions.anyError }
             ]"

@@ -71,39 +71,56 @@
                   <pf-form-input :column-label="$t('Name')" label-cols="2"
                     :ref="'name-' + index"
                     :value="getValue(index, 'id')"
-                    :validation="getValidationModel(index, 'id')"
+                    :vuelidate="getVuelidateModel(index, 'id')"
                     @input="setValue(index, 'id', $event)"
                     class="mb-1 mr-2"
                   ></pf-form-input>
                   <pf-form-input :column-label="$t('Description')" label-cols="2"
                     :value="getValue(index, 'description')"
-                    :validation="getValidationModel(index, 'description')"
+                    :vuelidate="getVuelidateModel(index, 'description')"
                     @input="setValue(index, 'description', $event)"
                     class="mb-1 mr-2"
                   ></pf-form-input>
-                  <pf-form-select :column-label="$t('Matches')" label-cols="2"
+                  <pf-form-chosen :column-label="$t('Matches')" label-cols="2"
+                    label="text"
+                    track-by="value"
+                    :placeholder="typeLabel"
                     :options="[
                       { value: 'all', text: $i18n.t('All') },
                       { value: 'any', text: $i18n.t('Any') }
                     ]"
-                    :validation="getValidationModel(index, 'match')"
+                    :vuelidate="getVuelidateModel(index, 'match')"
                     :value="getValue(index, 'match')"
                     @input="setValue(index, 'match', $event)"
+                    collapse-object
+                  ></pf-form-chosen>
+                  <pf-form-conditions :column-label="$t('Conditions')" label-cols="2"
+                    :fields="conditions || []"
+                    :type-label="$t('Select condition type')"
+                    :value-label="$t('Select condition value')"
+                    :vuelidate="getVuelidateModel(index, 'conditions')"
+                    :invalid-feedback="[
+                      { [$t('Conditions(s) contain one or more errors.')]: !(getVuelidateModel(index, 'conditions') && getVuelidateModel(index, 'conditions').anyError) }
+                    ]"
+                    :value="getValue(index, 'conditions')"
+                    @input="setValue(index, 'conditions', $event)"
+                    @validations="setComponentValidations(index, 'actions', $event)"
                     class="mb-1 mr-2"
-                  ></pf-form-select>
-                  <pf-form-actions :column-label="$t('Actions')" label-cols="2"
                     sortable
-                    :fields="actions"
+                  ></pf-form-conditions>
+                  <pf-form-actions :column-label="$t('Actions')" label-cols="2"
+                    :fields="actions || []"
                     :type-label="$t('Select action type')"
                     :value-label="$t('Select action value')"
-                    :validation="getValidationModel(index, 'actions')"
+                    :vuelidate="getVuelidateModel(index, 'actions')"
                     :invalid-feedback="[
-                      { [$t('Action(s) contain one or more errors.')]: !(getValidationModel(index, 'actions') && getValidationModel(index, 'actions').anyError) }
+                      { [$t('Action(s) contain one or more errors.')]: !(getVuelidateModel(index, 'actions') && getVuelidateModel(index, 'actions').anyError) }
                     ]"
                     :value="getValue(index, 'actions')"
                     @input="setValue(index, 'actions', $event)"
                     @validations="setComponentValidations(index, 'actions', $event)"
                     class="mb-1 mr-2"
+                    sortable
                   ></pf-form-actions>
                 </b-col>
               </b-form-row>
@@ -122,10 +139,10 @@ import uuidv4 from 'uuid/v4'
 import draggable from 'vuedraggable'
 import pfFormActions from '@/components/pfFormActions'
 import pfFormChosen from '@/components/pfFormChosen'
+import pfFormConditions from '@/components/pfFormConditions'
 import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormPrefixMultiplier from '@/components/pfFormPrefixMultiplier'
-import pfFormSelect from '@/components/pfFormSelect'
 import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 import pfMixinValidation from '@/components/pfMixinValidation'
 import {
@@ -145,10 +162,10 @@ export default {
     draggable,
     pfFormActions,
     pfFormChosen,
+    pfFormConditions,
     pfFormDatetime,
     pfFormInput,
-    pfFormPrefixMultiplier,
-    pfFormSelect
+    pfFormPrefixMultiplier
   },
   props: {
     value: {
@@ -169,7 +186,11 @@ export default {
       type: Array,
       default: null
     },
-    validation: {
+    conditions: {
+      type: Array,
+      default: null
+    },
+    vuelidate: {
       type: Object
     },
     sortable: {
@@ -257,17 +278,17 @@ export default {
       this.componentValidations[index][key] = validations
       this.emitExternalValidations()
     },
-    getValidationModel (index, key) {
-      if (this.validation) {
-        if (index in this.validation) {
-          if (key in this.validation[index]) {
-            return this.validation[index][key]
+    getVuelidateModel (index, key) {
+      if (this.vuelidate) {
+        if (index in this.vuelidate) {
+          if (key in this.vuelidate[index]) {
+            return this.vuelidate[index][key]
           }
         }
-        if ('$each' in this.validation) {
-          if (index in this.validation.$each) {
-            if (key in this.validation.$each[index]) {
-              return this.validation.$each[index][key]
+        if ('$each' in this.vuelidate) {
+          if (index in this.vuelidate.$each) {
+            if (key in this.vuelidate.$each[index]) {
+              return this.vuelidate.$each[index][key]
             }
           }
         }
@@ -317,15 +338,17 @@ export default {
       }
     },
     invalidRule (index) {
-      if (
-        this.validation &&
-        '$each' in this.validation &&
-        index in this.validation.$each &&
-        '$invalid' in this.validation.$each[index] &&
-        !this.validation.$each[index].$invalid
-      ) {
-        this.validation.$each[index].$touch()
-        return false
+      if (this.vuelidate) {
+        if (!this.vuelidate.$anyError && !this.vuelidate.$dirty) return false
+        if (
+          '$each' in this.vuelidate &&
+          index in this.vuelidate.$each &&
+          '$invalid' in this.vuelidate.$each[index] &&
+          !this.vuelidate.$each[index].$invalid
+        ) {
+          this.vuelidate.$each[index].$touch()
+          return false
+        }
       }
       return true
     },
@@ -354,7 +377,7 @@ export default {
     onMouseLeave () {
       this.hover = null
     },
-    getValidationModels () {
+    getVuelidateModels () {
       return this.componentValidations
     },
     emitExternalValidations () {
@@ -364,10 +387,10 @@ export default {
       // don't emit on |drag|, fixes .is-invalid flicker on internal components shortly after drag @end
       if (this.drag) return
       this.emitExternalValidationsTimeout = setTimeout(() => {
-        this.$emit('validations', this.getValidationModels())
+        this.$emit('validations', this.getVuelidateModels())
         this.$nextTick(() => {
-          if (this.validation && this.validation.$dirty) {
-            this.validation.$touch()
+          if (this.vuelidate && this.vuelidate.$dirty) {
+            this.vuelidate.$touch()
           }
           // force DOM update
           this.$forceUpdate()

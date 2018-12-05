@@ -1,10 +1,14 @@
 import i18n from '@/utils/locale'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import pfFieldAction from '@/components/pfFieldAction'
+import pfFieldRule from '@/components/pfFieldRule'
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormConfigurationRules from '@/components/pfFormConfigurationRules'
+import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormPassword from '@/components/pfFormPassword'
 import pfFormSelect from '@/components/pfFormSelect'
+
 import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormToggle from '@/components/pfFormToggle'
 import {
@@ -16,10 +20,10 @@ import {
   isFQDN,
   isPort,
   sourceExists,
-  requireAllSiblingFieldTypes,
-  requireAnySiblingFieldTypes,
-  restrictAllSiblingFieldTypes,
-  limitSiblingFieldTypes
+  requireAllSiblingFields,
+  requireAnySiblingFields,
+  restrictAllSiblingFields,
+  limitSiblingFields
 } from '@/globals/pfValidators'
 import { pfDatabaseSchema as schema } from '@/globals/pfDatabaseSchema'
 import { pfFieldType as fieldType } from '@/globals/pfField'
@@ -467,6 +471,13 @@ export const pfConfigurationViewFields = {
           component: pfFormConfigurationRules,
           attrs: {
             actions: [
+              pfConfigurationActions.set_role_by_name,
+              pfConfigurationActions.set_access_duration,
+              pfConfigurationActions.set_unreg_date,
+              pfConfigurationActions.set_time_balance,
+              pfConfigurationActions.set_bandwidth_balance
+            ],
+            conditions: [
               pfConfigurationActions.set_role_by_name,
               pfConfigurationActions.set_access_duration,
               pfConfigurationActions.set_unreg_date,
@@ -1732,6 +1743,81 @@ export const pfConfigurationViewFields = {
       }
     ]
   },
+  test0: ({ validation = {} } = {}) => { // TODO: remove
+    return {
+      label: 'Test (0)',
+      fields: [
+        {
+          key: 'test0',
+          component: pfFormFields,
+          attrs: {
+            buttonLabel: 'Add Action',
+            sortable: true,
+            field: {
+              component: pfFieldAction,
+              attrs: {
+                typeLabel: i18n.t('Select action type'),
+                valueLabel: i18n.t('Select action value'),
+                fields: [
+                  pfConfigurationActions.set_access_duration,
+                  pfConfigurationActions.set_access_level,
+                  pfConfigurationActions.set_bandwidth_balance,
+                  pfConfigurationActions.mark_as_sponsor,
+                  pfConfigurationActions.set_role,
+                  pfConfigurationActions.set_tenant_id,
+                  pfConfigurationActions.set_time_balance,
+                  pfConfigurationActions.set_unreg_date
+                ]
+              }
+            },
+            invalidFeedback: [
+              { [i18n.t('Action(s) contain one or more errors.')]: !('test' in validation && validation.test.anyError) }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  test1: ({ validation = {} } = {}) => { // TODO: remove
+    return {
+      label: 'Test (1)',
+      fields: [
+        {
+          key: 'test1',
+          component: pfFormFields,
+          attrs: {
+            buttonLabel: 'Add Rule - New ( )',
+            sortable: true,
+            field: {
+              component: pfFieldRule,
+              attrs: {
+                matchLabel: i18n.t('Select rule match')
+              },
+              validators: {
+                $each: {
+                  id: {
+                    [i18n.t('Name required.')]: required,
+                    [i18n.t('Alphanumeric characters only.')]: alphaNum,
+                    [i18n.t('Maximum 255 characters.')]: maxLength(255),
+                    [i18n.t('Duplicate name.')]: limitSiblingFields('id', 0) // TODO: Fix
+                  },
+                  description: {
+                    [i18n.t('Maximum 255 characters.')]: maxLength(255)
+                  },
+                  match: {
+                    [i18n.t('Match required.')]: required
+                  }
+                }
+              }
+            },
+            invalidFeedback: [
+              { [i18n.t('Rule(s) contain one or more errors.')]: !('test' in validation && validation.test.anyError) }
+            ]
+          }
+        }
+      ]
+    }
+  },
   test_mode: {
     label: i18n.t('Test mode'),
     fields: [
@@ -1874,7 +1960,9 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.shuffle,
         pfConfigurationViewFields.realms(args),
         pfConfigurationViewFields.authentication_rules(args),
-        pfConfigurationViewFields.administration_rules(args)
+        pfConfigurationViewFields.administration_rules(args),
+        pfConfigurationViewFields.test0(args), // TODO: remove
+        pfConfigurationViewFields.test1(args) // TODO: remove
       ]
     case 'EAPTLS':
       return [
@@ -2871,11 +2959,11 @@ export const pfConfigurationActions = {
     validators: {
       type: {
         /* Require "set_role" */
-        [i18n.t('Action requires "Set Role".')]: requireAllSiblingFieldTypes('set_role'),
+        [i18n.t('Action requires "Set Role".')]: requireAllSiblingFields('type', 'set_role'),
         /* Restrict "set_unreg_date" */
-        [i18n.t('Action conflicts with "Unregistration date".')]: restrictAllSiblingFieldTypes('set_unreg_date'),
+        [i18n.t('Action conflicts with "Unregistration date".')]: restrictAllSiblingFields('type', 'set_unreg_date'),
         /* Don't allow elsewhere */
-        [i18n.t('Action already exists.')]: limitSiblingFieldTypes(0)
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
       },
       value: {
         [i18n.t('Value required.')]: required
@@ -2889,7 +2977,7 @@ export const pfConfigurationActions = {
     validators: {
       type: {
         /* Don't allow elsewhere */
-        [i18n.t('Action already exists.')]: limitSiblingFieldTypes(0)
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
       },
       value: {
         [i18n.t('Value required.')]: required
@@ -2903,7 +2991,7 @@ export const pfConfigurationActions = {
     validators: {
       type: {
         /* Don't allow elsewhere */
-        [i18n.t('Action already exists.')]: limitSiblingFieldTypes(0)
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
       },
       value: {
         [i18n.t('Value required.')]: required,
@@ -2919,7 +3007,7 @@ export const pfConfigurationActions = {
     validators: {
       type: {
         /* Don't allow elsewhere */
-        [i18n.t('Action already exists.')]: limitSiblingFieldTypes(0)
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
       }
     }
   },
@@ -2930,9 +3018,9 @@ export const pfConfigurationActions = {
     validators: {
       type: {
         /* When "Role" is selected, either "Time Balance" or "set_unreg_date" is required */
-        [i18n.t('Action requires either "Access duration" or "Unregistration date".')]: requireAnySiblingFieldTypes('set_access_duration', 'set_unreg_date'),
+        [i18n.t('Action requires either "Access duration" or "Unregistration date".')]: requireAnySiblingFields('type', 'set_access_duration', 'set_unreg_date'),
         /* Don't allow elsewhere */
-        [i18n.t('Action already exists.')]: limitSiblingFieldTypes(0)
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
       },
       value: {
         [i18n.t('Value required.')]: required
@@ -2946,9 +3034,9 @@ export const pfConfigurationActions = {
     validators: {
       type: {
         /* When "Role" is selected, either "Time Balance" or "set_unreg_date" is required */
-        [i18n.t('Action requires either "Access duration" or "Unregistration date".')]: requireAnySiblingFieldTypes('set_access_duration', 'set_unreg_date'),
+        [i18n.t('Action requires either "Access duration" or "Unregistration date".')]: requireAnySiblingFields('type', 'set_access_duration', 'set_unreg_date'),
         /* Don't allow elsewhere */
-        [i18n.t('Action already exists.')]: limitSiblingFieldTypes(0)
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
       },
       value: {
         [i18n.t('Value required.')]: required
@@ -2962,7 +3050,7 @@ export const pfConfigurationActions = {
     validators: {
       type: {
         /* Don't allow elsewhere */
-        [i18n.t('Action already exists.')]: limitSiblingFieldTypes(0)
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
       },
       value: {
         [i18n.t('Value required.')]: required,
@@ -2977,7 +3065,7 @@ export const pfConfigurationActions = {
     validators: {
       type: {
         /* Don't allow elsewhere */
-        [i18n.t('Action already exists.')]: limitSiblingFieldTypes(0)
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
       },
       value: {
         [i18n.t('Value required.')]: required
@@ -2992,11 +3080,11 @@ export const pfConfigurationActions = {
     validators: {
       type: {
         /* Require "set_role" */
-        [i18n.t('Action requires "Set Role".')]: requireAllSiblingFieldTypes('set_role'),
+        [i18n.t('Action requires "Set Role".')]: requireAllSiblingFields('type', 'set_role'),
         /* Restrict "set_access_duration" */
-        [i18n.t('Action conflicts with "Access duration".')]: restrictAllSiblingFieldTypes('set_access_duration'),
+        [i18n.t('Action conflicts with "Access duration".')]: restrictAllSiblingFields('type', 'set_access_duration'),
         /* Don't allow elsewhere */
-        [i18n.t('Action already exists.')]: limitSiblingFieldTypes(0)
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
       },
       value: {
         [i18n.t('Future date required.')]: compareDate('>=', new Date(), schema.node.unregdate.format, false),

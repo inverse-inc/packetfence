@@ -255,14 +255,15 @@ export const userNotExists = (value, component) => {
  * Field functions
  *
  * For use with pfFormSortableField component.
- * Used to validate |type| fields with immediate siblings.
+ * Used to validate |key| fields with immediate siblings.
  * All functions ignore self.
 **/
 
-// Limit the count of sibling field |type|s
-export const limitSiblingFieldTypes = (limit) => {
+// Limit the count of sibling field |key|s
+export const limitSiblingFields = (key, limit) => {
   return (0, _common.withParams)({
-    type: 'limitSiblingFieldTypes',
+    type: 'limitSiblingFields',
+    key: key,
     limit: limit
   }, function (value, field) {
     let count = 0
@@ -273,7 +274,7 @@ export const limitSiblingFieldTypes = (limit) => {
         const [param] = params[i] // destructure
         if (!parent[param].$model) continue // ignore empty models
         if (idOfV(parent[param].$model) === id) continue // ignore (self)
-        if (parent[param].$model.type === field.type) {
+        if (parent[param].$model.type === field[key]) {
           count += 1 // increment count
           if (count > limit) return false
         }
@@ -283,10 +284,11 @@ export const limitSiblingFieldTypes = (limit) => {
   })
 }
 
-// Require all of sibling field |type|s
-export const requireAllSiblingFieldTypes = (...fieldTypes) => {
+// Require all of sibling field |key|s
+export const requireAllSiblingFields = (key, ...fieldTypes) => {
   return (0, _common.withParams)({
-    type: 'requireAllSiblingFieldTypes',
+    type: 'requireAllSiblingFields',
+    key: key,
     fieldTypes: fieldTypes
   }, function (value, field) {
     // dereference, preserve original
@@ -301,7 +303,7 @@ export const requireAllSiblingFieldTypes = (...fieldTypes) => {
         // iterate through _fieldTypes and substitute
         _fieldTypes = _fieldTypes.map(fieldType => {
           // substitute the fieldType with |true| if it exists
-          return (parent[param].$model.type === fieldType) ? true : fieldType
+          return (parent[param].$model[key] === fieldType) ? true : fieldType
         })
       }
     }
@@ -311,10 +313,11 @@ export const requireAllSiblingFieldTypes = (...fieldTypes) => {
   })
 }
 
-// Require any of sibling field |type|s
-export const requireAnySiblingFieldTypes = (...fieldTypes) => {
+// Require any of sibling field |key|s
+export const requireAnySiblingFields = (key, ...fieldTypes) => {
   return (0, _common.withParams)({
-    type: 'requireAnySiblingFieldTypes',
+    type: 'requireAnySiblingFields',
+    key: key,
     fieldTypes: fieldTypes
   }, function (value, field) {
     // dereference, preserve original
@@ -327,7 +330,7 @@ export const requireAnySiblingFieldTypes = (...fieldTypes) => {
         if (!parent[param].$model) continue // ignore empty models
         if (idOfV(parent[param].$model) === id) continue // ignore (self)
         // return |true| if any fieldType exists
-        if (_fieldTypes.includes(parent[param].$model.type)) return true
+        if (_fieldTypes.includes(parent[param].$model[key])) return true
       }
     }
     // otherwise return false
@@ -335,10 +338,11 @@ export const requireAnySiblingFieldTypes = (...fieldTypes) => {
   })
 }
 
-// Restrict all of sibling field |type|s
-export const restrictAllSiblingFieldTypes = (...fieldTypes) => {
+// Restrict all of sibling field |key|s
+export const restrictAllSiblingFields = (key, ...fieldTypes) => {
   return (0, _common.withParams)({
-    type: 'restrictAllSiblingFieldTypes',
+    type: 'restrictAllSiblingFields',
+    key: key,
     fieldTypes: fieldTypes
   }, function (value, field) {
     // dereference, preserve original
@@ -353,7 +357,7 @@ export const restrictAllSiblingFieldTypes = (...fieldTypes) => {
         // iterate through _fieldTypes and substitute
         _fieldTypes = _fieldTypes.map(fieldType => {
           // substitute the fieldType with |true| if it exists
-          return (parent[param].$model.type === fieldType) ? true : fieldType
+          return (parent[param].$model[key] === fieldType) ? true : fieldType
         })
       }
     }

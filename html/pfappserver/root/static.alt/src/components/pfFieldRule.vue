@@ -30,14 +30,14 @@
           <pf-form-input :column-label="$t('Name')" label-cols="2"
             v-model="localId"
             ref="localId"
-            :validation="idVuelidateModel"
+            :vuelidate="idVuelidateModel"
             :invalid-feedback="idInvalidFeedback"
             class="mb-1 mr-2"
           ></pf-form-input>
           <pf-form-input :column-label="$t('Description')" label-cols="2"
             v-model="localDescription"
             ref="localDescription"
-            :validation="descriptionVuelidateModel"
+            :vuelidate="descriptionVuelidateModel"
             :invalid-feedback="descriptionInvalidFeedback"
             class="mb-1 mr-2"
           ></pf-form-input>
@@ -51,7 +51,7 @@
               { value: 'all', text: $i18n.t('All') },
               { value: 'any', text: $i18n.t('Any') }
             ]"
-            :validation="matchVuelidateModel"
+            :vuelidate="matchVuelidateModel"
             :invalid-feedback="matchInvalidFeedback"
             collapse-object
           ></pf-form-chosen>
@@ -85,7 +85,7 @@ export default {
     matchLabel: {
       type: String
     },
-    validation: {
+    vuelidate: {
       type: Object,
       default: () => { return {} }
     }
@@ -98,9 +98,9 @@ export default {
   },
   computed: {
     valid () {
-      if (this.validation) {
-        if (!this.validation.$anyError && !this.validation.$dirty) return true
-        if (!this.validation.$invalid) return true
+      if (this.vuelidate) {
+        if (!this.vuelidate.$anyError && !this.vuelidate.$dirty) return true
+        if (!this.vuelidate.$invalid) return true
       }
       return false
     },
@@ -199,17 +199,17 @@ export default {
     },
     getVuelidateModel (key = null) {
       let model = {}
-      if (this.validation && Object.keys(this.validation).length > 0) {
-        if (key in this.validation) model = { ...model, ...this.validation[key] } // deep merge
+      if (this.vuelidate && Object.keys(this.vuelidate).length > 0) {
+        if (key in this.vuelidate) model = { ...model, ...this.vuelidate[key] } // deep merge
       }
       return model
     },
     getInvalidFeedback (key = null) {
       let feedback = []
-      const validation = this.getVuelidateModel(key)
-      if (validation !== {} && key in validation) {
-        Object.entries(validation[key].$params).forEach(([k, v]) => {
-          if (validation[key][k] === false) feedback.push(k.trim())
+      const vuelidate = this.getVuelidateModel(key)
+      if (vuelidate !== {} && key in vuelidate) {
+        Object.entries(vuelidate[key].$params).forEach(([k, v]) => {
+          if (vuelidate[key][k] === false) feedback.push(k.trim())
         })
       }
       return feedback.join('<br/>')

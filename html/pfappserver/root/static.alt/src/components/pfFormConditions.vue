@@ -9,16 +9,16 @@
  * Basic Usage:
  *
  *  <template>
- *    <pf-form-actions
+ *    <pf-form-conditions
  *      v-model="actions"
  *      :fields="actionFields"
- *    ></pf-form-actions>
+ *    ></pf-form-conditions>
  *  </template>
  *
  * Extended Usage:
  *
  *  <template>
- *    <pf-form-actions
+ *    <pf-form-conditions
  *      sortable
  *      v-model="actions"
  *      :column-label="$t('Actions')"
@@ -30,7 +30,7 @@
  *        { [$t('One or more errors exist.')]: !$v.actions.anyError }
  *      ]"
  *      @validations="actionsValidations = $event"
- *    ></pf-form-actions>
+ *    ></pf-form-conditions>
  *  </template>
  *
  * Properties:
@@ -80,9 +80,9 @@
 <template>
   <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
     :state="isValid()" :invalid-feedback="getInvalidFeedback()"
-    class="pf-form-actions" :class="{ 'is-focus': drag, 'mb-0': !columnLabel }"
+    class="pf-form-conditions" :class="{ 'is-focus': drag, 'mb-0': !columnLabel }"
     >
-    <b-input-group class="pf-form-actions-input-group">
+    <b-input-group class="pf-form-conditions-input-group">
 
       <!--
          - Vacuum-up label click event.
@@ -102,18 +102,18 @@
         >
           <b-form-row
             v-for="(value, index) in inputValue"
-            class="text-secondary py-1"
+            class="text-secondary align-items-center"
             align-v="center"
             :key="index"
             @mouseenter="onMouseEnter(index)"
             @mousemove="onMouseEnter(index)"
             no-gutter
           >
-            <b-col col align-self="start" class="draghandle text-center col-form-label pt-2" v-if="sortable && hover === index && inputValue.length > 1">
+            <b-col col v-if="sortable && hover === index && inputValue.length > 1" class="draghandle text-center">
               <icon name="th" v-b-tooltip.hover.left.d300 :title="$t('Click and drag to re-order')"></icon>
             </b-col>
-            <b-col col align-self="start" class="dragindex text-center col-form-label pt-2" v-else>
-              {{ index + 1 }}
+            <b-col col v-else class="dragindex text-center">
+              <b-badge variant="light">{{ index + 1 }}</b-badge>
             </b-col>
             <b-col cols="4" class="text-left py-1" align-self="start">
 
@@ -131,7 +131,7 @@
               ></pf-form-chosen>
 
             </b-col>
-            <b-col cols="6" class="text-left" align-self="start">
+            <b-col cols="6" class="text-left py-1" align-self="start">
 
               <!--
                 - Don't use 'v-model='...,
@@ -229,7 +229,7 @@
               ></pf-form-prefix-multiplier>
 
             </b-col>
-            <b-col col align-self="start" class="text-center text-nowrap col-form-label pt-2 mr-1">
+            <b-col col class="text-center text-nowrap mr-1">
               <icon name="minus-circle" v-if="inputValue.length > 1"
                 :class="['cursor-pointer mx-1', { 'text-primary': ctrlKey, 'text-secondary': !ctrlKey }]"
                 v-b-tooltip.hover.left.d300
@@ -263,7 +263,7 @@ import {
 import { required } from 'vuelidate/lib/validators'
 
 export default {
-  name: 'pf-form-actions',
+  name: 'pf-form-conditions',
   mixins: [
     pfMixinCtrlKey,
     pfMixinValidation
@@ -277,12 +277,6 @@ export default {
   props: {
     value: {
       type: Array
-    },
-    typeLabel: {
-      type: String
-    },
-    valueLabel: {
-      type: String
     },
     columnLabel: {
       type: String
@@ -306,6 +300,12 @@ export default {
     sortable: {
       type: Boolean,
       default: false
+    },
+    typeLabel: {
+      type: String
+    },
+    valueLabel: {
+      type: String
     }
   },
   data () {
@@ -452,7 +452,7 @@ export default {
                 eachInputValue[field.value].value = field.validators.value
               }
             } else if (field && field.value) {
-              // no validators
+              // no validations
               eachInputValue[field.value] = {} // ignore
             } else {
               // 1 or more undefined field(s)
@@ -466,8 +466,6 @@ export default {
           }
         })
         Object.freeze(eachInputValue)
-        // TODO: remove
-        console.log('pfFormActions::getValidations', eachInputValue, { ...this.inputValue.map(input => eachInputValue[(input.type) ? input.type : null] || {/* empty */}) })
         if (eachInputValue !== {}) {
           // use functional validations
           // https://github.com/monterail/vuelidate/issues/166#issuecomment-319924309
@@ -478,7 +476,6 @@ export default {
     },
     getTypeValidation (index) {
       if (this.vuelidate && index in this.vuelidate && 'type' in this.vuelidate[index]) {
-        console.log('XXX', this.vuelidate, this.vuelidate[index].type)
         return this.vuelidate[index].type
       }
       return {}
@@ -565,33 +562,28 @@ export default {
 @import "../../node_modules/bootstrap/scss/mixins/transition";
 @import "../styles/variables";
 
-.pf-form-actions {
-  .pf-form-actions-input-group {
+.pf-form-conditions {
+  .pf-form-conditions-input-group {
     border: 1px solid $input-focus-bg;
     @include border-radius($border-radius);
     @include transition($custom-forms-transition);
     outline: 0;
   }
-  .col-form-label {
-    // Align the label with the text of the first action
-    padding-top: calc(#{$input-padding-y + $spacer * .25} + #{$input-border-width * 3});
-    line-height: auto;
-  }
   &.is-focus {
-    .pf-form-actions-input-group {
+    .pf-form-conditions-input-group {
       border-color: $input-focus-border-color;
       box-shadow: 0 0 0 $input-focus-width rgba($input-focus-border-color, .25);
     }
   }
   &.is-invalid {
-    .pf-form-actions-input-group {
+    .pf-form-conditions-input-group {
       border-color: $form-feedback-invalid-color;
       box-shadow: 0 0 0 $input-focus-width rgba($form-feedback-invalid-color, .25);
     }
   }
   .form-row {
     &:not(:last-child) {
-      border-bottom: $input-border-width solid $input-focus-bg;
+      border-bottom: 1px solid $input-focus-bg;
     }
   }
 }

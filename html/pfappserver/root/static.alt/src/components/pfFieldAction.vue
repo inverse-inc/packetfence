@@ -14,7 +14,7 @@
         track-by="value"
         :placeholder="typeLabel"
         :options="fields"
-        :validation="typeVuelidateModel"
+        :vuelidate="typeVuelidateModel"
         :invalid-feedback="typeInvalidFeedback"
         class="mr-1"
         collapse-object
@@ -37,7 +37,7 @@
         track-by="value"
         :placeholder="valueLabel"
         :options="options"
-        :validation="valueVuelidateModel"
+        :vuelidate="valueVuelidateModel"
         :invalid-feedback="valueInvalidFeedback"
         class="ml-1"
         collapse-object
@@ -49,7 +49,7 @@
         ref="localValue"
         :config="{useCurrent: true, format: 'YYYY-MM-DD HH:mm:ss'}"
         :moments="moments"
-        :validation="valueVuelidateModel"
+        :vuelidate="valueVuelidateModel"
         :invalid-feedback="valueInvalidFeedback"
         class="ml-1"
       ></pf-form-datetime>
@@ -58,7 +58,7 @@
       <pf-form-prefix-multiplier v-if="isFieldType(prefixmultiplerValueType)"
         v-model="localValue"
         ref="localValue"
-        :validation="valueVuelidateModel"
+        :vuelidate="valueVuelidateModel"
         :invalid-feedback="valueInvalidFeedback"
         class="ml-1"
       ></pf-form-prefix-multiplier>
@@ -105,7 +105,7 @@ export default {
       type: Array,
       default: () => { return [] }
     },
-    validation: {
+    vuelidate: {
       type: Object,
       default: () => { return {} }
     }
@@ -227,17 +227,17 @@ export default {
     },
     getVuelidateModel (key = null) {
       let model = {}
-      if (this.validation && Object.keys(this.validation).length > 0) {
-        if (key in this.validation) model = this.validation[key]
+      if (this.vuelidate && Object.keys(this.vuelidate).length > 0) {
+        if (key in this.vuelidate) model = this.vuelidate[key]
       }
       return model
     },
     getInvalidFeedback (key = null) {
       let feedback = []
-      const validation = this.getVuelidateModel(key)
-      if (validation !== {} && key in validation) {
-        Object.entries(validation[key].$params).forEach(([k, v]) => {
-          if (validation[key][k] === false) feedback.push(k.trim())
+      const vuelidate = this.getVuelidateModel(key)
+      if (vuelidate !== {} && key in vuelidate) {
+        Object.entries(vuelidate[key].$params).forEach(([k, v]) => {
+          if (vuelidate[key][k] === false) feedback.push(k.trim())
         })
       }
       return feedback.join('<br/>')
@@ -245,11 +245,11 @@ export default {
     buildLocalValidations () {
       const field = this.field
       if (field) {
-        if ('validators' in field) { // has vuelidate validations
-          let validations = {}
-          if ('type' in field.validators) validations.type = field.validators.type
-          if ('value' in field.validators) validations.value = field.validators.value
-          return validations
+        if ('validators' in field) { // has vuelidate validators
+          let validators = {}
+          if ('type' in field.validators) validators.type = field.validators.type
+          if ('value' in field.validators) validators.value = field.validators.value
+          return validators
         }
       }
       return { type: { [this.$i18n.t('Type required.')]: required } }

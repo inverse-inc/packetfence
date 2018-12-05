@@ -9,6 +9,20 @@
           </h4>
         </b-card-header>
       </slot>
+
+      <b-row>
+        <b-col cols="6">
+          <h4>model</h4>
+          <pre>{{ JSON.stringify(model, null, 2) }}</pre>
+        </b-col>
+
+        <b-col cols="6">
+          <h4>$v / vuelidate</h4>
+          <pre>{{ JSON.stringify(vuelidate.test1, null, 2) }}</pre>
+        </b-col>
+      <!--      -->
+      </b-row>
+
       <div class="card-body" v-if="form.fields">
         <b-form-group v-for="row in form.fields" :key="[row.key].join('')" v-if="!('if' in row) || row.if"
           :label-cols="(row.label) ? form.labelCols : 0" :label="row.label" :label-size="row.labelSize"
@@ -24,7 +38,7 @@
                 :key="field.key"
                 :is="field.component || defaultComponent"
                 :isLoading="isLoading"
-                :validation="getValidationModel(field.key)"
+                :vuelidate="getVuelidateModel(field.key)"
                 :class="getClass(row, field)"
                 :value="getValue(field.key)"
                 @input="setValue(field.key, $event)"
@@ -36,7 +50,7 @@
         </b-form-group>
       </div>
       <slot name="footer">
-        <b-card-footer @mouseenter="validation.$touch()">
+        <b-card-footer @mouseenter="vuelidate.$touch()">
           <pf-button-save :disabled="invalidForm" :isLoading="isLoading">{{ isNew? $t('Create') : $t('Save') }}</pf-button-save>
           <pf-button-delete v-if="!isNew" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Config?')" @on-delete="remove($event)"/>
         </b-card-footer>
@@ -70,7 +84,7 @@ export default {
       type: Object,
       required: true
     },
-    validation: {
+    vuelidate: {
       type: Object,
       required: true
     },
@@ -124,11 +138,11 @@ export default {
       }
       this.$set(model, key, value)
     },
-    getValidationModel (key, model = this.validation) {
+    getVuelidateModel (key, model = this.vuelidate) {
       if (key.includes('.')) { // handle dot-notation keys ('.')
         const split = key.split('.')
         const [ first, remainder ] = [ split[0], split.slice(1).join('.') ]
-        return this.getValidationModel(remainder, model[first])
+        return this.getVuelidateModel(remainder, model[first])
       }
       return model[key]
     },
@@ -157,7 +171,7 @@ export default {
               if (field.key) {
                 setEachFieldValue(field.key, {})
                 if (
-                  'validators' in field && // has vuelidate validations
+                  'validators' in field && // has vuelidate validators
                   (!('if' in field) || field.if) // is visible
                 ) {
                   setEachFieldValue(field.key, field.validators)
@@ -167,10 +181,10 @@ export default {
           }
         })
       }
-      // deep merge component validations
+      // merge component validations
       Object.keys(this.componentValidations).forEach(key => {
         if (key in eachFieldValue) {
-          eachFieldValue[key] = { ...eachFieldValue[key], ...this.componentValidations[key] } // deep merge
+          eachFieldValue[key] = { ...eachFieldValue[key], ...this.componentValidations[key] }
         } else {
           eachFieldValue[key] = this.componentValidations[key]
         }
