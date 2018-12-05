@@ -1938,12 +1938,12 @@ export const pfConfigurationViewFields = {
   }
 }
 
-export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
-  const { sourceType = null } = args
+export const pfConfigurationAuthenticationSourcesViewFields = (context) => {
+  const { sourceType = null } = context
   switch (sourceType) {
     case 'AD':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.host_port_encryption,
         pfConfigurationViewFields.connection_timeout,
@@ -1954,57 +1954,57 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.usernameattribute,
         pfConfigurationViewFields.email_attribute,
         pfConfigurationViewFields.binddn,
-        pfConfigurationViewFields.password(args),
+        pfConfigurationViewFields.password(context),
         pfConfigurationViewFields.cache_match,
         pfConfigurationViewFields.monitor,
         pfConfigurationViewFields.shuffle,
-        pfConfigurationViewFields.realms(args),
-        pfConfigurationViewFields.authentication_rules(args),
-        pfConfigurationViewFields.administration_rules(args),
-        pfConfigurationViewFields.test0(args), // TODO: remove
-        pfConfigurationViewFields.test1(args) // TODO: remove
+        pfConfigurationViewFields.realms(context),
+        pfConfigurationViewFields.authentication_rules(context),
+        pfConfigurationViewFields.administration_rules(context),
+        pfConfigurationViewFields.test0(context), // TODO: remove
+        pfConfigurationViewFields.test1(context) // TODO: remove
       ]
     case 'EAPTLS':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
-        pfConfigurationViewFields.realms(args),
-        pfConfigurationViewFields.authentication_rules(args),
-        pfConfigurationViewFields.administration_rules(args)
+        pfConfigurationViewFields.realms(context),
+        pfConfigurationViewFields.authentication_rules(context),
+        pfConfigurationViewFields.administration_rules(context)
       ]
     case 'Htpasswd':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.path,
-        pfConfigurationViewFields.realms(args),
-        pfConfigurationViewFields.authentication_rules(args),
-        pfConfigurationViewFields.administration_rules(args)
+        pfConfigurationViewFields.realms(context),
+        pfConfigurationViewFields.authentication_rules(context),
+        pfConfigurationViewFields.administration_rules(context)
       ]
     case 'HTTP':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.protocol_ip_port,
         pfConfigurationViewFields.api_username,
         pfConfigurationViewFields.api_password,
         pfConfigurationViewFields.authentication_url,
         pfConfigurationViewFields.authorization_url,
-        pfConfigurationViewFields.realms(args)
+        pfConfigurationViewFields.realms(context)
       ]
     case 'Kerberos':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.host,
         pfConfigurationViewFields.authenticate_realm,
-        pfConfigurationViewFields.realms(args),
-        pfConfigurationViewFields.authentication_rules(args),
-        pfConfigurationViewFields.administration_rules(args)
+        pfConfigurationViewFields.realms(context),
+        pfConfigurationViewFields.authentication_rules(context),
+        pfConfigurationViewFields.administration_rules(context)
       ]
     case 'LDAP':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.host_port_encryption,
         pfConfigurationViewFields.connection_timeout,
@@ -2015,40 +2015,40 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.usernameattribute,
         pfConfigurationViewFields.email_attribute,
         pfConfigurationViewFields.binddn,
-        pfConfigurationViewFields.password(args),
+        pfConfigurationViewFields.password(context),
         pfConfigurationViewFields.cache_match,
         pfConfigurationViewFields.monitor,
         pfConfigurationViewFields.shuffle,
-        pfConfigurationViewFields.realms(args),
-        pfConfigurationViewFields.authentication_rules(args),
-        pfConfigurationViewFields.administration_rules(args)
+        pfConfigurationViewFields.realms(context),
+        pfConfigurationViewFields.authentication_rules(context),
+        pfConfigurationViewFields.administration_rules(context)
       ]
     case 'POTD':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.password_rotation,
         pfConfigurationViewFields.password_email_update,
         pfConfigurationViewFields.password_length,
-        pfConfigurationViewFields.realms(args),
-        pfConfigurationViewFields.authentication_rules(args),
-        pfConfigurationViewFields.administration_rules(args)
+        pfConfigurationViewFields.realms(context),
+        pfConfigurationViewFields.authentication_rules(context),
+        pfConfigurationViewFields.administration_rules(context)
       ]
     case 'RADIUS':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.host,
         pfConfigurationViewFields.secret,
         pfConfigurationViewFields.timeout,
         pfConfigurationViewFields.monitor,
-        pfConfigurationViewFields.realms(args),
-        pfConfigurationViewFields.authentication_rules(args),
-        pfConfigurationViewFields.administration_rules(args)
+        pfConfigurationViewFields.realms(context),
+        pfConfigurationViewFields.authentication_rules(context),
+        pfConfigurationViewFields.administration_rules(context)
       ]
     case 'SAML':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.sp_entity_id,
         pfConfigurationViewFields.sp_key_path,
@@ -2057,11 +2057,11 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.idp_cert_path,
         pfConfigurationViewFields.idp_ca_cert_path,
         pfConfigurationViewFields.username_attribute,
-        pfConfigurationViewFields.authorization_source_id(args)
+        pfConfigurationViewFields.authorization_source_id(context)
       ]
     case 'Email':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         Object.assign(pfConfigurationViewFields.email_activation_timeout, {
           text: i18n.t('This is the delay given to a guest who registered by email confirmation to log into his email and click the activation link.')
@@ -2070,11 +2070,11 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.activation_domain,
         pfConfigurationViewFields.create_local_account,
         pfConfigurationViewFields.local_account_logins,
-        pfConfigurationViewFields.authentication_rules(args)
+        pfConfigurationViewFields.authentication_rules(context)
       ]
     case 'Facebook':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.client_id,
         pfConfigurationViewFields.client_secret,
@@ -2087,11 +2087,11 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.domains,
         pfConfigurationViewFields.create_local_account,
         pfConfigurationViewFields.local_account_logins,
-        pfConfigurationViewFields.authentication_rules(args)
+        pfConfigurationViewFields.authentication_rules(context)
       ]
     case 'Github':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.client_id,
         pfConfigurationViewFields.client_secret,
@@ -2105,11 +2105,11 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.domains,
         pfConfigurationViewFields.create_local_account,
         pfConfigurationViewFields.local_account_logins,
-        pfConfigurationViewFields.authentication_rules(args)
+        pfConfigurationViewFields.authentication_rules(context)
       ]
     case 'Google':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.client_id,
         pfConfigurationViewFields.client_secret,
@@ -2123,11 +2123,11 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.domains,
         pfConfigurationViewFields.create_local_account,
         pfConfigurationViewFields.local_account_logins,
-        pfConfigurationViewFields.authentication_rules(args)
+        pfConfigurationViewFields.authentication_rules(context)
       ]
     case 'Instagram':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.client_id,
         pfConfigurationViewFields.client_secret,
@@ -2140,18 +2140,18 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.domains,
         pfConfigurationViewFields.create_local_account,
         pfConfigurationViewFields.local_account_logins,
-        pfConfigurationViewFields.authentication_rules(args)
+        pfConfigurationViewFields.authentication_rules(context)
       ]
     case 'Kickbox':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.api_key,
-        pfConfigurationViewFields.authentication_rules(args)
+        pfConfigurationViewFields.authentication_rules(context)
       ]
     case 'LinkedIn':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.client_id,
         pfConfigurationViewFields.client_secret,
@@ -2164,18 +2164,18 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.domains,
         pfConfigurationViewFields.create_local_account,
         pfConfigurationViewFields.local_account_logins,
-        pfConfigurationViewFields.authentication_rules(args)
+        pfConfigurationViewFields.authentication_rules(context)
       ]
     case 'Null':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.email_required,
-        pfConfigurationViewFields.authentication_rules(args)
+        pfConfigurationViewFields.authentication_rules(context)
       ]
     case 'OpenID':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.client_id,
         pfConfigurationViewFields.client_secret,
@@ -2188,11 +2188,11 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.domains,
         pfConfigurationViewFields.create_local_account,
         pfConfigurationViewFields.local_account_logins,
-        pfConfigurationViewFields.authentication_rules(args)
+        pfConfigurationViewFields.authentication_rules(context)
       ]
     case 'Pinterest':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.client_id,
         pfConfigurationViewFields.client_secret,
@@ -2206,11 +2206,11 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.domains,
         pfConfigurationViewFields.create_local_account,
         pfConfigurationViewFields.local_account_logins,
-        pfConfigurationViewFields.authentication_rules(args)
+        pfConfigurationViewFields.authentication_rules(context)
       ]
     case 'SMS':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.sms_carriers,
         pfConfigurationViewFields.sms_activation_timeout,
@@ -2218,11 +2218,11 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.pin_code_length,
         pfConfigurationViewFields.create_local_account,
         pfConfigurationViewFields.local_account_logins,
-        pfConfigurationViewFields.authentication_rules(args)
+        pfConfigurationViewFields.authentication_rules(context)
       ]
     case 'SponsorEmail':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.allow_localdomain,
         Object.assign(pfConfigurationViewFields.email_activation_timeout, { text: i18n.t('Delay given to a sponsor to click the activation link.') }), // re-text
@@ -2231,11 +2231,11 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.validate_sponsor,
         pfConfigurationViewFields.create_local_account,
         pfConfigurationViewFields.local_account_logins,
-        pfConfigurationViewFields.authentication_rules(args)
+        pfConfigurationViewFields.authentication_rules(context)
       ]
     case 'Twilio':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.account_sid,
         pfConfigurationViewFields.auth_token,
@@ -2244,11 +2244,11 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.pin_code_length,
         pfConfigurationViewFields.create_local_account,
         pfConfigurationViewFields.local_account_logins,
-        pfConfigurationViewFields.authentication_rules(args)
+        pfConfigurationViewFields.authentication_rules(context)
       ]
     case 'Twitter':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.client_id,
         pfConfigurationViewFields.client_secret,
@@ -2258,11 +2258,11 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         Object.assign(pfConfigurationViewFields.protected_resource_url, { label: i18n.t('API URL of logged user') }), // re-label
         pfConfigurationViewFields.redirect_url,
         pfConfigurationViewFields.domains,
-        pfConfigurationViewFields.authentication_rules(args)
+        pfConfigurationViewFields.authentication_rules(context)
       ]
     case 'WindowsLive':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.client_id,
         pfConfigurationViewFields.client_secret,
@@ -2276,25 +2276,25 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.domains,
         pfConfigurationViewFields.create_local_account,
         pfConfigurationViewFields.local_account_logins,
-        pfConfigurationViewFields.authentication_rules(args)
+        pfConfigurationViewFields.authentication_rules(context)
       ]
     case 'AdminProxy':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.proxy_addresses,
         pfConfigurationViewFields.user_header,
         pfConfigurationViewFields.group_header,
-        pfConfigurationViewFields.administration_rules(args)
+        pfConfigurationViewFields.administration_rules(context)
       ]
     case 'Blackhole':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description
       ]
     case 'Eduroam':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.server1_address,
         pfConfigurationViewFields.server1_port,
@@ -2302,14 +2302,14 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.server2_port,
         pfConfigurationViewFields.radius_secret,
         pfConfigurationViewFields.auth_listening_port,
-        pfConfigurationViewFields.reject_realm(args),
-        pfConfigurationViewFields.local_realm(args),
+        pfConfigurationViewFields.reject_realm(context),
+        pfConfigurationViewFields.local_realm(context),
         pfConfigurationViewFields.monitor,
-        pfConfigurationViewFields.authentication_rules(args)
+        pfConfigurationViewFields.authentication_rules(context)
       ]
     case 'AuthorizeNet':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.api_login_id,
         pfConfigurationViewFields.transaction_key,
@@ -2323,7 +2323,7 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
       ]
     case 'Mirapay':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         { label: i18n.t('MiraPay iframe settings'), labelSize: 'lg' },
         pfConfigurationViewFields.base_url,
@@ -2344,7 +2344,7 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
       ]
     case 'Paypal':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.currency,
         pfConfigurationViewFields.send_email_confirmation,
@@ -2362,7 +2362,7 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
       ]
     case 'Stripe':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.currency,
         pfConfigurationViewFields.send_email_confirmation,
@@ -2379,8 +2379,8 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
   }
 }
 
-export const pfConfigurationDomainsViewFields = (args = {}) => {
-  const { isNew = false, isClone = false } = args
+export const pfConfigurationDomainsViewFields = (context = {}) => {
+  const { isNew = false, isClone = false } = context
   return [
     {
       label: i18n.t('Identifier'),
@@ -2490,8 +2490,8 @@ export const pfConfigurationDomainsViewFields = (args = {}) => {
   ]
 }
 
-export const pfConfigurationFloatingDevicesViewFields = (args = {}) => {
-  const { isNew = false, isClone = false } = args
+export const pfConfigurationFloatingDevicesViewFields = (context = {}) => {
+  const { isNew = false, isClone = false } = context
   return [
     {
       label: i18n.t('MAC Address'),
@@ -2565,8 +2565,8 @@ export const pfConfigurationFloatingDevicesViewFields = (args = {}) => {
   ]
 }
 
-export const pfConfigurationRealmViewFields = (args = {}) => {
-  const { isNew = false, isClone = false, domains = [] } = args
+export const pfConfigurationRealmViewFields = (context = {}) => {
+  const { isNew = false, isClone = false, domains = [] } = context
   return [
     {
       label: i18n.t('Realm'),
@@ -2650,8 +2650,8 @@ export const pfConfigurationRealmViewFields = (args = {}) => {
   ]
 }
 
-export const pfConfigurationRoleViewFields = (args = {}) => {
-  const { isNew = false, isClone = false } = args
+export const pfConfigurationRoleViewFields = (context = {}) => {
+  const { isNew = false, isClone = false } = context
   return [
     {
       label: i18n.t('Name'),
@@ -2697,8 +2697,8 @@ export const pfConfigurationRoleViewFields = (args = {}) => {
   ]
 }
 
-export const pfConfigurationAuthenticationSourcesViewDefaults = (args = {}) => {
-  const { sourceType = null } = args
+export const pfConfigurationAuthenticationSourcesViewDefaults = (context = {}) => {
+  const { sourceType = null } = context
   switch (sourceType) {
     case 'AD':
       return {
@@ -2923,20 +2923,20 @@ export const pfConfigurationAuthenticationSourcesViewDefaults = (args = {}) => {
   }
 }
 
-export const pfConfigurationDomainsViewDefaults = (args = {}) => {
+export const pfConfigurationDomainsViewDefaults = (context = {}) => {
   return {
     id: null,
     ad_server: '%h'
   }
 }
 
-export const pfConfigurationFloatingDevicesViewDefaults = (args = {}) => {
+export const pfConfigurationFloatingDevicesViewDefaults = (context = {}) => {
   return {
     id: null
   }
 }
 
-export const pfConfigurationRealmViewDefaults = (args = {}) => {
+export const pfConfigurationRealmViewDefaults = (context = {}) => {
   return {
     id: null,
     portal_strip_username: 'enabled',
@@ -2945,7 +2945,7 @@ export const pfConfigurationRealmViewDefaults = (args = {}) => {
   }
 }
 
-export const pfConfigurationRoleViewDefaults = (args = {}) => {
+export const pfConfigurationRoleViewDefaults = (context = {}) => {
   return {
     id: null
   }
