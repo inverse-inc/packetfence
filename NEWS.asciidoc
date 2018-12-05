@@ -32,6 +32,7 @@ Bug Fixes
 * Handled multiple LDAP hosts properly in NTLM auth cache (#3776)
 * Issue with the dhcp server that give sometimes a duplicate ip addresse
 * Adjusted CentOS and RHEL dependencies
+
 Version 8.2.1 released on 2018-12-05
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
