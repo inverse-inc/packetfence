@@ -9,7 +9,7 @@ import (
 	"net/http"
 
 	"github.com/diegoguarnieri/go-conntrack/conntrack"
-	ipset "github.com/digineo/go-ipset"
+	ipset "github.com/fdurand/go-ipset"
 	"github.com/gorilla/mux"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/sharedutils"

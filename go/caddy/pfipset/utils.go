@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"regexp"
 
-	ipset "github.com/digineo/go-ipset"
+	ipset "github.com/fdurand/go-ipset"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
