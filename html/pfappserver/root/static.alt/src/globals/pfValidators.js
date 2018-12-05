@@ -254,7 +254,7 @@ export const userNotExists = (value, component) => {
 /**
  * Field functions
  *
- * For use with pfFormSortableField component.
+ * For use with pfFormField component.
  * Used to validate |key| fields with immediate siblings.
  * All functions ignore self.
 **/
@@ -266,6 +266,7 @@ export const limitSiblingFields = (key, limit) => {
     key: key,
     limit: limit
   }, function (value, field) {
+    if (!value) return true
     let count = 0
     const { id, parent, params } = idParentParamsFromV(this.$v, field)
     if (params) {
@@ -274,7 +275,7 @@ export const limitSiblingFields = (key, limit) => {
         const [param] = params[i] // destructure
         if (!parent[param].$model) continue // ignore empty models
         if (idOfV(parent[param].$model) === id) continue // ignore (self)
-        if (parent[param].$model.type === field[key]) {
+        if (parent[param].$model[key] === field[key]) {
           count += 1 // increment count
           if (count > limit) return false
         }
@@ -291,6 +292,7 @@ export const requireAllSiblingFields = (key, ...fieldTypes) => {
     key: key,
     fieldTypes: fieldTypes
   }, function (value, field) {
+    if (!value) return true
     // dereference, preserve original
     let _fieldTypes = JSON.parse(JSON.stringify(fieldTypes))
     const { id, parent, params } = idParentParamsFromV(this.$v, field)
@@ -320,6 +322,7 @@ export const requireAnySiblingFields = (key, ...fieldTypes) => {
     key: key,
     fieldTypes: fieldTypes
   }, function (value, field) {
+    if (!value) return true
     // dereference, preserve original
     let _fieldTypes = JSON.parse(JSON.stringify(fieldTypes))
     const { id, parent, params } = idParentParamsFromV(this.$v, field)
@@ -345,6 +348,7 @@ export const restrictAllSiblingFields = (key, ...fieldTypes) => {
     key: key,
     fieldTypes: fieldTypes
   }, function (value, field) {
+    if (!value) return true
     // dereference, preserve original
     let _fieldTypes = JSON.parse(JSON.stringify(fieldTypes))
     const { id, parent, params } = idParentParamsFromV(this.$v, field)
@@ -367,12 +371,14 @@ export const restrictAllSiblingFields = (key, ...fieldTypes) => {
   })
 }
 
-// Restrict any of sibling field |type|s
-export const restrictAnySiblingFieldTypes = (...fieldTypes) => {
+// Restrict any of sibling field |key|s
+export const restrictAnySiblingFields = (key, ...fieldTypes) => {
   return (0, _common.withParams)({
     type: 'restrictAnySiblingFieldTypes',
+    key: key,
     fieldTypes: fieldTypes
   }, function (value, field) {
+    if (!value) return true
     // dereference, preserve original
     let _fieldTypes = JSON.parse(JSON.stringify(fieldTypes))
     const { id, parent, params } = idParentParamsFromV(this.$v, field)
@@ -383,7 +389,7 @@ export const restrictAnySiblingFieldTypes = (...fieldTypes) => {
         if (!parent[param].$model) continue // ignore empty models
         if (idOfV(parent[param].$model) === id) continue // ignore (self)
         // return |false| if any fieldType exists
-        if (_fieldTypes.includes(parent[param].$model.type)) return false
+        if (_fieldTypes.includes(parent[param].$model[key])) return false
       }
     }
     // otherwise return true
