@@ -18,11 +18,13 @@ use pf::log;
 use pf::util;
 
 extends 'pf::Authentication::Source';
-with 'pf::Authentication::CreateLocalAccountRole';
+with qw(
+    pf::Authentication::CreateLocalAccountRole
+    pf::Authentication::EmailFilteringRole
+);
 
 has '+class' => (default => 'external');
 has '+type' => (default => 'SponsorEmail');
-has 'allow_localdomain' => (isa => 'Str', is => 'rw', default => 'yes');
 has 'activation_domain' => (isa => 'Maybe[Str]', is => 'rw');
 has 'sponsorship_bcc' => (isa => 'Maybe[Str]', is => 'rw');
 has 'email_activation_timeout' => (isa => 'Str', is => 'rw', default => '30m');
