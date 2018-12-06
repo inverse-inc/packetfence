@@ -17,9 +17,9 @@ export const pfAuthenticationConditionValue = {
 /**
  * Operator types for authentication types
  */
-export const pfConditionOperators = {}
+export const pfAuthenticationConditionOperators = {}
 
-pfConditionOperators[pfAuthenticationConditionType.SUBSTRING] = {
+pfAuthenticationConditionOperators[pfAuthenticationConditionType.SUBSTRING] = {
   'starts':                pfAuthenticationConditionValue.TEXT,
   'equals':                pfAuthenticationConditionValue.TEXT,
   'contains':              pfAuthenticationConditionValue.TEXT,
@@ -27,7 +27,7 @@ pfConditionOperators[pfAuthenticationConditionType.SUBSTRING] = {
   'matches regexp':        pfAuthenticationConditionValue.TEXT
 }
 
-pfConditionOperators[pfAuthenticationConditionType.SUBSTRING_MEMBER] = {
+pfAuthenticationConditionOperators[pfAuthenticationConditionType.SUBSTRING_MEMBER] = {
   'starts':                pfAuthenticationConditionValue.TEXT,
   'equals':                pfAuthenticationConditionValue.TEXT,
   'not_equals':            pfAuthenticationConditionValue.TEXT,
@@ -37,16 +37,16 @@ pfConditionOperators[pfAuthenticationConditionType.SUBSTRING_MEMBER] = {
   'is member of':          pfAuthenticationConditionValue.TEXT
 }
 
-pfConditionOperators[pfAuthenticationConditionType.HOUR_MINUTE] = {
+pfAuthenticationConditionOperators[pfAuthenticationConditionType.HOUR_MINUTE] = {
   'is before':             pfAuthenticationConditionValue.HOUR_MINUTE,
   'is after':              pfAuthenticationConditionValue.HOUR_MINUTE
 }
 
-pfConditionOperators[pfAuthenticationConditionType.TIMEPERIOD] = {
+pfAuthenticationConditionOperators[pfAuthenticationConditionType.TIMEPERIOD] = {
   'in_time_period':        pfAuthenticationConditionValue.TIMEPERIOD
 }
 
-pfConditionOperators[pfAuthenticationConditionType.CONNECTION_TYPE] = {
+pfAuthenticationConditionOperators[pfAuthenticationConditionType.CONNECTION_TYPE] = {
   'is':                    pfAuthenticationConditionValue.TEXT,
   'is not':                pfAuthenticationConditionValue.TEXT
 }
@@ -117,10 +117,10 @@ pfAuthenticationConditionValues[pfAuthenticationConditionType.CONNECTION_TYPE] =
  * @param {string[]} types - the types
  * @return {string[]} all operators
  */
-export const pfAuthenticationOperatorsForTypes = (types) => {
+export const pfAuthenticationConditionOperatorsForTypes = (types) => {
   let operators = []
   for (const type of types) {
-    operators = operators.concat(Object.keys(pfConditionOperators[type]))
+    operators = operators.concat(Object.keys(pfAuthenticationConditionOperators[type]))
   }
   return [...(new Set(operators))]
 }
@@ -133,11 +133,11 @@ export const pfAuthenticationOperatorsForTypes = (types) => {
  * @param {string} operator - the operator
  * @return {Object[]} the values
  */
-export const pfAuthenticationValuesForOperator = (types, operator, store) => {
+export const pfAuthenticationConditionValuesForOperator = (types, operator, store) => {
   let values = []
   let found = false
   for (const type of types) {
-    let operators = pfConditionOperators[type]
+    let operators = pfAuthenticationConditionOperators[type]
     for (const op of Object.keys(operators)) {
       if (op === operator) {
         values = pfAuthenticationConditionValues[type]
