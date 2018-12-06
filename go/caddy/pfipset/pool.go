@@ -1,7 +1,7 @@
 package pfipset
 
 import (
-	ipset "github.com/fdurand/go-ipset"
+	ipset "github.com/inverse-inc/go-ipset"
 )
 
 type job struct {
