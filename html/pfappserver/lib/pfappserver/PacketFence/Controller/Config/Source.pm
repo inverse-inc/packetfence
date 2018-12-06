@@ -156,7 +156,6 @@ Generate the Service Provider metadata for a SAML source
 
 sub saml_metadata :Local :Args(1) {
     my ($self, $c, $source_id) = @_;
-    require 'pf::Authentication::Source::SAMLSource';
 
     $c->response->body(pf::authentication::getAuthenticationSource($source_id)->generate_sp_metadata());
     $c->response->content_type("text/xml");
