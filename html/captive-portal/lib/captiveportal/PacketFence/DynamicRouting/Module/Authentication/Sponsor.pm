@@ -18,6 +18,7 @@ use pf::log;
 use pf::constants qw($TRUE);
 use pf::config qw(%Config);
 use Date::Format qw(time2str);
+use List::MoreUtils qw(any);
 use pf::Authentication::constants;
 use pf::activation;
 use pf::web::guest;
@@ -148,16 +149,22 @@ Handle the signup and create the sponsor request
 sub do_sponsor_registration {
     my ($self) = @_;
     my %info;
-    get_logger->info("registering  guest through a sponsor");
-
+    my $logger = get_logger();
+    $logger->info("registering guest through a sponsor");
     my $source = $self->source;
     my $pid = $self->request_fields->{$self->pid_field};
     my $email = $self->request_fields->{email};
     $info{'pid'} = $pid;
-
     my ( $status, $status_msg ) = $source->authenticate($pid);
     unless ( $status ) {
         $self->app->flash->{error} = $status_msg;
+        $self->prompt_fields();
+        return;
+    }
+
+    if ((any { $_ eq 'email' } @{$self->required_fields // []}) && !$self->isEmailAllowed($email)) {
+        $logger->warn("EmailSource ($source->{id}) failed to authenticate PID '$email' is banned");
+        $self->app->flash->{error} = $pf::constants::authentication::messages::EMAIL_UNAUTHORIZED;
         $self->prompt_fields();
         return;
     }
@@ -167,8 +174,7 @@ sub do_sponsor_registration {
 
     # form valid, adding person (using modify in case person already exists)
     my $note = 'sponsored confirmation Date of arrival: ' . time2str("%Y-%m-%d %H:%M:%S", time);
-
-    get_logger->info( "Adding guest person " . $pid );
+    $logger->info( "Adding guest person $pid" );
 
     $info{'bcc'} = $source->{sponsorship_bcc};
     $info{'activation_domain'} = $source->{activation_domain} if (defined($source->{activation_domain}));
