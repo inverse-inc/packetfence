@@ -22,29 +22,30 @@
             </div>
             </template>
           </div>
-          <div class="pt-5">
+          <b-row align-v="center" class="pt-5">
+            <icon class="connector-arrow" name="circle"></icon>
             <portal-module :id="rootModule.id" :modules="items" :storeName="storeName" />
-          </div>
+          </b-row>
         </div>
       </b-tab>
       <b-button class="ml-3 mb-1" variant="outline-primary" slot="tabs">{{ $t('Add Root Module') }}</b-button>
-    </b-tabs>
-    <!-- Loading progress indicator -->
-    <b-container class="my-5" v-if="isLoading && !items.length">
+      <!-- Loading progress indicator -->
+      <b-container class="my-5" v-if="isLoading && !items.length">
         <b-row class="justify-content-md-center text-secondary">
-            <b-col cols="12" md="auto">
-                <icon name="circle-notch" scale="1.5" spin></icon>
-            </b-col>
+          <b-col cols="12" md="auto">
+            <icon name="circle-notch" scale="1.5" spin></icon>
+          </b-col>
         </b-row>
-    </b-container>
+      </b-container>
+    </b-tabs>
     <!-- All portal modules grouped by type -->
-    <b-card-footer class="card-footer-fixed">
+    <b-card-footer class="card-footer-fixed disconnect">
       <b-tabs small card>
         <b-tab v-for="type in moduleTypes" :key="type" :title="$t(type)">
-          <b-row>
-            <portal-module-button class="m-2" v-for="module in getModulesByType(type)" :key="module.id" :module="module"
-              @remove="remove" is-root />
-          </b-row>
+            <draggable element="b-row" :list="getModulesByType(type)" :move="validateMove"
+              :options="{ group: { name: 'portal-module', pull: 'clone', put: false }, ghostClass: 'portal-module-row-ghost', dragClass: 'portal-module-row-drag' }">
+              <portal-module :id="mid" v-for="mid in getModulesByType(type)" :module="getModule(mid)" :modules="items" :key="mid" :storeName="storeName" is-root />
+            </draggable>
         </b-tab>
         <b-dropdown :text="$t('Add Module')" class="ml-3 mb-1" size="sm" variant="outline-primary" slot="tabs">
           <b-dropdown-header class="text-secondary" v-t="'Multiple'"></b-dropdown-header>
@@ -86,6 +87,7 @@
 <script>
 import pfMixinSearchable from '@/components/pfMixinSearchable'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import draggable from 'vuedraggable'
 import PortalModule from './PortalModule'
 import PortalModuleButton from './PortalModuleButton'
 import pfButtonSave from '@/components/pfButtonSave'
@@ -97,6 +99,7 @@ export default {
     pfMixinSearchable
   ],
   components: {
+    draggable,
     PortalModule,
     PortalModuleButton,
     pfButtonSave,
@@ -193,7 +196,8 @@ export default {
       return this.items.find(module => module.id === id)
     },
     getModulesByType (type) {
-      return this.items.filter(module => module.type === type)
+      const modules = this.items.filter(module => module.type === type).map(module => module.id)
+      return modules
     },
     pagesCount (rootId) {
       let count = 0
@@ -218,6 +222,24 @@ export default {
       }
       return count
     },
+    validateMove (event) {
+      // Validate destination list when dragging a module:
+      // - Don't allow duplicated modules;
+      // - Don't allow a module to be its own grandchild
+      if (event.draggedContext && event.relatedContext) {
+        const mid = event.draggedContext.element
+        const destinationList = event.relatedContext.list
+        const destinationComponent = event.relatedContext.component // draggable component
+        let parents = []
+        if (destinationComponent.$children) {
+          let [firstModule] = destinationComponent.$children
+          if (firstModule && firstModule.parents) {
+            parents = firstModule.parents
+          }
+        }
+        return !destinationList.find(id => id === mid) && !parents.find(id => id === mid)
+      }
+    },
     remove (id) {
       const index = this.items.findIndex(module => module.id === id)
       if (index >= 0) {
@@ -227,7 +249,7 @@ export default {
   },
   mounted () {
     if (this.parentNodes.length === 0) {
-      // Find all parent nodes
+      // Find all parent DOM nodes
       let parentNode = this.$el.parentNode
       while (parentNode && 'classList' in parentNode) {
         this.parentNodes.push(parentNode)
