@@ -138,7 +138,7 @@ First, get an authentication token with the webservices credentials or an admin 
  curl -X POST "https://PF_MANAGEMENT_IP:9999/api/v1/login" \
  -H  "accept: application/json" \
  -H  "Content-Type: application/json" \
- -d "{\"password\":\"admin\",\"username\":\"admin\"}" \
+ -d "{\"username\":\"admin\",\"password\":\"inverse\"}" \
  --insecure |
  python -m json.tool
 
