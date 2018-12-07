@@ -19,7 +19,10 @@ pfcmd <command> [options]
   configreload                | reload the configution
   connectionprofileconfig     | query/modify connection profile configuration parameters
   fingerbank                  | Fingerbank related commands
+  fixpermissions              | fix permissions on pf tree
   floatingnetworkdeviceconfig | query/modify floating network devices configuration parameters
+  generatedomainconfig        | generate the domain configuration
+  generatemariadbconfig       | generate the MariaDB configuration
   generatesyslogconfig        | generate the syslog configuration
   help                        | show help for pfcmd commands
   import                      | bulk import of information into the database
@@ -34,6 +37,7 @@ pfcmd <command> [options]
   schedule                    | Nessus scan scheduling
   switchconfig                | query/modify switches.conf configuration parameters
   version                     | output version information
+  violation                   | manipulate violations
   violationconfig             | query/modify violations.conf configuration parameters
 
 Please view "pfcmd help <command>" for details on each option
