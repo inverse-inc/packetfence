@@ -26,7 +26,6 @@
         no-gutter
       >
         <b-col cols="12" class="text-left py-0 px-2" align-self="start">
-
           <pf-form-input :column-label="$t('Name')" label-cols="2"
             v-model="localId"
             ref="localId"
@@ -53,8 +52,31 @@
             ]"
             :vuelidate="matchVuelidateModel"
             :invalid-feedback="matchInvalidFeedback"
+            class="mb-1 mr-2"
             collapse-object
           ></pf-form-chosen>
+          <pf-form-fields :column-label="$t('Actions')" label-cols="2"
+            v-model="localActions"
+            ref="localActions"
+            :field="actions"
+            :vuelidate="actionsVuelidateModel"
+            :invalid-feedback="actionsInvalidFeedback"
+            :button-label="$t('Add Action')"
+            @validations="setActionValidations($event)"
+            class="mb-1 mr-2"
+            sortable
+          ></pf-form-fields>
+          <pf-form-fields :column-label="$t('Conditions')" label-cols="2"
+            v-model="localConditions"
+            ref="localConditions"
+            :field="conditions"
+            :vuelidate="conditionsVuelidateModel"
+            :invalid-feedback="conditionsInvalidFeedback"
+            :button-label="$t('Add Condition')"
+            @validations="setConditionValidations($event)"
+            class="mb-1 mr-2"
+            sortable
+          ></pf-form-fields>
         </b-col>
       </b-form-row>
     </b-collapse>
@@ -65,6 +87,7 @@
 /* eslint key-spacing: ["error", { "mode": "minimum" }] */
 import uuidv4 from 'uuid/v4'
 import pfFormChosen from '@/components/pfFormChosen'
+import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
 import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 
@@ -75,15 +98,24 @@ export default {
   ],
   components: {
     pfFormChosen,
+    pfFormFields,
     pfFormInput
   },
   props: {
     value: {
       type: Object,
-      default: () => { return this.valuePlaceHolder }
+      default: () => { return this.default }
     },
     matchLabel: {
       type: String
+    },
+    actions: {
+      type: Object,
+      default: () => { return {} }
+    },
+    conditions: {
+      type: Object,
+      default: () => { return {} }
     },
     vuelidate: {
       type: Object,
@@ -92,8 +124,10 @@ export default {
   },
   data () {
     return {
-      valuePlaceHolder: { id: null, description: null, match: 'all' }, // default value
-      uuid:             uuidv4() // unique id for multiple instances of this component
+      default:              { id: null, description: null, match: 'all', actions: [], conditions: [] }, // default value
+      uuid:                 uuidv4(), // unique id for multiple instances of this component
+      actionValidations:    {}, // overloaded from actions (pf-form-fields) child component
+      conditionValidations: {} // overloaded from conditions (pf-form-fields) child component
     }
   },
   computed: {
@@ -107,9 +141,9 @@ export default {
     inputValue: {
       get () {
         if (!this.value || Object.keys(this.value).length === 0) {
-          // set default placeholder
-          this.$emit('input', this.valuePlaceHolder)
-          return this.valuePlaceHolder
+          // set default
+          this.$emit('input', JSON.parse(JSON.stringify(this.default))) // keep dereferenced
+          return this.default
         }
         return this.value
       },
@@ -119,29 +153,47 @@ export default {
     },
     localId: {
       get () {
-        return (this.inputValue && 'id' in this.inputValue) ? this.inputValue.id : null
+        return (this.inputValue && 'id' in this.inputValue) ? this.inputValue.id : this.default.id
       },
       set (newId) {
-        this.$set(this.inputValue, 'id', newId || null) // set type or null
-        this.emitLocalValidationsToParent()
+        this.$set(this.inputValue, 'id', newId || this.default.id)
+        this.emitValidations()
       }
     },
     localDescription: {
       get () {
-        return (this.inputValue && 'description' in this.inputValue) ? this.inputValue.description : null
+        return (this.inputValue && 'description' in this.inputValue) ? this.inputValue.description : this.default.description
       },
       set (newDescription) {
-        this.$set(this.inputValue, 'description', newDescription || null) // set type or null
-        this.emitLocalValidationsToParent()
+        this.$set(this.inputValue, 'description', newDescription || this.default.description)
+        this.emitValidations()
       }
     },
     localMatch: {
       get () {
-        return (this.inputValue && 'match' in this.inputValue) ? this.inputValue.match : null
+        return (this.inputValue && 'match' in this.inputValue) ? this.inputValue.match : this.default.match
       },
       set (newMatch) {
-        this.$set(this.inputValue, 'match', newMatch || null) // set type or null
-        this.emitLocalValidationsToParent()
+        this.$set(this.inputValue, 'match', newMatch || this.default.match)
+        this.emitValidations()
+      }
+    },
+    localActions: {
+      get () {
+        return (this.inputValue && 'actions' in this.inputValue) ? this.inputValue.actions : this.default.actions
+      },
+      set (newActions) {
+        this.$set(this.inputValue, 'actions', newActions || this.default.actions)
+        this.emitValidations()
+      }
+    },
+    localConditions: {
+      get () {
+        return (this.inputValue && 'conditions' in this.inputValue) ? this.inputValue.conditions : this.default.conditions
+      },
+      set (newConditions) {
+        this.$set(this.inputValue, 'conditions', newConditions || this.default.conditions)
+        this.emitValidations()
       }
     },
     idVuelidateModel () {
@@ -162,6 +214,18 @@ export default {
     matchInvalidFeedback () {
       return this.getInvalidFeedback('match')
     },
+    actionsVuelidateModel () {
+      return this.getVuelidateModel('actions')
+    },
+    actionsInvalidFeedback () {
+      return this.actions.invalidFeedback
+    },
+    conditionsVuelidateModel () {
+      return this.getVuelidateModel('conditions')
+    },
+    conditionsInvalidFeedback () {
+      return this.conditions.invalidFeedback
+    },
     forwardListeners () {
       const { input, ...listeners } = this.$listeners
       return listeners
@@ -172,18 +236,18 @@ export default {
       return (section || 'default') + '-' + this.uuid
     },
     collapse () {
+      this.visible = false
       const ref = this.$refs[this.uuidStr('collapse')]
       if (ref && ref.$el.id === this.uuidStr('collapse')) {
         ref.show = false
       }
-      this.visible = false
     },
     expand () {
+      this.visible = true
       const ref = this.$refs[this.uuidStr('collapse')]
       if (ref && ref.$el.id === this.uuidStr('collapse')) {
         ref.show = true
       }
-      this.visible = true
     },
     toggle () {
       if (this.visible) this.collapse()
@@ -214,10 +278,18 @@ export default {
       }
       return feedback.join('<br/>')
     },
-    buildLocalValidations () {
-      return {}
+    setActionValidations (event) {
+      this.actionValidations = event
+      this.emitValidations()
     },
-    emitLocalValidationsToParent () {
+    setConditionValidations (event) {
+      this.conditionValidations = event
+      this.emitValidations()
+    },
+    buildLocalValidations () {
+      return { actions: this.actionValidations, conditions: this.conditionValidations }
+    },
+    emitValidations () {
       this.$emit('validations', this.buildLocalValidations())
     },
     focus () {
@@ -231,8 +303,8 @@ export default {
       ref.input.$el.focus()
     }
   },
-  mounted () {
-    this.emitLocalValidationsToParent()
+  created () {
+    this.emitValidations()
   }
 }
 </script>

@@ -9,7 +9,7 @@
       -->
       <input type="text" name="vaccum" :value="null" style="position: absolute; width: 1px; height: 1px; padding: 0px; border: 0px; visibility: hidden;" />
 
-      <b-container v-if="inputValue.length === 0"
+      <b-container v-if="!inputValue || inputValue.length === 0"
         class="mx-0 px-0"
       >
         <b-button variant="outline-secondary" @click.stop="rowAdd()">{{ buttonLabel || $t('Add row') }}</b-button>
@@ -33,7 +33,7 @@
           :key="uuids[index]"
           :vuelidate="getVuelidateModel(index)"
           :ref="'component-' + index"
-          @validations="setParentValidations(index, $event)"
+          @validations="setChildValidations(index, $event)"
           @mouseenter="onMouseEnter(index)"
           @mousemove="onMouseEnter(index)"
           @siblings="onSiblings($event)"
@@ -114,7 +114,7 @@ export default {
   },
   data () {
     return {
-      externalValidations: null, // validations
+      validations: {}, // validations
       hover: null, // true onmouseover
       drag: false, // true ondrag
       uuids: [] // uuid list used to manually handle DOM redraws (https://vuejs.org/v2/api/#key)
@@ -133,40 +133,46 @@ export default {
   methods: {
     rowAdd (index = 0, clone = this.ctrlKey) {
       let inputValue = this.inputValue
+      let length = this.inputValue.length
       let newRow = (clone && (index - 1) in inputValue)
         ? JSON.parse(JSON.stringify(inputValue[index - 1])) // clone, dereference
         : null // use placeholder
       // push placeholder into middle of array
       this.inputValue = [...inputValue.slice(0, index), newRow, ...inputValue.slice(index)]
       this.uuids = [...this.uuids.slice(0, index), uuidv4(), ...this.uuids.slice(index)]
+      // shift up validations
+      for (let i = length; i > index; i--) {
+        this.validations[i] = this.validations[i - 1]
+      }
+      this.validations[index] = {}
       // focus the type element in new row
       if (!clone) { // Bugfix: focusing pfFormChosen steals ctrlKey's onkeyup event
         this.$nextTick(() => { // wait until DOM updates with new row
           this.focus('component-' + index)
         })
       }
-      this.$nextTick(() => {
-        this.getChildValidations()
-        this.emitLocalValidationsToParent()
-        this.forceUpdate()
-      })
+      this.emitValidations()
+      this.forceUpdate()
     },
     rowDel (index, deleteAll = this.ctrlKey) {
+      let length = this.inputValue.length
       if (deleteAll) {
-        for (let i = this.inputValue.length - 1; i >= 0; i--) { // delete all, bottom-up
+        for (let i = length - 1; i >= 0; i--) { // delete all, bottom-up
           this.$delete(this.inputValue, i)
           this.$delete(this.uuids, i)
         }
+        this.validations = {}
       } else {
         this.inputValue.splice(index, 1) // delete 1 row
         this.uuids.splice(index, 1)
+        // shift down validations
+        for (let i = index; i < length; i++) {
+          this.validations[i] = this.validations[i + 1]
+        }
+        this.validations[length] = {}
       }
-      this.externalValidations = null
-      this.$nextTick(() => {
-        this.getChildValidations()
-        this.emitLocalValidationsToParent()
-        this.forceUpdate()
-      })
+      this.emitValidations()
+      this.forceUpdate()
     },
     onDragStart (event) {
       this.drag = true
@@ -179,10 +185,21 @@ export default {
       let uuids = this.uuids
       uuids = [...uuids.slice(0, oldIndex), ...uuids.slice(oldIndex + 1)]
       this.uuids = [...uuids.slice(0, newIndex), this.uuids[oldIndex], ...uuids.slice(newIndex)]
-      // recalc validations
-      for (let i = Math.min(oldIndex, newIndex); i <= Math.max(oldIndex, newIndex); i++) {
-        this.getChildValidations(i)
+      // adjust validations
+      let tmp = this.validations[oldIndex]
+      if (oldIndex > newIndex) {
+        // shift down (not swapped)
+        for (let i = oldIndex; i > newIndex; i--) {
+          this.validations[i] = this.validations[i - 1]
+        }
+      } else {
+        // shift up (not swapped)
+        for (let i = oldIndex; i < newIndex; i++) {
+          this.validations[i] = this.validations[i + 1]
+        }
       }
+      this.validations[newIndex] = tmp
+      this.emitValidations()
       this.forceUpdate()
     },
     onMouseEnter (index) {
@@ -200,16 +217,13 @@ export default {
         if (('component-' + index) in this.$refs) {
           let ref = this.$refs['component-' + index][0]
           if (func in ref && typeof ref[func] === 'function') {
-            ref[func](args)
+            ref[func](...args)
           }
         }
       })
     },
     forceUpdate () {
       this.$nextTick(() => {
-        if (this.vuelidate && this.vuelidate.$dirty) {
-          this.vuelidate.$touch() // update vuelidate model
-        }
         this.$forceUpdate()
       })
     },
@@ -224,64 +238,38 @@ export default {
     getVuelidateModel (index) {
       let model = {}
       if (this.vuelidate && Object.keys(this.vuelidate).length > 0) {
-        if (index in this.vuelidate) model = this.vuelidate[index]
-        if ('$each' in this.vuelidate && index in this.vuelidate.$each) {
-          model = { ...model, ...this.vuelidate.$each[index] }
+        if (index in this.vuelidate) {
+          model = this.vuelidate[index]
         }
       }
       return model
     },
-    getFieldValidators () {
-      let model = {}
-      if ('validators' in this.field) {
-        model = this.field.validators
+    setChildValidations (index, validations) {
+      if (!(index in this.validations)) {
+        this.validations[index] = {}
       }
-      return model
+      this.validations[index] = validations
+      this.emitValidations()
     },
-    /**
-     * Using refs, force child component(s) to emit its validations
-     **/
-    getChildValidations (index = null) {
-      if (index === null) { // get all
-        this.inputValue.forEach((_, index) => {
-          this.getChildValidations(index)
-        })
-      } else { // get index
-        if (('component-' + index) in this.$refs) {
-          let ref = this.$refs['component-' + index][0]
-          if ('emitLocalValidationsToParent' in ref) {
-            ref.emitLocalValidationsToParent(index)
-          }
+    emitValidations () {
+      // build merge of local validations and child validations
+      let validators = {}
+      let fieldValidators = ('validators' in this.field) ? this.field.validators : {}
+      this.inputValue.map((_, index) => {
+        if (index in this.validations) {
+          validators[index] = { ...fieldValidators, ...this.validations[index] }
         }
-      }
-    },
-    getParentValidations () {
-      return this.externalValidations
-    },
-    setParentValidations (index, validations) {
-      const externalValidations = { [index]: validations }
-      this.externalValidations = { ...this.externalValidations, ...externalValidations }
-      this.emitLocalValidationsToParent()
-    },
-    emitLocalValidationsToParent () {
-      this.$emit('validations', { ...this.getFieldValidators(), ...this.getParentValidations() })
-    }
-  },
-  watch: {
-    vuelidate (a, b) {
-      // refresh vuelidate model if $dirty
-      if (a.$dirty) {
-        this.$nextTick(() => {
-          this.vuelidate.$touch()
-        })
-      }
+      })
+      this.$emit('validations', validators)
     }
   },
   created () {
     // initial uuid setup
-    this.inputValue.forEach((_, index) => {
-      this.uuids[index] = uuidv4()
-    })
+    if (this.inputValue) {
+      this.inputValue.forEach((_, index) => {
+        this.uuids[index] = uuidv4()
+      })
+    }
   }
 }
 </script>
@@ -305,13 +293,13 @@ export default {
     line-height: auto;
   }
   &.is-focus {
-    .pf-form-fields-input-group {
+    > .form-row > [role="group"] > .pf-form-fields-input-group {
       border-color: $input-focus-border-color;
       box-shadow: 0 0 0 $input-focus-width rgba($input-focus-border-color, .25);
     }
   }
   &.is-invalid {
-    .pf-form-fields-input-group {
+    > .form-row > [role="group"] > .pf-form-fields-input-group {
       border-color: $form-feedback-invalid-color;
       box-shadow: 0 0 0 $input-focus-width rgba($form-feedback-invalid-color, .25);
     }

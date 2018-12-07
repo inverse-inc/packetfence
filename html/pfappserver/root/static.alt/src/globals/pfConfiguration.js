@@ -1,16 +1,20 @@
 import i18n from '@/utils/locale'
-import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import bytes from '@/utils/bytes'
 import pfFieldAction from '@/components/pfFieldAction'
+import pfFieldCondition from '@/components/pfFieldCondition'
 import pfFieldRule from '@/components/pfFieldRule'
 import pfFormChosen from '@/components/pfFormChosen'
-import pfFormConfigurationRules from '@/components/pfFormConfigurationRules'
 import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormPassword from '@/components/pfFormPassword'
 import pfFormSelect from '@/components/pfFormSelect'
-
 import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormToggle from '@/components/pfFormToggle'
+import { pfAuthenticationConditionType as authenticationConditionType } from '@/globals/pfAuthenticationConditions'
+import { pfDatabaseSchema as schema } from '@/globals/pfDatabaseSchema'
+import { pfFieldType as fieldType } from '@/globals/pfField'
+import { pfRegExp as regExp } from '@/globals/pfRegExp'
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
   not,
@@ -25,10 +29,6 @@ import {
   restrictAllSiblingFields,
   limitSiblingFields
 } from '@/globals/pfValidators'
-import { pfDatabaseSchema as schema } from '@/globals/pfDatabaseSchema'
-import { pfFieldType as fieldType } from '@/globals/pfField'
-import { pfRegExp as regExp } from '@/globals/pfRegExp'
-import bytes from '@/utils/bytes'
 
 const {
   required,
@@ -41,6 +41,488 @@ const {
   minValue,
   maxValue
 } = require('vuelidate/lib/validators')
+
+export const pfConfigurationActions = {
+  set_access_duration: {
+    value: 'set_access_duration',
+    text: i18n.t('Access duration'),
+    types: [fieldType.DURATION],
+    validators: {
+      type: {
+        /* Require "set_role" */
+        [i18n.t('Action requires "Set Role".')]: requireAllSiblingFields('type', 'set_role'),
+        /* Restrict "set_unreg_date" */
+        [i18n.t('Action conflicts with "Unregistration date".')]: restrictAllSiblingFields('type', 'set_unreg_date'),
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
+      },
+      value: {
+        [i18n.t('Value required.')]: required
+      }
+    }
+  },
+  set_access_level: {
+    value: 'set_access_level',
+    text: i18n.t('Access level'),
+    types: [fieldType.ADMINROLE],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
+      },
+      value: {
+        [i18n.t('Value required.')]: required
+      }
+    }
+  },
+  set_bandwidth_balance: {
+    value: 'set_bandwidth_balance',
+    text: i18n.t('Bandwidth balance'),
+    types: [fieldType.PREFIXMULTIPLIER],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Value must be greater than {min}bytes.', { min: bytes.toHuman(schema.node.bandwidth_balance.min) })]: minValue(schema.node.bandwidth_balance.min),
+        [i18n.t('Value must be less than {max}bytes.', { max: bytes.toHuman(schema.node.bandwidth_balance.max) })]: maxValue(schema.node.bandwidth_balance.max)
+      }
+    }
+  },
+  mark_as_sponsor: {
+    value: 'mark_as_sponsor',
+    text: i18n.t('Mark as sponsor'),
+    types: [fieldType.NONE],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
+      }
+    }
+  },
+  set_role: {
+    value: 'set_role',
+    text: i18n.t('Role'),
+    types: [fieldType.ROLE],
+    validators: {
+      type: {
+        /* When "Role" is selected, either "Time Balance" or "set_unreg_date" is required */
+        [i18n.t('Action requires either "Access duration" or "Unregistration date".')]: requireAnySiblingFields('type', 'set_access_duration', 'set_unreg_date'),
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
+      },
+      value: {
+        [i18n.t('Value required.')]: required
+      }
+    }
+  },
+  set_role_by_name: {
+    value: 'set_role',
+    text: i18n.t('Role'),
+    types: [fieldType.ROLE_BY_NAME],
+    validators: {
+      type: {
+        /* When "Role" is selected, either "Time Balance" or "set_unreg_date" is required */
+        [i18n.t('Action requires either "Access duration" or "Unregistration date".')]: requireAnySiblingFields('type', 'set_access_duration', 'set_unreg_date'),
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
+      },
+      value: {
+        [i18n.t('Value required.')]: required
+      }
+    }
+  },
+  set_tenant_id: {
+    value: 'set_tenant_id',
+    text: i18n.t('Tenant ID'),
+    types: [fieldType.TENANT],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Value must be numeric.')]: numeric
+      }
+    }
+  },
+  set_time_balance: {
+    value: 'set_time_balance',
+    text: i18n.t('Time balance'),
+    types: [fieldType.DURATION],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
+      },
+      value: {
+        [i18n.t('Value required.')]: required
+      }
+    }
+  },
+  set_unreg_date: {
+    value: 'set_unreg_date',
+    text: i18n.t('Unregistration date'),
+    types: [fieldType.DATETIME],
+    moments: ['1 days', '1 weeks', '1 months', '1 years'],
+    validators: {
+      type: {
+        /* Require "set_role" */
+        [i18n.t('Action requires "Set Role".')]: requireAllSiblingFields('type', 'set_role'),
+        /* Restrict "set_access_duration" */
+        [i18n.t('Action conflicts with "Access duration".')]: restrictAllSiblingFields('type', 'set_access_duration'),
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
+      },
+      value: {
+        [i18n.t('Future date required.')]: compareDate('>=', new Date(), schema.node.unregdate.format, false),
+        [i18n.t('Invalid date.')]: isDateFormat(schema.node.unregdate.format)
+      }
+    }
+  }
+}
+
+export const pfConfigurationConditions = {
+  cn: {
+    value: 'cn',
+    text: i18n.t('cn'),
+    types: [authenticationConditionType.LDAPATTRIBUTE],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  computer_name: {
+    value: 'computer_name',
+    text: i18n.t('Computer Name'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  connection_type: {
+    value: 'connection_type',
+    text: i18n.t('Connection type'),
+    types: [authenticationConditionType.CONNECTION],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  current_time: {
+    value: 'current_time',
+    text: i18n.t('Current time'),
+    types: [authenticationConditionType.TIME],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  current_time_period: {
+    value: 'current_time_period',
+    text: i18n.t('Current time period'),
+    types: [authenticationConditionType.TIMEPERIOD],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  department: {
+    value: 'department',
+    text: i18n.t('department'),
+    types: [authenticationConditionType.LDAPATTRIBUTE],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  description: {
+    value: 'description',
+    text: i18n.t('description'),
+    types: [authenticationConditionType.LDAPATTRIBUTE],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  displayName: {
+    value: 'displayName',
+    text: i18n.t('displayName'),
+    types: [authenticationConditionType.LDAPATTRIBUTE],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  distinguishedName: {
+    value: 'distinguishedName',
+    text: i18n.t('distinguishedName'),
+    types: [authenticationConditionType.LDAPATTRIBUTE],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  eduPersonPrimaryAffiliation: {
+    value: 'eduPersonPrimaryAffiliation',
+    text: i18n.t('eduPersonPrimaryAffiliation'),
+    types: [authenticationConditionType.LDAPATTRIBUTE],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  givenName: {
+    value: 'givenName',
+    text: i18n.t('givenName'),
+    types: [authenticationConditionType.LDAPATTRIBUTE],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  groupMembership: {
+    value: 'groupMembership',
+    text: i18n.t('groupMembership'),
+    types: [authenticationConditionType.LDAPATTRIBUTE],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  mac: {
+    value: 'mac',
+    text: i18n.t('MAC Address'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  mail: {
+    value: 'mail',
+    text: i18n.t('mail'),
+    types: [authenticationConditionType.LDAPATTRIBUTE],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  memberOf: {
+    value: 'memberOf',
+    text: i18n.t('memberOf'),
+    types: [authenticationConditionType.LDAPATTRIBUTE],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  nested_group: {
+    value: 'memberOf:1.2.840.113556.1.4.1941:',
+    text: i18n.t('nested group'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  postOfficeBox: {
+    value: 'postOfficeBox',
+    text: i18n.t('postOfficeBox'),
+    types: [authenticationConditionType.LDAPATTRIBUTE],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  realm: {
+    value: 'realm',
+    text: i18n.t('Realm'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  sAMAccountName: {
+    value: 'sAMAccountName',
+    text: i18n.t('sAMAccountName'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  sAMAccountType: {
+    value: 'sAMAccountType',
+    text: i18n.t('sAMAccountType'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  sn: {
+    value: 'sn',
+    text: i18n.t('sn'),
+    types: [authenticationConditionType.LDAPATTRIBUTE],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  ssid: {
+    value: 'SSID',
+    text: i18n.t('SSID'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  uid: {
+    value: 'uid',
+    text: i18n.t('uid'),
+    types: [authenticationConditionType.LDAPATTRIBUTE],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  userAccountControl: {
+    value: 'userAccountControl',
+    text: i18n.t('userAccountControl'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  }
+}
 
 export const pfConfigurationListColumns = {
   admin_strip_username: {
@@ -328,38 +810,91 @@ export const pfConfigurationViewFields = {
       }
     ]
   },
-  administration_rules: ({ isNew = false, isClone = false, validation = {} } = {}) => {
+  administration_rules: ({ isNew = false, isClone = false } = {}) => {
     return {
-      label: i18n.t('Administration Rules'),
+      label: 'Administration Rules',
       fields: [
         {
           key: 'administration_rules',
-          component: pfFormConfigurationRules,
+          component: pfFormFields,
           attrs: {
-            actions: [
-              pfConfigurationActions.set_access_level,
-              pfConfigurationActions.mark_as_sponsor,
-              pfConfigurationActions.set_tenant_id
-            ],
-            collapse: !isNew || isClone,
-            invalidFeedback: [
-              { [i18n.t('Rule(s) contain one or more errors.')]: !('administration_rules' in validation && validation.administration_rules.anyError) }
-            ]
-          },
-          validators: {
-            $each: {
-              id: {
-                [i18n.t('Name required.')]: required,
-                [i18n.t('Alphanumeric characters only.')]: alphaNum,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
+            buttonLabel: 'Add Rule - New ( )',
+            sortable: true,
+            field: {
+              component: pfFieldRule,
+              attrs: {
+                matchLabel: i18n.t('Select rule match'),
+                actions: {
+                  component: pfFieldAction,
+                  attrs: {
+                    typeLabel: i18n.t('Select action type'),
+                    valueLabel: i18n.t('Select action value'),
+                    fields: [
+                      pfConfigurationActions.set_access_level,
+                      pfConfigurationActions.mark_as_sponsor,
+                      pfConfigurationActions.set_tenant_id
+                    ]
+                  },
+                  invalidFeedback: [
+                    { [i18n.t('Action(s) contain one or more errors.')]: true }
+                  ]
+                },
+                conditions: {
+                  component: pfFieldCondition,
+                  attrs: {
+                    attributeLabel: i18n.t('Select attribute'),
+                    operatorLabel: i18n.t('Select operator'),
+                    valueLabel: i18n.t('Select value'),
+                    fields: [
+                      pfConfigurationConditions.ssid,
+                      pfConfigurationConditions.current_time,
+                      pfConfigurationConditions.current_time_period,
+                      pfConfigurationConditions.connection_type,
+                      pfConfigurationConditions.computer_name,
+                      pfConfigurationConditions.mac,
+                      pfConfigurationConditions.realm,
+                      pfConfigurationConditions.cn,
+                      pfConfigurationConditions.department,
+                      pfConfigurationConditions.description,
+                      pfConfigurationConditions.displayName,
+                      pfConfigurationConditions.distinguishedName,
+                      pfConfigurationConditions.eduPersonPrimaryAffiliation,
+                      pfConfigurationConditions.givenName,
+                      pfConfigurationConditions.groupMembership,
+                      pfConfigurationConditions.mail,
+                      pfConfigurationConditions.memberOf,
+                      pfConfigurationConditions.nested_group,
+                      pfConfigurationConditions.postOfficeBox,
+                      pfConfigurationConditions.sAMAccountName,
+                      pfConfigurationConditions.sAMAccountType,
+                      pfConfigurationConditions.sn,
+                      pfConfigurationConditions.uid,
+                      pfConfigurationConditions.userAccountControl
+                    ]
+                  },
+                  invalidFeedback: [
+                    { [i18n.t('Condition(s) contain one or more errors.')]: true }
+                  ]
+                }
               },
-              description: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              },
-              match: {
-                [i18n.t('Match required.')]: required
+              validators: {
+                id: {
+                  [i18n.t('Name required.')]: required,
+                  [i18n.t('Alphanumeric characters only.')]: alphaNum,
+                  [i18n.t('Maximum 255 characters.')]: maxLength(255),
+                  [i18n.t('Duplicate name.')]: limitSiblingFields('id', 0)
+                },
+                description: {
+                  [i18n.t('Maximum 255 characters.')]: maxLength(255)
+                },
+                match: {
+                  [i18n.t('Match required.')]: required
+                }
               }
-            }
+            },
+            invalidFeedback: [
+              { [i18n.t('Rule(s) contain one or more errors.')]: true }
+            ]
           }
         }
       ]
@@ -462,47 +997,93 @@ export const pfConfigurationViewFields = {
       }
     ]
   },
-  authentication_rules: ({ isNew = false, isClone = false, validation = {} } = {}) => {
+  authentication_rules: ({ isNew = false, isClone = false } = {}) => {
     return {
-      label: i18n.t('Authentication Rules'),
+      label: 'Authentication Rules',
       fields: [
         {
           key: 'authentication_rules',
-          component: pfFormConfigurationRules,
+          component: pfFormFields,
           attrs: {
-            actions: [
-              pfConfigurationActions.set_role_by_name,
-              pfConfigurationActions.set_access_duration,
-              pfConfigurationActions.set_unreg_date,
-              pfConfigurationActions.set_time_balance,
-              pfConfigurationActions.set_bandwidth_balance
-            ],
-            conditions: [
-              pfConfigurationActions.set_role_by_name,
-              pfConfigurationActions.set_access_duration,
-              pfConfigurationActions.set_unreg_date,
-              pfConfigurationActions.set_time_balance,
-              pfConfigurationActions.set_bandwidth_balance
-            ],
-            collapse: !isNew || isClone,
-            invalidFeedback: [
-              { [i18n.t('Rule(s) contain one or more errors.')]: !('authentication_rules' in validation && validation.authentication_rules.anyError) }
-            ]
-          },
-          validators: {
-            $each: {
-              id: {
-                [i18n.t('Name required.')]: required,
-                [i18n.t('Alphanumeric characters only.')]: alphaNum,
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
+            buttonLabel: 'Add Rule - New ( )',
+            sortable: true,
+            field: {
+              component: pfFieldRule,
+              attrs: {
+                matchLabel: i18n.t('Select rule match'),
+                actions: {
+                  component: pfFieldAction,
+                  attrs: {
+                    typeLabel: i18n.t('Select action type'),
+                    valueLabel: i18n.t('Select action value'),
+                    fields: [
+                      pfConfigurationActions.set_role_by_name,
+                      pfConfigurationActions.set_access_duration,
+                      pfConfigurationActions.set_unreg_date,
+                      pfConfigurationActions.set_time_balance,
+                      pfConfigurationActions.set_bandwidth_balance
+                    ]
+                  },
+                  invalidFeedback: [
+                    { [i18n.t('Action(s) contain one or more errors.')]: true }
+                  ]
+                },
+                conditions: {
+                  component: pfFieldCondition,
+                  attrs: {
+                    attributeLabel: i18n.t('Select attribute'),
+                    operatorLabel: i18n.t('Select operator'),
+                    valueLabel: i18n.t('Select value'),
+                    fields: [
+                      pfConfigurationConditions.ssid,
+                      pfConfigurationConditions.current_time,
+                      pfConfigurationConditions.current_time_period,
+                      pfConfigurationConditions.connection_type,
+                      pfConfigurationConditions.computer_name,
+                      pfConfigurationConditions.mac,
+                      pfConfigurationConditions.realm,
+                      pfConfigurationConditions.cn,
+                      pfConfigurationConditions.department,
+                      pfConfigurationConditions.description,
+                      pfConfigurationConditions.displayName,
+                      pfConfigurationConditions.distinguishedName,
+                      pfConfigurationConditions.eduPersonPrimaryAffiliation,
+                      pfConfigurationConditions.givenName,
+                      pfConfigurationConditions.groupMembership,
+                      pfConfigurationConditions.mail,
+                      pfConfigurationConditions.memberOf,
+                      pfConfigurationConditions.nested_group,
+                      pfConfigurationConditions.postOfficeBox,
+                      pfConfigurationConditions.sAMAccountName,
+                      pfConfigurationConditions.sAMAccountType,
+                      pfConfigurationConditions.sn,
+                      pfConfigurationConditions.uid,
+                      pfConfigurationConditions.userAccountControl
+                    ]
+                  },
+                  invalidFeedback: [
+                    { [i18n.t('Condition(s) contain one or more errors.')]: true }
+                  ]
+                }
               },
-              description: {
-                [i18n.t('Maximum 255 characters.')]: maxLength(255)
-              },
-              match: {
-                [i18n.t('Match required.')]: required
+              validators: {
+                id: {
+                  [i18n.t('Name required.')]: required,
+                  [i18n.t('Alphanumeric characters only.')]: alphaNum,
+                  [i18n.t('Maximum 255 characters.')]: maxLength(255),
+                  [i18n.t('Duplicate name.')]: limitSiblingFields('id', 0)
+                },
+                description: {
+                  [i18n.t('Maximum 255 characters.')]: maxLength(255)
+                },
+                match: {
+                  [i18n.t('Match required.')]: required
+                }
               }
-            }
+            },
+            invalidFeedback: [
+              { [i18n.t('Rule(s) contain one or more errors.')]: true }
+            ]
           }
         }
       ]
@@ -1743,81 +2324,6 @@ export const pfConfigurationViewFields = {
       }
     ]
   },
-  test0: ({ validation = {} } = {}) => { // TODO: remove
-    return {
-      label: 'Test (0)',
-      fields: [
-        {
-          key: 'test0',
-          component: pfFormFields,
-          attrs: {
-            buttonLabel: 'Add Action',
-            sortable: true,
-            field: {
-              component: pfFieldAction,
-              attrs: {
-                typeLabel: i18n.t('Select action type'),
-                valueLabel: i18n.t('Select action value'),
-                fields: [
-                  pfConfigurationActions.set_access_duration,
-                  pfConfigurationActions.set_access_level,
-                  pfConfigurationActions.set_bandwidth_balance,
-                  pfConfigurationActions.mark_as_sponsor,
-                  pfConfigurationActions.set_role,
-                  pfConfigurationActions.set_tenant_id,
-                  pfConfigurationActions.set_time_balance,
-                  pfConfigurationActions.set_unreg_date
-                ]
-              }
-            },
-            invalidFeedback: [
-              { [i18n.t('Action(s) contain one or more errors.')]: !('test' in validation && validation.test.anyError) }
-            ]
-          }
-        }
-      ]
-    }
-  },
-  test1: ({ validation = {} } = {}) => { // TODO: remove
-    return {
-      label: 'Test (1)',
-      fields: [
-        {
-          key: 'test1',
-          component: pfFormFields,
-          attrs: {
-            buttonLabel: 'Add Rule - New ( )',
-            sortable: true,
-            field: {
-              component: pfFieldRule,
-              attrs: {
-                matchLabel: i18n.t('Select rule match')
-              },
-              validators: {
-                $each: {
-                  id: {
-                    [i18n.t('Name required.')]: required,
-                    [i18n.t('Alphanumeric characters only.')]: alphaNum,
-                    [i18n.t('Maximum 255 characters.')]: maxLength(255),
-                    [i18n.t('Duplicate name.')]: limitSiblingFields('id', 0) // TODO: Fix
-                  },
-                  description: {
-                    [i18n.t('Maximum 255 characters.')]: maxLength(255)
-                  },
-                  match: {
-                    [i18n.t('Match required.')]: required
-                  }
-                }
-              }
-            },
-            invalidFeedback: [
-              { [i18n.t('Rule(s) contain one or more errors.')]: !('test' in validation && validation.test.anyError) }
-            ]
-          }
-        }
-      ]
-    }
-  },
   test_mode: {
     label: i18n.t('Test mode'),
     fields: [
@@ -1960,9 +2466,7 @@ export const pfConfigurationAuthenticationSourcesViewFields = (context) => {
         pfConfigurationViewFields.shuffle,
         pfConfigurationViewFields.realms(context),
         pfConfigurationViewFields.authentication_rules(context),
-        pfConfigurationViewFields.administration_rules(context),
-        pfConfigurationViewFields.test0(context), // TODO: remove
-        pfConfigurationViewFields.test1(context) // TODO: remove
+        pfConfigurationViewFields.administration_rules(context)
       ]
     case 'EAPTLS':
       return [
@@ -2565,6 +3069,10 @@ export const pfConfigurationFloatingDevicesViewFields = (context = {}) => {
   ]
 }
 
+export const pfConfigurationPortalModuleViewFields = (context = {}) => {
+  return []
+}
+
 export const pfConfigurationRealmViewFields = (context = {}) => {
   const { isNew = false, isClone = false, domains = [] } = context
   return [
@@ -2936,6 +3444,12 @@ export const pfConfigurationFloatingDevicesViewDefaults = (context = {}) => {
   }
 }
 
+export const pfConfigurationPortalModuleViewDefaults = (context = {}) => {
+  return {
+    id: null
+  }
+}
+
 export const pfConfigurationRealmViewDefaults = (context = {}) => {
   return {
     id: null,
@@ -2948,148 +3462,5 @@ export const pfConfigurationRealmViewDefaults = (context = {}) => {
 export const pfConfigurationRoleViewDefaults = (context = {}) => {
   return {
     id: null
-  }
-}
-
-export const pfConfigurationActions = {
-  set_access_duration: {
-    value: 'set_access_duration',
-    text: i18n.t('Access duration'),
-    types: [fieldType.DURATION],
-    validators: {
-      type: {
-        /* Require "set_role" */
-        [i18n.t('Action requires "Set Role".')]: requireAllSiblingFields('type', 'set_role'),
-        /* Restrict "set_unreg_date" */
-        [i18n.t('Action conflicts with "Unregistration date".')]: restrictAllSiblingFields('type', 'set_unreg_date'),
-        /* Don't allow elsewhere */
-        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
-      },
-      value: {
-        [i18n.t('Value required.')]: required
-      }
-    }
-  },
-  set_access_level: {
-    value: 'set_access_level',
-    text: i18n.t('Access level'),
-    types: [fieldType.ADMINROLE],
-    validators: {
-      type: {
-        /* Don't allow elsewhere */
-        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
-      },
-      value: {
-        [i18n.t('Value required.')]: required
-      }
-    }
-  },
-  set_bandwidth_balance: {
-    value: 'set_bandwidth_balance',
-    text: i18n.t('Bandwidth balance'),
-    types: [fieldType.PREFIXMULTIPLIER],
-    validators: {
-      type: {
-        /* Don't allow elsewhere */
-        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
-      },
-      value: {
-        [i18n.t('Value required.')]: required,
-        [i18n.t('Value must be greater than {min}bytes.', { min: bytes.toHuman(schema.node.bandwidth_balance.min) })]: minValue(schema.node.bandwidth_balance.min),
-        [i18n.t('Value must be less than {max}bytes.', { max: bytes.toHuman(schema.node.bandwidth_balance.max) })]: maxValue(schema.node.bandwidth_balance.max)
-      }
-    }
-  },
-  mark_as_sponsor: {
-    value: 'mark_as_sponsor',
-    text: i18n.t('Mark as sponsor'),
-    types: [fieldType.NONE],
-    validators: {
-      type: {
-        /* Don't allow elsewhere */
-        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
-      }
-    }
-  },
-  set_role: {
-    value: 'set_role',
-    text: i18n.t('Role'),
-    types: [fieldType.ROLE],
-    validators: {
-      type: {
-        /* When "Role" is selected, either "Time Balance" or "set_unreg_date" is required */
-        [i18n.t('Action requires either "Access duration" or "Unregistration date".')]: requireAnySiblingFields('type', 'set_access_duration', 'set_unreg_date'),
-        /* Don't allow elsewhere */
-        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
-      },
-      value: {
-        [i18n.t('Value required.')]: required
-      }
-    }
-  },
-  set_role_by_name: {
-    value: 'set_role',
-    text: i18n.t('Role'),
-    types: [fieldType.ROLE_BY_NAME],
-    validators: {
-      type: {
-        /* When "Role" is selected, either "Time Balance" or "set_unreg_date" is required */
-        [i18n.t('Action requires either "Access duration" or "Unregistration date".')]: requireAnySiblingFields('type', 'set_access_duration', 'set_unreg_date'),
-        /* Don't allow elsewhere */
-        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
-      },
-      value: {
-        [i18n.t('Value required.')]: required
-      }
-    }
-  },
-  set_tenant_id: {
-    value: 'set_tenant_id',
-    text: i18n.t('Tenant ID'),
-    types: [fieldType.TENANT],
-    validators: {
-      type: {
-        /* Don't allow elsewhere */
-        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
-      },
-      value: {
-        [i18n.t('Value required.')]: required,
-        [i18n.t('Value must be numeric.')]: numeric
-      }
-    }
-  },
-  set_time_balance: {
-    value: 'set_time_balance',
-    text: i18n.t('Time balance'),
-    types: [fieldType.DURATION],
-    validators: {
-      type: {
-        /* Don't allow elsewhere */
-        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
-      },
-      value: {
-        [i18n.t('Value required.')]: required
-      }
-    }
-  },
-  set_unreg_date: {
-    value: 'set_unreg_date',
-    text: i18n.t('Unregistration date'),
-    types: [fieldType.DATETIME],
-    moments: ['1 days', '1 weeks', '1 months', '1 years'],
-    validators: {
-      type: {
-        /* Require "set_role" */
-        [i18n.t('Action requires "Set Role".')]: requireAllSiblingFields('type', 'set_role'),
-        /* Restrict "set_access_duration" */
-        [i18n.t('Action conflicts with "Access duration".')]: restrictAllSiblingFields('type', 'set_access_duration'),
-        /* Don't allow elsewhere */
-        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
-      },
-      value: {
-        [i18n.t('Future date required.')]: compareDate('>=', new Date(), schema.node.unregdate.format, false),
-        [i18n.t('Invalid date.')]: isDateFormat(schema.node.unregdate.format)
-      }
-    }
   }
 }

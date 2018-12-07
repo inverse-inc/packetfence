@@ -1,16 +1,18 @@
 /* eslint key-spacing: ["error", { "mode": "minimum" }] */
+import i18n from '@/utils/locale'
 
 export const pfAuthenticationConditionType = {
+  NONE:                    'none',
+  CONNECTION:              'connection',
+  LDAPATTRIBUTE:           'ldap_attribute',
   SUBSTRING:               'substring',
-  SUBSTRING_MEMBER:        'substring_member',
-  HOUR_MINUTE:             'hour_minute',
-  TIMEPERIOD:              'timeperiod',
-  CONNECTION_TYPE:         'connection_type'
+  TIME:                    'time',
+  TIMEPERIOD:              'timeperiod'
 }
 
 export const pfAuthenticationConditionValue = {
   TEXT:                    'text',
-  HOUR_MINUTE:             'hour_minute',
+  TIME:                    'time',
   TIMEPERIOD:              'timeperiod'
 }
 
@@ -19,15 +21,12 @@ export const pfAuthenticationConditionValue = {
  */
 export const pfAuthenticationConditionOperators = {}
 
-pfAuthenticationConditionOperators[pfAuthenticationConditionType.SUBSTRING] = {
-  'starts':                pfAuthenticationConditionValue.TEXT,
-  'equals':                pfAuthenticationConditionValue.TEXT,
-  'contains':              pfAuthenticationConditionValue.TEXT,
-  'ends':                  pfAuthenticationConditionValue.TEXT,
-  'matches regexp':        pfAuthenticationConditionValue.TEXT
+pfAuthenticationConditionOperators[pfAuthenticationConditionType.CONNECTION] = {
+  'is':                    pfAuthenticationConditionValue.TEXT,
+  'is not':                pfAuthenticationConditionValue.TEXT
 }
 
-pfAuthenticationConditionOperators[pfAuthenticationConditionType.SUBSTRING_MEMBER] = {
+pfAuthenticationConditionOperators[pfAuthenticationConditionType.LDAPATTRIBUTE] = {
   'starts':                pfAuthenticationConditionValue.TEXT,
   'equals':                pfAuthenticationConditionValue.TEXT,
   'not_equals':            pfAuthenticationConditionValue.TEXT,
@@ -37,18 +36,21 @@ pfAuthenticationConditionOperators[pfAuthenticationConditionType.SUBSTRING_MEMBE
   'is member of':          pfAuthenticationConditionValue.TEXT
 }
 
-pfAuthenticationConditionOperators[pfAuthenticationConditionType.HOUR_MINUTE] = {
-  'is before':             pfAuthenticationConditionValue.HOUR_MINUTE,
-  'is after':              pfAuthenticationConditionValue.HOUR_MINUTE
+pfAuthenticationConditionOperators[pfAuthenticationConditionType.SUBSTRING] = {
+  'starts':                pfAuthenticationConditionValue.TEXT,
+  'equals':                pfAuthenticationConditionValue.TEXT,
+  'contains':              pfAuthenticationConditionValue.TEXT,
+  'ends':                  pfAuthenticationConditionValue.TEXT,
+  'matches regexp':        pfAuthenticationConditionValue.TEXT
+}
+
+pfAuthenticationConditionOperators[pfAuthenticationConditionType.TIME] = {
+  'is before':             pfAuthenticationConditionValue.TIME,
+  'is after':              pfAuthenticationConditionValue.TIME
 }
 
 pfAuthenticationConditionOperators[pfAuthenticationConditionType.TIMEPERIOD] = {
   'in_time_period':        pfAuthenticationConditionValue.TIMEPERIOD
-}
-
-pfAuthenticationConditionOperators[pfAuthenticationConditionType.CONNECTION_TYPE] = {
-  'is':                    pfAuthenticationConditionValue.TEXT,
-  'is not':                pfAuthenticationConditionValue.TEXT
 }
 
 /**
@@ -56,57 +58,65 @@ pfAuthenticationConditionOperators[pfAuthenticationConditionType.CONNECTION_TYPE
  */
 export const pfAuthenticationConditionValues = {}
 
-pfAuthenticationConditionValues[pfAuthenticationConditionType.CONNECTION_TYPE] = {
-  Types: [
+pfAuthenticationConditionValues[pfAuthenticationConditionType.CONNECTION] = (store) => {
+  return [
     {
-      value: 'Ethernet-EAP',
-      text: 'Ethernet-EAP'
+      group: i18n.t('Types'),
+      items: [
+        {
+          value: 'Ethernet-EAP',
+          text: 'Ethernet-EAP'
+        },
+        {
+          value: 'Ethernet-NoEAP',
+          text: 'Ethernet-NoEAP'
+        },
+        {
+          value: 'Ethernet-Web-Auth',
+          text: 'Ethernet-Web-Auth'
+        },
+        {
+          value: 'Inline',
+          text: 'Inline'
+        },
+        {
+          value: 'SNMP-Traps',
+          text: 'SNMP-Traps'
+        },
+        {
+          value: 'Wireless-802.11-EAP',
+          text: 'Wireless-802.11-EAP'
+        },
+        {
+          value: 'Wireless-802.11-NoEAP',
+          text: 'Wireless-802.11-NoEAP'
+        },
+        {
+          value: 'Wireless-Web-Auth',
+          text: 'Wireless-Web-Auth'
+        }
+      ]
     },
     {
-      value: 'Ethernet-NoEAP',
-      text: 'Ethernet-NoEAP'
-    },
-    {
-      value: 'Ethernet-Web-Auth',
-      text: 'Ethernet-Web-Auth'
-    },
-    {
-      value: 'Inline',
-      text: 'Inline'
-    },
-    {
-      value: 'SNMP-Traps',
-      text: 'SNMP-Traps'
-    },
-    {
-      value: 'Wireless-802.11-EAP',
-      text: 'Wireless-802.11-EAP'
-    },
-    {
-      value: 'Wireless-802.11-NoEAP',
-      text: 'Wireless-802.11-NoEAP'
-    },
-    {
-      value: 'Wireless-Web-Auth',
-      text: 'Wireless-Web-Auth'
-    }
-  ],
-  Groups: [
-    {
-      value: 'EAP',
-      text: 'EAP'
-    },
-    {
-      value: 'Ethernet',
-      text: 'Ethernet'
-    },
-    {
-      value: 'Web-Auth',
-      text: 'Web-Auth'
-    },
-    {
-      value: 'Wireless',
-      text: 'Wireless'
+      group: i18n.t('Groups'),
+      items: [
+        {
+          value: 'EAP',
+          text: 'EAP'
+        },
+        {
+          value: 'Ethernet',
+          text: 'Ethernet'
+        },
+        {
+          value: 'Web-Auth',
+          text: 'Web-Auth'
+        },
+        {
+          value: 'Wireless',
+          text: 'Wireless'
+        }
+      ]
     }
   ]
 }

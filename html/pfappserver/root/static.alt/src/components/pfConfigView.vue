@@ -9,20 +9,6 @@
           </h4>
         </b-card-header>
       </slot>
-
-      <b-row>
-        <b-col cols="6">
-          <h4>model</h4>
-          <pre>{{ JSON.stringify(model, null, 2) }}</pre>
-        </b-col>
-
-        <b-col cols="6">
-          <h4>$v / vuelidate</h4>
-          <pre>{{ JSON.stringify(vuelidate.test1, null, 2) }}</pre>
-        </b-col>
-      <!--      -->
-      </b-row>
-
       <div class="card-body" v-if="form.fields">
         <b-form-group v-for="row in form.fields" :key="[row.key].join('')" v-if="!('if' in row) || row.if"
           :label-cols="(row.label) ? form.labelCols : 0" :label="row.label" :label-size="row.labelSize"
@@ -66,7 +52,7 @@ import pfFormInput from '@/components/pfFormInput'
 import pfMixinValidation from '@/components/pfMixinValidation'
 
 export default {
-  name: 'pf-config-view',
+  name: 'pfConfigView',
   components: {
     pfButtonSave,
     pfButtonDelete,
@@ -148,7 +134,7 @@ export default {
     },
     setComponentValidations (key, validations) {
       this.$set(this.componentValidations, key, validations)
-      this.emitExternalValidations()
+      this.emitValidations()
     },
     getExternalValidations () {
       const eachFieldValue = {}
@@ -192,7 +178,7 @@ export default {
       Object.freeze(eachFieldValue)
       return eachFieldValue
     },
-    emitExternalValidations () {
+    emitValidations () {
       this.$emit('validations', this.getExternalValidations())
     },
     getClass (row, field) {
@@ -208,8 +194,21 @@ export default {
       return c.join(' ')
     }
   },
+  watch: {
+    model: {
+      handler: function (a, b) {
+        if (this.vuelidate.$dirty) {
+          this.$nextTick(() => {
+            this.vuelidate.$touch()
+          })
+        }
+      },
+      immediate: true,
+      deep: true
+    }
+  },
   mounted () {
-    this.emitExternalValidations()
+    this.emitValidations()
   }
 }
 </script>

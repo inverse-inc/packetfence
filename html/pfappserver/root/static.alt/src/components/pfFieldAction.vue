@@ -39,7 +39,6 @@
         :options="options"
         :vuelidate="valueVuelidateModel"
         :invalid-feedback="valueInvalidFeedback"
-        class="ml-1"
         collapse-object
       ></pf-form-chosen>
 
@@ -51,7 +50,6 @@
         :moments="moments"
         :vuelidate="valueVuelidateModel"
         :invalid-feedback="valueInvalidFeedback"
-        class="ml-1"
       ></pf-form-datetime>
 
       <!-- Type: PREFIXMULTIPLER -->
@@ -60,7 +58,6 @@
         ref="localValue"
         :vuelidate="valueVuelidateModel"
         :invalid-feedback="valueInvalidFeedback"
-        class="ml-1"
       ></pf-form-prefix-multiplier>
 
     </b-col>
@@ -93,7 +90,7 @@ export default {
   props: {
     value: {
       type: Object,
-      default: () => { return this.valuePlaceHolder }
+      default: () => { return this.default }
     },
     typeLabel: {
       type: String
@@ -112,7 +109,7 @@ export default {
   },
   data () {
     return {
-      valuePlaceHolder:         { type: null, value: null }, // default value
+      default:                  { type: null, value: null }, // default value
       /* Generic field types */
       noValueType:              fieldType.NONE,
       integerValueType:         fieldType.INTEGER,
@@ -133,8 +130,8 @@ export default {
       get () {
         if (!this.value || Object.keys(this.value).length === 0) {
           // set default placeholder
-          this.$emit('input', this.valuePlaceHolder)
-          return this.valuePlaceHolder
+          this.$emit('input', JSON.parse(JSON.stringify(this.default))) // keep dereferenced
+          return this.default
         }
         return this.value
       },
@@ -144,20 +141,21 @@ export default {
     },
     localType: {
       get () {
-        let type = (this.inputValue && 'type' in this.inputValue) ? this.inputValue.type : null
+        let type = (this.inputValue && 'type' in this.inputValue) ? this.inputValue.type : this.default.type
         // check to see if `type` exists in our available fields
         if (type && !this.fields.find(field => field.value === type)) {
+          // discard
           this.$store.dispatch('notification/danger', { message: this.$i18n.t('Action type "{type}" is not valid, ignoring...', { type: type }) })
-          this.$set(this.inputValue, 'type', null) // clear `type`
-          this.$set(this.inputValue, 'value', null) // clear `value`
+          this.$set(this.inputValue, 'type', this.default.type) // clear `type`
+          this.$set(this.inputValue, 'value', this.default.value) // clear `value`
           return null
         }
         return type
       },
       set (newType) {
-        this.$set(this.inputValue, 'type', newType || null) // set type or null
-        this.$set(this.inputValue, 'value', null) // clear `value`
-        this.emitLocalValidationsToParent()
+        this.$set(this.inputValue, 'type', newType || this.default.type)
+        this.$set(this.inputValue, 'value', this.default.value) // clear `value`
+        this.emitValidations()
         this.$nextTick(() => { // wait until DOM updates with new type
           this.focusValue()
         })
@@ -165,11 +163,11 @@ export default {
     },
     localValue: {
       get () {
-        return (this.inputValue && 'value' in this.inputValue) ? this.inputValue.value : null
+        return (this.inputValue && 'value' in this.inputValue) ? this.inputValue.value : this.default.value
       },
       set (newValue) {
-        this.$set(this.inputValue, 'value', newValue || null) // value or null
-        this.emitLocalValidationsToParent()
+        this.$set(this.inputValue, 'value', newValue || this.default.value)
+        this.emitValidations()
       }
     },
     field () {
@@ -254,7 +252,7 @@ export default {
       }
       return { type: { [this.$i18n.t('Type required.')]: required } }
     },
-    emitLocalValidationsToParent () {
+    emitValidations () {
       this.$emit('validations', this.buildLocalValidations())
     },
     focus () {
@@ -264,27 +262,27 @@ export default {
         this.focusType()
       }
     },
-    focusType () {
+    focusIndex (index = 0) {
       let vals = Object.values(this.$refs)
-      if (vals[0] && '$refs' in vals[0]) {
-        let refs = vals[0].$refs
+      if (vals[index] && '$refs' in vals[index]) {
+        let refs = vals[index].$refs
         if ('input' in refs && '$el' in refs.input) {
           refs.input.$el.focus()
         }
       }
     },
+    focusType () {
+      this.focusIndex(0)
+    },
     focusValue () {
-      let vals = Object.values(this.$refs)
-      if (vals[1] && '$refs' in vals[1]) {
-        let refs = vals[1].$refs
-        if ('input' in refs && '$el' in refs.input) {
-          refs.input.$el.focus()
-        }
-      }
+      this.focusIndex(1)
     }
   },
-  mounted () {
-    this.emitLocalValidationsToParent()
+  created () {
+    this.emitValidations()
+    this.$store.dispatch('config/getAdminRoles') // roles for actions > set_access_level
+    this.$store.dispatch('config/getRoles') // roles for actions > set_role
+    this.$store.dispatch('config/getTenants') // tenants for actions > set_tenant_id
   }
 }
 </script>
