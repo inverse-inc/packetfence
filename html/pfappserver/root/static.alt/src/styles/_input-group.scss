@@ -1,11 +1,4 @@
 @import "../../node_modules/bootstrap/scss/input-group";
 
 .input-group {
-    // Create a stacking context so the pf-form-chosen (vue-multiselect)
-    // component is displayed above any b-input-group component.
-    z-index: 1;
-
-    .form-group.is-focus & {
-        z-index: 2;
-    }
 }

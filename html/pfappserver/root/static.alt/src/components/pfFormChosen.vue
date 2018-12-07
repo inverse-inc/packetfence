@@ -182,10 +182,9 @@ export default {
     padding-top: 0px;
   }
   .multiselect__content-wrapper {
-      border: $dropdown-border-width solid $dropdown-border-color;
-      @include border-radius($dropdown-border-radius);
-      @include box-shadow($dropdown-box-shadow);
-      z-index: $zindex-dropdown;
+    border: $dropdown-border-width solid $dropdown-border-color;
+    @include border-radius($dropdown-border-radius);
+    @include box-shadow($dropdown-box-shadow);
   }
   .multiselect--active:not(.multiselect--above) {
     .multiselect__content-wrapper {
