@@ -92,7 +92,10 @@ Generate the configuration files for radiusd processes
 
 sub _generateConfig {
     my ($self,$quick) = @_;
-    my $tt = Template->new(ABSOLUTE => 1);
+    my $tt = Template->new(
+        ABSOLUTE => 1,
+        FILTERS  => { escape_string => \&escape_freeradius_string },
+    );
     $self->generate_radiusd_mainconf();
     $self->generate_radiusd_authconf($tt);
     $self->generate_radiusd_acctconf($tt);
@@ -423,7 +426,6 @@ Generates the sql.conf configuration file
 
 sub generate_radiusd_sqlconf {
    my %tags;
-
    $tags{'template'}    = "$conf_dir/radiusd/sql.conf";
    $tags{'install_dir'} = $install_dir;
    $tags{'db_host'} = $Config{'database'}{'host'};
@@ -432,8 +434,23 @@ sub generate_radiusd_sqlconf {
    $tags{'db_username'} = $Config{'database'}{'user'};
    $tags{'db_password'} = $Config{'database'}{'pass'};
    $tags{'hash_passwords'} = $Config{'advanced'}{'hash_passwords'} eq 'ntlm' ? 'NT-Password' : 'Cleartext-Password';
+   for my $k (qw(db_username db_password)) {
+      $tags{$k} = escape_freeradius_string($tags{$k});
+   }
 
    parse_template( \%tags, "$conf_dir/radiusd/sql.conf", "$install_dir/raddb/mods-enabled/sql" );
+}
+
+=head2 escape_freeradius_string
+
+escape_freeradius_string
+
+=cut
+
+sub escape_freeradius_string {
+    my ($s) = @_;
+    $s =~ s/"/\\"/g;
+    return $s;
 }
 
 =head2 generate_radiusd_proxy
