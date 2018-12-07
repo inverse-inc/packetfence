@@ -282,7 +282,7 @@ export default {
 
 .pf-form-fields {
   .pf-form-fields-input-group {
-    border: 1px solid $input-focus-bg;
+    border: 1px solid transparent;
     @include border-radius($border-radius);
     @include transition($custom-forms-transition);
     outline: 0;
@@ -318,8 +318,12 @@ export default {
   padding-bottom: .0625rem !important;
   background-color: $primary !important;
   path, /* svg icons */
-  .invalid-feedback {
-    color: $white
+  * {
+    color: $white !important;
+    border-color: transparent !important;
+  }
+  .pf-form-fields-input-group {
+    border-color: transparent !important;
   }
 }
 .cursor-pointer {
