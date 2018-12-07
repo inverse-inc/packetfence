@@ -150,6 +150,9 @@ export default {
     padding: $input-padding-y $input-padding-x;
     min-height: auto;
     outline: 0;
+    .multiselect__input {
+      max-width: 100%
+    }
     span > span.multiselect__single { /* placeholder */
       color: $input-placeholder-color;
       // Override Firefox's unusual default opacity; see https://github.com/twbs/bootstrap/pull/11526.
