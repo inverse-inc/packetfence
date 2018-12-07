@@ -42,7 +42,7 @@
         <b-button-group v-if="moments.length > 0" rel="moments" v-b-tooltip.hover.top.d300 :title="$t('Cumulate [CTRL] + [CLICK]')">
           <b-button v-for="(moment, index) in moments" :key="index" variant="light" @click="onClickMoment($event, index)" v-b-tooltip.hover.bottom.d300 :title="momentTooltip(index)" tabindex="-1">{{ momentLabel(index) }}</b-button>
         </b-button-group>
-        <b-button class="input-group-text" @click.stop="toggle($event)" tabindex="-1"><icon name="calendar-alt" variant="light"></icon></b-button>
+        <b-button class="input-group-text" @click.stop="toggle($event)" tabindex="-1"><icon :name="(formatIsTimeOnly()) ? 'clock' : 'calendar-alt'" variant="light"></icon></b-button>
       </b-input-group-append>
     </b-input-group>
     <b-form-text v-if="text" v-t="text"></b-form-text>
@@ -266,6 +266,13 @@ export default {
             this.inputValue = format(base, dateFormat)
         }
       }
+    },
+    formatIsTimeOnly () {
+      let format = this.defaultConfig.format
+      if ('input' in this.$refs && 'dp' in this.$refs.input) {
+        return !(/[MQDdEeWwYgX]+/.test(format))
+      }
+      return false
     }
   },
   watch: {
