@@ -13,6 +13,7 @@
         :multiple="multiple"
         :options="options"
         :trackBy="trackBy"
+        :groupValues="groupValues"
         :state="isValid()"
         @input.native="validate()"
         @keyup.native.stop.prevent="onChange($event)"
@@ -74,6 +75,9 @@ export default {
       type: String,
       default: 'value'
     },
+    groupValues: {
+      type: String
+    },
     // Add a proxy on our inputValue to modify set/get for simple external models.
     // https://github.com/shentao/vue-multiselect/issues/385#issuecomment-418881148
     collapseObject: {
@@ -91,11 +95,17 @@ export default {
       get () {
         const currentValue = this.value || ((this.multiple) ? [] : null)
         if (this.collapseObject) {
+          const options = (!this.groupValues)
+            ? this.options
+            : this.options.reduce((options, group, index) => { // flatten group
+                options.push(...group[this.groupValues])
+                return options
+              }, [])
           return (this.multiple)
-            ? [...new Set(currentValue.map(value => this.options.find(option => option[this.trackBy] === value)))]
-            : (this.options)
-              ? this.options.find(option => option[this.trackBy] === currentValue)
-              : null
+            ? [...new Set(currentValue.map(value => options.find(option => option[this.trackBy] === value)))]
+            : (!options)
+              ? null
+              : options.find(option => option[this.trackBy] === currentValue)
         }
         return currentValue
       },
