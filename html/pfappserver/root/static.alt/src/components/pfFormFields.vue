@@ -23,7 +23,7 @@
       >
         <b-container
           v-for="(_, index) in inputValue" :key="uuids[index]"
-          class="mx-0 px-1"
+          class="mx-0 px-1 pf-form-field-component-container"
           @mouseleave="onMouseLeave()"
         >
         <component
@@ -304,7 +304,7 @@ export default {
       box-shadow: 0 0 0 $input-focus-width rgba($form-feedback-invalid-color, .25);
     }
   }
-  .form-row {
+  .pf-form-field-component-container {
     &:not(:last-child) {
       border-bottom: $input-border-width solid $input-focus-bg;
     }

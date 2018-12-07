@@ -62,7 +62,7 @@ export default {
     },
     options: {
       type: Array,
-      default: []
+      default: () => { return [] }
     },
     multiple: {
       type: Boolean,
@@ -98,9 +98,9 @@ export default {
           const options = (!this.groupValues)
             ? this.options
             : this.options.reduce((options, group, index) => { // flatten group
-                options.push(...group[this.groupValues])
-                return options
-              }, [])
+              options.push(...group[this.groupValues])
+              return options
+            }, [])
           return (this.multiple)
             ? [...new Set(currentValue.map(value => options.find(option => option[this.trackBy] === value)))]
             : (!options)

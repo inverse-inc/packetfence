@@ -3,7 +3,7 @@
     <b-form-row class="pf-field-rule mx-0 mb-1 px-0 col-12" align-v="center"
       v-on="forwardListeners"
     >
-      <b-col v-if="$slots.prepend" cols="1" align-self="start" class="pt-1 text-center col-form-label">
+      <b-col v-if="$slots.prepend" cols="1" align-self="start" class="py-2 text-center col-form-label">
         <slot name="prepend"></slot>
       </b-col>
       <b-col cols="10"
