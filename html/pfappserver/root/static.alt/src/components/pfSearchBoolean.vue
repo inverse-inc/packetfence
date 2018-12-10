@@ -74,7 +74,6 @@
 </template>
 
 <script>
-import Vue from 'vue'
 import draggable from 'vuedraggable'
 import {
   pfSearchOperatorsForTypes as operatorsForTypes,
@@ -148,7 +147,7 @@ export default {
         values = valuesForOperator(field.types, rule.op, this.$store)
         if (values.length && values.findIndex(v => v.value === rule.value) < 0) {
           // Preselect the first valid value
-          Vue.set(rule, 'value', values[0].value)
+          this.$set(rule, 'value', values[0].value)
         }
       }
       return values

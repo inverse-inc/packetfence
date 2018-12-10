@@ -3,7 +3,7 @@
     :isLoading="isLoading"
     :form="getForm"
     :model="role"
-    :validation="$v.role"
+    :vuelidate="$v.role"
     @validations="roleValidations = $event"
     @close="close"
     @create="create"

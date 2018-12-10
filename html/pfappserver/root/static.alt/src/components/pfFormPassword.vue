@@ -2,7 +2,7 @@
   <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
     :state="isValid()" :invalid-feedback="getInvalidFeedback()"
     class="pf-form-password" :class="{ 'mb-0': !columnLabel, 'is-focus': focus }">
-    <b-input-group class="input-group-password">
+    <b-input-group class="pf-form-password-input-group">
       <b-form-input
         v-model="inputValue"
         v-bind="$attrs"
@@ -147,7 +147,7 @@ export default {
  * Adjust is-invalid and is-focus borders
  */
 .pf-form-password {
-  .input-group-password {
+  .pf-form-password-input-group {
     background-color: $input-focus-bg;
     border: 1px solid $input-focus-bg;
     @include border-radius($border-radius);
@@ -171,11 +171,11 @@ export default {
       border-bottom-right-radius: $border-radius;
     }
   }
-  &.is-focus .input-group-password {
+  &.is-focus .pf-form-password-input-group {
     border: 1px solid $input-focus-border-color;
     box-shadow: 0 0 0 $input-focus-width rgba($input-focus-border-color, .25);
   }
-  &.is-invalid .input-group-password {
+  &.is-invalid .pf-form-password-input-group {
     border: 1px solid $form-feedback-invalid-color;
     box-shadow: 0 0 0 $input-focus-width rgba($form-feedback-invalid-color, .25);
   }

@@ -13,16 +13,9 @@
     <b-button
       v-if="interrupt"
       type="button"
-      variant="link"
+      variant="outline-danger"
       disabled
       >{{ confirm }}</b-button>
-    <b-button
-      v-if="interrupt"
-      type="button"
-      @click.stop="stopInterrupt($event)"
-      @mousemove="startInterrupt($event)"
-      @mouseover="startInterrupt($event)"
-      >{{ $t('Cancel') }}</b-button>
     <b-button
       v-if="interrupt"
       type="button"

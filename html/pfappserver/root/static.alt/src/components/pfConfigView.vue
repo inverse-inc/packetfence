@@ -20,13 +20,15 @@
             <template v-for="field in row.fields">
               <span v-if="field.text" :key="field.index" :class="field.class">{{ field.text }}</span>
               <component v-else-if="!('if' in field) || field.if"
+                v-bind="field.attrs"
                 :key="field.key"
                 :is="field.component || defaultComponent"
-                v-bind="field.attrs"
-                :validation="getValidation(field.key)"
+                :isLoading="isLoading"
+                :vuelidate="getVuelidateModel(field.key)"
                 :class="getClass(row, field)"
                 :value="getValue(field.key)"
                 @input="setValue(field.key, $event)"
+                @validations="setComponentValidations(field.key, $event)"
               ></component>
             </template>
           </b-input-group>
@@ -34,7 +36,7 @@
         </b-form-group>
       </div>
       <slot name="footer">
-        <b-card-footer @mouseenter="validation.$touch()">
+        <b-card-footer @mouseenter="vuelidate.$touch()">
           <pf-button-save :disabled="invalidForm" :isLoading="isLoading">{{ isNew? $t('Create') : $t('Save') }}</pf-button-save>
           <pf-button-delete v-if="!isNew" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Config?')" @on-delete="remove($event)"/>
         </b-card-footer>
@@ -44,14 +46,13 @@
 </template>
 
 <script>
-import Vue from 'vue'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfFormInput from '@/components/pfFormInput'
 import pfMixinValidation from '@/components/pfMixinValidation'
 
 export default {
-  name: 'pf-config-view',
+  name: 'pfConfigView',
   components: {
     pfButtonSave,
     pfButtonDelete,
@@ -69,7 +70,7 @@ export default {
       type: Object,
       required: true
     },
-    validation: {
+    vuelidate: {
       type: Object,
       required: true
     },
@@ -81,6 +82,11 @@ export default {
     },
     isClone: {
       type: Boolean
+    }
+  },
+  data () {
+    return {
+      componentValidations: {}
     }
   },
   computed: {
@@ -116,15 +122,19 @@ export default {
         if (!(first in model)) this.$set(model, first, {})
         return this.setValue(remainder, value, model[first])
       }
-      Vue.set(model, key, value)
+      this.$set(model, key, value)
     },
-    getValidation (key, model = this.validation) {
+    getVuelidateModel (key, model = this.vuelidate) {
       if (key.includes('.')) { // handle dot-notation keys ('.')
         const split = key.split('.')
         const [ first, remainder ] = [ split[0], split.slice(1).join('.') ]
-        return this.getValidation(remainder, model[first])
+        return this.getVuelidateModel(remainder, model[first])
       }
       return model[key]
+    },
+    setComponentValidations (key, validations) {
+      this.$set(this.componentValidations, key, validations)
+      this.emitValidations()
     },
     getExternalValidations () {
       const eachFieldValue = {}
@@ -138,7 +148,7 @@ export default {
           setEachFieldValue(remainder, value, model[first])
           return
         }
-        Vue.set(model, key, value)
+        this.$set(model, key, value)
       }
       if (this.form.fields.length > 0) {
         this.form.fields.forEach((row, index) => {
@@ -147,7 +157,7 @@ export default {
               if (field.key) {
                 setEachFieldValue(field.key, {})
                 if (
-                  'validators' in field && // has vuelidate validations
+                  'validators' in field && // has vuelidate validators
                   (!('if' in field) || field.if) // is visible
                 ) {
                   setEachFieldValue(field.key, field.validators)
@@ -157,16 +167,19 @@ export default {
           }
         })
       }
+      // merge component validations
+      Object.keys(this.componentValidations).forEach(key => {
+        if (key in eachFieldValue) {
+          eachFieldValue[key] = { ...eachFieldValue[key], ...this.componentValidations[key] }
+        } else {
+          eachFieldValue[key] = this.componentValidations[key]
+        }
+      })
       Object.freeze(eachFieldValue)
       return eachFieldValue
     },
-    emitExternalValidations () {
-      // debounce to avoid emit storm,
-      // delay to allow internal form field to update before building external validations
-      if (this.emitExternalValidationsTimeout) clearTimeout(this.emitExternalValidationsTimeout)
-      this.emitExternalValidationsTimeout = setTimeout(() => {
-        this.$emit('validations', this.getExternalValidations())
-      }, 300)
+    emitValidations () {
+      this.$emit('validations', this.getExternalValidations())
     },
     getClass (row, field) {
       let c = ['px-0'] // always remove padding
@@ -181,13 +194,26 @@ export default {
       return c.join(' ')
     }
   },
+  watch: {
+    model: {
+      handler: function (a, b) {
+        if (this.vuelidate.$dirty) {
+          this.$nextTick(() => {
+            this.vuelidate.$touch()
+          })
+        }
+      },
+      immediate: true,
+      deep: true
+    }
+  },
   mounted () {
-    this.emitExternalValidations()
+    this.emitValidations()
   }
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .input-group > span {
   display: flex;
   justify-contents: center;

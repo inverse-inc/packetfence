@@ -150,8 +150,9 @@
 
           <template slot="top-row" slot-scope="data">
             <td v-for="column in data.columns" :key="column" :class="['p-1', {'table-danger': column === 1 && selectValues.length === 0 }]">
-              <pf-form-select v-if="column > 1" v-model="tableMapping[column - 2]"
-              :validation="$v.tableMapping"
+              <pf-form-select v-if="column > 1"
+              v-model="tableMapping[column - 2]"
+              :vuelidate="$v.tableMapping"
               >
                 <template slot="first">
                   <option :value="null">-- {{ $t('Ignore field') }} --</option>
@@ -178,7 +179,7 @@
                   <pf-form-input v-if="isFieldType(substringValueType, staticMapping[index])"
                     v-model="staticMapping[index].value"
                     :class="{ 'border-danger': $v.staticMapping[index].value.$anyError }"
-                    :validation="$v.staticMapping[index].value"
+                    :vuelidate="$v.staticMapping[index].value"
                   ></pf-form-input>
 
                   <!-- BEGIN DATE -->
@@ -186,7 +187,7 @@
                     v-model="staticMapping[index].value"
                     :config="{format: 'YYYY-MM-DD'}"
                     :class="{ 'border-danger': $v.staticMapping[index].value.$anyError }"
-                    :validation="$v.staticMapping[index].value"
+                    :vuelidate="$v.staticMapping[index].value"
                   ></pf-form-datetime>
 
                   <!-- BEGIN DATETIME -->
@@ -194,21 +195,21 @@
                     v-model="staticMapping[index].value"
                     :config="{format: 'YYYY-MM-DD HH:mm:ss'}"
                     :class="{ 'border-danger': $v.staticMapping[index].value.$anyError }"
-                    :validation="$v.staticMapping[index].value"
+                    :vuelidate="$v.staticMapping[index].value"
                   ></pf-form-datetime>
 
                   <!-- BEGIN PREFIXMULTIPLIER -->
                   <pf-form-prefix-multiplier v-else-if="isFieldType(prefixmultiplierValueType, staticMapping[index])"
                     v-model="staticMapping[index].value"
                     :class="{ 'border-danger': $v.staticMapping[index].value.$anyError }"
-                    :validation="$v.staticMapping[index].value"
+                    :vuelidate="$v.staticMapping[index].value"
                   ></pf-form-prefix-multiplier>
 
                   <!-- BEGIN YESNO -->
                   <pf-form-toggle  v-else-if="isFieldType(yesnoValueType, staticMapping[index])"
                     v-model="staticMapping[index].value"
                     :values="{checked: 'yes', unchecked: 'no'}"
-                    :validation="$v.staticMapping[index].value"
+                    :vuelidate="$v.staticMapping[index].value"
                   >{{ (staticMapping[index].value === 'yes') ? $t('Yes') : $t('No') }}</pf-form-toggle>
 
                   <!-- BEGIN GENDER -->
@@ -217,7 +218,7 @@
                     label="name"
                     track-by="value"
                     :options="fieldTypeValues[genderValueType]()"
-                    :validation="$v.staticMapping[index].value"
+                    :vuelidate="$v.staticMapping[index].value"
                     @input="staticMapping[index].value = $event"
                     collapse-object
                   ></pf-form-chosen>
@@ -228,7 +229,7 @@
                     label="name"
                     track-by="value"
                     :options="fieldTypeValues[roleValueType]($store)"
-                    :validation="$v.staticMapping[index].value"
+                    :vuelidate="$v.staticMapping[index].value"
                     @input="staticMapping[index].value = $event"
                     collapse-object
                   ></pf-form-chosen>
@@ -239,7 +240,7 @@
                     label="name"
                     track-by="value"
                     :options="fieldTypeValues[sourceValueType]($store)"
-                    :validation="$v.staticMapping[index].value"
+                    :vuelidate="$v.staticMapping[index].value"
                     @input="staticMapping[index].value = $event"
                     collapse-object
                   ></pf-form-chosen>
@@ -248,7 +249,7 @@
                   <pf-form-input v-else
                     v-model="staticMapping[index].value"
                     :class="{ 'border-danger': $v.staticMapping[index].value.$anyError }"
-                    :validation="$v.staticMapping[index].value"
+                    :vuelidate="$v.staticMapping[index].value"
                   ></pf-form-input>
 
                 </b-col>

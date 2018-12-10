@@ -3,10 +3,10 @@
     :isLoading="isLoading"
     :form="getForm"
     :model="source"
-    :validation="$v.source"
+    :vuelidate="$v.source"
     :isNew="isNew"
     :isClone="isClone"
-    @validations="sourceValidations = $event"
+    @validations="setValidations($event)"
     @close="close"
     @create="create"
     @save="save"
@@ -20,11 +20,11 @@
         <span v-else>{{ $t('New {sourceType} Authentication Source', { sourceType: this.sourceType}) }}</span>
       </h4>
     </template>
-    <template slot="footer" is="b-card-footer" @mouseenter="$v.source.$touch()">
+    <template slot="footer" is="b-card-footer" @mouseenter="$v.$touch()">
       <pf-button-save :disabled="invalidForm" :isLoading="isLoading">
-        <icon v-if="ctrlKey" name="step-backward" class="mx-1"></icon>
         <template v-if="isNew">{{ $t('Create') }}</template>
         <template v-else-if="isClone">{{ $t('Clone') }}</template>
+        <template v-else-if="ctrlKey">{{ $t('Save &amp; Close') }}</template>
         <template v-else>{{ $t('Save') }}</template>
       </pf-button-save>
       <pf-button-delete v-if="!isNew && !isClone" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Source?')" @on-delete="remove()"/>
@@ -97,7 +97,7 @@ export default {
       return this.$store.getters[`${this.storeName}/isLoading`]
     },
     invalidForm () {
-      return this.$v.source.$invalid || this.$store.getters[`${this.storeName}/isWaiting`]
+      return this.$v.$invalid || this.$store.getters[`${this.storeName}/isWaiting`]
     },
     getForm () {
       return {
@@ -132,6 +132,9 @@ export default {
       this.$store.dispatch(`${this.storeName}/deleteAuthenticationSource`, this.id).then(response => {
         this.close()
       })
+    },
+    setValidations (validations) {
+      this.$set(this, 'sourceValidations', validations)
     }
   },
   created () {

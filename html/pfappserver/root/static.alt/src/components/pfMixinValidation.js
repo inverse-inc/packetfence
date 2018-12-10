@@ -6,7 +6,7 @@ import { createDebouncer } from 'promised-debounce'
 export default {
   name: 'pfMixinValidation',
   props: {
-    validation: {
+    vuelidate: {
       type: Object,
       default: null
     },
@@ -32,8 +32,8 @@ export default {
   },
   methods: {
     isValid () {
-      if (this.validation && this.validation.$dirty) {
-        if (this.validation.$invalid) {
+      if (this.vuelidate && this.vuelidate.$dirty) {
+        if (this.vuelidate.$invalid) {
           return false
         } else if (this.highlightValid) {
           return true
@@ -43,10 +43,10 @@ export default {
     },
     validate () {
       const _this = this
-      if (this.validation) {
+      if (this.vuelidate && '$touch' in this.vuelidate) {
         this.$validationDebouncer({
           handler: () => {
-            _this.validation.$touch()
+            _this.vuelidate.$touch()
           },
           time: this.validationDebounce
         })
@@ -93,11 +93,11 @@ export default {
         // add manually defined feedback
         return this.stringifyFeedback(this.invalidFeedback)
       }
-      if (this.validation) {
+      if (this.vuelidate) {
         // add automatically generated feedback
-        if ('$params' in this.validation) {
-          Object.entries(this.validation.$params).forEach(([param, validator]) => {
-            if (this.validation[param] === false) feedback.push(param)
+        if ('$params' in this.vuelidate) {
+          Object.entries(this.vuelidate.$params).forEach(([param, validator]) => {
+            if (this.vuelidate[param] === false) feedback.push(param)
           })
         }
         return feedback.join('\n')

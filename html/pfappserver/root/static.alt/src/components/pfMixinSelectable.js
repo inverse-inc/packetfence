@@ -74,8 +74,6 @@
  *     (array) selectValues
  *
 **/
-import Vue from 'vue'
-
 export default {
   name: 'pfMixinSelectable',
   props: {
@@ -106,11 +104,11 @@ export default {
       }, 100)
     },
     setRowVariant (index, variant) {
-      Vue.set(this.tableValues[index], '_rowVariant', variant)
+      this.$set(this.tableValues[index], '_rowVariant', variant)
       this.forceUpdate()
     },
     setRowMessage (index, message) {
-      Vue.set(this.tableValues[index], '_rowMessage', message)
+      this.$set(this.tableValues[index], '_rowMessage', message)
       this.forceUpdate()
     },
     onSelectAllChange (event) {
