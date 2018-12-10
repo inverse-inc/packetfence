@@ -33,6 +33,29 @@ export default {
     })
   },
   /**
+   * Billing Tiers
+   */
+  billingTier: id => {
+    return apiCall.get(`config/billing_tier/${id}`).then(response => {
+      return response.data.item
+    })
+  },
+  createBillingTier: data => {
+    console.log("creating");
+    return apiCall.post('config/billing_tiers', data).then(response => {
+      return response.data
+    })
+  },
+  updateBillingTier: data => {
+    console.log("updating");
+    return apiCall.patch(`config/billing_tier/${data.id}`, data).then(response => {
+      return response.data
+    })
+  },
+  deleteBillingTier: id => {
+    return apiCall.delete(`config/billing_tier/${id}`)
+  },
+  /**
    * Roles
    */
   role: id => {
@@ -138,28 +161,5 @@ export default {
     return apiCall.get(`config/portal_module/${id}`).then(response => {
       return response.data.item
     })
-  },
-  /**
-   * Billing Tiers
-   */
-  billingTier: id => {
-    return apiCall.get(`config/billing_tier/${id}`).then(response => {
-      return response.data.item
-    })
-  },
-  createBillingTier: data => {
-    console.log("creating");
-    return apiCall.post('config/billing_tiers', data).then(response => {
-      return response.data
-    })
-  },
-  updateBillingTier: data => {
-    console.log("updating");
-    return apiCall.patch(`config/billing_tier/${data.id}`, data).then(response => {
-      return response.data
-    })
-  },
-  deleteBillingTier: id => {
-    return apiCall.delete(`config/billing_tier/${id}`)
-  },
+  }
 }
