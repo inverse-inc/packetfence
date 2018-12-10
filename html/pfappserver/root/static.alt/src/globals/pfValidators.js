@@ -171,7 +171,7 @@ export const isPort = (value) => {
 
 export const isAmount = (value) => {
   if (!value) return true
-  return /^\d+\.\d{2}$/.test(value)
+  return /^-?\d+\.\d{2}$/.test(value)
 }
 
 export const compareDate = (comparison, date = new Date(), dateFormat = 'YYYY-MM-DD HH:mm:ss', allowZero = true) => {

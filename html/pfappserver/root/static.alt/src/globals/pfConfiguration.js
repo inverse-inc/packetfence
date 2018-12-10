@@ -21,7 +21,8 @@ const {
   alphaNum,
   integer,
   macAddress,
-  ipAddress
+  ipAddress,
+  minValue
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationListColumns = {
@@ -2545,7 +2546,8 @@ export const pfConfigurationBillingTierViewFields = (args = {}) => {
           component: pfFormInput,
           validators: {
             [i18n.t('Price required')]: required,
-            [i18n.t('Enter a valid positive price')]: isAmount
+            [i18n.t('Enter a valid price')]: isAmount,
+            [i18n.t('Enter a positive price')]: minValue(0)
           }
         }
       ]
