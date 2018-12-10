@@ -80,7 +80,6 @@ sub i18n {
     }
 
     my $result = gettext($msgid);
-    utf8::decode($result);
     return $result;
 }
 
@@ -90,7 +89,6 @@ sub ni18n {
     my $category = shift;
 
     my $result = ngettext($singular, $plural, $category);
-    utf8::decode($result);
     return $result;
 }
 
@@ -106,7 +104,6 @@ sub i18n_format {
     my ($msgid, @args) = @_;
 
     my $result = gettext($msgid);
-    utf8::decode($result);
     $result = sprintf($result, @args);
     return $result;
 }
