@@ -1,6 +1,6 @@
 <template>
   <b-container fluid class="px-0">
-    <b-form-row class="pf-field-rule mx-0 mb-1 px-0 col-12" align-v="center"
+    <b-form-row class="pf-field-rule mx-0 mb-1 px-0" align-v="center"
       v-on="forwardListeners"
     >
       <b-col v-if="$slots.prepend" cols="1" align-self="start" class="py-1 text-center col-form-label">
@@ -19,13 +19,13 @@
         <slot name="append"></slot>
       </b-col>
     </b-form-row>
-    <b-collapse  :id="uuidStr('collapse')" :ref="[uuidStr('collapse')]" class="mt-2" :visible="visible">
+    <b-collapse :id="uuidStr('collapse')" :ref="[uuidStr('collapse')]" class="mt-2" :visible="visible">
       <b-form-row
         class="text-secondary align-items-center"
         align-v="center"
         no-gutter
       >
-        <b-col cols="12" class="text-left py-0 px-2" align-self="start">
+        <b-col class="text-left py-0 px-2" align-self="start">
           <pf-form-input :column-label="$t('Name')" label-cols="2"
             v-model="localId"
             ref="localId"
