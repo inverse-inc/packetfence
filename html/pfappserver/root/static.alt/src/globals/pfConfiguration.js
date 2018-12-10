@@ -37,18 +37,6 @@ export const pfConfigurationListColumns = {
     sortable: true,
     visible: true
   },
-  name: {
-    key: 'name',
-    label: i18n.t('Name'),
-    sortable: true,
-    visible: true
-  },
-  price: {
-    key: 'price',
-    label: i18n.t('Price'),
-    sortable: true,
-    visible: true
-  },
   description: {
     key: 'description',
     label: i18n.t('Description'),
@@ -73,6 +61,12 @@ export const pfConfigurationListColumns = {
     sortable: true,
     visible: true
   },
+  name: {
+    key: 'name',
+    label: i18n.t('Name'),
+    sortable: true,
+    visible: true
+  },
   notes: {
     key: 'notes',
     label: i18n.t('Description'),
@@ -82,6 +76,12 @@ export const pfConfigurationListColumns = {
   portal_strip_username: {
     key: 'portal_strip_username',
     label: i18n.t('Strip Portal'),
+    sortable: true,
+    visible: true
+  },
+  price: {
+    key: 'price',
+    label: i18n.t('Price'),
     sortable: true,
     visible: true
   },
@@ -218,7 +218,8 @@ export const pfConfigurationAuthenticationSourcesListFields = [
 ]
 
 export const pfConfigurationBillingTiersListFields = [
-  Object.assign(pfConfigurationListFields.id, { text: i18n.t('Name') }) // re-text
+  Object.assign(pfConfigurationListFields.id, { text: i18n.t('Identifier') }), // re-text
+  pfConfigurationListFields.description
 ]
 
 export const pfConfigurationDomainsListFields = [
@@ -2535,17 +2536,9 @@ export const pfConfigurationBillingTierViewFields = (args = {}) => {
         }
       ]
     },
+    pfConfigurationViewFields.description,
     {
-      label: i18n.t('Description'),
-      fields: [
-        {
-          key: 'description',
-          component: pfFormInput,
-        }
-      ]
-    },
-    {
-      label: i18n.t('Price'), // TODO - validate the format is money
+      label: i18n.t('Price'),
       fields: [
         {
           key: 'price',
