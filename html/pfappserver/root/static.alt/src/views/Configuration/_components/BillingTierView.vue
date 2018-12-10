@@ -3,7 +3,7 @@
     :isLoading="isLoading"
     :form="getForm"
     :model="billingTier"
-    :validation="$v.billingTier"
+    :vuelidate="$v.billingTier"
     :isNew="isNew"
     :isClone="isClone"
     @validations="billingTierValidations = $event"
@@ -93,7 +93,7 @@ export default {
     },
     roles () {
       return this.$store.getters['config/rolesList']
-    },
+    }
   },
   methods: {
     close () {

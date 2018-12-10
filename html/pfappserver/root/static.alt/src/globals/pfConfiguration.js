@@ -3218,6 +3218,13 @@ export const pfConfigurationBillingTierViewFields = (context = {}) => {
         {
           key: 'price',
           component: pfFormInput,
+          attrs: {
+            type: 'number',
+            step: '0.01',
+            formatter: (value) => {
+              return parseFloat(value).toFixed(2)
+            }
+          },
           validators: {
             [i18n.t('Price required')]: required,
             [i18n.t('Enter a valid price')]: isPrice,
@@ -3241,7 +3248,7 @@ export const pfConfigurationBillingTierViewFields = (context = {}) => {
             multiple: false,
             clearOnSelect: false,
             closeOnSelect: false,
-            options: args.roles.map(role => { return { value: role.name, text: role.name } })
+            options: context.roles.map(role => { return { value: role.name, text: role.name } })
           }
         }
       ]

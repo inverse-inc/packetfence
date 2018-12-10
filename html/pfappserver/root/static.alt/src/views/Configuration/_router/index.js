@@ -264,7 +264,7 @@ const route = {
           next()
         })
       }
-    },
+    }
   ]
 }
 
