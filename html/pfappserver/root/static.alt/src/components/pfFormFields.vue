@@ -214,10 +214,11 @@ export default {
      **/
     onSiblings ([func, ...args]) {
       this.inputValue.forEach((_, index) => {
-        if (('component-' + index) in this.$refs) {
-          let ref = this.$refs['component-' + index][0]
-          if (func in ref && typeof ref[func] === 'function') {
-            ref[func](...args)
+        const { $refs: { ['component-' + index]: component } } = this
+        if (component) {
+          const [ { [ func ]: f } ] = component
+          if (typeof f === 'function') {
+            f(...args)
           }
         }
       })
@@ -228,21 +229,12 @@ export default {
       })
     },
     focus (ref) {
-      if (ref in this.$refs) {
-        let component = this.$refs[ref][0]
-        if (component && 'focus' in component) {
-          component.focus() // defer
-        }
-      }
+      const { $refs: { [ref]: [ { focus } ] } } = this
+      if (focus) focus()
     },
     getVuelidateModel (index) {
-      let model = {}
-      if (this.vuelidate && Object.keys(this.vuelidate).length > 0) {
-        if (index in this.vuelidate) {
-          model = this.vuelidate[index]
-        }
-      }
-      return model
+      const { vuelidate: { [index]: model } } = this
+      return model || {}
     },
     setChildValidations (index, validations) {
       if (!(index in this.validations)) {
@@ -254,7 +246,7 @@ export default {
     emitValidations () {
       // build merge of local validations and child validations
       let validators = {}
-      let fieldValidators = ('validators' in this.field) ? this.field.validators : {}
+      const { field: { validators: fieldValidators } } = this
       this.inputValue.map((_, index) => {
         if (index in this.validations) {
           validators[index] = { ...fieldValidators, ...this.validations[index] }

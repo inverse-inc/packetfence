@@ -3,11 +3,11 @@
     <b-form-row class="pf-field-rule mx-0 mb-1 px-0 col-12" align-v="center"
       v-on="forwardListeners"
     >
-      <b-col v-if="$slots.prepend" cols="1" align-self="start" class="py-2 text-center col-form-label">
+      <b-col v-if="$slots.prepend" cols="1" align-self="start" class="py-1 text-center col-form-label">
         <slot name="prepend"></slot>
       </b-col>
       <b-col cols="10"
-        class="collapse-handle py-2"
+        class="collapse-handle py-1"
         :class="(valid) ? 'text-primary' : 'text-danger'"
         @click.prevent="click($event)"
       >
@@ -15,7 +15,7 @@
         <icon v-else name="chevron-circle-right" :class="['mr-3', { 'text-primary': ctrlKey, 'text-dark': !ctrlKey }]"></icon>
         <span>Rule - {{ localId || 'New' }} ( {{ localDescription }} )</span>
       </b-col>
-      <b-col v-if="$slots.append" cols="1" align-self="start" class="pt-1 text-center col-form-label">
+      <b-col v-if="$slots.append" cols="1" align-self="start" class="py-1 text-center col-form-label">
         <slot name="append"></slot>
       </b-col>
     </b-form-row>
@@ -236,16 +236,16 @@ export default {
       return (section || 'default') + '-' + this.uuid
     },
     collapse () {
-      this.visible = false
-      const ref = this.$refs[this.uuidStr('collapse')]
+      const { $refs: { [this.uuidStr('collapse')]: ref } } = this
       if (ref && ref.$el.id === this.uuidStr('collapse')) {
+        this.visible = false
         ref.show = false
       }
     },
     expand () {
-      this.visible = true
-      const ref = this.$refs[this.uuidStr('collapse')]
+      const { $refs: { [this.uuidStr('collapse')]: ref } } = this
       if (ref && ref.$el.id === this.uuidStr('collapse')) {
+        this.visible = true
         ref.show = true
       }
     },
@@ -263,9 +263,8 @@ export default {
     },
     getVuelidateModel (key = null) {
       let model = {}
-      if (this.vuelidate && Object.keys(this.vuelidate).length > 0) {
-        if (key in this.vuelidate) model = { ...model, ...this.vuelidate[key] } // deep merge
-      }
+      const { vuelidate: { [key]: vuelidate } } = this
+      if (vuelidate) model = { ...model, ...this.vuelidate[key] } // deep merge
       return model
     },
     getInvalidFeedback (key = null) {
@@ -299,8 +298,8 @@ export default {
       })
     },
     focusId () {
-      const ref = this.$refs['localId'].$refs
-      ref.input.$el.focus()
+      const { $refs: { localId: { $refs: { input: { $el } } } } } = this
+      $el.focus()
     }
   },
   created () {
@@ -311,6 +310,9 @@ export default {
 
 <style lang="scss">
 .pf-field-rule {
+  .collapse-handle {
+    cursor: pointer;
+  }
   .pf-form-chosen {
     .col-sm-12[role="group"] {
       padding-left: 0px;

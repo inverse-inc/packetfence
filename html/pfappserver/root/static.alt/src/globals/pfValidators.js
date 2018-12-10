@@ -23,10 +23,8 @@ const _common = require('vuelidate/lib/validators/common')
 
 // Get the unique id of a given $v.
 const idOfV = ($v) => {
-  if ($v && typeof $v !== 'string' && '__ob__' in $v && 'dep' in $v.__ob__ && 'id' in $v.__ob__.dep) {
-    return $v.__ob__.dep.id
-  }
-  return undefined
+  const { '__ob__': { dep: { id } } } = $v
+  return id || undefined
 }
 
 /**
@@ -40,7 +38,7 @@ const idOfV = ($v) => {
 const parentVofId = ($v, id) => {
   const params = Object.keys($v.$params)
   for (let i = 0; i < params.length; i++) {
-    let param = params[i]
+    const param = params[i]
     if (typeof $v[param] === 'object' && typeof $v[param].$model === 'object') {
       if ($v[param].$model && '__ob__' in $v[param].$model) {
         if (idOfV($v[param].$model) === id) return $v

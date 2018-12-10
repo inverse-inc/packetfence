@@ -272,11 +272,8 @@ export default {
       return false
     },
     getVuelidateModel (key = null) {
-      let model = {}
-      if (this.vuelidate && Object.keys(this.vuelidate).length > 0) {
-        if (key in this.vuelidate) model = this.vuelidate[key]
-      }
-      return model
+      const { vuelidate: { [key]: model } } = this
+      return model || {}
     },
     getInvalidFeedback (key = null) {
       let feedback = []
@@ -289,13 +286,10 @@ export default {
       return feedback.join('<br/>')
     },
     buildLocalValidations () {
-      const field = this.field
+      const { field } = this
       if (field) {
-        if ('validators' in field) { // has vuelidate validators
-          let validators = {}
-          if ('attribute' in field.validators) validators.attribute = field.validators.attribute
-          if ('operator' in field.validators) validators.operator = field.validators.operator
-          if ('value' in field.validators) validators.value = field.validators.value
+        const { validators } = field
+        if (validators) {
           return validators
         }
       }
@@ -312,13 +306,8 @@ export default {
       }
     },
     focusIndex (index = 0) {
-      let vals = Object.values(this.$refs)
-      if (vals[index] && '$refs' in vals[index]) {
-        let refs = vals[index].$refs
-        if ('input' in refs && '$el' in refs.input) {
-          refs.input.$el.focus()
-        }
-      }
+      const { [index]: { $refs: { input: { $el } } } } = Object.values(this.$refs)
+      if ('focus' in $el) $el.focus()
     },
     focusType () {
       this.focusIndex(0)
