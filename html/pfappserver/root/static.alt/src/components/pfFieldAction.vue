@@ -80,8 +80,6 @@ import { required } from 'vuelidate/lib/validators'
 
 export default {
   name: 'pf-field-action',
-  mixins: [
-  ],
   components: {
     pfFormChosen,
     pfFormDatetime,
