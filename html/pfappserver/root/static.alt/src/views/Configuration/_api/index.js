@@ -138,7 +138,7 @@ export default {
     return apiCall.get(`config/portal_module/${id}`).then(response => {
       return response.data.item
     })
-  }
+  },
   /**
    * Billing Tiers
    */
