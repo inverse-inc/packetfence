@@ -41,13 +41,11 @@ export default {
     })
   },
   createBillingTier: data => {
-    console.log("creating");
     return apiCall.post('config/billing_tiers', data).then(response => {
       return response.data
     })
   },
   updateBillingTier: data => {
-    console.log("updating");
     return apiCall.patch(`config/billing_tier/${data.id}`, data).then(response => {
       return response.data
     })
