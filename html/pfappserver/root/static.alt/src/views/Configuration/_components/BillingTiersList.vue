@@ -13,9 +13,6 @@
       <template slot="emptySearch">
         <pf-empty-table :isLoading="isLoading">{{ $t('No billing tiers found') }}</pf-empty-table>
       </template>
-      <template slot="buttons" slot-scope="item">
-        <b-button size="sm" variant="outline-primary" :to="{ name: 'TODO' }" class="float-right">{{ $t('Traffic Shaping') }}</b-button>
-      </template>
     </pf-config-list>
   </b-card>
 </template>
@@ -42,7 +39,7 @@ export default {
         rowClickRoute (item, index) {
           return { name: 'billing_tier', params: { id: item.id } }
         },
-        searchPlaceholder: this.$i18n.t('Search by name or description'),
+        searchPlaceholder: this.$i18n.t('Search by identifier, name or description'),
         searchableOptions: {
           searchApiEndpoint: 'config/billing_tiers',
           defaultSortKeys: ['id'],
@@ -52,7 +49,8 @@ export default {
               op: 'or',
               values: [
                 { field: 'id', op: 'contains', value: null },
-                { field: 'notes', op: 'contains', value: null }
+                { field: 'name', op: 'contains', value: null },
+                { field: 'description', op: 'contains', value: null }
               ]
             }]
           },
@@ -66,7 +64,8 @@ export default {
                 op: 'or',
                 values: [
                   { field: 'id', op: 'contains', value: quickCondition },
-                  { field: 'name', op: 'contains', value: quickCondition }
+                  { field: 'name', op: 'contains', value: quickCondition },
+                  { field: 'description', op: 'contains', value: quickCondition }
                 ]
               }
             ]
