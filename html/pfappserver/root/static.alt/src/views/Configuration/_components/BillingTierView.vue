@@ -80,10 +80,10 @@ export default {
   },
   computed: {
     isLoading () {
-      return this.$store.getters['$_billing_tiers/isLoading']
+      return this.$store.getters[`${this.storeName}/isLoading`]
     },
     invalidForm () {
-      return this.$v.billingTier.$invalid || this.$store.getters['$_billing_tiers/isWaiting']
+      return this.$v.billingTier.$invalid || this.$store.getters[`${this.storeName}/isWaiting`]
     },
     getForm () {
       return {
@@ -100,24 +100,24 @@ export default {
       this.$router.push({ name: 'billing_tiers' })
     },
     create () {
-      this.$store.dispatch('$_billing_tiers/createBillingTier', this.billingTier).then(response => {
+      this.$store.dispatch(`${this.storeName}/createBillingTier`, this.billingTier).then(response => {
         this.close()
       })
     },
     save () {
-      this.$store.dispatch('$_billing_tiers/updateBillingTier', this.billingTier).then(response => {
+      this.$store.dispatch(`${this.storeName}/updateBillingTier`, this.billingTier).then(response => {
         this.close()
       })
     },
     remove () {
-      this.$store.dispatch('$_billing_tiers/deleteBillingTier', this.id).then(response => {
+      this.$store.dispatch(`${this.storeName}/deleteBillingTier`, this.id).then(response => {
         this.close()
       })
     }
   },
   created () {
     if (this.id) {
-      this.$store.dispatch('$_billing_tiers/getBillingTier', this.id).then(data => {
+      this.$store.dispatch(`${this.storeName}/getBillingTier`, this.id).then(data => {
         this.billingTier = Object.assign({}, data)
       })
     }
