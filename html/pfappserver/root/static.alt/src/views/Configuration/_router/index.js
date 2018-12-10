@@ -1,11 +1,12 @@
 import store from '@/store'
 import ConfigurationView from '../'
-import RolesStore from '../_store/roles'
-import FloatingDevicesStore from '../_store/floatingdevices'
-import DomainsStore from '../_store/domains'
-import RealmsStore from '../_store/realms'
 import AuthenticationSourcesStore from '../_store/sources'
-import PortalModulesStore from '../_store/portalmodules'
+import BillingTiersStore from '../_store/billingTiers'
+import DomainsStore from '../_store/domains'
+import FloatingDevicesStore from '../_store/floatingDevices'
+import PortalModulesStore from '../_store/portalModules'
+import RealmsStore from '../_store/realms'
+import RolesStore from '../_store/roles'
 
 const PoliciesAccessControlSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/PoliciesAccessControlSection')
 const RolesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/RolesList')
@@ -21,6 +22,9 @@ const FloatingDevicesList = () => import(/* webpackChunkName: "Configuration" */
 const FloatingDeviceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDeviceView')
 const PortalModulesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/PortalModulesList')
 const PortalModuleView = () => import(/* webpackChunkName: "Configuration" */ '../_components/PortalModuleView')
+
+const BillingTiersList = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTiersList')
+const BillingTierView = () => import(/* webpackChunkName: "Configuration" */ '../_components/BillingTierView')
 
 const route = {
   path: '/configuration',
@@ -49,6 +53,9 @@ const route = {
     }
     if (!store.state.$_portalmodules) {
       store.registerModule('$_portalmodules', PortalModulesStore)
+    }
+    if (!store.state.$_billing_tiers) {
+      store.registerModule('$_billing_tiers', BillingTiersStore)
     }
     next()
   },
@@ -231,6 +238,29 @@ const route = {
       props: (route) => ({ storeName: '$_portalmodules', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_portalmodules/getPortalModule', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'billing_tiers',
+      name: 'billing_tiers',
+      component: BillingTiersList,
+      props: (route) => ({ query: route.query.query })
+    },
+    {
+      path: 'billing_tiers/new',
+      name: 'newBillingTier',
+      component: BillingTierView,
+      props: (route) => ({ storeName: '$_billing_tiers', isNew: true })
+    },
+    {
+      path: 'billing_tier/:id',
+      name: 'billing_tier',
+      component: BillingTierView,
+      props: (route) => ({ storeName: '$_billing_tiers', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_billing_tiers/getBillingTier', to.params.id).then(object => {
           next()
         })
       }

@@ -53,12 +53,16 @@ export default {
     readonly: {
       type: Boolean,
       default: false
+    },
+    formatter: {
+      type: Function,
+      default: false
     }
   },
   computed: {
     inputValue: {
       get () {
-        return this.value
+        return (this.formatter) ? this.formatter(this.value) : this.value
       },
       set (newValue) {
         this.$emit('input', newValue)
