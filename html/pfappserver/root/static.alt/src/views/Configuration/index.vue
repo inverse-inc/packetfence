@@ -36,14 +36,6 @@ export default {
           ]
         },
         {
-          name: 'Advanced Access Configuration',
-          icon: 'list-alt',
-          collapsable: true,
-          items: [
-            { name: 'Billing Tiers', path: '/configuration/billing_tiers' }
-          ]
-        },
-        {
           name: 'Network Configuration',
           icon: 'project-diagram',
           collapsable: true,
@@ -53,9 +45,10 @@ export default {
         },
         {
           name: 'Advanced Access Configuration',
-          icon: 'cogs',
+          icon: 'clipboard-list',
           collapsable: true,
           items: [
+            { name: 'Billing Tiers', path: '/configuration/billing_tiers' },
             { name: 'Portal Modules', path: '/configuration/portal_modules' }
           ]
         }
