@@ -1,5 +1,5 @@
 <template>
-  <b-form-row class="pf-field-condition mx-0 mb-1 px-0 col-12" align-v="center"
+  <b-form-row class="pf-field-condition mx-0 mb-1 px-0" align-v="center"
     v-on="forwardListeners"
   >
     <b-col v-if="$slots.prepend" cols="1" align-self="start" class="pt-1 text-center col-form-label">
