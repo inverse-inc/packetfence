@@ -13,7 +13,7 @@
       >
         <icon v-if="visible" name="chevron-circle-down" :class="['mr-3', { 'text-primary': ctrlKey, 'text-dark': !ctrlKey }]"></icon>
         <icon v-else name="chevron-circle-right" :class="['mr-3', { 'text-primary': ctrlKey, 'text-dark': !ctrlKey }]"></icon>
-        <span>Rule - {{ localId || 'New' }} ( {{ localDescription }} )</span>
+        <span>{{ $t('Rule') - {{ localId || $t('New') }} ( {{ localDescription }} )</span>
       </b-col>
       <b-col v-if="$slots.append" cols="1" align-self="start" class="py-1 text-center col-form-label">
         <slot name="append"></slot>
