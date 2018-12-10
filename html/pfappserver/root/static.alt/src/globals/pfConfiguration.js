@@ -3264,8 +3264,8 @@ export const pfConfigurationBillingTierViewFields = (context = {}) => {
             type: 'number'
           },
           validators: {
-            //[i18n.t('Interval required.')]: required,
-            //[i18n.t('Integer values required.')]: integer
+            [i18n.t('Interval required.')]: required,
+            [i18n.t('Integer values required.')]: integer
           }
         },
         {
@@ -3281,6 +3281,9 @@ export const pfConfigurationBillingTierViewFields = (context = {}) => {
               { value: 'M', text: i18n.t('months') },
               { value: 'Y', text: i18n.t('years') }
             ]
+          },
+          validators: {
+            [i18n.t('Units required.')]: required
           }
         }
       ]
