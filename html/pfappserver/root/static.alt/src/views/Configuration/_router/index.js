@@ -1,12 +1,12 @@
 import store from '@/store'
 import ConfigurationView from '../'
-import RolesStore from '../_store/roles'
-import FloatingDevicesStore from '../_store/floatingdevices'
-import DomainsStore from '../_store/domains'
-import RealmsStore from '../_store/realms'
 import AuthenticationSourcesStore from '../_store/sources'
-import PortalModulesStore from '../_store/portalmodules'
-import BillingTiersStore from '../_store/billing_tiers'
+import BillingTiersStore from '../_store/billingTiers'
+import DomainsStore from '../_store/domains'
+import FloatingDevicesStore from '../_store/floatingDevices'
+import PortalModulesStore from '../_store/portalModules'
+import RealmsStore from '../_store/realms'
+import RolesStore from '../_store/roles'
 
 const PoliciesAccessControlSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/PoliciesAccessControlSection')
 const RolesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/RolesList')
