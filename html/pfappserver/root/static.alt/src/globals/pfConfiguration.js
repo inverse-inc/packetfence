@@ -3245,10 +3245,10 @@ export const pfConfigurationBillingTierViewFields = (context = {}) => {
             placeholder: i18n.t('Click to select a role'),
             trackBy: 'value',
             label: 'text',
-            multiple: false,
-            clearOnSelect: false,
-            closeOnSelect: false,
             options: context.roles.map(role => { return { value: role.name, text: role.name } })
+          },
+          validators: {
+            [i18n.t('Role required.')]: required
           }
         }
       ]
@@ -3300,7 +3300,7 @@ export const pfConfigurationBillingTierViewFields = (context = {}) => {
           }
         }
       ]
-    },
+    }
   ]
 }
 
@@ -3600,4 +3600,3 @@ export const pfConfigurationRoleViewDefaults = (context = {}) => {
     id: null
   }
 }
-
