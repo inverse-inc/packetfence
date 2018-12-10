@@ -15,25 +15,25 @@
               <pf-form-input :column-label="$t('Username (PID)')"
                 readonly
                 v-model.trim="userContent.pid"
-                :validation="$v.userContent.pid"
+                :vuelidate="$v.userContent.pid"
                 text="The username to use for login to the captive portal."/>
               <pf-form-input :column-label="$t('Password')"
                 v-model="userContent.password"
-                :validation="$v.userContent.password"
+                :vuelidate="$v.userContent.password"
                 type="password"
                 text="Leave empty to keep current password."/>
               <pf-form-input :column-label="$t('Login remaining')"
                 v-model="userContent.login_remaining"
-                :validation="$v.userContent.login_remaining"
+                :vuelidate="$v.userContent.login_remaining"
                 type="number"
                 text="Leave empty to allow unlimited logins."/>
               <pf-form-input :column-label="$t('Email')"
                 v-model.trim="userContent.email"
-                :validation="$v.userContent.email"
+                :vuelidate="$v.userContent.email"
               />
               <pf-form-input :column-label="$t('Sponsor')"
                 v-model.trim="userContent.sponsor"
-                :validation="$v.userContent.sponsor"
+                :vuelidate="$v.userContent.sponsor"
               />
               <pf-form-chosen :column-label="$t('Gender')"
                 v-model="userContent.gender"
@@ -44,71 +44,71 @@
               ></pf-form-chosen>
               <pf-form-input :column-label="$t('Title')"
                 v-model="userContent.title"
-                :validation="$v.userContent.title"
+                :vuelidate="$v.userContent.title"
               />
               <pf-form-input :column-label="$t('Firstname')"
                 v-model="userContent.firstname"
-                :validation="$v.userContent.firstname"
+                :vuelidate="$v.userContent.firstname"
               />
               <pf-form-input :column-label="$t('Lastname')"
                 v-model="userContent.lastname"
-                :validation="$v.userContent.lastname"
+                :vuelidate="$v.userContent.lastname"
               />
               <pf-form-input :column-label="$t('Nickname')"
                 v-model="userContent.nickname"
-                :validation="$v.userContent.nickname"
+                :vuelidate="$v.userContent.nickname"
               />
               <pf-form-input :column-label="$t('Company')"
                 v-model="userContent.company"
-                :validation="$v.userContent.company"
+                :vuelidate="$v.userContent.company"
               />
               <pf-form-input :column-label="$t('Telephone number')"
                 v-model="userContent.telephone"
                 :filter="globals.regExp.stringPhone"
-                :validation="$v.userContent.telephone"
+                :vuelidate="$v.userContent.telephone"
               />
               <pf-form-input :column-label="$t('Cellphone number')"
                 v-model="userContent.cell_phone"
                 :filter="globals.regExp.stringPhone"
-                :validation="$v.userContent.cell_phone"
+                :vuelidate="$v.userContent.cell_phone"
               />
               <pf-form-input :column-label="$t('Workphone number')"
                 v-model="userContent.work_phone"
                 :filter="globals.regExp.stringPhone"
-                :validation="$v.userContent.work_phone"
+                :vuelidate="$v.userContent.work_phone"
               />
               <pf-form-input :column-label="$t('Apartment number')"
                 v-model="userContent.apartment_number"
                 :filter="globals.regExp.stringPhone"
-                :validation="$v.userContent.apartment_number"
+                :vuelidate="$v.userContent.apartment_number"
               />
               <pf-form-input :column-label="$t('Building Number')"
                 v-model="userContent.building_number"
                 :filter="globals.regExp.stringPhone"
-                :validation="$v.userContent.building_number"
+                :vuelidate="$v.userContent.building_number"
               />
               <pf-form-input :column-label="$t('Room Number')"
                 v-model="userContent.room_number"
                 :filter="globals.regExp.stringPhone"
-                :validation="$v.userContent.room_number"
+                :vuelidate="$v.userContent.room_number"
               />
               <pf-form-textarea :column-label="$t('Address')" rows="4" max-rows="6"
                 v-model="userContent.address"
-                :validation="$v.userContent.address"
+                :vuelidate="$v.userContent.address"
               />
               <pf-form-datetime :column-label="$t('Anniversary')"
                 v-model="userContent.anniversary"
                 :config="{format: 'YYYY-MM-DD'}"
-                :validation="$v.userContent.anniversary"
+                :vuelidate="$v.userContent.anniversary"
               />
               <pf-form-datetime :column-label="$t('Birthday')"
                 v-model="userContent.birthday"
                 :config="{format: 'YYYY-MM-DD'}"
-                :validation="$v.userContent.birthday"
+                :vuelidate="$v.userContent.birthday"
               />
               <pf-form-textarea :column-label="$t('Notes')"
                 v-model="userContent.notes"
-                :validation="$v.userContent.notes"
+                :vuelidate="$v.userContent.notes"
                 rows="3" max-rows="3"
               />
             </b-col>

@@ -1,7 +1,7 @@
 <template>
   <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
     :state="isValid()" :invalid-feedback="getInvalidFeedback()"
-    class="chosen-element" :class="{ 'mb-0': !columnLabel, 'is-focus': focus }">
+    class="pf-form-chosen" :class="{ 'mb-0': !columnLabel, 'is-focus': focus }">
     <b-input-group>
       <multiselect
         v-model="inputValue"
@@ -13,6 +13,7 @@
         :multiple="multiple"
         :options="options"
         :trackBy="trackBy"
+        :groupValues="groupValues"
         :state="isValid()"
         @input.native="validate()"
         @keyup.native.stop.prevent="onChange($event)"
@@ -61,7 +62,7 @@ export default {
     },
     options: {
       type: Array,
-      default: null
+      default: () => { return [] }
     },
     multiple: {
       type: Boolean,
@@ -73,6 +74,9 @@ export default {
     trackBy: {
       type: String,
       default: 'value'
+    },
+    groupValues: {
+      type: String
     },
     // Add a proxy on our inputValue to modify set/get for simple external models.
     // https://github.com/shentao/vue-multiselect/issues/385#issuecomment-418881148
@@ -91,9 +95,17 @@ export default {
       get () {
         const currentValue = this.value || ((this.multiple) ? [] : null)
         if (this.collapseObject) {
+          const options = (!this.groupValues)
+            ? this.options
+            : this.options.reduce((options, group, index) => { // flatten group
+              options.push(...group[this.groupValues])
+              return options
+            }, [])
           return (this.multiple)
-            ? [...new Set(currentValue.map(value => this.options.find(option => option[this.trackBy] === value)))]
-            : this.options.find(option => option[this.trackBy] === currentValue)
+            ? [...new Set(currentValue.map(value => options.find(option => option[this.trackBy] === value)))]
+            : (!options)
+              ? null
+              : options.find(option => option[this.trackBy] === currentValue)
         }
         return currentValue
       },
@@ -124,7 +136,7 @@ export default {
 /**
  * Adjust is-invalid and is-focus borders
  */
-.chosen-element {
+.pf-form-chosen {
   .multiselect {
       border-width: 1px;
       font-size: $font-size-base;
@@ -138,6 +150,9 @@ export default {
     padding: $input-padding-y $input-padding-x;
     min-height: auto;
     outline: 0;
+    .multiselect__input {
+      max-width: 100%
+    }
     span > span.multiselect__single { /* placeholder */
       color: $input-placeholder-color;
       // Override Firefox's unusual default opacity; see https://github.com/twbs/bootstrap/pull/11526.
@@ -167,10 +182,9 @@ export default {
     padding-top: 0px;
   }
   .multiselect__content-wrapper {
-      border: $dropdown-border-width solid $dropdown-border-color;
-      @include border-radius($dropdown-border-radius);
-      @include box-shadow($dropdown-box-shadow);
-      z-index: $zindex-dropdown;
+    border: $dropdown-border-width solid $dropdown-border-color;
+    @include border-radius($dropdown-border-radius);
+    @include box-shadow($dropdown-box-shadow);
   }
   .multiselect--active:not(.multiselect--above) {
     .multiselect__content-wrapper {

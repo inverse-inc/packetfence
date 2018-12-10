@@ -118,12 +118,6 @@
 			"revisionTime": "2016-12-08T18:04:11Z"
 		},
 		{
-			"checksumSHA1": "HHKEZVMANt+QoNbpt+6Om7DCuVY=",
-			"path": "github.com/digineo/go-ipset",
-			"revision": "7a05e099ec96caf47dd1c3138bfb6a35c5d1b6a5",
-			"revisionTime": "2018-02-11T16:25:07Z"
-		},
-		{
 			"checksumSHA1": "NJ+mjEgf5/x6f+x8+IrQQcD7vko=",
 			"path": "github.com/dnstap/golang-dnstap",
 			"revision": "2cf77a2b5e11ac8d0ba3892772ac8e1f7b528344",
@@ -207,6 +201,11 @@
 			"revision": "cf0198ac7d92634998b3f3f2b616553fda07d7b0"
 		},
 		{
+			"checksumSHA1": "RFnAYMiZSJG51dKxpwbneK30Wh0=",
+			"path": "github.com/fdurand/go-ipset",
+			"revision": "9a266eccec047c1e13fd3f514a7d8dc859cb51ab"
+		},
+		{
 			"checksumSHA1": "VdXZPcDRHK1T7XjBu2KW8Mb8S6w=",
 			"path": "github.com/flynn/go-shlex",
 			"revision": "3f9db97f856818214da2e1057f8ad84803971cff",
@@ -223,6 +222,12 @@
 			"path": "github.com/glycerine/go-unsnap-stream",
 			"revision": "62a9a9eb44fd8932157b1a8ace2149eff5971af6",
 			"revisionTime": "2017-11-27T06:28:21Z"
+		},
+		{
+			"checksumSHA1": "kxja3mICEw4DKBlGQdK4tmIAkCQ=",
+			"path": "github.com/go-errors/errors",
+			"revision": "d98b870cc4e05f1545532a80e9909be8216095b6",
+			"revisionTime": "2018-08-13T16:29:53Z"
 		},
 		{
 			"checksumSHA1": "KxX/Drph+byPXBFIXaCZaCOAnrU=",

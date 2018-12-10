@@ -3,7 +3,7 @@
     :isLoading="isLoading"
     :form="getForm"
     :model="domain"
-    :validation="$v.domain"
+    :vuelidate="$v.domain"
     @validations="domainValidations = $event"
     @close="close"
     @create="create"

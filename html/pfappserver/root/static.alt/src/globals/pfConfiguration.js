@@ -1,29 +1,529 @@
 import i18n from '@/utils/locale'
-import { pfRegExp as regExp } from '@/globals/pfRegExp'
-import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import bytes from '@/utils/bytes'
+import pfFieldAction from '@/components/pfFieldAction'
+import pfFieldCondition from '@/components/pfFieldCondition'
+import pfFieldRule from '@/components/pfFieldRule'
 import pfFormChosen from '@/components/pfFormChosen'
+import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormPassword from '@/components/pfFormPassword'
 import pfFormSelect from '@/components/pfFormSelect'
 import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormToggle from '@/components/pfFormToggle'
+import { pfAuthenticationConditionType as authenticationConditionType } from '@/globals/pfAuthenticationConditions'
+import { pfDatabaseSchema as schema } from '@/globals/pfDatabaseSchema'
+import { pfFieldType as fieldType } from '@/globals/pfField'
+import { pfRegExp as regExp } from '@/globals/pfRegExp'
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
   not,
   conditional,
+  compareDate,
+  isDateFormat,
   isFQDN,
   isPort,
   isPrice,
-  sourceExists
+  sourceExists,
+  requireAllSiblingFields,
+  requireAnySiblingFields,
+  restrictAllSiblingFields,
+  limitSiblingFields
 } from '@/globals/pfValidators'
+
 const {
   required,
   alphaNum,
   integer,
+  numeric,
   macAddress,
   ipAddress,
-  minValue
+  maxLength,
+  minValue,
+  maxValue
 } = require('vuelidate/lib/validators')
+
+export const pfConfigurationActions = {
+  set_access_duration: {
+    value: 'set_access_duration',
+    text: i18n.t('Access duration'),
+    types: [fieldType.DURATION],
+    validators: {
+      type: {
+        /* Require "set_role" */
+        [i18n.t('Action requires "Set Role".')]: requireAllSiblingFields('type', 'set_role'),
+        /* Restrict "set_unreg_date" */
+        [i18n.t('Action conflicts with "Unregistration date".')]: restrictAllSiblingFields('type', 'set_unreg_date'),
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
+      },
+      value: {
+        [i18n.t('Value required.')]: required
+      }
+    }
+  },
+  set_access_level: {
+    value: 'set_access_level',
+    text: i18n.t('Access level'),
+    types: [fieldType.ADMINROLE],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
+      },
+      value: {
+        [i18n.t('Value required.')]: required
+      }
+    }
+  },
+  set_bandwidth_balance: {
+    value: 'set_bandwidth_balance',
+    text: i18n.t('Bandwidth balance'),
+    types: [fieldType.PREFIXMULTIPLIER],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Value must be greater than {min}bytes.', { min: bytes.toHuman(schema.node.bandwidth_balance.min) })]: minValue(schema.node.bandwidth_balance.min),
+        [i18n.t('Value must be less than {max}bytes.', { max: bytes.toHuman(schema.node.bandwidth_balance.max) })]: maxValue(schema.node.bandwidth_balance.max)
+      }
+    }
+  },
+  mark_as_sponsor: {
+    value: 'mark_as_sponsor',
+    text: i18n.t('Mark as sponsor'),
+    types: [fieldType.NONE],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
+      }
+    }
+  },
+  set_role: {
+    value: 'set_role',
+    text: i18n.t('Role'),
+    types: [fieldType.ROLE],
+    validators: {
+      type: {
+        /* When "Role" is selected, either "Time Balance" or "set_unreg_date" is required */
+        [i18n.t('Action requires either "Access duration" or "Unregistration date".')]: requireAnySiblingFields('type', 'set_access_duration', 'set_unreg_date'),
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
+      },
+      value: {
+        [i18n.t('Value required.')]: required
+      }
+    }
+  },
+  set_role_by_name: {
+    value: 'set_role',
+    text: i18n.t('Role'),
+    types: [fieldType.ROLE_BY_NAME],
+    validators: {
+      type: {
+        /* When "Role" is selected, either "Time Balance" or "set_unreg_date" is required */
+        [i18n.t('Action requires either "Access duration" or "Unregistration date".')]: requireAnySiblingFields('type', 'set_access_duration', 'set_unreg_date'),
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
+      },
+      value: {
+        [i18n.t('Value required.')]: required
+      }
+    }
+  },
+  set_tenant_id: {
+    value: 'set_tenant_id',
+    text: i18n.t('Tenant ID'),
+    types: [fieldType.TENANT],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Value must be numeric.')]: numeric
+      }
+    }
+  },
+  set_time_balance: {
+    value: 'set_time_balance',
+    text: i18n.t('Time balance'),
+    types: [fieldType.DURATION],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
+      },
+      value: {
+        [i18n.t('Value required.')]: required
+      }
+    }
+  },
+  set_unreg_date: {
+    value: 'set_unreg_date',
+    text: i18n.t('Unregistration date'),
+    types: [fieldType.DATETIME],
+    moments: ['1 days', '1 weeks', '1 months', '1 years'],
+    validators: {
+      type: {
+        /* Require "set_role" */
+        [i18n.t('Action requires "Set Role".')]: requireAllSiblingFields('type', 'set_role'),
+        /* Restrict "set_access_duration" */
+        [i18n.t('Action conflicts with "Access duration".')]: restrictAllSiblingFields('type', 'set_access_duration'),
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate action.')]: limitSiblingFields('type', 0)
+      },
+      value: {
+        [i18n.t('Future date required.')]: compareDate('>=', new Date(), schema.node.unregdate.format, false),
+        [i18n.t('Invalid date.')]: isDateFormat(schema.node.unregdate.format)
+      }
+    }
+  }
+}
+
+export const pfConfigurationConditions = {
+  cn: {
+    value: 'cn',
+    text: i18n.t('cn'),
+    types: [authenticationConditionType.LDAPATTRIBUTE],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  computer_name: {
+    value: 'computer_name',
+    text: i18n.t('Computer Name'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  connection_type: {
+    value: 'connection_type',
+    text: i18n.t('Connection type'),
+    types: [authenticationConditionType.CONNECTION],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  current_time: {
+    value: 'current_time',
+    text: i18n.t('Current time'),
+    types: [authenticationConditionType.TIME],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  current_time_period: {
+    value: 'current_time_period',
+    text: i18n.t('Current time period'),
+    types: [authenticationConditionType.TIMEPERIOD],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  department: {
+    value: 'department',
+    text: i18n.t('department'),
+    types: [authenticationConditionType.LDAPATTRIBUTE],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  description: {
+    value: 'description',
+    text: i18n.t('description'),
+    types: [authenticationConditionType.LDAPATTRIBUTE],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  displayName: {
+    value: 'displayName',
+    text: i18n.t('displayName'),
+    types: [authenticationConditionType.LDAPATTRIBUTE],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  distinguishedName: {
+    value: 'distinguishedName',
+    text: i18n.t('distinguishedName'),
+    types: [authenticationConditionType.LDAPATTRIBUTE],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  eduPersonPrimaryAffiliation: {
+    value: 'eduPersonPrimaryAffiliation',
+    text: i18n.t('eduPersonPrimaryAffiliation'),
+    types: [authenticationConditionType.LDAPATTRIBUTE],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  givenName: {
+    value: 'givenName',
+    text: i18n.t('givenName'),
+    types: [authenticationConditionType.LDAPATTRIBUTE],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  groupMembership: {
+    value: 'groupMembership',
+    text: i18n.t('groupMembership'),
+    types: [authenticationConditionType.LDAPATTRIBUTE],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  mac: {
+    value: 'mac',
+    text: i18n.t('MAC Address'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  mail: {
+    value: 'mail',
+    text: i18n.t('mail'),
+    types: [authenticationConditionType.LDAPATTRIBUTE],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  memberOf: {
+    value: 'memberOf',
+    text: i18n.t('memberOf'),
+    types: [authenticationConditionType.LDAPATTRIBUTE],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  nested_group: {
+    value: 'memberOf:1.2.840.113556.1.4.1941:',
+    text: i18n.t('nested group'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  postOfficeBox: {
+    value: 'postOfficeBox',
+    text: i18n.t('postOfficeBox'),
+    types: [authenticationConditionType.LDAPATTRIBUTE],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  realm: {
+    value: 'realm',
+    text: i18n.t('Realm'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  sAMAccountName: {
+    value: 'sAMAccountName',
+    text: i18n.t('sAMAccountName'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  sAMAccountType: {
+    value: 'sAMAccountType',
+    text: i18n.t('sAMAccountType'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  sn: {
+    value: 'sn',
+    text: i18n.t('sn'),
+    types: [authenticationConditionType.LDAPATTRIBUTE],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  ssid: {
+    value: 'SSID',
+    text: i18n.t('SSID'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  uid: {
+    value: 'uid',
+    text: i18n.t('uid'),
+    types: [authenticationConditionType.LDAPATTRIBUTE],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  },
+  userAccountControl: {
+    value: 'userAccountControl',
+    text: i18n.t('userAccountControl'),
+    types: [authenticationConditionType.SUBSTRING],
+    validators: {
+      operator: {
+        [i18n.t('Operator required.')]: required
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Maximum 255 characters.')]: maxLength(255)
+      }
+    }
+  }
+}
 
 export const pfConfigurationListColumns = {
   admin_strip_username: {
@@ -255,7 +755,7 @@ export const pfConfigurationViewFields = {
           },
           validators: {
             [i18n.t('Value required.')]: required,
-            [i18n.t('Alphanumeric value required.')]: alphaNum,
+            [i18n.t('Alphanumeric characters only.')]: alphaNum,
             [i18n.t('Source exists.')]: not(and(required, conditional(isNew || isClone), sourceExists))
           }
         }
@@ -334,13 +834,95 @@ export const pfConfigurationViewFields = {
       }
     ]
   },
-  administration_rules: {
-    label: i18n.t('Administration Rules'),
-    fields: [
-      {
-        text: 'TODO'
-      }
-    ]
+  administration_rules: ({ isNew = false, isClone = false } = {}) => {
+    return {
+      label: 'Administration Rules',
+      fields: [
+        {
+          key: 'administration_rules',
+          component: pfFormFields,
+          attrs: {
+            buttonLabel: 'Add Rule - New ( )',
+            sortable: true,
+            field: {
+              component: pfFieldRule,
+              attrs: {
+                matchLabel: i18n.t('Select rule match'),
+                actions: {
+                  component: pfFieldAction,
+                  attrs: {
+                    typeLabel: i18n.t('Select action type'),
+                    valueLabel: i18n.t('Select action value'),
+                    fields: [
+                      pfConfigurationActions.set_access_level,
+                      pfConfigurationActions.mark_as_sponsor,
+                      pfConfigurationActions.set_tenant_id
+                    ]
+                  },
+                  invalidFeedback: [
+                    { [i18n.t('Action(s) contain one or more errors.')]: true }
+                  ]
+                },
+                conditions: {
+                  component: pfFieldCondition,
+                  attrs: {
+                    attributeLabel: i18n.t('Select attribute'),
+                    operatorLabel: i18n.t('Select operator'),
+                    valueLabel: i18n.t('Select value'),
+                    fields: [
+                      pfConfigurationConditions.ssid,
+                      pfConfigurationConditions.current_time,
+                      pfConfigurationConditions.current_time_period,
+                      pfConfigurationConditions.connection_type,
+                      pfConfigurationConditions.computer_name,
+                      pfConfigurationConditions.mac,
+                      pfConfigurationConditions.realm,
+                      pfConfigurationConditions.cn,
+                      pfConfigurationConditions.department,
+                      pfConfigurationConditions.description,
+                      pfConfigurationConditions.displayName,
+                      pfConfigurationConditions.distinguishedName,
+                      pfConfigurationConditions.eduPersonPrimaryAffiliation,
+                      pfConfigurationConditions.givenName,
+                      pfConfigurationConditions.groupMembership,
+                      pfConfigurationConditions.mail,
+                      pfConfigurationConditions.memberOf,
+                      pfConfigurationConditions.nested_group,
+                      pfConfigurationConditions.postOfficeBox,
+                      pfConfigurationConditions.sAMAccountName,
+                      pfConfigurationConditions.sAMAccountType,
+                      pfConfigurationConditions.sn,
+                      pfConfigurationConditions.uid,
+                      pfConfigurationConditions.userAccountControl
+                    ]
+                  },
+                  invalidFeedback: [
+                    { [i18n.t('Condition(s) contain one or more errors.')]: true }
+                  ]
+                }
+              },
+              validators: {
+                id: {
+                  [i18n.t('Name required.')]: required,
+                  [i18n.t('Alphanumeric characters only.')]: alphaNum,
+                  [i18n.t('Maximum 255 characters.')]: maxLength(255),
+                  [i18n.t('Duplicate name.')]: limitSiblingFields('id', 0)
+                },
+                description: {
+                  [i18n.t('Maximum 255 characters.')]: maxLength(255)
+                },
+                match: {
+                  [i18n.t('Match required.')]: required
+                }
+              }
+            },
+            invalidFeedback: [
+              { [i18n.t('Rule(s) contain one or more errors.')]: true }
+            ]
+          }
+        }
+      ]
+    }
   },
   allow_localdomain: {
     label: i18n.t('Allow Local Domain'),
@@ -439,13 +1021,97 @@ export const pfConfigurationViewFields = {
       }
     ]
   },
-  authentication_rules: {
-    label: i18n.t('Authorization Rules'),
-    fields: [
-      {
-        text: 'TODO'
-      }
-    ]
+  authentication_rules: ({ isNew = false, isClone = false } = {}) => {
+    return {
+      label: 'Authentication Rules',
+      fields: [
+        {
+          key: 'authentication_rules',
+          component: pfFormFields,
+          attrs: {
+            buttonLabel: 'Add Rule - New ( )',
+            sortable: true,
+            field: {
+              component: pfFieldRule,
+              attrs: {
+                matchLabel: i18n.t('Select rule match'),
+                actions: {
+                  component: pfFieldAction,
+                  attrs: {
+                    typeLabel: i18n.t('Select action type'),
+                    valueLabel: i18n.t('Select action value'),
+                    fields: [
+                      pfConfigurationActions.set_role_by_name,
+                      pfConfigurationActions.set_access_duration,
+                      pfConfigurationActions.set_unreg_date,
+                      pfConfigurationActions.set_time_balance,
+                      pfConfigurationActions.set_bandwidth_balance
+                    ]
+                  },
+                  invalidFeedback: [
+                    { [i18n.t('Action(s) contain one or more errors.')]: true }
+                  ]
+                },
+                conditions: {
+                  component: pfFieldCondition,
+                  attrs: {
+                    attributeLabel: i18n.t('Select attribute'),
+                    operatorLabel: i18n.t('Select operator'),
+                    valueLabel: i18n.t('Select value'),
+                    fields: [
+                      pfConfigurationConditions.ssid,
+                      pfConfigurationConditions.current_time,
+                      pfConfigurationConditions.current_time_period,
+                      pfConfigurationConditions.connection_type,
+                      pfConfigurationConditions.computer_name,
+                      pfConfigurationConditions.mac,
+                      pfConfigurationConditions.realm,
+                      pfConfigurationConditions.cn,
+                      pfConfigurationConditions.department,
+                      pfConfigurationConditions.description,
+                      pfConfigurationConditions.displayName,
+                      pfConfigurationConditions.distinguishedName,
+                      pfConfigurationConditions.eduPersonPrimaryAffiliation,
+                      pfConfigurationConditions.givenName,
+                      pfConfigurationConditions.groupMembership,
+                      pfConfigurationConditions.mail,
+                      pfConfigurationConditions.memberOf,
+                      pfConfigurationConditions.nested_group,
+                      pfConfigurationConditions.postOfficeBox,
+                      pfConfigurationConditions.sAMAccountName,
+                      pfConfigurationConditions.sAMAccountType,
+                      pfConfigurationConditions.sn,
+                      pfConfigurationConditions.uid,
+                      pfConfigurationConditions.userAccountControl
+                    ]
+                  },
+                  invalidFeedback: [
+                    { [i18n.t('Condition(s) contain one or more errors.')]: true }
+                  ]
+                }
+              },
+              validators: {
+                id: {
+                  [i18n.t('Name required.')]: required,
+                  [i18n.t('Alphanumeric characters only.')]: alphaNum,
+                  [i18n.t('Maximum 255 characters.')]: maxLength(255),
+                  [i18n.t('Duplicate name.')]: limitSiblingFields('id', 0)
+                },
+                description: {
+                  [i18n.t('Maximum 255 characters.')]: maxLength(255)
+                },
+                match: {
+                  [i18n.t('Match required.')]: required
+                }
+              }
+            },
+            invalidFeedback: [
+              { [i18n.t('Rule(s) contain one or more errors.')]: true }
+            ]
+          }
+        }
+      ]
+    }
   },
   authorization_source_id: ({ sources = [] } = {}) => {
     return {
@@ -1802,12 +2468,12 @@ export const pfConfigurationViewFields = {
   }
 }
 
-export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
-  const { sourceType = null } = args
+export const pfConfigurationAuthenticationSourcesViewFields = (context) => {
+  const { sourceType = null } = context
   switch (sourceType) {
     case 'AD':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.host_port_encryption,
         pfConfigurationViewFields.connection_timeout,
@@ -1818,55 +2484,55 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.usernameattribute,
         pfConfigurationViewFields.email_attribute,
         pfConfigurationViewFields.binddn,
-        pfConfigurationViewFields.password(args),
+        pfConfigurationViewFields.password(context),
         pfConfigurationViewFields.cache_match,
         pfConfigurationViewFields.monitor,
         pfConfigurationViewFields.shuffle,
-        pfConfigurationViewFields.realms(args),
-        pfConfigurationViewFields.authentication_rules,
-        pfConfigurationViewFields.administration_rules
+        pfConfigurationViewFields.realms(context),
+        pfConfigurationViewFields.authentication_rules(context),
+        pfConfigurationViewFields.administration_rules(context)
       ]
     case 'EAPTLS':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
-        pfConfigurationViewFields.realms(args),
-        pfConfigurationViewFields.authentication_rules,
-        pfConfigurationViewFields.administration_rules
+        pfConfigurationViewFields.realms(context),
+        pfConfigurationViewFields.authentication_rules(context),
+        pfConfigurationViewFields.administration_rules(context)
       ]
     case 'Htpasswd':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.path,
-        pfConfigurationViewFields.realms(args),
-        pfConfigurationViewFields.authentication_rules,
-        pfConfigurationViewFields.administration_rules
+        pfConfigurationViewFields.realms(context),
+        pfConfigurationViewFields.authentication_rules(context),
+        pfConfigurationViewFields.administration_rules(context)
       ]
     case 'HTTP':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.protocol_ip_port,
         pfConfigurationViewFields.api_username,
         pfConfigurationViewFields.api_password,
         pfConfigurationViewFields.authentication_url,
         pfConfigurationViewFields.authorization_url,
-        pfConfigurationViewFields.realms(args)
+        pfConfigurationViewFields.realms(context)
       ]
     case 'Kerberos':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.host,
         pfConfigurationViewFields.authenticate_realm,
-        pfConfigurationViewFields.realms(args),
-        pfConfigurationViewFields.authentication_rules,
-        pfConfigurationViewFields.administration_rules
+        pfConfigurationViewFields.realms(context),
+        pfConfigurationViewFields.authentication_rules(context),
+        pfConfigurationViewFields.administration_rules(context)
       ]
     case 'LDAP':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.host_port_encryption,
         pfConfigurationViewFields.connection_timeout,
@@ -1877,40 +2543,40 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.usernameattribute,
         pfConfigurationViewFields.email_attribute,
         pfConfigurationViewFields.binddn,
-        pfConfigurationViewFields.password(args),
+        pfConfigurationViewFields.password(context),
         pfConfigurationViewFields.cache_match,
         pfConfigurationViewFields.monitor,
         pfConfigurationViewFields.shuffle,
-        pfConfigurationViewFields.realms(args),
-        pfConfigurationViewFields.authentication_rules,
-        pfConfigurationViewFields.administration_rules
+        pfConfigurationViewFields.realms(context),
+        pfConfigurationViewFields.authentication_rules(context),
+        pfConfigurationViewFields.administration_rules(context)
       ]
     case 'POTD':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.password_rotation,
         pfConfigurationViewFields.password_email_update,
         pfConfigurationViewFields.password_length,
-        pfConfigurationViewFields.realms(args),
-        pfConfigurationViewFields.authentication_rules,
-        pfConfigurationViewFields.administration_rules
+        pfConfigurationViewFields.realms(context),
+        pfConfigurationViewFields.authentication_rules(context),
+        pfConfigurationViewFields.administration_rules(context)
       ]
     case 'RADIUS':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.host,
         pfConfigurationViewFields.secret,
         pfConfigurationViewFields.timeout,
         pfConfigurationViewFields.monitor,
-        pfConfigurationViewFields.realms(args),
-        pfConfigurationViewFields.authentication_rules,
-        pfConfigurationViewFields.administration_rules
+        pfConfigurationViewFields.realms(context),
+        pfConfigurationViewFields.authentication_rules(context),
+        pfConfigurationViewFields.administration_rules(context)
       ]
     case 'SAML':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.sp_entity_id,
         pfConfigurationViewFields.sp_key_path,
@@ -1919,22 +2585,24 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.idp_cert_path,
         pfConfigurationViewFields.idp_ca_cert_path,
         pfConfigurationViewFields.username_attribute,
-        pfConfigurationViewFields.authorization_source_id(args)
+        pfConfigurationViewFields.authorization_source_id(context)
       ]
     case 'Email':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
-        Object.assign(pfConfigurationViewFields.email_activation_timeout, { text: i18n.t('This is the delay given to a guest who registered by email confirmation to log into his email and click the activation link.') }), // re-text
+        Object.assign(pfConfigurationViewFields.email_activation_timeout, {
+          text: i18n.t('This is the delay given to a guest who registered by email confirmation to log into his email and click the activation link.')
+        }), // re-text
         pfConfigurationViewFields.allow_localdomain,
         pfConfigurationViewFields.activation_domain,
         pfConfigurationViewFields.create_local_account,
         pfConfigurationViewFields.local_account_logins,
-        pfConfigurationViewFields.authentication_rules
+        pfConfigurationViewFields.authentication_rules(context)
       ]
     case 'Facebook':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.client_id,
         pfConfigurationViewFields.client_secret,
@@ -1947,11 +2615,11 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.domains,
         pfConfigurationViewFields.create_local_account,
         pfConfigurationViewFields.local_account_logins,
-        pfConfigurationViewFields.authentication_rules
+        pfConfigurationViewFields.authentication_rules(context)
       ]
     case 'Github':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.client_id,
         pfConfigurationViewFields.client_secret,
@@ -1965,11 +2633,11 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.domains,
         pfConfigurationViewFields.create_local_account,
         pfConfigurationViewFields.local_account_logins,
-        pfConfigurationViewFields.authentication_rules
+        pfConfigurationViewFields.authentication_rules(context)
       ]
     case 'Google':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.client_id,
         pfConfigurationViewFields.client_secret,
@@ -1983,11 +2651,11 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.domains,
         pfConfigurationViewFields.create_local_account,
         pfConfigurationViewFields.local_account_logins,
-        pfConfigurationViewFields.authentication_rules
+        pfConfigurationViewFields.authentication_rules(context)
       ]
     case 'Instagram':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.client_id,
         pfConfigurationViewFields.client_secret,
@@ -2000,18 +2668,18 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.domains,
         pfConfigurationViewFields.create_local_account,
         pfConfigurationViewFields.local_account_logins,
-        pfConfigurationViewFields.authentication_rules
+        pfConfigurationViewFields.authentication_rules(context)
       ]
     case 'Kickbox':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.api_key,
-        pfConfigurationViewFields.authentication_rules
+        pfConfigurationViewFields.authentication_rules(context)
       ]
     case 'LinkedIn':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.client_id,
         pfConfigurationViewFields.client_secret,
@@ -2024,18 +2692,18 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.domains,
         pfConfigurationViewFields.create_local_account,
         pfConfigurationViewFields.local_account_logins,
-        pfConfigurationViewFields.authentication_rules
+        pfConfigurationViewFields.authentication_rules(context)
       ]
     case 'Null':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.email_required,
-        pfConfigurationViewFields.authentication_rules
+        pfConfigurationViewFields.authentication_rules(context)
       ]
     case 'OpenID':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.client_id,
         pfConfigurationViewFields.client_secret,
@@ -2048,11 +2716,11 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.domains,
         pfConfigurationViewFields.create_local_account,
         pfConfigurationViewFields.local_account_logins,
-        pfConfigurationViewFields.authentication_rules
+        pfConfigurationViewFields.authentication_rules(context)
       ]
     case 'Pinterest':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.client_id,
         pfConfigurationViewFields.client_secret,
@@ -2066,11 +2734,11 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.domains,
         pfConfigurationViewFields.create_local_account,
         pfConfigurationViewFields.local_account_logins,
-        pfConfigurationViewFields.authentication_rules
+        pfConfigurationViewFields.authentication_rules(context)
       ]
     case 'SMS':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.sms_carriers,
         pfConfigurationViewFields.sms_activation_timeout,
@@ -2078,11 +2746,11 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.pin_code_length,
         pfConfigurationViewFields.create_local_account,
         pfConfigurationViewFields.local_account_logins,
-        pfConfigurationViewFields.authentication_rules
+        pfConfigurationViewFields.authentication_rules(context)
       ]
     case 'SponsorEmail':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.allow_localdomain,
         Object.assign(pfConfigurationViewFields.email_activation_timeout, { text: i18n.t('Delay given to a sponsor to click the activation link.') }), // re-text
@@ -2091,11 +2759,11 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.validate_sponsor,
         pfConfigurationViewFields.create_local_account,
         pfConfigurationViewFields.local_account_logins,
-        pfConfigurationViewFields.authentication_rules
+        pfConfigurationViewFields.authentication_rules(context)
       ]
     case 'Twilio':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.account_sid,
         pfConfigurationViewFields.auth_token,
@@ -2104,11 +2772,11 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.pin_code_length,
         pfConfigurationViewFields.create_local_account,
         pfConfigurationViewFields.local_account_logins,
-        pfConfigurationViewFields.authentication_rules
+        pfConfigurationViewFields.authentication_rules(context)
       ]
     case 'Twitter':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.client_id,
         pfConfigurationViewFields.client_secret,
@@ -2118,11 +2786,11 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         Object.assign(pfConfigurationViewFields.protected_resource_url, { label: i18n.t('API URL of logged user') }), // re-label
         pfConfigurationViewFields.redirect_url,
         pfConfigurationViewFields.domains,
-        pfConfigurationViewFields.authentication_rules
+        pfConfigurationViewFields.authentication_rules(context)
       ]
     case 'WindowsLive':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.client_id,
         pfConfigurationViewFields.client_secret,
@@ -2136,25 +2804,25 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.domains,
         pfConfigurationViewFields.create_local_account,
         pfConfigurationViewFields.local_account_logins,
-        pfConfigurationViewFields.authentication_rules
+        pfConfigurationViewFields.authentication_rules(context)
       ]
     case 'AdminProxy':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.proxy_addresses,
         pfConfigurationViewFields.user_header,
         pfConfigurationViewFields.group_header,
-        pfConfigurationViewFields.administration_rules
+        pfConfigurationViewFields.administration_rules(context)
       ]
     case 'Blackhole':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description
       ]
     case 'Eduroam':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.server1_address,
         pfConfigurationViewFields.server1_port,
@@ -2162,14 +2830,14 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
         pfConfigurationViewFields.server2_port,
         pfConfigurationViewFields.radius_secret,
         pfConfigurationViewFields.auth_listening_port,
-        pfConfigurationViewFields.reject_realm(args),
-        pfConfigurationViewFields.local_realm(args),
+        pfConfigurationViewFields.reject_realm(context),
+        pfConfigurationViewFields.local_realm(context),
         pfConfigurationViewFields.monitor,
-        pfConfigurationViewFields.authentication_rules
+        pfConfigurationViewFields.authentication_rules(context)
       ]
     case 'AuthorizeNet':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.api_login_id,
         pfConfigurationViewFields.transaction_key,
@@ -2183,7 +2851,7 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
       ]
     case 'Mirapay':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         { label: i18n.t('MiraPay iframe settings'), labelSize: 'lg' },
         pfConfigurationViewFields.base_url,
@@ -2204,7 +2872,7 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
       ]
     case 'Paypal':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.currency,
         pfConfigurationViewFields.send_email_confirmation,
@@ -2222,7 +2890,7 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
       ]
     case 'Stripe':
       return [
-        pfConfigurationViewFields.id(args),
+        pfConfigurationViewFields.id(context),
         pfConfigurationViewFields.description,
         pfConfigurationViewFields.currency,
         pfConfigurationViewFields.send_email_confirmation,
@@ -2239,8 +2907,8 @@ export const pfConfigurationAuthenticationSourcesViewFields = (args) => {
   }
 }
 
-export const pfConfigurationDomainsViewFields = (args = {}) => {
-  const { isNew = false, isClone = false } = args
+export const pfConfigurationDomainsViewFields = (context = {}) => {
+  const { isNew = false, isClone = false } = context
   return [
     {
       label: i18n.t('Identifier'),
@@ -2254,7 +2922,7 @@ export const pfConfigurationDomainsViewFields = (args = {}) => {
           },
           validators: {
             [i18n.t('Name required.')]: required,
-            [i18n.t('Alphanumeric value required.')]: alphaNum
+            [i18n.t('Alphanumeric characters only.')]: alphaNum
           }
         }
       ]
@@ -2350,8 +3018,8 @@ export const pfConfigurationDomainsViewFields = (args = {}) => {
   ]
 }
 
-export const pfConfigurationFloatingDevicesViewFields = (args = {}) => {
-  const { isNew = false, isClone = false } = args
+export const pfConfigurationFloatingDevicesViewFields = (context = {}) => {
+  const { isNew = false, isClone = false } = context
   return [
     {
       label: i18n.t('MAC Address'),
@@ -2425,8 +3093,12 @@ export const pfConfigurationFloatingDevicesViewFields = (args = {}) => {
   ]
 }
 
-export const pfConfigurationRealmViewFields = (args = {}) => {
-  const { isNew = false, isClone = false, domains = [] } = args
+export const pfConfigurationPortalModuleViewFields = (context = {}) => {
+  return []
+}
+
+export const pfConfigurationRealmViewFields = (context = {}) => {
+  const { isNew = false, isClone = false, domains = [] } = context
   return [
     {
       label: i18n.t('Realm'),
@@ -2439,7 +3111,7 @@ export const pfConfigurationRealmViewFields = (args = {}) => {
           },
           validators: {
             [i18n.t('Realm required.')]: required,
-            [i18n.t('Alphanumeric value required.')]: alphaNum
+            [i18n.t('Alphanumeric characters only.')]: alphaNum
           }
         }
       ]
@@ -2495,7 +3167,8 @@ export const pfConfigurationRealmViewFields = (args = {}) => {
     },
     {
       label: i18n.t('Strip in RADIUS authorization'),
-      text: i18n.t('Should the usernames matching this realm be stripped when used in the authorization phase of 802.1x. Note that this doesn\'t control the stripping in FreeRADIUS, use the options above for that.'),
+      text: i18n.t('Should the usernames matching this realm be stripped when used in the authorization phase of 802.1x.' +
+        ' Note that this doesn\'t control the stripping in FreeRADIUS, use the options above for that.'),
       fields: [
         {
           key: 'radius_strip_username',
@@ -2509,8 +3182,8 @@ export const pfConfigurationRealmViewFields = (args = {}) => {
   ]
 }
 
-export const pfConfigurationBillingTierViewFields = (args = {}) => {
-  const { isNew = false, isClone = false } = args
+export const pfConfigurationBillingTierViewFields = (context = {}) => {
+  const { isNew = false, isClone = false } = context
   return [
     {
       label: i18n.t('Billing Tier'),
@@ -2523,7 +3196,7 @@ export const pfConfigurationBillingTierViewFields = (args = {}) => {
           },
           validators: {
             [i18n.t('Name required.')]: required,
-            [i18n.t('Alphanumeric value required.')]: alphaNum
+            [i18n.t('Alphanumeric characters only.')]: alphaNum
           }
         }
       ]
@@ -2621,8 +3294,8 @@ export const pfConfigurationBillingTierViewFields = (args = {}) => {
   ]
 }
 
-export const pfConfigurationRoleViewFields = (args = {}) => {
-  const { isNew = false, isClone = false } = args
+export const pfConfigurationRoleViewFields = (context = {}) => {
+  const { isNew = false, isClone = false } = context
   return [
     {
       label: i18n.t('Name'),
@@ -2652,8 +3325,8 @@ export const pfConfigurationRoleViewFields = (args = {}) => {
   ]
 }
 
-export const pfConfigurationAuthenticationSourcesViewDefaults = (args = {}) => {
-  const { sourceType = null } = args
+export const pfConfigurationAuthenticationSourcesViewDefaults = (context = {}) => {
+  const { sourceType = null } = context
   switch (sourceType) {
     case 'AD':
       return {
@@ -2666,7 +3339,9 @@ export const pfConfigurationAuthenticationSourcesViewDefaults = (args = {}) => {
         scope: 'sub',
         usernameattribute: 'sAMAccountName',
         email_attribute: 'mail',
-        cache_match: '1'
+        cache_match: '1',
+        authentication_rules: [],
+        administration_rules: []
       }
     case 'HTTP':
       return {
@@ -2876,26 +3551,32 @@ export const pfConfigurationAuthenticationSourcesViewDefaults = (args = {}) => {
   }
 }
 
-export const pfConfigurationBillingTierViewDefaults = (args = {}) => {
+export const pfConfigurationBillingTierViewDefaults = (context = {}) => {
   return {
     id: null
   }
 }
 
-export const pfConfigurationDomainsViewDefaults = (args = {}) => {
+export const pfConfigurationDomainsViewDefaults = (context = {}) => {
   return {
     id: null,
     ad_server: '%h'
   }
 }
 
-export const pfConfigurationFloatingDevicesViewDefaults = (args = {}) => {
+export const pfConfigurationFloatingDevicesViewDefaults = (context = {}) => {
   return {
     id: null
   }
 }
 
-export const pfConfigurationRealmViewDefaults = (args = {}) => {
+export const pfConfigurationPortalModuleViewDefaults = (context = {}) => {
+  return {
+    id: null
+  }
+}
+
+export const pfConfigurationRealmViewDefaults = (context = {}) => {
   return {
     id: null,
     portal_strip_username: 'enabled',
@@ -2904,7 +3585,7 @@ export const pfConfigurationRealmViewDefaults = (args = {}) => {
   }
 }
 
-export const pfConfigurationRoleViewDefaults = (args = {}) => {
+export const pfConfigurationRoleViewDefaults = (context = {}) => {
   return {
     id: null
   }

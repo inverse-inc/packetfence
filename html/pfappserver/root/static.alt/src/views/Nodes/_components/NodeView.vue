@@ -16,52 +16,52 @@
             <b-col>
               <pf-form-input :column-label="$t('Owner')"
                 v-model="nodeContent.pid"
-                :validation="$v.nodeContent.pid"
+                :vuelidate="$v.nodeContent.pid"
               />
               <pf-form-select :column-label="$t('Status')"
                 v-model="nodeContent.status"
                 :options="statuses"
-                :validation="$v.nodeContent.status"
+                :vuelidate="$v.nodeContent.status"
               />
               <pf-form-select :column-label="$t('Role')"
                 v-model="nodeContent.category_id"
                 :options="rolesWithNull"
-                :validation="$v.nodeContent.category_id"
+                :vuelidate="$v.nodeContent.category_id"
               />
               <pf-form-datetime :column-label="$t('Unregistration')"
                 v-model="nodeContent.unregdate"
                 :moments="['1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"
-                :validation="$v.nodeContent.unregdate"
+                :vuelidate="$v.nodeContent.unregdate"
               ></pf-form-datetime>
               <pf-form-input :column-label="$t('Access Time Balance')"
                 v-model="nodeContent.time_balance"
                 :text="$t('seconds')"
-                :validation="$v.nodeContent.time_balance"
+                :vuelidate="$v.nodeContent.time_balance"
                 type="number"
               />
               <pf-form-prefix-multiplier :column-label="$t('Bandwidth Balance')"
                 v-model="nodeContent.bandwidth_balance"
                 :max="globals.sqlLimits.ubigint.max"
-                :validation="$v.nodeContent.bandwidth_balance"
+                :vuelidate="$v.nodeContent.bandwidth_balance"
               ></pf-form-prefix-multiplier>
               <pf-form-toggle :column-label="$t('VOIP')"
                 v-model="nodeContent.voip"
                 :values="{checked: 'yes', unchecked: 'no'}"
-                :validation="$v.nodeContent.voip"
+                :vuelidate="$v.nodeContent.voip"
               >{{ (nodeContent.voip === 'yes') ? $t('Yes') : $t('No') }}</pf-form-toggle>
               <pf-form-input :column-label="$t('Bypass VLAN')"
                 v-model="nodeContent.bypass_vlan"
-                :validation="$v.nodeContent.bypass_vlan"
+                :vuelidate="$v.nodeContent.bypass_vlan"
                 type="text"
               />
               <pf-form-select :column-label="$t('Bypass Role')"
                 v-model="nodeContent.bypass_role_id"
                 :options="rolesWithNull"
-                :validation="$v.nodeContent.bypass_role_id"
+                :vuelidate="$v.nodeContent.bypass_role_id"
               ></pf-form-select>
               <pf-form-textarea :column-label="$t('Notes')"
                 v-model="nodeContent.notes"
-                :validation="$v.nodeContent.notes"
+                :vuelidate="$v.nodeContent.notes"
                 rows="3" max-rows="3"
               />
             </b-col>

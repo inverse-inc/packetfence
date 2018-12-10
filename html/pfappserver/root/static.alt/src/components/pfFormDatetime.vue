@@ -18,8 +18,8 @@
  <template>
   <b-form-group horizontal :label-cols="(columnLabel) ? labelCols : 0" :label="$t(columnLabel)"
     :state="isValid()" :invalid-feedback="getInvalidFeedback()"
-    class="datetime-element" :class="{ 'mb-0': !columnLabel, 'is-focus': focus}">
-    <b-input-group class="input-group-datetime">
+    class="pf-form-datetime" :class="{ 'mb-0': !columnLabel, 'is-focus': focus}">
+    <b-input-group class="pf-form-datetime-input-group">
       <b-input-group-prepend v-if="prependText">
         <div class="input-group-text">
           {{ prependText }}
@@ -42,7 +42,7 @@
         <b-button-group v-if="moments.length > 0" rel="moments" v-b-tooltip.hover.top.d300 :title="$t('Cumulate [CTRL] + [CLICK]')">
           <b-button v-for="(moment, index) in moments" :key="index" variant="light" @click="onClickMoment($event, index)" v-b-tooltip.hover.bottom.d300 :title="momentTooltip(index)" tabindex="-1">{{ momentLabel(index) }}</b-button>
         </b-button-group>
-        <b-button class="input-group-text" @click.stop="toggle($event)" tabindex="-1"><icon name="calendar-alt" variant="light"></icon></b-button>
+        <b-button class="input-group-text" @click.stop="toggle($event)" tabindex="-1"><icon :name="(formatIsTimeOnly()) ? 'clock' : 'calendar-alt'" variant="light"></icon></b-button>
       </b-input-group-append>
     </b-input-group>
     <b-form-text v-if="text" v-t="text"></b-form-text>
@@ -266,6 +266,13 @@ export default {
             this.inputValue = format(base, dateFormat)
         }
       }
+    },
+    formatIsTimeOnly () {
+      let format = this.defaultConfig.format
+      if ('input' in this.$refs && 'dp' in this.$refs.input) {
+        return !(/[MQDdEeWwYgX]+/.test(format))
+      }
+      return false
     }
   },
   watch: {
@@ -313,8 +320,8 @@ export default {
 /**
  * Adjust is-invalid and is-focus borders
  */
-.datetime-element {
-  .input-group-datetime {
+.pf-form-datetime {
+  .pf-form-datetime-input-group {
     background-color: $input-focus-bg;
     border: 1px solid $input-focus-bg;
     @include border-radius($border-radius);
@@ -339,11 +346,13 @@ export default {
   .bootstrap-datetimepicker-widget {
     border: $dropdown-border-width solid $dropdown-border-color;
   }
-  &.is-focus .input-group-datetime {
+  &.is-focus .pf-form-datetime-input-group,
+  &.is-focus .bootstrap-datetimepicker-widget {
     border: 1px solid $input-focus-border-color;
     box-shadow: 0 0 0 $input-focus-width rgba($input-focus-border-color, .25);
   }
-  &.is-invalid .input-group-datetime {
+  &.is-invalid .pf-form-datetime-input-group,
+  &.is-invalid .bootstrap-datetimepicker-widget {
     border: 1px solid $form-feedback-invalid-color;
     box-shadow: 0 0 0 $input-focus-width rgba($form-feedback-invalid-color, .25);
   }

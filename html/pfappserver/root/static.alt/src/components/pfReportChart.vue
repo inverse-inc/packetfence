@@ -243,9 +243,9 @@ export default {
  * Add btn-primary color(s) on hover
  */
 .btn-group[rel=periodButtonGroup] button:hover {
-  color: $input-btn-hover-text-color;
-  background-color: $input-btn-hover-bg-color;
   border-color: $input-btn-hover-bg-color;
+  background-color: $input-btn-hover-bg-color;
+  color: $input-btn-hover-text-color;
 }
 
 </style>

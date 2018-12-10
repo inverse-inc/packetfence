@@ -12,6 +12,7 @@ export const pfFieldType = {
   SELECTMANY:              'selectmany',
   ADMINROLE:               'adminrole',
   ROLE:                    'role',
+  ROLE_BY_NAME:            'role_by_name',
   SOURCE:                  'source',
   TENANT:                  'tenant',
   GENDER:                  'gender',
@@ -31,6 +32,12 @@ pfFieldTypeValues[pfFieldType.ROLE] = (store) => {
     throw new Error('Missing `store` in pfFieldTypeValues[pfFieldType.ROLE](store)')
   }
   return store.getters['config/rolesList']
+}
+pfFieldTypeValues[pfFieldType.ROLE_BY_NAME] = (store) => {
+  if (store === undefined) {
+    throw new Error('Missing `store` in pfFieldTypeValues[pfFieldType.ROLE_BY_NAME](store)')
+  }
+  return pfFieldTypeValues[pfFieldType.ROLE](store).map(role => { return { value: role.name, name: role.name } })
 }
 pfFieldTypeValues[pfFieldType.SOURCE] = (store) => {
   if (store === undefined) {

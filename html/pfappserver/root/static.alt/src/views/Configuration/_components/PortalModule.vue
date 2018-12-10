@@ -1,21 +1,26 @@
 <template>
-    <b-row align-v="center" class="portal-module-row row-nowrap text-center" :class="{ first: index === 0, last: last }">
+    <b-row align-v="center" class="portal-module-row row-nowrap" :class="{ first: index === 0, last: last }">
       <icon class="connector-arrow" name="caret-right"></icon>
       <portal-module-button :class="{ first: index === 0, last: last, leaf: !children }"
-        :module="module" :disabled="!parentId" @remove="remove"></portal-module-button>
-      <b-col v-if="children" class="portal-module-col">
-        <portal-module v-for="(mid, i) in children" :key="mid"
-          :id="mid" :parentId="id" :modules="modules" :storeName="storeName" :level="level + 1" :index="i" :last="i + 1 === children.length" />
+        :module="currentModule" :is-root="isRoot" v-bind="$attrs" @remove="remove"></portal-module-button>
+      <b-col v-if="!isRoot && children" class="portal-module-col" :class="{ dragging: dragging }">
+        <draggable v-model="children" :options="{ group: { name: path, pull: path, put: ['portal-module', path] }, ghostClass: 'portal-module-row-ghost', dragClass: 'portal-module-row-drag' }"
+          @start="dragging = true" @end="dragging = false">
+          <portal-module v-for="(mid, i) in children" :key="mid"
+            :id="mid" n0parentId="id" :parents="childParents" :modules="modules" :storeName="storeName" :level="level + 1" :index="i" :last="i + 1 === children.length" />
+        </draggable>
       </b-col>
     </b-row>
 </template>
 
 <script>
+import draggable from 'vuedraggable'
 import PortalModuleButton from './PortalModuleButton'
 
 export default {
   name: 'portal-module',
   components: {
+    draggable,
     PortalModuleButton
   },
   props: {
@@ -29,9 +34,13 @@ export default {
       default: null,
       required: true
     },
-    parentId: {
-      type: String,
+    module: {
+      type: Object,
       default: null
+    },
+    parents: {
+      type: Array,
+      default: () => []
     },
     level: {
       type: Number,
@@ -47,25 +56,57 @@ export default {
     },
     modules: {
       type: Array,
-      default: () => [],
-      required: true
+      default: () => []
+    },
+    isRoot: {
+      type: Boolean,
+      default: false
+    }
+  },
+  data () {
+    return {
+      dragging: false,
+      childParents: []
     }
   },
   computed: {
-    module () {
-      return this.modules.find(module => module.id === this.id) || {}
+    currentModule () {
+      return this.module || this.modules.find(module => module.id === this.id) || {}
     },
-    children () {
-      return this.module.modules ? this.module.modules.filter(id => this.modules.find(module => module.id === id)) : false
+    children: {
+      get () {
+        return this.currentModule.modules ? this.currentModule.modules.filter(id => this.modules.find(module => module.id === id)) : false
+      },
+      set (newValue) {
+        this.currentModule.modules = newValue
+      }
+    },
+    path () {
+      return 'L' + this.level + 'I' + this.index
     }
   },
   methods: {
     remove (id) {
-      let parentModule = this.modules.find(module => module.id === this.parentId)
-      const index = parentModule.modules.findIndex(mid => mid === id)
-      if (index >= 0) {
-        this.$delete(parentModule.modules, index)
+      let list = [], index = -1
+      if (this.parents.length > 0) {
+        // Disconnect module from its parent
+        let [parentId] = this.parents.slice(-1)
+        let parentModule = this.modules.find(module => module.id === parentId)
+        list = parentModule.modules
+        index = list.findIndex(mid => mid === id)
+      } else {
+        // Delete module's definition
+        list = this.modules
+        index = list.findIndex(module => module.id === id)
       }
+      if (index >= 0) {
+        this.$delete(list, index)
+      }
+    }
+  },
+  created () {
+    if (this.children) {
+      this.childParents = [...this.parents, this.id]
     }
   }
 }
@@ -77,6 +118,11 @@ export default {
 
 .connector-arrow {
   color: $portal-module-connector-color;
+  transform: translateY($portal-module-connector-width/2);
+}
+
+.first.last > .connector-arrow {
+  transform: none;
 }
 
 .row-nowrap {
@@ -112,7 +158,6 @@ export default {
     width: $portal-module-connector-margin;
     height: 50%;
     border-left: $portal-module-connector-width solid $portal-module-connector-color;
-    transform: translateY(-$portal-module-connector-width/2);
   }
 
   &::after {
@@ -147,6 +192,51 @@ export default {
     top: 50%;
     bottom: auto;
     border-top: $portal-module-connector-width solid $portal-module-connector-color;
+  }
+}
+
+.portal-module-col.dragging > div > .portal-module-row {
+  &::before, &::after {
+    border-left: 0;
+    border-radius: 0 !important;
+  }
+  .portal-module:hover {
+    background-color: $white;
+  }
+}
+.portal-module-row-ghost {
+  &.last::before {
+    border-bottom-style: dashed !important;
+  }
+  &::after {
+    border-top-style: dashed !important;
+  }
+  .portal-module, .portal-module-col {
+    display: none;
+  }
+}
+.portal-module-row-drag {
+  transform: scale(.8);
+  background-color: transparent;
+  &::before, &::after {
+    border: 0 !important;
+    border-radius: 0 !important;
+  }
+  .connector-arrow {
+    color: transparent;
+  }
+}
+.disconnect {
+  .portal-module-row.last::before {
+    border: 0 none;
+  }
+  .connector-arrow {
+    display: none;
+  }
+  .portal-module-row-ghost {
+    .portal-module, .portal-module-col {
+      display: inherit;
+    }
   }
 }
 </style>

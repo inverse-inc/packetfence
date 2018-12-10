@@ -59,7 +59,7 @@
 import IconCounter from '@/components/IconCounter'
 
 export default {
-  name: 'pfNotificationCenter',
+  name: 'pf-notification-center',
   components: {
     'icon-counter': IconCounter
   },
@@ -113,11 +113,11 @@ export default {
 $enable-shadows: true;
 
 .notifications-toasts {
-    width: 30vw;
     position: absolute;
+    z-index: 9999;
     top: 1rem;
     right: 1rem;
-    z-index: 9999;
+    width: 30vw;
 }
 
 .navbar .navbar-nav.notifications>.nav-item {

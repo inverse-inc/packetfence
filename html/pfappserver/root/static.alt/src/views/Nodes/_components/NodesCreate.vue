@@ -10,33 +10,33 @@
             <pf-form-input :column-label="$t('MAC')"
               v-model="single.mac"
               :filter="globals.regExp.stringMac"
-              :validation="$v.single.mac"
+              :vuelidate="$v.single.mac"
             />
             <pf-form-autocomplete :column-label="$t('Owner')"
               v-model="single.pid"
               :suggestions="matchingUsers"
-              :validation="$v.single.pid"
+              :vuelidate="$v.single.pid"
                placeholder="default"
               @search="searchUsers"
             />
             <pf-form-select :column-label="$t('Status')"
               v-model="single.status"
               :options="statuses"
-              :validation="$v.single.status"
+              :vuelidate="$v.single.status"
             />
             <pf-form-select :column-label="$t('Role')"
              v-model="single.category"
              :options="roles"
-              :validation="$v.single.category"
+              :vuelidate="$v.single.category"
             />
             <pf-form-datetime :column-label="$t('Unregistration')"
               v-model="single.unregdate"
               :moments="['1 hours', '1 days', '1 weeks', '1 months', '1 quarters', '1 years']"
-              :validation="$v.single.unregdate"
+              :vuelidate="$v.single.unregdate"
             />
             <pf-form-textarea :column-label="$t('Notes')"
               v-model="single.notes"
-              :validation="$v.single.notes"
+              :vuelidate="$v.single.notes"
               rows="3" max-rows="3"
             />
           </b-col>
@@ -58,7 +58,6 @@ import pfFormDatetime from '@/components/pfFormDatetime'
 import pfFormInput from '@/components/pfFormInput'
 import pfFormSelect from '@/components/pfFormSelect'
 import pfFormTextarea from '@/components/pfFormTextarea'
-import draggable from 'vuedraggable'
 import usersApi from '@/views/Users/_api'
 import { pfRegExp as regExp } from '@/globals/pfRegExp'
 import {
@@ -82,12 +81,11 @@ const { validationMixin } = require('vuelidate')
 export default {
   name: 'NodesCreate',
   components: {
-    draggable,
-    'pf-form-autocomplete': pfFormAutocomplete,
-    'pf-form-datetime': pfFormDatetime,
-    'pf-form-input': pfFormInput,
-    'pf-form-select': pfFormSelect,
-    'pf-form-textarea': pfFormTextarea
+    pfFormAutocomplete,
+    pfFormDatetime,
+    pfFormInput,
+    pfFormSelect,
+    pfFormTextarea
   },
   mixins: [
     validationMixin

@@ -3,7 +3,7 @@
     :isLoading="isLoading"
     :form="getForm"
     :model="realm"
-    :validation="$v.realm"
+    :vuelidate="$v.realm"
     @validations="realmValidations = $event"
     @close="close"
     @create="create"
