@@ -13,7 +13,7 @@ import {
   conditional,
   isFQDN,
   isPort,
-  isAmount,
+  isPrice,
   sourceExists
 } from '@/globals/pfValidators'
 const {
@@ -2547,7 +2547,7 @@ export const pfConfigurationBillingTierViewFields = (args = {}) => {
           component: pfFormInput,
           validators: {
             [i18n.t('Price required')]: required,
-            [i18n.t('Enter a valid price')]: isAmount,
+            [i18n.t('Enter a valid price')]: isPrice,
             [i18n.t('Enter a positive price')]: minValue(0)
           }
         }

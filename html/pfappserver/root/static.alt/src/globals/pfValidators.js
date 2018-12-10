@@ -169,7 +169,7 @@ export const isPort = (value) => {
   return ~~value >= 1 && ~~value <= 65535
 }
 
-export const isAmount = (value) => {
+export const isPrice = (value) => {
   if (!value) return true
   return /^-?\d+\.\d{2}$/.test(value)
 }
