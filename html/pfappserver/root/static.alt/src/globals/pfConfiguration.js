@@ -2540,6 +2540,7 @@ export const pfConfigurationBillingTierViewFields = (args = {}) => {
     pfConfigurationViewFields.description,
     {
       label: i18n.t('Price'),
+      text: i18n.t('The price that will be charged to the customer.'),
       fields: [
         {
           key: 'price',
@@ -2554,6 +2555,7 @@ export const pfConfigurationBillingTierViewFields = (args = {}) => {
     },
     {
       label: i18n.t('Role'),
+      text: i18n.t('The target role of the devices that use this tier.'),
       fields: [
         {
           key: 'role',
@@ -2605,6 +2607,7 @@ export const pfConfigurationBillingTierViewFields = (args = {}) => {
     },
     {
       label: i18n.t('Use Time Balance'),
+      text: i18n.t('Check this box to have the access duration be a real time usage.<br/>This requires a working accounting configuration.'),
       fields: [
         {
           key: 'use_time_balance',
@@ -2873,6 +2876,12 @@ export const pfConfigurationAuthenticationSourcesViewDefaults = (args = {}) => {
   }
 }
 
+export const pfConfigurationBillingTierViewDefaults = (args = {}) => {
+  return {
+    id: null
+  }
+}
+
 export const pfConfigurationDomainsViewDefaults = (args = {}) => {
   return {
     id: null,
@@ -2901,8 +2910,3 @@ export const pfConfigurationRoleViewDefaults = (args = {}) => {
   }
 }
 
-export const pfConfigurationBillingTierViewDefaults = (args = {}) => {
-  return {
-    id: null
-  }
-}
