@@ -98,6 +98,7 @@ BEGIN {
         add_jitter
         connection_type_to_str
         str_to_connection_type
+        validate_unregdate
     );
 }
 
@@ -1339,6 +1340,27 @@ sub validate_date {
 
     return $valid;
 }
+
+=item validate_unregdate
+
+Check if a date is between 1970-01-01 and 2038-01-18 or 0000-MM-DD
+
+=cut
+
+sub validate_unregdate {
+    my ($date) = @_;
+    my $valid = $FALSE;
+    if ($date !~ /^0-(\d\d-\d\d)/) {
+        return validate_date($date);
+    }
+
+    if (eval { Time::Piece->strptime($1, "%m-%d") } ) {
+        $valid =  $TRUE;
+    }
+
+    return $valid;
+}
+
 
 =item clean_locale
 
