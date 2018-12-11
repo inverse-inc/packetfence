@@ -9,11 +9,14 @@ BEGIN {
     use setup_test_config;
 }
 
+use pf::constants qw($TRUE $FALSE);
+
 our (
     @INVALID_DATES,
     @STRIP_FILENAME_FROM_EXCEPTIONS_TESTS,
     @NORMALIZE_TIME_TESTS,
-    @EXPAND_CSV_TESTS
+    @EXPAND_CSV_TESTS,
+    @VALID_UNREG_DATE_TESTS
 );
 
 BEGIN {
@@ -160,6 +163,44 @@ BEGIN {
             msg => "list with in a list ",
         },
     );
+
+    @VALID_UNREG_DATE_TESTS = (
+        {
+            in  => '0-01-01',
+            out => $TRUE,
+            msg => "Allow a zero year 0-01-01"
+        },
+        {
+            in  => '0-01-41',
+            out => $FALSE,
+            msg => "Invalid month day with zero year 0-01-41"
+        },
+        {
+            in  => '0000-01-31',
+            out => $FALSE,
+            msg => "Invalid zero year 0000-01-31"
+        },
+        {
+            in  => '0001-01-01',
+            out => $FALSE,
+            msg => "0001-01-01"
+        },
+        {
+            in  => '1970-01-01',
+            out => $TRUE,
+            msg => "valid date 1970-01-01",
+        },
+        {
+            in  => '2037-12-31',
+            out => $TRUE,
+            msg => "valid date 2037-12-31",
+        },
+        {
+            in  => '2038-01-01',
+            out => $TRUE,
+            msg => "valid date 2038-01-01"
+        },
+    );
 }
 
 use Test::More;
@@ -170,7 +211,8 @@ BEGIN {
       scalar @STRIP_FILENAME_FROM_EXCEPTIONS_TESTS +
       scalar @INVALID_DATES +
       scalar @NORMALIZE_TIME_TESTS +
-      scalar @EXPAND_CSV_TESTS;
+      scalar @EXPAND_CSV_TESTS +
+      scalar @VALID_UNREG_DATE_TESTS;
 }
 
 BEGIN {
@@ -288,6 +330,14 @@ ok(is_in_list("sms","sms, email"), "is_in_list positive with spaces");
 for my $test (@STRIP_FILENAME_FROM_EXCEPTIONS_TESTS) {
     is (
         strip_filename_from_exceptions($test->{in}),
+        $test->{out},
+        $test->{msg}
+    )
+}
+
+for my $test (@VALID_UNREG_DATE_TESTS) {
+    is (
+        validate_unregdate($test->{in}),
         $test->{out},
         $test->{msg}
     )
