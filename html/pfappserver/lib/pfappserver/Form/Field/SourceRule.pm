@@ -16,7 +16,7 @@ use HTML::FormHandler::Moose;
 extends 'HTML::FormHandler::Field::Compound';
 
 use pf::Authentication::constants;
-use pf::util qw(validate_date);
+use pf::util qw(validate_unregdate);
 
 
 # Form select options
@@ -118,7 +118,7 @@ sub validate {
             $action->add_error("You can't have more than one action of the same type.");
         }
         if ($type eq $Actions::SET_UNREG_DATE) {
-            if (!validate_date($action->field("value")->value)) {
+            if (!validate_unregdate($action->field("value")->value)) {
                 $actions->add_error("Unregistration date must not exceed 2038-01-18.");
             }
         }
@@ -139,6 +139,7 @@ sub validate {
         }
     }
 }
+
 
 =head1 COPYRIGHT
 
