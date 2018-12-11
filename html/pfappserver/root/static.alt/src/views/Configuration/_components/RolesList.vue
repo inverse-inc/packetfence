@@ -26,7 +26,7 @@ import pfEmptyTable from '@/components/pfEmptyTable'
 import {
   pfConfigurationRolesListColumns as columns,
   pfConfigurationRolesListFields as fields
-} from '@/globals/pfConfiguration'
+} from '@/globals/pfConfigurationRoles'
 
 export default {
   name: 'RolesList',

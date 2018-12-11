@@ -32,9 +32,9 @@ import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
-  pfConfigurationFloatingDevicesViewFields as fields,
-  pfConfigurationFloatingDevicesViewDefaults as defaults
-} from '@/globals/pfConfiguration'
+  pfConfigurationFloatingDeviceViewFields as fields,
+  pfConfigurationFloatingDeviceViewDefaults as defaults
+} from '@/globals/pfConfigurationFloatingDevices'
 const { validationMixin } = require('vuelidate')
 
 export default {

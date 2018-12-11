@@ -34,7 +34,7 @@ import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
   pfConfigurationBillingTierViewFields as fields,
   pfConfigurationBillingTierViewDefaults as defaults
-} from '@/globals/pfConfiguration'
+} from '@/globals/pfConfigurationBillingTiers'
 const { validationMixin } = require('vuelidate')
 
 export default {

@@ -30,9 +30,9 @@ import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
-  pfConfigurationDomainsViewFields as fields,
-  pfConfigurationDomainsViewDefaults as defaults
-} from '@/globals/pfConfiguration'
+  pfConfigurationDomainViewFields as fields,
+  pfConfigurationDomainViewDefaults as defaults
+} from '@/globals/pfConfigurationDomains'
 const { validationMixin } = require('vuelidate')
 
 export default {

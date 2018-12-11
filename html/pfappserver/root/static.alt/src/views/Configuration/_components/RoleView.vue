@@ -32,7 +32,7 @@ import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
   pfConfigurationRoleViewFields as fields,
   pfConfigurationRoleViewDefaults as defaults
-} from '@/globals/pfConfiguration'
+} from '@/globals/pfConfigurationRoles'
 const { validationMixin } = require('vuelidate')
 
 export default {

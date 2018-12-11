@@ -23,7 +23,7 @@ import pfEmptyTable from '@/components/pfEmptyTable'
 import {
   pfConfigurationBillingTiersListColumns as columns,
   pfConfigurationBillingTiersListFields as fields
-} from '@/globals/pfConfiguration'
+} from '@/globals/pfConfigurationBillingTiers'
 
 export default {
   name: 'BillingTiersList',

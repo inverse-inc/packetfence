@@ -39,9 +39,9 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfMixinCtrlKey from '@/components/pfMixinCtrlKey'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
-  pfConfigurationAuthenticationSourcesViewFields as fields,
-  pfConfigurationAuthenticationSourcesViewDefaults as defaults
-} from '@/globals/pfConfiguration'
+  pfConfigurationAuthenticationSourceViewFields as fields,
+  pfConfigurationAuthenticationSourceViewDefaults as defaults
+} from '@/globals/pfConfigurationAuthenticationSources'
 const { validationMixin } = require('vuelidate')
 
 export default {
