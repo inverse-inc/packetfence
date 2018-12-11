@@ -38,7 +38,7 @@
       <slot name="footer">
         <b-card-footer @mouseenter="vuelidate.$touch()">
           <pf-button-save :disabled="invalidForm" :isLoading="isLoading">{{ isNew? $t('Create') : $t('Save') }}</pf-button-save>
-          <pf-button-delete v-if="!isNew" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Config?')" @on-delete="remove($event)"/>
+          <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Config?')" @on-delete="remove($event)"/>
         </b-card-footer>
       </slot>
     </b-card>
@@ -92,6 +92,12 @@ export default {
   computed: {
     defaultComponent () {
       return pfFormInput
+    },
+    isDeletable () {
+      if(this.isNew || this.isClone || ('not_deletable' in this.model && this.model.not_deletable)) {
+        return false
+      }
+      return true
     }
   },
   methods: {
