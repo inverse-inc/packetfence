@@ -43,8 +43,8 @@ around BUILDARGS => sub {
     }
 
     for my $f (qw(allowed_domains banned_domains)) {
-        next unless $hash{$f};
-        $hash{$f} = [ map { split(/\r?\n/) } expand_csv($hash{$f})];
+        next unless exists $hash{$f};
+        $hash{$f} = [ map { split(/\r?\n/) } expand_csv($hash{$f} // '')];
     }
 
     my $args = $class->$orig(\%hash);
