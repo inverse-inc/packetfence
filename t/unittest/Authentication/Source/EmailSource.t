@@ -64,6 +64,16 @@ our @TESTS = (
         allowed => [qw(j@zozz.com j@ZoZz.com), $local_email1, $local_email2],
         banned => [qw(j@zoz.com j@ZOZ.com)],
     },
+    {
+        name => 'sponsor_uppercase_allowed',
+        allowed => [qw(j@bob.com k@BOB.com), $local_email1, $local_email2],
+        banned => [qw(j@bbob.com j@bobby.com)],
+    },
+    {
+        name => 'sponsor_uppercase_banned',
+        allowed => [qw(j@zozz.com j@ZoZz.com), $local_email1, $local_email2],
+        banned => [qw(j@zoz.com j@ZOZ.com)],
+    },
 );
 
 use Test::More;
