@@ -24,7 +24,7 @@ has '+type'                     => (default => 'Clickatell');
 has '+class'                    => (isa => 'Str', is => 'ro', default => 'external');
 has '+dynamic_routing_module'   => (is => 'rw', default => 'Authentication::SMS');
 has 'api_key'                   => (isa => 'Str', is => 'rw');
-has 'message'                   => (isa => 'Maybe[Str]', is => 'rw', default => undef);
+has 'message'                   => (isa => 'Maybe[Str]', is => 'rw', default => 'PIN: $pin');
 
 =head2 available_rule_classes
 

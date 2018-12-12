@@ -36,7 +36,7 @@ has_field 'api_key' => (
 has_field 'message' => (
     type => 'TextArea',
     label => 'SMS text message ($pin will be replaced by the PIN number)',
-    default => 'PIN: $pin',
+    default => pf::Authentication::Source::SMSSource->meta->get_attribute('message')->default,
 );
 
 has_field 'pin_code_length' => (
