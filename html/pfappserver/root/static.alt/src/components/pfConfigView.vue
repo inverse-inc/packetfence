@@ -1,5 +1,5 @@
 <template>
-  <b-form @submit.prevent="(isNew || isClone) ? create($event) : save($event)">
+  <b-form @submit.prevent="(isNew || isClone) ? create($event) : save($event)" class="pf-config-view">
     <b-card no-body>
       <slot name="header">
         <b-card-header>
@@ -9,33 +9,42 @@
           </h4>
         </b-card-header>
       </slot>
-      <div class="card-body" v-if="form.fields">
-        <b-form-group v-for="row in form.fields" :key="[row.key].join('')" v-if="!('if' in row) || row.if"
-          :label-cols="(row.label) ? form.labelCols : 0" :label="row.label" :label-size="row.labelSize"
-          :state="isValid()" :invalid-feedback="getInvalidFeedback()"
-          class="input-element" :class="{ 'mb-0': !row.label, 'pt-3': !row.fields }"
-          horizontal
-        >
-          <b-input-group>
-            <template v-for="field in row.fields">
-              <span v-if="field.text" :key="field.index" :class="field.class">{{ field.text }}</span>
-              <component v-else-if="!('if' in field) || field.if"
-                v-bind="field.attrs"
-                :key="field.key"
-                :is="field.component || defaultComponent"
-                :isLoading="isLoading"
-                :vuelidate="getVuelidateModel(field.key)"
-                :class="getClass(row, field)"
-                :value="getValue(field.key)"
-                @input="setValue(field.key, $event)"
-                @validations="setComponentValidations(field.key, $event)"
-              ></component>
-            </template>
-          </b-input-group>
-          <b-form-text v-if="row.text" v-t="row.text"></b-form-text>
-        </b-form-group>
-      </div>
-      <slot name="footer">
+      <b-tabs v-if="form.fields.tab || form.fields.length > 1" v-model="tabIndex">
+        <b-tab v-for="(tab, t) in form.fields" :key="t" :title="tab.tab" no-body
+          :disabled="tab.disabled"
+        ></b-tab>
+      </b-tabs>
+      <template v-for="(tab, t) in form.fields" :key="t">
+        <div class="card-body" v-if="tab.fields" :class="{ 'hidden': (t !== tabIndex) }" :key="t">
+          <b-form-group v-for="row in tab.fields" :key="[row.key].join('')" v-if="!('if' in row) || row.if"
+            :label-cols="(row.label) ? form.labelCols : 0" :label="row.label" :label-size="row.labelSize"
+            :state="isValid()" :invalid-feedback="getInvalidFeedback()"
+            class="input-element" :class="{ 'mb-0': !row.label, 'pt-3': !row.fields }"
+            horizontal
+          >
+            <b-input-group>
+              <template v-for="field in row.fields">
+                <span v-if="field.text" :key="field.index" :class="field.class">{{ field.text }}</span>
+                <component v-else-if="!('if' in field) || field.if"
+                  v-bind="field.attrs"
+                  :key="field.key"
+                  :is="field.component || defaultComponent"
+                  :isLoading="isLoading"
+                  :vuelidate="getVuelidateModel(field.key)"
+                  :class="getClass(row, field)"
+                  :value="getValue(field.key)"
+                  @input="setValue(field.key, $event)"
+                  @validations="setComponentValidations(field.key, $event)"
+                ></component>
+              </template>
+            </b-input-group>
+            <b-form-text v-if="row.text" v-t="row.text"></b-form-text>
+          </b-form-group>
+        </div>
+      </template>
+      <slot name="footer"
+        :isDeletable="isDeletable"
+      >
         <b-card-footer @mouseenter="vuelidate.$touch()">
           <pf-button-save :disabled="invalidForm" :isLoading="isLoading">{{ isNew? $t('Create') : $t('Save') }}</pf-button-save>
           <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Config?')" @on-delete="remove($event)"/>
@@ -86,6 +95,7 @@ export default {
   },
   data () {
     return {
+      tabIndex: 0,
       componentValidations: {}
     }
   },
@@ -94,7 +104,7 @@ export default {
       return pfFormInput
     },
     isDeletable () {
-      if(this.isNew || this.isClone || ('not_deletable' in this.model && this.model.not_deletable)) {
+      if (this.isNew || this.isClone || ('not_deletable' in this.model && this.model.not_deletable)) {
         return false
       }
       return true
@@ -157,17 +167,21 @@ export default {
         this.$set(model, key, value)
       }
       if (this.form.fields.length > 0) {
-        this.form.fields.forEach((row, index) => {
-          if ('fields' in row) {
-            row.fields.forEach((field, index) => {
-              if (field.key) {
-                setEachFieldValue(field.key, {})
-                if (
-                  'validators' in field && // has vuelidate validators
-                  (!('if' in field) || field.if) // is visible
-                ) {
-                  setEachFieldValue(field.key, field.validators)
-                }
+        this.form.fields.forEach(tab => {
+          if ('fields' in tab) {
+            tab.fields.forEach(row => {
+              if ('fields' in row) {
+                row.fields.forEach(field => {
+                  if (field.key) {
+                    setEachFieldValue(field.key, {})
+                    if (
+                      'validators' in field && // has vuelidate validators
+                      (!('if' in field) || field.if) // is visible
+                    ) {
+                      setEachFieldValue(field.key, field.validators)
+                    }
+                  }
+                })
               }
             })
           }
@@ -220,9 +234,16 @@ export default {
 </script>
 
 <style lang="scss">
-.input-group > span {
-  display: flex;
-  justify-contents: center;
-  align-items: center;
+.pf-config-view {
+  .input-group > span {
+    display: flex;
+    justify-contents: center;
+    align-items: center;
+  }
+  .card-body {
+    &.hidden {
+      display: none;
+    }
+  }
 }
 </style>

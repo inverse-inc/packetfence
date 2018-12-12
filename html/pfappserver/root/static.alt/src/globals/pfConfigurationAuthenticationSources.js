@@ -25,437 +25,597 @@ export const pfConfigurationAuthenticationSourceViewFields = (context) => {
   switch (sourceType) {
     case 'AD':
       return [
-        pfConfigurationViewFields.id(context),
-        pfConfigurationViewFields.description,
-        pfConfigurationViewFields.host_port_encryption,
-        pfConfigurationViewFields.connection_timeout,
-        pfConfigurationViewFields.write_timeout,
-        pfConfigurationViewFields.read_timeout,
-        pfConfigurationViewFields.basedn,
-        pfConfigurationViewFields.scope,
-        pfConfigurationViewFields.usernameattribute,
-        pfConfigurationViewFields.email_attribute,
-        pfConfigurationViewFields.binddn,
-        pfConfigurationViewFields.password(context),
-        pfConfigurationViewFields.cache_match,
-        pfConfigurationViewFields.monitor,
-        pfConfigurationViewFields.shuffle,
-        pfConfigurationViewFields.realms(context),
-        pfConfigurationViewFields.authentication_rules(context),
-        pfConfigurationViewFields.administration_rules(context)
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationViewFields.id(context),
+            pfConfigurationViewFields.description,
+            pfConfigurationViewFields.host_port_encryption,
+            pfConfigurationViewFields.connection_timeout,
+            pfConfigurationViewFields.write_timeout,
+            pfConfigurationViewFields.read_timeout,
+            pfConfigurationViewFields.basedn,
+            pfConfigurationViewFields.scope,
+            pfConfigurationViewFields.usernameattribute,
+            pfConfigurationViewFields.email_attribute,
+            pfConfigurationViewFields.binddn,
+            pfConfigurationViewFields.password(context),
+            pfConfigurationViewFields.cache_match,
+            pfConfigurationViewFields.monitor,
+            pfConfigurationViewFields.shuffle,
+            pfConfigurationViewFields.realms(context),
+            pfConfigurationViewFields.authentication_rules(context),
+            pfConfigurationViewFields.administration_rules(context)
+          ]
+        }
       ]
     case 'EAPTLS':
       return [
-        pfConfigurationViewFields.id(context),
-        pfConfigurationViewFields.description,
-        pfConfigurationViewFields.realms(context),
-        pfConfigurationViewFields.authentication_rules(context),
-        pfConfigurationViewFields.administration_rules(context)
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationViewFields.id(context),
+            pfConfigurationViewFields.description,
+            pfConfigurationViewFields.realms(context),
+            pfConfigurationViewFields.authentication_rules(context),
+            pfConfigurationViewFields.administration_rules(context)
+          ]
+        }
       ]
     case 'Htpasswd':
       return [
-        pfConfigurationViewFields.id(context),
-        pfConfigurationViewFields.description,
-        pfConfigurationViewFields.path,
-        pfConfigurationViewFields.realms(context),
-        pfConfigurationViewFields.authentication_rules(context),
-        pfConfigurationViewFields.administration_rules(context)
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationViewFields.id(context),
+            pfConfigurationViewFields.description,
+            pfConfigurationViewFields.path,
+            pfConfigurationViewFields.realms(context),
+            pfConfigurationViewFields.authentication_rules(context),
+            pfConfigurationViewFields.administration_rules(context)
+          ]
+        }
       ]
     case 'HTTP':
       return [
-        pfConfigurationViewFields.id(context),
-        pfConfigurationViewFields.description,
-        pfConfigurationViewFields.protocol_ip_port,
-        pfConfigurationViewFields.api_username,
-        pfConfigurationViewFields.api_password,
-        pfConfigurationViewFields.authentication_url,
-        pfConfigurationViewFields.authorization_url,
-        pfConfigurationViewFields.realms(context)
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationViewFields.id(context),
+            pfConfigurationViewFields.description,
+            pfConfigurationViewFields.protocol_ip_port,
+            pfConfigurationViewFields.api_username,
+            pfConfigurationViewFields.api_password,
+            pfConfigurationViewFields.authentication_url,
+            pfConfigurationViewFields.authorization_url,
+            pfConfigurationViewFields.realms(context)
+          ]
+        }
       ]
     case 'Kerberos':
       return [
-        pfConfigurationViewFields.id(context),
-        pfConfigurationViewFields.description,
-        pfConfigurationViewFields.host,
-        pfConfigurationViewFields.authenticate_realm,
-        pfConfigurationViewFields.realms(context),
-        pfConfigurationViewFields.authentication_rules(context),
-        pfConfigurationViewFields.administration_rules(context)
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationViewFields.id(context),
+            pfConfigurationViewFields.description,
+            pfConfigurationViewFields.host,
+            pfConfigurationViewFields.authenticate_realm,
+            pfConfigurationViewFields.realms(context),
+            pfConfigurationViewFields.authentication_rules(context),
+            pfConfigurationViewFields.administration_rules(context)
+          ]
+        }
       ]
     case 'LDAP':
       return [
-        pfConfigurationViewFields.id(context),
-        pfConfigurationViewFields.description,
-        pfConfigurationViewFields.host_port_encryption,
-        pfConfigurationViewFields.connection_timeout,
-        pfConfigurationViewFields.write_timeout,
-        pfConfigurationViewFields.read_timeout,
-        pfConfigurationViewFields.basedn,
-        pfConfigurationViewFields.scope,
-        pfConfigurationViewFields.usernameattribute,
-        pfConfigurationViewFields.email_attribute,
-        pfConfigurationViewFields.binddn,
-        pfConfigurationViewFields.password(context),
-        pfConfigurationViewFields.cache_match,
-        pfConfigurationViewFields.monitor,
-        pfConfigurationViewFields.shuffle,
-        pfConfigurationViewFields.realms(context),
-        pfConfigurationViewFields.authentication_rules(context),
-        pfConfigurationViewFields.administration_rules(context)
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationViewFields.id(context),
+            pfConfigurationViewFields.description,
+            pfConfigurationViewFields.host_port_encryption,
+            pfConfigurationViewFields.connection_timeout,
+            pfConfigurationViewFields.write_timeout,
+            pfConfigurationViewFields.read_timeout,
+            pfConfigurationViewFields.basedn,
+            pfConfigurationViewFields.scope,
+            pfConfigurationViewFields.usernameattribute,
+            pfConfigurationViewFields.email_attribute,
+            pfConfigurationViewFields.binddn,
+            pfConfigurationViewFields.password(context),
+            pfConfigurationViewFields.cache_match,
+            pfConfigurationViewFields.monitor,
+            pfConfigurationViewFields.shuffle,
+            pfConfigurationViewFields.realms(context),
+            pfConfigurationViewFields.authentication_rules(context),
+            pfConfigurationViewFields.administration_rules(context)
+          ]
+        }
       ]
     case 'POTD':
       return [
-        pfConfigurationViewFields.id(context),
-        pfConfigurationViewFields.description,
-        pfConfigurationViewFields.password_rotation,
-        pfConfigurationViewFields.password_email_update,
-        pfConfigurationViewFields.password_length,
-        pfConfigurationViewFields.realms(context),
-        pfConfigurationViewFields.authentication_rules(context),
-        pfConfigurationViewFields.administration_rules(context)
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationViewFields.id(context),
+            pfConfigurationViewFields.description,
+            pfConfigurationViewFields.password_rotation,
+            pfConfigurationViewFields.password_email_update,
+            pfConfigurationViewFields.password_length,
+            pfConfigurationViewFields.realms(context),
+            pfConfigurationViewFields.authentication_rules(context),
+            pfConfigurationViewFields.administration_rules(context)
+          ]
+        }
       ]
     case 'RADIUS':
       return [
-        pfConfigurationViewFields.id(context),
-        pfConfigurationViewFields.description,
-        pfConfigurationViewFields.host,
-        pfConfigurationViewFields.secret,
-        pfConfigurationViewFields.timeout,
-        pfConfigurationViewFields.monitor,
-        pfConfigurationViewFields.realms(context),
-        pfConfigurationViewFields.authentication_rules(context),
-        pfConfigurationViewFields.administration_rules(context)
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationViewFields.id(context),
+            pfConfigurationViewFields.description,
+            pfConfigurationViewFields.host,
+            pfConfigurationViewFields.secret,
+            pfConfigurationViewFields.timeout,
+            pfConfigurationViewFields.monitor,
+            pfConfigurationViewFields.realms(context),
+            pfConfigurationViewFields.authentication_rules(context),
+            pfConfigurationViewFields.administration_rules(context)
+          ]
+        }
       ]
     case 'SAML':
       return [
-        pfConfigurationViewFields.id(context),
-        pfConfigurationViewFields.description,
-        pfConfigurationViewFields.sp_entity_id,
-        pfConfigurationViewFields.sp_key_path,
-        pfConfigurationViewFields.idp_entity_id,
-        pfConfigurationViewFields.idp_metadata_path,
-        pfConfigurationViewFields.idp_cert_path,
-        pfConfigurationViewFields.idp_ca_cert_path,
-        pfConfigurationViewFields.username_attribute,
-        pfConfigurationViewFields.authorization_source_id(context)
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationViewFields.id(context),
+            pfConfigurationViewFields.description,
+            pfConfigurationViewFields.sp_entity_id,
+            pfConfigurationViewFields.sp_key_path,
+            pfConfigurationViewFields.idp_entity_id,
+            pfConfigurationViewFields.idp_metadata_path,
+            pfConfigurationViewFields.idp_cert_path,
+            pfConfigurationViewFields.idp_ca_cert_path,
+            pfConfigurationViewFields.username_attribute,
+            pfConfigurationViewFields.authorization_source_id(context)
+          ]
+        }
       ]
     case 'Email':
       return [
-        pfConfigurationViewFields.id(context),
-        pfConfigurationViewFields.description,
-        Object.assign(pfConfigurationViewFields.email_activation_timeout, {
-          text: i18n.t('This is the delay given to a guest who registered by email confirmation to log into his email and click the activation link.')
-        }), // re-text
-        pfConfigurationViewFields.allow_localdomain,
-        pfConfigurationViewFields.activation_domain,
-        pfConfigurationViewFields.create_local_account,
-        pfConfigurationViewFields.local_account_logins,
-        pfConfigurationViewFields.authentication_rules(context)
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationViewFields.id(context),
+            pfConfigurationViewFields.description,
+            Object.assign(pfConfigurationViewFields.email_activation_timeout, {
+              text: i18n.t('This is the delay given to a guest who registered by email confirmation to log into his email and click the activation link.')
+            }), // re-text
+            pfConfigurationViewFields.allow_localdomain,
+            pfConfigurationViewFields.activation_domain,
+            pfConfigurationViewFields.create_local_account,
+            pfConfigurationViewFields.local_account_logins,
+            pfConfigurationViewFields.authentication_rules(context)
+          ]
+        }
       ]
     case 'Facebook':
       return [
-        pfConfigurationViewFields.id(context),
-        pfConfigurationViewFields.description,
-        pfConfigurationViewFields.client_id,
-        pfConfigurationViewFields.client_secret,
-        Object.assign(pfConfigurationViewFields.site, { label: i18n.t('Graph API URL') }), // re-label
-        Object.assign(pfConfigurationViewFields.access_token_path, { label: i18n.t('Graph API Token Path') }), // re-label
-        pfConfigurationViewFields.access_token_param,
-        pfConfigurationViewFields.access_scope,
-        Object.assign(pfConfigurationViewFields.protected_resource_url, { label: i18n.t('Graph API URL of logged user') }), // re-label
-        pfConfigurationViewFields.redirect_url,
-        pfConfigurationViewFields.domains,
-        pfConfigurationViewFields.create_local_account,
-        pfConfigurationViewFields.local_account_logins,
-        pfConfigurationViewFields.authentication_rules(context)
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationViewFields.id(context),
+            pfConfigurationViewFields.description,
+            pfConfigurationViewFields.client_id,
+            pfConfigurationViewFields.client_secret,
+            Object.assign(pfConfigurationViewFields.site, { label: i18n.t('Graph API URL') }), // re-label
+            Object.assign(pfConfigurationViewFields.access_token_path, { label: i18n.t('Graph API Token Path') }), // re-label
+            pfConfigurationViewFields.access_token_param,
+            pfConfigurationViewFields.access_scope,
+            Object.assign(pfConfigurationViewFields.protected_resource_url, { label: i18n.t('Graph API URL of logged user') }), // re-label
+            pfConfigurationViewFields.redirect_url,
+            pfConfigurationViewFields.domains,
+            pfConfigurationViewFields.create_local_account,
+            pfConfigurationViewFields.local_account_logins,
+            pfConfigurationViewFields.authentication_rules(context)
+          ]
+        }
       ]
     case 'Github':
       return [
-        pfConfigurationViewFields.id(context),
-        pfConfigurationViewFields.description,
-        pfConfigurationViewFields.client_id,
-        pfConfigurationViewFields.client_secret,
-        Object.assign(pfConfigurationViewFields.site, { label: i18n.t('API URL') }), // re-label
-        pfConfigurationViewFields.authorize_path,
-        Object.assign(pfConfigurationViewFields.access_token_path, { label: i18n.t('API Token Path') }), // re-label
-        pfConfigurationViewFields.access_token_param,
-        pfConfigurationViewFields.access_scope,
-        Object.assign(pfConfigurationViewFields.protected_resource_url, { label: i18n.t('API URL of logged user') }), // re-label
-        pfConfigurationViewFields.redirect_url,
-        pfConfigurationViewFields.domains,
-        pfConfigurationViewFields.create_local_account,
-        pfConfigurationViewFields.local_account_logins,
-        pfConfigurationViewFields.authentication_rules(context)
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationViewFields.id(context),
+            pfConfigurationViewFields.description,
+            pfConfigurationViewFields.client_id,
+            pfConfigurationViewFields.client_secret,
+            Object.assign(pfConfigurationViewFields.site, { label: i18n.t('API URL') }), // re-label
+            pfConfigurationViewFields.authorize_path,
+            Object.assign(pfConfigurationViewFields.access_token_path, { label: i18n.t('API Token Path') }), // re-label
+            pfConfigurationViewFields.access_token_param,
+            pfConfigurationViewFields.access_scope,
+            Object.assign(pfConfigurationViewFields.protected_resource_url, { label: i18n.t('API URL of logged user') }), // re-label
+            pfConfigurationViewFields.redirect_url,
+            pfConfigurationViewFields.domains,
+            pfConfigurationViewFields.create_local_account,
+            pfConfigurationViewFields.local_account_logins,
+            pfConfigurationViewFields.authentication_rules(context)
+          ]
+        }
       ]
     case 'Google':
       return [
-        pfConfigurationViewFields.id(context),
-        pfConfigurationViewFields.description,
-        pfConfigurationViewFields.client_id,
-        pfConfigurationViewFields.client_secret,
-        Object.assign(pfConfigurationViewFields.site, { label: i18n.t('API URL') }), // re-label
-        pfConfigurationViewFields.authorize_path,
-        Object.assign(pfConfigurationViewFields.access_token_path, { label: i18n.t('API Token Path') }), // re-label
-        pfConfigurationViewFields.access_token_param,
-        pfConfigurationViewFields.access_scope,
-        Object.assign(pfConfigurationViewFields.protected_resource_url, { label: i18n.t('API URL of logged user') }), // re-label
-        pfConfigurationViewFields.redirect_url,
-        pfConfigurationViewFields.domains,
-        pfConfigurationViewFields.create_local_account,
-        pfConfigurationViewFields.local_account_logins,
-        pfConfigurationViewFields.authentication_rules(context)
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationViewFields.id(context),
+            pfConfigurationViewFields.description,
+            pfConfigurationViewFields.client_id,
+            pfConfigurationViewFields.client_secret,
+            Object.assign(pfConfigurationViewFields.site, { label: i18n.t('API URL') }), // re-label
+            pfConfigurationViewFields.authorize_path,
+            Object.assign(pfConfigurationViewFields.access_token_path, { label: i18n.t('API Token Path') }), // re-label
+            pfConfigurationViewFields.access_token_param,
+            pfConfigurationViewFields.access_scope,
+            Object.assign(pfConfigurationViewFields.protected_resource_url, { label: i18n.t('API URL of logged user') }), // re-label
+            pfConfigurationViewFields.redirect_url,
+            pfConfigurationViewFields.domains,
+            pfConfigurationViewFields.create_local_account,
+            pfConfigurationViewFields.local_account_logins,
+            pfConfigurationViewFields.authentication_rules(context)
+          ]
+        }
       ]
     case 'Instagram':
       return [
-        pfConfigurationViewFields.id(context),
-        pfConfigurationViewFields.description,
-        pfConfigurationViewFields.client_id,
-        pfConfigurationViewFields.client_secret,
-        Object.assign(pfConfigurationViewFields.site, { label: i18n.t('Graph API URL') }), // re-label
-        Object.assign(pfConfigurationViewFields.access_token_path, { label: i18n.t('Graph API Token Path') }), // re-label
-        pfConfigurationViewFields.access_token_param,
-        pfConfigurationViewFields.access_scope,
-        Object.assign(pfConfigurationViewFields.protected_resource_url, { label: i18n.t('Graph API URL of logged user') }), // re-label
-        pfConfigurationViewFields.redirect_url,
-        pfConfigurationViewFields.domains,
-        pfConfigurationViewFields.create_local_account,
-        pfConfigurationViewFields.local_account_logins,
-        pfConfigurationViewFields.authentication_rules(context)
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationViewFields.id(context),
+            pfConfigurationViewFields.description,
+            pfConfigurationViewFields.client_id,
+            pfConfigurationViewFields.client_secret,
+            Object.assign(pfConfigurationViewFields.site, { label: i18n.t('Graph API URL') }), // re-label
+            Object.assign(pfConfigurationViewFields.access_token_path, { label: i18n.t('Graph API Token Path') }), // re-label
+            pfConfigurationViewFields.access_token_param,
+            pfConfigurationViewFields.access_scope,
+            Object.assign(pfConfigurationViewFields.protected_resource_url, { label: i18n.t('Graph API URL of logged user') }), // re-label
+            pfConfigurationViewFields.redirect_url,
+            pfConfigurationViewFields.domains,
+            pfConfigurationViewFields.create_local_account,
+            pfConfigurationViewFields.local_account_logins,
+            pfConfigurationViewFields.authentication_rules(context)
+          ]
+        }
       ]
     case 'Kickbox':
       return [
-        pfConfigurationViewFields.id(context),
-        pfConfigurationViewFields.description,
-        pfConfigurationViewFields.api_key,
-        pfConfigurationViewFields.authentication_rules(context)
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationViewFields.id(context),
+            pfConfigurationViewFields.description,
+            pfConfigurationViewFields.api_key,
+            pfConfigurationViewFields.authentication_rules(context)
+          ]
+        }
       ]
     case 'LinkedIn':
       return [
-        pfConfigurationViewFields.id(context),
-        pfConfigurationViewFields.description,
-        pfConfigurationViewFields.client_id,
-        pfConfigurationViewFields.client_secret,
-        Object.assign(pfConfigurationViewFields.site, { label: i18n.t('API URL') }), // re-label
-        pfConfigurationViewFields.authorize_path,
-        Object.assign(pfConfigurationViewFields.access_token_path, { label: i18n.t('API Token Path') }), // re-label
-        pfConfigurationViewFields.access_token_param,
-        Object.assign(pfConfigurationViewFields.protected_resource_url, { label: i18n.t('API URL of logged user') }), // re-label
-        pfConfigurationViewFields.redirect_url,
-        pfConfigurationViewFields.domains,
-        pfConfigurationViewFields.create_local_account,
-        pfConfigurationViewFields.local_account_logins,
-        pfConfigurationViewFields.authentication_rules(context)
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationViewFields.id(context),
+            pfConfigurationViewFields.description,
+            pfConfigurationViewFields.client_id,
+            pfConfigurationViewFields.client_secret,
+            Object.assign(pfConfigurationViewFields.site, { label: i18n.t('API URL') }), // re-label
+            pfConfigurationViewFields.authorize_path,
+            Object.assign(pfConfigurationViewFields.access_token_path, { label: i18n.t('API Token Path') }), // re-label
+            pfConfigurationViewFields.access_token_param,
+            Object.assign(pfConfigurationViewFields.protected_resource_url, { label: i18n.t('API URL of logged user') }), // re-label
+            pfConfigurationViewFields.redirect_url,
+            pfConfigurationViewFields.domains,
+            pfConfigurationViewFields.create_local_account,
+            pfConfigurationViewFields.local_account_logins,
+            pfConfigurationViewFields.authentication_rules(context)
+          ]
+        }
       ]
     case 'Null':
       return [
-        pfConfigurationViewFields.id(context),
-        pfConfigurationViewFields.description,
-        pfConfigurationViewFields.email_required,
-        pfConfigurationViewFields.authentication_rules(context)
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationViewFields.id(context),
+            pfConfigurationViewFields.description,
+            pfConfigurationViewFields.email_required,
+            pfConfigurationViewFields.authentication_rules(context)
+          ]
+        }
       ]
     case 'OpenID':
       return [
-        pfConfigurationViewFields.id(context),
-        pfConfigurationViewFields.description,
-        pfConfigurationViewFields.client_id,
-        pfConfigurationViewFields.client_secret,
-        Object.assign(pfConfigurationViewFields.site, { label: i18n.t('API URL') }), // re-label
-        pfConfigurationViewFields.authorize_path,
-        Object.assign(pfConfigurationViewFields.access_token_path, { label: i18n.t('API Token Path') }), // re-label
-        pfConfigurationViewFields.access_scope,
-        Object.assign(pfConfigurationViewFields.protected_resource_url, { label: i18n.t('API URL of logged user') }), // re-label
-        pfConfigurationViewFields.redirect_url,
-        pfConfigurationViewFields.domains,
-        pfConfigurationViewFields.create_local_account,
-        pfConfigurationViewFields.local_account_logins,
-        pfConfigurationViewFields.authentication_rules(context)
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationViewFields.id(context),
+            pfConfigurationViewFields.description,
+            pfConfigurationViewFields.client_id,
+            pfConfigurationViewFields.client_secret,
+            Object.assign(pfConfigurationViewFields.site, { label: i18n.t('API URL') }), // re-label
+            pfConfigurationViewFields.authorize_path,
+            Object.assign(pfConfigurationViewFields.access_token_path, { label: i18n.t('API Token Path') }), // re-label
+            pfConfigurationViewFields.access_scope,
+            Object.assign(pfConfigurationViewFields.protected_resource_url, { label: i18n.t('API URL of logged user') }), // re-label
+            pfConfigurationViewFields.redirect_url,
+            pfConfigurationViewFields.domains,
+            pfConfigurationViewFields.create_local_account,
+            pfConfigurationViewFields.local_account_logins,
+            pfConfigurationViewFields.authentication_rules(context)
+          ]
+        }
       ]
     case 'Pinterest':
       return [
-        pfConfigurationViewFields.id(context),
-        pfConfigurationViewFields.description,
-        pfConfigurationViewFields.client_id,
-        pfConfigurationViewFields.client_secret,
-        Object.assign(pfConfigurationViewFields.site, { label: i18n.t('Graph API URL') }), // re-label
-        pfConfigurationViewFields.authorize_path,
-        Object.assign(pfConfigurationViewFields.access_token_path, { label: i18n.t('Graph API Token Path') }), // re-label
-        pfConfigurationViewFields.access_token_param,
-        pfConfigurationViewFields.access_scope,
-        Object.assign(pfConfigurationViewFields.protected_resource_url, { label: i18n.t('API URL of logged user') }), // re-label
-        pfConfigurationViewFields.redirect_url,
-        pfConfigurationViewFields.domains,
-        pfConfigurationViewFields.create_local_account,
-        pfConfigurationViewFields.local_account_logins,
-        pfConfigurationViewFields.authentication_rules(context)
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationViewFields.id(context),
+            pfConfigurationViewFields.description,
+            pfConfigurationViewFields.client_id,
+            pfConfigurationViewFields.client_secret,
+            Object.assign(pfConfigurationViewFields.site, { label: i18n.t('Graph API URL') }), // re-label
+            pfConfigurationViewFields.authorize_path,
+            Object.assign(pfConfigurationViewFields.access_token_path, { label: i18n.t('Graph API Token Path') }), // re-label
+            pfConfigurationViewFields.access_token_param,
+            pfConfigurationViewFields.access_scope,
+            Object.assign(pfConfigurationViewFields.protected_resource_url, { label: i18n.t('API URL of logged user') }), // re-label
+            pfConfigurationViewFields.redirect_url,
+            pfConfigurationViewFields.domains,
+            pfConfigurationViewFields.create_local_account,
+            pfConfigurationViewFields.local_account_logins,
+            pfConfigurationViewFields.authentication_rules(context)
+          ]
+        }
       ]
     case 'SMS':
       return [
-        pfConfigurationViewFields.id(context),
-        pfConfigurationViewFields.description,
-        pfConfigurationViewFields.sms_carriers,
-        pfConfigurationViewFields.sms_activation_timeout,
-        pfConfigurationViewFields.message,
-        pfConfigurationViewFields.pin_code_length,
-        pfConfigurationViewFields.create_local_account,
-        pfConfigurationViewFields.local_account_logins,
-        pfConfigurationViewFields.authentication_rules(context)
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationViewFields.id(context),
+            pfConfigurationViewFields.description,
+            pfConfigurationViewFields.sms_carriers,
+            pfConfigurationViewFields.sms_activation_timeout,
+            pfConfigurationViewFields.message,
+            pfConfigurationViewFields.pin_code_length,
+            pfConfigurationViewFields.create_local_account,
+            pfConfigurationViewFields.local_account_logins,
+            pfConfigurationViewFields.authentication_rules(context)
+          ]
+        }
       ]
     case 'SponsorEmail':
       return [
-        pfConfigurationViewFields.id(context),
-        pfConfigurationViewFields.description,
-        pfConfigurationViewFields.allow_localdomain,
-        Object.assign(pfConfigurationViewFields.email_activation_timeout, { text: i18n.t('Delay given to a sponsor to click the activation link.') }), // re-text
-        pfConfigurationViewFields.activation_domain,
-        pfConfigurationViewFields.sponsorship_bcc,
-        pfConfigurationViewFields.validate_sponsor,
-        pfConfigurationViewFields.create_local_account,
-        pfConfigurationViewFields.local_account_logins,
-        pfConfigurationViewFields.authentication_rules(context)
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationViewFields.id(context),
+            pfConfigurationViewFields.description,
+            pfConfigurationViewFields.allow_localdomain,
+            Object.assign(pfConfigurationViewFields.email_activation_timeout, { text: i18n.t('Delay given to a sponsor to click the activation link.') }), // re-text
+            pfConfigurationViewFields.activation_domain,
+            pfConfigurationViewFields.sponsorship_bcc,
+            pfConfigurationViewFields.validate_sponsor,
+            pfConfigurationViewFields.create_local_account,
+            pfConfigurationViewFields.local_account_logins,
+            pfConfigurationViewFields.authentication_rules(context)
+          ]
+        }
       ]
     case 'Twilio':
       return [
-        pfConfigurationViewFields.id(context),
-        pfConfigurationViewFields.description,
-        pfConfigurationViewFields.account_sid,
-        pfConfigurationViewFields.auth_token,
-        pfConfigurationViewFields.twilio_phone_number,
-        pfConfigurationViewFields.message,
-        pfConfigurationViewFields.pin_code_length,
-        pfConfigurationViewFields.create_local_account,
-        pfConfigurationViewFields.local_account_logins,
-        pfConfigurationViewFields.authentication_rules(context)
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationViewFields.id(context),
+            pfConfigurationViewFields.description,
+            pfConfigurationViewFields.account_sid,
+            pfConfigurationViewFields.auth_token,
+            pfConfigurationViewFields.twilio_phone_number,
+            pfConfigurationViewFields.message,
+            pfConfigurationViewFields.pin_code_length,
+            pfConfigurationViewFields.create_local_account,
+            pfConfigurationViewFields.local_account_logins,
+            pfConfigurationViewFields.authentication_rules(context)
+          ]
+        }
       ]
     case 'Twitter':
       return [
-        pfConfigurationViewFields.id(context),
-        pfConfigurationViewFields.description,
-        pfConfigurationViewFields.client_id,
-        pfConfigurationViewFields.client_secret,
-        Object.assign(pfConfigurationViewFields.site, { label: i18n.t('API URL') }), // re-label
-        pfConfigurationViewFields.authorize_path,
-        Object.assign(pfConfigurationViewFields.access_token_path, { label: i18n.t('API Token Path') }), // re-label
-        Object.assign(pfConfigurationViewFields.protected_resource_url, { label: i18n.t('API URL of logged user') }), // re-label
-        pfConfigurationViewFields.redirect_url,
-        pfConfigurationViewFields.domains,
-        pfConfigurationViewFields.authentication_rules(context)
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationViewFields.id(context),
+            pfConfigurationViewFields.description,
+            pfConfigurationViewFields.client_id,
+            pfConfigurationViewFields.client_secret,
+            Object.assign(pfConfigurationViewFields.site, { label: i18n.t('API URL') }), // re-label
+            pfConfigurationViewFields.authorize_path,
+            Object.assign(pfConfigurationViewFields.access_token_path, { label: i18n.t('API Token Path') }), // re-label
+            Object.assign(pfConfigurationViewFields.protected_resource_url, { label: i18n.t('API URL of logged user') }), // re-label
+            pfConfigurationViewFields.redirect_url,
+            pfConfigurationViewFields.domains,
+            pfConfigurationViewFields.authentication_rules(context)
+          ]
+        }
       ]
     case 'WindowsLive':
       return [
-        pfConfigurationViewFields.id(context),
-        pfConfigurationViewFields.description,
-        pfConfigurationViewFields.client_id,
-        pfConfigurationViewFields.client_secret,
-        Object.assign(pfConfigurationViewFields.site, { label: i18n.t('API URL') }), // re-label
-        pfConfigurationViewFields.authorize_path,
-        Object.assign(pfConfigurationViewFields.access_token_path, { label: i18n.t('API Token Path') }), // re-label
-        pfConfigurationViewFields.access_token_param,
-        pfConfigurationViewFields.access_scope,
-        Object.assign(pfConfigurationViewFields.protected_resource_url, { label: i18n.t('API URL of logged user') }), // re-label
-        pfConfigurationViewFields.redirect_url,
-        pfConfigurationViewFields.domains,
-        pfConfigurationViewFields.create_local_account,
-        pfConfigurationViewFields.local_account_logins,
-        pfConfigurationViewFields.authentication_rules(context)
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationViewFields.id(context),
+            pfConfigurationViewFields.description,
+            pfConfigurationViewFields.client_id,
+            pfConfigurationViewFields.client_secret,
+            Object.assign(pfConfigurationViewFields.site, { label: i18n.t('API URL') }), // re-label
+            pfConfigurationViewFields.authorize_path,
+            Object.assign(pfConfigurationViewFields.access_token_path, { label: i18n.t('API Token Path') }), // re-label
+            pfConfigurationViewFields.access_token_param,
+            pfConfigurationViewFields.access_scope,
+            Object.assign(pfConfigurationViewFields.protected_resource_url, { label: i18n.t('API URL of logged user') }), // re-label
+            pfConfigurationViewFields.redirect_url,
+            pfConfigurationViewFields.domains,
+            pfConfigurationViewFields.create_local_account,
+            pfConfigurationViewFields.local_account_logins,
+            pfConfigurationViewFields.authentication_rules(context)
+          ]
+        }
       ]
     case 'AdminProxy':
       return [
-        pfConfigurationViewFields.id(context),
-        pfConfigurationViewFields.description,
-        pfConfigurationViewFields.proxy_addresses,
-        pfConfigurationViewFields.user_header,
-        pfConfigurationViewFields.group_header,
-        pfConfigurationViewFields.administration_rules(context)
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationViewFields.id(context),
+            pfConfigurationViewFields.description,
+            pfConfigurationViewFields.proxy_addresses,
+            pfConfigurationViewFields.user_header,
+            pfConfigurationViewFields.group_header,
+            pfConfigurationViewFields.administration_rules(context)
+          ]
+        }
       ]
     case 'Blackhole':
       return [
-        pfConfigurationViewFields.id(context),
-        pfConfigurationViewFields.description
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationViewFields.id(context),
+            pfConfigurationViewFields.description
+          ]
+        }
       ]
     case 'Eduroam':
       return [
-        pfConfigurationViewFields.id(context),
-        pfConfigurationViewFields.description,
-        pfConfigurationViewFields.server1_address,
-        pfConfigurationViewFields.server1_port,
-        pfConfigurationViewFields.server2_address,
-        pfConfigurationViewFields.server2_port,
-        pfConfigurationViewFields.radius_secret,
-        pfConfigurationViewFields.auth_listening_port,
-        pfConfigurationViewFields.reject_realm(context),
-        pfConfigurationViewFields.local_realm(context),
-        pfConfigurationViewFields.monitor,
-        pfConfigurationViewFields.authentication_rules(context)
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationViewFields.id(context),
+            pfConfigurationViewFields.description,
+            pfConfigurationViewFields.server1_address,
+            pfConfigurationViewFields.server1_port,
+            pfConfigurationViewFields.server2_address,
+            pfConfigurationViewFields.server2_port,
+            pfConfigurationViewFields.radius_secret,
+            pfConfigurationViewFields.auth_listening_port,
+            pfConfigurationViewFields.reject_realm(context),
+            pfConfigurationViewFields.local_realm(context),
+            pfConfigurationViewFields.monitor,
+            pfConfigurationViewFields.authentication_rules(context)
+          ]
+        }
       ]
     case 'AuthorizeNet':
       return [
-        pfConfigurationViewFields.id(context),
-        pfConfigurationViewFields.description,
-        pfConfigurationViewFields.api_login_id,
-        pfConfigurationViewFields.transaction_key,
-        pfConfigurationViewFields.public_client_key,
-        pfConfigurationViewFields.domains,
-        pfConfigurationViewFields.currency,
-        pfConfigurationViewFields.test_mode,
-        pfConfigurationViewFields.send_email_confirmation,
-        pfConfigurationViewFields.create_local_account,
-        pfConfigurationViewFields.local_account_logins
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationViewFields.id(context),
+            pfConfigurationViewFields.description,
+            pfConfigurationViewFields.api_login_id,
+            pfConfigurationViewFields.transaction_key,
+            pfConfigurationViewFields.public_client_key,
+            pfConfigurationViewFields.domains,
+            pfConfigurationViewFields.currency,
+            pfConfigurationViewFields.test_mode,
+            pfConfigurationViewFields.send_email_confirmation,
+            pfConfigurationViewFields.create_local_account,
+            pfConfigurationViewFields.local_account_logins
+          ]
+        }
       ]
     case 'Mirapay':
       return [
-        pfConfigurationViewFields.id(context),
-        pfConfigurationViewFields.description,
-        { label: i18n.t('MiraPay iframe settings'), labelSize: 'lg' },
-        pfConfigurationViewFields.base_url,
-        pfConfigurationViewFields.merchant_id,
-        pfConfigurationViewFields.shared_secret,
-        { label: i18n.t('MiraPay direct settings'), labelSize: 'lg' },
-        pfConfigurationViewFields.direct_base_url,
-        pfConfigurationViewFields.terminal_id,
-        pfConfigurationViewFields.shared_secret_direct,
-        pfConfigurationViewFields.terminal_group_id,
-        { label: i18n.t('Additional settings'), labelSize: 'lg' },
-        pfConfigurationViewFields.service_fqdn,
-        pfConfigurationViewFields.currency,
-        pfConfigurationViewFields.test_mode,
-        pfConfigurationViewFields.send_email_confirmation,
-        pfConfigurationViewFields.create_local_account,
-        pfConfigurationViewFields.local_account_logins
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationViewFields.id(context),
+            pfConfigurationViewFields.description,
+            { label: i18n.t('MiraPay iframe settings'), labelSize: 'lg' },
+            pfConfigurationViewFields.base_url,
+            pfConfigurationViewFields.merchant_id,
+            pfConfigurationViewFields.shared_secret,
+            { label: i18n.t('MiraPay direct settings'), labelSize: 'lg' },
+            pfConfigurationViewFields.direct_base_url,
+            pfConfigurationViewFields.terminal_id,
+            pfConfigurationViewFields.shared_secret_direct,
+            pfConfigurationViewFields.terminal_group_id,
+            { label: i18n.t('Additional settings'), labelSize: 'lg' },
+            pfConfigurationViewFields.service_fqdn,
+            pfConfigurationViewFields.currency,
+            pfConfigurationViewFields.test_mode,
+            pfConfigurationViewFields.send_email_confirmation,
+            pfConfigurationViewFields.create_local_account,
+            pfConfigurationViewFields.local_account_logins
+          ]
+        }
       ]
     case 'Paypal':
       return [
-        pfConfigurationViewFields.id(context),
-        pfConfigurationViewFields.description,
-        pfConfigurationViewFields.currency,
-        pfConfigurationViewFields.send_email_confirmation,
-        pfConfigurationViewFields.test_mode,
-        pfConfigurationViewFields.identity_token,
-        pfConfigurationViewFields.cert_id,
-        pfConfigurationViewFields.cert_file,
-        pfConfigurationViewFields.key_file,
-        pfConfigurationViewFields.paypal_cert_file,
-        pfConfigurationViewFields.email_address,
-        pfConfigurationViewFields.payment_type,
-        pfConfigurationViewFields.domains,
-        pfConfigurationViewFields.create_local_account,
-        pfConfigurationViewFields.local_account_logins
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationViewFields.id(context),
+            pfConfigurationViewFields.description,
+            pfConfigurationViewFields.currency,
+            pfConfigurationViewFields.send_email_confirmation,
+            pfConfigurationViewFields.test_mode,
+            pfConfigurationViewFields.identity_token,
+            pfConfigurationViewFields.cert_id,
+            pfConfigurationViewFields.cert_file,
+            pfConfigurationViewFields.key_file,
+            pfConfigurationViewFields.paypal_cert_file,
+            pfConfigurationViewFields.email_address,
+            pfConfigurationViewFields.payment_type,
+            pfConfigurationViewFields.domains,
+            pfConfigurationViewFields.create_local_account,
+            pfConfigurationViewFields.local_account_logins
+          ]
+        }
       ]
     case 'Stripe':
       return [
-        pfConfigurationViewFields.id(context),
-        pfConfigurationViewFields.description,
-        pfConfigurationViewFields.currency,
-        pfConfigurationViewFields.send_email_confirmation,
-        pfConfigurationViewFields.test_mode,
-        pfConfigurationViewFields.secret_key,
-        pfConfigurationViewFields.publishable_key,
-        pfConfigurationViewFields.style,
-        pfConfigurationViewFields.domains,
-        pfConfigurationViewFields.create_local_account,
-        pfConfigurationViewFields.local_account_logins
+        {
+          tab: null, // ignore tabs
+          fields: [
+            pfConfigurationViewFields.id(context),
+            pfConfigurationViewFields.description,
+            pfConfigurationViewFields.currency,
+            pfConfigurationViewFields.send_email_confirmation,
+            pfConfigurationViewFields.test_mode,
+            pfConfigurationViewFields.secret_key,
+            pfConfigurationViewFields.publishable_key,
+            pfConfigurationViewFields.style,
+            pfConfigurationViewFields.domains,
+            pfConfigurationViewFields.create_local_account,
+            pfConfigurationViewFields.local_account_logins
+          ]
+        }
       ]
     default:
-      return []
+      return [
+        {
+          tab: null, // ignore tabs
+          fields: []
+        }
+      ]
   }
 }
 

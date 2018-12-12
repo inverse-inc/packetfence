@@ -7,7 +7,7 @@ import {
 
 const {
   required,
-  alphaNum
+  ipAddress
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationSwitchesListColumns = [
@@ -28,31 +28,67 @@ export const pfConfigurationSwitchesListFields = [
 
 export const pfConfigurationSwitchViewFields = (context = {}) => {
   const { isNew = false, isClone = false } = context
+  console.log('pfConfigurationSwitchViewFields')
   return [
     {
-      label: i18n.t('Identifier'),
+      tab: i18n.t('Definition'),
       fields: [
         {
-          key: 'id',
-          component: pfFormInput,
-          attrs: {
-            disabled: (!isNew && !isClone)
-          },
-          validators: {
-            [i18n.t('Identifier required.')]: required,
-            [i18n.t('Alphanumeric value required.')]: alphaNum
-          }
+          label: i18n.t('Identifier'),
+          fields: [
+            {
+              key: 'id',
+              component: pfFormInput,
+              attrs: {
+                disabled: (!isNew && !isClone)
+              },
+              validators: {
+                [i18n.t('Identifier required.')]: required,
+                [i18n.t('IP addresses only.')]: ipAddress
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Description'),
+          fields: [
+            {
+              key: 'notes',
+              component: pfFormInput
+            }
+          ]
         }
       ]
     },
     {
-      label: i18n.t('Description'),
-      fields: [
-        {
-          key: 'notes',
-          component: pfFormInput
-        }
-      ]
+      tab: i18n.t('Roles'),
+      disabled: true,
+      fields: []
+    },
+    {
+      tab: i18n.t('Inline'),
+      disabled: true,
+      fields: []
+    },
+    {
+      tab: i18n.t('RADIUS'),
+      disabled: true,
+      fields: []
+    },
+    {
+      tab: i18n.t('SNMP'),
+      disabled: true,
+      fields: []
+    },
+    {
+      tab: i18n.t('CLI'),
+      disabled: true,
+      fields: []
+    },
+    {
+      tab: i18n.t('Web Services'),
+      disabled: true,
+      fields: []
     }
   ]
 }

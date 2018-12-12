@@ -26,27 +26,32 @@ export const pfConfigurationRoleViewFields = (context = {}) => {
   const { isNew = false, isClone = false } = context
   return [
     {
-      label: i18n.t('Name'),
+      tab: null, // ignore tabs
       fields: [
         {
-          key: 'id',
-          component: pfFormInput,
-          attrs: {
-            disabled: (!isNew && !isClone)
-          },
-          validators: {
-            [i18n.t('Name required.')]: required,
-            [i18n.t('Alphanumeric value required.')]: alphaNum
-          }
-        }
-      ]
-    },
-    {
-      label: i18n.t('Description'),
-      fields: [
+          label: i18n.t('Name'),
+          fields: [
+            {
+              key: 'id',
+              component: pfFormInput,
+              attrs: {
+                disabled: (!isNew && !isClone)
+              },
+              validators: {
+                [i18n.t('Name required.')]: required,
+                [i18n.t('Alphanumeric value required.')]: alphaNum
+              }
+            }
+          ]
+        },
         {
-          key: 'notes',
-          component: pfFormInput
+          label: i18n.t('Description'),
+          fields: [
+            {
+              key: 'notes',
+              component: pfFormInput
+            }
+          ]
         }
       ]
     }
