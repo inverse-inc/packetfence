@@ -13,7 +13,6 @@ import pfFormToggle from '@/components/pfFormToggle'
 import { pfAuthenticationConditionType as authenticationConditionType } from '@/globals/pfAuthenticationConditions'
 import { pfDatabaseSchema as schema } from '@/globals/pfDatabaseSchema'
 import { pfFieldType as fieldType } from '@/globals/pfField'
-// import { pfRegExp as regExp } from '@/globals/pfRegExp'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import {
   and,
@@ -21,9 +20,7 @@ import {
   conditional,
   compareDate,
   isDateFormat,
-  // isFQDN,
   isPort,
-  // isPrice,
   sourceExists,
   requireAllSiblingFields,
   requireAnySiblingFields,
@@ -36,7 +33,6 @@ const {
   alphaNum,
   integer,
   numeric,
-  // macAddress,
   ipAddress,
   maxLength,
   minValue,
