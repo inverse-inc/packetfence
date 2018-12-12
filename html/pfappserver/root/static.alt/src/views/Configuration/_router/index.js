@@ -7,6 +7,8 @@ import FloatingDevicesStore from '../_store/floatingDevices'
 import PortalModulesStore from '../_store/portalModules'
 import RealmsStore from '../_store/realms'
 import RolesStore from '../_store/roles'
+import SwitchesStore from '../_store/switches'
+import SwitchGroupsStore from '../_store/switchGroups'
 
 const PoliciesAccessControlSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/PoliciesAccessControlSection')
 const RolesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/RolesList')
@@ -16,6 +18,11 @@ const DomainView = () => import(/* webpackChunkName: "Configuration" */ '../_com
 const RealmView = () => import(/* webpackChunkName: "Configuration" */ '../_components/RealmView')
 const AuthenticationSourcesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/AuthenticationSourcesList')
 const AuthenticationSourceView = () => import(/* webpackChunkName: "Configuration" */ '../_components/AuthenticationSourceView')
+const NetworkDevicesTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkDevicesTabs')
+const SwitchesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SwitchesList')
+const SwitchView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SwitchView')
+const SwitchGroupsList = () => import(/* webpackChunkName: "Configuration" */ '../_components/SwitchGroupsList')
+const SwitchGroupView = () => import(/* webpackChunkName: "Configuration" */ '../_components/SwitchGroupView')
 
 const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
 const FloatingDevicesList = () => import(/* webpackChunkName: "Configuration" */ '../_components/FloatingDevicesList')
@@ -56,6 +63,12 @@ const route = {
     }
     if (!store.state.$_billing_tiers) {
       store.registerModule('$_billing_tiers', BillingTiersStore)
+    }
+    if (!store.state.$_switches) {
+      store.registerModule('$_switches', SwitchesStore)
+    }
+    if (!store.state.$_switchgroups) {
+      store.registerModule('$_switchgroups', SwitchGroupsStore)
     }
     next()
   },
@@ -166,6 +179,52 @@ const route = {
       props: (route) => ({ storeName: '$_sources', id: route.params.id, isClone: true }),
       beforeEnter: (to, from, next) => {
         store.dispatch('$_sources/getAuthenticationSource', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'switches',
+      name: 'switches',
+      component: NetworkDevicesTabs,
+      props: (route) => ({ tab: 'switches', query: route.query.query })
+    },
+    {
+      path: 'switches/new',
+      name: 'newSwitch',
+      component: SwitchView,
+      props: (route) => ({ storeName: '$_switches', isNew: true })
+    },
+    {
+      path: 'switch/:id',
+      name: 'switch',
+      component: SwitchView,
+      props: (route) => ({ storeName: '$_switches', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_switches/getSwitch', to.params.id).then(object => {
+          next()
+        })
+      }
+    },
+    {
+      path: 'switch_groups',
+      name: 'switch_groups',
+      component: NetworkDevicesTabs,
+      props: (route) => ({ tab: 'switch_groups', query: route.query.query })
+    },
+    {
+      path: 'switch_groups/new',
+      name: 'newSwitchGroup',
+      component: SwitchGroupView,
+      props: (route) => ({ storeName: '$_switch_groups', isNew: true })
+    },
+    {
+      path: 'switch_group/:id',
+      name: 'switch_group',
+      component: SwitchGroupView,
+      props: (route) => ({ storeName: '$_switch_groups', id: route.params.id }),
+      beforeEnter: (to, from, next) => {
+        store.dispatch('$_switch_groups/getSwitchGroup', to.params.id).then(object => {
           next()
         })
       }

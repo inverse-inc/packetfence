@@ -32,7 +32,13 @@ export default {
                 { name: 'REALMS', path: '/configuration/realms' }
               ]
             },
-            { name: 'Authentication Sources', path: '/configuration/sources' }
+            { name: 'Authentication Sources', path: '/configuration/sources' },
+            { name: 'Network Devices',
+              items: [
+                { name: 'Switches', path: '/configuration/switches' },
+                { name: 'Switch Groups', path: '/configuration/switch_groups' }
+              ]
+            }
           ]
         },
         {

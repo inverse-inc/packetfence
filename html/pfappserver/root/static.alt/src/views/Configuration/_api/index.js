@@ -159,5 +159,57 @@ export default {
     return apiCall.get(`config/portal_module/${id}`).then(response => {
       return response.data.item
     })
+  },
+  /**
+   * Switches
+   */
+  switches: params => {
+    return apiCall.get(`config/switches`, { params }).then(response => {
+      return response.data
+    })
+  },
+  switche: id => {
+    return apiCall.get(`config/switch/${id}`).then(response => {
+      return response.data.item
+    })
+  },
+  createSwitch: data => {
+    return apiCall.post('config/switches', data).then(response => {
+      return response.data
+    })
+  },
+  updateSwitch: data => {
+    return apiCall.patch(`config/switch/${data.id}`, data).then(response => {
+      return response.data
+    })
+  },
+  deleteSwitch: id => {
+    return apiCall.delete(`config/switch/${id}`)
+  },
+  /**
+   * SwitchGroups
+   */
+  switchGroups: params => {
+    return apiCall.get(`config/switch_groups`, { params }).then(response => {
+      return response.data
+    })
+  },
+  switchGroup: id => {
+    return apiCall.get(`config/switch_group/${id}`).then(response => {
+      return response.data.item
+    })
+  },
+  createSwitchGroup: data => {
+    return apiCall.post('config/switch_groups', data).then(response => {
+      return response.data
+    })
+  },
+  updateSwitchGroup: data => {
+    return apiCall.patch(`config/switch_group/${data.id}`, data).then(response => {
+      return response.data
+    })
+  },
+  deleteSwitchGroup: id => {
+    return apiCall.delete(`config/switch_group/${id}`)
   }
 }

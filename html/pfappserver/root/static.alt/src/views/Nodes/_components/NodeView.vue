@@ -148,7 +148,6 @@
               </pf-form-row>
             </b-col>
           </b-row>
-
         </b-tab>
 
         <b-tab title="Fingerbank">
