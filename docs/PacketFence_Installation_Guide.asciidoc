@@ -484,6 +484,7 @@ PacketFence can authenticate users that register devices via the captive portal 
 * BlackHole
 * Email
 * External HTTP API
+* Clickatell
 * Facebook (OAuth 2)
 * Github (OAuth 2)
 * Google (OAuth 2)
@@ -538,6 +539,11 @@ You will also need to select the proper carriers to do your test. Make sure you 
 
 Click on 'Save' to save the new authentication source.
 
+[float]
+Clickatell Source
++++++++++++++++++
+
+To use Clickatell as an SMS source, first register at https://www.clickatell.com to get an API Key for the SMS integration. Then add it as an authentication source the same way as above, except choosing 'Clickatell' instead of 'SMS' in 'Add source->External'. Enter a name, description and your Clickatell API key in the source configuration, then add the authentication rule. 
 
 Configuring the Connection Profile
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

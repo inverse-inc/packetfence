@@ -20,7 +20,7 @@ type=Authentication::Login
 [default_guest_policy]
 description=Guest signup
 type=Authentication::Choice
-multi_source_object_classes=pf::Authentication::Source::EmailSource,pf::Authentication::Source::SMSSource,pf::Authentication::Source::TwilioSource,pf::Authentication::Source::SponsorEmailSource,pf::Authentication::Source::NullSource
+multi_source_object_classes=pf::Authentication::Source::ClickatellSource,pf::Authentication::Source::EmailSource,pf::Authentication::Source::SMSSource,pf::Authentication::Source::TwilioSource,pf::Authentication::Source::SponsorEmailSource,pf::Authentication::Source::NullSource
 
 [default_oauth_policy]
 description=OAuth login
