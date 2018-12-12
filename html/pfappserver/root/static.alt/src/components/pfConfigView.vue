@@ -9,10 +9,14 @@
           </h4>
         </b-card-header>
       </slot>
-      <b-tabs v-if="form.fields.tab || form.fields.length > 1" v-model="tabIndex">
-        <b-tab v-for="(tab, t) in form.fields" :key="t" :title="tab.tab" no-body
+      <b-tabs v-if="form.fields.tab || form.fields.length > 1" v-model="tabIndex" :key="tabKey">
+        <b-tab v-for="(tab, t) in form.fields" :key="t"
           :disabled="tab.disabled"
-        ></b-tab>
+          :title-link-class="{'text-danger': getTabErrorCount(t) > 0 }"
+          no-body
+        >
+          <template slot="title">{{ tab.tab }}</template>
+        </b-tab>
       </b-tabs>
       <template v-for="(tab, t) in form.fields" :key="t">
         <div class="card-body" v-if="tab.fields" :class="{ 'hidden': (t !== tabIndex) }" :key="t">
@@ -55,6 +59,7 @@
 </template>
 
 <script>
+import uuidv4 from 'uuid/v4'
 import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfFormInput from '@/components/pfFormInput'
@@ -96,6 +101,7 @@ export default {
   data () {
     return {
       tabIndex: 0,
+      tabKey: uuidv4(), // control tabs DOM rendering
       componentValidations: {}
     }
   },
@@ -212,11 +218,22 @@ export default {
         c.push('mr-1') // add right-margin
       }
       return c.join(' ')
+    },
+    getTabErrorCount (tabIndex) {
+      return this.form.fields[tabIndex].fields.reduce((tabCount, field) => {
+        return field.fields.reduce((fieldCount, field) => {
+          if (field.key in this.vuelidate && this.vuelidate[field.key].$anyError) {
+            fieldCount++
+          }
+          return fieldCount
+        }, tabCount)
+      }, 0)
     }
   },
   watch: {
     model: {
       handler: function (a, b) {
+        this.tabKey = uuidv4() // redraw tabs
         if (this.vuelidate.$dirty) {
           this.$nextTick(() => {
             this.vuelidate.$touch()
@@ -224,6 +241,12 @@ export default {
         }
       },
       immediate: true,
+      deep: true
+    },
+    vuelidate: {
+      handler: function (a, b) {
+        this.tabKey = uuidv4() // redraw tabs
+      },
       deep: true
     }
   },
