@@ -26,7 +26,6 @@ use Catalyst qw/
   Session::Store::CHI
   Session::State::MAC
   StackTrace
-  Unicode::Encoding
   /;
 
 use Try::Tiny;
