@@ -215,7 +215,7 @@ export default {
       })
       this.$emit(
         ((this.toggled) ? 'checked' : 'unchecked'),
-        ((this.toggled) ? this.valies.checked : this.values.unchecked)
+        ((this.toggled) ? this.values.checked : this.values.unchecked)
       )
     }
   }
