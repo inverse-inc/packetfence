@@ -175,16 +175,13 @@ export default {
       }
       if (this.form.fields.length > 0) {
         this.form.fields.forEach(tab => {
-          if ('fields' in tab) {
+          if ('fields' in tab && (!('if' in tab) || tab.if)) {
             tab.fields.forEach(row => {
-              if ('fields' in row) {
+              if ('fields' in row && (!('if' in row) || row.if)) {
                 row.fields.forEach(field => {
                   if (field.key) {
                     setEachFieldValue(field.key, {})
-                    if (
-                      'validators' in field && // has vuelidate validators
-                      (!('if' in field) || field.if) // is visible
-                    ) {
+                    if ('validators' in field) {
                       setEachFieldValue(field.key, field.validators)
                     }
                   }
@@ -234,6 +231,7 @@ export default {
   watch: {
     model: {
       handler: function (a, b) {
+        this.$emit('validations', this.getExternalValidations())
         this.tabKey = uuidv4() // redraw tabs
         if (this.vuelidate.$dirty) {
           this.$nextTick(() => {
