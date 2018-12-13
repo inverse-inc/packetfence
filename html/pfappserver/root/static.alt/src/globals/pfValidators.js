@@ -165,7 +165,7 @@ export const isFQDN = (value) => {
 
 export const isPort = (value) => {
   if (!value) return true
-  return ~~value >= 1 && ~~value <= 65535
+  return ~~value === parseFloat(value) && ~~value >= 1 && ~~value <= 65535
 }
 
 export const isPrice = (value) => {
