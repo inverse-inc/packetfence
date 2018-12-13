@@ -10,7 +10,7 @@
         </b-card-header>
       </slot>
       <b-tabs v-if="form.fields.tab || form.fields.length > 1" v-model="tabIndex" :key="tabKey">
-        <b-tab v-for="(tab, t) in form.fields" :key="t"
+        <b-tab v-for="(tab, t) in form.fields" :key="t" v-if="!('if' in tab) || tab.if"
           :disabled="tab.disabled"
           :title-link-class="{'text-danger': getTabErrorCount(t) > 0 }"
           no-body
@@ -31,6 +31,7 @@
                 <span v-if="field.text" :key="field.index" :class="field.class">{{ field.text }}</span>
                 <component v-else-if="!('if' in field) || field.if"
                   v-bind="field.attrs"
+                  v-on="field.listeners"
                   :key="field.key"
                   :is="field.component || defaultComponent"
                   :isLoading="isLoading"
