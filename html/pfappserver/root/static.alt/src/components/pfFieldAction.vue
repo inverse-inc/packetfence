@@ -60,6 +60,24 @@
         :invalid-feedback="valueInvalidFeedback"
       ></pf-form-prefix-multiplier>
 
+      <!-- Type: SUBSTRING -->
+      <pf-form-input v-if="isFieldType(substringValueType)"
+        v-model="localValue"
+        ref="localValue"
+        :vuelidate="valueVuelidateModel"
+        :invalid-feedback="valueInvalidFeedback"
+      ></pf-form-input>
+
+      <!-- Type: INTEGER -->
+      <pf-form-input v-if="isFieldType(integerValueType)"
+        v-model="localValue"
+        ref="localValue"
+        type="number"
+        step="1"
+        :vuelidate="valueVuelidateModel"
+        :invalid-feedback="valueInvalidFeedback"
+      ></pf-form-input>
+
     </b-col>
     <b-col v-if="$slots.append" cols="1" align-self="start" class="pt-1 text-center col-form-label">
       <slot name="append"></slot>
@@ -71,6 +89,7 @@
 /* eslint key-spacing: ["error", { "mode": "minimum" }] */
 import pfFormChosen from '@/components/pfFormChosen'
 import pfFormDatetime from '@/components/pfFormDatetime'
+import pfFormInput from '@/components/pfFormInput'
 import pfFormPrefixMultiplier from '@/components/pfFormPrefixMultiplier'
 import {
   pfFieldType as fieldType,
@@ -83,6 +102,7 @@ export default {
   components: {
     pfFormChosen,
     pfFormDatetime,
+    pfFormInput,
     pfFormPrefixMultiplier
   },
   props: {
