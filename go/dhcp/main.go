@@ -84,10 +84,12 @@ func main() {
 	VIPIp = make(map[string]net.IP)
 
 	go func() {
+		var DHCPinterfaces pfconfigdriver.DHCPInts
+		pfconfigdriver.FetchDecodeSocket(ctx, &DHCPinterfaces)
 		var interfaces pfconfigdriver.ListenInts
 		pfconfigdriver.FetchDecodeSocket(ctx, &interfaces)
 		for {
-			DHCPConfig.detectVIP(interfaces)
+			DHCPConfig.detectVIP(append(interfaces.Element, DHCPinterfaces.Element...))
 
 			time.Sleep(3 * time.Second)
 		}

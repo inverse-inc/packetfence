@@ -153,14 +153,11 @@ sub build {
                 push @{ $self->{_interfaces}->{radius_ints} }, $int_obj;
             }
             elsif ( $type eq 'dns' ) {
-                $int_obj->tag( "vip", $self->_fetch_virtual_ip( $int, $interface ) );
-                push @{ $self->{_interfaces}->{dns_ints} }, $int_obj;
+                push @{ $self->{_interfaces}->{dns_ints} }, $int if ( $int !~ /:\d+$/ )
             }
             elsif ( $type eq 'dhcpd' ) {
-                $int_obj->tag( "vip", $self->_fetch_virtual_ip( $int, $interface ) );
-                push @{ $self->{_interfaces}->{dhcpd_ints} }, $int_obj;
+                push @{ $self->{_interfaces}->{dhcpd_ints} }, $int if ( $int !~ /:\d+$/ )
             }
-
         }
     }
 

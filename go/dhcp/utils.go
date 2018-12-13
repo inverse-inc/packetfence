@@ -115,12 +115,12 @@ func InterfaceScopeFromMac(MAC string) string {
 }
 
 // Detect the vip on each interfaces
-func (d *Interfaces) detectVIP(interfaces pfconfigdriver.ListenInts) {
+func (d *Interfaces) detectVIP(interfaces []string) {
 
 	var keyConfCluster pfconfigdriver.NetInterface
 	keyConfCluster.PfconfigNS = "config::Pf(CLUSTER," + pfconfigdriver.FindClusterName(ctx) + ")"
 
-	for _, v := range interfaces.Element {
+	for _, v := range interfaces {
 		keyConfCluster.PfconfigHashNS = "interface " + v
 		pfconfigdriver.FetchDecodeSocket(ctx, &keyConfCluster)
 		// Nothing in keyConfCluster.Ip so we are not in cluster mode
