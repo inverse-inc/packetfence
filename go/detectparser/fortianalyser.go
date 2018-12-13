@@ -1,8 +1,11 @@
 package detectparser
 
 import (
-	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"regexp"
+	"time"
+
+	cache "github.com/fdurand/go-cache"
+	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
 
 var fortiAnalyserRegexPattern1 = regexp.MustCompile(`\s+`)
@@ -10,6 +13,7 @@ var fortiAnalyserRegexPattern2 = regexp.MustCompile(`\=`)
 
 type FortiAnalyserParser struct {
 	Pattern1, Pattern2 *regexp.Regexp
+	RateLimit          *cache.Cache
 }
 
 func (s *FortiAnalyserParser) Parse(line string) ([]ApiCall, error) {
@@ -52,7 +56,8 @@ func (s *FortiAnalyserParser) Parse(line string) ([]ApiCall, error) {
 
 func NewFortiAnalyserParser(*PfdetectConfig) (Parser, error) {
 	return &FortiAnalyserParser{
-		Pattern1: fortiAnalyserRegexPattern1.Copy(),
-		Pattern2: fortiAnalyserRegexPattern2.Copy(),
+		Pattern1:  fortiAnalyserRegexPattern1.Copy(),
+		Pattern2:  fortiAnalyserRegexPattern2.Copy(),
+		RateLimit: cache.New(5*time.Second, 10*time.Second),
 	}, nil
 }

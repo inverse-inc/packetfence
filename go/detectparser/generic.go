@@ -3,18 +3,22 @@ package detectparser
 import (
 	"context"
 	"fmt"
+	"regexp"
+	"strings"
+	"time"
+	"unicode"
+	"unicode/utf8"
+
+	cache "github.com/fdurand/go-cache"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
-	"regexp"
-	"strings"
-	"unicode"
-	"unicode/utf8"
 )
 
 type GenericParser struct {
-	Pattern *regexp.Regexp
-	Rules   []GenericParserRule
+	Pattern   *regexp.Regexp
+	Rules     []GenericParserRule
+	RateLimit *cache.Cache
 }
 
 var genericPatternRegex = regexp.MustCompile(`\s*[,=]\s*`)
@@ -230,7 +234,8 @@ func NewGenericParser(config *PfdetectConfig) (Parser, error) {
 	}
 
 	return &GenericParser{
-		Pattern: genericPatternRegex.Copy(),
-		Rules:   rules,
+		Pattern:   genericPatternRegex.Copy(),
+		Rules:     rules,
+		RateLimit: cache.New(5*time.Second, 10*time.Second),
 	}, nil
 }

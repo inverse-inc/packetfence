@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"regexp"
+	"time"
 
+	cache "github.com/fdurand/go-cache"
 	"github.com/inverse-inc/packetfence/go/log"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 )
@@ -19,6 +21,7 @@ type IPToMacResolver interface {
 type SuricataMD5Parser struct {
 	RemovePrefix   *regexp.Regexp
 	ResolverIp2Mac IPToMacResolver
+	RateLimit      *cache.Cache
 }
 
 func (s *SuricataMD5Parser) Parse(line string) ([]ApiCall, error) {
@@ -98,6 +101,7 @@ func (*SuricataMD5Parser) IpToMac(ip string) (string, error) {
 func NewSuricataMD5Parser(*PfdetectConfig) (Parser, error) {
 	p := &SuricataMD5Parser{
 		RemovePrefix: suricataMD5RegexRemovePrefix.Copy(),
+		RateLimit:    cache.New(5*time.Second, 10*time.Second),
 	}
 	p.ResolverIp2Mac = p
 	return p, nil
