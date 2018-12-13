@@ -248,6 +248,18 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('INTERFACES_RE
             $interface_ref->{$interface}->{'type'} =~ s/,radius//;
         }
     }
+    if ( $interface_ref->{$interface}->{'type'} =~ 'dhcpd') {
+        if ($interface_ref->{$interface}->{'type'} !~ /^dhcpd/i ) {
+            push @{$interface_ref->{$interface}->{'additional_listening_daemons'}}, "dhcpd";
+            $interface_ref->{$interface}->{'type'} =~ s/,dhcpd//;
+        }
+    }
+    if ( $interface_ref->{$interface}->{'type'} =~ 'dns') {
+        if ($interface_ref->{$interface}->{'type'} !~ /^dns/i ) {
+            push @{$interface_ref->{$interface}->{'additional_listening_daemons'}}, "dns";
+            $interface_ref->{$interface}->{'type'} =~ s/,dns//;
+        }
+    }
 
     # Build form
     my $form = pfappserver::Form::Interface->new(ctx => $c,

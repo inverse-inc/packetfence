@@ -85,6 +85,15 @@
 -A input-radius-if --protocol tcp --match tcp --dport 2083 --jump ACCEPT
 %%eduroam_radius_listening%%
 
+:input-dns-if - [0:0]
+-A input-dns-if --protocol tcp --match tcp --dport 53 --jump ACCEPT
+-A input-dns-if --protocol udp --match udp --dport 53 --jump ACCEPT
+
+:input-dhcpd-if - [0:0]
+-A input-dhcpd-if --protocol udp --match udp --dport 67  --jump ACCEPT
+-A input-dhcpd-if --protocol tcp --match tcp --dport 67  --jump ACCEPT
+
+
 :input-internal-vlan-if - [0:0]
 # DNS
 -A input-internal-vlan-if --protocol tcp --match tcp --dport 53  --jump ACCEPT

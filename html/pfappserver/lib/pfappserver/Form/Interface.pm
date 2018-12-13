@@ -140,7 +140,7 @@ sub options_additional_listening_daemons {
     my $self = shift;
 
     return map { { value => $_, label => $_ } }
-        qw(portal radius);
+        qw(portal radius dhcpd dns);
 }
 
 =head2 validate
@@ -177,6 +177,24 @@ sub validate {
         my %daemons = map { $_ => 1 } @{$self->value->{additional_listening_daemons}};
         if ( exists($daemons{'radius'}) ) {
             my $index = firstidx { $_ eq 'radius' } @{$self->value->{additional_listening_daemons}};
+            splice @{$self->value->{additional_listening_daemons}}, $index, 1;
+        }
+    }
+    # Remove double dns type if exist
+    @types = qw(dns);
+    if ( defined $self->value->{type} && any { $_ eq $self->value->{type} } @types ) {
+        my %daemons = map { $_ => 1 } @{$self->value->{additional_listening_daemons}};
+        if ( exists($daemons{'dns'}) ) {
+            my $index = firstidx { $_ eq 'dns' } @{$self->value->{additional_listening_daemons}};
+            splice @{$self->value->{additional_listening_daemons}}, $index, 1;
+        }
+    }
+    # Remove double radius type if exist
+    @types = qw(dhcpd);
+    if ( defined $self->value->{type} && any { $_ eq $self->value->{type} } @types ) {
+        my %daemons = map { $_ => 1 } @{$self->value->{additional_listening_daemons}};
+        if ( exists($daemons{'dhcpd'}) ) {
+            my $index = firstidx { $_ eq 'dhcpd' } @{$self->value->{additional_listening_daemons}};
             splice @{$self->value->{additional_listening_daemons}}, $index, 1;
         }
     }

@@ -40,7 +40,9 @@ sub init {
         vlan_enforcement_nets   => [],
         portal_ints             => [],
         radius_ints             => [],
-        monitor_int             => '',
+        dhcpd_ints              => [],
+        dns_ints                => [],
+	monitor_int             => '',
         management_network      => '',
     };
     $self->{child_resources} = [
@@ -51,6 +53,7 @@ sub init {
         'interfaces::portal_ints',             'interfaces::inline_nets',
         'interfaces::routed_isolation_nets',   'interfaces::routed_registration_nets',
         'interfaces::radius_ints',             'resource::network_config',
+        'interfaces::dhcpd_ints',              'interfaces::dns_ints',
     ];
     if($host_id){
         @{$self->{child_resources}} = map { "$_($host_id)" } @{$self->{child_resources}}; 
@@ -102,7 +105,7 @@ sub build {
         }
 
         die "Missing mandatory element ip or netmask on interface $int"
-            if ( $type =~ /internal|managed|management|portal|radius/ && !defined($int_obj) );
+            if ( $type =~ /internal|managed|management|portal|radius|dhcpd|dns/ && !defined($int_obj) );
 
         foreach my $type ( split( /\s*,\s*/, $type ) ) {
             if ( $type eq 'internal' ) {
@@ -148,6 +151,14 @@ sub build {
             elsif ( $type eq 'radius' ) {
                 $int_obj->tag( "vip", $self->_fetch_virtual_ip( $int, $interface ) );
                 push @{ $self->{_interfaces}->{radius_ints} }, $int_obj;
+            }
+            elsif ( $type eq 'dns' ) {
+                $int_obj->tag( "vip", $self->_fetch_virtual_ip( $int, $interface ) );
+                push @{ $self->{_interfaces}->{dns_ints} }, $int_obj;
+            }
+            elsif ( $type eq 'dhcpd' ) {
+                $int_obj->tag( "vip", $self->_fetch_virtual_ip( $int, $interface ) );
+                push @{ $self->{_interfaces}->{dhcpd_ints} }, $int_obj;
             }
 
         }

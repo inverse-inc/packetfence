@@ -463,7 +463,7 @@ sub getType {
         # rely on pf.conf's info
         else {
             $type = $interface->{type};
-            if ($type !~ /radius/i && $type !~ /portal/i) {
+            if ($type !~ /radius/i && $type !~ /portal/i && $type !~ /dns/i && $type !~ /dhcpd/i) {
                 $type = ($type =~ /management|managed/i) ? 'management' : 'other';
             }
         }
@@ -507,7 +507,7 @@ sub setType {
                                     $self->_prepare_interface_for_pfconf($interface, $interface_ref, $type));
 
         # Update networks.conf
-        if ( $type =~ /management|portal|^radius$/ ) {
+        if ( $type =~ /management|portal|^radius$|dhcpd|dns/ ) {
             # management interfaces must not appear in networks.conf
             $models->{network}->remove($interface_ref->{network}) if ($interface_ref->{network});
         }
@@ -740,6 +740,14 @@ sub _prepare_interface_for_pfconf {
     }
     elsif ($type =~ /^portal$/i) {
         $int_config_ref->{'type'} = 'portal';
+        $int_config_ref->{'enforcement'} = undef;
+    }
+    elsif ($type =~ /^dhcpd$/i) {
+        $int_config_ref->{'type'} = 'dhcpd';
+        $int_config_ref->{'enforcement'} = undef;
+    }
+    elsif ($type =~ /^dns$/i) {
+        $int_config_ref->{'type'} = 'dns';
         $int_config_ref->{'enforcement'} = undef;
     }
     else {
