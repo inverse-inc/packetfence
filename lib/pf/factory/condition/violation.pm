@@ -43,7 +43,6 @@ our %TRIGGER_TYPE_TO_CONDITION_TYPE = (
     'nessus'                    => {type => 'equals',                   key  => 'last_nessus_id',          event => $TRUE},
     'nessus6'                   => {type => 'equals',                   key  => 'last_nessus6_id',         event => $TRUE},
     'openvas'                   => {type => 'equals',                   key  => 'last_openvas_id',         event => $TRUE},
-    'metadefender'              => {type => 'equals',                   key  => 'last_metadefender_id',    event => $TRUE},
     'provisioner'               => {type => 'equals',                   key  => 'last_provisioner_id',     event => $TRUE},
     'suricata_event'            => {type => 'starts_with',              key  => 'last_suricata_event',     event => $TRUE},
     'suricata_md5'              => {type => 'equals',                   key  => 'last_suricata_md5',       event => $TRUE},

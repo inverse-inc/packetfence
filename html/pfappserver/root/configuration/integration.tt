@@ -6,7 +6,6 @@
   <dl>
     <dt>[% l('Firewall SSO:') %]</dt> <dd>[% l('This allows PacketFence to let the firewall know who is using a particular IP address on the network. The firewall can then apply per-user or per-role policies.') %]</dd>
     <dt>[% l('Cisco Mobility Services Engine:') %]</dt> <dd>[% l('This provides PacketFence geographical location information of endpoints on the network. You can then provide a different captive portal based on where the device is physically located, or position an endpoint on a specific map of a building.') %]</dd>
-    <dt>[% l('OPSWAT Metadefender:') %]</dt> <dd>[%l('This allows PacketFence to query OPSWAT Metadefender Cloud for file hashes in order to detect malware or virus infected files. This is done through the Suricata HTTP file extraction plugin.') %]</dd>
     <dt>[% l('Web Services:') %]</dt> <dd>[% l('This allows PacketFence to expose some of its APIs through Web Services. See the PacketFence Developers Guide for API documentation.') %]</dd>
     <dt>[% l('Syslog Parsers:') %]</dt> <dd>[% l('PacketFence can receive security event information from multiple solutions over syslog. You can configure which data input you want to accept from this module.') %]</dd>
     <dt>[% l('WRIX:') %]</dt> <dd>[% l('This allows PacketFence to define Wireless Roaming Intermediary eXchange (WRIX) information on access points it manages.') %]</dd>

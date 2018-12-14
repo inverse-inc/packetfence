@@ -22,7 +22,6 @@ our %ALLOWED_SECTIONS = (
     fencing           => undef,
     general           => undef,
     inline            => undef,
-    metadefender      => undef,
     mse_tab           => undef,
     network           => undef,
     node_import       => undef,
