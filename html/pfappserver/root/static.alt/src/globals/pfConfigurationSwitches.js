@@ -927,9 +927,6 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                     ]
                   }
                 ]
-              },
-              validators: {
-                [i18n.t('Type required.')]: required
               }
             }
           ]
@@ -962,9 +959,6 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                     value: 'production'
                   }
                 ]
-              },
-              validators: {
-                [i18n.t('Mode required.')]: required
               }
             }
           ]
@@ -1152,9 +1146,6 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               component: pfFormInput,
               attrs: {
                 placeholder: ('uplink' in placeholders) ? placeholders.uplink : null
-              },
-              validators: {
-                [i18n.t('Static uplinks required.')]: required
               }
             }
           ]
@@ -1245,9 +1236,6 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                 component: pfFormInput,
                 attrs: {
                   placeholder: (`${role}Vlan` in placeholders) ? placeholders[`${role}Vlan`] : null
-                },
-                validators: {
-                  [i18n.t('VLAN required.')]: required
                 }
               }
             ]
