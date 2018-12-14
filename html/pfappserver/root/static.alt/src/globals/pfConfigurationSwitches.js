@@ -102,6 +102,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
   let {
     isNew = false,
     isClone = false,
+    placeholders = {}, // form placeholders
     switche = {}, // form
     roles = [], // all roles
     switchGroups = [] // all switchGroups
@@ -132,7 +133,10 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'notes',
-              component: pfFormInput
+              component: pfFormInput,
+              attrs: {
+                placeholder: ('notes' in placeholders) ? placeholders.notes : null
+              }
             }
           ]
         },
@@ -143,7 +147,9 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               key: 'type',
               component: pfFormChosen,
               attrs: {
-                placeholder: i18n.t('Choose type'),
+                placeholder: ('type' in placeholders)
+                  ? i18n.t('Choose type (default: "{default}")', { default: placeholders.type })
+                  : i18n.t('Choose type'),
                 groupLabel: 'group',
                 groupValues: 'items',
                 label: 'text',
@@ -935,7 +941,9 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               key: 'mode',
               component: pfFormChosen,
               attrs: {
-                placeholder: i18n.t('Choose mode'),
+                placeholder: ('mode' in placeholders)
+                  ? i18n.t('Choose mode (default: "{default}")', { default: placeholders.mode })
+                  : i18n.t('Choose mode'),
                 label: 'text',
                 trackBy: 'value',
                 collapseObject: true,
@@ -968,7 +976,9 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               key: 'group',
               component: pfFormChosen,
               attrs: {
-                placeholder: i18n.t('Choose group'),
+                placeholder: ('group' in placeholders)
+                  ? i18n.t('Choose group (default: "{default}")', { default: placeholders.group })
+                  : i18n.t('Choose group'),
                 label: 'text',
                 trackBy: 'value',
                 collapseObject: true,
@@ -988,7 +998,9 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               key: 'deauthMethod',
               component: pfFormChosen,
               attrs: {
-                placeholder: i18n.t('Choose method'),
+                placeholder: ('deauthMethod' in placeholders)
+                  ? i18n.t('Choose method (default: "{default}")', { default: placeholders.deauthMethod })
+                  : i18n.t('Choose method'),
                 label: 'text',
                 trackBy: 'value',
                 collapseObject: true,
@@ -1138,6 +1150,9 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
             {
               key: 'uplink',
               component: pfFormInput,
+              attrs: {
+                placeholder: ('uplink' in placeholders) ? placeholders.uplink : null
+              },
               validators: {
                 [i18n.t('Static uplinks required.')]: required
               }
@@ -1151,6 +1166,9 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
             {
               key: 'controllerIp',
               component: pfFormInput,
+              attrs: {
+                placeholder: ('controllerIp' in placeholders) ? placeholders.controllerIp : null
+              },
               validators: {
                 [i18n.t('IP addresses only.')]: ipAddress
               }
@@ -1165,6 +1183,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               key: 'disconnectPort',
               component: pfFormInput,
               attrs: {
+                placeholder: ('disconnectPort' in placeholders) ? placeholders.disconnectPort : null,
                 type: 'number',
                 step: 1
               },
@@ -1182,6 +1201,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               key: 'coaPort',
               component: pfFormInput,
               attrs: {
+                placeholder: ('coaPort' in placeholders) ? placeholders.coaPort : null,
                 type: 'number',
                 step: 1
               },
@@ -1209,14 +1229,13 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
             }
           ]
         },
-        ...[ // TODO: Replace placeholders with VLAN ID inheritance from switchGroup/defaults
-          ['registration', '2'],
-          ['isolation', '3'],
-          ['macDetection', '4'],
-          ['inline', '6'],
-          ...roles.map(role => [role.id, null])
-        ].map(_role => {
-          const [role, placeholder] = _role
+        ...[
+          'registration',
+          'isolation',
+          'macDetection',
+          'inline',
+          ...roles.map(role => role.id)
+        ].map(role => {
           return {
             label: i18n.t(role),
             if: (switche.VlanMap === 'Y'),
@@ -1225,7 +1244,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                 key: `${role}Vlan`,
                 component: pfFormInput,
                 attrs: {
-                  placeholder: placeholder
+                  placeholder: (`${role}Vlan` in placeholders) ? placeholders[`${role}Vlan`] : null
                 },
                 validators: {
                   [i18n.t('VLAN required.')]: required
@@ -1260,7 +1279,10 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
             fields: [
               {
                 key: `${role}Role`,
-                component: pfFormInput
+                component: pfFormInput,
+                attrs: {
+                  placeholder: (`${role}Role` in placeholders) ? placeholders[`${role}Role`] : null
+                }
               }
             ]
           }
@@ -1293,7 +1315,8 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                 key: `${role}AccessList`,
                 component: pfFormTextarea,
                 attrs: {
-                  rows: 3
+                  rows: 3,
+                  placeholder: (`${role}AccessList` in placeholders) ? placeholders[`${role}AccessList`] : null
                 }
               }
             ]
@@ -1325,7 +1348,10 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
             fields: [
               {
                 key: `${role}Url`,
-                component: pfFormInput
+                component: pfFormInput,
+                attrs: {
+                  placeholder: (`${role}Url` in placeholders) ? placeholders[`${role}Url`] : null
+                }
               }
             ]
           }
@@ -1391,22 +1417,24 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               key: 'SNMPVersion',
               component: pfFormChosen,
               attrs: {
-                placeholder: i18n.t('Choose version'),
+                placeholder: ('SNMPVersion' in placeholders)
+                  ? i18n.t('Choose version (default: "v{default}")', { default: placeholders.SNMPVersion })
+                  : i18n.t('Choose version'),
                 label: 'text',
                 trackBy: 'value',
                 collapseObject: true,
                 options: [
                   {
                     text: i18n.t('v1'),
-                    value: 'v1'
+                    value: '1'
                   },
                   {
                     text: i18n.t('v2c'),
-                    value: 'v2c'
+                    value: '2c'
                   },
                   {
                     text: i18n.t('v3'),
-                    value: 'v3'
+                    value: '3'
                   }
                 ]
               }
@@ -1420,7 +1448,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               key: 'SNMPCommunityRead',
               component: pfFormInput,
               attrs: {
-                placeholder: 'public'
+                placeholder: ('SNMPCommunityRead' in placeholders) ? placeholders.SNMPCommunityRead : null
               }
             }
           ]
@@ -1432,7 +1460,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               key: 'SNMPCommunityWrite',
               component: pfFormInput,
               attrs: {
-                placeholder: 'private'
+                placeholder: ('private' in placeholders) ? placeholders.private : null
               }
             }
           ]
@@ -1442,7 +1470,10 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'SNMPEngineID',
-              component: pfFormInput
+              component: pfFormInput,
+              attrs: {
+                placeholder: ('SNMPEngineID' in placeholders) ? placeholders.SNMPEngineID : null
+              }
             }
           ]
         },
@@ -1451,7 +1482,10 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'SNMPUserNameRead',
-              component: pfFormInput
+              component: pfFormInput,
+              attrs: {
+                placeholder: ('SNMPUserNameRead' in placeholders) ? placeholders.SNMPUserNameRead : null
+              }
             }
           ]
         },
@@ -1460,7 +1494,10 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'SNMPAuthProtocolRead',
-              component: pfFormInput
+              component: pfFormInput,
+              attrs: {
+                placeholder: ('SNMPAuthProtocolRead' in placeholders) ? placeholders.SNMPAuthProtocolRead : null
+              }
             }
           ]
         },
@@ -1469,7 +1506,10 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'SNMPAuthPasswordRead',
-              component: pfFormPassword
+              component: pfFormPassword,
+              attrs: {
+                placeholder: ('SNMPAuthPasswordRead' in placeholders) ? placeholders.SNMPAuthPasswordRead : null
+              }
             }
           ]
         },
@@ -1478,7 +1518,10 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'SNMPPrivProtocolRead',
-              component: pfFormInput
+              component: pfFormInput,
+              attrs: {
+                placeholder: ('SNMPPrivProtocolRead' in placeholders) ? placeholders.SNMPPrivProtocolRead : null
+              }
             }
           ]
         },
@@ -1496,7 +1539,10 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'SNMPUserNameWrite',
-              component: pfFormInput
+              component: pfFormInput,
+              attrs: {
+                placeholder: ('SNMPUserNameWrite' in placeholders) ? placeholders.SNMPUserNameWrite : null
+              }
             }
           ]
         },
@@ -1505,7 +1551,10 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'SNMPAuthProtocolWrite',
-              component: pfFormInput
+              component: pfFormInput,
+              attrs: {
+                placeholder: ('SNMPAuthProtocolWrite' in placeholders) ? placeholders.SNMPAuthProtocolWrite : null
+              }
             }
           ]
         },
@@ -1523,7 +1572,10 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'SNMPPrivProtocolWrite',
-              component: pfFormInput
+              component: pfFormInput,
+              attrs: {
+                placeholder: ('SNMPPrivProtocolWrite' in placeholders) ? placeholders.SNMPPrivProtocolWrite : null
+              }
             }
           ]
         },
@@ -1543,22 +1595,24 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               key: 'SNMPVersionTrap',
               component: pfFormChosen,
               attrs: {
-                placeholder: i18n.t('Choose version'),
+                placeholder: ('SNMPVersionTrap' in placeholders)
+                  ? i18n.t('Choose version (default: "v{default}")', { default: placeholders.SNMPVersionTrap })
+                  : i18n.t('Choose version'),
                 label: 'text',
                 trackBy: 'value',
                 collapseObject: true,
                 options: [
                   {
                     text: i18n.t('v1'),
-                    value: 'v1'
+                    value: '1'
                   },
                   {
                     text: i18n.t('v2c'),
-                    value: 'v2c'
+                    value: '2c'
                   },
                   {
                     text: i18n.t('v3'),
-                    value: 'v3'
+                    value: '3'
                   }
                 ]
               }
@@ -1572,7 +1626,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               key: 'SNMPCommunityTrap',
               component: pfFormInput,
               attrs: {
-                placeholder: 'public'
+                placeholder: ('SNMPCommunityTrap' in placeholders) ? placeholders.SNMPCommunityTrap : null
               }
             }
           ]
@@ -1582,7 +1636,10 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'SNMPUserNameTrap',
-              component: pfFormInput
+              component: pfFormInput,
+              attrs: {
+                placeholder: ('SNMPUserNameTrap' in placeholders) ? placeholders.SNMPUserNameTrap : null
+              }
             }
           ]
         },
@@ -1591,7 +1648,10 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'SNMPAuthProtocolTrap',
-              component: pfFormInput
+              component: pfFormInput,
+              attrs: {
+                placeholder: ('SNMPAuthProtocolTrap' in placeholders) ? placeholders.SNMPAuthProtocolTrap : null
+              }
             }
           ]
         },
@@ -1609,7 +1669,10 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'SNMPPrivProtocolTrap',
-              component: pfFormInput
+              component: pfFormInput,
+              attrs: {
+                placeholder: ('SNMPPrivProtocolTrap' in placeholders) ? placeholders.SNMPPrivProtocolTrap : null
+              }
             }
           ]
         },
@@ -1630,7 +1693,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               key: 'macSearchesMaxNb',
               component: pfFormInput,
               attrs: {
-                placeholder: '30',
+                placeholder: ('macSearchesMaxNb' in placeholders) ? placeholders.macSearchesMaxNb : null,
                 type: 'number',
                 step: 1
               },
@@ -1648,7 +1711,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               key: 'macSearchesSleepInterval',
               component: pfFormInput,
               attrs: {
-                placeholder: '2',
+                placeholder: ('macSearchesSleepInterval' in placeholders) ? placeholders.macSearchesSleepInterval : null,
                 type: 'number',
                 step: 1
               },
@@ -1670,7 +1733,9 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               key: 'cliTransport',
               component: pfFormChosen,
               attrs: {
-                placeholder: i18n.t('Choose transport'),
+                placeholder: ('cliTransport' in placeholders)
+                  ? i18n.t('Choose transport (default: "{default}")', { default: placeholders.cliTransport })
+                  : i18n.t('Choose transport'),
                 label: 'text',
                 trackBy: 'value',
                 collapseObject: true,
@@ -1693,7 +1758,10 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'cliUser',
-              component: pfFormInput
+              component: pfFormInput,
+              attrs: {
+                placeholder: ('cliUser' in placeholders) ? placeholders.cliUser : null
+              }
             }
           ]
         },
@@ -1727,7 +1795,9 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               key: 'wsTransport',
               component: pfFormChosen,
               attrs: {
-                placeholder: i18n.t('Choose transport'),
+                placeholder: ('wsTransport' in placeholders)
+                  ? i18n.t('Choose transport (default: "{default}")', { default: placeholders.wsTransport })
+                  : i18n.t('Choose transport'),
                 label: 'text',
                 trackBy: 'value',
                 collapseObject: true,
@@ -1750,7 +1820,10 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'wsUser',
-              component: pfFormInput
+              component: pfFormInput,
+              attrs: {
+                placeholder: ('wsUser' in placeholders) ? placeholders.wsUser : null
+              }
             }
           ]
         },
@@ -1768,15 +1841,48 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
   ]
 }
 
+export const pfConfigurationSwitchViewPlaceholders = (context = {}) => {
+  // TODO: replace with inherited defaults from conf/switches.conf.defaults
+  return {
+    vlans: '1,2,3,4,5',
+    normalVlan: '1',
+    registrationVlan: '2',
+    isolationVlan: '3',
+    macDetectionVlan: '4',
+    voiceVlan: '5',
+    inlineVlan: '6',
+    REJECTVlan: '-1',
+    voiceRole: 'voice',
+    inlineRole: 'inline',
+    TenantId: '1',
+    mode: 'production',
+    macSearchesMaxNb: '30',
+    macSearchesSleepInterval: '2',
+    uplink: 'dynamic',
+    cliTransport: 'Telnet',
+    SNMPVersion: '1',
+    SNMPCommunityRead: 'public',
+    SNMPCommunityWrite: 'private',
+    SNMPVersionTrap: '1',
+    SNMPCommunityTrap: 'public',
+    wsTransport: 'http'
+  }
+}
+
 export const pfConfigurationSwitchViewDefaults = (context = {}) => {
+  // TODO: replace with inherited defaults from conf/switches.conf.defaults
   return {
     id: null,
+    AccessListMap: 'N',
+    cliAccess: 'N',
+    ExternalPortalEnforcement: 'N',
+    RoleMap: 'N',
+    UrlMap: 'N',
     useCoA: 'Y',
-    VoIPLLDPDetect: 'Y',
+    VlanMap: 'Y',
+    VoIPEnabled: 'N',
     VoIPCDPDetect: 'Y',
     VoIPDHCPDetect: 'Y',
-    uplink_dynamic: 'dynamic',
-    VlanMap: 'Y',
-    UrlMap: 'Y'
+    VoIPLLDPDetect: 'Y'
   }
 }

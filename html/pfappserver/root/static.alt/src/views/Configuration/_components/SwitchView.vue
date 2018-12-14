@@ -38,7 +38,8 @@ import pfButtonDelete from '@/components/pfButtonDelete'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
   pfConfigurationSwitchViewFields as fields,
-  pfConfigurationSwitchViewDefaults as defaults
+  pfConfigurationSwitchViewDefaults as defaults,
+  pfConfigurationSwitchViewPlaceholders as placeholders
 } from '@/globals/pfConfigurationSwitches'
 const { validationMixin } = require('vuelidate')
 
@@ -77,7 +78,8 @@ export default {
       switche: defaults(this), // will be overloaded with the data from the store
       switcheValidations: {}, // will be overloaded with data from the pfConfigView
       roles: [], // all roles
-      switchGroups: [] // all switch groups
+      switchGroups: [], // all switch groups
+      placeholders: placeholders(this), // form placeholders
     }
   },
   validations () {
