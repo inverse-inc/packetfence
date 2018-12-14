@@ -56,6 +56,11 @@ export default {
   /**
    * Roles
    */
+  roles: params => {
+    return apiCall.get('config/roles', { params }).then(response => {
+      return response.data
+    })
+  },
   role: id => {
     return apiCall.get(`config/role/${id}`).then(response => {
       return response.data.item

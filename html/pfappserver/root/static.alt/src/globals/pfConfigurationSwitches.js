@@ -1,18 +1,27 @@
 import i18n from '@/utils/locale'
+import pfFieldAction from '@/components/pfFieldAction'
 import pfFormChosen from '@/components/pfFormChosen'
+import pfFormFields from '@/components/pfFormFields'
 import pfFormInput from '@/components/pfFormInput'
+import pfFormPassword from '@/components/pfFormPassword'
+import pfFormTextarea from '@/components/pfFormTextarea'
 import pfFormToggle from '@/components/pfFormToggle'
 import {
   pfConfigurationListColumns,
   pfConfigurationListFields
 } from '@/globals/pfConfiguration'
+import { pfFieldType as fieldType } from '@/globals/pfField'
 import {
-  isPort
+  isPort,
+  limitSiblingFields,
+  restrictAllSiblingFields
 } from '@/globals/pfValidators'
 
 const {
   required,
-  ipAddress
+  ipAddress,
+  macAddress,
+  integer
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationSwitchesListColumns = [
@@ -31,8 +40,73 @@ export const pfConfigurationSwitchesListFields = [
   pfConfigurationListFields.type
 ]
 
+export const pfConfigurationSwitchActions = {
+  always: {
+    value: 'always',
+    text: i18n.t('Always'),
+    types: [fieldType.NONE],
+    validators: {
+      type: {
+        /* Don't allow elsewhere */
+        [i18n.t('Duplicate condition.')]: limitSiblingFields('type', 0)
+      }
+    }
+  },
+  port: {
+    value: 'port',
+    text: i18n.t('Port'),
+    types: [fieldType.INTEGER],
+    validators: {
+      type: {
+        /* Don't mix with 'always' */
+        [i18n.t('Condition conflicts with "Always".')]: restrictAllSiblingFields('type', 'always')
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Invalid Port Number.')]: isPort
+      }
+    }
+  },
+  mac: {
+    value: 'mac',
+    text: i18n.t('MAC Address'),
+    types: [fieldType.SUBSTRING],
+    validators: {
+      type: {
+        /* Don't mix with 'always' */
+        [i18n.t('Condition conflicts with "Always".')]: restrictAllSiblingFields('type', 'always')
+      },
+      value: {
+        [i18n.t('Value required.')]: required,
+        [i18n.t('Invalid MAC Address.')]: macAddress
+      }
+    }
+  },
+  ssid: {
+    value: 'ssid',
+    text: i18n.t('Wi-Fi Network SSID'),
+    types: [fieldType.SUBSTRING],
+    validators: {
+      type: {
+        /* Don't mix with 'always' */
+        [i18n.t('Condition conflicts with "Always".')]: restrictAllSiblingFields('type', 'always')
+      },
+      value: {
+        [i18n.t('Value required.')]: required
+      }
+    }
+  }
+}
+
 export const pfConfigurationSwitchViewFields = (context = {}) => {
-  const { isNew = false, isClone = false, switchGroups = [] } = context
+  let {
+    isNew = false,
+    isClone = false,
+    switche = {}, // form
+    roles = [], // all roles
+    switchGroups = [] // all switchGroups
+  } = context
+
   return [
     {
       tab: i18n.t('Definition'),
@@ -900,7 +974,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                 collapseObject: true,
                 allowEmpty: false,
                 options: [
-                  ...[{ value: null, text: i18n.t('None') }],
+                  ...[{ value: null, text: i18n.t('None') }], // prepend null option
                   ...switchGroups.map(group => { return { value: group.id, text: `${group.id} - ${group.description}` } })
                 ]
               }
@@ -956,7 +1030,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               key: 'useCoA',
               component: pfFormToggle,
               attrs: {
-                values: { checked: 'Y', unchecked: null }
+                values: { checked: 'Y', unchecked: 'N' }
               }
             }
           ]
@@ -969,7 +1043,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               key: 'cliAccess',
               component: pfFormToggle,
               attrs: {
-                values: { checked: 'Y', unchecked: null }
+                values: { checked: 'Y', unchecked: 'N' }
               }
             }
           ]
@@ -982,7 +1056,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               key: 'ExternalPortalEnforcement',
               component: pfFormToggle,
               attrs: {
-                values: { checked: 'Y', unchecked: null }
+                values: { checked: 'Y', unchecked: 'N' }
               }
             }
           ]
@@ -994,7 +1068,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               key: 'VoIPEnabled',
               component: pfFormToggle,
               attrs: {
-                values: { checked: 'Y', unchecked: null }
+                values: { checked: 'Y', unchecked: 'N' }
               }
             }
           ]
@@ -1007,7 +1081,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               key: 'VoIPLLDPDetect',
               component: pfFormToggle,
               attrs: {
-                values: { checked: 'Y', unchecked: null }
+                values: { checked: 'Y', unchecked: 'N' }
               }
             }
           ]
@@ -1020,7 +1094,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               key: 'VoIPCDPDetect',
               component: pfFormToggle,
               attrs: {
-                values: { checked: 'Y', unchecked: null }
+                values: { checked: 'Y', unchecked: 'N' }
               }
             }
           ]
@@ -1033,7 +1107,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               key: 'VoIPDHCPDetect',
               component: pfFormToggle,
               attrs: {
-                values: { checked: 'Y', unchecked: null }
+                values: { checked: 'Y', unchecked: 'N' }
               }
             }
           ]
@@ -1047,19 +1121,25 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               component: pfFormToggle,
               attrs: {
                 values: { checked: 'dynamic', unchecked: null }
+              },
+              listeners: {
+                checked: (value) => {
+                  switche.uplink = null // clear uplink
+                }
               }
             }
           ]
         },
         {
-          label: i18n.t('Uplinks'),
+          label: i18n.t('Static Uplinks'),
           text: i18n.t('Comma-separated list of the switch uplinks.'),
+          if: (switche.uplink_dynamic !== 'dynamic'),
           fields: [
             {
               key: 'uplink',
               component: pfFormInput,
-              attrs: {
-                disabled: true
+              validators: {
+                [i18n.t('Static uplinks required.')]: required
               }
             }
           ]
@@ -1115,31 +1195,575 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
     },
     {
       tab: i18n.t('Roles'),
-      fields: []
+      fields: [
+        { label: i18n.t('Role mapping by VLAN ID'), labelSize: 'lg' },
+        {
+          label: i18n.t('Role by VLAN ID'),
+          fields: [
+            {
+              key: 'VlanMap',
+              component: pfFormToggle,
+              attrs: {
+                values: { checked: 'Y', unchecked: 'N' }
+              }
+            }
+          ]
+        },
+        ...[ // TODO: Replace placeholders with VLAN ID inheritance from switchGroup/defaults
+          ['registration', '2'],
+          ['isolation', '3'],
+          ['macDetection', '4'],
+          ['inline', '6'],
+          ...roles.map(role => [role.id, null])
+        ].map(_role => {
+          const [role, placeholder] = _role
+          return {
+            label: i18n.t(role),
+            if: (switche.VlanMap === 'Y'),
+            fields: [
+              {
+                key: `${role}Vlan`,
+                component: pfFormInput,
+                attrs: {
+                  placeholder: placeholder
+                },
+                validators: {
+                  [i18n.t('VLAN required.')]: required
+                }
+              }
+            ]
+          }
+        }),
+        { label: i18n.t('Role mapping by Switch Role'), labelSize: 'lg' },
+        {
+          label: i18n.t('Role by Switch Role'),
+          fields: [
+            {
+              key: 'RoleMap',
+              component: pfFormToggle,
+              attrs: {
+                values: { checked: 'Y', unchecked: 'N' }
+              }
+            }
+          ]
+        },
+        ...[
+          'registration',
+          'isolation',
+          'macDetection',
+          'inline',
+          ...roles.map(role => role.id)
+        ].map(role => {
+          return {
+            label: i18n.t(role),
+            if: (switche.RoleMap === 'Y'),
+            fields: [
+              {
+                key: `${role}Role`,
+                component: pfFormInput
+              }
+            ]
+          }
+        }),
+        { label: i18n.t('Role mapping by Access List'), labelSize: 'lg' },
+        {
+          label: i18n.t('Role by Access List'),
+          fields: [
+            {
+              key: 'AccessListMap',
+              component: pfFormToggle,
+              attrs: {
+                values: { checked: 'Y', unchecked: 'N' }
+              }
+            }
+          ]
+        },
+        ...[
+          'registration',
+          'isolation',
+          'macDetection',
+          'inline',
+          ...roles.map(role => role.id)
+        ].map(role => {
+          return {
+            label: i18n.t(role),
+            if: (switche.AccessListMap === 'Y'),
+            fields: [
+              {
+                key: `${role}AccessList`,
+                component: pfFormTextarea,
+                attrs: {
+                  rows: 3
+                }
+              }
+            ]
+          }
+        }),
+        { label: i18n.t('Role mapping by Web Auth URL'), labelSize: 'lg' },
+        {
+          label: i18n.t('Role by Web Auth URL'),
+          fields: [
+            {
+              key: 'UrlMap',
+              component: pfFormToggle,
+              attrs: {
+                values: { checked: 'Y', unchecked: 'N' }
+              }
+            }
+          ]
+        },
+        ...[
+          'registration',
+          'isolation',
+          'macDetection',
+          'inline',
+          ...roles.map(role => role.id)
+        ].map(role => {
+          return {
+            label: i18n.t(role),
+            if: (switche.UrlMap === 'Y'),
+            fields: [
+              {
+                key: `${role}Url`,
+                component: pfFormInput
+              }
+            ]
+          }
+        })
+      ]
     },
     {
       tab: i18n.t('Inline'),
-      fields: []
+      fields: [
+        {
+          label: i18n.t('Inline Conditions'),
+          text: i18n.t('Set inline mode if any of the conditions are met.'),
+          fields: [
+            {
+              key: 'inlineTrigger',
+              component: pfFormFields,
+              attrs: {
+                buttonLabel: 'Add Condition',
+                sortable: false,
+                field: {
+                  component: pfFieldAction,
+                  attrs: {
+                    typeLabel: i18n.t('Select condition type'),
+                    valueLabel: i18n.t('Select condition value'),
+                    fields: [
+                      pfConfigurationSwitchActions.always,
+                      pfConfigurationSwitchActions.port,
+                      pfConfigurationSwitchActions.mac,
+                      pfConfigurationSwitchActions.ssid
+                    ]
+                  }
+                },
+                invalidFeedback: [
+                  { [i18n.t('Condition(s) contain one or more errors.')]: true }
+                ]
+              }
+            }
+          ]
+        }
+      ]
     },
     {
       tab: i18n.t('RADIUS'),
-      disabled: true,
-      fields: []
+      fields: [
+        {
+          label: i18n.t('Secret Passphrase'),
+          fields: [
+            {
+              key: 'radiusSecret',
+              component: pfFormPassword
+            }
+          ]
+        }
+      ]
     },
     {
       tab: i18n.t('SNMP'),
-      disabled: true,
-      fields: []
+      fields: [
+        {
+          label: i18n.t('Version'),
+          fields: [
+            {
+              key: 'SNMPVersion',
+              component: pfFormChosen,
+              attrs: {
+                placeholder: i18n.t('Choose version'),
+                label: 'text',
+                trackBy: 'value',
+                collapseObject: true,
+                options: [
+                  {
+                    text: i18n.t('v1'),
+                    value: 'v1'
+                  },
+                  {
+                    text: i18n.t('v2c'),
+                    value: 'v2c'
+                  },
+                  {
+                    text: i18n.t('v3'),
+                    value: 'v3'
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Community Read'),
+          fields: [
+            {
+              key: 'SNMPCommunityRead',
+              component: pfFormInput,
+              attrs: {
+                placeholder: 'public'
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Community Write'),
+          fields: [
+            {
+              key: 'SNMPCommunityWrite',
+              component: pfFormInput,
+              attrs: {
+                placeholder: 'private'
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Engine ID'),
+          fields: [
+            {
+              key: 'SNMPEngineID',
+              component: pfFormInput
+            }
+          ]
+        },
+        {
+          label: i18n.t('User Name Read'),
+          fields: [
+            {
+              key: 'SNMPUserNameRead',
+              component: pfFormInput
+            }
+          ]
+        },
+        {
+          label: i18n.t('Auth Protocol Read'),
+          fields: [
+            {
+              key: 'SNMPAuthProtocolRead',
+              component: pfFormInput
+            }
+          ]
+        },
+        {
+          label: i18n.t('Auth Password Read'),
+          fields: [
+            {
+              key: 'SNMPAuthPasswordRead',
+              component: pfFormPassword
+            }
+          ]
+        },
+        {
+          label: i18n.t('Priv Protocol Read'),
+          fields: [
+            {
+              key: 'SNMPPrivProtocolRead',
+              component: pfFormInput
+            }
+          ]
+        },
+        {
+          label: i18n.t('Priv Password Read'),
+          fields: [
+            {
+              key: 'SNMPPrivPasswordRead',
+              component: pfFormPassword
+            }
+          ]
+        },
+        {
+          label: i18n.t('User Name Write'),
+          fields: [
+            {
+              key: 'SNMPUserNameWrite',
+              component: pfFormInput
+            }
+          ]
+        },
+        {
+          label: i18n.t('Auth Protocol Write'),
+          fields: [
+            {
+              key: 'SNMPAuthProtocolWrite',
+              component: pfFormInput
+            }
+          ]
+        },
+        {
+          label: i18n.t('Auth Password Write'),
+          fields: [
+            {
+              key: 'SNMPAuthPasswordWrite',
+              component: pfFormPassword
+            }
+          ]
+        },
+        {
+          label: i18n.t('Priv Protocol Write'),
+          fields: [
+            {
+              key: 'SNMPPrivProtocolWrite',
+              component: pfFormInput
+            }
+          ]
+        },
+        {
+          label: i18n.t('Priv Password Write'),
+          fields: [
+            {
+              key: 'SNMPPrivPasswordWrite',
+              component: pfFormPassword
+            }
+          ]
+        },
+        {
+          label: i18n.t('Version Trap'),
+          fields: [
+            {
+              key: 'SNMPVersionTrap',
+              component: pfFormChosen,
+              attrs: {
+                placeholder: i18n.t('Choose version'),
+                label: 'text',
+                trackBy: 'value',
+                collapseObject: true,
+                options: [
+                  {
+                    text: i18n.t('v1'),
+                    value: 'v1'
+                  },
+                  {
+                    text: i18n.t('v2c'),
+                    value: 'v2c'
+                  },
+                  {
+                    text: i18n.t('v3'),
+                    value: 'v3'
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Community Trap'),
+          fields: [
+            {
+              key: 'SNMPCommunityTrap',
+              component: pfFormInput,
+              attrs: {
+                placeholder: 'public'
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('User Name Trap'),
+          fields: [
+            {
+              key: 'SNMPUserNameTrap',
+              component: pfFormInput
+            }
+          ]
+        },
+        {
+          label: i18n.t('Auth Protocol Trap'),
+          fields: [
+            {
+              key: 'SNMPAuthProtocolTrap',
+              component: pfFormInput
+            }
+          ]
+        },
+        {
+          label: i18n.t('Auth Password Trap'),
+          fields: [
+            {
+              key: 'SNMPAuthPasswordTrap',
+              component: pfFormPassword
+            }
+          ]
+        },
+        {
+          label: i18n.t('Priv Protocol Trap'),
+          fields: [
+            {
+              key: 'SNMPPrivProtocolTrap',
+              component: pfFormInput
+            }
+          ]
+        },
+        {
+          label: i18n.t('Priv Password Trap'),
+          fields: [
+            {
+              key: 'SNMPPrivPasswordTrap',
+              component: pfFormPassword
+            }
+          ]
+        },
+        {
+          label: i18n.t('Maximum MAC addresses'),
+          text: i18n.t('Maximum number of MAC addresses retrived from a port.'),
+          fields: [
+            {
+              key: 'macSearchesMaxNb',
+              component: pfFormInput,
+              attrs: {
+                placeholder: '30',
+                type: 'number',
+                step: 1
+              },
+              validators: {
+                [i18n.t('Integer values required.')]: integer
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Sleep interval'),
+          text: i18n.t('Sleep interval between queries of MAC addresses.'),
+          fields: [
+            {
+              key: 'macSearchesSleepInterval',
+              component: pfFormInput,
+              attrs: {
+                placeholder: '2',
+                type: 'number',
+                step: 1
+              },
+              validators: {
+                [i18n.t('Integer values required.')]: integer
+              }
+            }
+          ]
+        }
+      ]
     },
     {
       tab: i18n.t('CLI'),
-      disabled: true,
-      fields: []
+      fields: [
+        {
+          label: i18n.t('Transport'),
+          fields: [
+            {
+              key: 'cliTransport',
+              component: pfFormChosen,
+              attrs: {
+                placeholder: i18n.t('Choose transport'),
+                label: 'text',
+                trackBy: 'value',
+                collapseObject: true,
+                options: [
+                  {
+                    text: i18n.t('Telnet'),
+                    value: 'Telnet'
+                  },
+                  {
+                    text: i18n.t('SSH'),
+                    value: 'SSH'
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Username'),
+          fields: [
+            {
+              key: 'cliUser',
+              component: pfFormInput
+            }
+          ]
+        },
+        {
+          label: i18n.t('Password'),
+          fields: [
+            {
+              key: 'cliPwd',
+              component: pfFormPassword
+            }
+          ]
+        },
+        {
+          label: i18n.t('Enable Password'),
+          fields: [
+            {
+              key: 'cliEnablePwd',
+              component: pfFormPassword
+            }
+          ]
+        }
+      ]
     },
     {
       tab: i18n.t('Web Services'),
-      disabled: true,
-      fields: []
+      fields: [
+        {
+          label: i18n.t('Transport'),
+          fields: [
+            {
+              key: 'wsTransport',
+              component: pfFormChosen,
+              attrs: {
+                placeholder: i18n.t('Choose transport'),
+                label: 'text',
+                trackBy: 'value',
+                collapseObject: true,
+                options: [
+                  {
+                    text: i18n.t('HTTP'),
+                    value: 'HTTP'
+                  },
+                  {
+                    text: i18n.t('HTTPS'),
+                    value: 'HTTPS'
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          label: i18n.t('Username'),
+          fields: [
+            {
+              key: 'wsUser',
+              component: pfFormInput
+            }
+          ]
+        },
+        {
+          label: i18n.t('Password'),
+          fields: [
+            {
+              key: 'wsPwd',
+              component: pfFormPassword
+            }
+          ]
+        }
+      ]
     }
   ]
 }
@@ -1151,6 +1775,8 @@ export const pfConfigurationSwitchViewDefaults = (context = {}) => {
     VoIPLLDPDetect: 'Y',
     VoIPCDPDetect: 'Y',
     VoIPDHCPDetect: 'Y',
-    uplink_dynamic: 'dynamic'
+    uplink_dynamic: 'dynamic',
+    VlanMap: 'Y',
+    UrlMap: 'Y'
   }
 }

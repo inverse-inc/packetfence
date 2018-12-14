@@ -29,6 +29,7 @@
         <component
           v-model="inputValue[index]"
           v-bind="field.attrs"
+          v-on="field.listeners"
           :is="field.component"
           :key="uuids[index]"
           :vuelidate="getVuelidateModel(index)"
@@ -132,8 +133,8 @@ export default {
   },
   methods: {
     rowAdd (index = 0, clone = this.ctrlKey) {
-      let inputValue = this.inputValue
-      let length = this.inputValue.length
+      let inputValue = this.inputValue || []
+      let length = inputValue.length
       let newRow = (clone && (index - 1) in inputValue)
         ? JSON.parse(JSON.stringify(inputValue[index - 1])) // clone, dereference
         : null // use placeholder
@@ -246,12 +247,14 @@ export default {
     emitValidations () {
       // build merge of local validations and child validations
       let validators = {}
-      const { field: { validators: fieldValidators } } = this
-      this.inputValue.map((_, index) => {
-        if (index in this.validations) {
-          validators[index] = { ...fieldValidators, ...this.validations[index] }
-        }
-      })
+      if (this.inputValue) {
+        const { field: { validators: fieldValidators } } = this
+        this.inputValue.map((_, index) => {
+          if (index in this.validations) {
+            validators[index] = { ...fieldValidators, ...this.validations[index] }
+          }
+        })
+      }
       this.$emit('validations', validators)
     }
   },

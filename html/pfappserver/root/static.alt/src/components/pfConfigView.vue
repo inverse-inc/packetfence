@@ -9,7 +9,7 @@
           </h4>
         </b-card-header>
       </slot>
-      <b-tabs v-if="form.fields.tab || form.fields.length > 1" v-model="tabIndex" :key="tabKey">
+      <b-tabs v-if="form.fields[0].tab || form.fields.length > 1" v-model="tabIndex" :key="tabKey">
         <b-tab v-for="(tab, t) in form.fields" :key="t" v-if="!('if' in tab) || tab.if"
           :disabled="tab.disabled"
           :title-link-class="{'text-danger': getTabErrorCount(t) > 0 }"
@@ -18,9 +18,9 @@
           <template slot="title">{{ tab.tab }}</template>
         </b-tab>
       </b-tabs>
-      <template v-for="(tab, t) in form.fields" :key="t">
+      <template v-for="(tab, t) in form.fields">
         <div class="card-body" v-if="tab.fields" :class="{ 'hidden': (t !== tabIndex) }" :key="t">
-          <b-form-group v-for="row in tab.fields" :key="[row.key].join('')" v-if="!('if' in row) || row.if"
+          <b-form-group v-for="row in tab.fields" :key="row.key" v-if="!('if' in row) || row.if"
             :label-cols="(row.label) ? form.labelCols : 0" :label="row.label" :label-size="row.labelSize"
             :state="isValid()" :invalid-feedback="getInvalidFeedback()"
             class="input-element" :class="{ 'mb-0': !row.label, 'pt-3': !row.fields }"
@@ -219,6 +219,7 @@ export default {
     },
     getTabErrorCount (tabIndex) {
       return this.form.fields[tabIndex].fields.reduce((tabCount, field) => {
+        if (!('fields' in field)) return tabCount // ignore labels
         return field.fields.reduce((fieldCount, field) => {
           if (field.key in this.vuelidate && this.vuelidate[field.key].$anyError) {
             fieldCount++
@@ -239,7 +240,6 @@ export default {
           })
         }
       },
-      immediate: true,
       deep: true
     },
     vuelidate: {

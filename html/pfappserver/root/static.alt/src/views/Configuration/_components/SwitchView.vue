@@ -76,6 +76,7 @@ export default {
     return {
       switche: defaults(this), // will be overloaded with the data from the store
       switcheValidations: {}, // will be overloaded with data from the pfConfigView
+      roles: [], // all roles
       switchGroups: [] // all switch groups
     }
   },
@@ -125,15 +126,17 @@ export default {
     }
   },
   created () {
+    this.$store.dispatch('$_roles/all').then(data => {
+      this.roles = data
+    })
+    this.$store.dispatch('$_switchgroups/all').then(data => {
+      this.switchGroups = data
+    })
     if (this.id) {
       this.$store.dispatch('$_switches/getSwitch', this.id).then(data => {
         this.switche = Object.assign({}, data)
       })
     }
-    this.$store.dispatch('$_switchgroups/all').then(data => {
-      console.log('switchGroups', data)
-      this.switchGroups = data
-    })
   }
 }
 </script>

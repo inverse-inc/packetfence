@@ -9,6 +9,7 @@
 
       <pf-form-chosen
         v-model="localType"
+        v-on="forwardListeners"
         ref="localType"
         label="text"
         track-by="value"
@@ -276,8 +277,11 @@ export default {
       }
     },
     focusIndex (index = 0) {
-      const { [index]: { $refs: { input: { $el } } } } = Object.values(this.$refs)
-      if ('focus' in $el) $el.focus()
+      const refs = Object.values(this.$refs)
+      if (index in refs) {
+        const { $refs: { input: { $el } } } = refs[index]
+        if ($el && 'focus' in $el) $el.focus()
+      }
     },
     focusType () {
       this.focusIndex(0)
