@@ -61,10 +61,6 @@ use pf::config qw(
     $WIRED_802_1X
     $WIRED_MAC_AUTH
 );
-use pf::config qw(
-    $WIRED_802_1X
-    $WIRED_MAC_AUTH
-);
 
 =head1 SUBROUTINES
 
@@ -81,6 +77,7 @@ sub supportsWiredDot1x { return $TRUE; }
 sub supportsWiredMacAuth { return $TRUE; }
 sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
 sub supportsRoleBasedEnforcement { return $TRUE; }
+sub supportsExternalPortal { return $TRUE; }
 
 =item setAdminStatus - bounce host port with radius CoA technique
 

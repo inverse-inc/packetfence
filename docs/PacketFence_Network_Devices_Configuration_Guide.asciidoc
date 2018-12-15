@@ -4187,7 +4187,7 @@ Notes
 * **SNMP is not supported yet**
 * **Port Security is not supported**
 
-For interfaces with MAC Authentication, perform:
+For interfaces with MAC Authentication, perform the following:
 
   set interface gigabit-ethernet ge-1/1/25 family ethernet-switching port-mode trunk
   set protocols dot1x interface ge-1/1/25 auth-mode mac-radius
@@ -4197,24 +4197,28 @@ For interfaces with MAC Authentication, perform:
 For interfaces with 802.1X, perform:
 
   set interface gigabit-ethernet ge-1/1/4 family ethernet-switching port-mode trunk
-  set protocols dot1x interface ge-1/1/4 dynamic-vlan-enable true
+  set protocols dot1x interface ge-1/1/4 auth-mode dot1x
   set protocols dot1x interface ge-1/1/4 dynamic-vlan-enable true
   set protocols dot1x traceoptions interface ge-1/1/4 flag all disable false
-
+  
 Global configuration:
 
+  set protocols dot1x aaa radius nas-ip 10.10.51.169
   set protocols dot1x aaa radius authentication server-ip 192.168.1.5 shared-key useStrongerSecret
   set protocols dot1x aaa radius dynamic-author client 192.168.1.5 shared-key useStrongerSecret
   set protocols dot1x traceoptions interface ge-1/1/4 flag all disable false
-  set protocols dot1x traceoptions flag radius
-  set protocols dot1x traceoptions flag packet disable false
-  set vlan-interface loopback address 10.10.51.169 prefix-length 32
+  set protocols dot1x traceoptions flag radius disable false
   set vlans vlan-id 10
   set vlans vlan-id 20
   set vlans vlan-id 30
+  commit
 
 * `10.10.51.169` is the switch IP
-* Create VLAN(s) on the switch as per requirements
+* For interfaces where auth-mode is unknown, use the following command
+    set protocols dot1x interface ge-1/1/12 auth-mode dot1x-mac-radius
+  This allows the switch to first try 802.1X and if there is no response from the client then fallback to MAC Authentication.
+* Create VLAN(s) on the switch as per your requirements
+* Please note that traceoptions are only for debugging
 
 SMC
 ~~~
