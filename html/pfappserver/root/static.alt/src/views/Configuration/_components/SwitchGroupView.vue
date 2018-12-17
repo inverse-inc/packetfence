@@ -105,7 +105,7 @@ export default {
   },
   methods: {
     close () {
-      this.$router.push({ name: 'switchGroups' })
+      this.$router.push({ name: 'switch_groups' })
     },
     create () {
       this.$store.dispatch('$_switch_groups/createSwitchGroup', this.switchGroup).then(response => {

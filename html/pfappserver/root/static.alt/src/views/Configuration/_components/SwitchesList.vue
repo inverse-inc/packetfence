@@ -8,7 +8,12 @@
         <b-card-header><h4 class="mb-0" v-t="'Switches'"></h4></b-card-header>
       </template>
       <template slot="buttonAdd">
-        <b-button variant="outline-primary" :to="{ name: 'newSwitch' }">{{ $t('Add Switch') }}</b-button>
+        <b-dropdown id="switch-add-container" :text="$t('Add Switch')" variant="outline-primary" class="my-2">
+          <b-dropdown-header class="text-secondary">{{ $t('To group') }}</b-dropdown-header>
+            <b-dropdown-item :to="{ name: 'newSwitch', params: { switchGroup: 'default' } }">{{ $t('default') }}</b-dropdown-item>
+            <b-dropdown-item v-for="(switchGroup, index) in switchGroups" :key="index"
+              :to="{ name: 'newSwitch', params: { switchGroup: switchGroup.id } }">{{ switchGroup.id }}</b-dropdown-item>
+        </b-dropdown>
       </template>
       <template slot="emptySearch">
         <pf-empty-table :isLoading="isLoading">{{ $t('No switches found') }}</pf-empty-table>
@@ -41,6 +46,7 @@ export default {
   },
   data () {
     return {
+      switchGroups: [], // all switch groups
       config: {
         columns: columns,
         fields: fields,
@@ -93,6 +99,11 @@ export default {
         this.$router.go() // reload
       })
     }
+  },
+  created () {
+    this.$store.dispatch('$_switch_groups/all').then(data => {
+      this.switchGroups = data
+    })
   }
 }
 </script>

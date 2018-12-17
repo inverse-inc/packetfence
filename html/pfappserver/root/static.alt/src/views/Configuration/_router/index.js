@@ -190,10 +190,10 @@ const route = {
       props: (route) => ({ tab: 'switches', query: route.query.query })
     },
     {
-      path: 'switches/new',
+      path: 'switches/new/:switchGroup',
       name: 'newSwitch',
       component: SwitchView,
-      props: (route) => ({ storeName: '$_switches', isNew: true })
+      props: (route) => ({ storeName: '$_switches', isNew: true, switchGroup: route.params.switchGroup })
     },
     {
       path: 'switch/:id',

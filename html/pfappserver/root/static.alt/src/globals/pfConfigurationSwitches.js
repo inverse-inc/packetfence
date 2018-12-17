@@ -984,7 +984,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                 collapseObject: true,
                 allowEmpty: false,
                 options: [
-                  { value: null, text: i18n.t('None') }, // prepend null option
+                  { value: 'default', text: i18n.t('None') }, // prepend null option
                   ...switchGroups.map(group => { return { value: group.id, text: `${group.id} - ${group.description}` } })
                 ]
               }

@@ -71,6 +71,10 @@ export default {
     id: { // from router
       type: String,
       default: null
+    },
+    switchGroup: { // from router
+      type: String,
+      default: null
     }
   },
   data () {
@@ -138,6 +142,8 @@ export default {
       this.$store.dispatch('$_switches/getSwitch', this.id).then(data => {
         this.switche = Object.assign({}, data)
       })
+    } else {
+      this.switche.group = this.switchGroup
     }
   }
 }
