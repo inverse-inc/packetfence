@@ -1411,7 +1411,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'radiusSecret',
-              component: pfFormPassword
+              component: pfFormPassword,
               attrs: {
                 placeholder: ('radiusSecret' in placeholders) ? placeholders.radiusSecret : null
               },
@@ -1567,7 +1567,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'SNMPPrivPasswordRead',
-              component: pfFormPassword
+              component: pfFormPassword,
               attrs: {
                 placeholder: ('SNMPPrivPasswordRead' in placeholders) ? placeholders.SNMPPrivPasswordRead : null
               },
@@ -1612,7 +1612,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'SNMPAuthPasswordWrite',
-              component: pfFormPassword
+              component: pfFormPassword,
               attrs: {
                 placeholder: ('SNMPAuthPasswordWrite' in placeholders) ? placeholders.SNMPAuthPasswordWrite : null
               },
@@ -1642,7 +1642,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'SNMPPrivPasswordWrite',
-              component: pfFormPassword
+              component: pfFormPassword,
               attrs: {
                 placeholder: ('SNMPPrivPasswordWrite' in placeholders) ? placeholders.SNMPPrivPasswordWrite : null
               },
@@ -1733,7 +1733,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'SNMPAuthPasswordTrap',
-              component: pfFormPassword
+              component: pfFormPassword,
               attrs: {
                 placeholder: ('SNMPAuthPasswordTrap' in placeholders) ? placeholders.SNMPAuthPasswordTrap : null
               },
@@ -1763,7 +1763,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'SNMPPrivPasswordTrap',
-              component: pfFormPassword
+              component: pfFormPassword,
               attrs: {
                 placeholder: ('SNMPPrivPasswordTrap' in placeholders) ? placeholders.SNMPPrivPasswordTrap : null
               },
@@ -1863,7 +1863,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'cliPwd',
-              component: pfFormPassword
+              component: pfFormPassword,
               attrs: {
                 placeholder: ('cliPwd' in placeholders) ? placeholders.cliPwd : null
               },
@@ -1878,7 +1878,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'cliEnablePwd',
-              component: pfFormPassword
+              component: pfFormPassword,
               attrs: {
                 placeholder: ('cliEnablePwd' in placeholders) ? placeholders.cliEnablePwd : null
               },
@@ -1940,7 +1940,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'wsPwd',
-              component: pfFormPassword
+              component: pfFormPassword,
               attrs: {
                 placeholder: ('wsPwd' in placeholders) ? placeholders.wsPwd : null
               },
