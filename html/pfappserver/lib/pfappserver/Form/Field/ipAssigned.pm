@@ -11,10 +11,10 @@ This field extends the default Text field and checks if the input value is an va
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'HTML::FormHandler::Field::Text';
+extends 'HTML::FormHandler::Field::TextArea';
 
 use pf::util;
-use pf::config qw($TRUE);
+use pf::constants qw($TRUE);
 use namespace::autoclean;
 
 
