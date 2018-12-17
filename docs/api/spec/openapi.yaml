@@ -13567,19 +13567,6 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '422':
           $ref: '#/components/responses/UnprocessableEntity'
-  /dhcp/initialease/{interface}:
-    get:
-      description: Initializes dhcp for a specific interface and returns statistics
-      responses:
-        '200':
-          $ref: '#/components/responses/DhcpInterfaceInit'
-      summary: Initialize an interface
-    parameters:
-    - in: path
-      name: interface
-      required: true
-      schema:
-        type: string
   /dhcp/ip/{ip}:
     get:
       description: Performs a dhcp lookup and returns the MAC address for the given

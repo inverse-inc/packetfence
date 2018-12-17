@@ -46,20 +46,6 @@
             '200':
                 $ref: "#/components/responses/DhcpInterfaceStats"
     
-/dhcp/initialease/{interface}:
-    parameters:
-    - name: interface
-      in: path
-      required: true
-      schema :
-        type: string
-    get:
-        summary: Initialize an interface
-        description: Initializes dhcp for a specific interface and returns statistics
-        responses:
-            '200':
-                $ref: "#/components/responses/DhcpInterfaceInit"
-    
 /dhcp/options/network/{network}:
     parameters:
     - name: network

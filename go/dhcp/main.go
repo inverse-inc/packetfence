@@ -308,11 +308,9 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 			log.LoggerWContext(ctx).Info("DHCPDISCOVER from " + clientMac + " (" + clientHostname + ")")
 			var free int
 			// Static assign IP address ?
-			for macaddr, position := range handler.ipAssigned {
-				if macaddr == p.CHAddr().String() {
-					free = int(position)
-					goto reply
-				}
+			if position, ok := handler.ipAssigned[p.CHAddr().String()]; ok {
+				free = int(position)
+				goto reply
 			}
 			// Search in the cache if the mac address already get assigned
 			if x, found := handler.hwcache.Get(p.CHAddr().String()); found {
@@ -515,15 +513,13 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 				// Requested IP is in the pool ?
 				if leaseNum := dhcp.IPRange(handler.start, reqIP) - 1; leaseNum >= 0 && leaseNum < handler.leaseRange {
 					// Static assigned ip ?
-					for macaddr, position := range handler.ipAssigned {
-						if macaddr == p.CHAddr().String() {
-							Static = true
-							if int(position) == leaseNum {
-								Index = int(position)
-								Reply = true
-							} else {
-								Reply = false
-							}
+					if position, ok := handler.ipAssigned[p.CHAddr().String()]; ok {
+						Static = true
+						if int(position) == leaseNum {
+							Index = int(position)
+							Reply = true
+						} else {
+							Reply = false
 						}
 					}
 					if Static == false {
@@ -626,12 +622,11 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 			}
 			if leaseNum := dhcp.IPRange(handler.start, reqIP) - 1; leaseNum >= 0 && leaseNum < handler.leaseRange {
 				// Static ip address assigned ?
-				for macaddr, position := range handler.ipAssigned {
-					if macaddr == p.CHAddr().String() {
-						if int(position) == leaseNum {
-							return answer
-						}
+				if position, ok := handler.ipAssigned[p.CHAddr().String()]; ok {
+					if int(position) == leaseNum {
+						return answer
 					}
+
 				}
 				if x, found := handler.hwcache.Get(p.CHAddr().String()); found {
 					if leaseNum == x.(int) {
@@ -669,12 +664,11 @@ func (h *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 			// Static IP ?
 			if leaseNum := dhcp.IPRange(handler.start, reqIP) - 1; leaseNum >= 0 && leaseNum < handler.leaseRange {
 				// Static ip address assigned ?
-				for macaddr, position := range handler.ipAssigned {
-					if macaddr == p.CHAddr().String() {
-						if int(position) == leaseNum {
-							return answer
-						}
+				if position, ok := handler.ipAssigned[p.CHAddr().String()]; ok {
+					if int(position) == leaseNum {
+						return answer
 					}
+
 				}
 				// Remove the mac from the cache
 				if x, found := handler.hwcache.Get(p.CHAddr().String()); found {

@@ -286,8 +286,8 @@ func IPsFromRange(ip_range string) (r []net.IP, i int) {
 }
 
 // ExcludeIP remove IP from the pool
-func ExcludeIP(dhcpHandler *DHCPHandler, ip_range string) []net.IP {
-	excludeIPs, _ := IPsFromRange(ip_range)
+func ExcludeIP(dhcpHandler *DHCPHandler, ipRange string) []net.IP {
+	excludeIPs, _ := IPsFromRange(ipRange)
 
 	for _, excludeIP := range excludeIPs {
 		if excludeIP != nil {
@@ -301,14 +301,14 @@ func ExcludeIP(dhcpHandler *DHCPHandler, ip_range string) []net.IP {
 }
 
 // Assign static IP address to a mac address and remove it from the pool
-func AssignIP(dhcpHandler *DHCPHandler, ip_range string) (map[string]uint32, []net.IP) {
+func AssignIP(dhcpHandler *DHCPHandler, ipRange string) (map[string]uint32, []net.IP) {
 	couple := make(map[string]uint32)
 	var iplist []net.IP
-	if ip_range != "" {
+	if ipRange != "" {
 		rgx, _ := regexp.Compile("((?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}):((?:[0-9]{1,3}.){3}(?:[0-9]{1,3}))")
-		iprange := strings.Split(ip_range, ",")
-		if len(iprange) >= 1 {
-			for _, rangeip := range iprange {
+		ipRangeArray := strings.Split(ipRange, ",")
+		if len(ipRangeArray) >= 1 {
+			for _, rangeip := range ipRangeArray {
 				result := rgx.FindStringSubmatch(rangeip)
 				position := uint32(binary.BigEndian.Uint32(net.ParseIP(result[2]).To4())) - uint32(binary.BigEndian.Uint32(dhcpHandler.start.To4()))
 				// Remove the position in the roaming bitmap
