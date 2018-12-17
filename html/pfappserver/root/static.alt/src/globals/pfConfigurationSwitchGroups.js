@@ -103,7 +103,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
     isNew = false,
     isClone = false,
     placeholders = {}, // form placeholders
-    switche = {}, // form
+    switchGroup = {}, // form
     roles = [] // all roles
   } = context
 
@@ -1112,7 +1112,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
               },
               listeners: {
                 checked: (value) => {
-                  switche.uplink = null // clear uplink
+                  switchGroup.uplink = null // clear uplink
                 }
               }
             }
@@ -1121,7 +1121,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
         {
           label: i18n.t('Static Uplinks'),
           text: i18n.t('Comma-separated list of the switch uplinks.'),
-          if: (switche.uplink_dynamic !== 'dynamic'),
+          if: (switchGroup.uplink_dynamic !== 'dynamic'),
           fields: [
             {
               key: 'uplink',
@@ -1217,7 +1217,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
         ].map(role => {
           return {
             label: i18n.t(role),
-            if: (switche.VlanMap === 'Y'),
+            if: (switchGroup.VlanMap === 'Y'),
             fields: [
               {
                 key: `${role}Vlan`,
@@ -1254,7 +1254,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
         ].map(role => {
           return {
             label: i18n.t(role),
-            if: (switche.RoleMap === 'Y'),
+            if: (switchGroup.RoleMap === 'Y'),
             fields: [
               {
                 key: `${role}Role`,
@@ -1291,7 +1291,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
         ].map(role => {
           return {
             label: i18n.t(role),
-            if: (switche.AccessListMap === 'Y'),
+            if: (switchGroup.AccessListMap === 'Y'),
             fields: [
               {
                 key: `${role}AccessList`,
@@ -1329,7 +1329,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
         ].map(role => {
           return {
             label: i18n.t(role),
-            if: (switche.UrlMap === 'Y'),
+            if: (switchGroup.UrlMap === 'Y'),
             fields: [
               {
                 key: `${role}Url`,
@@ -1933,7 +1933,7 @@ export const pfConfigurationSwitchGroupViewFields = (context = {}) => {
   ]
 }
 
-export const pfConfigurationSwitchViewPlaceholders = (context = {}) => {
+export const pfConfigurationSwitchGroupViewPlaceholders = (context = {}) => {
   // TODO: replace with inherited defaults from conf/switches.conf.defaults
   return {
     vlans: '1,2,3,4,5',
@@ -1961,7 +1961,7 @@ export const pfConfigurationSwitchViewPlaceholders = (context = {}) => {
   }
 }
 
-export const pfConfigurationSwitchViewDefaults = (context = {}) => {
+export const pfConfigurationSwitchGroupViewDefaults = (context = {}) => {
   // TODO: replace with inherited defaults from conf/switches.conf.defaults
   return {
     id: null,

@@ -24,7 +24,7 @@
       scope="{isDeletable}"
     >
       <b-card-footer @mouseenter="$v.switche.$touch()">
-        <pf-button-save :disabled="invalidForm" :isLoading="isLoading">{{ isNew? $t('Create') : $t('Save') }} {{ isTest }}</pf-button-save>
+        <pf-button-save :disabled="invalidForm" :isLoading="isLoading">{{ isNew? $t('Create') : $t('Save') }}</pf-button-save>
         <pf-button-delete v-if="isDeletable" class="ml-1" :disabled="isLoading" :confirm="$t('Delete Switch?')" @on-delete="remove()"/>
       </b-card-footer>
     </template>
@@ -79,7 +79,7 @@ export default {
       switcheValidations: {}, // will be overloaded with data from the pfConfigView
       roles: [], // all roles
       switchGroups: [], // all switch groups
-      placeholders: placeholders(this), // form placeholders
+      placeholders: placeholders(this) // form placeholders
     }
   },
   validations () {
@@ -131,7 +131,7 @@ export default {
     this.$store.dispatch('$_roles/all').then(data => {
       this.roles = data
     })
-    this.$store.dispatch('$_switchgroups/all').then(data => {
+    this.$store.dispatch('$_switch_groups/all').then(data => {
       this.switchGroups = data
     })
     if (this.id) {

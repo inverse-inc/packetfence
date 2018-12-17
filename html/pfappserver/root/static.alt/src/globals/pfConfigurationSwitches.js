@@ -124,7 +124,8 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               },
               validators: {
                 [i18n.t('Identifier required.')]: required,
-                [i18n.t('IP addresses only.')]: ipAddress
+                [i18n.t('IP addresses only.')]: ipAddress,
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
           ]
@@ -139,6 +140,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                 placeholder: ('notes' in placeholders) ? placeholders.notes : null
               },
               validators: {
+                [i18n.t('Description required.')]: required,
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
@@ -982,7 +984,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                 collapseObject: true,
                 allowEmpty: false,
                 options: [
-                  ...[{ value: null, text: i18n.t('None') }], // prepend null option
+                  { value: null, text: i18n.t('None') }, // prepend null option
                   ...switchGroups.map(group => { return { value: group.id, text: `${group.id} - ${group.description}` } })
                 ]
               }

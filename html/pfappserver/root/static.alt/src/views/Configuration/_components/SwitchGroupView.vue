@@ -34,10 +34,10 @@ import pfButtonSave from '@/components/pfButtonSave'
 import pfButtonDelete from '@/components/pfButtonDelete'
 import pfMixinEscapeKey from '@/components/pfMixinEscapeKey'
 import {
-  pfConfigurationSwitchViewFields as fields,
-  pfConfigurationSwitchViewDefaults as defaults,
-  pfConfigurationSwitchViewPlaceholders as placeholders
-} from '@/globals/pfConfigurationSwitches'
+  pfConfigurationSwitchGroupViewFields as fields,
+  pfConfigurationSwitchGroupViewDefaults as defaults,
+  pfConfigurationSwitchGroupViewPlaceholders as placeholders
+} from '@/globals/pfConfigurationSwitchGroups'
 const { validationMixin } = require('vuelidate')
 
 export default {
