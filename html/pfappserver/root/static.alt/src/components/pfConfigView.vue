@@ -132,26 +132,23 @@ export default {
     },
     getValue (key, model = this.model) {
       if (key.includes('.')) { // handle dot-notation keys ('.')
-        const split = key.split('.')
-        const [ first, remainder ] = [ split[0], split.slice(1).join('.') ]
-        return this.getValue(remainder, model[first])
+        const [ first, ...remainder ] = key.split('.')
+        return this.getValue(remainder.join('.'), model[first])
       }
       return model[key]
     },
     setValue (key, value, model = this.model) {
       if (key.includes('.')) { // handle dot-notation keys ('.')
-        const split = key.split('.')
-        const [ first, remainder ] = [ split[0], split.slice(1).join('.') ]
+        const [ first, ...remainder ] = key.split('.')
         if (!(first in model)) this.$set(model, first, {})
-        return this.setValue(remainder, value, model[first])
+        return this.setValue(remainder.join('.'), value, model[first])
       }
       this.$set(model, key, value)
     },
     getVuelidateModel (key, model = this.vuelidate) {
       if (key.includes('.')) { // handle dot-notation keys ('.')
-        const split = key.split('.')
-        const [ first, remainder ] = [ split[0], split.slice(1).join('.') ]
-        return this.getVuelidateModel(remainder, model[first])
+        const [ first, ...remainder ] = key.split('.')
+        return this.getVuelidateModel(remainder.join(','), model[first])
       }
       return model[key]
     },
@@ -163,12 +160,9 @@ export default {
       const eachFieldValue = {}
       const setEachFieldValue = (key, value, model = eachFieldValue) => {
         if (key.includes('.')) { // handle dot-notation keys ('.')
-          const split = key.split('.')
-          const [ first, remainder ] = [ split[0], split.slice(1).join('.') ]
-          if (!(first in model)) {
-            model[first] = {}
-          }
-          setEachFieldValue(remainder, value, model[first])
+          const [ first, ...remainder ] = key.split('.')
+          if (!(first in model)) model[first] = {}
+          setEachFieldValue(remainder.join('.'), value, model[first])
           return
         }
         this.$set(model, key, value)
@@ -218,9 +212,9 @@ export default {
       return c.join(' ')
     },
     getTabErrorCount (tabIndex) {
-      return this.form.fields[tabIndex].fields.reduce((tabCount, field) => {
-        if (!('fields' in field)) return tabCount // ignore labels
-        return field.fields.reduce((fieldCount, field) => {
+      return this.form.fields[tabIndex].fields.reduce((tabCount, tab) => {
+        if (!('fields' in tab)) return tabCount // ignore labels
+        return tab.fields.reduce((fieldCount, field) => {
           if (field.key in this.vuelidate && this.vuelidate[field.key].$anyError) {
             fieldCount++
           }

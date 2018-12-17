@@ -21,7 +21,8 @@ const {
   required,
   ipAddress,
   macAddress,
-  integer
+  integer,
+  maxLength
 } = require('vuelidate/lib/validators')
 
 export const pfConfigurationSwitchesListColumns = [
@@ -136,6 +137,9 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               component: pfFormInput,
               attrs: {
                 placeholder: ('notes' in placeholders) ? placeholders.notes : null
+              },
+              validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
           ]
@@ -160,12 +164,12 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                     group: i18n.t('Accton'),
                     items: [
                       {
-                        value: 'Accton::ES3526XA',
-                        text: 'Accton ES3526XA'
+                        text: 'Accton ES3526XA',
+                        value: 'Accton::ES3526XA'
                       },
                       {
-                        value: 'Accton::ES3528M',
-                        text: 'Accton ES3528M'
+                        text: 'Accton ES3528M',
+                        value: 'Accton::ES3528M'
                       }
                     ]
                   },
@@ -173,12 +177,12 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                     group: i18n.t('AeroHIVE'),
                     items: [
                       {
-                        value: 'AeroHIVE::AP',
-                        text: 'AeroHIVE AP'
+                        text: 'AeroHIVE AP',
+                        value: 'AeroHIVE::AP'
                       },
                       {
-                        value: 'AeroHIVE::BR100',
-                        text: 'AeroHIVE BR100'
+                        text: 'AeroHIVE BR100',
+                        value: 'AeroHIVE::BR100'
                       }
                     ]
                   },
@@ -186,8 +190,8 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                     group: i18n.t('Alcatel'),
                     items: [
                       {
-                        value: 'Alcatel',
-                        text: 'Alcatel Switch'
+                        text: 'Alcatel Switch',
+                        value: 'Alcatel'
                       }
                     ]
                   },
@@ -195,12 +199,12 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                     group: i18n.t('AlliedTelesis'),
                     items: [
                       {
-                        value: 'AlliedTelesis::AT8000GS',
-                        text: 'AlliedTelesis AT8000GS'
+                        text: 'AlliedTelesis AT8000GS',
+                        value: 'AlliedTelesis::AT8000GS'
                       },
                       {
-                        value: 'AlliedTelesis::GS950',
-                        text: 'AlliedTelesis GS950'
+                        text: 'AlliedTelesis GS950',
+                        value: 'AlliedTelesis::GS950'
                       }
                     ]
                   },
@@ -208,8 +212,8 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                     group: i18n.t('Amer'),
                     items: [
                       {
-                        value: 'Amer::SS2R24i',
-                        text: 'Amer SS2R24i'
+                        text: 'Amer SS2R24i',
+                        value: 'Amer::SS2R24i'
                       }
                     ]
                   },
@@ -217,8 +221,8 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                     group: i18n.t('Anyfi'),
                     items: [
                       {
-                        value: 'Anyfi',
-                        text: 'Anyfi Gateway'
+                        text: 'Anyfi Gateway',
+                        value: 'Anyfi'
                       }
                     ]
                   },
@@ -226,20 +230,20 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                     group: i18n.t('Aruba'),
                     items: [
                       {
-                        value: 'Aruba',
-                        text: 'Aruba Networks'
+                        text: 'Aruba Networks',
+                        value: 'Aruba'
                       },
                       {
-                        value: 'Aruba::2930M',
-                        text: 'Aruba 2930M Series'
+                        text: 'Aruba 2930M Series',
+                        value: 'Aruba::2930M'
                       },
                       {
-                        value: 'Aruba::5400',
-                        text: 'Aruba 5400 Switch'
+                        text: 'Aruba 5400 Switch',
+                        value: 'Aruba::5400'
                       },
                       {
-                        value: 'Aruba::Controller_200',
-                        text: 'Aruba 200 Controller'
+                        text: 'Aruba 200 Controller',
+                        value: 'Aruba::Controller_200'
                       }
                     ]
                   },
@@ -247,8 +251,8 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                     group: i18n.t('ArubaSwitch'),
                     items: [
                       {
-                        value: 'ArubaSwitch',
-                        text: 'Aruba Switches'
+                        text: 'Aruba Switches',
+                        value: 'ArubaSwitch'
                       }
                     ]
                   },
@@ -256,32 +260,32 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                     group: i18n.t('Avaya'),
                     items: [
                       {
-                        value: 'Avaya',
-                        text: 'Avaya Switch Module'
+                        text: 'Avaya Switch Module',
+                        value: 'Avaya'
                       },
                       {
-                        value: 'Avaya::ERS2500',
-                        text: 'Avaya ERS 2500 Series'
+                        text: 'Avaya ERS 2500 Series',
+                        value: 'Avaya::ERS2500'
                       },
                       {
-                        value: 'Avaya::ERS3500',
-                        text: 'Avaya ERS 3500 Series'
+                        text: 'Avaya ERS 3500 Series',
+                        value: 'Avaya::ERS3500'
                       },
                       {
-                        value: 'Avaya::ERS4000',
-                        text: 'Avaya ERS 4000 Series'
+                        text: 'Avaya ERS 4000 Series',
+                        value: 'Avaya::ERS4000'
                       },
                       {
-                        value: 'Avaya::ERS5000',
-                        text: 'Avaya ERS 5000 Series'
+                        text: 'Avaya ERS 5000 Series',
+                        value: 'Avaya::ERS5000'
                       },
                       {
-                        value: 'Avaya::ERS5000_6x',
-                        text: 'Avaya ERS 5000 Series w/ firmware 6.x'
+                        text: 'Avaya ERS 5000 Series w/ firmware 6.x',
+                        value: 'Avaya::ERS5000_6x'
                       },
                       {
-                        value: 'Avaya::WC',
-                        text: 'Avaya Wireless Controller'
+                        text: 'Avaya Wireless Controller',
+                        value: 'Avaya::WC'
                       }
                     ]
                   },
@@ -289,8 +293,8 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                     group: i18n.t('Belair'),
                     items: [
                       {
-                        value: 'Belair',
-                        text: 'Belair Networks AP'
+                        text: 'Belair Networks AP',
+                        value: 'Belair'
                       }
                     ]
                   },
@@ -298,12 +302,12 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                     group: i18n.t('Brocade'),
                     items: [
                       {
-                        value: 'Brocade',
-                        text: 'Brocade Switches'
+                        text: 'Brocade Switches',
+                        value: 'Brocade'
                       },
                       {
-                        value: 'Brocade::RFS',
-                        text: 'Brocade RF Switches'
+                        text: 'Brocade RF Switches',
+                        value: 'Brocade::RFS'
                       }
                     ]
                   },
@@ -311,8 +315,8 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                     group: i18n.t('Cambium'),
                     items: [
                       {
-                        value: 'Cambium',
-                        text: 'Cambium'
+                        text: 'Cambium',
+                        value: 'Cambium'
                       }
                     ]
                   },
@@ -433,8 +437,8 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                     group: i18n.t('CoovaChilli'),
                     items: [
                       {
-                        value: 'CoovaChilli',
-                        text: 'CoovaChilli'
+                        text: 'CoovaChilli',
+                        value: 'CoovaChilli'
                       }
                     ]
                   },
@@ -492,8 +496,8 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                     group: i18n.t('Edgecore'),
                     items: [
                       {
-                        value: 'Edgecore',
-                        text: 'Edgecore'
+                        text: 'Edgecore',
+                        value: 'Edgecore'
                       }
                     ]
                   },
@@ -827,8 +831,8 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                     group: i18n.t('Packetfence'),
                     items: [
                       {
-                        value: 'Packetfence',
-                        text: 'Packetfence'
+                        text: 'Packetfence',
+                        value: 'Packetfence'
                       }
                     ]
                   },
@@ -1146,6 +1150,9 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               component: pfFormInput,
               attrs: {
                 placeholder: ('uplink' in placeholders) ? placeholders.uplink : null
+              },
+              validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
           ]
@@ -1161,6 +1168,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                 placeholder: ('controllerIp' in placeholders) ? placeholders.controllerIp : null
               },
               validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255),
                 [i18n.t('IP addresses only.')]: ipAddress
               }
             }
@@ -1179,6 +1187,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                 step: 1
               },
               validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255),
                 [i18n.t('Invalid Port Number.')]: isPort
               }
             }
@@ -1197,6 +1206,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                 step: 1
               },
               validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255),
                 [i18n.t('Invalid Port Number.')]: isPort
               }
             }
@@ -1236,6 +1246,9 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                 component: pfFormInput,
                 attrs: {
                   placeholder: (`${role}Vlan` in placeholders) ? placeholders[`${role}Vlan`] : null
+                },
+                validators: {
+                  [i18n.t('Maximum 255 characters.')]: maxLength(255)
                 }
               }
             ]
@@ -1270,6 +1283,9 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                 component: pfFormInput,
                 attrs: {
                   placeholder: (`${role}Role` in placeholders) ? placeholders[`${role}Role`] : null
+                },
+                validators: {
+                  [i18n.t('Maximum 255 characters.')]: maxLength(255)
                 }
               }
             ]
@@ -1305,6 +1321,9 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                 attrs: {
                   rows: 3,
                   placeholder: (`${role}AccessList` in placeholders) ? placeholders[`${role}AccessList`] : null
+                },
+                validators: {
+                  [i18n.t('Maximum 255 characters.')]: maxLength(255)
                 }
               }
             ]
@@ -1339,6 +1358,9 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                 component: pfFormInput,
                 attrs: {
                   placeholder: (`${role}Url` in placeholders) ? placeholders[`${role}Url`] : null
+                },
+                validators: {
+                  [i18n.t('Maximum 255 characters.')]: maxLength(255)
                 }
               }
             ]
@@ -1389,7 +1411,10 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'radiusSecret',
-              component: pfFormPassword
+              component: pfFormPassword,
+              validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
+              }
             }
           ]
         }
@@ -1437,6 +1462,9 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               component: pfFormInput,
               attrs: {
                 placeholder: ('SNMPCommunityRead' in placeholders) ? placeholders.SNMPCommunityRead : null
+              },
+              validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
           ]
@@ -1449,6 +1477,9 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               component: pfFormInput,
               attrs: {
                 placeholder: ('private' in placeholders) ? placeholders.private : null
+              },
+              validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
           ]
@@ -1461,6 +1492,9 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               component: pfFormInput,
               attrs: {
                 placeholder: ('SNMPEngineID' in placeholders) ? placeholders.SNMPEngineID : null
+              },
+              validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
           ]
@@ -1473,6 +1507,9 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               component: pfFormInput,
               attrs: {
                 placeholder: ('SNMPUserNameRead' in placeholders) ? placeholders.SNMPUserNameRead : null
+              },
+              validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
           ]
@@ -1485,6 +1522,9 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               component: pfFormInput,
               attrs: {
                 placeholder: ('SNMPAuthProtocolRead' in placeholders) ? placeholders.SNMPAuthProtocolRead : null
+              },
+              validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
           ]
@@ -1497,6 +1537,9 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               component: pfFormPassword,
               attrs: {
                 placeholder: ('SNMPAuthPasswordRead' in placeholders) ? placeholders.SNMPAuthPasswordRead : null
+              },
+              validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
           ]
@@ -1509,6 +1552,9 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               component: pfFormInput,
               attrs: {
                 placeholder: ('SNMPPrivProtocolRead' in placeholders) ? placeholders.SNMPPrivProtocolRead : null
+              },
+              validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
           ]
@@ -1518,7 +1564,10 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'SNMPPrivPasswordRead',
-              component: pfFormPassword
+              component: pfFormPassword,
+              validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
+              }
             }
           ]
         },
@@ -1530,6 +1579,9 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               component: pfFormInput,
               attrs: {
                 placeholder: ('SNMPUserNameWrite' in placeholders) ? placeholders.SNMPUserNameWrite : null
+              },
+              validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
           ]
@@ -1542,6 +1594,9 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               component: pfFormInput,
               attrs: {
                 placeholder: ('SNMPAuthProtocolWrite' in placeholders) ? placeholders.SNMPAuthProtocolWrite : null
+              },
+              validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
           ]
@@ -1551,7 +1606,10 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'SNMPAuthPasswordWrite',
-              component: pfFormPassword
+              component: pfFormPassword,
+              validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
+              }
             }
           ]
         },
@@ -1563,6 +1621,9 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               component: pfFormInput,
               attrs: {
                 placeholder: ('SNMPPrivProtocolWrite' in placeholders) ? placeholders.SNMPPrivProtocolWrite : null
+              },
+              validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
           ]
@@ -1572,7 +1633,10 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'SNMPPrivPasswordWrite',
-              component: pfFormPassword
+              component: pfFormPassword,
+              validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
+              }
             }
           ]
         },
@@ -1615,6 +1679,9 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               component: pfFormInput,
               attrs: {
                 placeholder: ('SNMPCommunityTrap' in placeholders) ? placeholders.SNMPCommunityTrap : null
+              },
+              validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
           ]
@@ -1627,6 +1694,9 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               component: pfFormInput,
               attrs: {
                 placeholder: ('SNMPUserNameTrap' in placeholders) ? placeholders.SNMPUserNameTrap : null
+              },
+              validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
           ]
@@ -1639,6 +1709,9 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               component: pfFormInput,
               attrs: {
                 placeholder: ('SNMPAuthProtocolTrap' in placeholders) ? placeholders.SNMPAuthProtocolTrap : null
+              },
+              validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
           ]
@@ -1648,7 +1721,10 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'SNMPAuthPasswordTrap',
-              component: pfFormPassword
+              component: pfFormPassword,
+              validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
+              }
             }
           ]
         },
@@ -1660,6 +1736,9 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               component: pfFormInput,
               attrs: {
                 placeholder: ('SNMPPrivProtocolTrap' in placeholders) ? placeholders.SNMPPrivProtocolTrap : null
+              },
+              validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
           ]
@@ -1669,7 +1748,10 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'SNMPPrivPasswordTrap',
-              component: pfFormPassword
+              component: pfFormPassword,
+              validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
+              }
             }
           ]
         },
@@ -1686,6 +1768,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                 step: 1
               },
               validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255),
                 [i18n.t('Integer values required.')]: integer
               }
             }
@@ -1704,6 +1787,7 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
                 step: 1
               },
               validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255),
                 [i18n.t('Integer values required.')]: integer
               }
             }
@@ -1749,6 +1833,9 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               component: pfFormInput,
               attrs: {
                 placeholder: ('cliUser' in placeholders) ? placeholders.cliUser : null
+              },
+              validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
           ]
@@ -1758,7 +1845,10 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'cliPwd',
-              component: pfFormPassword
+              component: pfFormPassword,
+              validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
+              }
             }
           ]
         },
@@ -1767,7 +1857,10 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'cliEnablePwd',
-              component: pfFormPassword
+              component: pfFormPassword,
+              validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
+              }
             }
           ]
         }
@@ -1811,6 +1904,9 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
               component: pfFormInput,
               attrs: {
                 placeholder: ('wsUser' in placeholders) ? placeholders.wsUser : null
+              },
+              validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
             }
           ]
@@ -1820,7 +1916,10 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'wsPwd',
-              component: pfFormPassword
+              component: pfFormPassword,
+              validators: {
+                [i18n.t('Maximum 255 characters.')]: maxLength(255)
+              }
             }
           ]
         }
