@@ -17,6 +17,8 @@ use warnings;
 use Mojo::Base qw(pf::UnifiedApi::Controller::RestRoute);
 use pf::UnifiedApi::OpenAPI::Generator::Config;
 use Mojo::Util qw(url_unescape);
+use pf::util qw(expand_csv);
+use pf::error qw(is_error);
 
 has 'config_store_class';
 has 'form_class';
@@ -25,7 +27,67 @@ has 'openapi_generator_class' => 'pf::UnifiedApi::OpenAPI::Generator::Config';
 sub list {
     my ($self) = @_;
     my $cs = $self->config_store;
-    $self->render(json => {items => $self->items}, status => 200);
+    my ($status, $search_info_or_error) = $self->build_list_search_info;
+    if (is_error($status)) {
+        return $self->render(json => $search_info_or_error, status => $status);
+    }
+
+    my $items = $self->do_search($search_info_or_error);
+    $self->render(
+        json => {
+            items  => $items,
+            nextCursor => ( @$items + ( $search_info_or_error->{cursor} // 0 ) ),
+            prevCursor => ( $search_info_or_error->{cursor} // 0 ),
+        }
+    );
+}
+
+=head2 do_search
+
+do_search
+
+=cut
+
+sub do_search {
+    my ($self, $search_info) = @_;
+    my $cs = $self->config_store;
+    return $cs->filter_offset_limit(
+        $search_info->{filter} // sub { 1 },
+        $search_info->{cursor},
+        $search_info->{limit},
+        'id'
+    );
+}
+
+=head2 build_list_search_info
+
+build_list_search_info
+
+=cut
+
+sub build_list_search_info {
+    my ($self) = @_;
+    my $params = $self->req->query_params->to_hash;
+    my $info = {
+        cursor => 0,
+        limit => 25,
+        filter => sub { 1 },
+        (
+            map {
+                exists $params->{$_}
+                  ? ( $_ => $params->{$_} + 0 )
+                  : ()
+            } qw(limit cursor)
+        ),
+        (
+            map {
+                exists $params->{$_}
+                  ? ( $_ => [expand_csv($params->{$_})] )
+                  : ()
+            } qw(sort)
+        )
+    };
+    return 200, $info;
 }
 
 sub items {

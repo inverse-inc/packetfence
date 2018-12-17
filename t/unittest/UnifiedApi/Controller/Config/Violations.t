@@ -26,7 +26,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 7;
+use Test::More tests => 12;
 use Test::Mojo;
 
 #This test will running last
@@ -36,15 +36,27 @@ my $t = Test::Mojo->new('pf::UnifiedApi');
 my $collection_base_url = '/api/v1/config/violations';
 
 my $base_url = '/api/v1/config/violation';
-
-$t->get_ok($collection_base_url)
+my $limit = 10;
+$t->get_ok("$collection_base_url?limit=$limit")
   ->status_is(200);
+
+my $json1 = $t->tx->res->json;
+is(scalar @{$json1->{items}}, $limit, "returned $limit items");
 
 $t->post_ok($collection_base_url => json => {})
   ->status_is(422);
 
 $t->post_ok($collection_base_url, {'Content-Type' => 'application/json'} => '{')
   ->status_is(400);
+
+$t->get_ok("$collection_base_url?limit=$limit&cursor=$json1->{nextCursor}")
+  ->status_is(200);
+
+my $json2 = $t->tx->res->json;
+
+$t->get_ok("$collection_base_url?limit=$limit&cursor=$json2->{nextCursor}")
+  ->status_is(200);
+my $json3 = $t->tx->res->json;
 
 =head1 AUTHOR
 
