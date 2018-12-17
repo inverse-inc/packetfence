@@ -3,8 +3,11 @@ package detectparser
 import (
 	"context"
 	"fmt"
+	cache "github.com/fdurand/go-cache"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/pfqueueclient"
+	"strconv"
+	"time"
 )
 
 type PfdetectRegexRule struct {
@@ -24,7 +27,23 @@ type PfdetectConfig struct {
 	Name           string              `json:"name,omitempty"`
 	Path           string              `json:"path"`
 	Status         string              `json:"status"`
+	RateLimit      string              `json:"rate_limit"`
 	Rules          []PfdetectRegexRule `json:"rules"`
+}
+
+func (config *PfdetectConfig) GetCache() *cache.Cache {
+	if config == nil {
+		return nil
+	}
+
+	var Cache *cache.Cache = nil
+	if rateLimit, err := strconv.ParseInt(config.RateLimit, 10, 64); err != nil {
+		if rateLimit != 0 {
+			Cache = cache.New(time.Duration(rateLimit)*time.Second, 2*time.Duration(rateLimit)*time.Second)
+		}
+	}
+
+	return Cache
 }
 
 type Parser interface {
