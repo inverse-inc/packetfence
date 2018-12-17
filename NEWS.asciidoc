@@ -18,6 +18,7 @@ New Features
 ++++++++++++
 * Added support Juniper EX2300 (JUNOS 18.2)
 * New Authentication Source supported: Clickatell
+* Added a random algorithm for VLAN pooling
 
 Enhancements
 ++++++++++++
