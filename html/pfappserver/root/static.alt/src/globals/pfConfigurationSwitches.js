@@ -1411,7 +1411,10 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'radiusSecret',
-              component: pfFormPassword,
+              component: pfFormPassword
+              attrs: {
+                placeholder: ('radiusSecret' in placeholders) ? placeholders.radiusSecret : null
+              },
               validators: {
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
@@ -1564,7 +1567,10 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'SNMPPrivPasswordRead',
-              component: pfFormPassword,
+              component: pfFormPassword
+              attrs: {
+                placeholder: ('SNMPPrivPasswordRead' in placeholders) ? placeholders.SNMPPrivPasswordRead : null
+              },
               validators: {
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
@@ -1606,7 +1612,10 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'SNMPAuthPasswordWrite',
-              component: pfFormPassword,
+              component: pfFormPassword
+              attrs: {
+                placeholder: ('SNMPAuthPasswordWrite' in placeholders) ? placeholders.SNMPAuthPasswordWrite : null
+              },
               validators: {
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
@@ -1633,7 +1642,10 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'SNMPPrivPasswordWrite',
-              component: pfFormPassword,
+              component: pfFormPassword
+              attrs: {
+                placeholder: ('SNMPPrivPasswordWrite' in placeholders) ? placeholders.SNMPPrivPasswordWrite : null
+              },
               validators: {
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
@@ -1721,7 +1733,10 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'SNMPAuthPasswordTrap',
-              component: pfFormPassword,
+              component: pfFormPassword
+              attrs: {
+                placeholder: ('SNMPAuthPasswordTrap' in placeholders) ? placeholders.SNMPAuthPasswordTrap : null
+              },
               validators: {
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
@@ -1748,7 +1763,10 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'SNMPPrivPasswordTrap',
-              component: pfFormPassword,
+              component: pfFormPassword
+              attrs: {
+                placeholder: ('SNMPPrivPasswordTrap' in placeholders) ? placeholders.SNMPPrivPasswordTrap : null
+              },
               validators: {
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
@@ -1845,7 +1863,10 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'cliPwd',
-              component: pfFormPassword,
+              component: pfFormPassword
+              attrs: {
+                placeholder: ('cliPwd' in placeholders) ? placeholders.cliPwd : null
+              },
               validators: {
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
@@ -1857,7 +1878,10 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'cliEnablePwd',
-              component: pfFormPassword,
+              component: pfFormPassword
+              attrs: {
+                placeholder: ('cliEnablePwd' in placeholders) ? placeholders.cliEnablePwd : null
+              },
               validators: {
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
@@ -1916,7 +1940,10 @@ export const pfConfigurationSwitchViewFields = (context = {}) => {
           fields: [
             {
               key: 'wsPwd',
-              component: pfFormPassword,
+              component: pfFormPassword
+              attrs: {
+                placeholder: ('wsPwd' in placeholders) ? placeholders.wsPwd : null
+              },
               validators: {
                 [i18n.t('Maximum 255 characters.')]: maxLength(255)
               }
