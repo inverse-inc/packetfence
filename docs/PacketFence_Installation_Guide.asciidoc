@@ -576,7 +576,7 @@ Adding Roles
 
 Roles in PacketFence can be created from *Configuration -> Policies and Access Control -> Roles*. From this interface, you can also limit the number of devices users belonging to certain roles can register.
 
-Roles are dynamically computed by PacketFence, based on the rules (ie., a set of conditions and actions) from authentication sources, using a first-match wins algorithm. Roles are then matched to VLAN or VLAN pool or internal roles or ACL on equipment from the *Configuration -> Policies and Access Control -> Switches* module. For a VLAN pool instead of defining a VLAN identifier, you can set a value like that: 20..23,27..30 - which means that the VLAN returned by PacketFence can be 20 to 23 and 27 to 30 (inclusively). There are two algorithms: one based on a hash of the username (default one) and the other one based on a round-robin (last registered device +1).
+Roles are dynamically computed by PacketFence, based on the rules (ie., a set of conditions and actions) from authentication sources, using a first-match wins algorithm. Roles are then matched to VLAN or VLAN pool or internal roles or ACL on equipment from the *Configuration -> Policies and Access Control -> Switches* module. For a VLAN pool instead of defining a VLAN identifier, you can set a value like that: 20..23,27..30 - which means that the VLAN returned by PacketFence can be 20 to 23 and 27 to 30 (inclusively). There are three algorithms: one based on a hash of the username (default one), another one based on a round-robin (last registered device +1) and one that selects a VLAN randomly in the pool.
 
 *Configuration -> Policies and Access Control -> Roles*, click on 'Add role'. Provide the following information:
 

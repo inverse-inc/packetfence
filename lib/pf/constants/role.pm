@@ -30,7 +30,8 @@ our @EXPORT_OK = qw(
     $GUEST_ROLE
     $GAMING_ROLE
     $REJECT_ROLE
-    $USERNAMEHASH
+    $POOL_USERNAMEHASH
+    $POOL_RANDOM
 );
 
 our %EXPORT_TAGS = (
@@ -74,7 +75,8 @@ Constant used in the pool code
 
 =cut
 
-Readonly::Scalar our $USERNAMEHASH  => 'username_hash';
+Readonly::Scalar our $POOL_USERNAMEHASH  => 'username_hash';
+Readonly::Scalar our $POOL_RANDOM  => 'random';
 
 =head1 AUTHOR
 

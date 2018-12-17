@@ -53,9 +53,12 @@ sub getVlanFromPool {
     return $args->{'vlan'} if $self->rangeValidator($args->{'vlan'});
     my $range = Number::Range->new($args->{'vlan'});
     my $vlan;
-    if ($Config{advanced}{vlan_pool_technique} eq $USERNAMEHASH) {
-        $logger->trace("Use $USERNAMEHASH algorithm for VLAN pool");
+    if ($Config{advanced}{vlan_pool_technique} eq $POOL_USERNAMEHASH) {
+        $logger->trace("Use $POOL_USERNAMEHASH algorithm for VLAN pool");
         $vlan = $self->getVlanByUsername($args, $range);
+    } elsif ($Config{advanced}{vlan_pool_technique} eq $POOL_RANDOM) {
+        $logger->trace("Use $POOL_RANDOM algorithm for VLAN pool");
+        $vlan = $self->getRandomVlanInPool($args, $range);
     } else {
         $logger->trace("Use round robin algorithm for VLAN pool");
         $vlan = $self->getRoundRobin($args, $range);
@@ -86,6 +89,29 @@ sub rangeValidator {
          )/x;
     return 1 if ($range =~ m/$validation/g);
     return 0;
+}
+
+=head2 getRandomVlanInPool
+
+Get a random VLAN in the pool to assign to the node unless its previous VLAN is part of the pool
+
+=cut
+
+sub getRandomVlanInPool {
+    my ($self, $args, $range) = @_;
+    my $logger =  pf::log::get_logger();
+
+    my $vlan_count = $range->size;
+    my $node_info_complete = node_view($args->{'mac'});
+    if ( defined($node_info_complete->{'last_vlan'}) && $range->inrange($node_info_complete->{'last_vlan'}) ) {
+        $logger->debug("Using the last VLAN that was assigned to the node: ".$node_info_complete->{'last_vlan'});
+        return ($node_info_complete->{'last_vlan'});
+    }
+
+    $logger->debug("Computing a random VLAN in the pool for the node since its last VLAN was not in the pool");
+
+    my @array = $range->range;
+    return $array[int(rand($vlan_count))];
 }
 
 
