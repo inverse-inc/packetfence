@@ -67,8 +67,8 @@ const route = {
     if (!store.state.$_switches) {
       store.registerModule('$_switches', SwitchesStore)
     }
-    if (!store.state.$_switchgroups) {
-      store.registerModule('$_switchgroups', SwitchGroupsStore)
+    if (!store.state.$_switch_groups) {
+      store.registerModule('$_switch_groups', SwitchGroupsStore)
     }
     next()
   },

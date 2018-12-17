@@ -1,5 +1,5 @@
 /**
-* "$_switchgroups" store module
+* "$_switch_groups" store module
 */
 import Vue from 'vue'
 import api from '../_api'
