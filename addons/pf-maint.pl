@@ -40,6 +40,8 @@ use Pod::Usage;
 use IO::Handle;
 use Term::ReadKey;
 use IO::Interactive qw(is_interactive);
+# use CONNECT method to deal with proxy, see #3425
+$ENV{PERL_NET_HTTPS_SSL_SOCKET_CLASS} = "Net::SSL";
 our $GITHUB_USER = 'inverse-inc';
 our $GITHUB_REPO = 'packetfence';
 our $PF_DIR      = $ENV{PF_DIR} || '/usr/local/pf';
