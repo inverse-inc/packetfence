@@ -2,7 +2,6 @@ package detectparser
 
 import (
 	"regexp"
-	"time"
 
 	cache "github.com/fdurand/go-cache"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
@@ -16,7 +15,7 @@ var snortRegexPattern3 = regexp.MustCompile(`^(.+?)\[\*\*\] \[\d+:(\d+):\d+\]\s+
 
 type SnortParser struct {
 	Pattern1, Pattern2, Pattern3 *regexp.Regexp
-	RateLimit                    *cache.Cache
+	RateLimitCache               *cache.Cache
 }
 
 func (s *SnortParser) Parse(line string) ([]ApiCall, error) {
@@ -82,11 +81,11 @@ func (s *SnortParser) Parse(line string) ([]ApiCall, error) {
 	return nil, nil
 }
 
-func NewSnortParser(*PfdetectConfig) (Parser, error) {
+func NewSnortParser(config *PfdetectConfig) (Parser, error) {
 	return &SnortParser{
-		Pattern1:  snortRegexPattern1.Copy(),
-		Pattern2:  snortRegexPattern2.Copy(),
-		Pattern3:  snortRegexPattern3.Copy(),
-		RateLimit: cache.New(5*time.Second, 10*time.Second),
+		Pattern1:       snortRegexPattern1.Copy(),
+		Pattern2:       snortRegexPattern2.Copy(),
+		Pattern3:       snortRegexPattern3.Copy(),
+		RateLimitCache: config.GetCache(),
 	}, nil
 }

@@ -2,15 +2,14 @@ package detectparser
 
 import (
 	"regexp"
-	"time"
 
 	cache "github.com/fdurand/go-cache"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
 
 type NexposeParser struct {
-	Pattern1  *regexp.Regexp
-	RateLimit *cache.Cache
+	Pattern1       *regexp.Regexp
+	RateLimitCache *cache.Cache
 }
 
 func (s *NexposeParser) Parse(line string) ([]ApiCall, error) {
@@ -45,9 +44,9 @@ func (s *NexposeParser) Parse(line string) ([]ApiCall, error) {
 
 var nexposeRegexPattern1 = regexp.MustCompile(`^(\w+\s*\d+ \d+:\d+:\d+) ([0-9.]+) \w+: ([0-9.]+) (\w+): (.*)`)
 
-func NewNexposeParser(*PfdetectConfig) (Parser, error) {
+func NewNexposeParser(config *PfdetectConfig) (Parser, error) {
 	return &NexposeParser{
-		Pattern1:  nexposeRegexPattern1.Copy(),
-		RateLimit: cache.New(5*time.Second, 10*time.Second),
+		Pattern1:       nexposeRegexPattern1.Copy(),
+		RateLimitCache: config.GetCache(),
 	}, nil
 }

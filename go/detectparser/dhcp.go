@@ -2,7 +2,6 @@ package detectparser
 
 import (
 	"regexp"
-	"time"
 
 	cache "github.com/fdurand/go-cache"
 	"github.com/inverse-inc/packetfence/go/sharedutils"
@@ -14,7 +13,7 @@ var dhcpRegexPattern2 = regexp.MustCompile(`(DHCPDISCOVER|DHCPOFFER|DHCPREQUEST|
 
 type DhcpParser struct {
 	Pattern1, Pattern2 *regexp.Regexp
-	RateLimit          *cache.Cache
+	RateLimitCache     *cache.Cache
 }
 
 func (s *DhcpParser) Parse(line string) ([]ApiCall, error) {
@@ -45,10 +44,10 @@ func (s *DhcpParser) Parse(line string) ([]ApiCall, error) {
 	return nil, nil
 }
 
-func NewDhcpParser(*PfdetectConfig) (Parser, error) {
+func NewDhcpParser(config *PfdetectConfig) (Parser, error) {
 	return &DhcpParser{
-		Pattern1:  dhcpRegexPattern1.Copy(),
-		Pattern2:  dhcpRegexPattern2.Copy(),
-		RateLimit: cache.New(5*time.Second, 10*time.Second),
+		Pattern1:       dhcpRegexPattern1.Copy(),
+		Pattern2:       dhcpRegexPattern2.Copy(),
+		RateLimitCache: config.GetCache(),
 	}, nil
 }
