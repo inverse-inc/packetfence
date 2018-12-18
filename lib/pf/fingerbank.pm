@@ -450,6 +450,7 @@ sub check_device_class_change {
             'mac'   => $node_before->{mac},
             'tid'   => 'fingerbank_device_change',
             'type'  => 'internal',
+            'notes' => "Previous device detected: ".$node_before->{device_class},
         );
 
         $apiclient->notify('trigger_violation', %violation_data);
