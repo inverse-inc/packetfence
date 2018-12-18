@@ -21,6 +21,7 @@ use pf::file_paths qw($pf_default_file);
 use pf::authentication;
 use pf::web::util;
 use List::MoreUtils qw(any);
+use fingerbank::Model::Device;
 
 # For passthroughs validation
 use pf::util::dns;
@@ -96,6 +97,21 @@ sub field_list {
                 $field->{element_class} = ['chzn-deselect'];
                 $field->{element_attr} = {'data-placeholder' => 'Click to add an OS'};
                 $field->{fingerbank_model} = 'fingerbank::Model::Device';
+                last;
+            };
+            $type eq "fingerbank_device_transition" && do {
+                $field->{type} = 'TextArea';
+                $field->{element_class} = ['input-xxlarge'];
+                my @devices = map { 
+                    my (undef, $device) = fingerbank::Model::Device->read($_); 
+                    {name => $device->name, id => $_}
+                } @{fingerbank::Model::Device->all_device_class_ids};
+                @devices = sort {lc($a->{name}) cmp lc($b->{name})} @devices;
+                my $str = "";
+                $str .= "<ul>";
+                $str .= join("", map{ '<li><b>' . $_->{name} . '</b>' . " = " . $_->{id} . "</li>" } @devices); 
+                $str .= "</ul>";
+                $field->{tags}->{help} .= "<br><br>Valid device classes IDs are: $str";
                 last;
             };
             $type eq 'merged_list' && do {

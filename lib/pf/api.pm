@@ -510,7 +510,7 @@ sub trigger_violation : Public :AllowedAsAction(mac, $mac, tid, TYPEID, type, TY
     my @found = grep {exists $postdata{$_}} @require;
     return unless pf::util::validate_argv(\@require,  \@found);
 
-    return (pf::violation::violation_trigger( { 'mac' => $postdata{'mac'}, 'tid' => $postdata{'tid'}, 'type' => $postdata{'type'} } ));
+    return (pf::violation::violation_trigger( { 'mac' => $postdata{'mac'}, 'tid' => $postdata{'tid'}, 'type' => $postdata{'type'}, 'notes' => $postdata{'notes'} } ));
 }
 
 =head2 release_all_violations

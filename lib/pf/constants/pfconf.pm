@@ -34,6 +34,7 @@ our %ALLOWED_SECTIONS = (
     webservices       => undef,
     guests_admin_registration     => undef,
     radius_authentication_methods => undef,
+    fingerbank_device_change      => undef,
 );
 
 =head1 AUTHOR

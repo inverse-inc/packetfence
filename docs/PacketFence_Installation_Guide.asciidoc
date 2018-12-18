@@ -2667,6 +2667,27 @@ Settings
 
 Fingerbank settings can easily be modified from the "Settings" menu item under the "Fingerbank" section of the PacketFence "Configuration" tab. There's documentation for each an every parameter that allow easier understanding.
 
+Device change detection
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Using Fingerbank, you can perform detection of potential MAC spoofing by seeing if a device changes from a device class to another (ex: a device goes from Windows to a printer) and trigger a violation and potentially isolate the endpoint. An example violation using this trigger is available (violation ID 1300006, name "Fingerbank device class change")
+
+This feature is disabled by default, in order to configure it, go in "Configuration -> Compliance -> Fingerbank Profiling -> Device Change Detection".
+
+You should then check "Enabled" to activate this feature. You will then have the choice between triggering the violation on any device class change or on a specific set of changes.
+
+Triggering on any device class change
++++++++++++++++++++++++++++++++++++++
+
+NOTE: You should perform non-enforcing actions in the violation when initially deploying the feature to see if some corner cases may require whitelisting some device class transitions
+
+The easiest method for performing this detection is to trigger on any device class change which will trigger the violation whenever the device is detected transitioning from any device class to another. Since some of these transitions may be normal in your environment, you can add whitelisting of transitions via the "Device class change whitelist" parameter which allows you to list valid transitions (ex: "Windows OS" to "Mac OS X or macOS").
+
+Manual triggers
++++++++++++++++
+
+Instead of detecting all transitions, you can perform detection and violation triggering on specific device class transitions. In order to do so, declare all the transitions that should trigger the violation in the "Manual device class change triggers".
+
 
 Intrusion Detection System Integration
 --------------------------------------

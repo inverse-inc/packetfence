@@ -267,6 +267,18 @@ auto_enable=N
 user_mail_message=Your device [% mac %] as been declared as lost or stolen. Please contact your system administrator to be able to use this device again on the network.
 grace=0
 
+[1300006]
+priority=1
+trigger=internal::fingerbank_device_change
+window=
+desc=Fingerbank device class change
+enabled=Y
+access_duration=12h
+template=invalid_device_transition
+auto_enable=N
+delay_by=
+grace=
+
 #
 # 1400000 - 1499999 Reserved for local violations
 #

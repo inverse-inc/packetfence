@@ -62,6 +62,7 @@ sub section :Path :Args(1) :AdminRole('CONFIGURATION_MAIN_READ') {
         my ($status,$status_msg,$results);
 
         $c->stash->{section} = $section;
+        $c->stash(fingerbank_configured => fingerbank::Config::is_api_key_configured);
 
         my $model = $c->model('Config::Pf');
         $form = $c->form("Config::Pf", section => $section);
@@ -463,6 +464,12 @@ sub all_subsections : Private {
                 general => {
                     controller => 'Controller::Config::Fingerbank::Settings',
                     name => 'General Settings', 
+                },
+                device_change => {
+                    controller => 'Controller::Configuration',
+                    action => 'section',
+                    action_args => ['fingerbank_device_change'],
+                    name => 'Device change detection', 
                 },
                 combinations => {
                     controller => 'Controller::Config::Fingerbank::Combination',

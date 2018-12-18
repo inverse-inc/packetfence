@@ -34,7 +34,7 @@ use pf::client;
 use pf::error qw(is_error);
 use pf::CHI;
 use pf::log;
-use pf::node qw(node_modify);
+use pf::node qw(node_modify node_attributes);
 use pf::dal::node;
 use pf::StatsD::Timer;
 use fingerbank::Config;
@@ -42,6 +42,8 @@ use fingerbank::Collector;
 use POSIX::AtFork;
 use DateTime;
 use DateTime::Format::RFC3339;
+use pf::config qw(%Config);
+use pf::util qw(isdisabled isenabled);
 
 # Do not remove, even if its not explicitely used. When taking collector requests out of the cache, this must be imported.
 use URI::http;
@@ -87,13 +89,15 @@ sub process {
     my $logger = pf::log::get_logger;
 
     $force //= $FALSE;
+    
+    my $node_before = node_attributes($mac);
 
     my $cache = cache();
     my $cache_key = "pf::fingerbank::process($mac)";
 
     my $process_timestamp = $cache->compute($cache_key, sub {
         $force = $TRUE;
-        return DateTime->now(); 
+        return DateTime->now(time_zone => "local");
     });
 
     # Querying for a resultset
@@ -106,12 +110,12 @@ sub process {
 
     $query_args->{mac} = $mac;
 
-    if(!$force && $query_args->{last_updated}->compare($process_timestamp) <= 0) {
-        $logger->debug("No recent data found for $mac, will not trigger device profiling");
+    if(!$force && $query_args->{last_updated}->epoch <= $process_timestamp->epoch) {
+        $logger->debug("No recent data found for $mac, will not trigger device profiling. Was last updated at $query_args->{last_updated} and last process timestamp is $process_timestamp");
         return $TRUE;
     }
     else {
-        $cache->set($cache_key, DateTime->now());
+        $cache->set($cache_key, DateTime->now(time_zone => "local"));
         my $query_success = $TRUE;
 
         my $query_result = _query($query_args);
@@ -135,8 +139,11 @@ sub process {
         if($query_success) {
             record_result($mac, $query_args, $query_result);
         }
+    
+        my $node_after = node_attributes($mac);
 
-        _trigger_violations($mac);
+        check_device_class_change($node_before, $node_after);
+        _trigger_new_dhcp_violation($mac);
         return $query_success;
     }
 }
@@ -245,7 +252,7 @@ sub _query {
 
 =cut
 
-sub _trigger_violations {
+sub _trigger_new_dhcp_violation {
     my $timer = pf::StatsD::Timer->new({level => 7});
     my ( $mac ) = @_;
     my $logger = pf::log::get_logger;
@@ -418,6 +425,153 @@ sub device_name_to_device_id {
         }
     });
     return $id;
+}
+
+=head2 check_device_class_change
+
+Check for a device class change and trigger any violation if necessary
+
+=cut
+
+sub check_device_class_change {
+    my ($node_before, $node_after) = @_;
+    
+    my $logger = pf::log::get_logger;
+
+    my $allowed = device_class_transition_allowed($node_before->{device_class}, $node_before->{device_type}, $node_after->{device_class}, $node_after->{device_type});
+    if(!defined($allowed)) {
+        $logger->warn("Invalid result when checking for device class transition");
+    }
+    elsif(!$allowed) {
+        $logger->info("Endpoint has changed device class, triggering internal::fingerbank_device_change");
+        my $apiclient = pf::client::getClient;
+
+        my %violation_data = (
+            'mac'   => $node_before->{mac},
+            'tid'   => 'fingerbank_device_change',
+            'type'  => 'internal',
+            'notes' => "Previous device detected: ".$node_before->{device_class},
+        );
+
+        $apiclient->notify('trigger_violation', %violation_data);
+    }
+    else {
+        $logger->debug("Endpoint has made a valid device class transition from $node_before->{device_class} to $node_after->{device_class}");
+    }
+}
+
+=head2 device_class_transition_allowed
+
+Checks if a device class transition is allowed according to the configuration
+
+=cut
+
+sub device_class_transition_allowed {
+    my ($previous_device_class, $previous_device_type, $new_device_class, $new_device_type) = @_;
+
+    my $config = $Config{fingerbank_device_change};
+
+    my $logger = pf::log::get_logger;
+    
+    if(isdisabled($config->{enable})) {
+        $logger->trace("Not checking Fingerbank device change because its disabled");
+        return $TRUE;
+    }
+
+    # Check if going from nothing to something or the opposite
+    if(!$previous_device_class || !$new_device_class) {
+        $logger->info("One of the two device class is empty in the transition. Not evaluating it.");
+        return $TRUE;
+    }
+
+    my $previous_device_class_id = device_name_to_device_id($previous_device_class);
+    return undef unless(defined($previous_device_class_id));
+    my $new_device_class_id = device_name_to_device_id($new_device_class);
+    return undef unless(defined($new_device_class_id));
+
+    if($previous_device_class_id eq $fingerbank::Constant::HARDWARE_MANUFACTURER_ID) {
+        $logger->info("The device is going from Hardware Manufacturer to another device. Not evaluating it.");
+        return $TRUE;
+    }
+
+    # Check for manual triggers
+    foreach my $transition (@{$config->{triggers}}) {
+        my $from = $transition->{from};
+        my $to = $transition->{to};
+
+        # Handle wildcard transitions
+        if($from eq "*") {
+            $from = $previous_device_class_id;
+        }
+
+        if($to eq "*") {
+            $to = $new_device_class_id;
+        }
+
+        if($previous_device_class_id eq $from && $new_device_class_id eq $to) {
+            $logger->info("Transition from $previous_device_class to $new_device_class is not allowed in configuration.");
+            return $FALSE;
+        }
+    }
+    
+    # Check if device class change is enabled
+    if(isdisabled($config->{trigger_on_device_class_change})) {
+        $logger->trace("Not checking device class change because its disabled");
+        return $TRUE;
+    }
+
+    # Check if both device classes are the same
+    return $TRUE if($previous_device_class eq $new_device_class);
+
+    ## Check if device is_a the previous device class 
+    # Was disabled, shouldn't be necessary, but leaving this in place in the event we need to perform derivation analysis to reduce the amount of false positives
+    # jsemaan@inverse.ca
+    #my $is_a = fingerbank::Model::Device->is_a($new_device_type, $previous_device_class);
+    #if(!defined($is_a)) {
+    #    $logger->error("Didn't get a valid result when checking if $new_device_type is a $previous_device_class");
+    #    return undef;
+    #}
+    #elsif($is_a) {
+    #    $logger->debug("Device $new_device_type is a $previous_device_class");
+    #    return $TRUE;
+    #}
+
+    ## Check if device is_a the previous device type 
+    #$is_a = fingerbank::Model::Device->is_a($new_device_type, $previous_device_type);
+    #if(!defined($is_a)) {
+    #    $logger->error("Didn't get a valid result when checking if $new_device_type is a $previous_device_type");
+    #    return undef;
+    #}
+    #elsif($is_a) {
+    #    $logger->debug("Device $new_device_type is a $previous_device_type");
+    #    return $TRUE;
+    #}
+
+    # Check if the transition is whitelisted
+    foreach my $transition (@{$config->{device_class_whitelist}}) {
+        my $from = $transition->{from};
+        my $to = $transition->{to};
+
+        # Handle wildcard transitions
+        if($from eq "*") {
+            $from = $previous_device_class_id;
+        }
+
+        if($to eq "*") {
+            $to = $new_device_class_id;
+        }
+
+        if($previous_device_class_id eq $from && $new_device_class_id eq $to) {
+            $logger->info("Transition from $previous_device_class to $new_device_class is allowed in configuration.");
+            return $TRUE;
+        }
+    }
+
+    # Check if the transition goes from a device class to another
+    if($previous_device_class ne $new_device_class) {
+        $logger->info("Detected device class transition from $previous_device_class to $new_device_class.");
+        return $FALSE;
+    }
 }
 
 =head2 CLONE

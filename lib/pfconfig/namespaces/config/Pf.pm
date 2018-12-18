@@ -135,6 +135,19 @@ sub build_child {
             $Config{$category}{$attribute} = [ split( /\s*,\s*/, $Default_Config{$category}{$attribute} // ''), split( /\s*,\s*/, $additionnal ) ];
             $Config{$category}{$attribute} = [ uniq @{$Config{$category}{$attribute}} ];
         }
+
+        if(defined($value->{type}) && $value->{type} eq "fingerbank_device_transition") {
+            my @transitions;
+            my ($category, $attribute) = split /\./, $key;
+            my $data = $Config{$category}{$attribute} || '';
+            my @pairs = split(/\s*,\s*/, $data);
+            foreach my $pair (@pairs) {
+                my @info = split('->', $pair);
+                push @transitions, { from => $info[0], to => $info[1] };
+            }
+
+            $Config{$category}{$attribute} = \@transitions;
+        }
     }
 
     $Config{network}{dhcp_filter_by_message_types}
