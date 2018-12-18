@@ -9,6 +9,7 @@ import (
 	"net"
 	"os"
 	"regexp"
+	"strconv"
 	"time"
 
 	"github.com/inverse-inc/packetfence/go/coredns/plugin"
@@ -116,6 +117,15 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 	mac, err := pf.Ip2Mac(ctx, srcIP, ipVersion)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("ERROR cannot find mac for ip %s\n", srcIP))
+	} else {
+		mac = "00:00:00:00:00:00"
+	}
+
+	var status = "unreg"
+	var category string
+	err = pf.Nodedb.QueryRow(mac, 1).Scan(&status, &category)
+	if err != nil {
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("error getting node status %s %s\n", mac, err))
 	}
 
 	// Domain bypass
@@ -219,17 +229,26 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 			switch Type {
 			case "dnsenforcement", "inline":
 				var status = "unreg"
-				err = pf.Nodedb.QueryRow(mac, 1).Scan(&status)
+				var category string
+				err = pf.Nodedb.QueryRow(mac, 1).Scan(&status, &category)
 				if err != nil {
 					log.LoggerWContext(ctx).Error(fmt.Sprintf("error getting node status %s %s\n", mac, err))
 				}
 				// Defer to the proxy middleware if the device is registered
-				if status == "reg" && !violation {
+				if status == "reg" && !violation && category != "REJECT" {
 					log.LoggerWContext(ctx).Debug(srcIP + " : " + mac + " serve dns " + state.QName())
 					return pf.Next.ServeDNS(ctx, w, r)
+				} else if status == "reg" && category == "REJECT" {
+					rr, _ = dns.NewRR("30 IN A 127.0.0.1")
+					a.Answer = []dns.RR{rr}
+					log.LoggerWContext(ctx).Debug("REJECT " + mac + " IP " + srcIP + " Query " + state.QName())
+					state.SizeAndDo(a)
+					w.WriteMsg(a)
+					return 0, nil
 				}
 			}
-			answer, found := pf.DNSFilter.Get(state.QName())
+			cacheKey := pf.MakeKeyCache(mac, category, violation, state.QName())
+			answer, found := pf.DNSFilter.Get(cacheKey)
 			if found && answer != "null" {
 				log.LoggerWContext(ctx).Debug("Get answer from the cache for " + state.QName())
 				rr, _ = dns.NewRR(answer.(string))
@@ -241,7 +260,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 					"mac":      mac,
 				})
 				if err != nil {
-					pf.DNSFilter.Set(state.QName(), "null", cache.DefaultExpiration)
+					pf.DNSFilter.Set(cacheKey, "null", cache.DefaultExpiration)
 					break
 				}
 				var answer string
@@ -252,7 +271,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 					}
 				}
 				log.LoggerWContext(ctx).Debug("Get answer from pffilter for " + state.QName())
-				pf.DNSFilter.Set(state.QName(), answer, cache.DefaultExpiration)
+				pf.DNSFilter.Set(cacheKey, answer, cache.DefaultExpiration)
 				rr, _ = dns.NewRR(answer)
 			}
 
@@ -545,7 +564,7 @@ func (pf *pfdns) DbInit() error {
 		return err
 	}
 
-	pf.Nodedb, err = pf.Db.Prepare("select status from node where mac = ? AND tenant_id = ?")
+	pf.Nodedb, err = pf.Db.Prepare("select node.status IF(ISNULL(nc.name), '', nc.name) as category from node LEFT JOIN node_category as nc on node.category_id = nc.category_id where mac = ? AND tenant_id = ?")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "pfdns: database nodedb prepared statement error: %s", err)
 		return err
@@ -621,4 +640,8 @@ func (pf *pfdns) PortalFQDNInit() error {
 	general := pfconfigdriver.Config.PfConf.General
 	pf.PortalFQDN = general.Hostname + "." + general.Domain + "."
 	return nil
+}
+
+func (pf *pfdns) MakeKeyCache(mac string, category string, violation bool, qname string) string {
+	return mac + category + strconv.FormatBool(violation) + qname
 }
