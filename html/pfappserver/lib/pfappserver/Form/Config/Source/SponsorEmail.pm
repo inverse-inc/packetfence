@@ -12,23 +12,16 @@ Form definition to create or update an guest-sponsored user source.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Source';
-with 'pfappserver::Base::Form::Role::Help';
-with 'pfappserver::Base::Form::Role::SourceLocalAccount';
+with qw(
+  pfappserver::Base::Form::Role::Help
+  pfappserver::Base::Form::Role::SourceLocalAccount
+  pfappserver::Base::Form::Role::EmailFiltering
+);
 
 use pfappserver::Form::Field::Duration;
 use pf::Authentication::Source::SponsorEmailSource;
 
 # Form fields
-has_field 'allow_localdomain' =>
-  (
-   type => 'Toggle',
-   checkbox_value => 'yes',
-   unchecked_value => 'no',
-   label => 'Allow Local Domain',
-   default => pf::Authentication::Source::SponsorEmailSource->meta->get_attribute('allow_localdomain')->default,
-   tags => { after_element => \&help,
-             help => 'Accept self-registration with email address from the local domain' },
-  );
 
 has_field 'email_activation_timeout' =>
   (

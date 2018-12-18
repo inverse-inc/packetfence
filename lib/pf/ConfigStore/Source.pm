@@ -26,6 +26,23 @@ sub configFile {$authentication_config_file};
 
 sub pfconfigNamespace { 'config::Authentication' }
 
+=head2 _fields_expanded
+
+_fields_expanded
+
+=cut
+
+our %TYPE_TO_EXPANDED_FIELDS = (
+    SMS => [qw(sms_carriers)],
+    Eduroam => [qw(local_realm reject_realm)],
+);
+
+sub _fields_expanded {
+    my ($self, $item) = @_;
+    my $type = $item->{type} // '';
+    return ( qw(realms), exists $TYPE_TO_EXPANDED_FIELDS{$type} ? @{$TYPE_TO_EXPANDED_FIELDS{$type}}: ());
+}
+
 =head2 canDelete
 
 canDelete
@@ -104,31 +121,45 @@ sub cleanupAfterRead {
         $rule->{conditions} = [delete @$rule{@conditions_keys}];
         push @{$item->{"${class}_rules"}}, $rule;
     }
-    if ($item->{type} eq 'SMS') {
-        $self->expand_list($item, 'sms_carriers');
-    }
-    if ($item->{type} eq 'Eduroam') {
-        $self->expand_list($item, 'local_realm');
-        $self->expand_list($item, 'reject_realm');
-    }
-    if ($item->{type} eq 'SMS' || $item->{type} eq "Twilio") {
+    my $type = $item->{type};
+
+    if ($type eq 'SMS' || $type eq "Twilio") {
         # This can be an array if it's fresh out of the file. We make it separated by newlines so it works fine the frontend
         if(ref($item->{message}) eq 'ARRAY'){
             $item->{message} = $self->join_options($item->{message});
         }
     }
-    $self->expand_list($item, qw(realms));
+
+    if ($type eq 'Email') {
+        for my $f (qw(allowed_domains banned_domains)) {
+            next unless exists $item->{$f};
+            my $val =  $item->{$f};
+            if (ref($val) eq 'ARRAY') {
+                $item->{$f} = $self->join_options($val);
+            }
+        }
+    }
+
+    $self->expand_list($item, $self->_fields_expanded($item));
 }
+
 
 sub cleanupBeforeCommit {
     my ($self, $id, $item) = @_;
-    if ($item->{type} eq 'SMS') {
-        $self->flatten_list($item, 'sms_carriers');
+    if ($item->{type} eq 'Email') {
+        for my $f (qw(allowed_domains banned_domains)) {
+            next unless exists $item->{$f};
+            my $val =  $item->{$f};
+            next unless defined $val;
+            if (ref($val) eq 'ARRAY') {
+                $item->{$f} = [ map { my $a = $_; $a =~ s/\r//sg;$a } @$val ];
+            } else {
+                $val =~ s/\r//sg;
+            }
+        }
     }
-    if ($item->{type} eq 'Eduroam') {
-        $self->flatten_list($item, qw(local_realm reject_realm));
-    }
-    $self->flatten_list($item, qw(realms));
+
+    $self->flatten_list($item, $self->_fields_expanded($item));
 }
 
 before rewriteConfig => sub {
@@ -139,8 +170,8 @@ before rewriteConfig => sub {
 
 
 sub join_options {
-    my ($self,$options) = @_;
-    return join("\n",@$options);
+    my ($self, $options) = @_;
+    return join("\n", @$options);
 }
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};

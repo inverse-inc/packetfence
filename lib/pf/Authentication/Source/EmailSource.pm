@@ -9,19 +9,19 @@ pf::Authentication::Source::EmailSource
 =cut
 
 use pf::Authentication::constants;
-use pf::config qw(%Config);
 use pf::constants qw($TRUE $FALSE);
 use pf::constants::authentication::messages;
 use pf::log;
-use pf::util;
 
 use Moose;
 extends 'pf::Authentication::Source';
-with 'pf::Authentication::CreateLocalAccountRole';
+with qw(
+    pf::Authentication::CreateLocalAccountRole
+    pf::Authentication::EmailFilteringRole
+);
 
 has '+class' => (default => 'external');
 has '+type' => (default => 'Email');
-has 'allow_localdomain' => (isa => 'Str', is => 'rw', default => 'yes');
 has 'email_activation_timeout' => (isa => 'Str', is => 'rw', default => '10m');
 has 'activation_domain' => (isa => 'Maybe[Str]', is => 'rw');
 
@@ -40,12 +40,11 @@ Allow to make a condition on the user's email address.
 =cut
 
 sub available_attributes {
-  my $self = shift;
-
-  my $super_attributes = $self->SUPER::available_attributes;
-  my $own_attributes = [{ value => "user_email", type => $Conditions::SUBSTRING }];
-
-  return [@$super_attributes, @$own_attributes];
+    my $self = shift;
+    return [
+        @{ $self->SUPER::available_attributes },
+        { value => "user_email", type => $Conditions::SUBSTRING }
+    ];
 }
 
 =head2 available_rule_classes
@@ -103,16 +102,10 @@ sub mandatoryFields {
 
 sub authenticate {
     my ( $self, $username, $password ) = @_;
-    my $logger = pf::log::get_logger;
-
-    my $localdomain = $Config{'general'}{'domain'};
-
-    # Verify if allowed to use local domain
-    unless ( isenabled($self->allow_localdomain) ) {
-        if ( $username =~ /[@.]$localdomain$/i ) {
-            $logger->warn("Tried to authenticate using EmailSource with PID '$username' matching local domain '$localdomain' while 'allow_localdomain' is disabled");
-            return ($FALSE, $pf::constants::authentication::messages::LOCALDOMAIN_EMAIL_UNAUTHORIZED);
-        }
+    if (!$self->isEmailAllowed($username)) {
+        my $logger = get_logger();
+        $logger->warn("EmailSource ($self->{id}) failed to authenticate PID '$username' is banned");
+        return ($FALSE, $pf::constants::authentication::messages::EMAIL_UNAUTHORIZED);
     }
 
     return $TRUE;
